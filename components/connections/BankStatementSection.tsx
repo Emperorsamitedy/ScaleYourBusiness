@@ -6,10 +6,20 @@
 // bank, measured. The cash forecast starts from it when it is no more than
 // a week old, and SYB's track record grades the forecast's weekly closing
 // balances by later statements. No bank is connected and nothing is moved.
+//
+// L-3d: the sheet's words are the "connections.bank" catalogue (the form's
+// shared words "connections.import"); money and dates in the reader's
+// writing, in the statement's own currency. The server's refusals stay
+// English until L-4.
 
 import { useCallback, useEffect, useState } from "react";
 import type { BankStatementView } from "../../app/api/bank-statement/route";
 import { moneyText } from "../sheet/num";
+import { englishTr } from "../../lib/i18n/tr";
+import type { Tr } from "../../lib/i18n/tr";
+import type { AppLocale } from "../../lib/i18n/locales";
+import { useCn } from "./useCn";
+import { IMPORT_SAMPLES, calendarDay, dateOrderExample, joinSentences } from "./words";
 
 interface Outcome {
   from: string;
@@ -20,15 +30,6 @@ interface Outcome {
   latest: { day: string; amount_minor: number; currency: string };
 }
 
-function day(iso: string): string {
-  return new Date(`${iso.slice(0, 10)}T00:00:00Z`).toLocaleDateString("en-GB", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-    timeZone: "UTC",
-  });
-}
-
 function errorText(payload: unknown, fallback: string): string {
   const e = (payload as { error?: unknown } | null)?.error;
   return typeof e === "string" && e !== ""
@@ -37,17 +38,33 @@ function errorText(payload: unknown, fallback: string): string {
 }
 
 /** Pure: what was left out of an import, in words; null when nothing was. */
-export function skippedWords(s: Outcome["skipped"]): string | null {
+export function skippedWords(
+  s: Outcome["skipped"],
+  tr: Tr = englishTr("connections.bank"),
+): string | null {
   const parts = [
-    s.date_unreadable > 0 ? `${s.date_unreadable} with a date I couldn't read` : null,
-    s.balance_unreadable > 0 ? `${s.balance_unreadable} with a balance I couldn't read` : null,
-    s.day_unclear > 0 ? `${s.day_unclear} from a day whose rows disagree` : null,
+    s.date_unreadable > 0 ? tr("skipped.date", { count: s.date_unreadable }) : null,
+    s.balance_unreadable > 0 ? tr("skipped.balance", { count: s.balance_unreadable }) : null,
+    s.day_unclear > 0 ? tr("skipped.day", { count: s.day_unclear }) : null,
   ].filter((p): p is string => p !== null);
   if (parts.length === 0) return null;
-  return `Left out, never guessed: ${parts.join(", ")}.`;
+  return tr("skipped.line", { parts: parts.join(tr("skipped.sep")) });
+}
+
+/** Pure: the outcome's line, in the reader's words and writing. */
+export function outcomeWords(o: Outcome, tr: Tr, locale: AppLocale): string {
+  return tr("outcome", {
+    rows: o.rows_read,
+    days: o.days,
+    from: calendarDay(o.from, locale),
+    through: calendarDay(o.through, locale),
+    amount: moneyText(o.latest.amount_minor, o.latest.currency, locale),
+  });
 }
 
 export function BankStatementSection() {
+  const { t, locale } = useCn("connections.bank");
+  const { t: ti } = useCn("connections.import");
   const [view, setView] = useState<BankStatementView | null>(null);
   const [csv, setCsv] = useState("");
   const [fileName, setFileName] = useState<string | null>(null);
@@ -90,7 +107,7 @@ export function BankStatementSection() {
       });
       const payload = (await res.json().catch(() => null)) as Outcome | null;
       if (!res.ok || payload === null) {
-        setError(errorText(payload, "That statement didn't import."));
+        setError(errorText(payload, t("failed")));
         return;
       }
       setOutcome(payload);
@@ -98,42 +115,39 @@ export function BankStatementSection() {
       setFileName(null);
       void load();
     } catch {
-      setError("I couldn't reach the server. Try again.");
+      setError(ti("unreachable"));
     } finally {
       setBusy(false);
     }
   };
 
   const latest = view?.latest ?? null;
-  const left = outcome ? skippedWords(outcome.skipped) : null;
+  const left = outcome ? skippedWords(outcome.skipped, t) : null;
 
   return (
     <section className="cs bk-card" aria-labelledby="bs-title">
       <header className="cs-head">
         <div>
-          <p className="cs-label">Bank statement · read once, nothing moved</p>
+          <p className="cs-label">{t("label")}</p>
           <h2 className="cs-title" id="bs-title">
-            The cash in your bank, from a statement
+            {t("title")}
           </h2>
         </div>
         {latest && (
           <p className="cs-meta">
-            {moneyText(latest.amount_minor, latest.currency)} on {day(latest.day)}
+            {t("latest", {
+              amount: moneyText(latest.amount_minor, latest.currency, locale),
+              day: calendarDay(latest.day, locale),
+            })}
           </p>
         )}
       </header>
       <div className="cs-body bk-body">
-        <p className="cn-copy">
-          Export a statement from your bank as CSV and give me the file. I read only each
-          row&rsquo;s date and the balance after it, nothing about who paid or what for, and keep
-          the closing balance of each day. Your cash forecast starts from it while it is a week old
-          or less, and I check my forecast&rsquo;s weekly balances against the statements you give
-          me later. No bank is connected, and nothing can be moved.
-        </p>
+        <p className="cn-copy">{t("lede")}</p>
 
         <form className="cn-form" onSubmit={(e) => void submit(e)}>
           <label className="cn-field">
-            <span className="cn-field-label">The statement (CSV)</span>
+            <span className="cn-field-label">{t("file")}</span>
             <input
               className="cn-input"
               type="file"
@@ -149,7 +163,7 @@ export function BankStatementSection() {
           </label>
           <label className="cn-field">
             <span className="cn-field-label">
-              {fileName ? `Read from ${fileName}. You can check it here` : "Or paste it here"}
+              {fileName ? ti("readFrom", { file: fileName }) : ti("orPaste")}
             </span>
             <textarea
               className="cn-input cn-textarea"
@@ -162,7 +176,7 @@ export function BankStatementSection() {
             />
           </label>
           <label className="cn-field">
-            <span className="cn-field-label">Currency of the account</span>
+            <span className="cn-field-label">{t("currency")}</span>
             <input
               className="cn-input"
               placeholder="EUR, HUF, GBP…"
@@ -173,9 +187,7 @@ export function BankStatementSection() {
             />
           </label>
           <label className="cn-field">
-            <span className="cn-field-label">
-              The last day the statement covers, if after its last row (optional)
-            </span>
+            <span className="cn-field-label">{t("through")}</span>
             <input
               className="cn-input"
               type="date"
@@ -186,7 +198,7 @@ export function BankStatementSection() {
           </label>
           <label className="cn-field">
             <span className="cn-field-label">
-              How dates are written, if they look like 03/04/2026
+              {ti("datesLabel", { sample: IMPORT_SAMPLES.slashDate })}
             </span>
             <select
               className="cn-input"
@@ -194,13 +206,19 @@ export function BankStatementSection() {
               onChange={(e) => setDateOrder(e.target.value as "" | "dmy" | "mdy")}
               disabled={busy}
             >
-              <option value="">Work it out from the file</option>
-              <option value="dmy">Day first (3 April)</option>
-              <option value="mdy">Month first (March 4)</option>
+              <option value="">{ti("workItOut")}</option>
+              <option value="dmy">
+                {ti("dayFirst", { example: dateOrderExample("dmy", locale) })}
+              </option>
+              <option value="mdy">
+                {ti("monthFirst", { example: dateOrderExample("mdy", locale) })}
+              </option>
             </select>
           </label>
           <label className="cn-field">
-            <span className="cn-field-label">How amounts are written, if they look like 1.200</span>
+            <span className="cn-field-label">
+              {ti("amountsLabel", { sample: IMPORT_SAMPLES.ambiguousAmount })}
+            </span>
             <select
               className="cn-input"
               value={decimalStyle}
@@ -209,9 +227,13 @@ export function BankStatementSection() {
               }
               disabled={busy}
             >
-              <option value="">Work it out from the file</option>
-              <option value="dot_decimal">1,234.56 (the comma separates thousands)</option>
-              <option value="comma_decimal">1.234,56 (the dot separates thousands)</option>
+              <option value="">{ti("workItOut")}</option>
+              <option value="dot_decimal">
+                {ti("dotDecimal", { sample: IMPORT_SAMPLES.dotDecimal })}
+              </option>
+              <option value="comma_decimal">
+                {ti("commaDecimal", { sample: IMPORT_SAMPLES.commaDecimal })}
+              </option>
             </select>
           </label>
           {error !== null && (
@@ -224,22 +246,14 @@ export function BankStatementSection() {
             type="submit"
             disabled={busy || csv.trim() === "" || currency.trim().length !== 3}
           >
-            {busy ? "Reading…" : "Import this statement"}
+            {busy ? ti("reading") : t("submit")}
           </button>
         </form>
-        <p className="cn-note">
-          Importing an overlapping statement again is safe: the days it covers are replaced, not
-          counted twice. The statement needs a balance column; a list of amounts alone can&rsquo;t
-          say what was in the account.
-        </p>
+        <p className="cn-note">{t("overlap")}</p>
 
         {outcome !== null && (
           <p className="cn-note" role="status">
-            Read {outcome.rows_read} {outcome.rows_read === 1 ? "row" : "rows"}: a closing balance
-            for each of {outcome.days} {outcome.days === 1 ? "day" : "days"}, {day(outcome.from)} to{" "}
-            {day(outcome.through)}, ending at{" "}
-            {moneyText(outcome.latest.amount_minor, outcome.latest.currency)}.
-            {left ? ` ${left}` : ""}
+            {joinSentences([outcomeWords(outcome, t, locale), left ?? ""], locale)}
           </p>
         )}
       </div>

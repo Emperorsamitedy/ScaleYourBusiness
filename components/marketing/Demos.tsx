@@ -6,8 +6,10 @@
 // the hero and above the chart) always agree. A plain segmented control:
 // worded buttons in a group, aria-pressed on the one showing, reachable
 // by Tab like any button. Local state only — nothing is stored or sent.
+// L-3d: the switch's words are the "landing.demo" catalogue.
 
 import { createContext, useContext, useState, type ReactNode } from "react";
+import { useTr } from "../sheet/useTr";
 import { CHART_SERIES, SHOP_CHART, type ChartSeries } from "../../lib/marketing/sample-chart";
 import { DEMO_SAMPLES, SHOP_SAMPLE, type DemoSample } from "../../lib/marketing/sample-diagnosis";
 
@@ -34,14 +36,15 @@ export function useDemo(): { sample: DemoSample; chart: ChartSeries } {
 
 export function DemoSwitch({ className }: { className?: string }) {
   const { id, choose } = useContext(DemoContext);
+  const { tr } = useTr("landing.demo");
   return (
     <div
       className={className ? `ll-demo ${className}` : "ll-demo"}
       role="group"
-      aria-label="Demo business"
+      aria-label={tr("group")}
     >
       <span className="ll-k ll-demo-k" aria-hidden="true">
-        Demo
+        {tr("kicker")}
       </span>
       {DEMO_SAMPLES.map((s) => (
         <button
@@ -51,7 +54,7 @@ export function DemoSwitch({ className }: { className?: string }) {
           aria-pressed={s.id === id}
           onClick={() => choose(s.id)}
         >
-          {s.label}
+          {tr(s.id)}
         </button>
       ))}
     </div>

@@ -8,9 +8,14 @@
 // play. Nothing is sent anywhere — the clock is component state. The
 // business on screen is the demo the visitor picked (./Demos): the
 // webshop by default, or the salon; switching keeps the clock.
+//
+// L-3d: its words are the "landing.walk" catalogue; the demos' own words
+// (lib/marketing) repeat there in English word for word, and every figure
+// is in the reader's language, in the demo's own currency.
 
 import { useEffect, useState, type CSSProperties } from "react";
 import { moneyText, num } from "../sheet/num";
+import { useTr } from "../sheet/useTr";
 import type { SampleRecordRow } from "../../lib/marketing/sample-diagnosis";
 import {
   CHAPTERS,
@@ -21,18 +26,26 @@ import {
   frame,
 } from "../../lib/marketing/walkthrough";
 import { useDemo } from "./Demos";
+import { LANDING_FIGURES as F, factWords, moneyDash, optionWords, stampTime } from "./words";
 
 const TOTAL_TICKS = WALK_SECONDS * 10;
 const pressed: CSSProperties = { background: "#F3DF4E", color: "#132119" };
 const FLAG_COLOR = { ACT: "#A3261B", HIGH: "#8A5300", LOW: "#8A5300", OK: "#2E6B47" } as const;
-/** "1.4", "11" — a whole figure prints whole. */
-const pct = (v: number) => (Number.isInteger(v) ? num(v) : num(v, 1));
 
 export function Walkthrough() {
   const { sample } = useDemo();
-  const eur = (minor: number) => moneyText(minor, sample.currency);
-  const figure = (f: SampleRecordRow["figure"]) =>
-    "count" in f ? num(f.count) : "money_minor" in f ? eur(f.money_minor) : f.words;
+  const { tr, locale } = useTr("landing.walk");
+  const eur = (minor: number) => moneyText(minor, sample.currency, locale);
+  const whole = (n: number) => num(n, 0, locale);
+  /** "1.4", "11" — a whole figure prints whole. */
+  const pct = (v: number) => (Number.isInteger(v) ? num(v, 0, locale) : num(v, 1, locale));
+  /** The chosen demo's own words. */
+  const own = (key: string, values?: Record<string, string | number>) =>
+    tr(`${sample.id}.${key}`, values);
+  const figure = (f: SampleRecordRow["figure"], i: number) =>
+    "count" in f ? whole(f.count) : "money_minor" in f ? eur(f.money_minor) : own(`w${i}`);
+  const chapterWord = (n: string, key: string) =>
+    tr(`chapter.c${n}.${key}`, { count: F.decisions });
   // Tenths of a second, so the clock never drifts on float addition.
   const [tick, setTick] = useState(0);
   const [playing, setPlaying] = useState(true);
@@ -59,15 +72,20 @@ export function Walkthrough() {
   const t = tick / 10;
   const f = frame(t, sample);
   const chap = CHAPTERS[f.scene] ?? CHAPTERS[0]!;
+  const caption = chapterWord(chap.n, "caption");
 
   return (
-    <figure className="ll-player" aria-label="Product walkthrough video">
+    <figure className="ll-player" aria-label={tr("figure")}>
       <div className="ll-vbar">
         <span className="ll-m" style={{ fontSize: 11, letterSpacing: ".12em", color: "#A9BDB2" }}>
-          SYB · PRODUCT WALKTHROUGH
+          {tr("bar")}
         </span>
         <span className="ll-m" style={{ fontSize: 11, color: "#A9BDB2" }}>
-          Chapter {f.scene + 1} of 6 · {chap.title}
+          {tr("chapterOf", {
+            n: whole(f.scene + 1),
+            total: whole(CHAPTERS.length),
+            title: chapterWord(chap.n, "title"),
+          })}
         </span>
       </div>
 
@@ -77,24 +95,24 @@ export function Walkthrough() {
             SYB
           </span>
           <span className="ll-m" style={{ fontSize: 10.5, color: "#3E5248" }}>
-            {chap.crumb}
+            {chapterWord(chap.n, "crumb")}
           </span>
           <span className="ll-m" style={{ fontSize: 10.5, marginLeft: "auto", color: "#1F4FD1" }}>
-            ● {chap.state}
+            ● {chapterWord(chap.n, "state")}
           </span>
         </div>
         <div
           className="ll-stage"
           role="img"
-          aria-label={`Walkthrough with an illustrative ${sample.noun}, chapter ${f.scene + 1}: ${chap.caption}`}
+          aria-label={own("stage", { n: whole(f.scene + 1), caption })}
         >
           {f.scene === 0 && (
             <div className="ll-sc" key={`s1-${sample.id}`}>
               <div className="ll-k" style={{ color: "#3E5248" }}>
-                Step 1 · Connect
+                {tr("s1.step", { n: whole(1) })}
               </div>
               <div className="ll-s" style={{ fontSize: 26, fontWeight: 600, marginTop: 6 }}>
-                Connect your accounts, read-only.
+                {tr("s1.title")}
               </div>
               <div className="ll-mini-card" style={{ marginTop: 16, maxWidth: 420 }}>
                 <div
@@ -103,13 +121,13 @@ export function Walkthrough() {
                   <span className="ll-s" style={{ fontSize: 17, fontWeight: 600 }}>
                     {sample.connect.source}
                   </span>
-                  <span className="ll-m ll-tagg">READ-ONLY</span>
+                  <span className="ll-m ll-tagg">{tr("s1.tag")}</span>
                 </div>
                 <div
                   className="ll-m"
                   style={{ fontSize: 12, color: "#3E5248", marginTop: 8, lineHeight: 1.7 }}
                 >
-                  {sample.connect.reads}
+                  {own("reads")}
                 </div>
                 {f.connect.done ? (
                   <>
@@ -117,7 +135,7 @@ export function Walkthrough() {
                       className="ll-m"
                       style={{ fontSize: 12.5, color: "#2E6B47", fontWeight: 600, marginTop: 14 }}
                     >
-                      ✓ Connected · reading 12 months
+                      ✓ {tr("s1.connected", { months: F.readMonths })}
                     </div>
                     <div style={{ height: 6, background: "rgba(19,33,25,.12)", marginTop: 8 }}>
                       <div
@@ -131,7 +149,7 @@ export function Walkthrough() {
                   </>
                 ) : (
                   <div className="ll-vbtn" style={f.connect.pressed ? pressed : undefined}>
-                    Connect →
+                    {tr("s1.button")} →
                   </div>
                 )}
               </div>
@@ -142,13 +160,13 @@ export function Walkthrough() {
             <div className="ll-sc" key={`s2-${sample.id}`} style={{ display: "flex", gap: 18 }}>
               <div style={{ flex: "3 1 0", minWidth: 0 }}>
                 <div className="ll-k" style={{ color: "#3E5248" }}>
-                  Step 2 · A few questions
+                  {tr("s2.step", { n: whole(2) })}
                 </div>
                 <div
                   className="ll-s"
                   style={{ fontSize: 22, fontWeight: 600, marginTop: 6, lineHeight: 1.15 }}
                 >
-                  {sample.record.question}
+                  {own("question")}
                 </div>
                 <div
                   style={{
@@ -158,7 +176,7 @@ export function Walkthrough() {
                     marginTop: 16,
                   }}
                 >
-                  {sample.record.options.map((label, i) => {
+                  {optionWords(sample, tr, locale).map((label, i) => {
                     const mine = i === sample.record.picked;
                     const style: CSSProperties =
                       mine && f.question.picked
@@ -174,7 +192,7 @@ export function Walkthrough() {
                   })}
                 </div>
                 <div className="ll-m" style={{ fontSize: 11, color: "#3E5248", marginTop: 10 }}>
-                  A range is enough.
+                  {tr("s2.range")}
                 </div>
               </div>
               <div
@@ -187,11 +205,12 @@ export function Walkthrough() {
                 }}
               >
                 <div className="ll-k" style={{ color: "#3E5248" }}>
-                  The record
+                  {tr("s2.record")}
                 </div>
                 {f.question.fact && (
                   <div className="ll-m ll-slidein ll-rec-row">
-                    <span className="ll-mark">{sample.record.fact}</span> · you
+                    <span className="ll-mark">{factWords(sample, tr, locale)}</span> ·{" "}
+                    {tr("s2.you")}
                   </div>
                 )}
                 {sample.record.rows.map((r, i) => (
@@ -200,7 +219,8 @@ export function Walkthrough() {
                     className="ll-m ll-rec-row"
                     style={i === sample.record.rows.length - 1 ? { borderBottom: 0 } : undefined}
                   >
-                    {r.what} · {figure(r.figure)} · {r.source}
+                    {own(`r${i}`, { days: whole(F.recordDays) })} · {figure(r.figure, i)} ·{" "}
+                    {r.source === "you" ? tr("s2.you") : r.source}
                   </div>
                 ))}
               </div>
@@ -219,14 +239,14 @@ export function Walkthrough() {
               >
                 <div>
                   <div className="ll-k" style={{ color: "#3E5248" }}>
-                    Step 3 · The watch
+                    {tr("s3.step", { n: whole(3) })}
                   </div>
                   <div className="ll-s" style={{ fontSize: 26, fontWeight: 600, marginTop: 6 }}>
-                    We read. Nothing is touched.
+                    {tr("s3.title")}
                   </div>
                 </div>
                 <span className="ll-m ll-tagg" style={{ color: "#1F4FD1", borderColor: "#1F4FD1" }}>
-                  WATCHING
+                  {tr("s3.tag")}
                 </span>
               </div>
               <div
@@ -253,21 +273,23 @@ export function Walkthrough() {
               <div className="ll-s3-stats">
                 <div>
                   <div className="ll-k" style={{ color: "#3E5248" }}>
-                    Day
+                    {tr("s3.day")}
                   </div>
-                  <div className="ll-m ll-s3-fig">{f.watch.day} / 28</div>
+                  <div className="ll-m ll-s3-fig">
+                    {whole(f.watch.day)} / {whole(F.recordDays)}
+                  </div>
                 </div>
                 <div>
                   <div className="ll-k" style={{ color: "#3E5248" }}>
-                    Readings
+                    {tr("s3.readings")}
                   </div>
-                  <div className="ll-m ll-s3-fig">{num(f.watch.readings)}</div>
+                  <div className="ll-m ll-s3-fig">{whole(f.watch.readings)}</div>
                 </div>
                 <div>
                   <div className="ll-k" style={{ color: "#3E5248" }}>
-                    Changes made
+                    {tr("s3.changes")}
                   </div>
-                  <div className="ll-m ll-s3-fig">0</div>
+                  <div className="ll-m ll-s3-fig">{whole(0)}</div>
                 </div>
               </div>
             </div>
@@ -286,20 +308,20 @@ export function Walkthrough() {
               >
                 <div>
                   <div className="ll-k" style={{ color: "#3E5248" }}>
-                    Step 4 · Your report
+                    {tr("s4.step", { n: whole(4) })}
                   </div>
                   <div className="ll-s" style={{ fontSize: 24, fontWeight: 600, marginTop: 4 }}>
-                    Every leak, priced.
+                    {tr("s4.title")}
                   </div>
                 </div>
                 <div style={{ textAlign: "right" }}>
                   <div className="ll-k" style={{ color: "#3E5248" }}>
-                    Leak / month
+                    {tr("s4.leak")}
                   </div>
                   <div className="ll-s" style={{ fontSize: 26, fontWeight: 700, color: "#A3261B" }}>
                     {f.report.total
                       ? `${eur(f.report.total.low_minor)}–${eur(f.report.total.high_minor)}`
-                      : "€ —"}
+                      : moneyDash(sample.currency, locale)}
                   </div>
                 </div>
               </div>
@@ -309,7 +331,7 @@ export function Walkthrough() {
                   const pc = (q: number) => ((q - r.scale[0]) / (r.scale[1] - r.scale[0])) * 100;
                   return (
                     <div key={r.measure} className="ll-s4row" style={{ opacity: vis ? 1 : 0.35 }}>
-                      <span style={{ fontSize: 12.5 }}>{r.measure}</span>
+                      <span style={{ fontSize: 12.5 }}>{own(`m${i}`)}</span>
                       <div className="ll-rbar">
                         <div className="ll-rbar-base" />
                         <div
@@ -332,7 +354,7 @@ export function Walkthrough() {
                           color: FLAG_COLOR[r.flag],
                         }}
                       >
-                        {vis ? r.flag : ""}
+                        {vis ? tr(`flag.${r.flag}`) : ""}
                       </span>
                       <span className="ll-m" style={{ fontSize: 11, textAlign: "right" }}>
                         {vis ? (r.leak_minor === null ? "—" : eur(r.leak_minor)) : ""}
@@ -347,54 +369,58 @@ export function Walkthrough() {
           {f.scene === 4 && (
             <div className="ll-sc" key={`s5-${sample.id}`}>
               <div className="ll-k" style={{ color: "#3E5248" }}>
-                Step 5 · You decide
+                {tr("s5.step", { n: whole(5) })}
               </div>
               <div className="ll-mini-card" style={{ marginTop: 10, position: "relative" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", gap: 10 }}>
                   <span className="ll-m" style={{ fontSize: 11, color: "#3E5248" }}>
-                    Proposal · {sample.proposal.area}
+                    {tr("s5.proposal", { area: own("area") })}
                   </span>
                   <span
                     className="ll-m"
                     style={{ fontSize: 11, color: "#2E6B47", fontWeight: 600 }}
                   >
-                    RECOMMENDED
+                    {tr("s5.recommended")}
                   </span>
                 </div>
                 <div
                   className="ll-s"
                   style={{ fontSize: 21, fontWeight: 600, marginTop: 6, lineHeight: 1.15 }}
                 >
-                  {sample.proposal.title}
+                  {own("proposal")}
                 </div>
                 <div className="ll-s5-figs">
                   <div>
                     <div className="ll-k" style={{ color: "#3E5248" }}>
-                      Expected
+                      {tr("s5.expected")}
                     </div>
                     <div className="ll-m" style={{ fontSize: 16, fontWeight: 600 }}>
-                      +{eur(sample.proposal.expected_low_minor)}–
-                      {eur(sample.proposal.expected_high_minor)} / mo
+                      {tr("s5.expectedRange", {
+                        low: eur(sample.proposal.expected_low_minor),
+                        high: eur(sample.proposal.expected_high_minor),
+                      })}
                     </div>
                   </div>
                   <div>
                     <div className="ll-k" style={{ color: "#3E5248" }}>
-                      Undo
+                      {tr("s5.undo")}
                     </div>
                     <div className="ll-m" style={{ fontSize: 16, fontWeight: 600 }}>
-                      Any time
+                      {tr("s5.anyTime")}
                     </div>
                   </div>
                 </div>
                 <div style={{ display: "flex", gap: 8, marginTop: 14 }}>
                   <div className="ll-vbtn" style={f.approve.pressed ? pressed : undefined}>
-                    Approve →
+                    {tr("s5.approve")} →
                   </div>
                   <div className="ll-vbtn" style={{ background: "transparent", color: "#132119" }}>
-                    Decline
+                    {tr("s5.decline")}
                   </div>
                 </div>
-                {f.approve.approved && <div className="ll-stampv">APPROVED · runs 15:00</div>}
+                {f.approve.approved && (
+                  <div className="ll-stampv">{tr("s5.stamp", { time: stampTime(locale) })}</div>
+                )}
               </div>
             </div>
           )}
@@ -412,15 +438,15 @@ export function Walkthrough() {
               >
                 <div>
                   <div className="ll-k" style={{ color: "#3E5248" }}>
-                    Step 6 · Measured
+                    {tr("s6.step", { n: whole(6) })}
                   </div>
                   <div className="ll-s" style={{ fontSize: 24, fontWeight: 600, marginTop: 4 }}>
-                    See exactly what it earned.
+                    {tr("s6.title")}
                   </div>
                 </div>
                 <div style={{ textAlign: "right" }}>
                   <div className="ll-k" style={{ color: "#3E5248" }}>
-                    Recovered / month
+                    {tr("s6.recovered")}
                   </div>
                   <div className="ll-s" style={{ fontSize: 28, fontWeight: 700, color: "#26A69A" }}>
                     +{eur(f.results.recovered_minor)}
@@ -432,21 +458,25 @@ export function Walkthrough() {
                 <line x1="300" y1="0" x2="300" y2="150" stroke="#2962FF" strokeDasharray="3 3" />
                 <rect x="292" y="4" width="16" height="16" fill="#2962FF" />
                 <text x="300" y="16" textAnchor="middle" fontSize="10" fill="#fff" fontWeight="600">
-                  A
+                  {tr("s6.key")}
                 </text>
                 <path d={f.results.up} fill="#26A69A" />
                 <path d={f.results.down} fill="#EF5350" />
               </svg>
               <div className="ll-m ll-s6-legend">
                 <span>
-                  Before · {sample.outcome.metric} {pct(sample.outcome.before)} %
+                  {tr("s6.before", { metric: own("metric"), value: pct(sample.outcome.before) })}
                 </span>
-                <span style={{ color: "#2962FF" }}>A = approved</span>
+                <span style={{ color: "#2962FF" }}>
+                  {tr("s6.keyLegend", { key: tr("s6.key") })}
+                </span>
                 <span>
-                  After ·{" "}
                   {f.results.metric === null
-                    ? "measuring…"
-                    : `${sample.outcome.metric} ${num(f.results.metric, 1)} %`}
+                    ? tr("s6.measuring")
+                    : tr("s6.after", {
+                        metric: own("metric"),
+                        value: num(f.results.metric, 1, locale),
+                      })}
                 </span>
               </div>
             </div>
@@ -482,7 +512,7 @@ export function Walkthrough() {
           )}
         </div>
         <div className="ll-caption" aria-live="polite">
-          {chap.caption}
+          {caption}
         </div>
       </div>
 
@@ -491,7 +521,7 @@ export function Walkthrough() {
           type="button"
           className="ll-pbtn"
           onClick={() => setPlaying((v) => !v)}
-          aria-label={playing ? "Pause walkthrough" : "Play walkthrough"}
+          aria-label={playing ? tr("pause") : tr("play")}
         >
           {playing ? "❚❚" : "▶"}
         </button>
@@ -524,7 +554,7 @@ export function Walkthrough() {
           0:{String(Math.floor(t)).padStart(2, "0")} / 0:{WALK_SECONDS}
         </span>
       </div>
-      <div className="ll-chaps" role="group" aria-label="Chapters">
+      <div className="ll-chaps" role="group" aria-label={tr("chapters")}>
         {CHAPTERS.map((c, i) => (
           <button
             key={c.n}
@@ -539,12 +569,12 @@ export function Walkthrough() {
             <span className="ll-m" style={{ opacity: 0.6 }}>
               {c.n}
             </span>{" "}
-            {c.title}
+            {chapterWord(c.n, "title")}
           </button>
         ))}
       </div>
       <figcaption className="ll-m" style={{ fontSize: 10.5, color: "#6F8577", marginTop: 8 }}>
-        Demo with an illustrative {sample.noun}. Your numbers will be your own.
+        {own("caption")}
       </figcaption>
     </figure>
   );

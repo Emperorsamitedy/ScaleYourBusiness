@@ -10,9 +10,15 @@
 // in as the owner types it — by the same function the consent hash uses —
 // so what is shown is exactly what is recorded. A typed phrase, not a
 // click, grants it; disconnect is one click.
+//
+// L-3d: the section's words are the "connections.email" catalogue. The
+// consent lines and the phrase stay the registry's English, because the
+// consent's hash covers them as shown and typed.
 
 import { useState } from "react";
 import { emailConsentLines, senderIdentity } from "../../lib/execution/email-sender";
+import { bold, useCn } from "./useCn";
+import { storedDay } from "./words";
 
 export interface EmailView {
   label: string;
@@ -54,6 +60,7 @@ export function EmailCampaignSection({
   view: EmailView;
   onChanged: () => Promise<void>;
 }) {
+  const { t, locale } = useCn("connections.email");
   const [open, setOpen] = useState(false);
   const [name, setName] = useState(view.suggested_sender);
   const [replyTo, setReplyTo] = useState("");
@@ -63,6 +70,7 @@ export function EmailCampaignSection({
   const [notice, setNotice] = useState<string | null>(null);
 
   const c = view.connection;
+  const status = (s: string) => (t.has(`status.${s}`) ? t(`status.${s}`) : s);
   const ready = name.trim() !== "" && replyTo.trim() !== "";
   const confirmed = typed.trim().toLowerCase() === view.confirm_phrase;
   const lines =
@@ -80,15 +88,15 @@ export function EmailCampaignSection({
     try {
       const out = await call("POST", { sender_name: name, reply_to: replyTo, confirmation: typed });
       if (!out.ok) {
-        setError(out.error ?? "That didn't connect.");
+        setError(out.error ?? t("connectFailed"));
         return;
       }
       setOpen(false);
       setTyped("");
-      setNotice("Campaign email is granted, and your consent is on record.");
+      setNotice(t("granted"));
       await onChanged();
     } catch {
-      setError("I couldn't reach the server. Try again.");
+      setError(t("unreachable"));
     } finally {
       setBusy(false);
     }
@@ -101,26 +109,26 @@ export function EmailCampaignSection({
     try {
       const out = await call("DELETE", { id: c.id });
       if (!out.ok) {
-        setError(out.error ?? "That didn't disconnect.");
+        setError(out.error ?? t("disconnectFailed"));
         return;
       }
-      setNotice("Campaign email is disconnected. Nothing more will send.");
+      setNotice(t("disconnected"));
       await onChanged();
     } catch {
-      setError("I couldn't reach the server. Try again.");
+      setError(t("unreachable"));
     } finally {
       setBusy(false);
     }
   };
 
   return (
-    <div className="cn-write cn-email-wrap" aria-label="Campaign email">
+    <div className="cn-write cn-email-wrap" aria-label={t("aria")}>
       <section className="cs cn-write-card cn-email" aria-labelledby="cn-email-title">
         <header className="cs-head">
           <div>
-            <p className="cs-label">Campaign email · a separate consent</p>
+            <p className="cs-label">{t("sectionLabel")}</p>
             <h2 className="cs-title" id="cn-email-title">
-              {c ? "Granted, only for what you approve" : "Off. Nothing can email your customers."}
+              {c ? t("title.on") : t("title.off")}
             </h2>
           </div>
         </header>
@@ -128,9 +136,14 @@ export function EmailCampaignSection({
           <div className="cn-wp">
             <div className="cn-wp-head">
               <div>
-                <h3 className="cn-wp-name">{view.label}</h3>
+                <h3 className="cn-wp-name">{locale === "en" ? view.label : t("label")}</h3>
                 <p className="cn-wp-state">
-                  {c ? `consented ${c.created_at.slice(0, 10)} · ${c.status}` : "not granted"}
+                  {c
+                    ? t("consentedOn", {
+                        day: storedDay(c.created_at, locale),
+                        status: status(c.status),
+                      })
+                    : t("notGranted")}
                 </p>
               </div>
               {c === null && (
@@ -141,7 +154,7 @@ export function EmailCampaignSection({
                   aria-controls="cn-grant-email"
                   onClick={() => setOpen(!open)}
                 >
-                  {open ? "Close" : "Grant"}
+                  {open ? t("close") : t("grant")}
                 </button>
               )}
             </div>
@@ -158,15 +171,15 @@ export function EmailCampaignSection({
             {c !== null && (
               <div className="cn-wp-detail">
                 <dl className="cn-facts">
-                  <dt>status</dt>
+                  <dt>{t("fact.status")}</dt>
                   <dd>
                     <span className={`word ${c.status === "connected" ? "ok" : "alarm"}`}>
-                      {c.status}
+                      {status(c.status)}
                     </span>
                   </dd>
-                  <dt>sent as</dt>
-                  <dd>{c.sender_name} via SYB</dd>
-                  <dt>replies go to</dt>
+                  <dt>{t("fact.sentAs")}</dt>
+                  <dd>{t("fact.viaSyb", { name: c.sender_name ?? "" })}</dd>
+                  <dt>{t("fact.repliesTo")}</dt>
                   <dd>{c.reply_to}</dd>
                 </dl>
                 <div className="cn-acts">
@@ -176,32 +189,27 @@ export function EmailCampaignSection({
                     disabled={busy}
                     onClick={() => void disconnect()}
                   >
-                    {busy ? "Disconnecting…" : "Disconnect"}
+                    {busy ? t("disconnecting") : t("disconnect")}
                   </button>
                 </div>
-                <p className="cn-note">{view.disconnect_note}</p>
+                <p className="cn-note">{t("disconnectNote")}</p>
               </div>
             )}
             {c === null && open && (
               <div className="cn-wp-detail" id="cn-grant-email">
-                <p className="cn-sub">What it does</p>
+                <p className="cn-sub">{t("whatItDoes")}</p>
                 <ul className="cn-list">
                   {view.operations.map((o) => (
                     <li key={o.op}>
-                      {o.description}{" "}
-                      {o.reversible
-                        ? "Can be undone."
-                        : "Can't be undone: a sent email can't be recalled, and each campaign is labelled so before you approve it."}
+                      {t.has(`op.${o.op}`) ? t(`op.${o.op}`) : o.description}{" "}
+                      {o.reversible ? t("undoable") : t("notUndoable")}
                     </li>
                   ))}
                 </ul>
-                <p className="cn-note">
-                  Campaigns go out from SYB&rsquo;s own email service, under your business name. You
-                  don&rsquo;t give SYB any password or key for this.
-                </p>
+                <p className="cn-note">{t("ownService")}</p>
                 <form className="cn-form" onSubmit={(e) => void grant(e)}>
                   <label className="cn-field">
-                    <span className="cn-field-label">Send as (your business name)</span>
+                    <span className="cn-field-label">{t("sendAs")}</span>
                     <input
                       className="cn-input"
                       type="text"
@@ -212,7 +220,7 @@ export function EmailCampaignSection({
                     />
                   </label>
                   <label className="cn-field">
-                    <span className="cn-field-label">Replies go to (an address you read)</span>
+                    <span className="cn-field-label">{t("repliesTo")}</span>
                     <input
                       className="cn-input"
                       type="email"
@@ -225,7 +233,7 @@ export function EmailCampaignSection({
                   </label>
                   <label className="cn-field">
                     <span className="cn-field-label">
-                      To confirm, type <strong>{view.confirm_phrase}</strong>
+                      {t.rich("typeToConfirm", { ...bold, phrase: view.confirm_phrase })}
                     </span>
                     <input
                       className="cn-input"
@@ -238,7 +246,7 @@ export function EmailCampaignSection({
                     />
                   </label>
                   <button className="next" type="submit" disabled={busy || !ready || !confirmed}>
-                    {busy ? "Recording…" : "Allow campaign email"}
+                    {busy ? t("recording") : t("allow")}
                   </button>
                 </form>
               </div>
@@ -255,21 +263,25 @@ export function EmailCampaignSection({
             )}
           </div>
         </div>
-        <footer className="cs-foot">{view.nothing_sent}</footer>
+        <footer className="cs-foot">{t("nothingSent")}</footer>
       </section>
 
       <section className="cn-access" aria-labelledby="cn-email-how">
-        <p className="cn-access-label">How campaigns are sent</p>
+        <p className="cn-access-label">{t("how.label")}</p>
         <h2 className="cn-access-title" id="cn-email-how">
-          From SYB&rsquo;s own email service, under your name.
+          {t("how.title")}
         </h2>
-        <p className="cn-access-body">
-          You give SYB no password or key for this. Each campaign goes only to customers who
-          explicitly agreed to hear from you, each one checked again at the moment it goes, and
-          every email carries its own unsubscribe link, honoured at once and for good.
-        </p>
-        {view.real_sends && <p className="cn-access-body">{view.real_sends}</p>}
-        {view.shared_sender && <p className="cn-access-body">{view.shared_sender}</p>}
+        <p className="cn-access-body">{t("how.body")}</p>
+        {view.real_sends && (
+          <p className="cn-access-body">
+            {locale === "en" ? view.real_sends : t("realSendsOff", { label: t("label") })}
+          </p>
+        )}
+        {view.shared_sender && (
+          <p className="cn-access-body">
+            {locale === "en" ? view.shared_sender : t("sharedSender")}
+          </p>
+        )}
       </section>
     </div>
   );

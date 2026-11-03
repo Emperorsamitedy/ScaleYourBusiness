@@ -1613,6 +1613,1164 @@
       "cantTell": "„Nicht feststellbar“ heißt, dass die gemessenen Zahlen fehlten oder etwas dazwischenkam, das in meiner Prognose nicht vorkam, etwa eine Lieferung. Es zählt nie als Treffer."
     }
   },
+  "connections": {
+    "meta": {
+      "title": "Verbindungen — SYB"
+    },
+    "kicker": "Ihr Unternehmen · Verbindungen",
+    "aside": "Lesen ist vom Schreiben getrennt – immer",
+    "loading": "Ihre Verbindungen werden gelesen…",
+    "unreachable": "Ich konnte den Server nicht erreichen. Versuchen Sie es erneut.",
+    "error": {
+      "title": "Die Verbindungen konnten nicht geladen werden.",
+      "label": "Verbindungen",
+      "cardTitle": "Etwas ist schiefgelaufen.",
+      "body": "Beim Laden Ihrer Verbindungen ist etwas schiefgelaufen. Laden Sie die Seite neu, um es erneut zu versuchen."
+    },
+    "signedOut": {
+      "title": "Zum Verbinden Ihrer Zahlen anmelden.",
+      "cardTitle": "Verbindungen gehören zu Ihrem Konto.",
+      "body": "Ein Zahlungskonto, eine Kasse oder ein Onlineshop oder ein Werbekonto wird mit Ihrem Konto verbunden, nicht nur mit diesem Browser.",
+      "signIn": "Anmelden"
+    },
+    "headline": {
+      "reading": "{count, plural, one {# Quelle wird gelesen.} other {# Quellen werden gelesen.}}",
+      "stalled": "Gerade wird nichts gelesen.",
+      "none": "Noch ist nichts angeschlossen.",
+      "writesUnknown": "Der Schreibzugriff ließ sich nicht auslesen.",
+      "canWrite": "Schreibzugriff für {labels} – nur für das, was Sie freigeben.",
+      "nothingWritten": "Nichts kann geschrieben werden.",
+      "readOnly": "Für {labels} besteht eine Berechtigung, die schreiben könnte; SYB liest damit nur."
+    },
+    "status": {
+      "connected": "verbunden",
+      "paused": "pausiert",
+      "failed": "fehlgeschlagen",
+      "disconnected": "getrennt"
+    },
+    "banner": {
+      "see": "Sie sehen, was angeschlossen ist.",
+      "seeAndRead": "Sie sehen, was angeschlossen ist, und können jede Quelle jetzt erneut lesen.",
+      "readAgainGroup": "Jetzt erneut lesen",
+      "readingOne": "{label} wird gelesen…",
+      "readAgain": "{label} jetzt erneut lesen"
+    },
+    "sync": {
+      "didntRun": "Die Synchronisierung wurde nicht ausgeführt.",
+      "locked": "Für {label} läuft bereits eine Synchronisierung.",
+      "done": "{label} synchronisiert. {count, plural, one {# Tageswert gelesen.} other {# Tageswerte gelesen.}}",
+      "failed": "{label} wurde nicht synchronisiert. {reason}",
+      "noReason": "Es wurde kein Grund angegeben."
+    },
+    "panel": {
+      "label": "Patchfeld",
+      "title": "Was angeschlossen ist",
+      "legendOn": "an",
+      "legendOff": "aus",
+      "legendNever": "nie",
+      "source": "Quelle",
+      "gives": "Was sie liefert",
+      "read": "Lesen",
+      "write": "Schreiben",
+      "lastRead": "Zuletzt gelesen",
+      "action": "Aktion",
+      "reading": "liest",
+      "notReading": "liest nicht, {status}",
+      "off": "aus",
+      "writeNever": "nie – bewusst nur Lesezugriff",
+      "close": "Schließen",
+      "settings": "Einstellungen",
+      "connect": "Verbinden",
+      "past": "{label} getrennt. Die Zugangsdaten wurden gelöscht; die gemessene Historie daraus bleibt in Ihrem Profil.",
+      "foot": "Gemessene Zahlen ersetzen Ihre Schätzungen im Bericht, und Ihre Schätzungen bleiben in Ihrem Verlauf erhalten. Google Ads ist noch nicht verfügbar: Dafür braucht SYB zuerst eine eigene Zulassung durch Google, bevor sich irgendein Konto verbinden kann."
+    },
+    "settings": {
+      "access": "Zugriff",
+      "readOnly": "nur Lesen",
+      "granted": "erteilt",
+      "nothingRecorded": "nichts erfasst",
+      "checked": "geprüft",
+      "checkedReported": "{label} hat genau diese Berechtigungen gemeldet, und ich habe sie geprüft: Nichts hiervon kann auf Ihrer Seite etwas ändern.",
+      "checkedProbed": "Diese Lesezugriffe wurden getestet und funktionieren. {label} kann keiner App mitteilen, was der Schlüssel sonst noch erlaubt.",
+      "lastSync": "letzte Synchronisierung",
+      "never": "nie",
+      "history": "Historie",
+      "shopifyAllOrders": "Ohne read_all_orders zeigt Shopify nur {days, plural, one {den letzten # Tag} other {die letzten # Tage}}; diesen Zugriff muss Shopify genehmigen.",
+      "carts": "Warenkörbe",
+      "cartsRead": "Ich lese die nicht abgeschlossenen Bestellvorgänge mit ihrem Inhalt, unter demselben read_orders.",
+      "cartsCustomers": "Mit read_customers lese ich außerdem zu jedem Warenkorb die E-Mail-Adresse der einkaufenden Person und deren Einstellung zum E-Mail-Marketing. Warenkörbe behalten nur eine unkenntlich gemachte Kopie. Personen, die Shopify als Abonnenten führt, werden mit ihrer E-Mail-Adresse zu Kontakten, die Sie löschen können.",
+      "cartsNoCustomers": "Shopify verrät nur einer App, die Ihre Kunden lesen darf, wer einen Warenkorb verlassen hat. Fügen Sie das optionale read_customers hinzu, dann ordne ich Warenkörbe Ihren Kontakten zu; ohne es wird keiner zugeordnet.",
+      "lastError": "letzter Fehler",
+      "inARow": "({count} in Folge)",
+      "syncing": "Wird synchronisiert…",
+      "syncNow": "Jetzt synchronisieren",
+      "hideMatching": "Zuordnung ausblenden",
+      "matchProducts": "Produkte zuordnen",
+      "matchChannels": "Kanäle zuordnen",
+      "disconnectAsk": "{label} trennen? Die Zugangsdaten werden gelöscht, und die Synchronisierung endet. Die gemessene Historie bleibt.",
+      "yesDisconnect": "Ja, trennen",
+      "keepIt": "Behalten",
+      "disconnect": "Trennen",
+      "disconnected": "{label} ist getrennt. Die Zugangsdaten sind gelöscht, und die gemessene Historie bleibt.",
+      "disconnectFailed": "Das Trennen hat nicht geklappt."
+    },
+    "history": {
+      "notSynced": "Noch nicht synchronisiert. Die erste Synchronisierung liest {days, plural, one {den letzten # Tag} other {die letzten # Tage}}.",
+      "never": "Nie synchronisiert.",
+      "upToDate": "Aktuell bis einschließlich {day}, über {days, plural, one {den letzten # Tag} other {die letzten # Tage}}.",
+      "readThrough": "Gelesen bis einschließlich {day}, {share} {days, plural, one {des letzten # Tages} other {der letzten # Tage}}."
+    },
+    "mapping": {
+      "reading": "{label} wird gelesen…",
+      "couldntRead": "{label} konnte nicht gelesen werden.",
+      "notSaved": "Diese Zuordnung wurde nicht gespeichert.",
+      "matchedTo": "zugeordnet zu <b>{label}</b>",
+      "notMatched": "noch nicht zugeordnet",
+      "suggested": "{title} (vorgeschlagen)",
+      "noneOfThese": "Keines davon",
+      "saving": "wird gespeichert…",
+      "confirm": "Bestätigen",
+      "product": {
+        "none": "In Ihrem Profil gibt es noch keine Angebote zum Zuordnen. Fügen Sie sie zuerst im Interview hinzu.",
+        "intro": "Ordnen Sie alles, was Sie verkaufen, dem passenden Produkt in {label} zu. Die Verkäufe eines zugeordneten Produkts werden zu den gemessenen Einheiten pro Monat dieses Angebots. Ich schlage Zuordnungen vor; nichts zählt, bevor Sie es bestätigen.",
+        "noMatch": "kein passendes Produkt",
+        "select": "Produkt in {label} für {name}",
+        "choose": "Produkt wählen…",
+        "unmatched": "{count, plural, one {# Produkt in {label} ist keinem Eintrag in Ihrem Profil zugeordnet. Das ist eine Lücke, und ich rate nicht, was es ist.} other {# Produkte in {label} sind keinem Eintrag in Ihrem Profil zugeordnet. Das ist eine Lücke, und ich rate nicht, was sie sind.}}"
+      },
+      "channel": {
+        "none": "In Ihrem Profil gibt es noch keine Kanäle zum Zuordnen. Fügen Sie sie zuerst im Interview hinzu.",
+        "intro": "Ordnen Sie jeden Ihrer Vertriebskanäle dem Traffic-Kanal in {label} zu, dem er entspricht. Besuche über einen zugeordneten Kanal werden zu den gemessenen monatlichen Besuchen dieses Kanals. Ich schlage Zuordnungen vor; nichts zählt, bevor Sie es bestätigen.",
+        "noMatch": "kein passender Traffic-Kanal",
+        "select": "Traffic-Kanal in {label} für {name}",
+        "choose": "Traffic-Kanal wählen…",
+        "unmatched": "{count, plural, one {# Traffic-Kanal in {label} ist keinem Eintrag in Ihrem Profil zugeordnet. Das ist eine Lücke, und ich rate nicht, was er ist.} other {# Traffic-Kanäle in {label} sind keinem Eintrag in Ihrem Profil zugeordnet. Das ist eine Lücke, und ich rate nicht, was sie sind.}}"
+      }
+    },
+    "connect": {
+      "sub": "{label}, nur Lesezugriff",
+      "failed": "Die Verbindung hat nicht geklappt.",
+      "doneProduct": "{label} ist verbunden. Drücken Sie „Jetzt synchronisieren“, um Ihre Bestellungen zu lesen, und ordnen Sie dann Ihre Produkte zu.",
+      "doneChannel": "{label} ist verbunden. Drücken Sie „Jetzt synchronisieren“, um Ihren Traffic zu lesen, und ordnen Sie dann Ihre Kanäle zu.",
+      "done": "{label} ist verbunden. Drücken Sie „Jetzt synchronisieren“, um das letzte Jahr zu lesen.",
+      "checking": "Wird geprüft…",
+      "button": "{label} verbinden",
+      "encrypted": "Alles, was Sie eingeben, wird vor dem Speichern verschlüsselt und nie wieder angezeigt, auch Ihnen nicht."
+    },
+    "verify": {
+      "reported": "{label} meldet genau, welche Berechtigungen Zugangsdaten haben, und ich prüfe sie, wenn Sie verbinden. Könnten sie auf Ihrer Seite etwas ändern, lehne ich die Verbindung ab.",
+      "probedStripe": "{label} lässt keine App die übrigen Berechtigungen eines Schlüssels prüfen. Das kann ich zusagen: Ich teste, dass die obigen Lesezugriffe funktionieren, und mein Code kann nur lesen. Schlüssel mit Vollzugriff lehne ich ab, und dass jede andere Berechtigung auf „Keine“ bleibt, macht den Schlüssel selbst zu einem reinen Leseschlüssel.",
+      "probed": "{label} lässt keine App die übrigen Berechtigungen eines Schlüssels prüfen. Das kann ich zusagen: Ich teste, dass die obigen Lesezugriffe funktionieren, und mein Code kann nur lesen. Erst die Wahl von „Lesen“ macht den Schlüssel selbst zu einem reinen Leseschlüssel."
+    },
+    "guide": {
+      "line": "<b>{grant}</b>. {why}",
+      "sep": ", ",
+      "fixture": {
+        "s0": {
+          "grant": "Umsatz: Lesen",
+          "why": "Täglicher Umsatz, für den Monatswert.",
+          "gives": "täglicher Umsatz"
+        },
+        "s1": {
+          "grant": "Bestellungen: Lesen",
+          "why": "Tägliche Bestellanzahl, für den Monatswert.",
+          "gives": "tägliche Bestellanzahl"
+        },
+        "s2": {
+          "grant": "Werbeausgaben: Lesen",
+          "why": "Tägliche Werbeausgaben, für den Monatswert.",
+          "gives": "tägliche Werbeausgaben"
+        }
+      },
+      "stripe": {
+        "s0": {
+          "grant": "Guthaben: Lesen",
+          "why": "Ihr Zahlungsverlauf, also jede Zahlung und jede Rückerstattung – daraus stammen Monatsumsatz und Bestellanzahl.",
+          "gives": "Ihr Zahlungsverlauf"
+        }
+      },
+      "shopify": {
+        "s0": {
+          "why": "Ihre Bestellungen – daraus stammen Tagesumsatz, Bestellanzahl und verkaufte Einheiten – sowie die nicht abgeschlossenen Bestellvorgänge mit ihrem Inhalt.",
+          "gives": "Ihre Bestellungen"
+        },
+        "s1": {
+          "why": "Ihre Produktliste, damit jedes Produkt dem zugeordnet werden kann, was Sie verkaufen, und wie viele Sie von jedem auf Lager haben und was sie Sie kosten, damit ich auf Bestand hinweisen kann, der sich nicht verkauft.",
+          "gives": "Ihre Produktliste"
+        },
+        "s2": {
+          "grant": "read_all_orders (optional, Shopify muss es genehmigen)",
+          "why": "Bestellungen, die älter als {days, plural, one {# Tag} other {# Tage}} sind, für eine volle Jahreshistorie. Ohne diesen Zugriff lese ich {days, plural, one {den letzten # Tag} other {die letzten # Tage}}.",
+          "gives": "Bestellungen älter als {days, plural, one {# Tag} other {# Tage}}"
+        },
+        "s3": {
+          "grant": "read_customers (optional)",
+          "why": "Wer einen Bestellvorgang nicht abgeschlossen hat, damit ein Warenkorb einer Person auf Ihrer Kontaktliste zugeordnet werden kann. Ich lese nur die E-Mail-Adresse der einkaufenden Person und ob sie Ihr E-Mail-Marketing in Shopify abonniert hat. Warenkörbe behalten eine unkenntlich gemachte Kopie der E-Mail-Adresse. Personen, die Shopify als Abonnenten führt, kommen mit ihrer E-Mail-Adresse zu Ihren Kontakten, wo Sie sie löschen können; bei allen anderen bleibt nur die unkenntlich gemachte Kopie. Ohne diesen Zugriff wird kein Warenkorb zugeordnet.",
+          "gives": "wer einen Bestellvorgang nicht abgeschlossen hat"
+        }
+      },
+      "woocommerce": {
+        "s0": {
+          "grant": "Lesezugriff (umfasst Bestellungen)",
+          "why": "Ihre Bestellungen – daraus stammen Tagesumsatz, Bestellanzahl und verkaufte Einheiten.",
+          "gives": "Ihre Bestellungen"
+        },
+        "s1": {
+          "grant": "Lesezugriff (umfasst Produkte)",
+          "why": "Ihre Produktliste, damit jedes Produkt dem zugeordnet werden kann, was Sie verkaufen, und sein Lagerbestand, damit ich auf Bestand hinweisen kann, der sich nicht verkauft.",
+          "gives": "Ihre Produktliste"
+        }
+      },
+      "ga4": {
+        "s0": {
+          "grant": "Rolle „Betrachter“ für die Property",
+          "why": "Sitzungen pro Tag und pro Kanal – daraus stammt der gemessene Website-Traffic. Betrachter können Berichte lesen und nichts ändern.",
+          "gives": "Sitzungen pro Tag und pro Kanal"
+        }
+      },
+      "meta_ads": {
+        "s0": {
+          "why": "Tägliche Werbeausgaben und die Käufe, die Meta Ihren Anzeigen zuschreibt. Nichts, womit sich eine Kampagne bearbeiten ließe.",
+          "gives": "tägliche Werbeausgaben und die Käufe, die Meta Ihren Anzeigen zuschreibt"
+        }
+      },
+      "search_console": {
+        "s0": {
+          "grant": "Eingeschränkte Berechtigung für die Property reicht aus",
+          "why": "Die Google-Suchanfragen, bei denen Ihre Website erschienen ist, wie oft und wie oft darauf geklickt wurde. Damit lassen sich Berichte lesen und nichts ändern.",
+          "gives": "die Google-Suchanfragen, bei denen Ihre Website erschienen ist"
+        }
+      },
+      "square": {
+        "s0": {
+          "why": "Jede Zahlung an Ihren Kassen, Karte und Bargeld, in Square erfasst – daraus stammen die täglichen und stündlichen Einnahmen.",
+          "gives": "jede Zahlung an Ihren Kassen"
+        },
+        "s1": {
+          "why": "Ihre Standortliste, damit Zahlungen von jeder Kasse gelesen werden, nicht nur von der Hauptkasse.",
+          "gives": "Ihre Standortliste"
+        },
+        "s2": {
+          "grant": "APPOINTMENTS_READ (optional, für Buchungen)",
+          "why": "Ihre Termine: welche wahrgenommen, welche versäumt oder abgesagt wurden und ob die Kundschaft wiederkam – nicht aber deren Notizen.",
+          "gives": "Ihre Termine"
+        },
+        "s3": {
+          "grant": "APPOINTMENTS_ALL_READ (optional, zusammen mit der obigen)",
+          "why": "Ihre Termine. Square braucht diese Berechtigung zusammen mit der obigen, um jede Buchung an Ihren Standorten zu lesen, nicht nur die über SYB gemachten. Damit lässt sich keine Buchung ändern.",
+          "gives": "Ihre Termine"
+        }
+      }
+    },
+    "steps": {
+      "stripe": {
+        "s1": "Öffnen Sie in Ihrem Stripe-Dashboard <b>Entwickler</b>, dann <b>API-Schlüssel</b>, und wählen Sie <b>Eingeschränkten Schlüssel erstellen</b>. Für den Anfang ist der Testmodus in Ordnung.",
+        "s2": "Lassen Sie jede Berechtigung auf <b>Keine</b>, außer:",
+        "s3": "Erstellen Sie den Schlüssel und fügen Sie ihn unten ein. Er beginnt mit <b>rk_test_</b> oder <b>rk_live_</b>."
+      },
+      "shopify": {
+        "s1": "Wählen Sie im <b>Dev Dashboard</b> von Shopify <b>Create app</b>, dann <b>Start from Dev Dashboard</b>, und geben Sie der App einen Namen.",
+        "s2": "Fügen Sie im Tab <b>Versions</b> der App nur diese Admin-API-Scopes hinzu und veröffentlichen Sie dann die Version:",
+        "s3": "Wählen Sie unter <b>Home</b> der App <b>Install app</b> und dann Ihren Shop. App und Shop müssen zur selben Shopify-Organisation gehören.",
+        "s4": "Kopieren Sie unter <b>Settings</b> der App die Client-ID und das Client-Secret und geben Sie beides unten zusammen mit der myshopify.com-Adresse Ihres Shops ein."
+      },
+      "woocommerce": {
+        "s1": "Öffnen Sie in WordPress <b>WooCommerce</b>, dann <b>Einstellungen</b>, <b>Erweitert</b>, <b>REST-API</b>, und wählen Sie <b>Schlüssel hinzufügen</b>.",
+        "s2": "Setzen Sie <b>Berechtigungen</b> auf <b>Lesen</b>. Der Lesezugriff umfasst:",
+        "s3": "Generieren Sie den Schlüssel und geben Sie dann den Consumer Key und das Consumer Secret unten zusammen mit der Adresse Ihres Shops ein."
+      },
+      "ga4": {
+        "s1": "Erstellen Sie in der <b>Google Cloud Console</b> ein Projekt (oder verwenden Sie ein vorhandenes), aktivieren Sie die <b>Google Analytics Data API</b>, erstellen Sie dann unter <b>IAM & Verwaltung</b>, <b>Dienstkonten</b> ein Dienstkonto und laden Sie dafür einen <b>JSON-Schlüssel</b> herunter.",
+        "s2": "Öffnen Sie in <b>Google Analytics</b> den Bereich <b>Verwaltung</b>, dann <b>Property-Zugriffsverwaltung</b>, und fügen Sie die E-Mail-Adresse des Dienstkontos mit dieser Rolle hinzu:",
+        "s3": "Kopieren Sie die Property-ID unter <b>Verwaltung</b>, <b>Property-Details</b> und fügen Sie sie unten zusammen mit dem Inhalt der Schlüsseldatei ein."
+      },
+      "square": {
+        "s1": "Erstellen Sie in der <b>Square Developer Console</b> eine Anwendung (oder öffnen Sie eine) und kopieren Sie ihr <b>Production access token</b>.",
+        "s2": "Geben Sie ihr nur diese Berechtigungen:",
+        "s3": "Fügen Sie das Token unten ein. In Square erfasste Zahlungen – Karte und Bargeld – werden gelesen; Bargeld, das nie über die Kasse läuft, kann nichts und niemand sehen. Mit den beiden Terminberechtigungen werden auch Ihre Buchungen in Square Appointments gelesen."
+      },
+      "search_console": {
+        "s1": "Aktivieren Sie in der <b>Google Cloud Console</b> für ein Projekt die <b>Google Search Console API</b> und erstellen Sie ein Dienstkonto mit einem <b>JSON-Schlüssel</b> – dasselbe, das Sie für Google Analytics verwenden, ist in Ordnung.",
+        "s2": "Öffnen Sie in der <b>Search Console</b> die <b>Einstellungen</b>, dann <b>Nutzer und Berechtigungen</b>, und fügen Sie die E-Mail-Adresse des Dienstkontos hinzu:",
+        "s3": "Geben Sie die Property genau so ein, wie die Search Console sie benennt, zusammen mit dem Inhalt der Schlüsseldatei. Seltene Suchanfragen blendet Google aus Datenschutzgründen aus, daher ergeben die Suchanfragen, die ich lese, in Summe etwas weniger als Googles eigene Gesamtzahl."
+      },
+      "meta_ads": {
+        "s1": "Öffnen Sie in der <b>Meta Business Suite</b> die <b>Unternehmenseinstellungen</b>, dann <b>Nutzer</b>, <b>Systemnutzer</b>, und fügen Sie einen Systemnutzer hinzu (die Rolle „Mitarbeiter“ reicht aus).",
+        "s2": "Weisen Sie ihm unter <b>Assets zuweisen</b> Ihr Werbekonto zu, nur mit <b>View performance</b>.",
+        "s3": "Wählen Sie <b>Token generieren</b>, wählen Sie Ihre App aus und setzen Sie nur hier einen Haken:",
+        "s4": "Fügen Sie das Token unten zusammen mit Ihrer Werbekonto-ID ein, die im <b>Werbeanzeigenmanager</b> angezeigt wird."
+      }
+    },
+    "field": {
+      "fixture": {
+        "key": {
+          "label": "Fixture-Zugangsdaten"
+        }
+      },
+      "stripe": {
+        "key": {
+          "label": "Eingeschränkter Schlüssel"
+        }
+      },
+      "shopify": {
+        "shop": {
+          "label": "Shop-Adresse"
+        },
+        "client_id": {
+          "label": "Client-ID",
+          "placeholder": "aus den Settings der App"
+        },
+        "client_secret": {
+          "label": "Client-Secret",
+          "placeholder": "aus den Settings der App"
+        }
+      },
+      "woocommerce": {
+        "site_url": {
+          "label": "Shop-Adresse"
+        },
+        "consumer_key": {
+          "label": "Consumer Key"
+        },
+        "consumer_secret": {
+          "label": "Consumer Secret"
+        }
+      },
+      "ga4": {
+        "property_id": {
+          "label": "Property-ID",
+          "placeholder": "die Nummer unter Verwaltung, Property-Details"
+        },
+        "service_account_json": {
+          "label": "Schlüsseldatei des Dienstkontos",
+          "placeholder": "fügen Sie hier die ganze JSON-Schlüsseldatei ein"
+        }
+      },
+      "meta_ads": {
+        "ad_account_id": {
+          "label": "Werbekonto-ID"
+        },
+        "access_token": {
+          "label": "Zugriffstoken des Systemnutzers"
+        }
+      },
+      "square": {
+        "access_token": {
+          "label": "Zugriffstoken",
+          "placeholder": "aus der Square Developer Console"
+        },
+        "environment": {
+          "label": "Umgebung",
+          "placeholder": "production (oder sandbox zum Testen)"
+        }
+      },
+      "search_console": {
+        "site_url": {
+          "label": "Property",
+          "placeholder": "https://www.example.com/ oder sc-domain:example.com"
+        },
+        "service_account_json": {
+          "label": "Schlüsseldatei des Dienstkontos",
+          "placeholder": "fügen Sie hier die ganze JSON-Schlüsseldatei ein"
+        }
+      }
+    },
+    "write": {
+      "aria": "Schreibzugriff",
+      "sectionLabel": "Schreibzugriff · eine eigene Einwilligung",
+      "title": {
+        "off": "Aus. Nichts kann veröffentlicht werden.",
+        "paused": "Pausiert. Verbinden Sie neu, um fortzufahren.",
+        "on": "An, nur für das, was Sie freigeben"
+      },
+      "label": {
+        "meta_publish": "Meta-Veröffentlichung (Facebook-Seite und Instagram)",
+        "meta_ads": "Meta-Anzeigenverwaltung",
+        "email_campaign": "Kampagnen-E-Mail",
+        "google_business_reviews": "Bewertungen im Google Unternehmensprofil"
+      },
+      "status": {
+        "connected": "verbunden",
+        "paused": "pausiert",
+        "failed": "fehlgeschlagen",
+        "disconnected": "getrennt"
+      },
+      "consentedOn": "eingewilligt am {day} · {status}",
+      "notGranted": "nicht erteilt",
+      "grant": "Erteilen",
+      "close": "Schließen",
+      "reconnect": "Neu verbinden",
+      "disconnect": "Trennen",
+      "disconnecting": "Wird getrennt…",
+      "cancel": "Abbrechen",
+      "checking": "Wird geprüft…",
+      "unreachable": "Ich konnte den Server nicht erreichen. Versuchen Sie es erneut.",
+      "disconnectFailed": "Das Trennen hat nicht geklappt.",
+      "connectFailed": "Die Verbindung hat nicht geklappt.",
+      "disconnected": "{label} ist getrennt. Das Token ist hier gelöscht.",
+      "connected": "{label} ist verbunden, und Ihre Einwilligung ist erfasst.",
+      "fact": {
+        "status": "Status",
+        "permissions": "Berechtigungen",
+        "consented": "eingewilligt",
+        "accessTier": "Zugriffsstufe",
+        "seen": "gesehen am {day}"
+      },
+      "pausedDefault": "Meta akzeptiert die Anmeldung dieser Verbindung nicht mehr. Verbinden Sie sie neu, dann mache ich dort weiter, wo ich aufgehört habe.",
+      "typeToConfirm": "Geben Sie zur Bestätigung <b>{phrase}</b> ein",
+      "facebook": {
+        "sub": "Eingeladene Testpersonen: Mit Facebook anmelden",
+        "testerNote": "Während der Pilotphase funktioniert die Facebook-Anmeldung nur für eingeladene Testpersonen. Zuerst fügt Samuel oder Tedi von SYB Sie in der Meta-App von SYB als „Tester“ hinzu, und Sie nehmen die Einladung über Ihr eigenes Facebook-Konto an. Meta bittet Sie dann, genau die oben aufgeführten Berechtigungen zu erteilen, und Sie wählen hier die Seite oder das Werbekonto.",
+        "oneConsent": "Ein Facebook-Konto kann über die Anmeldung entweder die Veröffentlichung oder die Anzeigenverwaltung verbinden, nicht beides: Meta gibt der App von SYB alles, was Sie ihr zuvor erteilt haben, und SYB lehnt ein Token ab, das mehr enthält, als diese Einwilligung nennt. Für das jeweils andere nutzen Sie unten Ihre eigene Meta-App.",
+        "opening": "Facebook wird geöffnet…",
+        "signInPick": {
+          "ad": "Mit Facebook anmelden und das Werbekonto wählen",
+          "page": "Mit Facebook anmelden und die Seite wählen"
+        },
+        "signIn": "Mit Facebook anmelden"
+      },
+      "facebookOff": "Noch nicht eingeschaltet.",
+      "pick": {
+        "couldntList": "Ich konnte nicht auflisten, was Meta geteilt hat.",
+        "connected": "{label} ist über Facebook verbunden, und Ihre Einwilligung ist erfasst.",
+        "cancelled": "Facebook-Anmeldung abgebrochen. Es wurde nichts verbunden, und SYB hat kein Token behalten.",
+        "title": {
+          "ad": "Wählen Sie das Werbekonto, für das SYB handeln darf",
+          "page": "Wählen Sie die Seite, für die SYB handeln darf"
+        },
+        "asking": "Meta wird gefragt, was Sie geteilt haben…",
+        "aria": {
+          "ad": "Werbekonto wählen",
+          "page": "Seite wählen"
+        },
+        "instagram": "Auch Instagram {handle}",
+        "noInstagram": "kein Instagram-Konto verknüpft: nur Facebook",
+        "active": "aktiv",
+        "notActive": "nicht aktiv",
+        "allow": {
+          "ad": "Erlauben und dieses Werbekonto verbinden",
+          "page": "Erlauben und diese Seite verbinden"
+        },
+        "note": "SYB prüft bei Meta, dass die Anmeldung genau die oben aufgeführten Berechtigungen enthält, bevor irgendetwas gespeichert wird."
+      },
+      "eachAction": "Was jede Aktion bewirkt",
+      "undoable": "Lässt sich rückgängig machen.",
+      "notUndoable": "Lässt sich nicht rückgängig machen und wird entsprechend gekennzeichnet, bevor Sie es freigeben.",
+      "op": {
+        "publish_page_post": "Einen freigegebenen Text- oder Link-Beitrag auf der Facebook-Seite veröffentlichen.",
+        "publish_page_photo": "Einen freigegebenen Foto-Beitrag auf der Facebook-Seite veröffentlichen.",
+        "publish_page_video": "Ein freigegebenes Video oder Reel auf der Facebook-Seite veröffentlichen.",
+        "publish_ig_media": "Einen freigegebenen Beitrag, ein Karussell oder ein Reel im Instagram-Konto veröffentlichen.",
+        "pause_campaign": "Eine laufende Kampagne pausieren.",
+        "resume_campaign": "Eine pausierte Kampagne fortsetzen.",
+        "set_daily_budget": "Das Tagesbudget einer Kampagne ändern, innerhalb der freigegebenen Grenzen.",
+        "create_campaign_paused": "Eine neue Kampagne im pausierten Zustand erstellen.",
+        "upload_ad_video": "Das Video eines freigegebenen Elements für dessen Anzeige ins Werbekonto hochladen.",
+        "create_adset_paused": "Eine Anzeigengruppe im pausierten Zustand erstellen: mit Tagesbudget, Zeitplan, Platzierungen und Zielgruppe.",
+        "create_adcreative": "Ein Anzeigen-Creative aus den Medien und der Bildunterschrift eines freigegebenen Elements erstellen, samt dessen KI-Hinweis.",
+        "create_ad_paused": "Eine Anzeige im pausierten Zustand erstellen, mit Kampagne, Anzeigengruppe und Creative, jeweils pausiert erstellt.",
+        "resume_adset": "Eine pausierte Anzeigengruppe fortsetzen.",
+        "pause_adset": "Eine laufende Anzeigengruppe pausieren.",
+        "resume_ad": "Eine pausierte Anzeige fortsetzen.",
+        "pause_ad": "Eine laufende Anzeige pausieren."
+      },
+      "readback": "Um zu sehen, wie jeder Beitrag ankommt, liest dasselbe Token außerdem:",
+      "ownApp": "Oder: Richten Sie Ihre eigene Meta-App ein",
+      "ownAppSteps": {
+        "meta_publish": {
+          "s0": "Prüfen Sie in der Meta Business Suite, dass Ihre Facebook-Seite und das zugehörige Instagram-Konto beide in Ihrem Business-Portfolio liegen.",
+          "s1": "Erstellen Sie auf developers.facebook.com eine App vom Typ „Business“, die demselben Portfolio gehört.",
+          "s2": "Fügen Sie der App die Anwendungsfälle für Seiten und Instagram hinzu.",
+          "s3": "Fügen Sie in Ihren Unternehmenseinstellungen einen Systemnutzer hinzu, weisen Sie ihm Ihre Seite und Ihr Instagram-Konto zu und generieren Sie für Ihre App ein Token mit genau den oben aufgeführten Berechtigungen – nicht mehr und nicht weniger.",
+          "s4": "Fügen Sie das Token hier zusammen mit Ihrer Seiten-ID ein und, um auch auf Instagram zu veröffentlichen, mit der Instagram-Konto-ID."
+        },
+        "meta_ads": {
+          "s0": "Prüfen Sie in der Meta Business Suite, dass Ihr Werbekonto in Ihrem Business-Portfolio liegt.",
+          "s1": "Erstellen Sie auf developers.facebook.com eine App vom Typ „Business“, die demselben Portfolio gehört.",
+          "s2": "Fügen Sie der App den Anwendungsfall Marketing API hinzu.",
+          "s3": "Fügen Sie in Ihren Unternehmenseinstellungen einen Systemnutzer hinzu, weisen Sie ihm Ihr Werbekonto zu und generieren Sie für Ihre App ein Token mit genau der oben aufgeführten Berechtigung – nicht mehr.",
+          "s4": "Fügen Sie das Token hier zusammen mit der Werbekonto-ID aus dem Werbeanzeigenmanager ein."
+        }
+      },
+      "field": {
+        "meta_publish": {
+          "access_token": {
+            "label": "Zugriffstoken",
+            "placeholder": "Zugriffstoken des Systemnutzers"
+          },
+          "page_id": {
+            "label": "Seiten-ID",
+            "placeholder": "ID der Facebook-Seite"
+          },
+          "ig_user_id": {
+            "label": "Instagram-Konto-ID",
+            "placeholder": "Instagram-Konto-ID (um auch dort zu veröffentlichen)"
+          }
+        },
+        "meta_ads": {
+          "access_token": {
+            "label": "Zugriffstoken",
+            "placeholder": "Zugriffstoken des Systemnutzers"
+          },
+          "ad_account_id": {
+            "label": "Werbekonto-ID",
+            "placeholder": "Werbekonto-ID, mit oder ohne act_"
+          }
+        }
+      },
+      "optionalField": "{label} (optional)",
+      "allowConnect": "Erlauben und verbinden",
+      "youCancelled": "Sie haben die Facebook-Anmeldung abgebrochen. Es wurde nichts verbunden.",
+      "reason": {
+        "start_here": "Starten Sie die Facebook-Anmeldung auf der Seite „Verbindungen“ von SYB, mit der Schaltfläche dort. An Meta wurde nichts gesendet.",
+        "signed_out": "Sie müssen sich zuerst bei SYB anmelden; verbinden Sie Meta dann erneut.",
+        "owner_only": "Nur Inhaber können Schreibzugriff erteilen oder zurücknehmen. An Meta wurde nichts gesendet.",
+        "unavailable": "Die Facebook-Anmeldung ist noch nicht verfügbar. Verwenden Sie stattdessen Ihre eigene Meta-App.",
+        "provider": "Das ist keine Meta-Verbindung, die SYB anbietet.",
+        "phrase": "Die Bestätigungsphrase stimmte nicht überein. Geben Sie sie wie angezeigt ein und beginnen Sie dann neu.",
+        "already_connected": "Diese Meta-Verbindung besteht bereits. Trennen Sie sie zuerst.",
+        "start_again": "Diese Facebook-Anmeldung ist abgelaufen oder wurde bereits verwendet. Beginnen Sie unter „Verbindungen“ neu.",
+        "foreign": "Diese Facebook-Anmeldung wurde von einem anderen SYB-Konto aus gestartet. Nutzen Sie zur Anmeldung bei SYB dieses Konto oder beginnen Sie neu.",
+        "meta_error": "Die Facebook-Anmeldung wurde nicht abgeschlossen. Es wurde nichts verbunden.",
+        "no_pages": "Meta hat SYB für dieses Facebook-Konto keine Seiten gezeigt. Wählen Sie im Dialog von Meta die Seite (und ihr Instagram-Konto), auf der SYB veröffentlichen soll, und versuchen Sie es dann erneut.",
+        "no_ad_accounts": "Meta hat SYB für dieses Facebook-Konto keine Werbekonten gezeigt. Wählen Sie im Dialog von Meta das Werbekonto, das SYB verwalten soll, und versuchen Sie es dann erneut.",
+        "meta_auth": "Die Facebook-Anmeldung wurde nicht abgeschlossen: Meta hat die Anmeldung nicht akzeptiert. Beginnen Sie unter „Verbindungen“ neu.",
+        "meta_permission": "Die Facebook-Anmeldung wurde nicht abgeschlossen: Laut Meta darf SYB das nicht. Prüfen Sie die unter „Verbindungen“ aufgeführten Berechtigungen und beginnen Sie neu.",
+        "meta_busy": "Die Facebook-Anmeldung wurde nicht abgeschlossen: Meta war ausgelastet oder hat nicht geantwortet. Es wurde nichts verbunden – versuchen Sie es in ein paar Minuten erneut.",
+        "meta_refused": "Die Facebook-Anmeldung wurde nicht abgeschlossen: Meta hat sie abgelehnt. Es wurde nichts verbunden.",
+        "internal": "Bei uns ist etwas schiefgelaufen. Es wurde nichts verbunden.",
+        "generic": "Die Facebook-Anmeldung wurde nicht abgeschlossen. Es wurde nichts verbunden."
+      },
+      "nothingSent": "Das Verbinden prüft das Token und erfasst Ihre Einwilligung. Nichts wird veröffentlicht oder geändert, bevor Sie jedes einzelne Element freigeben, und das Veröffentlichen über SYB ist noch nicht eingeschaltet.",
+      "disconnectNote": "Das Trennen löscht das Token hier sofort. Bei Meta wird dadurch nichts widerrufen: Um die Berechtigungen dort zu entziehen, entfernen Sie die App aus Ihren Unternehmenseinstellungen.",
+      "access": {
+        "label": "Meta-Zugriffsstufe · {level}",
+        "standard": {
+          "word": "Standard",
+          "headline": "Meta hat SYB noch nicht für die offene Anmeldung zugelassen.",
+          "body": "Bis die Firmenregistrierung von SYB und die Zulassungen durch Meta (Erweiterter Zugriff, Unternehmensverifizierung und Tech-Provider-Verifizierung) vorliegen, verweigert Meta selbst diese Berechtigungen für jede Seite und jedes Werbekonto, die nicht dem eigenen Unternehmen von SYB gehören. Bis dahin funktionieren zwei Pilotwege."
+        },
+        "advanced": {
+          "word": "Erweitert",
+          "headline": "Meta hat SYB zugelassen, diese Berechtigungen anzufragen.",
+          "body": "Jedes Unternehmen kann hier seine eigene Seite, sein Instagram-Konto oder sein Werbekonto verbinden."
+        }
+      },
+      "available": "verfügbar",
+      "unavailable": "nicht verfügbar",
+      "route": {
+        "ownApp": "Ihre eigene Meta-App",
+        "ownAppAdvanced": "Unten einrichten, dann das Token einfügen.",
+        "ownAppStandard": "Ihre App, Ihr Business-Portfolio, Ihr Token. Unten einrichten.",
+        "signIn": "Mit Facebook anmelden",
+        "signInOn": "Anmelden, die aufgeführten Berechtigungen erteilen und Ihre Seite oder Ihr Werbekonto wählen.",
+        "testers": "Eingeladene Testpersonen: Mit Facebook anmelden",
+        "testersOn": "Für Testpersonen, die das SYB-Team in Meta hinzugefügt hat: Samuel oder Tedi fügt Sie zuerst in der Meta-App von SYB hinzu, und Sie nehmen die Einladung an.",
+        "testersOff": "Für Testpersonen, die das SYB-Team in Meta hinzugefügt hat. {off}"
+      },
+      "tier": {
+        "unseen": "noch nicht gesehen – Meta meldet sie beim ersten Aufruf von SYB für eine Anzeigenänderung",
+        "development_access": "Entwicklungsstufe: die niedrigsten Limits von Meta, für die Entwicklung gedacht",
+        "standard_access": "Standardzugriff: etwa {base} + {perAd} × (aktive Anzeigen) Aufrufe pro Stunde für dieses Werbekonto",
+        "note": "Meta begrenzt je nach Stufe, wie viele Aufrufe SYB pro Stunde für dieses Werbekonto machen darf. Das reicht für ein Unternehmen, nicht für einen ganzen Kundenstamm. SYB wartet auf den nächsten Lauf, sobald Meta meldet, dass {share} des Limits verbraucht sind. Höhere Limits erfordern eine Prüfung durch Meta, die SYB beantragt, sobald innerhalb von {days, plural, one {# Tag} other {# Tagen}} {calls, plural, one {# erfolgreicher Aufruf vorliegt} other {# erfolgreiche Aufrufe vorliegen}}."
+      }
+    },
+    "email": {
+      "aria": "Kampagnen-E-Mail",
+      "sectionLabel": "Kampagnen-E-Mail · eine eigene Einwilligung",
+      "title": {
+        "on": "Erteilt, nur für das, was Sie freigeben",
+        "off": "Aus. Nichts kann Ihren Kunden E-Mails senden."
+      },
+      "label": "Kampagnen-E-Mail",
+      "status": {
+        "connected": "verbunden",
+        "paused": "pausiert",
+        "failed": "fehlgeschlagen",
+        "disconnected": "getrennt"
+      },
+      "consentedOn": "eingewilligt am {day} · {status}",
+      "notGranted": "nicht erteilt",
+      "grant": "Erteilen",
+      "close": "Schließen",
+      "disconnect": "Trennen",
+      "disconnecting": "Wird getrennt…",
+      "unreachable": "Ich konnte den Server nicht erreichen. Versuchen Sie es erneut.",
+      "connectFailed": "Die Verbindung hat nicht geklappt.",
+      "disconnectFailed": "Das Trennen hat nicht geklappt.",
+      "granted": "Die Kampagnen-E-Mail ist erteilt, und Ihre Einwilligung ist erfasst.",
+      "disconnected": "Die Kampagnen-E-Mail ist getrennt. Es wird nichts mehr gesendet.",
+      "fact": {
+        "status": "Status",
+        "sentAs": "gesendet als",
+        "viaSyb": "{name} über SYB",
+        "repliesTo": "Antworten gehen an"
+      },
+      "disconnectNote": "Das Trennen stoppt sofort jeden Kampagnenversand. Eine bereits gesendete E-Mail lässt sich nicht zurückholen.",
+      "whatItDoes": "Was sie bewirkt",
+      "op": {
+        "send_campaign": "Eine freigegebene Kampagnen-E-Mail an die Kunden senden, die ausdrücklich zugestimmt haben, von Ihnen zu hören – jede Person wird im Moment des Versands erneut geprüft."
+      },
+      "undoable": "Lässt sich rückgängig machen.",
+      "notUndoable": "Lässt sich nicht rückgängig machen: Eine gesendete E-Mail lässt sich nicht zurückholen, und jede Kampagne wird entsprechend gekennzeichnet, bevor Sie sie freigeben.",
+      "ownService": "Kampagnen gehen über den eigenen E-Mail-Dienst von SYB hinaus, unter dem Namen Ihres Unternehmens. Sie geben SYB dafür weder ein Passwort noch einen Schlüssel.",
+      "sendAs": "Senden als (Name Ihres Unternehmens)",
+      "repliesTo": "Antworten gehen an (eine Adresse, die Sie lesen)",
+      "typeToConfirm": "Geben Sie zur Bestätigung <b>{phrase}</b> ein",
+      "recording": "Wird erfasst…",
+      "allow": "Kampagnen-E-Mail erlauben",
+      "nothingSent": "Das Erteilen erfasst Ihre Einwilligung. Nichts wird gesendet, bevor Sie eine Kampagne und dann die E-Mail selbst freigeben, und jede empfangende Person wird im Moment des Versands erneut geprüft.",
+      "how": {
+        "label": "Wie Kampagnen gesendet werden",
+        "title": "Über den eigenen E-Mail-Dienst von SYB, unter Ihrem Namen.",
+        "body": "Sie geben SYB dafür weder ein Passwort noch einen Schlüssel. Jede Kampagne geht nur an Kunden, die ausdrücklich zugestimmt haben, von Ihnen zu hören, jede Person wird im Moment des Versands erneut geprüft, und jede E-Mail enthält einen eigenen Abmeldelink, der sofort und dauerhaft gilt."
+      },
+      "realSendsOff": "{label} ist ausgeschaltet, bis der zweiwöchige unbeaufsichtigte Test abgeschlossen ist. Es wurde nichts gesendet; die Freigabe bleibt bestehen. Der Versand erfolgt beim ersten Lauf nach dem Einschalten.",
+      "sharedSender": "Vorerst gehen Kampagnen und die Anmelde-E-Mails von SYB über dieselbe Absenderadresse hinaus. Würde eine Kampagne viele Spam-Beschwerden auslösen, könnten auch Anmelde-E-Mails verlangsamt werden."
+    },
+    "google": {
+      "sectionLabel": "Google Unternehmensprofil · eine eigene Einwilligung",
+      "label": "Bewertungen im Google Unternehmensprofil",
+      "title": {
+        "on": "Erteilt, nur zum Lesen Ihrer Bewertungen genutzt",
+        "off": "Aus. SYB liest Ihre Google-Bewertungen nicht."
+      },
+      "status": {
+        "connected": "verbunden",
+        "paused": "pausiert",
+        "failed": "fehlgeschlagen",
+        "disconnected": "getrennt"
+      },
+      "consentedOn": "eingewilligt am {day} · {status}",
+      "notGranted": "nicht erteilt",
+      "notSetUpYet": "noch nicht eingerichtet",
+      "connect": "Verbinden",
+      "close": "Schließen",
+      "cancel": "Abbrechen",
+      "keepIt": "Behalten",
+      "unreachable": "Ich konnte den Server nicht erreichen. Versuchen Sie es erneut.",
+      "connectFailed": "Die Verbindung hat nicht geklappt.",
+      "revokeFailed": "Das Widerrufen hat nicht geklappt.",
+      "connected": "Das Google Unternehmensprofil ist verbunden, und Ihre Einwilligung ist erfasst.",
+      "signedInPick": "Mit Google angemeldet. Wählen Sie den Standort, den SYB lesen soll.",
+      "youCancelled": "Sie haben auf der Seite von Google abgebrochen. Es wurde nichts verbunden.",
+      "nothingConnected": "Es wurde nichts verbunden.",
+      "revoked": "Widerrufen. Der Zugriff von SYB auf Google ist gelöscht, und das Lesen wurde beendet.",
+      "fact": {
+        "status": "Status",
+        "location": "Standort",
+        "lastRead": "zuletzt gelesen",
+        "notYet": "noch nicht: SYB liest einmal täglich"
+      },
+      "revokeAsk": "SYB hört auf, Ihre Google-Bewertungen zu lesen.",
+      "revoking": "Wird widerrufen…",
+      "yesRevoke": "Ja, widerrufen",
+      "revoke": "Widerrufen",
+      "revokeNote": "Das Widerrufen löscht den Zugriff von SYB hier sofort, und SYB hört auf zu lesen. Bereits gelesene Bewertungen bleiben unter „Bewertungen“, bis Sie sie entfernen oder ihr Jahr abgelaufen ist. Um SYB auch bei Google zu entfernen, öffnen Sie in Ihrem Google-Konto die Seite „Sicherheit“ und dann „Ihre Verbindungen zu Drittanbieter-Apps und -Diensten“.",
+      "pickTitle": "Wählen Sie den Standort, den SYB liest",
+      "recording": "Wird erfasst…",
+      "readLocation": "Bewertungen dieses Standorts lesen",
+      "googleScreen": "Google zeigt dann eine eigene Seite und fragt nach dieser einen Berechtigung. Erlauben Sie sie und kommen Sie hierher zurück.",
+      "typeToConfirm": "Geben Sie zur Bestätigung <b>{phrase}</b> ein",
+      "opening": "Google wird geöffnet…",
+      "signIn": "Mit Google anmelden und das Lesen von Bewertungen erlauben",
+      "nothingWritten": "Das Verbinden erfasst Ihre Einwilligung und liest Ihre Bewertungen einmal täglich. SYB antwortet nie und bearbeitet nie Ihren Eintrag: Es liest nur von Google.",
+      "reason": {
+        "start_here": "Starten Sie die Google-Anmeldung auf der Seite „Verbindungen“ von SYB, mit der Schaltfläche dort. An Google wurde nichts gesendet.",
+        "signed_out": "Sie müssen sich zuerst bei SYB anmelden; verbinden Sie Google dann erneut.",
+        "owner_only": "Nur Inhaber können diese Berechtigung erteilen oder zurücknehmen. An Google wurde nichts gesendet.",
+        "unavailable": "Das Lesen von Bewertungen bei Google ist noch nicht eingerichtet.",
+        "phrase": "Die Bestätigungsphrase stimmte nicht überein. Geben Sie sie wie angezeigt ein und beginnen Sie dann neu.",
+        "already_connected": "Das Google Unternehmensprofil ist bereits verbunden. Widerrufen Sie es zuerst, um ein anderes zu verbinden.",
+        "start_again": "Diese Google-Anmeldung ist abgelaufen oder wurde bereits verwendet. Beginnen Sie unter „Verbindungen“ neu.",
+        "foreign": "Diese Google-Anmeldung wurde von einem anderen SYB-Konto aus gestartet. Nutzen Sie zur Anmeldung bei SYB dieses Konto oder beginnen Sie neu.",
+        "google_error": "Die Google-Anmeldung wurde nicht abgeschlossen. Es wurde nichts verbunden.",
+        "scope": "Google hat nicht genau die eine Berechtigung erteilt, die SYB anfragt. Erlauben Sie auf der Seite von Google die Berechtigung für das Unternehmensprofil und versuchen Sie es dann erneut.",
+        "no_refresh": "Google hat SYB keinen dauerhaften Zugriff gegeben. Beginnen Sie neu: Google fragt noch einmal, und SYB braucht diese Antwort.",
+        "no_locations": "Google hat SYB für dieses Google-Konto kein Unternehmensprofil gezeigt. Nutzen Sie zur Anmeldung das Konto, das Ihr Profil verwaltet, und versuchen Sie es dann erneut.",
+        "google_auth": "Google hat die Anmeldung nicht akzeptiert. Beginnen Sie unter „Verbindungen“ neu.",
+        "google_permission": "Laut Google darf SYB Unternehmensprofile noch nicht lesen. Es wurde nichts verbunden.",
+        "google_busy": "Google war ausgelastet oder hat nicht geantwortet. Es wurde nichts verbunden – versuchen Sie es in ein paar Minuten erneut.",
+        "google_refused": "Google hat die Anmeldung abgelehnt. Es wurde nichts verbunden.",
+        "internal": "Bei uns ist etwas schiefgelaufen. Es wurde nichts verbunden.",
+        "generic": "Die Google-Anmeldung wurde nicht abgeschlossen. Es wurde nichts verbunden."
+      }
+    },
+    "import": {
+      "unreachable": "Ich konnte den Server nicht erreichen. Versuchen Sie es erneut.",
+      "readFrom": "Aus {file} gelesen. Sie können es hier prüfen",
+      "orPaste": "Oder fügen Sie es hier ein",
+      "datesLabel": "Wie Datumsangaben geschrieben sind, wenn sie wie {sample} aussehen",
+      "workItOut": "Aus der Datei ermitteln",
+      "dayFirst": "Tag zuerst ({example})",
+      "monthFirst": "Monat zuerst ({example})",
+      "amountsLabel": "Wie Beträge geschrieben sind, wenn sie wie {sample} aussehen",
+      "dotDecimal": "{sample} (das Komma trennt die Tausender)",
+      "commaDecimal": "{sample} (der Punkt trennt die Tausender)",
+      "reading": "Wird gelesen…"
+    },
+    "bank": {
+      "label": "Kontoauszug · einmal gelesen, nichts bewegt",
+      "title": "Das Geld auf Ihrem Bankkonto, aus einem Kontoauszug",
+      "latest": "{amount} am {day}",
+      "lede": "Exportieren Sie einen Kontoauszug Ihrer Bank als CSV und geben Sie mir die Datei. Ich lese von jeder Zeile nur das Datum und den Kontostand danach, nichts darüber, wer gezahlt hat oder wofür, und behalte den Kontostand am Ende jedes Tages. Ihre Cashflow-Prognose startet davon, solange er höchstens eine Woche alt ist, und ich gleiche die wöchentlichen Kontostände meiner Prognose mit den Kontoauszügen ab, die Sie mir später geben. Es ist keine Bank verbunden, und es lässt sich kein Geld bewegen.",
+      "file": "Der Kontoauszug (CSV)",
+      "currency": "Währung des Kontos",
+      "through": "Der letzte Tag, den der Kontoauszug abdeckt, falls nach seiner letzten Zeile (optional)",
+      "submit": "Diesen Kontoauszug importieren",
+      "failed": "Dieser Kontoauszug wurde nicht importiert.",
+      "overlap": "Einen überlappenden Kontoauszug erneut zu importieren ist sicher: Die abgedeckten Tage werden ersetzt, nicht doppelt gezählt. Der Kontoauszug braucht eine Spalte mit dem Kontostand; eine reine Liste von Beträgen kann nicht sagen, was auf dem Konto war.",
+      "outcome": "{rows, plural, one {# Zeile} other {# Zeilen}} gelesen: {days, plural, one {ein Kontostand zum Tagesende für # Tag} other {ein Kontostand zum Tagesende für jeden der # Tage}}, {from} bis {through}, zuletzt {amount}.",
+      "skipped": {
+        "date": "{count} mit einem Datum, das ich nicht lesen konnte",
+        "balance": "{count} mit einem Kontostand, den ich nicht lesen konnte",
+        "day": "{count} von einem Tag, dessen Zeilen sich widersprechen",
+        "sep": ", ",
+        "line": "Ausgelassen, nie geraten: {parts}."
+      }
+    },
+    "bookings": {
+      "label": "Buchungen importieren · einmal gelesen, nichts zurückgeschrieben",
+      "title": "Ihre Termine, aus jedem Buchungssystem",
+      "lastImport": "Letzter Import am {day} · {platform}",
+      "lede": "Fresha, Mindbody, Booksy, SimplyBook.me, Timely und die meisten anderen lassen sich nicht verbinden, aber alle exportieren Ihre Termine. Exportieren Sie sie als CSV und geben Sie mir die Datei. Ich lese das Datum, was passiert ist, die Leistung, wer sie erbracht hat, und den Preis. Für jede Person aus Ihrer Kundschaft behalte ich einen Einweg-Code, damit ich erkennen kann, wer wiederkam. Namen, E-Mail-Adressen oder Telefonnummern behalte ich nie. Wenn Sie Square Appointments nutzen, verbinden Sie stattdessen oben Square mit seinen beiden Terminberechtigungen.",
+      "measuresSub": "{source} · {from} bis {to}",
+      "source": {
+        "import": "Ihr Buchungsexport",
+        "square": "Square"
+      },
+      "platform": "Woher der Export stammt",
+      "generic": "Ein anderes Buchungssystem oder eine Tabelle",
+      "file": "Die Exportdatei (CSV)",
+      "currency": "Währung der Preisspalte",
+      "submit": "Diese Buchungen importieren",
+      "failed": "Diese Datei wurde nicht importiert.",
+      "overlap": "Einen überlappenden Export erneut zu importieren ist sicher: Termine, die ich schon habe, werden aktualisiert, nicht doppelt gezählt. Zeilen, die ich nicht lesen kann, werden gezählt und ausgelassen, nie geraten.",
+      "caption": "{source}: {days, plural, one {der # Tag} other {die # Tage}} vom {from} bis {to}",
+      "measureHead": "Kennzahl · {days, plural, one {# Tag} other {# Tage}}",
+      "value": "Wert",
+      "how": "Wie ich darauf komme",
+      "notMeasured": "Nicht gemessen",
+      "completedHow": "wahrgenommene Termine, {from} bis {to}",
+      "measure": {
+        "completed": "Wahrgenommene Termine",
+        "noShow": "Nichterscheinensquote",
+        "lateCancel": "Quote kurzfristiger Absagen",
+        "rebooked": "Kundschaft, die erneut gebucht hat",
+        "revenue": "Umsatz aus Buchungen",
+        "full": "Wie ausgelastet Sie sind"
+      },
+      "understood": "Was ich verstanden habe",
+      "columnsCaption": "Die Spalten, die ich aus Ihrer Datei gelesen habe",
+      "iRead": "Ich lese",
+      "fromColumn": "Aus Ihrer Spalte",
+      "role": {
+        "ref": "Buchungsreferenz",
+        "start": "Datum und Uhrzeit",
+        "date": "Datum",
+        "time": "Uhrzeit",
+        "status": "Was passiert ist",
+        "service": "Leistung",
+        "staff": "Personal",
+        "client_id": "Kunden-ID, gehasht und nicht gespeichert",
+        "client_email": "Kunden-E-Mail, gehasht und nicht gespeichert",
+        "client_phone": "Kundentelefon, gehasht und nicht gespeichert",
+        "price": "Preis",
+        "duration": "Dauer",
+        "cancelled_at": "Wann abgesagt wurde"
+      },
+      "noIdentity": "Die Datei enthält keine Kunden-ID, E-Mail-Adresse oder Telefonnummer, der ich folgen kann, daher kann ich nicht sehen, wer wiederkam. Namen allein reichen nicht: Zwei Kundinnen namens Anna würden zu einer.",
+      "counted": "Was ich gezählt habe",
+      "countedLine": "{rows, plural, one {# Zeile} other {# Zeilen}} aus Ihrem Export von {platform} gelesen. {added, plural, one {# neuer Termin} other {# neue Termine}}, {updated} seit dem letzten Import geändert, {unchanged} bereits vorhanden und unverändert.",
+      "merged": "{count, plural, one {# zusätzliche Zeile teilte eine Buchungsreferenz mit einer anderen, daher habe ich jede Buchung einmal gezählt.} other {# zusätzliche Zeilen teilten eine Buchungsreferenz mit einer anderen, daher habe ich jede Buchung einmal gezählt.}}",
+      "future": "{count, plural, one {# Termin steht noch bevor. Er zählt, sobald er stattgefunden hat und Sie erneut importieren.} other {# Termine stehen noch bevor. Sie zählen, sobald sie stattgefunden haben und Sie erneut importieren.}}",
+      "daysMeasured": "Gemessene Tage: {from} bis {to}.",
+      "leftOut": "Was ich ausgelassen habe",
+      "leftOutFlag": "Ausgelassen",
+      "valueLeftOutFlag": "Wert ausgelassen",
+      "skip": {
+        "no_date": "{count, plural, one {# Zeile} other {# Zeilen}} ohne Datum.",
+        "unreadable_date": "{count, plural, one {# Zeile} other {# Zeilen}} mit einem Datum, das ich nicht lesen konnte.",
+        "no_status": "{count, plural, one {# Zeile} other {# Zeilen}} ohne Status.",
+        "unknown_status": "{count, plural, one {# Zeile} other {# Zeilen}} mit einem Status, den ich nicht kenne.",
+        "not_closed_out": "{count, plural, one {# Zeile war} other {# Zeilen waren}} nach Ablauf ihres Tages noch als gebucht markiert, daher kann ich nicht sagen, was passiert ist."
+      },
+      "skipOther": "{count, plural, one {# Zeile} other {# Zeilen}} {reason}.",
+      "gapLine": "{count} mit {gap}.",
+      "gap": {
+        "time": "einer Uhrzeit, die ich nicht lesen konnte (der Tag wurde behalten)",
+        "price": "einem Preis, den ich nicht lesen konnte (ausgelassen)",
+        "duration": "einer Dauer, die ich nicht lesen konnte (ausgelassen)",
+        "cancelled_at": "einem Absagezeitpunkt, den ich nicht mit dem Beginn vergleichen konnte, daher zählt das als gewöhnliche Absage",
+        "client": "Kundendaten, die ich nicht nutzen konnte, daher wird dieser Besuch nicht verfolgt",
+        "client_erased": "einer Person aus der Kundschaft, die Sie gelöscht haben oder die sich abgemeldet hat, daher bleibt dieser Besuch mit niemandem verknüpft"
+      },
+      "unknownStatuses": "Status, die ich nicht kannte: {list}. Ich rate nicht, was sie bedeuten.",
+      "unknownStatus": "„{word}“ ({count})",
+      "listSep": ", "
+    }
+  },
+  "landing": {
+    "meta": {
+      "title": "SYB — ein Bluttest für Ihr Unternehmen",
+      "description": "{checks} Prüfungen Ihrer Verkäufe, Buchungen, Zahlungen und Anzeigen, jedes Leck in Euro beziffert, und ein unterzeichneter Bericht."
+    },
+    "nav": {
+      "label": "Hauptnavigation",
+      "chart": "Das Chart",
+      "panels": "Was wir testen",
+      "price": "Preis",
+      "signIn": "Anmelden"
+    },
+    "hero": {
+      "pill": "Ein Bluttest für Ihr Unternehmen",
+      "titleA": "Ihr Unternehmen wirkt gesund.",
+      "titleB": "<em>Seine Zahlen</em> vielleicht nicht.",
+      "lede": "Wir führen {checks} Prüfungen Ihrer Verkäufe, Buchungen, Zahlungen und Anzeigen durch, beziffern jedes Leck in Euro und übergeben Ihnen in {daysText} {days, plural, one {Tag} other {Tagen}} einen unterzeichneten Bericht.",
+      "book": "Ihren Test buchen — {price}",
+      "see": "Sehen, was wir finden",
+      "trustReadOnly": "Nur Lesezugriff",
+      "trustSigned": "Von einem Menschen unterzeichnet",
+      "trustRefund": "Rückerstattung, wenn wir nichts finden"
+    },
+    "chart": {
+      "kicker": "Das Chart",
+      "title": "Ihr Unternehmen, gelesen wie eine Aktie.",
+      "aside": "Wir markieren den Tag, an dem jedes Leck begann – und schattieren, was es Sie gekostet hat."
+    },
+    "panels": {
+      "kicker": "Was wir testen",
+      "title": "Neun Panels. Alles, was Ihren Gewinn bewegt.",
+      "p01": {
+        "name": "Konversion",
+        "markers": "Buchung oder Checkout · Anfragen · Mobil · Seitentiefe"
+      },
+      "p02": {
+        "name": "Marge",
+        "markers": "nach Lieferung · Wareneinsatz · Gebühren · Rabatte"
+      },
+      "p03": {
+        "name": "Preisgestaltung",
+        "markers": "Preisposition · Preissensibilität · Durchschnittsbon · Schwellen"
+      },
+      "p04": {
+        "name": "Retouren & Erstattungen",
+        "markers": "Quote · Schäden & Nacharbeiten · Kosten · Gründe"
+      },
+      "p05": {
+        "name": "Kundenbindung",
+        "markers": "Wiederkauf · Zeit dazwischen · abgewandert · Wert"
+      },
+      "p06": {
+        "name": "E-Mail & SMS",
+        "markers": "Anteil · Flows · Listenwachstum · Abmeldungen"
+      },
+      "p07": {
+        "name": "Neukundengewinnung",
+        "markers": "Kosten pro Kunde · Amortisation · Kanalmix · ROAS"
+      },
+      "p08": {
+        "name": "Bestand & Kapazität",
+        "markers": "Nullbestand · toter Bestand · freie Termine · Umschlag"
+      },
+      "p09": {
+        "name": "Support",
+        "markers": "Fragen · „Wo ist meine Bestellung oder Buchung?“ · Antwortzeit · Selbsthilfe"
+      }
+    },
+    "steps": {
+      "kicker": "So funktioniert es",
+      "title": "Fünfzehn Minuten von Ihnen.",
+      "whenMinutes": "Tag {day} · {minutes} Min.",
+      "whenDay": "Tag {day}",
+      "connect": {
+        "t": "Verbinden",
+        "d": "Nur Lesezugriff. Nichts ändert sich."
+      },
+      "questions": {
+        "t": "Ein paar Fragen beantworten",
+        "d": "Nur, was Ihre Zahlen uns nicht sagen können."
+      },
+      "results": {
+        "t": "Ihre Ergebnisse erhalten",
+        "d": "Jedes Leck beziffert und im Chart markiert – und drei Korrekturen vorweg."
+      }
+    },
+    "price": {
+      "kicker": "Preis",
+      "titleA": "Ein Test.",
+      "titleB": "Ein Preis.",
+      "card": "Komplettpanel für Ihr Unternehmen",
+      "once": "einmalig",
+      "markers": "{count, plural, one {# Marker} other {# Marker}}, jeder beziffert",
+      "chart": "Ihr Umsatzchart, Lecks markiert",
+      "fixes": "{count, plural, one {# Korrektur} other {# Korrekturen}}, nach Priorität",
+      "walkthrough": "Unterzeichnet, mit Erläuterung ({minutes} Min.)",
+      "subscription": "Abonnement",
+      "none": "keins",
+      "book": "Ihren Test buchen",
+      "refund": "Weniger als {leaksText} behebbare {leaks, plural, one {Leck} other {Lecks}}? Volle Rückerstattung."
+    },
+    "faq": {
+      "title": "Fragen",
+      "passwordQ": "Brauchen Sie mein Passwort?",
+      "passwordA": "Nein. Eine Verbindung mit reinem Lesezugriff, die Sie jederzeit entfernen können.",
+      "changeQ": "Ändert sich etwas in meinen Konten?",
+      "changeA": "Nein. Wir lesen nur. Nichts wird je ohne Ihre Freigabe ausgeführt.",
+      "sizeQ": "Ist mein Unternehmen groß genug?",
+      "sizeA": "Gemacht für Unternehmen mit etwa {low}–{high} Umsatz im Monat. Zu klein zum Auslesen? Das sagen wir Ihnen, bevor Sie zahlen."
+    },
+    "foot": {
+      "book": "Ihren Test buchen — {price}",
+      "company": "[Firmenangaben]",
+      "terms": "Nutzungsbedingungen",
+      "privacy": "Datenschutz"
+    },
+    "demo": {
+      "group": "Demo-Unternehmen",
+      "kicker": "Demo",
+      "shop": "Ein Onlineshop",
+      "salon": "Ein Salon"
+    },
+    "walk": {
+      "figure": "Video zur Produkttour",
+      "bar": "SYB · PRODUKTTOUR",
+      "chapterOf": "Kapitel {n} von {total} · {title}",
+      "chapters": "Kapitel",
+      "play": "Tour abspielen",
+      "pause": "Tour pausieren",
+      "chapter": {
+        "c01": {
+          "title": "Verbinden",
+          "caption": "Verbinden Sie Ihre Konten – nur Lesezugriff, zwei Minuten.",
+          "crumb": "Verbindungen",
+          "state": "verbindet"
+        },
+        "c02": {
+          "title": "Fragen",
+          "caption": "Beantworten Sie ein paar Fragen, die nur Sie beantworten können.",
+          "crumb": "Interview",
+          "state": "wird erfasst"
+        },
+        "c03": {
+          "title": "Die Beobachtung",
+          "caption": "Wir lesen jede Zahl. Nichts wird angefasst.",
+          "crumb": "Beobachtung",
+          "state": "beobachtet"
+        },
+        "c04": {
+          "title": "Bericht",
+          "caption": "Jedes Leck, gemessen und in Euro beziffert.",
+          "crumb": "Bericht",
+          "state": "Bericht fertig"
+        },
+        "c05": {
+          "title": "Freigeben",
+          "caption": "Nichts läuft, bevor Sie auf „Freigeben“ drücken.",
+          "crumb": "Wartet auf Sie",
+          "state": "{count, plural, one {# Entscheidung} other {# Entscheidungen}}"
+        },
+        "c06": {
+          "title": "Ergebnisse",
+          "caption": "Dann sehen Sie genau, was jede Korrektur eingebracht hat.",
+          "crumb": "Ergebnisse",
+          "state": "misst"
+        }
+      },
+      "s1": {
+        "step": "Schritt {n} · Verbinden",
+        "title": "Verbinden Sie Ihre Konten, nur mit Lesezugriff.",
+        "tag": "NUR LESEN",
+        "connected": "Verbunden · {months, plural, one {# Monat wird} other {# Monate werden}} gelesen",
+        "button": "Verbinden"
+      },
+      "s2": {
+        "step": "Schritt {n} · Ein paar Fragen",
+        "range": "Eine Spanne genügt.",
+        "record": "Die Akte",
+        "you": "Sie",
+        "under": "< {a}",
+        "between": "{a}–{b}",
+        "over": "{a}+"
+      },
+      "s3": {
+        "step": "Schritt {n} · Die Beobachtung",
+        "title": "Wir lesen. Nichts wird angefasst.",
+        "tag": "BEOBACHTUNG",
+        "day": "Tag",
+        "readings": "Messungen",
+        "changes": "Vorgenommene Änderungen"
+      },
+      "s4": {
+        "step": "Schritt {n} · Ihr Bericht",
+        "title": "Jedes Leck, beziffert.",
+        "leak": "Leck / Monat"
+      },
+      "s5": {
+        "step": "Schritt {n} · Sie entscheiden",
+        "proposal": "Vorschlag · {area}",
+        "recommended": "EMPFOHLEN",
+        "expected": "Erwartet",
+        "expectedRange": "+{low}–{high} / Mon.",
+        "undo": "Rückgängig",
+        "anyTime": "Jederzeit",
+        "approve": "Freigeben",
+        "decline": "Ablehnen",
+        "stamp": "FREIGEGEBEN · Ausführung {time}"
+      },
+      "s6": {
+        "step": "Schritt {n} · Gemessen",
+        "title": "Sehen Sie genau, was es eingebracht hat.",
+        "recovered": "Zurückgewonnen / Monat",
+        "key": "F",
+        "keyLegend": "{key} = freigegeben",
+        "before": "Vorher · {metric} {value} %",
+        "after": "Nachher · {metric} {value} %",
+        "measuring": "Nachher · wird gemessen…"
+      },
+      "flag": {
+        "ACT": "HANDELN",
+        "HIGH": "HOCH",
+        "LOW": "NIEDRIG",
+        "OK": "OK"
+      },
+      "shop": {
+        "stage": "Tour mit einem beispielhaften Shop, Kapitel {n}: {caption}",
+        "caption": "Demo mit einem beispielhaften Shop. Ihre Zahlen werden Ihre eigenen sein.",
+        "reads": "Bestellungen · Produkte · Kunden · Lagerbestand",
+        "question": "Was kostet Sie der Versand pro Bestellung ungefähr?",
+        "fact": "Versand {low}–{high}",
+        "r0": "Bestellungen, {days} T.",
+        "r1": "Ø Bestellung",
+        "r2": "Versandabwicklung",
+        "w2": "selbst",
+        "m0": "Checkout-Konversion",
+        "m1": "Marge nach Versand",
+        "m2": "Retourenquote",
+        "m3": "Anteil E-Mail & SMS",
+        "m4": "Stammkunden",
+        "area": "Checkout",
+        "proposal": "Den mobilen Checkout-Schritt beheben, an dem Kaufwillige abspringen",
+        "metric": "Konversion"
+      },
+      "salon": {
+        "stage": "Tour mit einem beispielhaften Salon, Kapitel {n}: {caption}",
+        "caption": "Demo mit einem beispielhaften Salon. Ihre Zahlen werden Ihre eigenen sein.",
+        "reads": "Zahlungen · Rückerstattungen · Standorte",
+        "question": "Wie viele Kundinnen und Kunden mit Termin erscheinen pro Woche ungefähr nicht?",
+        "fact": "Nichterscheinen {low}–{high} pro Woche",
+        "r0": "Bezahlte Besuche, {days} T.",
+        "r1": "Ø Bon",
+        "r2": "Anzahlungen",
+        "w2": "keine",
+        "m0": "Nichterscheinensquote",
+        "m1": "Wiederbuchungsquote",
+        "m2": "Stuhlauslastung",
+        "m3": "Quote der Produktzusatzverkäufe",
+        "m4": "Durchschnittsbon",
+        "area": "Buchungen",
+        "proposal": "Bei Erstbuchungen eine Anzahlung nehmen, um das Nichterscheinen zu senken",
+        "metric": "Nichterscheinensquote"
+      }
+    },
+    "storeChart": {
+      "day": "{count}T",
+      "week": "{count}W",
+      "overlay": "Lecks einblenden",
+      "weekOf": "Woche vom {day}",
+      "open": "E",
+      "high": "H",
+      "low": "T",
+      "close": "S",
+      "withoutLeaks": "Ohne Lecks {value}",
+      "gap": "Lücke {value}",
+      "shop": {
+        "title": "SHOP · UMSATZ",
+        "subtitle": "Beispielhafter Shop · {days, plural, one {# Tag} other {# Tage}}",
+        "volume": "Bestellungen",
+        "description": "Candlestick-Chart des täglichen Umsatzes eines beispielhaften Shops über {days, plural, one {# Tag} other {# Tage}}. Eine gepunktete Linie zeigt den Umsatz ohne Lecks; die schattierte Lücke dazwischen ist verlorenes Geld. Drei Markierungen zeigen, wo Lecks begannen: ein Theme-Update, ein Nullbestand und eine Änderung beim Versand.",
+        "T": {
+          "key": "U",
+          "label": "Theme-Update",
+          "note": "Theme-Update – der mobile Checkout wird langsamer"
+        },
+        "S": {
+          "key": "N",
+          "label": "Nullbestand",
+          "note": "Nullbestand – die Bestseller sind ausverkauft"
+        },
+        "F": {
+          "key": "V",
+          "label": "Grenze für Gratisversand",
+          "note": "Grenze für Gratisversand zu niedrig angesetzt"
+        }
+      },
+      "salon": {
+        "title": "SALON · UMSATZ",
+        "subtitle": "Beispielhafter Salon · {days, plural, one {# Tag} other {# Tage}}",
+        "volume": "Besuche",
+        "description": "Candlestick-Chart des täglichen Umsatzes eines beispielhaften Salons über {days, plural, one {# Tag} other {# Tage}}. Eine gepunktete Linie zeigt den Umsatz ohne Lecks; die schattierte Lücke dazwischen ist verlorenes Geld. Drei Markierungen zeigen, wo Lecks begannen: eine Stylistin, die geht, Online-Buchung ohne Anzahlung und das versetzte Verkaufsregal.",
+        "L": {
+          "key": "S",
+          "label": "Stylistin geht",
+          "note": "Eine Stylistin geht – ihre Stammkundschaft bucht nicht mehr"
+        },
+        "B": {
+          "key": "B",
+          "label": "Online-Buchung",
+          "note": "Online-Buchung startet ohne Anzahlung – das Nichterscheinen steigt"
+        },
+        "R": {
+          "key": "R",
+          "label": "Regal versetzt",
+          "note": "Verkaufsregal vom Empfang weggerückt – die Produktverkäufe sinken"
+        }
+      }
+    }
+  },
+  "legal": {
+    "toBeSupplied": "Dieses Dokument wird von SYB vor dem Start bereitgestellt.",
+    "terms": {
+      "meta": "Nutzungsbedingungen — SYB",
+      "label": "Nutzungsbedingungen",
+      "title": "Nutzungsbedingungen"
+    },
+    "privacy": {
+      "meta": "Datenschutzhinweis — SYB",
+      "label": "Datenschutz",
+      "title": "Datenschutzhinweis",
+      "speakingHead": "Eine Antwort sprechen",
+      "speaking": "Wenn Sie auf „Sprechen“ drücken, wandelt Ihr Browser Ihre Sprache in Text um. Wo der Browser das auf Ihrem Gerät kann, bleibt der Ton dort. Andernfalls übernimmt das der Hersteller Ihres Browsers: bei Chrome Google. SYB erhält den Ton nie und speichert keinen. Gespeichert werden nur die Worte, die Sie erfassen, fragen oder senden möchten, genau so, als hätten Sie sie getippt, und durch bloßes Sprechen wird nichts erfasst."
+    }
+  },
+  "resume": {
+    "meta": "Weitermachen — SYB",
+    "kicker": "Ihr Interview",
+    "headline": "Machen Sie dort weiter, wo Sie aufgehört haben.",
+    "label": "Bestätigen",
+    "title": "Mit diesem Interview weitermachen?",
+    "button": "Weitermachen",
+    "note": "Kein Link, den Sie angefordert haben? Schließen Sie diese Seite. In diesem Browser ändert sich nichts, solange Sie die Schaltfläche nicht drücken.",
+    "deadHeadline": "Dieser Link ist abgelaufen.",
+    "deadMessage": "Links zum Fortsetzen funktionieren nicht mehr, wenn sie ablaufen oder widerrufen werden. Nach der Anmeldung mit Ihrer E-Mail-Adresse ist Ihr Interview dort, wo Sie es verlassen haben."
+  },
+  "summaryStop": {
+    "meta": "Wöchentliche Zusammenfassung — SYB",
+    "label": "E-Mail-Einstellungen",
+    "unknown": {
+      "title": "Diesen Link kennen wir nicht.",
+      "body": "Prüfen Sie, ob der ganze Link aus der E-Mail kopiert wurde. Es hat sich nichts geändert."
+    },
+    "stopped": {
+      "title": "Die wöchentliche Zusammenfassung ist aus.",
+      "body": "Ich sende sie nicht mehr per E-Mail. Alles, worüber sie berichtet hat, steht weiterhin auf Ihrer Seite <watch>Beobachtung</watch>, und dort können Sie sie wieder einschalten."
+    },
+    "ask": {
+      "title": "Die wöchentliche Zusammenfassung per E-Mail beenden?",
+      "body": "Ein Klick, und sie endet. Anmeldelinks und die Hinweise auf der Support-Seite sind nicht betroffen.",
+      "button": "Diese E-Mails beenden"
+    }
+  },
   "benchmarks": {
     "meta": {
       "title": "Vergleich mit ähnlichen Unternehmen — SYB"

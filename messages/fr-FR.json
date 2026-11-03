@@ -1613,6 +1613,1164 @@
       "cantTell": "« Impossible à dire » signifie que les chiffres mesurés n’étaient pas là, ou que quelque chose d’absent de ma prévision s’est interposé, comme une livraison. Cela ne compte jamais comme juste."
     }
   },
+  "connections": {
+    "meta": {
+      "title": "Connexions — SYB"
+    },
+    "kicker": "Votre entreprise · Connexions",
+    "aside": "La lecture est séparée de l’écriture — toujours",
+    "loading": "Lecture de vos connexions…",
+    "unreachable": "Je n’ai pas pu joindre le serveur. Veuillez réessayer.",
+    "error": {
+      "title": "Les connexions ne se sont pas chargées.",
+      "label": "Connexions",
+      "cardTitle": "Une erreur s’est produite.",
+      "body": "Une erreur s’est produite au chargement de vos connexions. Actualisez la page pour réessayer."
+    },
+    "signedOut": {
+      "title": "Connectez-vous pour relier vos chiffres.",
+      "cardTitle": "Les connexions sont liées à votre compte.",
+      "body": "Un compte de paiement, une caisse ou une boutique en ligne, ou un compte publicitaire se relie à votre compte, pas seulement à ce navigateur.",
+      "signIn": "Se connecter"
+    },
+    "headline": {
+      "reading": "{count, plural, one {# source lue.} many {# sources lues.} other {# sources lues.}}",
+      "stalled": "Rien n’est lu en ce moment.",
+      "none": "Rien n’est encore branché.",
+      "writesUnknown": "L’accès en écriture n’a pas pu être lu.",
+      "canWrite": "Écriture possible pour {labels} — uniquement ce que vous validez.",
+      "nothingWritten": "Rien ne peut être écrit.",
+      "readOnly": "Pour {labels}, une autorisation détenue permettrait d’écrire \u0001 SYB ne s’en sert que pour lire."
+    },
+    "status": {
+      "connected": "connecté",
+      "paused": "en pause",
+      "failed": "en échec",
+      "disconnected": "déconnecté"
+    },
+    "banner": {
+      "see": "Vous pouvez voir ce qui est branché.",
+      "seeAndRead": "Vous pouvez voir ce qui est branché, et relire n’importe quelle source dès maintenant.",
+      "readAgainGroup": "Relire maintenant",
+      "readingOne": "Lecture de {label}…",
+      "readAgain": "Relire {label} maintenant"
+    },
+    "sync": {
+      "didntRun": "La synchronisation n’a pas eu lieu.",
+      "locked": "Une synchronisation est déjà en cours pour {label}.",
+      "done": "Synchronisation de {label} terminée. {count, plural, one {# chiffre quotidien lu.} many {# chiffres quotidiens lus.} other {# chiffres quotidiens lus.}}",
+      "failed": "La synchronisation de {label} a échoué. {reason}",
+      "noReason": "Aucune raison n’a été donnée."
+    },
+    "panel": {
+      "label": "Panneau de brassage",
+      "title": "Ce qui est branché",
+      "legendOn": "actif",
+      "legendOff": "inactif",
+      "legendNever": "jamais",
+      "source": "Source",
+      "gives": "Ce qu’elle apporte",
+      "read": "Lecture",
+      "write": "Écriture",
+      "lastRead": "Dernière lecture",
+      "action": "Action",
+      "reading": "lecture en cours",
+      "notReading": "pas de lecture, {status}",
+      "off": "inactif",
+      "writeNever": "jamais — lecture seule par conception",
+      "close": "Fermer",
+      "settings": "Paramètres",
+      "connect": "Connecter",
+      "past": "{label} a été déconnecté. L’identifiant d’accès a été supprimé \u0001 l’historique mesuré qu’il a produit reste dans votre profil.",
+      "foot": "Les chiffres mesurés remplacent vos estimations dans le rapport, et vos estimations restent dans votre historique. Google Ads n’est pas encore disponible : SYB doit d’abord obtenir l’accord de Google avant qu’un compte puisse s’y connecter."
+    },
+    "settings": {
+      "access": "accès",
+      "readOnly": "lecture seule",
+      "granted": "accordé",
+      "nothingRecorded": "rien d’enregistré",
+      "checked": "vérifié",
+      "checkedReported": "{label} a indiqué exactement ces autorisations, et je les ai vérifiées : rien ici ne peut modifier quoi que ce soit de votre côté.",
+      "checkedProbed": "Ces lectures ont été testées et fonctionnent. {label} ne peut indiquer à aucune application ce que la clé autorise d’autre.",
+      "lastSync": "dernière synchronisation",
+      "never": "jamais",
+      "history": "historique",
+      "shopifyAllOrders": "Sans read_all_orders, une autorisation que Shopify doit approuver, Shopify ne montre que {days, plural, one {# jour} many {# jours} other {# jours}} d’historique.",
+      "carts": "paniers",
+      "cartsRead": "Je lis les paiements laissés inachevés, avec ce qu’ils contenaient, sous le même read_orders.",
+      "cartsCustomers": "Avec read_customers, je lis aussi l’e-mail de l’acheteur de chaque panier et son réglage de marketing par e-mail. Les paniers n’en gardent qu’une copie brouillée. Les acheteurs que Shopify indique comme abonnés deviennent des contacts, avec leur e-mail, que vous pouvez effacer.",
+      "cartsNoCustomers": "Shopify n’indique qui a laissé un panier qu’à une application autorisée à lire vos clients. Ajoutez l’autorisation facultative read_customers et je rapproche les paniers de vos contacts \u0001 sans elle, aucun n’est rapproché.",
+      "lastError": "dernière erreur",
+      "inARow": "({count} de suite)",
+      "syncing": "Synchronisation…",
+      "syncNow": "Synchroniser maintenant",
+      "hideMatching": "Masquer les correspondances",
+      "matchProducts": "Associer les produits",
+      "matchChannels": "Associer les canaux",
+      "disconnectAsk": "Déconnecter {label} \u0001 L’identifiant d’accès est supprimé et la synchronisation s’arrête. L’historique mesuré reste.",
+      "yesDisconnect": "Oui, déconnecter",
+      "keepIt": "Conserver",
+      "disconnect": "Déconnecter",
+      "disconnected": "{label} est déconnecté. L’identifiant d’accès est supprimé, et l’historique mesuré reste.",
+      "disconnectFailed": "La déconnexion n’a pas abouti."
+    },
+    "history": {
+      "notSynced": "Pas encore synchronisé. La première synchronisation lit {days, plural, one {le dernier jour} many {les # derniers jours} other {les # derniers jours}}.",
+      "never": "Jamais synchronisé.",
+      "upToDate": "À jour jusqu’au {day}, couvrant {days, plural, one {le dernier jour} many {les # derniers jours} other {les # derniers jours}}.",
+      "readThrough": "Lu jusqu’au {day}, soit {share} {days, plural, one {du dernier jour} many {des # derniers jours} other {des # derniers jours}}."
+    },
+    "mapping": {
+      "reading": "Lecture de {label}…",
+      "couldntRead": "Impossible de lire {label}.",
+      "notSaved": "Cette correspondance n’a pas été enregistrée.",
+      "matchedTo": "associé à <b>{label}</b>",
+      "notMatched": "pas encore associé",
+      "suggested": "{title} (suggéré)",
+      "noneOfThese": "Aucun de ceux-ci",
+      "saving": "enregistrement…",
+      "confirm": "Confirmer",
+      "product": {
+        "none": "Votre profil ne contient encore aucune offre à associer. Ajoutez-les d’abord pendant l’entretien.",
+        "intro": "Associez chaque chose que vous vendez à son produit {label}. Les ventes d’un produit associé deviennent les unités mensuelles mesurées de cette offre. Je suggère des correspondances \u0001 rien ne compte tant que vous ne les avez pas confirmées.",
+        "noMatch": "aucun produit correspondant",
+        "select": "Produit {label} pour {name}",
+        "choose": "choisir un produit…",
+        "unmatched": "{count, plural, one {# produit {label} n’est associé à rien dans votre profil. C’est une lacune, et je ne devinerai pas de quoi il s’agit.} many {# produits {label} ne sont associés à rien dans votre profil. C’est une lacune, et je ne devinerai pas de quoi il s’agit.} other {# produits {label} ne sont associés à rien dans votre profil. C’est une lacune, et je ne devinerai pas de quoi il s’agit.}}"
+      },
+      "channel": {
+        "none": "Votre profil ne contient encore aucun canal à associer. Ajoutez-les d’abord pendant l’entretien.",
+        "intro": "Associez chacun de vos canaux de vente au canal de trafic {label} qui lui correspond. Les visites d’un canal associé deviennent les visites mensuelles mesurées de ce canal. Je suggère des correspondances \u0001 rien ne compte tant que vous ne les avez pas confirmées.",
+        "noMatch": "aucun canal de trafic correspondant",
+        "select": "Canal de trafic {label} pour {name}",
+        "choose": "choisir un canal de trafic…",
+        "unmatched": "{count, plural, one {# canal de trafic {label} n’est associé à rien dans votre profil. C’est une lacune, et je ne devinerai pas de quoi il s’agit.} many {# canaux de trafic {label} ne sont associés à rien dans votre profil. C’est une lacune, et je ne devinerai pas de quoi il s’agit.} other {# canaux de trafic {label} ne sont associés à rien dans votre profil. C’est une lacune, et je ne devinerai pas de quoi il s’agit.}}"
+      }
+    },
+    "connect": {
+      "sub": "{label}, en lecture seule",
+      "failed": "La connexion n’a pas abouti.",
+      "doneProduct": "{label} est connecté. Appuyez sur Synchroniser maintenant pour lire vos commandes, puis associez vos produits.",
+      "doneChannel": "{label} est connecté. Appuyez sur Synchroniser maintenant pour lire votre trafic, puis associez vos canaux.",
+      "done": "{label} est connecté. Appuyez sur Synchroniser maintenant pour lire l’année écoulée.",
+      "checking": "Vérification…",
+      "button": "Connecter {label}",
+      "encrypted": "Tout ce que vous saisissez est chiffré avant d’être stocké et n’est plus jamais affiché, pas même à vous."
+    },
+    "verify": {
+      "reported": "{label} indique exactement quelles autorisations possède un identifiant d’accès, et je les vérifie lors de la connexion. S’il peut modifier quoi que ce soit de votre côté, je refuse la connexion.",
+      "probedStripe": "{label} ne permet à aucune application de vérifier les autres autorisations d’une clé. Voici ce que je peux promettre : je teste que les lectures ci-dessus fonctionnent, et mon code ne peut que lire. Je refuse les clés à accès complet, et c’est en laissant toutes les autres autorisations sur None que la clé elle-même est en lecture seule.",
+      "probed": "{label} ne permet à aucune application de vérifier les autres autorisations d’une clé. Voici ce que je peux promettre : je teste que les lectures ci-dessus fonctionnent, et mon code ne peut que lire. C’est le choix d’un accès en lecture qui rend la clé elle-même en lecture seule."
+    },
+    "guide": {
+      "line": "<b>{grant}</b>. {why}",
+      "sep": ", ",
+      "fixture": {
+        "s0": {
+          "grant": "Chiffre d’affaires : lecture",
+          "why": "Le chiffre d’affaires quotidien, pour le chiffre mensuel.",
+          "gives": "le chiffre d’affaires quotidien"
+        },
+        "s1": {
+          "grant": "Commandes : lecture",
+          "why": "Le nombre de commandes quotidien, pour le chiffre mensuel.",
+          "gives": "le nombre de commandes quotidien"
+        },
+        "s2": {
+          "grant": "Dépenses publicitaires : lecture",
+          "why": "Les dépenses publicitaires quotidiennes, pour le chiffre mensuel.",
+          "gives": "les dépenses publicitaires quotidiennes"
+        }
+      },
+      "stripe": {
+        "s0": {
+          "grant": "Balance: Read",
+          "why": "Votre historique de paiements, c’est-à-dire chaque encaissement et chaque remboursement : c’est de là que viennent le chiffre d’affaires mensuel et le nombre de commandes.",
+          "gives": "votre historique de paiements"
+        }
+      },
+      "shopify": {
+        "s0": {
+          "why": "Vos commandes : c’est de là que viennent le chiffre d’affaires quotidien, le nombre de commandes et les unités vendues, ainsi que les paiements laissés inachevés, avec ce qu’ils contenaient.",
+          "gives": "vos commandes"
+        },
+        "s1": {
+          "why": "Votre liste de produits, pour que chaque produit puisse être associé à ce que vous vendez, et la quantité de chacun en stock avec ce qu’il vous coûte, pour que je puisse signaler le stock qui ne se vend pas.",
+          "gives": "votre liste de produits"
+        },
+        "s2": {
+          "grant": "read_all_orders (facultatif, Shopify doit l’approuver)",
+          "why": "Les commandes de plus de {days, plural, one {# jour} many {# jours} other {# jours}}, pour une année complète d’historique. Sans elle, je lis {days, plural, one {le dernier jour} many {les # derniers jours} other {les # derniers jours}}.",
+          "gives": "les commandes de plus de {days, plural, one {# jour} many {# jours} other {# jours}}"
+        },
+        "s3": {
+          "grant": "read_customers (facultatif)",
+          "why": "Qui a laissé un paiement inachevé, pour qu’un panier puisse être rapproché d’une personne de votre liste de contacts. Je lis seulement l’e-mail de l’acheteur d’un panier et si cette personne est abonnée à votre marketing par e-mail dans Shopify. Les paniers gardent une copie brouillée de l’e-mail. Les acheteurs que Shopify indique comme abonnés sont ajoutés à vos contacts avec leur e-mail, où vous pouvez les effacer, et les autres ne gardent que la copie brouillée. Sans elle, aucun panier n’est rapproché.",
+          "gives": "qui a laissé un paiement inachevé"
+        }
+      },
+      "woocommerce": {
+        "s0": {
+          "grant": "Accès en lecture (couvre les commandes)",
+          "why": "Vos commandes : c’est de là que viennent le chiffre d’affaires quotidien, le nombre de commandes et les unités vendues.",
+          "gives": "vos commandes"
+        },
+        "s1": {
+          "grant": "Accès en lecture (couvre les produits)",
+          "why": "Votre liste de produits, pour que chaque produit puisse être associé à ce que vous vendez, et son niveau de stock, pour que je puisse signaler le stock qui ne se vend pas.",
+          "gives": "votre liste de produits"
+        }
+      },
+      "ga4": {
+        "s0": {
+          "grant": "Rôle Lecteur sur la propriété",
+          "why": "Les sessions par jour et par canal : c’est de là que vient le trafic mesuré du site web. Le rôle Lecteur peut lire les rapports et ne peut rien modifier.",
+          "gives": "les sessions par jour et par canal"
+        }
+      },
+      "meta_ads": {
+        "s0": {
+          "why": "Les dépenses publicitaires quotidiennes et les achats que Meta attribue à vos publicités. Rien qui puisse modifier une campagne.",
+          "gives": "les dépenses publicitaires quotidiennes et les achats que Meta attribue à vos publicités"
+        }
+      },
+      "search_console": {
+        "s0": {
+          "grant": "Une autorisation restreinte sur la propriété suffit",
+          "why": "Les recherches Google pour lesquelles votre site est apparu, à quelle fréquence, et à quelle fréquence les gens ont cliqué. Elle permet de lire les rapports et ne permet rien de modifier.",
+          "gives": "les recherches Google pour lesquelles votre site est apparu"
+        }
+      },
+      "square": {
+        "s0": {
+          "why": "Chaque paiement encaissé par vos caisses, carte et espèces enregistrés dans Square : c’est de là que viennent les recettes quotidiennes et horaires.",
+          "gives": "chaque paiement encaissé par vos caisses"
+        },
+        "s1": {
+          "why": "Votre liste d’établissements, pour que les paiements de chaque caisse soient lus, pas seulement ceux de la caisse principale.",
+          "gives": "votre liste d’établissements"
+        },
+        "s2": {
+          "grant": "APPOINTMENTS_READ (facultatif, pour les réservations)",
+          "why": "Vos rendez-vous : ceux qui ont été honorés, ceux qui ont été manqués sans prévenir ou annulés, et si les clients sont revenus, mais pas leurs notes.",
+          "gives": "vos rendez-vous"
+        },
+        "s3": {
+          "grant": "APPOINTMENTS_ALL_READ (facultatif, avec la précédente)",
+          "why": "Vos rendez-vous. Square exige celle-ci, avec la précédente, pour lire toutes les réservations de vos établissements, pas seulement celles faites via SYB. Elle ne peut pas modifier une réservation.",
+          "gives": "vos rendez-vous"
+        }
+      }
+    },
+    "steps": {
+      "stripe": {
+        "s1": "Dans votre Dashboard Stripe, ouvrez <b>Développeurs</b>, puis <b>Clés API</b>, et choisissez <b>Créer une clé restreinte</b>. Le mode test convient pour commencer.",
+        "s2": "Laissez chaque autorisation sur <b>None</b>, sauf :",
+        "s3": "Créez la clé et collez-la ci-dessous. Elle commence par <b>rk_test_</b> ou <b>rk_live_</b>."
+      },
+      "shopify": {
+        "s1": "Dans le <b>Dev Dashboard</b> de Shopify, choisissez <b>Create app</b>, puis <b>Start from Dev Dashboard</b>, et donnez-lui un nom.",
+        "s2": "Dans l’onglet <b>Versions</b> de l’application, ajoutez uniquement ces autorisations (scopes) de l’Admin API, puis publiez la version :",
+        "s3": "Depuis la page <b>Home</b> de l’application, choisissez <b>Install app</b> et sélectionnez votre boutique. L’application et la boutique doivent appartenir à la même organisation Shopify.",
+        "s4": "Dans les <b>Settings</b> de l’application, copiez l’ID client et le secret client, et saisissez-les ci-dessous avec l’adresse myshopify.com de votre boutique."
+      },
+      "woocommerce": {
+        "s1": "Dans WordPress, ouvrez <b>WooCommerce</b>, puis <b>Réglages</b>, <b>Avancé</b>, <b>API REST</b>, et choisissez <b>Ajouter une clé</b>.",
+        "s2": "Réglez <b>Droits</b> sur <b>Lecture</b>. L’accès en lecture couvre :",
+        "s3": "Générez la clé, puis saisissez la clé client et le secret client ci-dessous avec l’adresse de votre boutique."
+      },
+      "ga4": {
+        "s1": "Dans <b>Google Cloud Console</b>, créez un projet (ou utilisez-en un), activez la <b>Google Analytics Data API</b>, puis sous <b>IAM et administration</b>, <b>Comptes de service</b>, créez un compte de service et téléchargez une <b>clé JSON</b> pour celui-ci.",
+        "s2": "Dans <b>Google Analytics</b>, ouvrez <b>Administration</b>, puis <b>Gestion des accès à la propriété</b>, et ajoutez l’adresse e-mail du compte de service avec le rôle :",
+        "s3": "Copiez l’ID de propriété depuis <b>Administration</b>, <b>Informations sur la propriété</b>, et collez-le ci-dessous avec le contenu du fichier de clé."
+      },
+      "square": {
+        "s1": "Dans la <b>Square Developer Console</b>, créez une application (ou ouvrez-en une) et copiez son <b>Production access token</b>.",
+        "s2": "Accordez-lui uniquement ces autorisations :",
+        "s3": "Collez le jeton ci-dessous. Les paiements enregistrés dans Square — carte et espèces — sont lus \u0001 les espèces qui ne passent jamais par la caisse ne sont visibles par aucun outil. Avec les deux autorisations de rendez-vous, vos réservations Square Appointments sont lues aussi."
+      },
+      "search_console": {
+        "s1": "Dans <b>Google Cloud Console</b>, activez la <b>Google Search Console API</b> sur un projet et créez un compte de service avec une <b>clé JSON</b> — celui que vous utilisez pour Google Analytics convient aussi.",
+        "s2": "Dans <b>Search Console</b>, ouvrez <b>Paramètres</b>, puis <b>Utilisateurs et autorisations</b>, et ajoutez l’e-mail du compte de service :",
+        "s3": "Saisissez la propriété exactement comme Search Console la nomme, avec le contenu du fichier de clé. Google masque les recherches rares par souci de confidentialité : les recherches que je lis totalisent donc un peu moins que le total affiché par Google."
+      },
+      "meta_ads": {
+        "s1": "Dans <b>Meta Business Suite</b>, ouvrez <b>Paramètres de l’entreprise</b>, puis <b>Utilisateurs</b>, <b>Utilisateurs système</b>, et ajoutez un utilisateur système (le rôle Employé suffit).",
+        "s2": "Sous <b>Assign assets</b>, attribuez-lui votre compte publicitaire avec <b>View performance</b> uniquement.",
+        "s3": "Choisissez <b>Generate token</b>, sélectionnez votre application, et cochez uniquement :",
+        "s4": "Collez le jeton ci-dessous avec l’ID de votre compte publicitaire, affiché dans le <b>Gestionnaire de publicités</b>."
+      }
+    },
+    "field": {
+      "fixture": {
+        "key": {
+          "label": "Identifiant fictif"
+        }
+      },
+      "stripe": {
+        "key": {
+          "label": "Clé restreinte"
+        }
+      },
+      "shopify": {
+        "shop": {
+          "label": "Adresse de la boutique"
+        },
+        "client_id": {
+          "label": "ID client",
+          "placeholder": "dans les Settings de l’application"
+        },
+        "client_secret": {
+          "label": "Secret client",
+          "placeholder": "dans les Settings de l’application"
+        }
+      },
+      "woocommerce": {
+        "site_url": {
+          "label": "Adresse de la boutique"
+        },
+        "consumer_key": {
+          "label": "Clé client"
+        },
+        "consumer_secret": {
+          "label": "Secret client"
+        }
+      },
+      "ga4": {
+        "property_id": {
+          "label": "ID de propriété",
+          "placeholder": "le numéro sous Administration, Informations sur la propriété"
+        },
+        "service_account_json": {
+          "label": "Fichier de clé du compte de service",
+          "placeholder": "collez ici tout le fichier de clé JSON"
+        }
+      },
+      "meta_ads": {
+        "ad_account_id": {
+          "label": "ID du compte publicitaire"
+        },
+        "access_token": {
+          "label": "Jeton d’accès de l’utilisateur système"
+        }
+      },
+      "square": {
+        "access_token": {
+          "label": "Jeton d’accès",
+          "placeholder": "depuis la Square Developer Console"
+        },
+        "environment": {
+          "label": "Environnement",
+          "placeholder": "production (ou sandbox pour les tests)"
+        }
+      },
+      "search_console": {
+        "site_url": {
+          "label": "Propriété",
+          "placeholder": "https://www.example.com/ ou sc-domain:example.com"
+        },
+        "service_account_json": {
+          "label": "Fichier de clé du compte de service",
+          "placeholder": "collez ici tout le fichier de clé JSON"
+        }
+      }
+    },
+    "write": {
+      "aria": "Accès en écriture",
+      "sectionLabel": "Accès en écriture · un consentement distinct",
+      "title": {
+        "off": "Désactivé. Rien ne peut être publié.",
+        "paused": "En pause. Reconnectez pour continuer.",
+        "on": "Activé, uniquement pour ce que vous validez"
+      },
+      "label": {
+        "meta_publish": "Publication Meta (Page Facebook et Instagram)",
+        "meta_ads": "Gestion des publicités Meta",
+        "email_campaign": "E-mail de campagne",
+        "google_business_reviews": "Avis de la Fiche d’établissement Google"
+      },
+      "status": {
+        "connected": "connecté",
+        "paused": "en pause",
+        "failed": "en échec",
+        "disconnected": "déconnecté"
+      },
+      "consentedOn": "consentement donné le {day} · {status}",
+      "notGranted": "non accordé",
+      "grant": "Accorder",
+      "close": "Fermer",
+      "reconnect": "Reconnecter",
+      "disconnect": "Déconnecter",
+      "disconnecting": "Déconnexion…",
+      "cancel": "Annuler",
+      "checking": "Vérification…",
+      "unreachable": "Je n’ai pas pu joindre le serveur. Veuillez réessayer.",
+      "disconnectFailed": "La déconnexion n’a pas abouti.",
+      "connectFailed": "La connexion n’a pas abouti.",
+      "disconnected": "{label} : déconnexion effectuée. Le jeton est supprimé ici.",
+      "connected": "{label} : connexion établie, et votre consentement est enregistré.",
+      "fact": {
+        "status": "statut",
+        "permissions": "autorisations",
+        "consented": "consentement",
+        "accessTier": "niveau d’accès",
+        "seen": "vu le {day}"
+      },
+      "pausedDefault": "Meta a cessé d’accepter l’authentification de cette connexion. Reconnectez-la et je reprendrai là où j’en étais.",
+      "typeToConfirm": "Pour confirmer, saisissez <b>{phrase}</b>",
+      "facebook": {
+        "sub": "Testeurs invités : connexion avec Facebook",
+        "testerNote": "Pendant le pilote, la connexion avec Facebook ne fonctionne que pour les testeurs invités. D’abord, Samuel ou Tedi, chez SYB, vous ajoute comme testeur de l’application Meta de SYB, et vous acceptez l’invitation depuis votre propre compte Facebook. Meta vous demande ensuite d’approuver exactement les autorisations listées ci-dessus, et vous choisissez ici la Page ou le compte publicitaire.",
+        "oneConsent": "Un même compte Facebook peut relier la publication ou la gestion des publicités par la connexion avec Facebook, mais pas les deux : Meta donne à l’application de SYB tout ce que vous lui avez accordé auparavant, et SYB refuse un jeton qui détient plus que ce que nomme ce consentement. Pour l’autre, utilisez votre propre application Meta ci-dessous.",
+        "opening": "Ouverture de Facebook…",
+        "signInPick": {
+          "ad": "Se connecter avec Facebook et choisir le compte publicitaire",
+          "page": "Se connecter avec Facebook et choisir la Page"
+        },
+        "signIn": "Se connecter avec Facebook"
+      },
+      "facebookOff": "Pas encore activé.",
+      "pick": {
+        "couldntList": "Je n’ai pas pu lister ce que Meta a partagé.",
+        "connected": "{label} : connexion établie via Facebook, et votre consentement est enregistré.",
+        "cancelled": "Connexion avec Facebook annulée. Rien n’a été connecté, et SYB n’a conservé aucun jeton.",
+        "title": {
+          "ad": "Choisissez le compte publicitaire sur lequel SYB peut agir",
+          "page": "Choisissez la Page sur laquelle SYB peut agir"
+        },
+        "asking": "Je demande à Meta ce que vous avez partagé…",
+        "aria": {
+          "ad": "Choisir le compte publicitaire",
+          "page": "Choisir la Page"
+        },
+        "instagram": "Instagram {handle} aussi",
+        "noInstagram": "aucun compte Instagram associé : Facebook uniquement",
+        "active": "actif",
+        "notActive": "inactif",
+        "allow": {
+          "ad": "Autoriser et connecter ce compte publicitaire",
+          "page": "Autoriser et connecter cette Page"
+        },
+        "note": "SYB vérifie auprès de Meta que la connexion détient exactement les autorisations listées ci-dessus avant que quoi que ce soit ne soit stocké."
+      },
+      "eachAction": "Ce que fait chaque action",
+      "undoable": "Peut être annulé.",
+      "notUndoable": "Ne peut pas être annulé, et c’est indiqué avant que vous ne le validiez.",
+      "op": {
+        "publish_page_post": "Publier sur la Page Facebook une publication texte ou lien validée.",
+        "publish_page_photo": "Publier sur la Page Facebook une publication photo validée.",
+        "publish_page_video": "Publier sur la Page Facebook une vidéo ou un Reel validé.",
+        "publish_ig_media": "Publier sur le compte Instagram une publication, un carrousel ou un Reel validé.",
+        "pause_campaign": "Mettre en pause une campagne en cours.",
+        "resume_campaign": "Relancer une campagne en pause.",
+        "set_daily_budget": "Modifier le budget quotidien d’une campagne, dans les limites validées.",
+        "create_campaign_paused": "Créer une nouvelle campagne, en pause.",
+        "upload_ad_video": "Importer la vidéo d’un élément validé dans le compte publicitaire, pour sa publicité.",
+        "create_adset_paused": "Créer un ensemble de publicités en pause : son budget quotidien, son calendrier, ses placements et son audience.",
+        "create_adcreative": "Créer une création publicitaire à partir des médias et de la légende d’un élément validé, avec sa mention signalant l’IA.",
+        "create_ad_paused": "Créer une publicité en pause, avec sa campagne, son ensemble de publicités et sa création, chacun créé en pause.",
+        "resume_adset": "Relancer un ensemble de publicités en pause.",
+        "pause_adset": "Mettre en pause un ensemble de publicités en cours.",
+        "resume_ad": "Relancer une publicité en pause.",
+        "pause_ad": "Mettre en pause une publicité en cours."
+      },
+      "readback": "Pour voir les résultats de chaque publication, le même jeton lit aussi :",
+      "ownApp": "Ou : configurez votre propre application Meta",
+      "ownAppSteps": {
+        "meta_publish": {
+          "s0": "Dans Meta Business Suite, vérifiez que votre Page Facebook et son compte Instagram se trouvent tous deux dans votre portefeuille business.",
+          "s1": "Sur developers.facebook.com, créez une application de type Entreprise appartenant à ce même portefeuille.",
+          "s2": "Ajoutez à l’application les cas d’usage Pages et Instagram.",
+          "s3": "Dans les paramètres de votre entreprise, ajoutez un utilisateur système, attribuez-lui votre Page et votre compte Instagram, et générez pour votre application un jeton avec exactement les autorisations listées ci-dessus — ni plus, ni moins.",
+          "s4": "Collez ici le jeton avec l’ID de votre Page et, pour publier aussi sur Instagram, l’ID du compte Instagram."
+        },
+        "meta_ads": {
+          "s0": "Dans Meta Business Suite, vérifiez que votre compte publicitaire se trouve dans votre portefeuille business.",
+          "s1": "Sur developers.facebook.com, créez une application de type Entreprise appartenant à ce même portefeuille.",
+          "s2": "Ajoutez à l’application le cas d’usage Marketing API.",
+          "s3": "Dans les paramètres de votre entreprise, ajoutez un utilisateur système, attribuez-lui votre compte publicitaire, et générez pour votre application un jeton avec exactement l’autorisation listée ci-dessus — pas plus.",
+          "s4": "Collez ici le jeton avec l’ID du compte publicitaire indiqué dans le Gestionnaire de publicités."
+        }
+      },
+      "field": {
+        "meta_publish": {
+          "access_token": {
+            "label": "jeton d’accès",
+            "placeholder": "Jeton d’accès de l’utilisateur système"
+          },
+          "page_id": {
+            "label": "ID de la Page",
+            "placeholder": "ID de la Page Facebook"
+          },
+          "ig_user_id": {
+            "label": "ID du compte Instagram",
+            "placeholder": "ID du compte Instagram (pour y publier aussi)"
+          }
+        },
+        "meta_ads": {
+          "access_token": {
+            "label": "jeton d’accès",
+            "placeholder": "Jeton d’accès de l’utilisateur système"
+          },
+          "ad_account_id": {
+            "label": "ID du compte publicitaire",
+            "placeholder": "ID du compte publicitaire, avec ou sans act_"
+          }
+        }
+      },
+      "optionalField": "{label} (facultatif)",
+      "allowConnect": "Autoriser et connecter",
+      "youCancelled": "Vous avez annulé la connexion avec Facebook. Rien n’a été connecté.",
+      "reason": {
+        "start_here": "Lancez la connexion avec Facebook depuis l’écran Connexions de SYB, avec le bouton qui s’y trouve. Rien n’a été envoyé à Meta.",
+        "signed_out": "Connectez-vous d’abord à SYB, puis reconnectez Meta.",
+        "owner_only": "Seul un propriétaire peut accorder ou retirer l’accès en écriture. Rien n’a été envoyé à Meta.",
+        "unavailable": "La connexion avec Facebook n’est pas encore disponible. Utilisez plutôt votre propre application Meta.",
+        "provider": "Ce n’est pas une connexion Meta proposée par SYB.",
+        "phrase": "La phrase de confirmation ne correspondait pas. Saisissez-la telle qu’elle est affichée, puis recommencez.",
+        "already_connected": "Cette connexion Meta est déjà établie. Déconnectez-la d’abord.",
+        "start_again": "Cette connexion avec Facebook a expiré ou a déjà été utilisée. Recommencez depuis Connexions.",
+        "foreign": "Cette connexion avec Facebook a été lancée depuis un autre compte SYB. Connectez-vous à SYB avec ce compte, ou recommencez.",
+        "meta_error": "La connexion avec Facebook n’a pas abouti. Rien n’a été connecté.",
+        "no_pages": "Meta n’a montré à SYB aucune Page pour ce compte Facebook. Dans la fenêtre de Meta, choisissez la Page (et son compte Instagram) sur laquelle SYB doit publier, puis réessayez.",
+        "no_ad_accounts": "Meta n’a montré à SYB aucun compte publicitaire pour ce compte Facebook. Dans la fenêtre de Meta, choisissez le compte publicitaire que SYB doit gérer, puis réessayez.",
+        "meta_auth": "La connexion avec Facebook n’a pas abouti : Meta n’a pas accepté la connexion. Recommencez depuis Connexions.",
+        "meta_permission": "La connexion avec Facebook n’a pas abouti : selon Meta, SYB n’est pas autorisé à faire cela. Vérifiez les autorisations listées dans Connexions et recommencez.",
+        "meta_busy": "La connexion avec Facebook n’a pas abouti : Meta était surchargé ou n’a pas répondu. Rien n’a été connecté — réessayez dans quelques minutes.",
+        "meta_refused": "La connexion avec Facebook n’a pas abouti : Meta l’a refusée. Rien n’a été connecté.",
+        "internal": "Une erreur s’est produite de notre côté. Rien n’a été connecté.",
+        "generic": "La connexion avec Facebook n’a pas abouti. Rien n’a été connecté."
+      },
+      "nothingSent": "La connexion vérifie le jeton et enregistre votre consentement. Rien n’est publié ni modifié tant que vous n’avez pas validé chaque élément, et la publication via SYB n’est pas encore activée.",
+      "disconnectNote": "La déconnexion supprime immédiatement le jeton ici. Elle ne révoque rien du côté de Meta : pour y retirer les autorisations, supprimez l’application des paramètres de votre entreprise.",
+      "access": {
+        "label": "Niveau d’accès Meta · {level}",
+        "standard": {
+          "word": "standard",
+          "headline": "Meta n’a pas encore approuvé SYB pour l’inscription ouverte.",
+          "body": "Tant que l’immatriculation de la société SYB et les validations de Meta (Advanced Access, Business Verification et vérification Tech Provider) ne sont pas obtenues, Meta refuse lui-même ces autorisations sur toute Page ou tout compte publicitaire qui n’appartient pas à l’entreprise de SYB. Deux voies pilotes fonctionnent en attendant."
+        },
+        "advanced": {
+          "word": "avancé",
+          "headline": "Meta a approuvé SYB pour demander ces autorisations.",
+          "body": "Toute entreprise peut connecter ici sa propre Page, son compte Instagram ou son compte publicitaire."
+        }
+      },
+      "available": "disponible",
+      "unavailable": "indisponible",
+      "route": {
+        "ownApp": "Votre propre application Meta",
+        "ownAppAdvanced": "Configurez-la ci-dessous, puis collez le jeton.",
+        "ownAppStandard": "Votre application, votre portefeuille business, votre jeton. Configuration ci-dessous.",
+        "signIn": "Se connecter avec Facebook",
+        "signInOn": "Connectez-vous, approuvez les autorisations listées, et choisissez votre Page ou votre compte publicitaire.",
+        "testers": "Testeurs invités : connexion avec Facebook",
+        "testersOn": "Pour les testeurs que l’équipe SYB a ajoutés dans Meta : Samuel ou Tedi vous ajoute d’abord dans l’application Meta de SYB, et vous acceptez l’invitation.",
+        "testersOff": "Pour les testeurs que l’équipe SYB a ajoutés dans Meta. {off}"
+      },
+      "tier": {
+        "unseen": "pas encore vu — Meta l’indique lors du premier appel de SYB pour une modification publicitaire",
+        "development_access": "niveau développement : les limites les plus basses de Meta, prévues pour le développement",
+        "standard_access": "accès standard : environ {base} + {perAd} × le nombre de publicités actives, en appels par heure sur ce compte publicitaire",
+        "note": "Meta limite, selon le niveau, le nombre d’appels que SYB peut effectuer chaque heure sur ce compte publicitaire. C’est suffisant pour une entreprise, pas pour toute une clientèle. SYB attend la prochaine exécution chaque fois que Meta indique que {share} de la limite est utilisée. Des limites plus élevées nécessitent l’examen de Meta, que SYB sollicitera dès qu’il comptera {calls, plural, one {# appel réussi} many {# appels réussis} other {# appels réussis}} en {days, plural, one {# jour} many {# jours} other {# jours}}."
+      }
+    },
+    "email": {
+      "aria": "E-mail de campagne",
+      "sectionLabel": "E-mail de campagne · un consentement distinct",
+      "title": {
+        "on": "Accordé, uniquement pour ce que vous validez",
+        "off": "Désactivé. Rien ne peut envoyer d’e-mail à vos clients."
+      },
+      "label": "E-mail de campagne",
+      "status": {
+        "connected": "connecté",
+        "paused": "en pause",
+        "failed": "en échec",
+        "disconnected": "déconnecté"
+      },
+      "consentedOn": "consentement donné le {day} · {status}",
+      "notGranted": "non accordé",
+      "grant": "Accorder",
+      "close": "Fermer",
+      "disconnect": "Déconnecter",
+      "disconnecting": "Déconnexion…",
+      "unreachable": "Je n’ai pas pu joindre le serveur. Veuillez réessayer.",
+      "connectFailed": "La connexion n’a pas abouti.",
+      "disconnectFailed": "La déconnexion n’a pas abouti.",
+      "granted": "L’e-mail de campagne est accordé, et votre consentement est enregistré.",
+      "disconnected": "L’e-mail de campagne est déconnecté. Plus rien ne sera envoyé.",
+      "fact": {
+        "status": "statut",
+        "sentAs": "envoyé en tant que",
+        "viaSyb": "{name} via SYB",
+        "repliesTo": "les réponses vont à"
+      },
+      "disconnectNote": "La déconnexion arrête immédiatement tout envoi de campagne. Elle ne peut pas rappeler un e-mail déjà envoyé.",
+      "whatItDoes": "Ce que cela fait",
+      "op": {
+        "send_campaign": "Envoyer un e-mail de campagne validé aux clients qui ont explicitement accepté d’avoir de vos nouvelles, chacun étant revérifié au moment de l’envoi."
+      },
+      "undoable": "Peut être annulé.",
+      "notUndoable": "Ne peut pas être annulé : un e-mail envoyé ne peut pas être rappelé, et chaque campagne est signalée comme telle avant que vous ne la validiez.",
+      "ownService": "Les campagnes partent du service d’e-mail de SYB, sous le nom de votre entreprise. Vous ne donnez à SYB aucun mot de passe ni aucune clé pour cela.",
+      "sendAs": "Envoyer en tant que (le nom de votre entreprise)",
+      "repliesTo": "Les réponses vont à (une adresse que vous consultez)",
+      "typeToConfirm": "Pour confirmer, saisissez <b>{phrase}</b>",
+      "recording": "Enregistrement…",
+      "allow": "Autoriser l’e-mail de campagne",
+      "nothingSent": "Accorder cette autorisation enregistre votre consentement. Rien n’est envoyé tant que vous n’avez pas validé une campagne puis l’e-mail lui-même, et chaque destinataire est revérifié au moment de l’envoi.",
+      "how": {
+        "label": "Comment les campagnes sont envoyées",
+        "title": "Depuis le service d’e-mail de SYB, sous votre nom.",
+        "body": "Vous ne donnez à SYB aucun mot de passe ni aucune clé pour cela. Chaque campagne ne part qu’aux clients qui ont explicitement accepté d’avoir de vos nouvelles, chacun étant revérifié au moment de l’envoi, et chaque e-mail comporte son propre lien de désinscription, appliqué immédiatement et définitivement."
+      },
+      "realSendsOff": "Les envois réels de {label} sont coupés jusqu’à la fin du test de deux semaines sans surveillance. Rien n’a été envoyé \u0001 la validation reste acquise. L’envoi aura lieu à la première exécution après leur activation.",
+      "sharedSender": "Pour l’instant, les campagnes et les e-mails de connexion de SYB partent de la même adresse d’envoi. Si une campagne suscitait de nombreuses plaintes pour spam, les e-mails de connexion pourraient aussi être ralentis."
+    },
+    "google": {
+      "sectionLabel": "Fiche d’établissement Google · un consentement distinct",
+      "label": "Avis de la Fiche d’établissement Google",
+      "title": {
+        "on": "Accordé, utilisé uniquement pour lire vos avis",
+        "off": "Désactivé. SYB ne lit pas vos avis Google."
+      },
+      "status": {
+        "connected": "connecté",
+        "paused": "en pause",
+        "failed": "en échec",
+        "disconnected": "déconnecté"
+      },
+      "consentedOn": "consentement donné le {day} · {status}",
+      "notGranted": "non accordé",
+      "notSetUpYet": "pas encore configuré",
+      "connect": "Connecter",
+      "close": "Fermer",
+      "cancel": "Annuler",
+      "keepIt": "Conserver",
+      "unreachable": "Je n’ai pas pu joindre le serveur. Veuillez réessayer.",
+      "connectFailed": "La connexion n’a pas abouti.",
+      "revokeFailed": "La révocation n’a pas abouti.",
+      "connected": "Votre Fiche d’établissement Google est connectée, et votre consentement est enregistré.",
+      "signedInPick": "Connecté avec Google. Choisissez l’établissement que SYB doit lire.",
+      "youCancelled": "Vous avez annulé sur l’écran de Google. Rien n’a été connecté.",
+      "nothingConnected": "Rien n’a été connecté.",
+      "revoked": "Révoqué. L’accès de SYB à Google est supprimé, et la lecture s’est arrêtée.",
+      "fact": {
+        "status": "statut",
+        "location": "établissement",
+        "lastRead": "dernière lecture",
+        "notYet": "pas encore : SYB lit une fois par jour"
+      },
+      "revokeAsk": "SYB cessera de lire vos avis Google.",
+      "revoking": "Révocation…",
+      "yesRevoke": "Oui, révoquer",
+      "revoke": "Révoquer",
+      "revokeNote": "La révocation supprime immédiatement l’accès de SYB ici, et SYB cesse de lire. Les avis déjà lus restent dans Avis jusqu’à ce que vous les supprimiez ou que leur année soit écoulée. Pour retirer aussi SYB du côté de Google, ouvrez la page Sécurité de votre compte Google, puis Vos connexions à des applications et services tiers.",
+      "pickTitle": "Choisissez l’établissement que SYB lit",
+      "recording": "Enregistrement…",
+      "readLocation": "Lire les avis de cet établissement",
+      "googleScreen": "Google affiche ensuite son propre écran et vous interroge sur cette seule autorisation. Accordez-la, puis revenez ici.",
+      "typeToConfirm": "Pour confirmer, saisissez <b>{phrase}</b>",
+      "opening": "Ouverture de Google…",
+      "signIn": "Se connecter avec Google et autoriser la lecture des avis",
+      "nothingWritten": "La connexion enregistre votre consentement et lit vos avis une fois par jour. SYB ne répond jamais et ne modifie jamais votre fiche : il ne fait que lire depuis Google.",
+      "reason": {
+        "start_here": "Lancez la connexion avec Google depuis l’écran Connexions de SYB, avec le bouton qui s’y trouve. Rien n’a été envoyé à Google.",
+        "signed_out": "Connectez-vous d’abord à SYB, puis reconnectez Google.",
+        "owner_only": "Seul un propriétaire peut accorder ou retirer cette autorisation. Rien n’a été envoyé à Google.",
+        "unavailable": "La lecture des avis depuis Google n’est pas encore configurée.",
+        "phrase": "La phrase de confirmation ne correspondait pas. Saisissez-la telle qu’elle est affichée, puis recommencez.",
+        "already_connected": "La Fiche d’établissement Google est déjà connectée. Révoquez-la d’abord pour en connecter une autre.",
+        "start_again": "Cette connexion avec Google a expiré ou a déjà été utilisée. Recommencez depuis Connexions.",
+        "foreign": "Cette connexion avec Google a été lancée depuis un autre compte SYB. Connectez-vous à SYB avec ce compte, ou recommencez.",
+        "google_error": "La connexion avec Google n’a pas abouti. Rien n’a été connecté.",
+        "scope": "Google n’a pas accordé exactement la seule autorisation que SYB demande. Sur l’écran de Google, autorisez l’accès à la Fiche d’établissement, puis réessayez.",
+        "no_refresh": "Google n’a pas donné à SYB d’accès durable. Recommencez : Google vous redemandera, et SYB a besoin de cette réponse.",
+        "no_locations": "Google n’a montré à SYB aucune Fiche d’établissement pour ce compte Google. Connectez-vous avec le compte qui gère votre fiche, puis réessayez.",
+        "google_auth": "Google n’a pas accepté la connexion. Recommencez depuis Connexions.",
+        "google_permission": "Selon Google, SYB n’est pas encore autorisé à lire les Fiches d’établissement. Rien n’a été connecté.",
+        "google_busy": "Google était surchargé ou n’a pas répondu. Rien n’a été connecté — réessayez dans quelques minutes.",
+        "google_refused": "Google a refusé la connexion. Rien n’a été connecté.",
+        "internal": "Une erreur s’est produite de notre côté. Rien n’a été connecté.",
+        "generic": "La connexion avec Google n’a pas abouti. Rien n’a été connecté."
+      }
+    },
+    "import": {
+      "unreachable": "Je n’ai pas pu joindre le serveur. Veuillez réessayer.",
+      "readFrom": "Lu depuis {file}. Vous pouvez le vérifier ici",
+      "orPaste": "Ou collez-le ici",
+      "datesLabel": "Comment les dates sont écrites, si elles ressemblent à {sample}",
+      "workItOut": "Le déduire du fichier",
+      "dayFirst": "Jour en premier ({example})",
+      "monthFirst": "Mois en premier ({example})",
+      "amountsLabel": "Comment les montants sont écrits, s’ils ressemblent à {sample}",
+      "dotDecimal": "{sample} (la virgule sépare les milliers)",
+      "commaDecimal": "{sample} (le point sépare les milliers)",
+      "reading": "Lecture…"
+    },
+    "bank": {
+      "label": "Relevé bancaire · lu une fois, rien n’est déplacé",
+      "title": "L’argent sur votre compte bancaire, d’après un relevé",
+      "latest": "{amount} le {day}",
+      "lede": "Exportez un relevé de votre banque au format CSV et donnez-moi le fichier. Je lis seulement la date de chaque ligne et le solde qui la suit, rien sur qui a payé ni pour quoi, et je garde le solde de clôture de chaque jour. Votre prévision de trésorerie part de ce solde tant qu’il date d’une semaine au plus, et je compare les soldes hebdomadaires de ma prévision aux relevés que vous me donnez ensuite. Aucune banque n’est connectée, et rien ne peut être déplacé.",
+      "file": "Le relevé (CSV)",
+      "currency": "Devise du compte",
+      "through": "Le dernier jour couvert par le relevé, s’il est postérieur à sa dernière ligne (facultatif)",
+      "submit": "Importer ce relevé",
+      "failed": "Ce relevé n’a pas été importé.",
+      "overlap": "Importer à nouveau un relevé qui en chevauche un autre est sans risque : les jours qu’il couvre sont remplacés, pas comptés deux fois. Le relevé doit comporter une colonne de solde \u0001 une simple liste de montants ne peut pas dire ce qu’il y avait sur le compte.",
+      "outcome": "{rows, plural, one {# ligne lue} many {# lignes lues} other {# lignes lues}} : un solde de clôture pour {days, plural, one {# jour} many {chacun des # jours} other {chacun des # jours}}, du {from} au {through}, avec un solde final de {amount}.",
+      "skipped": {
+        "date": "{count} avec une date que je n’ai pas pu lire",
+        "balance": "{count} avec un solde que je n’ai pas pu lire",
+        "day": "{count} d’un jour dont les lignes ne concordent pas",
+        "sep": ", ",
+        "line": "Écartées, jamais devinées : {parts}."
+      }
+    },
+    "bookings": {
+      "label": "Importer des réservations · lu une fois, rien n’est réécrit",
+      "title": "Vos rendez-vous, depuis n’importe quel système de réservation",
+      "lastImport": "Dernier import le {day} · {platform}",
+      "lede": "Fresha, Mindbody, Booksy, SimplyBook.me, Timely et la plupart des autres ne peuvent pas être connectés, mais tous exportent vos rendez-vous. Exportez-les au format CSV et donnez-moi le fichier. Je lis la date, ce qui s’est passé, la prestation, le membre du personnel et le prix. Je garde un code à sens unique pour chaque client afin de savoir qui est revenu. Je ne garde jamais leurs noms, e-mails ou numéros de téléphone. Si vous utilisez Square Appointments, connectez plutôt Square ci-dessus avec ses deux autorisations de rendez-vous.",
+      "measuresSub": "{source} · du {from} au {to}",
+      "source": {
+        "import": "Votre export de réservations",
+        "square": "Square"
+      },
+      "platform": "D’où vient l’export",
+      "generic": "Un autre système de réservation, ou un tableur",
+      "file": "Le fichier d’export (CSV)",
+      "currency": "Devise de la colonne de prix",
+      "submit": "Importer ces réservations",
+      "failed": "Ce fichier n’a pas été importé.",
+      "overlap": "Importer à nouveau un export qui en chevauche un autre est sans risque : les rendez-vous que j’ai déjà sont mis à jour, pas comptés deux fois. Les lignes que je ne peux pas lire sont comptées et écartées, jamais devinées.",
+      "caption": "{source} : {days, plural, one {# jour} many {# jours} other {# jours}}, du {from} au {to}",
+      "measureHead": "Mesure · {days, plural, one {# jour} many {# jours} other {# jours}}",
+      "value": "Valeur",
+      "how": "Comment je l’ai obtenu",
+      "notMeasured": "Non mesuré",
+      "completedHow": "rendez-vous honorés, du {from} au {to}",
+      "measure": {
+        "completed": "Rendez-vous honorés",
+        "noShow": "Taux d’absences sans prévenir",
+        "lateCancel": "Taux d’annulations tardives",
+        "rebooked": "Clients ayant repris rendez-vous",
+        "revenue": "Chiffre d’affaires des réservations",
+        "full": "Votre taux de remplissage"
+      },
+      "understood": "Ce que j’ai compris",
+      "columnsCaption": "Les colonnes que j’ai lues dans votre fichier",
+      "iRead": "J’ai lu",
+      "fromColumn": "Depuis votre colonne",
+      "role": {
+        "ref": "Référence de réservation",
+        "start": "Date et heure",
+        "date": "Date",
+        "time": "Heure",
+        "status": "Ce qui s’est passé",
+        "service": "Prestation",
+        "staff": "Personnel",
+        "client_id": "ID client, haché et non conservé",
+        "client_email": "E-mail du client, haché et non conservé",
+        "client_phone": "Téléphone du client, haché et non conservé",
+        "price": "Prix",
+        "duration": "Durée",
+        "cancelled_at": "Date de l’annulation"
+      },
+      "noIdentity": "Le fichier ne contient ni ID client, ni e-mail, ni téléphone que je puisse suivre : je ne peux donc pas voir qui est revenu. Les noms seuls ne suffisent pas : deux personnes prénommées Anna n’en feraient plus qu’une.",
+      "counted": "Ce que j’ai compté",
+      "countedLine": "{rows, plural, one {# ligne lue} many {# lignes lues} other {# lignes lues}} dans votre export {platform}. {added, plural, one {# nouveau rendez-vous} many {# nouveaux rendez-vous} other {# nouveaux rendez-vous}}, {updated} modifiés depuis le dernier import, {unchanged} déjà présents et inchangés.",
+      "merged": "{count, plural, one {# ligne supplémentaire partageait une référence de réservation avec une autre : j’ai donc compté chaque réservation une seule fois.} many {# lignes supplémentaires partageaient une référence de réservation avec une autre : j’ai donc compté chaque réservation une seule fois.} other {# lignes supplémentaires partageaient une référence de réservation avec une autre : j’ai donc compté chaque réservation une seule fois.}}",
+      "future": "{count, plural, one {# rendez-vous encore à venir. Il comptera une fois passé, quand vous importerez à nouveau.} many {# rendez-vous encore à venir. Ils compteront une fois passés, quand vous importerez à nouveau.} other {# rendez-vous encore à venir. Ils compteront une fois passés, quand vous importerez à nouveau.}}",
+      "daysMeasured": "Jours mesurés : du {from} au {to}.",
+      "leftOut": "Ce que j’ai écarté",
+      "leftOutFlag": "Écarté",
+      "valueLeftOutFlag": "Valeur écartée",
+      "skip": {
+        "no_date": "{count, plural, one {# ligne} many {# lignes} other {# lignes}} sans date.",
+        "unreadable_date": "{count, plural, one {# ligne} many {# lignes} other {# lignes}} avec une date que je n’ai pas pu lire.",
+        "no_status": "{count, plural, one {# ligne} many {# lignes} other {# lignes}} sans statut.",
+        "unknown_status": "{count, plural, one {# ligne} many {# lignes} other {# lignes}} avec un statut que je ne connais pas.",
+        "not_closed_out": "{count, plural, one {# ligne encore marquée comme réservée alors que sa date était passée : je ne peux donc pas savoir ce qui s’est passé.} many {# lignes encore marquées comme réservées alors que leur date était passée : je ne peux donc pas savoir ce qui s’est passé.} other {# lignes encore marquées comme réservées alors que leur date était passée : je ne peux donc pas savoir ce qui s’est passé.}}"
+      },
+      "skipOther": "{count, plural, one {# ligne} many {# lignes} other {# lignes}} {reason}.",
+      "gapLine": "{count} avec {gap}.",
+      "gap": {
+        "time": "une heure que je n’ai pas pu lire (le jour a été conservé)",
+        "price": "un prix que je n’ai pas pu lire (écarté)",
+        "duration": "une durée que je n’ai pas pu lire (écartée)",
+        "cancelled_at": "une heure d’annulation que je n’ai pas pu comparer avec le début : elle compte donc comme une annulation ordinaire",
+        "client": "des informations client inutilisables : cette visite n’est donc pas suivie",
+        "client_erased": "une personne que vous avez effacée ou qui s’est désinscrite : cette visite n’est donc liée à personne"
+      },
+      "unknownStatuses": "Statuts que je ne connaissais pas : {list}. Je ne devine pas ce qu’ils signifient.",
+      "unknownStatus": "« {word} » ({count})",
+      "listSep": ", "
+    }
+  },
+  "landing": {
+    "meta": {
+      "title": "SYB — une prise de sang pour votre entreprise",
+      "description": "{checks} analyses de vos ventes, réservations, paiements et publicités, chaque fuite chiffrée en euros, et un rapport signé."
+    },
+    "nav": {
+      "label": "Principal",
+      "chart": "Le graphique",
+      "panels": "Ce que nous analysons",
+      "price": "Tarif",
+      "signIn": "Se connecter"
+    },
+    "hero": {
+      "pill": "Une prise de sang pour votre entreprise",
+      "titleA": "Votre entreprise a l’air en bonne santé.",
+      "titleB": "<em>Ses chiffres</em>, peut-être pas.",
+      "lede": "Nous effectuons {checks} analyses de vos ventes, réservations, paiements et publicités, chiffrons chaque fuite en euros et vous remettons un rapport signé en {daysText} {days, plural, one {jour} many {jours} other {jours}}.",
+      "book": "Réservez votre bilan — {price}",
+      "see": "Voir ce que nous trouvons",
+      "trustReadOnly": "Lecture seule",
+      "trustSigned": "Signé par une personne",
+      "trustRefund": "Remboursé si nous ne trouvons rien"
+    },
+    "chart": {
+      "kicker": "Le graphique",
+      "title": "Votre entreprise, lue comme une action en bourse.",
+      "aside": "Nous marquons le jour où chaque fuite a commencé — et nous ombrons ce qu’elle vous a coûté."
+    },
+    "panels": {
+      "kicker": "Ce que nous analysons",
+      "title": "Neuf bilans. Tout ce qui fait varier votre bénéfice.",
+      "p01": {
+        "name": "Conversion",
+        "markers": "réservation ou paiement · demandes · mobile · profondeur de visite"
+      },
+      "p02": {
+        "name": "Marge",
+        "markers": "après livraison · coût de revient · frais · remises"
+      },
+      "p03": {
+        "name": "Tarification",
+        "markers": "positionnement · sensibilité · vente moyenne · seuils"
+      },
+      "p04": {
+        "name": "Retours et remboursements",
+        "markers": "taux · dommages et retouches · coût · motifs"
+      },
+      "p05": {
+        "name": "Fidélisation",
+        "markers": "réachat · délai entre deux achats · inactifs · valeur"
+      },
+      "p06": {
+        "name": "E-mail et SMS",
+        "markers": "part · automatisations · croissance de la liste · désinscriptions"
+      },
+      "p07": {
+        "name": "Acquisition",
+        "markers": "coût par client · délai d’amortissement · mix de canaux · ROAS"
+      },
+      "p08": {
+        "name": "Stock et capacité",
+        "markers": "ruptures de stock · stock dormant · créneaux vides · rotation"
+      },
+      "p09": {
+        "name": "Assistance",
+        "markers": "questions · « où en est ma commande ou ma réservation » · délai de réponse · libre-service"
+      }
+    },
+    "steps": {
+      "kicker": "Comment ça marche",
+      "title": "Quinze minutes de votre temps.",
+      "whenMinutes": "Jour {day} · {minutes} min",
+      "whenDay": "Jour {day}",
+      "connect": {
+        "t": "Connectez",
+        "d": "Lecture seule. Rien ne change."
+      },
+      "questions": {
+        "t": "Répondez à quelques questions",
+        "d": "Seulement ce que vos chiffres ne peuvent pas nous dire."
+      },
+      "results": {
+        "t": "Recevez vos résultats",
+        "d": "Chaque fuite chiffrée, tracée, et trois corrections en priorité."
+      }
+    },
+    "price": {
+      "kicker": "Tarif",
+      "titleA": "Un bilan.",
+      "titleB": "Un prix.",
+      "card": "Bilan complet de l’entreprise",
+      "once": "paiement unique",
+      "markers": "{count, plural, one {# marqueur chiffré} many {# marqueurs, chacun chiffré} other {# marqueurs, chacun chiffré}}",
+      "chart": "Votre graphique du chiffre d’affaires, fuites marquées",
+      "fixes": "{count, plural, one {# correction, par ordre de priorité} many {# corrections, par ordre de priorité} other {# corrections, par ordre de priorité}}",
+      "walkthrough": "Restitution signée de {minutes} min",
+      "subscription": "Abonnement",
+      "none": "aucun",
+      "book": "Réservez votre bilan",
+      "refund": "Moins de {leaksText} {leaks, plural, one {fuite corrigeable} many {fuites corrigeables} other {fuites corrigeables}} \u0001 Remboursement intégral."
+    },
+    "faq": {
+      "title": "Questions",
+      "passwordQ": "Avez-vous besoin de mon mot de passe \u0001",
+      "passwordA": "Non. Une connexion en lecture seule, que vous pouvez supprimer à tout moment.",
+      "changeQ": "Quelque chose va-t-il changer dans mes comptes \u0001",
+      "changeA": "Non. Nous ne faisons que lire. Rien ne s’exécute jamais sans votre validation.",
+      "sizeQ": "Mon entreprise est-elle assez grande \u0001",
+      "sizeA": "Conçu pour les entreprises qui réalisent environ {low}–{high} par mois. Trop petite pour être analysée \u0001 Nous vous le disons avant que vous payiez."
+    },
+    "foot": {
+      "book": "Réservez votre bilan — {price}",
+      "company": "[Informations sur la société]",
+      "terms": "Conditions",
+      "privacy": "Confidentialité"
+    },
+    "demo": {
+      "group": "Entreprise de démonstration",
+      "kicker": "Démo",
+      "shop": "Une boutique en ligne",
+      "salon": "Un salon"
+    },
+    "walk": {
+      "figure": "Vidéo de présentation du produit",
+      "bar": "SYB · PRÉSENTATION DU PRODUIT",
+      "chapterOf": "Chapitre {n} sur {total} · {title}",
+      "chapters": "Chapitres",
+      "play": "Lancer la présentation",
+      "pause": "Mettre la présentation en pause",
+      "chapter": {
+        "c01": {
+          "title": "Connexion",
+          "caption": "Connectez vos comptes — en lecture seule, en deux minutes.",
+          "crumb": "Connexions",
+          "state": "connexion en cours"
+        },
+        "c02": {
+          "title": "Questions",
+          "caption": "Répondez à quelques questions auxquelles personne d’autre que vous ne peut répondre.",
+          "crumb": "Entretien",
+          "state": "enregistrement"
+        },
+        "c03": {
+          "title": "L’observation",
+          "caption": "Nous lisons chaque chiffre. Rien n’est touché.",
+          "crumb": "Observation",
+          "state": "observation"
+        },
+        "c04": {
+          "title": "Rapport",
+          "caption": "Chaque fuite, mesurée et chiffrée en euros.",
+          "crumb": "Rapport",
+          "state": "rapport prêt"
+        },
+        "c05": {
+          "title": "Valider",
+          "caption": "Rien ne s’exécute tant que vous n’appuyez pas sur Valider.",
+          "crumb": "En attente de votre décision",
+          "state": "{count, plural, one {# décision} many {# décisions} other {# décisions}}"
+        },
+        "c06": {
+          "title": "Résultats",
+          "caption": "Puis voyez exactement ce que chaque correction a rapporté.",
+          "crumb": "Résultats",
+          "state": "mesure en cours"
+        }
+      },
+      "s1": {
+        "step": "Étape {n} · Connexion",
+        "title": "Connectez vos comptes, en lecture seule.",
+        "tag": "LECTURE SEULE",
+        "connected": "Connecté · lecture de {months, plural, one {# mois} many {# mois} other {# mois}}",
+        "button": "Connecter"
+      },
+      "s2": {
+        "step": "Étape {n} · Quelques questions",
+        "range": "Une fourchette suffit.",
+        "record": "Le dossier",
+        "you": "vous",
+        "under": "< {a}",
+        "between": "{a}–{b}",
+        "over": "{a}+"
+      },
+      "s3": {
+        "step": "Étape {n} · L’observation",
+        "title": "Nous lisons. Rien n’est touché.",
+        "tag": "OBSERVATION",
+        "day": "Jour",
+        "readings": "Relevés",
+        "changes": "Modifications effectuées"
+      },
+      "s4": {
+        "step": "Étape {n} · Votre rapport",
+        "title": "Chaque fuite, chiffrée.",
+        "leak": "Fuite / mois"
+      },
+      "s5": {
+        "step": "Étape {n} · Vous décidez",
+        "proposal": "Proposition · {area}",
+        "recommended": "RECOMMANDÉ",
+        "expected": "Attendu",
+        "expectedRange": "+{low}–{high} / mois",
+        "undo": "Annuler",
+        "anyTime": "À tout moment",
+        "approve": "Valider",
+        "decline": "Refuser",
+        "stamp": "VALIDÉ · exécution {time}"
+      },
+      "s6": {
+        "step": "Étape {n} · Mesuré",
+        "title": "Voyez exactement ce que cela a rapporté.",
+        "recovered": "Récupéré / mois",
+        "key": "V",
+        "keyLegend": "{key} = validé",
+        "before": "Avant · {metric} {value} %",
+        "after": "Après · {metric} {value} %",
+        "measuring": "Après · mesure en cours…"
+      },
+      "flag": {
+        "ACT": "AGIR",
+        "HIGH": "ÉLEVÉ",
+        "LOW": "BAS",
+        "OK": "OK"
+      },
+      "shop": {
+        "stage": "Présentation avec une boutique fictive, chapitre {n} : {caption}",
+        "caption": "Démo avec une boutique fictive. Vos chiffres seront les vôtres.",
+        "reads": "Commandes · Produits · Clients · Stock",
+        "question": "Combien vous coûte environ la livraison par commande \u0001",
+        "fact": "Livraison {low}–{high}",
+        "r0": "Commandes, {days} j",
+        "r1": "Panier moyen",
+        "r2": "Logistique",
+        "w2": "en interne",
+        "m0": "Conversion au paiement",
+        "m1": "Marge après livraison",
+        "m2": "Taux de retour",
+        "m3": "Part e-mail et SMS",
+        "m4": "Clients récurrents",
+        "area": "paiement",
+        "proposal": "Corriger l’étape de paiement mobile qui fait perdre des acheteurs",
+        "metric": "conversion"
+      },
+      "salon": {
+        "stage": "Présentation avec un salon fictif, chapitre {n} : {caption}",
+        "caption": "Démo avec un salon fictif. Vos chiffres seront les vôtres.",
+        "reads": "Paiements · Remboursements · Établissements",
+        "question": "Environ combien de clients ayant réservé ne viennent pas, chaque semaine \u0001",
+        "fact": "Absences sans prévenir {low}–{high} par semaine",
+        "r0": "Visites payées, {days} j",
+        "r1": "Ticket moyen",
+        "r2": "Acomptes",
+        "w2": "aucun",
+        "m0": "Taux d’absences sans prévenir",
+        "m1": "Taux de reprise de rendez-vous",
+        "m2": "Occupation des fauteuils",
+        "m3": "Taux de vente additionnelle",
+        "m4": "Ticket moyen",
+        "area": "réservations",
+        "proposal": "Demander un acompte pour les premières réservations afin de réduire les absences sans prévenir",
+        "metric": "taux d’absences sans prévenir"
+      }
+    },
+    "storeChart": {
+      "day": "{count}J",
+      "week": "{count}S",
+      "overlay": "Superposition des fuites",
+      "weekOf": "Semaine du {day}",
+      "open": "O",
+      "high": "H",
+      "low": "B",
+      "close": "C",
+      "withoutLeaks": "Sans fuites {value}",
+      "gap": "Écart {value}",
+      "shop": {
+        "title": "BOUTIQUE · CHIFFRE D’AFFAIRES",
+        "subtitle": "Boutique fictive · {days, plural, one {# jour} many {# jours} other {# jours}}",
+        "volume": "Commandes",
+        "description": "Graphique en chandeliers du chiffre d’affaires quotidien d’une boutique fictive sur {days, plural, one {# jour} many {# jours} other {# jours}}. Une ligne pointillée montre le chiffre d’affaires sans fuites \u0001 l’écart ombré entre les deux correspond à l’argent perdu. Trois repères montrent où les fuites ont commencé : une mise à jour du thème, une rupture de stock et un changement de livraison.",
+        "T": {
+          "key": "T",
+          "label": "Mise à jour du thème",
+          "note": "Mise à jour du thème — le paiement mobile ralentit"
+        },
+        "S": {
+          "key": "R",
+          "label": "Rupture de stock",
+          "note": "Rupture de stock — les meilleures ventes tombent à zéro"
+        },
+        "F": {
+          "key": "L",
+          "label": "Seuil de livraison gratuite",
+          "note": "Seuil de livraison gratuite laissé trop bas"
+        }
+      },
+      "salon": {
+        "title": "SALON · CHIFFRE D’AFFAIRES",
+        "subtitle": "Salon fictif · {days, plural, one {# jour} many {# jours} other {# jours}}",
+        "volume": "Visites",
+        "description": "Graphique en chandeliers du chiffre d’affaires quotidien d’un salon fictif sur {days, plural, one {# jour} many {# jours} other {# jours}}. Une ligne pointillée montre le chiffre d’affaires sans fuites \u0001 l’écart ombré entre les deux correspond à l’argent perdu. Trois repères montrent où les fuites ont commencé : le départ d’une coiffeuse, la réservation en ligne sans acompte, et le déplacement du présentoir de vente.",
+        "L": {
+          "key": "D",
+          "label": "Départ d’une coiffeuse",
+          "note": "Une coiffeuse s’en va — sa clientèle fidèle ne reprend plus rendez-vous"
+        },
+        "B": {
+          "key": "R",
+          "label": "Réservation en ligne",
+          "note": "La réservation en ligne ouvre sans acompte — les absences sans prévenir grimpent"
+        },
+        "R": {
+          "key": "P",
+          "label": "Présentoir déplacé",
+          "note": "Présentoir déplacé loin de l’accueil — les ventes de produits baissent"
+        }
+      }
+    }
+  },
+  "legal": {
+    "toBeSupplied": "Ce document sera fourni par SYB avant le lancement.",
+    "terms": {
+      "meta": "Conditions — SYB",
+      "label": "Conditions",
+      "title": "Conditions d’utilisation"
+    },
+    "privacy": {
+      "meta": "Politique de confidentialité — SYB",
+      "label": "Confidentialité",
+      "title": "Politique de confidentialité",
+      "speakingHead": "Répondre à voix haute",
+      "speaking": "Lorsque vous appuyez sur « Parler », votre navigateur transforme votre voix en texte. Lorsque le navigateur peut le faire sur votre appareil, l’audio y reste. Sinon, c’est l’éditeur de votre navigateur qui s’en charge : dans Chrome, Google. SYB ne reçoit jamais l’audio et n’en stocke aucun. Seuls les mots que vous choisissez d’enregistrer, de demander ou d’envoyer sont sauvegardés, exactement comme si vous les aviez tapés, et rien n’est enregistré du seul fait de parler."
+    }
+  },
+  "resume": {
+    "meta": "Reprendre — SYB",
+    "kicker": "Votre entretien",
+    "headline": "Reprenez là où vous en étiez.",
+    "label": "Confirmer",
+    "title": "Reprendre cet entretien \u0001",
+    "button": "Reprendre",
+    "note": "Ce n’est pas un lien que vous avez demandé \u0001 Fermez cette page. Rien ne change dans ce navigateur tant que vous n’appuyez pas sur le bouton.",
+    "deadHeadline": "Ce lien n’est plus valable.",
+    "deadMessage": "Les liens de reprise cessent de fonctionner lorsqu’ils expirent ou sont révoqués. Connectez-vous avec votre adresse e-mail et vous retrouverez votre entretien là où vous l’avez laissé."
+  },
+  "summaryStop": {
+    "meta": "Résumé hebdomadaire — SYB",
+    "label": "Préférences e-mail",
+    "unknown": {
+      "title": "Nous ne reconnaissons pas ce lien.",
+      "body": "Vérifiez que le lien complet de l’e-mail a bien été copié. Rien n’a changé."
+    },
+    "stopped": {
+      "title": "Le résumé hebdomadaire est désactivé.",
+      "body": "Je ne vous l’enverrai plus. Tout ce qu’il contenait reste sur votre écran <watch>Observation</watch>, et vous pouvez le réactiver depuis cet écran."
+    },
+    "ask": {
+      "title": "Arrêter l’e-mail du résumé hebdomadaire \u0001",
+      "body": "Un clic, et il s’arrête. Les liens de connexion et les notifications de l’écran Assistance ne sont pas concernés.",
+      "button": "Arrêter ces e-mails"
+    }
+  },
   "benchmarks": {
     "meta": {
       "title": "Comparé à des entreprises similaires — SYB"

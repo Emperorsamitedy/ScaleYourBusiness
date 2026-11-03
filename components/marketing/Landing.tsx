@@ -11,51 +11,66 @@
 // fictional and labelled as illustrative where it renders: a webshop by
 // default, or a salon — the visitor switches between the two demos with
 // the "A webshop / A salon" control in the hero or above the chart.
+//
+// L-3d: the page's words are the "landing" catalogue, its figures in the
+// reader's language (./words.ts); English is what the page always said.
 
 import Link from "next/link";
+import type { ReactNode } from "react";
+import { getLocale, getTranslations } from "next-intl/server";
 import { PANELS } from "../../lib/marketing/areas";
 import { DELIVERY_DAYS, GUARANTEE } from "../../lib/marketing/offer";
-import { moneyText } from "../sheet/num";
+import { isAppLocale } from "../../lib/i18n/locales";
+import type { Tr } from "../../lib/i18n/tr";
+import { moneyText, num } from "../sheet/num";
 import { DemoProvider, DemoSwitch } from "./Demos";
 import { StoreChart } from "./StoreChart";
 import { Walkthrough } from "./Walkthrough";
+import { LANDING_FIGURES as F, PENDING_DAYS, PENDING_LEAKS, offerFigure, sizeUsd } from "./words";
 
-const STEPS = [
-  { when: "Day 0 · 2 min", t: "Connect", d: "Read-only. Nothing changes." },
-  {
-    when: "Day 0 · 12 min",
-    t: "Answer a few questions",
-    d: "Only what your numbers can’t tell us.",
-  },
-  { when: "Day 7", t: "Get your results", d: "Every leak priced, charted, and three fixes first." },
-] as const;
+/** The three steps of "How it works"; the last one's day is the delivery promise. */
+const STEPS = ["connect", "questions", "results"] as const;
 
-const INCLUDED = [
-  ["36 markers, each priced", "✓"],
-  ["Your revenue chart, leaks marked", "✓"],
-  ["3 fixes, in order", "✓"],
-  ["Signed, 30-min walkthrough", "✓"],
-  ["Subscription", "none"],
-] as const;
+type LandingT = Tr & {
+  rich: (key: string, values: Record<string, (chunks: ReactNode) => ReactNode>) => ReactNode;
+};
 
-const FAQ = [
-  ["Do you need my password?", "No. A read-only connection you can remove any time."],
-  [
-    "Will anything change in my accounts?",
-    "No. We only read. Nothing ever runs without your approval.",
-  ],
-  [
-    "Is my business big enough?",
-    "Built for businesses doing about $10k–$50k a month. Too small to read? We tell you before you pay.",
-  ],
-] as const;
-
-export function Landing({ price }: { price: { amount_minor: number; currency: string } }) {
-  const priceText = moneyText(price.amount_minor, price.currency);
-  const days = DELIVERY_DAYS === null ? "[7]" : String(DELIVERY_DAYS);
-  const leaks = GUARANTEE === null ? "[3]" : String(GUARANTEE.min_findings);
-  // The last step's day is the delivery promise, so it follows DELIVERY_DAYS too.
-  const steps = STEPS.map((s, i) => (i === STEPS.length - 1 ? { ...s, when: `Day ${days}` } : s));
+export async function Landing({ price }: { price: { amount_minor: number; currency: string } }) {
+  const t = (await getTranslations("landing" as "common")) as unknown as LandingT;
+  const raw = await getLocale();
+  const locale = isAppLocale(raw) ? raw : "en";
+  const priceText = moneyText(price.amount_minor, price.currency, locale);
+  const n = (v: number) => num(v, 0, locale);
+  const daysText = offerFigure(DELIVERY_DAYS, PENDING_DAYS, locale);
+  const days = DELIVERY_DAYS ?? PENDING_DAYS;
+  const leaksText = offerFigure(GUARANTEE?.min_findings ?? null, PENDING_LEAKS, locale);
+  const leaks = GUARANTEE?.min_findings ?? PENDING_LEAKS;
+  const steps = STEPS.map((k) => ({
+    k,
+    when:
+      k === "connect"
+        ? t("steps.whenMinutes", { day: n(0), minutes: n(F.connectMinutes) })
+        : k === "questions"
+          ? t("steps.whenMinutes", { day: n(0), minutes: n(F.questionsMinutes) })
+          : t("steps.whenDay", { day: daysText }),
+    t: t(`steps.${k}.t`),
+    d: t(`steps.${k}.d`),
+  }));
+  const included: [string, string][] = [
+    [t("price.markers", { count: F.markers }), "✓"],
+    [t("price.chart"), "✓"],
+    [t("price.fixes", { count: F.fixes }), "✓"],
+    [t("price.walkthrough", { minutes: n(F.walkthroughMinutes) }), "✓"],
+    [t("price.subscription"), t("price.none")],
+  ];
+  const faq: [string, string][] = [
+    [t("faq.passwordQ"), t("faq.passwordA")],
+    [t("faq.changeQ"), t("faq.changeA")],
+    [
+      t("faq.sizeQ"),
+      t("faq.sizeA", { low: sizeUsd(F.sizeLowUsd, locale), high: sizeUsd(F.sizeHighUsd, locale) }),
+    ],
+  ];
 
   return (
     <div className="ll">
@@ -64,18 +79,18 @@ export function Landing({ price }: { price: { amount_minor: number; currency: st
           <a href="#top" className="ll-s ll-logo">
             SYB
           </a>
-          <nav aria-label="Main" className="ll-nav">
+          <nav aria-label={t("nav.label")} className="ll-nav">
             <a className="ll-nl" href="#chart">
-              The chart
+              {t("nav.chart")}
             </a>
             <a className="ll-nl" href="#panels">
-              What we test
+              {t("nav.panels")}
             </a>
             <a className="ll-nl" href="#price">
-              Price
+              {t("nav.price")}
             </a>
             <Link className="ll-nl" href="/login">
-              Sign in
+              {t("nav.signIn")}
             </Link>
           </nav>
         </div>
@@ -86,35 +101,36 @@ export function Landing({ price }: { price: { amount_minor: number; currency: st
           <section id="top" className="ll-w ll-hero" aria-labelledby="ll-h1">
             <div className="ll-hero-copy">
               <div className="ll-m ll-pill">
-                <span className="ll-beat" aria-hidden="true" />A blood test for your business
+                <span className="ll-beat" aria-hidden="true" />
+                {t("hero.pill")}
               </div>
               <h1 id="ll-h1" className="ll-s ll-hd">
-                Your business looks healthy.
+                {t("hero.titleA")}
                 <br />
-                <span style={{ fontStyle: "italic", color: "#FF9C8F" }}>Its numbers</span> might
-                not.
+                {t.rich("hero.titleB", {
+                  em: (chunks) => (
+                    <span style={{ fontStyle: "italic", color: "#FF9C8F" }}>{chunks}</span>
+                  ),
+                })}
               </h1>
-              <p className="ll-lede">
-                We run 36 checks on your sales, bookings, payments and ads, price every leak in
-                euros, and hand you a signed report in {days} days.
-              </p>
+              <p className="ll-lede">{t("hero.lede", { checks: n(F.checks), daysText, days })}</p>
               <div className="ll-ctas">
                 <Link className="ll-go" href="/signup">
-                  Book your test — {priceText} <span aria-hidden="true">→</span>
+                  {t("hero.book", { price: priceText })} <span aria-hidden="true">→</span>
                 </Link>
                 <a className="ll-go line" href="#chart">
-                  See what we find
+                  {t("hero.see")}
                 </a>
               </div>
               <div className="ll-m ll-trust">
                 <span>
-                  <span style={{ color: "#9FD7B3" }}>✓</span> Read-only
+                  <span style={{ color: "#9FD7B3" }}>✓</span> {t("hero.trustReadOnly")}
                 </span>
                 <span>
-                  <span style={{ color: "#9FD7B3" }}>✓</span> Signed by a person
+                  <span style={{ color: "#9FD7B3" }}>✓</span> {t("hero.trustSigned")}
                 </span>
                 <span>
-                  <span style={{ color: "#9FD7B3" }}>✓</span> Refund if we find nothing
+                  <span style={{ color: "#9FD7B3" }}>✓</span> {t("hero.trustRefund")}
                 </span>
               </div>
             </div>
@@ -129,16 +145,14 @@ export function Landing({ price }: { price: { amount_minor: number; currency: st
               <div className="ll-sec-top">
                 <div>
                   <div className="ll-k" style={{ color: "#8FA8FF" }}>
-                    The chart
+                    {t("chart.kicker")}
                   </div>
                   <h2 id="ll-h-chart" className="ll-s ll-h2" style={{ maxWidth: "13em" }}>
-                    Your business, read like a stock.
+                    {t("chart.title")}
                   </h2>
                 </div>
                 <div className="ll-sec-side">
-                  <p className="ll-sec-aside">
-                    We mark the day each leak started — and shade what it cost you.
-                  </p>
+                  <p className="ll-sec-aside">{t("chart.aside")}</p>
                   <DemoSwitch />
                 </div>
               </div>
@@ -149,17 +163,17 @@ export function Landing({ price }: { price: { amount_minor: number; currency: st
           <section id="panels" className="ll-paper" aria-labelledby="ll-h-panels">
             <div className="ll-w ll-pad-96">
               <div className="ll-k" style={{ color: "#3E5248" }}>
-                What we test
+                {t("panels.kicker")}
               </div>
               <h2 id="ll-h-panels" className="ll-s ll-h2" style={{ maxWidth: "14em" }}>
-                Nine panels. Everything that moves your profit.
+                {t("panels.title")}
               </h2>
               <ol className="ll-panels">
                 {PANELS.map((p) => (
                   <li key={p.no} className="ll-panel">
                     <span className="ll-m ll-panel-no">{p.no}</span>
-                    <span className="ll-s ll-panel-name">{p.name}</span>
-                    <span className="ll-m ll-panel-markers">{p.markers}</span>
+                    <span className="ll-s ll-panel-name">{t(`panels.p${p.no}.name`)}</span>
+                    <span className="ll-m ll-panel-markers">{t(`panels.p${p.no}.markers`)}</span>
                   </li>
                 ))}
               </ol>
@@ -168,14 +182,14 @@ export function Landing({ price }: { price: { amount_minor: number; currency: st
 
           <section id="read" className="ll-w ll-pad-104" aria-labelledby="ll-h-read">
             <div className="ll-k" style={{ color: "#A9BDB2" }}>
-              How it works
+              {t("steps.kicker")}
             </div>
             <h2 id="ll-h-read" className="ll-s ll-h2" style={{ maxWidth: "13em" }}>
-              Fifteen minutes from you.
+              {t("steps.title")}
             </h2>
             <ol className="ll-steps">
               {steps.map((s) => (
-                <li key={s.t} className="ll-step">
+                <li key={s.k} className="ll-step">
                   <div className="ll-m ll-step-when">{s.when}</div>
                   <h3 className="ll-s ll-step-t">{s.t}</h3>
                   <p className="ll-step-d">{s.d}</p>
@@ -188,28 +202,28 @@ export function Landing({ price }: { price: { amount_minor: number; currency: st
             <div className="ll-w ll-pad-96 ll-price">
               <div className="ll-price-head">
                 <div className="ll-k" style={{ color: "#3E5248" }}>
-                  Price
+                  {t("price.kicker")}
                 </div>
                 <h2 id="ll-h-price" className="ll-s ll-h2">
-                  One test.
+                  {t("price.titleA")}
                   <br />
-                  One price.
+                  {t("price.titleB")}
                 </h2>
               </div>
               <div className="ll-price-card">
                 <div className="ll-price-top">
                   <span className="ll-s" style={{ fontSize: 24, fontWeight: 600 }}>
-                    Full business panel
+                    {t("price.card")}
                   </span>
                   <span>
                     <span className="ll-s ll-price-fig">{priceText}</span>{" "}
                     <span className="ll-m" style={{ fontSize: 13, color: "#3E5248" }}>
-                      once
+                      {t("price.once")}
                     </span>
                   </span>
                 </div>
                 <ul className="ll-m ll-included">
-                  {INCLUDED.map(([what, mark]) => (
+                  {included.map(([what, mark]) => (
                     <li key={what}>
                       <span>{what}</span>
                       <span>{mark}</span>
@@ -217,19 +231,19 @@ export function Landing({ price }: { price: { amount_minor: number; currency: st
                   ))}
                 </ul>
                 <Link className="ll-go ink ll-go-full" href="/signup">
-                  Book your test <span aria-hidden="true">→</span>
+                  {t("price.book")} <span aria-hidden="true">→</span>
                 </Link>
-                <p className="ll-refund">Fewer than {leaks} fixable leaks? Full refund.</p>
+                <p className="ll-refund">{t("price.refund", { leaksText, leaks })}</p>
               </div>
             </div>
           </section>
 
           <section className="ll-w ll-faq" aria-labelledby="ll-h-faq">
             <h2 id="ll-h-faq" className="ll-s ll-faq-h">
-              Questions
+              {t("faq.title")}
             </h2>
             <div className="ll-faq-list">
-              {FAQ.map(([q, a]) => (
+              {faq.map(([q, a]) => (
                 <details key={q}>
                   <summary>
                     {q}
@@ -251,11 +265,11 @@ export function Landing({ price }: { price: { amount_minor: number; currency: st
             SYB
           </span>
           <Link className="ll-go line" href="/signup" style={{ minHeight: 46 }}>
-            Book your test — {priceText} →
+            {t("foot.book", { price: priceText })} →
           </Link>
           <span className="ll-m" style={{ fontSize: 11.5, color: "#A9BDB2" }}>
-            [Company details] · <Link href="/terms">Terms</Link> ·{" "}
-            <Link href="/privacy">Privacy</Link>
+            {t("foot.company")} · <Link href="/terms">{t("foot.terms")}</Link> ·{" "}
+            <Link href="/privacy">{t("foot.privacy")}</Link>
           </span>
         </div>
       </footer>

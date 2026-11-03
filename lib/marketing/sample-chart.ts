@@ -66,6 +66,11 @@ export function chartDate(day: number): string {
   return `${dt.getUTCDate()} ${MONTHS[dt.getUTCMonth()]}`;
 }
 
+/** The same day as an ISO date, for the locale formatters (L-3d): 0 → "2026-07-20". */
+export function chartIsoDay(day: number): string {
+  return new Date(START_UTC + day * 86_400_000).toISOString().slice(0, 10);
+}
+
 const cents = (euros: number) => Math.round(euros * 100);
 
 /** One series' shape, in euros a day. */

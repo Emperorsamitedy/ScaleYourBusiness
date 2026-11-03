@@ -5,10 +5,11 @@
 // hears a spoken answer), shown under the placeholder, not in its place.
 
 import type { ReactNode } from "react";
+import { getTranslations } from "next-intl/server";
 import { AuthMasthead } from "./AuthMasthead";
 import "../../app/auth.css";
 
-export function LegalPlaceholder({
+export async function LegalPlaceholder({
   label,
   title,
   facts,
@@ -17,6 +18,7 @@ export function LegalPlaceholder({
   title: string;
   facts?: ReactNode;
 }) {
+  const t = await getTranslations("legal");
   return (
     <div className="desk au">
       <AuthMasthead />
@@ -29,7 +31,7 @@ export function LegalPlaceholder({
             </h1>
           </header>
           <div className="au-sheet-body">
-            <p>This document is to be supplied by SYB before launch.</p>
+            <p>{t("toBeSupplied")}</p>
           </div>
           {facts && <div className="au-sheet-body au-legal-facts">{facts}</div>}
         </section>

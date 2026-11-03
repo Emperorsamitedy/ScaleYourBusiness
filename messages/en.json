@@ -1613,6 +1613,1164 @@
       "cantTell": "“Can’t tell” means the measured figures weren’t there, or something I didn’t forecast got in the way, such as a delivery. It never counts as right."
     }
   },
+  "connections": {
+    "meta": {
+      "title": "Connections — SYB"
+    },
+    "kicker": "Your business · Connections",
+    "aside": "Reading is separate from writing — always",
+    "loading": "Reading your connections…",
+    "unreachable": "I couldn't reach the server. Try again.",
+    "error": {
+      "title": "Connections didn't load.",
+      "label": "Connections",
+      "cardTitle": "Something went wrong.",
+      "body": "Something went wrong loading your connections. Refresh to try again."
+    },
+    "signedOut": {
+      "title": "Sign in to connect your numbers.",
+      "cardTitle": "Connections belong to your account.",
+      "body": "A payment account, a till or online shop, or an ad account connects to your account, not just to this browser.",
+      "signIn": "Sign in"
+    },
+    "headline": {
+      "reading": "{count, plural, one {# source read.} other {# sources read.}}",
+      "stalled": "Nothing is reading right now.",
+      "none": "Nothing is plugged in yet.",
+      "writesUnknown": "Write access couldn't be read.",
+      "canWrite": "{labels} can write — only what you approve.",
+      "nothingWritten": "Nothing can be written.",
+      "readOnly": "{labels} holds a permission that could write; SYB only reads with it."
+    },
+    "status": {
+      "connected": "connected",
+      "paused": "paused",
+      "failed": "failed",
+      "disconnected": "disconnected"
+    },
+    "banner": {
+      "see": "You can see what’s plugged in.",
+      "seeAndRead": "You can see what’s plugged in, and read any of it again now.",
+      "readAgainGroup": "Read again now",
+      "readingOne": "Reading {label}…",
+      "readAgain": "Read {label} again now"
+    },
+    "sync": {
+      "didntRun": "The sync didn't run.",
+      "locked": "A sync is already running for {label}.",
+      "done": "{label} synced. {count, plural, one {# daily figure read.} other {# daily figures read.}}",
+      "failed": "{label} didn't sync. {reason}",
+      "noReason": "No reason was given."
+    },
+    "panel": {
+      "label": "Patch panel",
+      "title": "What’s plugged in",
+      "legendOn": "on",
+      "legendOff": "off",
+      "legendNever": "never",
+      "source": "Source",
+      "gives": "What it gives",
+      "read": "Read",
+      "write": "Write",
+      "lastRead": "Last read",
+      "action": "Action",
+      "reading": "reading",
+      "notReading": "not reading, {status}",
+      "off": "off",
+      "writeNever": "never — read-only by design",
+      "close": "Close",
+      "settings": "Settings",
+      "connect": "Connect",
+      "past": "{label} disconnected. The credential was deleted; the measured history it produced stays in your profile.",
+      "foot": "Measured figures replace your estimates in the report, and your estimates stay in your history. Google Ads isn’t available yet: it needs SYB’s own approval from Google before any account can connect."
+    },
+    "settings": {
+      "access": "access",
+      "readOnly": "read-only",
+      "granted": "granted",
+      "nothingRecorded": "nothing recorded",
+      "checked": "checked",
+      "checkedReported": "{label} reported exactly these permissions, and I checked them: nothing here can change anything on your side.",
+      "checkedProbed": "These reads were tested and work. {label} can't tell any app what else the key allows.",
+      "lastSync": "last sync",
+      "never": "never",
+      "history": "history",
+      "shopifyAllOrders": "Shopify only shows {days, plural, one {# day} other {# days}} without read_all_orders, which Shopify must approve.",
+      "carts": "carts",
+      "cartsRead": "I read the checkouts left unfinished, with what was in them, under the same read_orders.",
+      "cartsCustomers": "With read_customers I also read each cart's shopper email and their email marketing setting. Carts keep only a scrambled copy. Shoppers Shopify lists as subscribed become contacts, with their email, which you can erase.",
+      "cartsNoCustomers": "Shopify only says who left a cart to an app that may read your customers. Add the optional read_customers and I match carts to your contacts; without it none is matched.",
+      "lastError": "last error",
+      "inARow": "({count} in a row)",
+      "syncing": "Syncing…",
+      "syncNow": "Sync now",
+      "hideMatching": "Hide matching",
+      "matchProducts": "Match products",
+      "matchChannels": "Match channels",
+      "disconnectAsk": "Disconnect {label}? The credential is deleted and syncing stops. The measured history stays.",
+      "yesDisconnect": "Yes, disconnect",
+      "keepIt": "Keep it",
+      "disconnect": "Disconnect",
+      "disconnected": "{label} is disconnected. The credential is deleted, and the measured history stays.",
+      "disconnectFailed": "That didn't disconnect."
+    },
+    "history": {
+      "notSynced": "Not synced yet. The first sync reads the last {days, plural, one {# day} other {# days}}.",
+      "never": "Never synced.",
+      "upToDate": "Up to date through {day}, covering the last {days, plural, one {# day} other {# days}}.",
+      "readThrough": "Read through {day}, {share} of the last {days, plural, one {# day} other {# days}}."
+    },
+    "mapping": {
+      "reading": "Reading {label}…",
+      "couldntRead": "Couldn't read {label}.",
+      "notSaved": "That match wasn't saved.",
+      "matchedTo": "matched to <b>{label}</b>",
+      "notMatched": "not matched yet",
+      "suggested": "{title} (suggested)",
+      "noneOfThese": "None of these",
+      "saving": "saving…",
+      "confirm": "Confirm",
+      "product": {
+        "none": "There are no offers in your profile to match yet. Add them in the interview first.",
+        "intro": "Match each thing you sell to its {label} product. Sales of a matched product become that offer's measured units a month. I suggest matches; nothing counts until you confirm it.",
+        "noMatch": "no matching product",
+        "select": "{label} product for {name}",
+        "choose": "choose a product…",
+        "unmatched": "{count, plural, one {# {label} product isn't matched to anything in your profile. That’s a gap, and I won’t guess what it is.} other {# {label} products aren't matched to anything in your profile. That’s a gap, and I won’t guess what they are.}}"
+      },
+      "channel": {
+        "none": "There are no channels in your profile to match yet. Add them in the interview first.",
+        "intro": "Match each of your sales channels to the {label} traffic channel it corresponds to. Visits from a matched channel become that channel's measured monthly visits. I suggest matches; nothing counts until you confirm it.",
+        "noMatch": "no matching traffic channel",
+        "select": "{label} traffic channel for {name}",
+        "choose": "choose a traffic channel…",
+        "unmatched": "{count, plural, one {# {label} traffic channel isn't matched to anything in your profile. That’s a gap, and I won’t guess what it is.} other {# {label} traffic channels aren't matched to anything in your profile. That’s a gap, and I won’t guess what they are.}}"
+      }
+    },
+    "connect": {
+      "sub": "{label}, read-only",
+      "failed": "That didn't connect.",
+      "doneProduct": "{label} is connected. Press Sync now to read your orders, then match your products.",
+      "doneChannel": "{label} is connected. Press Sync now to read your traffic, then match your channels.",
+      "done": "{label} is connected. Press Sync now to read the last year.",
+      "checking": "Checking…",
+      "button": "Connect {label}",
+      "encrypted": "Everything you enter is encrypted before it’s stored and never shown again, not even to you."
+    },
+    "verify": {
+      "reported": "{label} reports exactly which permissions a credential has, and I check them when you connect. If it could change anything on your side, I refuse the connection.",
+      "probedStripe": "{label} doesn’t let any app check the rest of a key’s permissions. Here is what I can promise: I test that the reads above work, and my code can only read. I refuse full-access keys, and leaving every other permission at None is what makes the key itself read-only.",
+      "probed": "{label} doesn’t let any app check the rest of a key’s permissions. Here is what I can promise: I test that the reads above work, and my code can only read. Choosing Read access is what makes the key itself read-only."
+    },
+    "guide": {
+      "line": "<b>{grant}</b>. {why}",
+      "sep": ", ",
+      "fixture": {
+        "s0": {
+          "grant": "Revenue: Read",
+          "why": "Daily revenue, for the monthly figure.",
+          "gives": "Daily revenue"
+        },
+        "s1": {
+          "grant": "Orders: Read",
+          "why": "Daily order count, for the monthly figure.",
+          "gives": "Daily order count"
+        },
+        "s2": {
+          "grant": "Ad spend: Read",
+          "why": "Daily ad spend, for the monthly figure.",
+          "gives": "Daily ad spend"
+        }
+      },
+      "stripe": {
+        "s0": {
+          "grant": "Balance: Read",
+          "why": "Your payment history, meaning every charge and refund, which is where monthly revenue and order count come from.",
+          "gives": "Your payment history"
+        }
+      },
+      "shopify": {
+        "s0": {
+          "why": "Your orders, which is where daily revenue, order count and units sold come from, and the checkouts left unfinished, with what was in them.",
+          "gives": "Your orders"
+        },
+        "s1": {
+          "why": "Your product list, so each product can be matched to what you sell, and how many of each you have in stock with what they cost you, so I can point out stock that isn't selling.",
+          "gives": "Your product list"
+        },
+        "s2": {
+          "grant": "read_all_orders (optional, Shopify must approve it)",
+          "why": "Orders older than {days, plural, one {# day} other {# days}}, for a full year of history. Without it I read the last {days, plural, one {# day} other {# days}}.",
+          "gives": "Orders older than {days, plural, one {# day} other {# days}}"
+        },
+        "s3": {
+          "grant": "read_customers (optional)",
+          "why": "Who left an unfinished checkout, so a cart can be matched to someone on your contact list. I read only the email of a cart's shopper and whether they're subscribed to your email marketing in Shopify. Carts keep a scrambled copy of the email. Shoppers Shopify lists as subscribed are added to your contacts with their email, where you can erase them, and the rest keep only the scrambled copy. Without it no cart is matched.",
+          "gives": "Who left an unfinished checkout"
+        }
+      },
+      "woocommerce": {
+        "s0": {
+          "grant": "Read access (covers orders)",
+          "why": "Your orders, which is where daily revenue, order count and units sold come from.",
+          "gives": "Your orders"
+        },
+        "s1": {
+          "grant": "Read access (covers products)",
+          "why": "Your product list, so each product can be matched to what you sell, and its stock level, so I can point out stock that isn't selling.",
+          "gives": "Your product list"
+        }
+      },
+      "ga4": {
+        "s0": {
+          "grant": "Viewer role on the property",
+          "why": "Sessions per day and per channel, which is where measured website traffic comes from. Viewer can read reports and change nothing.",
+          "gives": "Sessions per day and per channel"
+        }
+      },
+      "meta_ads": {
+        "s0": {
+          "why": "Daily ad spend and the purchases Meta attributes to your ads. Nothing that could edit a campaign.",
+          "gives": "Daily ad spend and the purchases Meta attributes to your ads"
+        }
+      },
+      "search_console": {
+        "s0": {
+          "grant": "Restricted permission on the property is enough",
+          "why": "The Google searches your site appeared for, how often, and how often people clicked. It can read reports and change nothing.",
+          "gives": "The Google searches your site appeared for"
+        }
+      },
+      "square": {
+        "s0": {
+          "why": "Every payment your tills took, card and cash rung up in Square, which is where daily and hourly takings come from.",
+          "gives": "Every payment your tills took"
+        },
+        "s1": {
+          "why": "Your list of locations, so payments from every till are read, not just the main one.",
+          "gives": "Your list of locations"
+        },
+        "s2": {
+          "grant": "APPOINTMENTS_READ (optional, for bookings)",
+          "why": "Your appointments. Which were kept, which were no-shows or cancelled, and whether clients came back, but not their notes.",
+          "gives": "Your appointments"
+        },
+        "s3": {
+          "grant": "APPOINTMENTS_ALL_READ (optional, with the one above)",
+          "why": "Your appointments. Square needs this with the one above to read every booking at your locations, not only ones made through SYB. It can't change a booking.",
+          "gives": "Your appointments"
+        }
+      }
+    },
+    "steps": {
+      "stripe": {
+        "s1": "In your Stripe Dashboard, open <b>Developers</b>, then <b>API keys</b>, and choose <b>Create restricted key</b>. Test mode is fine to start with.",
+        "s2": "Leave every permission at <b>None</b>, except:",
+        "s3": "Create the key and paste it below. It starts with <b>rk_test_</b> or <b>rk_live_</b>."
+      },
+      "shopify": {
+        "s1": "In Shopify’s <b>Dev Dashboard</b>, choose <b>Create app</b>, then <b>Start from Dev Dashboard</b>, and name it.",
+        "s2": "In the app’s <b>Versions</b> tab, add only these Admin API scopes, then release the version:",
+        "s3": "From the app’s <b>Home</b>, choose <b>Install app</b> and pick your store. The app and the store must be in the same Shopify organization.",
+        "s4": "From the app’s <b>Settings</b>, copy the client ID and client secret, and enter them below with your store’s myshopify.com address."
+      },
+      "woocommerce": {
+        "s1": "In WordPress, open <b>WooCommerce</b>, then <b>Settings</b>, <b>Advanced</b>, <b>REST API</b>, and choose <b>Add key</b>.",
+        "s2": "Set <b>Permissions</b> to <b>Read</b>. Read access covers:",
+        "s3": "Generate the key, then enter the consumer key and consumer secret below with your store’s address."
+      },
+      "ga4": {
+        "s1": "In <b>Google Cloud Console</b>, create a project (or use one), enable the <b>Google Analytics Data API</b>, then under <b>IAM & Admin</b>, <b>Service accounts</b>, create a service account and download a <b>JSON key</b> for it.",
+        "s2": "In <b>Google Analytics</b>, open <b>Admin</b>, then <b>Property access management</b>, and add the service account’s email address with the role:",
+        "s3": "Copy the property ID from <b>Admin</b>, <b>Property details</b>, and paste it below with the contents of the key file."
+      },
+      "square": {
+        "s1": "In the <b>Square Developer Console</b>, create an application (or open one) and copy its <b>Production access token</b>.",
+        "s2": "Give it only these permissions:",
+        "s3": "Paste the token below. Payments rung up in Square — card and cash — are read; cash that never goes through the till can’t be seen by anything. With the two appointment permissions, your Square Appointments bookings are read too."
+      },
+      "search_console": {
+        "s1": "In <b>Google Cloud Console</b>, enable the <b>Google Search Console API</b> on a project and create a service account with a <b>JSON key</b> — the same one you use for Google Analytics is fine.",
+        "s2": "In <b>Search Console</b>, open <b>Settings</b>, then <b>Users and permissions</b>, and add the service account’s email:",
+        "s3": "Enter the property exactly as Search Console names it, with the contents of the key file. Rare searches are hidden by Google for privacy, so the searches I read add up to a little less than Google’s own total."
+      },
+      "meta_ads": {
+        "s1": "In <b>Meta Business Suite</b>, open <b>Business settings</b>, then <b>Users</b>, <b>System users</b>, and add a system user (Employee role is enough).",
+        "s2": "Under <b>Assign assets</b>, give it your ad account with <b>View performance</b> only.",
+        "s3": "Choose <b>Generate token</b>, pick your app, and tick only:",
+        "s4": "Paste the token below with your ad account ID, which is shown in <b>Ads Manager</b>."
+      }
+    },
+    "field": {
+      "fixture": {
+        "key": {
+          "label": "Fixture credential"
+        }
+      },
+      "stripe": {
+        "key": {
+          "label": "Restricted key"
+        }
+      },
+      "shopify": {
+        "shop": {
+          "label": "Store address"
+        },
+        "client_id": {
+          "label": "Client ID",
+          "placeholder": "from the app's Settings"
+        },
+        "client_secret": {
+          "label": "Client secret",
+          "placeholder": "from the app's Settings"
+        }
+      },
+      "woocommerce": {
+        "site_url": {
+          "label": "Store address"
+        },
+        "consumer_key": {
+          "label": "Consumer key"
+        },
+        "consumer_secret": {
+          "label": "Consumer secret"
+        }
+      },
+      "ga4": {
+        "property_id": {
+          "label": "Property ID",
+          "placeholder": "the number under Admin, Property details"
+        },
+        "service_account_json": {
+          "label": "Service account key file",
+          "placeholder": "paste the whole JSON key file here"
+        }
+      },
+      "meta_ads": {
+        "ad_account_id": {
+          "label": "Ad account ID"
+        },
+        "access_token": {
+          "label": "System user access token"
+        }
+      },
+      "square": {
+        "access_token": {
+          "label": "Access token",
+          "placeholder": "from the Square Developer Console"
+        },
+        "environment": {
+          "label": "Environment",
+          "placeholder": "production (or sandbox for testing)"
+        }
+      },
+      "search_console": {
+        "site_url": {
+          "label": "Property",
+          "placeholder": "https://www.example.com/ or sc-domain:example.com"
+        },
+        "service_account_json": {
+          "label": "Service account key file",
+          "placeholder": "paste the whole JSON key file here"
+        }
+      }
+    },
+    "write": {
+      "aria": "Write access",
+      "sectionLabel": "Write access · a separate consent",
+      "title": {
+        "off": "Off. Nothing can publish.",
+        "paused": "Paused. Reconnect to carry on.",
+        "on": "On, only for what you approve"
+      },
+      "label": {
+        "meta_publish": "Meta publishing (Facebook Page and Instagram)",
+        "meta_ads": "Meta ad management",
+        "email_campaign": "Campaign email",
+        "google_business_reviews": "Google Business Profile reviews"
+      },
+      "status": {
+        "connected": "connected",
+        "paused": "paused",
+        "failed": "failed",
+        "disconnected": "disconnected"
+      },
+      "consentedOn": "consented {day} · {status}",
+      "notGranted": "not granted",
+      "grant": "Grant",
+      "close": "Close",
+      "reconnect": "Reconnect",
+      "disconnect": "Disconnect",
+      "disconnecting": "Disconnecting…",
+      "cancel": "Cancel",
+      "checking": "Checking…",
+      "unreachable": "I couldn't reach the server. Try again.",
+      "disconnectFailed": "That didn't disconnect.",
+      "connectFailed": "That didn't connect.",
+      "disconnected": "{label} is disconnected. The token is deleted here.",
+      "connected": "{label} is connected, and your consent is on record.",
+      "fact": {
+        "status": "status",
+        "permissions": "permissions",
+        "consented": "consented",
+        "accessTier": "access tier",
+        "seen": "seen {day}"
+      },
+      "pausedDefault": "Meta stopped accepting this connection's sign-in. Reconnect it and I'll pick up where I left off.",
+      "typeToConfirm": "To confirm, type <b>{phrase}</b>",
+      "facebook": {
+        "sub": "Invited testers: sign in with Facebook",
+        "testerNote": "During the pilot, Facebook sign-in works only for invited testers. First Samuel or Tedi at SYB adds you as a Tester on SYB's Meta app, and you accept the invite from your own Facebook account. Meta then asks you to approve exactly the permissions listed above, and you pick the Page or ad account here.",
+        "oneConsent": "One Facebook account can connect publishing or ad management through sign-in, not both: Meta gives SYB's app everything you granted it before, and SYB refuses a token holding more than this consent names. For the other one, use your own Meta app below.",
+        "opening": "Opening Facebook…",
+        "signInPick": {
+          "ad": "Sign in with Facebook and pick the ad account",
+          "page": "Sign in with Facebook and pick the Page"
+        },
+        "signIn": "Sign in with Facebook"
+      },
+      "facebookOff": "Not switched on yet.",
+      "pick": {
+        "couldntList": "I couldn't list what Meta shared.",
+        "connected": "{label} is connected through Facebook, and your consent is on record.",
+        "cancelled": "Facebook sign-in cancelled. Nothing was connected, and SYB kept no token.",
+        "title": {
+          "ad": "Pick the ad account SYB may act on",
+          "page": "Pick the Page SYB may act on"
+        },
+        "asking": "Asking Meta what you shared…",
+        "aria": {
+          "ad": "Pick the ad account",
+          "page": "Pick the Page"
+        },
+        "instagram": "Instagram {handle} too",
+        "noInstagram": "no Instagram account linked: Facebook only",
+        "active": "active",
+        "notActive": "not active",
+        "allow": {
+          "ad": "Allow and connect this ad account",
+          "page": "Allow and connect this Page"
+        },
+        "note": "SYB checks with Meta that the sign-in holds exactly the permissions listed above before anything is stored."
+      },
+      "eachAction": "What each action does",
+      "undoable": "Can be undone.",
+      "notUndoable": "Can't be undone, and is labelled before you approve it.",
+      "op": {
+        "publish_page_post": "Publish an approved text or link post to the Facebook Page.",
+        "publish_page_photo": "Publish an approved photo post to the Facebook Page.",
+        "publish_page_video": "Publish an approved video or Reel to the Facebook Page.",
+        "publish_ig_media": "Publish an approved post, carousel or Reel to the Instagram account.",
+        "pause_campaign": "Pause a running campaign.",
+        "resume_campaign": "Resume a paused campaign.",
+        "set_daily_budget": "Change a campaign's daily budget, within the approved bounds.",
+        "create_campaign_paused": "Create a new campaign in the paused state.",
+        "upload_ad_video": "Upload an approved item's video to the ad account, for its ad.",
+        "create_adset_paused": "Create an ad set in the paused state: its daily budget, schedule, placements and audience.",
+        "create_adcreative": "Create an ad creative from an approved item's media and caption, carrying its AI disclosure.",
+        "create_ad_paused": "Create an ad in the paused state, with its campaign, ad set and creative, each created paused.",
+        "resume_adset": "Resume a paused ad set.",
+        "pause_adset": "Pause a running ad set.",
+        "resume_ad": "Resume a paused ad.",
+        "pause_ad": "Pause a running ad."
+      },
+      "readback": "To see how each post does, the same token also reads:",
+      "ownApp": "Or: set up your own Meta app",
+      "ownAppSteps": {
+        "meta_publish": {
+          "s0": "In Meta Business Suite, check that your Facebook Page and its Instagram account both sit in your business portfolio.",
+          "s1": "At developers.facebook.com, create a Business app owned by that same portfolio.",
+          "s2": "Add the Pages and Instagram use cases to the app.",
+          "s3": "In your business settings, add a system user, give it your Page and Instagram account, and generate a token for your app with exactly the permissions listed above — no more, no fewer.",
+          "s4": "Paste the token here with your Page id and, to publish to Instagram too, the Instagram account id."
+        },
+        "meta_ads": {
+          "s0": "In Meta Business Suite, check that your ad account sits in your business portfolio.",
+          "s1": "At developers.facebook.com, create a Business app owned by that same portfolio.",
+          "s2": "Add the Marketing API use case to the app.",
+          "s3": "In your business settings, add a system user, give it your ad account, and generate a token for your app with exactly the permission listed above — no more.",
+          "s4": "Paste the token here with the ad account id from Ads Manager."
+        }
+      },
+      "field": {
+        "meta_publish": {
+          "access_token": {
+            "label": "access token",
+            "placeholder": "System user access token"
+          },
+          "page_id": {
+            "label": "Page id",
+            "placeholder": "Facebook Page id"
+          },
+          "ig_user_id": {
+            "label": "Instagram account id",
+            "placeholder": "Instagram account id (to publish there too)"
+          }
+        },
+        "meta_ads": {
+          "access_token": {
+            "label": "access token",
+            "placeholder": "System user access token"
+          },
+          "ad_account_id": {
+            "label": "ad account id",
+            "placeholder": "Ad account id, with or without act_"
+          }
+        }
+      },
+      "optionalField": "{label} (optional)",
+      "allowConnect": "Allow and connect",
+      "youCancelled": "You cancelled the Facebook sign-in. Nothing was connected.",
+      "reason": {
+        "start_here": "Start Facebook sign-in from SYB's Connections screen, with the button there. Nothing was sent to Meta.",
+        "signed_out": "Sign in to SYB first, then connect Meta again.",
+        "owner_only": "Only an owner can grant or take back write access. Nothing was sent to Meta.",
+        "unavailable": "Facebook sign-in isn't available yet. Use your own Meta app instead.",
+        "provider": "That isn't a Meta connection SYB offers.",
+        "phrase": "The confirmation phrase didn't match. Type it as shown, then start again.",
+        "already_connected": "That Meta connection is already connected. Disconnect it first.",
+        "start_again": "That Facebook sign-in expired or was already used. Start again from Connections.",
+        "foreign": "That Facebook sign-in was started from a different SYB account. Sign in to SYB as that account, or start again.",
+        "meta_error": "Facebook sign-in didn't finish. Nothing was connected.",
+        "no_pages": "Meta showed SYB no Pages for that Facebook account. In Meta's dialog, choose the Page (and its Instagram account) you want SYB to publish to, then try again.",
+        "no_ad_accounts": "Meta showed SYB no ad accounts for that Facebook account. In Meta's dialog, choose the ad account you want SYB to manage, then try again.",
+        "meta_auth": "Facebook sign-in didn't finish: Meta didn't accept the sign-in. Start again from Connections.",
+        "meta_permission": "Facebook sign-in didn't finish: Meta says SYB isn't allowed to do that. Check the permissions listed on Connections and start again.",
+        "meta_busy": "Facebook sign-in didn't finish: Meta was busy or didn't answer. Nothing was connected — try again in a few minutes.",
+        "meta_refused": "Facebook sign-in didn't finish: Meta refused it. Nothing was connected.",
+        "internal": "Something went wrong on our side. Nothing was connected.",
+        "generic": "Facebook sign-in didn't finish. Nothing was connected."
+      },
+      "nothingSent": "Connecting proves the token and records your consent. Nothing is published or changed until you approve each item, and publishing through SYB isn't switched on yet.",
+      "disconnectNote": "Disconnecting deletes the token here at once. It revokes nothing on Meta's side: to withdraw the permissions there, remove the app from your business settings.",
+      "access": {
+        "label": "Meta access level · {level}",
+        "standard": {
+          "word": "standard",
+          "headline": "Meta hasn't approved SYB for open sign-up yet.",
+          "body": "Until SYB's company registration and Meta's approvals (Advanced Access, Business Verification and Tech Provider verification) are in place, Meta itself refuses these permissions on any Page or ad account SYB's own business doesn't own. Two pilot routes work meanwhile."
+        },
+        "advanced": {
+          "word": "advanced",
+          "headline": "Meta has approved SYB to ask for these permissions.",
+          "body": "Any business can connect its own Page, Instagram account or ad account here."
+        }
+      },
+      "available": "available",
+      "unavailable": "unavailable",
+      "route": {
+        "ownApp": "Your own Meta app",
+        "ownAppAdvanced": "Set up below, then paste the token.",
+        "ownAppStandard": "Your app, your business portfolio, your token. Set up below.",
+        "signIn": "Sign in with Facebook",
+        "signInOn": "Sign in, approve the permissions listed, and pick your Page or ad account.",
+        "testers": "Invited testers: sign in with Facebook",
+        "testersOn": "For testers the SYB team has added in Meta: Samuel or Tedi adds you in SYB's Meta app first, and you accept the invite.",
+        "testersOff": "For testers the SYB team has added in Meta. {off}"
+      },
+      "tier": {
+        "unseen": "not seen yet — Meta reports it on SYB's first call for an ad change",
+        "development_access": "development tier: Meta's lowest limits, meant for building",
+        "standard_access": "standard access: about {base} + {perAd} × active ads calls an hour on this ad account",
+        "note": "Meta limits how many calls SYB may make on this ad account each hour, by tier. That is enough for one business, not a customer base. SYB waits for the next run whenever Meta reports {share} of the limit used. Higher limits need Meta's review, which SYB applies for once {calls, plural, one {# successful call} other {# successful calls}} in {days, plural, one {# day} other {# days}} exist."
+      }
+    },
+    "email": {
+      "aria": "Campaign email",
+      "sectionLabel": "Campaign email · a separate consent",
+      "title": {
+        "on": "Granted, only for what you approve",
+        "off": "Off. Nothing can email your customers."
+      },
+      "label": "Campaign email",
+      "status": {
+        "connected": "connected",
+        "paused": "paused",
+        "failed": "failed",
+        "disconnected": "disconnected"
+      },
+      "consentedOn": "consented {day} · {status}",
+      "notGranted": "not granted",
+      "grant": "Grant",
+      "close": "Close",
+      "disconnect": "Disconnect",
+      "disconnecting": "Disconnecting…",
+      "unreachable": "I couldn't reach the server. Try again.",
+      "connectFailed": "That didn't connect.",
+      "disconnectFailed": "That didn't disconnect.",
+      "granted": "Campaign email is granted, and your consent is on record.",
+      "disconnected": "Campaign email is disconnected. Nothing more will send.",
+      "fact": {
+        "status": "status",
+        "sentAs": "sent as",
+        "viaSyb": "{name} via SYB",
+        "repliesTo": "replies go to"
+      },
+      "disconnectNote": "Disconnecting stops every campaign send at once. It can't recall an email already sent.",
+      "whatItDoes": "What it does",
+      "op": {
+        "send_campaign": "Send an approved campaign email to the customers who explicitly agreed to hear from you, each one checked again at the moment it goes."
+      },
+      "undoable": "Can be undone.",
+      "notUndoable": "Can't be undone: a sent email can't be recalled, and each campaign is labelled so before you approve it.",
+      "ownService": "Campaigns go out from SYB’s own email service, under your business name. You don’t give SYB any password or key for this.",
+      "sendAs": "Send as (your business name)",
+      "repliesTo": "Replies go to (an address you read)",
+      "typeToConfirm": "To confirm, type <b>{phrase}</b>",
+      "recording": "Recording…",
+      "allow": "Allow campaign email",
+      "nothingSent": "Granting records your consent. Nothing is sent until you approve a campaign and then the email itself, and every recipient is checked again at the moment it goes.",
+      "how": {
+        "label": "How campaigns are sent",
+        "title": "From SYB’s own email service, under your name.",
+        "body": "You give SYB no password or key for this. Each campaign goes only to customers who explicitly agreed to hear from you, each one checked again at the moment it goes, and every email carries its own unsubscribe link, honoured at once and for good."
+      },
+      "realSendsOff": "{label} is switched off until the two-week unattended test completes. Nothing was sent; this stays approved. It goes out on the first run after it is switched on.",
+      "sharedSender": "For now, campaigns and SYB's own sign-in emails go out from the same sending address. If a campaign drew many spam complaints, sign-in emails could be slowed too."
+    },
+    "google": {
+      "sectionLabel": "Google Business Profile · a separate consent",
+      "label": "Google Business Profile reviews",
+      "title": {
+        "on": "Granted, used only to read your reviews",
+        "off": "Off. SYB doesn't read your Google reviews."
+      },
+      "status": {
+        "connected": "connected",
+        "paused": "paused",
+        "failed": "failed",
+        "disconnected": "disconnected"
+      },
+      "consentedOn": "consented {day} · {status}",
+      "notGranted": "not granted",
+      "notSetUpYet": "not set up yet",
+      "connect": "Connect",
+      "close": "Close",
+      "cancel": "Cancel",
+      "keepIt": "Keep it",
+      "unreachable": "I couldn't reach the server. Try again.",
+      "connectFailed": "That didn't connect.",
+      "revokeFailed": "That didn't revoke.",
+      "connected": "Google Business Profile is connected, and your consent is on record.",
+      "signedInPick": "Signed in with Google. Pick the location SYB should read.",
+      "youCancelled": "You cancelled on Google's screen. Nothing was connected.",
+      "nothingConnected": "Nothing was connected.",
+      "revoked": "Revoked. SYB's access to Google is deleted, and reading has stopped.",
+      "fact": {
+        "status": "status",
+        "location": "location",
+        "lastRead": "last read",
+        "notYet": "not yet: SYB reads once a day"
+      },
+      "revokeAsk": "SYB stops reading your Google reviews.",
+      "revoking": "Revoking…",
+      "yesRevoke": "Yes, revoke",
+      "revoke": "Revoke",
+      "revokeNote": "Revoking deletes SYB's access here at once, and SYB stops reading. Reviews already read stay on Reviews until you remove them or their year is up. To remove SYB on Google's side too, open your Google Account's Security page, then Third-party connections.",
+      "pickTitle": "Pick the location SYB reads",
+      "recording": "Recording…",
+      "readLocation": "Read this location's reviews",
+      "googleScreen": "Google then shows its own screen and asks about this one permission. Allow it, and come back here.",
+      "typeToConfirm": "To confirm, type <b>{phrase}</b>",
+      "opening": "Opening Google…",
+      "signIn": "Sign in with Google and allow reading reviews",
+      "nothingWritten": "Connecting records your consent and reads your reviews once a day. SYB never replies and never edits your listing: it only reads from Google.",
+      "reason": {
+        "start_here": "Start the Google sign-in from SYB's Connections screen, with the button there. Nothing was sent to Google.",
+        "signed_out": "Sign in to SYB first, then connect Google again.",
+        "owner_only": "Only an owner can grant or take back this permission. Nothing was sent to Google.",
+        "unavailable": "Reading reviews from Google isn't set up yet.",
+        "phrase": "The confirmation phrase didn't match. Type it as shown, then start again.",
+        "already_connected": "Google Business Profile is already connected. Revoke it first to connect another.",
+        "start_again": "That Google sign-in expired or was already used. Start again from Connections.",
+        "foreign": "That Google sign-in was started from a different SYB account. Sign in to SYB as that account, or start again.",
+        "google_error": "Google sign-in didn't finish. Nothing was connected.",
+        "scope": "Google didn't grant exactly the one permission SYB asks for. On Google's screen, allow the Business Profile permission, then try again.",
+        "no_refresh": "Google didn't give SYB lasting access. Start again: Google asks once more, and SYB needs that answer.",
+        "no_locations": "Google showed SYB no Business Profile for that Google account. Sign in with the account that manages your profile, then try again.",
+        "google_auth": "Google didn't accept the sign-in. Start again from Connections.",
+        "google_permission": "Google says SYB isn't allowed to read Business Profiles yet. Nothing was connected.",
+        "google_busy": "Google was busy or didn't answer. Nothing was connected — try again in a few minutes.",
+        "google_refused": "Google refused the sign-in. Nothing was connected.",
+        "internal": "Something went wrong on our side. Nothing was connected.",
+        "generic": "Google sign-in didn't finish. Nothing was connected."
+      }
+    },
+    "import": {
+      "unreachable": "I couldn't reach the server. Try again.",
+      "readFrom": "Read from {file}. You can check it here",
+      "orPaste": "Or paste it here",
+      "datesLabel": "How dates are written, if they look like {sample}",
+      "workItOut": "Work it out from the file",
+      "dayFirst": "Day first ({example})",
+      "monthFirst": "Month first ({example})",
+      "amountsLabel": "How amounts are written, if they look like {sample}",
+      "dotDecimal": "{sample} (the comma separates thousands)",
+      "commaDecimal": "{sample} (the dot separates thousands)",
+      "reading": "Reading…"
+    },
+    "bank": {
+      "label": "Bank statement · read once, nothing moved",
+      "title": "The cash in your bank, from a statement",
+      "latest": "{amount} on {day}",
+      "lede": "Export a statement from your bank as CSV and give me the file. I read only each row’s date and the balance after it, nothing about who paid or what for, and keep the closing balance of each day. Your cash forecast starts from it while it is a week old or less, and I check my forecast’s weekly balances against the statements you give me later. No bank is connected, and nothing can be moved.",
+      "file": "The statement (CSV)",
+      "currency": "Currency of the account",
+      "through": "The last day the statement covers, if after its last row (optional)",
+      "submit": "Import this statement",
+      "failed": "That statement didn't import.",
+      "overlap": "Importing an overlapping statement again is safe: the days it covers are replaced, not counted twice. The statement needs a balance column; a list of amounts alone can’t say what was in the account.",
+      "outcome": "Read {rows, plural, one {# row} other {# rows}}: a closing balance for each of {days, plural, one {# day} other {# days}}, {from} to {through}, ending at {amount}.",
+      "skipped": {
+        "date": "{count} with a date I couldn't read",
+        "balance": "{count} with a balance I couldn't read",
+        "day": "{count} from a day whose rows disagree",
+        "sep": ", ",
+        "line": "Left out, never guessed: {parts}."
+      }
+    },
+    "bookings": {
+      "label": "Import bookings · read once, nothing written back",
+      "title": "Your appointments, from any booking system",
+      "lastImport": "Last import {day} · {platform}",
+      "lede": "Fresha, Mindbody, Booksy, SimplyBook.me, Timely and most others can’t be connected, but they all export your appointments. Export them as CSV and give me the file. I read the date, what happened, the service, the staff member and the price. I keep a one-way code for each client so I can tell who came back. I never keep their names, emails or phone numbers. If you use Square Appointments, connect Square above with its two appointment permissions instead.",
+      "measuresSub": "{source} · {from} to {to}",
+      "source": {
+        "import": "Your bookings export",
+        "square": "Square"
+      },
+      "platform": "Where the export came from",
+      "generic": "Another booking system, or a spreadsheet",
+      "file": "The export file (CSV)",
+      "currency": "Currency of the price column",
+      "submit": "Import these bookings",
+      "failed": "That file didn't import.",
+      "overlap": "Importing an overlapping export again is safe: appointments I already have are updated, not counted twice. Rows I can’t read are counted and left out, never guessed.",
+      "caption": "{source}: the {days, plural, one {# day} other {# days}} from {from} to {to}",
+      "measureHead": "Measure · {days, plural, one {# day} other {# days}}",
+      "value": "Value",
+      "how": "How I got it",
+      "notMeasured": "Not measured",
+      "completedHow": "completed appointments, {from} to {to}",
+      "measure": {
+        "completed": "Appointments completed",
+        "noShow": "No-show rate",
+        "lateCancel": "Late-cancellation rate",
+        "rebooked": "Clients who booked again",
+        "revenue": "Revenue from bookings",
+        "full": "How full you are"
+      },
+      "understood": "What I understood",
+      "columnsCaption": "The columns I read from your file",
+      "iRead": "I read",
+      "fromColumn": "From your column",
+      "role": {
+        "ref": "Booking reference",
+        "start": "Date and time",
+        "date": "Date",
+        "time": "Time",
+        "status": "What happened",
+        "service": "Service",
+        "staff": "Staff",
+        "client_id": "Client id, hashed and not kept",
+        "client_email": "Client email, hashed and not kept",
+        "client_phone": "Client phone, hashed and not kept",
+        "price": "Price",
+        "duration": "Duration",
+        "cancelled_at": "When it was cancelled"
+      },
+      "noIdentity": "The file has no client id, email or phone I can follow, so I can’t see who came back. Names alone aren’t enough: two clients called Anna would become one.",
+      "counted": "What I counted",
+      "countedLine": "{rows, plural, one {# row} other {# rows}} read from your {platform} export. {added, plural, one {# new appointment} other {# new appointments}}, {updated} changed since the last import, {unchanged} already here and unchanged.",
+      "merged": "{count, plural, one {# extra line shared a booking reference with another, so I counted each booking once.} other {# extra lines shared a booking reference with another, so I counted each booking once.}}",
+      "future": "{count, plural, one {# still to come. They count once they’ve happened and you import again.} other {# still to come. They count once they’ve happened and you import again.}}",
+      "daysMeasured": "Days measured: {from} to {to}.",
+      "leftOut": "What I left out",
+      "leftOutFlag": "Left out",
+      "valueLeftOutFlag": "Value left out",
+      "skip": {
+        "no_date": "{count, plural, one {# row} other {# rows}} with no date.",
+        "unreadable_date": "{count, plural, one {# row} other {# rows}} with a date I couldn't read.",
+        "no_status": "{count, plural, one {# row} other {# rows}} with no status.",
+        "unknown_status": "{count, plural, one {# row} other {# rows}} with a status I don't know.",
+        "not_closed_out": "{count, plural, one {# row} other {# rows}} still marked booked after their day had passed, so I can't tell what happened."
+      },
+      "skipOther": "{count, plural, one {# row} other {# rows}} {reason}.",
+      "gapLine": "{count} with {gap}.",
+      "gap": {
+        "time": "a time I couldn't read (the day was kept)",
+        "price": "a price I couldn't read (left out)",
+        "duration": "a duration I couldn't read (left out)",
+        "cancelled_at": "a cancellation time I couldn't compare with the start, so it counts as an ordinary cancellation",
+        "client": "client details I couldn't use, so that visit isn't followed",
+        "client_erased": "a client you erased or who unsubscribed, so that visit stays unlinked to anyone"
+      },
+      "unknownStatuses": "Statuses I didn’t know: {list}. I don’t guess what they mean.",
+      "unknownStatus": "“{word}” ({count})",
+      "listSep": ", "
+    }
+  },
+  "landing": {
+    "meta": {
+      "title": "SYB — a blood test for your business",
+      "description": "{checks} checks on your sales, bookings, payments and ads, every leak priced in euros, and a signed report."
+    },
+    "nav": {
+      "label": "Main",
+      "chart": "The chart",
+      "panels": "What we test",
+      "price": "Price",
+      "signIn": "Sign in"
+    },
+    "hero": {
+      "pill": "A blood test for your business",
+      "titleA": "Your business looks healthy.",
+      "titleB": "<em>Its numbers</em> might not.",
+      "lede": "We run {checks} checks on your sales, bookings, payments and ads, price every leak in euros, and hand you a signed report in {daysText} {days, plural, one {day} other {days}}.",
+      "book": "Book your test — {price}",
+      "see": "See what we find",
+      "trustReadOnly": "Read-only",
+      "trustSigned": "Signed by a person",
+      "trustRefund": "Refund if we find nothing"
+    },
+    "chart": {
+      "kicker": "The chart",
+      "title": "Your business, read like a stock.",
+      "aside": "We mark the day each leak started — and shade what it cost you."
+    },
+    "panels": {
+      "kicker": "What we test",
+      "title": "Nine panels. Everything that moves your profit.",
+      "p01": {
+        "name": "Conversion",
+        "markers": "booking or checkout · enquiries · mobile · page depth"
+      },
+      "p02": {
+        "name": "Margin",
+        "markers": "after delivery · cost of sale · fees · discounts"
+      },
+      "p03": {
+        "name": "Pricing",
+        "markers": "position · sensitivity · average sale · thresholds"
+      },
+      "p04": {
+        "name": "Returns & refunds",
+        "markers": "rate · damage & redos · cost · reasons"
+      },
+      "p05": {
+        "name": "Retention",
+        "markers": "repeat · time between · lapsed · value"
+      },
+      "p06": {
+        "name": "Email & SMS",
+        "markers": "share · flows · list growth · unsubscribes"
+      },
+      "p07": {
+        "name": "Acquisition",
+        "markers": "cost per customer · payback · channel mix · ROAS"
+      },
+      "p08": {
+        "name": "Stock & capacity",
+        "markers": "stock-outs · dead stock · empty slots · turnover"
+      },
+      "p09": {
+        "name": "Support",
+        "markers": "questions · “where is my order or booking” · reply time · self-serve"
+      }
+    },
+    "steps": {
+      "kicker": "How it works",
+      "title": "Fifteen minutes from you.",
+      "whenMinutes": "Day {day} · {minutes} min",
+      "whenDay": "Day {day}",
+      "connect": {
+        "t": "Connect",
+        "d": "Read-only. Nothing changes."
+      },
+      "questions": {
+        "t": "Answer a few questions",
+        "d": "Only what your numbers can’t tell us."
+      },
+      "results": {
+        "t": "Get your results",
+        "d": "Every leak priced, charted, and three fixes first."
+      }
+    },
+    "price": {
+      "kicker": "Price",
+      "titleA": "One test.",
+      "titleB": "One price.",
+      "card": "Full business panel",
+      "once": "once",
+      "markers": "{count, plural, one {# marker} other {# markers}}, each priced",
+      "chart": "Your revenue chart, leaks marked",
+      "fixes": "{count, plural, one {# fix} other {# fixes}}, in order",
+      "walkthrough": "Signed, {minutes}-min walkthrough",
+      "subscription": "Subscription",
+      "none": "none",
+      "book": "Book your test",
+      "refund": "Fewer than {leaksText} fixable {leaks, plural, one {leak} other {leaks}}? Full refund."
+    },
+    "faq": {
+      "title": "Questions",
+      "passwordQ": "Do you need my password?",
+      "passwordA": "No. A read-only connection you can remove any time.",
+      "changeQ": "Will anything change in my accounts?",
+      "changeA": "No. We only read. Nothing ever runs without your approval.",
+      "sizeQ": "Is my business big enough?",
+      "sizeA": "Built for businesses doing about {low}–{high} a month. Too small to read? We tell you before you pay."
+    },
+    "foot": {
+      "book": "Book your test — {price}",
+      "company": "[Company details]",
+      "terms": "Terms",
+      "privacy": "Privacy"
+    },
+    "demo": {
+      "group": "Demo business",
+      "kicker": "Demo",
+      "shop": "A webshop",
+      "salon": "A salon"
+    },
+    "walk": {
+      "figure": "Product walkthrough video",
+      "bar": "SYB · PRODUCT WALKTHROUGH",
+      "chapterOf": "Chapter {n} of {total} · {title}",
+      "chapters": "Chapters",
+      "play": "Play walkthrough",
+      "pause": "Pause walkthrough",
+      "chapter": {
+        "c01": {
+          "title": "Connect",
+          "caption": "Connect your accounts — read-only, two minutes.",
+          "crumb": "Connections",
+          "state": "connecting"
+        },
+        "c02": {
+          "title": "Questions",
+          "caption": "Answer a few questions only you can answer.",
+          "crumb": "Interview",
+          "state": "recording"
+        },
+        "c03": {
+          "title": "The watch",
+          "caption": "We read every number. Nothing gets touched.",
+          "crumb": "Watching",
+          "state": "watching"
+        },
+        "c04": {
+          "title": "Report",
+          "caption": "Every leak, measured and priced in euros.",
+          "crumb": "Report",
+          "state": "report ready"
+        },
+        "c05": {
+          "title": "Approve",
+          "caption": "Nothing runs until you press Approve.",
+          "crumb": "Waiting for you",
+          "state": "{count, plural, one {# decision} other {# decisions}}"
+        },
+        "c06": {
+          "title": "Results",
+          "caption": "Then see exactly what each fix earned.",
+          "crumb": "Outcomes",
+          "state": "measuring"
+        }
+      },
+      "s1": {
+        "step": "Step {n} · Connect",
+        "title": "Connect your accounts, read-only.",
+        "tag": "READ-ONLY",
+        "connected": "Connected · reading {months, plural, one {# month} other {# months}}",
+        "button": "Connect"
+      },
+      "s2": {
+        "step": "Step {n} · A few questions",
+        "range": "A range is enough.",
+        "record": "The record",
+        "you": "you",
+        "under": "< {a}",
+        "between": "{a}–{b}",
+        "over": "{a}+"
+      },
+      "s3": {
+        "step": "Step {n} · The watch",
+        "title": "We read. Nothing is touched.",
+        "tag": "WATCHING",
+        "day": "Day",
+        "readings": "Readings",
+        "changes": "Changes made"
+      },
+      "s4": {
+        "step": "Step {n} · Your report",
+        "title": "Every leak, priced.",
+        "leak": "Leak / month"
+      },
+      "s5": {
+        "step": "Step {n} · You decide",
+        "proposal": "Proposal · {area}",
+        "recommended": "RECOMMENDED",
+        "expected": "Expected",
+        "expectedRange": "+{low}–{high} / mo",
+        "undo": "Undo",
+        "anyTime": "Any time",
+        "approve": "Approve",
+        "decline": "Decline",
+        "stamp": "APPROVED · runs {time}"
+      },
+      "s6": {
+        "step": "Step {n} · Measured",
+        "title": "See exactly what it earned.",
+        "recovered": "Recovered / month",
+        "key": "A",
+        "keyLegend": "{key} = approved",
+        "before": "Before · {metric} {value} %",
+        "after": "After · {metric} {value} %",
+        "measuring": "After · measuring…"
+      },
+      "flag": {
+        "ACT": "ACT",
+        "HIGH": "HIGH",
+        "LOW": "LOW",
+        "OK": "OK"
+      },
+      "shop": {
+        "stage": "Walkthrough with an illustrative store, chapter {n}: {caption}",
+        "caption": "Demo with an illustrative store. Your numbers will be your own.",
+        "reads": "Orders · Products · Customers · Inventory",
+        "question": "Roughly what does shipping cost you per order?",
+        "fact": "Shipping {low}–{high}",
+        "r0": "Orders, {days} d",
+        "r1": "Avg order",
+        "r2": "Fulfilment",
+        "w2": "in-house",
+        "m0": "Checkout conversion",
+        "m1": "Margin after shipping",
+        "m2": "Return rate",
+        "m3": "Email & SMS share",
+        "m4": "Repeat customers",
+        "area": "checkout",
+        "proposal": "Fix the mobile checkout step that loses buyers",
+        "metric": "conversion"
+      },
+      "salon": {
+        "stage": "Walkthrough with an illustrative salon, chapter {n}: {caption}",
+        "caption": "Demo with an illustrative salon. Your numbers will be your own.",
+        "reads": "Payments · Refunds · Locations",
+        "question": "Roughly how many booked clients don’t turn up in a week?",
+        "fact": "No-shows {low}–{high} a week",
+        "r0": "Paid visits, {days} d",
+        "r1": "Avg ticket",
+        "r2": "Deposits",
+        "w2": "none",
+        "m0": "No-show rate",
+        "m1": "Rebooking rate",
+        "m2": "Chair utilisation",
+        "m3": "Retail attach rate",
+        "m4": "Average ticket",
+        "area": "bookings",
+        "proposal": "Take a deposit on first-time bookings to cut no-shows",
+        "metric": "no-show rate"
+      }
+    },
+    "storeChart": {
+      "day": "{count}D",
+      "week": "{count}W",
+      "overlay": "Leak overlay",
+      "weekOf": "Week of {day}",
+      "open": "O",
+      "high": "H",
+      "low": "L",
+      "close": "C",
+      "withoutLeaks": "Without leaks {value}",
+      "gap": "Gap {value}",
+      "shop": {
+        "title": "STORE · REVENUE",
+        "subtitle": "Illustrative store · {days, plural, one {# day} other {# days}}",
+        "volume": "Orders",
+        "description": "Candlestick chart of an illustrative store's daily revenue over {days, plural, one {# day} other {# days}}. A dotted line shows revenue without leaks; the shaded gap between them is money lost. Three markers show where leaks began: a theme update, a stock-out and a shipping change.",
+        "T": {
+          "key": "T",
+          "label": "Theme update",
+          "note": "Theme update — mobile checkout slows"
+        },
+        "S": {
+          "key": "S",
+          "label": "Stock-out",
+          "note": "Stock-out — best-sellers hit zero"
+        },
+        "F": {
+          "key": "F",
+          "label": "Free-shipping line",
+          "note": "Free-shipping line left too low"
+        }
+      },
+      "salon": {
+        "title": "SALON · REVENUE",
+        "subtitle": "Illustrative salon · {days, plural, one {# day} other {# days}}",
+        "volume": "Visits",
+        "description": "Candlestick chart of an illustrative salon's daily revenue over {days, plural, one {# day} other {# days}}. A dotted line shows revenue without leaks; the shaded gap between them is money lost. Three markers show where leaks began: a stylist leaving, online booking without a deposit, and the retail shelf moving.",
+        "L": {
+          "key": "L",
+          "label": "Stylist leaves",
+          "note": "A stylist leaves — her regulars stop rebooking"
+        },
+        "B": {
+          "key": "B",
+          "label": "Online booking",
+          "note": "Online booking opens with no deposit — no-shows climb"
+        },
+        "R": {
+          "key": "R",
+          "label": "Retail shelf moved",
+          "note": "Retail shelf moved off the desk — product sales fall"
+        }
+      }
+    }
+  },
+  "legal": {
+    "toBeSupplied": "This document is to be supplied by SYB before launch.",
+    "terms": {
+      "meta": "Terms — SYB",
+      "label": "Terms",
+      "title": "Terms of service"
+    },
+    "privacy": {
+      "meta": "Privacy notice — SYB",
+      "label": "Privacy",
+      "title": "Privacy notice",
+      "speakingHead": "Speaking an answer",
+      "speaking": "When you press Speak, your browser turns your speech into text. Where the browser can do that on your device, the audio stays on it. Otherwise your browser’s maker does it: in Chrome, Google. SYB never receives the audio and stores none. Only the words you choose to record, ask or send are saved, exactly as if you had typed them, and nothing is recorded by speaking alone."
+    }
+  },
+  "resume": {
+    "meta": "Carry on — SYB",
+    "kicker": "Your interview",
+    "headline": "Pick up where you stopped.",
+    "label": "Confirm",
+    "title": "Carry on with this interview?",
+    "button": "Carry on",
+    "note": "Not a link you asked for? Close this page. Nothing changes in this browser unless you press the button.",
+    "deadHeadline": "That link has run out.",
+    "deadMessage": "Resume links stop working when they expire or are revoked. Sign in with your email and your interview is where you left it."
+  },
+  "summaryStop": {
+    "meta": "Weekly summary — SYB",
+    "label": "Email preferences",
+    "unknown": {
+      "title": "This link isn’t one we recognise.",
+      "body": "Check that the whole link from the email was copied. Nothing has changed."
+    },
+    "stopped": {
+      "title": "The weekly summary is off.",
+      "body": "I won’t email it again. Everything it reported is still on your <watch>Watching</watch> screen, and you can switch it back on there."
+    },
+    "ask": {
+      "title": "Stop the weekly summary email?",
+      "body": "One click and it stops. Sign-in links and the Support screen’s notices are not affected.",
+      "button": "Stop these emails"
+    }
+  },
   "benchmarks": {
     "meta": {
       "title": "Compared with similar businesses — SYB"

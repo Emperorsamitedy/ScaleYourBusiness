@@ -6,11 +6,23 @@
 // line shaded, as the owner's landing design (2026-10-17) draws it. 1D /
 // 1W switch the bucket, "Leak overlay" toggles the shading, and the
 // crosshair follows the pointer. Local state only.
+//
+// L-3d: its words are the "landing.storeChart" catalogue (the series' own
+// words repeat there in English); figures and dates in the reader's
+// language, in euros as the series is, never converted.
 
 import { useMemo, useState, type PointerEvent } from "react";
-import { num } from "../sheet/num";
-import { chartDate, type Candle, type ChartSeries } from "../../lib/marketing/sample-chart";
+import type { AppLocale } from "../../lib/i18n/locales";
+import { moneyText, num } from "../sheet/num";
+import { useTr } from "../sheet/useTr";
+import {
+  CHART_CURRENCY,
+  CHART_DAY_COUNT,
+  type Candle,
+  type ChartSeries,
+} from "../../lib/marketing/sample-chart";
 import { useDemo } from "./Demos";
+import { chartDay } from "./words";
 
 // Plot geometry, in viewBox units (1000 × 420).
 const X0 = 10;
@@ -23,7 +35,9 @@ const UP = "#26A69A";
 const DOWN = "#EF5350";
 
 const euros = (minor: number) => minor / 100;
-const eur = (v: number) => `€${num(Math.round(v))}`;
+/** Whole euros: "€1,234" in English, as the chart always printed them. */
+const eur = (v: number, locale: AppLocale) =>
+  moneyText(Math.round(v) * 100, CHART_CURRENCY, locale);
 
 /** The price axis, in euros, and the y of a value on it. */
 function axisOf(series: ChartSeries) {
@@ -32,7 +46,13 @@ function axisOf(series: ChartSeries) {
   return { LO, HI, Y: (v: number) => Y1 - ((v - LO) / (HI - LO)) * (Y1 - Y0) };
 }
 
-function geometry(series: ChartSeries, data: readonly Candle[], weekly: boolean) {
+function geometry(
+  series: ChartSeries,
+  data: readonly Candle[],
+  weekly: boolean,
+  locale: AppLocale,
+  labelOf: (key: string) => string,
+) {
   const { LO, HI, Y } = axisOf(series);
   const N = data.length;
   const slot = (X1 - X0) / N;
@@ -80,24 +100,26 @@ function geometry(series: ChartSeries, data: readonly Candle[], weekly: boolean)
     const val = LO + ((HI - LO) * g) / 4;
     const yy = Y(val);
     grid += `M0 ${yy.toFixed(1)}H920`;
-    ticks.push({ y: (yy + 4).toFixed(1), l: eur(val) });
+    ticks.push({ y: (yy + 4).toFixed(1), l: eur(val, locale) });
   }
   for (let gx = 0; gx < N; gx += Math.max(1, Math.round(N / 6))) {
     grid += `M${X(gx).toFixed(1)} 0V390`;
   }
   const xl: { x: string; l: string }[] = [];
   for (let q = 0; q < N; q += Math.max(1, Math.round(N / 5))) {
-    xl.push({ x: X(q).toFixed(1), l: chartDate(data[q]!.day) });
+    xl.push({ x: X(q).toFixed(1), l: chartDay(data[q]!.day, locale) });
   }
 
   const events = series.events.map((e, i) => {
     const idx = weekly ? Math.min(N - 1, Math.floor(e.day / 7)) : e.day;
     const x = X(idx);
     const yl = Y(euros(data[idx]!.low_minor)) + 10;
-    const lw = e.label.length * 6.6 + 16;
+    const label = labelOf(`${e.key}.label`);
+    const letter = labelOf(`${e.key}.key`);
+    const lw = label.length * 6.6 + 16;
     // Every other label steps down, so neighbours never overlap.
     const ly = 30 + (i % 2 === 1 ? 26 : 0);
-    return { ...e, x, yl, lw, ly };
+    return { ...e, label, letter, x, yl, lw, ly };
   });
 
   return {
@@ -121,6 +143,10 @@ function geometry(series: ChartSeries, data: readonly Candle[], weekly: boolean)
 
 export function StoreChart() {
   const { chart } = useDemo();
+  const { tr, locale } = useTr("landing.storeChart");
+  const own = (key: string, values?: Record<string, string | number>) =>
+    tr(`${chart.id}.${key}`, values);
+  const money = (v: number) => eur(v, locale);
   const [tf, setTf] = useState<"D" | "W">("D");
   const [gap, setGap] = useState(true);
   const [hover, setHover] = useState(-1);
@@ -128,7 +154,11 @@ export function StoreChart() {
 
   const weekly = tf === "W";
   const data = weekly ? chart.weeks : chart.days;
-  const g = useMemo(() => geometry(chart, data, weekly), [chart, data, weekly]);
+  const g = useMemo(
+    () => geometry(chart, data, weekly, locale, (key) => tr(`${chart.id}.${key}`)),
+    // `tr` is a new function each render but follows the locale, so the locale stands for it.
+    [chart, data, weekly, locale],
+  );
   const { LO, HI, Y } = axisOf(chart);
 
   const last = data[g.N - 1]!;
@@ -163,7 +193,7 @@ export function StoreChart() {
               className="ll-m"
               style={{ fontWeight: 600, fontSize: 13, padding: "0 10px 0 4px" }}
             >
-              {chart.title}
+              {own("title")}
             </span>
             <span className="ll-tv-sep" aria-hidden="true" />
             <button
@@ -175,7 +205,7 @@ export function StoreChart() {
               }}
               aria-pressed={tf === "D"}
             >
-              1D
+              {tr("day", { count: num(1, 0, locale) })}
             </button>
             <button
               type="button"
@@ -186,7 +216,7 @@ export function StoreChart() {
               }}
               aria-pressed={tf === "W"}
             >
-              1W
+              {tr("week", { count: num(1, 0, locale) })}
             </button>
             <span className="ll-tv-sep" aria-hidden="true" />
             <button
@@ -195,38 +225,41 @@ export function StoreChart() {
               onClick={() => setGap((v) => !v)}
               aria-pressed={gap}
             >
-              Leak overlay
+              {tr("overlay")}
             </button>
           </div>
           <span className="ll-m" style={{ fontSize: 11.5, color: "#5D6B78" }}>
-            Illustrative {chart.noun} · 90 days
+            {own("subtitle", { days: CHART_DAY_COUNT })}
           </span>
         </div>
         <div className="ll-m ll-tv-legend">
           <span style={{ color: "#131722", fontWeight: 600 }}>
-            {weekly ? "Week of " : ""}
-            {chartDate(hk.day)}
+            {weekly ? tr("weekOf", { day: chartDay(hk.day, locale) }) : chartDay(hk.day, locale)}
           </span>
           <span>
-            O <span style={legendColor}>{eur(euros(hk.open_minor))}</span>
+            {tr("open")} <span style={legendColor}>{money(euros(hk.open_minor))}</span>
           </span>
           <span>
-            H <span style={legendColor}>{eur(euros(hk.high_minor))}</span>
+            {tr("high")} <span style={legendColor}>{money(euros(hk.high_minor))}</span>
           </span>
           <span>
-            L <span style={legendColor}>{eur(euros(hk.low_minor))}</span>
+            {tr("low")} <span style={legendColor}>{money(euros(hk.low_minor))}</span>
           </span>
           <span>
-            C <span style={legendColor}>{eur(euros(hk.close_minor))}</span>
+            {tr("close")} <span style={legendColor}>{money(euros(hk.close_minor))}</span>
           </span>
           <span>
-            {chart.volume_label} <span style={legendColor}>{hk.volume}</span>
+            {own("volume")} <span style={legendColor}>{num(hk.volume, 0, locale)}</span>
           </span>
           {gap && (
             <>
-              <span style={{ color: "#2962FF" }}>Without leaks {eur(euros(hk.ideal_minor))}</span>
+              <span style={{ color: "#2962FF" }}>
+                {tr("withoutLeaks", { value: money(euros(hk.ideal_minor)) })}
+              </span>
               <span style={{ color: "#EF5350" }}>
-                Gap {eur(Math.max(0, euros(hk.ideal_minor - hk.close_minor)))}
+                {tr("gap", {
+                  value: money(Math.max(0, euros(hk.ideal_minor - hk.close_minor))),
+                })}
               </span>
             </>
           )}
@@ -234,7 +267,7 @@ export function StoreChart() {
         <svg
           viewBox="0 0 1000 420"
           role="img"
-          aria-label={chart.description}
+          aria-label={own("description", { days: CHART_DAY_COUNT })}
           onPointerMove={onMove}
           onPointerLeave={() => setHover(-1)}
           className="ll-chart"
@@ -286,7 +319,7 @@ export function StoreChart() {
                 fontWeight="600"
                 fill="#FFFFFF"
               >
-                {e.key}
+                {e.letter}
               </text>
               <rect
                 x={(e.x - 8).toFixed(1)}
@@ -297,7 +330,7 @@ export function StoreChart() {
                 stroke="#2962FF"
               />
               <text x={e.x.toFixed(1)} y={e.ly + 14} fontSize="10.5" fill="#131722">
-                {e.key} · {e.label}
+                {e.letter} · {e.label}
               </text>
             </g>
           ))}
@@ -316,7 +349,7 @@ export function StoreChart() {
           ))}
           <rect x="921" y={(Y(lastC) - 10).toFixed(1)} width="79" height="20" fill={lastColor} />
           <text x="928" y={(Y(lastC) + 4).toFixed(1)} fontSize="11" fontWeight="600" fill="#FFFFFF">
-            {eur(lastC)}
+            {money(lastC)}
           </text>
           {g.xl.map((x) => (
             <text key={x.x} x={x.x} y="408" fontSize="11" fill="#5D6B78" textAnchor="middle">
@@ -343,11 +376,11 @@ export function StoreChart() {
               />
               <rect x="921" y={(hoverY - 10).toFixed(1)} width="79" height="20" fill="#131722" />
               <text x="928" y={(hoverY + 4).toFixed(1)} fontSize="11" fill="#FFFFFF">
-                {eur(hyVal)}
+                {money(hyVal)}
               </text>
               <rect x={(g.X(hi) - 48).toFixed(1)} y="391" width="96" height="20" fill="#131722" />
               <text x={g.X(hi).toFixed(1)} y="405" textAnchor="middle" fontSize="11" fill="#FFFFFF">
-                {chartDate(hk.day)}
+                {chartDay(hk.day, locale)}
               </text>
             </>
           )}
@@ -357,9 +390,9 @@ export function StoreChart() {
         {chart.events.map((e) => (
           <div key={e.key} className="ll-m">
             <span className="ll-chart-keybox" aria-hidden="true">
-              {e.key}
+              {own(`${e.key}.key`)}
             </span>
-            {e.note}
+            {own(`${e.key}.note`)}
           </div>
         ))}
       </div>
