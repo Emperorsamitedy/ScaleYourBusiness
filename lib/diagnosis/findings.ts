@@ -33,6 +33,8 @@ import type { LlmCallRecord } from "../llm/cost-log";
 import { buildCallRecord, recordLlmCall } from "../llm/cost-log";
 import type { DiagnosisModel } from "../llm/models";
 import { diagnosisModel, opusShape } from "../llm/models";
+import { ownerLanguageLine, withLanguage } from "../llm/language";
+import type { AppLocale } from "../i18n/locales";
 import { ensureSnapshot, readSnapshot } from "../profile/snapshot";
 import { repr } from "../profile/factsheet";
 import { openFindings } from "../validation/engine";
@@ -284,11 +286,20 @@ export function sortFindings(findings: readonly DiagnosisFinding[]): DiagnosisFi
 /** §7: three sentences. Trimmed in code — never padded, never trusted.
  * A sentence ends at .!? followed by whitespace and a capital — NOT at
  * the period inside "0.5L" or "4.5 million", which a naive split eats
- * (caught on the first live run, where the summary began mid-word). */
+ * (caught on the first live run, where the summary began mid-word).
+ * L-5: in every language SYB writes — any capital letter (Cyrillic too),
+ * Spanish ¿ ¡, French « and German „ may open a sentence; Chinese ends one
+ * at 。！？ with no space after it, and is cut there without adding one. */
+const SENTENCE_BREAK = /(?<=[.!?])\s+(?=[\p{Lu}"“„«¿¡(])|(?<=[。！？])\s*(?=\S)/gu;
+
 export function threeSentences(text: string): string {
   const clean = text.replace(/\s+/g, " ").trim();
-  const parts = clean.split(/(?<=[.!?])\s+(?=[A-ZÀ-ÞĀ-Ž"“(])/u);
-  return parts.slice(0, 3).join(" ");
+  let seen = 0;
+  for (const m of clean.matchAll(SENTENCE_BREAK)) {
+    seen += 1;
+    if (seen === 3) return clean.slice(0, m.index).trimEnd();
+  }
+  return clean;
 }
 
 /** One fact, one line — the profile as the model sees it. */
@@ -325,6 +336,8 @@ export interface DiagnosisPrompt {
 export async function buildDiagnosisPrompt(
   profileId: string,
   snapshotId: string,
+  /** L-5: the language of the person generating the report (rule 5). */
+  locale: AppLocale = "en",
 ): Promise<DiagnosisPrompt> {
   const [view, completeness, validation] = await Promise.all([
     readSnapshot(snapshotId),
@@ -356,7 +369,9 @@ export async function buildDiagnosisPrompt(
 
   return {
     snapshot_id: snapshotId,
-    system: SYSTEM,
+    // The language goes last: summary, titles and details in the reader's
+    // language; area, severity and evidence keys stay the schema's English.
+    system: withLanguage(SYSTEM, ownerLanguageLine(locale)),
     user,
     fact_keys: factKeys,
     completeness: completeness.overall,
@@ -376,6 +391,7 @@ export async function runDiagnosis(args: {
   accountId: string;
   profileId: string;
   llm?: DiagnosisLlm;
+  locale?: AppLocale;
 }): Promise<DiagnosisResult> {
   // The diagnosis reads a frozen snapshot — reproducible, never shifting.
   const summary = await ensureSnapshot(args.profileId, "report");
@@ -392,8 +408,9 @@ export async function diagnoseSnapshot(args: {
   profileId: string;
   snapshotId: string;
   llm?: DiagnosisLlm;
+  locale?: AppLocale;
 }): Promise<DiagnosisResult> {
-  const prompt = await buildDiagnosisPrompt(args.profileId, args.snapshotId);
+  const prompt = await buildDiagnosisPrompt(args.profileId, args.snapshotId, args.locale);
   const llm = args.llm ?? liveDiagnosisLlm;
   const { text, calls } = await llm({
     system: prompt.system,

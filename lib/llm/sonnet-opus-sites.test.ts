@@ -299,6 +299,7 @@ describe("SONNET_MODEL=claude-sonnet-5-5", () => {
         } as never,
         kind: "social_post" as never,
         accountId: "acct-m2",
+        language: "en",
       }),
     ).rejects.toBeInstanceOf(ModelRefusalError);
   });

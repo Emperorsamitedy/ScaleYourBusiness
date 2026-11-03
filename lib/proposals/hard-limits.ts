@@ -28,6 +28,7 @@ import { ModelRefusalError, readAnswer } from "../llm/answer";
 import { anthropicClient } from "../llm/client";
 import type { LlmCallRecord } from "../llm/cost-log";
 import { buildCallRecord, recordLlmCall } from "../llm/cost-log";
+import { FACTS_AS_GIVEN } from "../llm/language";
 import { readCurrentField, writeField } from "../profile/field-store";
 import { businessProfiles } from "../../db/schema";
 
@@ -185,7 +186,9 @@ ${Object.entries(LIMIT_TAXONOMY)
   .join("\n")}
 - quote: the owner's own words for that limit, verbatim from their answer.
 
-Rules: never merge two limits into one; never invent a limit the owner did not state; if the answer states no limits ("nothing really", "can't think of any"), return an empty list. Return JSON only: {"limits": [{"code", "quote"}]}`;
+Rules: never merge two limits into one; never invent a limit the owner did not state; if the answer states no limits ("nothing really", "can't think of any"), return an empty list. Return JSON only: {"limits": [{"code", "quote"}]}
+
+${FACTS_AS_GIVEN}`;
 
 export const liveLimitLlm: LimitLlm = async ({ system, user, accountId }) => {
   const started = Date.now();

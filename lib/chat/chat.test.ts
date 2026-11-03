@@ -27,6 +27,7 @@ import type { ClassifyLlm } from "../proposals/generate";
 import type { LimitLlm } from "../proposals/hard-limits";
 import { BOUNDARIES_KEY } from "../proposals/hard-limits";
 import type { AnswerLlm, IntentLlm } from "./service";
+import { ownerLanguageLine } from "../llm/language";
 import { answerSystemBlocks, coerceIntent, postMessage, readThread } from "./service";
 import { confirmChange } from "../assistant/changes";
 
@@ -328,5 +329,30 @@ describe("rule 8 — the answer's context is cached from turn two", () => {
     expect(blocks).toHaveLength(1);
     expect(blocks[0]?.cache_control).toEqual({ type: "ephemeral" });
     expect(blocks[0]?.text).toBe(systems[0]);
+  });
+
+  it("L-5: the asker's language rides beside it, and the cached system is the same in every language", async () => {
+    const s = await fresh();
+    const seen: { system: string; language: string | undefined }[] = [];
+    const capture: AnswerLlm = async ({ system, language }) => {
+      seen.push({ system, language });
+      return { text: "Ihre Marge ist dünn.", calls: [] };
+    };
+    for (const locale of ["en", "de-DE", "zh-Hans"] as const) {
+      await postMessage(
+        s.profile_id,
+        s.account_id,
+        "What's my margin?",
+        { intentLlm: intentAs("ask"), answerLlm: capture },
+        "owner",
+        locale,
+      );
+    }
+    expect(seen.map((x) => x.language)).toEqual([
+      ownerLanguageLine("en"),
+      ownerLanguageLine("de-DE"),
+      ownerLanguageLine("zh-Hans"),
+    ]);
+    expect(new Set(seen.map((x) => x.system)).size).toBe(1);
   });
 });

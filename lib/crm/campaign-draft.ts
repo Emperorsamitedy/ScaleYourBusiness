@@ -38,6 +38,7 @@ import { COUNTRY_KEY } from "../hours/timezone";
 import { applicableRegimes, messageGaps } from "./jurisdiction";
 import { SEGMENT_KIND, SEGMENT_MODULE, SegmentProposalError } from "./segment-proposals";
 import { BUSINESS_NAME_KEY } from "./support-settings";
+import { businessLanguage } from "../llm/language-of";
 
 export const POSTAL_ADDRESS_KEY = "legal.postal_address";
 export const POSTAL_ADDRESS_QUESTION = "11.1e";
@@ -212,6 +213,8 @@ export async function draftCampaign(
     item,
     kind: "email",
     accountId: acct?.account_id ?? profileId,
+    // L-5: a campaign email is read by customers — the business's language.
+    language: await businessLanguage(profileId),
     ...(opts.draftLlm ? { llm: opts.draftLlm } : {}),
   });
 

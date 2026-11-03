@@ -28,6 +28,9 @@ import { ModelRefusalError, readAnswer } from "../llm/answer";
 import { anthropicClient } from "../llm/client";
 import type { LlmCallRecord } from "../llm/cost-log";
 import { buildCallRecord, recordLlmCall } from "../llm/cost-log";
+import { ownerLanguageLine, withLanguage } from "../llm/language";
+import { ownerLanguage } from "../llm/language-of";
+import type { AppLocale } from "../i18n/locales";
 import { readCurrentField, writeField } from "../profile/field-store";
 import { shiftDay } from "../trust/series";
 import type { SiteChecks } from "./checks";
@@ -350,7 +353,7 @@ export function coerceTopics(
  */
 export async function groupDemandTopics(
   profileId: string,
-  opts: { llm?: GroupLlm; now?: Date } = {},
+  opts: { llm?: GroupLlm; now?: Date; locale?: AppLocale } = {},
 ): Promise<{ via: "reused" | "grouped" | "too_few"; topics: DemandTopic[] }> {
   const now = opts.now ?? new Date();
   const existing = await readCurrentField<{ topics: DemandTopic[] }>(profileId, TOPICS_KEY);
@@ -379,10 +382,15 @@ export async function groupDemandTopics(
     .from(businessProfiles)
     .where(eq(businessProfiles.id, profileId));
   const llm = opts.llm ?? liveGroupLlm;
+  const accountId = profile?.account_id ?? profileId;
+  // L-5: the topic labels are read by the owner on Blind spots, so they are
+  // written in the owner's language (a weekly job: their own, through the
+  // gate); the phrases themselves stay as the customers typed them.
+  const locale = opts.locale ?? (await ownerLanguage(accountId));
   const { text } = await llm({
-    system: GROUP_SYSTEM,
+    system: withLanguage(GROUP_SYSTEM, ownerLanguageLine(locale)),
     user: items.map((it, i) => `${i}. ${it.text} (${it.count})`).join("\n"),
-    accountId: profile?.account_id ?? profileId,
+    accountId,
   });
   const topics = coerceTopics(text, items);
   const at = isoDateTime(now.toISOString());

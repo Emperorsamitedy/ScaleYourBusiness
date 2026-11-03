@@ -5605,5 +5605,8 @@
       "emailLink": "Bejelentkezési link küldése ide: {email}",
       "signInJoin": "Bejelentkezés és csatlakozás"
     }
+  },
+  "modelWords": {
+    "reportWrittenIn": "Ez a jelentés {language} nyelven készült, annak a nyelvén, aki létrehozta."
   }
 }

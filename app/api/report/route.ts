@@ -92,6 +92,8 @@ export async function POST(): Promise<NextResponse> {
     const { report, fresh } = await generateReport({
       accountId: session.account_id,
       profileId: session.profile_id,
+      // L-5: the model writes the report in the generating person's language.
+      locale: await requestLocale(),
     });
     return NextResponse.json({ ...(await inLanguage(report)), fresh });
   } catch (error) {

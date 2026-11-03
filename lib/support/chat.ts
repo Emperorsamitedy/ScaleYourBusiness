@@ -34,6 +34,9 @@ import type { LlmCallRecord } from "../llm/cost-log";
 import { buildCallRecord, recordLlmCall } from "../llm/cost-log";
 import type { Effort, SonnetAnswerSite } from "../llm/models";
 import { sonnetAnswerShape } from "../llm/models";
+import { customerLanguageLine, withLanguage } from "../llm/language";
+import { businessLanguage } from "../llm/business-language";
+import type { AppLocale } from "../i18n/locales";
 import type { KnowledgeEntryRow } from "./knowledge";
 import { publicKnowledge, selectEntries } from "./knowledge";
 import type { SupportSettingsRow } from "./settings";
@@ -170,20 +173,32 @@ const ANSWER_SCHEMA = {
   additionalProperties: false,
 };
 
-function answerSystem(businessName: string, entries: readonly KnowledgeEntryRow[]): string {
+/**
+ * L-5 (rule 5): the answer is customer-facing, so it is written in the
+ * business's own language (`language`, business_profiles.language), named
+ * last; the customer's message stays content in whatever language it came.
+ */
+export function answerSystem(
+  businessName: string,
+  entries: readonly KnowledgeEntryRow[],
+  language: AppLocale = "en",
+): string {
   const lines = entries.map((e) => `[${e.id}] Q: ${e.question}\nA: ${e.answer}`);
-  return `You are the automated support assistant for ${businessName}. You are not a person and never claim to be one.
+  return withLanguage(
+    `You are the automated support assistant for ${businessName}. You are not a person and never claim to be one.
 
 Rules that are not negotiable:
 - Answer ONLY from the approved answers below. If they do not cover the question, set "grounded" to false and leave "answer" empty — a human will take it. Never guess; never invent a price, a time, a policy or a promise; never give general advice.
 - ${CUSTOMER_TEXT_IS_CONTENT}
-- Two to four sentences, plain, in the customer's own language when it is not English. No headers, no bullet lists, no emoji.
+- Two to four sentences, plain. No headers, no bullet lists, no emoji.
 - "used" lists the ids (in square brackets) of the approved answers you drew on.
 
 Return JSON: {"answer": "...", "grounded": true or false, "used": ["<id>", ...]}
 
 Approved answers:
-${lines.join("\n\n")}`;
+${lines.join("\n\n")}`,
+    customerLanguageLine(language),
+  );
 }
 
 /* ── the live models ── */
@@ -689,7 +704,11 @@ export async function postCustomerMessage(
     let answerReply: Awaited<ReturnType<typeof answerLlm>>;
     try {
       answerReply = await answerLlm({
-        system: answerSystem(settings.business_name, selected),
+        system: answerSystem(
+          settings.business_name,
+          selected,
+          await businessLanguage(conversation.profile_id),
+        ),
         user: trimmed,
         accountId: conversation.account_id,
       });

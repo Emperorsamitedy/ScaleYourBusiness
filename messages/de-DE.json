@@ -5605,5 +5605,8 @@
       "emailLink": "Anmeldelink an {email} mailen",
       "signInJoin": "Anmelden und beitreten"
     }
+  },
+  "modelWords": {
+    "reportWrittenIn": "Dieser Bericht wurde auf {language} verfasst, in der Sprache der Person, die ihn erstellt hat."
   }
 }

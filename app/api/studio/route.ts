@@ -27,6 +27,7 @@ import { ModelRefusalError } from "../../../lib/llm/answer";
 import { ProposalError } from "../../../lib/proposals/service";
 import { nicheView, readNicheAds } from "../../../lib/research/niche";
 import { requireRole } from "../../../lib/auth/roles";
+import { requestLocale } from "../../../lib/i18n/server";
 import type { RoleAction } from "../../../lib/auth/roles";
 
 function onError(error: unknown, accountId: string): NextResponse {
@@ -135,6 +136,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         profileId: access.profile_id,
         accountId: access.account_id,
         campaign: { label, goal_id: goalId },
+        // L-5: the owner's parts in their language; hooks and scripts in the business's.
+        locale: await requestLocale(),
       });
       return NextResponse.json({ brief_id: row.id, attempts: row.attempts });
     }

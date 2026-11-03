@@ -29,6 +29,8 @@ import { anthropicClient } from "../llm/client";
 import type { LlmCallRecord } from "../llm/cost-log";
 import { buildCallRecord, recordLlmCall } from "../llm/cost-log";
 import { opusShape } from "../llm/models";
+import { ownerLanguageLine, withLanguage } from "../llm/language";
+import type { AppLocale } from "../i18n/locales";
 import { ensureSnapshot, readSnapshot } from "../profile/snapshot";
 import { applicableQuestions } from "../resolver/applicability";
 import type { DiagnosisFinding } from "./findings";
@@ -522,6 +524,8 @@ export async function runRecommendations(args: {
   profileId: string;
   findings: readonly DiagnosisFinding[];
   llm?: RecommendationsLlm;
+  /** L-5: the language of the person generating the report (rule 5). */
+  locale?: AppLocale;
 }): Promise<RecommendationsResult> {
   if (args.findings.length === 0) {
     throw new DiagnosisError("no findings to address — run the diagnosis first");
@@ -593,7 +597,10 @@ export async function runRecommendations(args: {
   ].join("\n");
 
   const llm = args.llm ?? liveRecommendationsLlm;
-  const { text, calls } = await llm({ system: SYSTEM, user, accountId: args.accountId });
+  // The language last: title, rationale, undo and gap_why in the reader's
+  // language; kinds, ids, levels and field keys stay the schema's English.
+  const system = withLanguage(SYSTEM, ownerLanguageLine(args.locale ?? "en"));
+  const { text, calls } = await llm({ system, user, accountId: args.accountId });
 
   let payload: { recommendations?: unknown };
   try {

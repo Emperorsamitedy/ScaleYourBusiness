@@ -5605,5 +5605,8 @@
       "emailLink": "Envoyer un lien de connexion à {email}",
       "signInJoin": "Se connecter et rejoindre"
     }
+  },
+  "modelWords": {
+    "reportWrittenIn": "Ce rapport a été rédigé en {language}, la langue de la personne qui l’a généré."
   }
 }

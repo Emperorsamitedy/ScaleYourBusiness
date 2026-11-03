@@ -265,6 +265,24 @@ function signed(m: MoneyLike, locale: AppLocale): string {
     : moneyText(m.amount_minor, m.currency, locale);
 }
 
+/**
+ * L-5: the model wrote this report in its generator's language. A reader
+ * in another language is told which, named in their own language; the
+ * words are shown as written, never machine-translated on the way.
+ */
+function WrittenIn({ written, locale }: { written: string; locale: AppLocale }) {
+  const mw = useTranslations("modelWords");
+  if (written === locale) return null;
+  let language = written;
+  try {
+    language =
+      new Intl.DisplayNames([intlTag(locale)], { type: "language" }).of(written) ?? written;
+  } catch {
+    /* an unknown tag prints as itself */
+  }
+  return <p className="rq-label">{mw("reportWrittenIn", { language })}</p>;
+}
+
 function Panel({
   report,
   rows,
@@ -337,7 +355,10 @@ function Panel({
             </span>
           )}
         </p>
-        <p className="rq-summary">{report.summary}</p>
+        <p className="rq-summary" lang={report.language ?? "en"}>
+          {report.summary}
+        </p>
+        <WrittenIn written={report.language ?? "en"} locale={locale} />
       </header>
 
       {rows.length === 0 ? (

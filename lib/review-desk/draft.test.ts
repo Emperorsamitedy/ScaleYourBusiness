@@ -34,6 +34,7 @@ import {
   replyProblem,
   withoutName,
 } from "./draft";
+import { customerLanguageLine } from "../llm/language";
 import { eraseReview } from "./erase";
 import { pasteReview, readPaste } from "./paste";
 
@@ -121,6 +122,23 @@ describe("I-45.3 — a suggested reply, on the owner's click only", () => {
     const [row] = await db.select().from(reviews).where(eq(reviews.id, b.review.id));
     expect(row?.draft).toBe(GOOD);
     expect(row?.draft_calls).toBe(1);
+  });
+
+  it("L-5: the reply is drafted in the business's own language, named last", async () => {
+    for (const language of ["en", "de-DE", "zh-Hans"] as const) {
+      const b = await withReview();
+      await db
+        .update(businessProfiles)
+        .set({ language })
+        .where(eq(businessProfiles.id, b.profile_id));
+      const seen: { system: string; user: string }[] = [];
+      await draftReviewReply({
+        profileId: b.profile_id,
+        reviewId: b.review.id,
+        llm: says(GOOD, seen),
+      });
+      expect(seen[0]!.system.endsWith(customerLanguageLine(language))).toBe(true);
+    }
   });
 
   it("a draft that offers money, names the reviewer or carries a number is thrown away", async () => {

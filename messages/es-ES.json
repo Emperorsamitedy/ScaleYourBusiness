@@ -5605,5 +5605,8 @@
       "emailLink": "Enviar un enlace de inicio de sesión a {email}",
       "signInJoin": "Iniciar sesión y unirse"
     }
+  },
+  "modelWords": {
+    "reportWrittenIn": "Este informe se redactó en {language}, el idioma de la persona que lo generó."
   }
 }

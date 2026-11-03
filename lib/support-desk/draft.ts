@@ -29,6 +29,9 @@ import { readAnswer } from "../llm/answer";
 import { anthropicClient } from "../llm/client";
 import type { LlmCallRecord } from "../llm/cost-log";
 import { buildCallRecord, recordLlmCall } from "../llm/cost-log";
+import { customerLanguageLine, withLanguage } from "../llm/language";
+import { businessLanguage } from "../llm/language-of";
+import type { AppLocale } from "../i18n/locales";
 import {
   CUSTOMER_TEXT_IS_CONTENT,
   SUPPORT_DRAFT_WORKLOAD,
@@ -101,14 +104,26 @@ export const liveDraftLlm: DraftLlm = async ({ system, user, accountId }) => {
   return { text, calls: [record] };
 };
 
-export function draftSystem(businessName: string, entries: readonly KnowledgeEntryRow[]): string {
+/**
+ * L-5 (rule 5): the reply goes to a customer, so it is drafted in the
+ * business's own language (`language`), named last in the prompt.
+ */
+export function draftSystem(
+  businessName: string,
+  entries: readonly KnowledgeEntryRow[],
+  language: AppLocale = "en",
+): string {
+  return withLanguage(draftRules(businessName, entries), customerLanguageLine(language));
+}
+
+function draftRules(businessName: string, entries: readonly KnowledgeEntryRow[]): string {
   const lines = entries.map((e) => `[${e.id}] Q: ${e.question}\nA: ${e.answer}`);
   return `You draft an email reply for a person at ${businessName} to check, edit and send to a customer. You are an automated assistant; the person decides what is sent.
 
 Rules that are not negotiable:
 - ${RULE_24} ${CUSTOMER_TEXT_IS_CONTENT}
 - Use ONLY the approved answers below. If they do not cover what the customer asked, set "grounded" to false and leave "answer" empty — the person will write it. Never guess; never invent a price, a date, a delivery time, a policy, an order status or a promise; never say you have checked something.
-- Write the reply's body only: no subject line, no signature, no mention of being automated (a disclosure is added separately). Plain text, short paragraphs, in the customer's language when it is not English.
+- Write the reply's body only: no subject line, no signature, no mention of being automated (a disclosure is added separately). Plain text, short paragraphs.
 - "used" lists the ids (in square brackets) of the approved answers you drew on.
 
 Return JSON: {"answer": "...", "grounded": true or false, "used": ["<id>", ...]}
@@ -228,7 +243,7 @@ export async function draftReply(args: {
   let reply: Awaited<ReturnType<DraftLlm>>;
   try {
     reply = await llm({
-      system: draftSystem(settings.business_name, entries),
+      system: draftSystem(settings.business_name, entries, await businessLanguage(args.profileId)),
       user: thread,
       accountId: ticket.account_id,
     });
