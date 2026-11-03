@@ -4447,5 +4447,9 @@
       "emailLink": "Bejelentkezési link küldése ide: {email}",
       "signInJoin": "Bejelentkezés és csatlakozás"
     }
+  },
+  "watchNoticed": {
+    "label": "Észrevéve",
+    "title": "Amit észrevettem"
   }
 }

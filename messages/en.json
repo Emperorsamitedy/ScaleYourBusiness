@@ -4447,5 +4447,9 @@
       "emailLink": "Email a sign-in link to {email}",
       "signInJoin": "Sign in and join"
     }
+  },
+  "watchNoticed": {
+    "label": "Noticed",
+    "title": "What I noticed"
   }
 }

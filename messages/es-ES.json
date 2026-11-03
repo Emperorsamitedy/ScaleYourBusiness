@@ -4447,5 +4447,9 @@
       "emailLink": "Enviar un enlace de inicio de sesión a {email}",
       "signInJoin": "Iniciar sesión y unirse"
     }
+  },
+  "watchNoticed": {
+    "label": "Observado",
+    "title": "Lo que he observado"
   }
 }

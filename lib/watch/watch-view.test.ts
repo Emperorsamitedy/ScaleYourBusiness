@@ -4,7 +4,14 @@
 
 import { describe, expect, it } from "vitest";
 import { shiftDay } from "../anomaly/baseline";
-import { dayOfWatch, statusTally, summariseSeries, watchDays } from "./watch-view";
+import {
+  REVIEW_ALERT_KIND,
+  dayOfWatch,
+  notedLines,
+  statusTally,
+  summariseSeries,
+  watchDays,
+} from "./watch-view";
 
 const NOW = new Date("2026-10-17T12:00:00Z");
 
@@ -108,5 +115,32 @@ describe("dayOfWatch", () => {
   it("numbers a log entry by its watch day, and refuses one from before the watch", () => {
     expect(dayOfWatch("2026-10-15 09:00:00+00", "2026-09-29", 28)).toBe(17);
     expect(dayOfWatch("2026-09-28T23:00:00Z", "2026-09-29", 28)).toBeNull();
+  });
+});
+
+describe("notedLines (I-45b)", () => {
+  const log = [
+    { at: "2026-10-16 09:00:00+00", kind: REVIEW_ALERT_KIND, detail: "A 2-star review came in." },
+    { at: "2026-10-15 09:00:00+00", kind: "sync_completed", detail: "Read Stripe." },
+    { at: "2026-10-01 09:00:00+00", kind: "competitor_change", detail: "A price moved." },
+    { at: "2026-09-01 09:00:00+00", kind: "anomaly_detected", detail: "Revenue dropped." },
+  ];
+
+  it("with no watch running, lists every noticed line, review alerts among them", () => {
+    expect(notedLines(log, null).map((e) => e.kind)).toEqual([
+      REVIEW_ALERT_KIND,
+      "competitor_change",
+      "anomaly_detected",
+    ]);
+  });
+
+  it("while a watch runs, keeps only the lines on its days", () => {
+    const lines = notedLines(log, { start: "2026-09-30", of: 28 });
+    expect(lines.map((e) => e.kind)).toEqual([REVIEW_ALERT_KIND, "competitor_change"]);
+  });
+
+  it("never lists routine work, and stops at the limit", () => {
+    expect(notedLines(log, null).map((e) => e.kind)).not.toContain("sync_completed");
+    expect(notedLines(log, null, 1)).toHaveLength(1);
   });
 });

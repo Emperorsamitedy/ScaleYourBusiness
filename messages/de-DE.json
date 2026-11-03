@@ -4447,5 +4447,9 @@
       "emailLink": "Anmeldelink an {email} mailen",
       "signInJoin": "Anmelden und beitreten"
     }
+  },
+  "watchNoticed": {
+    "label": "Bemerkt",
+    "title": "Was mir aufgefallen ist"
   }
 }

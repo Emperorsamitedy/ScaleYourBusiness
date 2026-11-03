@@ -4447,5 +4447,9 @@
       "emailLink": "把登录链接发送到 {email}",
       "signInJoin": "登录并加入"
     }
+  },
+  "watchNoticed": {
+    "label": "已注意到",
+    "title": "我注意到的情况"
   }
 }

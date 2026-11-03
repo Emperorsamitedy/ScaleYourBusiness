@@ -4447,5 +4447,9 @@
       "emailLink": "Envoyer un lien de connexion à {email}",
       "signInJoin": "Se connecter et rejoindre"
     }
+  },
+  "watchNoticed": {
+    "label": "Remarqué",
+    "title": "Ce que j’ai remarqué"
   }
 }

@@ -30,7 +30,13 @@ import type { AppLocale } from "../../lib/i18n/locales";
 import { intlTag } from "../../lib/i18n/locales";
 import type { WatchReading } from "../../lib/watch/signals";
 import type { SignalStatus, WatchDays, WatchSignal } from "../../lib/watch/watch-view";
-import { NOTED_KINDS, dayOfWatch, parseInstant, watchDays } from "../../lib/watch/watch-view";
+import {
+  NOTED_KINDS,
+  dayOfWatch,
+  notedLines,
+  parseInstant,
+  watchDays,
+} from "../../lib/watch/watch-view";
 import { MIN_BASELINE_DAYS, RUN_DAYS } from "../../lib/anomaly/baseline";
 
 interface LogEntry {
@@ -231,9 +237,7 @@ function SignalsCard({ reading }: { reading: WatchReading }) {
 
 function NotedCard({ log, w }: { log: LogEntry[]; w: WatchDays }) {
   const t = useTranslations("watch");
-  const noted = log.filter(
-    (e) => NOTED_KINDS.has(e.kind) && dayOfWatch(e.at, w.start, w.of) !== null,
-  );
+  const noted = notedLines(log, w);
   const newest = noted[0];
   const fresh = newest ? Date.now() - parseInstant(newest.at) < 2 * DAY_MS : false;
   return (
@@ -242,7 +246,7 @@ function NotedCard({ log, w }: { log: LogEntry[]; w: WatchDays }) {
         <p className="wt-empty">{t("noted.empty")}</p>
       ) : (
         <ul className="wt-notes">
-          {noted.slice(0, 6).map((e, i) => (
+          {noted.map((e, i) => (
             <li key={`${e.at}-${e.kind}`}>
               <span className="wt-at">
                 {t("noted.day", { day: dayOfWatch(e.at, w.start, w.of) ?? 0 })}
@@ -252,6 +256,32 @@ function NotedCard({ log, w }: { log: LogEntry[]; w: WatchDays }) {
           ))}
         </ul>
       )}
+    </SheetCard>
+  );
+}
+
+/**
+ * I-45b: what was noticed when no watch is running (instant mode, or no
+ * decision yet), review alerts among them. Dated by day, since there is no
+ * watch day to number them by; drawn only when there is a line to show.
+ */
+function NoticedCard({ log }: { log: LogEntry[] }) {
+  const t = useTranslations("watchNoticed");
+  const locale = useAppLocale();
+  const noted = notedLines(log, null);
+  const newest = noted[0];
+  if (!newest) return null;
+  const fresh = Date.now() - parseInstant(newest.at) < 2 * DAY_MS;
+  return (
+    <SheetCard label={t("label")} title={t("title")}>
+      <ul className="wt-notes">
+        {noted.map((e, i) => (
+          <li key={`${e.at}-${e.kind}`}>
+            <span className="wt-at">{dayText(e.at, false, locale)}</span>
+            <p>{i === 0 && fresh ? <span className="marked">{e.detail}</span> : e.detail}</p>
+          </li>
+        ))}
+      </ul>
     </SheetCard>
   );
 }
@@ -518,6 +548,7 @@ export function WatchScreen({ reading }: { reading: WatchReading | null }) {
     <div className="wt-grid">
       <ActivityCard log={view.log} />
       <div className="wt-side">
+        {!w && <NoticedCard log={view.log} />}
         <RulesCard thresholds={view.thresholds} />
         <ModulesCard modules={modules} onToggle={(m, on) => void toggle(m, on)} />
         {summary && <SummaryCard summary={summary} onToggle={(on) => void toggleSummary(on)} />}
