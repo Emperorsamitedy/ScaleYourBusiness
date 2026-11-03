@@ -247,7 +247,7 @@ export const SCOPE_GUIDE: Readonly<
     {
       scope: "ORDERS_READ",
       grant: "ORDERS_READ (optional, for what sells together)",
-      why: "What each till order held, so I can show which items are bought together. I keep only the names of the items in each order and its day: no prices, no customers, no notes. It can't change an order. If you connected Square before November 2026, reconnect with this permission added.",
+      why: "What each till order held, so I can show which items are bought together. I keep only the names of the items in each order and its day: no prices, no customers, no notes. It can't change an order. If you connected Square before this permission was offered, reconnect to add it.",
     },
   ],
 };

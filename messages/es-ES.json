@@ -1859,6 +1859,11 @@
           "grant": "APPOINTMENTS_ALL_READ (opcional, junto con el anterior)",
           "why": "Sus citas. Square lo necesita junto con el anterior para leer todas las reservas de sus ubicaciones, no solo las hechas a través de SYB. No puede cambiar ninguna reserva.",
           "gives": "sus citas"
+        },
+        "s4": {
+          "grant": "ORDERS_READ (opcional, para lo que se vende junto)",
+          "why": "Lo que contenía cada pedido de caja, para mostrarle qué artículos se compran juntos. Solo guardo los nombres de los artículos de cada pedido y su día: ni precios, ni clientes, ni notas. No puede modificar ningún pedido. Si conectó Square antes de que se ofreciera este permiso, vuelva a conectarlo para añadirlo.",
+          "gives": "lo que contenía cada pedido de caja"
         }
       }
     },

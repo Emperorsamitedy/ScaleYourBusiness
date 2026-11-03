@@ -1859,6 +1859,11 @@
           "grant": "APPOINTMENTS_ALL_READ (nem kötelező, a fentivel együtt)",
           "why": "Az időpontjai. A Square-nek erre a fentivel együtt van szüksége ahhoz, hogy a helyszínein minden foglalást beolvashassak, ne csak a SYB-n keresztül létrehozottakat. Foglalást nem tud módosítani.",
           "gives": "az időpontjai"
+        },
+        "s4": {
+          "grant": "ORDERS_READ (nem kötelező, ahhoz, ami együtt fogy)",
+          "why": "Az egyes pénztári rendelések tartalma, hogy megmutathassam, mely tételeket veszik együtt. Minden rendelésből csak a tételek nevét és a rendelés napját őrzöm meg: sem árakat, sem ügyfeleket, sem megjegyzéseket. Rendelést nem tud módosítani. Ha még azelőtt kapcsolta össze a Square-t, hogy ez az engedély elérhető lett volna, kapcsolja össze újra, hogy hozzáadja.",
+          "gives": "az egyes pénztári rendelések tartalma"
         }
       }
     },

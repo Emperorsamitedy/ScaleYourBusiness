@@ -1859,6 +1859,11 @@
           "grant": "APPOINTMENTS_ALL_READ (optional, with the one above)",
           "why": "Your appointments. Square needs this with the one above to read every booking at your locations, not only ones made through SYB. It can't change a booking.",
           "gives": "Your appointments"
+        },
+        "s4": {
+          "grant": "ORDERS_READ (optional, for what sells together)",
+          "why": "What each till order held, so I can show which items are bought together. I keep only the names of the items in each order and its day: no prices, no customers, no notes. It can't change an order. If you connected Square before this permission was offered, reconnect to add it.",
+          "gives": "What each till order held"
         }
       }
     },

@@ -1859,6 +1859,11 @@
           "grant": "APPOINTMENTS_ALL_READ (facultatif, avec la précédente)",
           "why": "Vos rendez-vous. Square exige celle-ci, avec la précédente, pour lire toutes les réservations de vos établissements, pas seulement celles faites via SYB. Elle ne peut pas modifier une réservation.",
           "gives": "vos rendez-vous"
+        },
+        "s4": {
+          "grant": "ORDERS_READ (facultatif, pour ce qui se vend ensemble)",
+          "why": "Le contenu de chaque commande passée en caisse, pour vous montrer quels articles s’achètent ensemble. Je ne garde que le nom des articles de chaque commande et son jour : ni prix, ni clients, ni notes. Elle ne peut pas modifier une commande. Si vous avez connecté Square avant que cette autorisation ne soit proposée, reconnectez-le pour l’ajouter.",
+          "gives": "le contenu de chaque commande passée en caisse"
         }
       }
     },

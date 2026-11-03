@@ -1859,6 +1859,11 @@
           "grant": "APPOINTMENTS_ALL_READ (optional, zusammen mit der obigen)",
           "why": "Ihre Termine. Square braucht diese Berechtigung zusammen mit der obigen, um jede Buchung an Ihren Standorten zu lesen, nicht nur die über SYB gemachten. Damit lässt sich keine Buchung ändern.",
           "gives": "Ihre Termine"
+        },
+        "s4": {
+          "grant": "ORDERS_READ (optional, für das, was zusammen verkauft wird)",
+          "why": "Was jede Kassenbestellung enthielt, damit ich zeigen kann, welche Artikel zusammen gekauft werden. Ich behalte nur die Namen der Artikel jeder Bestellung und ihren Tag: keine Preise, keine Kundendaten, keine Notizen. Damit lässt sich keine Bestellung ändern. Wenn Sie Square verbunden haben, bevor diese Berechtigung angeboten wurde, verbinden Sie es erneut, um sie hinzuzufügen.",
+          "gives": "was jede Kassenbestellung enthielt"
         }
       }
     },
