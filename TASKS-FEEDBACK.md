@@ -20,7 +20,10 @@ Commit-sized tasks from Vilsta's customer-interview feedback (2026-10-19 to 2026
 
 - [ ] **F-30a** Fill the size table from Vilsta's feature-by-feature review.
 - [ ] **F-32a** Confirm the bookings import's column names against a real export from each platform (Fresha first). Every header in `specs/bookings-import-map-v1.json` is `verified: false` until then.
-- [ ] **F-35a** Decide whether the fact sheet's existing "Find my competitors" flow (`lib/research/competitor.ts`) may keep reading pages that came from web search, or should only suggest and let the owner list them.
+- [x] **F-35a** Decide whether the fact sheet's existing "Find my competitors" flow (`lib/research/competitor.ts`) may keep reading pages that came from web search, or should only suggest and let the owner list them.
+
+  **Decided 2026-11-04, owner: "Keep web-search pages".** No code change. "Find my competitors" keeps working as it does. Web search finds likely competitors from the profile's own facts (`POST /api/research/discover`), and SYB reads those businesses' public pages. The reading is read-only, under the same caps, robots.txt and hardened fetch as F-35's owner-listed pages. SYB never buys anything, never signs in, and never fills or submits a form on a competitor's site, which is also the site audit's rule 30 and CLAUDE.md's read-only rule. The search returns a list of candidates and writes nothing. The owner confirms which to keep (`POST /api/research/competitor`), and only a confirmed competitor becomes a record. Facts from a competitor's page stay research-grade (confidence 0.5) and never overwrite anything the owner said.
+
 - [ ] **F-37** Ask Vilsta what "for the 23, I rather meant the functions" referred to.
 - [ ] **M-1** Check the Haiku 5.5 move (PR #34) against the real API once a key is on hand: the eight calls listed in that PR.
 - [ ] **M-2** Move Sonnet 5 → Sonnet 5.5 and the diagnosis Opus 4.8 → Opus 5.5 (about 20 % cheaper), after a recalibration run on the five real businesses. Sonnet 5.5 rejects the interviewer's `thinking: {type: "disabled"}`, so it needs `between_tools` instead. The owner chose "Haiku now, the rest later" on 2026-10-24.
