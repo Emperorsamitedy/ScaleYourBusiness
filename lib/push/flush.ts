@@ -14,11 +14,18 @@
 //                     (app/api/cron/push-held) that sends what quiet hours
 //                     and the daily cap kept back.
 //
+// I-45d: review alerts too. The inbound path that files a review may not
+// reach this file (rule 21), so a review's row is its own queue: one whose
+// alert was claimed (alerted_at) and whose phone alert isn't settled
+// (push_settled_at null) is picked up here, by the account's next flush
+// (after a proposal is made) or the morning beat, and settled when sent or
+// dropped. pushPlan decides for both together.
+//
 // No retry anywhere: an alert that fails is logged with the account id and
 // is not sent again. The proposal is still in the queue, and still in the
 // weekly email.
 
-import { eq, inArray, sql } from "drizzle-orm";
+import { and, eq, inArray, isNotNull, isNull, sql } from "drizzle-orm";
 import { after } from "next/server";
 import { db } from "../../db";
 import type { DbOrTx } from "../../db";
@@ -28,11 +35,12 @@ import {
   proposals,
   pushOutbox,
   pushSubscriptions,
+  reviews,
 } from "../../db/schema";
 import { logSafeError } from "../core/log-safe";
 import { COUNTRY_KEY, TIMEZONE_KEY, isValidZone, zoneForCountry } from "../hours/timezone";
 import { readCurrentField } from "../profile/field-store";
-import type { PushPlan } from "./plan";
+import type { PushPlan, QueuedReview } from "./plan";
 import { pushPlan, pushWords } from "./plan";
 import { deliverAll, wordsByLocale } from "./deliver";
 import type { PushService } from "./send";
@@ -167,7 +175,19 @@ export async function flushPushes(
       .innerJoin(proposals, eq(proposals.id, pushOutbox.proposal_id))
       .where(eq(pushOutbox.profile_id, profileId))
       .orderBy(pushOutbox.created_at);
-    if (queued.length === 0) return null;
+    // I-45d: review alerts whose phone alert isn't settled yet.
+    const waitingReviews: QueuedReview[] = await tx
+      .select({
+        review_id: reviews.id,
+        platform: reviews.platform,
+        stars: reviews.stars,
+        source: reviews.source,
+        alerted_at: sql<string>`${reviews.alerted_at}`,
+      })
+      .from(reviews)
+      .where(reviewPushPending(profileId))
+      .orderBy(reviews.alerted_at);
+    if (queued.length === 0 && waitingReviews.length === 0) return null;
     const devices = await openDevices(accountId);
     const [halt] = await tx
       .select({ account_id: executionHalts.account_id })
@@ -186,10 +206,17 @@ export async function flushPushes(
       devices: devices.length,
       lastSentAt,
       queued,
+      reviews: waitingReviews,
     });
     const settled = plan.act === "send" ? [...plan.send, ...plan.drop] : plan.drop;
     if (settled.length > 0) {
       await tx.delete(pushOutbox).where(inArray(pushOutbox.proposal_id, settled));
+    }
+    if (plan.reviews_done && plan.reviews_done.length > 0) {
+      await tx
+        .update(reviews)
+        .set({ push_settled_at: now.toISOString() })
+        .where(inArray(reviews.id, plan.reviews_done));
     }
     if (plan.act === "send") {
       // Counted when decided, not when delivered: a failed alert still uses the day's one.
@@ -206,6 +233,8 @@ export async function flushPushes(
         ...(plan.act === "send" ? { count: plan.send.length } : { why: plan.why }),
         ...(plan.act === "hold" ? { until: plan.until, count: plan.keep.length } : {}),
         dropped: plan.drop.length,
+        ...(plan.act === "send" && plan.reviews ? { reviews: plan.reviews.length } : {}),
+        ...(plan.reviews_done ? { reviews_settled: plan.reviews_done.length } : {}),
       }),
     );
     return { plan, devices };
@@ -219,21 +248,42 @@ export async function flushPushes(
   if (plan.act !== "send") return { plan: plan.act, why: plan.why, sent: 0, gone: 0, failed: 0 };
   // L-6: each device's alert in its person's language (lock-screen words only, as before).
   const words = await wordsByLocale(devices, "push");
+  const carried = plan.reviews ?? [];
+  const reviewWords = carried.length > 0 ? await wordsByLocale(devices, "reviewPush") : null;
   const tally = await deliverAll(
     accountId,
     devices,
-    (d) => pushWords(plan.waiting, words.get(d.locale)),
+    (d) => pushWords(plan.waiting, words.get(d.locale), carried, reviewWords?.get(d.locale)),
     service,
     "proposals",
   );
   return { plan: "send", ...tally };
 }
 
+/** I-45d: a review alert claimed and not yet sent or dropped as a phone alert. */
+function reviewPushPending(profileId?: string) {
+  return and(
+    ...(profileId ? [eq(reviews.profile_id, profileId)] : []),
+    isNotNull(reviews.alerted_at),
+    isNull(reviews.push_settled_at),
+  );
+}
+
 /** Every account holding something: the daily beat. One account's failure doesn't stop the rest. */
 export async function flushHeldPushes(
   opts: { service?: PushService; now?: Date } = {},
 ): Promise<{ accounts: number; sent: number; held: number; failed: number }> {
-  const rows = await db.selectDistinct({ profile_id: pushOutbox.profile_id }).from(pushOutbox);
+  const outbox = await db.selectDistinct({ profile_id: pushOutbox.profile_id }).from(pushOutbox);
+  // I-45d: and every business with a review alert still to send or drop.
+  const reviewed = await db
+    .selectDistinct({ profile_id: reviews.profile_id })
+    .from(reviews)
+    .where(reviewPushPending());
+  const rows = [...new Set([...outbox, ...reviewed].map((r) => r.profile_id))].map(
+    (profile_id) => ({
+      profile_id,
+    }),
+  );
   let sent = 0;
   let held = 0;
   let failed = 0;

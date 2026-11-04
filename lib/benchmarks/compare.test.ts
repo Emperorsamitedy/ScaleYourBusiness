@@ -448,7 +448,8 @@ describe("the three lines together", () => {
       size: "0-9",
       size_via: "team_size",
     });
-    const [m, t, sc] = r.lines;
+    // I-44b: the purchases share sits beside the margin (lib/benchmarks/purchases.test.ts).
+    const [m, , t, sc] = r.lines;
     expect(compared(m)).toMatchObject({
       own: 30,
       bench: 25,
@@ -479,12 +480,12 @@ describe("the three lines together", () => {
     if (r.status !== "ready") throw new Error(r.status);
     expect(r.head.size_via).toBe("none");
     expect(r.lines[0]).toMatchObject({ status: "missing", needs: [{ href: BENCH_ASK.revenue }] });
-    expect(r.lines[1]).toMatchObject({ status: "missing" });
-    expect((r.lines[1] as { needs: { href: string }[] }).needs.map((n) => n.href)).toEqual([
+    expect(r.lines[2]).toMatchObject({ status: "missing" });
+    expect((r.lines[2] as { needs: { href: string }[] }).needs.map((n) => n.href)).toEqual([
       BENCH_ASK.revenue,
       BENCH_ASK.team_size,
     ]);
-    expect(r.lines[2]).toMatchObject({ status: "missing", needs: [{ href: BENCH_ASK.staff }] });
+    expect(r.lines[3]).toMatchObject({ status: "missing", needs: [{ href: BENCH_ASK.staff }] });
   });
 
   it("refuses the staff line with no employees, and any line with no cell", () => {
@@ -497,7 +498,7 @@ describe("the three lines together", () => {
     );
     if (r.status !== "ready") throw new Error(r.status);
     expect(r.lines[0]).toMatchObject({ status: "refused" });
-    expect(r.lines[2]).toMatchObject({
+    expect(r.lines[3]).toMatchObject({
       status: "refused",
       why: "Your team list has no employees, so there's no staff cost to compare.",
     });
@@ -553,7 +554,7 @@ describe("against the committed snapshot", () => {
       }),
     );
     if (r.status !== "ready") throw new Error(r.status);
-    const t = compared(r.lines[1]);
+    const t = compared(r.lines[2]);
     expect(t.cell).toMatchObject({ geo: "IE", nace: "G479", size: "0-9", year: 2024 });
     expect(t.cell.words).toBe(
       "all online and mail-order shops with up to 9 people in Ireland, 2024, Eurostat",

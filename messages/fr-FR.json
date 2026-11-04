@@ -8371,5 +8371,31 @@
       "noStorage": "pas de stockage de médias ici",
       "unknownAction": "action inconnue"
     }
+  },
+  "benchmarkPurchases": {
+    "title": "Achats, en part du chiffre d’affaires",
+    "gapNote": "Eurostat compte tout ce qu’une entreprise achète à l’extérieur : marchandises et matières, mais aussi loyer, énergie et services. Votre chiffre ne compte que ce que vos ventes vous coûtent, il ressort donc plus bas que le leur ne le ferait.",
+    "missing": "Les entreprises comparables achètent à l’extérieur {bench} de leur chiffre d’affaires ({cell}). Pour le vôtre, il faut ce que vos ventes vous coûtent : le coût de livraison de chaque offre avec le nombre vendu par mois, ou votre marge brute.",
+    "noCell": "Eurostat ne publie aucun chiffre d’achats pour {group} ({country}), ni à votre taille ni toutes tailles confondues. Je ne compare pas avec un groupe plus large ni avec l’UE dans son ensemble.",
+    "needOffers": "ce que chaque offre vous coûte à livrer",
+    "needGrossMargin": "votre marge brute",
+    "inputSales": "Ventes par mois, à vos prix et volumes",
+    "inputDeliver": "Ce que ces ventes vous coûtent à livrer",
+    "inputGrossMargin": "Marge brute",
+    "sourceOffers": "{count, plural, one {le prix, le coût de livraison et le volume mensuel de votre offre} many {les prix, coûts de livraison et volumes mensuels de vos # offres} other {les prix, coûts de livraison et volumes mensuels de vos # offres}}",
+    "formulaOffers": "{deliver} de livraison ÷ {sales} de ventes = {pct}",
+    "formulaGrossMargin": "{whole} moins votre marge brute de {gm} = {pct}",
+    "leftOutCurrency": "{offer} : son prix est en {currency}, pas en {main}.",
+    "gapAbove": "{points, plural, one {# point} many {# points} other {# points}} au-dessus",
+    "gapBelow": "{points, plural, one {# point} many {# points} other {# points}} en dessous",
+    "gapSameAbove": "à peu près pareil : {points, plural, one {# point} many {# points} other {# points}} au-dessus",
+    "gapSameBelow": "à peu près pareil : {points, plural, one {# point} many {# points} other {# points}} en dessous"
+  },
+  "reviewPush": {
+    "one": "{stars, plural, one {Un avis à # étoile sur {platform}} many {Un avis à # étoiles sur {platform}} other {Un avis à # étoiles sur {platform}}}",
+    "oneUnrated": "Un avis à lire sur {platform}",
+    "many": "{count, plural, one {# avis à connaître} many {# avis à connaître} other {# avis à connaître}}",
+    "withProposals": "{count, plural, one {# chose attend votre feu vert} many {# choses attendent votre feu vert} other {# choses attendent votre feu vert}}, et {reviews, plural, one {un avis à connaître} many {# avis à connaître} other {# avis à connaître}}",
+    "anotherSite": "un autre site"
   }
 }

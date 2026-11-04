@@ -1707,6 +1707,10 @@ export const proposals = pgTable(
     uniqueIndex("proposals_stock_finding_idx")
       .on(t.profile_id, t.originating_finding)
       .where(sql`${t.originating_finding} LIKE 'stock:%'`),
+    // I-46a: a content push is once per busy stretch, raced safely the same way.
+    uniqueIndex("proposals_season_finding_idx")
+      .on(t.profile_id, t.originating_finding)
+      .where(sql`${t.originating_finding} LIKE 'season:%'`),
     check("proposals_requires_approval_true", sql`${t.requires_approval} = true`),
     check(
       "proposals_blocked_names_limit",
@@ -3603,6 +3607,11 @@ export const reviews = pgTable(
     worth_knowing: boolean("worth_knowing").notNull(),
     /** The one alert this review raised; set once, atomically. */
     alerted_at: timestamp("alerted_at", { withTimezone: true, mode: "string" }),
+    /**
+     * I-45d: when the alert's phone alert was sent or dropped (lib/push/flush,
+     * the trusted side). Null while an alerted review's phone alert may still go.
+     */
+    push_settled_at: timestamp("push_settled_at", { withTimezone: true, mode: "string" }),
     /** The suggested reply, on the owner's click only. SYB never posts it. */
     draft: text("draft"),
     drafted_at: timestamp("drafted_at", { withTimezone: true, mode: "string" }),
@@ -3616,6 +3625,10 @@ export const reviews = pgTable(
     uniqueIndex("reviews_provider_idx").on(t.provider_id),
     index("reviews_profile_received_idx").on(t.profile_id, t.received_at),
     index("reviews_expires_idx").on(t.expires_at),
+    // I-45d: the morning beat finds the review alerts whose phone alert is still to go.
+    index("reviews_push_pending_idx")
+      .on(t.profile_id)
+      .where(sql`${t.alerted_at} IS NOT NULL AND ${t.push_settled_at} IS NULL`),
     check("reviews_stars_range", sql`${t.stars} IS NULL OR ${t.stars} BETWEEN 1 AND 5`),
     // I-45a (migration 0075): 'google' — read from the owner's Business Profile, by the API ('api').
     check("reviews_source", sql`${t.source} IN ('email', 'paste', 'google')`),
