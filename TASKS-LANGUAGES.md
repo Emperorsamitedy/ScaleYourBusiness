@@ -83,7 +83,7 @@ Each stage is its own PR, tested and merged before the next.
   - **Russian:** "лид" may be jargon to small owners; "Менеджер рекламы"; "ИП или самозанятость" is Russia-specific; "досье" for the record may sound investigative; counts written "от вас: #" to avoid agreement; CH → КН, Q → В.
   - **Chinese:** 所有者 for owner (老板 is what owners say); 提案 kept for sales proposals (报价方案?); 账户 vs 账号 for social accounts; 安全垫 for the buffer is informal; 交易 / 赢下 for deals (商机 / 赢单率?); 频道总览, 记录带, 聆听中, 已陈述.
 
-- [ ] **L-3 The screens.** Every screen's own text, in batches by area: profile, report, cash, stock, carts, pipeline, reviews, connections, team, and so on.
+- [x] **L-3 The screens.** Every screen's own text, in batches by area: profile, report, cash, stock, carts, pipeline, reviews, connections, team, and so on.
 
   **L-3a done 2026-11-01 — the main owner journey.** What was covered:
   - **The intake's record panel and tape:** a fact is named by the bank's overlay (`lib/bank/fact-words.ts`): the prompt of the question that writes its key, or for an entity's field ("offers.<id>.price") the entity's name and the field's own prompt; a coded value (single or multi-select, `{ code }` or a list of them) prints as the option's label. The server sets `RecordFact.label` / `value_words` (lib/intake/record-view.ts); English sets neither, so English still prints the humanised key exactly as before. Dates print in the person's writing; an entity list's marker is a counted "3 on file".
@@ -208,7 +208,7 @@ Each stage is its own PR, tested and merged before the next.
   - **Russian:** “Выполните вход…” (glossary stem); “{checks} проверок” is right for 36 but not for a figure ending in 1–4; МЕРЫ for ACT is weak; «обезличенная копия», «точка», «касса», «Коммутационная панель»; colon constructions around {labels}; instrumental-case gap phrases; «счёт» for a bank account and «содержимое файла» for a file's contents.
   - **Chinese:** 漏洞 for leak (漏损?); 为您的企业做一次验血; 营销活动 per the glossary where Meta says 广告系列; 服务账户 per the glossary where Google says 服务账号; 第三方连接 for Google's third-party connections page; 客人 for booking clients beside 客户; 爽约, 收银机, 配线架; single-character chart events; the one-source headline uses an exact `=1` form so no space appears.
 
-- [ ] **L-4 The sentences SYB builds from numbers.** These are the view models in `lib/`, such as "€3,518.50 was left in carts…". Each moves to ICU messages with plural forms.
+- [x] **L-4 The sentences SYB builds from numbers.** These are the view models in `lib/`, such as "€3,518.50 was left in carts…". Each moves to ICU messages with plural forms.
 
   **L-4a done 2026-11-03 — the sentences on the screens L-3a translated.** What was covered:
   - **Two ways in.** A sentence built live takes a `Tr` (and the locale) defaulting to English from messages/en.json, so English is word for word what it was. A sentence that is _stored_ — a watch-log line, a proposal's own "what approving sends", a report's refusals, formulas and gap lines, a sign-in refusal in a redirect — is never rewritten (rules 4 and 7): `lib/i18n/stored.ts` matches it against the English message it was written from (its placeholders become captures) and says it again in the reader's language, figures, dates, weekdays and series names re-formatted; anything it doesn't recognise prints as stored. `lib/i18n/server-tr.ts` gives a synchronous translator on the server.
@@ -276,7 +276,7 @@ Each stage is its own PR, tested and merged before the next.
 
   **Not seen in the browser:** the dev server on the busy machine took minutes per page compile, so /team and /site were not opened as a reviewer; the sentences are checked by the tests above only.
 
-- [ ] **L-5 What the model writes.** The interviewer, the report, chat, drafts and customer-facing replies are written in the right language (rule 5).
+- [x] **L-5 What the model writes.** The interviewer, the report, chat, drafts and customer-facing replies are written in the right language (rule 5).
 
   **Built 2026-11-03.** What was done:
   - **One place for the instruction:** `lib/llm/language.ts` (pure) writes it in English, naming the language and the register (usted, Sie, vous, Ön with third-person verbs, вы, 您): `ownerLanguageLine` for what the person reads, `customerLanguageLine` for what the business's customers read, `splitLanguageLine` for a brief with both readers, and `FACTS_AS_GIVEN` for extraction. Each says JSON keys, enum values, ids, codes and field keys stay as specified in English, and names, quotes and figures stay as given with no currency converted. `lib/llm/language-of.ts` reads whose language: `businessLanguage(profileId)` (the business's setting, not gated; in its own file, `business-language.ts`, so the support tier reaches only the database and `lib/i18n/locales.ts` — the rule-21 gate in `lib/support/structure.test.ts` now allows that one pure file, with its reason) and `ownerLanguage(accountId)` (the first owner's `users.language` through the status gate, for jobs nobody waits on). `LANGUAGE_FOR_MODEL` moved to `language.ts` from the interviewer prompt, which re-exports it, so its bytes are unchanged.
@@ -318,7 +318,7 @@ Each stage is its own PR, tested and merged before the next.
 
   **Owner step — verify caching per language on a real run (costs money):** with a key, as a named reviewer, set your language to German and ask the chat two questions on the same business. The second call's `llm_calls` row for workload `chat` should show `cache_read_input_tokens > 0`. Switch to Chinese and ask once more: it should read the same entry, because the cached block doesn't change with language. For the interviewer, run two intake turns in each language you want to check (`npm run verify:models` or the intake). Turn two's `interviewer` row should read the cache, one entry per language, as L-2 proved with the fake.
 
-- [ ] **L-6 Emails, exports and shared pages.** The weekly summary, invites, sign-in links, phone alerts, the accountant export's headings, and the shared report link.
+- [x] **L-6 Emails, exports and shared pages.** The weekly summary, invites, sign-in links, phone alerts, the accountant export's headings, and the shared report link.
 
   **L-6 done 2026-11-03.** What was covered, and whose language each follows:
   - **How:** a message SYB sends is written outside a request, so `lib/i18n/recipient.ts` builds next-intl's `createTranslator` over `messages/<locale>.json` for the recipient (English bundled, the others loaded once). Its pure gate: `personLocale` — a person reads their own `users.language` only while it is open to them (a review language needs them named in `LANGUAGE_REVIEW_ACCOUNTS`, by address or account); otherwise English. `customerLocale` — the business's customers read `business_profiles.language`, and a review language reaches them only while the business itself is under review (its account or its owner's address on the list). `lib/i18n/people.ts` reads the rows (`userLocale`, `addressLocale`, `businessCustomerLocale`).
