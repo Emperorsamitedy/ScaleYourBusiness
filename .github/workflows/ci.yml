@@ -55,3 +55,8 @@ jobs:
       - name: Lint question bank
         # Pure stdlib — the runner's system Python is enough.
         run: python3 scripts/lint_bank.py
+
+      - name: Production build
+        # What Vercel runs on deploy: a page that only breaks at build time
+        # is caught here, before merge, not on the live site.
+        run: npm run build
