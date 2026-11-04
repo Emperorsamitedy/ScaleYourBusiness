@@ -13,11 +13,14 @@ import type { Provider, PullPage } from "./provider";
 import type { SquareFetch, SquarePayment } from "./providers/square";
 import {
   SQUARE_BOOKINGS_SCOPES,
+  SQUARE_ORDERS_SCOPE,
   SQUARE_VERSION,
   aggregatePayments,
   createSquareProvider,
   parseSquareCredential,
   readsBookings,
+  readsOrders,
+  toBasket,
   toBookingInput,
 } from "./providers/square";
 import { ScopeViolationError, verifyGrantedScopes } from "./scopes";
@@ -46,14 +49,25 @@ function fakeSquare(
     scopes?: string[];
     payments?: Record<string, unknown[]>;
     bookings?: unknown[];
+    orders?: unknown[];
     pageSize?: number;
   } = {},
 ) {
-  const calls: { url: URL; method: string; version: string | undefined }[] = [];
+  const calls: {
+    url: URL;
+    method: string;
+    version: string | undefined;
+    body?: Record<string, unknown>;
+  }[] = [];
   const json = (status: number, body: unknown) => ({ status, json: async () => body });
   const fetch: SquareFetch = async (raw, init) => {
     const url = new URL(raw);
-    calls.push({ url, method: init.method, version: init.headers["square-version"] });
+    calls.push({
+      url,
+      method: init.method,
+      version: init.headers["square-version"],
+      ...(init.body ? { body: JSON.parse(init.body) as Record<string, unknown> } : {}),
+    });
     if (init.headers.authorization !== `Bearer ${TOKEN}`)
       return json(401, { errors: [{ category: "AUTHENTICATION_ERROR", code: "UNAUTHORIZED" }] });
     if (url.pathname === "/oauth2/token/status" && init.method === "POST") {
@@ -104,6 +118,31 @@ function fakeSquare(
         ...(start + size < inRange.length ? { cursor: String(start + size) } : {}),
       });
     }
+    if (url.pathname === "/v2/orders/search" && init.method === "POST") {
+      const body = JSON.parse(init.body ?? "{}") as {
+        location_ids?: string[];
+        cursor?: string;
+        query?: { filter?: { date_time_filter?: { closed_at?: Record<string, string> } } };
+      };
+      if ((body.location_ids ?? []).length > 10) {
+        return json(400, { errors: [{ code: "BAD_REQUEST", detail: "over 10 locations" }] });
+      }
+      const range = body.query?.filter?.date_time_filter?.closed_at ?? {};
+      const inRange = (opts.orders ?? []).filter((o) => {
+        const order = o as { closed_at?: string; location_id?: string };
+        return (
+          (body.location_ids ?? []).includes(order.location_id ?? "") &&
+          (order.closed_at ?? "") >= (range["start_at"] ?? "") &&
+          (order.closed_at ?? "") <= (range["end_at"] ?? "")
+        );
+      });
+      const size = opts.pageSize ?? 100;
+      const start = Number(body.cursor ?? "0");
+      return json(200, {
+        orders: inRange.slice(start, start + size),
+        ...(start + size < inRange.length ? { cursor: String(start + size) } : {}),
+      });
+    }
     return json(404, { errors: [{ code: "NOT_FOUND" }] });
   };
   return { fetch, calls };
@@ -151,7 +190,7 @@ describe("P2-28 — read-only, proven", () => {
     );
   });
 
-  it("the source knows four paths on Square's hosts; data reads are GETs", () => {
+  it("the source knows five paths on Square's hosts; data reads are GETs but SearchOrders", () => {
     const source = readFileSync(
       fileURLToPath(new URL("./providers/square.ts", import.meta.url)),
       "utf8",
@@ -161,8 +200,13 @@ describe("P2-28 — read-only, proven", () => {
       "/oauth2/token/status",
       "/v2/bookings",
       "/v2/locations",
+      "/v2/orders/search",
       "/v2/payments",
     ]);
+    // The only POSTs are the two Square defines as reads (I-48a).
+    expect(source).toContain(
+      'const post = path === "/oauth2/token/status" || path === "/v2/orders/search";',
+    );
     const hosts = new Set([...source.matchAll(/https:\/\/([a-z0-9.-]+)/g)].map((m) => m[1]));
     expect([...hosts].sort()).toEqual(["connect.squareup.com", "connect.squareupsandbox.com"]);
   });
@@ -387,5 +431,142 @@ describe("Bookings — read-only, optional", () => {
       toBookingInput(booking("u", "2026-10-01T10:00:00Z", "SOMETHING_NEW"), "2026-10-13"),
     ).toBeNull();
     expect(toBookingInput({ id: "x", status: "ACCEPTED" }, "2026-10-13")).toBeNull();
+  });
+});
+
+// Till orders (idea 48, I-48a, owner 2026-11-03: "Yes, add ORDERS_READ"):
+// the read-only ORDERS_READ, optional, feeds baskets only when granted.
+// Square is never called: the global fetch fails the test if anything
+// reaches for it.
+describe("Till orders — read-only, optional (I-48a)", () => {
+  const ORDER_SCOPES = ["PAYMENTS_READ", "MERCHANT_PROFILE_READ", SQUARE_ORDERS_SCOPE];
+  beforeEach(() => {
+    vi.stubGlobal("fetch", () => {
+      throw new Error("the real network was called");
+    });
+  });
+  afterEach(() => {
+    vi.unstubAllGlobals();
+  });
+
+  const order = (id: string, closed_at: string, lines: object[], extra: object = {}) => ({
+    id,
+    location_id: "L-main",
+    state: "COMPLETED",
+    closed_at,
+    customer_id: `CUST-${id}`,
+    total_money: { amount: 4_200, currency: "HUF" },
+    line_items: lines,
+    ...extra,
+  });
+  const item = (name: string, extra: object = {}) => ({
+    uid: name,
+    name,
+    quantity: "1",
+    item_type: "ITEM",
+    catalog_object_id: `VAR-${name}`,
+    base_price_money: { amount: 1_200, currency: "HUF" },
+    note: "no sugar",
+    ...extra,
+  });
+
+  it("ORDERS_READ passes the registry; ORDERS_WRITE is refused", async () => {
+    const { granted_scopes } = await provider(fakeSquare({ scopes: ORDER_SCOPES })).connect(SECRET);
+    expect(() => verifyGrantedScopes("square", granted_scopes)).not.toThrow();
+    expect(readsOrders(granted_scopes)).toBe(true);
+    expect(readsOrders(["PAYMENTS_READ"])).toBe(false);
+    expect(() => verifyGrantedScopes("square", [...ORDER_SCOPES, "ORDERS_WRITE"])).toThrow(
+      ScopeViolationError,
+    );
+  });
+
+  it("connect proves the orders read when the permission is there, and only then", async () => {
+    const withO = fakeSquare({ scopes: ORDER_SCOPES });
+    await provider(withO).connect(SECRET);
+    const search = withO.calls.filter((c) => c.url.pathname === "/v2/orders/search");
+    expect(search).toHaveLength(1);
+    expect(search[0]?.method).toBe("POST");
+    const without = fakeSquare();
+    await provider(without).connect(SECRET);
+    expect(without.calls.some((c) => c.url.pathname === "/v2/orders/search")).toBe(false);
+  });
+
+  it("a token without ORDERS_READ never reads orders and hands back no baskets", async () => {
+    const fake = fakeSquare({
+      orders: [order("o1", "2026-10-05T10:00:00Z", [item("Latte"), item("Croissant")])],
+    });
+    const pages = await runToDone(provider(fake));
+    expect(fake.calls.some((c) => c.url.pathname === "/v2/orders/search")).toBe(false);
+    expect(pages.every((pg) => pg.baskets === undefined)).toBe(true);
+  });
+
+  it("reads each window's completed orders into baskets of item names, and nothing else", async () => {
+    const fake = fakeSquare({
+      pageSize: 2,
+      orders: [
+        order("o1", "2026-10-05T10:00:00Z", [
+          item("Latte"),
+          item("Croissant"),
+          item("Latte", { uid: "second" }),
+        ]),
+        order("o2", "2026-10-05T11:00:00Z", [item("Flat  white "), item("Croissant")]),
+        order("o3", "2026-10-06T09:30:00Z", [
+          item("Custom amount", { item_type: "CUSTOM_AMOUNT", catalog_object_id: undefined }),
+          item("Gift card", { item_type: "GIFT_CARD" }),
+        ]),
+        order("o4", "2026-10-07T12:00:00Z", [item("Latte"), item("Scone")], { state: "OPEN" }),
+        order("o5", "2026-10-07T13:00:00Z", [item("Tea"), item("Scone")], {
+          location_id: "L-terrace",
+        }),
+      ],
+    });
+    const p = provider(fake);
+    const pages: PullPage[] = [];
+    let at: string | null = null;
+    for (let i = 0; i < 30; i++) {
+      const page = await p.pull(SECRET, at, NOW, { granted_scopes: ORDER_SCOPES });
+      pages.push(page);
+      at = page.cursor;
+      if (page.done) break;
+    }
+    const reads = fake.calls.filter((c) => c.url.pathname === "/v2/orders/search");
+    expect(reads.length).toBeGreaterThan(12); // a year in 30-day windows, plus paging
+    expect(reads.every((c) => c.method === "POST")).toBe(true);
+    expect(reads.some((c) => c.body?.["cursor"] === "2")).toBe(true);
+    expect(
+      reads.every((c) => (c.body?.["location_ids"] as string[]).join() === "L-main,L-terrace"),
+    ).toBe(true);
+    // Every page carries its window, and the window's baskets.
+    expect(pages.every((pg) => pg.baskets !== undefined)).toBe(true);
+    const baskets = pages.flatMap((pg) => pg.baskets?.orders ?? []);
+    expect(baskets).toEqual([
+      { order_ref: "o1", day: "2026-10-05", product_refs: ["Croissant", "Latte"] },
+      { order_ref: "o2", day: "2026-10-05", product_refs: ["Croissant", "Flat white"] },
+      { order_ref: "o5", day: "2026-10-07", product_refs: ["Scone", "Tea"] },
+    ]);
+    // No amount, customer, note or catalogue id is kept.
+    expect(JSON.stringify(baskets)).not.toMatch(/CUST-|no sugar|VAR-|1200|4200/);
+  });
+
+  it("a basket is a completed order closed inside the window, with at least one item", () => {
+    const from = new Date("2026-10-01T00:00:00Z");
+    const to = new Date("2026-10-30T00:00:00Z");
+    expect(toBasket(order("a", "2026-10-02T08:00:00Z", [item("Tea")]), from, to)).toEqual({
+      order_ref: "a",
+      day: "2026-10-02",
+      product_refs: ["Tea"],
+    });
+    expect(
+      toBasket(order("b", "2026-10-02T08:00:00Z", [item("Tea")], { state: "CANCELED" }), from, to),
+    ).toBeNull();
+    expect(toBasket(order("c", "2026-10-31T00:00:00Z", [item("Tea")]), from, to)).toBeNull();
+    expect(
+      toBasket(
+        order("d", "2026-10-02T08:00:00Z", [item("Tip", { item_type: "CUSTOM_AMOUNT" })]),
+        from,
+        to,
+      ),
+    ).toBeNull();
+    expect(toBasket({ id: "e", state: "COMPLETED" }, from, to)).toBeNull();
   });
 });

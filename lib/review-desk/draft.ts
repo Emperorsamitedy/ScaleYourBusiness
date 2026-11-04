@@ -63,7 +63,6 @@ import type { KnowledgeEntryRow } from "../support/knowledge";
 import { publicKnowledge, selectEntries } from "../support/knowledge";
 import { ReviewDeskError } from "./settings";
 import { moneyText } from "../../components/sheet/num";
-import type { AppLocale } from "../i18n/locales";
 import type { Tr } from "../i18n/tr";
 import { englishTr } from "../i18n/tr";
 

@@ -35,7 +35,7 @@ import { bootstrapIntake } from "../intake/service";
 import { writeField } from "../profile/field-store";
 import type { LimitLlm } from "../proposals/hard-limits";
 import { loadSeasons } from "../seasons/load";
-import { loadBundles, pairKey } from "./load";
+import { fallbackName, loadBundles, pairKey } from "./load";
 import { BUNDLES_MODULE, bundleRef, proposeBundle } from "./propose";
 
 const NOW = new Date("2026-10-26T09:00:00Z");
@@ -226,6 +226,45 @@ describe("a shop's orders", () => {
     expect(p.sentence).toMatch(
       /together in 24 orders \(80% of orders with Pour-Over Coffee Set, 55% of those with Bud Vase Trio\)/,
     );
+  });
+
+  it("mines Square's till baskets, whose refs are the items' own names (I-48a)", async () => {
+    const s = await bootstrapIntake();
+    created.push(s);
+    const conn = await connection(s.account_id, "square");
+    const rows: (typeof orderBaskets.$inferInsert)[] = [];
+    const add = (n: number, refs: string[]) => {
+      for (let i = 0; i < n; i++) {
+        rows.push({
+          account_id: s.account_id,
+          connection_id: conn,
+          order_ref: `sq${rows.length}`,
+          day: shiftDay(TODAY, -(1 + (rows.length % 100))),
+          product_refs: refs,
+          observed_at: NOW.toISOString(),
+        });
+      }
+    };
+    add(24, ["Croissant", "Latte"]);
+    add(6, ["Latte"]);
+    add(16, ["Croissant"]);
+    add(150, ["Tea"]);
+    add(4, ["Croissant", "Tea"]);
+    await db.insert(orderBaskets).values(rows);
+
+    const view = await loadBundles(s.account_id, s.profile_id, NOW);
+    const src = view.sources.find((x) => x.kind === "orders");
+    expect(src?.label).toBe("Square");
+    if (src?.result.status !== "mined") throw new Error(String(src?.result.status));
+    expect(src.result.baskets).toBe(200);
+    expect(src.pairs).toHaveLength(1);
+    expect([src.pairs[0]!.a_name, src.pairs[0]!.b_name].sort()).toEqual(["Croissant", "Latte"]);
+    expect(src.pairs[0]!.together).toBe(24);
+  });
+
+  it("names an unmatched item by its name at Square, by its id elsewhere", () => {
+    expect(fallbackName("square", "Flat white")).toBe("Flat white");
+    expect(fallbackName("shopify", "gid://shopify/Product/5")).toBe("Product 5");
   });
 
   it("says so when no store keeps products, rather than mining nothing", async () => {

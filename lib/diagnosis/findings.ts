@@ -103,9 +103,11 @@ export interface DiagnosisFinding {
    * P5-13: "measured" for a finding SYB measured itself (the site audit,
    * lib/site/audit) rather than the diagnosis model's judgement. Absent on
    * the model's findings — site-audit §2: the report presents the two
-   * differently.
+   * differently. I-44a: "benchmark" for a large gap against Eurostat's
+   * figure for similar businesses (lib/benchmarks/gap), set by a stated
+   * threshold in code, never by the model.
    */
-  kind?: "measured";
+  kind?: "measured" | "benchmark";
 }
 
 export interface RejectedFinding {

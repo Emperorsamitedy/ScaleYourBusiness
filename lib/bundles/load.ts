@@ -4,8 +4,8 @@
 //
 // Two sources, as data rather than a business-type branch:
 //
-//   orders   every store connection's order_baskets (Shopify, WooCommerce)
-//            of the last BUNDLES.window_days. One store's orders at a time
+//   orders   every store connection's order_baskets (Shopify, WooCommerce,
+//            and Square's till orders since I-48a) of the last BUNDLES.window_days. One store's orders at a time
 //            — the one with the most baskets — because two stores' product
 //            ids never name the same thing.
 //   visits   the account's appointments (a Square read or a bookings
@@ -153,6 +153,21 @@ function shortRef(ref: string, w: SeasonWords): string {
 }
 
 /**
+ * I-48a: stores whose basket refs are the item's own name, because SYB
+ * reads no product list there (Square's till orders). Data, not a branch.
+ */
+export const NAMED_REFS: ReadonlySet<string> = new Set(["square"]);
+
+/** Pure: an item's name when nothing better is known — the name itself, or "Product <id>". */
+export function fallbackName(
+  provider: string,
+  ref: string,
+  words: SeasonWords = englishSeasonWords(),
+): string {
+  return NAMED_REFS.has(provider) ? ref : shortRef(ref, words);
+}
+
+/**
  * The pairs. L-4b: what SYB words (a source's label, an unnamed product,
  * a margin's why) is in `words`, English by default — proposeBundle reads
  * this view in English, because a proposal is stored (rule 7). Item names
@@ -222,7 +237,9 @@ export async function loadBundles(
     const conn = conns.find((c) => c.id === store[0])!;
     const titles = await storeTitles(conn.id);
     const nameOf = (ref: string) =>
-      lookup.byRef.get(`${conn.provider}|${ref}`)?.name ?? titles.get(ref) ?? shortRef(ref, words);
+      lookup.byRef.get(`${conn.provider}|${ref}`)?.name ??
+      titles.get(ref) ??
+      fallbackName(conn.provider, ref, words);
     const result = minePairs(store[1].map((items) => ({ items })));
     view.sources.push({
       kind: "orders",

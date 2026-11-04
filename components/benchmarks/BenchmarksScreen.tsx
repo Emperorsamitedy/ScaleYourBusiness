@@ -7,9 +7,13 @@
 // year, the one definition gap that matters most, the owner's arithmetic
 // and what it rests on), then the source foot.
 //
-// Read-only. A benchmark is a reference: nothing here makes a finding, a
-// proposal or a fact on the profile, and nothing calls a model or the
-// network beyond this screen's own read of /api/benchmarks.
+// Read-only, but for one button. A benchmark is a reference: nothing here
+// makes a fact on the profile, and nothing calls a model or the network
+// beyond this screen's reads and that button. I-44a: when the margin's gap
+// is large (lib/benchmarks/gap, a stated threshold, like for like), a card
+// says so, that it is in the report, and offers to propose going through
+// prices and costs (POST /api/proposals/margin-review), which writes
+// nothing anywhere when approved.
 //
 // L-3b: the screen's own words are the "benchmarks" catalogue; what
 // lib/benchmarks words (the cell, the why, the gap note, the figures, the
@@ -17,11 +21,12 @@
 
 import "../../app/benchmarks.css";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import type { ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import type { BenchView } from "../../app/api/benchmarks/route";
 import type { BenchLine, BenchResult, Need } from "../../lib/benchmarks/compare";
+import { num } from "../sheet/num";
 import { PageHead, SheetCard } from "../sheet/PageHead";
 import { useTr } from "../sheet/useTr";
 import type { BenchWords } from "./view";
@@ -31,7 +36,7 @@ type Load =
   | { phase: "loading" }
   | { phase: "signedout" }
   | { phase: "error" }
-  | { phase: "ready"; result: BenchResult };
+  | { phase: "ready"; result: BenchResult; view: BenchView };
 
 function useWords(): BenchWords {
   const { tr, locale } = useTr("benchmarks");
@@ -162,25 +167,82 @@ function Line({ line }: { line: BenchLine }) {
   );
 }
 
+/** I-44a: the margin's large gap, and the proposal it may prompt. */
+function GapCard({ view, onProposed }: { view: BenchView; onProposed: () => Promise<void> }) {
+  const t = useTranslations("benchmarkGap");
+  const { locale } = useWords();
+  const [busy, setBusy] = useState(false);
+  const [note, setNote] = useState<string | null>(null);
+  const gap = view.gap;
+  if (!gap) return null;
+  const propose = async () => {
+    setBusy(true);
+    setNote(null);
+    try {
+      const res = await fetch("/api/proposals/margin-review", { method: "POST" });
+      const body = (await res.json()) as { status?: string; error?: string };
+      if (!res.ok) setNote(body.error ?? t("failed"));
+      else {
+        setNote(body.status === "blocked" ? t("blocked") : t("drafted"));
+        await onProposed();
+      }
+    } catch {
+      setNote(t("failed"));
+    } finally {
+      setBusy(false);
+    }
+  };
+  return (
+    <SheetCard
+      className="bm-line"
+      label={t("label")}
+      title={t("title", { points: num(gap.points, 1, locale) })}
+    >
+      <p className="bm-copy">{t("rule", { threshold: num(gap.threshold_points, 0, locale) })}</p>
+      <p className="bm-copy">{t("where")}</p>
+      <p className="bm-needs">
+        {view.proposal ? (
+          <>
+            <span className="word boxed">{t("status", { status: view.proposal.status })}</span>{" "}
+            <Link href={`/proposals/${view.proposal.id}`}>{t("queue")}</Link>
+          </>
+        ) : view.held ? (
+          <span>{view.held}</span>
+        ) : (
+          <button type="button" className="act" disabled={busy} onClick={() => void propose()}>
+            {busy ? t("drafting") : t("propose")}
+          </button>
+        )}
+      </p>
+      {note && (
+        <p className="bm-copy" role="status">
+          {note}
+        </p>
+      )}
+    </SheetCard>
+  );
+}
+
 export function BenchmarksScreen() {
   const [load, setLoad] = useState<Load>({ phase: "loading" });
   const t = useTranslations("benchmarks");
   const w = useWords();
   const { tr } = w;
 
-  useEffect(() => {
-    void (async () => {
-      try {
-        const res = await fetch("/api/benchmarks");
-        if (res.status === 401) return setLoad({ phase: "signedout" });
-        if (!res.ok) return setLoad({ phase: "error" });
-        const data = (await res.json()) as BenchView;
-        setLoad({ phase: "ready", result: data.result });
-      } catch {
-        setLoad({ phase: "error" });
-      }
-    })();
+  const read = useCallback(async () => {
+    try {
+      const res = await fetch("/api/benchmarks");
+      if (res.status === 401) return setLoad({ phase: "signedout" });
+      if (!res.ok) return setLoad({ phase: "error" });
+      const data = (await res.json()) as BenchView;
+      setLoad({ phase: "ready", result: data.result, view: data });
+    } catch {
+      setLoad({ phase: "error" });
+    }
   }, []);
+  useEffect(() => {
+    void read();
+  }, [read]);
 
   if (load.phase === "signedout") {
     return (
@@ -238,6 +300,7 @@ export function BenchmarksScreen() {
         {r.lines.map((l) => (
           <Line key={l.key} line={l} />
         ))}
+        <GapCard view={load.view} onProposed={read} />
       </div>
       <p className="bm-foot">{footLine(r.source, r.caveat, w)}</p>
     </Frame>
