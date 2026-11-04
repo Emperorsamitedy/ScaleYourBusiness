@@ -9,7 +9,8 @@
 // L-3b (TASKS-LANGUAGES.md): the screen's own words are the "competitors"
 // catalogue; figures, money and dates in the reader's locale, each price in
 // its own currency. What the read found (their offer names, a change's
-// sentence, a gap's words, a read's problem) is said as lib/ built it — L-4.
+// sentence, a gap's words, a read's problem) is said as lib/ built it — since
+// L-4b in the reader's language ("competitorsWords", GET /api/competitors).
 
 import "../../app/competitors.css";
 import { useCallback, useEffect, useState } from "react";

@@ -16,9 +16,10 @@
 //
 // L-3b (TASKS-LANGUAGES.md): the screen's fixed words are
 // "simulate.pricing", figures in the reader's locale and the item's own
-// currency. The headline, change titles, break-even words and formulas,
-// inputs' labels and sources, and refusal reasons that lib/simulate/pricing
-// words from the numbers stay English until L-4.
+// currency. L-4b: the headline, change titles, break-even words and
+// formulas, inputs' labels and sources, and refusal reasons that
+// lib/simulate/pricing words from the numbers are "simulateWords" in the
+// reader's language (useSimText); the sources arrive from the route so.
 
 import type { ReactNode } from "react";
 import { useEffect, useMemo, useState } from "react";
@@ -49,7 +50,7 @@ import { minorUnitExponent } from "../../lib/core/money";
 import { basisName } from "../report/basis";
 import { moneyFig, moneyText, num } from "../sheet/num";
 import { SimTabs } from "./SimTabs";
-import { Whiskers, asOfDay, useSimWords } from "./SimulateScreen";
+import { Whiskers, asOfDay, useSimText, useSimWords } from "./SimulateScreen";
 import {
   breakEvenView,
   defaultChanges,
@@ -439,6 +440,7 @@ export function PricingScreen() {
   const words = useSimWords();
   const { tr, locale } = words;
   const t = useTranslations("simulate");
+  const text = useSimText();
   const [load, setLoad] = useState<Load>({ phase: "loading" });
   const [itemKey, setItemKey] = useState<string | null>(null);
   const [picks, setPicks] = useState<PriceChange[]>(defaultChanges());
@@ -470,9 +472,9 @@ export function PricingScreen() {
     if (minor === null) return { change: null, note: { kind: "unreadable" } };
     const c: PriceChange = { kind: "exact", price_minor: minor };
     if (!item.price) return { change: null, note: { kind: "refused", why: null } };
-    const err = changeError(item.price.amount_minor, c);
+    const err = changeError(item.price.amount_minor, c, text);
     return err ? { change: null, note: { kind: "refused", why: err } } : { change: c, note: null };
-  }, [item, exact]);
+  }, [item, exact, text]);
   const exactNote =
     exactChange.note === null
       ? null
@@ -487,8 +489,8 @@ export function PricingScreen() {
       if (changes.length >= PRICING.max_changes) changes.pop();
       changes.push(exactChange.change);
     }
-    return comparePrices(item, changes, ready.inputs.archetype);
-  }, [ready, item, picks, exactChange]);
+    return comparePrices(item, changes, ready.inputs.archetype, text);
+  }, [ready, item, picks, exactChange, text]);
 
   if (load.phase === "signedout") {
     return (
@@ -532,7 +534,7 @@ export function PricingScreen() {
   }
 
   const title = cmp
-    ? pricingHeadline(cmp)
+    ? pricingHeadline(cmp, text)
     : item
       ? tr("pricing.noPrice", { name: item.name })
       : tr("pricing.pickItem");

@@ -658,6 +658,8 @@ async function recordRead(
         key: ch.key,
         before: ch.before,
         after: ch.after,
+        // L-4b: the sentence's parts, so the screen can say it in the reader's language.
+        facts: ch.facts,
       },
     });
   }

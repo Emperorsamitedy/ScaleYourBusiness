@@ -33,9 +33,20 @@
 //
 // Each reads "above", "below" or "about the same" (within ±15 % of
 // Eurostat's figure, the boundary included). No grade, no score, no advice.
+//
+// L-4b (TASKS-LANGUAGES.md): every sentence here is a "benchmarksWords"
+// message, its figures formatted in the reader's locale with the
+// business's own currency (never converted — rule 1; Eurostat's euro
+// figure is set in that currency as before). The default is English, so
+// every caller and test reads what it did; the route passes the request's
+// words. Nothing here is stored. Owner-typed labels (a cost line's name)
+// and the country as typed stay as given.
 
 import type { Basis } from "../../components/report/basis";
 import { moneyText, num } from "../../components/sheet/num";
+import type { AppLocale } from "../i18n/locales";
+import { intlTag } from "../i18n/locales";
+import type { Words } from "../i18n/request-words";
 import type { CostLine, CountFact, MoneyFact, OfferLine } from "../cash/model";
 import { enumCode } from "../core/enum-value";
 import { minorUnitExponent } from "../core/money";
@@ -43,13 +54,18 @@ import type { SizeBand } from "../core/size-features";
 import type { MappedType, SizePick } from "./map";
 import {
   ALL_SIZES,
+  BENCHMARK_MAP,
+  benchEnglish,
   costTreatment,
+  coversWords,
+  groupWords,
   insideGrossMargin,
   geoFor,
   parentGroup,
   sizeClassesFor,
   sizeWords,
   typeEntry,
+  unmappedWords,
 } from "./map";
 import type { BenchSource, BenchValue, Metric, Snapshot } from "./snapshot";
 import { SNAPSHOT, cellIndex, eurRate, isValue } from "./snapshot";
@@ -209,8 +225,8 @@ export type BenchResult =
       caveat: string;
     };
 
-export const CAVEAT =
-  "These are totals across every business in the group, not a typical business.";
+/** The caveat in English ("benchmarksWords.caveat"). */
+export const CAVEAT = benchEnglish().tr("caveat");
 
 /* ── reading ── */
 
@@ -223,33 +239,69 @@ export function readingOf(own: number, bench: number, band: number = BENCH.same_
   return diff > 0 ? "above" : "below";
 }
 
-const pts = (n: number) => `${num(Math.abs(n), 1)} point${Math.abs(n) === 1 ? "" : "s"}`;
-const pctText = (n: number) => `${num(n, 1)}%`;
-const money = (minor: number, currency: string) => moneyText(Math.round(minor), currency);
+const percentFormats = new Map<string, Intl.NumberFormat>();
+/** A percent at fixed decimals: English "36.4%" as before; another language its own ("36,4 %"). */
+function percentIn(n: number, decimals: number, locale: AppLocale): string {
+  if (locale === "en") return `${num(n, decimals)}%`;
+  const key = `${locale}|${decimals}`;
+  let f = percentFormats.get(key);
+  if (!f) {
+    f = new Intl.NumberFormat(intlTag(locale), {
+      style: "percent",
+      minimumFractionDigits: decimals,
+      maximumFractionDigits: decimals,
+    });
+    percentFormats.set(key, f);
+  }
+  return f.format(n / 100);
+}
+/** A count as the English sentences always printed it (no grouping); the language's own elsewhere. */
+const countIn = (n: number, locale: AppLocale) => (locale === "en" ? String(n) : num(n, 0, locale));
+/** A whole percent as English always printed it ("12%"); the language's own elsewhere. */
+const wholePctIn = (n: number, locale: AppLocale) =>
+  locale === "en" ? `${n}%` : percentIn(n, 0, locale);
+const pctText = (n: number, w: Words) => percentIn(n, 1, w.locale);
+const money = (minor: number, currency: string, w: Words) =>
+  moneyText(Math.round(minor), currency, w.locale);
 /** Whole major units, for figures a year: "€22,800". */
-const wholeMoney = (minor: number, currency: string) => {
+const wholeMoney = (minor: number, currency: string, w: Words) => {
   const unit = 10 ** minorUnitExponent(currency);
-  return moneyText(Math.round(minor / unit) * unit, currency);
+  return moneyText(Math.round(minor / unit) * unit, currency, w.locale);
 };
 
-function gapWords(line: {
-  unit: "percent" | "money";
-  own: number;
-  bench: number;
-  currency: string | null;
-  reading: Reading;
-}): string {
+function gapWords(
+  line: {
+    unit: "percent" | "money";
+    own: number;
+    bench: number;
+    currency: string | null;
+    reading: Reading;
+  },
+  w: Words,
+): string {
+  const { tr } = w;
   const diff = line.own - line.bench;
-  const side = diff >= 0 ? "above" : "below";
+  const above = diff >= 0;
+  let body: string;
   if (line.unit === "percent") {
-    return line.reading === "about the same"
-      ? `about the same: ${pts(diff)} ${side}`
-      : `${pts(diff)} ${side}`;
+    const count = Math.abs(diff);
+    body = tr(above ? "gap.pointsAbove" : "gap.pointsBelow", {
+      count,
+      points: num(count, 1, w.locale),
+    });
+  } else {
+    const share =
+      line.bench === 0 ? null : Math.round((Math.abs(diff) / Math.abs(line.bench)) * 100);
+    const amount = wholeMoney(Math.abs(diff), line.currency ?? "EUR", w);
+    body =
+      share === null
+        ? tr(above ? "gap.moneyAbove" : "gap.moneyBelow", { amount })
+        : tr(above ? "gap.moneyShareAbove" : "gap.moneyShareBelow", {
+            amount,
+            share: wholePctIn(share, w.locale),
+          });
   }
-  const share = line.bench === 0 ? null : Math.round((Math.abs(diff) / Math.abs(line.bench)) * 100);
-  const amount = wholeMoney(Math.abs(diff), line.currency ?? "EUR");
-  const body = share === null ? amount : `${amount} (${share}%)`;
-  return line.reading === "about the same" ? `about the same: ${body} ${side}` : `${body} ${side}`;
+  return line.reading === "about the same" ? tr("gap.same", { gap: body }) : body;
 }
 
 /* ── the Eurostat side ── */
@@ -275,9 +327,35 @@ export function publishedSizes(
   return sizes.filter((size) => at(geo, nace, size) !== null);
 }
 
-/** Said when a line falls back to every size: Eurostat's ratio is of the sector's totals. */
-export const EVERY_SIZE_NOTE =
-  " Eurostat works that out from the whole sector's totals, so the biggest firms weigh most in it; read it loosely against a business your size.";
+/** Said when a line falls back to every size: Eurostat's ratio is of the sector's totals (English). */
+export const EVERY_SIZE_NOTE = ` ${benchEnglish().tr("cell.everySize")}`;
+
+/** Eurostat's geo code → the ISO 3166 region Intl names (Greece is EL to Eurostat, GR to ISO). */
+const ISO_OF_GEO: Readonly<Record<string, string>> = Object.fromEntries(
+  Object.entries(BENCHMARK_MAP.countries.eurostat_geo).map(([iso, geo]) => [geo, iso]),
+);
+const regionNames = new Map<string, Intl.DisplayNames>();
+
+/** Pure: a country in the reader's language. English is the snapshot's own name, as before. */
+export function countryWords(s: Snapshot, geo: string, w: Words = benchEnglish()): string {
+  const english = s.geos[geo] ?? geo;
+  if (w.locale === "en") return english;
+  const iso = ISO_OF_GEO[geo] ?? geo;
+  if (!/^[A-Z]{2}$/.test(iso)) return english;
+  try {
+    let names = regionNames.get(w.locale);
+    if (!names) {
+      names = new Intl.DisplayNames([intlTag(w.locale)], { type: "region" });
+      regionNames.set(w.locale, names);
+    }
+    return names.of(iso) ?? english;
+  } catch {
+    return english;
+  }
+}
+
+/** Eurostat's flags SYB words itself ("benchmarksWords.flag.<code>"); another keeps the snapshot's English. */
+const FLAG_KEYS: ReadonlySet<string> = new Set(["e", "b"]);
 
 /**
  * Pure: the first cell with a figure for `metric`. Tried in order: each
@@ -292,12 +370,14 @@ export function pickCell(
   type: MappedType,
   sizes: readonly string[],
   metric: Metric,
+  w: Words = benchEnglish(),
 ): Pick | null {
+  const { tr } = w;
   const at = cellIndex(s);
-  const country = s.geos[geo] ?? geo;
-  const groupOf = (nace: string) => (nace === type.nace ? type.group : parentGroup(nace));
-  const describe = (nace: string, size: string) =>
-    `${groupOf(nace)} ${sizeWords(size)} in ${country}`;
+  const country = countryWords(s, geo, w);
+  const groupOf = (nace: string) =>
+    groupWords(nace, nace === type.nace ? type.group : parentGroup(nace), w);
+  const sizeOf = (size: string) => sizeWords(size, undefined, w);
   const order: { nace: string; size: string }[] = [];
   for (const nace of [type.nace, ...(type.parent ? [type.parent] : [])]) {
     for (const size of [...publishedSizes(s, geo, nace, sizes), ALL_SIZES.code]) {
@@ -305,15 +385,27 @@ export function pickCell(
     }
   }
   const first = order[0]!;
-  let firstWhy: string | null = null;
+  /** The year of a confidential first cell; null when it simply isn't published. */
+  let secretYear: number | null = null;
   for (const o of order) {
     const f = at(geo, o.nace, o.size)?.values[metric];
     if (isValue(f)) {
+      const both = {
+        group: groupOf(first.nace),
+        size: sizeOf(first.size),
+        country,
+        usedGroup: groupOf(o.nace),
+        usedSize: sizeOf(o.size),
+      };
       const fallback =
         o === first
           ? null
-          : `Eurostat ${firstWhy ?? "doesn't publish this"} for ${describe(first.nace, first.size)}, so this is ${describe(o.nace, o.size)}.` +
-            (o.size === ALL_SIZES.code && first.size !== ALL_SIZES.code ? EVERY_SIZE_NOTE : "");
+          : (secretYear === null
+              ? tr("cell.unpublished", both)
+              : tr("cell.confidential", { ...both, year: String(secretYear) })) +
+            (o.size === ALL_SIZES.code && first.size !== ALL_SIZES.code
+              ? ` ${tr("cell.everySize")}`
+              : "");
       return {
         value: f,
         cell: {
@@ -321,16 +413,22 @@ export function pickCell(
           nace: o.nace,
           size: o.size,
           year: f.year,
-          words: `all ${describe(o.nace, o.size)}, ${f.year}, Eurostat`,
+          words: tr("cell.words", {
+            group: groupOf(o.nace),
+            size: sizeOf(o.size),
+            country,
+            year: String(f.year),
+          }),
           fallback,
-          flag: f.flag ? (s.flags[f.flag] ?? f.flag) : null,
+          flag: f.flag
+            ? FLAG_KEYS.has(f.flag)
+              ? tr(`flag.${f.flag}`)
+              : (s.flags[f.flag] ?? f.flag)
+            : null,
         },
       };
     }
-    if (o === first) {
-      firstWhy =
-        f && "missing" in f ? `keeps this confidential (${f.year})` : "doesn't publish this";
-    }
+    if (o === first && f && "missing" in f) secretYear = f.year;
   }
   return null;
 }
@@ -348,10 +446,15 @@ export function teurToMinor(
   return { minor, rate };
 }
 
-function conversionWords(currency: string, rate: number, year: number): string | null {
+function conversionWords(currency: string, rate: number, year: number, w: Words): string | null {
   return currency === "EUR"
     ? null
-    : `Converted from euros at ${num(rate, rate < 10 ? 4 : 2)} ${currency} to the euro, ${year}'s average (Eurostat, ert_bil_eur_a).`;
+    : w.tr("conversion", {
+        rate: num(rate, rate < 10 ? 4 : 2, w.locale),
+        currency,
+        year: String(year),
+        dataset: "ert_bil_eur_a",
+      });
 }
 
 /* ── the owner's side ── */
@@ -359,10 +462,10 @@ function conversionWords(currency: string, rate: number, year: number): string |
 const isEmployee = (s: StaffLine) => enumCode(s.engagement) === "employee";
 const MONTHS: Record<string, number> = { monthly: 1, quarterly: 3, annual: 12 };
 
-function moneyInput(label: string, f: MoneyFact, value?: string): OwnInput {
+function moneyInput(label: string, f: MoneyFact, w: Words): OwnInput {
   return {
     label,
-    value: value ?? money(f.amount_minor, f.currency),
+    value: money(f.amount_minor, f.currency, w),
     basis: f.basis,
     source: f.source,
   };
@@ -372,6 +475,7 @@ function moneyInput(label: string, f: MoneyFact, value?: string): OwnInput {
 function staffPay(
   x: BenchInputs,
   currency: string,
+  w: Words,
 ):
   | { minor: number; from: string[]; inputs: OwnInput[]; source: "costs" | "team" | "none" }
   | { needs: Need[]; why: string } {
@@ -382,8 +486,12 @@ function staffPay(
     const unpriced = employees.filter((e) => !e.cost || e.cost.currency !== currency);
     if (unpriced.length > 0) {
       return {
-        why: `${unpriced.length === 1 ? "One employee" : `${unpriced.length} employees`} on your team list ${unpriced.length === 1 ? "has" : "have"} no monthly cost in ${currency}, and staff pay is too big a part of a margin to leave out.`,
-        needs: [{ what: "what each employee costs a month", href: BENCH_ASK.staff }],
+        why: w.tr("why.unpricedEmployees", {
+          count: unpriced.length,
+          n: countIn(unpriced.length, w.locale),
+          currency,
+        }),
+        needs: [{ what: w.tr("need.employeeCost"), href: BENCH_ASK.staff }],
       };
     }
     const minor = employees.reduce((n, e) => n + e.cost!.amount_minor, 0);
@@ -394,10 +502,13 @@ function staffPay(
         employees.length > 0
           ? [
               {
-                label: `Staff pay, ${employees.length} on your team list`,
-                value: money(minor, currency),
+                label: w.tr("input.staffTeam", {
+                  count: employees.length,
+                  n: countIn(employees.length, w.locale),
+                }),
+                value: money(minor, currency, w),
                 basis: employees[0]!.cost!.basis,
-                source: "your team list",
+                source: w.tr("input.teamList"),
               },
             ]
           : [],
@@ -407,15 +518,16 @@ function staffPay(
   if (x.team_size && x.team_size.value <= 1)
     return { minor: 0, from: [], inputs: [], source: "none" };
   return {
-    why: "I don't know whether anyone besides you is paid, and staff pay is too big a part of a margin to leave out.",
-    needs: [
-      { what: "who works in the business, and what each costs a month", href: BENCH_ASK.staff },
-    ],
+    why: w.tr("why.unknownStaff"),
+    needs: [{ what: w.tr("need.whoAndCost"), href: BENCH_ASK.staff }],
   };
 }
 
 /** Pure: the operating margin, or what it needs. */
-export function ownMargin(x: BenchInputs):
+export function ownMargin(
+  x: BenchInputs,
+  w: Words = benchEnglish(),
+):
   | {
       pct: number;
       formula: string;
@@ -425,18 +537,18 @@ export function ownMargin(x: BenchInputs):
       needs: Need[];
     }
   | { needs: Need[]; why: string } {
+  const { tr } = w;
   const r = x.revenue;
   if (!r)
     return {
-      why: "It needs your monthly revenue.",
-      needs: [{ what: "your monthly revenue", href: BENCH_ASK.revenue }],
+      why: tr("why.needsRevenue"),
+      needs: [{ what: tr("need.revenue"), href: BENCH_ASK.revenue }],
     };
-  if (r.amount_minor <= 0)
-    return { why: "Your monthly revenue is zero, so there's no margin to work out.", needs: [] };
+  if (r.amount_minor <= 0) return { why: tr("why.zeroRevenue"), needs: [] };
   const cur = r.currency;
   const same = (m: MoneyFact | null): m is MoneyFact => m !== null && m.currency === cur;
   const derived = ["revenue.monthly_revenue"];
-  const inputs: OwnInput[] = [moneyInput("Revenue a month", r)];
+  const inputs: OwnInput[] = [moneyInput(tr("input.revenue"), r, w)];
   const leftOut: string[] = [];
   const needs: Need[] = [];
 
@@ -454,27 +566,33 @@ export function ownMargin(x: BenchInputs):
     for (const o of sold)
       derived.push(`${o.key}.price`, `${o.key}.cost_to_deliver`, `${o.key}.volume_period`);
     inputs.push({
-      label: "Cost of sales",
-      value: `${pctText(costShare * 100)} of sales`,
+      label: tr("input.costOfSales"),
+      value: tr("input.ofSales", { share: pctText(costShare * 100, w) }),
       basis: "DERIVED",
-      source: `what your ${sold.length === 1 ? "offer costs" : `${sold.length} offers cost`} to deliver, at your prices and monthly volumes`,
+      source: tr("input.offersSource", {
+        count: sold.length,
+        n: countIn(sold.length, w.locale),
+      }),
     });
   } else if (x.gross_margin && x.gross_margin.value >= 0 && x.gross_margin.value <= 100) {
     fromGrossMargin = true;
     costShare = 1 - x.gross_margin.value / 100;
     derived.push("costs.gross_margin");
     inputs.push({
-      label: "Cost of sales",
-      value: `${pctText(costShare * 100)} of sales`,
+      label: tr("input.costOfSales"),
+      value: tr("input.ofSales", { share: pctText(costShare * 100, w) }),
       basis: x.gross_margin.basis,
-      source: `100% less your gross margin of ${pctText(x.gross_margin.value)}`,
+      source: tr("input.marginSource", {
+        whole: wholePctIn(100, w.locale),
+        margin: pctText(x.gross_margin.value, w),
+      }),
     });
   } else {
     return {
-      why: "It needs what your sales cost you: each offer's cost to deliver with how many you sell a month, or your gross margin.",
+      why: tr("why.needsCostOfSales"),
       needs: [
-        { what: "what each offer costs you to deliver", href: BENCH_ASK.offers },
-        { what: "your gross margin", href: BENCH_ASK.gross_margin },
+        { what: tr("need.offerCosts"), href: BENCH_ASK.offers },
+        { what: tr("need.grossMargin"), href: BENCH_ASK.gross_margin },
       ],
     };
   }
@@ -483,7 +601,7 @@ export function ownMargin(x: BenchInputs):
   // Review 2026-10-30: a stated gross margin already took these off; never twice.
   const alreadyIn = (c: CostLine): boolean => {
     if (!fromGrossMargin || !insideGrossMargin(enumCode(c.category))) return false;
-    leftOut.push(`${c.label}: already inside the gross margin you gave.`);
+    leftOut.push(tr("leftOut.inGrossMargin", { label: c.label }));
     return true;
   };
   // Review 2026-10-30: a salaries line that can't be counted refuses the margin,
@@ -502,7 +620,9 @@ export function ownMargin(x: BenchInputs):
     const amount = c.amount;
     if (!amount || amount.currency !== cur) {
       leftOut.push(
-        `${c.label}: ${amount ? `it's in ${amount.currency}, not ${cur}` : "it has no amount"}.`,
+        amount
+          ? tr("leftOut.otherCurrency", { label: c.label, currency: amount.currency, own: cur })
+          : tr("leftOut.noAmount", { label: c.label }),
       );
       missed(c);
       continue;
@@ -511,14 +631,12 @@ export function ownMargin(x: BenchInputs):
     if (count === null) {
       missed(c);
       leftOut.push(
-        cadence === "per_unit"
-          ? `${c.label}: it's per piece, and your offers list doesn't say how many you sell a month.`
-          : `${c.label}: it's per order, and I don't know how many orders you take a month.`,
+        tr(cadence === "per_unit" ? "leftOut.perPiece" : "leftOut.perOrder", { label: c.label }),
       );
       needs.push(
         cadence === "per_unit"
-          ? { what: "roughly how many of each offer you sell a month", href: BENCH_ASK.offers }
-          : { what: "roughly how many orders you take a month", href: BENCH_ASK.orders },
+          ? { what: tr("need.offerVolumes"), href: BENCH_ASK.offers }
+          : { what: tr("need.orders"), href: BENCH_ASK.orders },
       );
       continue;
     }
@@ -534,26 +652,24 @@ export function ownMargin(x: BenchInputs):
     if (cadence === "per_unit" || cadence === "per_job") continue;
     if (alreadyIn(c)) continue;
     if (costTreatment(enumCode(c.category)) === "financing") {
-      leftOut.push(
-        `${c.label}: a loan repayment, and Eurostat's rate is before interest and doesn't count the loan itself.`,
-      );
+      leftOut.push(tr("leftOut.loan", { label: c.label }));
       continue;
     }
     if (!c.amount) {
-      leftOut.push(`${c.label}: it has no amount.`);
-      needs.push({ what: `the amount of ${c.label}`, href: BENCH_ASK.costs });
+      leftOut.push(tr("leftOut.noAmount", { label: c.label }));
+      needs.push({ what: tr("need.amountOf", { label: c.label }), href: BENCH_ASK.costs });
       missed(c);
       continue;
     }
     if (c.amount.currency !== cur) {
-      leftOut.push(`${c.label}: it's in ${c.amount.currency}, and I don't convert your own costs.`);
+      leftOut.push(tr("leftOut.noConvert", { label: c.label, currency: c.amount.currency }));
       missed(c);
       continue;
     }
     const months = cadence === null ? undefined : MONTHS[cadence];
     if (months === undefined) {
-      leftOut.push(`${c.label}: it has no frequency, so I can't make it a month.`);
-      needs.push({ what: `how often you pay ${c.label}`, href: BENCH_ASK.costs });
+      leftOut.push(tr("leftOut.noFrequency", { label: c.label }));
+      needs.push({ what: tr("need.howOften", { label: c.label }), href: BENCH_ASK.costs });
       missed(c);
       continue;
     }
@@ -562,46 +678,54 @@ export function ownMargin(x: BenchInputs):
   }
 
   if (staffMissed.length > 0) {
-    const one = staffMissed.length === 1;
     return {
-      why: `${one ? `The pay line ${staffMissed[0]!}` : `${staffMissed.length} pay lines`} on your costs list ${one ? "has" : "have"} no monthly amount in ${cur} I can count, and staff pay is too big a part of a margin to leave out.`,
-      needs: [
-        { what: `what you pay in salaries, in ${cur}, and how often`, href: BENCH_ASK.costs },
-      ],
+      why: tr("why.payLines", {
+        count: staffMissed.length,
+        n: countIn(staffMissed.length, w.locale),
+        label: staffMissed[0]!,
+        currency: cur,
+      }),
+      needs: [{ what: tr("need.salaries", { currency: cur }), href: BENCH_ASK.costs }],
     };
   }
-  const staff = staffPay(x, cur);
+  const staff = staffPay(x, cur, w);
   if ("needs" in staff) return { why: staff.why, needs: staff.needs };
   derived.push(...staff.from);
 
   if (perSale > 0)
     inputs.push({
-      label: "Per-sale costs a month",
-      value: wholeMoney(perSale, cur),
+      label: tr("input.perSale"),
+      value: wholeMoney(perSale, cur, w),
       basis: "DERIVED",
-      source: "your per-piece and per-order costs, at your volumes",
+      source: tr("input.perSaleSource"),
     });
   if (running > 0)
     inputs.push({
-      label: "Running costs a month",
-      value: wholeMoney(running, cur),
+      label: tr("input.running"),
+      value: wholeMoney(running, cur, w),
       basis: "DERIVED",
-      source: `your costs list, made monthly${staff.source === "costs" ? ", staff pay included" : ""}`,
+      source: tr(staff.source === "costs" ? "input.runningStaffSource" : "input.runningSource"),
     });
   inputs.push(...staff.inputs);
 
   const surplus = r.amount_minor - costOfSales - perSale - running - staff.minor;
   const pct = Math.round((surplus / r.amount_minor) * 1000) / 10;
+  const part = (key: string, minor: number) => tr(key, { amount: wholeMoney(minor, cur, w) });
   const parts = [
-    `${wholeMoney(r.amount_minor, cur)} revenue`,
-    `${wholeMoney(costOfSales, cur)} cost of sales`,
-    ...(perSale > 0 ? [`${wholeMoney(perSale, cur)} per-sale costs`] : []),
-    ...(running > 0 ? [`${wholeMoney(running, cur)} running costs`] : []),
-    ...(staff.minor > 0 ? [`${wholeMoney(staff.minor, cur)} staff pay`] : []),
+    part("formula.revenue", r.amount_minor),
+    part("formula.costOfSales", costOfSales),
+    ...(perSale > 0 ? [part("formula.perSale", perSale)] : []),
+    ...(running > 0 ? [part("formula.running", running)] : []),
+    ...(staff.minor > 0 ? [part("formula.staff", staff.minor)] : []),
   ];
   return {
     pct,
-    formula: `(${parts.join(" − ")}) ÷ ${wholeMoney(r.amount_minor, cur)} × 100 = ${pctText(pct)}`,
+    formula: tr("formula.margin", {
+      parts: parts.join(" − "),
+      revenue: wholeMoney(r.amount_minor, cur, w),
+      hundred: num(100, 0, w.locale),
+      result: pctText(pct, w),
+    }),
     derived_from: [...new Set(derived)],
     inputs,
     left_out: leftOut,
@@ -621,28 +745,16 @@ function dedupe(needs: Need[]): Need[] {
 
 /* ── the lines ── */
 
-const GAP_NOTE: Record<LineKey, string> = {
-  operating_margin:
-    "Eurostat's rate is before the pay of owners who aren't on a payroll, and before interest, depreciation and tax. If your costs list includes pay for yourself, yours reads lower than theirs would.",
-  turnover_per_person:
-    "Eurostat's turnover leaves out VAT. If your revenue figure includes VAT, yours reads higher than theirs would.",
-  staff_cost_per_employee:
-    "Eurostat's figure includes the employer's social contributions, and counts a part-timer as one person. If your staff costs are the pay alone, yours reads lower than theirs would.",
-};
+/** A line's key, title and gap note ("benchmarksWords.title.<key>", "gapNote.<key>"). */
+function lineBase(key: LineKey, w: Words): LineBase {
+  return { key, title: w.tr(`title.${key}`), gap_note: w.tr(`gapNote.${key}`) };
+}
 
-const TITLE: Record<LineKey, string> = {
-  operating_margin: "Operating margin",
-  turnover_per_person: "Turnover a year per person",
-  staff_cost_per_employee: "Staff cost a year per employee",
-};
-
-function noCell(key: LineKey, head: BenchHead): RefusedLine {
+function noCell(key: LineKey, head: BenchHead, w: Words): RefusedLine {
   return {
-    key,
-    title: TITLE[key],
-    gap_note: GAP_NOTE[key],
+    ...lineBase(key, w),
     status: "refused",
-    why: `Eurostat publishes no figure for this for ${head.group} in ${head.country}, at any size, or for the wider group.`,
+    why: w.tr("why.noCell", { group: head.group, country: head.country }),
   };
 }
 
@@ -652,20 +764,19 @@ function marginLine(
   type: MappedType,
   head: BenchHead,
   sizes: string[],
+  w: Words,
 ): BenchLine {
   const key = "operating_margin";
-  const own = ownMargin(x);
+  const own = ownMargin(x, w);
   if ("why" in own)
     return {
-      key,
-      title: TITLE[key],
-      gap_note: GAP_NOTE[key],
+      ...lineBase(key, w),
       status: "missing",
       why: own.why,
       needs: own.needs,
     };
-  const pick = pickCell(s, head.geo, type, sizes, "GOR_PC");
-  if (!pick) return noCell(key, head);
+  const pick = pickCell(s, head.geo, type, sizes, "GOR_PC", w);
+  if (!pick) return noCell(key, head, w);
   const reading = readingOf(own.pct, pick.value.value);
   const base = {
     unit: "percent" as const,
@@ -675,14 +786,12 @@ function marginLine(
     reading,
   };
   return {
-    key,
-    title: TITLE[key],
-    gap_note: GAP_NOTE[key],
+    ...lineBase(key, w),
     status: "compared",
     ...base,
-    own_words: pctText(own.pct),
-    bench_words: pctText(pick.value.value),
-    gap_words: gapWords(base),
+    own_words: pctText(own.pct, w),
+    bench_words: pctText(pick.value.value, w),
+    gap_words: gapWords(base, w),
     formula: own.formula,
     derived_from: own.derived_from,
     inputs: own.inputs,
@@ -699,38 +808,33 @@ function turnoverLine(
   type: MappedType,
   head: BenchHead,
   sizes: string[],
+  w: Words,
 ): BenchLine {
+  const { tr } = w;
   const key = "turnover_per_person";
   const needs: Need[] = [];
-  if (!x.revenue) needs.push({ what: "your monthly revenue", href: BENCH_ASK.revenue });
+  if (!x.revenue) needs.push({ what: tr("need.revenue"), href: BENCH_ASK.revenue });
   if (!x.team_size || x.team_size.value < 1)
-    needs.push({
-      what: "how many people work in the business, you included",
-      href: BENCH_ASK.team_size,
-    });
+    needs.push({ what: tr("need.teamSize"), href: BENCH_ASK.team_size });
   if (needs.length > 0 || !x.revenue || !x.team_size) {
     return {
-      key,
-      title: TITLE[key],
-      gap_note: GAP_NOTE[key],
+      ...lineBase(key, w),
       status: "missing",
-      why: "It needs your monthly revenue and how many people work in the business.",
+      why: tr("why.needsTurnover"),
       needs,
     };
   }
   const r = x.revenue;
   const persons = x.team_size.value;
   const own = (r.amount_minor * BENCH.months_a_year) / persons;
-  const pick = pickCell(s, head.geo, type, sizes, "NETTUR_EMP_TEUR");
-  if (!pick) return noCell(key, head);
+  const pick = pickCell(s, head.geo, type, sizes, "NETTUR_EMP_TEUR", w);
+  if (!pick) return noCell(key, head, w);
   const conv = teurToMinor(s, pick.value.value, r.currency, pick.cell.year);
   if (!conv) {
     return {
-      key,
-      title: TITLE[key],
-      gap_note: GAP_NOTE[key],
+      ...lineBase(key, w),
       status: "refused",
-      why: `I have no euro rate for ${r.currency} in ${pick.cell.year}, so I can't set Eurostat's figure in your currency.`,
+      why: tr("why.noRate", { currency: r.currency, year: String(pick.cell.year) }),
     };
   }
   const reading = readingOf(own, conv.minor);
@@ -742,21 +846,25 @@ function turnoverLine(
     reading,
   };
   return {
-    key,
-    title: TITLE[key],
-    gap_note: GAP_NOTE[key],
+    ...lineBase(key, w),
     status: "compared",
     ...base,
-    own_words: wholeMoney(own, r.currency),
-    bench_words: wholeMoney(conv.minor, r.currency),
-    gap_words: gapWords(base),
-    formula: `${money(r.amount_minor, r.currency)} a month × 12 ÷ ${num(persons)} ${persons === 1 ? "person" : "people"} = ${wholeMoney(own, r.currency)}`,
+    own_words: wholeMoney(own, r.currency, w),
+    bench_words: wholeMoney(conv.minor, r.currency, w),
+    gap_words: gapWords(base, w),
+    formula: tr("formula.turnover", {
+      amount: money(r.amount_minor, r.currency, w),
+      months: num(BENCH.months_a_year, 0, w.locale),
+      count: persons,
+      persons: num(persons, 0, w.locale),
+      result: wholeMoney(own, r.currency, w),
+    }),
     derived_from: ["revenue.monthly_revenue", "identity.team_size"],
     inputs: [
-      moneyInput("Revenue a month", r),
+      moneyInput(tr("input.revenue"), r, w),
       {
-        label: "People working in the business, you included",
-        value: num(persons),
+        label: tr("input.people"),
+        value: num(persons, 0, w.locale),
         basis: x.team_size.basis,
         source: x.team_size.source,
       },
@@ -764,7 +872,7 @@ function turnoverLine(
     left_out: [],
     needs: [],
     cell: pick.cell,
-    conversion: conversionWords(r.currency, conv.rate, pick.cell.year),
+    conversion: conversionWords(r.currency, conv.rate, pick.cell.year, w),
   };
 }
 
@@ -774,15 +882,17 @@ function staffLine(
   type: MappedType,
   head: BenchHead,
   sizes: string[],
+  w: Words,
 ): BenchLine {
+  const { tr } = w;
   const key = "staff_cost_per_employee";
-  const common = { key, title: TITLE[key], gap_note: GAP_NOTE[key] } as const;
+  const common = lineBase(key, w);
   if (x.staff === null) {
     return {
       ...common,
       status: "missing",
-      why: "It needs your team list: who works in the business, and what each employee costs a month.",
-      needs: [{ what: "who works in the business", href: BENCH_ASK.staff }],
+      why: tr("why.needsTeam"),
+      needs: [{ what: tr("need.team"), href: BENCH_ASK.staff }],
     };
   }
   const employees = x.staff.filter(isEmployee);
@@ -790,7 +900,7 @@ function staffLine(
     return {
       ...common,
       status: "refused",
-      why: "Your team list has no employees, so there's no staff cost to compare.",
+      why: tr("why.noEmployees"),
     };
   const cur = x.revenue?.currency ?? employees.find((e) => e.cost)?.cost?.currency ?? null;
   let monthly: number | null = null;
@@ -801,10 +911,10 @@ function staffLine(
     from = employees.map((e) => `${e.key}.cost_monthly`);
     inputs = [
       {
-        label: "Staff pay a month",
-        value: money(monthly, cur),
+        label: tr("input.staffMonth"),
+        value: money(monthly, cur, w),
         basis: employees[0]!.cost!.basis,
-        source: "your team list",
+        source: tr("input.teamList"),
       },
     ];
   } else if (cur !== null) {
@@ -822,10 +932,10 @@ function staffLine(
       from = salaries.flatMap((c) => [`${c.key}.amount`, `${c.key}.cadence`]);
       inputs = [
         {
-          label: "Staff pay a month",
-          value: money(monthly, cur),
+          label: tr("input.staffMonth"),
+          value: money(monthly, cur, w),
           basis: salaries[0]!.amount!.basis,
-          source: "the salaries on your costs list",
+          source: tr("input.salariesSource"),
         },
       ];
     }
@@ -834,19 +944,19 @@ function staffLine(
     return {
       ...common,
       status: "missing",
-      why: "It needs what your employees cost a month.",
-      needs: [{ what: "what each employee costs a month", href: BENCH_ASK.staff }],
+      why: tr("why.needsStaffCost"),
+      needs: [{ what: tr("need.employeeCost"), href: BENCH_ASK.staff }],
     };
   }
   const own = (monthly * BENCH.months_a_year) / employees.length;
-  const pick = pickCell(s, head.geo, type, sizes, "AVG_EXPN_SAL_BEN_TEUR");
-  if (!pick) return noCell(key, head);
+  const pick = pickCell(s, head.geo, type, sizes, "AVG_EXPN_SAL_BEN_TEUR", w);
+  if (!pick) return noCell(key, head, w);
   const conv = teurToMinor(s, pick.value.value, cur, pick.cell.year);
   if (!conv)
     return {
       ...common,
       status: "refused",
-      why: `I have no euro rate for ${cur} in ${pick.cell.year}, so I can't set Eurostat's figure in your currency.`,
+      why: tr("why.noRate", { currency: cur, year: String(pick.cell.year) }),
     };
   const reading = readingOf(own, conv.minor);
   const base = {
@@ -860,35 +970,46 @@ function staffLine(
     ...common,
     status: "compared",
     ...base,
-    own_words: wholeMoney(own, cur),
-    bench_words: wholeMoney(conv.minor, cur),
-    gap_words: gapWords(base),
-    formula: `${money(monthly, cur)} a month × 12 ÷ ${num(employees.length)} ${employees.length === 1 ? "employee" : "employees"} = ${wholeMoney(own, cur)}`,
+    own_words: wholeMoney(own, cur, w),
+    bench_words: wholeMoney(conv.minor, cur, w),
+    gap_words: gapWords(base, w),
+    formula: tr("formula.staffCost", {
+      amount: money(monthly, cur, w),
+      months: num(BENCH.months_a_year, 0, w.locale),
+      count: employees.length,
+      employees: num(employees.length, 0, w.locale),
+      result: wholeMoney(own, cur, w),
+    }),
     derived_from: [...from, "operations.staff"],
     inputs: [
       ...inputs,
       {
-        label: "Employees on your team list",
-        value: num(employees.length),
+        label: tr("input.employees"),
+        value: num(employees.length, 0, w.locale),
         basis: "STATED",
-        source: "your team list, each person marked employee counted once",
+        source: tr("input.employeesSource"),
       },
     ],
     left_out: [],
     needs: [],
     cell: pick.cell,
-    conversion: conversionWords(cur, conv.rate, pick.cell.year),
+    conversion: conversionWords(cur, conv.rate, pick.cell.year, w),
   };
 }
 
-/** Pure: the comparison for one business, from its inputs and the snapshot. */
-export function compareWithSimilar(x: BenchInputs, s: Snapshot = SNAPSHOT): BenchResult {
+/** Pure: the comparison for one business, from its inputs and the snapshot, in `w`'s language. */
+export function compareWithSimilar(
+  x: BenchInputs,
+  s: Snapshot = SNAPSHOT,
+  w: Words = benchEnglish(),
+): BenchResult {
+  const { tr } = w;
   const code = enumCode(x.business_type);
   if (code === null) {
     return {
       status: "no_type",
-      why: "I don't know what kind of business this is yet.",
-      needs: [{ what: "what type of business this is", href: BENCH_ASK.type }],
+      why: tr("why.noType"),
+      needs: [{ what: tr("need.type"), href: BENCH_ASK.type }],
     };
   }
   const entry = typeEntry(code);
@@ -896,41 +1017,45 @@ export function compareWithSimilar(x: BenchInputs, s: Snapshot = SNAPSHOT): Benc
     return {
       status: "unmapped",
       type_code: code,
-      why: "I have no Eurostat group for this kind of business.",
+      why: tr("why.noGroup"),
     };
-  if (entry.nace === null) return { status: "unmapped", type_code: code, why: entry.why };
+  if (entry.nace === null)
+    return { status: "unmapped", type_code: code, why: unmappedWords(code, entry.why, w) };
   if (!x.country) {
     return {
       status: "no_country",
-      why: "I don't know which country the business is in.",
-      needs: [{ what: "which country the business operates in", href: BENCH_ASK.country }],
+      why: tr("why.noCountry"),
+      needs: [{ what: tr("need.country"), href: BENCH_ASK.country }],
     };
   }
   const geo = geoFor(x.country.iso);
   if (geo.status === "unknown") {
     return {
       status: "no_country",
-      why: `I can't tell which country "${x.country.raw}" is.`,
-      needs: [{ what: "which country the business operates in", href: BENCH_ASK.country }],
+      why: tr("why.unknownCountry", { country: x.country.raw }),
+      needs: [{ what: tr("need.country"), href: BENCH_ASK.country }],
     };
   }
   if (geo.status === "outside") {
     return {
       status: "outside_eu",
       country: x.country.raw,
-      why: `Eurostat's figures cover the 27 EU countries, and ${x.country.raw} isn't one of them.`,
+      why: tr("why.outsideEu", {
+        count: num(BENCHMARK_MAP.countries.eu27.length, 0, w.locale),
+        country: x.country.raw,
+      }),
     };
   }
   const size = sizeClassesFor(x.team_size?.value ?? null, x.size_band);
   const first = publishedSizes(s, geo.geo, entry.nace, size.codes)[0] ?? ALL_SIZES.code;
   const head: BenchHead = {
-    group: entry.group,
+    group: groupWords(entry.nace, entry.group, w),
     nace: entry.nace,
-    covers: entry.covers,
+    covers: coversWords(entry.nace, entry.covers, w),
     geo: geo.geo,
-    country: s.geos[geo.geo] ?? geo.geo,
+    country: countryWords(s, geo.geo, w),
     size: first,
-    size_words: sizeWords(first),
+    size_words: sizeWords(first, undefined, w),
     size_via: size.via,
   };
   return {
@@ -938,11 +1063,11 @@ export function compareWithSimilar(x: BenchInputs, s: Snapshot = SNAPSHOT): Benc
     as_of: x.as_of,
     head,
     lines: [
-      marginLine(x, s, entry, head, size.codes),
-      turnoverLine(x, s, entry, head, size.codes),
-      staffLine(x, s, entry, head, size.codes),
+      marginLine(x, s, entry, head, size.codes, w),
+      turnoverLine(x, s, entry, head, size.codes, w),
+      staffLine(x, s, entry, head, size.codes, w),
     ],
     source: s.source,
-    caveat: CAVEAT,
+    caveat: tr("caveat"),
   };
 }

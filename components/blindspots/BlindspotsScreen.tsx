@@ -8,9 +8,12 @@
 //
 // L-3b: the screen's own words are the "blindspots" catalogue; figures and
 // dates in the reader's locale. What the API words (a blindspot's label,
-// arithmetic and fix, the site note, the coverage lines, topic labels)
-// stays English until L-4.
+// arithmetic and fix, the site note, the coverage lines) arrives in the
+// reader's language (L-4b); the screen reads the site note's kind, never
+// its sentence. Topic labels are the model's stored words (L-5) and their
+// examples customers' own searches (content).
 
+import { fullStop } from "../../lib/i18n/punctuation";
 import "../../app/blindspots.css";
 import { useEffect, useState } from "react";
 import Link from "next/link";
@@ -44,6 +47,8 @@ interface View {
   window: { from: string; to: string };
   site_checked_at: string | null;
   site_note: string | null;
+  /** What stopped the site check (app/api/blindspots `SiteNoteKind`). */
+  site_note_kind: "no_site" | "unreadable" | "error" | null;
   blindspots: Blindspot[];
   hard_to_find: { code: string; label: string; page: string; asked: number }[];
   seen_not_chosen: { query: string; impressions: number; clicks: number; position: number }[];
@@ -89,9 +94,7 @@ function headline(view: View, tr: Tr): string {
   const n = view.blindspots.length;
   if (n === 0) {
     if (!view.site_checked_at) {
-      return view.site_note === "no website in the profile"
-        ? tr("head.noSite")
-        : tr("head.notRead");
+      return view.site_note_kind === "no_site" ? tr("head.noSite") : tr("head.notRead");
     }
     return tr("head.nothingMissing");
   }
@@ -262,12 +265,15 @@ function Frame({
 }
 
 function Coverage({ lines }: { lines: string[] }) {
-  const { tr } = useTr("blindspots");
+  const { tr, locale } = useTr("blindspots");
   return (
     <SheetCard label={tr("coverage.label")} title={tr("coverage.title")}>
       <ul className="bs-list">
         {lines.map((c) => (
-          <li key={c}>{c.charAt(0).toUpperCase() + c.slice(1)}.</li>
+          <li key={c}>
+            {c.charAt(0).toUpperCase() + c.slice(1)}
+            {fullStop(locale)}
+          </li>
         ))}
       </ul>
     </SheetCard>
@@ -345,7 +351,7 @@ export function BlindspotsScreen() {
           <p className="bs-copy">
             {view.site_checked_at
               ? tr("list.allThere")
-              : view.site_note === "no website in the profile"
+              : view.site_note_kind === "no_site"
                 ? tr("list.noSite")
                 : view.site_note
                   ? tr("list.notReadWhy", { why: view.site_note })

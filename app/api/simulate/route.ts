@@ -20,6 +20,8 @@ import { SegmentProposalError } from "../../../lib/crm/segment-proposals";
 import { gatherInputs } from "../../../lib/simulate/inputs";
 import { SimulateError, catalogOf, parseOption } from "../../../lib/simulate/model";
 import { proposeFromSimulation } from "../../../lib/simulate/propose";
+import { SIM_WORDS } from "../../../lib/simulate/words";
+import { requestWords } from "../../../lib/i18n/request-words";
 import { requireRole } from "../../../lib/auth/roles";
 
 function onError(event: string, error: unknown): NextResponse {
@@ -38,8 +40,11 @@ export async function GET(): Promise<NextResponse> {
   const access = await resolveAccess();
   if (!access) return NextResponse.json({ error: "no intake session" }, { status: 401 });
   try {
-    const inputs = await gatherInputs(access.profile_id);
-    return NextResponse.json({ inputs, catalog: catalogOf(inputs) });
+    // L-4b: the cross-check sentences and the catalog's titles in the reader's
+    // words; proposing (below) recomputes in English, since a proposal is stored.
+    const words = await requestWords(SIM_WORDS);
+    const inputs = await gatherInputs(access.profile_id, undefined, words);
+    return NextResponse.json({ inputs, catalog: catalogOf(inputs, words) });
   } catch (error) {
     return onError("simulate_read_failed", error);
   }

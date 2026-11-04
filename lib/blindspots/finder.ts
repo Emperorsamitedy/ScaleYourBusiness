@@ -16,7 +16,14 @@
 //
 // Every result names its coverage — what wasn't connected or checked —
 // and the queue that would fix it. Nothing changes on its own.
+//
+// L-4b: the report's sentences (a blindspot's label, arithmetic and fix,
+// the coverage lines) are "blindspotsWords" messages in the reader's
+// language, English by default; nothing in the report is stored. The
+// grouped topics are the model's stored labels over customers' own search
+// phrases, shown as they are (the labels are L-5; the phrases content).
 
+import { listSep } from "../i18n/punctuation";
 import { eq } from "drizzle-orm";
 import { db } from "../../db";
 import { businessProfiles, competitors } from "../../db/schema";
@@ -31,10 +38,19 @@ import { buildCallRecord, recordLlmCall } from "../llm/cost-log";
 import { ownerLanguageLine, withLanguage } from "../llm/language";
 import { ownerLanguage } from "../llm/language-of";
 import type { AppLocale } from "../i18n/locales";
+import { num } from "../../components/sheet/num";
+import type { Words } from "../i18n/request-words";
+import { englishTr } from "../i18n/tr";
 import { readCurrentField, writeField } from "../profile/field-store";
 import { shiftDay } from "../trust/series";
 import type { SiteChecks } from "./checks";
-import { BUSINESS_TYPE_KEY, SITE_CHECKS_KEY, checkLabel, checksFor } from "./checks";
+import {
+  BLINDSPOT_WORDS,
+  BUSINESS_TYPE_KEY,
+  SITE_CHECKS_KEY,
+  checkLabel,
+  checksFor,
+} from "./checks";
 import type { CodeDemand, Demand } from "./demand";
 import { readDemand } from "./demand";
 
@@ -85,9 +101,14 @@ export interface DemandTopic {
   examples: string[];
 }
 
-const FIX: Record<string, string> = {
-  default: "a website change through the approval queue, or an answer in your support assistant",
-};
+/** English over BLINDSPOT_WORDS: the default every sentence here takes. */
+const ENGLISH = (): Words => ({ tr: englishTr(BLINDSPOT_WORDS), locale: "en" });
+
+/** A count as English always printed it here (no grouping); the language's own elsewhere. */
+const countIn = (n: number, w: Words) => (w.locale === "en" ? String(n) : num(n, 0, w.locale));
+
+/** How a blindspot gets fixed: "blindspotsWords.fix.<code>", today one default for every code. */
+const fixWords = (_code: string, w: Words): string => w.tr("fix.default");
 
 function sourcesOf(d: CodeDemand, competitorsShowing: number): number {
   return (
@@ -98,30 +119,52 @@ function sourcesOf(d: CodeDemand, competitorsShowing: number): number {
   );
 }
 
-function arithmeticOf(d: CodeDemand, shown: number, checked: number): string {
+function arithmeticOf(d: CodeDemand, shown: number, checked: number, w: Words): string {
+  const { tr } = w;
+  const n = (x: number) => countIn(x, w);
   const parts: string[] = [];
   if (d.support_asked > 0)
     parts.push(
-      `asked ${d.support_asked} time(s) in your support chat${d.support_unanswered > 0 ? `, ${d.support_unanswered} left unanswered` : ""}`,
+      d.support_unanswered > 0
+        ? tr("arithmetic.askedUnanswered", {
+            count: d.support_asked,
+            n: n(d.support_asked),
+            unanswered: n(d.support_unanswered),
+          })
+        : tr("arithmetic.asked", { count: d.support_asked, n: n(d.support_asked) }),
     );
   else if (d.support_unanswered > 0)
-    parts.push(`${d.support_unanswered} unanswered support question(s)`);
-  if (d.site_searches > 0) parts.push(`searched for ${d.site_searches} time(s) on your site`);
+    parts.push(
+      tr("arithmetic.unanswered", { count: d.support_unanswered, n: n(d.support_unanswered) }),
+    );
+  if (d.site_searches > 0)
+    parts.push(tr("arithmetic.searched", { count: d.site_searches, n: n(d.site_searches) }));
   if (d.google_impressions > 0)
-    parts.push(`${d.google_impressions} Google search impression(s), ${d.google_clicks} click(s)`);
+    parts.push(
+      tr("arithmetic.google", {
+        count: d.google_impressions,
+        n: n(d.google_impressions),
+        clicks: n(d.google_clicks),
+      }),
+    );
   if (checked > 0 && shown > 0)
-    parts.push(`${shown} of ${checked} competitor(s) we checked show it`);
-  return parts.join("; ");
+    parts.push(
+      tr("arithmetic.competitors", { count: checked, shown: n(shown), checked: n(checked) }),
+    );
+  return tr("arithmetic.notFound", { details: parts.join(listSep(w.locale)) });
 }
 
-/** Pure: the join and the ranking. Exported for tests. */
-export function rankBlindspots(args: {
-  codes: readonly string[];
-  shown: Record<string, string | null> | null;
-  demand: Map<string, CodeDemand>;
-  competitorShows: Map<string, number>;
-  competitorsChecked: number;
-}): { blindspots: Blindspot[]; hard_to_find: BlindspotReport["hard_to_find"] } {
+/** Pure: the join and the ranking, worded in `w`'s language. Exported for tests. */
+export function rankBlindspots(
+  args: {
+    codes: readonly string[];
+    shown: Record<string, string | null> | null;
+    demand: Map<string, CodeDemand>;
+    competitorShows: Map<string, number>;
+    competitorsChecked: number;
+  },
+  w: Words = ENGLISH(),
+): { blindspots: Blindspot[]; hard_to_find: BlindspotReport["hard_to_find"] } {
   const blindspots: Blindspot[] = [];
   const hard: BlindspotReport["hard_to_find"] = [];
   for (const code of args.codes) {
@@ -136,7 +179,7 @@ export function rankBlindspots(args: {
     const page = args.shown?.[code] ?? null;
     if (args.shown !== null && page !== null) {
       if (d.support_asked >= FINDER.hard_to_find_asks) {
-        hard.push({ code, label: checkLabel(code), page, asked: d.support_asked });
+        hard.push({ code, label: checkLabel(code, w.tr), page, asked: d.support_asked });
       }
       continue;
     }
@@ -145,13 +188,13 @@ export function rankBlindspots(args: {
     if (sources === 0) continue;
     blindspots.push({
       code,
-      label: checkLabel(code),
+      label: checkLabel(code, w.tr),
       demand: d,
       competitors_showing: showing,
       competitors_checked: args.competitorsChecked,
       sources,
-      arithmetic: `not found on your site; ${arithmeticOf(d, showing, args.competitorsChecked)}`,
-      fix: FIX[code] ?? (FIX.default as string),
+      arithmetic: arithmeticOf(d, showing, args.competitorsChecked, w),
+      fix: fixWords(code, w),
     });
   }
   blindspots.sort(
@@ -176,10 +219,11 @@ async function businessTypeOf(profileId: string): Promise<string | null> {
     : ((type?.value as { code?: string } | null)?.code ?? null);
 }
 
-/** The blindspot report from what is stored today. No model call, no fetch. */
+/** The blindspot report from what is stored today, in `w`'s language. No model call, no fetch. */
 export async function buildBlindspots(
   profileId: string,
   now: Date = new Date(),
+  w: Words = ENGLISH(),
 ): Promise<BlindspotReport> {
   const to = shiftDay(now.toISOString().slice(0, 10), -1);
   const from = shiftDay(to, -(FINDER.window_days - 1));
@@ -205,31 +249,33 @@ export async function buildBlindspots(
     }
   }
 
-  const ranked = rankBlindspots({
-    codes,
-    shown: site?.results ?? null,
-    demand: demand.by_code,
-    competitorShows,
-    competitorsChecked: checked,
-  });
+  const ranked = rankBlindspots(
+    {
+      codes,
+      shown: site?.results ?? null,
+      demand: demand.by_code,
+      competitorShows,
+      competitorsChecked: checked,
+    },
+    w,
+  );
   const stored =
     (await readCurrentField<{ topics: DemandTopic[] }>(profileId, TOPICS_KEY))?.value?.topics ?? [];
 
+  const { tr } = w;
   const coverage: string[] = [];
-  if (!site)
-    coverage.push("your website hasn't been checked yet, so nothing can be called missing from it");
-  if (!demand.sources.support) coverage.push("no support conversations in the window");
-  if (!demand.sources.site)
-    coverage.push("no site-search terms (Google Analytics with site search)");
-  if (!demand.sources.google) coverage.push("no Google searches (connect Search Console)");
-  if (demand.sources.google)
-    coverage.push(
-      "Google hides rare searches for privacy, so the searches counted add up to a little less than Google's total",
-    );
-  if (checked === 0) coverage.push("no competitors researched");
+  if (!site) coverage.push(tr("coverage.siteNotChecked"));
+  if (!demand.sources.support) coverage.push(tr("coverage.noSupport"));
+  if (!demand.sources.site) coverage.push(tr("coverage.noSiteSearch"));
+  if (!demand.sources.google) coverage.push(tr("coverage.noGoogle"));
+  if (demand.sources.google) coverage.push(tr("coverage.googleHides"));
+  if (checked === 0) coverage.push(tr("coverage.noCompetitors"));
   if (demand.support_unmatched > 0)
     coverage.push(
-      `${demand.support_unmatched} support question(s) matched none of the usual checks — they're counted, not quoted`,
+      tr("coverage.unmatched", {
+        count: demand.support_unmatched,
+        n: countIn(demand.support_unmatched, w),
+      }),
     );
 
   return {

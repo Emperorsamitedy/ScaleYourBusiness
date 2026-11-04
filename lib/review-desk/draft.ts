@@ -62,6 +62,9 @@ import {
 import type { KnowledgeEntryRow } from "../support/knowledge";
 import { publicKnowledge, selectEntries } from "../support/knowledge";
 import { ReviewDeskError } from "./settings";
+import { moneyText } from "../../components/sheet/num";
+import type { Tr } from "../i18n/tr";
+import { englishTr } from "../i18n/tr";
 
 /** Model calls per review. A third "try again" is the owner's sign to write it themselves. */
 export const REVIEW_DRAFTS_PER_REVIEW = 3;
@@ -295,6 +298,32 @@ export const PROBLEM_MESSAGE: Readonly<Record<string, string>> = {
 export type ReplyOutcome =
   { drafted: true; review: ReviewRow } | { drafted: false; message: string };
 
+/** The words a refusal is said in: "reviewsWords" and the reader's locale (L-4b). */
+export interface DraftWords {
+  tr: Tr;
+  locale: AppLocale;
+}
+
+const englishDraftWords = (): DraftWords => ({ tr: englishTr("reviewsWords"), locale: "en" });
+
+/** Why no draft is shown, in `w` — English by default, as PROBLEM_MESSAGE says it. */
+export function refusalIn(
+  why: "unreadable" | "budget" | "cap" | "unreachable" | "empty" | "offer" | "name" | "contact",
+  { tr, locale }: DraftWords = englishDraftWords(),
+): string {
+  if (why === "budget") {
+    return tr("draft.budget", {
+      amount: moneyText(SUPPORT_MONTHLY_CAP_EUR * 100, "EUR", locale),
+    });
+  }
+  if (why === "cap") return tr("draft.cap", { count: REVIEW_DRAFTS_PER_REVIEW });
+  return tr(`draft.${why}`);
+}
+
+const PROBLEMS = new Set(["offer", "name", "contact"] as const);
+const isProblem = (p: string): p is "offer" | "name" | "contact" =>
+  PROBLEMS.has(p as "offer" | "name" | "contact");
+
 function platformName(platform: string): string {
   return platform in PLATFORM_LABELS
     ? PLATFORM_LABELS[platform as ReviewPlatformKey]
@@ -307,24 +336,20 @@ export async function draftReviewReply(args: {
   reviewId: string;
   llm?: ReviewReplyLlm;
   now?: Date;
+  /** The refusals' words (L-4b): the request's own, English by default. */
+  words?: DraftWords;
 }): Promise<ReplyOutcome> {
+  const say = args.words ?? englishDraftWords();
   const [review] = await db
     .select()
     .from(reviews)
     .where(and(eq(reviews.id, args.reviewId), eq(reviews.profile_id, args.profileId)));
   if (!review) throw new ReviewDeskError("no such review", 404);
   if (review.stars === null && review.text === null) {
-    return {
-      drafted: false,
-      message:
-        "I couldn't read what this review says, so I can't suggest a reply. Open it where it lives.",
-    };
+    return { drafted: false, message: refusalIn("unreadable", say) };
   }
   if ((await monthlySupportSpendEur(review.account_id, args.now)) >= SUPPORT_MONTHLY_CAP_EUR) {
-    return {
-      drafted: false,
-      message: `This month's support budget (€${SUPPORT_MONTHLY_CAP_EUR}) is spent, so I won't draft — write it yourself.`,
-    };
+    return { drafted: false, message: refusalIn("budget", say) };
   }
   // The per-review cap, reserved atomically before the call.
   const [reserved] = await db
@@ -333,10 +358,7 @@ export async function draftReviewReply(args: {
     .where(and(eq(reviews.id, review.id), lt(reviews.draft_calls, REVIEW_DRAFTS_PER_REVIEW)))
     .returning({ n: reviews.draft_calls });
   if (!reserved) {
-    return {
-      drafted: false,
-      message: `I've suggested a reply to this review ${REVIEW_DRAFTS_PER_REVIEW} times already — write this one yourself.`,
-    };
+    return { drafted: false, message: refusalIn("cap", say) };
   }
 
   const name = await readCurrentField<string>(args.profileId, BUSINESS_NAME_KEY);
@@ -377,11 +399,7 @@ export async function draftReviewReply(args: {
         name: error instanceof Error ? error.name : "unknown",
       }),
     );
-    return {
-      drafted: false,
-      message:
-        "I couldn't reach the drafting model just now — write it yourself, or try again later.",
-    };
+    return { drafted: false, message: refusalIn("unreachable", say) };
   }
   const draft = coerceReply(reply.text);
   const problem = draft === null ? "empty" : replyProblem(draft, review.reviewer);
@@ -395,10 +413,10 @@ export async function draftReviewReply(args: {
     }),
   );
   if (draft === null) {
-    return { drafted: false, message: "I couldn't draft a reply this time — write it yourself." };
+    return { drafted: false, message: refusalIn("empty", say) };
   }
   if (problem !== null) {
-    return { drafted: false, message: PROBLEM_MESSAGE[problem] ?? PROBLEM_MESSAGE.offer! };
+    return { drafted: false, message: refusalIn(isProblem(problem) ? problem : "offer", say) };
   }
   const [row] = await db
     .update(reviews)

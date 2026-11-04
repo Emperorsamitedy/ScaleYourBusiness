@@ -13,12 +13,16 @@ import { NextResponse } from "next/server";
 import { resolveAccess } from "../../../../lib/auth/access";
 import { logSafeError } from "../../../../lib/core/log-safe";
 import { gatherPricingInputs } from "../../../../lib/simulate/pricing-inputs";
+import { SIM_WORDS } from "../../../../lib/simulate/words";
+import { requestWords } from "../../../../lib/i18n/request-words";
 
 export async function GET(): Promise<NextResponse> {
   const access = await resolveAccess();
   if (!access) return NextResponse.json({ error: "no intake session" }, { status: 401 });
   try {
-    const inputs = await gatherPricingInputs(access.profile_id);
+    // L-4b: the figures' sources in the reader's words; the figures stay as measured.
+    const words = await requestWords(SIM_WORDS);
+    const inputs = await gatherPricingInputs(access.profile_id, undefined, words);
     return NextResponse.json({ inputs });
   } catch (error) {
     console.error(

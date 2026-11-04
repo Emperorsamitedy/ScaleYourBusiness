@@ -55,11 +55,25 @@ export function countFactOf(f: Field<unknown> | undefined): CountFact | null {
   return { value: v, basis, source: sourceWords(f, basis) };
 }
 
-/** Pure: a stated Money answer — a value, "I don't know" (rule 5), or nothing yet. */
+/** L-4b: which of sourceWords' own phrases a fact's source is, or null for a note. */
+function sourceKeyOf(f: Field<unknown>, basis: Basis): MoneyFact["source_key"] | null {
+  if (basis === "OBSERVED") return f.note ? null : "measured";
+  if (basis === "ESTIMATED") return "estimate";
+  if (basis === "DERIVED") return f.note ? null : "derived";
+  return "told";
+}
+
+/**
+ * Pure: a stated Money answer — a value, "I don't know" (rule 5), or
+ * nothing yet. L-4b: the fact names its source's phrase by key, so the
+ * screen words it in the reader's language (lib/cash/words factSource).
+ */
 export function moneyAnswer(f: Field<unknown> | undefined): Answer<MoneyFact> {
   if (f?.status === "unknown") return { status: "unknown" };
   const fact = moneyFactOf(f);
-  return fact ? { status: "known", fact } : { status: "missing" };
+  if (!fact) return { status: "missing" };
+  const key = sourceKeyOf(f!, fact.basis);
+  return { status: "known", fact: key ? { ...fact, source_key: key } : fact };
 }
 
 /** Pure: the codes of a select or multi-select answer. */

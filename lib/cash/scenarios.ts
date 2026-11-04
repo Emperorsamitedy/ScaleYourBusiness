@@ -19,16 +19,24 @@
 // can change every one. A scenario without the figure it needs says what
 // would fill it rather than inventing one. Nothing here acts on any of it:
 // a scenario is arithmetic for the owner to read (rule 26).
+//
+// L-4b: each scenario's title, change, assumptions and why come from the
+// "cashWords" catalogue through optional words, English by default. What
+// what-if pricing hands over (its change title, its band's source) is
+// lib/simulate's own wording, carried as given.
 
 import type { Range } from "./model";
 import type { Adjust, CashInputs, CashReady, Need } from "./model";
 import { CASH, firsts, forecastCash, wholeMoney } from "./model";
+import type { Words } from "./words";
+import { cashEnglish, wholePct } from "./words";
 import { shortDate } from "../charts/model";
 import { enumCode } from "../core/enum-value";
 import { minorUnitExponent } from "../core/money";
 import type { PriceItemRaw, PriceResult } from "../simulate/pricing";
 import { PRICING } from "../simulate/pricing";
 import { BAND_SOURCE } from "../simulate/pricing-bands";
+import type { SimText } from "../simulate/words";
 import { CASH_ASK } from "./keys";
 import type { TightWeek } from "./warnings";
 import { tightWeek } from "./warnings";
@@ -69,15 +77,18 @@ export interface PriceEffect {
 export function priceEffect(
   r: PriceResult,
   item: Pick<PriceItemRaw, "kind" | "name">,
+  words: Words = cashEnglish(),
+  /** What-if pricing's own words, for its band's source; English (BAND_SOURCE) without. */
+  sim?: SimText,
 ): PriceEffect | null {
   const p = r.measures.profit;
   if (p.status !== "range") return null;
   const perWeek = item.kind === "service" ? 7 / PRICING.horizon_days : 12 / 52;
   return {
-    title: `${r.title} on ${item.name}`,
+    title: words.tr("scenario.price.effect", { change: r.title, name: item.name }),
     weekly: { low: Math.round(p.range.low * perWeek), high: Math.round(p.range.high * perWeek) },
     currency: r.currency,
-    source: BAND_SOURCE,
+    source: sim ? sim.tr("pricing.bandSource") : BAND_SOURCE,
   };
 }
 
@@ -106,9 +117,11 @@ export type ScenarioCell =
   | { status: "ready"; result: ScenarioResult }
   | { status: "missing"; kind: ScenarioKind; title: string; why: string; needs: Need[] };
 
-const pctWords = (x: number) => `${Math.round(x * 100)}%`;
-const weekWords = (f: CashReady, k: number) =>
-  k === 0 ? "this week" : `the week of ${shortDate(f.weeks[k]!.start)}`;
+/** The week a scenario starts in, as the catalogue's `when` select and its day. */
+const weekArgs = (f: CashReady, k: number, words: Words) => ({
+  when: k === 0 ? "now" : "later",
+  day: shortDate(f.weeks[k]!.start, words.locale),
+});
 const clampWeek = (k: number) =>
   Math.max(0, Math.min(CASH.horizon_weeks - 1, Math.floor(Number.isFinite(k) ? k : 0)));
 
@@ -149,50 +162,70 @@ export function adjustFor(s: Scenario, plain: CashReady): Adjust {
 function describe(
   s: Scenario,
   plain: CashReady,
+  words: Words,
 ): { title: string; change: string; assumptions: string[] } {
+  const { tr, locale } = words;
   const cur = plain.currency;
+  const whole = (minor: number) => wholeMoney(minor, cur, locale);
   switch (s.kind) {
-    case "slow_month":
+    case "slow_month": {
+      const share = wholePct(s.share, locale);
       return {
-        title: `A slow month (−${pctWords(s.share)})`,
-        change: `Sales ${pctWords(s.share)} lower for ${SCENARIO.slow_weeks} weeks from ${weekWords(plain, clampWeek(s.start_week))}.`,
-        assumptions: ["Per-sale costs fall with the sales; fixed costs don't."],
+        title: tr("scenario.slow.title", { share }),
+        change: tr("scenario.slow.change", {
+          share,
+          weeks: SCENARIO.slow_weeks,
+          ...weekArgs(plain, clampWeek(s.start_week), words),
+        }),
+        assumptions: [tr("scenario.slow.assumption")],
       };
+    }
     case "big_order":
       return {
-        title: `A big order (+${wholeMoney(s.amount_minor, cur)})`,
-        change: `One order of ${wholeMoney(s.amount_minor, cur)} in ${weekWords(plain, clampWeek(s.week))}.`,
-        assumptions: [
-          "It is paid in full that week, and its per-sale costs go out the same week at your usual share.",
-        ],
+        title: tr("scenario.order.title", { amount: whole(s.amount_minor) }),
+        change: tr("scenario.order.change", {
+          amount: whole(s.amount_minor),
+          ...weekArgs(plain, clampWeek(s.week), words),
+        }),
+        assumptions: [tr("scenario.order.assumption")],
       };
     case "hire":
       return {
-        title: `A hire (+${wholeMoney(s.monthly_minor, cur)} a month)`,
-        change: `${wholeMoney(s.monthly_minor, cur)} more going out on each 1st from ${weekWords(plain, clampWeek(s.from_week))}.`,
-        assumptions: ["The hire brings in no extra sales within the 13 weeks."],
+        title: tr("scenario.hire.title", { amount: whole(s.monthly_minor) }),
+        change: tr("scenario.hire.change", {
+          amount: whole(s.monthly_minor),
+          first: 1,
+          ...weekArgs(plain, clampWeek(s.from_week), words),
+        }),
+        assumptions: [tr("scenario.hire.assumption", { weeks: CASH.horizon_weeks })],
       };
     case "price":
       return {
-        title: `A price change (${s.effect.title})`,
-        change: `Profit ${signed(s.effect.weekly.low, cur)} to ${signed(s.effect.weekly.high, cur)} a week from this week, from what-if pricing.`,
-        assumptions: [
-          `It takes effect this week, and customers answer it as what-if pricing's band says (${s.effect.source}).`,
-        ],
+        title: tr("scenario.price.title", { change: s.effect.title }),
+        change: tr("scenario.price.change", {
+          low: signed(s.effect.weekly.low, cur, words),
+          high: signed(s.effect.weekly.high, cur, words),
+        }),
+        assumptions: [tr("scenario.price.assumption", { source: s.effect.source })],
       };
   }
 }
 
-function signed(minor: number, cur: string): string {
-  const w = wholeMoney(minor, cur);
+function signed(minor: number, cur: string, words: Words): string {
+  const w = wholeMoney(minor, cur, words.locale);
   return minor > 0 ? `+${w}` : w;
 }
 
 /** Pure: one scenario through the forecast, against the plain one. */
-export function runScenario(inputs: CashInputs, plain: CashReady, s: Scenario): ScenarioResult {
-  const f = forecastCash(inputs, adjustFor(s, plain));
+export function runScenario(
+  inputs: CashInputs,
+  plain: CashReady,
+  s: Scenario,
+  words: Words = cashEnglish(),
+): ScenarioResult {
+  const f = forecastCash(inputs, adjustFor(s, plain), words);
   if (f.status !== "ready") throw new Error("a scenario runs only on a forecast that is ready");
-  const d = describe(s, plain);
+  const d = describe(s, plain, words);
   return {
     kind: s.kind,
     title: d.title,
@@ -201,7 +234,7 @@ export function runScenario(inputs: CashInputs, plain: CashReady, s: Scenario): 
     lowest: f.lowest,
     end: f.end,
     vs_plain: { low: f.end.low - plain.end.low, high: f.end.high - plain.end.high },
-    tight: tightWeek(f),
+    tight: tightWeek(f, words),
     assumptions: d.assumptions,
   };
 }
@@ -281,11 +314,13 @@ export function compareScenarios(
   plain: CashReady,
   choice: ScenarioChoice,
   price: PriceEffect | null,
+  words: Words = cashEnglish(),
 ): ScenarioCell[] {
+  const { tr } = words;
   const cells: ScenarioCell[] = [];
   const run = (s: Scenario): ScenarioCell => ({
     status: "ready",
-    result: runScenario(inputs, plain, s),
+    result: runScenario(inputs, plain, s, words),
   });
   cells.push(run({ kind: "slow_month", share: choice.slow_share, start_week: choice.slow_week }));
   cells.push(
@@ -294,8 +329,8 @@ export function compareScenarios(
       : {
           status: "missing",
           kind: "big_order",
-          title: "A big order",
-          why: "Enter the order's size to see it.",
+          title: tr("scenario.order.titleMissing"),
+          why: tr("scenario.order.why"),
           needs: [],
         },
   );
@@ -305,9 +340,9 @@ export function compareScenarios(
       : {
           status: "missing",
           kind: "hire",
-          title: "A hire",
-          why: "No salary is on your costs list to size a hire by. Enter what one would cost you a month.",
-          needs: [{ what: "what a hire would cost you a month", href: CASH_ASK.costs }],
+          title: tr("scenario.hire.titleMissing"),
+          why: tr("scenario.hire.why"),
+          needs: [{ what: tr("scenario.hire.need"), href: CASH_ASK.costs }],
         },
   );
   cells.push(
@@ -316,12 +351,12 @@ export function compareScenarios(
       : {
           status: "missing",
           kind: "price",
-          title: "A price change",
+          title: tr("scenario.price.titleMissing"),
           why:
             price !== null
-              ? `What-if pricing works in ${price.currency} and your cash is in ${plain.currency}; I don't convert.`
-              : "What-if pricing needs one of your offers with a price, a cost to deliver and the number you sell a month.",
-          needs: [{ what: "an offer's price, cost and monthly sales", href: CASH_ASK.offers }],
+              ? tr("scenario.price.whyCurrency", { pricing: price.currency, cash: plain.currency })
+              : tr("scenario.price.whyNothing"),
+          needs: [{ what: tr("scenario.price.need"), href: CASH_ASK.offers }],
         },
   );
   return cells;

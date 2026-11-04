@@ -21,7 +21,11 @@
 // The window before is compared only when it passes the same two tests.
 
 import type { AppLocale } from "../i18n/locales";
+import { intlTag } from "../i18n/locales";
 import { dayMonth } from "../i18n/format";
+import type { Tr } from "../i18n/tr";
+import { englishTr } from "../i18n/tr";
+import { num } from "../../components/sheet/num";
 import type { CartLine } from "../../db/schema";
 import { shiftDay } from "../anomaly/baseline";
 
@@ -60,6 +64,48 @@ export const WIN_BACK = {
   statement:
     "Rule of thumb, not your number: of the carts a reminder email reaches, about 3–10% come back as an order.",
 } as const;
+
+/**
+ * L-4b: the sentences built here, in the reader's language — the
+ * "cartsWords" catalogue and the locale the figures go out in. English by
+ * default, exactly what was printed before.
+ */
+export interface CartsSentenceWords {
+  tr: Tr;
+  locale: AppLocale;
+}
+export const englishCartsWords = (): CartsSentenceWords => ({
+  tr: englishTr("cartsWords"),
+  locale: "en",
+});
+
+/** A whole percent, "10%"; in another language its own way ("10 %"). */
+function wholePercent(whole: number, locale: AppLocale): string {
+  if (locale === "en") return `${whole}%`;
+  return new Intl.NumberFormat(intlTag(locale), {
+    style: "percent",
+    maximumFractionDigits: 0,
+  }).format(whole / 100);
+}
+
+/** A count as English always printed it here (no grouping); the locale's own elsewhere. */
+function count(n: number, locale: AppLocale): string {
+  return locale === "en" ? String(n) : num(n, 0, locale);
+}
+
+/** The rule of thumb's label and statement, for the screen (WIN_BACK keeps the English). */
+export function ruleOfThumb(w: CartsSentenceWords = englishCartsWords()): {
+  label: string;
+  statement: string;
+} {
+  return {
+    label: w.tr("ruleOfThumb.label"),
+    statement: w.tr("ruleOfThumb.statement", {
+      low: num(Math.round(WIN_BACK.low * 100), 0, w.locale),
+      high: wholePercent(Math.round(WIN_BACK.high * 100), w.locale),
+    }),
+  };
+}
 
 /** Why a cart's shopper can or can't be emailed — decided by the loader, per contact, every time. */
 export type CartReach =
@@ -233,14 +279,18 @@ function windowStats(
   };
 }
 
-/** Pure: the window's carts and orders, measured, or refused with why. */
-export function measureCarts(input: {
-  today: string;
-  carts: readonly CartFact[];
-  orders: readonly { day: string; count: number }[];
-  /** Each cart source's reads; omitted, freshness isn't judged. */
-  reads?: readonly CartReadFact[];
-}): CartsMeasure {
+/** Pure: the window's carts and orders, measured, or refused with why (in `words`, English by default). */
+export function measureCarts(
+  input: {
+    today: string;
+    carts: readonly CartFact[];
+    orders: readonly { day: string; count: number }[];
+    /** Each cart source's reads; omitted, freshness isn't judged. */
+    reads?: readonly CartReadFact[];
+  },
+  words: CartsSentenceWords = englishCartsWords(),
+): CartsMeasure {
+  const { tr, locale } = words;
   const to = shiftDay(input.today, -1);
   const from = shiftDay(input.today, -CARTS.window_days);
   const firstDay = input.carts.reduce<string | null>(
@@ -264,13 +314,13 @@ export function measureCarts(input: {
   });
   const lastRead = (r: CartReadFact) =>
     r.ok_at === null
-      ? "No read has landed in full yet."
-      : `The last full read was on ${dayWords(r.ok_at.slice(0, 10))}.`;
+      ? tr("measure.noFullRead")
+      : tr("measure.lastFullRead", { day: dayWords(r.ok_at.slice(0, 10), locale) });
   const tooMany = (input.reads ?? []).find((r) => r.too_many);
   if (tooMany) {
     return refuse(
       "too_many",
-      `${tooMany.label} has more abandoned checkouts in the last ${CARTS.read_days} days than one read can take, and I don't show part of them as the whole. ${lastRead(tooMany)}`,
+      `${tr("measure.tooMany", { source: tooMany.label, days: CARTS.read_days })} ${lastRead(tooMany)}`,
     );
   }
   const staleBefore = shiftDay(input.today, -CARTS.stale_after_days);
@@ -280,7 +330,10 @@ export function measureCarts(input: {
   if (stale) {
     return refuse(
       "stale",
-      `I last read your carts from ${stale.label} on ${dayWords(stale.ok_at!.slice(0, 10))}, so I'm not showing a figure that may be out of date. It comes back with the next good read.`,
+      tr("measure.stale", {
+        source: stale.label,
+        day: dayWords(stale.ok_at!.slice(0, 10), locale),
+      }),
     );
   }
 
@@ -289,13 +342,22 @@ export function measureCarts(input: {
     if (days < CARTS.min_days) {
       short.push(
         firstDay === null
-          ? "no carts read yet"
-          : `${days} day${days === 1 ? "" : "s"} of carts (I need ${CARTS.min_days})`,
+          ? tr("measure.thin.noCarts")
+          : tr("measure.thin.days", {
+              count: days,
+              n: count(days, locale),
+              min: count(CARTS.min_days, locale),
+            }),
       );
     }
     if (current.left < CARTS.min_carts) {
       short.push(
-        `${current.left} cart${current.left === 1 ? "" : "s"} left in the last ${CARTS.window_days} days (I need ${CARTS.min_carts})`,
+        tr("measure.thin.carts", {
+          count: current.left,
+          n: count(current.left, locale),
+          days: CARTS.window_days,
+          min: count(CARTS.min_carts, locale),
+        }),
       );
     }
     // A day short is a date; a cart short isn't — nobody knows when the next one is left.
@@ -303,10 +365,20 @@ export function measureCarts(input: {
       firstDay !== null && current.left >= CARTS.min_carts
         ? shiftDay(firstDay, CARTS.min_days)
         : null;
+    const once = { count: CARTS.min_carts, days: CARTS.window_days };
     const when =
       ready_from !== null
-        ? `It will be ready from ${dayWords(ready_from)}.`
-        : `It will be ready once ${CARTS.min_carts} carts are left within ${CARTS.window_days} days${days < CARTS.min_days && firstDay !== null ? `, and not before ${dayWords(shiftDay(firstDay, CARTS.min_days))}` : ""}.`;
+        ? tr("measure.thin.readyFrom", { day: dayWords(ready_from, locale) })
+        : days < CARTS.min_days && firstDay !== null
+          ? tr("measure.thin.readyOnceNotBefore", {
+              ...once,
+              day: dayWords(shiftDay(firstDay, CARTS.min_days), locale),
+            })
+          : tr("measure.thin.readyOnce", once);
+    const shortWords =
+      short.length === 2
+        ? tr("measure.thin.and", { first: short[0]!, last: short[1]! })
+        : short.join("");
     return {
       status: "refused",
       basis: "thin",
@@ -315,7 +387,7 @@ export function measureCarts(input: {
       days,
       left: current.left,
       ready_from,
-      reason: `Too little to measure yet: ${short.join(" and ")}. ${when}`,
+      reason: `${tr("measure.thin.reason", { short: shortWords })} ${when}`,
     };
   }
 
@@ -392,7 +464,13 @@ export function measureCarts(input: {
     prior: priorOk ? priorStats : null,
     prior_note: priorOk
       ? null
-      : `No comparison yet: the ${CARTS.window_days} days before have ${pDays} day${pDays === 1 ? "" : "s"} of carts and ${priorStats.left} left, and a comparison needs ${CARTS.min_days} days and ${CARTS.min_carts} carts.`,
+      : tr("measure.priorNote", {
+          days: CARTS.window_days,
+          covered: pDays,
+          left: count(priorStats.left, locale),
+          minDays: CARTS.min_days,
+          minCarts: CARTS.min_carts,
+        }),
     products,
     truncated: left.filter((c) => c.lines_truncated).length,
     reach: { shoppers: hashes.size + anonymous, emailable_shoppers: emailable.size, carts },

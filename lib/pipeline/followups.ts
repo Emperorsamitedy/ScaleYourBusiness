@@ -52,9 +52,9 @@ import { checkHardLimits, ensureHardLimits, limitCaption } from "../proposals/ha
 import type { ProposalRow } from "../proposals/service";
 import { createProposal } from "../proposals/service";
 import { suppressedKinds } from "../trust/suppression";
-import { DealError, NOT_B2B, dealFacts, dealValue, listDeals, pipelineApplies } from "./deals";
-import type { DealAge, Staleness } from "./maths";
-import { dealAge, staleDeals, staleness } from "./maths";
+import { DealError, dealFacts, dealValue, listDeals, pipelineApplies } from "./deals";
+import type { DealAge, PipelineSentenceWords, Staleness } from "./maths";
+import { dealAge, englishPipelineWords, staleDeals, staleness } from "./maths";
 import type { DealStage } from "./stages";
 import { STAGE_LABELS, isOpenStage } from "./stages";
 import { watchingUntil } from "../care/watch-words";
@@ -102,6 +102,10 @@ export function staleWords(stale: Staleness): string {
     : `the next step was due ${stale.due} (${stale.days_over} day${stale.days_over === 1 ? "" : "s"} ago)`;
 }
 
+/** The bank questions the hold sentences name (6.1a who they sell to, 6.4b customer consent). */
+export const B2B_QUESTION = "6.1a";
+export const CONSENT_QUESTION = "6.4b";
+
 /** Pure: the summary on the queue card. It names no one (rule 22). */
 export function followUpSummary(stage: DealStage, age: DealAge): string {
   return `Follow up a quiet deal: ${quietWords(stage, age)}`;
@@ -115,14 +119,18 @@ export function followUpSummary(stage: DealStage, age: DealAge): string {
 export async function followUpHold(
   profileId: string,
   now: Date = new Date(),
+  words: PipelineSentenceWords = englishPipelineWords(),
 ): Promise<string | null> {
-  if (!(await pipelineApplies(profileId))) return NOT_B2B;
+  // L-4b: in the screen's words; in English exactly NOT_B2B and the 6.4b line as before.
+  if (!(await pipelineApplies(profileId))) {
+    return words.tr("hold.notB2b", { question: B2B_QUESTION });
+  }
   const care = await careState(profileId);
   if (care?.watch_ends_at && now.toISOString() < care.watch_ends_at) {
     return watchingUntil(care.watch_ends_at);
   }
   if ((await outboundPosture(profileId)) === "disabled") {
-    return 'your own answer on customer consent (6.4b) was "no consent" — I don’t propose emails until your data says otherwise';
+    return words.tr("hold.noConsent", { question: CONSENT_QUESTION });
   }
   return null;
 }
@@ -133,8 +141,11 @@ export async function followUpHold(
  */
 export async function proposeFollowUps(
   profileId: string,
-  opts: { now?: Date; limitLlm?: LimitLlm } = {},
+  opts: { now?: Date; limitLlm?: LimitLlm; words?: PipelineSentenceWords } = {},
 ): Promise<FollowUpOutcome> {
+  // L-4b: the skip reasons go back to the screen in its words; the proposal
+  // itself (summary, assumptions) is stored in English, whatever they are.
+  const { tr } = opts.words ?? englishPipelineWords();
   const now = opts.now ?? new Date();
   const today = now.toISOString().slice(0, 10);
   const out: FollowUpOutcome = { created: [], blocked: [], skipped: [] };
@@ -145,7 +156,7 @@ export async function proposeFollowUps(
     .where(eq(businessProfiles.id, profileId));
   if (!profile) throw new DealError("no such profile", 404);
 
-  const hold = await followUpHold(profileId, now);
+  const hold = await followUpHold(profileId, now, opts.words);
   if (hold !== null) {
     out.skipped.push({ deal_id: null, reason: hold });
     return out;
@@ -157,7 +168,7 @@ export async function proposeFollowUps(
     today,
   );
   if (stale.length === 0) {
-    out.skipped.push({ deal_id: null, reason: "no deal has gone quiet" });
+    out.skipped.push({ deal_id: null, reason: tr("skip.noneQuiet") });
     return out;
   }
   const { limits } = await ensureHardLimits(profileId, opts.limitLlm);
@@ -172,31 +183,32 @@ export async function proposeFollowUps(
     if (out.created.length + out.blocked.length >= FOLLOWUP.max_per_run) {
       out.skipped.push({
         deal_id: s.deal.id,
-        reason: `I propose ${FOLLOWUP.max_per_run} at a time — this one waits for the next run`,
+        reason: tr("skip.perRun", { max: FOLLOWUP.max_per_run }),
       });
       continue;
     }
     const ref = `pipeline:followup:${s.deal.id}:${monthKey(now)}`;
     if (seen.has(ref)) {
-      out.skipped.push({ deal_id: s.deal.id, reason: "already proposed this month" });
+      out.skipped.push({ deal_id: s.deal.id, reason: tr("skip.already") });
       continue;
     }
     const row = rows.find((r) => r.deal.id === s.deal.id)!;
     const [contact] = await db.select().from(contacts).where(eq(contacts.id, row.contact.id));
     const permission = contact
       ? await canEmailForMarketing(contact)
-      : { allowed: false, reason: "the contact is gone" };
+      : { allowed: false, reason: tr("skip.contactGone") };
     if (!permission.allowed) {
       out.skipped.push({
         deal_id: s.deal.id,
-        reason: `I can't propose an email: ${permission.reason}. Call them, or record their consent on Customers.`,
+        // permission.reason is lib/crm's own English (L-4b: not this area's words).
+        reason: tr("skip.cantEmail", { why: permission.reason }),
       });
       continue;
     }
     if (suppression) {
       out.skipped.push({
         deal_id: s.deal.id,
-        reason: `you've declined follow-ups ${suppression.rejections} times — I've stopped proposing them`,
+        reason: tr("skip.declined", { count: suppression.rejections }),
       });
       continue;
     }

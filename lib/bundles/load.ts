@@ -27,7 +27,9 @@ import {
   orderBaskets,
 } from "../../db/schema";
 import { shiftDay } from "../anomaly/baseline";
-import { sourceLabel } from "../charts/load";
+import type { SeasonWords } from "../seasons/forecast";
+import { englishSeasonWords } from "../seasons/forecast";
+import { sourceLabelIn } from "../seasons/load";
 import { mappingKey } from "../connectors/mapping";
 import type { OfferEconomics } from "../economics/unit-economics";
 import { computeEconomics } from "../economics/unit-economics";
@@ -145,9 +147,9 @@ async function storeTitles(connectionId: string): Promise<Map<string, string>> {
   return new Map([...out].map(([ref, v]) => [ref, v.name]));
 }
 
-function shortRef(ref: string): string {
+function shortRef(ref: string, w: SeasonWords): string {
   const tail = ref.split("/").at(-1) ?? ref;
-  return `Product ${tail}`;
+  return w.tr("product", { ref: tail });
 }
 
 /**
@@ -157,14 +159,25 @@ function shortRef(ref: string): string {
 export const NAMED_REFS: ReadonlySet<string> = new Set(["square"]);
 
 /** Pure: an item's name when nothing better is known — the name itself, or "Product <id>". */
-export function fallbackName(provider: string, ref: string): string {
-  return NAMED_REFS.has(provider) ? ref : shortRef(ref);
+export function fallbackName(
+  provider: string,
+  ref: string,
+  words: SeasonWords = englishSeasonWords(),
+): string {
+  return NAMED_REFS.has(provider) ? ref : shortRef(ref, words);
 }
 
+/**
+ * The pairs. L-4b: what SYB words (a source's label, an unnamed product,
+ * a margin's why) is in `words`, English by default — proposeBundle reads
+ * this view in English, because a proposal is stored (rule 7). Item names
+ * are the owner's or the store's own, as given.
+ */
 export async function loadBundles(
   accountId: string,
   profileId: string,
   now: Date = new Date(),
+  words: SeasonWords = englishSeasonWords(),
 ): Promise<BundlesView> {
   const today = now.toISOString().slice(0, 10);
   const to = shiftDay(today, -1);
@@ -226,12 +239,12 @@ export async function loadBundles(
     const nameOf = (ref: string) =>
       lookup.byRef.get(`${conn.provider}|${ref}`)?.name ??
       titles.get(ref) ??
-      fallbackName(conn.provider, ref);
+      fallbackName(conn.provider, ref, words);
     const result = minePairs(store[1].map((items) => ({ items })));
     view.sources.push({
       kind: "orders",
       connection_id: conn.id,
-      label: sourceLabel(conn.provider),
+      label: sourceLabelIn(conn.provider, words),
       from,
       to,
       result,
@@ -254,6 +267,7 @@ export async function loadBundles(
                     name: bName,
                     economics: economicsOf(lookup.byRef.get(`${conn.provider}|${p.b}`)),
                   },
+                  words.tr,
                 ),
                 sentence: pairSentence(p, aName, bName, "orders"),
               };
@@ -296,7 +310,7 @@ export async function loadBundles(
     view.sources.push({
       kind: "visits",
       connection_id: connId,
-      label: sourceLabel(conn.provider),
+      label: sourceLabelIn(conn.provider, words),
       from,
       to,
       result,
@@ -310,6 +324,7 @@ export async function loadBundles(
               margin: pairMargin(
                 { name: p.a, economics: economicsOf(offerFor(p.a)) },
                 { name: p.b, economics: economicsOf(offerFor(p.b)) },
+                words.tr,
               ),
               sentence: pairSentence(p, p.a, p.b, "visits"),
             }))

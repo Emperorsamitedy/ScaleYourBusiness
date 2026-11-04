@@ -6,7 +6,8 @@
 // L-3b: the fixed words are the "benchmarks" catalogue through an optional
 // translator, English by default; dates in the reader's locale. The cell,
 // size and country words, the figures and the caveat come from
-// lib/benchmarks and stay English until L-4.
+// lib/benchmarks, already in the reader's language (L-4b, the route's
+// "benchmarksWords").
 
 import type { AppLocale } from "../../lib/i18n/locales";
 import { dayMonthYear } from "../../lib/i18n/format";

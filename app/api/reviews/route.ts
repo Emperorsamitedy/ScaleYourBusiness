@@ -17,6 +17,7 @@ import { requireRole } from "../../../lib/auth/roles";
 import type { RoleAction } from "../../../lib/auth/roles";
 import { appOriginOf, isSameOriginPost } from "../../../lib/auth/same-origin";
 import { logSafeError } from "../../../lib/core/log-safe";
+import { requestWords } from "../../../lib/i18n/request-words";
 import { draftReviewReply } from "../../../lib/review-desk/draft";
 import { eraseReview } from "../../../lib/review-desk/erase";
 import { pasteReview, readPaste } from "../../../lib/review-desk/paste";
@@ -32,7 +33,9 @@ export async function GET(): Promise<NextResponse> {
   const access = await resolveAccess();
   if (!access) return NextResponse.json({ error: "no intake session" }, { status: 401 });
   try {
-    return NextResponse.json(await loadReviewsView(access.profile_id));
+    // L-4b: Google's last-read outcome in the reader's language; reviews are content.
+    const { tr } = await requestWords("reviewsWords");
+    return NextResponse.json(await loadReviewsView(access.profile_id, new Date(), tr));
   } catch (error) {
     console.error(
       JSON.stringify({
@@ -74,7 +77,11 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       }
       case "draft": {
         if (!id) return NextResponse.json({ error: "which review?" }, { status: 422 });
-        const out = await draftReviewReply({ profileId: access.profile_id, reviewId: id });
+        const out = await draftReviewReply({
+          profileId: access.profile_id,
+          reviewId: id,
+          words: await requestWords("reviewsWords"),
+        });
         return NextResponse.json(
           out.drafted ? { drafted: true } : { drafted: false, message: out.message },
         );

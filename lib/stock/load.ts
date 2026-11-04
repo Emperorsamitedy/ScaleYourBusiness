@@ -27,6 +27,8 @@ import type { RankedItem, StockItem } from "./assess";
 import { STOCK, assessItem, rankSlow, shiftDay } from "./assess";
 import { STOCK_APPLIES } from "./applies";
 import { STOCK_IMPORT_PROVIDER } from "./import";
+import type { Words } from "./words";
+import { englishStock } from "./words";
 
 export { STOCK_APPLIES };
 
@@ -97,11 +99,16 @@ async function offerInfo(profileId: string, providers: readonly string[]): Promi
   return out;
 }
 
-/** Read every source's latest snapshot and judge each item, as of `now`. */
+/**
+ * Read every source's latest snapshot and judge each item, as of `now`.
+ * L-4b: the stock file's label and each item's reason are in `w`, English
+ * by default; only the /stock screen passes the request's words.
+ */
 export async function loadStock(
   accountId: string,
   profileId: string,
   now: Date = new Date(),
+  w: Words = englishStock(),
 ): Promise<StockView> {
   const today = now.toISOString().slice(0, 10);
   const rows = await db
@@ -129,7 +136,7 @@ export async function loadStock(
   for (const c of conns) {
     const label =
       c.purpose === "import"
-        ? "Your stock file"
+        ? w.tr("source.file")
         : isProviderId(c.provider)
           ? getProvider(c.provider).label
           : c.provider;
@@ -268,7 +275,10 @@ export async function loadStock(
     sources.push({ connection_id: c.id, provider: c.provider, label, as_of: asOf, items: count });
   }
 
-  const judged: RankedItem[] = items.map((item) => ({ item, assessment: assessItem(item, today) }));
+  const judged: RankedItem[] = items.map((item) => ({
+    item,
+    assessment: assessItem(item, today, w),
+  }));
   const dead = await readCurrentField<Money>(profileId, DEAD_STOCK_KEY);
   return {
     today,

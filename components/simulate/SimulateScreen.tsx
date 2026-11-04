@@ -16,9 +16,10 @@
 //
 // L-3b (TASKS-LANGUAGES.md): the screen's fixed words are the "simulate"
 // catalogue, every figure in the reader's locale and the business's
-// currency. What lib/simulate words from the numbers — option titles and
-// "what", sources, needs, formulas, worst-case words, the cross-check and
-// the guard — stays English until L-4.
+// currency. L-4b: what lib/simulate words from the numbers — option titles
+// and "what", sources, needs, formulas, worst-case words, the guard — is the
+// "simulateWords" catalogue (useSimText); the cross-check and the catalog's
+// titles arrive from /api/simulate already in the reader's words.
 
 import type { ReactNode } from "react";
 import { useEffect, useMemo, useState } from "react";
@@ -29,7 +30,10 @@ import { minorUnitExponent } from "../../lib/core/money";
 import { dayMonthYear } from "../../lib/i18n/format";
 import type { AppLocale } from "../../lib/i18n/locales";
 import { basisName } from "../report/basis";
-import { useTr } from "../sheet/useTr";
+import { useAppLocale, useTr } from "../sheet/useTr";
+import type { Tr } from "../../lib/i18n/tr";
+import type { SimText } from "../../lib/simulate/words";
+import { SIM_WORDS } from "../../lib/simulate/words";
 import type {
   Catalog,
   Comparison,
@@ -58,6 +62,18 @@ export function useSimWords(): SimWords {
   const { tr, locale } = useTr("simulate");
   const { tr: sheet } = useTr("sheet");
   return { tr, sheet, locale };
+}
+
+/**
+ * L-4b: the sentences lib/simulate builds from the numbers — titles,
+ * sources, needs, formulas, the worst case, the guard — in the reader's
+ * words ("simulateWords"), held steady across renders so the arithmetic
+ * isn't redone for nothing.
+ */
+export function useSimText(): SimText {
+  const t = useTranslations(SIM_WORDS as "simulate") as unknown as Tr;
+  const locale = useAppLocale();
+  return useMemo(() => ({ tr: (key, values) => t(key, values), locale }), [t, locale]);
 }
 
 /** "As of" a day: English prints the day as it always has; another language its own way. */
@@ -606,6 +622,7 @@ function OptionCard({
 export function SimulateScreen() {
   const { tr, locale } = useTr("simulate");
   const t = useTranslations("simulate");
+  const text = useSimText();
   const [load, setLoad] = useState<Load>({ phase: "loading" });
   const [picks, setPicks] = useState<PickId[]>([]);
   const [shares, setShares] = useState<Record<string, number>>({});
@@ -639,8 +656,8 @@ export function SimulateScreen() {
   }, [ready, picks, shares, budget, adsCurrency]);
   const cmp = useMemo(() => {
     if (!ready || options.length < SIM.min_options || options.length > SIM.max_options) return null;
-    return compareOptions(options, ready.inputs);
-  }, [ready, options]);
+    return compareOptions(options, ready.inputs, text);
+  }, [ready, options, text]);
 
   if (load.phase === "signedout") {
     return (

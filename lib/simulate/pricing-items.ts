@@ -11,6 +11,8 @@ import type { Field } from "../core/field";
 import type { SnapshotView } from "../profile/snapshot";
 import type { Asks, CountFact, MoneyFact, PriceItemRaw, PricingInputs } from "./pricing";
 import { PRICING } from "./pricing";
+import type { SimText } from "./words";
+import { englishSimText, int, isoDay, section } from "./words";
 
 /** Where each missing input is asked (ux: a gap links to its question, never a guess). */
 export const ASK = {
@@ -40,15 +42,16 @@ function basisOfField(f: Field<unknown>): Basis | null {
   });
 }
 
-/** Where a fact came from, in words, by its basis. */
-function sourceWords(f: Field<unknown>, basis: Basis): string {
-  if (basis === "OBSERVED") return f.note ?? "measured from your connected account";
-  if (basis === "ESTIMATED") return "your estimate";
-  if (basis === "DERIVED") return f.note ?? "worked out from your other figures";
-  return "as you told me";
+/** Where a fact came from, in words, by its basis. The fact's own note is kept as written. */
+function sourceWords(f: Field<unknown>, basis: Basis, w: SimText): string {
+  const t = section(w, "items");
+  if (basis === "OBSERVED") return f.note ?? t("observed");
+  if (basis === "ESTIMATED") return t("estimated");
+  if (basis === "DERIVED") return f.note ?? t("derived");
+  return t("told");
 }
 
-function moneyFact(f: Field<unknown> | undefined): MoneyFact | null {
+function moneyFact(f: Field<unknown> | undefined, w: SimText): MoneyFact | null {
   if (!f || !VALUE_BEARING.has(f.status) || f.value === null) return null;
   const m = f.value as { amount_minor?: unknown; currency?: unknown };
   if (!Number.isSafeInteger(m.amount_minor) || typeof m.currency !== "string") return null;
@@ -58,29 +61,32 @@ function moneyFact(f: Field<unknown> | undefined): MoneyFact | null {
     amount_minor: m.amount_minor as number,
     currency: m.currency.toUpperCase(),
     basis,
-    source: sourceWords(f, basis),
+    source: sourceWords(f, basis, w),
   };
 }
 
-function countFact(f: Field<unknown> | undefined): CountFact | null {
+function countFact(f: Field<unknown> | undefined, w: SimText): CountFact | null {
   if (!f || !VALUE_BEARING.has(f.status) || f.value === null) return null;
   const v = typeof f.value === "number" ? f.value : Number(f.value);
   if (!Number.isFinite(v) || v < 0) return null;
   const basis = basisOfField(f);
   if (!basis) return null;
-  return { value: v, basis, source: sourceWords(f, basis) };
+  return { value: v, basis, source: sourceWords(f, basis, w) };
 }
 
 /** Pure: the priced items from a profile snapshot — one per offer that isn't discontinued. */
-export function offerItems(view: SnapshotView): PriceItemRaw[] {
+export function offerItems(view: SnapshotView, w: SimText = englishSimText()): PriceItemRaw[] {
   const out: PriceItemRaw[] = [];
   for (const e of view.entities.filter((x) => x.spine === "offers")) {
     const fact = (k: string) => view.facts.get(`offers.${e.id}.${k}`);
     if (enumCode(fact("lifecycle")?.value) === "discontinued") continue;
     const nameValue = fact("name")?.value;
-    const name = typeof nameValue === "string" && nameValue.trim() !== "" ? nameValue : "Unnamed";
-    const price = moneyFact(fact("price"));
-    const cost = moneyFact(fact("cost_to_deliver"));
+    const name =
+      typeof nameValue === "string" && nameValue.trim() !== ""
+        ? nameValue
+        : section(w, "items")("unnamed");
+    const price = moneyFact(fact("price"), w);
+    const cost = moneyFact(fact("cost_to_deliver"), w);
     out.push({
       key: `offer:${e.id}`,
       kind: "offer",
@@ -88,7 +94,7 @@ export function offerItems(view: SnapshotView): PriceItemRaw[] {
       currency: price?.currency ?? cost?.currency ?? "",
       price,
       unit_cost: cost,
-      volume: countFact(fact("volume_period")),
+      volume: countFact(fact("volume_period"), w),
       capacity: null,
       asks: OFFER_ASKS,
     });
@@ -97,16 +103,22 @@ export function offerItems(view: SnapshotView): PriceItemRaw[] {
 }
 
 /** Pure: per-order cost items — shown beside the arithmetic, never counted in a unit's cost. */
-export function perOrderCosts(view: SnapshotView): PricingInputs["per_order_costs"] {
+export function perOrderCosts(
+  view: SnapshotView,
+  w: SimText = englishSimText(),
+): PricingInputs["per_order_costs"] {
   const out: PricingInputs["per_order_costs"] = [];
   for (const e of view.entities.filter((x) => x.spine === "cost_items")) {
     const fact = (k: string) => view.facts.get(`costs.${e.id}.${k}`);
     if (enumCode(fact("cadence")?.value) !== "per_job") continue;
-    const amount = moneyFact(fact("amount"));
+    const amount = moneyFact(fact("amount"), w);
     if (!amount) continue;
     const label = fact("label")?.value;
     out.push({
-      label: typeof label === "string" && label.trim() !== "" ? label : "A per-order cost",
+      label:
+        typeof label === "string" && label.trim() !== ""
+          ? label
+          : section(w, "items")("perOrderCost"),
       amount_minor: amount.amount_minor,
       currency: amount.currency,
     });
@@ -127,14 +139,21 @@ export interface ServiceRow {
  * its completed appointments, the volume its completed count. Offers whose
  * name matches a service lend it their cost to deliver; nothing else.
  */
-export function serviceItems(args: {
-  rows: readonly ServiceRow[];
-  from: string;
-  to: string;
-  source: string;
-  capacityPerWeek: number | null;
-  offers: readonly PriceItemRaw[];
-}): PriceItemRaw[] {
+export function serviceItems(
+  args: {
+    rows: readonly ServiceRow[];
+    from: string;
+    to: string;
+    source: string;
+    capacityPerWeek: number | null;
+    offers: readonly PriceItemRaw[];
+  },
+  w: SimText = englishSimText(),
+): PriceItemRaw[] {
+  const t = section(w, "items");
+  const L = w.locale;
+  const from = isoDay(args.from, L);
+  const to = isoDay(args.to, L);
   const completed = args.rows.filter((r) => r.status === "completed");
   const taken = completed.length;
   const weeks = PRICING.horizon_days / 7;
@@ -144,7 +163,13 @@ export function serviceItems(args: {
           slots: args.capacityPerWeek * weeks,
           taken,
           basis: "DERIVED" as const,
-          source: `your stated ${args.capacityPerWeek} appointments a week × ${weeks} weeks, less the ${taken} completed ${args.from} to ${args.to}`,
+          source: t("capacitySource", {
+            perWeek: int(args.capacityPerWeek, L),
+            weeks: int(weeks, L),
+            taken: int(taken, L),
+            from,
+            to,
+          }),
         }
       : null;
   const groups = new Map<string, { name: string; currency: string; prices: number[] }>();
@@ -174,13 +199,13 @@ export function serviceItems(args: {
           amount_minor: avg,
           currency: g.currency,
           basis: "OBSERVED" as const,
-          source: `the average listed price of ${n} completed ${n === 1 ? "appointment" : "appointments"}, ${args.from} to ${args.to}, from ${args.source}`,
+          source: t("priceSource", { count: n, n: int(n, L), from, to, source: args.source }),
         },
         unit_cost: offer?.unit_cost ?? null,
         volume: {
           value: n,
           basis: "OBSERVED" as const,
-          source: `completed appointments ${args.from} to ${args.to}, from ${args.source}`,
+          source: t("volumeSource", { from, to, source: args.source }),
         },
         capacity,
         asks: {

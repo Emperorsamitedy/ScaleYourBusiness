@@ -72,6 +72,7 @@ import {
 } from "../../../lib/pipeline/stages";
 import { requireRole } from "../../../lib/auth/roles";
 import type { RoleAction } from "../../../lib/auth/roles";
+import { requestWords } from "../../../lib/i18n/request-words";
 
 /** Won and lost deals stay on the board this long after they close. */
 const CLOSED_SHOWN_DAYS = 90;
@@ -143,16 +144,19 @@ export async function GET(): Promise<NextResponse> {
     }
     const now = new Date();
     const today = now.toISOString().slice(0, 10);
+    // L-4b: what goes to the screen is in the reader's language; the forecast
+    // recorded on SYB's track record is built in English (rules 4, 7).
+    const words = await requestWords("pipelineWords");
     const [rows, stated, followups, held] = await Promise.all([
       listDeals(access.profile_id),
       statedWinRate(access.profile_id),
       followUpsFor(access.profile_id),
-      followUpHold(access.profile_id, now),
+      followUpHold(access.profile_id, now, words),
     ]);
     const facts = rows.map((r) => dealFacts(r.deal));
     const cards: DealCardView[] = rows.map((r, i) => ({
       id: r.deal.id,
-      who: r.deal.company?.trim() || r.contact.name?.trim() || "a contact with no name",
+      who: r.deal.company?.trim() || r.contact.name?.trim() || words.tr("noName"),
       contact_name: r.contact.name,
       title: r.deal.title,
       stage: r.deal.stage,
@@ -173,17 +177,20 @@ export async function GET(): Promise<NextResponse> {
             CLOSED_SHOWN_DAYS * 86_400_000),
     );
     const rate = winRate({ deals: facts, stated, today });
-    // I-54b: the windowed forecast goes on SYB's own track record, once a week.
-    const due = dueByForecast(facts, rate, today);
+    // I-54b: the windowed forecast goes on SYB's own track record, once a week —
+    // in English, as it is stored.
     await recordForecastsQuietly(
       pipelineClaims(
         { account_id: access.account_id, profile_id: access.profile_id },
-        due,
+        dueByForecast(facts, rate, today),
         today,
         new Date(),
       ),
       { account_id: access.account_id, event: "forecast_pipeline_recorded" },
     );
+    // The same figures, worded for the screen.
+    const shownRate = winRate({ deals: facts, stated, today }, words);
+    const due = dueByForecast(facts, shownRate, today, words);
     const stale: StaleView[] = cards
       .filter((c) => c.stale !== null)
       .sort((a, b) => b.age.days_quiet - a.age.days_quiet)
@@ -208,8 +215,8 @@ export async function GET(): Promise<NextResponse> {
       })),
       ageing: stageAgeing(facts, today),
       stale,
-      win_rate: rate,
-      weighted: weightedValue(facts, rate),
+      win_rate: shownRate,
+      weighted: weightedValue(facts, shownRate, words),
       due,
       win_rate_question: WIN_RATE_QUESTION,
       held,
@@ -348,7 +355,10 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         return NextResponse.json({ ...summary, rows: rows.length }, { status: 201 });
       }
       case "propose_followups": {
-        const out = await proposeFollowUps(access.profile_id);
+        // L-4b: the skip reasons in the reader's words; the proposals stay English.
+        const out = await proposeFollowUps(access.profile_id, {
+          words: await requestWords("pipelineWords"),
+        });
         return NextResponse.json({
           created: out.created.length,
           blocked: out.blocked.length,

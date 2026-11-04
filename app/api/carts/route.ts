@@ -25,7 +25,8 @@ import { careState } from "../../../lib/care/day-zero";
 import { watchingUntil } from "../../../lib/care/watch-words";
 import { cartsApply, loadCarts } from "../../../lib/carts/load";
 import type { CartsMeasure } from "../../../lib/carts/measure";
-import { CARTS, WIN_BACK } from "../../../lib/carts/measure";
+import { CARTS, WIN_BACK, ruleOfThumb } from "../../../lib/carts/measure";
+import { requestWords } from "../../../lib/i18n/request-words";
 import { abandonedCartSegment } from "../../../lib/carts/segment";
 import { checkoutConsentCounts } from "../../../lib/carts/consent";
 import type { CartShopperRead } from "../../../lib/connectors/provider";
@@ -90,7 +91,10 @@ export async function GET(): Promise<NextResponse> {
       return NextResponse.json({ applies: false } satisfies CartsScreenView);
     }
     const now = new Date();
-    const view = await loadCarts(access.account_id, access.profile_id, now);
+    // L-4b: the sentences sent to the screen are in the reader's language; the
+    // proposal (POST) is built and stored in English as before (rules 4, 7).
+    const words = await requestWords("cartsWords");
+    const view = await loadCarts(access.account_id, access.profile_id, now, words);
     const segment = abandonedCartSegment(
       view.facts,
       await recentCartRecipients(access.profile_id, now),
@@ -101,8 +105,9 @@ export async function GET(): Promise<NextResponse> {
       care?.watch_ends_at && now.toISOString() < care.watch_ends_at
         ? watchingUntil(care.watch_ends_at)
         : posture === "disabled"
-          ? "You told me your customers haven't agreed to marketing email, so I send none."
+          ? words.tr("held.noConsent")
           : null;
+    const rule = ruleOfThumb(words);
     const [proposal] = await db
       .select({
         id: proposals.id,
@@ -137,8 +142,8 @@ export async function GET(): Promise<NextResponse> {
       measure: view.measure,
       product_names: view.product_names,
       rule_of_thumb: {
-        label: WIN_BACK.label,
-        statement: WIN_BACK.statement,
+        label: rule.label,
+        statement: rule.statement,
         low: WIN_BACK.low,
         high: WIN_BACK.high,
       },

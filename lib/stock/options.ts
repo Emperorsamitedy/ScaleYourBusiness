@@ -21,10 +21,19 @@
 // efficient per euro, useless for the stock. The rates below are ASSUMPTIONS, pinned here and stated
 // on every proposal as assumptions with high sensitivity — nobody measured
 // how a post moves a mug. The readback (P3-25) will, once options run.
+//
+// L-4b: an option's label, why it can't be proposed, its arithmetic and the
+// efficiency line are the "stockWords" catalogue through optional words
+// (./words), English by default. The proposals made from them are stored,
+// so lib/stock/propose builds them with the default (rules 4 and 7); only
+// the /stock screen passes the request's words. The worst case and the
+// reversibility go into stored proposals only, and stay English.
 
 import type { ActionKind } from "../proposals/hard-limits";
 import type { Reversibility } from "../proposals/service";
 import type { StockItem } from "./assess";
+import type { Words } from "./words";
+import { dec2, englishStock, int, pct as pctIn } from "./words";
 
 export const CLEARANCE = {
   /** Share of the stock on hand a post featuring it is assumed to sell, at full price. */
@@ -123,22 +132,35 @@ function unitsOf(q: number, [lo, hi]: readonly [number, number], cap = q): Range
 }
 
 /** Pure: the five options for one item, unranked, with their arithmetic. */
-export function clearanceOptions(item: StockItem, ctx: OptionContext): ClearanceOption[] {
+export function clearanceOptions(
+  item: StockItem,
+  ctx: OptionContext,
+  w: Words = englishStock(),
+): ClearanceOption[] {
+  const { tr, locale } = w;
   const q = item.on_hand;
+  const qText = int(q, locale);
   const atPrice = item.value_at_price;
   const atCost = item.value_at_cost;
   // Recovered cash for u units at full price, from the value at price (no per-unit rounding drift).
   const full = (u: number) => (atPrice === null || q === 0 ? 0 : Math.round((atPrice * u) / q));
-  const pct = (n: number) => `${Math.round(n * 100)}%`;
-  const noPrice = atPrice === null ? "its selling price isn't known" : null;
+  const pct = (n: number) => pctIn(n, locale);
+  const noPrice = atPrice === null ? tr("option.noPrice") : null;
   const { fmt } = ctx;
+  /** The units and the cash back, low–high: every option's arithmetic carries them. */
+  const ends = (units: Range, recovered: Range) => ({
+    unitsLow: int(units.low, locale),
+    unitsHigh: int(units.high, locale),
+    backLow: fmt(recovered.low),
+    backHigh: fmt(recovered.high),
+  });
   const make = (
     key: OptionKey,
     o: Omit<ClearanceOption, "key" | "kind" | "label" | "per_euro">,
   ): ClearanceOption => ({
     key,
     kind: OPTION_KIND[key],
-    label: OPTION_LABEL[key],
+    label: tr(`option.label.${key}`),
     ...o,
     per_euro: o.given_up.expected > 0 ? o.recovered.expected / o.given_up.expected : null,
   });
@@ -151,13 +173,17 @@ export function clearanceOptions(item: StockItem, ctx: OptionContext): Clearance
     const recovered = range(full(units.low), full(units.high));
     out.push(
       make("content", {
-        unavailable:
-          noPrice ?? (ctx.content_channel === null ? "you don't run a channel to post on" : null),
+        unavailable: noPrice ?? (ctx.content_channel === null ? tr("option.noChannel") : null),
         units,
         recovered,
         given_up: ZERO,
         worst_case: "Nothing sells from the post; it cost your review time and nothing else.",
-        arithmetic: `${q} on hand × ${pct(CLEARANCE.content_sell_through[0])}–${pct(CLEARANCE.content_sell_through[1])} sold at full price = ${units.low}–${units.high} units, ${fmt(recovered.low)}–${fmt(recovered.high)}; nothing given up`,
+        arithmetic: tr("option.arithmetic.content", {
+          onHand: qText,
+          low: pct(CLEARANCE.content_sell_through[0]),
+          high: pct(CLEARANCE.content_sell_through[1]),
+          ...ends(units, recovered),
+        }),
         reversibility: {
           level: "easy",
           if_you_change_your_mind:
@@ -174,7 +200,7 @@ export function clearanceOptions(item: StockItem, ctx: OptionContext): Clearance
     const recovered = range(full(units.low), full(units.high));
     out.push(
       make("bundle", {
-        unavailable: noPrice ?? (bs === null ? "no best seller with stock to pair it with" : null),
+        unavailable: noPrice ?? (bs === null ? tr("option.noBestSeller") : null),
         units,
         recovered,
         given_up: ZERO,
@@ -182,8 +208,15 @@ export function clearanceOptions(item: StockItem, ctx: OptionContext): Clearance
           "Nobody takes the pair; you take it down and both sell as they did, at full price.",
         arithmetic:
           bs === null
-            ? "no best seller with stock on hand to pair it with"
-            : `${q} on hand × ${pct(CLEARANCE.bundle_sell_through[0])}–${pct(CLEARANCE.bundle_sell_through[1])}, capped at ${bs.on_hand} ${bs.name} on hand = ${units.low}–${units.high} units, ${fmt(recovered.low)}–${fmt(recovered.high)}; both at full price, nothing given up`,
+            ? tr("option.arithmetic.bundleNone")
+            : tr("option.arithmetic.bundle", {
+                onHand: qText,
+                low: pct(CLEARANCE.bundle_sell_through[0]),
+                high: pct(CLEARANCE.bundle_sell_through[1]),
+                cap: int(bs.on_hand, locale),
+                seller: bs.name,
+                ...ends(units, recovered),
+              }),
         reversibility: {
           level: "easy",
           if_you_change_your_mind:
@@ -203,13 +236,18 @@ export function clearanceOptions(item: StockItem, ctx: OptionContext): Clearance
     const recovered = range(full(units.low), full(units.high));
     out.push(
       make("email", {
-        unavailable:
-          noPrice ?? ctx.email_off ?? (n === 0 ? "no customer has said yes to email yet" : null),
+        unavailable: noPrice ?? ctx.email_off ?? (n === 0 ? tr("option.noConsent") : null),
         units,
         recovered,
         given_up: ZERO,
         worst_case: "Nobody buys, and a few unsubscribe — honoured at once and for good.",
-        arithmetic: `${n} customers who said yes to email × ${pct(CLEARANCE.email_buy_rate[0])}–${pct(CLEARANCE.email_buy_rate[1])} buying one, capped at ${q} on hand = ${units.low}–${units.high} units, ${fmt(recovered.low)}–${fmt(recovered.high)}; no discount, nothing given up`,
+        arithmetic: tr("option.arithmetic.email", {
+          customers: int(n, locale),
+          low: pct(CLEARANCE.email_buy_rate[0]),
+          high: pct(CLEARANCE.email_buy_rate[1]),
+          onHand: qText,
+          ...ends(units, recovered),
+        }),
         reversibility: {
           level: "hard",
           if_you_change_your_mind:
@@ -234,7 +272,15 @@ export function clearanceOptions(item: StockItem, ctx: OptionContext): Clearance
         given_up,
         worst_case:
           "Few sell even marked down, and regular customers learn to wait for the next one.",
-        arithmetic: `${q} on hand × ${pct(CLEARANCE.markdown_sell_through[0])}–${pct(CLEARANCE.markdown_sell_through[1])} sold at ${pct(cut)} off = ${units.low}–${units.high} units, ${fmt(recovered.low)}–${fmt(recovered.high)}, giving up ${fmt(given_up.low)}–${fmt(given_up.high)} of the full price`,
+        arithmetic: tr("option.arithmetic.markdown", {
+          onHand: qText,
+          low: pct(CLEARANCE.markdown_sell_through[0]),
+          high: pct(CLEARANCE.markdown_sell_through[1]),
+          cut: pct(cut),
+          ...ends(units, recovered),
+          givenLow: fmt(given_up.low),
+          givenHigh: fmt(given_up.high),
+        }),
         reversibility: {
           level: "moderate",
           if_you_change_your_mind:
@@ -255,7 +301,7 @@ export function clearanceOptions(item: StockItem, ctx: OptionContext): Clearance
         : range(Math.max(0, atPrice - recovered.high), Math.max(0, atPrice - recovered.low));
     out.push(
       make("selloff", {
-        unavailable: atCost === null ? "what it cost you isn't known" : noPrice,
+        unavailable: atCost === null ? tr("option.noCost") : noPrice,
         units: range(q, q),
         recovered,
         given_up,
@@ -263,8 +309,17 @@ export function clearanceOptions(item: StockItem, ctx: OptionContext): Clearance
           "No buyer or supplier takes it, or only at less than this; the stock stays where it is.",
         arithmetic:
           atCost === null
-            ? "no cost on record to value it at"
-            : `${fmt(atCost)} at cost × ${pct(lo)}–${pct(hi)} = ${fmt(recovered.low)}–${fmt(recovered.high)}, giving up ${fmt(given_up.low)}–${fmt(given_up.high)} against ${fmt(atPrice ?? 0)} at full price`,
+            ? tr("option.arithmetic.selloffNone")
+            : tr("option.arithmetic.selloff", {
+                cost: fmt(atCost),
+                low: pct(lo),
+                high: pct(hi),
+                backLow: fmt(recovered.low),
+                backHigh: fmt(recovered.high),
+                givenLow: fmt(given_up.low),
+                givenHigh: fmt(given_up.high),
+                price: fmt(atPrice ?? 0),
+              }),
         reversibility: {
           level: "hard",
           if_you_change_your_mind:
@@ -302,9 +357,20 @@ export function rankOptions(options: readonly ClearanceOption[]): ClearanceOptio
 }
 
 /** Pure: the ranking's own sentence for one option. */
-export function efficiencyLine(o: ClearanceOption, fmt: (minor: number) => string): string {
+export function efficiencyLine(
+  o: ClearanceOption,
+  fmt: (minor: number) => string,
+  w: Words = englishStock(),
+): string {
+  const { tr, locale } = w;
   if (o.per_euro === null) {
-    return `${fmt(o.recovered.expected)} likely back, nothing given up`;
+    return tr("option.efficiencyFree", { back: fmt(o.recovered.expected) });
   }
-  return `${fmt(o.recovered.expected)} likely back − ${fmt(o.given_up.expected)} given up = ${fmt(netBack(o))} net (${o.per_euro.toFixed(2)} back for every 1 given up)`;
+  return tr("option.efficiencyNet", {
+    back: fmt(o.recovered.expected),
+    given: fmt(o.given_up.expected),
+    net: fmt(netBack(o)),
+    ratio: dec2(o.per_euro, locale),
+    one: int(1, locale),
+  });
 }

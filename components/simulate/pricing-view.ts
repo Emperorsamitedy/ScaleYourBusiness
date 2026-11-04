@@ -2,6 +2,7 @@
 // picks the screen shows, testable without a browser. The arithmetic is
 // lib/simulate/pricing.ts; this only words it.
 
+import { listSep } from "../../lib/i18n/punctuation";
 import { minorUnitExponent } from "../../lib/core/money";
 import type {
   BreakEven,
@@ -136,7 +137,11 @@ export function breakEvenView(
     case "never":
       return { figure: t("be.never"), sub: t("be.neverSub"), flag: "NEVER" };
     case "missing":
-      return { figure: "—", sub: be.needs.map((n) => n.what).join("; "), flag: "MISSING" };
+      return {
+        figure: "—",
+        sub: be.needs.map((n) => n.what).join(listSep(locale)),
+        flag: "MISSING",
+      };
   }
 }
 

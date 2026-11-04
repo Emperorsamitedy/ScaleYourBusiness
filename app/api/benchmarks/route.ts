@@ -11,6 +11,10 @@
 // I-44a: it also says whether the margin's gap is large (lib/benchmarks/gap,
 // a stated threshold, like for like), and the margin review proposed for it
 // this month, if any. Proposing is POST /api/proposals/margin-review.
+//
+// L-4b: the sentences come back in the reader's language (the request's
+// "benchmarksWords"), figures in its locale with the business's currency.
+// Nothing here is stored, so nothing needs keeping in English.
 
 import { and, eq } from "drizzle-orm";
 import { NextResponse } from "next/server";
@@ -25,6 +29,9 @@ import { compareWithSimilar } from "../../../lib/benchmarks/compare";
 import type { LargeGap } from "../../../lib/benchmarks/gap";
 import { largeGap } from "../../../lib/benchmarks/gap";
 import { loadBenchInputs } from "../../../lib/benchmarks/load";
+import { BENCH_WORDS } from "../../../lib/benchmarks/map";
+import { SNAPSHOT } from "../../../lib/benchmarks/snapshot";
+import { requestWords } from "../../../lib/i18n/request-words";
 import { marginReviewRef } from "../../../lib/proposals/margin-review";
 
 export interface BenchView {
@@ -42,8 +49,11 @@ export async function GET(): Promise<NextResponse> {
   if (!access) return NextResponse.json({ error: "no intake session" }, { status: 401 });
   try {
     const now = new Date();
-    const inputs = await loadBenchInputs(access.profile_id, now);
-    const result = compareWithSimilar(inputs);
+    const [inputs, words] = await Promise.all([
+      loadBenchInputs(access.profile_id, now),
+      requestWords(BENCH_WORDS),
+    ]);
+    const result = compareWithSimilar(inputs, SNAPSHOT, words);
     const gap = largeGap(result, inputs);
     let proposal: BenchView["proposal"] = null;
     let held: string | null = null;

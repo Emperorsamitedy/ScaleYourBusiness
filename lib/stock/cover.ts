@@ -27,13 +27,30 @@
 // a season or a lead time from anyone else's business (rule 25), and nothing
 // here can place, edit or cancel an order (rule 27): the reorder is a number
 // and its arithmetic, for a note the owner may approve.
+//
+// L-4b: every sentence here is the "stockWords" catalogue through optional
+// words (./words), English by default, figures in the reader's language.
+// The screen's handler passes the request's words; what is stored (reorder
+// notes, the watch log, forecast claims) is built with the default.
 
-import { format, money } from "../core/money";
+import { money } from "../core/money";
 import type { Money } from "../core/money";
+import { intlTag } from "../i18n/locales";
 import type { SeasonResult } from "../seasons/forecast";
-import { times } from "../seasons/forecast";
 import type { StockItem } from "./assess";
 import { shiftDay } from "./assess";
+import type { Words } from "./words";
+import {
+  dayCount,
+  dec1,
+  englishStock,
+  exactMoney,
+  int,
+  isoDay,
+  orList,
+  shortDay,
+  timesIn,
+} from "./words";
 
 export const COVER = {
   /** N: the recent window, and the one before it. Four whole weeks, so weekdays balance. */
@@ -56,8 +73,6 @@ function daysBetween(from: string, to: string): number {
   return Math.round((Date.parse(`${to}T00:00:00Z`) - Date.parse(`${from}T00:00:00Z`)) / DAY_MS);
 }
 
-const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? "" : "s"}`;
-
 /** "Midland Clay Supplies' " / "Nore Valley's ". */
 export function possessive(name: string): string {
   return name.endsWith("s") ? `${name}'` : `${name}'s`;
@@ -66,15 +81,6 @@ export function possessive(name: string): string {
 /** "14.9" — a rate a day, one decimal. */
 export function perDayText(x: number): string {
   return (Math.round(x * 10) / 10).toFixed(1);
-}
-
-/** "2 Nov" — a short date, in UTC (the series' own dates). */
-function shortDay(day: string): string {
-  return new Date(`${day}T00:00:00Z`).toLocaleDateString("en-GB", {
-    day: "numeric",
-    month: "short",
-    timeZone: "UTC",
-  });
 }
 
 /* ── P5-01: two-window sell-through ── */
@@ -121,7 +127,10 @@ export function sellThrough(
   item: Pick<StockItem, "sales">,
   today: string,
   n: number = COVER.window_days,
+  w: Words = englishStock(),
 ): SellThrough {
+  const { tr, locale } = w;
+  const nText = int(n, locale);
   const needed = 2 * n;
   if (item.sales.kind === "file") {
     return {
@@ -129,7 +138,7 @@ export function sellThrough(
       covered_days: item.sales.window_days ?? 0,
       needed_days: needed,
       ready_on: null,
-      sentence: `A stock file carries one window of units sold, so I can't set ${n} days against the ${n} before. Connect the shop and I can.`,
+      sentence: tr("sell.fileOneWindow", { n: nText }),
     };
   }
   const s = item.sales;
@@ -140,7 +149,12 @@ export function sellThrough(
       covered_days: s.covered_days,
       needed_days: needed,
       ready_on: ready,
-      sentence: `Only ${plural(s.covered_days, "day")} of sales measured; comparing two ${n}-day windows needs ${needed}. I can say what sold; I can't say whether it's speeding up until ${ready}.`,
+      sentence: tr("sell.tooLittle", {
+        ...dayCount(s.covered_days, locale),
+        n: nText,
+        needed: int(needed, locale),
+        ready: isoDay(ready, locale),
+      }),
     };
   }
   const end = shiftDay(today, -1);
@@ -153,13 +167,21 @@ export function sellThrough(
   const band = Math.ceil(COVER.change_sigmas * Math.sqrt(a + b));
   const direction = change > band ? "up" : change < -band ? "down" : "flat";
   const pct = b > 0 ? Math.round((100 * change) / b) : null;
-  const head = `${a} sold in the last ${n} days against ${b} in the ${n} before`;
+  const head = {
+    a: int(a, locale),
+    b: int(b, locale),
+    n: nText,
+    diff: int(Math.abs(change), locale),
+    band: int(band, locale),
+  };
   const sentence =
     a + b === 0
-      ? `Nothing sold in either ${n}-day window.`
+      ? tr("sell.nothing", { n: nText })
       : direction === "flat"
-        ? `${head}: about the same — a difference of ${Math.abs(change)} is within chance (±${band}).`
-        : `${head}: ${direction} ${Math.abs(change)}${pct !== null ? ` (${pct > 0 ? "+" : ""}${pct}%)` : ""}, more than chance (±${band}).`;
+        ? tr("sell.flat", head)
+        : pct === null
+          ? tr("sell.moved", { ...head, direction })
+          : tr("sell.movedPct", { ...head, direction, pct: signedPct(pct, locale) });
   return {
     status: "ready",
     window_days: n,
@@ -171,6 +193,16 @@ export function sellThrough(
     direction,
     sentence,
   };
+}
+
+/** "+12%" / "-8%": a change in whole percent, its sign shown. */
+function signedPct(pct: number, locale: Words["locale"]): string {
+  if (locale === "en") return `${pct > 0 ? "+" : ""}${pct}%`;
+  return new Intl.NumberFormat(intlTag(locale), {
+    style: "percent",
+    maximumFractionDigits: 0,
+    signDisplay: "exceptZero",
+  }).format(pct / 100);
 }
 
 /* ── P5-02: the recent rate, as a range ── */
@@ -209,8 +241,14 @@ function rangeOf(units: number, over: number) {
 }
 
 /** Pure: the item's recent daily rate of sale, as a range. */
-export function recentRate(item: Pick<StockItem, "sales" | "as_of">, today: string): RateResult {
+export function recentRate(
+  item: Pick<StockItem, "sales" | "as_of">,
+  today: string,
+  w: Words = englishStock(),
+): RateResult {
+  const { tr, locale } = w;
   const n = COVER.window_days;
+  const nText = int(n, locale);
   if (item.sales.kind === "file") {
     const f = item.sales;
     if (f.window_days === null || f.units_in_window === null) {
@@ -219,7 +257,7 @@ export function recentRate(item: Pick<StockItem, "sales" | "as_of">, today: stri
         covered_days: 0,
         needed_days: n,
         ready_on: null,
-        sentence: `The stock file has no units-sold column, so I can't say when anything runs out. A file with units sold over ${n} days or more can.`,
+        sentence: tr("rate.fileNoColumn", { n: nText }),
       };
     }
     if (f.window_days < n) {
@@ -228,14 +266,14 @@ export function recentRate(item: Pick<StockItem, "sales" | "as_of">, today: stri
         covered_days: f.window_days,
         needed_days: n,
         ready_on: null,
-        sentence: `The file's units sold cover ${plural(f.window_days, "day")}; days of cover needs ${n}. A file over ${n} days or more can say when stock runs out.`,
+        sentence: tr("rate.fileShort", { ...dayCount(f.window_days, locale), n: nText }),
       };
     }
     if (f.units_in_window === 0) {
       return {
         status: "no_sales",
         over_days: f.window_days,
-        sentence: `No sale in the file's ${f.window_days} days: nothing to run out at.`,
+        sentence: tr("rate.fileNoSales", { days: int(f.window_days, locale) }),
       };
     }
     return {
@@ -258,7 +296,11 @@ export function recentRate(item: Pick<StockItem, "sales" | "as_of">, today: stri
       covered_days: s.covered_days,
       needed_days: n,
       ready_on: ready,
-      sentence: `Only ${plural(s.covered_days, "day")} of sales measured; days of cover needs ${n}. I can say what's on hand; I can't say when it runs out until ${ready}.`,
+      sentence: tr("rate.tooLittle", {
+        ...dayCount(s.covered_days, locale),
+        n: nText,
+        ready: isoDay(ready, locale),
+      }),
     };
   }
   const end = shiftDay(today, -1);
@@ -268,7 +310,7 @@ export function recentRate(item: Pick<StockItem, "sales" | "as_of">, today: stri
     return {
       status: "no_sales",
       over_days: n,
-      sentence: `No sale in the last ${n} days: nothing to run out at.`,
+      sentence: tr("rate.noSales", { n: nText }),
     };
   }
   return {
@@ -303,7 +345,12 @@ export interface SeasonBoost {
  * the recent rate already holds `recent` and the stretch adds index ÷ recent.
  * Null when the forecast isn't ready or sees no busy stretch ahead.
  */
-export function seasonBoost(result: SeasonResult | null, today: string): SeasonBoost | null {
+export function seasonBoost(
+  result: SeasonResult | null,
+  today: string,
+  w: Words = englishStock(),
+): SeasonBoost | null {
+  const { tr, locale } = w;
   if (result === null || result.status !== "ready") return null;
   const next = result.upcoming.find((u) => u.run.kind === "busy");
   if (!next) return null;
@@ -325,18 +372,25 @@ export function seasonBoost(result: SeasonResult | null, today: string): SeasonB
   const multiple = { low: ends[0], mid: ends[1], high: ends[2] };
   const when =
     next.in_progress || next.starts_on < today
-      ? `is under way now, to ${shortDay(next.ends_on)}`
+      ? tr("season.underWay", { end: shortDay(next.ends_on, locale) })
       : from === 0
-        ? `starts today, to ${shortDay(next.ends_on)}`
-        : `starts in ${plural(from, "day")}, on ${shortDay(next.starts_on)}`;
+        ? tr("season.startsToday", { end: shortDay(next.ends_on, locale) })
+        : tr("season.startsIn", {
+            ...dayCount(from, locale),
+            start: shortDay(next.starts_on, locale),
+          });
   const against_text =
     recent === null
-      ? "I have no complete recent week to set it against, so I count it against your normal week"
-      : `your last ${plural(recentWeeks.length, "week")} ran ${times(recent)}`;
+      ? tr("season.againstNone")
+      : tr("season.againstRecent", {
+          count: recentWeeks.length,
+          weeks: int(recentWeeks.length, locale),
+          recent: timesIn(recent, locale),
+        });
   const counted =
     multiple.mid <= 1
-      ? "so your recent pace already holds it and I add nothing"
-      : `so I count ${times(multiple.mid)} your recent pace for those days`;
+      ? tr("season.addsNothing")
+      : tr("season.counts", { multiple: timesIn(multiple.mid, locale) });
   return {
     from_day: from,
     to_day: to,
@@ -346,8 +400,13 @@ export function seasonBoost(result: SeasonResult | null, today: string): SeasonB
     multiple,
     stretch_index: run.index,
     recent_index: recent,
-    read_from: `${result.series.noun} from ${result.series.source}`,
-    sentence: `Your busy stretch ${when}: last year it ran ${times(run.index)} your normal week; ${against_text}, ${counted}.`,
+    read_from: tr("season.readFrom", { noun: result.series.noun, source: result.series.source }),
+    sentence: tr("season.sentence", {
+      when,
+      index: timesIn(run.index, locale),
+      against: against_text,
+      counted,
+    }),
   };
 }
 
@@ -427,7 +486,9 @@ const usable = (n: number | null): n is number => n !== null && Number.isFinite(
 export function leadTimeFor(
   item: Pick<StockItem, "offer_id">,
   suppliers: readonly SupplierInfo[],
+  w: Words = englishStock(),
 ): LeadTime {
+  const { tr, locale } = w;
   const mine = item.offer_id
     ? suppliers.filter((s) => s.offer_ids.includes(item.offer_id as string))
     : [];
@@ -446,16 +507,25 @@ export function leadTimeFor(
       moq_field: moq === null ? null : `suppliers.${pick.id}.moq`,
       why:
         stated.length > 1
-          ? `${pick.name} takes ${plural(pick.lead_time_days!, "day")}, the longest of the ${stated.length} suppliers you named for it`
-          : `${pick.name} takes ${plural(pick.lead_time_days!, "day")}, from your answer`,
+          ? tr("lead.longest", {
+              supplier: pick.name,
+              ...dayCount(pick.lead_time_days!, locale),
+              suppliers: int(stated.length, locale),
+            })
+          : tr("lead.answer", { supplier: pick.name, ...dayCount(pick.lead_time_days!, locale) }),
     };
   }
   const reason =
     mine.length > 0
-      ? `no delivery time on file for ${mine.map((s) => s.name).join(" or ")}`
+      ? tr("lead.noTimeFor", {
+          suppliers: orList(
+            mine.map((s) => s.name),
+            locale,
+          ),
+        })
       : item.offer_id
-        ? "no supplier on file for this item"
-        : "this item isn't matched to one of your products, so I can't tell its supplier";
+        ? tr("lead.noSupplier")
+        : tr("lead.unmatched");
   return {
     days: COVER.default_lead_days,
     basis: "assumed",
@@ -463,7 +533,7 @@ export function leadTimeFor(
     source_field: null,
     moq: null,
     moq_field: null,
-    why: `${COVER.default_lead_days} days, ASSUMED: ${reason}`,
+    why: tr("lead.assumed", { days: int(COVER.default_lead_days, locale), reason }),
   };
 }
 
@@ -491,7 +561,9 @@ export function reorderFor(
   rate: RateRange,
   lead: LeadTime,
   boost: SeasonBoost | null,
+  w: Words = englishStock(),
 ): ReorderSuggestion {
+  const { tr, locale } = w;
   const at = (perDay: number, m: number) =>
     demandBetween(0, lead.days, { per_day: perDay, boost, multiple: m });
   const m = boost?.multiple ?? { low: 1, mid: 1, high: 1 };
@@ -506,25 +578,38 @@ export function reorderFor(
   const moq = lead.moq;
   const rounded = moq !== null && before < moq;
   const quantity = rounded ? moq : before;
-  const whose = lead.supplier ? possessive(lead.supplier.name) : "the supplier's";
   const seasonal = boost !== null && demand.mid > rate.per_day * lead.days + 1e-9;
+  const supplier = lead.supplier?.name ?? null;
+  // The English possessive (possessive above): which ending the supplier's name takes.
+  const named = supplier === null ? {} : { supplier, ends: supplier.endsWith("s") ? "s" : "other" };
   const moqText =
     moq === null
-      ? "; no minimum order on file"
-      : rounded
-        ? `; ${whose} minimum order is ${moq}, so ${moq}`
-        : `; over ${whose} minimum order of ${moq}`;
-  const arithmetic =
-    `${perDayText(rate.per_day)} a day (up to ${perDayText(rate.high)}) over ${plural(lead.days, "day")}` +
-    `${seasonal ? `, with the busy stretch at ${times(m.mid)}` : ""} = ${mid}, ` +
-    `+ ${safety} safety margin (the fast end of the range) = ${before}${moqText}.`;
+      ? tr("reorder.moqNone")
+      : tr(`reorder.${rounded ? "moqRounded" : "moqOver"}${supplier === null ? "Unnamed" : ""}`, {
+          ...named,
+          moq: int(moq, locale),
+        });
+  const arithmetic = tr(seasonal ? "reorder.arithmeticSeason" : "reorder.arithmetic", {
+    rate: dec1(rate.per_day, locale),
+    high: dec1(rate.high, locale),
+    ...dayCount(lead.days, locale),
+    ...(seasonal ? { multiple: timesIn(m.mid, locale) } : {}),
+    mid: int(mid, locale),
+    safety: int(safety, locale),
+    before: int(before, locale),
+    moq: moqText,
+  });
 
   let cost: Money | null = null;
   let costText: string | null = null;
   if (item.value_at_cost !== null && item.currency !== null && item.on_hand > 0) {
     const unit = Math.round(item.value_at_cost / item.on_hand);
     cost = money(unit * quantity, item.currency);
-    costText = `${quantity} × ${format(money(unit, item.currency))} at cost${item.cost_basis === "stated" ? " (your own cost for the product)" : ""} = ${format(cost)}`;
+    costText = tr(item.cost_basis === "stated" ? "reorder.costStated" : "reorder.cost", {
+      quantity: int(quantity, locale),
+      unit: exactMoney(unit, item.currency, locale),
+      total: exactMoney(cost.amount_minor, cost.currency, locale),
+    });
   }
   return {
     quantity,
@@ -549,6 +634,8 @@ export interface StockWarning {
   /** The worded flag: colour never carries it alone. */
   flag: "ACT NOW" | "RUNNING LOW";
   sentence: string;
+  /** The sentence's first clause on its own, as a line: "Mug runs out in about 4–6 days." */
+  head: string;
 }
 
 export interface CoverAssessment {
@@ -592,17 +679,19 @@ export function wholeDays(c: { low: number; high: number }): [number, number] {
   return f === ce ? [f, f + 1] : [f, ce];
 }
 
-function coverRangeText(c: { low: number; high: number | null }): string {
-  if (c.high === null) return `about ${plural(Math.round(c.low), "day")} or more`;
+function coverRangeText(c: { low: number; high: number | null }, w: Words): string {
+  const { tr, locale } = w;
+  if (c.high === null) return tr("warning.rangeOpen", dayCount(Math.round(c.low), locale));
   const [lo, hi] = wholeDays({ low: c.low, high: c.high });
-  return `about ${lo}–${hi} days`;
+  return tr("warning.rangeClosed", { low: int(lo, locale), high: int(hi, locale) });
 }
 
 /** "Midland Clay Supplies takes 10 days" / "a delivery takes 14 days (ASSUMED)". */
-function leadPhrase(lead: LeadTime): string {
+function leadPhrase(lead: LeadTime, w: Words): string {
+  const { tr, locale } = w;
   return lead.supplier
-    ? `${lead.supplier.name} takes ${plural(lead.days, "day")}`
-    : `a delivery takes ${plural(lead.days, "day")} (ASSUMED)`;
+    ? tr("lead.phraseNamed", { supplier: lead.supplier.name, ...dayCount(lead.days, locale) })
+    : tr("lead.phraseAssumed", dayCount(lead.days, locale));
 }
 
 /**
@@ -615,9 +704,11 @@ export function assessCover(
   lead: LeadTime,
   boost: SeasonBoost | null,
   sourceLabel: string,
+  w: Words = englishStock(),
 ): CoverAssessment {
-  const st = sellThrough(item, today);
-  const r = recentRate(item, today);
+  const { tr, locale } = w;
+  const st = sellThrough(item, today, COVER.window_days, w);
+  const r = recentRate(item, today, w);
   const base = {
     sold_out: item.on_hand <= 0,
     sell_through: st,
@@ -627,7 +718,9 @@ export function assessCover(
     reorder: null,
     warning: null,
   };
-  const leadLine = `delivery time: ${lead.why}`;
+  const leadLine = tr("lead.line", { why: lead.why });
+  const onHand = int(item.on_hand, locale);
+  const asOf = isoDay(item.as_of, locale);
   if (r.status !== "ready") {
     return {
       ...base,
@@ -636,7 +729,7 @@ export function assessCover(
       cover: null,
       runs_out: null,
       assumed: [],
-      sources: `${item.on_hand} on hand, read from ${sourceLabel} on ${item.as_of}`,
+      sources: tr("cover.sourcesOnHand", { onHand, source: sourceLabel, day: asOf }),
       why: r.sentence,
     };
   }
@@ -662,39 +755,58 @@ export function assessCover(
     latest: high === null ? null : shiftDay(today, Math.floor(high)),
   };
 
+  const units = int(rate.units, locale);
   const assumed = [
-    `the coming days sell at the pace of the last ${plural(rate.over_days, "day")} (${rate.units} sold), give or take chance (±${Math.round(Math.sqrt(rate.units))})`,
+    tr("cover.assumedPace", {
+      ...dayCount(rate.over_days, locale),
+      units,
+      band: int(Math.round(Math.sqrt(rate.units)), locale),
+    }),
   ];
-  if (lead.basis === "assumed") assumed.push(`ASSUMED delivery time: ${lead.why}`);
-  if (boosted) {
-    assumed.push(
-      `ASSUMED: this item follows your business's own season — the busy stretch is read from your ${boost!.read_from}, not from this item`,
-    );
-  }
+  if (lead.basis === "assumed") assumed.push(tr("cover.assumedLead", { why: lead.why }));
+  if (boosted) assumed.push(tr("cover.assumedSeason", { readFrom: boost!.read_from }));
   if (elapsed > 0) {
-    assumed.push(
-      `ASSUMED: it kept selling at that pace since the stock was read on ${item.as_of}, ${plural(elapsed, "day")} ago`,
-    );
+    assumed.push(tr("cover.assumedElapsed", { day: asOf, ...dayCount(elapsed, locale) }));
   }
   const window =
     rate.from === null
-      ? `${rate.units} sold in the ${rate.over_days} days to ${rate.to}, from your stock file`
-      : `${rate.units} sold ${rate.from} to ${rate.to}, measured by ${sourceLabel}`;
-  const sources = `${window}; ${item.on_hand} on hand, read on ${item.as_of}; ${leadLine}${boosted ? `; the season from your ${boost!.read_from}` : ""}`;
+      ? tr("cover.windowFile", {
+          units,
+          days: int(rate.over_days, locale),
+          to: isoDay(rate.to, locale),
+        })
+      : tr("cover.windowMeasured", {
+          units,
+          from: isoDay(rate.from, locale),
+          to: isoDay(rate.to, locale),
+          source: sourceLabel,
+        });
+  const sources = boosted
+    ? tr("cover.sourcesSeason", {
+        window,
+        onHand,
+        day: asOf,
+        lead: leadLine,
+        readFrom: boost!.read_from,
+      })
+    : tr("cover.sources", { window, onHand, day: asOf, lead: leadLine });
 
   let warning: StockWarning | null = null;
   if (item.on_hand > 0 && low < lead.days) {
     const before = high !== null && high < lead.days;
+    const said = { name: item.name, range: coverRangeText(cover, w), lead: leadPhrase(lead, w) };
     warning = {
       level: before ? "before_restock" : "tight",
       flag: before ? "ACT NOW" : "RUNNING LOW",
-      sentence: `${item.name} runs out in ${coverRangeText(cover)}; ${leadPhrase(lead)}.${
-        boosted
-          ? boost!.from_day === 0
-            ? ` That counts the busy stretch you're in, to ${shortDay(boost!.ends_on)}.`
-            : ` That counts your busy stretch from ${shortDay(boost!.starts_on)}.`
-          : ""
-      }`,
+      sentence: !boosted
+        ? tr("warning.sentence", said)
+        : boost!.from_day === 0
+          ? tr("warning.sentenceInStretch", { ...said, end: shortDay(boost!.ends_on, locale) })
+          : tr("warning.sentenceFromStretch", {
+              ...said,
+              start: shortDay(boost!.starts_on, locale),
+            }),
+      head: tr("warning.head", { name: said.name, range: said.range }),
     };
   }
   return {
@@ -705,7 +817,7 @@ export function assessCover(
     runs_out: runsOut,
     boosted,
     warning,
-    reorder: warning ? reorderFor(item, rate, lead, boost) : null,
+    reorder: warning ? reorderFor(item, rate, lead, boost, w) : null,
     assumed,
     sources,
     why: null,
@@ -713,15 +825,17 @@ export function assessCover(
 }
 
 /** Pure: the cover column's text ("9–10", "365+", "sold out", "—"). */
-export function coverColumn(c: CoverAssessment): string {
-  if (c.sold_out) return "sold out";
-  if (c.cover === null) return c.status === "no_sales" ? "no sales" : "—";
+export function coverColumn(c: CoverAssessment, w: Words = englishStock()): string {
+  const { tr, locale } = w;
+  if (c.sold_out) return tr("cover.colSoldOut");
+  if (c.cover === null) return c.status === "no_sales" ? tr("cover.colNoSales") : "—";
   const lo = Math.round(c.cover.low);
-  if (lo >= COVER.max_cover_days) return `${COVER.max_cover_days}+`;
-  if (c.cover.high === null) return `${lo}+`;
-  if (Math.round(c.cover.high) >= COVER.max_cover_days) return `${lo}–${COVER.max_cover_days}+`;
+  const max = int(COVER.max_cover_days, locale);
+  if (lo >= COVER.max_cover_days) return `${max}+`;
+  if (c.cover.high === null) return `${int(lo, locale)}+`;
+  if (Math.round(c.cover.high) >= COVER.max_cover_days) return `${int(lo, locale)}–${max}+`;
   const [a, b] = wholeDays({ low: c.cover.low, high: c.cover.high });
-  return `${a}–${b}`;
+  return `${int(a, locale)}–${int(b, locale)}`;
 }
 
 /** Pure: the warned items, ACT NOW first, then the soonest out. */
