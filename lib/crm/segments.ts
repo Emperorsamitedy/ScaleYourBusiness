@@ -15,9 +15,19 @@
 // A segment is a deterministic filter with its arithmetic written out
 // as evidence, and it separates WHO IS IN IT from WHO MAY BE EMAILED:
 // the consent gate (rule 19) decides the second, per contact, every time.
+//
+// L-4c (TASKS-LANGUAGES.md): a segment's label and evidence come from the
+// "customersWords" catalogue — English by default, exactly the words this
+// file always wrote (they are what a proposal stores); the screen passes the
+// request's translator and locale.
 
+import { moneyExact } from "../../components/sheet/num";
+import { dayMonthYear } from "../i18n/format";
+import type { AppLocale } from "../i18n/locales";
+import type { Tr } from "../i18n/tr";
 import type { ContactRow } from "./contacts";
 import { canEmailForMarketing, listContacts } from "./contacts";
+import { customersEnglish, fig, percentText, semiJoin } from "./words";
 
 /** The thresholds, in days — pinned here, tested at their boundaries. */
 export const LIFECYCLE = {
@@ -133,7 +143,12 @@ async function gate(
 }
 
 /** Lifecycle counts and the four segments, with their arithmetic shown. */
-export async function computeSegments(accountId: string, now = new Date()): Promise<SegmentReport> {
+export async function computeSegments(
+  accountId: string,
+  now = new Date(),
+  tr: Tr = customersEnglish(),
+  locale: AppLocale = "en",
+): Promise<SegmentReport> {
   const all = await listContacts(accountId);
   const lifecycle: Record<Lifecycle, number> = {
     new: 0,
@@ -149,23 +164,31 @@ export async function computeSegments(accountId: string, now = new Date()): Prom
     lifecycle[state]++;
   }
   const floors = vipSpendFloors(all);
+  const f = (n: number) => fig(n, locale);
 
   const build = async (
     key: SegmentKey,
-    label: string,
     members: ContactRow[],
     evidence: string[],
   ): Promise<Segment> => {
     const { emailable_ids, excluded } = await gate(members);
     return {
       key,
-      label,
+      label: tr(`segment.label.${key}`),
       contact_ids: members.map((c) => c.id),
       emailable_ids,
       excluded,
       evidence: [
         ...evidence,
-        `${members.length} of ${all.length} contacts match; ${emailable_ids.length} hold explicit email consent and no suppression (rule 19), ${excluded.no_consent} lack consent, ${excluded.no_email} have no address, ${excluded.suppressed} are suppressed`,
+        tr("segment.evidence.match", {
+          matched: f(members.length),
+          all: f(all.length),
+          emailable: f(emailable_ids.length),
+          rule: f(19),
+          noConsent: f(excluded.no_consent),
+          noEmail: f(excluded.no_email),
+          suppressed: f(excluded.suppressed),
+        }),
       ],
     };
   };
@@ -174,30 +197,41 @@ export async function computeSegments(accountId: string, now = new Date()): Prom
   const vips = all.filter((c) => isVip(c, floors));
   const floorText =
     floors.size === 0
-      ? `fewer than ${VIP.min_population} contacts carry a spend figure, so only the order count counts`
-      : [...floors.entries()]
-          .map(
-            ([cur, f]) =>
-              `top ${VIP.top_spend_fraction * 100}% of spend in ${cur} starts at ${f} minor units`,
-          )
-          .join("; ");
+      ? tr("segment.evidence.vipFew", { min: f(VIP.min_population) })
+      : semiJoin(
+          [...floors.entries()].map(([cur, floor]) =>
+            tr("segment.evidence.vipFloor", {
+              share: percentText(VIP.top_spend_fraction * 100, locale),
+              currency: cur,
+              amount: locale === "en" ? String(floor) : moneyExact(floor, cur, locale),
+            }),
+          ),
+          tr,
+        );
+  const today = now.toISOString().slice(0, 10);
 
   return {
     computed_at: now.toISOString(),
     contacts: all.length,
     lifecycle,
     segments: [
-      await build("lapsed", "Lapsed customers", byState("lapsed"), [
-        `lapsed = last purchase (or activity) more than ${LIFECYCLE.lapsing_days} days before ${now.toISOString().slice(0, 10)}`,
+      await build("lapsed", byState("lapsed"), [
+        tr("segment.evidence.lapsed", {
+          days: f(LIFECYCLE.lapsing_days),
+          date: locale === "en" ? today : dayMonthYear(today, locale),
+        }),
       ]),
-      await build("lapsing", "Lapsing customers", byState("lapsing"), [
-        `lapsing = last purchase between ${LIFECYCLE.active_days} and ${LIFECYCLE.lapsing_days} days ago`,
+      await build("lapsing", byState("lapsing"), [
+        tr("segment.evidence.lapsing", {
+          from: f(LIFECYCLE.active_days),
+          to: f(LIFECYCLE.lapsing_days),
+        }),
       ]),
-      await build("new", "New customers", byState("new"), [
-        `new = first seen within ${LIFECYCLE.new_days} days with at most one order`,
+      await build("new", byState("new"), [
+        tr("segment.evidence.new", { days: f(LIFECYCLE.new_days) }),
       ]),
-      await build("vip", "Best customers", vips, [
-        `VIP = ${VIP.min_orders}+ orders, or ${floorText}`,
+      await build("vip", vips, [
+        tr("segment.evidence.vip", { orders: f(VIP.min_orders), floor: floorText }),
       ]),
     ],
   };

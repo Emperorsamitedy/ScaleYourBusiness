@@ -39,7 +39,9 @@ import {
 } from "../../../lib/content/footage";
 import { generationView, isGenerationProposal } from "../../../lib/content/generation";
 import { mediaTargetRefusal, supersededByFootage } from "../../../lib/content/media-item";
-import { isPublishProposal, publishNotes } from "../../../lib/content/publish";
+import { isPublishProposal, publishBlocks } from "../../../lib/content/publish";
+import { CONTENT_WORDS, blockWords, opensConnections } from "../../../lib/content/publish-words";
+import { requestTr } from "../../../lib/i18n/request-tr";
 import { withdrawItem } from "../../../lib/content/publishing";
 import { proposeShotList } from "../../../lib/content/shotlist";
 import { contentWatchUntil } from "../../../lib/content/watch";
@@ -76,6 +78,8 @@ export async function GET(): Promise<NextResponse> {
   const profileId = await resolveProfile();
   if (!profileId) return NextResponse.json({ error: "no intake session" }, { status: 401 });
   try {
+    // L-4c: the server's own sentences in the reader's language.
+    const { tr, locale } = await requestTr(CONTENT_WORDS);
     const [items, producible] = await Promise.all([
       contentQueue(profileId),
       db
@@ -111,8 +115,18 @@ export async function GET(): Promise<NextResponse> {
         // Approved generated items whose footage arrived: they won't be published (real footage wins).
         superseded,
       },
-      // P3-21a: why each draft isn't headed for publishing, in the owner's words.
-      publish_notes: await publishNotes(profileId, items),
+      // P3-21a: why each draft isn't headed for publishing, in the owner's words —
+      // L-4c: in the reader's language, with a flag (not a word match) for the
+      // ones Connections fixes.
+      ...(await (async () => {
+        const blocks = Object.entries(await publishBlocks(profileId, items));
+        return {
+          publish_notes: Object.fromEntries(
+            blocks.map(([id, b]) => [id, blockWords(b, tr, locale)]),
+          ),
+          publish_connect: blocks.filter(([, b]) => opensConnections(b)).map(([id]) => id),
+        };
+      })()),
       // The Session D real-write gate (lib/env.ts): off until the two-week test completes.
       real_writes: sessionDRealWritesOn(),
       // Rule 15: while the watch runs, nothing is proposed — the screen says so up front.
@@ -148,6 +162,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   const access = await resolveAccess();
   const profileId = access?.profile_id ?? null;
   if (!profileId) return NextResponse.json({ error: "no intake session" }, { status: 401 });
+  const { tr } = await requestTr(CONTENT_WORDS);
   try {
     const body = (await request.json()) as {
       action?: unknown;
@@ -172,13 +187,10 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     if (body.action === "produce") {
       const session = await matchingSession();
       if (!session) {
-        return NextResponse.json(
-          { error: "producing drafts needs you signed in — it spends real model calls" },
-          { status: 401 },
-        );
+        return NextResponse.json({ error: tr("error.produceSignedIn") }, { status: 401 });
       }
       if (typeof body.proposal_id !== "string") {
-        return NextResponse.json({ error: "proposal_id is required" }, { status: 422 });
+        return NextResponse.json({ error: tr("error.proposalId") }, { status: 422 });
       }
       const { items, publishing } = await produceFromProposal(body.proposal_id, {
         expectedProfileId: profileId,
@@ -189,13 +201,10 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       // A write to Meta: the same signed-in owner who could have approved it.
       const session = await matchingSession();
       if (!session) {
-        return NextResponse.json(
-          { error: "withdrawing a post needs you signed in — it deletes it on Meta" },
-          { status: 401 },
-        );
+        return NextResponse.json({ error: tr("error.withdrawSignedIn") }, { status: 401 });
       }
       if (typeof body.item_id !== "string") {
-        return NextResponse.json({ error: "item_id is required" }, { status: 422 });
+        return NextResponse.json({ error: tr("error.itemId") }, { status: 422 });
       }
       const execution = await withdrawItem({
         itemId: body.item_id,
@@ -207,7 +216,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     if (body.action === "run_ad") {
       // P3-54: a proposal only — nothing is sent until it is approved and the runner builds it.
       if (typeof body.item_id !== "string") {
-        return NextResponse.json({ error: "item_id is required" }, { status: 422 });
+        return NextResponse.json({ error: tr("error.itemId") }, { status: 422 });
       }
       const out = await proposeAdRun(profileId, {
         item_id: body.item_id,
@@ -222,18 +231,13 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     }
     if (body.action === "go_live") {
       if (typeof body.build_id !== "string") {
-        return NextResponse.json({ error: "build_id is required" }, { status: 422 });
+        return NextResponse.json({ error: tr("error.buildId") }, { status: 422 });
       }
       const out = await proposeGoLive(profileId, body.build_id);
       if ("skipped" in out) return NextResponse.json({ error: out.skipped }, { status: 409 });
       return NextResponse.json({ proposal_id: out.created.id, status: out.created.status });
     }
-    return NextResponse.json(
-      {
-        error: 'action must be "plan", "shotlist", "produce", "withdraw", "run_ad" or "go_live"',
-      },
-      { status: 422 },
-    );
+    return NextResponse.json({ error: tr("error.action") }, { status: 422 });
   } catch (error) {
     return onError(error);
   }

@@ -16,7 +16,7 @@
 // catalogue; figures, money (in the contact's own currency, never
 // converted) and dates in the reader's locale. Names, addresses, segment
 // labels and their evidence, and the server's notices are content or built
-// by the server (L-4), shown as they come. The CSV example and the
+// by the server, in the reader's language since L-4c, shown as they come. The CSV example and the
 // currency codes stay as they are: the importer reads English headers.
 
 import { useCallback, useEffect, useRef, useState } from "react";
@@ -562,11 +562,12 @@ export function CustomersScreen() {
                 void act({ action: "propose_segments" }, (j) => {
                   const created = Number(j.created ?? 0);
                   const skipped =
-                    (j.skipped as { segment: string; reason: string }[] | undefined) ?? [];
-                  // A skipped segment's reason comes from the server (L-4).
+                    (j.skipped as
+                      { segment: string; reason: string; line?: string }[] | undefined) ?? [];
+                  // A skipped segment's line comes from the server, in the reader's language (L-4c).
                   return created > 0
                     ? tr("segments.proposed", { count: created })
-                    : skipped.map((x) => `${x.segment}: ${x.reason}`).join(" · ") ||
+                    : skipped.map((x) => x.line ?? `${x.segment}: ${x.reason}`).join(" · ") ||
                         tr("segments.nothing");
                 })
               }

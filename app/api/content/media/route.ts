@@ -41,6 +41,8 @@ import { generateFromProposal, proposeGeneration } from "../../../../lib/content
 import { MediaError, configuredMediaStore } from "../../../../lib/content/media";
 import { ContentError } from "../../../../lib/content/plan";
 import { proposePublishing } from "../../../../lib/content/publish";
+import { CONTENT_WORDS, blockWords } from "../../../../lib/content/publish-words";
+import { requestTr } from "../../../../lib/i18n/request-tr";
 import { ProposalError } from "../../../../lib/proposals/service";
 import { requireRole } from "../../../../lib/auth/roles";
 
@@ -71,17 +73,16 @@ function briefOf(raw: unknown): BriefInput | null {
 }
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
+  // L-4c: this route's own refusals in the reader's language.
+  const { tr, locale } = await requestTr(CONTENT_WORDS);
   if (!isSameOriginPost(request.headers, appOriginOf(request.url))) {
-    return NextResponse.json({ error: "this has to come from SYB's own page" }, { status: 403 });
+    return NextResponse.json({ error: tr("error.sameOrigin") }, { status: 403 });
   }
   const access = await resolveAccess();
   if (!access) return NextResponse.json({ error: "no intake session" }, { status: 401 });
   const session = access.session;
   if (!session) {
-    return NextResponse.json(
-      { error: "footage and generated media need you signed in" },
-      { status: 401 },
-    );
+    return NextResponse.json({ error: tr("error.mediaSignedIn") }, { status: 401 });
   }
   const denied = requireRole(session, "content.draft");
   if (denied) return denied;
@@ -92,16 +93,13 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     if (type.startsWith("multipart/form-data")) {
       const store = configuredMediaStore();
       if (!store) {
-        return NextResponse.json(
-          { error: "uploads aren't set up on this server (no media storage)" },
-          { status: 503 },
-        );
+        return NextResponse.json({ error: tr("error.noUploads") }, { status: 503 });
       }
       // Refused before the body is read: the declared length is over the cap.
       const declared = Number(request.headers.get("content-length") ?? "0");
       if (declared > MAX_DIRECT_CLIP_BYTES + 1024 * 1024) {
         return NextResponse.json(
-          { error: `a clip uploaded here can be up to ${MAX_DIRECT_CLIP_BYTES / 1024 / 1024} MB` },
+          { error: tr("error.clipSize", { mb: MAX_DIRECT_CLIP_BYTES / 1024 / 1024 }) },
           { status: 413 },
         );
       }
@@ -109,11 +107,11 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       const file = form?.get("file");
       const itemId = form?.get("item_id");
       if (!form || typeof itemId !== "string" || !(file instanceof File)) {
-        return NextResponse.json({ error: "item_id and file are required" }, { status: 422 });
+        return NextResponse.json({ error: tr("error.itemAndFile") }, { status: 422 });
       }
       if (file.size > MAX_DIRECT_CLIP_BYTES) {
         return NextResponse.json(
-          { error: `a clip uploaded here can be up to ${MAX_DIRECT_CLIP_BYTES / 1024 / 1024} MB` },
+          { error: tr("error.clipSize", { mb: MAX_DIRECT_CLIP_BYTES / 1024 / 1024 }) },
           { status: 413 },
         );
       }
@@ -134,12 +132,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     switch (body.action) {
       case "grant": {
         if (uploadMode() !== "blob") {
-          return NextResponse.json(
-            { error: "uploads here go through SYB, not straight to storage" },
-            { status: 409 },
-          );
+          return NextResponse.json({ error: tr("error.throughSyb") }, { status: 409 });
         }
-        if (!itemId) return NextResponse.json({ error: "item_id is required" }, { status: 422 });
+        if (!itemId) return NextResponse.json({ error: tr("error.itemId") }, { status: 422 });
         const grant = await issueClipUpload({
           profileId,
           itemId,
@@ -150,18 +145,18 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         return NextResponse.json(grant);
       }
       case "confirm": {
-        if (!itemId) return NextResponse.json({ error: "item_id is required" }, { status: 422 });
+        if (!itemId) return NextResponse.json({ error: tr("error.itemId") }, { status: 422 });
         const clip = await confirmClipUpload({ profileId, itemId, clipId: body.clip_id });
         return NextResponse.json({ clip_id: clip.id, status: clip.status, bytes: clip.bytes });
       }
       case "remove_clip": {
         const store = configuredMediaStore();
-        if (!store) return NextResponse.json({ error: "no media storage here" }, { status: 503 });
+        if (!store) return NextResponse.json({ error: tr("error.noStorage") }, { status: 503 });
         await removeClip({ profileId, clipId: body.clip_id, store });
         return NextResponse.json({ removed: true });
       }
       case "cut": {
-        if (!itemId) return NextResponse.json({ error: "item_id is required" }, { status: 422 });
+        if (!itemId) return NextResponse.json({ error: tr("error.itemId") }, { status: 422 });
         const render = await requestRender({
           profileId,
           itemId,
@@ -188,7 +183,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         return NextResponse.json({ render_id: render.id, status: render.status });
       }
       case "propose_generation": {
-        if (!itemId) return NextResponse.json({ error: "item_id is required" }, { status: 422 });
+        if (!itemId) return NextResponse.json({ error: tr("error.itemId") }, { status: 422 });
         const proposal = await proposeGeneration({
           profileId,
           itemId,
@@ -200,7 +195,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       }
       case "generate": {
         if (typeof body.proposal_id !== "string") {
-          return NextResponse.json({ error: "proposal_id is required" }, { status: 422 });
+          return NextResponse.json({ error: tr("error.proposalId") }, { status: 422 });
         }
         const outcome = await generateFromProposal({
           proposalId: body.proposal_id,
@@ -209,15 +204,20 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         return NextResponse.json(outcome);
       }
       case "propose_publish": {
-        if (!itemId) return NextResponse.json({ error: "item_id is required" }, { status: 422 });
+        if (!itemId) return NextResponse.json({ error: tr("error.itemId") }, { status: 422 });
         const run = await proposePublishing(profileId, [itemId]);
         return NextResponse.json({
           proposed: run.created.length,
-          reason: run.skipped[0]?.reason ?? null,
+          // L-4c: why not, in the reader's language.
+          reason: (() => {
+            const first = run.skipped[0];
+            const block = first ? run.blocks?.[first.item_id] : undefined;
+            return block ? blockWords(block, tr, locale) : (first?.reason ?? null);
+          })(),
         });
       }
       default:
-        return NextResponse.json({ error: "unknown action" }, { status: 422 });
+        return NextResponse.json({ error: tr("error.unknownAction") }, { status: 422 });
     }
   } catch (error) {
     return onError(error);

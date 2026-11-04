@@ -17,7 +17,7 @@
 
 import { useState } from "react";
 import { emailConsentLines, senderIdentity } from "../../lib/execution/email-sender";
-import { bold, useCn } from "./useCn";
+import { bold, useCn, useSaid } from "./useCn";
 import { storedDay } from "./words";
 
 export interface EmailView {
@@ -61,6 +61,7 @@ export function EmailCampaignSection({
   onChanged: () => Promise<void>;
 }) {
   const { t, locale } = useCn("connections.email");
+  const said = useSaid();
   const [open, setOpen] = useState(false);
   const [name, setName] = useState(view.suggested_sender);
   const [replyTo, setReplyTo] = useState("");
@@ -88,7 +89,7 @@ export function EmailCampaignSection({
     try {
       const out = await call("POST", { sender_name: name, reply_to: replyTo, confirmation: typed });
       if (!out.ok) {
-        setError(out.error ?? t("connectFailed"));
+        setError(out.error !== null ? said(out.error) : t("connectFailed"));
         return;
       }
       setOpen(false);
@@ -109,7 +110,7 @@ export function EmailCampaignSection({
     try {
       const out = await call("DELETE", { id: c.id });
       if (!out.ok) {
-        setError(out.error ?? t("disconnectFailed"));
+        setError(out.error !== null ? said(out.error) : t("disconnectFailed"));
         return;
       }
       setNotice(t("disconnected"));

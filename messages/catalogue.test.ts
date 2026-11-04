@@ -41,6 +41,7 @@ import { ENGLISH_SESSION_WORDS, NOTICE, errorWords } from "../lib/voice/session"
 import type { AppLocale } from "../lib/i18n/locales";
 import { LOCALES } from "../lib/i18n/locales";
 import { L3D_GLOSSARY_EXCEPTIONS } from "./glossary-exceptions-l3d";
+import { L4C_GLOSSARY_EXCEPTIONS } from "./glossary-exceptions-l4c";
 
 type Tree = { [key: string]: string | Tree };
 
@@ -332,6 +333,8 @@ const escape = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 const GLOSSARY_EXCEPTIONS: Record<string, { terms: string[]; reason: string }> = {
   // L-3d's, in their own file (connections, the landing).
   ...L3D_GLOSSARY_EXCEPTIONS,
+  // L-4c's (team, site, customers, content, support, connections).
+  ...L4C_GLOSSARY_EXCEPTIONS,
   "voice.error.network": {
     terms: ["connection"],
     reason: "the device's internet connection, not a connected account",

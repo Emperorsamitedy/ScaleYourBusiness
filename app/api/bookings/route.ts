@@ -7,6 +7,10 @@
 // connecting a source, so both need a signed-in session. Nothing here logs
 // a request body: an export carries client names and emails, which are
 // read once, hashed or dropped, and never stored or echoed back.
+//
+// L-4c: a refusal of the import and the measures' sentences are said in the
+// reader's language (requestTr over "connectionsWords"); English is exactly
+// what this route always sent. The sign-in refusal is L-4a's.
 
 import { cookies } from "next/headers";
 import { type NextRequest, NextResponse } from "next/server";
@@ -21,6 +25,9 @@ import { BookingImportError } from "../../../lib/bookings/rows";
 import { isDecimalStyle } from "../../../lib/core/money";
 import { bookingsView, importBookings } from "../../../lib/bookings/store";
 import { requireRole } from "../../../lib/auth/roles";
+import { requestTr } from "../../../lib/i18n/request-tr";
+import type { Say } from "../../../lib/bookings/words";
+import { CONNECTIONS_WORDS, sayRefusal } from "../../../lib/bookings/words";
 
 const AUTH_COOKIE = "syb_session";
 
@@ -29,9 +36,12 @@ async function signedIn(): Promise<AuthedSession | null> {
   return currentSession(store.get(AUTH_COOKIE)?.value);
 }
 
-function onError(error: unknown, accountId: string): NextResponse {
+/** The request's language for this route's sentences. */
+const words = (): Promise<Say> => requestTr(CONNECTIONS_WORDS);
+
+function onError(error: unknown, accountId: string, say: Say): NextResponse {
   if (error instanceof BookingImportError) {
-    return NextResponse.json({ error: error.message }, { status: error.status });
+    return NextResponse.json({ error: sayRefusal(error.words, say) }, { status: error.status });
   }
   // The error's name only: a message could quote a cell of the file.
   console.error(
@@ -41,7 +51,7 @@ function onError(error: unknown, accountId: string): NextResponse {
       name: error instanceof Error ? error.name : "unknown",
     }),
   );
-  return NextResponse.json({ error: "something went wrong on our side" }, { status: 500 });
+  return NextResponse.json({ error: say.tr("bookings.refuse.ourSide") }, { status: 500 });
 }
 
 const platforms = () =>
@@ -54,13 +64,14 @@ const platforms = () =>
 export async function GET(): Promise<NextResponse> {
   const session = await signedIn();
   if (!session) return NextResponse.json({ error: "sign in to import bookings" }, { status: 401 });
+  const say = await words();
   try {
     return NextResponse.json({
       platforms: platforms(),
-      ...(await bookingsView(session.account_id)),
+      ...(await bookingsView(session.account_id, say)),
     });
   } catch (error) {
-    return onError(error, session.account_id);
+    return onError(error, session.account_id, say);
   }
 }
 
@@ -69,6 +80,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   if (!session) return NextResponse.json({ error: "sign in to import bookings" }, { status: 401 });
   const denied = requireRole(session, "data.import");
   if (denied) return denied;
+  const say = await words();
   try {
     const body = (await request.json().catch(() => null)) as {
       csv?: unknown;
@@ -78,11 +90,11 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       decimal_style?: unknown;
     } | null;
     if (typeof body?.csv !== "string" || body.csv.trim() === "") {
-      return NextResponse.json({ error: "the export's text is required" }, { status: 422 });
+      return NextResponse.json({ error: say.tr("bookings.refuse.noText") }, { status: 422 });
     }
     const platform = typeof body.platform === "string" ? body.platform : "";
     if (!isBookingPlatform(platform)) {
-      return NextResponse.json({ error: "say which booking system it came from" }, { status: 422 });
+      return NextResponse.json({ error: say.tr("bookings.refuse.whichSystem") }, { status: 422 });
     }
     const dateOrder =
       body.date_order === "dmy" || body.date_order === "mdy" ? body.date_order : null;
@@ -102,11 +114,11 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           outcome: d.outcome,
           ...(d.outcome === "refused" ? { reason: d.reason } : {}),
         })),
-        view: await bookingsView(session.account_id),
+        view: await bookingsView(session.account_id, say),
       },
       { status: 201 },
     );
   } catch (error) {
-    return onError(error, session.account_id);
+    return onError(error, session.account_id, say);
   }
 }

@@ -7471,5 +7471,905 @@
     "drafted": "Redactada. Le espera; aprobarla no escribe ningún precio ni ningún coste.",
     "blocked": "Una regla suya lo excluye, así que queda bloqueado en su cola.",
     "failed": "No ha funcionado."
+  },
+  "teamWords": {
+    "untitledRole": "Rol sin título",
+    "source": {
+      "square": "las reservas de Square",
+      "export": "su exportación de reservas"
+    },
+    "run": {
+      "mon": "Los lunes {from}–{to}",
+      "tue": "Los martes {from}–{to}",
+      "wed": "Los miércoles {from}–{to}",
+      "thu": "Los jueves {from}–{to}",
+      "fri": "Los viernes {from}–{to}",
+      "sat": "Los sábados {from}–{to}",
+      "sun": "Los domingos {from}–{to}"
+    },
+    "days": {
+      "mon": "lunes",
+      "tue": "martes",
+      "wed": "miércoles",
+      "thu": "jueves",
+      "fri": "viernes",
+      "sat": "sábado",
+      "sun": "domingo"
+    },
+    "daysSpan": "de {from} a {to}",
+    "rangeCount": {
+      "mon": "{days, plural, one {# lunes} many {# lunes} other {# lunes}}",
+      "tue": "{days, plural, one {# martes} many {# martes} other {# martes}}",
+      "wed": "{days, plural, one {# miércoles} many {# miércoles} other {# miércoles}}",
+      "thu": "{days, plural, one {# jueves} many {# jueves} other {# jueves}}",
+      "fri": "{days, plural, one {# viernes} many {# viernes} other {# viernes}}",
+      "sat": "{days, plural, one {# sábado} many {# sábados} other {# sábados}}",
+      "sun": "{days, plural, one {# domingo} many {# domingos} other {# domingos}}"
+    },
+    "range": {
+      "same": "({pct} todos los días de la mitad central de los {count} leídos)",
+      "spread": "({range} en la mitad central de los {count} leídos)"
+    },
+    "appts": "{n, plural, one {{v} cita} many {{v} citas} other {{v} citas}}",
+    "finding": {
+      "booked": "{run}: ocupación del {pct}",
+      "took": "{run}: {pct} de los ingresos de caja de la hora de más movimiento del día",
+      "line": "{range}; {reason}."
+    },
+    "reason": {
+      "perRole": "una persona con el rol «{role}» cubre cerca de {appts} por hora con su capacidad declarada de {capacity} a la semana",
+      "perHour": "su capacidad declarada de {capacity} a la semana equivale a cerca de {appts} por hora",
+      "onAverage": "en una hora de apertura media hay cerca de {n, plural, one {{v} persona} many {{v} personas} other {{v} personas}}, según las horas por rol que indicó",
+      "open": "son horas de apertura"
+    },
+    "note": {
+      "shortRole": "{run}: la demanda superó lo que cubre su capacidad declarada. Si quiere atender más, aquí es donde otra persona con el rol «{role}» añadiría cobertura primero.",
+      "shortHands": "{run}: la demanda superó lo que cubre su capacidad declarada. Si quiere atender más, aquí es donde un par de manos más añadiría cobertura primero.",
+      "quiet": "{run}: el tramo de apertura más tranquilo. Si alguna vez recorta los turnos, aquí es donde menos demanda perdería.",
+      "quietTakings": "{run}: el tramo de apertura más tranquilo según los ingresos de caja. Si alguna vez recorta los turnos, aquí es donde menos demanda perdería."
+    },
+    "headline": {
+      "top": "{words}; {reason}.",
+      "quietTop": "Ninguna hora de apertura supera su capacidad declarada; {words}.",
+      "none": "Ninguna hora de apertura supera su capacidad declarada ni está tranquila.",
+      "noneTakings": "Ninguna hora de apertura está tranquila frente a la de más movimiento del día."
+    },
+    "refused": {
+      "noDemand": {
+        "headline": "Todavía nada mide la demanda por horas.",
+        "reason": "La cobertura por horas necesita sus reservas (una exportación, o Square) o las ventas por hora de una caja conectada, una cuenta de pagos o una tienda.",
+        "can": "enumerar los roles que me indicó y sus horas"
+      },
+      "fewBookings": {
+        "headline": "{history, plural, one {# día} many {# días} other {# días}} de reservas hasta ahora; la cobertura por horas necesita {needed}.",
+        "reason": "Sus reservas van del {from} al {to}. Cuatro de cada día de la semana es lo mínimo con lo que clasifico una hora.",
+        "can": "contar las citas de {history, plural, one {el # día que hay} many {los # días que hay} other {los # días que hay}}"
+      },
+      "noCapacity": {
+        "headline": "Su capacidad semanal no está indicada, así que no puedo decir cuándo la demanda la supera.",
+        "reason": "No me ha dicho cuántas citas puede atender a la semana (pregunta {question}), y no voy a suponer ninguna cifra.",
+        "can": "contar las citas por horas"
+      },
+      "noTimes": {
+        "headline": "Sus reservas no tienen hora, así que no se pueden leer por horas.",
+        "reason": "Ninguna de las {n, plural, one {{count} cita} many {{count} citas} other {{count} citas}} del {from} al {to} indica cuándo empezó."
+      },
+      "byDay": "contar las citas por día",
+      "noHours": {
+        "headline": "No se pudo leer ninguna hora de apertura a partir de sus reservas.",
+        "reason": "Ningún día de la semana tuvo citas en suficientes de sus días para saber cuándo abre."
+      },
+      "fewSales": {
+        "headline": "{history, plural, one {# día} many {# días} other {# días}} de ventas por hora hasta ahora; la cobertura por horas necesita {needed}.",
+        "reasonNone": "Todavía no se ha medido ningún día de ventas por hora.",
+        "reason": "Las ventas por hora van del {from} al {to}. Cuatro de cada día de la semana es lo mínimo con lo que clasifico una hora."
+      },
+      "salesOnHours": "mostrar las ventas por hora que hay en Horario comercial",
+      "noSalesHours": {
+        "headline": "No se pudo leer ninguna hora de apertura a partir de sus ventas.",
+        "reason": "Ningún día de la semana tuvo ventas en suficientes de sus días para saber cuándo abre."
+      }
+    },
+    "cannot": {
+      "overCapacity": "decir qué horas superan lo que cubre su capacidad declarada",
+      "quiet": "decir qué horas de apertura están tranquilas",
+      "borrow": "tomar prestado el patrón de otros negocios como el suyo"
+    },
+    "limits": {
+      "rolesOnly": "Esto solo lee roles y horas. Nunca mira quién trabajó cuándo, y no dice nada de ninguna persona.",
+      "yoursToWeigh": "Las notas son para que usted las valore. Nada cambia un cuadrante, un turno ni las horas de nadie."
+    },
+    "season": {
+      "unread": "La temporada alta aún no se ha leído: {reason}.",
+      "reasonNoData": "todavía no se mide nada por día",
+      "reasonTooLittle": "{complete} de las {needed} semanas completas que necesita una temporada (listo hacia el {day})",
+      "noneAhead": "Ningún tramo de mucho movimiento en las próximas ocho semanas, según las mismas semanas del año pasado.",
+      "headUnderWay": "Su tramo de mucho movimiento ya ha empezado: el año pasado llegó a {index}× ({range}) una semana normal.",
+      "headStarts": "Su tramo de mucho movimiento empieza el {day}: el año pasado llegó a {index}× ({range}) una semana normal.",
+      "atLeast": "al menos {low}×",
+      "between": "{low}–{high}×",
+      "noFurther": "{head} Incluso en su extremo bajo, ninguna otra hora superaría su capacidad declarada.",
+      "further": "{head} En su extremo bajo, estas horas también superarían su capacidad declarada: {hours}."
+    },
+    "listSep": "; ",
+    "assumed": {
+      "capacity": "la capacidad es la misma en cada hora de apertura: sus {n, plural, one {{capacity} cita declarada} many {{capacity} citas declaradas} other {{capacity} citas declaradas}} a la semana ÷ {hours, plural, one {# hora de apertura} many {# horas de apertura} other {# horas de apertura}} = {appts} por hora",
+      "startHour": "una cita cuenta en la hora en que empieza",
+      "footprintBookings": "no se indica el horario de apertura de estos días: {days}; así que se lee de cuándo empiezan las citas (en al menos el {pct} de esos días)",
+      "evenSpread": "las horas por rol se reparten por igual entre las horas de apertura: no conozco los turnos",
+      "allServe": "cada rol que indicó cuenta para atender a la clientela",
+      "takings": "los ingresos de caja sustituyen a la demanda: una venta en una hora es un cliente atendido en ella",
+      "footprintTakings": "no se indica el horario de apertura de estos días: {days}; así que se lee de cuándo entran las ventas"
+    },
+    "notes": {
+      "noRolesBookings": "No hay roles de la entrevista (quién trabaja en el negocio y sus horas), así que esto es solo la demanda frente a la capacidad.",
+      "unplaced": "{n, plural, one {{count} cita no tenía hora de inicio y no se ha colocado en ninguna hora.} many {{count} citas no tenían hora de inicio y no se han colocado en ninguna hora.} other {{count} citas no tenían hora de inicio y no se han colocado en ninguna hora.}}",
+      "takingsNoCapacity": "Los ingresos de caja no pueden mostrar cuándo la demanda supera su capacidad: la capacidad no se cuenta en dinero. Una exportación de reservas sí puede.",
+      "noRolesTakings": "No hay roles de la entrevista (quién trabaja en el negocio y sus horas), así que esto es solo la demanda."
+    }
+  },
+  "siteWords": {
+    "join": "{first} {then}",
+    "check": {
+      "opening_hours": "Horario de apertura",
+      "prices": "Precios",
+      "menu": "Carta",
+      "location_map": "Dirección y mapa",
+      "parking": "Aparcamiento",
+      "phone_contact": "Un número de teléfono",
+      "contact_email": "Una dirección de correo electrónico",
+      "booking": "Reservas o citas",
+      "reviews": "Reseñas o testimonios",
+      "events": "Eventos y programación",
+      "photos": "Fotos del local o del trabajo",
+      "dietary_options": "Opciones dietéticas",
+      "delivery": "Envío y su coste",
+      "returns_policy": "Política de devoluciones",
+      "payment_methods": "Formas de pago",
+      "service_area": "La zona que se atiende",
+      "quote_request": "Una forma de pedir presupuesto",
+      "portfolio": "Trabajos anteriores",
+      "credentials": "Titulaciones y licencias",
+      "guarantee": "Una garantía",
+      "faq": "Respuestas a preguntas frecuentes",
+      "team": "Con quién va a tratar",
+      "stock_availability": "Si hay existencias"
+    },
+    "platform": {
+      "line": {
+        "api": "{platform}: los cambios se pueden aplicar por usted en cuanto le dé permiso para hacer cambios, un paso aparte, en su propia pantalla.",
+        "partial": "{platform}: algunos elementos se pueden cambiar mediante programación, no todos; lo demás llega como instrucciones.",
+        "manual": "{platform} no se puede editar mediante programación: recibirá el cambio exacto representado antes y después, más instrucciones paso a paso para su editor. Es la versión honesta de esta función para su plataforma.",
+        "unknown": "No sé qué sirve este sitio: le mostraré el cambio y las diferencias, y aplicarlo seguirá siendo manual hasta que pueda saberlo."
+      },
+      "editable": {
+        "api": "por API",
+        "partial": "parcial",
+        "manual": "manual",
+        "unknown": "desconocido"
+      },
+      "custom": "sitio propio",
+      "marker": {
+        "shopify": "objeto de tema/CDN de Shopify",
+        "woocommerce": "recursos de WooCommerce",
+        "wix": "recursos estáticos de Wix",
+        "squarespace": "recursos de Squarespace",
+        "webflow": "atributos de sitio de Webflow",
+        "wordpress": "rutas de contenido de WordPress",
+        "none": "no se encontraron marcas de plataforma"
+      }
+    },
+    "change": {
+      "summary": "En {host}: «{find}» → «{replace}»",
+      "previewTooLarge": "la página es demasiado grande para una vista previa en directo: las diferencias de arriba son exactas, pero no se muestra la representación",
+      "manual": {
+        "open": "Abra {url} en su editor de {editor}.",
+        "find": "Busque el texto: «{find}»",
+        "replace": "Sustitúyalo por: «{replace}»",
+        "compare": "Use la vista previa del editor para compararla con el antes y el después que se muestran aquí.",
+        "publish": "Publique cuando coincida con el después.",
+        "wix": "En el editor, haga clic en el propio elemento de texto: Wix edita directamente en la página.",
+        "squarespace": "Edite la sección de la página que contiene el texto (pase el cursor → Editar)."
+      },
+      "rationale": {
+        "manual": "Su plataforma no se puede editar mediante programación, así que su aprobación le da el cambio exacto representado y los pasos: no se aplica nada por usted.",
+        "engine": "La aprobación pone el cambio en cola; aplicarlo pasa por el ejecutor, con el estado anterior de la página guardado para siempre, a un clic de restaurarse."
+      },
+      "assumption": {
+        "platform": "La página la sirve {platform} ({marker})",
+        "baseline": "Carga de referencia en el momento de la propuesta: {ms} ms, la referencia para la reversión automática"
+      },
+      "case": {
+        "base": "La página dice lo nuevo; nada más cambia en ella.",
+        "downside": "La página da errores o se vuelve mucho más lenta tras el cambio: se revierte automáticamente y usted ve por qué.",
+        "upside": "El seguimiento podrá comparar las semanas de antes y de después cuando la medición esté conectada.",
+        "breakeven": "sin gasto: una línea de texto"
+      },
+      "reverse": {
+        "manual": "Usted lo cambia de nuevo en su editor: la representación del antes que ve aquí es la referencia.",
+        "engine": "Un clic: el estado anterior de la página se guarda de forma permanente, no durante un plazo."
+      }
+    },
+    "error": {
+      "findEmpty": "indique qué texto hay que buscar",
+      "replaceEmpty": "indique en qué debe convertirse",
+      "nothing": "eso no cambia nada",
+      "moneyPath": "esa página es una superficie de dinero: las páginas de pago, carrito, cobro y facturación son intocables en cualquier nivel de aprobación (regla {rule})",
+      "pageStatus": "la página respondió {status}: ahí no hay nada que cambiar",
+      "notFound": "No encuentro «{find}» en esa página: cópielo exactamente como aparece",
+      "notUnique": "«{find}» aparece {count, plural, one {# vez} many {# veces} other {# veces}} en esa página: incluya suficiente texto alrededor para que sea único",
+      "moneyContext": "ese texto está dentro de una zona de pago de la página: las superficies de dinero son intocables, así que esto ni siquiera se puede proponer (regla {rule})",
+      "noProposal": "no existe esa propuesta",
+      "notSite": "no es una propuesta del sitio web",
+      "manualApply": "{platform} no se puede editar mediante programación: este cambio lo aplica usted, con las instrucciones de la tarjeta",
+      "noWriter": "para aplicarlo en {platform} hace falta conectar su acceso de escritura: ese permiso lo dará aparte, en su propia pantalla. Hasta entonces, esta tarjeta, con su antes y después, es la referencia para cambiarlo usted",
+      "driftGone": "la página ha cambiado desde que lo aprobó: el texto ya no está; vuelva a proponerlo sobre la página de hoy",
+      "driftNotUnique": "la página ha cambiado desde que lo aprobó: el texto ya no es único; vuelva a proponerlo sobre la página de hoy",
+      "signedIn": "para cambiar un sitio en directo tiene que haber iniciado sesión",
+      "proposalId": "falta proposal_id",
+      "executionId": "falta execution_id",
+      "fields": "faltan url, find y replace",
+      "auditSignedIn": "para auditar su sitio tiene que haber iniciado sesión"
+    },
+    "fetch": {
+      "scheme": "solo se pueden leer sitios http(s)",
+      "credentials": "las credenciales no deben ir en la dirección de un sitio",
+      "noResolve": "«{host}» no se resuelve: ¿es correcta la dirección?",
+      "private": "esa dirección apunta a una red privada: no se va a consultar",
+      "notAddress": "eso no parece una dirección web",
+      "ports": "solo se puede leer http(s) en los puertos estándar {http} y {https}",
+      "redirects": "demasiadas redirecciones: el sitio nunca se estabilizó"
+    },
+    "audit": {
+      "noSite": "No hay ningún sitio web en su perfil que auditar: añádalo a su ficha de datos.",
+      "badSite": "El sitio web de su perfil no parece una dirección web.",
+      "cooldown": "El sitio se auditó hace menos de una hora: la próxima auditoría se abre a las {time} UTC.",
+      "running": "Ya hay una auditoría de este sitio en marcha.",
+      "homeUnreadable": "No se pudo leer su página de inicio: {reason}",
+      "homeUnreadableBare": "No se pudo leer su página de inicio",
+      "failed": "la auditoría falló"
+    },
+    "walk": {
+      "homeStatus": "la página de inicio respondió {status}",
+      "homeUnread": "no se pudo leer la página de inicio",
+      "unread": "no se pudo leer",
+      "unloaded": "no se pudo cargar",
+      "answers": "responde {status}",
+      "home": "Inicio",
+      "addToCart": "Añadir al carrito (botón visto, no pulsado)",
+      "checkout": "Pago (entrada vista, no abierta)",
+      "external": "{text} (en {host}, no abierto)",
+      "book": "Reservar",
+      "note": {
+        "counted": "Contado siguiendo los enlaces del propio sitio desde la página de inicio; no se añadió nada a ningún carrito y nunca se abrió el pago.",
+        "noAddToCart": "No encontré ningún botón de añadir al carrito en «{label}» en la propia página: puede que lo dibuje un script que no ejecuto.",
+        "assumedCart": "SUPUESTO: añadir al carrito lleva al comprador al carrito, o abre un panel de carrito, con un botón de pago; así que el pago está a un clic después.",
+        "cartEmpty": "La página del carrito, leída vacía, no mostraba ningún botón de pago en su propio HTML: puede que aparezca cuando haya algo dentro.",
+        "booking": "Contado siguiendo los enlaces del propio sitio desde la página de inicio; no se hizo ninguna reserva ni se envió ningún formulario.",
+        "external": "La reserva en sí se hace en el sitio de otra empresa, que la auditoría no lee; el recuento se detiene en su enlace.",
+        "cartOnly": "Llegué al carrito, pero a ninguna página de producto desde los enlaces de la página de inicio, así que no se pueden contar los clics hasta comprar.",
+        "contact": "Desde los enlaces de la página de inicio no se llegaba a ninguna página de tienda ni de reservas; el camino que puede seguir un cliente termina en la página de contacto.",
+        "checkoutOnly": "Hay un enlace de pago, pero antes de él no se llegaba por enlaces a ninguna página de producto, carrito ni reservas.",
+        "none": "Desde los enlaces de la página de inicio no se llegaba a ninguna página de producto, carrito, reservas ni contacto."
+      }
+    },
+    "pagespeed": {
+      "noMeasurement": "Google no devolvió ninguna medición de la página",
+      "runtime": "Google no pudo cargar la página ({code})",
+      "quotaWeek": "las llamadas a PageSpeed de esta semana para el sitio están agotadas",
+      "unreachable": "No se pudo contactar con el servicio PageSpeed de Google",
+      "quotaKeyed": "la cuota de PageSpeed de Google para la clave de SYB está agotada por ahora",
+      "quotaShared": "la cuota compartida de PageSpeed de Google está agotada por ahora (no hay PAGESPEED_API_KEY configurada)",
+      "couldntLoad": "Google no pudo cargar la página para medirla",
+      "refused": "Google se negó a medir la página (estado {status})",
+      "badKey": "Google rechazó la clave de PageSpeed (estado {status}): compruebe que la clave permite la API de PageSpeed Insights",
+      "failed": "El servicio PageSpeed de Google falló (estado {status})",
+      "failedBare": "El servicio PageSpeed de Google falló",
+      "noKey": "No se midió la velocidad de la página: el servicio PageSpeed de Google necesita una clave de API gratuita (PAGESPEED_API_KEY) y rechaza cualquier petición sin ella. El camino hasta la compra y los enlaces rotos sí se leyeron.",
+      "stopped": "{reason}: mediciones hechas: {made} de {planned}.",
+      "weekUsed": "Las llamadas a PageSpeed de esta semana para el sitio están agotadas (cupo: {cap}), así que esta vez no se midió la velocidad.",
+      "short": "Las llamadas a PageSpeed de esta semana para el sitio no alcanzaron: mediciones hechas: {made} de {planned}, primero los teléfonos."
+    },
+    "finding": {
+      "withPage": "{title} — {page}",
+      "on": {
+        "mobile": "en un teléfono",
+        "desktop": "en un ordenador"
+      },
+      "unit": {
+        "s": "{value} s",
+        "ms": "{value} ms",
+        "mb": "{value} MB"
+      },
+      "title": {
+        "lcp": "El contenido principal tarda {shown} en aparecer {on}",
+        "cls": "La página da saltos mientras carga {on} (desplazamiento {shown})",
+        "inp": "La página tarda {shown} en responder a un toque {on}",
+        "tbt": "Los scripts bloquean la página {shown} mientras carga {on}",
+        "heavy": "La página pesa {size}",
+        "tap": "{count, plural, one {# botón o enlace es demasiado pequeño o está demasiado cerca para tocarlo} many {# botones o enlaces son demasiado pequeños o están demasiado cerca para tocarlos} other {# botones o enlaces son demasiado pequeños o están demasiado cerca para tocarlos}}",
+        "contrast": "{count, plural, one {# fragmento de texto se lee mal sobre su fondo} many {# fragmentos de texto se leen mal sobre su fondo} other {# fragmentos de texto se leen mal sobre su fondo}}",
+        "pathMissing": "No pude seguir los enlaces de su sitio hasta {entry, select, checkout {el pago} other {la reserva}}",
+        "pathLong": "Hacen falta {count, plural, one {# clic} many {# clics} other {# clics}} desde su página de inicio hasta {entry, select, checkout {el pago} other {la reserva}}",
+        "price": "No hay precio en la primera pantalla de «{label}»",
+        "form": "El formulario de {role, select, contact {contacto} booking {reserva} other {{role}}} pide {count, plural, one {# dato} many {# datos} other {# datos}}",
+        "broken": "Un enlace en {page} está roto: {url} {reason}"
+      },
+      "what": {
+        "lcp": "Largest Contentful Paint: cuánto tarda en mostrarse lo más grande de la pantalla",
+        "cls": "Cumulative Layout Shift: cuánto se mueve el diseño bajo el pulgar del visitante",
+        "inp": "Interaction to Next Paint: el retraso entre un toque y la respuesta de la página",
+        "tbt": "Total Blocking Time: medido en laboratorio en lugar de INP, que necesita visitantes reales"
+      },
+      "basis": {
+        "field": "visitantes reales en Chrome durante {days, plural, one {el último # día} many {los últimos # días} other {los últimos # días}} (datos de campo de Google, percentil {pct})",
+        "field_origin": "visitantes reales de todo su sitio durante {days, plural, one {el último # día} many {los últimos # días} other {los últimos # días}}: Google tenía muy pocos para esta página sola",
+        "lab": "una carga de prueba en el dispositivo emulado de Google (datos de laboratorio)",
+        "page_read": "la lectura por SYB del propio HTML de la página"
+      },
+      "detail": {
+        "vital": "{what}. Medido a partir de {basis}.",
+        "others": "{count, plural, one {# página más también está fuera de la línea buena.} many {# páginas más también están fuera de la línea buena.} other {# páginas más también están fuera de la línea buena.}}",
+        "heavy": "Cada byte que carga, imágenes y scripts incluidos, a partir de {basis}. Con la conexión de un teléfono, eso es la espera del visitante y sus datos móviles.",
+        "tap": "La comprobación de zonas táctiles de Google en su teléfono emulado. Un pulgar que pulsa el enlace equivocado es un visitante que se rinde.",
+        "contrast": "La comprobación de contraste de color de Google (el mínimo del estándar de accesibilidad), {on}.",
+        "noEntry": "No se llegaba por enlaces a ninguna entrada {entry, select, checkout {de pago} other {de reservas}}.",
+        "path": "{steps}.",
+        "price": "Leído del propio texto de la página tras la cabecera y el menú: no hay precio en lo que un teléfono muestra primero (una aproximación: SYB no representa la página).",
+        "form": "{required, plural, one {# de ellos obligatorio.} many {# de ellos obligatorios.} other {# de ellos obligatorios.}} Contado a partir del HTML de la página; el formulario no se envió.",
+        "brokenOnPath": "Está en el camino hacia la compra, donde un callejón sin salida cuesta una venta.",
+        "broken": "Un visitante que hace clic en él se encuentra un callejón sin salida."
+      },
+      "threshold": {
+        "google": "bueno ≤ {good}, malo > {poor} (Google)",
+        "lighthouse": "bueno ≤ {good}, malo > {poor} (Lighthouse)",
+        "heavy": "pesada > {medium}, muy pesada > {high} (SYB)",
+        "failures": "cualquiera es un hallazgo; {medium} o más es medio (SYB)",
+        "entry": "una entrada {entry, select, checkout {de pago} other {de reservas}} a la que se llegue por enlaces desde el inicio (SYB)",
+        "clicks": "bien ≤ {ok}, largo > {ok}, muy largo > {medium, plural, one {# clic} many {# clics} other {# clics}} (SYB)",
+        "price": "un precio en la primera pantalla de una página de producto o servicio (aproximación de SYB: {chars, plural, one {el primer carácter} many {los primeros # caracteres} other {los primeros # caracteres}} del propio texto de la página)",
+        "form": "{medium} campos o más es largo, {high} o más muy largo (SYB)",
+        "broken": "cualquier enlace de su propio sitio que responda {status} o más, o que no cargue (SYB)"
+      }
+    },
+    "euro": {
+      "needs": "sin calcular: necesita el tráfico y la conversión de su propio sitio",
+      "needsBecause": "sin calcular: necesita el tráfico y la conversión de su propio sitio ({missing})",
+      "zero": "sin calcular: su tráfico, sus pedidos o su valor de pedido es cero",
+      "inside": "sin calcular: la página está dentro de la línea buena",
+      "notSpeed": "sin calcular: ninguna regla general relaciona esto con ventas a las que SYB vaya a poner una cifra",
+      "missing": {
+        "visits": "visitas mensuales al sitio web",
+        "orders": "pedidos mensuales",
+        "revenue": "ingresos mensuales",
+        "list": "faltan sus propios datos: {list}",
+        "zero": "sus pedidos mensuales son cero"
+      },
+      "formula": "{visits} visitas × {conversion} de conversión × {aov} de valor de pedido × {range} por segundo × {over} por encima de la línea buena",
+      "window": {
+        "measured": "el último mes de sus conectores, a fecha de {day}",
+        "stated": "sus propias cifras mensuales, a fecha de {day}"
+      },
+      "assumed": {
+        "wait": "SUPUESTO: cada segundo que un teléfono espera más allá de {good} pierde {range} de los pedidos; es una regla general de estudios publicados sobre comercio, no medida en su sitio.",
+        "everyOrder": "SUPUESTO: cada pedido contado pasa por la carga de esta página; la parte que llega desde un teléfono no se mide, así que el extremo alto exagera.",
+        "max": "SUPUESTO: se cuentan como máximo {max, plural, one {# segundo} many {# segundos} other {# segundos}}."
+      }
+    }
+  },
+  "customersWords": {
+    "join": "{first} {then}",
+    "semi": "{first}; {then}",
+    "sentence": "{text}.",
+    "segment": {
+      "label": {
+        "lapsed": "Clientes inactivos",
+        "lapsing": "Clientes en retirada",
+        "new": "Clientes nuevos",
+        "vip": "Mejores clientes",
+        "abandoned_cart": "Compradores que dejaron un carrito"
+      },
+      "all": "todos los segmentos",
+      "evidence": {
+        "lapsed": "inactivo = última compra (o actividad) más de {days} días antes del {date}",
+        "lapsing": "en retirada = última compra hace entre {from} y {to} días",
+        "new": "nuevo = visto por primera vez en los últimos {days} días, con un pedido como máximo",
+        "vip": "VIP = {orders} pedidos o más, o {floor}",
+        "vipFew": "menos de {min} contactos tienen un importe de gasto, así que solo cuenta el número de pedidos",
+        "vipFloor": "el {share} superior del gasto en {currency} empieza en {amount}",
+        "match": "coinciden {matched} de {all} contactos; {emailable} tienen consentimiento explícito para correo y ninguna exclusión (regla {rule}), {noConsent} sin consentimiento, {noEmail} sin dirección, {suppressed} excluidos"
+      }
+    },
+    "skip": {
+      "line": "{segment}: {reason}",
+      "watching": "Estoy observando hasta el {date} y no propongo nada antes.",
+      "posture": "su propia respuesta sobre el consentimiento de los clientes ({question}) fue «sin consentimiento»: el correo saliente sigue desactivado hasta que sus datos digan otra cosa",
+      "alreadyToday": "ya se propuso hoy",
+      "alreadyMonth": "ya se propuso este mes",
+      "cartRecent": "a todos los que dejaron un carrito esta semana y aceptaron recibir correos ya se les propuso un recordatorio en {days, plural, one {el último día} many {los últimos # días} other {los últimos # días}}",
+      "noCart": "ningún contacto que aceptara recibir correos dejó un carrito en la última semana",
+      "nobody": "no hay nadie en este segmento",
+      "noConsent": "{count, plural, one {# en el segmento, sin consentimiento explícito para correo: no hay a quién enviar} many {# en el segmento, ninguno con consentimiento explícito para correo: no hay a quién enviar} other {# en el segmento, ninguno con consentimiento explícito para correo: no hay a quién enviar}}",
+      "declined": "ha rechazado el correo a clientes {count, plural, one {# vez} many {# veces} other {# veces}}: he dejado de proponerlo"
+    },
+    "campaign": {
+      "fallback": "campaña",
+      "summary": {
+        "winback": "{count, plural, one {Recuperar a {n} cliente inactivo que aceptó recibir correos} many {Recuperar a {n} clientes inactivos que aceptaron recibir correos} other {Recuperar a {n} clientes inactivos que aceptaron recibir correos}}",
+        "vip": "{count, plural, one {Dar las gracias a su {n} mejor cliente} many {Dar las gracias a sus {n} mejores clientes} other {Dar las gracias a sus {n} mejores clientes}}",
+        "cart": "{count, plural, one {Recordar a {n} comprador que dejó un carrito esta semana y aceptó recibir correos} many {Recordar a {n} compradores que dejaron un carrito esta semana y aceptaron recibir correos} other {Recordar a {n} compradores que dejaron un carrito esta semana y aceptaron recibir correos}}"
+      }
+    },
+    "compliance": {
+      "atSend": {
+        "address": "la dirección de envío",
+        "unsubscribe": "el enlace de baja propio de cada destinatario"
+      },
+      "ask": {
+        "name": "Añada el nombre de su negocio",
+        "postal": "Añada su dirección postal"
+      },
+      "gap": {
+        "name": "el nombre del negocio",
+        "postal_address": "la dirección postal del negocio",
+        "because": "{words} ({why})",
+        "disclosure": "la línea que indica el uso de IA (SYB, en todas partes)"
+      },
+      "noCountry": "no se conoce el país del negocio, así que tampoco sus normas de correo",
+      "noRules": "SYB aún no conoce las normas de marketing por correo de {country}: no se envía nada allí",
+      "regime": {
+        "eu_gdpr": "UE/EEE",
+        "uk_pecr": "Reino Unido",
+        "us_can_spam": "Estados Unidos",
+        "ca_casl": "Canadá",
+        "au_spam_act": "Australia"
+      }
+    },
+    "gate": {
+      "stopped": "Todo está detenido (la parada de emergencia está activada). No se envía nada hasta que lo reanude.",
+      "no_mode_decision": "Aún no hay una decisión sobre cómo trabajo con su negocio, así que no se envía nada.",
+      "watching": "Estoy observando su negocio, sin cambiarlo, así que no se envía nada hasta que termine la observación.",
+      "labelled_undoable": "Esta campaña se aprobó como algo que se podía deshacer, y un correo enviado no se puede recuperar. Recházela en la cola y vuelva a proponerla.",
+      "not_connected": "El correo de campañas no está conectado. Autorícelo primero en Conexiones.",
+      "outbound_off": "Su propia respuesta sobre el consentimiento de los clientes fue «sin consentimiento», así que el correo saliente está desactivado hasta que sus datos digan otra cosa.",
+      "email_not_set_up": "El correo aún no está configurado: falta la clave de envío de SYB o su dirección web pública, así que un enlace de baja no tendría adónde apuntar.",
+      "no_draft": "Aún no hay ningún correo redactado para esta campaña.",
+      "draft_not_approved": "Aún no ha dado su aprobación al correo en sí.",
+      "draft_changed": "El correo cambió después de que usted lo aprobara. Vuelva a aprobarlo tal como está ahora antes de que se envíe.",
+      "draft_incomplete": "Al correo le falta el espacio para el enlace de baja o la indicación de IA, así que no puede enviarse tal como se aprobó.",
+      "law_review_missing": "Nadie ha revisado aún las normas sobre correo comercial frente a la ley vigente, así que no se envía ninguna campaña.",
+      "law_review_stale": "Las normas sobre correo comercial cambiaron después de su última revisión ({date}), así que esa revisión ya no las cubre y no se envía ninguna campaña hasta que se revisen de nuevo.",
+      "first_campaign_unreviewed": "Esta es su primera campaña, así que una persona de SYB la lee antes de que salga. Las campañas comparten la dirección de envío de SYB, y así sigue siendo fiable para todos. Se envía en cuanto esa revisión quede registrada.",
+      "real_sends_off": "{label} está desactivado hasta que termine la prueba de dos semanas sin supervisión. No se envió nada; esto sigue aprobado. Saldrá en la primera ejecución después de que se active.",
+      "real_sends_label": "El correo de campañas"
+    },
+    "send": {
+      "sent": "Enviado. Cada destinatario se volvió a comprobar en el momento del envío.",
+      "unfinished": "El envío no terminó.",
+      "reclaimed": "El envío se detuvo sin terminar. Quien aún no haya recibido el correo lo recibirá en la siguiente ejecución; a quien pudo haberle llegado queda sin confirmar y nunca se le vuelve a escribir.",
+      "stillApproved": "No se envió nada; esto sigue aprobado."
+    },
+    "readback": {
+      "recipients": "{count, plural, one {{n} destinatario} many {{n} destinatarios} other {{n} destinatarios}}",
+      "comparisonCustomers": "{count, plural, one {{n} cliente de comparación} many {{n} clientes de comparación} other {{n} clientes de comparación}}",
+      "harm": "se dieron de baja o lo marcaron como spam: {recipients} (bajas: {unsubscribed}, quejas: {complained}) de {sent} enviados, {rate} — contraproducente a partir del {harmRate} con al menos {harmMin} personas, o con cualquier queja a partir del {complaintRate}",
+      "nothingSent": "no se envió nada: no hay nada que medir",
+      "bought": "volvieron a comprar desde entonces: {returned} de {measured} destinatarios medidos ({rate})",
+      "noExport": "no ha llegado ninguna exportación de clientes que los cubra al menos {days} días después del correo: importe una y el veredicto será posible",
+      "noExportOf": "no ha llegado ninguna exportación de clientes que los cubra al menos {days} días después del correo del {date}: importe una y el veredicto será posible",
+      "fewMeasured": "medidos por una exportación de clientes al menos {days} días después del correo: {recipients} — el veredicto necesita {min}",
+      "canEver": "solo se pueden llegar a medir: {recipients} (borrados: {erased}) — el veredicto necesita {min}",
+      "compared": "{bought}, frente a {returned} de {measured} {group} a los que no pude escribir ({rate}) — {lift} puntos (ayudó a partir de {helped}, contraproducente a partir de {backfired})",
+      "group": {
+        "winback": "clientes inactivos",
+        "vip": "mejores clientes"
+      },
+      "notRandom": "no aleatorizado: el grupo de comparación nunca aceptó recibir correos, así que se diferencia en algo más que el correo",
+      "uncontrolledBase": "medidos: {customers} — la comparación necesita {min}",
+      "nobodyBought": "nadie volvió a comprar, así que ninguna comparación podría convertirlo en una mejora ({uncontrolled})",
+      "nextExport": "{uncontrolled}; la próxima exportación puede medir al resto",
+      "uncontrolled": "sin grupo de control: {uncontrolled}, así que no puedo decir que el correo lo causara — un aumento por sí solo nunca es «ayudó»"
+    },
+    "measured": {
+      "delivery": "la entrega, los rebotes y los informes de spam del servicio de correo",
+      "unsubscribes": "las bajas desde los enlaces de cada correo",
+      "purchasesOf": "las compras de su exportación de clientes del {date}",
+      "purchasesNext": "las compras de su próxima exportación de clientes, cuando llegue",
+      "notDelivery": "la entrega y los informes de spam (el webhook del servicio de correo aún no está configurado)",
+      "opens": "las aperturas (exigen un píxel de seguimiento, que es una cuestión de consentimiento en sí misma, y Apple Mail genera informes de aperturas que nadie hizo)",
+      "replies": "las respuestas, que le llegan directamente a usted",
+      "repliesAt": "las respuestas, que le llegan directamente a usted en {address}",
+      "sentence": "He contado {counted}; no cuento {notCounted}.",
+      "sentenceControlled": "He contado {counted}; no cuento {notCounted}, y los clientes con los que comparo nunca aceptaron recibir correos, así que la comparación no es una prueba controlada."
+    },
+    "error": {
+      "signIn": "importar, borrar o proponer requiere haber iniciado sesión",
+      "server": "algo ha fallado por nuestra parte",
+      "csvStatement": "se requieren csv y statement",
+      "status": "status debe ser uno de estos: {values}",
+      "required": "{field} es obligatorio",
+      "requiredMany": "{fields} son obligatorios",
+      "action": "action debe ser {actions}",
+      "noFields": "un contacto necesita al menos un correo, un nombre o un teléfono",
+      "provenance": "el consentimiento necesita su procedencia: ¿cómo se obtuvo?",
+      "suppressed": "esa dirección está excluida de forma permanente ({reason}): no se puede volver a añadir",
+      "duplicate": "ya existe un contacto con ese correo",
+      "noContact": "no existe ese contacto",
+      "noConversation": "no existe esa conversación",
+      "noTicket": "no existe ese ticket",
+      "attestation": "una importación necesita su declaración: ¿a qué dieron su consentimiento estos contactos y cómo?",
+      "tooLarge": "ese archivo es demasiado grande para una sola importación: divídalo",
+      "noRows": "el CSV necesita una fila de encabezado y al menos un contacto",
+      "maxRows": "una importación admite hasta {max, plural, one {# fila} many {# filas} other {# filas}}: divida el archivo",
+      "noColumns": "no se encontraron columnas utilizables: el encabezado necesita al menos una de estas: {columns}",
+      "currency": "el archivo tiene una columna spent: indique en qué moneda está (tres letras, p. ej., {example})",
+      "noProposal": "no existe esa propuesta",
+      "notEmail": "esta propuesta no es un correo a clientes",
+      "draftNotApproved": "solo se redacta una campaña aprobada; esta está {status, select, pending {pendiente} approved {aprobada} rejected {rechazada} expired {caducada} executed {ejecutada} blocked {bloqueada} changes_requested {con cambios solicitados} other {{status}}}",
+      "notStored": "no se pudo guardar el borrador",
+      "noProfile": "no existe ese perfil",
+      "noCampaign": "no existe esa campaña",
+      "sendNotApproved": "solo se envía una campaña aprobada; esta está {status, select, pending {pendiente} approved {aprobada} rejected {rechazada} expired {caducada} executed {ejecutada} blocked {bloqueada} changes_requested {con cambios solicitados} other {{status}}}",
+      "subject": "la línea de asunto debe ser una sola línea de {max, plural, one {# carácter} many {# caracteres} other {# caracteres}} como máximo",
+      "changed": "el correo cambió desde que lo abrió: vuelva a leerlo tal como está ahora y después dé su aprobación"
+    }
+  },
+  "supportWords": {
+    "error": {
+      "crossSite": "esta solicitud no procede de nuestra página",
+      "signIn": "cambiar lo que dice el asistente, o su clave, requiere haber iniciado sesión",
+      "server": "algo ha fallado por nuestra parte",
+      "hours": "hours debe ser un número o null",
+      "required": "{field} es obligatorio",
+      "requiredBoth": "{first} y {second} son obligatorios",
+      "action": "action debe ser {actions}",
+      "nothingNew": "no hay nada nuevo que proponer: todas las respuestas que admite el perfil ya son públicas o ya están en su cola",
+      "bothRequired": "se necesitan tanto una pregunta como una respuesta",
+      "tooLong": "la pregunta debe tener menos de {question, plural, one {# carácter} many {# caracteres} other {# caracteres}} y la respuesta menos de {answer, plural, one {# carácter} many {# caracteres} other {# caracteres}}",
+      "noProposal": "no existe esa propuesta",
+      "notKnowledge": "esta propuesta no es una propuesta de conocimiento",
+      "notApproved": "solo se publica una propuesta aprobada; esta está {status, select, pending {pendiente} approved {aprobada} rejected {rechazada} expired {caducada} executed {ejecutada} blocked {bloqueada} changes_requested {con cambios solicitados} other {{status}}}",
+      "noEntries": "la propuesta no contenía ninguna entrada",
+      "noEntry": "no existe esa entrada pública",
+      "noProfile": "no existe ese perfil",
+      "replyHours": "un tiempo de respuesta es un número entero de horas, de {min, number} a {max, number}",
+      "noConversation": "no existe esa conversación",
+      "noTicket": "no existe ese ticket",
+      "answerLong": "la respuesta debe tener menos de {max, plural, one {# carácter} many {# caracteres} other {# caracteres}}",
+      "noOpenTicket": "no existe ese ticket abierto",
+      "notRecorded": "no se pudo registrar la derivación",
+      "faqDeclined": "el modelo de agrupación rechazó estas preguntas; no se propuso nada",
+      "noReply": "no existe esa respuesta",
+      "liveReply": "ya hay una respuesta en este ticket: termínela o recházela primero",
+      "noAddressDraft": "no hay ninguna dirección a la que responder en este ticket, así que no hay nada que redactar",
+      "notEnabled": "el soporte no está activado para este negocio",
+      "writeFirst": "escriba primero la respuesta",
+      "replyLong": "una respuesta debe tener menos de {max, plural, one {# carácter} many {# caracteres} other {# caracteres}}",
+      "already": "esta respuesta ya está {status, select, drafted {redactada} declined {rechazada} approved {aprobada} sending {enviándose} sent {enviada} failed {fallida} other {{status}}}",
+      "changedEditing": "esta respuesta cambió mientras usted la editaba",
+      "noAddress": "no hay ninguna dirección a la que responder en este ticket",
+      "notSaved": "no se pudo guardar la respuesta",
+      "draftNotSaved": "no se pudo guardar el borrador",
+      "decided": "se decidió sobre esta respuesta hace un momento"
+    },
+    "draft": {
+      "cant": "No puedo redactar esto a partir de sus respuestas aprobadas: escríbalo usted.",
+      "budget": "El presupuesto de soporte de este mes ({budget}) está agotado, así que no redactaré: escríbalo usted.",
+      "times": "Ya he redactado este ticket {count, plural, one {# vez} many {# veces} other {# veces}}: escriba usted este.",
+      "unreachable": "No he podido contactar ahora con el modelo de redacción: escríbalo usted o inténtelo más tarde."
+    },
+    "note": {
+      "notSetUp": "No enviado: el correo aún no está configurado.",
+      "stopped": "No enviado: todo está detenido (la parada de emergencia está activada). Sigue aprobado; se envía cuando reanude y lo envíe.",
+      "maybeSent": "Puede que haya enviado esto: el servicio de correo no lo confirmó en ningún sentido. No volveré a enviarlo por mi cuenta: revise su correo enviado, o pregunte al cliente, antes de volver a escribir.",
+      "noAddress": "No enviado: no hay ninguna dirección a la que responder en este ticket.",
+      "suppressed": "No enviado, el control de envío lo rechazó: dirección excluida ({reason}).",
+      "refused": "No enviado, el control de envío lo rechazó: {reason}.",
+      "notEnabled": "No enviado: el soporte no está activado para este negocio.",
+      "textChanged": "No enviado: el texto ya no coincide con lo que usted aprobó.",
+      "serviceRefused": "No enviado: el servicio de correo lo rechazó ({what}). No salió nada: vuelva a escribirlo para reintentarlo."
+    },
+    "summary": {
+      "facts": "{count, plural, one {Publicar {n} respuesta que el asistente de clientes puede dar} many {Publicar {n} respuestas que el asistente de clientes puede dar} other {Publicar {n} respuestas que el asistente de clientes puede dar}}",
+      "custom": "Publicar una respuesta escrita por usted: «{question}»",
+      "faq": "{count, plural, one {Publicar {n} respuesta que los clientes siguen pidiendo, con sus propias palabras} many {Publicar {n} respuestas que los clientes siguen pidiendo, con sus propias palabras} other {Publicar {n} respuestas que los clientes siguen pidiendo, con sus propias palabras}}",
+      "fallback": "propuesta de conocimiento"
+    }
+  },
+  "connectionsWords": {
+    "sentence": "{text}.",
+    "label": {
+      "meta_publish": "Publicación en Meta (página de Facebook e Instagram)",
+      "meta_ads": "Gestión de anuncios de Meta",
+      "email_campaign": "Correo de campañas",
+      "google_business_reviews": "Reseñas del Perfil de Empresa de Google"
+    },
+    "part": {
+      "extra": "se ha concedido {scopes}, que el consentimiento no menciona (un permiso de más es un rechazo, no un extra)",
+      "missing": "falta {scopes}, que el consentimiento exige",
+      "sep": "; ",
+      "why": {
+        "removed": "la aplicación de SYB se ha eliminado de la cuenta de Meta",
+        "password": "ha cambiado la contraseña de la cuenta de Meta, lo que cierra la sesión de todas las aplicaciones",
+        "expired": "el inicio de sesión de la conexión ha caducado",
+        "invalid": "el inicio de sesión de la conexión ya no es válido",
+        "default": "el inicio de sesión de la conexión ha caducado o se ha revocado"
+      }
+    },
+    "said": {
+      "route": {
+        "unknownProvider": "proveedor desconocido",
+        "credentialRequired": "se necesita una credencial",
+        "idRequired": "se necesita el id",
+        "idEntityRequired": "se necesitan el id y el entity_id",
+        "refItem": "ref debe ser un elemento o null",
+        "confirmRequired": "se necesita la confirmación escrita",
+        "emailRequired": "se necesitan el nombre del remitente, la dirección de respuesta y la confirmación escrita",
+        "notFound": "no se ha encontrado la conexión",
+        "ourSide": "algo ha fallado por nuestra parte"
+      },
+      "connect": {
+        "unknownProvider": "proveedor desconocido «{provider}»",
+        "alreadyConnected": "{provider} ya está conectado; desconéctelo primero",
+        "notStored": "no se ha podido guardar la conexión",
+        "noProfileYet": "esta cuenta aún no tiene perfil de negocio",
+        "nothingToMatch": "{label} no tiene nada que emparejar",
+        "reconnectProducts": "vuelva a conectar {label} para emparejar sus productos",
+        "reconnectChannels": "vuelva a conectar {label} para emparejar sus canales",
+        "offerNotFound": "no se ha encontrado la oferta",
+        "channelNotFound": "no se ha encontrado el canal",
+        "notInAccount": "eso no está en esta cuenta de {label}",
+        "alreadyMatched": "«{title}» ya está emparejado con {name}"
+      },
+      "execute": {
+        "notExecute": "no es una conexión de ejecución",
+        "noCredential": "no hay ninguna credencial guardada; vuelva a conectar el proveedor",
+        "unknownProvider": "proveedor de ejecución desconocido «{provider}»",
+        "already": "{label} ya está conectado para ejecución; desconéctelo primero",
+        "changed": "{label} ha cambiado durante la reconexión; inténtelo de nuevo",
+        "notOffered": "«{provider}» no se ofrece para ejecución",
+        "typeToConfirm": "escriba «{phrase}» para confirmar; no se ha conectado nada",
+        "noBusinessProfile": "esta cuenta aún no tiene ningún perfil de negocio",
+        "refuseScopes": "no se conecta {label} para ejecución: {parts}"
+      },
+      "email": {
+        "senderName": "el nombre del remitente debe ser el nombre de su negocio: una línea, como máximo {max} caracteres, sin comillas ni corchetes angulares",
+        "replyAddress": "las respuestas necesitan una dirección de correo que usted lea, como {example}",
+        "already": "El correo de campañas ya está concedido; desconéctelo primero para cambiar el remitente",
+        "alreadyBare": "El correo de campañas ya está concedido",
+        "consentNotStored": "no se ha podido guardar el consentimiento"
+      },
+      "google": {
+        "unreadable": "no se ha podido leer el acceso a Google guardado",
+        "noSuchBusiness": "no existe ese negocio en esta cuenta",
+        "neverWrites": "SYB nunca escribe en el Perfil de Empresa de Google: este permiso solo se usa para leer reseñas.",
+        "authLost": "Google ya no acepta el acceso de SYB. Revóquelo y vuelva a conectar para seguir leyendo las reseñas.",
+        "didntFinish": "Google no ha terminado: {reason}"
+      },
+      "metaCred": {
+        "oneLine": "{provider}: pegue el token de acceso en una sola línea",
+        "numberPage": "{provider}: el id de la página es un número",
+        "numberIg": "{provider}: el id de la cuenta de Instagram es un número",
+        "numberAd": "{provider}: el id de la cuenta publicitaria es un número",
+        "bothNeeded": "{provider}: se necesitan el token y los id de los activos",
+        "pageToken": "{provider}: un token de página pegado no se puede comprobar con su consentimiento; asigne la página al usuario del sistema y SYB obtendrá de ahí el token de página",
+        "publishPage": "{provider}: para publicar se necesita el id de la página en la que publicar",
+        "adsAccount": "{provider}: la gestión de anuncios necesita el id de la cuenta publicitaria, el número que aparece en el Gestor de anuncios",
+        "differentPage": "{provider}: la página ha respondido con otro id",
+        "differentIg": "{provider}: la cuenta de Instagram ha respondido con otro id",
+        "differentAd": "{provider}: la cuenta publicitaria ha respondido con otro id",
+        "noPageToken": "{provider}: no se ha podido obtener un token de página para la página {pageId}. Asigne la página al usuario del sistema con los permisos indicados",
+        "noToken": "{provider}: el inicio de sesión con Facebook no ha devuelto ningún token utilizable",
+        "shape": "{provider}: la lista ha llegado con una forma que SYB no puede leer"
+      },
+      "metaLogin": {
+        "startAgain": "Ese inicio de sesión con Facebook ha caducado o ya se ha usado. Vuelva a empezar desde Conexiones.",
+        "noPending": "No hay ningún inicio de sesión con Facebook pendiente, o ha caducado. Vuelva a iniciar sesión con Facebook.",
+        "foreign": "Ese inicio de sesión con Facebook empezó en otra cuenta de SYB. Inicie sesión en SYB con esa cuenta o vuelva a empezar.",
+        "phraseNoMatch": "La frase de confirmación no coincide. Vuelva a empezar.",
+        "typePhrase": "Escriba «{phrase}» para confirmar. No se ha enviado nada a Meta.",
+        "notOffered": "SYB no ofrece esa conexión de Meta.",
+        "unavailable": "El inicio de sesión con Facebook todavía no está disponible. Use en su lugar su propia aplicación de Meta.",
+        "already": "{label} ya está conectado. Desconéctelo primero.",
+        "pickPage": "Elija una de las páginas de la lista.",
+        "pickAd": "Elija una de las cuentas publicitarias de la lista."
+      },
+      "meta": {
+        "auth": "No he podido conectar con Meta: {why}. Vuelva a conectarla en Conexiones y continuaré donde lo dejé.",
+        "permission": "Meta dice que SYB no tiene permiso para hacer eso: se ha retirado un permiso, o la página o la cuenta no están asignadas a la conexión. Vuelva a conectar con los permisos indicados en Conexiones.",
+        "pageLimit": "El límite de Meta para esta página se ha agotado por ahora. No se ha perdido nada; lo intentaré de nuevo tras una pausa.",
+        "rateLimit": "Meta ha pedido a SYB que vaya más despacio. No se ha perdido nada; lo intentaré de nuevo tras una pausa.",
+        "unavailablePublished": "Meta no ha respondido ahora mismo. No se ha publicado nada; lo intentaré de nuevo.",
+        "unavailableChanged": "Meta no ha respondido ahora mismo. No se ha cambiado nada; lo intentaré de nuevo.",
+        "codePublished": "Meta lo ha rechazado con el código {code}; no se ha publicado nada.",
+        "codeChanged": "Meta lo ha rechazado con el código {code}; no se ha cambiado nada.",
+        "statusPublished": "Meta lo ha rechazado con el estado {status}; no se ha publicado nada.",
+        "statusChanged": "Meta lo ha rechazado con el estado {status}; no se ha cambiado nada."
+      },
+      "source": {
+        "netFailure": "{provider}: fallo de red tras {attempts, plural, one {# intento} many {# intentos} other {# intentos}}",
+        "statusFailed": "{provider}: la solicitud ha fallado con el estado {status}",
+        "statusFailedSaid": "{provider}: la solicitud ha fallado con el estado {status}. {message}",
+        "requestFailedSaid": "{provider}: la solicitud ha fallado. {message}",
+        "throttled": "{provider}: sigue limitado tras {attempts, plural, one {# intento} many {# intentos} other {# intentos}}",
+        "busy": "{provider}: sigue con límite de frecuencia o no disponible tras {attempts, plural, one {# intento} many {# intentos} other {# intentos}}",
+        "stripeFullAccess": "esa es una clave secreta de acceso completo, que puede mover dinero. Cree en su lugar una clave restringida con acceso de lectura",
+        "stripePublishable": "esa es una clave publicable, que no puede leer pagos. Cree en su lugar una clave restringida",
+        "stripeNotRestricted": "eso no parece una clave restringida de Stripe. Empiezan por rk_test_ o rk_live_",
+        "stripeRejected": "{provider}: no se ha aceptado esa clave. Puede estar mal escrita, revocada o caducada",
+        "keyMissing": "{provider}: a la clave le falta un permiso de lectura",
+        "stripeMissingSaid": "{provider}: a la clave le falta un permiso de lectura. Stripe dice: {message}",
+        "tokenNeeded": "{provider}: se necesita el token de acceso",
+        "squareNotToken": "{provider}: eso no parece un token de acceso de Square",
+        "squareRejected": "{provider}: Square no ha aceptado el token de acceso. Puede haberse revocado o ser del otro entorno",
+        "squareMissing": "{provider}: al token le falta un permiso",
+        "squareMissingSaid": "{provider}: al token le falta un permiso: {message}",
+        "squarePathFailed": "{provider}: {path} ha fallado con el estado {status}",
+        "squarePathFailedSaid": "{provider}: {path} ha fallado con el estado {status}. {message}",
+        "squarePerms": "{provider}: Square no ha podido confirmar los permisos del token",
+        "squareNoLocations": "{provider}: la cuenta no tiene ubicaciones que leer",
+        "shopifyAllNeeded": "{provider}: se necesitan la dirección de la tienda, el ID de cliente y el secreto de cliente",
+        "shopifyAddress": "{provider}: la dirección de la tienda debe ser la dirección myshopify.com de su tienda, como your-store.myshopify.com",
+        "shopifyBothNeeded": "{provider}: se necesitan tanto el ID de cliente como el secreto de cliente",
+        "shopifyRejected": "{provider}: no se han aceptado esas credenciales. Compruebe el ID y el secreto de cliente, y que la aplicación esté instalada en esta tienda",
+        "shopifyStopped": "{provider}: la tienda ha dejado de aceptar el token de esta aplicación",
+        "shopifyMissing": "{provider}: a la aplicación le falta un permiso de lectura que necesita",
+        "shopifyScopesUnread": "{provider}: no se han podido leer los permisos concedidos a la aplicación",
+        "shopifyNeeds": "{provider}: la aplicación necesita {missing}. Añádalo en la versión de la aplicación del Dev Dashboard, publíquela y vuelva a conectar",
+        "wooAllNeeded": "{provider}: se necesitan la dirección de la tienda, la clave de consumidor y el secreto de consumidor",
+        "wooFullAddress": "{provider}: la dirección de la tienda debe ser una dirección completa, como https://your-store.com",
+        "wooHttps": "{provider}: la dirección de la tienda debe empezar por https://",
+        "wooUserinfo": "{provider}: la dirección de la tienda no debe contener un nombre de usuario ni una contraseña",
+        "wooPublic": "{provider}: la dirección de la tienda debe ser la dirección web pública de su tienda",
+        "wooKeyPrefix": "{provider}: la clave de consumidor empieza por ck_ y el secreto de consumidor por cs_",
+        "wooRejected": "{provider}: no se ha aceptado esa clave. Puede estar mal escrita o revocada",
+        "wooMissingSaid": "{provider}: a la clave le falta un permiso de lectura. La tienda dice: {message}",
+        "wooNoApi": "{provider}: no se ha encontrado la API REST de WooCommerce en esta dirección. Compruebe la dirección de la tienda",
+        "wooNoResolve": "{provider}: esa dirección de tienda no lleva a ningún servidor público",
+        "gaBothNeeded": "{provider}: se necesitan el ID de la propiedad y la clave de la cuenta de servicio",
+        "gaPropertyId": "{provider}: el ID de la propiedad es el número que aparece en {ga}, en Administrar, Detalles de la propiedad",
+        "pasteKey": "{provider}: pegue el archivo completo de la clave de la cuenta de servicio, que es JSON",
+        "notKey": "{provider}: eso no es un archivo de clave de una cuenta de servicio de Google",
+        "privateKey": "{provider}: no se ha podido leer la clave privada de la cuenta de servicio",
+        "googleRejected": "{provider}: Google no ha aceptado la clave de la cuenta de servicio. Puede haberse eliminado o desactivado",
+        "googlePerms": "{provider}: Google no ha podido confirmar los permisos del token",
+        "gaCantRead": "{provider}: {email} no puede leer la propiedad {property}. En {ga}, abra Administrar, Gestión del acceso a la propiedad, y añada esa dirección con el rol de lector",
+        "gaReportFailed": "{provider}: el informe ha fallado con el estado {status}",
+        "gaReportFailedSaid": "{provider}: el informe ha fallado con el estado {status}. {message}",
+        "gaNotReadOnly": "{provider}: el token no tiene acceso de solo lectura a Analytics",
+        "scBothNeeded": "{provider}: se necesitan la propiedad y la clave de la cuenta de servicio",
+        "scProperty": "{provider}: la propiedad es la dirección de su sitio tal como la muestra Search Console: https://www.example.com/ o sc-domain:example.com",
+        "scCantRead": "{provider}: {email} no puede leer {site}. En Search Console, abra Configuración, luego Usuarios y permisos, y añada esa dirección como usuario",
+        "scQueryFailed": "{provider}: la consulta ha fallado con el estado {status}",
+        "scQueryFailedSaid": "{provider}: la consulta ha fallado con el estado {status}. {message}",
+        "scNotReadOnly": "{provider}: el token no tiene acceso de solo lectura a Search Console",
+        "metaBothNeeded": "{provider}: se necesitan el ID de la cuenta publicitaria y el token de acceso",
+        "metaAccountId": "{provider}: el ID de la cuenta publicitaria es el número que aparece en el Gestor de anuncios, con o sin act_",
+        "metaPasteToken": "{provider}: pegue el token de acceso del usuario del sistema en una sola línea",
+        "metaRejected": "{provider}: no se ha aceptado ese token. Puede haber caducado o haberse revocado",
+        "metaCantRead": "{provider}: el token no puede leer la cuenta publicitaria act_{account}. Asigne la cuenta publicitaria al usuario del sistema y dé al token ads_read",
+        "metaNeedsAdsRead": "{provider}: el token necesita el permiso ads_read",
+        "metaPerms": "{provider}: no se han podido leer los permisos del token"
+      }
+    },
+    "bookings": {
+      "source": {
+        "square": "Square",
+        "import": "su exportación de reservas"
+      },
+      "period": "del {from} al {to}",
+      "breakdown": "completadas {completed} + ausencias {noShows}",
+      "breakdownLate": "completadas {completed} + ausencias {noShows} + cancelaciones tardías {late}",
+      "rate": {
+        "noShow": "{part} ausencias de {due, plural, one {{n} cita vencida} many {{n} citas vencidas} other {{n} citas vencidas}} ({breakdown}), {period}",
+        "late": "{part} cancelaciones tardías de {due, plural, one {{n} cita vencida} many {{n} citas vencidas} other {{n} citas vencidas}} ({breakdown}), {period}",
+        "few": "{due, plural, one {{n} cita vencida} many {{n} citas vencidas} other {{n} citas vencidas}} entre el {from} y el {to}; necesito al menos {min} para calcular una tasa"
+      },
+      "lateNotSeparated": "{source} no separa las cancelaciones tardías: las cuenta como ausencias cuando usted las marca",
+      "rebook": {
+        "noClient": "{source} no tiene ningún ID, correo ni teléfono de cliente que pueda seguir, así que no puedo ver quién volvió",
+        "few": "{cohort, plural, one {{n} cliente tuvo} many {{n} clientes tuvieron} other {{n} clientes tuvieron}} una cita completada entre el {from} y el {to}; necesito al menos {min}, cada uno con {days} días por delante, para calcular una tasa de nuevas reservas",
+        "arithmetic": "{back} de {cohort, plural, one {{n} cliente} many {{n} clientes} other {{n} clientes}} con una cita completada entre el {from} y el {to} volvieron a reservar en un plazo de {days} días"
+      },
+      "revenue": {
+        "none": "ninguna cita completada {period}",
+        "noPrices": "{source} no tiene precios para estas citas",
+        "currencies": "los precios están en {list}, y las monedas nunca se mezclan",
+        "sum": "el precio indicado de {count, plural, one {{n} cita completada} many {{n} citas completadas} other {{n} citas completadas}}, {period}",
+        "sumUnpriced": "el precio indicado de {count, plural, one {{n} cita completada} many {{n} citas completadas} other {{n} citas completadas}}, {period} (sin precio, cuentan como cero: {unpriced})"
+      },
+      "utilisation": {
+        "none": "no me ha dicho cuántas citas puede atender a la semana, así que no puedo decir su grado de ocupación; no voy a suponer una capacidad",
+        "arithmetic": "{completed} completadas de las {cap} declaradas por semana × {weeks} semanas = {slots} huecos, {period}"
+      },
+      "refuse": {
+        "tooLarge": "ese archivo es demasiado grande para una sola importación; divídalo por fechas",
+        "needsRows": "el archivo necesita una fila de encabezado y al menos una cita",
+        "tooMany": "una importación admite hasta {max} citas; divida el archivo por fechas",
+        "noDate": "no he encontrado una columna de fecha; el encabezado necesita una, como Date o Start",
+        "noStatus": "no he encontrado una columna de estado. Sin ella, una cita cumplida y una ausencia parecen iguales, así que no voy a adivinar",
+        "noCurrency": "el archivo tiene una columna de precio; indique en qué moneda está (tres letras, p. ej., {example})",
+        "bothOrders": "las fechas de este archivo están escritas con el día primero y con el mes primero ({dmy} y {mdy}), así que no puedo leerlas",
+        "saidDayFirst": "usted indicó que las fechas llevan el día primero, pero el archivo tiene fechas que solo se leen con el mes primero",
+        "saidMonthFirst": "usted indicó que las fechas llevan el mes primero, pero el archivo tiene fechas que solo se leen con el día primero",
+        "ambiguousDates": "fechas como {sample} podrían ser el {asDmy} o el {asMdy}; indique si va primero el día o el mes",
+        "decimal": {
+          "ambiguous": "importes como {amount} podrían ser mil doscientos o uno coma dos; indique si el punto o la coma separa los miles",
+          "both": "los importes de este archivo están escritos de las dos formas ({comma} y {dot}), así que no puedo leerlos",
+          "contradicts_stated": "usted indicó qué signo separa los miles, pero el archivo tiene importes que solo se leen al revés"
+        },
+        "noneRead": "no se ha podido leer ninguna fila (total: {rows})",
+        "noneReadWhy": "no se ha podido leer ninguna fila (total: {rows}; {reasons})",
+        "skipItem": "{reason}: {count}",
+        "skip": {
+          "no_date": "sin fecha",
+          "unreadable_date": "fecha ilegible",
+          "no_status": "sin estado",
+          "unknown_status": "estado desconocido",
+          "not_closed_out": "sin cerrar"
+        },
+        "listSep": ", ",
+        "notSetUp": "no se ha podido preparar la importación de reservas",
+        "notRecorded": "no se ha podido registrar la importación",
+        "noText": "se necesita el texto de la exportación",
+        "whichSystem": "indique de qué sistema de reservas procede",
+        "ourSide": "algo ha fallado por nuestra parte"
+      }
+    }
+  },
+  "contentWords": {
+    "publish": {
+      "block": {
+        "proposed": "ya se ha propuesto su publicación",
+        "notDraft": "su estado es «{status}», no es un borrador",
+        "shotList": "una lista de tomas es para grabar, no para publicar",
+        "email": "SYB todavía no envía correos electrónicos",
+        "kind": "este tipo de elemento ({kind}) no se publica",
+        "channel": "SYB no puede publicar en {channel}: solo en una página de Facebook o una cuenta de Instagram que usted conecte",
+        "connect": "conecte la publicación de Meta en Conexiones para publicar esto en {platform}",
+        "noInstagram": "la conexión de Meta no tiene una cuenta de Instagram: vuelva a conectarla con su identificador para publicar allí",
+        "needsMedia": "{platform} necesita una imagen o un vídeo, y este elemento aún no tiene ninguno",
+        "png": "Instagram solo admite imágenes JPEG, y la imagen de este elemento es PNG",
+        "noDate": "no tiene fecha de publicación",
+        "zone": "no se puede fijar la hora de publicación: {reason}",
+        "declined": "{count, plural, one {ha rechazado la publicación # vez; ya no la propongo} many {ha rechazado la publicación # veces; ya no la propongo} other {ha rechazado la publicación # veces; ya no la propongo}}",
+        "passed": "su fecha ({date}) ya ha pasado"
+      },
+      "zoneReason": {
+        "noCountry": "no se ha indicado ningún país",
+        "countryUnknown": "no se conoce el país",
+        "zoneUnknown": "no se conoce la zona horaria del negocio"
+      },
+      "status": {
+        "drafted": "borrador",
+        "queued": "en cola",
+        "publishing": "publicándose",
+        "published": "publicado",
+        "failed": "fallido",
+        "withdrawn": "retirado"
+      },
+      "kind": {
+        "post": "publicación",
+        "email": "correo electrónico",
+        "shot_list": "lista de tomas",
+        "video": "vídeo"
+      }
+    },
+    "error": {
+      "produceSignedIn": "para producir borradores debe iniciar sesión: se hacen llamadas reales al modelo",
+      "withdrawSignedIn": "para retirar una publicación debe iniciar sesión: se elimina en Meta",
+      "proposalId": "falta proposal_id (el identificador de la propuesta)",
+      "itemId": "falta item_id (el identificador del elemento)",
+      "buildId": "falta build_id (el identificador del anuncio creado)",
+      "action": "action debe ser \"plan\", \"shotlist\", \"produce\", \"withdraw\", \"run_ad\" o \"go_live\"",
+      "sameOrigin": "esto tiene que llegar desde la propia página de SYB",
+      "mediaSignedIn": "para el material grabado y los medios generados debe iniciar sesión",
+      "noUploads": "este servidor no tiene configuradas las subidas (no hay almacenamiento de medios)",
+      "clipSize": "un clip subido aquí puede tener como máximo {mb} MB",
+      "itemAndFile": "faltan item_id y el archivo",
+      "throughSyb": "aquí las subidas pasan por SYB, no van directamente al almacenamiento",
+      "noStorage": "aquí no hay almacenamiento de medios",
+      "unknownAction": "acción desconocida"
+    }
   }
 }

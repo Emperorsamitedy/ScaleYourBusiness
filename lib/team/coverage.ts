@@ -45,9 +45,29 @@
 // Rule 25: below TEAM.min_history_days of history it refuses, saying how
 // much there is, what it can and can't say, and when it will be ready. It
 // never borrows another business's pattern.
+//
+// L-4c (TASKS-LANGUAGES.md): every sentence here comes from the
+// "teamWords" catalogue in the reader's language, figures and dates
+// through Intl. English is the default, and says what the code always
+// said. The owner's role titles and the numbers stay as they were given
+// (rule 4): only the words around them are translated.
 
 import type { BookingStatus } from "../bookings/types";
 import type { Weekday } from "../hours/schedule";
+import { dayMonth } from "../i18n/format";
+import type { AppLocale } from "../i18n/locales";
+import { intlTag } from "../i18n/locales";
+import type { Tr } from "../i18n/tr";
+import { englishTr } from "../i18n/tr";
+
+/** The words coverage writes in, and the reader's locale: the "teamWords" catalogue. */
+export interface TeamLang {
+  tr: Tr;
+  locale: AppLocale;
+}
+
+/** English, from messages/en.json: what every caller without a request gets. */
+export const englishTeam = (): TeamLang => ({ tr: englishTr("teamWords"), locale: "en" });
 
 export const TEAM_WEEKDAYS: readonly Weekday[] = ["mon", "tue", "wed", "thu", "fri", "sat", "sun"];
 
@@ -180,6 +200,8 @@ export interface CoverFinding {
   range_words: string;
   /** "one stylist covers about 1 appointment an hour". */
   reason: string;
+  /** The range and the reason as one sentence, joined the language's way: "(…); one stylist …". */
+  line: string;
   /** A note for the owner about the hours and the role: never about a person. */
   note: string;
 }
@@ -279,51 +301,99 @@ function spreadOf(values: readonly number[]): Spread {
   };
 }
 
-const PLURAL: Record<Weekday, string> = {
-  mon: "Mondays",
-  tue: "Tuesdays",
-  wed: "Wednesdays",
-  thu: "Thursdays",
-  fri: "Fridays",
-  sat: "Saturdays",
-  sun: "Sundays",
-};
-
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
-/** "1 Dec", in UTC so server and browser agree. */
-export function dayText(day: string): string {
+/** "1 Dec", in UTC so server and browser agree; in another language, its own ("1. Dez."). */
+export function dayText(day: string, locale: AppLocale = "en"): string {
+  if (locale !== "en") return dayMonth(day, locale);
   const d = new Date(`${day}T00:00:00Z`);
   return `${d.getUTCDate()} ${MONTHS[d.getUTCMonth()]}`;
 }
 
 const pct = (x: number) => Math.round(x * 100);
+const one = (x: number) => Math.round(x * 10) / 10;
+
+const numberFormats = new Map<string, Intl.NumberFormat>();
+function numberFormat(locale: AppLocale, options: Intl.NumberFormatOptions): Intl.NumberFormat {
+  const key = `${locale}|${JSON.stringify(options)}`;
+  let f = numberFormats.get(key);
+  if (!f) {
+    f = new Intl.NumberFormat(intlTag(locale), options);
+    numberFormats.set(key, f);
+  }
+  return f;
+}
+
+/** A figure as the code computed it: English's own String(), Intl's elsewhere ("6,3"). */
+function figText(n: number, locale: AppLocale, decimals = 2): string {
+  return locale === "en"
+    ? String(n)
+    : numberFormat(locale, { maximumFractionDigits: decimals }).format(n);
+}
+
+/** One decimal: "6.3", "1"; "6,3" in German. */
+const oneText = (x: number, locale: AppLocale) => figText(one(x), locale, 1);
+
+/** A share as a whole percentage: "96%"; "96 %" in German. */
+function pctText(x: number, locale: AppLocale): string {
+  return locale === "en"
+    ? `${pct(x)}%`
+    : numberFormat(locale, { style: "percent", maximumFractionDigits: 0 }).format(pct(x) / 100);
+}
+
+/** "91–100%"; "91–100 %" in German. */
+function pctRangeText(low: number, high: number, locale: AppLocale): string {
+  return locale === "en"
+    ? `${pct(low)}–${pct(high)}%`
+    : `${figText(pct(low), locale, 0)}–${pctText(high, locale)}`;
+}
+
+/** The first letter lowered, for a phrase that moves into the middle of a sentence. */
+const lowerFirst = (s: string) => s.charAt(0).toLowerCase() + s.slice(1);
+
+/** "(…% on every day …)" or "(…–…% on …)": the middle half's range, over `count` ("the 8 Saturdays"). */
+function rangeIn(share: { low: number; high: number }, count: string, L: TeamLang): string {
+  return pct(share.low) === pct(share.high)
+    ? L.tr("range.same", { pct: pctText(share.low, L.locale), count })
+    : L.tr("range.spread", { range: pctRangeText(share.low, share.high, L.locale), count });
+}
 
 /**
  * "(91–100% on the middle half of the 8 Saturdays read)", or, when the
  * middle half all ran the same, "(113% on every day of the middle half of
- * the 8 Thursdays read)" rather than "113–113%".
+ * the 8 Thursdays read)" rather than "113–113%". English, with the
+ * weekday's plural as given; coverage itself words it per weekday.
  */
 export function rangeWords(
   share: { low: number; high: number },
   days: number,
   plural: string,
 ): string {
-  const low = pct(share.low);
-  const high = pct(share.high);
-  return low === high
-    ? `(${low}% on every day of the middle half of the ${days} ${plural} read)`
-    : `(${low}–${high}% on the middle half of the ${days} ${plural} read)`;
+  return rangeIn(share, `${days} ${plural}`, englishTeam());
 }
-const one = (x: number) => Math.round(x * 10) / 10;
+
+/** The range over one weekday's days read, in the reader's language. */
+function weekdayRange(
+  share: { low: number; high: number },
+  days: number,
+  weekday: Weekday,
+  L: TeamLang,
+): string {
+  return rangeIn(share, L.tr(`rangeCount.${weekday}`, { days }), L);
+}
 
 /** "Saturdays", "Fridays and Saturdays", "Tuesdays to Saturdays" (three or more in a row). */
-export function daysText(days: readonly Weekday[]): string {
+export function daysText(days: readonly Weekday[], L: TeamLang = englishTeam()): string {
   const idx = days.map((d) => TEAM_WEEKDAYS.indexOf(d)).sort((a, b) => a - b);
-  const names = idx.map((i) => PLURAL[TEAM_WEEKDAYS[i] as Weekday]);
+  const names = idx.map((i) => L.tr(`days.${TEAM_WEEKDAYS[i] as Weekday}`));
   const consecutive = idx.every((v, i) => i === 0 || v === (idx[i - 1] ?? -2) + 1);
-  if (names.length >= 3 && consecutive) return `${names[0]} to ${names.at(-1)}`;
+  if (names.length >= 3 && consecutive) {
+    return L.tr("daysSpan", { from: names[0] ?? "", to: names.at(-1) ?? "" });
+  }
   if (names.length <= 1) return names.join("");
+  if (L.locale !== "en") {
+    return new Intl.ListFormat(intlTag(L.locale), { type: "conjunction" }).format(names);
+  }
   return `${names.slice(0, -1).join(", ")} and ${names.at(-1)}`;
 }
 
@@ -333,18 +403,34 @@ export function clock(hour: number): string {
 }
 
 /** "Saturdays 10:00–14:00". */
-export function runText(weekday: Weekday, from: number, to: number): string {
-  return `${PLURAL[weekday]} ${clock(from)}–${clock(to)}`;
+export function runText(
+  weekday: Weekday,
+  from: number,
+  to: number,
+  L: TeamLang = englishTeam(),
+): string {
+  return L.tr(`run.${weekday}`, { from: clock(from), to: clock(to) });
 }
 
 /** "1 appointment", "2.7 appointments". */
-function appts(x: number): string {
+function appts(x: number, L: TeamLang): string {
   const v = one(x);
-  return `${v} appointment${v === 1 ? "" : "s"}`;
+  return L.tr("appts", { n: v, v: figText(v, L.locale, 1) });
 }
 
-/** The title in running text: "Stylist" → "stylist"; "HR lead" stays. */
-function inText(title: string): string {
+/** "about 1.5 people are on in an average open hour, by the role hours you gave". */
+function onAverage(on: number, L: TeamLang): string {
+  const v = one(on);
+  return L.tr("reason.onAverage", { n: v, v: figText(v, L.locale, 1) });
+}
+
+/**
+ * The title in running text: "Stylist" → "stylist"; "HR lead" stays.
+ * English only: the other languages quote the owner's title as given
+ * («Stylist», “Stylist”), and German keeps its capital nouns.
+ */
+function inText(title: string, locale: AppLocale): string {
+  if (locale !== "en") return title;
   const second = title.charAt(1);
   return second !== "" && second === second.toLowerCase() && second !== second.toUpperCase()
     ? title.charAt(0).toLowerCase() + title.slice(1)
@@ -355,13 +441,17 @@ function inText(title: string): string {
  * The roles from 9.2, grouped by title (case and spacing ignored), the
  * biggest first. Only the title and the hours are read from a row.
  */
-export function rolesOf(roles: readonly RoleInput[], openHoursPerWeek: number | null): RoleCover[] {
+export function rolesOf(
+  roles: readonly RoleInput[],
+  openHoursPerWeek: number | null,
+  L: TeamLang = englishTeam(),
+): RoleCover[] {
   const groups = new Map<string, { role: string; rows: number; hours: number; stated: number }>();
   for (const r of roles) {
     const title =
       typeof r.role_title === "string" && r.role_title.trim() !== ""
         ? r.role_title.trim().replace(/\s+/g, " ")
-        : "Untitled role";
+        : L.tr("untitledRole");
     const key = title.toLowerCase();
     const g = groups.get(key) ?? { role: title, rows: 0, hours: 0, stated: 0 };
     g.rows += 1;
@@ -390,10 +480,7 @@ export function rolesOf(roles: readonly RoleInput[], openHoursPerWeek: number | 
     );
 }
 
-const LIMITS = [
-  "This reads roles and hours only. It never looks at who worked when, and it says nothing about any person.",
-  "The notes are for you to weigh. Nothing changes a rota, a shift or anyone's hours.",
-];
+const limitsIn = (L: TeamLang) => [L.tr("limits.rolesOnly"), L.tr("limits.yoursToWeigh")];
 
 /** Contiguous runs of the same band on one weekday, in hour order. */
 function runsOf(w: WeekdayCover, band: "short" | "quiet"): { from: number; to: number }[] {
@@ -416,6 +503,7 @@ function refuse(args: {
   can: string[];
   cannot: string[];
   roles: readonly RoleInput[];
+  L: TeamLang;
 }): CoverageResult {
   return {
     status: "refused",
@@ -426,15 +514,15 @@ function refuse(args: {
     ready_on: args.readyOn,
     can: args.can,
     cannot: args.cannot,
-    roles: rolesOf(args.roles, null),
-    limits: LIMITS,
+    roles: rolesOf(args.roles, null, args.L),
+    limits: limitsIn(args.L),
   };
 }
 
-const CANNOT = [
-  "say which hours run over what your stated capacity covers",
-  "say which open hours are quiet",
-  "borrow a pattern from other businesses like yours",
+const cannotIn = (L: TeamLang) => [
+  L.tr("cannot.overCapacity"),
+  L.tr("cannot.quiet"),
+  L.tr("cannot.borrow"),
 ];
 
 function hourOf(start: string | null): number | null {
@@ -450,22 +538,26 @@ function seasonPart(
   season: SeasonInput,
   weekdays: readonly WeekdayCover[],
   canProject: boolean,
+  L: TeamLang,
 ): { words: string; extra: string[] } {
+  const { tr, locale } = L;
   if (season.status === "unread") {
-    return { words: `The busy season isn't read yet: ${season.reason}.`, extra: [] };
+    return { words: tr("season.unread", { reason: season.reason }), extra: [] };
   }
   if (season.status === "none_ahead") {
-    return {
-      words: "No busy stretch in the next eight weeks, going by the same weeks last year.",
-      extra: [],
-    };
+    return { words: tr("season.noneAhead"), extra: [] };
   }
-  const when = season.in_progress ? "is under way" : `starts on ${dayText(season.starts_on)}`;
   const range =
     season.high === null
-      ? `at least ${one(season.low)}×`
-      : `${one(season.low)}–${one(season.high)}×`;
-  const head = `Your busy stretch ${when}: last year it ran ${one(season.index)}× (${range}) your normal week.`;
+      ? tr("season.atLeast", { low: oneText(season.low, locale) })
+      : tr("season.between", {
+          low: oneText(season.low, locale),
+          high: oneText(season.high, locale),
+        });
+  const index = oneText(season.index, locale);
+  const head = season.in_progress
+    ? tr("season.headUnderWay", { index, range })
+    : tr("season.headStarts", { day: dayText(season.starts_on, locale), index, range });
   if (!canProject) return { words: head, extra: [] };
   // Only what even the low ends imply: hours not already short whose
   // lower-quarter share × the season's low multiple reaches the short line.
@@ -474,7 +566,7 @@ function seasonPart(
     if (w.verdict !== "read") continue;
     let run: { from: number; to: number } | null = null;
     const flush = () => {
-      if (run) extra.push(runText(w.weekday, run.from, run.to));
+      if (run) extra.push(runText(w.weekday, run.from, run.to, L));
       run = null;
     };
     for (const c of w.cells) {
@@ -493,17 +585,18 @@ function seasonPart(
     }
     flush();
   }
+  // English keeps each run's capital after the colon, as it always has; the
+  // other languages carry the runs on mid-sentence ("samstags 13:00–14:00").
+  const hours = extra.map((e) => (locale === "en" ? e : lowerFirst(e))).join(tr("listSep"));
   return {
     words:
-      extra.length === 0
-        ? `${head} Even at its low end, no further hour would run past your stated capacity.`
-        : `${head} At its low end, these hours would also run past your stated capacity: ${extra.join("; ")}.`,
+      extra.length === 0 ? tr("season.noFurther", { head }) : tr("season.further", { head, hours }),
     extra,
   };
 }
 
 /** P5-19: coverage by hour. Pure; the same input always gives the same bytes. */
-export function teamCoverage(input: CoverageInput): CoverageResult {
+export function teamCoverage(input: CoverageInput, L: TeamLang = englishTeam()): CoverageResult {
   const { asOf, roles } = input;
   const from = addDays(asOf, -(TEAM.window_days - 1));
   const bookings =
@@ -516,27 +609,32 @@ export function teamCoverage(input: CoverageInput): CoverageResult {
       : null;
 
   if (bookings !== null && (capacity !== null || input.takings === null)) {
-    return fromBookings(input, bookings, capacity, from);
+    return fromBookings(input, bookings, capacity, from, L);
   }
-  if (input.takings !== null) return fromTakings(input, input.takings, from);
+  if (input.takings !== null) return fromTakings(input, input.takings, from, L);
   return refuse({
-    headline: "Nothing measures demand by the hour yet.",
-    reason:
-      "Cover by the hour needs your bookings (an export, or Square) or hourly sales from a connected till, payment account or shop.",
+    headline: L.tr("refused.noDemand.headline"),
+    reason: L.tr("refused.noDemand.reason"),
     history: 0,
     readyOn: null,
-    can: ["list the roles you gave me and their hours"],
-    cannot: CANNOT,
+    can: [L.tr("refused.noDemand.can")],
+    cannot: cannotIn(L),
     roles,
+    L,
   });
 }
+
+/** The interview question the stated weekly capacity answers. */
+const CAPACITY_QUESTION = "1.4.2.3b";
 
 function fromBookings(
   input: CoverageInput,
   bookings: NonNullable<CoverageInput["bookings"]>,
   capacity: number | null,
   windowFrom: string,
+  L: TeamLang,
 ): CoverageResult {
+  const { tr, locale } = L;
   const { asOf, roles } = input;
   const firstDay =
     bookings.first_day ??
@@ -544,25 +642,32 @@ function fromBookings(
   const history = Math.max(0, daysBetween(firstDay, asOf) + 1);
   if (history < TEAM.min_history_days) {
     return refuse({
-      headline: `${history} day${history === 1 ? "" : "s"} of bookings so far; cover by the hour needs ${TEAM.min_history_days}.`,
-      reason: `Your bookings run from ${dayText(firstDay)} to ${dayText(asOf)}. Four of each weekday is the least I'll band an hour on.`,
+      headline: tr("refused.fewBookings.headline", {
+        history,
+        needed: TEAM.min_history_days,
+      }),
+      reason: tr("refused.fewBookings.reason", {
+        from: dayText(firstDay, locale),
+        to: dayText(asOf, locale),
+      }),
       history,
       readyOn: addDays(firstDay, TEAM.min_history_days - 1),
-      can: [`count the appointments in the ${history} days there are`],
-      cannot: CANNOT,
+      can: [tr("refused.fewBookings.can", { history })],
+      cannot: cannotIn(L),
       roles,
+      L,
     });
   }
   if (capacity === null) {
     return refuse({
-      headline: "Your weekly capacity isn't stated, so I can't say when demand runs over it.",
-      reason:
-        "You haven't told me how many appointments you can take a week (question 1.4.2.3b), and I won't assume one.",
+      headline: tr("refused.noCapacity.headline"),
+      reason: tr("refused.noCapacity.reason", { question: CAPACITY_QUESTION }),
       history,
       readyOn: null,
-      can: ["count the appointments by the hour"],
-      cannot: CANNOT.slice(0, 2),
+      can: [tr("refused.noCapacity.can")],
+      cannot: cannotIn(L).slice(0, 2),
       roles,
+      L,
     });
   }
 
@@ -572,13 +677,19 @@ function fromBookings(
   const unplaced = inWindow.length - placed.length;
   if (placed.length === 0) {
     return refuse({
-      headline: "Your bookings have no times, so they can't be read by the hour.",
-      reason: `None of the ${inWindow.length} appointments from ${dayText(start)} to ${dayText(asOf)} says when it started.`,
+      headline: tr("refused.noTimes.headline"),
+      reason: tr("refused.noTimes.reason", {
+        n: inWindow.length,
+        count: figText(inWindow.length, locale),
+        from: dayText(start, locale),
+        to: dayText(asOf, locale),
+      }),
       history,
       readyOn: null,
-      can: ["count appointments by the day"],
-      cannot: CANNOT,
+      can: [tr("refused.byDay")],
+      cannot: cannotIn(L),
       roles,
+      L,
     });
   }
 
@@ -631,17 +742,18 @@ function fromBookings(
   const openHoursPerWeek = plan.reduce((s, p) => s + (p.days.length > 0 ? p.open.size : 0), 0);
   if (openHoursPerWeek === 0) {
     return refuse({
-      headline: "No open hours could be read from your bookings.",
-      reason: "No weekday had appointments on enough of its days to say when you are open.",
+      headline: tr("refused.noHours.headline"),
+      reason: tr("refused.noHours.reason"),
       history,
       readyOn: null,
-      can: ["count appointments by the day"],
-      cannot: CANNOT,
+      can: [tr("refused.byDay")],
+      cannot: cannotIn(L),
       roles,
+      L,
     });
   }
   const perOpenHour = capacity / openHoursPerWeek;
-  const roleCover = rolesOf(roles, openHoursPerWeek);
+  const roleCover = rolesOf(roles, openHoursPerWeek, L);
   const roleHours = roleCover.reduce((s, r) => s + (r.hours_per_week ?? 0), 0);
   const peopleOn = roleHours > 0 ? roleHours / openHoursPerWeek : null;
   const perPersonOn = peopleOn !== null ? perOpenHour / peopleOn : null;
@@ -686,6 +798,7 @@ function fromBookings(
   });
 
   const lead = roleCover.find((r) => r.hours_per_week !== null) ?? null;
+  const stated = figText(capacity, locale);
   const findings: CoverFinding[] = [];
   for (const w of weekdays) {
     if (w.verdict !== "read") continue;
@@ -699,20 +812,30 @@ function fromBookings(
           return n / (perOpenHour * len);
         });
         const share = spreadOf(perDay);
-        const where = runText(w.weekday, run.from, run.to);
-        const range_words = rangeWords(share, days.length, PLURAL[w.weekday]);
+        const where = runText(w.weekday, run.from, run.to, L);
+        const range_words = weekdayRange(share, days.length, w.weekday, L);
+        const perHour = tr("reason.perHour", {
+          capacity: stated,
+          appts: appts(perOpenHour, L),
+        });
         const reason =
           band === "short"
             ? lead !== null && perPersonOn !== null
-              ? `one ${inText(lead.role)} covers about ${appts(perPersonOn)} an hour at your stated ${capacity} a week`
-              : `your stated ${capacity} a week is about ${appts(perOpenHour)} an hour`
+              ? tr("reason.perRole", {
+                  role: inText(lead.role, locale),
+                  appts: appts(perPersonOn, L),
+                  capacity: stated,
+                })
+              : perHour
             : peopleOn !== null
-              ? `about ${one(peopleOn)} people are on in an average open hour, by the role hours you gave`
-              : `your stated ${capacity} a week is about ${appts(perOpenHour)} an hour`;
+              ? onAverage(peopleOn, L)
+              : perHour;
         const note =
           band === "short"
-            ? `${where}: demand ran past what your stated capacity covers. If you want to take more of it, this is where another ${lead !== null ? inText(lead.role) : "pair of hands"} would add cover first.`
-            : `${where}: the quietest open stretch. If you ever trim the rota, this is where it would cost the least demand.`;
+            ? lead !== null
+              ? tr("note.shortRole", { run: where, role: inText(lead.role, locale) })
+              : tr("note.shortHands", { run: where })
+            : tr("note.quiet", { run: where });
         findings.push({
           weekday: w.weekday,
           from_hour: run.from,
@@ -720,9 +843,10 @@ function fromBookings(
           band,
           share,
           days: days.length,
-          words: `${where} ran ${pct(share.typical)}% booked`,
+          words: tr("finding.booked", { run: where, pct: pctText(share.typical, locale) }),
           range_words,
           reason,
+          line: tr("finding.line", { range: range_words, reason }),
           note,
         });
       }
@@ -742,40 +866,40 @@ function fromBookings(
 
   const footprint = plan.filter((p) => p.from === "bookings" && p.days.length > 0);
   const assumed = [
-    `capacity is the same in every open hour: your stated ${capacity} appointments a week ÷ ${openHoursPerWeek} open hours = ${appts(perOpenHour)} an hour`,
-    "an appointment counts in the hour it starts",
+    tr("assumed.capacity", {
+      n: capacity,
+      capacity: stated,
+      hours: openHoursPerWeek,
+      appts: appts(perOpenHour, L),
+    }),
+    tr("assumed.startHour"),
     ...(footprint.length > 0
       ? [
-          `opening hours for ${daysText(footprint.map((p) => p.weekday))} aren't stated, so they are read from when appointments start (on at least ${pct(TEAM.footprint_share)}% of those days)`,
+          tr("assumed.footprintBookings", {
+            days: daysText(
+              footprint.map((p) => p.weekday),
+              L,
+            ),
+            pct: pctText(TEAM.footprint_share, locale),
+          }),
         ]
       : []),
-    ...(peopleOn !== null
-      ? [
-          "role hours are spread evenly over the open hours: I don't know the rota",
-          "every role you listed counts toward serving clients",
-        ]
-      : []),
+    ...(peopleOn !== null ? [tr("assumed.evenSpread"), tr("assumed.allServe")] : []),
   ];
 
   const notes = findings.map((f) => f.note);
-  if (roleCover.length === 0) {
-    notes.push(
-      "No roles from the interview (who works in the business, and their hours), so this is demand against capacity only.",
-    );
-  }
+  if (roleCover.length === 0) notes.push(tr("notes.noRolesBookings"));
   if (unplaced > 0) {
-    notes.push(
-      `${unplaced} appointment${unplaced === 1 ? "" : "s"} had no start time and aren't placed in an hour.`,
-    );
+    notes.push(tr("notes.unplaced", { n: unplaced, count: figText(unplaced, locale) }));
   }
 
   const top = findings[0];
   const headline =
     top === undefined
-      ? "No open hour runs over your stated capacity or sits quiet."
+      ? tr("headline.none")
       : top.band === "short"
-        ? `${top.words}; ${top.reason}.`
-        : `No open hour runs over your stated capacity; ${top.words.charAt(0).toLowerCase()}${top.words.slice(1)}.`;
+        ? tr("headline.top", { words: top.words, reason: top.reason })
+        : tr("headline.quietTop", { words: lowerFirst(top.words) });
   const daysRead = plan.reduce((s, p) => s + p.days.length, 0);
 
   return {
@@ -801,10 +925,10 @@ function fromBookings(
       per_person_on: perPersonOn,
     },
     findings,
-    season: seasonPart(input.season, weekdays, true),
+    season: seasonPart(input.season, weekdays, true, L),
     assumed,
     notes,
-    limits: LIMITS,
+    limits: limitsIn(L),
   };
 }
 
@@ -812,23 +936,29 @@ function fromTakings(
   input: CoverageInput,
   takings: TakingsInput,
   windowFrom: string,
+  L: TeamLang,
 ): CoverageResult {
+  const { tr, locale } = L;
   const { asOf, roles } = input;
   const all = [...takings.measuredDays.values()].flat().filter((d) => d <= asOf);
   const first = all.reduce<string | null>((m, d) => (m === null || d < m ? d : m), null);
   const history = first === null ? 0 : daysBetween(first, asOf) + 1;
   if (first === null || history < TEAM.min_history_days) {
     return refuse({
-      headline: `${history} day${history === 1 ? "" : "s"} of hourly sales so far; cover by the hour needs ${TEAM.min_history_days}.`,
+      headline: tr("refused.fewSales.headline", { history, needed: TEAM.min_history_days }),
       reason:
         first === null
-          ? "No day of hourly sales is measured yet."
-          : `Hourly sales run from ${dayText(first)} to ${dayText(asOf)}. Four of each weekday is the least I'll band an hour on.`,
+          ? tr("refused.fewSales.reasonNone")
+          : tr("refused.fewSales.reason", {
+              from: dayText(first, locale),
+              to: dayText(asOf, locale),
+            }),
       history,
       readyOn: first === null ? null : addDays(first, TEAM.min_history_days - 1),
-      can: ["show the hourly sales there are on Trading hours"],
-      cannot: CANNOT,
+      can: [tr("refused.salesOnHours")],
+      cannot: cannotIn(L),
       roles,
+      L,
     });
   }
 
@@ -862,19 +992,20 @@ function fromTakings(
   for (const p of plan) if (p.days.length > 0) for (const h of p.open) hourSet.add(h);
   if (hourSet.size === 0) {
     return refuse({
-      headline: "No open hours could be read from your sales.",
-      reason: "No weekday had sales on enough of its days to say when you are open.",
+      headline: tr("refused.noSalesHours.headline"),
+      reason: tr("refused.noSalesHours.reason"),
       history,
       readyOn: null,
-      can: ["show the hourly sales there are on Trading hours"],
-      cannot: CANNOT,
+      can: [tr("refused.salesOnHours")],
+      cannot: cannotIn(L),
       roles,
+      L,
     });
   }
   const lo = Math.min(...hourSet);
   const hi = Math.max(...hourSet);
   const hours = Array.from({ length: hi - lo + 1 }, (_, i) => lo + i);
-  const roleCover = rolesOf(roles, openHoursPerWeek);
+  const roleCover = rolesOf(roles, openHoursPerWeek, L);
   const roleHours = roleCover.reduce((s, r) => s + (r.hours_per_week ?? 0), 0);
   const peopleOn = roleHours > 0 ? roleHours / openHoursPerWeek : null;
 
@@ -931,7 +1062,9 @@ function fromTakings(
         return n / (peak * len);
       });
       const share = spreadOf(perDay);
-      const where = runText(w.weekday, run.from, run.to);
+      const where = runText(w.weekday, run.from, run.to, L);
+      const range_words = weekdayRange(share, days.length, w.weekday, L);
+      const reason = peopleOn !== null ? onAverage(peopleOn, L) : tr("reason.open");
       findings.push({
         weekday: w.weekday,
         from_hour: run.from,
@@ -939,13 +1072,11 @@ function fromTakings(
         band: "quiet",
         share,
         days: days.length,
-        words: `${where} took ${pct(share.typical)}% of the day's busiest hour`,
-        range_words: rangeWords(share, days.length, PLURAL[w.weekday]),
-        reason:
-          peopleOn !== null
-            ? `about ${one(peopleOn)} people are on in an average open hour, by the role hours you gave`
-            : "the hours are open",
-        note: `${where}: the quietest open stretch by takings. If you ever trim the rota, this is where it would cost the least demand.`,
+        words: tr("finding.took", { run: where, pct: pctText(share.typical, locale) }),
+        range_words,
+        reason,
+        line: tr("finding.line", { range: range_words, reason }),
+        note: tr("note.quietTakings", { run: where }),
       });
     }
   }
@@ -954,33 +1085,30 @@ function fromTakings(
 
   const footprint = plan.filter((p) => p.from === "takings" && p.days.length > 0);
   const assumed = [
-    "takings stand in for demand: a sale in an hour is a customer served in it",
+    tr("assumed.takings"),
     ...(footprint.length > 0
       ? [
-          `opening hours for ${daysText(footprint.map((p) => p.weekday))} aren't stated, so they are read from when sales come in`,
+          tr("assumed.footprintTakings", {
+            days: daysText(
+              footprint.map((p) => p.weekday),
+              L,
+            ),
+          }),
         ]
       : []),
-    ...(peopleOn !== null
-      ? ["role hours are spread evenly over the open hours: I don't know the rota"]
-      : []),
+    ...(peopleOn !== null ? [tr("assumed.evenSpread")] : []),
   ];
   const notes = findings.map((f) => f.note);
-  notes.push(
-    "Takings can't show when demand runs past your capacity: capacity isn't counted in money. A bookings export can.",
-  );
-  if (roleCover.length === 0) {
-    notes.push(
-      "No roles from the interview (who works in the business, and their hours), so this is demand only.",
-    );
-  }
+  notes.push(tr("notes.takingsNoCapacity"));
+  if (roleCover.length === 0) notes.push(tr("notes.noRolesTakings"));
   const top = findings[0];
   return {
     status: "ok",
     source: "takings",
     headline:
       top === undefined
-        ? "No open hour sits quiet against the day's busiest."
-        : `${top.words}; ${top.reason}.`,
+        ? tr("headline.noneTakings")
+        : tr("headline.top", { words: top.words, reason: top.reason }),
     basis: {
       demand: takings.source,
       from: windowFrom > first ? windowFrom : first,
@@ -994,9 +1122,9 @@ function fromTakings(
     roles: roleCover,
     capacity: null,
     findings,
-    season: seasonPart(input.season, weekdays, false),
+    season: seasonPart(input.season, weekdays, false, L),
     assumed,
     notes,
-    limits: LIMITS,
+    limits: limitsIn(L),
   };
 }

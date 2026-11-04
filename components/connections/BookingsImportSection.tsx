@@ -13,11 +13,14 @@
 // L-3d: the sheet's fixed words are the "connections.bookings" catalogue
 // (the form's shared words "connections.import"); counts and dates in the
 // reader's writing. Each measure's arithmetic and reason are the server's
-// sentences, English until L-4.
+// sentences, said in the reader's language by the route since L-4c
+// (lib/bookings/words.ts), as are the import's refusals.
 
 import { useCallback, useEffect, useState } from "react";
 import { moneyText, num } from "../sheet/num";
 import type { AppLocale } from "../../lib/i18n/locales";
+import { intlTag } from "../../lib/i18n/locales";
+import { CONNECTIONS_WORDS } from "./server-words";
 import { useCn } from "./useCn";
 import type { CnTr } from "./words";
 import { IMPORT_SAMPLES, calendarDay, dateOrderExample, percent } from "./words";
@@ -117,11 +120,13 @@ export const GAPS = [
 
 const word = (t: CnTr, key: string, fallback: string) => (t.has(key) ? t(key) : fallback);
 
-function errorText(payload: unknown, fallback: string): string {
+/** The server's refusal as a sentence: capitalised, and closed the language's way ("." / "。"). */
+function errorText(payload: unknown, fallback: string, tw: CnTr, locale: AppLocale): string {
   const e = (payload as { error?: unknown } | null)?.error;
-  return typeof e === "string" && e !== ""
-    ? `${e.charAt(0).toUpperCase()}${e.slice(1)}.`
-    : fallback;
+  if (typeof e !== "string" || e === "") return fallback;
+  const first =
+    locale === "en" ? e.charAt(0).toUpperCase() : e.charAt(0).toLocaleUpperCase(intlTag(locale));
+  return tw("sentence", { text: `${first}${e.slice(1)}` });
 }
 
 /** The measures' window (specs/bookings.md §5). */
@@ -298,6 +303,7 @@ function Counted({ o }: { o: Outcome }) {
 export function BookingsImportSection() {
   const { t, locale } = useCn("connections.bookings");
   const { t: ti } = useCn("connections.import");
+  const { t: tw } = useCn(CONNECTIONS_WORDS);
   const [view, setView] = useState<View | null>(null);
   const [platform, setPlatform] = useState("fresha");
   const [csv, setCsv] = useState("");
@@ -341,7 +347,7 @@ export function BookingsImportSection() {
       const payload = (await res.json().catch(() => null)) as
         (Outcome & { view?: Omit<View, "platforms"> }) | null;
       if (!res.ok || payload === null) {
-        setError(errorText(payload, t("failed")));
+        setError(errorText(payload, t("failed"), tw, locale));
         return;
       }
       setOutcome(payload);

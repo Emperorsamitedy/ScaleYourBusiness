@@ -17,6 +17,10 @@
 //
 // Caps: MAX_READS pages per walk, MAX_DEPTH clicks from home, and
 // MAX_LINK_CHECKS further same-origin links tried for broken ones.
+//
+// L-4c: the step labels, notes and reasons are the "siteWords" catalogue's
+// English (lib/site/say.ts), stored as English; lib/site/localize.ts says
+// them again in the reader's language.
 
 import type { PageFetcher } from "../fetch";
 import type { PlatformVerdict } from "../platform";
@@ -30,6 +34,9 @@ import {
   pageLinks,
   showsPrice,
 } from "./links";
+import { siteEnglish } from "../say";
+
+const EN = siteEnglish();
 
 export const WALK_CAPS = {
   /** Pages read per walk, the home page included. */
@@ -160,7 +167,9 @@ export async function walkSite(
   let platform: PlatformVerdict | null = null;
   let origin: string | null = null;
 
-  const queue: Pending[] = [{ url: homeUrl, role: "home", clicks: 0, from: null, label: "Home" }];
+  const queue: Pending[] = [
+    { url: homeUrl, role: "home", clicks: 0, from: null, label: EN("walk.home") },
+  ];
   queued.add(homeUrl);
 
   while (queue.length > 0 && reads < maxReads) {
@@ -178,7 +187,7 @@ export async function walkSite(
       finalUrl = page.url;
       if (next.role === "home") {
         if (page.status >= 400) {
-          throw new SiteWalkError(`the home page answered ${page.status}`);
+          throw new SiteWalkError(EN("walk.homeStatus", { status: String(page.status) }));
         }
         origin = new URL(page.url).origin;
         platform = detectPlatform(page.html, page.headers);
@@ -187,9 +196,9 @@ export async function walkSite(
       if (next.role === "home") {
         throw e instanceof SiteWalkError
           ? e
-          : new SiteWalkError(e instanceof Error ? e.message : "the home page couldn't be read");
+          : new SiteWalkError(e instanceof Error ? e.message : EN("walk.homeUnread"));
       }
-      error = e instanceof Error ? e.message : "couldn't be read";
+      error = e instanceof Error ? e.message : EN("walk.unread");
     }
     statusOf.set(next.url, { status, error });
     // A redirect elsewhere (the cart → a hosted checkout) is not followed further.
@@ -261,7 +270,7 @@ export async function walkSite(
         const answer = await fetcher(link.url);
         seen = { status: answer.status, error: null };
       } catch (e) {
-        seen = { status: null, error: e instanceof Error ? e.message : "couldn't be loaded" };
+        seen = { status: null, error: e instanceof Error ? e.message : EN("walk.unloaded") };
       }
       statusOf.set(link.url, seen);
     }
@@ -271,7 +280,9 @@ export async function walkSite(
       found_on: link.found_on,
       status: seen.status,
       reason:
-        seen.status !== null ? `answers ${seen.status}` : (seen.error ?? "couldn't be loaded"),
+        seen.status !== null
+          ? EN("walk.answers", { status: String(seen.status) })
+          : (seen.error ?? EN("walk.unloaded")),
       on_path: pathPages.has(link.found_on) || PATH_ROLES.has(link.role),
     });
   }
@@ -300,7 +311,7 @@ function chain(pages: readonly WalkedPage[], page: WalkedPage): WalkedPage[] {
 }
 
 const stepOf = (p: WalkedPage): PathStep => ({
-  label: p.role === "home" ? "Home" : p.label,
+  label: p.role === "home" ? EN("walk.home") : p.label,
   url: p.url,
   clicks: p.clicks,
   kind: "page",
@@ -322,35 +333,25 @@ export function purchasePath(
   const cart = byClicks("cart");
   if (product) {
     const steps = chain(pages, product).map(stepOf);
-    const notes = [
-      "Counted by following the site's own links from the home page; nothing was added to a cart and checkout was never opened.",
-    ];
+    const notes = [EN("walk.note.counted")];
     if (!product.add_to_cart) {
-      notes.push(
-        `I found no Add to cart button on “${product.label}” in the page itself — it may be drawn by a script I don't run.`,
-      );
+      notes.push(EN("walk.note.noAddToCart", { label: product.label }));
       return { kind: "shop", steps, clicks: null, notes };
     }
     steps.push({
-      label: "Add to cart (button seen, not pressed)",
+      label: EN("walk.addToCart"),
       url: null,
       clicks: product.clicks + 1,
       kind: "control",
     });
     steps.push({
-      label: "Checkout (entry seen, not opened)",
+      label: EN("walk.checkout"),
       url: null,
       clicks: product.clicks + 2,
       kind: "entry",
     });
-    notes.push(
-      "ASSUMED: Add to cart takes the buyer to the cart, or opens a cart drawer, with a checkout button — so checkout is one click after it.",
-    );
-    if (cart && !cart.checkout_control) {
-      notes.push(
-        "The cart page, read empty, showed no checkout button in its own HTML — it may appear once something is in it.",
-      );
-    }
+    notes.push(EN("walk.note.assumedCart"));
+    if (cart && !cart.checkout_control) notes.push(EN("walk.note.cartEmpty"));
     return { kind: "shop", steps, clicks: product.clicks + 2, notes };
   }
 
@@ -361,9 +362,7 @@ export function purchasePath(
       kind: "booking",
       steps: chain(pages, booking).map(stepOf),
       clicks: booking.clicks,
-      notes: [
-        "Counted by following the site's own links from the home page; no booking was made and no form was sent.",
-      ],
+      notes: [EN("walk.note.booking")],
     };
   }
   for (const page of [...readable].sort((a, b) => a.clicks - b.clicks)) {
@@ -376,16 +375,17 @@ export function purchasePath(
         steps: [
           ...chain(pages, page).map(stepOf),
           {
-            label: `${external.text || "Book"} (on ${new URL(external.url).hostname}, not opened)`,
+            label: EN("walk.external", {
+              text: external.text || EN("walk.book"),
+              host: new URL(external.url).hostname,
+            }),
             url: external.url,
             clicks: page.clicks + 1,
             kind: "entry",
           },
         ],
         clicks: page.clicks + 1,
-        notes: [
-          "The booking itself happens on another company's site, which the audit doesn't read; the count stops at its link.",
-        ],
+        notes: [EN("walk.note.external")],
       };
     }
   }
@@ -394,9 +394,7 @@ export function purchasePath(
       kind: "shop",
       steps: chain(pages, cart).map(stepOf),
       clicks: null,
-      notes: [
-        "I reached the cart but no product page from the home page's links, so the clicks to buy can't be counted.",
-      ],
+      notes: [EN("walk.note.cartOnly")],
     };
   }
   const contact = byClicks("contact");
@@ -405,9 +403,7 @@ export function purchasePath(
       kind: "contact",
       steps: chain(pages, contact).map(stepOf),
       clicks: contact.clicks,
-      notes: [
-        "No shop or booking page was reachable from the home page's links; the path a customer can take ends at contact.",
-      ],
+      notes: [EN("walk.note.contact")],
     };
   }
   const sawCheckout = [...refused.values()].includes("checkout");
@@ -415,11 +411,7 @@ export function purchasePath(
     kind: "none",
     steps: readable.filter((p) => p.role === "home").map(stepOf),
     clicks: null,
-    notes: [
-      sawCheckout
-        ? "A checkout link exists but no product, cart or booking page was reachable by links before it."
-        : "No product, cart, booking or contact page was reachable from the home page's links.",
-    ],
+    notes: [EN(sawCheckout ? "walk.note.checkoutOnly" : "walk.note.none")],
   };
 }
 

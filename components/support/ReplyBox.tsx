@@ -212,7 +212,7 @@ export function ReplyBox({
   );
 }
 
-/** The notice after an approval or a send; a held send's reason is the server's note (L-4). */
+/** The notice after an approval or a send; a held send's reason is the server's note, in the reader's language (L-4c). */
 function sentNotice(j: Record<string, unknown>, tr: Tr): string {
   if (j.status === "sent") return tr("notice.sent");
   return String(j.note ?? tr("notice.approvedNotSent"));

@@ -35,7 +35,7 @@ import { headline, lastRead } from "./patch";
 import "../../app/connections.css";
 import { useRole } from "../auth/RoleContext";
 import type { AppLocale } from "../../lib/i18n/locales";
-import { bold, useCn } from "./useCn";
+import { bold, useCn, useSaid } from "./useCn";
 import type { CnTr } from "./words";
 import {
   SHOPIFY_DEFAULT_DAYS,
@@ -160,8 +160,9 @@ async function send(
   return { ok: res.ok, payload };
 }
 
-const errorText = (payload: Payload, fallback: string): string =>
-  typeof payload?.error === "string" ? payload.error : fallback;
+/** The server's refusal (said in the reader's language when it is SYB's own — L-4c), or the fallback. */
+const errorText = (payload: Payload, fallback: string, said: (text: string) => string): string =>
+  typeof payload?.error === "string" ? said(payload.error) : fallback;
 
 function checkedLine(c: Connection, t: CnTr): string {
   return c.scope_verification === "reported"
@@ -173,6 +174,7 @@ function checkedLine(c: Connection, t: CnTr): string {
 
 function MappingPanel({ connection }: { connection: Connection }) {
   const { t } = useCn();
+  const said = useSaid();
   const [view, setView] = useState<MappingView | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [choices, setChoices] = useState<Record<string, string>>({});
@@ -184,14 +186,14 @@ function MappingPanel({ connection }: { connection: Connection }) {
       const res = await fetch(`/api/connections/mapping?id=${encodeURIComponent(connection.id)}`);
       const payload = (await res.json().catch(() => null)) as Payload;
       if (!res.ok) {
-        setError(errorText(payload, t("mapping.couldntRead", { label: connection.label })));
+        setError(errorText(payload, t("mapping.couldntRead", { label: connection.label }), said));
         return;
       }
       setView(payload as unknown as MappingView);
     } catch {
       setError(t("unreachable"));
     }
-  }, [connection.id, connection.label, t]);
+  }, [connection.id, connection.label, t, said]);
 
   useEffect(() => {
     void load();
@@ -209,7 +211,7 @@ function MappingPanel({ connection }: { connection: Connection }) {
         ref: choice === NONE ? null : choice,
       });
       if (!ok) {
-        setError(errorText(payload, t("mapping.notSaved")));
+        setError(errorText(payload, t("mapping.notSaved"), said));
         return;
       }
       setView(payload as unknown as MappingView);
@@ -377,6 +379,7 @@ function SourceSettings({
   onDisconnect: () => void;
 }) {
   const { t, locale } = useCn();
+  const said = useSaid();
   const [matching, setMatching] = useState(false);
 
   return (
@@ -435,7 +438,7 @@ function SourceSettings({
             <dd>
               {joinSentences(
                 [
-                  c.last_error,
+                  said(c.last_error),
                   c.failure_count > 1 ? t("settings.inARow", { count: c.failure_count }) : "",
                 ],
                 locale,
@@ -498,6 +501,7 @@ function ConnectPanel({
   onConnected: (message: string) => Promise<void>;
 }) {
   const { t } = useCn();
+  const said = useSaid();
   const [values, setValues] = useState<Record<string, string>>({});
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -532,7 +536,7 @@ function ConnectPanel({
         secret,
       });
       if (!ok) {
-        setError(errorText(payload, t("connect.failed")));
+        setError(errorText(payload, t("connect.failed"), said));
         return;
       }
       setValues({});
@@ -630,6 +634,7 @@ function ReadBox({ c }: { c: Connection | null }) {
 export function ConnectionsScreen() {
   // Idea 52: connecting, and granting write access, are an owner's (lib/auth/roles).
   const { t, locale } = useCn();
+  const said = useSaid();
   const role = useRole();
   const connectWhy = role.why("connections.manage");
   // I-52b: a manager may read a connected source again, though the panel stays locked.
@@ -709,7 +714,7 @@ export function ConnectionsScreen() {
     try {
       const { ok, payload } = await send("/api/connections/sync", "POST", { id: c.id });
       if (!ok) {
-        setNotice(errorText(payload, t("sync.didntRun")));
+        setNotice(errorText(payload, t("sync.didntRun"), said));
       } else if (payload?.skipped === "locked") {
         setNotice(t("sync.locked", { label: c.label }));
       } else if (payload?.ok === true) {
@@ -717,7 +722,10 @@ export function ConnectionsScreen() {
         setNotice(t("sync.done", { label: c.label, count }));
       } else {
         setNotice(
-          t("sync.failed", { label: c.label, reason: errorText(payload, t("sync.noReason")) }),
+          t("sync.failed", {
+            label: c.label,
+            reason: errorText(payload, t("sync.noReason"), said),
+          }),
         );
       }
       await load();
@@ -735,7 +743,7 @@ export function ConnectionsScreen() {
       setNotice(
         ok
           ? t("settings.disconnected", { label: c.label })
-          : errorText(payload, t("settings.disconnectFailed")),
+          : errorText(payload, t("settings.disconnectFailed"), said),
       );
       setConfirming(null);
       setOpen(null);

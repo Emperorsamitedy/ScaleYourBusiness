@@ -19,6 +19,12 @@
 // mutation needs a signed-in user: publishing puts words in the
 // assistant's mouth, rotating a key cuts every embedded widget off, and
 // clustering spends a model call.
+//
+// L-4c (TASKS-LANGUAGES.md): what this API says to the owner — refusals,
+// the draft refusal, a send's outcome note, a knowledge proposal's summary —
+// is in the request's language ("supportWords", lib/support-desk/words).
+// Stored rows keep their English; English readers get exactly what the API
+// always sent. What a customer reads is not here (L-5/L-6).
 
 import { logSafeError } from "../../../lib/core/log-safe";
 import { matchingSession, resolveAccess } from "../../../lib/auth/access";
@@ -79,13 +85,24 @@ import { widgetSnippet } from "../../../lib/support/snippet";
 import { TicketError, listTickets, resolveTicket } from "../../../lib/support/tickets";
 import { requireRole } from "../../../lib/auth/roles";
 import type { RoleAction } from "../../../lib/auth/roles";
+import type { AppLocale } from "../../../lib/i18n/locales";
+import { requestTr } from "../../../lib/i18n/request-tr";
+import type { Tr } from "../../../lib/i18n/tr";
+import { orList } from "../../../lib/crm/words";
+import {
+  SUPPORT_WORDS,
+  draftRefusalWords,
+  knowledgeSummaryWords,
+  outcomeNoteWords,
+  supportErrorWords,
+} from "../../../lib/support-desk/words";
 
 async function resolveProfile(): Promise<string | null> {
   // The one door (lib/auth/access): a signed cookie, and an owned business only for its own account.
   return (await resolveAccess())?.profile_id ?? null;
 }
 
-function onError(error: unknown): NextResponse {
+function onError(error: unknown, tr: Tr, locale: AppLocale): NextResponse {
   if (
     error instanceof KnowledgeError ||
     error instanceof SupportSettingsError ||
@@ -96,20 +113,24 @@ function onError(error: unknown): NextResponse {
     error instanceof ContactError ||
     error instanceof ReplyError
   ) {
-    return NextResponse.json({ error: error.message }, { status: error.status });
+    return NextResponse.json(
+      { error: supportErrorWords(error.message, tr, locale) },
+      { status: error.status },
+    );
   }
   console.error(JSON.stringify({ event: "support_error", ...logSafeError(error) }));
-  return NextResponse.json({ error: "something went wrong on our side" }, { status: 500 });
+  return NextResponse.json({ error: tr("error.server") }, { status: 500 });
 }
 
 export async function GET(request: NextRequest): Promise<NextResponse> {
   const profileId = await resolveProfile();
   if (!profileId) return NextResponse.json({ error: "no intake session" }, { status: 401 });
+  const { tr, locale } = await requestTr(SUPPORT_WORDS);
   try {
     const ticketId = request.nextUrl.searchParams.get("ticket");
     if (ticketId) {
       const ticket = (await listTickets(profileId)).find((t) => t.id === ticketId);
-      if (!ticket) return NextResponse.json({ error: "no such ticket" }, { status: 404 });
+      if (!ticket) return NextResponse.json({ error: tr("error.noTicket") }, { status: 404 });
       const thread = await emailThread(ticket.id);
       const target = await replyTarget(ticket);
       return NextResponse.json({
@@ -122,7 +143,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
           sent_text: r.sent_text,
           approved_at: r.approved_at,
           sent_at: r.sent_at,
-          outcome_note: r.outcome_note,
+          outcome_note: outcomeNoteWords(r.outcome_note, tr, locale),
           created_at: r.created_at,
         })),
         emails: thread.map((m) => ({
@@ -217,13 +238,17 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       knowledge,
       publishable: publishable.map((p) => ({
         id: p.id,
-        summary: (p.action as { summary?: string }).summary ?? "knowledge proposal",
+        summary: knowledgeSummaryWords(
+          (p.action as { summary?: string }).summary ?? "knowledge proposal",
+          tr,
+          locale,
+        ),
       })),
       tickets: shaped,
       conversations,
     });
   } catch (error) {
-    return onError(error);
+    return onError(error, tr, locale);
   }
 }
 
@@ -249,25 +274,49 @@ const SUPPORT_ROLE: Record<string, RoleAction> = {
   decline_reply: "support.answer",
 };
 
+/** The actions POST takes, as its refusal names them. */
+const SUPPORT_ACTIONS = [
+  "enable",
+  "rotate",
+  "rotate_inbound",
+  "set_reply_hours",
+  "set_notify",
+  "propose_knowledge",
+  "propose_custom",
+  "publish",
+  "retire",
+  "resolve_ticket",
+  "erase_conversation",
+  "erase_ticket",
+  "cluster_faq",
+  "draft_reply",
+  "save_reply",
+  "approve_reply",
+  "send_reply",
+  "decline_reply",
+] as const;
+
 export async function POST(request: NextRequest): Promise<NextResponse> {
   // Review 2026-10-23 (#24): every action here is the owner's, from the
   // owner's own screen, so a POST that can't show it came from our origin is
   // refused before anything is read — SameSite=Lax alone was the only CSRF
   // guard. The widget's public route (/api/support/public) is a separate
   // file and stays cross-origin.
+  const { tr, locale } = await requestTr(SUPPORT_WORDS);
   if (!isSameOriginPost(request.headers, appOriginOf(request.url))) {
     console.warn(JSON.stringify({ event: "support_cross_site_refused", account_id: null }));
-    return NextResponse.json({ error: "this request didn't come from our page" }, { status: 403 });
+    return NextResponse.json({ error: tr("error.crossSite") }, { status: 403 });
   }
   const profileId = await resolveProfile();
   if (!profileId) return NextResponse.json({ error: "no intake session" }, { status: 401 });
   const session = await matchingSession();
   if (!session) {
-    return NextResponse.json(
-      { error: "changing what the assistant says, or its key, needs you signed in" },
-      { status: 401 },
-    );
+    return NextResponse.json({ error: tr("error.signIn") }, { status: 401 });
   }
+  const required = (field: string) =>
+    NextResponse.json({ error: tr("error.required", { field }) }, { status: 422 });
+  const requiredBoth = (first: string, second: string) =>
+    NextResponse.json({ error: tr("error.requiredBoth", { first, second }) }, { status: 422 });
   try {
     const body = (await request.json()) as {
       action?: unknown;
@@ -298,7 +347,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         // P4-11: the owner's own stated reply time, or null for none.
         const hours = body.hours === null ? null : Number(body.hours);
         if (hours !== null && !Number.isFinite(hours)) {
-          return NextResponse.json({ error: "hours must be a number or null" }, { status: 422 });
+          return NextResponse.json({ error: tr("error.hours") }, { status: 422 });
         }
         const settings = await setReplyHours(profileId, hours);
         return NextResponse.json({ reply_hours: settings.reply_hours });
@@ -314,7 +363,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       case "erase_ticket": {
         // GDPR erasure of one ticket and its emails (rule 22). Irreversible, so signed-in only.
         if (typeof body.ticket_id !== "string") {
-          return NextResponse.json({ error: "ticket_id is required" }, { status: 422 });
+          return required("ticket_id");
         }
         await eraseTicket(session.account_id, body.ticket_id);
         return NextResponse.json({ erased: true });
@@ -325,7 +374,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       }
       case "propose_custom": {
         if (typeof body.question !== "string" || typeof body.answer !== "string") {
-          return NextResponse.json({ error: "question and answer are required" }, { status: 422 });
+          return requiredBoth("question", "answer");
         }
         const proposal = await proposeCustomKnowledge(profileId, {
           question: body.question,
@@ -335,7 +384,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       }
       case "publish": {
         if (typeof body.proposal_id !== "string") {
-          return NextResponse.json({ error: "proposal_id is required" }, { status: 422 });
+          return required("proposal_id");
         }
         const entries = await publishKnowledgeFromProposal(body.proposal_id, {
           expectedProfileId: profileId,
@@ -344,14 +393,14 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       }
       case "retire": {
         if (typeof body.entry_id !== "string") {
-          return NextResponse.json({ error: "entry_id is required" }, { status: 422 });
+          return required("entry_id");
         }
         const entry = await retireKnowledgeEntry(profileId, body.entry_id);
         return NextResponse.json({ status: entry.status });
       }
       case "resolve_ticket": {
         if (typeof body.ticket_id !== "string") {
-          return NextResponse.json({ error: "ticket_id is required" }, { status: 422 });
+          return required("ticket_id");
         }
         const status = body.status === "closed" ? "closed" : "answered";
         const ticket = await resolveTicket(
@@ -366,7 +415,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         // GDPR erasure of one widget conversation (rule 22), for a visitor
         // who never became a contact. Irreversible, so signed-in only.
         if (typeof body.conversation_id !== "string") {
-          return NextResponse.json({ error: "conversation_id is required" }, { status: 422 });
+          return required("conversation_id");
         }
         await eraseConversation(session.account_id, body.conversation_id);
         return NextResponse.json({ erased: true });
@@ -374,25 +423,25 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       case "draft_reply": {
         // The owner's click — the only way a model drafts a reply (P4-10).
         if (typeof body.ticket_id !== "string") {
-          return NextResponse.json({ error: "ticket_id is required" }, { status: 422 });
+          return required("ticket_id");
         }
         const outcome = await draftReply({ profileId, ticketId: body.ticket_id });
         return NextResponse.json(
           outcome.drafted
             ? { drafted: true, reply_id: outcome.reply.id }
-            : { drafted: false, message: outcome.message },
+            : { drafted: false, message: draftRefusalWords(outcome.message, tr, locale) },
         );
       }
       case "save_reply": {
         if (typeof body.ticket_id !== "string" || typeof body.body !== "string") {
-          return NextResponse.json({ error: "ticket_id and body are required" }, { status: 422 });
+          return requiredBoth("ticket_id", "body");
         }
         const reply = await saveReplyText(profileId, body.ticket_id, body.body);
         return NextResponse.json({ reply_id: reply.id, status: reply.status });
       }
       case "decline_reply": {
         if (typeof body.reply_id !== "string") {
-          return NextResponse.json({ error: "reply_id is required" }, { status: 422 });
+          return required("reply_id");
         }
         const reply = await declineReply({
           profileId,
@@ -406,11 +455,11 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         // Approve the exact words on screen and send them — or, for a reply
         // approved earlier and not yet sent (no key then, or the stop), send it.
         if (typeof body.reply_id !== "string") {
-          return NextResponse.json({ error: "reply_id is required" }, { status: 422 });
+          return required("reply_id");
         }
         if (body.action === "approve_reply") {
           if (typeof body.body !== "string") {
-            return NextResponse.json({ error: "body is required" }, { status: 422 });
+            return required("body");
           }
           await approveReply({
             profileId,
@@ -420,7 +469,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           });
         }
         const sent = await sendApprovedReply({ profileId, replyId: body.reply_id });
-        return NextResponse.json(sent);
+        return NextResponse.json({ ...sent, note: outcomeNoteWords(sent.note, tr, locale) });
       }
       case "cluster_faq": {
         const outcome = await clusterQuestions(profileId, session.account_id);
@@ -428,14 +477,11 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       }
       default:
         return NextResponse.json(
-          {
-            error:
-              'action must be "enable", "rotate", "rotate_inbound", "set_reply_hours", "set_notify", "propose_knowledge", "propose_custom", "publish", "retire", "resolve_ticket", "erase_conversation", "erase_ticket", "cluster_faq", "draft_reply", "save_reply", "approve_reply", "send_reply" or "decline_reply"',
-          },
+          { error: tr("error.action", { actions: orList(SUPPORT_ACTIONS, locale) }) },
           { status: 422 },
         );
     }
   } catch (error) {
-    return onError(error);
+    return onError(error, tr, locale);
   }
 }

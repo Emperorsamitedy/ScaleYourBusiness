@@ -10,7 +10,8 @@
 // L-3c (TASKS-LANGUAGES.md): the card's own words are the
 // "customers.campaign" catalogue; counts and dates in the reader's locale.
 // The campaign's summary, its gaps, the gate words and the arithmetic come
-// from the server (L-4); the email's subject and body go to customers and
+// from the server in the reader's language (L-4c, lib/crm/localize), and
+// the readback's measured line is "customersWords"; the email's subject and body go to customers and
 // speak the business's language (L-5/L-6), so the default subject stays
 // English here.
 
@@ -22,6 +23,7 @@ import type { AppLocale } from "../../lib/i18n/locales";
 import { intlTag } from "../../lib/i18n/locales";
 import type { ReadbackView, SendView } from "./campaign-view";
 import {
+  arithmeticSentence,
   countRows,
   measuredSentence,
   phaseFlag,
@@ -250,6 +252,7 @@ export function CampaignCard({
 /** P4-17: what happened after it went out, as numbers, the verdict and what wasn't measured. */
 function Readback({ r }: { r: ReadbackView }) {
   const { tr, locale } = useTr("customers.campaign");
+  const words = useTr("customersWords").tr;
   const flag = readbackFlag(r.verdict, tr);
   return (
     <section className="cu-readback" aria-label={tr("readback.label")}>
@@ -279,8 +282,8 @@ function Readback({ r }: { r: ReadbackView }) {
           ))}
         </tbody>
       </table>
-      <p className="cu-rec-note">{r.arithmetic}.</p>
-      <p className="cu-send-line">{measuredSentence(r)}</p>
+      <p className="cu-rec-note">{arithmeticSentence(r.arithmetic, words)}</p>
+      <p className="cu-send-line">{measuredSentence(r, words, locale)}</p>
     </section>
   );
 }

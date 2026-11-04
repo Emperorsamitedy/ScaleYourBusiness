@@ -14,6 +14,12 @@
 // Reading needs the intake cookie. Importing, erasing and proposing
 // need a signed-in user: an import is an attestation under a name, an
 // erasure is irreversible, a proposal lands in the queue.
+//
+// L-4c (TASKS-LANGUAGES.md): the sentences this API sends — segments,
+// campaign gates, gaps and the readback's arithmetic, skips, send outcomes
+// and refusals — are in the request's language ("customersWords",
+// lib/crm/localize). Stored proposals keep their English; English readers
+// get exactly what the API always sent.
 
 import { matchingSession, resolveAccess } from "../../../lib/auth/access";
 import { type NextRequest, NextResponse } from "next/server";
@@ -57,6 +63,18 @@ import { activeExecutionConnection } from "../../../lib/execution/connections";
 import { emailCampaignOutcome } from "../../../lib/trust/email-readback";
 import { requireRole } from "../../../lib/auth/roles";
 import type { RoleAction } from "../../../lib/auth/roles";
+import { careState } from "../../../lib/care/day-zero";
+import type { AppLocale } from "../../../lib/i18n/locales";
+import { requestTr } from "../../../lib/i18n/request-tr";
+import type { Tr } from "../../../lib/i18n/tr";
+import {
+  campaignWords,
+  crmErrorWords,
+  gateWords,
+  sendMessageWords,
+  skipLines,
+} from "../../../lib/crm/localize";
+import { CUSTOMERS_WORDS, listWords, orList } from "../../../lib/crm/words";
 
 // Review 2026-10-23 (#24): approving a campaign's email tries the send at once,
 // and a 50-recipient run paced 600 ms apart takes about 40–60 s. 300 s is
@@ -76,29 +94,33 @@ async function resolveProfile(): Promise<{ profile_id: string; account_id: strin
   return access ? { profile_id: access.profile_id, account_id: access.account_id } : null;
 }
 
-function onError(error: unknown): NextResponse {
+function onError(error: unknown, tr: Tr, locale: AppLocale): NextResponse {
   if (
     error instanceof ContactError ||
     error instanceof SegmentProposalError ||
     error instanceof ProposalError ||
     error instanceof CampaignSendError
   ) {
-    return NextResponse.json({ error: error.message }, { status: error.status });
+    return NextResponse.json(
+      { error: crmErrorWords(error.message, tr, locale) },
+      { status: error.status },
+    );
   }
   console.error(
     JSON.stringify({ event: "crm_error", name: error instanceof Error ? error.name : "unknown" }),
   );
-  return NextResponse.json({ error: "something went wrong on our side" }, { status: 500 });
+  return NextResponse.json({ error: tr("error.server") }, { status: 500 });
 }
 
 export async function GET(): Promise<NextResponse> {
   const who = await resolveProfile();
   if (!who) return NextResponse.json({ error: "no intake session" }, { status: 401 });
+  const { tr, locale } = await requestTr(CUSTOMERS_WORDS);
   try {
     const now = new Date();
     const [contacts, report, posture] = await Promise.all([
       listContacts(who.account_id),
-      computeSegments(who.account_id, now),
+      computeSegments(who.account_id, now, tr, locale),
       outboundPosture(who.profile_id),
     ]);
     return NextResponse.json({
@@ -124,11 +146,11 @@ export async function GET(): Promise<NextResponse> {
         excluded: s.excluded,
         evidence: s.evidence,
       })),
-      campaigns: await campaignsFor(who.profile_id, who.account_id),
+      campaigns: await campaignsFor(who.profile_id, who.account_id, tr, locale),
       business_name: await answeredText(who.profile_id, BUSINESS_NAME_KEY),
     });
   } catch (error) {
-    return onError(error);
+    return onError(error, tr, locale);
   }
 }
 
@@ -137,7 +159,7 @@ export async function GET(): Promise<NextResponse> {
  * still wants from it — and, since P4-15, sent ones too, with the send's
  * state: counts by status and reason, unsubscribed since, the gate holding it.
  */
-async function campaignsFor(profileId: string, accountId: string) {
+async function campaignsFor(profileId: string, accountId: string, tr: Tr, locale: AppLocale) {
   const rows = await db
     .select()
     .from(proposals)
@@ -159,17 +181,32 @@ async function campaignsFor(profileId: string, accountId: string) {
     value(POSTAL_ADDRESS_KEY),
     value(COUNTRY_KEY),
   ]);
-  const compliance = campaignCompliance({ businessCountry: country, senderName, postalAddress });
+  const compliance = campaignCompliance(
+    { businessCountry: country, senderName, postalAddress },
+    tr,
+    locale,
+  );
   const conn = await activeExecutionConnection(accountId, "email_campaign");
   const out = [];
   for (const r of rows) {
-    const action = r.action as { kind?: string; summary?: string; detail?: { label?: string } };
+    const action = r.action as {
+      kind?: string;
+      summary?: string;
+      detail?: { label?: string; segment?: unknown; contact_ids?: unknown };
+    };
     if (action.kind !== SEGMENT_KIND) continue;
     const draft = await campaignDraftFor(r.id);
+    const words = campaignWords(
+      { summary: action.summary ?? "campaign", label: action.detail?.label ?? null },
+      action.detail,
+      tr,
+      locale,
+    );
+    const send = await campaignSendView(r, accountId);
     out.push({
       proposal_id: r.id,
-      summary: action.summary ?? "campaign",
-      label: action.detail?.label ?? null,
+      summary: words.summary,
+      label: words.label,
       approved_at: r.decided_at,
       draft: draft ? { id: draft.id, title: draft.title, body: draft.body } : null,
       gaps: compliance.gaps,
@@ -177,17 +214,23 @@ async function campaignsFor(profileId: string, accountId: string) {
       ask: compliance.ask,
       recipients: approvedRecipients(r.action).length,
       irreversible: (r.reversibility as { level?: string } | null)?.level === "hard",
-      send: await campaignSendView(r, accountId),
+      send: { ...send, gates: send.gates.map((g) => gateWords(g, tr, locale)) },
       // P4-17: the readback, once the campaign has gone out.
-      readback: r.status === "executed" ? await readbackFor(r, conn?.reply_to ?? null) : null,
+      readback:
+        r.status === "executed" ? await readbackFor(r, conn?.reply_to ?? null, tr, locale) : null,
     });
   }
   return out;
 }
 
 /** P4-17: a sent campaign's readback, with what the screen needs to say what wasn't measured. */
-async function readbackFor(proposal: typeof proposals.$inferSelect, repliesTo: string | null) {
-  const outcome = await emailCampaignOutcome(proposal);
+async function readbackFor(
+  proposal: typeof proposals.$inferSelect,
+  repliesTo: string | null,
+  tr: Tr,
+  locale: AppLocale,
+) {
+  const outcome = await emailCampaignOutcome(proposal, tr, locale);
   const d = outcome.delivery;
   return {
     ...outcome,
@@ -215,16 +258,26 @@ const CRM_ROLE: Record<string, RoleAction> = {
   send_campaign: "proposals.decide",
 };
 
+/** The actions POST takes, as its refusal names them. */
+const CRM_ACTIONS = [
+  "import",
+  "erase",
+  "propose_segments",
+  "draft_campaign",
+  "approve_campaign_email",
+  "send_campaign",
+] as const;
+
 export async function POST(request: NextRequest): Promise<NextResponse> {
   const who = await resolveProfile();
   if (!who) return NextResponse.json({ error: "no intake session" }, { status: 401 });
+  const { tr, locale } = await requestTr(CUSTOMERS_WORDS);
   const session = await matchingSession();
   if (!session) {
-    return NextResponse.json(
-      { error: "importing, erasing or proposing needs you signed in" },
-      { status: 401 },
-    );
+    return NextResponse.json({ error: tr("error.signIn") }, { status: 401 });
   }
+  const required = (field: string) =>
+    NextResponse.json({ error: tr("error.required", { field }) }, { status: 422 });
   try {
     const body = (await request.json()) as {
       action?: unknown;
@@ -242,14 +295,12 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     switch (body.action) {
       case "import": {
         if (typeof body.csv !== "string" || typeof body.statement !== "string") {
-          return NextResponse.json({ error: "csv and statement are required" }, { status: 422 });
+          return NextResponse.json({ error: tr("error.csvStatement") }, { status: 422 });
         }
         const status = CONSENT.find((s) => s === body.status);
         if (!status) {
           return NextResponse.json(
-            {
-              error: "status must be one of explicit_consent, implied_consent, no_consent, unsure",
-            },
+            { error: tr("error.status", { values: listWords(CONSENT, locale) }) },
             { status: 422 },
           );
         }
@@ -264,22 +315,25 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       }
       case "erase": {
         if (typeof body.contact_id !== "string") {
-          return NextResponse.json({ error: "contact_id is required" }, { status: 422 });
+          return required("contact_id");
         }
         await eraseContact(who.account_id, body.contact_id);
         return NextResponse.json({ erased: true });
       }
       case "propose_segments": {
         const outcome = await proposeFromSegments(who.profile_id);
+        const watch = outcome.skipped.some((x) => x.segment === "all")
+          ? ((await careState(who.profile_id))?.watch_ends_at ?? null)
+          : null;
         return NextResponse.json({
           created: outcome.created.length,
           blocked: outcome.blocked.length,
-          skipped: outcome.skipped,
+          skipped: skipLines(outcome.skipped, watch, tr, locale),
         });
       }
       case "draft_campaign": {
         if (typeof body.proposal_id !== "string") {
-          return NextResponse.json({ error: "proposal_id is required" }, { status: 422 });
+          return required("proposal_id");
         }
         const { draft, compliance, fresh } = await draftCampaign(body.proposal_id, {
           expectedProfileId: who.profile_id,
@@ -296,7 +350,19 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           typeof body.body_sha256 !== "string"
         ) {
           return NextResponse.json(
-            { error: "proposal_id, subject and body_sha256 are required" },
+            {
+              error: tr("error.requiredMany", {
+                fields:
+                  locale === "en"
+                    ? "proposal_id, subject and body_sha256"
+                    : listWords(
+                        ["proposal_id", "subject", "body_sha256"],
+                        locale,
+                        ", ",
+                        "conjunction",
+                      ),
+              }),
+            },
             { status: 422 },
           );
         }
@@ -311,26 +377,31 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           profileId: who.profile_id,
           proposalId: body.proposal_id,
         });
-        return NextResponse.json({ approved: true, ...sent });
+        return NextResponse.json({
+          approved: true,
+          ...sent,
+          message: sendMessageWords(sent.message, tr, locale),
+        });
       }
       case "send_campaign": {
         if (typeof body.proposal_id !== "string") {
-          return NextResponse.json({ error: "proposal_id is required" }, { status: 422 });
+          return required("proposal_id");
         }
-        return NextResponse.json(
-          await sendCampaignNow({ profileId: who.profile_id, proposalId: body.proposal_id }),
-        );
+        const sent = await sendCampaignNow({
+          profileId: who.profile_id,
+          proposalId: body.proposal_id,
+        });
+        return NextResponse.json({ ...sent, message: sendMessageWords(sent.message, tr, locale) });
       }
       default:
         return NextResponse.json(
           {
-            error:
-              'action must be "import", "erase", "propose_segments", "draft_campaign", "approve_campaign_email" or "send_campaign"',
+            error: tr("error.action", { actions: orList(CRM_ACTIONS, locale) }),
           },
           { status: 422 },
         );
     }
   } catch (error) {
-    return onError(error);
+    return onError(error, tr, locale);
   }
 }
