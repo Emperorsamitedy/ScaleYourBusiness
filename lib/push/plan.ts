@@ -22,9 +22,22 @@
 // a contact detail. They aren't the proposal's title (which can hold all
 // three: "Win back Anna Kovács with 10% off"), but a fixed phrase per
 // proposal kind from the table below. Unknown kinds say "a proposal".
+//
+// I-45d (decided 2026-11-04, owner: "Yes, within quiet hours"): a review
+// worth knowing (lib/reviews/alert) rides the same rules. Its alert is
+// planned here, on the trusted side, never from the inbound path (rule 21):
+// the review's own row says it is waiting (reviews.push_settled_at null).
+// Rules 2–5 apply to it unchanged, and it shares the one alert a day: when
+// proposals and reviews both wait they go as one alert ("1 thing waits for
+// your yes, and a review worth knowing"). A review's words are fixed too
+// ("A 2-star review on Google"): no reviewer, no words, no link. A pasted
+// review raises no phone alert (the owner just pasted it), and one waiting
+// more than REVIEW_PUSH_FRESH_DAYS is dropped rather than sent late.
 
 import type { Words } from "../i18n/recipient";
 import { englishWords } from "../i18n/recipient";
+import type { ReviewPlatformKey } from "../reviews/parse";
+import { PLATFORM_LABELS, isPlatformKey } from "../reviews/parse";
 import type { PushPayload } from "./send";
 
 export const QUIET_FROM_HOUR = 21;
@@ -71,6 +84,19 @@ export interface QueuedItem {
   expires_at: string;
 }
 
+/** I-45d: a review alert waiting for its phone alert. */
+export interface QueuedReview {
+  review_id: string;
+  platform: string;
+  stars: number | null;
+  /** How it reached SYB: "email", "google" or "paste". */
+  source: string;
+  alerted_at: string;
+}
+
+/** A review alert older than this is dropped, not sent late. */
+export const REVIEW_PUSH_FRESH_DAYS = 2;
+
 export interface PushPlanInput {
   now: Date;
   /** The IANA zone quiet hours are kept in. */
@@ -80,26 +106,37 @@ export interface PushPlanInput {
   /** The account's last alert (tests don't count). */
   lastSentAt: string | null;
   queued: readonly QueuedItem[];
+  /** I-45d: review alerts not yet sent or dropped. */
+  reviews?: readonly QueuedReview[];
 }
 
-export type PushPlan =
-  | {
-      act: "send";
-      send: string[];
-      drop: string[];
-      /** The alert in English; each device gets it in its person's words (./flush, from `waiting`). */
-      payload: PushPayload;
-      waiting: QueuedItem[];
-    }
-  | {
-      act: "hold";
-      why: "quiet_hours" | "daily_cap";
-      /** When the next try can send: 08:00 local. */
-      until: string;
-      keep: string[];
-      drop: string[];
-    }
-  | { act: "drop"; why: "halted" | "no_devices" | "nothing_waiting"; drop: string[] };
+/** I-45d, on every plan when reviews were given: the review ids now settled (sent or dropped). */
+interface ReviewsSettled {
+  reviews_done?: string[];
+}
+
+export type PushPlan = ReviewsSettled &
+  (
+    | {
+        act: "send";
+        send: string[];
+        drop: string[];
+        /** The alert in English; each device gets it in its person's words (./flush, from `waiting`). */
+        payload: PushPayload;
+        waiting: QueuedItem[];
+        /** I-45d: the review alerts it carries. */
+        reviews?: QueuedReview[];
+      }
+    | {
+        act: "hold";
+        why: "quiet_hours" | "daily_cap";
+        /** When the next try can send: 08:00 local. */
+        until: string;
+        keep: string[];
+        drop: string[];
+      }
+    | { act: "drop"; why: "halted" | "no_devices" | "nothing_waiting"; drop: string[] }
+  );
 
 /** Wall-clock parts of an instant in a zone. */
 export function localParts(at: Date, zone: string): { date: string; hour: number } {
@@ -143,8 +180,48 @@ export function inQuietHours(now: Date, zone: string): boolean {
   return hour >= QUIET_FROM_HOUR || hour < QUIET_UNTIL_HOUR;
 }
 
-/** The alert's words and where its tap goes, in the person's words (English by default). */
-export function pushWords(waiting: readonly QueuedItem[], w: Words = ENGLISH()): PushPayload {
+const REVIEW_ENGLISH = (): Words => englishWords("reviewPush");
+
+/** I-45d: one review's lock-screen phrase — the platform and the stars, nothing else. */
+export function reviewWords(r: QueuedReview, rw: Words = REVIEW_ENGLISH()): string {
+  const key: ReviewPlatformKey = isPlatformKey(r.platform) ? r.platform : "other";
+  const platform = key === "other" ? rw.t("anotherSite") : PLATFORM_LABELS[key];
+  return r.stars === null
+    ? rw.t("oneUnrated", { platform })
+    : rw.t("one", { stars: r.stars, platform });
+}
+
+/**
+ * The alert's words and where its tap goes, in the person's words (English
+ * by default). I-45d: review alerts alone tap through to /reviews; with
+ * proposals they ride the proposals' alert, which taps through to the yes.
+ */
+export function pushWords(
+  waiting: readonly QueuedItem[],
+  w: Words = ENGLISH(),
+  reviews: readonly QueuedReview[] = [],
+  rw: Words = REVIEW_ENGLISH(),
+): PushPayload {
+  if (reviews.length > 0) {
+    const only = reviews[0];
+    if (waiting.length === 0) {
+      return {
+        title: PUSH_TITLE,
+        body:
+          reviews.length === 1 && only
+            ? reviewWords(only, rw)
+            : rw.t("many", { count: reviews.length }),
+        url: "/reviews",
+        tag: PUSH_TAG,
+      };
+    }
+    return {
+      title: PUSH_TITLE,
+      body: rw.t("withProposals", { count: waiting.length, reviews: reviews.length }),
+      url: "/proposals",
+      tag: PUSH_TAG,
+    };
+  }
   const first = waiting[0];
   if (waiting.length === 1 && first) {
     return {
@@ -173,9 +250,19 @@ export function pushPlan(input: PushPlanInput): PushPlan {
   const stale = input.queued.filter((q) => !waiting.includes(q)).map((q) => q.proposal_id);
   const all = input.queued.map((q) => q.proposal_id);
 
-  if (input.halted) return { act: "drop", why: "halted", drop: all };
-  if (input.devices === 0) return { act: "drop", why: "no_devices", drop: all };
-  if (waiting.length === 0) return { act: "drop", why: "nothing_waiting", drop: all };
+  // I-45d: the review alerts worth a phone alert, and what settles each plan.
+  const given = input.reviews ?? [];
+  const freshFrom = nowMs - REVIEW_PUSH_FRESH_DAYS * 86_400_000;
+  const reviews = given.filter((r) => r.source !== "paste" && Date.parse(r.alerted_at) > freshFrom);
+  const settled = (ids: readonly QueuedReview[]): ReviewsSettled =>
+    given.length === 0 ? {} : { reviews_done: ids.map((r) => r.review_id) };
+  const staleReviews = settled(given.filter((r) => !reviews.includes(r)));
+
+  if (input.halted) return { act: "drop", why: "halted", drop: all, ...settled(given) };
+  if (input.devices === 0) return { act: "drop", why: "no_devices", drop: all, ...settled(given) };
+  if (waiting.length === 0 && reviews.length === 0) {
+    return { act: "drop", why: "nothing_waiting", drop: all, ...settled(given) };
+  }
 
   const keep = waiting.map((q) => q.proposal_id);
   if (inQuietHours(input.now, input.zone)) {
@@ -185,6 +272,7 @@ export function pushPlan(input: PushPlanInput): PushPlan {
       until: nextMorning(input.now, input.zone).toISOString(),
       keep,
       drop: stale,
+      ...staleReviews,
     };
   }
   if (
@@ -198,7 +286,15 @@ export function pushPlan(input: PushPlanInput): PushPlan {
       until: nextMorning(input.now, input.zone).toISOString(),
       keep,
       drop: stale,
+      ...staleReviews,
     };
   }
-  return { act: "send", send: keep, drop: stale, payload: pushWords(waiting), waiting };
+  return {
+    act: "send",
+    send: keep,
+    drop: stale,
+    payload: pushWords(waiting, ENGLISH(), reviews),
+    waiting,
+    ...(given.length === 0 ? {} : { reviews, ...settled(given) }),
+  };
 }

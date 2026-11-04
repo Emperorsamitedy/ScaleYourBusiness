@@ -6223,5 +6223,12 @@
     "gapBelow": "低 {points, plural, other {# 个百分点}}",
     "gapSameAbove": "大致相同：高出 {points, plural, other {# 个百分点}}",
     "gapSameBelow": "大致相同：低 {points, plural, other {# 个百分点}}"
+  },
+  "reviewPush": {
+    "one": "{stars, plural, other {{platform} 上有一条 # 星评价}}",
+    "oneUnrated": "{platform} 上有一条值得一读的评价",
+    "many": "{count, plural, other {# 条值得了解的评价}}",
+    "withProposals": "{count, plural, other {# 件事等您点头}}，另有 {reviews, plural, other {# 条值得了解的评价}}",
+    "anotherSite": "其他网站"
   }
 }

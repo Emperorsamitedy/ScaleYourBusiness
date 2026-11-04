@@ -10,14 +10,16 @@
 // weekly summary's reviews section reads the same rows). The line names
 // the platform and the stars, never the reviewer and never the words.
 //
-// PHONE ALERTS: idea 53 (lib/push) has merged, but this hook is NOT wired
-// to it (TASKS-FEEDBACK I-45d says why). `phoneAlertHook` below is where it
-// plugs in: it is handed only `lockScreenLine` — "A 2-star review on
-// Google" — and today does nothing but say so in the log. In short: this
-// hook runs inside the stranger-reachable inbound path, and lib/push reaches
-// lib/profile and lib/hours, which rule 21's structural test forbids there;
-// and lib/push's outbox, plan and words are proposal-shaped (a proposal id
-// with a foreign key, "N things wait for your yes", a tap to /proposals).
+// PHONE ALERTS (I-45d, decided 2026-11-04, owner: "Yes, within quiet
+// hours"): sent from the TRUSTED side, never from here. This module runs
+// inside the stranger-reachable inbound path, and lib/push reaches
+// lib/profile and lib/hours, which rule 21's structural test forbids here.
+// So the claimed alert (alerted_at) is itself the queue: lib/push/flush picks
+// up every alerted review whose phone alert isn't settled yet
+// (reviews.push_settled_at), on the account's next flush or the morning beat
+// (app/api/cron/push-held), and lib/push/plan applies quiet hours, the
+// emergency stop and the one-alert-a-day cap to it as to proposals.
+// `phoneAlertHook` below only logs that one is waiting, with ids.
 //
 // Stranger-reachable (the inbound webhook files reviews): this module
 // writes the watch_activity table through the database alone and imports
@@ -56,22 +58,22 @@ export type PhoneAlertHook = (args: {
   profile_id: string;
   review_id: string;
   line: string;
-}) => Promise<"sent" | "not_built" | "failed">;
+}) => Promise<"sent" | "waiting" | "failed">;
 
 /**
- * Idea 53's push would go here. It sends nothing today (see the header and
- * TASKS-FEEDBACK I-45d): it logs that a phone alert would have gone, with ids only.
+ * Sends nothing (see the header, I-45d): the trusted side's flush sends it.
+ * It logs that a phone alert is waiting, with ids only.
  */
 export const phoneAlertHook: PhoneAlertHook = async (args) => {
   console.log(
     JSON.stringify({
-      event: "review_phone_alert_not_built",
+      event: "review_phone_alert_waiting",
       account_id: args.account_id,
       profile_id: args.profile_id,
       review_id: args.review_id,
     }),
   );
-  return "not_built";
+  return "waiting";
 };
 
 export interface AlertableReview {

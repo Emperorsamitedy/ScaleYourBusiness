@@ -10,6 +10,11 @@
 // held alerts would go at its own 08:00. pushPlan keeps the rules whatever
 // the beat: it never sends inside quiet hours.
 //
+// I-45d: it also sends the phone alerts of new review alerts. The inbound
+// path that files a review may not reach lib/push (rule 21), so a review
+// that arrives by email or from Google waits for its account's next flush or
+// this beat, whichever comes first.
+//
 // Same shape as the other crons: `Authorization: Bearer ${CRON_SECRET}`.
 
 import { type NextRequest, NextResponse } from "next/server";

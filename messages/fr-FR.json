@@ -6223,5 +6223,12 @@
     "gapBelow": "{points, plural, one {# point} many {# points} other {# points}} en dessous",
     "gapSameAbove": "à peu près pareil : {points, plural, one {# point} many {# points} other {# points}} au-dessus",
     "gapSameBelow": "à peu près pareil : {points, plural, one {# point} many {# points} other {# points}} en dessous"
+  },
+  "reviewPush": {
+    "one": "{stars, plural, one {Un avis à # étoile sur {platform}} many {Un avis à # étoiles sur {platform}} other {Un avis à # étoiles sur {platform}}}",
+    "oneUnrated": "Un avis à lire sur {platform}",
+    "many": "{count, plural, one {# avis à connaître} many {# avis à connaître} other {# avis à connaître}}",
+    "withProposals": "{count, plural, one {# chose attend votre feu vert} many {# choses attendent votre feu vert} other {# choses attendent votre feu vert}}, et {reviews, plural, one {un avis à connaître} many {# avis à connaître} other {# avis à connaître}}",
+    "anotherSite": "un autre site"
   }
 }

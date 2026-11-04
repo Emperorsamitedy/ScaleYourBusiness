@@ -6223,5 +6223,12 @@
     "gapBelow": "{points, plural, one {# százalékponttal} other {# százalékponttal}} alatta",
     "gapSameAbove": "nagyjából ugyanannyi: {points, plural, one {# százalékponttal} other {# százalékponttal}} felette",
     "gapSameBelow": "nagyjából ugyanannyi: {points, plural, one {# százalékponttal} other {# százalékponttal}} alatta"
+  },
+  "reviewPush": {
+    "one": "{stars, plural, one {Egy #-csillagos értékelés itt: {platform}} other {Egy #-csillagos értékelés itt: {platform}}}",
+    "oneUnrated": "Elolvasásra érdemes értékelés itt: {platform}",
+    "many": "{count, plural, one {# értékelés, amiről érdemes tudnia} other {# értékelés, amiről érdemes tudnia}}",
+    "withProposals": "{count, plural, one {# dolog várja az Ön igenjét} other {# dolog várja az Ön igenjét}}, és {reviews, plural, one {egy értékelés, amiről érdemes tudnia} other {# értékelés, amiről érdemes tudnia}}",
+    "anotherSite": "egy másik oldal"
   }
 }

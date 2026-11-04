@@ -6223,5 +6223,12 @@
     "gapBelow": "{points, plural, one {# punto} many {# puntos} other {# puntos}} por debajo",
     "gapSameAbove": "más o menos igual: {points, plural, one {# punto} many {# puntos} other {# puntos}} por encima",
     "gapSameBelow": "más o menos igual: {points, plural, one {# punto} many {# puntos} other {# puntos}} por debajo"
+  },
+  "reviewPush": {
+    "one": "{stars, plural, one {Una reseña de # estrella en {platform}} many {Una reseña de # estrellas en {platform}} other {Una reseña de # estrellas en {platform}}}",
+    "oneUnrated": "Una reseña que conviene leer en {platform}",
+    "many": "{count, plural, one {# reseña que conviene conocer} many {# reseñas que conviene conocer} other {# reseñas que conviene conocer}}",
+    "withProposals": "{count, plural, one {# cosa espera su visto bueno} many {# cosas esperan su visto bueno} other {# cosas esperan su visto bueno}}, y {reviews, plural, one {una reseña que conviene conocer} many {# reseñas que conviene conocer} other {# reseñas que conviene conocer}}",
+    "anotherSite": "otro sitio"
   }
 }

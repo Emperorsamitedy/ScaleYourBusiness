@@ -286,6 +286,17 @@ describe("P4-08 — rule 21, held by the module graph", () => {
     expect(() => walk(["lib/support/__planted_hole__.ts"], hole)).toThrow(/unresolved import/);
   });
 
+  it("I-45d: review phone alerts are sent from the trusted side — the inbound path reaches nothing in lib/push", () => {
+    expect([...graph.files].filter((f) => f.startsWith("lib/push/"))).toEqual([]);
+    // The gate would see it: lib/reviews reaching the flush pulls in lib/profile.
+    const planted = new Map([
+      ["lib/reviews/__planted_push__.ts", 'export { flushPushes } from "../push/flush";\n'],
+    ]);
+    const reached = walk(["lib/reviews/__planted_push__.ts"], planted);
+    expect([...reached.files]).toContain("lib/push/flush.ts");
+    expect(offenders(reached.files)).toContain("lib/profile/field-store.ts");
+  });
+
   it("the public route sets no cookie and reads none", () => {
     const source = readFileSync(path.resolve(ROOT, "app/api/support/public/route.ts"), "utf8");
     expect(source).not.toMatch(/cookies\(/);

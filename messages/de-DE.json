@@ -6223,5 +6223,12 @@
     "gapBelow": "{points, plural, one {# Prozentpunkt} other {# Prozentpunkte}} darunter",
     "gapSameAbove": "etwa gleich: {points, plural, one {# Prozentpunkt} other {# Prozentpunkte}} darüber",
     "gapSameBelow": "etwa gleich: {points, plural, one {# Prozentpunkt} other {# Prozentpunkte}} darunter"
+  },
+  "reviewPush": {
+    "one": "{stars, plural, one {Eine Bewertung mit # Stern auf {platform}} other {Eine Bewertung mit # Sternen auf {platform}}}",
+    "oneUnrated": "Eine lesenswerte Bewertung auf {platform}",
+    "many": "{count, plural, one {# Bewertung, die Sie kennen sollten} other {# Bewertungen, die Sie kennen sollten}}",
+    "withProposals": "{count, plural, one {# Sache wartet auf Ihr Ja} other {# Sachen warten auf Ihr Ja}}, dazu {reviews, plural, one {eine Bewertung, die Sie kennen sollten} other {# Bewertungen, die Sie kennen sollten}}",
+    "anotherSite": "einer anderen Website"
   }
 }

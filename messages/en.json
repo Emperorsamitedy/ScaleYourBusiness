@@ -6223,5 +6223,12 @@
     "gapBelow": "{points, plural, one {# point} other {# points}} below",
     "gapSameAbove": "about the same: {points, plural, one {# point} other {# points}} above",
     "gapSameBelow": "about the same: {points, plural, one {# point} other {# points}} below"
+  },
+  "reviewPush": {
+    "one": "{stars, plural, one {A #-star review on {platform}} other {A #-star review on {platform}}}",
+    "oneUnrated": "A review worth reading on {platform}",
+    "many": "{count, plural, one {# review worth knowing} other {# reviews worth knowing}}",
+    "withProposals": "{count, plural, one {# thing waits for your yes} other {# things wait for your yes}}, and {reviews, plural, one {a review worth knowing} other {# reviews worth knowing}}",
+    "anotherSite": "another site"
   }
 }
