@@ -1707,6 +1707,10 @@ export const proposals = pgTable(
     uniqueIndex("proposals_stock_finding_idx")
       .on(t.profile_id, t.originating_finding)
       .where(sql`${t.originating_finding} LIKE 'stock:%'`),
+    // I-46a: a content push is once per busy stretch, raced safely the same way.
+    uniqueIndex("proposals_season_finding_idx")
+      .on(t.profile_id, t.originating_finding)
+      .where(sql`${t.originating_finding} LIKE 'season:%'`),
     check("proposals_requires_approval_true", sql`${t.requires_approval} = true`),
     check(
       "proposals_blocked_names_limit",

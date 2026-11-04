@@ -23,7 +23,7 @@ import { createProposal } from "../proposals/service";
 import { listGoals } from "./goals";
 import { evidenceAssumption, performanceEvidence } from "./performance";
 import { enumCode } from "../core/enum-value";
-import type { ScenarioBlock } from "../diagnosis/recommendations";
+import type { Assumption, ScenarioBlock } from "../diagnosis/recommendations";
 import type { SimulationAttachment } from "../simulate/scenario";
 import { attachSimulation } from "../simulate/scenario";
 // watch.ts imports ContentError back from here; both are used only at call time, so the cycle is safe.
@@ -116,6 +116,18 @@ export interface PlanArgs {
   limitLlm?: LimitLlm;
   /** Feature 36: proposed from the campaign simulator — its scenario rides along. */
   simulation?: SimulationAttachment;
+  /** I-46a: raised ahead of a busy stretch (./season-push) — its ref, reason and figures ride along. */
+  occasion?: PlanOccasion;
+}
+
+/** Why a calendar was raised without the owner asking: one busy stretch, once (I-46a). */
+export interface PlanOccasion {
+  /** The proposal's originating_finding: one per stretch (a unique index holds it). */
+  ref: string;
+  /** Leads the summary: "Ahead of your busy weeks from 16 Nov". */
+  lead: string;
+  assumption: Assumption;
+  detail: Record<string, unknown>;
 }
 
 /** A calendar proposal (its slots in detail.items), not a shot list or a per-item publish. */
@@ -212,6 +224,7 @@ export async function proposeContentPlan(
 
   const planScenario: ScenarioBlock = {
     assumptions: [
+      ...(args.occasion ? [args.occasion.assumption] : []),
       ...(performed ? [evidenceAssumption(performed)] : []),
       {
         statement: `${plannable.length} plannable channel(s) on the profile`,
@@ -253,14 +266,17 @@ export async function proposeContentPlan(
       "no spend — the cost is your review time, and every draft waits for your yes",
   };
 
+  const what = `${weeks}-week content calendar: ${items.length} pieces across ${plannable.length} channel${plannable.length === 1 ? "" : "s"}`;
   return createProposal({
     profile_id: profileId,
     module: "content",
+    originating_finding: args.occasion?.ref ?? null,
     action: {
       kind: "content_publishing",
-      summary: `A ${weeks}-week content calendar: ${items.length} pieces across ${plannable.length} channel${plannable.length === 1 ? "" : "s"}`,
+      summary: args.occasion ? `${args.occasion.lead}: a ${what}` : `A ${what}`,
       detail: {
         items,
+        ...(args.occasion ? { season: args.occasion.detail } : {}),
         manual_limits: verdict.manual.map((l) => l.quote),
         rationale: `Every slot serves a stated goal and leans on ${focus?.name ?? "the business"}; nothing publishes anywhere you don't already run.`,
         ...(performed ? { performance: performed } : {}),

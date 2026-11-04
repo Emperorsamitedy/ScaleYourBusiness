@@ -16,6 +16,7 @@ vi.mock("../../../../lib/hours/trials", () => ({ runHoursTrials: async () => ({}
 vi.mock("../../../../lib/ads/proposals", () => ({ runAdProposals: async () => ({}) }));
 vi.mock("../../../../lib/stock/warnings", () => ({ runStockWarnings: async () => ({}) }));
 vi.mock("../../../../lib/stock/propose", () => ({ runStockProposals: async () => ({}) }));
+vi.mock("../../../../lib/content/season-push", () => ({ runSeasonPushes: async () => ({}) }));
 vi.mock("../../../../lib/forecasts/run", () => ({ runForecastGrading: () => grading() }));
 vi.mock("../../../../lib/reviews/store", () => ({ pruneExpiredReviews: () => reviewsPrune() }));
 vi.mock("../../../../lib/carts/store", () => ({ pruneExpiredCarts: () => cartsPrune() }));

@@ -13,6 +13,7 @@ import { runAdProposals } from "../../../../lib/ads/proposals";
 import { runForecastGrading } from "../../../../lib/forecasts/run";
 import { runHoursTrials } from "../../../../lib/hours/trials";
 import { runStockProposals } from "../../../../lib/stock/propose";
+import { runSeasonPushes } from "../../../../lib/content/season-push";
 import { runStockWarnings } from "../../../../lib/stock/warnings";
 import { runWeeklySummaries } from "../../../../lib/summary/run";
 import { runWeeklyWatch } from "../../../../lib/watch/job";
@@ -54,6 +55,9 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     // Feature 34: slow stock becomes ways to clear it, and P5-03 low stock a
     // reorder note — proposals only, never executed here, never an order.
     const stock = await runStockProposals();
+    // I-46a: a busy stretch two to three weeks out becomes one content-calendar
+    // proposal — never drafted or published here.
+    const season_push = await isolated("season_push", () => runSeasonPushes());
     // Idea 54: SYB's own forecasts whose window has closed, graded from
     // measured rows — before the summary, so the week's grades are in it.
     const forecasts = await isolated("forecast_grading", () => runForecastGrading());
@@ -73,6 +77,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         ads,
         stock_warnings,
         stock,
+        season_push,
         forecasts,
         reviews_expired,
         carts_expired,
@@ -86,6 +91,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       ads,
       stock_warnings,
       stock,
+      season_push,
       forecasts,
       reviews_expired,
       carts_expired,

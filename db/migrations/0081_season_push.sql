@@ -1,0 +1,1 @@
+CREATE UNIQUE INDEX "proposals_season_finding_idx" ON "proposals" USING btree ("profile_id","originating_finding") WHERE "proposals"."originating_finding" LIKE 'season:%';
