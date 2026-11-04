@@ -35,7 +35,7 @@ npm run db:migrate
 npm run db:seed
 ```
 
-- `db:migrate` applies everything up to `0080_report_language`.
+- `db:migrate` applies everything up to `0082_review_push`.
   Migrations are forward-only.
 - `db:seed` loads the question bank, its vocabularies and the six
   language overlays (`specs/question-bank-v1.<locale>.json`).
