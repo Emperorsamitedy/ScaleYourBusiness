@@ -3,11 +3,18 @@
 // Every threshold is a named constant pinned by a boundary test
 // (measures.test.ts), and a measure that can't be computed honestly says
 // why instead of becoming a number.
+//
+// L-4c: the arithmetic and the reasons come from the "connectionsWords"
+// catalogue (lib/bookings/words.ts). English by default — what a fact
+// stores is what the code always said — and the reader's language when the
+// Connections screen asks.
 
 import type { Money } from "../core/money";
 import { money } from "../core/money";
 import type { Observation } from "../connectors/provider";
 import type { MeasuredAppointment } from "./types";
+import type { Say } from "./words";
+import { andList, dayWords, englishSay, plain } from "./words";
 
 /** Four whole weeks, so every weekday counts four times. */
 export const BOOKING_WINDOW_DAYS = 28;
@@ -58,6 +65,14 @@ export interface MeasureOptions {
   capacityPerWeek: number | null;
   /** Owner-facing name of the source, for the reasons ("Square", "your bookings export"). */
   sourceName: string;
+  /** Which source it is, so another language names it in its own words; English uses sourceName. */
+  sourceKind?: "square" | "import";
+}
+
+/** The source as the reasons name it, in the reader's language. */
+function sourceWords(options: MeasureOptions, say: Say): string {
+  if (say.locale === "en" || options.sourceKind === undefined) return options.sourceName;
+  return say.tr(`bookings.source.${options.sourceKind}`);
 }
 
 const inWindow = (a: { day: string }, from: string, to: string) => a.day >= from && a.day <= to;
@@ -68,13 +83,12 @@ const HELD = new Set(["completed", "no_show", "cancelled_late", "booked_future"]
 function rebooking(
   appointments: readonly MeasuredAppointment[],
   asOf: string,
-  sourceName: string,
+  source: string,
+  say: Say,
 ): Measure<number> {
+  const { tr, locale } = say;
   if (!appointments.some((a) => a.client_key !== null)) {
-    return {
-      status: "unmeasured",
-      reason: `${sourceName} has no client id, email or phone I can follow, so I can't see who came back`,
-    };
+    return { status: "unmeasured", reason: tr("bookings.rebook.noClient", { source }) };
   }
   // The cohort ends REBOOK_DAYS before the latest day, so every client in it
   // had the full REBOOK_DAYS to come back by the time the data ends.
@@ -90,12 +104,17 @@ function rebooking(
     if (HELD.has(a.status)) later.set(a.client_key, [...(later.get(a.client_key) ?? []), a.day]);
   }
   const cohort = visits.size;
+  const between = { from: dayWords(cohortFrom, locale), to: dayWords(cohortTo, locale) };
   if (cohort < MIN_REBOOK_CLIENTS) {
     return {
       status: "unmeasured",
-      reason:
-        `${cohort} client${cohort === 1 ? "" : "s"} had a completed appointment between ${cohortFrom} and ${cohortTo}; ` +
-        `I need at least ${MIN_REBOOK_CLIENTS}, each with ${REBOOK_DAYS} days after it, to call a rebooking rate`,
+      reason: tr("bookings.rebook.few", {
+        cohort,
+        n: plain(cohort, locale),
+        ...between,
+        min: plain(MIN_REBOOK_CLIENTS, locale),
+        days: plain(REBOOK_DAYS, locale),
+      }),
     };
   }
   let back = 0;
@@ -112,9 +131,13 @@ function rebooking(
   return {
     status: "measured",
     value: pct1(back, cohort),
-    arithmetic:
-      `${back} of ${cohort} clients with a completed appointment between ${cohortFrom} and ${cohortTo} ` +
-      `booked again within ${REBOOK_DAYS} days`,
+    arithmetic: tr("bookings.rebook.arithmetic", {
+      back: plain(back, locale),
+      cohort,
+      n: plain(cohort, locale),
+      ...between,
+      days: plain(REBOOK_DAYS, locale),
+    }),
   };
 }
 
@@ -123,7 +146,11 @@ export function bookingMeasures(
   appointments: readonly MeasuredAppointment[],
   asOf: string,
   options: MeasureOptions,
+  say: Say = englishSay(),
 ): BookingMeasures {
+  const { tr, locale } = say;
+  const source = sourceWords(options, say);
+  const n = (x: number) => plain(x, locale);
   const from = shiftDate(asOf, -(BOOKING_WINDOW_DAYS - 1));
   const win = appointments.filter((a) => inWindow(a, from, asOf));
   const count = (s: string) => win.filter((a) => a.status === s).length;
@@ -131,18 +158,38 @@ export function bookingMeasures(
   const noShows = count("no_show");
   const late = options.lateSeparated ? count("cancelled_late") : null;
   const due = completed + noShows + (late ?? 0);
-  const period = `${from} to ${asOf}`;
+  const window = { from: dayWords(from, locale), to: dayWords(asOf, locale) };
+  const period = tr("bookings.period", window);
+  const breakdown =
+    late === null
+      ? tr("bookings.breakdown", { completed: n(completed), noShows: n(noShows) })
+      : tr("bookings.breakdownLate", {
+          completed: n(completed),
+          noShows: n(noShows),
+          late: n(late),
+        });
 
-  const rate = (part: number, noun: string): Measure<number> =>
+  const rate = (part: number, which: "noShow" | "late"): Measure<number> =>
     due < MIN_DUE_APPOINTMENTS
       ? {
           status: "unmeasured",
-          reason: `${due} due appointment${due === 1 ? "" : "s"} between ${from} and ${asOf}; I need at least ${MIN_DUE_APPOINTMENTS} to call a rate`,
+          reason: tr("bookings.rate.few", {
+            due,
+            n: n(due),
+            ...window,
+            min: n(MIN_DUE_APPOINTMENTS),
+          }),
         }
       : {
           status: "measured",
           value: pct1(part, due),
-          arithmetic: `${part} ${noun} of ${due} due appointments (completed ${completed} + no-shows ${noShows}${late === null ? "" : ` + late cancellations ${late}`}), ${period}`,
+          arithmetic: tr(`bookings.rate.${which}`, {
+            part: n(part),
+            due,
+            n: n(due),
+            breakdown,
+            period,
+          }),
         };
 
   // Revenue: completed appointments' prices, one currency or none.
@@ -150,16 +197,13 @@ export function bookingMeasures(
   const priced = win.filter((a) => a.status === "completed" && a.price_minor !== null);
   const currencies = [...new Set(priced.map((a) => a.currency ?? "?"))].sort();
   if (completed === 0) {
-    revenue = { status: "unmeasured", reason: `no completed appointments ${period}` };
+    revenue = { status: "unmeasured", reason: tr("bookings.revenue.none", { period }) };
   } else if (priced.length === 0) {
-    revenue = {
-      status: "unmeasured",
-      reason: `${options.sourceName} has no prices for these appointments`,
-    };
+    revenue = { status: "unmeasured", reason: tr("bookings.revenue.noPrices", { source }) };
   } else if (currencies.length !== 1 || currencies[0] === "?") {
     revenue = {
       status: "unmeasured",
-      reason: `the prices are in ${currencies.join(" and ")}, and currencies never blend`,
+      reason: tr("bookings.revenue.currencies", { list: andList(currencies, locale) }),
     };
   } else {
     const total = priced.reduce((s, a) => s + (a.price_minor ?? 0), 0);
@@ -167,24 +211,29 @@ export function bookingMeasures(
     revenue = {
       status: "measured",
       value: money(total, currencies[0] as string),
-      arithmetic:
-        `the listed price of ${priced.length} completed appointment${priced.length === 1 ? "" : "s"}, ${period}` +
-        (unpriced > 0 ? ` (${unpriced} had no price and count as nothing)` : ""),
+      arithmetic: tr(unpriced > 0 ? "bookings.revenue.sumUnpriced" : "bookings.revenue.sum", {
+        count: priced.length,
+        n: n(priced.length),
+        period,
+        unpriced: n(unpriced),
+      }),
     };
   }
 
   const cap = options.capacityPerWeek;
   const utilisation: Measure<number> =
     cap === null || !Number.isFinite(cap) || cap <= 0
-      ? {
-          status: "unmeasured",
-          reason:
-            "you haven't told me how many appointments you can take a week, so I can't say how full you are — I won't assume a capacity",
-        }
+      ? { status: "unmeasured", reason: tr("bookings.utilisation.none") }
       : {
           status: "measured",
           value: pct1(completed, cap * (BOOKING_WINDOW_DAYS / 7)),
-          arithmetic: `${completed} completed of a stated ${cap} a week × ${BOOKING_WINDOW_DAYS / 7} weeks = ${cap * (BOOKING_WINDOW_DAYS / 7)} slots, ${period}`,
+          arithmetic: tr("bookings.utilisation.arithmetic", {
+            completed: n(completed),
+            cap: n(cap),
+            weeks: n(BOOKING_WINDOW_DAYS / 7),
+            slots: n(cap * (BOOKING_WINDOW_DAYS / 7)),
+            period,
+          }),
         };
 
   return {
@@ -195,15 +244,12 @@ export function bookingMeasures(
     late_cancellations: late,
     cancellations: count("cancelled"),
     due,
-    no_show_rate: rate(noShows, "no-shows"),
+    no_show_rate: rate(noShows, "noShow"),
     late_cancellation_rate:
       late === null
-        ? {
-            status: "unmeasured",
-            reason: `${options.sourceName} doesn't separate late cancellations: it counts them as no-shows when you mark them`,
-          }
-        : rate(late, "late cancellations"),
-    rebooking_rate: rebooking(appointments, asOf, options.sourceName),
+        ? { status: "unmeasured", reason: tr("bookings.lateNotSeparated", { source }) }
+        : rate(late, "late"),
+    rebooking_rate: rebooking(appointments, asOf, source, say),
     revenue,
     utilisation,
   };

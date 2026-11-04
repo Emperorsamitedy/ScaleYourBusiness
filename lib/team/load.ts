@@ -28,8 +28,15 @@ import { SCHEDULE_KEY } from "../hours/schedule";
 import { loadTradingSales } from "../hours/trading";
 import { readCurrentField } from "../profile/field-store";
 import { loadSeasons } from "../seasons/load";
-import type { CoverageInput, CoverageResult, RoleInput, SeasonInput, SlotInput } from "./coverage";
-import { TEAM, TEAM_WEEKDAYS, dayText, teamCoverage } from "./coverage";
+import type {
+  CoverageInput,
+  CoverageResult,
+  RoleInput,
+  SeasonInput,
+  SlotInput,
+  TeamLang,
+} from "./coverage";
+import { TEAM, TEAM_WEEKDAYS, dayText, englishTeam, teamCoverage } from "./coverage";
 import { teamModuleOn } from "./module";
 
 /** The 9.2 answer (an entity list) and the two sub-fields read from each of its rows. */
@@ -106,6 +113,7 @@ async function statedOpenHours(
 async function loadBookings(
   accountId: string,
   yesterday: string,
+  L: TeamLang,
 ): Promise<{ asOf: string; bookings: NonNullable<CoverageInput["bookings"]> } | null> {
   const conns = await db
     .select({ id: connections.id, provider: connections.provider })
@@ -159,7 +167,7 @@ async function loadBookings(
   return {
     asOf,
     bookings: {
-      source: conn?.provider === "square" ? "Square bookings" : "your bookings export",
+      source: L.tr(conn?.provider === "square" ? "source.square" : "source.export"),
       first_day: best.first,
       slots,
     },
@@ -167,15 +175,24 @@ async function loadBookings(
 }
 
 /** The season forecast, reduced to what coverage needs: the busy stretch ahead, or why not. */
-async function loadSeason(accountId: string, profileId: string, now: Date): Promise<SeasonInput> {
+async function loadSeason(
+  accountId: string,
+  profileId: string,
+  now: Date,
+  L: TeamLang,
+): Promise<SeasonInput> {
   const { result } = await loadSeasons(accountId, profileId, now);
   if (result.status === "no_data") {
-    return { status: "unread", reason: "nothing is measured by the day yet" };
+    return { status: "unread", reason: L.tr("season.reasonNoData") };
   }
   if (result.status === "too_little") {
     return {
       status: "unread",
-      reason: `${result.complete_weeks} of the ${result.needed_weeks} complete weeks a season needs, ready around ${dayText(result.ready_on)}`,
+      reason: L.tr("season.reasonTooLittle", {
+        complete: result.complete_weeks,
+        needed: result.needed_weeks,
+        day: dayText(result.ready_on, L.locale),
+      }),
     };
   }
   const busy = result.upcoming.find((u) => u.run.kind === "busy");
@@ -191,18 +208,19 @@ async function loadSeason(accountId: string, profileId: string, now: Date): Prom
   };
 }
 
-/** Everything coverage reads, for one business. */
+/** Everything coverage reads, for one business; its words in `L`'s language (English by default). */
 export async function loadCoverageInput(
   accountId: string,
   profileId: string,
   now: Date = new Date(),
+  L: TeamLang = englishTeam(),
 ): Promise<CoverageInput> {
   const yesterday = shift(now.toISOString().slice(0, 10), -1);
   const [booked, capacity, openHours, season, roles] = await Promise.all([
-    loadBookings(accountId, yesterday),
+    loadBookings(accountId, yesterday, L),
     statedCapacity(profileId),
     statedOpenHours(profileId),
-    loadSeason(accountId, profileId, now),
+    loadSeason(accountId, profileId, now, L),
     loadRoles(profileId),
   ]);
   const asOf = booked?.asOf ?? yesterday;
@@ -231,14 +249,23 @@ export async function loadCoverageInput(
   };
 }
 
-/** P5-20's screen data. With the module off, nothing is read beyond the switch. */
+/**
+ * P5-20's screen data. With the module off, nothing is read beyond the
+ * switch. `L` is the reader's language (the route passes the request's);
+ * English by default.
+ */
 export async function teamView(
   accountId: string,
   profileId: string,
   now: Date = new Date(),
-  compute: (input: CoverageInput) => CoverageResult = teamCoverage,
+  compute: (input: CoverageInput, L: TeamLang) => CoverageResult = teamCoverage,
+  L: TeamLang = englishTeam(),
 ): Promise<TeamView> {
   if (!(await teamModuleOn(accountId))) return { enabled: false };
-  const input = await loadCoverageInput(accountId, profileId, now);
-  return { enabled: true, generated_on: now.toISOString().slice(0, 10), result: compute(input) };
+  const input = await loadCoverageInput(accountId, profileId, now, L);
+  return {
+    enabled: true,
+    generated_on: now.toISOString().slice(0, 10),
+    result: compute(input, L),
+  };
 }

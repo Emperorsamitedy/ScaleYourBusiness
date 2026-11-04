@@ -12,6 +12,10 @@
 // retries included — and logged like every other external read. A run is
 // allowed once per COOLDOWN per business, and one at a time. No model is
 // called anywhere in this session.
+//
+// L-4c: the refusals, notes and failure reasons are the "siteWords"
+// catalogue's English (lib/site/say.ts), stored as English and said again
+// in the reader's language by lib/site/localize.ts.
 
 import { and, desc, eq, gte } from "drizzle-orm";
 import { db } from "../../../db";
@@ -29,6 +33,7 @@ import type { DiagnosisFinding } from "../../diagnosis/findings";
 import { pagespeedApiKey } from "../../env";
 import { readCurrentField, writeField } from "../../profile/field-store";
 import type { PageFetcher } from "../fetch";
+import { siteEnglish } from "../say";
 import { livePageFetcher } from "../fetch";
 import type { PlatformVerdict } from "../platform";
 import type { OwnerSiteFigures, SiteFinding } from "./findings";
@@ -48,6 +53,8 @@ const DAY_FMT = new Intl.DateTimeFormat("en-GB", {
 });
 /** "5 Oct 2026": the day a figure is as of, in words. */
 const dayWords = (iso: string) => DAY_FMT.format(new Date(`${iso.slice(0, 10)}T00:00:00Z`));
+
+const EN = siteEnglish();
 
 export const WEBSITE_KEY = "presence.website_url";
 
@@ -137,12 +144,12 @@ export async function ownerSiteFigures(
     rv && Number.isSafeInteger(rv.amount_minor) && typeof rv.currency === "string"
       ? { amount_minor: rv.amount_minor as number, currency: rv.currency }
       : null;
-  if (s === null) missing.push("monthly website visits");
-  if (o === null) missing.push("monthly orders");
-  if (r === null) missing.push("monthly revenue");
+  if (s === null) missing.push(EN("euro.missing.visits"));
+  if (o === null) missing.push(EN("euro.missing.orders"));
+  if (r === null) missing.push(EN("euro.missing.revenue"));
   if (s === null || o === null || r === null)
-    return { missing: `no ${missing.join(", ")} of your own` };
-  if (o <= 0) return { missing: "your monthly orders are zero" };
+    return { missing: EN("euro.missing.list", { list: missing.join(", ") }) };
+  if (o <= 0) return { missing: EN("euro.missing.zero") };
   const fields = [
     ["visits", sessions],
     ["orders", orders],
@@ -160,9 +167,10 @@ export async function ownerSiteFigures(
     aov_minor: Math.round(r.amount_minor / o),
     currency: r.currency,
     basis: allMeasured ? "measured" : "stated",
-    window: allMeasured
-      ? `your connectors' last month, as of ${dayWords(latest)}`
-      : `your own monthly figures, as of ${dayWords(latest)}`,
+    window: EN(allMeasured ? "euro.window.measured" : "euro.window.stated", {
+      day: dayWords(latest),
+    }),
+    as_of: latest.slice(0, 10),
     sources: fields.map(
       ([name, f], i) =>
         `${name}: ${kinds[i] === "connector" ? "measured" : kinds[i]?.replace(/_/g, " ")} (${f === sessions ? "presence.monthly_sessions" : f === orders ? "revenue.order_count_monthly" : "revenue.monthly_revenue"})`,
@@ -186,19 +194,12 @@ export interface RunSiteAuditArgs {
 export async function runSiteAudit(args: RunSiteAuditArgs): Promise<SiteAuditOutcome> {
   const now = args.now ?? new Date();
   const home = await ownerSite(args.profileId);
-  if (!home)
-    return {
-      status: "refused",
-      why: "There's no website in your profile to audit — add it to your fact sheet.",
-    };
+  if (!home) return { status: "refused", why: EN("audit.noSite") };
   let origin: string;
   try {
     origin = new URL(home).origin;
   } catch {
-    return {
-      status: "refused",
-      why: "The website in your profile doesn't look like a web address.",
-    };
+    return { status: "refused", why: EN("audit.badSite") };
   }
   const [last] = await db
     .select({ ran_at: siteAudits.ran_at })
@@ -210,13 +211,13 @@ export async function runSiteAudit(args: RunSiteAuditArgs): Promise<SiteAuditOut
     const from = new Date(new Date(last.ran_at).getTime() + AUDIT_CAPS.cooldown_ms);
     return {
       status: "refused",
-      why: `The site was audited less than an hour ago — the next run opens at ${from.toISOString().slice(11, 16)} UTC.`,
+      why: EN("audit.cooldown", { time: from.toISOString().slice(11, 16) }),
     };
   }
   return withAdvisoryLock(
     `site-audit:${args.profileId}`,
     () => runLocked(args, home, origin, now),
-    () => ({ status: "refused", why: "An audit of this site is already running." }),
+    () => ({ status: "refused", why: EN("audit.running") }),
   );
 }
 
@@ -236,8 +237,7 @@ interface SpeedRun {
 }
 
 /** What /site says when no PAGESPEED_API_KEY is set. */
-export const NO_KEY_NOTE =
-  "Page speed wasn't measured: Google's PageSpeed service needs a free API key (PAGESPEED_API_KEY) and refuses every request without one. The path to buying and the broken links were still read.";
+export const NO_KEY_NOTE = EN("pagespeed.noKey");
 
 async function measure(
   pages: { url: string }[],
@@ -268,8 +268,7 @@ async function measure(
       try {
         results.push(await client.run(task.url, task.strategy));
       } catch (error) {
-        const why =
-          error instanceof PageSpeedError ? error.message : "Google's PageSpeed service failed";
+        const why = error instanceof PageSpeedError ? error.message : EN("pagespeed.failedBare");
         if (error instanceof PageSpeedError && error.kind === "quota") stopped = why;
         else errors.set(`${task.strategy}:${task.url}`, why);
       }
@@ -277,12 +276,17 @@ async function measure(
   };
   await Promise.all(Array.from({ length: PAGESPEED_CAPS.concurrency }, worker));
   let note: string | null = null;
-  if (stopped !== null) note = `${stopped} — ${results.length} of ${planned} measurements made.`;
-  else if (run.length < planned) {
+  if (stopped !== null) {
+    note = EN("pagespeed.stopped", {
+      reason: stopped,
+      made: String(results.length),
+      planned: String(planned),
+    });
+  } else if (run.length < planned) {
     note =
       run.length === 0
-        ? `This week's ${PAGESPEED_CAPS.max_calls_per_site_per_week} PageSpeed calls for the site are used, so speed wasn't measured this run.`
-        : `This week's PageSpeed calls for the site ran short: ${run.length} of ${planned} measurements made, phones first.`;
+        ? EN("pagespeed.weekUsed", { cap: String(PAGESPEED_CAPS.max_calls_per_site_per_week) })
+        : EN("pagespeed.short", { made: String(run.length), planned: String(planned) });
   }
   return { results, errors, calls: client.requests, note };
 }
@@ -301,8 +305,8 @@ async function runLocked(
   } catch (error) {
     const why =
       error instanceof SiteWalkError || error instanceof Error
-        ? `Your home page couldn't be read: ${error.message}`
-        : "Your home page couldn't be read";
+        ? EN("audit.homeUnreadable", { reason: error.message })
+        : EN("audit.homeUnreadableBare");
     console.error(
       JSON.stringify({
         event: "site_audit_failed",
@@ -492,7 +496,7 @@ export async function lastSiteAuditFailure(
     .orderBy(desc(siteAudits.ran_at))
     .limit(1);
   return row && row.status === "failed"
-    ? { at: new Date(row.ran_at).toISOString(), reason: row.reason ?? "the audit failed" }
+    ? { at: new Date(row.ran_at).toISOString(), reason: row.reason ?? EN("audit.failed") }
     : null;
 }
 

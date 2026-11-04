@@ -25,7 +25,7 @@ import type { ExecutionProvider } from "../execution/providers/fixture";
 import type { PageFetcher } from "./fetch";
 import { livePageFetcher } from "./fetch";
 import type { SiteChangeDetail } from "./changes";
-import { SiteChangeError } from "./changes";
+import { siteRefusal } from "./changes";
 
 /** P3-33's thresholds — code, with boundary tests, both directions. */
 export const HEALTH = {
@@ -103,19 +103,16 @@ export async function applySiteChange(args: ApplySiteChangeArgs): Promise<ApplyO
   const fetcher = args.fetcher ?? livePageFetcher;
 
   const [proposal] = await db.select().from(proposals).where(eq(proposals.id, args.proposalId));
-  if (!proposal) throw new SiteChangeError("no such proposal", 404);
+  if (!proposal) throw siteRefusal("error.noProposal", undefined, 404);
   // Ownership clause (2026-09-26 review): a foreign profile's proposal
   // is "missing" — 404, never confirmation across the boundary.
   if (args.expectedProfileId && proposal.profile_id !== args.expectedProfileId) {
-    throw new SiteChangeError("no such proposal", 404);
+    throw siteRefusal("error.noProposal", undefined, 404);
   }
-  if (proposal.module !== "site") throw new SiteChangeError("not a site proposal", 422);
+  if (proposal.module !== "site") throw siteRefusal("error.notSite", undefined, 422);
   const detail = (proposal.action as { detail: SiteChangeDetail }).detail;
   if (detail.manual_instructions) {
-    throw new SiteChangeError(
-      `${detail.platform.platform} can't be edited programmatically — this change is applied by you, with the instructions on the card`,
-      409,
-    );
+    throw siteRefusal("error.manualApply", { platform: detail.platform.platform }, 409);
   }
 
   // Which provider can actually WRITE this site? Real platform write
@@ -126,20 +123,16 @@ export async function applySiteChange(args: ApplySiteChangeArgs): Promise<ApplyO
     args.provider ??
     (new URL(detail.url).hostname.endsWith(".example") ? fixtureSiteExecutor : null);
   if (!provider) {
-    throw new SiteChangeError(
-      `applying to ${detail.platform.platform} needs its write access connected — you will give that permission separately, on its own screen. Until then this card, with its before/after, is the reference for changing it yourself`,
-      409,
-    );
+    throw siteRefusal("error.noWriter", { platform: detail.platform.platform }, 409);
   }
 
   // Drift check: the page as it is NOW, not as it was at proposal time.
   const current = await fetcher(detail.url);
   const occurrences = current.html.split(detail.find).length - 1;
   if (occurrences !== 1) {
-    throw new SiteChangeError(
-      occurrences === 0
-        ? "the page changed since you approved — the text isn't there any more; re-propose against today's page"
-        : "the page changed since you approved — the text is no longer unique; re-propose against today's page",
+    throw siteRefusal(
+      occurrences === 0 ? "error.driftGone" : "error.driftNotUnique",
+      undefined,
       409,
     );
   }

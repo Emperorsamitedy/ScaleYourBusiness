@@ -41,6 +41,9 @@ import { loadCartFacts, productNamer } from "../carts/load";
 import { CARTS } from "../carts/measure";
 import type { CartSegment } from "../carts/segment";
 import { abandonedCartSegment } from "../carts/segment";
+import type { AppLocale } from "../i18n/locales";
+import type { Tr } from "../i18n/tr";
+import { customersEnglish, fig } from "./words";
 
 export const SEGMENT_MODULE = "crm";
 export const SEGMENT_KIND = "customer_email";
@@ -65,6 +68,23 @@ function monthKey(now: Date): string {
   return now.toISOString().slice(0, 7);
 }
 
+/** The campaign kinds a summary is said for. */
+export type CampaignSummaryKind = "winback" | "vip" | "cart";
+
+/**
+ * A campaign's one-line summary — L-4c: from the "customersWords" catalogue,
+ * English by default (what a proposal stores: "Win back 3 lapsed customers
+ * who said yes to email"), another language when the screen says it again.
+ */
+export function campaignSummary(
+  kind: CampaignSummaryKind,
+  n: number,
+  tr: Tr = customersEnglish(),
+  locale: AppLocale = "en",
+): string {
+  return tr(`campaign.summary.${kind}`, { count: n, n: fig(n, locale) });
+}
+
 interface Campaign {
   segment: Segment["key"];
   ref: string;
@@ -78,7 +98,7 @@ const CAMPAIGNS: Record<"lapsed" | "vip", Campaign> = {
   lapsed: {
     segment: "lapsed",
     ref: "winback",
-    summary: (n) => `Win back ${n} lapsed customer${n === 1 ? "" : "s"} who said yes to email`,
+    summary: (n) => campaignSummary("winback", n),
     what: "One email, in your voice, to customers who have not bought in six months and gave explicit consent to hear from you.",
     base: "Some of them come back; the readback counts the orders that follow.",
     upside: "A lapsed customer is cheaper to win back than a stranger is to win.",
@@ -86,7 +106,7 @@ const CAMPAIGNS: Record<"lapsed" | "vip", Campaign> = {
   vip: {
     segment: "vip",
     ref: "vip",
-    summary: (n) => `Thank your ${n} best customer${n === 1 ? "" : "s"}`,
+    summary: (n) => campaignSummary("vip", n),
     what: "One email, in your voice, thanking the customers who buy most often or spend most — no offer attached unless you add one.",
     base: "They feel seen; the readback watches whether they keep buying.",
     upside: "The customers most worth keeping are the ones most worth thanking.",
@@ -113,8 +133,7 @@ function cartCampaign(products: readonly string[]): Campaign {
   return {
     segment: "abandoned_cart",
     ref: "cart",
-    summary: (n) =>
-      `Remind ${n} shopper${n === 1 ? "" : "s"} who left a cart this week and said yes to email`,
+    summary: (n) => campaignSummary("cart", n),
     what: `One email, in your voice, to shoppers who left a cart in the last week and gave explicit consent to hear from you, reminding them of ${named}.`,
     base: "Some of them finish the order; the readback counts the orders that follow.",
     upside: "A shopper who nearly bought is the easiest one to win.",

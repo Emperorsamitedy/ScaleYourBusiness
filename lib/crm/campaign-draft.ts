@@ -36,11 +36,14 @@ import { readCurrentField } from "../profile/field-store";
 import type { LimitLlm } from "../proposals/hard-limits";
 import { COUNTRY_KEY } from "../hours/timezone";
 import { businessCustomerLocale } from "../i18n/people";
+import type { AppLocale } from "../i18n/locales";
 import type { Words } from "../i18n/recipient";
 import { englishWords, wordsFor } from "../i18n/recipient";
-import { applicableRegimes, messageGaps } from "./jurisdiction";
+import type { Tr } from "../i18n/tr";
+import { applicableRegimes, messageGapParts } from "./jurisdiction";
 import { SEGMENT_KIND, SEGMENT_MODULE, SegmentProposalError } from "./segment-proposals";
 import { BUSINESS_NAME_KEY } from "./support-settings";
+import { customersEnglish, listWords } from "./words";
 import { businessLanguage } from "../llm/language-of";
 
 export const POSTAL_ADDRESS_KEY = "legal.postal_address";
@@ -93,18 +96,27 @@ export function complianceFooter(
   ].join("\n");
 }
 
-/** Pure: what the draft still needs under the business's regimes. */
-export function campaignCompliance(args: {
-  businessCountry: string | null;
-  senderName: string | null;
-  postalAddress: string | null;
-}): CampaignCompliance {
+/**
+ * Pure: what the draft still needs under the business's regimes. L-4c: in
+ * the words of `tr` (English by default — what a stored draft records), the
+ * gaps said from the requirement codes, never by rewording English.
+ */
+export function campaignCompliance(
+  args: {
+    businessCountry: string | null;
+    senderName: string | null;
+    postalAddress: string | null;
+  },
+  tr: Tr = customersEnglish(),
+  locale: AppLocale = "en",
+): CampaignCompliance {
   const lookup = applicableRegimes({ businessCountry: args.businessCountry });
-  const at_send = ["the sending address", "each recipient's own unsubscribe link"];
+  const at_send = [tr("compliance.atSend.address"), tr("compliance.atSend.unsubscribe")];
   if (!lookup.ok) {
-    return { regimes: [], refused: lookup.reason, gaps: [lookup.reason], at_send, ask: [] };
+    const reason = refusedWords(args.businessCountry, lookup.reason, tr);
+    return { regimes: [], refused: reason, gaps: [reason], at_send, ask: [] };
   }
-  const gaps = messageGaps(
+  const parts = messageGapParts(
     {
       sender_name: args.senderName ?? "",
       sender_email: "",
@@ -115,15 +127,39 @@ export function campaignCompliance(args: {
     lookup.regimes,
     "draft",
   );
+  const gaps = parts.map((p) =>
+    p.requirement === "disclosure"
+      ? tr("compliance.gap.disclosure")
+      : tr("compliance.gap.because", {
+          words: tr(
+            `compliance.gap.${p.requirement === "sender_identity" ? "name" : p.requirement}`,
+          ),
+          why: listWords(
+            p.regimes.map((r) => tr(`compliance.regime.${r}`)),
+            locale,
+          ),
+        }),
+  );
+  const missing = (r: string) => parts.some((p) => p.requirement === r);
   const ask = [
-    ...(gaps.some((g) => g.startsWith("the business's name"))
-      ? [{ question_id: BUSINESS_NAME_QUESTION, label: "Add your business name" }]
+    ...(missing("sender_identity")
+      ? [{ question_id: BUSINESS_NAME_QUESTION, label: tr("compliance.ask.name") }]
       : []),
-    ...(gaps.some((g) => g.startsWith("the business's postal address"))
-      ? [{ question_id: POSTAL_ADDRESS_QUESTION, label: "Add your postal address" }]
+    ...(missing("postal_address")
+      ? [{ question_id: POSTAL_ADDRESS_QUESTION, label: tr("compliance.ask.postal") }]
       : []),
   ];
   return { regimes: lookup.regimes.map((r) => r.id), refused: null, gaps, at_send, ask };
+}
+
+/** Why no regime applies, from the same facts applicableRegimes read; its own words if they differ. */
+function refusedWords(country: string | null, english: string, tr: Tr): string {
+  const en = customersEnglish();
+  if (country === null || country.trim() === "") {
+    return en("compliance.noCountry") === english ? tr("compliance.noCountry") : english;
+  }
+  const values = { country: country.trim() };
+  return en("compliance.noRules", values) === english ? tr("compliance.noRules", values) : english;
 }
 
 /**

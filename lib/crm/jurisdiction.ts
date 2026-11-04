@@ -213,6 +213,30 @@ export function messageGaps(
   regimes: readonly Regime[],
   scope: "send" | "draft" = "send",
 ): string[] {
+  const byId = new Map(regimes.map((g) => [g.id, g]));
+  return messageGapParts(message, regimes, scope).map((p) => {
+    if (p.requirement === "disclosure") return "the AI disclosure line (SYB, everywhere)";
+    const why = p.regimes.map((id) => byId.get(id)?.label.split(" — ")[0] ?? id);
+    const words =
+      scope === "draft" && p.requirement === "sender_identity"
+        ? "the business's name"
+        : REQUIREMENT_WORDS[p.requirement];
+    return `${words} (${why.join(", ")})`;
+  });
+}
+
+/** One thing a message lacks, as codes: the requirement and the regimes that ask for it. */
+export interface MessageGapPart {
+  requirement: MessageRequirement | "disclosure";
+  regimes: RegimeId[];
+}
+
+/** Pure: what the message is missing, as codes — messageGaps's words are built from these (L-4c). */
+export function messageGapParts(
+  message: MarketingMessage,
+  regimes: readonly Regime[],
+  scope: "send" | "draft" = "send",
+): MessageGapPart[] {
   const required = new Set<MessageRequirement>(regimes.flatMap((r) => r.requires));
   if (scope === "draft") required.delete("unsubscribe");
   const named = message.sender_name.trim() !== "";
@@ -222,17 +246,15 @@ export function messageGaps(
     postal_address: (message.postal_address ?? "").trim() !== "",
     unsubscribe: /^https:\/\/\S+$/.test((message.unsubscribe_url ?? "").trim()),
   };
-  const gaps = (["sender_identity", "postal_address", "unsubscribe"] as const)
+  const parts: MessageGapPart[] = (["sender_identity", "postal_address", "unsubscribe"] as const)
     .filter((r) => required.has(r) && !has[r])
-    .map((r) => {
-      const why = regimes.filter((g) => g.requires.includes(r)).map((g) => g.label.split(" — ")[0]);
-      const words =
-        scope === "draft" && r === "sender_identity" ? "the business's name" : REQUIREMENT_WORDS[r];
-      return `${words} (${why.join(", ")})`;
-    });
+    .map((r) => ({
+      requirement: r,
+      regimes: regimes.filter((g) => g.requires.includes(r)).map((g) => g.id),
+    }));
   // Rule 17 holds everywhere, whatever the regime says.
-  if (message.disclosure.trim() === "") gaps.push("the AI disclosure line (SYB, everywhere)");
-  return gaps;
+  if (message.disclosure.trim() === "") parts.push({ requirement: "disclosure", regimes: [] });
+  return parts;
 }
 
 /** How long SYB's unsubscribe links must stay working: the longest any regime that applies asks. */

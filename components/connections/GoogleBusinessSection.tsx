@@ -15,7 +15,7 @@
 
 import { useEffect, useState } from "react";
 import { isGoogleReason } from "../../lib/google-business/reasons";
-import { bold, useCn } from "./useCn";
+import { bold, useCn, useSaid } from "./useCn";
 import { GOOGLE_NEED_KEYS, storedDay } from "./words";
 
 export interface GoogleView {
@@ -76,6 +76,7 @@ export function GoogleBusinessSection({
 }) {
   const { t, locale } = useCn("connections.google");
   const { t: tg } = useCn("reviews.google");
+  const said = useSaid();
   const [open, setOpen] = useState(false);
   const [typed, setTyped] = useState("");
   const [leaving, setLeaving] = useState(false);
@@ -113,7 +114,7 @@ export function GoogleBusinessSection({
         location: picked,
       });
       if (!out.ok) {
-        setError(out.error ?? t("connectFailed"));
+        setError(out.error !== null ? said(out.error) : t("connectFailed"));
       } else {
         setNotice(t("connected"));
       }
@@ -143,7 +144,7 @@ export function GoogleBusinessSection({
     try {
       const out = await call("/api/connections/google-business", "DELETE", { id: c.id });
       if (!out.ok) {
-        setError(out.error ?? t("revokeFailed"));
+        setError(out.error !== null ? said(out.error) : t("revokeFailed"));
         return;
       }
       setConfirmRevoke(false);
@@ -245,7 +246,7 @@ export function GoogleBusinessSection({
                       : t("fact.notYet")}
                   </dd>
                 </dl>
-                {c.last_error && <p className="cn-error">{c.last_error}</p>}
+                {c.last_error && <p className="cn-error">{said(c.last_error)}</p>}
                 <div className="cn-acts">
                   {confirmRevoke ? (
                     <>

@@ -16,24 +16,55 @@
 // and step-by-step instructions for the owner's own editor instead of
 // an apply path, because promising an automatic change to a platform
 // that can't take one would be a lie with a progress bar.
+//
+// L-4c: every sentence here is the "siteWords" catalogue's English
+// (lib/site/say.ts). The proposal stores the English; lib/site/localize.ts
+// says it again in the reader's language from the same structure
+// (siteChangeWords), and never rewrites the row.
 
 import { checkHardLimits, ensureHardLimits, limitCaption } from "../proposals/hard-limits";
 import type { LimitLlm } from "../proposals/hard-limits";
 import type { ProposalRow } from "../proposals/service";
 import { createProposal } from "../proposals/service";
+import type { AppLocale } from "../i18n/locales";
+import type { Tr } from "../i18n/tr";
 import type { FetchedPage, PageFetcher } from "./fetch";
 import { livePageFetcher } from "./fetch";
 import type { PlatformVerdict } from "./platform";
-import { detectPlatform, editabilityLine } from "./platform";
+import { detectPlatform, editabilityLine, markerWords } from "./platform";
+import { plain, siteEnglish } from "./say";
+
+const EN = siteEnglish();
+
+/** A refusal's catalogue key and values, so a route can say it in the reader's language. */
+export interface SiteWords {
+  key: string;
+  values?: Record<string, string | number>;
+}
 
 export class SiteChangeError extends Error {
   readonly status: number;
-  constructor(message: string, status = 422) {
+  /** Set when the message is one of the "siteWords" catalogue's sentences. */
+  readonly words: SiteWords | null;
+  constructor(message: string, status = 422, words: SiteWords | null = null) {
     super(message);
     this.name = "SiteChangeError";
     this.status = status;
+    this.words = words;
   }
 }
+
+/** A refusal in the catalogue's English, carrying its key for the route to translate. */
+export function siteRefusal(
+  key: string,
+  values?: Record<string, string | number>,
+  status = 422,
+): SiteChangeError {
+  return new SiteChangeError(EN(key, values), status, { key, ...(values ? { values } : {}) });
+}
+
+/** The rule every money-surface refusal names. */
+const MONEY_RULE = 18;
 
 /** Rule 18 at the URL: pages that ARE money surfaces. */
 const MONEY_PATHS =
@@ -75,21 +106,77 @@ export function buildManualInstructions(
   find: string,
   replace: string,
   url: string,
+  tr: Tr = EN,
 ): string[] {
   const shared = [
-    `Open ${url} in your ${platform === "wix" ? "Wix" : "Squarespace"} editor.`,
-    `Find the text: “${find}”`,
-    `Replace it with: “${replace}”`,
-    "Use the editor's preview to compare against the before/after shown here.",
-    "Publish when it matches the after.",
+    tr("change.manual.open", { url, editor: platform === "wix" ? "Wix" : "Squarespace" }),
+    tr("change.manual.find", { find }),
+    tr("change.manual.replace", { replace }),
+    tr("change.manual.compare"),
+    tr("change.manual.publish"),
   ];
-  if (platform === "wix") {
-    shared.splice(1, 0, "In the editor, click the text element itself — Wix edits in place.");
-  }
-  if (platform === "squarespace") {
-    shared.splice(1, 0, "Edit the page section containing the text (hover → Edit).");
-  }
+  if (platform === "wix") shared.splice(1, 0, tr("change.manual.wix"));
+  if (platform === "squarespace") shared.splice(1, 0, tr("change.manual.squarespace"));
   return shared;
+}
+
+/** What a site change's proposal says, built from its structure: the stored English, or a reader's language. */
+export interface SiteChangeWords {
+  summary: string;
+  platform_line: string;
+  preview_note: string;
+  manual_instructions: string[] | null;
+  rationale: string;
+  assumption_platform: string;
+  assumption_baseline: string;
+  base_case: string;
+  downside_case: string;
+  upside_case: string;
+  breakeven_condition: string;
+  if_you_change_your_mind: string;
+}
+
+const clip = (text: string) => (text.length > 60 ? `${text.slice(0, 57)}…` : text);
+
+/** Pure: every sentence of one site change, from what it is. English by default. */
+export function siteChangeWords(
+  change: {
+    url: string;
+    find: string;
+    replace: string;
+    platform: PlatformVerdict;
+    baseline_ms: number;
+  },
+  tr: Tr = EN,
+  locale: AppLocale = "en",
+): SiteChangeWords {
+  const { platform } = change;
+  const manual = platform.editable === "manual";
+  return {
+    summary: tr("change.summary", {
+      host: new URL(change.url).hostname,
+      find: clip(change.find),
+      replace: clip(change.replace),
+    }),
+    platform_line: editabilityLine(platform, tr),
+    preview_note: tr("change.previewTooLarge"),
+    manual_instructions: manual
+      ? buildManualInstructions(platform.platform, change.find, change.replace, change.url, tr)
+      : null,
+    rationale: tr(manual ? "change.rationale.manual" : "change.rationale.engine"),
+    assumption_platform: tr("change.assumption.platform", {
+      platform: platform.platform,
+      marker: markerWords(platform, tr),
+    }),
+    assumption_baseline: tr("change.assumption.baseline", {
+      ms: plain(change.baseline_ms, locale),
+    }),
+    base_case: tr("change.case.base"),
+    downside_case: tr("change.case.downside"),
+    upside_case: tr("change.case.upside"),
+    breakeven_condition: tr("change.case.breakeven"),
+    if_you_change_your_mind: tr(manual ? "change.reverse.manual" : "change.reverse.engine"),
+  };
 }
 
 export interface ProposeSiteChangeArgs {
@@ -108,35 +195,24 @@ export async function proposeSiteChange(
 ): Promise<ProposalRow> {
   const find = args.find.trim();
   const replace = args.replace.trim();
-  if (find === "") throw new SiteChangeError("say what text to find");
-  if (replace === "") throw new SiteChangeError("say what it should become");
-  if (find === replace) throw new SiteChangeError("that changes nothing");
+  if (find === "") throw siteRefusal("error.findEmpty");
+  if (replace === "") throw siteRefusal("error.replaceEmpty");
+  if (find === replace) throw siteRefusal("error.nothing");
 
   // Rule 18, wall one: the URL itself — before any network at all.
   if (MONEY_PATHS.test(args.url)) {
-    throw new SiteChangeError(
-      "that page is a money surface — checkout, cart, payment and billing pages are untouchable at any approval level (rule 18)",
-      403,
-    );
+    throw siteRefusal("error.moneyPath", { rule: MONEY_RULE }, 403);
   }
 
   const fetcher = args.fetcher ?? livePageFetcher;
   const page: FetchedPage = await fetcher(args.url);
   if (page.status >= 400) {
-    throw new SiteChangeError(`the page answered ${page.status} — nothing to change there`);
+    throw siteRefusal("error.pageStatus", { status: String(page.status) });
   }
 
   const occurrences = page.html.split(find).length - 1;
-  if (occurrences === 0) {
-    throw new SiteChangeError(
-      `I can't find “${find}” on that page — copy it exactly as it appears`,
-    );
-  }
-  if (occurrences > 1) {
-    throw new SiteChangeError(
-      `“${find}” appears ${occurrences} times on that page — include enough surrounding text to make it unique`,
-    );
-  }
+  if (occurrences === 0) throw siteRefusal("error.notFound", { find });
+  if (occurrences > 1) throw siteRefusal("error.notUnique", { find, count: occurrences });
 
   // Rule 18, wall two: the region AROUND the match.
   const at = page.html.indexOf(find);
@@ -145,37 +221,33 @@ export async function proposeSiteChange(
     at + find.length + CONTEXT_RADIUS,
   );
   if (MONEY_CONTEXT.test(context)) {
-    throw new SiteChangeError(
-      "that text sits inside a checkout or payment area of the page — money surfaces are untouchable, so this cannot even be proposed (rule 18)",
-      403,
-    );
+    throw siteRefusal("error.moneyContext", { rule: MONEY_RULE }, 403);
   }
 
   const platform = detectPlatform(page.html, page.headers);
   // Literal, like the apply: "$'" in the text must never copy the rest of the page in.
   const afterHtml = page.html.replace(find, () => replace);
   const previewable = page.html.length <= PREVIEW_CAP;
+  const words = siteChangeWords({
+    url: page.url,
+    find,
+    replace,
+    platform,
+    baseline_ms: page.duration_ms,
+  });
 
   const detail: SiteChangeDetail = {
     url: page.url,
     find,
     replace,
     platform,
-    platform_line: editabilityLine(platform),
+    platform_line: words.platform_line,
     site_preview: previewable ? { before_html: page.html, after_html: afterHtml } : null,
-    preview_note: previewable
-      ? null
-      : "the page is too large to carry a live preview — the diff above is exact, the render is not shown",
-    manual_instructions:
-      platform.editable === "manual"
-        ? buildManualInstructions(platform.platform, find, replace, page.url)
-        : null,
+    preview_note: previewable ? null : words.preview_note,
+    manual_instructions: words.manual_instructions,
     health_baseline_ms: page.duration_ms,
     manual_limits: [],
-    rationale:
-      platform.editable === "manual"
-        ? "Your platform can't be edited programmatically, so approving this gives you the exact rendered change and the steps — nothing is applied for you."
-        : "Approving queues the change; applying goes through the engine with the page's previous state stored forever, one click from restored.",
+    rationale: words.rationale,
   };
 
   const { limits } = await ensureHardLimits(profileId, args.limitLlm);
@@ -188,19 +260,19 @@ export async function proposeSiteChange(
     module: "site",
     action: {
       kind: "operations_change",
-      summary: `On ${new URL(page.url).hostname}: “${find.length > 60 ? `${find.slice(0, 57)}…` : find}” → “${replace.length > 60 ? `${replace.slice(0, 57)}…` : replace}”`,
+      summary: words.summary,
       detail: detail as unknown as Record<string, unknown>,
     },
     scenario: {
       assumptions: [
         {
-          statement: `The page is served by ${platform.platform} (${platform.marker})`,
+          statement: words.assumption_platform,
           value: null,
           source_field: null,
           sensitivity: "medium",
         },
         {
-          statement: `Baseline load ${page.duration_ms}ms at proposal time — the auto-rollback reference`,
+          statement: words.assumption_baseline,
           value: null,
           source_field: null,
           sensitivity: "low",
@@ -208,31 +280,27 @@ export async function proposeSiteChange(
       ],
       base_case: {
         case: "base",
-        statement: "The page says the new thing; nothing else about it changes.",
+        statement: words.base_case,
         profit_delta_monthly: null,
         formula: null,
       },
       downside_case: {
         case: "downside",
-        statement:
-          "The page errors or slows hard after the change — it rolls back automatically and you see why.",
+        statement: words.downside_case,
         profit_delta_monthly: null,
         formula: null,
       },
       upside_case: {
         case: "upside",
-        statement: "The readback can compare the weeks either side, once measurement is connected.",
+        statement: words.upside_case,
         profit_delta_monthly: null,
         formula: null,
       },
-      breakeven_condition: "no spend — one line of copy",
+      breakeven_condition: words.breakeven_condition,
     } as never,
     reversibility: {
       level: "easy",
-      if_you_change_your_mind:
-        platform.editable === "manual"
-          ? "You change it back in your editor — the before render here is the reference."
-          : "One click: the page's previous state is stored permanently, not for a window.",
+      if_you_change_your_mind: words.if_you_change_your_mind,
     },
     expires_at: new Date(now.getTime() + 14 * 86_400_000).toISOString(),
     blocked_by_limit: verdict.verdict === "blocked" ? limitCaption(verdict.limit) : null,

@@ -114,6 +114,8 @@ type State =
       producible: Producible[];
       /** P3-21a: item id → why it isn't headed for publishing. */
       publishNotes: Record<string, string>;
+      /** L-4c: the items whose note Connections fixes — a flag from the server, not a word match. */
+      publishConnect: readonly string[];
       /** The Session D real-write gate: false until the two-week test completes. */
       realWrites: boolean;
       /** YYYY-MM-DD the watch ends, while it runs: nothing is proposed before then (rule 15). */
@@ -191,6 +193,7 @@ export function ContentScreen() {
       items: ContentItem[];
       producible: Producible[];
       publish_notes?: Record<string, string>;
+      publish_connect?: string[];
       real_writes?: boolean;
       watching_until?: string | null;
       performance?: Record<string, PerformanceLike>;
@@ -205,6 +208,7 @@ export function ContentScreen() {
       items: content.items,
       producible: content.producible,
       publishNotes: content.publish_notes ?? {},
+      publishConnect: content.publish_connect ?? [],
       realWrites: content.real_writes === true,
       watchingUntil: content.watching_until ?? null,
       performance: content.performance ?? {},
@@ -720,7 +724,7 @@ export function ContentScreen() {
                     {tr("action.reconnect")} <span aria-hidden="true">→</span>
                   </Link>
                 )}
-                {s.publishNotes[open.id]?.includes("Connections") && (
+                {s.publishConnect.includes(open.id) && (
                   <Link className="prop-btn" href="/connections">
                     {tr("action.connections")} <span aria-hidden="true">→</span>
                   </Link>

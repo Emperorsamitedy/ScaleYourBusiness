@@ -44,6 +44,10 @@
 import { eq, inArray } from "drizzle-orm";
 import { db } from "../../db";
 import { campaignComparisons, campaignSends, contacts } from "../../db/schema";
+import { customersEnglish, fig, percentText, semiJoin } from "../crm/words";
+import { dayMonthYear, intlNumber } from "../i18n/format";
+import type { AppLocale } from "../i18n/locales";
+import type { Tr } from "../i18n/tr";
 import type { ProposalRow } from "../proposals/service";
 
 export const EMAIL_READBACK = {
@@ -166,12 +170,9 @@ export interface EmailJudgement {
   arithmetic: string;
 }
 
-const pct = (n: number, d: number): string => (d === 0 ? "—" : `${((n / d) * 100).toFixed(1)}%`);
-const plural = (n: number, one: string, many = `${one}s`) => `${n} ${n === 1 ? one : many}`;
-const GROUP_WORD: Record<EmailCampaignKind, string> = {
-  winback: "lapsed customers",
-  vip: "best customers",
-};
+/** A share to one decimal: "40.0%" in English as it always was, the language's own percent otherwise. */
+const pct = (n: number, d: number, locale: AppLocale = "en"): string =>
+  d === 0 ? "—" : percentText((n / d) * 100, locale, 1);
 
 /** Pure: is the harm alone enough to call it backfired? */
 export function harmBackfired(d: DeliveryTally): "harm" | "complaints" | null {
@@ -184,15 +185,32 @@ export function harmBackfired(d: DeliveryTally): "harm" | "complaints" | null {
   return null;
 }
 
-/** Pure: the verdict from the tallies. */
-export function judgeEmailCampaign(input: EmailJudgeInput): EmailJudgement {
+/**
+ * Pure: the verdict from the tallies. L-4c: the arithmetic in the words of
+ * `tr` ("customersWords", English by default — exactly what it always said),
+ * its figures in `locale`.
+ */
+export function judgeEmailCampaign(
+  input: EmailJudgeInput,
+  tr: Tr = customersEnglish(),
+  locale: AppLocale = "en",
+): EmailJudgement {
   const R = EMAIL_READBACK;
   const { delivery: d, recipients: r, comparison: c, kind } = input;
   const wait = R.min_days_after[kind];
-  const harmLine =
-    `${plural(d.harmed, "recipient")} unsubscribed or marked it as spam ` +
-    `(${d.unsubscribed} unsubscribed, ${d.complained} complained) of ${d.sent} sent, ${pct(d.harmed, d.sent)}` +
-    ` — backfired at ${R.harm_rate_pct}% with at least ${R.harm_min_people} people, or any complaints at ${R.complaint_rate_permille / 10}% or more`;
+  const f = (n: number) => fig(n, locale);
+  const rate = (n: number, of: number) => pct(n, of, locale);
+  const people = (n: number) => tr("readback.recipients", { count: n, n: f(n) });
+  const harmLine = tr("readback.harm", {
+    recipients: people(d.harmed),
+    unsubscribed: f(d.unsubscribed),
+    complained: f(d.complained),
+    sent: f(d.sent),
+    rate: rate(d.harmed, d.sent),
+    harmRate: percentText(R.harm_rate_pct, locale),
+    harmMin: f(R.harm_min_people),
+    complaintRate: percentText(R.complaint_rate_permille / 10, locale),
+  });
   const result = (
     verdict: EmailVerdict,
     lines: string[],
@@ -201,27 +219,44 @@ export function judgeEmailCampaign(input: EmailJudgeInput): EmailJudgement {
     verdict,
     lift_pp: null,
     controlled: false,
-    arithmetic: lines.join("; "),
+    arithmetic: semiJoin(lines, tr),
     ...extra,
   });
 
-  if (d.sent === 0) return result("unmeasured", ["nothing was sent — nothing to measure"]);
+  if (d.sent === 0) return result("unmeasured", [tr("readback.nothingSent")]);
 
   const harm = harmBackfired(d);
   if (harm) return result("backfired", [harmLine]);
 
-  const boughtLine = `bought again since: ${r.returned} of ${r.measured} measured recipients (${pct(r.returned, r.measured)})`;
+  const boughtLine = tr("readback.bought", {
+    returned: f(r.returned),
+    measured: f(r.measured),
+    rate: rate(r.returned, r.measured),
+  });
   if (r.measured < R.min_measured) {
     const why =
       r.measured === 0 && r.waiting > 0
-        ? `no customer export covering them has come in at least ${wait} days after the email${input.sent_on ? ` of ${input.sent_on}` : ""} — import one and the verdict becomes possible`
-        : `${plural(r.measured, "recipient")} measured by a customer export at least ${wait} days after the email — the verdict needs ${R.min_measured}`;
+        ? input.sent_on
+          ? tr("readback.noExportOf", {
+              days: f(wait),
+              date: locale === "en" ? input.sent_on : dayMonthYear(input.sent_on, locale),
+            })
+          : tr("readback.noExport", { days: f(wait) })
+        : tr("readback.fewMeasured", {
+            recipients: people(r.measured),
+            days: f(wait),
+            min: f(R.min_measured),
+          });
     const verdict: EmailVerdict =
       r.measured + r.waiting >= R.min_measured ? "too_early" : "unmeasured";
     return result(verdict, [
       harmLine,
       verdict === "unmeasured"
-        ? `only ${plural(r.measured + r.waiting, "recipient")} can ever be measured (${r.erased} erased) — the verdict needs ${R.min_measured}`
+        ? tr("readback.canEver", {
+            recipients: people(r.measured + r.waiting),
+            erased: f(r.erased),
+            min: f(R.min_measured),
+          })
         : why,
     ]);
   }
@@ -237,37 +272,48 @@ export function judgeEmailCampaign(input: EmailJudgeInput): EmailJudgement {
         : scaled <= R.backfired_at_pp * denom
           ? "backfired"
           : "did_nothing";
+    const liftText =
+      locale === "en"
+        ? `${lift >= 0 ? "+" : "−"}${Math.abs(lift).toFixed(1)}`
+        : `${lift >= 0 ? "+" : "−"}${intlNumber(Math.abs(lift), 1, locale)}`;
     return result(
       verdict,
       [
         harmLine,
-        `${boughtLine}, against ${c.returned} of ${c.measured} ${GROUP_WORD[kind]} I couldn't email (${pct(c.returned, c.measured)})` +
-          ` — ${lift >= 0 ? "+" : "−"}${Math.abs(lift).toFixed(1)} points (helped at +${R.helped_at_pp}, backfired at −${Math.abs(R.backfired_at_pp)})`,
-        "not randomised: the comparison group never said yes to email, so they differ in more than the email",
+        tr("readback.compared", {
+          bought: boughtLine,
+          returned: f(c.returned),
+          measured: f(c.measured),
+          group: tr(`readback.group.${kind}`),
+          rate: rate(c.returned, c.measured),
+          lift: liftText,
+          helped: `+${f(R.helped_at_pp)}`,
+          backfired: `−${f(Math.abs(R.backfired_at_pp))}`,
+        }),
+        tr("readback.notRandom"),
       ],
       { lift_pp: lift, controlled: true },
     );
   }
 
-  const uncontrolled = `${plural(c.measured, "comparison customer")} measured — the comparison needs ${R.min_comparison}`;
+  const uncontrolled = tr("readback.uncontrolledBase", {
+    customers: tr("readback.comparisonCustomers", { count: c.measured, n: f(c.measured) }),
+    min: f(R.min_comparison),
+  });
   if (r.returned === 0) {
     return result("did_nothing", [
       harmLine,
       boughtLine,
-      `nobody bought again, so no comparison could make it a gain (${uncontrolled})`,
+      tr("readback.nobodyBought", { uncontrolled }),
     ]);
   }
   if (c.measured + c.waiting >= R.min_comparison) {
-    return result("too_early", [
-      harmLine,
-      boughtLine,
-      `${uncontrolled}; the next export can measure the rest`,
-    ]);
+    return result("too_early", [harmLine, boughtLine, tr("readback.nextExport", { uncontrolled })]);
   }
   return result("unmeasured", [
     harmLine,
     boughtLine,
-    `uncontrolled: ${uncontrolled}, so I can't say the email caused it — a lift alone is never "helped"`,
+    tr("readback.uncontrolled", { uncontrolled }),
   ]);
 }
 
@@ -290,6 +336,8 @@ export function campaignKind(action: unknown): EmailCampaignKind {
 /** Judge one sent campaign from its send rows, its comparison group and the latest exports. */
 export async function emailCampaignOutcome(
   proposal: Pick<ProposalRow, "id" | "action">,
+  tr: Tr = customersEnglish(),
+  locale: AppLocale = "en",
 ): Promise<EmailCampaignOutcome> {
   const kind = campaignKind(proposal.action);
   const wait = EMAIL_READBACK.min_days_after[kind];
@@ -372,6 +420,10 @@ export async function emailCampaignOutcome(
     .filter((t): t is string => t !== null)
     .sort()[0];
   const sent_on = firstSent ? new Date(firstSent).toISOString().slice(0, 10) : null;
-  const judgement = judgeEmailCampaign({ kind, delivery, recipients, comparison, sent_on });
+  const judgement = judgeEmailCampaign(
+    { kind, delivery, recipients, comparison, sent_on },
+    tr,
+    locale,
+  );
   return { ...judgement, kind, delivery, recipients, comparison, sent_on };
 }

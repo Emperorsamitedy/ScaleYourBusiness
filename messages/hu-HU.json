@@ -7471,5 +7471,905 @@
     "drafted": "Megfogalmazva. Önre vár; a jóváhagyása sem árat, sem költséget nem ír sehová.",
     "blocked": "Az Ön egyik szabálya kizárja ezt, így letiltva áll a sorában.",
     "failed": "Ez nem sikerült."
+  },
+  "teamWords": {
+    "untitledRole": "Cím nélküli szerepkör",
+    "source": {
+      "square": "Square-foglalások",
+      "export": "az Ön foglalási exportja"
+    },
+    "run": {
+      "mon": "Hétfőnként {from}–{to}",
+      "tue": "Keddenként {from}–{to}",
+      "wed": "Szerdánként {from}–{to}",
+      "thu": "Csütörtökönként {from}–{to}",
+      "fri": "Péntekenként {from}–{to}",
+      "sat": "Szombatonként {from}–{to}",
+      "sun": "Vasárnaponként {from}–{to}"
+    },
+    "days": {
+      "mon": "hétfő",
+      "tue": "kedd",
+      "wed": "szerda",
+      "thu": "csütörtök",
+      "fri": "péntek",
+      "sat": "szombat",
+      "sun": "vasárnap"
+    },
+    "daysSpan": "{from} – {to}",
+    "rangeCount": {
+      "mon": "{days, plural, one {# hétfő} other {# hétfő}}",
+      "tue": "{days, plural, one {# kedd} other {# kedd}}",
+      "wed": "{days, plural, one {# szerda} other {# szerda}}",
+      "thu": "{days, plural, one {# csütörtök} other {# csütörtök}}",
+      "fri": "{days, plural, one {# péntek} other {# péntek}}",
+      "sat": "{days, plural, one {# szombat} other {# szombat}}",
+      "sun": "{days, plural, one {# vasárnap} other {# vasárnap}}"
+    },
+    "range": {
+      "same": "({pct} a beolvasott {count} középső felének minden napján)",
+      "spread": "({range} a beolvasott {count} középső felén)"
+    },
+    "appts": "{n, plural, one {{v} időpont} other {{v} időpont}}",
+    "finding": {
+      "booked": "{run}: {pct} foglaltság",
+      "took": "{run}: a bevétel a nap legforgalmasabb órájához mérve {pct}",
+      "line": "{range}; {reason}."
+    },
+    "reason": {
+      "perRole": "„{role}” szerepkörben egy főre óránként nagyjából {appts} jut, az Ön által megadott heti {capacity} mellett",
+      "perHour": "az Ön által megadott heti {capacity} óránként nagyjából {appts}",
+      "onAverage": "egy átlagos nyitvatartási órában nagyjából {n, plural, one {{v} fő} other {{v} fő}} van jelen, az Ön által megadott szerepköri órák alapján",
+      "open": "ezek nyitvatartási órák"
+    },
+    "note": {
+      "shortRole": "{run}: a kereslet meghaladta azt, amit a megadott kapacitása lefed. Ha ebből többet szeretne vállalni, itt adna először több lefedettséget még egy fő „{role}” szerepkörben.",
+      "shortHands": "{run}: a kereslet meghaladta azt, amit a megadott kapacitása lefed. Ha ebből többet szeretne vállalni, itt adna először több lefedettséget még egy segítő kéz.",
+      "quiet": "{run}: a legcsendesebb nyitvatartási szakasz. Ha valaha szűkíti a beosztást, itt veszítené a legkevesebb keresletet.",
+      "quietTakings": "{run}: a bevétel szerint legcsendesebb nyitvatartási szakasz. Ha valaha szűkíti a beosztást, itt veszítené a legkevesebb keresletet."
+    },
+    "headline": {
+      "top": "{words}; {reason}.",
+      "quietTop": "Egyetlen nyitvatartási óra sem lépi túl a megadott kapacitását; {words}.",
+      "none": "Egyetlen nyitvatartási óra sem lépi túl a megadott kapacitását, és egyik sem csendes.",
+      "noneTakings": "Egyetlen nyitvatartási óra sem csendes a nap legforgalmasabb órájához képest."
+    },
+    "refused": {
+      "noDemand": {
+        "headline": "Még semmi sem méri a keresletet óránként.",
+        "reason": "Az óránkénti lefedettséghez az Ön foglalásai (export vagy Square), vagy egy összekapcsolt kassza, fizetési fiók vagy webshop óránkénti eladásai kellenek.",
+        "can": "felsorolni a megadott szerepköröket és óráikat"
+      },
+      "fewBookings": {
+        "headline": "Eddig {history, plural, one {# napnyi} other {# napnyi}} foglalás van; az óránkénti lefedettséghez ennyi nap kell: {needed}.",
+        "reason": "Az Ön foglalásai ebben az időszakban vannak: {from} – {to}; a hét minden napjából legalább négy kell ahhoz, hogy egy órát besoroljak.",
+        "can": "megszámolni az időpontokat a meglévő napokon (napok: {history, plural, one {#} other {#}})"
+      },
+      "noCapacity": {
+        "headline": "A heti kapacitása nincs megadva, ezért nem tudom megmondani, mikor lépi túl a kereslet.",
+        "reason": "Nem adta meg, hány időpontot tud vállalni hetente (ez a kérdés: {question}), és nem fogok feltételezni egyet sem.",
+        "can": "megszámolni az időpontokat óránként"
+      },
+      "noTimes": {
+        "headline": "A foglalásainak nincs időpontja, így nem olvashatók óránként.",
+        "reason": "Ebben az időszakban egyik időpont sem jelzi, mikor kezdődött: {from} – {to} (időpontok: {n, plural, one {{count}} other {{count}}})."
+      },
+      "byDay": "megszámolni az időpontokat naponként",
+      "noHours": {
+        "headline": "A foglalásaiból nem sikerült nyitvatartási órákat kiolvasni.",
+        "reason": "A hét egyik napján sem volt elég napon időpont ahhoz, hogy megmondjam, mikor van nyitva."
+      },
+      "fewSales": {
+        "headline": "Eddig {history, plural, one {# napnyi} other {# napnyi}} óránkénti eladás van; az óránkénti lefedettséghez ennyi nap kell: {needed}.",
+        "reasonNone": "Még egyetlen nap óránkénti eladásai sincsenek mérve.",
+        "reason": "Az óránkénti eladások ebben az időszakban vannak: {from} – {to}; a hét minden napjából legalább négy kell ahhoz, hogy egy órát besoroljak."
+      },
+      "salesOnHours": "megmutatni a meglévő óránkénti eladásokat a Nyitvatartás oldalon",
+      "noSalesHours": {
+        "headline": "Az eladásaiból nem sikerült nyitvatartási órákat kiolvasni.",
+        "reason": "A hét egyik napján sem volt elég napon eladás ahhoz, hogy megmondjam, mikor van nyitva."
+      }
+    },
+    "cannot": {
+      "overCapacity": "megmondani, mely órák lépik túl azt, amit a megadott kapacitása lefed",
+      "quiet": "megmondani, mely nyitvatartási órák csendesek",
+      "borrow": "mintát átvenni más, az Önéhez hasonló vállalkozásoktól"
+    },
+    "limits": {
+      "rolesOnly": "Ez csak szerepköröket és órákat olvas. Soha nem nézi, ki mikor dolgozott, és semmit sem mond egyetlen személyről sem.",
+      "yoursToWeigh": "A megjegyzéseket Ön mérlegeli. Semmi sem változtat beosztáson, műszakon vagy bárki óráin."
+    },
+    "season": {
+      "unread": "A főszezon még nincs beolvasva: {reason}.",
+      "reasonNoData": "még semmi sincs naponként mérve",
+      "reasonTooLittle": "egy szezonhoz szükséges teljes hetek: {complete} / {needed} (nagyjából ekkorra lesz kész: {day})",
+      "noneAhead": "A következő nyolc hétben nincs forgalmas időszak, a tavalyi azonos hetek alapján.",
+      "headUnderWay": "A forgalmas időszaka már tart. Tavaly a normál hét ennyiszerese volt: {index}× ({range}).",
+      "headStarts": "A forgalmas időszaka hamarosan kezdődik ({day}). Tavaly a normál hét ennyiszerese volt: {index}× ({range}).",
+      "atLeast": "legalább {low}×",
+      "between": "{low}–{high}×",
+      "noFurther": "{head} Még az alsó határán sem lépné túl további óra a megadott kapacitását.",
+      "further": "{head} Már az alsó határán is túllépnék a megadott kapacitását ezek az órák: {hours}."
+    },
+    "listSep": "; ",
+    "assumed": {
+      "capacity": "a kapacitás minden nyitvatartási órában azonos: a megadott heti {n, plural, one {{capacity} időpont} other {{capacity} időpont}} ÷ {hours, plural, one {# nyitvatartási óra} other {# nyitvatartási óra}} = óránként {appts}",
+      "startHour": "egy időpont abban az órában számít, amelyben kezdődik",
+      "footprintBookings": "a nyitvatartás nincs megadva ezekre a napokra: {days}; ezért abból olvasom ki, mikor kezdődnek az időpontok (e napok legalább ekkora részén: {pct})",
+      "evenSpread": "a szerepköri órák egyenletesen oszlanak el a nyitvatartási órák között: a beosztást nem ismerem",
+      "allServe": "minden megadott szerepkör beleszámít a vendégek kiszolgálásába",
+      "takings": "a bevétel a keresletet helyettesíti: egy órában történt eladás egy abban az órában kiszolgált ügyfél",
+      "footprintTakings": "a nyitvatartás nincs megadva ezekre a napokra: {days}; ezért abból olvasom ki, mikor érkeznek az eladások"
+    },
+    "notes": {
+      "noRolesBookings": "Nincsenek szerepkörök az interjúból (ki dolgozik a vállalkozásban, és hány órában), így ez csak a kereslet a kapacitáshoz mérve.",
+      "unplaced": "{n, plural, one {Kezdési idő nélküli, órához nem rendelt időpontok: {count}.} other {Kezdési idő nélküli, órához nem rendelt időpontok: {count}.}}",
+      "takingsNoCapacity": "A bevétel nem mutatja meg, mikor lépi túl a kereslet a kapacitását: a kapacitás nem pénzben számít. Egy foglalási export ezt meg tudja mutatni.",
+      "noRolesTakings": "Nincsenek szerepkörök az interjúból (ki dolgozik a vállalkozásban, és hány órában), így ez csak a kereslet."
+    }
+  },
+  "siteWords": {
+    "join": "{first} {then}",
+    "check": {
+      "opening_hours": "Nyitvatartás",
+      "prices": "Árak",
+      "menu": "Étlap",
+      "location_map": "Cím és térkép",
+      "parking": "Parkolás",
+      "phone_contact": "Telefonszám",
+      "contact_email": "E-mail-cím",
+      "booking": "Foglalás vagy asztalfoglalás",
+      "reviews": "Értékelések vagy ajánlások",
+      "events": "Események és programok",
+      "photos": "Fotók a helyről vagy a munkákról",
+      "dietary_options": "Étrendi lehetőségek",
+      "delivery": "Kiszállítás és költsége",
+      "returns_policy": "Visszaküldési szabályok",
+      "payment_methods": "Fizetési módok",
+      "service_area": "A kiszolgált terület",
+      "quote_request": "Árajánlatkérés lehetősége",
+      "portfolio": "Korábbi munkák",
+      "credentials": "Képesítések és engedélyek",
+      "guarantee": "Garancia",
+      "faq": "Válaszok a gyakori kérdésekre",
+      "team": "Kivel lesz dolga",
+      "stock_availability": "Van-e készleten"
+    },
+    "platform": {
+      "line": {
+        "api": "{platform} — a módosításokat a SYB elvégezheti Ön helyett, amint engedélyt ad a módosításokra — ez külön lépés, saját képernyőn.",
+        "partial": "{platform} — egyes elemek programból módosíthatók, de nem mind; ami ezen túl van, az útmutatóként érkezik.",
+        "manual": "Programból nem szerkeszthető platform: {platform} — megkapja a pontos módosítást előtte/utána nézetben, valamint lépésenkénti útmutatót a szerkesztőjéhez. Ez a funkció őszinte változata az Ön platformjára.",
+        "unknown": "Nem tudom megállapítani, mi szolgálja ki ezt az oldalt — megmutatom a módosítást és az eltéréseket, az alkalmazás pedig kézi marad, amíg meg nem tudom állapítani."
+      },
+      "editable": {
+        "api": "API-n át",
+        "partial": "részleges",
+        "manual": "kézi",
+        "unknown": "ismeretlen"
+      },
+      "custom": "egyedi oldal",
+      "marker": {
+        "shopify": "Shopify CDN/téma objektum",
+        "woocommerce": "WooCommerce-fájlok",
+        "wix": "Wix statikus fájlok",
+        "squarespace": "Squarespace-fájlok",
+        "webflow": "Webflow-oldalattribútumok",
+        "wordpress": "WordPress-tartalomútvonalak",
+        "none": "nem található platformjelölő"
+      }
+    },
+    "change": {
+      "summary": "Oldal: {host} — „{find}” → „{replace}”",
+      "previewTooLarge": "az oldal túl nagy az élő előnézethez — a fenti eltérés pontos, a megjelenített változat nem látható",
+      "manual": {
+        "open": "Nyissa meg a {editor}-szerkesztőben ezt az oldalt: {url}.",
+        "find": "Keresse meg a szöveget: „{find}”",
+        "replace": "Cserélje erre: „{replace}”",
+        "compare": "A szerkesztő előnézetével vesse össze az itt látható előtte/utána állapottal.",
+        "publish": "Tegye közzé, amikor egyezik az utána állapottal.",
+        "wix": "A szerkesztőben kattintson magára a szövegelemre — a Wix helyben szerkeszt.",
+        "squarespace": "Szerkessze az oldalnak a szöveget tartalmazó szakaszát (rámutatás → Szerkesztés)."
+      },
+      "rationale": {
+        "manual": "A platformja programból nem szerkeszthető, így a jóváhagyás a pontos, megjelenített módosítást és a lépéseket adja meg — semmi nem kerül alkalmazásra Ön helyett.",
+        "engine": "A jóváhagyás sorba állítja a módosítást; az alkalmazás a végrehajtón keresztül történik, az oldal korábbi állapota örökre megmarad, és egy kattintással visszaállítható."
+      },
+      "assumption": {
+        "platform": "Az oldalt kiszolgáló platform: {platform} ({marker})",
+        "baseline": "Betöltési idő a javaslat idején: {ms} ms — az automatikus visszaállítás viszonyítási alapja"
+      },
+      "case": {
+        "base": "Az oldal az újat mondja; más nem változik rajta.",
+        "downside": "Az oldal a módosítás után hibát ad vagy erősen lelassul — automatikusan visszaáll, és Ön látja, miért.",
+        "upside": "A visszamérés összevetheti az előtte és utána következő heteket, amint a mérés be van kötve.",
+        "breakeven": "nincs költés — egy sornyi szöveg"
+      },
+      "reverse": {
+        "manual": "A szerkesztőjében állítja vissza — az itteni előtte nézet a viszonyítási alap.",
+        "engine": "Egy kattintás: az oldal korábbi állapota véglegesen tárolva van, nem csak egy ideig."
+      }
+    },
+    "error": {
+      "findEmpty": "adja meg, milyen szöveget kell keresni",
+      "replaceEmpty": "adja meg, mi legyen belőle",
+      "nothing": "ez nem változtat semmin",
+      "moneyPath": "ez az oldal pénzügyi felület — a fizetési, kosár-, pénztár- és számlázási oldalak semmilyen jóváhagyási szinten nem érinthetők (szabály: {rule})",
+      "pageStatus": "az oldal ezzel a kóddal válaszolt: {status} — ott nincs mit módosítani",
+      "notFound": "Ez nem található az oldalon: „{find}” — másolja be pontosan úgy, ahogy megjelenik",
+      "notUnique": "Ez többször is szerepel az oldalon: „{find}” (előfordulások: {count, plural, one {#} other {#}}) — vegyen hozzá elég környező szöveget, hogy egyedi legyen",
+      "moneyContext": "ez a szöveg az oldal pénztár- vagy fizetési területén van — a pénzügyi felületek nem érinthetők, így ezt javasolni sem lehet (szabály: {rule})",
+      "noProposal": "nincs ilyen javaslat",
+      "notSite": "ez nem weboldal-javaslat",
+      "manualApply": "Programból nem szerkeszthető platform: {platform} — ezt a módosítást Ön végzi el, a kártyán lévő útmutatóval",
+      "noWriter": "Az alkalmazáshoz írási hozzáférés kell ehhez a platformhoz: {platform} — ezt az engedélyt külön adja meg, saját képernyőn. Addig ez a kártya az előtte/utána nézettel a viszonyítási alap a saját módosításához",
+      "driftGone": "az oldal megváltozott a jóváhagyása óta — a szöveg már nincs ott; javasolja újra a mai oldal alapján",
+      "driftNotUnique": "az oldal megváltozott a jóváhagyása óta — a szöveg már nem egyedi; javasolja újra a mai oldal alapján",
+      "signedIn": "élő weboldal módosításához bejelentkezés szükséges",
+      "proposalId": "a proposal_id megadása kötelező",
+      "executionId": "az execution_id megadása kötelező",
+      "fields": "az url, a find és a replace megadása kötelező",
+      "auditSignedIn": "a weboldala ellenőrzéséhez bejelentkezés szükséges"
+    },
+    "fetch": {
+      "scheme": "csak http(s) oldalak olvashatók",
+      "credentials": "belépési adatok nem valók egy oldal címébe",
+      "noResolve": "Ez a cím nem oldható fel: „{host}” — biztosan helyes a cím?",
+      "private": "ez a cím egy privát hálózatra mutat — nem kérjük le",
+      "notAddress": "ez nem tűnik webcímnek",
+      "ports": "csak http(s) olvasható, a szabványos portokon: {http} és {https}",
+      "redirects": "túl sok átirányítás — az oldal sosem állapodott meg"
+    },
+    "audit": {
+      "noSite": "A profiljában nincs ellenőrizhető weboldal — adja hozzá a ténylapjához.",
+      "badSite": "A profiljában szereplő weboldal nem tűnik webcímnek.",
+      "cooldown": "Az oldal ellenőrzése kevesebb mint egy órája történt — a következő ellenőrzés ettől az időponttól indítható: {time} UTC.",
+      "running": "Ennek az oldalnak az ellenőrzése már folyamatban van.",
+      "homeUnreadable": "A kezdőlapja nem volt beolvasható: {reason}",
+      "homeUnreadableBare": "A kezdőlapja nem volt beolvasható",
+      "failed": "az ellenőrzés nem sikerült"
+    },
+    "walk": {
+      "homeStatus": "a kezdőlap ezzel a kóddal válaszolt: {status}",
+      "homeUnread": "a kezdőlap nem volt beolvasható",
+      "unread": "nem volt beolvasható",
+      "unloaded": "nem volt betölthető",
+      "answers": "válaszkód: {status}",
+      "home": "Kezdőlap",
+      "addToCart": "Kosárba (gomb látva, nem megnyomva)",
+      "checkout": "Fizetés (belépési pont látva, nem megnyitva)",
+      "external": "{text} (itt: {host}, nem megnyitva)",
+      "book": "Foglalás",
+      "note": {
+        "counted": "A kezdőlaptól az oldal saját linkjeit követve számolva; semmi nem került kosárba, és a fizetési oldal sosem nyílt meg.",
+        "noAddToCart": "Magában az oldalban nem található Kosárba gomb ezen az oldalon: „{label}” — lehet, hogy egy szkript rajzolja ki, amelyet a SYB nem futtat.",
+        "assumedCart": "FELTÉTELEZÉS: a Kosárba gomb a kosárhoz viszi a vásárlót, vagy megnyit egy kosárpanelt fizetés gombbal — így a fizetés egy kattintással utána jön.",
+        "cartEmpty": "A kosároldal, üresen beolvasva, nem mutatott fizetés gombot a saját HTML-jében — talán megjelenik, ha van benne valami.",
+        "booking": "A kezdőlaptól az oldal saját linkjeit követve számolva; foglalás nem történt, és űrlap sem lett elküldve.",
+        "external": "Maga a foglalás egy másik cég oldalán történik, amelyet az ellenőrzés nem olvas be; a számolás a linkjénél áll meg.",
+        "cartOnly": "A kezdőlap linkjeiről a kosár elérhető volt, termékoldal viszont nem, így a vásárlásig tartó kattintások nem számolhatók.",
+        "contact": "A kezdőlap linkjeiről nem volt elérhető bolt- vagy foglalási oldal; az ügyfél által bejárható út a kapcsolati oldalnál ér véget.",
+        "checkoutOnly": "Van fizetési link, de előtte linkeken keresztül nem volt elérhető termék-, kosár- vagy foglalási oldal.",
+        "none": "A kezdőlap linkjeiről nem volt elérhető termék-, kosár-, foglalási vagy kapcsolati oldal."
+      }
+    },
+    "pagespeed": {
+      "noMeasurement": "A Google nem adott vissza mérést az oldalról",
+      "runtime": "A Google nem tudta betölteni az oldalt ({code})",
+      "quotaWeek": "az oldal e heti PageSpeed-hívásai elfogytak",
+      "unreachable": "A Google PageSpeed szolgáltatása nem volt elérhető",
+      "quotaKeyed": "A Google PageSpeed-kerete a SYB kulcsához egyelőre elfogyott",
+      "quotaShared": "A Google közös PageSpeed-kerete egyelőre elfogyott (nincs beállítva PAGESPEED_API_KEY)",
+      "couldntLoad": "A Google nem tudta betölteni az oldalt a méréshez",
+      "refused": "A Google megtagadta az oldal mérését (állapotkód: {status})",
+      "badKey": "A Google elutasította a PageSpeed-kulcsot (állapotkód: {status}) — ellenőrizze, hogy a kulcs engedélyezi-e a PageSpeed Insights API-t",
+      "failed": "A Google PageSpeed szolgáltatása hibát adott (állapotkód: {status})",
+      "failedBare": "A Google PageSpeed szolgáltatása hibát adott",
+      "noKey": "Az oldalsebesség nem lett mérve: a Google PageSpeed szolgáltatásához ingyenes API-kulcs kell (PAGESPEED_API_KEY), és nélküle minden kérést elutasít. A vásárláshoz vezető út és a hibás linkek beolvasása így is megtörtént.",
+      "stopped": "{reason} — elvégzett mérések: {made} / {planned}.",
+      "weekUsed": "Az oldal e heti PageSpeed-hívásai elfogytak (keret: {cap}), ezért ebben a futásban nem volt sebességmérés.",
+      "short": "Az oldal e heti PageSpeed-hívásai nem voltak elegendők: elvégzett mérések: {made} / {planned}, a telefonos mérések elsőként."
+    },
+    "finding": {
+      "withPage": "{title} — {page}",
+      "on": {
+        "mobile": "telefonon",
+        "desktop": "számítógépen"
+      },
+      "unit": {
+        "s": "{value} mp",
+        "ms": "{value} ms",
+        "mb": "{value} MB"
+      },
+      "title": {
+        "lcp": "A fő tartalom megjelenése {on} ennyi ideig tart: {shown}",
+        "cls": "Az oldal betöltés közben ugrál {on} (elmozdulás: {shown})",
+        "inp": "Az oldal {on} ennyi idő alatt reagál egy koppintásra: {shown}",
+        "tbt": "A szkriptek betöltés közben {on} ennyi ideig tartják fel az oldalt: {shown}",
+        "heavy": "Az oldal mérete: {size}",
+        "tap": "{count, plural, one {# gomb vagy link túl kicsi vagy túl közel van a koppintáshoz} other {# gomb vagy link túl kicsi vagy túl közel van a koppintáshoz}}",
+        "contrast": "{count, plural, one {# szövegrész nehezen olvasható a háttere előtt} other {# szövegrész nehezen olvasható a háttere előtt}}",
+        "pathMissing": "Az oldal linkjei nem voltak végigkövethetők {entry, select, checkout {a fizetésig} other {a foglalásig}}",
+        "pathLong": "A kezdőlaptól {entry, select, checkout {a fizetésig} other {a foglalásig}} {count, plural, one {# kattintás} other {# kattintás}} kell",
+        "price": "Nincs ár ennek az oldalnak az első képernyőjén: „{label}”",
+        "form": "A {role, select, contact {kapcsolatfelvételi} booking {foglalási} other {({role})}} űrlap ennyi adatot kér: {count, plural, one {#} other {#}}",
+        "broken": "Hibás link ezen az oldalon: {page} — {url} {reason}"
+      },
+      "what": {
+        "lcp": "Largest Contentful Paint — mennyi idő, amíg megjelenik a képernyő legnagyobb eleme",
+        "cls": "Cumulative Layout Shift — mennyit mozdul el az elrendezés a látogató hüvelykujja alatt",
+        "inp": "Interaction to Next Paint — a koppintás és az oldal reakciója közötti késés",
+        "tbt": "Total Blocking Time — laborban mérve az INP helyett, amelyhez valódi látogatók kellenek"
+      },
+      "basis": {
+        "field": "valódi Chrome-látogatók az elmúlt {days, plural, one {# napban} other {# napban}} (a Google valós felhasználói adatai, {pct}. percentilis)",
+        "field_origin": "valódi látogatók a teljes oldalán az elmúlt {days, plural, one {# napban} other {# napban}} — a Google-nak ehhez az oldalhoz önmagában túl kevés volt",
+        "lab": "egy tesztbetöltés a Google emulált eszközén (labor adatok)",
+        "page_read": "az oldal saját HTML-je, a SYB beolvasásában"
+      },
+      "detail": {
+        "vital": "{what}. A mérés alapja: {basis}.",
+        "others": "{count, plural, one {További # oldal is kívül esik a jó tartományon.} other {További # oldal is kívül esik a jó tartományon.}}",
+        "heavy": "Minden bájt, amelyet betölt, a képekkel és szkriptekkel együtt; a mérés alapja: {basis}. Telefonos kapcsolaton ez a látogató várakozása és az adatforgalma.",
+        "tap": "A Google koppintási célpont-ellenőrzése az emulált telefonján. Egy hüvelykujj, amely rossz linket talál el, egy feladó látogató.",
+        "contrast": "A Google színkontraszt-ellenőrzése (az akadálymentességi szabvány minimuma), {on}.",
+        "noEntry": "Linkeken keresztül nem volt elérhető {entry, select, checkout {fizetési} other {foglalási}} belépési pont.",
+        "path": "{steps}.",
+        "price": "Az oldal saját szövegéből olvasva, a fejléc és a menü után: nincs ár abban, amit egy telefon először mutat (becslés — a SYB nem jeleníti meg az oldalt).",
+        "form": "{required, plural, one {Ebből kötelező: #.} other {Ebből kötelező: #.}} Az oldal HTML-jéből számolva; az űrlap nem lett elküldve.",
+        "brokenOnPath": "A vásárláshoz vezető úton van, ahol egy zsákutca egy eladásba kerül.",
+        "broken": "Aki rákattint, zsákutcába jut."
+      },
+      "threshold": {
+        "google": "jó ≤ {good}, gyenge > {poor} (Google)",
+        "lighthouse": "jó ≤ {good}, gyenge > {poor} (Lighthouse)",
+        "heavy": "nehéz > {medium}, nagyon nehéz > {high} (SYB)",
+        "failures": "már egy is megállapítás; {medium} vagy több: közepes (SYB)",
+        "entry": "a kezdőlapról linkeken elérhető {entry, select, checkout {fizetési} other {foglalási}} belépési pont (SYB)",
+        "clicks": "rendben ≤ {ok}, hosszú > {ok}, nagyon hosszú > {medium, plural, one {# kattintás} other {# kattintás}} (SYB)",
+        "price": "ár egy termék- vagy szolgáltatásoldal első képernyőjén (SYB-becslés: az oldal saját szövegének első {chars, plural, one {# karaktere} other {# karaktere}})",
+        "form": "legalább {medium} mező: hosszú; legalább {high}: nagyon hosszú (SYB)",
+        "broken": "bármely link a saját oldalán, amely {status} vagy magasabb kóddal válaszol, vagy nem töltődik be (SYB)"
+      }
+    },
+    "euro": {
+      "needs": "nincs kiszámolva — ehhez a saját weboldala forgalma és konverziója kell",
+      "needsBecause": "nincs kiszámolva — ehhez a saját weboldala forgalma és konverziója kell ({missing})",
+      "zero": "nincs kiszámolva — a forgalma, a rendelései vagy a rendelési értéke nulla",
+      "inside": "nincs kiszámolva — az oldal a jó tartományon belül van",
+      "notSpeed": "nincs kiszámolva — nincs olyan ökölszabály, amely ezt olyan eladásokhoz kötné, amelyekre a SYB számot mondana",
+      "missing": {
+        "visits": "havi weboldal-látogatások",
+        "orders": "havi rendelések",
+        "revenue": "havi árbevétel",
+        "list": "hiányzó saját adatok: {list}",
+        "zero": "a havi rendelések száma nulla"
+      },
+      "formula": "{visits} látogatás × {conversion} konverzió × {aov} rendelési érték × {range} másodpercenként × {over} a jó tartomány felett",
+      "window": {
+        "measured": "az összekötött források elmúlt hónapja, állapot: {day}",
+        "stated": "a saját havi adatai, állapot: {day}"
+      },
+      "assumed": {
+        "wait": "FELTÉTELEZÉS: a jó határ ({good}) után a telefonon töltött minden további várakozási másodperc a rendelésekből ennyit visz el: {range} — ökölszabály publikált kiskereskedelmi tanulmányokból, nem az Ön oldalán mérve.",
+        "everyOrder": "FELTÉTELEZÉS: minden számolt rendelés áthalad ennek az oldalnak a betöltésén; a telefonról érkező arány nincs mérve, így a felső érték túloz.",
+        "max": "FELTÉTELEZÉS: legfeljebb {max, plural, one {# másodperc} other {# másodperc}} számít."
+      }
+    }
+  },
+  "customersWords": {
+    "join": "{first} {then}",
+    "semi": "{first}; {then}",
+    "sentence": "{text}.",
+    "segment": {
+      "label": {
+        "lapsed": "Elcsendesedett ügyfelek",
+        "lapsing": "Ritkuló ügyfelek",
+        "new": "Új ügyfelek",
+        "vip": "Legjobb ügyfelek",
+        "abandoned_cart": "Kosarat otthagyó vásárlók"
+      },
+      "all": "minden szegmens",
+      "evidence": {
+        "lapsed": "elcsendesedett = az utolsó vásárlás (vagy aktivitás) több mint {days} nappal korábbi ennél a napnál: {date}",
+        "lapsing": "ritkuló = az utolsó vásárlás óta eltelt napok száma {from} és {to} között",
+        "new": "új = először az elmúlt {days} napban jelent meg, legfeljebb egy rendeléssel",
+        "vip": "VIP = legalább {orders} rendelés, vagy {floor}",
+        "vipFew": "kevesebb mint {min} kapcsolattartónál van költési adat, ezért csak a rendelések száma számít",
+        "vipFloor": "a költés felső {share} része ({currency}) innen indul: {amount}",
+        "match": "egyezik: {matched} / {all} kapcsolattartó; kifejezett e-mail-hozzájárulás, letiltás nélkül (szabály: {rule}): {emailable}; hozzájárulás nélkül: {noConsent}; cím nélkül: {noEmail}; letiltva: {suppressed}"
+      }
+    },
+    "skip": {
+      "line": "{segment}: {reason}",
+      "watching": "Eddig figyelek: {date}, és addig nem javaslok semmit.",
+      "posture": "az ügyfelek hozzájárulásáról adott saját válasza ({question}) „nincs hozzájárulás” volt — a kimenő e-mail kikapcsolva marad, amíg az adatai mást nem mutatnak",
+      "alreadyToday": "ma már javasolva",
+      "alreadyMonth": "ebben a hónapban már javasolva",
+      "cartRecent": "mindenki, aki ezen a héten kosarat hagyott ott és igent mondott az e-mailre, már kapott emlékeztető-javaslatot az elmúlt {days, number} napban",
+      "noCart": "azok közül, akik igent mondtak az e-mailre, egyetlen kapcsolattartó sem hagyott ott kosarat az elmúlt héten",
+      "nobody": "ebben a szegmensben senki sincs",
+      "noConsent": "a szegmensben: {count, number}, de egyiküknek sincs kifejezett e-mail-hozzájárulása — nincs kinek küldeni",
+      "declined": "Ön már ennyiszer utasította el az ügyfeleknek szóló e-mailt: {count, number} — abbahagytam a javaslását"
+    },
+    "campaign": {
+      "fallback": "kampány",
+      "summary": {
+        "winback": "{count, plural, one {{n} elcsendesedett ügyfél visszacsábítása, aki igent mondott az e-mailre} other {{n} elcsendesedett ügyfél visszacsábítása, akik igent mondtak az e-mailre}}",
+        "vip": "{count, plural, one {Köszönetmondás: {n} legjobb ügyfél} other {Köszönetmondás: {n} legjobb ügyfél}}",
+        "cart": "{count, plural, one {Emlékeztető {n} vásárlónak, aki ezen a héten kosarat hagyott ott és igent mondott az e-mailre} other {Emlékeztető {n} vásárlónak, akik ezen a héten kosarat hagytak ott és igent mondtak az e-mailre}}"
+      }
+    },
+    "compliance": {
+      "atSend": {
+        "address": "a küldő cím",
+        "unsubscribe": "minden címzett saját leiratkozási linkje"
+      },
+      "ask": {
+        "name": "Adja meg a vállalkozása nevét",
+        "postal": "Adja meg a postai címét"
+      },
+      "gap": {
+        "name": "a vállalkozás neve",
+        "postal_address": "a vállalkozás postai címe",
+        "because": "{words} ({why})",
+        "disclosure": "az MI használatát jelző sor (SYB, mindenhol)"
+      },
+      "noCountry": "a vállalkozás országa nem ismert, így az e-mail-szabályai sem",
+      "noRules": "SYB még nem ismeri az e-mail-marketing szabályait itt: {country} — oda semmit sem küld",
+      "regime": {
+        "eu_gdpr": "EU/EGT",
+        "uk_pecr": "Egyesült Királyság",
+        "us_can_spam": "Egyesült Államok",
+        "ca_casl": "Kanada",
+        "au_spam_act": "Ausztrália"
+      }
+    },
+    "gate": {
+      "stopped": "Minden le van állítva (a vészleállítás be van kapcsolva). Semmi sem megy ki, amíg nem folytatja.",
+      "no_mode_decision": "Még nincs döntés arról, hogyan dolgozom a vállalkozásával, ezért semmi sem megy ki.",
+      "watching": "Figyelem a vállalkozását, nem változtatok rajta, ezért semmi sem megy ki, amíg a figyelés véget nem ér.",
+      "labelled_undoable": "Ezt a kampányt visszavonható dologként hagyták jóvá, egy elküldött e-mail viszont nem hívható vissza. Utasítsa el a várólistán, és javasolja újra.",
+      "not_connected": "A kampány-e-mail nincs összekapcsolva. Előbb engedélyezze az Összekapcsolások oldalon.",
+      "outbound_off": "Az ügyfelek hozzájárulásáról adott saját válasza „nincs hozzájárulás” volt, ezért a kimenő e-mail ki van kapcsolva, amíg az adatai mást nem mutatnak.",
+      "email_not_set_up": "Az e-mail még nincs beállítva: hiányzik SYB küldőkulcsa vagy nyilvános webcíme, így nincs hová mutatnia egy leiratkozási linknek.",
+      "no_draft": "Ehhez a kampányhoz még nincs megírt e-mail.",
+      "draft_not_approved": "Magához az e-mailhez még nem adta meg a jóváhagyását.",
+      "draft_changed": "Az e-mail megváltozott, miután jóváhagyta. Adja meg újra a jóváhagyását a mostani formájában, mielőtt kimegy.",
+      "draft_incomplete": "Az e-mailből hiányzik a leiratkozási hely vagy az MI-jelölés, ezért nem küldhető el úgy, ahogy jóváhagyták.",
+      "law_review_missing": "Még senki sem ellenőrizte az e-mail-jogi szabályokat a hatályos joggal szemben, ezért egyetlen kampány sem megy ki.",
+      "law_review_stale": "Az e-mail-jogi szabályok megváltoztak a legutóbbi ellenőrzésük után (időpont: {date}), így az az ellenőrzés már nem fedi le őket, és egyetlen kampány sem megy ki, amíg újra nem ellenőrzik őket.",
+      "first_campaign_unreviewed": "Ez az első kampánya, ezért SYB egyik munkatársa elolvassa, mielőtt kimegy. A kampányok SYB közös küldőcímét használják, és így az mindenki számára megbízható marad. Akkor megy ki, amikor az ellenőrzést rögzítették.",
+      "real_sends_off": "Ki van kapcsolva, amíg a kéthetes, felügyelet nélküli teszt le nem zárul: {label}. Semmi sem ment ki; ez jóváhagyva marad. Az első futáskor megy ki, miután bekapcsolják.",
+      "real_sends_label": "kampány-e-mail"
+    },
+    "send": {
+      "sent": "Elküldve. Minden címzettet újra ellenőriztem a küldés pillanatában.",
+      "unfinished": "A küldés nem fejeződött be.",
+      "reclaimed": "A küldés befejezés nélkül leállt. Akinek még nem ment e-mail, a következő futáskor kapja meg; akihez esetleg eljutott, megerősítetlen marad, és soha többé nem kap e-mailt.",
+      "stillApproved": "Semmi sem ment ki; ez jóváhagyva marad."
+    },
+    "readback": {
+      "recipients": "{count, plural, one {{n} címzett} other {{n} címzett}}",
+      "comparisonCustomers": "{count, plural, one {{n} összehasonlító ügyfél} other {{n} összehasonlító ügyfél}}",
+      "harm": "leiratkozott vagy spamnek jelölte: {recipients} (leiratkozott: {unsubscribed}, panaszt tett: {complained}), elküldve: {sent}, arány: {rate} — visszaütésnek számít ettől: {harmRate}, legalább ennyi emberrel: {harmMin}, vagy bármilyen panasz esetén ettől: {complaintRate}",
+      "nothingSent": "semmi sem ment ki — nincs mit mérni",
+      "bought": "azóta újra vásárolt: {returned} / {measured} mért címzett ({rate})",
+      "noExport": "nem érkezett olyan ügyfélexport, amely legalább {days} nappal az e-mail után lefedné őket — importáljon egyet, és az ítélet lehetővé válik",
+      "noExportOf": "nem érkezett olyan ügyfélexport, amely legalább {days} nappal az e-mail után (az e-mail napja: {date}) lefedné őket — importáljon egyet, és az ítélet lehetővé válik",
+      "fewMeasured": "legalább {days} nappal az e-mail utáni ügyfélexporttal mérve: {recipients} — az ítélethez ennyi kell: {min}",
+      "canEver": "legfeljebb ennyi mérhető valaha: {recipients} (törölve: {erased}) — az ítélethez ennyi kell: {min}",
+      "compared": "{bought}, szemben ezzel: {returned} / {measured} ({group}, akiknek nem írhattam, {rate}) — {lift} pont (segített-küszöb: {helped}, visszaütés-küszöb: {backfired})",
+      "group": {
+        "winback": "elcsendesedett ügyfelek",
+        "vip": "legjobb ügyfelek"
+      },
+      "notRandom": "nem véletlenszerű: az összehasonlító csoport soha nem mondott igent az e-mailre, így nem csak az e-mailben különböznek",
+      "uncontrolledBase": "mérve: {customers} — az összehasonlításhoz ennyi kell: {min}",
+      "nobodyBought": "senki sem vásárolt újra, így semmilyen összehasonlítás nem tehetné nyereséggé ({uncontrolled})",
+      "nextExport": "{uncontrolled}; a következő export megmérheti a többit",
+      "uncontrolled": "kontroll nélkül: {uncontrolled}, ezért nem mondhatom, hogy az e-mail okozta — egy növekedés önmagában soha nem „segített”"
+    },
+    "measured": {
+      "delivery": "a kézbesítést, a visszapattanásokat és a spamjelentéseket az e-mail-szolgáltatótól",
+      "unsubscribes": "a leiratkozásokat az egyes e-mailekben lévő linkekről",
+      "purchasesOf": "a vásárlásokat az ügyfélexportjából (dátum: {date})",
+      "purchasesNext": "a vásárlásokat a következő ügyfélexportjából, amint megérkezik",
+      "notDelivery": "a kézbesítést és a spamjelentéseket (az e-mail-szolgáltató webhookja még nincs beállítva)",
+      "opens": "a megnyitásokat (ehhez követőpixel kellene, ami külön hozzájárulási kérdés, és az Apple Mail jelentései olyan megnyitásokat is tartalmaznak, amelyeket senki sem végzett)",
+      "replies": "a válaszokat, amelyek egyenesen Önhöz mennek",
+      "repliesAt": "a válaszokat, amelyek egyenesen Önhöz mennek erre a címre: {address}",
+      "sentence": "Ezeket számoltam: {counted}; ezeket nem számolom: {notCounted}.",
+      "sentenceControlled": "Ezeket számoltam: {counted}; ezeket nem számolom: {notCounted}, és az ügyfelek, akikkel összehasonlítok, soha nem mondtak igent az e-mailre, így az összehasonlítás nem kontrollált teszt."
+    },
+    "error": {
+      "signIn": "az importáláshoz, törléshez vagy javasláshoz bejelentkezés szükséges",
+      "server": "valami hiba történt nálunk",
+      "csvStatement": "a csv és a statement megadása kötelező",
+      "status": "a status értéke ezek egyike legyen: {values}",
+      "required": "kötelező mező: {field}",
+      "requiredMany": "kötelező mezők: {fields}",
+      "action": "az action értéke ez lehet: {actions}",
+      "noFields": "egy kapcsolattartóhoz legalább e-mail-cím, név vagy telefonszám kell",
+      "provenance": "a hozzájárulásnak kell a forrása — hogyan szerezték?",
+      "suppressed": "ez a cím véglegesen le van tiltva ({reason}) — nem vehető fel újra",
+      "duplicate": "már van kapcsolattartó ezzel az e-mail-címmel",
+      "noContact": "nincs ilyen kapcsolattartó",
+      "noConversation": "nincs ilyen beszélgetés",
+      "noTicket": "nincs ilyen jegy",
+      "attestation": "az importáláshoz az Ön nyilatkozata kell — mihez adták a hozzájárulásukat ezek a kapcsolattartók, és hogyan?",
+      "tooLarge": "ez a fájl túl nagy egyetlen importáláshoz — ossza fel",
+      "noRows": "a CSV-nek fejlécsor és legalább egy kapcsolattartó kell",
+      "maxRows": "egy importálás legfeljebb ennyi sort fogad: {max, number} — ossza fel a fájlt",
+      "noColumns": "nincs használható oszlop — a fejlécben legalább egy kell ezek közül: {columns}",
+      "currency": "a fájlban van spent oszlop — adja meg, milyen pénznemben van (három betű, pl. {example})",
+      "noProposal": "nincs ilyen javaslat",
+      "notEmail": "ez a javaslat nem ügyfeleknek szóló e-mail",
+      "draftNotApproved": "csak jóváhagyott kampányhoz készül vázlat — ennek az állapota: {status, select, pending {függőben} approved {jóváhagyva} rejected {elutasítva} expired {lejárt} executed {végrehajtva} blocked {blokkolva} changes_requested {módosítást kértek} other {{status}}}",
+      "notStored": "a vázlatot nem sikerült menteni",
+      "noProfile": "nincs ilyen profil",
+      "noCampaign": "nincs ilyen kampány",
+      "sendNotApproved": "csak jóváhagyott kampány küldhető el — ennek az állapota: {status, select, pending {függőben} approved {jóváhagyva} rejected {elutasítva} expired {lejárt} executed {végrehajtva} blocked {blokkolva} changes_requested {módosítást kértek} other {{status}}}",
+      "subject": "a tárgysor egyetlen sor lehet, legfeljebb ennyi karakterrel: {max, number}",
+      "changed": "az e-mail megváltozott, mióta megnyitotta — olvassa el újra a mostani formájában, majd adja meg a jóváhagyását"
+    }
+  },
+  "supportWords": {
+    "error": {
+      "crossSite": "ez a kérés nem a mi oldalunkról érkezett",
+      "signIn": "az asszisztens szövegének vagy kulcsának módosításához bejelentkezés szükséges",
+      "server": "valami hiba történt nálunk",
+      "hours": "a hours értéke szám vagy null legyen",
+      "required": "kötelező mező: {field}",
+      "requiredBoth": "kötelező mezők: {first} és {second}",
+      "action": "az action értéke ez lehet: {actions}",
+      "nothingNew": "nincs új javasolnivaló — minden válasz, amelyet a profil alátámaszt, már nyilvános vagy már a várólistáján van",
+      "bothRequired": "kérdés és válasz egyaránt szükséges",
+      "tooLong": "a kérdés legyen rövidebb ennyi karakternél: {question, number}, a válasz pedig ennél: {answer, number}",
+      "noProposal": "nincs ilyen javaslat",
+      "notKnowledge": "ez a javaslat nem tudásbázis-javaslat",
+      "notApproved": "csak jóváhagyott javaslat tehető közzé — ennek az állapota: {status, select, pending {függőben} approved {jóváhagyva} rejected {elutasítva} expired {lejárt} executed {végrehajtva} blocked {blokkolva} changes_requested {módosítást kértek} other {{status}}}",
+      "noEntries": "a javaslat nem tartalmazott bejegyzést",
+      "noEntry": "nincs ilyen nyilvános bejegyzés",
+      "noProfile": "nincs ilyen profil",
+      "replyHours": "a válaszidő egész számú óra, legalább {min, number}, legfeljebb {max, number}",
+      "noConversation": "nincs ilyen beszélgetés",
+      "noTicket": "nincs ilyen jegy",
+      "answerLong": "a válasz legyen rövidebb ennyi karakternél: {max, number}",
+      "noOpenTicket": "nincs ilyen nyitott jegy",
+      "notRecorded": "az átadást nem sikerült rögzíteni",
+      "faqDeclined": "a csoportosító modell elutasította ezeket a kérdéseket; semmi sem lett javasolva",
+      "noReply": "nincs ilyen válasz",
+      "liveReply": "ezen a jegyen már van válasz — előbb fejezze be vagy utasítsa el",
+      "noAddressDraft": "ezen a jegyen nincs cím, amelyre válaszolni lehetne, így nincs mit megfogalmazni",
+      "notEnabled": "az ügyféltámogatás nincs bekapcsolva ennél a vállalkozásnál",
+      "writeFirst": "előbb írja meg a választ",
+      "replyLong": "egy válasz legyen rövidebb ennyi karakternél: {max, number}",
+      "already": "ez a válasz már ebben az állapotban van: {status, select, drafted {vázlat} declined {elutasítva} approved {jóváhagyva} sending {küldés alatt} sent {elküldve} failed {sikertelen} other {{status}}}",
+      "changedEditing": "ez a válasz megváltozott, miközben szerkesztette",
+      "noAddress": "ezen a jegyen nincs cím, amelyre válaszolni lehetne",
+      "notSaved": "a választ nem sikerült menteni",
+      "draftNotSaved": "a vázlatot nem sikerült menteni",
+      "decided": "erről a válaszról egy pillanattal ezelőtt döntöttek"
+    },
+    "draft": {
+      "cant": "Ezt nem tudom megfogalmazni a jóváhagyott válaszaiból — írja meg Ön.",
+      "budget": "Az e havi ügyféltámogatási keret ({budget}) elfogyott, ezért nem készítek vázlatot — írja meg Ön.",
+      "times": "Ezt a jegyet már ennyiszer megfogalmaztam: {count, number} — ezt írja meg Ön.",
+      "unreachable": "Most nem értem el a vázlatíró modellt — írja meg Ön, vagy próbálja újra később."
+    },
+    "note": {
+      "notSetUp": "Nincs elküldve: az e-mail még nincs beállítva.",
+      "stopped": "Nincs elküldve: minden le van állítva (a vészleállítás be van kapcsolva). Jóváhagyva marad; akkor megy ki, amikor folytatja és elküldi.",
+      "maybeSent": "Lehet, hogy ezt elküldtem: az e-mail-szolgáltató egyik irányban sem erősítette meg. Magamtól nem küldöm el újra — nézze meg az elküldött leveleit, vagy kérdezze meg az ügyfelet, mielőtt újra ír.",
+      "noAddress": "Nincs elküldve: ezen a jegyen nincs cím, amelyre válaszolni lehetne.",
+      "suppressed": "Nincs elküldve: a küldési ellenőrzés elutasította — letiltva ({reason}).",
+      "refused": "Nincs elküldve: a küldési ellenőrzés elutasította — {reason}.",
+      "notEnabled": "Nincs elküldve: az ügyféltámogatás nincs bekapcsolva ennél a vállalkozásnál.",
+      "textChanged": "Nincs elküldve: a szöveg már nem egyezik azzal, amit jóváhagyott.",
+      "serviceRefused": "Nincs elküldve: az e-mail-szolgáltató elutasította ({what}). Semmi sem ment ki — írja meg újra az újbóli próbához."
+    },
+    "summary": {
+      "facts": "{count, plural, one {{n} válasz közzététele, amelyet az ügyfélasszisztens adhat} other {{n} válasz közzététele, amelyeket az ügyfélasszisztens adhat}}",
+      "custom": "Egy Ön által írt válasz közzététele: „{question}”",
+      "faq": "{count, plural, one {{n} válasz közzététele, amelyet az ügyfelek újra és újra kérdeznek, az Ön saját szavaival} other {{n} válasz közzététele, amelyeket az ügyfelek újra és újra kérdeznek, az Ön saját szavaival}}",
+      "fallback": "tudásbázis-javaslat"
+    }
+  },
+  "connectionsWords": {
+    "sentence": "{text}.",
+    "label": {
+      "meta_publish": "Meta-közzététel (Facebook-oldal és Instagram)",
+      "meta_ads": "Meta-hirdetéskezelés",
+      "email_campaign": "Kampány-e-mail",
+      "google_business_reviews": "Google Cégprofil-értékelések"
+    },
+    "part": {
+      "extra": "olyan engedélyt is megadtak, amelyet a hozzájárulás nem nevez meg: {scopes} (egy engedéllyel több elutasítást jelent, nem bónuszt)",
+      "missing": "hiányzik, pedig a hozzájárulás megköveteli: {scopes}",
+      "sep": "; ",
+      "why": {
+        "removed": "a SYB alkalmazását eltávolították a Meta-fiókból",
+        "password": "megváltozott a Meta-fiók jelszava, ami minden alkalmazásból kijelentkeztet",
+        "expired": "lejárt az összekapcsolt fiók bejelentkezése",
+        "invalid": "az összekapcsolt fiók bejelentkezése már nem érvényes",
+        "default": "az összekapcsolt fiók bejelentkezése lejárt, vagy visszavonták"
+      }
+    },
+    "said": {
+      "route": {
+        "unknownProvider": "ismeretlen szolgáltató",
+        "credentialRequired": "hitelesítő adat szükséges",
+        "idRequired": "az azonosító (id) kötelező",
+        "idEntityRequired": "az id és az entity_id kötelező",
+        "refItem": "a ref csak elem vagy null lehet",
+        "confirmRequired": "a begépelt megerősítés kötelező",
+        "emailRequired": "a feladó neve, a válaszcím és a begépelt megerősítés kötelező",
+        "notFound": "az összekapcsolt fiók nem található",
+        "ourSide": "hiba történt a mi oldalunkon"
+      },
+      "connect": {
+        "unknownProvider": "ismeretlen szolgáltató: „{provider}”",
+        "alreadyConnected": "{provider}: már össze van kapcsolva – előbb válassza le",
+        "notStored": "az összekapcsolást nem sikerült menteni",
+        "noProfileYet": "ennek a fióknak még nincs vállalkozási profilja",
+        "nothingToMatch": "{label}: nincs mit párosítani",
+        "reconnectProducts": "{label}: kapcsolja össze újra a termékek párosításához",
+        "reconnectChannels": "{label}: kapcsolja össze újra a csatornák párosításához",
+        "offerNotFound": "az ajánlat nem található",
+        "channelNotFound": "a csatorna nem található",
+        "notInAccount": "ez nincs ebben a fiókban: {label}",
+        "alreadyMatched": "„{title}” már párosítva van ehhez: {name}"
+      },
+      "execute": {
+        "notExecute": "ez nem végrehajtási összekapcsolás",
+        "noCredential": "nincs tárolt hitelesítő adat – kapcsolja össze újra a szolgáltatót",
+        "unknownProvider": "ismeretlen végrehajtási szolgáltató: „{provider}”",
+        "already": "{label}: már össze van kapcsolva végrehajtáshoz – előbb válassza le",
+        "changed": "{label}: megváltozott az újbóli összekapcsolás közben – próbálja újra",
+        "notOffered": "végrehajtáshoz nem érhető el: „{provider}”",
+        "typeToConfirm": "a megerősítéshez írja be: „{phrase}” – semmi sem lett összekapcsolva",
+        "noBusinessProfile": "ehhez a fiókhoz még nincs vállalkozási profil",
+        "refuseScopes": "{label}: a végrehajtási összekapcsolás elutasítva – {parts}"
+      },
+      "email": {
+        "senderName": "a feladó neve a vállalkozása neve legyen: egy sor, legfeljebb {max} karakter, idézőjelek és csúcsos zárójelek nélkül",
+        "replyAddress": "a válaszokhoz egy Ön által olvasott e-mail-cím kell, például: {example}",
+        "already": "A kampány-e-mail már engedélyezve van – a feladó módosításához előbb válassza le",
+        "alreadyBare": "A kampány-e-mail már engedélyezve van",
+        "consentNotStored": "a hozzájárulást nem sikerült menteni"
+      },
+      "google": {
+        "unreadable": "a tárolt Google-hozzáférést nem sikerült beolvasni",
+        "noSuchBusiness": "nincs ilyen vállalkozás ebben a fiókban",
+        "neverWrites": "A SYB soha nem ír a Google Cégprofilba: ezt az engedélyt csak az értékelések olvasására használja.",
+        "authLost": "A Google már nem fogadja el a SYB hozzáférését. Vonja vissza, és kapcsolja össze újra, hogy továbbra is olvashassam az értékeléseket.",
+        "didntFinish": "A Google nem fejezte be: {reason}"
+      },
+      "metaCred": {
+        "oneLine": "{provider}: a hozzáférési tokent egyetlen sorban illessze be",
+        "numberPage": "{provider}: az oldal azonosítója egy szám",
+        "numberIg": "{provider}: az Instagram-fiók azonosítója egy szám",
+        "numberAd": "{provider}: a hirdetési fiók azonosítója egy szám",
+        "bothNeeded": "{provider}: a token és az eszközazonosítók is szükségesek",
+        "pageToken": "{provider}: egy beillesztett oldaltokent nem lehet összevetni a hozzájárulásával – inkább rendelje hozzá az oldalt a rendszerfelhasználóhoz, és a SYB abból származtatja az oldaltokent",
+        "publishPage": "{provider}: a közzétételhez annak az oldalnak az azonosítója kell, ahová posztolni kell",
+        "adsAccount": "{provider}: a hirdetéskezeléshez a hirdetési fiók azonosítója kell, a Hirdetéskezelőben látható szám",
+        "differentPage": "{provider}: az oldal más azonosítóval válaszolt",
+        "differentIg": "{provider}: az Instagram-fiók más azonosítóval válaszolt",
+        "differentAd": "{provider}: a hirdetési fiók más azonosítóval válaszolt",
+        "noPageToken": "{provider}: nem sikerült oldaltokent szerezni ehhez az oldalhoz: {pageId}. Rendelje hozzá az oldalt a rendszerfelhasználóhoz a felsorolt engedélyekkel",
+        "noToken": "{provider}: a Facebookos bejelentkezés nem adott vissza használható tokent",
+        "shape": "{provider}: a lista olyan formában érkezett, amelyet a SYB nem tud beolvasni"
+      },
+      "metaLogin": {
+        "startAgain": "Ez a Facebookos bejelentkezés lejárt, vagy már felhasználták. Kezdje újra az Összekapcsolt fiókok oldalról.",
+        "noPending": "Nincs függőben lévő Facebookos bejelentkezés, vagy lejárt. Jelentkezzen be újra a Facebookkal.",
+        "foreign": "Ezt a Facebookos bejelentkezést egy másik SYB-fiókból indították. Jelentkezzen be abba a fiókba a SYB-ben, vagy kezdje újra.",
+        "phraseNoMatch": "A megerősítő kifejezés nem egyezett. Kezdje újra.",
+        "typePhrase": "A megerősítéshez írja be: „{phrase}”. A Meta semmit sem kapott.",
+        "notOffered": "Ez nem olyan Meta-összekapcsolás, amelyet a SYB kínál.",
+        "unavailable": "A Facebookos bejelentkezés még nem érhető el. Használja helyette a saját Meta-alkalmazását.",
+        "already": "{label}: már össze van kapcsolva. Előbb válassza le.",
+        "pickPage": "Válasszon a felsorolt oldalak közül.",
+        "pickAd": "Válasszon a felsorolt hirdetési fiókok közül."
+      },
+      "meta": {
+        "auth": "Nem értem el a Metát: {why}. Kapcsolja össze újra az Összekapcsolt fiókok oldalon, és ott folytatom, ahol abbahagytam.",
+        "permission": "A Meta szerint a SYB ezt nem teheti meg: visszavontak egy engedélyt, vagy az oldal, illetve a fiók nincs hozzárendelve az összekapcsoláshoz. Kapcsolja össze újra az Összekapcsolt fiókok oldalon felsorolt engedélyekkel.",
+        "pageLimit": "A Meta korlátja erre az oldalra egyelőre elfogyott. Semmi sem veszett el – egy szünet után újra megpróbálom.",
+        "rateLimit": "A Meta lassításra kérte a SYB-t. Semmi sem veszett el – egy szünet után újra megpróbálom.",
+        "unavailablePublished": "A Meta most nem válaszolt. Semmi sem lett közzétéve – újra megpróbálom.",
+        "unavailableChanged": "A Meta most nem válaszolt. Semmi sem változott – újra megpróbálom.",
+        "codePublished": "A Meta elutasította, kód: {code}; semmi sem lett közzétéve.",
+        "codeChanged": "A Meta elutasította, kód: {code}; semmi sem változott.",
+        "statusPublished": "A Meta elutasította, állapotkód: {status}; semmi sem lett közzétéve.",
+        "statusChanged": "A Meta elutasította, állapotkód: {status}; semmi sem változott."
+      },
+      "source": {
+        "netFailure": "{provider}: hálózati hiba {attempts} próbálkozás után",
+        "statusFailed": "{provider}: a kérés sikertelen, állapotkód: {status}",
+        "statusFailedSaid": "{provider}: a kérés sikertelen, állapotkód: {status}. {message}",
+        "requestFailedSaid": "{provider}: a kérés sikertelen. {message}",
+        "throttled": "{provider}: {attempts} próbálkozás után is lassítva",
+        "busy": "{provider}: {attempts} próbálkozás után is korlátozva vagy elérhetetlen",
+        "stripeFullAccess": "ez egy teljes hozzáférésű titkos kulcs, amely pénzt mozgathat. Hozzon létre helyette egy korlátozott kulcsot olvasási hozzáféréssel",
+        "stripePublishable": "ez egy publikus kulcs, amely nem tud fizetéseket olvasni. Hozzon létre helyette egy korlátozott kulcsot",
+        "stripeNotRestricted": "ez nem úgy néz ki, mint egy korlátozott Stripe-kulcs. Ezek így kezdődnek: rk_test_ vagy rk_live_",
+        "stripeRejected": "{provider}: a kulcsot nem fogadta el. Lehet, hogy elgépelték, visszavonták, vagy lejárt",
+        "keyMissing": "{provider}: a kulcsból hiányzik egy olvasási engedély",
+        "stripeMissingSaid": "{provider}: a kulcsból hiányzik egy olvasási engedély. A Stripe üzenete: {message}",
+        "tokenNeeded": "{provider}: szükség van a hozzáférési tokenre",
+        "squareNotToken": "{provider}: ez nem úgy néz ki, mint egy Square hozzáférési token",
+        "squareRejected": "{provider}: a Square nem fogadta el a hozzáférési tokent. Lehet, hogy visszavonták, vagy a másik környezethez tartozik",
+        "squareMissing": "{provider}: a tokenből hiányzik egy engedély",
+        "squareMissingSaid": "{provider}: a tokenből hiányzik egy engedély – {message}",
+        "squarePathFailed": "{provider}: sikertelen kérés ({path}), állapotkód: {status}",
+        "squarePathFailedSaid": "{provider}: sikertelen kérés ({path}), állapotkód: {status}. {message}",
+        "squarePerms": "{provider}: a Square nem tudta megerősíteni a token engedélyeit",
+        "squareNoLocations": "{provider}: a fióknak nincsenek beolvasható helyszínei",
+        "shopifyAllNeeded": "{provider}: a bolt címe, a client ID és a client secret is szükséges",
+        "shopifyAddress": "{provider}: a bolt címe a bolt myshopify.com-os címe legyen, például your-store.myshopify.com",
+        "shopifyBothNeeded": "{provider}: a client ID és a client secret is szükséges",
+        "shopifyRejected": "{provider}: ezeket a hitelesítő adatokat nem fogadta el. Ellenőrizze a client ID-t és a secretet, és hogy az alkalmazás telepítve van-e ebben a boltban",
+        "shopifyStopped": "{provider}: a bolt már nem fogadja el ennek az alkalmazásnak a tokenjét",
+        "shopifyMissing": "{provider}: az alkalmazásból hiányzik egy szükséges olvasási engedély",
+        "shopifyScopesUnread": "{provider}: nem sikerült beolvasni az alkalmazás megadott engedélyeit",
+        "shopifyNeeds": "{provider}: az alkalmazásnak erre van szüksége: {missing}. Adja hozzá az alkalmazás Dev Dashboard-os verziójában, adja ki a verziót, és kapcsolja össze újra",
+        "wooAllNeeded": "{provider}: a bolt címe, a consumer key és a consumer secret is szükséges",
+        "wooFullAddress": "{provider}: a bolt címe teljes cím legyen, például https://your-store.com",
+        "wooHttps": "{provider}: a bolt címének https:// előtaggal kell kezdődnie",
+        "wooUserinfo": "{provider}: a bolt címe nem tartalmazhat felhasználónevet vagy jelszót",
+        "wooPublic": "{provider}: a bolt címe a bolt nyilvános webcíme legyen",
+        "wooKeyPrefix": "{provider}: a consumer key ck_, a consumer secret cs_ előtaggal kezdődik",
+        "wooRejected": "{provider}: a kulcsot nem fogadta el. Lehet, hogy elgépelték, vagy visszavonták",
+        "wooMissingSaid": "{provider}: a kulcsból hiányzik egy olvasási engedély. A bolt üzenete: {message}",
+        "wooNoApi": "{provider}: ezen a címen nem található a WooCommerce REST API. Ellenőrizze a bolt címét",
+        "wooNoResolve": "{provider}: ez a boltcím nem vezet nyilvános szerverre",
+        "gaBothNeeded": "{provider}: a tulajdon azonosítója és a szolgáltatásfiók kulcsa is szükséges",
+        "gaPropertyId": "{provider}: a tulajdon azonosítója az a szám, amely itt látható: {ga}, Admin, Property details",
+        "pasteKey": "{provider}: illessze be a szolgáltatásfiók teljes kulcsfájlját, amely JSON",
+        "notKey": "{provider}: ez nem egy Google-szolgáltatásfiók kulcsfájlja",
+        "privateKey": "{provider}: a szolgáltatásfiók privát kulcsát nem sikerült beolvasni",
+        "googleRejected": "{provider}: a Google nem fogadta el a szolgáltatásfiók kulcsát. Lehet, hogy törölték, vagy letiltották",
+        "googlePerms": "{provider}: a Google nem tudta megerősíteni a token engedélyeit",
+        "gaCantRead": "{provider}: {email} – ez a cím nem olvashatja a tulajdont ({property}). Nyissa meg ezt: {ga}, Admin, Property access management, és adja hozzá a címet Megtekintő szerepkörrel",
+        "gaReportFailed": "{provider}: a jelentés sikertelen, állapotkód: {status}",
+        "gaReportFailedSaid": "{provider}: a jelentés sikertelen, állapotkód: {status}. {message}",
+        "gaNotReadOnly": "{provider}: a token nem ad csak olvasási Analytics-hozzáférést",
+        "scBothNeeded": "{provider}: a tulajdon és a szolgáltatásfiók kulcsa is szükséges",
+        "scProperty": "{provider}: a tulajdon a webhelye címe, ahogy a Search Console mutatja – https://www.example.com/ vagy sc-domain:example.com",
+        "scCantRead": "{provider}: {email} – ez a cím nem olvashatja ezt: {site}. A Search Console-ban nyissa meg a Beállítások, majd a Felhasználók és engedélyek részt, és adja hozzá a címet felhasználóként",
+        "scQueryFailed": "{provider}: a lekérdezés sikertelen, állapotkód: {status}",
+        "scQueryFailedSaid": "{provider}: a lekérdezés sikertelen, állapotkód: {status}. {message}",
+        "scNotReadOnly": "{provider}: a token nem ad csak olvasási Search Console-hozzáférést",
+        "metaBothNeeded": "{provider}: a hirdetési fiók azonosítója és a hozzáférési token is szükséges",
+        "metaAccountId": "{provider}: a hirdetési fiók azonosítója a Hirdetéskezelőben látható szám, act_ előtaggal vagy anélkül",
+        "metaPasteToken": "{provider}: illessze be a rendszerfelhasználó hozzáférési tokenjét egyetlen sorban",
+        "metaRejected": "{provider}: a tokent nem fogadta el. Lehet, hogy lejárt, vagy visszavonták",
+        "metaCantRead": "{provider}: a token nem tudja olvasni ezt a hirdetési fiókot: act_{account}. Rendelje hozzá a hirdetési fiókot a rendszerfelhasználóhoz, és adjon a tokennek ads_read engedélyt",
+        "metaNeedsAdsRead": "{provider}: a tokennek ads_read engedély kell",
+        "metaPerms": "{provider}: nem sikerült beolvasni a token engedélyeit"
+      }
+    },
+    "bookings": {
+      "source": {
+        "square": "Square",
+        "import": "az Ön foglalási exportja"
+      },
+      "period": "{from} – {to}",
+      "breakdown": "teljesített: {completed} + meg nem jelent: {noShows}",
+      "breakdownLate": "teljesített: {completed} + meg nem jelent: {noShows} + késői lemondás: {late}",
+      "rate": {
+        "noShow": "meg nem jelenés: {part}, {due, plural, one {esedékes időpont: {n}} other {esedékes időpont: {n}}} ({breakdown}), {period}",
+        "late": "késői lemondás: {part}, {due, plural, one {esedékes időpont: {n}} other {esedékes időpont: {n}}} ({breakdown}), {period}",
+        "few": "{due, plural, one {{n} esedékes időpont} other {{n} esedékes időpont}} (időszak: {from} – {to}); legalább {min} kell egy arány megállapításához"
+      },
+      "lateNotSeparated": "{source}: nem különíti el a késői lemondásokat, hanem meg nem jelenésnek számolja őket, amikor Ön megjelöli őket",
+      "rebook": {
+        "noClient": "{source}: nincs benne követhető ügyfélazonosító, e-mail-cím vagy telefonszám, így nem látom, ki tért vissza",
+        "few": "{cohort, plural, one {{n} ügyfélnek} other {{n} ügyfélnek}} volt teljesített időpontja (időszak: {from} – {to}); legalább {min} kell, mindegyikük után {days} nappal, az újrafoglalási arány megállapításához",
+        "arithmetic": "{days} napon belül újra foglalt: {back}, {cohort, plural, one {{n} ügyfélből} other {{n} ügyfélből}}, akiknek teljesített időpontja volt (időszak: {from} – {to})"
+      },
+      "revenue": {
+        "none": "nincs teljesített időpont, {period}",
+        "noPrices": "{source}: nincsenek árak ezekhez az időpontokhoz",
+        "currencies": "az árak pénzneme: {list}, és a pénznemek soha nem keverednek",
+        "sum": "{count, plural, one {{n} teljesített időpont} other {{n} teljesített időpont}} listaára, {period}",
+        "sumUnpriced": "{count, plural, one {{n} teljesített időpont} other {{n} teljesített időpont}} listaára, {period} (ár nélkül, nullának számítva: {unpriced})"
+      },
+      "utilisation": {
+        "none": "nem mondta meg, hány időpontot tud vállalni hetente, így nem tudom megmondani, mennyire telített – kapacitást nem feltételezek",
+        "arithmetic": "teljesített: {completed}, a megadott heti {cap} × {weeks} hét = {slots} hely, {period}"
+      },
+      "refuse": {
+        "tooLarge": "ez a fájl túl nagy egyetlen importáláshoz – ossza fel dátum szerint",
+        "needsRows": "a fájlnak fejlécsorra és legalább egy időpontra van szüksége",
+        "tooMany": "egy importálás legfeljebb {max} időpontot fogad – ossza fel a fájlt dátum szerint",
+        "noDate": "nem találtam dátumoszlopot – a fejlécben kell lennie egynek, például Date vagy Start",
+        "noStatus": "nem találtam állapotoszlopot. Nélküle egy megtartott időpont és egy meg nem jelenés ugyanúgy néz ki, ezért nem találgatok",
+        "noCurrency": "a fájlban van ároszlop – adja meg, milyen pénznemben (három betű, például {example})",
+        "bothOrders": "a fájl dátumai napelső és hónapelső formában is szerepelnek ({dmy} és {mdy}), ezért nem tudom beolvasni őket",
+        "saidDayFirst": "Ön azt mondta, hogy a dátumokban a nap áll elöl, de a fájlban olyan dátumok is vannak, amelyek csak úgy olvashatók, hogy a hónap áll elöl",
+        "saidMonthFirst": "Ön azt mondta, hogy a dátumokban a hónap áll elöl, de a fájlban olyan dátumok is vannak, amelyek csak úgy olvashatók, hogy a nap áll elöl",
+        "ambiguousDates": "az ilyen dátumok, mint {sample}, jelenthetik ezt: {asDmy}, vagy ezt: {asMdy} – adja meg, hogy a nap vagy a hónap áll-e elöl",
+        "decimal": {
+          "ambiguous": "az ilyen összegek, mint {amount}, jelenthetnek ezerkétszázat vagy egy egész kettőt – adja meg, hogy a pont vagy a vessző választja-e el az ezreseket",
+          "both": "a fájl összegei mindkét módon szerepelnek ({comma} és {dot}), ezért nem tudom beolvasni őket",
+          "contradicts_stated": "Ön megadta, melyik jel választja el az ezreseket, de a fájlban olyan összegek vannak, amelyek csak fordítva olvashatók"
+        },
+        "noneRead": "egyetlen sort sem sikerült beolvasni (összesen: {rows})",
+        "noneReadWhy": "egyetlen sort sem sikerült beolvasni (összesen: {rows}; {reasons})",
+        "skipItem": "{reason}: {count}",
+        "skip": {
+          "no_date": "nincs dátum",
+          "unreadable_date": "olvashatatlan dátum",
+          "no_status": "nincs állapot",
+          "unknown_status": "ismeretlen állapot",
+          "not_closed_out": "nincs lezárva"
+        },
+        "listSep": ", ",
+        "notSetUp": "a foglalásimportot nem sikerült beállítani",
+        "notRecorded": "az importálást nem sikerült rögzíteni",
+        "noText": "az export szövege kötelező",
+        "whichSystem": "adja meg, melyik foglalási rendszerből származik",
+        "ourSide": "hiba történt a mi oldalunkon"
+      }
+    }
+  },
+  "contentWords": {
+    "publish": {
+      "block": {
+        "proposed": "a közzétételét már javasoltam",
+        "notDraft": "az állapota: {status}, nem piszkozat",
+        "shotList": "a felvételi lista forgatáshoz készül, nem közzétételhez",
+        "email": "e-maileket a SYB még nem küld",
+        "kind": "ez az elemtípus nem kerül közzétételre: {kind}",
+        "channel": "a SYB nem tud közzétenni ide: {channel}. Csak az Ön által összekapcsolt Facebook-oldalra vagy Instagram-fiókba",
+        "connect": "kapcsolja össze a Meta közzétételt az Összekapcsolt fiókok oldalon, hogy ezt közzétehesse ide: {platform}",
+        "noInstagram": "a Meta-összekapcsoláshoz nem tartozik Instagram-fiók – kapcsolja össze újra az azonosítójával, hogy ott is közzétehessen",
+        "needsMedia": "képre vagy videóra van szükség ehhez: {platform}, és ennek az elemnek még nincs",
+        "png": "az Instagram csak JPEG-képet fogad el, ennek az elemnek a képe pedig PNG",
+        "noDate": "nincs megjelenési dátuma",
+        "zone": "a közzététel időpontja nem állítható be: {reason}",
+        "declined": "{count, plural, one {a közzétételt ennyiszer utasította el: # – már nem javaslom} other {a közzétételt ennyiszer utasította el: # – már nem javaslom}}",
+        "passed": "a dátuma már elmúlt: {date}"
+      },
+      "zoneReason": {
+        "noCountry": "nincs megadva ország",
+        "countryUnknown": "az ország nem ismert",
+        "zoneUnknown": "a vállalkozás időzónája nem ismert"
+      },
+      "status": {
+        "drafted": "piszkozat",
+        "queued": "várólistán",
+        "publishing": "közzététel alatt",
+        "published": "közzétéve",
+        "failed": "sikertelen",
+        "withdrawn": "visszavonva"
+      },
+      "kind": {
+        "post": "bejegyzés",
+        "email": "e-mail",
+        "shot_list": "felvételi lista",
+        "video": "videó"
+      }
+    },
+    "error": {
+      "produceSignedIn": "piszkozatok készítéséhez bejelentkezés szükséges – valódi modellhívásokba kerül",
+      "withdrawSignedIn": "egy bejegyzés visszavonásához bejelentkezés szükséges – a Metán törlődik",
+      "proposalId": "hiányzik a proposal_id (a javaslat azonosítója)",
+      "itemId": "hiányzik az item_id (az elem azonosítója)",
+      "buildId": "hiányzik a build_id (az elkészült hirdetés azonosítója)",
+      "action": "az action értéke ezek egyike legyen: \"plan\", \"shotlist\", \"produce\", \"withdraw\", \"run_ad\" vagy \"go_live\"",
+      "sameOrigin": "ennek a SYB saját oldaláról kell érkeznie",
+      "mediaSignedIn": "a felvételekhez és a generált médiához bejelentkezés szükséges",
+      "noUploads": "ezen a szerveren nincs beállítva feltöltés (nincs médiatárhely)",
+      "clipSize": "az itt feltöltött klip legfeljebb ekkora lehet: {mb} MB",
+      "itemAndFile": "hiányzik az item_id és a fájl",
+      "throughSyb": "itt a feltöltés a SYB-n keresztül megy, nem közvetlenül a tárhelyre",
+      "noStorage": "itt nincs médiatárhely",
+      "unknownAction": "ismeretlen művelet"
+    }
   }
 }

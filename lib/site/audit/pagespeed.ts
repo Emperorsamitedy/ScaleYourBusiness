@@ -29,6 +29,8 @@
 // PROVISIONAL. Field and audit names follow the API as remembered and are
 // on the verify-at-build list in TASKS-PHASE5.md, Session C.
 
+import { siteEnglish } from "../say";
+
 export const PAGESPEED_ORIGIN = "https://www.googleapis.com";
 export const PAGESPEED_PATH = "/pagespeedonline/v5/runPagespeed";
 export const PAGESPEED_SOURCE = "pagespeed_insights" as const;
@@ -70,6 +72,10 @@ export type PageSpeedFetch = (
   url: string,
   init: PageSpeedRequestInit,
 ) => Promise<PageSpeedResponse>;
+
+// L-4c: the errors below are the "siteWords" catalogue's English
+// (lib/site/say.ts); lib/site/localize.ts says them in the reader's language.
+const EN = siteEnglish();
 
 export class PageSpeedError extends Error {
   /** "quota" — the shared or keyed quota is spent; "page" — Google couldn't load it; "service" — the API failed. */
@@ -216,10 +222,10 @@ export function parsePageSpeed(
 ): PageSpeedResult {
   const root = obj(body) ?? {};
   const lh = obj(root["lighthouseResult"]);
-  if (!lh) throw new PageSpeedError("page", "Google returned no page measurement");
+  if (!lh) throw new PageSpeedError("page", EN("pagespeed.noMeasurement"));
   const runtime = obj(lh["runtimeError"]);
   if (runtime && typeof runtime["code"] === "string" && runtime["code"] !== "NO_ERROR") {
-    throw new PageSpeedError("page", `Google couldn't load the page (${runtime["code"]})`);
+    throw new PageSpeedError("page", EN("pagespeed.runtime", { code: runtime["code"] }));
   }
   const audits = obj(lh["audits"]) ?? {};
   const perf = num(obj(obj(lh["categories"])?.["performance"])?.["score"]);
@@ -309,7 +315,7 @@ export function createPageSpeedClient(options: PageSpeedClientOptions): PageSpee
       if (options.apiKey !== null) headers["x-goog-api-key"] = options.apiKey;
       for (let attempt = 1; ; attempt += 1) {
         if (requests >= options.maxRequests) {
-          throw new PageSpeedError("quota", "this week's PageSpeed calls for the site are used");
+          throw new PageSpeedError("quota", EN("pagespeed.quotaWeek"));
         }
         requests += 1;
         const askedAt = now();
@@ -318,7 +324,7 @@ export function createPageSpeedClient(options: PageSpeedClientOptions): PageSpee
           response = await doFetch(url, { method: "GET", headers });
         } catch {
           if (attempt >= PAGESPEED_CAPS.max_attempts) {
-            throw new PageSpeedError("service", "Google's PageSpeed service could not be reached");
+            throw new PageSpeedError("service", EN("pagespeed.unreachable"));
           }
           await sleep(backoffMs(attempt));
           continue;
@@ -333,9 +339,7 @@ export function createPageSpeedClient(options: PageSpeedClientOptions): PageSpee
           }
           throw new PageSpeedError(
             "quota",
-            keyed
-              ? "Google's PageSpeed quota for SYB's key is spent for now"
-              : "Google's shared PageSpeed quota is spent for now (no PAGESPEED_API_KEY is set)",
+            EN(keyed ? "pagespeed.quotaKeyed" : "pagespeed.quotaShared"),
           );
         }
         if (response.status >= 500 && attempt < PAGESPEED_CAPS.max_attempts) {
@@ -349,15 +353,15 @@ export function createPageSpeedClient(options: PageSpeedClientOptions): PageSpee
             /FAILED_DOCUMENT_REQUEST|ERRORED_DOCUMENT_REQUEST|NO_FCP|unable to process/i.test(
               message,
             )
-              ? "Google couldn't load the page to measure it"
-              : `Google refused to measure the page (status ${response.status})`,
+              ? EN("pagespeed.couldntLoad")
+              : EN("pagespeed.refused", { status: String(response.status) }),
           );
         }
         throw new PageSpeedError(
           "service",
           response.status === 403
-            ? "Google refused the PageSpeed key (status 403) — check that the key allows the PageSpeed Insights API"
-            : `Google's PageSpeed service failed (status ${response.status})`,
+            ? EN("pagespeed.badKey", { status: "403" })
+            : EN("pagespeed.failed", { status: String(response.status) }),
         );
       }
     },

@@ -15,15 +15,29 @@ import { appOriginOf, isSameOriginPost } from "../../../../lib/auth/same-origin"
 import { logSafeError } from "../../../../lib/core/log-safe";
 import { latestSiteAudit, runSiteAudit } from "../../../../lib/site/audit/service";
 import { requireRole } from "../../../../lib/auth/roles";
+import type { AppLocale } from "../../../../lib/i18n/locales";
+import { requestTr } from "../../../../lib/i18n/request-tr";
+import type { Tr } from "../../../../lib/i18n/tr";
+import type { SiteAuditView } from "../../../../lib/site/audit/view";
+import { localizeSiteAudit } from "../../../../lib/site/localize";
+import { SITE_WORDS, sayStored } from "../../../../lib/site/say";
 
 /** Google loads up to ten pages in its own browser; give it time. */
 export const maxDuration = 300;
 export const dynamic = "force-dynamic";
 
+/** L-4c: a stored audit in the reader's language; the row keeps its English. */
+async function shown(audit: SiteAuditView | null, tr: Tr, locale: AppLocale) {
+  return audit && localizeSiteAudit(audit, tr, locale);
+}
+
 export async function GET(): Promise<NextResponse> {
   const access = await resolveAccess();
   if (!access) return NextResponse.json({ error: "no intake session" }, { status: 401 });
-  return NextResponse.json({ audit: await latestSiteAudit(access.profile_id) });
+  const { tr, locale } = await requestTr(SITE_WORDS);
+  return NextResponse.json({
+    audit: await shown(await latestSiteAudit(access.profile_id), tr, locale),
+  });
 }
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
@@ -32,16 +46,22 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   }
   const access = await resolveAccess();
   if (!access) return NextResponse.json({ error: "no intake session" }, { status: 401 });
+  const { tr, locale } = await requestTr(SITE_WORDS);
   if (!access.session) {
-    return NextResponse.json({ error: "auditing your site needs you signed in" }, { status: 401 });
+    return NextResponse.json({ error: tr("error.auditSignedIn") }, { status: 401 });
   }
   const denied = requireRole(access, "site.audit");
   if (denied) return denied;
   try {
     const outcome = await runSiteAudit({ profileId: access.profile_id });
-    if (outcome.status === "read") return NextResponse.json({ audit: outcome.audit });
+    if (outcome.status === "read") {
+      return NextResponse.json({ audit: await shown(outcome.audit, tr, locale) });
+    }
     return NextResponse.json(
-      { error: outcome.why, audit: await latestSiteAudit(access.profile_id) },
+      {
+        error: sayStored(outcome.why, tr, locale),
+        audit: await shown(await latestSiteAudit(access.profile_id), tr, locale),
+      },
       { status: outcome.status === "refused" ? 409 : 422 },
     );
   } catch (error) {

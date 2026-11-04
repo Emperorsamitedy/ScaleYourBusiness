@@ -9,10 +9,11 @@
 // every proposal; this screen proposes, shows, applies and undoes.
 //
 // L-3c (TASKS-LANGUAGES.md): the screen's own words are the "site"
-// catalogue; dates and counts in the reader's locale. The page's text, the
-// proposed wording, the platform line, the evidence, the expected effect
-// and the manual steps are what the server built (L-4) or the business's
-// own content (rule 4), shown as they are.
+// catalogue; dates and counts in the reader's locale. The page's text and
+// the proposed wording are the business's own content (rule 4), shown as
+// they are; the platform line, the evidence, the expected effect and the
+// manual steps come from the server already in the reader's language
+// (L-4c, lib/site/localize.ts).
 
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
@@ -32,6 +33,9 @@ interface SiteDetail {
   find: string;
   replace: string;
   platform: { platform: string; editable: string; marker: string };
+  /** The platform and its editability as words, in the reader's language (L-4c, /api/site). */
+  platform_word?: string;
+  editable_word?: string;
   platform_line: string;
   site_preview: { before_html: string; after_html: string } | null;
   preview_note: string | null;
@@ -453,7 +457,7 @@ function ChangeSheet({
             {p.originating_finding
               ? tr("change.fromFinding", { finding: p.originating_finding })
               : tr("change.proposedOn", { day: dayWord(p.created_at, locale) })}{" "}
-            · {d.platform.platform}
+            · {d.platform_word ?? d.platform.platform}
           </p>
           <h2 className="cs-title" id={`st-title-${p.id}`}>
             {p.action.summary}
@@ -558,7 +562,8 @@ function ChangeSheet({
 
       <div className="st-platform">
         <p className="st-note">
-          {d.platform.platform} · {d.platform.editable} — {d.platform_line}
+          {d.platform_word ?? d.platform.platform} · {d.editable_word ?? d.platform.editable} —{" "}
+          {d.platform_line}
         </p>
         {p.blocked_by_limit && (
           <p className="st-note">{tr("change.blocked", { why: p.blocked_by_limit })}</p>

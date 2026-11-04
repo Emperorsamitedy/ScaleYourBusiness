@@ -9,8 +9,9 @@
 // L-3c (TASKS-LANGUAGES.md): the fixed words are the "customers.campaign"
 // catalogue through an optional translator, English by default from
 // messages/en.json, so English says exactly what it always said; counts,
-// rates and dates in the reader's locale. The gate words, the arithmetic
-// and measuredSentence are built from data and stay English (L-4).
+// rates and dates in the reader's locale. L-4c: measuredSentence is the
+// "customersWords" catalogue; the gate words and the arithmetic arrive from
+// the server already in the reader's language (lib/crm/localize).
 
 import { dayMonthYear } from "../../lib/i18n/format";
 import type { AppLocale } from "../../lib/i18n/locales";
@@ -273,28 +274,47 @@ export function readbackRows(
   return rows;
 }
 
-/** Pure: one first-person sentence on what was measured and what wasn't. */
-export function measuredSentence(r: ReadbackView): string {
+/** "a, b and c" (or "or") as this sentence always joined it in English; the language's own list otherwise. */
+function joined(items: string[], word: "and" | "or", locale: AppLocale): string {
+  if (locale !== "en") {
+    return new Intl.ListFormat(intlTag(locale), { type: "conjunction" }).format(items);
+  }
+  const last = items[items.length - 1] ?? "";
+  return items.length > 1 ? `${items.slice(0, -1).join(", ")} ${word} ${last}` : last;
+}
+
+/**
+ * Pure: one first-person sentence on what was measured and what wasn't.
+ * L-4c: the "customersWords" catalogue, English by default (its old words exactly).
+ */
+export function measuredSentence(
+  r: ReadbackView,
+  tr: Tr = englishTr("customersWords"),
+  locale: AppLocale = "en",
+): string {
   const through = r.recipients.measured_through ?? r.comparison.measured_through;
   const counted = [
-    r.delivery_reported ? "delivery, bounces and spam reports from the email service" : null,
-    "unsubscribes from the links in each email",
+    r.delivery_reported ? tr("measured.delivery") : null,
+    tr("measured.unsubscribes"),
     through
-      ? `purchases from your customer export of ${through.slice(0, 10)}`
-      : "purchases from your next customer export, once it comes in",
+      ? tr("measured.purchasesOf", { date: sentDay(through, locale) })
+      : tr("measured.purchasesNext"),
   ].filter((x): x is string => x !== null);
   const notCounted = [
-    r.delivery_reported
-      ? null
-      : "delivery and spam reports (the email service's webhook isn't set up yet)",
-    "opens (that needs a tracking pixel, which is a consent question of its own, and Apple Mail reports opens nobody made)",
-    `replies, which go straight to you${r.replies_to ? ` at ${r.replies_to}` : ""}`,
+    r.delivery_reported ? null : tr("measured.notDelivery"),
+    tr("measured.opens"),
+    r.replies_to ? tr("measured.repliesAt", { address: r.replies_to }) : tr("measured.replies"),
   ].filter((x): x is string => x !== null);
-  const last = counted.pop();
-  const lastNot = notCounted.pop();
-  return (
-    `I counted ${counted.length > 0 ? `${counted.join(", ")} and ` : ""}${last}; ` +
-    `I don't count ${notCounted.length > 0 ? `${notCounted.join(", ")} or ` : ""}${lastNot}` +
-    `${r.controlled ? ", and the customers I compare against never said yes to email, so the comparison isn't a controlled test" : ""}.`
-  );
+  return tr(r.controlled ? "measured.sentenceControlled" : "measured.sentence", {
+    counted: joined(counted, "and", locale),
+    notCounted: joined(notCounted, "or", locale),
+  });
+}
+
+/** Pure: the readback's arithmetic as a sentence ("….") — the period is the language's. */
+export function arithmeticSentence(
+  arithmetic: string,
+  tr: Tr = englishTr("customersWords"),
+): string {
+  return tr("sentence", { text: arithmetic });
 }
