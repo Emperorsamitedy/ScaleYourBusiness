@@ -107,7 +107,7 @@ describe("English is the map's own words", () => {
 });
 
 describe("another language goes through the translator", () => {
-  const r = compareWithSimilar(inputs, snap, GERMAN);
+  const r = compareWithSimilar(inputs, snap, GERMAN, GERMAN);
   if (r.status !== "ready") throw new Error(r.status);
 
   it("words the head, its country through Intl, and every line's sentences", () => {
@@ -116,8 +116,9 @@ describe("another language goes through the translator", () => {
     expect(r.head.country).toBe("Irland");
     expect(r.caveat).toBe("[caveat]");
     for (const l of r.lines) {
-      expect(l.title.startsWith("[title.")).toBe(true);
-      expect(l.gap_note.startsWith("[gapNote.")).toBe(true);
+      // "[title.<line>]" from benchmarksWords, or "[title]" from the purchases line's own namespace.
+      expect(l.title).toMatch(/^\[title[.\]]/);
+      expect(l.gap_note).toMatch(/^\[gapNote[.\]]/);
     }
   });
   it("formats the figures in German, the business's currency unconverted", () => {

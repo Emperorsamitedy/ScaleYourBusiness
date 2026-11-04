@@ -49,11 +49,12 @@ export async function GET(): Promise<NextResponse> {
   if (!access) return NextResponse.json({ error: "no intake session" }, { status: 401 });
   try {
     const now = new Date();
-    const [inputs, words] = await Promise.all([
+    const [inputs, words, purchaseWords] = await Promise.all([
       loadBenchInputs(access.profile_id, now),
       requestWords(BENCH_WORDS),
+      requestWords("benchmarkPurchases"),
     ]);
-    const result = compareWithSimilar(inputs, SNAPSHOT, words);
+    const result = compareWithSimilar(inputs, SNAPSHOT, words, purchaseWords);
     const gap = largeGap(result, inputs);
     let proposal: BenchView["proposal"] = null;
     let held: string | null = null;
