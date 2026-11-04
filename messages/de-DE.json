@@ -6204,5 +6204,24 @@
     "drafted": "Entworfen. Er wartet auf Sie; eine Freigabe schreibt weder einen Preis noch Kosten.",
     "blocked": "Eine Ihrer Regeln schließt das aus, deshalb liegt es blockiert in Ihrer Warteschlange.",
     "failed": "Das hat nicht geklappt."
+  },
+  "benchmarkPurchases": {
+    "title": "Einkäufe, als Anteil am Umsatz",
+    "gapNote": "Eurostat zählt alles, was ein Unternehmen zukauft: Waren und Material, aber auch Miete, Energie und Dienstleistungen. Ihr Wert zählt nur, was Ihre Verkäufe Sie kosten, und fällt daher niedriger aus, als der der anderen ausfallen würde.",
+    "missing": "Vergleichbare Unternehmen kaufen {bench} ihres Umsatzes zu ({cell}). Für Ihren Wert fehlt, was Ihre Verkäufe Sie kosten: die Lieferkosten jedes Angebots mit der Stückzahl, die Sie im Monat verkaufen, oder Ihre Bruttomarge.",
+    "noCell": "Eurostat veröffentlicht keine Einkaufszahl für {group} in {country}, weder für Ihre Größe noch über alle Größen. Ich vergleiche das nicht mit einer breiteren Gruppe oder mit der EU insgesamt.",
+    "needOffers": "was jedes Angebot Sie in der Lieferung kostet",
+    "needGrossMargin": "Ihre Bruttomarge",
+    "inputSales": "Verkäufe im Monat, zu Ihren Preisen und Mengen",
+    "inputDeliver": "Was diese Verkäufe Sie in der Lieferung kosten",
+    "inputGrossMargin": "Bruttomarge",
+    "sourceOffers": "{count, plural, one {Preis, Lieferkosten und Monatsmenge Ihres Angebots} other {Preise, Lieferkosten und Monatsmengen Ihrer # Angebote}}",
+    "formulaOffers": "{deliver} Lieferkosten ÷ {sales} Verkäufe = {pct}",
+    "formulaGrossMargin": "{whole} abzüglich Ihrer Bruttomarge von {gm} = {pct}",
+    "leftOutCurrency": "{offer}: Der Preis ist in {currency}, nicht in {main}.",
+    "gapAbove": "{points, plural, one {# Prozentpunkt} other {# Prozentpunkte}} darüber",
+    "gapBelow": "{points, plural, one {# Prozentpunkt} other {# Prozentpunkte}} darunter",
+    "gapSameAbove": "etwa gleich: {points, plural, one {# Prozentpunkt} other {# Prozentpunkte}} darüber",
+    "gapSameBelow": "etwa gleich: {points, plural, one {# Prozentpunkt} other {# Prozentpunkte}} darunter"
   }
 }

@@ -82,8 +82,9 @@ describe("the lines", () => {
   });
 
   it("words each reading", () => {
-    expect(r.lines.map(readingWord)).toEqual(["NOT YET", "BELOW", "NOT YET"]);
-    expect(comparedCount(r)).toBe("1 of 3 compared");
+    // I-44b: the purchases share is the second line, beside the margin.
+    expect(r.lines.map(readingWord)).toEqual(["NOT YET", "BELOW", "BELOW", "NOT YET"]);
+    expect(comparedCount(r)).toBe("2 of 4 compared");
   });
 
   it("says when the size is unknown", () => {

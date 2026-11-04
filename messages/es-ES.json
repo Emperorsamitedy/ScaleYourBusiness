@@ -6204,5 +6204,24 @@
     "drafted": "Redactada. Le espera; aprobarla no escribe ningún precio ni ningún coste.",
     "blocked": "Una regla suya lo excluye, así que queda bloqueado en su cola.",
     "failed": "No ha funcionado."
+  },
+  "benchmarkPurchases": {
+    "title": "Compras, como parte de la facturación",
+    "gapNote": "Eurostat cuenta todo lo que un negocio compra fuera: mercancías y materiales, y también alquiler, energía y servicios. Su cifra cuenta solo lo que le cuestan sus ventas, así que sale más baja de lo que saldría la de ellos.",
+    "missing": "Los negocios similares compran fuera el {bench} de su facturación ({cell}). Para su cifra hace falta lo que le cuestan sus ventas: el coste de entrega de cada oferta con cuántas vende al mes, o su margen bruto.",
+    "noCell": "Eurostat no publica ninguna cifra de compras para {group} en {country}, ni para su tamaño ni para todos los tamaños. No lo comparo con un grupo más amplio ni con el conjunto de la UE.",
+    "needOffers": "lo que le cuesta entregar cada oferta",
+    "needGrossMargin": "su margen bruto",
+    "inputSales": "Ventas al mes, a sus precios y volúmenes",
+    "inputDeliver": "Lo que le cuesta entregar esas ventas",
+    "inputGrossMargin": "Margen bruto",
+    "sourceOffers": "{count, plural, one {el precio, el coste de entrega y el volumen mensual de su oferta} many {los precios, costes de entrega y volúmenes mensuales de sus # ofertas} other {los precios, costes de entrega y volúmenes mensuales de sus # ofertas}}",
+    "formulaOffers": "{deliver} de entrega ÷ {sales} de ventas = {pct}",
+    "formulaGrossMargin": "{whole} menos su margen bruto del {gm} = {pct}",
+    "leftOutCurrency": "{offer}: su precio está en {currency}, no en {main}.",
+    "gapAbove": "{points, plural, one {# punto} many {# puntos} other {# puntos}} por encima",
+    "gapBelow": "{points, plural, one {# punto} many {# puntos} other {# puntos}} por debajo",
+    "gapSameAbove": "más o menos igual: {points, plural, one {# punto} many {# puntos} other {# puntos}} por encima",
+    "gapSameBelow": "más o menos igual: {points, plural, one {# punto} many {# puntos} other {# puntos}} por debajo"
   }
 }

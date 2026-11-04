@@ -51,6 +51,8 @@ import {
   sizeWords,
   typeEntry,
 } from "./map";
+import type { PurchasesKey } from "./purchases";
+import { purchasesLine } from "./purchases";
 import type { BenchSource, BenchValue, Metric, Snapshot } from "./snapshot";
 import { SNAPSHOT, cellIndex, eurRate, isValue } from "./snapshot";
 
@@ -134,7 +136,8 @@ export interface CellUsed {
 export type LineKey = "operating_margin" | "turnover_per_person" | "staff_cost_per_employee";
 
 interface LineBase {
-  key: LineKey;
+  /** I-44b: the purchases share is its own line, built in ./purchases. */
+  key: LineKey | PurchasesKey;
   title: string;
   /** The one definition gap that matters most, in a sentence. */
   gap_note: string;
@@ -939,6 +942,7 @@ export function compareWithSimilar(x: BenchInputs, s: Snapshot = SNAPSHOT): Benc
     head,
     lines: [
       marginLine(x, s, entry, head, size.codes),
+      purchasesLine(x, s, entry, head, size.codes),
       turnoverLine(x, s, entry, head, size.codes),
       staffLine(x, s, entry, head, size.codes),
     ],

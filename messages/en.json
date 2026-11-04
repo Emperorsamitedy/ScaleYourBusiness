@@ -6204,5 +6204,24 @@
     "drafted": "Drafted. It waits for you; approving it writes no price and no cost.",
     "blocked": "A rule of yours rules this out, so it sits blocked in your queue.",
     "failed": "That didn't work."
+  },
+  "benchmarkPurchases": {
+    "title": "Purchases, as a share of turnover",
+    "gapNote": "Eurostat counts everything a business buys in: goods and materials, and also rent, energy and services. Yours counts only what your sales cost you, so it reads lower than theirs would.",
+    "missing": "Similar businesses buy in {bench} of their turnover ({cell}). Yours needs what your sales cost you: each offer's cost to deliver with how many you sell a month, or your gross margin.",
+    "noCell": "Eurostat publishes no purchases figure for {group} in {country}, at your size or across every size. I don't compare this with a wider group or with the EU as a whole.",
+    "needOffers": "what each offer costs you to deliver",
+    "needGrossMargin": "your gross margin",
+    "inputSales": "Sales a month, at your prices and volumes",
+    "inputDeliver": "What those sales cost you to deliver",
+    "inputGrossMargin": "Gross margin",
+    "sourceOffers": "{count, plural, one {your offer's price, cost to deliver and monthly volume} other {your # offers' prices, costs to deliver and monthly volumes}}",
+    "formulaOffers": "{deliver} to deliver ÷ {sales} of sales = {pct}",
+    "formulaGrossMargin": "{whole} less your gross margin of {gm} = {pct}",
+    "leftOutCurrency": "{offer}: it's priced in {currency}, not {main}.",
+    "gapAbove": "{points, plural, one {# point} other {# points}} above",
+    "gapBelow": "{points, plural, one {# point} other {# points}} below",
+    "gapSameAbove": "about the same: {points, plural, one {# point} other {# points}} above",
+    "gapSameBelow": "about the same: {points, plural, one {# point} other {# points}} below"
   }
 }

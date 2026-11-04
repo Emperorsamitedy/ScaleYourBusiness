@@ -6204,5 +6204,24 @@
     "drafted": "Megfogalmazva. Önre vár; a jóváhagyása sem árat, sem költséget nem ír sehová.",
     "blocked": "Az Ön egyik szabálya kizárja ezt, így letiltva áll a sorában.",
     "failed": "Ez nem sikerült."
+  },
+  "benchmarkPurchases": {
+    "title": "Beszerzések a forgalom arányában",
+    "gapNote": "Az Eurostat mindent beszámít, amit egy vállalkozás kívülről vásárol: árut és anyagot, de bérleti díjat, energiát és szolgáltatásokat is. Az Ön száma csak azt számolja, amibe az eladásai kerülnek, ezért alacsonyabb, mint az övék lenne.",
+    "missing": "A hasonló vállalkozások a forgalmuk {bench} részét fordítják beszerzésre ({cell}). Az Ön számához kell, hogy mibe kerülnek az eladásai: minden ajánlat teljesítési költsége a havonta eladott mennyiséggel, vagy a bruttó árrése.",
+    "noCell": "Az Eurostat nem közöl beszerzési adatot erre: {group}, {country}, sem az Ön méretére, sem az összes méretre együtt. Nem hasonlítom tágabb csoporthoz vagy az EU egészéhez.",
+    "needOffers": "mibe kerül Önnek az egyes ajánlatok teljesítése",
+    "needGrossMargin": "a bruttó árrése",
+    "inputSales": "Havi eladások, az Ön árain és mennyiségein",
+    "inputDeliver": "Amibe ezeknek az eladásoknak a teljesítése kerül",
+    "inputGrossMargin": "Bruttó árrés",
+    "sourceOffers": "{count, plural, one {az ajánlata ára, teljesítési költsége és havi mennyisége} other {# ajánlata ára, teljesítési költsége és havi mennyisége}}",
+    "formulaOffers": "{deliver} teljesítés ÷ {sales} eladás = {pct}",
+    "formulaGrossMargin": "{whole} mínusz a {gm} bruttó árrés = {pct}",
+    "leftOutCurrency": "{offer}: az ára pénzneme {currency}, nem {main}.",
+    "gapAbove": "{points, plural, one {# százalékponttal} other {# százalékponttal}} felette",
+    "gapBelow": "{points, plural, one {# százalékponttal} other {# százalékponttal}} alatta",
+    "gapSameAbove": "nagyjából ugyanannyi: {points, plural, one {# százalékponttal} other {# százalékponttal}} felette",
+    "gapSameBelow": "nagyjából ugyanannyi: {points, plural, one {# százalékponttal} other {# százalékponttal}} alatta"
   }
 }

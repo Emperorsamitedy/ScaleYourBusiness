@@ -6204,5 +6204,24 @@
     "drafted": "已起草。它在等待您处理；批准它不会写入任何价格或成本。",
     "blocked": "您的一条规则排除了它，所以它以已拦截状态留在您的队列中。",
     "failed": "没有成功。"
+  },
+  "benchmarkPurchases": {
+    "title": "采购额占营业额的比例",
+    "gapNote": "Eurostat 计入企业从外部购买的一切：商品和原材料，还有租金、能源和服务。您的数字只计入销售本身的成本，所以会比他们的低。",
+    "missing": "同类企业的采购额占其营业额的 {bench}（{cell}）。要算出您的数字，需要您销售的成本：每项产品的交付成本和每月销量，或您的毛利率。",
+    "noCell": "Eurostat 没有公布{country}的{group}的采购数据，无论是您的规模还是所有规模合计。我不会拿更大的类别或整个欧盟来比较。",
+    "needOffers": "每项产品的交付成本",
+    "needGrossMargin": "您的毛利率",
+    "inputSales": "每月销售额，按您的价格和销量",
+    "inputDeliver": "这些销售的交付成本",
+    "inputGrossMargin": "毛利率",
+    "sourceOffers": "{count, plural, other {您 # 项产品的价格、交付成本和月销量}}",
+    "formulaOffers": "交付成本 {deliver} ÷ 销售额 {sales} = {pct}",
+    "formulaGrossMargin": "{whole} 减去您的毛利率 {gm} = {pct}",
+    "leftOutCurrency": "{offer}：以 {currency} 定价，而不是 {main}。",
+    "gapAbove": "高出 {points, plural, other {# 个百分点}}",
+    "gapBelow": "低 {points, plural, other {# 个百分点}}",
+    "gapSameAbove": "大致相同：高出 {points, plural, other {# 个百分点}}",
+    "gapSameBelow": "大致相同：低 {points, plural, other {# 个百分点}}"
   }
 }
