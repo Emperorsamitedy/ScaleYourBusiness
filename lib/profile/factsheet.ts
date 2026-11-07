@@ -15,6 +15,7 @@ import { fieldRecords } from "../../db/schema";
 import { PRIORITY_WEIGHTS, computeCompleteness } from "../scorer/completeness";
 import type { ApplicableQuestion } from "../resolver/applicability";
 import { applicableQuestions } from "../resolver/applicability";
+import { englishLabels } from "../bank/english-labels";
 import { displaySourceKind } from "../connectors/measured";
 import type { Field } from "../core/field";
 import { SIZE_BAND_KEY, TEAM_SIZE_KEY, resolveSizeBand } from "./size-band";
@@ -519,9 +520,17 @@ export function optionLabelsOf(
 ): OptionLabels {
   const out = new Map<string, Record<string, string>>();
   for (const q of questions) {
-    const labels = (q.input as { option_labels?: unknown } | null)?.option_labels;
-    if (typeof labels !== "object" || labels === null) continue;
-    const words: Record<string, string> = {};
+    const input = q.input as { option_labels?: unknown; vocabulary_id?: unknown } | null;
+    // The vocabulary's English words (specs/vocabulary-labels-en.json) first;
+    // a question's own option_labels win over them.
+    const words: Record<string, string> = {
+      ...(typeof input?.vocabulary_id === "string" ? englishLabels()[input.vocabulary_id] : {}),
+    };
+    const labels = input?.option_labels;
+    if (typeof labels !== "object" || labels === null) {
+      if (Object.keys(words).length > 0) out.set(q.writes_to, words);
+      continue;
+    }
     for (const [code, text] of Object.entries(labels as Record<string, unknown>)) {
       const en = (text as { en?: unknown } | null)?.en;
       if (typeof en === "string" && en.trim() !== "") words[code] = en.trim();

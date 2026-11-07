@@ -9,6 +9,7 @@
 //                     for UI development and offline demos. Same
 //                     guarantees (tier gate, no repeats), no judgment.
 
+import { englishLabel } from "../bank/english-labels";
 import { and, eq, isNull } from "drizzle-orm";
 import { db } from "../../db";
 import {
@@ -358,7 +359,9 @@ async function optionsFor(
     label: words.option(
       vocabularyId,
       code,
-      spec.option_labels?.[code]?.en?.trim() || humanizeCode(code),
+      spec.option_labels?.[code]?.en?.trim() ||
+        englishLabel(vocabularyId, code) ||
+        humanizeCode(code),
       questionId,
     ),
   }));
