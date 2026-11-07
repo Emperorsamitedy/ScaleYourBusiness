@@ -143,13 +143,13 @@ describe("siteWords English is what lib/site said before L-4c, byte for byte", (
 
   it("says the platform lines, markers and manual steps as before", () => {
     expect(editabilityLine(SHOPIFY)).toBe(
-      "shopify — changes can be applied for you once you give it permission to make changes — a separate step, on its own screen.",
+      "Shopify — changes can be applied for you once you give it permission to make changes — a separate step, on its own screen.",
     );
     expect(editabilityLine({ ...SHOPIFY, platform: "wordpress", editable: "partial" })).toBe(
-      "wordpress — some elements can be changed programmatically, not all; anything beyond that comes as instructions.",
+      "WordPress — some elements can be changed programmatically, not all; anything beyond that comes as instructions.",
     );
     expect(editabilityLine(WIX)).toBe(
-      "wix can't be edited programmatically — you'll get the exact change rendered before/after, plus step-by-step instructions for your editor. That's the honest version of this feature for your platform.",
+      "Wix can't be edited programmatically — you'll get the exact change rendered before/after, plus step-by-step instructions for your editor. That's the honest version of this feature for your platform.",
     );
     expect(editabilityLine(detectPlatform("<p>plain</p>"))).toBe(
       "I can't tell what serves this site — I'll show you the change and the diff, and applying it stays manual until I can.",
@@ -181,7 +181,7 @@ describe("siteWords English is what lib/site said before L-4c, byte for byte", (
       baseline_ms: 412,
     });
     expect(w.summary).toBe(`On shop.example: “${"x".repeat(57)}…” → “New”`);
-    expect(w.assumption_platform).toBe("The page is served by shopify (Shopify CDN/theme object)");
+    expect(w.assumption_platform).toBe("The page is served by Shopify (Shopify CDN/theme object)");
     expect(w.assumption_baseline).toBe(
       "Baseline load 412ms at proposal time — the auto-rollback reference",
     );
@@ -473,14 +473,14 @@ describe("the website screen in German", () => {
     expect(JSON.stringify(row)).toBe(before);
     expect(out.action.summary).toBe("Auf shop.example: „Old words“ → „New words“");
     expect(out.action.detail.platform_line).toMatch(
-      /^wix lässt sich nicht programmgesteuert bearbeiten – /,
+      /^Wix lässt sich nicht programmgesteuert bearbeiten – /,
     );
     expect(out.action.detail.manual_instructions?.[0]).toBe(
       "Öffnen Sie https://shop.example/ in Ihrem Wix-Editor.",
     );
     expect(out.action.detail.editable_word).toBe("von Hand");
     expect(out.scenario.assumptions[0]?.statement).toBe(
-      "Die Seite wird von wix ausgeliefert (statische Wix-Dateien)",
+      "Die Seite wird von Wix ausgeliefert (statische Wix-Dateien)",
     );
     expect(out.scenario.assumptions[1]?.statement).toBe(
       "Ladezeit beim Vorschlag: 412 ms – der Bezugswert für das automatische Zurücksetzen",
@@ -507,7 +507,7 @@ describe("the website screen in German", () => {
       action: { summary: string; detail: { platform_word: string; editable_word: string } };
     };
     expect(english.action.summary).toBe(proposalRow().action.summary);
-    expect(english.action.detail.platform_word).toBe("shopify");
+    expect(english.action.detail.platform_word).toBe("Shopify");
     expect(english.action.detail.editable_word).toBe("api");
   });
 

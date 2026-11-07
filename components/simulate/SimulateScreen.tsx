@@ -76,9 +76,9 @@ export function useSimText(): SimText {
   return useMemo(() => ({ tr: (key, values) => t(key, values), locale }), [t, locale]);
 }
 
-/** "As of" a day: English prints the day as it always has; another language its own way. */
+/** "As of" a day, in the reader's own date ("7 Nov 2026"); anything else as it came. */
 export function asOfDay(day: string, locale: AppLocale): string {
-  return locale === "en" || !/^\d{4}-\d{2}-\d{2}/.test(day) ? day : dayMonthYear(day, locale);
+  return /^\d{4}-\d{2}-\d{2}/.test(day) ? dayMonthYear(day, locale) : day;
 }
 
 interface Payload {

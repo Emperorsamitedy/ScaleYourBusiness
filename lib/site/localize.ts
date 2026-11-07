@@ -23,6 +23,8 @@ import type { BrokenLink, PathStep, PurchasePath, WalkResult } from "./audit/wal
 import type { SiteChangeDetail, SiteChangeWords } from "./changes";
 import { SiteChangeError, siteChangeWords } from "./changes";
 import { SiteFetchError } from "./fetch";
+import type { Platform } from "./platform";
+import { platformBrand } from "./platform";
 import { parseStored, sayStored, siteEnglish } from "./say";
 
 const EN = siteEnglish();
@@ -55,9 +57,9 @@ function asRow(v: unknown): Row | null {
   return typeof v === "object" && v !== null && !Array.isArray(v) ? (v as Row) : null;
 }
 
-/** The words the screen shows for a platform: its code, and "custom" said in the language. */
-function platformWord(platform: string, tr: Tr): string {
-  return platform === "custom" ? tr("platform.custom") : platform;
+/** The words the screen shows for a platform: its brand, and "custom" said in the language. */
+function platformWord(platform: Platform, tr: Tr): string {
+  return platform === "custom" ? tr("platform.custom") : platformBrand(platform);
 }
 
 /**
@@ -80,7 +82,7 @@ export function localizeSiteProposal<T extends Row>(row: T, tr: Tr, locale: AppL
         ...action,
         detail: {
           ...detail,
-          platform_word: detail.platform.platform,
+          platform_word: platformWord(detail.platform.platform, tr),
           editable_word: detail.platform.editable,
         },
       },
