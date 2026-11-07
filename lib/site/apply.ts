@@ -26,6 +26,7 @@ import type { PageFetcher } from "./fetch";
 import { livePageFetcher } from "./fetch";
 import type { SiteChangeDetail } from "./changes";
 import { siteRefusal } from "./changes";
+import { platformBrand } from "./platform";
 
 /** P3-33's thresholds — code, with boundary tests, both directions. */
 export const HEALTH = {
@@ -112,7 +113,11 @@ export async function applySiteChange(args: ApplySiteChangeArgs): Promise<ApplyO
   if (proposal.module !== "site") throw siteRefusal("error.notSite", undefined, 422);
   const detail = (proposal.action as { detail: SiteChangeDetail }).detail;
   if (detail.manual_instructions) {
-    throw siteRefusal("error.manualApply", { platform: detail.platform.platform }, 409);
+    throw siteRefusal(
+      "error.manualApply",
+      { platform: platformBrand(detail.platform.platform) },
+      409,
+    );
   }
 
   // Which provider can actually WRITE this site? Real platform write
@@ -123,7 +128,7 @@ export async function applySiteChange(args: ApplySiteChangeArgs): Promise<ApplyO
     args.provider ??
     (new URL(detail.url).hostname.endsWith(".example") ? fixtureSiteExecutor : null);
   if (!provider) {
-    throw siteRefusal("error.noWriter", { platform: detail.platform.platform }, 409);
+    throw siteRefusal("error.noWriter", { platform: platformBrand(detail.platform.platform) }, 409);
   }
 
   // Drift check: the page as it is NOW, not as it was at proposal time.

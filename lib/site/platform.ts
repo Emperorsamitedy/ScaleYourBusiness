@@ -21,6 +21,21 @@ import { siteEnglish } from "./say";
 export type Platform =
   "shopify" | "woocommerce" | "wordpress" | "wix" | "squarespace" | "webflow" | "custom";
 
+/** A platform as its brand ("shopify" → "Shopify"); "custom" stays a code for the screen to word. */
+export function platformBrand(platform: Platform): string {
+  return BRANDS[platform];
+}
+
+const BRANDS: Readonly<Record<Platform, string>> = {
+  shopify: "Shopify",
+  woocommerce: "WooCommerce",
+  wordpress: "WordPress",
+  wix: "Wix",
+  squarespace: "Squarespace",
+  webflow: "Webflow",
+  custom: "custom",
+};
+
 /** What the spec's editability matrix says per platform (site-audit §5). */
 export type Editability = "api" | "partial" | "manual" | "unknown";
 
@@ -106,7 +121,7 @@ export function editabilityLine(verdict: PlatformVerdict, tr: Tr = EN): string {
     case "api":
     case "partial":
     case "manual":
-      return tr(`platform.line.${verdict.editable}`, { platform: verdict.platform });
+      return tr(`platform.line.${verdict.editable}`, { platform: platformBrand(verdict.platform) });
     default:
       return tr("platform.line.unknown");
   }

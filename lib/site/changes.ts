@@ -31,7 +31,7 @@ import type { Tr } from "../i18n/tr";
 import type { FetchedPage, PageFetcher } from "./fetch";
 import { livePageFetcher } from "./fetch";
 import type { PlatformVerdict } from "./platform";
-import { detectPlatform, editabilityLine, markerWords } from "./platform";
+import { detectPlatform, editabilityLine, markerWords, platformBrand } from "./platform";
 import { plain, siteEnglish } from "./say";
 
 const EN = siteEnglish();
@@ -199,7 +199,7 @@ export function siteChangeWords(
       : null,
     rationale: tr(manual ? "change.rationale.manual" : "change.rationale.engine"),
     assumption_platform: tr("change.assumption.platform", {
-      platform: platform.platform,
+      platform: platformBrand(platform.platform),
       marker: markerWords(platform, tr),
     }),
     assumption_baseline: tr("change.assumption.baseline", {

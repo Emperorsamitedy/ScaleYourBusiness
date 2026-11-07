@@ -562,7 +562,7 @@ function ChangeSheet({
 
       <div className="st-platform">
         <p className="st-note">
-          {d.platform_word ?? d.platform.platform} · {d.editable_word ?? d.platform.editable} —{" "}
+          {/* The line names the platform and what can be changed; a code before it said it twice. */}
           {d.platform_line}
         </p>
         {p.blocked_by_limit && (
