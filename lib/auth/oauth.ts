@@ -59,6 +59,11 @@ function appleClientSecret(): string {
   return `${unsigned}.${signature.toString("base64url")}`;
 }
 
+/** The sign-in providers whose keys exist, in the screen's order: only these get a button. */
+export function configuredProviders(): ("google" | "apple" | "microsoft")[] {
+  return (["google", "apple", "microsoft"] as const).filter((id) => oauthProvider(id) !== null);
+}
+
 /** The provider, or null while its keys don't exist. */
 export function oauthProvider(id: string): OAuthProvider | null {
   if (id === "google" && process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET) {

@@ -5,6 +5,7 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { LoginScreen } from "../../components/auth/Login";
+import { configuredProviders } from "../../lib/auth/oauth";
 import { FirstStepScreen } from "../../components/locale/FirstStepScreen";
 import { pickerContext } from "../../lib/i18n/server";
 
@@ -16,5 +17,5 @@ export async function generateMetadata(): Promise<Metadata> {
 export default async function SignupPage() {
   const picker = await pickerContext();
   if (!picker.chosen) return <FirstStepScreen data={picker.data} signIn />;
-  return <LoginScreen variant="signup" />;
+  return <LoginScreen variant="signup" providers={configuredProviders()} />;
 }
