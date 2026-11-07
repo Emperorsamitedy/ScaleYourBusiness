@@ -58,6 +58,14 @@ describe("P5-10 — always on the screen", () => {
       /^Sources: nothing measured/,
     );
   });
+
+  it("history to spare, cash unknown: '8 of 8' weeks, never '13 of 8'", () => {
+    const noCash = forecastCash(
+      baseInputs({ cash: { status: "unknown" }, revenue: daily(TODAY, 120, () => 100) }),
+    );
+    expect(noCash.status).not.toBe("ready");
+    expect(sourcesLine(noCash)).toMatch(/ 8 of 8 complete weeks needed\.$/);
+  });
 });
 
 describe("P5-10 — the head states the main fact", () => {
