@@ -3,6 +3,7 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { LoginScreen } from "../../components/auth/Login";
+import { configuredProviders } from "../../lib/auth/oauth";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("auth.meta");
@@ -10,5 +11,5 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default function LoginPage() {
-  return <LoginScreen />;
+  return <LoginScreen providers={configuredProviders()} />;
 }
