@@ -64,6 +64,8 @@ interface Entry {
   question: string;
   answer: string;
   source_keys: string[];
+  /** The sources in words (entity names, not ids), from the server. */
+  source_words?: string;
   status: "public" | "retired";
   published_at: string;
 }
@@ -1116,7 +1118,7 @@ function EntryRow({ e, busy, onRetire }: { e: Entry; busy: boolean; onRetire?: (
                 count: e.source_keys.length,
                 n: num(e.source_keys.length, 0, locale),
               })
-            : tr("entry.from", { sources: e.source_keys.join(", ") })}
+            : tr("entry.from", { sources: e.source_words ?? e.source_keys.join(", ") })}
         </p>
       </div>
       <div className="sp-entry-side">

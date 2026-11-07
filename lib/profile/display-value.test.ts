@@ -5,7 +5,14 @@
 
 import "dotenv/config";
 import { describe, expect, it } from "vitest";
-import { displayValue, entityNamesOf, repr, sourceDetail } from "./factsheet";
+import {
+  displayValue,
+  entityNamesOf,
+  goalWords,
+  keysInWords,
+  repr,
+  sourceDetail,
+} from "./factsheet";
 
 const MUG = "f8872a88-1607-4a5f-a35d-75fbdea4192b";
 const BOWL = "5a3bf431-b85d-43cf-8df2-c127441a6e1e";
@@ -89,5 +96,73 @@ describe("sourceDetail", () => {
       "https://example.com/about",
     );
     expect(sourceDetail({ question_id: "4.2" })).toBe("4.2");
+  });
+});
+
+describe("goalWords", () => {
+  it("says a goal's measure and its baseline in words, not JSON", () => {
+    expect(
+      displayValue({
+        metric: "orders",
+        set_on: "2026-10-21",
+        currency: null,
+        deadline: "2027-04-21",
+        direction: "increase",
+        target_per_30d: 750,
+      }),
+    ).toBe("raise orders to 750 per 30 days by 2027-04-21");
+    expect(
+      displayValue({
+        to: "2026-10-20",
+        from: "2026-09-23",
+        per_30d: 4_753_830,
+        currency: "EUR",
+        days_measured: 23,
+      }),
+    ).toBe("47 538 EUR per 30 days, measured 2026-09-23 to 2026-10-20 (23 days)");
+  });
+
+  it("leaves every other object alone", () => {
+    expect(goalWords({ code: "solo" })).toBeNull();
+    expect(goalWords([1, 2])).toBeNull();
+  });
+});
+
+describe("keysInWords", () => {
+  it("names each entity once with the fields used, and words any other key", () => {
+    expect(
+      keysInWords(
+        [
+          `offers.${MUG}.name`,
+          `offers.${MUG}.description`,
+          `offers.${BOWL}.price`,
+          "identity.business_name",
+          "fulfilment.shipping_regions",
+        ],
+        names,
+      ),
+    ).toBe(
+      "Speckled Everyday Mug (name, description); Large Serving Bowl (price); business name; shipping regions",
+    );
+  });
+
+  it("never prints an id, even for an entity with no name on file", () => {
+    expect(keysInWords([`offers.${UNNAMED}.price`], names)).toBe("one of your entries (price)");
+  });
+});
+
+describe("siteCheckWords", () => {
+  it("says what the site's pages show and don't, not their JSON", () => {
+    expect(
+      displayValue({
+        pages: ["https://shop.example/", "https://shop.example/pages/contact"],
+        results: {
+          prices: "https://shop.example/",
+          faq: null,
+          contact_email: "https://shop.example/pages/contact",
+        },
+        version: "1.0.0",
+      }),
+    ).toBe("2 pages read · shows: prices, contact email · not found: faq");
   });
 });

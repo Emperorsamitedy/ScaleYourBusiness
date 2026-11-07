@@ -9,7 +9,7 @@
 // not exist for it. All of it is deterministic arithmetic; no model is
 // consulted to describe the owner's own data.
 
-import { and, desc, eq, inArray, isNotNull } from "drizzle-orm";
+import { and, desc, eq, inArray, isNotNull, isNull, or, sql } from "drizzle-orm";
 import { db } from "../../db";
 import { fieldRecords } from "../../db/schema";
 import { PRIORITY_WEIGHTS, computeCompleteness } from "../scorer/completeness";
@@ -225,6 +225,53 @@ export function entityNamesOf(facts: Iterable<readonly [string, { value: unknown
   return new Map([...best].map(([id, b]) => [id, b.name]));
 }
 
+/** The current names of these entities, by id (NAME_FIELDS), read from the profile. */
+export async function loadEntityNames(
+  profileId: string,
+  ids: readonly string[],
+): Promise<EntityNames> {
+  const wanted = [...new Set(ids.filter((id) => UUID.test(id)))];
+  if (wanted.length === 0) return new Map();
+  const rows = await db
+    .select({ key: fieldRecords.field_key, value: fieldRecords.value })
+    .from(fieldRecords)
+    .where(
+      and(
+        eq(fieldRecords.profile_id, profileId),
+        isNull(fieldRecords.superseded_at),
+        or(...wanted.map((id) => sql`${fieldRecords.field_key} like ${`%.${id}.%`}`)),
+      ),
+    );
+  return entityNamesOf(rows.map((r) => [r.key, { value: r.value }] as const));
+}
+
+const KEY_ENTITY =
+  /^[a-z_]+\.([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\.(.+)$/;
+
+/**
+ * Pure: profile keys an answer was built from, in words — each entity by
+ * its name with the fields used ("Speckled Everyday Mug (name, price)"),
+ * any other key by its last part ("business name"). Never a raw id.
+ */
+export function keysInWords(keys: readonly string[], names: EntityNames): string {
+  const groups = new Map<string, string[]>();
+  const plain: string[] = [];
+  for (const key of keys) {
+    const m = KEY_ENTITY.exec(key);
+    if (m) {
+      const fields = groups.get(m[1] as string) ?? [];
+      fields.push((m[2] as string).replace(/[._]/g, " "));
+      groups.set(m[1] as string, fields);
+    } else {
+      plain.push((key.split(".").pop() ?? key).replace(/_/g, " "));
+    }
+  }
+  const named = [...groups].map(
+    ([id, fields]) => `${names.get(id) ?? "one of your entries"} (${fields.join(", ")})`,
+  );
+  return [...named, ...new Set(plain)].join("; ");
+}
+
 /**
  * An answer that points at entities — an id, a { code: id } reference,
  * a list of them, or the entity-list marker { entity_ids } — with each
@@ -255,7 +302,76 @@ function named(value: unknown, names: EntityNames): unknown {
  */
 export function displayValue(value: unknown, names: EntityNames = NO_NAMES): string | null {
   if (typeof value === "boolean") return value ? "yes" : "no";
-  return scheduleWords(value) ?? repr(named(value, names));
+  return (
+    scheduleWords(value) ?? goalWords(value) ?? siteCheckWords(value) ?? repr(named(value, names))
+  );
+}
+
+/**
+ * The site checks (lib/blindspots): what the pages read show and what
+ * they don't — "4 pages read · shows: prices, delivery · not found: faq,
+ * reviews" — instead of their JSON. Null for any other value.
+ */
+export function siteCheckWords(value: unknown): string | null {
+  if (typeof value !== "object" || value === null || Array.isArray(value)) return null;
+  const v = value as { pages?: unknown; results?: unknown };
+  if (!Array.isArray(v.pages) || typeof v.results !== "object" || v.results === null) return null;
+  const results = Object.entries(v.results as Record<string, unknown>);
+  const word = (k: string) => k.replace(/_/g, " ");
+  const shows = results.filter(([, at]) => typeof at === "string").map(([k]) => word(k));
+  const missing = results.filter(([, at]) => at === null).map(([k]) => word(k));
+  const n = v.pages.length;
+  return [
+    `${n} page${n === 1 ? "" : "s"} read`,
+    shows.length > 0 ? `shows: ${shows.join(", ")}` : null,
+    missing.length > 0 ? `not found: ${missing.join(", ")}` : null,
+  ]
+    .filter((x): x is string => x !== null)
+    .join(" · ");
+}
+
+/** A goal's metric in words (lib/care/goal-measure GOAL_METRICS' labels). */
+const GOAL_METRIC_WORDS: Readonly<Record<string, string>> = {
+  revenue: "revenue",
+  orders: "orders",
+  sessions: "website visits",
+};
+
+/** A level per 30 days, in whole units: money in its currency (stored in minor units, rule 1), else a count. */
+function levelWords(per30d: number, currency: unknown): string {
+  const whole = (n: number) => Math.round(n).toLocaleString("en-US").replace(/,/g, " ");
+  return typeof currency === "string" && currency !== ""
+    ? `${whole(per30d / 10 ** (MINOR_UNITS[currency] ?? 2))} ${currency}`
+    : whole(per30d);
+}
+
+/**
+ * A goal's measure ("raise orders to 750 per 30 days by 2027-04-21") or
+ * its measured baseline ("660 per 30 days, measured 2026-09-23 to
+ * 2026-10-20 (23 days)") in words, instead of their JSON. Null for any
+ * other value.
+ */
+export function goalWords(value: unknown): string | null {
+  if (typeof value !== "object" || value === null || Array.isArray(value)) return null;
+  const v = value as Record<string, unknown>;
+  if (
+    typeof v.metric === "string" &&
+    typeof v.target_per_30d === "number" &&
+    typeof v.deadline === "string"
+  ) {
+    const metric = GOAL_METRIC_WORDS[v.metric] ?? v.metric.replace(/_/g, " ");
+    const verb = v.direction === "decrease" ? "lower" : "raise";
+    return `${verb} ${metric} to ${levelWords(v.target_per_30d, v.currency)} per 30 days by ${v.deadline}`;
+  }
+  if (
+    typeof v.per_30d === "number" &&
+    typeof v.from === "string" &&
+    typeof v.to === "string" &&
+    typeof v.days_measured === "number"
+  ) {
+    return `${levelWords(v.per_30d, v.currency)} per 30 days, measured ${v.from} to ${v.to} (${v.days_measured} day${v.days_measured === 1 ? "" : "s"})`;
+  }
+  return null;
 }
 
 export function sourceDetail(source: unknown): string | null {
