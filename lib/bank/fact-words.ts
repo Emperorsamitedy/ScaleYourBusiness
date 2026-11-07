@@ -16,6 +16,7 @@
 // words are the overlay of the current bank version.
 
 import bank from "../../specs/question-bank-v1.json";
+import { englishLabel } from "./english-labels";
 import type { BankWords } from "./words";
 
 interface RawInput {
@@ -112,9 +113,45 @@ function codesOf(value: unknown): string[] | null {
   return list.length > 0 && list.every((c): c is string => c !== null) ? list : null;
 }
 
-/** Pure: the fact words of one language's bank words; English names nothing. */
+/** An entity field's input, by its full key ("offers.<id>.price_model"). */
+function entityInputOf(key: string): RawInput | null {
+  const m = ENTITY_KEY.exec(key);
+  if (!m) return null;
+  const schemaId = schemaOfCollection.get(m[1] ?? "");
+  const field = schemaId ? SCHEMAS[schemaId]?.fields.find((f) => f.key === m[3]) : undefined;
+  return field?.input ?? null;
+}
+
+/**
+ * English: the screens keep their own labels, and a coded value reads in
+ * the words of specs/vocabulary-labels-en.json ("ecommerce_store" →
+ * "Online shop") when any of its codes is listed there; otherwise null,
+ * and the screen keeps the humanised code as it always has.
+ */
+const ENGLISH: FactWords = {
+  ...NONE,
+  value(key, value) {
+    const codes = codesOf(value);
+    const vocabulary = (byKey.get(key)?.input ?? entityInputOf(key))?.vocabulary_id;
+    if (!codes || !vocabulary) return null;
+    const named = codes.map((code) => englishLabel(vocabulary, code));
+    if (named.every((w) => w === undefined)) return null;
+    return codes.map((code, i) => named[i] ?? code.replace(/_/g, " ")).join(", ");
+  },
+  textValue(key, text) {
+    if (text === null) return null;
+    const parts = text.split(", ");
+    if (!parts.every((p) => CODE_TEXT.test(p))) return null;
+    return this.value(
+      key,
+      parts.map((p) => p.replace(/ /g, "_")),
+    );
+  },
+};
+
+/** Pure: the fact words of one language's bank words; English names only codes that read badly. */
 export function factWords(words: BankWords): FactWords {
-  if (words.locale === "en") return NONE;
+  if (words.locale === "en") return ENGLISH;
 
   const fieldOf = (key: string) => {
     const m = ENTITY_KEY.exec(key);
@@ -186,8 +223,9 @@ export function factWords(words: BankWords): FactWords {
 
 /**
  * Pure: a fact map (the report's, lib/report/service) with each fact's
- * `label` and `value_words` in the language. English returns the map as
- * it was, so an English response is byte-for-byte what it always was.
+ * `label` and `value_words` in the language. English adds only the
+ * words of a listed code (specs/vocabulary-labels-en.json); a map with
+ * none is returned as it was, byte for byte.
  */
 export function labelFactMap<T extends { value: string | null }>(
   map: Record<string, T>,
@@ -195,6 +233,17 @@ export function labelFactMap<T extends { value: string | null }>(
 ): Record<string, T & { label?: string | null; value_words?: string | null }> {
   if (fw === NONE) return map;
   const out: Record<string, T & { label?: string | null; value_words?: string | null }> = {};
+  if (fw === ENGLISH) {
+    // English keeps its own labels; only a listed code gains words, and a
+    // map with none to name is returned exactly as it came.
+    let named = false;
+    for (const [key, f] of Object.entries(map)) {
+      const words = fw.textValue(key, f.value);
+      out[key] = words === null ? f : { ...f, value_words: words };
+      named ||= words !== null;
+    }
+    return named ? out : map;
+  }
   for (const [key, f] of Object.entries(map)) {
     const entity = ENTITY_KEY.exec(key);
     const name = entity ? map[`${entity[1]}.${entity[2]}.name`]?.value : null;

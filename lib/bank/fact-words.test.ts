@@ -19,12 +19,18 @@ const DE = factWords(bankWords("de-DE", overlay("de-DE")));
 const ID = "0f8fad5b-d9cb-469f-a165-70867728950e";
 
 describe("factWords", () => {
-  it("names nothing in English, so English keeps the key's own words", () => {
+  it("English keeps the key's own words, naming only codes that read badly", () => {
     const en = factWords(ENGLISH_WORDS);
     expect(en.label("revenue.monthly_revenue")).toBeNull();
-    expect(en.value("customers.type", "b2c")).toBeNull();
+    expect(en.value("identity.business_type", { code: "salon_beauty" })).toBe(
+      "Hair or beauty salon",
+    );
+    expect(en.value("identity.business_type", { code: "restaurant" })).toBeNull();
     const map = { "a.b": { value: "x" } };
     expect(labelFactMap(map, en)).toBe(map);
+    expect(labelFactMap({ "identity.business_type": { value: "ecommerce store" } }, en)).toEqual({
+      "identity.business_type": { value: "ecommerce store", value_words: "Online shop" },
+    });
   });
 
   it("labels a fact by its question's prompt, and an entity field by its own", () => {
