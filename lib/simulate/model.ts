@@ -424,6 +424,16 @@ const money = (minor: number, currency: string, locale: AppLocale = "en"): strin
   const body = moneyText(whole * 10 ** minorUnitExponent(currency), currency, locale);
   return minor < 0 && whole !== 0 ? `−${body}` : body;
 };
+/**
+ * Money as it is, cents and all, for an input inside an arithmetic line:
+ * a line whose inputs are rounded doesn't multiply out to its result
+ * ("€19 a day × +20% × 28 days" for a measured €18.50 is €106, not €104).
+ */
+const exactMoney = (minor: number, currency: string, locale: AppLocale = "en"): string =>
+  minor < 0 ? `−${moneyText(-minor, currency, locale)}` : moneyText(minor, currency, locale);
+/** A term after a minus sign: a negative one in brackets, never "− −€104". */
+const subtrahend = (minor: number, currency: string, locale: AppLocale = "en"): string =>
+  minor < 0 ? `(${exactMoney(minor, currency, locale)})` : exactMoney(minor, currency, locale);
 const pct = (x: number, locale: AppLocale = "en"): string =>
   locale === "en"
     ? `${num(x * 100, 1)}%`
@@ -929,7 +939,7 @@ function simulateAds(
       needs: o.daily_budget_minor === null ? t("ads.typedNeeds") : null,
     });
     spendSource = t("ads.newSpendFormula", {
-      daily: o.daily_budget_minor === null ? "?" : money(o.daily_budget_minor, cur, L),
+      daily: o.daily_budget_minor === null ? "?" : exactMoney(o.daily_budget_minor, cur, L),
       days,
     });
   } else {
@@ -954,12 +964,12 @@ function simulateAds(
       const d = win.daily_minor;
       if (o.change === "pause") {
         spend = -d * H;
-        spendSource = t("ads.pauseFormula", { daily: money(d, cur, L), days });
+        spendSource = t("ads.pauseFormula", { daily: exactMoney(d, cur, L), days });
       } else {
         const delta = Math.round(d * o.share) * (o.change === "raise" ? 1 : -1);
         spend = delta * H;
         spendSource = t("ads.changeFormula", {
-          daily: money(d, cur, L),
+          daily: exactMoney(d, cur, L),
           change: `${o.change === "raise" ? "+" : "−"}${wholePct(Math.round(o.share * 100), L)}`,
           days,
         });
@@ -1015,7 +1025,7 @@ function simulateAds(
       revenue,
       rv.bases,
       t("ads.revenueFormula", {
-        spend: money(spend, cur, L),
+        spend: exactMoney(spend, cur, L),
         roas: term(rv.vals[1]!, "ratio", cur, L),
       }),
     );
@@ -1031,7 +1041,7 @@ function simulateAds(
       t("profitFormula", {
         revenue: term(revenue, "money", cur, L),
         margin: term(m, "rate", cur, L),
-        spend: money(spend, cur, L),
+        spend: subtrahend(spend, cur, L),
       }),
     );
     // The worst measured week: the weakest one for new spend, the strongest one for spend stopped.
@@ -1042,7 +1052,8 @@ function simulateAds(
       point(worst),
       pr.bases,
       t("ads.worstFormula", {
-        spend: money(spend, cur, L),
+        // Bracketed when negative: it is both a factor and the term taken away.
+        spend: subtrahend(spend, cur, L),
         roas: twoDp(worstRoas, L),
         margin: pct(worstMargin, L),
       }),
