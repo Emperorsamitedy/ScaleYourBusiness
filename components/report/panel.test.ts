@@ -13,6 +13,7 @@ import {
   inputWords,
   panelRows,
   severityTally,
+  valueText,
 } from "./panel";
 import type { Computed, Economics, FactMap, Finding, Rec } from "./types";
 
@@ -228,6 +229,14 @@ describe("the derivation sheet", () => {
     expect(inputWords("costs.<fixed cost items>", map)).toBe("fixed cost items");
     expect(inputWords(`offers.${OFFER}.price`, map)).toBe("Mug · price");
     expect(inputWords("connector:stripe:revenue.daily", map)).toBe("stripe revenue daily");
+    // A field of the business under "offers." is named, not read as an offer.
+    expect(inputWords("offers.physical.inventory.stockout_items", map)).toBe("often out of stock");
+  });
+
+  it("prints a bare number grouped, and an option's words when the server named them", () => {
+    const f = { status: "answered", source_kind: "owner_input" } as const;
+    expect(valueText({ ...f, value: "3400" } as never)).toBe("3,400");
+    expect(valueText({ ...f, value: "too low", value_words: "Too low" } as never)).toBe("Too low");
   });
 
   it("lists each input once with value, source and basis; an unrecorded one says so", () => {
