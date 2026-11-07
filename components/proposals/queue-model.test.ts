@@ -214,6 +214,25 @@ describe("the design's derived lines — only from the action's own data", () =>
     expect(changeLines(raise)?.[0]?.before).toBe("€12 a day");
   });
 
+  it("a site wording change shows the page's text before and after, in full", () => {
+    const find = "dipped in our oatmeal speckle glaze. Every one is slightly different.";
+    const replace =
+      "dipped in our oatmeal speckle glaze. Dishwasher and microwave safe. Every one is slightly different.";
+    const lines = changeLines({
+      kind: "operations_change",
+      summary: "On fernhill-ceramics.example: …",
+      detail: { url: "https://fernhill-ceramics.example/products/mug", find, replace },
+    });
+    expect(lines).toEqual([
+      {
+        line: "The change",
+        sub: "fernhill-ceramics.example/products/mug",
+        before: find,
+        after: replace,
+      },
+    ]);
+  });
+
   it("a customer email: who gets it, with comma thousands", () => {
     const ids = Array.from({ length: 1398 }, (_, i) => `c${i}`);
     const lines = changeLines({

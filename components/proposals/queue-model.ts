@@ -521,12 +521,24 @@ export function effectSpan(action: ActionLike, w: QueueWords = QW()): string {
   return budget ? w.tr("span.over", { days: budget.run_days }) : w.tr("span.month");
 }
 
+/** "fernhill-ceramics.example/products/mug" — a page as the owner would name it. */
+function pageOf(url: unknown): string | null {
+  if (typeof url !== "string") return null;
+  try {
+    const u = new URL(url);
+    return `${u.hostname}${u.pathname === "/" ? "" : u.pathname}`;
+  } catch {
+    return null;
+  }
+}
+
 /**
  * The "what changes — before → after" lines, read from what the
  * proposal's own detail states. Null when it states no before and after:
  * the sheet then prints the summary alone rather than invent a "before".
  *
  *   - any detail with `before` / `after` (changeOf)
+ *   - a site wording change (detail.find / replace): the page's text, in full
  *   - an ad change (detail.change "pause" | "raise_budget" with the
  *     measured spend): the campaign's average daily spend over the
  *     measured days, before and after
@@ -545,6 +557,13 @@ export function changeLines(
   // The stated before and after are the proposal's own words (content): as written.
   const stated = changeOf(d);
   if (stated) return [{ line: tr("change.stated"), sub: null, ...stated }];
+
+  // A site wording change: the page's text as it is, and as it would be,
+  // in full — the title only has room for a clipped version.
+  const find = str(d.find);
+  const replace = str(d.replace);
+  if (find && replace)
+    return [{ line: tr("change.stated"), sub: pageOf(d.url), before: find, after: replace }];
 
   const ad = adLines(d, w);
   if (ad) return ad;

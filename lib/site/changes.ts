@@ -138,6 +138,43 @@ export interface SiteChangeWords {
 
 const clip = (text: string) => (text.length > 60 ? `${text.slice(0, 57)}…` : text);
 
+/** How much unchanged text to keep either side of what a change changes. */
+const CONTEXT = 18;
+
+/**
+ * Pure: a find and its replacement, clipped around where they differ.
+ * Clipping each from its start cut away the change itself whenever the
+ * two shared a long opening ("…speckle glaze. Every one is slightl…" →
+ * "…speckle glaze. Dishwasher and micro…"); this keeps a few words of
+ * what they share either side, and the whole of what differs up to 60.
+ */
+export function clipPair(find: string, replace: string): { find: string; replace: string } {
+  if (find.length <= 60 && replace.length <= 60) return { find, replace };
+  let head = 0;
+  const max = Math.min(find.length, replace.length);
+  while (head < max && find[head] === replace[head]) head++;
+  let tail = 0;
+  while (tail < max - head && find[find.length - 1 - tail] === replace[replace.length - 1 - tail])
+    tail++;
+  // Start and end on a word boundary inside the context, when there is one.
+  let from = Math.max(0, head - CONTEXT);
+  if (from > 0) {
+    const space = find.indexOf(" ", from);
+    if (space !== -1 && space < head) from = space + 1;
+  }
+  const cut = (text: string) => {
+    let to = Math.min(text.length, text.length - tail + CONTEXT);
+    if (to < text.length) {
+      const space = text.lastIndexOf(" ", to);
+      if (space > text.length - tail) to = space;
+    }
+    const middle = text.slice(from, to);
+    const body = middle.length > 60 ? `${middle.slice(0, 57)}…` : middle;
+    return `${from > 0 ? "…" : ""}${body}${to < text.length && middle.length <= 60 ? "…" : ""}`;
+  };
+  return { find: cut(find), replace: cut(replace) };
+}
+
 /** Pure: every sentence of one site change, from what it is. English by default. */
 export function siteChangeWords(
   change: {
@@ -155,8 +192,7 @@ export function siteChangeWords(
   return {
     summary: tr("change.summary", {
       host: new URL(change.url).hostname,
-      find: clip(change.find),
-      replace: clip(change.replace),
+      ...clipPair(change.find, change.replace),
     }),
     platform_line: editabilityLine(platform, tr),
     preview_note: tr("change.previewTooLarge"),

@@ -946,6 +946,24 @@
   white-space: normal;
   text-align: right;
 }
+.q-mline-words {
+  display: block;
+}
+.q-mline-words dd {
+  display: grid;
+  grid-template-columns: 5.5em 1fr;
+  gap: 8px;
+  margin: 6px 0 0;
+  text-align: left;
+}
+.q-mline-side {
+  padding-top: 2px;
+  font-family: var(--f-mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--sheet-ink-2);
+}
 .q-effect-m {
   display: block;
 }
