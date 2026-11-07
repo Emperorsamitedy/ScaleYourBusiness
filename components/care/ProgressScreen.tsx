@@ -467,7 +467,15 @@ export function ProgressScreen({ charts }: { charts: GoalChart[] | null }) {
   }
 
   const n = view.goals.length;
-  const checked = view.goals.filter((g) => g.latest_check !== null);
+  // A check that says "too early" or "can't measure yet" hasn't judged the
+  // goal against its path: counting it made "none on its path" sound like
+  // every goal was failing on the day the watch began.
+  const checked = view.goals.filter(
+    (g) =>
+      g.latest_check !== null &&
+      g.latest_check.verdict !== "too_early" &&
+      g.latest_check.verdict !== "unmeasured",
+  );
   const on = checked.filter((g) => onPath(g.latest_check?.verdict)).length;
   const goals = tr("title.count", { count: n });
   const title =
