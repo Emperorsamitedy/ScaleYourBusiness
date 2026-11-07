@@ -2,6 +2,7 @@
 // Pure: lib/cash/load.ts reads the rows, this turns them into CashInputs,
 // each figure with its basis and source. No database, no clock.
 
+import { noteWords } from "../profile/note-words";
 import type { Basis } from "../../components/report/basis";
 import { basisOf } from "../../components/report/basis";
 import { displaySourceKind } from "../connectors/measured";
@@ -24,9 +25,12 @@ function basisOfField(f: Field<unknown>): Basis | null {
 }
 
 function sourceWords(f: Field<unknown>, basis: Basis): string {
-  if (basis === "OBSERVED") return f.note ?? "measured from your connected account";
+  // A connector's note, worded for the owner: its days written out and the
+  // provider by its brand ("Measured by Shopify, 8 Oct 2026 to 6 Nov 2026.").
+  const note = noteWords(f.note ?? null);
+  if (basis === "OBSERVED") return note ?? "measured from your connected account";
   if (basis === "ESTIMATED") return "your estimate";
-  if (basis === "DERIVED") return f.note ?? "worked out from your other figures";
+  if (basis === "DERIVED") return note ?? "worked out from your other figures";
   return "as you told me";
 }
 

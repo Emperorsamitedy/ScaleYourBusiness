@@ -8,6 +8,7 @@
 //   P5-04  an approaching busy stretch raises the rate for its days, stated
 
 import { describe, expect, it } from "vitest";
+import { dayMonthYear } from "../i18n/format";
 import type { SeasonResult } from "../seasons/forecast";
 import { addDays, seasonForecast } from "../seasons/forecast";
 import type { StockItem } from "./assess";
@@ -300,7 +301,7 @@ describe("P5-02 the rate and days of cover, as ranges", () => {
       "Shopify",
     );
     expect(c.sources).toContain(
-      `28 sold ${shiftDay(YESTERDAY, -27)} to ${YESTERDAY}, measured by Shopify`,
+      `28 sold ${dayMonthYear(shiftDay(YESTERDAY, -27), "en")} to ${dayMonthYear(YESTERDAY, "en")}, measured by Shopify`,
     );
     expect(c.sources).toContain("Midland Clay takes 7 days, from your answer");
     expect(c.assumed[0]).toContain("the pace of the last 28 days");
