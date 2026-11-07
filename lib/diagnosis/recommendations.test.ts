@@ -54,7 +54,7 @@ describe("P1-30/33 — the discount states its break-even, arithmetic shown", ()
     });
 
     // margin 900 → 401; 900/401 − 1 = 124.4%
-    expect(s.breakeven_condition).toContain("≥124.4% volume lift");
+    expect(s.breakeven_condition).toContain("sales must rise at least 124.4%");
     // the arithmetic is visible, not asserted
     expect(s.breakeven_condition).toContain("900 HUF");
     expect(s.breakeven_condition).toContain("401 HUF");
@@ -74,7 +74,7 @@ describe("P1-30/33 — the discount states its break-even, arithmetic shown", ()
       volume_response: { base_pct: -5, downside_pct: -25, upside_pct: 0 },
     });
     expect(s.breakeven_condition).toContain("sales can fall up to 40%");
-    expect(s.breakeven_condition).toContain("1 498.80 HUF");
+    expect(s.breakeven_condition).toContain("1,498.80 HUF");
   });
 
   it("every shown formula adds up on a calculator, to the cent", () => {
@@ -93,9 +93,9 @@ describe("P1-30/33 — the discount states its break-even, arithmetic shown", ()
       change_pct: 8,
       volume_response: { base_pct: -3, downside_pct: -9, upside_pct: 0 },
     });
-    const amount = (t: string) => Number(t.replace(/ /g, ""));
+    const amount = (t: string) => Number(t.replace(/,/g, ""));
     const FORMULA =
-      /^([\d .]+) EUR × (\d+) units − ([\d .]+) EUR × (\d+) units = ([+−])([\d .]+) EUR$/;
+      /^([\d,.]+) EUR × (\d+) units − ([\d,.]+) EUR × (\d+) units = ([+−])([\d,.]+) EUR$/;
     for (const c of [s.base_case, s.downside_case, s.upside_case]) {
       const m = FORMULA.exec(c.formula ?? "");
       expect(m, c.formula ?? "").not.toBeNull();

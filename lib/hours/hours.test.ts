@@ -474,7 +474,7 @@ describe("P2-30 — end to end on a seeded bar", () => {
     expect(result.status).toBe("ok");
     if (result.status !== "ok") return;
     expect(result.zone).toBe("Europe/Budapest");
-    expect(result.coverage).toContain("stripe");
+    expect(result.coverage).toContain("Stripe");
     expect(result.coverage).toContain("cash");
 
     const friday = result.weekdays.find((w) => w.weekday === "fri")!;
