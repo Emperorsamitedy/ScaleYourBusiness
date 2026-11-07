@@ -20,7 +20,7 @@ import { requestLocale } from "../../../lib/i18n/server";
 
 /**
  * L-3a: the fact map's labels and coded values in the reader's language,
- * from the bank's overlay (lib/bank/fact-words). English is unchanged;
+ * from the bank's overlay (lib/bank/fact-words). English names only codes;
  * the report's own text (L-5) and nothing stored is touched.
  */
 async function inLanguage<
@@ -30,8 +30,11 @@ async function inLanguage<
   },
 >(report: T): Promise<T> {
   const locale = await requestLocale();
-  if (locale === "en") return report;
   const words = await loadBankWords(locale);
+  // English keeps its own labels and gaps; a coded answer reads as the
+  // option the owner chose ("Facebook ads", not "facebook ads").
+  if (locale === "en")
+    return { ...report, fact_map: labelFactMap(report.fact_map, factWords(words)) };
   return {
     ...report,
     fact_map: labelFactMap(report.fact_map, factWords(words)),

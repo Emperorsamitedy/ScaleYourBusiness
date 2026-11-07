@@ -25,7 +25,7 @@ import type { AppLocale } from "../../lib/i18n/locales";
 import type { Tr } from "../../lib/i18n/tr";
 import { englishTr } from "../../lib/i18n/tr";
 import type { FlagWord, ForecastRange } from "./figures";
-import { fmtDay, forecastRange, keyWords, refigure } from "./figures";
+import { fmtDay, forecastRange, keyWords, refigure, refigureNumber } from "./figures";
 import type { MoneyLike, Severity } from "./figures";
 import { moneyText, num } from "../sheet/num";
 import type { EconPart } from "../../lib/economics/words";
@@ -322,7 +322,10 @@ export function inputWords(key: string, map: FactMap, tr: Tr = ENGLISH().tr): st
   if (each) return `${keyWords(`x.${each[2]}`)} of each ${(each[1] ?? "").replace(/_/g, " ")}`;
   const named = /^[a-z_]+\.<([^>]+)>$/.exec(key);
   if (named) return named[1] ?? key;
-  const offer = /^offers\.([^.]+)\.(.+)$/.exec(key);
+  // An offer's own field ("offers.<uuid>.price"); "offers.physical.…" is a
+  // field of the business, named like any other.
+  const offer =
+    /^offers\.([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\.(.+)$/.exec(key);
   if (offer) {
     const name = map[`offers.${offer[1]}.name`]?.value;
     return `${name ?? tr("input.offer")} · ${keyWords(`x.${offer[2]}`)}`;
@@ -333,7 +336,7 @@ export function inputWords(key: string, map: FactMap, tr: Tr = ENGLISH().tr): st
 /** A fact map value in the reader's language: an option's label, or money and numbers re-figured. */
 export function valueText(f: FactInfo, locale: AppLocale = "en"): string | null {
   if (f.value === null) return null;
-  return f.value_words ?? refigure(f.value, locale);
+  return f.value_words ?? refigureNumber(f.value, locale);
 }
 
 export interface InputLine {
