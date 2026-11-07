@@ -64,6 +64,7 @@ import {
 import { inArray } from "drizzle-orm";
 import { db } from "../../../db";
 import { contacts } from "../../../db/schema";
+import { keysInWords, loadEntityNames } from "../../../lib/profile/factsheet";
 import {
   emailThread,
   inboundAddress,
@@ -173,6 +174,10 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       listTickets(profileId),
       listConversations(profileId),
     ]);
+    const entityNames = await loadEntityNames(
+      profileId,
+      knowledge.flatMap((e) => e.source_keys.map((k) => k.split(".")[1] ?? "")),
+    );
     const origin = process.env.APP_URL?.replace(/\/$/, "") || request.nextUrl.origin;
     const domain = supportInboundDomain();
     // Who each ticket is from, whether anyone can reply, and when they last wrote.
@@ -235,7 +240,11 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
             notify_owner: settings.notify_owner,
           }
         : null,
-      knowledge,
+      // Where each answer came from, in words: entity names, never their ids.
+      knowledge: knowledge.map((e) => ({
+        ...e,
+        source_words: keysInWords(e.source_keys, entityNames),
+      })),
       publishable: publishable.map((p) => ({
         id: p.id,
         summary: knowledgeSummaryWords(
