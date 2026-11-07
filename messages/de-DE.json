@@ -283,7 +283,6 @@
       "missing": "Das fehlende Stück",
       "missingRest": "der Rest – was {provider} nicht misst",
       "ruler": "Gemessener Bezugswert: {value}",
-      "purpose": "<strong>Zweck:</strong> {help}",
       "backTitle": "Öffnet diese Antwort zum Ändern; die alte bleibt im Verlauf",
       "skip": "Vorerst überspringen",
       "next": "Weiter",

@@ -283,7 +283,6 @@
       "missing": "缺失的部分",
       "missingRest": "其余部分 — {provider} 未测量的内容",
       "ruler": "测量参考：{value}",
-      "purpose": "<strong>用途：</strong>{help}",
       "backTitle": "重新打开该回答以便修改；旧回答会保留在历史记录中",
       "skip": "暂时跳过",
       "next": "下一题",

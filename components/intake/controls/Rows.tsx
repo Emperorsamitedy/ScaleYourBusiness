@@ -6,7 +6,7 @@
 // QuestionCard owns the key listener so the digits never fire while the
 // owner is typing in a field.
 //
-// "No reading — I don't know" is the same control in a dashed tile, set
+// "I don't know" is the same control in a dashed tile, set
 // apart from the choices: it records an explicit unknown (rule 5).
 //
 // The design prints help lines under each label ("post, letterbox"). The

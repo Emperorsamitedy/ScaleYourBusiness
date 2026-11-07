@@ -127,6 +127,9 @@ export function interviewerMode(): "llm" | "deterministic" {
 export { naturalIdCompare };
 
 /** "physical_products" → "Physical products". */
+/** Choice codes that already say "I don't know" in the question's own words. */
+const OWN_UNKNOWN: ReadonlySet<string> = new Set(["unknown", "unsure"]);
+
 export function humanizeCode(code: string): string {
   const words = code.replace(/_/g, " ").trim();
   return words.charAt(0).toUpperCase() + words.slice(1);
@@ -379,6 +382,7 @@ async function toIntakeQuestion(
   words: BankWords = ENGLISH_WORDS,
 ): Promise<IntakeQuestion> {
   const spec = q.input as InputSpec;
+  const options = await optionsFor(profileId, spec, words, q.id);
   const base: IntakeQuestion = {
     id: q.id,
     priority: q.priority,
@@ -386,8 +390,12 @@ async function toIntakeQuestion(
     prompt: promptOf(q, words),
     help: words.help(q.id, englishOf(q.help_text) || null),
     input_type: spec.type,
-    options: await optionsFor(profileId, spec, words, q.id),
-    allow_unknown: spec.allow_unknown !== false,
+    options,
+    // A choice list that already holds its own "Unknown" or "Unsure"
+    // (revenue trend, consent) shows that, not a second "I don't know"
+    // beside it. The server still accepts an unknown (submitUnknown).
+    allow_unknown:
+      spec.allow_unknown !== false && !options.some((o) => OWN_UNKNOWN.has(o.code)),
     currency,
     entity_schema: spec.entity_schema ?? null,
     writes_to: q.writes_to,

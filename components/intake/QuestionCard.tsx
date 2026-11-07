@@ -436,12 +436,7 @@ export function QuestionCard({
 
         <footer className="ix-q-foot">
           {question.help ? (
-            <p className="ix-purpose">
-              {t.rich("purpose", {
-                help: question.help,
-                strong: (chunks) => <strong>{chunks}</strong>,
-              })}
-            </p>
+            <p className="ix-purpose">{question.help}</p>
           ) : (
             <span />
           )}

@@ -283,7 +283,6 @@
       "missing": "La pièce manquante",
       "missingRest": "le reste — ce que {provider} ne mesure pas",
       "ruler": "Référence mesurée : {value}",
-      "purpose": "<strong>À quoi ça sert :</strong> {help}",
       "backTitle": "Rouvre cette réponse pour la modifier ; l’ancienne reste dans l’historique",
       "skip": "Passer pour l’instant",
       "next": "Suivant",
