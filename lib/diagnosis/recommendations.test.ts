@@ -74,7 +74,38 @@ describe("P1-30/33 — the discount states its break-even, arithmetic shown", ()
       volume_response: { base_pct: -5, downside_pct: -25, upside_pct: 0 },
     });
     expect(s.breakeven_condition).toContain("sales can fall up to 40%");
-    expect(s.breakeven_condition).toContain("1 499 HUF");
+    expect(s.breakeven_condition).toContain("1 498.80 HUF");
+  });
+
+  it("every shown formula adds up on a calculator, to the cent", () => {
+    // The demo mug: €34, €9.80 to deliver, 397 a month, +8%. Rounded to
+    // whole euros the margins read 27 and 24, and 27 × 385 − 24 × 397 is
+    // 867, not the 757 the scenario computed.
+    const mug: OfferEconomics = {
+      ...SYRUP,
+      name: "Speckled Everyday Mug",
+      price: money(3_400, "EUR"),
+      cost_to_deliver: money(980, "EUR"),
+      volume: 397,
+    };
+    const s = priceChangeScenario({
+      offer: mug,
+      change_pct: 8,
+      volume_response: { base_pct: -3, downside_pct: -9, upside_pct: 0 },
+    });
+    const amount = (t: string) => Number(t.replace(/ /g, ""));
+    const FORMULA =
+      /^([\d .]+) EUR × (\d+) units − ([\d .]+) EUR × (\d+) units = ([+−])([\d .]+) EUR$/;
+    for (const c of [s.base_case, s.downside_case, s.upside_case]) {
+      const m = FORMULA.exec(c.formula ?? "");
+      expect(m, c.formula ?? "").not.toBeNull();
+      const [, a, u, b, v, sign, r] = m!;
+      const shown = Math.round((amount(a!) * Number(u) - amount(b!) * Number(v)) * 100);
+      expect(shown).toBe((sign === "−" ? -1 : 1) * Math.round(amount(r!) * 100));
+      expect(shown).toBe(c.profit_delta_monthly!.amount_minor);
+    }
+    expect(s.base_case.formula).toBe("26.92 EUR × 385 units − 24.20 EUR × 397 units = +756.80 EUR");
+    expect(s.assumptions[1]!.statement).toBe("each unit costs 9.80 EUR to deliver");
   });
 
   it("a discount below unit cost is named unwinnable, not silently produced", () => {
