@@ -111,10 +111,10 @@ export interface RecommendationsResult {
 
 // Whole major units by the currency's own exponent (CLAUDE.md rule 1):
 // /100 was wrong for JPY (0 decimals) and KWD (3).
+// Grouped with commas, as the report's own figures are ("+1,253.92"), so a
+// scenario's line and its headline read the same number the same way.
 const fmt = (minor: number, currency: string): string =>
-  `${Math.round(minor / 10 ** minorUnitExponent(currency))
-    .toLocaleString("en-US")
-    .replace(/,/g, " ")} ${currency}`;
+  `${Math.round(minor / 10 ** minorUnitExponent(currency)).toLocaleString("en-US")} ${currency}`;
 
 /**
  * A money figure to the minor unit when it has one ("26.92 EUR", but
@@ -130,7 +130,7 @@ const exact = (minor: number, currency: string): string => {
           minimumFractionDigits: e,
           maximumFractionDigits: e,
         });
-  return `${text.replace(/,/g, " ")} ${currency}`;
+  return `${text} ${currency}`;
 };
 
 const pct1 = (n: number): string => `${(Math.round(n * 10) / 10).toLocaleString("en-US")}%`;
@@ -194,7 +194,7 @@ export function priceChangeScenario(inputs: PriceChangeInputs): ScenarioBlock {
   } else if (change_pct < 0) {
     const liftPct = (marginNow / marginNew - 1) * 100;
     breakeven =
-      `requires ≥${pct1(liftPct)} volume lift to break even — margin per unit falls ` +
+      `sales must rise at least ${pct1(liftPct)} — margin per unit falls ` +
       `${exact(marginNow, currency)} → ${exact(marginNew, currency)}, so matching today's ` +
       `${exact(profitNow, currency)}/month takes ${Math.ceil((volume * marginNow) / marginNew)} units ` +
       `vs ${volume} today (${exact(marginNow, currency)} ÷ ${exact(marginNew, currency)} = ${(marginNow / marginNew).toFixed(2)}×)`;
@@ -213,7 +213,7 @@ export function priceChangeScenario(inputs: PriceChangeInputs): ScenarioBlock {
     return {
       case: kase,
       statement:
-        `volume ${responsePct === 0 ? "unchanged" : `${responsePct > 0 ? "+" : ""}${pct1(responsePct)}`}` +
+        `units sold ${responsePct === 0 ? "unchanged" : signedPct(responsePct)}` +
         ` → ${delta >= 0 ? "+" : "−"}${fmt(Math.abs(delta), currency)}/month vs today`,
       profit_delta_monthly: money(delta, currency),
       formula:
