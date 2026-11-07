@@ -134,6 +134,12 @@ const exact = (minor: number, currency: string): string => {
 };
 
 const pct1 = (n: number): string => `${(Math.round(n * 10) / 10).toLocaleString("en-US")}%`;
+/** A change with its sign, as a reader expects it: "+12%", "−3%", "0%". */
+const signedPct = (n: number): string => {
+  const r = Math.round(n * 10) / 10;
+  if (r === 0) return "0%";
+  return `${r > 0 ? "+" : "−"}${Math.abs(r).toLocaleString("en-US")}%`;
+};
 
 export class ScenarioError extends Error {
   constructor(message: string) {
@@ -242,7 +248,7 @@ export function priceChangeScenario(inputs: PriceChangeInputs): ScenarioBlock {
       sensitivity: "medium",
     },
     {
-      statement: `customers respond to the new price with ${pct1(volume_response.base_pct)} volume change (downside ${pct1(volume_response.downside_pct)}, upside ${pct1(volume_response.upside_pct)})`,
+      statement: `at the new price, units sold change by ${signedPct(volume_response.base_pct)} (between ${signedPct(volume_response.downside_pct)} and ${signedPct(volume_response.upside_pct)})`,
       value: volume_response.base_pct,
       source_field: null, // a true assumption — nothing in the profile knows this
       sensitivity: "high",
