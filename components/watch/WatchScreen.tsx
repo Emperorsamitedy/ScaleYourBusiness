@@ -51,6 +51,8 @@ interface LogEntry {
   at: string;
   kind: string;
   detail: string;
+  /** What the line is about, when the line itself doesn't say (a goal's statement). */
+  subject?: string | null;
 }
 interface WatchView {
   decision: {
@@ -346,10 +348,13 @@ function ActivityCard({ log }: { log: LogEntry[] }) {
         <p className="wt-empty">{t("activity.empty")}</p>
       ) : (
         <ul className="wt-notes">
-          {work.slice(0, 12).map((e) => (
-            <li key={`${e.at}-${e.kind}`}>
+          {work.slice(0, 12).map((e, i) => (
+            <li key={`${e.at}-${e.kind}-${i}`}>
               <span className="wt-at">{dayText(e.at, false, locale)}</span>
-              <p>{logWords(e.detail, ww)}</p>
+              <p>
+                {e.subject ? `${e.subject} · ` : ""}
+                {logWords(e.detail, ww)}
+              </p>
             </li>
           ))}
         </ul>
