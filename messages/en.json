@@ -6335,7 +6335,7 @@
       "quietStretch": "a quiet stretch (last year the same {count, plural, one {# week} other {# weeks}} ran {spread} your normal week)",
       "outrun": "about {amount} a week more going out than coming in at the cautious end",
       "startClose": "a start close to the line: your cash today is {amount}",
-      "sentence": "Money could get tight {when, select, now {this week} other {in the week of {day}}}: at the cautious end the balance falls to about {low}, {line, select, buffer {under the {buffer} you want to keep} other {below zero, an overdrawn account}}{both, select, yes {; even at the hopeful end it is about {high}} other {}}. Why: {reasons}."
+      "sentence": "Money could get tight {when, select, now {this week} other {in the week of {day}}}: at the cautious end the balance is about {low}, {line, select, buffer {under the {buffer} you want to keep} other {below zero, an overdrawn account}}{both, select, yes {; even at the hopeful end it is about {high}} other {}}. Why: {reasons}."
     },
     "scenario": {
       "slow": {
@@ -6370,7 +6370,7 @@
       }
     },
     "view": {
-      "headlineTight": "Money could get tight {when, select, now {this week} other {in the week of {day}}}: the cautious end falls to {amount}.",
+      "headlineTight": "Money could get tight {when, select, now {this week} other {in the week of {day}}}: the cautious end is {amount}.",
       "headlineBuffer": "No week of the next {weeks} dips under your {amount} buffer, even at the cautious end.",
       "headlineZero": "No week of the next {weeks} goes below zero, even at the cautious end.",
       "sourcesHistory": "Sources: {source} {noun}, {days, plural, one {# measured day} other {# measured days}} from {from} to {to}; {complete} of {needed, plural, one {# complete week} other {# complete weeks}} needed.",

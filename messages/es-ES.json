@@ -6335,7 +6335,7 @@
       "quietStretch": "un periodo tranquilo (el año pasado {count, plural, one {esa misma semana se quedó} many {esas mismas # semanas se quedaron} other {esas mismas # semanas se quedaron}} en {spread} su semana normal)",
       "outrun": "en el extremo prudente, unos {amount} más de salidas que de entradas cada semana",
       "startClose": "un punto de partida cercano a la línea: su efectivo de hoy es {amount}",
-      "sentence": "El dinero podría apretar {when, select, now {esta semana} other {la semana del {day}}}: en el extremo prudente el saldo baja a unos {low}, {line, select, buffer {por debajo de los {buffer} que quiere conservar} other {por debajo de cero, con la cuenta en descubierto}}{both, select, yes {; incluso en el extremo optimista se queda en unos {high}} other {}}. Por qué: {reasons}."
+      "sentence": "El dinero podría apretar {when, select, now {esta semana} other {la semana del {day}}}: en el extremo prudente el saldo queda en unos {low}, {line, select, buffer {por debajo de los {buffer} que quiere conservar} other {por debajo de cero, con la cuenta en descubierto}}{both, select, yes {; incluso en el extremo optimista se queda en unos {high}} other {}}. Por qué: {reasons}."
     },
     "scenario": {
       "slow": {
@@ -6370,7 +6370,7 @@
       }
     },
     "view": {
-      "headlineTight": "El dinero podría apretar {when, select, now {esta semana} other {la semana del {day}}}: el extremo prudente baja a {amount}.",
+      "headlineTight": "El dinero podría apretar {when, select, now {esta semana} other {la semana del {day}}}: el extremo prudente queda en {amount}.",
       "headlineBuffer": "Ninguna semana de las próximas {weeks} baja de su colchón de {amount}, ni siquiera en el extremo prudente.",
       "headlineZero": "Ninguna semana de las próximas {weeks} baja de cero, ni siquiera en el extremo prudente.",
       "sourcesHistory": "Fuentes: {noun} de {source}, {days, plural, one {# día medido} many {# días medidos} other {# días medidos}} del {from} al {to}; {complete} de {needed, plural, one {# semana completa necesaria} many {# semanas completas necesarias} other {# semanas completas necesarias}}.",

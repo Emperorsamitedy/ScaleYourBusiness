@@ -36,7 +36,7 @@ describe("P5-08 — the first week whose LOW end dips under the buffer", () => {
       "your monthly costs on the 1st (€1,200)",
     ]);
     expect(t?.sentence).toBe(
-      "Money could get tight in the week of 29 Dec: at the cautious end the balance falls to about −€600, under the €2,000 you want to keep; even at the hopeful end it is about −€600. Why: VAT return (€9,000, quarterly) and your monthly costs on the 1st (€1,200).",
+      "Money could get tight in the week of 29 Dec: at the cautious end the balance is about −€600, under the €2,000 you want to keep; even at the hopeful end it is about −€600. Why: VAT return (€9,000, quarterly) and your monthly costs on the 1st (€1,200).",
     );
   });
 

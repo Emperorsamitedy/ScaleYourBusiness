@@ -6335,7 +6335,7 @@
       "quietStretch": "egy csendes időszak (tavaly ugyanezen {count, plural, one {# hét} other {# hét}} alatt az érték a szokásos hetéhez képest {spread} volt)",
       "outrun": "az óvatos végen hetente nagyjából {amount} összeggel több megy ki, mint amennyi bejön",
       "startClose": "a vonalhoz közeli kiindulás: a mai pénzkészlete {amount}",
-      "sentence": "{when, select, now {Ezen a héten} other {Azon a héten, amelynek első napja {day},}} szűkös lehet a pénz: az óvatos végen az egyenleg nagyjából {low} összegre esik, {line, select, buffer {a megtartani kívánt {buffer} alá} other {nulla alá, vagyis a számla mínuszba kerül}}{both, select, yes {; még a bizakodó végen is csak nagyjából {high}} other {}}. Miért: {reasons}."
+      "sentence": "{when, select, now {Ezen a héten} other {Azon a héten, amelynek első napja {day},}} szűkös lehet a pénz: az óvatos végen az egyenleg nagyjából {low}, {line, select, buffer {a megtartani kívánt {buffer} alá} other {nulla alá, vagyis a számla mínuszba kerül}}{both, select, yes {; még a bizakodó végen is csak nagyjából {high}} other {}}. Miért: {reasons}."
     },
     "scenario": {
       "slow": {
@@ -6370,7 +6370,7 @@
       }
     },
     "view": {
-      "headlineTight": "{when, select, now {Ezen a héten} other {Azon a héten, amelynek első napja {day},}} szűkös lehet a pénz: az óvatos vég {amount} összegre esik.",
+      "headlineTight": "{when, select, now {Ezen a héten} other {Azon a héten, amelynek első napja {day},}} szűkös lehet a pénz: az óvatos végen az egyenleg {amount}.",
       "headlineBuffer": "A következő {weeks} hét egyikén sem süllyed az egyenleg az Ön {amount} összegű tartaléka alá, még az óvatos végen sem.",
       "headlineZero": "A következő {weeks} hét egyikén sem megy az egyenleg nulla alá, még az óvatos végen sem.",
       "sourcesHistory": "Források: {source} · {noun}, {days, plural, one {# mért nap} other {# mért nap}}, {from} – {to}; {complete} / {needed, plural, one {# szükséges teljes hét} other {# szükséges teljes hét}}.",

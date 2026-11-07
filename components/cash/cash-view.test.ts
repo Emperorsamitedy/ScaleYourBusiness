@@ -71,7 +71,7 @@ describe("P5-10 — always on the screen", () => {
 describe("P5-10 — the head states the main fact", () => {
   it("the tight week when there is one, else that there isn't, else the refusal", () => {
     expect(headline(viewOf(ready))).toBe(
-      "Money could get tight in the week of 29 Dec: the cautious end falls to −€600.",
+      "Money could get tight in the week of 29 Dec: the cautious end is −€600.",
     );
     expect(headline(viewOf(forecastCash(baseInputs())))).toBe(
       "No week of the next 13 dips under your €2,000 buffer, even at the cautious end.",

@@ -6335,7 +6335,7 @@
       "quietStretch": "une période calme (l’an dernier, {count, plural, one {la même semaine a tourné} many {les # mêmes semaines ont tourné} other {les # mêmes semaines ont tourné}} à {spread} votre semaine normale)",
       "outrun": "environ {amount} de plus qui sort qu’il n’en entre chaque semaine, dans le cas prudent",
       "startClose": "un point de départ proche de la ligne : votre trésorerie aujourd’hui est de {amount}",
-      "sentence": "L’argent pourrait se faire rare {when, select, now {cette semaine} other {la semaine du {day}}} : dans le cas prudent, le solde tombe à environ {low}, {line, select, buffer {sous la réserve de {buffer} que vous voulez garder} other {sous zéro, un compte à découvert}}{both, select, yes { ; même dans le cas optimiste, il est d’environ {high}} other {}}. Pourquoi : {reasons}."
+      "sentence": "L’argent pourrait se faire rare {when, select, now {cette semaine} other {la semaine du {day}}} : dans le cas prudent, le solde est d’environ {low}, {line, select, buffer {sous la réserve de {buffer} que vous voulez garder} other {sous zéro, un compte à découvert}}{both, select, yes { ; même dans le cas optimiste, il est d’environ {high}} other {}}. Pourquoi : {reasons}."
     },
     "scenario": {
       "slow": {
@@ -6370,7 +6370,7 @@
       }
     },
     "view": {
-      "headlineTight": "L’argent pourrait se faire rare {when, select, now {cette semaine} other {la semaine du {day}}} : le cas prudent tombe à {amount}.",
+      "headlineTight": "L’argent pourrait se faire rare {when, select, now {cette semaine} other {la semaine du {day}}} : le cas prudent est de {amount}.",
       "headlineBuffer": "Aucune des {weeks} prochaines semaines ne passe sous votre réserve de {amount}, même dans le cas prudent.",
       "headlineZero": "Aucune des {weeks} prochaines semaines ne passe sous zéro, même dans le cas prudent.",
       "sourcesHistory": "Sources : {noun} ({source}), {days, plural, one {# jour mesuré} many {# jours mesurés} other {# jours mesurés}} du {from} au {to} ; {complete} sur {needed, plural, one {# semaine complète nécessaire} many {# semaines complètes nécessaires} other {# semaines complètes nécessaires}}.",
