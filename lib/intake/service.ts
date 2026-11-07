@@ -394,8 +394,7 @@ async function toIntakeQuestion(
     // A choice list that already holds its own "Unknown" or "Unsure"
     // (revenue trend, consent) shows that, not a second "I don't know"
     // beside it. The server still accepts an unknown (submitUnknown).
-    allow_unknown:
-      spec.allow_unknown !== false && !options.some((o) => OWN_UNKNOWN.has(o.code)),
+    allow_unknown: spec.allow_unknown !== false && !options.some((o) => OWN_UNKNOWN.has(o.code)),
     currency,
     entity_schema: spec.entity_schema ?? null,
     writes_to: q.writes_to,
