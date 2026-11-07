@@ -221,9 +221,13 @@ describe("record rows", () => {
       field: "platform",
     });
     expect(factLabel(unnamed)).toBe("Channels · platform");
-    // A lone word keeps its section.
+    // A field a question writes reads by its short name (specs/field-names-en.json)…
     expect(factLabel(fact({ key: "presence.type", field: "presence.type" }))).toBe(
-      "Presence · type",
+      "Online or physical",
+    );
+    // …and any other lone word keeps its section.
+    expect(factLabel(fact({ key: "connector.type", field: "connector.type" }))).toBe(
+      "Connector · type",
     );
   });
 

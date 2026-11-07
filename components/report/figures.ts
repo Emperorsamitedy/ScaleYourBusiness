@@ -3,6 +3,7 @@
 // number grammar: one decimal count per column, a true minus, a space
 // between number and unit, and forecasts as ranges.
 
+import fieldNames from "../../specs/field-names-en.json";
 import { minorUnitExponent } from "../../lib/core/money";
 import type { AppLocale } from "../../lib/i18n/locales";
 import type { Tr } from "../../lib/i18n/tr";
@@ -192,9 +193,17 @@ export function severityFlag(s: Severity, tr: Tr = englishTr("sheet")): FlagWord
 const UUID_SEG = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
 /* Keys whose literal words mislead — the bank's phrasing, shortened. */
 const KEY_LABEL: Record<string, string> = { volume_period: "sold per month" };
+/* A question's field by its short English name (specs/field-names-en.json). */
+const FIELD_NAMES = (fieldNames as { names: Record<string, string> }).names;
 
-/** "offers.<uuid>.cost_to_deliver" → "cost to deliver"; "revenue.monthly_revenue" → "monthly revenue". */
+/**
+ * "offers.<uuid>.cost_to_deliver" → "cost to deliver"; a field a question
+ * writes by its short name ("offers.best_seller_id" → "best seller",
+ * "presence.website_url" → "website address"), whatever `dropSection`.
+ */
 export function keyWords(key: string, dropSection = true): string {
+  const named = FIELD_NAMES[key];
+  if (named !== undefined) return named;
   const segs = key.split(".").filter((seg) => !UUID_SEG.test(seg));
   const use = dropSection && segs.length > 1 ? segs.slice(1) : segs;
   return use.map((seg) => KEY_LABEL[seg] ?? seg.replace(/_/g, " ")).join(" · ");
