@@ -6335,7 +6335,7 @@
       "quietStretch": "eine ruhige Phase (im Vorjahr {count, plural, one {lag dieselbe Woche} other {lagen dieselben # Wochen}} bei {spread} Ihrer normalen Woche)",
       "outrun": "am vorsichtigen Ende gehen pro Woche etwa {amount} mehr hinaus als herein",
       "startClose": "ein Start nah an der Linie: Ihre liquiden Mittel heute betragen {amount}",
-      "sentence": "Das Geld könnte {when, select, now {diese Woche} other {in der Woche vom {day}}} knapp werden: Am vorsichtigen Ende fällt der Kontostand auf etwa {low}, {line, select, buffer {unter den Puffer von {buffer}, den Sie halten möchten} other {unter null, ein überzogenes Konto}}{both, select, yes {; selbst am zuversichtlichen Ende sind es etwa {high}} other {}}. Warum: {reasons}."
+      "sentence": "Das Geld könnte {when, select, now {diese Woche} other {in der Woche vom {day}}} knapp werden: Am vorsichtigen Ende liegt der Kontostand bei etwa {low}, {line, select, buffer {unter den Puffer von {buffer}, den Sie halten möchten} other {unter null, ein überzogenes Konto}}{both, select, yes {; selbst am zuversichtlichen Ende sind es etwa {high}} other {}}. Warum: {reasons}."
     },
     "scenario": {
       "slow": {
@@ -6370,7 +6370,7 @@
       }
     },
     "view": {
-      "headlineTight": "Das Geld könnte {when, select, now {diese Woche} other {in der Woche vom {day}}} knapp werden: Das vorsichtige Ende fällt auf {amount}.",
+      "headlineTight": "Das Geld könnte {when, select, now {diese Woche} other {in der Woche vom {day}}} knapp werden: Das vorsichtige Ende liegt bei {amount}.",
       "headlineBuffer": "In keiner der nächsten {weeks} Wochen fällt der Kontostand unter Ihren Puffer von {amount}, auch nicht am vorsichtigen Ende.",
       "headlineZero": "In keiner der nächsten {weeks} Wochen fällt der Kontostand unter null, auch nicht am vorsichtigen Ende.",
       "sourcesHistory": "Quellen: {noun} ({source}), {days, plural, one {# gemessener Tag} other {# gemessene Tage}}, {from} bis {to}; {complete} von {needed, plural, one {# nötigen vollständigen Woche} other {# nötigen vollständigen Wochen}}.",

@@ -6335,7 +6335,7 @@
       "quietStretch": "一段清淡时期（去年同期的{count, plural, other { # 周}}为您常态周的 {spread}）",
       "outrun": "在谨慎端，每周出账比进账多约 {amount}",
       "startClose": "起点接近这条线：您今天的现金为 {amount}",
-      "sentence": "{when, select, now {本周} other {{day} 当周}}资金可能吃紧：在谨慎端，余额会降到约 {low}，{line, select, buffer {低于您希望保留的 {buffer}} other {低于零，即账户透支}}{both, select, yes {；即使在乐观端也只有约 {high}} other {}}。原因：{reasons}。"
+      "sentence": "{when, select, now {本周} other {{day} 当周}}资金可能吃紧：在谨慎端，余额约为 {low}，{line, select, buffer {低于您希望保留的 {buffer}} other {低于零，即账户透支}}{both, select, yes {；即使在乐观端也只有约 {high}} other {}}。原因：{reasons}。"
     },
     "scenario": {
       "slow": {
@@ -6370,7 +6370,7 @@
       }
     },
     "view": {
-      "headlineTight": "{when, select, now {本周} other {{day} 当周}}资金可能吃紧：谨慎端会降到 {amount}。",
+      "headlineTight": "{when, select, now {本周} other {{day} 当周}}资金可能吃紧：谨慎端为 {amount}。",
       "headlineBuffer": "未来 {weeks} 周内，即使在谨慎端，也没有一周低于您 {amount} 的缓冲金额。",
       "headlineZero": "未来 {weeks} 周内，即使在谨慎端，也没有一周低于零。",
       "sourcesHistory": "来源：{source} 的{noun}，{from} 至 {to}，已测量{days, plural, other { # 天}}；需要{needed, plural, other { # 个完整周}}，现有 {complete} 个。",

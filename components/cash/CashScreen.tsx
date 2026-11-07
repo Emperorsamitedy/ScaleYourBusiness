@@ -87,7 +87,13 @@ function Refused({ f }: { f: Extract<CashForecast, { status: "refused" }> }) {
         title={
           f.history
             ? tr("refused.weeks", {
-                complete: num(f.history.complete_weeks, 0, locale),
+                // More than enough history (the cash figure is what's missing) reads
+                // "8 of 8", not "13 of 8".
+                complete: num(
+                  Math.min(f.history.complete_weeks, f.history.needed_weeks),
+                  0,
+                  locale,
+                ),
                 needed: num(f.history.needed_weeks, 0, locale),
               })
             : tr("refused.nothing")

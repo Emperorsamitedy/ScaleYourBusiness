@@ -58,12 +58,20 @@ describe("P5-10 — always on the screen", () => {
       /^Sources: nothing measured/,
     );
   });
+
+  it("history to spare, cash unknown: '8 of 8' weeks, never '13 of 8'", () => {
+    const noCash = forecastCash(
+      baseInputs({ cash: { status: "unknown" }, revenue: daily(TODAY, 120, () => 100) }),
+    );
+    expect(noCash.status).not.toBe("ready");
+    expect(sourcesLine(noCash)).toMatch(/ 8 of 8 complete weeks needed\.$/);
+  });
 });
 
 describe("P5-10 — the head states the main fact", () => {
   it("the tight week when there is one, else that there isn't, else the refusal", () => {
     expect(headline(viewOf(ready))).toBe(
-      "Money could get tight in the week of 29 Dec: the cautious end falls to −€600.",
+      "Money could get tight in the week of 29 Dec: the cautious end is −€600.",
     );
     expect(headline(viewOf(forecastCash(baseInputs())))).toBe(
       "No week of the next 13 dips under your €2,000 buffer, even at the cautious end.",
