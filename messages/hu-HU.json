@@ -283,7 +283,6 @@
       "missing": "A hiányzó rész",
       "missingRest": "a maradék, amelyet nem mér: {provider}",
       "ruler": "Mért viszonyítási érték: {value}",
-      "purpose": "<strong>Miért kérdezem:</strong> {help}",
       "backTitle": "Újranyitja azt a választ, hogy módosíthassa; a régi megmarad az előzményekben",
       "skip": "Most kihagyom",
       "next": "Tovább",

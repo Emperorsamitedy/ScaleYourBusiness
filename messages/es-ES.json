@@ -283,7 +283,6 @@
       "missing": "La pieza que falta",
       "missingRest": "el resto: lo que {provider} no mide",
       "ruler": "Referencia medida: {value}",
-      "purpose": "<strong>Finalidad:</strong> {help}",
       "backTitle": "Reabre esa respuesta para cambiarla; la anterior queda en el historial",
       "skip": "Omitir por ahora",
       "next": "Siguiente",

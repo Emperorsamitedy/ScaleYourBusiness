@@ -870,7 +870,9 @@ button.ix-tile:disabled {
 }
 .ix-entity-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  /* Wide enough that a field's own question reads whole as its hint
+     ("Roughly how many do you sell per month?"); one column on a phone. */
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
   gap: 10px 12px;
 }
 .ix-entity-grid.detail {
@@ -937,12 +939,6 @@ button.ix-tile:disabled {
   font-size: 12.5px;
   line-height: 1.7;
   color: var(--sheet-ink-2);
-}
-.ix-purpose strong {
-  font-weight: 600;
-  color: var(--sheet-ink);
-  text-transform: uppercase;
-  letter-spacing: 0.04em;
 }
 .ix-q-nav {
   display: flex;

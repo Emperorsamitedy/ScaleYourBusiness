@@ -435,16 +435,7 @@ export function QuestionCard({
         )}
 
         <footer className="ix-q-foot">
-          {question.help ? (
-            <p className="ix-purpose">
-              {t.rich("purpose", {
-                help: question.help,
-                strong: (chunks) => <strong>{chunks}</strong>,
-              })}
-            </p>
-          ) : (
-            <span />
-          )}
+          {question.help ? <p className="ix-purpose">{question.help}</p> : <span />}
           <div className="ix-q-nav">
             {previous && (
               <button

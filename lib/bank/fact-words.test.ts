@@ -19,13 +19,19 @@ const DE = factWords(bankWords("de-DE", overlay("de-DE")));
 const ID = "0f8fad5b-d9cb-469f-a165-70867728950e";
 
 describe("factWords", () => {
-  it("English keeps the key's own words, naming only codes that read badly", () => {
+  it("English keeps the key's own words and names a code as the option the owner chose", () => {
     const en = factWords(ENGLISH_WORDS);
     expect(en.label("revenue.monthly_revenue")).toBeNull();
     expect(en.value("identity.business_type", { code: "salon_beauty" })).toBe(
       "Hair or beauty salon",
     );
-    expect(en.value("identity.business_type", { code: "restaurant" })).toBeNull();
+    expect(en.value("identity.business_type", { code: "restaurant" })).toBe("Restaurant");
+    expect(en.value("identity.stage", { code: "operating" })).toBe("Operating");
+    expect(en.value("identity.sells", [{ code: "physical_products" }, { code: "services" }])).toBe(
+      "Physical products, Services",
+    );
+    // Owner text is never a code, so it keeps its own words.
+    expect(en.textValue("identity.description", "we make mugs")).toBeNull();
     const map = { "a.b": { value: "x" } };
     expect(labelFactMap(map, en)).toBe(map);
     expect(labelFactMap({ "identity.business_type": { value: "ecommerce store" } }, en)).toEqual({
@@ -93,8 +99,8 @@ describe("the record panel in another language", () => {
     expect(factValue(fact({ value: { entity_ids: ["a", "b"] } }), tr, "de-DE").text).toBe(
       "fact.entityCount:2",
     );
-    // English: the stored text, exactly as before.
-    expect(factValue(fact({})).text).toBe("2019-03-01");
+    // English writes the date out too.
+    expect(factValue(fact({})).text).toBe("1 Mar 2019");
     expect(factValue(fact({ value: { entity_ids: ["a"] }, text: "1 on file" })).text).toBe(
       "1 on file",
     );

@@ -234,8 +234,8 @@ export function factValue(
     const w = tr("fact.entityCount", { count: ids.length });
     return { text: w, full: w, figure: false };
   }
-  // A date in the person's own writing; English keeps the stored text.
-  if (locale !== "en" && typeof v === "string" && /^\d{4}-\d{2}-\d{2}$/.test(v)) {
+  // A date in the person's own writing ("1 Mar 2019").
+  if (typeof v === "string" && /^\d{4}-\d{2}-\d{2}$/.test(v)) {
     const w = dayMonthYear(v, locale);
     return { text: w, full: w, figure: true };
   }

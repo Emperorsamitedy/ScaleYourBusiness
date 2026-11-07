@@ -1,10 +1,9 @@
 // A recorded fact's label and coded value in a person's language — L-3a of
 // TASKS-LANGUAGES.md.
 //
-// English screens name a fact by its humanised key ("monthly revenue",
-// components/report/figures keyWords) and print a vocabulary code as its
-// humanised code ("social organic"), exactly as they always have: for
-// English every answer here is null and the screen keeps its own words.
+// English screens name a fact by its own field name ("monthly revenue",
+// components/report/figures keyWords), so an English label here is null;
+// a vocabulary code reads as the option the owner chose ("Operating").
 // In another language the words come from the bank's overlay (./words):
 // the label is the prompt of the question that writes the key, or for an
 // entity's field ("offers.<id>.price") the entity's name and the field's
@@ -122,21 +121,33 @@ function entityInputOf(key: string): RawInput | null {
   return field?.input ?? null;
 }
 
+/** A code read as a phrase, capitalised as the interview's options are: "social_organic" → "Social organic". */
+const phraseOf = (code: string): string => {
+  const words = code.replace(/_/g, " ").trim();
+  return words.charAt(0).toUpperCase() + words.slice(1);
+};
+
 /**
- * English: the screens keep their own labels, and a coded value reads in
- * the words of specs/vocabulary-labels-en.json ("ecommerce_store" →
- * "Online shop") when any of its codes is listed there; otherwise null,
- * and the screen keeps the humanised code as it always has.
+ * English: the screens keep their own labels, and a coded value reads as
+ * the option the owner chose: the question's own label, the words of
+ * specs/vocabulary-labels-en.json ("ecommerce_store" → "Online shop"), or
+ * the code as a capitalised phrase ("operating" → "Operating").
  */
 const ENGLISH: FactWords = {
   ...NONE,
   value(key, value) {
     const codes = codesOf(value);
-    const vocabulary = (byKey.get(key)?.input ?? entityInputOf(key))?.vocabulary_id;
-    if (!codes || !vocabulary) return null;
-    const named = codes.map((code) => englishLabel(vocabulary, code));
-    if (named.every((w) => w === undefined)) return null;
-    return codes.map((code, i) => named[i] ?? code.replace(/_/g, " ")).join(", ");
+    const input = byKey.get(key)?.input ?? entityInputOf(key);
+    const vocabulary = input?.vocabulary_id;
+    if (!codes || !input || !vocabulary) return null;
+    // The option's own words, as the interview showed it: the question's
+    // label, then the label spec's, then the code read as a phrase.
+    return codes
+      .map(
+        (code) =>
+          input.option_labels?.[code]?.en ?? englishLabel(vocabulary, code) ?? phraseOf(code),
+      )
+      .join(", ");
   },
   textValue(key, text) {
     if (text === null) return null;
@@ -234,8 +245,8 @@ export function labelFactMap<T extends { value: string | null }>(
   if (fw === NONE) return map;
   const out: Record<string, T & { label?: string | null; value_words?: string | null }> = {};
   if (fw === ENGLISH) {
-    // English keeps its own labels; only a listed code gains words, and a
-    // map with none to name is returned exactly as it came.
+    // English keeps its own labels; a coded value gains the option's words,
+    // and a map with none to name is returned exactly as it came.
     let named = false;
     for (const [key, f] of Object.entries(map)) {
       const words = fw.textValue(key, f.value);
