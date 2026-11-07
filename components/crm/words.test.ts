@@ -83,7 +83,7 @@ describe("the customers screen's figures in the reader's locale", () => {
       },
     });
     expect(sendSentence(sent, 1_200)).toBe(
-      "Sent to 1,200 customers on 2026-10-19. A sent email can't be recalled.",
+      "Sent to 1,200 customers on 19 Oct 2026. A sent email can't be recalled.",
     );
     expect(sendSentence(sent, 1_200, ctr, "de-DE")).toContain("19. Okt. 2026");
     const sending = view({

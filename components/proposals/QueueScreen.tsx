@@ -911,7 +911,12 @@ export function QueueScreen() {
             <p className="q-side-stamp">{t("held.stamp")}</p>
             <p className="q-side-title">{p.action.summary}</p>
             <p className="q-side-note">
-              {t("held.note", { limit: p.blocked_by_limit?.replace(/^13\.5:\s*/, "") ?? "" })}
+              {t("held.note", {
+                // The sentence ends itself: the owner's own full stop would double it ("it.”.").
+                limit: (p.blocked_by_limit ?? "")
+                  .replace(/^13\.5:\s*/, "")
+                  .replace(/[.!]+\s*$/, ""),
+              })}
             </p>
           </li>
         ))}

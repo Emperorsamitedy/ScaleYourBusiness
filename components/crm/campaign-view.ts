@@ -87,9 +87,9 @@ export function phaseFlag(
   }
 }
 
-/** A day as the send line prints it: ISO in English (as it always was), the reader's date otherwise. */
+/** A day as the send line prints it, in the reader's own date. */
 function sentDay(iso: string, locale: AppLocale): string {
-  return locale === "en" ? iso.slice(0, 10) : dayMonthYear(iso, locale);
+  return dayMonthYear(iso.slice(0, 10), locale);
 }
 
 /** Pure: where the send stands, in one first-person sentence. */

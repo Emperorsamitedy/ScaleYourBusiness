@@ -89,10 +89,10 @@ export function givesText(
   return parts.join(t("guide.sep"));
 }
 
-/** A stored day ("2026-10-17"): as stored in English, as before; the language's date elsewhere. */
+/** A stored day ("2026-10-17") in the reader's own date ("17 Oct 2026"). */
 export function storedDay(iso: string, locale: AppLocale): string {
   const day = iso.slice(0, 10);
-  return locale === "en" ? day : dayMonthYear(day, locale);
+  return dayMonthYear(day, locale);
 }
 
 /** "17 Oct 2026, 14:20": a moment in the browser's time zone, in the reader's writing. */
