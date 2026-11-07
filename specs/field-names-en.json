@@ -161,5 +161,13 @@
     "goals.owner_boundaries": "what the business must never do",
     "assets.uploads": "uploads",
     "assets.available_types": "material available"
+  },
+  "measured_about": "Facts a connector measures that no question writes (lib/bookings), named the same way. A rate is a percentage, so its name says so.",
+  "measured": {
+    "service.appointments_completed_28d": "completed appointments, last 28 days",
+    "service.booking_revenue_28d": "booking revenue, last 28 days",
+    "service.no_show_rate_28d": "no-show rate, last 28 days (%)",
+    "service.late_cancellation_rate_28d": "late cancellation rate, last 28 days (%)",
+    "service.utilisation_28d": "slots filled, last 28 days (%)"
   }
 }

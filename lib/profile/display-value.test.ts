@@ -6,6 +6,7 @@
 import "dotenv/config";
 import { describe, expect, it } from "vitest";
 import {
+  datesInWords,
   displayValue,
   entityNamesOf,
   goalWords,
@@ -173,5 +174,20 @@ describe("siteCheckWords", () => {
         version: "1.0.0",
       }),
     ).toBe("2 pages read · shows: prices, contact email · not found: faq");
+  });
+
+  it("writes a measured fact's ISO days out, and leaves timestamps alone", () => {
+    expect(
+      datesInWords(
+        "Measured from bookings export from Fresha, imported 2026-11-07, 2026-10-10 to 2026-11-06.",
+      ),
+    ).toBe(
+      "Measured from bookings export from Fresha, imported 7 Nov 2026, 10 Oct 2026 to 6 Nov 2026.",
+    );
+    expect(datesInWords("count of completed appointments; over 2026-10-10..2026-11-06")).toBe(
+      "count of completed appointments; over 10 Oct 2026 to 6 Nov 2026",
+    );
+    expect(datesInWords("synced 2026-11-07T09:00:00Z")).toBe("synced 2026-11-07T09:00:00Z");
+    expect(datesInWords(null)).toBeNull();
   });
 });
