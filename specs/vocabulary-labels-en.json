@@ -1,0 +1,125 @@
+{
+  "about": "English words for vocabulary codes whose humanised form reads badly (\"salon beauty\", \"tiktok\", \"b2c\"). Keyed by the bank's vocabulary id, then code; a code not listed reads as its humanised self. A question's own option_labels still win. The other languages carry every code in their overlays (specs/question-bank-v1.<locale>.json).",
+  "labels": {
+    "business_type": {
+      "ecommerce_store": "Online shop",
+      "cafe": "Café",
+      "salon_beauty": "Hair or beauty salon",
+      "gym_fitness": "Gym or fitness studio",
+      "wellness_spa": "Wellness or spa",
+      "clinic_health": "Health clinic",
+      "trades_services": "Trades (plumbing, electrical, building work)",
+      "agency_marketing": "Marketing agency",
+      "it_services": "IT services",
+      "software_saas": "Software or SaaS",
+      "education_training": "Education or training",
+      "photography_creative": "Photography or creative work",
+      "tourism_accommodation": "Tourism or accommodation",
+      "nonprofit": "Non-profit"
+    },
+    "asset_type": {
+      "crm_export": "CRM export",
+      "sops": "Written procedures (SOPs)"
+    },
+    "channel_platform": {
+      "instagram": "Instagram",
+      "tiktok": "TikTok",
+      "facebook": "Facebook",
+      "youtube": "YouTube",
+      "google_search": "Google Search",
+      "google_ads": "Google Ads",
+      "meta_ads": "Meta ads",
+      "tiktok_ads": "TikTok ads",
+      "amazon": "Amazon",
+      "etsy": "Etsy",
+      "ebay": "eBay",
+      "shopify_shop": "Shopify shop",
+      "linkedin": "LinkedIn",
+      "pinterest": "Pinterest",
+      "whatsapp": "WhatsApp",
+      "messenger": "Messenger"
+    },
+    "channel_type": {
+      "social_organic": "Social media (unpaid)",
+      "direct_message": "Direct messages"
+    },
+    "content_frequency": {
+      "several_weekly": "Several times a week"
+    },
+    "customer_type": {
+      "b2c": "Consumers (B2C)",
+      "b2b": "Businesses (B2B)"
+    },
+    "digital_product_type": {
+      "saas": "SaaS"
+    },
+    "digital_stage": {
+      "mvp": "MVP"
+    },
+    "ecommerce_platform": {
+      "shopify": "Shopify",
+      "woocommerce": "WooCommerce",
+      "wordpress": "WordPress",
+      "webflow": "Webflow",
+      "wix": "Wix",
+      "squarespace": "Squarespace",
+      "amazon": "Amazon",
+      "etsy": "Etsy",
+      "ebay": "eBay",
+      "tiktok_shop": "TikTok Shop",
+      "instagram_shop": "Instagram Shop",
+      "facebook_shop": "Facebook Shop"
+    },
+    "inventory_tracking": {
+      "pos_system": "Till (POS) system",
+      "erp": "ERP"
+    },
+    "legal_entity_type": {
+      "single_member_llc": "Single-member LLC",
+      "llc_ltd": "LLC or Ltd"
+    },
+    "marketing_channel": {
+      "facebook_ads": "Facebook ads",
+      "instagram_ads": "Instagram ads",
+      "tiktok_ads": "TikTok ads",
+      "google_ads": "Google Ads",
+      "youtube": "YouTube",
+      "seo": "SEO",
+      "offline_print": "Print (offline)"
+    },
+    "payment_provider": {
+      "stripe": "Stripe",
+      "paypal": "PayPal",
+      "square": "Square",
+      "adyen": "Adyen",
+      "mollie": "Mollie",
+      "klarna": "Klarna",
+      "shopify_payments": "Shopify Payments",
+      "apple_google_pay": "Apple Pay or Google Pay",
+      "bank_only": "Bank transfer only"
+    },
+    "price_model": {
+      "usage_based": "Usage-based"
+    },
+    "quality_process": {
+      "sops": "Written procedures (SOPs)"
+    },
+    "restock_frequency": {
+      "biweekly": "Every two weeks"
+    },
+    "sales_asset": {
+      "before_after": "Before-and-after photos"
+    },
+    "shipping_payer": {
+      "free_over_threshold": "Free over a set order value"
+    },
+    "support_channel": {
+      "social_dm": "Social media messages",
+      "whatsapp": "WhatsApp"
+    },
+    "tool_category": {
+      "crm": "CRM",
+      "ai_tools": "AI tools"
+    }
+  }
+}
