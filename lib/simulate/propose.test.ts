@@ -215,7 +215,7 @@ describe('"Propose this" — the normal proposal, pending, executing nothing', (
     // The runner would route it as the generator's own (P3-22b) — once a human approves it.
     expect(adsPlan(row!)).toMatchObject({ plan: { op: "set_daily_budget" } });
     await nothingExecuted(row!.id);
-    expect((await proposalQueue(b.profile_id)).pending.map((p) => p.id)).toContain(row!.id);
+    expect((await proposalQueue(b.profile_id, NOW)).pending.map((p) => p.id)).toContain(row!.id);
 
     // The path's own dedupe still holds.
     const again = await proposeFromSimulation(b.profile_id, RAISE, {
