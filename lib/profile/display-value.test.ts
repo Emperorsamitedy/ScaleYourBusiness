@@ -91,6 +91,15 @@ describe("sourceDetail", () => {
     ).toBe("sum(sessions.daily) over 2026-09-30.2026-10-29 (30 days, 30 observations) from ga4");
   });
 
+  it("drops a bracketed connection id too", () => {
+    expect(
+      sourceDetail({
+        method:
+          "count of completed appointments from bookings export from Fresha, imported 2026-11-07 (connection bb138ef8-7c81-4e22-8123-0f4c138d8f72)",
+      }),
+    ).toBe("count of completed appointments from bookings export from Fresha, imported 2026-11-07");
+  });
+
   it("keeps a URL and a question id as they are", () => {
     expect(sourceDetail({ researched_url: "https://example.com/about" })).toBe(
       "https://example.com/about",

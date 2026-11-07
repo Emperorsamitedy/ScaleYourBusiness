@@ -16,6 +16,7 @@ import { accounts, authSessions, users } from "../../db/schema";
 import {
   MICROSOFT_CONSUMER_TENANT,
   authorizeRedirect,
+  configuredProviders,
   emailFromClaims,
   idTokenClaims,
   oauthProvider,
@@ -36,6 +37,18 @@ describe("oauthProvider — armed only by keys", () => {
     expect(oauthProvider("google")).toBeNull();
     expect(oauthProvider("microsoft")).toBeNull();
     expect(oauthProvider("apple")).toBeNull();
+  });
+
+  it("configuredProviders lists only the providers with keys, so no button can only fail", () => {
+    for (const name of ["GOOGLE", "MICROSOFT", "APPLE"]) {
+      vi.stubEnv(`${name}_CLIENT_ID`, "");
+      vi.stubEnv(`${name}_CLIENT_SECRET`, "");
+    }
+    vi.stubEnv("APPLE_TEAM_ID", "");
+    expect(configuredProviders()).toEqual([]);
+    vi.stubEnv("MICROSOFT_CLIENT_ID", "cid");
+    vi.stubEnv("MICROSOFT_CLIENT_SECRET", "sec");
+    expect(configuredProviders()).toEqual(["microsoft"]);
   });
 
   it("returns null for a provider that was never on the list", () => {

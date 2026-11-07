@@ -93,7 +93,15 @@ function rememberStore(value: string) {
   }
 }
 
-export function LoginScreen({ variant = "signin" }: { variant?: "signin" | "signup" }) {
+export function LoginScreen({
+  variant = "signin",
+  providers = [],
+}: {
+  variant?: "signin" | "signup";
+  /** Providers whose keys exist (lib/auth/oauth configuredProviders); a button that can only fail isn't shown. */
+  providers?: readonly string[];
+}) {
+  const doors = SSO_PROVIDERS.filter((p) => providers.includes(p.id));
   const t = useTranslations("auth");
   const tc = useTranslations("common");
   // L-4a: the server's English refusal, read back in the reader's language.
@@ -305,18 +313,27 @@ export function LoginScreen({ variant = "signin" }: { variant?: "signin" | "sign
                     : t("form.noteSignin", { minutes: LINK_TTL_MINUTES })}
                 </p>
 
-                <p className="au-or">
-                  <span>{signup ? t("form.orSignup") : t("form.orSignin")}</span>
-                </p>
+                {doors.length > 0 && (
+                  <>
+                    <p className="au-or">
+                      <span>{signup ? t("form.orSignup") : t("form.orSignin")}</span>
+                    </p>
 
-                <div className="au-sso">
-                  {SSO_PROVIDERS.map((p) => (
-                    <button key={p.id} type="button" className="au-door" onClick={() => sso(p.id)}>
-                      <span>{p.label}</span>
-                      <Arrow />
-                    </button>
-                  ))}
-                </div>
+                    <div className="au-sso">
+                      {doors.map((p) => (
+                        <button
+                          key={p.id}
+                          type="button"
+                          className="au-door"
+                          onClick={() => sso(p.id)}
+                        >
+                          <span>{p.label}</span>
+                          <Arrow />
+                        </button>
+                      ))}
+                    </div>
+                  </>
+                )}
               </div>
 
               <footer className="au-sheet-foot">
