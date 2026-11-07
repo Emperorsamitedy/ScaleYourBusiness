@@ -241,6 +241,23 @@ describe("ads: spend → the campaign's measured return per rolling week", () =>
     expect(r.measures.orders.status).toBe("none");
   });
 
+  it("the shown arithmetic multiplies out: a measured €18.50 a day isn't printed as €19", () => {
+    const x = full();
+    x.ads.campaigns[0] = campaign("120000001", 28, 1_850, 5_550);
+    const cost = rangeCell(simulateOption(RAISE, x), "cost");
+    // 18.50 × 20% = 3.70 a day more, × 28 days = 103.60.
+    expect(cost.range).toEqual({ low: 10_360, high: 10_360 });
+    expect(cost.formula).toBe("€18.50 a day × +20% × 28 days");
+  });
+
+  it("a negative spend taken away is bracketed, never '− −€'", () => {
+    const r = simulateOption(PAUSE, full());
+    for (const m of ["profit", "worst"] as const) {
+      expect(rangeCell(r, m).formula).not.toMatch(/− −/);
+      expect(rangeCell(r, m).formula).toMatch(/− \(−€/);
+    }
+  });
+
   it("a pause: the spend saved and the return lost; the worst case is its best week", () => {
     const x = full();
     // Weeks vary: the first fortnight returns 0.25, the rest 0.75.
