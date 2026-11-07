@@ -37,9 +37,8 @@ export function levelText(perThirtyDays: number, currency: string | null, w: Wor
 export const countText = (n: number, w: Words): string =>
   w.locale === "en" ? String(n) : num(n, 0, w.locale);
 
-/** A calendar day: English ISO, as the check wrote it; the language's own date elsewhere. */
-export const dayText = (iso: string, w: Words): string =>
-  w.locale === "en" ? iso : dayMonthYear(iso, w.locale);
+/** A calendar day in the language's own date ("19 Oct 2026"). */
+export const dayText = (iso: string, w: Words): string => dayMonthYear(iso, w.locale);
 
 const percentFormats = new Map<string, Intl.NumberFormat>();
 /** A share as a percent to one decimal at most: English "40.5%" as the check wrote it. */

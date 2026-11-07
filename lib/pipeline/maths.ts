@@ -49,9 +49,9 @@ export function countText(n: number, locale: AppLocale): string {
   return locale === "en" ? String(n) : num(n, 0, locale);
 }
 
-/** A day as English always printed it here (ISO); the reader's own date elsewhere. */
+/** A day in the reader's own date ("17 Oct 2026"). */
 export function dayText(day: string, locale: AppLocale): string {
-  return locale === "en" ? day : dayMonthYear(day, locale);
+  return dayMonthYear(day, locale);
 }
 
 /** A percent the owner stated (25 or 22.5), as they stated it. */

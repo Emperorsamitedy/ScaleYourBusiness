@@ -55,9 +55,9 @@ export function percentText(whole: number, locale: AppLocale = "en"): string {
   }).format(whole / 100);
 }
 
-/** A day the forecast names: ISO in English, as it always was; the reader's own date elsewhere. */
+/** A day the forecast names, in the reader's own date ("8 Nov 2025"). */
 export function forecastDay(day: string, locale: AppLocale = "en"): string {
-  return locale === "en" ? day : dayMonthYear(day, locale);
+  return dayMonthYear(day, locale);
 }
 
 /** "€3,100 – €5,400", or one figure when both ends round alike. */

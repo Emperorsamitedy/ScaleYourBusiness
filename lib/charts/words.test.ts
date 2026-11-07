@@ -100,6 +100,9 @@ describe("the charts' sentences in English are the code's own words", () => {
     expect(sourceLabel("bookings_import")).toBe("your bookings export");
     expect(percentText(41, "en")).toBe("41%");
     expect(sentenceDay("2026-10-05", "en")).toBe("5 Oct 2026");
+    // Three-letter months in English, "Sep" too (Intl en-GB writes "Sept").
+    expect(sentenceDay("2026-09-29", "en")).toBe("29 Sep 2026");
+    expect(sentenceDay("not a day", "en")).toBe("not a day");
   });
 });
 

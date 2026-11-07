@@ -48,7 +48,7 @@ function heldWords(
   if (!care) return tr("held.choose");
   if (care.watch_ends_at && now.toISOString() < care.watch_ends_at) {
     const day = care.watch_ends_at.slice(0, 10);
-    return tr("held.watching", { day: locale === "en" ? day : dayMonthYear(day, locale) });
+    return tr("held.watching", { day: dayMonthYear(day, locale) });
   }
   return null;
 }

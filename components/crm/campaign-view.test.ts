@@ -70,7 +70,7 @@ describe("P4-15 — the campaign's send, in words", () => {
         }),
         3,
       ),
-    ).toBe("Sent to 1 customer on 2026-10-19. A sent email can't be recalled.");
+    ).toBe("Sent to 1 customer on 19 Oct 2026. A sent email can't be recalled.");
     expect(sendSentence(view({ phase: "awaiting_approval" }), 1)).toMatch(
       /^Drafted for 1 customer\./,
     );
@@ -176,7 +176,7 @@ describe("P4-17 — the readback as the owner reads it", () => {
   it("one first-person sentence on what was measured and what wasn't", () => {
     const s = measuredSentence(readback());
     expect(s).toMatch(/^I counted delivery, bounces and spam reports/);
-    expect(s).toContain("purchases from your customer export of 2026-10-16");
+    expect(s).toContain("purchases from your customer export of 16 Oct 2026");
     expect(s).toContain("I don't count opens");
     expect(s).toContain("replies, which go straight to you at hello@emberworks.test");
     expect(s).toContain("isn't a controlled test");

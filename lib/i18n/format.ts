@@ -58,13 +58,39 @@ export function intlMoney(
 
 const dayOf = (day: string) => new Date(`${day.slice(0, 10)}T00:00:00Z`);
 
+// English months as the report has always printed them: three letters,
+// "Sep" too (en-GB's Intl writes "Sept", which then sits beside "Sep").
+const EN_MONTHS = [
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
+];
+
 /** "6 Nov" in the language: a day and a short month ("6. Nov.", "11月6日"). */
 export function dayMonth(day: string, locale: AppLocale): string {
+  if (locale === "en") {
+    const d = dayOf(day);
+    if (Number.isNaN(d.getTime())) return day;
+    return `${d.getUTCDate()} ${EN_MONTHS[d.getUTCMonth()]}`;
+  }
   return dateFormat(`dm|${locale}`, locale, { day: "numeric", month: "short" }).format(dayOf(day));
 }
 
 /** "6 Nov 2026" in the language. */
 export function dayMonthYear(day: string, locale: AppLocale): string {
+  if (locale === "en") {
+    const d = dayOf(day);
+    return Number.isNaN(d.getTime()) ? day : `${dayMonth(day, locale)} ${d.getUTCFullYear()}`;
+  }
   return dateFormat(`dmy|${locale}`, locale, {
     day: "numeric",
     month: "short",

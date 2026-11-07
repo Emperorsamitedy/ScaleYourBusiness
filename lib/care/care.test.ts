@@ -10,6 +10,7 @@
 import "dotenv/config";
 import { and, eq, inArray } from "drizzle-orm";
 import { afterAll, describe, expect, it } from "vitest";
+import { dayMonthYear } from "../i18n/format";
 import { db } from "../../db";
 import {
   accounts,
@@ -435,7 +436,8 @@ describe("P3-44 — progress thresholds, at the boundary, both directions", () =
     const done = at(390_000, 13_000);
     expect(done.verdict).toBe("achieved");
     expect(done.arithmetic).toContain("per 30 days");
-    expect(done.arithmetic).toContain(measure(390_000).deadline);
+    // The deadline, written out as the owner reads it ("20 Jul 2026").
+    expect(done.arithmetic).toContain(dayMonthYear(measure(390_000).deadline, "en"));
   });
 
   it("a decrease goal mirrors it: standing still is off track, on the path is on track", () => {
