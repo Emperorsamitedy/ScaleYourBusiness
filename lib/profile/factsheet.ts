@@ -189,13 +189,73 @@ export function scheduleWords(value: unknown): string | null {
   }).join(" · ");
 }
 
+/** An entity's id → its recorded name ("Speckled Everyday Mug"). */
+export type EntityNames = ReadonlyMap<string, string>;
+const NO_NAMES: EntityNames = new Map();
+
+const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/;
+const ENTITY_FIELD =
+  /^[a-z_]+\.([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\.([a-z_]+)$/;
+/**
+ * What names an entity, best first: most schemas have a name; a cost
+ * has a label, a role a title, a goal its statement, and a channel
+ * only its platform or type.
+ */
+const NAME_FIELDS = ["name", "label", "role_title", "statement", "platform", "type"] as const;
+const NAME_MAX = 60;
+
+/** Pure: every entity's name in a set of facts, from the best field it has (NAME_FIELDS). */
+export function entityNamesOf(facts: Iterable<readonly [string, { value: unknown }]>): EntityNames {
+  const best = new Map<string, { rank: number; name: string }>();
+  for (const [key, f] of facts) {
+    const m = ENTITY_FIELD.exec(key);
+    if (!m) continue;
+    const rank = (NAME_FIELDS as readonly string[]).indexOf(m[2] ?? "");
+    if (rank < 0) continue;
+    const id = m[1] as string;
+    const had = best.get(id);
+    if (had !== undefined && had.rank <= rank) continue;
+    const text = repr(f.value)?.trim();
+    if (!text) continue;
+    best.set(id, {
+      rank,
+      name: text.length > NAME_MAX ? `${text.slice(0, NAME_MAX - 1).trimEnd()}…` : text,
+    });
+  }
+  return new Map([...best].map(([id, b]) => [id, b.name]));
+}
+
+/**
+ * An answer that points at entities — an id, a { code: id } reference,
+ * a list of them, or the entity-list marker { entity_ids } — with each
+ * id swapped for its name.
+ * An id with no recorded name stays as it is.
+ */
+function named(value: unknown, names: EntityNames): unknown {
+  if (typeof value === "string") return UUID.test(value) ? (names.get(value) ?? value) : value;
+  if (Array.isArray(value)) return value.map((v) => named(v, names));
+  // An entity reference is stored as a code: { code: "<id>" }.
+  const code = (value as { code?: unknown } | null)?.code;
+  if (typeof code === "string" && UUID.test(code)) return names.get(code) ?? code;
+  if (
+    typeof value === "object" &&
+    value !== null &&
+    Array.isArray((value as { entity_ids?: unknown }).entity_ids)
+  )
+    return named((value as { entity_ids: unknown[] }).entity_ids, names);
+  return value;
+}
+
 /**
  * The value as the fact sheet and the report print it: repr(), except a
- * schedule reads as days and hours. Display only — repr() itself stays
- * byte-for-byte what the diagnosis evidence was written from.
+ * schedule reads as days and hours, a yes/no answer as "yes" or "no",
+ * and an answer naming entities by id as their names. Display only —
+ * repr() itself stays byte-for-byte what the diagnosis evidence was
+ * written from.
  */
-export function displayValue(value: unknown): string | null {
-  return scheduleWords(value) ?? repr(value);
+export function displayValue(value: unknown, names: EntityNames = NO_NAMES): string | null {
+  if (typeof value === "boolean") return value ? "yes" : "no";
+  return scheduleWords(value) ?? repr(named(value, names));
 }
 
 export function sourceDetail(source: unknown): string | null {
@@ -207,15 +267,26 @@ export function sourceDetail(source: unknown): string | null {
     derived_from?: unknown;
   };
   if (typeof s.researched_url === "string") return s.researched_url;
-  if (typeof s.method === "string") return s.method;
+  // A measured fact's method names its connection by id; the reader only
+  // needs the platform ("… from shopify").
+  if (typeof s.method === "string")
+    return s.method.replace(
+      / connection [0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/g,
+      "",
+    );
   if (typeof s.question_id === "string") return s.question_id;
   return null;
 }
 
-function toRow(key: string, field: Field<unknown>, labels: OptionLabels = new Map()): FactRow {
+function toRow(
+  key: string,
+  field: Field<unknown>,
+  labels: OptionLabels = new Map(),
+  names: EntityNames = NO_NAMES,
+): FactRow {
   return {
     key,
-    value: labelledValue(key, field.value, labels),
+    value: labelledValue(key, field.value, labels, names),
     status: field.status,
     confidence: field.confidence,
     // "connector" for a measured fact, so its pill says "measured" (P2-10).
@@ -348,7 +419,12 @@ export function optionLabelsOf(
  * Pure: a value in the bank's words when its question labels its codes
  * ("solo" → "Just me"); otherwise exactly displayValue(). Display only.
  */
-export function labelledValue(key: string, value: unknown, labels: OptionLabels): string | null {
+export function labelledValue(
+  key: string,
+  value: unknown,
+  labels: OptionLabels,
+  names: EntityNames = NO_NAMES,
+): string | null {
   const words = labels.get(key);
   if (words !== undefined) {
     const label = (v: unknown): string | null => {
@@ -363,7 +439,7 @@ export function labelledValue(key: string, value: unknown, labels: OptionLabels)
       if (one !== null) return one;
     }
   }
-  return displayValue(value);
+  return displayValue(value, names);
 }
 
 /** "competitors.<uuid>.name" → the entity prefix and trailing field. */
@@ -423,8 +499,9 @@ export async function buildFactSheet(profileId: string): Promise<FactSheet> {
   const entities = new Map<string, EntityGroup>();
   const provenance = new Map<string, number>();
 
+  const names = entityNamesOf(facts);
   for (const [key, field] of facts) {
-    const row = toRow(key, field, labels);
+    const row = toRow(key, field, labels, names);
     provenance.set(row.source_kind, (provenance.get(row.source_kind) ?? 0) + 1);
 
     const entity = ENTITY_KEY.exec(key);

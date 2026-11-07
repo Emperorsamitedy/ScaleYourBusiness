@@ -1,0 +1,93 @@
+// What the fact sheet and the report print for an answer that isn't
+// plain text: entities by name, never by id; yes/no as words, never
+// "true"; a measured fact's source without its connection's id. And
+// repr() — what diagnosis evidence was written from — unchanged.
+
+import "dotenv/config";
+import { describe, expect, it } from "vitest";
+import { displayValue, entityNamesOf, repr, sourceDetail } from "./factsheet";
+
+const MUG = "f8872a88-1607-4a5f-a35d-75fbdea4192b";
+const BOWL = "5a3bf431-b85d-43cf-8df2-c127441a6e1e";
+const UNNAMED = "6d98cfef-d568-4707-90fc-c72e51206ce9";
+const COST = "a25fe33b-a0b0-452f-930b-ff63d642e476";
+const CHANNEL = "0098681c-b9aa-4ef8-b298-765bb2f50ff4";
+const GOAL = "ba86f2a4-c683-41da-99ca-a2b667492ef0";
+
+const names = entityNamesOf([
+  [`offers.${MUG}.name`, { value: "Speckled Everyday Mug" }],
+  [`offers.${BOWL}.name`, { value: "Large Serving Bowl" }],
+  [`offers.${BOWL}.price`, { value: { amount_minor: 8900, currency: "EUR" } }],
+  [`offers.${UNNAMED}.name`, { value: "  " }],
+  [`costs.${COST}.label`, { value: "Studio rent" }],
+  [`costs.${COST}.category`, { value: { code: "rent" } }],
+  [`channels.${CHANNEL}.type`, { value: { code: "social_organic" } }],
+  [`channels.${CHANNEL}.platform`, { value: { code: "instagram" } }],
+  [`goals.${GOAL}.statement`, { value: "G".repeat(80) }],
+]);
+
+describe("entityNamesOf", () => {
+  it("names each entity by its best naming field, and nothing else", () => {
+    expect(new Map(names)).toEqual(
+      new Map([
+        [MUG, "Speckled Everyday Mug"],
+        [BOWL, "Large Serving Bowl"],
+        [COST, "Studio rent"],
+        // The platform names a channel before its type, whichever came first.
+        [CHANNEL, "instagram"],
+        [GOAL, `${"G".repeat(59)}…`],
+      ]),
+    );
+  });
+});
+
+describe("displayValue", () => {
+  it("names one entity, a list of them, and the entity-list marker", () => {
+    expect(displayValue(MUG, names)).toBe("Speckled Everyday Mug");
+    expect(displayValue({ code: MUG }, names)).toBe("Speckled Everyday Mug");
+    expect(displayValue([{ code: MUG }, { code: BOWL }], names)).toBe(
+      "Speckled Everyday Mug, Large Serving Bowl",
+    );
+    // A vocabulary code is not a reference.
+    expect(displayValue({ code: "social_organic" }, names)).toBe("social organic");
+    expect(displayValue([MUG, BOWL], names)).toBe("Speckled Everyday Mug, Large Serving Bowl");
+    expect(displayValue({ entity_ids: [BOWL, MUG] }, names)).toBe(
+      "Large Serving Bowl, Speckled Everyday Mug",
+    );
+  });
+
+  it("leaves an id with no recorded name as it is", () => {
+    expect(displayValue([MUG, UNNAMED], names)).toBe(`Speckled Everyday Mug, ${UNNAMED}`);
+    expect(displayValue(MUG)).toBe(MUG);
+  });
+
+  it("says yes and no, not true and false", () => {
+    expect(displayValue(true)).toBe("yes");
+    expect(displayValue(false)).toBe("no");
+    // Owner text that happens to say "true" is owner text.
+    expect(displayValue("true")).toBe("true");
+  });
+
+  it("leaves repr(), the evidence's own form, exactly as it was", () => {
+    expect(repr(true)).toBe("true");
+    expect(repr(MUG)).toBe(MUG);
+  });
+});
+
+describe("sourceDetail", () => {
+  it("drops the connection's id from a measured fact's method", () => {
+    expect(
+      sourceDetail({
+        method:
+          "sum(sessions.daily) over 2026-09-30.2026-10-29 (30 days, 30 observations) from ga4 connection 38ad8a7c-c047-40af-932a-4dcc264c9f3a",
+      }),
+    ).toBe("sum(sessions.daily) over 2026-09-30.2026-10-29 (30 days, 30 observations) from ga4");
+  });
+
+  it("keeps a URL and a question id as they are", () => {
+    expect(sourceDetail({ researched_url: "https://example.com/about" })).toBe(
+      "https://example.com/about",
+    );
+    expect(sourceDetail({ question_id: "4.2" })).toBe("4.2");
+  });
+});
