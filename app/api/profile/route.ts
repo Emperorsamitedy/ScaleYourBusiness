@@ -18,13 +18,30 @@ type Sheet = Awaited<ReturnType<typeof buildFactSheet>>;
 /**
  * L-3a: the sheet's labels, coded values and open questions in the
  * reader's language, from the bank's overlay (lib/bank/fact-words). The
- * values stay as recorded (rule 4); an English sheet is unchanged.
+ * values stay as recorded (rule 4); English adds only a coded answer's words.
  */
 async function inLanguage(sheet: Sheet): Promise<Sheet> {
   const locale = await requestLocale();
-  if (locale === "en") return sheet;
   const words = await loadBankWords(locale);
   const fw = factWords(words);
+  if (locale === "en") {
+    // English keeps its own field names; a coded answer reads as the option
+    // the owner chose ("Services", not "services").
+    return {
+      ...sheet,
+      sections: sheet.sections.map((s) => ({
+        ...s,
+        facts: s.facts.map((f) => ({ ...f, value_words: fw.textValue(f.key, f.value) })),
+      })),
+      entities: sheet.entities.map((g) => ({
+        ...g,
+        facts: g.facts.map((f) => ({
+          ...f,
+          value_words: entityTextValue(fw, g.spine, f.key, f.value),
+        })),
+      })),
+    };
+  }
   return {
     ...sheet,
     sections: sheet.sections.map((s) => ({

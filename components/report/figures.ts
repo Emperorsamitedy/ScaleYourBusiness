@@ -194,7 +194,10 @@ const UUID_SEG = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$
 /* Keys whose literal words mislead — the bank's phrasing, shortened. */
 const KEY_LABEL: Record<string, string> = { volume_period: "sold per month" };
 /* A question's field by its short English name (specs/field-names-en.json). */
-const FIELD_NAMES = (fieldNames as { names: Record<string, string> }).names;
+const FIELD_NAMES: Readonly<Record<string, string>> = {
+  ...(fieldNames as { names: Record<string, string> }).names,
+  ...(fieldNames as { measured: Record<string, string> }).measured,
+};
 
 /**
  * "offers.<uuid>.cost_to_deliver" → "cost to deliver"; a field a question

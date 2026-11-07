@@ -26,9 +26,9 @@ export function englishChartWords(): Words {
   return { tr: englishTr(CHARTS_WORDS), locale: "en" };
 }
 
-/** A calendar day inside a sentence: as stored ("2026-10-05") in English, as it always read; the language's own date elsewhere. */
+/** A calendar day inside a sentence, in the language's own date ("5 Oct 2026"). */
 export function sentenceDay(day: string, locale: AppLocale): string {
-  return locale === "en" ? day : dayMonthYear(day, locale);
+  return dayMonthYear(day, locale);
 }
 
 /** A whole percentage: "41%" in English, the language's own ("41 %") elsewhere. */

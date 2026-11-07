@@ -24,6 +24,15 @@ describe("English field names", () => {
     expect([...WRITES].filter((k) => NAMES[k] === undefined)).toEqual([]);
   });
 
+  it("name measured facts no question writes, and keyWords says them", () => {
+    const measured = (fieldNames as { measured: Record<string, string> }).measured;
+    for (const [key, name] of Object.entries(measured)) {
+      expect(WRITES.has(key), key).toBe(false);
+      expect(/^[a-z]/.test(name), `${key}: ${name}`).toBe(true);
+    }
+    expect(keyWords("service.no_show_rate_28d")).toBe("no-show rate, last 28 days (%)");
+  });
+
   it("keyWords says a named field by its name, and an entity's field as before", () => {
     expect(keyWords("offers.best_seller_id")).toBe("best seller");
     expect(keyWords("presence.website_url", false)).toBe("website address");

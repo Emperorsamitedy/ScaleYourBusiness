@@ -395,6 +395,24 @@ export function sourceDetail(source: unknown): string | null {
   return null;
 }
 
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+/**
+ * Pure, display only: the ISO days a measured fact's method and note carry
+ * ("imported 2026-11-07, over 2026-10-10..2026-11-06") as an owner reads
+ * them ("imported 7 Nov 2026, over 10 Oct 2026 to 6 Nov 2026"). A
+ * timestamp ("2026-11-07T09:00") and anything else is left as it is.
+ */
+export function datesInWords(text: string | null): string | null {
+  if (text === null) return null;
+  return text
+    .replace(/\b(\d{4}-\d{2}-\d{2})\.\.(\d{4}-\d{2}-\d{2})\b/g, "$1 to $2")
+    .replace(/\b(\d{4})-(\d{2})-(\d{2})\b(?![T:\d])/g, (whole, y: string, m: string, d: string) => {
+      const month = MONTHS[Number(m) - 1];
+      return month ? `${Number(d)} ${month} ${y}` : whole;
+    });
+}
+
 function toRow(
   key: string,
   field: Field<unknown>,
@@ -403,15 +421,15 @@ function toRow(
 ): FactRow {
   return {
     key,
-    value: labelledValue(key, field.value, labels, names),
+    value: datesInWords(labelledValue(key, field.value, labels, names)),
     status: field.status,
     confidence: field.confidence,
     // "connector" for a measured fact, so its pill says "measured" (P2-10).
     source_kind: displaySourceKind(field.source),
-    source_detail: sourceDetail(field.source),
+    source_detail: datesInWords(sourceDetail(field.source)),
     observed_at: field.observed_at,
     recorded_at: field.recorded_at,
-    note: field.note ?? null,
+    note: datesInWords(field.note ?? null),
   };
 }
 
@@ -439,14 +457,14 @@ export function toSupersededFact(row: SupersededRowInput): SupersededFact | null
   if (row.superseded_at === null) return null;
   return {
     key: row.field_key,
-    value: displayValue(row.value),
+    value: datesInWords(displayValue(row.value)),
     status: row.status,
     source_kind: displaySourceKind(row.source),
-    source_detail: sourceDetail(row.source),
+    source_detail: datesInWords(sourceDetail(row.source)),
     observed_at: isoOf(row.observed_at),
     recorded_at: isoOf(row.recorded_at),
     superseded_at: isoOf(row.superseded_at),
-    note: row.note,
+    note: datesInWords(row.note),
   };
 }
 

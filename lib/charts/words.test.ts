@@ -99,7 +99,7 @@ describe("the charts' sentences in English are the code's own words", () => {
     );
     expect(sourceLabel("bookings_import")).toBe("your bookings export");
     expect(percentText(41, "en")).toBe("41%");
-    expect(sentenceDay("2026-10-05", "en")).toBe("2026-10-05");
+    expect(sentenceDay("2026-10-05", "en")).toBe("5 Oct 2026");
   });
 });
 
