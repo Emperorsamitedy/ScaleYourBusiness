@@ -5,8 +5,8 @@
 // the same value checkout charges, so the button and the receipt can
 // never disagree.
 //
-// EXAMINER, GUARANTEE and DELIVERY_DAYS are null until the owner supplies
-// them. While null, the landing page prints the owner's design's bracketed
+// EXAMINER is null until the owner supplies one (GUARANTEE and
+// DELIVERY_DAYS were set on 2026-11-07). While null, the landing page prints the owner's design's bracketed
 // placeholder ("[3]", "[7]") in their place rather than inventing a value:
 // a bracket reads as unfinished, an invented deadline or refund promise
 // reads as a commitment nobody made.
@@ -29,7 +29,9 @@ export interface Guarantee {
   /** …together worth more than the price. */
 }
 
-export const GUARANTEE: Guarantee | null = null;
+/** Decided by the owner on 2026-11-07: fewer than 3 fixable leaks, a full refund. */
+export const GUARANTEE: Guarantee | null = { min_findings: 3 };
 
 /** Working days from order to signed report. null until the owner commits to one. */
-export const DELIVERY_DAYS: number | null = null;
+/** Decided by the owner on 2026-11-07: 7 working days. */
+export const DELIVERY_DAYS: number | null = 7;
