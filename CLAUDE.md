@@ -20,6 +20,7 @@ An AI business operating system for small businesses. It interviews an owner, bu
 | `specs/question-bank-v1.json`          | 160 questions, 57 vocabularies, 8 entity schemas                    |
 | `specs/question-bank-v1.<locale>.json` | The bank's words per language (L-2): words only, keyed by bank ids  |
 | `specs/glossary-v1.json`               | One term, one translation, per language (rule 2 of TASKS-LANGUAGES) |
+| `specs/field-names-en.json`            | Short English names for the fields the bank's questions write       |
 | `specs/vocabulary-labels-en.json`      | English words for vocabulary codes whose humanised form reads badly |
 | `specs/question-bank-notes.md`         | Structure, the core 25, branching fixes                             |
 | `specs/ux-spec-v1.md`                  | Design tokens, screens, interaction detail                          |
