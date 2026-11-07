@@ -116,6 +116,23 @@ const fmt = (minor: number, currency: string): string =>
     .toLocaleString("en-US")
     .replace(/,/g, " ")} ${currency}`;
 
+/**
+ * A money figure to the minor unit when it has one ("26.92 EUR", but
+ * "34 EUR"): the arithmetic shown to the owner has to add up on a
+ * calculator, so its inputs and result can't be rounded to whole units.
+ */
+const exact = (minor: number, currency: string): string => {
+  const e = minorUnitExponent(currency);
+  const text =
+    minor % 10 ** e === 0
+      ? Math.round(minor / 10 ** e).toLocaleString("en-US")
+      : (minor / 10 ** e).toLocaleString("en-US", {
+          minimumFractionDigits: e,
+          maximumFractionDigits: e,
+        });
+  return `${text.replace(/,/g, " ")} ${currency}`;
+};
+
 const pct1 = (n: number): string => `${(Math.round(n * 10) / 10).toLocaleString("en-US")}%`;
 
 export class ScenarioError extends Error {
@@ -166,21 +183,21 @@ export function priceChangeScenario(inputs: PriceChangeInputs): ScenarioBlock {
   let breakeven: string;
   if (marginNew <= 0) {
     breakeven =
-      `no volume can break even — at ${fmt(priceNew, currency)} the price is ` +
-      `${marginNew === 0 ? "exactly" : "below"} the ${fmt(offer.cost_to_deliver.amount_minor, currency)} unit cost`;
+      `no volume can break even — at ${exact(priceNew, currency)} the price is ` +
+      `${marginNew === 0 ? "exactly" : "below"} the ${exact(offer.cost_to_deliver.amount_minor, currency)} unit cost`;
   } else if (change_pct < 0) {
     const liftPct = (marginNow / marginNew - 1) * 100;
     breakeven =
       `requires ≥${pct1(liftPct)} volume lift to break even — margin per unit falls ` +
-      `${fmt(marginNow, currency)} → ${fmt(marginNew, currency)}, so matching today's ` +
-      `${fmt(profitNow, currency)}/month takes ${Math.ceil((volume * marginNow) / marginNew)} units ` +
-      `vs ${volume} today (${fmt(marginNow, currency)} ÷ ${fmt(marginNew, currency)} = ${(marginNow / marginNew).toFixed(2)}×)`;
+      `${exact(marginNow, currency)} → ${exact(marginNew, currency)}, so matching today's ` +
+      `${exact(profitNow, currency)}/month takes ${Math.ceil((volume * marginNow) / marginNew)} units ` +
+      `vs ${volume} today (${exact(marginNow, currency)} ÷ ${exact(marginNew, currency)} = ${(marginNow / marginNew).toFixed(2)}×)`;
   } else {
     const tolerablePct = (1 - marginNow / marginNew) * 100;
     breakeven =
       `sales can fall up to ${pct1(tolerablePct)} before this costs you anything — margin per unit rises ` +
-      `${fmt(marginNow, currency)} → ${fmt(marginNew, currency)} ` +
-      `(1 − ${fmt(marginNow, currency)} ÷ ${fmt(marginNew, currency)} = ${pct1(tolerablePct)})`;
+      `${exact(marginNow, currency)} → ${exact(marginNew, currency)} ` +
+      `(1 − ${exact(marginNow, currency)} ÷ ${exact(marginNew, currency)} = ${pct1(tolerablePct)})`;
   }
 
   // ── the three cases, each with its arithmetic ──
@@ -194,8 +211,8 @@ export function priceChangeScenario(inputs: PriceChangeInputs): ScenarioBlock {
         ` → ${delta >= 0 ? "+" : "−"}${fmt(Math.abs(delta), currency)}/month vs today`,
       profit_delta_monthly: money(delta, currency),
       formula:
-        `${fmt(marginNew, currency)} × ${units} units − ${fmt(marginNow, currency)} × ${volume} units` +
-        ` = ${delta >= 0 ? "+" : "−"}${fmt(Math.abs(delta), currency)}`,
+        `${exact(marginNew, currency)} × ${units} units − ${exact(marginNow, currency)} × ${volume} units` +
+        ` = ${delta >= 0 ? "+" : "−"}${exact(Math.abs(delta), currency)}`,
     };
   };
 
@@ -207,13 +224,13 @@ export function priceChangeScenario(inputs: PriceChangeInputs): ScenarioBlock {
 
   const assumptions: Assumption[] = [
     {
-      statement: `${offer.name} sells at ${fmt(offer.price.amount_minor, currency)}`,
+      statement: `${offer.name} sells at ${exact(offer.price.amount_minor, currency)}`,
       value: offer.price,
       source_field: `offers.${offer.offer_id}.price`,
       sensitivity: "low",
     },
     {
-      statement: `each unit costs ${fmt(offer.cost_to_deliver.amount_minor, currency)} to deliver`,
+      statement: `each unit costs ${exact(offer.cost_to_deliver.amount_minor, currency)} to deliver`,
       value: offer.cost_to_deliver,
       source_field: `offers.${offer.offer_id}.cost_to_deliver`,
       sensitivity: costSensitivity,
