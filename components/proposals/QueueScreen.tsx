@@ -655,15 +655,34 @@ export function QueueScreen() {
     if (compact) {
       return (
         <dl className="q-mlines">
-          {lines.map((l) => (
-            <div key={l.line} className="q-mline">
-              <dt>{l.line}</dt>
-              <dd className="fig">
-                {l.before} <span aria-hidden="true">→</span>
-                <span className="sr-only"> {t("change.becomes")} </span> {l.after}
-              </dd>
-            </div>
-          ))}
+          {lines.map((l) =>
+            // Sentences (a page's wording) don't fit a right-aligned figure
+            // line: they stack, each side named, so before and after can't run together.
+            l.before.length + l.after.length > 48 ? (
+              <div key={l.line} className="q-mline q-mline-words">
+                <dt>
+                  {l.line}
+                  {l.sub && <span className="q-line-sub">{l.sub}</span>}
+                </dt>
+                <dd>
+                  <span className="q-mline-side">{t("change.before")}</span>
+                  <span className="q-before">{l.before}</span>
+                </dd>
+                <dd>
+                  <span className="q-mline-side">{t("change.after")}</span>
+                  <span className="q-after">{l.after}</span>
+                </dd>
+              </div>
+            ) : (
+              <div key={l.line} className="q-mline">
+                <dt>{l.line}</dt>
+                <dd className="fig">
+                  {l.before} <span aria-hidden="true">→</span>
+                  <span className="sr-only"> {t("change.becomes")} </span> {l.after}
+                </dd>
+              </div>
+            ),
+          )}
         </dl>
       );
     }
