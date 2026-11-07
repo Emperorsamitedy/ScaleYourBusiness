@@ -136,8 +136,6 @@ export interface SiteChangeWords {
   if_you_change_your_mind: string;
 }
 
-const clip = (text: string) => (text.length > 60 ? `${text.slice(0, 57)}…` : text);
-
 /** How much unchanged text to keep either side of what a change changes. */
 const CONTEXT = 18;
 
