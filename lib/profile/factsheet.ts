@@ -421,7 +421,7 @@ function toRow(
 ): FactRow {
   return {
     key,
-    value: labelledValue(key, field.value, labels, names),
+    value: datesInWords(labelledValue(key, field.value, labels, names)),
     status: field.status,
     confidence: field.confidence,
     // "connector" for a measured fact, so its pill says "measured" (P2-10).
@@ -457,7 +457,7 @@ export function toSupersededFact(row: SupersededRowInput): SupersededFact | null
   if (row.superseded_at === null) return null;
   return {
     key: row.field_key,
-    value: displayValue(row.value),
+    value: datesInWords(displayValue(row.value)),
     status: row.status,
     source_kind: displaySourceKind(row.source),
     source_detail: datesInWords(sourceDetail(row.source)),
