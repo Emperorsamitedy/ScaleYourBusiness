@@ -45,7 +45,13 @@ import { runRecommendations } from "../diagnosis/recommendations";
 import type { TradingHoursBlock } from "../hours/findings";
 import { tradingFindings } from "../hours/findings";
 import { tradingAnalysis } from "../hours/trading";
-import { displayValue, gapBuys, readSupersededFacts, sourceDetail } from "../profile/factsheet";
+import {
+  displayValue,
+  entityNamesOf,
+  gapBuys,
+  readSupersededFacts,
+  sourceDetail,
+} from "../profile/factsheet";
 import type { FactHistory, GapRow } from "../profile/factsheet";
 import { ensureSnapshot, readSnapshot } from "../profile/snapshot";
 import { computeCompleteness } from "../scorer/completeness";
@@ -117,9 +123,10 @@ export interface PriorReport {
 async function factMap(snapshotId: string): Promise<ReportView["fact_map"]> {
   const view = await readSnapshot(snapshotId);
   const out: ReportView["fact_map"] = {};
+  const names = entityNamesOf(view.facts);
   for (const [key, f] of view.facts) {
     out[key] = {
-      value: displayValue(f.value),
+      value: displayValue(f.value, names),
       status: f.status,
       confidence: f.confidence,
       source_kind: displaySourceKind(f.source),

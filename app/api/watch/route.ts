@@ -5,10 +5,10 @@
 // nothing here is generated.
 
 import { resolveAccess } from "../../../lib/auth/access";
-import { eq } from "drizzle-orm";
+import { and, eq, inArray, isNull } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { db } from "../../../db";
-import { businessProfiles } from "../../../db/schema";
+import { businessProfiles, fieldRecords } from "../../../db/schema";
 import { openInterruptions } from "../../../lib/anomaly/detect";
 import { thresholdTexts } from "../../../lib/anomaly/thresholds";
 import { latestDecision } from "../../../lib/mode/service";
@@ -26,6 +26,7 @@ export async function GET(): Promise<NextResponse> {
 
   const decision = await latestDecision(profileId);
   const log = await watchLog(profileId);
+  const goals = await goalStatements(profileId, log);
   const daysRemaining =
     decision?.mode === "watching"
       ? Math.max(0, Math.ceil((Date.parse(decision.review_at) - Date.now()) / 86_400_000))
@@ -37,6 +38,46 @@ export async function GET(): Promise<NextResponse> {
     // The rules as code (P2-24), each saying whether anything enforces it yet.
     thresholds: thresholdTexts(),
     interruptions: await openInterruptions(profileId),
-    log: log.map((entry) => ({ at: entry.at, kind: entry.kind, detail: entry.detail })),
+    log: log.map((entry) => ({
+      at: entry.at,
+      kind: entry.kind,
+      detail: entry.detail,
+      // A goal's weekly check says which goal it is about: three goals
+      // checked on one morning otherwise read as one line three times.
+      subject: goals.get(goalIdOf(entry.meta) ?? "") ?? null,
+    })),
   });
+}
+
+const goalIdOf = (meta: unknown): string | null => {
+  const id = (meta as { goal_id?: unknown } | null)?.goal_id;
+  return typeof id === "string" ? id : null;
+};
+
+/** Each logged goal's statement, as the owner wrote it. */
+async function goalStatements(
+  profileId: string,
+  log: readonly { meta: unknown }[],
+): Promise<Map<string, string>> {
+  const ids = [...new Set(log.map((e) => goalIdOf(e.meta)).filter((id) => id !== null))];
+  if (ids.length === 0) return new Map();
+  const rows = await db
+    .select({ key: fieldRecords.field_key, value: fieldRecords.value })
+    .from(fieldRecords)
+    .where(
+      and(
+        eq(fieldRecords.profile_id, profileId),
+        isNull(fieldRecords.superseded_at),
+        inArray(
+          fieldRecords.field_key,
+          ids.map((id) => `goals.${id}.statement`),
+        ),
+      ),
+    );
+  const out = new Map<string, string>();
+  for (const r of rows) {
+    if (typeof r.value === "string" && r.value.trim() !== "")
+      out.set(r.key.split(".")[1] ?? "", r.value.trim());
+  }
+  return out;
 }
