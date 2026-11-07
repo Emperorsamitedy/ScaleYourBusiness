@@ -387,7 +387,7 @@ export function sourceDetail(source: unknown): string | null {
   // needs the platform ("… from shopify").
   if (typeof s.method === "string")
     return s.method.replace(
-      / connection [0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/g,
+      / \(?connection [0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\)?/g,
       "",
     );
   if (typeof s.question_id === "string") return s.question_id;
