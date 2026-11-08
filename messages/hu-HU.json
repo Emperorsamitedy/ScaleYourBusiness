@@ -2506,6 +2506,83 @@
       },
       "readback": "Hogy lássa, hogyan teljesítenek a nyilvános bejegyzései, ugyanez a bejelentkezés ezeket is olvassa:"
     },
+    "tiktokAds": {
+      "sectionLabel": "TikTok Ads · olvasás és cselekvés, egyetlen hozzájárulás",
+      "label": "TikTok-hirdetéskezelés",
+      "title": {
+        "on": "Összekapcsolva. A SYB olvassa a TikTok-kampányait, és csak azt módosítja, amit Ön jóváhagy",
+        "off": "Kikapcsolva. A SYB nem olvassa és nem módosítja a TikTok-hirdetéseit."
+      },
+      "connected": "A TikTok össze van kapcsolva, és a hozzájárulása rögzítve van.",
+      "youCancelled": "A TikTok oldalán megszakította. Semmi sem lett összekapcsolva.",
+      "revoked": "Visszavonva. A SYB TikTok-hozzáférése itt törölve, az olvasás és a módosítások leálltak.",
+      "whyOne": "A TikTok egy alkalmazásnak egyetlen engedélylistát ad, így a kampányai olvasása és módosítása együtt jár. A SYB mindkettőt ezen az egy hozzájáruláson tartja: naponta egyszer olvas, és egy kampányt csak azután módosít, hogy Ön jóváhagyott egy javaslatot.",
+      "fact": {
+        "status": "állapot",
+        "adAccounts": "hirdetési fiókok",
+        "lastRead": "utolsó beolvasás",
+        "notYet": "még nem: a SYB naponta egyszer olvas"
+      },
+      "revokeAsk": "A SYB nem olvassa tovább a TikTok-kampányait, és nem tudja módosítani őket.",
+      "revokeNote": "A visszavonás azonnal törli itt a SYB hozzáférését. A már beolvasott számok megmaradnak. Ha a SYB-t a TikTok oldalán is el szeretné távolítani, vegye ki a SYB alkalmazását a TikTok-hirdetési fiókja engedélyezett alkalmazásai közül.",
+      "tiktokScreen": "A TikTok ezután megmutatja a SYB alkalmazását ezekkel az engedélyekkel, és e-mailben küld egy kódot, hogy megerősítse, Ön az. Engedélyezze, majd térjen vissza ide.",
+      "typeToConfirm": "A megerősítéshez írja be: <b>{phrase}</b>",
+      "opening": "A TikTok megnyitása…",
+      "signIn": "Bejelentkezés a TikTokkal, és ezek engedélyezése",
+      "nothingWritten": "Az összekapcsolás rögzíti a hozzájárulását, és naponta egyszer beolvassa a kampányait. A TikTokon semmi sem változik egy javaslat jóváhagyása nélkül, és a TikTok-hirdetések módosítása kikapcsolva marad, amíg a kéthetes felügyelet nélküli teszt be nem fejeződik.",
+      "access": {
+        "title": "A hozzáférés, őszintén",
+        "check": "A TikTok minden fejlesztői alkalmazást ellenőriz, mielőtt a bejelentkezés működne vele, általában két-három munkanapon belül. Amíg a SYB alkalmazása át nem megy rajta, a TikTok elutasítja a bejelentkezést, és a SYB ezt meg is mondja.",
+        "sandbox": "A SYB csak valódi hirdetési fiókokat kapcsol össze. A TikTok decemberben megszünteti a sandbox fiókjait, ezért a SYB nem használja őket: tesztelje a saját hirdetési fiókjával és egy kis kampány segítségével."
+      },
+      "missing": {
+        "title": "Még nincs beállítva. Ezek a beállítások hiányoznak a SYB szerveréről:"
+      },
+      "steps": {
+        "title": "Beállítás, egyszer, a SYB szerverén",
+        "developer": "Regisztráljon fejlesztőként a TikTok fejlesztői oldalán ({site}) azzal a TikTok-belépéssel, amellyel a hirdetéseit kezeli, és várja meg, amíg elfogadják a fejlesztői profilját.",
+        "app": "A „My Apps” alatt hozzon létre egy alkalmazást, és adja meg a(z) {callback} címet hirdetői átirányítási URL-ként.",
+        "scopes": "A „Scope of permission” alatt pontosan ezeket jelölje be, és semmi mást: {scopes}.",
+        "submit": "Küldje be az alkalmazást. A TikTok ellenőrzi, általában két-három munkanapon belül.",
+        "keys": "Ha átment, másolja az App ID-t és a Secretet az alkalmazás „Basic Information” részéből a SYB szerverén a(z) {appId} és {secret} beállításba, az átirányítási URL-t pedig a(z) {redirect} beállításba."
+      },
+      "status": {
+        "connected": "összekapcsolva",
+        "paused": "szüneteltetve",
+        "failed": "sikertelen",
+        "disconnected": "leválasztva"
+      },
+      "consentedOn": "hozzájárulás: {day} · {status}",
+      "notGranted": "nincs megadva",
+      "notSetUpYet": "még nincs beállítva",
+      "connect": "Összekapcsolás",
+      "close": "Bezárás",
+      "keepIt": "Megtartom",
+      "unreachable": "Nem értem el a szervert. Próbálja újra.",
+      "revokeFailed": "A visszavonás nem sikerült.",
+      "revoking": "Visszavonás…",
+      "yesRevoke": "Igen, visszavonom",
+      "revoke": "Visszavonás",
+      "reason": {
+        "start_here": "Indítsa a TikTok-bejelentkezést a SYB Összekapcsolt fiókok oldaláról, az ott található gombbal. Semmi sem lett elküldve a TikToknak.",
+        "signed_out": "A SYB-be való bejelentkezés után kapcsolja össze újra a TikTokot.",
+        "owner_only": "Ezt az engedélyt csak tulajdonos adhatja meg vagy vonhatja vissza. Semmi sem lett elküldve a TikToknak.",
+        "unavailable": "A TikTok Ads még nincs beállítva.",
+        "phrase": "A megerősítő kifejezés nem egyezett. Írja be pontosan úgy, ahogy látható, majd kezdje újra.",
+        "already_connected": "A TikTok már össze van kapcsolva. Az újbóli összekapcsoláshoz előbb vonja vissza.",
+        "start_again": "Ez a TikTok-bejelentkezés lejárt, vagy már felhasználták. Kezdje újra az Összekapcsolt fiókok oldalról.",
+        "foreign": "Ezt a TikTok-bejelentkezést egy másik SYB-fiókból indították. Jelentkezzen be abba a fiókba a SYB-ben, vagy kezdje újra.",
+        "tiktok_error": "A TikTok-bejelentkezés nem fejeződött be. Semmi sem lett összekapcsolva.",
+        "scope": "A TikTok nem pontosan azokat az engedélyeket adta meg, amelyeket a SYB kér. Vesse össze az alkalmazás „Scope of permission” beállítását az Összekapcsolt fiókok oldalon lévő listával, majd próbálja újra.",
+        "no_advertisers": "A TikTok ehhez a bejelentkezéshez nem mutatott hirdetési fiókot a SYB-nek. Jelentkezzen be azzal a TikTok-belépéssel, amellyel a hirdetéseit kezeli, majd próbálja újra.",
+        "tiktok_auth": "A TikTok nem fogadta el a bejelentkezést. Ha a TikTok még ellenőrzi a SYB alkalmazását, várjon, amíg átmegy; különben kezdje újra.",
+        "tiktok_permission": "A TikTok szerint a SYB alkalmazása nem olvashatja azt a hirdetési fiókot. Semmi sem lett összekapcsolva.",
+        "tiktok_busy": "A TikTok túlterhelt volt, vagy nem válaszolt. Semmi sem lett összekapcsolva — próbálja újra néhány perc múlva.",
+        "tiktok_refused": "A TikTok elutasította a bejelentkezést. Semmi sem lett összekapcsolva.",
+        "internal": "Hiba történt a mi oldalunkon. Semmi sem lett összekapcsolva.",
+        "generic": "A TikTok-bejelentkezés nem fejeződött be. Semmi sem lett összekapcsolva."
+      }
+    },
     "googleAds": {
       "sectionLabel": "Google Ads · külön hozzájárulás",
       "label": "Google Ads",

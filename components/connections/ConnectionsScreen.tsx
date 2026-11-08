@@ -29,6 +29,8 @@ import type { EmailView } from "./EmailCampaignSection";
 import { EmailCampaignSection } from "./EmailCampaignSection";
 import type { GoogleView } from "./GoogleBusinessSection";
 import { GoogleBusinessSection } from "./GoogleBusinessSection";
+import type { TikTokView } from "./TikTokAdsSection";
+import { TikTokAdsSection } from "./TikTokAdsSection";
 import type { TikTokPostingView } from "./TikTokPostingSection";
 import { TikTokPostingSection } from "./TikTokPostingSection";
 import type { GoogleAdsView } from "./GoogleAdsSection";
@@ -654,6 +656,8 @@ export function ConnectionsScreen() {
   const [tiktok, setTiktok] = useState<TikTokPostingView | null>(null);
   // P2-20 / P3-22: Google Ads, its own consent — reads spend, changes only what's approved.
   const [gads, setGads] = useState<GoogleAdsView | null>(null);
+  // TikTok Ads: reading and acting, one consent (TikTok can't separate them for one app).
+  const [ttads, setTtads] = useState<TikTokView | null>(null);
   // The headline speaks for writing too, so it waits until that side has answered.
   const [execDone, setExecDone] = useState(false);
   const [state, setState] = useState<"loading" | "ready" | "signed_out" | "error">("loading");
@@ -700,6 +704,15 @@ export function ConnectionsScreen() {
     }
   }, []);
 
+  const loadTtads = useCallback(async () => {
+    try {
+      const res = await fetch("/api/connections/tiktok");
+      setTtads(res.ok ? ((await res.json()) as TikTokView) : null);
+    } catch {
+      setTtads(null);
+    }
+  }, []);
+
   const loadEmail = useCallback(async () => {
     try {
       const res = await fetch("/api/connections/email");
@@ -734,7 +747,8 @@ export function ConnectionsScreen() {
     void loadGoogle();
     void loadTiktok();
     void loadGads();
-  }, [load, loadExec, loadEmail, loadGoogle, loadTiktok, loadGads]);
+    void loadTtads();
+  }, [load, loadExec, loadEmail, loadGoogle, loadTiktok, loadGads, loadTtads]);
 
   const syncNow = async (c: Connection) => {
     setBusy(c.id);
@@ -1069,6 +1083,16 @@ export function ConnectionsScreen() {
             view={gads}
             onChanged={async () => {
               await Promise.all([loadGads(), loadExec(), load()]);
+            }}
+          />
+        )}
+
+        {/* TikTok Ads — reading and acting are one TikTok permission list, so one consent. */}
+        {ttads !== null && (
+          <TikTokAdsSection
+            view={ttads}
+            onChanged={async () => {
+              await Promise.all([loadTtads(), loadExec(), load()]);
             }}
           />
         )}

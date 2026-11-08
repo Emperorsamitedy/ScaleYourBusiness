@@ -200,6 +200,43 @@ export function googleBusinessEnv(): GoogleBusinessEnv | null {
   };
 }
 
+/** SYB's own TikTok For Business developer app (TikTok Ads, 2026-11-08). */
+export interface TikTokAdsEnv {
+  app_id: string;
+  secret: string;
+  /** TIKTOK_ADS_REDIRECT_URI — the advertiser redirect URL registered on the app. */
+  redirect_uri: string;
+  app_url: string | null;
+}
+
+/** The three settings TikTok Ads needs, in the order the owner's steps name them. */
+export const TIKTOK_ADS_KEYS = [
+  "TIKTOK_ADS_APP_ID",
+  "TIKTOK_ADS_SECRET",
+  "TIKTOK_ADS_REDIRECT_URI",
+] as const;
+
+/** Which of the three are missing: what the /connections card names, exactly. */
+export function tiktokAdsMissing(): (typeof TIKTOK_ADS_KEYS)[number][] {
+  return TIKTOK_ADS_KEYS.filter((k) => (process.env[k]?.trim() ?? "") === "");
+}
+
+/**
+ * TikTok Ads is offered only when all three are set. TikTok matches the
+ * redirect against the URLs registered on the app, so it is never derived
+ * from the request: a guessed one would end at TikTok's refusal. Null
+ * otherwise — the card names what is missing and every route refuses.
+ */
+export function tiktokAdsEnv(): TikTokAdsEnv | null {
+  if (tiktokAdsMissing().length > 0) return null;
+  return {
+    app_id: (process.env.TIKTOK_ADS_APP_ID ?? "").trim(),
+    secret: (process.env.TIKTOK_ADS_SECRET ?? "").trim(),
+    redirect_uri: (process.env.TIKTOK_ADS_REDIRECT_URI ?? "").trim(),
+    app_url: appUrl(),
+  };
+}
+
 /** SYB's own TikTok app for posting (Login Kit + Content Posting API), as the environment holds it. */
 export interface TikTokPostingEnv {
   client_key: string;

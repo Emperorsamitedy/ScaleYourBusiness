@@ -209,6 +209,51 @@ describe("P3-08 — the pinned allowlist (rule 13)", () => {
           },
         ],
       },
+      // 2026-11-08, the owner: all remaining features "should be done by today".
+      // TikTok Ads, read and act, one consent (TikTok can't separate them).
+      tiktok_ads: {
+        label: "TikTok ad management",
+        write_scopes: ["tiktok.create_and_update_campaigns"],
+        readback_scopes: [
+          "tiktok.read_ad_account_information",
+          "tiktok.read_campaigns",
+          "tiktok.consolidated_report",
+        ],
+        operations: [
+          {
+            op: "pause_campaign",
+            description: "Pause a running TikTok campaign.",
+            reversible: true,
+          },
+          {
+            op: "resume_campaign",
+            description: "Resume a paused TikTok campaign.",
+            reversible: true,
+          },
+          {
+            op: "set_daily_budget",
+            description: "Change a TikTok campaign's daily budget, within the approved bounds.",
+            reversible: true,
+          },
+        ],
+        consent: [
+          {
+            scope: "tiktok.create_and_update_campaigns",
+            grant: "Reporting and Ads Management, which TikTok grants together",
+            why: "SYB reads each campaign's daily spend and the website purchases TikTok attributes to it, once a day.",
+          },
+          {
+            scope: "tiktok.create_and_update_campaigns",
+            grant: "Ads Management: Create and Update Campaigns",
+            why: "SYB may pause, resume or change the daily budget of a campaign, each time only after you approve it. TikTok gives this together with reading, so SYB holds it as a separate consent you can revoke.",
+          },
+          {
+            scope: "tiktok.create_and_update_campaigns",
+            grant: "Ads Management: Create and Update Campaigns",
+            why: "SYB never creates or deletes a campaign, and never touches billing or payment methods.",
+          },
+        ],
+      },
       // P4-15, 2026-10-19: campaign email from SYB's own Resend account. One
       // write scope, one irreversible op, and two consent lines on that scope
       // — what SYB may do, and what it will never do.

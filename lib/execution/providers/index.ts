@@ -21,6 +21,7 @@ import { googleAdsExecutor } from "./google-ads";
 import { googleBusinessExecutor } from "./google-business";
 import { metaAdsExecutor, metaPublishExecutor } from "./meta";
 import { purchaseOrderExecutor } from "./purchase-order";
+import { tiktokAdsExecutor } from "./tiktok-ads";
 import { tiktokPublishExecutor } from "./tiktok";
 
 const PROVIDERS: Readonly<Record<ExecutionProviderId, ExecutionProvider>> = {
@@ -37,6 +38,8 @@ const PROVIDERS: Readonly<Record<ExecutionProviderId, ExecutionProvider>> = {
   purchase_order: purchaseOrderExecutor,
   // P2-20 / P3-22: Google Ads — pause, resume, daily budget, each reversible.
   google_ads: googleAdsExecutor,
+  // TikTok Ads (2026-11-08): pause, resume and re-budget, the Meta ad ops' TikTok twins.
+  tiktok_ads: tiktokAdsExecutor,
 };
 
 export class UnknownExecutionProviderError extends Error {

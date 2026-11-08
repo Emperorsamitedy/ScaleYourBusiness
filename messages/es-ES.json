@@ -2506,6 +2506,83 @@
       },
       "readback": "Para ver cómo van sus publicaciones públicas, el mismo inicio de sesión también lee:"
     },
+    "tiktokAds": {
+      "sectionLabel": "TikTok Ads · leer y actuar, un solo consentimiento",
+      "label": "Gestión de anuncios de TikTok",
+      "title": {
+        "on": "Conectado. SYB lee sus campañas de TikTok y solo cambia lo que usted ha aprobado",
+        "off": "Desactivado. SYB no lee ni cambia sus anuncios de TikTok."
+      },
+      "connected": "TikTok está conectado y su consentimiento queda registrado.",
+      "youCancelled": "Ha cancelado en la página de TikTok. No se ha conectado nada.",
+      "revoked": "Revocado. El acceso de SYB a TikTok se ha borrado aquí, y la lectura y los cambios se han detenido.",
+      "whyOne": "TikTok da a cada app una sola lista de permisos, así que leer sus campañas y cambiarlas van juntos. SYB guarda ambas cosas como este único consentimiento: lee una vez al día y solo cambia una campaña después de que usted haya aprobado una propuesta.",
+      "fact": {
+        "status": "estado",
+        "adAccounts": "cuentas publicitarias",
+        "lastRead": "última lectura",
+        "notYet": "todavía no: SYB lee una vez al día"
+      },
+      "revokeAsk": "SYB deja de leer sus campañas de TikTok y no puede cambiarlas.",
+      "revokeNote": "Revocar borra aquí al instante el acceso de SYB. Las cifras ya leídas se quedan. Para quitar SYB también en TikTok, retire la app de SYB de las apps autorizadas de su cuenta publicitaria de TikTok.",
+      "tiktokScreen": "TikTok le mostrará la app de SYB con estos permisos y le enviará un código por correo para confirmar que es usted. Permítalo y vuelva aquí.",
+      "typeToConfirm": "Para confirmar, escriba <b>{phrase}</b>",
+      "opening": "Abriendo TikTok…",
+      "signIn": "Iniciar sesión con TikTok y permitir estos",
+      "nothingWritten": "Al conectar, se registra su consentimiento y se leen sus campañas una vez al día. Nada cambia en TikTok hasta que usted haya aprobado una propuesta, y los cambios en anuncios de TikTok siguen desactivados hasta que termine la prueba desatendida de dos semanas.",
+      "access": {
+        "title": "El acceso, con claridad",
+        "check": "TikTok revisa cada app de desarrollador antes de que funcione el inicio de sesión con ella, normalmente en dos o tres días laborables. Hasta que la app de SYB lo supere, TikTok rechaza el inicio de sesión, y SYB lo dice.",
+        "sandbox": "SYB solo conecta cuentas publicitarias reales. TikTok retira sus cuentas de prueba (sandbox) este diciembre, así que SYB no las usa: pruebe con su propia cuenta publicitaria y una campaña pequeña."
+      },
+      "missing": {
+        "title": "Todavía no configurado. Faltan estos ajustes en el servidor de SYB:"
+      },
+      "steps": {
+        "title": "Configuración, una sola vez, para el servidor de SYB",
+        "developer": "Regístrese como desarrollador en el sitio para desarrolladores de TikTok, {site}, con el acceso de TikTok con el que gestiona sus anuncios, y espere a que se acepte su perfil de desarrollador.",
+        "app": "En «My Apps», cree una app e indique {callback} como su URL de redirección para anunciantes.",
+        "scopes": "En «Scope of permission», marque exactamente estos y nada más: {scopes}.",
+        "submit": "Envíe la app. TikTok la revisa, normalmente en dos o tres días laborables.",
+        "keys": "Cuando la haya superado, copie el App ID y el Secret de la «Basic Information» de la app en {appId} y {secret} en el servidor de SYB, y la URL de redirección en {redirect}."
+      },
+      "status": {
+        "connected": "conectada",
+        "paused": "en pausa",
+        "failed": "fallida",
+        "disconnected": "desconectada"
+      },
+      "consentedOn": "consentimiento del {day} · {status}",
+      "notGranted": "no concedido",
+      "notSetUpYet": "todavía no configurado",
+      "connect": "Conectar",
+      "close": "Cerrar",
+      "keepIt": "Mantenerlo",
+      "unreachable": "No he podido conectar con el servidor. Inténtelo de nuevo.",
+      "revokeFailed": "No se ha podido revocar.",
+      "revoking": "Revocando…",
+      "yesRevoke": "Sí, revocar",
+      "revoke": "Revocar",
+      "reason": {
+        "start_here": "Empiece el inicio de sesión con TikTok desde la pantalla Conexiones de SYB, con el botón que hay allí. No se ha enviado nada a TikTok.",
+        "signed_out": "Inicie sesión primero en SYB y vuelva a conectar TikTok.",
+        "owner_only": "Solo un propietario puede conceder o retirar este permiso. No se ha enviado nada a TikTok.",
+        "unavailable": "TikTok Ads todavía no está configurado.",
+        "phrase": "La frase de confirmación no coincide. Escríbala tal como se muestra y vuelva a empezar.",
+        "already_connected": "TikTok ya está conectado. Revóquelo primero para volver a conectarlo.",
+        "start_again": "Ese inicio de sesión con TikTok ha caducado o ya se ha usado. Vuelva a empezar desde Conexiones.",
+        "foreign": "Ese inicio de sesión con TikTok empezó en otra cuenta de SYB. Inicie sesión en SYB con esa cuenta o vuelva a empezar.",
+        "tiktok_error": "El inicio de sesión con TikTok no ha terminado. No se ha conectado nada.",
+        "scope": "TikTok no ha concedido exactamente los permisos que pide SYB. Compare el «Scope of permission» de la app con la lista de Conexiones y vuelva a intentarlo.",
+        "no_advertisers": "TikTok no ha mostrado a SYB ninguna cuenta publicitaria para ese inicio de sesión. Inicie sesión con el acceso de TikTok con el que gestiona sus anuncios y vuelva a intentarlo.",
+        "tiktok_auth": "TikTok no ha aceptado el inicio de sesión. Si TikTok aún está revisando la app de SYB, espere a que la supere; si no, vuelva a empezar.",
+        "tiktok_permission": "TikTok dice que la app de SYB no puede leer esa cuenta publicitaria. No se ha conectado nada.",
+        "tiktok_busy": "TikTok estaba ocupado o no ha respondido. No se ha conectado nada; inténtelo de nuevo en unos minutos.",
+        "tiktok_refused": "TikTok ha rechazado el inicio de sesión. No se ha conectado nada.",
+        "internal": "Algo ha fallado por nuestra parte. No se ha conectado nada.",
+        "generic": "El inicio de sesión con TikTok no ha terminado. No se ha conectado nada."
+      }
+    },
     "googleAds": {
       "sectionLabel": "Google Ads · un consentimiento aparte",
       "label": "Google Ads",

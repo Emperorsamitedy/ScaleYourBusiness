@@ -194,6 +194,8 @@ export interface SpendGuardArgs {
   monthly_ceiling?: Money | null;
   /** Meta's minimum daily budget, at the executor. */
   floor_minor?: number | null;
+  /** Whose minimum the floor is, in the refusal ("Meta" unless said). */
+  platform?: string;
 }
 
 const fmt = (amount: number, currency: string) => format(money(amount, currency));
@@ -209,7 +211,7 @@ export function spendGuard(a: SpendGuardArgs): string | null {
   }
   const floor = a.floor_minor ?? null;
   if (floor !== null && a.proposed_daily_minor < floor) {
-    return `it would set the daily budget to ${fmt(a.proposed_daily_minor, a.currency)}, under Meta's minimum of ${fmt(floor, a.currency)} a day`;
+    return `it would set the daily budget to ${fmt(a.proposed_daily_minor, a.currency)}, under ${a.platform ?? "Meta"}'s minimum of ${fmt(floor, a.currency)} a day`;
   }
   const ceiling = a.monthly_ceiling ?? null;
   if (ceiling !== null && a.proposed_daily_minor > a.current_daily_minor) {

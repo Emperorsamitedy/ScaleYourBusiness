@@ -274,6 +274,62 @@ export const EXECUTION_SCOPE_REGISTRY = {
     ],
   },
   /**
+   * TikTok Ads (owner, 2026-11-08: all remaining features "should be done by
+   * today", lifting P3-22's "TikTok deferred"). One consent for reading AND
+   * acting, because TikTok can't separate them for one app: an advertiser
+   * authorizes the app's whole permission list, and SYB's app must hold
+   * Create and Update Campaigns (scope 201) to pause, resume or re-budget.
+   * So the read is held here, as readback scopes, the I-45a way — never in
+   * the measurement registry (rule 9 unchanged) — and fenced to GET
+   * requests by lib/tiktok/read.test.ts. Names are SYB's for TikTok's
+   * numeric scope ids (lib/tiktok/scopes.ts). Consolidated Report (44) also
+   * lets an app create report tasks and subscriptions; SYB calls neither.
+   * Nothing is created, so nothing is irreversible: no create op exists.
+   */
+  tiktok_ads: {
+    label: "TikTok ad management",
+    write_scopes: ["tiktok.create_and_update_campaigns"],
+    readback_scopes: [
+      "tiktok.read_ad_account_information",
+      "tiktok.read_campaigns",
+      "tiktok.consolidated_report",
+    ],
+    operations: [
+      {
+        op: "pause_campaign",
+        description: "Pause a running TikTok campaign.",
+        reversible: true,
+      },
+      {
+        op: "resume_campaign",
+        description: "Resume a paused TikTok campaign.",
+        reversible: true,
+      },
+      {
+        op: "set_daily_budget",
+        description: "Change a TikTok campaign's daily budget, within the approved bounds.",
+        reversible: true,
+      },
+    ],
+    consent: [
+      {
+        scope: "tiktok.create_and_update_campaigns",
+        grant: "Reporting and Ads Management, which TikTok grants together",
+        why: "SYB reads each campaign's daily spend and the website purchases TikTok attributes to it, once a day.",
+      },
+      {
+        scope: "tiktok.create_and_update_campaigns",
+        grant: "Ads Management: Create and Update Campaigns",
+        why: "SYB may pause, resume or change the daily budget of a campaign, each time only after you approve it. TikTok gives this together with reading, so SYB holds it as a separate consent you can revoke.",
+      },
+      {
+        scope: "tiktok.create_and_update_campaigns",
+        grant: "Ads Management: Create and Update Campaigns",
+        why: "SYB never creates or deletes a campaign, and never touches billing or payment methods.",
+      },
+    ],
+  },
+  /**
    * Campaign email (P4-15, Phase 4 Session F): an approved campaign, sent
    * from SYB's OWN Resend account — never the owner's — to the contacts
    * whose explicit consent is checked again at the moment of each send

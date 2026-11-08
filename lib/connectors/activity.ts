@@ -45,6 +45,7 @@ const DATA_NOUN: Readonly<Record<string, string>> = {
   ga4: "traffic",
   meta_ads: "ad spend",
   google_ads: "ad spend",
+  tiktok_ads: "ad spend",
 };
 
 function listWords(words: readonly string[]): string {

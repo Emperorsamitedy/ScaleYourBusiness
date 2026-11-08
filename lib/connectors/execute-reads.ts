@@ -18,6 +18,7 @@
 
 import type { PullContext, PullPage } from "./provider";
 import { googleAdsReadSource } from "../google-ads/read";
+import { tiktokAdsReadSource } from "../tiktok/read";
 
 export interface ExecuteReadSource {
   id: string;
@@ -28,6 +29,10 @@ export interface ExecuteReadSource {
 
 const SOURCES: Readonly<Record<string, ExecuteReadSource>> = {
   google_ads: googleAdsReadSource,
+  // TikTok Ads (2026-11-08): reporting can't be separated from campaign writes
+  // for one TikTok app, so its read rides on the tiktok_ads consent. GET-only
+  // through lib/tiktok/api's fence (read.test.ts scans the source).
+  tiktok_ads: tiktokAdsReadSource,
 };
 
 /** Every execute provider the sync runner reads from. Pinned in execute-reads.test.ts. */

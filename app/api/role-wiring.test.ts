@@ -64,6 +64,7 @@ export const ALLOWED: Record<string, Partial<Record<Method, string>>> = {
 export const MUTATING_GETS: readonly string[] = [
   "connections/meta/callback/route.ts", // finishes a write-access consent (rule 13)
   "connections/google-business/callback/route.ts", // I-45a: finishes the Google consent (rule 13)
+  "connections/tiktok/callback/route.ts", // TikTok Ads: finishes the TikTok consent (rule 13)
   "connections/tiktok-posting/callback/route.ts", // 2026-11-08: finishes the TikTok consent (rule 13)
   "connections/google-ads/callback/route.ts", // P2-20: finishes the Google Ads consent (rule 13)
 ];

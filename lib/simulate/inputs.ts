@@ -16,7 +16,7 @@ import {
 } from "../../db/schema";
 import type { Basis } from "../../components/report/basis";
 import { basisOf } from "../../components/report/basis";
-import { loadCampaignSeries, monthlyAdCeiling } from "../ads/proposals";
+import { loadCampaignSeries, monthlyAdCeiling, platformOfSeries } from "../ads/proposals";
 import { CADENCE, listChannels } from "../content/plan";
 import { listContacts, outboundPosture } from "../crm/contacts";
 import { SEGMENT_KIND, SEGMENT_MODULE } from "../crm/segment-proposals";
@@ -207,7 +207,10 @@ export async function gatherInputs(
       ),
     );
   const win = adsWindow(asOf);
-  const series = await loadCampaignSeries(accountId, win.from, win.to);
+  // TikTok campaigns stay out of the simulator: its asks don't name a TikTok platform.
+  const series = (await loadCampaignSeries(accountId, win.from, win.to)).filter(
+    (s) => platformOfSeries(s) !== "tiktok",
+  );
   const campaigns: CampaignRaw[] = series.map((s) => ({
     ref: s.campaign_ref,
     name: s.campaign_name,

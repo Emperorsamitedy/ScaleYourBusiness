@@ -73,7 +73,7 @@ export function staleAdChange(p: ApprovalView, now: Date): string | null {
  * switched on", which was not what happens.
  */
 export const STALE_NOTE: Readonly<
-  Record<"meta_publish" | "meta_ads" | "tiktok_publish" | "google_ads", string>
+  Record<"meta_publish" | "meta_ads" | "tiktok_publish" | "google_ads" | "tiktok_ads", string>
 > = {
   meta_publish:
     "Once it's switched on, it goes out on the next run if that is within 30 hours of its time; later than that it isn't posted late — I'll tell you, and it can be proposed again.",
@@ -81,4 +81,5 @@ export const STALE_NOTE: Readonly<
     "Once it's switched on, it goes out on the next run if that is within 30 hours of its time; later than that it isn't posted late — I'll tell you, and it can be proposed again.",
   meta_ads: `Once it's switched on, it runs on the next run if you approved it within the last ${AD_APPROVAL_MAX_AGE_DAYS} days; an older approval isn't acted on stale numbers — I'll tell you instead.`,
   google_ads: `Once it's switched on, it runs on the next run if you approved it within the last ${AD_APPROVAL_MAX_AGE_DAYS} days; an older approval isn't acted on stale numbers — I'll tell you instead.`,
+  tiktok_ads: `Once it's switched on, it runs on the next run if you approved it within the last ${AD_APPROVAL_MAX_AGE_DAYS} days; an older approval isn't acted on stale numbers — I'll tell you instead.`,
 };

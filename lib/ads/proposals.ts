@@ -42,6 +42,13 @@
 // campaign's proposal carries `platform: "google"`, which routes it to the
 // Google Ads executor (lib/ads/executing, adsPlan); its dedupe ref is
 // ads:google:<id>:… so it can never fold into a Meta campaign's.
+//
+// TikTok (2026-11-08, the owner: all remaining features "should be done by
+// today"): TikTok campaigns are read through the tiktok_ads consent
+// (lib/tiktok/read.ts) into the same series and get the same two proposals
+// under the same thresholds and guardrails, tagged `platform: "tiktok"`
+// (dedupe ref ads:tiktok:<id>:…), routed to the tiktok_ads executor. The
+// ceiling's account-wide day counts every platform's campaigns together.
 
 import { and, eq, gte, inArray, lte, or } from "drizzle-orm";
 import { db } from "../../db";
@@ -101,7 +108,7 @@ export interface CampaignDay {
 }
 
 /** Which ad platform a campaign runs on — and whose attribution its value is. */
-export type AdPlatform = "meta" | "google";
+export type AdPlatform = "meta" | "google" | "tiktok";
 
 /** P3-22, Google half: the platform's name, and what its attributed value is called. */
 export const PLATFORM_WORDS: Readonly<
@@ -118,7 +125,17 @@ export const PLATFORM_WORDS: Readonly<
     attribution:
       "Conversion value is what Google attributes to the campaign, by Google's own conversion rules.",
   },
+  tiktok: {
+    name: "TikTok",
+    value: "purchases TikTok attributes",
+    attribution: "Purchases are the ones TikTok attributes to the campaign, by TikTok's own rules.",
+  },
 };
+
+/** A series' platform: Meta when absent (series built before Google and TikTok). */
+export function platformOfSeries(series: Pick<CampaignSeries, "platform">): AdPlatform {
+  return series.platform ?? "meta";
+}
 
 export interface CampaignSeries {
   /** Absent on series built before Google Ads: Meta. */
@@ -271,12 +288,17 @@ export async function loadCampaignSeries(
         or(
           and(eq(connections.provider, "meta_ads"), eq(connections.purpose, "measure")),
           and(eq(connections.provider, "google_ads"), eq(connections.purpose, "execute")),
+          // TikTok can't separate reading from acting: its read rides on the execute consent.
+          and(eq(connections.provider, "tiktok_ads"), eq(connections.purpose, "execute")),
         ),
       ),
     );
   if (conns.length === 0) return [];
   const platformOf = new Map<string, AdPlatform>(
-    conns.map((c) => [c.id, c.provider === "google_ads" ? "google" : "meta"]),
+    conns.map((c) => [
+      c.id,
+      c.provider === "google_ads" ? "google" : c.provider === "tiktok_ads" ? "tiktok" : "meta",
+    ]),
   );
   const rows = await db
     .select({
@@ -418,7 +440,7 @@ async function recordAdChange(
     change.change === "raise_budget" ? "paid_ads_start_or_increase" : "paid_ads_decrease_or_pause";
   const platform: AdPlatform = c.platform ?? "meta";
   const pw = PLATFORM_WORDS[platform];
-  const ref = `ads:${platform === "google" ? "google:" : ""}${c.campaign_ref}:${change.change}:${ctx.month}`;
+  const ref = `ads:${platform === "meta" ? "" : `${platform}:`}${c.campaign_ref}:${change.change}:${ctx.month}`;
   if (ctx.existing.has(ref)) return { skipped: { ref, reason: "already proposed this month" } };
   const silenced = ctx.suppressed.get(kind);
   if (silenced) {
@@ -474,7 +496,7 @@ async function recordAdChange(
         statement:
           platform === "google"
             ? "Google's attribution is its own — some of these conversions might have happened anyway"
-            : "Meta's attribution is its own — some of these purchases might have happened anyway",
+            : `${pw.name}'s attribution is its own — some of these purchases might have happened anyway`,
         value: null,
         source_field: null,
         sensitivity: "high",
@@ -554,14 +576,16 @@ async function recordAdChange(
         currency: c.currency,
         roas: w.roas,
         arithmetic,
-        ...(platform === "google" ? { platform: "google" } : {}),
+        ...(platform === "meta" ? {} : { platform }),
         attribution: pw.attribution,
         // P3-22b: approving queues it for the next due run (no set time needed).
         execute_on_approval: true,
         sending:
-          platform === "google"
-            ? "Approved, it goes to Google Ads on the next scheduled run: a dry run first, then the change, re-checked against your limits. Google Ads changes stay switched off until the two-week unattended test completes; until then it waits, approved."
-            : "Approved, it goes to Meta on the next scheduled run: a dry run first, then the change, re-checked against your limits. Meta ad changes stay switched off until the two-week unattended test completes; until then it waits, approved.",
+          platform === "tiktok"
+            ? "Approved, it goes to TikTok on the next scheduled run: the campaign is read again first, then the change is made, re-checked against your limits. TikTok ad changes stay switched off until the two-week unattended test completes; until then it waits, approved."
+            : platform === "google"
+              ? "Approved, it goes to Google Ads on the next scheduled run: a dry run first, then the change, re-checked against your limits. Google Ads changes stay switched off until the two-week unattended test completes; until then it waits, approved."
+              : "Approved, it goes to Meta on the next scheduled run: a dry run first, then the change, re-checked against your limits. Meta ad changes stay switched off until the two-week unattended test completes; until then it waits, approved.",
         manual_limits: verdict.manual.map((l) => l.quote),
         ...(simulation ? { requested_from: "simulator" } : {}),
       },

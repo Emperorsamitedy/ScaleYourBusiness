@@ -2506,6 +2506,83 @@
       },
       "readback": "为了查看您公开帖子的表现，同一次登录还会读取："
     },
+    "tiktokAds": {
+      "sectionLabel": "TikTok Ads · 读取与操作，一项同意",
+      "label": "TikTok 广告管理",
+      "title": {
+        "on": "已连接。SYB 读取您的 TikTok 营销活动，只更改您批准的内容",
+        "off": "已关闭。SYB 不读取也不更改您的 TikTok 广告。"
+      },
+      "connected": "TikTok 已连接，您的同意已记录在案。",
+      "youCancelled": "您在 TikTok 的页面上取消了。没有连接任何内容。",
+      "revoked": "已撤销。SYB 对 TikTok 的访问权限已在此删除，读取和更改都已停止。",
+      "whyOne": "TikTok 只给一个应用一份权限清单，所以读取您的营销活动和更改它们是绑在一起的。SYB 把两者作为这一项同意来持有：每天读取一次，只有在您批准提案后才更改营销活动。",
+      "fact": {
+        "status": "状态",
+        "adAccounts": "广告账户",
+        "lastRead": "上次读取",
+        "notYet": "尚未读取：SYB 每天读取一次"
+      },
+      "revokeAsk": "SYB 将停止读取您的 TikTok 营销活动，也无法再更改它们。",
+      "revokeNote": "撤销会立即删除 SYB 在此处的访问权限。已读取的数据会保留。若要在 TikTok 一侧也移除 SYB，请将 SYB 的应用从您 TikTok 广告账户的已授权应用中移除。",
+      "tiktokScreen": "TikTok 随后会显示 SYB 的应用及这些权限，并通过电子邮件向您发送验证码，以确认是您本人。请允许，然后回到这里。",
+      "typeToConfirm": "如需确认，请输入 <b>{phrase}</b>",
+      "opening": "正在打开 TikTok…",
+      "signIn": "用 TikTok 登录并允许这些权限",
+      "nothingWritten": "连接会记录您的同意，并每天读取一次您的营销活动。在您批准提案之前，TikTok 上不会有任何变化；在为期两周的无人值守测试完成之前，TikTok 广告更改会一直保持关闭。",
+      "access": {
+        "title": "关于访问权限，直说",
+        "check": "TikTok 会在每个开发者应用的登录可用之前对其进行审核，通常需要两到三个工作日。在 SYB 的应用通过审核之前，TikTok 会拒绝登录，SYB 也会如实告知。",
+        "sandbox": "SYB 只连接真实的广告账户。TikTok 将在十二月停用其沙盒账户，因此 SYB 不使用它们：请用您自己的广告账户和一个小型营销活动来测试。"
+      },
+      "missing": {
+        "title": "尚未设置。SYB 的服务器缺少以下设置："
+      },
+      "steps": {
+        "title": "设置步骤（只需一次，在 SYB 的服务器上）",
+        "developer": "使用投放您广告的 TikTok 账号，在 TikTok 开发者网站 {site} 上注册为开发者，并等待您的开发者资料获得通过。",
+        "app": "在“My Apps”下创建一个应用，并将 {callback} 填为其广告主重定向 URL。",
+        "scopes": "在“Scope of permission”下，只勾选以下几项，其余都不要勾选：{scopes}。",
+        "submit": "提交该应用。TikTok 会对其进行审核，通常需要两到三个工作日。",
+        "keys": "通过后，将应用“Basic Information”中的 App ID 和 Secret 复制到 SYB 服务器上的 {appId} 和 {secret}，并将重定向 URL 复制到 {redirect}。"
+      },
+      "status": {
+        "connected": "已连接",
+        "paused": "已暂停",
+        "failed": "失败",
+        "disconnected": "已断开"
+      },
+      "consentedOn": "{day} 已同意 · {status}",
+      "notGranted": "未授予",
+      "notSetUpYet": "尚未设置",
+      "connect": "连接",
+      "close": "关闭",
+      "keepIt": "保留",
+      "unreachable": "我无法连接服务器。请重试。",
+      "revokeFailed": "撤销未成功。",
+      "revoking": "正在撤销…",
+      "yesRevoke": "是的，撤销",
+      "revoke": "撤销",
+      "reason": {
+        "start_here": "请从 SYB 的“连接”页面，用那里的按钮开始 TikTok 登录。没有向 TikTok 发送任何内容。",
+        "signed_out": "请先登录 SYB，然后再次连接 TikTok。",
+        "owner_only": "只有所有者才能授予或收回这项权限。没有向 TikTok 发送任何内容。",
+        "unavailable": "TikTok Ads 尚未设置。",
+        "phrase": "确认短语不匹配。请按显示的内容输入，然后重新开始。",
+        "already_connected": "TikTok 已经连接。请先撤销，再重新连接。",
+        "start_again": "这次 TikTok 登录已过期或已被使用。请从“连接”重新开始。",
+        "foreign": "这次 TikTok 登录是从另一个 SYB 账户发起的。请以该账户登录 SYB，或重新开始。",
+        "tiktok_error": "TikTok 登录未完成。没有连接任何内容。",
+        "scope": "TikTok 授予的权限与 SYB 要求的不完全一致。请将应用的“Scope of permission”与“连接”页面上的清单核对后重试。",
+        "no_advertisers": "TikTok 没有为这次登录向 SYB 显示任何广告账户。请用投放您广告的 TikTok 账号登录，然后重试。",
+        "tiktok_auth": "TikTok 没有接受这次登录。如果 TikTok 仍在审核 SYB 的应用，请等待其通过；否则请重新开始。",
+        "tiktok_permission": "TikTok 表示 SYB 的应用无权读取该广告账户。没有连接任何内容。",
+        "tiktok_busy": "TikTok 繁忙或没有响应。没有连接任何内容，请几分钟后重试。",
+        "tiktok_refused": "TikTok 拒绝了这次登录。没有连接任何内容。",
+        "internal": "我们这边出了问题。没有连接任何内容。",
+        "generic": "TikTok 登录未完成。没有连接任何内容。"
+      }
+    },
     "googleAds": {
       "sectionLabel": "Google Ads · 单独的同意",
       "label": "Google Ads",

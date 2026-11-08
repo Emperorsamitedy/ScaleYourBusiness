@@ -31,6 +31,7 @@ An AI business operating system for small businesses. It interviews an owner, bu
 | `specs/benchmark-map-v1.json`          | Business type → Eurostat NACE group, size classes, cost treatment   |
 | `specs/benchmarks-eurostat-v1.json`    | Eurostat SBS snapshot, dated; the app's only benchmark source       |
 | `specs/review-notifications-v1.json`   | Review notification email formats per platform (all unverified)     |
+| `specs/tiktok-ads-api-v1.md`           | TikTok Marketing API facts SYB relies on, each verified true/false  |
 | `specs/google-ads-api-v1.md`           | Google Ads API facts, each marked verified true/false (P2-20)       |
 | `specs/higgsfield-api-v1.md`           | Higgsfield's video API as SYB uses it (P6-03), each fact `verified` |
 | `specs/tiktok-posting-api-v1.md`       | TikTok's Content Posting API as SYB uses it, each fact `verified`   |
