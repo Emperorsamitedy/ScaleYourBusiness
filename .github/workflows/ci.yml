@@ -35,7 +35,16 @@ jobs:
           cache: npm
 
       - name: Install dependencies
-        run: npm ci
+        # ffmpeg-static downloads its binary from GitHub releases during
+        # install; when that host is down the whole install fails. Retry
+        # without install scripts then: the ffmpeg tests skip themselves
+        # (lib/content/edit ffmpegAvailable) and nothing else needs one.
+        run: |
+          npm ci || {
+            echo "::warning::npm ci failed (likely the ffmpeg download); retrying without install scripts"
+            npm ci --ignore-scripts
+            echo "FFMPEG_INSTALL_SKIPPED=1" >> "$GITHUB_ENV"
+          }
 
       - name: Typecheck
         run: npm run typecheck

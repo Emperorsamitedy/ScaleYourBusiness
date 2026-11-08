@@ -118,8 +118,9 @@ describe.skipIf(!available)("P3-18 — the cutting room", () => {
 
 describe("P3-18 — environment honesty", () => {
   it("states whether ffmpeg is available rather than assuming", () => {
-    // On this machine the static binary is a dependency; if this fails,
-    // `npm install` did not complete — a real finding, not a flake.
-    expect(available).toBe(true);
+    // The static binary is a dependency; if this fails, `npm install` did
+    // not complete — a real finding, not a flake. CI's install falls back
+    // to no scripts when the binary's download host is down, and says so.
+    expect(available).toBe(process.env.FFMPEG_INSTALL_SKIPPED !== "1");
   });
 });
