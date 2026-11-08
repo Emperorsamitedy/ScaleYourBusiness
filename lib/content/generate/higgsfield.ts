@@ -40,7 +40,11 @@ import { GENERATED_CLIP_SECONDS, ProviderError } from "./provider";
 export const HIGGSFIELD_ORIGIN = "https://api.higgsfield.ai";
 export const HIGGSFIELD_CURRENCY = "USD";
 
-/** Hard limits on one generation. 45 polls × 5 s stays inside a 300 s function. */
+/**
+ * Hard limits on one generation. 45 polls × 5 s fits one attempt inside a
+ * 300 s function; a request's deadline_at (the run's own budget) stops a
+ * retry from running past it.
+ */
 export const HIGGSFIELD_LIMITS = {
   poll_interval_ms: 5_000,
   max_polls: 45,
@@ -70,6 +74,8 @@ export interface HiggsfieldOptions {
   usd_micros_per_second: number;
   fetch?: HttpFetch;
   sleep?: (ms: number) => Promise<void>;
+  /** The clock a request's deadline_at is read against (tests inject it). */
+  now?: () => number;
   limits?: Partial<Record<keyof typeof HIGGSFIELD_LIMITS, number>>;
 }
 
@@ -159,6 +165,7 @@ export function higgsfieldMediaProvider(opts: HiggsfieldOptions): MediaProvider 
   };
   const doFetch: HttpFetch = opts.fetch ?? ((url, init) => fetch(url, init));
   const sleep = opts.sleep ?? sleepFor;
+  const clock = opts.now ?? Date.now;
   const key = opts.key;
   const model = opts.model;
   const auth = key ? `Key ${key.id}:${key.secret}` : "";
@@ -267,6 +274,13 @@ export function higgsfieldMediaProvider(opts: HiggsfieldOptions): MediaProvider 
       if (req.media !== "video") throw new ProviderError(HIGGSFIELD_VIDEO_ONLY);
       if (!key) throw new ProviderError(HIGGSFIELD_NO_KEY);
       const cost = priceOf(req.seconds);
+      // The run's own time limit: nothing is submitted that couldn't be waited for.
+      const deadline = req.deadline_at ?? Number.POSITIVE_INFINITY;
+      if (clock() + limits.poll_interval_ms > deadline) {
+        throw new ProviderError(
+          "there was no time left in this run to wait for Higgsfield, so nothing was submitted or billed",
+        );
+      }
       const submitted = await submit(req, req.idempotency_key ?? randomUUID());
       const requestId =
         typeof submitted.request_id === "string" &&
@@ -286,7 +300,11 @@ export function higgsfieldMediaProvider(opts: HiggsfieldOptions): MediaProvider 
         ? submitted.cancel_url
         : `${HIGGSFIELD_ORIGIN}/requests/${requestId}/cancel`;
 
+      let checks = 0;
       for (let poll = 1; poll <= limits.max_polls; poll++) {
+        // Out of time before the cap: stop waiting, exactly as at the cap.
+        if (clock() + limits.poll_interval_ms > deadline) break;
+        checks = poll;
         await sleep(limits.poll_interval_ms);
         let body: StatusBody;
         try {
@@ -337,11 +355,11 @@ export function higgsfieldMediaProvider(opts: HiggsfieldOptions): MediaProvider 
       // The cap: cancel while it's still queued (unbilled), or count it as charged.
       if (await cancel(cancelUrl)) {
         throw new ProviderError(
-          `Higgsfield hadn't started request ${requestId} after ${limits.max_polls} checks, so it was canceled — nothing was billed`,
+          `Higgsfield hadn't started request ${requestId} after ${checks} checks, so it was canceled — nothing was billed`,
         );
       }
       throw new ProviderError(
-        `Higgsfield didn't finish request ${requestId} within ${limits.max_polls} checks; it may still finish and be billed, so it is counted as spent`,
+        `Higgsfield didn't finish request ${requestId} within ${checks} checks; it may still finish and be billed, so it is counted as spent`,
         { cost },
       );
     },
