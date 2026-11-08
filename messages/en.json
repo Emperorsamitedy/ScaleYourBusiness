@@ -967,10 +967,14 @@
         "titleNone": "Every campaign brings back what it costs",
         "titleLosing": "{count, plural, one {# campaign costs more than it brings back} other {# campaigns cost more than it brings back}}",
         "window": "Meta Ads · {from}–{to}",
+        "windowPlatforms": "{platforms} · {from}–{to}",
         "derivedFrom": "<word>{derived}</word> from Meta’s own attribution",
+        "derivedFromPlatforms": "<word>{derived}</word> from each platform’s own attribution",
         "foot": "Return = the purchase value Meta attributes to the campaign ÷ what it spent. Below {even} it loses money by Meta's own count — the line I propose a pause at.",
+        "footPlatforms": "Return = the value the platform attributes to the campaign ÷ what it spent. Below {even} it loses money by that platform's own count — the line I propose a pause at.",
         "keySpent": "spent: hollow",
         "keyBack": "Meta attributes back: filled",
+        "keyBackPlatforms": "the platform attributes back: filled",
         "colCampaign": "Campaign",
         "colSpentBack": "Spent against back",
         "colReturn": "Return",
@@ -7270,17 +7274,22 @@
         "typedNeeds": "the daily budget you have in mind",
         "newSpendFormula": "{daily} a day × {days} days",
         "dailySource": "Meta: {spend} over {count, plural, one {# measured day} other {# measured days}} of the last {window}",
+        "dailySourceOn": "{platform}: {spend} over {count, plural, one {# measured day} other {# measured days}} of the last {window}",
         "noSpend": "no measured spend in the last four weeks",
         "dailyNeeds": "a few weeks of this campaign running",
         "pauseFormula": "{daily} a day not spent × {days} days",
         "changeFormula": "{daily} a day × {change} × {days} days",
         "roasSource": "{which, select, pooled {Meta-attributed purchases ÷ spend, per rolling {block}-day week over the last {window} days, across your measured campaigns, middle half ({count, plural, one {# week} other {# weeks}})} other {Meta-attributed purchases ÷ spend, per rolling {block}-day week over the last {window} days, middle half ({count, plural, one {# week} other {# weeks}})}}",
+        "roasSourceOn": "value {platform} attributes ÷ spend, per rolling {block}-day week over the last {window} days, middle half ({count, plural, one {# week} other {# weeks}})",
         "roasNonePooled": "no campaign of yours has {days} measured days in {currency}",
         "roasNone": "{count, plural, one {# measured day} other {# measured days}} — I need {need}",
         "roasNeeds": "{which, select, pooled {{days} measured days of a campaign} other {{days} measured days of this campaign}}",
         "reachNotRead": "Meta's reach per campaign isn't read",
+        "reachNotReadOn": "{platform}'s reach per campaign isn't read",
         "ordersNotRead": "Meta reports purchase value per campaign, not a count",
+        "ordersNotReadOn": "{platform} reports attributed value per campaign, not a count",
         "revenueFormula": "{spend} × return {roas} (Meta's attribution)",
+        "revenueFormulaOn": "{spend} × return {roas} ({platform}'s attribution)",
         "worstFormula": "{spend} × return {roas} × {margin} − {spend}",
         "worstWeakest": "Every week returns what your weakest measured week did ({roas}): {amount} over {days} days.",
         "worstBest": "The weeks you'd stop were as good as your best measured week ({roas}): {amount} over {days} days.",
@@ -7294,6 +7303,7 @@
         "titlePause": "Pause \"{name}\"",
         "whatNew": "A new Meta campaign, judged on what your other campaigns return.",
         "whatPause": "Stop the campaign: what it spends stays with you, and what Meta says it brings in stops too.",
+        "whatPauseOn": "Stop the campaign: what it spends stays with you, and what {platform} says it brings in stops too.",
         "whatRaise": "More daily budget on a campaign you already run.",
         "whatCut": "Less daily budget on a campaign you already run.",
         "newNotProposable": "A new ad starts from a post or video: on Content, \"Run this as an ad\" makes one proposal that creates it on Meta, paused ({task}). From here I can only size it.",
@@ -7302,6 +7312,7 @@
         "assumeStop": "The spend you stop was returning what the campaign's recent weeks did.",
         "assumeExtra": "Extra spend returns what the recent weeks returned.",
         "assumptionSource": "my projection from Meta's own attribution — some of those purchases might have happened anyway",
+        "assumptionSourceOn": "my projection from {platform}'s own attribution — some of those sales might have happened anyway",
         "keyRate": "return on ad spend"
       },
       "content": {
@@ -7932,7 +7943,7 @@
       "nothingWaiting": "nothing is waiting for your approval right now",
       "noPricedGain": "nothing waiting for you carries a priced gain yet",
       "noRevenueSeries": "I need a measured revenue series to read this against",
-      "noAds": "connect Meta Ads or Google Ads and I'll check which campaigns cost more than they bring back"
+      "noAds": "connect Meta Ads, Google Ads or TikTok Ads and I'll check which campaigns cost more than they bring back"
     },
     "price": {
       "arithmetic": "average price {mean} ({revenue} ÷ {count, plural, one {# completed} other {# completed}})",
@@ -7952,7 +7963,8 @@
       "tableProposal": "{summary}: {range}",
       "onTheTable": "{count, plural, one {# waiting proposal} other {# waiting proposals}}, base case to upside a month: {parts}",
       "adsAllPaidPlatforms": "every campaign returned at least what it cost, by each platform's own attribution ({count, plural, one {# campaign} other {# campaigns}})",
-      "adsLoserGoogle": "{campaign} on Google Ads: spent {spent}, Google attributes {value} in conversion value (return {roas}) → {loss}"
+      "adsLoserGoogle": "{campaign} on Google Ads: spent {spent}, Google attributes {value} in conversion value (return {roas}) → {loss}",
+      "adsLoserTikTok": "{campaign} on TikTok Ads: spent {spent}, TikTok attributes {value} in purchase value (return {roas}) → {loss}"
     },
     "basisNote": {
       "capacity": "from a capacity you {basis, select, ESTIMATED {ESTIMATED} other {STATED}} ({perWeek} a week)",
@@ -7960,7 +7972,9 @@
       "statedCost": "units on hand × a cost you gave, for some items",
       "proposals": "the proposals' own base and upside cases",
       "google": "from Google's own attribution",
-      "adPlatforms": "from each platform's own attribution, Meta's and Google's"
+      "tiktok": "from TikTok's own attribution",
+      "adPlatforms": "from each platform's own attribution, Meta's and Google's",
+      "adPlatformsEach": "from each platform's own attribution"
     },
     "componentNote": {
       "adsOtherCurrency": "{count, plural, one {# campaign} other {# campaigns}} in {currencies} left out: currencies never blend",
@@ -7983,7 +7997,10 @@
       "return": "return {roas}",
       "adsPlatforms": "Spend against the value each platform attributes, per campaign (Meta: purchase value, Google: conversion value), {from} to {to}: {campaigns}. Losing means a return below {even}.",
       "adsCampaignGoogle": "{campaign} on Google Ads spent {spent}, Google attributes {value} ({roas})",
-      "adsCampaignGoogleLosing": "{campaign} on Google Ads spent {spent}, Google attributes {value} ({roas}), losing"
+      "adsCampaignGoogleLosing": "{campaign} on Google Ads spent {spent}, Google attributes {value} ({roas}), losing",
+      "adsPlatformsEach": "Spend against the value each platform attributes, per campaign, {from} to {to}: {campaigns}. Losing means a return below {even}.",
+      "adsCampaignTikTok": "{campaign} on TikTok Ads spent {spent}, TikTok attributes {value} ({roas})",
+      "adsCampaignTikTokLosing": "{campaign} on TikTok Ads spent {spent}, TikTok attributes {value} ({roas}), losing"
     }
   },
   "watchNoticed": {

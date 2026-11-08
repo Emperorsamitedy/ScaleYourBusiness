@@ -337,12 +337,12 @@ export async function loadMarketInputs(
       ? { per_week: cap.value, basis: capBasis }
       : null;
 
-  // Meta Ads and Google Ads, per campaign — null when neither is connected at all.
-  const meta = [...conns.values()].some(
-    (c) => c.provider === "meta_ads" || c.provider === "google_ads",
+  // Meta Ads, Google Ads and TikTok Ads, per campaign — null when none is connected at all.
+  const ads = [...conns.values()].some(
+    (c) => c.provider === "meta_ads" || EXECUTE_READ_PROVIDERS.includes(c.provider),
   );
   let campaigns: CampaignInput[] | null = null;
-  if (meta) {
+  if (ads) {
     const end = price ? [...price.values.keys()].sort().at(-1)! : yesterday;
     const series = await loadCampaignSeries(
       accountId,
@@ -350,7 +350,7 @@ export async function loadMarketInputs(
       end,
     );
     campaigns = series.map((s) => ({
-      ...(s.platform === "google" ? { platform: "google" as const } : {}),
+      ...(s.platform !== undefined && s.platform !== "meta" ? { platform: s.platform } : {}),
       campaign_ref: s.campaign_ref,
       campaign_name: s.campaign_name,
       currency: s.currency,

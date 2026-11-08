@@ -15,8 +15,21 @@ import { moneyText, num } from "../../components/sheet/num";
 import { weekStart } from "../care/chart-view";
 import type { MarketChartModel } from "./model";
 import { shortDate } from "./model";
-import type { BookingsInput, CampaignWindow, PricedComponent, Window } from "./opportunity";
-import { OPPORTUNITY, daysInclusive, lateCancellations, noShows, rangeWhole } from "./opportunity";
+import type {
+  BookingsInput,
+  CampaignPlatform,
+  CampaignWindow,
+  PricedComponent,
+  Window,
+} from "./opportunity";
+import {
+  OPPORTUNITY,
+  campaignPlatforms,
+  daysInclusive,
+  lateCancellations,
+  noShows,
+  rangeWhole,
+} from "./opportunity";
 import type { Words } from "./words";
 import { englishChartWords } from "./words";
 
@@ -147,9 +160,17 @@ export function buildBookingsChart(
 export interface AdsChartModel {
   window: { from: string; to: string; days: number };
   campaigns: CampaignWindow[];
+  /** The ad platforms the campaigns come from, Meta first (the header and key follow them). */
+  platforms: CampaignPlatform[];
   losing: number;
   summary: string;
 }
+
+const CAMPAIGN_KEY: Readonly<Record<CampaignPlatform, string>> = {
+  meta: "small.adsCampaign",
+  google: "small.adsCampaignGoogle",
+  tiktok: "small.adsCampaignTikTok",
+};
 
 export function buildAdsChart(
   campaigns: readonly CampaignWindow[],
@@ -162,34 +183,32 @@ export function buildAdsChart(
   const losing = spent.filter((c) => c.losing);
   const roas = (c: CampaignWindow) =>
     c.roas === null ? tr("small.noReturn") : tr("small.return", { roas: num(c.roas, 2, locale) });
-  const google = spent.some((c) => c.platform === "google");
-  const summary = tr(google ? "small.adsPlatforms" : "small.ads", {
-    from: shortDate(w.from, locale),
-    to: shortDate(w.to, locale),
-    campaigns: spent
-      .map((c) =>
-        tr(
-          c.platform === "google"
-            ? c.losing
-              ? "small.adsCampaignGoogleLosing"
-              : "small.adsCampaignGoogle"
-            : c.losing
-              ? "small.adsCampaignLosing"
-              : "small.adsCampaign",
-          {
+  const platforms = campaignPlatforms(spent);
+  const only = platforms.length === 1 ? platforms[0] : null;
+  const metaGoogle =
+    platforms.length === 2 && platforms.includes("meta") && platforms.includes("google");
+  const summary = tr(
+    only === "meta" ? "small.ads" : metaGoogle ? "small.adsPlatforms" : "small.adsPlatformsEach",
+    {
+      from: shortDate(w.from, locale),
+      to: shortDate(w.to, locale),
+      campaigns: spent
+        .map((c) =>
+          tr(`${CAMPAIGN_KEY[c.platform ?? "meta"]}${c.losing ? "Losing" : ""}`, {
             campaign: c.campaign_name,
             spent: moneyText(c.spend_minor, c.currency, locale),
             value: moneyText(c.value_minor, c.currency, locale),
             roas: roas(c),
-          },
-        ),
-      )
-      .join(listSep(locale)),
-    even: num(OPPORTUNITY.losing_roas_below, 1, locale),
-  });
+          }),
+        )
+        .join(listSep(locale)),
+      even: num(OPPORTUNITY.losing_roas_below, 1, locale),
+    },
+  );
   return {
     window: { from: w.from, to: w.to, days: daysInclusive(w.from, w.to) },
     campaigns: spent,
+    platforms,
     losing: losing.length,
     summary,
   };

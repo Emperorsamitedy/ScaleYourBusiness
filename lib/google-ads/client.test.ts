@@ -27,10 +27,13 @@ import {
   microsToMinor,
   minorToMicros,
   readCustomer,
+  readId,
   readInt64,
   searchAll,
 } from "./client";
 import { fakeGoogleAds } from "./fake";
+import { readCampaignDay } from "./read";
+import { readCampaignRow } from "../execution/providers/google-ads";
 
 const ROOT = process.cwd();
 const BASE = "https://googleads.googleapis.com/v26";
@@ -228,6 +231,28 @@ describe("P2-20 — numbers (rule 1)", () => {
     expect(readInt64("abc")).toBeNull();
     expect(readInt64(null)).toBeNull();
     expect(readInt64(1.5)).toBeNull();
+  });
+
+  it("an int64 campaign id past 2^53 stays exact, read and executed alike", () => {
+    expect(readId("92233720368547758")).toBe("92233720368547758");
+    expect(readId("9223372036854775807")).toBe("9223372036854775807");
+    expect(readId(1234567890)).toBe("1234567890");
+    expect(readId("9223372036854775808")).toBeNull();
+    expect(readId("0")).toBeNull();
+    expect(readId("-5")).toBeNull();
+    expect(readId(2 ** 60)).toBeNull();
+    const day = readCampaignDay({
+      segments: { date: "2026-11-01" },
+      campaign: { id: "92233720368547758", name: "Big" },
+      metrics: { costMicros: "1000000" },
+    });
+    expect(day?.campaign_id).toBe("92233720368547758");
+    const row = readCampaignRow({
+      campaign: { id: "92233720368547758", name: "Big", status: "ENABLED" },
+      campaignBudget: {},
+      customer: { currencyCode: "EUR" },
+    });
+    expect(row?.id).toBe("92233720368547758");
   });
 });
 

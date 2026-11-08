@@ -91,6 +91,50 @@ describe("TikTok Ads — the pinned request table (THE BUILD GATE)", () => {
     walk(root);
     expect(offenders).toEqual([]);
   });
+
+  it("only the executor sends a campaign write, and only the sign-in and the executor hold tiktokCall", () => {
+    // Review 2026-11-08: tiktokCall is generic — a module that imports it can
+    // reach campaign_update and campaign_status_update. This pins who may.
+    const MAY_CALL: Readonly<Record<string, readonly string[]>> = {
+      [join("lib", "tiktok", "login.ts")]: ["access_token"],
+      [join("lib", "execution", "providers", "tiktok-ads.ts")]: [
+        "campaign_get",
+        "campaign_update",
+        "campaign_status_update",
+      ],
+    };
+    const importsFence = (src: string) =>
+      /import\s*\{[^}]*\btiktokCall\b[^}]*\}\s*from\s*["'](?:\.\/api|[^"']*\/tiktok\/api)["']/.test(
+        src,
+      );
+    const offenders: string[] = [];
+    const walk = (dir: string) => {
+      for (const name of readdirSync(dir)) {
+        const p = join(dir, name);
+        if (statSync(p).isDirectory()) {
+          if (name !== "node_modules" && !name.startsWith(".")) walk(p);
+        } else if (/\.tsx?$/.test(name) && !/\.test\.tsx?$/.test(name)) {
+          const rel = p.slice(process.cwd().length + 1);
+          if (rel === join("lib", "tiktok", "api.ts")) continue;
+          const src = readFileSync(p, "utf8");
+          if (!importsFence(src)) continue;
+          const allowed = MAY_CALL[rel];
+          if (!allowed) {
+            offenders.push(`${rel}: imports tiktokCall`);
+            continue;
+          }
+          for (const [, id] of src.matchAll(/tiktokCall\(\s*\w+\s*,\s*"([a-z_]+)"/g)) {
+            if (!allowed.includes(id as string)) offenders.push(`${rel}: ${id}`);
+          }
+        }
+      }
+    };
+    for (const top of ["lib", "app", "components", "scripts"]) walk(join(process.cwd(), top));
+    expect(offenders).toEqual([]);
+    // The check has teeth: a planted write outside the executor is named.
+    const planted = `import { tiktokCall } from "../tiktok/api";\nawait tiktokCall(ctx, "campaign_status_update", {});`;
+    expect(importsFence(planted)).toBe(true);
+  });
 });
 
 describe("TikTok Ads — tiktokCall refuses before it sends", () => {

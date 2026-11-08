@@ -97,10 +97,15 @@ function entry(currency: string): readonly [number, 0 | 2] {
  * Minor units → what TikTok is sent: major units at TikTok's precision,
  * and the minor amount that value really is (a HUF budget loses its
  * fillér). The guard runs on `sent_minor`, the number TikTok will hold.
+ * `toward` (review 2026-11-08): round toward the budget before the change,
+ * so what is sent never moves further than the owner approved — an
+ * approved 50% raise of 5 003 Ft goes as 7 504 Ft, never 7 505 Ft (which
+ * the ±50% guard would refuse). Without it, the nearest unit.
  */
 export function toTikTokBudget(
   minor: number,
   currency: string,
+  toward?: number,
 ): { value: number; sent_minor: number } {
   if (!Number.isSafeInteger(minor) || minor <= 0) {
     throw new RangeError("a budget must be a whole number of minor units above zero");
@@ -109,7 +114,9 @@ export function toTikTokBudget(
   const exp = minorUnitExponent(currency.toUpperCase());
   const keep = Math.min(decimals, exp);
   const step = 10 ** (exp - keep);
-  const sent_minor = Math.round(minor / step) * step;
+  const round =
+    toward === undefined || toward === minor ? Math.round : toward < minor ? Math.floor : Math.ceil;
+  const sent_minor = round(minor / step) * step;
   if (sent_minor <= 0) throw new RangeError("that budget rounds to nothing in TikTok's precision");
   return { value: sent_minor / 10 ** exp, sent_minor };
 }

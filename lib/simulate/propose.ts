@@ -14,7 +14,7 @@ import { ContentError, proposeContentPlan } from "../content/plan";
 import { proposeFromSegments } from "../crm/segment-proposals";
 import { gatherInputs } from "./inputs";
 import type { OptionResult, SimOption } from "./model";
-import { CONTENT_WEEKS, simulateOption } from "./model";
+import { CONTENT_WEEKS, findCampaign, simulateOption } from "./model";
 
 export interface ProposeOutcome {
   /** The proposal made, pending or born blocked; null when nothing was proposed. */
@@ -63,9 +63,12 @@ export async function proposeFromSimulation(
           result,
         );
       }
+      // The campaign the simulation priced, on its own platform (Meta, Google Ads, TikTok Ads).
+      const campaign = findCampaign(inputs.ads.campaigns, option.campaign_ref, option.platform);
       const run = await proposeRequestedAdChange(profileId, {
         ...shared,
         campaign_ref: option.campaign_ref,
+        platform: campaign?.platform ?? option.platform ?? "meta",
         change:
           option.change === "pause"
             ? "pause"

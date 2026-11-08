@@ -19,8 +19,13 @@
 // other case compares ROAS after with ROAS before, relatively. Thresholds
 // pinned in AD_READBACK, boundary-tested both ways; Meta's attribution is
 // Meta's own, and the arithmetic says so.
+//
+// Review 2026-11-08: a Google Ads or TikTok Ads change is judged the same
+// way on ITS platform's series — the execute connection whose daily read is
+// measurement (lib/connectors/execute-reads.ts) — never looked up in Meta's
+// data, where its id is either absent or another platform's campaign.
 
-import { and, eq, gte, inArray, lte } from "drizzle-orm";
+import { and, eq, gte, inArray, lte, type SQL } from "drizzle-orm";
 import { db } from "../../db";
 import { connections, metricObservations } from "../../db/schema";
 import { format, money } from "../core/money";
@@ -38,6 +43,22 @@ export const AD_READBACK = {
 } as const;
 
 export type CampaignVerdict = "helped" | "did_nothing" | "backfired" | "too_early" | "unmeasured";
+
+/** Whose campaign it is; Meta when a proposal names none. */
+export type AdPlatform = "meta" | "google" | "tiktok";
+
+const PLATFORM: Readonly<
+  Record<AdPlatform, { provider: string; purpose: "measure" | "execute"; label: string }>
+> = {
+  meta: { provider: "meta_ads", purpose: "measure", label: "Meta" },
+  google: { provider: "google_ads", purpose: "execute", label: "Google" },
+  tiktok: { provider: "tiktok_ads", purpose: "execute", label: "TikTok" },
+};
+
+/** Pure: a proposal detail's platform, Meta when absent or unknown. */
+export function adPlatformOf(v: unknown): AdPlatform {
+  return v === "google" || v === "tiktok" ? v : "meta";
+}
 
 export interface CampaignWindow {
   from: string;
@@ -70,7 +91,10 @@ export function judgeCampaign(args: {
   changed_on: string;
   before: CampaignWindow;
   after: CampaignWindow;
+  /** Whose attribution the value is (default Meta). */
+  platform?: AdPlatform;
 }): CampaignOutcome {
+  const who = PLATFORM[args.platform ?? "meta"].label;
   const fmt = (minor: number) => format(money(minor, args.currency));
   const roasWord = (r: number | null) => (r === null ? "—" : r.toFixed(2));
   const base = { currency: args.currency, before: args.before, after: args.after };
@@ -93,7 +117,7 @@ export function judgeCampaign(args: {
   }
   const beforeLine =
     `"${args.name}" returned ${roasWord(before.roas)} on ad spend over the ${before.days} day(s) it spent ` +
-    `before ${args.changed_on} (${fmt(before.spend_minor)} spent, ${fmt(before.value_minor)} Meta attributes)`;
+    `before ${args.changed_on} (${fmt(before.spend_minor)} spent, ${fmt(before.value_minor)} ${who} attributes)`;
   let delta: number;
   let afterLine: string;
   // Integer cross-products, one division: a boundary like +5% lands exactly.
@@ -108,7 +132,7 @@ export function judgeCampaign(args: {
     delta = prior === 0 ? (cross > 0 ? Infinity : 0) : (cross - prior) / prior;
     afterLine =
       `after, ${roasWord(after.roas)} over ${after.days} measured day(s) ` +
-      `(${fmt(after.spend_minor)} spent, ${fmt(after.value_minor)} Meta attributes)`;
+      `(${fmt(after.spend_minor)} spent, ${fmt(after.value_minor)} ${who} attributes)`;
   }
   const verdict: CampaignVerdict =
     delta >= AD_READBACK.helped_at
@@ -123,34 +147,37 @@ export function judgeCampaign(args: {
     delta_pct,
     arithmetic:
       `${beforeLine}; ${afterLine} — ${delta_pct === null ? "up from none" : `${delta_pct >= 0 ? "+" : ""}${delta_pct}%`}` +
-      ` (thresholds: helped at +${AD_READBACK.helped_at * 100}%, backfired at ${AD_READBACK.backfired_at * 100}%; attribution is Meta's own)`,
+      ` (thresholds: helped at +${AD_READBACK.helped_at * 100}%, backfired at ${AD_READBACK.backfired_at * 100}%; attribution is ${who}'s own)`,
   };
 }
 
-/** Judge an ad change on its campaign's own ROAS, from the account's Meta measure connection(s). */
+/** Judge an ad change on its campaign's own ROAS, from its platform's read connection(s). */
 export async function campaignOutcome(args: {
   accountId: string;
   campaignRef: string;
   campaignName: string;
   changedOn: string;
   now: Date;
+  /** Whose campaign it is (the proposal's detail.platform); Meta when absent. */
+  platform?: AdPlatform;
 }): Promise<CampaignOutcome> {
   const empty = { currency: null, before: null, after: null, delta_pct: null };
+  const platform = args.platform ?? "meta";
+  const source = PLATFORM[platform];
+  const where: SQL[] = [
+    eq(connections.account_id, args.accountId),
+    eq(connections.provider, source.provider),
+    eq(connections.purpose, source.purpose),
+  ];
   const conns = await db
     .select({ id: connections.id })
     .from(connections)
-    .where(
-      and(
-        eq(connections.account_id, args.accountId),
-        eq(connections.provider, "meta_ads"),
-        eq(connections.purpose, "measure"),
-      ),
-    );
+    .where(and(...where));
   if (conns.length === 0) {
     return {
       ...empty,
       verdict: "unmeasured",
-      arithmetic: "no Meta ads read connection — connect it and the verdict becomes possible",
+      arithmetic: `no ${source.label} ads read connection — connect it and the verdict becomes possible`,
     };
   }
   const from = shiftDay(args.changedOn, -AD_READBACK.before_days);
@@ -238,5 +265,6 @@ export async function campaignOutcome(args: {
     changed_on: args.changedOn,
     before: window(from, shiftDay(args.changedOn, -1), false),
     after: window(shiftDay(args.changedOn, 1), afterTo, true),
+    platform,
   });
 }

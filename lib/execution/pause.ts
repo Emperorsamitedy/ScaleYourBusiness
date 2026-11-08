@@ -32,6 +32,10 @@
 //     with the auth error (an error code is an answer: nothing went out).
 //     An item left `publishing` — a lost answer, a post that may be live —
 //     is never touched here; the P3-21d read-back settles it.
+//   - per platform (review 2026-11-08): a publishing connection holds only
+//     the items whose publish proposal names ITS platforms — Meta's
+//     Facebook and Instagram posts, TikTok posting's TikTok posts — so an
+//     expired Meta sign-in never holds a TikTok post, nor the reverse.
 //   - a run: executions.held_for = "reconnect", written by the engine when
 //     the provider's error said so (heldFor). Resuming re-runs it through
 //     executeProposal; a publish run then claims the re-queued item afresh,
@@ -53,11 +57,32 @@ import { PAUSED_WORK_SENTENCE } from "./meta-errors";
 import type { ExecutionProviderId } from "./scopes";
 import { EXECUTION_SCOPE_REGISTRY } from "./scopes";
 
-export type PausableProvider = Extract<ExecutionProviderId, "meta_publish" | "meta_ads">;
+export type PausableProvider = Extract<
+  ExecutionProviderId,
+  "meta_publish" | "meta_ads" | "tiktok_publish"
+>;
+
+/** Review 2026-11-08: TikTok posting pauses and resumes the way Meta's publishing does. */
+const PAUSABLE: readonly PausableProvider[] = ["meta_publish", "meta_ads", "tiktok_publish"];
 
 export function isPausableProvider(p: string): p is PausableProvider {
-  return p === "meta_publish" || p === "meta_ads";
+  return (PAUSABLE as readonly string[]).includes(p);
 }
+
+/** The publishing providers, and the platforms their publish proposals name. */
+const PUBLISH_PLATFORMS: Readonly<Partial<Record<PausableProvider, readonly string[]>>> = {
+  meta_publish: ["facebook", "instagram"],
+  tiktok_publish: ["tiktok"],
+};
+
+/** What met the refusal: Meta's classified failure, or TikTok's sentence and code. */
+export type PauseFailure = Pick<MetaFailure, "owner_sentence"> & {
+  code: number | string | null;
+  subcode?: number | null;
+};
+
+/** A publish proposal's platform, from its action. */
+const proposalPlatform = sql<string>`${proposals.action}->'detail'->>'platform'`;
 
 type Executor = Pick<typeof db, "insert" | "select" | "update">;
 
@@ -73,21 +98,30 @@ async function profilesOf(x: Executor, accountId: string): Promise<string[]> {
 }
 
 /**
- * Every queued item on the account (and the one Meta just refused, if
- * named) → failed with the sentence, marked with the connection. Never an
- * item that is `publishing`: it may be live.
+ * Every queued item on the account bound for this provider's platforms
+ * (and the one the platform just refused, if named) → failed with the
+ * sentence, marked with the connection. Never an item that is
+ * `publishing`: it may be live.
  */
 async function holdItems(
   x: Executor,
   accountId: string,
   connectionId: string,
   itemId: string | null,
+  provider: PausableProvider,
 ): Promise<number> {
+  const platforms = PUBLISH_PLATFORMS[provider];
+  if (!platforms) return 0;
   const profiles = await profilesOf(x, accountId);
   if (profiles.length === 0) return 0;
-  const which = itemId
+  const status = itemId
     ? sql`(${contentItems.status} = 'queued' OR (${contentItems.id} = ${itemId} AND ${contentItems.status} = 'failed'))`
     : eq(contentItems.status, "queued");
+  const ownPosts = x
+    .select({ id: proposals.id })
+    .from(proposals)
+    .where(and(inArray(proposals.profile_id, profiles), inArray(proposalPlatform, [...platforms])));
+  const which = and(status, inArray(contentItems.publish_proposal_id, ownPosts));
   const rows = await x
     .update(contentItems)
     .set({
@@ -103,7 +137,7 @@ async function holdItems(
 export interface PauseArgs {
   accountId: string;
   provider: PausableProvider;
-  failure: MetaFailure;
+  failure: PauseFailure;
   /** The item whose own publish Meta refused — already `failed`, nothing sent. */
   itemId?: string | null;
   /** What met the refusal, for the log line. */
@@ -146,10 +180,7 @@ export async function pauseExecutionConnection(args: PauseArgs): Promise<PauseOu
       .returning({ id: connections.id });
     const paused = flipped.length === 1;
 
-    const items =
-      args.provider === "meta_publish"
-        ? await holdItems(tx, args.accountId, conn.id, args.itemId ?? null)
-        : 0;
+    const items = await holdItems(tx, args.accountId, conn.id, args.itemId ?? null, args.provider);
 
     if (paused) {
       const label = EXECUTION_SCOPE_REGISTRY[args.provider].label;
@@ -166,7 +197,7 @@ export async function pauseExecutionConnection(args: PauseArgs): Promise<PauseOu
               connection_id: conn.id,
               provider: args.provider,
               code: args.failure.code,
-              subcode: args.failure.subcode,
+              subcode: args.failure.subcode ?? null,
               items_held: items,
             },
           })),
@@ -185,7 +216,7 @@ export async function pauseExecutionConnection(args: PauseArgs): Promise<PauseOu
       transitioned: outcome.paused,
       items_held: outcome.items_held,
       code: args.failure.code,
-      subcode: args.failure.subcode,
+      subcode: args.failure.subcode ?? null,
     }),
   );
   return outcome;
@@ -198,8 +229,9 @@ export async function pauseExecutionConnection(args: PauseArgs): Promise<PauseOu
 export async function holdQueuedForPausedConnection(
   accountId: string,
   connectionId: string,
+  provider: PausableProvider = "meta_publish",
 ): Promise<number> {
-  return holdItems(db, accountId, connectionId, null);
+  return holdItems(db, accountId, connectionId, null, provider);
 }
 
 export interface ResumeOutcome {
@@ -231,7 +263,7 @@ export async function resumeAfterReconnect(
   const conditions = [
     eq(connections.purpose, "execute"),
     eq(connections.status, "connected"),
-    inArray(connections.provider, ["meta_publish", "meta_ads"]),
+    inArray(connections.provider, [...PAUSABLE]),
   ];
   if (scope.accountId) conditions.push(eq(connections.account_id, scope.accountId));
   if (scope.provider) conditions.push(eq(connections.provider, scope.provider));
@@ -255,14 +287,22 @@ export async function resumeAfterReconnect(
         ),
       );
     let items = 0;
-    if (provider === "meta_publish") {
+    const platforms = PUBLISH_PLATFORMS[provider];
+    if (platforms) {
       const profiles = await profilesOf(db, account_id);
       if (profiles.length > 0) {
-        // Back to the queue only while the owner's approval still stands.
+        // Back to the queue only while the owner's approval still stands —
+        // and only this provider's own posts.
         const approved = db
           .select({ id: proposals.id })
           .from(proposals)
-          .where(and(inArray(proposals.profile_id, profiles), eq(proposals.status, "approved")));
+          .where(
+            and(
+              inArray(proposals.profile_id, profiles),
+              eq(proposals.status, "approved"),
+              inArray(proposalPlatform, [...platforms]),
+            ),
+          );
         const rows = await db
           .update(contentItems)
           .set({ status: "queued", last_error: null, paused_connection_id: null })
@@ -280,10 +320,9 @@ export async function resumeAfterReconnect(
     }
     if (items === 0 && runs.length === 0) continue;
     const label = EXECUTION_SCOPE_REGISTRY[provider].label;
-    const what =
-      provider === "meta_publish"
-        ? `${plural(items, "post is", "posts are")} back in the queue and go`
-        : `${plural(runs.length, "ad change goes", "ad changes go")}`;
+    const what = platforms
+      ? `${plural(items, "post is", "posts are")} back in the queue and go`
+      : `${plural(runs.length, "ad change goes", "ad changes go")}`;
     const profiles = await profilesOf(db, account_id);
     if (profiles.length > 0 && (items > 0 || scope.announce === true)) {
       await db.insert(watchActivity).values(
