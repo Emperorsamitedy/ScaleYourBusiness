@@ -65,8 +65,19 @@ export const LANGUAGE_NAMES: Readonly<Record<AppLocale, string>> = {
  * English is never sent back: it is the source every catalogue is checked against.
  */
 export function languageStatus(locale: AppLocale): LanguageStatus {
-  const back = (process.env.LANGUAGES_IN_REVIEW ?? "").split(",").map((s) => s.trim());
-  return locale !== DEFAULT_LOCALE && back.includes(locale) ? "review" : LANGUAGE_STATUS[locale];
+  return languagesInReview().includes(locale) ? "review" : LANGUAGE_STATUS[locale];
+}
+
+/**
+ * Pure: the languages `LANGUAGES_IN_REVIEW` sends back to review, in the
+ * table's order — only languages SYB speaks, and never English. Anything
+ * else in the list is ignored. /ops reads the same list through this.
+ */
+export function languagesInReview(
+  raw: string | undefined = process.env.LANGUAGES_IN_REVIEW,
+): AppLocale[] {
+  const back = (raw ?? "").split(",").map((s) => s.trim());
+  return LOCALES.filter((l) => l !== DEFAULT_LOCALE && back.includes(l));
 }
 
 /** Pure: whether a language may be used by someone who is (or isn't) a named reviewer. */

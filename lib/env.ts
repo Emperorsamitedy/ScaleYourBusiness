@@ -37,12 +37,19 @@ export const env: Record<RequiredKey, string> = {
 };
 
 /**
+ * The environment a reader reads. Every reader below defaults to
+ * process.env; /ops hands its own (lib/ops/readiness.ts), so the panel and
+ * the feature agree because they run the same check.
+ */
+export type EnvSource = Readonly<Record<string, string | undefined>>;
+
+/**
  * P3-52: is a Vercel Blob token set? Uploads choose their path by it: the
  * browser uploads straight to Blob with a short-lived client token when it
  * is, and to the local disk store (development only) when it isn't.
  */
-export function blobTokenSet(): boolean {
-  return (process.env.BLOB_READ_WRITE_TOKEN?.trim() ?? "") !== "";
+export function blobTokenSet(source: EnvSource = process.env): boolean {
+  return (source.BLOB_READ_WRITE_TOKEN?.trim() ?? "") !== "";
 }
 
 /**
@@ -57,9 +64,9 @@ export function blobTokenSet(): boolean {
  */
 export type MediaProviderSetting = "off" | "fake" | "vendor" | "higgsfield";
 
-export function mediaProviderSetting(): MediaProviderSetting {
-  const raw = process.env.MEDIA_PROVIDER?.trim().toLowerCase() ?? "";
-  if (raw === "fake") return process.env.NODE_ENV === "production" ? "off" : "fake";
+export function mediaProviderSetting(source: EnvSource = process.env): MediaProviderSetting {
+  const raw = source.MEDIA_PROVIDER?.trim().toLowerCase() ?? "";
+  if (raw === "fake") return source.NODE_ENV === "production" ? "off" : "fake";
   if (raw === "vendor") return "vendor";
   // P6-03: Higgsfield's API (its own prepaid USD balance, not the web plan).
   if (raw === "higgsfield") return "higgsfield";
@@ -97,9 +104,9 @@ function positiveInt(raw: string | undefined, fallback: number): number {
  * HIGGSFIELD_API_SECRET, or as one HIGGSFIELD_API_KEY of "id:secret" —
  * the console shows the key whole once, at creation.
  */
-export function higgsfieldEnv(): HiggsfieldEnv {
-  const rawKey = process.env.HIGGSFIELD_API_KEY?.trim() ?? "";
-  const rawSecret = process.env.HIGGSFIELD_API_SECRET?.trim() ?? "";
+export function higgsfieldEnv(source: EnvSource = process.env): HiggsfieldEnv {
+  const rawKey = source.HIGGSFIELD_API_KEY?.trim() ?? "";
+  const rawSecret = source.HIGGSFIELD_API_SECRET?.trim() ?? "";
   let key: HiggsfieldEnv["key"] = null;
   if (rawKey !== "" && rawSecret !== "") key = { id: rawKey, secret: rawSecret };
   else if (rawKey.includes(":")) {
@@ -108,11 +115,11 @@ export function higgsfieldEnv(): HiggsfieldEnv {
     const secret = rawKey.slice(at + 1).trim();
     if (id !== "" && secret !== "") key = { id, secret };
   }
-  const model = process.env.HIGGSFIELD_MODEL?.trim() ?? "";
+  const model = source.HIGGSFIELD_MODEL?.trim() ?? "";
   return {
     key,
     monthly_cap_minor: positiveInt(
-      process.env.HIGGSFIELD_MONTHLY_CAP_MINOR,
+      source.HIGGSFIELD_MONTHLY_CAP_MINOR,
       HIGGSFIELD_DEFAULTS.monthly_cap_minor,
     ),
     // Only an endpoint id's characters: it becomes part of a URL path on Higgsfield's host.
@@ -120,7 +127,7 @@ export function higgsfieldEnv(): HiggsfieldEnv {
       ? model
       : HIGGSFIELD_DEFAULTS.model,
     usd_micros_per_second: positiveInt(
-      process.env.HIGGSFIELD_USD_MICROS_PER_SECOND,
+      source.HIGGSFIELD_USD_MICROS_PER_SECOND,
       HIGGSFIELD_DEFAULTS.usd_micros_per_second,
     ),
   };
@@ -138,8 +145,8 @@ export function metaAccessLevel(): MetaAccessLevel {
 }
 
 /** APP_URL, the absolute origin for links and OAuth redirects. Null = derive from the request. */
-export function appUrl(): string | null {
-  return process.env.APP_URL?.trim() || null;
+export function appUrl(source: EnvSource = process.env): string | null {
+  return source.APP_URL?.trim() || null;
 }
 
 /** SYB's own Meta app for Facebook Login (P3-20j), as the environment holds it. */
@@ -217,8 +224,10 @@ export const TIKTOK_ADS_KEYS = [
 ] as const;
 
 /** Which of the three are missing: what the /connections card names, exactly. */
-export function tiktokAdsMissing(): (typeof TIKTOK_ADS_KEYS)[number][] {
-  return TIKTOK_ADS_KEYS.filter((k) => (process.env[k]?.trim() ?? "") === "");
+export function tiktokAdsMissing(
+  source: EnvSource = process.env,
+): (typeof TIKTOK_ADS_KEYS)[number][] {
+  return TIKTOK_ADS_KEYS.filter((k) => (source[k]?.trim() ?? "") === "");
 }
 
 /**
@@ -252,15 +261,15 @@ export interface TikTokPostingEnv {
  * up yet, and every route of the sign-in refuses rather than sending a
  * half-configured request to TikTok.
  */
-export function tiktokPostingEnv(): TikTokPostingEnv | null {
-  const client_key = process.env.TIKTOK_CLIENT_KEY?.trim() ?? "";
-  const client_secret = process.env.TIKTOK_CLIENT_SECRET?.trim() ?? "";
+export function tiktokPostingEnv(source: EnvSource = process.env): TikTokPostingEnv | null {
+  const client_key = source.TIKTOK_CLIENT_KEY?.trim() ?? "";
+  const client_secret = source.TIKTOK_CLIENT_SECRET?.trim() ?? "";
   if (client_key === "" || client_secret === "") return null;
   return {
     client_key,
     client_secret,
-    redirect_uri: process.env.TIKTOK_REDIRECT_URI?.trim() || null,
-    app_url: appUrl(),
+    redirect_uri: source.TIKTOK_REDIRECT_URI?.trim() || null,
+    app_url: appUrl(source),
   };
 }
 
@@ -273,8 +282,8 @@ export type TikTokAuditStatus = "unaudited" | "audited";
  * unaudited — the screen must never offer a privacy TikTok will refuse, so
  * the safe reading is the default, as with META_ACCESS_LEVEL.
  */
-export function tiktokAuditStatus(): TikTokAuditStatus {
-  return process.env.TIKTOK_AUDIT_STATUS?.trim() === "audited" ? "audited" : "unaudited";
+export function tiktokAuditStatus(source: EnvSource = process.env): TikTokAuditStatus {
+  return source.TIKTOK_AUDIT_STATUS?.trim() === "audited" ? "audited" : "unaudited";
 }
 
 /**
@@ -314,32 +323,45 @@ export interface GoogleAdsEnv {
 export type GoogleAdsMissingKey =
   "GOOGLE_ADS_CLIENT_ID" | "GOOGLE_ADS_CLIENT_SECRET" | "GOOGLE_ADS_ACCESS_LEVEL";
 
-function googleAdsClient(): { client_id: string; client_secret: string } {
-  // Its own client when set; otherwise the Google client sign-in and Business
-  // Profile already use (one Cloud project, one consent screen to verify).
-  const own_id = process.env.GOOGLE_ADS_CLIENT_ID?.trim() ?? "";
-  const own_secret = process.env.GOOGLE_ADS_CLIENT_SECRET?.trim() ?? "";
-  if (own_id !== "" || own_secret !== "") return { client_id: own_id, client_secret: own_secret };
+/**
+ * Which OAuth client Google Ads uses: its own when either GOOGLE_ADS_CLIENT_*
+ * key is set; otherwise the Google client sign-in and Business Profile
+ * already use (one Cloud project, one consent screen to verify).
+ */
+export function googleAdsClientSource(source: EnvSource = process.env): "own" | "shared" {
+  const own_id = source.GOOGLE_ADS_CLIENT_ID?.trim() ?? "";
+  const own_secret = source.GOOGLE_ADS_CLIENT_SECRET?.trim() ?? "";
+  return own_id !== "" || own_secret !== "" ? "own" : "shared";
+}
+
+function googleAdsClient(source: EnvSource): { client_id: string; client_secret: string } {
+  if (googleAdsClientSource(source) === "own") {
+    return {
+      client_id: source.GOOGLE_ADS_CLIENT_ID?.trim() ?? "",
+      client_secret: source.GOOGLE_ADS_CLIENT_SECRET?.trim() ?? "",
+    };
+  }
   return {
-    client_id: process.env.GOOGLE_CLIENT_ID?.trim() ?? "",
-    client_secret: process.env.GOOGLE_CLIENT_SECRET?.trim() ?? "",
+    client_id: source.GOOGLE_CLIENT_ID?.trim() ?? "",
+    client_secret: source.GOOGLE_CLIENT_SECRET?.trim() ?? "",
   };
 }
 
-function googleAdsAccessLevel(): GoogleAdsAccessLevel | null {
-  const raw = process.env.GOOGLE_ADS_ACCESS_LEVEL?.trim().toLowerCase() ?? "";
+/** GOOGLE_ADS_ACCESS_LEVEL as one of Google's levels, or null when unset or unknown. */
+export function googleAdsAccessLevel(source: EnvSource = process.env): GoogleAdsAccessLevel | null {
+  const raw = source.GOOGLE_ADS_ACCESS_LEVEL?.trim().toLowerCase() ?? "";
   return (GOOGLE_ADS_ACCESS_LEVELS as readonly string[]).includes(raw)
     ? (raw as GoogleAdsAccessLevel)
     : null;
 }
 
 /** P2-20: what is still missing before Google Ads can be offered, by key name. Empty = ready. */
-export function googleAdsMissing(): GoogleAdsMissingKey[] {
-  const client = googleAdsClient();
+export function googleAdsMissing(source: EnvSource = process.env): GoogleAdsMissingKey[] {
+  const client = googleAdsClient(source);
   const missing: GoogleAdsMissingKey[] = [];
   if (client.client_id === "") missing.push("GOOGLE_ADS_CLIENT_ID");
   if (client.client_secret === "") missing.push("GOOGLE_ADS_CLIENT_SECRET");
-  if (googleAdsAccessLevel() === null) missing.push("GOOGLE_ADS_ACCESS_LEVEL");
+  if (googleAdsAccessLevel(source) === null) missing.push("GOOGLE_ADS_ACCESS_LEVEL");
   return missing;
 }
 
@@ -350,19 +372,19 @@ export function googleAdsMissing(): GoogleAdsMissingKey[] {
  * guessed. Null otherwise: the card names what is missing, and the daily
  * read and every Google Ads change refuse.
  */
-export function googleAdsEnv(): GoogleAdsEnv | null {
-  const client = googleAdsClient();
-  const access_level = googleAdsAccessLevel();
+export function googleAdsEnv(source: EnvSource = process.env): GoogleAdsEnv | null {
+  const client = googleAdsClient(source);
+  const access_level = googleAdsAccessLevel(source);
   if (client.client_id === "" || client.client_secret === "" || access_level === null) return null;
-  const token = process.env.GOOGLE_ADS_DEVELOPER_TOKEN?.trim() ?? "";
-  const login = (process.env.GOOGLE_ADS_LOGIN_CUSTOMER_ID?.trim() ?? "").replace(/-/g, "");
+  const token = source.GOOGLE_ADS_DEVELOPER_TOKEN?.trim() ?? "";
+  const login = (source.GOOGLE_ADS_LOGIN_CUSTOMER_ID?.trim() ?? "").replace(/-/g, "");
   return {
     ...client,
     access_level,
     developer_token: token === "" || /\s/.test(token) ? null : token,
     login_customer_id: /^\d{10}$/.test(login) ? login : null,
-    redirect_uri: process.env.GOOGLE_ADS_REDIRECT_URI?.trim() || null,
-    app_url: appUrl(),
+    redirect_uri: source.GOOGLE_ADS_REDIRECT_URI?.trim() || null,
+    app_url: appUrl(source),
   };
 }
 
@@ -400,8 +422,8 @@ export function pagespeedApiKey(): string | null {
  * stays approved. Anything but "on" reads as off: the safe reading is the
  * default, as with META_ACCESS_LEVEL.
  */
-export function sessionDRealWritesOn(): boolean {
-  return process.env.SESSION_D_REAL_WRITES?.trim() === "on";
+export function sessionDRealWritesOn(source: EnvSource = process.env): boolean {
+  return source.SESSION_D_REAL_WRITES?.trim() === "on";
 }
 
 /**
@@ -471,8 +493,8 @@ export const PHONE_RECORDING_KEEP_DAYS_MAX = 365;
  * (unset, junk, zero, longer than a year) is the default of 30. The caller
  * hears this number in the recording notice, and the owner reads it.
  */
-export function phoneRecordingKeepDays(): number {
-  const raw = process.env.PHONE_RECORDING_KEEP_DAYS?.trim() ?? "";
+export function phoneRecordingKeepDays(source: EnvSource = process.env): number {
+  const raw = source.PHONE_RECORDING_KEEP_DAYS?.trim() ?? "";
   if (!/^[0-9]{1,3}$/.test(raw)) return PHONE_RECORDING_KEEP_DAYS_DEFAULT;
   const days = Number.parseInt(raw, 10);
   return days >= 1 && days <= PHONE_RECORDING_KEEP_DAYS_MAX
@@ -481,9 +503,11 @@ export function phoneRecordingKeepDays(): number {
 }
 
 /** P6-02/P6-07: the shared Twilio account keys that are missing or malformed. */
-function twilioAccountMissing(): ("TWILIO_ACCOUNT_SID" | "TWILIO_AUTH_TOKEN")[] {
-  const sid = process.env.TWILIO_ACCOUNT_SID?.trim() ?? "";
-  const token = process.env.TWILIO_AUTH_TOKEN?.trim() ?? "";
+export function twilioAccountMissing(
+  source: EnvSource = process.env,
+): ("TWILIO_ACCOUNT_SID" | "TWILIO_AUTH_TOKEN")[] {
+  const sid = source.TWILIO_ACCOUNT_SID?.trim() ?? "";
+  const token = source.TWILIO_AUTH_TOKEN?.trim() ?? "";
   const missing: ("TWILIO_ACCOUNT_SID" | "TWILIO_AUTH_TOKEN")[] = [];
   if (!/^AC[0-9a-f]{32}$/i.test(sid)) missing.push("TWILIO_ACCOUNT_SID");
   if (token === "" || /\s/.test(token)) missing.push("TWILIO_AUTH_TOKEN");
@@ -491,9 +515,9 @@ function twilioAccountMissing(): ("TWILIO_ACCOUNT_SID" | "TWILIO_AUTH_TOKEN")[] 
 }
 
 /** The Twilio settings that are missing or malformed, by name — empty when the line can run. */
-export function twilioMissing(): (typeof TWILIO_KEYS)[number][] {
-  const number = process.env.TWILIO_PHONE_NUMBER?.trim() ?? "";
-  const missing: (typeof TWILIO_KEYS)[number][] = [...twilioAccountMissing()];
+export function twilioMissing(source: EnvSource = process.env): (typeof TWILIO_KEYS)[number][] {
+  const number = source.TWILIO_PHONE_NUMBER?.trim() ?? "";
+  const missing: (typeof TWILIO_KEYS)[number][] = [...twilioAccountMissing(source)];
   if (!/^\+[1-9][0-9]{6,14}$/.test(number)) missing.push("TWILIO_PHONE_NUMBER");
   return missing;
 }
@@ -552,11 +576,11 @@ export function parseWhatsAppTemplates(raw: string | undefined): Record<string, 
 }
 
 /** The WhatsApp settings that are missing or malformed, by name — empty when the summary can go. */
-export function whatsappMissing(): (typeof WHATSAPP_KEYS)[number][] {
-  const missing: (typeof WHATSAPP_KEYS)[number][] = [...twilioAccountMissing()];
-  const from = process.env.TWILIO_WHATSAPP_FROM?.trim() ?? "";
+export function whatsappMissing(source: EnvSource = process.env): (typeof WHATSAPP_KEYS)[number][] {
+  const missing: (typeof WHATSAPP_KEYS)[number][] = [...twilioAccountMissing(source)];
+  const from = source.TWILIO_WHATSAPP_FROM?.trim() ?? "";
   if (!/^\+[1-9][0-9]{6,14}$/.test(from)) missing.push("TWILIO_WHATSAPP_FROM");
-  if (!parseWhatsAppTemplates(process.env.TWILIO_WHATSAPP_SUMMARY_TEMPLATES)) {
+  if (!parseWhatsAppTemplates(source.TWILIO_WHATSAPP_SUMMARY_TEMPLATES)) {
     missing.push("TWILIO_WHATSAPP_SUMMARY_TEMPLATES");
   }
   return missing;
