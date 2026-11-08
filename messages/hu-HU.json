@@ -1216,7 +1216,29 @@
       "notDecided": "Akkor indul, amikor az „Ahogyan dolgozom” beállítás eldőlt.",
       "noEmail": "Ezen a szerveren még nincs beállítva az e-mail-küldés, ezért egy sem megy ki.",
       "lastSent": "Utoljára elküldve: {date}.",
-      "first": "Az első a következő hétfői ellenőrzéskor megy ki."
+      "first": "Az első a következő hétfői ellenőrzéskor megy ki.",
+      "channel": {
+        "legend": "Küldés módja",
+        "email": "E-mail",
+        "whatsapp": "WhatsApp",
+        "both": "E-mail és WhatsApp"
+      },
+      "whatsapp": {
+        "numberLabel": "Az Ön WhatsApp-száma",
+        "numberHint": "A teljes nemzetközi szám: egy pluszjel, majd az országhívószám.",
+        "consent": "Küldjék a heti SYB-összefoglalómat erre a számra WhatsAppon. Itt bármikor leállíthatom, és a SYB a számot semmi másra nem használja.",
+        "agree": "Igen, kérem WhatsAppon",
+        "on": "A WhatsApp-üzenet {date} óta erre a számra megy: {number}.",
+        "withdraw": "WhatsApp leállítása",
+        "forget": "Leállítás és a számom törlése",
+        "none": "Még nincs megadva szám, ezért semmi sem megy WhatsAppra.",
+        "notSetUp": "A WhatsApp még nincs beállítva ezen a szerveren. Ehhez kell: {keys}.",
+        "invalid": "Ez nem teljes nemzetközi szám. Kezdje pluszjellel és az országhívószámmal.",
+        "changed": "Ez a szöveg megváltozott, amíg az oldal nyitva volt. Töltse újra, és olvassa el újra.",
+        "notYours": "Csak az adhat meg WhatsApp-számot, aki az összefoglalót kapja.",
+        "needsYes": "WhatsAppra semmi sem megy, amíg lent meg nem ad egy számot, és el nem fogadja.",
+        "failed": "Nem sikerült menteni. Próbálja újra."
+      }
     },
     "signedOut": {
       "title": "Itt még nincs vállalkozás.",
@@ -5559,6 +5581,7 @@
       "titleOn": "Hívások fogadása ezen a számon: {number}",
       "titleOff": "Nem fogad hívásokat",
       "what": "A vonal először elmondja, hogy az SYB automatikus asszisztense. Csak az Ön által jóváhagyott válaszokból felel, soha nem foglal, nem ígér és nem ad visszatérítést, és ha valamit nem tud, üzenetet vesz fel vagy Önhöz kapcsolja a hívót. A hívók még azelőtt hallják, hogy a hívásról átirat készül, mielőtt bármi rögzülne, és hangfelvétel nem marad meg.",
+      "whatRecorded": "A vonal először elmondja, hogy az SYB automatikus asszisztense. Csak az Ön által jóváhagyott válaszokból felel, soha nem foglal, nem ígér és nem ad visszatérítést, és ha valamit nem tud, üzenetet vesz fel vagy Önhöz kapcsolja a hívót. A hívók még azelőtt hallják, hogy a hívásról hangfelvétel és átirat készül, mielőtt bármi rögzülne.",
       "needsKeys": "A hívások fogadásához az SYB-nek Twilio-fiókra és Twilio-számra van szüksége. Adja meg ezeket a beállításokat a szerveren, majd térjen vissza ide:",
       "setUp": "A Twilióban állítsa a szám „A call comes in” webhookját az első címre, a hívásállapot-értesítését pedig a második címre, mindkettőt HTTP POST módon.",
       "turnOn": "Hívások fogadása: {number}",
@@ -5585,13 +5608,29 @@
       "messageLabel": "Üzenet",
       "erase": "Hívás törlése",
       "eraseConfirm": "Végleg törli ezt a hívást – a hívó számát, az elhangzottakat és az üzenetet is?",
+      "eraseConfirmRecorded": "Végleg törli ezt a hívást – a hívó számát, az elhangzottakat, az üzenetet és a felvételt is?",
       "eraseYes": "Végleges törlés",
       "keep": "Megtartás",
+      "recording": {
+        "title": "Hívásrögzítés",
+        "stateOff": "A hívásokat nem rögzítjük. A hívók hallják, hogy a hívásról átirat készül, és hangfelvétel nem marad meg.",
+        "stateOn": "A hívásokat rögzítjük. Minden hívó hallja, hogy a hívást rögzítjük, mielőtt a felvétel elindul.",
+        "explain": "Ha a rögzítés be van kapcsolva, a hívók még azelőtt megtudják, hogy a hívást rögzítjük, mielőtt bármilyen hang megmaradna. Minden felvételt {days, plural, one {# napig} other {# napig}} őrzünk meg, utána végleg töröljük, és egy hívás vagy egy kapcsolattartó törlése a felvételét is törli. Csak tulajdonos hallgathatja meg őket.",
+        "changed": "Utoljára átkapcsolva: {when}.",
+        "needsSetup": "A rögzítést ezen a szerveren még nem lehet bekapcsolni. Ehhez ezek a beállítások kellenek:",
+        "turnOn": "Hívások rögzítése",
+        "turnOff": "Hívásrögzítés leállítása",
+        "listen": "A hívás felvétele",
+        "kept": "Rögzítve · megőrizzük eddig: {date}",
+        "notKept": "Rögzítve · a felvétel nem érhető el"
+      },
       "notice": {
         "on": "A telefonvonal fogadja a hívásokat.",
         "off": "A telefonvonal már nem fogad hívásokat.",
         "handover": "Mentve.",
-        "erased": "A hívás törölve."
+        "erased": "A hívás törölve.",
+        "recordingOn": "A hívásokat mostantól rögzítjük. A hívók ezt először hallják.",
+        "recordingOff": "A hívásokat már nem rögzítjük. A már megőrzött felvételek a dátumukig maradnak, hacsak nem törli őket."
       },
       "error": {
         "notSetUp": "A telefonvonal még nincs beállítva ezen a szerveren.",
@@ -5599,6 +5638,7 @@
         "notOn": "Előbb kapcsolja be a telefonvonalat.",
         "badNumber": "Írja be a számot országhívószámmal, pluszjellel kezdve.",
         "noCall": "Ez a hívás már nincs itt.",
+        "recordingNotSetUp": "A hívásrögzítés ezen a szerveren még nincs beállítva.",
         "crossSite": "Ez az oldal csak magából az SYB-ből módosítható.",
         "signIn": "A telefonvonal módosításához bejelentkezés szükséges.",
         "action": "Ezt a telefonvonal nem tudja megtenni."
@@ -5608,6 +5648,7 @@
   "phoneLine": {
     "greeting": "Jó napot, ez a(z) {business} vonala, és Ön az SYB automatikus asszisztensével beszél, nem egy emberrel.",
     "notice": "A hívásról átirat készül, hogy a(z) {business} később elolvashassa. Hangfelvétel nem marad meg.",
+    "noticeRecorded": "A hívásról hangfelvétel és átirat készül, hogy a(z) {business} később meghallgathassa és elolvashassa. A felvételt {days, plural, one {# napig} other {# napig}} őrizzük meg, utána töröljük.",
     "howCanIHelp": "Miben segíthetek?",
     "anythingElse": "Segíthetek még valamiben?",
     "notHeard": "Elnézést, ezt nem értettem. Megismételné?",
@@ -5919,7 +5960,8 @@
       "summary_settings": "Csak tulajdonos kapcsolhatja be vagy ki a heti összefoglalót.",
       "stop_resume": "Csak tulajdonos indíthat újra mindent egy leállítás után.",
       "business_locale": "Csak tulajdonos módosíthatja a vállalkozás nyelvét vagy pénznemét.",
-      "payments_prepare": "Csak tulajdonos készíthet elő kifizetést, vagy jelezheti, hogy egy kifizetés megtörtént."
+      "payments_prepare": "Csak tulajdonos készíthet elő kifizetést, vagy jelezheti, hogy egy kifizetés megtörtént.",
+      "phone_recordings": "Csak tulajdonos hallgathatja meg a hívásfelvételeket."
     }
   },
   "authWords": {
@@ -6352,7 +6394,8 @@
       "footApprove": "Semmi sem fut az Ön jóváhagyása nélkül.",
       "footStop": "Ezt az e-mailt hetente egyszer kapja. A Figyelés képernyőn kikapcsolhatja, vagy egy kattintással leállíthatja:",
       "footWatchingHtml": "Mindent, amit teszek, megtalál a <link>Figyelés képernyőn</link>. Semmi sem fut az Ön jóváhagyása nélkül.",
-      "footStopHtml": "Ezt az e-mailt hetente egyszer kapja. A Figyelés képernyőn kikapcsolhatja, vagy egy kattintással <link>leállíthatja ezeket az e-maileket</link>."
+      "footStopHtml": "Ezt az e-mailt hetente egyszer kapja. A Figyelés képernyőn kikapcsolhatja, vagy egy kattintással <link>leállíthatja ezeket az e-maileket</link>.",
+      "whatsappBusiness": "az Ön vállalkozása"
     },
     "signIn": {
       "subject": "Az Ön bejelentkezési linkje — SYB",

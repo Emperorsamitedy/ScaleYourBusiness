@@ -1216,7 +1216,29 @@
       "notDecided": "It starts once How I work is decided.",
       "noEmail": "Email isn't set up on this server yet, so none is sent.",
       "lastSent": "Last sent {date}.",
-      "first": "The first one goes out on the next Monday check."
+      "first": "The first one goes out on the next Monday check.",
+      "channel": {
+        "legend": "Send it by",
+        "email": "Email",
+        "whatsapp": "WhatsApp",
+        "both": "Email and WhatsApp"
+      },
+      "whatsapp": {
+        "numberLabel": "Your WhatsApp number",
+        "numberHint": "The full international number: a plus sign, then the country code.",
+        "consent": "Send my weekly SYB summary to this number on WhatsApp. I can stop it here at any time, and SYB keeps the number for nothing else.",
+        "agree": "Yes, send it on WhatsApp",
+        "on": "WhatsApp goes to {number}, since {date}.",
+        "withdraw": "Stop WhatsApp",
+        "forget": "Stop and forget my number",
+        "none": "No number yet, so nothing goes to WhatsApp.",
+        "notSetUp": "WhatsApp isn't set up on this server yet. It needs {keys}.",
+        "invalid": "That isn't a full international number. Start with a plus sign and the country code.",
+        "changed": "These words changed while the page was open. Reload and read them again.",
+        "notYours": "Only the person the summary goes to can give a WhatsApp number.",
+        "needsYes": "Nothing goes to WhatsApp until a number is given and agreed to below.",
+        "failed": "That didn't save. Try again."
+      }
     },
     "signedOut": {
       "title": "There's no business here yet.",
@@ -5559,6 +5581,7 @@
       "titleOn": "Answering calls on {number}",
       "titleOff": "Not answering calls",
       "what": "The line says first that it is SYB's automated assistant. It answers only from the answers you approved, never books, promises or refunds anything, and takes a message or puts the caller through to you when it doesn't know. Callers hear that the call is transcribed before anything is, and no audio is kept.",
+      "whatRecorded": "The line says first that it is SYB's automated assistant. It answers only from the answers you approved, never books, promises or refunds anything, and takes a message or puts the caller through to you when it doesn't know. Callers hear that the call is recorded and transcribed before any of it is.",
       "needsKeys": "To answer calls, SYB needs a Twilio account and a Twilio number. Add these settings on the server, then come back here:",
       "setUp": "In Twilio, set this number's “A call comes in” webhook to the first address and its call status callback to the second, both as HTTP POST.",
       "turnOn": "Answer calls on {number}",
@@ -5585,13 +5608,29 @@
       "messageLabel": "Message",
       "erase": "Erase this call",
       "eraseConfirm": "Erase this call for good — the caller's number, what was said and any message?",
+      "eraseConfirmRecorded": "Erase this call for good — the caller's number, what was said, any message and the recording?",
       "eraseYes": "Erase for good",
       "keep": "Keep it",
+      "recording": {
+        "title": "Call recording",
+        "stateOff": "Calls are not recorded. Callers hear that the call is transcribed, and no audio is kept.",
+        "stateOn": "Calls are recorded. Every caller hears that the call is recorded before recording starts.",
+        "explain": "When recording is on, callers are told the call is recorded before any audio is kept. Each recording is kept for {days, plural, one {# day} other {# days}}, then deleted for good, and erasing a call or a contact erases its recording too. Only an owner can listen to them.",
+        "changed": "Last switched {when}.",
+        "needsSetup": "Recording can't be switched on on this server yet. It needs these settings:",
+        "turnOn": "Record calls",
+        "turnOff": "Stop recording calls",
+        "listen": "Recording of the call",
+        "kept": "Recorded · kept until {date}",
+        "notKept": "Recorded · the recording isn't available"
+      },
       "notice": {
         "on": "The phone line is answering.",
         "off": "The phone line has stopped answering.",
         "handover": "Saved.",
-        "erased": "The call is erased."
+        "erased": "The call is erased.",
+        "recordingOn": "Calls are now recorded. Callers are told first.",
+        "recordingOff": "Calls are no longer recorded. Recordings already kept stay until their date, unless you erase them."
       },
       "error": {
         "notSetUp": "The phone line isn't set up on this server yet.",
@@ -5599,6 +5638,7 @@
         "notOn": "Turn the phone line on first.",
         "badNumber": "Write the number with its country code, starting with a plus sign.",
         "noCall": "That call isn't here any more.",
+        "recordingNotSetUp": "Call recording isn't set up on this server yet.",
         "crossSite": "This page can only be changed from SYB itself.",
         "signIn": "Sign in to change the phone line.",
         "action": "That isn't something the phone line can do."
@@ -5608,6 +5648,7 @@
   "phoneLine": {
     "greeting": "Hello, you've reached {business}, and you're speaking with SYB's automated assistant, not a person.",
     "notice": "This call is transcribed so that {business} can read it later; no audio is kept.",
+    "noticeRecorded": "This call is recorded and transcribed so that {business} can listen to it and read it later. The recording is kept for {days, plural, one {# day} other {# days}}, then deleted.",
     "howCanIHelp": "How can I help?",
     "anythingElse": "Is there anything else I can help with?",
     "notHeard": "Sorry, I didn't catch that. Could you say it again?",
@@ -5919,7 +5960,8 @@
       "summary_settings": "Only an owner can switch the weekly summary on or off.",
       "stop_resume": "Only an owner can start things up again after a stop.",
       "business_locale": "Only an owner can change the business's language or currency.",
-      "payments_prepare": "Only an owner can prepare payments or say one was paid."
+      "payments_prepare": "Only an owner can prepare payments or say one was paid.",
+      "phone_recordings": "Only an owner can listen to call recordings."
     }
   },
   "authWords": {
@@ -6352,7 +6394,8 @@
       "footApprove": "Nothing runs until you approve it.",
       "footStop": "You get this email once a week. Switch it off on the Watching screen, or stop it with one click:",
       "footWatchingHtml": "Everything I do is on your <link>Watching screen</link>. Nothing runs until you approve it.",
-      "footStopHtml": "You get this email once a week. Switch it off on the Watching screen, or <link>stop these emails</link> with one click."
+      "footStopHtml": "You get this email once a week. Switch it off on the Watching screen, or <link>stop these emails</link> with one click.",
+      "whatsappBusiness": "your business"
     },
     "signIn": {
       "subject": "Your sign-in link — SYB",

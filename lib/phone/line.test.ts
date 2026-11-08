@@ -254,7 +254,7 @@ describe("rule 31: the first sentence names the business and says it is SYB's au
   });
 });
 
-describe("rule 32: nothing is kept before the caller has heard the notice; no audio ever", () => {
+describe("rule 32: nothing is kept before the caller has heard the notice; no audio unless switched on", () => {
   it("drops speech posted for a call that never heard the notice, unread", async () => {
     const b = await business();
     const sid = fakeCallSid();
@@ -303,7 +303,7 @@ describe("rule 32: nothing is kept before the caller has heard the notice; no au
     expect((await callRow(sid)).message).toBe("kept after the notice");
   });
 
-  it("no TwiML the line can produce records audio", async () => {
+  it("with recording off (the default), no TwiML the line can produce records audio", async () => {
     const b = await business({ handover: "+447700900999" });
     const { sid, xml } = await start(b);
     const { llm } = fakeLlm(() => ({ action: "take_message", answer: "", used: [] }));
