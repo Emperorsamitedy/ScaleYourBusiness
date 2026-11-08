@@ -24,8 +24,11 @@ The sections below hold the detail.
    registrar.
 2. **Repo.** Vercel → Settings → Git → connect
    `JanKenzeroX/ScaleYourBusiness`, branch `main` (section 1).
-3. **Database.** In your own terminal, with the Neon URL:
-   `npm run db:migrate`, then `npm run db:seed` (section 2).
+3. **Database.** Nothing to run: since 2026-11-08 every production
+   deploy runs `db:migrate` then `db:seed` inside Vercel's build
+   (`scripts/vercel-build.mjs`), where the Sensitive `DATABASE_URL` lives.
+   A failing step fails the deploy and the live one stays. Section 2 still
+   works by hand from a dev machine.
 4. **Keys a live site can't do without** (Vercel → Environment
    Variables, Production): `DATABASE_URL`, `CONNECTOR_KEY` (the same one
    as before, or every old connection must be made again),

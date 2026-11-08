@@ -1,5 +1,6 @@
 {
   "installCommand": "npm ci || npm ci --ignore-scripts",
+  "buildCommand": "node scripts/vercel-build.mjs",
   "crons": [
     {
       "path": "/api/cron/weekly-watch",
