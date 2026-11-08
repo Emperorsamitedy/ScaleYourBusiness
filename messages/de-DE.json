@@ -2301,6 +2301,83 @@
         "generic": "Die Google-Anmeldung wurde nicht abgeschlossen. Es wurde nichts verbunden."
       }
     },
+    "tiktok": {
+      "sectionLabel": "TikTok Ads · lesen und handeln, eine Einwilligung",
+      "label": "TikTok-Anzeigenverwaltung",
+      "title": {
+        "on": "Verbunden. SYB liest Ihre TikTok-Kampagnen und ändert nur, was Sie freigeben",
+        "off": "Aus. SYB liest und ändert Ihre TikTok-Anzeigen nicht."
+      },
+      "connected": "TikTok ist verbunden, und Ihre Einwilligung ist festgehalten.",
+      "youCancelled": "Sie haben auf der Seite von TikTok abgebrochen. Es wurde nichts verbunden.",
+      "revoked": "Widerrufen. Der Zugriff von SYB auf TikTok ist hier gelöscht; Lesen und Änderungen sind beendet.",
+      "whyOne": "TikTok gibt einer App eine einzige Liste von Berechtigungen, daher gehören das Lesen Ihrer Kampagnen und das Ändern zusammen. SYB hält beides als diese eine Einwilligung: Es liest einmal täglich und ändert eine Kampagne erst nach Ihrer Freigabe eines Vorschlags.",
+      "fact": {
+        "status": "Status",
+        "adAccounts": "Werbekonten",
+        "lastRead": "zuletzt gelesen",
+        "notYet": "noch nicht: SYB liest einmal täglich"
+      },
+      "revokeAsk": "SYB liest Ihre TikTok-Kampagnen nicht mehr und kann sie nicht ändern.",
+      "revokeNote": "Das Widerrufen löscht den Zugriff von SYB hier sofort. Bereits gelesene Zahlen bleiben. Um SYB auch bei TikTok zu entfernen, nehmen Sie die App von SYB aus den autorisierten Apps Ihres TikTok-Werbekontos.",
+      "tiktokScreen": "TikTok zeigt dann die App von SYB mit diesen Berechtigungen und schickt Ihnen per E-Mail einen Code zur Bestätigung. Erlauben Sie es und kehren Sie hierher zurück.",
+      "typeToConfirm": "Geben Sie zur Bestätigung <b>{phrase}</b> ein",
+      "opening": "TikTok wird geöffnet…",
+      "signIn": "Bei TikTok anmelden und diese erlauben",
+      "nothingWritten": "Beim Verbinden wird Ihre Einwilligung festgehalten, und Ihre Kampagnen werden einmal täglich gelesen. Bei TikTok ändert sich nichts, bis Sie einen Vorschlag freigeben, und Änderungen an TikTok-Anzeigen bleiben ausgeschaltet, bis der zweiwöchige unbeaufsichtigte Test abgeschlossen ist.",
+      "access": {
+        "title": "Zugang, offen gesagt",
+        "check": "TikTok prüft jede Entwickler-App, bevor Anmeldungen damit funktionieren, meist innerhalb von zwei bis drei Werktagen. Bis die App von SYB bestanden hat, lehnt TikTok die Anmeldung ab, und SYB sagt das.",
+        "sandbox": "SYB verbindet nur echte Werbekonten. TikTok stellt seine Sandbox-Konten im Dezember ein, daher nutzt SYB sie nicht: Testen Sie mit Ihrem eigenen Werbekonto und einer kleinen Kampagne."
+      },
+      "missing": {
+        "title": "Noch nicht eingerichtet. Auf dem Server von SYB fehlen diese Einstellungen:"
+      },
+      "steps": {
+        "title": "Einrichtung, einmalig, für den Server von SYB",
+        "developer": "Registrieren Sie sich auf der Entwicklerseite von TikTok, {site}, mit dem TikTok-Login, über das Ihre Anzeigen laufen, und warten Sie, bis Ihr Entwicklerprofil angenommen ist.",
+        "app": "Legen Sie unter „My Apps“ eine App an und tragen Sie {callback} als Weiterleitungs-URL für Werbetreibende ein.",
+        "scopes": "Haken Sie unter „Scope of permission“ genau diese an und sonst nichts: {scopes}.",
+        "submit": "Reichen Sie die App ein. TikTok prüft sie, meist innerhalb von zwei bis drei Werktagen.",
+        "keys": "Sobald sie bestanden hat, kopieren Sie App ID und Secret aus den „Basic Information“ der App nach {appId} und {secret} auf dem Server von SYB und die Weiterleitungs-URL nach {redirect}."
+      },
+      "status": {
+        "connected": "verbunden",
+        "paused": "pausiert",
+        "failed": "fehlgeschlagen",
+        "disconnected": "getrennt"
+      },
+      "consentedOn": "eingewilligt am {day} · {status}",
+      "notGranted": "nicht erteilt",
+      "notSetUpYet": "noch nicht eingerichtet",
+      "connect": "Verbinden",
+      "close": "Schließen",
+      "keepIt": "Behalten",
+      "unreachable": "Ich konnte den Server nicht erreichen. Versuchen Sie es erneut.",
+      "revokeFailed": "Das Widerrufen hat nicht geklappt.",
+      "revoking": "Wird widerrufen…",
+      "yesRevoke": "Ja, widerrufen",
+      "revoke": "Widerrufen",
+      "reason": {
+        "start_here": "Starten Sie die TikTok-Anmeldung auf der Seite „Verbindungen“ von SYB, mit der Schaltfläche dort. An TikTok wurde nichts gesendet.",
+        "signed_out": "Sie müssen sich zuerst bei SYB anmelden; verbinden Sie TikTok dann erneut.",
+        "owner_only": "Nur Inhaber können diese Berechtigung erteilen oder zurücknehmen. An TikTok wurde nichts gesendet.",
+        "unavailable": "TikTok Ads ist noch nicht eingerichtet.",
+        "phrase": "Die Bestätigungsphrase stimmte nicht überein. Geben Sie sie wie angezeigt ein und beginnen Sie dann neu.",
+        "already_connected": "TikTok ist bereits verbunden. Widerrufen Sie es zuerst, um es neu zu verbinden.",
+        "start_again": "Diese TikTok-Anmeldung ist abgelaufen oder wurde bereits verwendet. Beginnen Sie unter „Verbindungen“ neu.",
+        "foreign": "Diese TikTok-Anmeldung wurde von einem anderen SYB-Konto aus gestartet. Nutzen Sie zur Anmeldung bei SYB dieses Konto oder beginnen Sie neu.",
+        "tiktok_error": "Die TikTok-Anmeldung wurde nicht abgeschlossen. Es wurde nichts verbunden.",
+        "scope": "TikTok hat nicht genau die Berechtigungen erteilt, um die SYB bittet. Gleichen Sie den „Scope of permission“ der App mit der Liste unter „Verbindungen“ ab und versuchen Sie es erneut.",
+        "no_advertisers": "TikTok hat SYB für diese Anmeldung kein Werbekonto gezeigt. Melden Sie sich mit dem TikTok-Login an, über das Ihre Anzeigen laufen, und versuchen Sie es erneut.",
+        "tiktok_auth": "TikTok hat die Anmeldung nicht angenommen. Wenn TikTok die App von SYB noch prüft, warten Sie, bis sie bestanden hat; sonst beginnen Sie neu.",
+        "tiktok_permission": "TikTok sagt, die App von SYB darf dieses Werbekonto nicht lesen. Es wurde nichts verbunden.",
+        "tiktok_busy": "TikTok war ausgelastet oder hat nicht geantwortet. Es wurde nichts verbunden — versuchen Sie es in ein paar Minuten erneut.",
+        "tiktok_refused": "TikTok hat die Anmeldung abgelehnt. Es wurde nichts verbunden.",
+        "internal": "Bei uns ist etwas schiefgelaufen. Es wurde nichts verbunden.",
+        "generic": "Die TikTok-Anmeldung wurde nicht abgeschlossen. Es wurde nichts verbunden."
+      }
+    },
     "import": {
       "unreachable": "Ich konnte den Server nicht erreichen. Versuchen Sie es erneut.",
       "readFrom": "Aus {file} gelesen. Sie können es hier prüfen",

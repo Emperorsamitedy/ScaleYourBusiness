@@ -132,6 +132,24 @@ npm run db:seed
 - Meta: `META_APP_ID`, `META_APP_SECRET` and `META_OAUTH_REDIRECT_URI`.
   Keep `META_ACCESS_LEVEL=standard` until App Review.
 - Niche research: `META_AD_LIBRARY_TOKEN`.
+- TikTok Ads (read spend, act on approved proposals): `TIKTOK_ADS_APP_ID`,
+  `TIKTOK_ADS_SECRET` and `TIKTOK_ADS_REDIRECT_URI`. Owner steps:
+  1. Create a TikTok For Business account and register as a developer at
+     business-api.tiktok.com (TikTok approves the developer profile).
+  2. Under My Apps, create an app; set its advertiser redirect URL to
+     `<APP_URL>/api/connections/tiktok/callback`.
+  3. Under Scope of permission, tick exactly: Ad Account Management → Read
+     Ad Account Information; Ads Management → Campaign → Read Campaigns and
+     Create and Update Campaigns; Reporting → Consolidated Report. Nothing
+     else — a token with one permission more or fewer is refused by name.
+  4. Submit the app for TikTok's review (2–3 business days); its sign-ins
+     work only once it is approved. SYB doesn't use TikTok's sandbox
+     accounts (TikTok retires them on 1 December 2026).
+  5. Copy the App ID and Secret from Basic Information into
+     `TIKTOK_ADS_APP_ID` and `TIKTOK_ADS_SECRET`, and the redirect URL into
+     `TIKTOK_ADS_REDIRECT_URI`. Then connect from `/connections`. Reading
+     starts with the next connector-sync cron; changes stay off with
+     `SESSION_D_REAL_WRITES` (see Leave off). Facts: `specs/tiktok-ads-api-v1.md`.
 - Error monitoring: `SENTRY_DSN` and `NEXT_PUBLIC_SENTRY_DSN`.
 - The ops panel: `OPS_KEY`.
 - Phone answering (P6-02): `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN` and
