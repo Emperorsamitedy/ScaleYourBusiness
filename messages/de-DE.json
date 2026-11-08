@@ -1216,7 +1216,29 @@
       "notDecided": "Sie beginnt, sobald „So arbeite ich“ festgelegt ist.",
       "noEmail": "E-Mail ist auf diesem Server noch nicht eingerichtet, daher wird keine gesendet.",
       "lastSent": "Zuletzt gesendet {date}.",
-      "first": "Die erste geht bei der nächsten Montagsprüfung hinaus."
+      "first": "Die erste geht bei der nächsten Montagsprüfung hinaus.",
+      "channel": {
+        "legend": "Senden per",
+        "email": "E-Mail",
+        "whatsapp": "WhatsApp",
+        "both": "E-Mail und WhatsApp"
+      },
+      "whatsapp": {
+        "numberLabel": "Ihre WhatsApp-Nummer",
+        "numberHint": "Die vollständige internationale Nummer: ein Pluszeichen, dann die Ländervorwahl.",
+        "consent": "Meine wöchentliche SYB-Zusammenfassung per WhatsApp an diese Nummer senden. Ich kann das hier jederzeit beenden, und SYB nutzt die Nummer für nichts anderes.",
+        "agree": "Ja, per WhatsApp senden",
+        "on": "WhatsApp geht seit {date} an {number}.",
+        "withdraw": "WhatsApp beenden",
+        "forget": "Beenden und meine Nummer löschen",
+        "none": "Noch keine Nummer, daher geht nichts an WhatsApp.",
+        "notSetUp": "WhatsApp ist auf diesem Server noch nicht eingerichtet. Es fehlt: {keys}.",
+        "invalid": "Das ist keine vollständige internationale Nummer. Beginnen Sie mit einem Pluszeichen und der Ländervorwahl.",
+        "changed": "Dieser Text hat sich geändert, während die Seite offen war. Laden Sie neu und lesen Sie ihn noch einmal.",
+        "notYours": "Nur die Person, die die Zusammenfassung erhält, kann eine WhatsApp-Nummer angeben.",
+        "needsYes": "An WhatsApp geht nichts, bis unten eine Nummer angegeben und bestätigt ist.",
+        "failed": "Das wurde nicht gespeichert. Bitte erneut versuchen."
+      }
     },
     "signedOut": {
       "title": "Hier gibt es noch kein Unternehmen.",
@@ -6319,7 +6341,8 @@
       "footApprove": "Nichts läuft, bevor Sie es freigeben.",
       "footStop": "Sie erhalten diese E-Mail einmal pro Woche. Schalten Sie sie unter „Beobachtung“ ab oder bestellen Sie sie mit einem Klick ab:",
       "footWatchingHtml": "Alles, was ich tue, sehen Sie unter <link>„Beobachtung“</link>. Nichts läuft, bevor Sie es freigeben.",
-      "footStopHtml": "Sie erhalten diese E-Mail einmal pro Woche. Schalten Sie sie unter „Beobachtung“ ab oder <link>bestellen Sie diese E-Mails</link> mit einem Klick ab."
+      "footStopHtml": "Sie erhalten diese E-Mail einmal pro Woche. Schalten Sie sie unter „Beobachtung“ ab oder <link>bestellen Sie diese E-Mails</link> mit einem Klick ab.",
+      "whatsappBusiness": "Ihr Unternehmen"
     },
     "signIn": {
       "subject": "Ihr Anmeldelink — SYB",

@@ -1216,7 +1216,29 @@
       "notDecided": "Akkor indul, amikor az „Ahogyan dolgozom” beállítás eldőlt.",
       "noEmail": "Ezen a szerveren még nincs beállítva az e-mail-küldés, ezért egy sem megy ki.",
       "lastSent": "Utoljára elküldve: {date}.",
-      "first": "Az első a következő hétfői ellenőrzéskor megy ki."
+      "first": "Az első a következő hétfői ellenőrzéskor megy ki.",
+      "channel": {
+        "legend": "Küldés módja",
+        "email": "E-mail",
+        "whatsapp": "WhatsApp",
+        "both": "E-mail és WhatsApp"
+      },
+      "whatsapp": {
+        "numberLabel": "Az Ön WhatsApp-száma",
+        "numberHint": "A teljes nemzetközi szám: egy pluszjel, majd az országhívószám.",
+        "consent": "Küldjék a heti SYB-összefoglalómat erre a számra WhatsAppon. Itt bármikor leállíthatom, és a SYB a számot semmi másra nem használja.",
+        "agree": "Igen, kérem WhatsAppon",
+        "on": "A WhatsApp-üzenet {date} óta erre a számra megy: {number}.",
+        "withdraw": "WhatsApp leállítása",
+        "forget": "Leállítás és a számom törlése",
+        "none": "Még nincs megadva szám, ezért semmi sem megy WhatsAppra.",
+        "notSetUp": "A WhatsApp még nincs beállítva ezen a szerveren. Ehhez kell: {keys}.",
+        "invalid": "Ez nem teljes nemzetközi szám. Kezdje pluszjellel és az országhívószámmal.",
+        "changed": "Ez a szöveg megváltozott, amíg az oldal nyitva volt. Töltse újra, és olvassa el újra.",
+        "notYours": "Csak az adhat meg WhatsApp-számot, aki az összefoglalót kapja.",
+        "needsYes": "WhatsAppra semmi sem megy, amíg lent meg nem ad egy számot, és el nem fogadja.",
+        "failed": "Nem sikerült menteni. Próbálja újra."
+      }
     },
     "signedOut": {
       "title": "Itt még nincs vállalkozás.",
@@ -6319,7 +6341,8 @@
       "footApprove": "Semmi sem fut az Ön jóváhagyása nélkül.",
       "footStop": "Ezt az e-mailt hetente egyszer kapja. A Figyelés képernyőn kikapcsolhatja, vagy egy kattintással leállíthatja:",
       "footWatchingHtml": "Mindent, amit teszek, megtalál a <link>Figyelés képernyőn</link>. Semmi sem fut az Ön jóváhagyása nélkül.",
-      "footStopHtml": "Ezt az e-mailt hetente egyszer kapja. A Figyelés képernyőn kikapcsolhatja, vagy egy kattintással <link>leállíthatja ezeket az e-maileket</link>."
+      "footStopHtml": "Ezt az e-mailt hetente egyszer kapja. A Figyelés képernyőn kikapcsolhatja, vagy egy kattintással <link>leállíthatja ezeket az e-maileket</link>.",
+      "whatsappBusiness": "az Ön vállalkozása"
     },
     "signIn": {
       "subject": "Az Ön bejelentkezési linkje — SYB",

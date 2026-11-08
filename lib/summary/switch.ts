@@ -35,6 +35,26 @@ export function summaryOn(pref: boolean | null, hasModeDecision: boolean): boole
   return hasModeDecision && pref !== false;
 }
 
+/** P6-07: how the owner wants it — email (the default), WhatsApp, or both. */
+export const SUMMARY_CHANNEL_KEY = "weekly_summary_channel";
+export const SUMMARY_CHANNELS = ["email", "whatsapp", "both"] as const;
+export type SummaryChannel = (typeof SUMMARY_CHANNELS)[number];
+
+export function isSummaryChannel(v: unknown): v is SummaryChannel {
+  return typeof v === "string" && (SUMMARY_CHANNELS as readonly string[]).includes(v);
+}
+
+/** The owner's channel; anything absent or unreadable is the default, email. */
+export function summaryChannel(prefs: unknown): SummaryChannel {
+  if (prefs === null || typeof prefs !== "object") return "email";
+  const value = (prefs as Record<string, unknown>)[SUMMARY_CHANNEL_KEY];
+  return isSummaryChannel(value) ? value : "email";
+}
+
+/** Whether a channel carries the email / the WhatsApp message. */
+export const wantsEmail = (c: SummaryChannel): boolean => c !== "whatsapp";
+export const wantsWhatsApp = (c: SummaryChannel): boolean => c !== "email";
+
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 /** `<uuid>.<43 base64url chars>`. Checked before anything else. */
 export const STOP_TOKEN_RE = /^[0-9a-f-]{36}\.[A-Za-z0-9_-]{43}$/i;

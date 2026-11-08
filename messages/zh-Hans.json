@@ -1216,7 +1216,29 @@
       "notDecided": "在决定“我的工作方式”之后开始发送。",
       "noEmail": "此服务器尚未设置电子邮件，因此不会发送。",
       "lastSent": "上次发送于 {date}。",
-      "first": "第一封会在下一次周一检查时发出。"
+      "first": "第一封会在下一次周一检查时发出。",
+      "channel": {
+        "legend": "发送方式",
+        "email": "邮件",
+        "whatsapp": "WhatsApp",
+        "both": "邮件和 WhatsApp"
+      },
+      "whatsapp": {
+        "numberLabel": "您的 WhatsApp 号码",
+        "numberHint": "完整的国际号码：先输入加号，再输入国家代码。",
+        "consent": "通过 WhatsApp 将我的 SYB 每周摘要发送到此号码。我可以随时在这里停止，SYB 不会将此号码用于其他任何用途。",
+        "agree": "是的，通过 WhatsApp 发送",
+        "on": "自 {date} 起，WhatsApp 消息发送到 {number}。",
+        "withdraw": "停止 WhatsApp",
+        "forget": "停止并删除我的号码",
+        "none": "尚未提供号码，因此不会向 WhatsApp 发送任何内容。",
+        "notSetUp": "此服务器尚未设置 WhatsApp。需要：{keys}。",
+        "invalid": "这不是完整的国际号码。请以加号和国家代码开头。",
+        "changed": "页面打开期间此文字已更改。请刷新并重新阅读。",
+        "notYours": "只有接收摘要的人才能提供 WhatsApp 号码。",
+        "needsYes": "在下方提供号码并同意之前，不会向 WhatsApp 发送任何内容。",
+        "failed": "未能保存。请重试。"
+      }
     },
     "signedOut": {
       "title": "这里还没有企业。",
@@ -6319,7 +6341,8 @@
       "footApprove": "未经您批准，什么都不会执行。",
       "footStop": "这封邮件每周发送一次。您可以在“观察”页面关闭它，或一键停止：",
       "footWatchingHtml": "我做的每一件事都在您的<link>“观察”页面</link>上。未经您批准，什么都不会执行。",
-      "footStopHtml": "这封邮件每周发送一次。您可以在“观察”页面关闭它，或一键<link>停止这些邮件</link>。"
+      "footStopHtml": "这封邮件每周发送一次。您可以在“观察”页面关闭它，或一键<link>停止这些邮件</link>。",
+      "whatsappBusiness": "您的企业"
     },
     "signIn": {
       "subject": "您的登录链接 — SYB",

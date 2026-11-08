@@ -5,9 +5,21 @@
 import { and, asc, eq, isNull, sql } from "drizzle-orm";
 import { db } from "../../db";
 import { users } from "../../db/schema";
-import { SUMMARY_PREF_KEY, summaryPref, verifyStopToken } from "./switch";
+import type { SummaryChannel } from "./switch";
+import { SUMMARY_CHANNEL_KEY, SUMMARY_PREF_KEY, summaryPref, verifyStopToken } from "./switch";
 
-export { STOP_TOKEN_RE, stopToken, summaryOn, summaryPref, verifyStopToken } from "./switch";
+export {
+  STOP_TOKEN_RE,
+  isSummaryChannel,
+  stopToken,
+  summaryChannel,
+  summaryOn,
+  summaryPref,
+  verifyStopToken,
+  wantsEmail,
+  wantsWhatsApp,
+} from "./switch";
+export type { SummaryChannel } from "./switch";
 
 /** The account's owner: who the summary goes to and whose switch it is. */
 export async function accountOwner(
@@ -67,4 +79,19 @@ export async function stopSummaries(token: string): Promise<{ stopped: true } | 
     }),
   );
   return { stopped: true };
+}
+
+/** P6-07: set the channel — email, WhatsApp or both — keeping every other preference. */
+export async function setSummaryChannel(
+  userId: string,
+  channel: SummaryChannel,
+): Promise<string | null> {
+  const rows = await db
+    .update(users)
+    .set({
+      notification_prefs: sql`${users.notification_prefs} || jsonb_build_object(${SUMMARY_CHANNEL_KEY}::text, ${channel}::text)`,
+    })
+    .where(eq(users.id, userId))
+    .returning({ account_id: users.account_id });
+  return rows[0]?.account_id ?? null;
 }

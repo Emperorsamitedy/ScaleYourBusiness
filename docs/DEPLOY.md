@@ -139,6 +139,13 @@ npm run db:seed
   number's "A call comes in" webhook to `<APP_URL>/api/phone/voice` and its
   call status callback to `<APP_URL>/api/phone/voice?step=status`, both
   HTTP POST. Then turn the line on from `/support`. One business per number.
+- The weekly summary on WhatsApp (P6-07): the same `TWILIO_ACCOUNT_SID` and
+  `TWILIO_AUTH_TOKEN`, plus `TWILIO_WHATSAPP_FROM` (the WhatsApp-enabled
+  sender, E.164) and `TWILIO_WHATSAPP_SUMMARY_TEMPLATES` (JSON, locale →
+  approved ContentSid, e.g. `{"en":"HX…","de-DE":"HX…"}`; `en` required).
+  Submit the template text in `specs/whatsapp-summary-v1.md` for Meta's
+  approval first. Then the owner picks WhatsApp on `/watch`, gives their
+  number and ticks the opt-in; nothing goes without that yes.
 - AI video (P6-03): buy Higgsfield **API** credit (a prepaid USD balance,
   separate from any higgsfield.ai web plan), create a key in Higgsfield's
   API console, then set `MEDIA_PROVIDER=higgsfield`, `HIGGSFIELD_API_KEY`

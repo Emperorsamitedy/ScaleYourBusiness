@@ -244,6 +244,66 @@
   border-top: 1px solid var(--rule-soft);
 }
 
+/* P6-07: the summary's channel and the WhatsApp yes */
+.wt-whatsapp {
+  margin-top: 14px;
+  padding-top: 12px;
+  border-top: 1px solid var(--rule-soft);
+}
+.wt-whatsapp legend {
+  margin-bottom: 8px;
+  font-family: var(--f-mono);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--sheet-ink-2);
+}
+.wt-whatsapp-form {
+  display: grid;
+  gap: 10px;
+  margin-top: 10px;
+}
+.wt-whatsapp-form > label:first-child {
+  display: grid;
+  gap: 4px;
+  font-size: 14px;
+}
+.wt-whatsapp-form input[type="tel"] {
+  min-height: 40px;
+  padding: 0 10px;
+  border: 1px solid var(--rule);
+  border-radius: 0;
+  font: inherit;
+  max-width: 100%;
+}
+.wt-whatsapp-form .wt-module {
+  align-items: flex-start;
+  padding: 10px;
+  font-family: inherit;
+  font-size: 14px;
+  text-transform: none;
+  letter-spacing: 0;
+}
+.wt-whatsapp button {
+  min-height: 40px;
+  padding: 0 14px;
+  border: 1px solid var(--sheet-ink);
+  border-radius: 0;
+  background: transparent;
+  font-family: var(--f-mono);
+  font-size: 12.5px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+}
+.wt-whatsapp button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+.wt-actions {
+  margin: 10px 0 0;
+}
+
 .wt-wait {
   padding-top: 22px;
   font-family: var(--f-mono);
