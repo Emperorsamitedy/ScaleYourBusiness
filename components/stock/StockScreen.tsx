@@ -627,10 +627,7 @@ export function StockScreen() {
       {sources.length === 0
         ? tr("nothingRead")
         : sources
-            .map(
-              (s) =>
-                `${s.label} ${locale === "en" || !s.as_of ? s.as_of : dayMonthYear(s.as_of, locale)}`,
-            )
+            .map((s) => `${s.label} ${s.as_of ? dayMonthYear(s.as_of, locale) : ""}`.trim())
             .join(" · ")}{" "}
       · {tr("measured")}
     </>
