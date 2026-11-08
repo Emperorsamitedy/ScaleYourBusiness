@@ -40,6 +40,12 @@ const ENTRY_POINTS = [
   "lib/reviews/alert.ts",
   // I-45a: the same Google review by email and from Google files once.
   "lib/reviews/twin.ts",
+  // P6-02: anyone can dial the phone line. Rule 31 holds it to rule 21: it
+  // answers from approved answers or takes a message, and reaches nothing else.
+  "app/api/phone/voice/route.ts",
+  "lib/phone/line.ts",
+  "lib/phone/settings.ts",
+  "lib/phone/twilio.ts",
 ];
 
 /** Anything under these may never be reached from the support tier. */
@@ -70,6 +76,13 @@ const FORBIDDEN_PREFIXES = [
   "lib/review-desk/",
   // I-45a: the Google Business Profile access and its reader hold a write-capable grant.
   "lib/google-business/",
+  // P6-02: the owner's side of the phone line (turning it on, erasing calls),
+  // and everything a caller might ask the line to DO — book, pay, move money.
+  // Rule 31: the line never books, promises, refunds or executes anything.
+  "lib/phone-desk/",
+  "lib/bookings/",
+  "lib/payments/",
+  "lib/cash/",
 ];
 
 /**
@@ -223,6 +236,9 @@ describe("P4-08 — rule 21, held by the module graph", () => {
         file.startsWith("lib/support/") ||
         file.startsWith("app/api/support/public/") ||
         file.startsWith("app/api/support/inbound/") ||
+        // P6-02: the phone line, its webhook and its Twilio helpers.
+        file.startsWith("lib/phone/") ||
+        file.startsWith("app/api/phone/voice/") ||
         file.startsWith("db/") ||
         file.startsWith("lib/llm/") ||
         // Idea 45: filing forwarded reviews (and its data file of notification formats).
@@ -310,5 +326,28 @@ describe("P4-08 — rule 21, held by the module graph", () => {
     expect(source).not.toMatch(/set-cookie/i);
     expect(source.indexOf("verifyWebhook(")).toBeGreaterThan(0);
     expect(source.indexOf("verifyWebhook(")).toBeLessThan(source.indexOf("JSON.parse("));
+  });
+
+  it("P6-02: the phone webhook sets no cookie, reads none, and verifies before it handles a step", () => {
+    const source = readFileSync(path.resolve(ROOT, "app/api/phone/voice/route.ts"), "utf8");
+    expect(source).not.toMatch(/cookies\(/);
+    expect(source).not.toMatch(/set-cookie/i);
+    expect(source.indexOf("verifyTwilioSignature(")).toBeGreaterThan(0);
+    expect(source.indexOf("verifyTwilioSignature(")).toBeLessThan(source.indexOf("handleVoice("));
+  });
+
+  it("P6-02: the gate bites on the phone line — a planted booking, payment or desk import is caught", () => {
+    const planted = new Map([
+      ["lib/phone/__planted_booking__.ts", 'export * from "../bookings/erase";\n'],
+      ["lib/phone/__planted_desk__.ts", 'export { eraseCall } from "@/lib/phone-desk/desk";\n'],
+    ]);
+    expect(offenders(walk(["lib/phone/__planted_booking__.ts"], planted).files)).toContain(
+      "lib/bookings/erase.ts",
+    );
+    expect(offenders(walk(["lib/phone/__planted_desk__.ts"], planted).files)).toContain(
+      "lib/phone-desk/desk.ts",
+    );
+    // The passing case: the real line reaches none of it.
+    expect(offenders(walk(["lib/phone/line.ts"]).files)).toEqual([]);
   });
 });

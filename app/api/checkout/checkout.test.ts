@@ -26,7 +26,7 @@ import { AUTH_COOKIE, INTAKE_COOKIE, signProfileCookie } from "../../../lib/auth
 import type { Role } from "../../../lib/auth/roles";
 import { openSession } from "../../../lib/auth/service";
 import { bootstrapIntake } from "../../../lib/intake/service";
-import { hasPaidReport } from "../../../lib/payments/stripe";
+import { hasPaidReport } from "../../../lib/billing/stripe";
 
 const jar = vi.hoisted(() => new Map<string, string>());
 vi.mock("next/headers", () => ({

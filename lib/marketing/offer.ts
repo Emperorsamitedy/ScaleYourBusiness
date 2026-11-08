@@ -1,7 +1,7 @@
 // The commercial facts the landing page states, in one place, so
 // nothing on the page is a promise the business has not made.
 //
-// The price is not here: it is read from reportPrice() (lib/payments),
+// The price is not here: it is read from reportPrice() (lib/billing),
 // the same value checkout charges, so the button and the receipt can
 // never disagree.
 //

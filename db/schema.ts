@@ -2586,6 +2586,132 @@ export const supportTickets = pgTable(
   ],
 );
 
+// ---------------------------------------------------------------------------
+// Phone line — P6-02 (TASKS-PHASE6.md rules 31, 32 and 34). An AI that
+// answers a business's phone from the same approved answers as the widget,
+// says it is SYB's automated assistant first, and takes a message or puts
+// the caller through when it doesn't know. Calls and their turns carry what
+// a stranger said and their number: plain, erasable rows (rule 22). The
+// decision log never holds either.
+// ---------------------------------------------------------------------------
+
+// phone_settings — one per profile: the number Twilio rings this business
+// on (E.164, one business per number) and, optionally, the owner's own
+// number a caller can be put through to. Written on the trusted side
+// (lib/phone-desk); the phone tier only reads it.
+export const phoneSettings = pgTable(
+  "phone_settings",
+  {
+    profile_id: uuid("profile_id")
+      .primaryKey()
+      .references(() => businessProfiles.id, { onDelete: "cascade" }),
+    account_id: uuid("account_id")
+      .notNull()
+      .references(() => accounts.id),
+    /** The Twilio number callers dial, E.164 ("+447700900123"). Twilio sends it as `To`. */
+    phone_number: text("phone_number").notNull(),
+    enabled: boolean("enabled").notNull().default(true),
+    /** Where "a person, please" is put through to, E.164. Null = a message is taken instead. */
+    handover_number: text("handover_number"),
+    created_at: timestamp("created_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+    updated_at: timestamp("updated_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    uniqueIndex("phone_settings_number_idx").on(t.phone_number),
+    check("phone_settings_number_e164", sql`${t.phone_number} ~ '^\\+[1-9][0-9]{6,14}$'`),
+    check(
+      "phone_settings_handover_e164",
+      sql`${t.handover_number} IS NULL OR ${t.handover_number} ~ '^\\+[1-9][0-9]{6,14}$'`,
+    ),
+  ],
+);
+
+/** How a call ended, in a closed set the owner's screen says in words. Null while it is live. */
+export const phoneCallOutcome = pgEnum("phone_call_outcome", [
+  "answered", // the assistant answered from approved answers and the caller left
+  "message", // the caller left a message
+  "handed_over", // the caller was put through to a person
+  "hung_up", // the call ended with no answer given and no message left
+]);
+
+// phone_calls — one per Twilio call (CallSid). notice_at is rule 32's
+// ledger: nothing the caller says is kept before the notice was spoken,
+// and the database refuses a message without it. Cost and turn counters
+// are the per-call caps' ledger, reserved before a model call like the
+// widget's (rule 31's hard caps).
+export const phoneCalls = pgTable(
+  "phone_calls",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    profile_id: uuid("profile_id")
+      .notNull()
+      .references(() => businessProfiles.id, { onDelete: "cascade" }),
+    account_id: uuid("account_id")
+      .notNull()
+      .references(() => accounts.id),
+    /** Twilio's id for the call ("CA" + 32 hex). A retried webhook finds the same row. */
+    call_sid: text("call_sid").notNull(),
+    /** The caller's number as Twilio gave it — PII, erasable, never sent to a model. Null when withheld. */
+    caller_number: text("caller_number"),
+    /** The language the line spoke (an app locale), the business's own. */
+    language: text("language").notNull(),
+    /** When the disclosure and the transcription notice were spoken (rule 32). */
+    notice_at: timestamp("notice_at", { withTimezone: true, mode: "string" }),
+    outcome: phoneCallOutcome("outcome"),
+    turns: integer("turns").notNull().default(0),
+    silences: integer("silences").notNull().default(0),
+    cost_eur: numeric("cost_eur", { precision: 10, scale: 6 }).notNull().default("0"),
+    reserved_eur: numeric("reserved_eur", { precision: 10, scale: 6 }).notNull().default("0"),
+    /** What the caller asked to pass on, as transcribed — PII, erasable. */
+    message: text("message"),
+    /** From Twilio's status callback when the call ends. */
+    duration_seconds: integer("duration_seconds"),
+    started_at: timestamp("started_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+    last_at: timestamp("last_at", { withTimezone: true, mode: "string" }).notNull().defaultNow(),
+    ended_at: timestamp("ended_at", { withTimezone: true, mode: "string" }),
+  },
+  (t) => [
+    uniqueIndex("phone_calls_sid_idx").on(t.call_sid),
+    index("phone_calls_profile_idx").on(t.profile_id, t.started_at),
+    // Rule 32, in the database: nothing a caller said is kept before they heard the notice.
+    check(
+      "phone_calls_message_after_notice",
+      sql`${t.message} IS NULL OR ${t.notice_at} IS NOT NULL`,
+    ),
+    check(
+      "phone_calls_message_outcome",
+      sql`${t.outcome} IS DISTINCT FROM 'message' OR ${t.message} IS NOT NULL`,
+    ),
+  ],
+);
+
+export const phoneTurnRole = pgEnum("phone_turn_role", ["caller", "assistant"]);
+
+// phone_call_turns — the transcript: what the caller said (as Twilio heard
+// it) and what the assistant said back. Erased with its call.
+export const phoneCallTurns = pgTable(
+  "phone_call_turns",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    call_id: uuid("call_id")
+      .notNull()
+      .references(() => phoneCalls.id, { onDelete: "cascade" }),
+    role: phoneTurnRole("role").notNull(),
+    text: text("text").notNull(),
+    at: timestamp("at", { withTimezone: true, mode: "string" }).notNull().defaultNow(),
+    /** knowledge_entries ids an answer was grounded on — empty for every other assistant turn. */
+    grounded_on: jsonb("grounded_on").$type<string[]>().notNull().default([]),
+    cost_eur: numeric("cost_eur", { precision: 10, scale: 6 }).notNull().default("0"),
+  },
+  (t) => [index("phone_call_turns_call_idx").on(t.call_id, t.at)],
+);
+
 // support_replies — P4-10. A reply to a customer, from draft to sent.
 // Rule 12's covenant extended to support: nothing goes out without a
 // recorded human approval — who, when, and sha256 of the EXACT text that
@@ -3692,5 +3818,112 @@ export const reviews = pgTable(
     check("reviews_read_by", sql`${t.read_by} IN ('parser', 'model', 'owner', 'unread', 'api')`),
     check("reviews_draft_calls_range", sql`${t.draft_calls} BETWEEN 0 AND 3`),
     check("reviews_expiry_after_receipt", sql`${t.expires_at} > ${t.received_at}`),
+  ],
+);
+
+/* ---------- Phase 6 — prepared payments (P6-05, rule 26 amended) ---------- */
+
+/**
+ * The business's own "pay from" bank details, stated once by the owner: the
+ * debtor of every SEPA file. A stated fact with its provenance (rule 2),
+ * superseded and never overwritten (rule 3). Kept here rather than in
+ * field_records on purpose, so an IBAN never reaches a model prompt that
+ * reads the profile. Nothing here can move money (lib/payments/fence.test.ts).
+ */
+export const payerAccounts = pgTable(
+  "payer_accounts",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    profile_id: uuid("profile_id")
+      .notNull()
+      .references(() => businessProfiles.id, { onDelete: "cascade" }),
+    holder_name: text("holder_name").notNull(),
+    /** Electronic form: upper case, no spaces, mod-97 checked before it lands. */
+    iban: text("iban").notNull(),
+    bic: text("bic"),
+    status: fieldStatus("status").notNull().default("answered"),
+    confidence: numeric("confidence", { precision: 4, scale: 3 }).notNull(),
+    /** SourceRef — `{ kind: "owner_input" }`: the owner typed it. */
+    source: jsonb("source").notNull(),
+    stated_by: uuid("stated_by").references(() => users.id),
+    observed_at: timestamp("observed_at", { withTimezone: true, mode: "string" }).notNull(),
+    recorded_at: timestamp("recorded_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+    superseded_at: timestamp("superseded_at", { withTimezone: true, mode: "string" }),
+    superseded_by: uuid("superseded_by").references((): AnyPgColumn => payerAccounts.id),
+  },
+  (t) => [
+    uniqueIndex("payer_accounts_current_idx")
+      .on(t.profile_id)
+      .where(sql`superseded_at IS NULL`),
+    check("payer_accounts_iban_shape", sql`${t.iban} ~ '^[A-Z]{2}[0-9]{2}[A-Z0-9]{11,30}$'`),
+  ],
+);
+
+/**
+ * One prepared payment: the proposal's money detail. The proposal carries
+ * only the masked IBAN; the full one lives here, erasable (rule 22): erasing
+ * nulls the payee's name, IBAN and BIC and keeps the amount and the dates.
+ * "Ready for your bank" is an approved proposal whose row has no paid mark;
+ * "paid in my bank" is the owner's statement, never SYB's doing.
+ */
+export const preparedPayments = pgTable(
+  "prepared_payments",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    profile_id: uuid("profile_id")
+      .notNull()
+      .references(() => businessProfiles.id, { onDelete: "cascade" }),
+    proposal_id: uuid("proposal_id")
+      .notNull()
+      .references(() => proposals.id, { onDelete: "cascade" }),
+    payee_name: text("payee_name"),
+    payee_iban: text("payee_iban"),
+    payee_bic: text("payee_bic"),
+    /** Rule 1: integer minor units plus its currency, never a float. */
+    amount_minor: bigint("amount_minor", { mode: "number" }).notNull(),
+    currency: text("currency").notNull(),
+    /** The remittance text the payee sees. */
+    reference: text("reference").notNull(),
+    /** The day the owner wants it to leave their bank. */
+    execution_date: date("execution_date", { mode: "string" }).notNull(),
+    /** What it pays: a supplier, a fixed cost, a purchase order, or something else. */
+    pays_kind: text("pays_kind").notNull(),
+    supplier_id: uuid("supplier_id").references(() => suppliers.id),
+    cost_item_id: uuid("cost_item_id").references(() => costItems.id),
+    /** P6-04's purchase order, when there is one: a plain reference until that table lands. */
+    purchase_order_ref: text("purchase_order_ref"),
+    created_at: timestamp("created_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+    /** The owner's statement that they paid it in their own bank. */
+    paid_stated_at: timestamp("paid_stated_at", { withTimezone: true, mode: "string" }),
+    paid_stated_by: uuid("paid_stated_by").references(() => users.id),
+    /** Rule 22: when the payee's bank details were erased. */
+    erased_at: timestamp("erased_at", { withTimezone: true, mode: "string" }),
+  },
+  (t) => [
+    uniqueIndex("prepared_payments_proposal_idx").on(t.proposal_id),
+    index("prepared_payments_profile_idx").on(t.profile_id, t.created_at),
+    index("prepared_payments_supplier_idx").on(t.supplier_id),
+    check("prepared_payments_amount_positive", sql`${t.amount_minor} > 0`),
+    check("prepared_payments_currency_shape", sql`${t.currency} ~ '^[A-Z]{3}$'`),
+    check(
+      "prepared_payments_pays_kind",
+      sql`${t.pays_kind} IN ('supplier', 'fixed_cost', 'purchase_order', 'other')`,
+    ),
+    check(
+      "prepared_payments_payee_or_erased",
+      sql`${t.erased_at} IS NOT NULL OR (${t.payee_name} IS NOT NULL AND ${t.payee_iban} IS NOT NULL)`,
+    ),
+    check(
+      "prepared_payments_erased_holds_nothing",
+      sql`${t.erased_at} IS NULL OR (${t.payee_name} IS NULL AND ${t.payee_iban} IS NULL AND ${t.payee_bic} IS NULL)`,
+    ),
+    check(
+      "prepared_payments_paid_by_someone",
+      sql`(${t.paid_stated_at} IS NULL) = (${t.paid_stated_by} IS NULL)`,
+    ),
   ],
 );

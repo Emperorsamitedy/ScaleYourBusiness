@@ -80,6 +80,11 @@ export const SIZE_FEATURES = {
     reason:
       "A one-person business has the thinnest cushion, so seeing the tight week coming matters most there.",
   },
+  "nav.payments": {
+    bands: EVERY,
+    reason:
+      "A one-person business pays its suppliers by hand too; a checked IBAN and a ready bank file save the same mistakes at any size.",
+  },
   "nav.stock": {
     bands: EVERY,
     reason:

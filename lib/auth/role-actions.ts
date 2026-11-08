@@ -81,6 +81,10 @@ export const ROLE_ACTIONS = {
   "stop.resume": { min: "owner", what: "start things up again after a stop" },
   // L-1: what the business's customers read, and the currency every figure is in.
   "business.locale": { min: "owner", what: "change the business's language or currency" },
+  // P6-05 (rule 26 amended): money is the owner's. Preparing a payment,
+  // approving one, stating the bank details it is paid from, downloading
+  // the bank file and saying it was paid are an owner's alone.
+  "payments.prepare": { min: "owner", what: "prepare payments or say one was paid" },
 } as const satisfies Record<string, RoleActionRow>;
 
 export type RoleAction = keyof typeof ROLE_ACTIONS;

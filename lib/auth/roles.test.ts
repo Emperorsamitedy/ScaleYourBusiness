@@ -56,6 +56,8 @@ const NEVER_A_MANAGER: readonly RoleAction[] = [
   "rules.manage",
   // L-1: the business's language and currency.
   "business.locale",
+  // P6-05 (rule 26 amended): preparing, approving and marking payments is the owner's.
+  "payments.prepare",
 ];
 
 const session = (role: Role): AuthedSession => ({
