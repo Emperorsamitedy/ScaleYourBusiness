@@ -20,6 +20,7 @@ import { emailCampaignExecutor } from "./email-campaign";
 import { googleBusinessExecutor } from "./google-business";
 import { metaAdsExecutor, metaPublishExecutor } from "./meta";
 import { purchaseOrderExecutor } from "./purchase-order";
+import { tiktokAdsExecutor } from "./tiktok";
 
 const PROVIDERS: Readonly<Record<ExecutionProviderId, ExecutionProvider>> = {
   fixture: fixtureExecutor,
@@ -31,6 +32,8 @@ const PROVIDERS: Readonly<Record<ExecutionProviderId, ExecutionProvider>> = {
   google_business_reviews: googleBusinessExecutor,
   // P6-04: an approved purchase order, emailed to its supplier (rule 27 amended).
   purchase_order: purchaseOrderExecutor,
+  // TikTok Ads (2026-11-08): pause, resume and re-budget, the Meta ad ops' TikTok twins.
+  tiktok_ads: tiktokAdsExecutor,
 };
 
 export class UnknownExecutionProviderError extends Error {

@@ -32,6 +32,8 @@ import { activeExecutionConnection, executionSecret } from "../execution/connect
 import { pauseExecutionConnection } from "../execution/pause";
 import type { DispatchPlan } from "../execution/due";
 import type { AdBuildJournal, AdsBackend } from "../execution/providers/meta";
+import type { TikTokAdsBackend } from "../execution/providers/tiktok";
+import { parseTikTokCredential } from "../tiktok/api";
 import { approvedPublishHash, parseMetaExecutionCredential } from "../execution/providers/meta";
 import { adConsentCurrent, adIdentityFor, proposeGoLiveAfterBuild, stepPatchSql } from "./adcreate";
 import type { ProposalRow } from "../proposals/service";
@@ -64,6 +66,8 @@ export function isAdProposal(proposal: Pick<ProposalRow, "module">): boolean {
 }
 
 interface AdDetail {
+  /** "tiktok" for a TikTok campaign; absent = Meta (every proposal before TikTok). */
+  platform?: unknown;
   change?: unknown;
   campaign_ref?: unknown;
   share?: unknown;
@@ -90,6 +94,11 @@ export function adsPlan(
   if (kind === undefined) return { unroutable: `no ad op makes a "${change || "unnamed"}" change` };
   if (action.kind !== kind) {
     return { unroutable: `a "${change}" change under "${String(action.kind)}" doesn't add up` };
+  }
+  if (d.platform !== undefined && d.platform !== "meta") {
+    return d.platform === "tiktok"
+      ? tiktokPlan(change, d)
+      : { unroutable: `no ad op runs on "${String(d.platform)}"` };
   }
   if (change === "run_ad") {
     // P3-54: the approved ad exactly as the card showed it; the executor re-checks every part.
@@ -163,6 +172,66 @@ export function adsPlan(
       op: "set_daily_budget",
       params: { campaign_id: ref, share, currency: d.currency },
     },
+  };
+}
+
+/**
+ * TikTok (2026-11-08): the same three changes, on the tiktok_ads executor.
+ * Nothing is created on TikTok, so run_ad, go_live and create_paused are
+ * not routable there.
+ */
+function tiktokPlan(change: string, d: AdDetail): { plan: DispatchPlan } | { unroutable: string } {
+  const ref = typeof d.campaign_ref === "string" ? d.campaign_ref : "";
+  if (!/^\d{5,25}$/.test(ref)) return { unroutable: "the ad proposal names no TikTok campaign" };
+  if (change === "pause") {
+    return { plan: { provider: "tiktok_ads", op: "pause_campaign", params: { campaign_id: ref } } };
+  }
+  if (change === "resume") {
+    return {
+      plan: { provider: "tiktok_ads", op: "resume_campaign", params: { campaign_id: ref } },
+    };
+  }
+  if (change !== "raise_budget" && change !== "lower_budget") {
+    return { unroutable: `SYB doesn't make a "${change}" change on TikTok` };
+  }
+  const share = typeof d.share === "number" && Number.isFinite(d.share) ? d.share : null;
+  if (share === null || (change === "raise_budget" ? share <= 0 : share >= 0)) {
+    return { unroutable: `the ${change.replace("_", " ")} names no amount in the right direction` };
+  }
+  if (typeof d.currency !== "string") return { unroutable: "the budget change names no currency" };
+  return {
+    plan: {
+      provider: "tiktok_ads",
+      op: "set_daily_budget",
+      params: { campaign_id: ref, share, currency: d.currency },
+    },
+  };
+}
+
+/** The database behind the TikTok ad executor: the same facts as Meta's, from the tiktok_ads connection. */
+export function dbTikTokAdsBackend(opts: { now?: () => Date } = {}): TikTokAdsBackend {
+  const meta = dbAdsBackend(opts);
+  return {
+    async credential(accountId) {
+      const row = await activeExecutionConnection(accountId, "tiktok_ads");
+      if (!row) {
+        return {
+          refused:
+            "TikTok ad management isn't connected. Connect it on Connections; nothing was changed.",
+        };
+      }
+      if (row.status !== "connected") {
+        return {
+          refused: `The TikTok ad connection is ${row.status}. Reconnect it on Connections; nothing was changed.`,
+        };
+      }
+      return parseTikTokCredential(executionSecret(row));
+    },
+    capturedUndo: (executionId) => meta.capturedUndo(executionId),
+    ceiling: (profileId) => meta.ceiling(profileId),
+    // Every platform's campaigns in that currency: the ceiling covers all ad spend.
+    accountDailySpend: (accountId, currency) => meta.accountDailySpend(accountId, currency),
+    changed: (profileId, detail, m) => meta.changed(profileId, detail, m),
   };
 }
 
