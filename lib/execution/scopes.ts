@@ -272,6 +272,43 @@ export const EXECUTION_SCOPE_REGISTRY = {
     ],
   },
   /**
+   * Purchase orders (P6-04, rule 27 amended by the owner on 2026-11-08: "a
+   * purchase order goes out only on a recorded yes"). An approved purchase
+   * order is emailed to the supplier's address on file, from SYB's own
+   * verified sending address under the business's name, with replies going
+   * to the person who approved it. Like campaign email there is no owner
+   * credential: each order carries its own approval of the exact supplier,
+   * address and lines. A sent email can't be recalled, so the one op is
+   * irreversible and labelled so before approval. SYB never edits, cancels
+   * or pays an order, and never signs in to a supplier's system: there is
+   * no op for any of it, and lib/purchasing/rule27.test.ts pins that.
+   */
+  purchase_order: {
+    label: "Purchase order email",
+    write_scopes: ["email.send_purchase_order"],
+    readback_scopes: [],
+    operations: [
+      {
+        op: "send_purchase_order",
+        description:
+          "Email one approved purchase order to the supplier's address on file, exactly as approved.",
+        reversible: false,
+      },
+    ],
+    consent: [
+      {
+        scope: "email.send_purchase_order",
+        grant: "your approval of each order (SYB's own email service)",
+        why: "SYB may email a purchase order you approved to the supplier named on it, at the address you gave, with replies going to you.",
+      },
+      {
+        scope: "email.send_purchase_order",
+        grant: "your approval of each order (SYB's own email service)",
+        why: "SYB never edits, cancels or pays an order, and never signs in to a supplier's system.",
+      },
+    ],
+  },
+  /**
    * Google Business Profile reviews (I-45a, owner decision 2026-11-01: "go
    * ahead with I-45a", then, asked how SYB should hold the permission: "as a
    * write consent"). Google offers ONE scope for the Business Profile APIs,

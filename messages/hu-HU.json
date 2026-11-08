@@ -4243,6 +4243,62 @@
       "yourSupplier": "az Ön beszállítója",
       "assumed": "FELTÉTELEZETT",
       "atCost": "{amount} beszerzési áron"
+    },
+    "po": {
+      "label": "Megrendelések",
+      "title": "Rendelje meg, ami fogy",
+      "meta": "A jóváhagyott megrendelések e-mailben mennek a beszállítónak",
+      "intro": "Készítsen megrendelést abból, ami fogyóban van. A jóváhagyási sorába kerül, és csak a jóváhagyása után megy ki e-mailben a beszállítónak. Megrendelést soha nem módosítok, nem mondok le és nem fizetek ki.",
+      "email": "A beszállító e-mail-címe",
+      "emailOnFile": "Ennél a beszállítónál rögzítve.",
+      "emailAsk": "Még nincs rögzítve. Ha megadja, a beszállítónál megőrizzük.",
+      "address": "Szállítási cím",
+      "addressOnFile": "A rögzített postai címe. Ehhez a rendeléshez itt módosíthatja.",
+      "note": "Megjegyzés a beszállítónak (nem kötelező)",
+      "col": {
+        "order": "Rendelés",
+        "item": "Tétel",
+        "suggested": "Javasolt",
+        "quantity": "Mennyiség",
+        "unit": "Egységköltség",
+        "items": "Tételek",
+        "total": "Összesen beszerzési áron",
+        "state": "Állapot"
+      },
+      "button": "Megrendelés a sorba",
+      "working": "A megrendelés készül…",
+      "made": "A(z) {number} számú megrendelés a jóváhagyására vár.",
+      "open": "A(z) {number} számú megrendelés ennél a beszállítónál: {state}.",
+      "unsupplied": "Ehhez nincs rögzített beszállító: {items}, így egy megrendelés sem nevezhet meg egyet. Adja hozzá a beszállítót a ténylapján.",
+      "list": "Az Ön megrendelései",
+      "items": "{count, plural, one {# tétel} other {# tétel}}",
+      "state": {
+        "pending": "a jóváhagyására vár",
+        "approved": "jóváhagyva, még nincs elküldve",
+        "rejected": "elutasítva, soha nem ment ki",
+        "expired": "lejárt, soha nem ment ki",
+        "blocked": "a saját szabálya kizárta",
+        "changes_requested": "módosítást kért, nincs elküldve",
+        "executed": "kész",
+        "sent": "elküldve: {day}",
+        "notSent": "kész, nincs elküldve",
+        "failed": "nem ment ki"
+      },
+      "why": {
+        "email_not_set_up": "Az e-mail-küldés még nincs beállítva a SYB küldő domainjén.",
+        "real_writes_off": "A valódi küldés ki van kapcsolva, amíg a kéthetes felügyelet nélküli teszt be nem fejeződik."
+      },
+      "notSentAfter": "Töltse le, és küldje el maga.",
+      "sendingReal": "A jóváhagyott megrendelések valóban kimennek e-mailben a beszállítónak.",
+      "sendingFake": "A jóváhagyott megrendelések minden ellenőrzésen átmennek, de e-mailben még nem mennek ki:",
+      "sendNow": "Küldés most",
+      "sendingNow": "Küldés…",
+      "download": "Letöltés",
+      "print": "Megnyitás nyomtatáshoz",
+      "result": {
+        "sent": "Elküldve a beszállítónak.",
+        "notSent": "Kész, nincs elküldve."
+      }
     }
   },
   "chat": {
@@ -6074,7 +6130,8 @@
       "stockPair": "A jóváhagyás az Ön igenjét rögzíti. Nem módosítom a webáruházát: a párosítást Ön állítja be.",
       "stockPrices": "A jóváhagyás az Ön igenjét rögzíti. Nem módosítom az árait: azt Ön teszi meg.",
       "stockAdvice": "Csak tanács: senkivel sem veszem fel a kapcsolatot. A jóváhagyás azt rögzíti, hogy Ön meg kívánja tenni.",
-      "reorder": "A jóváhagyás csak azt rögzíti, hogy Ön újra kíván rendelni, semmi mást. Nem keresem meg a beszállítót ({supplier}), és soha nem adok le, módosítok vagy mondok le rendelést: ezt Ön teszi."
+      "reorder": "A jóváhagyás csak azt rögzíti, hogy Ön újra kíván rendelni, semmi mást. Nem keresem meg a beszállítót ({supplier}), és soha nem adok le, módosítok vagy mondok le rendelést: ezt Ön teszi.",
+      "purchaseOrder": "A jóváhagyással ez a megrendelés e-mailben megy a(z) {email} címre, a SYB címéről, a válaszok Önhöz érkeznek. Elküldött e-mail nem hívható vissza, és megrendelést soha nem módosítok, nem mondok le és nem fizetek ki: ezt Ön teszi."
     }
   },
   "trackWords": {
@@ -6271,6 +6328,37 @@
       "greeting": "Üdvözöljük!",
       "thisBusiness": "Ez a vállalkozás",
       "why": "Azért kapja ezt az e-mailt, mert hozzájárult, hogy a következő feladó megkeresse: {business}. Leiratkozás: {link}"
+    },
+    "purchaseOrder": {
+      "subject": "{number} számú megrendelés – {business}",
+      "greeting": "Kedves {supplier}!",
+      "intro": "{business} a következőket szeretné megrendelni ({number} számú megrendelés):",
+      "line": "{quantity} × {item}",
+      "linePriced": "{quantity} × {item}, {unit} áron = {total}",
+      "total": "Várható végösszeg: {total}",
+      "totalPart": "Várható végösszeg: {total}, plusz {unpriced, plural, one {# tétel} other {# tétel}} ár nélkül",
+      "deliverTo": "Szállítási cím:",
+      "noteHead": "Megjegyzés:",
+      "confirm": "Kérjük, erre az e-mailre válaszolva erősítse meg a rendelést, az árat és a szállítás napját.",
+      "closing": "Köszönettel:\n{business}",
+      "footer": "Ezt a megrendelést a SYB, egy MI-asszisztens készítette elő, és a vállalkozás küldés előtt jóváhagyta. A válaszok közvetlenül a vállalkozáshoz mennek.",
+      "doc": {
+        "title": "{number} számú megrendelés",
+        "prepared": "{business} · készült: {day}",
+        "statusSent": "E-mailben elküldve a beszállítónak: {day}",
+        "status": {
+          "draft": "Jóváhagyásra vár: nincs elküldve",
+          "approved": "Jóváhagyva: még nincs elküldve",
+          "not_sent": "Jóváhagyva, e-mailben nem ment ki: küldje el maga"
+        },
+        "from": "Feladó",
+        "to": "Címzett",
+        "item": "Tétel",
+        "quantity": "Mennyiség",
+        "unit": "Egységár (várható)",
+        "lineTotal": "Tétel összesen",
+        "foot": "A SYB-vel készült. A SYB soha nem módosít, nem mond le és nem fizet ki megrendelést."
+      }
     }
   },
   "push": {
@@ -6296,6 +6384,7 @@
       "revise_goal": "egy átnézendő cél",
       "stop_strategy": "egy átnézendő stratégia",
       "other": "egy javaslat",
+      "purchase_order": "egy megrendelés",
       "prepared_payment": "egy ellenőrizendő kifizetés"
     }
   },

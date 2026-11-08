@@ -7,7 +7,10 @@
 // selling, most cash tied up first, each item's ways to clear it ranked by
 // cash likely back per euro given up. Read-only: putting notes or options
 // in the queue makes proposals, nothing runs until the owner approves it
-// (rule 12), and a reorder note is never an order (rule 27). A business
+// (rule 12), and a reorder note is never an order (rule 27). P6-04 (rule 27
+// amended): a reorder suggestion can become a purchase order the owner
+// makes here (./PurchaseOrders), emailed to the supplier only once approved,
+// through the engine. A business
 // without stock never reaches this screen through the menu (STOCK_APPLIES).
 //
 // L-3b: the screen's fixed words are the "stock" catalogue; figures in the
@@ -30,6 +33,7 @@ import type {
 import { dayMonthYear } from "../../lib/i18n/format";
 import { intlTag } from "../../lib/i18n/locales";
 import { StockHistoryChart } from "../charts/StockHistoryChart";
+import { PurchaseOrdersCard } from "./PurchaseOrders";
 import { PageHead, SheetCard } from "../sheet/PageHead";
 import { num } from "../sheet/num";
 import { useTr } from "../sheet/useTr";
@@ -661,6 +665,13 @@ export function StockScreen() {
           )}
         </>
       )}
+
+      {view.purchase_orders &&
+        (view.purchase_orders.drafts.length > 0 ||
+          view.purchase_orders.orders.length > 0 ||
+          view.purchase_orders.unsupplied.length > 0) && (
+          <PurchaseOrdersCard block={view.purchase_orders} onChange={load} />
+        )}
 
       {slow.length > 0 ? (
         <SheetCard

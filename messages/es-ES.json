@@ -4243,6 +4243,62 @@
       "yourSupplier": "su proveedor",
       "assumed": "SUPUESTO",
       "atCost": "{amount} a precio de coste"
+    },
+    "po": {
+      "label": "Pedidos de compra",
+      "title": "Pide lo que se está agotando",
+      "meta": "Los pedidos aprobados se envían por correo al proveedor",
+      "intro": "Crea un pedido con lo que se está agotando. Va a tu cola de aprobación y solo cuando lo apruebas se envía por correo al proveedor. Nunca modifico, cancelo ni pago un pedido.",
+      "email": "Correo del proveedor",
+      "emailOnFile": "Registrado para este proveedor.",
+      "emailAsk": "Aún no está registrado. En cuanto lo indiques, se guarda con el proveedor.",
+      "address": "Entregar en",
+      "addressOnFile": "Tu dirección postal registrada. Cámbiala aquí para este pedido.",
+      "note": "Nota para el proveedor (opcional)",
+      "col": {
+        "order": "Pedir",
+        "item": "Artículo",
+        "suggested": "Sugerido",
+        "quantity": "Cantidad",
+        "unit": "Coste unitario",
+        "items": "Artículos",
+        "total": "Total a coste",
+        "state": "Estado"
+      },
+      "button": "Poner el pedido en mi cola",
+      "working": "Creando el pedido…",
+      "made": "El pedido {number} espera tu aprobación.",
+      "open": "Pedido {number} para este proveedor: {state}.",
+      "unsupplied": "No hay proveedor registrado para {items}, así que ningún pedido puede indicarlo. Añade el proveedor en tu ficha de datos.",
+      "list": "Tus pedidos",
+      "items": "{count, plural, one {# artículo} many {# artículos} other {# artículos}}",
+      "state": {
+        "pending": "espera tu aprobación",
+        "approved": "aprobado, aún no enviado",
+        "rejected": "rechazado, nunca enviado",
+        "expired": "caducado, nunca enviado",
+        "blocked": "descartado por tu propia regla",
+        "changes_requested": "cambios pedidos, no enviado",
+        "executed": "hecho",
+        "sent": "enviado el {day}",
+        "notSent": "listo, no enviado",
+        "failed": "no salió"
+      },
+      "why": {
+        "email_not_set_up": "El correo aún no está configurado en el dominio de envío de SYB.",
+        "real_writes_off": "El envío real está desactivado hasta que termine la prueba de dos semanas sin supervisión."
+      },
+      "notSentAfter": "Descárgalo y envíalo tú.",
+      "sendingReal": "Los pedidos aprobados se envían de verdad por correo al proveedor.",
+      "sendingFake": "Los pedidos aprobados pasan todas las comprobaciones, pero aún no se envían por correo:",
+      "sendNow": "Enviar ahora",
+      "sendingNow": "Enviando…",
+      "download": "Descargar",
+      "print": "Abrir para imprimir",
+      "result": {
+        "sent": "Enviado al proveedor.",
+        "notSent": "Listo, no enviado."
+      }
     }
   },
   "chat": {
@@ -6074,7 +6130,8 @@
       "stockPair": "Al aprobarla, queda registrado su sí. No cambio su tienda: es usted quien configura el par.",
       "stockPrices": "Al aprobarla, queda registrado su sí. No cambio sus precios: los cambia usted.",
       "stockAdvice": "Solo es un consejo: no me pongo en contacto con nadie. Aprobarla deja registrado que tiene intención de hacerlo.",
-      "reorder": "Aprobarla solo registra que tiene intención de volver a hacer un pedido, y nada más. No me pongo en contacto con {supplier} y nunca hago, cambio ni cancelo un pedido: lo hace usted."
+      "reorder": "Aprobarla solo registra que tiene intención de volver a hacer un pedido, y nada más. No me pongo en contacto con {supplier} y nunca hago, cambio ni cancelo un pedido: lo hace usted.",
+      "purchaseOrder": "Al aprobarlo, este pedido se envía por correo a {email}, desde la dirección de SYB, y las respuestas te llegan a ti. Un correo enviado no se puede recuperar, y nunca modifico, cancelo ni pago un pedido: lo haces tú."
     }
   },
   "trackWords": {
@@ -6271,6 +6328,37 @@
       "greeting": "Hola:",
       "thisBusiness": "Este negocio",
       "why": "Recibe este correo porque aceptó recibir comunicaciones de {business}. Darse de baja: {link}"
+    },
+    "purchaseOrder": {
+      "subject": "Pedido de compra {number} de {business}",
+      "greeting": "Hola, {supplier}:",
+      "intro": "{business} quiere pedir lo siguiente (pedido de compra {number}):",
+      "line": "{quantity} × {item}",
+      "linePriced": "{quantity} × {item} a {unit} = {total}",
+      "total": "Total previsto: {total}",
+      "totalPart": "Total previsto: {total}, más {unpriced, plural, one {# línea} many {# líneas} other {# líneas}} sin precio",
+      "deliverTo": "Entregar en:",
+      "noteHead": "Nota:",
+      "confirm": "Por favor, confirme el pedido, su precio y la fecha de entrega respondiendo a este correo.",
+      "closing": "Gracias,\n{business}",
+      "footer": "Este pedido se preparó con SYB, un asistente de IA, y el negocio lo aprobó antes de enviarlo. Las respuestas llegan directamente al negocio.",
+      "doc": {
+        "title": "Pedido de compra {number}",
+        "prepared": "{business} · preparado el {day}",
+        "statusSent": "Enviado por correo al proveedor el {day}",
+        "status": {
+          "draft": "Pendiente de aprobación: no enviado",
+          "approved": "Aprobado: aún no enviado",
+          "not_sent": "Aprobado, no enviado por correo: envíelo usted"
+        },
+        "from": "De",
+        "to": "Para",
+        "item": "Artículo",
+        "quantity": "Cantidad",
+        "unit": "Precio unitario (previsto)",
+        "lineTotal": "Total de la línea",
+        "foot": "Preparado con SYB. SYB nunca modifica, cancela ni paga un pedido."
+      }
     }
   },
   "push": {
@@ -6296,6 +6384,7 @@
       "revise_goal": "un objetivo que revisar",
       "stop_strategy": "una estrategia que revisar",
       "other": "una propuesta",
+      "purchase_order": "un pedido de compra",
       "prepared_payment": "un pago que revisar"
     }
   },

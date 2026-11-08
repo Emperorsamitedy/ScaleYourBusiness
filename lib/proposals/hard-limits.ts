@@ -93,8 +93,16 @@ export const NOTE_KINDS = [
   "prepared_payment",
 ] as const;
 export type NoteKind = (typeof NOTE_KINDS)[number];
+/**
+ * Phase 6 (P6-04, rule 27 amended): a purchase order, made by the owner from
+ * a reorder suggestion and, once approved, emailed to the supplier through
+ * the engine. Outside ACTION_KINDS for the note kinds' reason: no classifier
+ * or review can emit one, only lib/purchasing, from the owner's own request.
+ */
+export const ORDER_KINDS = ["purchase_order"] as const;
+export type OrderKind = (typeof ORDER_KINDS)[number];
 /** Every kind a proposal can carry through the hard-limit check. */
-export type ProposalKind = ActionKind | NoteKind;
+export type ProposalKind = ActionKind | NoteKind | OrderKind;
 
 /** code → the action kinds it forbids. The whole of rule 14's arithmetic. */
 export const LIMIT_TAXONOMY = {

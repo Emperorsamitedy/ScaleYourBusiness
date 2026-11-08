@@ -4243,6 +4243,62 @@
       "yourSupplier": "您的供应商",
       "assumed": "假设",
       "atCost": "按成本计 {amount}"
+    },
+    "po": {
+      "label": "采购订单",
+      "title": "补订快用完的商品",
+      "meta": "批准后的订单会通过邮件发给供应商",
+      "intro": "用快用完的商品生成订单。它会进入您的审批队列，只有在您批准后才会通过邮件发给供应商。我从不修改、取消或支付订单。",
+      "email": "供应商邮箱",
+      "emailOnFile": "已为此供应商存档。",
+      "emailAsk": "尚未存档。您填写后，会保存在该供应商名下。",
+      "address": "送货地址",
+      "addressOnFile": "您存档的邮寄地址。可在此为本订单修改。",
+      "note": "给供应商的备注（可选）",
+      "col": {
+        "order": "订购",
+        "item": "商品",
+        "suggested": "建议",
+        "quantity": "数量",
+        "unit": "单位成本",
+        "items": "商品",
+        "total": "按成本合计",
+        "state": "状态"
+      },
+      "button": "把订单放进我的队列",
+      "working": "正在生成订单…",
+      "made": "订单 {number} 正在等待您批准。",
+      "open": "此供应商的订单 {number}：{state}。",
+      "unsupplied": "{items} 没有存档的供应商，因此订单无法指定供应商。请在您的事实表中添加供应商。",
+      "list": "您的订单",
+      "items": "{count} 个商品",
+      "state": {
+        "pending": "等待您批准",
+        "approved": "已批准，尚未发送",
+        "rejected": "已拒绝，从未发送",
+        "expired": "已过期，从未发送",
+        "blocked": "被您自己的规则排除",
+        "changes_requested": "已要求修改，未发送",
+        "executed": "已完成",
+        "sent": "已于 {day} 发送",
+        "notSent": "已就绪，未发送",
+        "failed": "未能发出"
+      },
+      "why": {
+        "email_not_set_up": "SYB 的发信域名尚未设置好邮件。",
+        "real_writes_off": "在两周无人值守测试完成之前，真实发送处于关闭状态。"
+      },
+      "notSentAfter": "请下载后自行发送。",
+      "sendingReal": "批准后的订单会真正通过邮件发给供应商。",
+      "sendingFake": "批准后的订单会经过每一项检查，但暂时不会通过邮件发送：",
+      "sendNow": "立即发送",
+      "sendingNow": "正在发送…",
+      "download": "下载",
+      "print": "打开以打印",
+      "result": {
+        "sent": "已发给供应商。",
+        "notSent": "已就绪，未发送。"
+      }
     }
   },
   "chat": {
@@ -6074,7 +6130,8 @@
       "stockPair": "批准只是记下您的肯定答复。我不会改动您的店铺：这个组合由您自己设置。",
       "stockPrices": "批准只是记下您的肯定答复。我不会改动您的价格：由您来改。",
       "stockAdvice": "仅为建议：我不会联系任何人。批准只是记下您打算这样做。",
-      "reorder": "批准只是记下您打算重新订货，别无其他。我不会联系 {supplier}，也绝不会下单、更改或取消订单：这些由您来做。"
+      "reorder": "批准只是记下您打算重新订货，别无其他。我不会联系 {supplier}，也绝不会下单、更改或取消订单：这些由您来做。",
+      "purchaseOrder": "批准后，此订单将从 SYB 的地址通过邮件发送至 {email}，回复会发给您。已发送的邮件无法撤回，而且我从不修改、取消或支付订单：这些由您来做。"
     }
   },
   "trackWords": {
@@ -6271,6 +6328,37 @@
       "greeting": "您好，",
       "thisBusiness": "这家企业",
       "why": "您收到这封邮件，是因为您同意接收 {business} 的信息。退订：{link}"
+    },
+    "purchaseOrder": {
+      "subject": "{business} 的采购订单 {number}",
+      "greeting": "{supplier}，您好：",
+      "intro": "{business} 希望订购以下商品（采购订单 {number}）：",
+      "line": "{quantity} × {item}",
+      "linePriced": "{quantity} × {item}，单价 {unit} = {total}",
+      "total": "预计总额：{total}",
+      "totalPart": "预计总额：{total}，另有 {unpriced} 行没有价格",
+      "deliverTo": "送货地址：",
+      "noteHead": "备注：",
+      "confirm": "请回复此邮件，确认订单、价格和交货日期。",
+      "closing": "谢谢！\n{business}",
+      "footer": "此订单由 AI 助手 SYB 准备，并在发送前经企业批准。回复会直接发给企业。",
+      "doc": {
+        "title": "采购订单 {number}",
+        "prepared": "{business} · 准备于 {day}",
+        "statusSent": "已于 {day} 通过邮件发给供应商",
+        "status": {
+          "draft": "等待批准：未发送",
+          "approved": "已批准：尚未发送",
+          "not_sent": "已批准，未通过邮件发送：请自行发送"
+        },
+        "from": "发件方",
+        "to": "收件方",
+        "item": "商品",
+        "quantity": "数量",
+        "unit": "单价（预计）",
+        "lineTotal": "小计",
+        "foot": "由 SYB 准备。SYB 从不修改、取消或支付订单。"
+      }
     }
   },
   "push": {
@@ -6296,6 +6384,7 @@
       "revise_goal": "一个需要查看的目标",
       "stop_strategy": "一项需要查看的策略",
       "other": "一项提案",
+      "purchase_order": "一份采购订单",
       "prepared_payment": "一笔待核对的付款"
     }
   },

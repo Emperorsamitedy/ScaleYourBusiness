@@ -19,6 +19,7 @@ import { fixtureSiteExecutor } from "./fixture-site";
 import { emailCampaignExecutor } from "./email-campaign";
 import { googleBusinessExecutor } from "./google-business";
 import { metaAdsExecutor, metaPublishExecutor } from "./meta";
+import { purchaseOrderExecutor } from "./purchase-order";
 
 const PROVIDERS: Readonly<Record<ExecutionProviderId, ExecutionProvider>> = {
   fixture: fixtureExecutor,
@@ -28,6 +29,8 @@ const PROVIDERS: Readonly<Record<ExecutionProviderId, ExecutionProvider>> = {
   email_campaign: emailCampaignExecutor,
   // I-45a: read-only use of a write-capable consent — refuses every op.
   google_business_reviews: googleBusinessExecutor,
+  // P6-04: an approved purchase order, emailed to its supplier (rule 27 amended).
+  purchase_order: purchaseOrderExecutor,
 };
 
 export class UnknownExecutionProviderError extends Error {

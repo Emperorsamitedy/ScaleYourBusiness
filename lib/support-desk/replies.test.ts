@@ -684,10 +684,14 @@ describe("P4-10 — THE BUILD GATES: one way out, behind the owner", () => {
     // (P4-15, added deliberately) the campaign send executor — an execution
     // provider, so it sends only through the engine, past guard 6a, to
     // recipients re-checked at send time. Its own call-site gate lives in
-    // lib/execution/providers/email-campaign.test.ts.
+    // lib/execution/providers/email-campaign.test.ts. And (P6-04, added
+    // deliberately) the purchase-order executor: the same engine path, sent
+    // only after a recorded approval; its call-site gate is
+    // lib/purchasing/rule27.test.ts.
     expect(posting).toEqual([
       "lib/auth/email.ts",
       "lib/execution/providers/email-campaign.ts",
+      "lib/execution/providers/purchase-order.ts",
       "lib/support-desk/mailer.ts",
       "lib/support/notify-owner.ts",
     ]);

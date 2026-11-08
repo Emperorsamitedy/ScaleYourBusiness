@@ -4243,6 +4243,62 @@
       "yourSupplier": "Ihr Lieferant",
       "assumed": "ANGENOMMEN",
       "atCost": "{amount} zu Einstandskosten"
+    },
+    "po": {
+      "label": "Bestellungen",
+      "title": "Nachbestellen, was knapp wird",
+      "meta": "Freigegebene Bestellungen gehen per E-Mail an den Lieferanten",
+      "intro": "Erstellen Sie eine Bestellung aus dem, was knapp wird. Sie landet in Ihrer Freigabeliste und wird erst nach Ihrer Freigabe an den Lieferanten gemailt. Ich ändere, storniere oder bezahle nie eine Bestellung.",
+      "email": "E-Mail des Lieferanten",
+      "emailOnFile": "Für diesen Lieferanten hinterlegt.",
+      "emailAsk": "Noch nicht hinterlegt. Sobald Sie sie angeben, wird sie beim Lieferanten gespeichert.",
+      "address": "Lieferung an",
+      "addressOnFile": "Ihre hinterlegte Postanschrift. Für diese Bestellung hier ändern.",
+      "note": "Hinweis an den Lieferanten (optional)",
+      "col": {
+        "order": "Bestellen",
+        "item": "Artikel",
+        "suggested": "Vorschlag",
+        "quantity": "Menge",
+        "unit": "Stückkosten",
+        "items": "Artikel",
+        "total": "Summe zu Kosten",
+        "state": "Stand"
+      },
+      "button": "Bestellung in meine Liste legen",
+      "working": "Bestellung wird erstellt…",
+      "made": "Bestellung {number} wartet auf Ihre Freigabe.",
+      "open": "Bestellung {number} für diesen Lieferanten: {state}.",
+      "unsupplied": "Für {items} ist kein Lieferant hinterlegt, daher kann keine Bestellung einen nennen. Fügen Sie den Lieferanten in Ihrem Faktenblatt hinzu.",
+      "list": "Ihre Bestellungen",
+      "items": "{count, plural, one {# Artikel} other {# Artikel}}",
+      "state": {
+        "pending": "wartet auf Ihre Freigabe",
+        "approved": "freigegeben, noch nicht gesendet",
+        "rejected": "abgelehnt, nie gesendet",
+        "expired": "abgelaufen, nie gesendet",
+        "blocked": "durch Ihre eigene Regel ausgeschlossen",
+        "changes_requested": "Änderungen erbeten, nicht gesendet",
+        "executed": "erledigt",
+        "sent": "am {day} gemailt",
+        "notSent": "bereit, nicht gesendet",
+        "failed": "nicht rausgegangen"
+      },
+      "why": {
+        "email_not_set_up": "Der E-Mail-Versand ist auf der Absenderdomain von SYB noch nicht eingerichtet.",
+        "real_writes_off": "Der echte Versand ist ausgeschaltet, bis der zweiwöchige unbeaufsichtigte Test abgeschlossen ist."
+      },
+      "notSentAfter": "Laden Sie sie herunter und senden Sie sie selbst.",
+      "sendingReal": "Freigegebene Bestellungen werden wirklich an den Lieferanten gemailt.",
+      "sendingFake": "Freigegebene Bestellungen durchlaufen jede Prüfung, werden aber noch nicht gemailt:",
+      "sendNow": "Jetzt senden",
+      "sendingNow": "Wird gesendet…",
+      "download": "Herunterladen",
+      "print": "Zum Drucken öffnen",
+      "result": {
+        "sent": "An den Lieferanten gesendet.",
+        "notSent": "Bereit, nicht gesendet."
+      }
     }
   },
   "chat": {
@@ -6074,7 +6130,8 @@
       "stockPair": "Die Freigabe hält Ihr Ja fest. Ich ändere Ihren Shop nicht: Das Paar richten Sie selbst ein.",
       "stockPrices": "Die Freigabe hält Ihr Ja fest. Ich ändere Ihre Preise nicht: Das tun Sie.",
       "stockAdvice": "Nur ein Rat: Ich kontaktiere niemanden. Die Freigabe hält fest, dass Sie es vorhaben.",
-      "reorder": "Die Freigabe hält fest, dass Sie nachbestellen wollen, und sonst nichts. Ich kontaktiere {supplier} nicht, und ich gebe nie eine Bestellung auf, ändere oder storniere sie: Das tun Sie."
+      "reorder": "Die Freigabe hält fest, dass Sie nachbestellen wollen, und sonst nichts. Ich kontaktiere {supplier} nicht, und ich gebe nie eine Bestellung auf, ändere oder storniere sie: Das tun Sie.",
+      "purchaseOrder": "Mit der Freigabe wird diese Bestellung an {email} gemailt, von der Adresse von SYB, Antworten gehen an Sie. Eine gesendete E-Mail lässt sich nicht zurückholen, und ich ändere, storniere oder bezahle nie eine Bestellung: Das tun Sie."
     }
   },
   "trackWords": {
@@ -6271,6 +6328,37 @@
       "greeting": "Guten Tag,",
       "thisBusiness": "Dieses Unternehmen",
       "why": "{business} sendet Ihnen diese E-Mail, weil Sie Ihre Einwilligung gegeben haben. Abbestellen: {link}"
+    },
+    "purchaseOrder": {
+      "subject": "Bestellung {number} von {business}",
+      "greeting": "Guten Tag {supplier},",
+      "intro": "{business} möchte Folgendes bestellen (Bestellung {number}):",
+      "line": "{quantity} × {item}",
+      "linePriced": "{quantity} × {item} zu {unit} = {total}",
+      "total": "Voraussichtliche Summe: {total}",
+      "totalPart": "Voraussichtliche Summe: {total}, dazu {unpriced, plural, one {# Position} other {# Positionen}} ohne Preis",
+      "deliverTo": "Lieferung an:",
+      "noteHead": "Hinweis:",
+      "confirm": "Bitte bestätigen Sie die Bestellung, den Preis und den Liefertermin per Antwort auf diese E-Mail.",
+      "closing": "Vielen Dank\n{business}",
+      "footer": "Diese Bestellung wurde mit SYB, einem KI-Assistenten, vorbereitet und vom Unternehmen vor dem Versand freigegeben. Antworten gehen direkt an das Unternehmen.",
+      "doc": {
+        "title": "Bestellung {number}",
+        "prepared": "{business} · erstellt am {day}",
+        "statusSent": "Am {day} an den Lieferanten gemailt",
+        "status": {
+          "draft": "Wartet auf Freigabe: nicht gesendet",
+          "approved": "Freigegeben: noch nicht gesendet",
+          "not_sent": "Freigegeben, nicht gemailt: bitte selbst senden"
+        },
+        "from": "Von",
+        "to": "An",
+        "item": "Artikel",
+        "quantity": "Menge",
+        "unit": "Stückpreis (voraussichtlich)",
+        "lineTotal": "Positionssumme",
+        "foot": "Mit SYB erstellt. SYB ändert, storniert oder bezahlt nie eine Bestellung."
+      }
     }
   },
   "push": {
@@ -6296,6 +6384,7 @@
       "revise_goal": "ein Ziel zum Prüfen",
       "stop_strategy": "eine Strategie zum Prüfen",
       "other": "ein Vorschlag",
+      "purchase_order": "eine Bestellung",
       "prepared_payment": "eine Zahlung zum Prüfen"
     }
   },

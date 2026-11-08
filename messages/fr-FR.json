@@ -4243,6 +4243,62 @@
       "yourSupplier": "votre fournisseur",
       "assumed": "SUPPOSÉ",
       "atCost": "{amount} au prix de revient"
+    },
+    "po": {
+      "label": "Bons de commande",
+      "title": "Commander ce qui s'épuise",
+      "meta": "Les commandes approuvées sont envoyées au fournisseur par e-mail",
+      "intro": "Créez une commande à partir de ce qui s'épuise. Elle va dans votre file de validation, et ce n'est qu'une fois validée qu'elle est envoyée au fournisseur. Je ne modifie, n'annule ni ne paie jamais une commande.",
+      "email": "E-mail du fournisseur",
+      "emailOnFile": "Enregistré pour ce fournisseur.",
+      "emailAsk": "Pas encore enregistré. Une fois indiqué, il est gardé avec le fournisseur.",
+      "address": "Livrer à",
+      "addressOnFile": "Votre adresse postale enregistrée. Modifiez-la ici pour cette commande.",
+      "note": "Remarque pour le fournisseur (facultatif)",
+      "col": {
+        "order": "Commander",
+        "item": "Article",
+        "suggested": "Suggéré",
+        "quantity": "Quantité",
+        "unit": "Coût unitaire",
+        "items": "Articles",
+        "total": "Total au coût",
+        "state": "Où elle en est"
+      },
+      "button": "Mettre la commande dans ma file",
+      "working": "Création de la commande…",
+      "made": "La commande {number} attend votre validation.",
+      "open": "Commande {number} pour ce fournisseur : {state}.",
+      "unsupplied": "Aucun fournisseur enregistré pour {items}, donc aucune commande ne peut en nommer un. Ajoutez le fournisseur sur votre fiche des faits.",
+      "list": "Vos commandes",
+      "items": "{count, plural, one {# article} many {# articles} other {# articles}}",
+      "state": {
+        "pending": "attend votre validation",
+        "approved": "approuvée, pas encore envoyée",
+        "rejected": "refusée, jamais envoyée",
+        "expired": "expirée, jamais envoyée",
+        "blocked": "écartée par votre propre règle",
+        "changes_requested": "modifications demandées, non envoyée",
+        "executed": "fait",
+        "sent": "envoyée le {day}",
+        "notSent": "prête, non envoyée",
+        "failed": "n'est pas partie"
+      },
+      "why": {
+        "email_not_set_up": "L'e-mail n'est pas encore configuré sur le domaine d'envoi de SYB.",
+        "real_writes_off": "L'envoi réel est désactivé jusqu'à la fin du test de deux semaines sans surveillance."
+      },
+      "notSentAfter": "Téléchargez-la et envoyez-la vous-même.",
+      "sendingReal": "Les commandes approuvées sont réellement envoyées au fournisseur par e-mail.",
+      "sendingFake": "Les commandes approuvées passent toutes les vérifications, mais ne sont pas encore envoyées par e-mail :",
+      "sendNow": "Envoyer maintenant",
+      "sendingNow": "Envoi…",
+      "download": "Télécharger",
+      "print": "Ouvrir pour imprimer",
+      "result": {
+        "sent": "Envoyée au fournisseur.",
+        "notSent": "Prête, non envoyée."
+      }
     }
   },
   "chat": {
@@ -6074,7 +6130,8 @@
       "stockPair": "Valider enregistre votre oui. Je ne modifie pas votre boutique : c’est vous qui mettez la paire en place.",
       "stockPrices": "Valider enregistre votre oui. Je ne modifie pas vos prix : c’est vous qui le faites.",
       "stockAdvice": "Simple conseil : je ne contacte personne. Valider enregistre que vous comptez le faire.",
-      "reorder": "Valider enregistre que vous comptez recommander, et rien d’autre. Je ne contacte pas {supplier}, et je ne passe, ne modifie ni n’annule jamais une commande : c’est vous qui le faites."
+      "reorder": "Valider enregistre que vous comptez recommander, et rien d’autre. Je ne contacte pas {supplier}, et je ne passe, ne modifie ni n’annule jamais une commande : c’est vous qui le faites.",
+      "purchaseOrder": "En l'approuvant, cette commande est envoyée par e-mail à {email}, depuis l'adresse de SYB, et les réponses vous parviennent. Un e-mail envoyé ne peut pas être rappelé, et je ne modifie, n'annule ni ne paie jamais une commande : c'est vous qui le faites."
     }
   },
   "trackWords": {
@@ -6271,6 +6328,37 @@
       "greeting": "Bonjour,",
       "thisBusiness": "Cette entreprise",
       "why": "Vous recevez ce message parce que vous avez accepté de recevoir des nouvelles de {business}. Se désabonner : {link}"
+    },
+    "purchaseOrder": {
+      "subject": "Bon de commande {number} de {business}",
+      "greeting": "Bonjour {supplier},",
+      "intro": "{business} souhaite commander ce qui suit (bon de commande {number}) :",
+      "line": "{quantity} × {item}",
+      "linePriced": "{quantity} × {item} à {unit} = {total}",
+      "total": "Total prévu : {total}",
+      "totalPart": "Total prévu : {total}, plus {unpriced, plural, one {# ligne} many {# lignes} other {# lignes}} sans prix",
+      "deliverTo": "Livrer à :",
+      "noteHead": "Remarque :",
+      "confirm": "Merci de confirmer la commande, son prix et la date de livraison en répondant à cet e-mail.",
+      "closing": "Merci,\n{business}",
+      "footer": "Cette commande a été préparée avec SYB, un assistant IA, et approuvée par l'entreprise avant son envoi. Les réponses vont directement à l'entreprise.",
+      "doc": {
+        "title": "Bon de commande {number}",
+        "prepared": "{business} · préparé le {day}",
+        "statusSent": "Envoyé au fournisseur par e-mail le {day}",
+        "status": {
+          "draft": "En attente de validation : non envoyé",
+          "approved": "Approuvé : pas encore envoyé",
+          "not_sent": "Approuvé, non envoyé par e-mail : envoyez-le vous-même"
+        },
+        "from": "De",
+        "to": "À",
+        "item": "Article",
+        "quantity": "Quantité",
+        "unit": "Prix unitaire (prévu)",
+        "lineTotal": "Total de la ligne",
+        "foot": "Préparé avec SYB. SYB ne modifie, n'annule ni ne paie jamais une commande."
+      }
     }
   },
   "push": {
@@ -6296,6 +6384,7 @@
       "revise_goal": "un objectif à revoir",
       "stop_strategy": "une stratégie à revoir",
       "other": "une proposition",
+      "purchase_order": "un bon de commande",
       "prepared_payment": "un paiement à vérifier"
     }
   },

@@ -43,6 +43,12 @@
 //     or the email service asking it to slow down) is selected again and
 //     sends only the recipients still pending; a run that died mid-send is
 //     closed as held first (reclaimStaleCampaignRuns)
+//   - a purchase order (P6-04, rule 27 amended): lib/purchasing/send's
+//     purchaseOrderPlanFor routes a stock purchase_order proposal to
+//     { purchase_order, send_purchase_order, {proposal_id} }. Approving it
+//     schedules it for now (execute_on_approval), so the next pass sends it;
+//     the provider decides at that moment whether it really goes out or runs
+//     against the fake sender, and says which
 //   - module "site": applySiteChange, which does its own drift check,
 //     health check and auto-rollback through the engine
 //   - anything else is UNROUTABLE: counted, logged, left approved. The
@@ -81,6 +87,7 @@ import { isPublishProposal } from "../content/publish";
 import { adsPlan, isAdProposal } from "../ads/executing";
 import { reclaimStaleAdBuilds } from "../ads/adcreate";
 import { campaignPlanFor, reclaimStaleCampaignRuns } from "../crm/campaign-send";
+import { purchaseOrderPlanFor } from "../purchasing/send";
 import { applySiteChange } from "../site/apply";
 import { SiteChangeError } from "../site/changes";
 import { activeExecutionConnection } from "./connections";
@@ -329,6 +336,7 @@ async function runOne(
       plan = routed.plan;
     }
     if (!plan) plan = campaignPlanFor(proposal);
+    if (!plan) plan = purchaseOrderPlanFor(proposal);
     if (!plan && isAdProposal(proposal)) {
       const routed = adsPlan(proposal);
       if ("unroutable" in routed) {
