@@ -51,15 +51,79 @@ export function blobTokenSet(): boolean {
  * SESSION_D_REAL_WRITES. "fake" is the in-repo provider for tests and dev
  * and is refused in production (it would publish placeholder art).
  * "vendor" names the unimplemented adapter slot: the real provider is not
- * chosen yet (build-sequence step 2, quotes pending).
+ * chosen yet (build-sequence step 2, quotes pending). "higgsfield" is
+ * P6-03's real provider (Phase 6, the owner's choice on 2026-11-08): it
+ * needs HIGGSFIELD_API_KEY, and says so when it is missing.
  */
-export type MediaProviderSetting = "off" | "fake" | "vendor";
+export type MediaProviderSetting = "off" | "fake" | "vendor" | "higgsfield";
 
 export function mediaProviderSetting(): MediaProviderSetting {
   const raw = process.env.MEDIA_PROVIDER?.trim().toLowerCase() ?? "";
   if (raw === "fake") return process.env.NODE_ENV === "production" ? "off" : "fake";
   if (raw === "vendor") return "vendor";
+  // P6-03: Higgsfield's API (its own prepaid USD balance, not the web plan).
+  if (raw === "higgsfield") return "higgsfield";
   return "off";
+}
+
+/** P6-03: Higgsfield's API credentials and SYB's own limits on it, as the environment holds them. */
+export interface HiggsfieldEnv {
+  /** The key id and its secret — sent as `Authorization: Key <id>:<secret>`. Null when either is missing. */
+  key: { id: string; secret: string } | null;
+  /** Per business, per UTC calendar month, in US cents. */
+  monthly_cap_minor: number;
+  /** The model endpoint, e.g. "kling-video/v3.0/pro/text-to-video". */
+  model: string;
+  /** The published price per second of video, in millionths of a US dollar. */
+  usd_micros_per_second: number;
+}
+
+/** P6-03 defaults: $60 a month; Kling 3.0 Pro, text to video; $0.112/s, the highest price Higgsfield has published for it. */
+export const HIGGSFIELD_DEFAULTS = {
+  monthly_cap_minor: 6000,
+  model: "kling-video/v3.0/pro/text-to-video",
+  usd_micros_per_second: 112_000,
+} as const;
+
+function positiveInt(raw: string | undefined, fallback: number): number {
+  const s = raw?.trim() ?? "";
+  if (!/^\d+$/.test(s)) return fallback;
+  const n = Number(s);
+  return Number.isSafeInteger(n) && n > 0 ? n : fallback;
+}
+
+/**
+ * The key comes as HIGGSFIELD_API_KEY (the key id) plus
+ * HIGGSFIELD_API_SECRET, or as one HIGGSFIELD_API_KEY of "id:secret" —
+ * the console shows the key whole once, at creation.
+ */
+export function higgsfieldEnv(): HiggsfieldEnv {
+  const rawKey = process.env.HIGGSFIELD_API_KEY?.trim() ?? "";
+  const rawSecret = process.env.HIGGSFIELD_API_SECRET?.trim() ?? "";
+  let key: HiggsfieldEnv["key"] = null;
+  if (rawKey !== "" && rawSecret !== "") key = { id: rawKey, secret: rawSecret };
+  else if (rawKey.includes(":")) {
+    const at = rawKey.indexOf(":");
+    const id = rawKey.slice(0, at).trim();
+    const secret = rawKey.slice(at + 1).trim();
+    if (id !== "" && secret !== "") key = { id, secret };
+  }
+  const model = process.env.HIGGSFIELD_MODEL?.trim() ?? "";
+  return {
+    key,
+    monthly_cap_minor: positiveInt(
+      process.env.HIGGSFIELD_MONTHLY_CAP_MINOR,
+      HIGGSFIELD_DEFAULTS.monthly_cap_minor,
+    ),
+    // Only an endpoint id's characters: it becomes part of a URL path on Higgsfield's host.
+    model: /^[a-z0-9][a-z0-9._-]*(\/[a-z0-9._-]+)+$/.test(model)
+      ? model
+      : HIGGSFIELD_DEFAULTS.model,
+    usd_micros_per_second: positiveInt(
+      process.env.HIGGSFIELD_USD_MICROS_PER_SECOND,
+      HIGGSFIELD_DEFAULTS.usd_micros_per_second,
+    ),
+  };
 }
 
 export type MetaAccessLevel = "standard" | "advanced";
@@ -213,6 +277,48 @@ export function supportInboundDomain(): string | null {
  */
 export function campaignEmailFrom(): string | null {
   return process.env.CAMPAIGN_EMAIL_FROM?.trim() || null;
+}
+
+/** P6-02: the Twilio account the phone line answers through. */
+export interface TwilioEnv {
+  /** "AC" + 32 hex. Every webhook names it; one that names another account is refused. */
+  accountSid: string;
+  /** Signs every webhook (X-Twilio-Signature). Never logged, never sent anywhere. */
+  authToken: string;
+  /** The number callers dial, E.164 — the one the owner's line claims. */
+  phoneNumber: string;
+}
+
+export const TWILIO_KEYS = [
+  "TWILIO_ACCOUNT_SID",
+  "TWILIO_AUTH_TOKEN",
+  "TWILIO_PHONE_NUMBER",
+] as const;
+
+/** The Twilio settings that are missing or malformed, by name — empty when the line can run. */
+export function twilioMissing(): (typeof TWILIO_KEYS)[number][] {
+  const sid = process.env.TWILIO_ACCOUNT_SID?.trim() ?? "";
+  const token = process.env.TWILIO_AUTH_TOKEN?.trim() ?? "";
+  const number = process.env.TWILIO_PHONE_NUMBER?.trim() ?? "";
+  const missing: (typeof TWILIO_KEYS)[number][] = [];
+  if (!/^AC[0-9a-f]{32}$/i.test(sid)) missing.push("TWILIO_ACCOUNT_SID");
+  if (token === "" || /\s/.test(token)) missing.push("TWILIO_AUTH_TOKEN");
+  if (!/^\+[1-9][0-9]{6,14}$/.test(number)) missing.push("TWILIO_PHONE_NUMBER");
+  return missing;
+}
+
+/**
+ * P6-02: all three Twilio settings, or null. Null means the phone line is
+ * not set up: the webhook refuses every request (it can't check a
+ * signature without the token), and /support says which settings are needed.
+ */
+export function twilioEnv(): TwilioEnv | null {
+  if (twilioMissing().length > 0) return null;
+  return {
+    accountSid: process.env.TWILIO_ACCOUNT_SID!.trim(),
+    authToken: process.env.TWILIO_AUTH_TOKEN!.trim(),
+    phoneNumber: process.env.TWILIO_PHONE_NUMBER!.trim(),
+  };
 }
 
 /** RESEND_API_KEY, or null — every Resend call is honest about its absence. */

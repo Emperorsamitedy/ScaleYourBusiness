@@ -9,7 +9,7 @@ import { LANDING_FIGURES } from "@/components/marketing/words";
 import { num } from "@/components/sheet/num";
 import { isAppLocale } from "@/lib/i18n/locales";
 import type { Tr } from "@/lib/i18n/tr";
-import { reportPrice } from "@/lib/payments/stripe";
+import { reportPrice } from "@/lib/billing/stripe";
 import "./landing.css";
 
 export async function generateMetadata(): Promise<Metadata> {

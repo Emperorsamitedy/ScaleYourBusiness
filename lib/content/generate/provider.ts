@@ -1,11 +1,11 @@
 // The media-generation seam — P3-53 (Session K, "real first, AI fallback").
 //
 // ONE interface every generation provider implements, so the rest of SYB
-// never knows which one is on. Today there are two implementations: the
-// FAKE (./fake — tests and development, refused in production) and an
-// empty, clearly marked adapter SLOT for the real provider (./vendor),
-// which is not chosen: build-sequence step 2's quotes are pending, and
-// MEDIA_PROVIDER defaults to off.
+// never knows which one is on. Today there are three implementations: the
+// FAKE (./fake — tests and development, refused in production), an
+// empty, clearly marked adapter SLOT (./vendor), and — P6-03, the owner's
+// choice on 2026-11-08 — HIGGSFIELD (./higgsfield), video only, three
+// candidates per brief. MEDIA_PROVIDER still defaults to off.
 //
 // What every provider must honour, whatever it is:
 //   - it is handed FIXED_INSTRUCTION with every request (no real person's
@@ -49,6 +49,12 @@ export interface GenerationRequest {
   /** Video only. */
   seconds?: number;
   account_id: string;
+  /**
+   * P6-03: the same key for a resubmission of the same attempt, so a
+   * provider that honours one (Higgsfield's Idempotency-Key) never charges
+   * twice for a request that timed out on the way back.
+   */
+  idempotency_key?: string;
 }
 
 export interface GenerationOutput {
@@ -58,6 +64,8 @@ export interface GenerationOutput {
   cost: Money;
   /** The provider's own model name, for provenance. */
   model: string;
+  /** P6-03: the provider's id for the job, for support and the record. */
+  request_id?: string;
 }
 
 export class ProviderError extends Error {
@@ -76,6 +84,8 @@ export interface MediaProvider {
   readonly id: string;
   /** Null when usable; otherwise the owner's sentence for why not. */
   readonly unavailable: string | null;
+  /** P6-03: what it can make; absent = both. Asking for anything else is refused before any spend. */
+  readonly supports?: readonly GeneratedMedia[];
   /** The price of one attempt, before anything runs. */
   estimate(req: { media: GeneratedMedia; seconds?: number }): Money;
   generate(req: GenerationRequest): Promise<GenerationOutput>;

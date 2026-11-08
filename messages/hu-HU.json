@@ -56,7 +56,8 @@
       "mode": "Ahogyan dolgozom",
       "history": "Előzmények",
       "team_access": "Csapat hozzáférése",
-      "language": "Nyelv és pénznem"
+      "language": "Nyelv és pénznem",
+      "payments": "Kifizetések"
     },
     "count": {
       "paused": "{count} szüneteltetve",
@@ -4246,14 +4247,14 @@
     "po": {
       "label": "Megrendelések",
       "title": "Rendelje meg, ami fogy",
-      "meta": "A jóváhagyott megrendelések e-mailben mennek a szállítónak",
-      "intro": "Készítsen megrendelést abból, ami fogyóban van. A jóváhagyási sorába kerül, és csak a jóváhagyása után megy ki e-mailben a szállítónak. Megrendelést soha nem módosítok, nem mondok le és nem fizetek ki.",
-      "email": "A szállító e-mail-címe",
-      "emailOnFile": "Ennél a szállítónál rögzítve.",
-      "emailAsk": "Még nincs rögzítve. Ha megadja, a szállítónál megőrizzük.",
+      "meta": "A jóváhagyott megrendelések e-mailben mennek a beszállítónak",
+      "intro": "Készítsen megrendelést abból, ami fogyóban van. A jóváhagyási sorába kerül, és csak a jóváhagyása után megy ki e-mailben a beszállítónak. Megrendelést soha nem módosítok, nem mondok le és nem fizetek ki.",
+      "email": "A beszállító e-mail-címe",
+      "emailOnFile": "Ennél a beszállítónál rögzítve.",
+      "emailAsk": "Még nincs rögzítve. Ha megadja, a beszállítónál megőrizzük.",
       "address": "Szállítási cím",
       "addressOnFile": "A rögzített postai címe. Ehhez a rendeléshez itt módosíthatja.",
-      "note": "Megjegyzés a szállítónak (nem kötelező)",
+      "note": "Megjegyzés a beszállítónak (nem kötelező)",
       "col": {
         "order": "Rendelés",
         "item": "Tétel",
@@ -4267,8 +4268,8 @@
       "button": "Megrendelés a sorba",
       "working": "A megrendelés készül…",
       "made": "A(z) {number} számú megrendelés a jóváhagyására vár.",
-      "open": "A(z) {number} számú megrendelés ennél a szállítónál: {state}.",
-      "unsupplied": "Ehhez nincs rögzített szállító: {items}, így egy megrendelés sem nevezhet meg egyet. Adja hozzá a szállítót az adatlapján.",
+      "open": "A(z) {number} számú megrendelés ennél a beszállítónál: {state}.",
+      "unsupplied": "Ehhez nincs rögzített beszállító: {items}, így egy megrendelés sem nevezhet meg egyet. Adja hozzá a beszállítót a ténylapján.",
       "list": "Az Ön megrendelései",
       "items": "{count, plural, one {# tétel} other {# tétel}}",
       "state": {
@@ -4288,14 +4289,14 @@
         "real_writes_off": "A valódi küldés ki van kapcsolva, amíg a kéthetes felügyelet nélküli teszt be nem fejeződik."
       },
       "notSentAfter": "Töltse le, és küldje el maga.",
-      "sendingReal": "A jóváhagyott megrendelések valóban kimennek e-mailben a szállítónak.",
+      "sendingReal": "A jóváhagyott megrendelések valóban kimennek e-mailben a beszállítónak.",
       "sendingFake": "A jóváhagyott megrendelések minden ellenőrzésen átmennek, de e-mailben még nem mennek ki:",
       "sendNow": "Küldés most",
       "sendingNow": "Küldés…",
       "download": "Letöltés",
       "print": "Megnyitás nyomtatáshoz",
       "result": {
-        "sent": "Elküldve a szállítónak.",
+        "sent": "Elküldve a beszállítónak.",
         "notSent": "Kész, nincs elküldve."
       }
     }
@@ -4940,7 +4941,11 @@
       "stillFresh": "Ez a beolvasás még friss, ezért azt használtam, ahelyett hogy újra a Metához fordultam volna.",
       "written": "A kreatív terv elkészült. Minden része megmutatja, mire épül.",
       "blocked": "Ez a felvételi lista átlépte az egyik korlátját, ezért a visszatartottak nézetében van.",
-      "proposed": "Javasolva. Itt találja: <queue>Önre vár</queue>."
+      "proposed": "Javasolva. Itt találja: <queue>Önre vár</queue>.",
+      "videoProposed": "Javasolva. Itt találja: <queue>Önre vár</queue>; az igenje előtt semmi nem készül és nem fogy pénz.",
+      "videoGenerated": "A jelöltek lent vannak, mindegyik MI által generáltként jelölve. Válasszon egyet; az igenje nélkül semmi nem jelenik meg.",
+      "picked": "Kiválasztva. A videóelemen van, MI által generáltként jelölve, a közzétételi javaslata pedig itt van: <queue>Önre vár</queue>.",
+      "pickedNoProposal": "Kiválasztva. A videóelemen van, MI által generáltként jelölve."
     },
     "niche": {
       "label": "A piaci rés leghosszabb ideje futó hirdetései",
@@ -5005,6 +5010,36 @@
       "make": "Elkészítés →",
       "watching": "A figyelés még tart, vége: {day}; addig semmit sem javaslok.",
       "makeNote": "Ezt a felvételi listát az Önre vár részbe teszi. Jóváhagyás után „ezt vegye fel” elem lesz belőle; a felvételei a vágószobába kerülnek."
+    },
+    "video": {
+      "label": "MI-VIDEÓ",
+      "title": "Még nincs felvétel? Három MI-jelölt",
+      "realFirst": "Elsőként a valódi felvétel. Ez a tartalékmegoldás egy ebből a tervből készült felvételi listához, amelyhez még nincs felvétel. Amit elküldünk, az a profilja tényeiből és a tervből épül fel, soha nem bárki által begépelt szavakból, és minden klip a megszületése pillanatától MI által generáltként van jelölve.",
+      "noKey": "Az MI-videóhoz Higgsfield API-hozzáférés kell, amely független a Higgsfield webes csomagjától: vásároljon API-keretet, hozzon létre kulcsot a Higgsfield konzoljában, és állítsa be a szerveren a HIGGSFIELD_API_KEY, HIGGSFIELD_API_SECRET és MEDIA_PROVIDER=higgsfield értékeket.",
+      "off": "Az MI-videó itt nincs bekapcsolva. Vegye fel inkább: a valódi felvétel mindig az első.",
+      "unavailable": "Nem érhető el: {reason}",
+      "none": "Ebből a tervből még semmihez nem kell videó. Készítsen fent egy horogból felvételi listát; jóváhagyás után itt jelenik meg.",
+      "month": "Ebben a hónapban: {spent} ment el MI-videóra a(z) {cap} keretből.",
+      "propose": "Három MI-videó javaslata (kb. {cost})",
+      "proposing": "Javaslat készül…",
+      "pending": "Az igenjére vár itt: <queue>Önre vár</queue>.",
+      "generate": "A három elkészítése",
+      "generating": "Készül. Ez néhány percig tart…",
+      "approvedNote": "Jóváhagyva. A pénz csak akkor fogy, amikor elindítja.",
+      "notOffered": "Nem ajánlott: {reason}",
+      "setLabel": "JELÖLTEK · {day}",
+      "setCost": "{cost} a teljes sorozatért",
+      "candidate": "{n}. jelölt",
+      "pick": "Ezt választom",
+      "picking": "Elhelyezés…",
+      "noPlayer": "A böngészője nem tudja lejátszani ezt a klipet.",
+      "state": {
+        "generating": "KÉSZÜL",
+        "ready": "KÉSZ",
+        "failed": "SIKERTELEN",
+        "chosen": "KIVÁLASZTVA",
+        "not_chosen": "NEM VÁLASZTOTT · MEGŐRIZVE"
+      }
     }
   },
   "site": {
@@ -5465,7 +5500,76 @@
       "pretend": "egy kitalált ügyféloldal · a widget a jobb alsó sarokban van",
       "seesLabel": "amit egy látogató lát",
       "body": "Ez az oldal az Ön weboldalát helyettesíti. A sarokban lévő gomb a valódi widget, ugyanazzal a szkripttel betöltve, és ugyanazzal a nyilvános végponttal beszél, amelyet egy ügyfél használna. Kérdezzen tőle valamit, amit jóváhagyott, valamit, amit nem, majd kérjen embert — mindegyiknek úgy kell viselkednie, ahogy a <link>Támogatás képernyőn</link> ígérjük."
+    },
+    "phone": {
+      "label": "Telefonvonal",
+      "titleOn": "Hívások fogadása ezen a számon: {number}",
+      "titleOff": "Nem fogad hívásokat",
+      "what": "A vonal először elmondja, hogy az SYB automatikus asszisztense. Csak az Ön által jóváhagyott válaszokból felel, soha nem foglal, nem ígér és nem ad visszatérítést, és ha valamit nem tud, üzenetet vesz fel vagy Önhöz kapcsolja a hívót. A hívók még azelőtt hallják, hogy a hívásról átirat készül, mielőtt bármi rögzülne, és hangfelvétel nem marad meg.",
+      "needsKeys": "A hívások fogadásához az SYB-nek Twilio-fiókra és Twilio-számra van szüksége. Adja meg ezeket a beállításokat a szerveren, majd térjen vissza ide:",
+      "setUp": "A Twilióban állítsa a szám „A call comes in” webhookját az első címre, a hívásállapot-értesítését pedig a második címre, mindkettőt HTTP POST módon.",
+      "turnOn": "Hívások fogadása: {number}",
+      "turnOff": "Hívásfogadás leállítása",
+      "offBody": "A vonal bekapcsolásával a(z) {number} számot az SYB veszi fel Ön helyett, a jóváhagyott válaszaival.",
+      "handoverLabel": "Személyt kérő hívók kapcsolása erre a számra",
+      "handoverHint": "Az Ön saját száma, országhívószámmal. Ha üresen hagyja, a hívók inkább üzenetet hagynak.",
+      "handoverSave": "Mentés",
+      "callsTitle": "Hívások",
+      "callsEmpty": "Még nincs hívás. Minden hívás, amelyet a vonal fogad, ide kerül az üzenetével és az elhangzottakkal.",
+      "withheld": "Rejtett szám",
+      "outcome": {
+        "answered": "Megválaszolva a jóváhagyott válaszaiból",
+        "message": "Üzenetet hagyott",
+        "handed_over": "Önhöz kapcsolva",
+        "hung_up": "Üzenet nélkül letette",
+        "live": "Most vonalban"
+      },
+      "asked": "{count, plural, one {# kérdés} other {# kérdés}}",
+      "read": "Hívás elolvasása",
+      "hide": "Hívás elrejtése",
+      "caller": "Hívó",
+      "assistant": "Asszisztens (automatikus)",
+      "messageLabel": "Üzenet",
+      "erase": "Hívás törlése",
+      "eraseConfirm": "Végleg törli ezt a hívást – a hívó számát, az elhangzottakat és az üzenetet is?",
+      "eraseYes": "Végleges törlés",
+      "keep": "Megtartás",
+      "notice": {
+        "on": "A telefonvonal fogadja a hívásokat.",
+        "off": "A telefonvonal már nem fogad hívásokat.",
+        "handover": "Mentve.",
+        "erased": "A hívás törölve."
+      },
+      "error": {
+        "notSetUp": "A telefonvonal még nincs beállítva ezen a szerveren.",
+        "taken": "Ez a szám már egy másik vállalkozás hívásait fogadja.",
+        "notOn": "Előbb kapcsolja be a telefonvonalat.",
+        "badNumber": "Írja be a számot országhívószámmal, pluszjellel kezdve.",
+        "noCall": "Ez a hívás már nincs itt.",
+        "crossSite": "Ez az oldal csak magából az SYB-ből módosítható.",
+        "signIn": "A telefonvonal módosításához bejelentkezés szükséges.",
+        "action": "Ezt a telefonvonal nem tudja megtenni."
+      }
     }
+  },
+  "phoneLine": {
+    "greeting": "Jó napot, ez a(z) {business} vonala, és Ön az SYB automatikus asszisztensével beszél, nem egy emberrel.",
+    "notice": "A hívásról átirat készül, hogy a(z) {business} később elolvashassa. Hangfelvétel nem marad meg.",
+    "howCanIHelp": "Miben segíthetek?",
+    "anythingElse": "Segíthetek még valamiben?",
+    "notHeard": "Elnézést, ezt nem értettem. Megismételné?",
+    "goodbye": "Köszönjük, hogy felhívta a(z) {business} vonalát. Viszonthallásra.",
+    "noAnswer": "Erre nincs jóváhagyott válaszom, ezért nem fogok találgatni.",
+    "takeMessage": "Szívesen átadok egy üzenetet a(z) {business} részére. Kérem, mondja el a nevét, az üzenetét és azt a számot, amelyen a legjobban visszahívható.",
+    "nobodyToPutThrough": "Most senkit nem tudok kapcsolni, de szívesen felveszek egy üzenetet.",
+    "puttingThrough": "Most kapcsolom a(z) {business} egyik munkatársát.",
+    "nobodyPickedUp": "Sajnos most senki nem tudta felvenni.",
+    "messageTaken": "Köszönöm, átadtam az üzenetét a(z) {business} részére. Viszonthallásra.",
+    "noMessage": "Nem értettem üzenetet. A(z) {business} látni fogja, hogy hívta. Viszonthallásra.",
+    "capped": "Sok mindent átbeszéltünk, ezért jobb, ha innen a(z) {business} egyik munkatársa veszi át.",
+    "unavailable": "Erre most nem tudok válaszolni.",
+    "closed": "Ez a vonal most nem fogad hívásokat. Kérem, próbálja újra később. Viszonthallásra.",
+    "busy": "A vonal most nagyon foglalt. Kérem, hívjon később újra. Viszonthallásra."
   },
   "team": {
     "meta": {
@@ -5555,6 +5659,62 @@
       "title": "A csapatmodul ki van kapcsolva.",
       "body": "Kikapcsolva marad, amíg be nem kapcsolja a <link>Figyelés</link> oldal Modulok részében. Bekapcsolva azt olvassa, mikor kell a hétnek több lefedettség, vagy mikor van több a szükségesnél, szerepkör és óra szerint, és soha semmit egy személyről."
     }
+  },
+  "people": {
+    "label": "Személyek",
+    "title": "Minden személy saját számai",
+    "ownerOnly": "Csak Ön látja, tulajdonosként",
+    "intro": "Amit a foglalási rendszere az egyes személyeknél rögzített, ugyanarra a négy hétre, mint a vállalkozás saját számai. Tények a munkáról, csak Önnek mutatva: a személyek név szerint szerepelnek, és semmi sem válik itt soha egy személyről szóló javaslattá.",
+    "basis": "Forrás: {source} · {from} – {to} · {count, plural, one {# időpont} other {# időpont}} személlyel",
+    "source": {
+      "square": "Square-időpontok",
+      "import": "a(z) {platform} foglalási exportja",
+      "importPlain": "a foglalási exportja"
+    },
+    "noBookings": "Még nincs beolvasott foglalás, így személyenként nincs mit mutatni. Importáljon foglalási exportot az <link>Összekapcsolt fiókok</link> oldalon.",
+    "none": "Ebben a négy hétben egyetlen időpont sem rögzít személyt. Ha a foglalási exportjában van személyzeti oszlop (csapattag, fodrász, szakember), itt jelennek meg az egyes személyek saját számai.",
+    "unattributed": "Ebben a négy hétben {count, plural, one {# időpont} other {# időpont}} senkit sem rögzít, vagy olyasvalakit, akit eltávolított. Ezek csak a vállalkozás számaiban szerepelnek.",
+    "sales": "Eladások személyenként: egyik értékesítési forrása sem rögzíti, ki adott el, így nincs mit mutatni.",
+    "fig": {
+      "completed": "Teljesített időpontok",
+      "completedOf": "a nála foglalt {count, plural, one {# időpontból} other {# időpontból}}",
+      "revenue": "Foglalásokból származó árbevétel",
+      "revenueOf": "{of, plural, one {# teljesített időpontból} other {# teljesített időpontból}} {part} listaára",
+      "noShow": "Meg nem jelenési arány",
+      "late": "Késői lemondási arány",
+      "rateOf": "{of, plural, one {# esedékes időpontból} other {# esedékes időpontból}} {part}",
+      "utilisation": "Kihasználtság",
+      "utilisationOf": "{of} helyből {part} teljesítve: heti {perWeek}, az Ön adata, megadva: {day}",
+      "rebooking": "Újrafoglalási arány",
+      "rebookingOf": "{from} és {to} között látott {of, plural, one {# kliensből} other {# kliensből}} {part} foglalt újra, bárkinél, {days} napon belül",
+      "tooFew": "Túl kevés ahhoz, hogy mondjunk valamit",
+      "tooFewDue": "{count, plural, one {# esedékes időpont} other {# esedékes időpont}}; {min} kellene",
+      "tooFewClients": "{count, plural, one {# látott kliens} other {# látott kliens}}; {min} kellene",
+      "notMeasured": "Nincs mérve",
+      "why": {
+        "no_capacity": "nincs megadva heti kapacitás ehhez a személyhez",
+        "no_prices": "a foglalásokban nincs ár",
+        "currencies": "árak több pénznemben",
+        "no_completed": "nincs teljesített időpont ebben a négy hétben",
+        "no_client": "a foglalások nem azonosítják a klienst",
+        "not_separated": "a Square nem választja külön a késői lemondásokat"
+      }
+    },
+    "capacity": {
+      "label": "Heti időpontok, amennyit vállalni tud",
+      "hint": "Az Ön saját adata. A kihasználtságot csak ehhez mérjük.",
+      "save": "Mentés",
+      "clear": "Törlés",
+      "invalid": "Egész szám {min} és {max} között."
+    },
+    "remove": {
+      "button": "Személy eltávolítása",
+      "confirm": "Eltávolítja: {person}? A neve és a saját számai törlődnek a SYB-ből, és egy későbbi import sem hozza vissza a nevet. Az időpontjai név nélkül a vállalkozás számaiban maradnak.",
+      "yes": "Eltávolítás",
+      "no": "Megtartás",
+      "done": "Eltávolítva. {count, plural, one {# időpont} other {# időpont}} név nélkül a vállalkozás számaiban marad."
+    },
+    "failed": "Valami hiba történt nálunk. Semmi sem változott."
   },
   "teamAccess": {
     "meta": {
@@ -5692,6 +5852,8 @@
       "erasure_run": "Csak tulajdonos törölheti egy ügyfél adatait.",
       "data_import": "Csak tulajdonos importálhat ügyfeleket, készletet vagy foglalásokat tartalmazó fájlt.",
       "team_manage": "Csak tulajdonos hívhat meg embereket a csapatba, illetve módosíthatja vagy távolíthatja el őket.",
+      "people_read": "Csak tulajdonos láthatja az egyes személyek saját számait.",
+      "people_manage": "Csak tulajdonos adhatja meg egy személy heti kapacitását, vagy távolíthat el egy személyt a számok közül.",
       "rules_manage": "Csak tulajdonos változtathatja meg, hogyan dolgozom ennél a vállalkozásnál.",
       "profile_edit": "Csak tulajdonos módosíthatja a vállalkozás tényeit, céljait vagy korlátait.",
       "report_generate": "Csak tulajdonos készíthet új jelentést.",
@@ -5703,7 +5865,8 @@
       "reviews_settings": "Csak tulajdonos módosíthatja azt a címet, ahová az értékeléseket továbbítjuk.",
       "summary_settings": "Csak tulajdonos kapcsolhatja be vagy ki a heti összefoglalót.",
       "stop_resume": "Csak tulajdonos indíthat újra mindent egy leállítás után.",
-      "business_locale": "Csak tulajdonos módosíthatja a vállalkozás nyelvét vagy pénznemét."
+      "business_locale": "Csak tulajdonos módosíthatja a vállalkozás nyelvét vagy pénznemét.",
+      "payments_prepare": "Csak tulajdonos készíthet elő kifizetést, vagy jelezheti, hogy egy kifizetés megtörtént."
     }
   },
   "authWords": {
@@ -5846,7 +6009,7 @@
     },
     "module": {
       "analytics": "A figyelő mód mérés nélkül vak — az elemzés az, amivel figyel.",
-      "team": "Csapat: amikor a hétnek több lefedettség kell, vagy több van, mint amennyi kell, szerepkör és óra szerint. Soha nem pontoz, nem rangsorol, és semmit sem mond egy személyről. Ki van kapcsolva, amíg be nem kapcsolja."
+      "team": "Csapat: amikor a hétnek több lefedettség kell, vagy több van, mint amennyi kell, szerepkör és óra szerint, és csak a tulajdonosnak minden személy saját számai a foglalásaiból. Soha nem pontoz és nem rangsorol senkit, és soha nem ajánl semmit egy személyről. Ki van kapcsolva, amíg be nem kapcsolja."
     },
     "data": {
       "payments": "fizetési adat",
@@ -6182,7 +6345,7 @@
       "doc": {
         "title": "{number} számú megrendelés",
         "prepared": "{business} · készült: {day}",
-        "statusSent": "E-mailben elküldve a szállítónak: {day}",
+        "statusSent": "E-mailben elküldve a beszállítónak: {day}",
         "status": {
           "draft": "Jóváhagyásra vár: nincs elküldve",
           "approved": "Jóváhagyva: még nincs elküldve",
@@ -6221,7 +6384,8 @@
       "revise_goal": "egy átnézendő cél",
       "stop_strategy": "egy átnézendő stratégia",
       "other": "egy javaslat",
-      "purchase_order": "egy megrendelés"
+      "purchase_order": "egy megrendelés",
+      "prepared_payment": "egy ellenőrizendő kifizetés"
     }
   },
   "exports": {
@@ -8485,5 +8649,185 @@
     "many": "{count, plural, one {# értékelés, amiről érdemes tudnia} other {# értékelés, amiről érdemes tudnia}}",
     "withProposals": "{count, plural, one {# dolog várja az Ön igenjét} other {# dolog várja az Ön igenjét}}, és {reviews, plural, one {egy értékelés, amiről érdemes tudnia} other {# értékelés, amiről érdemes tudnia}}",
     "anotherSite": "egy másik oldal"
+  },
+  "payments": {
+    "meta": {
+      "title": "Kifizetések — SYB"
+    },
+    "kicker": "Elemzések · Kifizetések",
+    "never": "A SYB előkészíti a kifizetéseket, Ön pedig a saját bankjában fizeti ki őket. A SYB nem tud pénzt mozgatni.",
+    "title": {
+      "ready": "{count, plural, one {# kifizetés kész a bankja számára} other {# kifizetés kész a bankja számára}}",
+      "none": "Kifizetések, amelyeket Ön a saját bankjában indít"
+    },
+    "loading": "A kifizetések beolvasása…",
+    "signedOut": "Előbb kezdje el az interjút, aztán jöjjön vissza kifizetéseket előkészíteni.",
+    "start": "Az interjú elkezdése",
+    "error": {
+      "load": "Most nem tudtam beolvasni a kifizetéseit. Próbálja újra egy perc múlva.",
+      "generic": "Ez nem sikerült. Próbálja újra egy perc múlva.",
+      "ourSide": "Valami hiba történt nálam. Próbálja újra egy perc múlva."
+    },
+    "ownerOnly": "Csak tulajdonos készíthet elő kifizetést, töltheti le a banki fájlt, vagy jelezheti, hogy egy kifizetés megtörtént.",
+    "erased": "Banki adatok törölve",
+    "ready": {
+      "label": "Kész a bankja számára",
+      "title": "{count, plural, one {# jóváhagyott kifizetés vár indításra} other {# jóváhagyott kifizetés vár indításra}}",
+      "none": "Még semmi sincs kész",
+      "foot": "A jóváhagyott kifizetések itt várnak, amíg nem jelzi, hogy kifizette őket. Semmi nem hagyja el a bankját, amíg ott ki nem fizeti."
+    },
+    "col": {
+      "payee": "Kedvezményezett",
+      "iban": "IBAN",
+      "amount": "Összeg",
+      "reference": "Közlemény",
+      "date": "Dátum",
+      "file": "Banki fájl",
+      "action": "Művelet"
+    },
+    "file": {
+      "yes": "A SEPA-fájlban",
+      "bar": {
+        "not_eur": "Kézzel: nem euróban",
+        "payee_not_sepa": "Kézzel: a kedvezményezett bankja a SEPA-n kívül van",
+        "payer_not_sepa": "Kézzel: az Ön bankja a SEPA-n kívül van",
+        "no_payer": "Előbb a banki adataira van szükség",
+        "erased": "Banki adatok törölve",
+        "not_approved": "Még nincs jóváhagyva",
+        "paid": "Már kifizetve"
+      }
+    },
+    "paid": {
+      "button": "Kifizetve a bankomban",
+      "done": "Megjelölve: kifizetve az Ön bankjában.",
+      "on": "kifizetettnek jelölve: {date}"
+    },
+    "download": {
+      "sepa": "{count, plural, one {A SEPA-fájl letöltése (# kifizetés)} other {A SEPA-fájl letöltése (# kifizetés)}}",
+      "steps": "A lépésenkénti útmutató letöltése",
+      "needPayer": "Adja meg a banki adatokat, amelyekről fizet, hogy SEPA-fájlt kapjon. Az útmutató nélkülük is működik.",
+      "noneForFile": "Ezek egyike sem kerülhet SEPA-fájlba, amely csak SEPA-bankok közötti euróra szolgál. Használja az útmutatót.",
+      "total": "{count, plural, one {A fájlban # kifizetés van, összesen {total}.} other {A fájlban # kifizetés van, összesen {total}.}}"
+    },
+    "steps": {
+      "fileTitle": "A SEPA-fájl használata",
+      "fileName": "a SEPA-fájlt",
+      "file": {
+        "save": "Töltse le {file}, és mentse a számítógépére.",
+        "find": "Bankja netbankjában keresse meg, hol lehet fizetési fájlt feltölteni vagy importálni. A bankok SEPA-fájlnak, csoportos átutalásnak vagy tömeges átutalásnak hívják.",
+        "upload": "{count, plural, one {Töltse fel a fájlt. A bankja megmutatja a kifizetést, hogy ellenőrizze.} other {Töltse fel a fájlt. A bankja megmutatja a(z) # kifizetést, hogy ellenőrizze.}}",
+        "confirm": "Ellenőrizze mindegyiket, majd hagyja jóvá a bankjában. Semmi sincs kifizetve, amíg ezt meg nem teszi.",
+        "mark": "Itt pedig nyomja meg a „Kifizetve a bankomban” gombot minden elindított kifizetésnél."
+      },
+      "title": "Kifizetések, amelyeket a saját bankjában kell elindítania",
+      "intro": "A SYB előkészítette ezeket a kifizetéseket. A SYB nem tud pénzt mozgatni: mindegyiket Ön indítja el, a saját bankjában.",
+      "from": "Fizetés innen: {name}, IBAN {iban}",
+      "howTitle": "Így indítsa el kézzel az egyes kifizetéseket:",
+      "hand": {
+        "open": "Nyissa meg bankja alkalmazását vagy weboldalát, és kezdjen egy új átutalást.",
+        "copy": "Másolja át a kedvezményezett nevét, IBAN-ját és BIC-jét pontosan úgy, ahogy lent áll.",
+        "amount": "Írja be az összeget és a közleményt, hogy a kedvezményezett tudja, mit fizet vele.",
+        "confirm": "Válassza ki a dátumot, ellenőrizzen mindent még egyszer, majd hagyja jóvá a kifizetést a bankjában.",
+        "mark": "A SYB-ben nyomja meg a „Kifizetve a bankomban” gombot, hogy a nyilvántartása ezt mutassa."
+      },
+      "paymentTitle": "{n}. kifizetés, összesen: {count}",
+      "payTo": "Kedvezményezett: {name}",
+      "iban": "IBAN: {iban}",
+      "bic": "BIC: {bic}",
+      "amount": "Összeg: {amount}",
+      "reference": "Közlemény: {reference}",
+      "date": "Dátum: {date}",
+      "erased": "Ennek a kifizetésnek a banki adatait törölték. Kérje el újra a kedvezményezettől.",
+      "why": {
+        "notEur": "Nem euróban van, ezért nincs a SEPA-fájlban: indítsa el kézzel.",
+        "notSepa": "SEPA-n kívüli bank, ezért nincs a SEPA-fájlban: indítsa el kézzel."
+      },
+      "closing": "Ha egy kifizetés megtörtént, jelölje meg a SYB-ben. Ha a bankja elutasít egy adatot, ott javítsa: a SYB soha nem küld semmit a bankjának."
+    },
+    "waiting": {
+      "label": "Jóváhagyásra vár",
+      "title": "{count, plural, one {# kifizetés várja az Ön jóváhagyását} other {# kifizetés várja az Ön jóváhagyását}}",
+      "open": "Megnyitás a sorban"
+    },
+    "stage": {
+      "waiting": "vár",
+      "blocked": "az Ön korlátai visszatartják",
+      "changes": "módosítást kért",
+      "ready": "kész a bankja számára",
+      "paid": "kifizetve a bankomban",
+      "declined": "elutasítva",
+      "lapsed": "lejárt"
+    },
+    "closed": {
+      "label": "Kész és lezárva",
+      "title": "Kifizetett, elutasított és lejárt",
+      "foot": "A banki adatok törlése megtartja az összeget és a dátumokat, a nevet, az IBAN-t és a BIC-et pedig végleg eltávolítja."
+    },
+    "erase": {
+      "button": "Banki adatok törlése",
+      "done": "A banki adatok törölve."
+    },
+    "payer": {
+      "label": "Fizetés innen",
+      "none": "A banki adatai még nincsenek megadva",
+      "foot": "A név és az IBAN, ahonnan a kifizetései indulnak. A SEPA-fájlban fizetőként szerepelnek; a SYB soha nem lép be a bankjába.",
+      "change": "Módosítás",
+      "holder": "A név, amelyen a bankja ismeri",
+      "save": "Mentés",
+      "done": "Mentve. A korábbi adatok megmaradnak."
+    },
+    "form": {
+      "label": "Új kifizetés",
+      "title": "Kifizetés előkészítése",
+      "foot": "Előbb a jóváhagyási sorba kerül. Jóváhagyva kész a bankja számára: semmi sincs kifizetve, amíg ott ki nem fizeti.",
+      "pays": "Mit fizet",
+      "supplier": "Beszállító",
+      "cost": "Fix költség",
+      "order": "A megrendelés száma",
+      "unnamedSupplier": "Egy név nélküli beszállító",
+      "unnamedCost": "Egy név nélküli költség",
+      "payee": "Kedvezményezett",
+      "payeeOptional": "Kedvezményezett (üresen: a beszállító neve)",
+      "iban": "IBAN",
+      "bic": "BIC (nem kötelező)",
+      "amount": "Összeg",
+      "currency": "Pénznem",
+      "date": "Fizetés napja",
+      "reference": "A közlemény, amelyet a kedvezményezett lát",
+      "badAmount": "Ezt az összeget nem tudom elolvasni. Írja az egész egységeket, aztán egy pontot vagy vesszőt és a centeket.",
+      "submit": "Jóváhagyás kérése",
+      "done": "Előkészítve. A sorban várja az Ön jóváhagyását."
+    },
+    "pays": {
+      "supplier": "Egy beszállítót",
+      "fixed_cost": "Egy fix költséget",
+      "purchase_order": "Egy megrendelést",
+      "other": "Valami mást"
+    },
+    "refusal": {
+      "iban_empty": "Írja be az IBAN-t.",
+      "iban_format": "Ez nem IBAN alakú: két betű az országnak, két ellenőrző számjegy, aztán betűk és számjegyek.",
+      "iban_country": "Ennek az országnak az IBAN-jait nem ismerem, ezért nem tudom ellenőrizni.",
+      "iban_length": "Ennek az IBAN-nak rossz a hossza az országához.",
+      "iban_checksum": "Ennek az IBAN-nak nem stimmelnek az ellenőrző számjegyei: valószínűleg elírt egy karaktert.",
+      "bic": "A BIC nyolc vagy tizenegy betűből és számjegyből áll.",
+      "name": "Adja meg röviden, kinek fizet.",
+      "amount": "Az összegnek nullánál nagyobbnak kell lennie.",
+      "currency": "A pénznem egy hárombetűs kód legyen.",
+      "reference": "Írjon egy rövid közleményt, amelyet a kedvezményezett lát.",
+      "date": "Válasszon egy napot.",
+      "date_past": "Ez a nap már elmúlt. Válassza a mai napot vagy egy későbbit.",
+      "date_far": "Ez a nap több mint egy évvel későbbi.",
+      "pays_kind": "Adja meg, mire szól a kifizetés.",
+      "supplier": "Válasszon a beszállítói közül.",
+      "cost_item": "Válasszon a fix költségei közül.",
+      "purchase_order": "Írja be a megrendelés számát.",
+      "not_found": "Nem találtam ezt a kifizetést.",
+      "not_ready": "Csak jóváhagyott, még nem kifizetettnek jelölt kifizetést lehet kifizetettnek jelölni.",
+      "no_session": "Ahhoz, hogy jelezze egy kifizetés megtörténtét, bejelentkezés szükséges.",
+      "none_ready": "Még semmi sincs kész a bankja számára. Előbb jóvá kell hagyni egy kifizetést.",
+      "no_payer": "A SEPA-fájlhoz kellenek a banki adatok, amelyekről fizet.",
+      "none_for_file": "A kész kifizetések egyike sem kerülhet SEPA-fájlba."
+    }
   }
 }

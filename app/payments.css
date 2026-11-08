@@ -1,0 +1,150 @@
+/* Insights · Payments (P6-05), on the sheet system (app/sheet.css): what is
+   ready for the owner's bank, what waits for approval, the new-payment form
+   and the "pay from" details. Square corners, no icons; cobalt only while a
+   request is genuinely running. */
+
+.py-screen a:not(.act) {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+.py-screen .ph-aside {
+  max-width: 46ch;
+}
+
+.py-note {
+  margin: 0 0 15px;
+  padding: 10px 12px;
+  border: 1px solid var(--rule);
+  background: var(--marker);
+  color: var(--sheet-ink);
+  font-size: 13.5px;
+}
+
+.py-table-wrap {
+  overflow-x: auto;
+  margin: 0 -8px;
+  padding: 0 8px;
+}
+.py-table {
+  min-width: 820px;
+}
+.py-table tbody th {
+  font-weight: 500;
+}
+.py-mono {
+  font-family: var(--f-mono);
+  font-size: 13px;
+  white-space: nowrap;
+}
+.py-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.py-downloads {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 12px;
+  margin-top: 16px;
+}
+.py-fine {
+  margin: 0;
+  font-family: var(--f-mono);
+  font-size: 12.5px;
+  color: var(--sheet-ink-2);
+}
+.py-screen > .py-fine {
+  color: var(--desk-ink-2);
+  padding-top: 14px;
+}
+
+.py-steps {
+  margin-top: 18px;
+}
+.py-steps ol {
+  margin: 6px 0 0;
+  padding-left: 22px;
+  font-size: 14px;
+  line-height: 1.55;
+}
+
+.py-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.py-list li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 10px;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--rule);
+}
+.py-list li:last-child {
+  border-bottom: 0;
+}
+.py-who {
+  font-weight: 500;
+}
+.py-link {
+  border: 0;
+  background: none;
+  padding: 0;
+  color: var(--sheet-ink-2);
+  font: inherit;
+  font-size: 12.5px;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+/* forms */
+.py-form {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px 12px;
+  align-items: end;
+}
+.py-field {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.py-form .py-wide,
+.py-field.py-wide {
+  grid-column: 1 / -1;
+}
+.py-field .label {
+  color: var(--sheet-ink-2);
+  font-size: 12.5px;
+}
+.py-field input,
+.py-field select {
+  width: 100%;
+  min-height: 40px;
+  padding: 8px 10px;
+  border: 1px solid var(--rule);
+  background: var(--paper);
+  color: var(--sheet-ink);
+  font-family: var(--f-mono);
+  font-size: 13px;
+}
+.py-form .act {
+  min-height: 44px;
+}
+
+@media (max-width: 719px) {
+  .py-form {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .py-table {
+    min-width: 0;
+  }
+}

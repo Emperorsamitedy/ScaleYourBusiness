@@ -83,7 +83,15 @@ export type ActionKind = (typeof ACTION_KINDS)[number];
  * its arithmetic. They still pass through the hard-limit check, so the
  * owner's manual limits ride along, and a code that names one blocks it.
  */
-export const NOTE_KINDS = ["stock_reorder_note"] as const;
+export const NOTE_KINDS = [
+  "stock_reorder_note",
+  /**
+   * Phase 6 (P6-05, rule 26 amended): a payment prepared for the owner to
+   * make in their own bank. Approving it makes it ready for the bank: a
+   * file and steps the owner takes there. SYB never pays it.
+   */
+  "prepared_payment",
+] as const;
 export type NoteKind = (typeof NOTE_KINDS)[number];
 /**
  * Phase 6 (P6-04, rule 27 amended): a purchase order, made by the owner from

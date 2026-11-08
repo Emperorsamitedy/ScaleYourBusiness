@@ -50,9 +50,14 @@ const NEVER_A_MANAGER: readonly RoleAction[] = [
   "billing.manage",
   "erasure.run",
   "team.manage",
+  // P6-06 (rule 28 amended): per-person figures, read or changed, are the owner's alone.
+  "people.read",
+  "people.manage",
   "rules.manage",
   // L-1: the business's language and currency.
   "business.locale",
+  // P6-05 (rule 26 amended): preparing, approving and marking payments is the owner's.
+  "payments.prepare",
 ];
 
 const session = (role: Role): AuthedSession => ({

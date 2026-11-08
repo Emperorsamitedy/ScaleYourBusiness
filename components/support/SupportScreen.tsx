@@ -29,6 +29,7 @@ import type { Tr } from "../../lib/i18n/tr";
 import { PageHead } from "../sheet/PageHead";
 import { num } from "../sheet/num";
 import { useTr } from "../sheet/useTr";
+import { PhoneLine } from "./PhoneLine";
 import { type Reply, ReplyBox } from "./ReplyBox";
 import {
   type ConversationStatus,
@@ -994,6 +995,8 @@ export function SupportScreen() {
             </div>
           </section>
           {s.settings && <ReplyTime settings={s.settings} busy={s.busy} act={act} />}
+          {/* P6-02: the phone line — its calls, messages and transcripts. */}
+          <PhoneLine />
         </div>
       </div>
     </main>

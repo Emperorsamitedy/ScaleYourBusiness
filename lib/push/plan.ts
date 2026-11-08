@@ -66,6 +66,7 @@ const KINDS: ReadonlySet<string> = new Set([
   "deal_followup",
   "stock_reorder_note",
   "purchase_order",
+  "prepared_payment",
   "media_generation",
   "revise_goal",
   "stop_strategy",

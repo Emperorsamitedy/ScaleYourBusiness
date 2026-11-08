@@ -28,7 +28,9 @@ import {
   contactSuppressions,
   decisionLog,
   metricObservations,
+  staffErasures,
 } from "../../db/schema";
+import { staffKey } from "../people/staff-key";
 import { emailHashCandidates } from "../crm/contacts";
 import { detectAnomalies } from "../anomaly/detect";
 import type { DeriveOutcome, DeriveWindow } from "../connectors/derive";
@@ -154,6 +156,23 @@ export async function storeAppointments(
   const counts: StoreCounts = { added: 0, updated: 0, unchanged: 0, days: null };
   if (inputs.length === 0) return counts;
   const now = new Date().toISOString();
+  // P6-06 (rule 22): a person the owner removed is never written back by
+  // the next overlapping export or sync; their appointments stay, nameless.
+  const removed = inputs.some((a) => a.staff_ref !== null)
+    ? new Set(
+        (
+          await executor
+            .select({ key: staffErasures.staff_key })
+            .from(staffErasures)
+            .where(eq(staffErasures.account_id, conn.account_id))
+        ).map((r) => r.key),
+      )
+    : new Set<string>();
+  const staffOf = (ref: string | null): string | null => {
+    if (ref === null || removed.size === 0) return ref;
+    const key = staffKey(conn.account_id, ref);
+    return key !== null && removed.has(key) ? null : ref;
+  };
   for (let i = 0; i < inputs.length; i += CHUNK) {
     const chunk = inputs.slice(i, i + CHUNK);
     const rows = chunk.map((a) => ({
@@ -165,7 +184,7 @@ export async function storeAppointments(
       start_time: a.start_time,
       status: a.status,
       service: a.service,
-      staff_ref: a.staff_ref,
+      staff_ref: staffOf(a.staff_ref),
       client_key: keyFor(conn, a, options.scope),
       duration_minutes: a.duration_minutes,
       price_minor: a.price_minor,
