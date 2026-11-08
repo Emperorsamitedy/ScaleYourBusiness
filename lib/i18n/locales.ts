@@ -65,8 +65,24 @@ export const LANGUAGE_NAMES: Readonly<Record<AppLocale, string>> = {
  * English is never sent back: it is the source every catalogue is checked against.
  */
 export function languageStatus(locale: AppLocale): LanguageStatus {
-  const back = (process.env.LANGUAGES_IN_REVIEW ?? "").split(",").map((s) => s.trim());
-  return locale !== DEFAULT_LOCALE && back.includes(locale) ? "review" : LANGUAGE_STATUS[locale];
+  return locale !== DEFAULT_LOCALE && sentBack(process.env.LANGUAGES_IN_REVIEW).has(locale)
+    ? "review"
+    : LANGUAGE_STATUS[locale];
+}
+
+/**
+ * Pure: the languages a LANGUAGES_IN_REVIEW value names. Typed by hand into
+ * Vercel, so spaces, case and "_" for "-" are forgiven ("zh-hans", "ru_RU");
+ * a code that isn't one of ours names nothing.
+ */
+export function sentBack(raw: string | undefined): ReadonlySet<AppLocale> {
+  const out = new Set<AppLocale>();
+  for (const part of (raw ?? "").split(",")) {
+    const code = part.trim().replace(/_/g, "-").toLowerCase();
+    const locale = LOCALES.find((l) => l.toLowerCase() === code);
+    if (locale) out.add(locale);
+  }
+  return out;
 }
 
 /** Pure: whether a language may be used by someone who is (or isn't) a named reviewer. */

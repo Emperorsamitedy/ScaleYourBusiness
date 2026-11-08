@@ -21,9 +21,11 @@ import {
   LOCALES,
   isAppLocale,
   languageOpenTo,
+  languageStatus,
   offeredLanguages,
   resolveLanguage,
 } from "./locales";
+import { dayMonth, dayMonthYear, monthYear } from "./format";
 import { currencyOptions, languageOptions, readPendingChoices } from "./picker";
 import { isLanguageReviewer, parseReviewAllowlist } from "./review";
 
@@ -68,6 +70,22 @@ describe("the languages and their status", () => {
       delete process.env.LANGUAGES_IN_REVIEW;
     }
     expect(languageOptions(["en"])).toEqual([{ code: "en", name: "English", checking: false }]);
+  });
+
+  it("reads LANGUAGES_IN_REVIEW as typed by hand: case, spaces and _ forgiven, unknown codes ignored", () => {
+    process.env.LANGUAGES_IN_REVIEW = " zh-hans ,RU_ru,klingon,, EN ";
+    try {
+      expect(languageStatus("zh-Hans")).toBe("review");
+      expect(languageStatus("ru-RU")).toBe("review");
+      expect(languageStatus("de-DE")).toBe("live");
+      // English is the source: never sent back, whatever is typed.
+      expect(languageStatus("en")).toBe("live");
+      expect(offeredLanguages(false)).toEqual(["en", "es-ES", "de-DE", "fr-FR", "hu-HU"]);
+      expect(resolveLanguage("zh-Hans", false)).toBe("en");
+    } finally {
+      delete process.env.LANGUAGES_IN_REVIEW;
+    }
+    expect(languageStatus("zh-Hans")).toBe("live");
   });
 });
 
@@ -163,5 +181,15 @@ describe("figures in the reader's language (rule 3)", () => {
     expect(pipeDate("2025-10-28", "es-ES")).toBe("28 oct 2025");
     // The guard still holds: a malformed day is returned as it came.
     expect(benchDate("not-a-date", "de-DE")).toBe("not-a-date");
+  });
+
+  it("leaves a malformed day as it came in every language, never throwing", () => {
+    for (const locale of LOCALES) {
+      expect(dayMonth("not-a-date", locale)).toBe("not-a-date");
+      expect(dayMonthYear("", locale)).toBe("");
+      expect(monthYear("2026-13-01", locale)).toBe("2026-13-01");
+    }
+    expect(dayMonthYear("2026-11-06", "de-DE")).toMatch(/6\. Nov\.? 2026/);
+    expect(dayMonthYear("2026-09-29", "en")).toBe("29 Sep 2026");
   });
 });
