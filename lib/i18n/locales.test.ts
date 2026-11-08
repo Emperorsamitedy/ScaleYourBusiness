@@ -34,9 +34,8 @@ describe("the languages and their status", () => {
     for (const l of LOCALES) expect(LANGUAGE_NAMES[l].length).toBeGreaterThan(0);
   });
 
-  it("has English live and every other language in review until its native reviewer reads it", () => {
-    expect(LANGUAGE_STATUS.en).toBe("live");
-    for (const l of LOCALES.filter((x) => x !== "en")) expect(LANGUAGE_STATUS[l], l).toBe("review");
+  it("has every language live (the owner's override of 2026-11-08, before native review)", () => {
+    for (const l of LOCALES) expect(LANGUAGE_STATUS[l], l).toBe("live");
   });
 
   it("knows its own locales and nothing else", () => {
@@ -44,23 +43,30 @@ describe("the languages and their status", () => {
     for (const v of ["zh", "zh-CN", "de", "EN", "", null, 3]) expect(isAppLocale(v)).toBe(false);
   });
 
-  it("offers a customer only live languages, and a named reviewer the review ones too", () => {
-    expect(offeredLanguages(false)).toEqual(["en"]);
+  it("offers every customer all seven languages now that all are live", () => {
+    expect(offeredLanguages(false)).toEqual([...LOCALES]);
     expect(offeredLanguages(true)).toEqual([...LOCALES]);
-    expect(languageOpenTo("de-DE", false)).toBe(false);
-    expect(languageOpenTo("de-DE", true)).toBe(true);
+    expect(languageOpenTo("de-DE", false)).toBe(true);
     expect(languageOpenTo("en", false)).toBe(true);
   });
 
-  it("falls back to English for anything not open to the person", () => {
+  it("falls back to English for anything that isn't one of its languages", () => {
     expect(resolveLanguage("ru-RU", true)).toBe("ru-RU");
-    expect(resolveLanguage("ru-RU", false)).toBe("en");
+    expect(resolveLanguage("ru-RU", false)).toBe("ru-RU");
     expect(resolveLanguage("klingon", true)).toBe("en");
     expect(resolveLanguage(undefined, true)).toBe("en");
   });
 
   it("marks review languages in the picker, so a reviewer knows what is unchecked", () => {
-    expect(languageOptions(offeredLanguages(true)).filter((o) => o.checking)).toHaveLength(6);
+    expect(languageOptions(offeredLanguages(true)).filter((o) => o.checking)).toHaveLength(0);
+    process.env.LANGUAGES_IN_REVIEW = "ru-RU, zh-Hans,en";
+    try {
+      // The owner's lever: two sent back to review; English never is.
+      expect(languageOptions(offeredLanguages(true)).filter((o) => o.checking)).toHaveLength(2);
+      expect(offeredLanguages(false)).toEqual(["en", "es-ES", "de-DE", "fr-FR", "hu-HU"]);
+    } finally {
+      delete process.env.LANGUAGES_IN_REVIEW;
+    }
     expect(languageOptions(["en"])).toEqual([{ code: "en", name: "English", checking: false }]);
   });
 });

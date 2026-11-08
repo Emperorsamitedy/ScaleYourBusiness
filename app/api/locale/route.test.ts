@@ -7,7 +7,7 @@
 import "dotenv/config";
 import { eq } from "drizzle-orm";
 import { NextRequest } from "next/server";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import { db } from "../../../db";
 import { accounts, businessProfiles, loginTokens, users } from "../../../db/schema";
 import { AUTH_COOKIE, INTAKE_COOKIE, signProfileCookie } from "../../../lib/auth/access";
@@ -15,6 +15,17 @@ import type { Role } from "../../../lib/auth/roles";
 import { hash, openSession, redeemLogin, requestLogin } from "../../../lib/auth/service";
 import { CURRENCY_COOKIE, LANGUAGE_COOKIE } from "../../../lib/i18n/locales";
 import { bootstrapIntake } from "../../../lib/intake/service";
+
+// These hold the review gate itself. All six languages went live on
+// 2026-11-08 (the owner's override), so the gate is tested the way the
+// owner would use it: with LANGUAGES_IN_REVIEW sending them back.
+const IN_REVIEW = "es-ES,de-DE,fr-FR,hu-HU,ru-RU,zh-Hans";
+beforeAll(() => {
+  process.env.LANGUAGES_IN_REVIEW = IN_REVIEW;
+});
+afterAll(() => {
+  delete process.env.LANGUAGES_IN_REVIEW;
+});
 
 const jar = vi.hoisted(() => new Map<string, string>());
 vi.mock("next/headers", () => ({

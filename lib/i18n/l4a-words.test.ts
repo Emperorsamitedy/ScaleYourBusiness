@@ -7,7 +7,7 @@
 import "dotenv/config";
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
-import { describe, expect, it } from "vitest";
+import { afterAll, beforeAll, describe, expect, it } from "vitest";
 import {
   approvalNote,
   changeLines,
@@ -47,6 +47,17 @@ import type { AppLocale } from "./locales";
 import { trFor } from "./server-tr";
 import { englishPatterns, matchStored, readStored, storedPattern } from "./stored";
 import { englishTr } from "./tr";
+
+// These hold the review gate itself. All six languages went live on
+// 2026-11-08 (the owner's override), so the gate is tested the way the
+// owner would use it: with LANGUAGES_IN_REVIEW sending them back.
+const IN_REVIEW = "es-ES,de-DE,fr-FR,hu-HU,ru-RU,zh-Hans";
+beforeAll(() => {
+  process.env.LANGUAGES_IN_REVIEW = IN_REVIEW;
+});
+afterAll(() => {
+  delete process.env.LANGUAGES_IN_REVIEW;
+});
 
 const w = (locale: AppLocale, ns: string) => ({ tr: trFor(locale, ns), locale });
 /** Intl writes no-break spaces; the assertions read plain ones. */
