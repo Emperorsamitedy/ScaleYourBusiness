@@ -4294,6 +4294,7 @@
       "sendNow": "Jetzt senden",
       "sendingNow": "Wird gesendet…",
       "download": "Herunterladen",
+      "downloadPdf": "PDF herunterladen",
       "print": "Zum Drucken öffnen",
       "result": {
         "sent": "An den Lieferanten gesendet.",

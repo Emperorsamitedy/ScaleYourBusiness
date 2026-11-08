@@ -4294,6 +4294,7 @@
       "sendNow": "Envoyer maintenant",
       "sendingNow": "Envoi…",
       "download": "Télécharger",
+      "downloadPdf": "Télécharger le PDF",
       "print": "Ouvrir pour imprimer",
       "result": {
         "sent": "Envoyée au fournisseur.",

@@ -38,6 +38,7 @@ import { hashProposalPayload } from "../proposals/service";
 import { STOCK_MODULE } from "../stock/propose";
 import type { NotSentReason, PoDocStatus, PurchaseOrder } from "./po";
 import { PO_KIND, PO_OP, PO_PROVIDER, normaliseEmail, poEmail, poSha256, sendingMode } from "./po";
+import { pdfLocale, poPdfFilename, renderPurchaseOrderPdf } from "./pdf";
 import { PO_REF_PREFIX } from "./propose";
 
 /** The words of the email and the document (messages/<locale>.json). */
@@ -136,7 +137,16 @@ export function dbPurchaseOrderBackend(): PurchaseOrderBackend {
         .select({ email: users.email })
         .from(users)
         .where(eq(users.id, r.proposal.decided_by!));
-      const words = await wordsFor(await businessCustomerLocale(r.proposal.profile_id), PO_WORDS);
+      const locale = await businessCustomerLocale(r.proposal.profile_id);
+      const words = await wordsFor(locale, PO_WORDS);
+      // P6-09: the PDF the email carries — the order as approved, saying it
+      // was emailed today (it is this email). In the business's language
+      // when the PDF's font covers it, else English (lib/purchasing/pdf).
+      const pdf = await renderPurchaseOrderPdf(
+        r.po,
+        locale === pdfLocale(locale) ? words : await wordsFor(pdfLocale(locale), PO_WORDS),
+        { kind: "sent", on: new Date().toISOString().slice(0, 10) },
+      );
       return {
         proposal_id: r.proposal.id,
         po: r.po,
@@ -144,6 +154,7 @@ export function dbPurchaseOrderBackend(): PurchaseOrderBackend {
         to: normaliseEmail(r.po.supplier.email)!,
         reply_to: normaliseEmail(approver?.email) ?? null,
         email: poEmail(r.po, words),
+        attachment: { filename: poPdfFilename(r.po), content: pdf },
       };
     },
   };

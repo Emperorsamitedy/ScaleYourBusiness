@@ -3,13 +3,21 @@
 // The order the owner made (and approved, or not yet), laid out as a
 // printable page in the business's language: what they download, keep,
 // print or save as a PDF from the browser. With ?download=1 it comes as a
-// file. Read-only, behind the one door (lib/auth/access), and only the
-// caller's own business's order: a foreign id is "no such order" (404).
+// file. With ?format=pdf (P6-09) it is a real PDF, always as a file
+// (PO-0007.pdf): the same order and words, in the business's language when
+// the PDF's font covers it, else English (lib/purchasing/pdf). Read-only,
+// behind the one door (lib/auth/access), and only the caller's own
+// business's order: a foreign id is "no such order" (404).
 
 import { type NextRequest, NextResponse } from "next/server";
 import { resolveAccess } from "../../../../../lib/auth/access";
 import { logSafeError } from "../../../../../lib/core/log-safe";
 import { wordsFor } from "../../../../../lib/i18n/recipient";
+import {
+  pdfLocale,
+  poPdfFilename,
+  renderPurchaseOrderPdf,
+} from "../../../../../lib/purchasing/pdf";
 import { poDocument } from "../../../../../lib/purchasing/po";
 import { PO_WORDS, poForDocument } from "../../../../../lib/purchasing/send";
 
@@ -26,6 +34,23 @@ export async function GET(
   try {
     const found = await poForDocument(access.profile_id, id);
     if (!found) return NextResponse.json({ error: "no such order" }, { status: 404 });
+    if (request.nextUrl.searchParams.get("format") === "pdf") {
+      const pdf = await renderPurchaseOrderPdf(
+        found.po,
+        await wordsFor(pdfLocale(found.locale), PO_WORDS),
+        found.status,
+      );
+      return new NextResponse(Buffer.from(pdf), {
+        status: 200,
+        headers: {
+          "Content-Type": "application/pdf",
+          "Content-Length": String(pdf.byteLength),
+          "Cache-Control": "private, no-store",
+          "X-Content-Type-Options": "nosniff",
+          "Content-Disposition": `attachment; filename="${poPdfFilename(found.po)}"`,
+        },
+      });
+    }
     const html = poDocument(found.po, await wordsFor(found.locale, PO_WORDS), found.status);
     const download = request.nextUrl.searchParams.get("download") === "1";
     return new NextResponse(html, {

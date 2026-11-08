@@ -7,7 +7,8 @@
 // delivery address and a note. Submitting puts the order in the approval
 // queue; nothing goes out until the owner approves it (rule 12). Below, the
 // orders made: where each stands, "Send now" for an approved one (through
-// the engine), and the order as a document to download or print. When email
+// the engine), and the order as a PDF (P6-09) or a page to download or
+// print. When email
 // can't really go out yet, the card says so before anything is made, and an
 // order that ran against the fake sender says "ready, not sent" and why.
 
@@ -285,6 +286,9 @@ function Orders({ block, onChange }: { block: PoBlock; onChange: () => Promise<v
                         {busy === o.id ? tr("po.sendingNow") : tr("po.sendNow")}
                       </button>
                     )}
+                    <a href={`/api/stock/po/${o.id}?format=pdf`} download={`${o.number}.pdf`}>
+                      {tr("po.downloadPdf")}
+                    </a>
                     <a href={`/api/stock/po/${o.id}?download=1`} download={`${o.number}.html`}>
                       {tr("po.download")}
                     </a>

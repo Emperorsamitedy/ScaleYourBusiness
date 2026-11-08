@@ -13,6 +13,10 @@
 // owner approved (its fingerprint), and an earlier send that nobody could
 // confirm is never repeated.
 //
+// The email carries the order as a PDF (P6-09): the same order, rendered
+// by lib/purchasing/pdf from the approved row, attached once. The body is
+// unchanged. The run's result records the file's name and size, real or fake.
+//
 // Real or fake. The order goes out for real only when SYB's email service is
 // set up on a verified domain AND the real-write gate is on
 // (SESSION_D_REAL_WRITES); lib/purchasing/po's sendingMode decides, read at
@@ -65,6 +69,14 @@ export interface PurchaseOrderPlan {
   reply_to: string | null;
   /** The email, in the business's language. */
   email: PoEmail;
+  /** P6-09: the order as a PDF, attached to the email (lib/purchasing/pdf). */
+  attachment: PoAttachment;
+}
+
+/** A file on the email: its name and its bytes. */
+export interface PoAttachment {
+  filename: string;
+  content: Uint8Array;
 }
 
 export interface PurchaseOrderBackend {
@@ -83,6 +95,8 @@ export interface PurchaseOrderMail {
   subject: string;
   text: string;
   html: string;
+  /** P6-09: the order's PDF — Resend's `attachments`, content as Base64. */
+  attachments: { filename: string; content: string }[];
   idempotency_key: string;
 }
 
@@ -120,6 +134,7 @@ export async function sendPurchaseOrderEmail(
         subject: mail.subject,
         text: mail.text,
         html: mail.html,
+        ...(mail.attachments.length > 0 ? { attachments: mail.attachments } : {}),
       }),
       signal: AbortSignal.timeout(TIMEOUT_MS),
     });
@@ -164,6 +179,12 @@ export class PurchaseOrderHold extends Error {
   }
 }
 
+/** The file the email carried (or, from the fake sender, would have): its name and size. */
+export interface PoAttachmentRecord {
+  filename: string;
+  bytes: number;
+}
+
 /** What an execution of this provider returns, journaled as the result. */
 export type PurchaseOrderResult =
   | {
@@ -172,6 +193,7 @@ export type PurchaseOrderResult =
       provider_id: string;
       to_domain: string;
       po_sha256: string;
+      attachments: PoAttachmentRecord[];
     }
   | {
       sent: false;
@@ -179,6 +201,7 @@ export type PurchaseOrderResult =
       not_sent: NotSentReason[];
       to_domain: string;
       po_sha256: string;
+      attachments: PoAttachmentRecord[];
     };
 
 /* ── the provider ── */
@@ -245,11 +268,18 @@ export function createPurchaseOrderExecutor(options: PurchaseOrderOptions = {}):
         number: plan.po.number,
         to_domain: domainOf(plan.to),
         po_sha256: plan.po_sha256,
+        // P6-09: the PDF, by name and size — journaled, never its bytes.
+        attachments: [
+          { filename: plan.attachment.filename, bytes: plan.attachment.content.byteLength },
+        ],
       };
       const now = mode();
       if (now.mode === "fake") {
         // The fake sender: the run is journaled like any other, and nothing leaves SYB.
-        logSend(ctx, plan.proposal_id, "not_sent", { reasons: now.reasons });
+        logSend(ctx, plan.proposal_id, "not_sent", {
+          reasons: now.reasons,
+          attachment_bytes: plan.attachment.content.byteLength,
+        });
         return { sent: false, not_sent: now.reasons, ...base };
       }
       const outcome = await sendPurchaseOrderEmail(
@@ -260,6 +290,12 @@ export function createPurchaseOrderExecutor(options: PurchaseOrderOptions = {}):
           subject: plan.email.subject,
           text: plan.email.text,
           html: plan.email.html,
+          attachments: [
+            {
+              filename: plan.attachment.filename,
+              content: Buffer.from(plan.attachment.content).toString("base64"),
+            },
+          ],
           idempotency_key: `syb-po-${plan.proposal_id}`,
         },
         now.api_key,
