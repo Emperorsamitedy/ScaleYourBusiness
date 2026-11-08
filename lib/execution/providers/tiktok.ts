@@ -574,7 +574,7 @@ export function offeredPrivacy(
  * TikTok's posting rules: privacy picked by hand from creator_info's
  * options (no default), comments, duets and stitches off unless turned on,
  * and the commercial-content disclosure off unless turned on. Held on
- * content_items.tiktok_settings (migration 0091) and covered by the
+ * content_items.tiktok_settings (migration 0093) and covered by the
  * approval's hash, so what goes out is what was approved.
  */
 export interface TikTokPostSettings {

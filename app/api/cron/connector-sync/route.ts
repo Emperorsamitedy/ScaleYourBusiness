@@ -9,12 +9,17 @@
 // beat, after the sync, so a poor review is known the day it lands. It is
 // its own step: a Google failure is logged and reported as null, and never
 // takes the measurement sync with it (or the other way round).
+//
+// P6-08: the daily upkeep of call recordings rides it too, as its own step:
+// fetch what is still pending, delete Twilio copies a failed delete left,
+// and delete what is past PHONE_RECORDING_KEEP_DAYS or erased.
 
 import { bearerMatches } from "../../../../lib/core/secret-compare";
 import { logSafeError } from "../../../../lib/core/log-safe";
 import { type NextRequest, NextResponse } from "next/server";
 import { runConnectorSync } from "../../../../lib/connectors/sync";
 import { runGoogleReviewReads } from "../../../../lib/google-business/read";
+import { runRecordingUpkeep } from "../../../../lib/phone-recording/recordings";
 
 async function isolated<T>(step: string, run: () => Promise<T>): Promise<T | null> {
   try {
@@ -35,11 +40,15 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   try {
     const result = await isolated("connector_sync", () => runConnectorSync());
     const google_reviews = await isolated("google_reviews", () => runGoogleReviewReads());
-    // A failed sync is still the job failing, as before; the reviews were read anyway.
+    const phone_recordings = await isolated("phone_recordings", () => runRecordingUpkeep());
+    // A failed sync is still the job failing, as before; the other steps ran anyway.
     if (result === null) {
-      return NextResponse.json({ error: "job failed", google_reviews }, { status: 500 });
+      return NextResponse.json(
+        { error: "job failed", google_reviews, phone_recordings },
+        { status: 500 },
+      );
     }
-    const body = { ...result, google_reviews };
+    const body = { ...result, google_reviews, phone_recordings };
     console.log(JSON.stringify({ event: "connector_sync_run", ...body }));
     return NextResponse.json(body);
   } catch (error) {

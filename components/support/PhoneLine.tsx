@@ -7,6 +7,11 @@
 // text under discussion, shown and never acted on (rule 24); every
 // assistant turn is labelled automated (rule 31); a call can be erased for
 // good (rule 22).
+//
+// P6-08: call recording — off by default, switched by the owner, with what
+// it means in plain words (callers are told first, kept N days, erasable).
+// A recorded call plays here for the owner only, from the owner-gated
+// route; the page never learns where the audio is stored.
 
 import { useCallback, useEffect, useState } from "react";
 import { num } from "../sheet/num";
@@ -24,6 +29,8 @@ interface Call {
   turns: number;
   duration_seconds: number | null;
   started_at: string;
+  recorded: boolean;
+  recording: { id: string; duration_seconds: number | null; expires_at: string | null } | null;
 }
 
 interface Turn {
@@ -39,6 +46,13 @@ interface Phone {
   voice_url: string;
   status_url: string;
   line: { phone_number: string; enabled: boolean; handover_number: string | null } | null;
+  recording: {
+    on: boolean;
+    changed_at: string | null;
+    keep_days: number;
+    missing: string[];
+    can_play: boolean;
+  };
   calls: Call[];
 }
 
@@ -122,7 +136,9 @@ export function PhoneLine() {
             {notice}
           </p>
         )}
-        <p className="sp-fine">{tr("phone.what")}</p>
+        <p className="sp-fine">
+          {phone.recording.on ? tr("phone.whatRecorded") : tr("phone.what")}
+        </p>
 
         {phone.missing.length > 0 ? (
           <>
@@ -180,6 +196,49 @@ export function PhoneLine() {
                 >
                   {tr("phone.turnOff")}
                 </button>
+
+                <h3 className="sp-box-title">{tr("phone.recording.title")}</h3>
+                <p className="sp-prose">
+                  {phone.recording.on
+                    ? tr("phone.recording.stateOn")
+                    : tr("phone.recording.stateOff")}
+                </p>
+                <p className="sp-fine">
+                  {tr("phone.recording.explain", {
+                    days: phone.recording.keep_days,
+                  })}
+                </p>
+                {phone.recording.changed_at && (
+                  <p className="sp-fine">
+                    {tr("phone.recording.changed", {
+                      when: whenFull(phone.recording.changed_at, locale),
+                    })}
+                  </p>
+                )}
+                {!phone.recording.on && phone.recording.missing.length > 0 ? (
+                  <>
+                    <p className="sp-fine">{tr("phone.recording.needsSetup")}</p>
+                    <pre className="sp-snippet">{phone.recording.missing.join("\n")}</pre>
+                  </>
+                ) : (
+                  <button
+                    type="button"
+                    className={phone.recording.on ? "prop-btn quiet" : "act"}
+                    disabled={busy}
+                    onClick={() =>
+                      void act(
+                        { action: phone.recording.on ? "recording_off" : "recording_on" },
+                        phone.recording.on
+                          ? tr("phone.notice.recordingOff")
+                          : tr("phone.notice.recordingOn"),
+                      )
+                    }
+                  >
+                    {phone.recording.on
+                      ? tr("phone.recording.turnOff")
+                      : tr("phone.recording.turnOn")}
+                  </button>
+                )}
               </>
             )}
           </>
@@ -206,6 +265,25 @@ export function PhoneLine() {
                     c.duration_seconds >= 60 &&
                     ` · ${durationWords(c.duration_seconds * 1000, tr, locale)}`}
                 </p>
+                {c.recorded && (
+                  <p className="sp-fine">
+                    {c.recording?.expires_at
+                      ? tr("phone.recording.kept", {
+                          date: whenFull(c.recording.expires_at, locale),
+                        })
+                      : tr("phone.recording.notKept")}
+                  </p>
+                )}
+                {c.recording && phone.recording.can_play && (
+                  // The owner-gated route opens the sealed file; preload="none"
+                  // fetches nothing until the owner presses play.
+                  <audio
+                    controls
+                    preload="none"
+                    aria-label={tr("phone.recording.listen")}
+                    src={`/api/support/phone/recording?call=${encodeURIComponent(c.id)}`}
+                  />
+                )}
                 {c.message && (
                   <>
                     <p className="sp-box-label">{tr("phone.messageLabel")}</p>
@@ -250,7 +328,11 @@ export function PhoneLine() {
                     </button>
                   )}
                 </div>
-                {confirmErase === c.id && <p className="sp-fine">{tr("phone.eraseConfirm")}</p>}
+                {confirmErase === c.id && (
+                  <p className="sp-fine">
+                    {c.recorded ? tr("phone.eraseConfirmRecorded") : tr("phone.eraseConfirm")}
+                  </p>
+                )}
                 {open === c.id && (
                   <ol className="sp-msgs">
                     {turns.map((m) => (

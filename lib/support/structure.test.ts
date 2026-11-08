@@ -83,6 +83,9 @@ const FORBIDDEN_PREFIXES = [
   "lib/bookings/",
   "lib/payments/",
   "lib/cash/",
+  // P6-08: the recordings' storage, sealing and deletes. The line asks Twilio
+  // to record (after the notice); only the trusted side touches the audio.
+  "lib/phone-recording/",
 ];
 
 /**
@@ -334,6 +337,23 @@ describe("P4-08 — rule 21, held by the module graph", () => {
     expect(source).not.toMatch(/set-cookie/i);
     expect(source.indexOf("verifyTwilioSignature(")).toBeGreaterThan(0);
     expect(source.indexOf("verifyTwilioSignature(")).toBeLessThan(source.indexOf("handleVoice("));
+  });
+
+  it("P6-08: the recording callback sets no cookie, reads none, and verifies before it acts", () => {
+    const source = readFileSync(path.resolve(ROOT, "app/api/phone/recording/route.ts"), "utf8");
+    expect(source).not.toMatch(/cookies\(/);
+    expect(source).not.toMatch(/set-cookie/i);
+    expect(source.indexOf("verifyTwilioSignature(")).toBeGreaterThan(0);
+    expect(source.indexOf("verifyTwilioSignature(")).toBeLessThan(
+      source.indexOf("recordingCallback(params"),
+    );
+    // And the line itself never reaches the audio: a planted import is caught.
+    const planted = new Map([
+      ["lib/phone/__planted_recording__.ts", 'export * from "../phone-recording/recordings";\n'],
+    ]);
+    expect(offenders(walk(["lib/phone/__planted_recording__.ts"], planted).files)).toContain(
+      "lib/phone-recording/recordings.ts",
+    );
   });
 
   it("P6-02: the gate bites on the phone line — a planted booking, payment or desk import is caught", () => {

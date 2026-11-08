@@ -31,6 +31,8 @@ import type { GoogleView } from "./GoogleBusinessSection";
 import { GoogleBusinessSection } from "./GoogleBusinessSection";
 import type { TikTokPostingView } from "./TikTokPostingSection";
 import { TikTokPostingSection } from "./TikTokPostingSection";
+import type { GoogleAdsView } from "./GoogleAdsSection";
+import { GoogleAdsSection } from "./GoogleAdsSection";
 import { BankStatementSection } from "./BankStatementSection";
 import { BookingsImportSection } from "./BookingsImportSection";
 import { headline, lastRead } from "./patch";
@@ -650,6 +652,8 @@ export function ConnectionsScreen() {
   const [google, setGoogle] = useState<GoogleView | null>(null);
   // 2026-11-08: TikTok posting, its own consent.
   const [tiktok, setTiktok] = useState<TikTokPostingView | null>(null);
+  // P2-20 / P3-22: Google Ads, its own consent — reads spend, changes only what's approved.
+  const [gads, setGads] = useState<GoogleAdsView | null>(null);
   // The headline speaks for writing too, so it waits until that side has answered.
   const [execDone, setExecDone] = useState(false);
   const [state, setState] = useState<"loading" | "ready" | "signed_out" | "error">("loading");
@@ -687,6 +691,15 @@ export function ConnectionsScreen() {
     }
   }, []);
 
+  const loadGads = useCallback(async () => {
+    try {
+      const res = await fetch("/api/connections/google-ads");
+      setGads(res.ok ? ((await res.json()) as GoogleAdsView) : null);
+    } catch {
+      setGads(null);
+    }
+  }, []);
+
   const loadEmail = useCallback(async () => {
     try {
       const res = await fetch("/api/connections/email");
@@ -720,7 +733,8 @@ export function ConnectionsScreen() {
     void loadEmail();
     void loadGoogle();
     void loadTiktok();
-  }, [load, loadExec, loadEmail, loadGoogle, loadTiktok]);
+    void loadGads();
+  }, [load, loadExec, loadEmail, loadGoogle, loadTiktok, loadGads]);
 
   const syncNow = async (c: Connection) => {
     setBusy(c.id);
@@ -1045,6 +1059,16 @@ export function ConnectionsScreen() {
             view={tiktok}
             onChanged={async () => {
               await Promise.all([loadTiktok(), loadExec()]);
+            }}
+          />
+        )}
+
+        {/* P2-20 / P3-22: Google Ads — a permission that can write; SYB reads, and changes only what you approve. */}
+        {gads !== null && (
+          <GoogleAdsSection
+            view={gads}
+            onChanged={async () => {
+              await Promise.all([loadGads(), loadExec(), load()]);
             }}
           />
         )}

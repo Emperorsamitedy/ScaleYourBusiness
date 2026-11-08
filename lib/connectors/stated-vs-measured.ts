@@ -17,6 +17,7 @@ import { displaySourceKind, isMeasuredSource, measuredProvider } from "./measure
 import { BOOKING_STATED_KEYS } from "../bookings/store";
 import { NON_CONNECTOR_SOURCE_LABELS } from "../bookings/source";
 import { getProvider } from "./registry";
+import { executeReadSource } from "./execute-reads";
 import { isProviderId } from "./scopes";
 
 const round1 = (n: number): number => Math.round(n * 10) / 10;
@@ -151,7 +152,10 @@ export async function statedVsMeasured(snapshotId: string): Promise<StatedVsMeas
       provider:
         providerId !== null && isProviderId(providerId)
           ? getProvider(providerId).label
-          : (NON_CONNECTOR_SOURCE_LABELS[providerId ?? ""] ?? providerId ?? "a connector"),
+          : (executeReadSource(providerId ?? "")?.label ??
+            NON_CONNECTOR_SOURCE_LABELS[providerId ?? ""] ??
+            providerId ??
+            "a connector"),
       stated: {
         value: stated.value,
         status: stated.status,

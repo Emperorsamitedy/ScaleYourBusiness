@@ -46,7 +46,10 @@ contradictions are visible.
   approves, handover to a person (Phase 4 Session C).
 - **Email marketing** to customer segments, with consent rules enforced in
   code (Phase 4 Session F).
-- **Google Ads** — blocked on Google's developer-token approval.
+- **Google Ads** — built 2026-11-08 (P2-20, P3-22's Google half): daily
+  spend read under a write consent, pause/resume/budget proposals through
+  the engine. Real use waits for Google to approve SYB's Cloud project
+  beyond test accounts, and changes for `SESSION_D_REAL_WRITES`.
 - **Trading hours, the rest** — `/hours` already shows revenue by hour
   and proposes 4-week trials of an hours change; still to come: website
   and Instagram attention by hour, a till (point-of-sale) connection and

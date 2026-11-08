@@ -48,6 +48,9 @@ export const ALLOWED: Record<string, Partial<Record<Method, string>>> = {
   "phone/voice/route.ts": {
     POST: "Twilio's voice webhook, X-Twilio-Signature: a stranger's call, no business session (P6-02)",
   },
+  "phone/recording/route.ts": {
+    POST: "Twilio's recording status callback, X-Twilio-Signature: no business session (P6-08)",
+  },
   "stripe/webhook/route.ts": { POST: "Stripe's webhook, signature-verified" },
   "u/[token]/route.ts": { POST: "one-click unsubscribe: the signed token is the credential" },
   "summary/stop/[token]/route.ts": {
@@ -62,6 +65,7 @@ export const MUTATING_GETS: readonly string[] = [
   "connections/meta/callback/route.ts", // finishes a write-access consent (rule 13)
   "connections/google-business/callback/route.ts", // I-45a: finishes the Google consent (rule 13)
   "connections/tiktok-posting/callback/route.ts", // 2026-11-08: finishes the TikTok consent (rule 13)
+  "connections/google-ads/callback/route.ts", // P2-20: finishes the Google Ads consent (rule 13)
 ];
 
 type Method = "POST" | "PUT" | "PATCH" | "DELETE" | "GET";

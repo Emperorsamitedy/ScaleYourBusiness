@@ -27,6 +27,8 @@
 // management are separate consents: `meta_publish` and `meta_ads`.
 // Google Business Profile (I-45a, 2026-11-01) is the one consent held for
 // READING: its only scope can write, so it lives here, with no operations.
+// Google Ads (P2-20 / P3-22, 2026-11-08) is held the same way, because its
+// only scope can write, but it runs three reversible ops through the engine.
 
 export interface ExecutionConsentEntry {
   /** The registry scope this consent line explains. */
@@ -379,6 +381,60 @@ export const EXECUTION_SCOPE_REGISTRY = {
       },
     ],
   },
+  /**
+   * Google Ads (P2-20 and P3-22's Google half; owner, 2026-11-08: "build
+   * google ads too"). Google offers ONE scope for the Google Ads API,
+   * adwords, and it can read and change everything in an ad account: there
+   * is no read-only scope (Google's OAuth pages, read 2026-11-08). So it is
+   * held here, as a write consent the owner grants and can revoke, and
+   * NEVER in the measurement registry (rule 9 is unchanged, and its audit
+   * refuses the scope by name). SYB reads spend with it daily through
+   * lib/google-ads/client.ts, whose fence sends only Google's search
+   * endpoints, and changes anything only through an approved proposal:
+   * three reversible ops, each executed by the engine through
+   * lib/execution/providers/google-ads.ts, the one file that may name a
+   * mutate endpoint (google-ads fence test). HOMED_SCOPES keeps adwords to
+   * this one provider.
+   */
+  google_ads: {
+    label: "Google Ads",
+    write_scopes: ["https://www.googleapis.com/auth/adwords"],
+    readback_scopes: [],
+    operations: [
+      {
+        op: "pause_campaign",
+        description: "Pause a running Google Ads campaign.",
+        reversible: true,
+      },
+      {
+        op: "resume_campaign",
+        description: "Resume a paused Google Ads campaign.",
+        reversible: true,
+      },
+      {
+        op: "set_daily_budget",
+        description: "Change a Google Ads campaign's daily budget, within the approved bounds.",
+        reversible: true,
+      },
+    ],
+    consent: [
+      {
+        scope: "https://www.googleapis.com/auth/adwords",
+        grant: "Google Ads (adwords)",
+        why: "Google offers one permission for the Google Ads API, and it lets an app change your campaigns, budgets and ads as well as read them.",
+      },
+      {
+        scope: "https://www.googleapis.com/auth/adwords",
+        grant: "Google Ads (adwords)",
+        why: "SYB reads your daily spend and results with it. SYB changes something only when you approve a proposal: pausing or resuming a campaign, or changing its daily budget by at most half. SYB never touches billing or payment methods.",
+      },
+      {
+        scope: "https://www.googleapis.com/auth/adwords",
+        grant: "Google Ads (adwords)",
+        why: "You can revoke it here at any time, and SYB deletes the access it holds at once.",
+      },
+    ],
+  },
 } as const satisfies Record<string, ExecutionProviderSpec>;
 
 export type ExecutionProviderId = keyof typeof EXECUTION_SCOPE_REGISTRY;
@@ -440,6 +496,17 @@ export const FENCED_SCOPES: Readonly<Record<string, string>> = {
   "https://www.googleapis.com/auth/business.manage": "google_business_reviews",
 };
 
+/**
+ * P2-20: scopes that may appear under ONE provider only, as a write scope.
+ * Unlike FENCED_SCOPES the provider may run operations (approved proposals,
+ * through the engine); what the fence keeps is the home. Pinned in
+ * scopes.test.ts; adding a line is the same deliberate edit as adding a
+ * write scope.
+ */
+export const HOMED_SCOPES: Readonly<Record<string, string>> = {
+  "https://www.googleapis.com/auth/adwords": "google_ads",
+};
+
 export interface ExecutionScopeViolation {
   provider: string;
   value: string;
@@ -496,8 +563,19 @@ export function auditExecutionRegistry(
         violations.push({ provider, value: operation.op, reason: "op_money_surface" });
     }
     // I-45a: a fenced scope belongs to its one provider, as a write scope.
+    // P2-20: and so does a homed one.
     for (const scope of spec.readback_scopes ?? []) {
-      if (Object.prototype.hasOwnProperty.call(FENCED_SCOPES, scope))
+      if (
+        Object.prototype.hasOwnProperty.call(FENCED_SCOPES, scope) ||
+        Object.prototype.hasOwnProperty.call(HOMED_SCOPES, scope)
+      )
+        violations.push({ provider, value: scope, reason: "fenced_scope_elsewhere" });
+    }
+    for (const scope of spec.write_scopes) {
+      if (
+        Object.prototype.hasOwnProperty.call(HOMED_SCOPES, scope) &&
+        HOMED_SCOPES[scope] !== provider
+      )
         violations.push({ provider, value: scope, reason: "fenced_scope_elsewhere" });
     }
     for (const scope of spec.write_scopes) {
@@ -520,5 +598,5 @@ export function auditExecutionRegistry(
 // Local default so this module has no import cycle; the test wires in
 // the real isWriteCapable from lib/connectors/scopes and both must agree.
 function requireWriteVocabulary(scope: string): boolean {
-  return /write|publish|create|update|manage|edit|delete|modify|send/i.test(scope);
+  return /write|publish|create|update|manage|edit|delete|modify|send|\/auth\/adwords$/i.test(scope);
 }

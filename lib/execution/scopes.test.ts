@@ -10,6 +10,7 @@ import { SCOPE_REGISTRY, auditRegistry, isWriteCapable } from "../connectors/sco
 import {
   EXECUTION_SCOPE_REGISTRY,
   FENCED_SCOPES,
+  HOMED_SCOPES,
   VENDOR_MISNAMED_AD_FIELDS,
   VENDOR_MISNAMED_READS,
   auditExecutionRegistry,
@@ -293,7 +294,130 @@ describe("P3-08 — the pinned allowlist (rule 13)", () => {
           },
         ],
       },
+      // P2-20 / P3-22, 2026-11-08 (owner: "build google ads too"): Google Ads,
+      // held as a write consent because its only scope can write. Three
+      // reversible ops, run only through the engine after an approval.
+      google_ads: {
+        label: "Google Ads",
+        write_scopes: ["https://www.googleapis.com/auth/adwords"],
+        readback_scopes: [],
+        operations: [
+          {
+            op: "pause_campaign",
+            description: "Pause a running Google Ads campaign.",
+            reversible: true,
+          },
+          {
+            op: "resume_campaign",
+            description: "Resume a paused Google Ads campaign.",
+            reversible: true,
+          },
+          {
+            op: "set_daily_budget",
+            description: "Change a Google Ads campaign's daily budget, within the approved bounds.",
+            reversible: true,
+          },
+        ],
+        consent: [
+          {
+            scope: "https://www.googleapis.com/auth/adwords",
+            grant: "Google Ads (adwords)",
+            why: "Google offers one permission for the Google Ads API, and it lets an app change your campaigns, budgets and ads as well as read them.",
+          },
+          {
+            scope: "https://www.googleapis.com/auth/adwords",
+            grant: "Google Ads (adwords)",
+            why: "SYB reads your daily spend and results with it. SYB changes something only when you approve a proposal: pausing or resuming a campaign, or changing its daily budget by at most half. SYB never touches billing or payment methods.",
+          },
+          {
+            scope: "https://www.googleapis.com/auth/adwords",
+            grant: "Google Ads (adwords)",
+            why: "You can revoke it here at any time, and SYB deletes the access it holds at once.",
+          },
+        ],
+      },
     });
+  });
+
+  it("P2-20: the homed scopes are exactly this", () => {
+    expect(HOMED_SCOPES).toEqual({ "https://www.googleapis.com/auth/adwords": "google_ads" });
+  });
+
+  it("P2-20: adwords is write-shaped by the measurement audit's own vocabulary, and accepted under google_ads", () => {
+    expect(isWriteCapable("https://www.googleapis.com/auth/adwords")).toBe(true);
+    expect(
+      auditExecutionRegistry(
+        {
+          google_ads: {
+            write_scopes: ["https://www.googleapis.com/auth/adwords"],
+            operations: [{ op: "pause_campaign", description: "", reversible: true }],
+          },
+        },
+        isWriteCapable,
+      ),
+    ).toEqual([]);
+    const holders = Object.entries(EXECUTION_SCOPE_REGISTRY)
+      .filter(([, spec]) =>
+        [...spec.write_scopes, ...spec.readback_scopes].some(
+          (s) => (s as string) === "https://www.googleapis.com/auth/adwords",
+        ),
+      )
+      .map(([id]) => id);
+    expect(holders).toEqual(["google_ads"]);
+  });
+
+  it("P2-20: adwords planted under another provider, or as a readback, is caught", () => {
+    const violations = auditExecutionRegistry(
+      {
+        meta_ads: { write_scopes: ["https://www.googleapis.com/auth/adwords"], operations: [] },
+        sneaky: {
+          write_scopes: ["publish_things"],
+          readback_scopes: ["https://www.googleapis.com/auth/adwords"],
+          operations: [],
+        },
+      },
+      isWriteCapable,
+    );
+    expect(violations).toEqual([
+      {
+        provider: "meta_ads",
+        value: "https://www.googleapis.com/auth/adwords",
+        reason: "fenced_scope_elsewhere",
+      },
+      {
+        provider: "sneaky",
+        value: "https://www.googleapis.com/auth/adwords",
+        reason: "readback_write_shaped",
+      },
+      {
+        provider: "sneaky",
+        value: "https://www.googleapis.com/auth/adwords",
+        reason: "fenced_scope_elsewhere",
+      },
+    ]);
+  });
+
+  it("P2-20: the measurement audit refuses adwords — Google Ads never enters the read registry", () => {
+    expect(auditRegistry({ google_ads: ["https://www.googleapis.com/auth/adwords"] })).toEqual([
+      {
+        provider: "google_ads",
+        scope: "https://www.googleapis.com/auth/adwords",
+        reason: "write_capable",
+      },
+    ]);
+    const readScopes = Object.values(SCOPE_REGISTRY).flat() as string[];
+    expect(readScopes.some((s) => s.includes("adwords"))).toBe(false);
+    expect(Object.keys(SCOPE_REGISTRY)).not.toContain("google_ads");
+    expect(auditRegistry()).toEqual([]);
+  });
+
+  it("P2-20: Google Ads' ops are only pauses, resumes and budgets, each reversible", () => {
+    const ops = EXECUTION_SCOPE_REGISTRY.google_ads.operations.map((o) => [o.op, o.reversible]);
+    expect(ops).toEqual([
+      ["pause_campaign", true],
+      ["resume_campaign", true],
+      ["set_daily_budget", true],
+    ]);
   });
 
   it("I-45a: the fenced scopes are exactly this", () => {

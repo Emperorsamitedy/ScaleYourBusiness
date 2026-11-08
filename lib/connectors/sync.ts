@@ -26,7 +26,7 @@
 // changes. Until it is measured, a queue is speculation.
 
 import { logSafeError } from "../core/log-safe";
-import { and, desc, eq, inArray, ne } from "drizzle-orm";
+import { and, desc, eq, inArray, ne, or } from "drizzle-orm";
 import { db } from "../../db";
 import { withAdvisoryLock } from "../../db/advisory-lock";
 import { connections, connectorSyncs, metricObservations } from "../../db/schema";
@@ -52,6 +52,7 @@ import {
 import { normalizeEmail } from "../crm/contacts";
 import { deriveBookingFacts, storeAppointments } from "../bookings/store";
 import { getProvider } from "./registry";
+import { EXECUTE_READ_PROVIDERS, executeReadSource } from "./execute-reads";
 import { decryptSecret } from "./secrets";
 import { isProviderId } from "./scopes";
 import { upsertObservations } from "./service";
@@ -316,9 +317,13 @@ export async function syncConnection(connectionId: string, now = new Date()): Pr
       }
       outcome.account_id = row.account_id;
       outcome.provider = row.provider;
-      // P3-20b: a write credential is never pulled from. The runner's
-      // query already excludes execute rows; this holds for a direct call.
-      if (row.purpose !== "measure") {
+      // P3-20b: a write credential is never pulled from — except through
+      // the narrow door of P2-20 (lib/connectors/execute-reads.ts): an
+      // execute row whose provider has a registered read source, which can
+      // only pull pages of observations. Every other execute row is refused
+      // here, for the runner and a direct call alike.
+      const readSource = row.purpose === "execute" ? executeReadSource(row.provider) : null;
+      if (row.purpose !== "measure" && readSource === null) {
         outcome.skipped = "not_measurement";
         return outcome;
       }
@@ -333,13 +338,15 @@ export async function syncConnection(connectionId: string, now = new Date()): Pr
       outcome.kind = row.cursor === null ? "backfill" : "incremental";
 
       try {
-        if (!isProviderId(row.provider)) {
+        if (readSource === null && !isProviderId(row.provider)) {
           throw new Error(`unknown provider "${row.provider}"`);
         }
         if (row.encrypted_secret === null) {
           throw new Error("no credential at rest — reconnect the provider");
         }
-        const provider = getProvider(row.provider);
+        const measureProvider: Provider | null =
+          readSource === null && isProviderId(row.provider) ? getProvider(row.provider) : null;
+        const provider: Pick<Provider, "pull"> = readSource ?? (measureProvider as Provider);
         const secret = decryptSecret(row.encrypted_secret);
 
         let cursor = row.cursor;
@@ -384,10 +391,12 @@ export async function syncConnection(connectionId: string, now = new Date()): Pr
           .where(eq(connections.id, row.id));
         outcome.ok = true;
         // Feature 34: a store's stock snapshot, once per run, after the pages.
-        outcome.stock = await readStockSnapshot(row, provider, secret, now);
+        outcome.stock = measureProvider
+          ? await readStockSnapshot(row, measureProvider, secret, now)
+          : null;
         if (outcome.stock) outcome.observations += outcome.stock.observations;
         // Idea 47: the store's abandoned checkouts, once per run, after the stock.
-        outcome.carts = await readCarts(row, provider, secret, now);
+        outcome.carts = measureProvider ? await readCarts(row, measureProvider, secret, now) : null;
         outcome.derived = await deriveFactsFromObservations(row.id);
         // Bookings: the 28-day measures, when this connection reads appointments.
         outcome.derived.push(...(await deriveBookingFacts(row.id, now)));
@@ -524,7 +533,14 @@ export async function runConnectorSync(
     .where(
       and(
         eq(connections.status, "connected"),
-        eq(connections.purpose, "measure"),
+        // P2-20: and the execute connections with a read source (Google Ads).
+        or(
+          eq(connections.purpose, "measure"),
+          and(
+            eq(connections.purpose, "execute"),
+            inArray(connections.provider, [...EXECUTE_READ_PROVIDERS]),
+          ),
+        ),
         ne(connections.provider, BOOKINGS_IMPORT_PROVIDER),
         opts.accountIds ? inArray(connections.account_id, [...opts.accountIds]) : undefined,
       ),
