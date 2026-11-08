@@ -11,6 +11,15 @@
 //   POST /api/stock {action:"propose"}                put the options in the approval queue
 //   POST /api/stock {action:"reorder"}                put the reorder notes in the approval queue —
 //                                                     notes only: nothing is ever ordered (rule 27)
+//   POST /api/stock {action:"purchase_order", supplier_id, email, delivery_address?, note?,
+//                    quantities?, include?}
+//                                                     P6-04 (rule 27 amended): a purchase order from
+//                                                     the reorder suggestions, as a PROPOSAL; the
+//                                                     supplier's email is recorded as a stated fact
+//   POST /api/stock {action:"po_send", id}            an APPROVED order, through the engine: emailed
+//                                                     for real, or run against the fake sender with
+//                                                     the reasons it wasn't (lib/purchasing/send)
+//   GET  /api/stock/po/:id                            the order as a document to download or print
 //
 // Reading needs the intake cookie; importing and proposing need a signed-in
 // user (an import is the owner's figures under their name; a proposal lands
@@ -53,6 +62,20 @@ import {
 } from "../../../lib/stock/propose";
 import { requireRole } from "../../../lib/auth/roles";
 import type { RoleAction } from "../../../lib/auth/roles";
+import type { Money } from "../../../lib/core/money";
+import type { NotSentReason } from "../../../lib/purchasing/po";
+import {
+  PurchaseOrderError,
+  poDrafts,
+  proposePurchaseOrder,
+} from "../../../lib/purchasing/propose";
+import type { PurchaseOrderView } from "../../../lib/purchasing/send";
+import {
+  PurchaseOrderSendError,
+  currentSending,
+  listPurchaseOrders,
+  sendPurchaseOrderNow,
+} from "../../../lib/purchasing/send";
 
 /** How many slow items the screen lists. */
 const SHOWN = 25;
@@ -142,6 +165,37 @@ export interface CoverBlock {
   held: string | null;
 }
 
+/** P6-04: one supplier's order as it would be made today, for the form. */
+export interface PoDraftView {
+  supplier: { id: string; name: string };
+  /** On file for this supplier (rule 2), or null: the form asks for it. */
+  email: string | null;
+  /** The business's postal address on file, or null. */
+  address: string | null;
+  lines: {
+    key: string;
+    name: string;
+    suggested: number;
+    /** The suggestion's arithmetic, in the reader's words. */
+    arithmetic: string;
+    unit_cost: Money | null;
+  }[];
+  /** An order for this supplier still waiting or approved. */
+  open: { id: string; number: string; status: string } | null;
+}
+
+/** P6-04: purchase orders on /stock. */
+export interface PoBlock {
+  drafts: PoDraftView[];
+  /** Items running low with no supplier on file. */
+  unsupplied: string[];
+  orders: PurchaseOrderView[];
+  /** Whether approved orders really go out now, and if not, why (codes the screen words). */
+  sending: { real: boolean; reasons: NotSentReason[] };
+  /** Why no order can be made yet (rule 15), in the reader's words. */
+  held: string | null;
+}
+
 export interface StockView {
   applies: boolean;
   today?: string;
@@ -157,6 +211,8 @@ export interface StockView {
   history?: StockHistoryModel | null;
   /** P5-05: what runs out, and when. */
   cover?: CoverBlock;
+  /** P6-04: purchase orders from the reorder suggestions. */
+  purchase_orders?: PoBlock;
 }
 
 export async function GET(): Promise<NextResponse> {
@@ -301,6 +357,28 @@ export async function GET(): Promise<NextResponse> {
       }),
     };
 
+    // P6-04: what an order to each supplier would hold, and the orders made.
+    const drafts = await poDrafts(access.profile_id, coverView);
+    const purchaseOrders: PoBlock = {
+      drafts: drafts.drafts.map((d) => ({
+        supplier: d.supplier,
+        email: d.email,
+        address: d.address,
+        lines: d.lines.map((l) => ({
+          key: l.key,
+          name: l.name,
+          suggested: l.suggested,
+          arithmetic: l.arithmetic,
+          unit_cost: l.unit_cost,
+        })),
+        open: d.open,
+      })),
+      unsupplied: drafts.unsupplied,
+      orders: await listPurchaseOrders(access.profile_id),
+      sending: currentSending(),
+      held: cover.held,
+    };
+
     const slow: StockItemView[] = shown.map((r, i) => {
       const fmt = fmtFor(r.item.currency, words);
       return {
@@ -381,6 +459,7 @@ export async function GET(): Promise<NextResponse> {
       },
       held,
       cover,
+      purchase_orders: purchaseOrders,
       // The chart's caption, in the reader's language (the loader words it in English).
       history: history && { ...history, summary: stockHistorySummary(history, words) },
     };
@@ -402,6 +481,8 @@ const STOCK_ROLE: Record<string, RoleAction> = {
   import: "data.import",
   propose: "proposals.generate",
   reorder: "proposals.generate",
+  purchase_order: "proposals.generate",
+  po_send: "proposals.decide",
 };
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
@@ -424,6 +505,13 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       window_days?: unknown;
       as_of?: unknown;
       decimal_style?: unknown;
+      supplier_id?: unknown;
+      email?: unknown;
+      delivery_address?: unknown;
+      note?: unknown;
+      quantities?: unknown;
+      include?: unknown;
+      id?: unknown;
     };
     const denied = requireRole(access, STOCK_ROLE[String(body.action)] ?? "data.import");
     if (denied) return denied;
@@ -455,6 +543,32 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         skipped: run.skipped,
       });
     }
+    if (body.action === "purchase_order") {
+      const row = await proposePurchaseOrder({
+        profileId: access.profile_id,
+        supplierId: body.supplier_id,
+        email: body.email,
+        deliveryAddress: body.delivery_address,
+        note: body.note,
+        quantities: body.quantities,
+        include: body.include,
+      });
+      const po = (row.action as { detail?: { po?: { number?: string } } }).detail?.po;
+      return NextResponse.json(
+        { id: row.id, number: po?.number ?? null, status: row.status },
+        { status: 201 },
+      );
+    }
+    if (body.action === "po_send") {
+      if (typeof body.id !== "string") {
+        return NextResponse.json({ error: "id is required" }, { status: 422 });
+      }
+      const outcome = await sendPurchaseOrderNow({
+        profileId: access.profile_id,
+        proposalId: body.id,
+      });
+      return NextResponse.json(outcome);
+    }
     if (body.action === "propose") {
       const run = await proposeClearance(access.profile_id);
       return NextResponse.json({
@@ -465,7 +579,11 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     }
     return NextResponse.json({ error: "unknown action" }, { status: 422 });
   } catch (error) {
-    if (error instanceof StockImportError) {
+    if (
+      error instanceof StockImportError ||
+      error instanceof PurchaseOrderError ||
+      error instanceof PurchaseOrderSendError
+    ) {
       return NextResponse.json({ error: error.message }, { status: error.status });
     }
     console.error(

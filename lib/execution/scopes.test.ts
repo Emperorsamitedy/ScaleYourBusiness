@@ -208,6 +208,36 @@ describe("P3-08 — the pinned allowlist (rule 13)", () => {
           },
         ],
       },
+      // P6-04, 2026-11-08 (rule 27 amended by the owner): an approved purchase
+      // order, emailed to the supplier. One write scope, one irreversible op
+      // (a sent email can't be recalled), and two consent lines: what SYB
+      // may do, and what it never does (edit, cancel or pay an order, or sign
+      // in to a supplier's system).
+      purchase_order: {
+        label: "Purchase order email",
+        write_scopes: ["email.send_purchase_order"],
+        readback_scopes: [],
+        operations: [
+          {
+            op: "send_purchase_order",
+            description:
+              "Email one approved purchase order to the supplier's address on file, exactly as approved.",
+            reversible: false,
+          },
+        ],
+        consent: [
+          {
+            scope: "email.send_purchase_order",
+            grant: "your approval of each order (SYB's own email service)",
+            why: "SYB may email a purchase order you approved to the supplier named on it, at the address you gave, with replies going to you.",
+          },
+          {
+            scope: "email.send_purchase_order",
+            grant: "your approval of each order (SYB's own email service)",
+            why: "SYB never edits, cancels or pays an order, and never signs in to a supplier's system.",
+          },
+        ],
+      },
       // I-45a, 2026-11-01: Google Business Profile, held as a write consent
       // because its only scope can write, and used to read reviews alone —
       // no operations, so nothing could ever be executed with it.

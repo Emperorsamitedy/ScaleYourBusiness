@@ -220,3 +220,20 @@
   line-height: 1.5;
   color: var(--sheet-ink-2);
 }
+
+/* P6-04: purchase orders */
+.st-po {
+  border-top: 1px solid var(--rule-soft);
+  padding-top: var(--s-3);
+  margin-top: var(--s-3);
+}
+.st-qty {
+  width: 6em;
+  text-align: right;
+}
+.st-po-acts {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 8px 12px;
+  align-items: center;
+}

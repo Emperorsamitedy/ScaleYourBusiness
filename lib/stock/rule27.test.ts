@@ -1,6 +1,10 @@
 // Rule 27 — stock suggestions stop at the owner. A build-failing test:
 //   · the reorder note's kind is a NOTE kind, never one the diagnosis
 //     classifier or the alert review can emit, and no executor knows it;
+//   · amended 2026-11-08 (P6-04, TASKS-PHASE6.md): the ONE supplier operation
+//     any provider declares is purchase_order's send_purchase_order — an
+//     approved order emailed through the engine, from lib/purchasing, never
+//     from here. lib/purchasing/rule27.test.ts holds its own fence;
 //   · nothing in lib/stock can reach a network, an executor or a supplier:
 //     no fetch, no execution import, no write scope, no order operation;
 //   · a stock proposal that carries an execution plan in its detail is not
@@ -71,12 +75,14 @@ describe("rule 27 — a reorder note records intent only", () => {
     expect((ACTION_KINDS as readonly string[]).includes(REORDER_KIND)).toBe(false);
   });
 
-  it("no execution provider declares an order or a supplier operation", () => {
-    const ops = Object.values(EXECUTION_SCOPE_REGISTRY).flatMap((p) =>
-      p.operations.map((o) => o.op),
+  it("no execution provider declares an order or a supplier operation but sending an approved purchase order (rule 27 amended)", () => {
+    const ops = Object.entries(EXECUTION_SCOPE_REGISTRY).flatMap(([provider, p]) =>
+      p.operations.map((o) => ({ provider, op: o.op as string, reversible: o.reversible })),
     );
     expect(ops.length).toBeGreaterThan(0);
-    expect(ops.filter((op) => /order|supplier|purchase|stock|inventory/i.test(op))).toEqual([]);
+    expect(ops.filter((o) => /order|supplier|purchase|stock|inventory/i.test(o.op))).toEqual([
+      { provider: "purchase_order", op: "send_purchase_order", reversible: false },
+    ]);
   });
 
   it("a plan planted in a stock proposal's detail is never run", () => {

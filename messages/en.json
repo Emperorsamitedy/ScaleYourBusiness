@@ -4242,6 +4242,62 @@
       "yourSupplier": "your supplier",
       "assumed": "ASSUMED",
       "atCost": "{amount} at cost"
+    },
+    "po": {
+      "label": "Purchase orders",
+      "title": "Order what runs low",
+      "meta": "Approved orders are emailed to the supplier",
+      "intro": "Make an order from what is running low. It goes to your approval queue, and only once you approve it is it emailed to the supplier. I never change, cancel or pay an order.",
+      "email": "Supplier's email",
+      "emailOnFile": "On file for this supplier.",
+      "emailAsk": "Not on file yet. Once you give it, it is kept with the supplier.",
+      "address": "Deliver to",
+      "addressOnFile": "Your postal address on file. Change it here for this order.",
+      "note": "Note to the supplier (optional)",
+      "col": {
+        "order": "Order",
+        "item": "Item",
+        "suggested": "Suggested",
+        "quantity": "Quantity",
+        "unit": "Unit cost",
+        "items": "Items",
+        "total": "Total at cost",
+        "state": "Where it stands"
+      },
+      "button": "Put the order in my queue",
+      "working": "Making the order…",
+      "made": "Order {number} is waiting for your approval.",
+      "open": "Order {number} for this supplier: {state}.",
+      "unsupplied": "No supplier on file for {items}, so no order can name one. Add the supplier on your fact sheet.",
+      "list": "Your orders",
+      "items": "{count, plural, one {# item} other {# items}}",
+      "state": {
+        "pending": "waiting for your approval",
+        "approved": "approved, not sent yet",
+        "rejected": "declined, never sent",
+        "expired": "ran out of time, never sent",
+        "blocked": "ruled out by your own rule",
+        "changes_requested": "changes asked for, not sent",
+        "executed": "done",
+        "sent": "emailed on {day}",
+        "notSent": "ready, not sent",
+        "failed": "didn't go out"
+      },
+      "why": {
+        "email_not_set_up": "Email isn't set up on SYB's sending domain yet.",
+        "real_writes_off": "Real sending is switched off until the two-week unattended test completes."
+      },
+      "notSentAfter": "Download it and send it yourself.",
+      "sendingReal": "Approved orders are emailed to the supplier for real.",
+      "sendingFake": "Approved orders run through every check, but aren't emailed yet:",
+      "sendNow": "Send now",
+      "sendingNow": "Sending…",
+      "download": "Download",
+      "print": "Open to print",
+      "result": {
+        "sent": "Sent to the supplier.",
+        "notSent": "Ready, not sent."
+      }
     }
   },
   "chat": {
@@ -5911,7 +5967,8 @@
       "stockPair": "Approving records your yes. I don't change your shop: you set the pair up yourself.",
       "stockPrices": "Approving records your yes. I don't change your prices: you do.",
       "stockAdvice": "Advice only: I contact nobody. Approving records that you mean to do it.",
-      "reorder": "Approving records that you mean to reorder, and nothing else. I don't contact {supplier}, and I never place, change or cancel an order: you do."
+      "reorder": "Approving records that you mean to reorder, and nothing else. I don't contact {supplier}, and I never place, change or cancel an order: you do.",
+      "purchaseOrder": "Approving emails this order to {email}, from SYB's address with replies going to you. A sent email can't be recalled, and I never change, cancel or pay an order: you do."
     }
   },
   "trackWords": {
@@ -6108,6 +6165,37 @@
       "greeting": "Hello,",
       "thisBusiness": "This business",
       "why": "You're getting this because you agreed to hear from {business}. Unsubscribe: {link}"
+    },
+    "purchaseOrder": {
+      "subject": "Purchase order {number} from {business}",
+      "greeting": "Hello {supplier},",
+      "intro": "{business} would like to order the following (purchase order {number}):",
+      "line": "{quantity} × {item}",
+      "linePriced": "{quantity} × {item} at {unit} = {total}",
+      "total": "Expected total: {total}",
+      "totalPart": "Expected total: {total}, plus {unpriced, plural, one {# line} other {# lines}} without a price",
+      "deliverTo": "Deliver to:",
+      "noteHead": "Note:",
+      "confirm": "Please confirm the order, its price and the delivery date by replying to this email.",
+      "closing": "Thank you,\n{business}",
+      "footer": "This order was prepared with SYB, an AI assistant, and approved by the business before it was sent. Replies go to the business directly.",
+      "doc": {
+        "title": "Purchase order {number}",
+        "prepared": "{business} · prepared on {day}",
+        "statusSent": "Emailed to the supplier on {day}",
+        "status": {
+          "draft": "Waiting for approval: not sent",
+          "approved": "Approved: not sent yet",
+          "not_sent": "Approved, not emailed: send it yourself"
+        },
+        "from": "From",
+        "to": "To",
+        "item": "Item",
+        "quantity": "Quantity",
+        "unit": "Unit price (expected)",
+        "lineTotal": "Line total",
+        "foot": "Prepared with SYB. SYB never changes, cancels or pays an order."
+      }
     }
   },
   "push": {
@@ -6132,7 +6220,8 @@
       "media_generation": "an image or clip to make",
       "revise_goal": "a goal to look at",
       "stop_strategy": "a strategy to look at",
-      "other": "a proposal"
+      "other": "a proposal",
+      "purchase_order": "a purchase order"
     }
   },
   "exports": {
