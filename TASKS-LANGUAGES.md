@@ -345,6 +345,6 @@ Each stage is its own PR, tested and merged before the next.
   - **Russian:** impersonal past forms where SYB says "I" ("Что сделано", "Что замечено"); business names in «» or after a colon to stay nominative; "основа оценки:"; "изменение оффера"; "Отчёт по ссылке".
   - **Chinese:** 等您点头 for "your yes" (同意 is the glossary's consent); 我的过往准确率; 基于测量数据 for "measured"; 操作人 for the "by" column.
 
-- [ ] **L-7 Native review, then live.** Each language is read by its reviewer, corrections are made, and the language is switched to `live`. This is the owner's step: choosing the reviewers.
+- [ ] **L-7 Native review, then live.** _2026-11-08: the owner switched all six live before review (TASKS-PHASE6 P6-01); review follows, and `LANGUAGES_IN_REVIEW` sends a language back._ Each language is read by its reviewer, corrections are made, and the language is switched to `live`. This is the owner's step: choosing the reviewers.
 
 **Owner steps:** choose a native reviewer for each of the six languages. L-7 waits on them.

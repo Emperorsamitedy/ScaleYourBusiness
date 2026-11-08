@@ -32,18 +32,19 @@ export const CURRENCY_COOKIE = "syb_currency";
 export type LanguageStatus = "building" | "review" | "live";
 
 /**
- * THE status table. A language moves to `live` only after the native
- * reviewer the owner chose has read it (stage L-7) — a one-word edit here,
- * in the same commit as the corrections.
+ * THE status table. A language moved to `live` after its native reviewer
+ * read it (stage L-7) — until the owner's override of 2026-11-08 ("switch
+ * all live now"): all six went live unreviewed; native review follows and
+ * corrections land as found. `LANGUAGES_IN_REVIEW` sends one back without a code change.
  */
 export const LANGUAGE_STATUS: Readonly<Record<AppLocale, LanguageStatus>> = {
   en: "live",
-  "es-ES": "review",
-  "de-DE": "review",
-  "fr-FR": "review",
-  "hu-HU": "review",
-  "ru-RU": "review",
-  "zh-Hans": "review",
+  "es-ES": "live",
+  "de-DE": "live",
+  "fr-FR": "live",
+  "hu-HU": "live",
+  "ru-RU": "live",
+  "zh-Hans": "live",
 };
 
 /** Each language in its own words, as a picker shows it — the same in every catalogue. */
@@ -57,9 +58,20 @@ export const LANGUAGE_NAMES: Readonly<Record<AppLocale, string>> = {
   "zh-Hans": "简体中文",
 };
 
+/**
+ * A language's status now: the table, unless `LANGUAGES_IN_REVIEW` (a comma
+ * list, e.g. "ru-RU,zh-Hans") sends a live language back to review — the
+ * owner's lever when a reviewer finds a language not ready, no code change.
+ * English is never sent back: it is the source every catalogue is checked against.
+ */
+export function languageStatus(locale: AppLocale): LanguageStatus {
+  const back = (process.env.LANGUAGES_IN_REVIEW ?? "").split(",").map((s) => s.trim());
+  return locale !== DEFAULT_LOCALE && back.includes(locale) ? "review" : LANGUAGE_STATUS[locale];
+}
+
 /** Pure: whether a language may be used by someone who is (or isn't) a named reviewer. */
 export function languageOpenTo(locale: AppLocale, reviewer: boolean): boolean {
-  const status = LANGUAGE_STATUS[locale];
+  const status = languageStatus(locale);
   return status === "live" || (status === "review" && reviewer);
 }
 

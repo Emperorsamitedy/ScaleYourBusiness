@@ -23,7 +23,7 @@ import {
   CURRENCY_COOKIE,
   DEFAULT_LOCALE,
   LANGUAGE_COOKIE,
-  LANGUAGE_STATUS,
+  languageStatus,
   isAppLocale,
   offeredLanguages,
   resolveLanguage,
@@ -54,7 +54,7 @@ export async function requestLocale(): Promise<AppLocale> {
   const store = await cookies();
   const requested = store.get(LANGUAGE_COOKIE)?.value;
   if (!isAppLocale(requested)) return DEFAULT_LOCALE;
-  if (LANGUAGE_STATUS[requested] === "live") return requested;
+  if (languageStatus(requested) === "live") return requested;
   const session = await currentSession(store.get(AUTH_COOKIE)?.value).catch(() => null);
   return resolveLanguage(requested, isLanguageReviewer(session));
 }
