@@ -36,7 +36,7 @@ import {
   users,
 } from "../../db/schema";
 import { normaliseEmail } from "../intake/resume";
-import { eraseWhatsAppNumbers } from "../summary/whatsapp-optin";
+import { eraseWhatsAppNumbers } from "../summary/whatsapp-erase";
 import type { Role } from "./role-actions";
 import { isRole } from "./role-actions";
 import type { AuthedSession, RedeemedSession } from "./service";

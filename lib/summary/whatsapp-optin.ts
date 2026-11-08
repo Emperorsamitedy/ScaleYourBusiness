@@ -11,9 +11,8 @@
 // ids only, never the number.
 
 import { createHash } from "node:crypto";
-import { and, desc, eq, isNotNull, isNull, sql } from "drizzle-orm";
+import { and, desc, eq, isNotNull, isNull } from "drizzle-orm";
 import { db } from "../../db";
-import type { DbOrTx } from "../../db";
 import { whatsappOptins } from "../../db/schema";
 import type { AppLocale } from "../i18n/locales";
 import { wordsFor } from "../i18n/recipient";
@@ -120,31 +119,4 @@ export async function withdrawOptin(userId: string, accountId: string): Promise<
   return rows.length > 0;
 }
 
-/**
- * Rule 22: forget every number this user ever gave — withdrawn too, if
- * still live. The rows stay (dates, version, hash) so the record of the
- * yes and its end survives without the number. Returns how many were cleared.
- * `tx` lets a caller (removing a member) do it inside its own transaction.
- */
-export async function eraseWhatsAppNumbers(userId: string, tx: DbOrTx = db): Promise<number> {
-  const now = new Date().toISOString();
-  const rows = await tx
-    .update(whatsappOptins)
-    .set({
-      phone_number: null,
-      erased_at: now,
-      withdrawn_at: sql`coalesce(${whatsappOptins.withdrawn_at}, ${now}::timestamptz)`,
-    })
-    .where(and(eq(whatsappOptins.user_id, userId), isNotNull(whatsappOptins.phone_number)))
-    .returning({ id: whatsappOptins.id, account_id: whatsappOptins.account_id });
-  if (rows.length > 0) {
-    console.log(
-      JSON.stringify({
-        event: "whatsapp_number_erased",
-        account_id: rows[0]!.account_id,
-        optins: rows.length,
-      }),
-    );
-  }
-  return rows.length;
-}
+export { eraseWhatsAppNumbers } from "./whatsapp-erase";
