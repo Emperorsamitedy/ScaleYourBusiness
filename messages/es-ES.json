@@ -5528,6 +5528,7 @@
       "titleOn": "Atendiendo llamadas en el {number}",
       "titleOff": "Sin atender llamadas",
       "what": "La línea dice primero que es el asistente automático de SYB. Solo responde con las respuestas que usted aprobó, nunca reserva, promete ni hace un reembolso de nada, y toma un mensaje o le pasa la llamada a usted cuando no sabe algo. Quien llama oye que la llamada se transcribe antes de que se transcriba nada, y no se guarda ningún audio.",
+      "whatRecorded": "La línea dice primero que es el asistente automático de SYB. Solo responde con las respuestas que usted aprobó, nunca reserva, promete ni hace un reembolso de nada, y toma un mensaje o le pasa la llamada a usted cuando no sabe algo. Quien llama oye que la llamada se graba y se transcribe antes de que se grabe nada.",
       "needsKeys": "Para atender llamadas, SYB necesita una cuenta de Twilio y un número de Twilio. Añada estos ajustes en el servidor y vuelva aquí:",
       "setUp": "En Twilio, configure el webhook «A call comes in» de este número con la primera dirección y su aviso de estado de llamada con la segunda, ambos como HTTP POST.",
       "turnOn": "Atender llamadas en el {number}",
@@ -5554,13 +5555,29 @@
       "messageLabel": "Mensaje",
       "erase": "Borrar esta llamada",
       "eraseConfirm": "¿Borrar esta llamada para siempre: el número de quien llamó, lo que se dijo y cualquier mensaje?",
+      "eraseConfirmRecorded": "¿Borrar esta llamada para siempre: el número de quien llamó, lo que se dijo, cualquier mensaje y la grabación?",
       "eraseYes": "Borrar para siempre",
       "keep": "Conservarla",
+      "recording": {
+        "title": "Grabación de llamadas",
+        "stateOff": "Las llamadas no se graban. Quien llama oye que la llamada se transcribe, y no se guarda ningún audio.",
+        "stateOn": "Las llamadas se graban. Cada persona que llama oye que la llamada se graba antes de que empiece la grabación.",
+        "explain": "Con la grabación activada, a quien llama se le avisa de que la llamada se graba antes de guardar ningún audio. Cada grabación se guarda {days, plural, one {# día} many {# días} other {# días}} y después se borra para siempre; borrar una llamada o un contacto borra también su grabación. Solo un propietario puede escucharlas.",
+        "changed": "Último cambio: {when}.",
+        "needsSetup": "La grabación aún no se puede activar en este servidor. Necesita estos ajustes:",
+        "turnOn": "Grabar las llamadas",
+        "turnOff": "Dejar de grabar las llamadas",
+        "listen": "Grabación de la llamada",
+        "kept": "Grabada · se guarda hasta el {date}",
+        "notKept": "Grabada · la grabación no está disponible"
+      },
       "notice": {
         "on": "La línea telefónica está atendiendo.",
         "off": "La línea telefónica ha dejado de atender.",
         "handover": "Guardado.",
-        "erased": "La llamada está borrada."
+        "erased": "La llamada está borrada.",
+        "recordingOn": "Ahora las llamadas se graban. Primero se avisa a quien llama.",
+        "recordingOff": "Las llamadas ya no se graban. Las grabaciones guardadas se quedan hasta su fecha, salvo que usted las borre."
       },
       "error": {
         "notSetUp": "La línea telefónica aún no está configurada en este servidor.",
@@ -5568,6 +5585,7 @@
         "notOn": "Primero active la línea telefónica.",
         "badNumber": "Escriba el número con el prefijo del país, empezando por el signo más.",
         "noCall": "Esa llamada ya no está aquí.",
+        "recordingNotSetUp": "La grabación de llamadas aún no está configurada en este servidor.",
         "crossSite": "Esta página solo se puede cambiar desde el propio SYB.",
         "signIn": "Inicie sesión para cambiar la línea telefónica.",
         "action": "Eso no es algo que pueda hacer la línea telefónica."
@@ -5577,6 +5595,7 @@
   "phoneLine": {
     "greeting": "Hola, ha llamado a {business} y está hablando con el asistente automático de SYB, no con una persona.",
     "notice": "Esta llamada se transcribe para que {business} pueda leerla después; no se guarda ningún audio.",
+    "noticeRecorded": "Esta llamada se graba y se transcribe para que {business} pueda escucharla y leerla después. La grabación se guarda {days, plural, one {# día} many {# días} other {# días}} y después se borra.",
     "howCanIHelp": "¿En qué puedo ayudarle?",
     "anythingElse": "¿Puedo ayudarle en algo más?",
     "notHeard": "Perdone, no le he entendido. ¿Podría repetirlo?",
@@ -5888,7 +5907,8 @@
       "summary_settings": "Solo un propietario puede activar o desactivar el resumen semanal.",
       "stop_resume": "Solo un propietario puede volver a ponerlo todo en marcha después de una parada.",
       "business_locale": "Solo un propietario puede cambiar el idioma o la moneda del negocio.",
-      "payments_prepare": "Solo un propietario puede preparar pagos o indicar que se pagó uno."
+      "payments_prepare": "Solo un propietario puede preparar pagos o indicar que se pagó uno.",
+      "phone_recordings": "Solo un propietario puede escuchar las grabaciones de llamadas."
     }
   },
   "authWords": {

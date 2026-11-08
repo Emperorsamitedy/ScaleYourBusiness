@@ -5528,6 +5528,7 @@
       "titleOn": "Répond aux appels au {number}",
       "titleOff": "Ne répond pas aux appels",
       "what": "La ligne dit d’abord qu’elle est l’assistant automatique de SYB. Elle ne répond qu’avec les réponses que vous avez validées, ne réserve, ne promet et ne rembourse jamais rien, et prend un message ou vous passe l’appelant quand elle ne sait pas. Les appelants entendent que l’appel est transcrit avant que quoi que ce soit le soit, et aucun son n’est conservé.",
+      "whatRecorded": "La ligne dit d’abord qu’elle est l’assistant automatique de SYB. Elle ne répond qu’avec les réponses que vous avez validées, ne réserve, ne promet et ne rembourse jamais rien, et prend un message ou vous passe l’appelant quand elle ne sait pas. Les appelants entendent que l’appel est enregistré et transcrit avant que quoi que ce soit le soit.",
       "needsKeys": "Pour répondre aux appels, SYB a besoin d’un compte Twilio et d’un numéro Twilio. Ajoutez ces réglages sur le serveur, puis revenez ici :",
       "setUp": "Dans Twilio, réglez le webhook « A call comes in » de ce numéro sur la première adresse et son rappel d’état d’appel sur la seconde, tous deux en HTTP POST.",
       "turnOn": "Répondre aux appels au {number}",
@@ -5554,13 +5555,29 @@
       "messageLabel": "Message",
       "erase": "Effacer cet appel",
       "eraseConfirm": "Effacer définitivement cet appel — le numéro de l’appelant, ce qui a été dit et tout message ?",
+      "eraseConfirmRecorded": "Effacer définitivement cet appel — le numéro de l’appelant, ce qui a été dit, tout message et l’enregistrement ?",
       "eraseYes": "Effacer définitivement",
       "keep": "Le garder",
+      "recording": {
+        "title": "Enregistrement des appels",
+        "stateOff": "Les appels ne sont pas enregistrés. Les appelants entendent que l’appel est transcrit, et aucun son n’est conservé.",
+        "stateOn": "Les appels sont enregistrés. Chaque appelant entend que l’appel est enregistré avant que l’enregistrement commence.",
+        "explain": "Quand l’enregistrement est activé, les appelants sont prévenus que l’appel est enregistré avant qu’aucun son ne soit conservé. Chaque enregistrement est conservé {days, plural, one {# jour} many {# jours} other {# jours}}, puis supprimé définitivement ; effacer un appel ou un contact efface aussi son enregistrement. Seul un propriétaire peut les écouter.",
+        "changed": "Dernier changement : {when}.",
+        "needsSetup": "L’enregistrement ne peut pas encore être activé sur ce serveur. Il lui faut ces réglages :",
+        "turnOn": "Enregistrer les appels",
+        "turnOff": "Ne plus enregistrer les appels",
+        "listen": "Enregistrement de l’appel",
+        "kept": "Enregistré · conservé jusqu’au {date}",
+        "notKept": "Enregistré · l’enregistrement n’est pas disponible"
+      },
       "notice": {
         "on": "La ligne téléphonique répond aux appels.",
         "off": "La ligne téléphonique ne répond plus aux appels.",
         "handover": "Enregistré.",
-        "erased": "L’appel est effacé."
+        "erased": "L’appel est effacé.",
+        "recordingOn": "Les appels sont maintenant enregistrés. Les appelants sont prévenus d’abord.",
+        "recordingOff": "Les appels ne sont plus enregistrés. Les enregistrements déjà conservés restent jusqu’à leur date, sauf si vous les effacez."
       },
       "error": {
         "notSetUp": "La ligne téléphonique n’est pas encore configurée sur ce serveur.",
@@ -5568,6 +5585,7 @@
         "notOn": "Activez d’abord la ligne téléphonique.",
         "badNumber": "Écrivez le numéro avec l’indicatif du pays, en commençant par le signe plus.",
         "noCall": "Cet appel n’est plus là.",
+        "recordingNotSetUp": "L’enregistrement des appels n’est pas encore configuré sur ce serveur.",
         "crossSite": "Cette page ne peut être modifiée que depuis SYB.",
         "signIn": "Connectez-vous pour modifier la ligne téléphonique.",
         "action": "La ligne téléphonique ne sait pas faire cela."
@@ -5577,6 +5595,7 @@
   "phoneLine": {
     "greeting": "Bonjour, vous êtes bien chez {business} et vous parlez avec l’assistant automatique de SYB, pas avec une personne.",
     "notice": "Cet appel est transcrit pour que {business} puisse le lire ensuite. Aucun son n’est conservé.",
+    "noticeRecorded": "Cet appel est enregistré et transcrit pour que {business} puisse l’écouter et le lire ensuite. L’enregistrement est conservé {days, plural, one {# jour} many {# jours} other {# jours}}, puis supprimé.",
     "howCanIHelp": "Que puis-je faire pour vous ?",
     "anythingElse": "Puis-je vous aider pour autre chose ?",
     "notHeard": "Pardon, je n’ai pas compris. Pourriez-vous répéter ?",
@@ -5888,7 +5907,8 @@
       "summary_settings": "Seul un propriétaire peut activer ou désactiver le résumé hebdomadaire.",
       "stop_resume": "Seul un propriétaire peut tout relancer après un arrêt.",
       "business_locale": "Seul un propriétaire peut modifier la langue ou la devise de l’entreprise.",
-      "payments_prepare": "Seul un propriétaire peut préparer des paiements ou indiquer qu’un paiement a été fait."
+      "payments_prepare": "Seul un propriétaire peut préparer des paiements ou indiquer qu’un paiement a été fait.",
+      "phone_recordings": "Seul un propriétaire peut écouter les enregistrements d’appels."
     }
   },
   "authWords": {

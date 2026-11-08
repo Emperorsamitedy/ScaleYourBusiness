@@ -3,24 +3,28 @@
 //   GET  /api/support/phone              whether the line can run, its settings, the calls
 //   GET  /api/support/phone?call=<id>    one call's transcript
 //   POST /api/support/phone {action}     phone_on | phone_off | set_handover | erase_call
+//                                        | recording_on | recording_off (P6-08)
 //
 // Reading needs the intake cookie like every profile surface; every
 // mutation needs a signed-in person with the role for it (lib/auth/roles),
-// from our own origin, exactly as /api/support. Nothing here calls Twilio:
-// the line is set up by pointing the number's webhooks at this app, which
-// the screen spells out.
+// from our own origin, exactly as /api/support. The line is set up by
+// pointing the number's webhooks at this app, which the screen spells out.
+// P6-08: the one Twilio call reachable from here is erasing a call's
+// recording at Twilio (rule 22), through lib/phone-desk; playing one is
+// its own owner-only route (./recording).
 
 import { type NextRequest, NextResponse } from "next/server";
 import { matchingSession, resolveAccess } from "../../../../lib/auth/access";
 import type { RoleAction } from "../../../../lib/auth/roles";
-import { requireRole } from "../../../../lib/auth/roles";
+import { requireRole, roleAllows, roleOf } from "../../../../lib/auth/roles";
 import { appOriginOf, isSameOriginPost } from "../../../../lib/auth/same-origin";
 import { logSafeError } from "../../../../lib/core/log-safe";
-import { twilioEnv, twilioMissing } from "../../../../lib/env";
+import { phoneRecordingKeepDays, twilioEnv, twilioMissing } from "../../../../lib/env";
 import { requestTr } from "../../../../lib/i18n/request-tr";
 import type { Tr } from "../../../../lib/i18n/tr";
 import { STEPS, VOICE_PATH } from "../../../../lib/phone/line";
 import { lineForProfile } from "../../../../lib/phone/settings";
+import { recordingMissing } from "../../../../lib/phone-recording/recordings";
 import {
   PhoneDeskError,
   disablePhoneLine,
@@ -28,6 +32,7 @@ import {
   eraseCall,
   listCalls,
   readCall,
+  setCallRecording,
   setHandoverNumber,
 } from "../../../../lib/phone-desk/desk";
 
@@ -38,6 +43,7 @@ const ERROR_KEYS: Record<string, string> = {
   "the phone line is not on": "notOn",
   "write the number with its country code, starting with +": "badNumber",
   "no such call": "noCall",
+  "call recording is not set up on this server": "recordingNotSetUp",
 };
 
 function onError(error: unknown, tr: Tr): NextResponse {
@@ -62,10 +68,12 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       return NextResponse.json({ turns: await readCall(access.profile_id, callId) });
     }
     const origin = process.env.APP_URL?.replace(/\/$/, "") || request.nextUrl.origin;
-    const [line, calls] = await Promise.all([
+    const [line, calls, session] = await Promise.all([
       lineForProfile(access.profile_id),
       listCalls(access.profile_id),
+      matchingSession(),
     ]);
+    const role = roleOf(session);
     return NextResponse.json({
       missing: twilioMissing(),
       number: twilioEnv()?.phoneNumber ?? null,
@@ -78,6 +86,14 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
             handover_number: line.handover_number,
           }
         : null,
+      // P6-08: off by default; what the server lacks before it can be on.
+      recording: {
+        on: line?.record_calls === true,
+        changed_at: line?.record_changed_at ?? null,
+        keep_days: phoneRecordingKeepDays(),
+        missing: recordingMissing(),
+        can_play: role !== null && roleAllows(role, "phone.recordings"),
+      },
       calls,
     });
   } catch (error) {
@@ -89,6 +105,9 @@ const PHONE_ROLE: Record<string, RoleAction> = {
   phone_on: "support.settings",
   phone_off: "support.settings",
   set_handover: "support.settings",
+  // P6-08: switching recording is a phone setting, the owner's.
+  recording_on: "support.settings",
+  recording_off: "support.settings",
   erase_call: "erasure.run",
 };
 
@@ -130,8 +149,16 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         if (typeof body.call_id !== "string") {
           return NextResponse.json({ error: tr("phone.error.noCall") }, { status: 422 });
         }
-        await eraseCall(session.account_id, body.call_id);
-        return NextResponse.json({ erased: true });
+        const { recordings_pending } = await eraseCall(session.account_id, body.call_id);
+        return NextResponse.json({ erased: true, recordings_pending });
+      }
+      case "recording_on":
+      case "recording_off": {
+        // P6-08: a recorded fact — who and when, on the decision log.
+        const line = await setCallRecording(access.profile_id, body.action === "recording_on", {
+          user_id: session.user_id,
+        });
+        return NextResponse.json({ recording: line.record_calls });
       }
       default:
         return NextResponse.json({ error: tr("phone.error.action") }, { status: 422 });

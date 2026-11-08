@@ -6,6 +6,10 @@
 // the trusted side, beside lib/crm: the phone tier (lib/phone) only reads
 // what it writes, and a stranger on the line can never reach it — the
 // structural test in lib/support forbids the import.
+//
+// P6-08: switching call recording on and off (off by default; each switch
+// on the decision log with who and when), and erasing a call's recording
+// with the call — both copies (lib/phone-recording).
 
 import { createHash } from "node:crypto";
 import { and, desc, eq } from "drizzle-orm";
@@ -16,6 +20,13 @@ import { twilioEnv } from "../env";
 import type { PhoneLine } from "../phone/settings";
 import { lineForProfile } from "../phone/settings";
 import { toE164 } from "../phone/twilio";
+import type { RecordingDeps, RecordingSummary } from "../phone-recording/recordings";
+import {
+  markRecordingsForErasure,
+  purgeRecordings,
+  recordingMissing,
+  recordingsForCalls,
+} from "../phone-recording/recordings";
 
 export class PhoneDeskError extends Error {
   readonly status: number;
@@ -85,6 +96,62 @@ export async function setHandoverNumber(profileId: string, raw: string): Promise
   return row.handover_number;
 }
 
+/**
+ * P6-08: switch call recording on or off. On needs the line on and this
+ * server able to fetch, seal and keep audio; off is always allowed (what is
+ * already kept stays until its keep date or an erasure). The switch is a
+ * recorded fact (Phase 4's rule 19): who and when, on the decision log, and
+ * on the settings row for the screen. Switching to what it already is
+ * changes nothing and logs nothing.
+ */
+export async function setCallRecording(
+  profileId: string,
+  on: boolean,
+  who: { user_id: string },
+): Promise<PhoneLine> {
+  const line = await lineForProfile(profileId);
+  if (!line) throw new PhoneDeskError("the phone line is not on", 404);
+  if (line.record_calls === on) return line;
+  if (on && recordingMissing().length > 0) {
+    throw new PhoneDeskError("call recording is not set up on this server", 409);
+  }
+  const at = new Date().toISOString();
+  await db.transaction(async (tx) => {
+    await tx
+      .update(phoneSettings)
+      .set({
+        record_calls: on,
+        record_changed_at: at,
+        record_changed_by: who.user_id,
+        updated_at: at,
+      })
+      .where(eq(phoneSettings.profile_id, profileId));
+    await tx.insert(decisionLog).values({
+      profile_id: profileId,
+      actor: "owner",
+      kind: "recording_consent",
+      ref_id: profileId,
+      user_id: who.user_id,
+      payload_hash: createHash("sha256")
+        .update(
+          JSON.stringify({ profile_id: profileId, record_calls: on, at, user_id: who.user_id }),
+        )
+        .digest("hex"),
+    });
+  });
+  console.log(
+    JSON.stringify({
+      event: on ? "phone_recording_on" : "phone_recording_off",
+      account_id: line.account_id,
+      profile_id: profileId,
+      user_id: who.user_id,
+    }),
+  );
+  const updated = await lineForProfile(profileId);
+  if (!updated) throw new PhoneDeskError("the phone line is not on", 404);
+  return updated;
+}
+
 export interface CallSummary {
   id: string;
   caller_number: string | null;
@@ -95,6 +162,10 @@ export interface CallSummary {
   duration_seconds: number | null;
   cost_eur: string;
   started_at: string;
+  /** P6-08: the caller was told the call is recorded. */
+  recorded: boolean;
+  /** P6-08: the kept recording, when there is one to play — never its storage address. */
+  recording: RecordingSummary | null;
 }
 
 export async function listCalls(profileId: string, limit = 50): Promise<CallSummary[]> {
@@ -104,7 +175,13 @@ export async function listCalls(profileId: string, limit = 50): Promise<CallSumm
     .where(eq(phoneCalls.profile_id, profileId))
     .orderBy(desc(phoneCalls.started_at))
     .limit(limit);
+  const recordings = await recordingsForCalls(
+    profileId,
+    rows.filter((r) => r.recording_notice_at !== null).map((r) => r.id),
+  );
   return rows.map((r) => ({
+    recorded: r.recording_notice_at !== null,
+    recording: recordings.get(r.id) ?? null,
     id: r.id,
     caller_number: r.caller_number,
     outcome: r.outcome,
@@ -144,26 +221,52 @@ export async function readCall(profileId: string, callId: string): Promise<CallT
  * 22). The log records that it happened, by id and hash: nothing a caller
  * said, and not their number. The model calls' metering rows hold ids and
  * token counts only, and stay.
+ *
+ * P6-08: its recording goes too — marked in the same transaction, then
+ * deleted from SYB's storage and at Twilio if a copy is still there. A
+ * delete that fails stays marked, the recording unplayable, and the daily
+ * upkeep finishes it. Returns how many recordings are still being deleted.
  */
-export async function eraseCall(accountId: string, callId: string): Promise<void> {
+export async function eraseCall(
+  accountId: string,
+  callId: string,
+  deps: Partial<RecordingDeps> = {},
+): Promise<{ recordings_pending: number }> {
   const [call] = await db
     .select({ id: phoneCalls.id, profile_id: phoneCalls.profile_id })
     .from(phoneCalls)
     .where(and(eq(phoneCalls.id, callId), eq(phoneCalls.account_id, accountId)));
   if (!call) throw new PhoneDeskError("no such call", 404);
-  await db.transaction(async (tx) => {
+  const recordingIds = await db.transaction(async (tx) => {
+    const marked = await markRecordingsForErasure([callId], tx);
     await tx.delete(phoneCalls).where(eq(phoneCalls.id, callId));
     await tx.insert(decisionLog).values({
       profile_id: call.profile_id,
       actor: "owner",
       kind: "erasure",
       ref_id: callId,
+      // Ids only (rule 22): the call's, and its recordings' own row ids.
       payload_hash: createHash("sha256")
-        .update(JSON.stringify({ account_id: accountId, call_id: callId }))
+        .update(
+          JSON.stringify({
+            account_id: accountId,
+            call_id: callId,
+            ...(marked.length > 0 ? { recording_ids: marked } : {}),
+          }),
+        )
         .digest("hex"),
     });
+    return marked;
   });
+  const gone = await purgeRecordings(recordingIds, deps);
   console.log(
-    JSON.stringify({ event: "phone_call_erased", account_id: accountId, call_id: callId }),
+    JSON.stringify({
+      event: "phone_call_erased",
+      account_id: accountId,
+      call_id: callId,
+      recordings: recordingIds.length,
+      recordings_pending: recordingIds.length - gone,
+    }),
   );
+  return { recordings_pending: recordingIds.length - gone };
 }

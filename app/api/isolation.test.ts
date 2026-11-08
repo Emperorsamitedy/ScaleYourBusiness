@@ -49,6 +49,7 @@ export const PUBLIC: Record<string, string> = {
   "ops/campaign-review/route.ts": "operator panel, OPS_KEY",
   "ops/law-review/route.ts": "operator panel, OPS_KEY",
   "phone/voice/route.ts": "Twilio voice webhook, X-Twilio-Signature (P6-02)",
+  "phone/recording/route.ts": "Twilio recording status callback, X-Twilio-Signature (P6-08)",
   "stripe/webhook/route.ts": "Stripe webhook, signature-verified",
   "summary/stop/[token]/route.ts": "one-click stop, the signed token",
   "support/inbound/route.ts": "Resend inbound webhook, Svix-signed",

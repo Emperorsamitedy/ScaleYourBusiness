@@ -479,6 +479,7 @@ export const decisionKind = pgEnum("decision_kind", [
   "stop", // I-52d: the emergency stop was pressed; ref is the execution_halts row, user_id who pressed it
   "stop_release", // I-52d: things were started again; ref is the released execution_halts row, user_id who did it
   "media_pick", // P6-03: the owner picked one of three AI video candidates; ref is the media_candidates row
+  "recording_consent", // P6-08: the owner switched call recording on or off; ref is the profile, user_id who did it
 ]);
 
 export const decisionLog = pgTable(
@@ -2711,6 +2712,14 @@ export const phoneSettings = pgTable(
     enabled: boolean("enabled").notNull().default(true),
     /** Where "a person, please" is put through to, E.164. Null = a message is taken instead. */
     handover_number: text("handover_number"),
+    /**
+     * P6-08 (rule 32): record calls — off until the owner switches it on.
+     * Who switched it and when is on the decision log (recording_consent);
+     * these two say the same for the screen.
+     */
+    record_calls: boolean("record_calls").notNull().default(false),
+    record_changed_at: timestamp("record_changed_at", { withTimezone: true, mode: "string" }),
+    record_changed_by: uuid("record_changed_by"),
     created_at: timestamp("created_at", { withTimezone: true, mode: "string" })
       .notNull()
       .defaultNow(),
@@ -2759,6 +2768,13 @@ export const phoneCalls = pgTable(
     language: text("language").notNull(),
     /** When the disclosure and the transcription notice were spoken (rule 32). */
     notice_at: timestamp("notice_at", { withTimezone: true, mode: "string" }),
+    /**
+     * P6-08 (rule 32): when the caller was told the call is RECORDED — set
+     * only for a call answered while recording was on, stamped with the
+     * response that speaks that notice before <Start><Recording>. A
+     * recording Twilio reports for a call without it is deleted unheard.
+     */
+    recording_notice_at: timestamp("recording_notice_at", { withTimezone: true, mode: "string" }),
     outcome: phoneCallOutcome("outcome"),
     turns: integer("turns").notNull().default(0),
     silences: integer("silences").notNull().default(0),
@@ -2808,6 +2824,62 @@ export const phoneCallTurns = pgTable(
     cost_eur: numeric("cost_eur", { precision: 10, scale: 6 }).notNull().default("0"),
   },
   (t) => [index("phone_call_turns_call_idx").on(t.call_id, t.at)],
+);
+
+/** Where a recording is: waiting to be fetched from Twilio, kept by SYB, or refused unheard. */
+export const phoneRecordingStatus = pgEnum("phone_recording_status", [
+  "pending", // Twilio says it is finished; not yet in SYB's storage
+  "stored", // in SYB's storage, sealed; Twilio's copy deleted (or being deleted)
+  "refused", // arrived for a call that never heard the recording notice: deleted at Twilio, never fetched
+]);
+
+// phone_recordings — P6-08 (rules 22, 32, 34). One per Twilio recording
+// (RecordingSid). The audio is in SYB's media storage, sealed with
+// AES-256-GCM, at an unguessable path; the owner plays it only through an
+// owner-gated route, never by its storage address. One copy: once it is
+// stored, Twilio's copy is deleted (at_twilio false once confirmed). The
+// row outlives its call ON PURPOSE (call_id SET NULL, no profile FK): an
+// erased call or business leaves a row whose bytes the daily upkeep still
+// deletes, here and at Twilio, before the row goes. A row is deleted only
+// once both copies are gone.
+export const phoneRecordings = pgTable(
+  "phone_recordings",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    /** Twilio's id: "RE" + 32 hex. */
+    recording_sid: text("recording_sid").notNull(),
+    call_id: uuid("call_id").references(() => phoneCalls.id, { onDelete: "set null" }),
+    profile_id: uuid("profile_id").notNull(),
+    account_id: uuid("account_id").notNull(),
+    status: phoneRecordingStatus("status").notNull().default("pending"),
+    /** True until Twilio confirms its copy is deleted (204, or 404: already gone). */
+    at_twilio: boolean("at_twilio").notNull().default(true),
+    /** SYB's storage address for the SEALED bytes — never handed to a browser. */
+    storage_url: text("storage_url"),
+    bytes: integer("bytes"),
+    /** The audio's own type once opened ("audio/mpeg"). */
+    content_type: text("content_type"),
+    /** From Twilio's callback (RecordingDuration, seconds) — the cost line's basis (rule 34). */
+    duration_seconds: integer("duration_seconds"),
+    channels: integer("channels"),
+    attempts: integer("attempts").notNull().default(0),
+    created_at: timestamp("created_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+    stored_at: timestamp("stored_at", { withTimezone: true, mode: "string" }),
+    /** stored_at + PHONE_RECORDING_KEEP_DAYS: the daily upkeep deletes it then. */
+    expires_at: timestamp("expires_at", { withTimezone: true, mode: "string" }),
+    /** Set by an erasure (rule 22) or a refusal: delete both copies, then the row. */
+    purge_requested_at: timestamp("purge_requested_at", { withTimezone: true, mode: "string" }),
+  },
+  (t) => [
+    uniqueIndex("phone_recordings_sid_idx").on(t.recording_sid),
+    index("phone_recordings_call_idx").on(t.call_id),
+    index("phone_recordings_upkeep_idx").on(t.status, t.expires_at),
+    check("phone_recordings_sid_shape", sql`${t.recording_sid} ~ '^RE[0-9a-fA-F]{32}$'`),
+    // The bytes are kept only for a recording that was let in.
+    check("phone_recordings_stored_only", sql`${t.storage_url} IS NULL OR ${t.status} = 'stored'`),
+  ],
 );
 
 // support_replies — P4-10. A reply to a customer, from draft to sent.

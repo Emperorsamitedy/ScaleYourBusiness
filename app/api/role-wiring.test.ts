@@ -48,6 +48,9 @@ export const ALLOWED: Record<string, Partial<Record<Method, string>>> = {
   "phone/voice/route.ts": {
     POST: "Twilio's voice webhook, X-Twilio-Signature: a stranger's call, no business session (P6-02)",
   },
+  "phone/recording/route.ts": {
+    POST: "Twilio's recording status callback, X-Twilio-Signature: no business session (P6-08)",
+  },
   "stripe/webhook/route.ts": { POST: "Stripe's webhook, signature-verified" },
   "u/[token]/route.ts": { POST: "one-click unsubscribe: the signed token is the credential" },
   "summary/stop/[token]/route.ts": {
