@@ -143,7 +143,8 @@ function signedFigure(raw: string, locale: AppLocale): string {
  */
 export function arithmeticWords(text: string, w: LedgerWords = LW()): string {
   const { tr, locale } = w;
-  if (locale === "en") return text;
+  // English reads its stored sentence back through the same shapes, so its
+  // days and amounts print as everywhere else ("22 Oct 2026", "€1,718.83").
   return readStored(
     text,
     "ledgerWords.arith",

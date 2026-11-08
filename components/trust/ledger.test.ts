@@ -1,6 +1,14 @@
 import { describe, expect, it } from "vitest";
 import type { LedgerProposal } from "./ledger";
-import { byDay, factRow, filterRows, parseTs, proposalRows, toCsv } from "./ledger";
+import {
+  arithmeticWords,
+  byDay,
+  factRow,
+  filterRows,
+  parseTs,
+  proposalRows,
+  toCsv,
+} from "./ledger";
 
 const NOW = Date.parse("2026-10-17T14:00:00Z");
 
@@ -237,5 +245,19 @@ describe("review 2026-10-23, Session D #1 — an approval that lapsed", () => {
     const rows = proposalRows(proposal({ status: "expired" }), null, NOW);
     expect(rows.map((r) => r.kind)).toEqual(["proposed", "expired"]);
     expect(rows[1]?.actor).toBe("no answer");
+  });
+});
+
+describe("a measured outcome in English", () => {
+  it("writes the stored sentence's days and amounts as the owner reads them", () => {
+    expect(
+      arithmeticWords(
+        "daily revenue averaged 1718.83 EUR over the 15 measured day(s) after 2026-10-22, against 1534.29 EUR over the 28 before — +12% (thresholds: helped at +5%, backfired at -5%)",
+      ),
+    ).toBe(
+      "daily revenue averaged €1,718.83 over the 15 measured day(s) after 22 Oct 2026, against €1,534.29 over the 28 before — +12% (thresholds: helped at +5%, backfired at −5%)",
+    );
+    // A sentence SYB no longer says is kept as it was stored.
+    expect(arithmeticWords("an older note")).toBe("an older note");
   });
 });
