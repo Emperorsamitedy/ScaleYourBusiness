@@ -8,13 +8,13 @@
 // which sends only to an endpoint in GADS_READ_ENDPOINTS, with that
 // endpoint's method. Google's search endpoints are POSTs (the GAQL query
 // travels in the body), so the fence is the URL path, not the verb: no path
-// ending in :mutate, or any other path, can leave from here. GAQL itself is
+// naming a mutate method, or any other path, can leave from here. GAQL itself is
 // a query language with no write statement, and a query must start SELECT.
 //
 // The only module allowed to name a mutate endpoint is the execution
 // provider (lib/execution/providers/google-ads.ts), reached only through
 // the engine after a recorded approval. client.test.ts fails the build if
-// ":mutate" appears in any other source file, if this fence admits a
+// a mutate method is named in any other source file, if this fence admits a
 // mutate path, or if any file in lib/google-ads calls fetch directly.
 //
 // Read in Google's documentation on 2026-11-08 (specs/google-ads-api-v1.md
@@ -50,7 +50,7 @@ export type GadsMethod = "GET" | "POST";
 
 export interface GadsEndpoint {
   method: GadsMethod;
-  /** The whole path, anchored: no other segment or suffix (such as :mutate) can match. */
+  /** The whole path, anchored: no other segment or suffix (such as a mutate method) can match. */
   path: RegExp;
 }
 
