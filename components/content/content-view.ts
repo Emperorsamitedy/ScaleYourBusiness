@@ -159,6 +159,7 @@ export function contentHeadline(
 const PLATFORM_WORD: Readonly<Record<string, string>> = {
   facebook: "Facebook",
   instagram: "Instagram",
+  tiktok: "TikTok",
 };
 
 /** The platform's own name for a stored platform value ("instagram" → "Instagram"). */

@@ -2055,6 +2055,15 @@ export const contentItems = pgTable(
      * caption or media no longer hash to it — what goes out is what was seen.
      */
     publish_approved_sha256: text("publish_approved_sha256"),
+    /**
+     * TikTok posting (2026-11-08), migration 0093: what the owner chose for
+     * this post on /content before approving it — privacy (picked by hand
+     * from TikTok's own options, no default), comments, duets, stitches and
+     * "your brand", each off unless turned on (TikTokPostSettings in
+     * lib/execution/providers/tiktok.ts). Covered by publish_approved_sha256
+     * for a TikTok post; changeable only while the item is a draft.
+     */
+    tiktok_settings: jsonb("tiktok_settings"),
   },
   (t) => [
     index("content_items_profile_idx").on(t.profile_id, t.scheduled_for),

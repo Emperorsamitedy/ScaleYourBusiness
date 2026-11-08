@@ -5,6 +5,7 @@
 // named, the billable ones counted as charged and the unbilled ones not;
 // hard caps on submits and polls; and the switch and its env keys.
 
+import "dotenv/config";
 import { afterEach, describe, expect, it } from "vitest";
 import { HIGGSFIELD_DEFAULTS, higgsfieldEnv, mediaProviderSetting } from "../../env";
 import { GENERATION_OFF, generationSetup } from "../generation";

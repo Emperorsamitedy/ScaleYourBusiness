@@ -25,6 +25,8 @@ export type PublishBlockCode =
   | "kind"
   | "channel"
   | "connect"
+  | "connectTikTok"
+  | "tiktokNeedsVideo"
   | "noInstagram"
   | "needsMedia"
   | "png"
@@ -40,9 +42,9 @@ export interface PublishBlock {
   values?: Record<string, string | number>;
 }
 
-/** The blocks Connections fixes: connecting Meta publishing there. */
+/** The blocks Connections fixes: connecting Meta publishing, or TikTok posting, there. */
 export function opensConnections(block: PublishBlock): boolean {
-  return block.code === "connect";
+  return block.code === "connect" || block.code === "connectTikTok";
 }
 
 const STATUSES = new Set(["drafted", "queued", "publishing", "published", "failed", "withdrawn"]);

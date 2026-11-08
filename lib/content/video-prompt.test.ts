@@ -2,6 +2,7 @@
 // their provenance, never from free text a customer typed. Pure: the
 // builder takes facts and a brief's hook, nothing else.
 
+import "dotenv/config";
 import { describe, expect, it } from "vitest";
 import { screenPrompt } from "./generate/guard";
 import type { VideoFact } from "./video-prompt";

@@ -33,6 +33,7 @@ An AI business operating system for small businesses. It interviews an owner, bu
 | `specs/review-notifications-v1.json`   | Review notification email formats per platform (all unverified)     |
 | `specs/google-ads-api-v1.md`           | Google Ads API facts, each marked verified true/false (P2-20)       |
 | `specs/higgsfield-api-v1.md`           | Higgsfield's video API as SYB uses it (P6-03), each fact `verified` |
+| `specs/tiktok-posting-api-v1.md`       | TikTok's Content Posting API as SYB uses it, each fact `verified`   |
 | `specs/whatsapp-summary-v1.md`         | The weekly summary on WhatsApp (P6-07): Twilio facts, the template  |
 | `specs/twilio-recording-v1.md`         | Twilio call recording as SYB uses it (P6-08), confirmed vs not      |
 | `specs/glossary-v1.json`               | Business terms per language; one term, one translation (L-1)        |

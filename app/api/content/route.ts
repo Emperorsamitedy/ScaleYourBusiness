@@ -43,6 +43,7 @@ import { isPublishProposal, publishBlocks } from "../../../lib/content/publish";
 import { CONTENT_WORDS, blockWords, opensConnections } from "../../../lib/content/publish-words";
 import { requestTr } from "../../../lib/i18n/request-tr";
 import { withdrawItem } from "../../../lib/content/publishing";
+import { tiktokItemStates } from "../../../lib/content/tiktok-publish";
 import { proposeShotList } from "../../../lib/content/shotlist";
 import { contentWatchUntil } from "../../../lib/content/watch";
 import { ProposalError } from "../../../lib/proposals/service";
@@ -135,6 +136,8 @@ export async function GET(): Promise<NextResponse> {
       performance: await postOutcomes(profileId),
       // P3-54: per item, whether it can run as an ad and where its ad stands.
       ads: await adItemStates(profileId, items),
+      // 2026-11-08: items headed for TikTok — the settings chosen, and whether they may change.
+      tiktok: await tiktokItemStates(profileId, items),
       // A publish proposal publishes one finished item; it never produces.
       producible: producible
         .filter((p) => !isPublishProposal(p.action) && !isGenerationProposal(p.action))

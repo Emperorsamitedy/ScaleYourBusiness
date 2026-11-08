@@ -2436,6 +2436,76 @@
       "unknownStatus": "„{word}” ({count})",
       "listSep": ","
     },
+    "tiktok": {
+      "sectionLabel": "Közzététel TikTokon · külön hozzájárulás",
+      "label": "Közzététel TikTokon",
+      "title": {
+        "on": "Megadva: a SYB közzéteszi a jóváhagyott videóit",
+        "off": "Kikapcsolva. A SYB nem tesz közzé semmit TikTokon."
+      },
+      "status": {
+        "connected": "összekapcsolva",
+        "paused": "szüneteltetve",
+        "failed": "sikertelen",
+        "disconnected": "leválasztva"
+      },
+      "consentedOn": "hozzájárulás: {day} · {status}",
+      "notGranted": "nincs megadva",
+      "notSetUpYet": "még nincs beállítva",
+      "connect": "Összekapcsolás",
+      "close": "Bezárás",
+      "keepIt": "Megtartom",
+      "unreachable": "Nem értem el a szervert. Próbálja újra.",
+      "revokeFailed": "A visszavonás nem sikerült.",
+      "connected": "A TikTok-közzététel összekapcsolva, és a hozzájárulása rögzítve van.",
+      "youCancelled": "A TikTok képernyőjén megszakította. Semmi sem lett összekapcsolva.",
+      "revoked": "Visszavonva. A SYB TikTok-hozzáférése itt törölve, és a TikTokot is megkértük, hogy vonja vissza.",
+      "revokedHereOnly": "Itt visszavonva. A TikTok nem erősítette meg, hogy ő is visszavonta a SYB hozzáférését, ezért ellenőrizze a TikTok alkalmazásban.",
+      "fact": {
+        "status": "állapot",
+        "account": "TikTok-fiók",
+        "whoSees": "ki látja a bejegyzéseket",
+        "private": "csak Ön, amíg a TikTok nem auditálja a SYB alkalmazását",
+        "chosen": "minden bejegyzésnél Ön választ"
+      },
+      "access": {
+        "unaudited": "Amíg a TikTok nem auditálja a SYB alkalmazását, minden, amit a SYB közzétesz, privátként megy ki: TikTokon csak Ön látja. Ha az audit sikeres, Ön választja meg, ki látja az egyes bejegyzéseket. Addig a TikTok azt is csak néhány fiók esetében engedi naponta, hogy a SYB alkalmazása közzétegyen.",
+        "audited": "A TikTok auditálta a SYB alkalmazását: a TikTok saját lehetőségei közül Ön választja meg, ki láthatja az egyes bejegyzéseket."
+      },
+      "before": "Mielőtt működik",
+      "needs": {
+        "app": "A SYB saját TikTok-alkalmazása, bekapcsolt Login Kittel és a TikTok közzétételi API-jával (Direct Post).",
+        "signIn": "Bejelentkezik azzal a TikTok-fiókkal, ahová a bejegyzések mennek, és engedélyezi, amit a TikTok kérdez.",
+        "choose": "Minden bejegyzés egy Ön által jóváhagyott videó, és előbb Ön választja meg, ki láthatja."
+      },
+      "notSetUp": "Még nincs beállítva: a SYB TikTok-alkalmazásának kulcsai hiányoznak. Addig semmit sem lehet közzétenni TikTokon.",
+      "revokeAsk": "A SYB abbahagyja a TikTok-közzétételt. A már kint lévő bejegyzések maradnak.",
+      "revoking": "Visszavonás…",
+      "yesRevoke": "Igen, visszavonom",
+      "revoke": "Visszavonás",
+      "revokeNote": "A visszavonás itt azonnal törli a SYB hozzáférését, és a TikTokot is megkéri, hogy vonja vissza. A TikTokon már kint lévő bejegyzések ott maradnak. A TikTok oldalán való ellenőrzéshez nyissa meg a Beállítások és adatvédelem, majd a Biztonság és engedélyek, végül az Alkalmazások és szolgáltatások engedélyei menüt.",
+      "tiktokScreen": "A TikTok ezután a saját képernyőjét mutatja, és a videók közzétételéről, az alapprofiljáról és a nyilvános videóiról kérdez. Engedélyezze, majd jöjjön vissza ide.",
+      "typeToConfirm": "A megerősítéshez írja be: <b>{phrase}</b>",
+      "opening": "A TikTok megnyitása…",
+      "signIn": "Bejelentkezés TikTokkal és a közzététel engedélyezése",
+      "nothingWritten": "Semmi sem kerül ki a kész videó jóváhagyásáig, és amíg meg nem választotta, ki láthatja. A SYB csak a TikTok-profilja nevét és a nyilvános videói számait olvassa.",
+      "reason": {
+        "start_here": "Indítsa a TikTok-bejelentkezést a SYB Összekapcsolt fiókok oldaláról, az ott található gombbal. Semmi sem lett elküldve a TikToknak.",
+        "signed_out": "A SYB-be való bejelentkezés után kapcsolja össze újra a TikTokot.",
+        "owner_only": "Ezt az engedélyt csak tulajdonos adhatja meg vagy vonhatja vissza. Semmi sem lett elküldve a TikToknak.",
+        "unavailable": "A TikTok-közzététel még nincs beállítva.",
+        "phrase": "A megerősítő kifejezés nem egyezett. Írja be pontosan úgy, ahogy látható, majd kezdje újra.",
+        "already_connected": "A TikTok-közzététel már össze van kapcsolva. Egy másik fiók összekapcsolásához előbb vonja vissza.",
+        "start_again": "Ez a TikTok-bejelentkezés lejárt, vagy már felhasználták. Kezdje újra az Összekapcsolt fiókok oldalról.",
+        "foreign": "Ezt a TikTok-bejelentkezést egy másik SYB-fiókból indították. Jelentkezzen be abba a fiókba a SYB-ben, vagy kezdje újra.",
+        "tiktok_error": "A TikTok-bejelentkezés nem fejeződött be. Semmi sem lett összekapcsolva.",
+        "scope": "A TikTok nem pontosan azt adta meg, amit a SYB kér. A TikTok képernyőjén engedélyezzen mindent, ami fel van sorolva, majd próbálja újra.",
+        "tiktok_refused": "A TikTok elutasította a bejelentkezést. Semmi sem lett összekapcsolva.",
+        "internal": "Nálunk történt valami hiba. Semmi sem lett összekapcsolva.",
+        "generic": "A TikTok-bejelentkezés nem fejeződött be. Semmi sem lett összekapcsolva."
+      },
+      "readback": "Hogy lássa, hogyan teljesítenek a nyilvános bejegyzései, ugyanez a bejelentkezés ezeket is olvassa:"
+    },
     "googleAds": {
       "sectionLabel": "Google Ads · külön hozzájárulás",
       "label": "Google Ads",
@@ -4748,6 +4818,37 @@
         "lastTry": "Az utolsó próbálkozás: {error}{cost, select, none {} other { ({cost} felszámítva)}}."
       },
       "refused": "elutasítva"
+    },
+    "tiktok": {
+      "title": "Közzététel TikTokon",
+      "loading": "A TikTok-fiókja olvasása…",
+      "failedLoad": "Most nem tudtam elolvasni a TikTok-fiókját.",
+      "account": "Ide kerül ki: {name}, TikTokon.",
+      "whoSees": "Ki láthatja ezt a bejegyzést",
+      "choose": "Válasszon…",
+      "privacy": {
+        "PUBLIC_TO_EVERYONE": "Mindenki",
+        "MUTUAL_FOLLOW_FRIENDS": "Barátok",
+        "FOLLOWER_OF_CREATOR": "Követők",
+        "SELF_ONLY": "Csak én"
+      },
+      "privateOnly": "Amíg a TikTok nem auditálja a SYB alkalmazását, a bejegyzések csak privátok lehetnek: csak Ön látja őket.",
+      "allowComment": "Hozzászólások engedélyezése",
+      "allowDuet": "Duettek engedélyezése",
+      "allowStitch": "Összefűzés engedélyezése",
+      "offOnTikTok": "kikapcsolva a TikTok-beállításaiban",
+      "brand": "Ez a saját vállalkozásomat népszerűsíti",
+      "brandNote": "A TikTok promóciósként jelöli meg.",
+      "aiLabel": "A TikTok ezt a videót MI által generáltként jelöli meg.",
+      "declaration": "A közzététellel elfogadja a TikTok zenehasználati megerősítését.",
+      "save": "A választások mentése",
+      "saving": "Mentés…",
+      "saved": "Mentve. Adja meg a jóváhagyást a bejegyzésre a Javaslatok oldalon, amikor készen áll.",
+      "chosen": "Ki láthatja: {privacy}.",
+      "locked": "Ezeket a választásokat a bejegyzéssel együtt hagyták jóvá, most már nem változhatnak.",
+      "needChoice": "Válassza meg, ki láthatja, mielőtt jóváhagyja.",
+      "processing": "Miután kikerül, a TikToknak néhány percbe telhet, mire megjelenik a profilján.",
+      "noDelete": "A TikTok nem engedi, hogy alkalmazások bejegyzést töröljenek. Az eltávolításhoz törölje a TikTok alkalmazásban."
     }
   },
   "customers": {
@@ -8681,7 +8782,7 @@
         "shotList": "a felvételi lista forgatáshoz készül, nem közzétételhez",
         "email": "e-maileket a SYB még nem küld",
         "kind": "ez az elemtípus nem kerül közzétételre: {kind}",
-        "channel": "a SYB nem tud közzétenni ide: {channel}. Csak az Ön által összekapcsolt Facebook-oldalra vagy Instagram-fiókba",
+        "channel": "a SYB nem tud közzétenni ide: {channel}. Csak az Ön által összekapcsolt Facebook-oldalra, Instagram-fiókba vagy TikTok-fiókba",
         "connect": "kapcsolja össze a Meta közzétételt az Összekapcsolt fiókok oldalon, hogy ezt közzétehesse ide: {platform}",
         "noInstagram": "a Meta-összekapcsoláshoz nem tartozik Instagram-fiók – kapcsolja össze újra az azonosítójával, hogy ott is közzétehessen",
         "needsMedia": "képre vagy videóra van szükség ehhez: {platform}, és ennek az elemnek még nincs",
@@ -8689,7 +8790,9 @@
         "noDate": "nincs megjelenési dátuma",
         "zone": "a közzététel időpontja nem állítható be: {reason}",
         "declined": "{count, plural, one {a közzétételt ennyiszer utasította el: # – már nem javaslom} other {a közzétételt ennyiszer utasította el: # – már nem javaslom}}",
-        "passed": "a dátuma már elmúlt: {date}"
+        "passed": "a dátuma már elmúlt: {date}",
+        "connectTikTok": "kapcsolja össze a TikTok-közzétételt az Összekapcsolt fiókok oldalon, hogy ezt közzétehesse TikTokon",
+        "tiktokNeedsVideo": "a TikTokhoz videó kell, és ennek az elemnek még nincs"
       },
       "zoneReason": {
         "noCountry": "nincs megadva ország",

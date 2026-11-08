@@ -2436,6 +2436,76 @@
       "unknownStatus": "“{word}” ({count})",
       "listSep": ", "
     },
+    "tiktok": {
+      "sectionLabel": "TikTok posting · a separate consent",
+      "label": "TikTok posting",
+      "title": {
+        "on": "Granted: SYB posts the videos you approve",
+        "off": "Off. SYB doesn't post to TikTok."
+      },
+      "status": {
+        "connected": "connected",
+        "paused": "paused",
+        "failed": "failed",
+        "disconnected": "disconnected"
+      },
+      "consentedOn": "consented {day} · {status}",
+      "notGranted": "not granted",
+      "notSetUpYet": "not set up yet",
+      "connect": "Connect",
+      "close": "Close",
+      "keepIt": "Keep it",
+      "unreachable": "I couldn't reach the server. Try again.",
+      "revokeFailed": "That didn't revoke.",
+      "connected": "TikTok posting is connected, and your consent is on record.",
+      "youCancelled": "You cancelled on TikTok's screen. Nothing was connected.",
+      "revoked": "Revoked. SYB's access to TikTok is deleted here, and TikTok was asked to revoke it too.",
+      "revokedHereOnly": "Revoked here. TikTok didn't confirm it revoked SYB's access too, so check in the TikTok app.",
+      "fact": {
+        "status": "status",
+        "account": "TikTok account",
+        "whoSees": "who can see posts",
+        "private": "only you, until TikTok audits SYB's app",
+        "chosen": "you choose for each post"
+      },
+      "access": {
+        "unaudited": "Until TikTok audits SYB's app, everything SYB posts goes out private: only you can see it on TikTok. Once the audit passes, you choose who sees each post. Until then TikTok also lets SYB's app post for only a few accounts a day.",
+        "audited": "TikTok has audited SYB's app: you choose who can see each post, from TikTok's own options."
+      },
+      "before": "Before it works",
+      "needs": {
+        "app": "SYB's own TikTok app, with Login Kit and TikTok's posting API (Direct Post) switched on.",
+        "signIn": "You sign in with the TikTok account the posts go to, and allow what TikTok asks about.",
+        "choose": "Each post is a video you approve, with who can see it chosen by you first."
+      },
+      "notSetUp": "Not set up yet: SYB's TikTok app keys aren't in place. Until then, nothing can be posted to TikTok.",
+      "revokeAsk": "SYB stops posting to TikTok. Posts already there stay.",
+      "revoking": "Revoking…",
+      "yesRevoke": "Yes, revoke",
+      "revoke": "Revoke",
+      "revokeNote": "Revoking deletes SYB's access here at once and asks TikTok to revoke it too. Posts already on TikTok stay there. To check on TikTok's side, open Settings and privacy, then Security and permissions, then Apps and services permissions.",
+      "tiktokScreen": "TikTok then shows its own screen and asks about posting videos, your basic profile and your public videos. Allow them, and come back here.",
+      "typeToConfirm": "To confirm, type <b>{phrase}</b>",
+      "opening": "Opening TikTok…",
+      "signIn": "Sign in with TikTok and allow posting",
+      "nothingWritten": "Nothing is posted until you approve the finished video, with who can see it chosen by you. SYB reads only your TikTok profile's name and your public videos' counts.",
+      "reason": {
+        "start_here": "Start the TikTok sign-in from SYB's Connections screen, with the button there. Nothing was sent to TikTok.",
+        "signed_out": "Sign in to SYB first, then connect TikTok again.",
+        "owner_only": "Only an owner can grant or take back this permission. Nothing was sent to TikTok.",
+        "unavailable": "TikTok posting isn't set up yet.",
+        "phrase": "The confirmation phrase didn't match. Type it as shown, then start again.",
+        "already_connected": "TikTok posting is already connected. Revoke it first to connect another account.",
+        "start_again": "That TikTok sign-in expired or was already used. Start again from Connections.",
+        "foreign": "That TikTok sign-in was started from a different SYB account. Sign in to SYB as that account, or start again.",
+        "tiktok_error": "TikTok sign-in didn't finish. Nothing was connected.",
+        "scope": "TikTok didn't grant exactly what SYB asks for. On TikTok's screen, allow everything listed, then try again.",
+        "tiktok_refused": "TikTok refused the sign-in. Nothing was connected.",
+        "internal": "Something went wrong on our side. Nothing was connected.",
+        "generic": "TikTok sign-in didn't finish. Nothing was connected."
+      },
+      "readback": "To see how your public posts do, the same sign-in also reads:"
+    },
     "googleAds": {
       "sectionLabel": "Google Ads · a separate consent",
       "label": "Google Ads",
@@ -4748,6 +4818,37 @@
         "lastTry": "The last try: {error}{cost, select, none {} other { ({cost} charged)}}."
       },
       "refused": "refused"
+    },
+    "tiktok": {
+      "title": "Posting to TikTok",
+      "loading": "Reading your TikTok account…",
+      "failedLoad": "I couldn't read your TikTok account just now.",
+      "account": "Posts to {name} on TikTok.",
+      "whoSees": "Who can see this post",
+      "choose": "Choose…",
+      "privacy": {
+        "PUBLIC_TO_EVERYONE": "Everyone",
+        "MUTUAL_FOLLOW_FRIENDS": "Friends",
+        "FOLLOWER_OF_CREATOR": "Followers",
+        "SELF_ONLY": "Only me"
+      },
+      "privateOnly": "Until TikTok audits SYB's app, posts can only be private: only you can see them.",
+      "allowComment": "Allow comments",
+      "allowDuet": "Allow duets",
+      "allowStitch": "Allow stitches",
+      "offOnTikTok": "turned off in your TikTok settings",
+      "brand": "This promotes my own business",
+      "brandNote": "TikTok labels it as promotional.",
+      "aiLabel": "TikTok labels this video as AI-generated.",
+      "declaration": "By posting, you agree to TikTok's Music Usage Confirmation.",
+      "save": "Save these choices",
+      "saving": "Saving…",
+      "saved": "Saved. Approve the post on Proposals when you're ready.",
+      "chosen": "Who can see it: {privacy}.",
+      "locked": "These choices were approved with the post and can't change now.",
+      "needChoice": "Choose who can see it before you approve it.",
+      "processing": "Once it goes out, TikTok may take a few minutes before it shows on your profile.",
+      "noDelete": "TikTok doesn't let apps delete a post. To take this down, delete it in the TikTok app."
     }
   },
   "customers": {
@@ -8681,7 +8782,7 @@
         "shotList": "a shot list is for filming, not publishing",
         "email": "emails aren't sent through SYB yet",
         "kind": "a {kind} isn't published",
-        "channel": "SYB can't publish to {channel} — only to a Facebook Page or Instagram account you connect",
+        "channel": "SYB can't publish to {channel} — only to a Facebook Page, an Instagram account or a TikTok account you connect",
         "connect": "connect Meta publishing on Connections to publish this to {platform}",
         "noInstagram": "the Meta connection has no Instagram account — reconnect with its id to publish there",
         "needsMedia": "{platform} needs an image or a video, and this item has none yet",
@@ -8689,7 +8790,9 @@
         "noDate": "it has no date to go out on",
         "zone": "the posting time can't be set: {reason}",
         "declined": "{count, plural, one {you've declined publishing # time — I've stopped proposing it} other {you've declined publishing # times — I've stopped proposing it}}",
-        "passed": "its date ({date}) has passed"
+        "passed": "its date ({date}) has passed",
+        "connectTikTok": "connect TikTok posting on Connections to publish this to TikTok",
+        "tiktokNeedsVideo": "TikTok needs a video, and this item has none yet"
       },
       "zoneReason": {
         "noCountry": "no country given",

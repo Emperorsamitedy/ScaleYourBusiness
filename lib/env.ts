@@ -200,6 +200,46 @@ export function googleBusinessEnv(): GoogleBusinessEnv | null {
   };
 }
 
+/** SYB's own TikTok app for posting (Login Kit + Content Posting API), as the environment holds it. */
+export interface TikTokPostingEnv {
+  client_key: string;
+  client_secret: string;
+  /** TIKTOK_REDIRECT_URI when set; otherwise derived from APP_URL or the request's origin. */
+  redirect_uri: string | null;
+  app_url: string | null;
+}
+
+/**
+ * TikTok posting (2026-11-08) is offered only when BOTH TIKTOK_CLIENT_KEY and
+ * TIKTOK_CLIENT_SECRET are set. Null otherwise: the card says it isn't set
+ * up yet, and every route of the sign-in refuses rather than sending a
+ * half-configured request to TikTok.
+ */
+export function tiktokPostingEnv(): TikTokPostingEnv | null {
+  const client_key = process.env.TIKTOK_CLIENT_KEY?.trim() ?? "";
+  const client_secret = process.env.TIKTOK_CLIENT_SECRET?.trim() ?? "";
+  if (client_key === "" || client_secret === "") return null;
+  return {
+    client_key,
+    client_secret,
+    redirect_uri: process.env.TIKTOK_REDIRECT_URI?.trim() || null,
+    app_url: appUrl(),
+  };
+}
+
+export type TikTokAuditStatus = "unaudited" | "audited";
+
+/**
+ * Whether TikTok's audit of SYB's app has passed. Until it has, TikTok
+ * restricts everything an app posts to private viewing (SELF_ONLY, "only
+ * me") and refuses anything else at init. Anything but "audited" reads as
+ * unaudited — the screen must never offer a privacy TikTok will refuse, so
+ * the safe reading is the default, as with META_ACCESS_LEVEL.
+ */
+export function tiktokAuditStatus(): TikTokAuditStatus {
+  return process.env.TIKTOK_AUDIT_STATUS?.trim() === "audited" ? "audited" : "unaudited";
+}
+
 /**
  * P2-20 / P3-22: Google's API access levels for the Google Ads API, as
  * Google names them (access-levels page, read 2026-11-08). The level belongs
