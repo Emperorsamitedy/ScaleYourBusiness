@@ -14,6 +14,7 @@ import { dayMonthYear, intlNumber } from "../i18n/format";
 import type { AppLocale } from "../i18n/locales";
 import type { Tr } from "../i18n/tr";
 import { englishTr } from "../i18n/tr";
+import { noteWords } from "../profile/note-words";
 import { parseInstant } from "../watch/watch-view";
 import { addDays } from "../seasons/forecast";
 import type { ForecastKind } from "./claims";
@@ -115,7 +116,8 @@ export interface TrackView {
  * kinds, "Said on", the range and the waiting line — from the "trackWords"
  * catalogue, with figures and dates in the reader's writing; English by
  * default, word for word as before. A forecast's claim, basis and what
- * happened are stored as they were written and print as they are.
+ * happened are stored as they were written; the basis's days and providers
+ * are worded on display.
  */
 export interface TrackWords {
   tr: Tr;
@@ -201,7 +203,9 @@ export function trackEntry(
     said_on: tr("saidOn", { day: dayWords(r.made_at, locale) }),
     range: rangeWords(r, w),
     claim: r.claim,
-    basis: r.basis,
+    // Stored as it was written; its days and providers read as an owner
+    // reads them (lib/profile/note-words), display only.
+    basis: noteWords(r.basis) ?? r.basis,
     word: graded ? (r.verdict as Verdict) : "waiting",
     happened: graded ? (r.actual_note ?? "") : waitingWords(r, today, w),
     backdated: late ? tr("backdated", { day: dayWords(r.recorded_at, locale) }) : null,

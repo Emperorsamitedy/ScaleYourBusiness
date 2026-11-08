@@ -5410,7 +5410,76 @@
       "pretend": "eine nachgestellte Kundenseite · das Widget ist unten rechts",
       "seesLabel": "was ein Besucher sieht",
       "body": "Diese Seite steht für Ihre Website. Die Schaltfläche in der Ecke ist das echte Widget, geladen vom selben Skript und verbunden mit demselben öffentlichen Endpunkt, den ein Kunde nutzen würde. Fragen Sie etwas, das Sie freigegeben haben, etwas, das Sie nicht freigegeben haben, und fragen Sie dann nach einer Person – jedes sollte sich so verhalten, wie auf der <link>Support-Seite</link> versprochen."
+    },
+    "phone": {
+      "label": "Telefonleitung",
+      "titleOn": "Nimmt Anrufe unter {number} an",
+      "titleOff": "Nimmt keine Anrufe an",
+      "what": "Die Leitung sagt zuerst, dass sie der automatische Assistent von SYB ist. Sie antwortet nur mit den Antworten, die Sie freigegeben haben, bucht, verspricht oder erstattet nie etwas und nimmt eine Nachricht auf oder verbindet den Anrufer mit Ihnen, wenn sie etwas nicht weiß. Anrufer hören, dass der Anruf transkribiert wird, bevor irgendetwas transkribiert wird, und es wird kein Ton gespeichert.",
+      "needsKeys": "Um Anrufe anzunehmen, braucht SYB ein Twilio-Konto und eine Twilio-Nummer. Tragen Sie diese Einstellungen auf dem Server ein und kommen Sie dann hierher zurück:",
+      "setUp": "Stellen Sie in Twilio den Webhook „A call comes in“ dieser Nummer auf die erste Adresse und ihre Statusmeldung auf die zweite, beide als HTTP POST.",
+      "turnOn": "Anrufe unter {number} annehmen",
+      "turnOff": "Nicht mehr annehmen",
+      "offBody": "Wenn Sie die Leitung einschalten, nimmt SYB Anrufe unter {number} für Sie an, mit Ihren freigegebenen Antworten.",
+      "handoverLabel": "Anrufer, die eine Person sprechen möchten, verbinden mit",
+      "handoverHint": "Ihre eigene Nummer, mit Ländervorwahl. Bleibt sie leer, hinterlassen Anrufer stattdessen eine Nachricht.",
+      "handoverSave": "Speichern",
+      "callsTitle": "Anrufe",
+      "callsEmpty": "Noch keine Anrufe. Jeder Anruf, den die Leitung annimmt, erscheint hier, mit Nachricht und Gesprächsverlauf.",
+      "withheld": "Nummer unterdrückt",
+      "outcome": {
+        "answered": "Mit Ihren freigegebenen Antworten beantwortet",
+        "message": "Hat eine Nachricht hinterlassen",
+        "handed_over": "An Sie durchgestellt",
+        "hung_up": "Ohne Nachricht aufgelegt",
+        "live": "Gerade in der Leitung"
+      },
+      "asked": "{count, plural, one {# Frage} other {# Fragen}}",
+      "read": "Anruf lesen",
+      "hide": "Anruf ausblenden",
+      "caller": "Anrufer",
+      "assistant": "Assistent (automatisch)",
+      "messageLabel": "Nachricht",
+      "erase": "Diesen Anruf löschen",
+      "eraseConfirm": "Diesen Anruf endgültig löschen – die Nummer des Anrufers, das Gesagte und jede Nachricht?",
+      "eraseYes": "Endgültig löschen",
+      "keep": "Behalten",
+      "notice": {
+        "on": "Die Telefonleitung nimmt Anrufe an.",
+        "off": "Die Telefonleitung nimmt keine Anrufe mehr an.",
+        "handover": "Gespeichert.",
+        "erased": "Der Anruf ist gelöscht."
+      },
+      "error": {
+        "notSetUp": "Die Telefonleitung ist auf diesem Server noch nicht eingerichtet.",
+        "taken": "Diese Nummer nimmt bereits Anrufe für ein anderes Unternehmen an.",
+        "notOn": "Schalten Sie zuerst die Telefonleitung ein.",
+        "badNumber": "Schreiben Sie die Nummer mit Ländervorwahl, beginnend mit einem Pluszeichen.",
+        "noCall": "Diesen Anruf gibt es nicht mehr.",
+        "crossSite": "Diese Seite lässt sich nur aus SYB selbst ändern.",
+        "signIn": "Bitte erst anmelden, um die Telefonleitung zu ändern.",
+        "action": "Das kann die Telefonleitung nicht."
+      }
     }
+  },
+  "phoneLine": {
+    "greeting": "Guten Tag, Sie haben {business} erreicht und sprechen mit dem automatischen Assistenten von SYB, nicht mit einem Menschen.",
+    "notice": "Dieser Anruf wird transkribiert, damit {business} ihn später lesen kann; es wird kein Ton gespeichert.",
+    "howCanIHelp": "Wie kann ich Ihnen helfen?",
+    "anythingElse": "Kann ich Ihnen sonst noch helfen?",
+    "notHeard": "Entschuldigung, das habe ich nicht verstanden. Könnten Sie es wiederholen?",
+    "goodbye": "Danke für Ihren Anruf bei {business}. Auf Wiederhören.",
+    "noAnswer": "Dafür habe ich keine freigegebene Antwort, deshalb rate ich nicht.",
+    "takeMessage": "Ich kann eine Nachricht für {business} aufnehmen. Bitte nennen Sie Ihren Namen, Ihre Nachricht und die beste Nummer für einen Rückruf.",
+    "nobodyToPutThrough": "Gerade kann ich Sie mit niemandem verbinden, aber ich kann eine Nachricht aufnehmen.",
+    "puttingThrough": "Ich verbinde Sie jetzt mit jemandem von {business}.",
+    "nobodyPickedUp": "Leider konnte gerade niemand abnehmen.",
+    "messageTaken": "Danke, ich habe Ihre Nachricht an {business} weitergegeben. Auf Wiederhören.",
+    "noMessage": "Ich habe keine Nachricht verstanden. {business} sieht, dass Sie angerufen haben. Auf Wiederhören.",
+    "capped": "Wir haben schon viel besprochen, deshalb übernimmt am besten jemand von {business} ab hier.",
+    "unavailable": "Darauf kann ich gerade nicht antworten.",
+    "closed": "Diese Leitung nimmt gerade keine Anrufe an. Bitte versuchen Sie es später noch einmal. Auf Wiederhören.",
+    "busy": "Die Leitung ist gerade sehr ausgelastet. Bitte rufen Sie später noch einmal an. Auf Wiederhören."
   },
   "team": {
     "meta": {

@@ -5410,7 +5410,76 @@
       "pretend": "a pretend customer page · the widget is bottom right",
       "seesLabel": "what a visitor sees",
       "body": "This page stands in for your website. The button in the corner is the real widget, loaded by the same script and talking to the same public endpoint a customer would use. Ask it something you have approved, something you have not, and then ask for a person — each should behave as promised on the <link>support screen</link>."
+    },
+    "phone": {
+      "label": "Phone line",
+      "titleOn": "Answering calls on {number}",
+      "titleOff": "Not answering calls",
+      "what": "The line says first that it is SYB's automated assistant. It answers only from the answers you approved, never books, promises or refunds anything, and takes a message or puts the caller through to you when it doesn't know. Callers hear that the call is transcribed before anything is, and no audio is kept.",
+      "needsKeys": "To answer calls, SYB needs a Twilio account and a Twilio number. Add these settings on the server, then come back here:",
+      "setUp": "In Twilio, set this number's “A call comes in” webhook to the first address and its call status callback to the second, both as HTTP POST.",
+      "turnOn": "Answer calls on {number}",
+      "turnOff": "Stop answering",
+      "offBody": "Turning the line on answers {number} for you, from your approved answers.",
+      "handoverLabel": "Put callers who ask for a person through to",
+      "handoverHint": "Your own number, with the country code. Leave it empty and callers leave a message instead.",
+      "handoverSave": "Save",
+      "callsTitle": "Calls",
+      "callsEmpty": "No calls yet. Every call the line answers lands here, with its message and what was said.",
+      "withheld": "Number withheld",
+      "outcome": {
+        "answered": "Answered from your approved answers",
+        "message": "Left a message",
+        "handed_over": "Put through to you",
+        "hung_up": "Hung up without a message",
+        "live": "On the line now"
+      },
+      "asked": "{count, plural, one {# thing asked} other {# things asked}}",
+      "read": "Read the call",
+      "hide": "Hide the call",
+      "caller": "Caller",
+      "assistant": "Assistant (automated)",
+      "messageLabel": "Message",
+      "erase": "Erase this call",
+      "eraseConfirm": "Erase this call for good — the caller's number, what was said and any message?",
+      "eraseYes": "Erase for good",
+      "keep": "Keep it",
+      "notice": {
+        "on": "The phone line is answering.",
+        "off": "The phone line has stopped answering.",
+        "handover": "Saved.",
+        "erased": "The call is erased."
+      },
+      "error": {
+        "notSetUp": "The phone line isn't set up on this server yet.",
+        "taken": "That number already answers calls for another business.",
+        "notOn": "Turn the phone line on first.",
+        "badNumber": "Write the number with its country code, starting with a plus sign.",
+        "noCall": "That call isn't here any more.",
+        "crossSite": "This page can only be changed from SYB itself.",
+        "signIn": "Sign in to change the phone line.",
+        "action": "That isn't something the phone line can do."
+      }
     }
+  },
+  "phoneLine": {
+    "greeting": "Hello, you've reached {business}, and you're speaking with SYB's automated assistant, not a person.",
+    "notice": "This call is transcribed so that {business} can read it later; no audio is kept.",
+    "howCanIHelp": "How can I help?",
+    "anythingElse": "Is there anything else I can help with?",
+    "notHeard": "Sorry, I didn't catch that. Could you say it again?",
+    "goodbye": "Thank you for calling {business}. Goodbye.",
+    "noAnswer": "I don't have an approved answer for that, so I won't guess.",
+    "takeMessage": "I can take a message for {business}. Please say your name, your message and the best number to call you back on.",
+    "nobodyToPutThrough": "There's nobody I can put you through to right now, but I can take a message.",
+    "puttingThrough": "Putting you through to someone at {business} now.",
+    "nobodyPickedUp": "Sorry, nobody could pick up just now.",
+    "messageTaken": "Thank you, I've passed your message on to {business}. Goodbye.",
+    "noMessage": "I didn't catch a message. {business} can see that you called. Goodbye.",
+    "capped": "We've covered a lot, so it's best that someone at {business} takes it from here.",
+    "unavailable": "I can't answer that right now.",
+    "closed": "This line isn't taking calls right now. Please try again later. Goodbye.",
+    "busy": "The line is very busy right now. Please call again later. Goodbye."
   },
   "team": {
     "meta": {

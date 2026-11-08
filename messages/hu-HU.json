@@ -5410,7 +5410,76 @@
       "pretend": "egy kitalált ügyféloldal · a widget a jobb alsó sarokban van",
       "seesLabel": "amit egy látogató lát",
       "body": "Ez az oldal az Ön weboldalát helyettesíti. A sarokban lévő gomb a valódi widget, ugyanazzal a szkripttel betöltve, és ugyanazzal a nyilvános végponttal beszél, amelyet egy ügyfél használna. Kérdezzen tőle valamit, amit jóváhagyott, valamit, amit nem, majd kérjen embert — mindegyiknek úgy kell viselkednie, ahogy a <link>Támogatás képernyőn</link> ígérjük."
+    },
+    "phone": {
+      "label": "Telefonvonal",
+      "titleOn": "Hívások fogadása ezen a számon: {number}",
+      "titleOff": "Nem fogad hívásokat",
+      "what": "A vonal először elmondja, hogy az SYB automatikus asszisztense. Csak az Ön által jóváhagyott válaszokból felel, soha nem foglal, nem ígér és nem ad visszatérítést, és ha valamit nem tud, üzenetet vesz fel vagy Önhöz kapcsolja a hívót. A hívók még azelőtt hallják, hogy a hívásról átirat készül, mielőtt bármi rögzülne, és hangfelvétel nem marad meg.",
+      "needsKeys": "A hívások fogadásához az SYB-nek Twilio-fiókra és Twilio-számra van szüksége. Adja meg ezeket a beállításokat a szerveren, majd térjen vissza ide:",
+      "setUp": "A Twilióban állítsa a szám „A call comes in” webhookját az első címre, a hívásállapot-értesítését pedig a második címre, mindkettőt HTTP POST módon.",
+      "turnOn": "Hívások fogadása: {number}",
+      "turnOff": "Hívásfogadás leállítása",
+      "offBody": "A vonal bekapcsolásával a(z) {number} számot az SYB veszi fel Ön helyett, a jóváhagyott válaszaival.",
+      "handoverLabel": "Személyt kérő hívók kapcsolása erre a számra",
+      "handoverHint": "Az Ön saját száma, országhívószámmal. Ha üresen hagyja, a hívók inkább üzenetet hagynak.",
+      "handoverSave": "Mentés",
+      "callsTitle": "Hívások",
+      "callsEmpty": "Még nincs hívás. Minden hívás, amelyet a vonal fogad, ide kerül az üzenetével és az elhangzottakkal.",
+      "withheld": "Rejtett szám",
+      "outcome": {
+        "answered": "Megválaszolva a jóváhagyott válaszaiból",
+        "message": "Üzenetet hagyott",
+        "handed_over": "Önhöz kapcsolva",
+        "hung_up": "Üzenet nélkül letette",
+        "live": "Most vonalban"
+      },
+      "asked": "{count, plural, one {# kérdés} other {# kérdés}}",
+      "read": "Hívás elolvasása",
+      "hide": "Hívás elrejtése",
+      "caller": "Hívó",
+      "assistant": "Asszisztens (automatikus)",
+      "messageLabel": "Üzenet",
+      "erase": "Hívás törlése",
+      "eraseConfirm": "Végleg törli ezt a hívást – a hívó számát, az elhangzottakat és az üzenetet is?",
+      "eraseYes": "Végleges törlés",
+      "keep": "Megtartás",
+      "notice": {
+        "on": "A telefonvonal fogadja a hívásokat.",
+        "off": "A telefonvonal már nem fogad hívásokat.",
+        "handover": "Mentve.",
+        "erased": "A hívás törölve."
+      },
+      "error": {
+        "notSetUp": "A telefonvonal még nincs beállítva ezen a szerveren.",
+        "taken": "Ez a szám már egy másik vállalkozás hívásait fogadja.",
+        "notOn": "Előbb kapcsolja be a telefonvonalat.",
+        "badNumber": "Írja be a számot országhívószámmal, pluszjellel kezdve.",
+        "noCall": "Ez a hívás már nincs itt.",
+        "crossSite": "Ez az oldal csak magából az SYB-ből módosítható.",
+        "signIn": "A telefonvonal módosításához bejelentkezés szükséges.",
+        "action": "Ezt a telefonvonal nem tudja megtenni."
+      }
     }
+  },
+  "phoneLine": {
+    "greeting": "Jó napot, ez a(z) {business} vonala, és Ön az SYB automatikus asszisztensével beszél, nem egy emberrel.",
+    "notice": "A hívásról átirat készül, hogy a(z) {business} később elolvashassa. Hangfelvétel nem marad meg.",
+    "howCanIHelp": "Miben segíthetek?",
+    "anythingElse": "Segíthetek még valamiben?",
+    "notHeard": "Elnézést, ezt nem értettem. Megismételné?",
+    "goodbye": "Köszönjük, hogy felhívta a(z) {business} vonalát. Viszonthallásra.",
+    "noAnswer": "Erre nincs jóváhagyott válaszom, ezért nem fogok találgatni.",
+    "takeMessage": "Szívesen átadok egy üzenetet a(z) {business} részére. Kérem, mondja el a nevét, az üzenetét és azt a számot, amelyen a legjobban visszahívható.",
+    "nobodyToPutThrough": "Most senkit nem tudok kapcsolni, de szívesen felveszek egy üzenetet.",
+    "puttingThrough": "Most kapcsolom a(z) {business} egyik munkatársát.",
+    "nobodyPickedUp": "Sajnos most senki nem tudta felvenni.",
+    "messageTaken": "Köszönöm, átadtam az üzenetét a(z) {business} részére. Viszonthallásra.",
+    "noMessage": "Nem értettem üzenetet. A(z) {business} látni fogja, hogy hívta. Viszonthallásra.",
+    "capped": "Sok mindent átbeszéltünk, ezért jobb, ha innen a(z) {business} egyik munkatársa veszi át.",
+    "unavailable": "Erre most nem tudok válaszolni.",
+    "closed": "Ez a vonal most nem fogad hívásokat. Kérem, próbálja újra később. Viszonthallásra.",
+    "busy": "A vonal most nagyon foglalt. Kérem, hívjon később újra. Viszonthallásra."
   },
   "team": {
     "meta": {

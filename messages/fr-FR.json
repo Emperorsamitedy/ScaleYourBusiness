@@ -5410,7 +5410,76 @@
       "pretend": "une fausse page client · le widget est en bas à droite",
       "seesLabel": "ce que voit un visiteur",
       "body": "Cette page remplace votre site web. Le bouton dans le coin est le vrai widget, chargé par le même script et relié au même point d’accès public qu’utiliserait un client. Posez-lui une question que vous avez validée, une autre que vous n’avez pas validée, puis demandez une personne : chacune doit se comporter comme promis sur l’<link>écran Assistance</link>."
+    },
+    "phone": {
+      "label": "Ligne téléphonique",
+      "titleOn": "Répond aux appels au {number}",
+      "titleOff": "Ne répond pas aux appels",
+      "what": "La ligne dit d’abord qu’elle est l’assistant automatique de SYB. Elle ne répond qu’avec les réponses que vous avez validées, ne réserve, ne promet et ne rembourse jamais rien, et prend un message ou vous passe l’appelant quand elle ne sait pas. Les appelants entendent que l’appel est transcrit avant que quoi que ce soit le soit, et aucun son n’est conservé.",
+      "needsKeys": "Pour répondre aux appels, SYB a besoin d’un compte Twilio et d’un numéro Twilio. Ajoutez ces réglages sur le serveur, puis revenez ici :",
+      "setUp": "Dans Twilio, réglez le webhook « A call comes in » de ce numéro sur la première adresse et son rappel d’état d’appel sur la seconde, tous deux en HTTP POST.",
+      "turnOn": "Répondre aux appels au {number}",
+      "turnOff": "Ne plus répondre",
+      "offBody": "Une fois la ligne activée, SYB répond au {number} pour vous, avec vos réponses validées.",
+      "handoverLabel": "Passer les appelants qui demandent une personne au",
+      "handoverHint": "Votre propre numéro, avec l’indicatif du pays. Laissez-le vide et les appelants laisseront plutôt un message.",
+      "handoverSave": "Enregistrer",
+      "callsTitle": "Appels",
+      "callsEmpty": "Aucun appel pour l’instant. Chaque appel auquel la ligne répond arrive ici, avec son message et ce qui a été dit.",
+      "withheld": "Numéro masqué",
+      "outcome": {
+        "answered": "Répondu avec vos réponses validées",
+        "message": "A laissé un message",
+        "handed_over": "Vous a été passé",
+        "hung_up": "A raccroché sans message",
+        "live": "En ligne en ce moment"
+      },
+      "asked": "{count, plural, one {# question posée} many {# questions posées} other {# questions posées}}",
+      "read": "Lire l’appel",
+      "hide": "Masquer l’appel",
+      "caller": "Appelant",
+      "assistant": "Assistant (automatique)",
+      "messageLabel": "Message",
+      "erase": "Effacer cet appel",
+      "eraseConfirm": "Effacer définitivement cet appel — le numéro de l’appelant, ce qui a été dit et tout message ?",
+      "eraseYes": "Effacer définitivement",
+      "keep": "Le garder",
+      "notice": {
+        "on": "La ligne téléphonique répond aux appels.",
+        "off": "La ligne téléphonique ne répond plus aux appels.",
+        "handover": "Enregistré.",
+        "erased": "L’appel est effacé."
+      },
+      "error": {
+        "notSetUp": "La ligne téléphonique n’est pas encore configurée sur ce serveur.",
+        "taken": "Ce numéro répond déjà aux appels d’une autre entreprise.",
+        "notOn": "Activez d’abord la ligne téléphonique.",
+        "badNumber": "Écrivez le numéro avec l’indicatif du pays, en commençant par le signe plus.",
+        "noCall": "Cet appel n’est plus là.",
+        "crossSite": "Cette page ne peut être modifiée que depuis SYB.",
+        "signIn": "Connectez-vous pour modifier la ligne téléphonique.",
+        "action": "La ligne téléphonique ne sait pas faire cela."
+      }
     }
+  },
+  "phoneLine": {
+    "greeting": "Bonjour, vous êtes bien chez {business} et vous parlez avec l’assistant automatique de SYB, pas avec une personne.",
+    "notice": "Cet appel est transcrit pour que {business} puisse le lire ensuite. Aucun son n’est conservé.",
+    "howCanIHelp": "Que puis-je faire pour vous ?",
+    "anythingElse": "Puis-je vous aider pour autre chose ?",
+    "notHeard": "Pardon, je n’ai pas compris. Pourriez-vous répéter ?",
+    "goodbye": "Merci d’avoir appelé {business}. Au revoir.",
+    "noAnswer": "Je n’ai pas de réponse validée à ce sujet, alors je ne vais pas deviner.",
+    "takeMessage": "Je peux prendre un message pour {business}. Dites votre nom, votre message et le meilleur numéro pour vous rappeler.",
+    "nobodyToPutThrough": "Je ne peux vous passer personne pour le moment, mais je peux prendre un message.",
+    "puttingThrough": "Je vous passe quelqu’un de {business}.",
+    "nobodyPickedUp": "Désolé, personne n’a pu décrocher pour le moment.",
+    "messageTaken": "Merci, j’ai transmis votre message à {business}. Au revoir.",
+    "noMessage": "Je n’ai pas compris de message. {business} verra que vous avez appelé. Au revoir.",
+    "capped": "Nous avons abordé beaucoup de choses, il vaut mieux que quelqu’un de {business} prenne le relais.",
+    "unavailable": "Je ne peux pas répondre à cela pour le moment.",
+    "closed": "Cette ligne ne prend pas d’appels pour le moment. Veuillez réessayer plus tard. Au revoir.",
+    "busy": "La ligne est très chargée en ce moment. Veuillez rappeler plus tard. Au revoir."
   },
   "team": {
     "meta": {

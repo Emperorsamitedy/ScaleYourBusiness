@@ -5410,7 +5410,76 @@
       "pretend": "一个模拟的客户页面 · 小组件在右下角",
       "seesLabel": "访客看到的样子",
       "body": "这个页面代替您的网站。角落里的按钮就是真实的小组件，由同一个脚本加载，并与客户会使用的同一个公开端点通信。请问它一个您已批准的问题、一个您没有批准的问题，然后要求转人工——每一种情况都应当像<link>客户支持页面</link>上承诺的那样表现。"
+    },
+    "phone": {
+      "label": "电话线路",
+      "titleOn": "正在接听 {number} 的来电",
+      "titleOff": "未接听来电",
+      "what": "线路会先说明自己是SYB的自动助理。它只用您批准的回答作答，从不预订、承诺或办理退款，遇到不知道的问题时会记下留言或把来电转接给您。来电者会在任何内容被转写之前听到通话将被转写的提示，并且不会保存任何录音。",
+      "needsKeys": "要接听来电，SYB需要一个Twilio账户和一个Twilio号码。请在服务器上添加以下设置，然后回到这里：",
+      "setUp": "请在Twilio中，把这个号码的“A call comes in”网络钩子设为第一个地址，把通话状态通知设为第二个地址，两者都使用HTTP POST。",
+      "turnOn": "在 {number} 上接听来电",
+      "turnOff": "停止接听",
+      "offBody": "开启线路后，SYB会用您批准的回答替您接听 {number}。",
+      "handoverLabel": "把要求找人的来电者转接到",
+      "handoverHint": "您自己的号码，含国家区号。留空的话，来电者会改为留言。",
+      "handoverSave": "保存",
+      "callsTitle": "来电",
+      "callsEmpty": "还没有来电。线路接听的每通电话都会出现在这里，附带留言和通话内容。",
+      "withheld": "隐藏号码",
+      "outcome": {
+        "answered": "已用您批准的回答作答",
+        "message": "留下了留言",
+        "handed_over": "已转接给您",
+        "hung_up": "未留言就挂断了",
+        "live": "正在通话中"
+      },
+      "asked": "{count, plural, other {# 个问题}}",
+      "read": "查看通话",
+      "hide": "隐藏通话",
+      "caller": "来电者",
+      "assistant": "助理（自动）",
+      "messageLabel": "留言",
+      "erase": "删除这通来电",
+      "eraseConfirm": "要永久删除这通来电吗？包括来电号码、通话内容和任何留言。",
+      "eraseYes": "永久删除",
+      "keep": "保留",
+      "notice": {
+        "on": "电话线路正在接听来电。",
+        "off": "电话线路已停止接听来电。",
+        "handover": "已保存。",
+        "erased": "这通来电已删除。"
+      },
+      "error": {
+        "notSetUp": "这台服务器上还没有设置电话线路。",
+        "taken": "这个号码已经在为另一家企业接听来电。",
+        "notOn": "请先开启电话线路。",
+        "badNumber": "请填写带国家区号的号码，以加号开头。",
+        "noCall": "这通来电已经不在这里了。",
+        "crossSite": "此页面只能在SYB内部修改。",
+        "signIn": "请先登录再修改电话线路。",
+        "action": "电话线路无法做这件事。"
+      }
     }
+  },
+  "phoneLine": {
+    "greeting": "您好，您已接通{business}，现在为您服务的是SYB的自动助理，不是真人。",
+    "notice": "本次通话会被转写成文字，以便{business}之后查看；不会保存任何录音。",
+    "howCanIHelp": "请问有什么可以帮您？",
+    "anythingElse": "还有什么可以帮您的吗？",
+    "notHeard": "抱歉，我没有听清。您能再说一遍吗？",
+    "goodbye": "感谢您致电{business}。再见。",
+    "noAnswer": "关于这个问题我没有经过批准的回答，所以我不会猜测。",
+    "takeMessage": "我可以为{business}记下留言。请说出您的姓名、留言内容以及方便回电的号码。",
+    "nobodyToPutThrough": "现在没有可以为您转接的人，但我可以为您记下留言。",
+    "puttingThrough": "正在为您转接{business}的工作人员。",
+    "nobodyPickedUp": "抱歉，现在没有人能接听。",
+    "messageTaken": "谢谢，我已将您的留言转达给{business}。再见。",
+    "noMessage": "我没有听到留言。{business}会看到您来过电话。再见。",
+    "capped": "我们已经谈了很多，最好由{business}的工作人员接着为您处理。",
+    "unavailable": "我现在无法回答这个问题。",
+    "closed": "这条线路目前不接听来电。请稍后再试。再见。",
+    "busy": "线路现在非常繁忙。请稍后再拨。再见。"
   },
   "team": {
     "meta": {
