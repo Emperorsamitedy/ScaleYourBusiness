@@ -7,7 +7,7 @@
 // forever and paged about.
 
 import { type NextRequest, NextResponse } from "next/server";
-import { markCheckoutPaid, verifyStripeSignature } from "../../../../lib/payments/stripe";
+import { markCheckoutPaid, verifyStripeSignature } from "../../../../lib/billing/stripe";
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
   const secret = process.env.STRIPE_WEBHOOK_SECRET;
