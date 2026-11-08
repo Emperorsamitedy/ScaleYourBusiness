@@ -128,6 +128,7 @@ describe("rule 27 amended — lib/purchasing reaches nothing outside SYB", () =>
         "lib/purchasing/po.ts",
         "lib/purchasing/propose.ts",
         "lib/purchasing/send.ts",
+        "lib/purchasing/pdf.ts",
       ]),
     );
   });

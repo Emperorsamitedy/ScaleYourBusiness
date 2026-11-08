@@ -4439,6 +4439,7 @@
       "sendNow": "Send now",
       "sendingNow": "Sending…",
       "download": "Download",
+      "downloadPdf": "Download PDF",
       "print": "Open to print",
       "result": {
         "sent": "Sent to the supplier.",

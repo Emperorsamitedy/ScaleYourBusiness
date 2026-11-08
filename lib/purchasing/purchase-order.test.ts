@@ -56,6 +56,7 @@ import { shiftDay } from "../stock/assess";
 import type { PurchaseOrder } from "./po";
 import { PO_KIND } from "./po";
 import { PurchaseOrderError, proposePurchaseOrder } from "./propose";
+import { pdfText } from "./pdf-text.test-util";
 import { listPurchaseOrders, poForDocument, sendPurchaseOrderNow } from "./send";
 
 const NOW = new Date();
@@ -528,6 +529,12 @@ describe("P6-04 approved, the engine runs it", () => {
       to_domain: "midland.test",
     });
     expect((run!.result as { not_sent: string[] }).not_sent).toContain("real_writes_off");
+    // P6-09: the fake sender records the one PDF the email would have carried.
+    const attachments = (run!.result as { attachments: { filename: string; bytes: number }[] })
+      .attachments;
+    expect(attachments).toHaveLength(1);
+    expect(attachments[0]!.filename).toBe("PO-0001.pdf");
+    expect(attachments[0]!.bytes).toBeGreaterThan(1_000);
     const [after] = await db.select().from(proposals).where(eq(proposals.id, row.id));
     expect(after!.status).toBe("executed");
     const log = await db
@@ -540,6 +547,9 @@ describe("P6-04 approved, the engine runs it", () => {
     expect(view).toMatchObject({ number: "PO-0001", status: "executed", sent: false });
     expect(view!.not_sent).toContain("real_writes_off");
     expect((await poForDocument(s.profile_id, row.id))?.status).toEqual({ kind: "not_sent" });
+    // Another business never gets this order as a document (the PDF route's gate).
+    const other = await bootstrapIntake();
+    expect(await poForDocument(other.profile_id, row.id)).toBeNull();
   });
 
   it("for real: one POST to the email service, to the supplier as approved, replies to the approver — exactly once", async () => {
@@ -567,6 +577,17 @@ describe("P6-04 approved, the engine runs it", () => {
       subject: "Purchase order PO-0001 from Fernhill Ceramics",
     });
     expect(String(call.body.text)).toContain("50 × Blue Mug at €9.80 = €490.00");
+    // P6-09: exactly one attachment, the order as a PDF that parses and carries it.
+    const attachments = call.body.attachments as { filename: string; content: string }[];
+    expect(attachments).toHaveLength(1);
+    expect(Object.keys(attachments[0]!).sort()).toEqual(["content", "filename"]);
+    expect(attachments[0]!.filename).toBe("PO-0001.pdf");
+    const pdf = Uint8Array.from(Buffer.from(attachments[0]!.content, "base64"));
+    const read = (await pdfText(pdf)).runs.join("\n");
+    expect(read).toContain("Purchase order PO-0001");
+    expect(read).toContain("Blue Mug");
+    expect(read).toContain("€490.00");
+    expect(read).toContain(`Emailed to the supplier on`);
     // Again: the engine's idempotency hands back the same run, and nothing is sent twice.
     const again = await sendPurchaseOrderNow({
       profileId: s.profile_id,

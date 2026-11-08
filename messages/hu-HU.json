@@ -4439,6 +4439,7 @@
       "sendNow": "Küldés most",
       "sendingNow": "Küldés…",
       "download": "Letöltés",
+      "downloadPdf": "PDF letöltése",
       "print": "Megnyitás nyomtatáshoz",
       "result": {
         "sent": "Elküldve a beszállítónak.",
