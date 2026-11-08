@@ -2413,6 +2413,76 @@
       "unknownStatuses": "Statuts que je ne connaissais pas : {list}. Je ne devine pas ce qu’ils signifient.",
       "unknownStatus": "« {word} » ({count})",
       "listSep": ", "
+    },
+    "tiktok": {
+      "sectionLabel": "Publication sur TikTok · un consentement distinct",
+      "label": "Publication sur TikTok",
+      "title": {
+        "on": "Accordé : SYB publie les vidéos que vous validez",
+        "off": "Désactivé. SYB ne publie pas sur TikTok."
+      },
+      "status": {
+        "connected": "connecté",
+        "paused": "en pause",
+        "failed": "en échec",
+        "disconnected": "déconnecté"
+      },
+      "consentedOn": "consentement donné le {day} · {status}",
+      "notGranted": "non accordé",
+      "notSetUpYet": "pas encore configuré",
+      "connect": "Connecter",
+      "close": "Fermer",
+      "keepIt": "Le garder",
+      "unreachable": "Je n’ai pas pu joindre le serveur. Réessayez.",
+      "revokeFailed": "La révocation n’a pas abouti.",
+      "connected": "La publication sur TikTok est connectée, et votre consentement est enregistré.",
+      "youCancelled": "Vous avez annulé sur l’écran de TikTok. Rien n’a été connecté.",
+      "revoked": "Révoqué. L’accès de SYB à TikTok est supprimé ici, et TikTok a été prié de le révoquer aussi.",
+      "revokedHereOnly": "Révoqué ici. TikTok n’a pas confirmé avoir révoqué l’accès de SYB lui aussi : vérifiez dans l’app TikTok.",
+      "fact": {
+        "status": "état",
+        "account": "compte TikTok",
+        "whoSees": "qui voit les publications",
+        "private": "vous seul, jusqu’à ce que TikTok audite l’app de SYB",
+        "chosen": "vous le choisissez pour chaque publication"
+      },
+      "access": {
+        "unaudited": "Tant que TikTok n’a pas audité l’app de SYB, tout ce que SYB publie part en privé : vous seul le voyez sur TikTok. Une fois l’audit réussi, vous choisissez qui voit chaque publication. D’ici là, TikTok ne laisse aussi l’app de SYB publier que pour quelques comptes par jour.",
+        "audited": "TikTok a audité l’app de SYB : vous choisissez qui peut voir chaque publication, parmi les options de TikTok."
+      },
+      "before": "Avant que cela fonctionne",
+      "needs": {
+        "app": "Une app TikTok propre à SYB, avec Login Kit et l’API de publication de TikTok (Direct Post) activés.",
+        "signIn": "Vous vous connectez avec le compte TikTok qui reçoit les publications, et autorisez ce que TikTok demande.",
+        "choose": "Chaque publication est une vidéo que vous validez, après avoir choisi qui peut la voir."
+      },
+      "notSetUp": "Pas encore configuré : les clés de l’app TikTok de SYB ne sont pas en place. D’ici là, rien ne peut être publié sur TikTok.",
+      "revokeAsk": "SYB cessera de publier sur TikTok. Les publications déjà en ligne restent.",
+      "revoking": "Révocation…",
+      "yesRevoke": "Oui, révoquer",
+      "revoke": "Révoquer",
+      "revokeNote": "Révoquer supprime aussitôt l’accès de SYB ici et demande à TikTok de le révoquer aussi. Les publications déjà sur TikTok y restent. Pour vérifier côté TikTok, ouvrez Paramètres et confidentialité, puis Sécurité et autorisations, puis Autorisations des apps et services.",
+      "tiktokScreen": "TikTok affiche alors son propre écran et demande l’accès à la publication de vidéos, à votre profil de base et à vos vidéos publiques. Autorisez-le, puis revenez ici.",
+      "typeToConfirm": "Pour confirmer, saisissez <b>{phrase}</b>",
+      "opening": "Ouverture de TikTok…",
+      "signIn": "Se connecter avec TikTok et autoriser la publication",
+      "nothingWritten": "Rien n’est publié tant que vous n’avez pas validé la vidéo terminée et choisi qui peut la voir. SYB lit seulement le nom de votre profil TikTok et les chiffres de vos vidéos publiques.",
+      "reason": {
+        "start_here": "Lancez la connexion avec TikTok depuis l’écran Connexions de SYB, avec le bouton qui s’y trouve. Rien n’a été envoyé à TikTok.",
+        "signed_out": "Connectez-vous d’abord à SYB, puis reconnectez TikTok.",
+        "owner_only": "Seul un propriétaire peut accorder ou retirer cette autorisation. Rien n’a été envoyé à TikTok.",
+        "unavailable": "La publication sur TikTok n’est pas encore configurée.",
+        "phrase": "La phrase de confirmation ne correspondait pas. Saisissez-la telle qu’elle est affichée, puis recommencez.",
+        "already_connected": "La publication sur TikTok est déjà connectée. Révoquez-la d’abord pour connecter un autre compte.",
+        "start_again": "Cette connexion avec TikTok a expiré ou a déjà été utilisée. Recommencez depuis Connexions.",
+        "foreign": "Cette connexion avec TikTok a été lancée depuis un autre compte SYB. Connectez-vous à SYB avec ce compte, ou recommencez.",
+        "tiktok_error": "La connexion avec TikTok n’a pas abouti. Rien n’a été connecté.",
+        "scope": "TikTok n’a pas accordé exactement ce que SYB demande. Sur l’écran de TikTok, autorisez tout ce qui est listé, puis réessayez.",
+        "tiktok_refused": "TikTok a refusé la connexion. Rien n’a été connecté.",
+        "internal": "Un problème est survenu de notre côté. Rien n’a été connecté.",
+        "generic": "La connexion avec TikTok n’a pas abouti. Rien n’a été connecté."
+      },
+      "readback": "Pour voir comment vont vos publications publiques, la même connexion lit aussi :"
     }
   },
   "landing": {
@@ -4673,6 +4743,37 @@
         "lastTry": "La dernière tentative : {error}{cost, select, none {} other { ({cost} facturés)}}."
       },
       "refused": "refusé"
+    },
+    "tiktok": {
+      "title": "Publier sur TikTok",
+      "loading": "Lecture de votre compte TikTok…",
+      "failedLoad": "Je n’ai pas pu lire votre compte TikTok pour l’instant.",
+      "account": "Publié sur {name}, sur TikTok.",
+      "whoSees": "Qui peut voir cette publication",
+      "choose": "Choisir…",
+      "privacy": {
+        "PUBLIC_TO_EVERYONE": "Tout le monde",
+        "MUTUAL_FOLLOW_FRIENDS": "Amis",
+        "FOLLOWER_OF_CREATOR": "Abonnés",
+        "SELF_ONLY": "Moi uniquement"
+      },
+      "privateOnly": "Tant que TikTok n’a pas audité l’app de SYB, les publications ne peuvent être que privées : vous seul les voyez.",
+      "allowComment": "Autoriser les commentaires",
+      "allowDuet": "Autoriser les duos",
+      "allowStitch": "Autoriser les collages",
+      "offOnTikTok": "désactivé dans vos paramètres TikTok",
+      "brand": "Ceci fait la promotion de ma propre entreprise",
+      "brandNote": "TikTok l’indique comme promotionnel.",
+      "aiLabel": "TikTok indique que cette vidéo est générée par IA.",
+      "declaration": "En publiant, vous acceptez la Confirmation d’utilisation de la musique de TikTok.",
+      "save": "Enregistrer ces choix",
+      "saving": "Enregistrement…",
+      "saved": "Enregistré. Validez la publication dans Propositions quand vous êtes prêt.",
+      "chosen": "Qui peut la voir : {privacy}.",
+      "locked": "Ces choix ont été validés avec la publication et ne peuvent plus changer.",
+      "needChoice": "Choisissez qui peut la voir avant de la valider.",
+      "processing": "Une fois partie, TikTok peut mettre quelques minutes avant de l’afficher sur votre profil.",
+      "noDelete": "TikTok ne laisse pas les apps supprimer une publication. Pour la retirer, supprimez-la dans l’app TikTok."
     }
   },
   "customers": {
@@ -8577,7 +8678,7 @@
         "shotList": "une liste de plans sert à filmer, pas à publier",
         "email": "SYB n’envoie pas encore d’e-mails",
         "kind": "ce type d’élément ({kind}) n’est pas publié",
-        "channel": "SYB ne peut pas publier sur {channel} : seulement sur une Page Facebook ou un compte Instagram que vous connectez",
+        "channel": "SYB ne peut pas publier sur {channel} : seulement sur une Page Facebook, un compte Instagram ou un compte TikTok que vous connectez",
         "connect": "activez la publication Meta dans Connexions pour publier ceci sur {platform}",
         "noInstagram": "la connexion Meta n’a pas de compte Instagram : reconnectez-la avec son identifiant pour y publier",
         "needsMedia": "{platform} demande une image ou une vidéo, et cet élément n’en a pas encore",
@@ -8585,7 +8686,9 @@
         "noDate": "il n’a pas de date de publication",
         "zone": "l’heure de publication ne peut pas être fixée : {reason}",
         "declined": "{count, plural, one {vous avez refusé la publication # fois ; je ne la propose plus} many {vous avez refusé la publication # fois ; je ne la propose plus} other {vous avez refusé la publication # fois ; je ne la propose plus}}",
-        "passed": "sa date ({date}) est passée"
+        "passed": "sa date ({date}) est passée",
+        "connectTikTok": "activez la publication sur TikTok dans Connexions pour publier ceci sur TikTok",
+        "tiktokNeedsVideo": "TikTok demande une vidéo, et cet élément n’en a pas encore"
       },
       "zoneReason": {
         "noCountry": "aucun pays indiqué",

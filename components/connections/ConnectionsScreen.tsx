@@ -29,6 +29,8 @@ import type { EmailView } from "./EmailCampaignSection";
 import { EmailCampaignSection } from "./EmailCampaignSection";
 import type { GoogleView } from "./GoogleBusinessSection";
 import { GoogleBusinessSection } from "./GoogleBusinessSection";
+import type { TikTokPostingView } from "./TikTokPostingSection";
+import { TikTokPostingSection } from "./TikTokPostingSection";
 import { BankStatementSection } from "./BankStatementSection";
 import { BookingsImportSection } from "./BookingsImportSection";
 import { headline, lastRead } from "./patch";
@@ -646,6 +648,8 @@ export function ConnectionsScreen() {
   const [email, setEmail] = useState<EmailView | null>(null);
   // I-45a: Google Business Profile, its own consent, used only to read reviews.
   const [google, setGoogle] = useState<GoogleView | null>(null);
+  // 2026-11-08: TikTok posting, its own consent.
+  const [tiktok, setTiktok] = useState<TikTokPostingView | null>(null);
   // The headline speaks for writing too, so it waits until that side has answered.
   const [execDone, setExecDone] = useState(false);
   const [state, setState] = useState<"loading" | "ready" | "signed_out" | "error">("loading");
@@ -671,6 +675,15 @@ export function ConnectionsScreen() {
       setGoogle(res.ok ? ((await res.json()) as GoogleView) : null);
     } catch {
       setGoogle(null);
+    }
+  }, []);
+
+  const loadTiktok = useCallback(async () => {
+    try {
+      const res = await fetch("/api/connections/tiktok-posting");
+      setTiktok(res.ok ? ((await res.json()) as TikTokPostingView) : null);
+    } catch {
+      setTiktok(null);
     }
   }, []);
 
@@ -706,7 +719,8 @@ export function ConnectionsScreen() {
     void loadExec();
     void loadEmail();
     void loadGoogle();
-  }, [load, loadExec, loadEmail, loadGoogle]);
+    void loadTiktok();
+  }, [load, loadExec, loadEmail, loadGoogle, loadTiktok]);
 
   const syncNow = async (c: Connection) => {
     setBusy(c.id);
@@ -1021,6 +1035,16 @@ export function ConnectionsScreen() {
             onChanged={async () => {
               // The headline counts every write consent, so it re-reads too.
               await Promise.all([loadGoogle(), loadExec()]);
+            }}
+          />
+        )}
+
+        {/* 2026-11-08: TikTok posting — the videos you approve, private until TikTok's audit. */}
+        {tiktok !== null && (
+          <TikTokPostingSection
+            view={tiktok}
+            onChanged={async () => {
+              await Promise.all([loadTiktok(), loadExec()]);
             }}
           />
         )}

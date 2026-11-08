@@ -2413,6 +2413,76 @@
       "unknownStatuses": "Status, die ich nicht kannte: {list}. Ich rate nicht, was sie bedeuten.",
       "unknownStatus": "„{word}“ ({count})",
       "listSep": ", "
+    },
+    "tiktok": {
+      "sectionLabel": "Posten auf TikTok · eine eigene Einwilligung",
+      "label": "Posten auf TikTok",
+      "title": {
+        "on": "Erteilt: SYB postet die Videos, die Sie freigeben",
+        "off": "Aus. SYB postet nicht auf TikTok."
+      },
+      "status": {
+        "connected": "verbunden",
+        "paused": "pausiert",
+        "failed": "fehlgeschlagen",
+        "disconnected": "getrennt"
+      },
+      "consentedOn": "eingewilligt am {day} · {status}",
+      "notGranted": "nicht erteilt",
+      "notSetUpYet": "noch nicht eingerichtet",
+      "connect": "Verbinden",
+      "close": "Schließen",
+      "keepIt": "Behalten",
+      "unreachable": "Ich konnte den Server nicht erreichen. Versuchen Sie es erneut.",
+      "revokeFailed": "Das Widerrufen hat nicht geklappt.",
+      "connected": "Das Posten auf TikTok ist verbunden, und Ihre Einwilligung ist erfasst.",
+      "youCancelled": "Sie haben auf der Seite von TikTok abgebrochen. Es wurde nichts verbunden.",
+      "revoked": "Widerrufen. Der Zugriff von SYB auf TikTok ist hier gelöscht, und TikTok wurde gebeten, ihn ebenfalls zu widerrufen.",
+      "revokedHereOnly": "Hier widerrufen. TikTok hat nicht bestätigt, dass es den Zugriff von SYB ebenfalls widerrufen hat. Prüfen Sie das in der TikTok-App.",
+      "fact": {
+        "status": "Status",
+        "account": "TikTok-Konto",
+        "whoSees": "wer Beiträge sieht",
+        "private": "nur Sie, bis TikTok die App von SYB geprüft hat",
+        "chosen": "Sie wählen es für jeden Beitrag"
+      },
+      "access": {
+        "unaudited": "Bis TikTok die App von SYB geprüft hat, geht alles, was SYB postet, privat hinaus: Nur Sie sehen es auf TikTok. Nach bestandener Prüfung wählen Sie, wer jeden Beitrag sieht. Bis dahin lässt TikTok die App von SYB außerdem nur für wenige Konten am Tag posten.",
+        "audited": "TikTok hat die App von SYB geprüft: Sie wählen aus den Optionen von TikTok, wer jeden Beitrag sehen kann."
+      },
+      "before": "Bevor es funktioniert",
+      "needs": {
+        "app": "Eine eigene TikTok-App von SYB, mit Login Kit und der Posting-API von TikTok (Direct Post) eingeschaltet.",
+        "signIn": "Sie nutzen zur Anmeldung das TikTok-Konto, auf das die Beiträge gehen, und erlauben, was TikTok fragt.",
+        "choose": "Jeder Beitrag ist ein Video, das Sie freigeben, und Sie wählen vorher, wer es sehen kann."
+      },
+      "notSetUp": "Noch nicht eingerichtet: Die Schlüssel der TikTok-App von SYB fehlen. Bis dahin kann nichts auf TikTok gepostet werden.",
+      "revokeAsk": "SYB hört auf, auf TikTok zu posten. Bereits gepostete Beiträge bleiben.",
+      "revoking": "Wird widerrufen…",
+      "yesRevoke": "Ja, widerrufen",
+      "revoke": "Widerrufen",
+      "revokeNote": "Das Widerrufen löscht den Zugriff von SYB hier sofort und bittet TikTok, ihn ebenfalls zu widerrufen. Beiträge auf TikTok bleiben dort. Um es auf der Seite von TikTok zu prüfen, öffnen Sie Einstellungen und Datenschutz, dann Sicherheit und Berechtigungen, dann Berechtigungen für Apps und Dienste.",
+      "tiktokScreen": "TikTok zeigt dann eine eigene Seite und fragt nach dem Posten von Videos, Ihrem Basisprofil und Ihren öffentlichen Videos. Erlauben Sie das und kommen Sie hierher zurück.",
+      "typeToConfirm": "Geben Sie zur Bestätigung <b>{phrase}</b> ein",
+      "opening": "TikTok wird geöffnet…",
+      "signIn": "Mit TikTok anmelden und das Posten erlauben",
+      "nothingWritten": "Nichts wird gepostet, bevor Sie das fertige Video freigeben und gewählt haben, wer es sehen kann. SYB liest nur den Namen Ihres TikTok-Profils und die Zahlen Ihrer öffentlichen Videos.",
+      "reason": {
+        "start_here": "Starten Sie die TikTok-Anmeldung auf der Seite „Verbindungen“ von SYB, mit der Schaltfläche dort. An TikTok wurde nichts gesendet.",
+        "signed_out": "Sie müssen sich zuerst bei SYB anmelden; verbinden Sie TikTok dann erneut.",
+        "owner_only": "Nur Inhaber können diese Berechtigung erteilen oder zurücknehmen. An TikTok wurde nichts gesendet.",
+        "unavailable": "Das Posten auf TikTok ist noch nicht eingerichtet.",
+        "phrase": "Die Bestätigungsphrase stimmte nicht überein. Geben Sie sie wie angezeigt ein und beginnen Sie dann neu.",
+        "already_connected": "Das Posten auf TikTok ist bereits verbunden. Widerrufen Sie es zuerst, um ein anderes Konto zu verbinden.",
+        "start_again": "Diese TikTok-Anmeldung ist abgelaufen oder wurde bereits verwendet. Beginnen Sie unter „Verbindungen“ neu.",
+        "foreign": "Diese TikTok-Anmeldung wurde von einem anderen SYB-Konto aus gestartet. Nutzen Sie zur Anmeldung bei SYB dieses Konto oder beginnen Sie neu.",
+        "tiktok_error": "Die TikTok-Anmeldung wurde nicht abgeschlossen. Es wurde nichts verbunden.",
+        "scope": "TikTok hat nicht genau das erteilt, was SYB anfragt. Erlauben Sie auf der Seite von TikTok alles Aufgeführte und versuchen Sie es erneut.",
+        "tiktok_refused": "TikTok hat die Anmeldung abgelehnt. Es wurde nichts verbunden.",
+        "internal": "Bei uns ist etwas schiefgelaufen. Es wurde nichts verbunden.",
+        "generic": "Die TikTok-Anmeldung wurde nicht abgeschlossen. Es wurde nichts verbunden."
+      },
+      "readback": "Um zu sehen, wie Ihre öffentlichen Beiträge ankommen, liest dieselbe Anmeldung außerdem:"
     }
   },
   "landing": {
@@ -4673,6 +4743,37 @@
         "lastTry": "Der letzte Versuch: {error}{cost, select, none {} other { ({cost} berechnet)}}."
       },
       "refused": "abgelehnt"
+    },
+    "tiktok": {
+      "title": "Posten auf TikTok",
+      "loading": "Ihr TikTok-Konto wird gelesen…",
+      "failedLoad": "Ich konnte Ihr TikTok-Konto gerade nicht lesen.",
+      "account": "Geht an {name} auf TikTok.",
+      "whoSees": "Wer diesen Beitrag sehen kann",
+      "choose": "Auswählen…",
+      "privacy": {
+        "PUBLIC_TO_EVERYONE": "Alle",
+        "MUTUAL_FOLLOW_FRIENDS": "Freunde",
+        "FOLLOWER_OF_CREATOR": "Follower",
+        "SELF_ONLY": "Nur ich"
+      },
+      "privateOnly": "Bis TikTok die App von SYB geprüft hat, können Beiträge nur privat sein: Nur Sie sehen sie.",
+      "allowComment": "Kommentare erlauben",
+      "allowDuet": "Duette erlauben",
+      "allowStitch": "Stitches erlauben",
+      "offOnTikTok": "in Ihren TikTok-Einstellungen ausgeschaltet",
+      "brand": "Das wirbt für mein eigenes Unternehmen",
+      "brandNote": "TikTok kennzeichnet es als Werbung.",
+      "aiLabel": "TikTok kennzeichnet dieses Video als KI-generiert.",
+      "declaration": "Mit dem Posten stimmen Sie der Musiknutzungsbestätigung von TikTok zu.",
+      "save": "Diese Auswahl speichern",
+      "saving": "Wird gespeichert…",
+      "saved": "Gespeichert. Erteilen Sie unter „Vorschläge“ die Freigabe für den Beitrag, wenn Sie so weit sind.",
+      "chosen": "Wer ihn sehen kann: {privacy}.",
+      "locked": "Diese Auswahl wurde mit dem Beitrag freigegeben und lässt sich jetzt nicht mehr ändern.",
+      "needChoice": "Wählen Sie, wer ihn sehen kann, bevor Sie ihn freigeben.",
+      "processing": "Wenn er hinausgeht, kann es bei TikTok ein paar Minuten dauern, bis er in Ihrem Profil erscheint.",
+      "noDelete": "TikTok lässt Apps keine Beiträge löschen. Um ihn zu entfernen, löschen Sie ihn in der TikTok-App."
     }
   },
   "customers": {
@@ -8577,7 +8678,7 @@
         "shotList": "eine Drehliste ist zum Filmen da, nicht zum Veröffentlichen",
         "email": "E-Mails werden noch nicht über SYB versendet",
         "kind": "ein Element dieser Art ({kind}) wird nicht veröffentlicht",
-        "channel": "SYB kann nicht auf {channel} veröffentlichen – nur auf einer Facebook-Seite oder einem Instagram-Konto, das Sie verbinden",
+        "channel": "SYB kann nicht auf {channel} veröffentlichen – nur auf einer Facebook-Seite, einem Instagram-Konto oder einem TikTok-Konto, das Sie verbinden",
         "connect": "richten Sie unter Verbindungen das Veröffentlichen über Meta ein, um dies auf {platform} zu veröffentlichen",
         "noInstagram": "die Meta-Verbindung hat kein Instagram-Konto – verbinden Sie es mit seiner ID neu, um dort zu veröffentlichen",
         "needsMedia": "{platform} braucht ein Bild oder ein Video, und dieses Element hat noch keins",
@@ -8585,7 +8686,9 @@
         "noDate": "es hat kein Datum, an dem es erscheinen soll",
         "zone": "die Uhrzeit der Veröffentlichung lässt sich nicht festlegen: {reason}",
         "declined": "{count, plural, one {Sie haben die Veröffentlichung # Mal abgelehnt – ich schlage sie nicht mehr vor} other {Sie haben die Veröffentlichung # Mal abgelehnt – ich schlage sie nicht mehr vor}}",
-        "passed": "sein Datum ({date}) ist vorbei"
+        "passed": "sein Datum ({date}) ist vorbei",
+        "connectTikTok": "richten Sie unter Verbindungen das Posten auf TikTok ein, um dies auf TikTok zu veröffentlichen",
+        "tiktokNeedsVideo": "TikTok braucht ein Video, und dieses Element hat noch keins"
       },
       "zoneReason": {
         "noCountry": "kein Land angegeben",

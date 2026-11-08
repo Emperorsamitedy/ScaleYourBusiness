@@ -132,6 +132,21 @@ npm run db:seed
 - Meta: `META_APP_ID`, `META_APP_SECRET` and `META_OAUTH_REDIRECT_URI`.
   Keep `META_ACCESS_LEVEL=standard` until App Review.
 - Niche research: `META_AD_LIBRARY_TOKEN`.
+- TikTok posting: `TIKTOK_CLIENT_KEY`, `TIKTOK_CLIENT_SECRET` and
+  `TIKTOK_REDIRECT_URI`; keep `TIKTOK_AUDIT_STATUS=unaudited` until TikTok's
+  audit passes. The owner's steps: (1) create a TikTok for Developers account
+  at developers.tiktok.com and an organization for SYB; (2) create the SYB
+  app (Manage apps → Connect an app) with its icon, description, terms and
+  privacy URLs; (3) add the **Login Kit** product and register the redirect
+  URI `<APP_URL>/api/connections/tiktok-posting/callback`, byte for byte;
+  (4) add the **Content Posting API** product and switch **Direct Post** on;
+  (5) add the scopes `video.publish`, `user.info.basic` and `video.list` (no
+  others: SYB refuses a grant with one more); (6) copy the client key and
+  secret from Credentials into the env above; (7) submit the app for
+  TikTok's review and then the Content Posting API **audit**. Until the
+  audit passes, every post goes out private ("only me"), TikTok lets the app
+  post for only a few accounts a day, and the screen says so. Real posts also
+  wait for `SESSION_D_REAL_WRITES=on`, like Meta's.
 - Error monitoring: `SENTRY_DSN` and `NEXT_PUBLIC_SENTRY_DSN`.
 - The ops panel: `OPS_KEY`.
 - Phone answering (P6-02): `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN` and

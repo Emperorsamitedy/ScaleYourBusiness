@@ -2413,6 +2413,76 @@
       "unknownStatuses": "我不认识的状态：{list}。我不会猜测它们的含义。",
       "unknownStatus": "“{word}”（{count}）",
       "listSep": "、"
+    },
+    "tiktok": {
+      "sectionLabel": "发布到 TikTok · 一项单独的同意",
+      "label": "发布到 TikTok",
+      "title": {
+        "on": "已授予：SYB 发布您批准的视频",
+        "off": "已关闭。SYB 不会向 TikTok 发布内容。"
+      },
+      "status": {
+        "connected": "已连接",
+        "paused": "已暂停",
+        "failed": "失败",
+        "disconnected": "已断开"
+      },
+      "consentedOn": "于 {day} 同意 · {status}",
+      "notGranted": "未授予",
+      "notSetUpYet": "尚未设置",
+      "connect": "连接",
+      "close": "关闭",
+      "keepIt": "保留",
+      "unreachable": "我无法连接到服务器。请重试。",
+      "revokeFailed": "撤销没有成功。",
+      "connected": "发布到 TikTok 已连接，您的同意已记录在案。",
+      "youCancelled": "您在 TikTok 的页面上取消了。没有连接任何内容。",
+      "revoked": "已撤销。SYB 对 TikTok 的访问权限已在这里删除，并已请求 TikTok 也将其撤销。",
+      "revokedHereOnly": "已在这里撤销。TikTok 没有确认它也撤销了 SYB 的访问权限，请在 TikTok 应用中查看。",
+      "fact": {
+        "status": "状态",
+        "account": "TikTok 账户",
+        "whoSees": "谁能看到帖子",
+        "private": "仅您自己，直到 TikTok 审核 SYB 的应用",
+        "chosen": "每个帖子由您选择"
+      },
+      "access": {
+        "unaudited": "在 TikTok 审核 SYB 的应用之前，SYB 发布的所有内容都以私密方式发出：在 TikTok 上只有您能看到。审核通过后，由您选择每个帖子谁能看到。在此之前，TikTok 每天也只允许 SYB 的应用为少数几个账户发布。",
+        "audited": "TikTok 已审核 SYB 的应用：您可以从 TikTok 自己的选项中选择每个帖子谁能看到。"
+      },
+      "before": "开始使用之前",
+      "needs": {
+        "app": "SYB 自己的 TikTok 应用，并开启 Login Kit 和 TikTok 的发布 API（Direct Post）。",
+        "signIn": "您用帖子要发往的 TikTok 账户登录，并允许 TikTok 询问的权限。",
+        "choose": "每个帖子都是您批准的一段视频，并由您先选择谁能看到。"
+      },
+      "notSetUp": "尚未设置：SYB 的 TikTok 应用密钥还没有到位。在此之前，无法向 TikTok 发布任何内容。",
+      "revokeAsk": "SYB 将停止向 TikTok 发布。已经发布的帖子会保留。",
+      "revoking": "正在撤销…",
+      "yesRevoke": "是的，撤销",
+      "revoke": "撤销",
+      "revokeNote": "撤销会立即在这里删除 SYB 的访问权限，并请求 TikTok 也将其撤销。已经在 TikTok 上的帖子会保留。如需在 TikTok 一侧查看，请打开“设置和隐私”，然后“安全与权限”，再到“应用和服务权限”。",
+      "tiktokScreen": "随后 TikTok 会显示它自己的页面，询问发布视频、您的基本资料和您的公开视频。请允许，然后回到这里。",
+      "typeToConfirm": "如需确认，请输入 <b>{phrase}</b>",
+      "opening": "正在打开 TikTok…",
+      "signIn": "使用 TikTok 登录并允许发布",
+      "nothingWritten": "在您批准成品视频并选择谁能看到之前，不会发布任何东西。SYB 只读取您 TikTok 资料的名称和您公开视频的数据。",
+      "reason": {
+        "start_here": "请从 SYB 的“连接”页面，用那里的按钮开始 TikTok 登录。没有向 TikTok 发送任何内容。",
+        "signed_out": "请先登录 SYB，然后再次连接 TikTok。",
+        "owner_only": "只有所有者才能授予或收回这项权限。没有向 TikTok 发送任何内容。",
+        "unavailable": "发布到 TikTok 尚未设置。",
+        "phrase": "确认短语不匹配。请按显示的内容输入，然后重新开始。",
+        "already_connected": "发布到 TikTok 已经连接。请先撤销它，再连接另一个账户。",
+        "start_again": "这次 TikTok 登录已过期或已被使用。请从“连接”重新开始。",
+        "foreign": "这次 TikTok 登录是从另一个 SYB 账户发起的。请以该账户登录 SYB，或重新开始。",
+        "tiktok_error": "TikTok 登录没有完成。没有连接任何内容。",
+        "scope": "TikTok 没有恰好授予 SYB 申请的权限。请在 TikTok 的页面上允许列出的所有项目，然后重试。",
+        "tiktok_refused": "TikTok 拒绝了这次登录。没有连接任何内容。",
+        "internal": "我们这边出了问题。没有连接任何内容。",
+        "generic": "TikTok 登录没有完成。没有连接任何内容。"
+      },
+      "readback": "为了查看您公开帖子的表现，同一次登录还会读取："
     }
   },
   "landing": {
@@ -4673,6 +4743,37 @@
         "lastTry": "上一次尝试：{error}{cost, select, none {} other {（已收取 {cost}）}}。"
       },
       "refused": "已拒绝"
+    },
+    "tiktok": {
+      "title": "发布到 TikTok",
+      "loading": "正在读取您的 TikTok 账户…",
+      "failedLoad": "我暂时无法读取您的 TikTok 账户。",
+      "account": "将发布到 TikTok 上的 {name}。",
+      "whoSees": "谁能看到这个帖子",
+      "choose": "请选择…",
+      "privacy": {
+        "PUBLIC_TO_EVERYONE": "所有人",
+        "MUTUAL_FOLLOW_FRIENDS": "朋友",
+        "FOLLOWER_OF_CREATOR": "粉丝",
+        "SELF_ONLY": "仅自己"
+      },
+      "privateOnly": "在 TikTok 审核 SYB 的应用之前，帖子只能是私密的：只有您能看到。",
+      "allowComment": "允许评论",
+      "allowDuet": "允许合拍",
+      "allowStitch": "允许拼接",
+      "offOnTikTok": "已在您的 TikTok 设置中关闭",
+      "brand": "这是在推广我自己的企业",
+      "brandNote": "TikTok 会将其标记为推广。",
+      "aiLabel": "TikTok 会将此视频标记为 AI 生成。",
+      "declaration": "发布即表示您同意 TikTok 的音乐使用确认。",
+      "save": "保存这些选择",
+      "saving": "正在保存…",
+      "saved": "已保存。准备好后，请在“提案”中批准这个帖子。",
+      "chosen": "谁能看到：{privacy}。",
+      "locked": "这些选择已随帖子一起批准，现在不能更改。",
+      "needChoice": "批准之前，请先选择谁能看到。",
+      "processing": "发布后，TikTok 可能需要几分钟处理，才会显示在您的资料中。",
+      "noDelete": "TikTok 不允许应用删除帖子。如需撤下，请在 TikTok 应用中删除。"
     }
   },
   "customers": {
@@ -8577,7 +8678,7 @@
         "shotList": "拍摄清单用于拍摄，不用于发布",
         "email": "SYB 目前还不发送邮件",
         "kind": "此类内容（{kind}）不会发布",
-        "channel": "SYB 无法发布到 {channel}，只能发布到您连接的 Facebook 主页或 Instagram 账户",
+        "channel": "SYB 无法发布到 {channel}，只能发布到您连接的 Facebook 主页、Instagram 账户或 TikTok 账户",
         "connect": "请在“连接”中开通 Meta 发布，才能将此内容发布到 {platform}",
         "noInstagram": "此 Meta 连接没有 Instagram 账户，请带上其 ID 重新连接后再在那里发布",
         "needsMedia": "{platform} 需要一张图片或一段视频，而此内容还没有",
@@ -8585,7 +8686,9 @@
         "noDate": "没有发布日期",
         "zone": "无法设定发布时间：{reason}",
         "declined": "{count, plural, other {您已拒绝发布 # 次，我已不再提议}}",
-        "passed": "其日期（{date}）已过"
+        "passed": "其日期（{date}）已过",
+        "connectTikTok": "请在“连接”中开通发布到 TikTok，才能将此内容发布到 TikTok",
+        "tiktokNeedsVideo": "TikTok 需要一段视频，而此内容还没有"
       },
       "zoneReason": {
         "noCountry": "未填写国家",
