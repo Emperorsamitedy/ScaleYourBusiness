@@ -14,7 +14,7 @@
 import "dotenv/config";
 import { eq, inArray } from "drizzle-orm";
 import { renderToStaticMarkup } from "react-dom/server";
-import { afterAll, afterEach, describe, expect, it, vi } from "vitest";
+import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 import { db } from "../../db";
 import {
   accounts,
@@ -44,6 +44,17 @@ import { tokenHash } from "../unsubscribe/unsubscribe";
 import { toCsv as ledgerCsv } from "../../components/trust/ledger";
 import { addressLocale } from "./people";
 import { customerLocale, englishWords, personLocale, wordsFor } from "./recipient";
+
+// These hold the review gate itself. All six languages went live on
+// 2026-11-08 (the owner's override), so the gate is tested the way the
+// owner would use it: with LANGUAGES_IN_REVIEW sending them back.
+const IN_REVIEW = "es-ES,de-DE,fr-FR,hu-HU,ru-RU,zh-Hans";
+beforeAll(() => {
+  process.env.LANGUAGES_IN_REVIEW = IN_REVIEW;
+});
+afterAll(() => {
+  delete process.env.LANGUAGES_IN_REVIEW;
+});
 
 process.env.CONNECTOR_KEY ??= "0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef";
 

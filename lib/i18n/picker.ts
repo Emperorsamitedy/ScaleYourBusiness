@@ -4,7 +4,7 @@
 
 import { ISO_4217_CODES, isIsoCurrency } from "../core/currencies";
 import type { AppLocale } from "./locales";
-import { LANGUAGE_NAMES, LANGUAGE_STATUS, intlTag, isAppLocale } from "./locales";
+import { LANGUAGE_NAMES, intlTag, isAppLocale, languageStatus } from "./locales";
 
 export interface LanguageOption {
   code: AppLocale;
@@ -55,7 +55,7 @@ export function languageOptions(offered: readonly AppLocale[]): LanguageOption[]
   return offered.map((code) => ({
     code,
     name: LANGUAGE_NAMES[code],
-    checking: LANGUAGE_STATUS[code] !== "live",
+    checking: languageStatus(code) !== "live",
   }));
 }
 
