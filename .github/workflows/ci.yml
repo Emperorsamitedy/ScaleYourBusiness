@@ -43,6 +43,7 @@ jobs:
           npm ci || {
             echo "::warning::npm ci failed (likely the ffmpeg download); retrying without install scripts"
             npm ci --ignore-scripts
+            echo "FFMPEG_INSTALL_SKIPPED=1" >> "$GITHUB_ENV"
           }
 
       - name: Typecheck
