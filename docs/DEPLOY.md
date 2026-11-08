@@ -123,6 +123,11 @@ npm run db:seed
 
 **Features that need their own key**
 
+`/ops?key=<OPS_KEY>` checks each of these live, one section per feature: which
+variables are set (never their values), the callback URLs to paste, and what
+stays switched off. A feature nobody has started setting up shows OFF, not
+MISSING.
+
 - Phone alerts: run `npm run vapid:generate` and set `VAPID_PUBLIC_KEY`,
   `VAPID_PRIVATE_KEY` and `VAPID_SUBJECT`.
 - Page speed in the site audit: `PAGESPEED_API_KEY`.

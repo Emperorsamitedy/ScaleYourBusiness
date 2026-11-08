@@ -11,15 +11,41 @@
 // THE RULE: a secret's value never leaves this function, not even a
 // prefix of it. An item may carry only presence, plus facts that are not
 // secret: whether a Stripe key is a test or a live one (the word, never
-// the prefix), APP_URL's origin, the domain of a From address, and a
-// handful of enumerated settings (INTERVIEWER_MODE, META_ACCESS_LEVEL)
-// shown only when they hold a value the code knows. Anything else that
+// the prefix), APP_URL's origin, the domain of a From address, a phone
+// number once it reads as E.164, a count of days or cents once it reads as
+// a whole number, the languages SYB speaks, and a handful of enumerated
+// settings (INTERVIEWER_MODE, META_ACCESS_LEVEL, MEDIA_PROVIDER,
+// GOOGLE_ADS_ACCESS_LEVEL, TIKTOK_AUDIT_STATUS) shown only when they hold a
+// value the code knows. Anything else that
 // looks wrong is described, never echoed — a secret pasted into the wrong
 // variable must not surface here either. readiness.test.ts fills every
 // variable with a sentinel and searches the whole output for it.
 
 import { parseKey } from "../connectors/secrets";
 import { format, isIsoCurrency, money } from "../core/money";
+import {
+  HIGGSFIELD_DEFAULTS,
+  PHONE_RECORDING_KEEP_DAYS_DEFAULT,
+  TWILIO_KEYS,
+  blobTokenSet,
+  googleAdsAccessLevel,
+  googleAdsClientSource,
+  googleAdsEnv,
+  googleAdsMissing,
+  higgsfieldEnv,
+  mediaProviderSetting,
+  parseWhatsAppTemplates,
+  phoneRecordingKeepDays,
+  sessionDRealWritesOn,
+  tiktokAdsMissing,
+  tiktokAuditStatus,
+  tiktokPostingEnv,
+  twilioAccountMissing,
+  twilioMissing,
+  whatsappMissing,
+} from "../env";
+import { LANGUAGE_NAMES, LOCALES, isAppLocale, languagesInReview } from "../i18n/locales";
+import { sendingMode } from "../purchasing/po";
 
 export type ReadinessStatus = "ready" | "missing" | "check" | "off";
 
@@ -93,6 +119,15 @@ export const SUPPORT_INBOUND_PATH = "/api/support/inbound";
 export const EMAIL_EVENTS_PATH = "/api/email/events";
 export const META_CALLBACK_PATH = "/api/connections/meta/callback";
 export const STRIPE_WEBHOOK_PATH = "/api/stripe/webhook";
+// The features' own constants live beside code that opens the database
+// (lib/phone/line.ts, lib/google-ads/login.ts, lib/execution/tiktok-posting.ts,
+// lib/tiktok/login.ts); readiness.test.ts checks these match them.
+export const PHONE_VOICE_PATH = "/api/phone/voice";
+export const PHONE_STATUS_PATH = "/api/phone/voice?step=status";
+export const PHONE_RECORDING_PATH = "/api/phone/recording";
+export const GOOGLE_ADS_CALLBACK_PATH = "/api/connections/google-ads/callback";
+export const TIKTOK_POSTING_CALLBACK_PATH = "/api/connections/tiktok-posting/callback";
+export const TIKTOK_ADS_CALLBACK_PATH = "/api/connections/tiktok/callback";
 
 /** Resend's sandbox sender: delivers only to the Resend account's own owner. */
 export const RESEND_DEFAULT_FROM = "onboarding@resend.dev";
@@ -124,6 +159,32 @@ const LINKS = {
     href: "https://developer.apple.com/account/resources",
   },
   sentry: { label: "Sentry → project → Client Keys (DSN)", href: "https://sentry.io/" },
+  twilio: { label: "Twilio Console → Account info", href: "https://console.twilio.com/" },
+  twilioNumbers: {
+    label: "Twilio → Phone Numbers → Active numbers → the number",
+    href: "https://console.twilio.com/us1/develop/phone-numbers/manage/incoming",
+  },
+  twilioWhatsApp: {
+    label: "Twilio → Messaging → Senders → WhatsApp senders",
+    href: "https://console.twilio.com/us1/develop/sms/senders/whatsapp-senders",
+  },
+  twilioContent: {
+    label: "Twilio → Messaging → Content Template Builder",
+    href: "https://console.twilio.com/us1/develop/sms/content-template-builder",
+  },
+  higgsfield: { label: "Higgsfield → API console", href: "https://higgsfield.ai/higgsfield-api" },
+  googleAds: {
+    label: "Google Cloud → Google Ads API → Overview",
+    href: "https://console.cloud.google.com/google/ads-apis/overview",
+  },
+  tiktokDevelopers: {
+    label: "TikTok for Developers → Manage apps → the SYB app",
+    href: "https://developers.tiktok.com/",
+  },
+  tiktokBusiness: {
+    label: "TikTok API for Business → My Apps → the app",
+    href: "https://business-api.tiktok.com/portal",
+  },
 } satisfies Record<string, ReadinessLink>;
 
 const MACHINE = "Your machine, with DATABASE_URL pointed at production";
@@ -643,41 +704,12 @@ function campaignGroup(env: ReadinessEnv, facts: ReadinessFacts): ReadinessGroup
             { where_text: THIS_PAGE },
           );
 
-  const gateRaw = env.SESSION_D_REAL_WRITES?.trim() ?? "";
-  const gate =
-    gateRaw === "on"
-      ? item(
-          "SESSION_D_REAL_WRITES",
-          "check",
-          "The real-write gate is ON: approved posts and ad changes really go out. That is right only once the two-week unattended clock has completed and its date is in TASKS-PHASE3.md.",
-          LINKS.vercelEnv,
-        )
-      : item(
-          "SESSION_D_REAL_WRITES",
-          "off",
-          gateRaw === ""
-            ? "The real-write gate is off, as it should be: nothing is published to Meta until it is exactly on, after the two-week clock."
-            : "The real-write gate is off, as it should be. It holds a value other than on, which reads as off.",
-          LINKS.vercelEnv,
-        );
-
   return {
     key: "campaigns",
     step: "Step 4",
     title: "Before any real campaign",
-    items: [
-      from,
-      law,
-      firsts,
-      gate,
-      item(
-        "two-week unattended clock",
-        "check",
-        "Nothing in the database records the two-week unattended clock, so whether it has completed is the team's call. Record the date in TASKS-PHASE3.md before switching the gate on.",
-        null,
-        { where_text: "TASKS-PHASE3.md, by the team" },
-      ),
-    ],
+    // The real-write gate that holds campaign sends is its own group below.
+    items: [from, law, firsts],
   };
 }
 
@@ -925,6 +957,888 @@ function optionalGroup(env: ReadinessEnv): ReadinessGroup {
   };
 }
 
+/* ── the features added on 2026-11-08 ──
+ *
+ * Each reads its settings through the feature's own check in lib/env.ts,
+ * handed this env, so the panel and the feature can't disagree. A feature
+ * nobody has started setting up is OFF, never MISSING: the count of
+ * missing settings is what go-live still needs, and an unchosen feature
+ * needs nothing. Once any of its own keys is set, the rest are MISSING.
+ */
+
+const NO_APP_URL = "Set APP_URL first; the URL to paste is built from it.";
+
+const isAre = (n: number) => (n === 1 ? "is" : "are");
+
+/** "A", "A and B", "A, B and C". */
+function andList(parts: readonly string[]): string {
+  if (parts.length <= 1) return parts.join("");
+  return `${parts.slice(0, -1).join(", ")} and ${parts[parts.length - 1]}`;
+}
+
+/** An E.164 number, which is not a secret, once it reads as one; null otherwise. */
+function e164(raw: string | undefined): string | null {
+  const value = raw?.trim() ?? "";
+  return /^\+[1-9][0-9]{6,14}$/.test(value) ? value : null;
+}
+
+/** Millionths of a US dollar as dollars, for display only: 112000 → "$0.112". */
+export function usdMicros(m: number): string {
+  const cents = String(m % 1_000_000)
+    .padStart(6, "0")
+    .replace(/0+$/, "")
+    .padEnd(2, "0");
+  return `$${Math.floor(m / 1_000_000)}.${cents}`;
+}
+
+/**
+ * A redirect the provider matches byte for byte. `derived` says what an
+ * unset value means: "fine" (APP_URL plus the path is used, as Google Ads
+ * does), "set it" (derived, but production should pin it, as Meta and
+ * TikTok posting say), or "required" (never derived, as TikTok Ads).
+ */
+function redirectItem(
+  env: ReadinessEnv,
+  name: string,
+  path: string,
+  opts: {
+    derived: "fine" | "set it" | "required";
+    /** The feature is set up or being set up; otherwise the item is OFF. */
+    chosen: boolean;
+    registerAt: string;
+    link: ReadinessLink;
+  },
+): ReadinessItem {
+  const app = appOrigin(env.APP_URL);
+  const expected = app ? `${app.origin}${path}` : null;
+  const raw = env[name]?.trim() ?? "";
+  const paste = expected ? [expected] : [];
+  if (expected === null) {
+    return item(
+      name,
+      opts.chosen ? "missing" : "off",
+      "Set APP_URL first; the redirect must be APP_URL plus the callback path.",
+      opts.link,
+    );
+  }
+  if (raw === "") {
+    if (!opts.chosen) {
+      return item(
+        name,
+        "off",
+        `It isn't set, and isn't needed until the rest of this is. When it is, it must be exactly this, registered in ${opts.registerAt}.`,
+        opts.link,
+        { paste },
+      );
+    }
+    return opts.derived === "fine"
+      ? item(
+          name,
+          "ready",
+          `It isn't set, so the redirect is APP_URL plus the callback path. Register exactly this in ${opts.registerAt}.`,
+          opts.link,
+          { paste },
+        )
+      : opts.derived === "set it"
+        ? item(
+            name,
+            "check",
+            `It isn't set, so it is derived from APP_URL. Set it to exactly this, and register the same in ${opts.registerAt}.`,
+            opts.link,
+            { paste },
+          )
+        : item(
+            name,
+            "missing",
+            `It isn't set, and it is never guessed: the provider matches it byte for byte. Set it to exactly this, and register the same in ${opts.registerAt}.`,
+            opts.link,
+            { paste },
+          );
+  }
+  if (raw === expected) {
+    return item(
+      name,
+      "ready",
+      `It matches APP_URL plus the callback path. Register exactly this in ${opts.registerAt}.`,
+      opts.link,
+      { paste },
+    );
+  }
+  return item(
+    name,
+    "missing",
+    "It doesn't match APP_URL plus the callback path, so the provider would send owners somewhere else. Set it to exactly this.",
+    opts.link,
+    { paste },
+  );
+}
+
+/**
+ * A key pair the feature needs both of. `ready` is the feature's own
+ * answer (lib/env.ts); the rest says which half is missing.
+ */
+function pairItem(
+  env: ReadinessEnv,
+  name: string,
+  keys: readonly [string, string],
+  words: { ready: string; needs: string; off: string },
+  link: ReadinessLink,
+  state: { ready: boolean; chosen: boolean },
+): ReadinessItem {
+  const [a, b] = [has(env, keys[0]), has(env, keys[1])];
+  const chosen = state.chosen;
+  if (state.ready) return item(name, "ready", words.ready, link);
+  if (a || b) {
+    return item(
+      name,
+      "missing",
+      `Only ${a ? keys[0] : keys[1]} is set; ${words.needs} needs both, so it stays switched off.`,
+      link,
+    );
+  }
+  return item(
+    name,
+    chosen ? "missing" : "off",
+    chosen ? `Neither is set; ${words.needs} needs both, so it stays switched off.` : words.off,
+    link,
+  );
+}
+
+function phoneGroup(env: ReadinessEnv): ReadinessGroup {
+  const app = appOrigin(env.APP_URL);
+  const missing = twilioMissing(env);
+  const chosen = TWILIO_KEYS.some((k) => has(env, k));
+  const off =
+    "so the phone line stays switched off: /support says it isn't set up, and the webhook refuses every call.";
+  const setting = (
+    name: (typeof TWILIO_KEYS)[number],
+    ready: string,
+    wrong: string,
+    link: ReadinessLink,
+  ): ReadinessItem => {
+    if (!missing.includes(name)) return item(name, "ready", ready, link);
+    if (has(env, name)) return item(name, "missing", `${wrong} The line stays switched off.`, link);
+    return item(name, chosen ? "missing" : "off", `It isn't set, ${off}`, link);
+  };
+  const number = e164(env.TWILIO_PHONE_NUMBER);
+  const paste = app
+    ? [`${app.origin}${PHONE_VOICE_PATH}`, `${app.origin}${PHONE_STATUS_PATH}`]
+    : [];
+  const webhooks = !chosen
+    ? item(
+        "Twilio voice webhooks",
+        "off",
+        "Once the three settings above are set, point the number's webhooks here.",
+        LINKS.twilioNumbers,
+        { paste },
+      )
+    : app === null
+      ? item("Twilio voice webhooks", "missing", NO_APP_URL, LINKS.twilioNumbers)
+      : item(
+          "Twilio voice webhooks",
+          "check",
+          `In Twilio, set the number's "A call comes in" webhook to the first URL and its call status callback to the second, both HTTP POST. I can't see Twilio's settings from here.`,
+          LINKS.twilioNumbers,
+          { paste },
+        );
+  return {
+    key: "phone",
+    step: "Phone line · P6-02",
+    title: "Answering the phone",
+    items: [
+      setting(
+        "TWILIO_ACCOUNT_SID",
+        "It's set and reads as a Twilio account id. Every webhook must name this account.",
+        "It's set but isn't a Twilio account id (AC followed by 32 letters and digits).",
+        LINKS.twilio,
+      ),
+      setting(
+        "TWILIO_AUTH_TOKEN",
+        "It's set. It checks the signature on every webhook, so keep it as secret as CONNECTOR_KEY.",
+        "It's set but has a space in it, so it can't be the token. Paste it again from the Console.",
+        LINKS.twilio,
+      ),
+      setting(
+        "TWILIO_PHONE_NUMBER",
+        `Callers dial ${number ?? "the number"}. One business per number; the owner turns the line on from /support.`,
+        "It's set but isn't a number in international form (E.164, such as +447700900123).",
+        LINKS.twilioNumbers,
+      ),
+      webhooks,
+    ],
+  };
+}
+
+function recordingGroup(env: ReadinessEnv): ReadinessGroup {
+  // lib/phone-recording/recordings.ts recordingMissing(), as production reads
+  // it: the phone line's settings, a media store (Blob, in production) and
+  // CONNECTOR_KEY, which seals the audio. readiness.test.ts holds them equal.
+  const needs: string[] = [
+    ...twilioMissing(env),
+    ...(blobTokenSet(env) ? [] : ["BLOB_READ_WRITE_TOKEN"]),
+    ...(connectorKeyOk(env.CONNECTOR_KEY) ? [] : ["CONNECTOR_KEY"]),
+  ];
+  const lineChosen = TWILIO_KEYS.some((k) => has(env, k));
+  const ready = needs.length === 0;
+  const setup = ready
+    ? item(
+        "recording needs",
+        "ready",
+        "Everything recording needs is set: the phone line, media storage and CONNECTOR_KEY (the audio is sealed with a key made from it). Recording still starts off for every business until its owner switches it on in /support, and callers hear that the call is recorded first.",
+        null,
+        { where_text: "The phone line above, Vercel Blob, and CONNECTOR_KEY above" },
+      )
+    : lineChosen
+      ? item(
+          "recording needs",
+          "missing",
+          `Recording can't be switched on yet: ${andList(needs)} ${isAre(needs.length)} missing or not right. It stays off for every business, and /support says what is needed.`,
+          null,
+          { where_text: "The phone line above, Vercel Blob, and CONNECTOR_KEY above" },
+        )
+      : item(
+          "recording needs",
+          "off",
+          "The phone line isn't set up, so call recording stays off for every business.",
+          null,
+          { where_text: "The phone line above, Vercel Blob, and CONNECTOR_KEY above" },
+        );
+
+  const days = phoneRecordingKeepDays(env);
+  const rawDays = env.PHONE_RECORDING_KEEP_DAYS?.trim() ?? "";
+  const honoured = /^[0-9]{1,3}$/.test(rawDays) && Number.parseInt(rawDays, 10) === days;
+  const keep =
+    rawDays === ""
+      ? item(
+          "PHONE_RECORDING_KEEP_DAYS",
+          "ready",
+          `It isn't set, so recordings are kept ${days} days, the default, then deleted by the daily run. Callers hear this number in the notice.`,
+          LINKS.vercelEnv,
+        )
+      : honoured
+        ? item(
+            "PHONE_RECORDING_KEEP_DAYS",
+            "ready",
+            `Recordings are kept ${days} ${days === 1 ? "day" : "days"}, then deleted by the daily run. Callers hear this number in the notice.`,
+            LINKS.vercelEnv,
+          )
+        : item(
+            "PHONE_RECORDING_KEEP_DAYS",
+            "check",
+            `It holds something other than 1 to 365 whole days, so recordings are kept ${PHONE_RECORDING_KEEP_DAYS_DEFAULT} days, the default. Set a whole number of days, or empty it.`,
+            LINKS.vercelEnv,
+          );
+
+  const app = appOrigin(env.APP_URL);
+  const callbackWords =
+    "Twilio posts each finished recording here, signed. SYB names it in every recorded call, so there is nothing to set in Twilio; it only has to be reachable.";
+  const callback =
+    app === null
+      ? item(
+          "recording callback",
+          ready ? "missing" : "off",
+          "Set APP_URL first; the callback is built from it.",
+          null,
+          { where_text: "SYB names it to Twilio in each recorded call" },
+        )
+      : item("recording callback", ready ? "ready" : "off", callbackWords, null, {
+          where_text: "SYB names it to Twilio in each recorded call",
+          paste: [`${app.origin}${PHONE_RECORDING_PATH}`],
+        });
+
+  return {
+    key: "recording",
+    step: "Call recording · P6-08",
+    title: "Recording calls, off until each owner says yes",
+    items: [setup, keep, callback],
+  };
+}
+
+function whatsappGroup(env: ReadinessEnv): ReadinessGroup {
+  const missing = whatsappMissing(env);
+  const chosen = has(env, "TWILIO_WHATSAPP_FROM") || has(env, "TWILIO_WHATSAPP_SUMMARY_TEMPLATES");
+  const offWords =
+    "so WhatsApp summaries stay switched off: /watch says WhatsApp isn't set up, and nothing goes to WhatsApp.";
+
+  const account = twilioAccountMissing(env);
+  const shared = !chosen
+    ? item(
+        "Twilio account, shared with the phone line",
+        "off",
+        "WhatsApp isn't set up. When it is, it sends through the phone line's Twilio account (TWILIO_ACCOUNT_SID and TWILIO_AUTH_TOKEN).",
+        LINKS.twilio,
+      )
+    : account.length === 0
+      ? item(
+          "Twilio account, shared with the phone line",
+          "ready",
+          "TWILIO_ACCOUNT_SID and TWILIO_AUTH_TOKEN are set; WhatsApp sends through the same Twilio account as the phone line.",
+          LINKS.twilio,
+        )
+      : item(
+          "Twilio account, shared with the phone line",
+          "missing",
+          `WhatsApp sends through the phone line's Twilio account, and ${andList(account)} ${isAre(account.length)} missing or not right (see "Answering the phone"), ${offWords}`,
+          LINKS.twilio,
+        );
+
+  const fromNumber = e164(env.TWILIO_WHATSAPP_FROM);
+  const from = !missing.includes("TWILIO_WHATSAPP_FROM")
+    ? item(
+        "TWILIO_WHATSAPP_FROM",
+        "ready",
+        `Summaries go from ${fromNumber ?? "the sender"} on WhatsApp. Each owner still gives their number and ticks the opt-in on /watch; nothing goes without that yes.`,
+        LINKS.twilioWhatsApp,
+      )
+    : has(env, "TWILIO_WHATSAPP_FROM")
+      ? item(
+          "TWILIO_WHATSAPP_FROM",
+          "missing",
+          `It's set but isn't a number in international form (E.164, such as +447700900123), ${offWords}`,
+          LINKS.twilioWhatsApp,
+        )
+      : item(
+          "TWILIO_WHATSAPP_FROM",
+          chosen ? "missing" : "off",
+          `It isn't set, ${offWords} It is the WhatsApp-enabled sender on the Twilio account.`,
+          LINKS.twilioWhatsApp,
+        );
+
+  const parsed = parseWhatsAppTemplates(env.TWILIO_WHATSAPP_SUMMARY_TEMPLATES);
+  let templates: ReadinessItem;
+  if (parsed !== null) {
+    // Only the languages SYB speaks are named; any other key is counted, never shown.
+    const known = LOCALES.filter((l) => l in parsed);
+    const others = Object.keys(parsed).filter((k) => !isAppLocale(k)).length;
+    const named = andList([
+      ...known,
+      ...(others > 0 ? [`${others} other ${others === 1 ? "entry" : "entries"}`] : []),
+    ]);
+    templates = item(
+      "TWILIO_WHATSAPP_SUMMARY_TEMPLATES",
+      "ready",
+      `Templates are set for ${named}; a language without its own gets the English one. Meta must approve each before Twilio sends it, and I can't see that from here, so check each says Approved.`,
+      LINKS.twilioContent,
+    );
+  } else if (has(env, "TWILIO_WHATSAPP_SUMMARY_TEMPLATES")) {
+    templates = item(
+      "TWILIO_WHATSAPP_SUMMARY_TEMPLATES",
+      "missing",
+      `It's set but isn't JSON I can use: it must map each language to an approved template id (HX followed by 32 characters), with an "en" entry, ${offWords}`,
+      LINKS.twilioContent,
+    );
+  } else {
+    templates = item(
+      "TWILIO_WHATSAPP_SUMMARY_TEMPLATES",
+      chosen ? "missing" : "off",
+      `It isn't set, ${offWords} Submit the words in specs/whatsapp-summary-v1.md in Twilio's Content Template Builder for Meta's approval, then put each approved id here as JSON, such as {"en":"HX…"}.`,
+      LINKS.twilioContent,
+    );
+  }
+
+  return {
+    key: "whatsapp",
+    step: "WhatsApp · P6-07",
+    title: "The weekly summary on WhatsApp",
+    items: [shared, from, templates],
+  };
+}
+
+function videoGroup(env: ReadinessEnv): ReadinessGroup {
+  const setting = mediaProviderSetting(env);
+  const raw = env.MEDIA_PROVIDER?.trim().toLowerCase() ?? "";
+  const hf = higgsfieldEnv(env);
+  const on = setting === "higgsfield";
+  const keySet = has(env, "HIGGSFIELD_API_KEY") || has(env, "HIGGSFIELD_API_SECRET");
+  const chosen = on || keySet;
+  const offWords =
+    "AI video stays switched off: /content says generation isn't set up, and nothing is proposed.";
+
+  let provider: ReadinessItem;
+  if (on) {
+    provider = item(
+      "MEDIA_PROVIDER",
+      "ready",
+      "It says higgsfield, so AI video goes through Higgsfield's API: three candidates per brief, picked in /studio, and only ever through an approved proposal with its cost.",
+      LINKS.vercelEnv,
+    );
+  } else if (raw === "fake") {
+    provider =
+      setting === "fake"
+        ? item(
+            "MEDIA_PROVIDER",
+            "check",
+            "It says fake: placeholder art, for development. Production refuses it; set it to higgsfield there.",
+            LINKS.vercelEnv,
+          )
+        : item(
+            "MEDIA_PROVIDER",
+            "missing",
+            "It says fake, which production refuses because it would publish placeholder art, so generation is off. Set it to higgsfield.",
+            LINKS.vercelEnv,
+          );
+  } else if (setting === "vendor") {
+    provider = item(
+      "MEDIA_PROVIDER",
+      "missing",
+      "It says vendor, a slot with no provider built behind it, so nothing can be generated. Set it to higgsfield.",
+      LINKS.vercelEnv,
+    );
+  } else {
+    const what =
+      raw === "" || raw === "off"
+        ? "It isn't higgsfield"
+        : "It holds a value the code doesn't know";
+    provider = keySet
+      ? item(
+          "MEDIA_PROVIDER",
+          "missing",
+          `${what}, so the Higgsfield key below goes unused and ${offWords} Set it to higgsfield.`,
+          LINKS.vercelEnv,
+        )
+      : item(
+          "MEDIA_PROVIDER",
+          "off",
+          `${what}, so ${offWords} Set it to higgsfield once the Higgsfield key is set.`,
+          LINKS.vercelEnv,
+        );
+  }
+
+  const keyName = "HIGGSFIELD_API_KEY + HIGGSFIELD_API_SECRET";
+  let key: ReadinessItem;
+  if (hf.key !== null) {
+    key = item(
+      keyName,
+      "ready",
+      "The key id and its secret are set. They spend Higgsfield's prepaid API balance, which is separate from any higgsfield.ai web plan.",
+      LINKS.higgsfield,
+    );
+  } else if (has(env, "HIGGSFIELD_API_KEY")) {
+    key = item(
+      keyName,
+      "missing",
+      "Only HIGGSFIELD_API_KEY is set; it needs HIGGSFIELD_API_SECRET too, or the whole id:secret in HIGGSFIELD_API_KEY. Until then nothing is proposed.",
+      LINKS.higgsfield,
+    );
+  } else if (has(env, "HIGGSFIELD_API_SECRET")) {
+    key = item(
+      keyName,
+      "missing",
+      "Only HIGGSFIELD_API_SECRET is set; HIGGSFIELD_API_KEY, the key id, is missing. Until then nothing is proposed.",
+      LINKS.higgsfield,
+    );
+  } else if (on) {
+    key = item(
+      keyName,
+      "missing",
+      "MEDIA_PROVIDER says higgsfield, but no key is set, so the studio says so and nothing is proposed. Buy API credit and create a key in Higgsfield's API console.",
+      LINKS.higgsfield,
+    );
+  } else {
+    key = item(
+      keyName,
+      "off",
+      "Neither is set. Buy Higgsfield API credit (separate from a web plan) and create a key when AI video is next.",
+      LINKS.higgsfield,
+    );
+  }
+
+  // The optional limits: shown as the numbers SYB will use, never as the raw text.
+  const ignored: string[] = [];
+  const capRaw = env.HIGGSFIELD_MONTHLY_CAP_MINOR?.trim() ?? "";
+  if (capRaw !== "" && !(/^\d+$/.test(capRaw) && Number(capRaw) === hf.monthly_cap_minor)) {
+    ignored.push("HIGGSFIELD_MONTHLY_CAP_MINOR");
+  }
+  const modelRaw = env.HIGGSFIELD_MODEL?.trim() ?? "";
+  if (modelRaw !== "" && modelRaw !== hf.model) ignored.push("HIGGSFIELD_MODEL");
+  const priceRaw = env.HIGGSFIELD_USD_MICROS_PER_SECOND?.trim() ?? "";
+  if (
+    priceRaw !== "" &&
+    !(/^\d+$/.test(priceRaw) && Number(priceRaw) === hf.usd_micros_per_second)
+  ) {
+    ignored.push("HIGGSFIELD_USD_MICROS_PER_SECOND");
+  }
+  const cap = format(money(hf.monthly_cap_minor, "USD"));
+  const model =
+    hf.model === HIGGSFIELD_DEFAULTS.model
+      ? `the default model, ${HIGGSFIELD_DEFAULTS.model}`
+      : "the model set in HIGGSFIELD_MODEL";
+  const summary = `Each business may spend up to ${cap} a month${capRaw === "" ? " (the default)" : ""}, on ${model} at ${usdMicros(hf.usd_micros_per_second)} a second; three 5-second candidates cost about ${usdMicros(15 * hf.usd_micros_per_second)}.`;
+  const limitsName = "HIGGSFIELD_MONTHLY_CAP_MINOR, MODEL, USD_MICROS_PER_SECOND";
+  const limits = !on
+    ? item(limitsName, "off", `Optional, and used once AI video is on. ${summary}`, LINKS.vercelEnv)
+    : ignored.length > 0
+      ? item(
+          limitsName,
+          "check",
+          `${andList(ignored)} ${ignored.length === 1 ? "holds a value that can't be used, so the default applies" : "hold values that can't be used, so the defaults apply"}. ${summary}`,
+          LINKS.vercelEnv,
+        )
+      : item(limitsName, "ready", summary, LINKS.vercelEnv);
+
+  const storageName = "BLOB_READ_WRITE_TOKEN, for video";
+  const storage = blobTokenSet(env)
+    ? item(
+        storageName,
+        chosen ? "ready" : "off",
+        chosen
+          ? "Media storage is set, so the chosen clip can wait at a public URL for publishing."
+          : "Media storage is set; AI video will use it once it is on.",
+        LINKS.vercelBlob,
+      )
+    : item(
+        storageName,
+        chosen ? "missing" : "off",
+        chosen
+          ? "Media storage isn't set, so a generated clip has nowhere to wait for publishing. Create a Blob store and paste its read-write token."
+          : "Media storage isn't set either; AI video needs it once it is on.",
+        LINKS.vercelBlob,
+      );
+
+  return {
+    key: "video",
+    step: "AI video · P6-03",
+    title: "AI video through Higgsfield",
+    items: [provider, key, limits, storage],
+  };
+}
+
+const GOOGLE_ADS_OWN_KEYS = [
+  "GOOGLE_ADS_ACCESS_LEVEL",
+  "GOOGLE_ADS_CLIENT_ID",
+  "GOOGLE_ADS_CLIENT_SECRET",
+  "GOOGLE_ADS_DEVELOPER_TOKEN",
+  "GOOGLE_ADS_LOGIN_CUSTOMER_ID",
+  "GOOGLE_ADS_REDIRECT_URI",
+] as const;
+
+function googleAdsGroup(env: ReadinessEnv): ReadinessGroup {
+  const chosen = GOOGLE_ADS_OWN_KEYS.some((k) => has(env, k));
+  const missing = googleAdsMissing(env);
+  const gads = googleAdsEnv(env);
+  const offWords =
+    "so Google Ads stays switched off: the card on /connections names what is missing, and the daily read and every change refuse.";
+
+  const level = googleAdsAccessLevel(env);
+  let access: ReadinessItem;
+  if (level === "test") {
+    access = item(
+      "GOOGLE_ADS_ACCESS_LEVEL",
+      "check",
+      "It says test: Google lets SYB reach test accounts only, so a real owner's ad account is refused. Apply for Explorer on the Google Ads API overview page, then change it here.",
+      LINKS.googleAds,
+    );
+  } else if (level !== null) {
+    const what = {
+      explorer: "real ad accounts, up to 2,880 operations a day",
+      basic: "up to 15,000 operations a day, after Google's review",
+      standard: "no daily cap, after Google's audit",
+    }[level];
+    access = item(
+      "GOOGLE_ADS_ACCESS_LEVEL",
+      "ready",
+      `It says ${level}: ${what}. Owners see this level on their card, so change it when Google does.`,
+      LINKS.googleAds,
+    );
+  } else if (has(env, "GOOGLE_ADS_ACCESS_LEVEL")) {
+    access = item(
+      "GOOGLE_ADS_ACCESS_LEVEL",
+      "missing",
+      `It holds a value the code doesn't know, ${offWords} Set the level Google has granted: test, explorer, basic or standard.`,
+      LINKS.googleAds,
+    );
+  } else {
+    access = item(
+      "GOOGLE_ADS_ACCESS_LEVEL",
+      chosen ? "missing" : "off",
+      `It isn't set, ${offWords} It is never guessed: set the level Google has granted the Cloud project (a new one starts at test).`,
+      LINKS.googleAds,
+    );
+  }
+
+  const clientName = "GOOGLE_ADS_CLIENT_ID + SECRET";
+  const clientMissing = missing.filter((k) => k !== "GOOGLE_ADS_ACCESS_LEVEL");
+  const own = googleAdsClientSource(env) === "own";
+  const client =
+    clientMissing.length === 0
+      ? item(
+          clientName,
+          "ready",
+          own
+            ? "Google Ads has its own OAuth client, so adwords' verification can't hold up sign-in."
+            : "Neither is set, so Google Ads uses the Google sign-in client (GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET). Its consent screen needs the adwords scope.",
+          LINKS.google,
+        )
+      : own
+        ? item(
+            clientName,
+            "missing",
+            `${andList(clientMissing)} ${isAre(clientMissing.length)} missing; with either of Google Ads' own client keys set, the sign-in client isn't used, ${offWords}`,
+            LINKS.google,
+          )
+        : item(
+            clientName,
+            chosen ? "missing" : "off",
+            `No OAuth client is set for it, ${offWords} Set GOOGLE_ADS_CLIENT_ID and GOOGLE_ADS_CLIENT_SECRET, or GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET to reuse sign-in's.`,
+            LINKS.google,
+          );
+
+  const redirect = redirectItem(env, "GOOGLE_ADS_REDIRECT_URI", GOOGLE_ADS_CALLBACK_PATH, {
+    derived: "fine",
+    chosen,
+    registerAt: "the OAuth client's Authorized redirect URIs",
+    link: LINKS.google,
+  });
+
+  const extrasName = "GOOGLE_ADS_DEVELOPER_TOKEN + LOGIN_CUSTOMER_ID";
+  let extras: ReadinessItem;
+  if (gads === null) {
+    extras = item(
+      extrasName,
+      "off",
+      "Optional, and read only once Google Ads is set up. Google retired developer tokens on 2026-09-09; a manager account id is needed only to read through one.",
+      LINKS.googleAds,
+    );
+  } else {
+    const issues: string[] = [];
+    if (has(env, "GOOGLE_ADS_DEVELOPER_TOKEN") && gads.developer_token === null) {
+      issues.push("GOOGLE_ADS_DEVELOPER_TOKEN has a space in it, so it isn't sent.");
+    }
+    if (has(env, "GOOGLE_ADS_LOGIN_CUSTOMER_ID") && gads.login_customer_id === null) {
+      issues.push(
+        "GOOGLE_ADS_LOGIN_CUSTOMER_ID isn't ten digits, so SYB reads each account directly.",
+      );
+    }
+    extras =
+      issues.length > 0
+        ? item(extrasName, "check", issues.join(" "), LINKS.googleAds)
+        : item(
+            extrasName,
+            "ready",
+            `${gads.developer_token ? "A developer token is sent, though Google says it is ignored since 2026-09-09" : "No developer token, which Google no longer needs"}; SYB ${gads.login_customer_id ? "reads through a manager account" : "reads each account directly, the usual case"}.`,
+            LINKS.googleAds,
+          );
+  }
+
+  return {
+    key: "google_ads",
+    step: "Google Ads · P2-20 / P3-22",
+    title: "Google Ads: read daily, changed only on approval",
+    items: [access, client, redirect, extras],
+  };
+}
+
+function tiktokPostingGroup(env: ReadinessEnv): ReadinessGroup {
+  const chosen = ["TIKTOK_CLIENT_KEY", "TIKTOK_CLIENT_SECRET", "TIKTOK_REDIRECT_URI"].some((k) =>
+    has(env, k),
+  );
+  // tiktokPostingEnv is what the TikTok card asks: non-null means both keys are set.
+  const posting = tiktokPostingEnv(env) !== null;
+  const pair = pairItem(
+    env,
+    "TIKTOK_CLIENT_KEY + TIKTOK_CLIENT_SECRET",
+    ["TIKTOK_CLIENT_KEY", "TIKTOK_CLIENT_SECRET"],
+    {
+      ready:
+        "Both are set, so the TikTok card on /connections offers sign-in. Real posts still wait for SESSION_D_REAL_WRITES.",
+      needs: "TikTok sign-in",
+      off: "Neither is set, so TikTok posting stays switched off: the card says it isn't set up yet. Copy both from the app's Credentials when TikTok is next.",
+    },
+    LINKS.tiktokDevelopers,
+    { ready: posting, chosen },
+  );
+  const redirect = redirectItem(env, "TIKTOK_REDIRECT_URI", TIKTOK_POSTING_CALLBACK_PATH, {
+    derived: "set it",
+    chosen,
+    registerAt: "Login Kit → Redirect URI",
+    link: LINKS.tiktokDevelopers,
+  });
+  const audited = tiktokAuditStatus(env) === "audited";
+  const raw = env.TIKTOK_AUDIT_STATUS?.trim() ?? "";
+  const audit = audited
+    ? item(
+        "TIKTOK_AUDIT_STATUS",
+        "check",
+        "It says audited. That is right only once TikTok's Content Posting API audit has passed; until then TikTok refuses any post that isn't private.",
+        LINKS.tiktokDevelopers,
+      )
+    : item(
+        "TIKTOK_AUDIT_STATUS",
+        "ready",
+        raw === "unaudited"
+          ? `It says unaudited, which is right until TikTok's audit passes: every post goes out private ("only me"), and the screen offers only that.`
+          : `It reads as unaudited, which is right until TikTok's audit passes: every post goes out private ("only me"). Set it to unaudited explicitly.`,
+        LINKS.tiktokDevelopers,
+      );
+  return {
+    key: "tiktok_posting",
+    step: "TikTok posting",
+    title: "Posting to TikTok",
+    items: [pair, redirect, audit],
+  };
+}
+
+function tiktokAdsGroup(env: ReadinessEnv): ReadinessGroup {
+  const missing = tiktokAdsMissing(env);
+  const chosen = missing.length < 3;
+  const pair = pairItem(
+    env,
+    "TIKTOK_ADS_APP_ID + TIKTOK_ADS_SECRET",
+    ["TIKTOK_ADS_APP_ID", "TIKTOK_ADS_SECRET"],
+    {
+      ready: "Both are set, from the app's Basic Information.",
+      needs: "TikTok Ads",
+      off: "Neither is set, so TikTok Ads stays switched off: the card on /connections names what is missing, and every route refuses.",
+    },
+    LINKS.tiktokBusiness,
+    {
+      ready: !missing.includes("TIKTOK_ADS_APP_ID") && !missing.includes("TIKTOK_ADS_SECRET"),
+      chosen,
+    },
+  );
+  const redirect = redirectItem(env, "TIKTOK_ADS_REDIRECT_URI", TIKTOK_ADS_CALLBACK_PATH, {
+    derived: "required",
+    chosen,
+    registerAt: "the app's advertiser redirect URL",
+    link: LINKS.tiktokBusiness,
+  });
+  const review =
+    missing.length === 0
+      ? item(
+          "TikTok app review",
+          "check",
+          "TikTok reviews the app (2–3 business days) before its sign-ins work, and I can't see from here whether it has. Its Scope of permission must be exactly the four in docs/DEPLOY.md; a token with one more or fewer is refused.",
+          LINKS.tiktokBusiness,
+        )
+      : item(
+          "TikTok app review",
+          "off",
+          "Once the three settings are set, submit the app for TikTok's review (2–3 business days); its sign-ins work only after it is approved.",
+          LINKS.tiktokBusiness,
+        );
+  return {
+    key: "tiktok_ads",
+    step: "TikTok Ads",
+    title: "TikTok Ads: spend read, changes only on approval",
+    items: [pair, redirect, review],
+  };
+}
+
+function writesGroup(env: ReadinessEnv): ReadinessGroup {
+  const on = sessionDRealWritesOn(env);
+  const raw = env.SESSION_D_REAL_WRITES?.trim() ?? "";
+  const gate = on
+    ? item(
+        "SESSION_D_REAL_WRITES",
+        "check",
+        "The real-write gate is ON: approved Meta and TikTok posts really go out, approved Google, TikTok and Meta ad changes really run, campaign emails really send, and approved purchase orders are really emailed to suppliers. That is right only once the two-week unattended clock has completed and its date is in TASKS-PHASE3.md.",
+        LINKS.vercelEnv,
+      )
+    : item(
+        "SESSION_D_REAL_WRITES",
+        "off",
+        `The real-write gate is off, as it should be: nothing reaches a real platform. Approved Meta and TikTok posts, Google, TikTok and Meta ad changes, and campaign emails are held, still approved, with the reason shown; approved purchase orders run against a stand-in sender and are marked not sent.${raw === "" ? " It switches on only when it is exactly on, after the two-week clock." : " It holds a value other than on, which reads as off."}`,
+        LINKS.vercelEnv,
+      );
+
+  // lib/purchasing/po.ts sendingMode: the same reading the order sender makes.
+  const mode = sendingMode(env);
+  const domain = fromDomain(env.EMAIL_FROM);
+  let orders: ReadinessItem;
+  if (mode.mode === "real") {
+    orders = item(
+      "purchase-order emails",
+      "ready",
+      `Approved purchase orders are emailed to suppliers from ${domain ?? "the sign-in sender"}, in the business's name.`,
+      LINKS.resendDomains,
+    );
+  } else if (!mode.reasons.includes("email_not_set_up")) {
+    orders = item(
+      "purchase-order emails",
+      "off",
+      "Email is set up, but the gate is off, so approved orders run against a stand-in sender: nothing reaches a supplier, and the screen says it wasn't sent.",
+      LINKS.resendDomains,
+    );
+  } else if (on) {
+    orders = item(
+      "purchase-order emails",
+      "missing",
+      "The gate is on, but SYB's email isn't set up for orders (RESEND_API_KEY and a From address on your own domain, not Resend's sandbox), so approved orders aren't sent.",
+      LINKS.resendDomains,
+    );
+  } else {
+    orders = item(
+      "purchase-order emails",
+      "off",
+      "The gate is off and email isn't set up for orders yet (RESEND_API_KEY and a From address on your own domain), so approved orders run against a stand-in sender and nothing reaches a supplier.",
+      LINKS.resendDomains,
+    );
+  }
+
+  return {
+    key: "writes",
+    step: "Session D",
+    title: "Real writes: the one switch",
+    items: [
+      gate,
+      orders,
+      item(
+        "two-week unattended clock",
+        "check",
+        "Nothing in the database records the two-week unattended clock, so whether it has completed is the team's call. Record the date in TASKS-PHASE3.md before switching the gate on.",
+        null,
+        { where_text: "TASKS-PHASE3.md, by the team" },
+      ),
+    ],
+  };
+}
+
+function languagesGroup(env: ReadinessEnv): ReadinessGroup {
+  const raw = env.LANGUAGES_IN_REVIEW;
+  const back = languagesInReview(raw);
+  const entries = (raw ?? "")
+    .split(",")
+    .map((s) => s.trim())
+    .filter((s) => s !== "");
+  // Never echoed: an entry that isn't a language SYB speaks could be anything.
+  const ignored = entries.filter((e) => !(back as readonly string[]).includes(e));
+  const english = ignored.includes("en");
+  const name = (l: (typeof LOCALES)[number]) => `${LANGUAGE_NAMES[l]} (${l})`;
+  const ignoredWords =
+    ignored.length === 0
+      ? ""
+      : ` ${ignored.length} ${ignored.length === 1 ? "entry isn't" : "entries aren't"} a language SYB can send back${english ? " (English can't be: every catalogue is checked against it)" : ""}, so ${ignored.length === 1 ? "it is" : "they are"} ignored; codes are written like ru-RU or zh-Hans.`;
+  let status: ReadinessItem;
+  if (back.length > 0) {
+    status = item(
+      "LANGUAGES_IN_REVIEW",
+      "check",
+      `${andList(back.map(name))} ${isAre(back.length)} sent back to review: only the people named in LANGUAGE_REVIEW_ACCOUNTS see ${back.length === 1 ? "it" : "them"}, and everyone else sees English. Empty it once the native reviewer is done.${ignoredWords}`,
+      LINKS.vercelEnv,
+    );
+  } else if (ignored.length > 0) {
+    status = item(
+      "LANGUAGES_IN_REVIEW",
+      "check",
+      `Every language is live.${ignoredWords}`,
+      LINKS.vercelEnv,
+    );
+  } else {
+    status = item(
+      "LANGUAGES_IN_REVIEW",
+      "ready",
+      `It's empty, so every language is live: ${andList(LOCALES.map(name))}. Native review follows; to send one back, list its code here.`,
+      LINKS.vercelEnv,
+    );
+  }
+  return {
+    key: "languages",
+    step: "Languages",
+    title: "Which languages customers see",
+    items: [status],
+  };
+}
+
 /** The whole checklist, in deploy order. Pure. */
 export function launchReadiness(env: ReadinessEnv, facts: ReadinessFacts): ReadinessReport {
   const groups = [
@@ -934,7 +1848,16 @@ export function launchReadiness(env: ReadinessEnv, facts: ReadinessFacts): Readi
     supportGroup(env),
     campaignGroup(env, facts),
     metaGroup(env),
+    videoGroup(env),
+    tiktokPostingGroup(env),
+    googleAdsGroup(env),
+    tiktokAdsGroup(env),
+    writesGroup(env),
     paymentsGroup(env),
+    phoneGroup(env),
+    recordingGroup(env),
+    whatsappGroup(env),
+    languagesGroup(env),
     optionalGroup(env),
   ];
   const counts: Record<ReadinessStatus, number> = { ready: 0, missing: 0, check: 0, off: 0 };

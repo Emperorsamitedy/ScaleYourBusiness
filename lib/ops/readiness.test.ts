@@ -6,7 +6,20 @@
 import { createHash } from "node:crypto";
 import { describe, expect, it } from "vitest";
 import type { ReadinessEnv, ReadinessFacts, ReadinessItem, ReadinessStatus } from "./readiness";
-import { appOrigin, fromDomain, launchReadiness, reportPrice, stripeMode } from "./readiness";
+import {
+  GOOGLE_ADS_CALLBACK_PATH,
+  PHONE_RECORDING_PATH,
+  PHONE_STATUS_PATH,
+  PHONE_VOICE_PATH,
+  TIKTOK_ADS_CALLBACK_PATH,
+  TIKTOK_POSTING_CALLBACK_PATH,
+  appOrigin,
+  fromDomain,
+  launchReadiness,
+  reportPrice,
+  stripeMode,
+  usdMicros,
+} from "./readiness";
 
 const KEY_32_BASE64 = Buffer.alloc(32, 7).toString("base64");
 
@@ -64,7 +77,7 @@ const status = (env: ReadinessEnv, name: string, facts: ReadinessFacts = FACTS):
   find(env, name, facts).status;
 
 describe("launch readiness — the order and the counts", () => {
-  it("follows Before you deploy main: email, database, core, support, campaigns, Meta, payments, optional", () => {
+  it("follows Before you deploy main, then each feature with its own key, the gate after everything it holds", () => {
     const report = launchReadiness(GOOD, FACTS);
     expect(report.groups.map((g) => g.key)).toEqual([
       "email",
@@ -73,9 +86,20 @@ describe("launch readiness — the order and the counts", () => {
       "support",
       "campaigns",
       "meta",
+      "video",
+      "tiktok_posting",
+      "google_ads",
+      "tiktok_ads",
+      "writes",
       "payments",
+      "phone",
+      "recording",
+      "whatsapp",
+      "languages",
       "optional",
     ]);
+    const names = report.groups.flatMap((g) => g.items.map((i) => i.name));
+    expect(new Set(names).size, "every item name is unique").toBe(names.length);
     const total = report.groups.reduce((n, g) => n + g.items.length, 0);
     expect(Object.values(report.counts).reduce((a, b) => a + b, 0)).toBe(total);
     expect(report.app_origin).toBe("https://app.syb.example");
@@ -89,6 +113,22 @@ describe("launch readiness — the order and the counts", () => {
           if (i.where) expect(i.where.href, i.name).toMatch(/^https:\/\//);
         }
       }
+    }
+  });
+
+  it("a feature nobody has started setting up is OFF, never MISSING: missing counts only what go-live needs", () => {
+    const report = launchReadiness(GOOD, FACTS);
+    for (const key of [
+      "video",
+      "tiktok_posting",
+      "google_ads",
+      "tiktok_ads",
+      "phone",
+      "recording",
+      "whatsapp",
+    ]) {
+      const group = report.groups.find((g) => g.key === key)!;
+      for (const i of group.items) expect(i.status, `${key}: ${i.name}`).not.toBe("missing");
     }
   });
 
@@ -277,19 +317,520 @@ describe("campaigns", () => {
       find(GOOD, "first-campaign reviews", { ...FACTS, first_campaigns_waiting: 2 }).says,
     ).toContain("2 first campaigns are waiting");
   });
+});
 
+describe("real writes", () => {
   it("the real-write gate: off is OFF and worded as the expected state; exactly on is CHECK", () => {
     const off = find(GOOD, "SESSION_D_REAL_WRITES");
     expect(off.status).toBe("off");
     expect(off.says).toContain("as it should be");
+    expect(off.says).toContain("nothing reaches a real platform");
     expect(status({ ...GOOD, SESSION_D_REAL_WRITES: "true" }, "SESSION_D_REAL_WRITES")).toBe("off");
+    expect(
+      find({ ...GOOD, SESSION_D_REAL_WRITES: "true" }, "SESSION_D_REAL_WRITES").says,
+    ).toContain("reads as off");
     expect(status({ ...GOOD, SESSION_D_REAL_WRITES: "on" }, "SESSION_D_REAL_WRITES")).toBe("check");
+  });
+
+  it("the gate names everything it switches: posts, ad changes, campaign emails, purchase orders", () => {
+    for (const env of [GOOD, { ...GOOD, SESSION_D_REAL_WRITES: "on" }]) {
+      const says = find(env, "SESSION_D_REAL_WRITES").says;
+      for (const word of [
+        "Meta and TikTok posts",
+        "Google, TikTok and Meta ad changes",
+        "campaign emails",
+        "purchase orders",
+      ]) {
+        expect(says, word).toContain(word);
+      }
+    }
+  });
+
+  it("purchase-order emails follow po.ts sendingMode: real is READY; gate off is OFF; gate on without email is MISSING", () => {
+    const name = "purchase-order emails";
+    const real = find({ ...GOOD, SESSION_D_REAL_WRITES: "on" }, name);
+    expect(real.status).toBe("ready");
+    expect(real.says).toContain("syb.example");
+    expect(find(GOOD, name).status).toBe("off");
+    expect(find(GOOD, name).says).toContain("stand-in sender");
+    expect(status({ ...GOOD, SESSION_D_REAL_WRITES: "on", RESEND_API_KEY: "" }, name)).toBe(
+      "missing",
+    );
+    expect(
+      status({ ...GOOD, SESSION_D_REAL_WRITES: "on", EMAIL_FROM: "onboarding@resend.dev" }, name),
+    ).toBe("missing");
+    expect(status({ ...GOOD, RESEND_API_KEY: "" }, name)).toBe("off");
   });
 
   it("the two-week clock is the team's call: always CHECK", () => {
     const clock = find(GOOD, "two-week unattended clock");
     expect(clock.status).toBe("check");
     expect(clock.says).toContain("team's call");
+  });
+});
+
+/* ── the features added on 2026-11-08 ── */
+
+const SID = `AC${"0f1e2d3c4b5a6978".repeat(2)}`;
+const PHONE: ReadinessEnv = {
+  ...GOOD,
+  TWILIO_ACCOUNT_SID: SID,
+  TWILIO_AUTH_TOKEN: "twilio-token",
+  TWILIO_PHONE_NUMBER: "+447700900123",
+};
+
+describe("phone line (P6-02)", () => {
+  it("all three set and well formed: READY, the number named, the webhooks to paste as CHECK", () => {
+    for (const k of ["TWILIO_ACCOUNT_SID", "TWILIO_AUTH_TOKEN", "TWILIO_PHONE_NUMBER"]) {
+      expect(status(PHONE, k), k).toBe("ready");
+    }
+    expect(find(PHONE, "TWILIO_PHONE_NUMBER").says).toContain("+447700900123");
+    const hooks = find(PHONE, "Twilio voice webhooks");
+    expect(hooks.status).toBe("check");
+    expect(hooks.paste).toEqual([
+      "https://app.syb.example/api/phone/voice",
+      "https://app.syb.example/api/phone/voice?step=status",
+    ]);
+  });
+
+  it("none set is OFF; one set makes the others MISSING; a malformed one is MISSING and not echoed", () => {
+    for (const k of ["TWILIO_ACCOUNT_SID", "TWILIO_AUTH_TOKEN", "TWILIO_PHONE_NUMBER"]) {
+      expect(status(GOOD, k), k).toBe("off");
+      expect(find(GOOD, k).says).toContain("stays switched off");
+    }
+    expect(status(GOOD, "Twilio voice webhooks")).toBe("off");
+    const one = { ...GOOD, TWILIO_PHONE_NUMBER: "+447700900123" };
+    expect(status(one, "TWILIO_ACCOUNT_SID")).toBe("missing");
+    expect(status(one, "TWILIO_AUTH_TOKEN")).toBe("missing");
+    const bad = find({ ...PHONE, TWILIO_ACCOUNT_SID: "SKnotanaccount" }, "TWILIO_ACCOUNT_SID");
+    expect(bad.status).toBe("missing");
+    expect(bad.says).not.toContain("SKnotanaccount");
+    const number = find({ ...PHONE, TWILIO_PHONE_NUMBER: "07700 900123" }, "TWILIO_PHONE_NUMBER");
+    expect(number.status).toBe("missing");
+    expect(number.says).not.toContain("07700");
+    expect(status({ ...PHONE, TWILIO_AUTH_TOKEN: "has space" }, "TWILIO_AUTH_TOKEN")).toBe(
+      "missing",
+    );
+  });
+
+  it("without APP_URL there are no webhook URLs, and the item says to set APP_URL first", () => {
+    const hooks = find({ ...PHONE, APP_URL: "" }, "Twilio voice webhooks");
+    expect(hooks.status).toBe("missing");
+    expect(hooks.says).toContain("Set APP_URL first");
+  });
+});
+
+describe("call recording (P6-08)", () => {
+  it("phone, Blob and CONNECTOR_KEY all set is READY, still off per business; the callback is shown", () => {
+    const ready = find(PHONE, "recording needs");
+    expect(ready.status).toBe("ready");
+    expect(ready.says).toContain("starts off for every business");
+    const cb = find(PHONE, "recording callback");
+    expect(cb.status).toBe("ready");
+    expect(cb.paste).toEqual(["https://app.syb.example/api/phone/recording"]);
+  });
+
+  it("names each missing need; with no phone line at all it is OFF", () => {
+    const noBlob = find({ ...PHONE, BLOB_READ_WRITE_TOKEN: "" }, "recording needs");
+    expect(noBlob.status).toBe("missing");
+    expect(noBlob.says).toContain("BLOB_READ_WRITE_TOKEN");
+    const noKey = find({ ...PHONE, CONNECTOR_KEY: "short" }, "recording needs");
+    expect(noKey.says).toContain("CONNECTOR_KEY");
+    const halfLine = find({ ...GOOD, TWILIO_PHONE_NUMBER: "+447700900123" }, "recording needs");
+    expect(halfLine.says).toContain("TWILIO_ACCOUNT_SID and TWILIO_AUTH_TOKEN");
+    expect(status(GOOD, "recording needs")).toBe("off");
+    expect(status(GOOD, "recording callback")).toBe("off");
+  });
+
+  it("PHONE_RECORDING_KEEP_DAYS: unset is the default 30; a valid number is shown; junk is CHECK and not echoed", () => {
+    const unset = find(GOOD, "PHONE_RECORDING_KEEP_DAYS");
+    expect(unset.status).toBe("ready");
+    expect(unset.says).toContain("30 days, the default");
+    expect(
+      find({ ...GOOD, PHONE_RECORDING_KEEP_DAYS: "14" }, "PHONE_RECORDING_KEEP_DAYS").says,
+    ).toContain("kept 14 days");
+    for (const junk of ["0", "400", "two weeks"]) {
+      const odd = find({ ...GOOD, PHONE_RECORDING_KEEP_DAYS: junk }, "PHONE_RECORDING_KEEP_DAYS");
+      expect(odd.status, junk).toBe("check");
+      expect(odd.says).toContain("30 days, the default");
+      // "0" is in every sentence's "30"; the longer ones must not be echoed.
+      if (junk.length > 1) expect(odd.says).not.toContain(junk);
+    }
+  });
+});
+
+const TEMPLATES = JSON.stringify({ en: `HX${"a1".repeat(16)}`, "de-DE": `HX${"b2".repeat(16)}` });
+const WHATSAPP: ReadinessEnv = {
+  ...PHONE,
+  TWILIO_WHATSAPP_FROM: "+447700900456",
+  TWILIO_WHATSAPP_SUMMARY_TEMPLATES: TEMPLATES,
+};
+
+describe("WhatsApp summary (P6-07)", () => {
+  it("all set is READY: the sender named, the template languages named, Meta's approval to check", () => {
+    expect(status(WHATSAPP, "Twilio account, shared with the phone line")).toBe("ready");
+    expect(find(WHATSAPP, "TWILIO_WHATSAPP_FROM").says).toContain("+447700900456");
+    const t = find(WHATSAPP, "TWILIO_WHATSAPP_SUMMARY_TEMPLATES");
+    expect(t.status).toBe("ready");
+    expect(t.says).toContain("en and de-DE");
+    expect(t.says).toContain("Meta must approve");
+    expect(t.says).not.toContain("HX");
+  });
+
+  it("nothing WhatsApp set is OFF; the account missing beside a sender is MISSING", () => {
+    for (const n of [
+      "Twilio account, shared with the phone line",
+      "TWILIO_WHATSAPP_FROM",
+      "TWILIO_WHATSAPP_SUMMARY_TEMPLATES",
+    ]) {
+      expect(status(PHONE, n), n).toBe("off");
+    }
+    const noAccount = { ...GOOD, TWILIO_WHATSAPP_FROM: "+447700900456" };
+    const shared = find(noAccount, "Twilio account, shared with the phone line");
+    expect(shared.status).toBe("missing");
+    expect(shared.says).toContain("TWILIO_ACCOUNT_SID and TWILIO_AUTH_TOKEN");
+    expect(status(noAccount, "TWILIO_WHATSAPP_SUMMARY_TEMPLATES")).toBe("missing");
+  });
+
+  it("templates: not JSON, no en, or a non-HX id is MISSING, and never echoed", () => {
+    for (const bad of [
+      "not json",
+      JSON.stringify({ "de-DE": `HX${"b2".repeat(16)}` }),
+      JSON.stringify({ en: "HXshort" }),
+    ]) {
+      const t = find(
+        { ...WHATSAPP, TWILIO_WHATSAPP_SUMMARY_TEMPLATES: bad },
+        "TWILIO_WHATSAPP_SUMMARY_TEMPLATES",
+      );
+      expect(t.status, bad).toBe("missing");
+      expect(t.says).not.toContain(bad);
+    }
+  });
+
+  it("an unknown template key is counted, never named", () => {
+    const odd = JSON.stringify({ en: `HX${"a1".repeat(16)}`, "sk-pasted": `HX${"c3".repeat(16)}` });
+    const t = find(
+      { ...WHATSAPP, TWILIO_WHATSAPP_SUMMARY_TEMPLATES: odd },
+      "TWILIO_WHATSAPP_SUMMARY_TEMPLATES",
+    );
+    expect(t.says).toContain("1 other entry");
+    expect(t.says).not.toContain("sk-pasted");
+  });
+
+  it("a malformed sender is MISSING and not echoed", () => {
+    const f = find({ ...WHATSAPP, TWILIO_WHATSAPP_FROM: "whatsapp:+44" }, "TWILIO_WHATSAPP_FROM");
+    expect(f.status).toBe("missing");
+    expect(f.says).not.toContain("whatsapp:+44");
+  });
+});
+
+const VIDEO: ReadinessEnv = {
+  ...GOOD,
+  MEDIA_PROVIDER: "higgsfield",
+  HIGGSFIELD_API_KEY: "hf-id",
+  HIGGSFIELD_API_SECRET: "hf-secret",
+};
+
+describe("AI video (P6-03)", () => {
+  it("higgsfield with a key and Blob is READY; the limits shown as numbers", () => {
+    expect(status(VIDEO, "MEDIA_PROVIDER")).toBe("ready");
+    expect(status(VIDEO, "HIGGSFIELD_API_KEY + HIGGSFIELD_API_SECRET")).toBe("ready");
+    expect(
+      status(
+        { ...VIDEO, HIGGSFIELD_API_SECRET: "", HIGGSFIELD_API_KEY: "id:secret" },
+        "HIGGSFIELD_API_KEY + HIGGSFIELD_API_SECRET",
+      ),
+    ).toBe("ready");
+    const limits = find(VIDEO, "HIGGSFIELD_MONTHLY_CAP_MINOR, MODEL, USD_MICROS_PER_SECOND");
+    expect(limits.status).toBe("ready");
+    expect(limits.says).toContain("$60.00 a month (the default)");
+    expect(limits.says).toContain("$0.112 a second");
+    expect(limits.says).toContain("about $1.68");
+    expect(status(VIDEO, "BLOB_READ_WRITE_TOKEN, for video")).toBe("ready");
+  });
+
+  it("unset is OFF; a key without higgsfield, higgsfield without a key, or no Blob is MISSING", () => {
+    expect(status(GOOD, "MEDIA_PROVIDER")).toBe("off");
+    expect(status(GOOD, "HIGGSFIELD_API_KEY + HIGGSFIELD_API_SECRET")).toBe("off");
+    expect(status(GOOD, "BLOB_READ_WRITE_TOKEN, for video")).toBe("off");
+    expect(status({ ...VIDEO, MEDIA_PROVIDER: "" }, "MEDIA_PROVIDER")).toBe("missing");
+    expect(
+      status(
+        { ...VIDEO, HIGGSFIELD_API_KEY: "", HIGGSFIELD_API_SECRET: "" },
+        "HIGGSFIELD_API_KEY + HIGGSFIELD_API_SECRET",
+      ),
+    ).toBe("missing");
+    const half = find(
+      { ...VIDEO, HIGGSFIELD_API_SECRET: "" },
+      "HIGGSFIELD_API_KEY + HIGGSFIELD_API_SECRET",
+    );
+    expect(half.status).toBe("missing");
+    expect(half.says).toContain("HIGGSFIELD_API_SECRET");
+    expect(
+      status({ ...VIDEO, BLOB_READ_WRITE_TOKEN: "" }, "BLOB_READ_WRITE_TOKEN, for video"),
+    ).toBe("missing");
+  });
+
+  it("fake is refused in production (MISSING) and only CHECK in development; vendor is MISSING", () => {
+    expect(
+      status({ ...VIDEO, MEDIA_PROVIDER: "fake", NODE_ENV: "production" }, "MEDIA_PROVIDER"),
+    ).toBe("missing");
+    expect(
+      status({ ...VIDEO, MEDIA_PROVIDER: "fake", NODE_ENV: "development" }, "MEDIA_PROVIDER"),
+    ).toBe("check");
+    expect(status({ ...VIDEO, MEDIA_PROVIDER: "vendor" }, "MEDIA_PROVIDER")).toBe("missing");
+  });
+
+  it("an unusable cap, model or price is CHECK, the default applies, and the raw text isn't echoed", () => {
+    const name = "HIGGSFIELD_MONTHLY_CAP_MINOR, MODEL, USD_MICROS_PER_SECOND";
+    const odd = find(
+      { ...VIDEO, HIGGSFIELD_MONTHLY_CAP_MINOR: "sixty", HIGGSFIELD_MODEL: "Not A Model" },
+      name,
+    );
+    expect(odd.status).toBe("check");
+    expect(odd.says).toContain("HIGGSFIELD_MONTHLY_CAP_MINOR and HIGGSFIELD_MODEL");
+    expect(odd.says).not.toContain("sixty");
+    expect(odd.says).not.toContain("Not A Model");
+    expect(find({ ...VIDEO, HIGGSFIELD_MONTHLY_CAP_MINOR: "12000" }, name).says).toContain(
+      "$120.00 a month,",
+    );
+  });
+});
+
+const ADS: ReadinessEnv = {
+  ...GOOD,
+  GOOGLE_ADS_ACCESS_LEVEL: "explorer",
+  GOOGLE_ADS_CLIENT_ID: "ads-id",
+  GOOGLE_ADS_CLIENT_SECRET: "ads-secret",
+};
+
+describe("Google Ads (P2-20 / P3-22)", () => {
+  it("its own client and a level is READY; the callback to register is shown", () => {
+    expect(status(ADS, "GOOGLE_ADS_ACCESS_LEVEL")).toBe("ready");
+    expect(find(ADS, "GOOGLE_ADS_ACCESS_LEVEL").says).toContain("2,880");
+    expect(find(ADS, "GOOGLE_ADS_CLIENT_ID + SECRET").says).toContain("its own OAuth client");
+    const redirect = find(ADS, "GOOGLE_ADS_REDIRECT_URI");
+    expect(redirect.status).toBe("ready");
+    expect(redirect.paste).toEqual(["https://app.syb.example/api/connections/google-ads/callback"]);
+    expect(status(ADS, "GOOGLE_ADS_DEVELOPER_TOKEN + LOGIN_CUSTOMER_ID")).toBe("ready");
+  });
+
+  it("the shared sign-in client counts, as googleAdsEnv reads it", () => {
+    const shared = {
+      ...GOOD,
+      GOOGLE_ADS_ACCESS_LEVEL: "basic",
+      GOOGLE_CLIENT_ID: "g",
+      GOOGLE_CLIENT_SECRET: "s",
+    };
+    const c = find(shared, "GOOGLE_ADS_CLIENT_ID + SECRET");
+    expect(c.status).toBe("ready");
+    expect(c.says).toContain("Google sign-in client");
+  });
+
+  it("test access is CHECK: test accounts only", () => {
+    const t = find({ ...ADS, GOOGLE_ADS_ACCESS_LEVEL: "test" }, "GOOGLE_ADS_ACCESS_LEVEL");
+    expect(t.status).toBe("check");
+    expect(t.says).toContain("test accounts only");
+  });
+
+  it("nothing set is OFF; a level without a client, half its own client or an unknown level is MISSING", () => {
+    expect(status(GOOD, "GOOGLE_ADS_ACCESS_LEVEL")).toBe("off");
+    expect(status(GOOD, "GOOGLE_ADS_CLIENT_ID + SECRET")).toBe("off");
+    expect(status(GOOD, "GOOGLE_ADS_REDIRECT_URI")).toBe("off");
+    expect(
+      status({ ...GOOD, GOOGLE_ADS_ACCESS_LEVEL: "explorer" }, "GOOGLE_ADS_CLIENT_ID + SECRET"),
+    ).toBe("missing");
+    const half = find({ ...ADS, GOOGLE_ADS_CLIENT_SECRET: "" }, "GOOGLE_ADS_CLIENT_ID + SECRET");
+    expect(half.status).toBe("missing");
+    expect(half.says).toContain("GOOGLE_ADS_CLIENT_SECRET is missing");
+    const odd = find({ ...ADS, GOOGLE_ADS_ACCESS_LEVEL: "premium" }, "GOOGLE_ADS_ACCESS_LEVEL");
+    expect(odd.status).toBe("missing");
+    expect(odd.says).not.toContain("premium");
+    expect(status({ ...ADS, GOOGLE_ADS_ACCESS_LEVEL: "" }, "GOOGLE_ADS_ACCESS_LEVEL")).toBe(
+      "missing",
+    );
+  });
+
+  it("a redirect that isn't APP_URL + the callback is MISSING; a bad login customer id is CHECK", () => {
+    expect(
+      status(
+        { ...ADS, GOOGLE_ADS_REDIRECT_URI: "https://elsewhere.example/cb" },
+        "GOOGLE_ADS_REDIRECT_URI",
+      ),
+    ).toBe("missing");
+    const extras = find(
+      { ...ADS, GOOGLE_ADS_LOGIN_CUSTOMER_ID: "12345" },
+      "GOOGLE_ADS_DEVELOPER_TOKEN + LOGIN_CUSTOMER_ID",
+    );
+    expect(extras.status).toBe("check");
+    expect(extras.says).not.toContain("12345");
+    expect(
+      find(
+        { ...ADS, GOOGLE_ADS_LOGIN_CUSTOMER_ID: "123-456-7890" },
+        "GOOGLE_ADS_DEVELOPER_TOKEN + LOGIN_CUSTOMER_ID",
+      ).says,
+    ).toContain("manager account");
+  });
+});
+
+const TIKTOK: ReadinessEnv = {
+  ...GOOD,
+  TIKTOK_CLIENT_KEY: "tt-key",
+  TIKTOK_CLIENT_SECRET: "tt-secret",
+  TIKTOK_REDIRECT_URI: "https://app.syb.example/api/connections/tiktok-posting/callback",
+  TIKTOK_AUDIT_STATUS: "unaudited",
+};
+
+describe("TikTok posting", () => {
+  it("both keys and the matching redirect is READY; unaudited is READY and says posts are private", () => {
+    expect(status(TIKTOK, "TIKTOK_CLIENT_KEY + TIKTOK_CLIENT_SECRET")).toBe("ready");
+    expect(status(TIKTOK, "TIKTOK_REDIRECT_URI")).toBe("ready");
+    const audit = find(TIKTOK, "TIKTOK_AUDIT_STATUS");
+    expect(audit.status).toBe("ready");
+    expect(audit.says).toContain("private");
+  });
+
+  it("neither key is OFF; one is MISSING and named; an unset redirect is CHECK; a wrong one MISSING", () => {
+    expect(status(GOOD, "TIKTOK_CLIENT_KEY + TIKTOK_CLIENT_SECRET")).toBe("off");
+    expect(status(GOOD, "TIKTOK_REDIRECT_URI")).toBe("off");
+    const half = find(
+      { ...TIKTOK, TIKTOK_CLIENT_SECRET: "" },
+      "TIKTOK_CLIENT_KEY + TIKTOK_CLIENT_SECRET",
+    );
+    expect(half.status).toBe("missing");
+    expect(half.says).toContain("Only TIKTOK_CLIENT_KEY is set");
+    const unset = find({ ...TIKTOK, TIKTOK_REDIRECT_URI: "" }, "TIKTOK_REDIRECT_URI");
+    expect(unset.status).toBe("check");
+    expect(unset.paste).toEqual([
+      "https://app.syb.example/api/connections/tiktok-posting/callback",
+    ]);
+    expect(
+      status(
+        { ...TIKTOK, TIKTOK_REDIRECT_URI: "https://elsewhere.example/cb" },
+        "TIKTOK_REDIRECT_URI",
+      ),
+    ).toBe("missing");
+  });
+
+  it("audited is CHECK; anything else reads as unaudited", () => {
+    expect(status({ ...TIKTOK, TIKTOK_AUDIT_STATUS: "audited" }, "TIKTOK_AUDIT_STATUS")).toBe(
+      "check",
+    );
+    const odd = find({ ...TIKTOK, TIKTOK_AUDIT_STATUS: "yes" }, "TIKTOK_AUDIT_STATUS");
+    expect(odd.status).toBe("ready");
+    expect(odd.says).toContain("reads as unaudited");
+  });
+});
+
+const TIKTOK_ADS: ReadinessEnv = {
+  ...GOOD,
+  TIKTOK_ADS_APP_ID: "tta-id",
+  TIKTOK_ADS_SECRET: "tta-secret",
+  TIKTOK_ADS_REDIRECT_URI: "https://app.syb.example/api/connections/tiktok/callback",
+};
+
+describe("TikTok Ads", () => {
+  it("all three set is READY; the app review is CHECK, since it can't be seen from here", () => {
+    expect(status(TIKTOK_ADS, "TIKTOK_ADS_APP_ID + TIKTOK_ADS_SECRET")).toBe("ready");
+    expect(status(TIKTOK_ADS, "TIKTOK_ADS_REDIRECT_URI")).toBe("ready");
+    const review = find(TIKTOK_ADS, "TikTok app review");
+    expect(review.status).toBe("check");
+    expect(review.says).toContain("2–3 business days");
+  });
+
+  it("none set is OFF; the redirect is never derived, so unset beside the keys is MISSING", () => {
+    expect(status(GOOD, "TIKTOK_ADS_APP_ID + TIKTOK_ADS_SECRET")).toBe("off");
+    expect(status(GOOD, "TIKTOK_ADS_REDIRECT_URI")).toBe("off");
+    expect(status(GOOD, "TikTok app review")).toBe("off");
+    const unset = find({ ...TIKTOK_ADS, TIKTOK_ADS_REDIRECT_URI: "" }, "TIKTOK_ADS_REDIRECT_URI");
+    expect(unset.status).toBe("missing");
+    expect(unset.paste).toEqual(["https://app.syb.example/api/connections/tiktok/callback"]);
+    expect(
+      status({ ...TIKTOK_ADS, TIKTOK_ADS_SECRET: "" }, "TIKTOK_ADS_APP_ID + TIKTOK_ADS_SECRET"),
+    ).toBe("missing");
+    expect(
+      status(
+        {
+          ...GOOD,
+          TIKTOK_ADS_REDIRECT_URI: "https://app.syb.example/api/connections/tiktok/callback",
+        },
+        "TIKTOK_ADS_APP_ID + TIKTOK_ADS_SECRET",
+      ),
+    ).toBe("missing");
+  });
+});
+
+describe("languages", () => {
+  it("empty is READY: every language live, each named", () => {
+    const l = find(GOOD, "LANGUAGES_IN_REVIEW");
+    expect(l.status).toBe("ready");
+    expect(l.says).toContain("every language is live");
+    expect(l.says).toContain("Magyar (hu-HU)");
+  });
+
+  it("languages sent back are CHECK and named; unknown entries and English are counted, never echoed", () => {
+    const back = find({ ...GOOD, LANGUAGES_IN_REVIEW: "ru-RU, zh-Hans" }, "LANGUAGES_IN_REVIEW");
+    expect(back.status).toBe("check");
+    expect(back.says).toContain("Русский (ru-RU) and 简体中文 (zh-Hans) are sent back to review");
+    const odd = find({ ...GOOD, LANGUAGES_IN_REVIEW: "en,klingon" }, "LANGUAGES_IN_REVIEW");
+    expect(odd.status).toBe("check");
+    expect(odd.says).toContain("2 entries aren't");
+    expect(odd.says).toContain("English can't be");
+    expect(odd.says).not.toContain("klingon");
+  });
+});
+
+describe("the panel and the feature agree", () => {
+  it("the callback paths are the features' own", async () => {
+    // These modules open the database lazily; the pool needs a URL to be built, not a server.
+    process.env.DATABASE_URL ??= "postgresql://unused@localhost:5432/unused";
+    const line = await import("../phone/line");
+    const gads = await import("../google-ads/login");
+    const posting = await import("../execution/tiktok-posting");
+    const ttAds = await import("../tiktok/login");
+    expect(PHONE_VOICE_PATH).toBe(line.VOICE_PATH);
+    expect(PHONE_STATUS_PATH).toBe(line.stepUrl("status"));
+    expect(PHONE_RECORDING_PATH).toBe(line.RECORDING_PATH);
+    expect(GOOGLE_ADS_CALLBACK_PATH).toBe(gads.GADS_CALLBACK_PATH);
+    expect(TIKTOK_POSTING_CALLBACK_PATH).toBe(posting.TIKTOK_CALLBACK_PATH);
+    expect(TIKTOK_ADS_CALLBACK_PATH).toBe(ttAds.TIKTOK_CALLBACK_PATH);
+  });
+
+  it("recording needs is recordingMissing() as production reads it", async () => {
+    process.env.DATABASE_URL ??= "postgresql://unused@localhost:5432/unused";
+    const { recordingMissing } = await import("../phone-recording/recordings");
+    const keys = [
+      "NODE_ENV",
+      "TWILIO_ACCOUNT_SID",
+      "TWILIO_AUTH_TOKEN",
+      "TWILIO_PHONE_NUMBER",
+      "BLOB_READ_WRITE_TOKEN",
+      "CONNECTOR_KEY",
+    ] as const;
+    const saved = Object.fromEntries(keys.map((k) => [k, process.env[k]]));
+    try {
+      for (const env of [
+        PHONE,
+        { ...PHONE, BLOB_READ_WRITE_TOKEN: "" },
+        { ...PHONE, CONNECTOR_KEY: "short", TWILIO_PHONE_NUMBER: "" },
+        { ...GOOD, TWILIO_PHONE_NUMBER: "+447700900123" },
+      ]) {
+        for (const k of keys) {
+          const v = k === "NODE_ENV" ? "production" : env[k];
+          if (v === undefined || v === "") delete process.env[k];
+          else Object.assign(process.env, { [k]: v });
+        }
+        const feature = recordingMissing();
+        const panel = find(env, "recording needs");
+        expect(panel.status === "ready", JSON.stringify(feature)).toBe(feature.length === 0);
+        for (const k of feature) expect(panel.says).toContain(k);
+      }
+    } finally {
+      for (const k of keys) {
+        if (saved[k] === undefined) delete process.env[k];
+        else Object.assign(process.env, { [k]: saved[k] });
+      }
+    }
   });
 });
 
@@ -414,6 +955,13 @@ describe("the pure readers", () => {
     expect(reportPrice({ REPORT_PRICE_MINOR: "12.5" })).toEqual({ ok: false });
     expect(reportPrice({ REPORT_CURRENCY: "zzz" })).toEqual({ ok: false });
   });
+
+  it("usdMicros shows millionths of a dollar without a float", () => {
+    expect(usdMicros(112_000)).toBe("$0.112");
+    expect(usdMicros(1_680_000)).toBe("$1.68");
+    expect(usdMicros(2_000_000)).toBe("$2.00");
+    expect(usdMicros(5)).toBe("$0.000005");
+  });
 });
 
 /* ── the rule: no secret value, nor any piece of one, in the output ── */
@@ -448,6 +996,17 @@ describe("no secret value appears anywhere in the readiness output", () => {
     "NEXT_PUBLIC_SENTRY_DSN",
     "SENTRY_TEST_KEY",
     "DATABASE_URL",
+    "TWILIO_ACCOUNT_SID",
+    "TWILIO_AUTH_TOKEN",
+    "HIGGSFIELD_API_KEY",
+    "HIGGSFIELD_API_SECRET",
+    "GOOGLE_ADS_CLIENT_ID",
+    "GOOGLE_ADS_CLIENT_SECRET",
+    "GOOGLE_ADS_DEVELOPER_TOKEN",
+    "TIKTOK_CLIENT_KEY",
+    "TIKTOK_CLIENT_SECRET",
+    "TIKTOK_ADS_APP_ID",
+    "TIKTOK_ADS_SECRET",
   ] as const;
 
   // A digest, not the key's name: a window of "cronsecret" would match the
@@ -484,6 +1043,21 @@ describe("no secret value appears anywhere in the readiness output", () => {
       SESSION_D_REAL_WRITES: token("SESSIONDREALWRITES"),
       REPORT_PRICE_MINOR: token("REPORTPRICEMINOR"),
       REPORT_CURRENCY: token("REPORTCURRENCY"),
+      TWILIO_PHONE_NUMBER: token("TWILIOPHONENUMBER"),
+      TWILIO_WHATSAPP_FROM: token("TWILIOWHATSAPPFROM"),
+      TWILIO_WHATSAPP_SUMMARY_TEMPLATES: JSON.stringify({ en: token("TWILIOTEMPLATES") }),
+      PHONE_RECORDING_KEEP_DAYS: token("PHONERECORDINGKEEPDAYS"),
+      MEDIA_PROVIDER: token("MEDIAPROVIDER"),
+      HIGGSFIELD_MONTHLY_CAP_MINOR: token("HIGGSFIELDCAP"),
+      HIGGSFIELD_MODEL: `kling/${token("HIGGSFIELDMODEL")}`,
+      HIGGSFIELD_USD_MICROS_PER_SECOND: token("HIGGSFIELDPRICE"),
+      GOOGLE_ADS_ACCESS_LEVEL: token("GOOGLEADSACCESSLEVEL"),
+      GOOGLE_ADS_LOGIN_CUSTOMER_ID: token("GOOGLEADSLOGIN"),
+      GOOGLE_ADS_REDIRECT_URI: `https://evil.example/${token("GOOGLEADSREDIRECT")}`,
+      TIKTOK_REDIRECT_URI: `https://evil.example/${token("TIKTOKREDIRECT")}`,
+      TIKTOK_ADS_REDIRECT_URI: `https://evil.example/${token("TIKTOKADSREDIRECT")}`,
+      TIKTOK_AUDIT_STATUS: token("TIKTOKAUDITSTATUS"),
+      LANGUAGES_IN_REVIEW: `ru-RU,${token("LANGUAGESINREVIEW")}`,
     };
     for (const key of SECRET_KEYS) env[key] = `${PREFIX[key] ?? ""}${token(key)}`;
     return env;
@@ -529,6 +1103,44 @@ describe("no secret value appears anywhere in the readiness output", () => {
     expect(out).toContain("test key");
     expect(out).not.toContain("sk_test_");
     assertClean(env, FACTS);
+  });
+
+  it("with the new features' secrets in shapes their checks accept, so the READY paths run too", () => {
+    // A Twilio account id must be AC + 32 hex, a template id HX + 32 hex: a
+    // digest's hex is the sentinel there, and no 6-character piece may show.
+    const hex = (key: string) => createHash("sha256").update(key).digest("hex").slice(0, 32);
+    const sid = hex("TWILIO_ACCOUNT_SID");
+    const tpl = hex("TEMPLATE");
+    const env: Record<string, string> = {
+      ...sentinelEnv(),
+      TWILIO_ACCOUNT_SID: `AC${sid}`,
+      TWILIO_PHONE_NUMBER: "+447700900123",
+      TWILIO_WHATSAPP_FROM: "+447700900456",
+      TWILIO_WHATSAPP_SUMMARY_TEMPLATES: JSON.stringify({
+        en: `HX${tpl}`,
+        [token("TEMPLATEKEY")]: `HX${tpl}`,
+      }),
+      MEDIA_PROVIDER: "higgsfield",
+      HIGGSFIELD_API_KEY: `${token("HFID")}:${token("HFSECRET")}`,
+      HIGGSFIELD_MODEL: "kling-video/v9/custom-secretish-model",
+      GOOGLE_ADS_ACCESS_LEVEL: "explorer",
+      LANGUAGES_IN_REVIEW: `ru-RU,${token("LANGUAGESINREVIEW")}`,
+    };
+    delete env.HIGGSFIELD_API_SECRET;
+    const report = launchReadiness(env, FACTS);
+    const out = JSON.stringify(report);
+    const all = report.groups.flatMap((g) => g.items);
+    expect(all.find((i) => i.name === "TWILIO_ACCOUNT_SID")!.status).toBe("ready");
+    expect(all.find((i) => i.name === "TWILIO_WHATSAPP_SUMMARY_TEMPLATES")!.status).toBe("ready");
+    expect(all.find((i) => i.name === "HIGGSFIELD_API_KEY + HIGGSFIELD_API_SECRET")!.status).toBe(
+      "ready",
+    );
+    for (const w of windows(sid)) expect(out, `sid: "${w}"`).not.toContain(w);
+    for (const w of windows(tpl)) expect(out, `template: "${w}"`).not.toContain(w);
+    expect(out).not.toContain("custom-secretish-model");
+    expect(out).not.toContain("SENTINEL");
+    // The two numbers are the facts the panel is allowed to show.
+    expect(out).toContain("+447700900123");
   });
 
   it("the sentinel test itself bites: a leaked value would be found", () => {
