@@ -56,7 +56,8 @@
       "mode": "Ma façon de travailler",
       "history": "Historique",
       "team_access": "Accès de l’équipe",
-      "language": "Langue et devise"
+      "language": "Langue et devise",
+      "payments": "Paiements"
     },
     "count": {
       "paused": "{count} en pause",
@@ -5443,7 +5444,76 @@
       "pretend": "une fausse page client · le widget est en bas à droite",
       "seesLabel": "ce que voit un visiteur",
       "body": "Cette page remplace votre site web. Le bouton dans le coin est le vrai widget, chargé par le même script et relié au même point d’accès public qu’utiliserait un client. Posez-lui une question que vous avez validée, une autre que vous n’avez pas validée, puis demandez une personne : chacune doit se comporter comme promis sur l’<link>écran Assistance</link>."
+    },
+    "phone": {
+      "label": "Ligne téléphonique",
+      "titleOn": "Répond aux appels au {number}",
+      "titleOff": "Ne répond pas aux appels",
+      "what": "La ligne dit d’abord qu’elle est l’assistant automatique de SYB. Elle ne répond qu’avec les réponses que vous avez validées, ne réserve, ne promet et ne rembourse jamais rien, et prend un message ou vous passe l’appelant quand elle ne sait pas. Les appelants entendent que l’appel est transcrit avant que quoi que ce soit le soit, et aucun son n’est conservé.",
+      "needsKeys": "Pour répondre aux appels, SYB a besoin d’un compte Twilio et d’un numéro Twilio. Ajoutez ces réglages sur le serveur, puis revenez ici :",
+      "setUp": "Dans Twilio, réglez le webhook « A call comes in » de ce numéro sur la première adresse et son rappel d’état d’appel sur la seconde, tous deux en HTTP POST.",
+      "turnOn": "Répondre aux appels au {number}",
+      "turnOff": "Ne plus répondre",
+      "offBody": "Une fois la ligne activée, SYB répond au {number} pour vous, avec vos réponses validées.",
+      "handoverLabel": "Passer les appelants qui demandent une personne au",
+      "handoverHint": "Votre propre numéro, avec l’indicatif du pays. Laissez-le vide et les appelants laisseront plutôt un message.",
+      "handoverSave": "Enregistrer",
+      "callsTitle": "Appels",
+      "callsEmpty": "Aucun appel pour l’instant. Chaque appel auquel la ligne répond arrive ici, avec son message et ce qui a été dit.",
+      "withheld": "Numéro masqué",
+      "outcome": {
+        "answered": "Répondu avec vos réponses validées",
+        "message": "A laissé un message",
+        "handed_over": "Vous a été passé",
+        "hung_up": "A raccroché sans message",
+        "live": "En ligne en ce moment"
+      },
+      "asked": "{count, plural, one {# question posée} many {# questions posées} other {# questions posées}}",
+      "read": "Lire l’appel",
+      "hide": "Masquer l’appel",
+      "caller": "Appelant",
+      "assistant": "Assistant (automatique)",
+      "messageLabel": "Message",
+      "erase": "Effacer cet appel",
+      "eraseConfirm": "Effacer définitivement cet appel — le numéro de l’appelant, ce qui a été dit et tout message ?",
+      "eraseYes": "Effacer définitivement",
+      "keep": "Le garder",
+      "notice": {
+        "on": "La ligne téléphonique répond aux appels.",
+        "off": "La ligne téléphonique ne répond plus aux appels.",
+        "handover": "Enregistré.",
+        "erased": "L’appel est effacé."
+      },
+      "error": {
+        "notSetUp": "La ligne téléphonique n’est pas encore configurée sur ce serveur.",
+        "taken": "Ce numéro répond déjà aux appels d’une autre entreprise.",
+        "notOn": "Activez d’abord la ligne téléphonique.",
+        "badNumber": "Écrivez le numéro avec l’indicatif du pays, en commençant par le signe plus.",
+        "noCall": "Cet appel n’est plus là.",
+        "crossSite": "Cette page ne peut être modifiée que depuis SYB.",
+        "signIn": "Connectez-vous pour modifier la ligne téléphonique.",
+        "action": "La ligne téléphonique ne sait pas faire cela."
+      }
     }
+  },
+  "phoneLine": {
+    "greeting": "Bonjour, vous êtes bien chez {business} et vous parlez avec l’assistant automatique de SYB, pas avec une personne.",
+    "notice": "Cet appel est transcrit pour que {business} puisse le lire ensuite. Aucun son n’est conservé.",
+    "howCanIHelp": "Que puis-je faire pour vous ?",
+    "anythingElse": "Puis-je vous aider pour autre chose ?",
+    "notHeard": "Pardon, je n’ai pas compris. Pourriez-vous répéter ?",
+    "goodbye": "Merci d’avoir appelé {business}. Au revoir.",
+    "noAnswer": "Je n’ai pas de réponse validée à ce sujet, alors je ne vais pas deviner.",
+    "takeMessage": "Je peux prendre un message pour {business}. Dites votre nom, votre message et le meilleur numéro pour vous rappeler.",
+    "nobodyToPutThrough": "Je ne peux vous passer personne pour le moment, mais je peux prendre un message.",
+    "puttingThrough": "Je vous passe quelqu’un de {business}.",
+    "nobodyPickedUp": "Désolé, personne n’a pu décrocher pour le moment.",
+    "messageTaken": "Merci, j’ai transmis votre message à {business}. Au revoir.",
+    "noMessage": "Je n’ai pas compris de message. {business} verra que vous avez appelé. Au revoir.",
+    "capped": "Nous avons abordé beaucoup de choses, il vaut mieux que quelqu’un de {business} prenne le relais.",
+    "unavailable": "Je ne peux pas répondre à cela pour le moment.",
+    "closed": "Cette ligne ne prend pas d’appels pour le moment. Veuillez réessayer plus tard. Au revoir.",
+    "busy": "La ligne est très chargée en ce moment. Veuillez rappeler plus tard. Au revoir."
   },
   "team": {
     "meta": {
@@ -5533,6 +5603,62 @@
       "title": "Le module équipe est désactivé.",
       "body": "Il reste désactivé tant que vous ne l’activez pas, dans Modules sur <link>Observation</link>. Une fois activé, il détecte quand la semaine manque de couverture, ou en a plus que nécessaire, par rôle et par heure, et jamais rien au sujet d’une personne."
     }
+  },
+  "people": {
+    "label": "Personnes",
+    "title": "Les chiffres propres à chaque personne",
+    "ownerOnly": "Vous seul le voyez, en tant que propriétaire",
+    "intro": "Ce que votre système de réservation a enregistré pour chaque personne, sur les mêmes quatre semaines que les chiffres de l’entreprise. Des faits sur le travail, montrés à vous seul : les personnes sont listées par nom, et rien ici ne devient jamais une proposition concernant une personne.",
+    "basis": "D’après {source} · du {from} au {to} · {count, plural, one {# rendez-vous} many {# rendez-vous} other {# rendez-vous}} avec une personne indiquée",
+    "source": {
+      "square": "les rendez-vous Square",
+      "import": "votre export de réservations {platform}",
+      "importPlain": "votre export de réservations"
+    },
+    "noBookings": "Aucune réservation n’est encore lue, il n’y a donc rien à montrer par personne. Importez un export de réservations dans <link>Connexions</link>.",
+    "none": "Aucun rendez-vous de ces quatre semaines n’indique de personne. Quand votre export de réservations comporte une colonne pour le personnel (membre de l’équipe, coiffeur, praticien), les chiffres propres à chaque personne apparaissent ici.",
+    "unattributed": "{count, plural, one {# rendez-vous} many {# rendez-vous} other {# rendez-vous}} de ces quatre semaines n’indiquent personne, ou quelqu’un que vous avez retiré. Ils ne comptent que dans les chiffres de l’entreprise.",
+    "sales": "Ventes par personne : aucune de vos sources de ventes n’enregistre qui a fait la vente, il n’y en a donc aucune à montrer.",
+    "fig": {
+      "completed": "Rendez-vous honorés",
+      "completedOf": "sur {count, plural, one {# rendez-vous réservé} many {# rendez-vous réservés} other {# rendez-vous réservés}} avec cette personne",
+      "revenue": "Chiffre d’affaires des réservations",
+      "revenueOf": "prix catalogue de {part} sur {of, plural, one {# rendez-vous honoré} many {# rendez-vous honorés} other {# rendez-vous honorés}}",
+      "noShow": "Taux d’absence",
+      "late": "Taux d’annulation tardive",
+      "rateOf": "{part} sur {of, plural, one {# rendez-vous dû} many {# rendez-vous dus} other {# rendez-vous dus}}",
+      "utilisation": "Taux d’occupation",
+      "utilisationOf": "{part} honorés sur {of} créneaux : {perWeek} par semaine, votre chiffre, indiqué le {day}",
+      "rebooking": "Taux de nouvelle réservation",
+      "rebookingOf": "{part} sur {of, plural, one {# client vu} many {# clients vus} other {# clients vus}} du {from} au {to} ont réservé à nouveau, avec qui que ce soit, sous {days} jours",
+      "tooFew": "Trop peu pour se prononcer",
+      "tooFewDue": "{count, plural, one {# rendez-vous dû} many {# rendez-vous dus} other {# rendez-vous dus}} ; il en faut {min}",
+      "tooFewClients": "{count, plural, one {# client vu} many {# clients vus} other {# clients vus}} ; il en faut {min}",
+      "notMeasured": "Non mesuré",
+      "why": {
+        "no_capacity": "aucune capacité hebdomadaire indiquée pour cette personne",
+        "no_prices": "les réservations ne portent aucun prix",
+        "currencies": "des prix dans plus d’une devise",
+        "no_completed": "aucun rendez-vous honoré sur ces quatre semaines",
+        "no_client": "les réservations n’identifient pas le client",
+        "not_separated": "Square ne distingue pas les annulations tardives"
+      }
+    },
+    "capacity": {
+      "label": "Rendez-vous par semaine que cette personne peut prendre",
+      "hint": "Votre propre chiffre. Le taux d’occupation est mesuré par rapport à lui et à rien d’autre.",
+      "save": "Enregistrer",
+      "clear": "Effacer",
+      "invalid": "Un nombre entier de {min} à {max}."
+    },
+    "remove": {
+      "button": "Retirer cette personne",
+      "confirm": "Retirer {person} ? Son nom et ses chiffres propres sont effacés de SYB, et un import ultérieur ne ramènera pas le nom. Ses rendez-vous restent dans les chiffres de l’entreprise, sans nom.",
+      "yes": "Retirer",
+      "no": "Garder",
+      "done": "Retirée. {count, plural, one {# rendez-vous reste} many {# rendez-vous restent} other {# rendez-vous restent}} dans les chiffres de l’entreprise, sans nom."
+    },
+    "failed": "Un problème est survenu de notre côté. Rien n’a été modifié."
   },
   "teamAccess": {
     "meta": {
@@ -5670,6 +5796,8 @@
       "erasure_run": "Seul un propriétaire peut effacer les coordonnées d’un client.",
       "data_import": "Seul un propriétaire peut importer un fichier de clients, de stock ou de réservations.",
       "team_manage": "Seul un propriétaire peut inviter, modifier ou retirer des personnes de l’équipe.",
+      "people_read": "Seul un propriétaire peut voir les chiffres propres à chaque personne.",
+      "people_manage": "Seul un propriétaire peut indiquer la capacité hebdomadaire d’une personne ou retirer une personne des chiffres.",
       "rules_manage": "Seul un propriétaire peut changer ma façon de travailler pour cette entreprise.",
       "profile_edit": "Seul un propriétaire peut modifier les faits, les objectifs ou les limites de l’entreprise.",
       "report_generate": "Seul un propriétaire peut produire un nouveau rapport.",
@@ -5681,7 +5809,8 @@
       "reviews_settings": "Seul un propriétaire peut modifier l’adresse vers laquelle les avis sont transférés.",
       "summary_settings": "Seul un propriétaire peut activer ou désactiver le résumé hebdomadaire.",
       "stop_resume": "Seul un propriétaire peut tout relancer après un arrêt.",
-      "business_locale": "Seul un propriétaire peut modifier la langue ou la devise de l’entreprise."
+      "business_locale": "Seul un propriétaire peut modifier la langue ou la devise de l’entreprise.",
+      "payments_prepare": "Seul un propriétaire peut préparer des paiements ou indiquer qu’un paiement a été fait."
     }
   },
   "authWords": {
@@ -5824,7 +5953,7 @@
     },
     "module": {
       "analytics": "Le mode observation est aveugle sans mesure — c’est avec l’analyse qu’il observe.",
-      "team": "Équipe : quand la semaine demande plus de présence, ou en a plus que nécessaire, par rôle et par heure. Il ne note, ne classe et ne dit jamais rien d’une personne. Désactivé tant que vous ne l’activez pas."
+      "team": "Équipe : quand la semaine demande plus de présence, ou en a plus que nécessaire, par rôle et par heure, et, pour le propriétaire seulement, les chiffres propres à chaque personne d’après vos réservations. Il ne note ni ne classe personne, et ne suggère jamais rien sur une personne. Désactivé tant que vous ne l’activez pas."
     },
     "data": {
       "payments": "paiements",
@@ -6166,7 +6295,8 @@
       "media_generation": "une image ou un clip à créer",
       "revise_goal": "un objectif à revoir",
       "stop_strategy": "une stratégie à revoir",
-      "other": "une proposition"
+      "other": "une proposition",
+      "prepared_payment": "un paiement à vérifier"
     }
   },
   "exports": {
@@ -8430,5 +8560,185 @@
     "many": "{count, plural, one {# avis à connaître} many {# avis à connaître} other {# avis à connaître}}",
     "withProposals": "{count, plural, one {# chose attend votre feu vert} many {# choses attendent votre feu vert} other {# choses attendent votre feu vert}}, et {reviews, plural, one {un avis à connaître} many {# avis à connaître} other {# avis à connaître}}",
     "anotherSite": "un autre site"
+  },
+  "payments": {
+    "meta": {
+      "title": "Paiements — SYB"
+    },
+    "kicker": "Analyses · Paiements",
+    "never": "SYB prépare les paiements et vous les payez dans votre propre banque. SYB ne peut pas déplacer d’argent.",
+    "title": {
+      "ready": "{count, plural, one {# paiement est prêt pour votre banque} many {# paiements sont prêts pour votre banque} other {# paiements sont prêts pour votre banque}}",
+      "none": "Les paiements que vous faites dans votre propre banque"
+    },
+    "loading": "Lecture de vos paiements…",
+    "signedOut": "Commencez d’abord l’entretien, puis revenez préparer des paiements.",
+    "start": "Commencer l’entretien",
+    "error": {
+      "load": "Je n’ai pas pu lire vos paiements pour l’instant. Réessayez dans une minute.",
+      "generic": "Cela n’a pas fonctionné. Réessayez dans une minute.",
+      "ourSide": "Une erreur s’est produite de mon côté. Réessayez dans une minute."
+    },
+    "ownerOnly": "Seul un propriétaire peut préparer des paiements, télécharger le fichier bancaire ou indiquer qu’un paiement a été fait.",
+    "erased": "Coordonnées bancaires effacées",
+    "ready": {
+      "label": "Prêt pour votre banque",
+      "title": "{count, plural, one {# paiement validé à faire} many {# paiements validés à faire} other {# paiements validés à faire}}",
+      "none": "Rien n’est encore prêt",
+      "foot": "Les paiements validés attendent ici jusqu’à ce que vous indiquiez les avoir payés. Rien ne quitte votre banque avant que vous ne le payiez là-bas."
+    },
+    "col": {
+      "payee": "Payé à",
+      "iban": "IBAN",
+      "amount": "Montant",
+      "reference": "Libellé",
+      "date": "Date",
+      "file": "Fichier bancaire",
+      "action": "Action"
+    },
+    "file": {
+      "yes": "Dans le fichier SEPA",
+      "bar": {
+        "not_eur": "À la main : pas en euros",
+        "payee_not_sepa": "À la main : la banque du bénéficiaire est hors SEPA",
+        "payer_not_sepa": "À la main : votre banque est hors SEPA",
+        "no_payer": "Il faut d’abord vos coordonnées bancaires",
+        "erased": "Coordonnées bancaires effacées",
+        "not_approved": "Pas encore validé",
+        "paid": "Déjà payé"
+      }
+    },
+    "paid": {
+      "button": "Payé dans ma banque",
+      "done": "Marqué comme payé dans votre banque.",
+      "on": "indiqué payé le {date}"
+    },
+    "download": {
+      "sepa": "{count, plural, one {Télécharger le fichier SEPA (# paiement)} many {Télécharger le fichier SEPA (# paiements)} other {Télécharger le fichier SEPA (# paiements)}}",
+      "steps": "Télécharger les instructions pas à pas",
+      "needPayer": "Ajoutez les coordonnées bancaires depuis lesquelles vous payez pour obtenir un fichier SEPA. Les instructions fonctionnent sans elles.",
+      "noneForFile": "Aucun ne peut aller dans un fichier SEPA, réservé aux euros entre banques SEPA. Utilisez les instructions.",
+      "total": "{count, plural, one {Le fichier contient # paiement, {total} au total.} many {Le fichier contient # paiements, {total} au total.} other {Le fichier contient # paiements, {total} au total.}}"
+    },
+    "steps": {
+      "fileTitle": "Utiliser le fichier SEPA",
+      "fileName": "le fichier SEPA",
+      "file": {
+        "save": "Téléchargez {file} et enregistrez-le sur votre ordinateur.",
+        "find": "Dans la banque en ligne de votre banque, trouvez où envoyer ou importer un fichier de paiements. Les banques parlent de fichier SEPA, de paiement groupé ou de virement de masse.",
+        "upload": "{count, plural, one {Envoyez le fichier. Votre banque vous montre le paiement pour que vous le vérifiiez.} many {Envoyez le fichier. Votre banque vous montre les # paiements pour que vous les vérifiiez.} other {Envoyez le fichier. Votre banque vous montre les # paiements pour que vous les vérifiiez.}}",
+        "confirm": "Vérifiez chacun, puis confirmez dans votre banque. Rien n’est payé avant que vous ne le fassiez.",
+        "mark": "De retour ici, appuyez sur « Payé dans ma banque » pour chaque paiement fait."
+      },
+      "title": "Paiements à faire dans votre propre banque",
+      "intro": "SYB a préparé ces paiements. SYB ne peut pas déplacer d’argent : vous faites chacun vous-même, dans votre propre banque.",
+      "from": "Payé depuis : {name}, IBAN {iban}",
+      "howTitle": "Comment faire chaque paiement à la main :",
+      "hand": {
+        "open": "Ouvrez l’application ou le site de votre banque et commencez un nouveau virement.",
+        "copy": "Recopiez le nom, l’IBAN et le BIC du bénéficiaire exactement comme ci-dessous.",
+        "amount": "Saisissez le montant et le libellé, pour que le bénéficiaire sache ce qui est payé.",
+        "confirm": "Choisissez la date, vérifiez tout encore une fois, puis confirmez le paiement dans votre banque.",
+        "mark": "De retour dans SYB, appuyez sur « Payé dans ma banque » pour que vos registres le montrent."
+      },
+      "paymentTitle": "Paiement {n} sur {count}",
+      "payTo": "Payer à : {name}",
+      "iban": "IBAN : {iban}",
+      "bic": "BIC : {bic}",
+      "amount": "Montant : {amount}",
+      "reference": "Libellé : {reference}",
+      "date": "Date : {date}",
+      "erased": "Les coordonnées bancaires de ce paiement ont été effacées. Redemandez-les au bénéficiaire.",
+      "why": {
+        "notEur": "Pas en euros, donc pas dans le fichier SEPA : faites-le à la main.",
+        "notSepa": "Une banque hors SEPA, donc pas dans le fichier SEPA : faites-le à la main."
+      },
+      "closing": "Une fois un paiement fait, marquez-le dans SYB. Si votre banque refuse une donnée, corrigez-la là-bas : SYB n’envoie jamais rien à votre banque."
+    },
+    "waiting": {
+      "label": "En attente de validation",
+      "title": "{count, plural, one {# paiement attend votre validation} many {# paiements attendent votre validation} other {# paiements attendent votre validation}}",
+      "open": "L’ouvrir dans la file"
+    },
+    "stage": {
+      "waiting": "en attente",
+      "blocked": "retenu par vos limites",
+      "changes": "modifications demandées",
+      "ready": "prêt pour votre banque",
+      "paid": "payé dans ma banque",
+      "declined": "refusé",
+      "lapsed": "expiré"
+    },
+    "closed": {
+      "label": "Fait et clos",
+      "title": "Payés, refusés et expirés",
+      "foot": "Effacer les coordonnées bancaires garde le montant et les dates, et supprime définitivement le nom, l’IBAN et le BIC."
+    },
+    "erase": {
+      "button": "Effacer les coordonnées bancaires",
+      "done": "Les coordonnées bancaires ont été effacées."
+    },
+    "payer": {
+      "label": "Payé depuis",
+      "none": "Vos coordonnées bancaires ne sont pas encore indiquées",
+      "foot": "Le nom et l’IBAN d’où partent vos paiements. Ils figurent dans le fichier SEPA comme payeur ; SYB n’entre jamais dans votre banque.",
+      "change": "Modifier",
+      "holder": "Nom sous lequel votre banque vous connaît",
+      "save": "Enregistrer",
+      "done": "Enregistré. Les coordonnées précédentes sont conservées."
+    },
+    "form": {
+      "label": "Nouveau paiement",
+      "title": "Préparer un paiement",
+      "foot": "Il passe d’abord par la file de validation. Validé, il est prêt pour votre banque : rien n’est payé avant que vous ne le payiez là-bas.",
+      "pays": "Ce qu’il paie",
+      "supplier": "Fournisseur",
+      "cost": "Coût fixe",
+      "order": "Numéro du bon de commande",
+      "unnamedSupplier": "Un fournisseur sans nom",
+      "unnamedCost": "Un coût sans nom",
+      "payee": "Payé à",
+      "payeeOptional": "Payé à (vide : le nom du fournisseur)",
+      "iban": "IBAN",
+      "bic": "BIC (facultatif)",
+      "amount": "Montant",
+      "currency": "Devise",
+      "date": "Payer le",
+      "reference": "Libellé que verra le bénéficiaire",
+      "badAmount": "Je ne peux pas lire ce montant. Écrivez les unités entières, puis un point ou une virgule et les centimes.",
+      "submit": "Demander la validation",
+      "done": "Préparé. Il attend votre validation dans la file."
+    },
+    "pays": {
+      "supplier": "Un fournisseur",
+      "fixed_cost": "Un coût fixe",
+      "purchase_order": "Un bon de commande",
+      "other": "Autre chose"
+    },
+    "refusal": {
+      "iban_empty": "Saisissez l’IBAN.",
+      "iban_format": "Ce n’est pas la forme d’un IBAN : deux lettres pour le pays, deux chiffres de contrôle, puis des lettres et des chiffres.",
+      "iban_country": "Je ne connais pas les IBAN de ce pays, je ne peux donc pas le vérifier.",
+      "iban_length": "Cet IBAN n’a pas la bonne longueur pour son pays.",
+      "iban_checksum": "Les chiffres de contrôle de cet IBAN ne correspondent pas : un caractère est sans doute mal saisi.",
+      "bic": "Un BIC compte huit ou onze lettres et chiffres.",
+      "name": "Indiquez qui est payé, avec un nom court.",
+      "amount": "Le montant doit être supérieur à zéro.",
+      "currency": "La devise doit être un code de trois lettres.",
+      "reference": "Écrivez un libellé court que verra le bénéficiaire.",
+      "date": "Choisissez un jour.",
+      "date_past": "Ce jour est passé. Choisissez aujourd’hui ou plus tard.",
+      "date_far": "Ce jour est à plus d’un an.",
+      "pays_kind": "Indiquez à quoi sert le paiement.",
+      "supplier": "Choisissez l’un de vos fournisseurs.",
+      "cost_item": "Choisissez l’un de vos coûts fixes.",
+      "purchase_order": "Saisissez le numéro du bon de commande.",
+      "not_found": "Je n’ai pas trouvé ce paiement.",
+      "not_ready": "Seul un paiement validé qui n’est pas marqué payé peut être marqué payé.",
+      "no_session": "Pour indiquer qu’un paiement a été fait, vous devez vous connecter.",
+      "none_ready": "Rien n’est encore prêt pour votre banque. Un paiement doit d’abord être validé.",
+      "no_payer": "Un fichier SEPA a besoin des coordonnées bancaires depuis lesquelles vous payez.",
+      "none_for_file": "Aucun des paiements prêts ne peut aller dans un fichier SEPA."
+    }
   }
 }

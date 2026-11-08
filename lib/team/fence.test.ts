@@ -9,6 +9,11 @@
 //   · the loader selects only the booking columns and role fields it needs.
 //
 // Comments are stripped first, so the files can explain the rule in words.
+//
+// P6-06 amended rule 28 (TASKS-PHASE6.md): the owner may now see each
+// person's own figures. They live apart, in lib/people and its /team
+// section, under their own fence (lib/people/fence.test.ts); this one
+// still holds the role-level cover to roles and hours, unchanged.
 
 import "dotenv/config";
 import { readFileSync } from "node:fs";

@@ -1044,6 +1044,16 @@ export function salonHour(weekday: number, k: number, booked: number): number {
 /** Appointments the salon says it can take a week (question 1.4.2.3b): five days × 24 slots. */
 export const SALON_CAPACITY_PER_WEEK = 120;
 
+/**
+ * P6-06: the weekly capacities the owner stated per stylist on /team — a
+ * third of the salon's each. Marta's is left unstated on purpose, so her
+ * utilisation reads "not measured" rather than an assumed figure.
+ */
+export const SALON_STYLIST_CAPACITY: Readonly<Record<string, number>> = {
+  Aoife: 40,
+  Sinead: 40,
+};
+
 /** How many days of bookings the export covers, ending yesterday. */
 export const SALON_HISTORY_DAYS = 120;
 

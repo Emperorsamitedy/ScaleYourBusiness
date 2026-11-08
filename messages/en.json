@@ -56,7 +56,8 @@
       "mode": "How I work",
       "history": "History",
       "team_access": "Team access",
-      "language": "Language and currency"
+      "language": "Language and currency",
+      "payments": "Payments"
     },
     "count": {
       "paused": "{count} paused",
@@ -5443,7 +5444,76 @@
       "pretend": "a pretend customer page · the widget is bottom right",
       "seesLabel": "what a visitor sees",
       "body": "This page stands in for your website. The button in the corner is the real widget, loaded by the same script and talking to the same public endpoint a customer would use. Ask it something you have approved, something you have not, and then ask for a person — each should behave as promised on the <link>support screen</link>."
+    },
+    "phone": {
+      "label": "Phone line",
+      "titleOn": "Answering calls on {number}",
+      "titleOff": "Not answering calls",
+      "what": "The line says first that it is SYB's automated assistant. It answers only from the answers you approved, never books, promises or refunds anything, and takes a message or puts the caller through to you when it doesn't know. Callers hear that the call is transcribed before anything is, and no audio is kept.",
+      "needsKeys": "To answer calls, SYB needs a Twilio account and a Twilio number. Add these settings on the server, then come back here:",
+      "setUp": "In Twilio, set this number's “A call comes in” webhook to the first address and its call status callback to the second, both as HTTP POST.",
+      "turnOn": "Answer calls on {number}",
+      "turnOff": "Stop answering",
+      "offBody": "Turning the line on answers {number} for you, from your approved answers.",
+      "handoverLabel": "Put callers who ask for a person through to",
+      "handoverHint": "Your own number, with the country code. Leave it empty and callers leave a message instead.",
+      "handoverSave": "Save",
+      "callsTitle": "Calls",
+      "callsEmpty": "No calls yet. Every call the line answers lands here, with its message and what was said.",
+      "withheld": "Number withheld",
+      "outcome": {
+        "answered": "Answered from your approved answers",
+        "message": "Left a message",
+        "handed_over": "Put through to you",
+        "hung_up": "Hung up without a message",
+        "live": "On the line now"
+      },
+      "asked": "{count, plural, one {# thing asked} other {# things asked}}",
+      "read": "Read the call",
+      "hide": "Hide the call",
+      "caller": "Caller",
+      "assistant": "Assistant (automated)",
+      "messageLabel": "Message",
+      "erase": "Erase this call",
+      "eraseConfirm": "Erase this call for good — the caller's number, what was said and any message?",
+      "eraseYes": "Erase for good",
+      "keep": "Keep it",
+      "notice": {
+        "on": "The phone line is answering.",
+        "off": "The phone line has stopped answering.",
+        "handover": "Saved.",
+        "erased": "The call is erased."
+      },
+      "error": {
+        "notSetUp": "The phone line isn't set up on this server yet.",
+        "taken": "That number already answers calls for another business.",
+        "notOn": "Turn the phone line on first.",
+        "badNumber": "Write the number with its country code, starting with a plus sign.",
+        "noCall": "That call isn't here any more.",
+        "crossSite": "This page can only be changed from SYB itself.",
+        "signIn": "Sign in to change the phone line.",
+        "action": "That isn't something the phone line can do."
+      }
     }
+  },
+  "phoneLine": {
+    "greeting": "Hello, you've reached {business}, and you're speaking with SYB's automated assistant, not a person.",
+    "notice": "This call is transcribed so that {business} can read it later; no audio is kept.",
+    "howCanIHelp": "How can I help?",
+    "anythingElse": "Is there anything else I can help with?",
+    "notHeard": "Sorry, I didn't catch that. Could you say it again?",
+    "goodbye": "Thank you for calling {business}. Goodbye.",
+    "noAnswer": "I don't have an approved answer for that, so I won't guess.",
+    "takeMessage": "I can take a message for {business}. Please say your name, your message and the best number to call you back on.",
+    "nobodyToPutThrough": "There's nobody I can put you through to right now, but I can take a message.",
+    "puttingThrough": "Putting you through to someone at {business} now.",
+    "nobodyPickedUp": "Sorry, nobody could pick up just now.",
+    "messageTaken": "Thank you, I've passed your message on to {business}. Goodbye.",
+    "noMessage": "I didn't catch a message. {business} can see that you called. Goodbye.",
+    "capped": "We've covered a lot, so it's best that someone at {business} takes it from here.",
+    "unavailable": "I can't answer that right now.",
+    "closed": "This line isn't taking calls right now. Please try again later. Goodbye.",
+    "busy": "The line is very busy right now. Please call again later. Goodbye."
   },
   "team": {
     "meta": {
@@ -5533,6 +5603,62 @@
       "title": "The team module is off.",
       "body": "It stays off unless you switch it on, under Modules on <link>Watching</link>. Switched on, it reads when the week needs more cover, or has more than it needs, by role and hour, and never anything about a person."
     }
+  },
+  "people": {
+    "label": "People",
+    "title": "Each person's own figures",
+    "ownerOnly": "Only you see this, as the owner",
+    "intro": "What your booking system recorded against each person, over the same four weeks as the business's own figures. Facts about the work, shown to you alone: people are listed by name, and nothing here ever becomes a proposal about a person.",
+    "basis": "From {source} · {from} to {to} · {count, plural, one {# appointment} other {# appointments}} with a person on them",
+    "source": {
+      "square": "Square appointments",
+      "import": "your bookings export from {platform}",
+      "importPlain": "your bookings export"
+    },
+    "noBookings": "No bookings are read yet, so there is nothing to show per person. Import a bookings export on <link>Connections</link>.",
+    "none": "No appointment in these four weeks records a person. When your bookings export has a staff column (team member, stylist, practitioner), each person's own figures appear here.",
+    "unattributed": "{count, plural, one {# appointment} other {# appointments}} in these four weeks record nobody, or someone you removed. They count in the business's figures only.",
+    "sales": "Sales per person: none of your sales sources records who made a sale, so there are none to show.",
+    "fig": {
+      "completed": "Completed appointments",
+      "completedOf": "of {count, plural, one {# appointment} other {# appointments}} booked with them",
+      "revenue": "Booking revenue",
+      "revenueOf": "list prices of {part} of {of, plural, one {# completed appointment} other {# completed appointments}}",
+      "noShow": "No-show rate",
+      "late": "Late-cancellation rate",
+      "rateOf": "{part} of {of, plural, one {# due appointment} other {# due appointments}}",
+      "utilisation": "Utilisation",
+      "utilisationOf": "{part} completed of {of} slots: {perWeek} a week, your figure, stated {day}",
+      "rebooking": "Rebooking rate",
+      "rebookingOf": "{part} of {of, plural, one {# client} other {# clients}} seen {from} to {to} booked again, with anyone, within {days} days",
+      "tooFew": "Too few to say",
+      "tooFewDue": "{count, plural, one {# due appointment} other {# due appointments}}; it takes {min}",
+      "tooFewClients": "{count, plural, one {# client} other {# clients}} seen; it takes {min}",
+      "notMeasured": "Not measured",
+      "why": {
+        "no_capacity": "no weekly capacity stated for them",
+        "no_prices": "the bookings carry no prices",
+        "currencies": "prices in more than one currency",
+        "no_completed": "no completed appointments in these four weeks",
+        "no_client": "the bookings carry no client identity",
+        "not_separated": "Square doesn't separate late cancellations"
+      }
+    },
+    "capacity": {
+      "label": "Appointments a week they can take",
+      "hint": "Your own figure. Utilisation is measured against it and nothing else.",
+      "save": "Save",
+      "clear": "Clear",
+      "invalid": "A whole number from {min} to {max}."
+    },
+    "remove": {
+      "button": "Remove this person",
+      "confirm": "Remove {person}? Their name and their own figures are erased from SYB, and a later import won't bring the name back. Their appointments stay in the business's figures, without a name.",
+      "yes": "Remove",
+      "no": "Keep",
+      "done": "Removed. {count, plural, one {# appointment stays} other {# appointments stay}} in the business's figures, without a name."
+    },
+    "failed": "Something went wrong on our side. Nothing was changed."
   },
   "teamAccess": {
     "meta": {
@@ -5670,6 +5796,8 @@
       "erasure_run": "Only an owner can erase a customer's details.",
       "data_import": "Only an owner can import a file of customers, stock or bookings.",
       "team_manage": "Only an owner can invite, change or remove people on the team.",
+      "people_read": "Only an owner can see each person's own figures.",
+      "people_manage": "Only an owner can state a person's weekly capacity or remove a person from the figures.",
       "rules_manage": "Only an owner can change how I work for this business.",
       "profile_edit": "Only an owner can change the business's facts, goals or limits.",
       "report_generate": "Only an owner can make a new report.",
@@ -5681,7 +5809,8 @@
       "reviews_settings": "Only an owner can change the address reviews are forwarded to.",
       "summary_settings": "Only an owner can switch the weekly summary on or off.",
       "stop_resume": "Only an owner can start things up again after a stop.",
-      "business_locale": "Only an owner can change the business's language or currency."
+      "business_locale": "Only an owner can change the business's language or currency.",
+      "payments_prepare": "Only an owner can prepare payments or say one was paid."
     }
   },
   "authWords": {
@@ -5824,7 +5953,7 @@
     },
     "module": {
       "analytics": "The watching mode is blind without measurement — analytics is what it watches with.",
-      "team": "Team: when the week needs more cover, or has more than it needs, by role and hour. It never scores, ranks or says anything about a person. Off unless you switch it on."
+      "team": "Team: when the week needs more cover, or has more than it needs, by role and hour, and, for the owner only, each person's own figures from your bookings. It never scores or ranks anyone, and never suggests anything about a person. Off unless you switch it on."
     },
     "data": {
       "payments": "payments",
@@ -6166,7 +6295,8 @@
       "media_generation": "an image or clip to make",
       "revise_goal": "a goal to look at",
       "stop_strategy": "a strategy to look at",
-      "other": "a proposal"
+      "other": "a proposal",
+      "prepared_payment": "a payment to check"
     }
   },
   "exports": {
@@ -8430,5 +8560,185 @@
     "many": "{count, plural, one {# review worth knowing} other {# reviews worth knowing}}",
     "withProposals": "{count, plural, one {# thing waits for your yes} other {# things wait for your yes}}, and {reviews, plural, one {a review worth knowing} other {# reviews worth knowing}}",
     "anotherSite": "another site"
+  },
+  "payments": {
+    "meta": {
+      "title": "Payments — SYB"
+    },
+    "kicker": "Insights · Payments",
+    "never": "SYB prepares payments and you pay them in your own bank. SYB can't move money.",
+    "title": {
+      "ready": "{count, plural, one {# payment is ready for your bank} other {# payments are ready for your bank}}",
+      "none": "Payments you make in your own bank"
+    },
+    "loading": "Reading your payments…",
+    "signedOut": "Start the interview first, then come back to prepare payments.",
+    "start": "Start the interview",
+    "error": {
+      "load": "I couldn't read your payments just now. Try again in a minute.",
+      "generic": "That didn't work. Try again in a minute.",
+      "ourSide": "Something went wrong on my side. Try again in a minute."
+    },
+    "ownerOnly": "Only an owner can prepare payments, download the bank file or say a payment was made.",
+    "erased": "Bank details erased",
+    "ready": {
+      "label": "Ready for your bank",
+      "title": "{count, plural, one {# approved payment to make} other {# approved payments to make}}",
+      "none": "Nothing is ready yet",
+      "foot": "Approved payments wait here until you say you paid them. Nothing leaves your bank until you pay it there."
+    },
+    "col": {
+      "payee": "Paid to",
+      "iban": "IBAN",
+      "amount": "Amount",
+      "reference": "Reference",
+      "date": "Date",
+      "file": "Bank file",
+      "action": "Action"
+    },
+    "file": {
+      "yes": "In the SEPA file",
+      "bar": {
+        "not_eur": "By hand: not in euros",
+        "payee_not_sepa": "By hand: the payee's bank is outside SEPA",
+        "payer_not_sepa": "By hand: your bank is outside SEPA",
+        "no_payer": "Needs your bank details first",
+        "erased": "Bank details erased",
+        "not_approved": "Not approved yet",
+        "paid": "Already paid"
+      }
+    },
+    "paid": {
+      "button": "Paid in my bank",
+      "done": "Marked as paid in your bank.",
+      "on": "said paid on {date}"
+    },
+    "download": {
+      "sepa": "{count, plural, one {Download the SEPA file (# payment)} other {Download the SEPA file (# payments)}}",
+      "steps": "Download step-by-step instructions",
+      "needPayer": "Add the bank details you pay from to get a SEPA file. The instructions work without them.",
+      "noneForFile": "None of these can go in a SEPA file, which is for euros between SEPA banks. Use the instructions.",
+      "total": "{count, plural, one {The file holds # payment, {total} in all.} other {The file holds # payments, {total} in all.}}"
+    },
+    "steps": {
+      "fileTitle": "Using the SEPA file",
+      "fileName": "the SEPA file",
+      "file": {
+        "save": "Download {file} and save it on your computer.",
+        "find": "In your bank's online banking, find where to upload or import a payment file. Banks call it a SEPA file, a batch payment or a bulk transfer.",
+        "upload": "{count, plural, one {Upload the file. Your bank shows the payment for you to check.} other {Upload the file. Your bank shows the # payments for you to check.}}",
+        "confirm": "Check each one, then confirm in your bank. Nothing is paid until you do.",
+        "mark": "Back here, press “Paid in my bank” for each payment you made."
+      },
+      "title": "Payments to make in your own bank",
+      "intro": "SYB prepared these payments. SYB can't move money: you make each one yourself, in your own bank.",
+      "from": "Paid from: {name}, IBAN {iban}",
+      "howTitle": "How to make each payment by hand:",
+      "hand": {
+        "open": "Open your bank's app or website and start a new transfer.",
+        "copy": "Copy the payee's name, IBAN and BIC exactly as written below.",
+        "amount": "Enter the amount and the reference, so the payee knows what it pays.",
+        "confirm": "Choose the date, check everything once more, then confirm the payment in your bank.",
+        "mark": "Back in SYB, press “Paid in my bank” so your records show it."
+      },
+      "paymentTitle": "Payment {n} of {count}",
+      "payTo": "Pay to: {name}",
+      "iban": "IBAN: {iban}",
+      "bic": "BIC: {bic}",
+      "amount": "Amount: {amount}",
+      "reference": "Reference: {reference}",
+      "date": "Date: {date}",
+      "erased": "The bank details of this payment were erased. Ask the payee for them again.",
+      "why": {
+        "notEur": "Not in euros, so it isn't in the SEPA file: make it by hand.",
+        "notSepa": "A bank outside SEPA, so it isn't in the SEPA file: make it by hand."
+      },
+      "closing": "Once a payment is made, mark it in SYB. If your bank refuses a detail, correct it there: SYB never sends anything to your bank."
+    },
+    "waiting": {
+      "label": "Waiting for approval",
+      "title": "{count, plural, one {# payment waits for your approval} other {# payments wait for your approval}}",
+      "open": "Open it in the queue"
+    },
+    "stage": {
+      "waiting": "waiting",
+      "blocked": "held by your limits",
+      "changes": "changes asked",
+      "ready": "ready for your bank",
+      "paid": "paid in my bank",
+      "declined": "declined",
+      "lapsed": "lapsed"
+    },
+    "closed": {
+      "label": "Done and closed",
+      "title": "Paid, declined and lapsed",
+      "foot": "Erasing bank details keeps the amount and the dates, and removes the name, IBAN and BIC for good."
+    },
+    "erase": {
+      "button": "Erase bank details",
+      "done": "The bank details were erased."
+    },
+    "payer": {
+      "label": "Paying from",
+      "none": "Your bank details aren't stated yet",
+      "foot": "The name and IBAN your payments leave from. They go in the SEPA file as the payer; SYB never logs in to your bank.",
+      "change": "Change",
+      "holder": "Name your bank knows you by",
+      "save": "Save",
+      "done": "Saved. Earlier details are kept on record."
+    },
+    "form": {
+      "label": "New payment",
+      "title": "Prepare a payment",
+      "foot": "It goes to the approval queue first. Approved, it is ready for your bank: nothing is paid until you pay it there.",
+      "pays": "What it pays",
+      "supplier": "Supplier",
+      "cost": "Fixed cost",
+      "order": "Purchase order number",
+      "unnamedSupplier": "A supplier with no name",
+      "unnamedCost": "A cost with no name",
+      "payee": "Paid to",
+      "payeeOptional": "Paid to (empty: the supplier's name)",
+      "iban": "IBAN",
+      "bic": "BIC (optional)",
+      "amount": "Amount",
+      "currency": "Currency",
+      "date": "Pay on",
+      "reference": "Reference the payee sees",
+      "badAmount": "I can't read that amount. Write whole units, then a dot or a comma and the cents.",
+      "submit": "Ask for approval",
+      "done": "Prepared. It waits in the queue for your approval."
+    },
+    "pays": {
+      "supplier": "A supplier",
+      "fixed_cost": "A fixed cost",
+      "purchase_order": "A purchase order",
+      "other": "Something else"
+    },
+    "refusal": {
+      "iban_empty": "Write the IBAN.",
+      "iban_format": "That isn't the shape of an IBAN: two letters for the country, two check digits, then letters and digits.",
+      "iban_country": "I don't know IBANs from that country, so I can't check it.",
+      "iban_length": "That IBAN has the wrong length for its country.",
+      "iban_checksum": "That IBAN's check digits don't match: a character is probably mistyped.",
+      "bic": "A BIC is eight or eleven letters and digits.",
+      "name": "Say who is paid, in a short name.",
+      "amount": "The amount must be above zero.",
+      "currency": "The currency must be a three-letter code.",
+      "reference": "Write a short reference the payee will see.",
+      "date": "Choose a day.",
+      "date_past": "That day has passed. Choose today or later.",
+      "date_far": "That day is more than a year ahead.",
+      "pays_kind": "Say what the payment is for.",
+      "supplier": "Choose one of your suppliers.",
+      "cost_item": "Choose one of your fixed costs.",
+      "purchase_order": "Write the purchase order's number.",
+      "not_found": "I couldn't find that payment.",
+      "not_ready": "Only an approved payment that isn't marked paid can be marked paid.",
+      "no_session": "Saying a payment was made needs you signed in.",
+      "none_ready": "Nothing is ready for your bank yet. A payment needs approving first.",
+      "no_payer": "A SEPA file needs the bank details you pay from.",
+      "none_for_file": "None of the ready payments can go in a SEPA file."
+    }
   }
 }

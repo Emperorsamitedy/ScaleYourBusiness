@@ -56,7 +56,8 @@
       "mode": "Cómo trabajo",
       "history": "Historial",
       "team_access": "Acceso del equipo",
-      "language": "Idioma y moneda"
+      "language": "Idioma y moneda",
+      "payments": "Pagos"
     },
     "count": {
       "paused": "{count} en pausa",
@@ -5443,7 +5444,76 @@
       "pretend": "una página de cliente simulada · el widget está abajo a la derecha",
       "seesLabel": "lo que ve un visitante",
       "body": "Esta página hace las veces de su sitio web. El botón de la esquina es el widget real, cargado con el mismo script y conectado al mismo punto de acceso público que usaría un cliente. Pregúntele algo que haya aprobado, algo que no, y después pida hablar con una persona: cada caso debería comportarse como se promete en la <link>pantalla de soporte</link>."
+    },
+    "phone": {
+      "label": "Línea telefónica",
+      "titleOn": "Atendiendo llamadas en el {number}",
+      "titleOff": "Sin atender llamadas",
+      "what": "La línea dice primero que es el asistente automático de SYB. Solo responde con las respuestas que usted aprobó, nunca reserva, promete ni hace un reembolso de nada, y toma un mensaje o le pasa la llamada a usted cuando no sabe algo. Quien llama oye que la llamada se transcribe antes de que se transcriba nada, y no se guarda ningún audio.",
+      "needsKeys": "Para atender llamadas, SYB necesita una cuenta de Twilio y un número de Twilio. Añada estos ajustes en el servidor y vuelva aquí:",
+      "setUp": "En Twilio, configure el webhook «A call comes in» de este número con la primera dirección y su aviso de estado de llamada con la segunda, ambos como HTTP POST.",
+      "turnOn": "Atender llamadas en el {number}",
+      "turnOff": "Dejar de atender",
+      "offBody": "Al activar la línea, SYB atiende el {number} por usted, con sus respuestas aprobadas.",
+      "handoverLabel": "Pasar a quien pida una persona al número",
+      "handoverHint": "Su propio número, con el prefijo del país. Si lo deja vacío, quien llama deja un mensaje.",
+      "handoverSave": "Guardar",
+      "callsTitle": "Llamadas",
+      "callsEmpty": "Aún no hay llamadas. Cada llamada que atiende la línea aparece aquí, con su mensaje y lo que se dijo.",
+      "withheld": "Número oculto",
+      "outcome": {
+        "answered": "Respondida con sus respuestas aprobadas",
+        "message": "Dejó un mensaje",
+        "handed_over": "Se le pasó la llamada a usted",
+        "hung_up": "Colgó sin dejar mensaje",
+        "live": "En línea ahora"
+      },
+      "asked": "{count, plural, one {# pregunta} many {# preguntas} other {# preguntas}}",
+      "read": "Leer la llamada",
+      "hide": "Ocultar la llamada",
+      "caller": "Quien llama",
+      "assistant": "Asistente (automático)",
+      "messageLabel": "Mensaje",
+      "erase": "Borrar esta llamada",
+      "eraseConfirm": "¿Borrar esta llamada para siempre: el número de quien llamó, lo que se dijo y cualquier mensaje?",
+      "eraseYes": "Borrar para siempre",
+      "keep": "Conservarla",
+      "notice": {
+        "on": "La línea telefónica está atendiendo.",
+        "off": "La línea telefónica ha dejado de atender.",
+        "handover": "Guardado.",
+        "erased": "La llamada está borrada."
+      },
+      "error": {
+        "notSetUp": "La línea telefónica aún no está configurada en este servidor.",
+        "taken": "Ese número ya atiende llamadas de otro negocio.",
+        "notOn": "Primero active la línea telefónica.",
+        "badNumber": "Escriba el número con el prefijo del país, empezando por el signo más.",
+        "noCall": "Esa llamada ya no está aquí.",
+        "crossSite": "Esta página solo se puede cambiar desde el propio SYB.",
+        "signIn": "Inicie sesión para cambiar la línea telefónica.",
+        "action": "Eso no es algo que pueda hacer la línea telefónica."
+      }
     }
+  },
+  "phoneLine": {
+    "greeting": "Hola, ha llamado a {business} y está hablando con el asistente automático de SYB, no con una persona.",
+    "notice": "Esta llamada se transcribe para que {business} pueda leerla después; no se guarda ningún audio.",
+    "howCanIHelp": "¿En qué puedo ayudarle?",
+    "anythingElse": "¿Puedo ayudarle en algo más?",
+    "notHeard": "Perdone, no le he entendido. ¿Podría repetirlo?",
+    "goodbye": "Gracias por llamar a {business}. Adiós.",
+    "noAnswer": "No tengo una respuesta aprobada para eso, así que no voy a suponer nada.",
+    "takeMessage": "Puedo tomar un mensaje para {business}. Diga su nombre, su mensaje y el mejor número para devolverle la llamada.",
+    "nobodyToPutThrough": "Ahora mismo no hay nadie con quien pueda ponerle, pero puedo tomar un mensaje.",
+    "puttingThrough": "Le paso ahora con alguien de {business}.",
+    "nobodyPickedUp": "Lo siento, ahora mismo nadie ha podido atender.",
+    "messageTaken": "Gracias, he pasado su mensaje a {business}. Adiós.",
+    "noMessage": "No he entendido ningún mensaje. {business} podrá ver que ha llamado. Adiós.",
+    "capped": "Hemos tratado muchas cosas, así que es mejor que alguien de {business} continúe desde aquí.",
+    "unavailable": "Ahora mismo no puedo responder a eso.",
+    "closed": "Esta línea no atiende llamadas en este momento. Inténtelo más tarde. Adiós.",
+    "busy": "La línea está muy ocupada en este momento. Llame de nuevo más tarde. Adiós."
   },
   "team": {
     "meta": {
@@ -5533,6 +5603,62 @@
       "title": "El módulo de equipo está desactivado.",
       "body": "Sigue desactivado salvo que usted lo active, en Módulos dentro de <link>Observando</link>. Una vez activado, lee cuándo la semana necesita más cobertura, o tiene más de la necesaria, por rol y hora, y nunca nada sobre una persona."
     }
+  },
+  "people": {
+    "label": "Personas",
+    "title": "Las cifras propias de cada persona",
+    "ownerOnly": "Solo usted lo ve, como propietario",
+    "intro": "Lo que su sistema de reservas registró para cada persona, durante las mismas cuatro semanas que las cifras del negocio. Datos sobre el trabajo, que solo ve usted: las personas aparecen por nombre y nada de esto se convierte nunca en una propuesta sobre una persona.",
+    "basis": "De {source} · del {from} al {to} · {count, plural, one {# cita} many {# citas} other {# citas}} con una persona asignada",
+    "source": {
+      "square": "las citas de Square",
+      "import": "su exportación de reservas de {platform}",
+      "importPlain": "su exportación de reservas"
+    },
+    "noBookings": "Aún no se ha leído ninguna reserva, así que no hay nada que mostrar por persona. Importe una exportación de reservas en <link>Conexiones</link>.",
+    "none": "Ninguna cita de estas cuatro semanas registra a una persona. Cuando su exportación de reservas tenga una columna de personal (miembro del equipo, estilista, profesional), aquí aparecerán las cifras propias de cada persona.",
+    "unattributed": "{count, plural, one {# cita} many {# citas} other {# citas}} de estas cuatro semanas no registran a nadie, o a alguien que usted quitó. Solo cuentan en las cifras del negocio.",
+    "sales": "Ventas por persona: ninguna de sus fuentes de ventas registra quién hizo cada venta, así que no hay ninguna que mostrar.",
+    "fig": {
+      "completed": "Citas completadas",
+      "completedOf": "de {count, plural, one {# cita reservada} many {# citas reservadas} other {# citas reservadas}} con esta persona",
+      "revenue": "Ingresos por reservas",
+      "revenueOf": "precios de lista de {part} de {of, plural, one {# cita completada} many {# citas completadas} other {# citas completadas}}",
+      "noShow": "Tasa de ausencias",
+      "late": "Tasa de cancelaciones tardías",
+      "rateOf": "{part} de {of, plural, one {# cita prevista} many {# citas previstas} other {# citas previstas}}",
+      "utilisation": "Ocupación",
+      "utilisationOf": "{part} completadas de {of} huecos: {perWeek} por semana, su cifra, indicada el {day}",
+      "rebooking": "Tasa de nueva reserva",
+      "rebookingOf": "{part} de {of, plural, one {# cliente atendido} many {# clientes atendidos} other {# clientes atendidos}} del {from} al {to} volvieron a reservar, con quien fuera, en {days} días",
+      "tooFew": "Demasiado pocas para decir nada",
+      "tooFewDue": "{count, plural, one {# cita prevista} many {# citas previstas} other {# citas previstas}}; hacen falta {min}",
+      "tooFewClients": "{count, plural, one {# cliente atendido} many {# clientes atendidos} other {# clientes atendidos}}; hacen falta {min}",
+      "notMeasured": "Sin medir",
+      "why": {
+        "no_capacity": "no se ha indicado su capacidad semanal",
+        "no_prices": "las reservas no llevan precios",
+        "currencies": "precios en más de una moneda",
+        "no_completed": "ninguna cita completada en estas cuatro semanas",
+        "no_client": "las reservas no identifican al cliente",
+        "not_separated": "Square no separa las cancelaciones tardías"
+      }
+    },
+    "capacity": {
+      "label": "Citas por semana que puede atender",
+      "hint": "Su propia cifra. La ocupación se mide solo con ella.",
+      "save": "Guardar",
+      "clear": "Borrar",
+      "invalid": "Un número entero del {min} al {max}."
+    },
+    "remove": {
+      "button": "Quitar a esta persona",
+      "confirm": "¿Quitar a {person}? Su nombre y sus cifras propias se borran de SYB, y una importación posterior no traerá el nombre de vuelta. Sus citas siguen en las cifras del negocio, sin nombre.",
+      "yes": "Quitar",
+      "no": "Mantener",
+      "done": "Quitada. {count, plural, one {# cita sigue} many {# citas siguen} other {# citas siguen}} en las cifras del negocio, sin nombre."
+    },
+    "failed": "Algo ha fallado por nuestra parte. No se ha cambiado nada."
   },
   "teamAccess": {
     "meta": {
@@ -5670,6 +5796,8 @@
       "erasure_run": "Solo un propietario puede borrar los datos personales de un cliente.",
       "data_import": "Solo un propietario puede importar un archivo de clientes, existencias o reservas.",
       "team_manage": "Solo un propietario puede invitar, cambiar o quitar a personas del equipo.",
+      "people_read": "Solo un propietario puede ver las cifras propias de cada persona.",
+      "people_manage": "Solo un propietario puede indicar la capacidad semanal de una persona o quitar a una persona de las cifras.",
       "rules_manage": "Solo un propietario puede cambiar cómo trabajo para este negocio.",
       "profile_edit": "Solo un propietario puede cambiar los datos, los objetivos o los límites del negocio.",
       "report_generate": "Solo un propietario puede generar un informe nuevo.",
@@ -5681,7 +5809,8 @@
       "reviews_settings": "Solo un propietario puede cambiar la dirección a la que se reenvían las reseñas.",
       "summary_settings": "Solo un propietario puede activar o desactivar el resumen semanal.",
       "stop_resume": "Solo un propietario puede volver a ponerlo todo en marcha después de una parada.",
-      "business_locale": "Solo un propietario puede cambiar el idioma o la moneda del negocio."
+      "business_locale": "Solo un propietario puede cambiar el idioma o la moneda del negocio.",
+      "payments_prepare": "Solo un propietario puede preparar pagos o indicar que se pagó uno."
     }
   },
   "authWords": {
@@ -5824,7 +5953,7 @@
     },
     "module": {
       "analytics": "El modo de observación está ciego sin medición: la analítica es con lo que observa.",
-      "team": "Equipo: cuándo la semana necesita más cobertura, o tiene más de la que necesita, por rol y por hora. Nunca puntúa, clasifica ni dice nada sobre una persona. Desactivado salvo que usted lo active."
+      "team": "Equipo: cuándo la semana necesita más cobertura, o tiene más de la que necesita, por rol y por hora, y, solo para el propietario, las cifras propias de cada persona según sus reservas. Nunca puntúa ni clasifica a nadie, y nunca sugiere nada sobre una persona. Desactivado salvo que usted lo active."
     },
     "data": {
       "payments": "pagos",
@@ -6166,7 +6295,8 @@
       "media_generation": "una imagen o un clip por crear",
       "revise_goal": "un objetivo que revisar",
       "stop_strategy": "una estrategia que revisar",
-      "other": "una propuesta"
+      "other": "una propuesta",
+      "prepared_payment": "un pago que revisar"
     }
   },
   "exports": {
@@ -8430,5 +8560,185 @@
     "many": "{count, plural, one {# reseña que conviene conocer} many {# reseñas que conviene conocer} other {# reseñas que conviene conocer}}",
     "withProposals": "{count, plural, one {# cosa espera su visto bueno} many {# cosas esperan su visto bueno} other {# cosas esperan su visto bueno}}, y {reviews, plural, one {una reseña que conviene conocer} many {# reseñas que conviene conocer} other {# reseñas que conviene conocer}}",
     "anotherSite": "otro sitio"
+  },
+  "payments": {
+    "meta": {
+      "title": "Pagos — SYB"
+    },
+    "kicker": "Análisis · Pagos",
+    "never": "SYB prepara los pagos y usted los paga en su propio banco. SYB no puede mover dinero.",
+    "title": {
+      "ready": "{count, plural, one {# pago está listo para su banco} many {# pagos están listos para su banco} other {# pagos están listos para su banco}}",
+      "none": "Pagos que usted hace en su propio banco"
+    },
+    "loading": "Leyendo sus pagos…",
+    "signedOut": "Empiece primero la entrevista y vuelva después para preparar pagos.",
+    "start": "Empezar la entrevista",
+    "error": {
+      "load": "No he podido leer sus pagos ahora mismo. Vuelva a intentarlo dentro de un minuto.",
+      "generic": "No ha funcionado. Vuelva a intentarlo dentro de un minuto.",
+      "ourSide": "Algo ha fallado por mi parte. Vuelva a intentarlo dentro de un minuto."
+    },
+    "ownerOnly": "Solo un propietario puede preparar pagos, descargar el archivo bancario o indicar que se hizo un pago.",
+    "erased": "Datos bancarios borrados",
+    "ready": {
+      "label": "Listo para su banco",
+      "title": "{count, plural, one {# pago aprobado por hacer} many {# pagos aprobados por hacer} other {# pagos aprobados por hacer}}",
+      "none": "Todavía no hay nada listo",
+      "foot": "Los pagos aprobados esperan aquí hasta que indique que los ha pagado. Nada sale de su banco hasta que lo pague allí."
+    },
+    "col": {
+      "payee": "Pagado a",
+      "iban": "IBAN",
+      "amount": "Importe",
+      "reference": "Concepto",
+      "date": "Fecha",
+      "file": "Archivo bancario",
+      "action": "Acción"
+    },
+    "file": {
+      "yes": "En el archivo SEPA",
+      "bar": {
+        "not_eur": "A mano: no está en euros",
+        "payee_not_sepa": "A mano: el banco del beneficiario está fuera de SEPA",
+        "payer_not_sepa": "A mano: su banco está fuera de SEPA",
+        "no_payer": "Necesita antes sus datos bancarios",
+        "erased": "Datos bancarios borrados",
+        "not_approved": "Aún sin aprobar",
+        "paid": "Ya pagado"
+      }
+    },
+    "paid": {
+      "button": "Pagado en mi banco",
+      "done": "Marcado como pagado en su banco.",
+      "on": "indicado como pagado el {date}"
+    },
+    "download": {
+      "sepa": "{count, plural, one {Descargar el archivo SEPA (# pago)} many {Descargar el archivo SEPA (# pagos)} other {Descargar el archivo SEPA (# pagos)}}",
+      "steps": "Descargar las instrucciones paso a paso",
+      "needPayer": "Añada los datos bancarios desde los que paga para obtener un archivo SEPA. Las instrucciones funcionan sin ellos.",
+      "noneForFile": "Ninguno puede ir en un archivo SEPA, que es para euros entre bancos SEPA. Use las instrucciones.",
+      "total": "{count, plural, one {El archivo contiene # pago, {total} en total.} many {El archivo contiene # pagos, {total} en total.} other {El archivo contiene # pagos, {total} en total.}}"
+    },
+    "steps": {
+      "fileTitle": "Cómo usar el archivo SEPA",
+      "fileName": "el archivo SEPA",
+      "file": {
+        "save": "Descargue {file} y guárdelo en su ordenador.",
+        "find": "En la banca en línea de su banco, busque dónde subir o importar un archivo de pagos. Los bancos lo llaman archivo SEPA, remesa de pagos o transferencia múltiple.",
+        "upload": "{count, plural, one {Suba el archivo. Su banco le muestra el pago para que lo revise.} many {Suba el archivo. Su banco le muestra los # pagos para que los revise.} other {Suba el archivo. Su banco le muestra los # pagos para que los revise.}}",
+        "confirm": "Revise cada uno y confirme después en su banco. No se paga nada hasta que usted lo haga.",
+        "mark": "De vuelta aquí, pulse «Pagado en mi banco» en cada pago que haya hecho."
+      },
+      "title": "Pagos que debe hacer en su propio banco",
+      "intro": "SYB ha preparado estos pagos. SYB no puede mover dinero: usted hace cada uno, en su propio banco.",
+      "from": "Pagado desde: {name}, IBAN {iban}",
+      "howTitle": "Cómo hacer cada pago a mano:",
+      "hand": {
+        "open": "Abra la aplicación o la web de su banco y empiece una transferencia nueva.",
+        "copy": "Copie el nombre, el IBAN y el BIC del beneficiario exactamente como aparecen abajo.",
+        "amount": "Introduzca el importe y el concepto, para que el beneficiario sepa qué se paga.",
+        "confirm": "Elija la fecha, revíselo todo una vez más y confirme después el pago en su banco.",
+        "mark": "De vuelta en SYB, pulse «Pagado en mi banco» para que sus registros lo reflejen."
+      },
+      "paymentTitle": "Pago {n} de {count}",
+      "payTo": "Pagar a: {name}",
+      "iban": "IBAN: {iban}",
+      "bic": "BIC: {bic}",
+      "amount": "Importe: {amount}",
+      "reference": "Concepto: {reference}",
+      "date": "Fecha: {date}",
+      "erased": "Los datos bancarios de este pago se borraron. Vuelva a pedírselos al beneficiario.",
+      "why": {
+        "notEur": "No está en euros, así que no va en el archivo SEPA: hágalo a mano.",
+        "notSepa": "Un banco fuera de SEPA, así que no va en el archivo SEPA: hágalo a mano."
+      },
+      "closing": "Cuando haya hecho un pago, márquelo en SYB. Si su banco rechaza algún dato, corríjalo allí: SYB nunca envía nada a su banco."
+    },
+    "waiting": {
+      "label": "Esperando aprobación",
+      "title": "{count, plural, one {# pago espera su aprobación} many {# pagos esperan su aprobación} other {# pagos esperan su aprobación}}",
+      "open": "Abrirlo en la cola"
+    },
+    "stage": {
+      "waiting": "en espera",
+      "blocked": "retenido por sus límites",
+      "changes": "cambios pedidos",
+      "ready": "listo para su banco",
+      "paid": "pagado en mi banco",
+      "declined": "rechazado",
+      "lapsed": "caducado"
+    },
+    "closed": {
+      "label": "Hecho y cerrado",
+      "title": "Pagados, rechazados y caducados",
+      "foot": "Borrar los datos bancarios conserva el importe y las fechas, y elimina para siempre el nombre, el IBAN y el BIC."
+    },
+    "erase": {
+      "button": "Borrar datos bancarios",
+      "done": "Se han borrado los datos bancarios."
+    },
+    "payer": {
+      "label": "Pagando desde",
+      "none": "Aún no ha indicado sus datos bancarios",
+      "foot": "El nombre y el IBAN desde los que salen sus pagos. Van en el archivo SEPA como ordenante; SYB nunca entra en su banco.",
+      "change": "Cambiar",
+      "holder": "Nombre con el que le conoce su banco",
+      "save": "Guardar",
+      "done": "Guardado. Los datos anteriores se conservan."
+    },
+    "form": {
+      "label": "Pago nuevo",
+      "title": "Preparar un pago",
+      "foot": "Primero va a la cola de aprobación. Una vez aprobado, está listo para su banco: no se paga nada hasta que lo pague allí.",
+      "pays": "Qué paga",
+      "supplier": "Proveedor",
+      "cost": "Coste fijo",
+      "order": "Número del pedido de compra",
+      "unnamedSupplier": "Un proveedor sin nombre",
+      "unnamedCost": "Un coste sin nombre",
+      "payee": "Pagado a",
+      "payeeOptional": "Pagado a (vacío: el nombre del proveedor)",
+      "iban": "IBAN",
+      "bic": "BIC (opcional)",
+      "amount": "Importe",
+      "currency": "Moneda",
+      "date": "Pagar el",
+      "reference": "Concepto que verá el beneficiario",
+      "badAmount": "No puedo leer ese importe. Escriba las unidades enteras, luego un punto o una coma y los céntimos.",
+      "submit": "Pedir aprobación",
+      "done": "Preparado. Espera en la cola su aprobación."
+    },
+    "pays": {
+      "supplier": "Un proveedor",
+      "fixed_cost": "Un coste fijo",
+      "purchase_order": "Un pedido de compra",
+      "other": "Otra cosa"
+    },
+    "refusal": {
+      "iban_empty": "Escriba el IBAN.",
+      "iban_format": "Eso no tiene forma de IBAN: dos letras del país, dos dígitos de control y luego letras y dígitos.",
+      "iban_country": "No conozco los IBAN de ese país, así que no puedo comprobarlo.",
+      "iban_length": "Ese IBAN no tiene la longitud de su país.",
+      "iban_checksum": "Los dígitos de control de ese IBAN no cuadran: probablemente hay un carácter mal escrito.",
+      "bic": "Un BIC tiene ocho u once letras y dígitos.",
+      "name": "Indique a quién se paga, con un nombre corto.",
+      "amount": "El importe debe ser mayor que cero.",
+      "currency": "La moneda debe ser un código de tres letras.",
+      "reference": "Escriba un concepto corto que verá el beneficiario.",
+      "date": "Elija un día.",
+      "date_past": "Ese día ya ha pasado. Elija hoy o más adelante.",
+      "date_far": "Ese día está a más de un año vista.",
+      "pays_kind": "Indique para qué es el pago.",
+      "supplier": "Elija uno de sus proveedores.",
+      "cost_item": "Elija uno de sus costes fijos.",
+      "purchase_order": "Escriba el número del pedido de compra.",
+      "not_found": "No he encontrado ese pago.",
+      "not_ready": "Solo un pago aprobado que no esté marcado como pagado puede marcarse como pagado.",
+      "no_session": "Para indicar que se hizo un pago, debe iniciar sesión.",
+      "none_ready": "Todavía no hay nada listo para su banco. Primero hay que aprobar un pago.",
+      "no_payer": "Un archivo SEPA necesita los datos bancarios desde los que paga.",
+      "none_for_file": "Ninguno de los pagos listos puede ir en un archivo SEPA."
+    }
   }
 }

@@ -131,6 +131,11 @@ npm run db:seed
 - Niche research: `META_AD_LIBRARY_TOKEN`.
 - Error monitoring: `SENTRY_DSN` and `NEXT_PUBLIC_SENTRY_DSN`.
 - The ops panel: `OPS_KEY`.
+- Phone answering (P6-02): `TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN` and
+  `TWILIO_PHONE_NUMBER` (E.164, e.g. `+447700900123`). In Twilio, set the
+  number's "A call comes in" webhook to `<APP_URL>/api/phone/voice` and its
+  call status callback to `<APP_URL>/api/phone/voice?step=status`, both
+  HTTP POST. Then turn the line on from `/support`. One business per number.
 - AI video (P6-03): buy Higgsfield **API** credit (a prepaid USD balance,
   separate from any higgsfield.ai web plan), create a key in Higgsfield's
   API console, then set `MEDIA_PROVIDER=higgsfield`, `HIGGSFIELD_API_KEY`

@@ -14,10 +14,10 @@
 
 import { logSafeError } from "../../../lib/core/log-safe";
 import { matchingSession, resolveAccess } from "../../../lib/auth/access";
-import { and, eq, isNull } from "drizzle-orm";
+import { and, eq, inArray, isNull } from "drizzle-orm";
 import { type NextRequest, NextResponse } from "next/server";
 import { db } from "../../../db";
-import { fieldRecords } from "../../../db/schema";
+import { fieldRecords, proposals } from "../../../db/schema";
 import { readEvidence, sourceFieldsOf } from "../../../lib/proposals/evidence";
 import { generateProposals } from "../../../lib/proposals/generate";
 import {
@@ -27,7 +27,9 @@ import {
   rejectProposal,
   requestChanges,
 } from "../../../lib/proposals/service";
-import { requireRole } from "../../../lib/auth/roles";
+import { languageOf, refusalFor, requireRole, roleAllows, roleOf } from "../../../lib/auth/roles";
+import { trFor } from "../../../lib/i18n/server-tr";
+import { PAYMENTS_MODULE } from "../../../lib/payments/store";
 
 async function resolveProfile(): Promise<string | null> {
   // The one door (lib/auth/access): a signed cookie, and an owned business only for its own account.
@@ -162,7 +164,35 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
 
   const decided: string[] = [];
   const failed: { id: string; error: string }[] = [];
+  // P6-05 (rule 26 amended): a payment is the owner's to decide. A manager
+  // decides everything else in the queue, never a prepared payment.
+  const role = roleOf(session);
+  const ownerOnly = new Set<string>();
+  if (role === null || !roleAllows(role, "payments.prepare")) {
+    const uuids = ids.filter((x) => /^[0-9a-f-]{36}$/i.test(x));
+    const rows =
+      uuids.length === 0
+        ? []
+        : await db
+            .select({ id: proposals.id })
+            .from(proposals)
+            .where(
+              and(
+                inArray(proposals.id, uuids),
+                eq(proposals.profile_id, profileId),
+                eq(proposals.module, PAYMENTS_MODULE),
+              ),
+            );
+    for (const r of rows) ownerOnly.add(r.id);
+  }
   for (const id of ids) {
+    if (ownerOnly.has(id)) {
+      failed.push({
+        id,
+        error: refusalFor("payments.prepare", trFor(languageOf(session), "roleWords")),
+      });
+      continue;
+    }
     try {
       if (body.decision === "approve") {
         await approveProposal({

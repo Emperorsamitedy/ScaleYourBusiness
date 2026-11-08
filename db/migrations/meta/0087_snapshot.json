@@ -1,6 +1,6 @@
 {
   "id": "5f247689-f711-401a-9edf-083943d404b1",
-  "prevId": "a4732679-03a0-4070-b13f-758891a099b5",
+  "prevId": "2065f92e-92ae-4d46-a783-061ef581d006",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -6322,341 +6322,6 @@
       "checkConstraints": {},
       "isRLSEnabled": false
     },
-    "public.media_candidates": {
-      "name": "media_candidates",
-      "schema": "",
-      "columns": {
-        "id": {
-          "name": "id",
-          "type": "uuid",
-          "primaryKey": true,
-          "notNull": true,
-          "default": "gen_random_uuid()"
-        },
-        "generation_id": {
-          "name": "generation_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "profile_id": {
-          "name": "profile_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "proposal_id": {
-          "name": "proposal_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "target_item_id": {
-          "name": "target_item_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "brief_id": {
-          "name": "brief_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "hook_index": {
-          "name": "hook_index",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "ordinal": {
-          "name": "ordinal",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "status": {
-          "name": "status",
-          "type": "media_candidate_status",
-          "typeSchema": "public",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'generating'"
-        },
-        "provider": {
-          "name": "provider",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "model": {
-          "name": "model",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "request_id": {
-          "name": "request_id",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "prompt_sha256": {
-          "name": "prompt_sha256",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "label": {
-          "name": "label",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "workload": {
-          "name": "workload",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "'ai_video'"
-        },
-        "attempts": {
-          "name": "attempts",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true,
-          "default": 0
-        },
-        "estimate_minor": {
-          "name": "estimate_minor",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "cost_minor": {
-          "name": "cost_minor",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "currency": {
-          "name": "currency",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true
-        },
-        "media_url": {
-          "name": "media_url",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "pathname": {
-          "name": "pathname",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "bytes": {
-          "name": "bytes",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "error": {
-          "name": "error",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": true,
-          "default": "now()"
-        },
-        "finished_at": {
-          "name": "finished_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "chosen_at": {
-          "name": "chosen_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "chosen_by": {
-          "name": "chosen_by",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "result_item_id": {
-          "name": "result_item_id",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": false
-        }
-      },
-      "indexes": {
-        "media_candidates_set_ordinal_uq": {
-          "name": "media_candidates_set_ordinal_uq",
-          "columns": [
-            {
-              "expression": "generation_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "ordinal",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": true,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "media_candidates_one_chosen_uq": {
-          "name": "media_candidates_one_chosen_uq",
-          "columns": [
-            {
-              "expression": "generation_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": true,
-          "where": "\"media_candidates\".\"status\" = 'chosen'",
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        },
-        "media_candidates_profile_idx": {
-          "name": "media_candidates_profile_idx",
-          "columns": [
-            {
-              "expression": "profile_id",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            },
-            {
-              "expression": "created_at",
-              "isExpression": false,
-              "asc": true,
-              "nulls": "last"
-            }
-          ],
-          "isUnique": false,
-          "concurrently": false,
-          "method": "btree",
-          "with": {}
-        }
-      },
-      "foreignKeys": {
-        "media_candidates_generation_id_media_generations_id_fk": {
-          "name": "media_candidates_generation_id_media_generations_id_fk",
-          "tableFrom": "media_candidates",
-          "tableTo": "media_generations",
-          "columnsFrom": ["generation_id"],
-          "columnsTo": ["id"],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "media_candidates_profile_id_business_profiles_id_fk": {
-          "name": "media_candidates_profile_id_business_profiles_id_fk",
-          "tableFrom": "media_candidates",
-          "tableTo": "business_profiles",
-          "columnsFrom": ["profile_id"],
-          "columnsTo": ["id"],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "media_candidates_proposal_id_proposals_id_fk": {
-          "name": "media_candidates_proposal_id_proposals_id_fk",
-          "tableFrom": "media_candidates",
-          "tableTo": "proposals",
-          "columnsFrom": ["proposal_id"],
-          "columnsTo": ["id"],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "media_candidates_target_item_id_content_items_id_fk": {
-          "name": "media_candidates_target_item_id_content_items_id_fk",
-          "tableFrom": "media_candidates",
-          "tableTo": "content_items",
-          "columnsFrom": ["target_item_id"],
-          "columnsTo": ["id"],
-          "onDelete": "cascade",
-          "onUpdate": "no action"
-        },
-        "media_candidates_brief_id_creative_briefs_id_fk": {
-          "name": "media_candidates_brief_id_creative_briefs_id_fk",
-          "tableFrom": "media_candidates",
-          "tableTo": "creative_briefs",
-          "columnsFrom": ["brief_id"],
-          "columnsTo": ["id"],
-          "onDelete": "set null",
-          "onUpdate": "no action"
-        },
-        "media_candidates_chosen_by_users_id_fk": {
-          "name": "media_candidates_chosen_by_users_id_fk",
-          "tableFrom": "media_candidates",
-          "tableTo": "users",
-          "columnsFrom": ["chosen_by"],
-          "columnsTo": ["id"],
-          "onDelete": "set null",
-          "onUpdate": "no action"
-        },
-        "media_candidates_result_item_id_content_items_id_fk": {
-          "name": "media_candidates_result_item_id_content_items_id_fk",
-          "tableFrom": "media_candidates",
-          "tableTo": "content_items",
-          "columnsFrom": ["result_item_id"],
-          "columnsTo": ["id"],
-          "onDelete": "set null",
-          "onUpdate": "no action"
-        }
-      },
-      "compositePrimaryKeys": {},
-      "uniqueConstraints": {},
-      "policies": {},
-      "checkConstraints": {
-        "media_candidates_ordinal": {
-          "name": "media_candidates_ordinal",
-          "value": "\"media_candidates\".\"ordinal\" BETWEEN 1 AND 3"
-        },
-        "media_candidates_attempt_cap": {
-          "name": "media_candidates_attempt_cap",
-          "value": "\"media_candidates\".\"attempts\" >= 0 AND \"media_candidates\".\"attempts\" <= 2"
-        },
-        "media_candidates_money": {
-          "name": "media_candidates_money",
-          "value": "\"media_candidates\".\"estimate_minor\" >= 0 AND (\"media_candidates\".\"cost_minor\" IS NULL OR \"media_candidates\".\"cost_minor\" >= 0) AND \"media_candidates\".\"currency\" ~ '^[A-Z]{3}$'"
-        },
-        "media_candidates_labelled": {
-          "name": "media_candidates_labelled",
-          "value": "\"media_candidates\".\"label\" LIKE '%AI-generated%'"
-        },
-        "media_candidates_settled": {
-          "name": "media_candidates_settled",
-          "value": "\"media_candidates\".\"status\" = 'generating' OR \"media_candidates\".\"cost_minor\" IS NOT NULL"
-        },
-        "media_candidates_has_file": {
-          "name": "media_candidates_has_file",
-          "value": "\"media_candidates\".\"status\" NOT IN ('ready', 'chosen', 'not_chosen') OR \"media_candidates\".\"media_url\" IS NOT NULL"
-        }
-      },
-      "isRLSEnabled": false
-    },
     "public.media_generations": {
       "name": "media_generations",
       "schema": "",
@@ -7687,6 +7352,388 @@
       "uniqueConstraints": {},
       "policies": {},
       "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.phone_call_turns": {
+      "name": "phone_call_turns",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "call_id": {
+          "name": "call_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "role": {
+          "name": "role",
+          "type": "phone_turn_role",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "text": {
+          "name": "text",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "at": {
+          "name": "at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "grounded_on": {
+          "name": "grounded_on",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'[]'::jsonb"
+        },
+        "cost_eur": {
+          "name": "cost_eur",
+          "type": "numeric(10, 6)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'0'"
+        }
+      },
+      "indexes": {
+        "phone_call_turns_call_idx": {
+          "name": "phone_call_turns_call_idx",
+          "columns": [
+            {
+              "expression": "call_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "phone_call_turns_call_id_phone_calls_id_fk": {
+          "name": "phone_call_turns_call_id_phone_calls_id_fk",
+          "tableFrom": "phone_call_turns",
+          "tableTo": "phone_calls",
+          "columnsFrom": ["call_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.phone_calls": {
+      "name": "phone_calls",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "profile_id": {
+          "name": "profile_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "account_id": {
+          "name": "account_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "call_sid": {
+          "name": "call_sid",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "caller_number": {
+          "name": "caller_number",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "language": {
+          "name": "language",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "notice_at": {
+          "name": "notice_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "outcome": {
+          "name": "outcome",
+          "type": "phone_call_outcome",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "turns": {
+          "name": "turns",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "silences": {
+          "name": "silences",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "cost_eur": {
+          "name": "cost_eur",
+          "type": "numeric(10, 6)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'0'"
+        },
+        "reserved_eur": {
+          "name": "reserved_eur",
+          "type": "numeric(10, 6)",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'0'"
+        },
+        "message": {
+          "name": "message",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "duration_seconds": {
+          "name": "duration_seconds",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "started_at": {
+          "name": "started_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "last_at": {
+          "name": "last_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "ended_at": {
+          "name": "ended_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "phone_calls_sid_idx": {
+          "name": "phone_calls_sid_idx",
+          "columns": [
+            {
+              "expression": "call_sid",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "phone_calls_profile_idx": {
+          "name": "phone_calls_profile_idx",
+          "columns": [
+            {
+              "expression": "profile_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "started_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "phone_calls_profile_id_business_profiles_id_fk": {
+          "name": "phone_calls_profile_id_business_profiles_id_fk",
+          "tableFrom": "phone_calls",
+          "tableTo": "business_profiles",
+          "columnsFrom": ["profile_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "phone_calls_account_id_accounts_id_fk": {
+          "name": "phone_calls_account_id_accounts_id_fk",
+          "tableFrom": "phone_calls",
+          "tableTo": "accounts",
+          "columnsFrom": ["account_id"],
+          "columnsTo": ["id"],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "phone_calls_message_after_notice": {
+          "name": "phone_calls_message_after_notice",
+          "value": "\"phone_calls\".\"message\" IS NULL OR \"phone_calls\".\"notice_at\" IS NOT NULL"
+        },
+        "phone_calls_message_outcome": {
+          "name": "phone_calls_message_outcome",
+          "value": "\"phone_calls\".\"outcome\" IS DISTINCT FROM 'message' OR \"phone_calls\".\"message\" IS NOT NULL"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.phone_settings": {
+      "name": "phone_settings",
+      "schema": "",
+      "columns": {
+        "profile_id": {
+          "name": "profile_id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "account_id": {
+          "name": "account_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "phone_number": {
+          "name": "phone_number",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "enabled": {
+          "name": "enabled",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": true,
+          "default": true
+        },
+        "handover_number": {
+          "name": "handover_number",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "phone_settings_number_idx": {
+          "name": "phone_settings_number_idx",
+          "columns": [
+            {
+              "expression": "phone_number",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "phone_settings_profile_id_business_profiles_id_fk": {
+          "name": "phone_settings_profile_id_business_profiles_id_fk",
+          "tableFrom": "phone_settings",
+          "tableTo": "business_profiles",
+          "columnsFrom": ["profile_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "phone_settings_account_id_accounts_id_fk": {
+          "name": "phone_settings_account_id_accounts_id_fk",
+          "tableFrom": "phone_settings",
+          "tableTo": "accounts",
+          "columnsFrom": ["account_id"],
+          "columnsTo": ["id"],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "phone_settings_number_e164": {
+          "name": "phone_settings_number_e164",
+          "value": "\"phone_settings\".\"phone_number\" ~ '^\\+[1-9][0-9]{6,14}$'"
+        },
+        "phone_settings_handover_e164": {
+          "name": "phone_settings_handover_e164",
+          "value": "\"phone_settings\".\"handover_number\" IS NULL OR \"phone_settings\".\"handover_number\" ~ '^\\+[1-9][0-9]{6,14}$'"
+        }
+      },
       "isRLSEnabled": false
     },
     "public.profile_snapshots": {
@@ -11103,6 +11150,901 @@
       "policies": {},
       "checkConstraints": {},
       "isRLSEnabled": false
+    },
+    "public.payer_accounts": {
+      "name": "payer_accounts",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "profile_id": {
+          "name": "profile_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "holder_name": {
+          "name": "holder_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "iban": {
+          "name": "iban",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "bic": {
+          "name": "bic",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "status": {
+          "name": "status",
+          "type": "field_status",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'answered'"
+        },
+        "confidence": {
+          "name": "confidence",
+          "type": "numeric(4, 3)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "source": {
+          "name": "source",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "stated_by": {
+          "name": "stated_by",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "observed_at": {
+          "name": "observed_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "recorded_at": {
+          "name": "recorded_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "superseded_at": {
+          "name": "superseded_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "superseded_by": {
+          "name": "superseded_by",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "payer_accounts_current_idx": {
+          "name": "payer_accounts_current_idx",
+          "columns": [
+            {
+              "expression": "profile_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "where": "superseded_at IS NULL",
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "payer_accounts_profile_id_business_profiles_id_fk": {
+          "name": "payer_accounts_profile_id_business_profiles_id_fk",
+          "tableFrom": "payer_accounts",
+          "tableTo": "business_profiles",
+          "columnsFrom": ["profile_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "payer_accounts_stated_by_users_id_fk": {
+          "name": "payer_accounts_stated_by_users_id_fk",
+          "tableFrom": "payer_accounts",
+          "tableTo": "users",
+          "columnsFrom": ["stated_by"],
+          "columnsTo": ["id"],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "payer_accounts_superseded_by_payer_accounts_id_fk": {
+          "name": "payer_accounts_superseded_by_payer_accounts_id_fk",
+          "tableFrom": "payer_accounts",
+          "tableTo": "payer_accounts",
+          "columnsFrom": ["superseded_by"],
+          "columnsTo": ["id"],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "payer_accounts_iban_shape": {
+          "name": "payer_accounts_iban_shape",
+          "value": "\"payer_accounts\".\"iban\" ~ '^[A-Z]{2}[0-9]{2}[A-Z0-9]{11,30}$'"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.prepared_payments": {
+      "name": "prepared_payments",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "profile_id": {
+          "name": "profile_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "proposal_id": {
+          "name": "proposal_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "payee_name": {
+          "name": "payee_name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "payee_iban": {
+          "name": "payee_iban",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "payee_bic": {
+          "name": "payee_bic",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "amount_minor": {
+          "name": "amount_minor",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "currency": {
+          "name": "currency",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "reference": {
+          "name": "reference",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "execution_date": {
+          "name": "execution_date",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "pays_kind": {
+          "name": "pays_kind",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "supplier_id": {
+          "name": "supplier_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "cost_item_id": {
+          "name": "cost_item_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "purchase_order_ref": {
+          "name": "purchase_order_ref",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "paid_stated_at": {
+          "name": "paid_stated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "paid_stated_by": {
+          "name": "paid_stated_by",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "erased_at": {
+          "name": "erased_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "prepared_payments_proposal_idx": {
+          "name": "prepared_payments_proposal_idx",
+          "columns": [
+            {
+              "expression": "proposal_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "prepared_payments_profile_idx": {
+          "name": "prepared_payments_profile_idx",
+          "columns": [
+            {
+              "expression": "profile_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "created_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "prepared_payments_supplier_idx": {
+          "name": "prepared_payments_supplier_idx",
+          "columns": [
+            {
+              "expression": "supplier_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "prepared_payments_profile_id_business_profiles_id_fk": {
+          "name": "prepared_payments_profile_id_business_profiles_id_fk",
+          "tableFrom": "prepared_payments",
+          "tableTo": "business_profiles",
+          "columnsFrom": ["profile_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "prepared_payments_proposal_id_proposals_id_fk": {
+          "name": "prepared_payments_proposal_id_proposals_id_fk",
+          "tableFrom": "prepared_payments",
+          "tableTo": "proposals",
+          "columnsFrom": ["proposal_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "prepared_payments_supplier_id_suppliers_id_fk": {
+          "name": "prepared_payments_supplier_id_suppliers_id_fk",
+          "tableFrom": "prepared_payments",
+          "tableTo": "suppliers",
+          "columnsFrom": ["supplier_id"],
+          "columnsTo": ["id"],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "prepared_payments_cost_item_id_cost_items_id_fk": {
+          "name": "prepared_payments_cost_item_id_cost_items_id_fk",
+          "tableFrom": "prepared_payments",
+          "tableTo": "cost_items",
+          "columnsFrom": ["cost_item_id"],
+          "columnsTo": ["id"],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "prepared_payments_paid_stated_by_users_id_fk": {
+          "name": "prepared_payments_paid_stated_by_users_id_fk",
+          "tableFrom": "prepared_payments",
+          "tableTo": "users",
+          "columnsFrom": ["paid_stated_by"],
+          "columnsTo": ["id"],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "prepared_payments_amount_positive": {
+          "name": "prepared_payments_amount_positive",
+          "value": "\"prepared_payments\".\"amount_minor\" > 0"
+        },
+        "prepared_payments_currency_shape": {
+          "name": "prepared_payments_currency_shape",
+          "value": "\"prepared_payments\".\"currency\" ~ '^[A-Z]{3}$'"
+        },
+        "prepared_payments_pays_kind": {
+          "name": "prepared_payments_pays_kind",
+          "value": "\"prepared_payments\".\"pays_kind\" IN ('supplier', 'fixed_cost', 'purchase_order', 'other')"
+        },
+        "prepared_payments_payee_or_erased": {
+          "name": "prepared_payments_payee_or_erased",
+          "value": "\"prepared_payments\".\"erased_at\" IS NOT NULL OR (\"prepared_payments\".\"payee_name\" IS NOT NULL AND \"prepared_payments\".\"payee_iban\" IS NOT NULL)"
+        },
+        "prepared_payments_erased_holds_nothing": {
+          "name": "prepared_payments_erased_holds_nothing",
+          "value": "\"prepared_payments\".\"erased_at\" IS NULL OR (\"prepared_payments\".\"payee_name\" IS NULL AND \"prepared_payments\".\"payee_iban\" IS NULL AND \"prepared_payments\".\"payee_bic\" IS NULL)"
+        },
+        "prepared_payments_paid_by_someone": {
+          "name": "prepared_payments_paid_by_someone",
+          "value": "(\"prepared_payments\".\"paid_stated_at\" IS NULL) = (\"prepared_payments\".\"paid_stated_by\" IS NULL)"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.staff_erasures": {
+      "name": "staff_erasures",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "account_id": {
+          "name": "account_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "staff_key": {
+          "name": "staff_key",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "at": {
+          "name": "at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "staff_erasures_idx": {
+          "name": "staff_erasures_idx",
+          "columns": [
+            {
+              "expression": "account_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "staff_key",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "staff_erasures_account_id_accounts_id_fk": {
+          "name": "staff_erasures_account_id_accounts_id_fk",
+          "tableFrom": "staff_erasures",
+          "tableTo": "accounts",
+          "columnsFrom": ["account_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.staff_people": {
+      "name": "staff_people",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "account_id": {
+          "name": "account_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "staff_ref": {
+          "name": "staff_ref",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "capacity_per_week": {
+          "name": "capacity_per_week",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "capacity_stated_at": {
+          "name": "capacity_stated_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "capacity_stated_by": {
+          "name": "capacity_stated_by",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {
+        "staff_people_ref_idx": {
+          "name": "staff_people_ref_idx",
+          "columns": [
+            {
+              "expression": "account_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "staff_ref",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "staff_people_account_id_accounts_id_fk": {
+          "name": "staff_people_account_id_accounts_id_fk",
+          "tableFrom": "staff_people",
+          "tableTo": "accounts",
+          "columnsFrom": ["account_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "staff_people_capacity_sane": {
+          "name": "staff_people_capacity_sane",
+          "value": "\"staff_people\".\"capacity_per_week\" IS NULL OR (\"staff_people\".\"capacity_per_week\" > 0 AND \"staff_people\".\"capacity_per_week\" <= 1000)"
+        },
+        "staff_people_capacity_stated": {
+          "name": "staff_people_capacity_stated",
+          "value": "(\"staff_people\".\"capacity_per_week\" IS NULL) = (\"staff_people\".\"capacity_stated_at\" IS NULL)"
+        }
+      },
+      "isRLSEnabled": false
+    },
+    "public.media_candidates": {
+      "name": "media_candidates",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "generation_id": {
+          "name": "generation_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "profile_id": {
+          "name": "profile_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "proposal_id": {
+          "name": "proposal_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "target_item_id": {
+          "name": "target_item_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "brief_id": {
+          "name": "brief_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "hook_index": {
+          "name": "hook_index",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "ordinal": {
+          "name": "ordinal",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "status": {
+          "name": "status",
+          "type": "media_candidate_status",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'generating'"
+        },
+        "provider": {
+          "name": "provider",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "model": {
+          "name": "model",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "request_id": {
+          "name": "request_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "prompt_sha256": {
+          "name": "prompt_sha256",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "label": {
+          "name": "label",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "workload": {
+          "name": "workload",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'ai_video'"
+        },
+        "attempts": {
+          "name": "attempts",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "estimate_minor": {
+          "name": "estimate_minor",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "cost_minor": {
+          "name": "cost_minor",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "currency": {
+          "name": "currency",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "media_url": {
+          "name": "media_url",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "pathname": {
+          "name": "pathname",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "bytes": {
+          "name": "bytes",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "error": {
+          "name": "error",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "finished_at": {
+          "name": "finished_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "chosen_at": {
+          "name": "chosen_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "chosen_by": {
+          "name": "chosen_by",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "result_item_id": {
+          "name": "result_item_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        }
+      },
+      "indexes": {
+        "media_candidates_set_ordinal_uq": {
+          "name": "media_candidates_set_ordinal_uq",
+          "columns": [
+            {
+              "expression": "generation_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "ordinal",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "media_candidates_one_chosen_uq": {
+          "name": "media_candidates_one_chosen_uq",
+          "columns": [
+            {
+              "expression": "generation_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "where": "\"media_candidates\".\"status\" = 'chosen'",
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "media_candidates_profile_idx": {
+          "name": "media_candidates_profile_idx",
+          "columns": [
+            {
+              "expression": "profile_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "created_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "media_candidates_generation_id_media_generations_id_fk": {
+          "name": "media_candidates_generation_id_media_generations_id_fk",
+          "tableFrom": "media_candidates",
+          "tableTo": "media_generations",
+          "columnsFrom": ["generation_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "media_candidates_profile_id_business_profiles_id_fk": {
+          "name": "media_candidates_profile_id_business_profiles_id_fk",
+          "tableFrom": "media_candidates",
+          "tableTo": "business_profiles",
+          "columnsFrom": ["profile_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "media_candidates_proposal_id_proposals_id_fk": {
+          "name": "media_candidates_proposal_id_proposals_id_fk",
+          "tableFrom": "media_candidates",
+          "tableTo": "proposals",
+          "columnsFrom": ["proposal_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "media_candidates_target_item_id_content_items_id_fk": {
+          "name": "media_candidates_target_item_id_content_items_id_fk",
+          "tableFrom": "media_candidates",
+          "tableTo": "content_items",
+          "columnsFrom": ["target_item_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "media_candidates_brief_id_creative_briefs_id_fk": {
+          "name": "media_candidates_brief_id_creative_briefs_id_fk",
+          "tableFrom": "media_candidates",
+          "tableTo": "creative_briefs",
+          "columnsFrom": ["brief_id"],
+          "columnsTo": ["id"],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        },
+        "media_candidates_chosen_by_users_id_fk": {
+          "name": "media_candidates_chosen_by_users_id_fk",
+          "tableFrom": "media_candidates",
+          "tableTo": "users",
+          "columnsFrom": ["chosen_by"],
+          "columnsTo": ["id"],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        },
+        "media_candidates_result_item_id_content_items_id_fk": {
+          "name": "media_candidates_result_item_id_content_items_id_fk",
+          "tableFrom": "media_candidates",
+          "tableTo": "content_items",
+          "columnsFrom": ["result_item_id"],
+          "columnsTo": ["id"],
+          "onDelete": "set null",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "media_candidates_ordinal": {
+          "name": "media_candidates_ordinal",
+          "value": "\"media_candidates\".\"ordinal\" BETWEEN 1 AND 3"
+        },
+        "media_candidates_attempt_cap": {
+          "name": "media_candidates_attempt_cap",
+          "value": "\"media_candidates\".\"attempts\" >= 0 AND \"media_candidates\".\"attempts\" <= 2"
+        },
+        "media_candidates_money": {
+          "name": "media_candidates_money",
+          "value": "\"media_candidates\".\"estimate_minor\" >= 0 AND (\"media_candidates\".\"cost_minor\" IS NULL OR \"media_candidates\".\"cost_minor\" >= 0) AND \"media_candidates\".\"currency\" ~ '^[A-Z]{3}$'"
+        },
+        "media_candidates_labelled": {
+          "name": "media_candidates_labelled",
+          "value": "\"media_candidates\".\"label\" LIKE '%AI-generated%'"
+        },
+        "media_candidates_settled": {
+          "name": "media_candidates_settled",
+          "value": "\"media_candidates\".\"status\" = 'generating' OR \"media_candidates\".\"cost_minor\" IS NOT NULL"
+        },
+        "media_candidates_has_file": {
+          "name": "media_candidates_has_file",
+          "value": "\"media_candidates\".\"status\" NOT IN ('ready', 'chosen', 'not_chosen') OR \"media_candidates\".\"media_url\" IS NOT NULL"
+        }
+      },
+      "isRLSEnabled": false
     }
   },
   "enums": {
@@ -11273,11 +12215,6 @@
       "schema": "public",
       "values": ["public", "retired"]
     },
-    "public.media_candidate_status": {
-      "name": "media_candidate_status",
-      "schema": "public",
-      "values": ["generating", "ready", "failed", "chosen", "not_chosen"]
-    },
     "public.media_generation_status": {
       "name": "media_generation_status",
       "schema": "public",
@@ -11297,6 +12234,16 @@
       "name": "payment_status",
       "schema": "public",
       "values": ["pending", "paid", "failed", "expired"]
+    },
+    "public.phone_call_outcome": {
+      "name": "phone_call_outcome",
+      "schema": "public",
+      "values": ["answered", "message", "handed_over", "hung_up"]
+    },
+    "public.phone_turn_role": {
+      "name": "phone_turn_role",
+      "schema": "public",
+      "values": ["caller", "assistant"]
     },
     "public.profile_section": {
       "name": "profile_section",
@@ -11395,6 +12342,11 @@
       "name": "weekly_summary_status",
       "schema": "public",
       "values": ["sending", "sent", "refused", "unknown"]
+    },
+    "public.media_candidate_status": {
+      "name": "media_candidate_status",
+      "schema": "public",
+      "values": ["generating", "ready", "failed", "chosen", "not_chosen"]
     }
   },
   "schemas": {},

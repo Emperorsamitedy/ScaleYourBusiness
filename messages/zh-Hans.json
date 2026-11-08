@@ -56,7 +56,8 @@
       "mode": "我的工作方式",
       "history": "历史记录",
       "team_access": "团队权限",
-      "language": "语言和货币"
+      "language": "语言和货币",
+      "payments": "付款"
     },
     "count": {
       "paused": "{count} 个已暂停",
@@ -5443,7 +5444,76 @@
       "pretend": "一个模拟的客户页面 · 小组件在右下角",
       "seesLabel": "访客看到的样子",
       "body": "这个页面代替您的网站。角落里的按钮就是真实的小组件，由同一个脚本加载，并与客户会使用的同一个公开端点通信。请问它一个您已批准的问题、一个您没有批准的问题，然后要求转人工——每一种情况都应当像<link>客户支持页面</link>上承诺的那样表现。"
+    },
+    "phone": {
+      "label": "电话线路",
+      "titleOn": "正在接听 {number} 的来电",
+      "titleOff": "未接听来电",
+      "what": "线路会先说明自己是SYB的自动助理。它只用您批准的回答作答，从不预订、承诺或办理退款，遇到不知道的问题时会记下留言或把来电转接给您。来电者会在任何内容被转写之前听到通话将被转写的提示，并且不会保存任何录音。",
+      "needsKeys": "要接听来电，SYB需要一个Twilio账户和一个Twilio号码。请在服务器上添加以下设置，然后回到这里：",
+      "setUp": "请在Twilio中，把这个号码的“A call comes in”网络钩子设为第一个地址，把通话状态通知设为第二个地址，两者都使用HTTP POST。",
+      "turnOn": "在 {number} 上接听来电",
+      "turnOff": "停止接听",
+      "offBody": "开启线路后，SYB会用您批准的回答替您接听 {number}。",
+      "handoverLabel": "把要求找人的来电者转接到",
+      "handoverHint": "您自己的号码，含国家区号。留空的话，来电者会改为留言。",
+      "handoverSave": "保存",
+      "callsTitle": "来电",
+      "callsEmpty": "还没有来电。线路接听的每通电话都会出现在这里，附带留言和通话内容。",
+      "withheld": "隐藏号码",
+      "outcome": {
+        "answered": "已用您批准的回答作答",
+        "message": "留下了留言",
+        "handed_over": "已转接给您",
+        "hung_up": "未留言就挂断了",
+        "live": "正在通话中"
+      },
+      "asked": "{count, plural, other {# 个问题}}",
+      "read": "查看通话",
+      "hide": "隐藏通话",
+      "caller": "来电者",
+      "assistant": "助理（自动）",
+      "messageLabel": "留言",
+      "erase": "删除这通来电",
+      "eraseConfirm": "要永久删除这通来电吗？包括来电号码、通话内容和任何留言。",
+      "eraseYes": "永久删除",
+      "keep": "保留",
+      "notice": {
+        "on": "电话线路正在接听来电。",
+        "off": "电话线路已停止接听来电。",
+        "handover": "已保存。",
+        "erased": "这通来电已删除。"
+      },
+      "error": {
+        "notSetUp": "这台服务器上还没有设置电话线路。",
+        "taken": "这个号码已经在为另一家企业接听来电。",
+        "notOn": "请先开启电话线路。",
+        "badNumber": "请填写带国家区号的号码，以加号开头。",
+        "noCall": "这通来电已经不在这里了。",
+        "crossSite": "此页面只能在SYB内部修改。",
+        "signIn": "请先登录再修改电话线路。",
+        "action": "电话线路无法做这件事。"
+      }
     }
+  },
+  "phoneLine": {
+    "greeting": "您好，您已接通{business}，现在为您服务的是SYB的自动助理，不是真人。",
+    "notice": "本次通话会被转写成文字，以便{business}之后查看；不会保存任何录音。",
+    "howCanIHelp": "请问有什么可以帮您？",
+    "anythingElse": "还有什么可以帮您的吗？",
+    "notHeard": "抱歉，我没有听清。您能再说一遍吗？",
+    "goodbye": "感谢您致电{business}。再见。",
+    "noAnswer": "关于这个问题我没有经过批准的回答，所以我不会猜测。",
+    "takeMessage": "我可以为{business}记下留言。请说出您的姓名、留言内容以及方便回电的号码。",
+    "nobodyToPutThrough": "现在没有可以为您转接的人，但我可以为您记下留言。",
+    "puttingThrough": "正在为您转接{business}的工作人员。",
+    "nobodyPickedUp": "抱歉，现在没有人能接听。",
+    "messageTaken": "谢谢，我已将您的留言转达给{business}。再见。",
+    "noMessage": "我没有听到留言。{business}会看到您来过电话。再见。",
+    "capped": "我们已经谈了很多，最好由{business}的工作人员接着为您处理。",
+    "unavailable": "我现在无法回答这个问题。",
+    "closed": "这条线路目前不接听来电。请稍后再试。再见。",
+    "busy": "线路现在非常繁忙。请稍后再拨。再见。"
   },
   "team": {
     "meta": {
@@ -5533,6 +5603,62 @@
       "title": "团队模块已关闭。",
       "body": "除非您开启，否则它会一直保持关闭；开关位于<link>观察</link>中的“模块”下。开启后，它会按岗位和小时，解读本周何时需要更多人手、何时人手多于所需，而绝不涉及任何个人的信息。"
     }
+  },
+  "people": {
+    "label": "人员",
+    "title": "每个人自己的数据",
+    "ownerOnly": "只有作为所有者的您能看到",
+    "intro": "您的预约系统为每个人记录的内容，时间范围与企业自身数据相同的四周。这些是关于工作的事实，只向您显示：人员按姓名列出，这里的任何内容都不会变成针对某个人的提案。",
+    "basis": "来自{source} · {from}至{to} · {count, plural, other {# 个记有人员的预约}}",
+    "source": {
+      "square": "Square 预约",
+      "import": "您从 {platform} 导出的预约",
+      "importPlain": "您导出的预约"
+    },
+    "noBookings": "尚未读取任何预约，因此没有可按人员显示的内容。请在<link>连接</link>中导入预约导出文件。",
+    "none": "这四周内没有任何预约记有人员。当您的预约导出文件包含员工列（团队成员、发型师、技师）时，每个人自己的数据会显示在这里。",
+    "unattributed": "这四周内有 {count, plural, other {# 个预约}}没有记录任何人，或记录的是您已移除的人。它们只计入企业的数据。",
+    "sales": "按人员的销售：您的销售来源都没有记录由谁完成销售，因此没有可显示的内容。",
+    "fig": {
+      "completed": "已完成的预约",
+      "completedOf": "共 {count, plural, other {# 个}}预约给此人",
+      "revenue": "预约营收",
+      "revenueOf": "{of, plural, other {# 个已完成预约}}中 {part} 个的标价",
+      "noShow": "爽约率",
+      "late": "临时取消率",
+      "rateOf": "{of, plural, other {# 个到期预约}}中的 {part} 个",
+      "utilisation": "利用率",
+      "utilisationOf": "{of} 个名额中完成 {part} 个：每周 {perWeek} 个，您的数据，填写于 {day}",
+      "rebooking": "再次预约率",
+      "rebookingOf": "{from}至{to}接待的 {of, plural, other {# 位客人}}中，有 {part} 位在 {days} 天内再次预约（任何人均可）",
+      "tooFew": "数量太少，无法判断",
+      "tooFewDue": "{count, plural, other {# 个到期预约}}；至少需要 {min} 个",
+      "tooFewClients": "接待了 {count, plural, other {# 位客人}}；至少需要 {min} 位",
+      "notMeasured": "未测量",
+      "why": {
+        "no_capacity": "未填写此人的每周接待能力",
+        "no_prices": "预约中没有价格",
+        "currencies": "价格涉及不止一种货币",
+        "no_completed": "这四周内没有已完成的预约",
+        "no_client": "预约中没有客人身份",
+        "not_separated": "Square 不单独区分临时取消"
+      }
+    },
+    "capacity": {
+      "label": "此人每周可接的预约数",
+      "hint": "您自己的数据。利用率只以它为准。",
+      "save": "保存",
+      "clear": "清除",
+      "invalid": "{min} 到 {max} 之间的整数。"
+    },
+    "remove": {
+      "button": "移除此人",
+      "confirm": "移除 {person}？其姓名和自己的数据将从 SYB 中抹除，之后的导入也不会把姓名带回来。其预约仍以无姓名的形式计入企业的数据。",
+      "yes": "移除",
+      "no": "保留",
+      "done": "已移除。{count, plural, other {# 个预约}}仍以无姓名的形式计入企业的数据。"
+    },
+    "failed": "我们这边出了点问题。没有做任何更改。"
   },
   "teamAccess": {
     "meta": {
@@ -5670,6 +5796,8 @@
       "erasure_run": "只有所有者可以抹除某位客户的个人信息。",
       "data_import": "只有所有者可以导入客户、库存或预订文件。",
       "team_manage": "只有所有者可以邀请、更改或移除团队成员。",
+      "people_read": "只有所有者可以查看每个人自己的数据。",
+      "people_manage": "只有所有者可以填写某个人每周的接待能力，或将某个人从数据中移除。",
       "rules_manage": "只有所有者可以更改我为这家企业工作的方式。",
       "profile_edit": "只有所有者可以更改企业的事实、目标或限额。",
       "report_generate": "只有所有者可以生成新的报告。",
@@ -5681,7 +5809,8 @@
       "reviews_settings": "只有所有者可以更改评价转发到的地址。",
       "summary_settings": "只有所有者可以开启或关闭每周摘要。",
       "stop_resume": "只有所有者可以在停止后重新启动。",
-      "business_locale": "只有所有者可以更改企业的语言或货币。"
+      "business_locale": "只有所有者可以更改企业的语言或货币。",
+      "payments_prepare": "只有所有者可以准备付款或说明某笔付款已完成。"
     }
   },
   "authWords": {
@@ -5824,7 +5953,7 @@
     },
     "module": {
       "analytics": "没有测量，观察模式就什么也看不见——分析正是它用来观察的工具。",
-      "team": "团队：当一周需要更多人手，或人手多于所需时，按岗位和时段提示。它从不对任何个人打分、排名或评价。除非您开启，否则保持关闭。"
+      "team": "团队：当一周需要更多人手，或人手多于所需时，按岗位和时段提示；并且仅向所有者显示每个人在预约中的自身数据。它从不对任何人打分或排名，也从不就某个人提出任何建议。除非您开启，否则保持关闭。"
     },
     "data": {
       "payments": "收款",
@@ -6166,7 +6295,8 @@
       "media_generation": "一张待制作的图片或短片",
       "revise_goal": "一个需要查看的目标",
       "stop_strategy": "一项需要查看的策略",
-      "other": "一项提案"
+      "other": "一项提案",
+      "prepared_payment": "一笔待核对的付款"
     }
   },
   "exports": {
@@ -8430,5 +8560,185 @@
     "many": "{count, plural, other {# 条值得了解的评价}}",
     "withProposals": "{count, plural, other {# 件事等您点头}}，另有 {reviews, plural, other {# 条值得了解的评价}}",
     "anotherSite": "其他网站"
+  },
+  "payments": {
+    "meta": {
+      "title": "付款 — SYB"
+    },
+    "kicker": "洞察 · 付款",
+    "never": "SYB 准备付款，由您在自己的银行付款。SYB 无法转移资金。",
+    "title": {
+      "ready": "{count, plural, other {# 笔付款已可交给您的银行}}",
+      "none": "您在自己银行完成的付款"
+    },
+    "loading": "正在读取您的付款…",
+    "signedOut": "请先完成访谈，然后回来准备付款。",
+    "start": "开始访谈",
+    "error": {
+      "load": "暂时无法读取您的付款。请一分钟后重试。",
+      "generic": "没有成功。请一分钟后重试。",
+      "ourSide": "我这边出了问题。请一分钟后重试。"
+    },
+    "ownerOnly": "只有所有者可以准备付款、下载银行文件或说明某笔付款已完成。",
+    "erased": "银行信息已删除",
+    "ready": {
+      "label": "可交给您的银行",
+      "title": "{count, plural, other {# 笔已批准的付款待支付}}",
+      "none": "暂时没有可支付的付款",
+      "foot": "已批准的付款会在这里等待，直到您说明已付款。在您于银行付款之前，资金不会离开您的银行。"
+    },
+    "col": {
+      "payee": "收款人",
+      "iban": "IBAN",
+      "amount": "金额",
+      "reference": "附言",
+      "date": "日期",
+      "file": "银行文件",
+      "action": "操作"
+    },
+    "file": {
+      "yes": "在 SEPA 文件中",
+      "bar": {
+        "not_eur": "手动：不是欧元",
+        "payee_not_sepa": "手动：收款人的银行不在 SEPA 范围内",
+        "payer_not_sepa": "手动：您的银行不在 SEPA 范围内",
+        "no_payer": "需要先填写您的银行信息",
+        "erased": "银行信息已删除",
+        "not_approved": "尚未批准",
+        "paid": "已付款"
+      }
+    },
+    "paid": {
+      "button": "已在我的银行付款",
+      "done": "已标记为在您的银行付款。",
+      "on": "于 {date} 标记为已付款"
+    },
+    "download": {
+      "sepa": "{count, plural, other {下载 SEPA 文件（# 笔付款）}}",
+      "steps": "下载分步说明",
+      "needPayer": "填写您付款所用的银行信息，即可获得 SEPA 文件。没有这些信息，说明也可以使用。",
+      "noneForFile": "这些付款都无法放入 SEPA 文件，SEPA 文件仅适用于 SEPA 银行之间的欧元付款。请使用说明。",
+      "total": "{count, plural, other {文件包含 # 笔付款，共计 {total}。}}"
+    },
+    "steps": {
+      "fileTitle": "如何使用 SEPA 文件",
+      "fileName": "SEPA 文件",
+      "file": {
+        "save": "下载 {file} 并保存到您的电脑。",
+        "find": "在您银行的网上银行中，找到上传或导入付款文件的位置。银行可能称之为 SEPA 文件、批量付款或批量转账。",
+        "upload": "{count, plural, other {上传文件。您的银行会显示 # 笔付款供您核对。}}",
+        "confirm": "逐笔核对，然后在您的银行确认。在您确认之前，不会付款。",
+        "mark": "回到这里，为每笔已完成的付款点击“已在我的银行付款”。"
+      },
+      "title": "需要在您自己银行完成的付款",
+      "intro": "SYB 已准备好这些付款。SYB 无法转移资金：每笔付款都由您在自己的银行亲自完成。",
+      "from": "付款账号：{name}，IBAN {iban}",
+      "howTitle": "如何手动完成每笔付款：",
+      "hand": {
+        "open": "打开您银行的应用或网站，开始一笔新的转账。",
+        "copy": "按下方所写，准确复制收款人的姓名、IBAN 和 BIC。",
+        "amount": "输入金额和附言，让收款人知道这笔付款的用途。",
+        "confirm": "选择日期，再检查一遍所有信息，然后在您的银行确认付款。",
+        "mark": "回到 SYB，点击“已在我的银行付款”，让您的记录显示这一点。"
+      },
+      "paymentTitle": "第 {n} 笔，共 {count} 笔",
+      "payTo": "收款人：{name}",
+      "iban": "IBAN：{iban}",
+      "bic": "BIC：{bic}",
+      "amount": "金额：{amount}",
+      "reference": "附言：{reference}",
+      "date": "日期：{date}",
+      "erased": "这笔付款的银行信息已删除。请再次向收款人索取。",
+      "why": {
+        "notEur": "不是欧元，因此不在 SEPA 文件中：请手动付款。",
+        "notSepa": "银行不在 SEPA 范围内，因此不在 SEPA 文件中：请手动付款。"
+      },
+      "closing": "付款完成后，请在 SYB 中标记。如果银行拒绝某项信息，请在银行中更正：SYB 从不向您的银行发送任何内容。"
+    },
+    "waiting": {
+      "label": "等待批准",
+      "title": "{count, plural, other {# 笔付款等待您的批准}}",
+      "open": "在队列中打开"
+    },
+    "stage": {
+      "waiting": "等待中",
+      "blocked": "被您的限制暂缓",
+      "changes": "已要求修改",
+      "ready": "可交给您的银行",
+      "paid": "已在我的银行付款",
+      "declined": "已拒绝",
+      "lapsed": "已过期"
+    },
+    "closed": {
+      "label": "已完成并关闭",
+      "title": "已付款、已拒绝和已过期",
+      "foot": "删除银行信息会保留金额和日期，并永久删除名称、IBAN 和 BIC。"
+    },
+    "erase": {
+      "button": "删除银行信息",
+      "done": "银行信息已删除。"
+    },
+    "payer": {
+      "label": "付款来源",
+      "none": "尚未填写您的银行信息",
+      "foot": "您的付款从这个名称和 IBAN 支出。它们会作为付款人写入 SEPA 文件；SYB 从不进入您的银行。",
+      "change": "更改",
+      "holder": "银行登记的名称",
+      "save": "保存",
+      "done": "已保存。之前的信息仍保留在记录中。"
+    },
+    "form": {
+      "label": "新付款",
+      "title": "准备一笔付款",
+      "foot": "它会先进入批准队列。批准后即可交给您的银行：在您于银行付款之前，不会付款。",
+      "pays": "付款用途",
+      "supplier": "供应商",
+      "cost": "固定成本",
+      "order": "采购订单编号",
+      "unnamedSupplier": "未命名的供应商",
+      "unnamedCost": "未命名的成本",
+      "payee": "收款人",
+      "payeeOptional": "收款人（留空：使用供应商名称）",
+      "iban": "IBAN",
+      "bic": "BIC（可选）",
+      "amount": "金额",
+      "currency": "货币",
+      "date": "付款日期",
+      "reference": "收款人看到的附言",
+      "badAmount": "无法读取这个金额。请先写整数部分，再写小数点或逗号和分。",
+      "submit": "请求批准",
+      "done": "已准备好。它在队列中等待您的批准。"
+    },
+    "pays": {
+      "supplier": "一位供应商",
+      "fixed_cost": "一项固定成本",
+      "purchase_order": "一张采购订单",
+      "other": "其他"
+    },
+    "refusal": {
+      "iban_empty": "请填写 IBAN。",
+      "iban_format": "这不是 IBAN 的格式：两个字母表示国家，两位校验数字，然后是字母和数字。",
+      "iban_country": "我不了解该国家的 IBAN，因此无法检查。",
+      "iban_length": "这个 IBAN 的长度与其国家不符。",
+      "iban_checksum": "这个 IBAN 的校验数字不匹配：可能有一个字符输错了。",
+      "bic": "BIC 由八个或十一个字母和数字组成。",
+      "name": "请用一个简短的名称说明收款人。",
+      "amount": "金额必须大于零。",
+      "currency": "货币必须是三个字母的代码。",
+      "reference": "请写一条收款人能看到的简短附言。",
+      "date": "请选择一天。",
+      "date_past": "这一天已经过去。请选择今天或之后的日期。",
+      "date_far": "这一天在一年以后。",
+      "pays_kind": "请说明这笔付款的用途。",
+      "supplier": "请选择您的一位供应商。",
+      "cost_item": "请选择您的一项固定成本。",
+      "purchase_order": "请填写采购订单编号。",
+      "not_found": "找不到这笔付款。",
+      "not_ready": "只有已批准且尚未标记为已付款的付款，才能标记为已付款。",
+      "no_session": "说明某笔付款已完成，需要您先登录。",
+      "none_ready": "目前没有可交给银行的付款。付款需要先获得批准。",
+      "no_payer": "SEPA 文件需要您付款所用的银行信息。",
+      "none_for_file": "已就绪的付款都无法放入 SEPA 文件。"
+    }
   }
 }

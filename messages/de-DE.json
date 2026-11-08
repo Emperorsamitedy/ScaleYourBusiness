@@ -56,7 +56,8 @@
       "mode": "So arbeite ich",
       "history": "Verlauf",
       "team_access": "Teamzugang",
-      "language": "Sprache und Währung"
+      "language": "Sprache und Währung",
+      "payments": "Zahlungen"
     },
     "count": {
       "paused": "{count} pausiert",
@@ -5443,7 +5444,76 @@
       "pretend": "eine nachgestellte Kundenseite · das Widget ist unten rechts",
       "seesLabel": "was ein Besucher sieht",
       "body": "Diese Seite steht für Ihre Website. Die Schaltfläche in der Ecke ist das echte Widget, geladen vom selben Skript und verbunden mit demselben öffentlichen Endpunkt, den ein Kunde nutzen würde. Fragen Sie etwas, das Sie freigegeben haben, etwas, das Sie nicht freigegeben haben, und fragen Sie dann nach einer Person – jedes sollte sich so verhalten, wie auf der <link>Support-Seite</link> versprochen."
+    },
+    "phone": {
+      "label": "Telefonleitung",
+      "titleOn": "Nimmt Anrufe unter {number} an",
+      "titleOff": "Nimmt keine Anrufe an",
+      "what": "Die Leitung sagt zuerst, dass sie der automatische Assistent von SYB ist. Sie antwortet nur mit den Antworten, die Sie freigegeben haben, bucht, verspricht oder erstattet nie etwas und nimmt eine Nachricht auf oder verbindet den Anrufer mit Ihnen, wenn sie etwas nicht weiß. Anrufer hören, dass der Anruf transkribiert wird, bevor irgendetwas transkribiert wird, und es wird kein Ton gespeichert.",
+      "needsKeys": "Um Anrufe anzunehmen, braucht SYB ein Twilio-Konto und eine Twilio-Nummer. Tragen Sie diese Einstellungen auf dem Server ein und kommen Sie dann hierher zurück:",
+      "setUp": "Stellen Sie in Twilio den Webhook „A call comes in“ dieser Nummer auf die erste Adresse und ihre Statusmeldung auf die zweite, beide als HTTP POST.",
+      "turnOn": "Anrufe unter {number} annehmen",
+      "turnOff": "Nicht mehr annehmen",
+      "offBody": "Wenn Sie die Leitung einschalten, nimmt SYB Anrufe unter {number} für Sie an, mit Ihren freigegebenen Antworten.",
+      "handoverLabel": "Anrufer, die eine Person sprechen möchten, verbinden mit",
+      "handoverHint": "Ihre eigene Nummer, mit Ländervorwahl. Bleibt sie leer, hinterlassen Anrufer stattdessen eine Nachricht.",
+      "handoverSave": "Speichern",
+      "callsTitle": "Anrufe",
+      "callsEmpty": "Noch keine Anrufe. Jeder Anruf, den die Leitung annimmt, erscheint hier, mit Nachricht und Gesprächsverlauf.",
+      "withheld": "Nummer unterdrückt",
+      "outcome": {
+        "answered": "Mit Ihren freigegebenen Antworten beantwortet",
+        "message": "Hat eine Nachricht hinterlassen",
+        "handed_over": "An Sie durchgestellt",
+        "hung_up": "Ohne Nachricht aufgelegt",
+        "live": "Gerade in der Leitung"
+      },
+      "asked": "{count, plural, one {# Frage} other {# Fragen}}",
+      "read": "Anruf lesen",
+      "hide": "Anruf ausblenden",
+      "caller": "Anrufer",
+      "assistant": "Assistent (automatisch)",
+      "messageLabel": "Nachricht",
+      "erase": "Diesen Anruf löschen",
+      "eraseConfirm": "Diesen Anruf endgültig löschen – die Nummer des Anrufers, das Gesagte und jede Nachricht?",
+      "eraseYes": "Endgültig löschen",
+      "keep": "Behalten",
+      "notice": {
+        "on": "Die Telefonleitung nimmt Anrufe an.",
+        "off": "Die Telefonleitung nimmt keine Anrufe mehr an.",
+        "handover": "Gespeichert.",
+        "erased": "Der Anruf ist gelöscht."
+      },
+      "error": {
+        "notSetUp": "Die Telefonleitung ist auf diesem Server noch nicht eingerichtet.",
+        "taken": "Diese Nummer nimmt bereits Anrufe für ein anderes Unternehmen an.",
+        "notOn": "Schalten Sie zuerst die Telefonleitung ein.",
+        "badNumber": "Schreiben Sie die Nummer mit Ländervorwahl, beginnend mit einem Pluszeichen.",
+        "noCall": "Diesen Anruf gibt es nicht mehr.",
+        "crossSite": "Diese Seite lässt sich nur aus SYB selbst ändern.",
+        "signIn": "Bitte erst anmelden, um die Telefonleitung zu ändern.",
+        "action": "Das kann die Telefonleitung nicht."
+      }
     }
+  },
+  "phoneLine": {
+    "greeting": "Guten Tag, Sie haben {business} erreicht und sprechen mit dem automatischen Assistenten von SYB, nicht mit einem Menschen.",
+    "notice": "Dieser Anruf wird transkribiert, damit {business} ihn später lesen kann; es wird kein Ton gespeichert.",
+    "howCanIHelp": "Wie kann ich Ihnen helfen?",
+    "anythingElse": "Kann ich Ihnen sonst noch helfen?",
+    "notHeard": "Entschuldigung, das habe ich nicht verstanden. Könnten Sie es wiederholen?",
+    "goodbye": "Danke für Ihren Anruf bei {business}. Auf Wiederhören.",
+    "noAnswer": "Dafür habe ich keine freigegebene Antwort, deshalb rate ich nicht.",
+    "takeMessage": "Ich kann eine Nachricht für {business} aufnehmen. Bitte nennen Sie Ihren Namen, Ihre Nachricht und die beste Nummer für einen Rückruf.",
+    "nobodyToPutThrough": "Gerade kann ich Sie mit niemandem verbinden, aber ich kann eine Nachricht aufnehmen.",
+    "puttingThrough": "Ich verbinde Sie jetzt mit jemandem von {business}.",
+    "nobodyPickedUp": "Leider konnte gerade niemand abnehmen.",
+    "messageTaken": "Danke, ich habe Ihre Nachricht an {business} weitergegeben. Auf Wiederhören.",
+    "noMessage": "Ich habe keine Nachricht verstanden. {business} sieht, dass Sie angerufen haben. Auf Wiederhören.",
+    "capped": "Wir haben schon viel besprochen, deshalb übernimmt am besten jemand von {business} ab hier.",
+    "unavailable": "Darauf kann ich gerade nicht antworten.",
+    "closed": "Diese Leitung nimmt gerade keine Anrufe an. Bitte versuchen Sie es später noch einmal. Auf Wiederhören.",
+    "busy": "Die Leitung ist gerade sehr ausgelastet. Bitte rufen Sie später noch einmal an. Auf Wiederhören."
   },
   "team": {
     "meta": {
@@ -5533,6 +5603,62 @@
       "title": "Das Team-Modul ist aus.",
       "body": "Es bleibt aus, bis Sie es einschalten, unter „Module“ auf <link>Beobachtung</link>. Eingeschaltet liest es, wann die Woche mehr Besetzung braucht oder mehr hat, als sie braucht – nach Rolle und Stunde, und nie etwas über eine Person."
     }
+  },
+  "people": {
+    "label": "Personen",
+    "title": "Die eigenen Zahlen jeder Person",
+    "ownerOnly": "Nur Sie sehen das, als Inhaber",
+    "intro": "Was Ihr Buchungssystem bei jeder Person erfasst hat, über dieselben vier Wochen wie die Zahlen des Unternehmens. Fakten über die Arbeit, nur Ihnen gezeigt: Personen stehen nach Namen geordnet, und nichts hier wird je zu einem Vorschlag über eine Person.",
+    "basis": "Aus {source} · {from} bis {to} · {count, plural, one {# Termin} other {# Termine}} mit einer Person darauf",
+    "source": {
+      "square": "Square-Terminen",
+      "import": "Ihrem Buchungsexport aus {platform}",
+      "importPlain": "Ihrem Buchungsexport"
+    },
+    "noBookings": "Noch sind keine Buchungen eingelesen, daher gibt es pro Person nichts zu zeigen. Importieren Sie einen Buchungsexport unter <link>Verbindungen</link>.",
+    "none": "Kein Termin in diesen vier Wochen nennt eine Person. Hat Ihr Buchungsexport eine Spalte für das Personal (Teammitglied, Stylistin, Behandler), erscheinen hier die eigenen Zahlen jeder Person.",
+    "unattributed": "{count, plural, one {# Termin} other {# Termine}} in diesen vier Wochen nennen niemanden oder jemanden, den Sie entfernt haben. Sie zählen nur in den Zahlen des Unternehmens.",
+    "sales": "Verkäufe pro Person: Keine Ihrer Verkaufsquellen erfasst, wer einen Verkauf getätigt hat, daher gibt es hier keine.",
+    "fig": {
+      "completed": "Erledigte Termine",
+      "completedOf": "von {count, plural, one {# Termin} other {# Terminen}}, die bei dieser Person gebucht waren",
+      "revenue": "Umsatz aus Buchungen",
+      "revenueOf": "Listenpreise von {part} von {of, plural, one {# erledigten Termin} other {# erledigten Terminen}}",
+      "noShow": "Nichterscheinen-Quote",
+      "late": "Quote kurzfristiger Absagen",
+      "rateOf": "{part} von {of, plural, one {# fälligen Termin} other {# fälligen Terminen}}",
+      "utilisation": "Auslastung",
+      "utilisationOf": "{part} erledigt von {of} Plätzen: {perWeek} pro Woche, Ihre Angabe vom {day}",
+      "rebooking": "Wiederbuchungsquote",
+      "rebookingOf": "{part} von {of, plural, one {# Kundin oder Kunde} other {# Kundinnen und Kunden}}, betreut {from} bis {to}, buchten innerhalb von {days} Tagen erneut, bei wem auch immer",
+      "tooFew": "Zu wenige, um etwas zu sagen",
+      "tooFewDue": "{count, plural, one {# fälliger Termin} other {# fällige Termine}}; nötig sind {min}",
+      "tooFewClients": "{count, plural, one {# Kundin oder Kunde} other {# Kundinnen und Kunden}} betreut; nötig sind {min}",
+      "notMeasured": "Nicht gemessen",
+      "why": {
+        "no_capacity": "keine wöchentliche Kapazität für diese Person angegeben",
+        "no_prices": "die Buchungen enthalten keine Preise",
+        "currencies": "Preise in mehr als einer Währung",
+        "no_completed": "keine erledigten Termine in diesen vier Wochen",
+        "no_client": "die Buchungen enthalten keine Kundenkennung",
+        "not_separated": "Square trennt kurzfristige Absagen nicht"
+      }
+    },
+    "capacity": {
+      "label": "Termine pro Woche, die diese Person übernehmen kann",
+      "hint": "Ihre eigene Angabe. Die Auslastung wird nur daran gemessen.",
+      "save": "Speichern",
+      "clear": "Löschen",
+      "invalid": "Eine ganze Zahl von {min} bis {max}."
+    },
+    "remove": {
+      "button": "Diese Person entfernen",
+      "confirm": "{person} entfernen? Name und eigene Zahlen werden aus SYB gelöscht, und ein späterer Import bringt den Namen nicht zurück. Die Termine bleiben ohne Namen in den Zahlen des Unternehmens.",
+      "yes": "Entfernen",
+      "no": "Behalten",
+      "done": "Entfernt. {count, plural, one {# Termin bleibt} other {# Termine bleiben}} ohne Namen in den Zahlen des Unternehmens."
+    },
+    "failed": "Bei uns ist etwas schiefgelaufen. Es wurde nichts geändert."
   },
   "teamAccess": {
     "meta": {
@@ -5670,6 +5796,8 @@
       "erasure_run": "Nur ein Inhaber kann die Daten eines Kunden löschen.",
       "data_import": "Nur ein Inhaber kann eine Datei mit Kunden, Lagerbestand oder Buchungen importieren.",
       "team_manage": "Nur ein Inhaber kann Personen ins Team einladen, ihre Rolle im Team ändern oder sie entfernen.",
+      "people_read": "Nur ein Inhaber kann die eigenen Zahlen jeder Person sehen.",
+      "people_manage": "Nur ein Inhaber kann die wöchentliche Kapazität einer Person angeben oder eine Person aus den Zahlen entfernen.",
       "rules_manage": "Nur ein Inhaber kann ändern, wie ich für dieses Unternehmen arbeite.",
       "profile_edit": "Nur ein Inhaber kann die Fakten, Ziele oder Grenzen des Unternehmens ändern.",
       "report_generate": "Nur ein Inhaber kann einen neuen Bericht erstellen.",
@@ -5681,7 +5809,8 @@
       "reviews_settings": "Nur ein Inhaber kann die Adresse ändern, an die Bewertungen weitergeleitet werden.",
       "summary_settings": "Nur ein Inhaber kann die wöchentliche Zusammenfassung ein- oder ausschalten.",
       "stop_resume": "Nur ein Inhaber kann nach einem Stopp alles wieder in Gang setzen.",
-      "business_locale": "Nur ein Inhaber kann die Sprache oder Währung des Unternehmens ändern."
+      "business_locale": "Nur ein Inhaber kann die Sprache oder Währung des Unternehmens ändern.",
+      "payments_prepare": "Nur ein Inhaber kann Zahlungen vorbereiten oder angeben, dass eine bezahlt wurde."
     }
   },
   "authWords": {
@@ -5824,7 +5953,7 @@
     },
     "module": {
       "analytics": "Ohne Messung ist der Beobachtungsmodus blind – Analytics ist das, womit er beobachtet.",
-      "team": "Team: wenn die Woche mehr Besetzung braucht oder mehr hat, als sie braucht, nach Rolle und Stunde. Es benotet niemanden, erstellt keine Rangliste und sagt nie etwas über eine Person. Aus, solange Sie es nicht einschalten."
+      "team": "Team: wenn die Woche mehr Besetzung braucht oder mehr hat, als sie braucht, nach Rolle und Stunde, und nur für den Inhaber die eigenen Zahlen jeder Person aus Ihren Buchungen. Es benotet niemanden, erstellt keine Rangliste und schlägt nie etwas über eine Person vor. Aus, solange Sie es nicht einschalten."
     },
     "data": {
       "payments": "Zahlungen",
@@ -6166,7 +6295,8 @@
       "media_generation": "ein Bild oder Clip zum Erstellen",
       "revise_goal": "ein Ziel zum Prüfen",
       "stop_strategy": "eine Strategie zum Prüfen",
-      "other": "ein Vorschlag"
+      "other": "ein Vorschlag",
+      "prepared_payment": "eine Zahlung zum Prüfen"
     }
   },
   "exports": {
@@ -8430,5 +8560,185 @@
     "many": "{count, plural, one {# Bewertung, die Sie kennen sollten} other {# Bewertungen, die Sie kennen sollten}}",
     "withProposals": "{count, plural, one {# Sache wartet auf Ihr Ja} other {# Sachen warten auf Ihr Ja}}, dazu {reviews, plural, one {eine Bewertung, die Sie kennen sollten} other {# Bewertungen, die Sie kennen sollten}}",
     "anotherSite": "einer anderen Website"
+  },
+  "payments": {
+    "meta": {
+      "title": "Zahlungen — SYB"
+    },
+    "kicker": "Einblicke · Zahlungen",
+    "never": "SYB bereitet Zahlungen vor, und Sie bezahlen sie in Ihrer eigenen Bank. SYB kann kein Geld bewegen.",
+    "title": {
+      "ready": "{count, plural, one {# Zahlung ist bereit für Ihre Bank} other {# Zahlungen sind bereit für Ihre Bank}}",
+      "none": "Zahlungen, die Sie in Ihrer eigenen Bank ausführen"
+    },
+    "loading": "Ihre Zahlungen werden gelesen…",
+    "signedOut": "Beginnen Sie zuerst das Interview und kommen Sie dann zurück, um Zahlungen vorzubereiten.",
+    "start": "Interview beginnen",
+    "error": {
+      "load": "Ich konnte Ihre Zahlungen gerade nicht lesen. Versuchen Sie es in einer Minute erneut.",
+      "generic": "Das hat nicht geklappt. Versuchen Sie es in einer Minute erneut.",
+      "ourSide": "Auf meiner Seite ist etwas schiefgelaufen. Versuchen Sie es in einer Minute erneut."
+    },
+    "ownerOnly": "Nur ein Inhaber kann Zahlungen vorbereiten, die Bankdatei herunterladen oder angeben, dass eine Zahlung erfolgt ist.",
+    "erased": "Bankdaten gelöscht",
+    "ready": {
+      "label": "Bereit für Ihre Bank",
+      "title": "{count, plural, one {# freigegebene Zahlung auszuführen} other {# freigegebene Zahlungen auszuführen}}",
+      "none": "Noch ist nichts bereit",
+      "foot": "Freigegebene Zahlungen warten hier, bis Sie angeben, dass Sie sie bezahlt haben. Nichts verlässt Ihre Bank, bevor Sie es dort bezahlen."
+    },
+    "col": {
+      "payee": "Empfänger",
+      "iban": "IBAN",
+      "amount": "Betrag",
+      "reference": "Verwendungszweck",
+      "date": "Datum",
+      "file": "Bankdatei",
+      "action": "Aktion"
+    },
+    "file": {
+      "yes": "In der SEPA-Datei",
+      "bar": {
+        "not_eur": "Von Hand: nicht in Euro",
+        "payee_not_sepa": "Von Hand: die Bank des Empfängers liegt außerhalb von SEPA",
+        "payer_not_sepa": "Von Hand: Ihre Bank liegt außerhalb von SEPA",
+        "no_payer": "Braucht zuerst Ihre Bankdaten",
+        "erased": "Bankdaten gelöscht",
+        "not_approved": "Noch nicht freigegeben",
+        "paid": "Bereits bezahlt"
+      }
+    },
+    "paid": {
+      "button": "In meiner Bank bezahlt",
+      "done": "Als in Ihrer Bank bezahlt markiert.",
+      "on": "als bezahlt angegeben am {date}"
+    },
+    "download": {
+      "sepa": "{count, plural, one {SEPA-Datei herunterladen (# Zahlung)} other {SEPA-Datei herunterladen (# Zahlungen)}}",
+      "steps": "Schritt-für-Schritt-Anleitung herunterladen",
+      "needPayer": "Hinterlegen Sie die Bankdaten, von denen Sie zahlen, um eine SEPA-Datei zu erhalten. Die Anleitung funktioniert auch ohne sie.",
+      "noneForFile": "Keine davon kann in eine SEPA-Datei, die nur für Euro zwischen SEPA-Banken gilt. Nutzen Sie die Anleitung.",
+      "total": "{count, plural, one {Die Datei enthält # Zahlung, insgesamt {total}.} other {Die Datei enthält # Zahlungen, insgesamt {total}.}}"
+    },
+    "steps": {
+      "fileTitle": "So nutzen Sie die SEPA-Datei",
+      "fileName": "die SEPA-Datei",
+      "file": {
+        "save": "Laden Sie {file} herunter und speichern Sie sie auf Ihrem Computer.",
+        "find": "Suchen Sie im Onlinebanking Ihrer Bank die Stelle, an der Sie eine Zahlungsdatei hochladen oder importieren. Banken nennen das SEPA-Datei, Sammelzahlung oder Sammelüberweisung.",
+        "upload": "{count, plural, one {Laden Sie die Datei hoch. Ihre Bank zeigt Ihnen die Zahlung zur Prüfung.} other {Laden Sie die Datei hoch. Ihre Bank zeigt Ihnen die # Zahlungen zur Prüfung.}}",
+        "confirm": "Prüfen Sie jede einzelne und bestätigen Sie dann in Ihrer Bank. Bezahlt ist erst, wenn Sie das tun.",
+        "mark": "Drücken Sie danach hier für jede ausgeführte Zahlung „In meiner Bank bezahlt“."
+      },
+      "title": "Zahlungen, die Sie in Ihrer eigenen Bank ausführen",
+      "intro": "SYB hat diese Zahlungen vorbereitet. SYB kann kein Geld bewegen: Sie führen jede selbst in Ihrer eigenen Bank aus.",
+      "from": "Bezahlt von: {name}, IBAN {iban}",
+      "howTitle": "So führen Sie jede Zahlung von Hand aus:",
+      "hand": {
+        "open": "Öffnen Sie die App oder Website Ihrer Bank und beginnen Sie eine neue Überweisung.",
+        "copy": "Übernehmen Sie Name, IBAN und BIC des Empfängers genau so, wie sie unten stehen.",
+        "amount": "Geben Sie den Betrag und den Verwendungszweck ein, damit der Empfänger weiß, wofür die Zahlung ist.",
+        "confirm": "Wählen Sie das Datum, prüfen Sie alles noch einmal und bestätigen Sie dann die Zahlung in Ihrer Bank.",
+        "mark": "Drücken Sie danach in SYB „In meiner Bank bezahlt“, damit Ihre Unterlagen es zeigen."
+      },
+      "paymentTitle": "Zahlung {n} von {count}",
+      "payTo": "Zahlen an: {name}",
+      "iban": "IBAN: {iban}",
+      "bic": "BIC: {bic}",
+      "amount": "Betrag: {amount}",
+      "reference": "Verwendungszweck: {reference}",
+      "date": "Datum: {date}",
+      "erased": "Die Bankdaten dieser Zahlung wurden gelöscht. Fragen Sie den Empfänger erneut danach.",
+      "why": {
+        "notEur": "Nicht in Euro, daher nicht in der SEPA-Datei: führen Sie sie von Hand aus.",
+        "notSepa": "Eine Bank außerhalb von SEPA, daher nicht in der SEPA-Datei: führen Sie sie von Hand aus."
+      },
+      "closing": "Sobald eine Zahlung ausgeführt ist, markieren Sie sie in SYB. Lehnt Ihre Bank eine Angabe ab, korrigieren Sie sie dort: SYB sendet nie etwas an Ihre Bank."
+    },
+    "waiting": {
+      "label": "Wartet auf Freigabe",
+      "title": "{count, plural, one {# Zahlung wartet auf Ihre Freigabe} other {# Zahlungen warten auf Ihre Freigabe}}",
+      "open": "In der Warteschlange öffnen"
+    },
+    "stage": {
+      "waiting": "wartet",
+      "blocked": "durch Ihre Grenzen zurückgehalten",
+      "changes": "Änderungen erbeten",
+      "ready": "bereit für Ihre Bank",
+      "paid": "in meiner Bank bezahlt",
+      "declined": "abgelehnt",
+      "lapsed": "verfallen"
+    },
+    "closed": {
+      "label": "Erledigt und geschlossen",
+      "title": "Bezahlt, abgelehnt und verfallen",
+      "foot": "Beim Löschen der Bankdaten bleiben Betrag und Daten erhalten; Name, IBAN und BIC werden endgültig entfernt."
+    },
+    "erase": {
+      "button": "Bankdaten löschen",
+      "done": "Die Bankdaten wurden gelöscht."
+    },
+    "payer": {
+      "label": "Zahlung von",
+      "none": "Ihre Bankdaten sind noch nicht angegeben",
+      "foot": "Name und IBAN, von denen Ihre Zahlungen abgehen. Sie stehen in der SEPA-Datei als Zahler; SYB meldet sich nie bei Ihrer Bank an.",
+      "change": "Ändern",
+      "holder": "Name, unter dem Ihre Bank Sie kennt",
+      "save": "Speichern",
+      "done": "Gespeichert. Frühere Angaben bleiben erhalten."
+    },
+    "form": {
+      "label": "Neue Zahlung",
+      "title": "Eine Zahlung vorbereiten",
+      "foot": "Sie geht zuerst in die Warteschlange zur Freigabe. Freigegeben ist sie bereit für Ihre Bank: Bezahlt wird erst, wenn Sie dort bezahlen.",
+      "pays": "Wofür sie ist",
+      "supplier": "Lieferant",
+      "cost": "Fixkosten",
+      "order": "Bestellnummer",
+      "unnamedSupplier": "Ein Lieferant ohne Namen",
+      "unnamedCost": "Kosten ohne Namen",
+      "payee": "Empfänger",
+      "payeeOptional": "Empfänger (leer: Name des Lieferanten)",
+      "iban": "IBAN",
+      "bic": "BIC (optional)",
+      "amount": "Betrag",
+      "currency": "Währung",
+      "date": "Zahlen am",
+      "reference": "Verwendungszweck, den der Empfänger sieht",
+      "badAmount": "Ich kann diesen Betrag nicht lesen. Schreiben Sie ganze Einheiten, dann einen Punkt oder ein Komma und die Cent.",
+      "submit": "Um Freigabe bitten",
+      "done": "Vorbereitet. Sie wartet in der Warteschlange auf Ihre Freigabe."
+    },
+    "pays": {
+      "supplier": "Ein Lieferant",
+      "fixed_cost": "Fixkosten",
+      "purchase_order": "Eine Bestellung",
+      "other": "Etwas anderes"
+    },
+    "refusal": {
+      "iban_empty": "Geben Sie die IBAN ein.",
+      "iban_format": "Das hat nicht die Form einer IBAN: zwei Buchstaben für das Land, zwei Prüfziffern, dann Buchstaben und Ziffern.",
+      "iban_country": "IBANs aus diesem Land kenne ich nicht, daher kann ich sie nicht prüfen.",
+      "iban_length": "Diese IBAN hat die falsche Länge für ihr Land.",
+      "iban_checksum": "Die Prüfziffern dieser IBAN stimmen nicht: Wahrscheinlich ist ein Zeichen vertippt.",
+      "bic": "Eine BIC hat acht oder elf Buchstaben und Ziffern.",
+      "name": "Geben Sie an, wer bezahlt wird, mit einem kurzen Namen.",
+      "amount": "Der Betrag muss über null liegen.",
+      "currency": "Die Währung muss ein Code aus drei Buchstaben sein.",
+      "reference": "Schreiben Sie einen kurzen Verwendungszweck, den der Empfänger sieht.",
+      "date": "Wählen Sie einen Tag.",
+      "date_past": "Dieser Tag ist vorbei. Wählen Sie heute oder später.",
+      "date_far": "Dieser Tag liegt mehr als ein Jahr in der Zukunft.",
+      "pays_kind": "Geben Sie an, wofür die Zahlung ist.",
+      "supplier": "Wählen Sie einen Ihrer Lieferanten.",
+      "cost_item": "Wählen Sie einen Ihrer Fixkostenposten.",
+      "purchase_order": "Geben Sie die Nummer der Bestellung ein.",
+      "not_found": "Ich konnte diese Zahlung nicht finden.",
+      "not_ready": "Nur eine freigegebene Zahlung, die noch nicht als bezahlt markiert ist, kann als bezahlt markiert werden.",
+      "no_session": "Um anzugeben, dass eine Zahlung erfolgt ist, müssen Sie angemeldet sein.",
+      "none_ready": "Noch ist nichts bereit für Ihre Bank. Eine Zahlung muss zuerst freigegeben werden.",
+      "no_payer": "Eine SEPA-Datei braucht die Bankdaten, von denen Sie zahlen.",
+      "none_for_file": "Keine der bereiten Zahlungen kann in eine SEPA-Datei."
+    }
   }
 }

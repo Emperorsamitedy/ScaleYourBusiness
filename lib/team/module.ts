@@ -22,7 +22,7 @@ export const TEAM_DEFAULT_ON = false;
 
 /** Shown beside the switch, so the screen never has to invent the explanation. */
 export const TEAM_WHY =
-  "Team: when the week needs more cover, or has more than it needs, by role and hour. It never scores, ranks or says anything about a person. Off unless you switch it on.";
+  "Team: when the week needs more cover, or has more than it needs, by role and hour, and, for the owner only, each person's own figures from your bookings. It never scores or ranks anyone, and never suggests anything about a person. Off unless you switch it on.";
 
 /** Pure: whether the module is on, from the account's module rows. */
 export function teamOnFrom(rows: readonly { module: string; enabled: boolean }[]): boolean {

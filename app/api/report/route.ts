@@ -10,7 +10,7 @@ import { logSafeError } from "../../../lib/core/log-safe";
 import { resolveAccess } from "../../../lib/auth/access";
 import { NextResponse } from "next/server";
 import { DiagnosisError } from "../../../lib/diagnosis/findings";
-import { hasPaidReport, paymentsConfigured } from "../../../lib/payments/stripe";
+import { hasPaidReport, paymentsConfigured } from "../../../lib/billing/stripe";
 import { generateReport, latestReport } from "../../../lib/report/service";
 import { requireRole } from "../../../lib/auth/roles";
 import type { Access } from "../../../lib/auth/access";

@@ -24,7 +24,7 @@ import { type NextRequest, NextResponse } from "next/server";
 import { db } from "../../../db";
 import { businessProfiles } from "../../../db/schema";
 import { membershipsFor } from "../../../lib/auth/members";
-import type { AlsoBusiness } from "../../../lib/payments/stripe";
+import type { AlsoBusiness } from "../../../lib/billing/stripe";
 import {
   MAX_CHECKOUT_BUSINESSES,
   PaymentError,
@@ -33,7 +33,7 @@ import {
   paymentsConfigured,
   reportPrice,
   startCheckout,
-} from "../../../lib/payments/stripe";
+} from "../../../lib/billing/stripe";
 import { requireRole } from "../../../lib/auth/roles";
 
 export interface CheckoutOptions {
