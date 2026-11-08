@@ -3763,3 +3763,110 @@ export const reviews = pgTable(
     check("reviews_expiry_after_receipt", sql`${t.expires_at} > ${t.received_at}`),
   ],
 );
+
+/* ---------- Phase 6 — prepared payments (P6-05, rule 26 amended) ---------- */
+
+/**
+ * The business's own "pay from" bank details, stated once by the owner: the
+ * debtor of every SEPA file. A stated fact with its provenance (rule 2),
+ * superseded and never overwritten (rule 3). Kept here rather than in
+ * field_records on purpose, so an IBAN never reaches a model prompt that
+ * reads the profile. Nothing here can move money (lib/payments/fence.test.ts).
+ */
+export const payerAccounts = pgTable(
+  "payer_accounts",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    profile_id: uuid("profile_id")
+      .notNull()
+      .references(() => businessProfiles.id, { onDelete: "cascade" }),
+    holder_name: text("holder_name").notNull(),
+    /** Electronic form: upper case, no spaces, mod-97 checked before it lands. */
+    iban: text("iban").notNull(),
+    bic: text("bic"),
+    status: fieldStatus("status").notNull().default("answered"),
+    confidence: numeric("confidence", { precision: 4, scale: 3 }).notNull(),
+    /** SourceRef — `{ kind: "owner_input" }`: the owner typed it. */
+    source: jsonb("source").notNull(),
+    stated_by: uuid("stated_by").references(() => users.id),
+    observed_at: timestamp("observed_at", { withTimezone: true, mode: "string" }).notNull(),
+    recorded_at: timestamp("recorded_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+    superseded_at: timestamp("superseded_at", { withTimezone: true, mode: "string" }),
+    superseded_by: uuid("superseded_by").references((): AnyPgColumn => payerAccounts.id),
+  },
+  (t) => [
+    uniqueIndex("payer_accounts_current_idx")
+      .on(t.profile_id)
+      .where(sql`superseded_at IS NULL`),
+    check("payer_accounts_iban_shape", sql`${t.iban} ~ '^[A-Z]{2}[0-9]{2}[A-Z0-9]{11,30}$'`),
+  ],
+);
+
+/**
+ * One prepared payment: the proposal's money detail. The proposal carries
+ * only the masked IBAN; the full one lives here, erasable (rule 22): erasing
+ * nulls the payee's name, IBAN and BIC and keeps the amount and the dates.
+ * "Ready for your bank" is an approved proposal whose row has no paid mark;
+ * "paid in my bank" is the owner's statement, never SYB's doing.
+ */
+export const preparedPayments = pgTable(
+  "prepared_payments",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    profile_id: uuid("profile_id")
+      .notNull()
+      .references(() => businessProfiles.id, { onDelete: "cascade" }),
+    proposal_id: uuid("proposal_id")
+      .notNull()
+      .references(() => proposals.id, { onDelete: "cascade" }),
+    payee_name: text("payee_name"),
+    payee_iban: text("payee_iban"),
+    payee_bic: text("payee_bic"),
+    /** Rule 1: integer minor units plus its currency, never a float. */
+    amount_minor: bigint("amount_minor", { mode: "number" }).notNull(),
+    currency: text("currency").notNull(),
+    /** The remittance text the payee sees. */
+    reference: text("reference").notNull(),
+    /** The day the owner wants it to leave their bank. */
+    execution_date: date("execution_date", { mode: "string" }).notNull(),
+    /** What it pays: a supplier, a fixed cost, a purchase order, or something else. */
+    pays_kind: text("pays_kind").notNull(),
+    supplier_id: uuid("supplier_id").references(() => suppliers.id),
+    cost_item_id: uuid("cost_item_id").references(() => costItems.id),
+    /** P6-04's purchase order, when there is one: a plain reference until that table lands. */
+    purchase_order_ref: text("purchase_order_ref"),
+    created_at: timestamp("created_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+    /** The owner's statement that they paid it in their own bank. */
+    paid_stated_at: timestamp("paid_stated_at", { withTimezone: true, mode: "string" }),
+    paid_stated_by: uuid("paid_stated_by").references(() => users.id),
+    /** Rule 22: when the payee's bank details were erased. */
+    erased_at: timestamp("erased_at", { withTimezone: true, mode: "string" }),
+  },
+  (t) => [
+    uniqueIndex("prepared_payments_proposal_idx").on(t.proposal_id),
+    index("prepared_payments_profile_idx").on(t.profile_id, t.created_at),
+    index("prepared_payments_supplier_idx").on(t.supplier_id),
+    check("prepared_payments_amount_positive", sql`${t.amount_minor} > 0`),
+    check("prepared_payments_currency_shape", sql`${t.currency} ~ '^[A-Z]{3}$'`),
+    check(
+      "prepared_payments_pays_kind",
+      sql`${t.pays_kind} IN ('supplier', 'fixed_cost', 'purchase_order', 'other')`,
+    ),
+    check(
+      "prepared_payments_payee_or_erased",
+      sql`${t.erased_at} IS NOT NULL OR (${t.payee_name} IS NOT NULL AND ${t.payee_iban} IS NOT NULL)`,
+    ),
+    check(
+      "prepared_payments_erased_holds_nothing",
+      sql`${t.erased_at} IS NULL OR (${t.payee_name} IS NULL AND ${t.payee_iban} IS NULL AND ${t.payee_bic} IS NULL)`,
+    ),
+    check(
+      "prepared_payments_paid_by_someone",
+      sql`(${t.paid_stated_at} IS NULL) = (${t.paid_stated_by} IS NULL)`,
+    ),
+  ],
+);

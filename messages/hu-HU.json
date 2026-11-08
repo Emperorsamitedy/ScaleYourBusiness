@@ -56,7 +56,8 @@
       "mode": "Ahogyan dolgozom",
       "history": "Előzmények",
       "team_access": "Csapat hozzáférése",
-      "language": "Nyelv és pénznem"
+      "language": "Nyelv és pénznem",
+      "payments": "Kifizetések"
     },
     "count": {
       "paused": "{count} szüneteltetve",
@@ -5716,7 +5717,8 @@
       "reviews_settings": "Csak tulajdonos módosíthatja azt a címet, ahová az értékeléseket továbbítjuk.",
       "summary_settings": "Csak tulajdonos kapcsolhatja be vagy ki a heti összefoglalót.",
       "stop_resume": "Csak tulajdonos indíthat újra mindent egy leállítás után.",
-      "business_locale": "Csak tulajdonos módosíthatja a vállalkozás nyelvét vagy pénznemét."
+      "business_locale": "Csak tulajdonos módosíthatja a vállalkozás nyelvét vagy pénznemét.",
+      "payments_prepare": "Csak tulajdonos készíthet elő kifizetést, vagy jelezheti, hogy egy kifizetés megtörtént."
     }
   },
   "authWords": {
@@ -6201,7 +6203,8 @@
       "media_generation": "egy elkészítendő kép vagy videó",
       "revise_goal": "egy átnézendő cél",
       "stop_strategy": "egy átnézendő stratégia",
-      "other": "egy javaslat"
+      "other": "egy javaslat",
+      "prepared_payment": "egy ellenőrizendő kifizetés"
     }
   },
   "exports": {
@@ -8465,5 +8468,185 @@
     "many": "{count, plural, one {# értékelés, amiről érdemes tudnia} other {# értékelés, amiről érdemes tudnia}}",
     "withProposals": "{count, plural, one {# dolog várja az Ön igenjét} other {# dolog várja az Ön igenjét}}, és {reviews, plural, one {egy értékelés, amiről érdemes tudnia} other {# értékelés, amiről érdemes tudnia}}",
     "anotherSite": "egy másik oldal"
+  },
+  "payments": {
+    "meta": {
+      "title": "Kifizetések — SYB"
+    },
+    "kicker": "Elemzések · Kifizetések",
+    "never": "A SYB előkészíti a kifizetéseket, Ön pedig a saját bankjában fizeti ki őket. A SYB nem tud pénzt mozgatni.",
+    "title": {
+      "ready": "{count, plural, one {# kifizetés kész a bankja számára} other {# kifizetés kész a bankja számára}}",
+      "none": "Kifizetések, amelyeket Ön a saját bankjában indít"
+    },
+    "loading": "A kifizetések beolvasása…",
+    "signedOut": "Előbb kezdje el az interjút, aztán jöjjön vissza kifizetéseket előkészíteni.",
+    "start": "Az interjú elkezdése",
+    "error": {
+      "load": "Most nem tudtam beolvasni a kifizetéseit. Próbálja újra egy perc múlva.",
+      "generic": "Ez nem sikerült. Próbálja újra egy perc múlva.",
+      "ourSide": "Valami hiba történt nálam. Próbálja újra egy perc múlva."
+    },
+    "ownerOnly": "Csak tulajdonos készíthet elő kifizetést, töltheti le a banki fájlt, vagy jelezheti, hogy egy kifizetés megtörtént.",
+    "erased": "Banki adatok törölve",
+    "ready": {
+      "label": "Kész a bankja számára",
+      "title": "{count, plural, one {# jóváhagyott kifizetés vár indításra} other {# jóváhagyott kifizetés vár indításra}}",
+      "none": "Még semmi sincs kész",
+      "foot": "A jóváhagyott kifizetések itt várnak, amíg nem jelzi, hogy kifizette őket. Semmi nem hagyja el a bankját, amíg ott ki nem fizeti."
+    },
+    "col": {
+      "payee": "Kedvezményezett",
+      "iban": "IBAN",
+      "amount": "Összeg",
+      "reference": "Közlemény",
+      "date": "Dátum",
+      "file": "Banki fájl",
+      "action": "Művelet"
+    },
+    "file": {
+      "yes": "A SEPA-fájlban",
+      "bar": {
+        "not_eur": "Kézzel: nem euróban",
+        "payee_not_sepa": "Kézzel: a kedvezményezett bankja a SEPA-n kívül van",
+        "payer_not_sepa": "Kézzel: az Ön bankja a SEPA-n kívül van",
+        "no_payer": "Előbb a banki adataira van szükség",
+        "erased": "Banki adatok törölve",
+        "not_approved": "Még nincs jóváhagyva",
+        "paid": "Már kifizetve"
+      }
+    },
+    "paid": {
+      "button": "Kifizetve a bankomban",
+      "done": "Megjelölve: kifizetve az Ön bankjában.",
+      "on": "kifizetettnek jelölve: {date}"
+    },
+    "download": {
+      "sepa": "{count, plural, one {A SEPA-fájl letöltése (# kifizetés)} other {A SEPA-fájl letöltése (# kifizetés)}}",
+      "steps": "A lépésenkénti útmutató letöltése",
+      "needPayer": "Adja meg a banki adatokat, amelyekről fizet, hogy SEPA-fájlt kapjon. Az útmutató nélkülük is működik.",
+      "noneForFile": "Ezek egyike sem kerülhet SEPA-fájlba, amely csak SEPA-bankok közötti euróra szolgál. Használja az útmutatót.",
+      "total": "{count, plural, one {A fájlban # kifizetés van, összesen {total}.} other {A fájlban # kifizetés van, összesen {total}.}}"
+    },
+    "steps": {
+      "fileTitle": "A SEPA-fájl használata",
+      "fileName": "a SEPA-fájlt",
+      "file": {
+        "save": "Töltse le {file}, és mentse a számítógépére.",
+        "find": "Bankja netbankjában keresse meg, hol lehet fizetési fájlt feltölteni vagy importálni. A bankok SEPA-fájlnak, csoportos átutalásnak vagy tömeges átutalásnak hívják.",
+        "upload": "{count, plural, one {Töltse fel a fájlt. A bankja megmutatja a kifizetést, hogy ellenőrizze.} other {Töltse fel a fájlt. A bankja megmutatja a(z) # kifizetést, hogy ellenőrizze.}}",
+        "confirm": "Ellenőrizze mindegyiket, majd hagyja jóvá a bankjában. Semmi sincs kifizetve, amíg ezt meg nem teszi.",
+        "mark": "Itt pedig nyomja meg a „Kifizetve a bankomban” gombot minden elindított kifizetésnél."
+      },
+      "title": "Kifizetések, amelyeket a saját bankjában kell elindítania",
+      "intro": "A SYB előkészítette ezeket a kifizetéseket. A SYB nem tud pénzt mozgatni: mindegyiket Ön indítja el, a saját bankjában.",
+      "from": "Fizetés innen: {name}, IBAN {iban}",
+      "howTitle": "Így indítsa el kézzel az egyes kifizetéseket:",
+      "hand": {
+        "open": "Nyissa meg bankja alkalmazását vagy weboldalát, és kezdjen egy új átutalást.",
+        "copy": "Másolja át a kedvezményezett nevét, IBAN-ját és BIC-jét pontosan úgy, ahogy lent áll.",
+        "amount": "Írja be az összeget és a közleményt, hogy a kedvezményezett tudja, mit fizet vele.",
+        "confirm": "Válassza ki a dátumot, ellenőrizzen mindent még egyszer, majd hagyja jóvá a kifizetést a bankjában.",
+        "mark": "A SYB-ben nyomja meg a „Kifizetve a bankomban” gombot, hogy a nyilvántartása ezt mutassa."
+      },
+      "paymentTitle": "{n}. kifizetés, összesen: {count}",
+      "payTo": "Kedvezményezett: {name}",
+      "iban": "IBAN: {iban}",
+      "bic": "BIC: {bic}",
+      "amount": "Összeg: {amount}",
+      "reference": "Közlemény: {reference}",
+      "date": "Dátum: {date}",
+      "erased": "Ennek a kifizetésnek a banki adatait törölték. Kérje el újra a kedvezményezettől.",
+      "why": {
+        "notEur": "Nem euróban van, ezért nincs a SEPA-fájlban: indítsa el kézzel.",
+        "notSepa": "SEPA-n kívüli bank, ezért nincs a SEPA-fájlban: indítsa el kézzel."
+      },
+      "closing": "Ha egy kifizetés megtörtént, jelölje meg a SYB-ben. Ha a bankja elutasít egy adatot, ott javítsa: a SYB soha nem küld semmit a bankjának."
+    },
+    "waiting": {
+      "label": "Jóváhagyásra vár",
+      "title": "{count, plural, one {# kifizetés várja az Ön jóváhagyását} other {# kifizetés várja az Ön jóváhagyását}}",
+      "open": "Megnyitás a sorban"
+    },
+    "stage": {
+      "waiting": "vár",
+      "blocked": "az Ön korlátai visszatartják",
+      "changes": "módosítást kért",
+      "ready": "kész a bankja számára",
+      "paid": "kifizetve a bankomban",
+      "declined": "elutasítva",
+      "lapsed": "lejárt"
+    },
+    "closed": {
+      "label": "Kész és lezárva",
+      "title": "Kifizetett, elutasított és lejárt",
+      "foot": "A banki adatok törlése megtartja az összeget és a dátumokat, a nevet, az IBAN-t és a BIC-et pedig végleg eltávolítja."
+    },
+    "erase": {
+      "button": "Banki adatok törlése",
+      "done": "A banki adatok törölve."
+    },
+    "payer": {
+      "label": "Fizetés innen",
+      "none": "A banki adatai még nincsenek megadva",
+      "foot": "A név és az IBAN, ahonnan a kifizetései indulnak. A SEPA-fájlban fizetőként szerepelnek; a SYB soha nem lép be a bankjába.",
+      "change": "Módosítás",
+      "holder": "A név, amelyen a bankja ismeri",
+      "save": "Mentés",
+      "done": "Mentve. A korábbi adatok megmaradnak."
+    },
+    "form": {
+      "label": "Új kifizetés",
+      "title": "Kifizetés előkészítése",
+      "foot": "Előbb a jóváhagyási sorba kerül. Jóváhagyva kész a bankja számára: semmi sincs kifizetve, amíg ott ki nem fizeti.",
+      "pays": "Mit fizet",
+      "supplier": "Beszállító",
+      "cost": "Fix költség",
+      "order": "A megrendelés száma",
+      "unnamedSupplier": "Egy név nélküli beszállító",
+      "unnamedCost": "Egy név nélküli költség",
+      "payee": "Kedvezményezett",
+      "payeeOptional": "Kedvezményezett (üresen: a beszállító neve)",
+      "iban": "IBAN",
+      "bic": "BIC (nem kötelező)",
+      "amount": "Összeg",
+      "currency": "Pénznem",
+      "date": "Fizetés napja",
+      "reference": "A közlemény, amelyet a kedvezményezett lát",
+      "badAmount": "Ezt az összeget nem tudom elolvasni. Írja az egész egységeket, aztán egy pontot vagy vesszőt és a centeket.",
+      "submit": "Jóváhagyás kérése",
+      "done": "Előkészítve. A sorban várja az Ön jóváhagyását."
+    },
+    "pays": {
+      "supplier": "Egy beszállítót",
+      "fixed_cost": "Egy fix költséget",
+      "purchase_order": "Egy megrendelést",
+      "other": "Valami mást"
+    },
+    "refusal": {
+      "iban_empty": "Írja be az IBAN-t.",
+      "iban_format": "Ez nem IBAN alakú: két betű az országnak, két ellenőrző számjegy, aztán betűk és számjegyek.",
+      "iban_country": "Ennek az országnak az IBAN-jait nem ismerem, ezért nem tudom ellenőrizni.",
+      "iban_length": "Ennek az IBAN-nak rossz a hossza az országához.",
+      "iban_checksum": "Ennek az IBAN-nak nem stimmelnek az ellenőrző számjegyei: valószínűleg elírt egy karaktert.",
+      "bic": "A BIC nyolc vagy tizenegy betűből és számjegyből áll.",
+      "name": "Adja meg röviden, kinek fizet.",
+      "amount": "Az összegnek nullánál nagyobbnak kell lennie.",
+      "currency": "A pénznem egy hárombetűs kód legyen.",
+      "reference": "Írjon egy rövid közleményt, amelyet a kedvezményezett lát.",
+      "date": "Válasszon egy napot.",
+      "date_past": "Ez a nap már elmúlt. Válassza a mai napot vagy egy későbbit.",
+      "date_far": "Ez a nap több mint egy évvel későbbi.",
+      "pays_kind": "Adja meg, mire szól a kifizetés.",
+      "supplier": "Válasszon a beszállítói közül.",
+      "cost_item": "Válasszon a fix költségei közül.",
+      "purchase_order": "Írja be a megrendelés számát.",
+      "not_found": "Nem találtam ezt a kifizetést.",
+      "not_ready": "Csak jóváhagyott, még nem kifizetettnek jelölt kifizetést lehet kifizetettnek jelölni.",
+      "no_session": "Ahhoz, hogy jelezze egy kifizetés megtörténtét, bejelentkezés szükséges.",
+      "none_ready": "Még semmi sincs kész a bankja számára. Előbb jóvá kell hagyni egy kifizetést.",
+      "no_payer": "A SEPA-fájlhoz kellenek a banki adatok, amelyekről fizet.",
+      "none_for_file": "A kész kifizetések egyike sem kerülhet SEPA-fájlba."
+    }
   }
 }

@@ -1,5 +1,10 @@
 // Payments — Session I (P1-50). Stripe Checkout for the one-off report.
 //
+// P6-05 moved this from lib/payments to lib/billing: it is SYB billing its
+// own customer, not a business's money. lib/payments is now prepared
+// payments only, under rule 26's gate (lib/payments/fence.test.ts), which
+// allows no call to a payment provider there.
+//
 // No SDK: Stripe's API is form-encoded HTTP and the webhook signature is
 // an HMAC — both are less code than the dependency. The rules that
 // matter:

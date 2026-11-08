@@ -56,7 +56,8 @@
       "mode": "Cómo trabajo",
       "history": "Historial",
       "team_access": "Acceso del equipo",
-      "language": "Idioma y moneda"
+      "language": "Idioma y moneda",
+      "payments": "Pagos"
     },
     "count": {
       "paused": "{count} en pausa",
@@ -5716,7 +5717,8 @@
       "reviews_settings": "Solo un propietario puede cambiar la dirección a la que se reenvían las reseñas.",
       "summary_settings": "Solo un propietario puede activar o desactivar el resumen semanal.",
       "stop_resume": "Solo un propietario puede volver a ponerlo todo en marcha después de una parada.",
-      "business_locale": "Solo un propietario puede cambiar el idioma o la moneda del negocio."
+      "business_locale": "Solo un propietario puede cambiar el idioma o la moneda del negocio.",
+      "payments_prepare": "Solo un propietario puede preparar pagos o indicar que se pagó uno."
     }
   },
   "authWords": {
@@ -6201,7 +6203,8 @@
       "media_generation": "una imagen o un clip por crear",
       "revise_goal": "un objetivo que revisar",
       "stop_strategy": "una estrategia que revisar",
-      "other": "una propuesta"
+      "other": "una propuesta",
+      "prepared_payment": "un pago que revisar"
     }
   },
   "exports": {
@@ -8465,5 +8468,185 @@
     "many": "{count, plural, one {# reseña que conviene conocer} many {# reseñas que conviene conocer} other {# reseñas que conviene conocer}}",
     "withProposals": "{count, plural, one {# cosa espera su visto bueno} many {# cosas esperan su visto bueno} other {# cosas esperan su visto bueno}}, y {reviews, plural, one {una reseña que conviene conocer} many {# reseñas que conviene conocer} other {# reseñas que conviene conocer}}",
     "anotherSite": "otro sitio"
+  },
+  "payments": {
+    "meta": {
+      "title": "Pagos — SYB"
+    },
+    "kicker": "Análisis · Pagos",
+    "never": "SYB prepara los pagos y usted los paga en su propio banco. SYB no puede mover dinero.",
+    "title": {
+      "ready": "{count, plural, one {# pago está listo para su banco} many {# pagos están listos para su banco} other {# pagos están listos para su banco}}",
+      "none": "Pagos que usted hace en su propio banco"
+    },
+    "loading": "Leyendo sus pagos…",
+    "signedOut": "Empiece primero la entrevista y vuelva después para preparar pagos.",
+    "start": "Empezar la entrevista",
+    "error": {
+      "load": "No he podido leer sus pagos ahora mismo. Vuelva a intentarlo dentro de un minuto.",
+      "generic": "No ha funcionado. Vuelva a intentarlo dentro de un minuto.",
+      "ourSide": "Algo ha fallado por mi parte. Vuelva a intentarlo dentro de un minuto."
+    },
+    "ownerOnly": "Solo un propietario puede preparar pagos, descargar el archivo bancario o indicar que se hizo un pago.",
+    "erased": "Datos bancarios borrados",
+    "ready": {
+      "label": "Listo para su banco",
+      "title": "{count, plural, one {# pago aprobado por hacer} many {# pagos aprobados por hacer} other {# pagos aprobados por hacer}}",
+      "none": "Todavía no hay nada listo",
+      "foot": "Los pagos aprobados esperan aquí hasta que indique que los ha pagado. Nada sale de su banco hasta que lo pague allí."
+    },
+    "col": {
+      "payee": "Pagado a",
+      "iban": "IBAN",
+      "amount": "Importe",
+      "reference": "Concepto",
+      "date": "Fecha",
+      "file": "Archivo bancario",
+      "action": "Acción"
+    },
+    "file": {
+      "yes": "En el archivo SEPA",
+      "bar": {
+        "not_eur": "A mano: no está en euros",
+        "payee_not_sepa": "A mano: el banco del beneficiario está fuera de SEPA",
+        "payer_not_sepa": "A mano: su banco está fuera de SEPA",
+        "no_payer": "Necesita antes sus datos bancarios",
+        "erased": "Datos bancarios borrados",
+        "not_approved": "Aún sin aprobar",
+        "paid": "Ya pagado"
+      }
+    },
+    "paid": {
+      "button": "Pagado en mi banco",
+      "done": "Marcado como pagado en su banco.",
+      "on": "indicado como pagado el {date}"
+    },
+    "download": {
+      "sepa": "{count, plural, one {Descargar el archivo SEPA (# pago)} many {Descargar el archivo SEPA (# pagos)} other {Descargar el archivo SEPA (# pagos)}}",
+      "steps": "Descargar las instrucciones paso a paso",
+      "needPayer": "Añada los datos bancarios desde los que paga para obtener un archivo SEPA. Las instrucciones funcionan sin ellos.",
+      "noneForFile": "Ninguno puede ir en un archivo SEPA, que es para euros entre bancos SEPA. Use las instrucciones.",
+      "total": "{count, plural, one {El archivo contiene # pago, {total} en total.} many {El archivo contiene # pagos, {total} en total.} other {El archivo contiene # pagos, {total} en total.}}"
+    },
+    "steps": {
+      "fileTitle": "Cómo usar el archivo SEPA",
+      "fileName": "el archivo SEPA",
+      "file": {
+        "save": "Descargue {file} y guárdelo en su ordenador.",
+        "find": "En la banca en línea de su banco, busque dónde subir o importar un archivo de pagos. Los bancos lo llaman archivo SEPA, remesa de pagos o transferencia múltiple.",
+        "upload": "{count, plural, one {Suba el archivo. Su banco le muestra el pago para que lo revise.} many {Suba el archivo. Su banco le muestra los # pagos para que los revise.} other {Suba el archivo. Su banco le muestra los # pagos para que los revise.}}",
+        "confirm": "Revise cada uno y confirme después en su banco. No se paga nada hasta que usted lo haga.",
+        "mark": "De vuelta aquí, pulse «Pagado en mi banco» en cada pago que haya hecho."
+      },
+      "title": "Pagos que debe hacer en su propio banco",
+      "intro": "SYB ha preparado estos pagos. SYB no puede mover dinero: usted hace cada uno, en su propio banco.",
+      "from": "Pagado desde: {name}, IBAN {iban}",
+      "howTitle": "Cómo hacer cada pago a mano:",
+      "hand": {
+        "open": "Abra la aplicación o la web de su banco y empiece una transferencia nueva.",
+        "copy": "Copie el nombre, el IBAN y el BIC del beneficiario exactamente como aparecen abajo.",
+        "amount": "Introduzca el importe y el concepto, para que el beneficiario sepa qué se paga.",
+        "confirm": "Elija la fecha, revíselo todo una vez más y confirme después el pago en su banco.",
+        "mark": "De vuelta en SYB, pulse «Pagado en mi banco» para que sus registros lo reflejen."
+      },
+      "paymentTitle": "Pago {n} de {count}",
+      "payTo": "Pagar a: {name}",
+      "iban": "IBAN: {iban}",
+      "bic": "BIC: {bic}",
+      "amount": "Importe: {amount}",
+      "reference": "Concepto: {reference}",
+      "date": "Fecha: {date}",
+      "erased": "Los datos bancarios de este pago se borraron. Vuelva a pedírselos al beneficiario.",
+      "why": {
+        "notEur": "No está en euros, así que no va en el archivo SEPA: hágalo a mano.",
+        "notSepa": "Un banco fuera de SEPA, así que no va en el archivo SEPA: hágalo a mano."
+      },
+      "closing": "Cuando haya hecho un pago, márquelo en SYB. Si su banco rechaza algún dato, corríjalo allí: SYB nunca envía nada a su banco."
+    },
+    "waiting": {
+      "label": "Esperando aprobación",
+      "title": "{count, plural, one {# pago espera su aprobación} many {# pagos esperan su aprobación} other {# pagos esperan su aprobación}}",
+      "open": "Abrirlo en la cola"
+    },
+    "stage": {
+      "waiting": "en espera",
+      "blocked": "retenido por sus límites",
+      "changes": "cambios pedidos",
+      "ready": "listo para su banco",
+      "paid": "pagado en mi banco",
+      "declined": "rechazado",
+      "lapsed": "caducado"
+    },
+    "closed": {
+      "label": "Hecho y cerrado",
+      "title": "Pagados, rechazados y caducados",
+      "foot": "Borrar los datos bancarios conserva el importe y las fechas, y elimina para siempre el nombre, el IBAN y el BIC."
+    },
+    "erase": {
+      "button": "Borrar datos bancarios",
+      "done": "Se han borrado los datos bancarios."
+    },
+    "payer": {
+      "label": "Pagando desde",
+      "none": "Aún no ha indicado sus datos bancarios",
+      "foot": "El nombre y el IBAN desde los que salen sus pagos. Van en el archivo SEPA como ordenante; SYB nunca entra en su banco.",
+      "change": "Cambiar",
+      "holder": "Nombre con el que le conoce su banco",
+      "save": "Guardar",
+      "done": "Guardado. Los datos anteriores se conservan."
+    },
+    "form": {
+      "label": "Pago nuevo",
+      "title": "Preparar un pago",
+      "foot": "Primero va a la cola de aprobación. Una vez aprobado, está listo para su banco: no se paga nada hasta que lo pague allí.",
+      "pays": "Qué paga",
+      "supplier": "Proveedor",
+      "cost": "Coste fijo",
+      "order": "Número del pedido de compra",
+      "unnamedSupplier": "Un proveedor sin nombre",
+      "unnamedCost": "Un coste sin nombre",
+      "payee": "Pagado a",
+      "payeeOptional": "Pagado a (vacío: el nombre del proveedor)",
+      "iban": "IBAN",
+      "bic": "BIC (opcional)",
+      "amount": "Importe",
+      "currency": "Moneda",
+      "date": "Pagar el",
+      "reference": "Concepto que verá el beneficiario",
+      "badAmount": "No puedo leer ese importe. Escriba las unidades enteras, luego un punto o una coma y los céntimos.",
+      "submit": "Pedir aprobación",
+      "done": "Preparado. Espera en la cola su aprobación."
+    },
+    "pays": {
+      "supplier": "Un proveedor",
+      "fixed_cost": "Un coste fijo",
+      "purchase_order": "Un pedido de compra",
+      "other": "Otra cosa"
+    },
+    "refusal": {
+      "iban_empty": "Escriba el IBAN.",
+      "iban_format": "Eso no tiene forma de IBAN: dos letras del país, dos dígitos de control y luego letras y dígitos.",
+      "iban_country": "No conozco los IBAN de ese país, así que no puedo comprobarlo.",
+      "iban_length": "Ese IBAN no tiene la longitud de su país.",
+      "iban_checksum": "Los dígitos de control de ese IBAN no cuadran: probablemente hay un carácter mal escrito.",
+      "bic": "Un BIC tiene ocho u once letras y dígitos.",
+      "name": "Indique a quién se paga, con un nombre corto.",
+      "amount": "El importe debe ser mayor que cero.",
+      "currency": "La moneda debe ser un código de tres letras.",
+      "reference": "Escriba un concepto corto que verá el beneficiario.",
+      "date": "Elija un día.",
+      "date_past": "Ese día ya ha pasado. Elija hoy o más adelante.",
+      "date_far": "Ese día está a más de un año vista.",
+      "pays_kind": "Indique para qué es el pago.",
+      "supplier": "Elija uno de sus proveedores.",
+      "cost_item": "Elija uno de sus costes fijos.",
+      "purchase_order": "Escriba el número del pedido de compra.",
+      "not_found": "No he encontrado ese pago.",
+      "not_ready": "Solo un pago aprobado que no esté marcado como pagado puede marcarse como pagado.",
+      "no_session": "Para indicar que se hizo un pago, debe iniciar sesión.",
+      "none_ready": "Todavía no hay nada listo para su banco. Primero hay que aprobar un pago.",
+      "no_payer": "Un archivo SEPA necesita los datos bancarios desde los que paga.",
+      "none_for_file": "Ninguno de los pagos listos puede ir en un archivo SEPA."
+    }
   }
 }

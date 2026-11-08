@@ -56,7 +56,8 @@
       "mode": "我的工作方式",
       "history": "历史记录",
       "team_access": "团队权限",
-      "language": "语言和货币"
+      "language": "语言和货币",
+      "payments": "付款"
     },
     "count": {
       "paused": "{count} 个已暂停",
@@ -5716,7 +5717,8 @@
       "reviews_settings": "只有所有者可以更改评价转发到的地址。",
       "summary_settings": "只有所有者可以开启或关闭每周摘要。",
       "stop_resume": "只有所有者可以在停止后重新启动。",
-      "business_locale": "只有所有者可以更改企业的语言或货币。"
+      "business_locale": "只有所有者可以更改企业的语言或货币。",
+      "payments_prepare": "只有所有者可以准备付款或说明某笔付款已完成。"
     }
   },
   "authWords": {
@@ -6201,7 +6203,8 @@
       "media_generation": "一张待制作的图片或短片",
       "revise_goal": "一个需要查看的目标",
       "stop_strategy": "一项需要查看的策略",
-      "other": "一项提案"
+      "other": "一项提案",
+      "prepared_payment": "一笔待核对的付款"
     }
   },
   "exports": {
@@ -8465,5 +8468,185 @@
     "many": "{count, plural, other {# 条值得了解的评价}}",
     "withProposals": "{count, plural, other {# 件事等您点头}}，另有 {reviews, plural, other {# 条值得了解的评价}}",
     "anotherSite": "其他网站"
+  },
+  "payments": {
+    "meta": {
+      "title": "付款 — SYB"
+    },
+    "kicker": "洞察 · 付款",
+    "never": "SYB 准备付款，由您在自己的银行付款。SYB 无法转移资金。",
+    "title": {
+      "ready": "{count, plural, other {# 笔付款已可交给您的银行}}",
+      "none": "您在自己银行完成的付款"
+    },
+    "loading": "正在读取您的付款…",
+    "signedOut": "请先完成访谈，然后回来准备付款。",
+    "start": "开始访谈",
+    "error": {
+      "load": "暂时无法读取您的付款。请一分钟后重试。",
+      "generic": "没有成功。请一分钟后重试。",
+      "ourSide": "我这边出了问题。请一分钟后重试。"
+    },
+    "ownerOnly": "只有所有者可以准备付款、下载银行文件或说明某笔付款已完成。",
+    "erased": "银行信息已删除",
+    "ready": {
+      "label": "可交给您的银行",
+      "title": "{count, plural, other {# 笔已批准的付款待支付}}",
+      "none": "暂时没有可支付的付款",
+      "foot": "已批准的付款会在这里等待，直到您说明已付款。在您于银行付款之前，资金不会离开您的银行。"
+    },
+    "col": {
+      "payee": "收款人",
+      "iban": "IBAN",
+      "amount": "金额",
+      "reference": "附言",
+      "date": "日期",
+      "file": "银行文件",
+      "action": "操作"
+    },
+    "file": {
+      "yes": "在 SEPA 文件中",
+      "bar": {
+        "not_eur": "手动：不是欧元",
+        "payee_not_sepa": "手动：收款人的银行不在 SEPA 范围内",
+        "payer_not_sepa": "手动：您的银行不在 SEPA 范围内",
+        "no_payer": "需要先填写您的银行信息",
+        "erased": "银行信息已删除",
+        "not_approved": "尚未批准",
+        "paid": "已付款"
+      }
+    },
+    "paid": {
+      "button": "已在我的银行付款",
+      "done": "已标记为在您的银行付款。",
+      "on": "于 {date} 标记为已付款"
+    },
+    "download": {
+      "sepa": "{count, plural, other {下载 SEPA 文件（# 笔付款）}}",
+      "steps": "下载分步说明",
+      "needPayer": "填写您付款所用的银行信息，即可获得 SEPA 文件。没有这些信息，说明也可以使用。",
+      "noneForFile": "这些付款都无法放入 SEPA 文件，SEPA 文件仅适用于 SEPA 银行之间的欧元付款。请使用说明。",
+      "total": "{count, plural, other {文件包含 # 笔付款，共计 {total}。}}"
+    },
+    "steps": {
+      "fileTitle": "如何使用 SEPA 文件",
+      "fileName": "SEPA 文件",
+      "file": {
+        "save": "下载 {file} 并保存到您的电脑。",
+        "find": "在您银行的网上银行中，找到上传或导入付款文件的位置。银行可能称之为 SEPA 文件、批量付款或批量转账。",
+        "upload": "{count, plural, other {上传文件。您的银行会显示 # 笔付款供您核对。}}",
+        "confirm": "逐笔核对，然后在您的银行确认。在您确认之前，不会付款。",
+        "mark": "回到这里，为每笔已完成的付款点击“已在我的银行付款”。"
+      },
+      "title": "需要在您自己银行完成的付款",
+      "intro": "SYB 已准备好这些付款。SYB 无法转移资金：每笔付款都由您在自己的银行亲自完成。",
+      "from": "付款账号：{name}，IBAN {iban}",
+      "howTitle": "如何手动完成每笔付款：",
+      "hand": {
+        "open": "打开您银行的应用或网站，开始一笔新的转账。",
+        "copy": "按下方所写，准确复制收款人的姓名、IBAN 和 BIC。",
+        "amount": "输入金额和附言，让收款人知道这笔付款的用途。",
+        "confirm": "选择日期，再检查一遍所有信息，然后在您的银行确认付款。",
+        "mark": "回到 SYB，点击“已在我的银行付款”，让您的记录显示这一点。"
+      },
+      "paymentTitle": "第 {n} 笔，共 {count} 笔",
+      "payTo": "收款人：{name}",
+      "iban": "IBAN：{iban}",
+      "bic": "BIC：{bic}",
+      "amount": "金额：{amount}",
+      "reference": "附言：{reference}",
+      "date": "日期：{date}",
+      "erased": "这笔付款的银行信息已删除。请再次向收款人索取。",
+      "why": {
+        "notEur": "不是欧元，因此不在 SEPA 文件中：请手动付款。",
+        "notSepa": "银行不在 SEPA 范围内，因此不在 SEPA 文件中：请手动付款。"
+      },
+      "closing": "付款完成后，请在 SYB 中标记。如果银行拒绝某项信息，请在银行中更正：SYB 从不向您的银行发送任何内容。"
+    },
+    "waiting": {
+      "label": "等待批准",
+      "title": "{count, plural, other {# 笔付款等待您的批准}}",
+      "open": "在队列中打开"
+    },
+    "stage": {
+      "waiting": "等待中",
+      "blocked": "被您的限制暂缓",
+      "changes": "已要求修改",
+      "ready": "可交给您的银行",
+      "paid": "已在我的银行付款",
+      "declined": "已拒绝",
+      "lapsed": "已过期"
+    },
+    "closed": {
+      "label": "已完成并关闭",
+      "title": "已付款、已拒绝和已过期",
+      "foot": "删除银行信息会保留金额和日期，并永久删除名称、IBAN 和 BIC。"
+    },
+    "erase": {
+      "button": "删除银行信息",
+      "done": "银行信息已删除。"
+    },
+    "payer": {
+      "label": "付款来源",
+      "none": "尚未填写您的银行信息",
+      "foot": "您的付款从这个名称和 IBAN 支出。它们会作为付款人写入 SEPA 文件；SYB 从不进入您的银行。",
+      "change": "更改",
+      "holder": "银行登记的名称",
+      "save": "保存",
+      "done": "已保存。之前的信息仍保留在记录中。"
+    },
+    "form": {
+      "label": "新付款",
+      "title": "准备一笔付款",
+      "foot": "它会先进入批准队列。批准后即可交给您的银行：在您于银行付款之前，不会付款。",
+      "pays": "付款用途",
+      "supplier": "供应商",
+      "cost": "固定成本",
+      "order": "采购订单编号",
+      "unnamedSupplier": "未命名的供应商",
+      "unnamedCost": "未命名的成本",
+      "payee": "收款人",
+      "payeeOptional": "收款人（留空：使用供应商名称）",
+      "iban": "IBAN",
+      "bic": "BIC（可选）",
+      "amount": "金额",
+      "currency": "货币",
+      "date": "付款日期",
+      "reference": "收款人看到的附言",
+      "badAmount": "无法读取这个金额。请先写整数部分，再写小数点或逗号和分。",
+      "submit": "请求批准",
+      "done": "已准备好。它在队列中等待您的批准。"
+    },
+    "pays": {
+      "supplier": "一位供应商",
+      "fixed_cost": "一项固定成本",
+      "purchase_order": "一张采购订单",
+      "other": "其他"
+    },
+    "refusal": {
+      "iban_empty": "请填写 IBAN。",
+      "iban_format": "这不是 IBAN 的格式：两个字母表示国家，两位校验数字，然后是字母和数字。",
+      "iban_country": "我不了解该国家的 IBAN，因此无法检查。",
+      "iban_length": "这个 IBAN 的长度与其国家不符。",
+      "iban_checksum": "这个 IBAN 的校验数字不匹配：可能有一个字符输错了。",
+      "bic": "BIC 由八个或十一个字母和数字组成。",
+      "name": "请用一个简短的名称说明收款人。",
+      "amount": "金额必须大于零。",
+      "currency": "货币必须是三个字母的代码。",
+      "reference": "请写一条收款人能看到的简短附言。",
+      "date": "请选择一天。",
+      "date_past": "这一天已经过去。请选择今天或之后的日期。",
+      "date_far": "这一天在一年以后。",
+      "pays_kind": "请说明这笔付款的用途。",
+      "supplier": "请选择您的一位供应商。",
+      "cost_item": "请选择您的一项固定成本。",
+      "purchase_order": "请填写采购订单编号。",
+      "not_found": "找不到这笔付款。",
+      "not_ready": "只有已批准且尚未标记为已付款的付款，才能标记为已付款。",
+      "no_session": "说明某笔付款已完成，需要您先登录。",
+      "none_ready": "目前没有可交给银行的付款。付款需要先获得批准。",
+      "no_payer": "SEPA 文件需要您付款所用的银行信息。",
+      "none_for_file": "已就绪的付款都无法放入 SEPA 文件。"
+    }
   }
 }

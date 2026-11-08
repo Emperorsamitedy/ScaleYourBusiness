@@ -56,7 +56,8 @@
       "mode": "How I work",
       "history": "History",
       "team_access": "Team access",
-      "language": "Language and currency"
+      "language": "Language and currency",
+      "payments": "Payments"
     },
     "count": {
       "paused": "{count} paused",
@@ -5716,7 +5717,8 @@
       "reviews_settings": "Only an owner can change the address reviews are forwarded to.",
       "summary_settings": "Only an owner can switch the weekly summary on or off.",
       "stop_resume": "Only an owner can start things up again after a stop.",
-      "business_locale": "Only an owner can change the business's language or currency."
+      "business_locale": "Only an owner can change the business's language or currency.",
+      "payments_prepare": "Only an owner can prepare payments or say one was paid."
     }
   },
   "authWords": {
@@ -6201,7 +6203,8 @@
       "media_generation": "an image or clip to make",
       "revise_goal": "a goal to look at",
       "stop_strategy": "a strategy to look at",
-      "other": "a proposal"
+      "other": "a proposal",
+      "prepared_payment": "a payment to check"
     }
   },
   "exports": {
@@ -8465,5 +8468,185 @@
     "many": "{count, plural, one {# review worth knowing} other {# reviews worth knowing}}",
     "withProposals": "{count, plural, one {# thing waits for your yes} other {# things wait for your yes}}, and {reviews, plural, one {a review worth knowing} other {# reviews worth knowing}}",
     "anotherSite": "another site"
+  },
+  "payments": {
+    "meta": {
+      "title": "Payments — SYB"
+    },
+    "kicker": "Insights · Payments",
+    "never": "SYB prepares payments and you pay them in your own bank. SYB can't move money.",
+    "title": {
+      "ready": "{count, plural, one {# payment is ready for your bank} other {# payments are ready for your bank}}",
+      "none": "Payments you make in your own bank"
+    },
+    "loading": "Reading your payments…",
+    "signedOut": "Start the interview first, then come back to prepare payments.",
+    "start": "Start the interview",
+    "error": {
+      "load": "I couldn't read your payments just now. Try again in a minute.",
+      "generic": "That didn't work. Try again in a minute.",
+      "ourSide": "Something went wrong on my side. Try again in a minute."
+    },
+    "ownerOnly": "Only an owner can prepare payments, download the bank file or say a payment was made.",
+    "erased": "Bank details erased",
+    "ready": {
+      "label": "Ready for your bank",
+      "title": "{count, plural, one {# approved payment to make} other {# approved payments to make}}",
+      "none": "Nothing is ready yet",
+      "foot": "Approved payments wait here until you say you paid them. Nothing leaves your bank until you pay it there."
+    },
+    "col": {
+      "payee": "Paid to",
+      "iban": "IBAN",
+      "amount": "Amount",
+      "reference": "Reference",
+      "date": "Date",
+      "file": "Bank file",
+      "action": "Action"
+    },
+    "file": {
+      "yes": "In the SEPA file",
+      "bar": {
+        "not_eur": "By hand: not in euros",
+        "payee_not_sepa": "By hand: the payee's bank is outside SEPA",
+        "payer_not_sepa": "By hand: your bank is outside SEPA",
+        "no_payer": "Needs your bank details first",
+        "erased": "Bank details erased",
+        "not_approved": "Not approved yet",
+        "paid": "Already paid"
+      }
+    },
+    "paid": {
+      "button": "Paid in my bank",
+      "done": "Marked as paid in your bank.",
+      "on": "said paid on {date}"
+    },
+    "download": {
+      "sepa": "{count, plural, one {Download the SEPA file (# payment)} other {Download the SEPA file (# payments)}}",
+      "steps": "Download step-by-step instructions",
+      "needPayer": "Add the bank details you pay from to get a SEPA file. The instructions work without them.",
+      "noneForFile": "None of these can go in a SEPA file, which is for euros between SEPA banks. Use the instructions.",
+      "total": "{count, plural, one {The file holds # payment, {total} in all.} other {The file holds # payments, {total} in all.}}"
+    },
+    "steps": {
+      "fileTitle": "Using the SEPA file",
+      "fileName": "the SEPA file",
+      "file": {
+        "save": "Download {file} and save it on your computer.",
+        "find": "In your bank's online banking, find where to upload or import a payment file. Banks call it a SEPA file, a batch payment or a bulk transfer.",
+        "upload": "{count, plural, one {Upload the file. Your bank shows the payment for you to check.} other {Upload the file. Your bank shows the # payments for you to check.}}",
+        "confirm": "Check each one, then confirm in your bank. Nothing is paid until you do.",
+        "mark": "Back here, press “Paid in my bank” for each payment you made."
+      },
+      "title": "Payments to make in your own bank",
+      "intro": "SYB prepared these payments. SYB can't move money: you make each one yourself, in your own bank.",
+      "from": "Paid from: {name}, IBAN {iban}",
+      "howTitle": "How to make each payment by hand:",
+      "hand": {
+        "open": "Open your bank's app or website and start a new transfer.",
+        "copy": "Copy the payee's name, IBAN and BIC exactly as written below.",
+        "amount": "Enter the amount and the reference, so the payee knows what it pays.",
+        "confirm": "Choose the date, check everything once more, then confirm the payment in your bank.",
+        "mark": "Back in SYB, press “Paid in my bank” so your records show it."
+      },
+      "paymentTitle": "Payment {n} of {count}",
+      "payTo": "Pay to: {name}",
+      "iban": "IBAN: {iban}",
+      "bic": "BIC: {bic}",
+      "amount": "Amount: {amount}",
+      "reference": "Reference: {reference}",
+      "date": "Date: {date}",
+      "erased": "The bank details of this payment were erased. Ask the payee for them again.",
+      "why": {
+        "notEur": "Not in euros, so it isn't in the SEPA file: make it by hand.",
+        "notSepa": "A bank outside SEPA, so it isn't in the SEPA file: make it by hand."
+      },
+      "closing": "Once a payment is made, mark it in SYB. If your bank refuses a detail, correct it there: SYB never sends anything to your bank."
+    },
+    "waiting": {
+      "label": "Waiting for approval",
+      "title": "{count, plural, one {# payment waits for your approval} other {# payments wait for your approval}}",
+      "open": "Open it in the queue"
+    },
+    "stage": {
+      "waiting": "waiting",
+      "blocked": "held by your limits",
+      "changes": "changes asked",
+      "ready": "ready for your bank",
+      "paid": "paid in my bank",
+      "declined": "declined",
+      "lapsed": "lapsed"
+    },
+    "closed": {
+      "label": "Done and closed",
+      "title": "Paid, declined and lapsed",
+      "foot": "Erasing bank details keeps the amount and the dates, and removes the name, IBAN and BIC for good."
+    },
+    "erase": {
+      "button": "Erase bank details",
+      "done": "The bank details were erased."
+    },
+    "payer": {
+      "label": "Paying from",
+      "none": "Your bank details aren't stated yet",
+      "foot": "The name and IBAN your payments leave from. They go in the SEPA file as the payer; SYB never logs in to your bank.",
+      "change": "Change",
+      "holder": "Name your bank knows you by",
+      "save": "Save",
+      "done": "Saved. Earlier details are kept on record."
+    },
+    "form": {
+      "label": "New payment",
+      "title": "Prepare a payment",
+      "foot": "It goes to the approval queue first. Approved, it is ready for your bank: nothing is paid until you pay it there.",
+      "pays": "What it pays",
+      "supplier": "Supplier",
+      "cost": "Fixed cost",
+      "order": "Purchase order number",
+      "unnamedSupplier": "A supplier with no name",
+      "unnamedCost": "A cost with no name",
+      "payee": "Paid to",
+      "payeeOptional": "Paid to (empty: the supplier's name)",
+      "iban": "IBAN",
+      "bic": "BIC (optional)",
+      "amount": "Amount",
+      "currency": "Currency",
+      "date": "Pay on",
+      "reference": "Reference the payee sees",
+      "badAmount": "I can't read that amount. Write whole units, then a dot or a comma and the cents.",
+      "submit": "Ask for approval",
+      "done": "Prepared. It waits in the queue for your approval."
+    },
+    "pays": {
+      "supplier": "A supplier",
+      "fixed_cost": "A fixed cost",
+      "purchase_order": "A purchase order",
+      "other": "Something else"
+    },
+    "refusal": {
+      "iban_empty": "Write the IBAN.",
+      "iban_format": "That isn't the shape of an IBAN: two letters for the country, two check digits, then letters and digits.",
+      "iban_country": "I don't know IBANs from that country, so I can't check it.",
+      "iban_length": "That IBAN has the wrong length for its country.",
+      "iban_checksum": "That IBAN's check digits don't match: a character is probably mistyped.",
+      "bic": "A BIC is eight or eleven letters and digits.",
+      "name": "Say who is paid, in a short name.",
+      "amount": "The amount must be above zero.",
+      "currency": "The currency must be a three-letter code.",
+      "reference": "Write a short reference the payee will see.",
+      "date": "Choose a day.",
+      "date_past": "That day has passed. Choose today or later.",
+      "date_far": "That day is more than a year ahead.",
+      "pays_kind": "Say what the payment is for.",
+      "supplier": "Choose one of your suppliers.",
+      "cost_item": "Choose one of your fixed costs.",
+      "purchase_order": "Write the purchase order's number.",
+      "not_found": "I couldn't find that payment.",
+      "not_ready": "Only an approved payment that isn't marked paid can be marked paid.",
+      "no_session": "Saying a payment was made needs you signed in.",
+      "none_ready": "Nothing is ready for your bank yet. A payment needs approving first.",
+      "no_payer": "A SEPA file needs the bank details you pay from.",
+      "none_for_file": "None of the ready payments can go in a SEPA file."
+    }
   }
 }
