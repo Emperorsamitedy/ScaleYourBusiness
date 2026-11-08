@@ -282,7 +282,9 @@ export function createGoogleAdsExecution(
   /** A budget SYB may change: its own, daily, with an amount Google reported. */
   function ownDailyBudget(c: CampaignState): { resource: string; micros: number } {
     if (c.budget_resource === null || c.budget_micros === null) {
-      throw new GoogleAdChangeError(`"${c.name}" has no budget Google reported. Nothing was changed.`);
+      throw new GoogleAdChangeError(
+        `"${c.name}" has no budget Google reported. Nothing was changed.`,
+      );
     }
     if (c.budget_shared) {
       throw new GoogleAdChangeError(
@@ -315,7 +317,9 @@ export function createGoogleAdsExecution(
     }
     const sent_minor = Math.round(args.baseline_minor * (1 + args.share));
     const ceiling = await run.b.ceiling(args.profile_id);
-    const accountDaily = ceiling ? await run.b.accountDailySpend(run.account_id, args.currency) : null;
+    const accountDaily = ceiling
+      ? await run.b.accountDailySpend(run.account_id, args.currency)
+      : null;
     const refusal = spendGuard({
       current_daily_minor: args.baseline_minor,
       proposed_daily_minor: sent_minor,
@@ -324,10 +328,14 @@ export function createGoogleAdsExecution(
       monthly_ceiling: ceiling,
     });
     if (refusal !== null) {
-      throw new GoogleAdChangeError(`I didn't change "${args.c.name}": ${refusal}. Nothing was changed.`);
+      throw new GoogleAdChangeError(
+        `I didn't change "${args.c.name}": ${refusal}. Nothing was changed.`,
+      );
     }
     if (sent_minor <= 0) {
-      throw new GoogleAdChangeError(`I won't set "${args.c.name}"'s budget to nothing. Nothing was changed.`);
+      throw new GoogleAdChangeError(
+        `I won't set "${args.c.name}"'s budget to nothing. Nothing was changed.`,
+      );
     }
     return { micros: minorToMicros(sent_minor, args.currency), sent_minor };
   }
@@ -344,7 +352,9 @@ export function createGoogleAdsExecution(
       monthly_ceiling: ceiling,
     });
     if (refusal !== null) {
-      throw new GoogleAdChangeError(`I didn't let "${c.name}" run again: ${refusal}. Nothing was changed.`);
+      throw new GoogleAdChangeError(
+        `I didn't let "${c.name}" run again: ${refusal}. Nothing was changed.`,
+      );
     }
   }
 
@@ -357,12 +367,16 @@ export function createGoogleAdsExecution(
   ): Promise<void> {
     const url = `${GOOGLE_ADS_ORIGIN}/${V}/customers/${run.cred.customer_id}/${which}:mutate`;
     if (allowedMutateEndpoint(url) !== which) {
-      throw new GoogleAdChangeError("refusing a change that isn't on SYB's list — nothing was sent");
+      throw new GoogleAdChangeError(
+        "refusing a change that isn't on SYB's list — nothing was sent",
+      );
     }
     const field = GADS_MUTATE_ENDPOINTS[which].field;
     const keys = Object.keys(update).filter((k) => k !== "resourceName");
     if (keys.length !== 1 || keys[0] !== field) {
-      throw new GoogleAdChangeError("refusing a change to a field SYB doesn't write — nothing was sent");
+      throw new GoogleAdChangeError(
+        "refusing a change to a field SYB doesn't write — nothing was sent",
+      );
     }
     const operations = [{ updateMask: field, update }];
     const send = async (validateOnly: boolean): Promise<unknown> => {
@@ -377,7 +391,10 @@ export function createGoogleAdsExecution(
         });
       } catch {
         // Setting a status or a budget twice is harmless: the engine may try again.
-        throw new GoogleAdChangeError("Google didn't answer. Nothing is known to have changed.", true);
+        throw new GoogleAdChangeError(
+          "Google didn't answer. Nothing is known to have changed.",
+          true,
+        );
       }
       const body = (await res.json().catch(() => null)) as unknown;
       if (!res.ok) throw asChangeError(gadsFailure(res.status, body), validateOnly);
@@ -386,7 +403,9 @@ export function createGoogleAdsExecution(
     await send(true);
     if (halted && (await halted())) throw new GoogleAdChangeError(STOPPED_BEFORE_GOOGLE_CHANGE);
     const body = (await send(false)) as { results?: unknown } | null;
-    const first = Array.isArray(body?.results) ? (body.results[0] as { resourceName?: unknown }) : null;
+    const first = Array.isArray(body?.results)
+      ? (body.results[0] as { resourceName?: unknown })
+      : null;
     if (first?.resourceName !== update.resourceName) {
       throw new GoogleAdChangeError("Google didn't confirm the change — I'll check again.", true);
     }
@@ -405,7 +424,8 @@ export function createGoogleAdsExecution(
     },
 
     async preflight(op, params, pctx) {
-      if (!OPS.has(op)) return { code: "refused", message: `"${op}" is not a change SYB makes on Google Ads` };
+      if (!OPS.has(op))
+        return { code: "refused", message: `"${op}" is not a change SYB makes on Google Ads` };
       try {
         const run = await open(pctx.account_id);
         const c = await readCampaign(run, campaignIdOf(params));
@@ -449,13 +469,15 @@ export function createGoogleAdsExecution(
     },
 
     async execute(op, params, pctx: ExecutionContext) {
-      if (!OPS.has(op)) throw new GoogleAdChangeError(`"${op}" is not a change SYB makes on Google Ads`);
+      if (!OPS.has(op))
+        throw new GoogleAdChangeError(`"${op}" is not a change SYB makes on Google Ads`);
       const run = await open(pctx.account_id);
       const c = await readCampaign(run, campaignIdOf(params));
       touchable(c);
       if (op === "pause_campaign" || op === "resume_campaign") {
         const target = op === "pause_campaign" ? "PAUSED" : "ENABLED";
-        if (target === "ENABLED" && c.status !== "ENABLED") await reactivation(run, pctx.profile_id, c);
+        if (target === "ENABLED" && c.status !== "ENABLED")
+          await reactivation(run, pctx.profile_id, c);
         // Already there: an earlier attempt landed and its answer was lost. Setting it twice is harmless.
         if (c.status !== target) {
           await mutate(
@@ -479,9 +501,11 @@ export function createGoogleAdsExecution(
         };
       }
       // set_daily_budget — from the budget captured before attempt one, never the live one.
-      const captured = (
-        pctx.execution_id ? await run.b.capturedUndo(pctx.execution_id) : null
-      ) as { daily_budget_minor?: unknown; currency?: unknown; budget_resource?: unknown } | null;
+      const captured = (pctx.execution_id ? await run.b.capturedUndo(pctx.execution_id) : null) as {
+        daily_budget_minor?: unknown;
+        currency?: unknown;
+        budget_resource?: unknown;
+      } | null;
       const baseline = captured?.daily_budget_minor;
       if (typeof baseline !== "number" || typeof captured?.currency !== "string") {
         throw new GoogleAdChangeError(
@@ -530,8 +554,12 @@ export function createGoogleAdsExecution(
       if (op === "pause_campaign") return true;
       if (op === "resume_campaign") return false;
       if (op !== "set_daily_budget") return false;
-      const previous = readInt64((undoPayload as { amount_micros?: unknown } | null)?.amount_micros);
-      const sent = readInt64((result as { sent_amount_micros?: unknown } | null)?.sent_amount_micros);
+      const previous = readInt64(
+        (undoPayload as { amount_micros?: unknown } | null)?.amount_micros,
+      );
+      const sent = readInt64(
+        (result as { sent_amount_micros?: unknown } | null)?.sent_amount_micros,
+      );
       // Not knowable from the record: treated as raising, so the gate and the guards apply.
       if (previous === null || sent === null) return true;
       return previous > sent;
@@ -558,7 +586,9 @@ export function createGoogleAdsExecution(
         );
       if (op === "pause_campaign" || op === "resume_campaign") {
         if (typeof u.status !== "string" || !GADS_STATUSES.includes(u.status)) {
-          throw new GoogleAdChangeError("the stored undo names no status SYB may set — nothing was changed");
+          throw new GoogleAdChangeError(
+            "the stored undo names no status SYB may set — nothing was changed",
+          );
         }
         if (c.status !== u.status) {
           const set = typeof done.status === "string" ? done.status : null;
@@ -572,7 +602,10 @@ export function createGoogleAdsExecution(
           await mutate(
             run,
             "campaigns",
-            { resourceName: `customers/${run.cred.customer_id}/campaigns/${c.id}`, status: u.status },
+            {
+              resourceName: `customers/${run.cred.customer_id}/campaigns/${c.id}`,
+              status: u.status,
+            },
             undefined,
           );
         }
@@ -586,7 +619,11 @@ export function createGoogleAdsExecution(
       }
       if (op === "set_daily_budget") {
         const previous = readInt64(u.amount_micros);
-        if (previous === null || typeof u.currency !== "string" || typeof u.budget_resource !== "string") {
+        if (
+          previous === null ||
+          typeof u.currency !== "string" ||
+          typeof u.budget_resource !== "string"
+        ) {
           throw new GoogleAdChangeError("the stored undo names no budget — nothing was changed");
         }
         const cur = u.currency;
@@ -605,7 +642,9 @@ export function createGoogleAdsExecution(
           if (previous > sent) {
             // Putting a lowered budget back up raises spend: the same guard as any raise.
             const ceiling = await run.b.ceiling(pctx.profile_id);
-            const accountDaily = ceiling ? await run.b.accountDailySpend(run.account_id, cur) : null;
+            const accountDaily = ceiling
+              ? await run.b.accountDailySpend(run.account_id, cur)
+              : null;
             const refusal = spendGuard({
               current_daily_minor: microsToMinor(sent, cur),
               proposed_daily_minor: microsToMinor(previous, cur),

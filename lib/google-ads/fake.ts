@@ -99,7 +99,8 @@ export function fakeGoogleAds(opts: FakeGoogleAdsOptions = {}) {
           : {}),
       });
     }
-    if (url.origin !== "https://googleads.googleapis.com") return json(404, { error: "unknown host" });
+    if (url.origin !== "https://googleads.googleapis.com")
+      return json(404, { error: "unknown host" });
 
     if (method === "GET" && url.pathname === "/v26/customers:listAccessibleCustomers") {
       return json(200, { resourceNames: customers.map((c) => `customers/${c.id}`) });
@@ -110,7 +111,7 @@ export function fakeGoogleAds(opts: FakeGoogleAdsOptions = {}) {
       const customer = customers.find((c) => c.id === search[1]);
       if (!customer) return json(403, { error: { code: 7, message: "denied" } });
       const { query, pageToken } = body as { query: string; pageToken?: string };
-      let results: Record<string, unknown>[] = [];
+      let results: Record<string, unknown>[];
       if (/FROM customer$/.test(query)) {
         results = [
           {
@@ -143,7 +144,10 @@ export function fakeGoogleAds(opts: FakeGoogleAdsOptions = {}) {
                   explicitlyShared: c.shared === true,
                   period: c.period ?? "DAILY",
                 },
-                customer: { resourceName: `customers/${customer.id}`, currencyCode: customer.currency },
+                customer: {
+                  resourceName: `customers/${customer.id}`,
+                  currencyCode: customer.currency,
+                },
               },
             ]
           : [];
@@ -177,7 +181,9 @@ export function fakeGoogleAds(opts: FakeGoogleAdsOptions = {}) {
         fieldMask: "fake",
       });
     }
-    const mutate = /^\/v26\/customers\/(\d{10})\/(campaigns|campaignBudgets):mutate$/.exec(url.pathname);
+    const mutate = /^\/v26\/customers\/(\d{10})\/(campaigns|campaignBudgets):mutate$/.exec(
+      url.pathname,
+    );
     if (method === "POST" && mutate) {
       if (opts.mutateStatus && opts.mutateStatus !== 200) {
         return json(opts.mutateStatus, opts.failBody ?? { error: { code: 3 } });

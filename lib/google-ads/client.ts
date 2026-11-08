@@ -95,13 +95,7 @@ export function isReadQuery(query: string): boolean {
 }
 
 export type GadsFailureKind =
-  | "fence"
-  | "auth"
-  | "permission"
-  | "access_level"
-  | "quota"
-  | "unavailable"
-  | "refused";
+  "fence" | "auth" | "permission" | "access_level" | "quota" | "unavailable" | "refused";
 
 /** A refusal, in the owner's words, with a kind the read beat and the screens map to fixed text. */
 export class GadsRequestError extends Error {
@@ -255,7 +249,8 @@ function microsPerMinor(currency: string): number {
  * one currency unit" (CampaignBudget reference).
  */
 export function microsToMinor(micros: number, currency: string): number {
-  if (!Number.isSafeInteger(micros)) throw new RangeError(`micros must be an integer, got ${micros}`);
+  if (!Number.isSafeInteger(micros))
+    throw new RangeError(`micros must be an integer, got ${micros}`);
   const per = microsPerMinor(currency);
   const minor = Math.sign(micros) * Math.round(Math.abs(micros) / per);
   return minor === 0 ? 0 : minor;
@@ -263,7 +258,8 @@ export function microsToMinor(micros: number, currency: string): number {
 
 /** Pure: integer minor units → micros, exactly (a budget SYB sends is whole minor units). */
 export function minorToMicros(minor: number, currency: string): number {
-  if (!Number.isSafeInteger(minor)) throw new RangeError(`minor units must be an integer, got ${minor}`);
+  if (!Number.isSafeInteger(minor))
+    throw new RangeError(`minor units must be an integer, got ${minor}`);
   const micros = minor * microsPerMinor(currency);
   if (!Number.isSafeInteger(micros)) throw new RangeError("that budget is too large to send");
   return micros;

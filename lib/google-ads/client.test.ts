@@ -38,13 +38,17 @@ const ENV = { developer_token: null, login_customer_id: null };
 
 describe("P2-20 — the read fence (search endpoints only, by path)", () => {
   it("admits exactly search, searchStream and listAccessibleCustomers", () => {
-    expect(Object.keys(GADS_READ_ENDPOINTS).sort()).toEqual(["accessible", "search", "searchStream"]);
+    expect(Object.keys(GADS_READ_ENDPOINTS).sort()).toEqual([
+      "accessible",
+      "search",
+      "searchStream",
+    ]);
     expect(allowedReadEndpoint("POST", `${BASE}/customers/1234567890/googleAds:search`)).toBe(
       "search",
     );
-    expect(
-      allowedReadEndpoint("POST", `${BASE}/customers/1234567890/googleAds:searchStream`),
-    ).toBe("searchStream");
+    expect(allowedReadEndpoint("POST", `${BASE}/customers/1234567890/googleAds:searchStream`)).toBe(
+      "searchStream",
+    );
     expect(allowedReadEndpoint("GET", `${BASE}/customers:listAccessibleCustomers`)).toBe(
       "accessible",
     );
@@ -73,7 +77,9 @@ describe("P2-20 — the read fence (search endpoints only, by path)", () => {
     expect(allowedReadEndpoint("POST", `${ok}?x=1`)).toBeNull();
     expect(allowedReadEndpoint("POST", `${ok}#frag`)).toBeNull();
     expect(allowedReadEndpoint("POST", ok.replace("https://", "https://u:p@"))).toBeNull();
-    expect(allowedReadEndpoint("POST", `${BASE}/customers/123-456-7890/googleAds:search`)).toBeNull();
+    expect(
+      allowedReadEndpoint("POST", `${BASE}/customers/123-456-7890/googleAds:search`),
+    ).toBeNull();
     expect(allowedReadEndpoint("POST", "not a url")).toBeNull();
   });
 
@@ -264,7 +270,8 @@ describe("P2-20 — reads against the recorded-shape fake", () => {
         accessToken: "t",
         env: ENV,
         customerId: "1234567890",
-        query: "SELECT segments.date FROM campaign WHERE segments.date BETWEEN '2026-11-01' AND '2026-11-05'",
+        query:
+          "SELECT segments.date FROM campaign WHERE segments.date BETWEEN '2026-11-01' AND '2026-11-05'",
       },
       fake.fetch,
     );
@@ -276,7 +283,15 @@ describe("P2-20 — reads against the recorded-shape fake", () => {
   it("maps Google's refusals to the owner's words, the access level first", () => {
     expect(
       gadsFailure(403, {
-        error: { details: [{ errors: [{ errorCode: { authorizationError: "CLOUD_PROJECT_NOT_APPROVED_FOR_PRODUCTION" } }] }] },
+        error: {
+          details: [
+            {
+              errors: [
+                { errorCode: { authorizationError: "CLOUD_PROJECT_NOT_APPROVED_FOR_PRODUCTION" } },
+              ],
+            },
+          ],
+        },
       }).kind,
     ).toBe("access_level");
     expect(gadsFailure(401, null).kind).toBe("auth");

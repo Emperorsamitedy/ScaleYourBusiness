@@ -125,8 +125,7 @@ export function googleAdsCookieOptions(origin: string, maxAgeSeconds = GADS_LOGI
 export function googleAdsReturnUrl(
   origin: string,
   outcome:
-    | { kind: "connected" | "pick" | "cancelled" }
-    | { kind: "failed"; reason: GoogleAdsReason },
+    { kind: "connected" | "pick" | "cancelled" } | { kind: "failed"; reason: GoogleAdsReason },
 ): string {
   const url = new URL("/connections", origin);
   url.searchParams.set("gads", outcome.kind === "failed" ? "error" : outcome.kind);
@@ -524,7 +523,8 @@ export async function finishGoogleAdsLogin(args: {
     ...(args.now ? { now: args.now } : {}),
   });
   const tokens = await refreshAccess(args.config.client, pending.refresh_token, args.fetchImpl);
-  const picked = typeof args.customerId === "string" ? args.customerId.replace(/-/g, "").trim() : "";
+  const picked =
+    typeof args.customerId === "string" ? args.customerId.replace(/-/g, "").trim() : "";
   const customer = (
     await describeAccessible(tokens.access_token, args.config.headers, args.fetchImpl)
   ).find((c) => c.customer_id === picked && !c.manager);

@@ -262,12 +262,17 @@ describe("P2-20 — the consent", () => {
     expect(noRefresh).toEqual({ kind: "failed", reason: "no_refresh" });
     const managers = await signIn(
       s,
-      fakeGoogleAds({ customers: [{ id: "5555555555", name: "MCC", currency: "EUR", manager: true }] }),
+      fakeGoogleAds({
+        customers: [{ id: "5555555555", name: "MCC", currency: "EUR", manager: true }],
+      }),
     );
     expect(managers).toEqual({ kind: "failed", reason: "managers_only" });
     const none = await signIn(s, fakeGoogleAds({ customers: [] }));
     expect(none).toEqual({ kind: "failed", reason: "no_accounts" });
-    const rows = await db.select().from(connections).where(eq(connections.account_id, s.account_id));
+    const rows = await db
+      .select()
+      .from(connections)
+      .where(eq(connections.account_id, s.account_id));
     expect(rows).toEqual([]);
   });
 
@@ -344,9 +349,18 @@ describe("P2-20 — the daily read through the execute-read door", () => {
     const conn = await googleConnection(s);
     const yesterday = shiftDay(new Date().toISOString().slice(0, 10), -1);
     const fake = fakeGoogleAds({
-      campaigns: [{ id: "111", name: "Spring sale", status: "ENABLED", budget_id: "9", amount_micros: 1 }],
+      campaigns: [
+        { id: "111", name: "Spring sale", status: "ENABLED", budget_id: "9", amount_micros: 1 },
+      ],
       days: [
-        { date: yesterday, campaign_id: "111", cost_micros: 12_500_000, clicks: 9, conversions: 2, conversions_value: 40 },
+        {
+          date: yesterday,
+          campaign_id: "111",
+          cost_micros: 12_500_000,
+          clicks: 9,
+          conversions: 2,
+          conversions_value: 40,
+        },
       ],
     });
     const restore = overrideExecuteReadSourceForTests(
@@ -425,7 +439,10 @@ describe("P2-20 — ad spend across platforms", () => {
         "refused",
       );
     }
-    const fact = await readCurrentField<{ amount_minor: number }>(s.profile_id, "marketing.monthly_ad_spend");
+    const fact = await readCurrentField<{ amount_minor: number }>(
+      s.profile_id,
+      "marketing.monthly_ad_spend",
+    );
     expect(fact?.value).toEqual({ amount_minor: 4500, currency: "EUR" });
     expect(JSON.stringify(fact?.source)).toContain("connector:meta_ads:ad_spend.daily");
     expect(JSON.stringify(fact?.source)).toContain("connector:google_ads:ad_spend.daily");
@@ -497,7 +514,15 @@ describe("P3-22, Google half — proposals through the engine", () => {
 
     await approveProposal({ proposalId: p.id, userId: u!.id, profileId: s.profile_id });
     const fake = fakeGoogleAds({
-      campaigns: [{ id: "111", name: "Spring sale", status: "ENABLED", budget_id: "9", amount_micros: 20_000_000 }],
+      campaigns: [
+        {
+          id: "111",
+          name: "Spring sale",
+          status: "ENABLED",
+          budget_id: "9",
+          amount_micros: 20_000_000,
+        },
+      ],
     });
     const exec = createGoogleAdsExecution({
       fetch: fake.fetch,
@@ -511,7 +536,11 @@ describe("P3-22, Google half — proposals through the engine", () => {
       }),
     });
     const due = () =>
-      runDueExecutions({ profileId: s.profile_id, providers: { google_ads: exec }, sleep: async () => {} });
+      runDueExecutions({
+        profileId: s.profile_id,
+        providers: { google_ads: exec },
+        sleep: async () => {},
+      });
 
     delete process.env.SESSION_D_REAL_WRITES;
     const off = await due();

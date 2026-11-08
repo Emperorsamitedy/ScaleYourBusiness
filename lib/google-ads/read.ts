@@ -224,7 +224,10 @@ export function createGoogleAdsReadSource(opts: GoogleAdsReadOptions = {}): Goog
       });
       if (plan === null) return { observations: [], cursor, done: true };
       const tokens = await refreshAccess(env, s.refresh_token, opts.fetch);
-      const headers = { developer_token: env.developer_token, login_customer_id: env.login_customer_id };
+      const headers = {
+        developer_token: env.developer_token,
+        login_customer_id: env.login_customer_id,
+      };
       const customer = await readCustomer(
         { accessToken: tokens.access_token, env: headers, customerId: s.customer_id },
         opts.fetch,

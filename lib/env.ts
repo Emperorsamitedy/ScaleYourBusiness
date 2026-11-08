@@ -234,7 +234,8 @@ export interface GoogleAdsEnv {
 }
 
 /** The environment keys Google Ads cannot run without, as the connection card names them. */
-export type GoogleAdsMissingKey = "GOOGLE_ADS_CLIENT_ID" | "GOOGLE_ADS_CLIENT_SECRET" | "GOOGLE_ADS_ACCESS_LEVEL";
+export type GoogleAdsMissingKey =
+  "GOOGLE_ADS_CLIENT_ID" | "GOOGLE_ADS_CLIENT_SECRET" | "GOOGLE_ADS_ACCESS_LEVEL";
 
 function googleAdsClient(): { client_id: string; client_secret: string } {
   // Its own client when set; otherwise the Google client sign-in and Business

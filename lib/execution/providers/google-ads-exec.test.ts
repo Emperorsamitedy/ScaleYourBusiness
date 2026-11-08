@@ -89,14 +89,20 @@ describe("P3-22 — the Google Ads executor is registered, external, and fenced"
       expect(allowedMutateEndpoint(`${base}/${path}`), path).toBeNull();
     }
     expect(allowedMutateEndpoint(`${base}/campaigns:mutate?x=1`)).toBeNull();
-    expect(allowedMutateEndpoint("https://evil.example/v26/customers/1234567890/campaigns:mutate")).toBeNull();
+    expect(
+      allowedMutateEndpoint("https://evil.example/v26/customers/1234567890/campaigns:mutate"),
+    ).toBeNull();
   });
 
   it("refuses an op the registry doesn't hold", async () => {
     const { exec } = setup();
-    expect(await exec.preflight?.("create_campaign_paused", {}, CTX)).toMatchObject({ code: "refused" });
+    expect(await exec.preflight?.("create_campaign_paused", {}, CTX)).toMatchObject({
+      code: "refused",
+    });
     expect(await exec.captureUndo("remove_campaign", {}, CTX)).toBeNull();
-    await expect(exec.execute("remove_campaign", {}, CTX)).rejects.toThrow(/not a change SYB makes/);
+    await expect(exec.execute("remove_campaign", {}, CTX)).rejects.toThrow(
+      /not a change SYB makes/,
+    );
   });
 });
 
@@ -111,13 +117,19 @@ describe("P3-22 — pause and resume", () => {
     const [dry, real] = mutates();
     expect(dry?.body).toEqual({
       operations: [
-        { updateMask: "status", update: { resourceName: "customers/1234567890/campaigns/111", status: "PAUSED" } },
+        {
+          updateMask: "status",
+          update: { resourceName: "customers/1234567890/campaigns/111", status: "PAUSED" },
+        },
       ],
       validateOnly: true,
     });
     expect(real?.body).toEqual({
       operations: [
-        { updateMask: "status", update: { resourceName: "customers/1234567890/campaigns/111", status: "PAUSED" } },
+        {
+          updateMask: "status",
+          update: { resourceName: "customers/1234567890/campaigns/111", status: "PAUSED" },
+        },
       ],
     });
     expect(fake.campaigns.get("111")?.status).toBe("PAUSED");
@@ -129,15 +141,17 @@ describe("P3-22 — pause and resume", () => {
     await expect(
       exec.execute("pause_campaign", { campaign_id: "111" }, { ...CTX, halted: async () => true }),
     ).rejects.toThrow(STOPPED_BEFORE_GOOGLE_CHANGE);
-    expect(mutates().map((c) => (c.body as { validateOnly?: boolean }).validateOnly)).toEqual([true]);
+    expect(mutates().map((c) => (c.body as { validateOnly?: boolean }).validateOnly)).toEqual([
+      true,
+    ]);
     expect(fake.campaigns.get("111")?.status).toBe("ENABLED");
   });
 
   it("refuses a removed campaign and one outside the connected account", async () => {
     const removed = setup({ status: "REMOVED" });
-    await expect(removed.exec.execute("pause_campaign", { campaign_id: "111" }, CTX)).rejects.toThrow(
-      /removed on Google Ads/,
-    );
+    await expect(
+      removed.exec.execute("pause_campaign", { campaign_id: "111" }, CTX),
+    ).rejects.toThrow(/removed on Google Ads/);
     const { exec } = setup();
     await expect(exec.execute("pause_campaign", { campaign_id: "999" }, CTX)).rejects.toThrow(
       /isn't in the connected Google Ads account/,
@@ -219,12 +233,19 @@ describe("P3-22c — budgets, held to ±50% and the ceiling inside the executor"
     });
     setUndo(undo);
     const result = await exec.execute("set_daily_budget", raise, { ...CTX, execution_id: "e" });
-    expect(result).toMatchObject({ daily_budget_before_minor: 2000, daily_budget_minor: 2400, sent_amount_micros: 24_000_000 });
+    expect(result).toMatchObject({
+      daily_budget_before_minor: 2000,
+      daily_budget_minor: 2400,
+      sent_amount_micros: 24_000_000,
+    });
     expect(mutates()[1]?.body).toEqual({
       operations: [
         {
           updateMask: "amountMicros",
-          update: { resourceName: "customers/1234567890/campaignBudgets/9", amountMicros: "24000000" },
+          update: {
+            resourceName: "customers/1234567890/campaignBudgets/9",
+            amountMicros: "24000000",
+          },
         },
       ],
     });
@@ -234,11 +255,17 @@ describe("P3-22c — budgets, held to ±50% and the ceiling inside the executor"
 
   it("refuses a change beyond ±50%, at the preflight and in the attempt", async () => {
     const { exec, mutates, setUndo } = setup();
-    expect(await exec.preflight?.("set_daily_budget", { ...raise, share: 0.6 }, CTX)).toMatchObject({
-      code: "refused",
-      message: expect.stringMatching(/60% change is beyond the 50%/),
+    expect(await exec.preflight?.("set_daily_budget", { ...raise, share: 0.6 }, CTX)).toMatchObject(
+      {
+        code: "refused",
+        message: expect.stringMatching(/60% change is beyond the 50%/),
+      },
+    );
+    setUndo({
+      daily_budget_minor: 2000,
+      currency: "EUR",
+      budget_resource: "customers/1234567890/campaignBudgets/9",
     });
-    setUndo({ daily_budget_minor: 2000, currency: "EUR", budget_resource: "customers/1234567890/campaignBudgets/9" });
     await expect(
       exec.execute("set_daily_budget", { ...raise, share: -0.55 }, { ...CTX, execution_id: "e" }),
     ).rejects.toThrow(/beyond the 50%/);
@@ -253,23 +280,42 @@ describe("P3-22c — budgets, held to ±50% and the ceiling inside the executor"
         accountDailySpend: async () => 2_000,
       },
     );
-    setUndo({ daily_budget_minor: 2000, currency: "EUR", budget_resource: "customers/1234567890/campaignBudgets/9" });
-    await expect(exec.execute("set_daily_budget", raise, { ...CTX, execution_id: "e" })).rejects.toThrow(
-      /about €720\.00, over your stated ceiling of €700\.00/,
-    );
+    setUndo({
+      daily_budget_minor: 2000,
+      currency: "EUR",
+      budget_resource: "customers/1234567890/campaignBudgets/9",
+    });
+    await expect(
+      exec.execute("set_daily_budget", raise, { ...CTX, execution_id: "e" }),
+    ).rejects.toThrow(/about €720\.00, over your stated ceiling of €700\.00/);
     expect(mutates()).toEqual([]);
   });
 
   it("refuses a ceiling or approval in another currency — never converted (rule 1)", async () => {
-    const { exec, setUndo } = setup({}, { ceiling: async () => ({ amount_minor: 1_000_000, currency: "HUF" }) });
-    setUndo({ daily_budget_minor: 2000, currency: "EUR", budget_resource: "customers/1234567890/campaignBudgets/9" });
-    await expect(exec.execute("set_daily_budget", raise, { ...CTX, execution_id: "e" })).rejects.toThrow(
-      /won't convert/,
+    const { exec, setUndo } = setup(
+      {},
+      { ceiling: async () => ({ amount_minor: 1_000_000, currency: "HUF" }) },
     );
-    const other = setup();
-    other.setUndo({ daily_budget_minor: 2000, currency: "EUR", budget_resource: "customers/1234567890/campaignBudgets/9" });
+    setUndo({
+      daily_budget_minor: 2000,
+      currency: "EUR",
+      budget_resource: "customers/1234567890/campaignBudgets/9",
+    });
     await expect(
-      other.exec.execute("set_daily_budget", { ...raise, currency: "USD" }, { ...CTX, execution_id: "e" }),
+      exec.execute("set_daily_budget", raise, { ...CTX, execution_id: "e" }),
+    ).rejects.toThrow(/won't convert/);
+    const other = setup();
+    other.setUndo({
+      daily_budget_minor: 2000,
+      currency: "EUR",
+      budget_resource: "customers/1234567890/campaignBudgets/9",
+    });
+    await expect(
+      other.exec.execute(
+        "set_daily_budget",
+        { ...raise, currency: "USD" },
+        { ...CTX, execution_id: "e" },
+      ),
     ).rejects.toThrow(/approved this change in USD/);
   });
 
@@ -279,18 +325,24 @@ describe("P3-22c — budgets, held to ±50% and the ceiling inside the executor"
       message: expect.stringMatching(/shares its budget/),
     });
     const total = setup({ period: "CUSTOM_PERIOD" });
-    await expect(total.exec.captureUndo("set_daily_budget", raise, CTX)).rejects.toThrow(/custom period budget/);
+    await expect(total.exec.captureUndo("set_daily_budget", raise, CTX)).rejects.toThrow(
+      /custom period budget/,
+    );
   });
 
   it("refuses without a captured baseline, or when the campaign moved budget", async () => {
     const { exec, setUndo } = setup();
-    await expect(exec.execute("set_daily_budget", raise, { ...CTX, execution_id: "e" })).rejects.toThrow(
-      /wasn't recorded/,
-    );
-    setUndo({ daily_budget_minor: 2000, currency: "EUR", budget_resource: "customers/1234567890/campaignBudgets/8" });
-    await expect(exec.execute("set_daily_budget", raise, { ...CTX, execution_id: "e" })).rejects.toThrow(
-      /moved to another budget/,
-    );
+    await expect(
+      exec.execute("set_daily_budget", raise, { ...CTX, execution_id: "e" }),
+    ).rejects.toThrow(/wasn't recorded/);
+    setUndo({
+      daily_budget_minor: 2000,
+      currency: "EUR",
+      budget_resource: "customers/1234567890/campaignBudgets/8",
+    });
+    await expect(
+      exec.execute("set_daily_budget", raise, { ...CTX, execution_id: "e" }),
+    ).rejects.toThrow(/moved to another budget/);
   });
 
   it("undo puts the previous budget back, only while it is still what SYB set", async () => {
@@ -302,24 +354,34 @@ describe("P3-22c — budgets, held to ±50% and the ceiling inside the executor"
       currency: "EUR",
     };
     const { exec, fake } = setup({ amount_micros: 24_000_000 });
-    await exec.undo("set_daily_budget", undo, { ...CTX, result: { sent_amount_micros: 24_000_000 } });
+    await exec.undo("set_daily_budget", undo, {
+      ...CTX,
+      result: { sent_amount_micros: 24_000_000 },
+    });
     expect(fake.campaigns.get("111")?.amount_micros).toBe(20_000_000);
     const owner = setup({ amount_micros: 30_000_000 });
     await expect(
-      owner.exec.undo("set_daily_budget", undo, { ...CTX, result: { sent_amount_micros: 24_000_000 } }),
+      owner.exec.undo("set_daily_budget", undo, {
+        ...CTX,
+        result: { sent_amount_micros: 24_000_000 },
+      }),
     ).rejects.toThrow(/you've changed it since/);
     expect(owner.mutates()).toEqual([]);
   });
 
   it("a Google refusal at the dry run changes nothing; quota is worth another attempt", async () => {
     const refused = setup({}, {}, { mutateStatus: 400 });
-    await expect(refused.exec.execute("pause_campaign", { campaign_id: "111" }, CTX)).rejects.toMatchObject({
+    await expect(
+      refused.exec.execute("pause_campaign", { campaign_id: "111" }, CTX),
+    ).rejects.toMatchObject({
       message: expect.stringMatching(/dry run refused/),
       retryable: false,
     });
     expect(refused.fake.campaigns.get("111")?.status).toBe("ENABLED");
     const busy = setup({}, {}, { mutateStatus: 429 });
-    await expect(busy.exec.execute("pause_campaign", { campaign_id: "111" }, CTX)).rejects.toMatchObject({
+    await expect(
+      busy.exec.execute("pause_campaign", { campaign_id: "111" }, CTX),
+    ).rejects.toMatchObject({
       retryable: true,
     });
   });

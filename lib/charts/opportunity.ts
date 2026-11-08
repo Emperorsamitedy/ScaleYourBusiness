@@ -708,7 +708,9 @@ export function losingAds(
   return priced({
     key: "losing_ads",
     basis: "DERIVED",
-    basis_note: tr(google ? (metaToo ? "basisNote.adPlatforms" : "basisNote.google") : "basisNote.meta"),
+    basis_note: tr(
+      google ? (metaToo ? "basisNote.adPlatforms" : "basisNote.google") : "basisNote.meta",
+    ),
     window: { from: w.from, to: w.to, days: daysInclusive(w.from, w.to) },
     low_minor: loss,
     high_minor: loss,

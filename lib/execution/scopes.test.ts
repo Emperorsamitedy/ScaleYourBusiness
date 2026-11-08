@@ -369,9 +369,7 @@ describe("P3-08 — the pinned allowlist (rule 13)", () => {
   });
 
   it("P2-20: the measurement audit refuses adwords — Google Ads never enters the read registry", () => {
-    expect(
-      auditRegistry({ google_ads: ["https://www.googleapis.com/auth/adwords"] }),
-    ).toEqual([
+    expect(auditRegistry({ google_ads: ["https://www.googleapis.com/auth/adwords"] })).toEqual([
       {
         provider: "google_ads",
         scope: "https://www.googleapis.com/auth/adwords",

@@ -70,9 +70,33 @@ describe("P2-20 — campaign days into observations", () => {
 
   it("sums the business's day in micros first, keeps zero days, and writes campaign series", () => {
     const rows = [
-      { date: "2026-11-01", campaign_id: "111", campaign_name: "A", cost_micros: 1_005_000, clicks: 3, conversions: 1, conversions_value: 10 },
-      { date: "2026-11-01", campaign_id: "222", campaign_name: "B", cost_micros: 1_005_000, clicks: 2, conversions: 0.5, conversions_value: 0 },
-      { date: "2026-11-05", campaign_id: "111", campaign_name: "A", cost_micros: 9_000_000, clicks: 1, conversions: 0, conversions_value: 0 },
+      {
+        date: "2026-11-01",
+        campaign_id: "111",
+        campaign_name: "A",
+        cost_micros: 1_005_000,
+        clicks: 3,
+        conversions: 1,
+        conversions_value: 10,
+      },
+      {
+        date: "2026-11-01",
+        campaign_id: "222",
+        campaign_name: "B",
+        cost_micros: 1_005_000,
+        clicks: 2,
+        conversions: 0.5,
+        conversions_value: 0,
+      },
+      {
+        date: "2026-11-05",
+        campaign_id: "111",
+        campaign_name: "A",
+        cost_micros: 9_000_000,
+        clicks: 1,
+        conversions: 0,
+        conversions_value: 0,
+      },
     ];
     const obs = aggregateGoogleAds(rows, "eur", d("2026-11-01"), d("2026-11-03"), "t");
     const spend = obs.filter((o) => o.metric_key === "ad_spend.daily");
@@ -81,21 +105,32 @@ describe("P2-20 — campaign days into observations", () => {
       ["2026-11-02", 0, "EUR"],
       ["2026-11-03", 0, "EUR"],
     ]);
-    expect(obs.find((o) => o.metric_key === "ad_clicks.daily" && o.period_date === "2026-11-01")?.value_num).toBe(5);
-    expect(obs.find((o) => o.metric_key === "ad_conversions.daily" && o.period_date === "2026-11-01")?.value_num).toBe(1.5);
+    expect(
+      obs.find((o) => o.metric_key === "ad_clicks.daily" && o.period_date === "2026-11-01")
+        ?.value_num,
+    ).toBe(5);
+    expect(
+      obs.find((o) => o.metric_key === "ad_conversions.daily" && o.period_date === "2026-11-01")
+        ?.value_num,
+    ).toBe(1.5);
     const campaign = obs.filter((o) => o.metric_key === "ad_spend.campaign.daily");
     expect(campaign.map((o) => [o.dimensions.campaign_ref, o.value_minor])).toEqual([
       ["111", 101],
       ["222", 101],
     ]);
     const value = obs.find(
-      (o) => o.metric_key === "ad_purchase_value.campaign.daily" && o.dimensions.campaign_ref === "111",
+      (o) =>
+        o.metric_key === "ad_purchase_value.campaign.daily" && o.dimensions.campaign_ref === "111",
     );
-    expect(value).toMatchObject({ value_minor: 1000, dimensions: { currency: "EUR", campaign_name: "A" } });
+    expect(value).toMatchObject({
+      value_minor: 1000,
+      dimensions: { currency: "EUR", campaign_name: "A" },
+    });
     // Outside the window: nothing.
     expect(obs.some((o) => o.period_date === "2026-11-05")).toBe(false);
     // Every money value is an integer (rule 1); no ad_purchases.daily from Google.
-    for (const o of obs) if (o.value_minor !== undefined) expect(Number.isSafeInteger(o.value_minor)).toBe(true);
+    for (const o of obs)
+      if (o.value_minor !== undefined) expect(Number.isSafeInteger(o.value_minor)).toBe(true);
     expect(obs.some((o) => o.metric_key === "ad_purchases.daily")).toBe(false);
   });
 });
@@ -104,9 +139,24 @@ describe("P2-20 — the pull, against the recorded-shape fake", () => {
   it("refreshes, checks the currency, reads the window, and advances the cursor", async () => {
     vi.spyOn(console, "log").mockImplementation(() => undefined);
     const fake = fakeGoogleAds({
-      campaigns: [{ id: "111", name: "Spring sale", status: "ENABLED", budget_id: "9", amount_micros: 10_000_000 }],
+      campaigns: [
+        {
+          id: "111",
+          name: "Spring sale",
+          status: "ENABLED",
+          budget_id: "9",
+          amount_micros: 10_000_000,
+        },
+      ],
       days: [
-        { date: "2026-11-06", campaign_id: "111", cost_micros: 5_000_000, clicks: 4, conversions: 1, conversions_value: 20 },
+        {
+          date: "2026-11-06",
+          campaign_id: "111",
+          cost_micros: 5_000_000,
+          clicks: 4,
+          conversions: 1,
+          conversions_value: 20,
+        },
       ],
     });
     const source = createGoogleAdsReadSource({ fetch: fake.fetch, env: () => ENV });
@@ -114,8 +164,9 @@ describe("P2-20 — the pull, against the recorded-shape fake", () => {
     expect(page.cursor).toBe("2026-11-07");
     expect(page.done).toBe(true);
     expect(
-      page.observations.find((o) => o.metric_key === "ad_spend.daily" && o.period_date === "2026-11-06")
-        ?.value_minor,
+      page.observations.find(
+        (o) => o.metric_key === "ad_spend.daily" && o.period_date === "2026-11-06",
+      )?.value_minor,
     ).toBe(500);
     // Token, customer, campaign days — and never a mutate.
     expect(fake.calls.map((c) => new URL(c.url).pathname)).toEqual([

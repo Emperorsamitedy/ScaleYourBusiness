@@ -177,10 +177,10 @@ export function buildAdsChart(
               ? "small.adsCampaignLosing"
               : "small.adsCampaign",
           {
-          campaign: c.campaign_name,
-          spent: moneyText(c.spend_minor, c.currency, locale),
-          value: moneyText(c.value_minor, c.currency, locale),
-          roas: roas(c),
+            campaign: c.campaign_name,
+            spent: moneyText(c.spend_minor, c.currency, locale),
+            value: moneyText(c.value_minor, c.currency, locale),
+            roas: roas(c),
           },
         ),
       )

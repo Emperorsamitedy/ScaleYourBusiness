@@ -30,7 +30,8 @@ export const GOOGLE_ADS_REASONS = {
   access_level:
     "Google hasn't approved SYB's Google Ads access for real ad accounts yet. Nothing was connected.",
   google_auth: "Google didn't accept the sign-in. Start again from Connections.",
-  google_permission: "Google says SYB isn't allowed into that Google Ads account. Nothing was connected.",
+  google_permission:
+    "Google says SYB isn't allowed into that Google Ads account. Nothing was connected.",
   google_busy:
     "Google was busy or didn't answer. Nothing was connected — try again in a few minutes.",
   google_refused: "Google refused the sign-in. Nothing was connected.",

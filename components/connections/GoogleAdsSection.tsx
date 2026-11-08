@@ -177,7 +177,10 @@ export function GoogleAdsSection({
                 <h3 className="cn-wp-name">{view.label}</h3>
                 <p className="cn-wp-state">
                   {c
-                    ? tg("consentedOn", { day: storedDay(c.created_at, locale), status: status(c.status) })
+                    ? tg("consentedOn", {
+                        day: storedDay(c.created_at, locale),
+                        status: status(c.status),
+                      })
                     : view.configured
                       ? tg("notGranted")
                       : tg("notSetUpYet")}
@@ -252,7 +255,11 @@ export function GoogleAdsSection({
                       >
                         {busy ? tg("revoking") : tg("yesRevoke")}
                       </button>
-                      <button type="button" className="ghost" onClick={() => setConfirmRevoke(false)}>
+                      <button
+                        type="button"
+                        className="ghost"
+                        onClick={() => setConfirmRevoke(false)}
+                      >
                         {tg("keepIt")}
                       </button>
                     </>
@@ -300,7 +307,12 @@ export function GoogleAdsSection({
                   >
                     {busy ? tg("recording") : t("connectAccount")}
                   </button>
-                  <button type="button" className="ghost" disabled={busy} onClick={() => void forgetPick()}>
+                  <button
+                    type="button"
+                    className="ghost"
+                    disabled={busy}
+                    onClick={() => void forgetPick()}
+                  >
                     {tg("cancel")}
                   </button>
                 </div>

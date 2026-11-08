@@ -178,12 +178,15 @@ function googlePlan(
   ref: string,
   d: AdDetail,
 ): { plan: DispatchPlan } | { unroutable: string } {
-  if (!/^\d{1,20}$/.test(ref)) return { unroutable: "the ad proposal names no Google Ads campaign" };
+  if (!/^\d{1,20}$/.test(ref))
+    return { unroutable: "the ad proposal names no Google Ads campaign" };
   if (change === "pause") {
     return { plan: { provider: "google_ads", op: "pause_campaign", params: { campaign_id: ref } } };
   }
   if (change === "resume") {
-    return { plan: { provider: "google_ads", op: "resume_campaign", params: { campaign_id: ref } } };
+    return {
+      plan: { provider: "google_ads", op: "resume_campaign", params: { campaign_id: ref } },
+    };
   }
   if (change !== "raise_budget" && change !== "lower_budget") {
     return { unroutable: `SYB makes no "${change}" change on Google Ads` };
@@ -233,7 +236,10 @@ export function dbGoogleAdsBackend(opts: { now?: () => Date } = {}): GoogleAdsBa
         return {
           access_token: tokens.access_token,
           customer_id: secret.customer_id,
-          headers: { developer_token: env.developer_token, login_customer_id: env.login_customer_id },
+          headers: {
+            developer_token: env.developer_token,
+            login_customer_id: env.login_customer_id,
+          },
         };
       } catch {
         return {
@@ -264,7 +270,9 @@ export function dbGoogleAdsBackend(opts: { now?: () => Date } = {}): GoogleAdsBa
     },
 
     async changed(profileId, detail, meta) {
-      await db.insert(watchActivity).values({ profile_id: profileId, kind: "ad_changed", detail, meta });
+      await db
+        .insert(watchActivity)
+        .values({ profile_id: profileId, kind: "ad_changed", detail, meta });
     },
   };
 }

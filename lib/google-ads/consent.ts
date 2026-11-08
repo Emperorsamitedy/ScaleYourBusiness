@@ -213,7 +213,11 @@ export async function consentToGoogleAds(
 }
 
 /** The connected ad account's name and currency, for the card — never the token. */
-export function googleAdsAccountOf(plain: string): { name: string; customer_id: string; currency: string } {
+export function googleAdsAccountOf(plain: string): {
+  name: string;
+  customer_id: string;
+  currency: string;
+} {
   const s = readGoogleAdsSecret(plain);
   return { name: s.name, customer_id: s.customer_id, currency: s.currency };
 }
