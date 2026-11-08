@@ -1,3 +1,4 @@
+/* global process, console */
 // Vercel's build. A production deploy brings its database up to the code
 // first: `db:migrate`, then `db:seed` (the question bank), then the app's
 // own build. The database address stays in Vercel (it is Sensitive there,
