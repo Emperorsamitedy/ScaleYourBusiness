@@ -30,6 +30,7 @@ import { and, eq, inArray, or, sql } from "drizzle-orm";
 import { db } from "../../db";
 import { forgetBookingClient } from "../bookings/erase";
 import { eraseCartsFor } from "../carts/erase";
+import { toE164 } from "../phone/twilio";
 import { lockSupportWrites } from "../support/support-contact";
 import {
   businessProfiles,
@@ -38,6 +39,7 @@ import {
   contactSuppressions,
   contacts,
   decisionLog,
+  phoneCalls,
   supportConversations,
   supportEmailMessages,
   supportMessages,
@@ -346,6 +348,18 @@ export async function eraseContact(accountId: string, contactId: string): Promis
     // (review 2026-10-23, #11): the keyed client hash their email or phone
     // produced is cleared and remembered (specs/bookings.md §3).
     await forgetBookingClient(accountId, { email: contact.email, phone: contact.phone }, tx);
+    // P6-02: the calls their number made to the phone line go too — number,
+    // transcript and message (rule 22). Turns go with their call (CASCADE).
+    if (contact.phone) {
+      const numbers = [...new Set([contact.phone.trim(), toE164(contact.phone) ?? ""])].filter(
+        (n) => n !== "",
+      );
+      await tx
+        .delete(phoneCalls)
+        .where(
+          and(eq(phoneCalls.account_id, accountId), inArray(phoneCalls.caller_number, numbers)),
+        );
+    }
     // Idea 47: the carts their address hashes to go too, in the same transaction.
     if (contact.email) {
       await eraseCartsFor(accountId, emailHashCandidates(contact.email), tx);

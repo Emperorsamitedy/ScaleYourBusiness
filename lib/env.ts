@@ -215,6 +215,48 @@ export function campaignEmailFrom(): string | null {
   return process.env.CAMPAIGN_EMAIL_FROM?.trim() || null;
 }
 
+/** P6-02: the Twilio account the phone line answers through. */
+export interface TwilioEnv {
+  /** "AC" + 32 hex. Every webhook names it; one that names another account is refused. */
+  accountSid: string;
+  /** Signs every webhook (X-Twilio-Signature). Never logged, never sent anywhere. */
+  authToken: string;
+  /** The number callers dial, E.164 — the one the owner's line claims. */
+  phoneNumber: string;
+}
+
+export const TWILIO_KEYS = [
+  "TWILIO_ACCOUNT_SID",
+  "TWILIO_AUTH_TOKEN",
+  "TWILIO_PHONE_NUMBER",
+] as const;
+
+/** The Twilio settings that are missing or malformed, by name — empty when the line can run. */
+export function twilioMissing(): (typeof TWILIO_KEYS)[number][] {
+  const sid = process.env.TWILIO_ACCOUNT_SID?.trim() ?? "";
+  const token = process.env.TWILIO_AUTH_TOKEN?.trim() ?? "";
+  const number = process.env.TWILIO_PHONE_NUMBER?.trim() ?? "";
+  const missing: (typeof TWILIO_KEYS)[number][] = [];
+  if (!/^AC[0-9a-f]{32}$/i.test(sid)) missing.push("TWILIO_ACCOUNT_SID");
+  if (token === "" || /\s/.test(token)) missing.push("TWILIO_AUTH_TOKEN");
+  if (!/^\+[1-9][0-9]{6,14}$/.test(number)) missing.push("TWILIO_PHONE_NUMBER");
+  return missing;
+}
+
+/**
+ * P6-02: all three Twilio settings, or null. Null means the phone line is
+ * not set up: the webhook refuses every request (it can't check a
+ * signature without the token), and /support says which settings are needed.
+ */
+export function twilioEnv(): TwilioEnv | null {
+  if (twilioMissing().length > 0) return null;
+  return {
+    accountSid: process.env.TWILIO_ACCOUNT_SID!.trim(),
+    authToken: process.env.TWILIO_AUTH_TOKEN!.trim(),
+    phoneNumber: process.env.TWILIO_PHONE_NUMBER!.trim(),
+  };
+}
+
 /** RESEND_API_KEY, or null — every Resend call is honest about its absence. */
 export function resendApiKey(): string | null {
   return process.env.RESEND_API_KEY?.trim() || null;

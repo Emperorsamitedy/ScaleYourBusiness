@@ -43,6 +43,7 @@ import { coerceLimits, liveLimitLlm } from "../proposals/hard-limits";
 import { ResearchError, liveResearchLlm } from "../research/competitor";
 import { coerceFallback, liveReviewParseLlm } from "../reviews/fallback";
 import { originalMail } from "../reviews/parse";
+import { coercePhoneReply, livePhoneLlm } from "../phone/line";
 import { liveDiscoveryLlm } from "../research/discovery";
 import { liveSearchProvider } from "../research/live";
 import { liveDraftLlm as liveReplyDraftLlm } from "../support-desk/draft";
@@ -320,6 +321,33 @@ describe("customer support intent: low effort; a refusal hands over to a person"
     expect(got.text).toBe("");
     expect(lastSent().model).toBe("claude-sonnet-5");
     expect(lastSent().output_config).not.toHaveProperty("effort");
+  });
+});
+
+describe("phone line (P6-02, rule 31): Haiku, low effort, short timeout; a refusal takes a message", () => {
+  const phoneArgs = {
+    system: "s",
+    messages: [{ role: "user" as const, content: "When are you open?" }],
+    accountId: "acct-haiku",
+  };
+  const json = '{"action":"answer","answer":"Nine to six.","used":["a"]}';
+  it("reads the JSON behind thinking, tagged as the phone workload", async () => {
+    fake.replies.push(thinksThen(text(json)));
+    const got = await livePhoneLlm(phoneArgs);
+    expect(coercePhoneReply(got.text)).toEqual({
+      action: "answer",
+      answer: "Nine to six.",
+      used: ["a"],
+    });
+    expect(got.calls[0]?.workload).toBe("phone");
+    expect(got.calls[0]?.cost_eur).toBeGreaterThan(0);
+    expectHaiku("low");
+    // The caller's words are the user turn, never the system prompt (rule 24).
+    expect(lastSent().system).toBe("s");
+  });
+  it("throws on a refusal, and reads no answer from it", async () => {
+    fake.replies.push(refusal(json));
+    await expect(livePhoneLlm(phoneArgs)).rejects.toBeInstanceOf(ModelRefusalError);
   });
 });
 
