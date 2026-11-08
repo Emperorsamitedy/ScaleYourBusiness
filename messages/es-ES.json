@@ -1310,7 +1310,29 @@
       "notDecided": "Empieza en cuanto se decida Cómo trabajo.",
       "noEmail": "El correo electrónico aún no está configurado en este servidor, así que no se envía ninguno.",
       "lastSent": "Último envío: {date}.",
-      "first": "El primero sale con la próxima comprobación del lunes."
+      "first": "El primero sale con la próxima comprobación del lunes.",
+      "channel": {
+        "legend": "Enviarlo por",
+        "email": "Correo",
+        "whatsapp": "WhatsApp",
+        "both": "Correo y WhatsApp"
+      },
+      "whatsapp": {
+        "numberLabel": "Su número de WhatsApp",
+        "numberHint": "El número internacional completo: un signo más y, después, el prefijo del país.",
+        "consent": "Enviar mi resumen semanal de SYB a este número por WhatsApp. Puedo detenerlo aquí en cualquier momento, y SYB no usa el número para nada más.",
+        "agree": "Sí, enviarlo por WhatsApp",
+        "on": "WhatsApp va a {number} desde el {date}.",
+        "withdraw": "Detener WhatsApp",
+        "forget": "Detener y olvidar mi número",
+        "none": "Aún no hay número, así que no se envía nada por WhatsApp.",
+        "notSetUp": "WhatsApp aún no está configurado en este servidor. Necesita {keys}.",
+        "invalid": "No es un número internacional completo. Empiece con un signo más y el prefijo del país.",
+        "changed": "Este texto cambió mientras la página estaba abierta. Recárguela y vuelva a leerlo.",
+        "notYours": "Solo la persona que recibe el resumen puede dar un número de WhatsApp.",
+        "needsYes": "No se envía nada por WhatsApp hasta que se indique un número y se acepte abajo.",
+        "failed": "No se guardó. Inténtelo de nuevo."
+      }
     },
     "signedOut": {
       "title": "Aquí aún no hay ningún negocio.",
@@ -2413,6 +2435,59 @@
       "unknownStatuses": "Estados que no conocía: {list}. No supongo lo que significan.",
       "unknownStatus": "«{word}» ({count})",
       "listSep": ", "
+    },
+    "googleAds": {
+      "sectionLabel": "Google Ads · un consentimiento aparte",
+      "label": "Google Ads",
+      "title": {
+        "on": "Concedido: SYB lee su gasto en anuncios y solo cambia lo aprobado por usted",
+        "off": "Desactivado. SYB no lee su Google Ads."
+      },
+      "whatItCanDo": "El permiso de Google también puede cambiar sus campañas, presupuestos y anuncios. SYB lee con él su gasto y sus resultados una vez al día, y solo cambia algo mediante una propuesta aprobada por usted. Puede revocarlo en cualquier momento.",
+      "notSetUp": "Aún no está configurado por parte de SYB. Falta: {keys}.",
+      "accessLevel": {
+        "title": "La aprobación de Google para SYB",
+        "test": "Solo cuentas de prueba. Google aún no ha aprobado SYB para cuentas publicitarias reales, así que una real se rechaza hasta que lo haga.",
+        "explorer": "Cuentas publicitarias reales, hasta {ops} operaciones al día entre todos los que usan SYB.",
+        "basic": "Cuentas publicitarias reales, hasta {ops} operaciones al día entre todos los que usan SYB. Google revisó SYB antes.",
+        "standard": "Cuentas publicitarias reales, sin límite diario más allá de los límites de frecuencia de Google.",
+        "unknown": "Aún no indicado, así que cuente solo con cuentas de prueba."
+      },
+      "fact": {
+        "account": "cuenta publicitaria"
+      },
+      "revokeAsk": "SYB deja de leer su Google Ads y no puede cambiar nada allí.",
+      "revokeNote": "Revocarlo elimina aquí al instante el acceso de SYB. El gasto ya leído se queda en sus cifras. Para quitar SYB también del lado de Google, abra la página Seguridad de su cuenta de Google y luego las conexiones de terceros.",
+      "connected": "Google Ads está conectado y su consentimiento queda registrado.",
+      "signedInPick": "Ha iniciado sesión con Google. Elija la cuenta publicitaria que SYB debe leer.",
+      "revoked": "Revocado. El acceso de SYB a Google Ads se ha eliminado: no se lee ni se cambia nada.",
+      "pickTitle": "Elija la cuenta publicitaria",
+      "managerNote": "una cuenta de gestor: SYB conecta la propia cuenta publicitaria",
+      "connectAccount": "Conectar esta cuenta publicitaria",
+      "signIn": "Iniciar sesión con Google y permitir Google Ads",
+      "nothingWritten": "Al conectar se registra su consentimiento y SYB lee su gasto una vez al día. Nada cambia en Google Ads hasta que una propuesta esté aprobada por usted, y los cambios siguen desactivados hasta que termine la prueba de dos semanas de SYB con cambios reales.",
+      "reason": {
+        "unavailable": "Google Ads aún no está configurado.",
+        "already_connected": "Google Ads ya está conectado. Revóquelo primero para conectar otra cuenta.",
+        "scope": "Google no concedió exactamente el único permiso que pide SYB. En la pantalla de Google, permita el permiso de Google Ads y vuelva a intentarlo.",
+        "no_accounts": "Google no mostró a SYB ninguna cuenta de Google Ads para esa cuenta de Google. Inicie sesión con la cuenta que tiene acceso a sus anuncios y vuelva a intentarlo.",
+        "managers_only": "Esa cuenta de Google solo llega a cuentas de gestor. SYB conecta la propia cuenta publicitaria: dé acceso a ella a su cuenta de Google y vuelva a intentarlo.",
+        "access_level": "Google aún no ha aprobado el acceso de SYB a Google Ads para cuentas publicitarias reales. No se conectó nada.",
+        "google_permission": "Google dice que SYB no tiene acceso a esa cuenta de Google Ads. No se conectó nada.",
+        "start_here": "Empiece el inicio de sesión con Google desde la pantalla Conexiones de SYB, con el botón que hay allí. No se ha enviado nada a Google.",
+        "signed_out": "Inicie sesión primero en SYB y vuelva a conectar Google.",
+        "owner_only": "Solo un propietario puede conceder o retirar este permiso. No se ha enviado nada a Google.",
+        "phrase": "La frase de confirmación no coincide. Escríbala tal como se muestra y vuelva a empezar.",
+        "start_again": "Ese inicio de sesión con Google ha caducado o ya se ha usado. Vuelva a empezar desde Conexiones.",
+        "foreign": "Ese inicio de sesión con Google empezó en otra cuenta de SYB. Inicie sesión en SYB con esa cuenta o vuelva a empezar.",
+        "google_error": "El inicio de sesión con Google no ha terminado. No se ha conectado nada.",
+        "no_refresh": "Google no le ha dado a SYB un acceso duradero. Vuelva a empezar: Google pregunta otra vez, y SYB necesita esa respuesta.",
+        "google_auth": "Google no ha aceptado el inicio de sesión. Vuelva a empezar desde Conexiones.",
+        "google_busy": "Google estaba ocupado o no ha respondido. No se ha conectado nada; vuelva a intentarlo dentro de unos minutos.",
+        "google_refused": "Google ha rechazado el inicio de sesión. No se ha conectado nada.",
+        "internal": "Algo ha fallado por nuestra parte. No se ha conectado nada.",
+        "generic": "El inicio de sesión con Google no ha terminado. No se ha conectado nada."
+      }
     }
   },
   "landing": {
@@ -5507,6 +5582,7 @@
       "titleOn": "Atendiendo llamadas en el {number}",
       "titleOff": "Sin atender llamadas",
       "what": "La línea dice primero que es el asistente automático de SYB. Solo responde con las respuestas que usted aprobó, nunca reserva, promete ni hace un reembolso de nada, y toma un mensaje o le pasa la llamada a usted cuando no sabe algo. Quien llama oye que la llamada se transcribe antes de que se transcriba nada, y no se guarda ningún audio.",
+      "whatRecorded": "La línea dice primero que es el asistente automático de SYB. Solo responde con las respuestas que usted aprobó, nunca reserva, promete ni hace un reembolso de nada, y toma un mensaje o le pasa la llamada a usted cuando no sabe algo. Quien llama oye que la llamada se graba y se transcribe antes de que se grabe nada.",
       "needsKeys": "Para atender llamadas, SYB necesita una cuenta de Twilio y un número de Twilio. Añada estos ajustes en el servidor y vuelva aquí:",
       "setUp": "En Twilio, configure el webhook «A call comes in» de este número con la primera dirección y su aviso de estado de llamada con la segunda, ambos como HTTP POST.",
       "turnOn": "Atender llamadas en el {number}",
@@ -5533,13 +5609,29 @@
       "messageLabel": "Mensaje",
       "erase": "Borrar esta llamada",
       "eraseConfirm": "¿Borrar esta llamada para siempre: el número de quien llamó, lo que se dijo y cualquier mensaje?",
+      "eraseConfirmRecorded": "¿Borrar esta llamada para siempre: el número de quien llamó, lo que se dijo, cualquier mensaje y la grabación?",
       "eraseYes": "Borrar para siempre",
       "keep": "Conservarla",
+      "recording": {
+        "title": "Grabación de llamadas",
+        "stateOff": "Las llamadas no se graban. Quien llama oye que la llamada se transcribe, y no se guarda ningún audio.",
+        "stateOn": "Las llamadas se graban. Cada persona que llama oye que la llamada se graba antes de que empiece la grabación.",
+        "explain": "Con la grabación activada, a quien llama se le avisa de que la llamada se graba antes de guardar ningún audio. Cada grabación se guarda {days, plural, one {# día} many {# días} other {# días}} y después se borra para siempre; borrar una llamada o un contacto borra también su grabación. Solo un propietario puede escucharlas.",
+        "changed": "Último cambio: {when}.",
+        "needsSetup": "La grabación aún no se puede activar en este servidor. Necesita estos ajustes:",
+        "turnOn": "Grabar las llamadas",
+        "turnOff": "Dejar de grabar las llamadas",
+        "listen": "Grabación de la llamada",
+        "kept": "Grabada · se guarda hasta el {date}",
+        "notKept": "Grabada · la grabación no está disponible"
+      },
       "notice": {
         "on": "La línea telefónica está atendiendo.",
         "off": "La línea telefónica ha dejado de atender.",
         "handover": "Guardado.",
-        "erased": "La llamada está borrada."
+        "erased": "La llamada está borrada.",
+        "recordingOn": "Ahora las llamadas se graban. Primero se avisa a quien llama.",
+        "recordingOff": "Las llamadas ya no se graban. Las grabaciones guardadas se quedan hasta su fecha, salvo que usted las borre."
       },
       "error": {
         "notSetUp": "La línea telefónica aún no está configurada en este servidor.",
@@ -5547,6 +5639,7 @@
         "notOn": "Primero active la línea telefónica.",
         "badNumber": "Escriba el número con el prefijo del país, empezando por el signo más.",
         "noCall": "Esa llamada ya no está aquí.",
+        "recordingNotSetUp": "La grabación de llamadas aún no está configurada en este servidor.",
         "crossSite": "Esta página solo se puede cambiar desde el propio SYB.",
         "signIn": "Inicie sesión para cambiar la línea telefónica.",
         "action": "Eso no es algo que pueda hacer la línea telefónica."
@@ -5556,6 +5649,7 @@
   "phoneLine": {
     "greeting": "Hola, ha llamado a {business} y está hablando con el asistente automático de SYB, no con una persona.",
     "notice": "Esta llamada se transcribe para que {business} pueda leerla después; no se guarda ningún audio.",
+    "noticeRecorded": "Esta llamada se graba y se transcribe para que {business} pueda escucharla y leerla después. La grabación se guarda {days, plural, one {# día} many {# días} other {# días}} y después se borra.",
     "howCanIHelp": "¿En qué puedo ayudarle?",
     "anythingElse": "¿Puedo ayudarle en algo más?",
     "notHeard": "Perdone, no le he entendido. ¿Podría repetirlo?",
@@ -5867,7 +5961,8 @@
       "summary_settings": "Solo un propietario puede activar o desactivar el resumen semanal.",
       "stop_resume": "Solo un propietario puede volver a ponerlo todo en marcha después de una parada.",
       "business_locale": "Solo un propietario puede cambiar el idioma o la moneda del negocio.",
-      "payments_prepare": "Solo un propietario puede preparar pagos o indicar que se pagó uno."
+      "payments_prepare": "Solo un propietario puede preparar pagos o indicar que se pagó uno.",
+      "phone_recordings": "Solo un propietario puede escuchar las grabaciones de llamadas."
     }
   },
   "authWords": {
@@ -6300,7 +6395,8 @@
       "footApprove": "Nada se ejecuta sin su aprobación.",
       "footStop": "Recibe este correo una vez por semana. Desactívelo en la pantalla Observando o deje de recibirlo con un solo clic:",
       "footWatchingHtml": "Todo lo que hago está en su <link>pantalla Observando</link>. Nada se ejecuta sin su aprobación.",
-      "footStopHtml": "Recibe este correo una vez por semana. Desactívelo en la pantalla Observando o <link>deje de recibir estos correos</link> con un solo clic."
+      "footStopHtml": "Recibe este correo una vez por semana. Desactívelo en la pantalla Observando o <link>deje de recibir estos correos</link> con un solo clic.",
+      "whatsappBusiness": "su negocio"
     },
     "signIn": {
       "subject": "Su enlace de inicio de sesión — SYB",
@@ -7657,7 +7753,8 @@
       "noStock": "conecte su tienda o importe un archivo de existencias y le mostraré el dinero parado en las estanterías",
       "nothingWaiting": "ahora mismo no hay nada pendiente de su aprobación",
       "noPricedGain": "nada de lo que le espera tiene todavía una ganancia cuantificada",
-      "noRevenueSeries": "necesito una serie de ingresos medida con la que compararlo"
+      "noRevenueSeries": "necesito una serie de ingresos medida con la que compararlo",
+      "noAds": "conecte Meta Ads o Google Ads y comprobaré qué campañas cuestan más de lo que recuperan"
     },
     "price": {
       "arithmetic": "precio medio {mean} ({revenue} ÷ {count, plural, one {# completada} many {# completadas} other {# completadas}})",
@@ -7675,13 +7772,17 @@
       "stockNone": "nada marcado como lento o estancado (recuento: {day})",
       "stockItems": "{count, plural, one {# artículo lento} many {# artículos lentos} other {# artículos lentos}}, unidades disponibles × coste unitario (recuento: {day}). Son existencias, no un flujo mensual: no se suman al mes",
       "tableProposal": "{summary}: {range}",
-      "onTheTable": "{count, plural, one {# propuesta pendiente} many {# propuestas pendientes} other {# propuestas pendientes}}, del escenario base al optimista, al mes: {parts}"
+      "onTheTable": "{count, plural, one {# propuesta pendiente} many {# propuestas pendientes} other {# propuestas pendientes}}, del escenario base al optimista, al mes: {parts}",
+      "adsAllPaidPlatforms": "cada campaña recuperó al menos lo que costó, según la atribución de su plataforma ({count, plural, one {# campaña} many {# campañas} other {# campañas}})",
+      "adsLoserGoogle": "{campaign} en Google Ads: gastó {spent}, Google le atribuye {value} en valor de conversión (rendimiento {roas}) → {loss}"
     },
     "basisNote": {
       "capacity": "a partir de una capacidad {basis, select, ESTIMATED {ESTIMADA} other {DECLARADA}} por usted ({perWeek} a la semana)",
       "meta": "según la atribución propia de Meta",
       "statedCost": "unidades disponibles × un coste que usted indicó, para algunos artículos",
-      "proposals": "los escenarios base y optimista de las propias propuestas"
+      "proposals": "los escenarios base y optimista de las propias propuestas",
+      "google": "según la atribución propia de Google",
+      "adPlatforms": "según la atribución propia de cada plataforma, la de Meta y la de Google"
     },
     "componentNote": {
       "adsOtherCurrency": "{count, plural, one {# campaña en {currencies} excluida} many {# campañas en {currencies} excluidas} other {# campañas en {currencies} excluidas}}: las monedas nunca se mezclan",
@@ -7701,7 +7802,10 @@
       "adsCampaign": "{campaign} gastó {spent}, Meta le atribuye {value} ({roas})",
       "adsCampaignLosing": "{campaign} gastó {spent}, Meta le atribuye {value} ({roas}), pierde dinero",
       "noReturn": "sin rendimiento",
-      "return": "rendimiento {roas}"
+      "return": "rendimiento {roas}",
+      "adsPlatforms": "Gasto frente al valor que atribuye cada plataforma, por campaña (Meta: valor de compra; Google: valor de conversión), del {from} al {to}: {campaigns}. Pierde dinero si el rendimiento es inferior a {even}.",
+      "adsCampaignGoogle": "{campaign} en Google Ads gastó {spent}, Google le atribuye {value} ({roas})",
+      "adsCampaignGoogleLosing": "{campaign} en Google Ads gastó {spent}, Google le atribuye {value} ({roas}), pierde dinero"
     }
   },
   "watchNoticed": {

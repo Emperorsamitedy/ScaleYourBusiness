@@ -242,8 +242,12 @@ export function localDiskMediaStore(
       throw new MediaError("that address isn't in the local media store", 422);
     }
     const rel = url.slice(LOCAL_MEDIA_ORIGIN.length + 1);
-    // Only the shape renderPath/clipPath produce: no "..", no absolute paths.
-    if (!/^renders\/[0-9a-f-]{36}\/[0-9a-f-]{36}\/[a-z0-9-]+\.[a-z0-9]{2,4}$/.test(rel)) {
+    // Only the shape renderPath/clipPath produce, or a sealed call recording's
+    // (P6-08, lib/phone-recording): no "..", no absolute paths.
+    if (
+      !/^renders\/[0-9a-f-]{36}\/[0-9a-f-]{36}\/[a-z0-9-]+\.[a-z0-9]{2,4}$/.test(rel) &&
+      !/^recordings\/[0-9a-f-]{36}\/[0-9a-f]{32}\.bin$/.test(rel)
+    ) {
       throw new MediaError("that address isn't in the local media store", 422);
     }
     return path.join(root, ...rel.split("/"));

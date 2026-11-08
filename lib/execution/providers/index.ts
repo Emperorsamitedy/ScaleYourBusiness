@@ -17,6 +17,7 @@ import type { ExecutionProvider } from "./fixture";
 import { fixtureExecutor } from "./fixture";
 import { fixtureSiteExecutor } from "./fixture-site";
 import { emailCampaignExecutor } from "./email-campaign";
+import { googleAdsExecutor } from "./google-ads";
 import { googleBusinessExecutor } from "./google-business";
 import { metaAdsExecutor, metaPublishExecutor } from "./meta";
 import { purchaseOrderExecutor } from "./purchase-order";
@@ -31,6 +32,8 @@ const PROVIDERS: Readonly<Record<ExecutionProviderId, ExecutionProvider>> = {
   google_business_reviews: googleBusinessExecutor,
   // P6-04: an approved purchase order, emailed to its supplier (rule 27 amended).
   purchase_order: purchaseOrderExecutor,
+  // P2-20 / P3-22: Google Ads — pause, resume, daily budget, each reversible.
+  google_ads: googleAdsExecutor,
 };
 
 export class UnknownExecutionProviderError extends Error {

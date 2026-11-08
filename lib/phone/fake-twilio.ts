@@ -65,3 +65,103 @@ export function twilioRequest(args: {
     body: new URLSearchParams(args.params).toString(),
   });
 }
+
+/* ── P6-08: recordings ── */
+
+/** A fresh Twilio-shaped recording id: "RE" and 32 hex. */
+export function fakeRecordingSid(): string {
+  return `RE${randomBytes(16).toString("hex")}`;
+}
+
+/** What Twilio posts to recordingStatusCallback when a recording is finished. */
+export function recordingParams(args: {
+  callSid: string;
+  recordingSid: string;
+  status?: "completed" | "absent" | "in-progress";
+  duration?: number;
+}): Record<string, string> {
+  const params: Record<string, string> = {
+    AccountSid: FAKE_ACCOUNT_SID,
+    CallSid: args.callSid,
+    RecordingSid: args.recordingSid,
+    RecordingUrl: `https://api.twilio.com/2010-04-01/Accounts/${FAKE_ACCOUNT_SID}/Recordings/${args.recordingSid}`,
+    RecordingStatus: args.status ?? "completed",
+    RecordingChannels: "1",
+    RecordingSource: "StartCallRecordingTwiML",
+    RecordingStartTime: new Date().toUTCString(),
+    RecordingTrack: "both",
+  };
+  if ((args.status ?? "completed") === "completed") {
+    params.RecordingDuration = String(args.duration ?? 42);
+  }
+  return params;
+}
+
+export interface FakeTwilioApi {
+  /** A fetch that answers as Twilio's Recordings resource does — and refuses any other host. */
+  fetch: (input: string, init?: RequestInit) => Promise<Response>;
+  /** Put a finished recording "at Twilio". */
+  add(recordingSid: string, audio?: Uint8Array): Uint8Array;
+  /** Is Twilio still holding it? */
+  has(recordingSid: string): boolean;
+  /** Every request made, method and path. */
+  requests: { method: string; url: string; authorized: boolean }[];
+  /** Make the next n requests of this method fail with this status. */
+  failNext(method: "GET" | "DELETE", status: number, n?: number): void;
+}
+
+/**
+ * Twilio's Recordings REST resource, in memory: GET <sid>.mp3 answers the
+ * audio, DELETE <sid>.json answers 204 and forgets it (404 after), and a
+ * request without the account's Basic credentials gets 401 — as Twilio
+ * answers when media URLs require HTTP auth.
+ */
+export function fakeTwilioApi(authToken = FAKE_AUTH_TOKEN): FakeTwilioApi {
+  const held = new Map<string, Uint8Array>();
+  const failures: { method: string; status: number; n: number }[] = [];
+  const requests: FakeTwilioApi["requests"] = [];
+  const expectedAuth = `Basic ${Buffer.from(`${FAKE_ACCOUNT_SID}:${authToken}`).toString("base64")}`;
+  const base = `https://api.twilio.com/2010-04-01/Accounts/${FAKE_ACCOUNT_SID}/Recordings/`;
+  return {
+    requests,
+    add(sid, audio) {
+      const body = audio ?? new Uint8Array(randomBytes(4096));
+      held.set(sid, body);
+      return body;
+    },
+    has: (sid) => held.has(sid),
+    failNext(method, status, n = 1) {
+      failures.push({ method, status, n });
+    },
+    async fetch(input, init) {
+      const method = (init?.method ?? "GET").toUpperCase();
+      const headers = new Headers(init?.headers);
+      const authorized = headers.get("authorization") === expectedAuth;
+      requests.push({ method, url: input, authorized });
+      if (!input.startsWith(base)) throw new Error(`fake Twilio: no such host or path ${input}`);
+      const fail = failures.find((f) => f.method === method && f.n > 0);
+      if (fail) {
+        fail.n -= 1;
+        return new Response(JSON.stringify({ status: fail.status }), { status: fail.status });
+      }
+      if (!authorized) return new Response("unauthorized", { status: 401 });
+      const rest = input.slice(base.length);
+      const m = /^(RE[0-9a-f]{32})\.(mp3|json)$/i.exec(rest);
+      if (!m) return new Response("not found", { status: 404 });
+      const sid = m[1]!;
+      if (method === "GET" && m[2] === "mp3") {
+        const audio = held.get(sid);
+        if (!audio) return new Response("not found", { status: 404 });
+        return new Response(Buffer.from(audio), {
+          status: 200,
+          headers: { "Content-Type": "audio/mpeg", "Content-Length": String(audio.byteLength) },
+        });
+      }
+      if (method === "DELETE" && m[2] === "json") {
+        if (!held.delete(sid)) return new Response("not found", { status: 404 });
+        return new Response(null, { status: 204 });
+      }
+      return new Response("method not allowed", { status: 405 });
+    },
+  };
+}

@@ -58,6 +58,8 @@ const NEVER_A_MANAGER: readonly RoleAction[] = [
   "business.locale",
   // P6-05 (rule 26 amended): preparing, approving and marking payments is the owner's.
   "payments.prepare",
+  // P6-08 (rule 32): call recordings are heard by the owner alone.
+  "phone.recordings",
 ];
 
 const session = (role: Role): AuthedSession => ({

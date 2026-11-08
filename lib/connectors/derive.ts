@@ -30,7 +30,7 @@
 // Confidence is the §8.1 connector base (0.95), not min(inputs) × 0.9 —
 // the inputs are measurements, not other inferences.
 
-import { and, desc, eq, gte, lte, notInArray } from "drizzle-orm";
+import { and, desc, eq, gte, inArray, lte, ne, notInArray, or } from "drizzle-orm";
 import { db } from "../../db";
 import {
   businessProfiles,
@@ -48,6 +48,7 @@ import { money } from "../core/money";
 import { readCurrentField, writeField } from "../profile/field-store";
 import type { MappingKind } from "./mapping";
 import { mappingKey } from "./mapping";
+import { EXECUTE_READ_PROVIDERS } from "./execute-reads";
 import { connectorSeriesId } from "./measured";
 import type { MetricKey } from "./provider";
 import { STOCK_METRICS } from "./provider";
@@ -181,6 +182,8 @@ export async function writeMeasured(args: {
   fieldKey: string;
   value: unknown;
   provider: string;
+  /** P2-20: a fact measured by several providers together; derived_from names each one's series. */
+  providers?: readonly string[];
   metrics: readonly MetricKey[];
   method: string;
   window: DeriveWindow;
@@ -209,7 +212,9 @@ export async function writeMeasured(args: {
       // metric_observations under this connection. The "connector:" prefix is
       // what marks the fact as measured (lib/connectors/measured.ts) for the
       // report and the economics.
-      derived_from: args.metrics.map((m) => fieldId(connectorSeriesId(args.provider, m))),
+      derived_from: (args.providers ?? [args.provider]).flatMap((p) =>
+        args.metrics.map((m) => fieldId(connectorSeriesId(p, m))),
+      ),
       method: args.method,
     },
     observed_at: isoDateTime(`${args.window.to}T23:59:59Z`),
@@ -319,6 +324,69 @@ async function deriveCostPerPurchase(
     window: w,
     recordedAt,
     note: `Measured by ${conn.provider}: ad spend divided by the purchases it attributed, ${w.from} to ${w.to}.`,
+  });
+}
+
+/**
+ * P2-20: with more than one ad platform measuring spend (Meta's measure
+ * connection, Google Ads' execute connection), the business's monthly ad
+ * spend is their SUM over the window — never whichever synced last, which
+ * would flip the fact between platforms every night. One currency only
+ * (rule 1): two platforms billing in different currencies are a refusal,
+ * and the current fact stands. Null when this connection is the account's
+ * only ad-spend source in the window: the ordinary single-source path runs.
+ */
+async function deriveCombinedAdSpend(
+  conn: ConnectionRow,
+  profileId: string,
+  fieldKey: string,
+  w: DeriveWindow,
+  recordedAt: ISODateTime,
+): Promise<DeriveOutcome | null> {
+  const siblings = await db
+    .select()
+    .from(connections)
+    .where(
+      and(
+        eq(connections.account_id, conn.account_id),
+        or(
+          eq(connections.purpose, "measure"),
+          and(
+            eq(connections.purpose, "execute"),
+            inArray(connections.provider, [...EXECUTE_READ_PROVIDERS]),
+          ),
+        ),
+        ne(connections.status, "disconnected"),
+      ),
+    )
+    .orderBy(connections.created_at);
+  const sources: { conn: ConnectionRow; whole: WholeRows }[] = [];
+  for (const c of siblings) {
+    const whole = await wholeRows(c.id, "ad_spend.daily", w);
+    if (whole.rows.length > 0) sources.push({ conn: c, whole });
+  }
+  if (sources.length < 2 || !sources.some((s) => s.conn.id === conn.id)) return null;
+  const total = totalMoney(
+    "ad_spend.daily",
+    sources.flatMap((s) => s.whole.rows),
+  );
+  if (!total.ok) return { field_key: fieldKey, outcome: "refused", reason: total.reason };
+  const parts = sources.map(
+    (s) =>
+      `${s.conn.provider} connection ${s.conn.id} (${s.whole.days} days, ${s.whole.rows.length} observations)`,
+  );
+  const providers = [...new Set(sources.map((s) => s.conn.provider))];
+  return writeMeasured({
+    profileId,
+    fieldKey,
+    value: total.value,
+    provider: providers[0] as string,
+    providers,
+    metrics: ["ad_spend.daily"],
+    method: `sum(ad_spend.daily) over ${w.from}..${w.to} across ${parts.join(" + ")}`,
+    window: w,
+    recordedAt,
+    note: `Measured by ${providers.join(" and ")} together, ${w.from} to ${w.to}.`,
   });
 }
 
@@ -440,6 +508,14 @@ export async function deriveFactsFromObservations(
   const outcomes: DeriveOutcome[] = [];
 
   for (const d of DERIVATIONS) {
+    // P2-20: ad spend is the business's across every ad platform it measures.
+    if (d.metric === "ad_spend.daily") {
+      const combined = await deriveCombinedAdSpend(conn, profile.id, d.field_key, w, now);
+      if (combined !== null) {
+        outcomes.push(combined);
+        continue;
+      }
+    }
     const whole = await wholeRows(connectionId, d.metric, w);
     if (whole.rows.length === 0) {
       outcomes.push({

@@ -31,7 +31,10 @@ An AI business operating system for small businesses. It interviews an owner, bu
 | `specs/benchmark-map-v1.json`          | Business type → Eurostat NACE group, size classes, cost treatment   |
 | `specs/benchmarks-eurostat-v1.json`    | Eurostat SBS snapshot, dated; the app's only benchmark source       |
 | `specs/review-notifications-v1.json`   | Review notification email formats per platform (all unverified)     |
+| `specs/google-ads-api-v1.md`           | Google Ads API facts, each marked verified true/false (P2-20)       |
 | `specs/higgsfield-api-v1.md`           | Higgsfield's video API as SYB uses it (P6-03), each fact `verified` |
+| `specs/whatsapp-summary-v1.md`         | The weekly summary on WhatsApp (P6-07): Twilio facts, the template  |
+| `specs/twilio-recording-v1.md`         | Twilio call recording as SYB uses it (P6-08), confirmed vs not      |
 | `specs/glossary-v1.json`               | Business terms per language; one term, one translation (L-1)        |
 | `scripts/lint_bank.py`                 | Validates the question bank. Must pass in CI.                       |
 
@@ -69,6 +72,7 @@ Claude Code tends to helpfully scaffold ahead. Don't.
 - Connectors are IN SCOPE as of Phase 2 (TASKS-PHASE2.md) — read-only only
 - **No write-scope API calls to anything, ever — in any phase built so far; Phase 2's scope audit enforces it in tests**
 - Google Business Profile's `business.manage` scope (which can write) is held only as a write consent and used only to READ reviews — I-45a, decided by the owner on 2026-11-01 ("go ahead with I-45a", then "as a write consent"); never in the measurement registry, GET-only by a failing test; see TASKS-FEEDBACK.md
+- Google Ads' `adwords` scope (its only one, which can write) is held only as a write consent (`google_ads`, never in the measurement registry): read daily through the search endpoints only, and changed only by the engine after an approved proposal — P2-20 / P3-22, opened by the owner on 2026-11-08 ("build google ads too"); see TASKS-PHASE2.md P2-20
 - Support & CRM are IN SCOPE as of Phase 4 (TASKS-PHASE4.md); finance, inventory, the B2B pipeline and role-level staff planning are IN SCOPE as of Phase 5 (TASKS-PHASE5.md) under its rules 25–30; phone AI, purchase orders, prepared payments and per-person staff figures are IN SCOPE as of Phase 6 (TASKS-PHASE6.md) under its rules; SYB still never sends money itself, never edits, cancels or pays a supplier order, and never gives a verdict on a person
 - No auth beyond what the intake needs — except idea 52 (several businesses per email, team invites, three roles), opened by the owner on 2026-10-29 ("go ahead with 52 too"); see TASKS-FEEDBACK.md
 - No premature abstraction for modules that don't exist

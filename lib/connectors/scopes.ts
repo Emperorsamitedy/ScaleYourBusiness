@@ -277,6 +277,11 @@ const WRITE_CAPABLE = [
   // P4-15: sending email is a write (migration 0048 mirrors it in the trigger).
   /send/i,
   /full[_.-]?access/i,
+  // P2-20, 2026-11-08: Google Ads has ONE scope, and its name says nothing
+  // about writing — but it can change campaigns, budgets and bids. Named
+  // here so this audit refuses it like any write, and the execution audit
+  // accepts it as one (lib/execution/scopes.ts holds it, for google_ads only).
+  /\/auth\/adwords$/i,
   /^\*$/,
   /^all$/i,
 ];

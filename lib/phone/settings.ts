@@ -20,6 +20,9 @@ export interface PhoneLine {
   phone_number: string;
   enabled: boolean;
   handover_number: string | null;
+  /** P6-08: the owner switched call recording on (off by default). */
+  record_calls: boolean;
+  record_changed_at: string | null;
   business_name: string;
 }
 
@@ -31,6 +34,8 @@ async function lineWhere(where: ReturnType<typeof eq>): Promise<PhoneLine | null
       phone_number: phoneSettings.phone_number,
       enabled: phoneSettings.enabled,
       handover_number: phoneSettings.handover_number,
+      record_calls: phoneSettings.record_calls,
+      record_changed_at: phoneSettings.record_changed_at,
       business_name: supportSettings.business_name,
     })
     .from(phoneSettings)

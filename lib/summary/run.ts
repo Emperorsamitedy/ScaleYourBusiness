@@ -11,6 +11,14 @@
 // claimed and nothing is sent: setting them later in the week still lets
 // that week's email go. Logs carry ids and counts only — never the
 // owner's address, never a line of the email.
+//
+// P6-07: the owner may choose WhatsApp instead of, or as well as, email.
+// Each channel is worked out first (WhatsApp needs its four keys and the
+// owner's live opt-in, read now — so a yes withdrawn today stops this
+// week's message); with none possible nothing is claimed. The one claim
+// still comes before any send and covers both channels; each channel's
+// outcome lands on the same row, and neither is ever retried. An
+// email-only owner gets exactly what they got before.
 
 import { and, desc, eq, gt, inArray, lte, sql } from "drizzle-orm";
 import { db } from "../../db";
@@ -29,14 +37,31 @@ import { ownerEmailConfigured, sendOwnerEmail } from "../auth/email";
 import { getProvider } from "../connectors/registry";
 import { isProviderId } from "../connectors/scopes";
 import { logSafeError } from "../core/log-safe";
-import { appUrl } from "../env";
+import type { WhatsAppEnv } from "../env";
+import { appUrl, whatsappEnv } from "../env";
+import type { AppLocale } from "../i18n/locales";
 import { personLocale, wordsFor } from "../i18n/recipient";
 import { readCurrentField } from "../profile/field-store";
 import { READBACK, readbackForProposal } from "../trust/readback";
 import type { ComposedSummary, ForecastsGraded, SummaryInput, SummaryReadback } from "./compose";
 import { composeSummary } from "./compose";
-import { accountOwner, stopToken, summaryOn, summaryPref } from "./prefs";
+import {
+  accountOwner,
+  stopToken,
+  summaryChannel,
+  summaryOn,
+  summaryPref,
+  wantsEmail,
+  wantsWhatsApp,
+} from "./prefs";
 import { isoWeek, summaryWindow } from "./week";
+import type { TwilioFetch, WhatsAppMessage, WhatsAppOutcome } from "./whatsapp";
+import { sendWhatsApp, templateFor, whatsappVariables } from "./whatsapp";
+import type { LiveOptin } from "./whatsapp-optin";
+import { liveOptin } from "./whatsapp-optin";
+
+/** Rule 34: the workload a WhatsApp summary's cost line is tagged with. */
+export const WHATSAPP_SUMMARY_WORKLOAD = "weekly_summary_whatsapp";
 
 const DAY_MS = 86_400_000;
 
@@ -244,6 +269,26 @@ export interface SummaryRunOptions {
   send?: (mail: OwnerEmail) => Promise<OwnerEmailOutcome>;
   /** The origin links use; defaults to APP_URL. */
   origin?: string | null;
+  /** P6-07: Twilio's transport; tests pass a fake HTTP. Defaults to fetch. */
+  twilioFetch?: TwilioFetch;
+}
+
+/** P6-07: WhatsApp can go when it is configured AND the owner's yes is live — read at send time. */
+async function whatsappDelivery(
+  userId: string,
+): Promise<{ env: WhatsAppEnv; optin: LiveOptin } | null> {
+  const env = whatsappEnv();
+  if (!env) return null;
+  const optin = await liveOptin(userId);
+  return optin ? { env, optin } : null;
+}
+
+type ChannelStatus = "sent" | "refused" | "unknown";
+
+/** Every channel that went, sent: sent. Any that may have gone: unknown. Otherwise refused. */
+function combined(statuses: readonly ChannelStatus[]): ChannelStatus {
+  if (statuses.every((s) => s === "sent")) return "sent";
+  return statuses.includes("unknown") ? "unknown" : "refused";
 }
 
 /** One account's week. Returns what happened; never throws for a send. */
@@ -258,24 +303,51 @@ export async function summariseAccount(
   if (!summaryOn(summaryPref(owner.prefs), true)) return "off";
 
   const origin = (opts.origin === undefined ? appUrl() : opts.origin)?.replace(/\/$/, "") ?? null;
-  const configured = opts.send !== undefined || ownerEmailConfigured();
-  if (!origin || !configured) return "not_configured";
+  // P6-07: each channel the owner chose, if it can go. Email is the default.
+  const channel = summaryChannel(owner.prefs);
+  const configured = wantsEmail(channel) && (opts.send !== undefined || ownerEmailConfigured());
+  const wa = wantsWhatsApp(channel) ? await whatsappDelivery(owner.id) : null;
+  if (!origin || (!configured && !wa)) return "not_configured";
 
   const week = isoWeek(now);
   const token = stopToken(owner.id);
   const stopUrl = `${origin}/summary/stop/${token}`;
   const oneClickUrl = `${origin}/api/summary/stop/${token}`;
   // L-6: in the owner's own language, while it is open to them; English otherwise.
-  const words = await wordsFor(
-    personLocale(owner.language, { email: owner.email, account_id: account.account_id }),
-    "emails.summary",
-  );
-  const composed = composeSummary(
-    await gatherSummary({ profileId: account.profile_id, now, origin, stopUrl }),
-    words,
-  );
+  const locale = personLocale(owner.language, {
+    email: owner.email,
+    account_id: account.account_id,
+  });
+  const words = await wordsFor(locale, "emails.summary");
+  const input = await gatherSummary({ profileId: account.profile_id, now, origin, stopUrl });
+  const composed = composeSummary(input, words);
 
-  // The claim: the unique (account, week) index lets exactly one run through.
+  // The WhatsApp message, built before the claim: the template in the
+  // owner's language when there is one, English's otherwise — and then the
+  // digest in English too, so the message never mixes two languages.
+  let message: WhatsAppMessage | null = null;
+  let templateLocale: string | null = null;
+  if (wa) {
+    const template = templateFor(wa.env.templates, locale)!;
+    templateLocale = template.locale;
+    const waWords =
+      template.locale === locale
+        ? words
+        : await wordsFor(template.locale as AppLocale, "emails.summary");
+    message = {
+      to: wa.optin.phone_number,
+      content_sid: template.content_sid,
+      variables: whatsappVariables({
+        business: input.business,
+        composed: waWords === words ? composed : composeSummary(input, waWords),
+        origin,
+        w: waWords,
+      }),
+    };
+  }
+
+  // The claim: the unique (account, week) index lets exactly one run through,
+  // however many channels it carries.
   const [claim] = await db
     .insert(weeklySummaries)
     .values({
@@ -283,11 +355,56 @@ export async function summariseAccount(
       iso_week: week,
       quiet: composed.quiet,
       line_count: composed.line_count,
+      ...(configured ? {} : { status: null }),
+      ...(wa ? { whatsapp_status: "sending" as const, whatsapp_optin_id: wa.optin.id } : {}),
     })
     .onConflictDoNothing()
     .returning({ id: weeklySummaries.id });
   if (!claim) return "already_sent";
 
+  const statuses: ChannelStatus[] = [];
+  if (configured) {
+    statuses.push(
+      await emailSummary({
+        claimId: claim.id,
+        owner,
+        account,
+        week,
+        composed,
+        stopUrl,
+        oneClickUrl,
+        opts,
+      }),
+    );
+  }
+  if (wa && message) {
+    statuses.push(
+      await whatsappSummary({
+        claimId: claim.id,
+        env: wa.env,
+        message,
+        accountId: account.account_id,
+        week,
+        templateLocale,
+        opts,
+      }),
+    );
+  }
+  return combined(statuses);
+}
+
+/** The email, as it always went: one send, its outcome recorded on the claimed row. */
+async function emailSummary(args: {
+  claimId: string;
+  owner: { email: string };
+  account: { account_id: string };
+  week: string;
+  composed: ComposedSummary;
+  stopUrl: string;
+  oneClickUrl: string;
+  opts: SummaryRunOptions;
+}): Promise<ChannelStatus> {
+  const { claimId, owner, account, week, composed, stopUrl, oneClickUrl, opts } = args;
   const send = opts.send ?? ((mail: OwnerEmail) => sendOwnerEmail(mail));
   let outcome: OwnerEmailOutcome;
   try {
@@ -318,7 +435,61 @@ export async function summariseAccount(
       provider_id: outcome.kind === "sent" ? outcome.provider_id : null,
       settled_at: new Date().toISOString(),
     })
-    .where(eq(weeklySummaries.id, claim.id));
+    .where(eq(weeklySummaries.id, claimId));
+  return status;
+}
+
+/**
+ * P6-07: the WhatsApp message — one POST to Twilio, never retried, its own
+ * outcome and Twilio's message SID (or error code) on the same claimed row.
+ * Rule 34: a cost line per send, tagged by workload. Twilio prices a
+ * WhatsApp template by country and category and says so only on its bill,
+ * so the line records the send and says the cost is unknown.
+ */
+async function whatsappSummary(args: {
+  claimId: string;
+  env: WhatsAppEnv;
+  message: WhatsAppMessage;
+  accountId: string;
+  week: string;
+  templateLocale: string | null;
+  opts: SummaryRunOptions;
+}): Promise<ChannelStatus> {
+  let outcome: WhatsAppOutcome;
+  try {
+    outcome = await sendWhatsApp(args.env, args.message, args.opts.twilioFetch ?? fetch);
+  } catch (error) {
+    outcome = { kind: "unknown", why: error instanceof Error ? error.name : "error" };
+  }
+  const status: ChannelStatus = outcome.kind;
+  await db
+    .update(weeklySummaries)
+    .set({
+      whatsapp_status: status,
+      whatsapp_sid: outcome.kind === "sent" ? outcome.sid : null,
+      whatsapp_error_code: outcome.kind === "refused" ? outcome.code : null,
+      settled_at: new Date().toISOString(),
+    })
+    .where(eq(weeklySummaries.id, args.claimId));
+  // Ids and counts only — never the number, never a variable's text.
+  console.log(
+    JSON.stringify({
+      event: "weekly_summary_whatsapp",
+      workload: WHATSAPP_SUMMARY_WORKLOAD,
+      provider: "twilio",
+      account_id: args.accountId,
+      summary_id: args.claimId,
+      iso_week: args.week,
+      outcome: status,
+      http_status: outcome.kind === "refused" ? outcome.status : null,
+      error_code: outcome.kind === "refused" ? outcome.code : null,
+      template_locale: args.templateLocale,
+      variable_chars: Object.values(args.message.variables).reduce((n, v) => n + v.length, 0),
+      cost: null,
+      cost_known: false,
+      cost_note: "Twilio and Meta bill per template message by country; not known at send time",
+    }),
+  );
   return status;
 }
 

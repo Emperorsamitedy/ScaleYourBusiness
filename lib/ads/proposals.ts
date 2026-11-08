@@ -33,8 +33,17 @@
 // adsPlan) — the op follows the change, never a caller.
 // Attribution is Meta's own: the proposal says so, and calls it ROAS as
 // Meta attributes it, not as the business measured it.
+//
+// P3-22, Google half (owner, 2026-11-08: "build google ads too"): Google Ads
+// campaigns, measured through the google_ads execute connection's read
+// (lib/google-ads/read.ts), go through the same thresholds, the same
+// guardrails and the same gates. Their value is Google's conversion value,
+// attributed by Google's own rules, and the proposal says so. A Google
+// campaign's proposal carries `platform: "google"`, which routes it to the
+// Google Ads executor (lib/ads/executing, adsPlan); its dedupe ref is
+// ads:google:<id>:… so it can never fold into a Meta campaign's.
 
-import { and, eq, gte, inArray, lte } from "drizzle-orm";
+import { and, eq, gte, inArray, lte, or } from "drizzle-orm";
 import { db } from "../../db";
 import {
   businessProfiles,
@@ -91,7 +100,29 @@ export interface CampaignDay {
   value_minor: number;
 }
 
+/** Which ad platform a campaign runs on — and whose attribution its value is. */
+export type AdPlatform = "meta" | "google";
+
+/** P3-22, Google half: the platform's name, and what its attributed value is called. */
+export const PLATFORM_WORDS: Readonly<
+  Record<AdPlatform, { name: string; value: string; attribution: string }>
+> = {
+  meta: {
+    name: "Meta",
+    value: "purchases Meta attributes",
+    attribution: "Purchases are the ones Meta attributes to the campaign, by Meta's own rules.",
+  },
+  google: {
+    name: "Google",
+    value: "conversion value Google attributes",
+    attribution:
+      "Conversion value is what Google attributes to the campaign, by Google's own conversion rules.",
+  },
+};
+
 export interface CampaignSeries {
+  /** Absent on series built before Google Ads: Meta. */
+  platform?: AdPlatform;
   campaign_ref: string;
   campaign_name: string;
   currency: string;
@@ -221,25 +252,35 @@ export async function monthlyAdCeiling(
   return field?.status === "answered" && field.value ? field.value : null;
 }
 
-/** The per-campaign series an account measures, from its Meta measure connection(s). */
+/**
+ * The per-campaign series an account measures: from its Meta measure
+ * connection(s) and, since P3-22's Google half, its Google Ads execute
+ * connection(s), whose read writes the same per-campaign metrics.
+ */
 export async function loadCampaignSeries(
   accountId: string,
   from: string,
   to: string,
 ): Promise<CampaignSeries[]> {
   const conns = await db
-    .select({ id: connections.id })
+    .select({ id: connections.id, provider: connections.provider })
     .from(connections)
     .where(
       and(
         eq(connections.account_id, accountId),
-        eq(connections.provider, "meta_ads"),
-        eq(connections.purpose, "measure"),
+        or(
+          and(eq(connections.provider, "meta_ads"), eq(connections.purpose, "measure")),
+          and(eq(connections.provider, "google_ads"), eq(connections.purpose, "execute")),
+        ),
       ),
     );
   if (conns.length === 0) return [];
+  const platformOf = new Map<string, AdPlatform>(
+    conns.map((c) => [c.id, c.provider === "google_ads" ? "google" : "meta"]),
+  );
   const rows = await db
     .select({
+      connection_id: metricObservations.connection_id,
       metric_key: metricObservations.metric_key,
       dimensions: metricObservations.dimensions,
       period_date: metricObservations.period_date,
@@ -265,7 +306,10 @@ export async function loadCampaignSeries(
   for (const r of rows) {
     const ref = r.dimensions?.campaign_ref;
     if (!ref || r.value_minor === null || !r.currency) continue;
-    const series = byCampaign.get(ref) ?? {
+    const platform = platformOf.get(r.connection_id) ?? "meta";
+    const key = `${platform}:${ref}`;
+    const series = byCampaign.get(key) ?? {
+      platform,
       campaign_ref: ref,
       campaign_name: r.dimensions?.campaign_name ?? ref,
       currency: r.currency,
@@ -282,7 +326,7 @@ export async function loadCampaignSeries(
     if (r.metric_key === "ad_spend.campaign.daily") day.spend_minor = r.value_minor;
     else day.value_minor = r.value_minor;
     series.byDate.set(r.period_date, day);
-    byCampaign.set(ref, series);
+    byCampaign.set(key, series);
   }
   return [...byCampaign.values()].map(({ byDate, ...s }) => ({
     ...s,
@@ -372,7 +416,9 @@ async function recordAdChange(
 ): Promise<{ created: ProposalRow } | { skipped: { ref: string; reason: string } }> {
   const kind =
     change.change === "raise_budget" ? "paid_ads_start_or_increase" : "paid_ads_decrease_or_pause";
-  const ref = `ads:${c.campaign_ref}:${change.change}:${ctx.month}`;
+  const platform: AdPlatform = c.platform ?? "meta";
+  const pw = PLATFORM_WORDS[platform];
+  const ref = `ads:${platform === "google" ? "google:" : ""}${c.campaign_ref}:${change.change}:${ctx.month}`;
   if (ctx.existing.has(ref)) return { skipped: { ref, reason: "already proposed this month" } };
   const silenced = ctx.suppressed.get(kind);
   if (silenced) {
@@ -411,7 +457,7 @@ async function recordAdChange(
   }
   const verdict = checkHardLimits(await ctx.limits(), kind);
 
-  const arithmetic = `${fmt(w.spend_minor)} spent, ${fmt(w.value_minor)} in purchases Meta attributes, over ${w.measured_days} measured days: return on ad spend ${roasWord(w.roas)}`;
+  const arithmetic = `${fmt(w.spend_minor)} spent, ${fmt(w.value_minor)} in ${pw.value}, over ${w.measured_days} measured days: return on ad spend ${roasWord(w.roas)}`;
   const monthlyLoss = Math.round(((w.spend_minor - w.value_minor) / w.measured_days) * 30);
   const sharePct = change.change === "pause" ? 0 : Math.round(change.share * 100);
   const deltaDaily = change.change === "pause" ? 0 : Math.round(dailySpend * change.share);
@@ -426,7 +472,9 @@ async function recordAdChange(
       },
       {
         statement:
-          "Meta's attribution is its own — some of these purchases might have happened anyway",
+          platform === "google"
+            ? "Google's attribution is its own — some of these conversions might have happened anyway"
+            : "Meta's attribution is its own — some of these purchases might have happened anyway",
         value: null,
         source_field: null,
         sensitivity: "high",
@@ -436,7 +484,7 @@ async function recordAdChange(
       case: "base",
       statement:
         change.change === "pause"
-          ? `About ${fmt(Math.max(0, monthlyLoss))} a month stops going out beyond what Meta says comes back.`
+          ? `About ${fmt(Math.max(0, monthlyLoss))} a month stops going out beyond what ${pw.name} says comes back.`
           : change.change === "raise_budget"
             ? `About ${fmt(deltaDaily * 30)} more a month in spend, with about ${attributed} in attributed purchases at the same return.`
             : `About ${fmt(deltaDaily * 30)} less a month in spend, and about ${attributed} less in attributed purchases at the same return.`,
@@ -484,7 +532,7 @@ async function recordAdChange(
       summary:
         change.change === "pause"
           ? w.roas !== null && w.roas < ADS.pause_roas_below
-            ? `Pause "${c.campaign_name}" — it spent more than Meta says it brought back over ${w.measured_days} days`
+            ? `Pause "${c.campaign_name}" — it spent more than ${pw.name} says it brought back over ${w.measured_days} days`
             : `Pause "${c.campaign_name}" — return on ad spend ${roasWord(w.roas)} over ${w.measured_days} days`
           : change.change === "raise_budget"
             ? `Raise "${c.campaign_name}"'s daily budget by ${sharePct}% — return on ad spend ${roasWord(w.roas)} over ${w.measured_days} days`
@@ -506,11 +554,14 @@ async function recordAdChange(
         currency: c.currency,
         roas: w.roas,
         arithmetic,
-        attribution: "Purchases are the ones Meta attributes to the campaign, by Meta's own rules.",
+        ...(platform === "google" ? { platform: "google" } : {}),
+        attribution: pw.attribution,
         // P3-22b: approving queues it for the next due run (no set time needed).
         execute_on_approval: true,
         sending:
-          "Approved, it goes to Meta on the next scheduled run: a dry run first, then the change, re-checked against your limits. Meta ad changes stay switched off until the two-week unattended test completes; until then it waits, approved.",
+          platform === "google"
+            ? "Approved, it goes to Google Ads on the next scheduled run: a dry run first, then the change, re-checked against your limits. Google Ads changes stay switched off until the two-week unattended test completes; until then it waits, approved."
+            : "Approved, it goes to Meta on the next scheduled run: a dry run first, then the change, re-checked against your limits. Meta ad changes stay switched off until the two-week unattended test completes; until then it waits, approved.",
         manual_limits: verdict.manual.map((l) => l.quote),
         ...(simulation ? { requested_from: "simulator" } : {}),
       },
@@ -567,6 +618,8 @@ export async function proposeRequestedAdChange(
   profileId: string,
   args: {
     campaign_ref: string;
+    /** Which platform's campaign; Meta when absent (the simulator's own). */
+    platform?: AdPlatform;
     change: "pause" | "raise_budget" | "lower_budget";
     /** Positive, for a raise or a cut. */
     share?: number;
@@ -582,7 +635,10 @@ export async function proposeRequestedAdChange(
     out.skipped.push({ ref: "profile", reason: ctx.skip });
     return out;
   }
-  const c = ctx.campaigns.find((s) => s.campaign_ref === args.campaign_ref);
+  const c = ctx.campaigns.find(
+    (s) =>
+      s.campaign_ref === args.campaign_ref && (s.platform ?? "meta") === (args.platform ?? "meta"),
+  );
   if (!c) {
     out.skipped.push({ ref: args.campaign_ref, reason: "that campaign isn't measured" });
     return out;

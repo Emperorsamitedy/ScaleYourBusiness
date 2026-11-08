@@ -128,6 +128,13 @@ npm run db:seed
 - Page speed in the site audit: `PAGESPEED_API_KEY`.
 - Google reviews: `GOOGLE_BUSINESS_API_APPROVED=true`, only after Google
   approves the Business Profile API.
+- Google Ads (P2-20 / P3-22): `GOOGLE_ADS_ACCESS_LEVEL` (`test`, `explorer`,
+  `basic` or `standard` — what Google approved, shown to owners as is), plus
+  an OAuth client: `GOOGLE_ADS_CLIENT_ID` and `GOOGLE_ADS_CLIENT_SECRET`, or
+  nothing more to reuse `GOOGLE_CLIENT_ID`/`GOOGLE_CLIENT_SECRET`. Optional:
+  `GOOGLE_ADS_DEVELOPER_TOKEN`, `GOOGLE_ADS_LOGIN_CUSTOMER_ID`,
+  `GOOGLE_ADS_REDIRECT_URI`. Without the required ones the Google Ads card
+  names exactly what is missing. The steps on Google's side are below.
 - Media storage: `BLOB_READ_WRITE_TOKEN`.
 - Meta: `META_APP_ID`, `META_APP_SECRET` and `META_OAUTH_REDIRECT_URI`.
   Keep `META_ACCESS_LEVEL=standard` until App Review.
@@ -139,6 +146,13 @@ npm run db:seed
   number's "A call comes in" webhook to `<APP_URL>/api/phone/voice` and its
   call status callback to `<APP_URL>/api/phone/voice?step=status`, both
   HTTP POST. Then turn the line on from `/support`. One business per number.
+- The weekly summary on WhatsApp (P6-07): the same `TWILIO_ACCOUNT_SID` and
+  `TWILIO_AUTH_TOKEN`, plus `TWILIO_WHATSAPP_FROM` (the WhatsApp-enabled
+  sender, E.164) and `TWILIO_WHATSAPP_SUMMARY_TEMPLATES` (JSON, locale →
+  approved ContentSid, e.g. `{"en":"HX…","de-DE":"HX…"}`; `en` required).
+  Submit the template text in `specs/whatsapp-summary-v1.md` for Meta's
+  approval first. Then the owner picks WhatsApp on `/watch`, gives their
+  number and ticks the opt-in; nothing goes without that yes.
 - AI video (P6-03): buy Higgsfield **API** credit (a prepaid USD balance,
   separate from any higgsfield.ai web plan), create a key in Higgsfield's
   API console, then set `MEDIA_PROVIDER=higgsfield`, `HIGGSFIELD_API_KEY`
@@ -147,6 +161,36 @@ npm run db:seed
   6000 = $60), `HIGGSFIELD_MODEL` and `HIGGSFIELD_USD_MICROS_PER_SECOND`
   (see `specs/higgsfield-api-v1.md`). Needs media storage
   (`BLOB_READ_WRITE_TOKEN`). Three 5-second candidates cost about $1.68.
+
+**Google Ads, the owner's steps on Google's side** (checked against
+Google's pages on 2026-11-08; `specs/google-ads-api-v1.md` keeps what is
+confirmed and what isn't)
+
+1. In Google Cloud Console, pick the project that owns the OAuth client SYB
+   will use (the sign-in client, or a new project for Google Ads alone — a
+   separate project keeps adwords' verification from holding up sign-in).
+   Enable the **Google Ads API**.
+2. Open the Google Ads API overview page in that project
+   (`console.cloud.google.com/google/ads-apis/overview`). Access is granted
+   to the project now, not to a developer token: a new project starts at
+   **Test** (test accounts only). Apply there for **Explorer** (real
+   accounts, 2,880 operations a day) and then **Basic** (15,000 a day,
+   after brand verification and Google's review). Google says a developer
+   token and a manager account are no longer needed to start (developer
+   tokens were retired on 2026-09-09; the old API Center application is
+   gone). A Google Ads manager account is still useful to hold test
+   accounts for trying it out (not confirmed on the pages read). Set
+   `GOOGLE_ADS_ACCESS_LEVEL` to the level Google has granted, and change it
+   when Google changes it: owners see it on their card.
+3. On the OAuth consent screen, add the scope
+   `https://www.googleapis.com/auth/adwords`. It is a sensitive scope, so
+   Google's app verification is needed before anyone outside the test users
+   can grant it; until then add pilot owners as test users.
+4. Add the redirect URI `<APP_URL>/api/connections/google-ads/callback` to
+   the OAuth client.
+5. In Vercel, set the keys above. Reads start on the next daily sync; a
+   change runs only after the owner approves a proposal, and only once
+   `SESSION_D_REAL_WRITES=on`.
 
 **Languages**
 

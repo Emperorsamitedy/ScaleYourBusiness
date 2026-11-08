@@ -8,8 +8,11 @@
 //   · TwiML, the XML a voice webhook answers with. Every spoken word goes
 //     through `escapeXml`, so nothing a model or a caller produced can
 //     become a verb: a caller can't talk the line into <Dial>ing anyone or
-//     <Record>ing anything (rule 24), and there is no <Record> verb here at
-//     all — the line keeps no audio (rule 32).
+//     <Record>ing anything (rule 24). There is no <Record> verb at all. The
+//     one way audio is kept is <Start><Recording> (P6-08), which only the
+//     line's own code asks for, when the owner switched recording on — and
+//     `twiml` refuses to write it unless a recording notice was spoken
+//     earlier in the same document (rule 32).
 //   · The voices: each of the seven languages SYB writes has a Twilio
 //     text-to-speech voice and a speech-recognition language, so the line
 //     speaks the business's own language.
@@ -110,7 +113,21 @@ export function escapeXml(text: string): string {
 }
 
 export type Verb =
-  | { verb: "say"; text: string }
+  | {
+      verb: "say";
+      text: string;
+      /** P6-08: this <Say> tells the caller the call is recorded. A recording may start after it. */
+      recordingNotice?: true;
+    }
+  | {
+      /**
+       * P6-08: <Start><Recording> — Twilio records the call from here on and
+       * carries on with the next verb. Mono, both sides, to `callback`.
+       */
+      verb: "record";
+      /** Relative to the webhook ("/api/phone/recording"): Twilio resolves and signs it. */
+      callback: string;
+    }
   | {
       verb: "gather";
       /** Relative to the webhook ("/api/phone/voice?step=turn"): Twilio resolves and signs it. */
@@ -123,8 +140,26 @@ export type Verb =
   | { verb: "dial"; number: string; action: string; timeout: number }
   | { verb: "hangup" };
 
-/** Pure: one TwiML document, every word escaped, every <Say> in the line's voice. */
+/** Thrown when a document would start a recording before telling the caller (rule 32). */
+export class RecordingBeforeNoticeError extends Error {
+  constructor() {
+    super("rule 32: a recording starts only after the caller has heard that the call is recorded");
+    this.name = "RecordingBeforeNoticeError";
+  }
+}
+
+/**
+ * Pure: one TwiML document, every word escaped, every <Say> in the line's
+ * voice. A `record` verb with no recording notice before it throws: TwiML
+ * runs in order and a <Say> plays to its end before the next verb, so a
+ * notice placed earlier has been heard when the recording starts.
+ */
 export function twiml(voice: TwilioVoice, verbs: readonly Verb[]): string {
+  const firstNotice = verbs.findIndex((v) => v.verb === "say" && v.recordingNotice === true);
+  const firstRecord = verbs.findIndex((v) => v.verb === "record");
+  if (firstRecord !== -1 && (firstNotice === -1 || firstNotice > firstRecord)) {
+    throw new RecordingBeforeNoticeError();
+  }
   const say = (text: string) =>
     `<Say voice="${escapeXml(voice.voice)}" language="${escapeXml(voice.say)}">${escapeXml(text)}</Say>`;
   const body = verbs
@@ -142,6 +177,16 @@ export function twiml(voice: TwilioVoice, verbs: readonly Verb[]): string {
           return (
             `<Dial action="${escapeXml(v.action)}" method="POST" timeout="${v.timeout}">` +
             `<Number>${escapeXml(v.number)}</Number></Dial>`
+          );
+        case "record":
+          // Twilio's attributes (specs/twilio-recording-v1.md): one mono file of
+          // both sides, silence kept so it matches the transcript's timing,
+          // and a callback only when it is finished (or absent).
+          return (
+            `<Start><Recording channels="mono" track="both" trim="do-not-trim" ` +
+            `recordingStatusCallback="${escapeXml(v.callback)}" ` +
+            `recordingStatusCallbackMethod="POST" ` +
+            `recordingStatusCallbackEvent="completed absent"/></Start>`
           );
         case "hangup":
           return "<Hangup/>";
