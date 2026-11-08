@@ -57,8 +57,9 @@ describe("TikTok Ads — scope ids, named", () => {
 
 describe("TikTok Ads — the reasons the screen reads, one English", () => {
   it("the catalogue's English is the code's, byte for byte", () => {
-    const cat = (en as unknown as { connections: { tiktok: { reason: Record<string, string> } } })
-      .connections.tiktok.reason;
+    const cat = (
+      en as unknown as { connections: { tiktokAds: { reason: Record<string, string> } } }
+    ).connections.tiktokAds.reason;
     expect({ ...cat }).toEqual({ ...TIKTOK_REASONS, generic: TIKTOK_GENERIC });
   });
 

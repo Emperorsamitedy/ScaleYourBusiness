@@ -237,6 +237,135 @@ export function tiktokAdsEnv(): TikTokAdsEnv | null {
   };
 }
 
+/** SYB's own TikTok app for posting (Login Kit + Content Posting API), as the environment holds it. */
+export interface TikTokPostingEnv {
+  client_key: string;
+  client_secret: string;
+  /** TIKTOK_REDIRECT_URI when set; otherwise derived from APP_URL or the request's origin. */
+  redirect_uri: string | null;
+  app_url: string | null;
+}
+
+/**
+ * TikTok posting (2026-11-08) is offered only when BOTH TIKTOK_CLIENT_KEY and
+ * TIKTOK_CLIENT_SECRET are set. Null otherwise: the card says it isn't set
+ * up yet, and every route of the sign-in refuses rather than sending a
+ * half-configured request to TikTok.
+ */
+export function tiktokPostingEnv(): TikTokPostingEnv | null {
+  const client_key = process.env.TIKTOK_CLIENT_KEY?.trim() ?? "";
+  const client_secret = process.env.TIKTOK_CLIENT_SECRET?.trim() ?? "";
+  if (client_key === "" || client_secret === "") return null;
+  return {
+    client_key,
+    client_secret,
+    redirect_uri: process.env.TIKTOK_REDIRECT_URI?.trim() || null,
+    app_url: appUrl(),
+  };
+}
+
+export type TikTokAuditStatus = "unaudited" | "audited";
+
+/**
+ * Whether TikTok's audit of SYB's app has passed. Until it has, TikTok
+ * restricts everything an app posts to private viewing (SELF_ONLY, "only
+ * me") and refuses anything else at init. Anything but "audited" reads as
+ * unaudited — the screen must never offer a privacy TikTok will refuse, so
+ * the safe reading is the default, as with META_ACCESS_LEVEL.
+ */
+export function tiktokAuditStatus(): TikTokAuditStatus {
+  return process.env.TIKTOK_AUDIT_STATUS?.trim() === "audited" ? "audited" : "unaudited";
+}
+
+/**
+ * P2-20 / P3-22: Google's API access levels for the Google Ads API, as
+ * Google names them (access-levels page, read 2026-11-08). The level belongs
+ * to the Google Cloud project that owns the OAuth client.
+ *
+ *   test      test accounts only — a real ad account is refused by Google
+ *   explorer  production accounts too, 2,880 operations a day
+ *   basic     15,000 operations a day, after Google's review
+ *   standard  no daily cap, after Google's audit
+ */
+export const GOOGLE_ADS_ACCESS_LEVELS = ["test", "explorer", "basic", "standard"] as const;
+export type GoogleAdsAccessLevel = (typeof GOOGLE_ADS_ACCESS_LEVELS)[number];
+
+/** SYB's Google OAuth client and API setup for Google Ads (P2-20 / P3-22). */
+export interface GoogleAdsEnv {
+  client_id: string;
+  client_secret: string;
+  /** What Google has approved SYB's Cloud project for, stated by the operator. */
+  access_level: GoogleAdsAccessLevel;
+  /**
+   * GOOGLE_ADS_DEVELOPER_TOKEN, sent as the developer-token header when set.
+   * Google's developer-token page (read 2026-11-08) says tokens were retired
+   * on 2026-09-09 and a token sent is ignored; kept optional for an older
+   * project that still holds one.
+   */
+  developer_token: string | null;
+  /** GOOGLE_ADS_LOGIN_CUSTOMER_ID: a manager account SYB reads through, ten digits; null = direct. */
+  login_customer_id: string | null;
+  /** GOOGLE_ADS_REDIRECT_URI when set; otherwise derived from APP_URL or the request's origin. */
+  redirect_uri: string | null;
+  app_url: string | null;
+}
+
+/** The environment keys Google Ads cannot run without, as the connection card names them. */
+export type GoogleAdsMissingKey =
+  "GOOGLE_ADS_CLIENT_ID" | "GOOGLE_ADS_CLIENT_SECRET" | "GOOGLE_ADS_ACCESS_LEVEL";
+
+function googleAdsClient(): { client_id: string; client_secret: string } {
+  // Its own client when set; otherwise the Google client sign-in and Business
+  // Profile already use (one Cloud project, one consent screen to verify).
+  const own_id = process.env.GOOGLE_ADS_CLIENT_ID?.trim() ?? "";
+  const own_secret = process.env.GOOGLE_ADS_CLIENT_SECRET?.trim() ?? "";
+  if (own_id !== "" || own_secret !== "") return { client_id: own_id, client_secret: own_secret };
+  return {
+    client_id: process.env.GOOGLE_CLIENT_ID?.trim() ?? "",
+    client_secret: process.env.GOOGLE_CLIENT_SECRET?.trim() ?? "",
+  };
+}
+
+function googleAdsAccessLevel(): GoogleAdsAccessLevel | null {
+  const raw = process.env.GOOGLE_ADS_ACCESS_LEVEL?.trim().toLowerCase() ?? "";
+  return (GOOGLE_ADS_ACCESS_LEVELS as readonly string[]).includes(raw)
+    ? (raw as GoogleAdsAccessLevel)
+    : null;
+}
+
+/** P2-20: what is still missing before Google Ads can be offered, by key name. Empty = ready. */
+export function googleAdsMissing(): GoogleAdsMissingKey[] {
+  const client = googleAdsClient();
+  const missing: GoogleAdsMissingKey[] = [];
+  if (client.client_id === "") missing.push("GOOGLE_ADS_CLIENT_ID");
+  if (client.client_secret === "") missing.push("GOOGLE_ADS_CLIENT_SECRET");
+  if (googleAdsAccessLevel() === null) missing.push("GOOGLE_ADS_ACCESS_LEVEL");
+  return missing;
+}
+
+/**
+ * P2-20 / P3-22: Google Ads is offered only with an OAuth client (its own,
+ * or the shared GOOGLE_CLIENT_ID/SECRET) AND a stated access level — the
+ * access level is what the connection card tells the owner, so it is never
+ * guessed. Null otherwise: the card names what is missing, and the daily
+ * read and every Google Ads change refuse.
+ */
+export function googleAdsEnv(): GoogleAdsEnv | null {
+  const client = googleAdsClient();
+  const access_level = googleAdsAccessLevel();
+  if (client.client_id === "" || client.client_secret === "" || access_level === null) return null;
+  const token = process.env.GOOGLE_ADS_DEVELOPER_TOKEN?.trim() ?? "";
+  const login = (process.env.GOOGLE_ADS_LOGIN_CUSTOMER_ID?.trim() ?? "").replace(/-/g, "");
+  return {
+    ...client,
+    access_level,
+    developer_token: token === "" || /\s/.test(token) ? null : token,
+    login_customer_id: /^\d{10}$/.test(login) ? login : null,
+    redirect_uri: process.env.GOOGLE_ADS_REDIRECT_URI?.trim() || null,
+    app_url: appUrl(),
+  };
+}
+
 /**
  * P3-50: the user access token SYB reads Meta's Ad Library with — from a
  * developer account whose identity Meta has confirmed. Optional: null
@@ -332,14 +461,39 @@ export const TWILIO_KEYS = [
   "TWILIO_PHONE_NUMBER",
 ] as const;
 
-/** The Twilio settings that are missing or malformed, by name — empty when the line can run. */
-export function twilioMissing(): (typeof TWILIO_KEYS)[number][] {
+/** P6-08: how long a call recording is kept unless the owner sets otherwise. */
+export const PHONE_RECORDING_KEEP_DAYS_DEFAULT = 30;
+/** The longest PHONE_RECORDING_KEEP_DAYS honoured: a year. Anything longer reads as the default. */
+export const PHONE_RECORDING_KEEP_DAYS_MAX = 365;
+
+/**
+ * P6-08: PHONE_RECORDING_KEEP_DAYS — whole days, 1 to 365; anything else
+ * (unset, junk, zero, longer than a year) is the default of 30. The caller
+ * hears this number in the recording notice, and the owner reads it.
+ */
+export function phoneRecordingKeepDays(): number {
+  const raw = process.env.PHONE_RECORDING_KEEP_DAYS?.trim() ?? "";
+  if (!/^[0-9]{1,3}$/.test(raw)) return PHONE_RECORDING_KEEP_DAYS_DEFAULT;
+  const days = Number.parseInt(raw, 10);
+  return days >= 1 && days <= PHONE_RECORDING_KEEP_DAYS_MAX
+    ? days
+    : PHONE_RECORDING_KEEP_DAYS_DEFAULT;
+}
+
+/** P6-02/P6-07: the shared Twilio account keys that are missing or malformed. */
+function twilioAccountMissing(): ("TWILIO_ACCOUNT_SID" | "TWILIO_AUTH_TOKEN")[] {
   const sid = process.env.TWILIO_ACCOUNT_SID?.trim() ?? "";
   const token = process.env.TWILIO_AUTH_TOKEN?.trim() ?? "";
-  const number = process.env.TWILIO_PHONE_NUMBER?.trim() ?? "";
-  const missing: (typeof TWILIO_KEYS)[number][] = [];
+  const missing: ("TWILIO_ACCOUNT_SID" | "TWILIO_AUTH_TOKEN")[] = [];
   if (!/^AC[0-9a-f]{32}$/i.test(sid)) missing.push("TWILIO_ACCOUNT_SID");
   if (token === "" || /\s/.test(token)) missing.push("TWILIO_AUTH_TOKEN");
+  return missing;
+}
+
+/** The Twilio settings that are missing or malformed, by name — empty when the line can run. */
+export function twilioMissing(): (typeof TWILIO_KEYS)[number][] {
+  const number = process.env.TWILIO_PHONE_NUMBER?.trim() ?? "";
+  const missing: (typeof TWILIO_KEYS)[number][] = [...twilioAccountMissing()];
   if (!/^\+[1-9][0-9]{6,14}$/.test(number)) missing.push("TWILIO_PHONE_NUMBER");
   return missing;
 }
@@ -355,6 +509,67 @@ export function twilioEnv(): TwilioEnv | null {
     accountSid: process.env.TWILIO_ACCOUNT_SID!.trim(),
     authToken: process.env.TWILIO_AUTH_TOKEN!.trim(),
     phoneNumber: process.env.TWILIO_PHONE_NUMBER!.trim(),
+  };
+}
+
+/**
+ * P6-07: the weekly summary on WhatsApp, through the same Twilio account as
+ * the phone line (TWILIO_ACCOUNT_SID and TWILIO_AUTH_TOKEN, read above).
+ */
+export interface WhatsAppEnv {
+  accountSid: string;
+  /** HTTP Basic password for the Messages API. Never logged, never sent anywhere else. */
+  authToken: string;
+  /** The WhatsApp-enabled sender, E.164 ("+447700900123"); sent as "whatsapp:+…". */
+  from: string;
+  /** Locale → the approved template's ContentSid ("HX" + 32 hex). Always has "en". */
+  templates: Readonly<Record<string, string>>;
+}
+
+export const WHATSAPP_KEYS = [
+  "TWILIO_ACCOUNT_SID",
+  "TWILIO_AUTH_TOKEN",
+  "TWILIO_WHATSAPP_FROM",
+  "TWILIO_WHATSAPP_SUMMARY_TEMPLATES",
+] as const;
+
+/** Pure: TWILIO_WHATSAPP_SUMMARY_TEMPLATES read — null unless a JSON object of HX sids with "en". */
+export function parseWhatsAppTemplates(raw: string | undefined): Record<string, string> | null {
+  if (!raw || raw.trim() === "") return null;
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(raw);
+  } catch {
+    return null;
+  }
+  if (parsed === null || typeof parsed !== "object" || Array.isArray(parsed)) return null;
+  const out: Record<string, string> = {};
+  for (const [locale, sid] of Object.entries(parsed as Record<string, unknown>)) {
+    if (typeof sid !== "string" || !/^HX[0-9a-f]{32}$/i.test(sid.trim())) return null;
+    out[locale] = sid.trim();
+  }
+  return typeof out.en === "string" ? out : null;
+}
+
+/** The WhatsApp settings that are missing or malformed, by name — empty when the summary can go. */
+export function whatsappMissing(): (typeof WHATSAPP_KEYS)[number][] {
+  const missing: (typeof WHATSAPP_KEYS)[number][] = [...twilioAccountMissing()];
+  const from = process.env.TWILIO_WHATSAPP_FROM?.trim() ?? "";
+  if (!/^\+[1-9][0-9]{6,14}$/.test(from)) missing.push("TWILIO_WHATSAPP_FROM");
+  if (!parseWhatsAppTemplates(process.env.TWILIO_WHATSAPP_SUMMARY_TEMPLATES)) {
+    missing.push("TWILIO_WHATSAPP_SUMMARY_TEMPLATES");
+  }
+  return missing;
+}
+
+/** P6-07: all four WhatsApp settings, or null: not set up, and /watch names what's needed. */
+export function whatsappEnv(): WhatsAppEnv | null {
+  if (whatsappMissing().length > 0) return null;
+  return {
+    accountSid: process.env.TWILIO_ACCOUNT_SID!.trim(),
+    authToken: process.env.TWILIO_AUTH_TOKEN!.trim(),
+    from: process.env.TWILIO_WHATSAPP_FROM!.trim(),
+    templates: parseWhatsAppTemplates(process.env.TWILIO_WHATSAPP_SUMMARY_TEMPLATES)!,
   };
 }
 

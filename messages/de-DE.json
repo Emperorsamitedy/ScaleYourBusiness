@@ -1216,7 +1216,29 @@
       "notDecided": "Sie beginnt, sobald „So arbeite ich“ festgelegt ist.",
       "noEmail": "E-Mail ist auf diesem Server noch nicht eingerichtet, daher wird keine gesendet.",
       "lastSent": "Zuletzt gesendet {date}.",
-      "first": "Die erste geht bei der nächsten Montagsprüfung hinaus."
+      "first": "Die erste geht bei der nächsten Montagsprüfung hinaus.",
+      "channel": {
+        "legend": "Senden per",
+        "email": "E-Mail",
+        "whatsapp": "WhatsApp",
+        "both": "E-Mail und WhatsApp"
+      },
+      "whatsapp": {
+        "numberLabel": "Ihre WhatsApp-Nummer",
+        "numberHint": "Die vollständige internationale Nummer: ein Pluszeichen, dann die Ländervorwahl.",
+        "consent": "Meine wöchentliche SYB-Zusammenfassung per WhatsApp an diese Nummer senden. Ich kann das hier jederzeit beenden, und SYB nutzt die Nummer für nichts anderes.",
+        "agree": "Ja, per WhatsApp senden",
+        "on": "WhatsApp geht seit {date} an {number}.",
+        "withdraw": "WhatsApp beenden",
+        "forget": "Beenden und meine Nummer löschen",
+        "none": "Noch keine Nummer, daher geht nichts an WhatsApp.",
+        "notSetUp": "WhatsApp ist auf diesem Server noch nicht eingerichtet. Es fehlt: {keys}.",
+        "invalid": "Das ist keine vollständige internationale Nummer. Beginnen Sie mit einem Pluszeichen und der Ländervorwahl.",
+        "changed": "Dieser Text hat sich geändert, während die Seite offen war. Laden Sie neu und lesen Sie ihn noch einmal.",
+        "notYours": "Nur die Person, die die Zusammenfassung erhält, kann eine WhatsApp-Nummer angeben.",
+        "needsYes": "An WhatsApp geht nichts, bis unten eine Nummer angegeben und bestätigt ist.",
+        "failed": "Das wurde nicht gespeichert. Bitte erneut versuchen."
+      }
     },
     "signedOut": {
       "title": "Hier gibt es noch kein Unternehmen.",
@@ -2301,83 +2323,6 @@
         "generic": "Die Google-Anmeldung wurde nicht abgeschlossen. Es wurde nichts verbunden."
       }
     },
-    "tiktok": {
-      "sectionLabel": "TikTok Ads · lesen und handeln, eine Einwilligung",
-      "label": "TikTok-Anzeigenverwaltung",
-      "title": {
-        "on": "Verbunden. SYB liest Ihre TikTok-Kampagnen und ändert nur, was Sie freigeben",
-        "off": "Aus. SYB liest und ändert Ihre TikTok-Anzeigen nicht."
-      },
-      "connected": "TikTok ist verbunden, und Ihre Einwilligung ist festgehalten.",
-      "youCancelled": "Sie haben auf der Seite von TikTok abgebrochen. Es wurde nichts verbunden.",
-      "revoked": "Widerrufen. Der Zugriff von SYB auf TikTok ist hier gelöscht; Lesen und Änderungen sind beendet.",
-      "whyOne": "TikTok gibt einer App eine einzige Liste von Berechtigungen, daher gehören das Lesen Ihrer Kampagnen und das Ändern zusammen. SYB hält beides als diese eine Einwilligung: Es liest einmal täglich und ändert eine Kampagne erst nach Ihrer Freigabe eines Vorschlags.",
-      "fact": {
-        "status": "Status",
-        "adAccounts": "Werbekonten",
-        "lastRead": "zuletzt gelesen",
-        "notYet": "noch nicht: SYB liest einmal täglich"
-      },
-      "revokeAsk": "SYB liest Ihre TikTok-Kampagnen nicht mehr und kann sie nicht ändern.",
-      "revokeNote": "Das Widerrufen löscht den Zugriff von SYB hier sofort. Bereits gelesene Zahlen bleiben. Um SYB auch bei TikTok zu entfernen, nehmen Sie die App von SYB aus den autorisierten Apps Ihres TikTok-Werbekontos.",
-      "tiktokScreen": "TikTok zeigt dann die App von SYB mit diesen Berechtigungen und schickt Ihnen per E-Mail einen Code zur Bestätigung. Erlauben Sie es und kehren Sie hierher zurück.",
-      "typeToConfirm": "Geben Sie zur Bestätigung <b>{phrase}</b> ein",
-      "opening": "TikTok wird geöffnet…",
-      "signIn": "Bei TikTok anmelden und diese erlauben",
-      "nothingWritten": "Beim Verbinden wird Ihre Einwilligung festgehalten, und Ihre Kampagnen werden einmal täglich gelesen. Bei TikTok ändert sich nichts, bis Sie einen Vorschlag freigeben, und Änderungen an TikTok-Anzeigen bleiben ausgeschaltet, bis der zweiwöchige unbeaufsichtigte Test abgeschlossen ist.",
-      "access": {
-        "title": "Zugang, offen gesagt",
-        "check": "TikTok prüft jede Entwickler-App, bevor Anmeldungen damit funktionieren, meist innerhalb von zwei bis drei Werktagen. Bis die App von SYB bestanden hat, lehnt TikTok die Anmeldung ab, und SYB sagt das.",
-        "sandbox": "SYB verbindet nur echte Werbekonten. TikTok stellt seine Sandbox-Konten im Dezember ein, daher nutzt SYB sie nicht: Testen Sie mit Ihrem eigenen Werbekonto und einer kleinen Kampagne."
-      },
-      "missing": {
-        "title": "Noch nicht eingerichtet. Auf dem Server von SYB fehlen diese Einstellungen:"
-      },
-      "steps": {
-        "title": "Einrichtung, einmalig, für den Server von SYB",
-        "developer": "Registrieren Sie sich auf der Entwicklerseite von TikTok, {site}, mit dem TikTok-Login, über das Ihre Anzeigen laufen, und warten Sie, bis Ihr Entwicklerprofil angenommen ist.",
-        "app": "Legen Sie unter „My Apps“ eine App an und tragen Sie {callback} als Weiterleitungs-URL für Werbetreibende ein.",
-        "scopes": "Haken Sie unter „Scope of permission“ genau diese an und sonst nichts: {scopes}.",
-        "submit": "Reichen Sie die App ein. TikTok prüft sie, meist innerhalb von zwei bis drei Werktagen.",
-        "keys": "Sobald sie bestanden hat, kopieren Sie App ID und Secret aus den „Basic Information“ der App nach {appId} und {secret} auf dem Server von SYB und die Weiterleitungs-URL nach {redirect}."
-      },
-      "status": {
-        "connected": "verbunden",
-        "paused": "pausiert",
-        "failed": "fehlgeschlagen",
-        "disconnected": "getrennt"
-      },
-      "consentedOn": "eingewilligt am {day} · {status}",
-      "notGranted": "nicht erteilt",
-      "notSetUpYet": "noch nicht eingerichtet",
-      "connect": "Verbinden",
-      "close": "Schließen",
-      "keepIt": "Behalten",
-      "unreachable": "Ich konnte den Server nicht erreichen. Versuchen Sie es erneut.",
-      "revokeFailed": "Das Widerrufen hat nicht geklappt.",
-      "revoking": "Wird widerrufen…",
-      "yesRevoke": "Ja, widerrufen",
-      "revoke": "Widerrufen",
-      "reason": {
-        "start_here": "Starten Sie die TikTok-Anmeldung auf der Seite „Verbindungen“ von SYB, mit der Schaltfläche dort. An TikTok wurde nichts gesendet.",
-        "signed_out": "Sie müssen sich zuerst bei SYB anmelden; verbinden Sie TikTok dann erneut.",
-        "owner_only": "Nur Inhaber können diese Berechtigung erteilen oder zurücknehmen. An TikTok wurde nichts gesendet.",
-        "unavailable": "TikTok Ads ist noch nicht eingerichtet.",
-        "phrase": "Die Bestätigungsphrase stimmte nicht überein. Geben Sie sie wie angezeigt ein und beginnen Sie dann neu.",
-        "already_connected": "TikTok ist bereits verbunden. Widerrufen Sie es zuerst, um es neu zu verbinden.",
-        "start_again": "Diese TikTok-Anmeldung ist abgelaufen oder wurde bereits verwendet. Beginnen Sie unter „Verbindungen“ neu.",
-        "foreign": "Diese TikTok-Anmeldung wurde von einem anderen SYB-Konto aus gestartet. Nutzen Sie zur Anmeldung bei SYB dieses Konto oder beginnen Sie neu.",
-        "tiktok_error": "Die TikTok-Anmeldung wurde nicht abgeschlossen. Es wurde nichts verbunden.",
-        "scope": "TikTok hat nicht genau die Berechtigungen erteilt, um die SYB bittet. Gleichen Sie den „Scope of permission“ der App mit der Liste unter „Verbindungen“ ab und versuchen Sie es erneut.",
-        "no_advertisers": "TikTok hat SYB für diese Anmeldung kein Werbekonto gezeigt. Melden Sie sich mit dem TikTok-Login an, über das Ihre Anzeigen laufen, und versuchen Sie es erneut.",
-        "tiktok_auth": "TikTok hat die Anmeldung nicht angenommen. Wenn TikTok die App von SYB noch prüft, warten Sie, bis sie bestanden hat; sonst beginnen Sie neu.",
-        "tiktok_permission": "TikTok sagt, die App von SYB darf dieses Werbekonto nicht lesen. Es wurde nichts verbunden.",
-        "tiktok_busy": "TikTok war ausgelastet oder hat nicht geantwortet. Es wurde nichts verbunden — versuchen Sie es in ein paar Minuten erneut.",
-        "tiktok_refused": "TikTok hat die Anmeldung abgelehnt. Es wurde nichts verbunden.",
-        "internal": "Bei uns ist etwas schiefgelaufen. Es wurde nichts verbunden.",
-        "generic": "Die TikTok-Anmeldung wurde nicht abgeschlossen. Es wurde nichts verbunden."
-      }
-    },
     "import": {
       "unreachable": "Ich konnte den Server nicht erreichen. Versuchen Sie es erneut.",
       "readFrom": "Aus {file} gelesen. Sie können es hier prüfen",
@@ -2490,6 +2435,206 @@
       "unknownStatuses": "Status, die ich nicht kannte: {list}. Ich rate nicht, was sie bedeuten.",
       "unknownStatus": "„{word}“ ({count})",
       "listSep": ", "
+    },
+    "tiktok": {
+      "sectionLabel": "Posten auf TikTok · eine eigene Einwilligung",
+      "label": "Posten auf TikTok",
+      "title": {
+        "on": "Erteilt: SYB postet die Videos, die Sie freigeben",
+        "off": "Aus. SYB postet nicht auf TikTok."
+      },
+      "status": {
+        "connected": "verbunden",
+        "paused": "pausiert",
+        "failed": "fehlgeschlagen",
+        "disconnected": "getrennt"
+      },
+      "consentedOn": "eingewilligt am {day} · {status}",
+      "notGranted": "nicht erteilt",
+      "notSetUpYet": "noch nicht eingerichtet",
+      "connect": "Verbinden",
+      "close": "Schließen",
+      "keepIt": "Behalten",
+      "unreachable": "Ich konnte den Server nicht erreichen. Versuchen Sie es erneut.",
+      "revokeFailed": "Das Widerrufen hat nicht geklappt.",
+      "connected": "Das Posten auf TikTok ist verbunden, und Ihre Einwilligung ist erfasst.",
+      "youCancelled": "Sie haben auf der Seite von TikTok abgebrochen. Es wurde nichts verbunden.",
+      "revoked": "Widerrufen. Der Zugriff von SYB auf TikTok ist hier gelöscht, und TikTok wurde gebeten, ihn ebenfalls zu widerrufen.",
+      "revokedHereOnly": "Hier widerrufen. TikTok hat nicht bestätigt, dass es den Zugriff von SYB ebenfalls widerrufen hat. Prüfen Sie das in der TikTok-App.",
+      "fact": {
+        "status": "Status",
+        "account": "TikTok-Konto",
+        "whoSees": "wer Beiträge sieht",
+        "private": "nur Sie, bis TikTok die App von SYB geprüft hat",
+        "chosen": "Sie wählen es für jeden Beitrag"
+      },
+      "access": {
+        "unaudited": "Bis TikTok die App von SYB geprüft hat, geht alles, was SYB postet, privat hinaus: Nur Sie sehen es auf TikTok. Nach bestandener Prüfung wählen Sie, wer jeden Beitrag sieht. Bis dahin lässt TikTok die App von SYB außerdem nur für wenige Konten am Tag posten.",
+        "audited": "TikTok hat die App von SYB geprüft: Sie wählen aus den Optionen von TikTok, wer jeden Beitrag sehen kann."
+      },
+      "before": "Bevor es funktioniert",
+      "needs": {
+        "app": "Eine eigene TikTok-App von SYB, mit Login Kit und der Posting-API von TikTok (Direct Post) eingeschaltet.",
+        "signIn": "Sie nutzen zur Anmeldung das TikTok-Konto, auf das die Beiträge gehen, und erlauben, was TikTok fragt.",
+        "choose": "Jeder Beitrag ist ein Video, das Sie freigeben, und Sie wählen vorher, wer es sehen kann."
+      },
+      "notSetUp": "Noch nicht eingerichtet: Die Schlüssel der TikTok-App von SYB fehlen. Bis dahin kann nichts auf TikTok gepostet werden.",
+      "revokeAsk": "SYB hört auf, auf TikTok zu posten. Bereits gepostete Beiträge bleiben.",
+      "revoking": "Wird widerrufen…",
+      "yesRevoke": "Ja, widerrufen",
+      "revoke": "Widerrufen",
+      "revokeNote": "Das Widerrufen löscht den Zugriff von SYB hier sofort und bittet TikTok, ihn ebenfalls zu widerrufen. Beiträge auf TikTok bleiben dort. Um es auf der Seite von TikTok zu prüfen, öffnen Sie Einstellungen und Datenschutz, dann Sicherheit und Berechtigungen, dann Berechtigungen für Apps und Dienste.",
+      "tiktokScreen": "TikTok zeigt dann eine eigene Seite und fragt nach dem Posten von Videos, Ihrem Basisprofil und Ihren öffentlichen Videos. Erlauben Sie das und kommen Sie hierher zurück.",
+      "typeToConfirm": "Geben Sie zur Bestätigung <b>{phrase}</b> ein",
+      "opening": "TikTok wird geöffnet…",
+      "signIn": "Mit TikTok anmelden und das Posten erlauben",
+      "nothingWritten": "Nichts wird gepostet, bevor Sie das fertige Video freigeben und gewählt haben, wer es sehen kann. SYB liest nur den Namen Ihres TikTok-Profils und die Zahlen Ihrer öffentlichen Videos.",
+      "reason": {
+        "start_here": "Starten Sie die TikTok-Anmeldung auf der Seite „Verbindungen“ von SYB, mit der Schaltfläche dort. An TikTok wurde nichts gesendet.",
+        "signed_out": "Sie müssen sich zuerst bei SYB anmelden; verbinden Sie TikTok dann erneut.",
+        "owner_only": "Nur Inhaber können diese Berechtigung erteilen oder zurücknehmen. An TikTok wurde nichts gesendet.",
+        "unavailable": "Das Posten auf TikTok ist noch nicht eingerichtet.",
+        "phrase": "Die Bestätigungsphrase stimmte nicht überein. Geben Sie sie wie angezeigt ein und beginnen Sie dann neu.",
+        "already_connected": "Das Posten auf TikTok ist bereits verbunden. Widerrufen Sie es zuerst, um ein anderes Konto zu verbinden.",
+        "start_again": "Diese TikTok-Anmeldung ist abgelaufen oder wurde bereits verwendet. Beginnen Sie unter „Verbindungen“ neu.",
+        "foreign": "Diese TikTok-Anmeldung wurde von einem anderen SYB-Konto aus gestartet. Nutzen Sie zur Anmeldung bei SYB dieses Konto oder beginnen Sie neu.",
+        "tiktok_error": "Die TikTok-Anmeldung wurde nicht abgeschlossen. Es wurde nichts verbunden.",
+        "scope": "TikTok hat nicht genau das erteilt, was SYB anfragt. Erlauben Sie auf der Seite von TikTok alles Aufgeführte und versuchen Sie es erneut.",
+        "tiktok_refused": "TikTok hat die Anmeldung abgelehnt. Es wurde nichts verbunden.",
+        "internal": "Bei uns ist etwas schiefgelaufen. Es wurde nichts verbunden.",
+        "generic": "Die TikTok-Anmeldung wurde nicht abgeschlossen. Es wurde nichts verbunden."
+      },
+      "readback": "Um zu sehen, wie Ihre öffentlichen Beiträge ankommen, liest dieselbe Anmeldung außerdem:"
+    },
+    "tiktokAds": {
+      "sectionLabel": "TikTok Ads · lesen und handeln, eine Einwilligung",
+      "label": "TikTok-Anzeigenverwaltung",
+      "title": {
+        "on": "Verbunden. SYB liest Ihre TikTok-Kampagnen und ändert nur, was Sie freigeben",
+        "off": "Aus. SYB liest und ändert Ihre TikTok-Anzeigen nicht."
+      },
+      "connected": "TikTok ist verbunden, und Ihre Einwilligung ist festgehalten.",
+      "youCancelled": "Sie haben auf der Seite von TikTok abgebrochen. Es wurde nichts verbunden.",
+      "revoked": "Widerrufen. Der Zugriff von SYB auf TikTok ist hier gelöscht; Lesen und Änderungen sind beendet.",
+      "whyOne": "TikTok gibt einer App eine einzige Liste von Berechtigungen, daher gehören das Lesen Ihrer Kampagnen und das Ändern zusammen. SYB hält beides als diese eine Einwilligung: Es liest einmal täglich und ändert eine Kampagne erst nach Ihrer Freigabe eines Vorschlags.",
+      "fact": {
+        "status": "Status",
+        "adAccounts": "Werbekonten",
+        "lastRead": "zuletzt gelesen",
+        "notYet": "noch nicht: SYB liest einmal täglich"
+      },
+      "revokeAsk": "SYB liest Ihre TikTok-Kampagnen nicht mehr und kann sie nicht ändern.",
+      "revokeNote": "Das Widerrufen löscht den Zugriff von SYB hier sofort. Bereits gelesene Zahlen bleiben. Um SYB auch bei TikTok zu entfernen, nehmen Sie die App von SYB aus den autorisierten Apps Ihres TikTok-Werbekontos.",
+      "tiktokScreen": "TikTok zeigt dann die App von SYB mit diesen Berechtigungen und schickt Ihnen per E-Mail einen Code zur Bestätigung. Erlauben Sie es und kehren Sie hierher zurück.",
+      "typeToConfirm": "Geben Sie zur Bestätigung <b>{phrase}</b> ein",
+      "opening": "TikTok wird geöffnet…",
+      "signIn": "Bei TikTok anmelden und diese erlauben",
+      "nothingWritten": "Beim Verbinden wird Ihre Einwilligung festgehalten, und Ihre Kampagnen werden einmal täglich gelesen. Bei TikTok ändert sich nichts, bis Sie einen Vorschlag freigeben, und Änderungen an TikTok-Anzeigen bleiben ausgeschaltet, bis der zweiwöchige unbeaufsichtigte Test abgeschlossen ist.",
+      "access": {
+        "title": "Zugang, offen gesagt",
+        "check": "TikTok prüft jede Entwickler-App, bevor Anmeldungen damit funktionieren, meist innerhalb von zwei bis drei Werktagen. Bis die App von SYB bestanden hat, lehnt TikTok die Anmeldung ab, und SYB sagt das.",
+        "sandbox": "SYB verbindet nur echte Werbekonten. TikTok stellt seine Sandbox-Konten im Dezember ein, daher nutzt SYB sie nicht: Testen Sie mit Ihrem eigenen Werbekonto und einer kleinen Kampagne."
+      },
+      "missing": {
+        "title": "Noch nicht eingerichtet. Auf dem Server von SYB fehlen diese Einstellungen:"
+      },
+      "steps": {
+        "title": "Einrichtung, einmalig, für den Server von SYB",
+        "developer": "Registrieren Sie sich auf der Entwicklerseite von TikTok, {site}, mit dem TikTok-Login, über das Ihre Anzeigen laufen, und warten Sie, bis Ihr Entwicklerprofil angenommen ist.",
+        "app": "Legen Sie unter „My Apps“ eine App an und tragen Sie {callback} als Weiterleitungs-URL für Werbetreibende ein.",
+        "scopes": "Haken Sie unter „Scope of permission“ genau diese an und sonst nichts: {scopes}.",
+        "submit": "Reichen Sie die App ein. TikTok prüft sie, meist innerhalb von zwei bis drei Werktagen.",
+        "keys": "Sobald sie bestanden hat, kopieren Sie App ID und Secret aus den „Basic Information“ der App nach {appId} und {secret} auf dem Server von SYB und die Weiterleitungs-URL nach {redirect}."
+      },
+      "status": {
+        "connected": "verbunden",
+        "paused": "pausiert",
+        "failed": "fehlgeschlagen",
+        "disconnected": "getrennt"
+      },
+      "consentedOn": "eingewilligt am {day} · {status}",
+      "notGranted": "nicht erteilt",
+      "notSetUpYet": "noch nicht eingerichtet",
+      "connect": "Verbinden",
+      "close": "Schließen",
+      "keepIt": "Behalten",
+      "unreachable": "Ich konnte den Server nicht erreichen. Versuchen Sie es erneut.",
+      "revokeFailed": "Das Widerrufen hat nicht geklappt.",
+      "revoking": "Wird widerrufen…",
+      "yesRevoke": "Ja, widerrufen",
+      "revoke": "Widerrufen",
+      "reason": {
+        "start_here": "Starten Sie die TikTok-Anmeldung auf der Seite „Verbindungen“ von SYB, mit der Schaltfläche dort. An TikTok wurde nichts gesendet.",
+        "signed_out": "Sie müssen sich zuerst bei SYB anmelden; verbinden Sie TikTok dann erneut.",
+        "owner_only": "Nur Inhaber können diese Berechtigung erteilen oder zurücknehmen. An TikTok wurde nichts gesendet.",
+        "unavailable": "TikTok Ads ist noch nicht eingerichtet.",
+        "phrase": "Die Bestätigungsphrase stimmte nicht überein. Geben Sie sie wie angezeigt ein und beginnen Sie dann neu.",
+        "already_connected": "TikTok ist bereits verbunden. Widerrufen Sie es zuerst, um es neu zu verbinden.",
+        "start_again": "Diese TikTok-Anmeldung ist abgelaufen oder wurde bereits verwendet. Beginnen Sie unter „Verbindungen“ neu.",
+        "foreign": "Diese TikTok-Anmeldung wurde von einem anderen SYB-Konto aus gestartet. Nutzen Sie zur Anmeldung bei SYB dieses Konto oder beginnen Sie neu.",
+        "tiktok_error": "Die TikTok-Anmeldung wurde nicht abgeschlossen. Es wurde nichts verbunden.",
+        "scope": "TikTok hat nicht genau die Berechtigungen erteilt, um die SYB bittet. Gleichen Sie den „Scope of permission“ der App mit der Liste unter „Verbindungen“ ab und versuchen Sie es erneut.",
+        "no_advertisers": "TikTok hat SYB für diese Anmeldung kein Werbekonto gezeigt. Melden Sie sich mit dem TikTok-Login an, über das Ihre Anzeigen laufen, und versuchen Sie es erneut.",
+        "tiktok_auth": "TikTok hat die Anmeldung nicht angenommen. Wenn TikTok die App von SYB noch prüft, warten Sie, bis sie bestanden hat; sonst beginnen Sie neu.",
+        "tiktok_permission": "TikTok sagt, die App von SYB darf dieses Werbekonto nicht lesen. Es wurde nichts verbunden.",
+        "tiktok_busy": "TikTok war ausgelastet oder hat nicht geantwortet. Es wurde nichts verbunden — versuchen Sie es in ein paar Minuten erneut.",
+        "tiktok_refused": "TikTok hat die Anmeldung abgelehnt. Es wurde nichts verbunden.",
+        "internal": "Bei uns ist etwas schiefgelaufen. Es wurde nichts verbunden.",
+        "generic": "Die TikTok-Anmeldung wurde nicht abgeschlossen. Es wurde nichts verbunden."
+      }
+    },
+    "googleAds": {
+      "sectionLabel": "Google Ads · eine eigene Einwilligung",
+      "label": "Google Ads",
+      "title": {
+        "on": "Erteilt: SYB liest Ihre Werbeausgaben und ändert nur, was Sie freigeben",
+        "off": "Aus. SYB liest Ihr Google Ads nicht."
+      },
+      "whatItCanDo": "Googles Berechtigung kann auch Ihre Kampagnen, Budgets und Anzeigen ändern. SYB liest damit einmal am Tag Ihre Ausgaben und Ergebnisse und ändert etwas nur über einen Vorschlag, den Sie freigeben. Sie können sie jederzeit widerrufen.",
+      "notSetUp": "Auf SYBs Seite noch nicht eingerichtet. Es fehlt: {keys}.",
+      "accessLevel": {
+        "title": "Googles Freigabe für SYB",
+        "test": "Nur Testkonten. Google hat SYB noch nicht für echte Werbekonten freigegeben, deshalb wird ein echtes abgelehnt, bis das geschieht.",
+        "explorer": "Echte Werbekonten, bis zu {ops} Vorgänge am Tag für alle, die SYB nutzen.",
+        "basic": "Echte Werbekonten, bis zu {ops} Vorgänge am Tag für alle, die SYB nutzen. Google hat SYB vorher geprüft.",
+        "standard": "Echte Werbekonten, ohne Tageslimit außer Googles eigenen Ratenbegrenzungen.",
+        "unknown": "Noch nicht angegeben, also gilt: nur Testkonten."
+      },
+      "fact": {
+        "account": "Werbekonto"
+      },
+      "revokeAsk": "SYB hört auf, Ihr Google Ads zu lesen, und kann dort nichts mehr ändern.",
+      "revokeNote": "Widerrufen löscht SYBs Zugriff hier sofort. Bereits gelesene Ausgaben bleiben in Ihren Zahlen. Um SYB auch bei Google zu entfernen, öffnen Sie in Ihrem Google-Konto die Seite Sicherheit und dann die Verbindungen zu Drittanbietern.",
+      "connected": "Google Ads ist verbunden, und Ihre Einwilligung ist erfasst.",
+      "signedInPick": "Bei Google angemeldet. Wählen Sie das Werbekonto, das SYB lesen soll.",
+      "revoked": "Widerrufen. SYBs Zugriff auf Google Ads ist gelöscht: Es wird nichts gelesen oder geändert.",
+      "pickTitle": "Wählen Sie das Werbekonto",
+      "managerNote": "ein Manager-Konto: SYB verbindet das Werbekonto selbst",
+      "connectAccount": "Dieses Werbekonto verbinden",
+      "signIn": "Bei Google anmelden und Google Ads erlauben",
+      "nothingWritten": "Beim Verbinden wird Ihre Einwilligung erfasst, und SYB liest Ihre Ausgaben einmal am Tag. Bei Google Ads ändert sich nichts, bis Sie einen Vorschlag freigeben, und Änderungen bleiben ausgeschaltet, bis SYBs zweiwöchiger Test für echte Änderungen abgeschlossen ist.",
+      "reason": {
+        "unavailable": "Google Ads ist noch nicht eingerichtet.",
+        "already_connected": "Google Ads ist bereits verbunden. Widerrufen Sie es zuerst, um ein anderes Konto zu verbinden.",
+        "scope": "Google hat nicht genau die eine Berechtigung erteilt, um die SYB bittet. Erlauben Sie auf Googles Bildschirm die Google-Ads-Berechtigung und versuchen Sie es erneut.",
+        "no_accounts": "Google hat SYB für dieses Google-Konto kein Google-Ads-Konto gezeigt. Nutzen Sie zur Anmeldung das Konto, das Zugriff auf Ihre Anzeigen hat, und versuchen Sie es erneut.",
+        "managers_only": "Dieses Google-Konto erreicht nur Manager-Konten. SYB verbindet das Werbekonto selbst: Geben Sie Ihrem Google-Konto Zugriff darauf und versuchen Sie es erneut.",
+        "access_level": "Google hat SYBs Google-Ads-Zugriff noch nicht für echte Werbekonten freigegeben. Es wurde nichts verbunden.",
+        "google_permission": "Google sagt, dass SYB keinen Zugriff auf dieses Google-Ads-Konto hat. Es wurde nichts verbunden.",
+        "start_here": "Starten Sie die Google-Anmeldung auf der Seite „Verbindungen“ von SYB, mit der Schaltfläche dort. An Google wurde nichts gesendet.",
+        "signed_out": "Sie müssen sich zuerst bei SYB anmelden; verbinden Sie Google dann erneut.",
+        "owner_only": "Nur Inhaber können diese Berechtigung erteilen oder zurücknehmen. An Google wurde nichts gesendet.",
+        "phrase": "Die Bestätigungsphrase stimmte nicht überein. Geben Sie sie wie angezeigt ein und beginnen Sie dann neu.",
+        "start_again": "Diese Google-Anmeldung ist abgelaufen oder wurde bereits verwendet. Beginnen Sie unter „Verbindungen“ neu.",
+        "foreign": "Diese Google-Anmeldung wurde von einem anderen SYB-Konto aus gestartet. Nutzen Sie zur Anmeldung bei SYB dieses Konto oder beginnen Sie neu.",
+        "google_error": "Die Google-Anmeldung wurde nicht abgeschlossen. Es wurde nichts verbunden.",
+        "no_refresh": "Google hat SYB keinen dauerhaften Zugriff gegeben. Beginnen Sie neu: Google fragt noch einmal, und SYB braucht diese Antwort.",
+        "google_auth": "Google hat die Anmeldung nicht akzeptiert. Beginnen Sie unter „Verbindungen“ neu.",
+        "google_busy": "Google war ausgelastet oder hat nicht geantwortet. Es wurde nichts verbunden – versuchen Sie es in ein paar Minuten erneut.",
+        "google_refused": "Google hat die Anmeldung abgelehnt. Es wurde nichts verbunden.",
+        "internal": "Bei uns ist etwas schiefgelaufen. Es wurde nichts verbunden.",
+        "generic": "Die Google-Anmeldung wurde nicht abgeschlossen. Es wurde nichts verbunden."
+      }
     }
   },
   "landing": {
@@ -4750,6 +4895,37 @@
         "lastTry": "Der letzte Versuch: {error}{cost, select, none {} other { ({cost} berechnet)}}."
       },
       "refused": "abgelehnt"
+    },
+    "tiktok": {
+      "title": "Posten auf TikTok",
+      "loading": "Ihr TikTok-Konto wird gelesen…",
+      "failedLoad": "Ich konnte Ihr TikTok-Konto gerade nicht lesen.",
+      "account": "Geht an {name} auf TikTok.",
+      "whoSees": "Wer diesen Beitrag sehen kann",
+      "choose": "Auswählen…",
+      "privacy": {
+        "PUBLIC_TO_EVERYONE": "Alle",
+        "MUTUAL_FOLLOW_FRIENDS": "Freunde",
+        "FOLLOWER_OF_CREATOR": "Follower",
+        "SELF_ONLY": "Nur ich"
+      },
+      "privateOnly": "Bis TikTok die App von SYB geprüft hat, können Beiträge nur privat sein: Nur Sie sehen sie.",
+      "allowComment": "Kommentare erlauben",
+      "allowDuet": "Duette erlauben",
+      "allowStitch": "Stitches erlauben",
+      "offOnTikTok": "in Ihren TikTok-Einstellungen ausgeschaltet",
+      "brand": "Das wirbt für mein eigenes Unternehmen",
+      "brandNote": "TikTok kennzeichnet es als Werbung.",
+      "aiLabel": "TikTok kennzeichnet dieses Video als KI-generiert.",
+      "declaration": "Mit dem Posten stimmen Sie der Musiknutzungsbestätigung von TikTok zu.",
+      "save": "Diese Auswahl speichern",
+      "saving": "Wird gespeichert…",
+      "saved": "Gespeichert. Erteilen Sie unter „Vorschläge“ die Freigabe für den Beitrag, wenn Sie so weit sind.",
+      "chosen": "Wer ihn sehen kann: {privacy}.",
+      "locked": "Diese Auswahl wurde mit dem Beitrag freigegeben und lässt sich jetzt nicht mehr ändern.",
+      "needChoice": "Wählen Sie, wer ihn sehen kann, bevor Sie ihn freigeben.",
+      "processing": "Wenn er hinausgeht, kann es bei TikTok ein paar Minuten dauern, bis er in Ihrem Profil erscheint.",
+      "noDelete": "TikTok lässt Apps keine Beiträge löschen. Um ihn zu entfernen, löschen Sie ihn in der TikTok-App."
     }
   },
   "customers": {
@@ -5583,6 +5759,7 @@
       "titleOn": "Nimmt Anrufe unter {number} an",
       "titleOff": "Nimmt keine Anrufe an",
       "what": "Die Leitung sagt zuerst, dass sie der automatische Assistent von SYB ist. Sie antwortet nur mit den Antworten, die Sie freigegeben haben, bucht, verspricht oder erstattet nie etwas und nimmt eine Nachricht auf oder verbindet den Anrufer mit Ihnen, wenn sie etwas nicht weiß. Anrufer hören, dass der Anruf transkribiert wird, bevor irgendetwas transkribiert wird, und es wird kein Ton gespeichert.",
+      "whatRecorded": "Die Leitung sagt zuerst, dass sie der automatische Assistent von SYB ist. Sie antwortet nur mit den Antworten, die Sie freigegeben haben, bucht, verspricht oder erstattet nie etwas und nimmt eine Nachricht auf oder verbindet den Anrufer mit Ihnen, wenn sie etwas nicht weiß. Anrufer hören, dass der Anruf aufgezeichnet und transkribiert wird, bevor irgendetwas davon geschieht.",
       "needsKeys": "Um Anrufe anzunehmen, braucht SYB ein Twilio-Konto und eine Twilio-Nummer. Tragen Sie diese Einstellungen auf dem Server ein und kommen Sie dann hierher zurück:",
       "setUp": "Stellen Sie in Twilio den Webhook „A call comes in“ dieser Nummer auf die erste Adresse und ihre Statusmeldung auf die zweite, beide als HTTP POST.",
       "turnOn": "Anrufe unter {number} annehmen",
@@ -5609,13 +5786,29 @@
       "messageLabel": "Nachricht",
       "erase": "Diesen Anruf löschen",
       "eraseConfirm": "Diesen Anruf endgültig löschen – die Nummer des Anrufers, das Gesagte und jede Nachricht?",
+      "eraseConfirmRecorded": "Diesen Anruf endgültig löschen – die Nummer des Anrufers, das Gesagte, jede Nachricht und die Aufzeichnung?",
       "eraseYes": "Endgültig löschen",
       "keep": "Behalten",
+      "recording": {
+        "title": "Anrufaufzeichnung",
+        "stateOff": "Anrufe werden nicht aufgezeichnet. Anrufer hören, dass der Anruf transkribiert wird, und es wird kein Ton gespeichert.",
+        "stateOn": "Anrufe werden aufgezeichnet. Jeder Anrufer hört, dass der Anruf aufgezeichnet wird, bevor die Aufzeichnung beginnt.",
+        "explain": "Ist die Aufzeichnung an, erfahren Anrufer, dass der Anruf aufgezeichnet wird, bevor Ton gespeichert wird. Jede Aufzeichnung wird {days, plural, one {# Tag} other {# Tage}} aufbewahrt und dann endgültig gelöscht; wer einen Anruf oder einen Kontakt löscht, löscht auch die Aufzeichnung. Nur ein Inhaber kann sie anhören.",
+        "changed": "Zuletzt umgeschaltet: {when}.",
+        "needsSetup": "Die Aufzeichnung lässt sich auf diesem Server noch nicht einschalten. Dafür fehlen diese Einstellungen:",
+        "turnOn": "Anrufe aufzeichnen",
+        "turnOff": "Anrufe nicht mehr aufzeichnen",
+        "listen": "Aufzeichnung des Anrufs",
+        "kept": "Aufgezeichnet · aufbewahrt bis {date}",
+        "notKept": "Aufgezeichnet · die Aufzeichnung ist nicht verfügbar"
+      },
       "notice": {
         "on": "Die Telefonleitung nimmt Anrufe an.",
         "off": "Die Telefonleitung nimmt keine Anrufe mehr an.",
         "handover": "Gespeichert.",
-        "erased": "Der Anruf ist gelöscht."
+        "erased": "Der Anruf ist gelöscht.",
+        "recordingOn": "Anrufe werden jetzt aufgezeichnet. Anrufer erfahren es zuerst.",
+        "recordingOff": "Anrufe werden nicht mehr aufgezeichnet. Bereits gespeicherte Aufzeichnungen bleiben bis zu ihrem Datum, außer Sie löschen sie."
       },
       "error": {
         "notSetUp": "Die Telefonleitung ist auf diesem Server noch nicht eingerichtet.",
@@ -5623,6 +5816,7 @@
         "notOn": "Schalten Sie zuerst die Telefonleitung ein.",
         "badNumber": "Schreiben Sie die Nummer mit Ländervorwahl, beginnend mit einem Pluszeichen.",
         "noCall": "Diesen Anruf gibt es nicht mehr.",
+        "recordingNotSetUp": "Die Anrufaufzeichnung ist auf diesem Server noch nicht eingerichtet.",
         "crossSite": "Diese Seite lässt sich nur aus SYB selbst ändern.",
         "signIn": "Bitte erst anmelden, um die Telefonleitung zu ändern.",
         "action": "Das kann die Telefonleitung nicht."
@@ -5632,6 +5826,7 @@
   "phoneLine": {
     "greeting": "Guten Tag, Sie haben {business} erreicht und sprechen mit dem automatischen Assistenten von SYB, nicht mit einem Menschen.",
     "notice": "Dieser Anruf wird transkribiert, damit {business} ihn später lesen kann; es wird kein Ton gespeichert.",
+    "noticeRecorded": "Dieser Anruf wird aufgezeichnet und transkribiert, damit {business} ihn später anhören und lesen kann. Die Aufzeichnung wird {days, plural, one {# Tag} other {# Tage}} aufbewahrt und dann gelöscht.",
     "howCanIHelp": "Wie kann ich Ihnen helfen?",
     "anythingElse": "Kann ich Ihnen sonst noch helfen?",
     "notHeard": "Entschuldigung, das habe ich nicht verstanden. Könnten Sie es wiederholen?",
@@ -5943,7 +6138,8 @@
       "summary_settings": "Nur ein Inhaber kann die wöchentliche Zusammenfassung ein- oder ausschalten.",
       "stop_resume": "Nur ein Inhaber kann nach einem Stopp alles wieder in Gang setzen.",
       "business_locale": "Nur ein Inhaber kann die Sprache oder Währung des Unternehmens ändern.",
-      "payments_prepare": "Nur ein Inhaber kann Zahlungen vorbereiten oder angeben, dass eine bezahlt wurde."
+      "payments_prepare": "Nur ein Inhaber kann Zahlungen vorbereiten oder angeben, dass eine bezahlt wurde.",
+      "phone_recordings": "Nur ein Inhaber kann Anrufaufzeichnungen anhören."
     }
   },
   "authWords": {
@@ -6376,7 +6572,8 @@
       "footApprove": "Nichts läuft, bevor Sie es freigeben.",
       "footStop": "Sie erhalten diese E-Mail einmal pro Woche. Schalten Sie sie unter „Beobachtung“ ab oder bestellen Sie sie mit einem Klick ab:",
       "footWatchingHtml": "Alles, was ich tue, sehen Sie unter <link>„Beobachtung“</link>. Nichts läuft, bevor Sie es freigeben.",
-      "footStopHtml": "Sie erhalten diese E-Mail einmal pro Woche. Schalten Sie sie unter „Beobachtung“ ab oder <link>bestellen Sie diese E-Mails</link> mit einem Klick ab."
+      "footStopHtml": "Sie erhalten diese E-Mail einmal pro Woche. Schalten Sie sie unter „Beobachtung“ ab oder <link>bestellen Sie diese E-Mails</link> mit einem Klick ab.",
+      "whatsappBusiness": "Ihr Unternehmen"
     },
     "signIn": {
       "subject": "Ihr Anmeldelink — SYB",
@@ -7733,7 +7930,8 @@
       "noStock": "verbinden Sie Ihren Shop oder importieren Sie eine Bestandsdatei, dann zeige ich das Geld, das im Regal liegt",
       "nothingWaiting": "nichts wartet gerade auf Ihre Freigabe",
       "noPricedGain": "nichts, was auf Sie wartet, hat bisher einen bezifferten Gewinn",
-      "noRevenueSeries": "ich brauche eine gemessene Umsatzreihe, um das daran abzulesen"
+      "noRevenueSeries": "ich brauche eine gemessene Umsatzreihe, um das daran abzulesen",
+      "noAds": "verbinden Sie Meta Ads oder Google Ads, dann prüfe ich, welche Kampagnen mehr kosten, als sie einbringen"
     },
     "price": {
       "arithmetic": "Durchschnittspreis {mean} ({revenue} ÷ {count, plural, one {# wahrgenommener} other {# wahrgenommene}})",
@@ -7751,13 +7949,17 @@
       "stockNone": "nichts als langsam oder festgefahren markiert (Stand: {day})",
       "stockItems": "{count, plural, one {# langsamer Artikel} other {# langsame Artikel}}, vorrätige Einheiten × Stückkosten (Stand: {day}). Ein Bestand, kein monatlicher Fluss: Er wird nicht zum Monat addiert",
       "tableProposal": "{summary}: {range}",
-      "onTheTable": "{count, plural, one {# wartender Vorschlag} other {# wartende Vorschläge}}, Basisszenario bis günstiger Fall pro Monat: {parts}"
+      "onTheTable": "{count, plural, one {# wartender Vorschlag} other {# wartende Vorschläge}}, Basisszenario bis günstiger Fall pro Monat: {parts}",
+      "adsAllPaidPlatforms": "jede Kampagne hat nach der eigenen Zuordnung ihrer Plattform mindestens eingebracht, was sie gekostet hat ({count, plural, one {# Kampagne} other {# Kampagnen}})",
+      "adsLoserGoogle": "{campaign} bei Google Ads: {spent} ausgegeben, Google ordnet {value} Konversionswert zu (Rendite {roas}) → {loss}"
     },
     "basisNote": {
       "capacity": "aus einer Kapazität, von Ihnen {basis, select, ESTIMATED {GESCHÄTZT} other {ANGEGEBEN}} ({perWeek} pro Woche)",
       "meta": "aus Metas eigener Zuordnung",
       "statedCost": "vorrätige Einheiten × von Ihnen angegebene Kosten, bei einigen Artikeln",
-      "proposals": "das eigene Basisszenario und der günstige Fall der Vorschläge"
+      "proposals": "das eigene Basisszenario und der günstige Fall der Vorschläge",
+      "google": "aus Googles eigener Zuordnung",
+      "adPlatforms": "aus der eigenen Zuordnung jeder Plattform, Metas und Googles"
     },
     "componentNote": {
       "adsOtherCurrency": "{count, plural, one {# Kampagne} other {# Kampagnen}} in {currencies} weggelassen: Währungen werden nie vermischt",
@@ -7777,7 +7979,10 @@
       "adsCampaign": "{campaign} hat {spent} ausgegeben, Meta ordnet {value} zu ({roas})",
       "adsCampaignLosing": "{campaign} hat {spent} ausgegeben, Meta ordnet {value} zu ({roas}), verlustbringend",
       "noReturn": "keine Rendite",
-      "return": "Rendite {roas}"
+      "return": "Rendite {roas}",
+      "adsPlatforms": "Ausgaben gegenüber dem Wert, den jede Plattform zuordnet, pro Kampagne (Meta: Kaufwert, Google: Konversionswert), {from} bis {to}: {campaigns}. Verlustbringend heißt eine Rendite unter {even}.",
+      "adsCampaignGoogle": "{campaign} bei Google Ads hat {spent} ausgegeben, Google ordnet {value} zu ({roas})",
+      "adsCampaignGoogleLosing": "{campaign} bei Google Ads hat {spent} ausgegeben, Google ordnet {value} zu ({roas}), verlustbringend"
     }
   },
   "watchNoticed": {
@@ -8654,7 +8859,7 @@
         "shotList": "eine Drehliste ist zum Filmen da, nicht zum Veröffentlichen",
         "email": "E-Mails werden noch nicht über SYB versendet",
         "kind": "ein Element dieser Art ({kind}) wird nicht veröffentlicht",
-        "channel": "SYB kann nicht auf {channel} veröffentlichen – nur auf einer Facebook-Seite oder einem Instagram-Konto, das Sie verbinden",
+        "channel": "SYB kann nicht auf {channel} veröffentlichen – nur auf einer Facebook-Seite, einem Instagram-Konto oder einem TikTok-Konto, das Sie verbinden",
         "connect": "richten Sie unter Verbindungen das Veröffentlichen über Meta ein, um dies auf {platform} zu veröffentlichen",
         "noInstagram": "die Meta-Verbindung hat kein Instagram-Konto – verbinden Sie es mit seiner ID neu, um dort zu veröffentlichen",
         "needsMedia": "{platform} braucht ein Bild oder ein Video, und dieses Element hat noch keins",
@@ -8662,7 +8867,9 @@
         "noDate": "es hat kein Datum, an dem es erscheinen soll",
         "zone": "die Uhrzeit der Veröffentlichung lässt sich nicht festlegen: {reason}",
         "declined": "{count, plural, one {Sie haben die Veröffentlichung # Mal abgelehnt – ich schlage sie nicht mehr vor} other {Sie haben die Veröffentlichung # Mal abgelehnt – ich schlage sie nicht mehr vor}}",
-        "passed": "sein Datum ({date}) ist vorbei"
+        "passed": "sein Datum ({date}) ist vorbei",
+        "connectTikTok": "richten Sie unter Verbindungen das Posten auf TikTok ein, um dies auf TikTok zu veröffentlichen",
+        "tiktokNeedsVideo": "TikTok braucht ein Video, und dieses Element hat noch keins"
       },
       "zoneReason": {
         "noCountry": "kein Land angegeben",

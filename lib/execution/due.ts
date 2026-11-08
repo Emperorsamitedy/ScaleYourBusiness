@@ -97,6 +97,7 @@ import { holdQueuedForPausedConnection, isPausableProvider, resumeAfterReconnect
 import type { ExecutionProvider } from "./providers/fixture";
 import { executionProvider } from "./providers/index";
 import type { MetaPublishProvider } from "./providers/meta";
+import type { TikTokPublishProvider } from "./providers/tiktok";
 import type { ExecutionProviderId } from "./scopes";
 import { isExecutionProviderId } from "./scopes";
 
@@ -190,9 +191,10 @@ export interface DueRunOptions {
   /** Tests: the media store the expiry sweep releases renders from (Blob by default). */
   store?: MediaStore;
   /** Tests: a provider object in place of the registered one (a fake Graph behind Meta). */
-  providers?: { meta_publish?: MetaPublishProvider } & Partial<
-    Record<ExecutionProviderId, ExecutionProvider>
-  >;
+  providers?: {
+    meta_publish?: MetaPublishProvider;
+    tiktok_publish?: TikTokPublishProvider;
+  } & Partial<Record<ExecutionProviderId, ExecutionProvider>>;
 }
 
 function errorText(error: unknown): string {
@@ -230,6 +232,7 @@ export async function runDueExecutions(opts: DueRunOptions = {}): Promise<DueRun
     now,
     ...(opts.profileId ? { profileId: opts.profileId } : {}),
     ...(opts.providers?.meta_publish ? { provider: opts.providers.meta_publish } : {}),
+    ...(opts.providers?.tiktok_publish ? { tiktokProvider: opts.providers.tiktok_publish } : {}),
   });
 
   const conditions = [

@@ -21,11 +21,12 @@ import {
   watchActivity,
 } from "../../db/schema";
 import {
-  MEASURED_EXECUTE_PROVIDERS,
-  isMeasuredExecuteProvider,
-} from "../connectors/measured-sources";
+  EXECUTE_READ_PROVIDERS,
+  executeReadSource,
+  overrideExecuteReadSourceForTests,
+} from "../connectors/execute-reads";
 import { SCOPE_REGISTRY } from "../connectors/scopes";
-import { syncConnection } from "../connectors/sync";
+import { runConnectorSync, syncConnection } from "../connectors/sync";
 import { addDays, utcMidnight } from "../connectors/days";
 import { EXECUTION_SCOPE_REGISTRY } from "../execution/scopes";
 import { connectForExecution, expectedExecutionScopes } from "../execution/connections";
@@ -41,7 +42,7 @@ import {
   verifyTikTokState,
 } from "./login";
 import { phraseHash } from "../execution/meta-login";
-import { runTikTokAdsRead } from "./sync";
+import { createTikTokAdsReadSource } from "./read";
 
 const ADV = "7000000000001";
 const noSleep = async () => undefined;
@@ -84,14 +85,16 @@ async function business() {
   return s;
 }
 
-describe("TikTok Ads — which execute connections measure (pinned)", () => {
-  it("is TikTok alone, an execution provider and never a measurement one", () => {
-    expect(MEASURED_EXECUTE_PROVIDERS).toEqual(["tiktok_ads"]);
-    for (const p of MEASURED_EXECUTE_PROVIDERS) {
+describe("TikTok Ads — the execute connections the sync runner reads (pinned)", () => {
+  it("are Google Ads and TikTok Ads, execution providers and never measurement ones", () => {
+    expect([...EXECUTE_READ_PROVIDERS].sort()).toEqual(["google_ads", "tiktok_ads"]);
+    for (const p of EXECUTE_READ_PROVIDERS) {
       expect(Object.keys(EXECUTION_SCOPE_REGISTRY)).toContain(p);
       expect(Object.keys(SCOPE_REGISTRY)).not.toContain(p);
     }
-    expect(isMeasuredExecuteProvider("meta_ads")).toBe(false);
+    expect(executeReadSource("tiktok_ads")?.label).toBe("TikTok Ads");
+    expect(executeReadSource("meta_ads")).toBeNull();
+    expect(executeReadSource("tiktok_publish")).toBeNull();
   });
 });
 
@@ -122,10 +125,16 @@ describe("TikTok Ads — the daily read through the one consent", () => {
       value: "40.00",
     });
 
-    const out = await runTikTokAdsRead(now, {
-      ctx: { fetch: tt.fetch, sleep: noSleep },
-      accountIds: [s.account_id],
-    });
+    const restore = overrideExecuteReadSourceForTests(
+      "tiktok_ads",
+      createTikTokAdsReadSource({ fetch: tt.fetch, sleep: noSleep }),
+    );
+    let out;
+    try {
+      out = await runConnectorSync(now, { accountIds: [s.account_id] });
+    } finally {
+      restore();
+    }
     expect(out).toMatchObject({ connections: 1, ok: 1, failed: 0 });
     expect(tt.calls.every((c) => c.method === "GET")).toBe(true);
 
@@ -159,8 +168,14 @@ describe("TikTok Ads — the daily read through the one consent", () => {
       );
     expect(facts.length).toBeGreaterThan(0);
 
-    // The measure runner still never pulls an execute row (P3-20b).
-    expect((await syncConnection(conn.id)).skipped).toBe("not_measurement");
+    // Only through the narrow door: a TikTok POSTING row is never pulled from.
+    const posting = await connectForExecution({
+      accountId: s.account_id,
+      provider: "tiktok_publish",
+      secret: "{}",
+      verify: async () => ({ granted_scopes: expectedExecutionScopes("tiktok_publish") }),
+    });
+    expect((await syncConnection(posting.id)).skipped).toBe("not_measurement");
   });
 
   it("records a refusal on the connection and writes nothing", async () => {
@@ -177,11 +192,17 @@ describe("TikTok Ads — the daily read through the one consent", () => {
       verify: async () => ({ granted_scopes: expectedExecutionScopes("tiktok_ads") }),
     });
     const tt = fakeTikTok();
-    const out = await runTikTokAdsRead(new Date(), {
-      ctx: { fetch: tt.fetch, sleep: noSleep },
-      accountIds: [s.account_id],
-    });
-    expect(out).toMatchObject({ ok: 0, failed: 1 });
+    const restore = overrideExecuteReadSourceForTests(
+      "tiktok_ads",
+      createTikTokAdsReadSource({ fetch: tt.fetch, sleep: noSleep }),
+    );
+    let out;
+    try {
+      out = await syncConnection(conn.id);
+    } finally {
+      restore();
+    }
+    expect(out).toMatchObject({ ok: false });
     const [row] = await db.select().from(connections).where(eq(connections.id, conn.id));
     expect(row?.last_error).toMatch(/TikTok didn't accept/);
     expect(row?.failure_count).toBe(1);

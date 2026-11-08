@@ -80,6 +80,18 @@ interface SummaryView {
   sending: boolean;
   configured: boolean;
   last_sent_at: string | null;
+  /** P6-07: email (the default), WhatsApp, or both. */
+  channel?: "email" | "whatsapp" | "both";
+  whatsapp?: {
+    /** The settings this server lacks, by name. Empty = WhatsApp can go. */
+    missing: string[];
+    opted_in: boolean;
+    /** The last three digits only ("•••123"). */
+    number: string | null;
+    opted_in_at: string | null;
+    /** The caller is the owner the summary goes to: only they can give a number. */
+    yours: boolean;
+  };
 }
 
 const DAY_MS = 86_400_000;
@@ -443,9 +455,11 @@ function ModulesCard({
 function SummaryCard({
   summary,
   onToggle,
+  onChanged,
 }: {
   summary: SummaryView;
   onToggle: (enabled: boolean) => void;
+  onChanged: () => void;
 }) {
   const t = useTranslations("watch.summary");
   const locale = useAppLocale();
@@ -474,7 +488,162 @@ function SummaryCard({
       <p className="wt-why">
         {t("lede")} {status}
       </p>
+      {summary.owner && summary.whatsapp && (
+        <WhatsAppSettings summary={summary} onChanged={onChanged} />
+      )}
     </SheetCard>
+  );
+}
+
+const CHANNELS = ["email", "whatsapp", "both"] as const;
+
+/**
+ * P6-07: the channel, beside the switch, and the WhatsApp yes (rule 19):
+ * the number, and the exact sentence agreed to — sent back as shown, so the
+ * server records the words the owner read. Withdrawing is one click.
+ */
+function WhatsAppSettings({ summary, onChanged }: { summary: SummaryView; onChanged: () => void }) {
+  const t = useTranslations("watch.summary");
+  const locale = useAppLocale();
+  const wa = summary.whatsapp!;
+  const channel = summary.channel ?? "email";
+  const [number, setNumber] = useState("");
+  const [agreed, setAgreed] = useState(false);
+  const [problem, setProblem] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+  const consent = t("whatsapp.consent");
+
+  const call = async (init: RequestInit, url = "/api/summary/whatsapp") => {
+    setBusy(true);
+    setProblem(null);
+    try {
+      const res = await fetch(url, init);
+      if (!res.ok) {
+        const body = (await res.json().catch(() => ({}))) as { error?: string };
+        setProblem(
+          body.error === "invalid_number"
+            ? t("whatsapp.invalid")
+            : body.error === "consent_mismatch"
+              ? t("whatsapp.changed")
+              : t("whatsapp.failed"),
+        );
+        return;
+      }
+      setNumber("");
+      setAgreed(false);
+      onChanged();
+    } catch {
+      setProblem(t("whatsapp.failed"));
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const setChannel = (c: (typeof CHANNELS)[number]) =>
+    void call(
+      {
+        method: "PUT",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ channel: c }),
+      },
+      "/api/summary",
+    );
+
+  return (
+    <div className="wt-whatsapp">
+      <fieldset className="wt-modules">
+        <legend>{t("channel.legend")}</legend>
+        {CHANNELS.map((c) => (
+          <label key={c} className="wt-module">
+            <input
+              type="radio"
+              name="summary-channel"
+              checked={channel === c}
+              disabled={busy}
+              onChange={() => setChannel(c)}
+            />
+            <span>{t(`channel.${c}`)}</span>
+          </label>
+        ))}
+      </fieldset>
+      {channel !== "email" && wa.missing.length > 0 && (
+        <p className="wt-why">{t("whatsapp.notSetUp", { keys: wa.missing.join(", ") })}</p>
+      )}
+      {wa.opted_in ? (
+        <>
+          <p className="wt-why">
+            {t("whatsapp.on", {
+              number: wa.number ?? "",
+              date: wa.opted_in_at ? dayText(wa.opted_in_at, false, locale) : "",
+            })}
+          </p>
+          {wa.yours && (
+            <p className="wt-actions">
+              <button type="button" disabled={busy} onClick={() => void call({ method: "DELETE" })}>
+                {t("whatsapp.withdraw")}
+              </button>{" "}
+              <button
+                type="button"
+                disabled={busy}
+                onClick={() => void call({ method: "DELETE" }, "/api/summary/whatsapp?erase=1")}
+              >
+                {t("whatsapp.forget")}
+              </button>
+            </p>
+          )}
+        </>
+      ) : (
+        <>
+          <p className="wt-why">
+            {channel === "email" ? t("whatsapp.none") : t("whatsapp.needsYes")}
+          </p>
+          {wa.yours ? (
+            <form
+              className="wt-whatsapp-form"
+              onSubmit={(e) => {
+                e.preventDefault();
+                if (!agreed) return;
+                void call({
+                  method: "POST",
+                  headers: { "content-type": "application/json" },
+                  body: JSON.stringify({ number, locale, consent }),
+                });
+              }}
+            >
+              <label>
+                <span>{t("whatsapp.numberLabel")}</span>
+                <input
+                  type="tel"
+                  inputMode="tel"
+                  autoComplete="tel"
+                  value={number}
+                  onChange={(e) => setNumber(e.target.value)}
+                />
+              </label>
+              <p className="wt-why">{t("whatsapp.numberHint")}</p>
+              <label className="wt-module">
+                <input
+                  type="checkbox"
+                  checked={agreed}
+                  onChange={(e) => setAgreed(e.target.checked)}
+                />
+                <span>{consent}</span>
+              </label>
+              <button type="submit" disabled={busy || !agreed || number.trim() === ""}>
+                {t("whatsapp.agree")}
+              </button>
+            </form>
+          ) : (
+            <p className="wt-why">{t("whatsapp.notYours")}</p>
+          )}
+        </>
+      )}
+      {problem && (
+        <p className="wt-why" role="alert">
+          {problem}
+        </p>
+      )}
+    </div>
   );
 }
 
@@ -575,7 +744,13 @@ export function WatchScreen({ reading }: { reading: WatchReading | null }) {
         {!w && <NoticedCard log={view.log} />}
         <RulesCard thresholds={view.thresholds} />
         <ModulesCard modules={modules} onToggle={(m, on) => void toggle(m, on)} />
-        {summary && <SummaryCard summary={summary} onToggle={(on) => void toggleSummary(on)} />}
+        {summary && (
+          <SummaryCard
+            summary={summary}
+            onToggle={(on) => void toggleSummary(on)}
+            onChanged={() => void load()}
+          />
+        )}
         <PhoneAlertsCard />
       </div>
     </div>

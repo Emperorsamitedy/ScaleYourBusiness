@@ -1216,7 +1216,29 @@
       "notDecided": "It starts once How I work is decided.",
       "noEmail": "Email isn't set up on this server yet, so none is sent.",
       "lastSent": "Last sent {date}.",
-      "first": "The first one goes out on the next Monday check."
+      "first": "The first one goes out on the next Monday check.",
+      "channel": {
+        "legend": "Send it by",
+        "email": "Email",
+        "whatsapp": "WhatsApp",
+        "both": "Email and WhatsApp"
+      },
+      "whatsapp": {
+        "numberLabel": "Your WhatsApp number",
+        "numberHint": "The full international number: a plus sign, then the country code.",
+        "consent": "Send my weekly SYB summary to this number on WhatsApp. I can stop it here at any time, and SYB keeps the number for nothing else.",
+        "agree": "Yes, send it on WhatsApp",
+        "on": "WhatsApp goes to {number}, since {date}.",
+        "withdraw": "Stop WhatsApp",
+        "forget": "Stop and forget my number",
+        "none": "No number yet, so nothing goes to WhatsApp.",
+        "notSetUp": "WhatsApp isn't set up on this server yet. It needs {keys}.",
+        "invalid": "That isn't a full international number. Start with a plus sign and the country code.",
+        "changed": "These words changed while the page was open. Reload and read them again.",
+        "notYours": "Only the person the summary goes to can give a WhatsApp number.",
+        "needsYes": "Nothing goes to WhatsApp until a number is given and agreed to below.",
+        "failed": "That didn't save. Try again."
+      }
     },
     "signedOut": {
       "title": "There's no business here yet.",
@@ -2301,83 +2323,6 @@
         "generic": "Google sign-in didn't finish. Nothing was connected."
       }
     },
-    "tiktok": {
-      "sectionLabel": "TikTok Ads · reading and acting, one consent",
-      "label": "TikTok ad management",
-      "title": {
-        "on": "Connected. SYB reads your TikTok campaigns and changes only what you approve",
-        "off": "Off. SYB doesn't read or change your TikTok ads."
-      },
-      "connected": "TikTok is connected, and your consent is on record.",
-      "youCancelled": "You cancelled on TikTok's page. Nothing was connected.",
-      "revoked": "Revoked. SYB's access to TikTok is deleted here, and reading and changes have stopped.",
-      "whyOne": "TikTok gives an app one list of permissions, so reading your campaigns and changing them come together. SYB holds both as this one consent: it reads once a day, and changes a campaign only after you approve a proposal.",
-      "fact": {
-        "status": "status",
-        "adAccounts": "ad accounts",
-        "lastRead": "last read",
-        "notYet": "not yet: SYB reads once a day"
-      },
-      "revokeAsk": "SYB stops reading your TikTok campaigns and can't change them.",
-      "revokeNote": "Revoking deletes SYB's access here at once. Figures already read stay. To remove SYB on TikTok's side too, take SYB's app off the authorized apps of your TikTok ad account.",
-      "tiktokScreen": "TikTok then shows SYB's app with these permissions and emails you a code to confirm it's you. Allow it, and come back here.",
-      "typeToConfirm": "To confirm, type <b>{phrase}</b>",
-      "opening": "Opening TikTok…",
-      "signIn": "Sign in with TikTok and allow these",
-      "nothingWritten": "Connecting records your consent and reads your campaigns once a day. Nothing changes on TikTok until you approve a proposal, and TikTok ad changes stay switched off until the two-week unattended test completes.",
-      "access": {
-        "title": "Access, plainly",
-        "check": "TikTok checks every developer app before sign-ins with it work, usually within two to three working days. Until SYB's app has passed, TikTok refuses the sign-in, and SYB says so.",
-        "sandbox": "SYB connects real ad accounts only. TikTok is retiring its sandbox accounts this December, so SYB doesn't use them: test with your own ad account and a small campaign."
-      },
-      "missing": {
-        "title": "Not set up yet. These settings are missing on SYB's server:"
-      },
-      "steps": {
-        "title": "Setting it up, once, for SYB's server",
-        "developer": "Register as a developer on TikTok's developer site, {site}, with the TikTok login that runs your ads, and wait until your developer profile is accepted.",
-        "app": "Under My Apps, create an app, and enter {callback} as its advertiser redirect URL.",
-        "scopes": "Under Scope of permission, tick exactly these, and nothing else: {scopes}.",
-        "submit": "Submit the app. TikTok checks it, usually within two to three working days.",
-        "keys": "Once it has passed, copy the App ID and Secret from the app's Basic Information into {appId} and {secret} on SYB's server, and the redirect URL into {redirect}."
-      },
-      "status": {
-        "connected": "connected",
-        "paused": "paused",
-        "failed": "failed",
-        "disconnected": "disconnected"
-      },
-      "consentedOn": "consented {day} · {status}",
-      "notGranted": "not granted",
-      "notSetUpYet": "not set up yet",
-      "connect": "Connect",
-      "close": "Close",
-      "keepIt": "Keep it",
-      "unreachable": "I couldn't reach the server. Try again.",
-      "revokeFailed": "That didn't revoke.",
-      "revoking": "Revoking…",
-      "yesRevoke": "Yes, revoke",
-      "revoke": "Revoke",
-      "reason": {
-        "start_here": "Start the TikTok sign-in from SYB's Connections screen, with the button there. Nothing was sent to TikTok.",
-        "signed_out": "Sign in to SYB first, then connect TikTok again.",
-        "owner_only": "Only an owner can grant or take back this permission. Nothing was sent to TikTok.",
-        "unavailable": "TikTok Ads isn't set up yet.",
-        "phrase": "The confirmation phrase didn't match. Type it as shown, then start again.",
-        "already_connected": "TikTok is already connected. Revoke it first to connect again.",
-        "start_again": "That TikTok sign-in expired or was already used. Start again from Connections.",
-        "foreign": "That TikTok sign-in was started from a different SYB account. Sign in to SYB as that account, or start again.",
-        "tiktok_error": "TikTok sign-in didn't finish. Nothing was connected.",
-        "scope": "TikTok didn't grant exactly the permissions SYB asks for. Check the app's Scope of permission against the list on Connections, then try again.",
-        "no_advertisers": "TikTok showed SYB no ad account for that sign-in. Sign in with the TikTok login that runs your ads, then try again.",
-        "tiktok_auth": "TikTok didn't accept the sign-in. If TikTok is still checking SYB's app, wait until it has passed; otherwise start again.",
-        "tiktok_permission": "TikTok says SYB's app isn't allowed to read that ad account. Nothing was connected.",
-        "tiktok_busy": "TikTok was busy or didn't answer. Nothing was connected — try again in a few minutes.",
-        "tiktok_refused": "TikTok refused the sign-in. Nothing was connected.",
-        "internal": "Something went wrong on our side. Nothing was connected.",
-        "generic": "TikTok sign-in didn't finish. Nothing was connected."
-      }
-    },
     "import": {
       "unreachable": "I couldn't reach the server. Try again.",
       "readFrom": "Read from {file}. You can check it here",
@@ -2490,6 +2435,206 @@
       "unknownStatuses": "Statuses I didn’t know: {list}. I don’t guess what they mean.",
       "unknownStatus": "“{word}” ({count})",
       "listSep": ", "
+    },
+    "tiktok": {
+      "sectionLabel": "TikTok posting · a separate consent",
+      "label": "TikTok posting",
+      "title": {
+        "on": "Granted: SYB posts the videos you approve",
+        "off": "Off. SYB doesn't post to TikTok."
+      },
+      "status": {
+        "connected": "connected",
+        "paused": "paused",
+        "failed": "failed",
+        "disconnected": "disconnected"
+      },
+      "consentedOn": "consented {day} · {status}",
+      "notGranted": "not granted",
+      "notSetUpYet": "not set up yet",
+      "connect": "Connect",
+      "close": "Close",
+      "keepIt": "Keep it",
+      "unreachable": "I couldn't reach the server. Try again.",
+      "revokeFailed": "That didn't revoke.",
+      "connected": "TikTok posting is connected, and your consent is on record.",
+      "youCancelled": "You cancelled on TikTok's screen. Nothing was connected.",
+      "revoked": "Revoked. SYB's access to TikTok is deleted here, and TikTok was asked to revoke it too.",
+      "revokedHereOnly": "Revoked here. TikTok didn't confirm it revoked SYB's access too, so check in the TikTok app.",
+      "fact": {
+        "status": "status",
+        "account": "TikTok account",
+        "whoSees": "who can see posts",
+        "private": "only you, until TikTok audits SYB's app",
+        "chosen": "you choose for each post"
+      },
+      "access": {
+        "unaudited": "Until TikTok audits SYB's app, everything SYB posts goes out private: only you can see it on TikTok. Once the audit passes, you choose who sees each post. Until then TikTok also lets SYB's app post for only a few accounts a day.",
+        "audited": "TikTok has audited SYB's app: you choose who can see each post, from TikTok's own options."
+      },
+      "before": "Before it works",
+      "needs": {
+        "app": "SYB's own TikTok app, with Login Kit and TikTok's posting API (Direct Post) switched on.",
+        "signIn": "You sign in with the TikTok account the posts go to, and allow what TikTok asks about.",
+        "choose": "Each post is a video you approve, with who can see it chosen by you first."
+      },
+      "notSetUp": "Not set up yet: SYB's TikTok app keys aren't in place. Until then, nothing can be posted to TikTok.",
+      "revokeAsk": "SYB stops posting to TikTok. Posts already there stay.",
+      "revoking": "Revoking…",
+      "yesRevoke": "Yes, revoke",
+      "revoke": "Revoke",
+      "revokeNote": "Revoking deletes SYB's access here at once and asks TikTok to revoke it too. Posts already on TikTok stay there. To check on TikTok's side, open Settings and privacy, then Security and permissions, then Apps and services permissions.",
+      "tiktokScreen": "TikTok then shows its own screen and asks about posting videos, your basic profile and your public videos. Allow them, and come back here.",
+      "typeToConfirm": "To confirm, type <b>{phrase}</b>",
+      "opening": "Opening TikTok…",
+      "signIn": "Sign in with TikTok and allow posting",
+      "nothingWritten": "Nothing is posted until you approve the finished video, with who can see it chosen by you. SYB reads only your TikTok profile's name and your public videos' counts.",
+      "reason": {
+        "start_here": "Start the TikTok sign-in from SYB's Connections screen, with the button there. Nothing was sent to TikTok.",
+        "signed_out": "Sign in to SYB first, then connect TikTok again.",
+        "owner_only": "Only an owner can grant or take back this permission. Nothing was sent to TikTok.",
+        "unavailable": "TikTok posting isn't set up yet.",
+        "phrase": "The confirmation phrase didn't match. Type it as shown, then start again.",
+        "already_connected": "TikTok posting is already connected. Revoke it first to connect another account.",
+        "start_again": "That TikTok sign-in expired or was already used. Start again from Connections.",
+        "foreign": "That TikTok sign-in was started from a different SYB account. Sign in to SYB as that account, or start again.",
+        "tiktok_error": "TikTok sign-in didn't finish. Nothing was connected.",
+        "scope": "TikTok didn't grant exactly what SYB asks for. On TikTok's screen, allow everything listed, then try again.",
+        "tiktok_refused": "TikTok refused the sign-in. Nothing was connected.",
+        "internal": "Something went wrong on our side. Nothing was connected.",
+        "generic": "TikTok sign-in didn't finish. Nothing was connected."
+      },
+      "readback": "To see how your public posts do, the same sign-in also reads:"
+    },
+    "tiktokAds": {
+      "sectionLabel": "TikTok Ads · reading and acting, one consent",
+      "label": "TikTok ad management",
+      "title": {
+        "on": "Connected. SYB reads your TikTok campaigns and changes only what you approve",
+        "off": "Off. SYB doesn't read or change your TikTok ads."
+      },
+      "connected": "TikTok is connected, and your consent is on record.",
+      "youCancelled": "You cancelled on TikTok's page. Nothing was connected.",
+      "revoked": "Revoked. SYB's access to TikTok is deleted here, and reading and changes have stopped.",
+      "whyOne": "TikTok gives an app one list of permissions, so reading your campaigns and changing them come together. SYB holds both as this one consent: it reads once a day, and changes a campaign only after you approve a proposal.",
+      "fact": {
+        "status": "status",
+        "adAccounts": "ad accounts",
+        "lastRead": "last read",
+        "notYet": "not yet: SYB reads once a day"
+      },
+      "revokeAsk": "SYB stops reading your TikTok campaigns and can't change them.",
+      "revokeNote": "Revoking deletes SYB's access here at once. Figures already read stay. To remove SYB on TikTok's side too, take SYB's app off the authorized apps of your TikTok ad account.",
+      "tiktokScreen": "TikTok then shows SYB's app with these permissions and emails you a code to confirm it's you. Allow it, and come back here.",
+      "typeToConfirm": "To confirm, type <b>{phrase}</b>",
+      "opening": "Opening TikTok…",
+      "signIn": "Sign in with TikTok and allow these",
+      "nothingWritten": "Connecting records your consent and reads your campaigns once a day. Nothing changes on TikTok until you approve a proposal, and TikTok ad changes stay switched off until the two-week unattended test completes.",
+      "access": {
+        "title": "Access, plainly",
+        "check": "TikTok checks every developer app before sign-ins with it work, usually within two to three working days. Until SYB's app has passed, TikTok refuses the sign-in, and SYB says so.",
+        "sandbox": "SYB connects real ad accounts only. TikTok is retiring its sandbox accounts this December, so SYB doesn't use them: test with your own ad account and a small campaign."
+      },
+      "missing": {
+        "title": "Not set up yet. These settings are missing on SYB's server:"
+      },
+      "steps": {
+        "title": "Setting it up, once, for SYB's server",
+        "developer": "Register as a developer on TikTok's developer site, {site}, with the TikTok login that runs your ads, and wait until your developer profile is accepted.",
+        "app": "Under My Apps, create an app, and enter {callback} as its advertiser redirect URL.",
+        "scopes": "Under Scope of permission, tick exactly these, and nothing else: {scopes}.",
+        "submit": "Submit the app. TikTok checks it, usually within two to three working days.",
+        "keys": "Once it has passed, copy the App ID and Secret from the app's Basic Information into {appId} and {secret} on SYB's server, and the redirect URL into {redirect}."
+      },
+      "status": {
+        "connected": "connected",
+        "paused": "paused",
+        "failed": "failed",
+        "disconnected": "disconnected"
+      },
+      "consentedOn": "consented {day} · {status}",
+      "notGranted": "not granted",
+      "notSetUpYet": "not set up yet",
+      "connect": "Connect",
+      "close": "Close",
+      "keepIt": "Keep it",
+      "unreachable": "I couldn't reach the server. Try again.",
+      "revokeFailed": "That didn't revoke.",
+      "revoking": "Revoking…",
+      "yesRevoke": "Yes, revoke",
+      "revoke": "Revoke",
+      "reason": {
+        "start_here": "Start the TikTok sign-in from SYB's Connections screen, with the button there. Nothing was sent to TikTok.",
+        "signed_out": "Sign in to SYB first, then connect TikTok again.",
+        "owner_only": "Only an owner can grant or take back this permission. Nothing was sent to TikTok.",
+        "unavailable": "TikTok Ads isn't set up yet.",
+        "phrase": "The confirmation phrase didn't match. Type it as shown, then start again.",
+        "already_connected": "TikTok is already connected. Revoke it first to connect again.",
+        "start_again": "That TikTok sign-in expired or was already used. Start again from Connections.",
+        "foreign": "That TikTok sign-in was started from a different SYB account. Sign in to SYB as that account, or start again.",
+        "tiktok_error": "TikTok sign-in didn't finish. Nothing was connected.",
+        "scope": "TikTok didn't grant exactly the permissions SYB asks for. Check the app's Scope of permission against the list on Connections, then try again.",
+        "no_advertisers": "TikTok showed SYB no ad account for that sign-in. Sign in with the TikTok login that runs your ads, then try again.",
+        "tiktok_auth": "TikTok didn't accept the sign-in. If TikTok is still checking SYB's app, wait until it has passed; otherwise start again.",
+        "tiktok_permission": "TikTok says SYB's app isn't allowed to read that ad account. Nothing was connected.",
+        "tiktok_busy": "TikTok was busy or didn't answer. Nothing was connected — try again in a few minutes.",
+        "tiktok_refused": "TikTok refused the sign-in. Nothing was connected.",
+        "internal": "Something went wrong on our side. Nothing was connected.",
+        "generic": "TikTok sign-in didn't finish. Nothing was connected."
+      }
+    },
+    "googleAds": {
+      "sectionLabel": "Google Ads · a separate consent",
+      "label": "Google Ads",
+      "title": {
+        "on": "Granted: SYB reads your ad spend, and changes only what you approve",
+        "off": "Off. SYB doesn't read your Google Ads."
+      },
+      "whatItCanDo": "Google's permission can also change your campaigns, budgets and ads. SYB reads your spend and results with it once a day, and changes something only through a proposal you approve. You can revoke it any time.",
+      "notSetUp": "Not set up on SYB's side yet. Missing: {keys}.",
+      "accessLevel": {
+        "title": "Google's approval for SYB",
+        "test": "Test accounts only. Google hasn't approved SYB for real ad accounts yet, so a real one is refused until it does.",
+        "explorer": "Real ad accounts, up to {ops} operations a day across everyone SYB serves.",
+        "basic": "Real ad accounts, up to {ops} operations a day across everyone SYB serves. Google checked SYB first.",
+        "standard": "Real ad accounts, with no daily cap beyond Google's own rate limits.",
+        "unknown": "Not stated yet, so treat it as test accounts only."
+      },
+      "fact": {
+        "account": "ad account"
+      },
+      "revokeAsk": "SYB stops reading your Google Ads, and can't change anything there.",
+      "revokeNote": "Revoking deletes SYB's access here at once. Spend already read stays in your numbers. To remove SYB on Google's side too, open your Google Account's Security page, then Third-party connections.",
+      "connected": "Google Ads is connected, and your consent is on record.",
+      "signedInPick": "Signed in with Google. Pick the ad account SYB should read.",
+      "revoked": "Revoked. SYB's access to Google Ads is deleted: nothing is read or changed.",
+      "pickTitle": "Pick the ad account",
+      "managerNote": "a manager account: SYB connects the ad account itself",
+      "connectAccount": "Connect this ad account",
+      "signIn": "Sign in with Google and allow Google Ads",
+      "nothingWritten": "Connecting records your consent and reads your spend once a day. Nothing changes on Google Ads until you approve a proposal, and changes stay switched off until SYB's two-week real-write test is complete.",
+      "reason": {
+        "unavailable": "Google Ads isn't set up yet.",
+        "already_connected": "Google Ads is already connected. Revoke it first to connect another account.",
+        "scope": "Google didn't grant exactly the one permission SYB asks for. On Google's screen, allow the Google Ads permission, then try again.",
+        "no_accounts": "Google showed SYB no Google Ads account for that Google account. Sign in with the account that has access to your ads, then try again.",
+        "managers_only": "That Google account reaches only manager accounts. SYB connects the ad account itself: give your Google account access to it, then try again.",
+        "access_level": "Google hasn't approved SYB's Google Ads access for real ad accounts yet. Nothing was connected.",
+        "google_permission": "Google says SYB isn't allowed into that Google Ads account. Nothing was connected.",
+        "start_here": "Start the Google sign-in from SYB's Connections screen, with the button there. Nothing was sent to Google.",
+        "signed_out": "Sign in to SYB first, then connect Google again.",
+        "owner_only": "Only an owner can grant or take back this permission. Nothing was sent to Google.",
+        "phrase": "The confirmation phrase didn't match. Type it as shown, then start again.",
+        "start_again": "That Google sign-in expired or was already used. Start again from Connections.",
+        "foreign": "That Google sign-in was started from a different SYB account. Sign in to SYB as that account, or start again.",
+        "google_error": "Google sign-in didn't finish. Nothing was connected.",
+        "no_refresh": "Google didn't give SYB lasting access. Start again: Google asks once more, and SYB needs that answer.",
+        "google_auth": "Google didn't accept the sign-in. Start again from Connections.",
+        "google_busy": "Google was busy or didn't answer. Nothing was connected — try again in a few minutes.",
+        "google_refused": "Google refused the sign-in. Nothing was connected.",
+        "internal": "Something went wrong on our side. Nothing was connected.",
+        "generic": "Google sign-in didn't finish. Nothing was connected."
+      }
     }
   },
   "landing": {
@@ -4750,6 +4895,37 @@
         "lastTry": "The last try: {error}{cost, select, none {} other { ({cost} charged)}}."
       },
       "refused": "refused"
+    },
+    "tiktok": {
+      "title": "Posting to TikTok",
+      "loading": "Reading your TikTok account…",
+      "failedLoad": "I couldn't read your TikTok account just now.",
+      "account": "Posts to {name} on TikTok.",
+      "whoSees": "Who can see this post",
+      "choose": "Choose…",
+      "privacy": {
+        "PUBLIC_TO_EVERYONE": "Everyone",
+        "MUTUAL_FOLLOW_FRIENDS": "Friends",
+        "FOLLOWER_OF_CREATOR": "Followers",
+        "SELF_ONLY": "Only me"
+      },
+      "privateOnly": "Until TikTok audits SYB's app, posts can only be private: only you can see them.",
+      "allowComment": "Allow comments",
+      "allowDuet": "Allow duets",
+      "allowStitch": "Allow stitches",
+      "offOnTikTok": "turned off in your TikTok settings",
+      "brand": "This promotes my own business",
+      "brandNote": "TikTok labels it as promotional.",
+      "aiLabel": "TikTok labels this video as AI-generated.",
+      "declaration": "By posting, you agree to TikTok's Music Usage Confirmation.",
+      "save": "Save these choices",
+      "saving": "Saving…",
+      "saved": "Saved. Approve the post on Proposals when you're ready.",
+      "chosen": "Who can see it: {privacy}.",
+      "locked": "These choices were approved with the post and can't change now.",
+      "needChoice": "Choose who can see it before you approve it.",
+      "processing": "Once it goes out, TikTok may take a few minutes before it shows on your profile.",
+      "noDelete": "TikTok doesn't let apps delete a post. To take this down, delete it in the TikTok app."
     }
   },
   "customers": {
@@ -5583,6 +5759,7 @@
       "titleOn": "Answering calls on {number}",
       "titleOff": "Not answering calls",
       "what": "The line says first that it is SYB's automated assistant. It answers only from the answers you approved, never books, promises or refunds anything, and takes a message or puts the caller through to you when it doesn't know. Callers hear that the call is transcribed before anything is, and no audio is kept.",
+      "whatRecorded": "The line says first that it is SYB's automated assistant. It answers only from the answers you approved, never books, promises or refunds anything, and takes a message or puts the caller through to you when it doesn't know. Callers hear that the call is recorded and transcribed before any of it is.",
       "needsKeys": "To answer calls, SYB needs a Twilio account and a Twilio number. Add these settings on the server, then come back here:",
       "setUp": "In Twilio, set this number's “A call comes in” webhook to the first address and its call status callback to the second, both as HTTP POST.",
       "turnOn": "Answer calls on {number}",
@@ -5609,13 +5786,29 @@
       "messageLabel": "Message",
       "erase": "Erase this call",
       "eraseConfirm": "Erase this call for good — the caller's number, what was said and any message?",
+      "eraseConfirmRecorded": "Erase this call for good — the caller's number, what was said, any message and the recording?",
       "eraseYes": "Erase for good",
       "keep": "Keep it",
+      "recording": {
+        "title": "Call recording",
+        "stateOff": "Calls are not recorded. Callers hear that the call is transcribed, and no audio is kept.",
+        "stateOn": "Calls are recorded. Every caller hears that the call is recorded before recording starts.",
+        "explain": "When recording is on, callers are told the call is recorded before any audio is kept. Each recording is kept for {days, plural, one {# day} other {# days}}, then deleted for good, and erasing a call or a contact erases its recording too. Only an owner can listen to them.",
+        "changed": "Last switched {when}.",
+        "needsSetup": "Recording can't be switched on on this server yet. It needs these settings:",
+        "turnOn": "Record calls",
+        "turnOff": "Stop recording calls",
+        "listen": "Recording of the call",
+        "kept": "Recorded · kept until {date}",
+        "notKept": "Recorded · the recording isn't available"
+      },
       "notice": {
         "on": "The phone line is answering.",
         "off": "The phone line has stopped answering.",
         "handover": "Saved.",
-        "erased": "The call is erased."
+        "erased": "The call is erased.",
+        "recordingOn": "Calls are now recorded. Callers are told first.",
+        "recordingOff": "Calls are no longer recorded. Recordings already kept stay until their date, unless you erase them."
       },
       "error": {
         "notSetUp": "The phone line isn't set up on this server yet.",
@@ -5623,6 +5816,7 @@
         "notOn": "Turn the phone line on first.",
         "badNumber": "Write the number with its country code, starting with a plus sign.",
         "noCall": "That call isn't here any more.",
+        "recordingNotSetUp": "Call recording isn't set up on this server yet.",
         "crossSite": "This page can only be changed from SYB itself.",
         "signIn": "Sign in to change the phone line.",
         "action": "That isn't something the phone line can do."
@@ -5632,6 +5826,7 @@
   "phoneLine": {
     "greeting": "Hello, you've reached {business}, and you're speaking with SYB's automated assistant, not a person.",
     "notice": "This call is transcribed so that {business} can read it later; no audio is kept.",
+    "noticeRecorded": "This call is recorded and transcribed so that {business} can listen to it and read it later. The recording is kept for {days, plural, one {# day} other {# days}}, then deleted.",
     "howCanIHelp": "How can I help?",
     "anythingElse": "Is there anything else I can help with?",
     "notHeard": "Sorry, I didn't catch that. Could you say it again?",
@@ -5943,7 +6138,8 @@
       "summary_settings": "Only an owner can switch the weekly summary on or off.",
       "stop_resume": "Only an owner can start things up again after a stop.",
       "business_locale": "Only an owner can change the business's language or currency.",
-      "payments_prepare": "Only an owner can prepare payments or say one was paid."
+      "payments_prepare": "Only an owner can prepare payments or say one was paid.",
+      "phone_recordings": "Only an owner can listen to call recordings."
     }
   },
   "authWords": {
@@ -6376,7 +6572,8 @@
       "footApprove": "Nothing runs until you approve it.",
       "footStop": "You get this email once a week. Switch it off on the Watching screen, or stop it with one click:",
       "footWatchingHtml": "Everything I do is on your <link>Watching screen</link>. Nothing runs until you approve it.",
-      "footStopHtml": "You get this email once a week. Switch it off on the Watching screen, or <link>stop these emails</link> with one click."
+      "footStopHtml": "You get this email once a week. Switch it off on the Watching screen, or <link>stop these emails</link> with one click.",
+      "whatsappBusiness": "your business"
     },
     "signIn": {
       "subject": "Your sign-in link — SYB",
@@ -7733,7 +7930,8 @@
       "noStock": "connect your store or import a stock file and I'll show the cash sitting on the shelf",
       "nothingWaiting": "nothing is waiting for your approval right now",
       "noPricedGain": "nothing waiting for you carries a priced gain yet",
-      "noRevenueSeries": "I need a measured revenue series to read this against"
+      "noRevenueSeries": "I need a measured revenue series to read this against",
+      "noAds": "connect Meta Ads or Google Ads and I'll check which campaigns cost more than they bring back"
     },
     "price": {
       "arithmetic": "average price {mean} ({revenue} ÷ {count, plural, one {# completed} other {# completed}})",
@@ -7751,13 +7949,17 @@
       "stockNone": "nothing flagged slow or stuck as of {day}",
       "stockItems": "{count, plural, one {# slow item} other {# slow items}}, units on hand × unit cost, as of {day}. A stock, not a monthly flow: it is not added to the month",
       "tableProposal": "{summary}: {range}",
-      "onTheTable": "{count, plural, one {# waiting proposal} other {# waiting proposals}}, base case to upside a month: {parts}"
+      "onTheTable": "{count, plural, one {# waiting proposal} other {# waiting proposals}}, base case to upside a month: {parts}",
+      "adsAllPaidPlatforms": "every campaign returned at least what it cost, by each platform's own attribution ({count, plural, one {# campaign} other {# campaigns}})",
+      "adsLoserGoogle": "{campaign} on Google Ads: spent {spent}, Google attributes {value} in conversion value (return {roas}) → {loss}"
     },
     "basisNote": {
       "capacity": "from a capacity you {basis, select, ESTIMATED {ESTIMATED} other {STATED}} ({perWeek} a week)",
       "meta": "from Meta's own attribution",
       "statedCost": "units on hand × a cost you gave, for some items",
-      "proposals": "the proposals' own base and upside cases"
+      "proposals": "the proposals' own base and upside cases",
+      "google": "from Google's own attribution",
+      "adPlatforms": "from each platform's own attribution, Meta's and Google's"
     },
     "componentNote": {
       "adsOtherCurrency": "{count, plural, one {# campaign} other {# campaigns}} in {currencies} left out: currencies never blend",
@@ -7777,7 +7979,10 @@
       "adsCampaign": "{campaign} spent {spent}, Meta attributes {value} ({roas})",
       "adsCampaignLosing": "{campaign} spent {spent}, Meta attributes {value} ({roas}), losing",
       "noReturn": "no return",
-      "return": "return {roas}"
+      "return": "return {roas}",
+      "adsPlatforms": "Spend against the value each platform attributes, per campaign (Meta: purchase value, Google: conversion value), {from} to {to}: {campaigns}. Losing means a return below {even}.",
+      "adsCampaignGoogle": "{campaign} on Google Ads spent {spent}, Google attributes {value} ({roas})",
+      "adsCampaignGoogleLosing": "{campaign} on Google Ads spent {spent}, Google attributes {value} ({roas}), losing"
     }
   },
   "watchNoticed": {
@@ -8654,7 +8859,7 @@
         "shotList": "a shot list is for filming, not publishing",
         "email": "emails aren't sent through SYB yet",
         "kind": "a {kind} isn't published",
-        "channel": "SYB can't publish to {channel} — only to a Facebook Page or Instagram account you connect",
+        "channel": "SYB can't publish to {channel} — only to a Facebook Page, an Instagram account or a TikTok account you connect",
         "connect": "connect Meta publishing on Connections to publish this to {platform}",
         "noInstagram": "the Meta connection has no Instagram account — reconnect with its id to publish there",
         "needsMedia": "{platform} needs an image or a video, and this item has none yet",
@@ -8662,7 +8867,9 @@
         "noDate": "it has no date to go out on",
         "zone": "the posting time can't be set: {reason}",
         "declined": "{count, plural, one {you've declined publishing # time — I've stopped proposing it} other {you've declined publishing # times — I've stopped proposing it}}",
-        "passed": "its date ({date}) has passed"
+        "passed": "its date ({date}) has passed",
+        "connectTikTok": "connect TikTok posting on Connections to publish this to TikTok",
+        "tiktokNeedsVideo": "TikTok needs a video, and this item has none yet"
       },
       "zoneReason": {
         "noCountry": "no country given",

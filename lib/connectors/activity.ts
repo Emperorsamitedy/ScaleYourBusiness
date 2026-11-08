@@ -17,8 +17,8 @@ import { logSafeError } from "../core/log-safe";
 import { and, eq, gt, lte, sql } from "drizzle-orm";
 import { db } from "../../db";
 import { businessProfiles, metricObservations, watchActivity } from "../../db/schema";
-import { NON_CONNECTOR_SOURCE_LABELS } from "../bookings/source";
 import type { DeriveOutcome } from "./derive";
+import { executeReadSource } from "./execute-reads";
 import { getProvider } from "./registry";
 import { isProviderId } from "./scopes";
 
@@ -44,6 +44,7 @@ const DATA_NOUN: Readonly<Record<string, string>> = {
   woocommerce: "orders",
   ga4: "traffic",
   meta_ads: "ad spend",
+  google_ads: "ad spend",
   tiktok_ads: "ad spend",
 };
 
@@ -124,7 +125,7 @@ export async function recordSyncActivity(input: SyncActivityInput): Promise<void
     const days = await countNewDays(input.connectionId, input.fromCursor, input.toCursor);
     const label = isProviderId(input.provider)
       ? getProvider(input.provider).label
-      : (NON_CONNECTOR_SOURCE_LABELS[input.provider] ?? input.provider);
+      : (executeReadSource(input.provider)?.label ?? input.provider);
     const detail = activityDetail(label, input.provider, days, input.derived);
     if (detail === null) return;
 

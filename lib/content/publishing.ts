@@ -104,7 +104,12 @@ async function accountOfProfile(profileId: string): Promise<string | null> {
   return row?.account_id ?? null;
 }
 
-async function releaseMedia(item: PublishItem, store: MediaStore, accountId: string | null) {
+/** The render leaves public storage once the platform holds it (or it will never go out). */
+export async function releaseMedia(
+  item: Pick<PublishItem, "id" | "media_path">,
+  store: MediaStore,
+  accountId: string | null,
+) {
   if (!item.media_path) return;
   try {
     await store.del(item.media_path);
@@ -308,6 +313,8 @@ export async function publishPlan(
 ): Promise<{ plan: DispatchPlan } | { unroutable: string }> {
   if (!isPublishProposal(proposal.action)) return { unroutable: "not a publish proposal" };
   const d = detailOf(proposal);
+  // 2026-11-08: TikTok posting, its own provider and its one op.
+  if (d.platform === "tiktok") return tiktokPublishPlan(proposal, d);
   if (d.platform !== "facebook" && d.platform !== "instagram") {
     return { unroutable: "the publish proposal names no platform" };
   }
@@ -341,6 +348,38 @@ export async function publishPlan(
   };
 }
 
+/** The TikTok route: the approved proposal and its own item, never a client. */
+async function tiktokPublishPlan(
+  proposal: ProposalRow,
+  d: PublishDetail,
+): Promise<{ plan: DispatchPlan } | { unroutable: string }> {
+  const [item] = await db
+    .select()
+    .from(contentItems)
+    .where(
+      and(
+        eq(contentItems.id, d.item_id as string),
+        eq(contentItems.profile_id, proposal.profile_id),
+        eq(contentItems.publish_proposal_id, proposal.id),
+      ),
+    );
+  if (!item) return { unroutable: "the item this proposal publishes is gone" };
+  if (await supersededByFootage(item)) {
+    return {
+      unroutable: "your own footage for this replaced the generated version, so it isn't published",
+    };
+  }
+  if (item.media_path === null)
+    return { unroutable: "TikTok needs a video, and this item has none" };
+  return {
+    plan: {
+      provider: "tiktok_publish",
+      op: "publish_tiktok_video",
+      params: { item_id: item.id, platform: "tiktok", target: d.target ?? null },
+    },
+  };
+}
+
 /** How long a `running` execution may sit before the sweep treats its run as dead. */
 export const STALE_RUN_MS = 15 * 60_000;
 /** The sweep reads back for this long after a send; after that the owner's note stands. */
@@ -362,7 +401,13 @@ export interface ReconcileSummary {
  * account is skipped: the stop covers reads made on its behalf too.
  */
 export async function reconcilePublishing(
-  opts: { provider?: MetaPublishProvider; now?: () => Date; profileId?: string } = {},
+  opts: {
+    provider?: MetaPublishProvider;
+    /** 2026-11-08: TikTok items read back through their own provider. */
+    tiktokProvider?: Pick<MetaPublishProvider, "reconcile">;
+    now?: () => Date;
+    profileId?: string;
+  } = {},
 ): Promise<ReconcileSummary> {
   const now = opts.now ?? (() => new Date());
   const summary: ReconcileSummary = { checked: 0, published: 0, not_sent: 0, uncertain: 0 };
@@ -383,8 +428,10 @@ export async function reconcilePublishing(
     .where(and(...conditions));
   if (rows.length === 0) return summary;
 
-  const provider =
+  const meta = async () =>
     opts.provider ?? (await import("../execution/providers/meta")).metaExecution.publish;
+  const tiktok = async () =>
+    opts.tiktokProvider ?? (await import("../execution/providers/tiktok")).tiktokPublishExecutor;
 
   for (const { item, execution, account_id } of rows) {
     const sentAt = (item.publish_attempt as PublishAttempt | null)?.sent_at;
@@ -398,6 +445,7 @@ export async function reconcilePublishing(
     const d = detailOf(proposal);
     let outcome: ReconcileOutcome;
     try {
+      const provider = item.platform === "tiktok" ? await tiktok() : await meta();
       outcome = await provider.reconcile(
         { item_id: item.id, platform: d.platform, target: d.target },
         { profile_id: item.profile_id, account_id },
@@ -485,6 +533,11 @@ export async function withdrawItem(args: {
       `only a published post can be withdrawn — this one is ${item.status}`,
       409,
     );
+  }
+  if (item.platform === "tiktok") {
+    // TikTok's API has no delete: the op was labelled irreversible before approval.
+    const { TIKTOK_NO_UNDO } = await import("../execution/providers/tiktok");
+    throw new ContentError(TIKTOK_NO_UNDO, 409);
   }
   if (!item.publish_execution_id) {
     throw new ContentError("this post has no stored undo — check the Page by hand", 409);

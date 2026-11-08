@@ -13,6 +13,4 @@ export const BOOKINGS_IMPORT_PROVIDER = "bookings_import";
 /** Owner-facing names for measured sources that aren't connectors. */
 export const NON_CONNECTOR_SOURCE_LABELS: Readonly<Record<string, string>> = {
   [BOOKINGS_IMPORT_PROVIDER]: "Bookings export",
-  // TikTok Ads measures through its one execute consent (lib/connectors/measured-sources).
-  tiktok_ads: "TikTok Ads",
 };

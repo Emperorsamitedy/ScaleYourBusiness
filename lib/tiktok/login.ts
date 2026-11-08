@@ -127,7 +127,7 @@ export function tiktokReturnUrl(
   outcome: { kind: "connected" | "cancelled" } | { kind: "failed"; reason: TikTokReason },
 ): string {
   const url = new URL("/connections", origin);
-  url.searchParams.set("tiktok", outcome.kind === "failed" ? "error" : outcome.kind);
+  url.searchParams.set("tiktokads", outcome.kind === "failed" ? "error" : outcome.kind);
   if (outcome.kind === "failed") url.searchParams.set("reason", outcome.reason);
   return url.toString();
 }

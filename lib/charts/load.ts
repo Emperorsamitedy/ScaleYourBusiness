@@ -8,7 +8,7 @@
 // its currency; a series is ONE connection's, never a sum across two (a
 // Shopify store and a Stripe account can both report the same sale).
 
-import { and, eq, gte, inArray, isNotNull, lte } from "drizzle-orm";
+import { and, eq, gte, inArray, isNotNull, lte, or } from "drizzle-orm";
 import { db } from "../../db";
 import { anomalies, connections, metricObservations, proposals } from "../../db/schema";
 import type { Basis } from "../../components/report/basis";
@@ -17,12 +17,8 @@ import { loadCampaignSeries } from "../ads/proposals";
 import { CAPACITY_KEY } from "../bookings/store";
 import { BOOKINGS_IMPORT_PROVIDER } from "../bookings/source";
 import { MONEY_METRICS, type MetricKey } from "../connectors/provider";
-import {
-  MEASURED_EXECUTE_LABELS,
-  isMeasuredExecuteProvider,
-  measuredConnection,
-} from "../connectors/measured-sources";
 import { getProvider } from "../connectors/registry";
+import { EXECUTE_READ_PROVIDERS, executeReadSource } from "../connectors/execute-reads";
 import { isProviderId } from "../connectors/scopes";
 import { businessNoun } from "../core/business-noun";
 import { readCurrentField } from "../profile/field-store";
@@ -101,8 +97,9 @@ interface ConnInfo {
 export function sourceLabel(provider: string, tr: Tr = englishTr("chartsWords")): string {
   if (provider === BOOKINGS_IMPORT_PROVIDER) return tr("source.bookingsImport");
   if (provider === STOCK_IMPORT_PROVIDER) return tr("source.stockImport");
-  if (isMeasuredExecuteProvider(provider)) return MEASURED_EXECUTE_LABELS[provider];
-  return isProviderId(provider) ? getProvider(provider).label : provider;
+  return isProviderId(provider)
+    ? getProvider(provider).label
+    : (executeReadSource(provider)?.label ?? provider);
 }
 
 interface Group {
@@ -192,8 +189,15 @@ export async function loadMarketInputs(
     .where(
       and(
         eq(connections.account_id, accountId),
-        // TikTok Ads measures through its one consent (lib/connectors/measured-sources).
-        measuredConnection({ andImports: true }),
+        or(
+          eq(connections.purpose, "measure"),
+          eq(connections.purpose, "import"),
+          // P2-20: the execute connections whose read is measurement (Google Ads).
+          and(
+            eq(connections.purpose, "execute"),
+            inArray(connections.provider, [...EXECUTE_READ_PROVIDERS]),
+          ),
+        ),
       ),
     );
   const conns = new Map<string, ConnInfo>(
@@ -333,9 +337,9 @@ export async function loadMarketInputs(
       ? { per_week: cap.value, basis: capBasis }
       : null;
 
-  // Meta Ads, per campaign — null when it isn't connected at all.
+  // Meta Ads and Google Ads, per campaign — null when neither is connected at all.
   const meta = [...conns.values()].some(
-    (c) => c.provider === "meta_ads" || c.provider === "tiktok_ads",
+    (c) => c.provider === "meta_ads" || c.provider === "google_ads",
   );
   let campaigns: CampaignInput[] | null = null;
   if (meta) {
@@ -346,6 +350,7 @@ export async function loadMarketInputs(
       end,
     );
     campaigns = series.map((s) => ({
+      ...(s.platform === "google" ? { platform: "google" as const } : {}),
       campaign_ref: s.campaign_ref,
       campaign_name: s.campaign_name,
       currency: s.currency,

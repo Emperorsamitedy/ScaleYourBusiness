@@ -7,9 +7,13 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const sync = vi.fn();
 const google = vi.fn();
+const recordings = vi.fn();
 
 vi.mock("../../../../lib/connectors/sync", () => ({ runConnectorSync: () => sync() }));
 vi.mock("../../../../lib/google-business/read", () => ({ runGoogleReviewReads: () => google() }));
+vi.mock("../../../../lib/phone-recording/recordings", () => ({
+  runRecordingUpkeep: () => recordings(),
+}));
 
 const call = async (auth = "Bearer test-secret") => {
   const { GET } = await import("./route");
@@ -25,6 +29,8 @@ describe("GET /api/cron/connector-sync", () => {
     process.env.CRON_SECRET = "test-secret";
     sync.mockReset();
     google.mockReset();
+    recordings.mockReset();
+    recordings.mockResolvedValue({ stored: 0, released: 0, purged: 0, failed: 0 });
     vi.spyOn(console, "error").mockImplementation(() => {});
     vi.spyOn(console, "log").mockImplementation(() => {});
   });
@@ -34,7 +40,12 @@ describe("GET /api/cron/connector-sync", () => {
     google.mockRejectedValue(new Error("google broke"));
     const res = await call();
     expect(res.status).toBe(200);
-    expect(await res.json()).toEqual({ connections: 2, synced: 2, google_reviews: null });
+    expect(await res.json()).toEqual({
+      connections: 2,
+      synced: 2,
+      google_reviews: null,
+      phone_recordings: { stored: 0, released: 0, purged: 0, failed: 0 },
+    });
     const logged = vi.mocked(console.error).mock.calls.map((c) => String(c[0]));
     expect(logged.some((l) => l.includes('"step":"google_reviews"'))).toBe(true);
   });
@@ -51,6 +62,21 @@ describe("GET /api/cron/connector-sync", () => {
     });
     const body = (await (await call()).json()) as Record<string, unknown>;
     expect(body).toMatchObject({ connections: 1, google_reviews: { filed: 2, alerted: 1 } });
+  });
+
+  it("P6-08: the recordings' upkeep runs every day as its own step, and its failure takes nothing with it", async () => {
+    sync.mockResolvedValue({ connections: 1 });
+    google.mockResolvedValue(null);
+    recordings.mockResolvedValueOnce({ stored: 1, released: 0, purged: 2, failed: 0 });
+    let body = (await (await call()).json()) as Record<string, unknown>;
+    expect(body).toMatchObject({ connections: 1, phone_recordings: { stored: 1, purged: 2 } });
+    recordings.mockRejectedValueOnce(new Error("twilio broke"));
+    const res = await call();
+    expect(res.status).toBe(200);
+    body = (await res.json()) as Record<string, unknown>;
+    expect(body).toMatchObject({ connections: 1, phone_recordings: null });
+    const logged = vi.mocked(console.error).mock.calls.map((c) => String(c[0]));
+    expect(logged.some((l) => l.includes('"step":"phone_recordings"'))).toBe(true);
   });
 
   it("a failed sync still fails the job, and the reviews were read anyway", async () => {
@@ -73,5 +99,6 @@ describe("GET /api/cron/connector-sync", () => {
     expect(res.status).toBe(404);
     expect(sync).not.toHaveBeenCalled();
     expect(google).not.toHaveBeenCalled();
+    expect(recordings).not.toHaveBeenCalled();
   });
 });

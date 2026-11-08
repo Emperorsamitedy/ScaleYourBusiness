@@ -24,7 +24,11 @@
 //             BEFORE the first <Gather> (outside it, so they can't be
 //             talked over), and notice_at is stamped with them. Speech
 //             posted for a call with no notice is dropped unread. The line
-//             keeps no audio: there is no <Record> anywhere.
+//             keeps no audio unless the owner switched recording on
+//             (P6-08): then the notice says the call is RECORDED as well,
+//             recording_notice_at is stamped with it, and only after that
+//             <Say> does <Start><Recording> appear (lib/phone/twilio
+//             refuses to write it otherwise). There is no <Record> verb.
 //   caps    — a hard turn cap and a cost cap per call, reserved before
 //             each Haiku call and settled after; a monthly cap per
 //             account; a daily cap on calls per business and per caller.
@@ -37,6 +41,7 @@ import { and, desc, eq, gte, sql } from "drizzle-orm";
 import { db } from "../../db";
 import { llmCalls, phoneCallTurns, phoneCalls } from "../../db/schema";
 import type { AppLocale } from "../i18n/locales";
+import { phoneRecordingKeepDays } from "../env";
 import { DEFAULT_LOCALE, isAppLocale } from "../i18n/locales";
 import type { Words } from "../i18n/recipient";
 import { customerLocale, wordsFor } from "../i18n/recipient";
@@ -78,6 +83,8 @@ export const PHONE_GATHER_TIMEOUT_S = 6;
 export const PHONE_DIAL_TIMEOUT_S = 20;
 
 export const VOICE_PATH = "/api/phone/voice";
+/** P6-08: Twilio's recording status callback — signed like the voice webhook, on the trusted side. */
+export const RECORDING_PATH = "/api/phone/recording";
 export const STEPS = ["start", "turn", "message", "dial", "status"] as const;
 export type Step = (typeof STEPS)[number];
 export const stepUrl = (step: Exclude<Step, "start">): string => `${VOICE_PATH}?step=${step}`;
@@ -493,6 +500,9 @@ export async function startCall(params: TwilioParams, seams: PhoneSeams = {}): P
     // notice_at is stamped with the response that speaks it: Twilio plays
     // the <Say>s before the <Gather>, so any speech that arrives later was
     // spoken after the notice (rule 32).
+    // P6-08: a call answered while recording is on is told so, and stamped
+    // with it; the setting at the moment the call came in decides, so a
+    // retried webhook can't start recording a call that was told otherwise.
     const [inserted] = await db
       .insert(phoneCalls)
       .values({
@@ -502,6 +512,7 @@ export async function startCall(params: TwilioParams, seams: PhoneSeams = {}): P
         caller_number: caller,
         language: locale,
         notice_at: now().toISOString(),
+        recording_notice_at: line.record_calls ? now().toISOString() : null,
         started_at: now().toISOString(),
         last_at: now().toISOString(),
       })
@@ -516,17 +527,38 @@ export async function startCall(params: TwilioParams, seams: PhoneSeams = {}): P
         profile_id: line.profile_id,
         call_id: call.id,
         language: locale,
+        recorded: call.recording_notice_at !== null,
       }),
     );
   }
   const ctx: Ctx = { call, line, words, locale, now };
-  return respond(ctx, [
-    // Rule 31: the first sentence names the business and says what is speaking.
+  return respond(ctx, openingVerbs(words, business, call.recording_notice_at !== null));
+}
+
+/**
+ * Pure: what a caller hears first. Rule 31's sentence, then rule 32's
+ * notice — and, only for a recorded call, the notice that says so and
+ * THEN <Start><Recording>, so not a second of audio is kept before it.
+ * Both notices sit outside the <Gather>, so they can't be talked over.
+ */
+export function openingVerbs(
+  words: Pick<Words, "t">,
+  business: string,
+  recorded: boolean,
+  days: number = phoneRecordingKeepDays(),
+): Verb[] {
+  return [
     { verb: "say", text: words.t("greeting", { business }) },
-    // Rule 32: the notice, before anything is listened to — outside the <Gather>.
-    { verb: "say", text: words.t("notice", { business }) },
+    recorded
+      ? {
+          verb: "say",
+          text: words.t("noticeRecorded", { business, days }),
+          recordingNotice: true,
+        }
+      : { verb: "say", text: words.t("notice", { business }) },
+    ...(recorded ? [{ verb: "record", callback: RECORDING_PATH } as const] : []),
     gatherTurn(words.t("howCanIHelp")),
-  ]);
+  ];
 }
 
 /** The context for a later step, or null when the call is unknown, over, or never heard its notice. */
@@ -784,6 +816,8 @@ export async function callEnded(params: TwilioParams, seams: PhoneSeams = {}): P
       turns: ended.turns,
       duration_seconds: ended.duration_seconds,
       cost_eur: Number.parseFloat(ended.cost_eur),
+      // P6-08: the recording has its own cost line when it is stored.
+      recorded: ended.recording_notice_at !== null,
     }),
   );
 }

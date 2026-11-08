@@ -3,7 +3,7 @@
 //
 // Meta's and Google's rule (review 2026-10-23, Session D #9): the URL carries
 // only a reason CODE from this closed set; the screen says the fixed sentence
-// for it from its catalogue ("connections.tiktok.reason.*"), and a code it
+// for it from its catalogue ("connections.tiktokAds.reason.*"), and a code it
 // doesn't know reads as the generic one. No text from a URL is ever shown.
 
 export const TIKTOK_REASONS = {

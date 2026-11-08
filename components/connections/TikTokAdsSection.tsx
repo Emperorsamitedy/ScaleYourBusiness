@@ -10,7 +10,7 @@
 // SYB's settings are missing when the app isn't set up, says what TikTok's
 // app check means for access, and revokes in one confirmed click.
 //
-// The section's words are the "connections.tiktok" catalogue. The consent
+// The section's words are the "connections.tiktokAds" catalogue. The consent
 // lines and the phrase stay the registry's English: the consent's hash
 // covers them.
 
@@ -48,14 +48,14 @@ const TIKTOK_PERMISSION_NAMES = [
 /** What TikTok's redirect back to /connections says, read once from the URL. */
 function readReturn(): { kind: string; reason: string | null } | null {
   const q = new URLSearchParams(window.location.search);
-  const kind = q.get("tiktok");
+  const kind = q.get("tiktokads");
   if (kind !== "connected" && kind !== "cancelled" && kind !== "error") return null;
   return { kind, reason: q.get("reason") };
 }
 
 function clearReturn(): void {
   const url = new URL(window.location.href);
-  for (const key of ["tiktok", "reason"]) url.searchParams.delete(key);
+  for (const key of ["tiktokads", "reason"]) url.searchParams.delete(key);
   window.history.replaceState(null, "", url.pathname + url.search + url.hash);
 }
 
@@ -66,7 +66,7 @@ export function TikTokAdsSection({
   view: TikTokView;
   onChanged: () => Promise<void>;
 }) {
-  const { t, locale } = useCn("connections.tiktok");
+  const { t, locale } = useCn("connections.tiktokAds");
   const said = useSaid();
   const [open, setOpen] = useState(false);
   const [typed, setTyped] = useState("");

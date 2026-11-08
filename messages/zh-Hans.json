@@ -1216,7 +1216,29 @@
       "notDecided": "在决定“我的工作方式”之后开始发送。",
       "noEmail": "此服务器尚未设置电子邮件，因此不会发送。",
       "lastSent": "上次发送于 {date}。",
-      "first": "第一封会在下一次周一检查时发出。"
+      "first": "第一封会在下一次周一检查时发出。",
+      "channel": {
+        "legend": "发送方式",
+        "email": "邮件",
+        "whatsapp": "WhatsApp",
+        "both": "邮件和 WhatsApp"
+      },
+      "whatsapp": {
+        "numberLabel": "您的 WhatsApp 号码",
+        "numberHint": "完整的国际号码：先输入加号，再输入国家代码。",
+        "consent": "通过 WhatsApp 将我的 SYB 每周摘要发送到此号码。我可以随时在这里停止，SYB 不会将此号码用于其他任何用途。",
+        "agree": "是的，通过 WhatsApp 发送",
+        "on": "自 {date} 起，WhatsApp 消息发送到 {number}。",
+        "withdraw": "停止 WhatsApp",
+        "forget": "停止并删除我的号码",
+        "none": "尚未提供号码，因此不会向 WhatsApp 发送任何内容。",
+        "notSetUp": "此服务器尚未设置 WhatsApp。需要：{keys}。",
+        "invalid": "这不是完整的国际号码。请以加号和国家代码开头。",
+        "changed": "页面打开期间此文字已更改。请刷新并重新阅读。",
+        "notYours": "只有接收摘要的人才能提供 WhatsApp 号码。",
+        "needsYes": "在下方提供号码并同意之前，不会向 WhatsApp 发送任何内容。",
+        "failed": "未能保存。请重试。"
+      }
     },
     "signedOut": {
       "title": "这里还没有企业。",
@@ -2301,83 +2323,6 @@
         "generic": "Google 登录没有完成。没有连接任何内容。"
       }
     },
-    "tiktok": {
-      "sectionLabel": "TikTok Ads · 读取与操作，一项同意",
-      "label": "TikTok 广告管理",
-      "title": {
-        "on": "已连接。SYB 读取您的 TikTok 营销活动，只更改您批准的内容",
-        "off": "已关闭。SYB 不读取也不更改您的 TikTok 广告。"
-      },
-      "connected": "TikTok 已连接，您的同意已记录在案。",
-      "youCancelled": "您在 TikTok 的页面上取消了。没有连接任何内容。",
-      "revoked": "已撤销。SYB 对 TikTok 的访问权限已在此删除，读取和更改都已停止。",
-      "whyOne": "TikTok 只给一个应用一份权限清单，所以读取您的营销活动和更改它们是绑在一起的。SYB 把两者作为这一项同意来持有：每天读取一次，只有在您批准提案后才更改营销活动。",
-      "fact": {
-        "status": "状态",
-        "adAccounts": "广告账户",
-        "lastRead": "上次读取",
-        "notYet": "尚未读取：SYB 每天读取一次"
-      },
-      "revokeAsk": "SYB 将停止读取您的 TikTok 营销活动，也无法再更改它们。",
-      "revokeNote": "撤销会立即删除 SYB 在此处的访问权限。已读取的数据会保留。若要在 TikTok 一侧也移除 SYB，请将 SYB 的应用从您 TikTok 广告账户的已授权应用中移除。",
-      "tiktokScreen": "TikTok 随后会显示 SYB 的应用及这些权限，并通过电子邮件向您发送验证码，以确认是您本人。请允许，然后回到这里。",
-      "typeToConfirm": "如需确认，请输入 <b>{phrase}</b>",
-      "opening": "正在打开 TikTok…",
-      "signIn": "用 TikTok 登录并允许这些权限",
-      "nothingWritten": "连接会记录您的同意，并每天读取一次您的营销活动。在您批准提案之前，TikTok 上不会有任何变化；在为期两周的无人值守测试完成之前，TikTok 广告更改会一直保持关闭。",
-      "access": {
-        "title": "关于访问权限，直说",
-        "check": "TikTok 会在每个开发者应用的登录可用之前对其进行审核，通常需要两到三个工作日。在 SYB 的应用通过审核之前，TikTok 会拒绝登录，SYB 也会如实告知。",
-        "sandbox": "SYB 只连接真实的广告账户。TikTok 将在十二月停用其沙盒账户，因此 SYB 不使用它们：请用您自己的广告账户和一个小型营销活动来测试。"
-      },
-      "missing": {
-        "title": "尚未设置。SYB 的服务器缺少以下设置："
-      },
-      "steps": {
-        "title": "设置步骤（只需一次，在 SYB 的服务器上）",
-        "developer": "使用投放您广告的 TikTok 账号，在 TikTok 开发者网站 {site} 上注册为开发者，并等待您的开发者资料获得通过。",
-        "app": "在“My Apps”下创建一个应用，并将 {callback} 填为其广告主重定向 URL。",
-        "scopes": "在“Scope of permission”下，只勾选以下几项，其余都不要勾选：{scopes}。",
-        "submit": "提交该应用。TikTok 会对其进行审核，通常需要两到三个工作日。",
-        "keys": "通过后，将应用“Basic Information”中的 App ID 和 Secret 复制到 SYB 服务器上的 {appId} 和 {secret}，并将重定向 URL 复制到 {redirect}。"
-      },
-      "status": {
-        "connected": "已连接",
-        "paused": "已暂停",
-        "failed": "失败",
-        "disconnected": "已断开"
-      },
-      "consentedOn": "{day} 已同意 · {status}",
-      "notGranted": "未授予",
-      "notSetUpYet": "尚未设置",
-      "connect": "连接",
-      "close": "关闭",
-      "keepIt": "保留",
-      "unreachable": "我无法连接服务器。请重试。",
-      "revokeFailed": "撤销未成功。",
-      "revoking": "正在撤销…",
-      "yesRevoke": "是的，撤销",
-      "revoke": "撤销",
-      "reason": {
-        "start_here": "请从 SYB 的“连接”页面，用那里的按钮开始 TikTok 登录。没有向 TikTok 发送任何内容。",
-        "signed_out": "请先登录 SYB，然后再次连接 TikTok。",
-        "owner_only": "只有所有者才能授予或收回这项权限。没有向 TikTok 发送任何内容。",
-        "unavailable": "TikTok Ads 尚未设置。",
-        "phrase": "确认短语不匹配。请按显示的内容输入，然后重新开始。",
-        "already_connected": "TikTok 已经连接。请先撤销，再重新连接。",
-        "start_again": "这次 TikTok 登录已过期或已被使用。请从“连接”重新开始。",
-        "foreign": "这次 TikTok 登录是从另一个 SYB 账户发起的。请以该账户登录 SYB，或重新开始。",
-        "tiktok_error": "TikTok 登录未完成。没有连接任何内容。",
-        "scope": "TikTok 授予的权限与 SYB 要求的不完全一致。请将应用的“Scope of permission”与“连接”页面上的清单核对后重试。",
-        "no_advertisers": "TikTok 没有为这次登录向 SYB 显示任何广告账户。请用投放您广告的 TikTok 账号登录，然后重试。",
-        "tiktok_auth": "TikTok 没有接受这次登录。如果 TikTok 仍在审核 SYB 的应用，请等待其通过；否则请重新开始。",
-        "tiktok_permission": "TikTok 表示 SYB 的应用无权读取该广告账户。没有连接任何内容。",
-        "tiktok_busy": "TikTok 繁忙或没有响应。没有连接任何内容，请几分钟后重试。",
-        "tiktok_refused": "TikTok 拒绝了这次登录。没有连接任何内容。",
-        "internal": "我们这边出了问题。没有连接任何内容。",
-        "generic": "TikTok 登录未完成。没有连接任何内容。"
-      }
-    },
     "import": {
       "unreachable": "我无法连接服务器。请重试。",
       "readFrom": "已从 {file} 读取。您可以在这里核对",
@@ -2490,6 +2435,206 @@
       "unknownStatuses": "我不认识的状态：{list}。我不会猜测它们的含义。",
       "unknownStatus": "“{word}”（{count}）",
       "listSep": "、"
+    },
+    "tiktok": {
+      "sectionLabel": "发布到 TikTok · 一项单独的同意",
+      "label": "发布到 TikTok",
+      "title": {
+        "on": "已授予：SYB 发布您批准的视频",
+        "off": "已关闭。SYB 不会向 TikTok 发布内容。"
+      },
+      "status": {
+        "connected": "已连接",
+        "paused": "已暂停",
+        "failed": "失败",
+        "disconnected": "已断开"
+      },
+      "consentedOn": "于 {day} 同意 · {status}",
+      "notGranted": "未授予",
+      "notSetUpYet": "尚未设置",
+      "connect": "连接",
+      "close": "关闭",
+      "keepIt": "保留",
+      "unreachable": "我无法连接到服务器。请重试。",
+      "revokeFailed": "撤销没有成功。",
+      "connected": "发布到 TikTok 已连接，您的同意已记录在案。",
+      "youCancelled": "您在 TikTok 的页面上取消了。没有连接任何内容。",
+      "revoked": "已撤销。SYB 对 TikTok 的访问权限已在这里删除，并已请求 TikTok 也将其撤销。",
+      "revokedHereOnly": "已在这里撤销。TikTok 没有确认它也撤销了 SYB 的访问权限，请在 TikTok 应用中查看。",
+      "fact": {
+        "status": "状态",
+        "account": "TikTok 账户",
+        "whoSees": "谁能看到帖子",
+        "private": "仅您自己，直到 TikTok 审核 SYB 的应用",
+        "chosen": "每个帖子由您选择"
+      },
+      "access": {
+        "unaudited": "在 TikTok 审核 SYB 的应用之前，SYB 发布的所有内容都以私密方式发出：在 TikTok 上只有您能看到。审核通过后，由您选择每个帖子谁能看到。在此之前，TikTok 每天也只允许 SYB 的应用为少数几个账户发布。",
+        "audited": "TikTok 已审核 SYB 的应用：您可以从 TikTok 自己的选项中选择每个帖子谁能看到。"
+      },
+      "before": "开始使用之前",
+      "needs": {
+        "app": "SYB 自己的 TikTok 应用，并开启 Login Kit 和 TikTok 的发布 API（Direct Post）。",
+        "signIn": "您用帖子要发往的 TikTok 账户登录，并允许 TikTok 询问的权限。",
+        "choose": "每个帖子都是您批准的一段视频，并由您先选择谁能看到。"
+      },
+      "notSetUp": "尚未设置：SYB 的 TikTok 应用密钥还没有到位。在此之前，无法向 TikTok 发布任何内容。",
+      "revokeAsk": "SYB 将停止向 TikTok 发布。已经发布的帖子会保留。",
+      "revoking": "正在撤销…",
+      "yesRevoke": "是的，撤销",
+      "revoke": "撤销",
+      "revokeNote": "撤销会立即在这里删除 SYB 的访问权限，并请求 TikTok 也将其撤销。已经在 TikTok 上的帖子会保留。如需在 TikTok 一侧查看，请打开“设置和隐私”，然后“安全与权限”，再到“应用和服务权限”。",
+      "tiktokScreen": "随后 TikTok 会显示它自己的页面，询问发布视频、您的基本资料和您的公开视频。请允许，然后回到这里。",
+      "typeToConfirm": "如需确认，请输入 <b>{phrase}</b>",
+      "opening": "正在打开 TikTok…",
+      "signIn": "使用 TikTok 登录并允许发布",
+      "nothingWritten": "在您批准成品视频并选择谁能看到之前，不会发布任何东西。SYB 只读取您 TikTok 资料的名称和您公开视频的数据。",
+      "reason": {
+        "start_here": "请从 SYB 的“连接”页面，用那里的按钮开始 TikTok 登录。没有向 TikTok 发送任何内容。",
+        "signed_out": "请先登录 SYB，然后再次连接 TikTok。",
+        "owner_only": "只有所有者才能授予或收回这项权限。没有向 TikTok 发送任何内容。",
+        "unavailable": "发布到 TikTok 尚未设置。",
+        "phrase": "确认短语不匹配。请按显示的内容输入，然后重新开始。",
+        "already_connected": "发布到 TikTok 已经连接。请先撤销它，再连接另一个账户。",
+        "start_again": "这次 TikTok 登录已过期或已被使用。请从“连接”重新开始。",
+        "foreign": "这次 TikTok 登录是从另一个 SYB 账户发起的。请以该账户登录 SYB，或重新开始。",
+        "tiktok_error": "TikTok 登录没有完成。没有连接任何内容。",
+        "scope": "TikTok 没有恰好授予 SYB 申请的权限。请在 TikTok 的页面上允许列出的所有项目，然后重试。",
+        "tiktok_refused": "TikTok 拒绝了这次登录。没有连接任何内容。",
+        "internal": "我们这边出了问题。没有连接任何内容。",
+        "generic": "TikTok 登录没有完成。没有连接任何内容。"
+      },
+      "readback": "为了查看您公开帖子的表现，同一次登录还会读取："
+    },
+    "tiktokAds": {
+      "sectionLabel": "TikTok Ads · 读取与操作，一项同意",
+      "label": "TikTok 广告管理",
+      "title": {
+        "on": "已连接。SYB 读取您的 TikTok 营销活动，只更改您批准的内容",
+        "off": "已关闭。SYB 不读取也不更改您的 TikTok 广告。"
+      },
+      "connected": "TikTok 已连接，您的同意已记录在案。",
+      "youCancelled": "您在 TikTok 的页面上取消了。没有连接任何内容。",
+      "revoked": "已撤销。SYB 对 TikTok 的访问权限已在此删除，读取和更改都已停止。",
+      "whyOne": "TikTok 只给一个应用一份权限清单，所以读取您的营销活动和更改它们是绑在一起的。SYB 把两者作为这一项同意来持有：每天读取一次，只有在您批准提案后才更改营销活动。",
+      "fact": {
+        "status": "状态",
+        "adAccounts": "广告账户",
+        "lastRead": "上次读取",
+        "notYet": "尚未读取：SYB 每天读取一次"
+      },
+      "revokeAsk": "SYB 将停止读取您的 TikTok 营销活动，也无法再更改它们。",
+      "revokeNote": "撤销会立即删除 SYB 在此处的访问权限。已读取的数据会保留。若要在 TikTok 一侧也移除 SYB，请将 SYB 的应用从您 TikTok 广告账户的已授权应用中移除。",
+      "tiktokScreen": "TikTok 随后会显示 SYB 的应用及这些权限，并通过电子邮件向您发送验证码，以确认是您本人。请允许，然后回到这里。",
+      "typeToConfirm": "如需确认，请输入 <b>{phrase}</b>",
+      "opening": "正在打开 TikTok…",
+      "signIn": "用 TikTok 登录并允许这些权限",
+      "nothingWritten": "连接会记录您的同意，并每天读取一次您的营销活动。在您批准提案之前，TikTok 上不会有任何变化；在为期两周的无人值守测试完成之前，TikTok 广告更改会一直保持关闭。",
+      "access": {
+        "title": "关于访问权限，直说",
+        "check": "TikTok 会在每个开发者应用的登录可用之前对其进行审核，通常需要两到三个工作日。在 SYB 的应用通过审核之前，TikTok 会拒绝登录，SYB 也会如实告知。",
+        "sandbox": "SYB 只连接真实的广告账户。TikTok 将在十二月停用其沙盒账户，因此 SYB 不使用它们：请用您自己的广告账户和一个小型营销活动来测试。"
+      },
+      "missing": {
+        "title": "尚未设置。SYB 的服务器缺少以下设置："
+      },
+      "steps": {
+        "title": "设置步骤（只需一次，在 SYB 的服务器上）",
+        "developer": "使用投放您广告的 TikTok 账号，在 TikTok 开发者网站 {site} 上注册为开发者，并等待您的开发者资料获得通过。",
+        "app": "在“My Apps”下创建一个应用，并将 {callback} 填为其广告主重定向 URL。",
+        "scopes": "在“Scope of permission”下，只勾选以下几项，其余都不要勾选：{scopes}。",
+        "submit": "提交该应用。TikTok 会对其进行审核，通常需要两到三个工作日。",
+        "keys": "通过后，将应用“Basic Information”中的 App ID 和 Secret 复制到 SYB 服务器上的 {appId} 和 {secret}，并将重定向 URL 复制到 {redirect}。"
+      },
+      "status": {
+        "connected": "已连接",
+        "paused": "已暂停",
+        "failed": "失败",
+        "disconnected": "已断开"
+      },
+      "consentedOn": "{day} 已同意 · {status}",
+      "notGranted": "未授予",
+      "notSetUpYet": "尚未设置",
+      "connect": "连接",
+      "close": "关闭",
+      "keepIt": "保留",
+      "unreachable": "我无法连接服务器。请重试。",
+      "revokeFailed": "撤销未成功。",
+      "revoking": "正在撤销…",
+      "yesRevoke": "是的，撤销",
+      "revoke": "撤销",
+      "reason": {
+        "start_here": "请从 SYB 的“连接”页面，用那里的按钮开始 TikTok 登录。没有向 TikTok 发送任何内容。",
+        "signed_out": "请先登录 SYB，然后再次连接 TikTok。",
+        "owner_only": "只有所有者才能授予或收回这项权限。没有向 TikTok 发送任何内容。",
+        "unavailable": "TikTok Ads 尚未设置。",
+        "phrase": "确认短语不匹配。请按显示的内容输入，然后重新开始。",
+        "already_connected": "TikTok 已经连接。请先撤销，再重新连接。",
+        "start_again": "这次 TikTok 登录已过期或已被使用。请从“连接”重新开始。",
+        "foreign": "这次 TikTok 登录是从另一个 SYB 账户发起的。请以该账户登录 SYB，或重新开始。",
+        "tiktok_error": "TikTok 登录未完成。没有连接任何内容。",
+        "scope": "TikTok 授予的权限与 SYB 要求的不完全一致。请将应用的“Scope of permission”与“连接”页面上的清单核对后重试。",
+        "no_advertisers": "TikTok 没有为这次登录向 SYB 显示任何广告账户。请用投放您广告的 TikTok 账号登录，然后重试。",
+        "tiktok_auth": "TikTok 没有接受这次登录。如果 TikTok 仍在审核 SYB 的应用，请等待其通过；否则请重新开始。",
+        "tiktok_permission": "TikTok 表示 SYB 的应用无权读取该广告账户。没有连接任何内容。",
+        "tiktok_busy": "TikTok 繁忙或没有响应。没有连接任何内容，请几分钟后重试。",
+        "tiktok_refused": "TikTok 拒绝了这次登录。没有连接任何内容。",
+        "internal": "我们这边出了问题。没有连接任何内容。",
+        "generic": "TikTok 登录未完成。没有连接任何内容。"
+      }
+    },
+    "googleAds": {
+      "sectionLabel": "Google Ads · 单独的同意",
+      "label": "Google Ads",
+      "title": {
+        "on": "已授予：SYB 读取您的广告花费，只更改您批准的内容",
+        "off": "已关闭。SYB 不读取您的 Google Ads。"
+      },
+      "whatItCanDo": "Google 的权限也能更改您的营销活动、预算和广告。SYB 每天用它读取一次您的花费和效果，只有通过您批准的提案才会更改任何内容。您可以随时撤销。",
+      "notSetUp": "SYB 这边尚未设置。缺少：{keys}。",
+      "accessLevel": {
+        "title": "Google 对 SYB 的批准",
+        "test": "仅限测试账户。Google 尚未批准 SYB 使用真实广告账户，因此在批准之前，真实账户会被拒绝。",
+        "explorer": "真实广告账户，SYB 服务的所有用户合计每天最多 {ops} 次操作。",
+        "basic": "真实广告账户，SYB 服务的所有用户合计每天最多 {ops} 次操作。Google 已先审核过 SYB。",
+        "standard": "真实广告账户，除 Google 自身的速率限制外没有每日上限。",
+        "unknown": "尚未说明，所以请按仅限测试账户对待。"
+      },
+      "fact": {
+        "account": "广告账户"
+      },
+      "revokeAsk": "SYB 将停止读取您的 Google Ads，也无法在那里更改任何内容。",
+      "revokeNote": "撤销会立即删除 SYB 在这里的访问权限。已读取的花费保留在您的数字中。若要在 Google 那边也移除 SYB，请打开您的 Google 账户的“安全性”页面，然后进入第三方连接。",
+      "connected": "Google Ads 已连接，您的同意已记录在案。",
+      "signedInPick": "已用 Google 登录。请选择 SYB 应读取的广告账户。",
+      "revoked": "已撤销。SYB 对 Google Ads 的访问已删除：不会读取或更改任何内容。",
+      "pickTitle": "选择广告账户",
+      "managerNote": "经理账户：SYB 连接的是广告账户本身",
+      "connectAccount": "连接这个广告账户",
+      "signIn": "用 Google 登录并允许 Google Ads",
+      "nothingWritten": "连接会记录您的同意，SYB 每天读取一次您的花费。在您批准提案之前，Google Ads 上什么都不会改变；在 SYB 为期两周的真实更改测试完成之前，更改保持关闭。",
+      "reason": {
+        "unavailable": "Google Ads 尚未设置。",
+        "already_connected": "Google Ads 已连接。请先撤销，才能连接另一个账户。",
+        "scope": "Google 没有恰好授予 SYB 请求的那一项权限。请在 Google 的页面上允许 Google Ads 权限，然后重试。",
+        "no_accounts": "Google 没有为该 Google 账户向 SYB 显示任何 Google Ads 账户。请用有权访问您广告的账户登录，然后重试。",
+        "managers_only": "该 Google 账户只能访问经理账户。SYB 连接的是广告账户本身：请让您的 Google 账户能够访问它，然后重试。",
+        "access_level": "Google 尚未批准 SYB 将 Google Ads 访问用于真实广告账户。没有连接任何内容。",
+        "google_permission": "Google 表示 SYB 无权访问该 Google Ads 账户。没有连接任何内容。",
+        "start_here": "请从 SYB 的“连接”页面，用那里的按钮开始 Google 登录。没有向 Google 发送任何内容。",
+        "signed_out": "请先登录 SYB，然后再次连接 Google。",
+        "owner_only": "只有所有者才能授予或收回这项权限。没有向 Google 发送任何内容。",
+        "phrase": "确认短语不匹配。请按显示的内容输入，然后重新开始。",
+        "start_again": "这次 Google 登录已过期或已被使用。请从“连接”重新开始。",
+        "foreign": "这次 Google 登录是从另一个 SYB 账户发起的。请以该账户登录 SYB，或重新开始。",
+        "google_error": "Google 登录没有完成。没有连接任何内容。",
+        "no_refresh": "Google 没有给 SYB 长期访问权限。请重新开始：Google 会再询问一次，SYB 需要这个回答。",
+        "google_auth": "Google 没有接受这次登录。请从“连接”重新开始。",
+        "google_busy": "Google 繁忙或没有响应。没有连接任何内容——请过几分钟再试。",
+        "google_refused": "Google 拒绝了这次登录。没有连接任何内容。",
+        "internal": "我们这边出了问题。没有连接任何内容。",
+        "generic": "Google 登录没有完成。没有连接任何内容。"
+      }
     }
   },
   "landing": {
@@ -4750,6 +4895,37 @@
         "lastTry": "上一次尝试：{error}{cost, select, none {} other {（已收取 {cost}）}}。"
       },
       "refused": "已拒绝"
+    },
+    "tiktok": {
+      "title": "发布到 TikTok",
+      "loading": "正在读取您的 TikTok 账户…",
+      "failedLoad": "我暂时无法读取您的 TikTok 账户。",
+      "account": "将发布到 TikTok 上的 {name}。",
+      "whoSees": "谁能看到这个帖子",
+      "choose": "请选择…",
+      "privacy": {
+        "PUBLIC_TO_EVERYONE": "所有人",
+        "MUTUAL_FOLLOW_FRIENDS": "朋友",
+        "FOLLOWER_OF_CREATOR": "粉丝",
+        "SELF_ONLY": "仅自己"
+      },
+      "privateOnly": "在 TikTok 审核 SYB 的应用之前，帖子只能是私密的：只有您能看到。",
+      "allowComment": "允许评论",
+      "allowDuet": "允许合拍",
+      "allowStitch": "允许拼接",
+      "offOnTikTok": "已在您的 TikTok 设置中关闭",
+      "brand": "这是在推广我自己的企业",
+      "brandNote": "TikTok 会将其标记为推广。",
+      "aiLabel": "TikTok 会将此视频标记为 AI 生成。",
+      "declaration": "发布即表示您同意 TikTok 的音乐使用确认。",
+      "save": "保存这些选择",
+      "saving": "正在保存…",
+      "saved": "已保存。准备好后，请在“提案”中批准这个帖子。",
+      "chosen": "谁能看到：{privacy}。",
+      "locked": "这些选择已随帖子一起批准，现在不能更改。",
+      "needChoice": "批准之前，请先选择谁能看到。",
+      "processing": "发布后，TikTok 可能需要几分钟处理，才会显示在您的资料中。",
+      "noDelete": "TikTok 不允许应用删除帖子。如需撤下，请在 TikTok 应用中删除。"
     }
   },
   "customers": {
@@ -5583,6 +5759,7 @@
       "titleOn": "正在接听 {number} 的来电",
       "titleOff": "未接听来电",
       "what": "线路会先说明自己是SYB的自动助理。它只用您批准的回答作答，从不预订、承诺或办理退款，遇到不知道的问题时会记下留言或把来电转接给您。来电者会在任何内容被转写之前听到通话将被转写的提示，并且不会保存任何录音。",
+      "whatRecorded": "线路会先说明自己是SYB的自动助理。它只用您批准的回答作答，从不预订、承诺或办理退款，遇到不知道的问题时会记下留言或把来电转接给您。来电者会在任何内容被录音或转写之前听到通话将被录音和转写的提示。",
       "needsKeys": "要接听来电，SYB需要一个Twilio账户和一个Twilio号码。请在服务器上添加以下设置，然后回到这里：",
       "setUp": "请在Twilio中，把这个号码的“A call comes in”网络钩子设为第一个地址，把通话状态通知设为第二个地址，两者都使用HTTP POST。",
       "turnOn": "在 {number} 上接听来电",
@@ -5609,13 +5786,29 @@
       "messageLabel": "留言",
       "erase": "删除这通来电",
       "eraseConfirm": "要永久删除这通来电吗？包括来电号码、通话内容和任何留言。",
+      "eraseConfirmRecorded": "要永久删除这通来电吗？包括来电号码、通话内容、任何留言和录音。",
       "eraseYes": "永久删除",
       "keep": "保留",
+      "recording": {
+        "title": "通话录音",
+        "stateOff": "通话不会录音。来电者会听到通话将被转写的提示，并且不会保存任何录音。",
+        "stateOn": "通话会录音。每位来电者都会在录音开始之前听到通话将被录音的提示。",
+        "explain": "开启录音后，来电者会在保存任何声音之前被告知通话正在录音。每段录音保存{days, plural, other {#天}}，之后永久删除；删除一通来电或一个联系人时，其录音也会一并删除。只有所有者可以收听录音。",
+        "changed": "最近一次切换：{when}。",
+        "needsSetup": "此服务器暂时还无法开启录音，需要以下设置：",
+        "turnOn": "为通话录音",
+        "turnOff": "停止为通话录音",
+        "listen": "通话录音",
+        "kept": "已录音 · 保存至{date}",
+        "notKept": "已录音 · 录音暂不可用"
+      },
       "notice": {
         "on": "电话线路正在接听来电。",
         "off": "电话线路已停止接听来电。",
         "handover": "已保存。",
-        "erased": "这通来电已删除。"
+        "erased": "这通来电已删除。",
+        "recordingOn": "通话现在会录音。来电者会先听到提示。",
+        "recordingOff": "通话不再录音。已保存的录音会保留到各自的日期，除非您删除它们。"
       },
       "error": {
         "notSetUp": "这台服务器上还没有设置电话线路。",
@@ -5623,6 +5816,7 @@
         "notOn": "请先开启电话线路。",
         "badNumber": "请填写带国家区号的号码，以加号开头。",
         "noCall": "这通来电已经不在这里了。",
+        "recordingNotSetUp": "此服务器尚未设置通话录音。",
         "crossSite": "此页面只能在SYB内部修改。",
         "signIn": "请先登录再修改电话线路。",
         "action": "电话线路无法做这件事。"
@@ -5632,6 +5826,7 @@
   "phoneLine": {
     "greeting": "您好，您已接通{business}，现在为您服务的是SYB的自动助理，不是真人。",
     "notice": "本次通话会被转写成文字，以便{business}之后查看；不会保存任何录音。",
+    "noticeRecorded": "本次通话会被录音并转写成文字，以便{business}之后收听和查看。录音保存{days, plural, other {#天}}，之后删除。",
     "howCanIHelp": "请问有什么可以帮您？",
     "anythingElse": "还有什么可以帮您的吗？",
     "notHeard": "抱歉，我没有听清。您能再说一遍吗？",
@@ -5943,7 +6138,8 @@
       "summary_settings": "只有所有者可以开启或关闭每周摘要。",
       "stop_resume": "只有所有者可以在停止后重新启动。",
       "business_locale": "只有所有者可以更改企业的语言或货币。",
-      "payments_prepare": "只有所有者可以准备付款或说明某笔付款已完成。"
+      "payments_prepare": "只有所有者可以准备付款或说明某笔付款已完成。",
+      "phone_recordings": "只有所有者可以收听通话录音。"
     }
   },
   "authWords": {
@@ -6376,7 +6572,8 @@
       "footApprove": "未经您批准，什么都不会执行。",
       "footStop": "这封邮件每周发送一次。您可以在“观察”页面关闭它，或一键停止：",
       "footWatchingHtml": "我做的每一件事都在您的<link>“观察”页面</link>上。未经您批准，什么都不会执行。",
-      "footStopHtml": "这封邮件每周发送一次。您可以在“观察”页面关闭它，或一键<link>停止这些邮件</link>。"
+      "footStopHtml": "这封邮件每周发送一次。您可以在“观察”页面关闭它，或一键<link>停止这些邮件</link>。",
+      "whatsappBusiness": "您的企业"
     },
     "signIn": {
       "subject": "您的登录链接 — SYB",
@@ -7733,7 +7930,8 @@
       "noStock": "连接您的网店或导入库存文件，我就会显示压在货架上的现金",
       "nothingWaiting": "目前没有任何内容在等待您批准",
       "noPricedGain": "等待您处理的内容中，还没有一项带有定价的收益",
-      "noRevenueSeries": "我需要一个已测量的营收序列来对照解读"
+      "noRevenueSeries": "我需要一个已测量的营收序列来对照解读",
+      "noAds": "连接 Meta Ads 或 Google Ads，我就会检查哪些营销活动的成本高于它们带回的收入"
     },
     "price": {
       "arithmetic": "平均价格 {mean}（{revenue} ÷ {count, plural, other {# 个已完成}}）",
@@ -7751,13 +7949,17 @@
       "stockNone": "截至 {day}，没有标记为动销慢或滞销的商品",
       "stockItems": "{count, plural, other {# 件动销慢的商品}}，现有数量 × 单位成本，截至 {day}。这是库存存量，而不是月度流量：不计入当月",
       "tableProposal": "{summary}：{range}",
-      "onTheTable": "{count, plural, other {# 条等待中的提案}}，每月从基准情形到乐观情形：{parts}"
+      "onTheTable": "{count, plural, other {# 条等待中的提案}}，每月从基准情形到乐观情形：{parts}",
+      "adsAllPaidPlatforms": "按各平台自己的归因，每项营销活动带回的都至少等于其成本（{count, plural, other {# 项营销活动}}）",
+      "adsLoserGoogle": "{campaign}（Google Ads）：花费 {spent}，Google 归因 {value} 的转化价值（回报 {roas}）→ {loss}"
     },
     "basisNote": {
       "capacity": "来自您{basis, select, ESTIMATED {估计} other {陈述}}的接待能力（每周 {perWeek} 个）",
       "meta": "来自 Meta 自己的归因",
       "statedCost": "现有数量 × 您给出的成本，适用于部分商品",
-      "proposals": "各提案自身的基准情形和乐观情形"
+      "proposals": "各提案自身的基准情形和乐观情形",
+      "google": "来自 Google 自己的归因",
+      "adPlatforms": "来自各平台自己的归因：Meta 的和 Google 的"
     },
     "componentNote": {
       "adsOtherCurrency": "{count, plural, other {以 {currencies} 计的 # 项营销活动}}未计入：货币之间从不混合",
@@ -7777,7 +7979,10 @@
       "adsCampaign": "{campaign} 花费 {spent}，Meta 归因 {value}（{roas}）",
       "adsCampaignLosing": "{campaign} 花费 {spent}，Meta 归因 {value}（{roas}），亏损",
       "noReturn": "无回报",
-      "return": "回报 {roas}"
+      "return": "回报 {roas}",
+      "adsPlatforms": "按营销活动列出花费与各平台归因价值的对比（Meta：购买价值；Google：转化价值），{from} 至 {to}：{campaigns}。亏损表示回报低于 {even}。",
+      "adsCampaignGoogle": "{campaign}（Google Ads）花费 {spent}，Google 归因 {value}（{roas}）",
+      "adsCampaignGoogleLosing": "{campaign}（Google Ads）花费 {spent}，Google 归因 {value}（{roas}），亏损"
     }
   },
   "watchNoticed": {
@@ -8654,7 +8859,7 @@
         "shotList": "拍摄清单用于拍摄，不用于发布",
         "email": "SYB 目前还不发送邮件",
         "kind": "此类内容（{kind}）不会发布",
-        "channel": "SYB 无法发布到 {channel}，只能发布到您连接的 Facebook 主页或 Instagram 账户",
+        "channel": "SYB 无法发布到 {channel}，只能发布到您连接的 Facebook 主页、Instagram 账户或 TikTok 账户",
         "connect": "请在“连接”中开通 Meta 发布，才能将此内容发布到 {platform}",
         "noInstagram": "此 Meta 连接没有 Instagram 账户，请带上其 ID 重新连接后再在那里发布",
         "needsMedia": "{platform} 需要一张图片或一段视频，而此内容还没有",
@@ -8662,7 +8867,9 @@
         "noDate": "没有发布日期",
         "zone": "无法设定发布时间：{reason}",
         "declined": "{count, plural, other {您已拒绝发布 # 次，我已不再提议}}",
-        "passed": "其日期（{date}）已过"
+        "passed": "其日期（{date}）已过",
+        "connectTikTok": "请在“连接”中开通发布到 TikTok，才能将此内容发布到 TikTok",
+        "tiktokNeedsVideo": "TikTok 需要一段视频，而此内容还没有"
       },
       "zoneReason": {
         "noCountry": "未填写国家",

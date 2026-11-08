@@ -37,6 +37,8 @@ import { useTranslations } from "next-intl";
 import "../../app/content.css";
 import { EmergencyStop } from "../execution/EmergencyStop";
 import { MediaPanel } from "./MediaPanel";
+import type { TikTokItemStateLike } from "./TikTokPostForm";
+import { TikTokPostForm } from "./TikTokPostForm";
 import { PageHead, SheetCard } from "../sheet/PageHead";
 import { num } from "../sheet/num";
 import { useTr } from "../sheet/useTr";
@@ -84,7 +86,7 @@ interface ContentItem {
   provenance: {
     evidence?: string[];
     item?: { focus?: string };
-    media?: { origin?: string };
+    media?: { origin?: string; is_ai_generated?: boolean };
   } | null;
   /* P3-20d — the publish state, straight from the row. */
   status: ContentStatus;
@@ -124,6 +126,8 @@ type State =
       performance: Record<string, PerformanceLike>;
       /** P3-54: item id → whether it can run as an ad, and where its ad stands. */
       ads: Record<string, AdStateLike>;
+      /** 2026-11-08: item id → its TikTok post settings and whether they may still change. */
+      tiktok: Record<string, TikTokItemStateLike>;
       /** P3-52/53: footage, renders and the AI fallback, for the items that can take media. */
       media: MediaState | null;
       /** The item whose Withdraw is waiting on a second click. */
@@ -198,6 +202,7 @@ export function ContentScreen() {
       watching_until?: string | null;
       performance?: Record<string, PerformanceLike>;
       ads?: Record<string, AdStateLike>;
+      tiktok?: Record<string, TikTokItemStateLike>;
       media?: MediaState;
     };
     const goals = (await goalsRes.json()) as { goals: Goal[]; suggestions: Suggestion[] };
@@ -213,6 +218,7 @@ export function ContentScreen() {
       watchingUntil: content.watching_until ?? null,
       performance: content.performance ?? {},
       ads: content.ads ?? {},
+      tiktok: content.tiktok ?? {},
       media: content.media ?? null,
       confirmWithdraw: null,
       busy: false,
@@ -532,6 +538,19 @@ export function ContentScreen() {
                   onPick={pick}
                 />
               )}
+              {s.tiktok[open.id] && (
+                <TikTokPostForm
+                  key={`tiktok-${open.id}`}
+                  itemId={open.id}
+                  state={s.tiktok[open.id] as TikTokItemStateLike}
+                  aiGenerated={open.provenance?.media?.is_ai_generated === true}
+                  busy={s.busy}
+                  onSaved={async (notice) => {
+                    await load();
+                    setState((cur) => (cur.phase === "ready" ? { ...cur, notice } : cur));
+                  }}
+                />
+              )}
               {open.status === "failed" && open.last_error && (
                 <p className="ct-why">
                   <span className="word alarm">{tr("state.failed")}</span> {open.last_error}
@@ -602,7 +621,12 @@ export function ContentScreen() {
                     <span aria-hidden="true">→</span>
                   </a>
                 )}
+                {/* TikTok's API has no delete: the post comes down in the TikTok app. */}
+                {open.status === "published" && open.platform === "tiktok" && (
+                  <p className="ct-why">{tr("tiktok.noDelete")}</p>
+                )}
                 {open.status === "published" &&
+                  open.platform !== "tiktok" &&
                   (s.confirmWithdraw === open.id ? (
                     <>
                       <button

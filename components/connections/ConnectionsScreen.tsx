@@ -31,6 +31,10 @@ import type { GoogleView } from "./GoogleBusinessSection";
 import { GoogleBusinessSection } from "./GoogleBusinessSection";
 import type { TikTokView } from "./TikTokAdsSection";
 import { TikTokAdsSection } from "./TikTokAdsSection";
+import type { TikTokPostingView } from "./TikTokPostingSection";
+import { TikTokPostingSection } from "./TikTokPostingSection";
+import type { GoogleAdsView } from "./GoogleAdsSection";
+import { GoogleAdsSection } from "./GoogleAdsSection";
 import { BankStatementSection } from "./BankStatementSection";
 import { BookingsImportSection } from "./BookingsImportSection";
 import { headline, lastRead } from "./patch";
@@ -648,8 +652,12 @@ export function ConnectionsScreen() {
   const [email, setEmail] = useState<EmailView | null>(null);
   // I-45a: Google Business Profile, its own consent, used only to read reviews.
   const [google, setGoogle] = useState<GoogleView | null>(null);
-  // TikTok Ads: reading and acting, one consent (TikTok can't separate them).
-  const [tiktok, setTiktok] = useState<TikTokView | null>(null);
+  // 2026-11-08: TikTok posting, its own consent.
+  const [tiktok, setTiktok] = useState<TikTokPostingView | null>(null);
+  // P2-20 / P3-22: Google Ads, its own consent — reads spend, changes only what's approved.
+  const [gads, setGads] = useState<GoogleAdsView | null>(null);
+  // TikTok Ads: reading and acting, one consent (TikTok can't separate them for one app).
+  const [ttads, setTtads] = useState<TikTokView | null>(null);
   // The headline speaks for writing too, so it waits until that side has answered.
   const [execDone, setExecDone] = useState(false);
   const [state, setState] = useState<"loading" | "ready" | "signed_out" | "error">("loading");
@@ -680,10 +688,28 @@ export function ConnectionsScreen() {
 
   const loadTiktok = useCallback(async () => {
     try {
-      const res = await fetch("/api/connections/tiktok");
-      setTiktok(res.ok ? ((await res.json()) as TikTokView) : null);
+      const res = await fetch("/api/connections/tiktok-posting");
+      setTiktok(res.ok ? ((await res.json()) as TikTokPostingView) : null);
     } catch {
       setTiktok(null);
+    }
+  }, []);
+
+  const loadGads = useCallback(async () => {
+    try {
+      const res = await fetch("/api/connections/google-ads");
+      setGads(res.ok ? ((await res.json()) as GoogleAdsView) : null);
+    } catch {
+      setGads(null);
+    }
+  }, []);
+
+  const loadTtads = useCallback(async () => {
+    try {
+      const res = await fetch("/api/connections/tiktok");
+      setTtads(res.ok ? ((await res.json()) as TikTokView) : null);
+    } catch {
+      setTtads(null);
     }
   }, []);
 
@@ -720,7 +746,9 @@ export function ConnectionsScreen() {
     void loadEmail();
     void loadGoogle();
     void loadTiktok();
-  }, [load, loadExec, loadEmail, loadGoogle, loadTiktok]);
+    void loadGads();
+    void loadTtads();
+  }, [load, loadExec, loadEmail, loadGoogle, loadTiktok, loadGads, loadTtads]);
 
   const syncNow = async (c: Connection) => {
     setBusy(c.id);
@@ -1039,12 +1067,32 @@ export function ConnectionsScreen() {
           />
         )}
 
-        {/* TikTok Ads — reading and acting are one TikTok permission list, so one consent. */}
+        {/* 2026-11-08: TikTok posting — the videos you approve, private until TikTok's audit. */}
         {tiktok !== null && (
-          <TikTokAdsSection
+          <TikTokPostingSection
             view={tiktok}
             onChanged={async () => {
               await Promise.all([loadTiktok(), loadExec()]);
+            }}
+          />
+        )}
+
+        {/* P2-20 / P3-22: Google Ads — a permission that can write; SYB reads, and changes only what you approve. */}
+        {gads !== null && (
+          <GoogleAdsSection
+            view={gads}
+            onChanged={async () => {
+              await Promise.all([loadGads(), loadExec(), load()]);
+            }}
+          />
+        )}
+
+        {/* TikTok Ads — reading and acting are one TikTok permission list, so one consent. */}
+        {ttads !== null && (
+          <TikTokAdsSection
+            view={ttads}
+            onChanged={async () => {
+              await Promise.all([loadTtads(), loadExec(), load()]);
             }}
           />
         )}

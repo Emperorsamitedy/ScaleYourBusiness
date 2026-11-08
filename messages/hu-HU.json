@@ -1216,7 +1216,29 @@
       "notDecided": "Akkor indul, amikor az „Ahogyan dolgozom” beállítás eldőlt.",
       "noEmail": "Ezen a szerveren még nincs beállítva az e-mail-küldés, ezért egy sem megy ki.",
       "lastSent": "Utoljára elküldve: {date}.",
-      "first": "Az első a következő hétfői ellenőrzéskor megy ki."
+      "first": "Az első a következő hétfői ellenőrzéskor megy ki.",
+      "channel": {
+        "legend": "Küldés módja",
+        "email": "E-mail",
+        "whatsapp": "WhatsApp",
+        "both": "E-mail és WhatsApp"
+      },
+      "whatsapp": {
+        "numberLabel": "Az Ön WhatsApp-száma",
+        "numberHint": "A teljes nemzetközi szám: egy pluszjel, majd az országhívószám.",
+        "consent": "Küldjék a heti SYB-összefoglalómat erre a számra WhatsAppon. Itt bármikor leállíthatom, és a SYB a számot semmi másra nem használja.",
+        "agree": "Igen, kérem WhatsAppon",
+        "on": "A WhatsApp-üzenet {date} óta erre a számra megy: {number}.",
+        "withdraw": "WhatsApp leállítása",
+        "forget": "Leállítás és a számom törlése",
+        "none": "Még nincs megadva szám, ezért semmi sem megy WhatsAppra.",
+        "notSetUp": "A WhatsApp még nincs beállítva ezen a szerveren. Ehhez kell: {keys}.",
+        "invalid": "Ez nem teljes nemzetközi szám. Kezdje pluszjellel és az országhívószámmal.",
+        "changed": "Ez a szöveg megváltozott, amíg az oldal nyitva volt. Töltse újra, és olvassa el újra.",
+        "notYours": "Csak az adhat meg WhatsApp-számot, aki az összefoglalót kapja.",
+        "needsYes": "WhatsAppra semmi sem megy, amíg lent meg nem ad egy számot, és el nem fogadja.",
+        "failed": "Nem sikerült menteni. Próbálja újra."
+      }
     },
     "signedOut": {
       "title": "Itt még nincs vállalkozás.",
@@ -2301,83 +2323,6 @@
         "generic": "A Google-bejelentkezés nem fejeződött be. Semmi sem lett összekapcsolva."
       }
     },
-    "tiktok": {
-      "sectionLabel": "TikTok Ads · olvasás és cselekvés, egyetlen hozzájárulás",
-      "label": "TikTok-hirdetéskezelés",
-      "title": {
-        "on": "Összekapcsolva. A SYB olvassa a TikTok-kampányait, és csak azt módosítja, amit Ön jóváhagy",
-        "off": "Kikapcsolva. A SYB nem olvassa és nem módosítja a TikTok-hirdetéseit."
-      },
-      "connected": "A TikTok össze van kapcsolva, és a hozzájárulása rögzítve van.",
-      "youCancelled": "A TikTok oldalán megszakította. Semmi sem lett összekapcsolva.",
-      "revoked": "Visszavonva. A SYB TikTok-hozzáférése itt törölve, az olvasás és a módosítások leálltak.",
-      "whyOne": "A TikTok egy alkalmazásnak egyetlen engedélylistát ad, így a kampányai olvasása és módosítása együtt jár. A SYB mindkettőt ezen az egy hozzájáruláson tartja: naponta egyszer olvas, és egy kampányt csak azután módosít, hogy Ön jóváhagyott egy javaslatot.",
-      "fact": {
-        "status": "állapot",
-        "adAccounts": "hirdetési fiókok",
-        "lastRead": "utolsó beolvasás",
-        "notYet": "még nem: a SYB naponta egyszer olvas"
-      },
-      "revokeAsk": "A SYB nem olvassa tovább a TikTok-kampányait, és nem tudja módosítani őket.",
-      "revokeNote": "A visszavonás azonnal törli itt a SYB hozzáférését. A már beolvasott számok megmaradnak. Ha a SYB-t a TikTok oldalán is el szeretné távolítani, vegye ki a SYB alkalmazását a TikTok-hirdetési fiókja engedélyezett alkalmazásai közül.",
-      "tiktokScreen": "A TikTok ezután megmutatja a SYB alkalmazását ezekkel az engedélyekkel, és e-mailben küld egy kódot, hogy megerősítse, Ön az. Engedélyezze, majd térjen vissza ide.",
-      "typeToConfirm": "A megerősítéshez írja be: <b>{phrase}</b>",
-      "opening": "A TikTok megnyitása…",
-      "signIn": "Bejelentkezés a TikTokkal, és ezek engedélyezése",
-      "nothingWritten": "Az összekapcsolás rögzíti a hozzájárulását, és naponta egyszer beolvassa a kampányait. A TikTokon semmi sem változik egy javaslat jóváhagyása nélkül, és a TikTok-hirdetések módosítása kikapcsolva marad, amíg a kéthetes felügyelet nélküli teszt be nem fejeződik.",
-      "access": {
-        "title": "A hozzáférés, őszintén",
-        "check": "A TikTok minden fejlesztői alkalmazást ellenőriz, mielőtt a bejelentkezés működne vele, általában két-három munkanapon belül. Amíg a SYB alkalmazása át nem megy rajta, a TikTok elutasítja a bejelentkezést, és a SYB ezt meg is mondja.",
-        "sandbox": "A SYB csak valódi hirdetési fiókokat kapcsol össze. A TikTok decemberben megszünteti a sandbox fiókjait, ezért a SYB nem használja őket: tesztelje a saját hirdetési fiókjával és egy kis kampány segítségével."
-      },
-      "missing": {
-        "title": "Még nincs beállítva. Ezek a beállítások hiányoznak a SYB szerveréről:"
-      },
-      "steps": {
-        "title": "Beállítás, egyszer, a SYB szerverén",
-        "developer": "Regisztráljon fejlesztőként a TikTok fejlesztői oldalán ({site}) azzal a TikTok-belépéssel, amellyel a hirdetéseit kezeli, és várja meg, amíg elfogadják a fejlesztői profilját.",
-        "app": "A „My Apps” alatt hozzon létre egy alkalmazást, és adja meg a(z) {callback} címet hirdetői átirányítási URL-ként.",
-        "scopes": "A „Scope of permission” alatt pontosan ezeket jelölje be, és semmi mást: {scopes}.",
-        "submit": "Küldje be az alkalmazást. A TikTok ellenőrzi, általában két-három munkanapon belül.",
-        "keys": "Ha átment, másolja az App ID-t és a Secretet az alkalmazás „Basic Information” részéből a SYB szerverén a(z) {appId} és {secret} beállításba, az átirányítási URL-t pedig a(z) {redirect} beállításba."
-      },
-      "status": {
-        "connected": "összekapcsolva",
-        "paused": "szüneteltetve",
-        "failed": "sikertelen",
-        "disconnected": "leválasztva"
-      },
-      "consentedOn": "hozzájárulás: {day} · {status}",
-      "notGranted": "nincs megadva",
-      "notSetUpYet": "még nincs beállítva",
-      "connect": "Összekapcsolás",
-      "close": "Bezárás",
-      "keepIt": "Megtartom",
-      "unreachable": "Nem értem el a szervert. Próbálja újra.",
-      "revokeFailed": "A visszavonás nem sikerült.",
-      "revoking": "Visszavonás…",
-      "yesRevoke": "Igen, visszavonom",
-      "revoke": "Visszavonás",
-      "reason": {
-        "start_here": "Indítsa a TikTok-bejelentkezést a SYB Összekapcsolt fiókok oldaláról, az ott található gombbal. Semmi sem lett elküldve a TikToknak.",
-        "signed_out": "A SYB-be való bejelentkezés után kapcsolja össze újra a TikTokot.",
-        "owner_only": "Ezt az engedélyt csak tulajdonos adhatja meg vagy vonhatja vissza. Semmi sem lett elküldve a TikToknak.",
-        "unavailable": "A TikTok Ads még nincs beállítva.",
-        "phrase": "A megerősítő kifejezés nem egyezett. Írja be pontosan úgy, ahogy látható, majd kezdje újra.",
-        "already_connected": "A TikTok már össze van kapcsolva. Az újbóli összekapcsoláshoz előbb vonja vissza.",
-        "start_again": "Ez a TikTok-bejelentkezés lejárt, vagy már felhasználták. Kezdje újra az Összekapcsolt fiókok oldalról.",
-        "foreign": "Ezt a TikTok-bejelentkezést egy másik SYB-fiókból indították. Jelentkezzen be abba a fiókba a SYB-ben, vagy kezdje újra.",
-        "tiktok_error": "A TikTok-bejelentkezés nem fejeződött be. Semmi sem lett összekapcsolva.",
-        "scope": "A TikTok nem pontosan azokat az engedélyeket adta meg, amelyeket a SYB kér. Vesse össze az alkalmazás „Scope of permission” beállítását az Összekapcsolt fiókok oldalon lévő listával, majd próbálja újra.",
-        "no_advertisers": "A TikTok ehhez a bejelentkezéshez nem mutatott hirdetési fiókot a SYB-nek. Jelentkezzen be azzal a TikTok-belépéssel, amellyel a hirdetéseit kezeli, majd próbálja újra.",
-        "tiktok_auth": "A TikTok nem fogadta el a bejelentkezést. Ha a TikTok még ellenőrzi a SYB alkalmazását, várjon, amíg átmegy; különben kezdje újra.",
-        "tiktok_permission": "A TikTok szerint a SYB alkalmazása nem olvashatja azt a hirdetési fiókot. Semmi sem lett összekapcsolva.",
-        "tiktok_busy": "A TikTok túlterhelt volt, vagy nem válaszolt. Semmi sem lett összekapcsolva — próbálja újra néhány perc múlva.",
-        "tiktok_refused": "A TikTok elutasította a bejelentkezést. Semmi sem lett összekapcsolva.",
-        "internal": "Hiba történt a mi oldalunkon. Semmi sem lett összekapcsolva.",
-        "generic": "A TikTok-bejelentkezés nem fejeződött be. Semmi sem lett összekapcsolva."
-      }
-    },
     "import": {
       "unreachable": "Nem értem el a szervert. Próbálja újra.",
       "readFrom": "Beolvasva ebből: {file}. Itt ellenőrizheti",
@@ -2490,6 +2435,206 @@
       "unknownStatuses": "Állapotok, amelyeket nem ismertem: {list}. Nem találgatom, mit jelentenek.",
       "unknownStatus": "„{word}” ({count})",
       "listSep": ","
+    },
+    "tiktok": {
+      "sectionLabel": "Közzététel TikTokon · külön hozzájárulás",
+      "label": "Közzététel TikTokon",
+      "title": {
+        "on": "Megadva: a SYB közzéteszi a jóváhagyott videóit",
+        "off": "Kikapcsolva. A SYB nem tesz közzé semmit TikTokon."
+      },
+      "status": {
+        "connected": "összekapcsolva",
+        "paused": "szüneteltetve",
+        "failed": "sikertelen",
+        "disconnected": "leválasztva"
+      },
+      "consentedOn": "hozzájárulás: {day} · {status}",
+      "notGranted": "nincs megadva",
+      "notSetUpYet": "még nincs beállítva",
+      "connect": "Összekapcsolás",
+      "close": "Bezárás",
+      "keepIt": "Megtartom",
+      "unreachable": "Nem értem el a szervert. Próbálja újra.",
+      "revokeFailed": "A visszavonás nem sikerült.",
+      "connected": "A TikTok-közzététel összekapcsolva, és a hozzájárulása rögzítve van.",
+      "youCancelled": "A TikTok képernyőjén megszakította. Semmi sem lett összekapcsolva.",
+      "revoked": "Visszavonva. A SYB TikTok-hozzáférése itt törölve, és a TikTokot is megkértük, hogy vonja vissza.",
+      "revokedHereOnly": "Itt visszavonva. A TikTok nem erősítette meg, hogy ő is visszavonta a SYB hozzáférését, ezért ellenőrizze a TikTok alkalmazásban.",
+      "fact": {
+        "status": "állapot",
+        "account": "TikTok-fiók",
+        "whoSees": "ki látja a bejegyzéseket",
+        "private": "csak Ön, amíg a TikTok nem auditálja a SYB alkalmazását",
+        "chosen": "minden bejegyzésnél Ön választ"
+      },
+      "access": {
+        "unaudited": "Amíg a TikTok nem auditálja a SYB alkalmazását, minden, amit a SYB közzétesz, privátként megy ki: TikTokon csak Ön látja. Ha az audit sikeres, Ön választja meg, ki látja az egyes bejegyzéseket. Addig a TikTok azt is csak néhány fiók esetében engedi naponta, hogy a SYB alkalmazása közzétegyen.",
+        "audited": "A TikTok auditálta a SYB alkalmazását: a TikTok saját lehetőségei közül Ön választja meg, ki láthatja az egyes bejegyzéseket."
+      },
+      "before": "Mielőtt működik",
+      "needs": {
+        "app": "A SYB saját TikTok-alkalmazása, bekapcsolt Login Kittel és a TikTok közzétételi API-jával (Direct Post).",
+        "signIn": "Bejelentkezik azzal a TikTok-fiókkal, ahová a bejegyzések mennek, és engedélyezi, amit a TikTok kérdez.",
+        "choose": "Minden bejegyzés egy Ön által jóváhagyott videó, és előbb Ön választja meg, ki láthatja."
+      },
+      "notSetUp": "Még nincs beállítva: a SYB TikTok-alkalmazásának kulcsai hiányoznak. Addig semmit sem lehet közzétenni TikTokon.",
+      "revokeAsk": "A SYB abbahagyja a TikTok-közzétételt. A már kint lévő bejegyzések maradnak.",
+      "revoking": "Visszavonás…",
+      "yesRevoke": "Igen, visszavonom",
+      "revoke": "Visszavonás",
+      "revokeNote": "A visszavonás itt azonnal törli a SYB hozzáférését, és a TikTokot is megkéri, hogy vonja vissza. A TikTokon már kint lévő bejegyzések ott maradnak. A TikTok oldalán való ellenőrzéshez nyissa meg a Beállítások és adatvédelem, majd a Biztonság és engedélyek, végül az Alkalmazások és szolgáltatások engedélyei menüt.",
+      "tiktokScreen": "A TikTok ezután a saját képernyőjét mutatja, és a videók közzétételéről, az alapprofiljáról és a nyilvános videóiról kérdez. Engedélyezze, majd jöjjön vissza ide.",
+      "typeToConfirm": "A megerősítéshez írja be: <b>{phrase}</b>",
+      "opening": "A TikTok megnyitása…",
+      "signIn": "Bejelentkezés TikTokkal és a közzététel engedélyezése",
+      "nothingWritten": "Semmi sem kerül ki a kész videó jóváhagyásáig, és amíg meg nem választotta, ki láthatja. A SYB csak a TikTok-profilja nevét és a nyilvános videói számait olvassa.",
+      "reason": {
+        "start_here": "Indítsa a TikTok-bejelentkezést a SYB Összekapcsolt fiókok oldaláról, az ott található gombbal. Semmi sem lett elküldve a TikToknak.",
+        "signed_out": "A SYB-be való bejelentkezés után kapcsolja össze újra a TikTokot.",
+        "owner_only": "Ezt az engedélyt csak tulajdonos adhatja meg vagy vonhatja vissza. Semmi sem lett elküldve a TikToknak.",
+        "unavailable": "A TikTok-közzététel még nincs beállítva.",
+        "phrase": "A megerősítő kifejezés nem egyezett. Írja be pontosan úgy, ahogy látható, majd kezdje újra.",
+        "already_connected": "A TikTok-közzététel már össze van kapcsolva. Egy másik fiók összekapcsolásához előbb vonja vissza.",
+        "start_again": "Ez a TikTok-bejelentkezés lejárt, vagy már felhasználták. Kezdje újra az Összekapcsolt fiókok oldalról.",
+        "foreign": "Ezt a TikTok-bejelentkezést egy másik SYB-fiókból indították. Jelentkezzen be abba a fiókba a SYB-ben, vagy kezdje újra.",
+        "tiktok_error": "A TikTok-bejelentkezés nem fejeződött be. Semmi sem lett összekapcsolva.",
+        "scope": "A TikTok nem pontosan azt adta meg, amit a SYB kér. A TikTok képernyőjén engedélyezzen mindent, ami fel van sorolva, majd próbálja újra.",
+        "tiktok_refused": "A TikTok elutasította a bejelentkezést. Semmi sem lett összekapcsolva.",
+        "internal": "Nálunk történt valami hiba. Semmi sem lett összekapcsolva.",
+        "generic": "A TikTok-bejelentkezés nem fejeződött be. Semmi sem lett összekapcsolva."
+      },
+      "readback": "Hogy lássa, hogyan teljesítenek a nyilvános bejegyzései, ugyanez a bejelentkezés ezeket is olvassa:"
+    },
+    "tiktokAds": {
+      "sectionLabel": "TikTok Ads · olvasás és cselekvés, egyetlen hozzájárulás",
+      "label": "TikTok-hirdetéskezelés",
+      "title": {
+        "on": "Összekapcsolva. A SYB olvassa a TikTok-kampányait, és csak azt módosítja, amit Ön jóváhagy",
+        "off": "Kikapcsolva. A SYB nem olvassa és nem módosítja a TikTok-hirdetéseit."
+      },
+      "connected": "A TikTok össze van kapcsolva, és a hozzájárulása rögzítve van.",
+      "youCancelled": "A TikTok oldalán megszakította. Semmi sem lett összekapcsolva.",
+      "revoked": "Visszavonva. A SYB TikTok-hozzáférése itt törölve, az olvasás és a módosítások leálltak.",
+      "whyOne": "A TikTok egy alkalmazásnak egyetlen engedélylistát ad, így a kampányai olvasása és módosítása együtt jár. A SYB mindkettőt ezen az egy hozzájáruláson tartja: naponta egyszer olvas, és egy kampányt csak azután módosít, hogy Ön jóváhagyott egy javaslatot.",
+      "fact": {
+        "status": "állapot",
+        "adAccounts": "hirdetési fiókok",
+        "lastRead": "utolsó beolvasás",
+        "notYet": "még nem: a SYB naponta egyszer olvas"
+      },
+      "revokeAsk": "A SYB nem olvassa tovább a TikTok-kampányait, és nem tudja módosítani őket.",
+      "revokeNote": "A visszavonás azonnal törli itt a SYB hozzáférését. A már beolvasott számok megmaradnak. Ha a SYB-t a TikTok oldalán is el szeretné távolítani, vegye ki a SYB alkalmazását a TikTok-hirdetési fiókja engedélyezett alkalmazásai közül.",
+      "tiktokScreen": "A TikTok ezután megmutatja a SYB alkalmazását ezekkel az engedélyekkel, és e-mailben küld egy kódot, hogy megerősítse, Ön az. Engedélyezze, majd térjen vissza ide.",
+      "typeToConfirm": "A megerősítéshez írja be: <b>{phrase}</b>",
+      "opening": "A TikTok megnyitása…",
+      "signIn": "Bejelentkezés a TikTokkal, és ezek engedélyezése",
+      "nothingWritten": "Az összekapcsolás rögzíti a hozzájárulását, és naponta egyszer beolvassa a kampányait. A TikTokon semmi sem változik egy javaslat jóváhagyása nélkül, és a TikTok-hirdetések módosítása kikapcsolva marad, amíg a kéthetes felügyelet nélküli teszt be nem fejeződik.",
+      "access": {
+        "title": "A hozzáférés, őszintén",
+        "check": "A TikTok minden fejlesztői alkalmazást ellenőriz, mielőtt a bejelentkezés működne vele, általában két-három munkanapon belül. Amíg a SYB alkalmazása át nem megy rajta, a TikTok elutasítja a bejelentkezést, és a SYB ezt meg is mondja.",
+        "sandbox": "A SYB csak valódi hirdetési fiókokat kapcsol össze. A TikTok decemberben megszünteti a sandbox fiókjait, ezért a SYB nem használja őket: tesztelje a saját hirdetési fiókjával és egy kis kampány segítségével."
+      },
+      "missing": {
+        "title": "Még nincs beállítva. Ezek a beállítások hiányoznak a SYB szerveréről:"
+      },
+      "steps": {
+        "title": "Beállítás, egyszer, a SYB szerverén",
+        "developer": "Regisztráljon fejlesztőként a TikTok fejlesztői oldalán ({site}) azzal a TikTok-belépéssel, amellyel a hirdetéseit kezeli, és várja meg, amíg elfogadják a fejlesztői profilját.",
+        "app": "A „My Apps” alatt hozzon létre egy alkalmazást, és adja meg a(z) {callback} címet hirdetői átirányítási URL-ként.",
+        "scopes": "A „Scope of permission” alatt pontosan ezeket jelölje be, és semmi mást: {scopes}.",
+        "submit": "Küldje be az alkalmazást. A TikTok ellenőrzi, általában két-három munkanapon belül.",
+        "keys": "Ha átment, másolja az App ID-t és a Secretet az alkalmazás „Basic Information” részéből a SYB szerverén a(z) {appId} és {secret} beállításba, az átirányítási URL-t pedig a(z) {redirect} beállításba."
+      },
+      "status": {
+        "connected": "összekapcsolva",
+        "paused": "szüneteltetve",
+        "failed": "sikertelen",
+        "disconnected": "leválasztva"
+      },
+      "consentedOn": "hozzájárulás: {day} · {status}",
+      "notGranted": "nincs megadva",
+      "notSetUpYet": "még nincs beállítva",
+      "connect": "Összekapcsolás",
+      "close": "Bezárás",
+      "keepIt": "Megtartom",
+      "unreachable": "Nem értem el a szervert. Próbálja újra.",
+      "revokeFailed": "A visszavonás nem sikerült.",
+      "revoking": "Visszavonás…",
+      "yesRevoke": "Igen, visszavonom",
+      "revoke": "Visszavonás",
+      "reason": {
+        "start_here": "Indítsa a TikTok-bejelentkezést a SYB Összekapcsolt fiókok oldaláról, az ott található gombbal. Semmi sem lett elküldve a TikToknak.",
+        "signed_out": "A SYB-be való bejelentkezés után kapcsolja össze újra a TikTokot.",
+        "owner_only": "Ezt az engedélyt csak tulajdonos adhatja meg vagy vonhatja vissza. Semmi sem lett elküldve a TikToknak.",
+        "unavailable": "A TikTok Ads még nincs beállítva.",
+        "phrase": "A megerősítő kifejezés nem egyezett. Írja be pontosan úgy, ahogy látható, majd kezdje újra.",
+        "already_connected": "A TikTok már össze van kapcsolva. Az újbóli összekapcsoláshoz előbb vonja vissza.",
+        "start_again": "Ez a TikTok-bejelentkezés lejárt, vagy már felhasználták. Kezdje újra az Összekapcsolt fiókok oldalról.",
+        "foreign": "Ezt a TikTok-bejelentkezést egy másik SYB-fiókból indították. Jelentkezzen be abba a fiókba a SYB-ben, vagy kezdje újra.",
+        "tiktok_error": "A TikTok-bejelentkezés nem fejeződött be. Semmi sem lett összekapcsolva.",
+        "scope": "A TikTok nem pontosan azokat az engedélyeket adta meg, amelyeket a SYB kér. Vesse össze az alkalmazás „Scope of permission” beállítását az Összekapcsolt fiókok oldalon lévő listával, majd próbálja újra.",
+        "no_advertisers": "A TikTok ehhez a bejelentkezéshez nem mutatott hirdetési fiókot a SYB-nek. Jelentkezzen be azzal a TikTok-belépéssel, amellyel a hirdetéseit kezeli, majd próbálja újra.",
+        "tiktok_auth": "A TikTok nem fogadta el a bejelentkezést. Ha a TikTok még ellenőrzi a SYB alkalmazását, várjon, amíg átmegy; különben kezdje újra.",
+        "tiktok_permission": "A TikTok szerint a SYB alkalmazása nem olvashatja azt a hirdetési fiókot. Semmi sem lett összekapcsolva.",
+        "tiktok_busy": "A TikTok túlterhelt volt, vagy nem válaszolt. Semmi sem lett összekapcsolva — próbálja újra néhány perc múlva.",
+        "tiktok_refused": "A TikTok elutasította a bejelentkezést. Semmi sem lett összekapcsolva.",
+        "internal": "Hiba történt a mi oldalunkon. Semmi sem lett összekapcsolva.",
+        "generic": "A TikTok-bejelentkezés nem fejeződött be. Semmi sem lett összekapcsolva."
+      }
+    },
+    "googleAds": {
+      "sectionLabel": "Google Ads · külön hozzájárulás",
+      "label": "Google Ads",
+      "title": {
+        "on": "Megadva: a SYB olvassa a hirdetési költését, és csak azt módosítja, amit Ön jóváhagy",
+        "off": "Kikapcsolva. A SYB nem olvassa a Google Ads-fiókját."
+      },
+      "whatItCanDo": "A Google engedélye a kampányait, költségkereteit és hirdetéseit is módosíthatja. A SYB naponta egyszer a költéseit és eredményeit olvassa vele, és csak az Ön által jóváhagyott javaslaton keresztül módosít bármit. Bármikor visszavonhatja.",
+      "notSetUp": "A SYB oldalán még nincs beállítva. Hiányzik: {keys}.",
+      "accessLevel": {
+        "title": "A Google jóváhagyása a SYB számára",
+        "test": "Csak tesztfiókok. A Google még nem hagyta jóvá a SYB-t valódi hirdetési fiókokhoz, ezért egy valódit addig elutasít.",
+        "explorer": "Valódi hirdetési fiókok, naponta legfeljebb {ops} művelet mindazok között, akiket a SYB kiszolgál.",
+        "basic": "Valódi hirdetési fiókok, naponta legfeljebb {ops} művelet mindazok között, akiket a SYB kiszolgál. A Google előbb ellenőrizte a SYB-t.",
+        "standard": "Valódi hirdetési fiókok, napi korlát nélkül, csak a Google saját sebességkorlátaival.",
+        "unknown": "Még nincs megadva, ezért csak tesztfiókokkal számoljon."
+      },
+      "fact": {
+        "account": "hirdetési fiók"
+      },
+      "revokeAsk": "A SYB abbahagyja a Google Ads olvasását, és ott semmit sem módosíthat.",
+      "revokeNote": "A visszavonás azonnal törli itt a SYB hozzáférését. A már beolvasott költés a számai között marad. Ha a Google oldalán is el szeretné távolítani a SYB-t, nyissa meg Google-fiókja Biztonság oldalát, majd a harmadik féllel való összekapcsolásokat.",
+      "connected": "A Google Ads össze van kapcsolva, és a hozzájárulását rögzítettük.",
+      "signedInPick": "Bejelentkezett a Google-lel. Válassza ki a hirdetési fiókot, amelyet a SYB olvasson.",
+      "revoked": "Visszavonva. A SYB Google Ads-hozzáférése törölve: semmit nem olvas és nem módosít.",
+      "pickTitle": "Válassza ki a hirdetési fiókot",
+      "managerNote": "menedzserfiók: a SYB magát a hirdetési fiókot kapcsolja össze",
+      "connectAccount": "Ennek a hirdetési fióknak az összekapcsolása",
+      "signIn": "Bejelentkezés a Google-lel és a Google Ads engedélyezése",
+      "nothingWritten": "Az összekapcsolás rögzíti a hozzájárulását, és a SYB naponta egyszer olvassa a költését. A Google Ads-ben semmi sem változik egy javaslat jóváhagyása előtt, és a módosítások kikapcsolva maradnak, amíg a SYB kéthetes, valódi módosításokra vonatkozó tesztje véget nem ér.",
+      "reason": {
+        "unavailable": "A Google Ads még nincs beállítva.",
+        "already_connected": "A Google Ads már össze van kapcsolva. Másik fiók összekapcsolásához előbb vonja vissza.",
+        "scope": "A Google nem pontosan azt az egy engedélyt adta meg, amelyet a SYB kér. A Google képernyőjén engedélyezze a Google Ads-engedélyt, majd próbálja újra.",
+        "no_accounts": "A Google ehhez a Google-fiókhoz nem mutatott a SYB-nek Google Ads-fiókot. Végezze el a bejelentkezést azzal a fiókkal, amely hozzáfér a hirdetéseihez, majd próbálja újra.",
+        "managers_only": "Ez a Google-fiók csak menedzserfiókokat ér el. A SYB magát a hirdetési fiókot kapcsolja össze: adjon hozzáférést hozzá a Google-fiókjának, majd próbálja újra.",
+        "access_level": "A Google még nem hagyta jóvá a SYB Google Ads-hozzáférését valódi hirdetési fiókokhoz. Semmi sem lett összekapcsolva.",
+        "google_permission": "A Google szerint a SYB nem férhet hozzá ehhez a Google Ads-fiókhoz. Semmi sem lett összekapcsolva.",
+        "start_here": "Indítsa a Google-bejelentkezést a SYB Összekapcsolt fiókok oldaláról, az ott található gombbal. Semmi sem lett elküldve a Google-nak.",
+        "signed_out": "A SYB-be való bejelentkezés után kapcsolja össze újra a Google-t.",
+        "owner_only": "Ezt az engedélyt csak tulajdonos adhatja meg vagy vonhatja vissza. Semmi sem lett elküldve a Google-nak.",
+        "phrase": "A megerősítő kifejezés nem egyezett. Írja be pontosan úgy, ahogy látható, majd kezdje újra.",
+        "start_again": "Ez a Google-bejelentkezés lejárt, vagy már felhasználták. Kezdje újra az Összekapcsolt fiókok oldalról.",
+        "foreign": "Ezt a Google-bejelentkezést egy másik SYB-fiókból indították. Jelentkezzen be abba a fiókba a SYB-ben, vagy kezdje újra.",
+        "google_error": "A Google-bejelentkezés nem fejeződött be. Semmi sem lett összekapcsolva.",
+        "no_refresh": "A Google nem adott tartós hozzáférést a SYB-nek. Kezdje újra: a Google még egyszer rákérdez, és a SYB-nek szüksége van erre a válaszra.",
+        "google_auth": "A Google nem fogadta el a bejelentkezést. Kezdje újra az Összekapcsolt fiókok oldalról.",
+        "google_busy": "A Google túlterhelt volt, vagy nem válaszolt. Semmi sem lett összekapcsolva — próbálja újra néhány perc múlva.",
+        "google_refused": "A Google elutasította a bejelentkezést. Semmi sem lett összekapcsolva.",
+        "internal": "Hiba történt a mi oldalunkon. Semmi sem lett összekapcsolva.",
+        "generic": "A Google-bejelentkezés nem fejeződött be. Semmi sem lett összekapcsolva."
+      }
     }
   },
   "landing": {
@@ -4750,6 +4895,37 @@
         "lastTry": "Az utolsó próbálkozás: {error}{cost, select, none {} other { ({cost} felszámítva)}}."
       },
       "refused": "elutasítva"
+    },
+    "tiktok": {
+      "title": "Közzététel TikTokon",
+      "loading": "A TikTok-fiókja olvasása…",
+      "failedLoad": "Most nem tudtam elolvasni a TikTok-fiókját.",
+      "account": "Ide kerül ki: {name}, TikTokon.",
+      "whoSees": "Ki láthatja ezt a bejegyzést",
+      "choose": "Válasszon…",
+      "privacy": {
+        "PUBLIC_TO_EVERYONE": "Mindenki",
+        "MUTUAL_FOLLOW_FRIENDS": "Barátok",
+        "FOLLOWER_OF_CREATOR": "Követők",
+        "SELF_ONLY": "Csak én"
+      },
+      "privateOnly": "Amíg a TikTok nem auditálja a SYB alkalmazását, a bejegyzések csak privátok lehetnek: csak Ön látja őket.",
+      "allowComment": "Hozzászólások engedélyezése",
+      "allowDuet": "Duettek engedélyezése",
+      "allowStitch": "Összefűzés engedélyezése",
+      "offOnTikTok": "kikapcsolva a TikTok-beállításaiban",
+      "brand": "Ez a saját vállalkozásomat népszerűsíti",
+      "brandNote": "A TikTok promóciósként jelöli meg.",
+      "aiLabel": "A TikTok ezt a videót MI által generáltként jelöli meg.",
+      "declaration": "A közzététellel elfogadja a TikTok zenehasználati megerősítését.",
+      "save": "A választások mentése",
+      "saving": "Mentés…",
+      "saved": "Mentve. Adja meg a jóváhagyást a bejegyzésre a Javaslatok oldalon, amikor készen áll.",
+      "chosen": "Ki láthatja: {privacy}.",
+      "locked": "Ezeket a választásokat a bejegyzéssel együtt hagyták jóvá, most már nem változhatnak.",
+      "needChoice": "Válassza meg, ki láthatja, mielőtt jóváhagyja.",
+      "processing": "Miután kikerül, a TikToknak néhány percbe telhet, mire megjelenik a profilján.",
+      "noDelete": "A TikTok nem engedi, hogy alkalmazások bejegyzést töröljenek. Az eltávolításhoz törölje a TikTok alkalmazásban."
     }
   },
   "customers": {
@@ -5583,6 +5759,7 @@
       "titleOn": "Hívások fogadása ezen a számon: {number}",
       "titleOff": "Nem fogad hívásokat",
       "what": "A vonal először elmondja, hogy az SYB automatikus asszisztense. Csak az Ön által jóváhagyott válaszokból felel, soha nem foglal, nem ígér és nem ad visszatérítést, és ha valamit nem tud, üzenetet vesz fel vagy Önhöz kapcsolja a hívót. A hívók még azelőtt hallják, hogy a hívásról átirat készül, mielőtt bármi rögzülne, és hangfelvétel nem marad meg.",
+      "whatRecorded": "A vonal először elmondja, hogy az SYB automatikus asszisztense. Csak az Ön által jóváhagyott válaszokból felel, soha nem foglal, nem ígér és nem ad visszatérítést, és ha valamit nem tud, üzenetet vesz fel vagy Önhöz kapcsolja a hívót. A hívók még azelőtt hallják, hogy a hívásról hangfelvétel és átirat készül, mielőtt bármi rögzülne.",
       "needsKeys": "A hívások fogadásához az SYB-nek Twilio-fiókra és Twilio-számra van szüksége. Adja meg ezeket a beállításokat a szerveren, majd térjen vissza ide:",
       "setUp": "A Twilióban állítsa a szám „A call comes in” webhookját az első címre, a hívásállapot-értesítését pedig a második címre, mindkettőt HTTP POST módon.",
       "turnOn": "Hívások fogadása: {number}",
@@ -5609,13 +5786,29 @@
       "messageLabel": "Üzenet",
       "erase": "Hívás törlése",
       "eraseConfirm": "Végleg törli ezt a hívást – a hívó számát, az elhangzottakat és az üzenetet is?",
+      "eraseConfirmRecorded": "Végleg törli ezt a hívást – a hívó számát, az elhangzottakat, az üzenetet és a felvételt is?",
       "eraseYes": "Végleges törlés",
       "keep": "Megtartás",
+      "recording": {
+        "title": "Hívásrögzítés",
+        "stateOff": "A hívásokat nem rögzítjük. A hívók hallják, hogy a hívásról átirat készül, és hangfelvétel nem marad meg.",
+        "stateOn": "A hívásokat rögzítjük. Minden hívó hallja, hogy a hívást rögzítjük, mielőtt a felvétel elindul.",
+        "explain": "Ha a rögzítés be van kapcsolva, a hívók még azelőtt megtudják, hogy a hívást rögzítjük, mielőtt bármilyen hang megmaradna. Minden felvételt {days, plural, one {# napig} other {# napig}} őrzünk meg, utána végleg töröljük, és egy hívás vagy egy kapcsolattartó törlése a felvételét is törli. Csak tulajdonos hallgathatja meg őket.",
+        "changed": "Utoljára átkapcsolva: {when}.",
+        "needsSetup": "A rögzítést ezen a szerveren még nem lehet bekapcsolni. Ehhez ezek a beállítások kellenek:",
+        "turnOn": "Hívások rögzítése",
+        "turnOff": "Hívásrögzítés leállítása",
+        "listen": "A hívás felvétele",
+        "kept": "Rögzítve · megőrizzük eddig: {date}",
+        "notKept": "Rögzítve · a felvétel nem érhető el"
+      },
       "notice": {
         "on": "A telefonvonal fogadja a hívásokat.",
         "off": "A telefonvonal már nem fogad hívásokat.",
         "handover": "Mentve.",
-        "erased": "A hívás törölve."
+        "erased": "A hívás törölve.",
+        "recordingOn": "A hívásokat mostantól rögzítjük. A hívók ezt először hallják.",
+        "recordingOff": "A hívásokat már nem rögzítjük. A már megőrzött felvételek a dátumukig maradnak, hacsak nem törli őket."
       },
       "error": {
         "notSetUp": "A telefonvonal még nincs beállítva ezen a szerveren.",
@@ -5623,6 +5816,7 @@
         "notOn": "Előbb kapcsolja be a telefonvonalat.",
         "badNumber": "Írja be a számot országhívószámmal, pluszjellel kezdve.",
         "noCall": "Ez a hívás már nincs itt.",
+        "recordingNotSetUp": "A hívásrögzítés ezen a szerveren még nincs beállítva.",
         "crossSite": "Ez az oldal csak magából az SYB-ből módosítható.",
         "signIn": "A telefonvonal módosításához bejelentkezés szükséges.",
         "action": "Ezt a telefonvonal nem tudja megtenni."
@@ -5632,6 +5826,7 @@
   "phoneLine": {
     "greeting": "Jó napot, ez a(z) {business} vonala, és Ön az SYB automatikus asszisztensével beszél, nem egy emberrel.",
     "notice": "A hívásról átirat készül, hogy a(z) {business} később elolvashassa. Hangfelvétel nem marad meg.",
+    "noticeRecorded": "A hívásról hangfelvétel és átirat készül, hogy a(z) {business} később meghallgathassa és elolvashassa. A felvételt {days, plural, one {# napig} other {# napig}} őrizzük meg, utána töröljük.",
     "howCanIHelp": "Miben segíthetek?",
     "anythingElse": "Segíthetek még valamiben?",
     "notHeard": "Elnézést, ezt nem értettem. Megismételné?",
@@ -5943,7 +6138,8 @@
       "summary_settings": "Csak tulajdonos kapcsolhatja be vagy ki a heti összefoglalót.",
       "stop_resume": "Csak tulajdonos indíthat újra mindent egy leállítás után.",
       "business_locale": "Csak tulajdonos módosíthatja a vállalkozás nyelvét vagy pénznemét.",
-      "payments_prepare": "Csak tulajdonos készíthet elő kifizetést, vagy jelezheti, hogy egy kifizetés megtörtént."
+      "payments_prepare": "Csak tulajdonos készíthet elő kifizetést, vagy jelezheti, hogy egy kifizetés megtörtént.",
+      "phone_recordings": "Csak tulajdonos hallgathatja meg a hívásfelvételeket."
     }
   },
   "authWords": {
@@ -6376,7 +6572,8 @@
       "footApprove": "Semmi sem fut az Ön jóváhagyása nélkül.",
       "footStop": "Ezt az e-mailt hetente egyszer kapja. A Figyelés képernyőn kikapcsolhatja, vagy egy kattintással leállíthatja:",
       "footWatchingHtml": "Mindent, amit teszek, megtalál a <link>Figyelés képernyőn</link>. Semmi sem fut az Ön jóváhagyása nélkül.",
-      "footStopHtml": "Ezt az e-mailt hetente egyszer kapja. A Figyelés képernyőn kikapcsolhatja, vagy egy kattintással <link>leállíthatja ezeket az e-maileket</link>."
+      "footStopHtml": "Ezt az e-mailt hetente egyszer kapja. A Figyelés képernyőn kikapcsolhatja, vagy egy kattintással <link>leállíthatja ezeket az e-maileket</link>.",
+      "whatsappBusiness": "az Ön vállalkozása"
     },
     "signIn": {
       "subject": "Az Ön bejelentkezési linkje — SYB",
@@ -7733,7 +7930,8 @@
       "noStock": "kapcsolja össze a webáruházát, vagy importáljon egy készletfájlt, és megmutatom, mennyi pénz áll a polcon",
       "nothingWaiting": "jelenleg semmi sem vár a jóváhagyására",
       "noPricedGain": "egyik Önre váró tételnek sincs még beárazott nyeresége",
-      "noRevenueSeries": "ehhez mért árbevétel-idősorra van szükségem, amelyhez viszonyíthatok"
+      "noRevenueSeries": "ehhez mért árbevétel-idősorra van szükségem, amelyhez viszonyíthatok",
+      "noAds": "kapcsolja össze a Meta Adst vagy a Google Adst, és megnézem, mely kampányok kerülnek többe, mint amennyit visszahoznak"
     },
     "price": {
       "arithmetic": "átlagár {mean} ({revenue} ÷ {count, plural, one {# teljesített} other {# teljesített}})",
@@ -7751,13 +7949,17 @@
       "stockNone": "nincs lassan fogyónak vagy elakadtnak jelölt tétel, {day} állapot szerint",
       "stockItems": "{count, plural, one {# lassan fogyó tétel} other {# lassan fogyó tétel}}, készleten lévő darab × egységköltség, {day} állapot szerint. Készletállomány, nem havi folyam: nem adódik hozzá a hónaphoz",
       "tableProposal": "{summary}: {range}",
-      "onTheTable": "{count, plural, one {# várakozó javaslat} other {# várakozó javaslat}}, havonta az alapesettől a kedvező esetig: {parts}"
+      "onTheTable": "{count, plural, one {# várakozó javaslat} other {# várakozó javaslat}}, havonta az alapesettől a kedvező esetig: {parts}",
+      "adsAllPaidPlatforms": "a saját platformja hozzárendelése szerint minden kampány legalább annyit hozott, amennyibe került ({count, plural, one {# kampány} other {# kampány}})",
+      "adsLoserGoogle": "{campaign} (Google Ads): költés {spent}, a Google szerint {value} konverziós érték (megtérülés: {roas}) → {loss}"
     },
     "basisNote": {
       "capacity": "egy Ön által {basis, select, ESTIMATED {BECSÜLT} other {MEGADOTT}} kapacitásból (heti {perWeek})",
       "meta": "a Meta saját hozzárendeléséből",
       "statedCost": "készleten lévő darab × egy Ön által megadott költség, egyes tételeknél",
-      "proposals": "a javaslatok saját alap- és kedvező esetei"
+      "proposals": "a javaslatok saját alap- és kedvező esetei",
+      "google": "a Google saját hozzárendeléséből",
+      "adPlatforms": "minden platform saját hozzárendeléséből, a Metáéból és a Google-éből"
     },
     "componentNote": {
       "adsOtherCurrency": "{count, plural, one {# kampány} other {# kampány}} más pénznemben ({currencies}) kimaradt: a pénznemek soha nem keverednek",
@@ -7777,7 +7979,10 @@
       "adsCampaign": "{campaign}: költés {spent}, a Meta szerint {value} ({roas})",
       "adsCampaignLosing": "{campaign}: költés {spent}, a Meta szerint {value} ({roas}), veszteséges",
       "noReturn": "nincs megtérülés",
-      "return": "megtérülés: {roas}"
+      "return": "megtérülés: {roas}",
+      "adsPlatforms": "Költés az egyes platformok által hozzárendelt értékkel szemben, kampányonként (Meta: vásárlási érték, Google: konverziós érték), {from} – {to}: {campaigns}. Veszteséges az, aminek a megtérülése {even} alatt van.",
+      "adsCampaignGoogle": "{campaign} (Google Ads): költés {spent}, a Google szerint {value} ({roas})",
+      "adsCampaignGoogleLosing": "{campaign} (Google Ads): költés {spent}, a Google szerint {value} ({roas}), veszteséges"
     }
   },
   "watchNoticed": {
@@ -8654,7 +8859,7 @@
         "shotList": "a felvételi lista forgatáshoz készül, nem közzétételhez",
         "email": "e-maileket a SYB még nem küld",
         "kind": "ez az elemtípus nem kerül közzétételre: {kind}",
-        "channel": "a SYB nem tud közzétenni ide: {channel}. Csak az Ön által összekapcsolt Facebook-oldalra vagy Instagram-fiókba",
+        "channel": "a SYB nem tud közzétenni ide: {channel}. Csak az Ön által összekapcsolt Facebook-oldalra, Instagram-fiókba vagy TikTok-fiókba",
         "connect": "kapcsolja össze a Meta közzétételt az Összekapcsolt fiókok oldalon, hogy ezt közzétehesse ide: {platform}",
         "noInstagram": "a Meta-összekapcsoláshoz nem tartozik Instagram-fiók – kapcsolja össze újra az azonosítójával, hogy ott is közzétehessen",
         "needsMedia": "képre vagy videóra van szükség ehhez: {platform}, és ennek az elemnek még nincs",
@@ -8662,7 +8867,9 @@
         "noDate": "nincs megjelenési dátuma",
         "zone": "a közzététel időpontja nem állítható be: {reason}",
         "declined": "{count, plural, one {a közzétételt ennyiszer utasította el: # – már nem javaslom} other {a közzétételt ennyiszer utasította el: # – már nem javaslom}}",
-        "passed": "a dátuma már elmúlt: {date}"
+        "passed": "a dátuma már elmúlt: {date}",
+        "connectTikTok": "kapcsolja össze a TikTok-közzétételt az Összekapcsolt fiókok oldalon, hogy ezt közzétehesse TikTokon",
+        "tiktokNeedsVideo": "a TikTokhoz videó kell, és ennek az elemnek még nincs"
       },
       "zoneReason": {
         "noCountry": "nincs megadva ország",

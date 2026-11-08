@@ -2,7 +2,7 @@
 
 What SYB's TikTok Ads code relies on — the OAuth exchange (`lib/tiktok/login.ts`), the request
 fence (`lib/tiktok/api.ts`), the daily read (`lib/tiktok/read.ts`) and the executor
-(`lib/execution/providers/tiktok.ts`) — and where each fact came from. Researched 2026-11-08 from
+(`lib/execution/providers/tiktok-ads.ts`) — and where each fact came from. Researched 2026-11-08 from
 TikTok's own pages: the TikTok API for Business documentation (read through the portal's own
 document service, `business-api.tiktok.com/gateway/api/doc/client/node/get/v2/`, which serves the
 same text the portal renders) and TikTok's official SDK repository (`github.com/tiktok/tiktok-

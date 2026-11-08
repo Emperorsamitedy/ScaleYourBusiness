@@ -54,7 +54,7 @@ import { shiftDay } from "../../trust/series";
 import { connectForExecution, expectedExecutionScopes } from "../connections";
 import { runDueExecutions } from "../due";
 import { undoExecution } from "../engine";
-import { createTikTokAdsExecutor } from "./tiktok";
+import { createTikTokAdsExecutor } from "./tiktok-ads";
 
 const ADV = "7000000000001";
 const OTHER_ADV = "7000000000009";

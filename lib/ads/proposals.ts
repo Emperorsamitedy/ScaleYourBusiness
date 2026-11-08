@@ -34,12 +34,21 @@
 // Attribution is Meta's own: the proposal says so, and calls it ROAS as
 // Meta attributes it, not as the business measured it.
 //
+// P3-22, Google half (owner, 2026-11-08: "build google ads too"): Google Ads
+// campaigns, measured through the google_ads execute connection's read
+// (lib/google-ads/read.ts), go through the same thresholds, the same
+// guardrails and the same gates. Their value is Google's conversion value,
+// attributed by Google's own rules, and the proposal says so. A Google
+// campaign's proposal carries `platform: "google"`, which routes it to the
+// Google Ads executor (lib/ads/executing, adsPlan); its dedupe ref is
+// ads:google:<id>:… so it can never fold into a Meta campaign's.
+//
 // TikTok (2026-11-08, the owner: all remaining features "should be done by
-// today"): TikTok campaigns are read into the same per-campaign series
-// (lib/tiktok/read.ts) and get the same two proposals under the same
-// thresholds and guardrails, each tagged `platform: "tiktok"`, so adsPlan
-// routes it to the tiktok_ads executor. The ceiling's account-wide day
-// counts every platform's campaigns in that currency together.
+// today"): TikTok campaigns are read through the tiktok_ads consent
+// (lib/tiktok/read.ts) into the same series and get the same two proposals
+// under the same thresholds and guardrails, tagged `platform: "tiktok"`
+// (dedupe ref ads:tiktok:<id>:…), routed to the tiktok_ads executor. The
+// ceiling's account-wide day counts every platform's campaigns together.
 
 import { and, eq, gte, inArray, lte, or } from "drizzle-orm";
 import { db } from "../../db";
@@ -98,27 +107,38 @@ export interface CampaignDay {
   value_minor: number;
 }
 
-/** The ad platforms whose campaigns are measured (TikTok since 2026-11-08). */
-export type AdPlatform = "meta" | "tiktok";
+/** Which ad platform a campaign runs on — and whose attribution its value is. */
+export type AdPlatform = "meta" | "google" | "tiktok";
 
-/** The owner-facing name of each platform, in the proposals' words. */
-export const AD_PLATFORM_LABEL: Readonly<Record<AdPlatform, string>> = {
-  meta: "Meta",
-  tiktok: "TikTok",
-};
-
-/** Which connection each platform's campaigns are read from. */
-const PLATFORM_CONNECTION: Readonly<
-  Record<AdPlatform, { provider: string; purpose: "measure" | "execute" }>
+/** P3-22, Google half: the platform's name, and what its attributed value is called. */
+export const PLATFORM_WORDS: Readonly<
+  Record<AdPlatform, { name: string; value: string; attribution: string }>
 > = {
-  meta: { provider: "meta_ads", purpose: "measure" },
-  // TikTok can't separate reading from acting, so its read rides on the
-  // execute-purpose consent (lib/tiktok/read.ts, the I-45a precedent).
-  tiktok: { provider: "tiktok_ads", purpose: "execute" },
+  meta: {
+    name: "Meta",
+    value: "purchases Meta attributes",
+    attribution: "Purchases are the ones Meta attributes to the campaign, by Meta's own rules.",
+  },
+  google: {
+    name: "Google",
+    value: "conversion value Google attributes",
+    attribution:
+      "Conversion value is what Google attributes to the campaign, by Google's own conversion rules.",
+  },
+  tiktok: {
+    name: "TikTok",
+    value: "purchases TikTok attributes",
+    attribution: "Purchases are the ones TikTok attributes to the campaign, by TikTok's own rules.",
+  },
 };
+
+/** A series' platform: Meta when absent (series built before Google and TikTok). */
+export function platformOfSeries(series: Pick<CampaignSeries, "platform">): AdPlatform {
+  return series.platform ?? "meta";
+}
 
 export interface CampaignSeries {
-  /** Absent on series built before TikTok: Meta. */
+  /** Absent on series built before Google Ads: Meta. */
   platform?: AdPlatform;
   campaign_ref: string;
   campaign_name: string;
@@ -249,14 +269,10 @@ export async function monthlyAdCeiling(
   return field?.status === "answered" && field.value ? field.value : null;
 }
 
-export function platformOf(series: Pick<CampaignSeries, "platform">): AdPlatform {
-  return series.platform ?? "meta";
-}
-
 /**
- * The per-campaign series an account measures: its Meta measure
- * connection(s) and its TikTok ad connection(s), each series tagged with
- * its platform. A campaign's key is its platform and its id together.
+ * The per-campaign series an account measures: from its Meta measure
+ * connection(s) and, since P3-22's Google half, its Google Ads execute
+ * connection(s), whose read writes the same per-campaign metrics.
  */
 export async function loadCampaignSeries(
   accountId: string,
@@ -264,23 +280,24 @@ export async function loadCampaignSeries(
   to: string,
 ): Promise<CampaignSeries[]> {
   const conns = await db
-    .select({ id: connections.id, provider: connections.provider, purpose: connections.purpose })
+    .select({ id: connections.id, provider: connections.provider })
     .from(connections)
     .where(
       and(
         eq(connections.account_id, accountId),
         or(
-          ...Object.values(PLATFORM_CONNECTION).map((c) =>
-            and(eq(connections.provider, c.provider), eq(connections.purpose, c.purpose)),
-          ),
+          and(eq(connections.provider, "meta_ads"), eq(connections.purpose, "measure")),
+          and(eq(connections.provider, "google_ads"), eq(connections.purpose, "execute")),
+          // TikTok can't separate reading from acting: its read rides on the execute consent.
+          and(eq(connections.provider, "tiktok_ads"), eq(connections.purpose, "execute")),
         ),
       ),
     );
   if (conns.length === 0) return [];
-  const platformByConnection = new Map<string, AdPlatform>(
+  const platformOf = new Map<string, AdPlatform>(
     conns.map((c) => [
       c.id,
-      c.provider === PLATFORM_CONNECTION.tiktok.provider ? ("tiktok" as const) : ("meta" as const),
+      c.provider === "google_ads" ? "google" : c.provider === "tiktok_ads" ? "tiktok" : "meta",
     ]),
   );
   const rows = await db
@@ -311,7 +328,7 @@ export async function loadCampaignSeries(
   for (const r of rows) {
     const ref = r.dimensions?.campaign_ref;
     if (!ref || r.value_minor === null || !r.currency) continue;
-    const platform = platformByConnection.get(r.connection_id) ?? "meta";
+    const platform = platformOf.get(r.connection_id) ?? "meta";
     const key = `${platform}:${ref}`;
     const series = byCampaign.get(key) ?? {
       platform,
@@ -421,13 +438,9 @@ async function recordAdChange(
 ): Promise<{ created: ProposalRow } | { skipped: { ref: string; reason: string } }> {
   const kind =
     change.change === "raise_budget" ? "paid_ads_start_or_increase" : "paid_ads_decrease_or_pause";
-  const platform = platformOf(c);
-  const P = AD_PLATFORM_LABEL[platform];
-  // Meta's refs keep their pre-TikTok shape, so this month's dedupe still holds.
-  const ref =
-    platform === "meta"
-      ? `ads:${c.campaign_ref}:${change.change}:${ctx.month}`
-      : `ads:${platform}:${c.campaign_ref}:${change.change}:${ctx.month}`;
+  const platform: AdPlatform = c.platform ?? "meta";
+  const pw = PLATFORM_WORDS[platform];
+  const ref = `ads:${platform === "meta" ? "" : `${platform}:`}${c.campaign_ref}:${change.change}:${ctx.month}`;
   if (ctx.existing.has(ref)) return { skipped: { ref, reason: "already proposed this month" } };
   const silenced = ctx.suppressed.get(kind);
   if (silenced) {
@@ -466,7 +479,7 @@ async function recordAdChange(
   }
   const verdict = checkHardLimits(await ctx.limits(), kind);
 
-  const arithmetic = `${fmt(w.spend_minor)} spent, ${fmt(w.value_minor)} in purchases ${P} attributes, over ${w.measured_days} measured days: return on ad spend ${roasWord(w.roas)}`;
+  const arithmetic = `${fmt(w.spend_minor)} spent, ${fmt(w.value_minor)} in ${pw.value}, over ${w.measured_days} measured days: return on ad spend ${roasWord(w.roas)}`;
   const monthlyLoss = Math.round(((w.spend_minor - w.value_minor) / w.measured_days) * 30);
   const sharePct = change.change === "pause" ? 0 : Math.round(change.share * 100);
   const deltaDaily = change.change === "pause" ? 0 : Math.round(dailySpend * change.share);
@@ -480,7 +493,10 @@ async function recordAdChange(
         sensitivity: "medium",
       },
       {
-        statement: `${P}'s attribution is its own — some of these purchases might have happened anyway`,
+        statement:
+          platform === "google"
+            ? "Google's attribution is its own — some of these conversions might have happened anyway"
+            : `${pw.name}'s attribution is its own — some of these purchases might have happened anyway`,
         value: null,
         source_field: null,
         sensitivity: "high",
@@ -490,7 +506,7 @@ async function recordAdChange(
       case: "base",
       statement:
         change.change === "pause"
-          ? `About ${fmt(Math.max(0, monthlyLoss))} a month stops going out beyond what ${P} says comes back.`
+          ? `About ${fmt(Math.max(0, monthlyLoss))} a month stops going out beyond what ${pw.name} says comes back.`
           : change.change === "raise_budget"
             ? `About ${fmt(deltaDaily * 30)} more a month in spend, with about ${attributed} in attributed purchases at the same return.`
             : `About ${fmt(deltaDaily * 30)} less a month in spend, and about ${attributed} less in attributed purchases at the same return.`,
@@ -538,14 +554,12 @@ async function recordAdChange(
       summary:
         change.change === "pause"
           ? w.roas !== null && w.roas < ADS.pause_roas_below
-            ? `Pause "${c.campaign_name}" — it spent more than ${P} says it brought back over ${w.measured_days} days`
+            ? `Pause "${c.campaign_name}" — it spent more than ${pw.name} says it brought back over ${w.measured_days} days`
             : `Pause "${c.campaign_name}" — return on ad spend ${roasWord(w.roas)} over ${w.measured_days} days`
           : change.change === "raise_budget"
             ? `Raise "${c.campaign_name}"'s daily budget by ${sharePct}% — return on ad spend ${roasWord(w.roas)} over ${w.measured_days} days`
             : `Cut "${c.campaign_name}"'s daily budget by ${sharePct}% — return on ad spend ${roasWord(w.roas)} over ${w.measured_days} days`,
       detail: {
-        // TikTok since 2026-11-08; a detail without a platform is Meta's (adsPlan).
-        ...(platform === "meta" ? {} : { platform }),
         campaign_ref: c.campaign_ref,
         campaign_name: c.campaign_name,
         change: change.change,
@@ -562,13 +576,16 @@ async function recordAdChange(
         currency: c.currency,
         roas: w.roas,
         arithmetic,
-        attribution: `Purchases are the ones ${P} attributes to the campaign, by ${P}'s own rules.`,
+        ...(platform === "meta" ? {} : { platform }),
+        attribution: pw.attribution,
         // P3-22b: approving queues it for the next due run (no set time needed).
         execute_on_approval: true,
         sending:
-          platform === "meta"
-            ? "Approved, it goes to Meta on the next scheduled run: a dry run first, then the change, re-checked against your limits. Meta ad changes stay switched off until the two-week unattended test completes; until then it waits, approved."
-            : "Approved, it goes to TikTok on the next scheduled run: the campaign is read again first, then the change is made, re-checked against your limits. TikTok ad changes stay switched off until the two-week unattended test completes; until then it waits, approved.",
+          platform === "tiktok"
+            ? "Approved, it goes to TikTok on the next scheduled run: the campaign is read again first, then the change is made, re-checked against your limits. TikTok ad changes stay switched off until the two-week unattended test completes; until then it waits, approved."
+            : platform === "google"
+              ? "Approved, it goes to Google Ads on the next scheduled run: a dry run first, then the change, re-checked against your limits. Google Ads changes stay switched off until the two-week unattended test completes; until then it waits, approved."
+              : "Approved, it goes to Meta on the next scheduled run: a dry run first, then the change, re-checked against your limits. Meta ad changes stay switched off until the two-week unattended test completes; until then it waits, approved.",
         manual_limits: verdict.manual.map((l) => l.quote),
         ...(simulation ? { requested_from: "simulator" } : {}),
       },
@@ -625,7 +642,7 @@ export async function proposeRequestedAdChange(
   profileId: string,
   args: {
     campaign_ref: string;
-    /** Which platform's campaign; Meta's when unsaid (the simulator's campaigns before TikTok). */
+    /** Which platform's campaign; Meta when absent (the simulator's own). */
     platform?: AdPlatform;
     change: "pause" | "raise_budget" | "lower_budget";
     /** Positive, for a raise or a cut. */
@@ -643,7 +660,8 @@ export async function proposeRequestedAdChange(
     return out;
   }
   const c = ctx.campaigns.find(
-    (s) => s.campaign_ref === args.campaign_ref && platformOf(s) === (args.platform ?? "meta"),
+    (s) =>
+      s.campaign_ref === args.campaign_ref && (s.platform ?? "meta") === (args.platform ?? "meta"),
   );
   if (!c) {
     out.skipped.push({ ref: args.campaign_ref, reason: "that campaign isn't measured" });

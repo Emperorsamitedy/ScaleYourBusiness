@@ -17,21 +17,27 @@ import type { ExecutionProvider } from "./fixture";
 import { fixtureExecutor } from "./fixture";
 import { fixtureSiteExecutor } from "./fixture-site";
 import { emailCampaignExecutor } from "./email-campaign";
+import { googleAdsExecutor } from "./google-ads";
 import { googleBusinessExecutor } from "./google-business";
 import { metaAdsExecutor, metaPublishExecutor } from "./meta";
 import { purchaseOrderExecutor } from "./purchase-order";
-import { tiktokAdsExecutor } from "./tiktok";
+import { tiktokAdsExecutor } from "./tiktok-ads";
+import { tiktokPublishExecutor } from "./tiktok";
 
 const PROVIDERS: Readonly<Record<ExecutionProviderId, ExecutionProvider>> = {
   fixture: fixtureExecutor,
   fixture_site: fixtureSiteExecutor,
   meta_publish: metaPublishExecutor,
+  // 2026-11-08, the owner's override: an approved video posted to TikTok (irreversible).
+  tiktok_publish: tiktokPublishExecutor,
   meta_ads: metaAdsExecutor,
   email_campaign: emailCampaignExecutor,
   // I-45a: read-only use of a write-capable consent — refuses every op.
   google_business_reviews: googleBusinessExecutor,
   // P6-04: an approved purchase order, emailed to its supplier (rule 27 amended).
   purchase_order: purchaseOrderExecutor,
+  // P2-20 / P3-22: Google Ads — pause, resume, daily budget, each reversible.
+  google_ads: googleAdsExecutor,
   // TikTok Ads (2026-11-08): pause, resume and re-budget, the Meta ad ops' TikTok twins.
   tiktok_ads: tiktokAdsExecutor,
 };

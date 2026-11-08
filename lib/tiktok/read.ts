@@ -28,9 +28,10 @@
 import { addDays, advanceCursor, dayString, planWindow } from "../connectors/days";
 import { DecimalError, decimalToMinor } from "../connectors/decimal";
 import type { Observation, PullPage } from "../connectors/provider";
+import type { ExecuteReadSource } from "../connectors/execute-reads";
 import { minorUnitExponent } from "../core/money";
 import type { TikTokContext, TikTokCredential } from "./api";
-import { TikTokFenceError, parseTikTokCredential, tiktokRead } from "./api";
+import { TikTokFenceError, defaultTikTokContext, parseTikTokCredential, tiktokRead } from "./api";
 
 export const TIKTOK_HISTORY_DAYS = 365;
 export const TIKTOK_REREAD_DAYS = 8;
@@ -322,3 +323,18 @@ export async function pullTikTok(
     done: plan.end.getTime() === plan.yesterday.getTime(),
   };
 }
+
+/**
+ * The connector-sync runner's door to this read (lib/connectors/execute-reads):
+ * an execute row is pulled from only through a registered read source, which
+ * can only pull pages of observations. The HTTP is injectable for tests.
+ */
+export function createTikTokAdsReadSource(ctx?: TikTokContext): ExecuteReadSource {
+  return {
+    id: "tiktok_ads",
+    label: "TikTok Ads",
+    pull: (secret, cursor, now) => pullTikTok(ctx ?? defaultTikTokContext(), secret, cursor, now),
+  };
+}
+
+export const tiktokAdsReadSource = createTikTokAdsReadSource();

@@ -60,6 +60,20 @@ describe("P2-04 — the scope audit", () => {
     }
   });
 
+  it("P2-20: Google Ads' only scope can write, so the audit refuses it although its name says nothing", () => {
+    expect(isWriteCapable("https://www.googleapis.com/auth/adwords")).toBe(true);
+    expect(auditRegistry({ google_ads: ["https://www.googleapis.com/auth/adwords"] })).toEqual([
+      {
+        provider: "google_ads",
+        scope: "https://www.googleapis.com/auth/adwords",
+        reason: "write_capable",
+      },
+    ]);
+    // Only the scope itself: a URL that merely contains the word is not it.
+    expect(isWriteCapable("https://www.googleapis.com/auth/adwords.readonly-guide")).toBe(false);
+    expect(isProviderId("google_ads")).toBe(false);
+  });
+
   it("does not flag ordinary read scopes", () => {
     for (const scope of ["read_orders", "read_products", "analytics.readonly", "balance:read"]) {
       expect(isWriteCapable(scope), scope).toBe(false);
