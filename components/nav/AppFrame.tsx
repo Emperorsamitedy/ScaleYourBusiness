@@ -111,6 +111,8 @@ export const GROUPS: readonly Group[] = [
       },
       { href: "/patterns", label: "Seasons & bundles", feature: "nav.patterns" },
       { href: "/cash", label: "Cash flow", feature: "nav.cash" },
+      // P6-05: payments SYB prepares and the owner pays in their own bank.
+      { href: "/payments", label: "Payments", feature: "nav.payments" },
       {
         href: "/stock",
         label: "Stock",

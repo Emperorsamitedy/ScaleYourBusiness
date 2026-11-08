@@ -56,7 +56,8 @@
       "mode": "So arbeite ich",
       "history": "Verlauf",
       "team_access": "Teamzugang",
-      "language": "Sprache und Währung"
+      "language": "Sprache und Währung",
+      "payments": "Zahlungen"
     },
     "count": {
       "paused": "{count} pausiert",
@@ -5647,7 +5648,8 @@
       "reviews_settings": "Nur ein Inhaber kann die Adresse ändern, an die Bewertungen weitergeleitet werden.",
       "summary_settings": "Nur ein Inhaber kann die wöchentliche Zusammenfassung ein- oder ausschalten.",
       "stop_resume": "Nur ein Inhaber kann nach einem Stopp alles wieder in Gang setzen.",
-      "business_locale": "Nur ein Inhaber kann die Sprache oder Währung des Unternehmens ändern."
+      "business_locale": "Nur ein Inhaber kann die Sprache oder Währung des Unternehmens ändern.",
+      "payments_prepare": "Nur ein Inhaber kann Zahlungen vorbereiten oder angeben, dass eine bezahlt wurde."
     }
   },
   "authWords": {
@@ -6132,7 +6134,8 @@
       "media_generation": "ein Bild oder Clip zum Erstellen",
       "revise_goal": "ein Ziel zum Prüfen",
       "stop_strategy": "eine Strategie zum Prüfen",
-      "other": "ein Vorschlag"
+      "other": "ein Vorschlag",
+      "prepared_payment": "eine Zahlung zum Prüfen"
     }
   },
   "exports": {
@@ -8396,5 +8399,185 @@
     "many": "{count, plural, one {# Bewertung, die Sie kennen sollten} other {# Bewertungen, die Sie kennen sollten}}",
     "withProposals": "{count, plural, one {# Sache wartet auf Ihr Ja} other {# Sachen warten auf Ihr Ja}}, dazu {reviews, plural, one {eine Bewertung, die Sie kennen sollten} other {# Bewertungen, die Sie kennen sollten}}",
     "anotherSite": "einer anderen Website"
+  },
+  "payments": {
+    "meta": {
+      "title": "Zahlungen — SYB"
+    },
+    "kicker": "Einblicke · Zahlungen",
+    "never": "SYB bereitet Zahlungen vor, und Sie bezahlen sie in Ihrer eigenen Bank. SYB kann kein Geld bewegen.",
+    "title": {
+      "ready": "{count, plural, one {# Zahlung ist bereit für Ihre Bank} other {# Zahlungen sind bereit für Ihre Bank}}",
+      "none": "Zahlungen, die Sie in Ihrer eigenen Bank ausführen"
+    },
+    "loading": "Ihre Zahlungen werden gelesen…",
+    "signedOut": "Beginnen Sie zuerst das Interview und kommen Sie dann zurück, um Zahlungen vorzubereiten.",
+    "start": "Interview beginnen",
+    "error": {
+      "load": "Ich konnte Ihre Zahlungen gerade nicht lesen. Versuchen Sie es in einer Minute erneut.",
+      "generic": "Das hat nicht geklappt. Versuchen Sie es in einer Minute erneut.",
+      "ourSide": "Auf meiner Seite ist etwas schiefgelaufen. Versuchen Sie es in einer Minute erneut."
+    },
+    "ownerOnly": "Nur ein Inhaber kann Zahlungen vorbereiten, die Bankdatei herunterladen oder angeben, dass eine Zahlung erfolgt ist.",
+    "erased": "Bankdaten gelöscht",
+    "ready": {
+      "label": "Bereit für Ihre Bank",
+      "title": "{count, plural, one {# freigegebene Zahlung auszuführen} other {# freigegebene Zahlungen auszuführen}}",
+      "none": "Noch ist nichts bereit",
+      "foot": "Freigegebene Zahlungen warten hier, bis Sie angeben, dass Sie sie bezahlt haben. Nichts verlässt Ihre Bank, bevor Sie es dort bezahlen."
+    },
+    "col": {
+      "payee": "Empfänger",
+      "iban": "IBAN",
+      "amount": "Betrag",
+      "reference": "Verwendungszweck",
+      "date": "Datum",
+      "file": "Bankdatei",
+      "action": "Aktion"
+    },
+    "file": {
+      "yes": "In der SEPA-Datei",
+      "bar": {
+        "not_eur": "Von Hand: nicht in Euro",
+        "payee_not_sepa": "Von Hand: die Bank des Empfängers liegt außerhalb von SEPA",
+        "payer_not_sepa": "Von Hand: Ihre Bank liegt außerhalb von SEPA",
+        "no_payer": "Braucht zuerst Ihre Bankdaten",
+        "erased": "Bankdaten gelöscht",
+        "not_approved": "Noch nicht freigegeben",
+        "paid": "Bereits bezahlt"
+      }
+    },
+    "paid": {
+      "button": "In meiner Bank bezahlt",
+      "done": "Als in Ihrer Bank bezahlt markiert.",
+      "on": "als bezahlt angegeben am {date}"
+    },
+    "download": {
+      "sepa": "{count, plural, one {SEPA-Datei herunterladen (# Zahlung)} other {SEPA-Datei herunterladen (# Zahlungen)}}",
+      "steps": "Schritt-für-Schritt-Anleitung herunterladen",
+      "needPayer": "Hinterlegen Sie die Bankdaten, von denen Sie zahlen, um eine SEPA-Datei zu erhalten. Die Anleitung funktioniert auch ohne sie.",
+      "noneForFile": "Keine davon kann in eine SEPA-Datei, die nur für Euro zwischen SEPA-Banken gilt. Nutzen Sie die Anleitung.",
+      "total": "{count, plural, one {Die Datei enthält # Zahlung, insgesamt {total}.} other {Die Datei enthält # Zahlungen, insgesamt {total}.}}"
+    },
+    "steps": {
+      "fileTitle": "So nutzen Sie die SEPA-Datei",
+      "fileName": "die SEPA-Datei",
+      "file": {
+        "save": "Laden Sie {file} herunter und speichern Sie sie auf Ihrem Computer.",
+        "find": "Suchen Sie im Onlinebanking Ihrer Bank die Stelle, an der Sie eine Zahlungsdatei hochladen oder importieren. Banken nennen das SEPA-Datei, Sammelzahlung oder Sammelüberweisung.",
+        "upload": "{count, plural, one {Laden Sie die Datei hoch. Ihre Bank zeigt Ihnen die Zahlung zur Prüfung.} other {Laden Sie die Datei hoch. Ihre Bank zeigt Ihnen die # Zahlungen zur Prüfung.}}",
+        "confirm": "Prüfen Sie jede einzelne und bestätigen Sie dann in Ihrer Bank. Bezahlt ist erst, wenn Sie das tun.",
+        "mark": "Drücken Sie danach hier für jede ausgeführte Zahlung „In meiner Bank bezahlt“."
+      },
+      "title": "Zahlungen, die Sie in Ihrer eigenen Bank ausführen",
+      "intro": "SYB hat diese Zahlungen vorbereitet. SYB kann kein Geld bewegen: Sie führen jede selbst in Ihrer eigenen Bank aus.",
+      "from": "Bezahlt von: {name}, IBAN {iban}",
+      "howTitle": "So führen Sie jede Zahlung von Hand aus:",
+      "hand": {
+        "open": "Öffnen Sie die App oder Website Ihrer Bank und beginnen Sie eine neue Überweisung.",
+        "copy": "Übernehmen Sie Name, IBAN und BIC des Empfängers genau so, wie sie unten stehen.",
+        "amount": "Geben Sie den Betrag und den Verwendungszweck ein, damit der Empfänger weiß, wofür die Zahlung ist.",
+        "confirm": "Wählen Sie das Datum, prüfen Sie alles noch einmal und bestätigen Sie dann die Zahlung in Ihrer Bank.",
+        "mark": "Drücken Sie danach in SYB „In meiner Bank bezahlt“, damit Ihre Unterlagen es zeigen."
+      },
+      "paymentTitle": "Zahlung {n} von {count}",
+      "payTo": "Zahlen an: {name}",
+      "iban": "IBAN: {iban}",
+      "bic": "BIC: {bic}",
+      "amount": "Betrag: {amount}",
+      "reference": "Verwendungszweck: {reference}",
+      "date": "Datum: {date}",
+      "erased": "Die Bankdaten dieser Zahlung wurden gelöscht. Fragen Sie den Empfänger erneut danach.",
+      "why": {
+        "notEur": "Nicht in Euro, daher nicht in der SEPA-Datei: führen Sie sie von Hand aus.",
+        "notSepa": "Eine Bank außerhalb von SEPA, daher nicht in der SEPA-Datei: führen Sie sie von Hand aus."
+      },
+      "closing": "Sobald eine Zahlung ausgeführt ist, markieren Sie sie in SYB. Lehnt Ihre Bank eine Angabe ab, korrigieren Sie sie dort: SYB sendet nie etwas an Ihre Bank."
+    },
+    "waiting": {
+      "label": "Wartet auf Freigabe",
+      "title": "{count, plural, one {# Zahlung wartet auf Ihre Freigabe} other {# Zahlungen warten auf Ihre Freigabe}}",
+      "open": "In der Warteschlange öffnen"
+    },
+    "stage": {
+      "waiting": "wartet",
+      "blocked": "durch Ihre Grenzen zurückgehalten",
+      "changes": "Änderungen erbeten",
+      "ready": "bereit für Ihre Bank",
+      "paid": "in meiner Bank bezahlt",
+      "declined": "abgelehnt",
+      "lapsed": "verfallen"
+    },
+    "closed": {
+      "label": "Erledigt und geschlossen",
+      "title": "Bezahlt, abgelehnt und verfallen",
+      "foot": "Beim Löschen der Bankdaten bleiben Betrag und Daten erhalten; Name, IBAN und BIC werden endgültig entfernt."
+    },
+    "erase": {
+      "button": "Bankdaten löschen",
+      "done": "Die Bankdaten wurden gelöscht."
+    },
+    "payer": {
+      "label": "Zahlung von",
+      "none": "Ihre Bankdaten sind noch nicht angegeben",
+      "foot": "Name und IBAN, von denen Ihre Zahlungen abgehen. Sie stehen in der SEPA-Datei als Zahler; SYB meldet sich nie bei Ihrer Bank an.",
+      "change": "Ändern",
+      "holder": "Name, unter dem Ihre Bank Sie kennt",
+      "save": "Speichern",
+      "done": "Gespeichert. Frühere Angaben bleiben erhalten."
+    },
+    "form": {
+      "label": "Neue Zahlung",
+      "title": "Eine Zahlung vorbereiten",
+      "foot": "Sie geht zuerst in die Warteschlange zur Freigabe. Freigegeben ist sie bereit für Ihre Bank: Bezahlt wird erst, wenn Sie dort bezahlen.",
+      "pays": "Wofür sie ist",
+      "supplier": "Lieferant",
+      "cost": "Fixkosten",
+      "order": "Bestellnummer",
+      "unnamedSupplier": "Ein Lieferant ohne Namen",
+      "unnamedCost": "Kosten ohne Namen",
+      "payee": "Empfänger",
+      "payeeOptional": "Empfänger (leer: Name des Lieferanten)",
+      "iban": "IBAN",
+      "bic": "BIC (optional)",
+      "amount": "Betrag",
+      "currency": "Währung",
+      "date": "Zahlen am",
+      "reference": "Verwendungszweck, den der Empfänger sieht",
+      "badAmount": "Ich kann diesen Betrag nicht lesen. Schreiben Sie ganze Einheiten, dann einen Punkt oder ein Komma und die Cent.",
+      "submit": "Um Freigabe bitten",
+      "done": "Vorbereitet. Sie wartet in der Warteschlange auf Ihre Freigabe."
+    },
+    "pays": {
+      "supplier": "Ein Lieferant",
+      "fixed_cost": "Fixkosten",
+      "purchase_order": "Eine Bestellung",
+      "other": "Etwas anderes"
+    },
+    "refusal": {
+      "iban_empty": "Geben Sie die IBAN ein.",
+      "iban_format": "Das hat nicht die Form einer IBAN: zwei Buchstaben für das Land, zwei Prüfziffern, dann Buchstaben und Ziffern.",
+      "iban_country": "IBANs aus diesem Land kenne ich nicht, daher kann ich sie nicht prüfen.",
+      "iban_length": "Diese IBAN hat die falsche Länge für ihr Land.",
+      "iban_checksum": "Die Prüfziffern dieser IBAN stimmen nicht: Wahrscheinlich ist ein Zeichen vertippt.",
+      "bic": "Eine BIC hat acht oder elf Buchstaben und Ziffern.",
+      "name": "Geben Sie an, wer bezahlt wird, mit einem kurzen Namen.",
+      "amount": "Der Betrag muss über null liegen.",
+      "currency": "Die Währung muss ein Code aus drei Buchstaben sein.",
+      "reference": "Schreiben Sie einen kurzen Verwendungszweck, den der Empfänger sieht.",
+      "date": "Wählen Sie einen Tag.",
+      "date_past": "Dieser Tag ist vorbei. Wählen Sie heute oder später.",
+      "date_far": "Dieser Tag liegt mehr als ein Jahr in der Zukunft.",
+      "pays_kind": "Geben Sie an, wofür die Zahlung ist.",
+      "supplier": "Wählen Sie einen Ihrer Lieferanten.",
+      "cost_item": "Wählen Sie einen Ihrer Fixkostenposten.",
+      "purchase_order": "Geben Sie die Nummer der Bestellung ein.",
+      "not_found": "Ich konnte diese Zahlung nicht finden.",
+      "not_ready": "Nur eine freigegebene Zahlung, die noch nicht als bezahlt markiert ist, kann als bezahlt markiert werden.",
+      "no_session": "Um anzugeben, dass eine Zahlung erfolgt ist, müssen Sie angemeldet sein.",
+      "none_ready": "Noch ist nichts bereit für Ihre Bank. Eine Zahlung muss zuerst freigegeben werden.",
+      "no_payer": "Eine SEPA-Datei braucht die Bankdaten, von denen Sie zahlen.",
+      "none_for_file": "Keine der bereiten Zahlungen kann in eine SEPA-Datei."
+    }
   }
 }
