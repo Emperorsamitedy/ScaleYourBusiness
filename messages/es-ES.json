@@ -4885,7 +4885,11 @@
       "stillFresh": "Esa lectura sigue siendo reciente, así que la he usado en lugar de volver a preguntar a Meta.",
       "written": "El brief está redactado. Cada parte muestra en qué se basa.",
       "blocked": "Esa lista de tomas superaba uno de sus límites, así que está en la vista de lo que me contuve de hacer.",
-      "proposed": "Propuesto. Está en <queue>Pendiente de usted</queue>."
+      "proposed": "Propuesto. Está en <queue>Pendiente de usted</queue>.",
+      "videoProposed": "Propuesto. Está en <queue>Pendiente de usted</queue>; no se genera ni se gasta nada antes de su sí.",
+      "videoGenerated": "Los candidatos están abajo, cada uno con la etiqueta de generado por IA. Elija uno; no se publica nada sin su sí.",
+      "picked": "Elegido. Está en el elemento de vídeo, con la etiqueta de generado por IA, y su propuesta de publicación está en <queue>Pendiente de usted</queue>.",
+      "pickedNoProposal": "Elegido. Está en el elemento de vídeo, con la etiqueta de generado por IA."
     },
     "niche": {
       "label": "Los anuncios más duraderos del nicho",
@@ -4950,6 +4954,36 @@
       "make": "Hacerlo →",
       "watching": "Sigo observando hasta el {day}; hasta entonces no se propone nada.",
       "makeNote": "Pone esta lista de tomas en Pendiente de usted. Una vez aprobada, se convierte en un elemento «para grabar»; sus grabaciones van a la sala de montaje."
+    },
+    "video": {
+      "label": "VÍDEO CON IA",
+      "title": "¿Aún sin grabaciones? Tres candidatos de IA",
+      "realFirst": "Primero, las grabaciones reales. Esta es la alternativa para una lista de tomas de este brief que aún no tiene grabaciones. Lo que se envía se construye con los datos de su perfil y el brief, nunca con palabras escritas por alguien, y cada clip lleva la etiqueta de generado por IA desde el momento en que existe.",
+      "noKey": "El vídeo con IA necesita acceso a la API de Higgsfield, que es aparte de un plan web de Higgsfield: compre crédito de API, cree una clave en la consola de Higgsfield y configure HIGGSFIELD_API_KEY, HIGGSFIELD_API_SECRET y MEDIA_PROVIDER=higgsfield en el servidor.",
+      "off": "El vídeo con IA no está activado aquí. Grábelo usted: las grabaciones reales siempre van primero.",
+      "unavailable": "No disponible: {reason}",
+      "none": "Nada de este brief necesita un vídeo todavía. Haga una lista de tomas a partir de un gancho de arriba; cuando esté aprobada, aparecerá aquí.",
+      "month": "Este mes: {spent} gastados en vídeo con IA de un límite de {cap}.",
+      "propose": "Proponer tres vídeos con IA (unos {cost})",
+      "proposing": "Proponiendo…",
+      "pending": "Espera su sí en <queue>Pendiente de usted</queue>.",
+      "generate": "Generar los tres",
+      "generating": "Generando. Tarda unos minutos…",
+      "approvedNote": "Aprobado. El dinero solo se gasta cuando usted lo inicia.",
+      "notOffered": "No se ofrece: {reason}",
+      "setLabel": "CANDIDATOS · {day}",
+      "setCost": "{cost} por el conjunto",
+      "candidate": "Candidato {n}",
+      "pick": "Usar este",
+      "picking": "Colocando…",
+      "noPlayer": "Su navegador no puede reproducir este clip.",
+      "state": {
+        "generating": "GENERANDO",
+        "ready": "LISTO",
+        "failed": "FALLIDO",
+        "chosen": "ELEGIDO",
+        "not_chosen": "NO ELEGIDO · CONSERVADO"
+      }
     }
   },
   "site": {

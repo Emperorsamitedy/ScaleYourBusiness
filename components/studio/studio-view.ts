@@ -150,3 +150,50 @@ export function researchNotice(
   }
   return r.why ?? tr("error.generic");
 }
+
+/* ── P6-03: AI video, three candidates per brief ── */
+
+/** What the studio is told about AI video's setup (lib/content/generation GenerationSetupView). */
+export interface StudioVideoSetup {
+  available: boolean;
+  reason: string | null;
+  state: "ready" | "off" | "needs_key" | "unavailable";
+}
+
+/**
+ * The line that says why AI video can't run here, or null when it can. A
+ * missing key names exactly what the owner must set; another reason is the
+ * server's own sentence.
+ */
+export function videoSetupLine(setup: StudioVideoSetup, tr: Tr = EN()): string | null {
+  if (setup.available) return null;
+  if (setup.state === "needs_key") return tr("video.noKey");
+  if (setup.state === "off") return tr("video.off");
+  return tr("video.unavailable", { reason: setup.reason ?? tr("error.generic") });
+}
+
+/** The candidate states the screen has words for (the catalogue's `video.state.<code>`). */
+export const CANDIDATE_STATES = ["generating", "ready", "failed", "chosen", "not_chosen"] as const;
+
+/** A candidate's state in the reader's language; an unknown state shows as its code. */
+export function candidateStateWord(status: string, tr: Tr = EN()): string {
+  return (CANDIDATE_STATES as readonly string[]).includes(status)
+    ? tr(`video.state.${status}`)
+    : status;
+}
+
+/** Pure: may this candidate be picked? Only a ready one with its file, while its set has no pick. */
+export function canPick(
+  set: { chosen_id: string | null },
+  candidate: { status: string; url: string | null },
+): boolean {
+  return set.chosen_id === null && candidate.status === "ready" && candidate.url !== null;
+}
+
+/** Pure: the rows that belong to one brief, in the order the server sent them. */
+export function forBrief<T extends { brief_id: string | null }>(
+  rows: readonly T[],
+  briefId: string,
+): T[] {
+  return rows.filter((r) => r.brief_id === briefId);
+}

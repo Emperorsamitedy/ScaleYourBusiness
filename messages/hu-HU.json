@@ -4885,7 +4885,11 @@
       "stillFresh": "Ez a beolvasás még friss, ezért azt használtam, ahelyett hogy újra a Metához fordultam volna.",
       "written": "A kreatív terv elkészült. Minden része megmutatja, mire épül.",
       "blocked": "Ez a felvételi lista átlépte az egyik korlátját, ezért a visszatartottak nézetében van.",
-      "proposed": "Javasolva. Itt találja: <queue>Önre vár</queue>."
+      "proposed": "Javasolva. Itt találja: <queue>Önre vár</queue>.",
+      "videoProposed": "Javasolva. Itt találja: <queue>Önre vár</queue>; az igenje előtt semmi nem készül és nem fogy pénz.",
+      "videoGenerated": "A jelöltek lent vannak, mindegyik MI által generáltként jelölve. Válasszon egyet; az igenje nélkül semmi nem jelenik meg.",
+      "picked": "Kiválasztva. A videóelemen van, MI által generáltként jelölve, a közzétételi javaslata pedig itt van: <queue>Önre vár</queue>.",
+      "pickedNoProposal": "Kiválasztva. A videóelemen van, MI által generáltként jelölve."
     },
     "niche": {
       "label": "A piaci rés leghosszabb ideje futó hirdetései",
@@ -4950,6 +4954,36 @@
       "make": "Elkészítés →",
       "watching": "A figyelés még tart, vége: {day}; addig semmit sem javaslok.",
       "makeNote": "Ezt a felvételi listát az Önre vár részbe teszi. Jóváhagyás után „ezt vegye fel” elem lesz belőle; a felvételei a vágószobába kerülnek."
+    },
+    "video": {
+      "label": "MI-VIDEÓ",
+      "title": "Még nincs felvétel? Három MI-jelölt",
+      "realFirst": "Elsőként a valódi felvétel. Ez a tartalékmegoldás egy ebből a tervből készült felvételi listához, amelyhez még nincs felvétel. Amit elküldünk, az a profilja tényeiből és a tervből épül fel, soha nem bárki által begépelt szavakból, és minden klip a megszületése pillanatától MI által generáltként van jelölve.",
+      "noKey": "Az MI-videóhoz Higgsfield API-hozzáférés kell, amely független a Higgsfield webes csomagjától: vásároljon API-keretet, hozzon létre kulcsot a Higgsfield konzoljában, és állítsa be a szerveren a HIGGSFIELD_API_KEY, HIGGSFIELD_API_SECRET és MEDIA_PROVIDER=higgsfield értékeket.",
+      "off": "Az MI-videó itt nincs bekapcsolva. Vegye fel inkább: a valódi felvétel mindig az első.",
+      "unavailable": "Nem érhető el: {reason}",
+      "none": "Ebből a tervből még semmihez nem kell videó. Készítsen fent egy horogból felvételi listát; jóváhagyás után itt jelenik meg.",
+      "month": "Ebben a hónapban: {spent} ment el MI-videóra a(z) {cap} keretből.",
+      "propose": "Három MI-videó javaslata (kb. {cost})",
+      "proposing": "Javaslat készül…",
+      "pending": "Az igenjére vár itt: <queue>Önre vár</queue>.",
+      "generate": "A három elkészítése",
+      "generating": "Készül. Ez néhány percig tart…",
+      "approvedNote": "Jóváhagyva. A pénz csak akkor fogy, amikor elindítja.",
+      "notOffered": "Nem ajánlott: {reason}",
+      "setLabel": "JELÖLTEK · {day}",
+      "setCost": "{cost} a teljes sorozatért",
+      "candidate": "{n}. jelölt",
+      "pick": "Ezt választom",
+      "picking": "Elhelyezés…",
+      "noPlayer": "A böngészője nem tudja lejátszani ezt a klipet.",
+      "state": {
+        "generating": "KÉSZÜL",
+        "ready": "KÉSZ",
+        "failed": "SIKERTELEN",
+        "chosen": "KIVÁLASZTVA",
+        "not_chosen": "NEM VÁLASZTOTT · MEGŐRIZVE"
+      }
     }
   },
   "site": {

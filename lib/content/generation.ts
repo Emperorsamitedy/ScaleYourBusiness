@@ -31,6 +31,13 @@
 //
 // The brief input is an optional {hook, script}: Session K's creative brief
 // (P3-51, built on a sibling branch) is wired to it at merge.
+//
+// P6-03 (Phase 6, rules 33 and 34): with MEDIA_PROVIDER=higgsfield, video
+// takes another path, in ./candidates — THREE candidates per brief, their
+// prompts built from profile facts with provenance (./video-prompt), the
+// caps in US dollars (Higgsfield's prepaid balance), and the owner picks
+// one in the studio. The caps above stay the fake's and the vendor slot's;
+// a provider brings its own through GenerationSetup.caps.
 
 import { createHash, randomBytes } from "node:crypto";
 import { promises as fs } from "node:fs";
@@ -49,7 +56,7 @@ import {
 import type { Money } from "../core/money";
 import { format, money } from "../core/money";
 import { logSafeError } from "../core/log-safe";
-import { mediaProviderSetting } from "../env";
+import { higgsfieldEnv, mediaProviderSetting } from "../env";
 import type { MediaProviderSetting } from "../env";
 import { readCurrentField } from "../profile/field-store";
 import type { LimitLlm } from "../proposals/hard-limits";
@@ -65,11 +72,18 @@ import { suppressedKinds } from "../trust/suppression";
 import { briefForItem, briefInputOf } from "./brief-links";
 import { relabel } from "./disclosure";
 import { fakeMediaProvider } from "./generate/fake";
+import {
+  HIGGSFIELD_CURRENCY,
+  HIGGSFIELD_VIDEO_ONLY,
+  higgsfieldMediaProvider,
+} from "./generate/higgsfield";
 import { readJpegLabels, readVideoComment, stampJpeg, stampVideo } from "./generate/label";
 import type { GeneratedMedia, GenerationRequest, MediaProvider } from "./generate/provider";
 import { FIXED_INSTRUCTION, GENERATED_CLIP_SECONDS, ProviderError } from "./generate/provider";
 import { screenPrompt } from "./generate/guard";
 import { vendorMediaProvider } from "./generate/vendor";
+import { generateCandidatesFromProposal, proposeCandidates } from "./candidates";
+import { CANDIDATES_PER_BRIEF } from "./video-prompt";
 import type { MediaStore } from "./media";
 import { configuredMediaStore } from "./media";
 import type { ContentItemRow } from "./media-item";
@@ -100,11 +114,38 @@ export interface BriefInput {
 
 /* ── is generation set up? ── */
 
+/** The money limits a provider runs under, in its own currency (never converted). */
+export interface GenerationCaps {
+  currency: string;
+  item_cap_minor: number;
+  month_cap_minor: number;
+}
+
+/** The fake's and the vendor slot's caps: €2 an item, €10 a month. */
+export const DEFAULT_CAPS: GenerationCaps = {
+  currency: GENERATION_CURRENCY,
+  item_cap_minor: ITEM_CAP_MINOR,
+  month_cap_minor: MONTHLY_CAP_MINOR,
+};
+
+/** P6-03: $10 per item across every set of candidates and retry; the month's cap is the owner's (env). */
+export const HIGGSFIELD_ITEM_CAP_MINOR = 1000;
+
 export interface GenerationSetup {
   provider: MediaProvider | null;
   /** The owner's sentence when it isn't. */
   reason: string | null;
   setting: MediaProviderSetting;
+  /** The caps this provider runs under; DEFAULT_CAPS when absent. */
+  caps?: GenerationCaps;
+  /** Video candidates per brief (P6-03: three with a real provider); 1 when absent. */
+  candidates?: number;
+  /** What is missing, as a code the screen words (P6-03: "higgsfield_key"). */
+  missing?: string | null;
+}
+
+export function capsOf(setup: Pick<GenerationSetup, "caps">): GenerationCaps {
+  return setup.caps ?? DEFAULT_CAPS;
 }
 
 export const GENERATION_OFF =
@@ -116,6 +157,30 @@ export function generationSetup(
   if (setting === "fake") return { provider: fakeMediaProvider(), reason: null, setting };
   if (setting === "vendor") {
     return { provider: null, reason: vendorMediaProvider.unavailable, setting };
+  }
+  if (setting === "higgsfield") {
+    const hf = higgsfieldEnv();
+    const provider = higgsfieldMediaProvider({
+      key: hf.key,
+      model: hf.model,
+      usd_micros_per_second: hf.usd_micros_per_second,
+    });
+    const caps: GenerationCaps = {
+      currency: HIGGSFIELD_CURRENCY,
+      item_cap_minor: Math.min(HIGGSFIELD_ITEM_CAP_MINOR, hf.monthly_cap_minor),
+      month_cap_minor: hf.monthly_cap_minor,
+    };
+    if (provider.unavailable) {
+      return {
+        provider: null,
+        reason: provider.unavailable,
+        setting,
+        caps,
+        candidates: CANDIDATES_PER_BRIEF,
+        missing: "higgsfield_key",
+      };
+    }
+    return { provider, reason: null, setting, caps, candidates: CANDIDATES_PER_BRIEF };
   }
   return { provider: null, reason: GENERATION_OFF, setting };
 }
@@ -172,7 +237,7 @@ export function promptHash(prompt: string): string {
     .digest("hex");
 }
 
-async function competitorNames(profileId: string): Promise<string[]> {
+export async function competitorNames(profileId: string): Promise<string[]> {
   const rows = await db
     .select({ id: competitors.id })
     .from(competitors)
@@ -214,8 +279,10 @@ export async function capRoom(args: {
   accountId: string;
   targetItemId: string;
   now: Date;
+  caps?: GenerationCaps;
 }): Promise<CapRoom> {
-  const cur = eq(mediaGenerations.currency, GENERATION_CURRENCY);
+  const caps = args.caps ?? DEFAULT_CAPS;
+  const cur = eq(mediaGenerations.currency, caps.currency);
   const [item, month] = await Promise.all([
     spent(and(eq(mediaGenerations.target_item_id, args.targetItemId), cur)),
     spent(
@@ -227,22 +294,23 @@ export async function capRoom(args: {
     ),
   ]);
   return {
-    item_spent: money(item, GENERATION_CURRENCY),
-    month_spent: money(month, GENERATION_CURRENCY),
-    item_cap: money(ITEM_CAP_MINOR, GENERATION_CURRENCY),
-    month_cap: money(MONTHLY_CAP_MINOR, GENERATION_CURRENCY),
+    item_spent: money(item, caps.currency),
+    month_spent: money(month, caps.currency),
+    item_cap: money(caps.item_cap_minor, caps.currency),
+    month_cap: money(caps.month_cap_minor, caps.currency),
   };
 }
 
 /** Pure: the sentence when one more charge of `next` would break a cap, else null. */
 export function capRefusal(room: CapRoom, next: Money): string | null {
-  if (next.currency !== GENERATION_CURRENCY) {
-    return `the provider prices in ${next.currency} and the caps are in ${GENERATION_CURRENCY} — SYB doesn't convert money silently`;
+  const currency = room.month_cap.currency;
+  if (next.currency !== currency) {
+    return `the provider prices in ${next.currency} and the caps are in ${currency} — SYB doesn't convert money silently`;
   }
-  if (room.item_spent.amount_minor + next.amount_minor > ITEM_CAP_MINOR) {
+  if (room.item_spent.amount_minor + next.amount_minor > room.item_cap.amount_minor) {
     return `it would take this item past its ${format(room.item_cap)} cap (${format(room.item_spent)} spent on it so far)`;
   }
-  if (room.month_spent.amount_minor + next.amount_minor > MONTHLY_CAP_MINOR) {
+  if (room.month_spent.amount_minor + next.amount_minor > room.month_cap.amount_minor) {
     return `it would take this month past its ${format(room.month_cap)} cap (${format(room.month_spent)} spent so far)`;
   }
   return null;
@@ -250,7 +318,7 @@ export function capRefusal(room: CapRoom, next: Money): string | null {
 
 /* ── which items can have media generated, and why the rest can't ── */
 
-async function accountOf(profileId: string): Promise<string> {
+export async function accountOf(profileId: string): Promise<string> {
   const [row] = await db
     .select({ account_id: businessProfiles.account_id })
     .from(businessProfiles)
@@ -259,7 +327,7 @@ async function accountOf(profileId: string): Promise<string> {
   return row.account_id;
 }
 
-async function ownedItem(profileId: string, itemId: string): Promise<ContentItemRow> {
+export async function ownedItem(profileId: string, itemId: string): Promise<ContentItemRow> {
   const [item] = await db
     .select()
     .from(contentItems)
@@ -335,6 +403,16 @@ export async function proposeGeneration(args: {
   const setup = args.setup ?? generationSetup();
   if (!setup.provider) throw new ContentError(setup.reason ?? GENERATION_OFF, 503);
   const provider = setup.provider;
+  if (provider.supports && !provider.supports.includes(media)) {
+    throw new ContentError(
+      `SYB won't propose that: ${
+        provider.id === "higgsfield"
+          ? HIGGSFIELD_VIDEO_ONLY
+          : `the ${provider.id} provider doesn't make ${media === "image" ? "images" : "video"}`
+      }`,
+      422,
+    );
+  }
 
   const item = await ownedItem(args.profileId, args.itemId);
   // Session K: an item made from a creative brief brings its hook and script.
@@ -364,6 +442,20 @@ export async function proposeGeneration(args: {
     );
   }
 
+  // P6-03: three candidates per brief, from profile facts — rule 33.
+  if (media === "video" && (setup.candidates ?? 1) > 1) {
+    return proposeCandidates({
+      profileId: args.profileId,
+      item,
+      provider,
+      caps: capsOf(setup),
+      candidates: setup.candidates ?? CANDIDATES_PER_BRIEF,
+      direction,
+      now,
+      ...(args.limitLlm ? { limitLlm: args.limitLlm } : {}),
+    });
+  }
+
   const prompt = buildPrompt({
     item,
     media,
@@ -381,7 +473,7 @@ export async function proposeGeneration(args: {
   const seconds = media === "video" ? GENERATED_CLIP_SECONDS : undefined;
   const estimate = provider.estimate({ media, ...(seconds ? { seconds } : {}) });
   const accountId = await accountOf(args.profileId);
-  const room = await capRoom({ accountId, targetItemId: item.id, now });
+  const room = await capRoom({ accountId, targetItemId: item.id, now, caps: capsOf(setup) });
   const over = capRefusal(room, estimate);
   if (over) throw new ContentError(`SYB won't propose that: ${over}`, 409);
 
@@ -468,11 +560,14 @@ export async function proposeGeneration(args: {
 export interface GenerationOutcome {
   status: "generated" | "failed" | "not_needed";
   item_id?: string;
+  /** P6-03: the candidates made, for the owner to pick from in the studio. */
+  candidate_ids?: string[];
   cost: Money;
   note: string;
 }
 
 interface GenerationDetail {
+  candidates?: unknown;
   target_item_id?: unknown;
   media?: unknown;
   seconds?: unknown;
@@ -510,6 +605,15 @@ export async function generateFromProposal(args: {
     );
   }
   const d = ((proposal.action as { detail?: GenerationDetail }).detail ?? {}) as GenerationDetail;
+  // P6-03: a set of candidates is generated, and picked, its own way.
+  if (typeof d.candidates === "number" && d.candidates > 1) {
+    return generateCandidatesFromProposal({
+      proposal,
+      setup: args.setup ?? generationSetup(),
+      ...(args.store ? { store: args.store } : {}),
+      now,
+    });
+  }
   const media = d.media === "video" ? "video" : d.media === "image" ? "image" : null;
   if (!media || typeof d.target_item_id !== "string" || typeof d.prompt !== "string") {
     throw new ContentError("the proposal doesn't say what to generate", 422);
@@ -531,7 +635,7 @@ export async function generateFromProposal(args: {
   }
   const accountId = await accountOf(proposal.profile_id);
   const target = await ownedItem(proposal.profile_id, d.target_item_id);
-  const zero = money(0, GENERATION_CURRENCY);
+  const zero = money(0, capsOf(setup).currency);
 
   // Footage arrived (or media did) while this waited: close it honestly, nothing generated, nothing charged.
   const refusal = await generationRefusal(target);
@@ -550,7 +654,11 @@ export async function generateFromProposal(args: {
   }
 
   const estimate = provider.estimate({ media, ...(seconds ? { seconds } : {}) });
-  const over = capRefusal(await capRoom({ accountId, targetItemId: target.id, now }), estimate);
+  const caps = capsOf(setup);
+  const over = capRefusal(
+    await capRoom({ accountId, targetItemId: target.id, now, caps }),
+    estimate,
+  );
   if (over) throw new ContentError(`Nothing was generated: ${over}. It stays approved.`, 409);
 
   // The claim: one generation per approved proposal, ever.
@@ -594,7 +702,7 @@ export async function generateFromProposal(args: {
       .where(eq(mediaGenerations.id, claimId));
   };
   const fail = async (sentence: string): Promise<GenerationOutcome> => {
-    const cost = money(charged, GENERATION_CURRENCY);
+    const cost = money(charged, caps.currency);
     await settle("failed", { error: sentence });
     await recordExecution({
       proposalId: proposal.id,
@@ -607,7 +715,7 @@ export async function generateFromProposal(args: {
         generation_id: claimId,
         provider: provider.id,
         cost_minor: charged,
-        currency: GENERATION_CURRENCY,
+        currency: caps.currency,
       }),
     );
     return {
@@ -634,16 +742,16 @@ export async function generateFromProposal(args: {
         .where(eq(mediaGenerations.id, claimId));
       if (attempt > 1) {
         // Each attempt re-checks the caps, this run's own charges included.
-        const room = await capRoom({ accountId, targetItemId: target.id, now });
+        const room = await capRoom({ accountId, targetItemId: target.id, now, caps });
         const roomNow = {
           ...room,
           item_spent: money(
             room.item_spent.amount_minor - estimate.amount_minor + charged,
-            GENERATION_CURRENCY,
+            caps.currency,
           ),
           month_spent: money(
             room.month_spent.amount_minor - estimate.amount_minor + charged,
-            GENERATION_CURRENCY,
+            caps.currency,
           ),
         };
         const stop = capRefusal(roomNow, estimate);
@@ -651,16 +759,16 @@ export async function generateFromProposal(args: {
       }
       try {
         output = await provider.generate(request);
-        if (output.cost.currency !== GENERATION_CURRENCY) {
+        if (output.cost.currency !== caps.currency) {
           return await fail(
-            `the provider charged in ${output.cost.currency}, not ${GENERATION_CURRENCY}`,
+            `the provider charged in ${output.cost.currency}, not ${caps.currency}`,
           );
         }
         charged += output.cost.amount_minor;
         break;
       } catch (error) {
         if (!(error instanceof ProviderError)) throw error;
-        if (error.cost && error.cost.currency === GENERATION_CURRENCY) {
+        if (error.cost && error.cost.currency === caps.currency) {
           charged += error.cost.amount_minor;
         }
         if (!error.retryable || attempt === MAX_GENERATION_ATTEMPTS) {
@@ -695,7 +803,7 @@ export async function generateFromProposal(args: {
       }
     }
 
-    const cost = money(charged, GENERATION_CURRENCY);
+    const cost = money(charged, caps.currency);
     const placed = await placeMedia({
       target,
       file,
@@ -727,7 +835,7 @@ export async function generateFromProposal(args: {
         model: output.model,
         media,
         cost_minor: charged,
-        currency: GENERATION_CURRENCY,
+        currency: caps.currency,
         item_id: placed.item.id,
       }),
     );
@@ -764,6 +872,35 @@ export async function generateFromProposal(args: {
 
 /* ── what /content shows ── */
 
+export interface GenerationSetupView {
+  available: boolean;
+  reason: string | null;
+  /** P6-03: video candidates per brief (1 = a single clip). */
+  candidates: number;
+  /** What is missing, as a code the screen words ("higgsfield_key"), or null. */
+  missing: string | null;
+  /** For the screen's words: on, switched off, waiting for a key, or otherwise unavailable. */
+  state: "ready" | "off" | "needs_key" | "unavailable";
+}
+
+export function setupView(setup: GenerationSetup): GenerationSetupView {
+  const missing = setup.missing ?? null;
+  return {
+    available: setup.provider !== null,
+    reason: setup.reason,
+    candidates: Math.max(1, setup.candidates ?? 1),
+    missing,
+    state:
+      setup.provider !== null
+        ? "ready"
+        : missing
+          ? "needs_key"
+          : setup.setting === "off"
+            ? "off"
+            : "unavailable",
+  };
+}
+
 export interface GenerationView {
   /** Null = it can be proposed; otherwise why not. */
   refusal: string | null;
@@ -785,13 +922,13 @@ export async function generationView(
   items: readonly ContentItemRow[],
   setup: GenerationSetup = generationSetup(),
 ): Promise<{
-  setup: { available: boolean; reason: string | null };
+  setup: GenerationSetupView;
   items: Record<string, GenerationView>;
 }> {
   const out: Record<string, GenerationView> = {};
   const targets = items.filter((i) => mediaTargetRefusal(i) === null);
   if (targets.length === 0) {
-    return { setup: { available: setup.provider !== null, reason: setup.reason }, items: out };
+    return { setup: setupView(setup), items: out };
   }
   const ids = targets.map((t) => t.id);
   const [gens, props] = await Promise.all([
@@ -821,9 +958,16 @@ export async function generationView(
   const p = setup.provider;
   // Rule 15: while the watch runs nothing is proposed — the screen says so instead of offering it.
   const watching = await contentWatchUntil(profileId);
+  const makes = (m: GeneratedMedia) => p !== null && (!p.supports || p.supports.includes(m));
+  // P6-03: a video is a set of candidates, and the estimate is the set's.
+  const clip = makes("video")
+    ? p!.estimate({ media: "video", seconds: GENERATED_CLIP_SECONDS })
+    : null;
   const estimates = {
-    image: p ? p.estimate({ media: "image" }) : null,
-    video: p ? p.estimate({ media: "video", seconds: GENERATED_CLIP_SECONDS }) : null,
+    image: makes("image") ? p!.estimate({ media: "image" }) : null,
+    video: clip
+      ? money(clip.amount_minor * Math.max(1, setup.candidates ?? 1), clip.currency)
+      : null,
   };
   for (const item of targets) {
     const g = gens.find((x) => x.target_item_id === item.id);
@@ -849,5 +993,5 @@ export async function generationView(
       pending_proposal_id: mine.find((x) => x.status === "pending")?.id ?? null,
     };
   }
-  return { setup: { available: p !== null, reason: setup.reason }, items: out };
+  return { setup: setupView(setup), items: out };
 }

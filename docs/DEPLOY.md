@@ -136,6 +136,14 @@ npm run db:seed
   number's "A call comes in" webhook to `<APP_URL>/api/phone/voice` and its
   call status callback to `<APP_URL>/api/phone/voice?step=status`, both
   HTTP POST. Then turn the line on from `/support`. One business per number.
+- AI video (P6-03): buy Higgsfield **API** credit (a prepaid USD balance,
+  separate from any higgsfield.ai web plan), create a key in Higgsfield's
+  API console, then set `MEDIA_PROVIDER=higgsfield`, `HIGGSFIELD_API_KEY`
+  (the key id) and `HIGGSFIELD_API_SECRET`. Optional:
+  `HIGGSFIELD_MONTHLY_CAP_MINOR` (US cents per business per month, default
+  6000 = $60), `HIGGSFIELD_MODEL` and `HIGGSFIELD_USD_MICROS_PER_SECOND`
+  (see `specs/higgsfield-api-v1.md`). Needs media storage
+  (`BLOB_READ_WRITE_TOKEN`). Three 5-second candidates cost about $1.68.
 
 **Languages**
 
@@ -147,7 +155,8 @@ npm run db:seed
 
 - `SESSION_D_REAL_WRITES`: no real publishing until the unattended-sync
   clock is judged complete (TASKS-PHASE3.md).
-- `MEDIA_PROVIDER`: no vendor has been chosen.
+- `MEDIA_PROVIDER`: leave empty until the Higgsfield API key above is set;
+  then `higgsfield`. Never `fake` in production (it is refused there).
 - `PUSH_SERVICE`: development only.
 
 ## 4. Deploy, then verify

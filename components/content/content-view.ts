@@ -396,7 +396,8 @@ export interface MediaState {
     }
   >;
   generation: {
-    setup: { available: boolean; reason: string | null };
+    /** P6-03: `candidates` > 1 means video is a set made from profile facts (no typed direction). */
+    setup: { available: boolean; reason: string | null; candidates?: number };
     items: Record<
       string,
       {

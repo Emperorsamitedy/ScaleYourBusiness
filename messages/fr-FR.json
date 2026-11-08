@@ -4885,7 +4885,11 @@
       "stillFresh": "Cette lecture est encore récente : je l’ai utilisée plutôt que d’interroger Meta à nouveau.",
       "written": "Le brief est rédigé. Chaque partie indique sur quoi elle repose.",
       "blocked": "Cette liste de plans dépassait l’une de vos limites : elle se trouve donc dans la vue des retenues.",
-      "proposed": "Proposé. C’est dans <queue>En attente de votre décision</queue>."
+      "proposed": "Proposé. C’est dans <queue>En attente de votre décision</queue>.",
+      "videoProposed": "Proposé. C’est dans <queue>En attente de votre décision</queue> ; rien n’est généré ni dépensé avant votre oui.",
+      "videoGenerated": "Les candidates sont ci-dessous, chacune avec la mention générée par IA. Choisissez-en une ; rien n’est publié sans votre oui.",
+      "picked": "Choisie. Elle est sur l’élément vidéo, avec la mention générée par IA, et sa proposition de publication est dans <queue>En attente de votre décision</queue>.",
+      "pickedNoProposal": "Choisie. Elle est sur l’élément vidéo, avec la mention générée par IA."
     },
     "niche": {
       "label": "Les publicités les plus durables de la niche",
@@ -4950,6 +4954,36 @@
       "make": "Le réaliser →",
       "watching": "Observation en cours jusqu’au {day} ; rien n’est proposé avant.",
       "makeNote": "Place cette liste de plans dans « En attente de votre décision ». Une fois validée, elle devient un élément « à filmer » ; vos images partent en salle de montage."
+    },
+    "video": {
+      "label": "VIDÉO IA",
+      "title": "Pas encore d’images ? Trois candidates IA",
+      "realFirst": "Les vraies images d’abord. Ceci est la solution de repli pour une liste de plans de ce brief qui n’a pas encore d’images. Ce qui est envoyé est construit à partir des faits de votre profil et du brief, jamais à partir de mots tapés par quelqu’un, et chaque clip porte la mention générée par IA dès qu’il existe.",
+      "noKey": "La vidéo IA nécessite un accès à l’API Higgsfield, distinct d’un abonnement web Higgsfield : achetez du crédit API, créez une clé dans la console Higgsfield et définissez HIGGSFIELD_API_KEY, HIGGSFIELD_API_SECRET et MEDIA_PROVIDER=higgsfield sur le serveur.",
+      "off": "La vidéo IA n’est pas activée ici. Filmez-la plutôt : les vraies images passent toujours en premier.",
+      "unavailable": "Indisponible : {reason}",
+      "none": "Rien dans ce brief n’a encore besoin d’une vidéo. Faites une liste de plans à partir d’une accroche ci-dessus ; une fois validée, elle apparaît ici.",
+      "month": "Ce mois-ci : {spent} dépensés en vidéo IA sur un plafond de {cap}.",
+      "propose": "Proposer trois vidéos IA (environ {cost})",
+      "proposing": "Proposition en cours…",
+      "pending": "En attente de votre oui dans <queue>En attente de votre décision</queue>.",
+      "generate": "Générer les trois",
+      "generating": "Génération en cours. Cela prend quelques minutes…",
+      "approvedNote": "Validé. L’argent n’est dépensé que lorsque vous lancez la génération.",
+      "notOffered": "Non proposé : {reason}",
+      "setLabel": "CANDIDATES · {day}",
+      "setCost": "{cost} pour la série",
+      "candidate": "Candidate {n}",
+      "pick": "Prendre celle-ci",
+      "picking": "Mise en place…",
+      "noPlayer": "Votre navigateur ne peut pas lire ce clip.",
+      "state": {
+        "generating": "EN COURS",
+        "ready": "PRÊTE",
+        "failed": "ÉCHEC",
+        "chosen": "CHOISIE",
+        "not_chosen": "NON CHOISIE · CONSERVÉE"
+      }
     }
   },
   "site": {

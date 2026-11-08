@@ -4885,7 +4885,11 @@
       "stillFresh": "Diese Auswertung ist noch aktuell, daher habe ich sie verwendet, statt Meta erneut zu fragen.",
       "written": "Das Briefing ist geschrieben. Jeder Teil zeigt, worauf er beruht.",
       "blocked": "Diese Drehliste hat eine Ihrer Grenzen überschritten und liegt deshalb in der Ansicht des Zurückgehaltenen.",
-      "proposed": "Vorgeschlagen. Jetzt unter <queue>Wartet auf Sie</queue>."
+      "proposed": "Vorgeschlagen. Jetzt unter <queue>Wartet auf Sie</queue>.",
+      "videoProposed": "Vorgeschlagen. Jetzt unter <queue>Wartet auf Sie</queue>; vor Ihrem Ja wird nichts erzeugt und nichts ausgegeben.",
+      "videoGenerated": "Die Kandidaten stehen unten, jeder als KI-generiert gekennzeichnet. Wählen Sie einen; ohne Ihr Ja wird nichts veröffentlicht.",
+      "picked": "Gewählt. Er liegt auf dem Video-Eintrag, als KI-generiert gekennzeichnet, und sein Vorschlag zur Veröffentlichung steht unter <queue>Wartet auf Sie</queue>.",
+      "pickedNoProposal": "Gewählt. Er liegt auf dem Video-Eintrag, als KI-generiert gekennzeichnet."
     },
     "niche": {
       "label": "Die am längsten laufenden Anzeigen der Nische",
@@ -4950,6 +4954,36 @@
       "make": "Umsetzen →",
       "watching": "Beobachtung läuft noch bis {day}; bis dahin wird nichts vorgeschlagen.",
       "makeNote": "Legt diese Drehliste unter „Wartet auf Sie“ ab. Nach der Freigabe wird daraus ein Eintrag „zum Drehen“; Ihr Filmmaterial geht in den Schneideraum."
+    },
+    "video": {
+      "label": "KI-VIDEO",
+      "title": "Noch kein Filmmaterial? Drei KI-Kandidaten",
+      "realFirst": "Echtes Filmmaterial zuerst. Dies ist die Ausweichlösung für eine Drehliste aus diesem Briefing, für die es noch kein Filmmaterial gibt. Was gesendet wird, entsteht aus den Fakten Ihres Profils und dem Briefing, nie aus getippten Worten von irgendwem, und jeder Clip ist vom ersten Moment an als KI-generiert gekennzeichnet.",
+      "noKey": "KI-Video braucht Zugang zur Higgsfield-API, der von einem Higgsfield-Webtarif getrennt ist: Kaufen Sie API-Guthaben, erstellen Sie einen Schlüssel in der Higgsfield-Konsole und setzen Sie HIGGSFIELD_API_KEY, HIGGSFIELD_API_SECRET und MEDIA_PROVIDER=higgsfield auf dem Server.",
+      "off": "KI-Video ist hier nicht eingeschaltet. Drehen Sie es selbst: Echtes Filmmaterial kommt immer zuerst.",
+      "unavailable": "Nicht verfügbar: {reason}",
+      "none": "Aus diesem Briefing braucht noch nichts ein Video. Machen Sie oben aus einem Aufhänger eine Drehliste; sobald sie freigegeben ist, erscheint sie hier.",
+      "month": "Diesen Monat: {spent} von der Grenze {cap} für KI-Video ausgegeben.",
+      "propose": "Drei KI-Videos vorschlagen (etwa {cost})",
+      "proposing": "Wird vorgeschlagen…",
+      "pending": "Wartet auf Ihr Ja unter <queue>Wartet auf Sie</queue>.",
+      "generate": "Die drei erzeugen",
+      "generating": "Wird erzeugt. Das dauert ein paar Minuten…",
+      "approvedNote": "Freigegeben. Das Geld wird erst ausgegeben, wenn Sie es starten.",
+      "notOffered": "Nicht angeboten: {reason}",
+      "setLabel": "KANDIDATEN · {day}",
+      "setCost": "{cost} für den Satz",
+      "candidate": "Kandidat {n}",
+      "pick": "Diesen nehmen",
+      "picking": "Wird eingesetzt…",
+      "noPlayer": "Ihr Browser kann diesen Clip nicht abspielen.",
+      "state": {
+        "generating": "WIRD ERZEUGT",
+        "ready": "BEREIT",
+        "failed": "FEHLGESCHLAGEN",
+        "chosen": "GEWÄHLT",
+        "not_chosen": "NICHT GEWÄHLT · BEHALTEN"
+      }
     }
   },
   "site": {

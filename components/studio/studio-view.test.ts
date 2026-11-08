@@ -1,5 +1,16 @@
 import { describe, expect, it } from "vitest";
-import { parseTerms, researchNotice, runningWords, studioHeadline, timeText } from "./studio-view";
+import {
+  CANDIDATE_STATES,
+  canPick,
+  candidateStateWord,
+  forBrief,
+  parseTerms,
+  researchNotice,
+  runningWords,
+  studioHeadline,
+  timeText,
+  videoSetupLine,
+} from "./studio-view";
 
 const group = {
   page_name: "Saltmarsh Pottery",
@@ -67,5 +78,47 @@ describe("the creative studio's words", () => {
       "once a day",
     );
     expect(timeText("2026-10-27T09:05:00.000Z")).toBe("27 Oct, 09:05 UTC");
+  });
+});
+
+describe("P6-03 — the studio's AI video words", () => {
+  it("says exactly what's needed when Higgsfield has no key, and nothing when it's ready", () => {
+    expect(videoSetupLine({ available: true, reason: null, state: "ready" })).toBeNull();
+    const line = videoSetupLine({ available: false, reason: "x", state: "needs_key" });
+    expect(line).toMatch(/HIGGSFIELD_API_KEY/);
+    expect(line).toMatch(/separate from a Higgsfield web plan/);
+    expect(videoSetupLine({ available: false, reason: null, state: "off" })).toMatch(
+      /real footage always comes first/,
+    );
+    expect(
+      videoSetupLine({ available: false, reason: "the vendor isn't chosen", state: "unavailable" }),
+    ).toBe("Not available: the vendor isn't chosen");
+  });
+
+  it("names every candidate state, and lets only a ready one in an unpicked set be picked", () => {
+    expect(CANDIDATE_STATES.map((s) => candidateStateWord(s))).toEqual([
+      "GENERATING",
+      "READY",
+      "FAILED",
+      "CHOSEN",
+      "NOT CHOSEN · KEPT",
+    ]);
+    expect(candidateStateWord("something_new")).toBe("something_new");
+    const ready = { status: "ready", url: "https://blob.test/x.mp4" };
+    expect(canPick({ chosen_id: null }, ready)).toBe(true);
+    expect(canPick({ chosen_id: "c1" }, ready)).toBe(false);
+    expect(canPick({ chosen_id: null }, { status: "failed", url: null })).toBe(false);
+    expect(canPick({ chosen_id: null }, { status: "ready", url: null })).toBe(false);
+    expect(canPick({ chosen_id: null }, { status: "not_chosen", url: "u" })).toBe(false);
+  });
+
+  it("shows a brief only its own shot lists and sets", () => {
+    const rows = [
+      { brief_id: "b1", n: 1 },
+      { brief_id: "b2", n: 2 },
+      { brief_id: null, n: 3 },
+      { brief_id: "b1", n: 4 },
+    ];
+    expect(forBrief(rows, "b1").map((r) => r.n)).toEqual([1, 4]);
   });
 });

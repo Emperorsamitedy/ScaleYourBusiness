@@ -342,27 +342,34 @@ export function MediaPanel(props: {
                 />
               </form>
               <div className="ct-actions">
-                {(["image", "video"] as const).map((m) => (
-                  <button
-                    key={m}
-                    type="button"
-                    className="prop-btn"
-                    disabled={props.busy}
-                    onClick={() =>
-                      void run(async () => {
-                        await send({
-                          action: "propose_generation",
-                          item_id: item.id,
-                          media: m,
-                          direction,
-                        });
-                        return tr("mediaPanel.fallback.proposed");
-                      })
-                    }
-                  >
-                    {tr("mediaPanel.fallback.propose", { media: m })}
-                  </button>
-                ))}
+                {/* P6-03: only what the provider makes (Higgsfield: video, as three candidates). */}
+                {(["image", "video"] as const)
+                  .filter((m) => gen.estimates[m] !== null)
+                  .map((m) => (
+                    <button
+                      key={m}
+                      type="button"
+                      className="prop-btn"
+                      disabled={props.busy}
+                      onClick={() =>
+                        void run(async () => {
+                          await send({
+                            action: "propose_generation",
+                            item_id: item.id,
+                            media: m,
+                            // A candidate set is built from profile facts only (rule 33).
+                            direction:
+                              m === "video" && (media.generation.setup.candidates ?? 1) > 1
+                                ? ""
+                                : direction,
+                          });
+                          return tr("mediaPanel.fallback.proposed");
+                        })
+                      }
+                    >
+                      {tr("mediaPanel.fallback.propose", { media: m })}
+                    </button>
+                  ))}
               </div>
             </>
           )}

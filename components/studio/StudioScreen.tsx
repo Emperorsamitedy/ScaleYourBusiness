@@ -7,7 +7,12 @@
 // the creative brief — audience, the business's own offer, hooks with a
 // script and shots, every part showing what it cites — and "Make this",
 // which puts a shot-list PROPOSAL in the approval queue. Nothing here
-// publishes, films, generates or spends on ads.
+// publishes, films or spends on ads.
+//
+// P6-03: under the brief, AI video — for a shot list made from it that has
+// no footage, three candidates proposed (a proposal with its cost, decided
+// in the queue), generated once approved, and picked here. Every clip shows
+// its AI label; the pick is offered for publishing, another yes.
 
 import "../../app/studio.css";
 import { useCallback, useEffect, useState } from "react";
@@ -15,15 +20,20 @@ import type { FormEvent, ReactNode } from "react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import type { BriefCitation, BriefRead, BriefSource } from "../../lib/content/brief";
+import type { StudioVideoView } from "../../lib/content/candidates";
 import type { NicheView } from "../../lib/research/niche";
 import { useBusinessNoun } from "../nav/useBusinessNoun";
+import { formatMinor } from "../content/content-view";
 import { PageHead, SheetCard } from "../sheet/PageHead";
 import { useTr } from "../sheet/useTr";
 import type { Tr } from "../../lib/i18n/tr";
 import {
+  canPick,
+  candidateStateWord,
   countText,
   countryText,
   dayText,
+  forBrief,
   formatWord,
   parseTerms,
   researchNotice,
@@ -31,6 +41,7 @@ import {
   sourceWord,
   studioHeadline,
   timeText,
+  videoSetupLine,
 } from "./studio-view";
 
 type Brief = BriefRead & { sources: BriefSource[]; attempts: number; cost_eur: number };
@@ -41,6 +52,8 @@ interface StudioData {
   goals: { goal_id: string; statement: string }[];
   brief_allowance: { calls_left: number; calls_per_month: number; attempts_per_brief: number };
   watching_until: string | null;
+  /** P6-03: AI video for the briefs' shot lists. */
+  video: StudioVideoView;
 }
 
 /** The server's error sentence (English, L-4), or the screen's own when there is none. */
@@ -421,6 +434,129 @@ function BriefCard({
   );
 }
 
+/* ── P6-03: AI video, three candidates per brief ── */
+
+function VideoCard({
+  video,
+  briefId,
+  busy,
+  onPropose,
+  onGenerate,
+  onPick,
+}: {
+  video: StudioVideoView;
+  briefId: string;
+  /** The id being worked on (an item, a proposal or a candidate), or null. */
+  busy: string | null;
+  onPropose: (itemId: string) => void;
+  onGenerate: (proposalId: string) => void;
+  onPick: (candidateId: string) => void;
+}) {
+  const { tr, locale } = useTr("studio");
+  const rich = useTranslations("studio");
+  const line = videoSetupLine(video.setup, tr);
+  const targets = forBrief(video.targets, briefId);
+  const sets = forBrief(video.sets, briefId);
+  const cash = (m: { amount_minor: number; currency: string }) => formatMinor(m, locale);
+  const queue = (chunks: ReactNode) => <Link href="/proposals">{chunks}</Link>;
+  return (
+    <SheetCard
+      label={tr("video.label")}
+      title={tr("video.title")}
+      meta={
+        video.month
+          ? tr("video.month", { spent: cash(video.month.spent), cap: cash(video.month.cap) })
+          : undefined
+      }
+    >
+      <p className="st-copy">{tr("video.realFirst")}</p>
+      {line && <p className="st-note">{line}</p>}
+      {targets.length === 0 ? (
+        <p className="st-note">{tr("video.none")}</p>
+      ) : (
+        <ul className="st-targets">
+          {targets.map((t) => (
+            <li key={t.item_id}>
+              <p className="st-script">{t.title}</p>
+              {t.pending_proposal_id ? (
+                <p className="st-note">{rich.rich("video.pending", { queue })}</p>
+              ) : t.approved_proposal_id ? (
+                <div className="st-make">
+                  <button
+                    type="button"
+                    className="act solid"
+                    disabled={busy !== null || !video.setup.available}
+                    onClick={() => onGenerate(t.approved_proposal_id as string)}
+                  >
+                    {busy === t.approved_proposal_id
+                      ? tr("video.generating")
+                      : tr("video.generate")}
+                  </button>
+                  <span className="st-note">{tr("video.approvedNote")}</span>
+                </div>
+              ) : t.refusal ? (
+                video.setup.available && (
+                  <p className="st-note">{tr("video.notOffered", { reason: t.refusal })}</p>
+                )
+              ) : (
+                <div className="st-make">
+                  <button
+                    type="button"
+                    className="act"
+                    disabled={busy !== null}
+                    onClick={() => onPropose(t.item_id)}
+                  >
+                    {busy === t.item_id
+                      ? tr("video.proposing")
+                      : tr("video.propose", { cost: t.estimate ? cash(t.estimate) : "—" })}
+                  </button>
+                </div>
+              )}
+            </li>
+          ))}
+        </ul>
+      )}
+      {sets.map((set) => (
+        <section key={set.generation_id} className="st-set">
+          <p className="st-src">
+            {tr("video.setLabel", { day: dayText(set.created_at, locale) })}
+            {set.cost && ` · ${tr("video.setCost", { cost: cash(set.cost) })}`}
+          </p>
+          <ol className="st-candidates">
+            {set.candidates.map((c) => (
+              <li key={c.id} className={`st-candidate is-${c.status}`}>
+                <p className="st-src">
+                  {tr("video.candidate", { n: countText(c.ordinal, locale) })} ·{" "}
+                  {candidateStateWord(c.status, tr)}
+                </p>
+                {c.url && (
+                  <video src={c.url} controls muted playsInline preload="metadata">
+                    {tr("video.noPlayer")}
+                  </video>
+                )}
+                {/* Rule 33: the label is printed with every clip, whatever its state. */}
+                <p className="st-ai-label">{c.label}</p>
+                {c.cost && <p className="st-src">{cash(c.cost)}</p>}
+                {c.error && <p className="st-error">{c.error}</p>}
+                {canPick(set, c) && (
+                  <button
+                    type="button"
+                    className="act"
+                    disabled={busy !== null}
+                    onClick={() => onPick(c.id)}
+                  >
+                    {busy === c.id ? tr("video.picking") : tr("video.pick")}
+                  </button>
+                )}
+              </li>
+            ))}
+          </ol>
+        </section>
+      ))}
+    </SheetCard>
+  );
+}
+
 /* ── the screen ── */
 
 function Frame({
@@ -450,6 +586,7 @@ export function StudioScreen() {
   const [reading, setReading] = useState(false);
   const [writing, setWriting] = useState(false);
   const [making, setMaking] = useState<string | null>(null);
+  const [videoBusy, setVideoBusy] = useState<string | null>(null);
   const [notice, setNotice] = useState<ReactNode>(null);
   const [shown, setShown] = useState<string | null>(null);
 
@@ -521,6 +658,42 @@ export function StudioScreen() {
     setMaking(null);
   };
 
+  /** P6-03: one AI video action at a time; the server's refusal shown as it said it. */
+  const videoAction = async (
+    id: string,
+    body: Record<string, unknown>,
+    ok: (out: Record<string, unknown>) => ReactNode,
+  ) => {
+    setVideoBusy(id);
+    setNotice(null);
+    const res = await post(body);
+    if (res.ok) setNotice(ok((await res.json()) as Record<string, unknown>));
+    else setNotice(await errorOf(res, tr));
+    setVideoBusy(null);
+    await load();
+  };
+  const queueLink = (chunks: ReactNode) => <Link href="/proposals">{chunks}</Link>;
+  const proposeVideo = (itemId: string) =>
+    videoAction(itemId, { action: "propose_video", item_id: itemId }, (out) =>
+      out.status === "blocked"
+        ? tr("notice.blocked")
+        : rich.rich("notice.videoProposed", { queue: queueLink }),
+    );
+  const generateVideo = (proposalId: string) =>
+    videoAction(proposalId, { action: "generate_video", proposal_id: proposalId }, (out) =>
+      out.status === "generated"
+        ? tr("notice.videoGenerated")
+        : typeof out.note === "string"
+          ? out.note
+          : tr("error.generic"),
+    );
+  const pickVideo = (candidateId: string) =>
+    videoAction(candidateId, { action: "pick", candidate_id: candidateId }, (out) =>
+      out.publish_proposed === true
+        ? rich.rich("notice.picked", { queue: queueLink })
+        : tr("notice.pickedNoProposal"),
+    );
+
   if (failed === "signed_out") {
     return (
       <Frame title={tr("signedOut.title")}>
@@ -585,6 +758,16 @@ export function StudioScreen() {
           watchingUntil={data.watching_until}
           making={making}
           onMake={make}
+        />
+      )}
+      {brief && (
+        <VideoCard
+          video={data.video}
+          briefId={brief.id}
+          busy={videoBusy}
+          onPropose={(id) => void proposeVideo(id)}
+          onGenerate={(id) => void generateVideo(id)}
+          onPick={(id) => void pickVideo(id)}
         />
       )}
     </Frame>

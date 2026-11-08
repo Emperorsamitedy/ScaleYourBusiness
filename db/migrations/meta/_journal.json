@@ -603,6 +603,13 @@
       "when": 1794135115717,
       "tag": "0086_staff_people",
       "breakpoints": true
+    },
+    {
+      "idx": 87,
+      "version": "7",
+      "when": 1794135116717,
+      "tag": "0087_media_candidates",
+      "breakpoints": true
     }
   ]
 }

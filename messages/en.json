@@ -4885,7 +4885,11 @@
       "stillFresh": "That read is still fresh, so I used it rather than asking Meta again.",
       "written": "The brief is written. Every part shows what it rests on.",
       "blocked": "That shot list crossed one of your limits, so it sits in the restraint view instead.",
-      "proposed": "Proposed. It’s in <queue>Waiting for you</queue>."
+      "proposed": "Proposed. It’s in <queue>Waiting for you</queue>.",
+      "videoProposed": "Proposed. It’s in <queue>Waiting for you</queue>; nothing is generated or spent before your yes.",
+      "videoGenerated": "The candidates are below, each labelled as AI-generated. Pick one; nothing is published without your yes.",
+      "picked": "Picked. It’s on the video item, labelled as AI-generated, and its publish proposal is in <queue>Waiting for you</queue>.",
+      "pickedNoProposal": "Picked. It’s on the video item, labelled as AI-generated."
     },
     "niche": {
       "label": "The niche's longest-running ads",
@@ -4950,6 +4954,36 @@
       "make": "Make this →",
       "watching": "Still watching until {day}; nothing is proposed before then.",
       "makeNote": "Puts this shot list in Waiting for you. Approved, it becomes a “film this” item; your footage goes to the cutting room."
+    },
+    "video": {
+      "label": "AI VIDEO",
+      "title": "No footage yet? Three AI candidates",
+      "realFirst": "Real footage first. This is the fallback for a shot list from this brief that has no footage yet. What is sent is built from your profile facts and the brief, never from anyone’s typed words, and every clip is labelled as AI-generated from the moment it exists.",
+      "noKey": "AI video needs Higgsfield API access, which is separate from a Higgsfield web plan: buy API credit, create a key in Higgsfield’s console, and set HIGGSFIELD_API_KEY, HIGGSFIELD_API_SECRET and MEDIA_PROVIDER=higgsfield on the server.",
+      "off": "AI video isn’t switched on here. Film it instead: real footage always comes first.",
+      "unavailable": "Not available: {reason}",
+      "none": "Nothing from this brief needs a video yet. Make a shot list from a hook above; once it’s approved, it shows here.",
+      "month": "This month: {spent} of the {cap} cap spent on AI video.",
+      "propose": "Propose three AI videos (about {cost})",
+      "proposing": "Proposing…",
+      "pending": "Waiting for your yes in <queue>Waiting for you</queue>.",
+      "generate": "Generate the three",
+      "generating": "Generating. This takes a few minutes…",
+      "approvedNote": "Approved. The money is spent only when you start it.",
+      "notOffered": "Not offered: {reason}",
+      "setLabel": "CANDIDATES · {day}",
+      "setCost": "{cost} for the set",
+      "candidate": "Candidate {n}",
+      "pick": "Use this one",
+      "picking": "Placing…",
+      "noPlayer": "Your browser can’t play this clip.",
+      "state": {
+        "generating": "GENERATING",
+        "ready": "READY",
+        "failed": "FAILED",
+        "chosen": "CHOSEN",
+        "not_chosen": "NOT CHOSEN · KEPT"
+      }
     }
   },
   "site": {
