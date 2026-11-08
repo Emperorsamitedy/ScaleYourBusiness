@@ -610,6 +610,13 @@
       "when": 1794135116717,
       "tag": "0087_media_candidates",
       "breakpoints": true
+    },
+    {
+      "idx": 88,
+      "version": "7",
+      "when": 1794144662132,
+      "tag": "0088_whatsapp_optins",
+      "breakpoints": true
     }
   ]
 }
