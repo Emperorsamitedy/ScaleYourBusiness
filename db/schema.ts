@@ -1584,6 +1584,63 @@ export const bookingClientErasures = pgTable(
   (t) => [uniqueIndex("booking_client_erasures_idx").on(t.account_id, t.client_key)],
 );
 
+// P6-06 (TASKS-PHASE6.md, rule 28 amended): per-person figures. A person is
+// whoever the booking source recorded on an appointment (`staff_ref`, a
+// name as the export wrote it or Square's team-member id). This row holds
+// only what the OWNER states about them: their weekly capacity, the
+// denominator of their utilisation, with who stated it and when (rule 2).
+// It is erasable PII (rule 22): removing a person deletes this row and
+// clears their staff_ref on every appointment, so the business totals stay.
+
+export const staffPeople = pgTable(
+  "staff_people",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    account_id: uuid("account_id")
+      .notNull()
+      .references(() => accounts.id, { onDelete: "cascade" }),
+    /** The person as the source recorded them on booking_appointments.staff_ref. */
+    staff_ref: text("staff_ref").notNull(),
+    /** Appointments a week this person can take, as the owner stated it. Never assumed. */
+    capacity_per_week: integer("capacity_per_week"),
+    capacity_stated_at: timestamp("capacity_stated_at", { withTimezone: true, mode: "string" }),
+    /** The users row that stated it. Not a foreign key: the statement outlives a login. */
+    capacity_stated_by: uuid("capacity_stated_by"),
+    created_at: timestamp("created_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    uniqueIndex("staff_people_ref_idx").on(t.account_id, t.staff_ref),
+    check(
+      "staff_people_capacity_sane",
+      sql`${t.capacity_per_week} IS NULL OR (${t.capacity_per_week} > 0 AND ${t.capacity_per_week} <= 1000)`,
+    ),
+    check(
+      "staff_people_capacity_stated",
+      sql`(${t.capacity_per_week} IS NULL) = (${t.capacity_stated_at} IS NULL)`,
+    ),
+  ],
+);
+
+// The people a removal erased (P6-06, rule 22), as a keyed hash of the name
+// only, like booking_client_erasures: the next import of the usual
+// overlapping export writes no name back onto their appointments.
+
+export const staffErasures = pgTable(
+  "staff_erasures",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    account_id: uuid("account_id")
+      .notNull()
+      .references(() => accounts.id, { onDelete: "cascade" }),
+    /** lib/people/staff-key.ts's keyed hash. No PII here, by design. */
+    staff_key: text("staff_key").notNull(),
+    at: timestamp("at", { withTimezone: true, mode: "string" }).notNull().defaultNow(),
+  },
+  (t) => [uniqueIndex("staff_erasures_idx").on(t.account_id, t.staff_key)],
+);
+
 /* ---------- Phase 2 Session E — anomalies (P2-22..25) ---------- */
 
 // An anomaly is a run of days on one measured series beyond the

@@ -60,6 +60,13 @@ export const ROLE_ACTIONS = {
   "erasure.run": { min: "owner", what: "erase a customer's details" },
   "data.import": { min: "owner", what: "import a file of customers, stock or bookings" },
   "team.manage": { min: "owner", what: "invite, change or remove people on the team" },
+  // P6-06 (rule 28 amended): each person's own figures are the owner's alone,
+  // to read as much as to change. A manager or viewer is never shown them.
+  "people.read": { min: "owner", what: "see each person's own figures" },
+  "people.manage": {
+    min: "owner",
+    what: "state a person's weekly capacity or remove a person from the figures",
+  },
   "rules.manage": { min: "owner", what: "change how I work for this business" },
   "profile.edit": { min: "owner", what: "change the business's facts, goals or limits" },
   "report.generate": { min: "owner", what: "make a new report" },

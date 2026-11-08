@@ -5570,6 +5570,62 @@
       "body": "Kikapcsolva marad, amíg be nem kapcsolja a <link>Figyelés</link> oldal Modulok részében. Bekapcsolva azt olvassa, mikor kell a hétnek több lefedettség, vagy mikor van több a szükségesnél, szerepkör és óra szerint, és soha semmit egy személyről."
     }
   },
+  "people": {
+    "label": "Személyek",
+    "title": "Minden személy saját számai",
+    "ownerOnly": "Csak Ön látja, tulajdonosként",
+    "intro": "Amit a foglalási rendszere az egyes személyeknél rögzített, ugyanarra a négy hétre, mint a vállalkozás saját számai. Tények a munkáról, csak Önnek mutatva: a személyek név szerint szerepelnek, és semmi sem válik itt soha egy személyről szóló javaslattá.",
+    "basis": "Forrás: {source} · {from} – {to} · {count, plural, one {# időpont} other {# időpont}} személlyel",
+    "source": {
+      "square": "Square-időpontok",
+      "import": "a(z) {platform} foglalási exportja",
+      "importPlain": "a foglalási exportja"
+    },
+    "noBookings": "Még nincs beolvasott foglalás, így személyenként nincs mit mutatni. Importáljon foglalási exportot az <link>Összekapcsolt fiókok</link> oldalon.",
+    "none": "Ebben a négy hétben egyetlen időpont sem rögzít személyt. Ha a foglalási exportjában van személyzeti oszlop (csapattag, fodrász, szakember), itt jelennek meg az egyes személyek saját számai.",
+    "unattributed": "Ebben a négy hétben {count, plural, one {# időpont} other {# időpont}} senkit sem rögzít, vagy olyasvalakit, akit eltávolított. Ezek csak a vállalkozás számaiban szerepelnek.",
+    "sales": "Eladások személyenként: egyik értékesítési forrása sem rögzíti, ki adott el, így nincs mit mutatni.",
+    "fig": {
+      "completed": "Teljesített időpontok",
+      "completedOf": "a nála foglalt {count, plural, one {# időpontból} other {# időpontból}}",
+      "revenue": "Foglalásokból származó árbevétel",
+      "revenueOf": "{of, plural, one {# teljesített időpontból} other {# teljesített időpontból}} {part} listaára",
+      "noShow": "Meg nem jelenési arány",
+      "late": "Késői lemondási arány",
+      "rateOf": "{of, plural, one {# esedékes időpontból} other {# esedékes időpontból}} {part}",
+      "utilisation": "Kihasználtság",
+      "utilisationOf": "{of} helyből {part} teljesítve: heti {perWeek}, az Ön adata, megadva: {day}",
+      "rebooking": "Újrafoglalási arány",
+      "rebookingOf": "{from} és {to} között látott {of, plural, one {# kliensből} other {# kliensből}} {part} foglalt újra, bárkinél, {days} napon belül",
+      "tooFew": "Túl kevés ahhoz, hogy mondjunk valamit",
+      "tooFewDue": "{count, plural, one {# esedékes időpont} other {# esedékes időpont}}; {min} kellene",
+      "tooFewClients": "{count, plural, one {# látott kliens} other {# látott kliens}}; {min} kellene",
+      "notMeasured": "Nincs mérve",
+      "why": {
+        "no_capacity": "nincs megadva heti kapacitás ehhez a személyhez",
+        "no_prices": "a foglalásokban nincs ár",
+        "currencies": "árak több pénznemben",
+        "no_completed": "nincs teljesített időpont ebben a négy hétben",
+        "no_client": "a foglalások nem azonosítják a klienst",
+        "not_separated": "a Square nem választja külön a késői lemondásokat"
+      }
+    },
+    "capacity": {
+      "label": "Heti időpontok, amennyit vállalni tud",
+      "hint": "Az Ön saját adata. A kihasználtságot csak ehhez mérjük.",
+      "save": "Mentés",
+      "clear": "Törlés",
+      "invalid": "Egész szám {min} és {max} között."
+    },
+    "remove": {
+      "button": "Személy eltávolítása",
+      "confirm": "Eltávolítja: {person}? A neve és a saját számai törlődnek a SYB-ből, és egy későbbi import sem hozza vissza a nevet. Az időpontjai név nélkül a vállalkozás számaiban maradnak.",
+      "yes": "Eltávolítás",
+      "no": "Megtartás",
+      "done": "Eltávolítva. {count, plural, one {# időpont} other {# időpont}} név nélkül a vállalkozás számaiban marad."
+    },
+    "failed": "Valami hiba történt nálunk. Semmi sem változott."
+  },
   "teamAccess": {
     "meta": {
       "title": "Csapat hozzáférése — SYB"
@@ -5706,6 +5762,8 @@
       "erasure_run": "Csak tulajdonos törölheti egy ügyfél adatait.",
       "data_import": "Csak tulajdonos importálhat ügyfeleket, készletet vagy foglalásokat tartalmazó fájlt.",
       "team_manage": "Csak tulajdonos hívhat meg embereket a csapatba, illetve módosíthatja vagy távolíthatja el őket.",
+      "people_read": "Csak tulajdonos láthatja az egyes személyek saját számait.",
+      "people_manage": "Csak tulajdonos adhatja meg egy személy heti kapacitását, vagy távolíthat el egy személyt a számok közül.",
       "rules_manage": "Csak tulajdonos változtathatja meg, hogyan dolgozom ennél a vállalkozásnál.",
       "profile_edit": "Csak tulajdonos módosíthatja a vállalkozás tényeit, céljait vagy korlátait.",
       "report_generate": "Csak tulajdonos készíthet új jelentést.",
@@ -5861,7 +5919,7 @@
     },
     "module": {
       "analytics": "A figyelő mód mérés nélkül vak — az elemzés az, amivel figyel.",
-      "team": "Csapat: amikor a hétnek több lefedettség kell, vagy több van, mint amennyi kell, szerepkör és óra szerint. Soha nem pontoz, nem rangsorol, és semmit sem mond egy személyről. Ki van kapcsolva, amíg be nem kapcsolja."
+      "team": "Csapat: amikor a hétnek több lefedettség kell, vagy több van, mint amennyi kell, szerepkör és óra szerint, és csak a tulajdonosnak minden személy saját számai a foglalásaiból. Soha nem pontoz és nem rangsorol senkit, és soha nem ajánl semmit egy személyről. Ki van kapcsolva, amíg be nem kapcsolja."
     },
     "data": {
       "payments": "fizetési adat",

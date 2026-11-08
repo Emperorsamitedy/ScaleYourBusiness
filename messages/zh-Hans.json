@@ -5570,6 +5570,62 @@
       "body": "除非您开启，否则它会一直保持关闭；开关位于<link>观察</link>中的“模块”下。开启后，它会按岗位和小时，解读本周何时需要更多人手、何时人手多于所需，而绝不涉及任何个人的信息。"
     }
   },
+  "people": {
+    "label": "人员",
+    "title": "每个人自己的数据",
+    "ownerOnly": "只有作为所有者的您能看到",
+    "intro": "您的预约系统为每个人记录的内容，时间范围与企业自身数据相同的四周。这些是关于工作的事实，只向您显示：人员按姓名列出，这里的任何内容都不会变成针对某个人的提案。",
+    "basis": "来自{source} · {from}至{to} · {count, plural, other {# 个记有人员的预约}}",
+    "source": {
+      "square": "Square 预约",
+      "import": "您从 {platform} 导出的预约",
+      "importPlain": "您导出的预约"
+    },
+    "noBookings": "尚未读取任何预约，因此没有可按人员显示的内容。请在<link>连接</link>中导入预约导出文件。",
+    "none": "这四周内没有任何预约记有人员。当您的预约导出文件包含员工列（团队成员、发型师、技师）时，每个人自己的数据会显示在这里。",
+    "unattributed": "这四周内有 {count, plural, other {# 个预约}}没有记录任何人，或记录的是您已移除的人。它们只计入企业的数据。",
+    "sales": "按人员的销售：您的销售来源都没有记录由谁完成销售，因此没有可显示的内容。",
+    "fig": {
+      "completed": "已完成的预约",
+      "completedOf": "共 {count, plural, other {# 个}}预约给此人",
+      "revenue": "预约营收",
+      "revenueOf": "{of, plural, other {# 个已完成预约}}中 {part} 个的标价",
+      "noShow": "爽约率",
+      "late": "临时取消率",
+      "rateOf": "{of, plural, other {# 个到期预约}}中的 {part} 个",
+      "utilisation": "利用率",
+      "utilisationOf": "{of} 个名额中完成 {part} 个：每周 {perWeek} 个，您的数据，填写于 {day}",
+      "rebooking": "再次预约率",
+      "rebookingOf": "{from}至{to}接待的 {of, plural, other {# 位客人}}中，有 {part} 位在 {days} 天内再次预约（任何人均可）",
+      "tooFew": "数量太少，无法判断",
+      "tooFewDue": "{count, plural, other {# 个到期预约}}；至少需要 {min} 个",
+      "tooFewClients": "接待了 {count, plural, other {# 位客人}}；至少需要 {min} 位",
+      "notMeasured": "未测量",
+      "why": {
+        "no_capacity": "未填写此人的每周接待能力",
+        "no_prices": "预约中没有价格",
+        "currencies": "价格涉及不止一种货币",
+        "no_completed": "这四周内没有已完成的预约",
+        "no_client": "预约中没有客人身份",
+        "not_separated": "Square 不单独区分临时取消"
+      }
+    },
+    "capacity": {
+      "label": "此人每周可接的预约数",
+      "hint": "您自己的数据。利用率只以它为准。",
+      "save": "保存",
+      "clear": "清除",
+      "invalid": "{min} 到 {max} 之间的整数。"
+    },
+    "remove": {
+      "button": "移除此人",
+      "confirm": "移除 {person}？其姓名和自己的数据将从 SYB 中抹除，之后的导入也不会把姓名带回来。其预约仍以无姓名的形式计入企业的数据。",
+      "yes": "移除",
+      "no": "保留",
+      "done": "已移除。{count, plural, other {# 个预约}}仍以无姓名的形式计入企业的数据。"
+    },
+    "failed": "我们这边出了点问题。没有做任何更改。"
+  },
   "teamAccess": {
     "meta": {
       "title": "团队权限 — SYB"
@@ -5706,6 +5762,8 @@
       "erasure_run": "只有所有者可以抹除某位客户的个人信息。",
       "data_import": "只有所有者可以导入客户、库存或预订文件。",
       "team_manage": "只有所有者可以邀请、更改或移除团队成员。",
+      "people_read": "只有所有者可以查看每个人自己的数据。",
+      "people_manage": "只有所有者可以填写某个人每周的接待能力，或将某个人从数据中移除。",
       "rules_manage": "只有所有者可以更改我为这家企业工作的方式。",
       "profile_edit": "只有所有者可以更改企业的事实、目标或限额。",
       "report_generate": "只有所有者可以生成新的报告。",
@@ -5861,7 +5919,7 @@
     },
     "module": {
       "analytics": "没有测量，观察模式就什么也看不见——分析正是它用来观察的工具。",
-      "team": "团队：当一周需要更多人手，或人手多于所需时，按岗位和时段提示。它从不对任何个人打分、排名或评价。除非您开启，否则保持关闭。"
+      "team": "团队：当一周需要更多人手，或人手多于所需时，按岗位和时段提示；并且仅向所有者显示每个人在预约中的自身数据。它从不对任何人打分或排名，也从不就某个人提出任何建议。除非您开启，否则保持关闭。"
     },
     "data": {
       "payments": "收款",

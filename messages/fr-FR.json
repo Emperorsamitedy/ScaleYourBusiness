@@ -5570,6 +5570,62 @@
       "body": "Il reste désactivé tant que vous ne l’activez pas, dans Modules sur <link>Observation</link>. Une fois activé, il détecte quand la semaine manque de couverture, ou en a plus que nécessaire, par rôle et par heure, et jamais rien au sujet d’une personne."
     }
   },
+  "people": {
+    "label": "Personnes",
+    "title": "Les chiffres propres à chaque personne",
+    "ownerOnly": "Vous seul le voyez, en tant que propriétaire",
+    "intro": "Ce que votre système de réservation a enregistré pour chaque personne, sur les mêmes quatre semaines que les chiffres de l’entreprise. Des faits sur le travail, montrés à vous seul : les personnes sont listées par nom, et rien ici ne devient jamais une proposition concernant une personne.",
+    "basis": "D’après {source} · du {from} au {to} · {count, plural, one {# rendez-vous} many {# rendez-vous} other {# rendez-vous}} avec une personne indiquée",
+    "source": {
+      "square": "les rendez-vous Square",
+      "import": "votre export de réservations {platform}",
+      "importPlain": "votre export de réservations"
+    },
+    "noBookings": "Aucune réservation n’est encore lue, il n’y a donc rien à montrer par personne. Importez un export de réservations dans <link>Connexions</link>.",
+    "none": "Aucun rendez-vous de ces quatre semaines n’indique de personne. Quand votre export de réservations comporte une colonne pour le personnel (membre de l’équipe, coiffeur, praticien), les chiffres propres à chaque personne apparaissent ici.",
+    "unattributed": "{count, plural, one {# rendez-vous} many {# rendez-vous} other {# rendez-vous}} de ces quatre semaines n’indiquent personne, ou quelqu’un que vous avez retiré. Ils ne comptent que dans les chiffres de l’entreprise.",
+    "sales": "Ventes par personne : aucune de vos sources de ventes n’enregistre qui a fait la vente, il n’y en a donc aucune à montrer.",
+    "fig": {
+      "completed": "Rendez-vous honorés",
+      "completedOf": "sur {count, plural, one {# rendez-vous réservé} many {# rendez-vous réservés} other {# rendez-vous réservés}} avec cette personne",
+      "revenue": "Chiffre d’affaires des réservations",
+      "revenueOf": "prix catalogue de {part} sur {of, plural, one {# rendez-vous honoré} many {# rendez-vous honorés} other {# rendez-vous honorés}}",
+      "noShow": "Taux d’absence",
+      "late": "Taux d’annulation tardive",
+      "rateOf": "{part} sur {of, plural, one {# rendez-vous dû} many {# rendez-vous dus} other {# rendez-vous dus}}",
+      "utilisation": "Taux d’occupation",
+      "utilisationOf": "{part} honorés sur {of} créneaux : {perWeek} par semaine, votre chiffre, indiqué le {day}",
+      "rebooking": "Taux de nouvelle réservation",
+      "rebookingOf": "{part} sur {of, plural, one {# client vu} many {# clients vus} other {# clients vus}} du {from} au {to} ont réservé à nouveau, avec qui que ce soit, sous {days} jours",
+      "tooFew": "Trop peu pour se prononcer",
+      "tooFewDue": "{count, plural, one {# rendez-vous dû} many {# rendez-vous dus} other {# rendez-vous dus}} ; il en faut {min}",
+      "tooFewClients": "{count, plural, one {# client vu} many {# clients vus} other {# clients vus}} ; il en faut {min}",
+      "notMeasured": "Non mesuré",
+      "why": {
+        "no_capacity": "aucune capacité hebdomadaire indiquée pour cette personne",
+        "no_prices": "les réservations ne portent aucun prix",
+        "currencies": "des prix dans plus d’une devise",
+        "no_completed": "aucun rendez-vous honoré sur ces quatre semaines",
+        "no_client": "les réservations n’identifient pas le client",
+        "not_separated": "Square ne distingue pas les annulations tardives"
+      }
+    },
+    "capacity": {
+      "label": "Rendez-vous par semaine que cette personne peut prendre",
+      "hint": "Votre propre chiffre. Le taux d’occupation est mesuré par rapport à lui et à rien d’autre.",
+      "save": "Enregistrer",
+      "clear": "Effacer",
+      "invalid": "Un nombre entier de {min} à {max}."
+    },
+    "remove": {
+      "button": "Retirer cette personne",
+      "confirm": "Retirer {person} ? Son nom et ses chiffres propres sont effacés de SYB, et un import ultérieur ne ramènera pas le nom. Ses rendez-vous restent dans les chiffres de l’entreprise, sans nom.",
+      "yes": "Retirer",
+      "no": "Garder",
+      "done": "Retirée. {count, plural, one {# rendez-vous reste} many {# rendez-vous restent} other {# rendez-vous restent}} dans les chiffres de l’entreprise, sans nom."
+    },
+    "failed": "Un problème est survenu de notre côté. Rien n’a été modifié."
+  },
   "teamAccess": {
     "meta": {
       "title": "Accès de l’équipe — SYB"
@@ -5706,6 +5762,8 @@
       "erasure_run": "Seul un propriétaire peut effacer les coordonnées d’un client.",
       "data_import": "Seul un propriétaire peut importer un fichier de clients, de stock ou de réservations.",
       "team_manage": "Seul un propriétaire peut inviter, modifier ou retirer des personnes de l’équipe.",
+      "people_read": "Seul un propriétaire peut voir les chiffres propres à chaque personne.",
+      "people_manage": "Seul un propriétaire peut indiquer la capacité hebdomadaire d’une personne ou retirer une personne des chiffres.",
       "rules_manage": "Seul un propriétaire peut changer ma façon de travailler pour cette entreprise.",
       "profile_edit": "Seul un propriétaire peut modifier les faits, les objectifs ou les limites de l’entreprise.",
       "report_generate": "Seul un propriétaire peut produire un nouveau rapport.",
@@ -5861,7 +5919,7 @@
     },
     "module": {
       "analytics": "Le mode observation est aveugle sans mesure — c’est avec l’analyse qu’il observe.",
-      "team": "Équipe : quand la semaine demande plus de présence, ou en a plus que nécessaire, par rôle et par heure. Il ne note, ne classe et ne dit jamais rien d’une personne. Désactivé tant que vous ne l’activez pas."
+      "team": "Équipe : quand la semaine demande plus de présence, ou en a plus que nécessaire, par rôle et par heure, et, pour le propriétaire seulement, les chiffres propres à chaque personne d’après vos réservations. Il ne note ni ne classe personne, et ne suggère jamais rien sur une personne. Désactivé tant que vous ne l’activez pas."
     },
     "data": {
       "payments": "paiements",

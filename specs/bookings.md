@@ -163,7 +163,31 @@ It shows: the platform picker, the currency of the price column, the date order 
 
 ---
 
-## 6. What is unverified
+## 6. Per-person figures (P6-06, TASKS-PHASE6.md rule 28 amended)
+
+**Where the person comes from.** The `staff` role of the import map (every platform's column names, `verified: false` like the rest) and Square's first appointment segment's `team_member_id` already land on `booking_appointments.staff_ref`, as written (trimmed, at most 200 characters). Square's is an opaque id, shown as it is; an export's is the name it wrote. Nothing else about a person is read.
+
+**The figures** (`lib/people/figures.ts`, pure), per person, over the same 28 days as §4 and with the same minimums:
+
+| Figure | Arithmetic | Under the minimum |
+| --- | --- | --- |
+| Completed appointments | count of `completed` with the person on it, beside every appointment in the window with them | — |
+| Booking revenue | list prices of their completed appointments, one currency (rule 1) | not measured without prices, or in two currencies |
+| No-show rate, late-cancellation rate | ÷ their due appointments | too few to say under `MIN_DUE_APPOINTMENTS` = 20; late not separated for Square |
+| Utilisation | completed ÷ (the capacity the owner stated for **that person** × 4) | not measured without it; never assumed, never a share of the business's 1.4.2.3b |
+| Rebooking rate | of the clients they completed an appointment for in the cohort window, the share with another held booking **with anyone at the business** within 42 days | too few to say under `MIN_REBOOK_CLIENTS` = 10; not measured without client identity |
+
+Every figure carries its part and its whole; the view carries the window and the source. People are listed alphabetically (`Intl.Collator`, case and accents aside) and nothing is ordered, compared, scored or worded as a verdict (`lib/people/fence.test.ts`). An appointment with no person counts in the business's figures only, and the screen counts them.
+
+**Sales.** No sales source keeps per-sale rows with who made the sale (Square, Shopify, WooCommerce and Stripe are read as daily totals), so there are no per-person sales figures, and the screen says so.
+
+**Stated capacity** is a `staff_people` row (migration 0086): the person as the source records them, appointments a week (1–1,000), and who stated it and when (rule 2).
+
+**Removing a person** (rule 22). In one transaction: their name is cleared from every appointment recording it in any spelling that normalises the same (trimmed, spaces collapsed, lower-cased), their `staff_people` row is deleted, and HMAC-SHA256 of the normalised name (HKDF over `CONNECTOR_KEY`, label `bookings-staff-v1`) goes to `staff_erasures`, so `storeAppointments` writes no name back on the next overlapping import or Square sync. The appointments stay, so the business's measures and daily series don't move. One `erasure` decision-log entry: counts and a hash, never the name.
+
+- **Known limit:** a no-reference export's row key (§3, Idempotency) is a SHA-256 of the day, time, service and staff as written. It stays after a removal, since changing it would double-count the next import. It is not the name, and recovering one from it needs the rest of the row.
+
+## 7. What is unverified
 
 - **Every export's headers.** No platform publishes its appointment export's column list; the platform names in the map file are marked `verified: false`. The first real export from each platform should be checked against them, and the map file extended (it is data).
 - **Square Bookings with a real token**: whether a personal access token reports `APPOINTMENTS_ALL_READ`, and whether a location without an Appointments plan returns an empty list or an error.

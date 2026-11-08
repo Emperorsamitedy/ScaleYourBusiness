@@ -35,7 +35,7 @@ export function daysBetween(from: string, to: string): number {
   return Math.round((Date.parse(`${to}T00:00:00Z`) - Date.parse(`${from}T00:00:00Z`)) / DAY_MS);
 }
 
-const pct1 = (part: number, whole: number): number => Math.round((part / whole) * 1000) / 10;
+export const pct1 = (part: number, whole: number): number => Math.round((part / whole) * 1000) / 10;
 
 export type Measure<T> =
   { status: "measured"; value: T; arithmetic: string } | { status: "unmeasured"; reason: string };
@@ -80,6 +80,60 @@ const inWindow = (a: { day: string }, from: string, to: string) => a.day >= from
 /** A booking that counts as "booked again": kept, or still held when its time came. */
 const HELD = new Set(["completed", "no_show", "cancelled_late", "booked_future"]);
 
+/** The rebooking arithmetic, before it is put in words. */
+export interface RebookCount {
+  /** The cohort window, inclusive: the 28 days ending REBOOK_DAYS before the latest day. */
+  cohortFrom: string;
+  cohortTo: string;
+  /** Clients with a completed appointment in the cohort window. */
+  cohort: number;
+  /** Of those, the ones with another held booking 1 to REBOOK_DAYS days after one of them. */
+  back: number;
+}
+
+/**
+ * Pure: who came back. The cohort is the clients of `visits` (their
+ * completed appointments in the cohort window); "came back" is read from
+ * `later`, every booking that may follow. The business's own rate passes
+ * the same list twice; P6-06's per-person figures pass one person's
+ * appointments as `visits` and the whole business as `later`, so a client
+ * who comes back to anyone at the business counts.
+ */
+export function rebookCount(
+  visits: readonly MeasuredAppointment[],
+  later: readonly MeasuredAppointment[],
+  asOf: string,
+): RebookCount {
+  // The cohort ends REBOOK_DAYS before the latest day, so every client in it
+  // had the full REBOOK_DAYS to come back by the time the data ends.
+  const cohortTo = shiftDate(asOf, -REBOOK_DAYS);
+  const cohortFrom = shiftDate(cohortTo, -(BOOKING_WINDOW_DAYS - 1));
+  const seen = new Map<string, string[]>();
+  for (const a of visits) {
+    if (a.client_key === null) continue;
+    if (a.status === "completed" && inWindow(a, cohortFrom, cohortTo)) {
+      seen.set(a.client_key, [...(seen.get(a.client_key) ?? []), a.day]);
+    }
+  }
+  const next = new Map<string, string[]>();
+  for (const a of later) {
+    if (a.client_key === null || !seen.has(a.client_key) || !HELD.has(a.status)) continue;
+    next.set(a.client_key, [...(next.get(a.client_key) ?? []), a.day]);
+  }
+  let back = 0;
+  for (const [client, days] of seen) {
+    const after = next.get(client) ?? [];
+    const returned = days.some((d) =>
+      after.some((n) => {
+        const gap = daysBetween(d, n);
+        return gap >= 1 && gap <= REBOOK_DAYS;
+      }),
+    );
+    if (returned) back++;
+  }
+  return { cohortFrom, cohortTo, cohort: seen.size, back };
+}
+
 function rebooking(
   appointments: readonly MeasuredAppointment[],
   asOf: string,
@@ -90,20 +144,7 @@ function rebooking(
   if (!appointments.some((a) => a.client_key !== null)) {
     return { status: "unmeasured", reason: tr("bookings.rebook.noClient", { source }) };
   }
-  // The cohort ends REBOOK_DAYS before the latest day, so every client in it
-  // had the full REBOOK_DAYS to come back by the time the data ends.
-  const cohortTo = shiftDate(asOf, -REBOOK_DAYS);
-  const cohortFrom = shiftDate(cohortTo, -(BOOKING_WINDOW_DAYS - 1));
-  const visits = new Map<string, string[]>();
-  const later = new Map<string, string[]>();
-  for (const a of appointments) {
-    if (a.client_key === null) continue;
-    if (a.status === "completed" && inWindow(a, cohortFrom, cohortTo)) {
-      visits.set(a.client_key, [...(visits.get(a.client_key) ?? []), a.day]);
-    }
-    if (HELD.has(a.status)) later.set(a.client_key, [...(later.get(a.client_key) ?? []), a.day]);
-  }
-  const cohort = visits.size;
+  const { cohortFrom, cohortTo, cohort, back } = rebookCount(appointments, appointments, asOf);
   const between = { from: dayWords(cohortFrom, locale), to: dayWords(cohortTo, locale) };
   if (cohort < MIN_REBOOK_CLIENTS) {
     return {
@@ -116,17 +157,6 @@ function rebooking(
         days: plain(REBOOK_DAYS, locale),
       }),
     };
-  }
-  let back = 0;
-  for (const [client, days] of visits) {
-    const next = later.get(client) ?? [];
-    const returned = days.some((d) =>
-      next.some((n) => {
-        const gap = daysBetween(d, n);
-        return gap >= 1 && gap <= REBOOK_DAYS;
-      }),
-    );
-    if (returned) back++;
   }
   return {
     status: "measured",
