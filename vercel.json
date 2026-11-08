@@ -1,4 +1,5 @@
 {
+  "installCommand": "npm ci || npm ci --ignore-scripts",
   "crons": [
     {
       "path": "/api/cron/weekly-watch",
