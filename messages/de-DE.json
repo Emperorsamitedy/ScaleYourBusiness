@@ -5500,6 +5500,62 @@
       "body": "Es bleibt aus, bis Sie es einschalten, unter „Module“ auf <link>Beobachtung</link>. Eingeschaltet liest es, wann die Woche mehr Besetzung braucht oder mehr hat, als sie braucht – nach Rolle und Stunde, und nie etwas über eine Person."
     }
   },
+  "people": {
+    "label": "Personen",
+    "title": "Die eigenen Zahlen jeder Person",
+    "ownerOnly": "Nur Sie sehen das, als Inhaber",
+    "intro": "Was Ihr Buchungssystem bei jeder Person erfasst hat, über dieselben vier Wochen wie die Zahlen des Unternehmens. Fakten über die Arbeit, nur Ihnen gezeigt: Personen stehen nach Namen geordnet, und nichts hier wird je zu einem Vorschlag über eine Person.",
+    "basis": "Aus {source} · {from} bis {to} · {count, plural, one {# Termin} other {# Termine}} mit einer Person darauf",
+    "source": {
+      "square": "Square-Terminen",
+      "import": "Ihrem Buchungsexport aus {platform}",
+      "importPlain": "Ihrem Buchungsexport"
+    },
+    "noBookings": "Noch sind keine Buchungen eingelesen, daher gibt es pro Person nichts zu zeigen. Importieren Sie einen Buchungsexport unter <link>Verbindungen</link>.",
+    "none": "Kein Termin in diesen vier Wochen nennt eine Person. Hat Ihr Buchungsexport eine Spalte für das Personal (Teammitglied, Stylistin, Behandler), erscheinen hier die eigenen Zahlen jeder Person.",
+    "unattributed": "{count, plural, one {# Termin} other {# Termine}} in diesen vier Wochen nennen niemanden oder jemanden, den Sie entfernt haben. Sie zählen nur in den Zahlen des Unternehmens.",
+    "sales": "Verkäufe pro Person: Keine Ihrer Verkaufsquellen erfasst, wer einen Verkauf getätigt hat, daher gibt es hier keine.",
+    "fig": {
+      "completed": "Erledigte Termine",
+      "completedOf": "von {count, plural, one {# Termin} other {# Terminen}}, die bei dieser Person gebucht waren",
+      "revenue": "Umsatz aus Buchungen",
+      "revenueOf": "Listenpreise von {part} von {of, plural, one {# erledigten Termin} other {# erledigten Terminen}}",
+      "noShow": "Nichterscheinen-Quote",
+      "late": "Quote kurzfristiger Absagen",
+      "rateOf": "{part} von {of, plural, one {# fälligen Termin} other {# fälligen Terminen}}",
+      "utilisation": "Auslastung",
+      "utilisationOf": "{part} erledigt von {of} Plätzen: {perWeek} pro Woche, Ihre Angabe vom {day}",
+      "rebooking": "Wiederbuchungsquote",
+      "rebookingOf": "{part} von {of, plural, one {# Kundin oder Kunde} other {# Kundinnen und Kunden}}, betreut {from} bis {to}, buchten innerhalb von {days} Tagen erneut, bei wem auch immer",
+      "tooFew": "Zu wenige, um etwas zu sagen",
+      "tooFewDue": "{count, plural, one {# fälliger Termin} other {# fällige Termine}}; nötig sind {min}",
+      "tooFewClients": "{count, plural, one {# Kundin oder Kunde} other {# Kundinnen und Kunden}} betreut; nötig sind {min}",
+      "notMeasured": "Nicht gemessen",
+      "why": {
+        "no_capacity": "keine wöchentliche Kapazität für diese Person angegeben",
+        "no_prices": "die Buchungen enthalten keine Preise",
+        "currencies": "Preise in mehr als einer Währung",
+        "no_completed": "keine erledigten Termine in diesen vier Wochen",
+        "no_client": "die Buchungen enthalten keine Kundenkennung",
+        "not_separated": "Square trennt kurzfristige Absagen nicht"
+      }
+    },
+    "capacity": {
+      "label": "Termine pro Woche, die diese Person übernehmen kann",
+      "hint": "Ihre eigene Angabe. Die Auslastung wird nur daran gemessen.",
+      "save": "Speichern",
+      "clear": "Löschen",
+      "invalid": "Eine ganze Zahl von {min} bis {max}."
+    },
+    "remove": {
+      "button": "Diese Person entfernen",
+      "confirm": "{person} entfernen? Name und eigene Zahlen werden aus SYB gelöscht, und ein späterer Import bringt den Namen nicht zurück. Die Termine bleiben ohne Namen in den Zahlen des Unternehmens.",
+      "yes": "Entfernen",
+      "no": "Behalten",
+      "done": "Entfernt. {count, plural, one {# Termin bleibt} other {# Termine bleiben}} ohne Namen in den Zahlen des Unternehmens."
+    },
+    "failed": "Bei uns ist etwas schiefgelaufen. Es wurde nichts geändert."
+  },
   "teamAccess": {
     "meta": {
       "title": "Teamzugang — SYB"
@@ -5636,6 +5692,8 @@
       "erasure_run": "Nur ein Inhaber kann die Daten eines Kunden löschen.",
       "data_import": "Nur ein Inhaber kann eine Datei mit Kunden, Lagerbestand oder Buchungen importieren.",
       "team_manage": "Nur ein Inhaber kann Personen ins Team einladen, ihre Rolle im Team ändern oder sie entfernen.",
+      "people_read": "Nur ein Inhaber kann die eigenen Zahlen jeder Person sehen.",
+      "people_manage": "Nur ein Inhaber kann die wöchentliche Kapazität einer Person angeben oder eine Person aus den Zahlen entfernen.",
       "rules_manage": "Nur ein Inhaber kann ändern, wie ich für dieses Unternehmen arbeite.",
       "profile_edit": "Nur ein Inhaber kann die Fakten, Ziele oder Grenzen des Unternehmens ändern.",
       "report_generate": "Nur ein Inhaber kann einen neuen Bericht erstellen.",
@@ -5790,7 +5848,7 @@
     },
     "module": {
       "analytics": "Ohne Messung ist der Beobachtungsmodus blind – Analytics ist das, womit er beobachtet.",
-      "team": "Team: wenn die Woche mehr Besetzung braucht oder mehr hat, als sie braucht, nach Rolle und Stunde. Es benotet niemanden, erstellt keine Rangliste und sagt nie etwas über eine Person. Aus, solange Sie es nicht einschalten."
+      "team": "Team: wenn die Woche mehr Besetzung braucht oder mehr hat, als sie braucht, nach Rolle und Stunde, und nur für den Inhaber die eigenen Zahlen jeder Person aus Ihren Buchungen. Es benotet niemanden, erstellt keine Rangliste und schlägt nie etwas über eine Person vor. Aus, solange Sie es nicht einschalten."
     },
     "data": {
       "payments": "Zahlungen",

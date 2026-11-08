@@ -2869,6 +2869,15 @@ async function seed(): Promise<void> {
       `  salon: ${imported.rows_read} rows read, ${imported.added} appointments, measured ${imported.measured_days?.from} to ${imported.measured_days?.to}`,
     );
 
+    // P6-06: the export's "Team member" column names three stylists, so the
+    // owner's /team shows each one's own figures. She has stated two of
+    // their weekly capacities (a third of the salon's 120 each), and left
+    // Marta's unstated, so one card shows utilisation isn't assumed.
+    const { stateCapacity } = await import("../lib/people/service");
+    for (const [stylist, perWeek] of Object.entries(data.SALON_STYLIST_CAPACITY)) {
+      await stateCapacity(salon.account, salon.user, stylist, perWeek);
+    }
+
     // The proposal's gain rests on the salon's own last 28 days — no-shows ×
     // the average completed price — and one assumption nobody measured (the
     // share a deposit prevents), which says so.

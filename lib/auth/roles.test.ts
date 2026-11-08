@@ -50,6 +50,9 @@ const NEVER_A_MANAGER: readonly RoleAction[] = [
   "billing.manage",
   "erasure.run",
   "team.manage",
+  // P6-06 (rule 28 amended): per-person figures, read or changed, are the owner's alone.
+  "people.read",
+  "people.manage",
   "rules.manage",
   // L-1: the business's language and currency.
   "business.locale",

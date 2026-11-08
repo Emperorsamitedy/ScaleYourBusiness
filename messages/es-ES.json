@@ -5500,6 +5500,62 @@
       "body": "Sigue desactivado salvo que usted lo active, en Módulos dentro de <link>Observando</link>. Una vez activado, lee cuándo la semana necesita más cobertura, o tiene más de la necesaria, por rol y hora, y nunca nada sobre una persona."
     }
   },
+  "people": {
+    "label": "Personas",
+    "title": "Las cifras propias de cada persona",
+    "ownerOnly": "Solo usted lo ve, como propietario",
+    "intro": "Lo que su sistema de reservas registró para cada persona, durante las mismas cuatro semanas que las cifras del negocio. Datos sobre el trabajo, que solo ve usted: las personas aparecen por nombre y nada de esto se convierte nunca en una propuesta sobre una persona.",
+    "basis": "De {source} · del {from} al {to} · {count, plural, one {# cita} many {# citas} other {# citas}} con una persona asignada",
+    "source": {
+      "square": "las citas de Square",
+      "import": "su exportación de reservas de {platform}",
+      "importPlain": "su exportación de reservas"
+    },
+    "noBookings": "Aún no se ha leído ninguna reserva, así que no hay nada que mostrar por persona. Importe una exportación de reservas en <link>Conexiones</link>.",
+    "none": "Ninguna cita de estas cuatro semanas registra a una persona. Cuando su exportación de reservas tenga una columna de personal (miembro del equipo, estilista, profesional), aquí aparecerán las cifras propias de cada persona.",
+    "unattributed": "{count, plural, one {# cita} many {# citas} other {# citas}} de estas cuatro semanas no registran a nadie, o a alguien que usted quitó. Solo cuentan en las cifras del negocio.",
+    "sales": "Ventas por persona: ninguna de sus fuentes de ventas registra quién hizo cada venta, así que no hay ninguna que mostrar.",
+    "fig": {
+      "completed": "Citas completadas",
+      "completedOf": "de {count, plural, one {# cita reservada} many {# citas reservadas} other {# citas reservadas}} con esta persona",
+      "revenue": "Ingresos por reservas",
+      "revenueOf": "precios de lista de {part} de {of, plural, one {# cita completada} many {# citas completadas} other {# citas completadas}}",
+      "noShow": "Tasa de ausencias",
+      "late": "Tasa de cancelaciones tardías",
+      "rateOf": "{part} de {of, plural, one {# cita prevista} many {# citas previstas} other {# citas previstas}}",
+      "utilisation": "Ocupación",
+      "utilisationOf": "{part} completadas de {of} huecos: {perWeek} por semana, su cifra, indicada el {day}",
+      "rebooking": "Tasa de nueva reserva",
+      "rebookingOf": "{part} de {of, plural, one {# cliente atendido} many {# clientes atendidos} other {# clientes atendidos}} del {from} al {to} volvieron a reservar, con quien fuera, en {days} días",
+      "tooFew": "Demasiado pocas para decir nada",
+      "tooFewDue": "{count, plural, one {# cita prevista} many {# citas previstas} other {# citas previstas}}; hacen falta {min}",
+      "tooFewClients": "{count, plural, one {# cliente atendido} many {# clientes atendidos} other {# clientes atendidos}}; hacen falta {min}",
+      "notMeasured": "Sin medir",
+      "why": {
+        "no_capacity": "no se ha indicado su capacidad semanal",
+        "no_prices": "las reservas no llevan precios",
+        "currencies": "precios en más de una moneda",
+        "no_completed": "ninguna cita completada en estas cuatro semanas",
+        "no_client": "las reservas no identifican al cliente",
+        "not_separated": "Square no separa las cancelaciones tardías"
+      }
+    },
+    "capacity": {
+      "label": "Citas por semana que puede atender",
+      "hint": "Su propia cifra. La ocupación se mide solo con ella.",
+      "save": "Guardar",
+      "clear": "Borrar",
+      "invalid": "Un número entero del {min} al {max}."
+    },
+    "remove": {
+      "button": "Quitar a esta persona",
+      "confirm": "¿Quitar a {person}? Su nombre y sus cifras propias se borran de SYB, y una importación posterior no traerá el nombre de vuelta. Sus citas siguen en las cifras del negocio, sin nombre.",
+      "yes": "Quitar",
+      "no": "Mantener",
+      "done": "Quitada. {count, plural, one {# cita sigue} many {# citas siguen} other {# citas siguen}} en las cifras del negocio, sin nombre."
+    },
+    "failed": "Algo ha fallado por nuestra parte. No se ha cambiado nada."
+  },
   "teamAccess": {
     "meta": {
       "title": "Acceso del equipo — SYB"
@@ -5636,6 +5692,8 @@
       "erasure_run": "Solo un propietario puede borrar los datos personales de un cliente.",
       "data_import": "Solo un propietario puede importar un archivo de clientes, existencias o reservas.",
       "team_manage": "Solo un propietario puede invitar, cambiar o quitar a personas del equipo.",
+      "people_read": "Solo un propietario puede ver las cifras propias de cada persona.",
+      "people_manage": "Solo un propietario puede indicar la capacidad semanal de una persona o quitar a una persona de las cifras.",
       "rules_manage": "Solo un propietario puede cambiar cómo trabajo para este negocio.",
       "profile_edit": "Solo un propietario puede cambiar los datos, los objetivos o los límites del negocio.",
       "report_generate": "Solo un propietario puede generar un informe nuevo.",
@@ -5790,7 +5848,7 @@
     },
     "module": {
       "analytics": "El modo de observación está ciego sin medición: la analítica es con lo que observa.",
-      "team": "Equipo: cuándo la semana necesita más cobertura, o tiene más de la que necesita, por rol y por hora. Nunca puntúa, clasifica ni dice nada sobre una persona. Desactivado salvo que usted lo active."
+      "team": "Equipo: cuándo la semana necesita más cobertura, o tiene más de la que necesita, por rol y por hora, y, solo para el propietario, las cifras propias de cada persona según sus reservas. Nunca puntúa ni clasifica a nadie, y nunca sugiere nada sobre una persona. Desactivado salvo que usted lo active."
     },
     "data": {
       "payments": "pagos",

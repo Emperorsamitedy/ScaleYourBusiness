@@ -5500,6 +5500,62 @@
       "body": "It stays off unless you switch it on, under Modules on <link>Watching</link>. Switched on, it reads when the week needs more cover, or has more than it needs, by role and hour, and never anything about a person."
     }
   },
+  "people": {
+    "label": "People",
+    "title": "Each person's own figures",
+    "ownerOnly": "Only you see this, as the owner",
+    "intro": "What your booking system recorded against each person, over the same four weeks as the business's own figures. Facts about the work, shown to you alone: people are listed by name, and nothing here ever becomes a proposal about a person.",
+    "basis": "From {source} · {from} to {to} · {count, plural, one {# appointment} other {# appointments}} with a person on them",
+    "source": {
+      "square": "Square appointments",
+      "import": "your bookings export from {platform}",
+      "importPlain": "your bookings export"
+    },
+    "noBookings": "No bookings are read yet, so there is nothing to show per person. Import a bookings export on <link>Connections</link>.",
+    "none": "No appointment in these four weeks records a person. When your bookings export has a staff column (team member, stylist, practitioner), each person's own figures appear here.",
+    "unattributed": "{count, plural, one {# appointment} other {# appointments}} in these four weeks record nobody, or someone you removed. They count in the business's figures only.",
+    "sales": "Sales per person: none of your sales sources records who made a sale, so there are none to show.",
+    "fig": {
+      "completed": "Completed appointments",
+      "completedOf": "of {count, plural, one {# appointment} other {# appointments}} booked with them",
+      "revenue": "Booking revenue",
+      "revenueOf": "list prices of {part} of {of, plural, one {# completed appointment} other {# completed appointments}}",
+      "noShow": "No-show rate",
+      "late": "Late-cancellation rate",
+      "rateOf": "{part} of {of, plural, one {# due appointment} other {# due appointments}}",
+      "utilisation": "Utilisation",
+      "utilisationOf": "{part} completed of {of} slots: {perWeek} a week, your figure, stated {day}",
+      "rebooking": "Rebooking rate",
+      "rebookingOf": "{part} of {of, plural, one {# client} other {# clients}} seen {from} to {to} booked again, with anyone, within {days} days",
+      "tooFew": "Too few to say",
+      "tooFewDue": "{count, plural, one {# due appointment} other {# due appointments}}; it takes {min}",
+      "tooFewClients": "{count, plural, one {# client} other {# clients}} seen; it takes {min}",
+      "notMeasured": "Not measured",
+      "why": {
+        "no_capacity": "no weekly capacity stated for them",
+        "no_prices": "the bookings carry no prices",
+        "currencies": "prices in more than one currency",
+        "no_completed": "no completed appointments in these four weeks",
+        "no_client": "the bookings carry no client identity",
+        "not_separated": "Square doesn't separate late cancellations"
+      }
+    },
+    "capacity": {
+      "label": "Appointments a week they can take",
+      "hint": "Your own figure. Utilisation is measured against it and nothing else.",
+      "save": "Save",
+      "clear": "Clear",
+      "invalid": "A whole number from {min} to {max}."
+    },
+    "remove": {
+      "button": "Remove this person",
+      "confirm": "Remove {person}? Their name and their own figures are erased from SYB, and a later import won't bring the name back. Their appointments stay in the business's figures, without a name.",
+      "yes": "Remove",
+      "no": "Keep",
+      "done": "Removed. {count, plural, one {# appointment stays} other {# appointments stay}} in the business's figures, without a name."
+    },
+    "failed": "Something went wrong on our side. Nothing was changed."
+  },
   "teamAccess": {
     "meta": {
       "title": "Team access — SYB"
@@ -5636,6 +5692,8 @@
       "erasure_run": "Only an owner can erase a customer's details.",
       "data_import": "Only an owner can import a file of customers, stock or bookings.",
       "team_manage": "Only an owner can invite, change or remove people on the team.",
+      "people_read": "Only an owner can see each person's own figures.",
+      "people_manage": "Only an owner can state a person's weekly capacity or remove a person from the figures.",
       "rules_manage": "Only an owner can change how I work for this business.",
       "profile_edit": "Only an owner can change the business's facts, goals or limits.",
       "report_generate": "Only an owner can make a new report.",
@@ -5790,7 +5848,7 @@
     },
     "module": {
       "analytics": "The watching mode is blind without measurement — analytics is what it watches with.",
-      "team": "Team: when the week needs more cover, or has more than it needs, by role and hour. It never scores, ranks or says anything about a person. Off unless you switch it on."
+      "team": "Team: when the week needs more cover, or has more than it needs, by role and hour, and, for the owner only, each person's own figures from your bookings. It never scores or ranks anyone, and never suggests anything about a person. Off unless you switch it on."
     },
     "data": {
       "payments": "payments",
