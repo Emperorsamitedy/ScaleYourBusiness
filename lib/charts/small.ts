@@ -162,17 +162,27 @@ export function buildAdsChart(
   const losing = spent.filter((c) => c.losing);
   const roas = (c: CampaignWindow) =>
     c.roas === null ? tr("small.noReturn") : tr("small.return", { roas: num(c.roas, 2, locale) });
-  const summary = tr("small.ads", {
+  const google = spent.some((c) => c.platform === "google");
+  const summary = tr(google ? "small.adsPlatforms" : "small.ads", {
     from: shortDate(w.from, locale),
     to: shortDate(w.to, locale),
     campaigns: spent
       .map((c) =>
-        tr(c.losing ? "small.adsCampaignLosing" : "small.adsCampaign", {
+        tr(
+          c.platform === "google"
+            ? c.losing
+              ? "small.adsCampaignGoogleLosing"
+              : "small.adsCampaignGoogle"
+            : c.losing
+              ? "small.adsCampaignLosing"
+              : "small.adsCampaign",
+          {
           campaign: c.campaign_name,
           spent: moneyText(c.spend_minor, c.currency, locale),
           value: moneyText(c.value_minor, c.currency, locale),
           roas: roas(c),
-        }),
+          },
+        ),
       )
       .join(listSep(locale)),
     even: num(OPPORTUNITY.losing_roas_below, 1, locale),

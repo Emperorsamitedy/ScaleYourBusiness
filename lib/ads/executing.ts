@@ -31,6 +31,10 @@ import { adBuilds, connections, contentItems, executions, watchActivity } from "
 import { activeExecutionConnection, executionSecret } from "../execution/connections";
 import { pauseExecutionConnection } from "../execution/pause";
 import type { DispatchPlan } from "../execution/due";
+import type { GoogleAdsBackend } from "../execution/providers/google-ads";
+import { googleAdsEnv } from "../env";
+import { refreshAccess } from "../google-business/client";
+import { readGoogleAdsSecret } from "../google-ads/consent";
 import type { AdBuildJournal, AdsBackend } from "../execution/providers/meta";
 import { approvedPublishHash, parseMetaExecutionCredential } from "../execution/providers/meta";
 import { adConsentCurrent, adIdentityFor, proposeGoLiveAfterBuild, stepPatchSql } from "./adcreate";
@@ -145,6 +149,8 @@ export function adsPlan(
     };
   }
   const ref = typeof d.campaign_ref === "string" ? d.campaign_ref : "";
+  // P3-22, Google half: a Google campaign's change goes to the Google Ads executor.
+  if ((d as { platform?: unknown }).platform === "google") return googlePlan(change, ref, d);
   if (!/^\d{5,}$/.test(ref)) return { unroutable: "the ad proposal names no Meta campaign" };
   if (change === "pause") {
     return { plan: { provider: "meta_ads", op: "pause_campaign", params: { campaign_id: ref } } };
@@ -162,6 +168,103 @@ export function adsPlan(
       provider: "meta_ads",
       op: "set_daily_budget",
       params: { campaign_id: ref, share, currency: d.currency },
+    },
+  };
+}
+
+/** P3-22, Google half: pause, resume or a budget change on a Google Ads campaign — nothing else. */
+function googlePlan(
+  change: string,
+  ref: string,
+  d: AdDetail,
+): { plan: DispatchPlan } | { unroutable: string } {
+  if (!/^\d{1,20}$/.test(ref)) return { unroutable: "the ad proposal names no Google Ads campaign" };
+  if (change === "pause") {
+    return { plan: { provider: "google_ads", op: "pause_campaign", params: { campaign_id: ref } } };
+  }
+  if (change === "resume") {
+    return { plan: { provider: "google_ads", op: "resume_campaign", params: { campaign_id: ref } } };
+  }
+  if (change !== "raise_budget" && change !== "lower_budget") {
+    return { unroutable: `SYB makes no "${change}" change on Google Ads` };
+  }
+  const share = typeof d.share === "number" && Number.isFinite(d.share) ? d.share : null;
+  if (share === null || (change === "raise_budget" ? share <= 0 : share >= 0)) {
+    return { unroutable: `the ${change.replace("_", " ")} names no amount in the right direction` };
+  }
+  if (typeof d.currency !== "string") return { unroutable: "the budget change names no currency" };
+  return {
+    plan: {
+      provider: "google_ads",
+      op: "set_daily_budget",
+      params: { campaign_id: ref, share, currency: d.currency },
+    },
+  };
+}
+
+/**
+ * The database behind the Google Ads executor (P3-22, Google half): the live
+ * google_ads execute connection, opened and refreshed for one run — the
+ * refresh token never leaves this function — and the same ceiling and
+ * account arithmetic the generator reads.
+ */
+export function dbGoogleAdsBackend(opts: { now?: () => Date } = {}): GoogleAdsBackend {
+  const now = opts.now ?? (() => new Date());
+  return {
+    async credential(accountId) {
+      const env = googleAdsEnv();
+      if (env === null) {
+        return { refused: "Google Ads isn't set up on SYB yet. Nothing was changed." };
+      }
+      const row = await activeExecutionConnection(accountId, "google_ads");
+      if (!row) {
+        return {
+          refused: "Google Ads isn't connected. Connect it on Connections; nothing was changed.",
+        };
+      }
+      if (row.status !== "connected") {
+        return {
+          refused: `The Google Ads connection is ${row.status}. Reconnect it on Connections; nothing was changed.`,
+        };
+      }
+      const secret = readGoogleAdsSecret(executionSecret(row));
+      try {
+        const tokens = await refreshAccess(env, secret.refresh_token);
+        return {
+          access_token: tokens.access_token,
+          customer_id: secret.customer_id,
+          headers: { developer_token: env.developer_token, login_customer_id: env.login_customer_id },
+        };
+      } catch {
+        return {
+          refused:
+            "Google no longer accepts SYB's Google Ads access. Reconnect it on Connections; nothing was changed.",
+        };
+      }
+    },
+
+    async capturedUndo(executionId) {
+      const [row] = await db
+        .select({ undo_payload: executions.undo_payload })
+        .from(executions)
+        .where(eq(executions.id, executionId));
+      return row?.undo_payload ?? null;
+    },
+
+    ceiling: (profileId) => monthlyAdCeiling(profileId),
+
+    async accountDailySpend(accountId, currency) {
+      const today = now().toISOString().slice(0, 10);
+      const campaigns = await loadCampaignSeries(
+        accountId,
+        shiftDay(today, -(ADS.raise_window_days + 1)),
+        shiftDay(today, -1),
+      );
+      return campaigns.length === 0 ? null : accountDailySpend(campaigns, today, currency);
+    },
+
+    async changed(profileId, detail, meta) {
+      await db.insert(watchActivity).values({ profile_id: profileId, kind: "ad_changed", detail, meta });
     },
   };
 }

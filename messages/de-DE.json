@@ -2413,6 +2413,59 @@
       "unknownStatuses": "Status, die ich nicht kannte: {list}. Ich rate nicht, was sie bedeuten.",
       "unknownStatus": "„{word}“ ({count})",
       "listSep": ", "
+    },
+    "googleAds": {
+      "sectionLabel": "Google Ads · eine eigene Einwilligung",
+      "label": "Google Ads",
+      "title": {
+        "on": "Erteilt: SYB liest Ihre Werbeausgaben und ändert nur, was Sie freigeben",
+        "off": "Aus. SYB liest Ihr Google Ads nicht."
+      },
+      "whatItCanDo": "Googles Berechtigung kann auch Ihre Kampagnen, Budgets und Anzeigen ändern. SYB liest damit einmal am Tag Ihre Ausgaben und Ergebnisse und ändert etwas nur über einen Vorschlag, den Sie freigeben. Sie können sie jederzeit widerrufen.",
+      "notSetUp": "Auf SYBs Seite noch nicht eingerichtet. Es fehlt: {keys}.",
+      "accessLevel": {
+        "title": "Googles Freigabe für SYB",
+        "test": "Nur Testkonten. Google hat SYB noch nicht für echte Werbekonten freigegeben, deshalb wird ein echtes abgelehnt, bis das geschieht.",
+        "explorer": "Echte Werbekonten, bis zu {ops} Vorgänge am Tag für alle, die SYB nutzen.",
+        "basic": "Echte Werbekonten, bis zu {ops} Vorgänge am Tag für alle, die SYB nutzen. Google hat SYB vorher geprüft.",
+        "standard": "Echte Werbekonten, ohne Tageslimit außer Googles eigenen Ratenbegrenzungen.",
+        "unknown": "Noch nicht angegeben, also gilt: nur Testkonten."
+      },
+      "fact": {
+        "account": "Werbekonto"
+      },
+      "revokeAsk": "SYB hört auf, Ihr Google Ads zu lesen, und kann dort nichts mehr ändern.",
+      "revokeNote": "Widerrufen löscht SYBs Zugriff hier sofort. Bereits gelesene Ausgaben bleiben in Ihren Zahlen. Um SYB auch bei Google zu entfernen, öffnen Sie in Ihrem Google-Konto die Seite Sicherheit und dann die Verbindungen zu Drittanbietern.",
+      "connected": "Google Ads ist verbunden, und Ihre Einwilligung ist erfasst.",
+      "signedInPick": "Bei Google angemeldet. Wählen Sie das Werbekonto, das SYB lesen soll.",
+      "revoked": "Widerrufen. SYBs Zugriff auf Google Ads ist gelöscht: Es wird nichts gelesen oder geändert.",
+      "pickTitle": "Wählen Sie das Werbekonto",
+      "managerNote": "ein Manager-Konto: SYB verbindet das Werbekonto selbst",
+      "connectAccount": "Dieses Werbekonto verbinden",
+      "signIn": "Bei Google anmelden und Google Ads erlauben",
+      "nothingWritten": "Beim Verbinden wird Ihre Einwilligung erfasst, und SYB liest Ihre Ausgaben einmal am Tag. Bei Google Ads ändert sich nichts, bis Sie einen Vorschlag freigeben, und Änderungen bleiben ausgeschaltet, bis SYBs zweiwöchiger Test für echte Änderungen abgeschlossen ist.",
+      "reason": {
+        "unavailable": "Google Ads ist noch nicht eingerichtet.",
+        "already_connected": "Google Ads ist bereits verbunden. Widerrufen Sie es zuerst, um ein anderes Konto zu verbinden.",
+        "scope": "Google hat nicht genau die eine Berechtigung erteilt, um die SYB bittet. Erlauben Sie auf Googles Bildschirm die Google-Ads-Berechtigung und versuchen Sie es erneut.",
+        "no_accounts": "Google hat SYB für dieses Google-Konto kein Google-Ads-Konto gezeigt. Nutzen Sie zur Anmeldung das Konto, das Zugriff auf Ihre Anzeigen hat, und versuchen Sie es erneut.",
+        "managers_only": "Dieses Google-Konto erreicht nur Manager-Konten. SYB verbindet das Werbekonto selbst: Geben Sie Ihrem Google-Konto Zugriff darauf und versuchen Sie es erneut.",
+        "access_level": "Google hat SYBs Google-Ads-Zugriff noch nicht für echte Werbekonten freigegeben. Es wurde nichts verbunden.",
+        "google_permission": "Google sagt, dass SYB keinen Zugriff auf dieses Google-Ads-Konto hat. Es wurde nichts verbunden.",
+        "start_here": "Starten Sie die Google-Anmeldung auf der Seite „Verbindungen“ von SYB, mit der Schaltfläche dort. An Google wurde nichts gesendet.",
+        "signed_out": "Sie müssen sich zuerst bei SYB anmelden; verbinden Sie Google dann erneut.",
+        "owner_only": "Nur Inhaber können diese Berechtigung erteilen oder zurücknehmen. An Google wurde nichts gesendet.",
+        "phrase": "Die Bestätigungsphrase stimmte nicht überein. Geben Sie sie wie angezeigt ein und beginnen Sie dann neu.",
+        "start_again": "Diese Google-Anmeldung ist abgelaufen oder wurde bereits verwendet. Beginnen Sie unter „Verbindungen“ neu.",
+        "foreign": "Diese Google-Anmeldung wurde von einem anderen SYB-Konto aus gestartet. Nutzen Sie zur Anmeldung bei SYB dieses Konto oder beginnen Sie neu.",
+        "google_error": "Die Google-Anmeldung wurde nicht abgeschlossen. Es wurde nichts verbunden.",
+        "no_refresh": "Google hat SYB keinen dauerhaften Zugriff gegeben. Beginnen Sie neu: Google fragt noch einmal, und SYB braucht diese Antwort.",
+        "google_auth": "Google hat die Anmeldung nicht akzeptiert. Beginnen Sie unter „Verbindungen“ neu.",
+        "google_busy": "Google war ausgelastet oder hat nicht geantwortet. Es wurde nichts verbunden – versuchen Sie es in ein paar Minuten erneut.",
+        "google_refused": "Google hat die Anmeldung abgelehnt. Es wurde nichts verbunden.",
+        "internal": "Bei uns ist etwas schiefgelaufen. Es wurde nichts verbunden.",
+        "generic": "Die Google-Anmeldung wurde nicht abgeschlossen. Es wurde nichts verbunden."
+      }
     }
   },
   "landing": {
@@ -7656,7 +7709,8 @@
       "noStock": "verbinden Sie Ihren Shop oder importieren Sie eine Bestandsdatei, dann zeige ich das Geld, das im Regal liegt",
       "nothingWaiting": "nichts wartet gerade auf Ihre Freigabe",
       "noPricedGain": "nichts, was auf Sie wartet, hat bisher einen bezifferten Gewinn",
-      "noRevenueSeries": "ich brauche eine gemessene Umsatzreihe, um das daran abzulesen"
+      "noRevenueSeries": "ich brauche eine gemessene Umsatzreihe, um das daran abzulesen",
+      "noAds": "verbinden Sie Meta Ads oder Google Ads, dann prüfe ich, welche Kampagnen mehr kosten, als sie einbringen"
     },
     "price": {
       "arithmetic": "Durchschnittspreis {mean} ({revenue} ÷ {count, plural, one {# wahrgenommener} other {# wahrgenommene}})",
@@ -7674,13 +7728,17 @@
       "stockNone": "nichts als langsam oder festgefahren markiert (Stand: {day})",
       "stockItems": "{count, plural, one {# langsamer Artikel} other {# langsame Artikel}}, vorrätige Einheiten × Stückkosten (Stand: {day}). Ein Bestand, kein monatlicher Fluss: Er wird nicht zum Monat addiert",
       "tableProposal": "{summary}: {range}",
-      "onTheTable": "{count, plural, one {# wartender Vorschlag} other {# wartende Vorschläge}}, Basisszenario bis günstiger Fall pro Monat: {parts}"
+      "onTheTable": "{count, plural, one {# wartender Vorschlag} other {# wartende Vorschläge}}, Basisszenario bis günstiger Fall pro Monat: {parts}",
+      "adsAllPaidPlatforms": "jede Kampagne hat nach der eigenen Zuordnung ihrer Plattform mindestens eingebracht, was sie gekostet hat ({count, plural, one {# Kampagne} other {# Kampagnen}})",
+      "adsLoserGoogle": "{campaign} bei Google Ads: {spent} ausgegeben, Google ordnet {value} Konversionswert zu (Rendite {roas}) → {loss}"
     },
     "basisNote": {
       "capacity": "aus einer Kapazität, von Ihnen {basis, select, ESTIMATED {GESCHÄTZT} other {ANGEGEBEN}} ({perWeek} pro Woche)",
       "meta": "aus Metas eigener Zuordnung",
       "statedCost": "vorrätige Einheiten × von Ihnen angegebene Kosten, bei einigen Artikeln",
-      "proposals": "das eigene Basisszenario und der günstige Fall der Vorschläge"
+      "proposals": "das eigene Basisszenario und der günstige Fall der Vorschläge",
+      "google": "aus Googles eigener Zuordnung",
+      "adPlatforms": "aus der eigenen Zuordnung jeder Plattform, Metas und Googles"
     },
     "componentNote": {
       "adsOtherCurrency": "{count, plural, one {# Kampagne} other {# Kampagnen}} in {currencies} weggelassen: Währungen werden nie vermischt",
@@ -7700,7 +7758,10 @@
       "adsCampaign": "{campaign} hat {spent} ausgegeben, Meta ordnet {value} zu ({roas})",
       "adsCampaignLosing": "{campaign} hat {spent} ausgegeben, Meta ordnet {value} zu ({roas}), verlustbringend",
       "noReturn": "keine Rendite",
-      "return": "Rendite {roas}"
+      "return": "Rendite {roas}",
+      "adsPlatforms": "Ausgaben gegenüber dem Wert, den jede Plattform zuordnet, pro Kampagne (Meta: Kaufwert, Google: Konversionswert), {from} bis {to}: {campaigns}. Verlustbringend heißt eine Rendite unter {even}.",
+      "adsCampaignGoogle": "{campaign} bei Google Ads hat {spent} ausgegeben, Google ordnet {value} zu ({roas})",
+      "adsCampaignGoogleLosing": "{campaign} bei Google Ads hat {spent} ausgegeben, Google ordnet {value} zu ({roas}), verlustbringend"
     }
   },
   "watchNoticed": {

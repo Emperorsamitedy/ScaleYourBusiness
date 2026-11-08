@@ -9,8 +9,8 @@
 
 export const GOOGLE_ADS_REASONS = {
   start_here:
-    "Start the Google Ads sign-in from SYB's Connections screen, with the button there. Nothing was sent to Google.",
-  signed_out: "Sign in to SYB first, then connect Google Ads again.",
+    "Start the Google sign-in from SYB's Connections screen, with the button there. Nothing was sent to Google.",
+  signed_out: "Sign in to SYB first, then connect Google again.",
   owner_only: "Only an owner can grant or take back this permission. Nothing was sent to Google.",
   unavailable: "Google Ads isn't set up yet.",
   phrase: "The confirmation phrase didn't match. Type it as shown, then start again.",

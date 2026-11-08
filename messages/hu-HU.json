@@ -2413,6 +2413,59 @@
       "unknownStatuses": "Állapotok, amelyeket nem ismertem: {list}. Nem találgatom, mit jelentenek.",
       "unknownStatus": "„{word}” ({count})",
       "listSep": ","
+    },
+    "googleAds": {
+      "sectionLabel": "Google Ads · külön hozzájárulás",
+      "label": "Google Ads",
+      "title": {
+        "on": "Megadva: a SYB olvassa a hirdetési költését, és csak azt módosítja, amit Ön jóváhagy",
+        "off": "Kikapcsolva. A SYB nem olvassa a Google Ads-fiókját."
+      },
+      "whatItCanDo": "A Google engedélye a kampányait, költségkereteit és hirdetéseit is módosíthatja. A SYB naponta egyszer a költéseit és eredményeit olvassa vele, és csak az Ön által jóváhagyott javaslaton keresztül módosít bármit. Bármikor visszavonhatja.",
+      "notSetUp": "A SYB oldalán még nincs beállítva. Hiányzik: {keys}.",
+      "accessLevel": {
+        "title": "A Google jóváhagyása a SYB számára",
+        "test": "Csak tesztfiókok. A Google még nem hagyta jóvá a SYB-t valódi hirdetési fiókokhoz, ezért egy valódit addig elutasít.",
+        "explorer": "Valódi hirdetési fiókok, naponta legfeljebb {ops} művelet mindazok között, akiket a SYB kiszolgál.",
+        "basic": "Valódi hirdetési fiókok, naponta legfeljebb {ops} művelet mindazok között, akiket a SYB kiszolgál. A Google előbb ellenőrizte a SYB-t.",
+        "standard": "Valódi hirdetési fiókok, napi korlát nélkül, csak a Google saját sebességkorlátaival.",
+        "unknown": "Még nincs megadva, ezért csak tesztfiókokkal számoljon."
+      },
+      "fact": {
+        "account": "hirdetési fiók"
+      },
+      "revokeAsk": "A SYB abbahagyja a Google Ads olvasását, és ott semmit sem módosíthat.",
+      "revokeNote": "A visszavonás azonnal törli itt a SYB hozzáférését. A már beolvasott költés a számai között marad. Ha a Google oldalán is el szeretné távolítani a SYB-t, nyissa meg Google-fiókja Biztonság oldalát, majd a harmadik féllel való összekapcsolásokat.",
+      "connected": "A Google Ads össze van kapcsolva, és a hozzájárulását rögzítettük.",
+      "signedInPick": "Bejelentkezett a Google-lel. Válassza ki a hirdetési fiókot, amelyet a SYB olvasson.",
+      "revoked": "Visszavonva. A SYB Google Ads-hozzáférése törölve: semmit nem olvas és nem módosít.",
+      "pickTitle": "Válassza ki a hirdetési fiókot",
+      "managerNote": "menedzserfiók: a SYB magát a hirdetési fiókot kapcsolja össze",
+      "connectAccount": "Ennek a hirdetési fióknak az összekapcsolása",
+      "signIn": "Bejelentkezés a Google-lel és a Google Ads engedélyezése",
+      "nothingWritten": "Az összekapcsolás rögzíti a hozzájárulását, és a SYB naponta egyszer olvassa a költését. A Google Ads-ben semmi sem változik egy javaslat jóváhagyása előtt, és a módosítások kikapcsolva maradnak, amíg a SYB kéthetes, valódi módosításokra vonatkozó tesztje véget nem ér.",
+      "reason": {
+        "unavailable": "A Google Ads még nincs beállítva.",
+        "already_connected": "A Google Ads már össze van kapcsolva. Másik fiók összekapcsolásához előbb vonja vissza.",
+        "scope": "A Google nem pontosan azt az egy engedélyt adta meg, amelyet a SYB kér. A Google képernyőjén engedélyezze a Google Ads-engedélyt, majd próbálja újra.",
+        "no_accounts": "A Google ehhez a Google-fiókhoz nem mutatott a SYB-nek Google Ads-fiókot. Végezze el a bejelentkezést azzal a fiókkal, amely hozzáfér a hirdetéseihez, majd próbálja újra.",
+        "managers_only": "Ez a Google-fiók csak menedzserfiókokat ér el. A SYB magát a hirdetési fiókot kapcsolja össze: adjon hozzáférést hozzá a Google-fiókjának, majd próbálja újra.",
+        "access_level": "A Google még nem hagyta jóvá a SYB Google Ads-hozzáférését valódi hirdetési fiókokhoz. Semmi sem lett összekapcsolva.",
+        "google_permission": "A Google szerint a SYB nem férhet hozzá ehhez a Google Ads-fiókhoz. Semmi sem lett összekapcsolva.",
+        "start_here": "Indítsa a Google-bejelentkezést a SYB Összekapcsolt fiókok oldaláról, az ott található gombbal. Semmi sem lett elküldve a Google-nak.",
+        "signed_out": "A SYB-be való bejelentkezés után kapcsolja össze újra a Google-t.",
+        "owner_only": "Ezt az engedélyt csak tulajdonos adhatja meg vagy vonhatja vissza. Semmi sem lett elküldve a Google-nak.",
+        "phrase": "A megerősítő kifejezés nem egyezett. Írja be pontosan úgy, ahogy látható, majd kezdje újra.",
+        "start_again": "Ez a Google-bejelentkezés lejárt, vagy már felhasználták. Kezdje újra az Összekapcsolt fiókok oldalról.",
+        "foreign": "Ezt a Google-bejelentkezést egy másik SYB-fiókból indították. Jelentkezzen be abba a fiókba a SYB-ben, vagy kezdje újra.",
+        "google_error": "A Google-bejelentkezés nem fejeződött be. Semmi sem lett összekapcsolva.",
+        "no_refresh": "A Google nem adott tartós hozzáférést a SYB-nek. Kezdje újra: a Google még egyszer rákérdez, és a SYB-nek szüksége van erre a válaszra.",
+        "google_auth": "A Google nem fogadta el a bejelentkezést. Kezdje újra az Összekapcsolt fiókok oldalról.",
+        "google_busy": "A Google túlterhelt volt, vagy nem válaszolt. Semmi sem lett összekapcsolva — próbálja újra néhány perc múlva.",
+        "google_refused": "A Google elutasította a bejelentkezést. Semmi sem lett összekapcsolva.",
+        "internal": "Hiba történt a mi oldalunkon. Semmi sem lett összekapcsolva.",
+        "generic": "A Google-bejelentkezés nem fejeződött be. Semmi sem lett összekapcsolva."
+      }
     }
   },
   "landing": {
@@ -7656,7 +7709,8 @@
       "noStock": "kapcsolja össze a webáruházát, vagy importáljon egy készletfájlt, és megmutatom, mennyi pénz áll a polcon",
       "nothingWaiting": "jelenleg semmi sem vár a jóváhagyására",
       "noPricedGain": "egyik Önre váró tételnek sincs még beárazott nyeresége",
-      "noRevenueSeries": "ehhez mért árbevétel-idősorra van szükségem, amelyhez viszonyíthatok"
+      "noRevenueSeries": "ehhez mért árbevétel-idősorra van szükségem, amelyhez viszonyíthatok",
+      "noAds": "kapcsolja össze a Meta Adst vagy a Google Adst, és megnézem, mely kampányok kerülnek többe, mint amennyit visszahoznak"
     },
     "price": {
       "arithmetic": "átlagár {mean} ({revenue} ÷ {count, plural, one {# teljesített} other {# teljesített}})",
@@ -7674,13 +7728,17 @@
       "stockNone": "nincs lassan fogyónak vagy elakadtnak jelölt tétel, {day} állapot szerint",
       "stockItems": "{count, plural, one {# lassan fogyó tétel} other {# lassan fogyó tétel}}, készleten lévő darab × egységköltség, {day} állapot szerint. Készletállomány, nem havi folyam: nem adódik hozzá a hónaphoz",
       "tableProposal": "{summary}: {range}",
-      "onTheTable": "{count, plural, one {# várakozó javaslat} other {# várakozó javaslat}}, havonta az alapesettől a kedvező esetig: {parts}"
+      "onTheTable": "{count, plural, one {# várakozó javaslat} other {# várakozó javaslat}}, havonta az alapesettől a kedvező esetig: {parts}",
+      "adsAllPaidPlatforms": "a saját platformja hozzárendelése szerint minden kampány legalább annyit hozott, amennyibe került ({count, plural, one {# kampány} other {# kampány}})",
+      "adsLoserGoogle": "{campaign} (Google Ads): költés {spent}, a Google szerint {value} konverziós érték (megtérülés: {roas}) → {loss}"
     },
     "basisNote": {
       "capacity": "egy Ön által {basis, select, ESTIMATED {BECSÜLT} other {MEGADOTT}} kapacitásból (heti {perWeek})",
       "meta": "a Meta saját hozzárendeléséből",
       "statedCost": "készleten lévő darab × egy Ön által megadott költség, egyes tételeknél",
-      "proposals": "a javaslatok saját alap- és kedvező esetei"
+      "proposals": "a javaslatok saját alap- és kedvező esetei",
+      "google": "a Google saját hozzárendeléséből",
+      "adPlatforms": "minden platform saját hozzárendeléséből, a Metáéból és a Google-éből"
     },
     "componentNote": {
       "adsOtherCurrency": "{count, plural, one {# kampány} other {# kampány}} más pénznemben ({currencies}) kimaradt: a pénznemek soha nem keverednek",
@@ -7700,7 +7758,10 @@
       "adsCampaign": "{campaign}: költés {spent}, a Meta szerint {value} ({roas})",
       "adsCampaignLosing": "{campaign}: költés {spent}, a Meta szerint {value} ({roas}), veszteséges",
       "noReturn": "nincs megtérülés",
-      "return": "megtérülés: {roas}"
+      "return": "megtérülés: {roas}",
+      "adsPlatforms": "Költés az egyes platformok által hozzárendelt értékkel szemben, kampányonként (Meta: vásárlási érték, Google: konverziós érték), {from} – {to}: {campaigns}. Veszteséges az, aminek a megtérülése {even} alatt van.",
+      "adsCampaignGoogle": "{campaign} (Google Ads): költés {spent}, a Google szerint {value} ({roas})",
+      "adsCampaignGoogleLosing": "{campaign} (Google Ads): költés {spent}, a Google szerint {value} ({roas}), veszteséges"
     }
   },
   "watchNoticed": {
