@@ -4,10 +4,17 @@
 //   POST /api/studio {action:"research", terms?, fresh?}  read Meta's Ad Library (read-only)
 //   POST /api/studio {action:"brief", campaign?, goal_id?} Sonnet writes one brief (capped)
 //   POST /api/studio {action:"make", brief_id, hook_index}  a shot-list PROPOSAL from one hook
+//   POST /api/studio {action:"propose_video", item_id}       P6-03: a PROPOSAL for three AI video
+//                                                            candidates for a brief's shot list
+//   POST /api/studio {action:"generate_video", proposal_id}  an APPROVED one → three labelled clips
+//   POST /api/studio {action:"pick", candidate_id}           the owner's pick → its video item,
+//                                                            offered for publishing (another yes)
 //
 // Reading the Library uses SYB's own rate-limited token, and writing a
 // brief spends model calls, so both demand the signed-in owner. "make"
-// only proposes: the approval queue decides, as for every shot list.
+// only proposes: the approval queue decides, as for every shot list. The
+// AI video actions (P6-03) demand the signed-in owner too: one spends real
+// money once approved, and a pick is a decision recorded with who made it.
 
 import { type NextRequest, NextResponse } from "next/server";
 import { matchingSession, resolveAccess } from "../../../lib/auth/access";
@@ -20,6 +27,13 @@ import {
   writeBrief,
 } from "../../../lib/content/brief";
 import { listGoals } from "../../../lib/content/goals";
+import { pickCandidate, studioVideoView } from "../../../lib/content/candidates";
+import {
+  generateFromProposal,
+  generationSetup,
+  proposeGeneration,
+} from "../../../lib/content/generation";
+import { MediaError } from "../../../lib/content/media";
 import { ContentError } from "../../../lib/content/plan";
 import { contentWatchUntil } from "../../../lib/content/watch";
 import { logSafeError } from "../../../lib/core/log-safe";
@@ -30,10 +44,14 @@ import { requireRole } from "../../../lib/auth/roles";
 import { requestLocale } from "../../../lib/i18n/server";
 import type { RoleAction } from "../../../lib/auth/roles";
 
+// P6-03: generating three clips submits, polls and labels inside this function.
+export const maxDuration = 300;
+
 function onError(error: unknown, accountId: string): NextResponse {
   if (
     error instanceof BriefError ||
     error instanceof ContentError ||
+    error instanceof MediaError ||
     error instanceof ProposalError
   ) {
     return NextResponse.json({ error: error.message }, { status: error.status });
@@ -55,12 +73,13 @@ export async function GET(): Promise<NextResponse> {
   if (!access) return NextResponse.json({ error: "no intake session" }, { status: 401 });
   try {
     const now = new Date();
-    const [niche, briefs, goals, spend, watchingUntil] = await Promise.all([
+    const [niche, briefs, goals, spend, watchingUntil, video] = await Promise.all([
       nicheView(access.profile_id, now),
       listBriefs(access.profile_id),
       listGoals(access.profile_id),
       briefUsage(access.account_id, now),
       contentWatchUntil(access.profile_id, now),
+      studioVideoView(access.profile_id, generationSetup(), now),
     ]);
     return NextResponse.json({
       niche,
@@ -75,6 +94,8 @@ export async function GET(): Promise<NextResponse> {
       },
       // Rule 15: while the watch runs, "make this" proposes nothing.
       watching_until: watchingUntil,
+      // P6-03: AI video — the shot lists from briefs, and the candidates to pick from.
+      video,
     });
   } catch (error) {
     return onError(error, access.account_id);
@@ -86,7 +107,12 @@ const STUDIO_ROLE: Record<string, RoleAction> = {
   research: "content.draft",
   brief: "content.draft",
   make: "proposals.generate",
+  propose_video: "proposals.generate",
+  generate_video: "content.draft",
+  pick: "content.draft",
 };
+
+const VIDEO_ACTIONS = new Set(["propose_video", "generate_video", "pick"]);
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
   const access = await resolveAccess();
@@ -102,6 +128,45 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   const denied = requireRole(access, STUDIO_ROLE[String(body.action)] ?? "content.draft");
   if (denied) return denied;
   try {
+    if (VIDEO_ACTIONS.has(String(body.action))) {
+      const session = await matchingSession();
+      if (!session) {
+        return NextResponse.json(
+          { error: "AI video needs you signed in — it spends real money once approved" },
+          { status: 401 },
+        );
+      }
+      if (body.action === "propose_video") {
+        if (typeof body.item_id !== "string") {
+          return NextResponse.json({ error: "item_id is required" }, { status: 422 });
+        }
+        const proposal = await proposeGeneration({
+          profileId: access.profile_id,
+          itemId: body.item_id,
+          media: "video",
+        });
+        return NextResponse.json({ proposal_id: proposal.id, status: proposal.status });
+      }
+      if (body.action === "generate_video") {
+        if (typeof body.proposal_id !== "string") {
+          return NextResponse.json({ error: "proposal_id is required" }, { status: 422 });
+        }
+        const outcome = await generateFromProposal({
+          proposalId: body.proposal_id,
+          expectedProfileId: access.profile_id,
+        });
+        return NextResponse.json(outcome);
+      }
+      if (typeof body.candidate_id !== "string") {
+        return NextResponse.json({ error: "candidate_id is required" }, { status: 422 });
+      }
+      const picked = await pickCandidate({
+        profileId: access.profile_id,
+        candidateId: body.candidate_id,
+        userId: session.user_id,
+      });
+      return NextResponse.json(picked);
+    }
     if (body.action === "research") {
       if (!(await matchingSession())) {
         return NextResponse.json(
@@ -156,7 +221,10 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       return NextResponse.json({ proposal_id: proposal.id, status: proposal.status });
     }
     return NextResponse.json(
-      { error: 'action must be "research", "brief" or "make"' },
+      {
+        error:
+          'action must be "research", "brief", "make", "propose_video", "generate_video" or "pick"',
+      },
       { status: 422 },
     );
   } catch (error) {

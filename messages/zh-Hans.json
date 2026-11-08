@@ -4884,7 +4884,11 @@
       "stillFresh": "那次读取仍是最新的，所以我直接使用了它，而没有再次询问 Meta。",
       "written": "简报已写好。每一部分都注明了它的依据。",
       "blocked": "那份拍摄清单超出了您设定的一项限制，因此被放在了“受限视图”中。",
-      "proposed": "已提议。它在<queue>等待您处理</queue>中。"
+      "proposed": "已提议。它在<queue>等待您处理</queue>中。",
+      "videoProposed": "已提议。它在<queue>等待您处理</queue>中；在您同意之前，不会生成任何内容，也不会花钱。",
+      "videoGenerated": "候选在下方，每个都标注为 AI 生成。请选一个；没有您的同意，什么都不会发布。",
+      "picked": "已选。它已放在视频项上，标注为 AI 生成，其发布提案在<queue>等待您处理</queue>中。",
+      "pickedNoProposal": "已选。它已放在视频项上，标注为 AI 生成。"
     },
     "niche": {
       "label": "细分市场中投放时间最长的广告",
@@ -4949,6 +4953,36 @@
       "make": "制作这个 →",
       "watching": "观察将持续到 {day}；在此之前不会提议任何内容。",
       "makeNote": "把这份拍摄清单放入“等待您处理”。批准后，它会成为一项“拍摄这个”任务；您拍摄的素材会进入剪辑室。"
+    },
+    "video": {
+      "label": "AI 视频",
+      "title": "还没有素材？三个 AI 候选",
+      "realFirst": "真实素材优先。这是为本简报中尚无素材的拍摄清单准备的备选方案。发送的内容由您资料中的事实和简报构成，绝不来自任何人输入的文字；每个片段从生成的那一刻起就标注为 AI 生成。",
+      "noKey": "AI 视频需要 Higgsfield API 访问权限，它与 Higgsfield 网页套餐是分开的：购买 API 额度，在 Higgsfield 控制台创建密钥，并在服务器上设置 HIGGSFIELD_API_KEY、HIGGSFIELD_API_SECRET 和 MEDIA_PROVIDER=higgsfield。",
+      "off": "这里尚未开启 AI 视频。请自己拍摄：真实素材永远优先。",
+      "unavailable": "不可用：{reason}",
+      "none": "本简报中还没有需要视频的内容。请先在上方用一个开场钩子制作拍摄清单；批准后会显示在这里。",
+      "month": "本月：AI 视频已花费 {spent}，上限为 {cap}。",
+      "propose": "提议三个 AI 视频（约 {cost}）",
+      "proposing": "正在提议…",
+      "pending": "在<queue>等待您处理</queue>中等待您的同意。",
+      "generate": "生成这三个",
+      "generating": "正在生成，需要几分钟…",
+      "approvedNote": "已批准。只有在您开始生成时才会花钱。",
+      "notOffered": "不提供：{reason}",
+      "setLabel": "候选 · {day}",
+      "setCost": "整组 {cost}",
+      "candidate": "候选 {n}",
+      "pick": "用这个",
+      "picking": "正在放置…",
+      "noPlayer": "您的浏览器无法播放此片段。",
+      "state": {
+        "generating": "生成中",
+        "ready": "就绪",
+        "failed": "失败",
+        "chosen": "已选",
+        "not_chosen": "未选 · 已保留"
+      }
     }
   },
   "site": {

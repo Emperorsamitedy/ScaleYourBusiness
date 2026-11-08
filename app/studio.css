@@ -240,6 +240,53 @@
   margin-top: 4px;
 }
 
+/* P6-03: AI video — the shot lists from a brief, then each set of three
+   candidates side by side, every one with its AI label printed under it. */
+.st-targets {
+  margin: 12px 0 0;
+  padding: 0;
+  list-style: none;
+}
+.st-targets li {
+  padding: 12px 0;
+  border-top: 1px solid var(--rule-soft);
+}
+.st-set {
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: 1px solid var(--rule);
+}
+.st-candidates {
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+.st-candidate video {
+  display: block;
+  width: 100%;
+  aspect-ratio: 9 / 16;
+  background: var(--inset);
+  border: 1px solid var(--rule);
+}
+.st-candidate.is-not_chosen video,
+.st-candidate.is-failed video {
+  opacity: 0.6;
+}
+.st-candidate.is-chosen video {
+  border-color: var(--sheet-ink);
+}
+.st-ai-label {
+  margin: 6px 0 4px;
+  font-size: 12.5px;
+  font-weight: 600;
+}
+.st-candidate .act {
+  margin-top: 6px;
+}
+
 @media (max-width: 719px) {
   .st-terms,
   .st-brief-form {
@@ -251,5 +298,8 @@
   }
   .st-table {
     min-width: 0;
+  }
+  .st-candidates {
+    grid-template-columns: minmax(0, 1fr);
   }
 }

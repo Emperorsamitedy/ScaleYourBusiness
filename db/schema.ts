@@ -478,6 +478,7 @@ export const decisionKind = pgEnum("decision_kind", [
   "account_switch", // idea 52: a person moved this browser to another business they belong to; ref is the users row
   "stop", // I-52d: the emergency stop was pressed; ref is the execution_halts row, user_id who pressed it
   "stop_release", // I-52d: things were started again; ref is the released execution_halts row, user_id who did it
+  "media_pick", // P6-03: the owner picked one of three AI video candidates; ref is the media_candidates row
 ]);
 
 export const decisionLog = pgTable(
@@ -2196,6 +2197,103 @@ export const mediaGenerations = pgTable(
     check(
       "media_generations_settled_cost",
       sql`${t.status} = 'generating' OR ${t.cost_minor} IS NOT NULL`,
+    ),
+  ],
+);
+
+// ---------------------------------------------------------------------------
+// P6-03 (rules 33, 34): three AI video candidates per brief, the owner picks
+// one. One row per candidate, under the generation (the claim and the money
+// ledger, media_generations) that made it. Every row carries the AI label
+// from the moment it exists — the database refuses a row without one — and
+// its own cost line, tagged by workload. A candidate that isn't picked is
+// KEPT, marked not_chosen, never deleted; at most one per set is chosen.
+// ---------------------------------------------------------------------------
+
+export const mediaCandidateStatus = pgEnum("media_candidate_status", [
+  "generating",
+  "ready",
+  "failed",
+  "chosen",
+  "not_chosen",
+]);
+
+export const mediaCandidates = pgTable(
+  "media_candidates",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    generation_id: uuid("generation_id")
+      .notNull()
+      .references(() => mediaGenerations.id, { onDelete: "cascade" }),
+    profile_id: uuid("profile_id")
+      .notNull()
+      .references(() => businessProfiles.id, { onDelete: "cascade" }),
+    proposal_id: uuid("proposal_id")
+      .notNull()
+      .references(() => proposals.id, { onDelete: "cascade" }),
+    /** The shot list (from a brief's hook) that had no footage. */
+    target_item_id: uuid("target_item_id")
+      .notNull()
+      .references(() => contentItems.id, { onDelete: "cascade" }),
+    brief_id: uuid("brief_id").references((): AnyPgColumn => creativeBriefs.id, {
+      onDelete: "set null",
+    }),
+    hook_index: integer("hook_index"),
+    /** 1, 2 or 3 — which of the set's prompts (shot angles) it was made from. */
+    ordinal: integer("ordinal").notNull(),
+    status: mediaCandidateStatus("status").notNull().default("generating"),
+    provider: text("provider").notNull(),
+    model: text("model"),
+    /** The provider's job id, for support. */
+    request_id: text("request_id"),
+    /** sha256 of this candidate's exact prompt, the fixed instruction included. */
+    prompt_sha256: text("prompt_sha256").notNull(),
+    /** Rule 33: the AI label, in the file and here, from the first moment. */
+    label: text("label").notNull(),
+    /** Rule 34: the cost line's budget tag. */
+    workload: text("workload").notNull().default("ai_video"),
+    attempts: integer("attempts").notNull().default(0),
+    estimate_minor: integer("estimate_minor").notNull(),
+    /** What the provider charged this candidate across its attempts — null only while generating. */
+    cost_minor: integer("cost_minor"),
+    currency: text("currency").notNull(),
+    /** The labelled file in media storage (Vercel Blob in production). */
+    media_url: text("media_url"),
+    pathname: text("pathname"),
+    bytes: integer("bytes"),
+    error: text("error"),
+    created_at: timestamp("created_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+    finished_at: timestamp("finished_at", { withTimezone: true, mode: "string" }),
+    chosen_at: timestamp("chosen_at", { withTimezone: true, mode: "string" }),
+    chosen_by: uuid("chosen_by").references(() => users.id, { onDelete: "set null" }),
+    /** The video item the chosen candidate was placed on. */
+    result_item_id: uuid("result_item_id").references(() => contentItems.id, {
+      onDelete: "set null",
+    }),
+  },
+  (t) => [
+    uniqueIndex("media_candidates_set_ordinal_uq").on(t.generation_id, t.ordinal),
+    // One pick per set, held by the database.
+    uniqueIndex("media_candidates_one_chosen_uq")
+      .on(t.generation_id)
+      .where(sql`${t.status} = 'chosen'`),
+    index("media_candidates_profile_idx").on(t.profile_id, t.created_at),
+    check("media_candidates_ordinal", sql`${t.ordinal} BETWEEN 1 AND 3`),
+    check("media_candidates_attempt_cap", sql`${t.attempts} >= 0 AND ${t.attempts} <= 2`),
+    check(
+      "media_candidates_money",
+      sql`${t.estimate_minor} >= 0 AND (${t.cost_minor} IS NULL OR ${t.cost_minor} >= 0) AND ${t.currency} ~ '^[A-Z]{3}$'`,
+    ),
+    check("media_candidates_labelled", sql`${t.label} LIKE '%AI-generated%'`),
+    check(
+      "media_candidates_settled",
+      sql`${t.status} = 'generating' OR ${t.cost_minor} IS NOT NULL`,
+    ),
+    check(
+      "media_candidates_has_file",
+      sql`${t.status} NOT IN ('ready', 'chosen', 'not_chosen') OR ${t.media_url} IS NOT NULL`,
     ),
   ],
 );
