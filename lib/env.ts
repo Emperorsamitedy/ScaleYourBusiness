@@ -201,6 +201,94 @@ export function googleBusinessEnv(): GoogleBusinessEnv | null {
 }
 
 /**
+ * P2-20 / P3-22: Google's API access levels for the Google Ads API, as
+ * Google names them (access-levels page, read 2026-11-08). The level belongs
+ * to the Google Cloud project that owns the OAuth client.
+ *
+ *   test      test accounts only — a real ad account is refused by Google
+ *   explorer  production accounts too, 2,880 operations a day
+ *   basic     15,000 operations a day, after Google's review
+ *   standard  no daily cap, after Google's audit
+ */
+export const GOOGLE_ADS_ACCESS_LEVELS = ["test", "explorer", "basic", "standard"] as const;
+export type GoogleAdsAccessLevel = (typeof GOOGLE_ADS_ACCESS_LEVELS)[number];
+
+/** SYB's Google OAuth client and API setup for Google Ads (P2-20 / P3-22). */
+export interface GoogleAdsEnv {
+  client_id: string;
+  client_secret: string;
+  /** What Google has approved SYB's Cloud project for, stated by the operator. */
+  access_level: GoogleAdsAccessLevel;
+  /**
+   * GOOGLE_ADS_DEVELOPER_TOKEN, sent as the developer-token header when set.
+   * Google's developer-token page (read 2026-11-08) says tokens were retired
+   * on 2026-09-09 and a token sent is ignored; kept optional for an older
+   * project that still holds one.
+   */
+  developer_token: string | null;
+  /** GOOGLE_ADS_LOGIN_CUSTOMER_ID: a manager account SYB reads through, ten digits; null = direct. */
+  login_customer_id: string | null;
+  /** GOOGLE_ADS_REDIRECT_URI when set; otherwise derived from APP_URL or the request's origin. */
+  redirect_uri: string | null;
+  app_url: string | null;
+}
+
+/** The environment keys Google Ads cannot run without, as the connection card names them. */
+export type GoogleAdsMissingKey = "GOOGLE_ADS_CLIENT_ID" | "GOOGLE_ADS_CLIENT_SECRET" | "GOOGLE_ADS_ACCESS_LEVEL";
+
+function googleAdsClient(): { client_id: string; client_secret: string } {
+  // Its own client when set; otherwise the Google client sign-in and Business
+  // Profile already use (one Cloud project, one consent screen to verify).
+  const own_id = process.env.GOOGLE_ADS_CLIENT_ID?.trim() ?? "";
+  const own_secret = process.env.GOOGLE_ADS_CLIENT_SECRET?.trim() ?? "";
+  if (own_id !== "" || own_secret !== "") return { client_id: own_id, client_secret: own_secret };
+  return {
+    client_id: process.env.GOOGLE_CLIENT_ID?.trim() ?? "",
+    client_secret: process.env.GOOGLE_CLIENT_SECRET?.trim() ?? "",
+  };
+}
+
+function googleAdsAccessLevel(): GoogleAdsAccessLevel | null {
+  const raw = process.env.GOOGLE_ADS_ACCESS_LEVEL?.trim().toLowerCase() ?? "";
+  return (GOOGLE_ADS_ACCESS_LEVELS as readonly string[]).includes(raw)
+    ? (raw as GoogleAdsAccessLevel)
+    : null;
+}
+
+/** P2-20: what is still missing before Google Ads can be offered, by key name. Empty = ready. */
+export function googleAdsMissing(): GoogleAdsMissingKey[] {
+  const client = googleAdsClient();
+  const missing: GoogleAdsMissingKey[] = [];
+  if (client.client_id === "") missing.push("GOOGLE_ADS_CLIENT_ID");
+  if (client.client_secret === "") missing.push("GOOGLE_ADS_CLIENT_SECRET");
+  if (googleAdsAccessLevel() === null) missing.push("GOOGLE_ADS_ACCESS_LEVEL");
+  return missing;
+}
+
+/**
+ * P2-20 / P3-22: Google Ads is offered only with an OAuth client (its own,
+ * or the shared GOOGLE_CLIENT_ID/SECRET) AND a stated access level — the
+ * access level is what the connection card tells the owner, so it is never
+ * guessed. Null otherwise: the card names what is missing, and the daily
+ * read and every Google Ads change refuse.
+ */
+export function googleAdsEnv(): GoogleAdsEnv | null {
+  const client = googleAdsClient();
+  const access_level = googleAdsAccessLevel();
+  if (client.client_id === "" || client.client_secret === "" || access_level === null) return null;
+  const token = process.env.GOOGLE_ADS_DEVELOPER_TOKEN?.trim() ?? "";
+  const login = (process.env.GOOGLE_ADS_LOGIN_CUSTOMER_ID?.trim() ?? "").replace(/-/g, "");
+  return {
+    ...client,
+    access_level,
+    developer_token: token === "" || /\s/.test(token) ? null : token,
+    login_customer_id: /^\d{10}$/.test(login) ? login : null,
+    redirect_uri: process.env.GOOGLE_ADS_REDIRECT_URI?.trim() || null,
+    app_url: appUrl(),
+  };
+}
+
+/**
  * P3-50: the user access token SYB reads Meta's Ad Library with — from a
  * developer account whose identity Meta has confirmed. Optional: null
  * means niche research is not set up, and the studio screen says exactly
