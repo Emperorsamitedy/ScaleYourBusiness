@@ -8,6 +8,7 @@ import { describe, expect, it } from "vitest";
 import {
   datesInWords,
   displayValue,
+  noteWords,
   entityNamesOf,
   goalWords,
   keysInWords,
@@ -189,5 +190,16 @@ describe("siteCheckWords", () => {
     );
     expect(datesInWords("synced 2026-11-07T09:00:00Z")).toBe("synced 2026-11-07T09:00:00Z");
     expect(datesInWords(null)).toBeNull();
+  });
+
+  it("names a connector's provider by its brand in a note, and only after by/from", () => {
+    expect(noteWords("Measured by shopify, 2026-10-08 to 2026-11-06.")).toBe(
+      "Measured by Shopify, 8 Oct 2026 to 6 Nov 2026.",
+    );
+    expect(noteWords("Measured by meta: ad spend divided by the purchases it attributed.")).toBe(
+      "Measured by Meta: ad spend divided by the purchases it attributed.",
+    );
+    expect(noteWords("a square bowl")).toBe("a square bowl");
+    expect(noteWords(null)).toBeNull();
   });
 });

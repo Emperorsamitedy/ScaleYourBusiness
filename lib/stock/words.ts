@@ -46,9 +46,9 @@ export function dec2(x: number, locale: AppLocale): string {
   return locale === "en" ? x.toFixed(2) : num(x, 2, locale);
 }
 
-/** A day the sentences name: ISO in English, as it always was; the reader's own date elsewhere. */
+/** A day the sentences name, in the reader's own date ("29 Sep 2026"). */
 export function isoDay(day: string, locale: AppLocale): string {
-  return locale === "en" ? day : dayMonthYear(day, locale);
+  return dayMonthYear(day, locale);
 }
 
 /** "2 Nov" — a short date, in UTC (the series' own dates). */
