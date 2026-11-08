@@ -65,6 +65,8 @@ export function handInstructions(
     const bar = bars.get(p.id);
     if (bar === "not_eur") out.push(tr("why.notEur"));
     else if (bar === "payee_not_sepa" || bar === "payer_not_sepa") out.push(tr("why.notSepa"));
+    else if (bar === "name_not_latin") out.push(tr("why.notLatin"));
+    else if (bar === "bic_needed") out.push(tr("why.bicNeeded"));
   });
   out.push("", tr("closing"));
   return `${out.join("\n")}\n`;

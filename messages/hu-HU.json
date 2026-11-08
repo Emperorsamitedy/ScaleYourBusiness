@@ -8979,7 +8979,9 @@
         "no_payer": "Előbb a banki adataira van szükség",
         "erased": "Banki adatok törölve",
         "not_approved": "Még nincs jóváhagyva",
-        "paid": "Már kifizetve"
+        "paid": "Már kifizetve",
+        "name_not_latin": "Kézzel: egy név vagy közlemény nem latin betűs",
+        "bic_needed": "Kézzel: a kedvezményezett BIC-kódja kell"
       }
     },
     "paid": {
@@ -9025,7 +9027,9 @@
       "erased": "Ennek a kifizetésnek a banki adatait törölték. Kérje el újra a kedvezményezettől.",
       "why": {
         "notEur": "Nem euróban van, ezért nincs a SEPA-fájlban: indítsa el kézzel.",
-        "notSepa": "SEPA-n kívüli bank, ezért nincs a SEPA-fájlban: indítsa el kézzel."
+        "notSepa": "SEPA-n kívüli bank, ezért nincs a SEPA-fájlban: indítsa el kézzel.",
+        "notLatin": "Egy név vagy közlemény nem latin betűs, ezért nincs a SEPA-fájlban: indítsa el kézzel.",
+        "bicNeeded": "Az EGT-n kívüli bankhoz kell a kedvezményezett BIC-kódja, ezért nincs a SEPA-fájlban: indítsa el kézzel."
       },
       "closing": "Ha egy kifizetés megtörtént, jelölje meg a SYB-ben. Ha a bankja elutasít egy adatot, ott javítsa: a SYB soha nem küld semmit a bankjának."
     },

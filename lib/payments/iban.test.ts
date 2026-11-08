@@ -55,6 +55,28 @@ describe("checkIban — a bad IBAN is refused with its reason (failing)", () => 
     expect(checkIban("DE89370400440532010300")).toEqual({ ok: false, reason: "checksum" });
   });
 
+  it("check digits outside 02..98 are refused, though mod-97 alone passes them", () => {
+    // A computed check is 98 − (BBAN·country·00 mod 97): never 00, 01 or 99.
+    // But 00 ≡ 97, 01 ≡ 98 and 99 ≡ 02 (mod 97), so a typo of the one for
+    // the other passes mod-97: only the range catches it.
+    const checkOf = (bban: string) => 98 - ibanMod97(`DE00${bban}`);
+    const twin: Record<number, string> = { 2: "99", 97: "00", 98: "01" };
+    const found = new Map<number, string>();
+    for (let n = 0; found.size < 3 && n < 100_000; n++) {
+      const bban = String(370400440532000000 + n).padStart(18, "0");
+      const c = checkOf(bban);
+      if (twin[c] && !found.has(c)) found.set(c, bban);
+    }
+    expect(found.size).toBe(3);
+    for (const [c, bban] of found) {
+      const real = `DE${String(c).padStart(2, "0")}${bban}`;
+      const typo = `DE${twin[c]}${bban}`;
+      expect(checkIban(real), real).toMatchObject({ ok: true });
+      expect(ibanMod97(typo), typo).toBe(1);
+      expect(checkIban(typo), typo).toEqual({ ok: false, reason: "checksum" });
+    }
+  });
+
   it("the wrong length for its country", () => {
     expect(checkIban("DE8937040044053201300")).toEqual({ ok: false, reason: "length" });
     expect(checkIban("NL91ABNA04171643000")).toEqual({ ok: false, reason: "length" });

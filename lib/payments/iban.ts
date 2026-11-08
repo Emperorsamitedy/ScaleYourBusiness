@@ -137,6 +137,22 @@ export const SEPA_COUNTRIES: ReadonlySet<string> = new Set([
   "AD",
 ]);
 
+/**
+ * The SEPA countries outside the EEA (the EU, Iceland, Liechtenstein and
+ * Norway). The SCT rulebook makes the payee bank's BIC mandatory for a
+ * transfer that involves a bank in one of these, so a file without it is
+ * refused by the bank; such a payment needs the BIC to go in a file.
+ */
+export const SEPA_NON_EEA: ReadonlySet<string> = new Set([
+  "CH",
+  "GB",
+  "GI",
+  "MC",
+  "SM",
+  "VA",
+  "AD",
+]);
+
 export type IbanRefusal = "empty" | "format" | "country" | "length" | "checksum";
 
 export type IbanCheck =
@@ -172,6 +188,10 @@ export function checkIban(raw: string): IbanCheck {
   const length = IBAN_LENGTHS[country];
   if (length === undefined) return { ok: false, reason: "country" };
   if (iban.length !== length) return { ok: false, reason: "length" };
+  // ISO 13616: the check digits a bank computes run 02..98. "00", "01" and
+  // "99" never do, yet pass mod-97 for the IBAN whose digits are 97, 98, 02.
+  const check = Number(iban.slice(2, 4));
+  if (check < 2 || check > 98) return { ok: false, reason: "checksum" };
   if (ibanMod97(iban) !== 1) return { ok: false, reason: "checksum" };
   return { ok: true, iban, country };
 }

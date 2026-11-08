@@ -8979,7 +8979,9 @@
         "no_payer": "Needs your bank details first",
         "erased": "Bank details erased",
         "not_approved": "Not approved yet",
-        "paid": "Already paid"
+        "paid": "Already paid",
+        "name_not_latin": "By hand: a name or reference isn't in Latin letters",
+        "bic_needed": "By hand: needs the payee's BIC"
       }
     },
     "paid": {
@@ -9025,7 +9027,9 @@
       "erased": "The bank details of this payment were erased. Ask the payee for them again.",
       "why": {
         "notEur": "Not in euros, so it isn't in the SEPA file: make it by hand.",
-        "notSepa": "A bank outside SEPA, so it isn't in the SEPA file: make it by hand."
+        "notSepa": "A bank outside SEPA, so it isn't in the SEPA file: make it by hand.",
+        "notLatin": "A name or reference not in Latin letters, so it isn't in the SEPA file: make it by hand.",
+        "bicNeeded": "A bank outside the EEA needs the payee's BIC, so it isn't in the SEPA file: make it by hand."
       },
       "closing": "Once a payment is made, mark it in SYB. If your bank refuses a detail, correct it there: SYB never sends anything to your bank."
     },

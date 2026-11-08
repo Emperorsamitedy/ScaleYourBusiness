@@ -418,6 +418,24 @@ describe("P6-04 nothing goes out without a recorded approval (rule 12)", () => {
     expect(await runsOf(row.id)).toHaveLength(0);
   });
 
+  it("another business's order, or an id that isn't one, is no such order (404), never a 500", async () => {
+    const a = await shop();
+    const b = await shop();
+    const row = await propose(a);
+    const { provider, calls } = realProvider(ok);
+    for (const [profileId, proposalId] of [
+      [b.profile_id, row.id],
+      [a.profile_id, "PO-0001"],
+      [a.profile_id, "1; drop table proposals"],
+    ] as const) {
+      await expect(
+        sendPurchaseOrderNow({ profileId, proposalId, provider }),
+        proposalId,
+      ).rejects.toMatchObject({ name: "PurchaseOrderSendError", status: 404 });
+    }
+    expect(calls).toHaveLength(0);
+  });
+
   it("a declined order never sends — not by a click, not by the due runner", async () => {
     const s = await shop();
     const row = await propose(s);

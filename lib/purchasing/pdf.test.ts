@@ -245,6 +245,24 @@ describe("a long order", () => {
     expect(read.runs.filter((r) => r === "Item").length).toBe(read.pages);
     expect(text).toContain(`PO-0007 · ${read.pages}/${read.pages}`);
   });
+
+  it("a long note runs onto the next page: no line of it is drawn below the margin", async () => {
+    // 45 short lines: 40 × 13.5 pt is more than the room left under the table,
+    // well within the note's 600 characters.
+    const note = Array.from({ length: 45 }, (_, i) => `Note line ${i + 1}`).join("\n");
+    expect(note.length).toBeLessThanOrEqual(600);
+    const read = await pdfText(await renderPurchaseOrderPdf(order(undefined, { note }), en));
+    for (let i = 1; i <= 45; i++) {
+      const run = read.placed.find((r) => r.text === `Note line ${i}`);
+      expect(run, `line ${i}`).toBeDefined();
+      // The bottom margin is 50 pt; the page mark sits under it at 30.
+      expect(run!.y, `line ${i}`).toBeGreaterThanOrEqual(50);
+    }
+    expect(read.pages).toBe(2);
+    // The foot comes after the note, on the page the note ends on.
+    const foot = read.placed.find((r) => r.text.startsWith("Prepared with SYB"));
+    expect(foot?.page).toBe(2);
+  });
 });
 
 describe("small pieces", () => {

@@ -8979,7 +8979,9 @@
         "no_payer": "Il faut d’abord vos coordonnées bancaires",
         "erased": "Coordonnées bancaires effacées",
         "not_approved": "Pas encore validé",
-        "paid": "Déjà payé"
+        "paid": "Déjà payé",
+        "name_not_latin": "À la main : un nom ou libellé n’est pas en caractères latins",
+        "bic_needed": "À la main : il faut le BIC du bénéficiaire"
       }
     },
     "paid": {
@@ -9025,7 +9027,9 @@
       "erased": "Les coordonnées bancaires de ce paiement ont été effacées. Redemandez-les au bénéficiaire.",
       "why": {
         "notEur": "Pas en euros, donc pas dans le fichier SEPA : faites-le à la main.",
-        "notSepa": "Une banque hors SEPA, donc pas dans le fichier SEPA : faites-le à la main."
+        "notSepa": "Une banque hors SEPA, donc pas dans le fichier SEPA : faites-le à la main.",
+        "notLatin": "Un nom ou libellé qui n’est pas en caractères latins, donc pas dans le fichier SEPA : faites-le à la main.",
+        "bicNeeded": "Une banque hors EEE demande le BIC du bénéficiaire, donc pas dans le fichier SEPA : faites-le à la main."
       },
       "closing": "Une fois un paiement fait, marquez-le dans SYB. Si votre banque refuse une donnée, corrigez-la là-bas : SYB n’envoie jamais rien à votre banque."
     },

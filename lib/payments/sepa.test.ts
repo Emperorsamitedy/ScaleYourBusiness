@@ -6,7 +6,7 @@
 import { describe, expect, it } from "vitest";
 import { InvalidMoneyError } from "../core/money";
 import { handInstructions } from "./instructions";
-import type { Debtor, FilePayment } from "./sepa";
+import type { Debtor, FilePayment, SepaBar } from "./sepa";
 import {
   PAIN_001_NAMESPACE,
   SepaFileError,
@@ -214,6 +214,36 @@ describe("renderPain001 — what never goes in a file (failing)", () => {
   it("an empty file is refused", () => {
     expect(() => render([])).toThrow(SepaFileError);
   });
+
+  it("a name or reference in another script never becomes an empty or digits-only <Nm>", () => {
+    // Greece and Bulgaria are SEPA: their names fold to nothing in the Latin set.
+    const greek = pay({ payee_name: "Παπαδόπουλος ΑΕ", payee_iban: "GR1601101250000000012300695" });
+    expect(sepaText("Παπαδόπουλος ΑΕ", 70)).toBe("");
+    expect(sepaBar(greek, debtor)).toBe("name_not_latin");
+    expect(() => render([greek])).toThrow(/name_not_latin/);
+    expect(sepaBar(pay({ payee_name: "ООО Ромашка 2" }), debtor)).toBe("name_not_latin");
+    expect(sepaBar(pay({ payee_name: "🍞🍞" }), debtor)).toBe("name_not_latin");
+    expect(sepaBar(pay(), { ...debtor, holder_name: "Кафе Мёллер" })).toBe("name_not_latin");
+    expect(sepaBar(pay({ reference: "Счёт 118" }), debtor)).toBe("name_not_latin");
+    // Latin with accents still folds and goes in; an Icelandic ð is a d.
+    expect(sepaBar(pay({ payee_name: "Guðrún Ólafsdóttir" }), debtor)).toBeNull();
+    expect(sepaText("Guðrún Ólafsdóttir", 70)).toBe("Gudrun Olafsdottir");
+  });
+
+  it("a bank outside the EEA needs the payee's BIC in the file (the SCT rulebook's rule)", () => {
+    const swiss = pay({ payee_iban: "CH9300762011623852957", payee_bic: null });
+    expect(sepaBar(swiss, debtor)).toBe("bic_needed");
+    expect(() => render([swiss])).toThrow(/bic_needed/);
+    expect(sepaBar(pay({ payee_iban: "GB82WEST12345698765432", payee_bic: null }), debtor)).toBe(
+      "bic_needed",
+    );
+    // The paying bank outside the EEA asks for it too.
+    const fromGb: Debtor = { ...debtor, iban: "GB82WEST12345698765432" };
+    expect(sepaBar(pay({ payee_bic: null }), fromGb)).toBe("bic_needed");
+    // With the BIC, or both ends in the EEA, it goes in.
+    expect(sepaBar({ ...swiss, payee_bic: "UBSWCHZH80A" }, debtor)).toBeNull();
+    expect(sepaBar(pay({ payee_bic: null }), debtor)).toBeNull();
+  });
 });
 
 describe("SEPA text", () => {
@@ -248,6 +278,22 @@ describe("handInstructions — any currency, in plain steps", () => {
     expect(text).toContain("Not in euros, so it isn't in the SEPA file: make it by hand.");
     expect(text).toContain("1. Open your bank's app or website");
     expect(text).toContain("Paid from: Café Möller GmbH, IBAN DE89 3704 0044 0532 0130 00");
+  });
+
+  it("says why a name in another script or a missing BIC kept one out of the file", () => {
+    const text = handInstructions(
+      [pay({ id: "g" }), pay({ id: "c" })],
+      debtor,
+      undefined,
+      new Map<string, SepaBar | null>([
+        ["g", "name_not_latin"],
+        ["c", "bic_needed"],
+      ]),
+    );
+    expect(text).toContain(
+      "A name or reference not in Latin letters, so it isn't in the SEPA file",
+    );
+    expect(text).toContain("A bank outside the EEA needs the payee's BIC");
   });
 
   it("an erased payment says so and shows no details", () => {

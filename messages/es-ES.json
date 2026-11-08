@@ -8979,7 +8979,9 @@
         "no_payer": "Necesita antes sus datos bancarios",
         "erased": "Datos bancarios borrados",
         "not_approved": "Aún sin aprobar",
-        "paid": "Ya pagado"
+        "paid": "Ya pagado",
+        "name_not_latin": "A mano: un nombre o concepto no está en alfabeto latino",
+        "bic_needed": "A mano: necesita el BIC del beneficiario"
       }
     },
     "paid": {
@@ -9025,7 +9027,9 @@
       "erased": "Los datos bancarios de este pago se borraron. Vuelva a pedírselos al beneficiario.",
       "why": {
         "notEur": "No está en euros, así que no va en el archivo SEPA: hágalo a mano.",
-        "notSepa": "Un banco fuera de SEPA, así que no va en el archivo SEPA: hágalo a mano."
+        "notSepa": "Un banco fuera de SEPA, así que no va en el archivo SEPA: hágalo a mano.",
+        "notLatin": "Un nombre o concepto que no está en alfabeto latino, así que no va en el archivo SEPA: hágalo a mano.",
+        "bicNeeded": "Un banco fuera del EEE necesita el BIC del beneficiario, así que no va en el archivo SEPA: hágalo a mano."
       },
       "closing": "Cuando haya hecho un pago, márquelo en SYB. Si su banco rechaza algún dato, corríjalo allí: SYB nunca envía nada a su banco."
     },
