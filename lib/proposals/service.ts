@@ -18,6 +18,7 @@ import { applyCalendarEdit, calendarEditOf } from "../content/calendar";
 import type { MediaStore } from "../content/media";
 import { releaseUnpublishedMedia } from "../content/media";
 import { approvedPublishHash } from "../execution/providers/meta";
+import { approvedTikTokHash, parseTikTokSettings } from "../execution/providers/tiktok";
 import { enqueuePush, schedulePushFlush } from "../push/flush";
 import type { ScenarioBlock } from "../diagnosis/recommendations";
 
@@ -316,7 +317,10 @@ async function decide(args: {
     // Review 2026-10-23 (Session D #10): and records what was approved, by
     // hash — the caption as it goes out and the media URL — so the publish
     // path can refuse anything else.
-    const act = row.action as { kind?: unknown; detail?: { item_id?: unknown } } | null;
+    const act = row.action as {
+      kind?: unknown;
+      detail?: { item_id?: unknown; platform?: unknown };
+    } | null;
     let contentSha256: string | null = null;
     if (
       args.to === "approved" &&
@@ -333,12 +337,22 @@ async function decide(args: {
           body: contentItems.body,
           disclosure: contentItems.disclosure,
           media_path: contentItems.media_path,
+          tiktok_settings: contentItems.tiktok_settings,
         })
         .from(contentItems)
         .where(mine)
         .for("update");
       if (item) {
-        contentSha256 = approvedPublishHash(item);
+        // 2026-11-08: a TikTok post's approval covers the settings the owner
+        // chose for it (privacy, interactions), and can't be given without them.
+        const tiktok = act.detail?.platform === "tiktok";
+        if (tiktok && parseTikTokSettings(item.tiktok_settings) === null) {
+          throw new ProposalError(
+            "choose who can see it on TikTok first, on Content — then approve it",
+            409,
+          );
+        }
+        contentSha256 = tiktok ? approvedTikTokHash(item) : approvedPublishHash(item);
         await tx
           .update(contentItems)
           .set({ status: "queued", publish_approved_sha256: contentSha256 })

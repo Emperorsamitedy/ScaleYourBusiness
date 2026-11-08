@@ -495,6 +495,11 @@ export interface SyncRunSummary {
    * scopes (lib/content/insights.ts). Null when it could not run at all.
    */
   readback: ReadbackRunSummary | null;
+  /**
+   * 2026-11-08: TikTok posts' public counts, the same way (lib/content/
+   * tiktok-publish.ts). Present only when a TikTok posting connection exists.
+   */
+  tiktok_readback?: ReadbackRunSummary | null;
 }
 
 export interface SyncRunOptions {
@@ -550,6 +555,18 @@ export async function runConnectorSync(
     });
   } catch (error) {
     console.error(JSON.stringify({ event: "post_readback_run_failed", message: errorText(error) }));
+  }
+  // 2026-11-08: TikTok posting's own readback, reads only; its failure never fails the sync.
+  try {
+    const { runTikTokPostReadback } = await import("../content/tiktok-publish");
+    const tiktok = await runTikTokPostReadback(now, {
+      ...(opts.accountIds ? { accountIds: opts.accountIds } : {}),
+    });
+    if (tiktok.connections > 0) summary.tiktok_readback = tiktok;
+  } catch (error) {
+    console.error(
+      JSON.stringify({ event: "tiktok_post_readback_run_failed", message: errorText(error) }),
+    );
   }
   return summary;
 }

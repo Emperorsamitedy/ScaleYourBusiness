@@ -23,6 +23,7 @@ import { db } from "../../db";
 import { businessProfiles, contentItems } from "../../db/schema";
 import { activeExecutionConnection, executionSecret } from "../execution/connections";
 import { parseMetaExecutionCredential } from "../execution/providers/meta";
+import { parseTikTokCredential } from "../execution/providers/tiktok";
 import { ensureTimezone } from "../hours/timezone";
 import { readCurrentField } from "../profile/field-store";
 import type { LimitLlm } from "../proposals/hard-limits";
@@ -36,6 +37,7 @@ import type { ProposalRow } from "../proposals/service";
 import { createProposal } from "../proposals/service";
 import { suppressedKinds } from "../trust/suppression";
 import { enumCode } from "../core/enum-value";
+import { mediaOf } from "./media-item";
 import type { PublishBlock } from "./publish-words";
 import { ZONE_UNKNOWN, blockWords } from "./publish-words";
 
@@ -44,16 +46,31 @@ export const PUBLISH_KIND = "content_publishing";
 export const DEFAULT_POSTING_HOUR = 10;
 export const PUBLISH_EXPIRY_DAYS = 14;
 export const PUBLISH_UNDO = "SYB deletes the post; Meta keeps no copy.";
+/**
+ * 2026-11-08: TikTok's API has no delete, so a TikTok post is labelled
+ * irreversible ("hard") before approval and says how it comes down.
+ */
+export const TIKTOK_PUBLISH_UNDO =
+  "TikTok doesn't let apps delete a post, so SYB can't take it down: delete it in the TikTok app.";
 
-export type PublishPlatform = "facebook" | "instagram";
+export type PublishPlatform = "facebook" | "instagram" | "tiktok";
 
-/** channel_platform vocabulary value → what Meta publishing needs for it. */
+/** channel_platform vocabulary value → what publishing needs for it (Meta, and TikTok since 2026-11-08). */
 export const PUBLISH_PLATFORMS: Readonly<
-  Record<PublishPlatform, { label: string; target: "page_id" | "ig_user_id"; needs_media: boolean }>
+  Record<
+    PublishPlatform,
+    { label: string; target: "page_id" | "ig_user_id" | "open_id"; needs_media: boolean }
+  >
 > = {
   facebook: { label: "Facebook", target: "page_id", needs_media: false },
   instagram: { label: "Instagram", target: "ig_user_id", needs_media: true },
+  tiktok: { label: "TikTok", target: "open_id", needs_media: true },
 };
+
+/** The connected TikTok account's id (2026-11-08). */
+export interface TikTokAssets {
+  open_id: string;
+}
 
 /** Item kinds that are published as posts. Shot lists are filmed; emails are sent elsewhere. */
 const PUBLISHABLE_KINDS: ReadonlySet<string> = new Set(["post", "video"]);
@@ -66,6 +83,7 @@ export interface MetaAssets {
 export interface PublishTarget {
   page_id?: string;
   ig_user_id?: string;
+  open_id?: string;
 }
 
 export interface ReadinessItem {
@@ -93,6 +111,8 @@ type ReadinessArgs = {
   item: ReadinessItem;
   platform: string | null;
   assets: MetaAssets | null;
+  /** The connected TikTok account, when there is one. */
+  tiktok?: TikTokAssets | null;
   zone: string | null;
   zoneReason?: string;
 };
@@ -123,6 +143,17 @@ function check(args: ReadinessArgs): Check {
     return no("channel", { channel: item.channel_label });
   }
   const spec = PUBLISH_PLATFORMS[platform as PublishPlatform];
+  if (platform === "tiktok") {
+    // TikTok takes videos only (Direct Post, FILE_UPLOAD).
+    const tiktok = args.tiktok ?? null;
+    if (tiktok === null) return no("connectTikTok");
+    if (item.media_path === null || !/\.(mp4|mov|webm)$/i.test(item.media_path)) {
+      return no("tiktokNeedsVideo");
+    }
+    if (item.scheduled_for === null) return no("noDate");
+    if (args.zone === null) return no("zone", { reason: args.zoneReason ?? ZONE_UNKNOWN });
+    return { ok: true, platform: "tiktok", target: { open_id: tiktok.open_id } };
+  }
   if (assets === null) return no("connect", { platform: spec.label });
   const id = spec.target === "page_id" ? assets.page_id : assets.ig_user_id;
   if (id === null) return no("noInstagram");
@@ -178,6 +209,13 @@ export async function metaAssets(accountId: string): Promise<MetaAssets | null> 
   return cred.page_id === null ? null : { page_id: cred.page_id, ig_user_id: cred.ig_user_id };
 }
 
+/** The connected TikTok posting account for an account, id only, or null (2026-11-08). */
+export async function tiktokAssets(accountId: string): Promise<TikTokAssets | null> {
+  const row = await activeExecutionConnection(accountId, "tiktok_publish");
+  if (!row || row.status !== "connected") return null;
+  return { open_id: parseTikTokCredential(executionSecret(row)).open_id };
+}
+
 /** The channel_platform value behind an item, from the planned slot's channel. */
 async function itemPlatform(profileId: string, provenance: unknown): Promise<string | null> {
   const channelId = (provenance as { item?: { channel_id?: unknown } } | null)?.item?.channel_id;
@@ -227,6 +265,7 @@ export async function proposePublishing(
     .from(businessProfiles)
     .where(eq(businessProfiles.id, profileId));
   const assets = profile ? await metaAssets(profile.account_id) : null;
+  const tiktok = profile ? await tiktokAssets(profile.account_id) : null;
   const tz = await ensureTimezone(profileId);
   const zone = tz.zone;
 
@@ -239,6 +278,7 @@ export async function proposePublishing(
       item,
       platform: await itemPlatform(profileId, item.provenance),
       assets,
+      tiktok,
       zone,
       ...(tz.zone === null ? { zoneReason: tz.reason } : {}),
     });
@@ -264,6 +304,7 @@ export async function proposePublishing(
     }
 
     const spec = PUBLISH_PLATFORMS[ready.platform];
+    const isTikTok = ready.platform === "tiktok";
     const hh = `${String(hour).padStart(2, "0")}:00`;
     const evidence = evidenceOf(item.provenance);
     const expires = Math.min(now.getTime() + PUBLISH_EXPIRY_DAYS * 86_400_000, publishAt.getTime());
@@ -283,6 +324,8 @@ export async function proposePublishing(
           publish_at: publishAt.toISOString(),
           disclosure: item.disclosure,
           evidence,
+          // TikTok's AI-generated content label goes on generated clips (rule 17).
+          ...(isTikTok ? { is_aigc: mediaOf(item.provenance)?.is_ai_generated === true } : {}),
         },
       },
       scenario: {
@@ -302,7 +345,9 @@ export async function proposePublishing(
         },
         downside_case: {
           case: "downside",
-          statement: "It does nothing you can measure — and you can withdraw it at any time.",
+          statement: isTikTok
+            ? "It does nothing you can measure — and SYB can't take it down: you'd delete it in the TikTok app."
+            : "It does nothing you can measure — and you can withdraw it at any time.",
           profit_delta_monthly: null,
           formula: null,
         },
@@ -315,7 +360,10 @@ export async function proposePublishing(
         },
         breakeven_condition: "no spend — the cost is your review time",
       } as never,
-      reversibility: { level: "easy", if_you_change_your_mind: PUBLISH_UNDO },
+      // TikTok's API has no delete: labelled irreversible BEFORE approval (rule 16).
+      reversibility: isTikTok
+        ? { level: "hard", if_you_change_your_mind: TIKTOK_PUBLISH_UNDO }
+        : { level: "easy", if_you_change_your_mind: PUBLISH_UNDO },
       expires_at: new Date(expires).toISOString(),
       blocked_by_limit: blockedBy,
     });
@@ -355,6 +403,7 @@ export async function publishBlocks(
     .from(businessProfiles)
     .where(eq(businessProfiles.id, profileId));
   const assets = profile ? await metaAssets(profile.account_id) : null;
+  const tiktok = profile ? await tiktokAssets(profile.account_id) : null;
   const tz = await ensureTimezone(profileId);
   const notes: Record<string, PublishBlock> = {};
   for (const item of drafted) {
@@ -362,6 +411,7 @@ export async function publishBlocks(
       item,
       platform: await itemPlatform(profileId, item.provenance),
       assets,
+      tiktok,
       zone: tz.zone,
       ...(tz.zone === null ? { zoneReason: tz.reason } : {}),
     });
