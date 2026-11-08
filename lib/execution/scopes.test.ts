@@ -121,6 +121,35 @@ describe("P3-08 — the pinned allowlist (rule 13)", () => {
           },
         ],
       },
+      // 2026-11-08, the owner's override ("should be done by today"): TikTok
+      // posting. One write scope, one IRREVERSIBLE op (TikTok's API can't
+      // delete a post), two consent lines on that scope: what SYB may do, and
+      // what it can't undo.
+      tiktok_publish: {
+        label: "TikTok posting",
+        write_scopes: ["video.publish"],
+        readback_scopes: ["user.info.basic", "video.list"],
+        operations: [
+          {
+            op: "publish_tiktok_video",
+            description:
+              "Post one approved video to the TikTok account, with the privacy and interaction settings you chose for it.",
+            reversible: false,
+          },
+        ],
+        consent: [
+          {
+            scope: "video.publish",
+            grant: "video.publish",
+            why: "SYB may post the videos you approve to the TikTok account you sign in with, each with the privacy and settings you chose for it.",
+          },
+          {
+            scope: "video.publish",
+            grant: "video.publish",
+            why: "TikTok doesn't let apps delete a post, so SYB can't take one down: to remove a post, delete it in the TikTok app.",
+          },
+        ],
+      },
       meta_ads: {
         label: "Meta ad management",
         write_scopes: ["ads_management"],
@@ -396,6 +425,37 @@ describe("P3-08 — the pinned allowlist (rule 13)", () => {
     // It is still a write by the vocabulary, so it can never sit in the
     // measurement registry: the read side's audit refuses it there.
     expect(isWriteCapable("instagram_manage_insights")).toBe(true);
+  });
+
+  it("TikTok posting: the write scope is honestly a write, the readbacks are reads, and video.manage is never asked for", () => {
+    expect(isWriteCapable("video.publish")).toBe(true);
+    expect(isWriteCapable("user.info.basic")).toBe(false);
+    expect(isWriteCapable("video.list")).toBe(false);
+    const all = Object.values(EXECUTION_SCOPE_REGISTRY).flatMap(
+      (spec) => [...spec.write_scopes, ...spec.readback_scopes] as string[],
+    );
+    // video.manage edits and deletes posts made by OTHER apps too; no consent here names it.
+    expect(all).not.toContain("video.manage");
+    expect(all).not.toContain("video.upload");
+    // Planted, it would be caught as a readback: it is write-shaped by name.
+    expect(
+      auditExecutionRegistry(
+        {
+          planted: {
+            write_scopes: ["video.publish"],
+            readback_scopes: ["video.manage"],
+            operations: [],
+          },
+        },
+        isWriteCapable,
+      ),
+    ).toEqual([{ provider: "planted", value: "video.manage", reason: "readback_write_shaped" }]);
+  });
+
+  it("TikTok posting: the one op is labelled irreversible — TikTok's API has no delete", () => {
+    const ops = EXECUTION_SCOPE_REGISTRY.tiktok_publish.operations;
+    expect(ops.map((o) => o.op)).toEqual(["publish_tiktok_video"]);
+    for (const o of ops) expect(o.reversible).toBe(false);
   });
 
   it("every consent line explains a registered scope, and every scope has one", () => {

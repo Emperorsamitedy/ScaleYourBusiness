@@ -32,6 +32,7 @@ An AI business operating system for small businesses. It interviews an owner, bu
 | `specs/benchmarks-eurostat-v1.json`    | Eurostat SBS snapshot, dated; the app's only benchmark source       |
 | `specs/review-notifications-v1.json`   | Review notification email formats per platform (all unverified)     |
 | `specs/higgsfield-api-v1.md`           | Higgsfield's video API as SYB uses it (P6-03), each fact `verified` |
+| `specs/tiktok-posting-api-v1.md`       | TikTok's Content Posting API as SYB uses it, each fact `verified`   |
 | `specs/glossary-v1.json`               | Business terms per language; one term, one translation (L-1)        |
 | `scripts/lint_bank.py`                 | Validates the question bank. Must pass in CI.                       |
 

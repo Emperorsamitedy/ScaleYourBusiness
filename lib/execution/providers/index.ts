@@ -20,11 +20,14 @@ import { emailCampaignExecutor } from "./email-campaign";
 import { googleBusinessExecutor } from "./google-business";
 import { metaAdsExecutor, metaPublishExecutor } from "./meta";
 import { purchaseOrderExecutor } from "./purchase-order";
+import { tiktokPublishExecutor } from "./tiktok";
 
 const PROVIDERS: Readonly<Record<ExecutionProviderId, ExecutionProvider>> = {
   fixture: fixtureExecutor,
   fixture_site: fixtureSiteExecutor,
   meta_publish: metaPublishExecutor,
+  // 2026-11-08, the owner's override: an approved video posted to TikTok (irreversible).
+  tiktok_publish: tiktokPublishExecutor,
   meta_ads: metaAdsExecutor,
   email_campaign: emailCampaignExecutor,
   // I-45a: read-only use of a write-capable consent — refuses every op.

@@ -161,6 +161,42 @@ export const EXECUTION_SCOPE_REGISTRY = {
     ],
   },
   /**
+   * TikTok posting (owner override 2026-11-08, "should be done by today",
+   * lifting the 2026-09-30 deferral): an approved video, posted to the TikTok
+   * account the owner signs in with, through the Content Posting API's
+   * Direct Post. One write scope. TikTok's API has no delete for a post
+   * (only video.manage, which also edits and deletes posts made by other
+   * apps, and SYB never asks for it), so the one op is IRREVERSIBLE and
+   * labelled so before approval: withdrawing means deleting it in the
+   * TikTok app. The readback scopes are reads: who the account is, and the
+   * public posts' counts (specs/tiktok-posting-api-v1.md).
+   */
+  tiktok_publish: {
+    label: "TikTok posting",
+    write_scopes: ["video.publish"],
+    readback_scopes: ["user.info.basic", "video.list"],
+    operations: [
+      {
+        op: "publish_tiktok_video",
+        description:
+          "Post one approved video to the TikTok account, with the privacy and interaction settings you chose for it.",
+        reversible: false,
+      },
+    ],
+    consent: [
+      {
+        scope: "video.publish",
+        grant: "video.publish",
+        why: "SYB may post the videos you approve to the TikTok account you sign in with, each with the privacy and settings you chose for it.",
+      },
+      {
+        scope: "video.publish",
+        grant: "video.publish",
+        why: "TikTok doesn't let apps delete a post, so SYB can't take one down: to remove a post, delete it in the TikTok app.",
+      },
+    ],
+  },
+  /**
    * Meta ad management (P3-20f). Creating anything is irreversible: Meta's
    * DELETED and ARCHIVED states are both permanent, so a campaign, ad set,
    * creative or ad once created cannot be un-created (P3-54 adds the last
