@@ -3313,6 +3313,57 @@ export const weeklySummaryStatus = pgEnum("weekly_summary_status", [
   "unknown",
 ]);
 
+/**
+ * P6-07 (rule 19): the owner's yes to the weekly summary on WhatsApp, as a
+ * recorded fact. The number they typed (E.164), WHICH words they agreed to
+ * (`consent_version`, the language shown and the sha256 of the exact
+ * sentence), and when. Withdrawing stamps `withdrawn_at` — one click, and
+ * the next week's run already sends nothing. A new yes is a new row; at
+ * most one is live per user. The number is erasable PII (rule 22): erasure
+ * nulls it and stamps `erased_at` (and withdraws), keeping the dates and
+ * the hash so "they agreed, then left" stays provable without the number.
+ */
+export const whatsappOptins = pgTable(
+  "whatsapp_optins",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    account_id: uuid("account_id")
+      .notNull()
+      .references(() => accounts.id, { onDelete: "cascade" }),
+    user_id: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    /** E.164; null once erased. */
+    phone_number: text("phone_number"),
+    /** "whatsapp-summary-v1" — bumped whenever the opt-in sentence changes. */
+    consent_version: text("consent_version").notNull(),
+    /** The language the sentence was shown in. */
+    consent_locale: text("consent_locale").notNull(),
+    /** sha256 (hex) of the exact sentence shown and agreed to. */
+    consent_sha256: text("consent_sha256").notNull(),
+    opted_in_at: timestamp("opted_in_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+    withdrawn_at: timestamp("withdrawn_at", { withTimezone: true, mode: "string" }),
+    erased_at: timestamp("erased_at", { withTimezone: true, mode: "string" }),
+  },
+  (t) => [
+    uniqueIndex("whatsapp_optins_live_idx")
+      .on(t.user_id)
+      .where(sql`${t.withdrawn_at} IS NULL`),
+    index("whatsapp_optins_account_idx").on(t.account_id),
+    check(
+      "whatsapp_optins_number",
+      sql`(${t.phone_number} IS NULL) = (${t.erased_at} IS NOT NULL) AND (${t.phone_number} IS NULL OR ${t.phone_number} ~ '^\\+[1-9][0-9]{6,14}$')`,
+    ),
+    check(
+      "whatsapp_optins_erased_withdrawn",
+      sql`${t.erased_at} IS NULL OR ${t.withdrawn_at} IS NOT NULL`,
+    ),
+    check("whatsapp_optins_hash", sql`${t.consent_sha256} ~ '^[0-9a-f]{64}$'`),
+  ],
+);
+
 export const weeklySummaries = pgTable(
   "weekly_summaries",
   {
@@ -3322,19 +3373,36 @@ export const weeklySummaries = pgTable(
       .references(() => accounts.id, { onDelete: "cascade" }),
     /** The ISO week it covers, "2026-W44" (UTC). */
     iso_week: text("iso_week").notNull(),
-    status: weeklySummaryStatus("status").notNull().default("sending"),
+    /** The EMAIL's outcome; null when the owner chose WhatsApp alone that week (P6-07). */
+    status: weeklySummaryStatus("status").default("sending"),
     /** True when the week had nothing to report and the email said so. */
     quiet: boolean("quiet").notNull(),
     /** How many real lines the email carried — counts, never their text. */
     line_count: integer("line_count").notNull(),
     /** Resend's email id once accepted; null otherwise. */
     provider_id: text("provider_id"),
+    /** P6-07: the WhatsApp message's outcome; null when it wasn't a channel that week. */
+    whatsapp_status: weeklySummaryStatus("whatsapp_status"),
+    /** Twilio's message SID ("SM…"/"MM…") once accepted; null otherwise. */
+    whatsapp_sid: text("whatsapp_sid"),
+    /** Twilio's error code on a refusal (e.g. 63016), never its message text. */
+    whatsapp_error_code: integer("whatsapp_error_code"),
+    /** The opt-in the send relied on (rule 19). */
+    whatsapp_optin_id: uuid("whatsapp_optin_id").references(() => whatsappOptins.id, {
+      onDelete: "set null",
+    }),
     created_at: timestamp("created_at", { withTimezone: true, mode: "string" })
       .notNull()
       .defaultNow(),
     settled_at: timestamp("settled_at", { withTimezone: true, mode: "string" }),
   },
-  (t) => [uniqueIndex("weekly_summaries_account_week_idx").on(t.account_id, t.iso_week)],
+  (t) => [
+    uniqueIndex("weekly_summaries_account_week_idx").on(t.account_id, t.iso_week),
+    check(
+      "weekly_summaries_some_channel",
+      sql`${t.status} IS NOT NULL OR ${t.whatsapp_status} IS NOT NULL`,
+    ),
+  ],
 );
 
 /* ---------- Phase 3 Session K — ad creation on Meta (P3-54) ---------- */

@@ -1216,7 +1216,29 @@
       "notDecided": "Il démarre dès que « Ma façon de travailler » est décidée.",
       "noEmail": "L’envoi d’e-mails n’est pas encore configuré sur ce serveur, donc aucun n’est envoyé.",
       "lastSent": "Dernier envoi le {date}.",
-      "first": "Le premier part lors de la prochaine vérification du lundi."
+      "first": "Le premier part lors de la prochaine vérification du lundi.",
+      "channel": {
+        "legend": "L’envoyer par",
+        "email": "E-mail",
+        "whatsapp": "WhatsApp",
+        "both": "E-mail et WhatsApp"
+      },
+      "whatsapp": {
+        "numberLabel": "Votre numéro WhatsApp",
+        "numberHint": "Le numéro international complet : un signe plus, puis l’indicatif du pays.",
+        "consent": "Envoyer mon résumé hebdomadaire SYB à ce numéro sur WhatsApp. Je peux l’arrêter ici à tout moment, et SYB n’utilise le numéro pour rien d’autre.",
+        "agree": "Oui, l’envoyer sur WhatsApp",
+        "on": "WhatsApp est envoyé au {number} depuis le {date}.",
+        "withdraw": "Arrêter WhatsApp",
+        "forget": "Arrêter et oublier mon numéro",
+        "none": "Pas encore de numéro : rien n’est envoyé sur WhatsApp.",
+        "notSetUp": "WhatsApp n’est pas encore configuré sur ce serveur. Il manque : {keys}.",
+        "invalid": "Ce n’est pas un numéro international complet. Commencez par un signe plus et l’indicatif du pays.",
+        "changed": "Ce texte a changé pendant que la page était ouverte. Rechargez-la et relisez-le.",
+        "notYours": "Seule la personne qui reçoit le résumé peut donner un numéro WhatsApp.",
+        "needsYes": "Rien n’est envoyé sur WhatsApp tant qu’un numéro n’a pas été donné et accepté ci-dessous.",
+        "failed": "L’enregistrement a échoué. Réessayez."
+      }
     },
     "signedOut": {
       "title": "Il n’y a pas encore d’entreprise ici.",
@@ -6299,7 +6321,8 @@
       "footApprove": "Rien ne s’exécute tant que vous ne l’avez pas validé.",
       "footStop": "Vous recevez cet e-mail une fois par semaine. Désactivez-le sur l’écran Observation, ou arrêtez-le en un clic :",
       "footWatchingHtml": "Tout ce que je fais figure sur votre <link>écran Observation</link>. Rien ne s’exécute tant que vous ne l’avez pas validé.",
-      "footStopHtml": "Vous recevez cet e-mail une fois par semaine. Désactivez-le sur l’écran Observation, ou <link>arrêtez ces e-mails</link> en un clic."
+      "footStopHtml": "Vous recevez cet e-mail une fois par semaine. Désactivez-le sur l’écran Observation, ou <link>arrêtez ces e-mails</link> en un clic.",
+      "whatsappBusiness": "votre entreprise"
     },
     "signIn": {
       "subject": "Votre lien de connexion — SYB",

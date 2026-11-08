@@ -1310,7 +1310,29 @@
       "notDecided": "Empieza en cuanto se decida Cómo trabajo.",
       "noEmail": "El correo electrónico aún no está configurado en este servidor, así que no se envía ninguno.",
       "lastSent": "Último envío: {date}.",
-      "first": "El primero sale con la próxima comprobación del lunes."
+      "first": "El primero sale con la próxima comprobación del lunes.",
+      "channel": {
+        "legend": "Enviarlo por",
+        "email": "Correo",
+        "whatsapp": "WhatsApp",
+        "both": "Correo y WhatsApp"
+      },
+      "whatsapp": {
+        "numberLabel": "Su número de WhatsApp",
+        "numberHint": "El número internacional completo: un signo más y, después, el prefijo del país.",
+        "consent": "Enviar mi resumen semanal de SYB a este número por WhatsApp. Puedo detenerlo aquí en cualquier momento, y SYB no usa el número para nada más.",
+        "agree": "Sí, enviarlo por WhatsApp",
+        "on": "WhatsApp va a {number} desde el {date}.",
+        "withdraw": "Detener WhatsApp",
+        "forget": "Detener y olvidar mi número",
+        "none": "Aún no hay número, así que no se envía nada por WhatsApp.",
+        "notSetUp": "WhatsApp aún no está configurado en este servidor. Necesita {keys}.",
+        "invalid": "No es un número internacional completo. Empiece con un signo más y el prefijo del país.",
+        "changed": "Este texto cambió mientras la página estaba abierta. Recárguela y vuelva a leerlo.",
+        "notYours": "Solo la persona que recibe el resumen puede dar un número de WhatsApp.",
+        "needsYes": "No se envía nada por WhatsApp hasta que se indique un número y se acepte abajo.",
+        "failed": "No se guardó. Inténtelo de nuevo."
+      }
     },
     "signedOut": {
       "title": "Aquí aún no hay ningún negocio.",
@@ -6299,7 +6321,8 @@
       "footApprove": "Nada se ejecuta sin su aprobación.",
       "footStop": "Recibe este correo una vez por semana. Desactívelo en la pantalla Observando o deje de recibirlo con un solo clic:",
       "footWatchingHtml": "Todo lo que hago está en su <link>pantalla Observando</link>. Nada se ejecuta sin su aprobación.",
-      "footStopHtml": "Recibe este correo una vez por semana. Desactívelo en la pantalla Observando o <link>deje de recibir estos correos</link> con un solo clic."
+      "footStopHtml": "Recibe este correo una vez por semana. Desactívelo en la pantalla Observando o <link>deje de recibir estos correos</link> con un solo clic.",
+      "whatsappBusiness": "su negocio"
     },
     "signIn": {
       "subject": "Su enlace de inicio de sesión — SYB",

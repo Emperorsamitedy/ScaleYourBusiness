@@ -295,14 +295,20 @@ export const TWILIO_KEYS = [
   "TWILIO_PHONE_NUMBER",
 ] as const;
 
-/** The Twilio settings that are missing or malformed, by name — empty when the line can run. */
-export function twilioMissing(): (typeof TWILIO_KEYS)[number][] {
+/** P6-02/P6-07: the shared Twilio account keys that are missing or malformed. */
+function twilioAccountMissing(): ("TWILIO_ACCOUNT_SID" | "TWILIO_AUTH_TOKEN")[] {
   const sid = process.env.TWILIO_ACCOUNT_SID?.trim() ?? "";
   const token = process.env.TWILIO_AUTH_TOKEN?.trim() ?? "";
-  const number = process.env.TWILIO_PHONE_NUMBER?.trim() ?? "";
-  const missing: (typeof TWILIO_KEYS)[number][] = [];
+  const missing: ("TWILIO_ACCOUNT_SID" | "TWILIO_AUTH_TOKEN")[] = [];
   if (!/^AC[0-9a-f]{32}$/i.test(sid)) missing.push("TWILIO_ACCOUNT_SID");
   if (token === "" || /\s/.test(token)) missing.push("TWILIO_AUTH_TOKEN");
+  return missing;
+}
+
+/** The Twilio settings that are missing or malformed, by name — empty when the line can run. */
+export function twilioMissing(): (typeof TWILIO_KEYS)[number][] {
+  const number = process.env.TWILIO_PHONE_NUMBER?.trim() ?? "";
+  const missing: (typeof TWILIO_KEYS)[number][] = [...twilioAccountMissing()];
   if (!/^\+[1-9][0-9]{6,14}$/.test(number)) missing.push("TWILIO_PHONE_NUMBER");
   return missing;
 }
@@ -318,6 +324,67 @@ export function twilioEnv(): TwilioEnv | null {
     accountSid: process.env.TWILIO_ACCOUNT_SID!.trim(),
     authToken: process.env.TWILIO_AUTH_TOKEN!.trim(),
     phoneNumber: process.env.TWILIO_PHONE_NUMBER!.trim(),
+  };
+}
+
+/**
+ * P6-07: the weekly summary on WhatsApp, through the same Twilio account as
+ * the phone line (TWILIO_ACCOUNT_SID and TWILIO_AUTH_TOKEN, read above).
+ */
+export interface WhatsAppEnv {
+  accountSid: string;
+  /** HTTP Basic password for the Messages API. Never logged, never sent anywhere else. */
+  authToken: string;
+  /** The WhatsApp-enabled sender, E.164 ("+447700900123"); sent as "whatsapp:+…". */
+  from: string;
+  /** Locale → the approved template's ContentSid ("HX" + 32 hex). Always has "en". */
+  templates: Readonly<Record<string, string>>;
+}
+
+export const WHATSAPP_KEYS = [
+  "TWILIO_ACCOUNT_SID",
+  "TWILIO_AUTH_TOKEN",
+  "TWILIO_WHATSAPP_FROM",
+  "TWILIO_WHATSAPP_SUMMARY_TEMPLATES",
+] as const;
+
+/** Pure: TWILIO_WHATSAPP_SUMMARY_TEMPLATES read — null unless a JSON object of HX sids with "en". */
+export function parseWhatsAppTemplates(raw: string | undefined): Record<string, string> | null {
+  if (!raw || raw.trim() === "") return null;
+  let parsed: unknown;
+  try {
+    parsed = JSON.parse(raw);
+  } catch {
+    return null;
+  }
+  if (parsed === null || typeof parsed !== "object" || Array.isArray(parsed)) return null;
+  const out: Record<string, string> = {};
+  for (const [locale, sid] of Object.entries(parsed as Record<string, unknown>)) {
+    if (typeof sid !== "string" || !/^HX[0-9a-f]{32}$/i.test(sid.trim())) return null;
+    out[locale] = sid.trim();
+  }
+  return typeof out.en === "string" ? out : null;
+}
+
+/** The WhatsApp settings that are missing or malformed, by name — empty when the summary can go. */
+export function whatsappMissing(): (typeof WHATSAPP_KEYS)[number][] {
+  const missing: (typeof WHATSAPP_KEYS)[number][] = [...twilioAccountMissing()];
+  const from = process.env.TWILIO_WHATSAPP_FROM?.trim() ?? "";
+  if (!/^\+[1-9][0-9]{6,14}$/.test(from)) missing.push("TWILIO_WHATSAPP_FROM");
+  if (!parseWhatsAppTemplates(process.env.TWILIO_WHATSAPP_SUMMARY_TEMPLATES)) {
+    missing.push("TWILIO_WHATSAPP_SUMMARY_TEMPLATES");
+  }
+  return missing;
+}
+
+/** P6-07: all four WhatsApp settings, or null: not set up, and /watch names what's needed. */
+export function whatsappEnv(): WhatsAppEnv | null {
+  if (whatsappMissing().length > 0) return null;
+  return {
+    accountSid: process.env.TWILIO_ACCOUNT_SID!.trim(),
+    authToken: process.env.TWILIO_AUTH_TOKEN!.trim(),
+    from: process.env.TWILIO_WHATSAPP_FROM!.trim(),
+    templates: parseWhatsAppTemplates(process.env.TWILIO_WHATSAPP_SUMMARY_TEMPLATES)!,
   };
 }
 

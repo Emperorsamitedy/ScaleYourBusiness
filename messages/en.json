@@ -1216,7 +1216,29 @@
       "notDecided": "It starts once How I work is decided.",
       "noEmail": "Email isn't set up on this server yet, so none is sent.",
       "lastSent": "Last sent {date}.",
-      "first": "The first one goes out on the next Monday check."
+      "first": "The first one goes out on the next Monday check.",
+      "channel": {
+        "legend": "Send it by",
+        "email": "Email",
+        "whatsapp": "WhatsApp",
+        "both": "Email and WhatsApp"
+      },
+      "whatsapp": {
+        "numberLabel": "Your WhatsApp number",
+        "numberHint": "The full international number: a plus sign, then the country code.",
+        "consent": "Send my weekly SYB summary to this number on WhatsApp. I can stop it here at any time, and SYB keeps the number for nothing else.",
+        "agree": "Yes, send it on WhatsApp",
+        "on": "WhatsApp goes to {number}, since {date}.",
+        "withdraw": "Stop WhatsApp",
+        "forget": "Stop and forget my number",
+        "none": "No number yet, so nothing goes to WhatsApp.",
+        "notSetUp": "WhatsApp isn't set up on this server yet. It needs {keys}.",
+        "invalid": "That isn't a full international number. Start with a plus sign and the country code.",
+        "changed": "These words changed while the page was open. Reload and read them again.",
+        "notYours": "Only the person the summary goes to can give a WhatsApp number.",
+        "needsYes": "Nothing goes to WhatsApp until a number is given and agreed to below.",
+        "failed": "That didn't save. Try again."
+      }
     },
     "signedOut": {
       "title": "There's no business here yet.",
@@ -6299,7 +6321,8 @@
       "footApprove": "Nothing runs until you approve it.",
       "footStop": "You get this email once a week. Switch it off on the Watching screen, or stop it with one click:",
       "footWatchingHtml": "Everything I do is on your <link>Watching screen</link>. Nothing runs until you approve it.",
-      "footStopHtml": "You get this email once a week. Switch it off on the Watching screen, or <link>stop these emails</link> with one click."
+      "footStopHtml": "You get this email once a week. Switch it off on the Watching screen, or <link>stop these emails</link> with one click.",
+      "whatsappBusiness": "your business"
     },
     "signIn": {
       "subject": "Your sign-in link — SYB",

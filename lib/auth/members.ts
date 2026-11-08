@@ -36,6 +36,7 @@ import {
   users,
 } from "../../db/schema";
 import { normaliseEmail } from "../intake/resume";
+import { eraseWhatsAppNumbers } from "../summary/whatsapp-optin";
 import type { Role } from "./role-actions";
 import { isRole } from "./role-actions";
 import type { AuthedSession, RedeemedSession } from "./service";
@@ -650,6 +651,8 @@ export async function removeMember(args: {
         .where(and(eq(authSessions.user_id, target.id), isNull(authSessions.revoked_at)));
       // Idea 53's phone alerts go with them, as a sign-out takes its own.
       await tx.delete(pushSubscriptions).where(eq(pushSubscriptions.user_id, target.id));
+      // P6-07 (rule 22): and any WhatsApp number they gave for the weekly summary.
+      await eraseWhatsAppNumbers(target.id, tx);
       await logTeamDecision(tx, {
         kind: "team_remove",
         profileId: args.profileId,
