@@ -8979,7 +8979,9 @@
         "no_payer": "Braucht zuerst Ihre Bankdaten",
         "erased": "Bankdaten gelöscht",
         "not_approved": "Noch nicht freigegeben",
-        "paid": "Bereits bezahlt"
+        "paid": "Bereits bezahlt",
+        "name_not_latin": "Von Hand: ein Name oder Verwendungszweck ist nicht in lateinischer Schrift",
+        "bic_needed": "Von Hand: braucht die BIC des Empfängers"
       }
     },
     "paid": {
@@ -9025,7 +9027,9 @@
       "erased": "Die Bankdaten dieser Zahlung wurden gelöscht. Fragen Sie den Empfänger erneut danach.",
       "why": {
         "notEur": "Nicht in Euro, daher nicht in der SEPA-Datei: führen Sie sie von Hand aus.",
-        "notSepa": "Eine Bank außerhalb von SEPA, daher nicht in der SEPA-Datei: führen Sie sie von Hand aus."
+        "notSepa": "Eine Bank außerhalb von SEPA, daher nicht in der SEPA-Datei: führen Sie sie von Hand aus.",
+        "notLatin": "Ein Name oder Verwendungszweck nicht in lateinischer Schrift, daher nicht in der SEPA-Datei: führen Sie sie von Hand aus.",
+        "bicNeeded": "Eine Bank außerhalb des EWR braucht die BIC des Empfängers, daher nicht in der SEPA-Datei: führen Sie sie von Hand aus."
       },
       "closing": "Sobald eine Zahlung ausgeführt ist, markieren Sie sie in SYB. Lehnt Ihre Bank eine Angabe ab, korrigieren Sie sie dort: SYB sendet nie etwas an Ihre Bank."
     },

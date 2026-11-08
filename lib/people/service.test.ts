@@ -138,6 +138,35 @@ describe("each person's own figures, with the module on", () => {
     }
   });
 
+  it("keeps the business's measured window when bookings stored as future have since passed", async () => {
+    // The export also carries next week's bookings (booked, not yet measured).
+    const boot = await bootstrapIntake();
+    await db
+      .insert(accountModules)
+      .values({ account_id: boot.account_id, module: TEAM_MODULE, enabled: true });
+    const future = Array.from({ length: 6 }, (_, d) =>
+      ["Sinead", "aoife", "Marta"].map(
+        (who, k) =>
+          `F-${d}-${k},${shiftDate(YESTERDAY, d + 1)},10:00,Confirmed,Cut,${who},future${k}@example.test,45.00`,
+      ),
+    ).flat();
+    await importBookings(
+      boot.account_id,
+      [exportCsv(), ...future].join("\n"),
+      { platform: "fresha", currency: "EUR", dateOrder: null },
+      NOW,
+    );
+    // A week later, nothing re-imported: the business's measures still end on YESTERDAY.
+    const later = new Date("2026-11-15T09:00:00Z");
+    const view = await peopleView(boot.account_id, later);
+    if (!view.enabled || view.status !== "ok") throw new Error("expected figures");
+    expect([view.figures.from, view.figures.to]).toEqual([shiftDate(YESTERDAY, -27), YESTERDAY]);
+    // Each person's completed appointments add up to the business's own count.
+    const business = await businessMeasures(boot.account_id);
+    const sum = view.figures.people.reduce((s, p) => s + p.completed, 0);
+    expect(sum).toBe(business.completed);
+  });
+
   it("measures utilisation once the owner states a person's capacity, with who and when", async () => {
     const boot = await salon(true);
     await stateCapacity(boot.account_id, null, "Marta", 14, NOW);

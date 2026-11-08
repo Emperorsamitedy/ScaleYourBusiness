@@ -310,19 +310,35 @@ export async function renderPurchaseOrderPdf(
     pen.y -= 6;
   }
 
+  /**
+   * Text that may be longer than the room left (the total, a note of up to
+   * PO.max_note characters): drawn a line at a time, onto a fresh page when
+   * this one is full, so no line is drawn below the margin or off the page.
+   */
+  const flow = (s: string, size: number, font: PDFFont = regular) => {
+    const lead = size * 1.35;
+    for (const line of wrapText(drawable(s, has), CONTENT, (t) =>
+      font.widthOfTextAtSize(t, size),
+    )) {
+      room(lead);
+      pen.page.drawText(line, { x: MARGIN, y: pen.y - size, size, font, color: INK });
+      pen.y -= lead;
+    }
+  };
+
   // The total, the note, the foot.
   const total = totalWords(po, w);
   if (total) {
     room(30);
     pen.y -= 6;
-    pen.y -= text(total, MARGIN, 11, { font: bold });
+    flow(total, 11, bold);
   }
   if (po.note) {
     room(50);
     pen.y -= 14;
     pen.y -= text(w.t("noteHead").toLocaleUpperCase(w.locale), MARGIN, 8, { color: MUTED });
     pen.y -= 3;
-    pen.y -= text(po.note, MARGIN, 10);
+    flow(po.note, 10);
   }
   room(40);
   pen.y -= 24;

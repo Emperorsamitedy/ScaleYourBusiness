@@ -18,7 +18,7 @@
 
 import type { Money } from "../core/money";
 import { money, toDecimalString } from "../core/money";
-import { SEPA_COUNTRIES, checkIban } from "./iban";
+import { SEPA_COUNTRIES, SEPA_NON_EEA, checkIban } from "./iban";
 
 export const PAIN_001_NAMESPACE = "urn:iso:std:iso:20022:tech:xsd:pain.001.001.03";
 export const PAIN_001_VERSION = "pain.001.001.03";
@@ -54,7 +54,28 @@ export class SepaFileError extends Error {
 
 /** Why a payment can't go in a SEPA file (it still gets instructions), or null when it can. */
 export type SepaBar =
-  "not_approved" | "paid" | "erased" | "not_eur" | "payee_not_sepa" | "payer_not_sepa" | "no_payer";
+  | "not_approved"
+  | "paid"
+  | "erased"
+  | "not_eur"
+  | "payee_not_sepa"
+  | "payer_not_sepa"
+  | "no_payer"
+  | "name_not_latin"
+  | "bic_needed";
+
+/** A letter of a script other than Latin (Greek, Cyrillic, Han…): the SEPA set has no fold for it. */
+const NOT_LATIN = /(?=\p{L})\P{Script=Latin}/u;
+
+/**
+ * Pure: whether a name can be written in the SEPA set without losing it —
+ * Latin letters (accents fold), and something left once folded. "Παπαδόπουλος
+ * ΑΕ" or "ООО Ромашка" would fold to nothing, or to the digits alone: an
+ * empty <Nm> the bank refuses, or a payee it can't match.
+ */
+function latinName(raw: string): boolean {
+  return !NOT_LATIN.test(raw) && sepaText(raw, 70) !== "";
+}
 
 /** Pure: whether a payment can go into a SEPA file with this debtor. */
 export function sepaBar(p: FilePayment, debtor: Debtor | null): SepaBar | null {
@@ -67,6 +88,12 @@ export function sepaBar(p: FilePayment, debtor: Debtor | null): SepaBar | null {
   if (debtor === null) return "no_payer";
   const payer = checkIban(debtor.iban);
   if (!payer.ok || !SEPA_COUNTRIES.has(payer.country)) return "payer_not_sepa";
+  if (!latinName(p.payee_name) || !latinName(debtor.holder_name) || NOT_LATIN.test(p.reference)) {
+    return "name_not_latin";
+  }
+  if (!p.payee_bic && (SEPA_NON_EEA.has(payee.country) || SEPA_NON_EEA.has(payer.country))) {
+    return "bic_needed";
+  }
   return null;
 }
 
@@ -82,6 +109,8 @@ const FOLD: Readonly<Record<string, string>> = {
   ł: "l",
   Đ: "D",
   đ: "d",
+  Ð: "D",
+  ð: "d",
   Þ: "Th",
   þ: "th",
   "&": "+",
