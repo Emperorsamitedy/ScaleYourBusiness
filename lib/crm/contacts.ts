@@ -31,6 +31,7 @@ import { db } from "../../db";
 import { forgetBookingClient } from "../bookings/erase";
 import { eraseCartsFor } from "../carts/erase";
 import { toE164 } from "../phone/twilio";
+import { markRecordingsForErasure, purgeRecordings } from "../phone-recording/recordings";
 import { lockSupportWrites } from "../support/support-contact";
 import {
   businessProfiles,
@@ -240,7 +241,7 @@ export async function eraseContact(accountId: string, contactId: string): Promis
   // lock (lib/support's inbound filing takes the same one), so an email
   // committing mid-erasure is either seen and erased here, or filed after
   // the suppression exists — never left behind with its PII.
-  const { conversationIds, emailTicketIds } = await db.transaction(async (tx) => {
+  const { conversationIds, emailTicketIds, recordingIds } = await db.transaction(async (tx) => {
     await lockSupportWrites(tx, accountId);
     // Their support traces go too (the security review of 2026-10-17 found
     // erasure left every ticket and widget transcript behind): the tickets
@@ -350,9 +351,22 @@ export async function eraseContact(accountId: string, contactId: string): Promis
     await forgetBookingClient(accountId, { email: contact.email, phone: contact.phone }, tx);
     // P6-02: the calls their number made to the phone line go too — number,
     // transcript and message (rule 22). Turns go with their call (CASCADE).
+    // P6-08: their recordings are marked here, before the calls go, and
+    // deleted from storage and at Twilio once this commits.
+    let recordingIds: string[] = [];
     if (contact.phone) {
       const numbers = [...new Set([contact.phone.trim(), toE164(contact.phone) ?? ""])].filter(
         (n) => n !== "",
+      );
+      const calls = await tx
+        .select({ id: phoneCalls.id })
+        .from(phoneCalls)
+        .where(
+          and(eq(phoneCalls.account_id, accountId), inArray(phoneCalls.caller_number, numbers)),
+        );
+      recordingIds = await markRecordingsForErasure(
+        calls.map((c) => c.id),
+        tx,
       );
       await tx
         .delete(phoneCalls)
@@ -378,8 +392,11 @@ export async function eraseContact(accountId: string, contactId: string): Promis
           .digest("hex"),
       });
     }
-    return { conversationIds, emailTicketIds };
+    return { conversationIds, emailTicketIds, recordingIds };
   });
+  // P6-08: both copies of their call recordings. What fails stays marked
+  // (unplayable) and the daily upkeep finishes it.
+  const recordingsGone = await purgeRecordings(recordingIds);
   console.log(
     JSON.stringify({
       event: "contact_erased",
@@ -387,6 +404,8 @@ export async function eraseContact(accountId: string, contactId: string): Promis
       contact_id: contactId,
       conversations_erased: conversationIds.length,
       email_tickets_erased: emailTicketIds.length,
+      recordings_erased: recordingsGone,
+      recordings_pending: recordingIds.length - recordingsGone,
     }),
   );
 }

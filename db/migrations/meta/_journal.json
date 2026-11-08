@@ -610,6 +610,13 @@
       "when": 1794135116717,
       "tag": "0087_media_candidates",
       "breakpoints": true
+    },
+    {
+      "idx": 92,
+      "version": "7",
+      "when": 1794153418814,
+      "tag": "0092_call_recordings",
+      "breakpoints": true
     }
   ]
 }

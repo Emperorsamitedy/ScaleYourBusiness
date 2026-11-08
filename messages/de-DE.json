@@ -5506,6 +5506,7 @@
       "titleOn": "Nimmt Anrufe unter {number} an",
       "titleOff": "Nimmt keine Anrufe an",
       "what": "Die Leitung sagt zuerst, dass sie der automatische Assistent von SYB ist. Sie antwortet nur mit den Antworten, die Sie freigegeben haben, bucht, verspricht oder erstattet nie etwas und nimmt eine Nachricht auf oder verbindet den Anrufer mit Ihnen, wenn sie etwas nicht weiß. Anrufer hören, dass der Anruf transkribiert wird, bevor irgendetwas transkribiert wird, und es wird kein Ton gespeichert.",
+      "whatRecorded": "Die Leitung sagt zuerst, dass sie der automatische Assistent von SYB ist. Sie antwortet nur mit den Antworten, die Sie freigegeben haben, bucht, verspricht oder erstattet nie etwas und nimmt eine Nachricht auf oder verbindet den Anrufer mit Ihnen, wenn sie etwas nicht weiß. Anrufer hören, dass der Anruf aufgezeichnet und transkribiert wird, bevor irgendetwas davon geschieht.",
       "needsKeys": "Um Anrufe anzunehmen, braucht SYB ein Twilio-Konto und eine Twilio-Nummer. Tragen Sie diese Einstellungen auf dem Server ein und kommen Sie dann hierher zurück:",
       "setUp": "Stellen Sie in Twilio den Webhook „A call comes in“ dieser Nummer auf die erste Adresse und ihre Statusmeldung auf die zweite, beide als HTTP POST.",
       "turnOn": "Anrufe unter {number} annehmen",
@@ -5532,13 +5533,29 @@
       "messageLabel": "Nachricht",
       "erase": "Diesen Anruf löschen",
       "eraseConfirm": "Diesen Anruf endgültig löschen – die Nummer des Anrufers, das Gesagte und jede Nachricht?",
+      "eraseConfirmRecorded": "Diesen Anruf endgültig löschen – die Nummer des Anrufers, das Gesagte, jede Nachricht und die Aufzeichnung?",
       "eraseYes": "Endgültig löschen",
       "keep": "Behalten",
+      "recording": {
+        "title": "Anrufaufzeichnung",
+        "stateOff": "Anrufe werden nicht aufgezeichnet. Anrufer hören, dass der Anruf transkribiert wird, und es wird kein Ton gespeichert.",
+        "stateOn": "Anrufe werden aufgezeichnet. Jeder Anrufer hört, dass der Anruf aufgezeichnet wird, bevor die Aufzeichnung beginnt.",
+        "explain": "Ist die Aufzeichnung an, erfahren Anrufer, dass der Anruf aufgezeichnet wird, bevor Ton gespeichert wird. Jede Aufzeichnung wird {days, plural, one {# Tag} other {# Tage}} aufbewahrt und dann endgültig gelöscht; wer einen Anruf oder einen Kontakt löscht, löscht auch die Aufzeichnung. Nur ein Inhaber kann sie anhören.",
+        "changed": "Zuletzt umgeschaltet: {when}.",
+        "needsSetup": "Die Aufzeichnung lässt sich auf diesem Server noch nicht einschalten. Dafür fehlen diese Einstellungen:",
+        "turnOn": "Anrufe aufzeichnen",
+        "turnOff": "Anrufe nicht mehr aufzeichnen",
+        "listen": "Aufzeichnung des Anrufs",
+        "kept": "Aufgezeichnet · aufbewahrt bis {date}",
+        "notKept": "Aufgezeichnet · die Aufzeichnung ist nicht verfügbar"
+      },
       "notice": {
         "on": "Die Telefonleitung nimmt Anrufe an.",
         "off": "Die Telefonleitung nimmt keine Anrufe mehr an.",
         "handover": "Gespeichert.",
-        "erased": "Der Anruf ist gelöscht."
+        "erased": "Der Anruf ist gelöscht.",
+        "recordingOn": "Anrufe werden jetzt aufgezeichnet. Anrufer erfahren es zuerst.",
+        "recordingOff": "Anrufe werden nicht mehr aufgezeichnet. Bereits gespeicherte Aufzeichnungen bleiben bis zu ihrem Datum, außer Sie löschen sie."
       },
       "error": {
         "notSetUp": "Die Telefonleitung ist auf diesem Server noch nicht eingerichtet.",
@@ -5546,6 +5563,7 @@
         "notOn": "Schalten Sie zuerst die Telefonleitung ein.",
         "badNumber": "Schreiben Sie die Nummer mit Ländervorwahl, beginnend mit einem Pluszeichen.",
         "noCall": "Diesen Anruf gibt es nicht mehr.",
+        "recordingNotSetUp": "Die Anrufaufzeichnung ist auf diesem Server noch nicht eingerichtet.",
         "crossSite": "Diese Seite lässt sich nur aus SYB selbst ändern.",
         "signIn": "Bitte erst anmelden, um die Telefonleitung zu ändern.",
         "action": "Das kann die Telefonleitung nicht."
@@ -5555,6 +5573,7 @@
   "phoneLine": {
     "greeting": "Guten Tag, Sie haben {business} erreicht und sprechen mit dem automatischen Assistenten von SYB, nicht mit einem Menschen.",
     "notice": "Dieser Anruf wird transkribiert, damit {business} ihn später lesen kann; es wird kein Ton gespeichert.",
+    "noticeRecorded": "Dieser Anruf wird aufgezeichnet und transkribiert, damit {business} ihn später anhören und lesen kann. Die Aufzeichnung wird {days, plural, one {# Tag} other {# Tage}} aufbewahrt und dann gelöscht.",
     "howCanIHelp": "Wie kann ich Ihnen helfen?",
     "anythingElse": "Kann ich Ihnen sonst noch helfen?",
     "notHeard": "Entschuldigung, das habe ich nicht verstanden. Könnten Sie es wiederholen?",
@@ -5866,7 +5885,8 @@
       "summary_settings": "Nur ein Inhaber kann die wöchentliche Zusammenfassung ein- oder ausschalten.",
       "stop_resume": "Nur ein Inhaber kann nach einem Stopp alles wieder in Gang setzen.",
       "business_locale": "Nur ein Inhaber kann die Sprache oder Währung des Unternehmens ändern.",
-      "payments_prepare": "Nur ein Inhaber kann Zahlungen vorbereiten oder angeben, dass eine bezahlt wurde."
+      "payments_prepare": "Nur ein Inhaber kann Zahlungen vorbereiten oder angeben, dass eine bezahlt wurde.",
+      "phone_recordings": "Nur ein Inhaber kann Anrufaufzeichnungen anhören."
     }
   },
   "authWords": {

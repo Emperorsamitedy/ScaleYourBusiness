@@ -295,6 +295,25 @@ export const TWILIO_KEYS = [
   "TWILIO_PHONE_NUMBER",
 ] as const;
 
+/** P6-08: how long a call recording is kept unless the owner sets otherwise. */
+export const PHONE_RECORDING_KEEP_DAYS_DEFAULT = 30;
+/** The longest PHONE_RECORDING_KEEP_DAYS honoured: a year. Anything longer reads as the default. */
+export const PHONE_RECORDING_KEEP_DAYS_MAX = 365;
+
+/**
+ * P6-08: PHONE_RECORDING_KEEP_DAYS — whole days, 1 to 365; anything else
+ * (unset, junk, zero, longer than a year) is the default of 30. The caller
+ * hears this number in the recording notice, and the owner reads it.
+ */
+export function phoneRecordingKeepDays(): number {
+  const raw = process.env.PHONE_RECORDING_KEEP_DAYS?.trim() ?? "";
+  if (!/^[0-9]{1,3}$/.test(raw)) return PHONE_RECORDING_KEEP_DAYS_DEFAULT;
+  const days = Number.parseInt(raw, 10);
+  return days >= 1 && days <= PHONE_RECORDING_KEEP_DAYS_MAX
+    ? days
+    : PHONE_RECORDING_KEEP_DAYS_DEFAULT;
+}
+
 /** The Twilio settings that are missing or malformed, by name — empty when the line can run. */
 export function twilioMissing(): (typeof TWILIO_KEYS)[number][] {
   const sid = process.env.TWILIO_ACCOUNT_SID?.trim() ?? "";

@@ -85,6 +85,8 @@ export const ROLE_ACTIONS = {
   // approving one, stating the bank details it is paid from, downloading
   // the bank file and saying it was paid are an owner's alone.
   "payments.prepare": { min: "owner", what: "prepare payments or say one was paid" },
+  // P6-08 (rule 32): a caller's recorded voice is heard by the owner alone.
+  "phone.recordings": { min: "owner", what: "listen to call recordings" },
 } as const satisfies Record<string, RoleActionRow>;
 
 export type RoleAction = keyof typeof ROLE_ACTIONS;
