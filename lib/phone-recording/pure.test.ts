@@ -4,6 +4,7 @@
 // Recordings resource addressed by id only. Each with a passing and a
 // failing case.
 
+import "dotenv/config";
 import { describe, expect, it } from "vitest";
 import { PHONE_RECORDING_KEEP_DAYS_DEFAULT, phoneRecordingKeepDays } from "../env";
 import { LOCALES } from "../i18n/locales";
