@@ -103,6 +103,18 @@ export async function POST(): Promise<NextResponse> {
     if (error instanceof DiagnosisError) {
       return NextResponse.json({ error: error.message }, { status: 422 });
     }
+    // A copy without the AI key (a local demo) can't write a diagnosis.
+    // Say so, instead of "something went wrong": nothing was lost.
+    if (error instanceof Error && /ANTHROPIC_API_KEY/.test(error.message)) {
+      return NextResponse.json(
+        {
+          error:
+            "The diagnosis needs the AI, and it isn't connected on this copy yet. Everything you answered is saved.",
+          code: "ai_not_connected",
+        },
+        { status: 503 },
+      );
+    }
     console.error(
       JSON.stringify({
         event: "report_error",
