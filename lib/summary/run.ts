@@ -383,6 +383,8 @@ export async function summariseAccount(
         claimId: claim.id,
         env: wa.env,
         message,
+        userId: owner.id,
+        optinId: wa.optin.id,
         accountId: account.account_id,
         week,
         templateLocale,
@@ -450,16 +452,33 @@ async function whatsappSummary(args: {
   claimId: string;
   env: WhatsAppEnv;
   message: WhatsAppMessage;
+  userId: string;
+  optinId: string;
   accountId: string;
   week: string;
   templateLocale: string | null;
   opts: SummaryRunOptions;
 }): Promise<ChannelStatus> {
   let outcome: WhatsAppOutcome;
-  try {
-    outcome = await sendWhatsApp(args.env, args.message, args.opts.twilioFetch ?? fetch);
-  } catch (error) {
-    outcome = { kind: "unknown", why: error instanceof Error ? error.name : "error" };
+  // Rule 19, at the moment of sending: the yes read before the week was
+  // gathered (and before the email went) must still be the live one. A yes
+  // withdrawn, erased or replaced by another number since then sends nothing.
+  const still = await liveOptin(args.userId);
+  if (!still || still.id !== args.optinId || still.phone_number !== args.message.to) {
+    outcome = { kind: "refused", status: 0, code: null };
+    console.log(
+      JSON.stringify({
+        event: "weekly_summary_whatsapp_withdrawn",
+        account_id: args.accountId,
+        summary_id: args.claimId,
+      }),
+    );
+  } else {
+    try {
+      outcome = await sendWhatsApp(args.env, args.message, args.opts.twilioFetch ?? fetch);
+    } catch (error) {
+      outcome = { kind: "unknown", why: error instanceof Error ? error.name : "error" };
+    }
   }
   const status: ChannelStatus = outcome.kind;
   await db
