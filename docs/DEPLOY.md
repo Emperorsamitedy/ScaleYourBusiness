@@ -14,6 +14,41 @@ commit.
 the Vercel project still points at the old one, so pushes to `main` no
 longer deploy. Step 1 fixes that.
 
+## Go live on your own domain — the order
+
+Each line is the owner's. About two hours, most of it waiting on DNS.
+The sections below hold the detail.
+
+1. **Domain.** Buy it. Vercel → `syb` → Settings → Domains → add it
+   (and `www.` if wanted); set the DNS records Vercel shows at the
+   registrar.
+2. **Repo.** Vercel → Settings → Git → connect
+   `JanKenzeroX/ScaleYourBusiness`, branch `main` (section 1).
+3. **Database.** In your own terminal, with the Neon URL:
+   `npm run db:migrate`, then `npm run db:seed` (section 2).
+4. **Keys a live site can't do without** (Vercel → Environment
+   Variables, Production): `DATABASE_URL`, `CONNECTOR_KEY` (the same one
+   as before, or every old connection must be made again),
+   `APP_URL=https://<your domain>`, `CRON_SECRET`, `ANTHROPIC_API_KEY`
+   with `INTERVIEWER_MODE=llm`, and `BLOB_READ_WRITE_TOKEN` (Vercel →
+   Storage → Blob).
+5. **Email from your domain.** Resend → Domains → add the domain, set its
+   DNS records, wait for "verified"; then `RESEND_API_KEY` and
+   `EMAIL_FROM="SYB <hello@your domain>"`. Until then sign-in links show on
+   screen.
+6. **Redirects that name the domain.** Anything with a callback URL takes
+   the new domain: Stripe's webhook (`/api/stripe/webhook`), Meta's
+   `META_OAUTH_REDIRECT_URI`, the Google, Microsoft and Apple sign-in
+   redirects. Only for the ones you switch on.
+7. **Deploy.** Redeploy `main` from Vercel. Then walk section 4's checks
+   in a private window. Set `OPS_KEY` to any long string and open
+   `/ops?key=<OPS_KEY>` to see which keys are still missing.
+
+What stays off on purpose: `SESSION_D_REAL_WRITES` (real posting waits
+for Meta's App Review and Business Verification, P3-20i) and
+`GOOGLE_BUSINESS_API_APPROVED` (waits for Google). The site is live
+without them; the screens say what each one waits for.
+
 ## 1. Vercel — point it at the repo
 
 1. Vercel → project `syb` → Settings → Git → disconnect the old repo,
