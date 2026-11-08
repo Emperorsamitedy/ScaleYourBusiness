@@ -8,7 +8,7 @@
 // its currency; a series is ONE connection's, never a sum across two (a
 // Shopify store and a Stripe account can both report the same sale).
 
-import { and, eq, gte, inArray, isNotNull, lte, or } from "drizzle-orm";
+import { and, eq, gte, inArray, isNotNull, lte } from "drizzle-orm";
 import { db } from "../../db";
 import { anomalies, connections, metricObservations, proposals } from "../../db/schema";
 import type { Basis } from "../../components/report/basis";
@@ -17,6 +17,11 @@ import { loadCampaignSeries } from "../ads/proposals";
 import { CAPACITY_KEY } from "../bookings/store";
 import { BOOKINGS_IMPORT_PROVIDER } from "../bookings/source";
 import { MONEY_METRICS, type MetricKey } from "../connectors/provider";
+import {
+  MEASURED_EXECUTE_LABELS,
+  isMeasuredExecuteProvider,
+  measuredConnection,
+} from "../connectors/measured-sources";
 import { getProvider } from "../connectors/registry";
 import { isProviderId } from "../connectors/scopes";
 import { businessNoun } from "../core/business-noun";
@@ -96,6 +101,7 @@ interface ConnInfo {
 export function sourceLabel(provider: string, tr: Tr = englishTr("chartsWords")): string {
   if (provider === BOOKINGS_IMPORT_PROVIDER) return tr("source.bookingsImport");
   if (provider === STOCK_IMPORT_PROVIDER) return tr("source.stockImport");
+  if (isMeasuredExecuteProvider(provider)) return MEASURED_EXECUTE_LABELS[provider];
   return isProviderId(provider) ? getProvider(provider).label : provider;
 }
 
@@ -186,7 +192,8 @@ export async function loadMarketInputs(
     .where(
       and(
         eq(connections.account_id, accountId),
-        or(eq(connections.purpose, "measure"), eq(connections.purpose, "import")),
+        // TikTok Ads measures through its one consent (lib/connectors/measured-sources).
+        measuredConnection({ andImports: true }),
       ),
     );
   const conns = new Map<string, ConnInfo>(
@@ -327,7 +334,9 @@ export async function loadMarketInputs(
       : null;
 
   // Meta Ads, per campaign — null when it isn't connected at all.
-  const meta = [...conns.values()].some((c) => c.provider === "meta_ads");
+  const meta = [...conns.values()].some(
+    (c) => c.provider === "meta_ads" || c.provider === "tiktok_ads",
+  );
   let campaigns: CampaignInput[] | null = null;
   if (meta) {
     const end = price ? [...price.values.keys()].sort().at(-1)! : yesterday;

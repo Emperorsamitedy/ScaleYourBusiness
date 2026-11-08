@@ -36,6 +36,7 @@ import type { DeriveOutcome } from "./derive";
 import type { AnomalyOutcome } from "../anomaly/detect";
 import type { MetaReadback } from "../execution/providers/meta";
 import { detectAnomalies } from "../anomaly/detect";
+import type { TikTokContext } from "../tiktok/api";
 import { recordSyncActivity } from "./activity";
 import { deriveFactsFromObservations } from "./derive";
 import { BOOKINGS_IMPORT_PROVIDER } from "../bookings/source";
@@ -495,6 +496,12 @@ export interface SyncRunSummary {
    * scopes (lib/content/insights.ts). Null when it could not run at all.
    */
   readback: ReadbackRunSummary | null;
+  /**
+   * TikTok Ads (2026-11-08): the daily read through the one TikTok consent,
+   * after the measure connections — GET only (lib/tiktok/read.ts). Null when
+   * it could not run at all.
+   */
+  tiktok: ReadbackRunSummary | null;
 }
 
 export interface SyncRunOptions {
@@ -506,6 +513,8 @@ export interface SyncRunOptions {
    * database, such as the local demo's fake shops.
    */
   accountIds?: readonly string[];
+  /** The TikTok read's HTTP; the real Marketing API by default. Tests pass a fake. */
+  tiktok?: Partial<TikTokContext>;
 }
 
 /** The daily cron's body: every connected connection, one after another. */
@@ -532,6 +541,7 @@ export async function runConnectorSync(
     skipped: 0,
     observations: 0,
     readback: null,
+    tiktok: null,
   };
   for (const { id } of rows) {
     const outcome = await syncConnection(id, now);
@@ -550,6 +560,16 @@ export async function runConnectorSync(
     });
   } catch (error) {
     console.error(JSON.stringify({ event: "post_readback_run_failed", message: errorText(error) }));
+  }
+  // TikTok Ads: reads only, through its fence. Loaded on use, like the readback.
+  try {
+    const { runTikTokAdsRead } = await import("../tiktok/sync");
+    summary.tiktok = await runTikTokAdsRead(now, {
+      ...(opts.tiktok ? { ctx: opts.tiktok } : {}),
+      ...(opts.accountIds ? { accountIds: opts.accountIds } : {}),
+    });
+  } catch (error) {
+    console.error(JSON.stringify({ event: "tiktok_read_run_failed", message: errorText(error) }));
   }
   return summary;
 }

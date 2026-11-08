@@ -2301,6 +2301,83 @@
         "generic": "Google sign-in didn't finish. Nothing was connected."
       }
     },
+    "tiktok": {
+      "sectionLabel": "TikTok Ads · reading and acting, one consent",
+      "label": "TikTok ad management",
+      "title": {
+        "on": "Connected. SYB reads your TikTok campaigns and changes only what you approve",
+        "off": "Off. SYB doesn't read or change your TikTok ads."
+      },
+      "connected": "TikTok is connected, and your consent is on record.",
+      "youCancelled": "You cancelled on TikTok's page. Nothing was connected.",
+      "revoked": "Revoked. SYB's access to TikTok is deleted here, and reading and changes have stopped.",
+      "whyOne": "TikTok gives an app one list of permissions, so reading your campaigns and changing them come together. SYB holds both as this one consent: it reads once a day, and changes a campaign only after you approve a proposal.",
+      "fact": {
+        "status": "status",
+        "adAccounts": "ad accounts",
+        "lastRead": "last read",
+        "notYet": "not yet: SYB reads once a day"
+      },
+      "revokeAsk": "SYB stops reading your TikTok campaigns and can't change them.",
+      "revokeNote": "Revoking deletes SYB's access here at once. Figures already read stay. To remove SYB on TikTok's side too, take SYB's app off the authorized apps of your TikTok ad account.",
+      "tiktokScreen": "TikTok then shows SYB's app with these permissions and emails you a code to confirm it's you. Allow it, and come back here.",
+      "typeToConfirm": "To confirm, type <b>{phrase}</b>",
+      "opening": "Opening TikTok…",
+      "signIn": "Sign in with TikTok and allow these",
+      "nothingWritten": "Connecting records your consent and reads your campaigns once a day. Nothing changes on TikTok until you approve a proposal, and TikTok ad changes stay switched off until the two-week unattended test completes.",
+      "access": {
+        "title": "Access, plainly",
+        "check": "TikTok checks every developer app before sign-ins with it work, usually within two to three working days. Until SYB's app has passed, TikTok refuses the sign-in, and SYB says so.",
+        "sandbox": "SYB connects real ad accounts only. TikTok is retiring its sandbox accounts this December, so SYB doesn't use them: test with your own ad account and a small campaign."
+      },
+      "missing": {
+        "title": "Not set up yet. These settings are missing on SYB's server:"
+      },
+      "steps": {
+        "title": "Setting it up, once, for SYB's server",
+        "developer": "Register as a developer on TikTok's developer site, {site}, with the TikTok login that runs your ads, and wait until your developer profile is accepted.",
+        "app": "Under My Apps, create an app, and enter {callback} as its advertiser redirect URL.",
+        "scopes": "Under Scope of permission, tick exactly these, and nothing else: {scopes}.",
+        "submit": "Submit the app. TikTok checks it, usually within two to three working days.",
+        "keys": "Once it has passed, copy the App ID and Secret from the app's Basic Information into {appId} and {secret} on SYB's server, and the redirect URL into {redirect}."
+      },
+      "status": {
+        "connected": "connected",
+        "paused": "paused",
+        "failed": "failed",
+        "disconnected": "disconnected"
+      },
+      "consentedOn": "consented {day} · {status}",
+      "notGranted": "not granted",
+      "notSetUpYet": "not set up yet",
+      "connect": "Connect",
+      "close": "Close",
+      "keepIt": "Keep it",
+      "unreachable": "I couldn't reach the server. Try again.",
+      "revokeFailed": "That didn't revoke.",
+      "revoking": "Revoking…",
+      "yesRevoke": "Yes, revoke",
+      "revoke": "Revoke",
+      "reason": {
+        "start_here": "Start the TikTok sign-in from SYB's Connections screen, with the button there. Nothing was sent to TikTok.",
+        "signed_out": "Sign in to SYB first, then connect TikTok again.",
+        "owner_only": "Only an owner can grant or take back this permission. Nothing was sent to TikTok.",
+        "unavailable": "TikTok Ads isn't set up yet.",
+        "phrase": "The confirmation phrase didn't match. Type it as shown, then start again.",
+        "already_connected": "TikTok is already connected. Revoke it first to connect again.",
+        "start_again": "That TikTok sign-in expired or was already used. Start again from Connections.",
+        "foreign": "That TikTok sign-in was started from a different SYB account. Sign in to SYB as that account, or start again.",
+        "tiktok_error": "TikTok sign-in didn't finish. Nothing was connected.",
+        "scope": "TikTok didn't grant exactly the permissions SYB asks for. Check the app's Scope of permission against the list on Connections, then try again.",
+        "no_advertisers": "TikTok showed SYB no ad account for that sign-in. Sign in with the TikTok login that runs your ads, then try again.",
+        "tiktok_auth": "TikTok didn't accept the sign-in. If TikTok is still checking SYB's app, wait until it has passed; otherwise start again.",
+        "tiktok_permission": "TikTok says SYB's app isn't allowed to read that ad account. Nothing was connected.",
+        "tiktok_busy": "TikTok was busy or didn't answer. Nothing was connected — try again in a few minutes.",
+        "tiktok_refused": "TikTok refused the sign-in. Nothing was connected.",
+        "internal": "Something went wrong on our side. Nothing was connected.",
+        "generic": "TikTok sign-in didn't finish. Nothing was connected."
+      }
+    },
     "import": {
       "unreachable": "I couldn't reach the server. Try again.",
       "readFrom": "Read from {file}. You can check it here",

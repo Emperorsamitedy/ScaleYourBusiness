@@ -14,6 +14,7 @@ import {
   metricObservations,
 } from "../../db/schema";
 import { BASELINE_WINDOW_DAYS, shiftDay } from "../anomaly/baseline";
+import { measuredConnection } from "../connectors/measured-sources";
 import { MONEY_METRICS } from "../connectors/provider";
 import { NON_CONNECTOR_SOURCE_LABELS } from "../bookings/source";
 import { getProvider } from "../connectors/registry";
@@ -58,7 +59,7 @@ export async function loadWatchReading(
   const conns = await db
     .select({ id: connections.id, provider: connections.provider, status: connections.status })
     .from(connections)
-    .where(and(eq(connections.account_id, profile.account_id), eq(connections.purpose, "measure")));
+    .where(and(eq(connections.account_id, profile.account_id), measuredConnection()));
   // A disconnected or paused connection keeps its history, so its series still show.
   if (conns.length === 0) {
     return { signals: [], connections: 0, executions_since_start: executionsSince };
