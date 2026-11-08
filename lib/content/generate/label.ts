@@ -17,6 +17,7 @@
 // Instagram's is_ai_generated flag are the disclosures that don't depend on it.
 
 import { execFile } from "node:child_process";
+import { existsSync } from "node:fs";
 import { promisify } from "node:util";
 import ffmpegPath from "ffmpeg-static";
 import { path as ffprobePath } from "ffprobe-static";
@@ -102,6 +103,15 @@ export function readJpegLabels(bytes: Uint8Array): { comments: string[]; generat
     i += 2 + len;
   }
   return { comments, generated };
+}
+
+/**
+ * Whether a clip can be stamped AND read back here: FFmpeg and ffprobe both
+ * present. P6-03 asks this before anything is paid for — a clip that can't
+ * be labelled is never kept.
+ */
+export function videoLabellingAvailable(): boolean {
+  return ffmpegAvailable() && typeof ffprobePath === "string" && existsSync(ffprobePath);
 }
 
 /** Stamp an MP4's container tags by stream copy; returns the stamped file's path. */

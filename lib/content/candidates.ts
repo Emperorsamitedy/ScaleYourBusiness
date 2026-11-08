@@ -48,7 +48,7 @@ import type { ProposalRow } from "../proposals/service";
 import { createProposal, recordExecution } from "../proposals/service";
 import { briefForItem, briefRefOf } from "./brief-links";
 import { mediaDisclosureLabel } from "./disclosure";
-import { readVideoComment, stampVideo } from "./generate/label";
+import { readVideoComment, stampVideo, videoLabellingAvailable } from "./generate/label";
 import type { MediaProvider } from "./generate/provider";
 import { FIXED_INSTRUCTION, GENERATED_CLIP_SECONDS, ProviderError } from "./generate/provider";
 import { screenPrompt } from "./generate/guard";
@@ -65,6 +65,7 @@ import {
   competitorNames,
   generationRefusal,
   generationView,
+  lockCaps,
   ownedItem,
   promptHash,
   setupView,
@@ -79,6 +80,13 @@ import { buildVideoPrompts, readVideoFacts } from "./video-prompt";
 
 /** Rule 34: the budget line every candidate's cost is tagged with. */
 export const AI_VIDEO_WORKLOAD = "ai_video";
+/**
+ * How long one run may wait on the provider, every attempt together, from
+ * its start: inside the studio route's 300 s maxDuration with room left to
+ * download, label and store what finished. A run cut off by the platform
+ * would leave its set "generating" for good, its claim unsettled.
+ */
+export const CANDIDATE_WAIT_MS = 220_000;
 /** A stored candidate read back for placing: refused past this. */
 export const CANDIDATE_MAX_BYTES = 150 * 1024 * 1024;
 
@@ -243,6 +251,7 @@ interface CandidateRun {
   ordinal: number;
   prompt: string;
   charged: number;
+  /** An attempt submitted and not yet settled: it holds its price against the caps. */
   inflight: boolean;
   attempts: number;
   status: "ready" | "failed";
@@ -254,8 +263,11 @@ export async function generateCandidatesFromProposal(args: {
   setup: GenerationSetup;
   store?: MediaStore;
   now: Date;
+  /** Whether FFmpeg and ffprobe are here to label the clips (tests inject it). */
+  labelling?: () => boolean;
 }): Promise<GenerationOutcome> {
   const { proposal, setup, now } = args;
+  const deadlineAt = Date.now() + CANDIDATE_WAIT_MS;
   const d = ((proposal.action as { detail?: CandidateDetail }).detail ?? {}) as CandidateDetail;
   const prompts = Array.isArray(d.prompts)
     ? d.prompts.filter((p): p is string => typeof p === "string")
@@ -279,6 +291,13 @@ export async function generateCandidatesFromProposal(args: {
   const store = args.store ?? configuredMediaStore();
   if (!store) {
     throw new ContentError("media storage isn't set up on this server. It stays approved.", 503);
+  }
+  // Rule 33: a clip that can't be labelled is never kept, so nothing is paid for until it can be.
+  if (!(args.labelling ?? videoLabellingAvailable)()) {
+    throw new ContentError(
+      "AI video can't be labelled on this server (FFmpeg isn't here), so nothing was generated or charged. It stays approved.",
+      503,
+    );
   }
   const caps = capsOf(setup);
   const accountId = await accountOf(proposal.profile_id);
@@ -317,30 +336,35 @@ export async function generateCandidatesFromProposal(args: {
       409,
     );
   }
-  const room = await capRoom({ accountId, targetItemId: target.id, now, caps });
   const setPrice = money(each.amount_minor * prompts.length, each.currency);
-  const over = capRefusal(room, setPrice);
-  if (over) throw new ContentError(`Nothing was generated: ${over}. It stays approved.`, 409);
 
-  // The claim: one run per approved proposal, ever.
+  // The claim: one run per approved proposal, ever. The caps are read and
+  // the claim written under the account's lock, so two sets started at once
+  // can't both fit into room for one; the claim's estimate holds the room.
   let claimId: string;
   try {
-    const [claim] = await db
-      .insert(mediaGenerations)
-      .values({
-        profile_id: proposal.profile_id,
-        account_id: accountId,
-        proposal_id: proposal.id,
-        target_item_id: target.id,
-        media: "video",
-        provider: provider.id,
-        estimate_minor: setPrice.amount_minor,
-        currency: caps.currency,
-        prompt_sha256: promptsHash(prompts),
-        created_at: now.toISOString(),
-      })
-      .returning({ id: mediaGenerations.id });
-    claimId = claim!.id;
+    claimId = await db.transaction(async (tx) => {
+      await lockCaps(tx, accountId);
+      const room = await capRoom({ accountId, targetItemId: target.id, now, caps, exec: tx });
+      const over = capRefusal(room, setPrice);
+      if (over) throw new ContentError(`Nothing was generated: ${over}. It stays approved.`, 409);
+      const [claim] = await tx
+        .insert(mediaGenerations)
+        .values({
+          profile_id: proposal.profile_id,
+          account_id: accountId,
+          proposal_id: proposal.id,
+          target_item_id: target.id,
+          media: "video",
+          provider: provider.id,
+          estimate_minor: setPrice.amount_minor,
+          currency: caps.currency,
+          prompt_sha256: promptsHash(prompts),
+          created_at: now.toISOString(),
+        })
+        .returning({ id: mediaGenerations.id });
+      return claim!.id;
+    });
   } catch (error) {
     if (
       /media_generations_proposal_uq/.test(String((error as { cause?: unknown }).cause ?? error))
@@ -382,24 +406,44 @@ export async function generateCandidatesFromProposal(args: {
       ordinal: r.ordinal,
       prompt: prompts[r.ordinal - 1]!,
       charged: 0,
-      inflight: false,
+      // All three are about to be submitted: the claim's estimate (setPrice) holds them.
+      inflight: true,
       attempts: 0,
       status: "failed",
       error: null,
     }));
 
-  // The budget, shared by the three: what is charged plus what is in flight.
+  // What this set holds against the caps: what is charged, plus the
+  // price of every attempt still in flight. The claim's estimate starts as
+  // all three in flight (setPrice) and is rewritten before each retry.
   const committed = () =>
     runs.reduce((sum, r) => sum + r.charged + (r.inflight ? each.amount_minor : 0), 0);
-  const roomFor = (): string | null =>
-    capRefusal(
-      {
-        ...room,
-        item_spent: money(room.item_spent.amount_minor + committed(), caps.currency),
-        month_spent: money(room.month_spent.amount_minor + committed(), caps.currency),
-      },
-      each,
-    );
+  // A retry takes its room from the ledger, under the same lock as the
+  // claim: every other run's claims are read again, this set's own estimate
+  // is swapped for what it holds now, and the estimate is rewritten with the
+  // retry in it before anything is submitted, so a run started meanwhile sees it.
+  const reserveRetry = (run: CandidateRun): Promise<string | null> =>
+    db.transaction(async (tx) => {
+      await lockCaps(tx, accountId);
+      const [own] = await tx
+        .select({ estimate_minor: mediaGenerations.estimate_minor })
+        .from(mediaGenerations)
+        .where(eq(mediaGenerations.id, claimId));
+      const r = await capRoom({ accountId, targetItemId: target.id, now, caps, exec: tx });
+      const others = (spent: Money) =>
+        money(spent.amount_minor - (own?.estimate_minor ?? 0) + committed(), caps.currency);
+      const stop = capRefusal(
+        { ...r, item_spent: others(r.item_spent), month_spent: others(r.month_spent) },
+        each,
+      );
+      if (stop) return stop;
+      run.inflight = true;
+      await tx
+        .update(mediaGenerations)
+        .set({ estimate_minor: committed() })
+        .where(eq(mediaGenerations.id, claimId));
+      return null;
+    });
 
   const dir = path.join(os.tmpdir(), `syb-candidates-${randomBytes(8).toString("hex")}`);
   await fs.mkdir(dir, { recursive: true });
@@ -422,7 +466,7 @@ export async function generateCandidatesFromProposal(args: {
     let output: Awaited<ReturnType<MediaProvider["generate"]>> | null = null;
     for (let attempt = 1; attempt <= MAX_GENERATION_ATTEMPTS; attempt++) {
       if (attempt > 1) {
-        const stop = roomFor();
+        const stop = await reserveRetry(run);
         if (stop) return fail(`a retry ${stop}`);
       }
       run.attempts = attempt;
@@ -440,6 +484,7 @@ export async function generateCandidatesFromProposal(args: {
           seconds,
           account_id: accountId,
           idempotency_key: `syb-${claimId}-${run.ordinal}-${attempt}`,
+          deadline_at: deadlineAt,
         });
         run.inflight = false;
         if (output.cost.currency !== caps.currency) {

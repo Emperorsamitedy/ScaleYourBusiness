@@ -104,10 +104,11 @@ beforeAll(async () => {
 }, 60_000);
 
 /** A fake Higgsfield: each submit a new request; completed on the second poll; moderation on demand. */
-function fakeHiggsfield(opts: { nsfwAngle?: number } = {}) {
+function fakeHiggsfield(opts: { nsfwAngle?: number; failFirstAngle?: number } = {}) {
   const sent: { url: string; method: string; body: { prompt?: string } | null }[] = [];
-  const byId = new Map<string, { prompt: string; polls: number }>();
+  const byId = new Map<string, { prompt: string; polls: number; fail: boolean }>();
   let n = 0;
+  let failed = false;
   const fetch: HttpFetch = async (url, init) => {
     const body =
       typeof init.body === "string" ? (JSON.parse(init.body) as { prompt: string }) : null;
@@ -115,7 +116,12 @@ function fakeHiggsfield(opts: { nsfwAngle?: number } = {}) {
     if (url.startsWith(`${HIGGSFIELD_ORIGIN}/kling-video/`)) {
       n += 1;
       const id = `00000000-0000-4000-8000-${String(n).padStart(12, "0")}`;
-      byId.set(id, { prompt: body!.prompt, polls: 0 });
+      const fail =
+        opts.failFirstAngle !== undefined &&
+        !failed &&
+        body!.prompt.includes(SHOT_ANGLES[opts.failFirstAngle]!);
+      if (fail) failed = true;
+      byId.set(id, { prompt: body!.prompt, polls: 0, fail });
       return Response.json({
         status: "queued",
         request_id: id,
@@ -130,6 +136,9 @@ function fakeHiggsfield(opts: { nsfwAngle?: number } = {}) {
       if (opts.nsfwAngle !== undefined && r.prompt.includes(SHOT_ANGLES[opts.nsfwAngle]!)) {
         return Response.json({ status: "nsfw", request_id: m[1] });
       }
+      // Higgsfield's "failed": unbilled, and worth another attempt.
+      if (r.fail)
+        return Response.json({ status: "failed", request_id: m[1], error: "it fell over" });
       return Response.json(
         r.polls < 2
           ? { status: "in_progress", request_id: m[1] }
@@ -666,6 +675,91 @@ describe.skipIf(!ffmpegAvailable())("P6-03 — generating and picking", () => {
     expect(out).toMatchObject({ status: "not_needed", cost: { amount_minor: 0 } });
     expect(api.sent).toHaveLength(0);
   }, 60_000);
+
+  it("pays for nothing when the clips couldn't be labelled here", async () => {
+    const b = await bakery();
+    const sl = await b.shotList();
+    const api = fakeHiggsfield();
+    const setup = higgsfield(api.fetch);
+    const p = await proposeGeneration({
+      profileId: b.profile_id,
+      itemId: sl.id,
+      media: "video",
+      setup,
+      limitLlm: limitsLlm,
+    });
+    await b.approve(p.id);
+    await expect(
+      generateFromProposal({
+        proposalId: p.id,
+        setup,
+        store: memoryMediaStore(),
+        labelling: () => false,
+      }),
+    ).rejects.toThrow(/can't be labelled.*nothing was generated or charged.*stays approved/);
+    expect(api.sent).toHaveLength(0);
+    const claims = await db
+      .select()
+      .from(mediaGenerations)
+      .where(eq(mediaGenerations.proposal_id, p.id));
+    expect(claims).toHaveLength(0);
+  }, 60_000);
+
+  it("two sets started at once can't both fit into room for one (the caps hold under a race)", async () => {
+    const b = await bakery();
+    const one = await b.shotList();
+    const two = await b.shotList();
+    const api = fakeHiggsfield();
+    // A set is 3 × 56¢ = $1.68; the month has room for one set, not two.
+    const setup = higgsfield(api.fetch, 200);
+    const propose = (itemId: string) =>
+      proposeGeneration({
+        profileId: b.profile_id,
+        itemId,
+        media: "video",
+        setup,
+        limitLlm: limitsLlm,
+      });
+    const p1 = await propose(one.id);
+    const p2 = await propose(two.id);
+    await b.approve(p1.id);
+    await b.approve(p2.id);
+    const results = await Promise.allSettled(
+      [p1, p2].map((p) =>
+        generateFromProposal({ proposalId: p.id, setup, store: memoryMediaStore() }),
+      ),
+    );
+    expect(results.filter((r) => r.status === "fulfilled")).toHaveLength(1);
+    const refused = results.find((r) => r.status === "rejected") as PromiseRejectedResult;
+    expect(String(refused.reason)).toMatch(/past its \$2\.00 cap/);
+    expect(api.submits()).toBe(3);
+  }, 120_000);
+
+  it("a retry takes its room from the ledger and gives back what an unbilled attempt didn't spend", async () => {
+    const b = await bakery();
+    const sl = await b.shotList();
+    const api = fakeHiggsfield({ failFirstAngle: 0 });
+    const setup = higgsfield(api.fetch, 200);
+    const p = await proposeGeneration({
+      profileId: b.profile_id,
+      itemId: sl.id,
+      media: "video",
+      setup,
+      limitLlm: limitsLlm,
+    });
+    await b.approve(p.id);
+    const out = await generateFromProposal({ proposalId: p.id, setup, store: memoryMediaStore() });
+    // The failed first attempt was free, so the retry fits: three clips for $1.68.
+    expect(out).toMatchObject({ status: "generated", cost: { amount_minor: 168 } });
+    expect(out.candidate_ids).toHaveLength(3);
+    expect(api.submits()).toBe(4);
+    const [claim] = await db
+      .select()
+      .from(mediaGenerations)
+      .where(eq(mediaGenerations.proposal_id, p.id));
+    expect(claim).toMatchObject({ status: "generated", cost_minor: 168 });
+    expect(claim!.estimate_minor).toBeLessThanOrEqual(168);
+  }, 120_000);
 
   it("the database refuses a candidate without the AI label", async () => {
     const b = await bakery();
