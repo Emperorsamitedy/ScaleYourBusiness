@@ -4,7 +4,7 @@
 // holds, the anomaly rows still open on them, and how many executions
 // have run since the watch began. The verdicts are ./watch-view's.
 
-import { and, count, eq, gte, inArray, isNull } from "drizzle-orm";
+import { and, count, eq, gte, inArray, isNull, or } from "drizzle-orm";
 import { db } from "../../db";
 import {
   anomalies,
@@ -16,6 +16,7 @@ import {
 import { BASELINE_WINDOW_DAYS, shiftDay } from "../anomaly/baseline";
 import { MONEY_METRICS } from "../connectors/provider";
 import { NON_CONNECTOR_SOURCE_LABELS } from "../bookings/source";
+import { EXECUTE_READ_PROVIDERS, executeReadSource } from "../connectors/execute-reads";
 import { getProvider } from "../connectors/registry";
 import { isProviderId } from "../connectors/scopes";
 import type { OpenAnomaly, WatchSignal, WatchedMetric } from "./watch-view";
@@ -32,7 +33,7 @@ export interface WatchReading {
 function providerLabel(provider: string): string {
   return isProviderId(provider)
     ? getProvider(provider).label
-    : (NON_CONNECTOR_SOURCE_LABELS[provider] ?? provider);
+    : (executeReadSource(provider)?.label ?? NON_CONNECTOR_SOURCE_LABELS[provider] ?? provider);
 }
 
 export async function loadWatchReading(
@@ -58,7 +59,19 @@ export async function loadWatchReading(
   const conns = await db
     .select({ id: connections.id, provider: connections.provider, status: connections.status })
     .from(connections)
-    .where(and(eq(connections.account_id, profile.account_id), eq(connections.purpose, "measure")));
+    .where(
+      and(
+        eq(connections.account_id, profile.account_id),
+        or(
+          eq(connections.purpose, "measure"),
+          // P2-20: an execute connection whose read is measurement (Google Ads).
+          and(
+            eq(connections.purpose, "execute"),
+            inArray(connections.provider, [...EXECUTE_READ_PROVIDERS]),
+          ),
+        ),
+      ),
+    );
   // A disconnected or paused connection keeps its history, so its series still show.
   if (conns.length === 0) {
     return { signals: [], connections: 0, executions_since_start: executionsSince };

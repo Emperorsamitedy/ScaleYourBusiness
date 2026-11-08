@@ -2435,6 +2435,59 @@
       "unknownStatuses": "Statuses I didn’t know: {list}. I don’t guess what they mean.",
       "unknownStatus": "“{word}” ({count})",
       "listSep": ", "
+    },
+    "googleAds": {
+      "sectionLabel": "Google Ads · a separate consent",
+      "label": "Google Ads",
+      "title": {
+        "on": "Granted: SYB reads your ad spend, and changes only what you approve",
+        "off": "Off. SYB doesn't read your Google Ads."
+      },
+      "whatItCanDo": "Google's permission can also change your campaigns, budgets and ads. SYB reads your spend and results with it once a day, and changes something only through a proposal you approve. You can revoke it any time.",
+      "notSetUp": "Not set up on SYB's side yet. Missing: {keys}.",
+      "accessLevel": {
+        "title": "Google's approval for SYB",
+        "test": "Test accounts only. Google hasn't approved SYB for real ad accounts yet, so a real one is refused until it does.",
+        "explorer": "Real ad accounts, up to {ops} operations a day across everyone SYB serves.",
+        "basic": "Real ad accounts, up to {ops} operations a day across everyone SYB serves. Google checked SYB first.",
+        "standard": "Real ad accounts, with no daily cap beyond Google's own rate limits.",
+        "unknown": "Not stated yet, so treat it as test accounts only."
+      },
+      "fact": {
+        "account": "ad account"
+      },
+      "revokeAsk": "SYB stops reading your Google Ads, and can't change anything there.",
+      "revokeNote": "Revoking deletes SYB's access here at once. Spend already read stays in your numbers. To remove SYB on Google's side too, open your Google Account's Security page, then Third-party connections.",
+      "connected": "Google Ads is connected, and your consent is on record.",
+      "signedInPick": "Signed in with Google. Pick the ad account SYB should read.",
+      "revoked": "Revoked. SYB's access to Google Ads is deleted: nothing is read or changed.",
+      "pickTitle": "Pick the ad account",
+      "managerNote": "a manager account: SYB connects the ad account itself",
+      "connectAccount": "Connect this ad account",
+      "signIn": "Sign in with Google and allow Google Ads",
+      "nothingWritten": "Connecting records your consent and reads your spend once a day. Nothing changes on Google Ads until you approve a proposal, and changes stay switched off until SYB's two-week real-write test is complete.",
+      "reason": {
+        "unavailable": "Google Ads isn't set up yet.",
+        "already_connected": "Google Ads is already connected. Revoke it first to connect another account.",
+        "scope": "Google didn't grant exactly the one permission SYB asks for. On Google's screen, allow the Google Ads permission, then try again.",
+        "no_accounts": "Google showed SYB no Google Ads account for that Google account. Sign in with the account that has access to your ads, then try again.",
+        "managers_only": "That Google account reaches only manager accounts. SYB connects the ad account itself: give your Google account access to it, then try again.",
+        "access_level": "Google hasn't approved SYB's Google Ads access for real ad accounts yet. Nothing was connected.",
+        "google_permission": "Google says SYB isn't allowed into that Google Ads account. Nothing was connected.",
+        "start_here": "Start the Google sign-in from SYB's Connections screen, with the button there. Nothing was sent to Google.",
+        "signed_out": "Sign in to SYB first, then connect Google again.",
+        "owner_only": "Only an owner can grant or take back this permission. Nothing was sent to Google.",
+        "phrase": "The confirmation phrase didn't match. Type it as shown, then start again.",
+        "start_again": "That Google sign-in expired or was already used. Start again from Connections.",
+        "foreign": "That Google sign-in was started from a different SYB account. Sign in to SYB as that account, or start again.",
+        "google_error": "Google sign-in didn't finish. Nothing was connected.",
+        "no_refresh": "Google didn't give SYB lasting access. Start again: Google asks once more, and SYB needs that answer.",
+        "google_auth": "Google didn't accept the sign-in. Start again from Connections.",
+        "google_busy": "Google was busy or didn't answer. Nothing was connected — try again in a few minutes.",
+        "google_refused": "Google refused the sign-in. Nothing was connected.",
+        "internal": "Something went wrong on our side. Nothing was connected.",
+        "generic": "Google sign-in didn't finish. Nothing was connected."
+      }
     }
   },
   "landing": {
@@ -7699,7 +7752,8 @@
       "noStock": "connect your store or import a stock file and I'll show the cash sitting on the shelf",
       "nothingWaiting": "nothing is waiting for your approval right now",
       "noPricedGain": "nothing waiting for you carries a priced gain yet",
-      "noRevenueSeries": "I need a measured revenue series to read this against"
+      "noRevenueSeries": "I need a measured revenue series to read this against",
+      "noAds": "connect Meta Ads or Google Ads and I'll check which campaigns cost more than they bring back"
     },
     "price": {
       "arithmetic": "average price {mean} ({revenue} ÷ {count, plural, one {# completed} other {# completed}})",
@@ -7717,13 +7771,17 @@
       "stockNone": "nothing flagged slow or stuck as of {day}",
       "stockItems": "{count, plural, one {# slow item} other {# slow items}}, units on hand × unit cost, as of {day}. A stock, not a monthly flow: it is not added to the month",
       "tableProposal": "{summary}: {range}",
-      "onTheTable": "{count, plural, one {# waiting proposal} other {# waiting proposals}}, base case to upside a month: {parts}"
+      "onTheTable": "{count, plural, one {# waiting proposal} other {# waiting proposals}}, base case to upside a month: {parts}",
+      "adsAllPaidPlatforms": "every campaign returned at least what it cost, by each platform's own attribution ({count, plural, one {# campaign} other {# campaigns}})",
+      "adsLoserGoogle": "{campaign} on Google Ads: spent {spent}, Google attributes {value} in conversion value (return {roas}) → {loss}"
     },
     "basisNote": {
       "capacity": "from a capacity you {basis, select, ESTIMATED {ESTIMATED} other {STATED}} ({perWeek} a week)",
       "meta": "from Meta's own attribution",
       "statedCost": "units on hand × a cost you gave, for some items",
-      "proposals": "the proposals' own base and upside cases"
+      "proposals": "the proposals' own base and upside cases",
+      "google": "from Google's own attribution",
+      "adPlatforms": "from each platform's own attribution, Meta's and Google's"
     },
     "componentNote": {
       "adsOtherCurrency": "{count, plural, one {# campaign} other {# campaigns}} in {currencies} left out: currencies never blend",
@@ -7743,7 +7801,10 @@
       "adsCampaign": "{campaign} spent {spent}, Meta attributes {value} ({roas})",
       "adsCampaignLosing": "{campaign} spent {spent}, Meta attributes {value} ({roas}), losing",
       "noReturn": "no return",
-      "return": "return {roas}"
+      "return": "return {roas}",
+      "adsPlatforms": "Spend against the value each platform attributes, per campaign (Meta: purchase value, Google: conversion value), {from} to {to}: {campaigns}. Losing means a return below {even}.",
+      "adsCampaignGoogle": "{campaign} on Google Ads spent {spent}, Google attributes {value} ({roas})",
+      "adsCampaignGoogleLosing": "{campaign} on Google Ads spent {spent}, Google attributes {value} ({roas}), losing"
     }
   },
   "watchNoticed": {

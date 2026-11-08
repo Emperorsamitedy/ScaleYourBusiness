@@ -29,6 +29,8 @@ import type { EmailView } from "./EmailCampaignSection";
 import { EmailCampaignSection } from "./EmailCampaignSection";
 import type { GoogleView } from "./GoogleBusinessSection";
 import { GoogleBusinessSection } from "./GoogleBusinessSection";
+import type { GoogleAdsView } from "./GoogleAdsSection";
+import { GoogleAdsSection } from "./GoogleAdsSection";
 import { BankStatementSection } from "./BankStatementSection";
 import { BookingsImportSection } from "./BookingsImportSection";
 import { headline, lastRead } from "./patch";
@@ -646,6 +648,8 @@ export function ConnectionsScreen() {
   const [email, setEmail] = useState<EmailView | null>(null);
   // I-45a: Google Business Profile, its own consent, used only to read reviews.
   const [google, setGoogle] = useState<GoogleView | null>(null);
+  // P2-20 / P3-22: Google Ads, its own consent — reads spend, changes only what's approved.
+  const [gads, setGads] = useState<GoogleAdsView | null>(null);
   // The headline speaks for writing too, so it waits until that side has answered.
   const [execDone, setExecDone] = useState(false);
   const [state, setState] = useState<"loading" | "ready" | "signed_out" | "error">("loading");
@@ -671,6 +675,15 @@ export function ConnectionsScreen() {
       setGoogle(res.ok ? ((await res.json()) as GoogleView) : null);
     } catch {
       setGoogle(null);
+    }
+  }, []);
+
+  const loadGads = useCallback(async () => {
+    try {
+      const res = await fetch("/api/connections/google-ads");
+      setGads(res.ok ? ((await res.json()) as GoogleAdsView) : null);
+    } catch {
+      setGads(null);
     }
   }, []);
 
@@ -706,7 +719,8 @@ export function ConnectionsScreen() {
     void loadExec();
     void loadEmail();
     void loadGoogle();
-  }, [load, loadExec, loadEmail, loadGoogle]);
+    void loadGads();
+  }, [load, loadExec, loadEmail, loadGoogle, loadGads]);
 
   const syncNow = async (c: Connection) => {
     setBusy(c.id);
@@ -1021,6 +1035,16 @@ export function ConnectionsScreen() {
             onChanged={async () => {
               // The headline counts every write consent, so it re-reads too.
               await Promise.all([loadGoogle(), loadExec()]);
+            }}
+          />
+        )}
+
+        {/* P2-20 / P3-22: Google Ads — a permission that can write; SYB reads, and changes only what you approve. */}
+        {gads !== null && (
+          <GoogleAdsSection
+            view={gads}
+            onChanged={async () => {
+              await Promise.all([loadGads(), loadExec(), load()]);
             }}
           />
         )}

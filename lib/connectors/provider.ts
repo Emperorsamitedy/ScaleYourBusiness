@@ -51,6 +51,17 @@ export const METRIC_KEYS = [
   "ad_spend.campaign.daily",
   "ad_purchase_value.campaign.daily",
   /**
+   * P2-20: Google Ads clicks and conversions, business-wide per day and per
+   * campaign (campaign_ref). Google's conversions are the actions it counts
+   * in "Conversions" — not necessarily purchases — so they are their own
+   * series and never ad_purchases.daily. A count each (conversions keep
+   * Google's fractions, to four decimals).
+   */
+  "ad_clicks.daily",
+  "ad_conversions.daily",
+  "ad_clicks.campaign.daily",
+  "ad_conversions.campaign.daily",
+  /**
    * P3-23a: one published post's own figures, dimensions {platform,
    * platform_post_id}, read through the EXECUTE connection's read-only
    * readback scopes (lib/content/insights.ts). Meta reports post insights
