@@ -806,7 +806,8 @@
       "underLine": "under the line",
       "when": "When",
       "cautiousCol": "Cautious end ({currency})",
-      "hopefulCol": "Hopeful end ({currency})"
+      "hopefulCol": "Hopeful end ({currency})",
+      "how": "How this works"
     },
     "market": {
       "kicker": "Insights · Your numbers as a chart",
@@ -940,7 +941,8 @@
         "meta": "{source} · {noun} · OBSERVED",
         "foot": "Against your median week of these {count, number}. A season needs {needed, plural, one {# complete week} other {# complete weeks}} of the last {weeks, number}; you have {have, number}.",
         "summary": "{count, plural, one {# complete week} other {# complete weeks}} of {noun}, against their own median. Not enough history to name a season."
-      }
+      },
+      "how": "How this works"
     },
     "small": {
       "keyLabel": "Key",
@@ -3004,7 +3006,6 @@
       "title": "Compared with similar businesses — SYB"
     },
     "kicker": "Insights · Compared with similar businesses",
-    "kickerShort": "Compared with similar businesses",
     "aside": "Eurostat · read-only",
     "add": "Add {what} →",
     "addPeople": "Add how many people work here",
@@ -3052,7 +3053,8 @@
     "size": {
       "unknown": "I don't know how many people work in the business, so the group is every size.",
       "spans": "Your size spans two of Eurostat's size groups, so the group is every size."
-    }
+    },
+    "how": "How this works"
   },
   "blindspots": {
     "meta": {
@@ -3103,8 +3105,6 @@
     },
     "fixed": {
       "label": "How blindspots get fixed",
-      "title": "With your approval, never on their own",
-      "foot": "Website changes wait in Website.",
       "link": "Review on Website →",
       "stepFix": "A fix is {fix}.",
       "fixDefault": "a website change through the approval queue, or an answer in your support assistant",
@@ -3112,8 +3112,7 @@
       "stepRecheck": "Your site is read again every {days, plural, one {# day} other {# days}}, so a blindspot it now shows drops off this list."
     },
     "coverage": {
-      "label": "What this couldn't see",
-      "title": "Gaps, not failures"
+      "label": "What this couldn't see"
     },
     "signedOut": {
       "title": "There's no business here yet.",
@@ -3131,9 +3130,7 @@
       "observed": "OBSERVED"
     },
     "list": {
-      "label": "What customers looked for, and what your site shows",
       "title": "{count, plural, one {# blindspot, biggest first} other {# blindspots, biggest first}}",
-      "meta": "Ranked by how many sources point at it, then by count",
       "nothingMissing": "Nothing missing",
       "nothingYet": "Nothing to compare yet",
       "allThere": "Everything customers asked or searched for that I can match is on your site.",
@@ -3143,13 +3140,11 @@
     },
     "factSheet": "Fact sheet",
     "hard": {
-      "label": "On your site, yet customers keep asking",
       "title": "Maybe hard to find",
       "item": "<strong>{label}</strong>: asked {count, plural, one {# time} other {# times}} in your support chat; it's on <link>{page}</link>."
     },
     "seen": {
       "label": "Seen on Google, rarely clicked",
-      "title": "Shown, not chosen",
       "search": "Search",
       "shown": "Shown",
       "clicked": "Clicked",
@@ -3157,9 +3152,9 @@
     },
     "topics": {
       "label": "Other things people searched for",
-      "title": "Is it on your site?",
       "item": "<strong>{label}</strong>: {count, plural, one {# search} other {# searches}} (e.g. {examples})"
-    }
+    },
+    "how": "How this works"
   },
   "carts": {
     "meta": {
@@ -3181,9 +3176,7 @@
     "ruledOut": "I didn't put this in your queue: your rule ({rule}) rules it out.",
     "products": {
       "label": "What was left behind · {count, plural, one {# cart} other {# carts}}",
-      "titleSome": "In the most carts first",
       "titleNone": "No product to name",
-      "meta": "Measured from your shop's own checkouts",
       "table": "Products left in carts",
       "product": "Product",
       "inCarts": "In carts",
@@ -3207,11 +3200,9 @@
     },
     "consent": {
       "label": "Who can be emailed",
-      "title": "Only people who said yes",
       "checkout": "A shopper who ticks “email me” at Shopify's checkout becomes a contact with that yes recorded, once SYB may read your Shopify customers. A yes you recorded yourself only gives way to a later unsubscribe in Shopify."
     },
     "refusal": {
-      "label": "Abandoned carts",
       "noneRead": "I haven't read any carts yet.",
       "rule": "I measure once there are {days} days of carts and {carts} carts left in the last {window} days, so a quiet week isn't read as a pattern."
     },
@@ -3234,7 +3225,9 @@
       "sent": "Sent",
       "declined": "Declined",
       "expired": "Expired"
-    }
+    },
+    "how": "How this works",
+    "why": "Why?"
   },
   "cash": {
     "meta": {
@@ -3256,12 +3249,10 @@
       "nothing": "Nothing to build a forecast on yet",
       "readyOn": "Ready from around {day}, if syncs keep running",
       "gapLabel": "What I can and can't say yet",
-      "gapTitle": "Honest about the gap",
       "can": "I can",
       "cannot": "I can't yet"
     },
     "warning": {
-      "label": "When money gets tight",
       "titleTight": "The first tight week",
       "titleNone": "No tight week in the next {weeks}",
       "metaBuffer": "Against the least you want in the account",
@@ -3272,7 +3263,6 @@
     },
     "weeks": {
       "label": "Week by week",
-      "title": "Money in, money out, the balance",
       "meta": "Cautious – hopeful, whole units",
       "week": "Week",
       "moneyIn": "Money in",
@@ -3284,7 +3274,6 @@
       "under": "UNDER THE LINE"
     },
     "scenarios": {
-      "label": "Scenarios · side by side",
       "title": "What if…",
       "meta": "Each runs the same forecast with one change",
       "form": "Scenario sizes",
@@ -3307,7 +3296,6 @@
       "assumed": "ASSUMED · {text}"
     },
     "sources": {
-      "label": "What this is built on",
       "title": "Sources, and what I assumed",
       "meta": "History {from} to {to}",
       "input": "Input",
@@ -3331,7 +3319,9 @@
       "twelfth": "{item} (a twelfth)",
       "signedRange": "{low} to {high}",
       "chartLabel": "The next {weeks} weeks · balance at each week's end"
-    }
+    },
+    "how": "How this works",
+    "details": "Details"
   },
   "competitors": {
     "meta": {
@@ -3370,8 +3360,6 @@
       "label": "Who I'm watching",
       "nobody": "Nobody yet",
       "count": "{count, plural, one {# competitor} other {# competitors}}",
-      "meta": "Their public pages, read weekly",
-      "foot": "Names come from your interview answers and from what you add here.",
       "addOne": "Add a competitor →",
       "add": "Add",
       "empty": "Tell me who you compete with: their website, and the booking or listing page where their prices are. I read those pages and nothing else.",
@@ -3388,7 +3376,6 @@
       "remove": "Remove"
     },
     "changes": {
-      "label": "Recent changes",
       "none": "Nothing moved yet",
       "title": "What moved",
       "empty": "Each week I compare their pages with the last read. A price cut or rise, an offer added or gone, or a rating that moved shows up here and in Watching."
@@ -3439,7 +3426,8 @@
       "failedTitle": "Competitors didn't load.",
       "failedCopy": "Something went wrong on our side. Refresh to try again.",
       "loading": "Reading what I know about your competitors…"
-    }
+    },
+    "how": "How this works"
   },
   "goals": {
     "meta": {
@@ -3559,7 +3547,6 @@
     },
     "daysRange": "{from} to {to}",
     "read": {
-      "label": "Reading",
       "none": "Nothing in your hours stands out on the measured days. The watch checks again every week.",
       "closing": {
         "head": "The last hour, {days}",
@@ -3607,7 +3594,6 @@
     "trials": {
       "title": "Trials",
       "none": "Not a proposal yet",
-      "body": "A signal is never a change taken on faith. It becomes a four-week trial in “Waiting for you”, with its numbers, and nothing changes your hours unless you do.",
       "waiting": "Waiting for you →"
     },
     "signedOut": {
@@ -3625,7 +3611,6 @@
       "notYet": "Not yet: {reason}."
     },
     "needs": {
-      "label": "Margin by the hour",
       "title": "What this needs",
       "body": "Your opening hours from the interview, your timezone, and hourly card sales from a connected till, payment account or online shop."
     },
@@ -3655,7 +3640,8 @@
       "legend": "DERIVED. Hatched = closed. Takings, not margin.",
       "unparsed": "Couldn't read: {list}.",
       "wrong": "Wrong hours? Change your answer on the <link>Fact sheet</link>."
-    }
+    },
+    "how": "How this works"
   },
   "patterns": {
     "meta": {
@@ -3667,7 +3653,6 @@
       "nothing": "Nothing measured yet to find your seasons in."
     },
     "seasons": {
-      "label": "Your seasons",
       "nothing": "Nothing measured yet",
       "noData": "{connect}. I read your seasons from your own history only. <link>Connections</link>"
     },
@@ -3679,7 +3664,6 @@
     },
     "gap": {
       "label": "What I can and can't say yet",
-      "title": "Honest about the gap",
       "can": "I can",
       "cannot": "I can't yet"
     },
@@ -3699,7 +3683,6 @@
       "quiet": "quiet"
     },
     "months": {
-      "label": "The months · {count, number} of the last year",
       "title": "Each month scaled to one week",
       "meta": "Months with {days, number} measured days or more"
     },
@@ -3718,7 +3701,6 @@
     },
     "read": {
       "label": "How I read it",
-      "title": "Your own history, nothing borrowed",
       "otherCurrencies": "Your {noun} in {currencies} is left out: money in two currencies is never added together."
     },
     "count": {
@@ -3786,7 +3768,9 @@
     },
     "connections": "Connections",
     "held": "A proposal is a draft for you: both items at full price, no discount. I don't change your shop or your checkout — you set the pair up.",
-    "waiting": "Waiting for you"
+    "waiting": "Waiting for you",
+    "how": "How this works",
+    "why": "Why?"
   },
   "pipeline": {
     "meta": {
@@ -3833,7 +3817,6 @@
     },
     "board": {
       "label": "The board · {count} open",
-      "title": "Stages as columns, the longest in its stage first",
       "empty": "No deals yet. Add one below, or import your spreadsheet.",
       "aria": "Deals by stage",
       "median": "median {median} d · oldest {oldest} d",
@@ -3854,7 +3837,6 @@
     },
     "quiet": {
       "label": "Gone quiet · {count}",
-      "title": "No next step, or a next step past its date",
       "held": "I draft a follow-up only for a contact who said yes to email. Nothing sends: you send it yourself.",
       "propose": "Propose follow-ups",
       "nothing": "Nothing new to propose.",
@@ -3892,7 +3874,6 @@
       "cant": "I can't yet",
       "ready": "Ready {when}.",
       "stateRate": "State your win rate",
-      "title": "Open value, weighed by your own win rate",
       "currency": "Currency",
       "deals": "Deals",
       "open": "Open",
@@ -3905,7 +3886,6 @@
     },
     "add": {
       "label": "Add a deal",
-      "title": "Who it's with, and what it's for",
       "foot": "A new contact is recorded as UNSURE consent: a sales conversation isn't permission to market to them.",
       "added": "Added.",
       "company": "Company",
@@ -3925,7 +3905,6 @@
     },
     "import": {
       "label": "Import",
-      "title": "Deals from a spreadsheet, under your attestation",
       "foot": "Columns I read: {columns}.",
       "lede": "A deals file brings people with it, so it comes in the way a customer list does: you state what the people in it consented to and how, and that statement lands on every contact it adds. Contacts you already have keep their consent; an erased or unsubscribed address is refused.",
       "done": "Imported {count, plural, one {# deal} other {# deals}}.",
@@ -3970,7 +3949,9 @@
         "rejected": "declined",
         "changes_requested": "changes asked"
       }
-    }
+    },
+    "how": "How this works",
+    "why": "Why?"
   },
   "reviews": {
     "meta": {
@@ -5851,7 +5832,6 @@
     },
     "refused": {
       "readyOn": "Ready around {day}, if the data keeps coming.",
-      "label": "Cover by the hour",
       "title": "Not enough to read yet",
       "can": "I can",
       "cannot": "I can't yet",
@@ -5859,7 +5839,6 @@
     },
     "roles": {
       "label": "Roles",
-      "title": "From who works in the business",
       "none": "No roles yet. They come from the interview: who works in the business, and their hours a week. <link>Fact sheet</link>",
       "notStated": "hours not stated",
       "perWeek": "{hours} h / week",
@@ -5876,12 +5855,9 @@
       "onAverage": "on, average hour"
     },
     "ok": {
-      "basis": "Last {weeks, plural, one {# week} other {# weeks}} · {from} to {to} · {demand}",
-      "capacity": "stated capacity {perWeek} a week (your answer)",
       "noCapacity": "no capacity in money, so nothing runs short",
       "labelBookings": "Booked against stated capacity, by role",
       "labelTakings": "Takings by the hour, by role",
-      "title": "Cover by role and hour",
       "legend": "Legend",
       "legendShort": "runs short ≥ {pct}",
       "legendCovered": "covered",
@@ -5894,21 +5870,17 @@
       "noDay": "No open weekday is read yet."
     },
     "reading": {
-      "label": "Reading",
       "none": "Nothing stands out",
-      "some": "Where cover runs short or sits quiet",
-      "noneBody": "No open hour runs short of your stated capacity or sits quiet on the days read."
+      "some": "Where cover runs short or sits quiet"
     },
     "band": {
       "short": "Runs short",
       "quiet": "Quiet"
     },
     "notes": {
-      "label": "Notes for you",
-      "title": "Yours to weigh"
+      "label": "Notes for you"
     },
     "built": {
-      "label": "Built on",
       "title": "Sources and assumptions",
       "body": "{days, plural, one {# trading day} other {# trading days}} read from {demand}, {from} to {to}; {history, plural, one {# day} other {# days}} of history in all.",
       "capacity": "Stated capacity {perWeek} a week over {hours} open hours.",
@@ -5926,7 +5898,9 @@
     "off": {
       "title": "The team module is off.",
       "body": "It stays off unless you switch it on, under Modules on <link>Watching</link>. Switched on, it reads when the week needs more cover, or has more than it needs, by role and hour, and never anything about a person."
-    }
+    },
+    "how": "How this works",
+    "why": "Why?"
   },
   "people": {
     "label": "People",
@@ -5970,7 +5944,6 @@
     },
     "capacity": {
       "label": "Appointments a week they can take",
-      "hint": "Your own figure. Utilisation is measured against it and nothing else.",
       "save": "Save",
       "clear": "Clear",
       "invalid": "A whole number from {min} to {max}."
@@ -5982,7 +5955,9 @@
       "no": "Keep",
       "done": "Removed. {count, plural, one {# appointment stays} other {# appointments stay}} in the business's figures, without a name."
     },
-    "failed": "Something went wrong on our side. Nothing was changed."
+    "failed": "Something went wrong on our side. Nothing was changed.",
+    "how": "How this works",
+    "fence": "Facts about the work. Nothing here ever becomes a proposal about a person."
   },
   "teamAccess": {
     "meta": {

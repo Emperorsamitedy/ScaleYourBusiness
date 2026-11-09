@@ -11,7 +11,9 @@
 // proposal through the queue, a draft the owner sends from their own mail;
 // what's likely to close, with its window, sources and ASSUMED lines
 // (rule 25); then adding a deal and importing a CSV under the owner's
-// attestation (P4-03). Nothing on this screen sends anything.
+// attestation (P4-03). Nothing on this screen sends anything. The window,
+// sources, ASSUMED lines and consent notes sit folded under "How this works"
+// (decluttered 2026-11-09 on the owner's instruction), reachable, not read out.
 //
 // L-3b (TASKS-LANGUAGES.md): the screen's fixed words are the "pipeline"
 // catalogue; every figure and date is in the reader's locale, each amount
@@ -31,6 +33,7 @@ import { DEAL_STAGES } from "../../lib/pipeline/stages";
 import { minorUnitExponent } from "../../lib/core/money";
 import { monthYear } from "../../lib/i18n/format";
 import type { Tr } from "../../lib/i18n/tr";
+import { Fold } from "../sheet/Fold";
 import { PageHead, SheetCard } from "../sheet/PageHead";
 import { num } from "../sheet/num";
 import { useTr } from "../sheet/useTr";
@@ -315,7 +318,6 @@ function DueBy({ view }: { view: PipelineView }) {
         basis: basisWord(tr, d.basis),
       })}
       title={tr("due.title", { days: DUE_DAYS })}
-      meta={tr("due.meta")}
     >
       <ul className="pl-list">
         {d.lines.map((l) => (
@@ -330,13 +332,16 @@ function DueBy({ view }: { view: PipelineView }) {
         ))}
       </ul>
       {gaps.length > 0 && <p className="pl-copy">{gaps.join(" ")}</p>}
-      <p className="cs-label pl-gap">{tr("due.assumed")}</p>
-      <ul className="pl-list">
-        {d.assumed.map((a) => (
-          <li key={a}>{a}</li>
-        ))}
-      </ul>
-      <p className="pl-fine">{tr("due.sources", { list: d.sources.join(listSep(locale)) })}</p>
+      <Fold summary={tr("how")}>
+        <p className="pl-fine">{tr("due.meta")}</p>
+        <p className="cs-label pl-gap">{tr("due.assumed")}</p>
+        <ul className="pl-list">
+          {d.assumed.map((a) => (
+            <li key={a}>{a}</li>
+          ))}
+        </ul>
+        <p className="pl-fine">{tr("due.sources", { list: d.sources.join(listSep(locale)) })}</p>
+      </Fold>
     </SheetCard>
   );
 }
@@ -350,24 +355,26 @@ function Weighing({ view }: { view: PipelineView }) {
     return (
       <SheetCard label={tr("weigh.label")} title={tr("weigh.notWeighed")}>
         <p className="pl-copy">{w.reason}</p>
-        <div className="pl-cols2">
-          <div>
-            <p className="cs-label">{tr("weigh.can")}</p>
-            <ul className="pl-list">
-              {w.can.map((c) => (
-                <li key={c}>{c}</li>
-              ))}
-            </ul>
+        <Fold summary={tr("why")}>
+          <div className="pl-cols2">
+            <div>
+              <p className="cs-label">{tr("weigh.can")}</p>
+              <ul className="pl-list">
+                {w.can.map((c) => (
+                  <li key={c}>{c}</li>
+                ))}
+              </ul>
+            </div>
+            <div>
+              <p className="cs-label">{tr("weigh.cant")}</p>
+              <ul className="pl-list">
+                {w.cant.map((c) => (
+                  <li key={c}>{c}</li>
+                ))}
+              </ul>
+            </div>
           </div>
-          <div>
-            <p className="cs-label">{tr("weigh.cant")}</p>
-            <ul className="pl-list">
-              {w.cant.map((c) => (
-                <li key={c}>{c}</li>
-              ))}
-            </ul>
-          </div>
-        </div>
+        </Fold>
         <p className="pl-copy">
           {tr("weigh.ready", { when: w.ready_when })}{" "}
           <Link href={`/intake?ask=${encodeURIComponent(view.win_rate_question ?? "6.1f")}`}>
@@ -380,7 +387,6 @@ function Weighing({ view }: { view: PipelineView }) {
   return (
     <SheetCard
       label={tr("weigh.labelRate", { basis: basisWord(tr, rate.basis) })}
-      title={tr("weigh.title")}
       meta={rateWords(rate, { tr, locale })}
     >
       <table className="rt pl-weigh">
@@ -412,23 +418,25 @@ function Weighing({ view }: { view: PipelineView }) {
         </tbody>
       </table>
       {w.unvalued > 0 && <p className="pl-copy">{tr("weigh.unvalued", { count: w.unvalued })}</p>}
-      <p className="cs-label pl-gap">{tr("weigh.assumed")}</p>
-      <ul className="pl-list">
-        {w.assumed.map((a) => (
-          <li key={a}>{a}</li>
-        ))}
-      </ul>
-      <p className="pl-fine">
-        {tr("weigh.window", {
-          from: dateWords(w.window.from, locale),
-          to: dateWords(w.window.to, locale),
-          list: w.sources.join(listSep(locale)),
-        })}
-        {rate.basis === "measured" && rate.stated !== null && (
-          <> {tr("weigh.statedNote", { stated: statedPct(rate.stated, locale) })}</>
-        )}
-        {rate.basis === "stated" && <> {tr("weigh.measureAfter", { count: rate.needed })}</>}
-      </p>
+      <Fold summary={tr("how")}>
+        <p className="cs-label pl-gap">{tr("weigh.assumed")}</p>
+        <ul className="pl-list">
+          {w.assumed.map((a) => (
+            <li key={a}>{a}</li>
+          ))}
+        </ul>
+        <p className="pl-fine">
+          {tr("weigh.window", {
+            from: dateWords(w.window.from, locale),
+            to: dateWords(w.window.to, locale),
+            list: w.sources.join(listSep(locale)),
+          })}
+          {rate.basis === "measured" && rate.stated !== null && (
+            <> {tr("weigh.statedNote", { stated: statedPct(rate.stated, locale) })}</>
+          )}
+          {rate.basis === "stated" && <> {tr("weigh.measureAfter", { count: rate.needed })}</>}
+        </p>
+      </Fold>
     </SheetCard>
   );
 }
@@ -456,7 +464,14 @@ function AddDeal({ busy, act }: { busy: boolean; act: Act }) {
     </label>
   );
   return (
-    <SheetCard label={tr("add.label")} title={tr("add.title")} foot={tr("add.foot")}>
+    <SheetCard
+      title={tr("add.label")}
+      foot={
+        <Fold summary={tr("how")}>
+          <p>{tr("add.foot")}</p>
+        </Fold>
+      }
+    >
       <form
         className="pl-form"
         onSubmit={(e) => {
@@ -545,11 +560,14 @@ function ImportDeals({ busy, act }: { busy: boolean; act: Act }) {
   const month = locale === "en" ? "March 2026" : monthYear("2026-03-01", locale);
   return (
     <SheetCard
-      label={tr("import.label")}
-      title={tr("import.title")}
-      foot={tr("import.foot", { columns: IMPORT_COLUMNS })}
+      title={tr("import.label")}
+      foot={
+        <Fold summary={tr("how")}>
+          <p>{tr("import.lede")}</p>
+          <p>{tr("import.foot", { columns: IMPORT_COLUMNS })}</p>
+        </Fold>
+      }
     >
-      <p className="pl-copy">{tr("import.lede")}</p>
       <form
         className="pl-form"
         onSubmit={(e) => {
@@ -697,10 +715,7 @@ export function PipelineScreen() {
           {note}
         </p>
       )}
-      <SheetCard
-        label={tr("board.label", { count: num(counts.open, 0, locale) })}
-        title={tr("board.title")}
-      >
+      <SheetCard label={tr("board.label", { count: num(counts.open, 0, locale) })}>
         {counts.total === 0 ? (
           <p className="pl-copy">{tr("board.empty")}</p>
         ) : (
@@ -711,10 +726,15 @@ export function PipelineScreen() {
       <div className="pl-grid">
         <SheetCard
           label={tr("quiet.label", { count: num(stale.length, 0, locale) })}
-          title={tr("quiet.title")}
           foot={
             <span className="pl-foot-row">
-              <span>{view.held ?? tr("quiet.held")}</span>
+              {view.held ? (
+                <span>{view.held}</span>
+              ) : (
+                <Fold summary={tr("how")}>
+                  <p>{tr("quiet.held")}</p>
+                </Fold>
+              )}
               <button
                 type="button"
                 className="act"
@@ -755,9 +775,11 @@ export function PipelineScreen() {
         <ImportDeals busy={busy} act={act} />
       </div>
 
-      <p className="pl-fine">
-        {view.today ? tr("fineTo", { day: dayWords(view.today, locale) }) : tr("fine")}
-      </p>
+      <Fold summary={tr("how")}>
+        <p className="pl-fine">
+          {view.today ? tr("fineTo", { day: dayWords(view.today, locale) }) : tr("fine")}
+        </p>
+      </Fold>
     </Frame>
   );
 }

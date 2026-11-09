@@ -7,6 +7,8 @@
 // The owner's buffer (or zero, when none is stated) is a dashed line with
 // its mono label; the first week whose cautious end dips under it carries a
 // hollow square and "TIGHT". Read in grayscale: no colour carries meaning.
+// What it rests on (the sources line and how the band is drawn) sits folded
+// under "How this works" (decluttered 2026-11-09 on the owner's instruction).
 //
 // Plain SVG at the container's width (useChartWidth); ←/→ step the
 // crosshair (lib/charts/keys); every value is also in a table.
@@ -21,6 +23,7 @@ import "../../app/charts.css";
 import { stepKey } from "../../lib/charts/keys";
 import { wholeMoney } from "../../lib/cash/model";
 import { shortDate } from "../../lib/charts/model";
+import { Fold } from "../sheet/Fold";
 import { SheetCard } from "../sheet/PageHead";
 import { useAppLocale } from "../sheet/useTr";
 import { useChartWidth } from "./useChartWidth";
@@ -97,8 +100,12 @@ export function CashChart({ model }: { model: CashChartModel }) {
       className="sc cf"
       label={model.label}
       title={model.title}
-      meta={model.meta}
-      foot={model.foot}
+      foot={
+        <Fold summary={t("how")}>
+          <p>{model.meta}</p>
+          <p>{model.foot}</p>
+        </Fold>
+      }
     >
       <ul className="sc-keys" aria-label={t("key")}>
         <li>

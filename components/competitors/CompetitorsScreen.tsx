@@ -4,7 +4,9 @@
 // and when I last read them (or that I haven't, or couldn't), their
 // prices beside yours, and what moved, each as a worded flag. Read-only
 // about the world: the only actions are on the owner's own list, and a
-// fresh read of pages they listed. Nothing here changes a price.
+// fresh read of pages they listed. Nothing here changes a price. How reads
+// and matches work sits folded under "How this works" (decluttered
+// 2026-11-09 on the owner's instruction).
 //
 // L-3b (TASKS-LANGUAGES.md): the screen's own words are the "competitors"
 // catalogue; figures, money and dates in the reader's locale, each price in
@@ -28,6 +30,7 @@ import { dayMonth } from "../../lib/i18n/format";
 import type { AppLocale } from "../../lib/i18n/locales";
 import type { Tr } from "../../lib/i18n/tr";
 import { englishTr } from "../../lib/i18n/tr";
+import { Fold } from "../sheet/Fold";
 import { PageHead, SheetCard } from "../sheet/PageHead";
 import { moneyText, num } from "../sheet/num";
 import { useTr } from "../sheet/useTr";
@@ -191,7 +194,9 @@ function CompetitorForm({
         <span>{tr("form.otherPages", { max: MAX_PRICE_PAGES })}</span>
         <textarea {...field("price_pages")} rows={2} />
       </label>
-      <p className="cp-note cp-wide">{tr("form.note")}</p>
+      <Fold className="cp-wide" summary={tr("how")}>
+        <p className="cp-note">{tr("form.note")}</p>
+      </Fold>
       {error && (
         <p className="cp-error cp-wide" role="alert">
           {error}
@@ -231,11 +236,9 @@ function WatchList({
     <SheetCard
       label={tr("watch.label")}
       title={list.length === 0 ? tr("watch.nobody") : tr("watch.count", { count: list.length })}
-      meta={tr("watch.meta")}
       foot={
         editing === "new" ? undefined : (
           <span className="cp-foot-row">
-            <span>{tr("watch.foot")}</span>
             <button type="button" className="act" onClick={() => setEditing("new")}>
               {tr("watch.addOne")}
             </button>
@@ -344,12 +347,11 @@ function Changes({ view }: { view: CompetitorsView }) {
   const { tr, locale } = useTr("competitors");
   const list = view.changes;
   return (
-    <SheetCard
-      label={tr("changes.label")}
-      title={list.length === 0 ? tr("changes.none") : tr("changes.title")}
-    >
+    <SheetCard title={list.length === 0 ? tr("changes.none") : tr("changes.title")}>
       {list.length === 0 ? (
-        <p className="cp-copy">{tr("changes.empty")}</p>
+        <Fold summary={tr("how")}>
+          <p className="cp-copy">{tr("changes.empty")}</p>
+        </Fold>
       ) : (
         <ul className="cp-changes">
           {list.slice(0, 8).map((ch) => (
@@ -403,8 +405,12 @@ function PriceTable({
         matched: num(view.summary.matched, 0, locale),
         total: view.rows.length,
       })}
-      meta={tr("prices.meta")}
-      foot={tr("prices.foot")}
+      foot={
+        <Fold summary={tr("how")}>
+          <p>{tr("prices.meta")}</p>
+          <p>{tr("prices.foot")}</p>
+        </Fold>
+      }
     >
       <div className="cp-table-wrap" tabIndex={0} aria-label={tr("prices.label")}>
         <table className="rt cp-table">

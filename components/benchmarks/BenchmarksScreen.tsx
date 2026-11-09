@@ -5,7 +5,10 @@
 // beside one named, dated Eurostat cell: the head is the group in words,
 // then one sheet per line (both figures and the gap, the cell and its
 // year, the one definition gap that matters most, the owner's arithmetic
-// and what it rests on), then the source foot.
+// and what it rests on), then the source foot. Decluttered 2026-11-09 on the
+// owner's instruction: each sheet shows both figures and the gap; the cell,
+// the definition gap, the arithmetic and its inputs, what the code covers
+// and the Eurostat acknowledgement sit folded under "How this works".
 //
 // Read-only, but for one button. A benchmark is a reference: nothing here
 // makes a fact on the profile, and nothing calls a model or the network
@@ -27,6 +30,7 @@ import { useTranslations } from "next-intl";
 import type { BenchView } from "../../app/api/benchmarks/route";
 import type { BenchLine, BenchResult, Need } from "../../lib/benchmarks/compare";
 import { num } from "../sheet/num";
+import { Fold } from "../sheet/Fold";
 import { PageHead, SheetCard } from "../sheet/PageHead";
 import { useTr } from "../sheet/useTr";
 import type { BenchWords } from "./view";
@@ -92,7 +96,9 @@ function Line({ line }: { line: BenchLine }) {
       >
         <p className="bm-copy">{line.why}</p>
         {line.status === "missing" && <Needs needs={line.needs} />}
-        <p className="bm-copy bm-gap">{line.gap_note}</p>
+        <Fold summary={tr("how")}>
+          <p className="bm-copy bm-gap">{line.gap_note}</p>
+        </Fold>
       </SheetCard>
     );
   }
@@ -113,56 +119,58 @@ function Line({ line }: { line: BenchLine }) {
           <dd className="fig">{line.bench_words}</dd>
         </div>
       </dl>
-      <p className="bm-copy bm-cell">
-        {line.cell.flag
-          ? tr("cellFlagged", { words: line.cell.words, flag: line.cell.flag })
-          : tr("cell", { words: line.cell.words })}
-        {line.cell.fallback ? ` ${line.cell.fallback}` : ""}
-        {line.conversion ? ` ${line.conversion}` : ""}
-      </p>
-      <p className="bm-copy bm-gap">{line.gap_note}</p>
-      <p className="bm-math fig">{line.formula}</p>
-      <div className="bm-wrap">
-        <table className="rt rt-stack bm-inputs">
-          <thead>
-            <tr>
-              <th scope="col">{tr("col.restsOn")}</th>
-              <th scope="col" className="num">
-                {tr("col.value")}
-              </th>
-              <th scope="col">{tr("col.basis")}</th>
-              <th scope="col">{tr("col.source")}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {line.inputs.map((i) => (
-              <tr key={i.label}>
-                <th scope="row">{i.label}</th>
-                <td className="num" data-label={tr("col.value")}>
-                  {i.value}
-                </td>
-                <td data-label={tr("col.basis")}>
-                  <span className="bm-basis">{i.basis}</span>
-                </td>
-                <td className="src" data-label={tr("col.source")}>
-                  {i.source}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-      {line.left_out.length > 0 && (
-        <>
-          <p className="bm-sub">{tr("notCounted")}</p>
-          <ul className="bm-list">
-            {line.left_out.map((l) => (
-              <li key={l}>{l}</li>
-            ))}
-          </ul>
-        </>
-      )}
       <Needs needs={line.needs} />
+      <Fold summary={tr("how")}>
+        <p className="bm-copy bm-cell">
+          {line.cell.flag
+            ? tr("cellFlagged", { words: line.cell.words, flag: line.cell.flag })
+            : tr("cell", { words: line.cell.words })}
+          {line.cell.fallback ? ` ${line.cell.fallback}` : ""}
+          {line.conversion ? ` ${line.conversion}` : ""}
+        </p>
+        <p className="bm-copy bm-gap">{line.gap_note}</p>
+        <p className="bm-math fig">{line.formula}</p>
+        <div className="bm-wrap">
+          <table className="rt rt-stack bm-inputs">
+            <thead>
+              <tr>
+                <th scope="col">{tr("col.restsOn")}</th>
+                <th scope="col" className="num">
+                  {tr("col.value")}
+                </th>
+                <th scope="col">{tr("col.basis")}</th>
+                <th scope="col">{tr("col.source")}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {line.inputs.map((i) => (
+                <tr key={i.label}>
+                  <th scope="row">{i.label}</th>
+                  <td className="num" data-label={tr("col.value")}>
+                    {i.value}
+                  </td>
+                  <td data-label={tr("col.basis")}>
+                    <span className="bm-basis">{i.basis}</span>
+                  </td>
+                  <td className="src" data-label={tr("col.source")}>
+                    {i.source}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        {line.left_out.length > 0 && (
+          <>
+            <p className="bm-sub">{tr("notCounted")}</p>
+            <ul className="bm-list">
+              {line.left_out.map((l) => (
+                <li key={l}>{l}</li>
+              ))}
+            </ul>
+          </>
+        )}
+      </Fold>
     </SheetCard>
   );
 }
@@ -170,7 +178,8 @@ function Line({ line }: { line: BenchLine }) {
 /** I-44a: the margin's large gap, and the proposal it may prompt. */
 function GapCard({ view, onProposed }: { view: BenchView; onProposed: () => Promise<void> }) {
   const t = useTranslations("benchmarkGap");
-  const { locale } = useWords();
+  const { tr, locale } = useWords();
+  const how = tr("how");
   const [busy, setBusy] = useState(false);
   const [note, setNote] = useState<string | null>(null);
   const gap = view.gap;
@@ -198,8 +207,6 @@ function GapCard({ view, onProposed }: { view: BenchView; onProposed: () => Prom
       label={t("label")}
       title={t("title", { points: num(gap.points, 1, locale) })}
     >
-      <p className="bm-copy">{t("rule", { threshold: num(gap.threshold_points, 0, locale) })}</p>
-      <p className="bm-copy">{t("where")}</p>
       <p className="bm-needs">
         {view.proposal ? (
           <>
@@ -219,6 +226,10 @@ function GapCard({ view, onProposed }: { view: BenchView; onProposed: () => Prom
           {note}
         </p>
       )}
+      <Fold summary={how}>
+        <p className="bm-copy">{t("rule", { threshold: num(gap.threshold_points, 0, locale) })}</p>
+        <p className="bm-copy">{t("where")}</p>
+      </Fold>
     </SheetCard>
   );
 }
@@ -266,7 +277,7 @@ export function BenchmarksScreen() {
   if (r.status !== "ready") {
     return (
       <Frame title={headline(r, w)} aside={tr("aside")}>
-        <SheetCard label={tr("kickerShort")} title={tr("nothingToCompare")}>
+        <SheetCard title={tr("nothingToCompare")}>
           <p className="bm-copy">{r.why}</p>
           {"needs" in r && <Needs needs={r.needs} />}
         </SheetCard>
@@ -286,14 +297,11 @@ export function BenchmarksScreen() {
         </>
       }
       notes={
-        <>
-          <p className="bm-note">{r.head.covers}</p>
-          {note && (
-            <p className="bm-note">
-              {note} <Link href="/intake?ask=1.6">{tr("addPeople")}</Link>
-            </p>
-          )}
-        </>
+        note && (
+          <p className="bm-note">
+            {note} <Link href="/intake?ask=1.6">{tr("addPeople")}</Link>
+          </p>
+        )
       }
     >
       <div className="bm-stack">
@@ -302,7 +310,10 @@ export function BenchmarksScreen() {
         ))}
         <GapCard view={load.view} onProposed={read} />
       </div>
-      <p className="bm-foot">{footLine(r.source, r.caveat, w)}</p>
+      <Fold summary={tr("how")}>
+        <p className="bm-note">{r.head.covers}</p>
+        <p className="bm-foot">{footLine(r.source, r.caveat, w)}</p>
+      </Fold>
     </Frame>
   );
 }

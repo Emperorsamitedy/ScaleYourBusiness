@@ -7,7 +7,9 @@
 // weeks is a tinted band round 1.0×, and the busy and quiet lines are
 // dashed. The weeks that line up with the next eight (52 weeks on) carry a
 // bracket. With too little history it draws the weeks there are against
-// their own median and says, in its title, that it isn't a season.
+// their own median and says, in its title, that it isn't a season. The
+// source line and the index's formula sit folded under "How this works"
+// (decluttered 2026-11-09 on the owner's instruction).
 //
 // Plain SVG at the container's width (useChartWidth); ←/→ step the
 // crosshair (lib/charts/keys); every value is also in a table.
@@ -18,6 +20,7 @@ import { stepKey } from "../../lib/charts/keys";
 import { shortDate } from "../../lib/charts/model";
 import { dayMoneyIn, lineIn, timesIn } from "../patterns/patterns-view";
 import { num } from "../sheet/num";
+import { Fold } from "../sheet/Fold";
 import { SheetCard } from "../sheet/PageHead";
 import { useTr } from "../sheet/useTr";
 import { useChartWidth } from "./useChartWidth";
@@ -89,8 +92,12 @@ export function SeasonChart({ model }: { model: SeasonChartModel }) {
       className="sc sn"
       label={model.label}
       title={model.title}
-      meta={model.meta}
-      foot={model.foot}
+      foot={
+        <Fold summary={tr("how")}>
+          <p>{model.meta}</p>
+          <p>{model.foot}</p>
+        </Fold>
+      }
     >
       <ul className="sc-keys" aria-label={tr("key")}>
         {model.lines ? (

@@ -806,7 +806,8 @@
       "underLine": "a vonal alatt",
       "when": "Mikor",
       "cautiousCol": "Óvatos vég (pénznem: {currency})",
-      "hopefulCol": "Bizakodó vég (pénznem: {currency})"
+      "hopefulCol": "Bizakodó vég (pénznem: {currency})",
+      "how": "Hogyan működik"
     },
     "market": {
       "kicker": "Elemzések · Az Ön számai grafikonon",
@@ -940,7 +941,8 @@
         "meta": "{source} · {noun} · MEGFIGYELT",
         "foot": "E {count, number} hét mediánjához mérve. Egy szezonhoz az utolsó {weeks, number} hétből {needed, plural, one {# teljes hét} other {# teljes hét}} kell; Önnek {have, number} van.",
         "summary": "{count, plural, one {# teljes hét} other {# teljes hét}} ({noun}), a saját mediánjukhoz mérve. Nincs elég előzmény egy szezon megnevezéséhez."
-      }
+      },
+      "how": "Hogyan működik"
     },
     "small": {
       "keyLabel": "Jelmagyarázat",
@@ -3004,7 +3006,6 @@
       "title": "Összehasonlítás hasonló vállalkozásokkal — SYB"
     },
     "kicker": "Elemzések · Összehasonlítás hasonló vállalkozásokkal",
-    "kickerShort": "Összehasonlítás hasonló vállalkozásokkal",
     "aside": "Eurostat · csak olvasható",
     "add": "Adja meg: {what} →",
     "addPeople": "Adja meg, hányan dolgoznak itt",
@@ -3052,7 +3053,8 @@
     "size": {
       "unknown": "Nem tudom, hányan dolgoznak a vállalkozásban, ezért a csoport minden méretet felölel.",
       "spans": "Az Ön mérete az Eurostat két méretcsoportjába is beleesik, ezért a csoport minden méretet felölel."
-    }
+    },
+    "how": "Hogyan működik"
   },
   "blindspots": {
     "meta": {
@@ -3103,8 +3105,6 @@
     },
     "fixed": {
       "label": "Hogyan javíthatók a vakfoltok",
-      "title": "Az Ön jóváhagyásával, soha nem maguktól",
-      "foot": "A weboldal módosításai a Weboldal menüpontban várnak.",
       "link": "Ellenőrzés a Weboldal menüpontban →",
       "stepFix": "A javítás: {fix}.",
       "fixDefault": "a weboldal módosítása a jóváhagyási soron keresztül, vagy egy válasz a támogatási asszisztensében",
@@ -3112,8 +3112,7 @@
       "stepRecheck": "Az oldalát {days, plural, one {naponta} other {# naponta}} újra beolvasom, így az a vakfolt, amelyet már megmutat, lekerül erről a listáról."
     },
     "coverage": {
-      "label": "Amit ez nem láthatott",
-      "title": "Hiányok, nem hibák"
+      "label": "Amit ez nem láthatott"
     },
     "signedOut": {
       "title": "Itt még nincs vállalkozás.",
@@ -3131,9 +3130,7 @@
       "observed": "MEGFIGYELT"
     },
     "list": {
-      "label": "Amit az ügyfelek kerestek, és amit az oldala mutat",
       "title": "{count, plural, one {# vakfolt, elöl a legnagyobb} other {# vakfolt, elöl a legnagyobb}}",
-      "meta": "Aszerint rangsorolva, hány forrás mutat rá, majd darabszám szerint",
       "nothingMissing": "Semmi sem hiányzik",
       "nothingYet": "Még nincs mit összehasonlítani",
       "allThere": "Minden, amit az ügyfelek kérdeztek vagy kerestek, és amit párosítani tudok, megtalálható az oldalán.",
@@ -3143,13 +3140,11 @@
     },
     "factSheet": "Ténylap",
     "hard": {
-      "label": "Az oldalán van, az ügyfelek mégis folyton kérdezik",
       "title": "Talán nehéz megtalálni",
       "item": "<strong>{label}</strong>: {count, plural, one {# alkalommal} other {# alkalommal}} kérdezték a támogatási chatben; itt található: <link>{page}</link>."
     },
     "seen": {
       "label": "Megjelenik a Google-ban, de ritkán kattintanak rá",
-      "title": "Megjelenik, de nem választják",
       "search": "Keresés",
       "shown": "Megjelenés",
       "clicked": "Kattintás",
@@ -3157,9 +3152,9 @@
     },
     "topics": {
       "label": "Egyéb dolgok, amelyeket az emberek kerestek",
-      "title": "Megtalálható az oldalán?",
       "item": "<strong>{label}</strong>: {count, plural, one {# keresés} other {# keresés}} (pl. {examples})"
-    }
+    },
+    "how": "Hogyan működik"
   },
   "carts": {
     "meta": {
@@ -3181,9 +3176,7 @@
     "ruledOut": "Ezt nem tettem a sorába: az Ön szabálya ({rule}) kizárja.",
     "products": {
       "label": "Ami bent maradt · {count, plural, one {# kosár} other {# kosár}}",
-      "titleSome": "Elöl az, ami a legtöbb kosárban szerepel",
       "titleNone": "Nincs megnevezhető termék",
-      "meta": "A webshopja saját fizetési folyamataiból mérve",
       "table": "Kosarakban hagyott termékek",
       "product": "Termék",
       "inCarts": "Kosarakban",
@@ -3207,11 +3200,9 @@
     },
     "consent": {
       "label": "Kinek lehet e-mailt írni",
-      "title": "Csak azoknak, akik beleegyeztek",
       "checkout": "Az a vásárló, aki a Shopify fizetési oldalán bejelöli az „e-mailt kérek” lehetőséget, kapcsolattartóvá válik, a beleegyezésével együtt rögzítve, amint a SYB olvashatja a Shopify-ügyfeleit. Az Ön által rögzített beleegyezést csak egy későbbi Shopify-leiratkozás írja felül."
     },
     "refusal": {
-      "label": "Elhagyott kosarak",
       "noneRead": "Még egyetlen kosarat sem olvastam be.",
       "rule": "Akkor mérek, ha {days} napnyi kosáradat van, és az utolsó {window} napban {carts} kosarat hagytak el, így egy csendes hetet nem tekintek mintázatnak."
     },
@@ -3234,7 +3225,9 @@
       "sent": "Elküldve",
       "declined": "Elutasítva",
       "expired": "Lejárt"
-    }
+    },
+    "how": "Hogyan működik",
+    "why": "Miért?"
   },
   "cash": {
     "meta": {
@@ -3256,12 +3249,10 @@
       "nothing": "Még nincs miből előrejelzést készíteni",
       "readyOn": "Nagyjából ekkortól kész: {day}, ha a szinkronizálások tovább futnak",
       "gapLabel": "Mit tudok és mit nem tudok még megmondani",
-      "gapTitle": "Őszintén a hiányról",
       "can": "Amit meg tudok mondani",
       "cannot": "Amit még nem tudok megmondani"
     },
     "warning": {
-      "label": "Amikor szűkös lesz a pénz",
       "titleTight": "Az első szűkös hét",
       "titleNone": "A következő {weeks} hétben nincs szűkös hét",
       "metaBuffer": "Ahhoz mérve, amennyinél kevesebbet nem szeretne a számlán",
@@ -3272,7 +3263,6 @@
     },
     "weeks": {
       "label": "Hétről hétre",
-      "title": "Befolyó pénz, kimenő pénz, egyenleg",
       "meta": "Óvatos – bizakodó, egész egységekben",
       "week": "Hét",
       "moneyIn": "Befolyó pénz",
@@ -3284,7 +3274,6 @@
       "under": "A VONAL ALATT"
     },
     "scenarios": {
-      "label": "Forgatókönyvek · egymás mellett",
       "title": "Mi lenne, ha…",
       "meta": "Mindegyik ugyanazt az előrejelzést futtatja egyetlen változtatással",
       "form": "A forgatókönyvek mérete",
@@ -3307,7 +3296,6 @@
       "assumed": "FELTÉTELEZETT · {text}"
     },
     "sources": {
-      "label": "Amire ez épül",
       "title": "Források, és amit feltételeztem",
       "meta": "Előzmények: {from} – {to}",
       "input": "Bemenet",
@@ -3331,7 +3319,9 @@
       "twelfth": "{item} (egy tizenketted)",
       "signedRange": "{low} – {high}",
       "chartLabel": "A következő {weeks} hét · egyenleg minden hét végén"
-    }
+    },
+    "how": "Hogyan működik",
+    "details": "Részletek"
   },
   "competitors": {
     "meta": {
@@ -3370,8 +3360,6 @@
       "label": "Akiket figyelek",
       "nobody": "Még senki",
       "count": "{count, plural, one {# versenytárs} other {# versenytárs}}",
-      "meta": "A nyilvános oldalaik, hetente beolvasva",
-      "foot": "A nevek az interjúban adott válaszaiból és abból származnak, amit itt hozzáad.",
       "addOne": "Versenytárs hozzáadása →",
       "add": "Hozzáadás",
       "empty": "Mondja meg, kivel versenyez: a weboldalukat, és azt a foglalási vagy hirdetési oldalt, ahol az áraik szerepelnek. Ezeket az oldalakat olvasom be, semmi mást.",
@@ -3388,7 +3376,6 @@
       "remove": "Eltávolítás"
     },
     "changes": {
-      "label": "Legutóbbi változások",
       "none": "Még semmi sem mozdult",
       "title": "Ami megmozdult",
       "empty": "Minden héten összevetem az oldalaikat a legutóbbi beolvasással. Egy árcsökkentés vagy -emelés, egy új vagy megszűnt ajánlat, vagy egy megmozdult értékelés itt és a Figyelés oldalon jelenik meg."
@@ -3439,7 +3426,8 @@
       "failedTitle": "A versenytársak nem töltődtek be.",
       "failedCopy": "Hiba történt a mi oldalunkon. Frissítse az oldalt az újrapróbáláshoz.",
       "loading": "Annak beolvasása, amit a versenytársairól tudok…"
-    }
+    },
+    "how": "Hogyan működik"
   },
   "goals": {
     "meta": {
@@ -3559,7 +3547,6 @@
     },
     "daysRange": "{from} – {to}",
     "read": {
-      "label": "Olvasat",
       "none": "A mért napokon semmi sem tűnik ki a nyitvatartásában. A Figyelés minden héten újra ellenőrzi.",
       "closing": {
         "head": "Az utolsó óra, {days}",
@@ -3607,7 +3594,6 @@
     "trials": {
       "title": "Próbák",
       "none": "Még nem javaslat",
-      "body": "Egy jelzés soha nem olyan változtatás, amelyet vakon elfogadnak. Négyhetes próbává válik az „Önre vár” listában, a számaival együtt, és semmi sem változtat a nyitvatartásán, hacsak Ön nem.",
       "waiting": "Önre vár →"
     },
     "signedOut": {
@@ -3625,7 +3611,6 @@
       "notYet": "Még nem: {reason}."
     },
     "needs": {
-      "label": "Árrés óránként",
       "title": "Amire ehhez szükség van",
       "body": "Az interjúból a nyitvatartása, az időzónája, valamint óránkénti kártyás eladások egy összekapcsolt pénztárgépből, fizetési fiókból vagy webshopból."
     },
@@ -3655,7 +3640,8 @@
       "legend": "SZÁMÍTOTT. Sraffozott = zárva. Bevétel, nem árrés.",
       "unparsed": "Nem tudtam beolvasni: {list}.",
       "wrong": "Rossz a nyitvatartás? Módosítsa a válaszát a <link>Ténylap</link> oldalon."
-    }
+    },
+    "how": "Hogyan működik"
   },
   "patterns": {
     "meta": {
@@ -3667,7 +3653,6 @@
       "nothing": "Még nincs mért adat, amelyben a szezonjait megtalálhatnám."
     },
     "seasons": {
-      "label": "Az Ön szezonjai",
       "nothing": "Még nincs mért adat",
       "noData": "{connect}. A szezonjait kizárólag a saját előzményeiből olvasom ki. <link>Összekapcsolt fiókok</link>"
     },
@@ -3679,7 +3664,6 @@
     },
     "gap": {
       "label": "Mit tudok és mit nem tudok még megmondani",
-      "title": "Őszintén a hiányról",
       "can": "Amit meg tudok mondani",
       "cannot": "Amit még nem tudok megmondani"
     },
@@ -3699,7 +3683,6 @@
       "quiet": "csendes"
     },
     "months": {
-      "label": "A hónapok · {count, number} az elmúlt évből",
       "title": "Minden hónap egy hétre arányosítva",
       "meta": "Legalább {days, number} mért nappal rendelkező hónapok"
     },
@@ -3718,7 +3701,6 @@
     },
     "read": {
       "label": "Hogyan olvasom",
-      "title": "Az Ön saját előzményei, semmi kölcsönvett",
       "otherCurrencies": "A más pénznemekben ({currencies}) lévő {noun} kimarad: két pénznemben lévő pénzt soha nem adok össze."
     },
     "count": {
@@ -3786,7 +3768,9 @@
     },
     "connections": "Összekapcsolt fiókok",
     "held": "A javaslat egy tervezet Önnek: mindkét tétel teljes áron, kedvezmény nélkül. Nem változtatok a webshopján vagy a fizetési folyamatán — a párt Ön állítja be.",
-    "waiting": "Önre vár"
+    "waiting": "Önre vár",
+    "how": "Hogyan működik",
+    "why": "Miért?"
   },
   "pipeline": {
     "meta": {
@@ -3833,7 +3817,6 @@
     },
     "board": {
       "label": "A tábla · {count} nyitott",
-      "title": "Szakaszok oszlopokban, elöl a szakaszában legrégebb óta álló",
       "empty": "Még nincsenek üzletek. Vegyen fel egyet lent, vagy importálja a táblázatát.",
       "aria": "Üzletek szakaszonként",
       "median": "medián {median} nap · legrégebbi {oldest} nap",
@@ -3854,7 +3837,6 @@
     },
     "quiet": {
       "label": "Elcsendesedett · {count}",
-      "title": "Nincs következő lépés, vagy a következő lépés határideje lejárt",
       "held": "Csak olyan kapcsolattartónak fogalmazok utókövető üzenetet, aki hozzájárult az e-mailhez. Semmi sem megy ki: Ön küldi el saját maga.",
       "propose": "Utókövetések javaslása",
       "nothing": "Nincs új javaslat.",
@@ -3892,7 +3874,6 @@
       "cant": "Amit még nem tudok megmondani",
       "ready": "Kész: {when}.",
       "stateRate": "Adja meg a nyerési arányát",
-      "title": "Nyitott érték, az Ön saját nyerési arányával súlyozva",
       "currency": "Pénznem",
       "deals": "Üzletek",
       "open": "Nyitott",
@@ -3905,7 +3886,6 @@
     },
     "add": {
       "label": "Üzlet felvétele",
-      "title": "Kivel köti, és miről szól",
       "foot": "Az új kapcsolattartó BIZONYTALAN hozzájárulással kerül rögzítésre: egy értékesítési beszélgetés nem engedély arra, hogy marketingüzeneteket küldjön neki.",
       "added": "Felvéve.",
       "company": "Cég",
@@ -3925,7 +3905,6 @@
     },
     "import": {
       "label": "Importálás",
-      "title": "Üzletek táblázatból, az Ön nyilatkozata alapján",
       "foot": "Az oszlopok, amelyeket beolvasok: {columns}.",
       "lede": "Egy üzleteket tartalmazó fájl embereket is hoz magával, ezért úgy kerül be, mint egy ügyféllista: Ön megadja, mihez és hogyan járultak hozzá a benne szereplők, és ez a nyilatkozat minden általa felvett kapcsolattartóhoz rögzítésre kerül. A már meglévő kapcsolattartói megtartják a hozzájárulásukat; a törölt vagy leiratkozott címeket elutasítom.",
       "done": "{count, plural, one {# üzlet} other {# üzlet}} importálva.",
@@ -3970,7 +3949,9 @@
         "rejected": "elutasítva",
         "changes_requested": "módosítást kért"
       }
-    }
+    },
+    "how": "Hogyan működik",
+    "why": "Miért?"
   },
   "reviews": {
     "meta": {
@@ -5851,7 +5832,6 @@
     },
     "refused": {
       "readyOn": "Nagyjából ekkorra lesz kész: {day}, ha az adatok továbbra is érkeznek.",
-      "label": "Lefedettség óránként",
       "title": "Még nincs elég adat",
       "can": "Amit tudok",
       "cannot": "Amit még nem tudok",
@@ -5859,7 +5839,6 @@
     },
     "roles": {
       "label": "Szerepkörök",
-      "title": "Abból, hogy ki dolgozik a vállalkozásban",
       "none": "Még nincsenek szerepkörök. Az interjúból származnak: ki dolgozik a vállalkozásban, és heti hány órában. <link>Ténylap</link>",
       "notStated": "nincs megadott óraszám",
       "perWeek": "heti {hours} óra",
@@ -5876,12 +5855,9 @@
       "onAverage": "jelen, átlagos órában"
     },
     "ok": {
-      "basis": "Utolsó {weeks, plural, one {# hét} other {# hét}} · {from} – {to} · {demand}",
-      "capacity": "megadott kapacitás: heti {perWeek} (az Ön válasza)",
       "noCapacity": "nincs pénzben megadott kapacitás, ezért sehol sincs hiány",
       "labelBookings": "Foglalások a megadott kapacitáshoz képest, szerepkörönként",
       "labelTakings": "Bevétel óránként, szerepkörönként",
-      "title": "Lefedettség szerepkör és óra szerint",
       "legend": "Jelmagyarázat",
       "legendShort": "hiány ≥ {pct}",
       "legendCovered": "lefedve",
@@ -5894,21 +5870,17 @@
       "noDay": "Még egyetlen nyitvatartási nap sincs beolvasva."
     },
     "reading": {
-      "label": "Megállapítások",
       "none": "Semmi sem tűnik ki",
-      "some": "Ahol kevés a lefedettség, vagy túl csendes",
-      "noneBody": "A beolvasott napokon egyetlen nyitvatartási óra sem marad el a megadott kapacitástól, és egyik sem csendes."
+      "some": "Ahol kevés a lefedettség, vagy túl csendes"
     },
     "band": {
       "short": "Hiány",
       "quiet": "Csendes"
     },
     "notes": {
-      "label": "Megjegyzések Önnek",
-      "title": "Ezt Ön mérlegeli"
+      "label": "Megjegyzések Önnek"
     },
     "built": {
-      "label": "Alapja",
       "title": "Források és feltételezések",
       "body": "{days, plural, one {# nyitvatartási nap} other {# nyitvatartási nap}} beolvasva innen: {demand}, {from} – {to}; összesen {history, plural, one {# nap} other {# nap}} előzmény.",
       "capacity": "Megadott kapacitás: heti {perWeek}, {hours} nyitvatartási órára.",
@@ -5926,7 +5898,9 @@
     "off": {
       "title": "A csapatmodul ki van kapcsolva.",
       "body": "Kikapcsolva marad, amíg be nem kapcsolja a <link>Figyelés</link> oldal Modulok részében. Bekapcsolva azt olvassa, mikor kell a hétnek több lefedettség, vagy mikor van több a szükségesnél, szerepkör és óra szerint, és soha semmit egy személyről."
-    }
+    },
+    "how": "Hogyan működik",
+    "why": "Miért?"
   },
   "people": {
     "label": "Személyek",
@@ -5970,7 +5944,6 @@
     },
     "capacity": {
       "label": "Heti időpontok, amennyit vállalni tud",
-      "hint": "Az Ön saját adata. A kihasználtságot csak ehhez mérjük.",
       "save": "Mentés",
       "clear": "Törlés",
       "invalid": "Egész szám {min} és {max} között."
@@ -5982,7 +5955,9 @@
       "no": "Megtartás",
       "done": "Eltávolítva. {count, plural, one {# időpont} other {# időpont}} név nélkül a vállalkozás számaiban marad."
     },
-    "failed": "Valami hiba történt nálunk. Semmi sem változott."
+    "failed": "Valami hiba történt nálunk. Semmi sem változott.",
+    "how": "Hogyan működik",
+    "fence": "Tények a munkáról. Semmi sem válik itt soha egy személyről szóló javaslattá."
   },
   "teamAccess": {
     "meta": {
