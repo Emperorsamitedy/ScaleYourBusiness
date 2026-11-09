@@ -190,6 +190,27 @@ export function canPick(
   return set.chosen_id === null && candidate.status === "ready" && candidate.url !== null;
 }
 
+/**
+ * P6-03 (the owner's decision of 2026-11-09): a set is submitted and
+ * collected in the background. While one is being made the studio asks
+ * the server to collect every `every_ms`, at most `max_polls` times (an
+ * hour), then says it is still being made and stops asking.
+ */
+export const VIDEO_POLL = { every_ms: 15_000, max_polls: 240 } as const;
+
+/** Pure: is any set still being made? */
+export function anyMaking(sets: readonly { status: string }[]): boolean {
+  return sets.some((s) => s.status === "generating");
+}
+
+/** Pure: a set's progress — how many of its candidates have arrived. */
+export function setProgress(set: { ready: number; candidates: readonly unknown[] }): {
+  ready: number;
+  total: number;
+} {
+  return { ready: set.ready, total: set.candidates.length };
+}
+
 /** Pure: the rows that belong to one brief, in the order the server sent them. */
 export function forBrief<T extends { brief_id: string | null }>(
   rows: readonly T[],

@@ -5203,7 +5203,9 @@
       "videoProposed": "Propuesto. Está en <queue>Pendiente de usted</queue>; no se genera ni se gasta nada antes de su sí.",
       "videoGenerated": "Los candidatos están abajo, cada uno con la etiqueta de generado por IA. Elija uno; no se publica nada sin su sí.",
       "picked": "Elegido. Está en el elemento de vídeo, con la etiqueta de generado por IA, y su propuesta de publicación está en <queue>Pendiente de usted</queue>.",
-      "pickedNoProposal": "Elegido. Está en el elemento de vídeo, con la etiqueta de generado por IA."
+      "pickedNoProposal": "Elegido. Está en el elemento de vídeo, con la etiqueta de generado por IA.",
+      "videoSubmitted": "Enviado. Los tres llegan abajo en los próximos minutos, cada uno con la etiqueta de generado por IA. Puede salir de esta página y volver.",
+      "videoStillMaking": "Todavía se están generando. Vuelva más tarde: SYB sigue recogiéndolos, al menos una vez al día."
     },
     "niche": {
       "label": "Los anuncios más duraderos del nicho",
@@ -5282,7 +5284,7 @@
       "proposing": "Proponiendo…",
       "pending": "Espera su sí en <queue>Pendiente de usted</queue>.",
       "generate": "Generar los tres",
-      "generating": "Generando. Tarda unos minutos…",
+      "generating": "Enviando los tres a Higgsfield…",
       "approvedNote": "Aprobado. El dinero solo se gasta cuando usted lo inicia.",
       "notOffered": "No se ofrece: {reason}",
       "setLabel": "CANDIDATOS · {day}",
@@ -5297,7 +5299,10 @@
         "failed": "FALLIDO",
         "chosen": "ELEGIDO",
         "not_chosen": "NO ELEGIDO · CONSERVADO"
-      }
+      },
+      "making": "Generando: {ready} de {total} listos.",
+      "makingNote": "Puede salir de esta página. SYB los recoge mientras está abierta, y una vez al día en segundo plano; uno listo ya se puede elegir.",
+      "progress": "{ready} de {total} listos"
     }
   },
   "site": {

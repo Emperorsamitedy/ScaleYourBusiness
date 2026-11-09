@@ -15,7 +15,7 @@
 // its AI label; the pick is offered for publishing, another yes.
 
 import "../../app/studio.css";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { FormEvent, ReactNode } from "react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
@@ -42,6 +42,9 @@ import {
   studioHeadline,
   timeText,
   videoSetupLine,
+  VIDEO_POLL,
+  anyMaking,
+  setProgress,
 } from "./studio-view";
 
 type Brief = BriefRead & { sources: BriefSource[]; attempts: number; cost_eur: number };
@@ -459,6 +462,10 @@ function VideoCard({
   const sets = forBrief(video.sets, briefId);
   const cash = (m: { amount_minor: number; currency: string }) => formatMinor(m, locale);
   const queue = (chunks: ReactNode) => <Link href="/proposals">{chunks}</Link>;
+  const progressWords = (p: { ready: number; total: number }) => ({
+    ready: countText(p.ready, locale),
+    total: countText(p.total, locale),
+  });
   return (
     <SheetCard
       label={tr("video.label")}
@@ -475,51 +482,65 @@ function VideoCard({
         <p className="st-note">{tr("video.none")}</p>
       ) : (
         <ul className="st-targets">
-          {targets.map((t) => (
-            <li key={t.item_id}>
-              <p className="st-script">{t.title}</p>
-              {t.pending_proposal_id ? (
-                <p className="st-note">{rich.rich("video.pending", { queue })}</p>
-              ) : t.approved_proposal_id ? (
-                <div className="st-make">
-                  <button
-                    type="button"
-                    className="act solid"
-                    disabled={busy !== null || !video.setup.available}
-                    onClick={() => onGenerate(t.approved_proposal_id as string)}
-                  >
-                    {busy === t.approved_proposal_id
-                      ? tr("video.generating")
-                      : tr("video.generate")}
-                  </button>
-                  <span className="st-note">{tr("video.approvedNote")}</span>
-                </div>
-              ) : t.refusal ? (
-                video.setup.available && (
-                  <p className="st-note">{tr("video.notOffered", { reason: t.refusal })}</p>
-                )
-              ) : (
-                <div className="st-make">
-                  <button
-                    type="button"
-                    className="act"
-                    disabled={busy !== null}
-                    onClick={() => onPropose(t.item_id)}
-                  >
-                    {busy === t.item_id
-                      ? tr("video.proposing")
-                      : tr("video.propose", { cost: t.estimate ? cash(t.estimate) : "—" })}
-                  </button>
-                </div>
-              )}
-            </li>
-          ))}
+          {targets.map((t) => {
+            const making = t.making_generation_id
+              ? sets.find((s) => s.generation_id === t.making_generation_id)
+              : undefined;
+            return (
+              <li key={t.item_id}>
+                <p className="st-script">{t.title}</p>
+                {making ? (
+                  <>
+                    <p className="st-note" role="status">
+                      {tr("video.making", progressWords(setProgress(making)))}
+                    </p>
+                    <p className="st-note">{tr("video.makingNote")}</p>
+                  </>
+                ) : t.pending_proposal_id ? (
+                  <p className="st-note">{rich.rich("video.pending", { queue })}</p>
+                ) : t.approved_proposal_id ? (
+                  <div className="st-make">
+                    <button
+                      type="button"
+                      className="act solid"
+                      disabled={busy !== null || !video.setup.available}
+                      onClick={() => onGenerate(t.approved_proposal_id as string)}
+                    >
+                      {busy === t.approved_proposal_id
+                        ? tr("video.generating")
+                        : tr("video.generate")}
+                    </button>
+                    <span className="st-note">{tr("video.approvedNote")}</span>
+                  </div>
+                ) : t.refusal ? (
+                  video.setup.available && (
+                    <p className="st-note">{tr("video.notOffered", { reason: t.refusal })}</p>
+                  )
+                ) : (
+                  <div className="st-make">
+                    <button
+                      type="button"
+                      className="act"
+                      disabled={busy !== null}
+                      onClick={() => onPropose(t.item_id)}
+                    >
+                      {busy === t.item_id
+                        ? tr("video.proposing")
+                        : tr("video.propose", { cost: t.estimate ? cash(t.estimate) : "—" })}
+                    </button>
+                  </div>
+                )}
+              </li>
+            );
+          })}
         </ul>
       )}
       {sets.map((set) => (
         <section key={set.generation_id} className="st-set">
           <p className="st-src">
             {tr("video.setLabel", { day: dayText(set.created_at, locale) })}
+            {set.status === "generating" &&
+              ` · ${tr("video.progress", progressWords(setProgress(set)))}`}
             {set.cost && ` · ${tr("video.setCost", { cost: cash(set.cost) })}`}
           </p>
           <ol className="st-candidates">
@@ -538,6 +559,7 @@ function VideoCard({
                 <p className="st-ai-label">{c.label}</p>
                 {c.cost && <p className="st-src">{cash(c.cost)}</p>}
                 {c.error && <p className="st-error">{c.error}</p>}
+                {c.waiting && <p className="st-note">{c.waiting}</p>}
                 {canPick(set, c) && (
                   <button
                     type="button"
@@ -604,6 +626,33 @@ export function StudioScreen() {
   useEffect(() => {
     void load();
   }, [load]);
+
+  // P6-03: while a set is being made, ask the server to collect it, then read again.
+  const videoMaking = data ? anyMaking(data.video.sets) : false;
+  const polls = useRef(0);
+  const [pollStopped, setPollStopped] = useState(false);
+  useEffect(() => {
+    if (!videoMaking) {
+      polls.current = 0;
+      return;
+    }
+    const timer = setInterval(() => {
+      if (polls.current >= VIDEO_POLL.max_polls) {
+        clearInterval(timer);
+        setPollStopped(true);
+        return;
+      }
+      polls.current += 1;
+      void fetch("/api/studio", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ action: "collect_video" }),
+      })
+        .catch(() => null)
+        .then(() => load());
+    }, VIDEO_POLL.every_ms);
+    return () => clearInterval(timer);
+  }, [videoMaking, load]);
 
   const post = (body: Record<string, unknown>) =>
     fetch("/api/studio", {
@@ -679,14 +728,20 @@ export function StudioScreen() {
         ? tr("notice.blocked")
         : rich.rich("notice.videoProposed", { queue: queueLink }),
     );
-  const generateVideo = (proposalId: string) =>
-    videoAction(proposalId, { action: "generate_video", proposal_id: proposalId }, (out) =>
-      out.status === "generated"
-        ? tr("notice.videoGenerated")
-        : typeof out.note === "string"
-          ? out.note
-          : tr("error.generic"),
+  const generateVideo = (proposalId: string) => {
+    // A new set: the studio asks after it for another hour.
+    polls.current = 0;
+    setPollStopped(false);
+    return videoAction(proposalId, { action: "generate_video", proposal_id: proposalId }, (out) =>
+      out.status === "generating"
+        ? tr("notice.videoSubmitted")
+        : out.status === "generated"
+          ? tr("notice.videoGenerated")
+          : typeof out.note === "string"
+            ? out.note
+            : tr("error.generic"),
     );
+  };
   const pickVideo = (candidateId: string) =>
     videoAction(candidateId, { action: "pick", candidate_id: candidateId }, (out) =>
       out.publish_proposed === true
@@ -724,6 +779,11 @@ export function StudioScreen() {
       {notice && (
         <p className="st-notice" role="status">
           {notice}
+        </p>
+      )}
+      {videoMaking && pollStopped && (
+        <p className="st-notice" role="status">
+          {tr("notice.videoStillMaking")}
         </p>
       )}
       <NicheAds niche={data.niche} busy={reading} onRead={research} />

@@ -2339,9 +2339,33 @@ export const mediaCandidates = pgTable(
     result_item_id: uuid("result_item_id").references(() => contentItems.id, {
       onDelete: "set null",
     }),
+    /*
+     * 2026-11-09, the owner's decision (submit now, collect in the
+     * background): the request as the provider answered it, so a later
+     * run can ask after it. Each address is checked to be on the
+     * provider's own host before the key goes to it.
+     */
+    status_url: text("status_url"),
+    cancel_url: text("cancel_url"),
+    /** When the current attempt was submitted. */
+    submitted_at: timestamp("submitted_at", { withTimezone: true, mode: "string" }),
+    /** When the provider first said it finished — billed from then, collected or not. */
+    completed_at: timestamp("completed_at", { withTimezone: true, mode: "string" }),
+    /** Status checks across every attempt, and the last one. */
+    checks: integer("checks").notNull().default(0),
+    checked_at: timestamp("checked_at", { withTimezone: true, mode: "string" }),
+    /** One collector at a time: a run holds a candidate until this passes (no double download). */
+    lease_until: timestamp("lease_until", { withTimezone: true, mode: "string" }),
+    /** Why a candidate still generating waits, in the owner's words (e.g. no FFmpeg to label it here). */
+    waiting: text("waiting"),
   },
   (t) => [
     uniqueIndex("media_candidates_set_ordinal_uq").on(t.generation_id, t.ordinal),
+    // The collector's queue: only what is still being made.
+    index("media_candidates_pending_idx")
+      .on(t.created_at)
+      .where(sql`${t.status} = 'generating'`),
+    check("media_candidates_checks", sql`${t.checks} >= 0`),
     // One pick per set, held by the database.
     uniqueIndex("media_candidates_one_chosen_uq")
       .on(t.generation_id)

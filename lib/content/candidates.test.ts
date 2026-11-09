@@ -4,9 +4,12 @@
 // only for a brief's shot list with no footage, from profile facts with
 // their provenance and never from typed words; the proposal states the
 // set's price in US cents and generates nothing; the monthly cap stops it
-// BEFORE anything is submitted; once approved, three clips are made, each
-// labelled as AI-generated in the file and on its row, each its own cost
-// line tagged by workload; the owner's pick goes on the video item and is
+// BEFORE anything is submitted; once approved, the three are SUBMITTED and
+// the call returns at once (the owner's decision of 2026-11-09), and the
+// background collects them — each labelled as AI-generated in the file and
+// on its row, each its own cost line tagged by workload, never downloaded
+// twice, left pending while it can't be labelled here, and closed as failed
+// past its deadline with unbilled room given back; the owner's pick goes on the video item and is
 // offered for publishing (nothing posted without that yes); the other two
 // are kept, marked not chosen; the pick is in the decision log; one pick
 // per set.
@@ -50,8 +53,12 @@ import type { LimitLlm } from "../proposals/hard-limits";
 import { approveProposal, createProposal } from "../proposals/service";
 import {
   AI_VIDEO_WORKLOAD,
+  CANDIDATE_DEADLINE_MS,
   DIRECTION_REFUSED,
+  MIN_CHECK_GAP_MS,
   NEEDS_BRIEF,
+  WAITING_FOR_LABEL,
+  collectCandidates,
   pickCandidate,
   studioVideoView,
 } from "./candidates";
@@ -72,6 +79,7 @@ import {
   generationSetup,
   proposeGeneration,
 } from "./generation";
+import type { MediaStore } from "./media";
 import { memoryMediaStore } from "./media";
 import { mediaOf } from "./media-item";
 import { SHOT_ANGLES } from "./video-prompt";
@@ -103,23 +111,43 @@ beforeAll(async () => {
   CLIP = new Uint8Array(await fs.readFile(file));
 }, 60_000);
 
-/** A fake Higgsfield: each submit a new request; completed on the second poll; moderation on demand. */
-function fakeHiggsfield(opts: { nsfwAngle?: number; failFirstAngle?: number } = {}) {
-  const sent: { url: string; method: string; body: { prompt?: string } | null }[] = [];
+/**
+ * A fake Higgsfield: each submit a new request; completed on the second
+ * check; moderation, a failure, a clip that never finishes or one that
+ * stays queued, on demand.
+ */
+function fakeHiggsfield(
+  opts: {
+    nsfwAngle?: number;
+    failFirstAngle?: number;
+    /** Never finishes: in_progress for ever (cancel refused, so it may be billed). */
+    stuckAngle?: number;
+    /** Stays queued (cancel accepted, so nothing is billed). */
+    queuedAngle?: number;
+    /** Finishes on the fourth check instead of the second. */
+    slowAngle?: number;
+  } = {},
+) {
+  const sent: {
+    url: string;
+    method: string;
+    body: { prompt?: string } | null;
+    key: string | null;
+  }[] = [];
   const byId = new Map<string, { prompt: string; polls: number; fail: boolean }>();
   let n = 0;
   let failed = false;
+  const angle = (prompt: string, i: number | undefined) =>
+    i !== undefined && prompt.includes(SHOT_ANGLES[i]!);
   const fetch: HttpFetch = async (url, init) => {
     const body =
       typeof init.body === "string" ? (JSON.parse(init.body) as { prompt: string }) : null;
-    sent.push({ url, method: init.method ?? "GET", body });
+    const headers = (init.headers ?? {}) as Record<string, string>;
+    sent.push({ url, method: init.method ?? "GET", body, key: headers["idempotency-key"] ?? null });
     if (url.startsWith(`${HIGGSFIELD_ORIGIN}/kling-video/`)) {
       n += 1;
       const id = `00000000-0000-4000-8000-${String(n).padStart(12, "0")}`;
-      const fail =
-        opts.failFirstAngle !== undefined &&
-        !failed &&
-        body!.prompt.includes(SHOT_ANGLES[opts.failFirstAngle]!);
+      const fail = !failed && angle(body!.prompt, opts.failFirstAngle);
       if (fail) failed = true;
       byId.set(id, { prompt: body!.prompt, polls: 0, fail });
       return Response.json({
@@ -129,18 +157,28 @@ function fakeHiggsfield(opts: { nsfwAngle?: number; failFirstAngle?: number } = 
         cancel_url: `${HIGGSFIELD_ORIGIN}/requests/${id}/cancel`,
       });
     }
+    const cancel = /\/requests\/([0-9a-f-]+)\/cancel$/.exec(url);
+    if (cancel) {
+      const r = byId.get(cancel[1]!)!;
+      return new Response(null, { status: angle(r.prompt, opts.queuedAngle) ? 202 : 400 });
+    }
     const m = /\/requests\/([0-9a-f-]+)\/status$/.exec(url);
     if (m) {
       const r = byId.get(m[1]!)!;
       r.polls += 1;
-      if (opts.nsfwAngle !== undefined && r.prompt.includes(SHOT_ANGLES[opts.nsfwAngle]!)) {
+      if (angle(r.prompt, opts.nsfwAngle))
         return Response.json({ status: "nsfw", request_id: m[1] });
+      if (angle(r.prompt, opts.queuedAngle)) {
+        return Response.json({ status: "queued", request_id: m[1] });
+      }
+      if (angle(r.prompt, opts.stuckAngle)) {
+        return Response.json({ status: "in_progress", request_id: m[1] });
       }
       // Higgsfield's "failed": unbilled, and worth another attempt.
       if (r.fail)
         return Response.json({ status: "failed", request_id: m[1], error: "it fell over" });
       return Response.json(
-        r.polls < 2
+        r.polls < (angle(r.prompt, opts.slowAngle) ? 4 : 2)
           ? { status: "in_progress", request_id: m[1] }
           : {
               status: "completed",
@@ -152,7 +190,14 @@ function fakeHiggsfield(opts: { nsfwAngle?: number; failFirstAngle?: number } = 
     if (url.startsWith("https://cdn.higgsfield.test/")) return new Response(new Uint8Array(CLIP));
     throw new Error(`unexpected call to ${url}`);
   };
-  return { fetch, sent, submits: () => sent.filter((s) => s.method === "POST").length };
+  const count = (pred: (s: (typeof sent)[number]) => boolean) => sent.filter(pred).length;
+  return {
+    fetch,
+    sent,
+    submits: () => count((s) => s.url.startsWith(`${HIGGSFIELD_ORIGIN}/kling-video/`)),
+    checks: () => count((s) => s.url.endsWith("/status")),
+    downloads: () => count((s) => s.url.startsWith("https://cdn.higgsfield.test/")),
+  };
 }
 
 const higgsfield = (fetch: HttpFetch, monthCap = 6000): GenerationSetup => ({
@@ -161,13 +206,30 @@ const higgsfield = (fetch: HttpFetch, monthCap = 6000): GenerationSetup => ({
     model: HIGGSFIELD_DEFAULTS.model,
     usd_micros_per_second: HIGGSFIELD_DEFAULTS.usd_micros_per_second,
     fetch,
-    sleep: async () => {},
   }),
   reason: null,
   setting: "higgsfield",
   caps: { currency: "USD", item_cap_minor: 1000, month_cap_minor: monthCap },
   candidates: 3,
 });
+
+/** The background's clock: each run a little later, past the gap between checks. */
+let clock = Date.now();
+const later = (ms = MIN_CHECK_GAP_MS + 1_000) =>
+  new Date((clock = Math.max(clock, Date.now()) + ms));
+const collect = (
+  profileId: string,
+  setup: GenerationSetup,
+  store: MediaStore,
+  extra: { now?: Date; labelling?: () => boolean } = {},
+) =>
+  collectCandidates({
+    profileId,
+    setup,
+    store,
+    now: extra.now ?? later(),
+    labelling: extra.labelling ?? (() => true),
+  });
 
 /* ── fixtures ── */
 
@@ -442,10 +504,42 @@ describe("P6-03 — proposing three candidates", () => {
   });
 });
 
-/* ── generating and picking ── */
+/* ── generating (submit now) and collecting (in the background), then picking ── */
+
+const candidatesOf = (proposalId: string) =>
+  db
+    .select()
+    .from(mediaCandidates)
+    .where(eq(mediaCandidates.proposal_id, proposalId))
+    .orderBy(mediaCandidates.ordinal);
+const claimOf = async (proposalId: string) =>
+  (await db.select().from(mediaGenerations).where(eq(mediaGenerations.proposal_id, proposalId)))[0];
+const proposalOf = async (id: string) =>
+  (await db.select().from(proposals).where(eq(proposals.id, id)))[0];
+
+/** Propose a set for a fresh shot list, approve it, and submit it. */
+async function submitted(
+  b: Awaited<ReturnType<typeof bakery>>,
+  api: ReturnType<typeof fakeHiggsfield>,
+  monthCap?: number,
+) {
+  const sl = await b.shotList();
+  const setup = higgsfield(api.fetch, monthCap);
+  const p = await proposeGeneration({
+    profileId: b.profile_id,
+    itemId: sl.id,
+    media: "video",
+    setup,
+    limitLlm: limitsLlm,
+  });
+  await b.approve(p.id);
+  const store = memoryMediaStore();
+  const out = await generateFromProposal({ proposalId: p.id, setup, store });
+  return { sl, setup, store, p, out };
+}
 
 describe.skipIf(!ffmpegAvailable())("P6-03 — generating and picking", () => {
-  it("makes three labelled clips, each its own cost line; the pick is placed and offered, the rest kept", async () => {
+  it("submits three and returns at once; the background collects three labelled clips, each its own cost line; the pick is placed and offered, the rest kept", async () => {
     const b = await bakery();
     const sl = await b.shotList();
     const api = fakeHiggsfield();
@@ -465,33 +559,66 @@ describe.skipIf(!ffmpegAvailable())("P6-03 — generating and picking", () => {
     await b.approve(p.id);
 
     const store = memoryMediaStore();
-    const logs: string[] = [];
-    const spy = vi.spyOn(console, "log").mockImplementation((line: unknown) => {
-      logs.push(String(line));
+    const out = await generateFromProposal({
+      proposalId: p.id,
+      expectedProfileId: b.profile_id,
+      setup,
+      store,
     });
-    let out;
-    try {
-      out = await generateFromProposal({
-        proposalId: p.id,
-        expectedProfileId: b.profile_id,
-        setup,
-        store,
-      });
-    } finally {
-      spy.mockRestore();
-    }
+    // Submit, don't wait: three requests, not one status check, no file.
     expect(out).toMatchObject({
-      status: "generated",
+      status: "generating",
       cost: { amount_minor: 168, currency: "USD" },
     });
     expect(out.candidate_ids).toHaveLength(3);
     expect(api.submits()).toBe(3);
+    expect(api.checks()).toBe(0);
+    expect(api.downloads()).toBe(0);
+    const pending = await candidatesOf(p.id);
+    expect(pending.map((r) => r.status)).toEqual(["generating", "generating", "generating"]);
+    for (const r of pending) {
+      expect(r.request_id).toMatch(/^00000000-0000-4000-8000-/);
+      expect(r.status_url).toBe(`${HIGGSFIELD_ORIGIN}/requests/${r.request_id}/status`);
+      expect(r).toMatchObject({ attempts: 1, cost_minor: null, lease_until: null });
+      expect(r.submitted_at).not.toBeNull();
+    }
+    // The set holds its price against the caps while it runs; the proposal is still open.
+    expect(await claimOf(p.id)).toMatchObject({ status: "generating", estimate_minor: 168 });
+    expect((await proposalOf(p.id))?.status).toBe("approved");
+    // It can't be started twice.
+    await expect(generateFromProposal({ proposalId: p.id, setup, store })).rejects.toMatchObject({
+      status: 409,
+    });
 
-    const rows = await db
-      .select()
-      .from(mediaCandidates)
-      .where(eq(mediaCandidates.proposal_id, p.id))
-      .orderBy(mediaCandidates.ordinal);
+    // The studio shows it being made, not a second "generate" button.
+    const making = await studioVideoView(b.profile_id, setup);
+    const target = making.targets.find((t) => t.item_id === sl.id)!;
+    expect(target).toMatchObject({ approved_proposal_id: null });
+    expect(target.making_generation_id).not.toBeNull();
+    expect(making.sets.find((s) => s.proposal_id === p.id)).toMatchObject({
+      status: "generating",
+      ready: 0,
+      pending: 3,
+    });
+
+    const logs: string[] = [];
+    const spy = vi.spyOn(console, "log").mockImplementation((line: unknown) => {
+      logs.push(String(line));
+    });
+    try {
+      // The first check: still running. The second: finished, collected, labelled, stored.
+      expect(await collect(b.profile_id, setup, store)).toMatchObject({ checked: 3, ready: 0 });
+      expect(await collect(b.profile_id, setup, store)).toMatchObject({
+        ready: 3,
+        sets_settled: 1,
+      });
+    } finally {
+      spy.mockRestore();
+    }
+    expect(api.submits()).toBe(3);
+    expect(api.downloads()).toBe(3);
+
+    const rows = await candidatesOf(p.id);
     expect(rows.map((r) => r.status)).toEqual(["ready", "ready", "ready"]);
     for (const r of rows) {
       expect(r).toMatchObject({
@@ -500,8 +627,10 @@ describe.skipIf(!ffmpegAvailable())("P6-03 — generating and picking", () => {
         cost_minor: 56,
         currency: "USD",
         attempts: 1,
+        checks: 2,
         provider: "higgsfield",
         brief_id: b.brief_id,
+        waiting: null,
       });
       expect(r.request_id).toMatch(/^00000000-0000-4000-8000-/);
       // Rule 33: labelled in the file before it was stored.
@@ -520,15 +649,12 @@ describe.skipIf(!ffmpegAvailable())("P6-03 — generating and picking", () => {
         account_id: b.account_id,
         cost_minor: 56,
         currency: "USD",
+        status: "ready",
       });
     }
-    const [gen] = await db
-      .select()
-      .from(mediaGenerations)
-      .where(eq(mediaGenerations.proposal_id, p.id));
+    const gen = await claimOf(p.id);
     expect(gen).toMatchObject({ status: "generated", cost_minor: 168, currency: "USD" });
-    const [after] = await db.select().from(proposals).where(eq(proposals.id, p.id));
-    expect(after?.status).toBe("executed");
+    expect((await proposalOf(p.id))?.status).toBe("executed");
     // Nothing is on an item, and nothing is offered for publishing, before the pick.
     const before = await db
       .select()
@@ -536,11 +662,15 @@ describe.skipIf(!ffmpegAvailable())("P6-03 — generating and picking", () => {
       .where(and(eq(contentItems.profile_id, b.profile_id), eq(contentItems.kind, "video")));
     expect(before).toHaveLength(0);
 
+    // A later run has nothing to do: nothing is checked or downloaded twice.
+    expect(await collect(b.profile_id, setup, store)).toMatchObject({ taken: 0 });
+    expect(api.downloads()).toBe(3);
+
     // The studio shows the set.
     const view = await studioVideoView(b.profile_id, setup);
     const set = view.sets.find((s) => s.proposal_id === p.id)!;
+    expect(set).toMatchObject({ ready: 3, pending: 0, chosen_id: null });
     expect(set.candidates).toHaveLength(3);
-    expect(set.chosen_id).toBeNull();
     expect(view.month).toMatchObject({
       spent: { amount_minor: 168, currency: "USD" },
       cap: { amount_minor: 6000, currency: "USD" },
@@ -568,11 +698,7 @@ describe.skipIf(!ffmpegAvailable())("P6-03 — generating and picking", () => {
     expect(video!.publish_proposal_id).not.toBeNull();
     expect(picked.publish_proposed).toBe(true);
 
-    const after2 = await db
-      .select()
-      .from(mediaCandidates)
-      .where(eq(mediaCandidates.proposal_id, p.id))
-      .orderBy(mediaCandidates.ordinal);
+    const after2 = await candidatesOf(p.id);
     expect(after2.map((r) => r.status)).toEqual(["not_chosen", "chosen", "not_chosen"]);
     expect(after2[1]).toMatchObject({ chosen_by: b.user_id, result_item_id: picked.item_id });
     // Kept, not deleted: the others' files are still stored.
@@ -606,30 +732,190 @@ describe.skipIf(!ffmpegAvailable())("P6-03 — generating and picking", () => {
     ).rejects.toMatchObject({ status: 404 });
   }, 120_000);
 
+  it("the pick works once one is ready; a clip that lands after the pick is kept as not chosen", async () => {
+    const b = await bakery();
+    const api = fakeHiggsfield({ slowAngle: 2 });
+    const { p, setup, store } = await submitted(b, api);
+    await collect(b.profile_id, setup, store);
+    await collect(b.profile_id, setup, store);
+    const rows = await candidatesOf(p.id);
+    expect(rows.map((r) => r.status)).toEqual(["ready", "ready", "generating"]);
+    const set = (await studioVideoView(b.profile_id, setup)).sets.find(
+      (s) => s.proposal_id === p.id,
+    )!;
+    expect(set).toMatchObject({ status: "generating", ready: 2, pending: 1 });
+    // A candidate still being made can't be picked.
+    await expect(
+      pickCandidate({
+        profileId: b.profile_id,
+        candidateId: rows[2]!.id,
+        userId: b.user_id,
+        store,
+      }),
+    ).rejects.toMatchObject({ status: 409 });
+    const picked = await pickCandidate({
+      profileId: b.profile_id,
+      candidateId: rows[0]!.id,
+      userId: b.user_id,
+      store,
+      limitLlm: limitsLlm,
+    });
+    expect(picked.item_id).toBeDefined();
+    expect((await candidatesOf(p.id)).map((r) => r.status)).toEqual([
+      "chosen",
+      "not_chosen",
+      "generating",
+    ]);
+    // The slow one lands after the pick: kept, as not chosen, and the set settles.
+    await collect(b.profile_id, setup, store);
+    expect(await collect(b.profile_id, setup, store)).toMatchObject({ ready: 1, sets_settled: 1 });
+    const last = await candidatesOf(p.id);
+    expect(last.map((r) => r.status)).toEqual(["chosen", "not_chosen", "not_chosen"]);
+    expect(last[2]!.media_url).not.toBeNull();
+    expect(await claimOf(p.id)).toMatchObject({ status: "generated", cost_minor: 168 });
+  }, 120_000);
+
   it("a refused candidate costs nothing and the others still arrive", async () => {
     const b = await bakery();
-    const sl = await b.shotList();
     const api = fakeHiggsfield({ nsfwAngle: 1 });
-    const setup = higgsfield(api.fetch);
-    const p = await proposeGeneration({
+    const { p, setup, store, out } = await submitted(b, api);
+    expect(out.status).toBe("generating");
+    await collect(b.profile_id, setup, store);
+    await collect(b.profile_id, setup, store);
+    const rows = await candidatesOf(p.id);
+    expect(rows.map((r) => r.status)).toEqual(["ready", "failed", "ready"]);
+    expect(rows[1]).toMatchObject({ cost_minor: 0, attempts: 1, media_url: null });
+    expect(rows[1]!.error).toMatch(/moderation/);
+    expect(await claimOf(p.id)).toMatchObject({ status: "generated", cost_minor: 112 });
+  }, 120_000);
+
+  it("the sweeper closes what never finished: canceled while queued is free, running is counted as spent; the proposal is freed", async () => {
+    const b = await bakery();
+    const api = fakeHiggsfield({ stuckAngle: 0, queuedAngle: 1 });
+    const { p, sl, setup, store } = await submitted(b, api);
+    await collect(b.profile_id, setup, store);
+    await collect(b.profile_id, setup, store);
+    expect((await candidatesOf(p.id)).map((r) => r.status)).toEqual([
+      "generating",
+      "generating",
+      "ready",
+    ]);
+    // Still inside the deadline: nothing is closed.
+    expect(await claimOf(p.id)).toMatchObject({ status: "generating", estimate_minor: 168 });
+
+    const pastDeadline = new Date(Date.now() + CANDIDATE_DEADLINE_MS + 60_000);
+    const swept = await collect(b.profile_id, setup, store, { now: pastDeadline });
+    expect(swept).toMatchObject({ swept: 2, sets_settled: 1 });
+    const rows = await candidatesOf(p.id);
+    expect(rows.map((r) => r.status)).toEqual(["failed", "failed", "ready"]);
+    expect(rows[0]!.error).toMatch(/didn't finish this clip within 2 hours.*counted as spent/);
+    expect(rows[0]!.cost_minor).toBe(56);
+    // Never billed: its room is given back.
+    expect(rows[1]!.error).toMatch(/canceled — nothing was billed/);
+    expect(rows[1]!.cost_minor).toBe(0);
+    expect(api.sent.filter((s) => s.url.endsWith("/cancel"))).toHaveLength(2);
+    expect(await claimOf(p.id)).toMatchObject({ status: "generated", cost_minor: 112 });
+    // The stuck set no longer holds its proposal open: the item can be proposed again.
+    expect((await proposalOf(p.id))?.status).toBe("executed");
+    const again = await proposeGeneration({
       profileId: b.profile_id,
       itemId: sl.id,
       media: "video",
       setup,
       limitLlm: limitsLlm,
     });
-    await b.approve(p.id);
-    const out = await generateFromProposal({ proposalId: p.id, setup, store: memoryMediaStore() });
-    expect(out).toMatchObject({ status: "generated", cost: { amount_minor: 112 } });
-    expect(out.candidate_ids).toHaveLength(2);
-    const rows = await db
-      .select()
-      .from(mediaCandidates)
-      .where(eq(mediaCandidates.proposal_id, p.id))
-      .orderBy(mediaCandidates.ordinal);
-    expect(rows.map((r) => r.status)).toEqual(["ready", "failed", "ready"]);
-    expect(rows[1]).toMatchObject({ cost_minor: 0, attempts: 1, media_url: null });
-    expect(rows[1]!.error).toMatch(/moderation/);
+    expect(again.status).toBe("pending");
+  }, 120_000);
+
+  it("a set that never got an answer is closed at the deadline and its proposal recorded", async () => {
+    const b = await bakery();
+    const api = fakeHiggsfield();
+    const { p, setup, store } = await submitted(b, api);
+    // As if the function died right after submitting: no request ids were kept.
+    await db
+      .update(mediaCandidates)
+      .set({ request_id: null, status_url: null, cancel_url: null })
+      .where(eq(mediaCandidates.proposal_id, p.id));
+    const swept = await collect(b.profile_id, setup, store, {
+      now: new Date(Date.now() + CANDIDATE_DEADLINE_MS + 60_000),
+    });
+    expect(swept).toMatchObject({ swept: 3, sets_settled: 1 });
+    const rows = await candidatesOf(p.id);
+    expect(rows.every((r) => r.status === "failed" && r.cost_minor === 56)).toBe(true);
+    expect(rows[0]!.error).toMatch(/never heard back.*counted as spent/);
+    expect(await claimOf(p.id)).toMatchObject({ status: "failed", cost_minor: 168 });
+    expect((await proposalOf(p.id))?.status).toBe("executed");
+  }, 60_000);
+
+  it("within the deadline, a lost answer is asked for again with the same Idempotency-Key", async () => {
+    const b = await bakery();
+    const api = fakeHiggsfield();
+    const { p, setup, store } = await submitted(b, api);
+    const [first] = await candidatesOf(p.id);
+    await db
+      .update(mediaCandidates)
+      .set({ request_id: null, status_url: null, cancel_url: null })
+      .where(eq(mediaCandidates.id, first!.id));
+    const keys = () =>
+      api.sent
+        .filter((s) => s.url.startsWith(`${HIGGSFIELD_ORIGIN}/kling-video/`))
+        .map((s) => s.key);
+    const before = keys();
+    await collect(b.profile_id, setup, store);
+    const resent = keys().slice(before.length);
+    // Ordinal 1, attempt 1: the key it was first sent with, so Higgsfield returns that request.
+    expect(resent).toEqual([`syb-${first!.generation_id}-1-1`]);
+    expect(before).toContain(resent[0]);
+    const [again] = await candidatesOf(p.id);
+    expect(again).toMatchObject({ status: "generating", attempts: 1 });
+    expect(again!.request_id).not.toBeNull();
+  }, 60_000);
+
+  it("without FFmpeg a finished clip stays pending, paid for and saying why; it is collected once FFmpeg is here", async () => {
+    const b = await bakery();
+    const api = fakeHiggsfield();
+    const { p, setup, store } = await submitted(b, api);
+    const noFfmpeg = { labelling: () => false };
+    await collect(b.profile_id, setup, store, noFfmpeg);
+    const waiting = await collect(b.profile_id, setup, store, noFfmpeg);
+    expect(waiting).toMatchObject({ waiting: 3, ready: 0, failed: 0 });
+    expect(api.downloads()).toBe(0);
+    const rows = await candidatesOf(p.id);
+    expect(rows.map((r) => r.status)).toEqual(["generating", "generating", "generating"]);
+    for (const r of rows) {
+      expect(r.waiting).toBe(WAITING_FOR_LABEL);
+      expect(r.completed_at).not.toBeNull();
+      expect(r.media_url).toBeNull();
+    }
+    const view = await studioVideoView(b.profile_id, setup);
+    expect(view.sets.find((s) => s.proposal_id === p.id)!.candidates[0]!.waiting).toBe(
+      WAITING_FOR_LABEL,
+    );
+    expect(await claimOf(p.id)).toMatchObject({ status: "generating", estimate_minor: 168 });
+    expect((await proposalOf(p.id))?.status).toBe("approved");
+
+    // Past the 2-hour deadline it is NOT thrown away: it finished, and waits to be collected.
+    const after = await collect(b.profile_id, setup, store, {
+      now: new Date(Date.now() + CANDIDATE_DEADLINE_MS + 60_000),
+    });
+    expect(after).toMatchObject({ ready: 3, swept: 0, sets_settled: 1 });
+    expect(api.downloads()).toBe(3);
+  }, 120_000);
+
+  it("two runs at once download each clip once (the lease)", async () => {
+    const b = await bakery();
+    const api = fakeHiggsfield();
+    const { p, setup, store } = await submitted(b, api);
+    await collect(b.profile_id, setup, store);
+    const now = later();
+    const both = await Promise.all([
+      collectCandidates({ profileId: b.profile_id, setup, store, now, labelling: () => true }),
+      collectCandidates({ profileId: b.profile_id, setup, store, now, labelling: () => true }),
+    ]);
+    expect(both[0].taken + both[1].taken).toBe(3);
+    expect(both[0].ready + both[1].ready).toBe(3);
+    expect(api.downloads()).toBe(3);
+    expect((await candidatesOf(p.id)).map((r) => r.status)).toEqual(["ready", "ready", "ready"]);
   }, 120_000);
 
   it("the cap is checked again before anything is submitted, and real footage still wins", async () => {
@@ -698,11 +984,7 @@ describe.skipIf(!ffmpegAvailable())("P6-03 — generating and picking", () => {
       }),
     ).rejects.toThrow(/can't be labelled.*nothing was generated or charged.*stays approved/);
     expect(api.sent).toHaveLength(0);
-    const claims = await db
-      .select()
-      .from(mediaGenerations)
-      .where(eq(mediaGenerations.proposal_id, p.id));
-    expect(claims).toHaveLength(0);
+    expect(await claimOf(p.id)).toBeUndefined();
   }, 60_000);
 
   it("two sets started at once can't both fit into room for one (the caps hold under a race)", async () => {
@@ -735,31 +1017,53 @@ describe.skipIf(!ffmpegAvailable())("P6-03 — generating and picking", () => {
     expect(api.submits()).toBe(3);
   }, 120_000);
 
+  it("a set being made still holds its room: another set can't take it", async () => {
+    const b = await bakery();
+    const api = fakeHiggsfield();
+    await submitted(b, api, 200);
+    const two = await b.shotList();
+    await expect(
+      proposeGeneration({
+        profileId: b.profile_id,
+        itemId: two.id,
+        media: "video",
+        setup: higgsfield(api.fetch, 200),
+        limitLlm: limitsLlm,
+      }),
+    ).rejects.toThrow(/past its \$2\.00 cap \(\$1\.68 spent so far\)/);
+  }, 60_000);
+
   it("a retry takes its room from the ledger and gives back what an unbilled attempt didn't spend", async () => {
     const b = await bakery();
-    const sl = await b.shotList();
     const api = fakeHiggsfield({ failFirstAngle: 0 });
-    const setup = higgsfield(api.fetch, 200);
-    const p = await proposeGeneration({
-      profileId: b.profile_id,
-      itemId: sl.id,
-      media: "video",
-      setup,
-      limitLlm: limitsLlm,
-    });
-    await b.approve(p.id);
-    const out = await generateFromProposal({ proposalId: p.id, setup, store: memoryMediaStore() });
-    // The failed first attempt was free, so the retry fits: three clips for $1.68.
-    expect(out).toMatchObject({ status: "generated", cost: { amount_minor: 168 } });
-    expect(out.candidate_ids).toHaveLength(3);
+    const { p, setup, store } = await submitted(b, api, 200);
+    // The first check: angle 0 failed (unbilled), so it is resubmitted at once; the others run on.
+    expect(await collect(b.profile_id, setup, store)).toMatchObject({ retried: 1 });
     expect(api.submits()).toBe(4);
-    const [claim] = await db
-      .select()
-      .from(mediaGenerations)
-      .where(eq(mediaGenerations.proposal_id, p.id));
+    const [retried] = await candidatesOf(p.id);
+    expect(retried).toMatchObject({ status: "generating", attempts: 2, cost_minor: 0 });
+    // The failed first attempt was free, so the retry fits: three clips for $1.68.
+    await collect(b.profile_id, setup, store);
+    await collect(b.profile_id, setup, store);
+    const claim = await claimOf(p.id);
     expect(claim).toMatchObject({ status: "generated", cost_minor: 168 });
     expect(claim!.estimate_minor).toBeLessThanOrEqual(168);
+    expect((await candidatesOf(p.id)).map((r) => r.status)).toEqual(["ready", "ready", "ready"]);
   }, 120_000);
+
+  it("a retry the caps can't take is refused, and the candidate closes with its reason", async () => {
+    const b = await bakery();
+    const api = fakeHiggsfield({ failFirstAngle: 0 });
+    const { p, setup, store } = await submitted(b, api, 200);
+    // The cap is lowered after the set started: the retry no longer fits.
+    const tight = higgsfield(api.fetch, 150);
+    await collect(b.profile_id, tight, store);
+    const [first] = await candidatesOf(p.id);
+    expect(first).toMatchObject({ status: "failed", attempts: 1, cost_minor: 0 });
+    expect(first!.error).toMatch(/^a retry it would take this month past its \$1\.50 cap/);
+    expect(api.submits()).toBe(3);
+    void setup;
+  }, 60_000);
 
   it("the database refuses a candidate without the AI label", async () => {
     const b = await bakery();

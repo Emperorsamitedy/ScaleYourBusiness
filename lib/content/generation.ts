@@ -79,7 +79,12 @@ import {
   higgsfieldMediaProvider,
 } from "./generate/higgsfield";
 import { readJpegLabels, readVideoComment, stampJpeg, stampVideo } from "./generate/label";
-import type { GeneratedMedia, GenerationRequest, MediaProvider } from "./generate/provider";
+import type {
+  GeneratedMedia,
+  GenerationOutput,
+  GenerationRequest,
+  MediaProvider,
+} from "./generate/provider";
 import { FIXED_INSTRUCTION, GENERATED_CLIP_SECONDS, ProviderError } from "./generate/provider";
 import { screenPrompt } from "./generate/guard";
 import { vendorMediaProvider } from "./generate/vendor";
@@ -571,7 +576,8 @@ export async function proposeGeneration(args: {
 /* ── generating, once approved ── */
 
 export interface GenerationOutcome {
-  status: "generated" | "failed" | "not_needed";
+  /** P6-03 (2026-11-09): "generating" = a set submitted, its clips collected in the background. */
+  status: "generated" | "generating" | "failed" | "not_needed";
   item_id?: string;
   /** P6-03: the candidates made, for the owner to pick from in the studio. */
   candidate_ids?: string[];
@@ -645,6 +651,13 @@ export async function generateFromProposal(args: {
     throw new ContentError(`${setup.reason ?? GENERATION_OFF} It stays approved.`, 503);
   }
   const provider = setup.provider;
+  const generateOne = provider.generate?.bind(provider);
+  if (!generateOne) {
+    throw new ContentError(
+      `the ${provider.id} provider makes video as a set of candidates in the background, not one at a time. It stays approved.`,
+      409,
+    );
+  }
   const store = args.store ?? configuredMediaStore();
   if (!store) {
     throw new ContentError("media storage isn't set up on this server. It stays approved.", 503);
@@ -750,7 +763,7 @@ export async function generateFromProposal(args: {
       ...(seconds ? { seconds } : {}),
       account_id: accountId,
     };
-    let output: Awaited<ReturnType<MediaProvider["generate"]>> | null = null;
+    let output: GenerationOutput | null = null;
     for (let attempt = 1; attempt <= MAX_GENERATION_ATTEMPTS; attempt++) {
       await db
         .update(mediaGenerations)
@@ -774,7 +787,7 @@ export async function generateFromProposal(args: {
         if (stop) return await fail(`a retry ${stop}`);
       }
       try {
-        output = await provider.generate(request);
+        output = await generateOne(request);
         if (output.cost.currency !== caps.currency) {
           return await fail(
             `the provider charged in ${output.cost.currency}, not ${caps.currency}`,

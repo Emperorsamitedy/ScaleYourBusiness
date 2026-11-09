@@ -13,12 +13,15 @@
 //      price of the set and the caps, and generates nothing (rule 12).
 //   2. GENERATE (generateCandidatesFromProposal), once approved: the caps
 //      are checked BEFORE anything is submitted, the claim is taken (one
-//      run per proposal, ever), and the three are made side by side, each
-//      with at most MAX_GENERATION_ATTEMPTS attempts and the caps re-checked
-//      before every retry. Each finished clip is labelled in the file
-//      (rule 33 — before it is stored anywhere), stored through the media
-//      store (Vercel Blob in production), and kept as a candidate row with
-//      its own cost line, tagged by workload (rule 34).
+//      run per proposal, ever), and the three are SUBMITTED side by side —
+//      the request answers at once (the owner's decision of 2026-11-09).
+//      COLLECT (collectCandidates: the studio while it is open, and the
+//      collect-video cron) asks after each one, retries a failed attempt
+//      (at most MAX_GENERATION_ATTEMPTS, the caps re-checked before every
+//      retry), and closes what runs out of time. Each finished clip is
+//      labelled in the file (rule 33 — before it is stored anywhere),
+//      stored through the media store (Vercel Blob in production), and kept
+//      as a candidate row with its own cost line, tagged by workload (rule 34).
 //   3. PICK (pickCandidate): the owner chooses one in the studio. It goes on
 //      the shot list's video item through placeMedia — labelled as
 //      generated in the caption and the record — and is offered for
@@ -33,7 +36,14 @@ import path from "node:path";
 import { randomBytes } from "node:crypto";
 import { and, desc, eq, inArray, sql } from "drizzle-orm";
 import { db } from "../../db";
-import { contentItems, decisionLog, mediaCandidates, mediaGenerations } from "../../db/schema";
+import type { DbOrTx } from "../../db";
+import {
+  contentItems,
+  decisionLog,
+  mediaCandidates,
+  mediaGenerations,
+  proposals,
+} from "../../db/schema";
 import type { Money } from "../core/money";
 import { format, money } from "../core/money";
 import { logSafeError } from "../core/log-safe";
@@ -49,7 +59,7 @@ import { createProposal, recordExecution } from "../proposals/service";
 import { briefForItem, briefRefOf } from "./brief-links";
 import { mediaDisclosureLabel } from "./disclosure";
 import { readVideoComment, stampVideo, videoLabellingAvailable } from "./generate/label";
-import type { MediaProvider } from "./generate/provider";
+import type { GenerationOutput, MediaJobs, MediaProvider, SubmittedJob } from "./generate/provider";
 import { FIXED_INSTRUCTION, GENERATED_CLIP_SECONDS, ProviderError } from "./generate/provider";
 import { screenPrompt } from "./generate/guard";
 import type { GenerationCaps, GenerationOutcome, GenerationSetup } from "./generation";
@@ -64,6 +74,7 @@ import {
   capsOf,
   competitorNames,
   generationRefusal,
+  generationSetup,
   generationView,
   lockCaps,
   ownedItem,
@@ -80,13 +91,29 @@ import { buildVideoPrompts, readVideoFacts } from "./video-prompt";
 
 /** Rule 34: the budget line every candidate's cost is tagged with. */
 export const AI_VIDEO_WORKLOAD = "ai_video";
-/**
- * How long one run may wait on the provider, every attempt together, from
- * its start: inside the studio route's 300 s maxDuration with room left to
- * download, label and store what finished. A run cut off by the platform
- * would leave its set "generating" for good, its claim unsettled.
+/*
+ * The owner's decision of 2026-11-09 ("the best solution top businesses are
+ * currently doing"): a set is SUBMITTED and the request answers at once;
+ * the clips are collected later (collectCandidates), so no request waits
+ * minutes for them and no platform time limit can strand a set.
  */
-export const CANDIDATE_WAIT_MS = 220_000;
+/** A candidate that never finished this long after its set started is closed as failed. */
+export const CANDIDATE_DEADLINE_MS = 2 * 60 * 60 * 1000;
+/** A clip that finished but couldn't be collected (no FFmpeg here, say): Higgsfield keeps it at least seven days. */
+export const COLLECT_DEADLINE_MS = 6 * 24 * 60 * 60 * 1000;
+/** One run holds a candidate this long: a download, a label and a store fit inside it. */
+export const COLLECT_LEASE_MS = 5 * 60 * 1000;
+/** A candidate is asked after no more often than this, however often the studio polls. */
+export const MIN_CHECK_GAP_MS = 10_000;
+/** Hard caps on one collecting run. */
+export const COLLECT_LIMITS = {
+  /** Candidates taken per run. */
+  candidates: 12,
+  /** Finished clips downloaded, labelled and stored per run. */
+  downloads: 6,
+  /** Nothing new is started past this, inside a 300 s function. */
+  budget_ms: 200_000,
+};
 /** A stored candidate read back for placing: refused past this. */
 export const CANDIDATE_MAX_BYTES = 150 * 1024 * 1024;
 
@@ -235,7 +262,7 @@ export async function proposeCandidates(args: {
   });
 }
 
-/* ── 2. generating, once approved ── */
+/* ── 2. generating, once approved: submit now, collect in the background ── */
 
 interface CandidateDetail {
   target_item_id?: unknown;
@@ -246,16 +273,324 @@ interface CandidateDetail {
   brief?: { brief_id?: unknown; hook_index?: unknown };
 }
 
-interface CandidateRun {
-  id: string;
-  ordinal: number;
-  prompt: string;
-  charged: number;
-  /** An attempt submitted and not yet settled: it holds its price against the caps. */
-  inflight: boolean;
-  attempts: number;
-  status: "ready" | "failed";
-  error: string | null;
+type CandidateRow = typeof mediaCandidates.$inferSelect;
+
+/** Enough to close a candidate and write its cost line, even with its provider gone. */
+interface SetLog {
+  generationId: string;
+  accountId: string;
+  providerId: string;
+  currency: string;
+  now: Date;
+}
+
+/** What every submit, check and settlement of one set needs. */
+interface SetContext extends SetLog {
+  profileId: string;
+  proposalId: string;
+  targetItemId: string;
+  provider: MediaProvider;
+  jobs: MediaJobs;
+  caps: GenerationCaps;
+  /** The price of one attempt (one clip), in the caps' currency. */
+  each: Money;
+  seconds: number;
+  /** The set's approved prompts, by ordinal - 1. */
+  prompts: string[];
+}
+
+/** Pure: the approved prompts of a candidate proposal, or null when it doesn't say what to make. */
+function promptsOf(d: CandidateDetail): string[] | null {
+  const prompts = Array.isArray(d.prompts)
+    ? d.prompts.filter((p): p is string => typeof p === "string")
+    : [];
+  if (prompts.length === 0 || prompts.length !== d.candidates || prompts.length > 3) return null;
+  return prompts;
+}
+
+/**
+ * What a set holds against the caps while it runs: every charge so far,
+ * plus one attempt's price for each candidate still being made (in flight,
+ * or about to be retried). The claim's estimate is kept at this figure, so
+ * capRoom sees it.
+ */
+const HOLD_SQL = sql`coalesce(sum(CASE WHEN ${mediaCandidates.status} = 'generating' THEN coalesce(${mediaCandidates.cost_minor}, 0) + ${mediaCandidates.estimate_minor} ELSE coalesce(${mediaCandidates.cost_minor}, 0) END), 0)`;
+
+/** Bring the claim's estimate down to what the set still holds (lowering needs no lock). */
+async function rehold(generationId: string, exec: DbOrTx = db): Promise<void> {
+  await exec
+    .update(mediaGenerations)
+    .set({
+      estimate_minor: sql`(SELECT ${HOLD_SQL} FROM ${mediaCandidates} WHERE ${mediaCandidates.generation_id} = ${generationId})`,
+    })
+    .where(and(eq(mediaGenerations.id, generationId), eq(mediaGenerations.status, "generating")));
+}
+
+/**
+ * Room for one more attempt of a candidate, taken from the ledger under
+ * the account's lock: every other run's claims are read again, this set's
+ * own estimate is swapped for what it will hold with the retry in it, and
+ * both the candidate's charges so far and the claim's estimate are written
+ * before anything is submitted, so a run started meanwhile sees them.
+ */
+function reserveRetry(
+  ctx: SetContext,
+  candidateId: string,
+  charged: number,
+): Promise<string | null> {
+  return db.transaction(async (tx) => {
+    await lockCaps(tx, ctx.accountId);
+    const [own] = await tx
+      .select({ estimate_minor: mediaGenerations.estimate_minor })
+      .from(mediaGenerations)
+      .where(eq(mediaGenerations.id, ctx.generationId));
+    const rows = await tx
+      .select({
+        id: mediaCandidates.id,
+        status: mediaCandidates.status,
+        cost_minor: mediaCandidates.cost_minor,
+        estimate_minor: mediaCandidates.estimate_minor,
+      })
+      .from(mediaCandidates)
+      .where(eq(mediaCandidates.generation_id, ctx.generationId));
+    const hold = rows.reduce((sum, r) => {
+      const cost = r.id === candidateId ? charged : (r.cost_minor ?? 0);
+      return sum + cost + (r.status === "generating" ? r.estimate_minor : 0);
+    }, 0);
+    const r = await capRoom({
+      accountId: ctx.accountId,
+      targetItemId: ctx.targetItemId,
+      now: ctx.now,
+      caps: ctx.caps,
+      exec: tx,
+    });
+    const before = (spent: Money) =>
+      money(
+        spent.amount_minor - (own?.estimate_minor ?? 0) + hold - ctx.each.amount_minor,
+        ctx.caps.currency,
+      );
+    const stop = capRefusal(
+      { ...r, item_spent: before(r.item_spent), month_spent: before(r.month_spent) },
+      ctx.each,
+    );
+    if (stop) return stop;
+    await tx
+      .update(mediaCandidates)
+      .set({ cost_minor: charged })
+      .where(eq(mediaCandidates.id, candidateId));
+    await tx
+      .update(mediaGenerations)
+      .set({ estimate_minor: hold })
+      .where(eq(mediaGenerations.id, ctx.generationId));
+    return null;
+  });
+}
+
+/** Rule 34: one cost line per candidate, tagged by workload, when it settles. */
+function costLine(
+  ctx: SetLog,
+  c: Pick<CandidateRow, "id" | "ordinal" | "request_id">,
+  costMinor: number,
+  status: "ready" | "failed",
+  model: string | null = null,
+): void {
+  console.log(
+    JSON.stringify({
+      event: "media_generation_cost",
+      workload: AI_VIDEO_WORKLOAD,
+      account_id: ctx.accountId,
+      generation_id: ctx.generationId,
+      candidate_id: c.id,
+      ordinal: c.ordinal,
+      provider: ctx.providerId,
+      ...(model ? { model } : {}),
+      request_id: c.request_id ?? null,
+      cost_minor: costMinor,
+      currency: ctx.currency,
+      status,
+    }),
+  );
+}
+
+/** Close a candidate as failed with its reason and what it cost. False when another run settled it first. */
+async function failCandidate(
+  ctx: SetLog,
+  c: Pick<CandidateRow, "id" | "ordinal" | "request_id">,
+  sentence: string,
+  charged: number,
+): Promise<boolean> {
+  const [row] = await db
+    .update(mediaCandidates)
+    .set({
+      status: "failed",
+      error: sentence,
+      waiting: null,
+      cost_minor: charged,
+      lease_until: null,
+      finished_at: ctx.now.toISOString(),
+    })
+    .where(and(eq(mediaCandidates.id, c.id), eq(mediaCandidates.status, "generating")))
+    .returning({ id: mediaCandidates.id });
+  if (!row) return false;
+  costLine(ctx, c, charged, "failed");
+  return true;
+}
+
+/** Leave a candidate for a later run, saying why when there is a reason the owner should see. */
+async function release(candidateId: string, waiting?: string | null): Promise<void> {
+  await db
+    .update(mediaCandidates)
+    .set({ lease_until: null, ...(waiting !== undefined ? { waiting } : {}) })
+    .where(eq(mediaCandidates.id, candidateId));
+}
+
+/**
+ * Submit one candidate's attempt, and another after a retryable refusal
+ * (each attempt its own Idempotency-Key, at most MAX_GENERATION_ATTEMPTS),
+ * then return: nothing here waits for the clip. A recovery passes the
+ * attempt it lost the answer to, with that attempt's own key, so
+ * Higgsfield hands back the first request instead of charging twice.
+ */
+async function submitCandidate(
+  ctx: SetContext,
+  c: Pick<CandidateRow, "id" | "ordinal" | "request_id">,
+  opts: { attempt: number; charged: number; reserveFirst: boolean },
+): Promise<"submitted" | "failed"> {
+  const prompt = ctx.prompts[c.ordinal - 1];
+  if (!prompt) {
+    await failCandidate(ctx, c, "the approved prompt for this candidate is missing", opts.charged);
+    return "failed";
+  }
+  let charged = opts.charged;
+  for (let attempt = opts.attempt; attempt <= MAX_GENERATION_ATTEMPTS; attempt++) {
+    if (attempt > opts.attempt || opts.reserveFirst) {
+      const stop = await reserveRetry(ctx, c.id, charged);
+      if (stop) {
+        await failCandidate(ctx, c, `a retry ${stop}`, charged);
+        return "failed";
+      }
+    }
+    await db
+      .update(mediaCandidates)
+      .set({
+        attempts: attempt,
+        request_id: null,
+        status_url: null,
+        cancel_url: null,
+        completed_at: null,
+        waiting: null,
+      })
+      .where(and(eq(mediaCandidates.id, c.id), eq(mediaCandidates.status, "generating")));
+    try {
+      const job = await ctx.jobs.submit({
+        media: "video",
+        prompt,
+        instruction: FIXED_INSTRUCTION,
+        aspect: "9:16",
+        seconds: ctx.seconds,
+        account_id: ctx.accountId,
+        idempotency_key: `syb-${ctx.generationId}-${c.ordinal}-${attempt}`,
+      });
+      await db
+        .update(mediaCandidates)
+        .set({
+          request_id: job.request_id,
+          status_url: job.status_url,
+          cancel_url: job.cancel_url,
+          submitted_at: ctx.now.toISOString(),
+          ...(charged > 0 ? { cost_minor: charged } : {}),
+        })
+        .where(and(eq(mediaCandidates.id, c.id), eq(mediaCandidates.status, "generating")));
+      return "submitted";
+    } catch (error) {
+      if (!(error instanceof ProviderError)) throw error;
+      if (error.cost && error.cost.currency === ctx.caps.currency) {
+        charged += error.cost.amount_minor;
+      }
+      if (!error.retryable || attempt === MAX_GENERATION_ATTEMPTS) {
+        await failCandidate(ctx, c, error.message, charged);
+        return "failed";
+      }
+    }
+  }
+  await failCandidate(ctx, c, "the provider took nothing", charged);
+  return "failed";
+}
+
+/**
+ * Settle a set once none of its candidates is still being made: its cost,
+ * its status, and the proposal's execution with every candidate's outcome
+ * (so a set that failed, or was swept, no longer holds its proposal open).
+ * Null while candidates remain, or when another run settled it first.
+ */
+async function settleSet(generationId: string, now: Date): Promise<GenerationOutcome | null> {
+  const rows = await db
+    .select()
+    .from(mediaCandidates)
+    .where(eq(mediaCandidates.generation_id, generationId))
+    .orderBy(mediaCandidates.ordinal);
+  if (rows.length === 0 || rows.some((r) => r.status === "generating")) return null;
+  const charged = rows.reduce((s, r) => s + (r.cost_minor ?? 0), 0);
+  const made = rows.filter((r) => r.status !== "failed");
+  const firstError = rows.find((r) => r.error)?.error ?? null;
+  const [gen] = await db
+    .update(mediaGenerations)
+    .set({
+      status: made.length > 0 ? "generated" : "failed",
+      cost_minor: charged,
+      attempts: Math.max(...rows.map((r) => r.attempts)),
+      finished_at: now.toISOString(),
+      ...(made.length === 0 ? { error: firstError ?? "nothing was made" } : {}),
+    })
+    .where(and(eq(mediaGenerations.id, generationId), eq(mediaGenerations.status, "generating")))
+    .returning();
+  if (!gen) return null;
+  const cost = money(charged, gen.currency);
+  try {
+    await recordExecution({
+      proposalId: gen.proposal_id,
+      result: {
+        generated: made.length > 0,
+        candidates: rows.map((r) => ({ id: r.id, ordinal: r.ordinal, status: r.status })),
+        cost,
+      },
+    });
+  } catch (error) {
+    // Not approved any more (expired, say): the set is settled all the same.
+    console.error(
+      JSON.stringify({
+        event: "media_candidates_execution_not_recorded",
+        account_id: gen.account_id,
+        generation_id: gen.id,
+        ...logSafeError(error),
+      }),
+    );
+  }
+  console.log(
+    JSON.stringify({
+      event: "media_candidates_settled",
+      account_id: gen.account_id,
+      generation_id: gen.id,
+      made: made.length,
+      of: rows.length,
+      cost_minor: charged,
+      currency: gen.currency,
+    }),
+  );
+  if (made.length === 0) {
+    return {
+      status: "failed",
+      cost,
+      candidate_ids: rows.map((r) => r.id),
+      note: `Generating failed: ${firstError ?? "nothing was made"}. ${format(cost)} was charged.`,
+    };
+  }
+  return {
+    status: "generated",
+    cost,
+    candidate_ids: made.map((r) => r.id),
+    note: `${made.length} of ${rows.length} AI video candidates are ready for ${format(cost)}, each labelled as AI-generated. Pick one in the studio; nothing is published without your yes.`,
+  };
 }
 
 export async function generateCandidatesFromProposal(args: {
@@ -267,17 +602,9 @@ export async function generateCandidatesFromProposal(args: {
   labelling?: () => boolean;
 }): Promise<GenerationOutcome> {
   const { proposal, setup, now } = args;
-  const deadlineAt = Date.now() + CANDIDATE_WAIT_MS;
   const d = ((proposal.action as { detail?: CandidateDetail }).detail ?? {}) as CandidateDetail;
-  const prompts = Array.isArray(d.prompts)
-    ? d.prompts.filter((p): p is string => typeof p === "string")
-    : [];
-  if (
-    typeof d.target_item_id !== "string" ||
-    prompts.length === 0 ||
-    prompts.length !== d.candidates ||
-    prompts.length > 3
-  ) {
+  const prompts = promptsOf(d);
+  if (typeof d.target_item_id !== "string" || !prompts) {
     throw new ContentError("the proposal doesn't say what to generate", 422);
   }
   if (d.prompt_sha256 !== promptsHash(prompts)) {
@@ -288,6 +615,12 @@ export async function generateCandidatesFromProposal(args: {
     throw new ContentError(`${setup.reason ?? GENERATION_OFF} It stays approved.`, 503);
   }
   const provider = setup.provider;
+  if (!provider.jobs) {
+    throw new ContentError(
+      `the ${provider.id} provider can't make a set of candidates in the background. It stays approved.`,
+      409,
+    );
+  }
   const store = args.store ?? configuredMediaStore();
   if (!store) {
     throw new ContentError("media storage isn't set up on this server. It stays approved.", 503);
@@ -337,13 +670,19 @@ export async function generateCandidatesFromProposal(args: {
     );
   }
   const setPrice = money(each.amount_minor * prompts.length, each.currency);
+  const label = mediaDisclosureLabel("video", "generated_video");
+  const briefId = typeof d.brief?.brief_id === "string" ? d.brief.brief_id : null;
+  const hookIndex = Number.isInteger(d.brief?.hook_index) ? (d.brief!.hook_index as number) : null;
 
   // The claim: one run per approved proposal, ever. The caps are read and
-  // the claim written under the account's lock, so two sets started at once
-  // can't both fit into room for one; the claim's estimate holds the room.
+  // the claim and its candidates written under the account's lock, so two
+  // sets started at once can't both fit into room for one; the claim's
+  // estimate holds the room. The candidates are leased to this run while it
+  // submits, so the collector doesn't take them meanwhile.
   let claimId: string;
+  let rows: Pick<CandidateRow, "id" | "ordinal" | "request_id">[];
   try {
-    claimId = await db.transaction(async (tx) => {
+    ({ claimId, rows } = await db.transaction(async (tx) => {
       await lockCaps(tx, accountId);
       const room = await capRoom({ accountId, targetItemId: target.id, now, caps, exec: tx });
       const over = capRefusal(room, setPrice);
@@ -363,8 +702,35 @@ export async function generateCandidatesFromProposal(args: {
           created_at: now.toISOString(),
         })
         .returning({ id: mediaGenerations.id });
-      return claim!.id;
-    });
+      // Rule 33: the label is on the row from the moment the candidate exists.
+      const inserted = await tx
+        .insert(mediaCandidates)
+        .values(
+          prompts.map((prompt, i) => ({
+            generation_id: claim!.id,
+            profile_id: proposal.profile_id,
+            proposal_id: proposal.id,
+            target_item_id: target.id,
+            brief_id: briefId,
+            hook_index: hookIndex,
+            ordinal: i + 1,
+            provider: provider.id,
+            prompt_sha256: promptHash(prompt),
+            label,
+            workload: AI_VIDEO_WORKLOAD,
+            estimate_minor: each.amount_minor,
+            currency: caps.currency,
+            created_at: now.toISOString(),
+            lease_until: new Date(now.getTime() + COLLECT_LEASE_MS).toISOString(),
+          })),
+        )
+        .returning({
+          id: mediaCandidates.id,
+          ordinal: mediaCandidates.ordinal,
+          request_id: mediaCandidates.request_id,
+        });
+      return { claimId: claim!.id, rows: inserted.sort((a, b) => a.ordinal - b.ordinal) };
+    }));
   } catch (error) {
     if (
       /media_generations_proposal_uq/.test(String((error as { cause?: unknown }).cause ?? error))
@@ -374,273 +740,503 @@ export async function generateCandidatesFromProposal(args: {
     throw error;
   }
 
-  const label = mediaDisclosureLabel("video", "generated_video");
-  const briefId = typeof d.brief?.brief_id === "string" ? d.brief.brief_id : null;
-  const hookIndex = Number.isInteger(d.brief?.hook_index) ? (d.brief!.hook_index as number) : null;
-  // Rule 33: the label is on the row from the moment the candidate exists.
-  const rows = await db
-    .insert(mediaCandidates)
-    .values(
-      prompts.map((prompt, i) => ({
-        generation_id: claimId,
-        profile_id: proposal.profile_id,
-        proposal_id: proposal.id,
-        target_item_id: target.id,
-        brief_id: briefId,
-        hook_index: hookIndex,
-        ordinal: i + 1,
-        provider: provider.id,
-        prompt_sha256: promptHash(prompt),
-        label,
-        workload: AI_VIDEO_WORKLOAD,
-        estimate_minor: each.amount_minor,
-        currency: caps.currency,
-        created_at: now.toISOString(),
-      })),
-    )
-    .returning({ id: mediaCandidates.id, ordinal: mediaCandidates.ordinal });
-  const runs: CandidateRun[] = rows
-    .sort((a, b) => a.ordinal - b.ordinal)
-    .map((r) => ({
-      id: r.id,
-      ordinal: r.ordinal,
-      prompt: prompts[r.ordinal - 1]!,
-      charged: 0,
-      // All three are about to be submitted: the claim's estimate (setPrice) holds them.
-      inflight: true,
-      attempts: 0,
-      status: "failed",
-      error: null,
-    }));
-
-  // What this set holds against the caps: what is charged, plus the
-  // price of every attempt still in flight. The claim's estimate starts as
-  // all three in flight (setPrice) and is rewritten before each retry.
-  const committed = () =>
-    runs.reduce((sum, r) => sum + r.charged + (r.inflight ? each.amount_minor : 0), 0);
-  // A retry takes its room from the ledger, under the same lock as the
-  // claim: every other run's claims are read again, this set's own estimate
-  // is swapped for what it holds now, and the estimate is rewritten with the
-  // retry in it before anything is submitted, so a run started meanwhile sees it.
-  const reserveRetry = (run: CandidateRun): Promise<string | null> =>
-    db.transaction(async (tx) => {
-      await lockCaps(tx, accountId);
-      const [own] = await tx
-        .select({ estimate_minor: mediaGenerations.estimate_minor })
-        .from(mediaGenerations)
-        .where(eq(mediaGenerations.id, claimId));
-      const r = await capRoom({ accountId, targetItemId: target.id, now, caps, exec: tx });
-      const others = (spent: Money) =>
-        money(spent.amount_minor - (own?.estimate_minor ?? 0) + committed(), caps.currency);
-      const stop = capRefusal(
-        { ...r, item_spent: others(r.item_spent), month_spent: others(r.month_spent) },
-        each,
-      );
-      if (stop) return stop;
-      run.inflight = true;
-      await tx
-        .update(mediaGenerations)
-        .set({ estimate_minor: committed() })
-        .where(eq(mediaGenerations.id, claimId));
-      return null;
-    });
-
-  const dir = path.join(os.tmpdir(), `syb-candidates-${randomBytes(8).toString("hex")}`);
-  await fs.mkdir(dir, { recursive: true });
-
-  const runOne = async (run: CandidateRun): Promise<void> => {
-    const fail = async (sentence: string) => {
-      run.status = "failed";
-      run.error = sentence;
-      await db
-        .update(mediaCandidates)
-        .set({
-          status: "failed",
-          error: sentence,
-          cost_minor: run.charged,
-          attempts: run.attempts,
-          finished_at: new Date().toISOString(),
-        })
-        .where(eq(mediaCandidates.id, run.id));
-    };
-    let output: Awaited<ReturnType<MediaProvider["generate"]>> | null = null;
-    for (let attempt = 1; attempt <= MAX_GENERATION_ATTEMPTS; attempt++) {
-      if (attempt > 1) {
-        const stop = await reserveRetry(run);
-        if (stop) return fail(`a retry ${stop}`);
-      }
-      run.attempts = attempt;
-      run.inflight = true;
-      await db
-        .update(mediaCandidates)
-        .set({ attempts: attempt })
-        .where(eq(mediaCandidates.id, run.id));
+  const ctx: SetContext = {
+    generationId: claimId,
+    profileId: proposal.profile_id,
+    proposalId: proposal.id,
+    accountId,
+    providerId: provider.id,
+    currency: caps.currency,
+    targetItemId: target.id,
+    provider,
+    jobs: provider.jobs,
+    caps,
+    each,
+    seconds,
+    prompts,
+    now,
+  };
+  // Submitted side by side; nothing here waits for a clip.
+  const results = await Promise.all(
+    rows.map(async (c) => {
       try {
-        output = await provider.generate({
-          media: "video",
-          prompt: run.prompt,
-          instruction: FIXED_INSTRUCTION,
-          aspect: "9:16",
-          seconds,
-          account_id: accountId,
-          idempotency_key: `syb-${claimId}-${run.ordinal}-${attempt}`,
-          deadline_at: deadlineAt,
-        });
-        run.inflight = false;
-        if (output.cost.currency !== caps.currency) {
-          return fail(`the provider charged in ${output.cost.currency}, not ${caps.currency}`);
-        }
-        run.charged += output.cost.amount_minor;
-        break;
+        const out = await submitCandidate(ctx, c, { attempt: 1, charged: 0, reserveFirst: false });
+        await release(c.id);
+        return out;
       } catch (error) {
-        run.inflight = false;
-        if (!(error instanceof ProviderError)) throw error;
-        if (error.cost && error.cost.currency === caps.currency) {
-          run.charged += error.cost.amount_minor;
-        }
-        if (!error.retryable || attempt === MAX_GENERATION_ATTEMPTS) return fail(error.message);
-        output = null;
+        console.error(
+          JSON.stringify({
+            event: "media_candidate_error",
+            account_id: accountId,
+            generation_id: claimId,
+            candidate_id: c.id,
+            ...logSafeError(error),
+          }),
+        );
+        // Unknown whether it reached the provider: the lease lapses and the
+        // collector asks again with the same Idempotency-Key.
+        return "unknown" as const;
       }
+    }),
+  );
+  await rehold(claimId);
+  const settled = await settleSet(claimId, now);
+  if (settled) return settled;
+  const sent = results.filter((r) => r === "submitted").length;
+  const [held] = await db
+    .select({ estimate_minor: mediaGenerations.estimate_minor })
+    .from(mediaGenerations)
+    .where(eq(mediaGenerations.id, claimId));
+  console.log(
+    JSON.stringify({
+      event: "media_candidates_submitted",
+      account_id: accountId,
+      generation_id: claimId,
+      provider: provider.id,
+      submitted: sent,
+      of: rows.length,
+      held_minor: held?.estimate_minor ?? null,
+      currency: caps.currency,
+    }),
+  );
+  return {
+    status: "generating",
+    cost: money(held?.estimate_minor ?? setPrice.amount_minor, caps.currency),
+    candidate_ids: rows.map((r) => r.id),
+    note: `${sent} of ${rows.length} AI video candidates were sent to ${provider.id}. They arrive in the studio over the next few minutes, each labelled as AI-generated; up to ${format(setPrice)} is held against your caps until then.`,
+  };
+}
+
+/* ── 2b. collecting in the background, and the sweeper ── */
+
+export interface CollectOutcome {
+  /** Candidates this run took. */
+  taken: number;
+  checked: number;
+  ready: number;
+  failed: number;
+  /** Closed at the deadline. */
+  swept: number;
+  retried: number;
+  /** Finished at the provider, waiting here (no FFmpeg to label it, a download that dropped). */
+  waiting: number;
+  sets_settled: number;
+  /** Left for the next run (its cap or its time budget). */
+  left: number;
+}
+
+const DAY_MS = 86_400_000;
+
+/** Pure: why a candidate is past its time, or null. */
+export function candidateOverdue(
+  c: Pick<CandidateRow, "created_at" | "completed_at">,
+  now: Date,
+): "never_finished" | "never_collected" | null {
+  if (c.completed_at) {
+    return now.getTime() - Date.parse(c.completed_at) > COLLECT_DEADLINE_MS
+      ? "never_collected"
+      : null;
+  }
+  return now.getTime() - Date.parse(c.created_at) > CANDIDATE_DEADLINE_MS ? "never_finished" : null;
+}
+
+const HOURS = CANDIDATE_DEADLINE_MS / 3_600_000;
+const COLLECT_DAYS = COLLECT_DEADLINE_MS / DAY_MS;
+
+/** The owner's words for a candidate waiting on FFmpeg (rule 33: nothing unlabelled is kept). */
+export const WAITING_FOR_LABEL =
+  "Finished at Higgsfield and paid for; it waits for a server with FFmpeg to label it as AI-generated before it is kept";
+
+/**
+ * Ask after every candidate still being made, collect what finished, and
+ * close what ran out of time. Polling is the source of truth (Higgsfield's
+ * webhook isn't documented); each run takes at most `limits.candidates`
+ * candidates, downloads at most `limits.downloads` and starts nothing past
+ * `limits.budget_ms`. Each candidate is leased to one run at a time, so a
+ * clip is never downloaded twice. Called by the collect-video cron for
+ * everyone and by the studio, while a set is being made, for its business.
+ */
+export async function collectCandidates(
+  args: {
+    setup?: GenerationSetup;
+    store?: MediaStore | null;
+    now?: Date;
+    labelling?: () => boolean;
+    profileId?: string;
+    limits?: Partial<typeof COLLECT_LIMITS>;
+  } = {},
+): Promise<CollectOutcome> {
+  const now = args.now ?? new Date();
+  const started = Date.now();
+  const limits = { ...COLLECT_LIMITS, ...args.limits };
+  const setup = args.setup ?? generationSetup();
+  const store = args.store === undefined ? configuredMediaStore() : args.store;
+  const labelling = args.labelling ?? videoLabellingAvailable;
+  const out: CollectOutcome = {
+    taken: 0,
+    checked: 0,
+    ready: 0,
+    failed: 0,
+    swept: 0,
+    retried: 0,
+    waiting: 0,
+    sets_settled: 0,
+    left: 0,
+  };
+  const nowIso = now.toISOString();
+  const deadlineIso = new Date(now.getTime() - CANDIDATE_DEADLINE_MS).toISOString();
+  const gapIso = new Date(now.getTime() - MIN_CHECK_GAP_MS).toISOString();
+  const leaseIso = new Date(now.getTime() + COLLECT_LEASE_MS).toISOString();
+  const mine = args.profileId ? sql`AND profile_id = ${args.profileId}` : sql``;
+
+  // Take this run's candidates: free of any other run's lease, and not asked about just now.
+  const taken = await db.execute<{ id: string }>(sql`
+    UPDATE media_candidates SET lease_until = ${leaseIso}
+    WHERE id IN (
+      SELECT id FROM media_candidates
+      WHERE status = 'generating'
+        AND (lease_until IS NULL OR lease_until < ${nowIso})
+        AND (checked_at IS NULL OR checked_at < ${gapIso} OR created_at < ${deadlineIso})
+        ${mine}
+      ORDER BY checked_at ASC NULLS FIRST, created_at ASC
+      LIMIT ${limits.candidates}
+      FOR UPDATE SKIP LOCKED
+    )
+    RETURNING id`);
+  const ids = taken.rows.map((r) => r.id);
+  out.taken = ids.length;
+  const rows =
+    ids.length === 0
+      ? []
+      : await db
+          .select()
+          .from(mediaCandidates)
+          .where(inArray(mediaCandidates.id, ids))
+          .orderBy(mediaCandidates.created_at, mediaCandidates.ordinal);
+
+  type Found = { ctx: SetContext } | { log: SetLog; reason: string };
+  const contexts = new Map<string, Found>();
+  const contextFor = async (c: CandidateRow): Promise<Found> => {
+    const known = contexts.get(c.generation_id);
+    if (known) return known;
+    const [gen] = await db
+      .select({ account_id: mediaGenerations.account_id })
+      .from(mediaGenerations)
+      .where(eq(mediaGenerations.id, c.generation_id));
+    const log: SetLog = {
+      generationId: c.generation_id,
+      accountId: gen?.account_id ?? "",
+      providerId: c.provider,
+      currency: c.currency,
+      now,
+    };
+    const provider = setup.provider;
+    const caps = capsOf(setup);
+    const each = provider?.jobs
+      ? provider.estimate({ media: "video", seconds: GENERATED_CLIP_SECONDS })
+      : null;
+    let found: Found;
+    if (!provider?.jobs || !each || provider.id !== c.provider) {
+      found = { log, reason: `AI video through ${c.provider} isn't set up on this server now` };
+    } else if (caps.currency !== c.currency || each.currency !== c.currency) {
+      found = {
+        log,
+        reason: `the provider's prices aren't in ${c.currency} any more, and SYB doesn't convert money`,
+      };
+    } else {
+      const [proposal] = await db
+        .select({ action: proposals.action })
+        .from(proposals)
+        .where(eq(proposals.id, c.proposal_id));
+      const d = ((proposal?.action as { detail?: CandidateDetail } | undefined)?.detail ??
+        {}) as CandidateDetail;
+      found = {
+        ctx: {
+          ...log,
+          profileId: c.profile_id,
+          proposalId: c.proposal_id,
+          targetItemId: c.target_item_id,
+          provider,
+          jobs: provider.jobs,
+          caps,
+          each,
+          seconds: GENERATED_CLIP_SECONDS,
+          prompts: promptsOf(d) ?? [],
+        },
+      };
     }
-    if (!output) return fail("the provider returned nothing");
+    contexts.set(c.generation_id, found);
+    return found;
+  };
+
+  let downloads = 0;
+  const dir = path.join(os.tmpdir(), `syb-collect-${randomBytes(8).toString("hex")}`);
+
+  const collectOne = async (
+    c: CandidateRow,
+  ): Promise<"checked" | "ready" | "failed" | "swept" | "retried" | "waiting" | "left"> => {
+    const overdue = candidateOverdue(c, now);
+    const charged = c.cost_minor ?? 0;
+    const found = await contextFor(c);
+    if (!("ctx" in found)) {
+      if (!overdue) {
+        await release(c.id, `${found.reason}, so it waits`);
+        return "waiting";
+      }
+      // Nobody can ask after it: counted as spent if it was ever sent.
+      const lost = c.attempts > 0 ? c.estimate_minor : 0;
+      await failCandidate(
+        found.log,
+        c,
+        `${found.reason}, and it wasn't collected in time${lost > 0 ? "; it may have been billed, so it is counted as spent" : ""}`,
+        charged + lost,
+      );
+      return "swept";
+    }
+    const { ctx } = found;
+
+    // Submitted, but the answer was lost: ask again with the same key, or close it.
+    if (!c.request_id) {
+      if (overdue) {
+        const lost = c.attempts > 0 ? ctx.each.amount_minor : 0;
+        await failCandidate(
+          ctx,
+          c,
+          `SYB never heard back from ${ctx.provider.id} about this request within ${HOURS} hours${lost > 0 ? "; it may have been billed, so it is counted as spent" : ""}`,
+          charged + lost,
+        );
+        return "swept";
+      }
+      const res = await submitCandidate(ctx, c, {
+        attempt: Math.max(1, c.attempts),
+        charged,
+        reserveFirst: false,
+      });
+      await release(c.id);
+      return res === "submitted" ? "retried" : "failed";
+    }
+
+    const job: SubmittedJob = {
+      request_id: c.request_id,
+      status_url: c.status_url ?? "",
+      cancel_url: c.cancel_url,
+    };
+    const check = await ctx.jobs.check(job);
+    await db
+      .update(mediaCandidates)
+      .set({ checks: sql`${mediaCandidates.checks} + 1`, checked_at: nowIso })
+      .where(eq(mediaCandidates.id, c.id));
+
+    if (check.state === "pending") {
+      if (overdue !== "never_finished") {
+        await release(c.id, null);
+        return "checked";
+      }
+      // The sweeper: never finished in time. Canceled while queued is free; otherwise counted as spent.
+      const canceled = await ctx.jobs.cancel(job);
+      await failCandidate(
+        ctx,
+        c,
+        canceled
+          ? `${ctx.provider.id} hadn't started this clip after ${HOURS} hours, so it was canceled — nothing was billed`
+          : `${ctx.provider.id} didn't finish this clip within ${HOURS} hours; it may still finish and be billed, so it is counted as spent`,
+        charged + (canceled ? 0 : ctx.each.amount_minor),
+      );
+      return "swept";
+    }
+
+    if (check.state === "failed") {
+      const cost =
+        charged +
+        (check.charged && check.charged.currency === ctx.caps.currency
+          ? check.charged.amount_minor
+          : 0);
+      if (check.retryable && c.attempts < MAX_GENERATION_ATTEMPTS && !overdue) {
+        const res = await submitCandidate(ctx, c, {
+          attempt: c.attempts + 1,
+          charged: cost,
+          reserveFirst: true,
+        });
+        await release(c.id);
+        return res === "submitted" ? "retried" : "failed";
+      }
+      await failCandidate(ctx, c, check.message, cost);
+      return "failed";
+    }
+
+    // Finished at the provider, and billed from here.
+    if (!c.completed_at) {
+      await db
+        .update(mediaCandidates)
+        .set({ completed_at: nowIso })
+        .where(eq(mediaCandidates.id, c.id));
+    }
+    if (overdue === "never_collected") {
+      await failCandidate(
+        ctx,
+        c,
+        `it finished at ${ctx.provider.id} but couldn't be collected and labelled here within ${COLLECT_DAYS} days; it was billed, so it is counted as spent`,
+        charged + ctx.each.amount_minor,
+      );
+      return "swept";
+    }
+    // Rule 33: never kept unlabelled — without FFmpeg it stays where it is, paid for and waiting.
+    if (!labelling()) {
+      await release(c.id, WAITING_FOR_LABEL);
+      return "waiting";
+    }
+    if (!store) {
+      await release(c.id, "Finished and paid for; it waits for media storage to be set up here");
+      return "waiting";
+    }
+    if (downloads >= limits.downloads) {
+      await release(c.id);
+      return "left";
+    }
+    downloads += 1;
+    let output: GenerationOutput;
+    try {
+      output = await ctx.jobs.fetchResult(job, check.result_url);
+    } catch (error) {
+      if (!(error instanceof ProviderError)) throw error;
+      if (error.retryable) {
+        await release(c.id, `${error.message}; SYB tries again on its next check`);
+        return "waiting";
+      }
+      const cost = error.cost?.currency === ctx.caps.currency ? error.cost.amount_minor : 0;
+      await failCandidate(ctx, c, error.message, charged + cost);
+      return "failed";
+    }
+    if (output.cost.currency !== ctx.caps.currency) {
+      await failCandidate(
+        ctx,
+        c,
+        `the provider charged in ${output.cost.currency}, not ${ctx.caps.currency}`,
+        charged + ctx.each.amount_minor,
+      );
+      return "failed";
+    }
+    const cost = charged + output.cost.amount_minor;
     if (output.content_type !== "video/mp4" || output.bytes.byteLength === 0) {
-      return fail(`the provider returned ${output.content_type}, not video/mp4`);
+      await failCandidate(
+        ctx,
+        c,
+        `the provider returned ${output.content_type}, not video/mp4`,
+        cost,
+      );
+      return "failed";
     }
 
     // Rule 33, in the file: stamped and read back before it is stored anywhere.
-    const raw = path.join(dir, `raw-${run.ordinal}.mp4`);
+    const raw = path.join(dir, `raw-${c.id}.mp4`);
     await fs.writeFile(raw, output.bytes);
-    const file = await stampVideo(raw, path.join(dir, `candidate-${run.ordinal}.mp4`), label);
-    if ((await readVideoComment(file)) !== label) {
-      return fail("the clip couldn't be labelled as generated");
+    const file = await stampVideo(raw, path.join(dir, `candidate-${c.id}.mp4`), c.label);
+    if ((await readVideoComment(file)) !== c.label) {
+      await failCandidate(ctx, c, "the clip couldn't be labelled as generated", cost);
+      return "failed";
     }
     const bytes = new Uint8Array(await fs.readFile(file));
     const stored = await store.put(
-      renderPath(proposal.profile_id, target.id, file),
+      renderPath(ctx.profileId, ctx.targetItemId, file),
       bytes,
       "video/mp4",
     );
-    run.status = "ready";
-    await db
+    // A clip that lands after the owner picked another is kept, as not chosen.
+    const [picked] = await db
+      .select({ id: mediaCandidates.id })
+      .from(mediaCandidates)
+      .where(
+        and(
+          eq(mediaCandidates.generation_id, c.generation_id),
+          eq(mediaCandidates.status, "chosen"),
+        ),
+      )
+      .limit(1);
+    const [row] = await db
       .update(mediaCandidates)
       .set({
-        status: "ready",
+        status: picked ? "not_chosen" : "ready",
         model: output.model,
-        request_id: output.request_id ?? null,
+        request_id: output.request_id ?? c.request_id,
         media_url: stored.url,
         pathname: stored.pathname,
         bytes: stored.bytes,
-        cost_minor: run.charged,
-        attempts: run.attempts,
-        finished_at: new Date().toISOString(),
+        cost_minor: cost,
+        waiting: null,
+        lease_until: null,
+        finished_at: nowIso,
       })
-      .where(eq(mediaCandidates.id, run.id));
-    // Rule 34: one cost line per candidate, tagged by workload.
-    console.log(
-      JSON.stringify({
-        event: "media_generation_cost",
-        workload: AI_VIDEO_WORKLOAD,
-        account_id: accountId,
-        generation_id: claimId,
-        candidate_id: run.id,
-        ordinal: run.ordinal,
-        provider: provider.id,
-        model: output.model,
-        request_id: output.request_id ?? null,
-        cost_minor: run.charged,
-        currency: caps.currency,
-        status: "ready",
-      }),
-    );
+      .where(and(eq(mediaCandidates.id, c.id), eq(mediaCandidates.status, "generating")))
+      .returning({ id: mediaCandidates.id });
+    if (row) costLine(ctx, c, cost, "ready", output.model);
+    return "ready";
   };
 
+  const touched = new Set<string>();
+  await fs.mkdir(dir, { recursive: true });
   try {
-    await Promise.all(
-      runs.map(async (run) => {
-        try {
-          await runOne(run);
-        } catch (error) {
-          console.error(
-            JSON.stringify({
-              event: "media_candidate_error",
-              account_id: accountId,
-              generation_id: claimId,
-              candidate_id: run.id,
-              ...logSafeError(error),
-            }),
-          );
-          await db
-            .update(mediaCandidates)
-            .set({
-              status: "failed",
-              error:
-                error instanceof ContentError ? error.message : "something went wrong on our side",
-              cost_minor: run.charged,
-              attempts: run.attempts,
-              finished_at: new Date().toISOString(),
-            })
-            .where(and(eq(mediaCandidates.id, run.id), eq(mediaCandidates.status, "generating")));
-          run.status = "failed";
-          run.error ??= "something went wrong on our side";
-        }
-        if (run.status === "failed") {
-          console.log(
-            JSON.stringify({
-              event: "media_generation_cost",
-              workload: AI_VIDEO_WORKLOAD,
-              account_id: accountId,
-              generation_id: claimId,
-              candidate_id: run.id,
-              ordinal: run.ordinal,
-              provider: provider.id,
-              cost_minor: run.charged,
-              currency: caps.currency,
-              status: "failed",
-            }),
-          );
-        }
-      }),
-    );
+    for (const c of rows) {
+      touched.add(c.generation_id);
+      if (Date.now() - started > limits.budget_ms) {
+        await release(c.id);
+        out.left += 1;
+        continue;
+      }
+      try {
+        const step = await collectOne(c);
+        out[step] += 1;
+      } catch (error) {
+        console.error(
+          JSON.stringify({
+            event: "media_candidate_collect_error",
+            candidate_id: c.id,
+            generation_id: c.generation_id,
+            ...logSafeError(error),
+          }),
+        );
+        await release(c.id);
+      }
+    }
   } finally {
     await fs.rm(dir, { recursive: true, force: true });
   }
 
-  const charged = runs.reduce((s, r) => s + r.charged, 0);
-  const cost = money(charged, caps.currency);
-  const ready = runs.filter((r) => r.status === "ready");
-  const firstError = runs.find((r) => r.error)?.error ?? null;
-  await db
-    .update(mediaGenerations)
-    .set({
-      status: ready.length > 0 ? "generated" : "failed",
-      cost_minor: charged,
-      attempts: Math.max(...runs.map((r) => r.attempts)),
-      finished_at: new Date().toISOString(),
-      ...(ready.length === 0 ? { error: firstError ?? "nothing was made" } : {}),
-    })
-    .where(eq(mediaGenerations.id, claimId));
-  await recordExecution({
-    proposalId: proposal.id,
-    result: {
-      generated: ready.length > 0,
-      candidates: runs.map((r) => ({ id: r.id, ordinal: r.ordinal, status: r.status })),
-      cost,
-    },
-  });
-  if (ready.length === 0) {
-    return {
-      status: "failed",
-      cost,
-      candidate_ids: runs.map((r) => r.id),
-      note: `Generating failed: ${firstError ?? "nothing was made"}. ${format(cost)} was charged.`,
-    };
+  // Bring every touched set's hold down, and settle the ones that are done.
+  for (const g of touched) {
+    await rehold(g);
+    if (await settleSet(g, now)) out.sets_settled += 1;
   }
-  return {
-    status: "generated",
-    cost,
-    candidate_ids: ready.map((r) => r.id),
-    note: `${ready.length} of ${runs.length} AI video candidates are ready for ${format(cost)}, each labelled as AI-generated. Pick one in the studio; nothing is published without your yes.`,
-  };
+  // A set whose run stopped before settling (every candidate over, the set still "generating").
+  const stranded = await db
+    .select({ id: mediaGenerations.id })
+    .from(mediaGenerations)
+    .where(
+      and(
+        eq(mediaGenerations.status, "generating"),
+        ...(args.profileId ? [eq(mediaGenerations.profile_id, args.profileId)] : []),
+        sql`EXISTS (SELECT 1 FROM media_candidates mc WHERE mc.generation_id = ${mediaGenerations.id})`,
+        sql`NOT EXISTS (SELECT 1 FROM media_candidates mc WHERE mc.generation_id = ${mediaGenerations.id} AND mc.status = 'generating')`,
+      ),
+    )
+    .limit(limits.candidates);
+  for (const g of stranded) {
+    if (touched.has(g.id)) continue;
+    await rehold(g.id);
+    if (await settleSet(g.id, now)) out.sets_settled += 1;
+  }
+  console.log(JSON.stringify({ event: "media_candidates_collected", ...out }));
+  return out;
+}
+
+/** How many candidates of this business are still being made (the studio polls while any are). */
+export async function pendingCandidates(profileId: string): Promise<number> {
+  const [row] = await db
+    .select({ n: sql<string>`count(*)` })
+    .from(mediaCandidates)
+    .where(
+      and(eq(mediaCandidates.profile_id, profileId), eq(mediaCandidates.status, "generating")),
+    );
+  return Number(row?.n ?? 0);
 }
 
 /* ── 3. the owner picks one ── */
@@ -811,6 +1407,8 @@ export interface CandidateView {
   label: string;
   cost: Money | null;
   error: string | null;
+  /** Still being made, and why it waits (no FFmpeg here to label it, say), or null. */
+  waiting: string | null;
   model: string | null;
   result_item_id: string | null;
 }
@@ -825,6 +1423,10 @@ export interface CandidateSetView {
   status: string;
   cost: Money | null;
   chosen_id: string | null;
+  /** P6-03 (2026-11-09): how many have arrived — the pick works from the first one. */
+  ready: number;
+  /** How many are still being made. */
+  pending: number;
   candidates: CandidateView[];
 }
 
@@ -837,6 +1439,8 @@ export interface VideoTargetView {
   estimate: Money | null;
   pending_proposal_id: string | null;
   approved_proposal_id: string | null;
+  /** The set being made for this item right now (its approved proposal already started), or null. */
+  making_generation_id: string | null;
 }
 
 export interface StudioVideoView {
@@ -880,6 +1484,7 @@ export async function studioVideoView(
       estimate: g?.estimates.video ?? null,
       pending_proposal_id: g?.pending_proposal_id ?? null,
       approved_proposal_id: g?.approved_proposal_id ?? null,
+      making_generation_id: null,
     };
   });
 
@@ -919,6 +1524,8 @@ export async function studioVideoView(
       status: g.status,
       cost: g.cost_minor === null ? null : money(g.cost_minor, g.currency),
       chosen_id: mine.find((c) => c.status === "chosen")?.id ?? null,
+      ready: mine.filter((c) => ["ready", "chosen", "not_chosen"].includes(c.status)).length,
+      pending: mine.filter((c) => c.status === "generating").length,
       candidates: mine.map((c) => ({
         id: c.id,
         ordinal: c.ordinal,
@@ -927,11 +1534,20 @@ export async function studioVideoView(
         label: c.label,
         cost: c.cost_minor === null ? null : money(c.cost_minor, c.currency),
         error: c.error,
+        waiting: c.status === "generating" ? c.waiting : null,
         model: c.model,
         result_item_id: c.result_item_id,
       })),
     };
   });
+  // An approved proposal whose set has started isn't offered to start again: its progress shows.
+  for (const t of targets) {
+    const making = sets.find((s) => s.target_item_id === t.item_id && s.status === "generating");
+    if (making) t.making_generation_id = making.generation_id;
+    if (t.approved_proposal_id && sets.some((s) => s.proposal_id === t.approved_proposal_id)) {
+      t.approved_proposal_id = null;
+    }
+  }
 
   let month: StudioVideoView["month"] = null;
   if (setup.caps) {
