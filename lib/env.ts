@@ -4,12 +4,30 @@
 
 type RequiredKey = "DATABASE_URL" | "ANTHROPIC_API_KEY" | "CONNECTOR_KEY" | "BLOB_READ_WRITE_TOKEN";
 
+/**
+ * Thrown by a required `env.*` getter. Named so a route can tell "this
+ * server isn't configured for that yet" apart from a genuine bug and
+ * answer with the missing key's name instead of a bare 500 — see
+ * isMissingEnvError.
+ */
+export class MissingEnvError extends Error {
+  readonly key: RequiredKey;
+  constructor(key: RequiredKey) {
+    super(`Missing required environment variable ${key} — copy .env.example to .env and fill it in`);
+    this.name = "MissingEnvError";
+    this.key = key;
+  }
+}
+
+/** True for the error a required `env.*` getter throws — never any other Error. */
+export function isMissingEnvError(error: unknown): error is MissingEnvError {
+  return error instanceof MissingEnvError;
+}
+
 function read(key: RequiredKey): string {
   const value = process.env[key];
   if (value === undefined || value === "") {
-    throw new Error(
-      `Missing required environment variable ${key} — copy .env.example to .env and fill it in`,
-    );
+    throw new MissingEnvError(key);
   }
   return value;
 }

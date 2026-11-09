@@ -12,6 +12,7 @@
 // signed-in user needs one here too (the catalogue says which).
 
 import { logSafeError } from "../../../lib/core/log-safe";
+import { isMissingEnvError } from "../../../lib/env";
 import { resolveAccess } from "../../../lib/auth/access";
 import { type NextRequest, NextResponse } from "next/server";
 import { ChangeError, confirmChange, listChanges } from "../../../lib/assistant/changes";
@@ -101,6 +102,12 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   } catch (error) {
     if (error instanceof ChatError || error instanceof ChangeError) {
       return NextResponse.json({ error: error.message }, { status: error.status });
+    }
+    if (isMissingEnvError(error)) {
+      return NextResponse.json(
+        { error: `I can't answer from here yet — this server's ${error.key} isn't set.` },
+        { status: 503 },
+      );
     }
     console.error(
       JSON.stringify({
