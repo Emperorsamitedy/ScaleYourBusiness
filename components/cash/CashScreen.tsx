@@ -109,7 +109,6 @@ function Refused({ f }: { f: Extract<CashForecast, { status: "refused" }> }) {
           f.ready_on ? tr("refused.readyOn", { day: forecastDay(f.ready_on, locale) }) : undefined
         }
       >
-        <p className="cf-copy">{f.headline}</p>
         {f.needs.length > 0 && (
           <ul className="cf-list">
             {f.needs.map((n) => (
