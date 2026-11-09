@@ -15,8 +15,14 @@ import {
   fakeRecordingSid,
   fakeTwilioApi,
 } from "../phone/fake-twilio";
-import { RECORDING_PATH, openingVerbs } from "../phone/line";
-import { RecordingBeforeNoticeError, TWILIO_VOICES, twiml } from "../phone/twilio";
+import { RECORDING_PATH, handOverVerbs, openingVerbs } from "../phone/line";
+import {
+  DialWhileRecordingError,
+  RECORDING_NAME,
+  RecordingBeforeNoticeError,
+  TWILIO_VOICES,
+  twiml,
+} from "../phone/twilio";
 import { SealError, openAudio, recordingKey, sealAudio } from "./seal";
 import {
   TwilioRecordingError,
@@ -68,6 +74,56 @@ describe("rule 32 in the TwiML itself: no recording before its notice", () => {
     ]);
     expect(xml).not.toMatch(/<Start>|<Recording/);
   });
+});
+
+describe("decision 5 (owner, 2026-11-09): the recording stops before a call is put through", () => {
+  const notice = { verb: "say", text: "This call is recorded.", recordingNotice: true } as const;
+  const record = { verb: "record", callback: RECORDING_PATH } as const;
+  const dial = {
+    verb: "dial",
+    number: "+447700900999",
+    action: "/api/phone/voice?step=dial",
+    timeout: 20,
+  } as const;
+
+  it("names the recording when it starts, and stops it by that name before <Dial>", () => {
+    const xml = twiml(voice, [notice, record, { verb: "stopRecording" }, dial]);
+    expect(xml).toContain(`<Start><Recording name="${RECORDING_NAME}" `);
+    const stop = xml.indexOf(`<Stop><Recording name="${RECORDING_NAME}"/></Stop>`);
+    expect(stop).toBeGreaterThan(xml.indexOf("<Start><Recording"));
+    expect(xml.indexOf("<Dial")).toBeGreaterThan(stop);
+  });
+
+  it("refuses a <Dial> while a recording runs — started in this document or an earlier one", () => {
+    expect(() => twiml(voice, [notice, record, dial])).toThrow(DialWhileRecordingError);
+    // The recording started with the opening; this later document dials.
+    expect(() =>
+      twiml(voice, [{ verb: "say", text: "Putting you through." }, dial], {
+        recording: true,
+      }),
+    ).toThrow(DialWhileRecordingError);
+    // The wrong order: the stop after the <Dial> is too late.
+    expect(() => twiml(voice, [dial, { verb: "stopRecording" }], { recording: true })).toThrow(
+      DialWhileRecordingError,
+    );
+  });
+
+  it("dials freely where nothing is recorded (the passing case)", () => {
+    const xml = twiml(voice, [{ verb: "say", text: "Putting you through." }, dial]);
+    expect(xml).toContain("<Dial");
+    expect(xml).not.toMatch(/<Stop>|<Recording/);
+  });
+
+  for (const locale of LOCALES) {
+    it(`${locale}: a recorded call's hand-over says so, stops recording, then dials`, () => {
+      const t = trFor(locale, "phoneLine");
+      const verbs = handOverVerbs({ t }, "Rosa's Bakery", "+447700900999", true);
+      expect(verbs.map((v) => v.verb)).toEqual(["say", "stopRecording", "dial"]);
+      expect(() => twiml(TWILIO_VOICES[locale], verbs, { recording: true })).not.toThrow();
+      const plain = handOverVerbs({ t }, "Rosa's Bakery", "+447700900999", false);
+      expect(plain.map((v) => v.verb)).toEqual(["say", "dial"]);
+    });
+  }
 });
 
 describe("the opening a caller hears", () => {

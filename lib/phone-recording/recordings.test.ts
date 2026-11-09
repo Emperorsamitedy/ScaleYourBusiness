@@ -114,7 +114,7 @@ afterAll(async () => {
 });
 
 /** A business with a phone line on a number of its own; recording as asked (default: off). */
-async function business(opts: { record?: boolean } = {}) {
+async function business(opts: { record?: boolean; handover?: string } = {}) {
   const s = await bootstrapIntake();
   created.push(s);
   await ensureSupportSettings(s.profile_id);
@@ -128,6 +128,7 @@ async function business(opts: { record?: boolean } = {}) {
     account_id: s.account_id,
     phone_number: number,
     ...(opts.record !== undefined ? { record_calls: opts.record } : {}),
+    ...(opts.handover !== undefined ? { handover_number: opts.handover } : {}),
   });
   return { ...s, number };
 }
@@ -208,6 +209,47 @@ describe("off by default: no audio until the owner switches recording on", () =>
     const again = await handleVoice("start", callParams({ callSid: sid, to: b.number }));
     expect(again).not.toMatch(/<Start>/);
     expect((await callRow(sid)).recording_notice_at).toBeNull();
+  });
+});
+
+describe("decision 5 (owner, 2026-11-09): nobody who picks up a put-through is recorded", () => {
+  const askForPerson = (b: { number: string }, sid: string) =>
+    handleVoice(
+      "turn",
+      callParams({ callSid: sid, to: b.number, SpeechResult: "Can I speak to a real person?" }),
+      {
+        llm: async () => {
+          throw new Error("the model must not be called");
+        },
+      },
+    );
+
+  it("a transferred recorded call stops its recording, by name, before it dials", async () => {
+    const b = await business({ record: true, handover: "+447700900999" });
+    const { sid, xml: opening } = await start(b);
+    expect(opening).toContain('<Start><Recording name="syb-call"');
+    const xml = await askForPerson(b, sid);
+    const said = xml.indexOf("Putting you through");
+    const stop = xml.indexOf('<Stop><Recording name="syb-call"/></Stop>');
+    const dial = xml.indexOf("<Dial");
+    expect(said).toBeGreaterThan(-1); // the caller, who heard the notice, is still told
+    expect(stop).toBeGreaterThan(said);
+    expect(dial).toBeGreaterThan(stop);
+    expect(xml).toContain("<Number>+447700900999</Number>");
+    // Not started again when nobody picks up: the message is transcribed, not recorded.
+    const missed = await handleVoice(
+      "dial",
+      callParams({ callSid: sid, to: b.number, DialCallStatus: "no-answer" }),
+    );
+    expect(missed).not.toMatch(/<Start>|<Recording/);
+  });
+
+  it("a call that isn't recorded dials with nothing to stop", async () => {
+    const b = await business({ handover: "+447700900998" });
+    const { sid } = await start(b);
+    const xml = await askForPerson(b, sid);
+    expect(xml).toContain("<Dial");
+    expect(xml).not.toMatch(/<Stop>|<Recording/);
   });
 });
 
