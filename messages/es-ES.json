@@ -5775,6 +5775,7 @@
       "handoverSave": "Guardar",
       "callsTitle": "Llamadas",
       "callsEmpty": "Aún no hay llamadas. Cada llamada que atiende la línea aparece aquí, con su mensaje y lo que se dijo.",
+      "viewerNote": "Puede ver quién llamó y cómo terminó cada llamada. Lo que dijeron quienes llamaron, los mensajes que dejaron y sus números completos son solo para propietarios y gestores.",
       "withheld": "Número oculto",
       "outcome": {
         "answered": "Respondida con sus respuestas aprobadas",
@@ -5799,6 +5800,7 @@
         "stateOff": "Las llamadas no se graban. Quien llama oye que la llamada se transcribe, y no se guarda ningún audio.",
         "stateOn": "Las llamadas se graban. Cada persona que llama oye que la llamada se graba antes de que empiece la grabación.",
         "explain": "Con la grabación activada, a quien llama se le avisa de que la llamada se graba antes de guardar ningún audio. Cada grabación se guarda {days, plural, one {# día} many {# días} other {# días}} y después se borra para siempre; borrar una llamada o un contacto borra también su grabación. Solo un propietario puede escucharlas.",
+        "stopsOnTransfer": "Cuando se le pasa una llamada a usted, la grabación se detiene antes, así que quien conteste nunca queda grabado.",
         "changed": "Último cambio: {when}.",
         "needsSetup": "La grabación aún no se puede activar en este servidor. Necesita estos ajustes:",
         "turnOn": "Grabar las llamadas",
@@ -6119,6 +6121,7 @@
       "proposals_carry_out": "Solo un propietario o un gestor puede ejecutar o deshacer una propuesta aprobada.",
       "content_draft": "Solo un propietario o un gestor puede redactar contenido.",
       "support_answer": "Solo un propietario o un gestor puede responder a las consultas de soporte.",
+      "phone_transcripts": "Solo un propietario o un gestor puede leer lo que dijeron quienes llamaron a la línea telefónica.",
       "reviews_answer": "Solo un propietario o un gestor puede registrar, responder o retirar reseñas.",
       "pipeline_edit": "Solo un propietario o un gestor puede cambiar el embudo de ventas.",
       "connections_sync": "Solo un propietario o un gestor puede volver a leer ahora una cuenta conectada.",

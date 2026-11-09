@@ -10,6 +10,13 @@
 // P6-08: switching call recording on and off (off by default; each switch
 // on the decision log with who and when), and erasing a call's recording
 // with the call — both copies (lib/phone-recording).
+//
+// Decision 2 (owner, 2026-11-09): least privilege on calls. What a caller
+// said — the transcript, the message and the full number — is for those
+// who answer support (role action `phone.transcripts`: owners and
+// managers). A viewer gets the calls list through `callsForViewer`: no
+// message, the number masked to its last three digits. Recordings stay the
+// owner's alone (`phone.recordings`).
 
 import { createHash } from "node:crypto";
 import { and, desc, eq } from "drizzle-orm";
@@ -191,6 +198,34 @@ export async function listCalls(profileId: string, limit = 50): Promise<CallSumm
     duration_seconds: r.duration_seconds,
     cost_eur: r.cost_eur,
     started_at: r.started_at,
+  }));
+}
+
+/** Digits of a caller's number a viewer still sees — enough to tell calls apart. */
+export const MASKED_DIGITS_SHOWN = 3;
+
+/**
+ * Pure: a caller's number as a viewer reads it — "•••123", the last three
+ * digits only. A withheld number stays null; one with three digits or fewer
+ * shows none of them.
+ */
+export function maskCallerNumber(number: string | null): string | null {
+  if (number === null) return null;
+  const digits = number.replace(/\D/g, "");
+  const shown = digits.length > MASKED_DIGITS_SHOWN ? digits.slice(-MASKED_DIGITS_SHOWN) : "";
+  return `•••${shown}`;
+}
+
+/**
+ * Pure: the calls list for someone who may not read what callers said (a
+ * viewer): who rang (masked), when, how it ended, how long — never the
+ * message. Everything else is as the owner sees it.
+ */
+export function callsForViewer(calls: readonly CallSummary[]): CallSummary[] {
+  return calls.map((c) => ({
+    ...c,
+    caller_number: maskCallerNumber(c.caller_number),
+    message: null,
   }));
 }
 

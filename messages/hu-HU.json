@@ -5775,6 +5775,7 @@
       "handoverSave": "Mentés",
       "callsTitle": "Hívások",
       "callsEmpty": "Még nincs hívás. Minden hívás, amelyet a vonal fogad, ide kerül az üzenetével és az elhangzottakkal.",
+      "viewerNote": "Látja, ki hívott, és hogyan ért véget minden hívás. Amit a hívók mondtak, az általuk hagyott üzenetek és a teljes telefonszámuk csak a tulajdonosoknak és a menedzsereknek látható.",
       "withheld": "Rejtett szám",
       "outcome": {
         "answered": "Megválaszolva a jóváhagyott válaszaiból",
@@ -5799,6 +5800,7 @@
         "stateOff": "A hívásokat nem rögzítjük. A hívók hallják, hogy a hívásról átirat készül, és hangfelvétel nem marad meg.",
         "stateOn": "A hívásokat rögzítjük. Minden hívó hallja, hogy a hívást rögzítjük, mielőtt a felvétel elindul.",
         "explain": "Ha a rögzítés be van kapcsolva, a hívók még azelőtt megtudják, hogy a hívást rögzítjük, mielőtt bármilyen hang megmaradna. Minden felvételt {days, plural, one {# napig} other {# napig}} őrzünk meg, utána végleg töröljük, és egy hívás vagy egy kapcsolattartó törlése a felvételét is törli. Csak tulajdonos hallgathatja meg őket.",
+        "stopsOnTransfer": "Ha egy hívást Önhöz kapcsolnak, a felvétel előbb leáll, így azt, aki felveszi, soha nem rögzítjük.",
         "changed": "Utoljára átkapcsolva: {when}.",
         "needsSetup": "A rögzítést ezen a szerveren még nem lehet bekapcsolni. Ehhez ezek a beállítások kellenek:",
         "turnOn": "Hívások rögzítése",
@@ -6119,6 +6121,7 @@
       "proposals_carry_out": "Csak tulajdonos vagy menedzser hajthat végre vagy vonhat vissza egy jóváhagyott javaslatot.",
       "content_draft": "Csak tulajdonos vagy menedzser készíthet tartalomtervezetet.",
       "support_answer": "Csak tulajdonos vagy menedzser válaszolhat a támogatási kérdésekre.",
+      "phone_transcripts": "Csak tulajdonos vagy menedzser olvashatja el, mit mondtak a hívók a telefonvonalon.",
       "reviews_answer": "Csak tulajdonos vagy menedzser rögzíthet, válaszolhat meg vagy távolíthat el értékeléseket.",
       "pipeline_edit": "Csak tulajdonos vagy menedzser módosíthatja az értékesítési tölcsért.",
       "connections_sync": "Csak tulajdonos vagy menedzser olvashat be most újra egy összekapcsolt fiókot.",

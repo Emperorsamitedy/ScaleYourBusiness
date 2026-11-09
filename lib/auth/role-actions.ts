@@ -44,6 +44,10 @@ export const ROLE_ACTIONS = {
   "proposals.carry_out": { min: "manager", what: "carry out or undo an approved proposal" },
   "content.draft": { min: "manager", what: "draft content" },
   "support.answer": { min: "manager", what: "answer support" },
+  // Decision 2 (owner, 2026-11-09): least privilege on calls. Those who answer
+  // support read what callers said — transcripts and messages, and the full
+  // number. A viewer sees the calls list only, the number masked.
+  "phone.transcripts": { min: "manager", what: "read what callers said on the phone line" },
   // Idea 45: filing, answering and removing reviews is answering customers, like support.
   "reviews.answer": { min: "manager", what: "file, answer or remove reviews" },
   // I-52b (owner, 2026-11-01): the pipeline's day-to-day, and reading a

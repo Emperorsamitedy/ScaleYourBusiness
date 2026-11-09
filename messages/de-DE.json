@@ -5775,6 +5775,7 @@
       "handoverSave": "Speichern",
       "callsTitle": "Anrufe",
       "callsEmpty": "Noch keine Anrufe. Jeder Anruf, den die Leitung annimmt, erscheint hier, mit Nachricht und Gesprächsverlauf.",
+      "viewerNote": "Sie sehen, wer angerufen hat und wie jeder Anruf endete. Was Anrufer gesagt haben, ihre Nachrichten und ihre vollständigen Nummern sind Inhabern und Managern vorbehalten.",
       "withheld": "Nummer unterdrückt",
       "outcome": {
         "answered": "Mit Ihren freigegebenen Antworten beantwortet",
@@ -5799,6 +5800,7 @@
         "stateOff": "Anrufe werden nicht aufgezeichnet. Anrufer hören, dass der Anruf transkribiert wird, und es wird kein Ton gespeichert.",
         "stateOn": "Anrufe werden aufgezeichnet. Jeder Anrufer hört, dass der Anruf aufgezeichnet wird, bevor die Aufzeichnung beginnt.",
         "explain": "Ist die Aufzeichnung an, erfahren Anrufer, dass der Anruf aufgezeichnet wird, bevor Ton gespeichert wird. Jede Aufzeichnung wird {days, plural, one {# Tag} other {# Tage}} aufbewahrt und dann endgültig gelöscht; wer einen Anruf oder einen Kontakt löscht, löscht auch die Aufzeichnung. Nur ein Inhaber kann sie anhören.",
+        "stopsOnTransfer": "Wird ein Anruf an Sie durchgestellt, stoppt die Aufzeichnung vorher – wer abnimmt, wird also nie aufgezeichnet.",
         "changed": "Zuletzt umgeschaltet: {when}.",
         "needsSetup": "Die Aufzeichnung lässt sich auf diesem Server noch nicht einschalten. Dafür fehlen diese Einstellungen:",
         "turnOn": "Anrufe aufzeichnen",
@@ -6119,6 +6121,7 @@
       "proposals_carry_out": "Nur ein Inhaber oder ein Manager kann einen freigegebenen Vorschlag ausführen oder rückgängig machen.",
       "content_draft": "Nur ein Inhaber oder ein Manager kann Inhalte entwerfen.",
       "support_answer": "Nur ein Inhaber oder ein Manager kann Support-Anfragen beantworten.",
+      "phone_transcripts": "Nur ein Inhaber oder ein Manager kann lesen, was Anrufer auf der Telefonleitung gesagt haben.",
       "reviews_answer": "Nur ein Inhaber oder ein Manager kann Bewertungen erfassen, beantworten oder entfernen.",
       "pipeline_edit": "Nur ein Inhaber oder ein Manager kann die Vertriebs-Pipeline ändern.",
       "connections_sync": "Nur ein Inhaber oder ein Manager kann ein verbundenes Konto jetzt erneut lesen.",

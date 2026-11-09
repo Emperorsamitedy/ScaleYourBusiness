@@ -5775,6 +5775,7 @@
       "handoverSave": "Save",
       "callsTitle": "Calls",
       "callsEmpty": "No calls yet. Every call the line answers lands here, with its message and what was said.",
+      "viewerNote": "You can see who called and how each call ended. What callers said, the messages they left and their full numbers are for owners and managers.",
       "withheld": "Number withheld",
       "outcome": {
         "answered": "Answered from your approved answers",
@@ -5799,6 +5800,7 @@
         "stateOff": "Calls are not recorded. Callers hear that the call is transcribed, and no audio is kept.",
         "stateOn": "Calls are recorded. Every caller hears that the call is recorded before recording starts.",
         "explain": "When recording is on, callers are told the call is recorded before any audio is kept. Each recording is kept for {days, plural, one {# day} other {# days}}, then deleted for good, and erasing a call or a contact erases its recording too. Only an owner can listen to them.",
+        "stopsOnTransfer": "When a call is put through to you, recording stops first, so whoever answers is never recorded.",
         "changed": "Last switched {when}.",
         "needsSetup": "Recording can't be switched on on this server yet. It needs these settings:",
         "turnOn": "Record calls",
@@ -6119,6 +6121,7 @@
       "proposals_carry_out": "Only an owner or a manager can carry out or undo an approved proposal.",
       "content_draft": "Only an owner or a manager can draft content.",
       "support_answer": "Only an owner or a manager can answer support.",
+      "phone_transcripts": "Only an owner or a manager can read what callers said on the phone line.",
       "reviews_answer": "Only an owner or a manager can file, answer or remove reviews.",
       "pipeline_edit": "Only an owner or a manager can change the sales pipeline.",
       "connections_sync": "Only an owner or a manager can read a connected account again now.",
