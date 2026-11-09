@@ -533,7 +533,7 @@
       "prior": " · 上次 {date}",
       "headUnit": "利润变化 / 月 · 如果您执行 {ref} · 推导",
       "computed": "{computed} / {total}",
-      "computedUnit": "项指标已计算 · 每一项都说明了原因",
+      "computedUnit": "项指标已计算",
       "diagnosis": "诊断",
       "noFindings": "没有需要指出的发现",
       "notComputed": "{count, plural, other {<b>#</b> 项未计算}}",
@@ -568,6 +568,9 @@
       "basisNotRecorded": "依据未记录",
       "history": "历史 · 已取代，永不删除",
       "noHistory": "这个数字的输入还没有被取代过。"
+    },
+    "fold": {
+      "how": "运作方式"
     },
     "measure": {
       "blended_margin": {
@@ -643,7 +646,7 @@
       "show": "显示"
     },
     "decline": {
-      "lede": "选填——为什么不要？这能让我知道以后不该再提出什么。",
+      "lede": "选填——为什么不要？",
       "chip": {
         "tried": "我们以前试过",
         "market": "在我的市场里行不通",
@@ -688,14 +691,14 @@
     "findings": {
       "label": "发现 · 最紧急的在前",
       "none": "没有任何问题有足够的证据可以指出。",
-      "title": "{count, plural, other {# 项发现，每一项都附有证据。}}",
+      "title": "{count, plural, other {# 项发现。}}",
       "measured": "已测量",
       "measuredTitle": "在您的网站上测量所得，而非主观判断"
     },
     "recs": {
       "label": "我会怎么做",
       "none": "目前还没有计算能够支撑的建议。",
-      "title": "{count, plural, other {# 条建议，每一条都附有范围。}}"
+      "title": "{count, plural, other {# 条建议。}}"
     },
     "hours": {
       "label": "营业时间 · 已观测 · {from} – {to}",
@@ -706,7 +709,6 @@
     },
     "gaps": {
       "label": "什么能让结论更准确",
-      "title": "报告的质量取决于它所依据的信息。",
       "priority": "{priority, select, core {核心} important {重要} deep {深入} optional {选填} other {{priority}}}",
       "blocking": "阻塞项",
       "answer": "现在回答 →"
@@ -730,7 +732,6 @@
       "confirming": "正在等待 Stripe 确认您的付款",
       "reading": "正在读取您的档案——请求正在处理中",
       "readingLede": "利润率、盈亏平衡点、发现以及应对办法。通常需要大约一分钟；在任何内容显示到页面之前，都会先核对计算。",
-      "none": "当您回答得足够多时，我会读取整个档案，并写下我能够证明的内容。",
       "readNow": "现在读取我的档案 →",
       "answerMore": "先多回答一些 →",
       "payFailed": "无法发起付款",
@@ -741,7 +742,6 @@
     },
     "share": {
       "label": "分享这份报告",
-      "title": "一个只读链接，可以发给合伙人、会计师或投资人。",
       "signedOut": "登录后才能分享您的报告——离开 SYB 的链接只能由您本人创建，因此需要您登录。",
       "lede": "该链接显示这份报告当前的样子，不包含您对各项建议的回应，也不包含任何通往您账户的内容。链接创建后就不会再变化，您可以随时在这里撤销它。",
       "lasts": "有效期",
@@ -1008,13 +1008,12 @@
     },
     "kicker": "您的企业 · 事实表",
     "titleEmpty": "记录。",
-    "title": "{count, plural, other {关于{noun}的 # 项事实。每一项都标明了来源。}}",
+    "title": "{count, plural, other {关于{noun}的 # 项事实。}}",
     "yourBusiness": "您的企业",
     "noSession": "此设备上还没有档案。<a>开始回答问题</a>——或者打开我发给您的链接。",
     "failed": "加载您的档案时出了点问题。请刷新重试——您告诉我的内容都不会丢失。",
     "reading": "正在读取您的档案…",
     "export": {
-      "label": "给您的会计师",
       "current": "资金类事实，CSV",
       "history": "早期数字，CSV"
     },
@@ -1027,7 +1026,6 @@
     },
     "recordLabel": "记录",
     "search": "搜索记录",
-    "searchPlaceholder": "例如：营业时间、价格、渠道",
     "filterLabel": "筛选记录",
     "filter": {
       "all": "全部",
@@ -1044,11 +1042,9 @@
       "changed": "本月没有任何内容被替换。",
       "none": "暂无记录。"
     },
-    "sectionFacts": "{count, plural, other {# 项事实}}",
     "sectionChanged": "{count, plural, other {本月有 # 项变化}}",
     "noneRecorded": "暂无记录",
-    "competitorsLede": "在访谈中说出它们的名字，或者让我根据您已经告诉我的信息去搜索。",
-    "openMeta": "{count, plural, other {# 个问题 · 空缺本身就是一项发现，而不是失败}}",
+    "openMeta": "{count, plural, other {# 个问题}}",
     "foot": "带删除线的行在有更准确的信息进来之前一直成立。记录中的任何内容都不会被删除。快照 {id} · {date}。",
     "caption": "{section}：每项事实及其值、来源、依据和生效日期",
     "col": {
@@ -1058,7 +1054,6 @@
       "basis": "依据",
       "since": "起始日期"
     },
-    "confirmDefault": "确认后替换默认值",
     "noted": "备注：{note}",
     "superseded": "已于 {date} 被更新的{kind, select, measurement {测量} reading {读数} calculation {计算} answer {回答} other {记录}}取代",
     "supersededWord": "已取代",
@@ -1128,9 +1123,8 @@
       "find": "查找我的竞争对手 →",
       "searchingFrom": "正在根据您告诉我的信息搜索",
       "readingPages": "正在阅读他们的网页",
-      "found": "根据您告诉我的信息搜索所得。在您确认之前，不会保存任何内容。",
       "readingPagesNow": "正在阅读他们的网页…",
-      "thatsOne": "这是其中一个——去查一查 →"
+      "thatsOne": "添加 →"
     }
   },
   "watch": {
@@ -1141,7 +1135,6 @@
     "days": {
       "label": "观察第 {day} 天，共 {of} 天",
       "started": "开始于 {date}",
-      "legend": "每个实心方块代表已经过去的一个观察日。带边框的那个是今天。",
       "ends": "观察期于 {date} 结束"
     },
     "tally": {
@@ -1179,12 +1172,11 @@
     "noted": {
       "label": "已记下，未行动",
       "title": "我本来会说的话",
-      "empty": "暂时没有。当某个数字超出常规范围、您的营业时段出现信号，或某个竞争对手调整价格时，我会在这里记下，但不会据此采取任何行动。",
+      "empty": "暂时没有。",
       "day": "第 {day} 天"
     },
     "when": {
       "label": "观察期结束时",
-      "foot": "观察期的长度在“我的工作方式”中设置。",
       "link": "我的工作方式 →",
       "ends": "观察期结束。下一份报告会读取这期间收集到的所有内容。",
       "after": "之后",
@@ -1194,7 +1186,6 @@
     },
     "activity": {
       "label": "活动",
-      "title": "每一条都是真实完成的工作",
       "empty": "暂时没有。第一份每周快照会出现在这里。"
     },
     "rules": {
@@ -1204,7 +1195,6 @@
     },
     "modules": {
       "label": "模块",
-      "title": "等我开始行动时",
       "name": "{module, select, marketing {营销} sales {销售} support {客户支持} operations {运营} finance {财务} team {团队} other {{module}}}",
       "analytics": "分析，始终开启",
       "rolesNotPeople": "{module, select, team {团队} other {{module}}}，按岗位而非个人",
@@ -1214,7 +1204,6 @@
       "label": "每周邮件",
       "title": "每周一的摘要",
       "switch": "每周给我发邮件",
-      "lede": "我那一周做了什么、发现了什么，以及有什么在等您处理。每一行都对应此页面上的一条记录；平静的一周也会如实说明。",
       "signUp": "注册后，它会发送到您用于登录的邮箱地址。",
       "off": "已关闭。不会发送任何邮件；所有内容都保留在此页面上。",
       "notDecided": "在决定“我的工作方式”之后开始发送。",
@@ -1266,7 +1255,6 @@
       "changes": "{count, plural, other {第 {day} 天，共 {of} 天。已做出 # 项更改，每一项都经过您的批准。}}"
     },
     "notes": {
-      "hold": "观察期间，我能改动的任何内容都不会执行。",
       "readingEnds": "{count, plural, other {每天读取 # 个连接 · 观察期于 {date} 结束}}",
       "readingEnded": "{count, plural, other {每天读取 # 个连接 · 观察期已于 {date} 结束}}",
       "noneEnds": "没有正在读取的连接 · <a>连接</a> · 观察期于 {date} 结束",
@@ -1569,12 +1557,11 @@
       "title": "历史记录 — SYB"
     },
     "kicker": "您的企业 · 历史记录",
-    "title": "账本。只能追加。",
+    "title": "账本。",
     "reading": "正在读取记录…",
     "label": "历史记录",
     "signedOut": {
       "title": "此浏览器没有任何存档。",
-      "lede": "有了需要记账的企业，账本才会存在。",
       "start": "开始"
     },
     "failed": {
@@ -2998,7 +2985,7 @@
     },
     "ask": {
       "title": "停止每周摘要邮件？",
-      "body": "点击一下即可停止。登录链接和“客户支持”页面的通知不受影响。",
+      "body": "登录链接和“客户支持”页面的通知不受影响。",
       "button": "停止这些邮件"
     }
   },
@@ -3505,13 +3492,13 @@
       "connections": "连接",
       "history": "历史记录",
       "unconnected": "还没有任何连接测量{metric}。连接一个后，它的历史数据会填充图表和起始点。",
-      "unchecked": "尚未检查。每周检查会在周一读取每个可测量的目标。"
+      "unchecked": "每周检查会在周一读取每个可测量的目标。"
     },
     "card": {
       "label": "{metric} · 截止 {day}",
       "goal": "目标",
       "untitled": "一个还没有文字描述的目标",
-      "notMeasurable": "这个目标还无法测量，所以我无法告诉您它是否在路径上。请说出它应该推动的数字：",
+      "notMeasurable": "请说出它应该推动的数字：",
       "raise": "提高{metric}",
       "lower": "降低{metric}",
       "now": "当前",
@@ -3542,7 +3529,6 @@
     "setNew": "设定新目标 →",
     "how": {
       "label": "目标如何运作",
-      "title": "用您自己的话陈述一个目标",
       "copy": "目标在“内容”中设定，那里每一篇计划中的内容都会写明它服务的目标。把一个目标变得可测量（营收、销售笔数或网站访问量，并设定日期），之后每周都会将它与一条从起点到您期望位置的直线路径进行对照。在最初八周内，或在我仍在观察期间，不做任何判断。"
     }
   },
@@ -4611,7 +4597,6 @@
     "signedOut": {
       "title": "请先登录。",
       "label": "我的工作方式",
-      "sheetTitle": "此页面会读取您的档案。",
       "signIn": "登录"
     },
     "none": {
@@ -4627,7 +4612,6 @@
       "answer": "回答核心问题"
     },
     "current": "当前",
-    "everyYes": "每一项提案仍需要您的同意",
     "a": {
       "label": "模式 A",
       "title": "先观察",

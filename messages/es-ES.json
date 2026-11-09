@@ -762,12 +762,11 @@
       "title": "Historial — SYB"
     },
     "kicker": "Su negocio · Historial",
-    "title": "El libro de registro. Solo admite añadidos.",
+    "title": "El libro de registro.",
     "reading": "Leyendo el registro…",
     "label": "Historial",
     "signedOut": {
       "title": "No hay nada registrado para este navegador.",
-      "lede": "El libro de registro existe en cuanto hay un negocio para el que llevarlo.",
       "start": "Empezar"
     },
     "failed": {
@@ -860,7 +859,7 @@
       "prior": " · anterior: {date}",
       "headUnit": "variación del beneficio / mes · si aplica {ref} · DERIVADO",
       "computed": "{computed} de {total}",
-      "computedUnit": "medidas calculadas · cada una explica por qué",
+      "computedUnit": "medidas calculadas",
       "diagnosis": "Diagnóstico",
       "noFindings": "no se señala ningún hallazgo",
       "notComputed": "{count, plural, one {<b>#</b> sin calcular} many {<b>#</b> sin calcular} other {<b>#</b> sin calcular}}",
@@ -895,6 +894,9 @@
       "basisNotRecorded": "base no registrada",
       "history": "Historial · valores sustituidos, nunca borrados",
       "noHistory": "Todavía no se ha sustituido ningún dato de entrada de esta cifra."
+    },
+    "fold": {
+      "how": "Cómo funciona"
     },
     "measure": {
       "blended_margin": {
@@ -970,7 +972,7 @@
       "show": "Mostrarlos"
     },
     "decline": {
-      "lede": "Opcional: ¿por qué no? Así aprendo qué no debo volver a proponer.",
+      "lede": "Opcional: ¿por qué no?",
       "chip": {
         "tried": "ya lo probamos antes",
         "market": "no es posible en mi mercado",
@@ -1015,14 +1017,14 @@
     "findings": {
       "label": "Hallazgos · lo más urgente primero",
       "none": "Nada que las pruebas respalden con la solidez suficiente como para señalarlo.",
-      "title": "{count, plural, one {# hallazgo, con sus pruebas.} many {# hallazgos, cada uno con sus pruebas.} other {# hallazgos, cada uno con sus pruebas.}}",
+      "title": "{count, plural, one {# hallazgo.} many {# hallazgos.} other {# hallazgos.}}",
       "measured": "medido",
       "measuredTitle": "Medido en su sitio web, no juzgado"
     },
     "recs": {
       "label": "Lo que yo haría al respecto",
       "none": "Aún no hay ninguna recomendación que los cálculos puedan respaldar.",
-      "title": "{count, plural, one {# recomendación, con su rango.} many {# recomendaciones, cada una con su rango.} other {# recomendaciones, cada una con su rango.}}"
+      "title": "{count, plural, one {# recomendación.} many {# recomendaciones.} other {# recomendaciones.}}"
     },
     "hours": {
       "label": "Horario comercial · OBSERVADO · {from} – {to}",
@@ -1033,7 +1035,6 @@
     },
     "gaps": {
       "label": "Qué afinaría esto",
-      "title": "El informe solo es tan bueno como aquello en lo que se basa.",
       "priority": "{priority, select, core {clave} important {importante} deep {a fondo} optional {opcional} other {{priority}}}",
       "blocking": "Bloqueante",
       "answer": "Responder ahora →"
@@ -1057,7 +1058,6 @@
       "confirming": "Esperando a que Stripe confirme su pago",
       "reading": "Leyendo su perfil: la solicitud está en curso",
       "readingLede": "El margen, el punto de equilibrio, los hallazgos y qué hacer al respecto. Suele tardar alrededor de un minuto; los cálculos se comprueban antes de que nada llegue a la página.",
-      "none": "Cuando haya respondido lo suficiente, leeré todo el perfil y pondré por escrito lo que pueda demostrar.",
       "readNow": "Leer mi perfil ahora →",
       "answerMore": "Responder más antes →",
       "payFailed": "no se ha podido iniciar el pago",
@@ -1068,7 +1068,6 @@
     },
     "share": {
       "label": "Compartir este informe",
-      "title": "Un enlace de solo lectura para un socio, una asesoría contable o un inversor.",
       "signedOut": "Inicie sesión para compartir su informe: un enlace que sale de SYB solo puede crearlo usted, así que necesita haber iniciado sesión.",
       "lede": "El enlace muestra este informe tal como está ahora, sin sus respuestas a las recomendaciones y sin nada que lleve a su cuenta. No cambia nunca una vez creado, y puede revocarlo aquí en cualquier momento.",
       "lasts": "Duración",
@@ -1102,13 +1101,12 @@
     },
     "kicker": "Su negocio · Ficha de datos",
     "titleEmpty": "El registro.",
-    "title": "{count, plural, one {# dato sobre {noun}. Indica de dónde procede.} many {# datos sobre {noun}. Cada uno indica de dónde procede.} other {# datos sobre {noun}. Cada uno indica de dónde procede.}}",
+    "title": "{count, plural, one {# dato sobre {noun}.} many {# datos sobre {noun}.} other {# datos sobre {noun}.}}",
     "yourBusiness": "su negocio",
     "noSession": "Todavía no hay ningún perfil en este dispositivo. <a>Empiece las preguntas</a> o abra el enlace que le envié.",
     "failed": "Algo ha fallado al cargar su perfil. Actualice la página para volver a intentarlo; no se pierde nada de lo que me ha contado.",
     "reading": "Leyendo su perfil…",
     "export": {
-      "label": "Para su asesoría contable",
       "current": "Datos económicos, CSV",
       "history": "Cifras anteriores, CSV"
     },
@@ -1121,7 +1119,6 @@
     },
     "recordLabel": "El registro",
     "search": "Buscar en el registro",
-    "searchPlaceholder": "p. ej., horario, precio, canales",
     "filterLabel": "Filtrar el registro",
     "filter": {
       "all": "Todo",
@@ -1138,11 +1135,9 @@
       "changed": "Este mes no se ha sustituido nada.",
       "none": "Todavía no hay nada registrado."
     },
-    "sectionFacts": "{count, plural, one {# dato} many {# datos} other {# datos}}",
     "sectionChanged": "{count, plural, one {# cambiado este mes} many {# cambiados este mes} other {# cambiados este mes}}",
     "noneRecorded": "nada registrado",
-    "competitorsLede": "Nómbrelos en la entrevista o déjeme buscarlos a partir de lo que ya me ha contado.",
-    "openMeta": "{count, plural, one {# pregunta · un hueco es un hallazgo, no un fallo} many {# preguntas · un hueco es un hallazgo, no un fallo} other {# preguntas · un hueco es un hallazgo, no un fallo}}",
+    "openMeta": "{count, plural, one {# pregunta} many {# preguntas} other {# preguntas}}",
     "foot": "Las líneas tachadas fueron ciertas hasta que llegó algo mejor. Nunca se borra nada del registro. Instantánea {id} · {date}.",
     "caption": "{section}: cada dato con su valor, su fuente, su base y la fecha desde la que es válido",
     "col": {
@@ -1152,7 +1147,6 @@
       "basis": "Base",
       "since": "Desde"
     },
-    "confirmDefault": "confirme para sustituir el valor predeterminado",
     "noted": "nota: {note}",
     "superseded": "sustituido el {date} por {kind, select, measurement {una medición más reciente} reading {una lectura más reciente} calculation {un cálculo más reciente} answer {una respuesta más reciente} other {un registro más reciente}}",
     "supersededWord": "Sustituido",
@@ -1222,9 +1216,8 @@
       "find": "Buscar a mis competidores →",
       "searchingFrom": "Buscando a partir de lo que me ha contado",
       "readingPages": "Leyendo sus páginas",
-      "found": "Encontrados buscando a partir de lo que me ha contado. No se guarda nada hasta que lo confirme.",
       "readingPagesNow": "Leyendo sus páginas…",
-      "thatsOne": "Ya hay uno: buscar su información →"
+      "thatsOne": "Añadir →"
     }
   },
   "watch": {
@@ -1235,7 +1228,6 @@
     "days": {
       "label": "Día de observación {day} de {of}",
       "started": "Empezó el {date}",
-      "legend": "Cada casilla rellena es un día de observación ya pasado. La que solo tiene el contorno es hoy.",
       "ends": "La observación termina el {date}"
     },
     "tally": {
@@ -1273,12 +1265,11 @@
     "noted": {
       "label": "Anotado, sin actuar",
       "title": "Lo que habría dicho",
-      "empty": "Aún nada. Cuando una cifra sale de su rango habitual, su horario muestra una señal o un competidor cambia un precio, lo anoto aquí, y no actúo en nada de ello.",
+      "empty": "Aún nada.",
       "day": "Día {day}"
     },
     "when": {
       "label": "Cuando termine la observación",
-      "foot": "La duración de la observación se fija en Cómo trabajo.",
       "link": "Cómo trabajo →",
       "ends": "La observación termina. El próximo informe lee todo lo que ha reunido.",
       "after": "después",
@@ -1288,7 +1279,6 @@
     },
     "activity": {
       "label": "Actividad",
-      "title": "Cada entrada es trabajo real",
       "empty": "Aún nada. Aquí aparecerá la primera instantánea semanal."
     },
     "rules": {
@@ -1298,7 +1288,6 @@
     },
     "modules": {
       "label": "Módulos",
-      "title": "Para cuando empiece a actuar",
       "name": "{module, select, marketing {marketing} sales {ventas} support {soporte} operations {operaciones} finance {finanzas} team {equipo} other {{module}}}",
       "analytics": "analítica, siempre activa",
       "rolesNotPeople": "{module, select, team {equipo} other {{module}}}, por funciones, no por personas",
@@ -1308,7 +1297,6 @@
       "label": "Correo semanal",
       "title": "Un resumen cada lunes",
       "switch": "enviarme la semana por correo",
-      "lede": "Lo que hice y encontré esa semana, y lo que le espera. Cada línea es una entrada de esta pantalla; si la semana ha sido tranquila, lo dice.",
       "signUp": "Regístrese y le llegará a la dirección con la que inicia sesión.",
       "off": "Desactivado. No se envía nada por correo; todo se queda en esta pantalla.",
       "notDecided": "Empieza en cuanto se decida Cómo trabajo.",
@@ -1360,7 +1348,6 @@
       "changes": "{count, plural, one {Día {day} de {of}. # cambio realizado, con su aprobación.} many {Día {day} de {of}. # cambios realizados, todos con su aprobación.} other {Día {day} de {of}. # cambios realizados, todos con su aprobación.}}"
     },
     "notes": {
-      "hold": "Mientras dure la observación no se ejecuta nada que yo pueda cambiar.",
       "readingEnds": "{count, plural, one {Leyendo # conexión cada día · la observación termina el {date}} many {Leyendo # conexiones cada día · la observación termina el {date}} other {Leyendo # conexiones cada día · la observación termina el {date}}}",
       "readingEnded": "{count, plural, one {Leyendo # conexión cada día · la observación terminó el {date}} many {Leyendo # conexiones cada día · la observación terminó el {date}} other {Leyendo # conexiones cada día · la observación terminó el {date}}}",
       "noneEnds": "No se está leyendo ninguna conexión · <a>Conexiones</a> · la observación termina el {date}",
@@ -2998,7 +2985,7 @@
     },
     "ask": {
       "title": "¿Dejar de recibir el resumen semanal por correo?",
-      "body": "Con un clic, se detiene. Los enlaces de inicio de sesión y los avisos de la pantalla Soporte no se ven afectados.",
+      "body": "Los enlaces de inicio de sesión y los avisos de la pantalla Soporte no se ven afectados.",
       "button": "Dejar de recibir estos correos"
     }
   },
@@ -3505,13 +3492,13 @@
       "connections": "Conexiones",
       "history": "Historial",
       "unconnected": "Todavía no hay ninguna conexión que mida {metric}. Conecte una y su historial llenará el gráfico y el punto de partida.",
-      "unchecked": "Todavía sin comprobar. La comprobación semanal lee cada lunes todos los objetivos medibles."
+      "unchecked": "La comprobación semanal lee cada lunes todos los objetivos medibles."
     },
     "card": {
       "label": "{metric} · para el {day}",
       "goal": "Objetivo",
       "untitled": "Un objetivo todavía sin palabras",
-      "notMeasurable": "Este objetivo todavía no es medible, así que no puedo decirle si va por su trayectoria. Indique la cifra que debería mover:",
+      "notMeasurable": "Indique la cifra que debería mover:",
       "raise": "Subir {metric}",
       "lower": "Bajar {metric}",
       "now": "Ahora",
@@ -3542,7 +3529,6 @@
     "setNew": "Fijar un objetivo nuevo →",
     "how": {
       "label": "Cómo funcionan los objetivos",
-      "title": "Indique un objetivo, con sus propias palabras",
       "copy": "Los objetivos se fijan en Contenido, donde cada pieza planificada nombra el objetivo al que sirve. Haga que uno sea medible (ingresos, número de ventas o visitas al sitio web, para una fecha) y cada semana se comprobará frente a una trayectoria recta desde donde empezó hasta donde usted quiere llevarlo. No se valora nada en las ocho primeras semanas ni mientras yo siga observando."
     }
   },
@@ -4611,7 +4597,6 @@
     "signedOut": {
       "title": "Inicie sesión primero.",
       "label": "Cómo trabajo",
-      "sheetTitle": "Esta pantalla lee su perfil.",
       "signIn": "Iniciar sesión"
     },
     "none": {
@@ -4627,7 +4612,6 @@
       "answer": "Responda a las preguntas básicas"
     },
     "current": "Actual",
-    "everyYes": "Cada propuesta sigue necesitando su sí",
     "a": {
       "label": "Modo A",
       "title": "Observar primero",

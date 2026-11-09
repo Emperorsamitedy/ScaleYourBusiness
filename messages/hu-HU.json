@@ -533,7 +533,7 @@
       "prior": " · előző: {date}",
       "headUnit": "nyereségváltozás / hó · ha ezt teszi: {ref} · SZÁMÍTOTT",
       "computed": "{computed} / {total}",
-      "computedUnit": "kiszámított mérőszám · mindegyik megmondja, miért",
+      "computedUnit": "kiszámított mérőszám",
       "diagnosis": "Diagnózis",
       "noFindings": "nincs kiemelt megállapítás",
       "notComputed": "{count, plural, one {<b>#</b> nincs kiszámítva} other {<b>#</b> nincs kiszámítva}}",
@@ -568,6 +568,9 @@
       "basisNotRecorded": "az alap nincs rögzítve",
       "history": "Előzmények · felváltva, soha nem törölve",
       "noHistory": "Ennek a számnak egyik bemenetét sem váltotta még fel újabb."
+    },
+    "fold": {
+      "how": "Hogyan működik"
     },
     "measure": {
       "blended_margin": {
@@ -643,7 +646,7 @@
       "show": "Megjelenítés"
     },
     "decline": {
-      "lede": "Nem kötelező — miért nem? Ebből tanulom meg, mit ne javasoljak újra.",
+      "lede": "Nem kötelező — miért nem?",
       "chip": {
         "tried": "ezt már kipróbáltuk",
         "market": "az én piacomon nem lehetséges",
@@ -688,14 +691,14 @@
     "findings": {
       "label": "Megállapítások · a legsürgősebb elöl",
       "none": "Nincs olyan, amit a bizonyítékok elég erősen alátámasztanának ahhoz, hogy kiemeljem.",
-      "title": "{count, plural, one {# megállapítás, mindegyik a bizonyítékaival.} other {# megállapítás, mindegyik a bizonyítékaival.}}",
+      "title": "{count, plural, one {# megállapítás.} other {# megállapítás.}}",
       "measured": "mért",
       "measuredTitle": "Az Ön oldalán mérve, nem megítélve"
     },
     "recs": {
       "label": "Mit tennék ellene",
       "none": "Még nincs olyan ajánlás, amelyet a számítás alátámasztana.",
-      "title": "{count, plural, one {# ajánlás, mindegyik a tartományával.} other {# ajánlás, mindegyik a tartományával.}}"
+      "title": "{count, plural, one {# ajánlás.} other {# ajánlás.}}"
     },
     "hours": {
       "label": "Nyitvatartás · MEGFIGYELT · {from} – {to}",
@@ -706,7 +709,6 @@
     },
     "gaps": {
       "label": "Mi tenné ezt pontosabbá",
-      "title": "A jelentés csak annyira jó, amennyire az, amire épül.",
       "priority": "{priority, select, core {alap} important {fontos} deep {mélyebb} optional {nem kötelező} other {{priority}}}",
       "blocking": "Akadályozó",
       "answer": "Válaszolok most →"
@@ -730,7 +732,6 @@
       "confirming": "Várakozás arra, hogy a Stripe megerősítse a fizetését",
       "reading": "A profil olvasása — a kérés folyamatban van",
       "readingLede": "Árrések, fedezeti pont, a megállapítások és a teendők. Ez általában körülbelül egy percig tart; a számításokat ellenőrizzük, mielőtt bármi megjelenne az oldalon.",
-      "none": "Ha már eleget válaszolt, átolvasom a teljes profilt, és leírom, amit bizonyítani tudok.",
       "readNow": "Kérem a profilom elemzését most →",
       "answerMore": "Előbb válaszolok még →",
       "payFailed": "a fizetést nem sikerült elindítani",
@@ -741,7 +742,6 @@
     },
     "share": {
       "label": "A jelentés megosztása",
-      "title": "Csak olvasható link üzlettársnak, könyvelőnek vagy befektetőnek.",
       "signedOut": "A jelentés megosztásához bejelentkezés szükséges — a SYB-ből kivezető linket csak Ön hozhatja létre.",
       "lede": "A link a jelentést a mostani állapotában mutatja, az ajánlásokra adott válaszai nélkül, és minden olyan elem nélkül, amely a fiókjába vezet. Létrehozása után soha nem változik, és itt bármikor visszavonhatja.",
       "lasts": "Érvényesség",
@@ -1008,13 +1008,12 @@
     },
     "kicker": "Az Ön vállalkozása · Ténylap",
     "titleEmpty": "A nyilvántartás.",
-    "title": "{count, plural, one {{noun}: # tény. Mindegyiknél látszik, honnan származik.} other {{noun}: # tény. Mindegyiknél látszik, honnan származik.}}",
+    "title": "{count, plural, one {{noun}: # tény.} other {{noun}: # tény.}}",
     "yourBusiness": "Az Ön vállalkozása",
     "noSession": "Ezen az eszközön még nincs profil. <a>Kezdje el a kérdéseket</a> — vagy nyissa meg a linket, amelyet elküldtem.",
     "failed": "Hiba történt a profil betöltésekor. Frissítse az oldalt az újrapróbáláshoz — semmi sem veszett el abból, amit elmondott.",
     "reading": "A profil olvasása…",
     "export": {
-      "label": "A könyvelőjének",
       "current": "Pénzügyi tények, CSV",
       "history": "Korábbi számok, CSV"
     },
@@ -1027,7 +1026,6 @@
     },
     "recordLabel": "A nyilvántartás",
     "search": "Keresés a nyilvántartásban",
-    "searchPlaceholder": "pl. nyitvatartás, ár, csatornák",
     "filterLabel": "A nyilvántartás szűrése",
     "filter": {
       "all": "Mind",
@@ -1044,11 +1042,9 @@
       "changed": "Ebben a hónapban semmit sem cseréltünk le.",
       "none": "Még nincs rögzítve semmi."
     },
-    "sectionFacts": "{count, plural, one {# tény} other {# tény}}",
     "sectionChanged": "{count, plural, one {# változott ebben a hónapban} other {# változott ebben a hónapban}}",
     "noneRecorded": "nincs rögzítve",
-    "competitorsLede": "Nevezze meg a versenytársait az interjúban, vagy hadd keressek rá abból, amit már elmondott.",
-    "openMeta": "{count, plural, one {# kérdés · a hiány is megállapítás, nem kudarc} other {# kérdés · a hiány is megállapítás, nem kudarc}}",
+    "openMeta": "{count, plural, one {# kérdés} other {# kérdés}}",
     "foot": "Az áthúzott sorok addig voltak érvényesek, amíg valami jobb nem érkezett. A nyilvántartásból soha semmi sem törlődik. Pillanatkép: {id} · {date}.",
     "caption": "{section}: minden tény az értékével, forrásával, alapjával és azzal a dátummal, amelytől érvényes",
     "col": {
@@ -1058,7 +1054,6 @@
       "basis": "Alap",
       "since": "Ettől"
     },
-    "confirmDefault": "erősítse meg, és lecseréljük az alapértelmezett értéket",
     "noted": "megjegyzés: {note}",
     "superseded": "felváltva ekkor: {date}, egy újabb {kind, select, measurement {mérés} reading {leolvasás} calculation {számítás} answer {válasz} other {bejegyzés}} által",
     "supersededWord": "Felváltva",
@@ -1128,9 +1123,8 @@
       "find": "Versenytársaim megkeresése →",
       "searchingFrom": "Keresés abból kiindulva, amit elmondott",
       "readingPages": "Az oldalaik olvasása",
-      "found": "Abból kiindulva találtam, amit elmondott. Semmit sem mentünk, amíg meg nem erősíti.",
       "readingPagesNow": "Az oldalaik olvasása…",
-      "thatsOne": "Egyet már ismerek — nézzen utána →"
+      "thatsOne": "Hozzáadás →"
     }
   },
   "watch": {
@@ -1141,7 +1135,6 @@
     "days": {
       "label": "Figyelés: {day}. nap / {of}",
       "started": "Kezdete: {date}",
-      "legend": "Minden kitöltött négyzet egy már eltelt figyelési nap. A körvonalas a mai.",
       "ends": "A figyelés vége: {date}"
     },
     "tally": {
@@ -1179,12 +1172,11 @@
     "noted": {
       "label": "Feljegyezve, nem cselekedtem",
       "title": "Amit mondtam volna",
-      "empty": "Még semmi. Ha egy szám kilép a szokásos tartományából, a nyitvatartása jelzést mutat, vagy egy versenytárs árat változtat, itt feljegyzem, de semmit sem teszek miatta.",
+      "empty": "Még semmi.",
       "day": "{day}. nap"
     },
     "when": {
       "label": "Amikor a figyelés véget ér",
-      "foot": "A figyelés hossza az „Ahogyan dolgozom” oldalon van beállítva.",
       "link": "Ahogyan dolgozom →",
       "ends": "A figyelés véget ér. A következő jelentés mindent beolvas, amit összegyűjtött.",
       "after": "utána",
@@ -1194,7 +1186,6 @@
     },
     "activity": {
       "label": "Tevékenység",
-      "title": "Minden bejegyzés valódi munka",
       "empty": "Még semmi. Az első heti pillanatkép itt jelenik meg."
     },
     "rules": {
@@ -1204,7 +1195,6 @@
     },
     "modules": {
       "label": "Modulok",
-      "title": "Arra az időre, amikor cselekedni kezdek",
       "name": "{module, select, marketing {marketing} sales {értékesítés} support {ügyféltámogatás} operations {működés} finance {pénzügyek} team {csapat} other {{module}}}",
       "analytics": "elemzés, mindig bekapcsolva",
       "rolesNotPeople": "{module, select, team {csapat} other {{module}}}: szerepkörök, nem személyek",
@@ -1214,7 +1204,6 @@
       "label": "Heti e-mail",
       "title": "Összefoglaló minden hétfőn",
       "switch": "kérem e-mailben a heti összefoglalót",
-      "lede": "Mit tettem és mit találtam azon a héten, és mi vár Önre. Minden sor egy bejegyzés ezen a képernyőn; ha csendes volt a hét, azt is megírja.",
       "signUp": "Regisztráljon, és arra a címre küldjük, amellyel bejelentkezik.",
       "off": "Kikapcsolva. Semmit sem küldünk e-mailben; minden ezen a képernyőn marad.",
       "notDecided": "Akkor indul, amikor az „Ahogyan dolgozom” beállítás eldőlt.",
@@ -1266,7 +1255,6 @@
       "changes": "{count, plural, one {{day}. nap / {of}. # változtatás történt, mindegyik jóváhagyva.} other {{day}. nap / {of}. # változtatás történt, mindegyik jóváhagyva.}}"
     },
     "notes": {
-      "hold": "Amíg a figyelés tart, semmi olyat nem futtatok, amivel bármit megváltoztatnék.",
       "readingEnds": "{count, plural, one {# összekapcsolt fiók napi beolvasása · a figyelés vége: {date}} other {# összekapcsolt fiók napi beolvasása · a figyelés vége: {date}}}",
       "readingEnded": "{count, plural, one {# összekapcsolt fiók napi beolvasása · a figyelés véget ért: {date}} other {# összekapcsolt fiók napi beolvasása · a figyelés véget ért: {date}}}",
       "noneEnds": "Egyetlen összekapcsolt fiókot sem olvasok be · <a>Összekapcsolt fiókok</a> · a figyelés vége: {date}",
@@ -1569,12 +1557,11 @@
       "title": "Előzmények — SYB"
     },
     "kicker": "Az Ön vállalkozása · Előzmények",
-    "title": "A napló. Csak hozzáfűzhető.",
+    "title": "A napló.",
     "reading": "A nyilvántartás olvasása…",
     "label": "Előzmények",
     "signedOut": {
       "title": "Ehhez a böngészőhöz nincs semmi rögzítve.",
-      "lede": "A napló akkor jön létre, amikor van vállalkozás, amelyhez vezetni lehet.",
       "start": "Kezdés"
     },
     "failed": {
@@ -2998,7 +2985,7 @@
     },
     "ask": {
       "title": "Leállítja a heti összefoglaló e-mailt?",
-      "body": "Egy kattintás, és leáll. A bejelentkezési linkeket és a Támogatás képernyő értesítéseit ez nem érinti.",
+      "body": "A bejelentkezési linkeket és a Támogatás képernyő értesítéseit ez nem érinti.",
       "button": "E-mailek leállítása"
     }
   },
@@ -3505,13 +3492,13 @@
       "connections": "Összekapcsolt fiókok",
       "history": "Előzmények",
       "unconnected": "Egyik összekapcsolt fiók sem méri még ezt: {metric}. Kapcsoljon össze egyet, és az előzményei kitöltik a grafikont és a kiindulópontot.",
-      "unchecked": "Még nincs ellenőrizve. A heti ellenőrzés hétfőnként minden mérhető célt beolvas."
+      "unchecked": "A heti ellenőrzés hétfőnként minden mérhető célt beolvas."
     },
     "card": {
       "label": "{metric} · határidő: {day}",
       "goal": "Cél",
       "untitled": "Egy cél, még szavak nélkül",
-      "notMeasurable": "Ez a cél még nem mérhető, így nem tudom megmondani, hogy a pályáján van-e. Nevezze meg a számot, amelyet mozdítania kell:",
+      "notMeasurable": "Nevezze meg a számot, amelyet mozdítania kell:",
       "raise": "{metric} növelése",
       "lower": "{metric} csökkentése",
       "now": "Most",
@@ -3542,7 +3529,6 @@
     "setNew": "Új cél kitűzése →",
     "how": {
       "label": "Hogyan működnek a célok",
-      "title": "Fogalmazzon meg egy célt a saját szavaival",
       "copy": "A célokat a Tartalom oldalon tűzheti ki, ahol minden tervezett darab megnevezi a célt, amelyet szolgál. Tegyen egyet mérhetővé (árbevétel, eladások száma vagy weboldal-látogatások, egy dátumig), és hetente összevetem egy egyenes pályával a kiindulási ponttól oda, ahová el szeretne jutni. Az első nyolc hétben, illetve amíg még figyelek, semmit sem ítélek meg."
     }
   },
@@ -4611,7 +4597,6 @@
     "signedOut": {
       "title": "Ehhez előbb bejelentkezés szükséges.",
       "label": "Ahogyan dolgozom",
-      "sheetTitle": "Ez a képernyő az Ön profilját olvassa.",
       "signIn": "Bejelentkezés"
     },
     "none": {
@@ -4627,7 +4612,6 @@
       "answer": "Válaszoljon az alapkérdésekre"
     },
     "current": "Érvényben",
-    "everyYes": "Minden javaslathoz továbbra is az Ön igenje kell",
     "a": {
       "label": "„A” mód",
       "title": "Előbb figyelés",

@@ -17,6 +17,7 @@ import { useTranslations } from "next-intl";
 import type { AppLocale } from "../../lib/i18n/locales";
 import { intlTag } from "../../lib/i18n/locales";
 import { SheetCard } from "../sheet/PageHead";
+import { WhyFold } from "../report/WhyFold";
 import { useAppLocale } from "../sheet/useTr";
 
 interface Device {
@@ -204,7 +205,7 @@ export function PhoneAlertsCard() {
 
   return (
     <SheetCard label={t("label")} title={t("title")}>
-      <p className="wt-why">{t("lede", { from: QUIET_FROM, to: QUIET_TO })}</p>
+      <WhyFold className="wt-fold">{t("lede", { from: QUIET_FROM, to: QUIET_TO })}</WhyFold>
       {status && <p className="wt-why">{status}</p>}
       {canSwitch && (
         <p className="wt-why">

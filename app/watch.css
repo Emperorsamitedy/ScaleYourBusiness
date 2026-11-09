@@ -71,9 +71,6 @@
   font-family: var(--f-mono);
   font-size: 12px;
 }
-.wt-days-cap span:nth-child(2) {
-  text-align: center;
-}
 
 /* ── the two-column body ── */
 
@@ -237,6 +234,9 @@
   font-size: 14px;
   color: var(--sheet-ink-2);
 }
+.wt-fold {
+  margin-top: 10px;
+}
 /* P5-18: the team switch, apart from the "for when I start acting" ones */
 .wt-module-now {
   margin-top: 14px;
@@ -326,11 +326,6 @@
   }
   .wt-days-cap {
     flex-wrap: wrap;
-  }
-  .wt-days-cap span:nth-child(2) {
-    order: 3;
-    flex-basis: 100%;
-    text-align: left;
   }
   .wt-notes li,
   .wt-when li {

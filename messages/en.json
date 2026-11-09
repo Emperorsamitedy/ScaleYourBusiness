@@ -533,7 +533,7 @@
       "prior": " · prior {date}",
       "headUnit": "profit change / month · if you do {ref} · DERIVED",
       "computed": "{computed} of {total}",
-      "computedUnit": "measures computed · each one says why",
+      "computedUnit": "measures computed",
       "diagnosis": "Diagnosis",
       "noFindings": "no findings called out",
       "notComputed": "{count, plural, one {<b>#</b> not computed} other {<b>#</b> not computed}}",
@@ -568,6 +568,9 @@
       "basisNotRecorded": "basis not recorded",
       "history": "History · superseded, never erased",
       "noHistory": "No input of this figure has been superseded yet."
+    },
+    "fold": {
+      "how": "How this works"
     },
     "measure": {
       "blended_margin": {
@@ -643,7 +646,7 @@
       "show": "Show them"
     },
     "decline": {
-      "lede": "Optional — why not? This teaches me what not to propose again.",
+      "lede": "Optional — why not?",
       "chip": {
         "tried": "we tried this before",
         "market": "not possible in my market",
@@ -688,14 +691,14 @@
     "findings": {
       "label": "Findings · most urgent first",
       "none": "Nothing the evidence supports strongly enough to call out.",
-      "title": "{count, plural, one {# finding, each with its evidence.} other {# findings, each with its evidence.}}",
+      "title": "{count, plural, one {# finding.} other {# findings.}}",
       "measured": "measured",
       "measuredTitle": "Measured on your site, not judged"
     },
     "recs": {
       "label": "What I'd do about it",
       "none": "No recommendation the arithmetic can back yet.",
-      "title": "{count, plural, one {# recommendation, each with its range.} other {# recommendations, each with its range.}}"
+      "title": "{count, plural, one {# recommendation.} other {# recommendations.}}"
     },
     "hours": {
       "label": "Trading hours · OBSERVED · {from} – {to}",
@@ -706,7 +709,6 @@
     },
     "gaps": {
       "label": "What would sharpen this",
-      "title": "The report is only as good as what it rests on.",
       "priority": "{priority, select, core {core} important {important} deep {deep} optional {optional} other {{priority}}}",
       "blocking": "Blocking",
       "answer": "Answer now →"
@@ -730,7 +732,6 @@
       "confirming": "Waiting for Stripe to confirm your payment",
       "reading": "Reading your profile — the request is running",
       "readingLede": "Margins, break-even, the findings and what to do about them. This usually takes about a minute; the arithmetic is checked before anything reaches the page.",
-      "none": "When you've answered enough, I read the whole profile and write up what I can prove.",
       "readNow": "Read my profile now →",
       "answerMore": "Answer more first →",
       "payFailed": "payment could not be started",
@@ -741,7 +742,6 @@
     },
     "share": {
       "label": "Share this report",
-      "title": "A read-only link for a partner, an accountant or an investor.",
       "signedOut": "Sign in to share your report — a link that leaves SYB is yours to make, so it needs you signed in.",
       "lede": "The link shows this report as it is now, without your answers to the recommendations and without anything that leads into your account. It never changes after it is made, and you can revoke it here at any time.",
       "lasts": "Lasts",
@@ -1008,13 +1008,12 @@
     },
     "kicker": "Your business · Fact sheet",
     "titleEmpty": "The record.",
-    "title": "{count, plural, one {# fact about {noun}. Every one shows where it came from.} other {# facts about {noun}. Every one shows where it came from.}}",
+    "title": "{count, plural, one {# fact about {noun}.} other {# facts about {noun}.}}",
     "yourBusiness": "your business",
     "noSession": "There’s no profile on this device yet. <a>Start the questions</a> — or open the link I sent you.",
     "failed": "Something went wrong loading your profile. Refresh to try again — nothing you told me is lost.",
     "reading": "Reading your profile…",
     "export": {
-      "label": "For your accountant",
       "current": "Money facts, CSV",
       "history": "Earlier figures, CSV"
     },
@@ -1027,7 +1026,6 @@
     },
     "recordLabel": "The record",
     "search": "Search the record",
-    "searchPlaceholder": "e.g. hours, price, channels",
     "filterLabel": "Filter the record",
     "filter": {
       "all": "All",
@@ -1044,11 +1042,9 @@
       "changed": "Nothing was replaced this month.",
       "none": "Nothing recorded yet."
     },
-    "sectionFacts": "{count, plural, one {# fact} other {# facts}}",
     "sectionChanged": "{count, plural, one {# changed this month} other {# changed this month}}",
     "noneRecorded": "none recorded",
-    "competitorsLede": "Name them in the interview, or let me search from what you’ve already told me.",
-    "openMeta": "{count, plural, one {# question · a gap is a finding, not a failure} other {# questions · a gap is a finding, not a failure}}",
+    "openMeta": "{count, plural, one {# question} other {# questions}}",
     "foot": "Struck-through lines were true until something better came in. Nothing in the record is ever deleted. Snapshot {id} · {date}.",
     "caption": "{section}: every fact with its value, source, basis and the date it holds from",
     "col": {
@@ -1058,7 +1054,6 @@
       "basis": "Basis",
       "since": "Since"
     },
-    "confirmDefault": "confirm to replace the default",
     "noted": "noted: {note}",
     "superseded": "superseded {date} by a newer {kind, select, measurement {measurement} reading {reading} calculation {calculation} answer {answer} other {record}}",
     "supersededWord": "Superseded",
@@ -1128,9 +1123,8 @@
       "find": "Find my competitors →",
       "searchingFrom": "Searching from what you told me",
       "readingPages": "Reading their pages",
-      "found": "Found by searching from what you told me. Nothing is saved until you confirm.",
       "readingPagesNow": "Reading their pages…",
-      "thatsOne": "That's one — look them up →"
+      "thatsOne": "Add →"
     }
   },
   "watch": {
@@ -1141,7 +1135,6 @@
     "days": {
       "label": "Watch day {day} of {of}",
       "started": "Started {date}",
-      "legend": "Each filled square is a watch day gone by. The outlined one is today.",
       "ends": "Watch ends {date}"
     },
     "tally": {
@@ -1179,12 +1172,11 @@
     "noted": {
       "label": "Noted, not acted on",
       "title": "What I would have said",
-      "empty": "Nothing yet. When a figure leaves its usual range, your hours show a signal, or a competitor changes a price, I note it here, and act on none of it.",
+      "empty": "Nothing yet.",
       "day": "Day {day}"
     },
     "when": {
       "label": "When the watch ends",
-      "foot": "The watch's length is set on How I work.",
       "link": "How I work →",
       "ends": "The watch ends. The next report reads everything it gathered.",
       "after": "after",
@@ -1194,7 +1186,6 @@
     },
     "activity": {
       "label": "Activity",
-      "title": "Every entry is real work",
       "empty": "Nothing yet. The first weekly snapshot will appear here."
     },
     "rules": {
@@ -1204,7 +1195,6 @@
     },
     "modules": {
       "label": "Modules",
-      "title": "For when I start acting",
       "name": "{module, select, marketing {marketing} sales {sales} support {support} operations {operations} finance {finance} team {team} other {{module}}}",
       "analytics": "analytics, always on",
       "rolesNotPeople": "{module, select, team {team} other {{module}}}, roles not people",
@@ -1214,7 +1204,6 @@
       "label": "Weekly email",
       "title": "A summary every Monday",
       "switch": "email me the week",
-      "lede": "What I did and found that week, and what is waiting for you. Every line is an entry on this screen; a quiet week says so.",
       "signUp": "Sign up, and it goes to the address you sign in with.",
       "off": "Off. Nothing is emailed; everything stays on this screen.",
       "notDecided": "It starts once How I work is decided.",
@@ -1266,7 +1255,6 @@
       "changes": "{count, plural, one {Day {day} of {of}. # change made, each one approved.} other {Day {day} of {of}. # changes made, each one approved.}}"
     },
     "notes": {
-      "hold": "Nothing I could change runs while the watch lasts.",
       "readingEnds": "{count, plural, one {Reading # connection every day · watch ends {date}} other {Reading # connections every day · watch ends {date}}}",
       "readingEnded": "{count, plural, one {Reading # connection every day · watch ended {date}} other {Reading # connections every day · watch ended {date}}}",
       "noneEnds": "No connection is being read · <a>Connections</a> · watch ends {date}",
@@ -1569,12 +1557,11 @@
       "title": "History — SYB"
     },
     "kicker": "Your business · History",
-    "title": "The ledger. Append-only.",
+    "title": "The ledger.",
     "reading": "Reading the record…",
     "label": "History",
     "signedOut": {
       "title": "Nothing on file for this browser.",
-      "lede": "The ledger exists once there is a business to keep it for.",
       "start": "Start"
     },
     "failed": {
@@ -2998,7 +2985,7 @@
     },
     "ask": {
       "title": "Stop the weekly summary email?",
-      "body": "One click and it stops. Sign-in links and the Support screen’s notices are not affected.",
+      "body": "Sign-in links and the Support screen’s notices are not affected.",
       "button": "Stop these emails"
     }
   },
@@ -3505,13 +3492,13 @@
       "connections": "Connections",
       "history": "History",
       "unconnected": "No connection measures {metric} yet. Connect one and its history fills the chart and the starting point.",
-      "unchecked": "Not checked yet. The weekly check reads every measurable goal on Monday."
+      "unchecked": "The weekly check reads every measurable goal on Monday."
     },
     "card": {
       "label": "{metric} · by {day}",
       "goal": "Goal",
       "untitled": "A goal without words yet",
-      "notMeasurable": "This goal isn't measurable yet, so I can't tell you whether it's on its path. Name the number it should move:",
+      "notMeasurable": "Name the number it should move:",
       "raise": "Raise {metric}",
       "lower": "Lower {metric}",
       "now": "Now",
@@ -3542,7 +3529,6 @@
     "setNew": "Set a new goal →",
     "how": {
       "label": "How goals work",
-      "title": "State one goal, in your own words",
       "copy": "Goals are set on Content, where every planned piece names the goal it serves. Make one measurable (revenue, number of sales or website visits, by a date) and each week it is checked against a straight path from where it started to where you want it. Nothing is judged in the first eight weeks or while I'm still watching."
     }
   },
@@ -4611,7 +4597,6 @@
     "signedOut": {
       "title": "Sign in first.",
       "label": "How I work",
-      "sheetTitle": "This screen reads your profile.",
       "signIn": "Sign in"
     },
     "none": {
@@ -4627,7 +4612,6 @@
       "answer": "Answer the core questions"
     },
     "current": "Current",
-    "everyYes": "Every proposal still needs your yes",
     "a": {
       "label": "Mode A",
       "title": "Watch first",

@@ -13,6 +13,10 @@
   max-width: var(--measure);
   color: var(--sheet-ink-2);
 }
+.md-fold {
+  margin: 0 0 15px;
+  max-width: var(--measure);
+}
 
 .md-grid {
   display: grid;
