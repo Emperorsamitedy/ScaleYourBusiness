@@ -77,31 +77,16 @@
       "choose": "选择企业 — SYB"
     },
     "mast": {
-      "haveAccount": "已有账户？",
       "signIn": "登录",
       "createAccount": "创建账户"
     },
     "signup": {
-      "kicker": "建立新档案",
-      "headline": "从诊断开始。",
-      "stepsHead": "此页面之后的流程",
-      "step1": "关联您的账户（只读）",
-      "step2": "回答核心问题",
-      "step3": "我们解读您的数据并签署报告",
-      "takesMinutes": "{minutes} 分钟",
-      "takesAboutMinutes": "约 {minutes} 分钟",
-      "takesDays": "{days} 天",
-      "takesDaysPending": "[{days}] 天"
+      "headline": "从诊断开始。"
     },
     "signin": {
-      "kicker": "档案已就绪",
-      "headline": "回到您的面板。",
-      "point1": "未经您的批准，您的企业中不会执行任何操作。",
-      "point2": "每个数字都标明了来源。",
-      "point3": "任何记录都不会被删除——旧事实会被取代并保留。"
+      "headline": "回到您的面板。"
     },
     "sent": {
-      "label": "请查收邮件",
       "titleBelow": "您的链接在下方",
       "titleSent": "链接已发送",
       "onScreen": "此处未配置电子邮件，因此您的一次性链接显示在下方。链接将在 {minutes} 分钟后失效。",
@@ -114,8 +99,6 @@
     "form": {
       "labelCreate": "创建账户",
       "labelSignIn": "登录",
-      "titleCreate": "建立您企业的档案",
-      "titleSignIn": "欢迎回来",
       "email": "工作邮箱",
       "emailPlaceholder": "name@example.cn",
       "website": "网站",
@@ -128,38 +111,31 @@
       "noteSignin": "无需密码。该链接仅可使用一次，有效期 {minutes} 分钟。",
       "orSignup": "或使用以下方式注册",
       "orSignin": "或使用以下方式继续",
-      "terms": "创建账户即表示您同意<terms>使用条款</terms>和<privacy>隐私声明</privacy>。",
-      "newHere": "首次使用 SYB？请在右上角创建账户。"
+      "terms": "创建账户即表示您同意<terms>使用条款</terms>和<privacy>隐私声明</privacy>。"
     },
     "confirm": {
-      "kicker": "登录",
       "headline": "还差一步。",
-      "label": "确认",
       "title": "以 {email} 的身份登录？",
       "sentTo": "此链接已发送至 <b>{email}</b>。",
       "button": "登录",
       "note": "这不是您的地址？请关闭此页面。可能有人把自己的链接发给了您；只要您不按下按钮，就不会发生任何事情。",
       "expiredHeadline": "该链接已失效。",
       "expiredMessage": "登录链接仅可使用一次，并在 {minutes} 分钟后失效。请重新申请，新链接很快就会送达。",
-      "linkLabel": "链接",
-      "linkDead": "此链接已无法使用",
       "newLink": "通过邮件发送新的登录链接"
     },
     "choose": {
       "signedInAs": "已登录：{email}",
       "headline": "要打开哪个企业？",
-      "label": "您的企业",
-      "title": "选择一个打开。您可以随时从菜单切换。",
       "add": "添加其他企业",
       "foot": "每个企业都有各自的事实、团队和账单。一个企业的任何信息都不会出现在另一个企业中。"
-    }
+    },
+    "how": "运作方式",
+    "why": "为什么？"
   },
   "locale": {
     "meta": "语言和货币 — SYB",
     "first": {
-      "kicker": "开始之前",
-      "headline": "请选择您的语言和货币。",
-      "lede": "我将用这种语言与您交流。您企业的所有数字都以这种货币显示，且绝不会在货币之间换算。"
+      "headline": "请选择您的语言和货币。"
     },
     "yourLanguage": "您的语言",
     "yourLanguageHelp": "您阅读 SYB 所用的语言。团队中的每个人各自选择。",
@@ -213,14 +189,12 @@
       "inProgress": "进行中"
     },
     "bank": {
-      "title": "频道总览",
       "now": "频道 {channel} · {area} · <fig>{pct}%</fig>",
-      "none": "您的企业，逐个方面测量",
       "done": "已完成 <fig>{done}</fig> / {total}",
       "hide": "收起频道",
       "all": "全部频道",
       "legendOwner": "来自您",
-      "legendMeasured": "读取自 {connector} · 顺序随意",
+      "legendMeasured": "读取自 {connector}",
       "tileChannel": "频道 {channel}",
       "tilePct": "{pct}%",
       "tileWords": "频道 {channel}，{area}：{status}，已回答 {pct}% — {bars}。",
@@ -236,13 +210,9 @@
       }
     },
     "mast": {
-      "sub": "正在校准记录",
       "saving": "正在保存…",
-      "listening": "聆听中",
-      "sessionTitle": "自打开此页面以来的分钟数",
-      "session": "本次 · <fig>{minutes}</fig> 分钟",
       "facts": "{count, plural, other {已记录 <fig>#</fig> 项事实}}",
-      "pause": "暂停，稍后继续"
+      "pause": "稍后继续"
     },
     "pause": {
       "title": "暂停 · 稍后继续",
@@ -264,7 +234,6 @@
       "reopened": "已重新打开。该问题回到了左侧。"
     },
     "done": {
-      "cap": "访谈 · 已完成",
       "title": "访谈已完成。",
       "lede": "我已经有足够的记录，可以对您的企业做初步解读。更深入的问题会在您看过第一份报告之后再问。",
       "answers": "已记录的回答",
@@ -293,9 +262,6 @@
       "emptyUnknown": "请回答此问题，或选择“无读数 — 我不知道”继续。",
       "emptySkip": "请回答此问题，或选择“暂时跳过”继续。",
       "entityEmpty": "至少填写一行的第一个字段才能记录。",
-      "hintText": "按 {modifier} + Enter 记录",
-      "hintEnter": "按 Enter 记录",
-      "hintKeys": "按 {first}–{last} 键选择",
       "speak": "语音回答",
       "spokenAfter": "请检查一遍并修改，然后按“下一题”记录。",
       "fileStub": "上传功能将在后续版本推出",
@@ -306,7 +272,6 @@
       "exact": "精确<sr>金额，{currency}</sr>",
       "estimate": "这是估计值",
       "estimated": "已标记为估计值",
-      "basis": "依据：估计",
       "which": "您指的是哪一个？",
       "unreadable": "这看起来不像数字。请使用数字，小数可用逗号或小数点。"
     },
@@ -319,10 +284,9 @@
       "addRow": "再添加一行"
     },
     "record": {
-      "cap": "记录 · 最新在前",
       "channelTitle": "频道 {channel} · {area}",
       "facts": "{count, plural, other {<fig>#</fig> 项事实}}",
-      "empty": "此方面暂无记录。每个回答都会连同来源记录在这里。",
+      "empty": "此方面暂无记录。",
       "listLabel": "{area}中已记录的事实",
       "srAnswer": "现在回答",
       "srChange": "修改此回答",
@@ -381,15 +345,13 @@
       "factsOnFile": "{count, plural, other {已记录 # 项事实}}"
     },
     "live": {
-      "cap": "实时读数 · 随回答变化",
       "dial": "{label}：{value}%（刻度 {min}–{max}）",
       "dialStated": "{label}：{value}%（刻度 {min}–{max}）；您陈述的是 {stated}%",
       "noRange": "暂无参考范围",
       "stated": "您陈述的是 <fig>{value} %</fig>",
       "foot": "<strong>推导</strong> · {formula} · 基于 {inputs, plural, other {<fig>#</fig> 项已记录的事实}}",
       "readiness": "报告就绪度",
-      "readinessPct": "{pct} %",
-      "readinessNote": "每个回答都会缩小报告中的范围"
+      "readinessPct": "{pct} %"
     },
     "reconcile": {
       "flag": "待核对",
@@ -397,18 +359,10 @@
       "implausible": "有一个回答超出常见范围",
       "gap": "缺少一个回答",
       "stale": "有一个回答可能已过时",
-      "kind": {
-        "contradiction": "矛盾",
-        "implausible": "不合理",
-        "gap": "空缺",
-        "stale": "过时"
-      },
-      "note": "我不会替您选择。请确认两者都正确，或修改其中一个。",
       "confirm": "确认两者都正确",
       "fix": "修改其中一个"
     },
     "tape": {
-      "head": "记录带",
       "label": "记录带：已记录的事实，最新在前"
     },
     "keep": {
@@ -449,7 +403,9 @@
       "unknown_field": "该列表中没有名为“{field}”的字段",
       "finding_not_open": "这一项已经处理过了",
       "invalid": "该回答无法记录"
-    }
+    },
+    "how": "运作方式",
+    "why": "为什么？"
   },
   "voice": {
     "speak": "语音输入",
@@ -2654,7 +2610,6 @@
       "signIn": "登录"
     },
     "hero": {
-      "pill": "为您的企业做一次验血",
       "titleA": "您的企业看起来很健康。",
       "titleB": "<em>它的数字</em>却未必。",
       "lede": "我们对您的销售、预约、付款和广告进行 {checks} 项检查，以欧元为每一处漏洞标价，并在 {daysText} {days, plural, other {天}}内交给您一份签字报告。",
@@ -2665,12 +2620,9 @@
       "trustRefund": "如果我们什么也没发现，全额退款"
     },
     "chart": {
-      "kicker": "图表",
-      "title": "像看股票一样读懂您的企业。",
-      "aside": "我们标出每一处漏洞开始的那一天——并用阴影标出它让您损失了多少。"
+      "title": "像看股票一样读懂您的企业。"
     },
     "panels": {
-      "kicker": "我们检测什么",
       "title": "九组检测。涵盖影响您利润的一切。",
       "p01": {
         "name": "转化",
@@ -2710,7 +2662,6 @@
       }
     },
     "steps": {
-      "kicker": "运作方式",
       "title": "您只需付出十五分钟。",
       "whenMinutes": "第 {day} 天 · {minutes} 分钟",
       "whenDay": "第 {day} 天",
@@ -2728,7 +2679,6 @@
       }
     },
     "price": {
-      "kicker": "价格",
       "titleA": "一次检测。",
       "titleB": "一个价格。",
       "card": "企业全套检测",
@@ -2976,9 +2926,7 @@
   },
   "resume": {
     "meta": "继续 — SYB",
-    "kicker": "您的访谈",
     "headline": "从上次停下的地方继续。",
-    "label": "确认",
     "title": "要继续这次访谈吗？",
     "button": "继续",
     "note": "这不是您申请的链接？请关闭此页面。只要您不按下按钮，此浏览器中就不会有任何变化。",
@@ -6086,16 +6034,13 @@
     "meta": {
       "title": "您的邀请 — SYB"
     },
-    "kicker": "团队邀请",
-    "label": "邀请",
     "someBusiness": "SYB 上的一家企业",
     "headline": {
       "join": "加入 {where}。",
       "bad": "这个邀请无效。"
     },
     "title": {
-      "as": "身份：{role, select, owner {所有者} manager {经理} other {查看者}}，发给 {email}",
-      "none": "这里没有邀请"
+      "as": "身份：{role, select, owner {所有者} manager {经理} other {查看者}}，发给 {email}"
     },
     "unknown": "这个链接不是我认识的邀请。请向发送者要一个新的。",
     "status": {
@@ -6105,7 +6050,6 @@
     },
     "askNew": "请向发送者要一个新的。",
     "wrong": "这个邀请是发给 <b>{invited}</b> 的，而您登录的是 <b>{signedIn}</b>。我不会把错误的人加进来：请退出登录，然后再次打开这个链接。",
-    "signedIn": "您已登录为 <b>{email}</b>。要以{role, select, owner {所有者} manager {经理} other {查看者}}身份加入 {where} 吗？",
     "signIn": "您将以 <b>{email}</b> 登录，也就是这个邀请所针对的地址。我会把登录链接发到那里；打开它就会把您加入团队。",
     "foot": "在您按下按钮之前，什么都不会发生。不是您的地址？请关闭此页面。",
     "footLink": "登录 SYB",
@@ -6114,7 +6058,6 @@
       "devLink": "这里尚未设置电子邮件（开发环境），所以登录链接在这里：",
       "emailed": "我已把登录链接发送到 {email}。在那里打开它，您就会加入。",
       "signOut": "退出登录",
-      "thenAsks": "然后此页面会以 {email} 的身份再次询问您。",
       "join": "加入",
       "emailLink": "把登录链接发送到 {email}",
       "signInJoin": "登录并加入"

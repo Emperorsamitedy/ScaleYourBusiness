@@ -183,12 +183,6 @@
 .ix-pause-panel > div:first-child {
   flex: 1 1 320px;
 }
-.ix-pause-lede {
-  margin: 6px 0 0;
-  max-width: var(--measure);
-  font-size: 14px;
-  color: var(--sheet-ink-2);
-}
 .ix-pause-panel .ix-finish,
 .ix-pause-panel .ix-linkbox {
   flex: 1 1 380px;
@@ -229,10 +223,6 @@
 .ix-bank-fold:hover,
 .ix-bank-fold:focus-visible {
   border-color: var(--desk-ink-2);
-}
-.ix-bank-title {
-  color: var(--desk-ink);
-  font-weight: 600;
 }
 .ix-bank-now {
   color: var(--desk-ink);
@@ -973,10 +963,6 @@ button.ix-tile:disabled {
   color: var(--sheet-ink-2);
   text-decoration-style: dashed;
 }
-.ix-hint {
-  margin-top: 8px !important;
-  text-align: right;
-}
 
 /* ── the right-hand cards ── */
 
@@ -1310,14 +1296,6 @@ button.ix-tile:disabled {
 .ix-tape::after {
   bottom: -3px;
 }
-.ix-tape-head {
-  flex: none;
-  font-family: var(--f-mono);
-  font-size: 12.5px;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-}
 .ix-tape-line {
   display: flex;
   min-width: 0;
@@ -1361,12 +1339,6 @@ button.ix-tile:disabled {
   font-size: 14px;
 }
 
-.ix-done-lede {
-  margin: 0 0 15px;
-  max-width: var(--measure);
-  font-size: 15px;
-  color: var(--sheet-ink-2);
-}
 .ix-readout {
   display: grid;
   grid-template-columns: max-content 1fr;
@@ -1516,4 +1488,37 @@ button.ix-tile:disabled {
   .ix-tape-line {
     font-size: 12px;
   }
+}
+
+/* Folded detail (decluttered 2026-11-09, owner's instruction): a question's
+   purpose, how a figure was worked out, a lede or an error's reason sit
+   behind one closed disclosure per card. */
+.ix-how {
+  margin: 12px 0 0;
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--sheet-ink-2);
+}
+.ix-how summary {
+  cursor: pointer;
+  width: fit-content;
+  font-family: var(--f-mono);
+  font-size: 12px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--sheet-ink-2);
+}
+.ix-how summary:hover {
+  color: var(--sheet-ink);
+}
+.ix-how summary:focus-visible {
+  outline: 2px solid var(--sheet-ink);
+  outline-offset: 2px;
+}
+.ix-how p {
+  margin: 8px 0 0;
+  max-width: var(--measure);
+}
+.ix-q-foot .ix-how {
+  margin: 0;
 }

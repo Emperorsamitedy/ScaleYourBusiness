@@ -17,6 +17,9 @@
 //
 // The design's CONFIRM button is not drawn: nothing in the record has an
 // "imported, awaiting confirmation" status for it to act on.
+//
+// Decluttered 2026-11-09 on the owner's instruction: no "The record ·
+// newest first" caption, and the empty line is one sentence.
 
 import { useState } from "react";
 import type { ReactNode } from "react";
@@ -117,7 +120,6 @@ export function RecordSheet({
   return (
     <section className="ix-card ix-rec" aria-labelledby="ix-rec-h">
       <header className="ix-card-head">
-        <p className="ix-cap">{t("cap")}</p>
         <div className="ix-card-titlerow">
           <h2 className="ix-card-title" id="ix-rec-h">
             {title}

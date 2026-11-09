@@ -30,9 +30,7 @@ export default async function ConfirmResumePage({
     return (
       <ConfirmLink
         ok
-        kicker={t("kicker")}
         headline={t("headline")}
-        label={t("label")}
         title={t("title")}
         email={email}
         action={`/resume/${encodeURIComponent(token)}`}
@@ -43,13 +41,6 @@ export default async function ConfirmResumePage({
     );
   } catch (error) {
     if (!(error instanceof ResumeError)) throw error;
-    return (
-      <ConfirmLink
-        ok={false}
-        kicker={t("kicker")}
-        headline={t("deadHeadline")}
-        message={t("deadMessage")}
-      />
-    );
+    return <ConfirmLink ok={false} headline={t("deadHeadline")} message={t("deadMessage")} />;
   }
 }

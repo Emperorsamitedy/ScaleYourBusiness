@@ -77,31 +77,16 @@
       "choose": "Quelle entreprise ? — SYB"
     },
     "mast": {
-      "haveAccount": "Vous avez déjà un compte ? ",
       "signIn": "Se connecter",
       "createAccount": "Créer un compte"
     },
     "signup": {
-      "kicker": "Ouvrir un nouveau dossier",
-      "headline": "Commencez par le diagnostic.",
-      "stepsHead": "Ce qui se passe après cet écran",
-      "step1": "Connectez vos comptes, en lecture seule",
-      "step2": "Répondez aux questions essentielles",
-      "step3": "Nous lisons vos chiffres et signons le rapport",
-      "takesMinutes": "{minutes} min",
-      "takesAboutMinutes": "environ {minutes} min",
-      "takesDays": "{days, plural, one {# jour} many {# jours} other {# jours}}",
-      "takesDaysPending": "[{days}] {days, plural, one {jour} many {jours} other {jours}}"
+      "headline": "Commencez par le diagnostic."
     },
     "signin": {
-      "kicker": "Le dossier vous attend",
-      "headline": "De retour sur votre tableau de bord.",
-      "point1": "Rien ne s’exécute dans votre entreprise sans votre validation.",
-      "point2": "Chaque chiffre indique d’où il vient.",
-      "point3": "Rien n’est jamais effacé — les anciens faits sont remplacés et conservés."
+      "headline": "De retour sur votre tableau de bord."
     },
     "sent": {
-      "label": "Consultez vos e-mails",
       "titleBelow": "Votre lien est ci-dessous",
       "titleSent": "Lien envoyé",
       "onScreen": "L’envoi d’e-mails n’est pas configuré ici, votre lien à usage unique figure donc ci-dessous. Il expire dans {minutes, plural, one {# minute} many {# minutes} other {# minutes}}.",
@@ -114,8 +99,6 @@
     "form": {
       "labelCreate": "Créer un compte",
       "labelSignIn": "Connexion",
-      "titleCreate": "Ouvrez le dossier de votre entreprise",
-      "titleSignIn": "Bon retour parmi nous",
       "email": "E-mail professionnel",
       "emailPlaceholder": "vous@votreentreprise.fr",
       "website": "Site web",
@@ -128,38 +111,31 @@
       "noteSignin": "Pas de mot de passe. Le lien fonctionne une seule fois, pendant {minutes, plural, one {# minute} many {# minutes} other {# minutes}}.",
       "orSignup": "Ou inscrivez-vous avec",
       "orSignin": "Ou continuez avec",
-      "terms": "En créant un compte, vous acceptez les <terms>conditions d’utilisation</terms> et la <privacy>politique de confidentialité</privacy>.",
-      "newHere": "Nouveau sur SYB ? Créez un compte en haut à droite."
+      "terms": "En créant un compte, vous acceptez les <terms>conditions d’utilisation</terms> et la <privacy>politique de confidentialité</privacy>."
     },
     "confirm": {
-      "kicker": "Connexion",
       "headline": "Encore une étape.",
-      "label": "Confirmer",
       "title": "Se connecter en tant que {email} ?",
       "sentTo": "Ce lien a été envoyé à <b>{email}</b>.",
       "button": "Se connecter",
       "note": "Ce n’est pas votre adresse ? Fermez cette page. Quelqu’un vous a peut-être envoyé son propre lien, et rien ne se passe tant que vous n’appuyez pas sur le bouton.",
       "expiredHeadline": "Ce lien a expiré.",
       "expiredMessage": "Les liens de connexion fonctionnent une seule fois et expirent au bout de {minutes, plural, one {# minute} many {# minutes} other {# minutes}}. Demandez-en un nouveau : il arrivera dans un instant.",
-      "linkLabel": "Lien",
-      "linkDead": "Ce lien ne fonctionne plus",
       "newLink": "Recevoir un nouveau lien de connexion par e-mail"
     },
     "choose": {
       "signedInAs": "Compte connecté : {email}",
       "headline": "Quelle entreprise ?",
-      "label": "Vos entreprises",
-      "title": "Choisissez celle à ouvrir. Vous pouvez en changer à tout moment depuis le menu.",
       "add": "Ajouter une autre entreprise",
       "foot": "Chaque entreprise conserve ses propres faits, son équipe et sa facture. Rien de l’une n’apparaît jamais dans une autre."
-    }
+    },
+    "how": "Comment ça marche",
+    "why": "Pourquoi ?"
   },
   "locale": {
     "meta": "Langue et devise — SYB",
     "first": {
-      "kicker": "Avant de commencer",
-      "headline": "Choisissez votre langue et votre devise.",
-      "lede": "Je vous parlerai dans cette langue. Chaque chiffre de votre entreprise s’affiche dans cette devise, et rien n’est jamais converti d’une devise à l’autre."
+      "headline": "Choisissez votre langue et votre devise."
     },
     "yourLanguage": "Votre langue",
     "yourLanguageHelp": "La langue dans laquelle vous lisez SYB. Chaque membre de l’équipe choisit la sienne.",
@@ -213,14 +189,12 @@
       "inProgress": "En cours"
     },
     "bank": {
-      "title": "Banque de canaux",
       "now": "CH {channel} · {area} · <fig>{pct} %</fig>",
-      "none": "Votre entreprise, mesurée domaine par domaine",
       "done": "<fig>{done}</fig> sur {total} terminés",
       "hide": "Masquer les canaux",
       "all": "Tous les canaux",
       "legendOwner": "de vous",
-      "legendMeasured": "lu depuis {connector} · l’ordre n’a pas d’importance",
+      "legendMeasured": "lu depuis {connector}",
       "tileChannel": "CH {channel}",
       "tilePct": "{pct} %",
       "tileWords": "Canal {channel}, {area} : {status}, {pct} % de réponses — {bars}.",
@@ -236,13 +210,9 @@
       }
     },
     "mast": {
-      "sub": "Calibrage du dossier",
       "saving": "Enregistrement…",
-      "listening": "À l’écoute",
-      "sessionTitle": "Minutes depuis l’ouverture de cette page",
-      "session": "Session · <fig>{minutes}</fig> min",
       "facts": "{count, plural, one {<fig>#</fig> fait au dossier} many {<fig>#</fig> faits au dossier} other {<fig>#</fig> faits au dossier}}",
-      "pause": "Pause — terminer plus tard"
+      "pause": "Terminer plus tard"
     },
     "pause": {
       "title": "Pause · terminer plus tard",
@@ -264,7 +234,6 @@
       "reopened": "Rouverte. La question est de retour à gauche."
     },
     "done": {
-      "cap": "L’entretien · terminé",
       "title": "L’entretien est terminé.",
       "lede": "J’ai ce qu’il me faut pour une première lecture de l’entreprise. Les questions plus approfondies viendront plus tard, une fois que vous aurez vu le premier rapport.",
       "answers": "Réponses enregistrées",
@@ -293,9 +262,6 @@
       "emptyUnknown": "Répondez, ou choisissez « Pas de mesure — je ne sais pas » pour continuer.",
       "emptySkip": "Répondez, ou choisissez « Passer pour l’instant » pour continuer.",
       "entityEmpty": "Remplissez au moins le premier champ d’une ligne pour enregistrer.",
-      "hintText": "{modifier} + Entrée pour enregistrer",
-      "hintEnter": "Entrée pour enregistrer",
-      "hintKeys": "Touches {first} à {last} pour choisir",
       "speak": "Dictez votre réponse",
       "spokenAfter": "Relisez et corrigez si besoin, puis appuyez sur Suivant pour l’enregistrer.",
       "fileStub": "L’envoi de fichiers arrivera dans une prochaine version",
@@ -306,7 +272,6 @@
       "exact": "Exact<sr> (montant, {currency})</sr>",
       "estimate": "C’est une estimation",
       "estimated": "Marqué comme estimation",
-      "basis": "Base : estimée",
       "which": "Que vouliez-vous dire ?",
       "unreadable": "Ce n’est pas lisible comme un chiffre. Utilisez des chiffres, avec une virgule ou un point pour les décimales."
     },
@@ -319,10 +284,9 @@
       "addRow": "Ajouter une ligne"
     },
     "record": {
-      "cap": "Le dossier · plus récent d’abord",
       "channelTitle": "Canal {channel} · {area}",
       "facts": "{count, plural, one {<fig>#</fig> fait} many {<fig>#</fig> faits} other {<fig>#</fig> faits}}",
-      "empty": "Rien au dossier dans ce domaine pour l’instant. Chaque réponse arrive ici avec sa provenance.",
+      "empty": "Rien au dossier dans ce domaine pour l’instant.",
       "listLabel": "Faits au dossier dans {area}",
       "srAnswer": "y répondre maintenant",
       "srChange": "modifier cette réponse",
@@ -381,15 +345,13 @@
       "factsOnFile": "{count, plural, one {# fait au dossier} many {# faits au dossier} other {# faits au dossier}}"
     },
     "live": {
-      "cap": "Lecture en direct · évolue avec vos réponses",
       "dial": "{label} {value} pour cent sur un cadran de {min} à {max}",
       "dialStated": "{label} {value} pour cent sur un cadran de {min} à {max} ; vous avez indiqué {stated} pour cent",
       "noRange": "pas encore de plage de référence",
       "stated": "vous avez indiqué <fig>{value} %</fig>",
       "foot": "<strong>Calculé</strong> · {formula} · à partir de {inputs, plural, one {<fig>#</fig> fait enregistré} many {<fig>#</fig> faits enregistrés} other {<fig>#</fig> faits enregistrés}}",
       "readiness": "Préparation du rapport",
-      "readinessPct": "{pct} %",
-      "readinessNote": "chaque réponse resserre les fourchettes de votre rapport"
+      "readinessPct": "{pct} %"
     },
     "reconcile": {
       "flag": "À concilier",
@@ -397,18 +359,10 @@
       "implausible": "Une réponse sort de la plage habituelle",
       "gap": "Une réponse manque",
       "stale": "Une réponse est peut-être périmée",
-      "kind": {
-        "contradiction": "contradiction",
-        "implausible": "invraisemblable",
-        "gap": "lacune",
-        "stale": "périmée"
-      },
-      "note": "Je ne choisirai pas à votre place. Confirmez que les deux sont justes, ou modifiez-en une.",
       "confirm": "Confirmer les deux",
       "fix": "En modifier une"
     },
     "tape": {
-      "head": "Bande",
       "label": "La bande : faits au dossier, plus récents d’abord"
     },
     "keep": {
@@ -449,7 +403,9 @@
       "unknown_field": "cette liste n’a pas de champ « {field} »",
       "finding_not_open": "ce point est déjà réglé",
       "invalid": "cette réponse n’a pas pu être enregistrée"
-    }
+    },
+    "how": "Comment ça marche",
+    "why": "Pourquoi ?"
   },
   "voice": {
     "speak": "Parler",
@@ -2654,7 +2610,6 @@
       "signIn": "Se connecter"
     },
     "hero": {
-      "pill": "Une prise de sang pour votre entreprise",
       "titleA": "Votre entreprise a l’air en bonne santé.",
       "titleB": "<em>Ses chiffres</em>, peut-être pas.",
       "lede": "Nous effectuons {checks} analyses de vos ventes, réservations, paiements et publicités, chiffrons chaque fuite en euros et vous remettons un rapport signé en {daysText} {days, plural, one {jour} many {jours} other {jours}}.",
@@ -2665,12 +2620,9 @@
       "trustRefund": "Remboursé si nous ne trouvons rien"
     },
     "chart": {
-      "kicker": "Le graphique",
-      "title": "Votre entreprise, lue comme une action en bourse.",
-      "aside": "Nous marquons le jour où chaque fuite a commencé — et nous ombrons ce qu’elle vous a coûté."
+      "title": "Votre entreprise, lue comme une action en bourse."
     },
     "panels": {
-      "kicker": "Ce que nous analysons",
       "title": "Neuf bilans. Tout ce qui fait varier votre bénéfice.",
       "p01": {
         "name": "Conversion",
@@ -2710,7 +2662,6 @@
       }
     },
     "steps": {
-      "kicker": "Comment ça marche",
       "title": "Quinze minutes de votre temps.",
       "whenMinutes": "Jour {day} · {minutes} min",
       "whenDay": "Jour {day}",
@@ -2728,7 +2679,6 @@
       }
     },
     "price": {
-      "kicker": "Tarif",
       "titleA": "Un bilan.",
       "titleB": "Un prix.",
       "card": "Bilan complet de l’entreprise",
@@ -2976,9 +2926,7 @@
   },
   "resume": {
     "meta": "Reprendre — SYB",
-    "kicker": "Votre entretien",
     "headline": "Reprenez là où vous en étiez.",
-    "label": "Confirmer",
     "title": "Reprendre cet entretien \u0001",
     "button": "Reprendre",
     "note": "Ce n’est pas un lien que vous avez demandé \u0001 Fermez cette page. Rien ne change dans ce navigateur tant que vous n’appuyez pas sur le bouton.",
@@ -6086,16 +6034,13 @@
     "meta": {
       "title": "Votre invitation — SYB"
     },
-    "kicker": "Invitation à rejoindre l’équipe",
-    "label": "Invitation",
     "someBusiness": "une entreprise sur SYB",
     "headline": {
       "join": "Rejoindre {where}.",
       "bad": "Cette invitation ne fonctionne pas."
     },
     "title": {
-      "as": "En tant que {role, select, owner {propriétaire} manager {gestionnaire} other {lecteur}}, pour {email}",
-      "none": "Pas d’invitation ici"
+      "as": "En tant que {role, select, owner {propriétaire} manager {gestionnaire} other {lecteur}}, pour {email}"
     },
     "unknown": "Ce lien n’est pas une invitation que je connais. Demandez-en une nouvelle à la personne qui vous l’a envoyée.",
     "status": {
@@ -6105,7 +6050,6 @@
     },
     "askNew": "Demandez-en une nouvelle à la personne qui vous l’a envoyée.",
     "wrong": "Cette invitation est destinée à <b>{invited}</b>, et votre connexion actuelle utilise <b>{signedIn}</b>. Je n’ajouterai pas la mauvaise personne : déconnectez-vous, puis rouvrez ce lien.",
-    "signedIn": "Votre connexion utilise <b>{email}</b>. Rejoindre {where} en tant que {role, select, owner {propriétaire} manager {gestionnaire} other {lecteur}} ?",
     "signIn": "Vous vous connecterez avec <b>{email}</b>, l’adresse à laquelle l’invitation est destinée. J’y enverrai un lien de connexion par e-mail ; l’ouvrir vous ajoute à l’équipe.",
     "foot": "Rien ne se passe tant que vous n’appuyez pas sur le bouton. Ce n’est pas votre adresse ? Fermez cette page.",
     "footLink": "Se connecter à SYB",
@@ -6114,7 +6058,6 @@
       "devLink": "L’e-mail n’est pas configuré ici (développement) ; voici donc le lien de connexion :",
       "emailed": "J’ai envoyé un lien de connexion à {email}. Ouvrez-le là-bas et vous rejoindrez l’équipe.",
       "signOut": "Se déconnecter",
-      "thenAsks": "Cette page vous redemandera ensuite, en tant que {email}.",
       "join": "Rejoindre",
       "emailLink": "Envoyer un lien de connexion à {email}",
       "signInJoin": "Se connecter et rejoindre"

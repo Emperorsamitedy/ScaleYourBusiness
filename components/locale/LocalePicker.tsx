@@ -184,7 +184,6 @@ export function FirstStep({ data }: { data: PickerData }) {
             onChange={setCurrency}
             disabled={busy}
           />
-          <p className="au-note">{t("locale.currencyHelp")}</p>
         </div>
       )}
       <button
@@ -202,8 +201,13 @@ export function FirstStep({ data }: { data: PickerData }) {
           {error}
         </p>
       )}
-      {data.languages.some((l) => l.checking) && (
-        <p className="au-note">{t("locale.checkingNote")}</p>
+      {/* Decluttered 2026-11-09: the currency rule and the "being checked" note, folded. */}
+      {(data.canSetBusiness || data.languages.some((l) => l.checking)) && (
+        <details className="au-how">
+          <summary>{t("auth.how")}</summary>
+          {data.canSetBusiness && <p>{t("locale.currencyHelp")}</p>}
+          {data.languages.some((l) => l.checking) && <p>{t("locale.checkingNote")}</p>}
+        </details>
       )}
     </form>
   );

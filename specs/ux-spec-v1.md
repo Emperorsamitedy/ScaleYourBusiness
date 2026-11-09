@@ -162,6 +162,8 @@ Navigation follows the owner's menu design (2026-10-17, `components/nav/AppFrame
 
 There are no icons and no section tabs. Under 900px the rail folds into a top bar with a Menu button.
 
+**The entrance screens** (`/login`, `/signup`, `/login/confirm`, `/resume`, the language and currency first step). Decluttered 2026-11-09 on the owner's instruction: the desk carries only the headline (no kicker, no promise list on sign-in, no "what happens after this screen" steps on sign-up, which the landing page's "How it works" already gives); the sheet carries its title, the inputs and the button. Explanations sit under one closed "How this works" per sheet (the no-password note; why a confirm page asks; the currency's no-conversion rule and the "being checked" note), and a dead link's reason under "Why?". The sign-up terms line stays visible, word for word, under the form.
+
 **Campaign simulator** (`/simulate`, under Grow; feature 36). It lives on its own screen rather than in "Waiting for you" or on Customers: it compares email, ad and content options before any proposal exists, and the queue is a focused view for deciding, not for exploring. The owner picks two to four options in a ruled picker; a `.rt` table puts measures in rows (what it costs, people it reaches, orders, expected revenue, expected profit, worst case) and options in columns, each cell "low – high" in mono with the basis words of what it rests on, or a worded MISSING / NOT READ flag — a gap is never a number. A plain-SVG whisker per option shows expected profit against zero, the worst case as a square. Under it, each option shows its chain: every input with its value, basis and source (missing ones say what would fill them), the projection's own ASSUMED line, the arithmetic per measure, the worst case in words, and what the trust layer can say about similar past proposals. "Propose this" makes the normal proposal for its kind with the simulation attached; nothing executes. Money prints in whole major units, one decimal count throughout.
 
 **Creative studio** (`/studio`, under Grow after Content; P3-50, P3-51). It has its own screen rather than a section of `/content`. Content is the queue of things made; the studio is where they are planned from research. The head states the longest-running concept found ("Saltmarsh Pottery's video has run 143 days — the longest-running concept I found"), or in words that research isn't set up or the Library can't show the niche. The aside reads "Meta Ad Library · read-only · OBSERVED".
@@ -259,7 +261,7 @@ At 360 px each row stacks the word above the text, with no horizontal scroll. Th
 
 **Several businesses and your team** (idea 52, 2026-10-29). One email can belong to several businesses, and each business can have a team with three roles (owner, manager, viewer; lib/auth/roles.ts).
 
-- **Which business?** (`/login/choose`). A sign-in for an email on two or more businesses lands here instead of the profile. It uses the entrance screens' sheet (§2): the kicker "Signed in as name@example.com", the headline "Which business?", then one door per business, "Fernhill Ceramics · Owner", with the arrow at the far right. Only the name and the role are shown, never anything inside a business. The business already open continues straight in; any other is a plain form post that switches. **Add another business** makes a new one under the same email and starts its interview. The foot reads "Each business keeps its own facts, team and bill. Nothing from one is ever shown in another."
+- **Which business?** (`/login/choose`). A sign-in for an email on two or more businesses lands here instead of the profile. It uses the entrance screens' sheet (§2): the kicker "Signed in as name@example.com", the headline "Which business?", then one door per business, "Fernhill Ceramics · Owner", with the arrow at the far right. Only the name and the role are shown, never anything inside a business. The business already open continues straight in; any other is a plain form post that switches. **Add another business** makes a new one under the same email and starts its interview. "Each business keeps its own facts, team and bill. Nothing from one is ever shown in another." sits under a closed "How this works" below the doors; the sheet has no label or instruction line (decluttered 2026-11-09 on the owner's instruction).
 - **The switcher.** In the rail head, under the business name, and only with two or more businesses: a mono "SWITCH BUSINESS" disclosure listing the others by name as ruled buttons, each a form post. One business, no switcher.
 - **The role, quietly.** A mono line above "Sign out": "You're an owner here", "You're a manager here", or "You're a viewer here: you can read, and press stop". Under 760px it shows with the open menu, beside Sign out.
 - **What a role can't do** is disabled, not hidden, with the server's own sentence beside it ("Only an owner can connect or disconnect accounts.", "Only an owner or a manager can approve or decline proposals."). In "Waiting for you" the three answers grey out and the sentence sits under the approval note. On Connections a note heads the panel and the patch panel and consent sections are disabled as a whole. On the stop, "Start things up again" becomes "Only an owner can start things up again after a stop." Pressing stop is never disabled.
@@ -270,7 +272,7 @@ At 360 px each row stacks the word above the text, with no horizontal scroll. Th
   - **Run more than one business?**: one line and **Add another business →**.
   
   A manager or viewer sees the same list with no controls and the note "Only an owner can invite, change or remove people on the team. You can see who's here." The screen shows no activity, no counts and nothing about how anyone works (rule 28).
-- **The invite** (`/invite?token=…`) uses the entrance sheet. "Join Fernhill Ceramics." names the role and the invited address ("As a manager, for sam@example.com"). Opening it changes nothing. Signed in as that address, the one button is **Join**. Signed out, it is "Email a sign-in link to sam@example.com", and opening that link joins. Signed in as anyone else, the sheet says "This invite is for … and you're signed in as … I won't add the wrong person: sign out, then open this link again." and offers only **Sign out**. A used, withdrawn or expired invite says which and asks for a new one.
+- **The invite** (`/invite?token=…`) uses the entrance sheet. "Join Fernhill Ceramics." names the role and the invited address ("As a manager, for sam@example.com"). Opening it changes nothing. Signed in as that address, the one button is **Join**. Signed out, it is "Email a sign-in link to sam@example.com", and opening that link joins. Signed in as anyone else, the sheet says "This invite is for … and you're signed in as … I won't add the wrong person: sign out, then open this link again." and offers only **Sign out**. A used, withdrawn or expired invite says "That invite doesn't work.", with which and the ask for a new one under a closed "Why?". Decluttered 2026-11-09 on the owner's instruction: no kicker or sheet label, no line repeating the headline before **Join**, and how joining works ("You'll sign in as …", "Nothing happens until you press the button.") sits under a closed "How this works".
 
 Two screens are focused views with their own masthead and no rail: the report and "Waiting for you". Every other owner screen opens with the shared page head (`components/sheet/PageHead.tsx`). That head is a mono kicker, one Zilla Slab headline that states the screen's main fact from real data, and a rule.
 
@@ -310,7 +312,7 @@ Your instinct is right: one question at a time removes the dread of a 300-field 
 
 ### 4.2 Interaction detail
 
-**Answering.** Single-selects submit on click after a 130ms confirm beat, so the owner sees their choice register before the card leaves. Multi-selects and text require an explicit "Record answer →". Enter records; Cmd/Ctrl + Enter records from a textarea. The hints are written in words ("Enter to record"), never as key glyphs.
+**Answering.** Single-selects submit on click after a 130ms confirm beat, so the owner sees their choice register before the card leaves. Multi-selects and text require an explicit "Record answer →". Enter records; Cmd/Ctrl + Enter records from a textarea. No key hints are printed (decluttered 2026-11-09 on the owner's instruction); the keys still work.
 
 **Motion sequence:**
 1. The question card departs, `--d-record` (280ms). The script waits on the same token, so the two can't drift apart.
@@ -343,7 +345,7 @@ Columns are structurally impossible below ~900px. Instead: the question fills th
 
 When the validator finds a contradiction, both fact lines are flagged `TO RECONCILE` and a reconcile panel appears below the question card.
 
-The copy matters more than the layout, and it is plain (revised 2026-10-17: no persona lines). The heading names what was found (**"Two answers disagree"**), then both statements, then *"I won't pick one for you. Confirm both are right, or change one."* Two actions: "Confirm both →" (records a confirmation and clears the flag) or "Change one →" (returns both questions to the centre in sequence).
+The copy matters more than the layout, and it is plain (revised 2026-10-17: no persona lines). The heading names what was found (**"Two answers disagree"**), then both statements; the line restating the two buttons and the kind word repeating the heading are gone (decluttered 2026-11-09 on the owner's instruction). Two actions: "Confirm both →" (records a confirmation and clears the flag) or "Change one →" (returns both questions to the centre in sequence).
 
 This is the tonal high-water mark for the whole product. The system has just caught the owner in an apparent inconsistency, which is exactly the moment a business tool usually makes someone feel stupid. Getting this moment right — curious, not corrective — sets the relationship for everything that follows, including the far more consequential moment when the system disagrees with a decision they've made.
 
@@ -351,11 +353,12 @@ This is the tonal high-water mark for the whole product. The system has just cau
 
 The intake now follows the owner's "calibrating the record" design (`components/intake/**`, `app/intake.css`). It supersedes the wireframe at the top of §4 wherever the two differ.
 
+**Decluttered 2026-11-09 on the owner's instruction** ("no extra wordings/texts"): captions that restate a heading are gone (the "Calibrating the record" line, "Channel bank", "Live reading · moves as you answer", "The record · newest first", "The interview · complete", the tape's "Tape" label), and so are the key hints, the readiness note and the money field's "Basis: estimated" (the toggle already says it). Explanations sit behind one closed "How this works" / "Why?" per card: the question's purpose (the bank's help text, unchanged), how the live figure was worked out and that no range exists yet, the pause and done ledes, and the boot error's reason.
+
 **Masthead:**
-- a live state: "Listening" while a question waits, "Saving…" while a request is in flight
-- minutes in this sitting, measured on the browser clock
+- "Saving…" while a request is in flight (no other state is claimed)
 - the number of facts on file
-- "Pause — finish later", which opens the resume-link form
+- "Finish later", which opens the resume-link form
 
 **Channel bank:** one tile per bank section.
 - Each tile has one bar per applicable question, in bank order. The bar kinds are owner, measured, derived, current, open, unknown and skipped, each with its own fill pattern.
@@ -368,10 +371,10 @@ The intake now follows the owner's "calibrating the record" design (`components/
 - "Already measured" and "The missing piece" boxes, shown only when connector data exists for the question
 - numbered option tiles, answered with keys 1–9
 - the exact-amount input, with a ruler only when a measured value exists
-- Back / Skip / Next
+- Back / Skip / Next, with the question's purpose under a closed "Why?" beside them
 
 **Right column:**
-- a live blended-margin dial with a neutral track. It has no bands until a reference range exists.
+- a live blended-margin dial with a neutral track. It has no bands until a reference range exists. Its provenance (derived, the formula, how many facts) is under a closed "How this works".
 - report readiness: completeness shown as 25 cells
 - the area's record, with "what this answer unlocks" taken from the bank's `unlocks`
 
@@ -453,6 +456,8 @@ The shared view at `/shared/<token>` is the same report body, read only. Its mas
 ### 7.1 Landing page
 
 The owner's landing mockup (HTML export, 2026-10-17) is the source for this page. It is built in `components/marketing/Landing.tsx`, `Walkthrough.tsx`, `StoreChart.tsx` and `Demos.tsx`, with styles in `app/landing.css`. The mockup's own colour values are scoped under `.ll` and apply to the landing page only.
+
+Decluttered 2026-11-09 on the owner's instruction: no hero pill ("A blood test for your business" stays the page title), no section kickers above the headings (the nav names the sections), and no aside beside the chart's heading.
 
 The page, top to bottom:
 1. Header.
