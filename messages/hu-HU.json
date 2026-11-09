@@ -77,31 +77,16 @@
       "choose": "Melyik vállalkozás? — SYB"
     },
     "mast": {
-      "haveAccount": "Már van fiókja? ",
       "signIn": "Bejelentkezés",
       "createAccount": "Fiók létrehozása"
     },
     "signup": {
-      "kicker": "Új nyilvántartás megnyitása",
-      "headline": "Kezdje a diagnózissal.",
-      "stepsHead": "Mi történik e képernyő után",
-      "step1": "Kapcsolja össze a fiókjait, csak olvasási joggal",
-      "step2": "Válaszoljon az alapkérdésekre",
-      "step3": "Átnézzük a számait, és aláírjuk a jelentést",
-      "takesMinutes": "{minutes} perc",
-      "takesAboutMinutes": "kb. {minutes} perc",
-      "takesDays": "{days} nap",
-      "takesDaysPending": "[{days}] nap"
+      "headline": "Kezdje a diagnózissal."
     },
     "signin": {
-      "kicker": "A nyilvántartás várja",
-      "headline": "Vissza az irányítópultra.",
-      "point1": "Az Ön vállalkozásában semmi sem fut az Ön jóváhagyása nélkül.",
-      "point2": "Minden szám megmutatja, honnan származik.",
-      "point3": "Semmi sem törlődik – a régi tényeket újak váltják fel, de megőrizzük őket."
+      "headline": "Vissza az irányítópultra."
     },
     "sent": {
-      "label": "Nézze meg az e-mailjeit",
       "titleBelow": "A link lent található",
       "titleSent": "Link elküldve",
       "onScreen": "Itt nincs beállítva az e-mail-küldés, ezért az egyszer használható link lent található. {minutes} perc múlva lejár.",
@@ -114,8 +99,6 @@
     "form": {
       "labelCreate": "Fiók létrehozása",
       "labelSignIn": "Bejelentkezés",
-      "titleCreate": "Nyissa meg vállalkozása nyilvántartását",
-      "titleSignIn": "Üdvözöljük újra",
       "email": "Munkahelyi e-mail-cím",
       "emailPlaceholder": "on@vallalkozasa.hu",
       "website": "Weboldal",
@@ -128,38 +111,31 @@
       "noteSignin": "Nincs jelszó. A link egyszer működik, {minutes} percig.",
       "orSignup": "Vagy regisztráljon ezzel:",
       "orSignin": "Vagy folytassa ezzel:",
-      "terms": "A fiók létrehozásával elfogadja a <terms>felhasználási feltételeket</terms> és az <privacy>adatvédelmi tájékoztatót</privacy>.",
-      "newHere": "Még nem használja a SYB-t? Hozzon létre fiókot a jobb felső sarokban."
+      "terms": "A fiók létrehozásával elfogadja a <terms>felhasználási feltételeket</terms> és az <privacy>adatvédelmi tájékoztatót</privacy>."
     },
     "confirm": {
-      "kicker": "Bejelentkezés",
       "headline": "Még egy lépés.",
-      "label": "Megerősítés",
       "title": "Bejelentkezik ezzel a címmel: {email}?",
       "sentTo": "Ezt a linket erre a címre küldtük: <b>{email}</b>.",
       "button": "Bejelentkezés",
       "note": "Nem az Ön címe? Zárja be ezt az oldalt. Lehet, hogy valaki a saját linkjét küldte el Önnek, és semmi sem történik, amíg meg nem nyomja a gombot.",
       "expiredHeadline": "Ez a link lejárt.",
       "expiredMessage": "A bejelentkezési linkek egyszer működnek, és {minutes} perc után lejárnak. Kérjen újat, és pillanatokon belül megérkezik.",
-      "linkLabel": "Link",
-      "linkDead": "Ez a link már nem működik",
       "newLink": "Új bejelentkezési link kérése e-mailben"
     },
     "choose": {
       "signedInAs": "Bejelentkezve: {email}",
       "headline": "Melyik vállalkozás?",
-      "label": "Az Ön vállalkozásai",
-      "title": "Válassza ki, melyiket nyitja meg. A menüből bármikor válthat.",
       "add": "Másik vállalkozás hozzáadása",
       "foot": "Minden vállalkozásnak saját tényei, csapata és számlája van. Az egyikből semmi sem jelenik meg a másikban."
-    }
+    },
+    "how": "Hogyan működik",
+    "why": "Miért?"
   },
   "locale": {
     "meta": "Nyelv és pénznem — SYB",
     "first": {
-      "kicker": "Mielőtt elkezdjük",
-      "headline": "Válassza ki a nyelvet és a pénznemet.",
-      "lede": "Ezen a nyelven fogok Önhöz szólni. Vállalkozása minden számadata ebben a pénznemben jelenik meg, és pénznemek között soha semmit nem váltunk át."
+      "headline": "Válassza ki a nyelvet és a pénznemet."
     },
     "yourLanguage": "Az Ön nyelve",
     "yourLanguageHelp": "Ezen a nyelven olvassa a SYB-t. A csapatban mindenki a sajátját választja.",
@@ -213,14 +189,12 @@
       "inProgress": "Folyamatban"
     },
     "bank": {
-      "title": "Csatornapanel",
       "now": "CS {channel} · {area} · <fig>{pct}%</fig>",
-      "none": "Az Ön vállalkozása, területenként felmérve",
       "done": "<fig>{done}</fig> / {total} kész",
       "hide": "Csatornák elrejtése",
       "all": "Összes csatorna",
       "legendOwner": "Öntől",
-      "legendMeasured": "forrás: {connector} · bármilyen sorrend megfelel",
+      "legendMeasured": "forrás: {connector}",
       "tileChannel": "CS {channel}",
       "tilePct": "{pct}%",
       "tileWords": "{channel}. csatorna, {area}: {status}, megválaszolva: {pct}% — {bars}.",
@@ -236,13 +210,9 @@
       }
     },
     "mast": {
-      "sub": "A nyilvántartás kalibrálása",
       "saving": "Mentés…",
-      "listening": "Figyelek",
-      "sessionTitle": "Az oldal megnyitása óta eltelt percek",
-      "session": "Munkamenet · <fig>{minutes}</fig> perc",
       "facts": "{count, plural, one {<fig>#</fig> tény rögzítve} other {<fig>#</fig> tény rögzítve}}",
-      "pause": "Szünet — folytatás később"
+      "pause": "Folytatás később"
     },
     "pause": {
       "title": "Szünet · folytatás később",
@@ -264,7 +234,6 @@
       "reopened": "Újranyitva. A kérdés ismét a bal oldalon van."
     },
     "done": {
-      "cap": "Az interjú · kész",
       "title": "Az interjú befejeződött.",
       "lede": "Megvan minden, amire szükségem van a vállalkozás első áttekintéséhez. A mélyebb kérdések később jönnek, miután látta az első jelentést.",
       "answers": "Rögzített válaszok",
@@ -293,9 +262,6 @@
       "emptyUnknown": "Válaszoljon, vagy a továbblépéshez válassza a „Nincs adat — nem tudom” lehetőséget.",
       "emptySkip": "Válaszoljon, vagy a továbblépéshez válassza a „Most kihagyom” lehetőséget.",
       "entityEmpty": "A rögzítéshez töltse ki legalább egy sor első mezőjét.",
-      "hintText": "{modifier} + Enter a rögzítéshez",
-      "hintEnter": "Enter a rögzítéshez",
-      "hintKeys": "Választás: {first}–{last} billentyű",
       "speak": "Mondja el a válaszát",
       "spokenAfter": "Olvassa át, javítson, amit kell, majd a rögzítéshez nyomja meg a Tovább gombot.",
       "fileStub": "A feltöltés egy későbbi munkamenetben érkezik",
@@ -306,7 +272,6 @@
       "exact": "Pontos<sr> összeg, {currency}</sr>",
       "estimate": "Ez becslés",
       "estimated": "Becslésként megjelölve",
-      "basis": "Alap: becsült",
       "which": "Melyikre gondolt?",
       "unreadable": "Ezt nem tudom számként értelmezni. Számjegyeket használjon, a tizedesekhez vesszőt vagy pontot."
     },
@@ -319,10 +284,9 @@
       "addRow": "Újabb sor hozzáadása"
     },
     "record": {
-      "cap": "A nyilvántartás · legújabb elöl",
       "channelTitle": "{channel}. csatorna · {area}",
       "facts": "{count, plural, one {<fig>#</fig> tény} other {<fig>#</fig> tény}}",
-      "empty": "Ezen a területen még nincs rögzített adat. Minden válasz ide kerül, a forrásával együtt.",
+      "empty": "Ezen a területen még nincs rögzített adat.",
       "listLabel": "Rögzített tények – {area}",
       "srAnswer": "válaszoljon most",
       "srChange": "a válasz módosítása",
@@ -381,15 +345,13 @@
       "factsOnFile": "{count, plural, one {# tény rögzítve} other {# tény rögzítve}}"
     },
     "live": {
-      "cap": "Élő mérés · a válaszai szerint változik",
       "dial": "{label}: {value} százalék egy {min}–{max} skálán",
       "dialStated": "{label}: {value} százalék egy {min}–{max} skálán; Ön {stated} százalékot adott meg",
       "noRange": "még nincs viszonyítási tartomány",
       "stated": "Ön ennyit adott meg: <fig>{value} %</fig>",
       "foot": "<strong>Számított</strong> · {formula} · {inputs, plural, one {<fig>#</fig> rögzített tény alapján} other {<fig>#</fig> rögzített tény alapján}}",
       "readiness": "A jelentés készültsége",
-      "readinessPct": "{pct} %",
-      "readinessNote": "minden válasz szűkíti a jelentésében szereplő tartományokat"
+      "readinessPct": "{pct} %"
     },
     "reconcile": {
       "flag": "Egyeztetendő",
@@ -397,18 +359,10 @@
       "implausible": "Egy válasz kívül esik a szokásos tartományon",
       "gap": "Egy válasz hiányzik",
       "stale": "Egy válasz elavult lehet",
-      "kind": {
-        "contradiction": "ellentmondás",
-        "implausible": "valószínűtlen",
-        "gap": "hiány",
-        "stale": "elavult"
-      },
-      "note": "Nem választok Ön helyett. Erősítse meg, hogy mindkettő helyes, vagy módosítsa az egyiket.",
       "confirm": "Mindkettő helyes",
       "fix": "Az egyik módosítása"
     },
     "tape": {
-      "head": "Szalag",
       "label": "A szalag: rögzített tények, legújabb elöl"
     },
     "keep": {
@@ -449,7 +403,9 @@
       "unknown_field": "ebben a listában nincs „{field}” nevű mező",
       "finding_not_open": "ez már rendezve van",
       "invalid": "ezt a választ nem sikerült rögzíteni"
-    }
+    },
+    "how": "Hogyan működik",
+    "why": "Miért?"
   },
   "voice": {
     "speak": "Diktálás",
@@ -2643,7 +2599,6 @@
       "signIn": "Bejelentkezés"
     },
     "hero": {
-      "pill": "Vérvizsgálat a vállalkozása számára",
       "titleA": "A vállalkozása egészségesnek tűnik.",
       "titleB": "<em>A számai</em> lehet, hogy nem.",
       "lede": "{checks} vizsgálatot végzünk az eladásain, foglalásain, fizetésein és hirdetésein, minden szivárgást euróban árazunk be, és {daysText} {days, plural, one {nap} other {nap}} alatt aláírt jelentést adunk át.",
@@ -2654,12 +2609,9 @@
       "trustRefund": "Visszatérítés, ha nem találunk semmit"
     },
     "chart": {
-      "kicker": "A grafikon",
-      "title": "A vállalkozása, úgy olvasva, mint egy részvény.",
-      "aside": "Megjelöljük a napot, amikor az egyes szivárgások elkezdődtek — és besatírozzuk, mennyibe kerültek Önnek."
+      "title": "A vállalkozása, úgy olvasva, mint egy részvény."
     },
     "panels": {
-      "kicker": "Mit vizsgálunk",
       "title": "Kilenc panel. Minden, ami a nyereségét mozgatja.",
       "p01": {
         "name": "Konverzió",
@@ -2699,7 +2651,6 @@
       }
     },
     "steps": {
-      "kicker": "Hogyan működik",
       "title": "Tizenöt perc Öntől.",
       "whenMinutes": "{day}. nap · {minutes} perc",
       "whenDay": "{day}. nap",
@@ -2717,7 +2668,6 @@
       }
     },
     "price": {
-      "kicker": "Ár",
       "titleA": "Egy vizsgálat.",
       "titleB": "Egy ár.",
       "card": "Teljes panel a vállalkozásának",
@@ -2965,9 +2915,7 @@
   },
   "resume": {
     "meta": "Folytatás — SYB",
-    "kicker": "Az Ön interjúja",
     "headline": "Folytassa ott, ahol abbahagyta.",
-    "label": "Megerősítés",
     "title": "Folytatja ezt az interjút?",
     "button": "Folytatás",
     "note": "Nem Ön kérte ezt a linket? Zárja be ezt az oldalt. Ebben a böngészőben semmi sem változik, hacsak meg nem nyomja a gombot.",
@@ -6045,16 +5993,13 @@
     "meta": {
       "title": "Az Ön meghívója — SYB"
     },
-    "kicker": "Csapatmeghívó",
-    "label": "Meghívó",
     "someBusiness": "egy vállalkozás a SYB-n",
     "headline": {
       "join": "Csatlakozzon ehhez: {where}.",
       "bad": "Ez a meghívó nem működik."
     },
     "title": {
-      "as": "Szerepkör: {role, select, owner {tulajdonos} manager {menedzser} other {megtekintő}}, cím: {email}",
-      "none": "Itt nincs meghívó"
+      "as": "Szerepkör: {role, select, owner {tulajdonos} manager {menedzser} other {megtekintő}}, cím: {email}"
     },
     "unknown": "Ez a link nem egy általam ismert meghívó. Kérjen újat attól, aki küldte.",
     "status": {
@@ -6064,7 +6009,6 @@
     },
     "askNew": "Kérjen újat attól, aki küldte.",
     "wrong": "Ez a meghívó ehhez a címhez szól: <b>{invited}</b>, Ön viszont ezzel van bejelentkezve: <b>{signedIn}</b>. Nem adok hozzá rossz személyt: jelentkezzen ki, majd nyissa meg újra ezt a linket.",
-    "signedIn": "Bejelentkezve ezzel a címmel: <b>{email}</b>. Csatlakozik ehhez: {where}, {role, select, owner {tulajdonos} manager {menedzser} other {megtekintő}} szerepkörben?",
     "signIn": "Ezzel a címmel fog bejelentkezni: <b>{email}</b> — erre a címre szól a meghívó. Bejelentkezési linket küldök e-mailben erre a címre; ha megnyitja, bekerül a csapatba.",
     "foot": "Semmi sem történik, amíg meg nem nyomja a gombot. Nem az Ön címe? Zárja be ezt az oldalt.",
     "footLink": "Bejelentkezés a SYB-be",
@@ -6073,7 +6017,6 @@
       "devLink": "Itt nincs beállítva az e-mail (fejlesztői környezet), ezért itt a bejelentkezési link:",
       "emailed": "Bejelentkezési linket küldtem ide: {email}. Nyissa meg ott, és csatlakozik.",
       "signOut": "Kijelentkezés",
-      "thenAsks": "Utána ez az oldal újra rákérdez, ezzel a címmel: {email}.",
       "join": "Csatlakozás",
       "emailLink": "Bejelentkezési link küldése ide: {email}",
       "signInJoin": "Bejelentkezés és csatlakozás"

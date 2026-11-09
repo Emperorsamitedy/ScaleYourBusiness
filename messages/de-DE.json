@@ -77,31 +77,16 @@
       "choose": "Welches Unternehmen? — SYB"
     },
     "mast": {
-      "haveAccount": "Sie haben bereits ein Konto? ",
       "signIn": "Anmelden",
       "createAccount": "Konto erstellen"
     },
     "signup": {
-      "kicker": "Eine neue Akte anlegen",
-      "headline": "Beginnen Sie mit der Diagnose.",
-      "stepsHead": "Was nach dieser Seite passiert",
-      "step1": "Verbinden Sie Ihre Konten, nur mit Lesezugriff",
-      "step2": "Beantworten Sie die Kernfragen",
-      "step3": "Wir lesen Ihre Zahlen und unterzeichnen den Bericht",
-      "takesMinutes": "{minutes} Min.",
-      "takesAboutMinutes": "ca. {minutes} Min.",
-      "takesDays": "{days, plural, one {# Tag} other {# Tage}}",
-      "takesDaysPending": "[{days}] {days, plural, one {Tag} other {Tage}}"
+      "headline": "Beginnen Sie mit der Diagnose."
     },
     "signin": {
-      "kicker": "Die Akte wartet",
-      "headline": "Zurück zu Ihrer Übersicht.",
-      "point1": "In Ihrem Unternehmen läuft nichts ohne Ihre Freigabe.",
-      "point2": "Jede Zahl zeigt, woher sie stammt.",
-      "point3": "Nichts wird je gelöscht – alte Fakten werden ersetzt und aufbewahrt."
+      "headline": "Zurück zu Ihrer Übersicht."
     },
     "sent": {
-      "label": "Prüfen Sie Ihre E-Mails",
       "titleBelow": "Ihr Link steht unten",
       "titleSent": "Link gesendet",
       "onScreen": "E-Mail ist hier nicht eingerichtet, daher steht Ihr Einmal-Link unten. Er läuft in {minutes, plural, one {# Minute} other {# Minuten}} ab.",
@@ -114,8 +99,6 @@
     "form": {
       "labelCreate": "Konto erstellen",
       "labelSignIn": "Anmelden",
-      "titleCreate": "Die Akte Ihres Unternehmens anlegen",
-      "titleSignIn": "Willkommen zurück",
       "email": "Geschäftliche E-Mail",
       "emailPlaceholder": "sie@ihrunternehmen.de",
       "website": "Website",
@@ -128,38 +111,31 @@
       "noteSignin": "Kein Passwort. Der Link funktioniert einmal, {minutes, plural, one {# Minute} other {# Minuten}} lang.",
       "orSignup": "Oder registrieren mit",
       "orSignin": "Oder weiter mit",
-      "terms": "Mit dem Erstellen eines Kontos stimmen Sie den <terms>Nutzungsbedingungen</terms> und dem <privacy>Datenschutzhinweis</privacy> zu.",
-      "newHere": "Neu bei SYB? Erstellen Sie oben rechts ein Konto."
+      "terms": "Mit dem Erstellen eines Kontos stimmen Sie den <terms>Nutzungsbedingungen</terms> und dem <privacy>Datenschutzhinweis</privacy> zu."
     },
     "confirm": {
-      "kicker": "Anmelden",
       "headline": "Noch ein Schritt.",
-      "label": "Bestätigen",
       "title": "Als {email} anmelden?",
       "sentTo": "Dieser Link wurde an <b>{email}</b> gesendet.",
       "button": "Anmelden",
       "note": "Nicht Ihre Adresse? Schließen Sie diese Seite. Vielleicht hat Ihnen jemand seinen eigenen Link geschickt, und es passiert nichts, solange Sie die Schaltfläche nicht drücken.",
       "expiredHeadline": "Dieser Link ist abgelaufen.",
       "expiredMessage": "Anmeldelinks funktionieren einmal und laufen nach {minutes, plural, one {# Minute} other {# Minuten}} ab. Fordern Sie einen neuen an, er kommt in wenigen Augenblicken.",
-      "linkLabel": "Link",
-      "linkDead": "Dieser Link funktioniert nicht mehr",
       "newLink": "Neuen Anmeldelink per E-Mail senden"
     },
     "choose": {
       "signedInAs": "Angemeldet als {email}",
       "headline": "Welches Unternehmen?",
-      "label": "Ihre Unternehmen",
-      "title": "Wählen Sie eines zum Öffnen aus. Sie können jederzeit über das Menü wechseln.",
       "add": "Weiteres Unternehmen hinzufügen",
       "foot": "Jedes Unternehmen behält seine eigenen Fakten, sein Team und seine Rechnung. Nichts aus einem wird je in einem anderen angezeigt."
-    }
+    },
+    "how": "So funktioniert es",
+    "why": "Warum?"
   },
   "locale": {
     "meta": "Sprache und Währung — SYB",
     "first": {
-      "kicker": "Bevor wir beginnen",
-      "headline": "Wählen Sie Ihre Sprache und Währung.",
-      "lede": "Ich spreche in dieser Sprache mit Ihnen. Jede Zahl Ihres Unternehmens wird in dieser Währung angezeigt, und zwischen Währungen wird nie umgerechnet."
+      "headline": "Wählen Sie Ihre Sprache und Währung."
     },
     "yourLanguage": "Ihre Sprache",
     "yourLanguageHelp": "Die Sprache, in der Sie SYB lesen. Jede Person im Team wählt ihre eigene.",
@@ -213,14 +189,12 @@
       "inProgress": "In Arbeit"
     },
     "bank": {
-      "title": "Kanalübersicht",
       "now": "K {channel} · {area} · <fig>{pct}%</fig>",
-      "none": "Ihr Unternehmen, Bereich für Bereich erfasst",
       "done": "<fig>{done}</fig> von {total} fertig",
       "hide": "Kanäle ausblenden",
       "all": "Alle Kanäle",
       "legendOwner": "von Ihnen",
-      "legendMeasured": "aus {connector} gelesen · jede Reihenfolge ist in Ordnung",
+      "legendMeasured": "aus {connector} gelesen",
       "tileChannel": "K {channel}",
       "tilePct": "{pct}%",
       "tileWords": "Kanal {channel}, {area}: {status}, {pct}% beantwortet – {bars}.",
@@ -236,13 +210,9 @@
       }
     },
     "mast": {
-      "sub": "Die Akte wird kalibriert",
       "saving": "Wird gespeichert…",
-      "listening": "Hört zu",
-      "sessionTitle": "Minuten, seit diese Seite geöffnet wurde",
-      "session": "Sitzung · <fig>{minutes}</fig> Min.",
       "facts": "{count, plural, one {<fig>#</fig> Fakt in der Akte} other {<fig>#</fig> Fakten in der Akte}}",
-      "pause": "Pause – später fortsetzen"
+      "pause": "Später fortsetzen"
     },
     "pause": {
       "title": "Pause · später fortsetzen",
@@ -264,7 +234,6 @@
       "reopened": "Wieder geöffnet. Die Frage steht wieder links."
     },
     "done": {
-      "cap": "Das Interview · abgeschlossen",
       "title": "Das Interview ist abgeschlossen.",
       "lede": "Ich habe die Akte, die ich für eine erste Einschätzung des Unternehmens brauche. Tiefere Fragen kommen später, wenn Sie den ersten Bericht gesehen haben.",
       "answers": "Erfasste Antworten",
@@ -293,9 +262,6 @@
       "emptyUnknown": "Beantworten Sie die Frage, oder wählen Sie „Kein Wert – weiß ich nicht“, um weiterzugehen.",
       "emptySkip": "Beantworten Sie die Frage, oder wählen Sie „Vorerst überspringen“, um weiterzugehen.",
       "entityEmpty": "Füllen Sie mindestens das erste Feld einer Zeile aus, um zu erfassen.",
-      "hintText": "{modifier} + Eingabe zum Erfassen",
-      "hintEnter": "Eingabe zum Erfassen",
-      "hintKeys": "Tasten {first}–{last} wählen aus",
       "speak": "Antwort einsprechen",
       "spokenAfter": "Lesen Sie den Text durch und korrigieren Sie, was nötig ist; drücken Sie dann „Weiter“, um ihn zu erfassen.",
       "fileStub": "Uploads kommen in einer späteren Version",
@@ -306,7 +272,6 @@
       "exact": "Genau<sr>er Betrag, {currency}</sr>",
       "estimate": "Das ist eine Schätzung",
       "estimated": "Als Schätzung markiert",
-      "basis": "Grundlage: geschätzt",
       "which": "Was meinten Sie?",
       "unreadable": "Das lässt sich nicht als Zahl lesen. Verwenden Sie Ziffern, mit Komma oder Punkt für Dezimalstellen."
     },
@@ -319,10 +284,9 @@
       "addRow": "Weitere Zeile hinzufügen"
     },
     "record": {
-      "cap": "Die Akte · neueste zuerst",
       "channelTitle": "Kanal {channel} · {area}",
       "facts": "{count, plural, one {<fig>#</fig> Fakt} other {<fig>#</fig> Fakten}}",
-      "empty": "In diesem Bereich ist noch nichts erfasst. Jede Antwort landet hier, mit ihrer Herkunft.",
+      "empty": "In diesem Bereich ist noch nichts erfasst.",
       "listLabel": "Erfasste Fakten in {area}",
       "srAnswer": "jetzt beantworten",
       "srChange": "diese Antwort ändern",
@@ -381,15 +345,13 @@
       "factsOnFile": "{count, plural, one {# Fakt in der Akte} other {# Fakten in der Akte}}"
     },
     "live": {
-      "cap": "Live-Wert · bewegt sich mit Ihren Antworten",
       "dial": "{label} {value} Prozent auf einer Skala von {min} bis {max}",
       "dialStated": "{label} {value} Prozent auf einer Skala von {min} bis {max}; Sie haben {stated} Prozent angegeben",
       "noRange": "noch kein Referenzbereich",
       "stated": "Sie haben <fig>{value} %</fig> angegeben",
       "foot": "<strong>Abgeleitet</strong> · {formula} · aus {inputs, plural, one {<fig>#</fig> erfasstem Fakt} other {<fig>#</fig> erfassten Fakten}}",
       "readiness": "Berichtsreife",
-      "readinessPct": "{pct} %",
-      "readinessNote": "jede Antwort grenzt die Spannen in Ihrem Bericht ein"
+      "readinessPct": "{pct} %"
     },
     "reconcile": {
       "flag": "Zu klären",
@@ -397,18 +359,10 @@
       "implausible": "Eine Antwort liegt außerhalb des üblichen Bereichs",
       "gap": "Eine Antwort fehlt",
       "stale": "Eine Antwort ist möglicherweise veraltet",
-      "kind": {
-        "contradiction": "Widerspruch",
-        "implausible": "unplausibel",
-        "gap": "Lücke",
-        "stale": "veraltet"
-      },
-      "note": "Ich wähle keine für Sie aus. Bestätigen Sie, dass beide stimmen, oder ändern Sie eine.",
       "confirm": "Beide bestätigen",
       "fix": "Eine ändern"
     },
     "tape": {
-      "head": "Streifen",
       "label": "Der Streifen: erfasste Fakten, neueste zuerst"
     },
     "keep": {
@@ -449,7 +403,9 @@
       "unknown_field": "diese Liste hat kein Feld namens „{field}“",
       "finding_not_open": "das ist bereits geklärt",
       "invalid": "diese Antwort konnte nicht erfasst werden"
-    }
+    },
+    "how": "So funktioniert es",
+    "why": "Warum?"
   },
   "voice": {
     "speak": "Sprechen",
@@ -2643,7 +2599,6 @@
       "signIn": "Anmelden"
     },
     "hero": {
-      "pill": "Ein Bluttest für Ihr Unternehmen",
       "titleA": "Ihr Unternehmen wirkt gesund.",
       "titleB": "<em>Seine Zahlen</em> vielleicht nicht.",
       "lede": "Wir führen {checks} Prüfungen Ihrer Verkäufe, Buchungen, Zahlungen und Anzeigen durch, beziffern jedes Leck in Euro und übergeben Ihnen in {daysText} {days, plural, one {Tag} other {Tagen}} einen unterzeichneten Bericht.",
@@ -2654,12 +2609,9 @@
       "trustRefund": "Rückerstattung, wenn wir nichts finden"
     },
     "chart": {
-      "kicker": "Das Chart",
-      "title": "Ihr Unternehmen, gelesen wie eine Aktie.",
-      "aside": "Wir markieren den Tag, an dem jedes Leck begann – und schattieren, was es Sie gekostet hat."
+      "title": "Ihr Unternehmen, gelesen wie eine Aktie."
     },
     "panels": {
-      "kicker": "Was wir testen",
       "title": "Neun Panels. Alles, was Ihren Gewinn bewegt.",
       "p01": {
         "name": "Konversion",
@@ -2699,7 +2651,6 @@
       }
     },
     "steps": {
-      "kicker": "So funktioniert es",
       "title": "Fünfzehn Minuten von Ihnen.",
       "whenMinutes": "Tag {day} · {minutes} Min.",
       "whenDay": "Tag {day}",
@@ -2717,7 +2668,6 @@
       }
     },
     "price": {
-      "kicker": "Preis",
       "titleA": "Ein Test.",
       "titleB": "Ein Preis.",
       "card": "Komplettpanel für Ihr Unternehmen",
@@ -2965,9 +2915,7 @@
   },
   "resume": {
     "meta": "Weitermachen — SYB",
-    "kicker": "Ihr Interview",
     "headline": "Machen Sie dort weiter, wo Sie aufgehört haben.",
-    "label": "Bestätigen",
     "title": "Mit diesem Interview weitermachen?",
     "button": "Weitermachen",
     "note": "Kein Link, den Sie angefordert haben? Schließen Sie diese Seite. In diesem Browser ändert sich nichts, solange Sie die Schaltfläche nicht drücken.",
@@ -6045,16 +5993,13 @@
     "meta": {
       "title": "Ihre Einladung — SYB"
     },
-    "kicker": "Team-Einladung",
-    "label": "Einladung",
     "someBusiness": "ein Unternehmen auf SYB",
     "headline": {
       "join": "Treten Sie bei: {where}.",
       "bad": "Diese Einladung funktioniert nicht."
     },
     "title": {
-      "as": "Als {role, select, owner {Inhaber} manager {Manager} other {Betrachter}}, für {email}",
-      "none": "Hier ist keine Einladung"
+      "as": "Als {role, select, owner {Inhaber} manager {Manager} other {Betrachter}}, für {email}"
     },
     "unknown": "Diesen Link kenne ich nicht als Einladung. Bitten Sie die Person, die ihn geschickt hat, um einen neuen.",
     "status": {
@@ -6064,7 +6009,6 @@
     },
     "askNew": "Bitten Sie die Person, die ihn geschickt hat, um einen neuen.",
     "wrong": "Diese Einladung gilt für <b>{invited}</b>, und Sie sind als <b>{signedIn}</b> angemeldet. Ich füge nicht die falsche Person hinzu: Melden Sie sich ab und öffnen Sie diesen Link dann erneut.",
-    "signedIn": "Sie sind als <b>{email}</b> angemeldet. Beitreten zu {where} als {role, select, owner {Inhaber} manager {Manager} other {Betrachter}}?",
     "signIn": "Sie werden als <b>{email}</b> angemeldet, der Adresse, für die die Einladung gilt. Ich maile Ihnen dorthin einen Anmeldelink; wenn Sie ihn öffnen, werden Sie dem Team hinzugefügt.",
     "foot": "Nichts passiert, bevor Sie die Schaltfläche drücken. Nicht Ihre Adresse? Schließen Sie diese Seite.",
     "footLink": "Bei SYB anmelden",
@@ -6073,7 +6017,6 @@
       "devLink": "E-Mail ist hier nicht eingerichtet (Entwicklung), daher hier der Anmeldelink:",
       "emailed": "Ich habe einen Anmeldelink an {email} gemailt. Öffnen Sie ihn dort, dann treten Sie bei.",
       "signOut": "Abmelden",
-      "thenAsks": "Dann fragt diese Seite erneut, als {email}.",
       "join": "Beitreten",
       "emailLink": "Anmeldelink an {email} mailen",
       "signInJoin": "Anmelden und beitreten"

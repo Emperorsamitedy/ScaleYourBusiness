@@ -10,9 +10,10 @@
 // arrived, because a stranger looking for "create account" should find
 // those words, not a riddle.
 //
-// The desk carries the promise (a ruled list on sign-in, the steps after
-// this screen on sign-up); one paper sheet carries the form both
-// entrances share. The SSO doors are real OAuth starts — a provider
+// The desk carries the headline; one paper sheet carries the form both
+// entrances share. Decluttered 2026-11-09 on the owner's instruction: no
+// kicker, no promise list and no steps (the landing page says them), and
+// the no-password note sits under "How this works". The SSO doors are real OAuth starts — a provider
 // whose keys aren't set says so and points at the email path. They are
 // named in words; the brands' logos would be the only icons on the
 // screen.
@@ -27,7 +28,6 @@ import { authErrorWords } from "../../lib/auth/error-words";
 import { returnPath } from "../../lib/auth/return-to";
 import { BROWSER_PREFILL } from "../../lib/intake/browser-prefill";
 import { useTr } from "../sheet/useTr";
-import { DELIVERY_DAYS } from "../../lib/marketing/offer";
 import { AuthMasthead } from "./AuthMasthead";
 import "../../app/auth.css";
 
@@ -48,26 +48,6 @@ const SSO_PROVIDERS = [
   { id: "apple", label: "Apple" },
   { id: "microsoft", label: "Microsoft" },
 ] as const;
-
-type T = ReturnType<typeof useTranslations<"auth">>;
-
-function signupSteps(t: T): { n: string; text: string; takes: string }[] {
-  return [
-    { n: "01", text: t("signup.step1"), takes: t("signup.takesMinutes", { minutes: 2 }) },
-    { n: "02", text: t("signup.step2"), takes: t("signup.takesAboutMinutes", { minutes: 12 }) },
-    {
-      n: "03",
-      text: t("signup.step3"),
-      // "[7]" is the design's stand-in, shown until the owner sets DELIVERY_DAYS.
-      takes:
-        DELIVERY_DAYS === null
-          ? t("signup.takesDaysPending", { days: 7 })
-          : t("signup.takesDays", { days: DELIVERY_DAYS }),
-    },
-  ];
-}
-
-const signinPoints = (t: T) => [t("signin.point1"), t("signin.point2"), t("signin.point3")];
 
 function Arrow() {
   return (
@@ -156,7 +136,6 @@ export function LoginScreen({
     <div className="desk au">
       {signup ? (
         <AuthMasthead href="/login">
-          <span className="au-mast-pre">{t("mast.haveAccount")}</span>
           {t("mast.signIn")} <Arrow />
         </AuthMasthead>
       ) : (
@@ -167,45 +146,13 @@ export function LoginScreen({
 
       <main className="au-main">
         <section className="au-lede">
-          <p className="au-kicker">{signup ? t("signup.kicker") : t("signin.kicker")}</p>
           <h1 className="au-headline">{signup ? t("signup.headline") : t("signin.headline")}</h1>
-
-          {signup ? (
-            <div className="au-steps">
-              <h2 className="au-steps-head" id="au-steps-head">
-                {t("signup.stepsHead")}
-              </h2>
-              <table className="au-steps-table" aria-labelledby="au-steps-head">
-                <tbody>
-                  {signupSteps(t).map((s) => (
-                    <tr key={s.n}>
-                      <td className="au-n">{s.n}</td>
-                      <td className="au-step">{s.text}</td>
-                      <td className="au-takes">{s.takes}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          ) : (
-            <ol className="au-points">
-              {signinPoints(t).map((p, i) => (
-                <li key={p}>
-                  <span className="au-n" aria-hidden="true">
-                    {String(i + 1).padStart(2, "0")}
-                  </span>
-                  <span>{p}</span>
-                </li>
-              ))}
-            </ol>
-          )}
         </section>
 
         <section className="sheet au-sheet" aria-labelledby="au-sheet-title">
           {phase === "sent" ? (
             <div aria-live="polite">
               <header className="au-sheet-head">
-                <p className="au-sheet-label">{t("sent.label")}</p>
                 <h2 className="au-sheet-title" id="au-sheet-title">
                   {screenLink ? t("sent.titleBelow") : t("sent.titleSent")}
                 </h2>
@@ -239,11 +186,8 @@ export function LoginScreen({
           ) : (
             <>
               <header className="au-sheet-head">
-                <p className="au-sheet-label">
-                  {signup ? t("form.labelCreate") : t("form.labelSignIn")}
-                </p>
                 <h2 className="au-sheet-title" id="au-sheet-title">
-                  {signup ? t("form.titleCreate") : t("form.titleSignIn")}
+                  {signup ? t("form.labelCreate") : t("form.labelSignIn")}
                 </h2>
               </header>
 
@@ -306,12 +250,15 @@ export function LoginScreen({
                   </p>
                 )}
 
-                {/* The answer to "forgot password?", where the eye expects it. */}
-                <p className="au-note">
-                  {signup
-                    ? t("form.noteSignup")
-                    : t("form.noteSignin", { minutes: LINK_TTL_MINUTES })}
-                </p>
+                {/* The answer to "forgot password?", one click away. */}
+                <details className="au-how">
+                  <summary>{t("how")}</summary>
+                  <p>
+                    {signup
+                      ? t("form.noteSignup")
+                      : t("form.noteSignin", { minutes: LINK_TTL_MINUTES })}
+                  </p>
+                </details>
 
                 {doors.length > 0 && (
                   <>
@@ -336,14 +283,14 @@ export function LoginScreen({
                 )}
               </div>
 
-              <footer className="au-sheet-foot">
-                {signup
-                  ? t.rich("form.terms", {
-                      terms: (chunks) => <Link href="/terms">{chunks}</Link>,
-                      privacy: (chunks) => <Link href="/privacy">{chunks}</Link>,
-                    })
-                  : t("form.newHere")}
-              </footer>
+              {signup && (
+                <footer className="au-sheet-foot">
+                  {t.rich("form.terms", {
+                    terms: (chunks) => <Link href="/terms">{chunks}</Link>,
+                    privacy: (chunks) => <Link href="/privacy">{chunks}</Link>,
+                  })}
+                </footer>
+              )}
             </>
           )}
         </section>

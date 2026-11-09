@@ -61,24 +61,21 @@ export function InviteActions({
 
   if (mode === "wrong") {
     return (
-      <>
-        <button
-          type="button"
-          className="au-primary"
-          disabled={busy}
-          onClick={async () => {
-            setBusy(true);
-            await fetch("/api/auth/logout", { method: "POST" }).catch(() => undefined);
-            window.location.reload();
-          }}
-        >
-          <span>{tr("signOut")}</span>
-          <span className="au-arrow" aria-hidden="true">
-            &rarr;
-          </span>
-        </button>
-        <p className="au-note">{tr("thenAsks", { email })}</p>
-      </>
+      <button
+        type="button"
+        className="au-primary"
+        disabled={busy}
+        onClick={async () => {
+          setBusy(true);
+          await fetch("/api/auth/logout", { method: "POST" }).catch(() => undefined);
+          window.location.reload();
+        }}
+      >
+        <span>{tr("signOut")}</span>
+        <span className="au-arrow" aria-hidden="true">
+          &rarr;
+        </span>
+      </button>
     );
   }
 

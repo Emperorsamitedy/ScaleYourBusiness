@@ -358,33 +358,6 @@ export function currencyMark(
 /* ── keys ── */
 
 /**
- * Where a key submits, say so in words (no glyphs): the control type
- * decides the key, not the question's content.
- */
-export function keyHint(
-  type: IntakeQuestion["input_type"],
-  isMac: boolean,
-  tr: Tr = EN_TR,
-): string | null {
-  switch (type) {
-    case "long_text":
-      return tr("question.hintText", { modifier: isMac ? "Cmd" : "Ctrl" });
-    case "text":
-    case "number":
-    case "money":
-    case "date":
-    case "entity_list":
-      return tr("question.hintEnter");
-    case "single_select":
-    case "boolean":
-    case "multi_select":
-      return tr("question.hintKeys", { first: 1, last: 9 });
-    default:
-      return null;
-  }
-}
-
-/**
  * Number keys 1–9 pick a row, but never while the owner is typing: the
  * digit belongs to the field then. Pure over the event target's shape.
  */

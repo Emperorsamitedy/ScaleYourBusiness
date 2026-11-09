@@ -28,7 +28,6 @@ import {
   factCountText,
   factLabel,
   factValue,
-  keyHint,
   numberKeyIndex,
   provenanceLines,
   sourceWord,
@@ -308,17 +307,6 @@ describe("keys", () => {
     expect(numberKeyIndex("1", { tagName: "BODY" }, { ...none, ctrl: true })).toBeNull();
     expect(numberKeyIndex("0", { tagName: "BODY" }, none)).toBeNull();
     expect(numberKeyIndex("a", { tagName: "BODY" }, none)).toBeNull();
-  });
-
-  it("names keys in words, never glyphs", () => {
-    expect(keyHint("long_text", true)).toBe("Cmd + Enter to record");
-    expect(keyHint("long_text", false)).toBe("Ctrl + Enter to record");
-    expect(keyHint("money", false)).toBe("Enter to record");
-    expect(keyHint("single_select", false)).toBe("Keys 1–9 choose");
-    expect(keyHint("file", false)).toBeNull();
-    for (const t of ["long_text", "text", "number", "money", "date", "entity_list"] as const) {
-      expect(keyHint(t, true)).not.toMatch(/[↩⌘⏎]/);
-    }
   });
 });
 

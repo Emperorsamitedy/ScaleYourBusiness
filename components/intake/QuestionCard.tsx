@@ -21,7 +21,9 @@
 //   NO READING — I DON'T KNOW      the dashed tile wherever the bank allows
 //                                  an unknown; an explicit unknown stays
 //                                  distinct from a skip (rule 5)
-//   PURPOSE: <help>                the bank's own help text
+//   WHY?                           the bank's own help text, folded
+//                                  (decluttered 2026-11-09, owner's
+//                                  instruction; the key hints are gone)
 //   ← Q <prev> · SKIP FOR NOW · NEXT →
 //
 // The design's WORTH KNOWING box ("every €1 here moves your margin by
@@ -43,7 +45,6 @@ import {
   currencyMark,
   factLabel,
   factValue,
-  keyHint,
   minutesFor,
   moneyReference,
   numberKeyIndex,
@@ -146,7 +147,6 @@ export function QuestionCard({
   const [entityValid, setEntityValid] = useState(false);
   const [localError, setLocalError] = useState<string | null>(null);
   const [picked, setPicked] = useState<readonly string[]>([]);
-  const [isMac, setIsMac] = useState(false);
   const committing = useRef(false);
   const firstRow = useRef<HTMLButtonElement>(null);
   const t = useTranslations("intake.question");
@@ -161,10 +161,6 @@ export function QuestionCard({
     setPrefill(prefillFor(question.writes_to));
   }, [question.writes_to]);
   const labelId = `q-${question.id}`;
-
-  useEffect(() => {
-    if (/Mac|iPhone|iPad/.test(navigator.platform)) setIsMac(true);
-  }, []);
 
   // A choice question starts on the first tile so the number keys work at once.
   useEffect(() => {
@@ -344,7 +340,6 @@ export function QuestionCard({
   })();
 
   const error = serverError ?? localError;
-  const hint = keyHint(type, isMac, tr);
   const needsNext = !(type === "single_select" || type === "boolean" || type === "file");
   const nextDisabled =
     leaving ||
@@ -435,7 +430,14 @@ export function QuestionCard({
         )}
 
         <footer className="ix-q-foot">
-          {question.help ? <p className="ix-purpose">{question.help}</p> : <span />}
+          {question.help ? (
+            <details className="ix-how ix-purpose">
+              <summary>{tr("why")}</summary>
+              <p>{question.help}</p>
+            </details>
+          ) : (
+            <span />
+          )}
           <div className="ix-q-nav">
             {previous && (
               <button
@@ -468,7 +470,6 @@ export function QuestionCard({
             )}
           </div>
         </footer>
-        {hint && <p className="ix-note ix-hint">{hint}</p>}
       </div>
     </article>
   );

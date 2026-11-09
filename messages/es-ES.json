@@ -77,31 +77,16 @@
       "choose": "¿Qué negocio? — SYB"
     },
     "mast": {
-      "haveAccount": "¿Ya tiene una cuenta? ",
       "signIn": "Iniciar sesión",
       "createAccount": "Crear una cuenta"
     },
     "signup": {
-      "kicker": "Abrir un expediente nuevo",
-      "headline": "Empiece por el diagnóstico.",
-      "stepsHead": "Qué ocurre después de esta pantalla",
-      "step1": "Conecte sus cuentas en modo de solo lectura",
-      "step2": "Responda a las preguntas clave",
-      "step3": "Leemos sus cifras y firmamos el informe",
-      "takesMinutes": "{minutes} min",
-      "takesAboutMinutes": "unos {minutes} min",
-      "takesDays": "{days, plural, one {# día} many {# días} other {# días}}",
-      "takesDaysPending": "[{days}] {days, plural, one {día} many {días} other {días}}"
+      "headline": "Empiece por el diagnóstico."
     },
     "signin": {
-      "kicker": "El expediente le espera",
-      "headline": "De vuelta a su panel.",
-      "point1": "Nada se ejecuta en su negocio sin su aprobación.",
-      "point2": "Cada cifra muestra de dónde procede.",
-      "point3": "Nunca se borra nada: los datos antiguos se sustituyen y se conservan."
+      "headline": "De vuelta a su panel."
     },
     "sent": {
-      "label": "Revise su correo",
       "titleBelow": "Su enlace está abajo",
       "titleSent": "Enlace enviado",
       "onScreen": "El correo electrónico no está configurado aquí, así que su enlace de un solo uso aparece abajo. Caduca en {minutes, plural, one {# minuto} many {# minutos} other {# minutos}}.",
@@ -114,8 +99,6 @@
     "form": {
       "labelCreate": "Crear cuenta",
       "labelSignIn": "Iniciar sesión",
-      "titleCreate": "Abra el expediente de su negocio",
-      "titleSignIn": "Le damos la bienvenida de nuevo",
       "email": "Correo electrónico profesional",
       "emailPlaceholder": "usted@sunegocio.es",
       "website": "Sitio web",
@@ -128,38 +111,31 @@
       "noteSignin": "Sin contraseña. El enlace funciona una sola vez, durante {minutes, plural, one {# minuto} many {# minutos} other {# minutos}}.",
       "orSignup": "O regístrese con",
       "orSignin": "O continúe con",
-      "terms": "Al crear una cuenta, acepta las <terms>condiciones</terms> y el <privacy>aviso de privacidad</privacy>.",
-      "newHere": "¿Aún no usa SYB? Cree una cuenta desde la esquina superior derecha."
+      "terms": "Al crear una cuenta, acepta las <terms>condiciones</terms> y el <privacy>aviso de privacidad</privacy>."
     },
     "confirm": {
-      "kicker": "Iniciar sesión",
       "headline": "Un paso más.",
-      "label": "Confirmar",
       "title": "¿Iniciar sesión como {email}?",
       "sentTo": "Este enlace se envió a <b>{email}</b>.",
       "button": "Iniciar sesión",
       "note": "¿No es su dirección? Cierre esta página. Puede que alguien le haya enviado su propio enlace, y no ocurre nada a menos que pulse el botón.",
       "expiredHeadline": "Ese enlace ha caducado.",
       "expiredMessage": "Los enlaces de inicio de sesión funcionan una sola vez y caducan al cabo de {minutes, plural, one {# minuto} many {# minutos} other {# minutos}}. Pida uno nuevo y le llegará en un momento.",
-      "linkLabel": "Enlace",
-      "linkDead": "Este enlace ya no funciona",
       "newLink": "Enviarme un nuevo enlace de inicio de sesión"
     },
     "choose": {
       "signedInAs": "Sesión iniciada como {email}",
       "headline": "¿Qué negocio?",
-      "label": "Sus negocios",
-      "title": "Elija uno para abrirlo. Puede cambiar en cualquier momento desde el menú.",
       "add": "Añadir otro negocio",
       "foot": "Cada negocio conserva sus propios datos, su equipo y su factura. Nada de uno se muestra nunca en otro."
-    }
+    },
+    "how": "Cómo funciona",
+    "why": "¿Por qué?"
   },
   "locale": {
     "meta": "Idioma y moneda — SYB",
     "first": {
-      "kicker": "Antes de empezar",
-      "headline": "Elija su idioma y su moneda.",
-      "lede": "Le hablaré en este idioma. Todas las cifras de su negocio se muestran en esta moneda, y nunca se convierte nada de una moneda a otra."
+      "headline": "Elija su idioma y su moneda."
     },
     "yourLanguage": "Su idioma",
     "yourLanguageHelp": "El idioma en el que lee SYB. Cada persona del equipo elige el suyo.",
@@ -213,14 +189,12 @@
       "inProgress": "En curso"
     },
     "bank": {
-      "title": "Banco de canales",
       "now": "CN {channel} · {area} · <fig>{pct} %</fig>",
-      "none": "Su negocio, medido área por área",
       "done": "<fig>{done}</fig> de {total} completadas",
       "hide": "Ocultar canales",
       "all": "Todos los canales",
       "legendOwner": "aportado por usted",
-      "legendMeasured": "leído de {connector} · el orden es libre",
+      "legendMeasured": "leído de {connector}",
       "tileChannel": "CN {channel}",
       "tilePct": "{pct} %",
       "tileWords": "Canal {channel}, {area}: {status}, {pct} % respondido — {bars}.",
@@ -236,13 +210,9 @@
       }
     },
     "mast": {
-      "sub": "Calibrando el registro",
       "saving": "Guardando…",
-      "listening": "Escuchando",
-      "sessionTitle": "Minutos desde que se abrió esta página",
-      "session": "Sesión · <fig>{minutes}</fig> min",
       "facts": "{count, plural, one {<fig>#</fig> dato registrado} many {<fig>#</fig> datos registrados} other {<fig>#</fig> datos registrados}}",
-      "pause": "Pausa: terminar más tarde"
+      "pause": "Terminar más tarde"
     },
     "pause": {
       "title": "Pausa · terminar más tarde",
@@ -264,7 +234,6 @@
       "reopened": "Reabierta. La pregunta vuelve a estar a la izquierda."
     },
     "done": {
-      "cap": "La entrevista · completa",
       "title": "La entrevista ha terminado.",
       "lede": "Tengo el registro que necesito para una primera lectura del negocio. Las preguntas más a fondo llegarán después, cuando haya visto el primer informe.",
       "answers": "Respuestas registradas",
@@ -293,9 +262,6 @@
       "emptyUnknown": "Responda a esta pregunta o elija «Sin dato: no lo sé» para continuar.",
       "emptySkip": "Responda a esta pregunta o elija «Omitir por ahora» para continuar.",
       "entityEmpty": "Rellene al menos el primer campo de una fila para registrarla.",
-      "hintText": "{modifier} + Intro para registrar",
-      "hintEnter": "Intro para registrar",
-      "hintKeys": "Teclas {first}–{last} para elegir",
       "speak": "Dicte su respuesta",
       "spokenAfter": "Revísela y corrija lo que haga falta; después pulse Siguiente para registrarla.",
       "fileStub": "La subida de archivos llegará en una sesión posterior",
@@ -306,7 +272,6 @@
       "exact": "Exacto<sr>: importe en {currency}</sr>",
       "estimate": "Es una estimación",
       "estimated": "Marcado como estimación",
-      "basis": "Base: estimada",
       "which": "¿Qué quería decir?",
       "unreadable": "Eso no parece una cifra. Use dígitos, con coma o punto para los decimales."
     },
@@ -319,10 +284,9 @@
       "addRow": "Añadir otra fila"
     },
     "record": {
-      "cap": "El registro · lo más reciente primero",
       "channelTitle": "Canal {channel} · {area}",
       "facts": "{count, plural, one {<fig>#</fig> dato} many {<fig>#</fig> datos} other {<fig>#</fig> datos}}",
-      "empty": "Todavía no hay nada registrado en esta área. Cada respuesta aparece aquí con su procedencia.",
+      "empty": "Todavía no hay nada registrado en esta área.",
       "listLabel": "Datos registrados en {area}",
       "srAnswer": "responderla ahora",
       "srChange": "cambiar esta respuesta",
@@ -381,15 +345,13 @@
       "factsOnFile": "{count, plural, one {# dato registrado} many {# datos registrados} other {# datos registrados}}"
     },
     "live": {
-      "cap": "Lectura en directo · cambia según responde",
       "dial": "{label} {value} por ciento en una escala de {min} a {max}",
       "dialStated": "{label} {value} por ciento en una escala de {min} a {max}; usted indicó {stated} por ciento",
       "noRange": "aún no hay rango de referencia",
       "stated": "usted indicó <fig>{value} %</fig>",
       "foot": "<strong>Derivado</strong> · {formula} · a partir de {inputs, plural, one {<fig>#</fig> dato registrado} many {<fig>#</fig> datos registrados} other {<fig>#</fig> datos registrados}}",
       "readiness": "Preparación del informe",
-      "readinessPct": "{pct} %",
-      "readinessNote": "cada respuesta acota los rangos de su informe"
+      "readinessPct": "{pct} %"
     },
     "reconcile": {
       "flag": "Por conciliar",
@@ -397,18 +359,10 @@
       "implausible": "Una respuesta está fuera del rango habitual",
       "gap": "Falta una respuesta",
       "stale": "Una respuesta puede estar desactualizada",
-      "kind": {
-        "contradiction": "contradicción",
-        "implausible": "inverosímil",
-        "gap": "hueco",
-        "stale": "desactualizada"
-      },
-      "note": "No voy a elegir por usted. Confirme que ambas son correctas o cambie una.",
       "confirm": "Confirmar ambas",
       "fix": "Cambiar una"
     },
     "tape": {
-      "head": "Cinta",
       "label": "La cinta: datos registrados, lo más reciente primero"
     },
     "keep": {
@@ -449,7 +403,9 @@
       "unknown_field": "esa lista no tiene ningún campo llamado «{field}»",
       "finding_not_open": "eso ya está resuelto",
       "invalid": "no se ha podido registrar esa respuesta"
-    }
+    },
+    "how": "Cómo funciona",
+    "why": "¿Por qué?"
   },
   "voice": {
     "speak": "Hablar",
@@ -2643,7 +2599,6 @@
       "signIn": "Iniciar sesión"
     },
     "hero": {
-      "pill": "Un análisis de sangre para su negocio",
       "titleA": "Su negocio parece sano.",
       "titleB": "<em>Sus cifras</em>, quizá no.",
       "lede": "Hacemos {checks} comprobaciones de sus ventas, reservas, pagos y anuncios, ponemos precio en euros a cada fuga y le entregamos un informe firmado en {daysText} {days, plural, one {día} many {días} other {días}}.",
@@ -2654,12 +2609,9 @@
       "trustRefund": "Reembolso si no encontramos nada"
     },
     "chart": {
-      "kicker": "El gráfico",
-      "title": "Su negocio, leído como una acción en bolsa.",
-      "aside": "Marcamos el día en que empezó cada fuga y sombreamos lo que le costó."
+      "title": "Su negocio, leído como una acción en bolsa."
     },
     "panels": {
-      "kicker": "Qué analizamos",
       "title": "Nueve paneles. Todo lo que mueve su beneficio.",
       "p01": {
         "name": "Conversión",
@@ -2699,7 +2651,6 @@
       }
     },
     "steps": {
-      "kicker": "Cómo funciona",
       "title": "Quince minutos de su tiempo.",
       "whenMinutes": "Día {day} · {minutes} min",
       "whenDay": "Día {day}",
@@ -2717,7 +2668,6 @@
       }
     },
     "price": {
-      "kicker": "Precio",
       "titleA": "Un análisis.",
       "titleB": "Un precio.",
       "card": "Panel completo del negocio",
@@ -2965,9 +2915,7 @@
   },
   "resume": {
     "meta": "Continuar — SYB",
-    "kicker": "Su entrevista",
     "headline": "Siga donde lo dejó.",
-    "label": "Confirmar",
     "title": "¿Continuar con esta entrevista?",
     "button": "Continuar",
     "note": "¿No ha pedido este enlace? Cierre esta página. No cambia nada en este navegador a menos que pulse el botón.",
@@ -6045,16 +5993,13 @@
     "meta": {
       "title": "Su invitación — SYB"
     },
-    "kicker": "Invitación al equipo",
-    "label": "Invitación",
     "someBusiness": "un negocio en SYB",
     "headline": {
       "join": "Únase a {where}.",
       "bad": "Esa invitación no funciona."
     },
     "title": {
-      "as": "Con el rol de {role, select, owner {propietario} manager {gestor} other {lector}}, para {email}",
-      "none": "Aquí no hay ninguna invitación"
+      "as": "Con el rol de {role, select, owner {propietario} manager {gestor} other {lector}}, para {email}"
     },
     "unknown": "Este enlace no es una invitación que yo conozca. Pida una nueva a quien se la envió.",
     "status": {
@@ -6064,7 +6009,6 @@
     },
     "askNew": "Pida una nueva a quien se la envió.",
     "wrong": "Esta invitación es para <b>{invited}</b>, y usted ha iniciado sesión como <b>{signedIn}</b>. No añadiré a la persona equivocada: cierre la sesión y vuelva a abrir este enlace.",
-    "signedIn": "Ha iniciado sesión como <b>{email}</b>. ¿Unirse a {where} con el rol de {role, select, owner {propietario} manager {gestor} other {lector}}?",
     "signIn": "Iniciará sesión como <b>{email}</b>, la dirección para la que es la invitación. Le enviaré allí por correo un enlace de inicio de sesión; al abrirlo, se unirá al equipo.",
     "foot": "No ocurre nada hasta que pulse el botón. ¿No es su dirección? Cierre esta página.",
     "footLink": "Iniciar sesión en SYB",
@@ -6073,7 +6017,6 @@
       "devLink": "El correo no está configurado aquí (desarrollo), así que este es el enlace de inicio de sesión:",
       "emailed": "He enviado un enlace de inicio de sesión a {email}. Ábralo allí y se unirá.",
       "signOut": "Cerrar sesión",
-      "thenAsks": "Después, esta página volverá a preguntar, como {email}.",
       "join": "Unirse",
       "emailLink": "Enviar un enlace de inicio de sesión a {email}",
       "signInJoin": "Iniciar sesión y unirse"

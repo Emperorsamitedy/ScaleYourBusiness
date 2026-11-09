@@ -23,9 +23,6 @@ export function Tape({ facts }: { facts: readonly RecordFact[] }) {
   const entries = tapeEntries(facts, now, tr, locale);
   return (
     <section className="ix-tape" aria-label={tr("tape.label")}>
-      <span className="ix-tape-head" aria-hidden="true">
-        {tr("tape.head")} &#9656;
-      </span>
       <ol className="ix-tape-line" tabIndex={0}>
         {entries.map((e) => (
           <li key={e.id}>

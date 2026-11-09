@@ -9,6 +9,8 @@
 // track is neutral and the card says "no reference range yet". When the
 // owner stated a margin of their own, it is marked on the dial as theirs.
 // The card is not drawn at all when no figure can be computed.
+// Decluttered 2026-11-09 on the owner's instruction: no caption; how the
+// figure was worked out and the missing range sit under "How this works".
 
 "use client";
 
@@ -37,6 +39,7 @@ export function LiveReading({ reading }: { reading: Reading }) {
   const stated = reading.stated_pct;
   const statedAt = stated !== null ? dialPoint(stated, CX, CY, R + 9) : null;
   const t = useTranslations("intake.live");
+  const tHow = useTranslations("intake");
   const { locale } = useIntakeWords();
   const fig = (chunks: ReactNode) => <span className="fig">{chunks}</span>;
   const value = num(reading.value_pct, 1, locale);
@@ -49,7 +52,6 @@ export function LiveReading({ reading }: { reading: Reading }) {
   return (
     <section className="ix-card" aria-labelledby="ix-live-h">
       <header className="ix-card-head">
-        <p className="ix-cap">{t("cap")}</p>
         <h2 className="ix-card-title" id="ix-live-h">
           {reading.label}
         </h2>
@@ -102,7 +104,6 @@ export function LiveReading({ reading }: { reading: Reading }) {
           <p className="ix-big fig">
             {value} <span className="ix-big-unit">%</span>
           </p>
-          <p className="ix-note">{t("noRange")}</p>
           {stated !== null && (
             <p className="ix-note">
               <span className="ix-stated-sw" aria-hidden="true" />{" "}
@@ -111,14 +112,19 @@ export function LiveReading({ reading }: { reading: Reading }) {
           )}
         </div>
       </div>
-      <p className="ix-card-foot ix-note">
-        {t.rich("foot", {
-          formula: reading.formula,
-          inputs: reading.inputs,
-          fig,
-          strong: (chunks) => <strong>{chunks}</strong>,
-        })}
-      </p>
+      {/* Provenance (rule 6), folded, never dropped. */}
+      <details className="ix-how ix-card-foot">
+        <summary>{tHow("how")}</summary>
+        <p>
+          {t.rich("foot", {
+            formula: reading.formula,
+            inputs: reading.inputs,
+            fig,
+            strong: (chunks) => <strong>{chunks}</strong>,
+          })}
+        </p>
+        <p>{t("noRange")}</p>
+      </details>
     </section>
   );
 }
@@ -149,7 +155,6 @@ export function Readiness({ fraction }: { fraction: number }) {
           <span key={i} className={i < filled ? "ix-cell on" : "ix-cell"} />
         ))}
       </div>
-      <p className="ix-note">{t("readinessNote")}</p>
     </section>
   );
 }

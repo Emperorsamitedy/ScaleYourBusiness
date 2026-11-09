@@ -62,8 +62,7 @@
   align-items: center;
 }
 
-.au-kicker,
-.au-steps-head {
+.au-kicker {
   margin: 0;
   font-family: var(--f-mono);
   font-size: var(--t-mono-xs);
@@ -74,7 +73,7 @@
   color: var(--desk-ink-2);
 }
 .au-headline {
-  margin: 12px 0 0;
+  margin: 0;
   font-family: var(--f-display);
   font-weight: 700;
   /* the design sets the headline a touch under --t-display-1 */
@@ -83,70 +82,8 @@
   line-height: 1.05;
   color: var(--desk-ink);
 }
-
-/* Sign-in: three numbered promises between hairlines. */
-.au-points {
-  max-width: 480px;
-  margin: 31px 0 0;
-  padding: 0;
-  list-style: none;
-  border-top: 1px solid var(--rule);
-}
-.au-points li {
-  display: grid;
-  grid-template-columns: 38px minmax(0, 1fr);
-  padding: 14px 0;
-  border-bottom: 1px solid var(--desk-rule);
-  font-size: var(--t-prose);
-  line-height: 24px;
-  color: var(--desk-ink);
-}
-.au-n {
-  font-family: var(--f-mono);
-  font-size: var(--t-mono-s);
-  font-variant-numeric: tabular-nums;
-  color: var(--desk-ink-2);
-}
-.au-points .au-n {
-  line-height: 20px;
-}
-
-/* Sign-up: what happens next, a ruled table; each column ruled on its
-   own so the row rules break at the gutters. */
-.au-steps {
-  max-width: 512px;
-  margin-top: 26px;
-}
-.au-steps-head {
-  padding-bottom: 9px;
-  border-bottom: 1px solid var(--rule);
-}
-.au-steps-table {
-  width: calc(100% + 2 * 15px);
-  margin: 0 -13px;
-  border-collapse: separate;
-  border-spacing: 15px 0;
-}
-.au-steps-table td {
-  padding: 11px 0 10px;
-  border-bottom: 1px solid var(--desk-rule);
-  vertical-align: baseline;
-  font-size: var(--t-prose);
-  line-height: 24px;
-  color: var(--desk-ink);
-}
-.au-steps-table .au-n {
-  width: 41px;
-  font-size: var(--t-mono-s);
-  color: var(--desk-ink-2);
-}
-.au-steps-table .au-takes {
-  width: 1%;
-  white-space: nowrap;
-  font-family: var(--f-mono);
-  font-size: 12px;
-  font-variant-numeric: tabular-nums;
-  color: var(--desk-ink-2);
+.au-kicker + .au-headline {
+  margin-top: 12px;
 }
 
 /* ── the sheet ── */
@@ -396,10 +333,6 @@
     padding: var(--s-7) var(--gutter) var(--s-8);
     max-width: calc(560px + 2 * var(--gutter));
   }
-  .au-points,
-  .au-steps {
-    max-width: none;
-  }
 }
 
 @media (max-width: 719px) {
@@ -409,15 +342,11 @@
 }
 
 @media (max-width: 559px) {
-  .au-mast-pre {
-    display: none;
-  }
   .au-main {
     padding-top: var(--s-6);
   }
   .au-headline {
     font-size: 26px;
-    margin-top: 12px;
   }
   .au-sheet-head {
     padding: 14px 14px 12px;
@@ -428,12 +357,37 @@
   .au-sheet-foot {
     padding: 11px 14px;
   }
-  .au-steps-table .au-n {
-    width: 28px;
-  }
-  .au-points li {
-    grid-template-columns: 32px minmax(0, 1fr);
-  }
+}
+
+/* Folded detail (decluttered 2026-11-09): explanations and error reasons
+   sit behind one closed disclosure per sheet. */
+.au-how {
+  margin: 12px 0 0;
+  font-size: var(--t-prose-s);
+  line-height: 1.45;
+  color: var(--sheet-ink-2);
+}
+.au-how summary {
+  cursor: pointer;
+  width: fit-content;
+  font-family: var(--f-mono);
+  font-size: var(--t-mono-xs);
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  color: var(--sheet-ink-2);
+}
+.au-how summary:hover {
+  color: var(--sheet-ink);
+}
+.au-how summary:focus-visible {
+  outline: 2px solid var(--sheet-ink);
+  outline-offset: 2px;
+}
+.au-how p {
+  margin: 8px 0 0;
+}
+.au-how strong {
+  color: var(--sheet-ink);
 }
 
 /* Idea 52: "Which business?" — one door per business, stacked. */
