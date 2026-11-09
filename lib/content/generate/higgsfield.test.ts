@@ -290,6 +290,36 @@ describe("P6-03 — Higgsfield, submit then poll (fake HTTP only)", () => {
     expect(free.message).toMatch(/nothing was billed/);
   });
 
+  it("stops waiting by the run's deadline, and submits nothing it couldn't wait for", async () => {
+    let t = 1_000_000;
+    const clocked = (fetch: HttpFetch) =>
+      higgsfieldMediaProvider({
+        key: KEY,
+        model: MODEL,
+        usd_micros_per_second: HIGGSFIELD_DEFAULTS.usd_micros_per_second,
+        fetch,
+        now: () => t,
+        sleep: async (ms) => {
+          t += ms;
+        },
+      });
+    // Three checks fit before the deadline; the cap (45) is never reached.
+    const stuck = fakeApi({ statuses: ["in_progress"], cancel: 400 });
+    const e = await rejection(
+      clocked(stuck.fetch).generate({ ...request, deadline_at: t + 16_000 }),
+    );
+    expect(stuck.sent.filter((s) => s.url.endsWith("/status"))).toHaveLength(3);
+    expect(stuck.sent.filter((s) => s.url.endsWith("/cancel"))).toHaveLength(1);
+    expect(e).toMatchObject({ retryable: false, cost: { amount_minor: 56, currency: "USD" } });
+    expect(e.message).toMatch(/within 3 checks/);
+
+    // No time left: nothing is sent at all, and nothing is billed.
+    const late = fakeApi({});
+    const none = await rejection(clocked(late.fetch).generate({ ...request, deadline_at: t + 1 }));
+    expect(late.sent).toHaveLength(0);
+    expect(none).toMatchObject({ retryable: false, cost: null });
+  });
+
   it("a status poll that drops counts against the cap; a lost request stops at once", async () => {
     const flaky = fakeApi({
       statuses: [json(502, { detail: "bad gateway" }), "in_progress", "completed"],

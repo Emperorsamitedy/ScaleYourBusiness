@@ -17,19 +17,35 @@ export function datesInWords(text: string | null): string | null {
     .replace(/\b(\d{4}-\d{2}-\d{2})\.\.(\d{4}-\d{2}-\d{2})\b/g, "$1 to $2")
     .replace(/\b(\d{4})-(\d{2})-(\d{2})\b(?![T:\d])/g, (whole, y: string, m: string, d: string) => {
       const month = MONTHS[Number(m) - 1];
-      return month ? `${Number(d)} ${month} ${y}` : whole;
+      // Only a day the calendar has: "2026-02-31" or "2026-11-00" stays as written.
+      const real = new Date(Date.UTC(Number(y), Number(m) - 1, Number(d)));
+      return month && real.getUTCDate() === Number(d) && real.getUTCMonth() === Number(m) - 1
+        ? `${Number(d)} ${month} ${y}`
+        : whole;
     });
 }
 
-/** The provider ids the connectors write into their notes, as their brands. */
+/**
+ * The provider ids the connectors write into their notes (lib/connectors
+ * derive: `Measured by ${conn.provider}`), as their brands. The ids are the
+ * connectors' own: Meta's is "meta_ads", not "meta".
+ */
 const BRANDS: Readonly<Record<string, string>> = {
   shopify: "Shopify",
   stripe: "Stripe",
   woocommerce: "WooCommerce",
   square: "Square",
-  meta: "Meta",
+  meta_ads: "Meta",
   ga4: "Google Analytics",
+  search_console: "Google Search Console",
+  google_ads: "Google Ads",
+  tiktok_ads: "TikTok",
 };
+
+const IDS = Object.keys(BRANDS).join("|");
+/** "by shopify", "from ga4", and the list the derive step joins: "by meta_ads and google_ads". */
+const NAMED = new RegExp(`\\b(by|from) ((?:${IDS})(?: and (?:${IDS}))*)\\b`, "g");
+const ONE = new RegExp(`\\b(?:${IDS})\\b`, "g");
 
 /**
  * A measured fact's note as an owner reads it: its days written out and a
@@ -42,7 +58,7 @@ export function noteWords(text: string | null): string | null {
   const dated = datesInWords(text);
   if (dated === null) return null;
   return dated.replace(
-    /\b(by|from) (shopify|stripe|woocommerce|square|meta|ga4)\b/g,
-    (_whole, word: string, id: string) => `${word} ${BRANDS[id] ?? id}`,
+    NAMED,
+    (_whole, word: string, ids: string) => `${word} ${ids.replace(ONE, (id) => BRANDS[id] ?? id)}`,
   );
 }

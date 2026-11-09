@@ -196,10 +196,23 @@ describe("siteCheckWords", () => {
     expect(noteWords("Measured by shopify, 2026-10-08 to 2026-11-06.")).toBe(
       "Measured by Shopify, 8 Oct 2026 to 6 Nov 2026.",
     );
-    expect(noteWords("Measured by meta: ad spend divided by the purchases it attributed.")).toBe(
-      "Measured by Meta: ad spend divided by the purchases it attributed.",
+    // The ids the connectors really write (lib/connectors/derive), not shorthand.
+    expect(
+      noteWords("Measured by meta_ads: ad spend divided by the purchases it attributed."),
+    ).toBe("Measured by Meta: ad spend divided by the purchases it attributed.");
+    expect(
+      noteWords("Measured by meta_ads and google_ads together, 2026-10-08 to 2026-11-06."),
+    ).toBe("Measured by Meta and Google Ads together, 8 Oct 2026 to 6 Nov 2026.");
+    expect(noteWords("Measured by tiktok_ads, from search_console.")).toBe(
+      "Measured by TikTok, from Google Search Console.",
     );
     expect(noteWords("a square bowl")).toBe("a square bowl");
+    expect(noteWords("shopify and stripe")).toBe("shopify and stripe");
     expect(noteWords(null)).toBeNull();
+  });
+
+  it("writes out only days the calendar has", () => {
+    expect(datesInWords("over 2026-02-31 and 2026-11-00")).toBe("over 2026-02-31 and 2026-11-00");
+    expect(datesInWords("on 2024-02-29")).toBe("on 29 Feb 2024");
   });
 });

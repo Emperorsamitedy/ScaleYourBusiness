@@ -55,6 +55,12 @@ export interface GenerationRequest {
    * twice for a request that timed out on the way back.
    */
   idempotency_key?: string;
+  /**
+   * P6-03: when this run must stop waiting (epoch ms). The function that
+   * runs it has a hard time limit; a provider that polls stops by then, so
+   * the run settles its own record instead of being cut off mid-wait.
+   */
+  deadline_at?: number;
 }
 
 export interface GenerationOutput {

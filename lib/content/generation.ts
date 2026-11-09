@@ -45,6 +45,7 @@ import os from "node:os";
 import path from "node:path";
 import { and, eq, gte, inArray, sql } from "drizzle-orm";
 import { db } from "../../db";
+import type { DbOrTx, DbTx } from "../../db";
 import {
   businessProfiles,
   competitors,
@@ -257,8 +258,8 @@ export function monthStart(at: Date): Date {
   return new Date(Date.UTC(at.getUTCFullYear(), at.getUTCMonth(), 1));
 }
 
-async function spent(where: ReturnType<typeof and>): Promise<number> {
-  const [row] = await db
+async function spent(where: ReturnType<typeof and>, exec: DbOrTx = db): Promise<number> {
+  const [row] = await exec
     .select({
       // Settled rows count what they cost; a run still generating counts its estimate.
       total: sql<string>`coalesce(sum(coalesce(${mediaGenerations.cost_minor}, ${mediaGenerations.estimate_minor})), 0)`,
@@ -280,25 +281,37 @@ export async function capRoom(args: {
   targetItemId: string;
   now: Date;
   caps?: GenerationCaps;
+  /** An open transaction holding lockCaps, so the read and the claim after it can't interleave with another run's. */
+  exec?: DbOrTx;
 }): Promise<CapRoom> {
   const caps = args.caps ?? DEFAULT_CAPS;
+  const exec = args.exec ?? db;
   const cur = eq(mediaGenerations.currency, caps.currency);
-  const [item, month] = await Promise.all([
-    spent(and(eq(mediaGenerations.target_item_id, args.targetItemId), cur)),
-    spent(
-      and(
-        eq(mediaGenerations.account_id, args.accountId),
-        gte(mediaGenerations.created_at, monthStart(args.now).toISOString()),
-        cur,
-      ),
+  // One after the other: a transaction is one connection.
+  const item = await spent(and(eq(mediaGenerations.target_item_id, args.targetItemId), cur), exec);
+  const month = await spent(
+    and(
+      eq(mediaGenerations.account_id, args.accountId),
+      gte(mediaGenerations.created_at, monthStart(args.now).toISOString()),
+      cur,
     ),
-  ]);
+    exec,
+  );
   return {
     item_spent: money(item, caps.currency),
     month_spent: money(month, caps.currency),
     item_cap: money(caps.item_cap_minor, caps.currency),
     month_cap: money(caps.month_cap_minor, caps.currency),
   };
+}
+
+/**
+ * Hold the account's generation caps for the rest of this transaction. A
+ * cap check and the ledger row that spends against it are taken under it,
+ * so two runs started at once can't both fit into the same room.
+ */
+export async function lockCaps(tx: DbTx, accountId: string): Promise<void> {
+  await tx.execute(sql`SELECT pg_advisory_xact_lock(hashtext(${`media-caps:${accountId}`}))`);
 }
 
 /** Pure: the sentence when one more charge of `next` would break a cap, else null. */
@@ -589,6 +602,8 @@ export async function generateFromProposal(args: {
   store?: MediaStore;
   now?: Date;
   limitLlm?: LimitLlm;
+  /** P6-03: whether a clip can be labelled here (FFmpeg and ffprobe); tests inject it. */
+  labelling?: () => boolean;
 }): Promise<GenerationOutcome> {
   const now = args.now ?? new Date();
   const [proposal] = await db.select().from(proposals).where(eq(proposals.id, args.proposalId));
@@ -611,6 +626,7 @@ export async function generateFromProposal(args: {
       proposal,
       setup: args.setup ?? generationSetup(),
       ...(args.store ? { store: args.store } : {}),
+      ...(args.labelling ? { labelling: args.labelling } : {}),
       now,
     });
   }

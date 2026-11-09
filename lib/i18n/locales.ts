@@ -69,15 +69,30 @@ export function languageStatus(locale: AppLocale): LanguageStatus {
 }
 
 /**
+ * Pure: the languages a LANGUAGES_IN_REVIEW value names. Typed by hand into
+ * Vercel, so spaces, case and "_" for "-" are forgiven ("zh-hans", "ru_RU");
+ * a code that isn't one of ours names nothing.
+ */
+export function sentBack(raw: string | undefined): ReadonlySet<AppLocale> {
+  const out = new Set<AppLocale>();
+  for (const part of (raw ?? "").split(",")) {
+    const code = part.trim().replace(/_/g, "-").toLowerCase();
+    const locale = LOCALES.find((l) => l.toLowerCase() === code);
+    if (locale) out.add(locale);
+  }
+  return out;
+}
+
+/**
  * Pure: the languages `LANGUAGES_IN_REVIEW` sends back to review, in the
- * table's order — only languages SYB speaks, and never English. Anything
- * else in the list is ignored. /ops reads the same list through this.
+ * table's order — only languages SYB speaks (read forgivingly, see
+ * sentBack), and never English. /ops reads the same list through this.
  */
 export function languagesInReview(
   raw: string | undefined = process.env.LANGUAGES_IN_REVIEW,
 ): AppLocale[] {
-  const back = (raw ?? "").split(",").map((s) => s.trim());
-  return LOCALES.filter((l) => l !== DEFAULT_LOCALE && back.includes(l));
+  const back = sentBack(raw);
+  return LOCALES.filter((l) => l !== DEFAULT_LOCALE && back.has(l));
 }
 
 /** Pure: whether a language may be used by someone who is (or isn't) a named reviewer. */

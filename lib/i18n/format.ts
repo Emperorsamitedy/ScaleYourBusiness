@@ -75,30 +75,30 @@ const EN_MONTHS = [
   "Dec",
 ];
 
-/** "6 Nov" in the language: a day and a short month ("6. Nov.", "11月6日"). */
+/** "6 Nov" in the language: a day and a short month ("6. Nov.", "11月6日"). Not a day: as given. */
 export function dayMonth(day: string, locale: AppLocale): string {
-  if (locale === "en") {
-    const d = dayOf(day);
-    if (Number.isNaN(d.getTime())) return day;
-    return `${d.getUTCDate()} ${EN_MONTHS[d.getUTCMonth()]}`;
-  }
-  return dateFormat(`dm|${locale}`, locale, { day: "numeric", month: "short" }).format(dayOf(day));
+  const d = dayOf(day);
+  // Intl throws on an invalid date; every language leaves it as written, as English does.
+  if (Number.isNaN(d.getTime())) return day;
+  if (locale === "en") return `${d.getUTCDate()} ${EN_MONTHS[d.getUTCMonth()]}`;
+  return dateFormat(`dm|${locale}`, locale, { day: "numeric", month: "short" }).format(d);
 }
 
-/** "6 Nov 2026" in the language. */
+/** "6 Nov 2026" in the language. Not a day: as given. */
 export function dayMonthYear(day: string, locale: AppLocale): string {
-  if (locale === "en") {
-    const d = dayOf(day);
-    return Number.isNaN(d.getTime()) ? day : `${dayMonth(day, locale)} ${d.getUTCFullYear()}`;
-  }
+  const d = dayOf(day);
+  if (Number.isNaN(d.getTime())) return day;
+  if (locale === "en") return `${dayMonth(day, locale)} ${d.getUTCFullYear()}`;
   return dateFormat(`dmy|${locale}`, locale, {
     day: "numeric",
     month: "short",
     year: "numeric",
-  }).format(dayOf(day));
+  }).format(d);
 }
 
-/** "November 2026" in the language. */
+/** "November 2026" in the language. Not a day: as given. */
 export function monthYear(day: string, locale: AppLocale): string {
-  return dateFormat(`my|${locale}`, locale, { month: "long", year: "numeric" }).format(dayOf(day));
+  const d = dayOf(day);
+  if (Number.isNaN(d.getTime())) return day;
+  return dateFormat(`my|${locale}`, locale, { month: "long", year: "numeric" }).format(d);
 }
