@@ -967,10 +967,14 @@
         "titleNone": "每项营销活动都能赚回其成本",
         "titleLosing": "{count, plural, other {有 # 项营销活动的成本高于其带回的收入}}",
         "window": "Meta Ads · {from}–{to}",
+        "windowPlatforms": "{platforms} · {from}–{to}",
         "derivedFrom": "<word>{derived}</word>，依据 Meta 自己的归因",
+        "derivedFromPlatforms": "<word>{derived}</word>，依据各平台自己的归因",
         "foot": "回报 = Meta 归因于该营销活动的购买价值 ÷ 其花费。低于 {even} 时，按 Meta 自己的统计它在亏钱——这就是我提议暂停的那条线。",
+        "footPlatforms": "回报 = 平台归因于该营销活动的价值 ÷ 其花费。低于 {even} 时，按该平台自己的统计它在亏钱——这就是我提议暂停的那条线。",
         "keySpent": "花费：空心",
         "keyBack": "Meta 归因的回收：实心",
+        "keyBackPlatforms": "平台归因的回收：实心",
         "colCampaign": "营销活动",
         "colSpentBack": "花费对比回收",
         "colReturn": "回报",
@@ -7270,17 +7274,22 @@
         "typedNeeds": "您设想的每日预算",
         "newSpendFormula": "每天 {daily} × {days} 天",
         "dailySource": "Meta：最近 {window} 中{count, plural, other { # 个已测量日}}花费 {spend}",
+        "dailySourceOn": "{platform}：最近 {window} 中{count, plural, other { # 个已测量日}}花费 {spend}",
         "noSpend": "最近四周没有已测量的花费",
         "dailyNeeds": "这项营销活动运行几周的数据",
         "pauseFormula": "每天不花的 {daily} × {days} 天",
         "changeFormula": "每天 {daily} × {change} × {days} 天",
         "roasSource": "{which, select, pooled {Meta 归因的购买 ÷ 花费，按最近 {window} 天内滚动的 {block} 天周计算，涵盖您已测量的所有营销活动，取中间一半（{count, plural, other {# 周}}）} other {Meta 归因的购买 ÷ 花费，按最近 {window} 天内滚动的 {block} 天周计算，取中间一半（{count, plural, other {# 周}}）}}",
+        "roasSourceOn": "{platform} 归因的价值 ÷ 花费，按最近 {window} 天内滚动的 {block} 天周计算，取中间一半（{count, plural, other {# 周}}）",
         "roasNonePooled": "您的营销活动中没有一项在 {currency} 下有 {days} 个已测量日",
         "roasNone": "{count, plural, other {# 个已测量日}}——我需要 {need} 个",
         "roasNeeds": "{which, select, pooled {一项营销活动的 {days} 个已测量日} other {这项营销活动的 {days} 个已测量日}}",
         "reachNotRead": "没有读取 Meta 每项营销活动的触达人数",
+        "reachNotReadOn": "没有读取 {platform} 每项营销活动的触达人数",
         "ordersNotRead": "Meta 报告的是每项营销活动的购买价值，而不是数量",
+        "ordersNotReadOn": "{platform} 报告的是每项营销活动的归因价值，而不是数量",
         "revenueFormula": "{spend} × 回报 {roas}（Meta 的归因）",
+        "revenueFormulaOn": "{spend} × 回报 {roas}（{platform} 的归因）",
         "worstFormula": "{spend} × 回报 {roas} × {margin} − {spend}",
         "worstWeakest": "每周的回报都与您表现最差的已测量周相同（{roas}）：{days} 天内 {amount}。",
         "worstBest": "您要停掉的那些周与您表现最好的已测量周一样好（{roas}）：{days} 天内 {amount}。",
@@ -7294,6 +7303,7 @@
         "titlePause": "暂停“{name}”",
         "whatNew": "一项新的 Meta 营销活动，按您其他营销活动的回报来评估。",
         "whatPause": "停止这项营销活动：它的花费留在您手里，而 Meta 说它带来的收入也随之停止。",
+        "whatPauseOn": "停止这项营销活动：它的花费留在您手里，而 {platform} 说它带来的收入也随之停止。",
         "whatRaise": "为您已在运行的营销活动增加每日预算。",
         "whatCut": "为您已在运行的营销活动减少每日预算。",
         "newNotProposable": "新广告要从一篇帖子或一段视频开始：在“内容”中，“把它作为广告投放”会生成一条提案，在 Meta 上创建该广告并处于暂停状态（{task}）。在这里我只能估算它的规模。",
@@ -7302,6 +7312,7 @@
         "assumeStop": "您停掉的花费，其回报与这项营销活动最近几周相同。",
         "assumeExtra": "额外的花费，其回报与最近几周相同。",
         "assumptionSource": "我根据 Meta 自己的归因所做的预测——其中一些购买可能本来就会发生",
+        "assumptionSourceOn": "我根据 {platform} 自己的归因所做的预测——其中一些销售可能本来就会发生",
         "keyRate": "广告支出回报"
       },
       "content": {
@@ -7932,7 +7943,7 @@
       "nothingWaiting": "目前没有任何内容在等待您批准",
       "noPricedGain": "等待您处理的内容中，还没有一项带有定价的收益",
       "noRevenueSeries": "我需要一个已测量的营收序列来对照解读",
-      "noAds": "连接 Meta Ads 或 Google Ads，我就会检查哪些营销活动的成本高于它们带回的收入"
+      "noAds": "连接 Meta Ads、Google Ads 或 TikTok Ads，我就会检查哪些营销活动的成本高于它们带回的收入"
     },
     "price": {
       "arithmetic": "平均价格 {mean}（{revenue} ÷ {count, plural, other {# 个已完成}}）",
@@ -7952,7 +7963,8 @@
       "tableProposal": "{summary}：{range}",
       "onTheTable": "{count, plural, other {# 条等待中的提案}}，每月从基准情形到乐观情形：{parts}",
       "adsAllPaidPlatforms": "按各平台自己的归因，每项营销活动带回的都至少等于其成本（{count, plural, other {# 项营销活动}}）",
-      "adsLoserGoogle": "{campaign}（Google Ads）：花费 {spent}，Google 归因 {value} 的转化价值（回报 {roas}）→ {loss}"
+      "adsLoserGoogle": "{campaign}（Google Ads）：花费 {spent}，Google 归因 {value} 的转化价值（回报 {roas}）→ {loss}",
+      "adsLoserTikTok": "{campaign}（TikTok Ads）：花费 {spent}，TikTok 归因 {value} 的购买价值（回报 {roas}）→ {loss}"
     },
     "basisNote": {
       "capacity": "来自您{basis, select, ESTIMATED {估计} other {陈述}}的接待能力（每周 {perWeek} 个）",
@@ -7960,7 +7972,9 @@
       "statedCost": "现有数量 × 您给出的成本，适用于部分商品",
       "proposals": "各提案自身的基准情形和乐观情形",
       "google": "来自 Google 自己的归因",
-      "adPlatforms": "来自各平台自己的归因：Meta 的和 Google 的"
+      "tiktok": "来自 TikTok 自己的归因",
+      "adPlatforms": "来自各平台自己的归因：Meta 的和 Google 的",
+      "adPlatformsEach": "来自各平台自己的归因"
     },
     "componentNote": {
       "adsOtherCurrency": "{count, plural, other {以 {currencies} 计的 # 项营销活动}}未计入：货币之间从不混合",
@@ -7983,7 +7997,10 @@
       "return": "回报 {roas}",
       "adsPlatforms": "按营销活动列出花费与各平台归因价值的对比（Meta：购买价值；Google：转化价值），{from} 至 {to}：{campaigns}。亏损表示回报低于 {even}。",
       "adsCampaignGoogle": "{campaign}（Google Ads）花费 {spent}，Google 归因 {value}（{roas}）",
-      "adsCampaignGoogleLosing": "{campaign}（Google Ads）花费 {spent}，Google 归因 {value}（{roas}），亏损"
+      "adsCampaignGoogleLosing": "{campaign}（Google Ads）花费 {spent}，Google 归因 {value}（{roas}），亏损",
+      "adsPlatformsEach": "按营销活动列出花费与各平台归因价值的对比，{from} 至 {to}：{campaigns}。亏损表示回报低于 {even}。",
+      "adsCampaignTikTok": "{campaign}（TikTok Ads）花费 {spent}，TikTok 归因 {value}（{roas}）",
+      "adsCampaignTikTokLosing": "{campaign}（TikTok Ads）花费 {spent}，TikTok 归因 {value}（{roas}），亏损"
     }
   },
   "watchNoticed": {

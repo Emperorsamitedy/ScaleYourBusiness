@@ -278,8 +278,17 @@ export function BookingsChart({ model }: { model: BookingsChartModel }) {
   );
 }
 
+/** Brand names, the same in every language. */
+const AD_PLATFORM_NAME: Readonly<Record<AdsChartModel["platforms"][number], string>> = {
+  meta: "Meta Ads",
+  google: "Google Ads",
+  tiktok: "TikTok Ads",
+};
+
 export function AdsChart({ model }: { model: AdsChartModel }) {
   const words = useTranslations("charts.small.ads");
+  // Meta alone keeps Meta's own words; any other platform reads platform-neutral.
+  const metaOnly = model.platforms.every((p) => p === "meta");
   const { tr, locale } = useTr("charts.small");
   const { tr: sheet } = useTr("sheet");
   const byCurrency = useMemo(() => {
@@ -300,25 +309,32 @@ export function AdsChart({ model }: { model: AdsChartModel }) {
       }
       meta={
         <>
-          {tr("ads.window", {
-            from: shortDate(model.window.from, locale),
-            to: shortDate(model.window.to, locale),
-          })}
+          {metaOnly
+            ? tr("ads.window", {
+                from: shortDate(model.window.from, locale),
+                to: shortDate(model.window.to, locale),
+              })
+            : tr("ads.windowPlatforms", {
+                platforms: model.platforms.map((p) => AD_PLATFORM_NAME[p]).join(" + "),
+                from: shortDate(model.window.from, locale),
+                to: shortDate(model.window.to, locale),
+              })}
           <br />
-          {words.rich("derivedFrom", {
+          {words.rich(metaOnly ? "derivedFrom" : "derivedFromPlatforms", {
             derived: sheet("basis.DERIVED"),
             word: (chunks: ReactNode) => <span className="word">{chunks}</span>,
           })}
         </>
       }
-      foot={tr("ads.foot", { even: num(1, 1, locale) })}
+      foot={tr(metaOnly ? "ads.foot" : "ads.footPlatforms", { even: num(1, 1, locale) })}
     >
       <ul className="sc-keys" aria-label={tr("keyLabel")}>
         <li>
           <span className="sc-key spend" aria-hidden="true" /> {tr("ads.keySpent")}
         </li>
         <li>
-          <span className="sc-key ret" aria-hidden="true" /> {tr("ads.keyBack")}
+          <span className="sc-key ret" aria-hidden="true" />{" "}
+          {tr(metaOnly ? "ads.keyBack" : "ads.keyBackPlatforms")}
         </li>
       </ul>
       <table className="rt rt-stack sc-ads">

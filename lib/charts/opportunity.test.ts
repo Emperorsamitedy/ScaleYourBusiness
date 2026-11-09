@@ -309,6 +309,37 @@ describe("ads that lose money — Meta's attribution", () => {
     expect(c.note).toMatch(/USD left out/);
   });
 
+  it("a TikTok campaign is TikTok's, on TikTok's attribution and series — never Meta's", () => {
+    const tiktok = { ...camp("t", 10000, 4000), platform: "tiktok" as const };
+    const only = priced(losingAds([tiktok], W, "EUR"));
+    expect(only.formula).toMatch(/on TikTok Ads/);
+    expect(only.formula).not.toMatch(/Meta/);
+    expect(only.basis_note).toBe("from TikTok's own attribution");
+    expect(only.derived_from).toEqual([
+      "connector:tiktok_ads:ad_spend.campaign.daily",
+      "connector:tiktok_ads:ad_purchase_value.campaign.daily",
+    ]);
+    const mixed = priced(losingAds([camp("m", 10000, 9000), tiktok], W, "EUR"));
+    expect(mixed.basis_note).toBe("from each platform's own attribution");
+    expect(mixed.derived_from).toEqual([
+      "connector:meta_ads:ad_spend.campaign.daily",
+      "connector:meta_ads:ad_purchase_value.campaign.daily",
+      "connector:tiktok_ads:ad_spend.campaign.daily",
+      "connector:tiktok_ads:ad_purchase_value.campaign.daily",
+    ]);
+    expect(mixed.formula).toMatch(/Campaign m: spent .*Meta attributes/);
+    expect(mixed.formula).toMatch(/Campaign t on TikTok Ads: .*TikTok attributes/);
+  });
+
+  it("a Meta-only account keeps Meta's words exactly", () => {
+    const c = priced(losingAds([camp("a", 10000, 9900)], W, "EUR"));
+    expect(c.basis_note).toBe("from Meta's own attribution");
+    expect(c.derived_from).toEqual([
+      "connector:meta_ads:ad_spend.campaign.daily",
+      "connector:meta_ads:ad_purchase_value.campaign.daily",
+    ]);
+  });
+
   it("is absent without Meta, or with nothing spent in the window", () => {
     expect(losingAds(null, W, "EUR").status).toBe("absent");
     expect(losingAds([], W, "EUR").status).toBe("absent");

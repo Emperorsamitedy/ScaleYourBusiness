@@ -187,4 +187,32 @@ describe("the charts' sentences in another language", () => {
     expect(ads?.summary).toContain("Autumn mugs");
     expect(ads?.summary).toMatch(/1\.234,56\s€/);
   });
+
+  it("the ads chart says each platform's own name, and Meta's words only for Meta", () => {
+    const camp = (ref: string, platform?: "google" | "tiktok") => ({
+      ...(platform ? { platform } : {}),
+      campaign_ref: ref,
+      campaign_name: `Campaign ${ref}`,
+      currency: "EUR",
+      measured_days: 14,
+      spend_minor: 10000,
+      value_minor: 5000,
+      roas: 0.5,
+      losing: true,
+    });
+    const tiktok = buildAdsChart([camp("t", "tiktok")], W);
+    expect(tiktok?.platforms).toEqual(["tiktok"]);
+    expect(tiktok?.summary).toMatch(/^Spend against the value each platform attributes/);
+    expect(tiktok?.summary).toContain("Campaign t on TikTok Ads spent");
+    expect(tiktok?.summary).not.toMatch(/Meta/);
+    const all = buildAdsChart([camp("m"), camp("g", "google"), camp("t", "tiktok")], W, de);
+    expect(all?.platforms).toEqual(["meta", "google", "tiktok"]);
+    expect(all?.summary).toMatch(/^\[small\.adsPlatformsEach /);
+    expect(all?.summary).toContain("[small.adsCampaignLosing ");
+    expect(all?.summary).toContain("[small.adsCampaignGoogleLosing ");
+    expect(all?.summary).toContain("[small.adsCampaignTikTokLosing ");
+    const meta = buildAdsChart([camp("m")], W);
+    expect(meta?.platforms).toEqual(["meta"]);
+    expect(meta?.summary).toMatch(/^Spend against the purchase value Meta attributes/);
+  });
 });

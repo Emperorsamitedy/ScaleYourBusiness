@@ -108,10 +108,33 @@ export class SimulateError extends Error {
 export type EmailSegmentKey = "lapsed" | "vip";
 export type AdChangeKind = "raise" | "lower" | "pause" | "new";
 
+/** Which ad platform a campaign runs on (lib/ads/proposals AdPlatform). */
+export type SimAdPlatform = "meta" | "google" | "tiktok";
+
+const SIM_AD_PLATFORMS: readonly SimAdPlatform[] = ["meta", "google", "tiktok"];
+
+/** A platform's name in a sentence — a brand, the same in every language. */
+export const SIM_AD_PLATFORM_NAME: Readonly<Record<SimAdPlatform, string>> = {
+  meta: "Meta",
+  google: "Google Ads",
+  tiktok: "TikTok Ads",
+};
+
+/**
+ * An option on an existing campaign names its platform when it isn't Meta
+ * (the same campaign id can exist on two platforms); absent = the first
+ * measured campaign with that ref, Meta first.
+ */
 export type SimOption =
   | { kind: "email"; segment: EmailSegmentKey }
-  | { kind: "ads"; change: "raise" | "lower"; campaign_ref: string; share: number }
-  | { kind: "ads"; change: "pause"; campaign_ref: string }
+  | {
+      kind: "ads";
+      change: "raise" | "lower";
+      campaign_ref: string;
+      share: number;
+      platform?: SimAdPlatform;
+    }
+  | { kind: "ads"; change: "pause"; campaign_ref: string; platform?: SimAdPlatform }
   | { kind: "ads"; change: "new"; daily_budget_minor: number | null; currency: string }
   | { kind: "content" };
 
@@ -126,9 +149,24 @@ export function optionKey(o: SimOption): string {
       return "content";
     case "ads":
       if (o.change === "new") return `ads:new:${o.daily_budget_minor ?? "none"}:${o.currency}`;
-      if (o.change === "pause") return `ads:${o.campaign_ref}:pause`;
-      return `ads:${o.campaign_ref}:${o.change}:${Math.round(o.share * 100)}`;
+      if (o.change === "pause") return `ads:${platformPart(o.platform)}${o.campaign_ref}:pause`;
+      return `ads:${platformPart(o.platform)}${o.campaign_ref}:${o.change}:${Math.round(o.share * 100)}`;
   }
+}
+
+/** Meta's keys are as they always were; another platform's carry its name. */
+const platformPart = (p: SimAdPlatform | undefined) =>
+  p === undefined || p === "meta" ? "" : `${p}:`;
+
+/** Pure: the measured campaign an option means — its platform's, or the first with that ref, Meta first. */
+export function findCampaign(
+  campaigns: readonly CampaignRaw[],
+  ref: string,
+  platform?: SimAdPlatform,
+): CampaignRaw | null {
+  const mine = campaigns.filter((c) => c.ref === ref);
+  if (platform !== undefined) return mine.find((c) => (c.platform ?? "meta") === platform) ?? null;
+  return mine.find((c) => (c.platform ?? "meta") === "meta") ?? mine[0] ?? null;
 }
 
 /** Pure: an option from untrusted JSON, or null. Shares are held to the pinned bounds. */
@@ -154,11 +192,20 @@ export function parseOption(raw: unknown): SimOption | null {
     };
   }
   if (typeof o.campaign_ref !== "string" || o.campaign_ref === "") return null;
-  if (o.change === "pause") return { kind: "ads", change: "pause", campaign_ref: o.campaign_ref };
+  if (o.platform !== undefined && !SIM_AD_PLATFORMS.includes(o.platform as SimAdPlatform)) {
+    return null;
+  }
+  const on =
+    o.platform === undefined || o.platform === "meta"
+      ? {}
+      : { platform: o.platform as SimAdPlatform };
+  if (o.change === "pause") {
+    return { kind: "ads", change: "pause", campaign_ref: o.campaign_ref, ...on };
+  }
   if (o.change !== "raise" && o.change !== "lower") return null;
   const share = o.share;
   if (typeof share !== "number" || !isShare(share)) return null;
-  return { kind: "ads", change: o.change, campaign_ref: o.campaign_ref, share };
+  return { kind: "ads", change: o.change, campaign_ref: o.campaign_ref, share, ...on };
 }
 
 /** Pure: a budget change share inside the pinned bounds (inclusive both ends). */
@@ -219,6 +266,8 @@ export interface EmailSegmentRaw {
 }
 
 export interface CampaignRaw {
+  /** Whose campaign, and whose attribution its value is; Meta when absent. */
+  platform?: SimAdPlatform;
   ref: string;
   name: string;
   currency: string;
@@ -916,7 +965,17 @@ function simulateAds(
   const days = int(H, L);
   const inputs: SimInput[] = [];
   const isNew = o.change === "new";
-  const campaign = isNew ? null : (x.ads.campaigns.find((c) => c.ref === o.campaign_ref) ?? null);
+  const campaign = isNew ? null : findCampaign(x.ads.campaigns, o.campaign_ref, o.platform);
+  // Meta's own words for a Meta campaign (and a new one: SYB creates them on
+  // Meta); another platform's campaign is said with that platform's name.
+  const other =
+    campaign && (campaign.platform ?? "meta") !== "meta"
+      ? SIM_AD_PLATFORM_NAME[campaign.platform as SimAdPlatform]
+      : null;
+  const said = (metaKey: string, vars: Record<string, string | number> = {}) =>
+    other === null
+      ? t(`ads.${metaKey}`, vars)
+      : t(`ads.${metaKey}On`, { ...vars, platform: other });
   const cur = isNew ? o.currency : (campaign?.currency ?? x.currency);
   const name = campaign?.name ?? t("ads.thisCampaign");
   const win = campaign ? campaignWindow(campaign, x.as_of) : null;
@@ -951,7 +1010,7 @@ function simulateAds(
       basis: win && win.measured_days > 0 ? "OBSERVED" : null,
       source:
         win && win.measured_days > 0
-          ? t("ads.dailySource", {
+          ? said("dailySource", {
               spend: money(win.spend_minor, cur, L),
               count: win.measured_days,
               window: int(SIM.ads_window_days, L),
@@ -981,6 +1040,8 @@ function simulateAds(
   const pooled = isNew;
   const blocks = pooled
     ? x.ads.campaigns
+        // A new campaign is made on Meta: judged on Meta's own campaigns.
+        .filter((c) => (c.platform ?? "meta") === "meta")
         .filter((c) => c.currency.toUpperCase() === cur.toUpperCase())
         .filter((c) => campaignWindow(c, x.as_of).measured_days >= SIM.ads_min_measured_days)
         .flatMap((c) => weeklyRoas(c.days, x.as_of))
@@ -996,7 +1057,7 @@ function simulateAds(
     unit: "ratio",
     basis: roas ? "OBSERVED" : null,
     source: roas
-      ? t("ads.roasSource", {
+      ? said("roasSource", {
           which,
           block: int(SIM.ads_block_days, L),
           window: int(SIM.ads_window_days, L),
@@ -1010,8 +1071,8 @@ function simulateAds(
   inputs.push(marginInput(x.margin, w));
 
   const measures = emptyMeasures(words);
-  measures.reached = { status: "none", why: t("ads.reachNotRead") };
-  measures.orders = { status: "none", why: t("ads.ordersNotRead") };
+  measures.reached = { status: "none", why: said("reachNotRead") };
+  measures.orders = { status: "none", why: said("ordersNotRead") };
   if (spend !== null) {
     measures.cost = cell(point(spend), orderBases([inputs[0]!.basis]), spendSource, true);
   } else {
@@ -1024,7 +1085,7 @@ function simulateAds(
     measures.revenue = cell(
       revenue,
       rv.bases,
-      t("ads.revenueFormula", {
+      said("revenueFormula", {
         spend: exactMoney(spend, cur, L),
         roas: term(rv.vals[1]!, "ratio", cur, L),
       }),
@@ -1113,15 +1174,11 @@ function simulateAds(
           name,
           share: wholePct(Math.round(o.share * 100), L),
         });
-  const what = t(
-    isNew
-      ? "ads.whatNew"
-      : o.change === "pause"
-        ? "ads.whatPause"
-        : o.change === "raise"
-          ? "ads.whatRaise"
-          : "ads.whatCut",
-  );
+  const what = isNew
+    ? t("ads.whatNew")
+    : o.change === "pause"
+      ? said("whatPause")
+      : t(o.change === "raise" ? "ads.whatRaise" : "ads.whatCut");
   let proposable: OptionResult["proposable"] = { ok: true };
   if (isNew) {
     proposable = { ok: false, why: t("ads.newNotProposable", { task: "P3-54" }) };
@@ -1143,7 +1200,7 @@ function simulateAds(
         statement: t(
           o.change === "pause" || o.change === "lower" ? "ads.assumeStop" : "ads.assumeExtra",
         ),
-        source: t("ads.assumptionSource"),
+        source: said("assumptionSource"),
       },
     ],
     measures,

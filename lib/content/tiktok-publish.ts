@@ -30,6 +30,8 @@ import { upsertObservations } from "../connectors/service";
 import type { ReadbackRunSummary } from "../connectors/sync";
 import { tiktokAuditStatus } from "../env";
 import { activeExecutionConnection, executionSecret } from "../execution/connections";
+import { pauseExecutionConnection } from "../execution/pause";
+import { ExecutionConnectionError } from "../execution/verify";
 import type {
   TikTokCalls,
   TikTokCredential,
@@ -42,6 +44,7 @@ import type {
 import {
   TIKTOK_PROVIDER,
   TikTokRequestError,
+  classifyTikTokError,
   isTikTokPrivacy,
   offeredPrivacy,
   parseTikTokCredential,
@@ -118,46 +121,91 @@ export async function storeTikTokCredential(
     );
 }
 
-/** The sign-in stopped working: the connection pauses itself, one watch-log line, until a reconnect. */
-export async function pauseTikTok(accountId: string, sentence: string): Promise<void> {
-  const flipped = await db
-    .update(connections)
-    .set({
-      status: "paused",
-      last_error: sentence,
-      failure_count: sql`${connections.failure_count} + 1`,
-    })
-    .where(
-      and(
-        eq(connections.account_id, accountId),
-        eq(connections.provider, TIKTOK_PROVIDER),
-        eq(connections.purpose, "execute"),
-        eq(connections.status, "connected"),
-      ),
-    )
-    .returning({ id: connections.id });
-  if (flipped.length === 0) return;
-  const profiles = await db
-    .select({ id: businessProfiles.id })
-    .from(businessProfiles)
-    .where(eq(businessProfiles.account_id, accountId));
-  if (profiles.length > 0) {
-    await db.insert(watchActivity).values(
-      profiles.map((p) => ({
-        profile_id: p.id,
-        kind: "connection_paused",
-        detail: `TikTok posting paused itself. ${sentence}`,
-        meta: { connection_id: flipped[0]?.id ?? null, provider: TIKTOK_PROVIDER },
-      })),
-    );
-  }
-  console.log(
-    JSON.stringify({
-      event: "execution_connection_paused",
-      account_id: accountId,
-      provider: TIKTOK_PROVIDER,
-    }),
-  );
+/**
+ * The sign-in stopped working: the connection pauses itself, one watch-log
+ * line, until a reconnect — through the same door as Meta's (review
+ * 2026-11-08), so every queued TikTok post is held for the reconnect and
+ * goes back in the queue when it comes (lib/execution/pause.ts).
+ */
+export async function pauseTikTok(
+  accountId: string,
+  sentence: string,
+  source: "publish" | "readback" = "publish",
+): Promise<void> {
+  await pauseExecutionConnection({
+    accountId,
+    provider: TIKTOK_PROVIDER,
+    failure: { owner_sentence: sentence, code: null },
+    source,
+  });
+}
+
+/** A refresh whose grant no longer matches the consent (another account, other scopes). */
+export const TIKTOK_GRANT_CHANGED =
+  "TikTok's sign-in no longer matches what you agreed to, so SYB stopped using it. Reconnect TikTok on Connections.";
+
+/**
+ * The account's live TikTok posting credential, refreshed when it is due —
+ * one caller at a time (review 2026-11-08). TikTok rotates the refresh
+ * token and the old one stops working, so two callers refreshing the same
+ * stored pair at once (two tabs on /content, the form beside a carry-out
+ * or the readback cron) would leave the second with invalid_grant and pause
+ * a connection that is fine. The row is locked across read, refresh and
+ * store: the second caller reads the pair the first one stored, still fresh.
+ * A refresh whose grant no longer matches the consent is an auth refusal
+ * with its own sentence, so the caller pauses the connection then and
+ * there — never later, on a token already spent.
+ */
+export async function freshTikTokCredential(
+  accountId: string,
+  fresh: TikTokCalls["fresh"],
+  now: Date,
+): Promise<{ id: string; credential: TikTokCredential } | { refused: string }> {
+  return db.transaction(async (tx) => {
+    const [row] = await tx
+      .select()
+      .from(connections)
+      .where(
+        and(
+          eq(connections.account_id, accountId),
+          eq(connections.provider, TIKTOK_PROVIDER),
+          eq(connections.purpose, "execute"),
+          ne(connections.status, "disconnected"),
+        ),
+      )
+      .limit(1)
+      .for("update");
+    if (!row) {
+      return {
+        refused: "TikTok posting isn't connected. Connect it on Connections; nothing was sent.",
+      };
+    }
+    if (row.status !== "connected") {
+      return {
+        refused: `The TikTok connection is ${row.status}. Reconnect it on Connections; nothing was sent.`,
+      };
+    }
+    const stored = parseTikTokCredential(executionSecret(row));
+    let next: { cred: TikTokCredential; changed: boolean };
+    try {
+      next = await fresh(stored, now);
+    } catch (error) {
+      if (error instanceof ExecutionConnectionError && !(error instanceof TikTokRequestError)) {
+        throw new TikTokRequestError("token", {
+          ...classifyTikTokError(401, "invalid_grant"),
+          owner_sentence: TIKTOK_GRANT_CHANGED,
+        });
+      }
+      throw error;
+    }
+    if (next.changed) {
+      await tx
+        .update(connections)
+        .set({ encrypted_secret: encryptSecret(JSON.stringify(next.cred)) })
+        .where(eq(connections.id, row.id));
+    }
+    return { id: row.id, credential: next.cred };
+  });
 }
 
 async function accountOfProfile(profileId: string): Promise<string | null> {
@@ -178,6 +226,10 @@ export function dbTikTokPublishBackend(opts: { store?: MediaStore } = {}): TikTo
         .from(contentItems)
         .where(and(eq(contentItems.id, itemId), eq(contentItems.profile_id, profileId)));
       return row ? toItem(row) : null;
+    },
+
+    async freshCredential(accountId, fresh, now) {
+      return freshTikTokCredential(accountId, fresh, now);
     },
 
     async credential(accountId) {
@@ -324,12 +376,11 @@ export async function tiktokCreatorView(
   accountId: string,
   opts: { calls?: TikTokCalls; now?: Date } = {},
 ): Promise<TikTokCreatorView> {
-  const live = await liveRow(accountId);
-  if ("refused" in live) throw new ContentError(live.refused, 409);
   const calls = opts.calls ?? (await defaultCalls());
   try {
-    const { cred, changed } = await calls.fresh(live.credential, opts.now ?? new Date());
-    if (changed) await storeTikTokCredential(accountId, live.id, cred);
+    const live = await freshTikTokCredential(accountId, calls.fresh, opts.now ?? new Date());
+    if ("refused" in live) throw new ContentError(live.refused, 409);
+    const cred = live.credential;
     const creator = await calls.creatorInfo(cred.access_token, accountId);
     const audit = tiktokAuditStatus();
     return {
@@ -548,8 +599,9 @@ export async function runTikTokPostReadback(
     let posts = 0;
     let error: string | null = null;
     try {
-      const { cred, changed } = await calls.fresh(parseTikTokCredential(executionSecret(row)), now);
-      if (changed) await storeTikTokCredential(row.account_id, row.id, cred);
+      const live = await freshTikTokCredential(row.account_id, calls.fresh, now);
+      if ("refused" in live) throw new ContentError(live.refused, 409);
+      const cred = live.credential;
       const items = await db
         .select({
           id: contentItems.id,
@@ -600,7 +652,7 @@ export async function runTikTokPostReadback(
       const facts = logSafeError(e);
       error = `${facts.error_name}: ${facts.error_message}`;
       if (e instanceof TikTokRequestError && e.failure.pauses) {
-        await pauseTikTok(row.account_id, e.failure.owner_sentence);
+        await pauseTikTok(row.account_id, e.failure.owner_sentence, "readback");
       }
     }
     if (ok) summary.ok += 1;

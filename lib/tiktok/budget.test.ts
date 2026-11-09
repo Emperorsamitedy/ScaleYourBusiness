@@ -20,6 +20,14 @@ describe("TikTok Ads — budget arithmetic", () => {
     expect(fromTikTokBudget(1500, "HUF")).toBe(150_000);
   });
 
+  it("rounds toward the budget before the change, so it never moves further than approved", () => {
+    // 5 003 Ft raised 50% is 7 504,50 Ft: 7 504 Ft goes, never 7 505 Ft.
+    expect(toTikTokBudget(750_450, "HUF", 500_300)).toEqual({ value: 7504, sent_minor: 750_400 });
+    // 5 003 Ft cut 50% is 2 501,50 Ft: 2 502 Ft goes, never 2 501 Ft.
+    expect(toTikTokBudget(250_150, "HUF", 500_300)).toEqual({ value: 2502, sent_minor: 250_200 });
+    expect(toTikTokBudget(6050, "EUR", 5000)).toEqual({ value: 60.5, sent_minor: 6050 });
+  });
+
   it("JPY and KRW are whole units already", () => {
     expect(toTikTokBudget(5000, "JPY")).toEqual({ value: 5000, sent_minor: 5000 });
     expect(TIKTOK_BUDGET_CURRENCIES["KRW"]).toEqual([1000, 0]);

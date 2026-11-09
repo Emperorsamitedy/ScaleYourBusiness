@@ -23,7 +23,7 @@ import { and, eq } from "drizzle-orm";
 import { db } from "../../db";
 import { businessProfiles, contentItems, executions } from "../../db/schema";
 import type { ProposalRow } from "../proposals/service";
-import { campaignOutcome } from "./campaign-readback";
+import { adPlatformOf, campaignOutcome } from "./campaign-readback";
 import { emailCampaignOutcome } from "./email-readback";
 import { postOutcome } from "./post-readback";
 import type { WindowStat } from "./series";
@@ -172,7 +172,12 @@ type Base = Omit<ProposalOutcome, "verdict" | "arithmetic">;
 
 interface KindDetail {
   kind?: unknown;
-  detail?: { item_id?: unknown; campaign_ref?: unknown; campaign_name?: unknown };
+  detail?: {
+    item_id?: unknown;
+    campaign_ref?: unknown;
+    campaign_name?: unknown;
+    platform?: unknown;
+  };
 }
 
 /** Pure: which series a proposal is judged on. */
@@ -267,6 +272,7 @@ async function adChangeReadback(
     campaignName: name,
     changedOn: day,
     now,
+    platform: adPlatformOf(detail.platform),
   });
   return {
     ...base,

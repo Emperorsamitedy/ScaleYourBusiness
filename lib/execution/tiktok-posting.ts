@@ -51,6 +51,7 @@ import {
   credentialFromGrant,
   parseTikTokCredential,
 } from "./providers/tiktok";
+import { resumeAfterReconnect } from "./pause";
 import { EXECUTION_SCOPE_REGISTRY } from "./scopes";
 
 export const TIKTOK_PHRASE = "allow tiktok posting";
@@ -508,6 +509,24 @@ export async function consentToTikTokPosting(args: {
     provider: TIKTOK_PROVIDER,
     connection_id: connection.id,
   });
+  // A reconnect after a pause: the held posts go back in the queue, the held
+  // runs become runnable — every guard again on the next run (lib/execution/pause.ts).
+  try {
+    await resumeAfterReconnect({
+      accountId: args.accountId,
+      provider: TIKTOK_PROVIDER,
+      announce: true,
+    });
+  } catch (error) {
+    console.error(
+      JSON.stringify({
+        event: "consent_resume_failed",
+        account_id: args.accountId,
+        provider: TIKTOK_PROVIDER,
+        ...logSafeError(error),
+      }),
+    );
+  }
   return { connection, consent_hash, proposed: await proposeWaiting(profile.id, args.accountId) };
 }
 
@@ -552,15 +571,26 @@ async function proposeWaiting(profileId: string, accountId: string): Promise<num
 export async function revokeTikTokPosting(
   accountId: string,
   connectionId: string,
-  opts: { calls?: TikTokCalls } = {},
+  opts: { calls?: TikTokCalls; now?: Date } = {},
 ): Promise<{ connection: PublicExecutionConnection; revoked_on_tiktok: boolean }> {
   const row = await activeExecutionConnection(accountId, TIKTOK_PROVIDER);
   if (!row || row.id !== connectionId) {
     throw new ExecutionConnectionError("connection not found", 404);
   }
   let token: string | null;
+  let calls: TikTokCalls | null = null;
   try {
-    token = parseTikTokCredential(executionSecret(row)).access_token;
+    const stored = parseTikTokCredential(executionSecret(row));
+    token = stored.access_token;
+    // The access token lives two hours; TikTok's grant lives on with the
+    // refresh token. A stale one is refreshed first (best effort) so the
+    // revoke reaches the grant itself (review 2026-11-08).
+    try {
+      calls = opts.calls ?? (await defaultCalls());
+      token = (await calls.fresh(stored, opts.now ?? new Date())).cred.access_token;
+    } catch {
+      // Revoke with what is stored; the screen says so if TikTok refuses it.
+    }
   } catch {
     token = null;
   }
@@ -568,7 +598,7 @@ export async function revokeTikTokPosting(
   let revoked = false;
   if (token !== null) {
     try {
-      const calls = opts.calls ?? (await defaultCalls());
+      calls = calls ?? opts.calls ?? (await defaultCalls());
       await calls.revoke(token);
       revoked = true;
     } catch (error) {

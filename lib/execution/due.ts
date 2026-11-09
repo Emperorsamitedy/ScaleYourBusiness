@@ -301,6 +301,7 @@ export async function runDueExecutions(opts: DueRunOptions = {}): Promise<DueRun
 const PAUSED_DETAIL = {
   meta_publish: "The Meta publishing connection is paused",
   meta_ads: "The Meta ad connection is paused",
+  tiktok_publish: "The TikTok posting connection is paused",
 } as const;
 
 async function accountOf(profileId: string): Promise<string> {
@@ -351,8 +352,8 @@ async function runOne(
       // P3-24b: nothing retries on a paused connection until the reconnect.
       const conn = await activeExecutionConnection(accountId, plan.provider);
       if (conn?.status === "paused") {
-        if (plan.provider === "meta_publish") {
-          await holdQueuedForPausedConnection(accountId, conn.id);
+        if (plan.provider !== "meta_ads") {
+          await holdQueuedForPausedConnection(accountId, conn.id, plan.provider);
         }
         return {
           ...base,
