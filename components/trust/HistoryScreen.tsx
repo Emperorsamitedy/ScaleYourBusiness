@@ -23,6 +23,7 @@ import type { FactChange } from "../../lib/trust/fact-change-view";
 import type { LedgerFilter, LedgerKind, LedgerOutcome, LedgerProposal, LedgerRow } from "./ledger";
 import { byDay, factRow, filterRows, proposalRows, rateArithmetic, toCsv } from "./ledger";
 import { TrackRecord } from "./TrackRecord";
+import { WhyFold } from "../report/WhyFold";
 import "../../app/history.css";
 
 interface Entry {
@@ -165,9 +166,7 @@ export function HistoryScreen({
           label={t("label")}
           title={state.phase === "signedout" ? t("signedOut.title") : t("failed.title")}
         >
-          <p className="hi-copy">
-            {state.phase === "signedout" ? t("signedOut.lede") : t("failed.lede")}
-          </p>
+          {state.phase === "error" && <p className="hi-copy">{t("failed.lede")}</p>}
           {state.phase === "signedout" && (
             <Link className="next" href="/intake">
               {t("signedOut.start")} <span aria-hidden="true">→</span>
@@ -277,12 +276,6 @@ export function HistoryScreen({
         </div>
 
         <footer className="cs-foot hi-foot">
-          <p>{t("foot.append")}</p>
-          <p>
-            {t("foot.rate", {
-              arithmetic: locale === "en" ? scorecard.arithmetic : rateArithmetic(scorecard, lw),
-            })}
-          </p>
           {(scorecard.outcomes.too_early > 0 || scorecard.outcomes.unmeasured > 0) && (
             <p>
               {scorecard.outcomes.too_early > 0 &&
@@ -291,7 +284,15 @@ export function HistoryScreen({
                 t("foot.unmeasured", { count: scorecard.outcomes.unmeasured })}
             </p>
           )}
-          <p>{t("foot.verdict")}</p>
+          <WhyFold>
+            <p>
+              {t("foot.rate", {
+                arithmetic: locale === "en" ? scorecard.arithmetic : rateArithmetic(scorecard, lw),
+              })}
+            </p>
+            <p>{t("foot.append")}</p>
+            <p>{t("foot.verdict")}</p>
+          </WhyFold>
         </footer>
       </section>
     </main>

@@ -37,7 +37,8 @@ import {
   sourceText,
   valueView,
 } from "./model";
-import { basisOf, newerKind, successorKind } from "../report/basis";
+import { newerKind, successorKind } from "../report/basis";
+import { WhyFold } from "../report/WhyFold";
 
 interface Candidate {
   name: string;
@@ -123,25 +124,22 @@ function CompetitorFinder({ onChanged }: { onChanged: () => Promise<void> }) {
         </p>
       )}
       {candidates !== null && candidates.length > 0 && (
-        <>
-          <p className="fs-note">{t("found")}</p>
-          <ul className="fs-cands">
-            {candidates.map((c) => (
-              <li key={c.url}>
-                <div>
-                  <strong>{c.name}</strong>{" "}
-                  <a href={c.url} target="_blank" rel="noreferrer noopener" className="fs-sub">
-                    {c.url.replace(/^https?:\/\/(www\.)?/, "").slice(0, 48)}
-                  </a>
-                  <p>{c.evidence}</p>
-                </div>
-                <button className="fs-btn" onClick={() => void confirm(c)} disabled={busy !== null}>
-                  {busy === c.url ? t("readingPagesNow") : t("thatsOne")}
-                </button>
-              </li>
-            ))}
-          </ul>
-        </>
+        <ul className="fs-cands">
+          {candidates.map((c) => (
+            <li key={c.url}>
+              <div>
+                <strong>{c.name}</strong>{" "}
+                <a href={c.url} target="_blank" rel="noreferrer noopener" className="fs-sub">
+                  {c.url.replace(/^https?:\/\/(www\.)?/, "").slice(0, 48)}
+                </a>
+                <p>{c.evidence}</p>
+              </div>
+              <button className="fs-btn" onClick={() => void confirm(c)} disabled={busy !== null}>
+                {busy === c.url ? t("readingPagesNow") : t("thatsOne")}
+              </button>
+            </li>
+          ))}
+        </ul>
       )}
     </div>
   );
@@ -221,9 +219,6 @@ function SectionTable({
             <tr key={d.key} id={`fact-${d.key}`} className={v.gap ? "fs-gap" : undefined}>
               <th scope="row">
                 {d.label}
-                {basisOf(d.fact) === "ASSUMED" && (
-                  <span className="fs-sub">{t("confirmDefault")}</span>
-                )}
                 {d.fact.note !== null && d.fact.value !== null && (
                   <span className="fs-sub">{t("noted", { note: d.fact.note })}</span>
                 )}
@@ -410,7 +405,6 @@ export function FactSheetScreen() {
         aside={
           // Idea 49: the money facts for whoever keeps the books. Signed-in owners only.
           <p className="fs-export">
-            <span className="fs-export-l">{t("export.label")}</span>
             <a href="/api/profile/export?part=current" download>
               {t("export.current")}
             </a>
@@ -441,7 +435,6 @@ export function FactSheetScreen() {
               id="fs-q"
               type="search"
               className="fs-input"
-              placeholder={t("searchPlaceholder")}
               value={query}
               onChange={(e) => setQuery(e.target.value)}
             />
@@ -526,10 +519,7 @@ export function FactSheetScreen() {
                 >
                   <header className="fs-sec-head">
                     <h2 id={`${anchor(s.section)}-h`}>{s.label}</h2>
-                    <span className="fs-meta">
-                      {t("sectionFacts", { count: s.facts.length })}
-                      {c > 0 && <> · {t("sectionChanged", { count: c })}</>}
-                    </span>
+                    {c > 0 && <span className="fs-meta">{t("sectionChanged", { count: c })}</span>}
                   </header>
                   <SectionTable
                     s={s}
@@ -547,7 +537,6 @@ export function FactSheetScreen() {
                   <h2 id="fs-comp-h">{t("section.competitors")}</h2>
                   <span className="fs-meta">{t("noneRecorded")}</span>
                 </header>
-                <p className="fs-note">{t("competitorsLede")}</p>
                 <CompetitorFinder onChanged={load} />
               </section>
             )}
@@ -564,10 +553,12 @@ export function FactSheetScreen() {
         </div>
 
         <footer className="fs-foot">
-          {t("foot", {
-            id: sheet.snapshot_id.slice(0, 8),
-            date: fmtDay(sheet.taken_at, undefined, w.locale),
-          })}
+          <WhyFold>
+            {t("foot", {
+              id: sheet.snapshot_id.slice(0, 8),
+              date: fmtDay(sheet.taken_at, undefined, w.locale),
+            })}
+          </WhyFold>
         </footer>
       </section>
     </main>

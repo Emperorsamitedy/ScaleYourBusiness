@@ -680,6 +680,12 @@ a.rq-sub-i:hover {
 .rq-foot b {
   color: var(--desk-ink);
 }
+.rq-foot .why-fold {
+  color: var(--desk-ink-2);
+}
+.rq-foot .why-fold > summary {
+  color: var(--desk-ink);
+}
 
 /* ── narrow: the sub-nav above, the derivation sheet under the panel ── */
 
@@ -882,7 +888,9 @@ a.rq-sub-i:hover {
     break-inside: avoid;
   }
   .rq-foot,
-  .rq-foot b {
+  .rq-foot b,
+  .rq-foot .why-fold,
+  .rq-foot .why-fold > summary {
     color: #111;
   }
 }

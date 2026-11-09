@@ -32,6 +32,7 @@ import type { GoalChart } from "../../lib/care/charts";
 import type { GoalWord } from "../../lib/care/chart-view";
 import { goalWord, onPath } from "../../lib/care/chart-view";
 import { CandleChart } from "./CandleChart";
+import { WhyFold } from "../report/WhyFold";
 
 interface Measure {
   metric: "revenue" | "orders" | "sessions";
@@ -500,8 +501,8 @@ export function ProgressScreen({ charts }: { charts: GoalChart[] | null }) {
   return (
     <Frame title={title} aside={aside}>
       {n === 0 ? (
-        <SheetCard label={tr("how.label")} title={tr("how.title")}>
-          <p className="gl-copy">{tr("how.copy")}</p>
+        <SheetCard>
+          <WhyFold summary={tr("how.label")}>{tr("how.copy")}</WhyFold>
         </SheetCard>
       ) : (
         <div className="gl-grid">

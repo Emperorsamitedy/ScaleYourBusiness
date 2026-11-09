@@ -533,7 +533,7 @@
       "prior": " · précédent : {date}",
       "headUnit": "variation du bénéfice / mois · si vous faites {ref} · CALCULÉ",
       "computed": "{computed} sur {total}",
-      "computedUnit": "mesures calculées · chacune dit pourquoi",
+      "computedUnit": "mesures calculées",
       "diagnosis": "Diagnostic",
       "noFindings": "aucun constat signalé",
       "notComputed": "{count, plural, one {<b>#</b> non calculée} many {<b>#</b> non calculées} other {<b>#</b> non calculées}}",
@@ -568,6 +568,9 @@
       "basisNotRecorded": "base non enregistrée",
       "history": "Historique · remplacé, jamais effacé",
       "noHistory": "Aucune donnée d’entrée de ce chiffre n’a encore été remplacée."
+    },
+    "fold": {
+      "how": "Comment ça marche"
     },
     "measure": {
       "blended_margin": {
@@ -643,7 +646,7 @@
       "show": "Les afficher"
     },
     "decline": {
-      "lede": "Facultatif — pourquoi pas ? Cela m’apprend ce qu’il ne faut plus proposer.",
+      "lede": "Facultatif — pourquoi pas ?",
       "chip": {
         "tried": "nous avons déjà essayé",
         "market": "impossible sur mon marché",
@@ -688,14 +691,14 @@
     "findings": {
       "label": "Constats · les plus urgents d’abord",
       "none": "Rien que les éléments étayent assez solidement pour être signalé.",
-      "title": "{count, plural, one {# constat, chacun avec ses preuves.} many {# constats, chacun avec ses preuves.} other {# constats, chacun avec ses preuves.}}",
+      "title": "{count, plural, one {# constat.} many {# constats.} other {# constats.}}",
       "measured": "mesuré",
       "measuredTitle": "Mesuré sur votre site, sans jugement"
     },
     "recs": {
       "label": "Ce que je ferais",
       "none": "Aucune recommandation que le calcul puisse encore étayer.",
-      "title": "{count, plural, one {# recommandation, chacune avec sa fourchette.} many {# recommandations, chacune avec sa fourchette.} other {# recommandations, chacune avec sa fourchette.}}"
+      "title": "{count, plural, one {# recommandation.} many {# recommandations.} other {# recommandations.}}"
     },
     "hours": {
       "label": "Horaires d’ouverture · OBSERVÉ · {from} – {to}",
@@ -706,7 +709,6 @@
     },
     "gaps": {
       "label": "Ce qui affinerait ce rapport",
-      "title": "Le rapport ne vaut que ce sur quoi il repose.",
       "priority": "{priority, select, core {essentielle} important {importante} deep {approfondie} optional {facultative} other {{priority}}}",
       "blocking": "Bloquante",
       "answer": "Répondre maintenant →"
@@ -730,7 +732,6 @@
       "confirming": "En attente de la confirmation de votre paiement par Stripe",
       "reading": "Lecture de votre profil — la demande est en cours",
       "readingLede": "Marges, seuil de rentabilité, constats et ce qu’il faut en faire. Cela prend généralement une minute environ ; les calculs sont vérifiés avant que quoi que ce soit n’arrive sur la page.",
-      "none": "Quand vous aurez suffisamment répondu, je lirai tout le profil et je rédigerai ce que je peux prouver.",
       "readNow": "Lire mon profil maintenant →",
       "answerMore": "D’abord répondre à d’autres questions →",
       "payFailed": "le paiement n’a pas pu être lancé",
@@ -741,7 +742,6 @@
     },
     "share": {
       "label": "Partager ce rapport",
-      "title": "Un lien en lecture seule pour un associé, votre comptable ou un investisseur.",
       "signedOut": "Connectez-vous pour partager votre rapport — un lien qui sort de SYB, c’est à vous de le créer, il faut donc vous connecter.",
       "lede": "Le lien montre ce rapport tel qu’il est aujourd’hui, sans vos réponses aux recommandations et sans rien qui mène à votre compte. Il ne change jamais une fois créé, et vous pouvez le révoquer ici à tout moment.",
       "lasts": "Durée",
@@ -1008,13 +1008,12 @@
     },
     "kicker": "Votre entreprise · Fiche des faits",
     "titleEmpty": "Le dossier.",
-    "title": "{count, plural, one {# fait sur {noun}. Chacun indique d’où il vient.} many {# faits sur {noun}. Chacun indique d’où il vient.} other {# faits sur {noun}. Chacun indique d’où il vient.}}",
+    "title": "{count, plural, one {# fait sur {noun}.} many {# faits sur {noun}.} other {# faits sur {noun}.}}",
     "yourBusiness": "votre entreprise",
     "noSession": "Il n’y a pas encore de profil sur cet appareil. <a>Commencez les questions</a> — ou ouvrez le lien que je vous ai envoyé.",
     "failed": "Une erreur s’est produite au chargement de votre profil. Actualisez pour réessayer — rien de ce que vous m’avez dit n’est perdu.",
     "reading": "Lecture de votre profil…",
     "export": {
-      "label": "Pour votre comptable",
       "current": "Faits financiers, CSV",
       "history": "Chiffres antérieurs, CSV"
     },
@@ -1027,7 +1026,6 @@
     },
     "recordLabel": "Le dossier",
     "search": "Rechercher dans le dossier",
-    "searchPlaceholder": "par ex. horaires, prix, canaux",
     "filterLabel": "Filtrer le dossier",
     "filter": {
       "all": "Tout",
@@ -1044,11 +1042,9 @@
       "changed": "Rien n’a été remplacé ce mois-ci.",
       "none": "Rien d’enregistré pour l’instant."
     },
-    "sectionFacts": "{count, plural, one {# fait} many {# faits} other {# faits}}",
     "sectionChanged": "{count, plural, one {# modifié ce mois-ci} many {# modifiés ce mois-ci} other {# modifiés ce mois-ci}}",
     "noneRecorded": "aucun enregistré",
-    "competitorsLede": "Citez-les pendant l’entretien, ou laissez-moi chercher à partir de ce que vous m’avez déjà dit.",
-    "openMeta": "{count, plural, one {# question · une lacune est un constat, pas un échec} many {# questions · une lacune est un constat, pas un échec} other {# questions · une lacune est un constat, pas un échec}}",
+    "openMeta": "{count, plural, one {# question} many {# questions} other {# questions}}",
     "foot": "Les lignes barrées étaient vraies jusqu’à l’arrivée d’une meilleure information. Rien n’est jamais supprimé du dossier. Instantané {id} · {date}.",
     "caption": "{section} : chaque fait avec sa valeur, sa source, sa base et la date à partir de laquelle il vaut",
     "col": {
@@ -1058,7 +1054,6 @@
       "basis": "Base",
       "since": "Depuis"
     },
-    "confirmDefault": "confirmez pour remplacer la valeur par défaut",
     "noted": "noté : {note}",
     "superseded": "remplacé le {date} par {kind, select, measurement {une mesure plus récente} reading {une lecture plus récente} calculation {un calcul plus récent} answer {une réponse plus récente} other {un enregistrement plus récent}}",
     "supersededWord": "Remplacé",
@@ -1128,9 +1123,8 @@
       "find": "Trouver mes concurrents →",
       "searchingFrom": "Recherche à partir de ce que vous m’avez dit",
       "readingPages": "Lecture de leurs pages",
-      "found": "Trouvés en cherchant à partir de ce que vous m’avez dit. Rien n’est enregistré avant votre confirmation.",
       "readingPagesNow": "Lecture de leurs pages…",
-      "thatsOne": "C’en est un — le rechercher →"
+      "thatsOne": "Ajouter →"
     }
   },
   "watch": {
@@ -1141,7 +1135,6 @@
     "days": {
       "label": "Jour d’observation {day} sur {of}",
       "started": "Commencée le {date}",
-      "legend": "Chaque case pleine est un jour d’observation écoulé. Celle qui n’est que contournée, c’est aujourd’hui.",
       "ends": "Fin de l’observation le {date}"
     },
     "tally": {
@@ -1179,12 +1172,11 @@
     "noted": {
       "label": "Noté, sans suite",
       "title": "Ce que j’aurais dit",
-      "empty": "Rien pour l’instant. Quand un chiffre sort de sa plage habituelle, que vos horaires montrent un signal ou qu’un concurrent change un prix, je le note ici, sans y donner suite.",
+      "empty": "Rien pour l’instant.",
       "day": "Jour {day}"
     },
     "when": {
       "label": "À la fin de l’observation",
-      "foot": "La durée de l’observation se règle dans « Ma façon de travailler ».",
       "link": "Ma façon de travailler →",
       "ends": "L’observation se termine. Le prochain rapport lit tout ce qu’elle a recueilli.",
       "after": "après",
@@ -1194,7 +1186,6 @@
     },
     "activity": {
       "label": "Activité",
-      "title": "Chaque entrée est un vrai travail",
       "empty": "Rien pour l’instant. Le premier instantané hebdomadaire apparaîtra ici."
     },
     "rules": {
@@ -1204,7 +1195,6 @@
     },
     "modules": {
       "label": "Modules",
-      "title": "Pour quand je commencerai à agir",
       "name": "{module, select, marketing {marketing} sales {ventes} support {assistance} operations {opérations} finance {finance} team {équipe} other {{module}}}",
       "analytics": "analyse, toujours active",
       "rolesNotPeople": "{module, select, team {équipe} other {{module}}} : des rôles, pas des personnes",
@@ -1214,7 +1204,6 @@
       "label": "E-mail hebdomadaire",
       "title": "Un résumé chaque lundi",
       "switch": "m’envoyer la semaine par e-mail",
-      "lede": "Ce que j’ai fait et trouvé cette semaine-là, et ce qui vous attend. Chaque ligne correspond à une entrée de cet écran ; une semaine calme le dit.",
       "signUp": "Inscrivez-vous, et il sera envoyé à l’adresse avec laquelle vous vous connectez.",
       "off": "Désactivé. Rien n’est envoyé par e-mail ; tout reste sur cet écran.",
       "notDecided": "Il démarre dès que « Ma façon de travailler » est décidée.",
@@ -1266,7 +1255,6 @@
       "changes": "{count, plural, one {Jour {day} sur {of}. # modification effectuée, validée par vous.} many {Jour {day} sur {of}. # modifications effectuées, chacune validée par vous.} other {Jour {day} sur {of}. # modifications effectuées, chacune validée par vous.}}"
     },
     "notes": {
-      "hold": "Rien de ce que je pourrais modifier ne s’exécute pendant l’observation.",
       "readingEnds": "{count, plural, one {Lecture de # connexion chaque jour · l’observation se termine le {date}} many {Lecture de # connexions chaque jour · l’observation se termine le {date}} other {Lecture de # connexions chaque jour · l’observation se termine le {date}}}",
       "readingEnded": "{count, plural, one {Lecture de # connexion chaque jour · l’observation s’est terminée le {date}} many {Lecture de # connexions chaque jour · l’observation s’est terminée le {date}} other {Lecture de # connexions chaque jour · l’observation s’est terminée le {date}}}",
       "noneEnds": "Aucune connexion n’est lue · <a>Connexions</a> · l’observation se termine le {date}",
@@ -1569,12 +1557,11 @@
       "title": "Historique — SYB"
     },
     "kicker": "Votre entreprise · Historique",
-    "title": "Le registre. On ne fait qu’y ajouter.",
+    "title": "Le registre.",
     "reading": "Lecture du registre…",
     "label": "Historique",
     "signedOut": {
       "title": "Rien au dossier pour ce navigateur.",
-      "lede": "Le registre existe dès qu’il y a une entreprise pour laquelle le tenir.",
       "start": "Commencer"
     },
     "failed": {
@@ -2998,7 +2985,7 @@
     },
     "ask": {
       "title": "Arrêter l’e-mail du résumé hebdomadaire \u0001",
-      "body": "Un clic, et il s’arrête. Les liens de connexion et les notifications de l’écran Assistance ne sont pas concernés.",
+      "body": "Les liens de connexion et les notifications de l’écran Assistance ne sont pas concernés.",
       "button": "Arrêter ces e-mails"
     }
   },
@@ -3505,13 +3492,13 @@
       "connections": "Connexions",
       "history": "Historique",
       "unconnected": "Aucune connexion ne mesure encore {metric}. Connectez-en une et son historique remplira le graphique et le point de départ.",
-      "unchecked": "Pas encore vérifié. La vérification hebdomadaire lit chaque objectif mesurable le lundi."
+      "unchecked": "La vérification hebdomadaire lit chaque objectif mesurable le lundi."
     },
     "card": {
       "label": "{metric} · d’ici le {day}",
       "goal": "Objectif",
       "untitled": "Un objectif encore sans formulation",
-      "notMeasurable": "Cet objectif n’est pas encore mesurable : je ne peux donc pas vous dire s’il suit sa trajectoire. Indiquez le chiffre qu’il doit faire bouger :",
+      "notMeasurable": "Indiquez le chiffre qu’il doit faire bouger :",
       "raise": "Augmenter {metric}",
       "lower": "Diminuer {metric}",
       "now": "Maintenant",
@@ -3542,7 +3529,6 @@
     "setNew": "Fixer un nouvel objectif →",
     "how": {
       "label": "Comment fonctionnent les objectifs",
-      "title": "Énoncez un objectif, avec vos propres mots",
       "copy": "Les objectifs se fixent dans Contenus, où chaque contenu prévu indique l’objectif qu’il sert. Rendez-en un mesurable (chiffre d’affaires, nombre de ventes ou visites du site web, à une date donnée) et chaque semaine il est comparé à une trajectoire en ligne droite, de son point de départ jusqu’à là où vous voulez l’amener. Rien n’est jugé pendant les huit premières semaines, ni tant que je suis encore en observation."
     }
   },
@@ -4601,7 +4587,6 @@
     "signedOut": {
       "title": "Connectez-vous d’abord.",
       "label": "Ma façon de travailler",
-      "sheetTitle": "Cet écran lit votre profil.",
       "signIn": "Se connecter"
     },
     "none": {
@@ -4617,7 +4602,6 @@
       "answer": "Répondre aux questions essentielles"
     },
     "current": "En vigueur",
-    "everyYes": "Chaque proposition attend toujours votre oui",
     "a": {
       "label": "Mode A",
       "title": "Observer d’abord",
