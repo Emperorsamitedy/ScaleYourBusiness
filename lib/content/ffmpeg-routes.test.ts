@@ -11,7 +11,7 @@ import nextConfig from "../../next.config";
 
 /** The calls that reach FFmpeg or ffprobe. */
 const FFMPEG_ENTRY_POINTS =
-  /\b(generateFromProposal|generateCandidatesFromProposal|pickCandidate|runRender|sweepRenders)\b/;
+  /\b(generateFromProposal|generateCandidatesFromProposal|collectCandidates|pickCandidate|runRender|sweepRenders)\b/;
 
 async function routeFiles(dir: string): Promise<string[]> {
   const out: string[] = [];
@@ -34,6 +34,7 @@ describe("FFmpeg reaches every route that needs it", () => {
       needing.push(route);
     }
     expect(needing).toContain("/api/studio");
+    expect(needing).toContain("/api/cron/collect-video");
     for (const route of needing) expect(traced, route).toContain(route);
   });
 });

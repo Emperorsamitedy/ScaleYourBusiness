@@ -197,7 +197,7 @@ describe("P3-53 — the prompt and the label, pure", () => {
   });
 
   it("stamps the JPEG with IPTC 'trainedAlgorithmicMedia' and the label, and reads it back", async () => {
-    const out = await fakeMediaProvider().generate({
+    const out = await fakeMediaProvider().generate!({
       media: "image",
       prompt: "p",
       instruction: FIXED_INSTRUCTION,

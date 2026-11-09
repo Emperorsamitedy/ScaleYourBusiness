@@ -55,12 +55,6 @@ export interface GenerationRequest {
    * twice for a request that timed out on the way back.
    */
   idempotency_key?: string;
-  /**
-   * P6-03: when this run must stop waiting (epoch ms). The function that
-   * runs it has a hard time limit; a provider that polls stops by then, so
-   * the run settles its own record instead of being cut off mid-wait.
-   */
-  deadline_at?: number;
 }
 
 export interface GenerationOutput {
@@ -86,6 +80,41 @@ export class ProviderError extends Error {
   }
 }
 
+/**
+ * P6-03, the owner's decision of 2026-11-09 ("the best solution top
+ * businesses are currently doing"): a slow provider is SUBMITTED to and
+ * answers at once; a later run asks after the request and collects it.
+ * Nothing waits for a clip inside the request that asked for it.
+ */
+export interface SubmittedJob {
+  /** The provider's id for the request. */
+  request_id: string;
+  /** Where its status is read (on the provider's own host). */
+  status_url: string;
+  /** Where it is canceled while still queued, when the provider offers it. */
+  cancel_url: string | null;
+}
+
+/** What one status check said. */
+export type JobCheck =
+  /** Queued or running, or the check itself didn't answer: ask again later. */
+  | { state: "pending"; status: string }
+  /** Finished: the file is at `result_url`. The run is billed from here. */
+  | { state: "completed"; result_url: string }
+  /** Over without a file. `charged` is what it still cost (null = nothing). */
+  | { state: "failed"; message: string; retryable: boolean; charged: Money | null };
+
+export interface MediaJobs {
+  /** Submit one attempt and return as soon as the provider has accepted it. */
+  submit(req: GenerationRequest): Promise<SubmittedJob>;
+  /** One status check — never a wait. */
+  check(job: SubmittedJob): Promise<JobCheck>;
+  /** Download a finished file (unlabelled: ./label stamps it before it is stored). */
+  fetchResult(job: SubmittedJob, resultUrl: string): Promise<GenerationOutput>;
+  /** Cancel a request still queued: true = accepted, so nothing is billed. */
+  cancel(job: SubmittedJob): Promise<boolean>;
+}
+
 export interface MediaProvider {
   readonly id: string;
   /** Null when usable; otherwise the owner's sentence for why not. */
@@ -94,5 +123,8 @@ export interface MediaProvider {
   readonly supports?: readonly GeneratedMedia[];
   /** The price of one attempt, before anything runs. */
   estimate(req: { media: GeneratedMedia; seconds?: number }): Money;
-  generate(req: GenerationRequest): Promise<GenerationOutput>;
+  /** Make it inside this call (the fake, the single-item path). */
+  generate?(req: GenerationRequest): Promise<GenerationOutput>;
+  /** Submit now, collect later (P6-03: Higgsfield's video candidates). */
+  readonly jobs?: MediaJobs;
 }

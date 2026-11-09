@@ -5203,7 +5203,9 @@
       "videoProposed": "Proposed. It’s in <queue>Waiting for you</queue>; nothing is generated or spent before your yes.",
       "videoGenerated": "The candidates are below, each labelled as AI-generated. Pick one; nothing is published without your yes.",
       "picked": "Picked. It’s on the video item, labelled as AI-generated, and its publish proposal is in <queue>Waiting for you</queue>.",
-      "pickedNoProposal": "Picked. It’s on the video item, labelled as AI-generated."
+      "pickedNoProposal": "Picked. It’s on the video item, labelled as AI-generated.",
+      "videoSubmitted": "Sent. The three arrive below over the next few minutes, each labelled as AI-generated. You can leave this page and come back.",
+      "videoStillMaking": "Still being made. Come back later: SYB keeps collecting them, at least once a day."
     },
     "niche": {
       "label": "The niche's longest-running ads",
@@ -5282,7 +5284,7 @@
       "proposing": "Proposing…",
       "pending": "Waiting for your yes in <queue>Waiting for you</queue>.",
       "generate": "Generate the three",
-      "generating": "Generating. This takes a few minutes…",
+      "generating": "Sending the three to Higgsfield…",
       "approvedNote": "Approved. The money is spent only when you start it.",
       "notOffered": "Not offered: {reason}",
       "setLabel": "CANDIDATES · {day}",
@@ -5297,7 +5299,10 @@
         "failed": "FAILED",
         "chosen": "CHOSEN",
         "not_chosen": "NOT CHOSEN · KEPT"
-      }
+      },
+      "making": "Being made: {ready} of {total} ready.",
+      "makingNote": "You can leave this page. SYB collects them while it is open, and once a day in the background; a ready one can be picked now.",
+      "progress": "{ready} of {total} ready"
     }
   },
   "site": {

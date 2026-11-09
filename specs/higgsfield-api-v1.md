@@ -55,14 +55,31 @@ SYB's env: `HIGGSFIELD_API_KEY` (the key id, or the whole `id:secret`) and
 | Completed video: `video.url`; `expires_at` says when the output is deleted (at least seven days)          | true     |
 | `failed` and `nsfw` carry `error` (string or null)                                                        | true     |
 | Cancel: `POST <cancel_url>` → 202 while queued; 400 once processing started                               | true     |
-| Webhooks exist instead of polling; the parameter's name and payload weren't on the pages read             | false    |
+| Webhooks exist instead of polling; the parameter's name and payload weren't on the pages read (unused)    | false    |
 | A recommended polling interval                                                                            | false    |
 | The output file is an MP4 (SYB checks for an ISO-BMFF `ftyp` box and refuses anything else)               | false    |
 
-SYB polls every 5 seconds, at most 45 times (inside a 300-second function), submits at most
-twice per attempt (the second only after a dropped connection, with the same `Idempotency-Key`),
-and at most `MAX_GENERATION_ATTEMPTS` (2) attempts per candidate. At the poll cap it cancels; a
-cancel that isn't accepted means the run may still be billed, so it is counted as spent.
+**Submit now, collect in the background** (the owner's decision of 2026-11-09, "the best
+solution top businesses are currently doing"). SYB never waits for a clip inside a request:
+approving a set submits its three requests and answers at once. Each request is then asked
+after one `GET <status_url>` at a time — by the studio while it is open (every 15 s for at most
+an hour) and by the `collect-video` cron (daily on Vercel Hobby) — never more often than every
+10 s per request, at most 12 requests and 6 downloads per run, each candidate leased to one run
+so a file is never downloaded twice. Polling is the source of truth: the webhook isn't
+documented on the pages read, so SYB doesn't depend on it.
+
+- Submits: at most twice per attempt (the second only after a dropped connection, with the same
+  `Idempotency-Key`), at most `MAX_GENERATION_ATTEMPTS` (2) attempts per candidate, the caps
+  re-checked before a retry. A submit whose answer was lost is sent again with that attempt's
+  own key, so Higgsfield returns the first request instead of a second charge.
+- Deadline: a request not finished 2 hours after its set started is canceled. A cancel accepted
+  (still queued) means nothing was billed and its cap room is given back; otherwise it may still
+  be billed, so it is counted as spent. Either way the candidate closes as failed with its reason,
+  and a set with nothing left running settles and closes its proposal.
+- A finished clip that can't be labelled here (no FFmpeg) is left pending, paid for, and says so;
+  it is collected once a server with FFmpeg checks it, for up to 6 days (the output is kept at
+  least seven), then closed as failed and counted as spent. A download that drops is tried again
+  on the next check.
 
 ## Errors
 

@@ -36,6 +36,7 @@ export const PUBLIC: Record<string, string> = {
   "auth/redeem/route.ts": "redeems a sign-in link",
   "auth/oauth/[provider]/start/route.ts": "starts a provider sign-in",
   "auth/oauth/[provider]/callback/route.ts": "finishes a provider sign-in",
+  "cron/collect-video/route.ts": "Vercel cron, CRON_SECRET (P6-03's AI video collection)",
   "cron/competitor-read/route.ts": "Vercel cron, CRON_SECRET",
   "cron/connector-sync/route.ts": "Vercel cron, CRON_SECRET",
   "cron/execute-due/route.ts": "Vercel cron, CRON_SECRET",

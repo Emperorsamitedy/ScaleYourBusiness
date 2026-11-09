@@ -5203,7 +5203,9 @@
       "videoProposed": "Javasolva. Itt találja: <queue>Önre vár</queue>; az igenje előtt semmi nem készül és nem fogy pénz.",
       "videoGenerated": "A jelöltek lent vannak, mindegyik MI által generáltként jelölve. Válasszon egyet; az igenje nélkül semmi nem jelenik meg.",
       "picked": "Kiválasztva. A videóelemen van, MI által generáltként jelölve, a közzétételi javaslata pedig itt van: <queue>Önre vár</queue>.",
-      "pickedNoProposal": "Kiválasztva. A videóelemen van, MI által generáltként jelölve."
+      "pickedNoProposal": "Kiválasztva. A videóelemen van, MI által generáltként jelölve.",
+      "videoSubmitted": "Elküldve. A három a következő percekben érkezik lent, mindegyik MI által generáltként jelölve. Elhagyhatja ezt az oldalt, és később visszatérhet.",
+      "videoStillMaking": "Még készül. Nézzen vissza később: az SYB tovább gyűjti őket, legalább naponta egyszer."
     },
     "niche": {
       "label": "A piaci rés leghosszabb ideje futó hirdetései",
@@ -5282,7 +5284,7 @@
       "proposing": "Javaslat készül…",
       "pending": "Az igenjére vár itt: <queue>Önre vár</queue>.",
       "generate": "A három elkészítése",
-      "generating": "Készül. Ez néhány percig tart…",
+      "generating": "A három küldése a Higgsfieldnek…",
       "approvedNote": "Jóváhagyva. A pénz csak akkor fogy, amikor elindítja.",
       "notOffered": "Nem ajánlott: {reason}",
       "setLabel": "JELÖLTEK · {day}",
@@ -5297,7 +5299,10 @@
         "failed": "SIKERTELEN",
         "chosen": "KIVÁLASZTVA",
         "not_chosen": "NEM VÁLASZTOTT · MEGŐRIZVE"
-      }
+      },
+      "making": "Készül: {total} közül {ready} kész.",
+      "makingNote": "Elhagyhatja ezt az oldalt. Az SYB begyűjti őket, amíg nyitva van, és naponta egyszer a háttérben; egy kész jelölt már most választható.",
+      "progress": "{total} közül {ready} kész"
     }
   },
   "site": {

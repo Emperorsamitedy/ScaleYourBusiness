@@ -5203,7 +5203,9 @@
       "videoProposed": "Proposé. C’est dans <queue>En attente de votre décision</queue> ; rien n’est généré ni dépensé avant votre oui.",
       "videoGenerated": "Les candidates sont ci-dessous, chacune avec la mention générée par IA. Choisissez-en une ; rien n’est publié sans votre oui.",
       "picked": "Choisie. Elle est sur l’élément vidéo, avec la mention générée par IA, et sa proposition de publication est dans <queue>En attente de votre décision</queue>.",
-      "pickedNoProposal": "Choisie. Elle est sur l’élément vidéo, avec la mention générée par IA."
+      "pickedNoProposal": "Choisie. Elle est sur l’élément vidéo, avec la mention générée par IA.",
+      "videoSubmitted": "Envoyé. Les trois arrivent ci-dessous dans les prochaines minutes, chacune avec la mention générée par IA. Vous pouvez quitter cette page et revenir.",
+      "videoStillMaking": "Génération toujours en cours. Revenez plus tard : SYB continue de les récupérer, au moins une fois par jour."
     },
     "niche": {
       "label": "Les publicités les plus durables de la niche",
@@ -5282,7 +5284,7 @@
       "proposing": "Proposition en cours…",
       "pending": "En attente de votre oui dans <queue>En attente de votre décision</queue>.",
       "generate": "Générer les trois",
-      "generating": "Génération en cours. Cela prend quelques minutes…",
+      "generating": "Envoi des trois à Higgsfield…",
       "approvedNote": "Validé. L’argent n’est dépensé que lorsque vous lancez la génération.",
       "notOffered": "Non proposé : {reason}",
       "setLabel": "CANDIDATES · {day}",
@@ -5297,7 +5299,10 @@
         "failed": "ÉCHEC",
         "chosen": "CHOISIE",
         "not_chosen": "NON CHOISIE · CONSERVÉE"
-      }
+      },
+      "making": "Génération en cours : {ready} sur {total} prêtes.",
+      "makingNote": "Vous pouvez quitter cette page. SYB les récupère tant qu’elle est ouverte, et une fois par jour en arrière-plan ; une candidate prête peut déjà être choisie.",
+      "progress": "{ready} sur {total} prêtes"
     }
   },
   "site": {

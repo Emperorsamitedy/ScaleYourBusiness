@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import {
   CANDIDATE_STATES,
+  VIDEO_POLL,
+  anyMaking,
   canPick,
   candidateStateWord,
   forBrief,
@@ -9,6 +11,7 @@ import {
   runningWords,
   studioHeadline,
   timeText,
+  setProgress,
   videoSetupLine,
 } from "./studio-view";
 
@@ -120,5 +123,15 @@ describe("P6-03 — the studio's AI video words", () => {
       { brief_id: "b1", n: 4 },
     ];
     expect(forBrief(rows, "b1").map((r) => r.n)).toEqual([1, 4]);
+  });
+
+  it("polls only while a set is being made, a capped number of times, and counts what arrived", () => {
+    expect(anyMaking([{ status: "generated" }, { status: "failed" }])).toBe(false);
+    expect(anyMaking([{ status: "generated" }, { status: "generating" }])).toBe(true);
+    expect(anyMaking([])).toBe(false);
+    // An hour at most, never faster than every 10 s (the server's own gap between checks).
+    expect(VIDEO_POLL.every_ms * VIDEO_POLL.max_polls).toBeLessThanOrEqual(3_600_000);
+    expect(VIDEO_POLL.every_ms).toBeGreaterThanOrEqual(10_000);
+    expect(setProgress({ ready: 2, candidates: [1, 2, 3] })).toEqual({ ready: 2, total: 3 });
   });
 });

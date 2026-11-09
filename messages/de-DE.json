@@ -5203,7 +5203,9 @@
       "videoProposed": "Vorgeschlagen. Jetzt unter <queue>Wartet auf Sie</queue>; vor Ihrem Ja wird nichts erzeugt und nichts ausgegeben.",
       "videoGenerated": "Die Kandidaten stehen unten, jeder als KI-generiert gekennzeichnet. Wählen Sie einen; ohne Ihr Ja wird nichts veröffentlicht.",
       "picked": "Gewählt. Er liegt auf dem Video-Eintrag, als KI-generiert gekennzeichnet, und sein Vorschlag zur Veröffentlichung steht unter <queue>Wartet auf Sie</queue>.",
-      "pickedNoProposal": "Gewählt. Er liegt auf dem Video-Eintrag, als KI-generiert gekennzeichnet."
+      "pickedNoProposal": "Gewählt. Er liegt auf dem Video-Eintrag, als KI-generiert gekennzeichnet.",
+      "videoSubmitted": "Gesendet. Die drei erscheinen in den nächsten Minuten unten, jeder als KI-generiert gekennzeichnet. Sie können diese Seite verlassen und später zurückkommen.",
+      "videoStillMaking": "Wird noch erzeugt. Schauen Sie später wieder vorbei: SYB holt sie weiter ab, mindestens einmal am Tag."
     },
     "niche": {
       "label": "Die am längsten laufenden Anzeigen der Nische",
@@ -5282,7 +5284,7 @@
       "proposing": "Wird vorgeschlagen…",
       "pending": "Wartet auf Ihr Ja unter <queue>Wartet auf Sie</queue>.",
       "generate": "Die drei erzeugen",
-      "generating": "Wird erzeugt. Das dauert ein paar Minuten…",
+      "generating": "Die drei werden an Higgsfield gesendet…",
       "approvedNote": "Freigegeben. Das Geld wird erst ausgegeben, wenn Sie es starten.",
       "notOffered": "Nicht angeboten: {reason}",
       "setLabel": "KANDIDATEN · {day}",
@@ -5297,7 +5299,10 @@
         "failed": "FEHLGESCHLAGEN",
         "chosen": "GEWÄHLT",
         "not_chosen": "NICHT GEWÄHLT · BEHALTEN"
-      }
+      },
+      "making": "Wird erzeugt: {ready} von {total} bereit.",
+      "makingNote": "Sie können diese Seite verlassen. SYB holt sie ab, solange sie geöffnet ist, und einmal am Tag im Hintergrund; ein fertiger kann schon jetzt gewählt werden.",
+      "progress": "{ready} von {total} bereit"
     }
   },
   "site": {

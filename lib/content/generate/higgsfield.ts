@@ -7,20 +7,28 @@
 //
 // The flow, as documented:
 //   POST https://api.higgsfield.ai/<model endpoint>     → {request_id, status_url, cancel_url}
-//   GET  <status_url>  until status is terminal          → completed: video.url
-//   (queued | in_progress → keep polling; failed | nsfw | canceled → stop)
+//   GET  <status_url>                                    → queued | in_progress | completed (video.url)
+//                                                          | failed | nsfw | canceled
 //   POST <cancel_url>  only while still queued           → 202, nothing billed
 // Auth on every call to api.higgsfield.ai: `Authorization: Key <id>:<secret>`.
 //
+// The owner's decision of 2026-11-09 ("the best solution top businesses are
+// currently doing"): SYB SUBMITS and returns at once, and asks after the
+// request later, one status check at a time (../candidates.ts, the
+// studio's poll and the collect-video cron). Nothing here sleeps or waits
+// for a clip: each call below is one HTTP request with its own timeout.
+// Higgsfield's webhook parameter isn't documented on the pages read
+// (specs/higgsfield-api-v1.md), so polling is the source of truth.
+//
 // SYB's own rules around it:
 //   - video only, and only through an approved proposal (../generation.ts)
-//   - a hard cap on polls and on submits, and a timeout on every request
+//   - a hard cap on submits, and a timeout on every request
 //   - the key goes to api.higgsfield.ai and nowhere else: a status or cancel
 //     URL on another host is refused, and the finished file is downloaded
 //     without it
 //   - the charge is Higgsfield's published price for the seconds asked
-//     (the status response carries no cost field); a run that never
-//     finished within the cap is counted as charged, because it may be
+//     (the status response carries no cost field); a request SYB lost
+//     track of is counted as charged, because it may be
 //   - the bytes come back unlabelled: ../label stamps them before they are
 //     stored anywhere (rule 33's "from the moment it exists" in SYB)
 //
@@ -33,21 +41,17 @@ import type {
   GeneratedMedia,
   GenerationOutput,
   GenerationRequest,
+  JobCheck,
   MediaProvider,
+  SubmittedJob,
 } from "./provider";
 import { GENERATED_CLIP_SECONDS, ProviderError } from "./provider";
 
 export const HIGGSFIELD_ORIGIN = "https://api.higgsfield.ai";
 export const HIGGSFIELD_CURRENCY = "USD";
 
-/**
- * Hard limits on one generation. 45 polls × 5 s fits one attempt inside a
- * 300 s function; a request's deadline_at (the run's own budget) stops a
- * retry from running past it.
- */
+/** Hard limits on each call. No poll interval: SYB never waits on a request. */
 export const HIGGSFIELD_LIMITS = {
-  poll_interval_ms: 5_000,
-  max_polls: 45,
   /** Submits per attempt: one more, with the same Idempotency-Key, after a transport failure. */
   max_submits: 2,
   request_timeout_ms: 20_000,
@@ -73,9 +77,6 @@ export interface HiggsfieldOptions {
   /** Higgsfield's published price, in millionths of a dollar per second. */
   usd_micros_per_second: number;
   fetch?: HttpFetch;
-  sleep?: (ms: number) => Promise<void>;
-  /** The clock a request's deadline_at is read against (tests inject it). */
-  now?: () => number;
   limits?: Partial<Record<keyof typeof HIGGSFIELD_LIMITS, number>>;
 }
 
@@ -144,6 +145,11 @@ export function looksLikeMp4(bytes: Uint8Array): boolean {
   );
 }
 
+/** Pure: Higgsfield's request ids are uuids; anything else isn't trusted into a URL. */
+export function isRequestId(id: unknown): id is string {
+  return typeof id === "string" && /^[A-Za-z0-9-]{8,64}$/.test(id);
+}
+
 async function detailOf(res: Response): Promise<string> {
   try {
     const body = (await res.json()) as { detail?: unknown };
@@ -156,26 +162,24 @@ async function detailOf(res: Response): Promise<string> {
   }
 }
 
-const sleepFor = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms));
-
 export function higgsfieldMediaProvider(opts: HiggsfieldOptions): MediaProvider {
   const limits: Record<keyof typeof HIGGSFIELD_LIMITS, number> = {
     ...HIGGSFIELD_LIMITS,
     ...opts.limits,
   };
   const doFetch: HttpFetch = opts.fetch ?? ((url, init) => fetch(url, init));
-  const sleep = opts.sleep ?? sleepFor;
-  const clock = opts.now ?? Date.now;
   const key = opts.key;
   const model = opts.model;
   const auth = key ? `Key ${key.id}:${key.secret}` : "";
   const priceOf = (seconds = GENERATED_CLIP_SECONDS) =>
     higgsfieldPrice(opts.usd_micros_per_second, seconds);
+  // The clip SYB always asks for: the charge of a finished (or maybe-finished) request.
+  const clipCost = priceOf();
 
   const call = (url: string, init: RequestInit, timeoutMs = limits.request_timeout_ms) =>
     doFetch(url, { ...init, signal: AbortSignal.timeout(timeoutMs) });
 
-  async function submit(req: GenerationRequest, idempotencyKey: string): Promise<StatusBody> {
+  async function post(req: GenerationRequest, idempotencyKey: string): Promise<StatusBody> {
     const body = JSON.stringify(higgsfieldBody(model, req, limits.max_prompt_chars));
     let lastError = "Higgsfield didn't answer";
     for (let n = 1; n <= limits.max_submits; n++) {
@@ -220,19 +224,10 @@ export function higgsfieldMediaProvider(opts: HiggsfieldOptions): MediaProvider 
     throw new ProviderError(lastError, { retryable: true });
   }
 
-  async function cancel(cancelUrl: unknown): Promise<boolean> {
-    if (!onHiggsfieldHost(cancelUrl)) return false;
-    try {
-      const res = await call(cancelUrl, { method: "POST", headers: { authorization: auth } });
-      return res.status === 202 || res.ok;
-    } catch {
-      return false;
-    }
-  }
-
-  async function download(url: unknown, cost: Money): Promise<Uint8Array> {
-    const charged = { cost };
-    if (typeof url !== "string" || !url.startsWith("https://")) {
+  async function download(url: string): Promise<Uint8Array> {
+    // A finished request is billed: every refusal below still counts its price.
+    const charged = { cost: clipCost };
+    if (!url.startsWith("https://")) {
       throw new ProviderError("Higgsfield finished but gave no video address", charged);
     }
     let res: Response;
@@ -240,12 +235,16 @@ export function higgsfieldMediaProvider(opts: HiggsfieldOptions): MediaProvider 
       // Without the key: the file sits on a delivery host, not the API.
       res = await call(url, { method: "GET" }, limits.download_timeout_ms);
     } catch {
-      throw new ProviderError("the finished video couldn't be downloaded from Higgsfield", charged);
+      // Kept at Higgsfield for at least seven days: another run downloads it.
+      throw new ProviderError("the finished video couldn't be downloaded from Higgsfield yet", {
+        ...charged,
+        retryable: true,
+      });
     }
     if (!res.ok) {
       throw new ProviderError(
         `the finished video couldn't be downloaded from Higgsfield (HTTP ${res.status})`,
-        charged,
+        { ...charged, retryable: res.status >= 500 || res.status === 429 },
       );
     }
     const declared = Number(res.headers.get("content-length") ?? "0");
@@ -270,42 +269,45 @@ export function higgsfieldMediaProvider(opts: HiggsfieldOptions): MediaProvider 
       if (req.media !== "video") throw new ProviderError(HIGGSFIELD_VIDEO_ONLY);
       return priceOf(req.seconds);
     },
-    async generate(req): Promise<GenerationOutput> {
-      if (req.media !== "video") throw new ProviderError(HIGGSFIELD_VIDEO_ONLY);
-      if (!key) throw new ProviderError(HIGGSFIELD_NO_KEY);
-      const cost = priceOf(req.seconds);
-      // The run's own time limit: nothing is submitted that couldn't be waited for.
-      const deadline = req.deadline_at ?? Number.POSITIVE_INFINITY;
-      if (clock() + limits.poll_interval_ms > deadline) {
-        throw new ProviderError(
-          "there was no time left in this run to wait for Higgsfield, so nothing was submitted or billed",
-        );
-      }
-      const submitted = await submit(req, req.idempotency_key ?? randomUUID());
-      const requestId =
-        typeof submitted.request_id === "string" &&
-        /^[A-Za-z0-9-]{8,64}$/.test(submitted.request_id)
-          ? submitted.request_id
-          : null;
-      if (!requestId) {
-        // Accepted, maybe: count it as charged rather than pretend it cost nothing.
-        throw new ProviderError("Higgsfield accepted the request but gave no request id", {
-          cost,
-        });
-      }
-      const statusUrl = onHiggsfieldHost(submitted.status_url)
-        ? submitted.status_url
-        : `${HIGGSFIELD_ORIGIN}/requests/${requestId}/status`;
-      const cancelUrl = onHiggsfieldHost(submitted.cancel_url)
-        ? submitted.cancel_url
-        : `${HIGGSFIELD_ORIGIN}/requests/${requestId}/cancel`;
+    jobs: {
+      async submit(req): Promise<SubmittedJob> {
+        if (req.media !== "video") throw new ProviderError(HIGGSFIELD_VIDEO_ONLY);
+        if (!key) throw new ProviderError(HIGGSFIELD_NO_KEY);
+        const submitted = await post(req, req.idempotency_key ?? randomUUID());
+        if (!isRequestId(submitted.request_id)) {
+          // Accepted, maybe: count it as charged rather than pretend it cost nothing.
+          throw new ProviderError("Higgsfield accepted the request but gave no request id", {
+            cost: priceOf(req.seconds),
+          });
+        }
+        const id = submitted.request_id;
+        return {
+          request_id: id,
+          status_url: onHiggsfieldHost(submitted.status_url)
+            ? submitted.status_url
+            : `${HIGGSFIELD_ORIGIN}/requests/${id}/status`,
+          cancel_url: onHiggsfieldHost(submitted.cancel_url)
+            ? submitted.cancel_url
+            : `${HIGGSFIELD_ORIGIN}/requests/${id}/cancel`,
+        };
+      },
 
-      let checks = 0;
-      for (let poll = 1; poll <= limits.max_polls; poll++) {
-        // Out of time before the cap: stop waiting, exactly as at the cap.
-        if (clock() + limits.poll_interval_ms > deadline) break;
-        checks = poll;
-        await sleep(limits.poll_interval_ms);
+      async check(job): Promise<JobCheck> {
+        if (!key) return { state: "pending", status: "no_key" };
+        // The key never leaves for another host: a stored address is checked again on use.
+        const statusUrl = onHiggsfieldHost(job.status_url)
+          ? job.status_url
+          : isRequestId(job.request_id)
+            ? `${HIGGSFIELD_ORIGIN}/requests/${job.request_id}/status`
+            : null;
+        if (!statusUrl) {
+          return {
+            state: "failed",
+            message: "SYB has no usable address for this Higgsfield request; counted as spent",
+            retryable: false,
+            charged: clipCost,
+          };
+        }
         let body: StatusBody;
         try {
           const res = await call(statusUrl, {
@@ -313,55 +315,86 @@ export function higgsfieldMediaProvider(opts: HiggsfieldOptions): MediaProvider 
             headers: { authorization: auth, accept: "application/json" },
           });
           if (res.status === 401 || res.status === 404) {
-            throw new ProviderError(
-              `Higgsfield lost track of request ${requestId} (HTTP ${res.status})`,
-              { cost },
-            );
+            // It may have run: counted as spent.
+            return {
+              state: "failed",
+              message: `Higgsfield lost track of request ${job.request_id} (HTTP ${res.status})`,
+              retryable: false,
+              charged: clipCost,
+            };
           }
-          if (!res.ok) continue; // 5xx: the next poll, within the cap
+          if (!res.ok) return { state: "pending", status: `http_${res.status}` };
           body = (await res.json()) as StatusBody;
-        } catch (error) {
-          if (error instanceof ProviderError) throw error;
-          continue; // a dropped poll counts against the cap like any other
+        } catch {
+          return { state: "pending", status: "no_answer" }; // asked again on the next run
         }
         const status = body.status as HiggsfieldStatus | undefined;
         if (status === "completed") {
-          const bytes = await download(body.video?.url, cost);
-          return {
-            bytes,
-            content_type: "video/mp4",
-            cost,
-            model: `higgsfield/${model}`,
-            request_id: requestId,
-          };
+          const url = body.video?.url;
+          if (typeof url !== "string" || url === "") {
+            return {
+              state: "failed",
+              message: "Higgsfield finished but gave no video address",
+              retryable: false,
+              charged: clipCost,
+            };
+          }
+          return { state: "completed", result_url: url };
         }
         if (status === "failed") {
           // Documented: a failed request isn't billed. Another attempt may succeed.
           const why = typeof body.error === "string" ? `: ${body.error.slice(0, 160)}` : "";
-          throw new ProviderError(`Higgsfield couldn't make this clip${why}`, {
+          return {
+            state: "failed",
+            message: `Higgsfield couldn't make this clip${why}`,
             retryable: true,
-          });
+            charged: null,
+          };
         }
         if (status === "nsfw") {
-          throw new ProviderError(
-            "Higgsfield's moderation refused this prompt or its result — nothing was billed",
-          );
+          return {
+            state: "failed",
+            message:
+              "Higgsfield's moderation refused this prompt or its result — nothing was billed",
+            retryable: false,
+            charged: null,
+          };
         }
         if (status === "canceled") {
-          throw new ProviderError("the request was canceled at Higgsfield — nothing was billed");
+          return {
+            state: "failed",
+            message: "the request was canceled at Higgsfield — nothing was billed",
+            retryable: false,
+            charged: null,
+          };
         }
-        // queued | in_progress | anything new: poll again, within the cap.
-      }
-      // The cap: cancel while it's still queued (unbilled), or count it as charged.
-      if (await cancel(cancelUrl)) {
-        throw new ProviderError(
-          `Higgsfield hadn't started request ${requestId} after ${checks} checks, so it was canceled — nothing was billed`,
-        );
-      }
-      throw new ProviderError(
-        `Higgsfield didn't finish request ${requestId} within ${checks} checks; it may still finish and be billed, so it is counted as spent`,
-        { cost },
-      );
+        // queued | in_progress | anything new: asked again on the next run.
+        return { state: "pending", status: typeof status === "string" ? status : "unknown" };
+      },
+
+      async fetchResult(job, resultUrl): Promise<GenerationOutput> {
+        const bytes = await download(resultUrl);
+        return {
+          bytes,
+          content_type: "video/mp4",
+          cost: clipCost,
+          model: `higgsfield/${model}`,
+          request_id: job.request_id,
+        };
+      },
+
+      async cancel(job): Promise<boolean> {
+        if (!key || !onHiggsfieldHost(job.cancel_url)) return false;
+        try {
+          const res = await call(job.cancel_url, {
+            method: "POST",
+            headers: { authorization: auth },
+          });
+          return res.status === 202 || res.ok;
+        } catch {
+          return false;
+        }
+      },
     },
   };
 }
