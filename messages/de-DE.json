@@ -6144,7 +6144,8 @@
       "stop_resume": "Nur ein Inhaber kann nach einem Stopp alles wieder in Gang setzen.",
       "business_locale": "Nur ein Inhaber kann die Sprache oder Währung des Unternehmens ändern.",
       "payments_prepare": "Nur ein Inhaber kann Zahlungen vorbereiten oder angeben, dass eine bezahlt wurde.",
-      "phone_recordings": "Nur ein Inhaber kann Anrufaufzeichnungen anhören."
+      "phone_recordings": "Nur ein Inhaber kann Anrufaufzeichnungen anhören.",
+      "payments_read": "Nur ein Inhaber kann Zahlungen und ihre Bankdateien sehen."
     }
   },
   "authWords": {
@@ -8985,7 +8986,8 @@
       "reference": "Verwendungszweck",
       "date": "Datum",
       "file": "Bankdatei",
-      "action": "Aktion"
+      "action": "Aktion",
+      "exported": "Heruntergeladen"
     },
     "file": {
       "yes": "In der SEPA-Datei",
@@ -9007,11 +9009,14 @@
       "on": "als bezahlt angegeben am {date}"
     },
     "download": {
-      "sepa": "{count, plural, one {SEPA-Datei herunterladen (# Zahlung)} other {SEPA-Datei herunterladen (# Zahlungen)}}",
-      "steps": "Schritt-für-Schritt-Anleitung herunterladen",
       "needPayer": "Hinterlegen Sie die Bankdaten, von denen Sie zahlen, um eine SEPA-Datei zu erhalten. Die Anleitung funktioniert auch ohne sie.",
       "noneForFile": "Keine davon kann in eine SEPA-Datei, die nur für Euro zwischen SEPA-Banken gilt. Nutzen Sie die Anleitung.",
-      "total": "{count, plural, one {Die Datei enthält # Zahlung, insgesamt {total}.} other {Die Datei enthält # Zahlungen, insgesamt {total}.}}"
+      "total": "{count, plural, one {Die Datei enthält # Zahlung, insgesamt {total}.} other {Die Datei enthält # Zahlungen, insgesamt {total}.}}",
+      "newSepa": "{count, plural, one {Neue SEPA-Datei herunterladen (# Zahlung)} other {Neue SEPA-Datei herunterladen (# Zahlungen)}}",
+      "newSteps": "{count, plural, one {Neue Anleitung herunterladen (# Zahlung)} other {Neue Anleitung herunterladen (# Zahlungen)}}",
+      "onlyNew": "Eine neue Datei enthält nur Zahlungen, die noch in keiner Datei sind, daher steht keine Zahlung je in zwei Dateien.",
+      "allInFile": "Jede bereite Zahlung ist schon in einer Datei, die Sie heruntergeladen haben. Unten können Sie eine Datei erneut herunterladen.",
+      "done": "{count, plural, one {Heruntergeladen: # Zahlung ist jetzt in einer Datei, und keine neue Datei enthält sie.} other {Heruntergeladen: # Zahlungen sind jetzt in einer Datei, und keine neue Datei enthält sie.}}"
     },
     "steps": {
       "fileTitle": "So nutzen Sie die SEPA-Datei",
@@ -9048,7 +9053,9 @@
         "notLatin": "Ein Name oder Verwendungszweck nicht in lateinischer Schrift, daher nicht in der SEPA-Datei: führen Sie sie von Hand aus.",
         "bicNeeded": "Eine Bank außerhalb des EWR braucht die BIC des Empfängers, daher nicht in der SEPA-Datei: führen Sie sie von Hand aus."
       },
-      "closing": "Sobald eine Zahlung ausgeführt ist, markieren Sie sie in SYB. Lehnt Ihre Bank eine Angabe ab, korrigieren Sie sie dort: SYB sendet nie etwas an Ihre Bank."
+      "closing": "Sobald eine Zahlung ausgeführt ist, markieren Sie sie in SYB. Lehnt Ihre Bank eine Angabe ab, korrigieren Sie sie dort: SYB sendet nie etwas an Ihre Bank.",
+      "batch": "Datei {ref}, erstellt am {date}. Keine Zahlung darin steht in einer anderen Datei von SYB.",
+      "copy": "KOPIE einer Datei, die zuerst am {date} heruntergeladen wurde. Wenn Sie diese Zahlungen schon gemacht haben, machen Sie sie nicht noch einmal: Prüfen Sie zuerst Ihre Bank."
     },
     "waiting": {
       "label": "Wartet auf Freigabe",
@@ -9133,7 +9140,32 @@
       "no_session": "Um anzugeben, dass eine Zahlung erfolgt ist, müssen Sie angemeldet sein.",
       "none_ready": "Noch ist nichts bereit für Ihre Bank. Eine Zahlung muss zuerst freigegeben werden.",
       "no_payer": "Eine SEPA-Datei braucht die Bankdaten, von denen Sie zahlen.",
-      "none_for_file": "Keine der bereiten Zahlungen kann in eine SEPA-Datei."
+      "none_for_file": "Keine der bereiten Zahlungen kann in eine SEPA-Datei.",
+      "all_in_file": "Jede dieser Zahlungen ist schon in einer heruntergeladenen Datei. Laden Sie stattdessen diese Datei aus der Liste erneut herunter.",
+      "taken": "Ein anderer Download hat diese Zahlungen gerade in eine Datei gelegt. Sehen Sie sich die heruntergeladenen Dateien an.",
+      "no_such_file": "Ich habe diese Datei nicht gefunden.",
+      "file_erased": "Diese Datei lässt sich nicht erneut erstellen: Die Bankdaten einer Zahlung darin wurden gelöscht."
+    },
+    "refused": "Zahlungen sind Sache des Inhabers",
+    "exported": {
+      "no": "Noch in keiner Datei",
+      "sepa": "In der SEPA-Datei vom {date}",
+      "steps": "In der Anleitung vom {date}"
+    },
+    "files": {
+      "label": "Heruntergeladene Dateien",
+      "title": "{count, plural, one {# Datei} other {# Dateien}}",
+      "foot": "Jede SEPA-Datei hat ihre eigene Nachrichten-ID. Eine Bank lehnt eine Datei ab, deren Nachrichten-ID sie schon kennt, daher zahlt dieselbe Datei auch zweimal hochgeladen nicht doppelt.",
+      "sepa": "SEPA-Datei vom {date}",
+      "steps": "Anleitung vom {date}",
+      "count": "{count, plural, one {# Zahlung} other {# Zahlungen}}",
+      "paid": "{count, plural, one {# als bezahlt markiert} other {# als bezahlt markiert}}",
+      "by": "heruntergeladen von {name}",
+      "again": "Erneut herunterladen",
+      "warn": "Sie haben diese Datei schon am {date} heruntergeladen. Wenn Sie sie bei Ihrer Bank hochgeladen oder ihre Zahlungen von Hand gemacht haben, tun Sie es nicht noch einmal: Sie würden doppelt zahlen. Prüfen Sie zuerst Ihre Bank.",
+      "sameId": "Die Kopie ist dieselbe Datei mit derselben Nachrichten-ID ({id}): Ihre Bank sollte sie ablehnen, wenn sie sie schon kennt.",
+      "confirm": "Ich habe meine Bank geprüft: dieselbe Datei erneut herunterladen",
+      "erased": "Diese Datei lässt sich nicht erneut erstellen: Die Bankdaten einer Zahlung darin wurden gelöscht."
     }
   }
 }

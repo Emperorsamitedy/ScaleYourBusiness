@@ -180,6 +180,20 @@ describe("several businesses and the team", () => {
     expect(hrefs(base as unknown as NavCounts)).not.toContain("/settings/team");
   });
 
+  // Least privilege (the owner's decision of 2026-11-09): /api/payments refuses them, so the menu hides it.
+  it("lists Payments for an owner only, never a manager or a viewer", () => {
+    const as = (role: "owner" | "manager" | "viewer", signed_in = true): NavCounts => ({
+      ...base,
+      access: { role, signed_in, businesses: [] },
+    });
+    expect(hrefs(as("owner"))).toContain("/payments");
+    expect(hrefs(as("owner", false))).toContain("/payments"); // the interview's own person
+    expect(hrefs(as("manager"))).not.toContain("/payments");
+    expect(hrefs(as("viewer"))).not.toContain("/payments");
+    expect(hrefs(base as unknown as NavCounts)).not.toContain("/payments");
+    expect(groupFor("/payments")?.key).toBe("insights");
+  });
+
   it("says the role in plain words, and nothing before sign-up", () => {
     const line = (role: "owner" | "manager" | "viewer", signed_in = true) =>
       roleLine({ role, signed_in, businesses: [] });

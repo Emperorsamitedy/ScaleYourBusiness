@@ -105,6 +105,34 @@
   cursor: pointer;
 }
 
+/* files downloaded before: "download again" sits behind a plain warning */
+.py-again {
+  flex-basis: 100%;
+}
+.py-again summary {
+  cursor: pointer;
+  color: var(--sheet-ink-2);
+  font-size: 12.5px;
+  text-decoration: underline;
+}
+.py-again[open] {
+  padding: 8px 0 4px;
+}
+.py-again .act {
+  display: inline-block;
+  margin-top: 8px;
+}
+.py-warn {
+  margin: 8px 0 6px;
+  padding: 10px 12px;
+  border: 1px solid var(--rule);
+  border-left: 3px solid var(--sheet-ink);
+  background: var(--marker);
+  color: var(--sheet-ink);
+  font-size: 13.5px;
+  max-width: 64ch;
+}
+
 /* forms */
 .py-form {
   display: grid;

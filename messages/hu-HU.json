@@ -6144,7 +6144,8 @@
       "stop_resume": "Csak tulajdonos indíthat újra mindent egy leállítás után.",
       "business_locale": "Csak tulajdonos módosíthatja a vállalkozás nyelvét vagy pénznemét.",
       "payments_prepare": "Csak tulajdonos készíthet elő kifizetést, vagy jelezheti, hogy egy kifizetés megtörtént.",
-      "phone_recordings": "Csak tulajdonos hallgathatja meg a hívásfelvételeket."
+      "phone_recordings": "Csak tulajdonos hallgathatja meg a hívásfelvételeket.",
+      "payments_read": "Csak tulajdonos láthatja a kifizetéseket és a banki fájljaikat."
     }
   },
   "authWords": {
@@ -8985,7 +8986,8 @@
       "reference": "Közlemény",
       "date": "Dátum",
       "file": "Banki fájl",
-      "action": "Művelet"
+      "action": "Művelet",
+      "exported": "Letöltve"
     },
     "file": {
       "yes": "A SEPA-fájlban",
@@ -9007,11 +9009,14 @@
       "on": "kifizetettnek jelölve: {date}"
     },
     "download": {
-      "sepa": "{count, plural, one {A SEPA-fájl letöltése (# kifizetés)} other {A SEPA-fájl letöltése (# kifizetés)}}",
-      "steps": "A lépésenkénti útmutató letöltése",
       "needPayer": "Adja meg a banki adatokat, amelyekről fizet, hogy SEPA-fájlt kapjon. Az útmutató nélkülük is működik.",
       "noneForFile": "Ezek egyike sem kerülhet SEPA-fájlba, amely csak SEPA-bankok közötti euróra szolgál. Használja az útmutatót.",
-      "total": "{count, plural, one {A fájlban # kifizetés van, összesen {total}.} other {A fájlban # kifizetés van, összesen {total}.}}"
+      "total": "{count, plural, one {A fájlban # kifizetés van, összesen {total}.} other {A fájlban # kifizetés van, összesen {total}.}}",
+      "newSepa": "{count, plural, one {Új SEPA-fájl letöltése (# kifizetés)} other {Új SEPA-fájl letöltése (# kifizetés)}}",
+      "newSteps": "{count, plural, one {Új útmutató letöltése (# kifizetés)} other {Új útmutató letöltése (# kifizetés)}}",
+      "onlyNew": "Egy új fájlba csak olyan kifizetések kerülnek, amelyek még egyetlen fájlban sincsenek, így egy kifizetés soha nincs két fájlban.",
+      "allInFile": "Minden kész kifizetés benne van már egy letöltött fájlban. Lent újra letölthet egy fájlt.",
+      "done": "{count, plural, one {Letöltve: # kifizetés most már fájlban van, és új fájlba nem kerül be.} other {Letöltve: # kifizetés most már fájlban van, és új fájlba nem kerül be.}}"
     },
     "steps": {
       "fileTitle": "A SEPA-fájl használata",
@@ -9048,7 +9053,9 @@
         "notLatin": "Egy név vagy közlemény nem latin betűs, ezért nincs a SEPA-fájlban: indítsa el kézzel.",
         "bicNeeded": "Az EGT-n kívüli bankhoz kell a kedvezményezett BIC-kódja, ezért nincs a SEPA-fájlban: indítsa el kézzel."
       },
-      "closing": "Ha egy kifizetés megtörtént, jelölje meg a SYB-ben. Ha a bankja elutasít egy adatot, ott javítsa: a SYB soha nem küld semmit a bankjának."
+      "closing": "Ha egy kifizetés megtörtént, jelölje meg a SYB-ben. Ha a bankja elutasít egy adatot, ott javítsa: a SYB soha nem küld semmit a bankjának.",
+      "batch": "{ref} fájl, készült: {date}. Egyik benne lévő kifizetés sincs más SYB-fájlban.",
+      "copy": "MÁSOLAT egy fájlról, amelyet először ekkor töltött le: {date}. Ha ezeket a kifizetéseket már teljesítette, ne tegye meg újra: előbb nézze meg a bankjában."
     },
     "waiting": {
       "label": "Jóváhagyásra vár",
@@ -9133,7 +9140,32 @@
       "no_session": "Ahhoz, hogy jelezze egy kifizetés megtörténtét, bejelentkezés szükséges.",
       "none_ready": "Még semmi sincs kész a bankja számára. Előbb jóvá kell hagyni egy kifizetést.",
       "no_payer": "A SEPA-fájlhoz kellenek a banki adatok, amelyekről fizet.",
-      "none_for_file": "A kész kifizetések egyike sem kerülhet SEPA-fájlba."
+      "none_for_file": "A kész kifizetések egyike sem kerülhet SEPA-fájlba.",
+      "all_in_file": "Ezek a kifizetések mind benne vannak már egy letöltött fájlban. Inkább azt a fájlt töltse le újra a listából.",
+      "taken": "Egy másik letöltés épp most tette fájlba ezeket a kifizetéseket. Nézze meg a letöltött fájlokat.",
+      "no_such_file": "Nem találtam ezt a fájlt.",
+      "file_erased": "Ez a fájl nem készíthető el újra: egy benne lévő kifizetés banki adatait törölték."
+    },
+    "refused": "A kifizetések a tulajdonosra tartoznak",
+    "exported": {
+      "no": "Még nincs fájlban",
+      "sepa": "Benne van a SEPA-fájlban ({date})",
+      "steps": "Benne van az útmutatóban ({date})"
+    },
+    "files": {
+      "label": "Letöltött fájlok",
+      "title": "{count, plural, one {# fájl} other {# fájl}}",
+      "foot": "Minden SEPA-fájlnak saját üzenetazonosítója van. A bank elutasítja azt a fájlt, amelynek üzenetazonosítóját már látta, így ugyanaz a fájl kétszer feltöltve sem fizet kétszer.",
+      "sepa": "SEPA-fájl, {date}",
+      "steps": "Útmutató, {date}",
+      "count": "{count, plural, one {# kifizetés} other {# kifizetés}}",
+      "paid": "{count, plural, one {# kifizetettnek jelölve} other {# kifizetettnek jelölve}}",
+      "by": "letöltötte: {name}",
+      "again": "Újra letöltés",
+      "warn": "Ezt a fájlt már letöltötte: {date}. Ha feltöltötte a bankjába, vagy kézzel teljesítette a kifizetéseit, ne tegye meg újra, mert kétszer fizetne. Előbb nézze meg a bankjában.",
+      "sameId": "A másolat ugyanaz a fájl, ugyanazzal az üzenetazonosítóval ({id}): a bankjának el kell utasítania, ha már látta.",
+      "confirm": "Megnéztem a bankomban, letöltöm újra ugyanezt a fájlt",
+      "erased": "Ez a fájl nem készíthető el újra: egy benne lévő kifizetés banki adatait törölték."
     }
   }
 }

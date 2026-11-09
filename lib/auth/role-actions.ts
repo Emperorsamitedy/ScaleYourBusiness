@@ -85,6 +85,10 @@ export const ROLE_ACTIONS = {
   // approving one, stating the bank details it is paid from, downloading
   // the bank file and saying it was paid are an owner's alone.
   "payments.prepare": { min: "owner", what: "prepare payments or say one was paid" },
+  // Least privilege (the owner's decision of 2026-11-09): the payments list
+  // and the bank files are the owner's to see as well. A manager or a viewer
+  // gets this refusal, on every payments route, and the menu hides it.
+  "payments.read": { min: "owner", what: "see payments and their bank files" },
   // P6-08 (rule 32): a caller's recorded voice is heard by the owner alone.
   "phone.recordings": { min: "owner", what: "listen to call recordings" },
 } as const satisfies Record<string, RoleActionRow>;
