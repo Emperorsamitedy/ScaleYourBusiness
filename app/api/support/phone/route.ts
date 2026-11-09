@@ -5,8 +5,12 @@
 //   POST /api/support/phone {action}     phone_on | phone_off | set_handover | erase_call
 //                                        | recording_on | recording_off (P6-08)
 //
-// Reading needs the intake cookie like every profile surface; every
-// mutation needs a signed-in person with the role for it (lib/auth/roles),
+// Reading needs the intake cookie like every profile surface; what callers
+// said needs a role too (decision 2, owner 2026-11-09): a transcript, a
+// message or a full number only for a role that may "phone.transcripts"
+// (owners and managers — those who answer support). A viewer gets the calls
+// list with no message and the number masked, and a transcript is refused
+// (403). Every mutation needs a signed-in person with the role for it (lib/auth/roles),
 // from our own origin, exactly as /api/support. The line is set up by
 // pointing the number's webhooks at this app, which the screen spells out.
 // P6-08: the one Twilio call reachable from here is erasing a call's
@@ -27,6 +31,7 @@ import { lineForProfile } from "../../../../lib/phone/settings";
 import { recordingMissing } from "../../../../lib/phone-recording/recordings";
 import {
   PhoneDeskError,
+  callsForViewer,
   disablePhoneLine,
   enablePhoneLine,
   eraseCall,
@@ -63,17 +68,22 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
   if (!access) return NextResponse.json({ error: "no intake session" }, { status: 401 });
   const { tr } = await requestTr("support");
   try {
+    // The anonymous interview is its business's only person, so its owner (roleOf).
+    const role = roleOf(access);
+    const canRead = role !== null && roleAllows(role, "phone.transcripts");
     const callId = request.nextUrl.searchParams.get("call");
     if (callId) {
+      const denied = requireRole(access, "phone.transcripts");
+      if (denied) return denied;
       return NextResponse.json({ turns: await readCall(access.profile_id, callId) });
     }
     const origin = process.env.APP_URL?.replace(/\/$/, "") || request.nextUrl.origin;
-    const [line, calls, session] = await Promise.all([
+    const [line, calls] = await Promise.all([
       lineForProfile(access.profile_id),
       listCalls(access.profile_id),
-      matchingSession(),
     ]);
-    const role = roleOf(session);
+    // Playing a recording needs a signed-in owner (./recording), never the anonymous interview.
+    const sessionRole = roleOf(access.session);
     return NextResponse.json({
       missing: twilioMissing(),
       number: twilioEnv()?.phoneNumber ?? null,
@@ -92,9 +102,11 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         changed_at: line?.record_changed_at ?? null,
         keep_days: phoneRecordingKeepDays(),
         missing: recordingMissing(),
-        can_play: role !== null && roleAllows(role, "phone.recordings"),
+        can_play: sessionRole !== null && roleAllows(sessionRole, "phone.recordings"),
       },
-      calls,
+      // Decision 2: whether this person reads transcripts, messages and full numbers.
+      can_read: canRead,
+      calls: canRead ? calls : callsForViewer(calls),
     });
   } catch (error) {
     return onError(error, tr);

@@ -12,6 +12,11 @@
 // it means in plain words (callers are told first, kept N days, erasable).
 // A recorded call plays here for the owner only, from the owner-gated
 // route; the page never learns where the audio is stored.
+//
+// Decision 5 (owner, 2026-11-09): recording stops before a put-through, and
+// the screen says so. Decision 2: a viewer sees the calls list only — the
+// number masked, no message, no "read the call" — and is told why; the
+// server enforces it (GET /api/support/phone), this only follows `can_read`.
 
 import { useCallback, useEffect, useState } from "react";
 import { num } from "../sheet/num";
@@ -53,6 +58,8 @@ interface Phone {
     missing: string[];
     can_play: boolean;
   };
+  /** Decision 2: transcripts, messages and full numbers are for owners and managers. */
+  can_read: boolean;
   calls: Call[];
 }
 
@@ -208,6 +215,7 @@ export function PhoneLine() {
                     days: phone.recording.keep_days,
                   })}
                 </p>
+                <p className="sp-fine">{tr("phone.recording.stopsOnTransfer")}</p>
                 {phone.recording.changed_at && (
                   <p className="sp-fine">
                     {tr("phone.recording.changed", {
@@ -245,6 +253,9 @@ export function PhoneLine() {
         )}
 
         <h3 className="sp-box-title">{tr("phone.callsTitle")}</h3>
+        {!phone.can_read && phone.calls.length > 0 && (
+          <p className="sp-fine">{tr("phone.viewerNote")}</p>
+        )}
         {phone.calls.length === 0 ? (
           <p className="sp-fine">{tr("phone.callsEmpty")}</p>
         ) : (
@@ -292,16 +303,18 @@ export function PhoneLine() {
                   </>
                 )}
                 <div className="sp-row">
-                  <button
-                    type="button"
-                    className="prop-btn quiet"
-                    onClick={() => {
-                      setTurns([]);
-                      setOpen(open === c.id ? null : c.id);
-                    }}
-                  >
-                    {open === c.id ? tr("phone.hide") : tr("phone.read")}
-                  </button>
+                  {phone.can_read && (
+                    <button
+                      type="button"
+                      className="prop-btn quiet"
+                      onClick={() => {
+                        setTurns([]);
+                        setOpen(open === c.id ? null : c.id);
+                      }}
+                    >
+                      {open === c.id ? tr("phone.hide") : tr("phone.read")}
+                    </button>
+                  )}
                   {/* GDPR erasure (rule 22): irreversible, so it asks twice. */}
                   <button
                     type="button"

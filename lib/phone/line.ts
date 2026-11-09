@@ -29,6 +29,9 @@
 //             recording_notice_at is stamped with it, and only after that
 //             <Say> does <Start><Recording> appear (lib/phone/twilio
 //             refuses to write it otherwise). There is no <Record> verb.
+//             Decision 5 (owner, 2026-11-09): a put-through stops the
+//             recording before it dials, so whoever answers is never
+//             recorded (lib/phone/twilio refuses a <Dial> otherwise).
 //   caps    — a hard turn cap and a cost cap per call, reserved before
 //             each Haiku call and settled after; a monthly cap per
 //             account; a daily cap on calls per business and per caller.
@@ -404,7 +407,11 @@ async function respond(
     .update(phoneCalls)
     .set({ last_at: ctx.now().toISOString() })
     .where(eq(phoneCalls.id, ctx.call.id));
-  return twiml(TWILIO_VOICES[ctx.locale], verbs);
+  // A call answered with the recording notice may be recording: the guard
+  // then refuses a <Dial> that doesn't stop it first (decision 5).
+  return twiml(TWILIO_VOICES[ctx.locale], verbs, {
+    recording: ctx.call.recording_notice_at !== null,
+  });
 }
 
 const gatherTurn = (prompt?: string): Verb => ({
@@ -626,19 +633,45 @@ function askForMessage(ctx: Ctx, lead: string): Promise<string> {
   ]);
 }
 
-/** "A person, please": put through to the owner's number when there is one, else a message. */
+/**
+ * "A person, please": put through to the owner's number when there is one,
+ * else a message. Decision 5 (owner, 2026-11-09, "the best solution top
+ * businesses are currently doing"): a recorded call's recording stops
+ * after "putting you through" and before the <Dial>, so whoever picks up
+ * — who heard no notice — is never recorded. It isn't started again: a
+ * call that wasn't answered goes on to a message, transcribed as before.
+ * A call reaches here at most once (a message, then goodbye, follows).
+ */
+export function handOverVerbs(
+  words: Pick<Words, "t">,
+  business: string,
+  handoverNumber: string,
+  recorded: boolean,
+): Verb[] {
+  return [
+    { verb: "say", text: words.t("puttingThrough", { business }) },
+    ...(recorded ? [{ verb: "stopRecording" } as const] : []),
+    {
+      verb: "dial",
+      number: handoverNumber,
+      action: stepUrl("dial"),
+      timeout: PHONE_DIAL_TIMEOUT_S,
+    },
+  ];
+}
+
 function handOver(ctx: Ctx): Promise<string> {
   const business = ctx.line.business_name;
   if (ctx.line.handover_number) {
-    return respond(ctx, [
-      { verb: "say", text: ctx.words.t("puttingThrough", { business }) },
-      {
-        verb: "dial",
-        number: ctx.line.handover_number,
-        action: stepUrl("dial"),
-        timeout: PHONE_DIAL_TIMEOUT_S,
-      },
-    ]);
+    return respond(
+      ctx,
+      handOverVerbs(
+        ctx.words,
+        business,
+        ctx.line.handover_number,
+        ctx.call.recording_notice_at !== null,
+      ),
+    );
   }
   return askForMessage(ctx, ctx.words.t("nobodyToPutThrough"));
 }

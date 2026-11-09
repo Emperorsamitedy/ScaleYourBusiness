@@ -5775,6 +5775,7 @@
       "handoverSave": "Enregistrer",
       "callsTitle": "Appels",
       "callsEmpty": "Aucun appel pour l’instant. Chaque appel auquel la ligne répond arrive ici, avec son message et ce qui a été dit.",
+      "viewerNote": "Vous voyez qui a appelé et comment chaque appel s’est terminé. Ce que les appelants ont dit, les messages qu’ils ont laissés et leurs numéros complets sont réservés aux propriétaires et aux gestionnaires.",
       "withheld": "Numéro masqué",
       "outcome": {
         "answered": "Répondu avec vos réponses validées",
@@ -5799,6 +5800,7 @@
         "stateOff": "Les appels ne sont pas enregistrés. Les appelants entendent que l’appel est transcrit, et aucun son n’est conservé.",
         "stateOn": "Les appels sont enregistrés. Chaque appelant entend que l’appel est enregistré avant que l’enregistrement commence.",
         "explain": "Quand l’enregistrement est activé, les appelants sont prévenus que l’appel est enregistré avant qu’aucun son ne soit conservé. Chaque enregistrement est conservé {days, plural, one {# jour} many {# jours} other {# jours}}, puis supprimé définitivement ; effacer un appel ou un contact efface aussi son enregistrement. Seul un propriétaire peut les écouter.",
+        "stopsOnTransfer": "Quand un appel vous est passé, l’enregistrement s’arrête d’abord : la personne qui répond n’est jamais enregistrée.",
         "changed": "Dernier changement : {when}.",
         "needsSetup": "L’enregistrement ne peut pas encore être activé sur ce serveur. Il lui faut ces réglages :",
         "turnOn": "Enregistrer les appels",
@@ -6119,6 +6121,7 @@
       "proposals_carry_out": "Seul un propriétaire ou un gestionnaire peut exécuter ou annuler une proposition validée.",
       "content_draft": "Seul un propriétaire ou un gestionnaire peut rédiger du contenu.",
       "support_answer": "Seul un propriétaire ou un gestionnaire peut répondre aux demandes d’assistance.",
+      "phone_transcripts": "Seul un propriétaire ou un gestionnaire peut lire ce que les appelants ont dit sur la ligne téléphonique.",
       "reviews_answer": "Seul un propriétaire ou un gestionnaire peut enregistrer des avis, y répondre ou les retirer.",
       "pipeline_edit": "Seul un propriétaire ou un gestionnaire peut modifier le pipeline commercial.",
       "connections_sync": "Seul un propriétaire ou un gestionnaire peut relire dès maintenant un compte connecté.",

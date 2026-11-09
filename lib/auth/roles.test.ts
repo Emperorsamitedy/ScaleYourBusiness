@@ -36,6 +36,8 @@ const MANAGER_MAY: readonly RoleAction[] = [
   "proposals.carry_out",
   "content.draft",
   "support.answer",
+  // Decision 2 (owner, 2026-11-09): call transcripts and messages are for those who answer support.
+  "phone.transcripts",
   "alerts.subscribe",
   "reviews.answer",
   // I-52b (owner, 2026-11-01): the pipeline's day-to-day, and reading a connection again.
