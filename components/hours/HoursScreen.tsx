@@ -5,7 +5,9 @@
 // grid: every open hour's mean takings, less what an open hour costs when
 // the owner has said (lib/hours/grid). Beside it, the signals the
 // analysis fired, in words. The honest limit stays on the screen: a
-// closed hour records no sales, so this suggests and a trial proves.
+// closed hour records no sales, so this suggests and a trial proves — folded
+// with the window, the cost and the arithmetic under "How this works"
+// (decluttered 2026-11-09 on the owner's instruction).
 // Read-only — a trial is a proposal in "Waiting for you".
 //
 // L-3b: the screen's own words are the "hours" catalogue; weekday names,
@@ -18,6 +20,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { useTranslations } from "next-intl";
+import { Fold } from "../sheet/Fold";
 import { PageHead, SheetCard } from "../sheet/PageHead";
 import { delta, moneyText, num } from "../sheet/num";
 import { useTr } from "../sheet/useTr";
@@ -347,9 +350,7 @@ function TrialsCard({ trials }: { trials: Trial[] }) {
   return (
     <section className="hr-inset" aria-labelledby="hr-trials-head">
       <h2 id="hr-trials-head">{trials.length > 0 ? tr("trials.title") : tr("trials.none")}</h2>
-      {trials.length === 0 ? (
-        <p>{tr("trials.body")}</p>
-      ) : (
+      {trials.length > 0 && (
         <ul className="hr-trials">
           {trials.map((t) => (
             <li key={t.id}>
@@ -442,9 +443,11 @@ export function HoursScreen({ cost }: { cost: HourCost | null }) {
         notes={<p>{view.schedule_note ?? tr("notOk.notYet", { reason: a.reason })}</p>}
       >
         <div className="hr-grid">
-          <SheetCard label={tr("needs.label")} title={tr("needs.title")}>
+          <SheetCard title={tr("needs.title")}>
             <p className="hr-copy">
-              {tr("needs.body")} {a.reason.charAt(0).toUpperCase() + a.reason.slice(1)}.{" "}
+              {/* The reason is in the head unless the schedule's own note took its place. */}
+              {tr("needs.body")}{" "}
+              {view.schedule_note && `${a.reason.charAt(0).toUpperCase() + a.reason.slice(1)}. `}
               <Link href="/connections">{tr("connections")}</Link>
             </p>
             {view.timezone.zone === null && <ZonePicker onSaved={() => location.reload()} />}
@@ -492,11 +495,10 @@ export function HoursScreen({ cost }: { cost: HourCost | null }) {
       : tr("week.costNone");
 
   return (
-    <Frame title={title} notes={<p>{`${period} · ${costPart}`}</p>}>
+    <Frame title={title}>
       <div className="hr-grid">
         <SheetCard
           label={judged ? tr("week.labelNet", { unit }) : tr("week.labelTakings", { unit })}
-          title={tr("week.title")}
           meta={
             judged && evenText ? (
               <ul className="hr-legend" aria-label={tr("legend.label")}>
@@ -517,22 +519,27 @@ export function HoursScreen({ cost }: { cost: HourCost | null }) {
           }
           foot={
             <>
-              {judged
-                ? tr("foot.meanJudged", {
-                    coverage: hoursLineWords(a.coverage, hw, locale),
-                    pct: evenPctText,
-                  })
-                : tr("foot.mean", { coverage: hoursLineWords(a.coverage, hw, locale) })}{" "}
-              {tr("foot.legend")} {hoursLineWords(a.limit, hw, locale)}
-              {view.schedule && view.schedule.unparsed.length > 0 && (
-                <>
-                  {" "}
-                  {tr("foot.unparsed", {
-                    list: view.schedule.unparsed.map((u) => `"${u}"`).join(", "),
-                  })}
-                </>
-              )}{" "}
               {t.rich("foot.wrong", { link: (c) => <Link href="/profile">{c}</Link> })}
+              <Fold summary={tr("how")}>
+                <p>{`${period} · ${costPart}`}</p>
+                <p>
+                  {judged
+                    ? tr("foot.meanJudged", {
+                        coverage: hoursLineWords(a.coverage, hw, locale),
+                        pct: evenPctText,
+                      })
+                    : tr("foot.mean", { coverage: hoursLineWords(a.coverage, hw, locale) })}{" "}
+                  {tr("foot.legend")} {hoursLineWords(a.limit, hw, locale)}
+                  {view.schedule && view.schedule.unparsed.length > 0 && (
+                    <>
+                      {" "}
+                      {tr("foot.unparsed", {
+                        list: view.schedule.unparsed.map((u) => `"${u}"`).join(", "),
+                      })}
+                    </>
+                  )}
+                </p>
+              </Fold>
             </>
           }
         >
@@ -569,7 +576,7 @@ export function HoursScreen({ cost }: { cost: HourCost | null }) {
           )}
         </SheetCard>
         <div className="hr-side">
-          <SheetCard label={tr("read.label")} title={readingTitle(readings, tr)}>
+          <SheetCard title={readingTitle(readings, tr)}>
             {readings.length === 0 ? (
               <p className="hr-copy">{tr("read.none")}</p>
             ) : (

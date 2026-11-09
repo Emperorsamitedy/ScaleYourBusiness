@@ -539,7 +539,8 @@
       "underLine": "por debajo de la línea",
       "when": "Cuándo",
       "cautiousCol": "Extremo prudente ({currency})",
-      "hopefulCol": "Extremo optimista ({currency})"
+      "hopefulCol": "Extremo optimista ({currency})",
+      "how": "Cómo funciona"
     },
     "market": {
       "kicker": "Análisis · Sus cifras en un gráfico",
@@ -673,7 +674,8 @@
         "meta": "{source} · {noun} · OBSERVADO",
         "foot": "Frente a su semana mediana de estas {count, number}. Una temporada necesita {needed, plural, one {# semana completa} many {# semanas completas} other {# semanas completas}} de las últimas {weeks, number}; usted tiene {have, number}.",
         "summary": "{count, plural, one {# semana completa} many {# semanas completas} other {# semanas completas}} de {noun}, frente a su propia mediana. No hay historial suficiente para nombrar una temporada."
-      }
+      },
+      "how": "Cómo funciona"
     },
     "small": {
       "keyLabel": "Leyenda",
@@ -2994,7 +2996,6 @@
       "title": "Comparado con negocios similares — SYB"
     },
     "kicker": "Análisis · Comparado con negocios similares",
-    "kickerShort": "Comparado con negocios similares",
     "aside": "Eurostat · solo lectura",
     "add": "Añadir {what} →",
     "addPeople": "Añadir cuántas personas trabajan aquí",
@@ -3042,7 +3043,8 @@
     "size": {
       "unknown": "No sé cuántas personas trabajan en el negocio, así que el grupo incluye todos los tamaños.",
       "spans": "Su tamaño abarca dos de los grupos de tamaño de Eurostat, así que el grupo incluye todos los tamaños."
-    }
+    },
+    "how": "Cómo funciona"
   },
   "blindspots": {
     "meta": {
@@ -3093,8 +3095,6 @@
     },
     "fixed": {
       "label": "Cómo se corrigen los puntos ciegos",
-      "title": "Con su aprobación, nunca por sí solos",
-      "foot": "Los cambios del sitio web esperan en Sitio web.",
       "link": "Revisar en Sitio web →",
       "stepFix": "Una corrección es {fix}.",
       "fixDefault": "un cambio en el sitio web a través de la cola de aprobación, o una respuesta en su asistente de soporte",
@@ -3102,8 +3102,7 @@
       "stepRecheck": "Su sitio se vuelve a leer {days, plural, one {cada día} many {cada # días} other {cada # días}}, así que un punto ciego que ya aparezca en él desaparece de esta lista."
     },
     "coverage": {
-      "label": "Lo que no se ha podido ver",
-      "title": "Huecos, no fallos"
+      "label": "Lo que no se ha podido ver"
     },
     "signedOut": {
       "title": "Aquí todavía no hay ningún negocio.",
@@ -3121,9 +3120,7 @@
       "observed": "OBSERVADO"
     },
     "list": {
-      "label": "Lo que buscaron los clientes y lo que muestra su sitio",
       "title": "{count, plural, one {# punto ciego, el mayor primero} many {# puntos ciegos, el mayor primero} other {# puntos ciegos, el mayor primero}}",
-      "meta": "Ordenados por cuántas fuentes los señalan y, después, por número",
       "nothingMissing": "No falta nada",
       "nothingYet": "Todavía no hay nada que comparar",
       "allThere": "Todo lo que los clientes preguntaron o buscaron y que puedo cotejar está en su sitio.",
@@ -3133,13 +3130,11 @@
     },
     "factSheet": "Ficha de datos",
     "hard": {
-      "label": "Está en su sitio, pero los clientes siguen preguntando",
       "title": "Quizá cueste encontrarlo",
       "item": "<strong>{label}</strong>: {count, plural, one {preguntado # vez} many {preguntado # veces} other {preguntado # veces}} en su chat de soporte; está en <link>{page}</link>."
     },
     "seen": {
       "label": "Visto en Google, pocas veces pulsado",
-      "title": "Mostrado, no elegido",
       "search": "Búsqueda",
       "shown": "Mostrado",
       "clicked": "Clics",
@@ -3147,9 +3142,9 @@
     },
     "topics": {
       "label": "Otras cosas que buscó la gente",
-      "title": "¿Está en su sitio?",
       "item": "<strong>{label}</strong>: {count, plural, one {# búsqueda} many {# búsquedas} other {# búsquedas}} (p. ej., {examples})"
-    }
+    },
+    "how": "Cómo funciona"
   },
   "carts": {
     "meta": {
@@ -3171,9 +3166,7 @@
     "ruledOut": "No lo he puesto en su cola: su regla ({rule}) lo excluye.",
     "products": {
       "label": "Lo que se quedó atrás · {count, plural, one {# carrito} many {# carritos} other {# carritos}}",
-      "titleSome": "Primero lo que aparece en más carritos",
       "titleNone": "Ningún producto que nombrar",
-      "meta": "Medido a partir de los pagos de su propia tienda",
       "table": "Productos que se quedaron en carritos",
       "product": "Producto",
       "inCarts": "En carritos",
@@ -3197,11 +3190,9 @@
     },
     "consent": {
       "label": "A quién se puede escribir",
-      "title": "Solo a quien dijo que sí",
       "checkout": "Un comprador que marca «enviarme correos» en el pago de Shopify pasa a ser un contacto con ese sí registrado, en cuanto SYB pueda leer sus clientes de Shopify. Un sí que usted mismo registró solo cede ante una baja posterior en Shopify."
     },
     "refusal": {
-      "label": "Carritos abandonados",
       "noneRead": "Todavía no he leído ningún carrito.",
       "rule": "Mido cuando hay {days} días de carritos y {carts} carritos abandonados en los últimos {window} días, para que una semana tranquila no se lea como una tendencia."
     },
@@ -3224,7 +3215,9 @@
       "sent": "Enviado",
       "declined": "Rechazado",
       "expired": "Caducado"
-    }
+    },
+    "how": "Cómo funciona",
+    "why": "¿Por qué?"
   },
   "cash": {
     "meta": {
@@ -3246,12 +3239,10 @@
       "nothing": "Todavía no hay nada sobre lo que basar una previsión",
       "readyOn": "Lista hacia el {day}, si las sincronizaciones siguen funcionando",
       "gapLabel": "Lo que puedo y no puedo decir todavía",
-      "gapTitle": "Con franqueza sobre lo que falta",
       "can": "Puedo",
       "cannot": "Todavía no puedo"
     },
     "warning": {
-      "label": "Cuándo se aprieta el dinero",
       "titleTight": "La primera semana justa",
       "titleNone": "Ninguna semana justa en las próximas {weeks}",
       "metaBuffer": "Frente al mínimo que quiere tener en la cuenta",
@@ -3262,7 +3253,6 @@
     },
     "weeks": {
       "label": "Semana a semana",
-      "title": "Lo que entra, lo que sale y el saldo",
       "meta": "Prudente – optimista, unidades enteras",
       "week": "Semana",
       "moneyIn": "Entradas",
@@ -3274,7 +3264,6 @@
       "under": "POR DEBAJO DE LA LÍNEA"
     },
     "scenarios": {
-      "label": "Escenarios · uno al lado de otro",
       "title": "¿Y si…?",
       "meta": "Cada uno ejecuta la misma previsión con un solo cambio",
       "form": "Tamaño de los escenarios",
@@ -3297,7 +3286,6 @@
       "assumed": "SUPUESTO · {text}"
     },
     "sources": {
-      "label": "En qué se basa",
       "title": "Fuentes y lo que he supuesto",
       "meta": "Historial del {from} al {to}",
       "input": "Dato de entrada",
@@ -3321,7 +3309,9 @@
       "twelfth": "{item} (una doceava parte)",
       "signedRange": "{low} a {high}",
       "chartLabel": "Las próximas {weeks} semanas · saldo al final de cada semana"
-    }
+    },
+    "how": "Cómo funciona",
+    "details": "Detalles"
   },
   "competitors": {
     "meta": {
@@ -3360,8 +3350,6 @@
       "label": "A quién sigo",
       "nobody": "Todavía a nadie",
       "count": "{count, plural, one {# competidor} many {# competidores} other {# competidores}}",
-      "meta": "Sus páginas públicas, leídas cada semana",
-      "foot": "Los nombres proceden de sus respuestas en la entrevista y de lo que añada aquí.",
       "addOne": "Añadir un competidor →",
       "add": "Añadir",
       "empty": "Dígame con quién compite: su sitio web y la página de reservas o de ficha donde están sus precios. Leo esas páginas y nada más.",
@@ -3378,7 +3366,6 @@
       "remove": "Quitar"
     },
     "changes": {
-      "label": "Cambios recientes",
       "none": "Todavía no se ha movido nada",
       "title": "Qué se ha movido",
       "empty": "Cada semana comparo sus páginas con la última lectura. Una bajada o subida de precio, una oferta añadida o retirada, o una valoración que ha cambiado aparece aquí y en Observando."
@@ -3429,7 +3416,8 @@
       "failedTitle": "Los competidores no se han cargado.",
       "failedCopy": "Algo ha fallado por nuestra parte. Actualice la página para volver a intentarlo.",
       "loading": "Leyendo lo que sé sobre sus competidores…"
-    }
+    },
+    "how": "Cómo funciona"
   },
   "goals": {
     "meta": {
@@ -3548,7 +3536,6 @@
     },
     "daysRange": "de {from} a {to}",
     "read": {
-      "label": "Lectura",
       "none": "En los días medidos no destaca nada en su horario. La observación vuelve a comprobarlo cada semana.",
       "closing": {
         "head": "La última hora, {days}",
@@ -3596,7 +3583,6 @@
     "trials": {
       "title": "Pruebas",
       "none": "Todavía no es una propuesta",
-      "body": "Una señal nunca es un cambio que se acepte sin más. Se convierte en una prueba de cuatro semanas en «Pendiente de usted», con sus cifras, y su horario no cambia a menos que lo cambie usted.",
       "waiting": "Pendiente de usted →"
     },
     "signedOut": {
@@ -3614,7 +3600,6 @@
       "notYet": "Todavía no: {reason}."
     },
     "needs": {
-      "label": "Margen por hora",
       "title": "Lo que se necesita",
       "body": "Su horario de apertura de la entrevista, su zona horaria y las ventas con tarjeta por hora de una caja registradora, una cuenta de pagos o una tienda en línea conectadas."
     },
@@ -3644,7 +3629,8 @@
       "legend": "DERIVADO. Rayado = cerrado. Ingresos de caja, no margen.",
       "unparsed": "No se ha podido leer: {list}.",
       "wrong": "¿Horario incorrecto? Cambie su respuesta en la <link>Ficha de datos</link>."
-    }
+    },
+    "how": "Cómo funciona"
   },
   "patterns": {
     "meta": {
@@ -3656,7 +3642,6 @@
       "nothing": "Todavía no hay nada medido en lo que encontrar sus temporadas."
     },
     "seasons": {
-      "label": "Sus temporadas",
       "nothing": "Todavía no hay nada medido",
       "noData": "{connect}. Leo sus temporadas solo a partir de su propio historial. <link>Conexiones</link>"
     },
@@ -3668,7 +3653,6 @@
     },
     "gap": {
       "label": "Lo que puedo y no puedo decir todavía",
-      "title": "Con franqueza sobre lo que falta",
       "can": "Puedo",
       "cannot": "Todavía no puedo"
     },
@@ -3688,7 +3672,6 @@
       "quiet": "tranquilo"
     },
     "months": {
-      "label": "Los meses · {count, number} del último año",
       "title": "Cada mes escalado a una semana",
       "meta": "Meses con {days, number} días medidos o más"
     },
@@ -3707,7 +3690,6 @@
     },
     "read": {
       "label": "Cómo lo leo",
-      "title": "Su propio historial, nada prestado",
       "otherCurrencies": "Se excluyen sus {noun} en {currencies}: el dinero en dos monedas nunca se suma."
     },
     "count": {
@@ -3775,7 +3757,9 @@
     },
     "connections": "Conexiones",
     "held": "Una propuesta es un borrador para usted: los dos artículos a precio completo, sin descuento. No cambio su tienda ni su proceso de pago; el pack lo configura usted.",
-    "waiting": "Pendiente de usted"
+    "waiting": "Pendiente de usted",
+    "how": "Cómo funciona",
+    "why": "¿Por qué?"
   },
   "pipeline": {
     "meta": {
@@ -3822,7 +3806,6 @@
     },
     "board": {
       "label": "El tablero · {count} abiertas",
-      "title": "Las etapas en columnas; primero la que lleva más tiempo en su etapa",
       "empty": "Todavía no hay oportunidades. Añada una abajo o importe su hoja de cálculo.",
       "aria": "Oportunidades por etapa",
       "median": "mediana {median} d · la más antigua {oldest} d",
@@ -3843,7 +3826,6 @@
     },
     "quiet": {
       "label": "Sin noticias · {count}",
-      "title": "Sin siguiente paso, o con un siguiente paso ya vencido",
       "held": "Solo redacto un seguimiento para un contacto que aceptó recibir correos. No se envía nada: lo envía usted.",
       "propose": "Proponer seguimientos",
       "nothing": "No hay nada nuevo que proponer.",
@@ -3881,7 +3863,6 @@
       "cant": "Todavía no puedo",
       "ready": "Listo {when}.",
       "stateRate": "Indique su tasa de cierre",
-      "title": "Valor abierto, ponderado por su propia tasa de cierre",
       "currency": "Moneda",
       "deals": "Oportunidades",
       "open": "Abierto",
@@ -3894,7 +3875,6 @@
     },
     "add": {
       "label": "Añadir una oportunidad",
-      "title": "Con quién es y para qué",
       "foot": "Un contacto nuevo se registra con consentimiento DUDOSO: una conversación de ventas no es permiso para enviarle marketing.",
       "added": "Añadida.",
       "company": "Empresa",
@@ -3914,7 +3894,6 @@
     },
     "import": {
       "label": "Importar",
-      "title": "Oportunidades desde una hoja de cálculo, bajo su declaración",
       "foot": "Columnas que leo: {columns}.",
       "lede": "Un archivo de oportunidades trae personas consigo, así que entra igual que una lista de clientes: usted declara a qué dieron su consentimiento las personas que figuran en él y cómo, y esa declaración queda en cada contacto que añade. Los contactos que ya tiene conservan su consentimiento; una dirección borrada o dada de baja se rechaza.",
       "done": "{count, plural, one {Se ha importado # oportunidad} many {Se han importado # oportunidades} other {Se han importado # oportunidades}}.",
@@ -3959,7 +3938,9 @@
         "rejected": "rechazado",
         "changes_requested": "cambios solicitados"
       }
-    }
+    },
+    "how": "Cómo funciona",
+    "why": "¿Por qué?"
   },
   "reviews": {
     "meta": {
@@ -5861,7 +5842,6 @@
     },
     "refused": {
       "readyOn": "Listo hacia el {day}, si siguen llegando datos.",
-      "label": "Cobertura por horas",
       "title": "Todavía no hay suficiente para leer",
       "can": "Puedo",
       "cannot": "Todavía no puedo",
@@ -5869,7 +5849,6 @@
     },
     "roles": {
       "label": "Roles",
-      "title": "A partir de quién trabaja en el negocio",
       "none": "Todavía no hay roles. Salen de la entrevista: quién trabaja en el negocio y sus horas semanales. <link>Ficha de datos</link>",
       "notStated": "horas sin indicar",
       "perWeek": "{hours} h / semana",
@@ -5886,12 +5865,9 @@
       "onAverage": "presentes, hora media"
     },
     "ok": {
-      "basis": "{weeks, plural, one {Última # semana} many {Últimas # semanas} other {Últimas # semanas}} · del {from} al {to} · {demand}",
-      "capacity": "capacidad declarada: {perWeek} a la semana (su respuesta)",
       "noCapacity": "sin capacidad en dinero, así que nada se queda corto",
       "labelBookings": "Reservas frente a la capacidad declarada, por rol",
       "labelTakings": "Ingresos de caja por horas, por rol",
-      "title": "Cobertura por rol y hora",
       "legend": "Leyenda",
       "legendShort": "se queda corto ≥ {pct}",
       "legendCovered": "cubierto",
@@ -5904,21 +5880,17 @@
       "noDay": "Todavía no se ha leído ningún día de apertura."
     },
     "reading": {
-      "label": "Lectura",
       "none": "No destaca nada",
-      "some": "Dónde la cobertura se queda corta o sobra",
-      "noneBody": "Ninguna hora de apertura se queda corta respecto a su capacidad declarada ni está tranquila en los días leídos."
+      "some": "Dónde la cobertura se queda corta o sobra"
     },
     "band": {
       "short": "Se queda corto",
       "quiet": "Tranquilo"
     },
     "notes": {
-      "label": "Notas para usted",
-      "title": "Para que usted las valore"
+      "label": "Notas para usted"
     },
     "built": {
-      "label": "Basado en",
       "title": "Fuentes y supuestos",
       "body": "{days, plural, one {# día de actividad leído} many {# días de actividad leídos} other {# días de actividad leídos}} de {demand}, del {from} al {to}; {history, plural, one {# día} many {# días} other {# días}} de historial en total.",
       "capacity": "Capacidad declarada: {perWeek} a la semana en {hours} horas de apertura.",
@@ -5936,7 +5908,9 @@
     "off": {
       "title": "El módulo de equipo está desactivado.",
       "body": "Sigue desactivado salvo que usted lo active, en Módulos dentro de <link>Observando</link>. Una vez activado, lee cuándo la semana necesita más cobertura, o tiene más de la necesaria, por rol y hora, y nunca nada sobre una persona."
-    }
+    },
+    "how": "Cómo funciona",
+    "why": "¿Por qué?"
   },
   "people": {
     "label": "Personas",
@@ -5980,7 +5954,6 @@
     },
     "capacity": {
       "label": "Citas por semana que puede atender",
-      "hint": "Su propia cifra. La ocupación se mide solo con ella.",
       "save": "Guardar",
       "clear": "Borrar",
       "invalid": "Un número entero del {min} al {max}."
@@ -5992,7 +5965,9 @@
       "no": "Mantener",
       "done": "Quitada. {count, plural, one {# cita sigue} many {# citas siguen} other {# citas siguen}} en las cifras del negocio, sin nombre."
     },
-    "failed": "Algo ha fallado por nuestra parte. No se ha cambiado nada."
+    "failed": "Algo ha fallado por nuestra parte. No se ha cambiado nada.",
+    "how": "Cómo funciona",
+    "fence": "Datos sobre el trabajo. Nada de esto se convierte nunca en una propuesta sobre una persona."
   },
   "teamAccess": {
     "meta": {

@@ -8,7 +8,9 @@
 // consent notes, every one a count. Read-only: proposing puts one email in
 // the queue, nothing sends until the owner approves the email itself, and a
 // shopper who hasn't said yes is never emailed (rule 19). Shown in the menu
-// only when a store connection reads carts.
+// only when a store connection reads carts. The rule of thumb, the sources
+// and the consent notices sit folded under "How this works" (decluttered
+// 2026-11-09 on the owner's instruction).
 //
 // L-3b: the screen's fixed words are the "carts" catalogue; money, counts
 // and shares in the reader's locale. L-4b: the sentences carts-view builds
@@ -22,6 +24,7 @@ import type { ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import type { CartsScreenView } from "../../app/api/carts/route";
 import { percentText } from "../cash/cash-view";
+import { Fold } from "../sheet/Fold";
 import { PageHead, SheetCard } from "../sheet/PageHead";
 import { moneyText, num } from "../sheet/num";
 import { useTr } from "../sheet/useTr";
@@ -66,7 +69,9 @@ function Frame({
     <main className="screen ct-screen">
       <PageHead kicker={tr("kicker")} title={title} aside={aside} />
       {children}
-      <p className="ct-foot">{tr("foot")}</p>
+      <Fold summary={tr("how")}>
+        <p className="ct-foot">{tr("foot")}</p>
+      </Fold>
     </main>
   );
 }
@@ -77,8 +82,7 @@ function ProductsCard({ m, names }: { m: Measured; names: Record<string, string>
   return (
     <SheetCard
       label={tr("products.label", { count: m.current.left })}
-      title={m.products.length > 0 ? tr("products.titleSome") : tr("products.titleNone")}
-      meta={tr("products.meta")}
+      title={m.products.length > 0 ? undefined : tr("products.titleNone")}
     >
       {m.products.length > 0 ? (
         <div className="ct-table-wrap" tabIndex={0} aria-label={tr("products.table")}>
@@ -204,10 +208,12 @@ function WinBackCard({
           {tr("winBack.nobody", { days: num(t?.window_days ?? 30, 0, locale) })}
         </p>
       )}
-      <ul className="ct-assumed">
-        {rule && <li>{rule.statement}</li>}
-        <li>{sourcesLine(view, sentences)}</li>
-      </ul>
+      <Fold summary={tr("how")}>
+        <ul className="ct-assumed">
+          {rule && <li>{rule.statement}</li>}
+          <li>{sourcesLine(view, sentences)}</li>
+        </ul>
+      </Fold>
       {view.proposal?.status === "blocked" && view.proposal.blocked_by_limit && (
         <p className="ct-copy ct-quiet">
           {tr("ruledOut", { rule: view.proposal.blocked_by_limit })}
@@ -234,7 +240,7 @@ function ConsentCard({ m, view }: { m: Measured; view: CartsScreenView }) {
   const week = weekLine(view, sentences);
   const { tr } = useCartsWords();
   return (
-    <SheetCard label={tr("consent.label")} title={tr("consent.title")}>
+    <SheetCard title={tr("consent.label")}>
       <ul className="ct-notes">
         {notes.map((n) => (
           <li key={n}>{n}</li>
@@ -248,7 +254,9 @@ function ConsentCard({ m, view }: { m: Measured; view: CartsScreenView }) {
           ))}
         </ul>
       ) : null}
-      <p className="ct-copy ct-quiet">{tr("consent.checkout")}</p>
+      <Fold summary={tr("how")}>
+        <p className="ct-copy ct-quiet">{tr("consent.checkout")}</p>
+      </Fold>
     </SheetCard>
   );
 }
@@ -352,18 +360,20 @@ export function CartsScreen() {
   if (!m || m.status === "refused") {
     return (
       <Frame title={cartsHeadline(view, sentences)} aside={aside}>
-        <SheetCard label={tr("refusal.label")} title={refusalTitle(m, tr)}>
+        <SheetCard title={refusalTitle(m, tr)}>
           <p className="ct-copy">{m?.reason ?? tr("refusal.noneRead")}</p>
-          {m?.basis === "stale" || m?.basis === "too_many" ? null : (
-            <p className="ct-copy ct-quiet">
-              {tr("refusal.rule", {
-                days: num(view.thresholds?.min_days ?? 14, 0, locale),
-                carts: num(view.thresholds?.min_carts ?? 10, 0, locale),
-                window: num(view.thresholds?.window_days ?? 30, 0, locale),
-              })}
-            </p>
-          )}
-          <p className="ct-copy ct-quiet">{sourcesLine(view, sentences)}</p>
+          <Fold summary={tr("why")}>
+            {m?.basis === "stale" || m?.basis === "too_many" ? null : (
+              <p className="ct-copy ct-quiet">
+                {tr("refusal.rule", {
+                  days: num(view.thresholds?.min_days ?? 14, 0, locale),
+                  carts: num(view.thresholds?.min_carts ?? 10, 0, locale),
+                  window: num(view.thresholds?.window_days ?? 30, 0, locale),
+                })}
+              </p>
+            )}
+            <p className="ct-copy ct-quiet">{sourcesLine(view, sentences)}</p>
+          </Fold>
         </SheetCard>
       </Frame>
     );

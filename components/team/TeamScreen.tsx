@@ -7,7 +7,10 @@
 // ("Saturdays 10:00–14:00 ran 96% booked; one stylist covers about 1
 // appointment an hour"). Roles and hours only: nothing on this screen is
 // about a person, and every suggestion is a note for the owner to weigh.
-// Read-only — nothing here changes a rota.
+// Read-only — nothing here changes a rota. The basis, method, sources,
+// assumptions and limits sit folded (decluttered 2026-11-09 on the owner's
+// instruction); "Roles and hours · never people" and "Roles, never people"
+// stay in sight so the grid is never read as being about a person.
 //
 // L-3c (TASKS-LANGUAGES.md): the screen's own words are the "team"
 // catalogue; weekdays, dates, percentages and figures in the reader's
@@ -22,6 +25,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import type { ReactNode } from "react";
+import { Fold } from "../sheet/Fold";
 import { PageHead, SheetCard } from "../sheet/PageHead";
 import { num } from "../sheet/num";
 import { useTr } from "../sheet/useTr";
@@ -119,12 +123,13 @@ function Frame({
 function Limits({ limits }: { limits: readonly string[] }) {
   const t = useTranslations("team");
   return (
-    <section className="tm-inset" aria-labelledby="tm-limits-head">
-      <h2 id="tm-limits-head">{t("limits.head")}</h2>
-      {limits.map((l) => (
-        <p key={l}>{l}</p>
-      ))}
-      <p>{t.rich("limits.switchOff", { link: (c) => <Link href="/watch">{c}</Link> })}</p>
+    <section className="tm-inset">
+      <Fold summary={t("limits.head")}>
+        {limits.map((l) => (
+          <p key={l}>{l}</p>
+        ))}
+        <p>{t.rich("limits.switchOff", { link: (c) => <Link href="/watch">{c}</Link> })}</p>
+      </Fold>
     </section>
   );
 }
@@ -133,35 +138,9 @@ function RefusedView({ r }: { r: Refused }) {
   const t = useTranslations("team");
   const { tr, locale } = useTr("team");
   return (
-    <Frame
-      title={r.headline}
-      notes={
-        <p>
-          {r.reason}
-          {r.ready_on ? ` ${tr("refused.readyOn", { day: dayIn(r.ready_on, locale) })}` : ""}
-        </p>
-      }
-    >
+    <Frame title={r.headline}>
       <div className="tm-grid">
-        <SheetCard label={tr("refused.label")} title={tr("refused.title")}>
-          <div className="tm-lists">
-            <div>
-              <p className="tm-list-head">{tr("refused.can")}</p>
-              <ul>
-                {r.can.map((c) => (
-                  <li key={c}>{c}</li>
-                ))}
-              </ul>
-            </div>
-            <div>
-              <p className="tm-list-head">{tr("refused.cannot")}</p>
-              <ul>
-                {r.cannot.map((c) => (
-                  <li key={c}>{c}</li>
-                ))}
-              </ul>
-            </div>
-          </div>
+        <SheetCard title={tr("refused.title")}>
           <p className="tm-copy">
             {t.rich("refused.history", {
               history: r.history_days,
@@ -169,6 +148,30 @@ function RefusedView({ r }: { r: Refused }) {
               link: (c) => <Link href="/connections">{c}</Link>,
             })}
           </p>
+          <Fold summary={tr("why")}>
+            <p className="tm-copy">
+              {r.reason}
+              {r.ready_on ? ` ${tr("refused.readyOn", { day: dayIn(r.ready_on, locale) })}` : ""}
+            </p>
+            <div className="tm-lists">
+              <div>
+                <p className="tm-list-head">{tr("refused.can")}</p>
+                <ul>
+                  {r.can.map((c) => (
+                    <li key={c}>{c}</li>
+                  ))}
+                </ul>
+              </div>
+              <div>
+                <p className="tm-list-head">{tr("refused.cannot")}</p>
+                <ul>
+                  {r.cannot.map((c) => (
+                    <li key={c}>{c}</li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </Fold>
         </SheetCard>
         <div className="tm-side">
           <RolesCard roles={r.roles} />
@@ -183,7 +186,7 @@ function RolesCard({ roles }: { roles: Ok["roles"] }) {
   const t = useTranslations("team");
   const { tr, locale } = useTr("team");
   return (
-    <SheetCard label={tr("roles.label")} title={tr("roles.title")}>
+    <SheetCard title={tr("roles.label")}>
       {roles.length === 0 ? (
         <p className="tm-copy">
           {t.rich("roles.none", { link: (c) => <Link href="/profile">{c}</Link> })}
@@ -292,32 +295,11 @@ function OkView({ r }: { r: Ok }) {
   const day = r.weekdays.find((w) => w.weekday === picked) ?? null;
   const open = r.weekdays.filter((w) => w.verdict !== "closed");
   const bookings = r.source === "bookings";
-  const weeks = Math.round(
-    (Date.parse(`${r.basis.to}T00:00:00Z`) - Date.parse(`${r.basis.from}T00:00:00Z`)) /
-      (7 * 86_400_000),
-  );
   return (
-    <Frame
-      title={r.headline}
-      notes={
-        <p>
-          {tr("ok.basis", {
-            weeks,
-            from: dayIn(r.basis.from, locale),
-            to: dayIn(r.basis.to, locale),
-            demand: r.basis.demand,
-          })}
-          {" · "}
-          {r.capacity
-            ? tr("ok.capacity", { perWeek: fig(r.capacity.per_week, locale) })
-            : tr("ok.noCapacity")}
-        </p>
-      }
-    >
+    <Frame title={r.headline}>
       <div className="tm-grid">
         <SheetCard
           label={bookings ? tr("ok.labelBookings") : tr("ok.labelTakings")}
-          title={tr("ok.title")}
           meta={
             <ul className="tm-legend" aria-label={tr("ok.legend")}>
               {bookings && (
@@ -339,10 +321,13 @@ function OkView({ r }: { r: Ok }) {
             </ul>
           }
           foot={
-            <>
-              {bookings ? tr("ok.footBookings") : tr("ok.footTakings")}{" "}
-              {t.rich("ok.footRole", { link: (c) => <Link href="/profile">{c}</Link> })}
-            </>
+            <Fold summary={tr("how")}>
+              {!r.capacity && <p>{tr("ok.noCapacity")}</p>}
+              <p>
+                {bookings ? tr("ok.footBookings") : tr("ok.footTakings")}{" "}
+                {t.rich("ok.footRole", { link: (c) => <Link href="/profile">{c}</Link> })}
+              </p>
+            </Fold>
           }
         >
           <div className="tm-days" role="group" aria-label={tr("ok.weekday")}>
@@ -363,13 +348,8 @@ function OkView({ r }: { r: Ok }) {
           {day ? <Grid r={r} day={day} /> : <p className="tm-copy">{tr("ok.noDay")}</p>}
         </SheetCard>
         <div className="tm-side">
-          <SheetCard
-            label={tr("reading.label")}
-            title={r.findings.length === 0 ? tr("reading.none") : tr("reading.some")}
-          >
-            {r.findings.length === 0 ? (
-              <p className="tm-copy">{tr("reading.noneBody")}</p>
-            ) : (
+          <SheetCard title={r.findings.length === 0 ? tr("reading.none") : tr("reading.some")}>
+            {r.findings.length > 0 && (
               <ul className="tm-reads">
                 {r.findings.map((f) => (
                   <li key={`${f.weekday}-${f.from_hour}-${f.band}`}>
@@ -386,35 +366,37 @@ function OkView({ r }: { r: Ok }) {
             )}
             <p className="tm-season">{r.season.words}</p>
           </SheetCard>
-          <SheetCard label={tr("notes.label")} title={tr("notes.title")}>
+          <SheetCard title={tr("notes.label")}>
             <ul className="tm-notes">
               {r.notes.map((n) => (
                 <li key={n}>{n}</li>
               ))}
             </ul>
           </SheetCard>
-          <SheetCard label={tr("built.label")} title={tr("built.title")}>
-            <p className="tm-copy">
-              {tr("built.body", {
-                days: r.basis.days_read,
-                demand: r.basis.demand,
-                from: dayIn(r.basis.from, locale),
-                to: dayIn(r.basis.to, locale),
-                history: r.basis.history_days,
-              })}
-              {r.capacity &&
-                ` ${tr("built.capacity", {
-                  perWeek: fig(r.capacity.per_week, locale),
-                  hours: fig(r.capacity.open_hours_per_week, locale),
-                })}`}
-            </p>
-            <ul className="tm-assumed">
-              {r.assumed.map((a) => (
-                <li key={a}>
-                  <span className="word boxed low">{tr("built.assumed")}</span> {a}
-                </li>
-              ))}
-            </ul>
+          <SheetCard>
+            <Fold summary={tr("built.title")}>
+              <p className="tm-copy">
+                {tr("built.body", {
+                  days: r.basis.days_read,
+                  demand: r.basis.demand,
+                  from: dayIn(r.basis.from, locale),
+                  to: dayIn(r.basis.to, locale),
+                  history: r.basis.history_days,
+                })}
+                {r.capacity &&
+                  ` ${tr("built.capacity", {
+                    perWeek: fig(r.capacity.per_week, locale),
+                    hours: fig(r.capacity.open_hours_per_week, locale),
+                  })}`}
+              </p>
+              <ul className="tm-assumed">
+                {r.assumed.map((a) => (
+                  <li key={a}>
+                    <span className="word boxed low">{tr("built.assumed")}</span> {a}
+                  </li>
+                ))}
+              </ul>
+            </Fold>
           </SheetCard>
           <RolesCard roles={r.roles} />
           <Limits limits={r.limits} />
