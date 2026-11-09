@@ -26,6 +26,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { businessNoun } from "../../lib/core/business-noun";
+import { Fold } from "../sheet/Fold";
 import { useTr } from "../sheet/useTr";
 import { MicButton } from "../voice/MicButton";
 import { ChangeCard } from "./ChangeCard";
@@ -249,11 +250,6 @@ export function ChatScreen() {
           </header>
 
           <div className="ak-thread" aria-live="polite">
-            {s.turns.length === 0 && (
-              <p className="ak-copy ak-empty">
-                {tChat.rich("empty", { noun, em: (chunks) => <em>{chunks}</em> })}
-              </p>
-            )}
             {s.turns.map((t) => (
               <article key={t.id} id={`turn-${t.id}`} className={`ak-turn ${t.role}`}>
                 <p className="ak-who">
@@ -340,9 +336,12 @@ export function ChatScreen() {
               after={tr("composer.spokenAfter")}
               disabled={s.busy}
             />
-            <p className="ak-rule" id="ak-rule">
-              {tr("composer.rule")}
-            </p>
+            <Fold className="ak-rule">
+              {s.turns.length === 0 && (
+                <p>{tChat.rich("empty", { noun, em: (chunks) => <em>{chunks}</em> })}</p>
+              )}
+              <p id="ak-rule">{tr("composer.rule")}</p>
+            </Fold>
           </form>
         </section>
 

@@ -715,16 +715,10 @@ export function SimulateScreen() {
     }
   };
 
-  const aside = (
-    <>
-      {tr("aside.nothing")}
-      <br />
-      {tr("aside.asOf", {
-        date: asOfDay(ready.inputs.as_of, locale),
-        currency: ready.inputs.currency,
-      })}
-    </>
-  );
+  const aside = tr("aside.asOf", {
+    date: asOfDay(ready.inputs.as_of, locale),
+    currency: ready.inputs.currency,
+  });
 
   return (
     <Frame title={headline(ready.catalog, ready.inputs, tr)} aside={aside}>

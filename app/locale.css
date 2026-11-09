@@ -53,6 +53,9 @@
   line-height: 1.45;
   color: var(--sheet-ink-2);
 }
+.lp-fold {
+  margin: 0 0 12px;
+}
 .lp-actions {
   display: flex;
   flex-wrap: wrap;

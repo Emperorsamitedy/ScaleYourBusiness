@@ -9,6 +9,9 @@
   max-width: var(--measure);
   color: var(--sheet-ink-2);
 }
+.cn-fold {
+  margin: 0 0 15px;
+}
 .cn-banner {
   margin: 0 0 14px;
   padding: 12px 15px;

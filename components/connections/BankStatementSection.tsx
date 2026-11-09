@@ -12,6 +12,7 @@
 // writing, in the statement's own currency. The server's refusals stay
 // English until L-4.
 
+import { Fold } from "../sheet/Fold";
 import { useCallback, useEffect, useState } from "react";
 import type { BankStatementView } from "../../app/api/bank-statement/route";
 import { moneyText } from "../sheet/num";
@@ -143,7 +144,9 @@ export function BankStatementSection() {
         )}
       </header>
       <div className="cs-body bk-body">
-        <p className="cn-copy">{t("lede")}</p>
+        <Fold className="cn-fold">
+          <p>{t("lede")}</p>
+        </Fold>
 
         <form className="cn-form" onSubmit={(e) => void submit(e)}>
           <label className="cn-field">

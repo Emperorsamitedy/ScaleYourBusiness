@@ -33,12 +33,12 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { useTranslations } from "next-intl";
 import "../../app/content.css";
 import { EmergencyStop } from "../execution/EmergencyStop";
 import { MediaPanel } from "./MediaPanel";
 import type { TikTokItemStateLike } from "./TikTokPostForm";
 import { TikTokPostForm } from "./TikTokPostForm";
+import { Fold } from "../sheet/Fold";
 import { PageHead, SheetCard } from "../sheet/PageHead";
 import { num } from "../sheet/num";
 import { useTr } from "../sheet/useTr";
@@ -183,7 +183,6 @@ export function ContentScreen() {
   const [state, setState] = useState<State>({ phase: "loading" });
   const detailRef = useRef<HTMLElement | null>(null);
   const { tr, locale } = useTr("content");
-  const t = useTranslations("content");
   const day = (iso: string) => dayWord(iso, locale);
   const short = (iso: string) => shortDay(iso, locale);
   const kindWord = (kind: ContentItem["kind"]) => tr(`kind.${kind}`);
@@ -754,7 +753,13 @@ export function ContentScreen() {
                   </Link>
                 )}
               </div>
-              <p className="ct-fine">{s.realWrites ? tr("fine.on") : tr("fine.off")}</p>
+              {s.realWrites ? (
+                <Fold className="ct-fine">
+                  <p>{tr("fine.on")}</p>
+                </Fold>
+              ) : (
+                <p className="ct-fine">{tr("fine.off")}</p>
+              )}
             </footer>
           </section>
         )}
@@ -816,9 +821,6 @@ export function ContentScreen() {
         </SheetCard>
 
         <SheetCard label={tr("propose.label")} title={tr("propose.title")}>
-          <p className="ct-prose">
-            {t.rich("propose.body", { link: (c) => <Link href="/proposals">{c}</Link> })}
-          </p>
           {s.watchingUntil && (
             <p className="ct-prose">
               {tr("propose.watching", { day: watchDay(s.watchingUntil, locale) })}

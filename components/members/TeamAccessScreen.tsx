@@ -23,6 +23,7 @@
 import "../../app/team-access.css";
 import { useCallback, useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
+import { Fold } from "../sheet/Fold";
 import { PageHead, SheetCard } from "../sheet/PageHead";
 import { useTr } from "../sheet/useTr";
 import type { Role } from "../../lib/auth/role-actions";
@@ -175,7 +176,7 @@ export function TeamAccessScreen() {
       )}
       {!mayManage && (
         <p className="ta-banner" role="note">
-          {refusalFor("team.manage")} {tr("readOnly")}
+          {refusalFor("team.manage")}
         </p>
       )}
 
@@ -365,7 +366,6 @@ export function TeamAccessScreen() {
             <button className="act" disabled={busy || email.trim() === ""}>
               {tr("invites.invite")} <span aria-hidden="true">→</span>
             </button>
-            <p className="ta-note">{tr(`roleMeans.${role}`)}</p>
             {!view.email_configured && <p className="ta-note">{tr("invites.noEmail")}</p>}
           </form>
         )}
@@ -403,7 +403,9 @@ export function TeamAccessScreen() {
       </SheetCard>
 
       <SheetCard label={tr("another.label")} title={tr("another.title")}>
-        <p className="ta-copy">{tr("another.body")}</p>
+        <Fold className="ta-fold">
+          <p>{tr("another.body")}</p>
+        </Fold>
         <form method="post" action="/api/auth/business">
           <button className="act" type="submit">
             {tr("another.add")} <span aria-hidden="true">→</span>

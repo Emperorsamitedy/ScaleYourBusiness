@@ -11,6 +11,10 @@
       "owner": "Propriétaire",
       "manager": "Gestionnaire",
       "viewer": "Lecteur"
+    },
+    "fold": {
+      "how": "Comment ça marche",
+      "why": "Pourquoi ?"
     }
   },
   "nav": {
@@ -162,7 +166,6 @@
       "lede": "Je vous parlerai dans cette langue. Chaque chiffre de votre entreprise s’affiche dans cette devise, et rien n’est jamais converti d’une devise à l’autre."
     },
     "yourLanguage": "Votre langue",
-    "yourLanguageHelp": "La langue dans laquelle vous lisez SYB. Chaque membre de l’équipe choisit la sienne.",
     "businessLanguage": "La langue de votre entreprise",
     "businessLanguageHelp": "Ce que liront vos clients : les réponses de l’assistance, les e-mails et les réponses aux avis.",
     "currency": "Devise",
@@ -1401,8 +1404,7 @@
       "nothingWaiting": "Rien en attente",
       "waiting": "{count, plural, one {# décision en attente} many {# décisions en attente} other {# décisions en attente}}",
       "position": "{n} sur {of}",
-      "next": "suivante : {title}",
-      "foot": "Rien ne s’exécute tant que vous ne l’avez pas validé."
+      "next": "suivante : {title}"
     },
     "decide": {
       "label": "Votre décision",
@@ -1410,17 +1412,16 @@
       "changes": "Demander des modifications",
       "approveVerb": "Valider — {verb}",
       "run": "Si validée, exécuter",
-      "halted": "Tout est arrêté en ce moment : rien ne s’exécute tant que vous ne redémarrez pas.",
-      "readOnly": "Vous pouvez tout consulter ici."
+      "halted": "Tout est arrêté en ce moment : rien ne s’exécute tant que vous ne redémarrez pas."
     },
     "sheet": {
       "ref": "Proposition {ref} · rédigée {when}",
       "from": "issue de {origin}",
-      "deadline": "À décider au plus tard le {day}. Sans réponse d’ici là, elle expire : non validée — rien ne s’est exécuté.",
-      "s1": "{n} · Ce qui change — avant → après",
+      "deadline": "À décider au plus tard le {day}.",
+      "s1": "{n} · Ce qui change",
       "s2": "{n} · Effet attendu · estimé",
       "s2Span": "{n} · Effet attendu, {span} · estimé",
-      "s3": "{n} · Preuves — chaque ligne avec sa source",
+      "s3": "{n} · Preuves",
       "s4": "{n} · Réversibilité"
     },
     "schedule": {
@@ -1432,10 +1433,8 @@
     },
     "bulk": {
       "label": "Décider de plusieurs à la fois",
-      "ref": "Décision groupée · chaque proposition garde sa propre trace",
       "selected": "{count, plural, one {# sélectionnée} many {# sélectionnées} other {# sélectionnées}}",
       "tick": "Cochez des propositions dans la liste",
-      "lede": "Chacune reste décidée séparément dans le registre, avec sa propre entrée — cela vous épargne seulement les clics.",
       "run": "{count, plural, one {Si validée, elle s’exécute} many {Si validées, les # s’exécutent} other {Si validées, les # s’exécutent}}",
       "choose": "— choisissez quand —",
       "noTime": "sans heure fixée — une publication planifiée garde son heure",
@@ -1455,7 +1454,6 @@
       "earlier": "Plus anciennes · {count}",
       "expired": "Non validée — rien ne s’est exécuté. Le délai a expiré sans décision ; ce n’est pas un refus.",
       "runs": "S’exécute au plus tôt le {day}.",
-      "foot": "Les propositions sans réponse expirent à leur date limite de décision, avec la mention « non validée — rien ne s’est exécuté ».",
       "oneAtATime": "Revenir à une à la fois"
     },
     "history": {
@@ -1644,7 +1642,6 @@
       "title": "Connexions — SYB"
     },
     "kicker": "Votre entreprise · Connexions",
-    "aside": "La lecture est séparée de l’écriture — toujours",
     "loading": "Lecture de vos connexions…",
     "unreachable": "Je n’ai pas pu joindre le serveur. Veuillez réessayer.",
     "error": {
@@ -4024,7 +4021,6 @@
       "worthKnowing": "À savoir",
       "noWords": "Une note sans commentaire.",
       "draftLabel": "Réponse suggérée · à modifier à votre guise",
-      "draftNote": "J’ai rédigé ceci. Relisez-le et faites-le vôtre : une fois publié, ce sont vos mots, sous votre nom. Je ne publie jamais rien.",
       "copied": "Copié",
       "copyReply": "Copier la réponse",
       "drafting": "Rédaction…",
@@ -4123,7 +4119,6 @@
       "body": "Une erreur s’est produite de mon côté. Actualisez la page pour réessayer."
     },
     "aside": {
-      "nothing": "Rien ici ne dépense ni n’envoie quoi que ce soit",
       "asOf": "Au {date} · devise : {currency}"
     },
     "kind": {
@@ -4235,7 +4230,6 @@
       "kicker": "Croissance · Simulation de prix",
       "loading": "Lecture de vos prix…",
       "failed": "La simulation de prix ne s’est pas chargée.",
-      "aside": "Rien ici ne modifie un prix",
       "empty": {
         "title": "Rien n’a encore de prix dans votre profil.",
         "body": "<ask>Indiquez ce que vous vendez, avec son prix</ask>, ou importez vos réservations dans <conn>Connexions</conn>, et cette page se remplira."
@@ -4281,7 +4275,6 @@
       "never": "JAMAIS",
       "card": {
         "label": "Changement de prix",
-        "meta": "Rien ici ne modifie votre prix",
         "breakEven": "Seuil de rentabilité",
         "cautious": "C’est le cas prudent : avec ce que chacun vous coûte à fournir, je pourrais dire combien de plus vous pourriez en perdre.",
         "addCost": "Ajouter le coût →",
@@ -4845,7 +4838,6 @@
     "propose": {
       "label": "Proposer",
       "title": "Rien n’est produit tant que vous n’avez pas validé",
-      "body": "Ces deux options créent une proposition dans votre <link>file de validation</link>. Pas un seul mot n’est rédigé avant que vous y disiez oui.",
       "watching": "Pas encore : j’observe l’entreprise jusqu’au {day}, et je ne propose rien avant la fin de l’observation. Vos objectifs ci-dessus orientent déjà ce que je proposerai ensuite.",
       "calendar": "Proposer un calendrier de contenus",
       "calendarDone": "Le calendrier est dans votre file de validation.",
@@ -4944,7 +4936,6 @@
       "title": "Commencez par l’entretien.",
       "begin": "Commencer"
     },
-    "aside": "D’après la liste que vous avez importée · rien ne part sans votre validation de l’e-mail",
     "failed": "cela n’a pas fonctionné",
     "headline": {
       "none": "Aucun client importé pour l’instant.",
@@ -6008,7 +5999,6 @@
     "failedShort": "Cela n’a pas fonctionné.",
     "title": "{count, plural, =1 {Personne d’autre que vous ne peut se connecter ici.} one {# personne peut se connecter ici.} many {# personnes peuvent se connecter ici.} other {# personnes peuvent se connecter ici.}}",
     "youAre": "Votre rôle : {role, select, owner {propriétaire} manager {gestionnaire} other {lecteur}}",
-    "readOnly": "Vous pouvez voir qui est ici.",
     "members": {
       "label": "L’équipe",
       "title": "Qui peut se connecter",

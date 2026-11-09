@@ -343,7 +343,7 @@ export function ProposalCard({ id }: { id: string }) {
               </p>
               {data.decide_why && (
                 <p className="q-role-note" role="note">
-                  {data.decide_why} {t("decide.readOnly")}
+                  {data.decide_why}
                 </p>
               )}
               <Link className="q-quiet" href="/proposals">
@@ -352,7 +352,6 @@ export function ProposalCard({ id }: { id: string }) {
             </section>
           )}
         </article>
-        <p className="q-m-foot">{t("m.foot")}</p>
       </main>
     </div>
   );

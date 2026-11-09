@@ -22,6 +22,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import "../../app/customers.css";
+import { Fold } from "../sheet/Fold";
 import { PageHead, SheetCard } from "../sheet/PageHead";
 import { moneyExact, num } from "../sheet/num";
 import { useTr } from "../sheet/useTr";
@@ -268,7 +269,6 @@ export function CustomersScreen() {
       <PageHead
         kicker={tr("kicker")}
         title={customersHeadline(s.contacts.length, s.lifecycle.lapsed, tr)}
-        aside={tr("aside")}
       />
 
       {s.notice && (
@@ -456,7 +456,9 @@ export function CustomersScreen() {
             </div>
             <div className="cu-rec-block cu-erase">
               <p className="cu-erase-title">{tr("erase.title")}</p>
-              <p className="cu-erase-copy">{tr("erase.copy")}</p>
+              <Fold>
+                <p>{tr("erase.copy")}</p>
+              </Fold>
               {s.confirmErase === open.id ? (
                 <div className="cu-erase-confirm">
                   <p className="cu-erase-copy">
@@ -581,7 +583,9 @@ export function CustomersScreen() {
         </SheetCard>
 
         <SheetCard label={tr("import.label")} title={tr("import.title")}>
-          <p className="cu-prose">{tr("import.prose")}</p>
+          <Fold className="cu-fold">
+            <p>{tr("import.prose")}</p>
+          </Fold>
           <form
             className="cu-form"
             onSubmit={(e) => {
@@ -675,7 +679,9 @@ export function CustomersScreen() {
         </SheetCard>
       )}
 
-      <p className="cu-fine">{tr("fine")}</p>
+      <Fold className="cu-fine on-desk">
+        <p>{tr("fine")}</p>
+      </Fold>
     </main>
   );
 }

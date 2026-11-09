@@ -1,0 +1,57 @@
+/* The fold — one closed-by-default "How this works" / "Why?" per section
+   (components/sheet/Fold.tsx). A mono summary in the sheet's quiet ink, a
+   square marker, no icon font; the body reads as the section's own prose. */
+
+.fold {
+  margin: 10px 0 0;
+  max-width: var(--measure);
+}
+.fold > summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  list-style: none;
+  font-family: var(--f-mono);
+  font-size: 12px;
+  color: var(--sheet-ink-2);
+}
+.fold > summary::-webkit-details-marker {
+  display: none;
+}
+.fold > summary::before {
+  content: "+";
+  display: inline-block;
+  width: 1ch;
+}
+.fold[open] > summary::before {
+  content: "\2212";
+}
+.fold > summary:hover {
+  color: var(--sheet-ink);
+}
+.fold > summary:focus-visible {
+  outline: 2px solid var(--sheet-ink);
+  outline-offset: 2px;
+}
+.fold-body {
+  margin: 8px 0 0;
+  font-size: 13.5px;
+  color: var(--sheet-ink-2);
+}
+.fold-body > p {
+  margin: 0 0 8px;
+}
+.fold-body > p:last-child {
+  margin-bottom: 0;
+}
+
+/* On the desk (a screen's foot outside the paper sheets): desk ink. */
+.fold.on-desk > summary,
+.fold.on-desk > summary:hover,
+.fold.on-desk .fold-body {
+  color: var(--desk-ink-2);
+}
+.fold.on-desk > summary:focus-visible {
+  outline-color: var(--desk-ink);
+}

@@ -22,6 +22,7 @@
 
 import { Fragment, useCallback, useEffect, useState } from "react";
 import Link from "next/link";
+import { Fold } from "../sheet/Fold";
 import { PageHead, SheetCard } from "../sheet/PageHead";
 import type { ExecView } from "./ExecutionSection";
 import { ExecutionSection } from "./ExecutionSection";
@@ -240,7 +241,9 @@ function MappingPanel({ connection }: { connection: Connection }) {
   const unmatchedCount = view.unmapped_items.length;
   return (
     <div className="cn-mapping">
-      <p className="cn-note">{t(`mapping.${kind}.intro`, { label: connection.label })}</p>
+      <Fold>
+        <p>{t(`mapping.${kind}.intro`, { label: connection.label })}</p>
+      </Fold>
       <ul className="cn-map-list">
         {view.entities.map((entity) => {
           const selected = choices[entity.entity_id] ?? entity.suggestion?.ref ?? "";
@@ -353,15 +356,16 @@ function Steps({ provider }: { provider: ProviderOption }) {
 
 function VerificationNote({ provider }: { provider: ProviderOption }) {
   const { t } = useCn();
-  if (provider.scope_verification === "reported") {
-    return <p className="cn-note">{t("verify.reported", { label: provider.label })}</p>;
-  }
   return (
-    <p className="cn-note">
-      {t(provider.id === "stripe" ? "verify.probedStripe" : "verify.probed", {
-        label: provider.label,
-      })}
-    </p>
+    <Fold>
+      <p>
+        {provider.scope_verification === "reported"
+          ? t("verify.reported", { label: provider.label })
+          : t(provider.id === "stripe" ? "verify.probedStripe" : "verify.probed", {
+              label: provider.label,
+            })}
+      </p>
+    </Fold>
   );
 }
 
@@ -800,14 +804,14 @@ export function ConnectionsScreen() {
   if (state === "loading" || (state === "ready" && !execDone)) {
     return (
       <main className="screen cn-screen">
-        <PageHead kicker={t("kicker")} title={t("loading")} aside={t("aside")} />
+        <PageHead kicker={t("kicker")} title={t("loading")} />
       </main>
     );
   }
   if (state === "error") {
     return (
       <main className="screen cn-screen">
-        <PageHead kicker={t("kicker")} title={t("error.title")} aside={t("aside")} />
+        <PageHead kicker={t("kicker")} title={t("error.title")} />
         <SheetCard label={t("error.label")} title={t("error.cardTitle")}>
           <p className="cn-copy">{t("error.body")}</p>
         </SheetCard>
@@ -817,7 +821,7 @@ export function ConnectionsScreen() {
   if (state === "signed_out") {
     return (
       <main className="screen cn-screen">
-        <PageHead kicker={t("kicker")} title={t("signedOut.title")} aside={t("aside")} />
+        <PageHead kicker={t("kicker")} title={t("signedOut.title")} />
         <SheetCard label={t("error.label")} title={t("signedOut.cardTitle")}>
           <p className="cn-copy">{t("signedOut.body")}</p>
           <Link className="next" href="/login">
@@ -863,7 +867,7 @@ export function ConnectionsScreen() {
 
   return (
     <main className="screen cn-screen">
-      <PageHead kicker={t("kicker")} title={title} aside={t("aside")} />
+      <PageHead kicker={t("kicker")} title={title} />
 
       {notice !== null && (
         <p className="cn-banner" aria-live="polite">
@@ -1035,7 +1039,9 @@ export function ConnectionsScreen() {
                 ))}
               </ul>
             )}
-            <p>{t("panel.foot")}</p>
+            <Fold>
+              <p>{t("panel.foot")}</p>
+            </Fold>
           </footer>
         </section>
 

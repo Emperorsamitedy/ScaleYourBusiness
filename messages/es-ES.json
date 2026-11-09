@@ -11,6 +11,10 @@
       "owner": "Propietario",
       "manager": "Gestor",
       "viewer": "Lector"
+    },
+    "fold": {
+      "how": "Cómo funciona",
+      "why": "¿Por qué?"
     }
   },
   "nav": {
@@ -162,7 +166,6 @@
       "lede": "Le hablaré en este idioma. Todas las cifras de su negocio se muestran en esta moneda, y nunca se convierte nada de una moneda a otra."
     },
     "yourLanguage": "Su idioma",
-    "yourLanguageHelp": "El idioma en el que lee SYB. Cada persona del equipo elige el suyo.",
     "businessLanguage": "El idioma de su negocio",
     "businessLanguageHelp": "Lo que leerán sus clientes: respuestas de soporte, correos electrónicos y respuestas a reseñas.",
     "currency": "Moneda",
@@ -1495,8 +1498,7 @@
       "nothingWaiting": "Nada pendiente",
       "waiting": "{count, plural, one {# decisión pendiente} many {# decisiones pendientes} other {# decisiones pendientes}}",
       "position": "{n} de {of}",
-      "next": "siguiente: {title}",
-      "foot": "Nada se ejecuta sin su aprobación."
+      "next": "siguiente: {title}"
     },
     "decide": {
       "label": "Su decisión",
@@ -1504,17 +1506,16 @@
       "changes": "Pedir cambios",
       "approveVerb": "Aprobar: {verb}",
       "run": "Si se aprueba, ejecutar",
-      "halted": "Ahora mismo todo está detenido: no se ejecuta nada hasta que vuelva a ponerlo en marcha.",
-      "readOnly": "Aquí puede consultarlo todo."
+      "halted": "Ahora mismo todo está detenido: no se ejecuta nada hasta que vuelva a ponerlo en marcha."
     },
     "sheet": {
       "ref": "Propuesta {ref} · redactada el {when}",
       "from": "procedente de {origin}",
-      "deadline": "Decida, como tarde, el {day}. Si para entonces no ha respondido, caduca: no aprobada, no se ha ejecutado nada.",
-      "s1": "{n} · Qué cambia: antes → después",
+      "deadline": "Decida, como tarde, el {day}.",
+      "s1": "{n} · Qué cambia",
       "s2": "{n} · Efecto previsto · estimado",
       "s2Span": "{n} · Efecto previsto, {span} · estimado",
-      "s3": "{n} · Pruebas: cada línea con su fuente",
+      "s3": "{n} · Pruebas",
       "s4": "{n} · Reversibilidad"
     },
     "schedule": {
@@ -1526,10 +1527,8 @@
     },
     "bulk": {
       "label": "Decidir varias a la vez",
-      "ref": "Revisión en bloque · cada propuesta conserva su propio registro",
       "selected": "{count, plural, one {# seleccionada} many {# seleccionadas} other {# seleccionadas}}",
       "tick": "Marque propuestas en la lista",
-      "lede": "Cada una se sigue decidiendo por separado en el registro, con su propia entrada: esto solo le ahorra los clics.",
       "run": "{count, plural, one {Si se aprueba, se ejecuta} many {Si se aprueban, se ejecutan las #} other {Si se aprueban, se ejecutan las #}}",
       "choose": "— elija cuándo —",
       "noTime": "sin hora fijada: una publicación programada conserva su hora",
@@ -1549,7 +1548,6 @@
       "earlier": "Anteriores · {count}",
       "expired": "No aprobada: no se ha ejecutado nada. Se agotó el plazo sin decisión; eso no es un no.",
       "runs": "Se ejecuta el {day} como pronto.",
-      "foot": "Las propuestas sin respuesta caducan en su fecha límite como «no aprobada: no se ha ejecutado nada».",
       "oneAtATime": "Volver a una por una"
     },
     "history": {
@@ -1644,7 +1642,6 @@
       "title": "Conexiones — SYB"
     },
     "kicker": "Su negocio · Conexiones",
-    "aside": "La lectura va aparte de la escritura, siempre",
     "loading": "Leyendo sus conexiones…",
     "unreachable": "No he podido conectar con el servidor. Inténtelo de nuevo.",
     "error": {
@@ -4024,7 +4021,6 @@
       "worthKnowing": "Conviene saberlo",
       "noWords": "Una puntuación sin texto.",
       "draftLabel": "Respuesta sugerida · puede editarla",
-      "draftNote": "La he redactado yo. Léala y hágala suya: en cuanto la publique, son sus palabras, con su nombre. Yo nunca publico nada.",
       "copied": "Copiada",
       "copyReply": "Copiar la respuesta",
       "drafting": "Redactando…",
@@ -4123,7 +4119,6 @@
       "body": "Algo ha fallado por mi parte. Actualice la página para volver a intentarlo."
     },
     "aside": {
-      "nothing": "Aquí nada gasta ni envía",
       "asOf": "A fecha de {date} · {currency}"
     },
     "kind": {
@@ -4235,7 +4230,6 @@
       "kicker": "Crecer · Precios: ¿y si…?",
       "loading": "Leyendo sus precios…",
       "failed": "La simulación de precios no se ha cargado.",
-      "aside": "Aquí nada cambia un precio",
       "empty": {
         "title": "Todavía no hay nada con precio en su perfil.",
         "body": "<ask>Indique lo que vende, con su precio</ask>, o importe sus reservas en <conn>Conexiones</conn>, y esto se completará."
@@ -4281,7 +4275,6 @@
       "never": "NUNCA",
       "card": {
         "label": "Cambio de precio",
-        "meta": "Aquí nada cambia su precio",
         "breakEven": "Punto de equilibrio",
         "cautious": "Ese es el extremo prudente: con lo que le cuesta entregar una unidad, podría decirle cuántas más podría perder.",
         "addCost": "Añadir el coste →",
@@ -4845,7 +4838,6 @@
     "propose": {
       "label": "Proponer",
       "title": "No se crea nada sin su aprobación",
-      "body": "Ambas opciones crean una propuesta en su <link>cola de aprobación</link>. No se redacta ni una palabra antes de que usted diga que sí allí.",
       "watching": "Todavía no: estoy observando el negocio hasta el {day} y no propongo nada antes de que termine la observación. Sus objetivos de arriba seguirán orientando lo que proponga entonces.",
       "calendar": "Proponer un calendario de contenido",
       "calendarDone": "El calendario está en su cola de aprobación.",
@@ -4944,7 +4936,6 @@
       "title": "Empiece por la entrevista.",
       "begin": "Empezar"
     },
-    "aside": "De la lista que importó · no se envía nada sin su aprobación del correo",
     "failed": "eso no ha funcionado",
     "headline": {
       "none": "Aún no se ha importado ningún cliente.",
@@ -6008,7 +5999,6 @@
     "failedShort": "Eso no ha funcionado.",
     "title": "{count, plural, =1 {Solo usted puede iniciar sesión aquí.} one {# persona puede iniciar sesión aquí.} many {# personas pueden iniciar sesión aquí.} other {# personas pueden iniciar sesión aquí.}}",
     "youAre": "Su rol: {role, select, owner {propietario} manager {gestor} other {lector}}",
-    "readOnly": "Puede ver quién está aquí.",
     "members": {
       "label": "El equipo",
       "title": "Quién puede iniciar sesión",

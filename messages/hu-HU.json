@@ -11,6 +11,10 @@
       "owner": "Tulajdonos",
       "manager": "Menedzser",
       "viewer": "Megtekintő"
+    },
+    "fold": {
+      "how": "Hogyan működik",
+      "why": "Miért?"
     }
   },
   "nav": {
@@ -162,7 +166,6 @@
       "lede": "Ezen a nyelven fogok Önhöz szólni. Vállalkozása minden számadata ebben a pénznemben jelenik meg, és pénznemek között soha semmit nem váltunk át."
     },
     "yourLanguage": "Az Ön nyelve",
-    "yourLanguageHelp": "Ezen a nyelven olvassa a SYB-t. A csapatban mindenki a sajátját választja.",
     "businessLanguage": "Vállalkozása nyelve",
     "businessLanguageHelp": "Amit az ügyfelei olvasnak: támogatási válaszok, e-mailek és értékelésekre adott válaszok.",
     "currency": "Pénznem",
@@ -1401,8 +1404,7 @@
       "nothingWaiting": "Semmi sem vár",
       "waiting": "{count, plural, one {# döntés vár} other {# döntés vár}}",
       "position": "{n} / {of}",
-      "next": "következő: {title}",
-      "foot": "Semmi sem fut az Ön jóváhagyása nélkül."
+      "next": "következő: {title}"
     },
     "decide": {
       "label": "Az Ön döntése",
@@ -1410,17 +1412,16 @@
       "changes": "Módosítás kérése",
       "approveVerb": "Jóváhagyás — {verb}",
       "run": "Jóváhagyás esetén fusson",
-      "halted": "Jelenleg minden le van állítva: semmi sem fut, amíg újra el nem indítja.",
-      "readOnly": "Itt mindent elolvashat."
+      "halted": "Jelenleg minden le van állítva: semmi sem fut, amíg újra el nem indítja."
     },
     "sheet": {
       "ref": "Javaslat: {ref} · megírva: {when}",
       "from": "forrás: {origin}",
-      "deadline": "Döntsön eddig: {day}. Ha addig nem válaszol, lejár: nincs jóváhagyva — semmi sem futott.",
-      "s1": "{n} · Mi változik — előtte → utána",
+      "deadline": "Döntsön eddig: {day}.",
+      "s1": "{n} · Mi változik",
       "s2": "{n} · Várható hatás · becsült",
       "s2Span": "{n} · Várható hatás, {span} · becsült",
-      "s3": "{n} · Bizonyítékok — minden sor a forrásával",
+      "s3": "{n} · Bizonyítékok",
       "s4": "{n} · Visszafordíthatóság"
     },
     "schedule": {
@@ -1432,10 +1433,8 @@
     },
     "bulk": {
       "label": "Több döntés egyszerre",
-      "ref": "Csoportos döntés · minden javaslat megtartja a saját bejegyzését",
       "selected": "{count, plural, one {# kiválasztva} other {# kiválasztva}}",
       "tick": "Jelölje be a javaslatokat a listában",
-      "lede": "A nyilvántartásban továbbra is mindegyikről külön születik döntés, saját bejegyzéssel — ez csak a kattintásokat spórolja meg Önnek.",
       "run": "{count, plural, one {Jóváhagyás esetén lefut} other {Jóváhagyás esetén mind a # lefut}}",
       "choose": "— válassza ki, mikor —",
       "noTime": "meghatározott időpont nélkül — egy tervezett bejegyzés megtartja az időpontját",
@@ -1455,7 +1454,6 @@
       "earlier": "Korábbiak · {count}",
       "expired": "Nincs jóváhagyva — semmi sem futott. Döntés nélkül lejárt az ideje; ez nem elutasítás.",
       "runs": "Legkorábban ekkor fut: {day}.",
-      "foot": "A megválaszolatlan javaslatok a döntési határidejükön lejárnak, „nincs jóváhagyva — semmi sem futott” állapottal.",
       "oneAtATime": "Vissza az egyenkénti döntéshez"
     },
     "history": {
@@ -1644,7 +1642,6 @@
       "title": "Összekapcsolt fiókok — SYB"
     },
     "kicker": "Az Ön vállalkozása · Összekapcsolt fiókok",
-    "aside": "Az olvasás mindig elkülönül az írástól",
     "loading": "Az összekapcsolt fiókjai beolvasása…",
     "unreachable": "Nem értem el a szervert. Próbálja újra.",
     "error": {
@@ -4024,7 +4021,6 @@
       "worthKnowing": "Érdemes tudni",
       "noWords": "Csillagozás szöveg nélkül.",
       "draftLabel": "Javasolt válasz · Ön szerkesztheti",
-      "draftNote": "Ezt én fogalmaztam meg. Olvassa el, és tegye a sajátjává: amint közzéteszi, az az Ön szavai, az Ön neve alatt. Én soha semmit nem teszek közzé.",
       "copied": "Másolva",
       "copyReply": "A válasz másolása",
       "drafting": "Megfogalmazás…",
@@ -4123,7 +4119,6 @@
       "body": "Hiba történt nálam. Frissítse az oldalt az újrapróbáláshoz."
     },
     "aside": {
-      "nothing": "Itt semmi sem költ és semmi sem küld",
       "asOf": "Állapot: {date} · {currency}"
     },
     "kind": {
@@ -4235,7 +4230,6 @@
       "kicker": "Növekedés · Árazás: mi lenne, ha…",
       "loading": "Az árai beolvasása…",
       "failed": "Az árazási forgatókönyvek nem töltődtek be.",
-      "aside": "Itt semmi sem változtat árat",
       "empty": {
         "title": "A profilján még semmi sincs beárazva.",
         "body": "<ask>Sorolja fel, mit értékesít, az árával együtt</ask>, vagy importálja a foglalásait az <conn>Összekapcsolt fiókok</conn> oldalon, és ez kitöltődik."
@@ -4281,7 +4275,6 @@
       "never": "SOHA",
       "card": {
         "label": "Árváltozás",
-        "meta": "Itt semmi sem változtatja meg az árát",
         "breakEven": "Fedezeti pont",
         "cautious": "Ez az óvatos vég: ha tudnám, mennyibe kerül Önnek egy darab teljesítése, meg tudnám mondani, mennyivel többet veszíthet el.",
         "addCost": "Adja meg a költséget →",
@@ -4845,7 +4838,6 @@
     "propose": {
       "label": "Javaslat",
       "title": "Semmi sem készül el az Ön jóváhagyása nélkül",
-      "body": "Mindkettő javaslatot hoz létre a <link>jóváhagyási várólistán</link>. Egyetlen szó sem készül el, mielőtt ott igent mond.",
       "watching": "Még nem: a vállalkozást figyelem, a figyelés vége: {day}, és addig nem javaslok semmit. A fenti céljai akkor is meghatározzák, mit fogok javasolni.",
       "calendar": "Tartalomnaptár javaslata",
       "calendarDone": "A naptár a jóváhagyási várólistáján van.",
@@ -4944,7 +4936,6 @@
       "title": "Kezdje az interjúval.",
       "begin": "Kezdés"
     },
-    "aside": "Az Ön által importált listából · semmi sem megy ki az e-mail jóváhagyása nélkül",
     "failed": "ez nem sikerült",
     "headline": {
       "none": "Még nincsenek importált ügyfelek.",
@@ -6008,7 +5999,6 @@
     "failedShort": "Ez nem sikerült.",
     "title": "{count, plural, =1 {Csak Ön tud ide bejelentkezni.} one {# személy tud ide bejelentkezni.} other {# személy tud ide bejelentkezni.}}",
     "youAre": "Az Ön szerepköre: {role, select, owner {tulajdonos} manager {menedzser} other {megtekintő}}",
-    "readOnly": "Láthatja, ki van itt.",
     "members": {
       "label": "A csapat",
       "title": "Ki tud bejelentkezni",

@@ -16,6 +16,7 @@
 // sentences, said in the reader's language by the route since L-4c
 // (lib/bookings/words.ts), as are the import's refusals.
 
+import { Fold } from "../sheet/Fold";
 import { useCallback, useEffect, useState } from "react";
 import { moneyText, num } from "../sheet/num";
 import type { AppLocale } from "../../lib/i18n/locales";
@@ -382,7 +383,9 @@ export function BookingsImportSection() {
         )}
       </header>
       <div className="cs-body bk-body">
-        <p className="cn-copy">{t("lede")}</p>
+        <Fold className="cn-fold">
+          <p>{t("lede")}</p>
+        </Fold>
 
         {(view?.measures ?? []).map(({ source, measures }) => (
           <div key={source} className="bk-measures">
