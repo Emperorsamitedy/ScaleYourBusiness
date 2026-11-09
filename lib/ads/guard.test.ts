@@ -13,6 +13,7 @@ import {
   spendGuard,
   toMetaBudget,
   reactivationGuard,
+  wholeUnitBudget,
 } from "./guard";
 
 describe("P3-22b — Meta's currency offset (the Currencies page, read 2026-10-19)", () => {
@@ -153,5 +154,19 @@ describe("review 2026-10-23, Session D #4 — re-activating a paused campaign, a
         monthly_ceiling: eur(1_000_000),
       }),
     ).toMatch(/budget sits on its ad sets/);
+  });
+});
+
+describe("wholeUnitBudget (2026-11-09: Google budgets in whole forints)", () => {
+  it("rounds a whole-unit currency toward the budget before the change", () => {
+    // 5 003,00 Ft raised 50% is 7 504,50 Ft: down to 7 504 Ft, never past +50%.
+    expect(wholeUnitBudget(750_450, "HUF", 500_300)).toBe(750_400);
+    // A cut rounds up, toward today's budget.
+    expect(wholeUnitBudget(250_150, "HUF", 500_300)).toBe(250_200);
+    expect(wholeUnitBudget(750_450, "huf", 500_300)).toBe(750_400);
+  });
+  it("leaves cent currencies and ISO zero-decimal ones as they are", () => {
+    expect(wholeUnitBudget(12_345, "EUR", 10_000)).toBe(12_345);
+    expect(wholeUnitBudget(1_500, "JPY", 1_000)).toBe(1_500);
   });
 });
