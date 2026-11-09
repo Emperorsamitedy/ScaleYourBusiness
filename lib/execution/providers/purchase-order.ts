@@ -17,14 +17,20 @@
 // by lib/purchasing/pdf from the approved row, attached once. The body is
 // unchanged. The run's result records the file's name and size, real or fake.
 //
-// Real or fake. The order goes out for real only when SYB's email service is
-// set up on a verified domain AND the real-write gate is on
-// (SESSION_D_REAL_WRITES); lib/purchasing/po's sendingMode decides, read at
-// the moment of sending. `external` follows the same reading, so with the
-// gate off the engine's guard 6a never sees a real sender. Otherwise the run
-// goes through the fake sender: every guard, the claim and the journal run
-// exactly as for real, nothing leaves SYB, and the result says it was not
-// sent and why, so the screen can say "ready, not sent" in words.
+// Real, or held. The order goes out only when SYB's email service is set up
+// on a verified domain AND the real-write gate is on (SESSION_D_REAL_WRITES);
+// lib/purchasing/po's sendingMode decides, read at the moment of sending.
+// `external` follows the same reading, so with the gate off the engine's
+// guard 6a never sees a real sender. Otherwise the order is HELD (the
+// owner's decision of 2026-11-09): the pre-flight refuses it as deferred,
+// before the claim, so there is no execution row, the proposal stays
+// approved and nothing is marked done. The due runner picks it up again on
+// every pass and it goes out on the first one after sending is switched on —
+// unless its last recorded yes is more than 14 days old by then
+// (lib/execution/stale, stalePurchaseOrder), when it waits for the owner's
+// "Send now". Meanwhile the owner can download it and send it by hand.
+// (Before 2026-11-09 such a run went through a fake sender and was marked
+// executed with {sent: false}; those rows are still read, never written.)
 //
 // What SYB never does, and nothing here could: edit, cancel or pay an order,
 // or sign in to a supplier's system. The one network call is a POST to
@@ -56,6 +62,26 @@ export const PO_EMAIL_COST_EUR = 0.0004;
  * pre-flight reads it back: such an order is never sent a second time.
  */
 export const PO_UNCONFIRMED = "The email service didn't confirm whether this order went out.";
+
+/**
+ * The start of the pre-flight's sentence for an order held while sending is
+ * off. sendPurchaseOrderNow reads it back to answer "held" with the reasons.
+ */
+export const PO_HELD = "Waiting for email to be set up.";
+
+const HELD_WHY: Record<NotSentReason, string> = {
+  email_not_set_up: "Email isn't set up on SYB's sending domain yet.",
+  real_writes_off: "Real sending is switched off until the two-week unattended test completes.",
+};
+
+/** Pure: the owner's sentence for a held order, every reason named. */
+export function heldSentence(reasons: readonly NotSentReason[]): string {
+  return [
+    PO_HELD,
+    ...reasons.map((r) => HELD_WHY[r]),
+    "Nothing was sent and it isn't marked done: it stays approved and goes out on the first run after sending is switched on (if you approved it more than 14 days before that, it waits for you to confirm it). You can download it and send it yourself meanwhile, then mark it as sent by hand.",
+  ].join(" ");
+}
 
 /* ── what the backend answers ── */
 
@@ -185,7 +211,11 @@ export interface PoAttachmentRecord {
   bytes: number;
 }
 
-/** What an execution of this provider returns, journaled as the result. */
+/**
+ * What an execution of this provider returns, journaled as the result. Only
+ * `sent: true` is written now; `sent: false` is how a run against the fake
+ * sender was journaled before 2026-11-09, still read for those rows.
+ */
 export type PurchaseOrderResult =
   | {
       sent: true;
@@ -242,6 +272,10 @@ export function createPurchaseOrderExecutor(options: PurchaseOrderOptions = {}):
 
     async preflight(op, params, ctx): Promise<PreflightRefusal | null> {
       const proposalId = proposalOf(op, params);
+      // Held, not run (2026-11-09): while sending is off nothing is claimed or
+      // marked done; the proposal stays approved for the first run after.
+      const now = mode();
+      if (now.mode === "fake") return { code: "deferred", message: heldSentence(now.reasons) };
       const refusal = await (await loadBackend()).readiness(proposalId, ctx);
       return refusal === null ? null : { code: "refused", message: refusal };
     },
@@ -275,12 +309,13 @@ export function createPurchaseOrderExecutor(options: PurchaseOrderOptions = {}):
       };
       const now = mode();
       if (now.mode === "fake") {
-        // The fake sender: the run is journaled like any other, and nothing leaves SYB.
-        logSend(ctx, plan.proposal_id, "not_sent", {
-          reasons: now.reasons,
-          attachment_bytes: plan.attachment.content.byteLength,
-        });
-        return { sent: false, not_sent: now.reasons, ...base };
+        // Sending went off between the pre-flight and here: nothing leaves SYB
+        // and nothing is marked done. The run ends (never retried in-run); the
+        // owner's Send now runs it again once sending is on.
+        logSend(ctx, plan.proposal_id, "held", { reasons: now.reasons });
+        throw new PurchaseOrderRefused(
+          "Sending was switched off just as this order was about to go. Nothing was sent; press Send now once sending is on again.",
+        );
       }
       const outcome = await sendPurchaseOrderEmail(
         {

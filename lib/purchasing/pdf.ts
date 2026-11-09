@@ -36,7 +36,7 @@ import type { Words as RecipientWords } from "../i18n/recipient";
 import { exactMoney, isoDay } from "../stock/words";
 import { DEJAVU_SANS_BOLD_BASE64, DEJAVU_SANS_REGULAR_BASE64 } from "./fonts/dejavu-sans";
 import type { PoDocStatus, PoLine, PurchaseOrder } from "./po";
-import { totalWords } from "./po";
+import { pricedLine, statusWords, totalWords } from "./po";
 
 /** The languages the embedded font can write; any other is written in English. */
 export const PDF_LOCALES: readonly AppLocale[] = [
@@ -228,12 +228,7 @@ export async function renderPurchaseOrderPdf(
     { color: MUTED },
   );
   pen.y -= 10;
-  const statusLine = drawable(
-    status.kind === "sent"
-      ? w.t("doc.statusSent", { day: isoDay(status.on, w.locale) })
-      : w.t(`doc.status.${status.kind}`),
-    has,
-  );
+  const statusLine = drawable(statusWords(status, w), has);
   const statusWidth = Math.min(CONTENT, regular.widthOfTextAtSize(statusLine, 9) + 16);
   const statusH = text(statusLine, MARGIN + 8, 9, { width: statusWidth - 16 }) + 8;
   pen.page.drawRectangle({
@@ -289,21 +284,28 @@ export async function renderPurchaseOrderPdf(
     ruleBelow();
     pen.y -= 6;
   };
+  // Decision 4 (2026-11-09): a price only where one was stated or measured.
+  const unitText = (l: PoLine): string => {
+    const p = pricedLine(l);
+    return p ? fmt(p.unit, w.locale) : w.t("doc.toConfirm");
+  };
   const rowHeight = (l: PoLine): number => {
     const size = 10;
-    const lines = wrapText(drawable(l.name, has), COLS[0].width - 2 * CELL_PAD, (t) =>
-      regular.widthOfTextAtSize(t, size),
-    );
-    return lines.length * size * 1.35 + 11;
+    const height = (s: string, col: number) =>
+      wrapText(drawable(s, has), COLS[col]!.width - 2 * CELL_PAD, (t) =>
+        regular.widthOfTextAtSize(t, size),
+      ).length;
+    return Math.max(height(l.name, 0), height(unitText(l), 2)) * size * 1.35 + 11;
   };
   head();
   for (const l of po.lines) {
     if (room(rowHeight(l))) head();
+    const p = pricedLine(l);
     const h = Math.max(
       cell(l.name, 0, 10, regular),
       cell(String(l.quantity), 1, 10, regular),
-      cell(l.unit_cost ? fmt(l.unit_cost, w.locale) : "—", 2, 10, regular),
-      cell(l.line_total ? fmt(l.line_total, w.locale) : "—", 3, 10, regular),
+      cell(unitText(l), 2, 10, regular),
+      cell(p ? fmt(p.total, w.locale) : "—", 3, 10, regular),
     );
     pen.y -= h + 5;
     ruleBelow();

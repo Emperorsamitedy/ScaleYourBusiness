@@ -4480,6 +4480,7 @@
       "emailAsk": "Pas encore enregistré. Une fois indiqué, il est gardé avec le fournisseur.",
       "address": "Livrer à",
       "addressOnFile": "Votre adresse postale enregistrée. Modifiez-la ici pour cette commande.",
+      "toConfirm": "à confirmer par le fournisseur",
       "note": "Remarque pour le fournisseur (facultatif)",
       "col": {
         "order": "Commander",
@@ -4508,6 +4509,9 @@
         "executed": "fait",
         "sent": "envoyée le {day}",
         "notSent": "prête, non envoyée",
+        "held": "approuvée, retenue jusqu'à ce que l'e-mail soit configuré",
+        "needsConfirming": "approuvée le {day}, attend à nouveau votre oui",
+        "byHand": "envoyée par vous le {day}",
         "failed": "n'est pas partie"
       },
       "why": {
@@ -4515,16 +4519,22 @@
         "real_writes_off": "L'envoi réel est désactivé jusqu'à la fin du test de deux semaines sans surveillance."
       },
       "notSentAfter": "Téléchargez-la et envoyez-la vous-même.",
+      "heldAfter": "Elle n'est pas marquée comme faite : elle part d'elle-même dès que l'envoi est activé. En attendant, vous pouvez la télécharger, l'envoyer vous-même, puis la marquer comme envoyée à la main.",
+      "confirmAfter": "Votre oui date de plus de {days, plural, one {# jour} many {# jours} other {# jours}}, elle ne part donc pas d'elle-même. « Envoyer maintenant » l'envoie telle quelle, ou faites une nouvelle commande.",
       "sendingReal": "Les commandes approuvées sont réellement envoyées au fournisseur par e-mail.",
-      "sendingFake": "Les commandes approuvées passent toutes les vérifications, mais ne sont pas encore envoyées par e-mail :",
+      "sendingFake": "Les commandes approuvées sont retenues, sans envoi par e-mail, jusqu'à ce que l'envoi soit activé :",
       "sendNow": "Envoyer maintenant",
       "sendingNow": "Envoi…",
+      "markByHand": "Marquer comme envoyée à la main",
+      "markingByHand": "Enregistrement…",
       "download": "Télécharger",
       "downloadPdf": "Télécharger le PDF",
       "print": "Ouvrir pour imprimer",
       "result": {
         "sent": "Envoyée au fournisseur.",
-        "notSent": "Prête, non envoyée."
+        "notSent": "Prête, non envoyée.",
+        "held": "Retenue, non envoyée.",
+        "byHand": "Marquée comme envoyée à la main. Elle ne sera pas envoyée par e-mail."
       }
     }
   },
@@ -6612,10 +6622,11 @@
       "subject": "Bon de commande {number} de {business}",
       "greeting": "Bonjour {supplier},",
       "intro": "{business} souhaite commander ce qui suit (bon de commande {number}) :",
-      "line": "{quantity} × {item}",
+      "line": "{quantity} × {item}, prix à confirmer par le fournisseur",
       "linePriced": "{quantity} × {item} à {unit} = {total}",
       "total": "Total prévu : {total}",
-      "totalPart": "Total prévu : {total}, plus {unpriced, plural, one {# ligne} many {# lignes} other {# lignes}} sans prix",
+      "totalPart": "Total prévu : {total}, plus {unpriced, plural, one {# ligne} many {# lignes} other {# lignes}} dont le prix est à confirmer par le fournisseur",
+      "totalNone": "Pas encore de total : le fournisseur confirmera le prix de {unpriced, plural, one {# ligne} many {# lignes} other {# lignes}}",
       "deliverTo": "Livrer à :",
       "noteHead": "Remarque :",
       "confirm": "Merci de confirmer la commande, son prix et la date de livraison en répondant à cet e-mail.",
@@ -6625,6 +6636,7 @@
         "title": "Bon de commande {number}",
         "prepared": "{business} · préparé le {day}",
         "statusSent": "Envoyé au fournisseur par e-mail le {day}",
+        "statusSentByHand": "Envoyé au fournisseur le {day}",
         "status": {
           "draft": "En attente de validation : non envoyé",
           "approved": "Approuvé : pas encore envoyé",
@@ -6636,6 +6648,7 @@
         "quantity": "Quantité",
         "unit": "Prix unitaire (prévu)",
         "lineTotal": "Total de la ligne",
+        "toConfirm": "à confirmer",
         "foot": "Préparé avec SYB. SYB ne modifie, n'annule ni ne paie jamais une commande."
       }
     }

@@ -4480,6 +4480,7 @@
       "emailAsk": "Not on file yet. Once you give it, it is kept with the supplier.",
       "address": "Deliver to",
       "addressOnFile": "Your postal address on file. Change it here for this order.",
+      "toConfirm": "to be confirmed by the supplier",
       "note": "Note to the supplier (optional)",
       "col": {
         "order": "Order",
@@ -4508,6 +4509,9 @@
         "executed": "done",
         "sent": "emailed on {day}",
         "notSent": "ready, not sent",
+        "held": "approved, held until email is set up",
+        "needsConfirming": "approved on {day}, waiting for your yes again",
+        "byHand": "sent by you on {day}",
         "failed": "didn't go out"
       },
       "why": {
@@ -4515,16 +4519,22 @@
         "real_writes_off": "Real sending is switched off until the two-week unattended test completes."
       },
       "notSentAfter": "Download it and send it yourself.",
+      "heldAfter": "It isn't marked done: it goes out on its own once sending is on. Meanwhile you can download it, send it yourself, then mark it as sent by hand.",
+      "confirmAfter": "You said yes more than {days, plural, one {# day} other {# days}} ago, so it isn't emailed on its own. Send now sends it as it is, or make a new order.",
       "sendingReal": "Approved orders are emailed to the supplier for real.",
-      "sendingFake": "Approved orders run through every check, but aren't emailed yet:",
+      "sendingFake": "Approved orders are held, not emailed, until sending is switched on:",
       "sendNow": "Send now",
       "sendingNow": "Sending…",
+      "markByHand": "Mark as sent by hand",
+      "markingByHand": "Saving…",
       "download": "Download",
       "downloadPdf": "Download PDF",
       "print": "Open to print",
       "result": {
         "sent": "Sent to the supplier.",
-        "notSent": "Ready, not sent."
+        "notSent": "Ready, not sent.",
+        "held": "Held, not sent.",
+        "byHand": "Marked as sent by hand. It won't be emailed."
       }
     }
   },
@@ -6612,10 +6622,11 @@
       "subject": "Purchase order {number} from {business}",
       "greeting": "Hello {supplier},",
       "intro": "{business} would like to order the following (purchase order {number}):",
-      "line": "{quantity} × {item}",
+      "line": "{quantity} × {item}, price to be confirmed by the supplier",
       "linePriced": "{quantity} × {item} at {unit} = {total}",
       "total": "Expected total: {total}",
-      "totalPart": "Expected total: {total}, plus {unpriced, plural, one {# line} other {# lines}} without a price",
+      "totalPart": "Expected total: {total}, plus {unpriced, plural, one {# line} other {# lines}} with the price to be confirmed by the supplier",
+      "totalNone": "No total yet: the supplier is to confirm the price of {unpriced, plural, one {# line} other {# lines}}",
       "deliverTo": "Deliver to:",
       "noteHead": "Note:",
       "confirm": "Please confirm the order, its price and the delivery date by replying to this email.",
@@ -6625,6 +6636,7 @@
         "title": "Purchase order {number}",
         "prepared": "{business} · prepared on {day}",
         "statusSent": "Emailed to the supplier on {day}",
+        "statusSentByHand": "Sent to the supplier on {day}",
         "status": {
           "draft": "Waiting for approval: not sent",
           "approved": "Approved: not sent yet",
@@ -6636,6 +6648,7 @@
         "quantity": "Quantity",
         "unit": "Unit price (expected)",
         "lineTotal": "Line total",
+        "toConfirm": "to be confirmed",
         "foot": "Prepared with SYB. SYB never changes, cancels or pays an order."
       }
     }

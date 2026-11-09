@@ -4480,6 +4480,7 @@
       "emailAsk": "Noch nicht hinterlegt. Sobald Sie sie angeben, wird sie beim Lieferanten gespeichert.",
       "address": "Lieferung an",
       "addressOnFile": "Ihre hinterlegte Postanschrift. Für diese Bestellung hier ändern.",
+      "toConfirm": "Preis bestätigt der Lieferant",
       "note": "Hinweis an den Lieferanten (optional)",
       "col": {
         "order": "Bestellen",
@@ -4508,6 +4509,9 @@
         "executed": "erledigt",
         "sent": "am {day} gemailt",
         "notSent": "bereit, nicht gesendet",
+        "held": "freigegeben, zurückgehalten, bis der E-Mail-Versand eingerichtet ist",
+        "needsConfirming": "am {day} freigegeben, wartet erneut auf Ihr Ja",
+        "byHand": "am {day} von Ihnen gesendet",
         "failed": "nicht rausgegangen"
       },
       "why": {
@@ -4515,16 +4519,22 @@
         "real_writes_off": "Der echte Versand ist ausgeschaltet, bis der zweiwöchige unbeaufsichtigte Test abgeschlossen ist."
       },
       "notSentAfter": "Laden Sie sie herunter und senden Sie sie selbst.",
+      "heldAfter": "Sie gilt nicht als erledigt: Sie geht von selbst raus, sobald der Versand eingeschaltet ist. Bis dahin können Sie sie herunterladen, selbst senden und dann als von Hand gesendet markieren.",
+      "confirmAfter": "Ihr Ja liegt mehr als {days, plural, one {# Tag} other {# Tage}} zurück, deshalb wird sie nicht von selbst gemailt. „Jetzt senden“ schickt sie so, wie sie ist, oder Sie erstellen eine neue Bestellung.",
       "sendingReal": "Freigegebene Bestellungen werden wirklich an den Lieferanten gemailt.",
-      "sendingFake": "Freigegebene Bestellungen durchlaufen jede Prüfung, werden aber noch nicht gemailt:",
+      "sendingFake": "Freigegebene Bestellungen werden zurückgehalten, nicht gemailt, bis der Versand eingeschaltet ist:",
       "sendNow": "Jetzt senden",
       "sendingNow": "Wird gesendet…",
+      "markByHand": "Als von Hand gesendet markieren",
+      "markingByHand": "Wird gespeichert…",
       "download": "Herunterladen",
       "downloadPdf": "PDF herunterladen",
       "print": "Zum Drucken öffnen",
       "result": {
         "sent": "An den Lieferanten gesendet.",
-        "notSent": "Bereit, nicht gesendet."
+        "notSent": "Bereit, nicht gesendet.",
+        "held": "Zurückgehalten, nicht gesendet.",
+        "byHand": "Als von Hand gesendet markiert. Sie wird nicht gemailt."
       }
     }
   },
@@ -6612,10 +6622,11 @@
       "subject": "Bestellung {number} von {business}",
       "greeting": "Guten Tag {supplier},",
       "intro": "{business} möchte Folgendes bestellen (Bestellung {number}):",
-      "line": "{quantity} × {item}",
+      "line": "{quantity} × {item}, Preis bestätigt der Lieferant",
       "linePriced": "{quantity} × {item} zu {unit} = {total}",
       "total": "Voraussichtliche Summe: {total}",
-      "totalPart": "Voraussichtliche Summe: {total}, dazu {unpriced, plural, one {# Position} other {# Positionen}} ohne Preis",
+      "totalPart": "Voraussichtliche Summe: {total}, dazu {unpriced, plural, one {# Position} other {# Positionen}}, deren Preis der Lieferant bestätigt",
+      "totalNone": "Noch keine Summe: Den Preis für {unpriced, plural, one {# Position} other {# Positionen}} bestätigt der Lieferant",
       "deliverTo": "Lieferung an:",
       "noteHead": "Hinweis:",
       "confirm": "Bitte bestätigen Sie die Bestellung, den Preis und den Liefertermin per Antwort auf diese E-Mail.",
@@ -6625,6 +6636,7 @@
         "title": "Bestellung {number}",
         "prepared": "{business} · erstellt am {day}",
         "statusSent": "Am {day} an den Lieferanten gemailt",
+        "statusSentByHand": "Am {day} an den Lieferanten gesendet",
         "status": {
           "draft": "Wartet auf Freigabe: nicht gesendet",
           "approved": "Freigegeben: noch nicht gesendet",
@@ -6636,6 +6648,7 @@
         "quantity": "Menge",
         "unit": "Stückpreis (voraussichtlich)",
         "lineTotal": "Positionssumme",
+        "toConfirm": "wird bestätigt",
         "foot": "Mit SYB erstellt. SYB ändert, storniert oder bezahlt nie eine Bestellung."
       }
     }

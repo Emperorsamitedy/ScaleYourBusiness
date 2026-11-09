@@ -125,13 +125,16 @@ describe("Shopify — the stock snapshot", () => {
       "stock.on_hand": 40,
       "stock.value_at_price": 40 * 8_900,
       "stock.value_at_cost": 40 * 2_600,
+      // P6-04: both variants cost the same, so that is the product's unit cost.
+      "stock.unit_cost": 2_600,
     });
     expect(of("gid://shopify/Product/3")).toEqual({
       "stock.on_hand": 15,
       "stock.value_at_price": 15 * 600,
     });
-    // Oversold: none on hand, never a negative.
+    // Oversold: none on hand, never a negative — and its unit cost is still known.
     expect(of("gid://shopify/Product/4")["stock.on_hand"]).toBe(0);
+    expect(of("gid://shopify/Product/4")["stock.unit_cost"]).toBe(980);
     for (const o of read.observations) {
       expect(o.period_date).toBe("2026-10-22");
       expect(STOCK_METRICS.has(o.metric_key)).toBe(true);
@@ -183,6 +186,41 @@ describe("Shopify — the stock snapshot", () => {
       "stock.on_hand",
       "stock.value_at_price",
     ]);
+  });
+
+  it("variants that cost differently give a value at cost but no unit cost — never an average (P6-04)", () => {
+    const read = aggregateStock(
+      [
+        {
+          id: "p",
+          title: "Mug",
+          truncated: false,
+          variants: [
+            {
+              quantity: 1,
+              price: "10.00",
+              tracked: true,
+              unitCost: { amount: "3.00", currencyCode: "EUR" },
+            },
+            {
+              quantity: 1,
+              price: "10.00",
+              tracked: true,
+              unitCost: { amount: "5.00", currencyCode: "EUR" },
+            },
+          ],
+        },
+      ],
+      "EUR",
+      "2026-10-22",
+      NOW.toISOString(),
+    );
+    const keys = read.observations.map((o) => o.metric_key);
+    // 800 ÷ 2 = 400 a unit would be an average, not anyone's price.
+    expect(read.observations.find((o) => o.metric_key === "stock.value_at_cost")?.value_minor).toBe(
+      800,
+    );
+    expect(keys).not.toContain("stock.unit_cost");
   });
 });
 
@@ -288,8 +326,8 @@ describe("the sync takes the snapshot", () => {
     const conn = await connect(s.account_id, "shopify", FAKE_SHOPIFY_SECRET);
     const outcome = await syncConnection(conn.id, NOW);
     expect(outcome.ok).toBe(true);
-    // Bowl and mug: on hand, at price, at cost (3 each); the tile: no cost (2).
-    expect(outcome.stock).toEqual({ observations: 8, untracked: 1, cost_unknown: 1 });
+    // Bowl and mug: on hand, at price, at cost and unit cost (4 each); the tile: no cost (2).
+    expect(outcome.stock).toEqual({ observations: 10, untracked: 1, cost_unknown: 1 });
 
     const stock = await db
       .select()

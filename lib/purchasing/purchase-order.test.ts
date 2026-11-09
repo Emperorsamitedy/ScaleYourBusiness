@@ -51,13 +51,19 @@ import { createPurchaseOrderExecutor } from "../execution/providers/purchase-ord
 import { bootstrapIntake } from "../intake/service";
 import { readCurrentField, readFieldHistory, writeField } from "../profile/field-store";
 import type { LimitLlm } from "../proposals/hard-limits";
-import { approveProposal, rejectProposal } from "../proposals/service";
+import { approveProposal, hashProposalPayload, rejectProposal } from "../proposals/service";
+import { PO_NEEDS_CONFIRMING } from "../execution/stale";
 import { shiftDay } from "../stock/assess";
 import type { PurchaseOrder } from "./po";
 import { PO_KIND } from "./po";
 import { PurchaseOrderError, proposePurchaseOrder } from "./propose";
 import { pdfText } from "./pdf-text.test-util";
-import { listPurchaseOrders, poForDocument, sendPurchaseOrderNow } from "./send";
+import {
+  listPurchaseOrders,
+  markPurchaseOrderSentByHand,
+  poForDocument,
+  sendPurchaseOrderNow,
+} from "./send";
 
 const NOW = new Date();
 const TODAY = NOW.toISOString().slice(0, 10);
@@ -148,9 +154,14 @@ const PLATE = "gid://shopify/Product/2";
 /**
  * A stocked shop (the reorder notes' own fixture): a mug selling 3 a day with
  * 12 left, matched to an offer whose clay supplier takes 7 days with a
- * minimum order of 50; a plate with plenty. 120 days measured.
+ * minimum order of 50; a plate with plenty. 120 days measured. The store
+ * reads each product's own unit cost (stock.unit_cost) unless `unitCost` is
+ * false: then it holds only the value at cost, which ÷ on hand would be an
+ * average (decision 4).
  */
-async function shop(opts: { mode?: "instant" | "watching"; address?: boolean } = {}) {
+async function shop(
+  opts: { mode?: "instant" | "watching"; address?: boolean; unitCost?: boolean } = {},
+) {
   const s = await bootstrapIntake();
   created.push(s);
   await answer(s.profile_id, "identity.sells", [{ code: "physical_products" }]);
@@ -226,6 +237,15 @@ async function shop(opts: { mode?: "instant" | "watching"; address?: boolean } =
       value_minor: q * cost,
       observed_at: at,
     });
+    if (opts.unitCost ?? true) {
+      obs.push({
+        metric_key: "stock.unit_cost",
+        period_date: TODAY,
+        dimensions: { ...dims, currency: "EUR" },
+        value_minor: cost,
+        observed_at: at,
+      });
+    }
   };
   snap(MUG, "Blue Mug", 12, 980);
   snap(PLATE, "Dinner Plate", 200, 1_250);
@@ -239,7 +259,13 @@ async function shop(opts: { mode?: "instant" | "watching"; address?: boolean } =
       role: "owner",
     })
     .returning({ id: users.id, email: users.email });
-  return { ...s, supplier_id: sup!.id, owner_id: owner!.id, owner_email: owner!.email };
+  return {
+    ...s,
+    supplier_id: sup!.id,
+    offer_id: offer!.id,
+    owner_id: owner!.id,
+    owner_email: owner!.email,
+  };
 }
 
 const detailOf = (p: typeof proposals.$inferSelect) =>
@@ -309,6 +335,8 @@ describe("P6-04 a reorder suggestion becomes a purchase order proposal", () => {
       quantity: 50,
       suggested: 50,
       unit_cost: { amount_minor: 980, currency: "EUR" },
+      cost_basis: "measured",
+      price_source: "stock.unit_cost",
       line_total: { amount_minor: 49_000, currency: "EUR" },
     });
     expect(d.po.lines[0]!.arithmetic).toMatch(/Midland Clay's minimum order is 50, so 50\.$/);
@@ -317,7 +345,7 @@ describe("P6-04 a reorder suggestion becomes a purchase order proposal", () => {
     expect(d.sending).toContain("Approving emails this order to orders@midland.test");
     expect(row.reversibility).toMatchObject({ level: "hard" });
     expect((row.action as { summary: string }).summary).toBe(
-      "Email purchase order PO-0001 to Midland Clay: 50 × Blue Mug, about €490.00 at cost",
+      "Email purchase order PO-0001 to Midland Clay: 50 × Blue Mug, €490.00 at the prices on file",
     );
     // Its decision-log entry was written with it (rule 12).
     const log = await db
@@ -388,6 +416,81 @@ describe("P6-04 a reorder suggestion becomes a purchase order proposal", () => {
     );
     const rows = await db.select().from(proposals).where(eq(proposals.profile_id, s.profile_id));
     expect(rows).toHaveLength(0);
+  });
+});
+
+describe("P6-04 decision 4 (2026-11-09): a price only from a stated or measured cost", () => {
+  it("value at cost ÷ on hand is an average, not a price: the line is the supplier's to price", async () => {
+    const s = await shop({ unitCost: false });
+    const row = await propose(s);
+    const d = detailOf(row);
+    // Before the decision this line read "at €9.80 = €490.00", from 11 760 ÷ 12.
+    expect(d.po.lines[0]).toMatchObject({
+      unit_cost: null,
+      cost_basis: null,
+      price_source: null,
+      line_total: null,
+    });
+    expect(d.po).toMatchObject({ totals: [], unpriced: 1 });
+    expect((row.action as { summary: string }).summary).toBe(
+      "Email purchase order PO-0001 to Midland Clay: 50 × Blue Mug, prices to be confirmed by the supplier",
+    );
+    const doc = await poForDocument(s.profile_id, row.id);
+    const { poEmail } = await import("./po");
+    const { englishWords } = await import("../i18n/recipient");
+    const mail = poEmail(doc!.po, englishWords("emails.purchaseOrder"));
+    expect(mail.text).toContain("- 50 × Blue Mug, price to be confirmed by the supplier");
+    expect(mail.text).toContain("No total yet: the supplier is to confirm the price of 1 line");
+    expect(mail.text).not.toContain("€9.80");
+  });
+
+  it("the owner's stated cost for the matched product is a price, and says where it came from", async () => {
+    const s = await shop({ unitCost: false });
+    await answer(s.profile_id, `offers.${s.offer_id}.cost_to_deliver`, {
+      amount_minor: 1_015,
+      currency: "EUR",
+    });
+    const line = detailOf(await propose(s)).po.lines[0]!;
+    expect(line).toMatchObject({
+      unit_cost: { amount_minor: 1_015, currency: "EUR" },
+      cost_basis: "stated",
+      price_source: `offers.${s.offer_id}.cost_to_deliver`,
+      line_total: { amount_minor: 50_750, currency: "EUR" },
+    });
+  });
+
+  it("the supplier's own purchase price wins when it supplies just this product; never across several", async () => {
+    const s = await shop();
+    await answer(s.profile_id, `suppliers.${s.supplier_id}.purchase_price`, {
+      amount_minor: 850,
+      currency: "EUR",
+    });
+    const row = await propose(s);
+    expect(detailOf(row).po.lines[0]).toMatchObject({
+      unit_cost: { amount_minor: 850, currency: "EUR" },
+      cost_basis: "supplier",
+      price_source: `suppliers.${s.supplier_id}.purchase_price`,
+    });
+    // Rule 6: the proposal names the fact the price came from.
+    expect((row.scenario as { assumptions: unknown[] }).assumptions).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ source_field: `suppliers.${s.supplier_id}.purchase_price` }),
+      ]),
+    );
+    // A "typical price" for a supplier of two products is no one product's price.
+    await rejectProposal({ proposalId: row.id, userId: s.owner_id, reason: "again" });
+    const [other] = await db
+      .insert(offers)
+      .values({ profile_id: s.profile_id, kind: "physical" })
+      .returning({ id: offers.id });
+    await answer(s.profile_id, `suppliers.${s.supplier_id}.supplies_offers`, [
+      { code: s.offer_id },
+      { code: other!.id },
+    ]);
+    expect(detailOf(await propose(s)).po.lines[0]).toMatchObject({
+      unit_cost: { amount_minor: 980, currency: "EUR" },
+      cost_basis: "measured",
+    });
   });
 });
 
@@ -527,47 +630,213 @@ describe("P6-04 nothing goes out without a recorded approval (rule 12)", () => {
 });
 
 describe("P6-04 approved, the engine runs it", () => {
-  it("while real sending is off: the due runner runs it against the fake sender — journaled, nothing sent, the reasons kept", async () => {
+  it("while real sending is off it is HELD, not done: approved, no run, downloadable — and it goes on the first run after sending is on", async () => {
     const s = await shop();
     const row = await propose(s);
     const approved = await approveProposal({ proposalId: row.id, userId: s.owner_id });
     // execute_on_approval: approving schedules it for now.
     expect(approved.execute_not_before).not.toBeNull();
+    // Sending off (the gate is off in every test unless one turns it on): the env's own sender.
     const due = await runDueExecutions({ profileId: s.profile_id, sleep: async () => {} });
-    expect(due.executed).toBe(1);
-    const [run] = await runsOf(row.id);
-    expect(run).toMatchObject({
-      provider: "purchase_order",
-      op: "send_purchase_order",
-      status: "succeeded",
-    });
-    expect(run!.result).toMatchObject({
-      sent: false,
+    // Before 2026-11-09 this ran the fake sender and marked the order executed, for good.
+    expect(due).toMatchObject({ due: 1, executed: 0, refused: 1 });
+    expect(due.outcomes[0]!.detail).toMatch(/^deferred: Waiting for email to be set up\./);
+    expect(await runsOf(row.id)).toHaveLength(0);
+    const [after] = await db.select().from(proposals).where(eq(proposals.id, row.id));
+    expect(after!.status).toBe("approved");
+    const log = await db
+      .select()
+      .from(decisionLog)
+      .where(and(eq(decisionLog.ref_id, row.id), eq(decisionLog.kind, "execution")));
+    expect(log).toHaveLength(0);
+    // The screen says held, and why; the document stays downloadable as approved.
+    const [view] = await listPurchaseOrders(s.profile_id);
+    expect(view).toMatchObject({
       number: "PO-0001",
-      to_domain: "midland.test",
+      status: "approved",
+      sent: null,
+      needs_confirming: false,
+      approved_on: TODAY,
     });
-    expect((run!.result as { not_sent: string[] }).not_sent).toContain("real_writes_off");
-    // P6-09: the fake sender records the one PDF the email would have carried.
-    const attachments = (run!.result as { attachments: { filename: string; bytes: number }[] })
-      .attachments;
-    expect(attachments).toHaveLength(1);
-    expect(attachments[0]!.filename).toBe("PO-0001.pdf");
-    expect(attachments[0]!.bytes).toBeGreaterThan(1_000);
+    expect(view!.held).toContain("real_writes_off");
+    expect((await poForDocument(s.profile_id, row.id))?.status).toEqual({ kind: "approved" });
+    // The owner's Send now says the same, and records nothing.
+    const now = await sendPurchaseOrderNow({
+      profileId: s.profile_id,
+      proposalId: row.id,
+      userId: s.owner_id,
+    });
+    expect(now.result).toBe("held");
+    expect(now.reasons).toContain("real_writes_off");
+    expect(await runsOf(row.id)).toHaveLength(0);
+    // Another business never gets this order as a document (the PDF route's gate).
+    const other = await bootstrapIntake();
+    expect(await poForDocument(other.profile_id, row.id)).toBeNull();
+
+    // Sending switched on: the next due run sends it, once.
+    const { provider, calls } = realProvider(ok);
+    const next = await runDueExecutions({
+      profileId: s.profile_id,
+      sleep: async () => {},
+      providers: { purchase_order: provider },
+    });
+    expect(next).toMatchObject({ due: 1, executed: 1 });
+    expect(calls).toHaveLength(1);
+    const [run] = await runsOf(row.id);
+    expect(run).toMatchObject({ status: "succeeded" });
+    expect(run!.result).toMatchObject({ sent: true, number: "PO-0001" });
+    const again = await runDueExecutions({
+      profileId: s.profile_id,
+      sleep: async () => {},
+      providers: { purchase_order: provider },
+    });
+    expect(again.due).toBe(0);
+    expect(calls).toHaveLength(1);
+  });
+
+  it("held more than 14 days after its approval, it isn't emailed on its own; Send now records the yes again and sends it", async () => {
+    const s = await shop();
+    const row = await propose(s);
+    // Approved fifteen days ago (the queue's own entry, dated then), held ever since.
+    const then = new Date(NOW.getTime() - 15 * 86_400_000).toISOString();
+    await db
+      .update(proposals)
+      .set({
+        status: "approved",
+        decided_by: s.owner_id,
+        decided_at: then,
+        execute_not_before: then,
+      })
+      .where(eq(proposals.id, row.id));
+    await db.insert(decisionLog).values({
+      profile_id: s.profile_id,
+      actor: "owner",
+      kind: "approval",
+      user_id: s.owner_id,
+      ref_id: row.id,
+      at: then,
+      payload_hash: hashProposalPayload("approval", {
+        proposal_id: row.id,
+        profile_id: s.profile_id,
+        status: "approved",
+        decided_by: s.owner_id,
+        rejection_reason: null,
+      }),
+    });
+    const { provider, calls } = realProvider(ok);
+    const due = await runDueExecutions({
+      profileId: s.profile_id,
+      sleep: async () => {},
+      providers: { purchase_order: provider },
+    });
+    // Before the decision, the first run after sending was on emailed it however old.
+    expect(due).toMatchObject({ due: 1, executed: 0, refused: 1 });
+    expect(due.outcomes[0]!.detail).toContain(PO_NEEDS_CONFIRMING);
+    expect(calls).toHaveLength(0);
+    expect(await runsOf(row.id)).toHaveLength(0);
+    const [still] = await db.select().from(proposals).where(eq(proposals.id, row.id));
+    expect(still!.status).toBe("approved");
+    const [view] = await listPurchaseOrders(s.profile_id);
+    expect(view).toMatchObject({ status: "approved", needs_confirming: true });
+
+    // The owner presses Send now: a second approval entry in their name, then the email.
+    const out = await sendPurchaseOrderNow({
+      profileId: s.profile_id,
+      proposalId: row.id,
+      userId: s.owner_id,
+      provider,
+    });
+    expect(out.result).toBe("sent");
+    expect(calls).toHaveLength(1);
+    const yeses = await db
+      .select()
+      .from(decisionLog)
+      .where(and(eq(decisionLog.ref_id, row.id), eq(decisionLog.kind, "approval")));
+    expect(yeses).toHaveLength(2);
+    expect(yeses.every((y) => y.user_id === s.owner_id)).toBe(true);
+  });
+
+  it("an old one pressed while sending is still off stays held, and no yes is recorded", async () => {
+    const s = await shop();
+    const row = await propose(s);
+    await approveProposal({ proposalId: row.id, userId: s.owner_id });
+    const out = await sendPurchaseOrderNow({
+      profileId: s.profile_id,
+      proposalId: row.id,
+      userId: s.owner_id,
+      now: () => new Date(NOW.getTime() + 20 * 86_400_000),
+    });
+    expect(out.result).toBe("held");
+    const yeses = await db
+      .select()
+      .from(decisionLog)
+      .where(and(eq(decisionLog.ref_id, row.id), eq(decisionLog.kind, "approval")));
+    expect(yeses).toHaveLength(1);
+  });
+
+  it("marked as sent by hand: recorded in the owner's name, and never emailed after", async () => {
+    const s = await shop();
+    const row = await propose(s);
+    await approveProposal({ proposalId: row.id, userId: s.owner_id });
+    await markPurchaseOrderSentByHand({
+      profileId: s.profile_id,
+      accountId: s.account_id,
+      proposalId: row.id,
+      userId: s.owner_id,
+    });
     const [after] = await db.select().from(proposals).where(eq(proposals.id, row.id));
     expect(after!.status).toBe("executed");
+    expect(after!.execution_result).toMatchObject({
+      kind: "sent_by_hand",
+      stated_by: s.owner_id,
+      source: "owner_input",
+    });
     const log = await db
       .select()
       .from(decisionLog)
       .where(and(eq(decisionLog.ref_id, row.id), eq(decisionLog.kind, "execution")));
     expect(log).toHaveLength(1);
-    // The screen reads "ready, not sent", with why.
+    expect(log[0]).toMatchObject({ actor: "owner", user_id: s.owner_id });
+    // Sending switched on later: nothing goes out.
+    const { provider, calls } = realProvider(ok);
+    const due = await runDueExecutions({
+      profileId: s.profile_id,
+      sleep: async () => {},
+      providers: { purchase_order: provider },
+    });
+    expect(due.due).toBe(0);
+    const out = await sendPurchaseOrderNow({
+      profileId: s.profile_id,
+      proposalId: row.id,
+      provider,
+    });
+    expect(out.result).toBe("refused");
+    expect(calls).toHaveLength(0);
+    expect(await runsOf(row.id)).toHaveLength(0);
     const [view] = await listPurchaseOrders(s.profile_id);
-    expect(view).toMatchObject({ number: "PO-0001", status: "executed", sent: false });
-    expect(view!.not_sent).toContain("real_writes_off");
-    expect((await poForDocument(s.profile_id, row.id))?.status).toEqual({ kind: "not_sent" });
-    // Another business never gets this order as a document (the PDF route's gate).
-    const other = await bootstrapIntake();
-    expect(await poForDocument(other.profile_id, row.id)).toBeNull();
+    expect(view).toMatchObject({ status: "executed", by_hand_on: TODAY, held: [] });
+    expect((await poForDocument(s.profile_id, row.id))?.status).toEqual({
+      kind: "sent_by_hand",
+      on: TODAY,
+    });
+    // Only once, and only an approved order.
+    await expect(
+      markPurchaseOrderSentByHand({
+        profileId: s.profile_id,
+        accountId: s.account_id,
+        proposalId: row.id,
+        userId: s.owner_id,
+      }),
+    ).rejects.toMatchObject({ status: 409 });
+    const pending = await propose(s, { email: "orders@midland.test" });
+    await expect(
+      markPurchaseOrderSentByHand({
+        profileId: s.profile_id,
+        accountId: s.account_id,
+        proposalId: pending.id,
+        userId: s.owner_id,
+      }),
+    ).rejects.toMatchObject({ status: 409 });
   });
 
   it("for real: one POST to the email service, to the supplier as approved, replies to the approver — exactly once", async () => {

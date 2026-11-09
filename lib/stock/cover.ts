@@ -461,6 +461,8 @@ export interface SupplierInfo {
   moq: number | null;
   /** The offers the owner said this supplier supplies. */
   offer_ids: readonly string[];
+  /** "Typical purchase price" (1.4.1.3), as answered: a stated price, when the owner gave one. */
+  purchase_price?: Money | null;
 }
 
 export interface LeadTime {

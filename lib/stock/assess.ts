@@ -19,6 +19,7 @@
 // L-4b: the reason (`why`) is the "stockWords" catalogue through optional
 // words, English by default (./words) — what is stored stays English.
 
+import type { Money } from "../core/money";
 import type { Words } from "./words";
 import { dayCount, dec2, englishStock, int } from "./words";
 
@@ -78,6 +79,17 @@ export interface StockItem {
    * owner's own cost for the matched offer ("stated"), or nowhere (null).
    */
   cost_basis: "measured" | "stated" | null;
+  /**
+   * P6-04 decision 4: ONE unit's cost as it was measured (the store's or
+   * the file's own unit cost, `stock.unit_cost`) or stated (the matched
+   * offer's cost_to_deliver), with the fact or measure it came from — never
+   * value at cost ÷ on hand, which is an average. Absent or null: none.
+   */
+  unit_cost?: {
+    money: Money;
+    basis: "measured" | "stated";
+    source: string;
+  } | null;
   /** The matched offer, when the owner matched this product to one. */
   offer_id: string | null;
   sales: SeriesSales | FileSales;

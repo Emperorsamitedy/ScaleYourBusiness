@@ -17,8 +17,12 @@
 //                                                     the reorder suggestions, as a PROPOSAL; the
 //                                                     supplier's email is recorded as a stated fact
 //   POST /api/stock {action:"po_send", id}            an APPROVED order, through the engine: emailed
-//                                                     for real, or run against the fake sender with
-//                                                     the reasons it wasn't (lib/purchasing/send)
+//                                                     for real, or HELD while sending is off (stays
+//                                                     approved, the reasons said); on an order held
+//                                                     past 14 days it records the presser's yes again
+//                                                     (lib/purchasing/send)
+//   POST /api/stock {action:"po_sent_by_hand", id}    the owner sent an approved order themselves:
+//                                                     recorded, and never emailed after
 //   GET  /api/stock/po/:id                            the order as a document to download or print
 //
 // Reading needs the intake cookie; importing and proposing need a signed-in
@@ -74,6 +78,7 @@ import {
   PurchaseOrderSendError,
   currentSending,
   listPurchaseOrders,
+  markPurchaseOrderSentByHand,
   sendPurchaseOrderNow,
 } from "../../../lib/purchasing/send";
 
@@ -483,6 +488,7 @@ const STOCK_ROLE: Record<string, RoleAction> = {
   reorder: "proposals.generate",
   purchase_order: "proposals.generate",
   po_send: "proposals.decide",
+  po_sent_by_hand: "proposals.decide",
 };
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
@@ -566,8 +572,25 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       const outcome = await sendPurchaseOrderNow({
         profileId: access.profile_id,
         proposalId: body.id,
+        userId: access.session?.user_id ?? null,
       });
       return NextResponse.json(outcome);
+    }
+    if (body.action === "po_sent_by_hand") {
+      if (typeof body.id !== "string") {
+        return NextResponse.json({ error: "id is required" }, { status: 422 });
+      }
+      const session = access.session;
+      if (!session) {
+        return NextResponse.json({ error: "this needs you signed in" }, { status: 401 });
+      }
+      await markPurchaseOrderSentByHand({
+        profileId: access.profile_id,
+        accountId: access.account_id,
+        proposalId: body.id,
+        userId: session.user_id,
+      });
+      return NextResponse.json({ result: "sent_by_hand" });
     }
     if (body.action === "propose") {
       const run = await proposeClearance(access.profile_id);

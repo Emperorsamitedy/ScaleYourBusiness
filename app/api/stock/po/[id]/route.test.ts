@@ -27,6 +27,7 @@ const lines = [
       arithmetic: "x",
       unit_cost: { amount_minor: 980, currency: "EUR" },
       cost_basis: "measured",
+      price_source: "stock.unit_cost",
     },
     null,
   ),
