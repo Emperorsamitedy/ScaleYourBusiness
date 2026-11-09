@@ -12,6 +12,7 @@
 import { eq } from "drizzle-orm";
 import { db } from "../../db";
 import { suppliers } from "../../db/schema";
+import type { Money } from "../core/money";
 import { readCurrentField } from "../profile/field-store";
 import type { SeasonWords } from "../seasons/forecast";
 import { loadSeasons, seasonsInWords } from "../seasons/load";
@@ -61,9 +62,23 @@ export async function loadSuppliers(
             )
             .filter((c): c is string => typeof c === "string")
         : [],
+      purchase_price: moneyOf(await read("purchase_price")),
     });
   }
   return out;
+}
+
+/** A stated Money answer (rule 1), or null: never a bare number. */
+function moneyOf(v: unknown): Money | null {
+  const m = v as { amount_minor?: unknown; currency?: unknown } | null;
+  return m &&
+    typeof m === "object" &&
+    Number.isSafeInteger(m.amount_minor) &&
+    (m.amount_minor as number) >= 0 &&
+    typeof m.currency === "string" &&
+    /^[A-Z]{3}$/.test(m.currency)
+    ? { amount_minor: m.amount_minor as number, currency: m.currency }
+    : null;
 }
 
 export interface CoverRow {

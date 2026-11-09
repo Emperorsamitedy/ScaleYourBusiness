@@ -4480,6 +4480,7 @@
       "emailAsk": "Aún no está registrado. En cuanto lo indiques, se guarda con el proveedor.",
       "address": "Entregar en",
       "addressOnFile": "Tu dirección postal registrada. Cámbiala aquí para este pedido.",
+      "toConfirm": "a confirmar por el proveedor",
       "note": "Nota para el proveedor (opcional)",
       "col": {
         "order": "Pedir",
@@ -4508,6 +4509,9 @@
         "executed": "hecho",
         "sent": "enviado el {day}",
         "notSent": "listo, no enviado",
+        "held": "aprobado, retenido hasta que el correo esté configurado",
+        "needsConfirming": "aprobado el {day}, espera de nuevo tu sí",
+        "byHand": "enviado por ti el {day}",
         "failed": "no salió"
       },
       "why": {
@@ -4515,16 +4519,22 @@
         "real_writes_off": "El envío real está desactivado hasta que termine la prueba de dos semanas sin supervisión."
       },
       "notSentAfter": "Descárgalo y envíalo tú.",
+      "heldAfter": "No se da por hecho: sale solo en cuanto el envío esté activado. Mientras tanto puedes descargarlo, enviarlo tú y marcarlo como enviado a mano.",
+      "confirmAfter": "Dijiste que sí hace más de {days, plural, one {# día} many {# días} other {# días}}, así que no se envía solo. «Enviar ahora» lo envía tal como está, o haz un pedido nuevo.",
       "sendingReal": "Los pedidos aprobados se envían de verdad por correo al proveedor.",
-      "sendingFake": "Los pedidos aprobados pasan todas las comprobaciones, pero aún no se envían por correo:",
+      "sendingFake": "Los pedidos aprobados quedan retenidos, sin enviarse por correo, hasta que se active el envío:",
       "sendNow": "Enviar ahora",
       "sendingNow": "Enviando…",
+      "markByHand": "Marcar como enviado a mano",
+      "markingByHand": "Guardando…",
       "download": "Descargar",
       "downloadPdf": "Descargar PDF",
       "print": "Abrir para imprimir",
       "result": {
         "sent": "Enviado al proveedor.",
-        "notSent": "Listo, no enviado."
+        "notSent": "Listo, no enviado.",
+        "held": "Retenido, no enviado.",
+        "byHand": "Marcado como enviado a mano. No se enviará por correo."
       }
     }
   },
@@ -6621,10 +6631,11 @@
       "subject": "Pedido de compra {number} de {business}",
       "greeting": "Hola, {supplier}:",
       "intro": "{business} quiere pedir lo siguiente (pedido de compra {number}):",
-      "line": "{quantity} × {item}",
+      "line": "{quantity} × {item}, precio a confirmar por el proveedor",
       "linePriced": "{quantity} × {item} a {unit} = {total}",
       "total": "Total previsto: {total}",
-      "totalPart": "Total previsto: {total}, más {unpriced, plural, one {# línea} many {# líneas} other {# líneas}} sin precio",
+      "totalPart": "Total previsto: {total}, más {unpriced, plural, one {# línea} many {# líneas} other {# líneas}} con el precio a confirmar por el proveedor",
+      "totalNone": "Aún sin total: el proveedor confirmará el precio de {unpriced, plural, one {# línea} many {# líneas} other {# líneas}}",
       "deliverTo": "Entregar en:",
       "noteHead": "Nota:",
       "confirm": "Por favor, confirme el pedido, su precio y la fecha de entrega respondiendo a este correo.",
@@ -6634,6 +6645,7 @@
         "title": "Pedido de compra {number}",
         "prepared": "{business} · preparado el {day}",
         "statusSent": "Enviado por correo al proveedor el {day}",
+        "statusSentByHand": "Enviado al proveedor el {day}",
         "status": {
           "draft": "Pendiente de aprobación: no enviado",
           "approved": "Aprobado: aún no enviado",
@@ -6645,6 +6657,7 @@
         "quantity": "Cantidad",
         "unit": "Precio unitario (previsto)",
         "lineTotal": "Total de la línea",
+        "toConfirm": "a confirmar",
         "foot": "Preparado con SYB. SYB nunca modifica, cancela ni paga un pedido."
       }
     }

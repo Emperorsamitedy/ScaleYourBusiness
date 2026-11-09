@@ -876,11 +876,22 @@ export function parseStockProduct(value: unknown): ShopifyStockProduct {
   return { id: p.id, title: p.title, variants, truncated: v.pageInfo?.hasNextPage === true };
 }
 
+/** Pure: a variant's own unit cost in minor units of the shop's currency, or null (none, another currency, unreadable). */
+function unitMinor(v: ShopifyStockProduct["variants"][number], code: string): number | null {
+  if (!v.unitCost || v.unitCost.currencyCode.toUpperCase() !== code) return null;
+  try {
+    return decimalToMinor(v.unitCost.amount, code);
+  } catch {
+    return null;
+  }
+}
+
 /**
  * Pure: one snapshot day's observations from the store's products. Per
  * product: units on hand (tracked variants, an oversold negative counting
  * as none), their value at price, and at cost when every stocked variant
- * has a cost in the shop's currency.
+ * has a cost in the shop's currency; and the unit cost itself when every
+ * tracked variant has the same one (P6-04: a purchase order's price).
  */
 export function aggregateStock(
   products: readonly ShopifyStockProduct[],
@@ -901,11 +912,17 @@ export function aggregateStock(
     let onHand = 0;
     let atPrice = 0;
     let atCost: number | null = 0;
+    // P6-04 decision 4: the one unit cost every tracked variant shares, sold
+    // out or not; undefined until a variant is seen, null once two differ or
+    // one has none. Never an average.
+    let unit: number | null | undefined;
     try {
       for (const v of tracked) {
         const q = Math.max(0, v.quantity ?? 0);
         onHand += q;
         atPrice += q * decimalToMinor(v.price, code);
+        const own = unitMinor(v, code);
+        unit = unit === undefined || unit === own ? own : null;
         if (q === 0 || atCost === null) continue;
         atCost =
           v.unitCost && v.unitCost.currencyCode.toUpperCase() === code
@@ -941,6 +958,15 @@ export function aggregateStock(
         period_date: day,
         dimensions: { ...dims, currency: code },
         value_minor: atCost,
+        observed_at: observedAt,
+      });
+    }
+    if (typeof unit === "number") {
+      out.push({
+        metric_key: "stock.unit_cost",
+        period_date: day,
+        dimensions: { ...dims, currency: code },
+        value_minor: unit,
         observed_at: observedAt,
       });
     }

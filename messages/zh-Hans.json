@@ -4480,6 +4480,7 @@
       "emailAsk": "尚未存档。您填写后，会保存在该供应商名下。",
       "address": "送货地址",
       "addressOnFile": "您存档的邮寄地址。可在此为本订单修改。",
+      "toConfirm": "价格待供应商确认",
       "note": "给供应商的备注（可选）",
       "col": {
         "order": "订购",
@@ -4508,6 +4509,9 @@
         "executed": "已完成",
         "sent": "已于 {day} 发送",
         "notSent": "已就绪，未发送",
+        "held": "已批准，暂缓发送，等待邮件设置完成",
+        "needsConfirming": "已于 {day} 批准，需要您再次确认",
+        "byHand": "已由您于 {day} 发送",
         "failed": "未能发出"
       },
       "why": {
@@ -4515,16 +4519,22 @@
         "real_writes_off": "在两周无人值守测试完成之前，真实发送处于关闭状态。"
       },
       "notSentAfter": "请下载后自行发送。",
+      "heldAfter": "它不会被标记为已完成：发送开启后会自动发出。在此期间，您可以下载后自行发送，然后标记为已手动发送。",
+      "confirmAfter": "您的确认已超过 {days} 天，所以不会自动通过邮件发出。“立即发送”会按原样发送，您也可以新建一份订单。",
       "sendingReal": "批准后的订单会真正通过邮件发给供应商。",
-      "sendingFake": "批准后的订单会经过每一项检查，但暂时不会通过邮件发送：",
+      "sendingFake": "批准后的订单会暂缓，不通过邮件发送，直到发送功能开启：",
       "sendNow": "立即发送",
       "sendingNow": "正在发送…",
+      "markByHand": "标记为已手动发送",
+      "markingByHand": "正在保存…",
       "download": "下载",
       "downloadPdf": "下载 PDF",
       "print": "打开以打印",
       "result": {
         "sent": "已发给供应商。",
-        "notSent": "已就绪，未发送。"
+        "notSent": "已就绪，未发送。",
+        "held": "已暂缓，未发送。",
+        "byHand": "已标记为手动发送。不会再通过邮件发送。"
       }
     }
   },
@@ -6621,10 +6631,11 @@
       "subject": "{business} 的采购订单 {number}",
       "greeting": "{supplier}，您好：",
       "intro": "{business} 希望订购以下商品（采购订单 {number}）：",
-      "line": "{quantity} × {item}",
+      "line": "{quantity} × {item}，价格待供应商确认",
       "linePriced": "{quantity} × {item}，单价 {unit} = {total}",
       "total": "预计总额：{total}",
-      "totalPart": "预计总额：{total}，另有 {unpriced} 行没有价格",
+      "totalPart": "预计总额：{total}，另有 {unpriced} 行的价格待供应商确认",
+      "totalNone": "暂无总额：{unpriced} 行的价格待供应商确认",
       "deliverTo": "送货地址：",
       "noteHead": "备注：",
       "confirm": "请回复此邮件，确认订单、价格和交货日期。",
@@ -6634,6 +6645,7 @@
         "title": "采购订单 {number}",
         "prepared": "{business} · 准备于 {day}",
         "statusSent": "已于 {day} 通过邮件发给供应商",
+        "statusSentByHand": "已于 {day} 发给供应商",
         "status": {
           "draft": "等待批准：未发送",
           "approved": "已批准：尚未发送",
@@ -6645,6 +6657,7 @@
         "quantity": "数量",
         "unit": "单价（预计）",
         "lineTotal": "小计",
+        "toConfirm": "待确认",
         "foot": "由 SYB 准备。SYB 从不修改、取消或支付订单。"
       }
     }

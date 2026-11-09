@@ -39,6 +39,7 @@ const MUG: SuggestedLine = {
   arithmetic: "3.0 a day over 7 days = 21, + 5 safety margin = 26; minimum order 50, so 50.",
   unit_cost: { amount_minor: 980, currency: "EUR" },
   cost_basis: "measured",
+  price_source: "stock.unit_cost",
 };
 const PLATE: SuggestedLine = {
   key: "conn-1:2",
@@ -47,6 +48,7 @@ const PLATE: SuggestedLine = {
   arithmetic: "1.0 a day over 7 days = 7, + 3 safety margin = 10.",
   unit_cost: null,
   cost_basis: null,
+  price_source: null,
 };
 
 function order(lines = [poLine(MUG, null), poLine(PLATE, 12)], over: Partial<PurchaseOrder> = {}) {
@@ -88,13 +90,15 @@ describe("the PDF carries the order", () => {
     expect(text).toContain("Approved: not sent yet");
     expect(text).toContain("Midland Clay\norders@midland.test");
     expect(text).toContain("Unit 4, Mill Lane\nStroud GL5 1AA");
-    // Every line: item, quantity, unit price and line total — the unpriced one with dashes.
+    // Every line: item, quantity, unit price and line total — the unpriced one for the supplier to price.
     expect(read.runs).toEqual(
       expect.arrayContaining(["Speckled Everyday Mug", "50", "€9.80", "€490.00"]),
     );
-    expect(text).toContain("Dinner Plate\n12\n—\n—");
-    // The total, with the line that has no price stated.
-    expect(text).toContain("Expected total: €490.00, plus 1 line without a price");
+    expect(text).toContain("Dinner Plate\n12\nto be confirmed\n—");
+    // The total, with the line that has no price stated or measured (wrapped across two lines).
+    expect(text.replace(/\n/g, " ")).toContain(
+      "Expected total: €490.00, plus 1 line with the price to be confirmed by the supplier",
+    );
     expect(text).toContain("Please ring before delivery.");
     expect(text).toContain("Prepared with SYB. SYB never changes, cancels or pays an order.");
     expect(text).toContain("PO-0007 · 1/1");
@@ -114,10 +118,11 @@ describe("the PDF carries the order", () => {
     );
   });
 
-  it("leaves out the total and the note when there are none", async () => {
+  it("with no price, says the supplier confirms it (no total), and leaves out a missing note", async () => {
     const po = order([poLine(PLATE, null)], { note: null });
     const text = await joined(await renderPurchaseOrderPdf(po, en));
     expect(text).not.toContain("Expected total");
+    expect(text).toContain("No total yet: the supplier is to confirm the price of 1 line");
     expect(text).not.toContain("NOTE:");
     expect(text).toContain("Dinner Plate\n10");
   });

@@ -169,6 +169,7 @@ export async function loadStock(
             "stock.on_hand",
             "stock.value_at_cost",
             "stock.value_at_price",
+            "stock.unit_cost",
             "stock.units_sold_window",
             "stock.days_since_sale",
           ]),
@@ -244,6 +245,23 @@ export async function loadStock(
         valueAtCost = onHand * offer.cost.amount_minor;
         basis = "stated";
       }
+      // P6-04 decision 4: a unit cost as it was measured or stated — never
+      // value at cost ÷ on hand, which is an average across variants.
+      const unitRow = obs.find((o) => o.metric_key === "stock.unit_cost");
+      const unitCost: StockItem["unit_cost"] =
+        unitRow?.value_minor != null && unitRow.currency !== null
+          ? {
+              money: { amount_minor: unitRow.value_minor, currency: unitRow.currency },
+              basis: "measured",
+              source: "stock.unit_cost",
+            }
+          : offer?.cost
+            ? {
+                money: offer.cost,
+                basis: "stated",
+                source: `offers.${offer.id}.cost_to_deliver`,
+              }
+            : null;
       const windowRow = obs.find((o) => o.metric_key === "stock.units_sold_window");
       const sinceRow = obs.find((o) => o.metric_key === "stock.days_since_sale");
       items.push({
@@ -257,6 +275,7 @@ export async function loadStock(
         value_at_price: priceRow?.value_minor ?? null,
         currency,
         cost_basis: basis,
+        unit_cost: unitCost,
         offer_id: offer?.id ?? null,
         sales:
           c.purpose === "measure"

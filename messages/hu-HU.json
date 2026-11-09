@@ -4480,6 +4480,7 @@
       "emailAsk": "Még nincs rögzítve. Ha megadja, a beszállítónál megőrizzük.",
       "address": "Szállítási cím",
       "addressOnFile": "A rögzített postai címe. Ehhez a rendeléshez itt módosíthatja.",
+      "toConfirm": "az árat a beszállító erősíti meg",
       "note": "Megjegyzés a beszállítónak (nem kötelező)",
       "col": {
         "order": "Rendelés",
@@ -4508,6 +4509,9 @@
         "executed": "kész",
         "sent": "elküldve: {day}",
         "notSent": "kész, nincs elküldve",
+        "held": "jóváhagyva, visszatartva, amíg az e-mail-küldés be nincs állítva",
+        "needsConfirming": "jóváhagyva: {day}, újra az igenjére vár",
+        "byHand": "Ön küldte el: {day}",
         "failed": "nem ment ki"
       },
       "why": {
@@ -4515,16 +4519,22 @@
         "real_writes_off": "A valódi küldés ki van kapcsolva, amíg a kéthetes felügyelet nélküli teszt be nem fejeződik."
       },
       "notSentAfter": "Töltse le, és küldje el maga.",
+      "heldAfter": "Nincs késznek jelölve: magától kimegy, amint a küldés be van kapcsolva. Addig letöltheti, elküldheti maga, majd megjelölheti kézzel elküldöttként.",
+      "confirmAfter": "Az igenje több mint {days, plural, one {# napja} other {# napja}} volt, ezért magától nem megy ki e-mailben. A „Küldés most” így, ahogy van, elküldi, vagy készítsen új megrendelést.",
       "sendingReal": "A jóváhagyott megrendelések valóban kimennek e-mailben a beszállítónak.",
-      "sendingFake": "A jóváhagyott megrendelések minden ellenőrzésen átmennek, de e-mailben még nem mennek ki:",
+      "sendingFake": "A jóváhagyott megrendelések visszatartva várnak, e-mailben nem mennek ki, amíg a küldés be nincs kapcsolva:",
       "sendNow": "Küldés most",
       "sendingNow": "Küldés…",
+      "markByHand": "Megjelölés kézzel elküldöttként",
+      "markingByHand": "Mentés…",
       "download": "Letöltés",
       "downloadPdf": "PDF letöltése",
       "print": "Megnyitás nyomtatáshoz",
       "result": {
         "sent": "Elküldve a beszállítónak.",
-        "notSent": "Kész, nincs elküldve."
+        "notSent": "Kész, nincs elküldve.",
+        "held": "Visszatartva, nincs elküldve.",
+        "byHand": "Kézzel elküldöttként megjelölve. E-mailben nem megy ki."
       }
     }
   },
@@ -6621,10 +6631,11 @@
       "subject": "{number} számú megrendelés – {business}",
       "greeting": "Kedves {supplier}!",
       "intro": "{business} a következőket szeretné megrendelni ({number} számú megrendelés):",
-      "line": "{quantity} × {item}",
+      "line": "{quantity} × {item}, az árat a beszállító erősíti meg",
       "linePriced": "{quantity} × {item}, {unit} áron = {total}",
       "total": "Várható végösszeg: {total}",
-      "totalPart": "Várható végösszeg: {total}, plusz {unpriced, plural, one {# tétel} other {# tétel}} ár nélkül",
+      "totalPart": "Várható végösszeg: {total}, plusz {unpriced, plural, one {# tétel} other {# tétel}}, amelynek árát a beszállító erősíti meg",
+      "totalNone": "Még nincs végösszeg: {unpriced, plural, one {# tétel} other {# tétel}} árát a beszállító erősíti meg",
       "deliverTo": "Szállítási cím:",
       "noteHead": "Megjegyzés:",
       "confirm": "Kérjük, erre az e-mailre válaszolva erősítse meg a rendelést, az árat és a szállítás napját.",
@@ -6634,6 +6645,7 @@
         "title": "{number} számú megrendelés",
         "prepared": "{business} · készült: {day}",
         "statusSent": "E-mailben elküldve a beszállítónak: {day}",
+        "statusSentByHand": "Elküldve a beszállítónak: {day}",
         "status": {
           "draft": "Jóváhagyásra vár: nincs elküldve",
           "approved": "Jóváhagyva: még nincs elküldve",
@@ -6645,6 +6657,7 @@
         "quantity": "Mennyiség",
         "unit": "Egységár (várható)",
         "lineTotal": "Tétel összesen",
+        "toConfirm": "megerősítésre vár",
         "foot": "A SYB-vel készült. A SYB soha nem módosít, nem mond le és nem fizet ki megrendelést."
       }
     }

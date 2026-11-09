@@ -272,6 +272,13 @@ export function stockFileObservations(
         value_minor: onHand * cost,
         ...at,
       });
+      // The file's own unit cost, kept as it is: a purchase order's price (P6-04).
+      out.push({
+        metric_key: "stock.unit_cost",
+        dimensions: { ...dims, currency },
+        value_minor: cost,
+        ...at,
+      });
     }
     const price = money("price");
     if (price !== null) {
