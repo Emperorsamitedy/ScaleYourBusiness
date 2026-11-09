@@ -967,10 +967,14 @@
         "titleNone": "Minden kampány visszahozza a költségét",
         "titleLosing": "{count, plural, one {# kampány többe kerül, mint amennyit visszahoz} other {# kampány többe kerül, mint amennyit visszahoz}}",
         "window": "Meta Ads · {from}–{to}",
+        "windowPlatforms": "{platforms} · {from}–{to}",
         "derivedFrom": "<word>{derived}</word> a Meta saját hozzárendeléséből",
+        "derivedFromPlatforms": "<word>{derived}</word> minden platform saját hozzárendeléséből",
         "foot": "Megtérülés = a vásárlási érték, amelyet a Meta a kampánynak tulajdonít ÷ a költése. {even} alatt a Meta saját számítása szerint is pénzt veszít — ennél a határnál javaslok szüneteltetést.",
+        "footPlatforms": "Megtérülés = az érték, amelyet a platform a kampánynak tulajdonít ÷ a költése. {even} alatt az adott platform saját számítása szerint is pénzt veszít — ennél a határnál javaslok szüneteltetést.",
         "keySpent": "költés: üres",
         "keyBack": "a Meta szerint visszahozott: kitöltött",
+        "keyBackPlatforms": "a platform szerint visszahozott: kitöltött",
         "colCampaign": "Kampány",
         "colSpentBack": "Költés és visszahozott érték",
         "colReturn": "Megtérülés",
@@ -7270,17 +7274,22 @@
         "typedNeeds": "a napi költségkeret, amelyre gondol",
         "newSpendFormula": "napi {daily} × {days} nap",
         "dailySource": "Meta: {spend} az utolsó {window} nap {count, plural, one {# mért napján} other {# mért napján}}",
+        "dailySourceOn": "{platform}: {spend} az utolsó {window} nap {count, plural, one {# mért napján} other {# mért napján}}",
         "noSpend": "az utolsó négy hétben nincs mért költés",
         "dailyNeeds": "néhány hétnyi futás ennél a kampánynál",
         "pauseFormula": "napi {daily} el nem költve × {days} nap",
         "changeFormula": "napi {daily} × {change} × {days} nap",
         "roasSource": "{which, select, pooled {a Meta által hozzárendelt vásárlások ÷ költés, gördülő {block} napos hetekben az utolsó {window} napban, a mért kampányai összesítve, középső fele ({count, plural, one {# hét} other {# hét}})} other {a Meta által hozzárendelt vásárlások ÷ költés, gördülő {block} napos hetekben az utolsó {window} napban, középső fele ({count, plural, one {# hét} other {# hét}})}}",
+        "roasSourceOn": "a {platform} által hozzárendelt érték ÷ költés, gördülő {block} napos hetekben az utolsó {window} napban, középső fele ({count, plural, one {# hét} other {# hét}})",
         "roasNonePooled": "egyik kampányának sincs {days} mért napja {currency} pénznemben",
         "roasNone": "{count, plural, one {# mért nap} other {# mért nap}} — ennyi kell: {need}",
         "roasNeeds": "{which, select, pooled {egy kampány {days} mért napja} other {ennek a kampánynak {days} mért napja}}",
         "reachNotRead": "a Meta kampányonkénti elérését nem olvasom be",
+        "reachNotReadOn": "a {platform} kampányonkénti elérését nem olvasom be",
         "ordersNotRead": "a Meta jelentései kampányonként vásárlási értéket adnak meg, nem darabszámot",
+        "ordersNotReadOn": "a {platform} jelentései kampányonként hozzárendelt értéket adnak meg, nem darabszámot",
         "revenueFormula": "{spend} × {roas} megtérülés (a Meta hozzárendelése)",
+        "revenueFormulaOn": "{spend} × {roas} megtérülés (a {platform} hozzárendelése)",
         "worstFormula": "{spend} × {roas} megtérülés × {margin} − {spend}",
         "worstWeakest": "Minden hét annyit hoz, mint a leggyengébb mért hete ({roas}): {amount} {days} nap alatt.",
         "worstBest": "Azok a hetek, amelyeket leállítana, olyan jók voltak, mint a legjobb mért hete ({roas}): {amount} {days} nap alatt.",
@@ -7294,6 +7303,7 @@
         "titlePause": "„{name}” szüneteltetése",
         "whatNew": "Egy új Meta-kampány, a többi kampánya megtérülése alapján megítélve.",
         "whatPause": "A kampány leállítása: amit költ, az Önnél marad, és ami a Meta szerint befolyik általa, az is megszűnik.",
+        "whatPauseOn": "A kampány leállítása: amit költ, az Önnél marad, és ami a {platform} szerint befolyik általa, az is megszűnik.",
         "whatRaise": "Több napi költségkeret egy már futó kampányán.",
         "whatCut": "Kevesebb napi költségkeret egy már futó kampányán.",
         "newNotProposable": "Egy új hirdetés egy bejegyzésből vagy videóból indul: a Tartalom oldalon a „Futtassa hirdetésként” egyetlen javaslatot hoz létre, amely szüneteltetve hozza létre a Metán ({task}). Innen csak felmérni tudom.",
@@ -7302,6 +7312,7 @@
         "assumeStop": "A leállított költés azt hozta, amit a kampány legutóbbi hetei.",
         "assumeExtra": "A többletköltés azt hozza, amit a legutóbbi hetek hoztak.",
         "assumptionSource": "az én becslésem a Meta saját hozzárendelése alapján — e vásárlások egy része amúgy is megtörtént volna",
+        "assumptionSourceOn": "az én becslésem a {platform} saját hozzárendelése alapján — e eladások egy része amúgy is megtörtént volna",
         "keyRate": "hirdetési megtérülés"
       },
       "content": {
@@ -7932,7 +7943,7 @@
       "nothingWaiting": "jelenleg semmi sem vár a jóváhagyására",
       "noPricedGain": "egyik Önre váró tételnek sincs még beárazott nyeresége",
       "noRevenueSeries": "ehhez mért árbevétel-idősorra van szükségem, amelyhez viszonyíthatok",
-      "noAds": "kapcsolja össze a Meta Adst vagy a Google Adst, és megnézem, mely kampányok kerülnek többe, mint amennyit visszahoznak"
+      "noAds": "kapcsolja össze a Meta Adst, a Google Adst vagy a TikTok Adst, és megnézem, mely kampányok kerülnek többe, mint amennyit visszahoznak"
     },
     "price": {
       "arithmetic": "átlagár {mean} ({revenue} ÷ {count, plural, one {# teljesített} other {# teljesített}})",
@@ -7952,7 +7963,8 @@
       "tableProposal": "{summary}: {range}",
       "onTheTable": "{count, plural, one {# várakozó javaslat} other {# várakozó javaslat}}, havonta az alapesettől a kedvező esetig: {parts}",
       "adsAllPaidPlatforms": "a saját platformja hozzárendelése szerint minden kampány legalább annyit hozott, amennyibe került ({count, plural, one {# kampány} other {# kampány}})",
-      "adsLoserGoogle": "{campaign} (Google Ads): költés {spent}, a Google szerint {value} konverziós érték (megtérülés: {roas}) → {loss}"
+      "adsLoserGoogle": "{campaign} (Google Ads): költés {spent}, a Google szerint {value} konverziós érték (megtérülés: {roas}) → {loss}",
+      "adsLoserTikTok": "{campaign} (TikTok Ads): költés {spent}, a TikTok szerint {value} vásárlási érték (megtérülés: {roas}) → {loss}"
     },
     "basisNote": {
       "capacity": "egy Ön által {basis, select, ESTIMATED {BECSÜLT} other {MEGADOTT}} kapacitásból (heti {perWeek})",
@@ -7960,7 +7972,9 @@
       "statedCost": "készleten lévő darab × egy Ön által megadott költség, egyes tételeknél",
       "proposals": "a javaslatok saját alap- és kedvező esetei",
       "google": "a Google saját hozzárendeléséből",
-      "adPlatforms": "minden platform saját hozzárendeléséből, a Metáéból és a Google-éből"
+      "tiktok": "a TikTok saját hozzárendeléséből",
+      "adPlatforms": "minden platform saját hozzárendeléséből, a Metáéból és a Google-éből",
+      "adPlatformsEach": "minden platform saját hozzárendeléséből"
     },
     "componentNote": {
       "adsOtherCurrency": "{count, plural, one {# kampány} other {# kampány}} más pénznemben ({currencies}) kimaradt: a pénznemek soha nem keverednek",
@@ -7983,7 +7997,10 @@
       "return": "megtérülés: {roas}",
       "adsPlatforms": "Költés az egyes platformok által hozzárendelt értékkel szemben, kampányonként (Meta: vásárlási érték, Google: konverziós érték), {from} – {to}: {campaigns}. Veszteséges az, aminek a megtérülése {even} alatt van.",
       "adsCampaignGoogle": "{campaign} (Google Ads): költés {spent}, a Google szerint {value} ({roas})",
-      "adsCampaignGoogleLosing": "{campaign} (Google Ads): költés {spent}, a Google szerint {value} ({roas}), veszteséges"
+      "adsCampaignGoogleLosing": "{campaign} (Google Ads): költés {spent}, a Google szerint {value} ({roas}), veszteséges",
+      "adsPlatformsEach": "Költés az egyes platformok által hozzárendelt értékkel szemben, kampányonként, {from} – {to}: {campaigns}. Veszteséges az, aminek a megtérülése {even} alatt van.",
+      "adsCampaignTikTok": "{campaign} (TikTok Ads): költés {spent}, a TikTok szerint {value} ({roas})",
+      "adsCampaignTikTokLosing": "{campaign} (TikTok Ads): költés {spent}, a TikTok szerint {value} ({roas}), veszteséges"
     }
   },
   "watchNoticed": {
@@ -8979,7 +8996,9 @@
         "no_payer": "Előbb a banki adataira van szükség",
         "erased": "Banki adatok törölve",
         "not_approved": "Még nincs jóváhagyva",
-        "paid": "Már kifizetve"
+        "paid": "Már kifizetve",
+        "name_not_latin": "Kézzel: egy név vagy közlemény nem latin betűs",
+        "bic_needed": "Kézzel: a kedvezményezett BIC-kódja kell"
       }
     },
     "paid": {
@@ -9025,7 +9044,9 @@
       "erased": "Ennek a kifizetésnek a banki adatait törölték. Kérje el újra a kedvezményezettől.",
       "why": {
         "notEur": "Nem euróban van, ezért nincs a SEPA-fájlban: indítsa el kézzel.",
-        "notSepa": "SEPA-n kívüli bank, ezért nincs a SEPA-fájlban: indítsa el kézzel."
+        "notSepa": "SEPA-n kívüli bank, ezért nincs a SEPA-fájlban: indítsa el kézzel.",
+        "notLatin": "Egy név vagy közlemény nem latin betűs, ezért nincs a SEPA-fájlban: indítsa el kézzel.",
+        "bicNeeded": "Az EGT-n kívüli bankhoz kell a kedvezményezett BIC-kódja, ezért nincs a SEPA-fájlban: indítsa el kézzel."
       },
       "closing": "Ha egy kifizetés megtörtént, jelölje meg a SYB-ben. Ha a bankja elutasít egy adatot, ott javítsa: a SYB soha nem küld semmit a bankjának."
     },

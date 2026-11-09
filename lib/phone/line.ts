@@ -79,6 +79,14 @@ export const PHONE_MAX_MESSAGE_CHARS = 2000;
 export const PHONE_HISTORY_MESSAGES = 6;
 /** Twilio waits about fifteen seconds for a webhook; the model gets eight of them, once. */
 export const PHONE_MODEL_TIMEOUT_MS = 8_000;
+/**
+ * No retry: a second eight-second attempt (plus the SDK's backoff) runs past
+ * Twilio's fifteen, and the caller hears Twilio's own error instead of the
+ * line taking a message. A failed turn takes a message.
+ */
+export const PHONE_MODEL_MAX_RETRIES = 0;
+/** Twilio's webhook timeout, for the budget check: every model attempt together stays inside it. */
+export const TWILIO_WEBHOOK_TIMEOUT_MS = 15_000;
 export const PHONE_GATHER_TIMEOUT_S = 6;
 export const PHONE_DIAL_TIMEOUT_S = 20;
 
@@ -157,7 +165,7 @@ const PHONE_SCHEMA = {
 
 /**
  * One caller turn on Haiku: the lowest effort, room for thinking before
- * the JSON, a short timeout and one retry — a caller is waiting. A refusal
+ * the JSON, a short timeout and no retry — a caller is waiting. A refusal
  * throws, and the line takes a message.
  */
 export const livePhoneLlm: PhoneLlm = async ({ system, messages, accountId }) => {
@@ -170,7 +178,7 @@ export const livePhoneLlm: PhoneLlm = async ({ system, messages, accountId }) =>
       output_config: { effort: "low", format: { type: "json_schema", schema: PHONE_SCHEMA } },
       messages,
     },
-    { timeout: PHONE_MODEL_TIMEOUT_MS, maxRetries: 1 },
+    { timeout: PHONE_MODEL_TIMEOUT_MS, maxRetries: PHONE_MODEL_MAX_RETRIES },
   );
   const record = buildCallRecord({
     workload: PHONE_WORKLOAD,
@@ -457,37 +465,75 @@ export async function startCall(params: TwilioParams, seams: PhoneSeams = {}): P
   const voice = TWILIO_VOICES[locale];
   const business = line.business_name;
   if (!line.enabled) {
-    return twiml(voice, [{ verb: "say", text: words.t("closed") }, { verb: "hangup" }]);
+    // Rule 31: even a closed line's first sentence names the business and says it is automated.
+    return twiml(voice, [
+      { verb: "say", text: words.t("greeting", { business }) },
+      { verb: "say", text: words.t("closed") },
+      { verb: "hangup" },
+    ]);
   }
-  if (!params.CallSid || !CALL_SID_RE.test(params.CallSid)) return nowhere();
+  const callSid = params.CallSid;
+  if (!callSid || !CALL_SID_RE.test(callSid)) return nowhere();
 
-  let call = await callBySid(params.CallSid);
+  let call = await callBySid(callSid);
   if (!call) {
     // The day's caps, before anything is kept: a turned-away call leaves no row.
+    // Counted and claimed under one lock per business, so calls ringing at
+    // the same moment can't all read "under the cap" and all get in.
     const today = startOfTodayUtc(now());
-    const [all] = await db
-      .select({ n: sql<number>`count(*)::int` })
-      .from(phoneCalls)
-      .where(and(eq(phoneCalls.profile_id, line.profile_id), gte(phoneCalls.started_at, today)));
     const caller = params.From && params.From.trim() !== "" ? params.From.trim() : null;
-    let callerCount = 0;
-    if (caller) {
-      const [mine] = await db
+    const admitted = await db.transaction(async (tx) => {
+      await tx.execute(
+        sql`select pg_advisory_xact_lock(hashtext(${`phone_calls_day:${line.profile_id}`}))`,
+      );
+      const [all] = await tx
         .select({ n: sql<number>`count(*)::int` })
         .from(phoneCalls)
-        .where(
-          and(
-            eq(phoneCalls.profile_id, line.profile_id),
-            eq(phoneCalls.caller_number, caller),
-            gte(phoneCalls.started_at, today),
-          ),
-        );
-      callerCount = mine?.n ?? 0;
-    }
-    if (
-      (all?.n ?? 0) >= PHONE_MAX_CALLS_PER_DAY ||
-      callerCount >= PHONE_MAX_CALLS_PER_CALLER_PER_DAY
-    ) {
+        .where(and(eq(phoneCalls.profile_id, line.profile_id), gte(phoneCalls.started_at, today)));
+      let callerCount = 0;
+      if (caller) {
+        const [mine] = await tx
+          .select({ n: sql<number>`count(*)::int` })
+          .from(phoneCalls)
+          .where(
+            and(
+              eq(phoneCalls.profile_id, line.profile_id),
+              eq(phoneCalls.caller_number, caller),
+              gte(phoneCalls.started_at, today),
+            ),
+          );
+        callerCount = mine?.n ?? 0;
+      }
+      if (
+        (all?.n ?? 0) >= PHONE_MAX_CALLS_PER_DAY ||
+        callerCount >= PHONE_MAX_CALLS_PER_CALLER_PER_DAY
+      ) {
+        return { turnedAway: true as const };
+      }
+      // notice_at is stamped with the response that speaks it: Twilio plays
+      // the <Say>s before the <Gather>, so any speech that arrives later was
+      // spoken after the notice (rule 32).
+      // P6-08: a call answered while recording is on is told so, and stamped
+      // with it; the setting at the moment the call came in decides, so a
+      // retried webhook can't start recording a call that was told otherwise.
+      const [row] = await tx
+        .insert(phoneCalls)
+        .values({
+          profile_id: line.profile_id,
+          account_id: line.account_id,
+          call_sid: callSid,
+          caller_number: caller,
+          language: locale,
+          notice_at: now().toISOString(),
+          recording_notice_at: line.record_calls ? now().toISOString() : null,
+          started_at: now().toISOString(),
+          last_at: now().toISOString(),
+        })
+        .onConflictDoNothing({ target: phoneCalls.call_sid })
+        .returning();
+      return { turnedAway: false as const, row };
+    });
+    if (admitted.turnedAway) {
       console.warn(
         JSON.stringify({
           event: "phone_call_turned_away",
@@ -495,30 +541,15 @@ export async function startCall(params: TwilioParams, seams: PhoneSeams = {}): P
           profile_id: line.profile_id,
         }),
       );
-      return twiml(voice, [{ verb: "say", text: words.t("busy") }, { verb: "hangup" }]);
+      // Rule 31: a turned-away caller's first sentence is the disclosure too.
+      return twiml(voice, [
+        { verb: "say", text: words.t("greeting", { business }) },
+        { verb: "say", text: words.t("busy") },
+        { verb: "hangup" },
+      ]);
     }
-    // notice_at is stamped with the response that speaks it: Twilio plays
-    // the <Say>s before the <Gather>, so any speech that arrives later was
-    // spoken after the notice (rule 32).
-    // P6-08: a call answered while recording is on is told so, and stamped
-    // with it; the setting at the moment the call came in decides, so a
-    // retried webhook can't start recording a call that was told otherwise.
-    const [inserted] = await db
-      .insert(phoneCalls)
-      .values({
-        profile_id: line.profile_id,
-        account_id: line.account_id,
-        call_sid: params.CallSid,
-        caller_number: caller,
-        language: locale,
-        notice_at: now().toISOString(),
-        recording_notice_at: line.record_calls ? now().toISOString() : null,
-        started_at: now().toISOString(),
-        last_at: now().toISOString(),
-      })
-      .onConflictDoNothing({ target: phoneCalls.call_sid })
-      .returning();
-    call = inserted ?? (await callBySid(params.CallSid));
+    const inserted = admitted.row;
+    call = inserted ?? (await callBySid(callSid));
     if (!call) return nowhere();
     console.log(
       JSON.stringify({

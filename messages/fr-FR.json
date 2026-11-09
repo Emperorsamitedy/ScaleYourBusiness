@@ -967,10 +967,14 @@
         "titleNone": "Chaque campagne rapporte ce qu’elle coûte",
         "titleLosing": "{count, plural, one {# campagne coûte plus qu’elle ne rapporte} many {# campagnes coûtent plus qu’elles ne rapportent} other {# campagnes coûtent plus qu’elles ne rapportent}}",
         "window": "Meta Ads · {from}–{to}",
+        "windowPlatforms": "{platforms} · {from}–{to}",
         "derivedFrom": "<word>{derived}</word> d’après l’attribution de Meta elle-même",
+        "derivedFromPlatforms": "<word>{derived}</word> d’après l’attribution propre à chaque plateforme",
         "foot": "Rendement = la valeur d’achat que Meta attribue à la campagne ÷ ce qu’elle a dépensé. En dessous de {even}, elle perd de l’argent selon le propre décompte de Meta — le seuil auquel je propose une pause.",
+        "footPlatforms": "Rendement = la valeur que la plateforme attribue à la campagne ÷ ce qu’elle a dépensé. En dessous de {even}, elle perd de l’argent selon le propre décompte de cette plateforme — le seuil auquel je propose une pause.",
         "keySpent": "dépensé : creux",
         "keyBack": "attribué par Meta : plein",
+        "keyBackPlatforms": "attribué par la plateforme : plein",
         "colCampaign": "Campagne",
         "colSpentBack": "Dépensé face au rapporté",
         "colReturn": "Rendement",
@@ -7270,17 +7274,22 @@
         "typedNeeds": "le budget quotidien que vous envisagez",
         "newSpendFormula": "{daily} par jour × {days} jours",
         "dailySource": "Meta : {spend} sur {count, plural, one {# jour mesuré} many {# jours mesurés} other {# jours mesurés}} des {window} derniers jours",
+        "dailySourceOn": "{platform} : {spend} sur {count, plural, one {# jour mesuré} many {# jours mesurés} other {# jours mesurés}} des {window} derniers jours",
         "noSpend": "aucune dépense mesurée ces quatre dernières semaines",
         "dailyNeeds": "quelques semaines de diffusion de cette campagne",
         "pauseFormula": "{daily} par jour non dépensés × {days} jours",
         "changeFormula": "{daily} par jour × {change} × {days} jours",
         "roasSource": "{which, select, pooled {achats attribués par Meta ÷ dépenses, par semaine glissante de {block} jours sur les {window} derniers jours, sur l’ensemble de vos campagnes mesurées, moitié centrale ({count, plural, one {# semaine} many {# semaines} other {# semaines}})} other {achats attribués par Meta ÷ dépenses, par semaine glissante de {block} jours sur les {window} derniers jours, moitié centrale ({count, plural, one {# semaine} many {# semaines} other {# semaines}})}}",
+        "roasSourceOn": "valeur attribuée par {platform} ÷ dépenses, par semaine glissante de {block} jours sur les {window} derniers jours, moitié centrale ({count, plural, one {# semaine} many {# semaines} other {# semaines}})",
         "roasNonePooled": "aucune de vos campagnes n’a {days} jours mesurés en {currency}",
         "roasNone": "{count, plural, one {# jour mesuré} many {# jours mesurés} other {# jours mesurés}} — il m’en faut {need}",
         "roasNeeds": "{which, select, pooled {{days} jours mesurés d’une campagne} other {{days} jours mesurés de cette campagne}}",
         "reachNotRead": "la portée de Meta par campagne n’est pas lue",
+        "reachNotReadOn": "la portée de {platform} par campagne n’est pas lue",
         "ordersNotRead": "Meta rapporte une valeur d’achat par campagne, pas un nombre d’achats",
+        "ordersNotReadOn": "{platform} rapporte une valeur attribuée par campagne, pas un nombre",
         "revenueFormula": "{spend} × rendement {roas} (attribution de Meta)",
+        "revenueFormulaOn": "{spend} × rendement {roas} (attribution de {platform})",
         "worstFormula": "{spend} × rendement {roas} × {margin} − {spend}",
         "worstWeakest": "Chaque semaine rapporte ce qu’a rapporté votre semaine mesurée la plus faible ({roas}) : {amount} sur {days} jours.",
         "worstBest": "Les semaines que vous arrêteriez valaient votre meilleure semaine mesurée ({roas}) : {amount} sur {days} jours.",
@@ -7294,6 +7303,7 @@
         "titlePause": "Mettre « {name} » en pause",
         "whatNew": "Une nouvelle campagne Meta, jugée sur ce que rapportent vos autres campagnes.",
         "whatPause": "Arrêter la campagne : ce qu’elle dépense vous reste, et ce que Meta dit qu’elle rapporte s’arrête aussi.",
+        "whatPauseOn": "Arrêter la campagne : ce qu’elle dépense vous reste, et ce que {platform} dit qu’elle rapporte s’arrête aussi.",
         "whatRaise": "Plus de budget quotidien sur une campagne que vous menez déjà.",
         "whatCut": "Moins de budget quotidien sur une campagne que vous menez déjà.",
         "newNotProposable": "Une nouvelle publicité part d’une publication ou d’une vidéo : dans Contenus, « Diffuser comme publicité » crée une proposition qui la met en place sur Meta, en pause ({task}). D’ici, je peux seulement la chiffrer.",
@@ -7302,6 +7312,7 @@
         "assumeStop": "La dépense que vous arrêtez rapportait ce qu’ont rapporté les semaines récentes de la campagne.",
         "assumeExtra": "Les dépenses supplémentaires rapportent ce qu’ont rapporté les semaines récentes.",
         "assumptionSource": "ma projection d’après l’attribution de Meta elle-même — certains de ces achats auraient pu avoir lieu de toute façon",
+        "assumptionSourceOn": "ma projection d’après l’attribution de {platform} elle-même — certaines de ces ventes auraient pu avoir lieu de toute façon",
         "keyRate": "rendement des dépenses publicitaires"
       },
       "content": {
@@ -7932,7 +7943,7 @@
       "nothingWaiting": "rien n’attend votre validation pour l’instant",
       "noPricedGain": "rien de ce qui vous attend ne porte encore de gain chiffré",
       "noRevenueSeries": "il me faut une série de chiffre d’affaires mesurée pour lire ceci en regard",
-      "noAds": "connectez Meta Ads ou Google Ads et je vérifierai quelles campagnes coûtent plus qu’elles ne rapportent"
+      "noAds": "connectez Meta Ads, Google Ads ou TikTok Ads et je vérifierai quelles campagnes coûtent plus qu’elles ne rapportent"
     },
     "price": {
       "arithmetic": "prix moyen {mean} ({revenue} ÷ {count, plural, one {# honoré} many {# honorés} other {# honorés}})",
@@ -7952,7 +7963,8 @@
       "tableProposal": "{summary} : {range}",
       "onTheTable": "{count, plural, one {# proposition en attente} many {# propositions en attente} other {# propositions en attente}}, du scénario de base au scénario favorable, par mois : {parts}",
       "adsAllPaidPlatforms": "chaque campagne a rapporté au moins ce qu’elle a coûté, selon l’attribution de sa plateforme ({count, plural, one {# campagne} many {# campagnes} other {# campagnes}})",
-      "adsLoserGoogle": "{campaign} sur Google Ads : {spent} dépensés, Google attribue {value} en valeur de conversion (rendement {roas}) → {loss}"
+      "adsLoserGoogle": "{campaign} sur Google Ads : {spent} dépensés, Google attribue {value} en valeur de conversion (rendement {roas}) → {loss}",
+      "adsLoserTikTok": "{campaign} sur TikTok Ads : {spent} dépensés, TikTok attribue {value} en valeur d’achat (rendement {roas}) → {loss}"
     },
     "basisNote": {
       "capacity": "d’après une capacité que vous avez {basis, select, ESTIMATED {ESTIMÉE} other {DÉCLARÉE}} ({perWeek} par semaine)",
@@ -7960,7 +7972,9 @@
       "statedCost": "unités en stock × un coût que vous avez indiqué, pour certains articles",
       "proposals": "les scénarios de base et favorables propres aux propositions",
       "google": "d’après l’attribution de Google elle-même",
-      "adPlatforms": "d’après l’attribution propre à chaque plateforme, celle de Meta et celle de Google"
+      "tiktok": "d’après l’attribution de TikTok elle-même",
+      "adPlatforms": "d’après l’attribution propre à chaque plateforme, celle de Meta et celle de Google",
+      "adPlatformsEach": "d’après l’attribution propre à chaque plateforme"
     },
     "componentNote": {
       "adsOtherCurrency": "{count, plural, one {# campagne en {currencies} laissée de côté} many {# campagnes en {currencies} laissées de côté} other {# campagnes en {currencies} laissées de côté}} : les devises ne se mélangent jamais",
@@ -7983,7 +7997,10 @@
       "return": "rendement {roas}",
       "adsPlatforms": "Dépenses face à la valeur attribuée par chaque plateforme, par campagne (Meta : valeur d’achat, Google : valeur de conversion), du {from} au {to} : {campaigns}. Perdre de l’argent signifie un rendement inférieur à {even}.",
       "adsCampaignGoogle": "{campaign} sur Google Ads a dépensé {spent}, Google attribue {value} ({roas})",
-      "adsCampaignGoogleLosing": "{campaign} sur Google Ads a dépensé {spent}, Google attribue {value} ({roas}), perd de l’argent"
+      "adsCampaignGoogleLosing": "{campaign} sur Google Ads a dépensé {spent}, Google attribue {value} ({roas}), perd de l’argent",
+      "adsPlatformsEach": "Dépenses face à la valeur attribuée par chaque plateforme, par campagne, du {from} au {to} : {campaigns}. Perdre de l’argent signifie un rendement inférieur à {even}.",
+      "adsCampaignTikTok": "{campaign} sur TikTok Ads a dépensé {spent}, TikTok attribue {value} ({roas})",
+      "adsCampaignTikTokLosing": "{campaign} sur TikTok Ads a dépensé {spent}, TikTok attribue {value} ({roas}), perd de l’argent"
     }
   },
   "watchNoticed": {
@@ -8979,7 +8996,9 @@
         "no_payer": "Il faut d’abord vos coordonnées bancaires",
         "erased": "Coordonnées bancaires effacées",
         "not_approved": "Pas encore validé",
-        "paid": "Déjà payé"
+        "paid": "Déjà payé",
+        "name_not_latin": "À la main : un nom ou libellé n’est pas en caractères latins",
+        "bic_needed": "À la main : il faut le BIC du bénéficiaire"
       }
     },
     "paid": {
@@ -9025,7 +9044,9 @@
       "erased": "Les coordonnées bancaires de ce paiement ont été effacées. Redemandez-les au bénéficiaire.",
       "why": {
         "notEur": "Pas en euros, donc pas dans le fichier SEPA : faites-le à la main.",
-        "notSepa": "Une banque hors SEPA, donc pas dans le fichier SEPA : faites-le à la main."
+        "notSepa": "Une banque hors SEPA, donc pas dans le fichier SEPA : faites-le à la main.",
+        "notLatin": "Un nom ou libellé qui n’est pas en caractères latins, donc pas dans le fichier SEPA : faites-le à la main.",
+        "bicNeeded": "Une banque hors EEE demande le BIC du bénéficiaire, donc pas dans le fichier SEPA : faites-le à la main."
       },
       "closing": "Une fois un paiement fait, marquez-le dans SYB. Si votre banque refuse une donnée, corrigez-la là-bas : SYB n’envoie jamais rien à votre banque."
     },

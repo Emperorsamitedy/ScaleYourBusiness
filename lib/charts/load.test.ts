@@ -196,6 +196,47 @@ describe("loadCharts — a salon's bookings import", () => {
   });
 });
 
+describe("loadCharts — TikTok Ads as the only ad source", () => {
+  it("draws its campaigns as TikTok's, from its execute connection's read", async () => {
+    const s = await scenario("ecommerce_store");
+    const [conn] = await db
+      .insert(connections)
+      .values({ account_id: s.account_id, provider: "tiktok_ads", purpose: "execute" })
+      .returning({ id: connections.id });
+    const dims = { campaign_ref: "1800000000000000001", campaign_name: "Autumn" };
+    await observe(
+      conn!.id,
+      "tiktok_ads",
+      "ad_spend.campaign.daily",
+      20,
+      () => ({
+        minor: 2000,
+        currency: "EUR",
+      }),
+      dims,
+    );
+    await observe(
+      conn!.id,
+      "tiktok_ads",
+      "ad_purchase_value.campaign.daily",
+      20,
+      () => ({
+        minor: 1000,
+        currency: "EUR",
+      }),
+      dims,
+    );
+    const { ads } = await loadCharts(s.account_id, s.profile_id, NOW);
+    expect(ads).not.toBeNull();
+    expect(ads!.platforms).toEqual(["tiktok"]);
+    expect(ads!.campaigns).toMatchObject([
+      { platform: "tiktok", campaign_ref: "1800000000000000001", losing: true },
+    ]);
+    expect(ads!.summary).toContain("Autumn on TikTok Ads spent");
+    expect(ads!.summary).not.toMatch(/Meta/);
+  });
+});
+
 describe("loadCharts — a business with no data", () => {
   it("is the honest empty state, inviting the shop's connection", async () => {
     const s = await scenario("ecommerce_store");

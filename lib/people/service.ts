@@ -21,6 +21,7 @@ import {
   bookingImports,
   connections,
   decisionLog,
+  metricObservations,
   staffErasures,
   staffPeople,
 } from "../../db/schema";
@@ -94,7 +95,23 @@ async function pickSource(
     .orderBy(desc(sql`count(*)`));
   if (!best || best.last === null) return null;
   const conn = conns.find((c) => c.id === best.connection_id);
-  return conn ? { id: conn.id, provider: conn.provider, asOf: best.last } : null;
+  if (!conn) return null;
+  // The business's own latest measured day (lib/bookings/store's
+  // latestMeasuredDay): the last day the daily series was computed for. Not
+  // the latest appointment's day: a booking stored as "booked" for a day
+  // that has since passed was never measured, and a window ending there
+  // would not be the business's window, nor add up to its totals.
+  const [measured] = await db
+    .select({ day: max(metricObservations.period_date) })
+    .from(metricObservations)
+    .where(
+      and(
+        eq(metricObservations.connection_id, conn.id),
+        eq(metricObservations.metric_key, "appointments_completed.daily"),
+      ),
+    );
+  const asOf = measured?.day ?? null;
+  return asOf === null ? null : { id: conn.id, provider: conn.provider, asOf };
 }
 
 /** The export's platform, from the account's latest import. */

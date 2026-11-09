@@ -43,6 +43,8 @@ export interface PdfText {
   pages: number;
   /** Every drawn run of text, in drawing order, page by page. */
   runs: string[];
+  /** The same runs with where they were drawn: the page (from 1) and the baseline's y. */
+  placed: { text: string; page: number; y: number }[];
   /** The document's info dictionary, as pdf-lib reads it back. */
   title: string | undefined;
   producer: string | undefined;
@@ -52,7 +54,8 @@ export interface PdfText {
 export async function pdfText(bytes: Uint8Array): Promise<PdfText> {
   const doc = await PDFDocument.load(bytes, { updateMetadata: false });
   const runs: string[] = [];
-  for (const page of doc.getPages()) {
+  const placed: PdfText["placed"] = [];
+  for (const [index, page] of doc.getPages().entries()) {
     const fonts = new Map<string, Map<string, string>>();
     const fontDict = page.node.Resources()?.lookup(PDFName.of("Font"), PDFDict);
     for (const [name, ref] of fontDict?.entries() ?? []) {
@@ -69,24 +72,33 @@ export async function pdfText(bytes: Uint8Array): Promise<PdfText> {
         ? contents.asArray().map((r) => doc.context.lookup(r))
         : [contents];
     let current = new Map<string, string>();
+    let y = Number.NaN;
     for (const s of streams) {
       if (!(s instanceof PDFRawStream)) continue;
       const ops = streamText(s);
-      for (const m of ops.matchAll(/\/(\S+)\s+[\d.]+\s+Tf|<([0-9a-fA-F]*)>\s*Tj/g)) {
+      for (const m of ops.matchAll(
+        /\/(\S+)\s+[\d.]+\s+Tf|(-?[\d.]+)\s+Tm|<([0-9a-fA-F]*)>\s*Tj/g,
+      )) {
         if (m[1] !== undefined) {
           current = fonts.get(m[1]) ?? new Map();
           continue;
         }
-        const hex = m[2]!.toUpperCase();
+        if (m[2] !== undefined) {
+          y = Number(m[2]);
+          continue;
+        }
+        const hex = m[3]!.toUpperCase();
         let run = "";
         for (let i = 0; i < hex.length; i += 4) run += current.get(hex.slice(i, i + 4)) ?? "�";
         runs.push(run);
+        placed.push({ text: run, page: index + 1, y });
       }
     }
   }
   return {
     pages: doc.getPageCount(),
     runs,
+    placed,
     title: doc.getTitle(),
     producer: doc.getProducer(),
     creationDate: doc.getCreationDate(),

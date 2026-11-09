@@ -44,7 +44,8 @@ import { isoDateTime } from "../core/iso";
 import { connectForExecution, expectedExecutionScopes } from "../execution/connections";
 import { runDueExecutions } from "../execution/due";
 import { haltExecutions, resumeExecutions } from "../execution/engine";
-import type { TikTokCredential } from "../execution/providers/tiktok";
+import { pauseExecutionConnection } from "../execution/pause";
+import type { TikTokCredential, TikTokFetch } from "../execution/providers/tiktok";
 import {
   TIKTOK_NO_UNDO,
   approvedTikTokHash,
@@ -58,6 +59,7 @@ import {
 import {
   TIKTOK_PHRASE,
   completeTikTokCallback,
+  consentToTikTokPosting,
   revokeTikTokPosting,
   signTikTokState,
   tiktokLoginConfig,
@@ -71,9 +73,11 @@ import { memoryMediaStore } from "./media";
 import { TIKTOK_PUBLISH_UNDO, proposePublishing, publishReadiness } from "./publish";
 import { withdrawItem } from "./publishing";
 import {
+  TIKTOK_GRANT_CHANGED,
   dbTikTokPublishBackend,
   runTikTokPostReadback,
   saveTikTokSettings,
+  tiktokCreatorView,
   tiktokItemStates,
 } from "./tiktok-publish";
 
@@ -676,5 +680,250 @@ describe("TikTok — readback of public posts", () => {
     expect((q[0]?.body?.["filters"] as { video_ids: string[] }).video_ids).toEqual([
       "7300000000000000001",
     ]);
+  });
+});
+
+/* ── review 2026-11-08: a paused TikTok connection holds its queued posts ── */
+
+/** A fake TikTok whose creator_info refuses the sign-in from the `at`-th call on. */
+function refusingFrom(at: () => number) {
+  const api = fakeTikTok();
+  let creator = 0;
+  const fetch: TikTokFetch = async (url, init) => {
+    if (url.endsWith("/v2/post/publish/creator_info/query/") && ++creator >= at()) {
+      return {
+        status: 401,
+        text: async () =>
+          JSON.stringify({ error: { code: "access_token_invalid", message: "no", log_id: "l" } }),
+      };
+    }
+    return api.fetch(url, init);
+  };
+  return { api, fetch, count: () => creator };
+}
+
+async function reconnect(b: Biz) {
+  const calls = createTikTokExecution({ fetch: fakeTikTok().fetch, sleep: noSleep, app }).calls;
+  const grant = await calls.exchangeCode("code-r", "https://app.test/cb");
+  return consentToTikTokPosting({
+    accountId: b.account_id,
+    profileId: b.profile_id,
+    userId: b.user_id,
+    confirmation: TIKTOK_PHRASE,
+    grant,
+    audit: "unaudited",
+    calls,
+  });
+}
+
+const tiktokConn = async (accountId: string) =>
+  (
+    await db
+      .select()
+      .from(connections)
+      .where(and(eq(connections.account_id, accountId), eq(connections.provider, "tiktok_publish")))
+  ).sort((x, y) => (x.created_at < y.created_at ? -1 : 1));
+
+describe("TikTok — a paused connection holds queued posts for the reconnect, like Meta's", () => {
+  it("a sign-in refused mid-run holds the post (not failed for good) and the run; the reconnect sends it once", async () => {
+    const b = await business();
+    let from = Infinity;
+    const bad = refusingFrom(() => from);
+    const exec = createTikTokExecution({
+      fetch: bad.fetch,
+      sleep: noSleep,
+      app,
+      audit: () => "unaudited",
+      backend: dbTikTokPublishBackend({ store }),
+    });
+    const { item_id } = await approved(b, {
+      api: bad.api,
+      exec,
+      run: async () => undefined,
+    } as never);
+    // The pre-flight's creator read passes; the carry-out's is refused.
+    from = bad.count() + 2;
+    await runDueExecutions({
+      profileId: b.profile_id,
+      sleep: noSleep,
+      providers: { tiktok_publish: exec.publish },
+    });
+    const held = await itemRow(item_id);
+    const [conn] = await tiktokConn(b.account_id);
+    expect(conn?.status).toBe("paused");
+    expect(held.status).toBe("failed");
+    expect(held.paused_connection_id).toBe(conn?.id);
+    expect(held.media_path).not.toBeNull(); // the render is kept for the reconnect
+    const [run] = await db
+      .select()
+      .from(executions)
+      .where(eq(executions.proposal_id, held.publish_proposal_id!));
+    expect(run).toMatchObject({ status: "failed", held_for: "reconnect" });
+    expect(bad.api.calls.filter((c) => c.url.endsWith("/video/init/"))).toHaveLength(0);
+
+    // While paused, the due runner skips it: nothing is sent.
+    const h = harness();
+    const paused = await h.run(b);
+    expect(paused.outcomes.map((o) => o.result)).toContain("paused");
+    expect(h.api.calls.filter((c) => c.url.endsWith("/video/init/"))).toHaveLength(0);
+
+    // The reconnect puts it back in the queue; the next run sends it, once.
+    await reconnect(b);
+    expect((await itemRow(item_id)).status).toBe("queued");
+    await h.run(b);
+    expect((await itemRow(item_id)).status).toBe("published");
+    expect(h.api.calls.filter((c) => c.url.endsWith("/video/init/"))).toHaveLength(1);
+  });
+
+  it("a refusal at the pre-flight holds every queued TikTok post the same way", async () => {
+    const b = await business();
+    let from = Infinity;
+    const bad = refusingFrom(() => from);
+    const exec = createTikTokExecution({
+      fetch: bad.fetch,
+      sleep: noSleep,
+      app,
+      audit: () => "unaudited",
+      backend: dbTikTokPublishBackend({ store }),
+    });
+    const { item_id } = await approved(b, {
+      api: bad.api,
+      exec,
+      run: async () => undefined,
+    } as never);
+    from = bad.count() + 1;
+    await runDueExecutions({
+      profileId: b.profile_id,
+      sleep: noSleep,
+      providers: { tiktok_publish: exec.publish },
+    });
+    const [conn] = await tiktokConn(b.account_id);
+    expect(conn?.status).toBe("paused");
+    expect((await itemRow(item_id)).paused_connection_id).toBe(conn?.id);
+    await reconnect(b);
+    const h = harness();
+    await h.run(b);
+    expect((await itemRow(item_id)).status).toBe("published");
+  });
+
+  it("an expired Meta sign-in never holds a TikTok post, nor TikTok's a Meta one", async () => {
+    const b = await business();
+    const h = harness();
+    const { item_id } = await approved(b, h);
+    await connectForExecution({
+      accountId: b.account_id,
+      provider: "meta_publish",
+      secret: "meta-token",
+      verify: async () => ({ granted_scopes: expectedExecutionScopes("meta_publish") }),
+    });
+    const out = await pauseExecutionConnection({
+      accountId: b.account_id,
+      provider: "meta_publish",
+      failure: { owner_sentence: "Meta refused.", code: 190, subcode: null },
+      source: "publish",
+    });
+    expect(out).toMatchObject({ paused: true, items_held: 0 });
+    expect((await itemRow(item_id)).status).toBe("queued");
+    const tt = await pauseExecutionConnection({
+      accountId: b.account_id,
+      provider: "tiktok_publish",
+      failure: { owner_sentence: "TikTok refused.", code: null },
+      source: "publish",
+    });
+    expect(tt.items_held).toBe(1);
+  });
+});
+
+describe("TikTok — the rotating refresh token", () => {
+  /** TikTok's token endpoint as the spec says: each refresh rotates the pair, the old one dies. */
+  function rotating() {
+    const api = fakeTikTok();
+    let live = "rft.stored";
+    let n = 0;
+    const fetch: TikTokFetch = async (url, init) => {
+      if (url.endsWith("/v2/oauth/token/")) {
+        const form = new URLSearchParams(String(init.body));
+        if (form.get("grant_type") === "refresh_token") {
+          if (form.get("refresh_token") !== live) {
+            return {
+              status: 400,
+              text: async () =>
+                JSON.stringify({ error: "invalid_grant", error_description: "x", log_id: "l" }),
+            };
+          }
+          n += 1;
+          live = `rft.${n}`;
+          // The old token is dead from here; the answer takes a moment, as a real one does.
+          await new Promise((r) => setTimeout(r, 300));
+          return {
+            status: 200,
+            text: async () =>
+              JSON.stringify({
+                access_token: `act.${n}`,
+                refresh_token: live,
+                open_id: FAKE_TIKTOK_OPEN_ID,
+                expires_in: 7200,
+                refresh_expires_in: 15_552_000,
+                scope: "user.info.basic,video.publish,video.list",
+                token_type: "Bearer",
+              }),
+          };
+        }
+      }
+      return api.fetch(url, init);
+    };
+    return { api, fetch, refreshes: () => n };
+  }
+
+  it("two readers at once refresh once; neither pauses a connection that is fine", async () => {
+    const b = await business({ connect: false });
+    await connectForExecution({
+      accountId: b.account_id,
+      provider: "tiktok_publish",
+      secret: JSON.stringify(credential({ access_expires_at: Date.now() - 60_000 })),
+      verify: async () => ({ granted_scopes: expectedExecutionScopes("tiktok_publish") }),
+    });
+    const tt = rotating();
+    const calls = createTikTokExecution({ fetch: tt.fetch, sleep: noSleep, app }).calls;
+    const both = await Promise.allSettled([
+      tiktokCreatorView(b.account_id, { calls }),
+      tiktokCreatorView(b.account_id, { calls }),
+    ]);
+    expect(both.map((r) => r.status)).toEqual(["fulfilled", "fulfilled"]);
+    expect(tt.refreshes()).toBe(1);
+    const [conn] = await tiktokConn(b.account_id);
+    expect(conn?.status).toBe("connected");
+  });
+
+  it("a refresh whose grant changed scopes pauses at once with its own sentence", async () => {
+    const b = await business({ connect: false });
+    await connectForExecution({
+      accountId: b.account_id,
+      provider: "tiktok_publish",
+      secret: JSON.stringify(credential({ access_expires_at: Date.now() - 60_000 })),
+      verify: async () => ({ granted_scopes: expectedExecutionScopes("tiktok_publish") }),
+    });
+    const api = fakeTikTok({ grantScope: "user.info.basic,video.publish,video.list,video.upload" });
+    const calls = createTikTokExecution({ fetch: api.fetch, sleep: noSleep, app }).calls;
+    await expect(tiktokCreatorView(b.account_id, { calls })).rejects.toThrow(TIKTOK_GRANT_CHANGED);
+    const [conn] = await tiktokConn(b.account_id);
+    expect(conn?.status).toBe("paused");
+    expect(conn?.last_error).toBe(TIKTOK_GRANT_CHANGED);
+  });
+
+  it("disconnecting after the access token expired refreshes first, so TikTok's grant is revoked", async () => {
+    const b = await business({ connect: false });
+    const conn = await connectForExecution({
+      accountId: b.account_id,
+      provider: "tiktok_publish",
+      secret: JSON.stringify(credential({ access_expires_at: Date.now() - 60_000 })),
+      verify: async () => ({ granted_scopes: expectedExecutionScopes("tiktok_publish") }),
+    });
+    const tt = rotating();
+    const calls = createTikTokExecution({ fetch: tt.fetch, sleep: noSleep, app }).calls;
+    const out = await revokeTikTokPosting(b.account_id, conn.id, { calls });
+    expect(out.revoked_on_tiktok).toBe(true);
+    const revoke = tt.api.calls.find((c) => c.url.endsWith("/v2/oauth/revoke/"));
+    expect(new URLSearchParams(String(revoke?.init.body)).get("token")).toBe("act.1");
   });
 });

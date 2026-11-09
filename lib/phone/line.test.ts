@@ -572,6 +572,35 @@ describe("the caps: past one, no model is called and the line takes a message", 
     expect((await start(b, "+447700900556")).xml).toContain("<Gather");
   });
 
+  it("review 2026-11-08: calls ringing at the same moment can't all slip under the caller's cap", async () => {
+    const b = await business();
+    const from = "+447700900557";
+    const attempts = PHONE_MAX_CALLS_PER_CALLER_PER_DAY + 4;
+    await Promise.all(Array.from({ length: attempts }, () => start(b, from)));
+    const rows = await db
+      .select({ id: phoneCalls.id })
+      .from(phoneCalls)
+      .where(and(eq(phoneCalls.profile_id, b.profile_id), eq(phoneCalls.caller_number, from)));
+    expect(rows).toHaveLength(PHONE_MAX_CALLS_PER_CALLER_PER_DAY);
+  });
+
+  it("rule 31: a turned-away or closed line still says first that it is SYB's automated assistant", async () => {
+    const b = await business();
+    const from = "+447700900558";
+    for (let i = 0; i < PHONE_MAX_CALLS_PER_CALLER_PER_DAY; i++) await start(b, from);
+    const busy = saysOf((await start(b, from)).xml);
+    expect(busy[0]).toMatch(/Rosa&apos;s Bakery.*SYB&apos;s automated assistant/);
+    expect(busy[1]).toMatch(/very busy/);
+
+    await db
+      .update(phoneSettings)
+      .set({ enabled: false })
+      .where(eq(phoneSettings.profile_id, b.profile_id));
+    const closed = saysOf((await start(b)).xml);
+    expect(closed[0]).toMatch(/Rosa&apos;s Bakery.*SYB&apos;s automated assistant/);
+    expect(closed[1]).toMatch(/isn&apos;t taking calls/);
+  });
+
   it("two silences in a row end the call politely", async () => {
     const b = await business();
     const { sid } = await start(b);

@@ -44,6 +44,8 @@ import { PO_REF_PREFIX } from "./propose";
 /** The words of the email and the document (messages/<locale>.json). */
 export const PO_WORDS = "emails.purchaseOrder";
 
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+
 export function isPurchaseOrderProposal(p: Pick<ProposalRow, "module" | "action">): boolean {
   return p.module === STOCK_MODULE && (p.action as { kind?: unknown } | null)?.kind === PO_KIND;
 }
@@ -187,6 +189,8 @@ export async function sendPurchaseOrderNow(args: {
   provider?: ExecutionProvider;
   sleep?: (ms: number) => Promise<void>;
 }): Promise<PoSendOutcome> {
+  // An id that isn't a uuid names no order (the uuid column would throw, a 500).
+  if (!UUID_RE.test(args.proposalId)) throw new PurchaseOrderSendError("no such purchase order");
   const [proposal] = await db.select().from(proposals).where(eq(proposals.id, args.proposalId));
   if (!proposal || proposal.profile_id !== args.profileId || !isPurchaseOrderProposal(proposal)) {
     throw new PurchaseOrderSendError("no such purchase order");

@@ -268,7 +268,7 @@ export function createTikTokAdsExecutor(opts: TikTokExecutionOptions = {}): Exec
       );
     }
     const target = Math.round(args.baseline_minor * (1 + args.share));
-    const { value, sent_minor } = toTikTokBudget(target, campaign.currency);
+    const { value, sent_minor } = toTikTokBudget(target, campaign.currency, args.baseline_minor);
     const ceiling = await run.b.ceiling(args.profile_id);
     const accountDaily = ceiling
       ? await run.b.accountDailySpend(run.account_id, campaign.currency)

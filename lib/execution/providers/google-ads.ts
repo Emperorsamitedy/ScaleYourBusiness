@@ -53,6 +53,7 @@ import {
   gadsHeaders,
   microsToMinor,
   minorToMicros,
+  readId,
   readInt64,
   searchAll,
 } from "../../google-ads/client";
@@ -190,13 +191,13 @@ export function readCampaignRow(row: Record<string, unknown>): CampaignState | n
   const c = (row["campaign"] ?? {}) as Record<string, unknown>;
   const b = (row["campaignBudget"] ?? {}) as Record<string, unknown>;
   const cu = (row["customer"] ?? {}) as Record<string, unknown>;
-  const id = readInt64(c["id"]);
+  const id = readId(c["id"]);
   const currency = typeof cu["currencyCode"] === "string" ? cu["currencyCode"].toUpperCase() : "";
   if (id === null || !/^[A-Z]{3}$/.test(currency)) return null;
   const resource = typeof c["campaignBudget"] === "string" ? c["campaignBudget"] : null;
   return {
-    id: String(id),
-    name: typeof c["name"] === "string" && c["name"] !== "" ? c["name"] : String(id),
+    id,
+    name: typeof c["name"] === "string" && c["name"] !== "" ? c["name"] : id,
     status: typeof c["status"] === "string" ? c["status"] : "UNKNOWN",
     currency,
     budget_resource:

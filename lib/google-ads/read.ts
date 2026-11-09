@@ -50,6 +50,7 @@ import {
   microsToMinor,
   readCustomer,
   readDouble,
+  readId,
   readInt64,
   searchAll,
 } from "./client";
@@ -87,15 +88,15 @@ export function readCampaignDay(row: Record<string, unknown>): GadsCampaignDay |
   const c = (row["campaign"] ?? {}) as Record<string, unknown>;
   const m = (row["metrics"] ?? {}) as Record<string, unknown>;
   const date = seg["date"];
-  const id = readInt64(c["id"]);
-  if (typeof date !== "string" || !DAY_RE.test(date) || id === null || id <= 0) return null;
+  const id = readId(c["id"]);
+  if (typeof date !== "string" || !DAY_RE.test(date) || id === null) return null;
   return {
     date,
-    campaign_id: String(id),
+    campaign_id: id,
     campaign_name:
       typeof c["name"] === "string" && c["name"].trim() !== ""
         ? c["name"].trim().slice(0, 200)
-        : String(id),
+        : id,
     // An absent metric is zero on a row Google returned: Google omits default values.
     cost_micros: readInt64(m["costMicros"] ?? 0) ?? 0,
     clicks: readInt64(m["clicks"] ?? 0) ?? 0,

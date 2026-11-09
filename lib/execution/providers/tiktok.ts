@@ -56,6 +56,7 @@ import {
   publishCaption,
 } from "./meta";
 import { stalePublish } from "../stale";
+import { PAUSED_WORK_SENTENCE } from "../meta-errors";
 
 export const TIKTOK_PROVIDER = "tiktok_publish" as const;
 export const TIKTOK_API_ORIGIN = "https://open.tiktokapis.com";
@@ -245,6 +246,20 @@ export function classifyTikTokError(httpStatus: number, code: string | null): Ti
     return f("unavailable", "TikTok didn't answer properly. It goes out on the next run.", true);
   }
   return f("unknown", `TikTok refused with ${code ?? `status ${httpStatus}`}.`, false);
+}
+
+/**
+ * The connection paused itself (its sign-in stopped working) before
+ * anything was sent: the engine journals the run held "reconnect", and it
+ * runs again — through every guard — once TikTok posting is reconnected.
+ */
+export class TikTokPausedError extends Error {
+  readonly retryable = false;
+  readonly held_for = "reconnect" as const;
+  constructor() {
+    super(PAUSED_WORK_SENTENCE.publish);
+    this.name = "TikTokPausedError";
+  }
 }
 
 export class TikTokRequestError extends ExecutionConnectionError {
@@ -659,6 +674,17 @@ export interface TikTokPublishBackend {
   credential(
     accountId: string,
   ): Promise<{ connection_id: string; credential: TikTokCredential } | { refused: string }>;
+  /**
+   * Optional: the live credential, refreshed through `fresh` and stored, one
+   * caller at a time (the database backend locks the row). When present it
+   * replaces credential() + fresh + storeCredential, so two runs never spend
+   * the same rotating refresh token (review 2026-11-08).
+   */
+  freshCredential?(
+    accountId: string,
+    fresh: TikTokCalls["fresh"],
+    now: Date,
+  ): Promise<{ id: string; credential: TikTokCredential } | { refused: string }>;
   /** A refresh rotated the tokens: the new pair replaces the old, encrypted, at once. */
   storeCredential(accountId: string, connectionId: string, cred: TikTokCredential): Promise<void>;
   claim(
@@ -673,7 +699,10 @@ export interface TikTokPublishBackend {
   failed(itemId: string, sentence: string): Promise<void>;
   uncertain(itemId: string, sentence: string): Promise<void>;
   deferred(itemId: string, sentence: string): Promise<void>;
-  /** The sign-in stopped working: the connection pauses until the owner reconnects. */
+  /**
+   * The sign-in stopped working: the connection pauses until the owner
+   * reconnects, and every queued TikTok post on the account is held for it.
+   */
   paused(accountId: string, sentence: string): Promise<void>;
   unclaim(itemId: string, sentence: string): Promise<void>;
   lapsed(itemId: string, sentence: string, accountId: string): Promise<void>;
@@ -997,13 +1026,19 @@ function publishProvider(
     accountId: string,
     openId: string,
   ): Promise<TikTokCredential> {
-    const got = await b.credential(accountId);
-    if ("refused" in got) throw new PublishError(got.refused);
-    if (got.credential.open_id !== openId) {
-      throw new PublishError(
+    const wrong = () =>
+      new PublishError(
         "You approved this for a different TikTok account than the one connected now. Nothing was sent; it needs approving again.",
       );
+    if (b.freshCredential) {
+      const got = await b.freshCredential(accountId, calls.fresh, now());
+      if ("refused" in got) throw new PublishError(got.refused);
+      if (got.credential.open_id !== openId) throw wrong();
+      return got.credential;
     }
+    const got = await b.credential(accountId);
+    if ("refused" in got) throw new PublishError(got.refused);
+    if (got.credential.open_id !== openId) throw wrong();
     const { cred, changed } = await calls.fresh(got.credential, now());
     if (changed) await b.storeCredential(accountId, got.connection_id, cred);
     return cred;
@@ -1256,7 +1291,17 @@ function publishProvider(
           public_post: item.platform_post_id !== item.publish_attempt?.publish_id,
         } satisfies TikTokPublishedPost;
       }
-      const cred = await liveCredential(b, pctx.account_id, p.open_id);
+      let cred: TikTokCredential;
+      try {
+        cred = await liveCredential(b, pctx.account_id, p.open_id);
+      } catch (error) {
+        if (error instanceof TikTokRequestError && error.failure.pauses) {
+          // Nothing was claimed: the item is still queued, and the pause holds it.
+          await b.paused(pctx.account_id, error.failure.owner_sentence);
+          throw new TikTokPausedError();
+        }
+        throw error;
+      }
       // In flight from an earlier attempt or a run that died: read back, never send again.
       if (item.status === "publishing") {
         return settle(b, await readBack(b, item, cred, pctx.account_id), item, pctx.account_id);
@@ -1424,10 +1469,14 @@ function publishProvider(
           throw new PublishError(TIKTOK_MAY_HAVE_POSTED, true);
         }
         if (error instanceof TikTokRequestError && error.failure.pauses) {
-          await b.failed(item.id, `${error.failure.owner_sentence} ${NOTHING_SENT}`);
+          // Nothing was sent (sent_at is unset): back to the queue, where the
+          // pause holds it for the reconnect with every other queued TikTok
+          // post — never `failed` for good, its render never released — and
+          // the run waits for the reconnect too (review 2026-11-08).
+          await b.unclaim(item.id, `${error.failure.owner_sentence} ${NOTHING_SENT}`);
           await b.paused(pctx.account_id, error.failure.owner_sentence);
           log("paused");
-          throw new PublishError(`${error.failure.owner_sentence} ${NOTHING_SENT}`, false);
+          throw new TikTokPausedError();
         }
         const sentence =
           error instanceof TikTokRequestError

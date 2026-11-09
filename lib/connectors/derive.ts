@@ -289,60 +289,16 @@ function totalMoney(metric: MetricKey, rows: WholeRows["rows"]): MoneyTotal {
 const totalCount = (rows: WholeRows["rows"]): number =>
   rows.reduce((acc, r) => acc + Number(r.value_num ?? 0), 0);
 
-/** P2-21: cost per attributed purchase, for ad platform connections. */
-async function deriveCostPerPurchase(
-  conn: ConnectionRow,
-  profileId: string,
-  w: DeriveWindow,
-  recordedAt: ISODateTime,
-): Promise<DeriveOutcome | null> {
-  const spend = await wholeRows(conn.id, "ad_spend.daily", w);
-  if (spend.rows.length === 0) return null; // not an ad platform: nothing to say
-  const purchases = await wholeRows(conn.id, "ad_purchases.daily", w);
-  if (purchases.rows.length === 0) return null; // spend without attribution data (the fixture)
-
-  const total = totalMoney("ad_spend.daily", spend.rows);
-  if (!total.ok)
-    return { field_key: COST_PER_PURCHASE_KEY, outcome: "refused", reason: total.reason };
-  const count = totalCount(purchases.rows);
-  if (count <= 0) {
-    return {
-      field_key: COST_PER_PURCHASE_KEY,
-      outcome: "refused",
-      reason: `${conn.provider} attributed no purchases between ${w.from} and ${w.to}, so there is no cost per purchase to measure`,
-    };
-  }
-  return writeMeasured({
-    profileId,
-    fieldKey: COST_PER_PURCHASE_KEY,
-    value: money(Math.round(total.value.amount_minor / count), total.value.currency),
-    provider: conn.provider,
-    metrics: ["ad_spend.daily", "ad_purchases.daily"],
-    method:
-      `sum(ad_spend.daily) ÷ sum(ad_purchases.daily) over ${w.from}..${w.to} ` +
-      `(${spend.days} days, ${count} attributed purchases) from ${conn.provider} connection ${conn.id}`,
-    window: w,
-    recordedAt,
-    note: `Measured by ${conn.provider}: ad spend divided by the purchases it attributed, ${w.from} to ${w.to}.`,
-  });
-}
-
 /**
- * P2-20: with more than one ad platform measuring spend (Meta's measure
- * connection, Google Ads' execute connection), the business's monthly ad
- * spend is their SUM over the window — never whichever synced last, which
- * would flip the fact between platforms every night. One currency only
- * (rule 1): two platforms billing in different currencies are a refusal,
- * and the current fact stands. Null when this connection is the account's
- * only ad-spend source in the window: the ordinary single-source path runs.
+ * The account's ad-platform connections that hold `metric` in the window —
+ * Meta's measure connection and every execute connection the sync reads
+ * (Google Ads, TikTok Ads), oldest first. Disconnected rows are left out.
  */
-async function deriveCombinedAdSpend(
+async function adSources(
   conn: ConnectionRow,
-  profileId: string,
-  fieldKey: string,
+  metric: MetricKey,
   w: DeriveWindow,
-  recordedAt: ISODateTime,
-): Promise<DeriveOutcome | null> {
+): Promise<{ conn: ConnectionRow; whole: WholeRows }[]> {
   const siblings = await db
     .select()
     .from(connections)
@@ -362,9 +318,98 @@ async function deriveCombinedAdSpend(
     .orderBy(connections.created_at);
   const sources: { conn: ConnectionRow; whole: WholeRows }[] = [];
   for (const c of siblings) {
-    const whole = await wholeRows(c.id, "ad_spend.daily", w);
+    const whole = await wholeRows(c.id, metric, w);
     if (whole.rows.length > 0) sources.push({ conn: c, whole });
   }
+  return sources;
+}
+
+/**
+ * P2-21: cost per attributed purchase, for ad platform connections. With
+ * more than one platform attributing purchases (Meta and TikTok Ads), the
+ * fact is the business's: the spend of every platform that attributes
+ * purchases over all their purchases — never whichever synced last, which
+ * would flip the fact between platforms every night. A platform that
+ * reports spend but no purchases (Google: conversions aren't purchases)
+ * is left out of both sides. One currency only (rule 1).
+ */
+async function deriveCostPerPurchase(
+  conn: ConnectionRow,
+  profileId: string,
+  w: DeriveWindow,
+  recordedAt: ISODateTime,
+): Promise<DeriveOutcome | null> {
+  const spend = await wholeRows(conn.id, "ad_spend.daily", w);
+  if (spend.rows.length === 0) return null; // not an ad platform: nothing to say
+  const purchases = await wholeRows(conn.id, "ad_purchases.daily", w);
+  if (purchases.rows.length === 0) return null; // spend without attribution data (the fixture)
+
+  // Every platform holding both series in the window, this one included.
+  const attributing: { conn: ConnectionRow; spend: WholeRows; purchases: WholeRows }[] = [];
+  for (const s of await adSources(conn, "ad_purchases.daily", w)) {
+    const sSpend = s.conn.id === conn.id ? spend : await wholeRows(s.conn.id, "ad_spend.daily", w);
+    if (sSpend.rows.length > 0)
+      attributing.push({ conn: s.conn, spend: sSpend, purchases: s.whole });
+  }
+  if (!attributing.some((a) => a.conn.id === conn.id)) {
+    attributing.push({ conn, spend, purchases });
+  }
+
+  const total = totalMoney(
+    "ad_spend.daily",
+    attributing.flatMap((a) => a.spend.rows),
+  );
+  if (!total.ok)
+    return { field_key: COST_PER_PURCHASE_KEY, outcome: "refused", reason: total.reason };
+  const count = totalCount(attributing.flatMap((a) => a.purchases.rows));
+  const providers = [...new Set(attributing.map((a) => a.conn.provider))];
+  if (count <= 0) {
+    return {
+      field_key: COST_PER_PURCHASE_KEY,
+      outcome: "refused",
+      reason: `${providers.join(" and ")} attributed no purchases between ${w.from} and ${w.to}, so there is no cost per purchase to measure`,
+    };
+  }
+  const single = attributing.length === 1;
+  return writeMeasured({
+    profileId,
+    fieldKey: COST_PER_PURCHASE_KEY,
+    value: money(Math.round(total.value.amount_minor / count), total.value.currency),
+    provider: conn.provider,
+    ...(single ? {} : { providers }),
+    metrics: ["ad_spend.daily", "ad_purchases.daily"],
+    method: single
+      ? `sum(ad_spend.daily) ÷ sum(ad_purchases.daily) over ${w.from}..${w.to} ` +
+        `(${spend.days} days, ${count} attributed purchases) from ${conn.provider} connection ${conn.id}`
+      : `sum(ad_spend.daily) ÷ sum(ad_purchases.daily) over ${w.from}..${w.to} ` +
+        `(${count} attributed purchases) across ${attributing
+          .map((a) => `${a.conn.provider} connection ${a.conn.id} (${a.spend.days} days)`)
+          .join(" + ")}`,
+    window: w,
+    recordedAt,
+    note: single
+      ? `Measured by ${conn.provider}: ad spend divided by the purchases it attributed, ${w.from} to ${w.to}.`
+      : `Measured by ${providers.join(" and ")} together: their ad spend divided by the purchases they attributed, ${w.from} to ${w.to}.`,
+  });
+}
+
+/**
+ * P2-20: with more than one ad platform measuring spend (Meta's measure
+ * connection, Google Ads' execute connection), the business's monthly ad
+ * spend is their SUM over the window — never whichever synced last, which
+ * would flip the fact between platforms every night. One currency only
+ * (rule 1): two platforms billing in different currencies are a refusal,
+ * and the current fact stands. Null when this connection is the account's
+ * only ad-spend source in the window: the ordinary single-source path runs.
+ */
+async function deriveCombinedAdSpend(
+  conn: ConnectionRow,
+  profileId: string,
+  fieldKey: string,
+  w: DeriveWindow,
+  recordedAt: ISODateTime,
+): Promise<DeriveOutcome | null> {
+  const sources = await adSources(conn, "ad_spend.daily", w);
   if (sources.length < 2 || !sources.some((s) => s.conn.id === conn.id)) return null;
   const total = totalMoney(
     "ad_spend.daily",

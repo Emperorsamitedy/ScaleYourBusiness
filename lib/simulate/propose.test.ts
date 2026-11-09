@@ -101,7 +101,10 @@ async function owner(profileId: string, key: string, value: unknown) {
 }
 
 /** A business in care, with one measured Meta campaign, a stated margin and a social channel. */
-async function business(mode: "instant" | "watching" = "instant") {
+async function business(
+  mode: "instant" | "watching" = "instant",
+  ads: "meta_ads" | "google_ads" = "meta_ads",
+) {
   const s = await bootstrapIntake();
   created.push(s);
   await db.insert(modeDecisions).values({
@@ -122,7 +125,12 @@ async function business(mode: "instant" | "watching" = "instant") {
   await owner(s.profile_id, `channels.${ch!.id}.type`, "social_organic");
   const [conn] = await db
     .insert(connections)
-    .values({ account_id: s.account_id, provider: "meta_ads" })
+    .values({
+      account_id: s.account_id,
+      provider: ads,
+      // Google Ads' read rides on its execute consent (P2-20).
+      purpose: ads === "google_ads" ? "execute" : "measure",
+    })
     .returning({ id: connections.id });
   const rows = [];
   for (let i = 1; i <= 28; i++) {
@@ -132,7 +140,7 @@ async function business(mode: "instant" | "watching" = "instant") {
     ] as const) {
       rows.push({
         connection_id: conn!.id,
-        provider: "meta_ads",
+        provider: ads,
         metric_key: metric,
         dimensions: { campaign_ref: "530000001", campaign_name: "Brand", currency: "EUR" },
         dimension_key: JSON.stringify({ campaign_ref: "530000001", currency: "EUR" }),
@@ -257,6 +265,26 @@ describe('"Propose this" — the normal proposal, pending, executing nothing', (
     );
     expect(JSON.stringify(rows[0]!.scenario)).not.toContain("@example.com");
     await nothingExecuted(rows[0]!.id);
+  });
+
+  it("a Google Ads campaign is read, said with Google's name, and proposed on Google", async () => {
+    const b = await business("instant", "google_ads");
+    const x = await gatherInputs(b.profile_id, NOW);
+    // A Google-only account is connected for ads: the needs line never asks for Meta.
+    expect(x.ads.connected).toBe(true);
+    expect(x.ads.campaigns).toMatchObject([{ platform: "google", ref: "530000001" }]);
+    const sim = simulateOption(RAISE, x);
+    expect(sim.inputs.find((i) => i.key === "daily")?.source).toMatch(/^Google Ads: /);
+    expect(JSON.stringify(sim)).not.toMatch(/Meta/);
+
+    const out = await proposeFromSimulation(b.profile_id, RAISE, { now: NOW, limitLlm: noLimits });
+    expect(out.skipped).toBeNull();
+    const [row] = await db.select().from(proposals).where(eq(proposals.id, out.proposal!.id));
+    expect(row!.action).toMatchObject({
+      detail: { change: "raise_budget", campaign_ref: "530000001", platform: "google" },
+    });
+    expect(adsPlan(row!)).toMatchObject({ plan: { provider: "google_ads" } });
+    await nothingExecuted(row!.id);
   });
 
   it("a cut carries a negative share, routed as a lower budget", async () => {

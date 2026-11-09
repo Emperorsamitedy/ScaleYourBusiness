@@ -22,6 +22,7 @@ import {
   isAppLocale,
   languageOpenTo,
   languageStatus,
+  languagesInReview,
   offeredLanguages,
   resolveLanguage,
 } from "./locales";
@@ -86,6 +87,12 @@ describe("the languages and their status", () => {
       delete process.env.LANGUAGES_IN_REVIEW;
     }
     expect(languageStatus("zh-Hans")).toBe("live");
+  });
+
+  it("languagesInReview: only languages SYB speaks, never English, in the table's order", () => {
+    expect(languagesInReview("")).toEqual([]);
+    expect(languagesInReview(undefined)).toEqual([]);
+    expect(languagesInReview("zh-Hans, ru-RU,en,klingon")).toEqual(["ru-RU", "zh-Hans"]);
   });
 });
 

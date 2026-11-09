@@ -230,6 +230,17 @@ export function readInt64(v: unknown): number | null {
   return Number.isSafeInteger(n) ? n : null;
 }
 
+/**
+ * Pure: a protobuf int64 ID (a campaign's, a customer's) kept exact as a
+ * string — never through Number(), which drops an id past 2^53 (review
+ * 2026-11-08). Positive only; null if it isn't one.
+ */
+export function readId(v: unknown): string | null {
+  const raw = typeof v === "number" && Number.isSafeInteger(v) ? String(v) : v;
+  if (typeof raw !== "string" || !/^[1-9]\d{0,18}$/.test(raw)) return null;
+  return BigInt(raw) <= 9_223_372_036_854_775_807n ? raw : null;
+}
+
 /** Pure: a double as REST JSON carries it — null if it isn't a finite number. */
 export function readDouble(v: unknown): number | null {
   const n = typeof v === "number" ? v : typeof v === "string" && v.trim() !== "" ? Number(v) : NaN;
@@ -348,9 +359,9 @@ export interface GadsCustomer {
 /** Pure: Google's customer row into SYB's shape, or null when it isn't one. */
 export function readCustomerRow(row: Record<string, unknown>): GadsCustomer | null {
   const c = (row["customer"] ?? {}) as Record<string, unknown>;
-  const id = readInt64(c["id"]);
+  const id = readId(c["id"]);
   const currency = typeof c["currencyCode"] === "string" ? c["currencyCode"].toUpperCase() : "";
-  if (id === null || !CUSTOMER_ID_RE.test(String(id)) || !/^[A-Z]{3}$/.test(currency)) return null;
+  if (id === null || !CUSTOMER_ID_RE.test(id) || !/^[A-Z]{3}$/.test(currency)) return null;
   const name =
     typeof c["descriptiveName"] === "string" && c["descriptiveName"].trim() !== ""
       ? c["descriptiveName"].trim().slice(0, 200)

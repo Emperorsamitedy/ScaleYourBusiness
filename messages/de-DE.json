@@ -967,10 +967,14 @@
         "titleNone": "Jede Kampagne bringt ein, was sie kostet",
         "titleLosing": "{count, plural, one {# Kampagne kostet mehr, als sie einbringt} other {# Kampagnen kosten mehr, als sie einbringen}}",
         "window": "Meta Ads · {from}–{to}",
+        "windowPlatforms": "{platforms} · {from}–{to}",
         "derivedFrom": "<word>{derived}</word> aus Metas eigener Zuordnung",
+        "derivedFromPlatforms": "<word>{derived}</word> aus der eigenen Zuordnung jeder Plattform",
         "foot": "Rendite = der Kaufwert, den Meta der Kampagne zuordnet ÷ was sie ausgegeben hat. Unter {even} verliert sie nach Metas eigener Zählung Geld — die Linie, ab der ich eine Pause vorschlage.",
+        "footPlatforms": "Rendite = der Wert, den die Plattform der Kampagne zuordnet ÷ was sie ausgegeben hat. Unter {even} verliert sie nach der eigenen Zählung dieser Plattform Geld — die Linie, ab der ich eine Pause vorschlage.",
         "keySpent": "ausgegeben: hohl",
         "keyBack": "von Meta zurück zugeordnet: gefüllt",
+        "keyBackPlatforms": "von der Plattform zurück zugeordnet: gefüllt",
         "colCampaign": "Kampagne",
         "colSpentBack": "Ausgegeben gegenüber zurück",
         "colReturn": "Rendite",
@@ -7270,17 +7274,22 @@
         "typedNeeds": "das Tagesbudget, das Sie im Sinn haben",
         "newSpendFormula": "{daily} pro Tag × {days} Tage",
         "dailySource": "Meta: {spend} über {count, plural, one {# gemessenen Tag} other {# gemessene Tage}} der letzten {window} Tage",
+        "dailySourceOn": "{platform}: {spend} über {count, plural, one {# gemessenen Tag} other {# gemessene Tage}} der letzten {window} Tage",
         "noSpend": "keine gemessenen Ausgaben in den letzten vier Wochen",
         "dailyNeeds": "ein paar Wochen Laufzeit dieser Kampagne",
         "pauseFormula": "{daily} pro Tag nicht ausgegeben × {days} Tage",
         "changeFormula": "{daily} pro Tag × {change} × {days} Tage",
         "roasSource": "{which, select, pooled {von Meta zugeordnete Käufe ÷ Ausgaben, je rollierender Woche von {block} Tagen über die letzten {window} Tage, über Ihre gemessenen Kampagnen, mittlere Hälfte ({count, plural, one {# Woche} other {# Wochen}})} other {von Meta zugeordnete Käufe ÷ Ausgaben, je rollierender Woche von {block} Tagen über die letzten {window} Tage, mittlere Hälfte ({count, plural, one {# Woche} other {# Wochen}})}}",
+        "roasSourceOn": "von {platform} zugeordneter Wert ÷ Ausgaben, je rollierender Woche von {block} Tagen über die letzten {window} Tage, mittlere Hälfte ({count, plural, one {# Woche} other {# Wochen}})",
         "roasNonePooled": "keine Ihrer Kampagnen hat {days} gemessene Tage in {currency}",
         "roasNone": "{count, plural, one {# gemessener Tag} other {# gemessene Tage}} — ich brauche {need}",
         "roasNeeds": "{which, select, pooled {{days} gemessene Tage einer Kampagne} other {{days} gemessene Tage dieser Kampagne}}",
         "reachNotRead": "Metas Reichweite pro Kampagne wird nicht gelesen",
+        "reachNotReadOn": "die Reichweite von {platform} pro Kampagne wird nicht gelesen",
         "ordersNotRead": "Metas Berichte nennen pro Kampagne den Kaufwert, keine Anzahl",
+        "ordersNotReadOn": "die Berichte von {platform} nennen pro Kampagne den zugeordneten Wert, keine Anzahl",
         "revenueFormula": "{spend} × Rendite {roas} (Metas Zuordnung)",
+        "revenueFormulaOn": "{spend} × Rendite {roas} (Zuordnung von {platform})",
         "worstFormula": "{spend} × Rendite {roas} × {margin} − {spend}",
         "worstWeakest": "Jede Woche bringt so viel wie Ihre schwächste gemessene Woche ({roas}): {amount} über {days} Tage.",
         "worstBest": "Die Wochen, die Sie beenden würden, waren so gut wie Ihre beste gemessene Woche ({roas}): {amount} über {days} Tage.",
@@ -7294,6 +7303,7 @@
         "titlePause": "„{name}“ pausieren",
         "whatNew": "Eine neue Meta-Kampagne, beurteilt danach, was Ihre anderen Kampagnen einbringen.",
         "whatPause": "Die Kampagne stoppen: Was sie ausgibt, bleibt bei Ihnen, und was sie laut Meta einbringt, fällt ebenfalls weg.",
+        "whatPauseOn": "Die Kampagne stoppen: Was sie ausgibt, bleibt bei Ihnen, und was sie laut {platform} einbringt, fällt ebenfalls weg.",
         "whatRaise": "Mehr Tagesbudget für eine Kampagne, die Sie schon betreiben.",
         "whatCut": "Weniger Tagesbudget für eine Kampagne, die Sie schon betreiben.",
         "newNotProposable": "Eine neue Anzeige beginnt mit einem Beitrag oder Video: Unter „Inhalte“ erstellt „Als Anzeige schalten“ einen Vorschlag, der sie pausiert bei Meta anlegt ({task}). Von hier aus kann ich sie nur beziffern.",
@@ -7302,6 +7312,7 @@
         "assumeStop": "Die Ausgaben, die Sie stoppen, brachten so viel wie die letzten Wochen der Kampagne.",
         "assumeExtra": "Zusätzliche Ausgaben bringen so viel wie die letzten Wochen.",
         "assumptionSource": "meine Hochrechnung aus Metas eigener Zuordnung — einige dieser Käufe wären vielleicht ohnehin passiert",
+        "assumptionSourceOn": "meine Hochrechnung aus der eigenen Zuordnung von {platform} — einige dieser Verkäufe wären vielleicht ohnehin passiert",
         "keyRate": "Werberendite"
       },
       "content": {
@@ -7932,7 +7943,7 @@
       "nothingWaiting": "nichts wartet gerade auf Ihre Freigabe",
       "noPricedGain": "nichts, was auf Sie wartet, hat bisher einen bezifferten Gewinn",
       "noRevenueSeries": "ich brauche eine gemessene Umsatzreihe, um das daran abzulesen",
-      "noAds": "verbinden Sie Meta Ads oder Google Ads, dann prüfe ich, welche Kampagnen mehr kosten, als sie einbringen"
+      "noAds": "verbinden Sie Meta Ads, Google Ads oder TikTok Ads, dann prüfe ich, welche Kampagnen mehr kosten, als sie einbringen"
     },
     "price": {
       "arithmetic": "Durchschnittspreis {mean} ({revenue} ÷ {count, plural, one {# wahrgenommener} other {# wahrgenommene}})",
@@ -7952,7 +7963,8 @@
       "tableProposal": "{summary}: {range}",
       "onTheTable": "{count, plural, one {# wartender Vorschlag} other {# wartende Vorschläge}}, Basisszenario bis günstiger Fall pro Monat: {parts}",
       "adsAllPaidPlatforms": "jede Kampagne hat nach der eigenen Zuordnung ihrer Plattform mindestens eingebracht, was sie gekostet hat ({count, plural, one {# Kampagne} other {# Kampagnen}})",
-      "adsLoserGoogle": "{campaign} bei Google Ads: {spent} ausgegeben, Google ordnet {value} Konversionswert zu (Rendite {roas}) → {loss}"
+      "adsLoserGoogle": "{campaign} bei Google Ads: {spent} ausgegeben, Google ordnet {value} Konversionswert zu (Rendite {roas}) → {loss}",
+      "adsLoserTikTok": "{campaign} bei TikTok Ads: {spent} ausgegeben, TikTok ordnet {value} Kaufwert zu (Rendite {roas}) → {loss}"
     },
     "basisNote": {
       "capacity": "aus einer Kapazität, von Ihnen {basis, select, ESTIMATED {GESCHÄTZT} other {ANGEGEBEN}} ({perWeek} pro Woche)",
@@ -7960,7 +7972,9 @@
       "statedCost": "vorrätige Einheiten × von Ihnen angegebene Kosten, bei einigen Artikeln",
       "proposals": "das eigene Basisszenario und der günstige Fall der Vorschläge",
       "google": "aus Googles eigener Zuordnung",
-      "adPlatforms": "aus der eigenen Zuordnung jeder Plattform, Metas und Googles"
+      "tiktok": "aus TikToks eigener Zuordnung",
+      "adPlatforms": "aus der eigenen Zuordnung jeder Plattform, Metas und Googles",
+      "adPlatformsEach": "aus der eigenen Zuordnung jeder Plattform"
     },
     "componentNote": {
       "adsOtherCurrency": "{count, plural, one {# Kampagne} other {# Kampagnen}} in {currencies} weggelassen: Währungen werden nie vermischt",
@@ -7983,7 +7997,10 @@
       "return": "Rendite {roas}",
       "adsPlatforms": "Ausgaben gegenüber dem Wert, den jede Plattform zuordnet, pro Kampagne (Meta: Kaufwert, Google: Konversionswert), {from} bis {to}: {campaigns}. Verlustbringend heißt eine Rendite unter {even}.",
       "adsCampaignGoogle": "{campaign} bei Google Ads hat {spent} ausgegeben, Google ordnet {value} zu ({roas})",
-      "adsCampaignGoogleLosing": "{campaign} bei Google Ads hat {spent} ausgegeben, Google ordnet {value} zu ({roas}), verlustbringend"
+      "adsCampaignGoogleLosing": "{campaign} bei Google Ads hat {spent} ausgegeben, Google ordnet {value} zu ({roas}), verlustbringend",
+      "adsPlatformsEach": "Ausgaben gegenüber dem Wert, den jede Plattform zuordnet, pro Kampagne, {from} bis {to}: {campaigns}. Verlustbringend heißt eine Rendite unter {even}.",
+      "adsCampaignTikTok": "{campaign} bei TikTok Ads hat {spent} ausgegeben, TikTok ordnet {value} zu ({roas})",
+      "adsCampaignTikTokLosing": "{campaign} bei TikTok Ads hat {spent} ausgegeben, TikTok ordnet {value} zu ({roas}), verlustbringend"
     }
   },
   "watchNoticed": {
@@ -8979,7 +8996,9 @@
         "no_payer": "Braucht zuerst Ihre Bankdaten",
         "erased": "Bankdaten gelöscht",
         "not_approved": "Noch nicht freigegeben",
-        "paid": "Bereits bezahlt"
+        "paid": "Bereits bezahlt",
+        "name_not_latin": "Von Hand: ein Name oder Verwendungszweck ist nicht in lateinischer Schrift",
+        "bic_needed": "Von Hand: braucht die BIC des Empfängers"
       }
     },
     "paid": {
@@ -9025,7 +9044,9 @@
       "erased": "Die Bankdaten dieser Zahlung wurden gelöscht. Fragen Sie den Empfänger erneut danach.",
       "why": {
         "notEur": "Nicht in Euro, daher nicht in der SEPA-Datei: führen Sie sie von Hand aus.",
-        "notSepa": "Eine Bank außerhalb von SEPA, daher nicht in der SEPA-Datei: führen Sie sie von Hand aus."
+        "notSepa": "Eine Bank außerhalb von SEPA, daher nicht in der SEPA-Datei: führen Sie sie von Hand aus.",
+        "notLatin": "Ein Name oder Verwendungszweck nicht in lateinischer Schrift, daher nicht in der SEPA-Datei: führen Sie sie von Hand aus.",
+        "bicNeeded": "Eine Bank außerhalb des EWR braucht die BIC des Empfängers, daher nicht in der SEPA-Datei: führen Sie sie von Hand aus."
       },
       "closing": "Sobald eine Zahlung ausgeführt ist, markieren Sie sie in SYB. Lehnt Ihre Bank eine Angabe ab, korrigieren Sie sie dort: SYB sendet nie etwas an Ihre Bank."
     },

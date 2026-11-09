@@ -636,9 +636,27 @@ export function revenueDips(
 
 /* ── ads that cost more than Meta says they bring back ── */
 
+/** P2-20 / TikTok Ads: whose attribution a campaign's value is. */
+export type CampaignPlatform = "meta" | "google" | "tiktok";
+
+/** The connector each platform's per-campaign series comes from. */
+const CAMPAIGN_PROVIDER: Readonly<Record<CampaignPlatform, string>> = {
+  meta: "meta_ads",
+  google: "google_ads",
+  tiktok: "tiktok_ads",
+};
+
+/** The platforms present, in a fixed order (Meta, Google, TikTok). */
+export function campaignPlatforms(
+  campaigns: readonly { platform?: CampaignPlatform }[],
+): CampaignPlatform[] {
+  const present = new Set(campaigns.map((c) => c.platform ?? "meta"));
+  return (["meta", "google", "tiktok"] as const).filter((p) => present.has(p));
+}
+
 export interface CampaignInput {
   /** P2-20: whose attribution the value is; Meta when absent. */
-  platform?: "meta" | "google";
+  platform?: CampaignPlatform;
   campaign_ref: string;
   campaign_name: string;
   currency: string;
@@ -647,7 +665,7 @@ export interface CampaignInput {
 }
 
 export interface CampaignWindow {
-  platform?: "meta" | "google";
+  platform?: CampaignPlatform;
   campaign_ref: string;
   campaign_name: string;
   currency: string;
@@ -667,7 +685,7 @@ export function campaignWindows(campaigns: readonly CampaignInput[], w: Window):
       const value = days.reduce((n, d) => n + d.value_minor, 0);
       const roas = spend > 0 ? value / spend : null;
       return {
-        ...(c.platform === "google" ? { platform: "google" as const } : {}),
+        ...(c.platform !== undefined && c.platform !== "meta" ? { platform: c.platform } : {}),
         campaign_ref: c.campaign_ref,
         campaign_name: c.campaign_name,
         currency: c.currency,
@@ -681,6 +699,12 @@ export function campaignWindows(campaigns: readonly CampaignInput[], w: Window):
     .filter((c) => c.measured_days > 0)
     .sort((a, b) => b.spend_minor - a.spend_minor);
 }
+
+const LOSER_KEY: Readonly<Record<CampaignPlatform, string>> = {
+  meta: "formula.adsLoser",
+  google: "formula.adsLoserGoogle",
+  tiktok: "formula.adsLoserTikTok",
+};
 
 export function losingAds(
   campaigns: readonly CampaignInput[] | null,
@@ -702,41 +726,38 @@ export function losingAds(
   const losers = mine.filter((c) => c.losing);
   const loss = losers.reduce((n, c) => n + (c.spend_minor - c.value_minor), 0);
   const roas = (c: CampaignWindow) => (c.roas === null ? "—" : num(c.roas, 2, locale));
-  // P2-20: Google Ads campaigns sit beside Meta's, each on its own platform's attribution.
-  const google = mine.some((c) => c.platform === "google");
-  const metaToo = mine.some((c) => c.platform !== "google");
+  // P2-20: Google Ads and TikTok Ads campaigns sit beside Meta's, each on its
+  // own platform's attribution.
+  const platforms = campaignPlatforms(mine.length > 0 ? mine : all);
+  const only = platforms.length === 1 ? platforms[0] : null;
+  const metaGoogle =
+    platforms.length === 2 && platforms.includes("meta") && platforms.includes("google");
   return priced({
     key: "losing_ads",
     basis: "DERIVED",
     basis_note: tr(
-      google ? (metaToo ? "basisNote.adPlatforms" : "basisNote.google") : "basisNote.meta",
+      only !== null
+        ? `basisNote.${only}`
+        : metaGoogle
+          ? "basisNote.adPlatforms"
+          : "basisNote.adPlatformsEach",
     ),
     window: { from: w.from, to: w.to, days: daysInclusive(w.from, w.to) },
     low_minor: loss,
     high_minor: loss,
     currency,
-    derived_from: [
-      ...(metaToo || !google
-        ? [
-            "connector:meta_ads:ad_spend.campaign.daily",
-            "connector:meta_ads:ad_purchase_value.campaign.daily",
-          ]
-        : []),
-      ...(google
-        ? [
-            "connector:google_ads:ad_spend.campaign.daily",
-            "connector:google_ads:ad_purchase_value.campaign.daily",
-          ]
-        : []),
-    ],
+    derived_from: platforms.flatMap((p) => [
+      `connector:${CAMPAIGN_PROVIDER[p]}:ad_spend.campaign.daily`,
+      `connector:${CAMPAIGN_PROVIDER[p]}:ad_purchase_value.campaign.daily`,
+    ]),
     formula:
       losers.length === 0
-        ? tr(google ? "formula.adsAllPaidPlatforms" : "formula.adsAllPaid", {
+        ? tr(only === "meta" ? "formula.adsAllPaid" : "formula.adsAllPaidPlatforms", {
             count: mine.length,
           })
         : losers
             .map((c) =>
-              tr(c.platform === "google" ? "formula.adsLoserGoogle" : "formula.adsLoser", {
+              tr(LOSER_KEY[c.platform ?? "meta"], {
                 campaign: c.campaign_name,
                 spent: fig(c.spend_minor, c.currency, locale),
                 value: fig(c.value_minor, c.currency, locale),

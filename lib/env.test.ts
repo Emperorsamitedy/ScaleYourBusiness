@@ -1,5 +1,16 @@
 import { afterEach, describe, expect, it } from "vitest";
-import { env, pushServiceSetting, vapidEnv } from "./env";
+import {
+  env,
+  googleAdsMissing,
+  higgsfieldEnv,
+  mediaProviderSetting,
+  pushServiceSetting,
+  sessionDRealWritesOn,
+  tiktokAdsMissing,
+  twilioMissing,
+  vapidEnv,
+  whatsappMissing,
+} from "./env";
 
 const saved = { ...process.env };
 
@@ -55,5 +66,38 @@ describe("idea 53: phone alert settings", () => {
     expect(pushServiceSetting()).toBe("fake");
     Object.assign(process.env, { NODE_ENV: "production" });
     expect(pushServiceSetting()).toBe("real");
+  });
+});
+
+describe("an env handed in, as /ops hands one (lib/ops/readiness.ts)", () => {
+  it("reads the env it is handed, not process.env", () => {
+    process.env.TWILIO_PHONE_NUMBER = "+447700900123";
+    process.env.SESSION_D_REAL_WRITES = "on";
+    process.env.MEDIA_PROVIDER = "higgsfield";
+    const handed = {
+      TWILIO_ACCOUNT_SID: `AC${"ab".repeat(16)}`,
+      TWILIO_AUTH_TOKEN: "t",
+    };
+    expect(twilioMissing(handed)).toEqual(["TWILIO_PHONE_NUMBER"]);
+    expect(whatsappMissing(handed)).toEqual([
+      "TWILIO_WHATSAPP_FROM",
+      "TWILIO_WHATSAPP_SUMMARY_TEMPLATES",
+    ]);
+    expect(sessionDRealWritesOn({})).toBe(false);
+    expect(sessionDRealWritesOn()).toBe(true);
+    expect(mediaProviderSetting({})).toBe("off");
+    expect(mediaProviderSetting({ MEDIA_PROVIDER: "fake", NODE_ENV: "production" })).toBe("off");
+    expect(mediaProviderSetting({ MEDIA_PROVIDER: "fake", NODE_ENV: "test" })).toBe("fake");
+    expect(higgsfieldEnv({ HIGGSFIELD_API_KEY: "id:secret" }).key).toEqual({
+      id: "id",
+      secret: "secret",
+    });
+    expect(googleAdsMissing({ GOOGLE_CLIENT_ID: "g", GOOGLE_CLIENT_SECRET: "s" })).toEqual([
+      "GOOGLE_ADS_ACCESS_LEVEL",
+    ]);
+    expect(tiktokAdsMissing({ TIKTOK_ADS_APP_ID: "a" })).toEqual([
+      "TIKTOK_ADS_SECRET",
+      "TIKTOK_ADS_REDIRECT_URI",
+    ]);
   });
 });

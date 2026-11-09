@@ -4,7 +4,7 @@
 // series, the per-post snapshots, the measured daily series, the
 // economics engine, the readbacks). Read-only; no model call anywhere.
 
-import { and, desc, eq, gte, inArray, isNotNull, lte } from "drizzle-orm";
+import { and, desc, eq, gte, inArray, isNotNull, lte, or } from "drizzle-orm";
 import { db } from "../../db";
 import {
   accounts,
@@ -26,7 +26,7 @@ import type { ProposalRow } from "../proposals/service";
 import type { Field } from "../core/field";
 import { readCurrentField } from "../profile/field-store";
 import { ensureSnapshot, readSnapshot } from "../profile/snapshot";
-import { campaignOutcome } from "../trust/campaign-readback";
+import { adPlatformOf, campaignOutcome } from "../trust/campaign-readback";
 import { campaignKind, emailCampaignOutcome } from "../trust/email-readback";
 import { audienceMetricFor, comparisonAge, loadPostSnapshots } from "../trust/post-readback";
 import { executedOn } from "../trust/readback";
@@ -196,22 +196,27 @@ export async function gatherInputs(
   }
 
   /* ads — the per-campaign series and the stated ceiling */
-  const metaMeasure = await db
+  // Every ad platform SYB reads per campaign: Meta's measure connection, and
+  // the Google Ads and TikTok Ads execute connections whose read is measurement.
+  const adReads = await db
     .select({ id: connections.id })
     .from(connections)
     .where(
       and(
         eq(connections.account_id, accountId),
-        eq(connections.provider, "meta_ads"),
-        eq(connections.purpose, "measure"),
+        or(
+          and(eq(connections.provider, "meta_ads"), eq(connections.purpose, "measure")),
+          and(eq(connections.provider, "google_ads"), eq(connections.purpose, "execute")),
+          and(eq(connections.provider, "tiktok_ads"), eq(connections.purpose, "execute")),
+        ),
       ),
     );
   const win = adsWindow(asOf);
-  // TikTok campaigns stay out of the simulator: its asks don't name a TikTok platform.
-  const series = (await loadCampaignSeries(accountId, win.from, win.to)).filter(
-    (s) => platformOfSeries(s) !== "tiktok",
-  );
+  // Each campaign keeps its platform: "Propose this" routes it there, and the
+  // ceiling's account-wide day counts every platform's spend together.
+  const series = await loadCampaignSeries(accountId, win.from, win.to);
   const campaigns: CampaignRaw[] = series.map((s) => ({
+    ...(platformOfSeries(s) === "meta" ? {} : { platform: platformOfSeries(s) }),
     ref: s.campaign_ref,
     name: s.campaign_name,
     currency: s.currency,
@@ -249,7 +254,7 @@ export async function gatherInputs(
       past: emailPast.map((p) => p.campaign),
     },
     ads: {
-      connected: metaMeasure.length > 0,
+      connected: adReads.length > 0,
       campaigns,
       ceiling: await monthlyAdCeiling(profileId),
     },
@@ -503,8 +508,11 @@ async function adsCrossCheck(
   let checked = 0;
   let hits = 0;
   for (const row of rows) {
-    const detail = (row.action as { detail?: { campaign_ref?: unknown; campaign_name?: unknown } })
-      .detail;
+    const detail = (
+      row.action as {
+        detail?: { campaign_ref?: unknown; campaign_name?: unknown; platform?: unknown };
+      }
+    ).detail;
     const ref = typeof detail?.campaign_ref === "string" ? detail.campaign_ref : null;
     const day = await executedOn(row);
     if (!ref || !day) continue;
@@ -514,6 +522,7 @@ async function adsCrossCheck(
       campaignName: typeof detail?.campaign_name === "string" ? detail.campaign_name : ref,
       changedOn: day,
       now,
+      platform: adPlatformOf(detail?.platform),
     });
     if (outcome.verdict in verdicts) verdicts[outcome.verdict as keyof typeof verdicts]++;
     const sim = simulationOf(row);

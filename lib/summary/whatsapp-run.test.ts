@@ -251,6 +251,45 @@ describe("P6-07 — rule 19: no send without a live yes", () => {
     expect(row).toMatchObject({ status: "sent", whatsapp_status: null, whatsapp_optin_id: null });
   });
 
+  it("review 2026-11-08: a yes withdrawn while the week is being sent stops the message", async () => {
+    const b = await business({ channel: "both" });
+    await yes(b);
+    const twilio = fakeTwilio();
+    // The email goes first; the owner withdraws while it is on its way.
+    const send = async (): Promise<OwnerEmailOutcome> => {
+      await withdrawOptin(b.user_id, b.account_id);
+      return { kind: "sent", provider_id: "re_withdrawn" };
+    };
+    await runWeeklySummaries(NOW, {
+      accountIds: [b.account_id],
+      origin: ORIGIN,
+      send,
+      twilioFetch: twilio.fetch,
+    });
+    expect(twilio.calls).toHaveLength(0);
+    const [row] = await rows(b.account_id);
+    expect(row).toMatchObject({ status: "sent", whatsapp_status: "refused", whatsapp_sid: null });
+  });
+
+  it("review 2026-11-08: a yes replaced by another number mid-run sends to neither", async () => {
+    const b = await business({ channel: "both" });
+    await yes(b);
+    const twilio = fakeTwilio();
+    const send = async (): Promise<OwnerEmailOutcome> => {
+      await yes(b); // a new number: the old yes is withdrawn with it
+      return { kind: "sent", provider_id: "re_replaced" };
+    };
+    await runWeeklySummaries(NOW, {
+      accountIds: [b.account_id],
+      origin: ORIGIN,
+      send,
+      twilioFetch: twilio.fetch,
+    });
+    expect(twilio.calls).toHaveLength(0);
+    const [row] = await rows(b.account_id);
+    expect(row).toMatchObject({ whatsapp_status: "refused" });
+  });
+
   it("not configured on the server: the yes alone sends nothing and claims nothing", async () => {
     const b = await business({ channel: "whatsapp" });
     await yes(b);
