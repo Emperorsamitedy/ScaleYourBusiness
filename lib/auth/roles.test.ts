@@ -60,6 +60,8 @@ const NEVER_A_MANAGER: readonly RoleAction[] = [
   "business.locale",
   // P6-05 (rule 26 amended): preparing, approving and marking payments is the owner's.
   "payments.prepare",
+  // Least privilege (owner, 2026-11-09): the payments list and the bank files too.
+  "payments.read",
   // P6-08 (rule 32): call recordings are heard by the owner alone.
   "phone.recordings",
 ];

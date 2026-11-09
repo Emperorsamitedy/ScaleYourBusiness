@@ -6147,7 +6147,8 @@
       "stop_resume": "Only an owner can start things up again after a stop.",
       "business_locale": "Only an owner can change the business's language or currency.",
       "payments_prepare": "Only an owner can prepare payments or say one was paid.",
-      "phone_recordings": "Only an owner can listen to call recordings."
+      "phone_recordings": "Only an owner can listen to call recordings.",
+      "payments_read": "Only an owner can see payments and their bank files."
     }
   },
   "authWords": {
@@ -8988,7 +8989,8 @@
       "reference": "Reference",
       "date": "Date",
       "file": "Bank file",
-      "action": "Action"
+      "action": "Action",
+      "exported": "Downloaded"
     },
     "file": {
       "yes": "In the SEPA file",
@@ -9010,11 +9012,14 @@
       "on": "said paid on {date}"
     },
     "download": {
-      "sepa": "{count, plural, one {Download the SEPA file (# payment)} other {Download the SEPA file (# payments)}}",
-      "steps": "Download step-by-step instructions",
       "needPayer": "Add the bank details you pay from to get a SEPA file. The instructions work without them.",
       "noneForFile": "None of these can go in a SEPA file, which is for euros between SEPA banks. Use the instructions.",
-      "total": "{count, plural, one {The file holds # payment, {total} in all.} other {The file holds # payments, {total} in all.}}"
+      "total": "{count, plural, one {The file holds # payment, {total} in all.} other {The file holds # payments, {total} in all.}}",
+      "newSepa": "{count, plural, one {Download a new SEPA file (# payment)} other {Download a new SEPA file (# payments)}}",
+      "newSteps": "{count, plural, one {Download new instructions (# payment)} other {Download new instructions (# payments)}}",
+      "onlyNew": "A new file holds only payments that aren't in a file yet, so no payment is ever in two files.",
+      "allInFile": "Every ready payment is already in a file you downloaded. You can download a file again below.",
+      "done": "{count, plural, one {Downloaded: # payment is now in a file, and no new file will hold it.} other {Downloaded: # payments are now in a file, and no new file will hold them.}}"
     },
     "steps": {
       "fileTitle": "Using the SEPA file",
@@ -9051,7 +9056,9 @@
         "notLatin": "A name or reference not in Latin letters, so it isn't in the SEPA file: make it by hand.",
         "bicNeeded": "A bank outside the EEA needs the payee's BIC, so it isn't in the SEPA file: make it by hand."
       },
-      "closing": "Once a payment is made, mark it in SYB. If your bank refuses a detail, correct it there: SYB never sends anything to your bank."
+      "closing": "Once a payment is made, mark it in SYB. If your bank refuses a detail, correct it there: SYB never sends anything to your bank.",
+      "batch": "File {ref}, made on {date}. No payment in it is in any other file SYB made.",
+      "copy": "COPY of a file first downloaded on {date}. If you already made these payments, don't make them again: check your bank first."
     },
     "waiting": {
       "label": "Waiting for approval",
@@ -9136,7 +9143,32 @@
       "no_session": "Saying a payment was made needs you signed in.",
       "none_ready": "Nothing is ready for your bank yet. A payment needs approving first.",
       "no_payer": "A SEPA file needs the bank details you pay from.",
-      "none_for_file": "None of the ready payments can go in a SEPA file."
+      "none_for_file": "None of the ready payments can go in a SEPA file.",
+      "all_in_file": "Every one of these payments is already in a file you downloaded. Download that file again from the list instead.",
+      "taken": "Another download put these payments in a file just now. Look at the files you downloaded.",
+      "no_such_file": "I couldn't find that file.",
+      "file_erased": "This file can't be made again: a payment in it had its bank details erased."
+    },
+    "refused": "Payments are the owner's",
+    "exported": {
+      "no": "Not in a file yet",
+      "sepa": "In the SEPA file of {date}",
+      "steps": "In the instructions of {date}"
+    },
+    "files": {
+      "label": "Files you downloaded",
+      "title": "{count, plural, one {# file} other {# files}}",
+      "foot": "Each SEPA file has its own message ID. A bank refuses a file whose message ID it has already seen, so uploading the same file twice can't pay twice.",
+      "sepa": "SEPA file of {date}",
+      "steps": "Instructions of {date}",
+      "count": "{count, plural, one {# payment} other {# payments}}",
+      "paid": "{count, plural, one {# marked paid} other {# marked paid}}",
+      "by": "downloaded by {name}",
+      "again": "Download again",
+      "warn": "You already downloaded this file on {date}. If you uploaded it to your bank or paid its payments by hand, don't do it again: that would pay them twice. Check your bank first.",
+      "sameId": "The copy is the same file, with the same message ID ({id}): your bank should refuse it if it has already seen it.",
+      "confirm": "I've checked my bank: download the same file again",
+      "erased": "This file can't be made again: a payment in it had its bank details erased."
     }
   }
 }

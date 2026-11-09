@@ -6147,7 +6147,8 @@
       "stop_resume": "只有所有者可以在停止后重新启动。",
       "business_locale": "只有所有者可以更改企业的语言或货币。",
       "payments_prepare": "只有所有者可以准备付款或说明某笔付款已完成。",
-      "phone_recordings": "只有所有者可以收听通话录音。"
+      "phone_recordings": "只有所有者可以收听通话录音。",
+      "payments_read": "只有所有者可以查看付款及其银行文件。"
     }
   },
   "authWords": {
@@ -8988,7 +8989,8 @@
       "reference": "附言",
       "date": "日期",
       "file": "银行文件",
-      "action": "操作"
+      "action": "操作",
+      "exported": "已下载"
     },
     "file": {
       "yes": "在 SEPA 文件中",
@@ -9010,11 +9012,14 @@
       "on": "于 {date} 标记为已付款"
     },
     "download": {
-      "sepa": "{count, plural, other {下载 SEPA 文件（# 笔付款）}}",
-      "steps": "下载分步说明",
       "needPayer": "填写您付款所用的银行信息，即可获得 SEPA 文件。没有这些信息，说明也可以使用。",
       "noneForFile": "这些付款都无法放入 SEPA 文件，SEPA 文件仅适用于 SEPA 银行之间的欧元付款。请使用说明。",
-      "total": "{count, plural, other {文件包含 # 笔付款，共计 {total}。}}"
+      "total": "{count, plural, other {文件包含 # 笔付款，共计 {total}。}}",
+      "newSepa": "{count, plural, other {下载新的 SEPA 文件（# 笔付款）}}",
+      "newSteps": "{count, plural, other {下载新的说明（# 笔付款）}}",
+      "onlyNew": "新文件只包含尚未放入任何文件的付款，因此同一笔付款绝不会出现在两个文件中。",
+      "allInFile": "每笔待付款项都已在您下载过的文件中。您可以在下方再次下载某个文件。",
+      "done": "{count, plural, other {已下载：# 笔付款现已在文件中，任何新文件都不会再包含它们。}}"
     },
     "steps": {
       "fileTitle": "如何使用 SEPA 文件",
@@ -9051,7 +9056,9 @@
         "notLatin": "名称或附言不是拉丁字母，因此不在 SEPA 文件中：请手动付款。",
         "bicNeeded": "欧洲经济区以外的银行需要收款人的 BIC，因此不在 SEPA 文件中：请手动付款。"
       },
-      "closing": "付款完成后，请在 SYB 中标记。如果银行拒绝某项信息，请在银行中更正：SYB 从不向您的银行发送任何内容。"
+      "closing": "付款完成后，请在 SYB 中标记。如果银行拒绝某项信息，请在银行中更正：SYB 从不向您的银行发送任何内容。",
+      "batch": "文件 {ref}，生成于 {date}。其中的付款都不在 SYB 生成的其他文件中。",
+      "copy": "副本：此文件首次下载于 {date}。如果您已完成这些付款，请不要再付：请先查看您的银行。"
     },
     "waiting": {
       "label": "等待批准",
@@ -9136,7 +9143,32 @@
       "no_session": "说明某笔付款已完成，需要您先登录。",
       "none_ready": "目前没有可交给银行的付款。付款需要先获得批准。",
       "no_payer": "SEPA 文件需要您付款所用的银行信息。",
-      "none_for_file": "已就绪的付款都无法放入 SEPA 文件。"
+      "none_for_file": "已就绪的付款都无法放入 SEPA 文件。",
+      "all_in_file": "这些付款都已在您下载过的文件中。请改为从列表中再次下载那个文件。",
+      "taken": "另一次下载刚刚把这些付款放进了文件。请查看已下载的文件。",
+      "no_such_file": "我找不到那个文件。",
+      "file_erased": "无法再次生成此文件：其中一笔付款的银行信息已被清除。"
+    },
+    "refused": "付款仅限所有者查看",
+    "exported": {
+      "no": "尚未在任何文件中",
+      "sepa": "在 {date} 的 SEPA 文件中",
+      "steps": "在 {date} 的说明中"
+    },
+    "files": {
+      "label": "已下载的文件",
+      "title": "{count, plural, other {# 个文件}}",
+      "foot": "每个 SEPA 文件都有自己的报文 ID。银行会拒绝报文 ID 已出现过的文件，因此同一文件上传两次也不会付款两次。",
+      "sepa": "{date} 的 SEPA 文件",
+      "steps": "{date} 的说明",
+      "count": "{count, plural, other {# 笔付款}}",
+      "paid": "{count, plural, other {# 笔已标记为已付}}",
+      "by": "下载者：{name}",
+      "again": "再次下载",
+      "warn": "您已于 {date} 下载过此文件。如果您已将它上传到银行，或已手动完成其中的付款，请不要再做一次：那样会付款两次。请先查看您的银行。",
+      "sameId": "副本是同一个文件，报文 ID 相同（{id}）：如果银行已经见过它，应当会拒绝。",
+      "confirm": "我已查看银行：再次下载同一文件",
+      "erased": "无法再次生成此文件：其中一笔付款的银行信息已被清除。"
     }
   }
 }

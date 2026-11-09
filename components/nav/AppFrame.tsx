@@ -23,6 +23,7 @@ import { AccessProvider } from "../auth/RoleContext";
 import type { NavAccess } from "../../app/api/nav/route";
 import type { SizeBand, SizeFeatureKey } from "../../lib/core/size-features";
 import { showsFor } from "../../lib/core/size-features";
+import { roleAllows } from "../../lib/auth/role-actions";
 
 interface Item {
   href: string;
@@ -112,7 +113,14 @@ export const GROUPS: readonly Group[] = [
       { href: "/patterns", label: "Seasons & bundles", feature: "nav.patterns" },
       { href: "/cash", label: "Cash flow", feature: "nav.cash" },
       // P6-05: payments SYB prepares and the owner pays in their own bank.
-      { href: "/payments", label: "Payments", feature: "nav.payments" },
+      // Owner only (least privilege, the owner's decision of 2026-11-09): a
+      // manager or a viewer never sees it, as /api/payments refuses them.
+      {
+        href: "/payments",
+        label: "Payments",
+        feature: "nav.payments",
+        appliesTo: (c) => c.access !== undefined && roleAllows(c.access.role, "payments.read"),
+      },
       {
         href: "/stock",
         label: "Stock",

@@ -62,6 +62,11 @@ const REFUSALS = new Set([
   "none_ready",
   "no_payer",
   "none_for_file",
+  // Export batches (the owner's decision of 2026-11-09).
+  "all_in_file",
+  "taken",
+  "no_such_file",
+  "file_erased",
 ]);
 
 /** Pure: a refusal from the server in the reader's words; its own text when it has no code. */
@@ -87,9 +92,31 @@ export function moneyText(m: Money, locale: string): string {
   }
 }
 
-/** Pure: the sum of ready euro payments that can go in a file, in minor units (rule 1: integers only). */
+/**
+ * Pure: the ready payments a NEW file would hold — those in no downloaded
+ * file yet; for SEPA, only those that can go in a SEPA file. A payment is in
+ * one file at most (the owner's decision of 2026-11-09), so the same
+ * payment is never offered in two new files.
+ */
+export function newFileRows(rows: readonly PaymentRow[], format: "sepa" | "steps"): PaymentRow[] {
+  return rows.filter(
+    (r) => r.stage === "ready" && r.in_file === null && (format === "steps" || r.file_bar === null),
+  );
+}
+
+/** Pure: the sum of the payments a new SEPA file would hold, in minor units (rule 1: integers only). */
 export function fileTotalMinor(rows: readonly PaymentRow[]): number {
-  return rows
-    .filter((r) => r.stage === "ready" && r.file_bar === null && r.amount.currency === "EUR")
+  return newFileRows(rows, "sepa")
+    .filter((r) => r.amount.currency === "EUR")
     .reduce((sum, r) => sum + r.amount.amount_minor, 0);
+}
+
+/** Pure: which downloaded file a payment is already in, in words, or that it is in none. */
+export function inFileWord(
+  row: Pick<PaymentRow, "in_file">,
+  tr: Tr,
+  date: (iso: string) => string,
+): string {
+  if (row.in_file === null) return tr("exported.no");
+  return tr(`exported.${row.in_file.format}`, { date: date(row.in_file.made_on) });
 }

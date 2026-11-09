@@ -6147,7 +6147,8 @@
       "stop_resume": "Solo un propietario puede volver a ponerlo todo en marcha después de una parada.",
       "business_locale": "Solo un propietario puede cambiar el idioma o la moneda del negocio.",
       "payments_prepare": "Solo un propietario puede preparar pagos o indicar que se pagó uno.",
-      "phone_recordings": "Solo un propietario puede escuchar las grabaciones de llamadas."
+      "phone_recordings": "Solo un propietario puede escuchar las grabaciones de llamadas.",
+      "payments_read": "Solo un propietario puede ver los pagos y sus archivos bancarios."
     }
   },
   "authWords": {
@@ -8988,7 +8989,8 @@
       "reference": "Concepto",
       "date": "Fecha",
       "file": "Archivo bancario",
-      "action": "Acción"
+      "action": "Acción",
+      "exported": "Descargado"
     },
     "file": {
       "yes": "En el archivo SEPA",
@@ -9010,11 +9012,14 @@
       "on": "indicado como pagado el {date}"
     },
     "download": {
-      "sepa": "{count, plural, one {Descargar el archivo SEPA (# pago)} many {Descargar el archivo SEPA (# pagos)} other {Descargar el archivo SEPA (# pagos)}}",
-      "steps": "Descargar las instrucciones paso a paso",
       "needPayer": "Añada los datos bancarios desde los que paga para obtener un archivo SEPA. Las instrucciones funcionan sin ellos.",
       "noneForFile": "Ninguno puede ir en un archivo SEPA, que es para euros entre bancos SEPA. Use las instrucciones.",
-      "total": "{count, plural, one {El archivo contiene # pago, {total} en total.} many {El archivo contiene # pagos, {total} en total.} other {El archivo contiene # pagos, {total} en total.}}"
+      "total": "{count, plural, one {El archivo contiene # pago, {total} en total.} many {El archivo contiene # pagos, {total} en total.} other {El archivo contiene # pagos, {total} en total.}}",
+      "newSepa": "{count, plural, one {Descargar un archivo SEPA nuevo (# pago)} many {Descargar un archivo SEPA nuevo (# pagos)} other {Descargar un archivo SEPA nuevo (# pagos)}}",
+      "newSteps": "{count, plural, one {Descargar instrucciones nuevas (# pago)} many {Descargar instrucciones nuevas (# pagos)} other {Descargar instrucciones nuevas (# pagos)}}",
+      "onlyNew": "Un archivo nuevo solo incluye pagos que aún no están en ningún archivo, así que ningún pago está nunca en dos archivos.",
+      "allInFile": "Todos los pagos listos ya están en un archivo que ha descargado. Abajo puede volver a descargar un archivo.",
+      "done": "{count, plural, one {Descargado: # pago ya está en un archivo y ningún archivo nuevo lo incluirá.} many {Descargado: # pagos ya están en un archivo y ningún archivo nuevo los incluirá.} other {Descargado: # pagos ya están en un archivo y ningún archivo nuevo los incluirá.}}"
     },
     "steps": {
       "fileTitle": "Cómo usar el archivo SEPA",
@@ -9051,7 +9056,9 @@
         "notLatin": "Un nombre o concepto que no está en alfabeto latino, así que no va en el archivo SEPA: hágalo a mano.",
         "bicNeeded": "Un banco fuera del EEE necesita el BIC del beneficiario, así que no va en el archivo SEPA: hágalo a mano."
       },
-      "closing": "Cuando haya hecho un pago, márquelo en SYB. Si su banco rechaza algún dato, corríjalo allí: SYB nunca envía nada a su banco."
+      "closing": "Cuando haya hecho un pago, márquelo en SYB. Si su banco rechaza algún dato, corríjalo allí: SYB nunca envía nada a su banco.",
+      "batch": "Archivo {ref}, generado el {date}. Ningún pago de este archivo está en otro archivo de SYB.",
+      "copy": "COPIA de un archivo descargado por primera vez el {date}. Si ya hizo estos pagos, no los repita: revise primero su banco."
     },
     "waiting": {
       "label": "Esperando aprobación",
@@ -9136,7 +9143,32 @@
       "no_session": "Para indicar que se hizo un pago, debe iniciar sesión.",
       "none_ready": "Todavía no hay nada listo para su banco. Primero hay que aprobar un pago.",
       "no_payer": "Un archivo SEPA necesita los datos bancarios desde los que paga.",
-      "none_for_file": "Ninguno de los pagos listos puede ir en un archivo SEPA."
+      "none_for_file": "Ninguno de los pagos listos puede ir en un archivo SEPA.",
+      "all_in_file": "Todos estos pagos ya están en un archivo que ha descargado. Vuelva a descargar ese archivo desde la lista.",
+      "taken": "Otra descarga acaba de poner estos pagos en un archivo. Mire los archivos que ha descargado.",
+      "no_such_file": "No encontré ese archivo.",
+      "file_erased": "Este archivo no se puede volver a generar: se borraron los datos bancarios de uno de sus pagos."
+    },
+    "refused": "Los pagos son del propietario",
+    "exported": {
+      "no": "Aún en ningún archivo",
+      "sepa": "En el archivo SEPA del {date}",
+      "steps": "En las instrucciones del {date}"
+    },
+    "files": {
+      "label": "Archivos que ha descargado",
+      "title": "{count, plural, one {# archivo} many {# archivos} other {# archivos}}",
+      "foot": "Cada archivo SEPA tiene su propio ID de mensaje. El banco rechaza un archivo cuyo ID de mensaje ya ha visto, así que subir el mismo archivo dos veces no paga dos veces.",
+      "sepa": "Archivo SEPA del {date}",
+      "steps": "Instrucciones del {date}",
+      "count": "{count, plural, one {# pago} many {# pagos} other {# pagos}}",
+      "paid": "{count, plural, one {# marcado como pagado} many {# marcados como pagados} other {# marcados como pagados}}",
+      "by": "descargado por {name}",
+      "again": "Volver a descargar",
+      "warn": "Ya descargó este archivo el {date}. Si lo subió a su banco o hizo sus pagos a mano, no lo repita: los pagaría dos veces. Revise primero su banco.",
+      "sameId": "La copia es el mismo archivo, con el mismo ID de mensaje ({id}): su banco debería rechazarla si ya lo ha visto.",
+      "confirm": "Ya revisé mi banco: volver a descargar el mismo archivo",
+      "erased": "Este archivo no se puede volver a generar: se borraron los datos bancarios de uno de sus pagos."
     }
   }
 }
