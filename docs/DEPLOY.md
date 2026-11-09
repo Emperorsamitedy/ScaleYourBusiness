@@ -61,9 +61,12 @@ without them; the screens say what each one waits for.
 
 ## 2. Neon — the database
 
-Run from a dev machine, never from serverless (the bank loader shells out
-to `scripts/lint_bank.py`). Set `DATABASE_URL` to the Neon pooled URL in
-your own terminal — don't paste it anywhere else.
+Since 2026-11-08 a production deploy does this itself, inside Vercel's
+build (`scripts/vercel-build.mjs`), where the Sensitive `DATABASE_URL`
+lives; Vercel's build image has the Python 3 the bank loader needs (it
+shells out to `scripts/lint_bank.py`). By hand, from a dev machine: set
+`DATABASE_URL` to the Neon pooled URL in your own terminal — don't paste it
+anywhere else — and run:
 
 ```bash
 npm run db:migrate
@@ -73,8 +76,8 @@ npm run db:migrate
 npm run db:seed
 ```
 
-- `db:migrate` applies everything up to `0082_review_push`.
-  Migrations are forward-only.
+- `db:migrate` applies every migration in `db/migrations` (0093 as of
+  2026-11-08), in the journal's order. Migrations are forward-only.
 - `db:seed` loads the question bank, its vocabularies and the six
   language overlays (`specs/question-bank-v1.<locale>.json`).
 - Order is always migrate → seed → deploy.

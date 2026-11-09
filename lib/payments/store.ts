@@ -11,6 +11,8 @@
 //     own decision path, by a named person.
 //   · Approved and not marked paid is "ready for your bank": the loader for
 //     files selects exactly that, so nothing unapproved reaches a file.
+//     Which file a ready payment already went into is ./exports' (a
+//     payment is in one downloaded file at most).
 //   · "Paid in my bank" is the owner's statement: it marks the row, moves
 //     the proposal to executed with the statement as its result, and logs
 //     it as the owner's, in the same transaction.
@@ -27,6 +29,8 @@ import {
   decisionLog,
   fieldRecords,
   payerAccounts,
+  paymentExportItems,
+  paymentExports,
   preparedPayments,
   proposals,
   suppliers,
@@ -457,6 +461,18 @@ export function stageOf(proposalStatus: string, paid: boolean): PaymentStage {
   }
 }
 
+/**
+ * The file a payment went into (the owner's decision of 2026-11-09): a
+ * payment is in one downloaded file at most, and the screen says which.
+ */
+export interface InFile {
+  export_id: string;
+  format: "sepa" | "steps";
+  msg_id: string;
+  /** YYYY-MM-DD: the day the file was made. */
+  made_on: string;
+}
+
 /** One payment as the screen shows it: the IBAN masked, never whole. */
 export interface PaymentListing {
   id: string;
@@ -477,6 +493,8 @@ export interface PaymentListing {
   paid_stated_at: string | null;
   erased: boolean;
   blocked_by_limit: string | null;
+  /** The bank file it is already in, or null when it is in none. */
+  in_file: InFile | null;
 }
 
 const listColumns = {
@@ -505,9 +523,23 @@ const listColumns = {
 /** Every payment of the business, newest first, masked. */
 export async function listPayments(profileId: string): Promise<PaymentListing[]> {
   const rows = await db
-    .select(listColumns)
+    .select({
+      ...listColumns,
+      export_id: paymentExports.id,
+      export_format: paymentExports.format,
+      export_msg_id: paymentExports.msg_id,
+      export_made_on: paymentExports.made_on,
+    })
     .from(preparedPayments)
     .innerJoin(proposals, eq(proposals.id, preparedPayments.proposal_id))
+    .leftJoin(paymentExportItems, eq(paymentExportItems.payment_id, preparedPayments.id))
+    .leftJoin(
+      paymentExports,
+      and(
+        eq(paymentExports.id, paymentExportItems.export_id),
+        eq(paymentExports.profile_id, profileId),
+      ),
+    )
     .where(eq(preparedPayments.profile_id, profileId))
     .orderBy(desc(preparedPayments.created_at));
   return rows.map((r) => ({
@@ -529,6 +561,15 @@ export async function listPayments(profileId: string): Promise<PaymentListing[]>
     paid_stated_at: r.paid_stated_at,
     erased: r.erased_at !== null,
     blocked_by_limit: r.blocked_by_limit,
+    in_file:
+      r.export_id !== null && r.export_msg_id !== null && r.export_made_on !== null
+        ? {
+            export_id: r.export_id,
+            format: r.export_format === "steps" ? "steps" : "sepa",
+            msg_id: r.export_msg_id,
+            made_on: r.export_made_on,
+          }
+        : null,
   }));
 }
 
@@ -657,12 +698,14 @@ export async function markPaidInBank(args: {
 
 export type PayerRefusal = "holder" | DraftRefusal;
 
+/** A "pay from" statement: the debtor, which statement it is, and when it was made. */
+export type StatedPayer = Debtor & { id: string; stated_at: string };
+
 /** The current "pay from" details, or null when the owner hasn't stated them. */
-export async function currentPayer(
-  profileId: string,
-): Promise<(Debtor & { stated_at: string }) | null> {
+export async function currentPayer(profileId: string): Promise<StatedPayer | null> {
   const [row] = await db
     .select({
+      id: payerAccounts.id,
       holder_name: payerAccounts.holder_name,
       iban: payerAccounts.iban,
       bic: payerAccounts.bic,
@@ -671,7 +714,13 @@ export async function currentPayer(
     .from(payerAccounts)
     .where(and(eq(payerAccounts.profile_id, profileId), isNull(payerAccounts.superseded_at)));
   return row
-    ? { holder_name: row.holder_name, iban: row.iban, bic: row.bic, stated_at: row.recorded_at }
+    ? {
+        id: row.id,
+        holder_name: row.holder_name,
+        iban: row.iban,
+        bic: row.bic,
+        stated_at: row.recorded_at,
+      }
     : null;
 }
 

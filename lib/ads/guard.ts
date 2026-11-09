@@ -139,6 +139,23 @@ export function toMetaBudget(
   return { meta_value: metaValue, sent_minor: fromMetaBudget(metaValue, currency) };
 }
 
+/**
+ * Pure: a budget in SYB minor units, rounded to whole major units for the
+ * currencies ad platforms bill in whole units (Meta's offset-1 list: HUF,
+ * JPY, KRW, CLP …) and left as it is otherwise. Rounded TOWARD `from` (the
+ * budget before the change), so an approved ±50% never ends up past it —
+ * the owner's decision of 2026-11-09 ("the best solution top businesses
+ * are doing"): Google budgets in whole forints, as Meta's and TikTok's.
+ */
+export function wholeUnitBudget(minor: number, currency: string, from: number): number {
+  const cur = currency.toUpperCase();
+  const exp = minorUnitExponent(cur);
+  if (META_CURRENCY_OFFSET[cur] !== 1 || exp === 0) return minor;
+  const step = 10 ** exp;
+  const round = from === minor ? Math.round : from < minor ? Math.floor : Math.ceil;
+  return round(minor / step) * step;
+}
+
 /** Pure: Meta's integer budget → SYB minor units. */
 export function fromMetaBudget(metaValue: number, currency: string): number {
   if (!Number.isSafeInteger(metaValue) || metaValue < 0) {

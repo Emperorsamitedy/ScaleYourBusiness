@@ -41,7 +41,7 @@
 // anything changes.
 
 import { format, money } from "../../core/money";
-import { reactivationGuard, spendGuard } from "../../ads/guard";
+import { reactivationGuard, spendGuard, wholeUnitBudget } from "../../ads/guard";
 import type { FetchLike, GadsHeaderEnv } from "../../google-ads/client";
 import {
   CUSTOMER_ID_RE,
@@ -316,7 +316,13 @@ export function createGoogleAdsExecution(
         `You approved this change in ${args.currency}, but the Google Ads account operates in ${args.c.currency}. Nothing was changed; it needs approving again.`,
       );
     }
-    const sent_minor = Math.round(args.baseline_minor * (1 + args.share));
+    // Whole forints (and other whole-unit currencies) as Meta and TikTok
+    // take them, rounded toward today's budget so ±50% still holds.
+    const sent_minor = wholeUnitBudget(
+      Math.round(args.baseline_minor * (1 + args.share)),
+      args.currency,
+      args.baseline_minor,
+    );
     const ceiling = await run.b.ceiling(args.profile_id);
     const accountDaily = ceiling
       ? await run.b.accountDailySpend(run.account_id, args.currency)

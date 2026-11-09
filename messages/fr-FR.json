@@ -6149,7 +6149,8 @@
       "stop_resume": "Seul un propriétaire peut tout relancer après un arrêt.",
       "business_locale": "Seul un propriétaire peut modifier la langue ou la devise de l’entreprise.",
       "payments_prepare": "Seul un propriétaire peut préparer des paiements ou indiquer qu’un paiement a été fait.",
-      "phone_recordings": "Seul un propriétaire peut écouter les enregistrements d’appels."
+      "phone_recordings": "Seul un propriétaire peut écouter les enregistrements d’appels.",
+      "payments_read": "Seul un propriétaire peut voir les paiements et leurs fichiers bancaires."
     }
   },
   "authWords": {
@@ -8990,7 +8991,8 @@
       "reference": "Libellé",
       "date": "Date",
       "file": "Fichier bancaire",
-      "action": "Action"
+      "action": "Action",
+      "exported": "Téléchargé"
     },
     "file": {
       "yes": "Dans le fichier SEPA",
@@ -9012,11 +9014,14 @@
       "on": "indiqué payé le {date}"
     },
     "download": {
-      "sepa": "{count, plural, one {Télécharger le fichier SEPA (# paiement)} many {Télécharger le fichier SEPA (# paiements)} other {Télécharger le fichier SEPA (# paiements)}}",
-      "steps": "Télécharger les instructions pas à pas",
       "needPayer": "Ajoutez les coordonnées bancaires depuis lesquelles vous payez pour obtenir un fichier SEPA. Les instructions fonctionnent sans elles.",
       "noneForFile": "Aucun ne peut aller dans un fichier SEPA, réservé aux euros entre banques SEPA. Utilisez les instructions.",
-      "total": "{count, plural, one {Le fichier contient # paiement, {total} au total.} many {Le fichier contient # paiements, {total} au total.} other {Le fichier contient # paiements, {total} au total.}}"
+      "total": "{count, plural, one {Le fichier contient # paiement, {total} au total.} many {Le fichier contient # paiements, {total} au total.} other {Le fichier contient # paiements, {total} au total.}}",
+      "newSepa": "{count, plural, one {Télécharger un nouveau fichier SEPA (# paiement)} many {Télécharger un nouveau fichier SEPA (# paiements)} other {Télécharger un nouveau fichier SEPA (# paiements)}}",
+      "newSteps": "{count, plural, one {Télécharger de nouvelles instructions (# paiement)} many {Télécharger de nouvelles instructions (# paiements)} other {Télécharger de nouvelles instructions (# paiements)}}",
+      "onlyNew": "Un nouveau fichier ne contient que les paiements qui ne sont encore dans aucun fichier : aucun paiement ne figure jamais dans deux fichiers.",
+      "allInFile": "Chaque paiement prêt est déjà dans un fichier que vous avez téléchargé. Vous pouvez retélécharger un fichier ci-dessous.",
+      "done": "{count, plural, one {Téléchargé : # paiement est maintenant dans un fichier, et aucun nouveau fichier ne le contiendra.} many {Téléchargé : # paiements sont maintenant dans un fichier, et aucun nouveau fichier ne les contiendra.} other {Téléchargé : # paiements sont maintenant dans un fichier, et aucun nouveau fichier ne les contiendra.}}"
     },
     "steps": {
       "fileTitle": "Utiliser le fichier SEPA",
@@ -9053,7 +9058,9 @@
         "notLatin": "Un nom ou libellé qui n’est pas en caractères latins, donc pas dans le fichier SEPA : faites-le à la main.",
         "bicNeeded": "Une banque hors EEE demande le BIC du bénéficiaire, donc pas dans le fichier SEPA : faites-le à la main."
       },
-      "closing": "Une fois un paiement fait, marquez-le dans SYB. Si votre banque refuse une donnée, corrigez-la là-bas : SYB n’envoie jamais rien à votre banque."
+      "closing": "Une fois un paiement fait, marquez-le dans SYB. Si votre banque refuse une donnée, corrigez-la là-bas : SYB n’envoie jamais rien à votre banque.",
+      "batch": "Fichier {ref}, fait le {date}. Aucun de ses paiements ne figure dans un autre fichier de SYB.",
+      "copy": "COPIE d’un fichier téléchargé pour la première fois le {date}. Si vous avez déjà fait ces paiements, ne les refaites pas : vérifiez d’abord votre banque."
     },
     "waiting": {
       "label": "En attente de validation",
@@ -9138,7 +9145,32 @@
       "no_session": "Pour indiquer qu’un paiement a été fait, vous devez vous connecter.",
       "none_ready": "Rien n’est encore prêt pour votre banque. Un paiement doit d’abord être validé.",
       "no_payer": "Un fichier SEPA a besoin des coordonnées bancaires depuis lesquelles vous payez.",
-      "none_for_file": "Aucun des paiements prêts ne peut aller dans un fichier SEPA."
+      "none_for_file": "Aucun des paiements prêts ne peut aller dans un fichier SEPA.",
+      "all_in_file": "Chacun de ces paiements est déjà dans un fichier que vous avez téléchargé. Retéléchargez plutôt ce fichier depuis la liste.",
+      "taken": "Un autre téléchargement vient de mettre ces paiements dans un fichier. Regardez les fichiers téléchargés.",
+      "no_such_file": "Je n’ai pas trouvé ce fichier.",
+      "file_erased": "Ce fichier ne peut pas être refait : les coordonnées bancaires d’un de ses paiements ont été effacées."
+    },
+    "refused": "Les paiements relèvent du propriétaire",
+    "exported": {
+      "no": "Dans aucun fichier pour l’instant",
+      "sepa": "Dans le fichier SEPA du {date}",
+      "steps": "Dans les instructions du {date}"
+    },
+    "files": {
+      "label": "Fichiers téléchargés",
+      "title": "{count, plural, one {# fichier} many {# fichiers} other {# fichiers}}",
+      "foot": "Chaque fichier SEPA a son propre identifiant de message. Une banque refuse un fichier dont elle a déjà vu l’identifiant de message : envoyer deux fois le même fichier ne paie donc pas deux fois.",
+      "sepa": "Fichier SEPA du {date}",
+      "steps": "Instructions du {date}",
+      "count": "{count, plural, one {# paiement} many {# paiements} other {# paiements}}",
+      "paid": "{count, plural, one {# marqué payé} many {# marqués payés} other {# marqués payés}}",
+      "by": "téléchargé par {name}",
+      "again": "Télécharger à nouveau",
+      "warn": "Vous avez déjà téléchargé ce fichier le {date}. Si vous l’avez envoyé à votre banque ou avez fait ses paiements à la main, ne recommencez pas : vous les paieriez deux fois. Vérifiez d’abord votre banque.",
+      "sameId": "La copie est le même fichier, avec le même identifiant de message ({id}) : votre banque devrait la refuser si elle l’a déjà vu.",
+      "confirm": "J’ai vérifié ma banque : télécharger à nouveau le même fichier",
+      "erased": "Ce fichier ne peut pas être refait : les coordonnées bancaires d’un de ses paiements ont été effacées."
     }
   }
 }

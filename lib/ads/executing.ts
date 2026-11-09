@@ -104,6 +104,14 @@ export function adsPlan(
   if (d.platform !== undefined && d.platform !== "meta" && d.platform !== "google") {
     return { unroutable: `no ad op runs on "${String(d.platform)}"` };
   }
+  // Building and launching ads exists on Meta only: a Google proposal naming
+  // one of these is refused, never sent to Meta under another platform's name.
+  if (
+    d.platform === "google" &&
+    (change === "run_ad" || change === "go_live" || change === "create_paused")
+  ) {
+    return { unroutable: `"${change}" runs on Meta only, not on Google Ads` };
+  }
   if (change === "run_ad") {
     // P3-54: the approved ad exactly as the card showed it; the executor re-checks every part.
     const ad = (d as { ad?: unknown }).ad;

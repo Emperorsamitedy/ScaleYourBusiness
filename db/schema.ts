@@ -4198,3 +4198,70 @@ export const preparedPayments = pgTable(
     ),
   ],
 );
+
+/**
+ * One file the owner downloaded for their bank (P6-05, the owner's decision
+ * of 2026-11-09): a SEPA credit-transfer file or the plain steps. A new file
+ * holds only ready payments that were never in a file before, and a payment
+ * is in one file at most (payment_export_items' unique payment index), so two
+ * downloads can't put the same payment in two files. "Download again"
+ * re-renders a batch from what is recorded here (its MsgId, its moment, the
+ * "pay from" statement it used, its locale), so the bank sees the same MsgId
+ * and refuses a second upload. No IBAN is kept here: only ids and a digest.
+ */
+export const paymentExports = pgTable(
+  "payment_exports",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    profile_id: uuid("profile_id")
+      .notNull()
+      .references(() => businessProfiles.id, { onDelete: "cascade" }),
+    /** "sepa" (pain.001) or "steps" (plain instructions, any currency). */
+    format: text("format").notNull(),
+    /** The file's message id: the pain.001 GrpHdr MsgId, the steps file's reference. */
+    msg_id: text("msg_id").notNull(),
+    /** The moment the file was made: the file's CreDtTm. */
+    created_at: timestamp("created_at", { withTimezone: true, mode: "string" }).notNull(),
+    /** The day it was made: a requested date already past went out as this day. */
+    made_on: date("made_on", { mode: "string" }).notNull(),
+    /** Who downloaded it (null for an owner on the interview's session alone). */
+    created_by: uuid("created_by").references(() => users.id),
+    /** The "pay from" statement the file was made with (superseded rows are kept). */
+    payer_account_id: uuid("payer_account_id").references(() => payerAccounts.id),
+    /** The steps file's language. */
+    locale: text("locale").notNull(),
+    nb_of_txs: integer("nb_of_txs").notNull(),
+    /** Rule 1: a SEPA file's control sum, integer minor units of EUR; null for steps. */
+    ctrl_sum_minor: bigint("ctrl_sum_minor", { mode: "number" }),
+    /** sha256 of the file as first downloaded: "download again" is held to it. */
+    sha256: text("sha256").notNull(),
+  },
+  (t) => [
+    uniqueIndex("payment_exports_msg_id_idx").on(t.msg_id),
+    index("payment_exports_profile_idx").on(t.profile_id, t.created_at),
+    check("payment_exports_format", sql`${t.format} IN ('sepa', 'steps')`),
+    check(
+      "payment_exports_sepa_has_payer",
+      sql`${t.format} <> 'sepa' OR ${t.payer_account_id} IS NOT NULL`,
+    ),
+    check("payment_exports_count", sql`${t.nb_of_txs} > 0`),
+  ],
+);
+
+/** The payments in one file, in file order. A payment is in one file at most. */
+export const paymentExportItems = pgTable(
+  "payment_export_items",
+  {
+    export_id: uuid("export_id")
+      .notNull()
+      .references(() => paymentExports.id, { onDelete: "cascade" }),
+    payment_id: uuid("payment_id")
+      .notNull()
+      .references(() => preparedPayments.id, { onDelete: "cascade" }),
+    position: integer("position").notNull(),
+  },
+  (t) => [
+    uniqueIndex("payment_export_items_payment_idx").on(t.payment_id),
+    uniqueIndex("payment_export_items_position_idx").on(t.export_id, t.position),
+  ],
+);

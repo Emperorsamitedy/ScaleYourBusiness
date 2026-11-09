@@ -1,6 +1,6 @@
 {
   "id": "c7895549-fdf4-484e-aab0-ecd7bfcf9d6d",
-  "prevId": "42424dfd-f766-4879-934a-293969255f44",
+  "prevId": "21bad84b-d04c-4dfd-9f2e-ad4b66369f18",
   "version": "7",
   "dialect": "postgresql",
   "tables": {
@@ -7754,6 +7754,257 @@
       },
       "isRLSEnabled": false
     },
+    "public.payment_export_items": {
+      "name": "payment_export_items",
+      "schema": "",
+      "columns": {
+        "export_id": {
+          "name": "export_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "payment_id": {
+          "name": "payment_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "position": {
+          "name": "position",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "payment_export_items_payment_idx": {
+          "name": "payment_export_items_payment_idx",
+          "columns": [
+            {
+              "expression": "payment_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "payment_export_items_position_idx": {
+          "name": "payment_export_items_position_idx",
+          "columns": [
+            {
+              "expression": "export_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "position",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "payment_export_items_export_id_payment_exports_id_fk": {
+          "name": "payment_export_items_export_id_payment_exports_id_fk",
+          "tableFrom": "payment_export_items",
+          "tableTo": "payment_exports",
+          "columnsFrom": ["export_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "payment_export_items_payment_id_prepared_payments_id_fk": {
+          "name": "payment_export_items_payment_id_prepared_payments_id_fk",
+          "tableFrom": "payment_export_items",
+          "tableTo": "prepared_payments",
+          "columnsFrom": ["payment_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.payment_exports": {
+      "name": "payment_exports",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "uuid",
+          "primaryKey": true,
+          "notNull": true,
+          "default": "gen_random_uuid()"
+        },
+        "profile_id": {
+          "name": "profile_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "format": {
+          "name": "format",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "msg_id": {
+          "name": "msg_id",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "made_on": {
+          "name": "made_on",
+          "type": "date",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_by": {
+          "name": "created_by",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "payer_account_id": {
+          "name": "payer_account_id",
+          "type": "uuid",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "locale": {
+          "name": "locale",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "nb_of_txs": {
+          "name": "nb_of_txs",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ctrl_sum_minor": {
+          "name": "ctrl_sum_minor",
+          "type": "bigint",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "sha256": {
+          "name": "sha256",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {
+        "payment_exports_msg_id_idx": {
+          "name": "payment_exports_msg_id_idx",
+          "columns": [
+            {
+              "expression": "msg_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": true,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        },
+        "payment_exports_profile_idx": {
+          "name": "payment_exports_profile_idx",
+          "columns": [
+            {
+              "expression": "profile_id",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            },
+            {
+              "expression": "created_at",
+              "isExpression": false,
+              "asc": true,
+              "nulls": "last"
+            }
+          ],
+          "isUnique": false,
+          "concurrently": false,
+          "method": "btree",
+          "with": {}
+        }
+      },
+      "foreignKeys": {
+        "payment_exports_profile_id_business_profiles_id_fk": {
+          "name": "payment_exports_profile_id_business_profiles_id_fk",
+          "tableFrom": "payment_exports",
+          "tableTo": "business_profiles",
+          "columnsFrom": ["profile_id"],
+          "columnsTo": ["id"],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        },
+        "payment_exports_created_by_users_id_fk": {
+          "name": "payment_exports_created_by_users_id_fk",
+          "tableFrom": "payment_exports",
+          "tableTo": "users",
+          "columnsFrom": ["created_by"],
+          "columnsTo": ["id"],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "payment_exports_payer_account_id_payer_accounts_id_fk": {
+          "name": "payment_exports_payer_account_id_payer_accounts_id_fk",
+          "tableFrom": "payment_exports",
+          "tableTo": "payer_accounts",
+          "columnsFrom": ["payer_account_id"],
+          "columnsTo": ["id"],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {
+        "payment_exports_format": {
+          "name": "payment_exports_format",
+          "value": "\"payment_exports\".\"format\" IN ('sepa', 'steps')"
+        },
+        "payment_exports_sepa_has_payer": {
+          "name": "payment_exports_sepa_has_payer",
+          "value": "\"payment_exports\".\"format\" <> 'sepa' OR \"payment_exports\".\"payer_account_id\" IS NOT NULL"
+        },
+        "payment_exports_count": {
+          "name": "payment_exports_count",
+          "value": "\"payment_exports\".\"nb_of_txs\" > 0"
+        }
+      },
+      "isRLSEnabled": false
+    },
     "public.payments": {
       "name": "payments",
       "schema": "",
@@ -12686,11 +12937,6 @@
       "schema": "public",
       "values": ["public", "retired"]
     },
-    "public.media_candidate_status": {
-      "name": "media_candidate_status",
-      "schema": "public",
-      "values": ["generating", "ready", "failed", "chosen", "not_chosen"]
-    },
     "public.media_generation_status": {
       "name": "media_generation_status",
       "schema": "public",
@@ -12715,11 +12961,6 @@
       "name": "phone_call_outcome",
       "schema": "public",
       "values": ["answered", "message", "handed_over", "hung_up"]
-    },
-    "public.phone_recording_status": {
-      "name": "phone_recording_status",
-      "schema": "public",
-      "values": ["pending", "stored", "refused"]
     },
     "public.phone_turn_role": {
       "name": "phone_turn_role",
@@ -12823,6 +13064,16 @@
       "name": "weekly_summary_status",
       "schema": "public",
       "values": ["sending", "sent", "refused", "unknown"]
+    },
+    "public.media_candidate_status": {
+      "name": "media_candidate_status",
+      "schema": "public",
+      "values": ["generating", "ready", "failed", "chosen", "not_chosen"]
+    },
+    "public.phone_recording_status": {
+      "name": "phone_recording_status",
+      "schema": "public",
+      "values": ["pending", "stored", "refused"]
     }
   },
   "schemas": {},
