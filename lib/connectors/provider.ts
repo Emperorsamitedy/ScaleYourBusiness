@@ -97,6 +97,11 @@ export const METRIC_KEYS = [
    *   stock.value_at_cost    on hand × unit cost (money) — absent when any
    *                          stocked unit's cost is unknown, never partial
    *   stock.value_at_price   on hand × selling price (money)
+   *   stock.unit_cost        the ONE unit cost every tracked unit has
+   *                          (money) — only when they share it; a product
+   *                          whose variants cost differently has none,
+   *                          because value at cost ÷ on hand would be an
+   *                          average, not a price (P6-04, decision 4)
    *
    * Two more come only from an imported stock file, which carries what a
    * till knows instead of order lines (lib/stock/import.ts):
@@ -108,6 +113,7 @@ export const METRIC_KEYS = [
   "stock.on_hand",
   "stock.value_at_cost",
   "stock.value_at_price",
+  "stock.unit_cost",
   "stock.units_sold_window",
   "stock.days_since_sale",
   /**
@@ -134,6 +140,7 @@ export const MONEY_METRICS: ReadonlySet<MetricKey> = new Set([
   "booking_revenue.daily",
   "stock.value_at_cost",
   "stock.value_at_price",
+  "stock.unit_cost",
   "cash.balance",
 ]);
 
@@ -142,6 +149,7 @@ export const STOCK_METRICS: ReadonlySet<MetricKey> = new Set([
   "stock.on_hand",
   "stock.value_at_cost",
   "stock.value_at_price",
+  "stock.unit_cost",
   "stock.units_sold_window",
   "stock.days_since_sale",
 ]);

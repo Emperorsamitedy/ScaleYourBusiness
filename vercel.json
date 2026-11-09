@@ -29,6 +29,10 @@
     {
       "path": "/api/cron/push-held",
       "schedule": "0 7 * * *"
+    },
+    {
+      "path": "/api/cron/collect-video",
+      "schedule": "30 6 * * *"
     }
   ]
 }

@@ -20,6 +20,8 @@
 // The bank starts folded to one line — the channel being asked, a strip
 // of every area's progress, how many are done — so the question owns the
 // screen. Unfolding shows the tiles unchanged; choosing one folds it again.
+// Decluttered 2026-11-09 on the owner's instruction: no "Channel bank"
+// caption, and the legend names the two fills only.
 
 import { useEffect, useId, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
@@ -90,16 +92,14 @@ export function AreaTiles({
           aria-controls={tilesId}
           onClick={() => setOpen((v) => !v)}
         >
-          <span className="ix-bank-title">{t("title")}</span>
           <span className="ix-bank-now">
-            {summary.current
-              ? t.rich("now", {
-                  channel: summary.current.ch,
-                  area: summary.current.name,
-                  pct: num(summary.current.pct, 0, locale),
-                  fig,
-                })
-              : t("none")}
+            {summary.current &&
+              t.rich("now", {
+                channel: summary.current.ch,
+                area: summary.current.name,
+                pct: num(summary.current.pct, 0, locale),
+                fig,
+              })}
           </span>
           <span className="ix-bank-strip" aria-hidden="true">
             {areas.map((a) => (

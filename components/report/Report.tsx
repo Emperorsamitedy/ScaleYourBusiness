@@ -31,6 +31,7 @@ import { delta, moneyFig, moneyText, num } from "../sheet/num";
 import { SheetCard } from "../sheet/PageHead";
 import { useTr } from "../sheet/useTr";
 import { ShareCard } from "./ShareCard";
+import { WhyFold } from "./WhyFold";
 import type { Basis } from "./basis";
 import { BASES, basisMeaning, basisName, basisOf, gapWord, sourceLabel } from "./basis";
 import {
@@ -443,7 +444,9 @@ function Panel({
           </table>
         </div>
       )}
-      <p className="rq-legend">{t("panel.legend")}</p>
+      <div className="rq-legend">
+        <WhyFold>{t("panel.legend")}</WhyFold>
+      </div>
     </section>
   );
 }
@@ -678,7 +681,7 @@ function StatedVsMeasuredCard({ rows, map }: { rows: StatedVsMeasuredRow[]; map:
       className="rq-card"
       label={t("svm.label")}
       title={split.material.length === 0 ? t("svm.titleHeld") : t("svm.title")}
-      foot={t("svm.foot")}
+      foot={<WhyFold>{t("svm.foot")}</WhyFold>}
     >
       {split.material.length > 0 && <StatedVsMeasured rows={split.material} map={map} />}
       {line !== null && (
@@ -1099,7 +1102,7 @@ export function ReportBody({
 
       {/* ── what would sharpen this ── */}
       {report.data_gaps.length > 0 && (
-        <SheetCard className="rq-card" label={t("gaps.label")} title={t("gaps.title")}>
+        <SheetCard className="rq-card" label={t("gaps.label")}>
           <ul className="rq-list">
             {report.data_gaps.map((g) => (
               <li className="rq-gap" key={g.question_id}>
@@ -1128,17 +1131,18 @@ export function ReportBody({
       {children}
 
       <footer className="rq-foot">
-        <p>
-          {BASES.map((b, i) => (
-            <span key={b}>
-              {i > 0 && " · "}
-              <b>{basisName(b, st)}</b> {basisMeaning(b, st)}
-            </span>
-          ))}
-        </p>
-        <p>
-          {t("foot")} {foot}
-        </p>
+        <p>{foot}</p>
+        <WhyFold>
+          <p>
+            {BASES.map((b, i) => (
+              <span key={b}>
+                {i > 0 && " · "}
+                <b>{basisName(b, st)}</b> {basisMeaning(b, st)}
+              </span>
+            ))}
+          </p>
+          <p>{t("foot")}</p>
+        </WhyFold>
       </footer>
     </>
   );
@@ -1430,9 +1434,11 @@ export function ReportScreen() {
           )}
           {(state === "none" || (state === "ready" && report === null)) && (
             <>
-              <p className="rq-prose" role={error !== null ? "alert" : undefined}>
-                {error ?? t("state.none")}
-              </p>
+              {error !== null && (
+                <p className="rq-prose" role="alert">
+                  {error}
+                </p>
+              )}
               <div className="rp-actions">
                 <button className="rp-act" onClick={() => void generate()}>
                   {t("state.readNow")}

@@ -102,7 +102,7 @@ describe("rule 27 amended — the one way out", () => {
     expect(execute).toBeGreaterThan(-1);
     expect(call).toBeGreaterThan(execute);
     expect(call).toBeGreaterThan(src.indexOf("ctx.halted && (await ctx.halted())", execute));
-    // The fake sender returns before the real one is ever reached.
+    // A fake reading (sending off) stops before the real send is ever reached.
     expect(call).toBeGreaterThan(src.indexOf('if (now.mode === "fake")', execute));
   });
 

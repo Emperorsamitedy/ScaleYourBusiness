@@ -10,6 +10,8 @@ import {
   fileTotalMinor,
   fileWord,
   groupPayments,
+  inFileWord,
+  newFileRows,
   refusalWords,
   stageWord,
 } from "./payments-view";
@@ -36,8 +38,16 @@ const row = (over: Partial<PaymentRow>): PaymentRow => ({
   erased: false,
   blocked_by_limit: null,
   file_bar: null,
+  in_file: null,
   ...over,
 });
+
+const IN_FILE = {
+  export_id: "e",
+  format: "sepa",
+  msg_id: "SYB20261109100000ABCD1234",
+  made_on: "2026-11-09",
+} as const;
 
 describe("groupPayments", () => {
   it("ready (by date), waiting (pending, held, changes asked), and the rest", () => {
@@ -86,6 +96,45 @@ describe("amountToMinor — exact, never a float (rule 1)", () => {
       ]),
     ).toBe(30);
   });
+
+  it("the file total leaves out payments already in a downloaded file", () => {
+    expect(
+      fileTotalMinor([
+        row({ amount: { amount_minor: 10, currency: "EUR" } }),
+        row({ amount: { amount_minor: 20, currency: "EUR" }, in_file: IN_FILE }),
+      ]),
+    ).toBe(10);
+  });
+});
+
+describe("newFileRows — a payment already in a file is never offered in a new one (2026-11-09)", () => {
+  it("SEPA: ready, in no file, and able to go in a SEPA file", () => {
+    const fresh = row({});
+    const rows = [
+      fresh,
+      row({ in_file: IN_FILE }),
+      row({ file_bar: "not_eur" }),
+      row({ stage: "paid" }),
+      row({ stage: "waiting" }),
+    ];
+    expect(newFileRows(rows, "sepa").map((r) => r.id)).toEqual([fresh.id]);
+  });
+
+  it("steps: every ready payment in no file, any currency", () => {
+    const a = row({});
+    const b = row({ file_bar: "not_eur" });
+    const rows = [a, b, row({ in_file: { ...IN_FILE, format: "steps" } }), row({ stage: "paid" })];
+    expect(newFileRows(rows, "steps").map((r) => r.id)).toEqual([a.id, b.id]);
+  });
+
+  it("says which file a payment is in, with the day, or that it is in none", () => {
+    const day = (iso: string) => `[${iso}]`;
+    expect(inFileWord({ in_file: null }, tr, day)).toBe("Not in a file yet");
+    expect(inFileWord({ in_file: IN_FILE }, tr, day)).toBe("In the SEPA file of [2026-11-09]");
+    expect(inFileWord({ in_file: { ...IN_FILE, format: "steps" } }, tr, day)).toBe(
+      "In the instructions of [2026-11-09]",
+    );
+  });
 });
 
 describe("words", () => {
@@ -108,6 +157,10 @@ describe("words", () => {
   it("turns each refusal code into words, and falls back to the server's own", () => {
     expect(refusalWords({ code: "iban_checksum", error: "x" }, tr)).toMatch(/check digits/);
     expect(refusalWords({ code: "none_for_file" }, tr)).toMatch(/SEPA file/);
+    for (const code of ["all_in_file", "taken", "no_such_file", "file_erased"]) {
+      expect(refusalWords({ code, error: "x" }, tr), code).not.toBe("x");
+      expect(refusalWords({ code }, tr), code).not.toContain("payments.");
+    }
     expect(
       refusalWords({ error: "Only an owner can prepare payments or say one was paid." }, tr),
     ).toBe("Only an owner can prepare payments or say one was paid.");

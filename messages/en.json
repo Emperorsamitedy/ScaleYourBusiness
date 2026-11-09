@@ -81,31 +81,16 @@
       "choose": "Which business? — SYB"
     },
     "mast": {
-      "haveAccount": "Already have an account? ",
       "signIn": "Sign in",
       "createAccount": "Create an account"
     },
     "signup": {
-      "kicker": "Open a new record",
-      "headline": "Start with the diagnosis.",
-      "stepsHead": "What happens after this screen",
-      "step1": "Connect your accounts, read-only",
-      "step2": "Answer the core questions",
-      "step3": "We read your numbers and sign the report",
-      "takesMinutes": "{minutes} min",
-      "takesAboutMinutes": "~{minutes} min",
-      "takesDays": "{days, plural, one {# day} other {# days}}",
-      "takesDaysPending": "[{days}] {days, plural, one {day} other {days}}"
+      "headline": "Start with the diagnosis."
     },
     "signin": {
-      "kicker": "The record is waiting",
-      "headline": "Back to your panel.",
-      "point1": "Nothing runs in your business without your approval.",
-      "point2": "Every number shows where it came from.",
-      "point3": "Nothing is ever erased — old facts are superseded and kept."
+      "headline": "Back to your panel."
     },
     "sent": {
-      "label": "Check your email",
       "titleBelow": "Your link is below",
       "titleSent": "Link sent",
       "onScreen": "Email isn’t configured here, so your one-time link is below. It expires in {minutes, plural, one {# minute} other {# minutes}}.",
@@ -118,8 +103,6 @@
     "form": {
       "labelCreate": "Create account",
       "labelSignIn": "Sign in",
-      "titleCreate": "Open your business’s record",
-      "titleSignIn": "Welcome back",
       "email": "Work email",
       "emailPlaceholder": "you@yourbusiness.com",
       "website": "Website",
@@ -132,38 +115,31 @@
       "noteSignin": "No password. The link works once, for {minutes, plural, one {# minute} other {# minutes}}.",
       "orSignup": "Or sign up with",
       "orSignin": "Or continue with",
-      "terms": "By creating an account you agree to the <terms>terms</terms> and <privacy>privacy notice</privacy>.",
-      "newHere": "New to SYB? Create an account from the top right."
+      "terms": "By creating an account you agree to the <terms>terms</terms> and <privacy>privacy notice</privacy>."
     },
     "confirm": {
-      "kicker": "Sign in",
       "headline": "One more step.",
-      "label": "Confirm",
       "title": "Sign in as {email}?",
       "sentTo": "This link was sent to <b>{email}</b>.",
       "button": "Sign in",
       "note": "Not your address? Close this page. Someone may have sent you their own link, and nothing happens unless you press the button.",
       "expiredHeadline": "That link has run out.",
       "expiredMessage": "Sign-in links work once and expire after {minutes, plural, one {# minute} other {# minutes}}. Ask for a new one and it will arrive in a moment.",
-      "linkLabel": "Link",
-      "linkDead": "This link doesn’t work any more",
       "newLink": "Email me a new sign-in link"
     },
     "choose": {
       "signedInAs": "Signed in as {email}",
       "headline": "Which business?",
-      "label": "Your businesses",
-      "title": "Pick one to open. You can switch any time from the menu.",
       "add": "Add another business",
       "foot": "Each business keeps its own facts, team and bill. Nothing from one is ever shown in another."
-    }
+    },
+    "how": "How this works",
+    "why": "Why?"
   },
   "locale": {
     "meta": "Language and currency — SYB",
     "first": {
-      "kicker": "Before we start",
-      "headline": "Choose your language and currency.",
-      "lede": "I will speak to you in this language. Every figure for your business is shown in this currency, and nothing is ever converted between currencies."
+      "headline": "Choose your language and currency."
     },
     "yourLanguage": "Your language",
     "businessLanguage": "Your business’s language",
@@ -216,14 +192,12 @@
       "inProgress": "In progress"
     },
     "bank": {
-      "title": "Channel bank",
       "now": "CH {channel} · {area} · <fig>{pct}%</fig>",
-      "none": "Your business, measured area by area",
       "done": "<fig>{done}</fig> of {total} done",
       "hide": "Hide channels",
       "all": "All channels",
       "legendOwner": "from you",
-      "legendMeasured": "read from {connector} · any order is fine",
+      "legendMeasured": "read from {connector}",
       "tileChannel": "CH {channel}",
       "tilePct": "{pct}%",
       "tileWords": "Channel {channel}, {area}: {status}, {pct}% answered — {bars}.",
@@ -239,13 +213,9 @@
       }
     },
     "mast": {
-      "sub": "Calibrating the record",
       "saving": "Saving…",
-      "listening": "Listening",
-      "sessionTitle": "Minutes since this page opened",
-      "session": "Session · <fig>{minutes}</fig> min",
       "facts": "{count, plural, one {<fig>#</fig> fact on file} other {<fig>#</fig> facts on file}}",
-      "pause": "Pause — finish later"
+      "pause": "Finish later"
     },
     "pause": {
       "title": "Pause · finish later",
@@ -267,7 +237,6 @@
       "reopened": "Reopened. The question is back on the left."
     },
     "done": {
-      "cap": "The interview · complete",
       "title": "The interview is complete.",
       "lede": "I have the record I need for a first read on the business. Deeper questions come later, once you have seen the first report.",
       "answers": "Answers on record",
@@ -296,9 +265,6 @@
       "emptyUnknown": "Answer this, or choose “I don't know” to move on.",
       "emptySkip": "Answer this, or choose “Skip for now” to move on.",
       "entityEmpty": "Fill in at least the first field of one row to record.",
-      "hintText": "{modifier} + Enter to record",
-      "hintEnter": "Enter to record",
-      "hintKeys": "Keys {first}–{last} choose",
       "speak": "Speak your answer",
       "spokenAfter": "Read it over and fix anything, then press Next to record it.",
       "fileStub": "File uploads aren’t open yet.",
@@ -309,7 +275,6 @@
       "exact": "Exact<sr> amount, {currency}</sr>",
       "estimate": "This is an estimate",
       "estimated": "Marked as an estimate",
-      "basis": "Basis: estimated",
       "which": "Which did you mean?",
       "unreadable": "That doesn’t read as a figure. Use digits, with a comma or a point for any decimals."
     },
@@ -322,10 +287,9 @@
       "addRow": "Add another row"
     },
     "record": {
-      "cap": "The record · newest first",
       "channelTitle": "Channel {channel} · {area}",
       "facts": "{count, plural, one {<fig>#</fig> fact} other {<fig>#</fig> facts}}",
-      "empty": "Nothing on file in this area yet. Each answer lands here with where it came from.",
+      "empty": "Nothing on file in this area yet.",
       "listLabel": "Facts on file in {area}",
       "srAnswer": "answer it now",
       "srChange": "change this answer",
@@ -384,15 +348,13 @@
       "factsOnFile": "{count, plural, one {# fact on file} other {# facts on file}}"
     },
     "live": {
-      "cap": "Live reading · moves as you answer",
       "dial": "{label} {value} percent on a {min} to {max} dial",
       "dialStated": "{label} {value} percent on a {min} to {max} dial; you stated {stated} percent",
       "noRange": "no reference range yet",
       "stated": "you stated <fig>{value} %</fig>",
       "foot": "<strong>Derived</strong> · {formula} · from {inputs, plural, one {<fig>#</fig> recorded fact} other {<fig>#</fig> recorded facts}}",
       "readiness": "Report readiness",
-      "readinessPct": "{pct} %",
-      "readinessNote": "each answer narrows the ranges in your report"
+      "readinessPct": "{pct} %"
     },
     "reconcile": {
       "flag": "To reconcile",
@@ -400,18 +362,10 @@
       "implausible": "One answer is outside the usual range",
       "gap": "An answer is missing",
       "stale": "An answer may be out of date",
-      "kind": {
-        "contradiction": "contradiction",
-        "implausible": "implausible",
-        "gap": "gap",
-        "stale": "stale"
-      },
-      "note": "I won’t pick one for you. Confirm both are right, or change one.",
       "confirm": "Confirm both",
       "fix": "Change one"
     },
     "tape": {
-      "head": "Tape",
       "label": "The tape: facts on file, newest first"
     },
     "keep": {
@@ -452,7 +406,9 @@
       "unknown_field": "that list has no field called “{field}”",
       "finding_not_open": "that one is already settled",
       "invalid": "that answer couldn’t be recorded"
-    }
+    },
+    "how": "How this works",
+    "why": "Why?"
   },
   "voice": {
     "speak": "Speak",
@@ -536,7 +492,7 @@
       "prior": " · prior {date}",
       "headUnit": "profit change / month · if you do {ref} · DERIVED",
       "computed": "{computed} of {total}",
-      "computedUnit": "measures computed · each one says why",
+      "computedUnit": "measures computed",
       "diagnosis": "Diagnosis",
       "noFindings": "no findings called out",
       "notComputed": "{count, plural, one {<b>#</b> not computed} other {<b>#</b> not computed}}",
@@ -571,6 +527,9 @@
       "basisNotRecorded": "basis not recorded",
       "history": "History · superseded, never erased",
       "noHistory": "No input of this figure has been superseded yet."
+    },
+    "fold": {
+      "how": "How this works"
     },
     "measure": {
       "blended_margin": {
@@ -646,7 +605,7 @@
       "show": "Show them"
     },
     "decline": {
-      "lede": "Optional — why not? This teaches me what not to propose again.",
+      "lede": "Optional — why not?",
       "chip": {
         "tried": "we tried this before",
         "market": "not possible in my market",
@@ -691,14 +650,14 @@
     "findings": {
       "label": "Findings · most urgent first",
       "none": "Nothing the evidence supports strongly enough to call out.",
-      "title": "{count, plural, one {# finding, each with its evidence.} other {# findings, each with its evidence.}}",
+      "title": "{count, plural, one {# finding.} other {# findings.}}",
       "measured": "measured",
       "measuredTitle": "Measured on your site, not judged"
     },
     "recs": {
       "label": "What I'd do about it",
       "none": "No recommendation the arithmetic can back yet.",
-      "title": "{count, plural, one {# recommendation, each with its range.} other {# recommendations, each with its range.}}"
+      "title": "{count, plural, one {# recommendation.} other {# recommendations.}}"
     },
     "hours": {
       "label": "Trading hours · OBSERVED · {from} – {to}",
@@ -709,7 +668,6 @@
     },
     "gaps": {
       "label": "What would sharpen this",
-      "title": "The report is only as good as what it rests on.",
       "priority": "{priority, select, core {core} important {important} deep {deep} optional {optional} other {{priority}}}",
       "blocking": "Blocking",
       "answer": "Answer now →"
@@ -733,7 +691,6 @@
       "confirming": "Waiting for Stripe to confirm your payment",
       "reading": "Reading your profile — the request is running",
       "readingLede": "Margins, break-even, the findings and what to do about them. This usually takes about a minute; the arithmetic is checked before anything reaches the page.",
-      "none": "When you've answered enough, I read the whole profile and write up what I can prove.",
       "readNow": "Read my profile now →",
       "answerMore": "Answer more first →",
       "payFailed": "payment could not be started",
@@ -744,7 +701,6 @@
     },
     "share": {
       "label": "Share this report",
-      "title": "A read-only link for a partner, an accountant or an investor.",
       "signedOut": "Sign in to share your report — a link that leaves SYB is yours to make, so it needs you signed in.",
       "lede": "The link shows this report as it is now, without your answers to the recommendations and without anything that leads into your account. It never changes after it is made, and you can revoke it here at any time.",
       "lasts": "Lasts",
@@ -1013,13 +969,12 @@
     },
     "kicker": "Your business · Fact sheet",
     "titleEmpty": "The record.",
-    "title": "{count, plural, one {# fact about {noun}. Every one shows where it came from.} other {# facts about {noun}. Every one shows where it came from.}}",
+    "title": "{count, plural, one {# fact about {noun}.} other {# facts about {noun}.}}",
     "yourBusiness": "your business",
     "noSession": "There’s no profile on this device yet. <a>Start the questions</a> — or open the link I sent you.",
     "failed": "Something went wrong loading your profile. Refresh to try again — nothing you told me is lost.",
     "reading": "Reading your profile…",
     "export": {
-      "label": "For your accountant",
       "current": "Money facts, CSV",
       "history": "Earlier figures, CSV"
     },
@@ -1032,7 +987,6 @@
     },
     "recordLabel": "The record",
     "search": "Search the record",
-    "searchPlaceholder": "e.g. hours, price, channels",
     "filterLabel": "Filter the record",
     "filter": {
       "all": "All",
@@ -1049,11 +1003,9 @@
       "changed": "Nothing was replaced this month.",
       "none": "Nothing recorded yet."
     },
-    "sectionFacts": "{count, plural, one {# fact} other {# facts}}",
     "sectionChanged": "{count, plural, one {# changed this month} other {# changed this month}}",
     "noneRecorded": "none recorded",
-    "competitorsLede": "Name them in the interview, or let me search from what you’ve already told me.",
-    "openMeta": "{count, plural, one {# question · a gap is a finding, not a failure} other {# questions · a gap is a finding, not a failure}}",
+    "openMeta": "{count, plural, one {# question} other {# questions}}",
     "foot": "Struck-through lines were true until something better came in. Nothing in the record is ever deleted. Snapshot {id} · {date}.",
     "caption": "{section}: every fact with its value, source, basis and the date it holds from",
     "col": {
@@ -1063,7 +1015,6 @@
       "basis": "Basis",
       "since": "Since"
     },
-    "confirmDefault": "confirm to replace the default",
     "noted": "noted: {note}",
     "superseded": "superseded {date} by a newer {kind, select, measurement {measurement} reading {reading} calculation {calculation} answer {answer} other {record}}",
     "supersededWord": "Superseded",
@@ -1133,9 +1084,8 @@
       "find": "Find my competitors →",
       "searchingFrom": "Searching from what you told me",
       "readingPages": "Reading their pages",
-      "found": "Found by searching from what you told me. Nothing is saved until you confirm.",
       "readingPagesNow": "Reading their pages…",
-      "thatsOne": "That's one — look them up →"
+      "thatsOne": "Add →"
     }
   },
   "watch": {
@@ -1146,7 +1096,6 @@
     "days": {
       "label": "Watch day {day} of {of}",
       "started": "Started {date}",
-      "legend": "Each filled square is a watch day gone by. The outlined one is today.",
       "ends": "Watch ends {date}"
     },
     "tally": {
@@ -1184,12 +1133,11 @@
     "noted": {
       "label": "Noted, not acted on",
       "title": "What I would have said",
-      "empty": "Nothing yet. When a figure leaves its usual range, your hours show a signal, or a competitor changes a price, I note it here, and act on none of it.",
+      "empty": "Nothing yet.",
       "day": "Day {day}"
     },
     "when": {
       "label": "When the watch ends",
-      "foot": "The watch's length is set on How I work.",
       "link": "How I work →",
       "ends": "The watch ends. The next report reads everything it gathered.",
       "after": "after",
@@ -1199,7 +1147,6 @@
     },
     "activity": {
       "label": "Activity",
-      "title": "Every entry is real work",
       "empty": "Nothing yet. The first weekly snapshot will appear here."
     },
     "rules": {
@@ -1209,7 +1156,6 @@
     },
     "modules": {
       "label": "Modules",
-      "title": "For when I start acting",
       "name": "{module, select, marketing {marketing} sales {sales} support {support} operations {operations} finance {finance} team {team} other {{module}}}",
       "analytics": "analytics, always on",
       "rolesNotPeople": "{module, select, team {team} other {{module}}}, roles not people",
@@ -1219,7 +1165,6 @@
       "label": "Weekly email",
       "title": "A summary every Monday",
       "switch": "email me the week",
-      "lede": "What I did and found that week, and what is waiting for you. Every line is an entry on this screen; a quiet week says so.",
       "signUp": "Sign up, and it goes to the address you sign in with.",
       "off": "Off. Nothing is emailed; everything stays on this screen.",
       "notDecided": "It starts once How I work is decided.",
@@ -1271,7 +1216,6 @@
       "changes": "{count, plural, one {Day {day} of {of}. # change made, each one approved.} other {Day {day} of {of}. # changes made, each one approved.}}"
     },
     "notes": {
-      "hold": "Nothing I could change runs while the watch lasts.",
       "readingEnds": "{count, plural, one {Reading # connection every day · watch ends {date}} other {Reading # connections every day · watch ends {date}}}",
       "readingEnded": "{count, plural, one {Reading # connection every day · watch ended {date}} other {Reading # connections every day · watch ended {date}}}",
       "noneEnds": "No connection is being read · <a>Connections</a> · watch ends {date}",
@@ -1569,12 +1513,11 @@
       "title": "History — SYB"
     },
     "kicker": "Your business · History",
-    "title": "The ledger. Append-only.",
+    "title": "The ledger.",
     "reading": "Reading the record…",
     "label": "History",
     "signedOut": {
       "title": "Nothing on file for this browser.",
-      "lede": "The ledger exists once there is a business to keep it for.",
       "start": "Start"
     },
     "failed": {
@@ -2653,7 +2596,6 @@
       "signIn": "Sign in"
     },
     "hero": {
-      "pill": "A blood test for your business",
       "titleA": "Your business looks healthy.",
       "titleB": "<em>Its numbers</em> might not.",
       "lede": "We run {checks} checks on your sales, bookings, payments and ads, price every leak in euros, and hand you a signed report in {daysText} {days, plural, one {day} other {days}}.",
@@ -2664,12 +2606,9 @@
       "trustRefund": "Refund if we find nothing"
     },
     "chart": {
-      "kicker": "The chart",
-      "title": "Your business, read like a stock.",
-      "aside": "We mark the day each leak started — and shade what it cost you."
+      "title": "Your business, read like a stock."
     },
     "panels": {
-      "kicker": "What we test",
       "title": "Nine panels. Everything that moves your profit.",
       "p01": {
         "name": "Conversion",
@@ -2709,7 +2648,6 @@
       }
     },
     "steps": {
-      "kicker": "How it works",
       "title": "Fifteen minutes from you.",
       "whenMinutes": "Day {day} · {minutes} min",
       "whenDay": "Day {day}",
@@ -2727,7 +2665,6 @@
       }
     },
     "price": {
-      "kicker": "Price",
       "titleA": "One test.",
       "titleB": "One price.",
       "card": "Full business panel",
@@ -2975,9 +2912,7 @@
   },
   "resume": {
     "meta": "Carry on — SYB",
-    "kicker": "Your interview",
     "headline": "Pick up where you stopped.",
-    "label": "Confirm",
     "title": "Carry on with this interview?",
     "button": "Carry on",
     "note": "Not a link you asked for? Close this page. Nothing changes in this browser unless you press the button.",
@@ -2997,7 +2932,7 @@
     },
     "ask": {
       "title": "Stop the weekly summary email?",
-      "body": "One click and it stops. Sign-in links and the Support screen’s notices are not affected.",
+      "body": "Sign-in links and the Support screen’s notices are not affected.",
       "button": "Stop these emails"
     }
   },
@@ -3490,13 +3425,13 @@
       "connections": "Connections",
       "history": "History",
       "unconnected": "No connection measures {metric} yet. Connect one and its history fills the chart and the starting point.",
-      "unchecked": "Not checked yet. The weekly check reads every measurable goal on Monday."
+      "unchecked": "The weekly check reads every measurable goal on Monday."
     },
     "card": {
       "label": "{metric} · by {day}",
       "goal": "Goal",
       "untitled": "A goal without words yet",
-      "notMeasurable": "This goal isn't measurable yet, so I can't tell you whether it's on its path. Name the number it should move:",
+      "notMeasurable": "Name the number it should move:",
       "raise": "Raise {metric}",
       "lower": "Lower {metric}",
       "now": "Now",
@@ -3527,7 +3462,6 @@
     "setNew": "Set a new goal →",
     "how": {
       "label": "How goals work",
-      "title": "State one goal, in your own words",
       "copy": "Goals are set on Content, where every planned piece names the goal it serves. Make one measurable (revenue, number of sales or website visits, by a date) and each week it is checked against a straight path from where it started to where you want it. Nothing is judged in the first eight weeks or while I'm still watching."
     }
   },
@@ -4454,6 +4388,7 @@
       "emailAsk": "Not on file yet. Once you give it, it is kept with the supplier.",
       "address": "Deliver to",
       "addressOnFile": "Your postal address on file. Change it here for this order.",
+      "toConfirm": "to be confirmed by the supplier",
       "note": "Note to the supplier (optional)",
       "col": {
         "order": "Order",
@@ -4482,6 +4417,9 @@
         "executed": "done",
         "sent": "emailed on {day}",
         "notSent": "ready, not sent",
+        "held": "approved, held until email is set up",
+        "needsConfirming": "approved on {day}, waiting for your yes again",
+        "byHand": "sent by you on {day}",
         "failed": "didn't go out"
       },
       "why": {
@@ -4489,16 +4427,22 @@
         "real_writes_off": "Real sending is switched off until the two-week unattended test completes."
       },
       "notSentAfter": "Download it and send it yourself.",
+      "heldAfter": "It isn't marked done: it goes out on its own once sending is on. Meanwhile you can download it, send it yourself, then mark it as sent by hand.",
+      "confirmAfter": "You said yes more than {days, plural, one {# day} other {# days}} ago, so it isn't emailed on its own. Send now sends it as it is, or make a new order.",
       "sendingReal": "Approved orders are emailed to the supplier for real.",
-      "sendingFake": "Approved orders run through every check, but aren't emailed yet:",
+      "sendingFake": "Approved orders are held, not emailed, until sending is switched on:",
       "sendNow": "Send now",
       "sendingNow": "Sending…",
+      "markByHand": "Mark as sent by hand",
+      "markingByHand": "Saving…",
       "download": "Download",
       "downloadPdf": "Download PDF",
       "print": "Open to print",
       "result": {
         "sent": "Sent to the supplier.",
-        "notSent": "Ready, not sent."
+        "notSent": "Ready, not sent.",
+        "held": "Held, not sent.",
+        "byHand": "Marked as sent by hand. It won't be emailed."
       }
     }
   },
@@ -4575,7 +4519,6 @@
     "signedOut": {
       "title": "Sign in first.",
       "label": "How I work",
-      "sheetTitle": "This screen reads your profile.",
       "signIn": "Sign in"
     },
     "none": {
@@ -4591,7 +4534,6 @@
       "answer": "Answer the core questions"
     },
     "current": "Current",
-    "everyYes": "Every proposal still needs your yes",
     "a": {
       "label": "Mode A",
       "title": "Watch first",
@@ -5175,7 +5117,9 @@
       "videoProposed": "Proposed. It’s in <queue>Waiting for you</queue>; nothing is generated or spent before your yes.",
       "videoGenerated": "The candidates are below, each labelled as AI-generated. Pick one; nothing is published without your yes.",
       "picked": "Picked. It’s on the video item, labelled as AI-generated, and its publish proposal is in <queue>Waiting for you</queue>.",
-      "pickedNoProposal": "Picked. It’s on the video item, labelled as AI-generated."
+      "pickedNoProposal": "Picked. It’s on the video item, labelled as AI-generated.",
+      "videoSubmitted": "Sent. The three arrive below over the next few minutes, each labelled as AI-generated. You can leave this page and come back.",
+      "videoStillMaking": "Still being made. Come back later: SYB keeps collecting them, at least once a day."
     },
     "niche": {
       "label": "The niche's longest-running ads",
@@ -5254,7 +5198,7 @@
       "proposing": "Proposing…",
       "pending": "Waiting for your yes in <queue>Waiting for you</queue>.",
       "generate": "Generate the three",
-      "generating": "Generating. This takes a few minutes…",
+      "generating": "Sending the three to Higgsfield…",
       "approvedNote": "Approved. The money is spent only when you start it.",
       "notOffered": "Not offered: {reason}",
       "setLabel": "CANDIDATES · {day}",
@@ -5269,7 +5213,10 @@
         "failed": "FAILED",
         "chosen": "CHOSEN",
         "not_chosen": "NOT CHOSEN · KEPT"
-      }
+      },
+      "making": "Being made: {ready} of {total} ready.",
+      "makingNote": "You can leave this page. SYB collects them while it is open, and once a day in the background; a ready one can be picked now.",
+      "progress": "{ready} of {total} ready"
     }
   },
   "site": {
@@ -5747,6 +5694,7 @@
       "handoverSave": "Save",
       "callsTitle": "Calls",
       "callsEmpty": "No calls yet. Every call the line answers lands here, with its message and what was said.",
+      "viewerNote": "You can see who called and how each call ended. What callers said, the messages they left and their full numbers are for owners and managers.",
       "withheld": "Number withheld",
       "outcome": {
         "answered": "Answered from your approved answers",
@@ -5771,6 +5719,7 @@
         "stateOff": "Calls are not recorded. Callers hear that the call is transcribed, and no audio is kept.",
         "stateOn": "Calls are recorded. Every caller hears that the call is recorded before recording starts.",
         "explain": "When recording is on, callers are told the call is recorded before any audio is kept. Each recording is kept for {days, plural, one {# day} other {# days}}, then deleted for good, and erasing a call or a contact erases its recording too. Only an owner can listen to them.",
+        "stopsOnTransfer": "When a call is put through to you, recording stops first, so whoever answers is never recorded.",
         "changed": "Last switched {when}.",
         "needsSetup": "Recording can't be switched on on this server yet. It needs these settings:",
         "turnOn": "Record calls",
@@ -6034,16 +5983,13 @@
     "meta": {
       "title": "Your invite — SYB"
     },
-    "kicker": "Team invite",
-    "label": "Invite",
     "someBusiness": "a business on SYB",
     "headline": {
       "join": "Join {where}.",
       "bad": "That invite doesn't work."
     },
     "title": {
-      "as": "As {role, select, owner {an owner} manager {a manager} other {a viewer}}, for {email}",
-      "none": "No invite here"
+      "as": "As {role, select, owner {an owner} manager {a manager} other {a viewer}}, for {email}"
     },
     "unknown": "This link isn’t an invite I know. Ask whoever sent it for a new one.",
     "status": {
@@ -6053,7 +5999,6 @@
     },
     "askNew": "Ask whoever sent it for a new one.",
     "wrong": "This invite is for <b>{invited}</b>, and you’re signed in as <b>{signedIn}</b>. I won’t add the wrong person: sign out, then open this link again.",
-    "signedIn": "You’re signed in as <b>{email}</b>. Join {where} as {role, select, owner {an owner} manager {a manager} other {a viewer}}?",
     "signIn": "You’ll sign in as <b>{email}</b>, the address the invite is for. I’ll email a sign-in link there; opening it adds you to the team.",
     "foot": "Nothing happens until you press the button. Not your address? Close this page.",
     "footLink": "Sign in to SYB",
@@ -6062,7 +6007,6 @@
       "devLink": "Email isn't set up here (development), so here's the sign-in link:",
       "emailed": "I've emailed a sign-in link to {email}. Open it there and you'll join.",
       "signOut": "Sign out",
-      "thenAsks": "Then this page asks again, as {email}.",
       "join": "Join",
       "emailLink": "Email a sign-in link to {email}",
       "signInJoin": "Sign in and join"
@@ -6084,6 +6028,7 @@
       "proposals_carry_out": "Only an owner or a manager can carry out or undo an approved proposal.",
       "content_draft": "Only an owner or a manager can draft content.",
       "support_answer": "Only an owner or a manager can answer support.",
+      "phone_transcripts": "Only an owner or a manager can read what callers said on the phone line.",
       "reviews_answer": "Only an owner or a manager can file, answer or remove reviews.",
       "pipeline_edit": "Only an owner or a manager can change the sales pipeline.",
       "connections_sync": "Only an owner or a manager can read a connected account again now.",
@@ -6109,7 +6054,8 @@
       "stop_resume": "Only an owner can start things up again after a stop.",
       "business_locale": "Only an owner can change the business's language or currency.",
       "payments_prepare": "Only an owner can prepare payments or say one was paid.",
-      "phone_recordings": "Only an owner can listen to call recordings."
+      "phone_recordings": "Only an owner can listen to call recordings.",
+      "payments_read": "Only an owner can see payments and their bank files."
     }
   },
   "authWords": {
@@ -6577,10 +6523,11 @@
       "subject": "Purchase order {number} from {business}",
       "greeting": "Hello {supplier},",
       "intro": "{business} would like to order the following (purchase order {number}):",
-      "line": "{quantity} × {item}",
+      "line": "{quantity} × {item}, price to be confirmed by the supplier",
       "linePriced": "{quantity} × {item} at {unit} = {total}",
       "total": "Expected total: {total}",
-      "totalPart": "Expected total: {total}, plus {unpriced, plural, one {# line} other {# lines}} without a price",
+      "totalPart": "Expected total: {total}, plus {unpriced, plural, one {# line} other {# lines}} with the price to be confirmed by the supplier",
+      "totalNone": "No total yet: the supplier is to confirm the price of {unpriced, plural, one {# line} other {# lines}}",
       "deliverTo": "Deliver to:",
       "noteHead": "Note:",
       "confirm": "Please confirm the order, its price and the delivery date by replying to this email.",
@@ -6590,6 +6537,7 @@
         "title": "Purchase order {number}",
         "prepared": "{business} · prepared on {day}",
         "statusSent": "Emailed to the supplier on {day}",
+        "statusSentByHand": "Sent to the supplier on {day}",
         "status": {
           "draft": "Waiting for approval: not sent",
           "approved": "Approved: not sent yet",
@@ -6601,6 +6549,7 @@
         "quantity": "Quantity",
         "unit": "Unit price (expected)",
         "lineTotal": "Line total",
+        "toConfirm": "to be confirmed",
         "foot": "Prepared with SYB. SYB never changes, cancels or pays an order."
       }
     }
@@ -8950,7 +8899,8 @@
       "reference": "Reference",
       "date": "Date",
       "file": "Bank file",
-      "action": "Action"
+      "action": "Action",
+      "exported": "Downloaded"
     },
     "file": {
       "yes": "In the SEPA file",
@@ -8972,11 +8922,14 @@
       "on": "said paid on {date}"
     },
     "download": {
-      "sepa": "{count, plural, one {Download the SEPA file (# payment)} other {Download the SEPA file (# payments)}}",
-      "steps": "Download step-by-step instructions",
       "needPayer": "Add the bank details you pay from to get a SEPA file. The instructions work without them.",
       "noneForFile": "None of these can go in a SEPA file, which is for euros between SEPA banks. Use the instructions.",
-      "total": "{count, plural, one {The file holds # payment, {total} in all.} other {The file holds # payments, {total} in all.}}"
+      "total": "{count, plural, one {The file holds # payment, {total} in all.} other {The file holds # payments, {total} in all.}}",
+      "newSepa": "{count, plural, one {Download a new SEPA file (# payment)} other {Download a new SEPA file (# payments)}}",
+      "newSteps": "{count, plural, one {Download new instructions (# payment)} other {Download new instructions (# payments)}}",
+      "onlyNew": "A new file holds only payments that aren't in a file yet, so no payment is ever in two files.",
+      "allInFile": "Every ready payment is already in a file you downloaded. You can download a file again below.",
+      "done": "{count, plural, one {Downloaded: # payment is now in a file, and no new file will hold it.} other {Downloaded: # payments are now in a file, and no new file will hold them.}}"
     },
     "steps": {
       "fileTitle": "Using the SEPA file",
@@ -9013,7 +8966,9 @@
         "notLatin": "A name or reference not in Latin letters, so it isn't in the SEPA file: make it by hand.",
         "bicNeeded": "A bank outside the EEA needs the payee's BIC, so it isn't in the SEPA file: make it by hand."
       },
-      "closing": "Once a payment is made, mark it in SYB. If your bank refuses a detail, correct it there: SYB never sends anything to your bank."
+      "closing": "Once a payment is made, mark it in SYB. If your bank refuses a detail, correct it there: SYB never sends anything to your bank.",
+      "batch": "File {ref}, made on {date}. No payment in it is in any other file SYB made.",
+      "copy": "COPY of a file first downloaded on {date}. If you already made these payments, don't make them again: check your bank first."
     },
     "waiting": {
       "label": "Waiting for approval",
@@ -9098,7 +9053,32 @@
       "no_session": "Saying a payment was made needs you signed in.",
       "none_ready": "Nothing is ready for your bank yet. A payment needs approving first.",
       "no_payer": "A SEPA file needs the bank details you pay from.",
-      "none_for_file": "None of the ready payments can go in a SEPA file."
+      "none_for_file": "None of the ready payments can go in a SEPA file.",
+      "all_in_file": "Every one of these payments is already in a file you downloaded. Download that file again from the list instead.",
+      "taken": "Another download put these payments in a file just now. Look at the files you downloaded.",
+      "no_such_file": "I couldn't find that file.",
+      "file_erased": "This file can't be made again: a payment in it had its bank details erased."
+    },
+    "refused": "Payments are the owner's",
+    "exported": {
+      "no": "Not in a file yet",
+      "sepa": "In the SEPA file of {date}",
+      "steps": "In the instructions of {date}"
+    },
+    "files": {
+      "label": "Files you downloaded",
+      "title": "{count, plural, one {# file} other {# files}}",
+      "foot": "Each SEPA file has its own message ID. A bank refuses a file whose message ID it has already seen, so uploading the same file twice can't pay twice.",
+      "sepa": "SEPA file of {date}",
+      "steps": "Instructions of {date}",
+      "count": "{count, plural, one {# payment} other {# payments}}",
+      "paid": "{count, plural, one {# marked paid} other {# marked paid}}",
+      "by": "downloaded by {name}",
+      "again": "Download again",
+      "warn": "You already downloaded this file on {date}. If you uploaded it to your bank or paid its payments by hand, don't do it again: that would pay them twice. Check your bank first.",
+      "sameId": "The copy is the same file, with the same message ID ({id}): your bank should refuse it if it has already seen it.",
+      "confirm": "I've checked my bank: download the same file again",
+      "erased": "This file can't be made again: a payment in it had its bank details erased."
     }
   }
 }

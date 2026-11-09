@@ -38,15 +38,17 @@ const FFMPEG_FILES = [
 ];
 
 // Every route that cuts a clip, or labels and reads one back
-// (lib/content/generate/label). P6-03: /api/studio generates and picks AI
-// video candidates; without the binaries there, every paid clip failed to
-// be labelled. lib/content/ffmpeg-routes.test.ts holds this to the imports.
+// (lib/content/generate/label). P6-03: /api/studio generates, collects and
+// picks AI video candidates, and /api/cron/collect-video collects them in
+// the background; without the binaries there, every paid clip failed to be
+// labelled. lib/content/ffmpeg-routes.test.ts holds this to the imports.
 const nextConfig: NextConfig = {
   serverExternalPackages: ["ffmpeg-static", "ffprobe-static"],
   outputFileTracingIncludes: {
     "/api/content/media": FFMPEG_FILES,
     "/api/cron/render-footage": FFMPEG_FILES,
     "/api/studio": FFMPEG_FILES,
+    "/api/cron/collect-video": FFMPEG_FILES,
   },
   async headers() {
     return [

@@ -81,31 +81,16 @@
       "choose": "选择企业 — SYB"
     },
     "mast": {
-      "haveAccount": "已有账户？",
       "signIn": "登录",
       "createAccount": "创建账户"
     },
     "signup": {
-      "kicker": "建立新档案",
-      "headline": "从诊断开始。",
-      "stepsHead": "此页面之后的流程",
-      "step1": "关联您的账户（只读）",
-      "step2": "回答核心问题",
-      "step3": "我们解读您的数据并签署报告",
-      "takesMinutes": "{minutes} 分钟",
-      "takesAboutMinutes": "约 {minutes} 分钟",
-      "takesDays": "{days} 天",
-      "takesDaysPending": "[{days}] 天"
+      "headline": "从诊断开始。"
     },
     "signin": {
-      "kicker": "档案已就绪",
-      "headline": "回到您的面板。",
-      "point1": "未经您的批准，您的企业中不会执行任何操作。",
-      "point2": "每个数字都标明了来源。",
-      "point3": "任何记录都不会被删除——旧事实会被取代并保留。"
+      "headline": "回到您的面板。"
     },
     "sent": {
-      "label": "请查收邮件",
       "titleBelow": "您的链接在下方",
       "titleSent": "链接已发送",
       "onScreen": "此处未配置电子邮件，因此您的一次性链接显示在下方。链接将在 {minutes} 分钟后失效。",
@@ -118,8 +103,6 @@
     "form": {
       "labelCreate": "创建账户",
       "labelSignIn": "登录",
-      "titleCreate": "建立您企业的档案",
-      "titleSignIn": "欢迎回来",
       "email": "工作邮箱",
       "emailPlaceholder": "name@example.cn",
       "website": "网站",
@@ -132,38 +115,31 @@
       "noteSignin": "无需密码。该链接仅可使用一次，有效期 {minutes} 分钟。",
       "orSignup": "或使用以下方式注册",
       "orSignin": "或使用以下方式继续",
-      "terms": "创建账户即表示您同意<terms>使用条款</terms>和<privacy>隐私声明</privacy>。",
-      "newHere": "首次使用 SYB？请在右上角创建账户。"
+      "terms": "创建账户即表示您同意<terms>使用条款</terms>和<privacy>隐私声明</privacy>。"
     },
     "confirm": {
-      "kicker": "登录",
       "headline": "还差一步。",
-      "label": "确认",
       "title": "以 {email} 的身份登录？",
       "sentTo": "此链接已发送至 <b>{email}</b>。",
       "button": "登录",
       "note": "这不是您的地址？请关闭此页面。可能有人把自己的链接发给了您；只要您不按下按钮，就不会发生任何事情。",
       "expiredHeadline": "该链接已失效。",
       "expiredMessage": "登录链接仅可使用一次，并在 {minutes} 分钟后失效。请重新申请，新链接很快就会送达。",
-      "linkLabel": "链接",
-      "linkDead": "此链接已无法使用",
       "newLink": "通过邮件发送新的登录链接"
     },
     "choose": {
       "signedInAs": "已登录：{email}",
       "headline": "要打开哪个企业？",
-      "label": "您的企业",
-      "title": "选择一个打开。您可以随时从菜单切换。",
       "add": "添加其他企业",
       "foot": "每个企业都有各自的事实、团队和账单。一个企业的任何信息都不会出现在另一个企业中。"
-    }
+    },
+    "how": "运作方式",
+    "why": "为什么？"
   },
   "locale": {
     "meta": "语言和货币 — SYB",
     "first": {
-      "kicker": "开始之前",
-      "headline": "请选择您的语言和货币。",
-      "lede": "我将用这种语言与您交流。您企业的所有数字都以这种货币显示，且绝不会在货币之间换算。"
+      "headline": "请选择您的语言和货币。"
     },
     "yourLanguage": "您的语言",
     "businessLanguage": "您企业的语言",
@@ -216,14 +192,12 @@
       "inProgress": "进行中"
     },
     "bank": {
-      "title": "频道总览",
       "now": "频道 {channel} · {area} · <fig>{pct}%</fig>",
-      "none": "您的企业，逐个方面测量",
       "done": "已完成 <fig>{done}</fig> / {total}",
       "hide": "收起频道",
       "all": "全部频道",
       "legendOwner": "来自您",
-      "legendMeasured": "读取自 {connector} · 顺序随意",
+      "legendMeasured": "读取自 {connector}",
       "tileChannel": "频道 {channel}",
       "tilePct": "{pct}%",
       "tileWords": "频道 {channel}，{area}：{status}，已回答 {pct}% — {bars}。",
@@ -239,13 +213,9 @@
       }
     },
     "mast": {
-      "sub": "正在校准记录",
       "saving": "正在保存…",
-      "listening": "聆听中",
-      "sessionTitle": "自打开此页面以来的分钟数",
-      "session": "本次 · <fig>{minutes}</fig> 分钟",
       "facts": "{count, plural, other {已记录 <fig>#</fig> 项事实}}",
-      "pause": "暂停，稍后继续"
+      "pause": "稍后继续"
     },
     "pause": {
       "title": "暂停 · 稍后继续",
@@ -267,7 +237,6 @@
       "reopened": "已重新打开。该问题回到了左侧。"
     },
     "done": {
-      "cap": "访谈 · 已完成",
       "title": "访谈已完成。",
       "lede": "我已经有足够的记录，可以对您的企业做初步解读。更深入的问题会在您看过第一份报告之后再问。",
       "answers": "已记录的回答",
@@ -296,9 +265,6 @@
       "emptyUnknown": "请回答此问题，或选择“无读数 — 我不知道”继续。",
       "emptySkip": "请回答此问题，或选择“暂时跳过”继续。",
       "entityEmpty": "至少填写一行的第一个字段才能记录。",
-      "hintText": "按 {modifier} + Enter 记录",
-      "hintEnter": "按 Enter 记录",
-      "hintKeys": "按 {first}–{last} 键选择",
       "speak": "语音回答",
       "spokenAfter": "请检查一遍并修改，然后按“下一题”记录。",
       "fileStub": "上传功能将在后续版本推出",
@@ -309,7 +275,6 @@
       "exact": "精确<sr>金额，{currency}</sr>",
       "estimate": "这是估计值",
       "estimated": "已标记为估计值",
-      "basis": "依据：估计",
       "which": "您指的是哪一个？",
       "unreadable": "这看起来不像数字。请使用数字，小数可用逗号或小数点。"
     },
@@ -322,10 +287,9 @@
       "addRow": "再添加一行"
     },
     "record": {
-      "cap": "记录 · 最新在前",
       "channelTitle": "频道 {channel} · {area}",
       "facts": "{count, plural, other {<fig>#</fig> 项事实}}",
-      "empty": "此方面暂无记录。每个回答都会连同来源记录在这里。",
+      "empty": "此方面暂无记录。",
       "listLabel": "{area}中已记录的事实",
       "srAnswer": "现在回答",
       "srChange": "修改此回答",
@@ -384,15 +348,13 @@
       "factsOnFile": "{count, plural, other {已记录 # 项事实}}"
     },
     "live": {
-      "cap": "实时读数 · 随回答变化",
       "dial": "{label}：{value}%（刻度 {min}–{max}）",
       "dialStated": "{label}：{value}%（刻度 {min}–{max}）；您陈述的是 {stated}%",
       "noRange": "暂无参考范围",
       "stated": "您陈述的是 <fig>{value} %</fig>",
       "foot": "<strong>推导</strong> · {formula} · 基于 {inputs, plural, other {<fig>#</fig> 项已记录的事实}}",
       "readiness": "报告就绪度",
-      "readinessPct": "{pct} %",
-      "readinessNote": "每个回答都会缩小报告中的范围"
+      "readinessPct": "{pct} %"
     },
     "reconcile": {
       "flag": "待核对",
@@ -400,18 +362,10 @@
       "implausible": "有一个回答超出常见范围",
       "gap": "缺少一个回答",
       "stale": "有一个回答可能已过时",
-      "kind": {
-        "contradiction": "矛盾",
-        "implausible": "不合理",
-        "gap": "空缺",
-        "stale": "过时"
-      },
-      "note": "我不会替您选择。请确认两者都正确，或修改其中一个。",
       "confirm": "确认两者都正确",
       "fix": "修改其中一个"
     },
     "tape": {
-      "head": "记录带",
       "label": "记录带：已记录的事实，最新在前"
     },
     "keep": {
@@ -452,7 +406,9 @@
       "unknown_field": "该列表中没有名为“{field}”的字段",
       "finding_not_open": "这一项已经处理过了",
       "invalid": "该回答无法记录"
-    }
+    },
+    "how": "运作方式",
+    "why": "为什么？"
   },
   "voice": {
     "speak": "语音输入",
@@ -536,7 +492,7 @@
       "prior": " · 上次 {date}",
       "headUnit": "利润变化 / 月 · 如果您执行 {ref} · 推导",
       "computed": "{computed} / {total}",
-      "computedUnit": "项指标已计算 · 每一项都说明了原因",
+      "computedUnit": "项指标已计算",
       "diagnosis": "诊断",
       "noFindings": "没有需要指出的发现",
       "notComputed": "{count, plural, other {<b>#</b> 项未计算}}",
@@ -571,6 +527,9 @@
       "basisNotRecorded": "依据未记录",
       "history": "历史 · 已取代，永不删除",
       "noHistory": "这个数字的输入还没有被取代过。"
+    },
+    "fold": {
+      "how": "运作方式"
     },
     "measure": {
       "blended_margin": {
@@ -646,7 +605,7 @@
       "show": "显示"
     },
     "decline": {
-      "lede": "选填——为什么不要？这能让我知道以后不该再提出什么。",
+      "lede": "选填——为什么不要？",
       "chip": {
         "tried": "我们以前试过",
         "market": "在我的市场里行不通",
@@ -691,14 +650,14 @@
     "findings": {
       "label": "发现 · 最紧急的在前",
       "none": "没有任何问题有足够的证据可以指出。",
-      "title": "{count, plural, other {# 项发现，每一项都附有证据。}}",
+      "title": "{count, plural, other {# 项发现。}}",
       "measured": "已测量",
       "measuredTitle": "在您的网站上测量所得，而非主观判断"
     },
     "recs": {
       "label": "我会怎么做",
       "none": "目前还没有计算能够支撑的建议。",
-      "title": "{count, plural, other {# 条建议，每一条都附有范围。}}"
+      "title": "{count, plural, other {# 条建议。}}"
     },
     "hours": {
       "label": "营业时间 · 已观测 · {from} – {to}",
@@ -709,7 +668,6 @@
     },
     "gaps": {
       "label": "什么能让结论更准确",
-      "title": "报告的质量取决于它所依据的信息。",
       "priority": "{priority, select, core {核心} important {重要} deep {深入} optional {选填} other {{priority}}}",
       "blocking": "阻塞项",
       "answer": "现在回答 →"
@@ -733,7 +691,6 @@
       "confirming": "正在等待 Stripe 确认您的付款",
       "reading": "正在读取您的档案——请求正在处理中",
       "readingLede": "利润率、盈亏平衡点、发现以及应对办法。通常需要大约一分钟；在任何内容显示到页面之前，都会先核对计算。",
-      "none": "当您回答得足够多时，我会读取整个档案，并写下我能够证明的内容。",
       "readNow": "现在读取我的档案 →",
       "answerMore": "先多回答一些 →",
       "payFailed": "无法发起付款",
@@ -744,7 +701,6 @@
     },
     "share": {
       "label": "分享这份报告",
-      "title": "一个只读链接，可以发给合伙人、会计师或投资人。",
       "signedOut": "登录后才能分享您的报告——离开 SYB 的链接只能由您本人创建，因此需要您登录。",
       "lede": "该链接显示这份报告当前的样子，不包含您对各项建议的回应，也不包含任何通往您账户的内容。链接创建后就不会再变化，您可以随时在这里撤销它。",
       "lasts": "有效期",
@@ -1013,13 +969,12 @@
     },
     "kicker": "您的企业 · 事实表",
     "titleEmpty": "记录。",
-    "title": "{count, plural, other {关于{noun}的 # 项事实。每一项都标明了来源。}}",
+    "title": "{count, plural, other {关于{noun}的 # 项事实。}}",
     "yourBusiness": "您的企业",
     "noSession": "此设备上还没有档案。<a>开始回答问题</a>——或者打开我发给您的链接。",
     "failed": "加载您的档案时出了点问题。请刷新重试——您告诉我的内容都不会丢失。",
     "reading": "正在读取您的档案…",
     "export": {
-      "label": "给您的会计师",
       "current": "资金类事实，CSV",
       "history": "早期数字，CSV"
     },
@@ -1032,7 +987,6 @@
     },
     "recordLabel": "记录",
     "search": "搜索记录",
-    "searchPlaceholder": "例如：营业时间、价格、渠道",
     "filterLabel": "筛选记录",
     "filter": {
       "all": "全部",
@@ -1049,11 +1003,9 @@
       "changed": "本月没有任何内容被替换。",
       "none": "暂无记录。"
     },
-    "sectionFacts": "{count, plural, other {# 项事实}}",
     "sectionChanged": "{count, plural, other {本月有 # 项变化}}",
     "noneRecorded": "暂无记录",
-    "competitorsLede": "在访谈中说出它们的名字，或者让我根据您已经告诉我的信息去搜索。",
-    "openMeta": "{count, plural, other {# 个问题 · 空缺本身就是一项发现，而不是失败}}",
+    "openMeta": "{count, plural, other {# 个问题}}",
     "foot": "带删除线的行在有更准确的信息进来之前一直成立。记录中的任何内容都不会被删除。快照 {id} · {date}。",
     "caption": "{section}：每项事实及其值、来源、依据和生效日期",
     "col": {
@@ -1063,7 +1015,6 @@
       "basis": "依据",
       "since": "起始日期"
     },
-    "confirmDefault": "确认后替换默认值",
     "noted": "备注：{note}",
     "superseded": "已于 {date} 被更新的{kind, select, measurement {测量} reading {读数} calculation {计算} answer {回答} other {记录}}取代",
     "supersededWord": "已取代",
@@ -1133,9 +1084,8 @@
       "find": "查找我的竞争对手 →",
       "searchingFrom": "正在根据您告诉我的信息搜索",
       "readingPages": "正在阅读他们的网页",
-      "found": "根据您告诉我的信息搜索所得。在您确认之前，不会保存任何内容。",
       "readingPagesNow": "正在阅读他们的网页…",
-      "thatsOne": "这是其中一个——去查一查 →"
+      "thatsOne": "添加 →"
     }
   },
   "watch": {
@@ -1146,7 +1096,6 @@
     "days": {
       "label": "观察第 {day} 天，共 {of} 天",
       "started": "开始于 {date}",
-      "legend": "每个实心方块代表已经过去的一个观察日。带边框的那个是今天。",
       "ends": "观察期于 {date} 结束"
     },
     "tally": {
@@ -1184,12 +1133,11 @@
     "noted": {
       "label": "已记下，未行动",
       "title": "我本来会说的话",
-      "empty": "暂时没有。当某个数字超出常规范围、您的营业时段出现信号，或某个竞争对手调整价格时，我会在这里记下，但不会据此采取任何行动。",
+      "empty": "暂时没有。",
       "day": "第 {day} 天"
     },
     "when": {
       "label": "观察期结束时",
-      "foot": "观察期的长度在“我的工作方式”中设置。",
       "link": "我的工作方式 →",
       "ends": "观察期结束。下一份报告会读取这期间收集到的所有内容。",
       "after": "之后",
@@ -1199,7 +1147,6 @@
     },
     "activity": {
       "label": "活动",
-      "title": "每一条都是真实完成的工作",
       "empty": "暂时没有。第一份每周快照会出现在这里。"
     },
     "rules": {
@@ -1209,7 +1156,6 @@
     },
     "modules": {
       "label": "模块",
-      "title": "等我开始行动时",
       "name": "{module, select, marketing {营销} sales {销售} support {客户支持} operations {运营} finance {财务} team {团队} other {{module}}}",
       "analytics": "分析，始终开启",
       "rolesNotPeople": "{module, select, team {团队} other {{module}}}，按岗位而非个人",
@@ -1219,7 +1165,6 @@
       "label": "每周邮件",
       "title": "每周一的摘要",
       "switch": "每周给我发邮件",
-      "lede": "我那一周做了什么、发现了什么，以及有什么在等您处理。每一行都对应此页面上的一条记录；平静的一周也会如实说明。",
       "signUp": "注册后，它会发送到您用于登录的邮箱地址。",
       "off": "已关闭。不会发送任何邮件；所有内容都保留在此页面上。",
       "notDecided": "在决定“我的工作方式”之后开始发送。",
@@ -1271,7 +1216,6 @@
       "changes": "{count, plural, other {第 {day} 天，共 {of} 天。已做出 # 项更改，每一项都经过您的批准。}}"
     },
     "notes": {
-      "hold": "观察期间，我能改动的任何内容都不会执行。",
       "readingEnds": "{count, plural, other {每天读取 # 个连接 · 观察期于 {date} 结束}}",
       "readingEnded": "{count, plural, other {每天读取 # 个连接 · 观察期已于 {date} 结束}}",
       "noneEnds": "没有正在读取的连接 · <a>连接</a> · 观察期于 {date} 结束",
@@ -1569,12 +1513,11 @@
       "title": "历史记录 — SYB"
     },
     "kicker": "您的企业 · 历史记录",
-    "title": "账本。只能追加。",
+    "title": "账本。",
     "reading": "正在读取记录…",
     "label": "历史记录",
     "signedOut": {
       "title": "此浏览器没有任何存档。",
-      "lede": "有了需要记账的企业，账本才会存在。",
       "start": "开始"
     },
     "failed": {
@@ -2653,7 +2596,6 @@
       "signIn": "登录"
     },
     "hero": {
-      "pill": "为您的企业做一次验血",
       "titleA": "您的企业看起来很健康。",
       "titleB": "<em>它的数字</em>却未必。",
       "lede": "我们对您的销售、预约、付款和广告进行 {checks} 项检查，以欧元为每一处漏洞标价，并在 {daysText} {days, plural, other {天}}内交给您一份签字报告。",
@@ -2664,12 +2606,9 @@
       "trustRefund": "如果我们什么也没发现，全额退款"
     },
     "chart": {
-      "kicker": "图表",
-      "title": "像看股票一样读懂您的企业。",
-      "aside": "我们标出每一处漏洞开始的那一天——并用阴影标出它让您损失了多少。"
+      "title": "像看股票一样读懂您的企业。"
     },
     "panels": {
-      "kicker": "我们检测什么",
       "title": "九组检测。涵盖影响您利润的一切。",
       "p01": {
         "name": "转化",
@@ -2709,7 +2648,6 @@
       }
     },
     "steps": {
-      "kicker": "运作方式",
       "title": "您只需付出十五分钟。",
       "whenMinutes": "第 {day} 天 · {minutes} 分钟",
       "whenDay": "第 {day} 天",
@@ -2727,7 +2665,6 @@
       }
     },
     "price": {
-      "kicker": "价格",
       "titleA": "一次检测。",
       "titleB": "一个价格。",
       "card": "企业全套检测",
@@ -2975,9 +2912,7 @@
   },
   "resume": {
     "meta": "继续 — SYB",
-    "kicker": "您的访谈",
     "headline": "从上次停下的地方继续。",
-    "label": "确认",
     "title": "要继续这次访谈吗？",
     "button": "继续",
     "note": "这不是您申请的链接？请关闭此页面。只要您不按下按钮，此浏览器中就不会有任何变化。",
@@ -2997,7 +2932,7 @@
     },
     "ask": {
       "title": "停止每周摘要邮件？",
-      "body": "点击一下即可停止。登录链接和“客户支持”页面的通知不受影响。",
+      "body": "登录链接和“客户支持”页面的通知不受影响。",
       "button": "停止这些邮件"
     }
   },
@@ -3490,13 +3425,13 @@
       "connections": "连接",
       "history": "历史记录",
       "unconnected": "还没有任何连接测量{metric}。连接一个后，它的历史数据会填充图表和起始点。",
-      "unchecked": "尚未检查。每周检查会在周一读取每个可测量的目标。"
+      "unchecked": "每周检查会在周一读取每个可测量的目标。"
     },
     "card": {
       "label": "{metric} · 截止 {day}",
       "goal": "目标",
       "untitled": "一个还没有文字描述的目标",
-      "notMeasurable": "这个目标还无法测量，所以我无法告诉您它是否在路径上。请说出它应该推动的数字：",
+      "notMeasurable": "请说出它应该推动的数字：",
       "raise": "提高{metric}",
       "lower": "降低{metric}",
       "now": "当前",
@@ -3527,7 +3462,6 @@
     "setNew": "设定新目标 →",
     "how": {
       "label": "目标如何运作",
-      "title": "用您自己的话陈述一个目标",
       "copy": "目标在“内容”中设定，那里每一篇计划中的内容都会写明它服务的目标。把一个目标变得可测量（营收、销售笔数或网站访问量，并设定日期），之后每周都会将它与一条从起点到您期望位置的直线路径进行对照。在最初八周内，或在我仍在观察期间，不做任何判断。"
     }
   },
@@ -4454,6 +4388,7 @@
       "emailAsk": "尚未存档。您填写后，会保存在该供应商名下。",
       "address": "送货地址",
       "addressOnFile": "您存档的邮寄地址。可在此为本订单修改。",
+      "toConfirm": "价格待供应商确认",
       "note": "给供应商的备注（可选）",
       "col": {
         "order": "订购",
@@ -4482,6 +4417,9 @@
         "executed": "已完成",
         "sent": "已于 {day} 发送",
         "notSent": "已就绪，未发送",
+        "held": "已批准，暂缓发送，等待邮件设置完成",
+        "needsConfirming": "已于 {day} 批准，需要您再次确认",
+        "byHand": "已由您于 {day} 发送",
         "failed": "未能发出"
       },
       "why": {
@@ -4489,16 +4427,22 @@
         "real_writes_off": "在两周无人值守测试完成之前，真实发送处于关闭状态。"
       },
       "notSentAfter": "请下载后自行发送。",
+      "heldAfter": "它不会被标记为已完成：发送开启后会自动发出。在此期间，您可以下载后自行发送，然后标记为已手动发送。",
+      "confirmAfter": "您的确认已超过 {days} 天，所以不会自动通过邮件发出。“立即发送”会按原样发送，您也可以新建一份订单。",
       "sendingReal": "批准后的订单会真正通过邮件发给供应商。",
-      "sendingFake": "批准后的订单会经过每一项检查，但暂时不会通过邮件发送：",
+      "sendingFake": "批准后的订单会暂缓，不通过邮件发送，直到发送功能开启：",
       "sendNow": "立即发送",
       "sendingNow": "正在发送…",
+      "markByHand": "标记为已手动发送",
+      "markingByHand": "正在保存…",
       "download": "下载",
       "downloadPdf": "下载 PDF",
       "print": "打开以打印",
       "result": {
         "sent": "已发给供应商。",
-        "notSent": "已就绪，未发送。"
+        "notSent": "已就绪，未发送。",
+        "held": "已暂缓，未发送。",
+        "byHand": "已标记为手动发送。不会再通过邮件发送。"
       }
     }
   },
@@ -4575,7 +4519,6 @@
     "signedOut": {
       "title": "请先登录。",
       "label": "我的工作方式",
-      "sheetTitle": "此页面会读取您的档案。",
       "signIn": "登录"
     },
     "none": {
@@ -4591,7 +4534,6 @@
       "answer": "回答核心问题"
     },
     "current": "当前",
-    "everyYes": "每一项提案仍需要您的同意",
     "a": {
       "label": "模式 A",
       "title": "先观察",
@@ -5175,7 +5117,9 @@
       "videoProposed": "已提议。它在<queue>等待您处理</queue>中；在您同意之前，不会生成任何内容，也不会花钱。",
       "videoGenerated": "候选在下方，每个都标注为 AI 生成。请选一个；没有您的同意，什么都不会发布。",
       "picked": "已选。它已放在视频项上，标注为 AI 生成，其发布提案在<queue>等待您处理</queue>中。",
-      "pickedNoProposal": "已选。它已放在视频项上，标注为 AI 生成。"
+      "pickedNoProposal": "已选。它已放在视频项上，标注为 AI 生成。",
+      "videoSubmitted": "已发送。这三个会在接下来几分钟内出现在下方，每个都标注为 AI 生成。您可以离开此页面，稍后再回来。",
+      "videoStillMaking": "仍在生成。请稍后再来：SYB 会继续收取，至少每天一次。"
     },
     "niche": {
       "label": "细分市场中投放时间最长的广告",
@@ -5254,7 +5198,7 @@
       "proposing": "正在提议…",
       "pending": "在<queue>等待您处理</queue>中等待您的同意。",
       "generate": "生成这三个",
-      "generating": "正在生成，需要几分钟…",
+      "generating": "正在把这三个发送给 Higgsfield…",
       "approvedNote": "已批准。只有在您开始生成时才会花钱。",
       "notOffered": "不提供：{reason}",
       "setLabel": "候选 · {day}",
@@ -5269,7 +5213,10 @@
         "failed": "失败",
         "chosen": "已选",
         "not_chosen": "未选 · 已保留"
-      }
+      },
+      "making": "正在生成：{total} 个中已有 {ready} 个就绪。",
+      "makingNote": "您可以离开此页面。页面打开时 SYB 会收取它们，后台每天也会收取一次；已就绪的现在就可以选。",
+      "progress": "{total} 个中 {ready} 个就绪"
     }
   },
   "site": {
@@ -5747,6 +5694,7 @@
       "handoverSave": "保存",
       "callsTitle": "来电",
       "callsEmpty": "还没有来电。线路接听的每通电话都会出现在这里，附带留言和通话内容。",
+      "viewerNote": "您可以看到谁来电以及每通电话如何结束。来电者说的内容、留下的留言和完整号码仅供所有者和经理查看。",
       "withheld": "隐藏号码",
       "outcome": {
         "answered": "已用您批准的回答作答",
@@ -5771,6 +5719,7 @@
         "stateOff": "通话不会录音。来电者会听到通话将被转写的提示，并且不会保存任何录音。",
         "stateOn": "通话会录音。每位来电者都会在录音开始之前听到通话将被录音的提示。",
         "explain": "开启录音后，来电者会在保存任何声音之前被告知通话正在录音。每段录音保存{days, plural, other {#天}}，之后永久删除；删除一通来电或一个联系人时，其录音也会一并删除。只有所有者可以收听录音。",
+        "stopsOnTransfer": "通话转接给您之前，录音会先停止，因此接听的人绝不会被录音。",
         "changed": "最近一次切换：{when}。",
         "needsSetup": "此服务器暂时还无法开启录音，需要以下设置：",
         "turnOn": "为通话录音",
@@ -6034,16 +5983,13 @@
     "meta": {
       "title": "您的邀请 — SYB"
     },
-    "kicker": "团队邀请",
-    "label": "邀请",
     "someBusiness": "SYB 上的一家企业",
     "headline": {
       "join": "加入 {where}。",
       "bad": "这个邀请无效。"
     },
     "title": {
-      "as": "身份：{role, select, owner {所有者} manager {经理} other {查看者}}，发给 {email}",
-      "none": "这里没有邀请"
+      "as": "身份：{role, select, owner {所有者} manager {经理} other {查看者}}，发给 {email}"
     },
     "unknown": "这个链接不是我认识的邀请。请向发送者要一个新的。",
     "status": {
@@ -6053,7 +5999,6 @@
     },
     "askNew": "请向发送者要一个新的。",
     "wrong": "这个邀请是发给 <b>{invited}</b> 的，而您登录的是 <b>{signedIn}</b>。我不会把错误的人加进来：请退出登录，然后再次打开这个链接。",
-    "signedIn": "您已登录为 <b>{email}</b>。要以{role, select, owner {所有者} manager {经理} other {查看者}}身份加入 {where} 吗？",
     "signIn": "您将以 <b>{email}</b> 登录，也就是这个邀请所针对的地址。我会把登录链接发到那里；打开它就会把您加入团队。",
     "foot": "在您按下按钮之前，什么都不会发生。不是您的地址？请关闭此页面。",
     "footLink": "登录 SYB",
@@ -6062,7 +6007,6 @@
       "devLink": "这里尚未设置电子邮件（开发环境），所以登录链接在这里：",
       "emailed": "我已把登录链接发送到 {email}。在那里打开它，您就会加入。",
       "signOut": "退出登录",
-      "thenAsks": "然后此页面会以 {email} 的身份再次询问您。",
       "join": "加入",
       "emailLink": "把登录链接发送到 {email}",
       "signInJoin": "登录并加入"
@@ -6084,6 +6028,7 @@
       "proposals_carry_out": "只有所有者或经理可以执行或撤销已批准的提案。",
       "content_draft": "只有所有者或经理可以起草内容。",
       "support_answer": "只有所有者或经理可以回复客户支持消息。",
+      "phone_transcripts": "只有所有者或经理可以查看来电者在电话线路上说的内容。",
       "reviews_answer": "只有所有者或经理可以登记、回复或移除评价。",
       "pipeline_edit": "只有所有者或经理可以更改销售管道。",
       "connections_sync": "只有所有者或经理可以立即重新读取已连接的账户。",
@@ -6109,7 +6054,8 @@
       "stop_resume": "只有所有者可以在停止后重新启动。",
       "business_locale": "只有所有者可以更改企业的语言或货币。",
       "payments_prepare": "只有所有者可以准备付款或说明某笔付款已完成。",
-      "phone_recordings": "只有所有者可以收听通话录音。"
+      "phone_recordings": "只有所有者可以收听通话录音。",
+      "payments_read": "只有所有者可以查看付款及其银行文件。"
     }
   },
   "authWords": {
@@ -6577,10 +6523,11 @@
       "subject": "{business} 的采购订单 {number}",
       "greeting": "{supplier}，您好：",
       "intro": "{business} 希望订购以下商品（采购订单 {number}）：",
-      "line": "{quantity} × {item}",
+      "line": "{quantity} × {item}，价格待供应商确认",
       "linePriced": "{quantity} × {item}，单价 {unit} = {total}",
       "total": "预计总额：{total}",
-      "totalPart": "预计总额：{total}，另有 {unpriced} 行没有价格",
+      "totalPart": "预计总额：{total}，另有 {unpriced} 行的价格待供应商确认",
+      "totalNone": "暂无总额：{unpriced} 行的价格待供应商确认",
       "deliverTo": "送货地址：",
       "noteHead": "备注：",
       "confirm": "请回复此邮件，确认订单、价格和交货日期。",
@@ -6590,6 +6537,7 @@
         "title": "采购订单 {number}",
         "prepared": "{business} · 准备于 {day}",
         "statusSent": "已于 {day} 通过邮件发给供应商",
+        "statusSentByHand": "已于 {day} 发给供应商",
         "status": {
           "draft": "等待批准：未发送",
           "approved": "已批准：尚未发送",
@@ -6601,6 +6549,7 @@
         "quantity": "数量",
         "unit": "单价（预计）",
         "lineTotal": "小计",
+        "toConfirm": "待确认",
         "foot": "由 SYB 准备。SYB 从不修改、取消或支付订单。"
       }
     }
@@ -8950,7 +8899,8 @@
       "reference": "附言",
       "date": "日期",
       "file": "银行文件",
-      "action": "操作"
+      "action": "操作",
+      "exported": "已下载"
     },
     "file": {
       "yes": "在 SEPA 文件中",
@@ -8972,11 +8922,14 @@
       "on": "于 {date} 标记为已付款"
     },
     "download": {
-      "sepa": "{count, plural, other {下载 SEPA 文件（# 笔付款）}}",
-      "steps": "下载分步说明",
       "needPayer": "填写您付款所用的银行信息，即可获得 SEPA 文件。没有这些信息，说明也可以使用。",
       "noneForFile": "这些付款都无法放入 SEPA 文件，SEPA 文件仅适用于 SEPA 银行之间的欧元付款。请使用说明。",
-      "total": "{count, plural, other {文件包含 # 笔付款，共计 {total}。}}"
+      "total": "{count, plural, other {文件包含 # 笔付款，共计 {total}。}}",
+      "newSepa": "{count, plural, other {下载新的 SEPA 文件（# 笔付款）}}",
+      "newSteps": "{count, plural, other {下载新的说明（# 笔付款）}}",
+      "onlyNew": "新文件只包含尚未放入任何文件的付款，因此同一笔付款绝不会出现在两个文件中。",
+      "allInFile": "每笔待付款项都已在您下载过的文件中。您可以在下方再次下载某个文件。",
+      "done": "{count, plural, other {已下载：# 笔付款现已在文件中，任何新文件都不会再包含它们。}}"
     },
     "steps": {
       "fileTitle": "如何使用 SEPA 文件",
@@ -9013,7 +8966,9 @@
         "notLatin": "名称或附言不是拉丁字母，因此不在 SEPA 文件中：请手动付款。",
         "bicNeeded": "欧洲经济区以外的银行需要收款人的 BIC，因此不在 SEPA 文件中：请手动付款。"
       },
-      "closing": "付款完成后，请在 SYB 中标记。如果银行拒绝某项信息，请在银行中更正：SYB 从不向您的银行发送任何内容。"
+      "closing": "付款完成后，请在 SYB 中标记。如果银行拒绝某项信息，请在银行中更正：SYB 从不向您的银行发送任何内容。",
+      "batch": "文件 {ref}，生成于 {date}。其中的付款都不在 SYB 生成的其他文件中。",
+      "copy": "副本：此文件首次下载于 {date}。如果您已完成这些付款，请不要再付：请先查看您的银行。"
     },
     "waiting": {
       "label": "等待批准",
@@ -9098,7 +9053,32 @@
       "no_session": "说明某笔付款已完成，需要您先登录。",
       "none_ready": "目前没有可交给银行的付款。付款需要先获得批准。",
       "no_payer": "SEPA 文件需要您付款所用的银行信息。",
-      "none_for_file": "已就绪的付款都无法放入 SEPA 文件。"
+      "none_for_file": "已就绪的付款都无法放入 SEPA 文件。",
+      "all_in_file": "这些付款都已在您下载过的文件中。请改为从列表中再次下载那个文件。",
+      "taken": "另一次下载刚刚把这些付款放进了文件。请查看已下载的文件。",
+      "no_such_file": "我找不到那个文件。",
+      "file_erased": "无法再次生成此文件：其中一笔付款的银行信息已被清除。"
+    },
+    "refused": "付款仅限所有者查看",
+    "exported": {
+      "no": "尚未在任何文件中",
+      "sepa": "在 {date} 的 SEPA 文件中",
+      "steps": "在 {date} 的说明中"
+    },
+    "files": {
+      "label": "已下载的文件",
+      "title": "{count, plural, other {# 个文件}}",
+      "foot": "每个 SEPA 文件都有自己的报文 ID。银行会拒绝报文 ID 已出现过的文件，因此同一文件上传两次也不会付款两次。",
+      "sepa": "{date} 的 SEPA 文件",
+      "steps": "{date} 的说明",
+      "count": "{count, plural, other {# 笔付款}}",
+      "paid": "{count, plural, other {# 笔已标记为已付}}",
+      "by": "下载者：{name}",
+      "again": "再次下载",
+      "warn": "您已于 {date} 下载过此文件。如果您已将它上传到银行，或已手动完成其中的付款，请不要再做一次：那样会付款两次。请先查看您的银行。",
+      "sameId": "副本是同一个文件，报文 ID 相同（{id}）：如果银行已经见过它，应当会拒绝。",
+      "confirm": "我已查看银行：再次下载同一文件",
+      "erased": "无法再次生成此文件：其中一笔付款的银行信息已被清除。"
     }
   }
 }

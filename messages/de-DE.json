@@ -81,31 +81,16 @@
       "choose": "Welches Unternehmen? — SYB"
     },
     "mast": {
-      "haveAccount": "Sie haben bereits ein Konto? ",
       "signIn": "Anmelden",
       "createAccount": "Konto erstellen"
     },
     "signup": {
-      "kicker": "Eine neue Akte anlegen",
-      "headline": "Beginnen Sie mit der Diagnose.",
-      "stepsHead": "Was nach dieser Seite passiert",
-      "step1": "Verbinden Sie Ihre Konten, nur mit Lesezugriff",
-      "step2": "Beantworten Sie die Kernfragen",
-      "step3": "Wir lesen Ihre Zahlen und unterzeichnen den Bericht",
-      "takesMinutes": "{minutes} Min.",
-      "takesAboutMinutes": "ca. {minutes} Min.",
-      "takesDays": "{days, plural, one {# Tag} other {# Tage}}",
-      "takesDaysPending": "[{days}] {days, plural, one {Tag} other {Tage}}"
+      "headline": "Beginnen Sie mit der Diagnose."
     },
     "signin": {
-      "kicker": "Die Akte wartet",
-      "headline": "Zurück zu Ihrer Übersicht.",
-      "point1": "In Ihrem Unternehmen läuft nichts ohne Ihre Freigabe.",
-      "point2": "Jede Zahl zeigt, woher sie stammt.",
-      "point3": "Nichts wird je gelöscht – alte Fakten werden ersetzt und aufbewahrt."
+      "headline": "Zurück zu Ihrer Übersicht."
     },
     "sent": {
-      "label": "Prüfen Sie Ihre E-Mails",
       "titleBelow": "Ihr Link steht unten",
       "titleSent": "Link gesendet",
       "onScreen": "E-Mail ist hier nicht eingerichtet, daher steht Ihr Einmal-Link unten. Er läuft in {minutes, plural, one {# Minute} other {# Minuten}} ab.",
@@ -118,8 +103,6 @@
     "form": {
       "labelCreate": "Konto erstellen",
       "labelSignIn": "Anmelden",
-      "titleCreate": "Die Akte Ihres Unternehmens anlegen",
-      "titleSignIn": "Willkommen zurück",
       "email": "Geschäftliche E-Mail",
       "emailPlaceholder": "sie@ihrunternehmen.de",
       "website": "Website",
@@ -132,38 +115,31 @@
       "noteSignin": "Kein Passwort. Der Link funktioniert einmal, {minutes, plural, one {# Minute} other {# Minuten}} lang.",
       "orSignup": "Oder registrieren mit",
       "orSignin": "Oder weiter mit",
-      "terms": "Mit dem Erstellen eines Kontos stimmen Sie den <terms>Nutzungsbedingungen</terms> und dem <privacy>Datenschutzhinweis</privacy> zu.",
-      "newHere": "Neu bei SYB? Erstellen Sie oben rechts ein Konto."
+      "terms": "Mit dem Erstellen eines Kontos stimmen Sie den <terms>Nutzungsbedingungen</terms> und dem <privacy>Datenschutzhinweis</privacy> zu."
     },
     "confirm": {
-      "kicker": "Anmelden",
       "headline": "Noch ein Schritt.",
-      "label": "Bestätigen",
       "title": "Als {email} anmelden?",
       "sentTo": "Dieser Link wurde an <b>{email}</b> gesendet.",
       "button": "Anmelden",
       "note": "Nicht Ihre Adresse? Schließen Sie diese Seite. Vielleicht hat Ihnen jemand seinen eigenen Link geschickt, und es passiert nichts, solange Sie die Schaltfläche nicht drücken.",
       "expiredHeadline": "Dieser Link ist abgelaufen.",
       "expiredMessage": "Anmeldelinks funktionieren einmal und laufen nach {minutes, plural, one {# Minute} other {# Minuten}} ab. Fordern Sie einen neuen an, er kommt in wenigen Augenblicken.",
-      "linkLabel": "Link",
-      "linkDead": "Dieser Link funktioniert nicht mehr",
       "newLink": "Neuen Anmeldelink per E-Mail senden"
     },
     "choose": {
       "signedInAs": "Angemeldet als {email}",
       "headline": "Welches Unternehmen?",
-      "label": "Ihre Unternehmen",
-      "title": "Wählen Sie eines zum Öffnen aus. Sie können jederzeit über das Menü wechseln.",
       "add": "Weiteres Unternehmen hinzufügen",
       "foot": "Jedes Unternehmen behält seine eigenen Fakten, sein Team und seine Rechnung. Nichts aus einem wird je in einem anderen angezeigt."
-    }
+    },
+    "how": "So funktioniert es",
+    "why": "Warum?"
   },
   "locale": {
     "meta": "Sprache und Währung — SYB",
     "first": {
-      "kicker": "Bevor wir beginnen",
-      "headline": "Wählen Sie Ihre Sprache und Währung.",
-      "lede": "Ich spreche in dieser Sprache mit Ihnen. Jede Zahl Ihres Unternehmens wird in dieser Währung angezeigt, und zwischen Währungen wird nie umgerechnet."
+      "headline": "Wählen Sie Ihre Sprache und Währung."
     },
     "yourLanguage": "Ihre Sprache",
     "businessLanguage": "Die Sprache Ihres Unternehmens",
@@ -216,14 +192,12 @@
       "inProgress": "In Arbeit"
     },
     "bank": {
-      "title": "Kanalübersicht",
       "now": "K {channel} · {area} · <fig>{pct}%</fig>",
-      "none": "Ihr Unternehmen, Bereich für Bereich erfasst",
       "done": "<fig>{done}</fig> von {total} fertig",
       "hide": "Kanäle ausblenden",
       "all": "Alle Kanäle",
       "legendOwner": "von Ihnen",
-      "legendMeasured": "aus {connector} gelesen · jede Reihenfolge ist in Ordnung",
+      "legendMeasured": "aus {connector} gelesen",
       "tileChannel": "K {channel}",
       "tilePct": "{pct}%",
       "tileWords": "Kanal {channel}, {area}: {status}, {pct}% beantwortet – {bars}.",
@@ -239,13 +213,9 @@
       }
     },
     "mast": {
-      "sub": "Die Akte wird kalibriert",
       "saving": "Wird gespeichert…",
-      "listening": "Hört zu",
-      "sessionTitle": "Minuten, seit diese Seite geöffnet wurde",
-      "session": "Sitzung · <fig>{minutes}</fig> Min.",
       "facts": "{count, plural, one {<fig>#</fig> Fakt in der Akte} other {<fig>#</fig> Fakten in der Akte}}",
-      "pause": "Pause – später fortsetzen"
+      "pause": "Später fortsetzen"
     },
     "pause": {
       "title": "Pause · später fortsetzen",
@@ -267,7 +237,6 @@
       "reopened": "Wieder geöffnet. Die Frage steht wieder links."
     },
     "done": {
-      "cap": "Das Interview · abgeschlossen",
       "title": "Das Interview ist abgeschlossen.",
       "lede": "Ich habe die Akte, die ich für eine erste Einschätzung des Unternehmens brauche. Tiefere Fragen kommen später, wenn Sie den ersten Bericht gesehen haben.",
       "answers": "Erfasste Antworten",
@@ -296,9 +265,6 @@
       "emptyUnknown": "Beantworten Sie die Frage, oder wählen Sie „Kein Wert – weiß ich nicht“, um weiterzugehen.",
       "emptySkip": "Beantworten Sie die Frage, oder wählen Sie „Vorerst überspringen“, um weiterzugehen.",
       "entityEmpty": "Füllen Sie mindestens das erste Feld einer Zeile aus, um zu erfassen.",
-      "hintText": "{modifier} + Eingabe zum Erfassen",
-      "hintEnter": "Eingabe zum Erfassen",
-      "hintKeys": "Tasten {first}–{last} wählen aus",
       "speak": "Antwort einsprechen",
       "spokenAfter": "Lesen Sie den Text durch und korrigieren Sie, was nötig ist; drücken Sie dann „Weiter“, um ihn zu erfassen.",
       "fileStub": "Uploads kommen in einer späteren Version",
@@ -309,7 +275,6 @@
       "exact": "Genau<sr>er Betrag, {currency}</sr>",
       "estimate": "Das ist eine Schätzung",
       "estimated": "Als Schätzung markiert",
-      "basis": "Grundlage: geschätzt",
       "which": "Was meinten Sie?",
       "unreadable": "Das lässt sich nicht als Zahl lesen. Verwenden Sie Ziffern, mit Komma oder Punkt für Dezimalstellen."
     },
@@ -322,10 +287,9 @@
       "addRow": "Weitere Zeile hinzufügen"
     },
     "record": {
-      "cap": "Die Akte · neueste zuerst",
       "channelTitle": "Kanal {channel} · {area}",
       "facts": "{count, plural, one {<fig>#</fig> Fakt} other {<fig>#</fig> Fakten}}",
-      "empty": "In diesem Bereich ist noch nichts erfasst. Jede Antwort landet hier, mit ihrer Herkunft.",
+      "empty": "In diesem Bereich ist noch nichts erfasst.",
       "listLabel": "Erfasste Fakten in {area}",
       "srAnswer": "jetzt beantworten",
       "srChange": "diese Antwort ändern",
@@ -384,15 +348,13 @@
       "factsOnFile": "{count, plural, one {# Fakt in der Akte} other {# Fakten in der Akte}}"
     },
     "live": {
-      "cap": "Live-Wert · bewegt sich mit Ihren Antworten",
       "dial": "{label} {value} Prozent auf einer Skala von {min} bis {max}",
       "dialStated": "{label} {value} Prozent auf einer Skala von {min} bis {max}; Sie haben {stated} Prozent angegeben",
       "noRange": "noch kein Referenzbereich",
       "stated": "Sie haben <fig>{value} %</fig> angegeben",
       "foot": "<strong>Abgeleitet</strong> · {formula} · aus {inputs, plural, one {<fig>#</fig> erfasstem Fakt} other {<fig>#</fig> erfassten Fakten}}",
       "readiness": "Berichtsreife",
-      "readinessPct": "{pct} %",
-      "readinessNote": "jede Antwort grenzt die Spannen in Ihrem Bericht ein"
+      "readinessPct": "{pct} %"
     },
     "reconcile": {
       "flag": "Zu klären",
@@ -400,18 +362,10 @@
       "implausible": "Eine Antwort liegt außerhalb des üblichen Bereichs",
       "gap": "Eine Antwort fehlt",
       "stale": "Eine Antwort ist möglicherweise veraltet",
-      "kind": {
-        "contradiction": "Widerspruch",
-        "implausible": "unplausibel",
-        "gap": "Lücke",
-        "stale": "veraltet"
-      },
-      "note": "Ich wähle keine für Sie aus. Bestätigen Sie, dass beide stimmen, oder ändern Sie eine.",
       "confirm": "Beide bestätigen",
       "fix": "Eine ändern"
     },
     "tape": {
-      "head": "Streifen",
       "label": "Der Streifen: erfasste Fakten, neueste zuerst"
     },
     "keep": {
@@ -452,7 +406,9 @@
       "unknown_field": "diese Liste hat kein Feld namens „{field}“",
       "finding_not_open": "das ist bereits geklärt",
       "invalid": "diese Antwort konnte nicht erfasst werden"
-    }
+    },
+    "how": "So funktioniert es",
+    "why": "Warum?"
   },
   "voice": {
     "speak": "Sprechen",
@@ -536,7 +492,7 @@
       "prior": " · vorher {date}",
       "headUnit": "Gewinnänderung / Monat · wenn Sie {ref} umsetzen · ABGELEITET",
       "computed": "{computed} von {total}",
-      "computedUnit": "Kennzahlen berechnet · jede sagt, warum",
+      "computedUnit": "Kennzahlen berechnet",
       "diagnosis": "Diagnose",
       "noFindings": "keine Befunde hervorgehoben",
       "notComputed": "{count, plural, one {<b>#</b> nicht berechnet} other {<b>#</b> nicht berechnet}}",
@@ -571,6 +527,9 @@
       "basisNotRecorded": "Grundlage nicht erfasst",
       "history": "Verlauf · ersetzt, nie gelöscht",
       "noHistory": "Noch kein Eingangswert dieser Zahl wurde ersetzt."
+    },
+    "fold": {
+      "how": "So funktioniert das"
     },
     "measure": {
       "blended_margin": {
@@ -646,7 +605,7 @@
       "show": "Anzeigen"
     },
     "decline": {
-      "lede": "Optional – warum nicht? So lerne ich, was ich nicht wieder vorschlagen soll.",
+      "lede": "Optional – warum nicht?",
       "chip": {
         "tried": "das haben wir schon versucht",
         "market": "in meinem Markt nicht möglich",
@@ -691,14 +650,14 @@
     "findings": {
       "label": "Befunde · dringendste zuerst",
       "none": "Nichts, was die Belege stark genug stützen, um es hervorzuheben.",
-      "title": "{count, plural, one {# Befund, jeder mit seinen Belegen.} other {# Befunde, jeder mit seinen Belegen.}}",
+      "title": "{count, plural, one {# Befund.} other {# Befunde.}}",
       "measured": "gemessen",
       "measuredTitle": "Auf Ihrer Website gemessen, nicht beurteilt"
     },
     "recs": {
       "label": "Was ich dagegen tun würde",
       "none": "Noch keine Empfehlung, die die Rechnung stützen kann.",
-      "title": "{count, plural, one {# Empfehlung, jede mit ihrer Spanne.} other {# Empfehlungen, jede mit ihrer Spanne.}}"
+      "title": "{count, plural, one {# Empfehlung.} other {# Empfehlungen.}}"
     },
     "hours": {
       "label": "Öffnungszeiten · BEOBACHTET · {from} – {to}",
@@ -709,7 +668,6 @@
     },
     "gaps": {
       "label": "Was das schärfer machen würde",
-      "title": "Der Bericht ist nur so gut wie seine Grundlage.",
       "priority": "{priority, select, core {Kern} important {wichtig} deep {vertiefend} optional {optional} other {{priority}}}",
       "blocking": "Blockierend",
       "answer": "Jetzt beantworten →"
@@ -733,7 +691,6 @@
       "confirming": "Warten auf die Bestätigung Ihrer Zahlung durch Stripe",
       "reading": "Ihr Profil wird gelesen – die Anfrage läuft",
       "readingLede": "Margen, Gewinnschwelle, die Befunde und was dagegen zu tun ist. Das dauert meist etwa eine Minute; die Rechnung wird geprüft, bevor etwas auf der Seite erscheint.",
-      "none": "Wenn Sie genug beantwortet haben, lese ich das ganze Profil und schreibe auf, was ich belegen kann.",
       "readNow": "Mein Profil jetzt lesen →",
       "answerMore": "Erst mehr beantworten →",
       "payFailed": "die Zahlung konnte nicht gestartet werden",
@@ -744,7 +701,6 @@
     },
     "share": {
       "label": "Diesen Bericht teilen",
-      "title": "Ein Link nur zum Lesen – etwa für Geschäftspartner, die Steuerberatung oder Investoren.",
       "signedOut": "Melden Sie sich an, um Ihren Bericht zu teilen – einen Link, der SYB verlässt, erstellen nur Sie, daher müssen Sie angemeldet sein.",
       "lede": "Der Link zeigt diesen Bericht im jetzigen Zustand, ohne Ihre Antworten auf die Empfehlungen und ohne alles, was in Ihr Konto führt. Er ändert sich nach dem Erstellen nie, und Sie können ihn hier jederzeit widerrufen.",
       "lasts": "Gültig für",
@@ -1013,13 +969,12 @@
     },
     "kicker": "Ihr Unternehmen · Faktenblatt",
     "titleEmpty": "Die Akte.",
-    "title": "{count, plural, one {# Fakt über {noun}. Jeder zeigt, woher er stammt.} other {# Fakten über {noun}. Jeder zeigt, woher er stammt.}}",
+    "title": "{count, plural, one {# Fakt über {noun}.} other {# Fakten über {noun}.}}",
     "yourBusiness": "Ihr Unternehmen",
     "noSession": "Auf diesem Gerät gibt es noch kein Profil. <a>Mit den Fragen beginnen</a> – oder öffnen Sie den Link, den ich Ihnen geschickt habe.",
     "failed": "Beim Laden Ihres Profils ist etwas schiefgelaufen. Laden Sie die Seite neu, um es erneut zu versuchen – nichts von dem, was Sie mir gesagt haben, ist verloren.",
     "reading": "Ihr Profil wird gelesen…",
     "export": {
-      "label": "Für Ihre Steuerberatung",
       "current": "Geldfakten, CSV",
       "history": "Frühere Zahlen, CSV"
     },
@@ -1032,7 +987,6 @@
     },
     "recordLabel": "Die Akte",
     "search": "Die Akte durchsuchen",
-    "searchPlaceholder": "z. B. Öffnungszeiten, Preis, Kanäle",
     "filterLabel": "Die Akte filtern",
     "filter": {
       "all": "Alle",
@@ -1049,11 +1003,9 @@
       "changed": "Diesen Monat wurde nichts ersetzt.",
       "none": "Noch nichts erfasst."
     },
-    "sectionFacts": "{count, plural, one {# Fakt} other {# Fakten}}",
     "sectionChanged": "{count, plural, one {# diesen Monat geändert} other {# diesen Monat geändert}}",
     "noneRecorded": "keine erfasst",
-    "competitorsLede": "Nennen Sie sie im Interview, oder lassen Sie mich anhand dessen suchen, was Sie mir bereits gesagt haben.",
-    "openMeta": "{count, plural, one {# Frage · eine Lücke ist ein Befund, kein Versagen} other {# Fragen · eine Lücke ist ein Befund, kein Versagen}}",
+    "openMeta": "{count, plural, one {# Frage} other {# Fragen}}",
     "foot": "Durchgestrichene Zeilen galten, bis etwas Besseres kam. Nichts in der Akte wird je gelöscht. Momentaufnahme {id} · {date}.",
     "caption": "{section}: jeder Fakt mit Wert, Quelle, Grundlage und dem Datum, ab dem er gilt",
     "col": {
@@ -1063,7 +1015,6 @@
       "basis": "Grundlage",
       "since": "Seit"
     },
-    "confirmDefault": "bestätigen, um den Standardwert zu ersetzen",
     "noted": "vermerkt: {note}",
     "superseded": "ersetzt am {date} durch {kind, select, measurement {eine neuere Messung} reading {einen neueren Messwert} calculation {eine neuere Berechnung} answer {eine neuere Antwort} other {einen neueren Eintrag}}",
     "supersededWord": "Ersetzt",
@@ -1133,9 +1084,8 @@
       "find": "Meine Wettbewerber finden →",
       "searchingFrom": "Suche anhand Ihrer Angaben",
       "readingPages": "Ihre Seiten werden gelesen",
-      "found": "Gefunden durch eine Suche anhand Ihrer Angaben. Nichts wird gespeichert, bevor Sie bestätigen.",
       "readingPagesNow": "Ihre Seiten werden gelesen…",
-      "thatsOne": "Das ist einer – nachschlagen →"
+      "thatsOne": "Hinzufügen →"
     }
   },
   "watch": {
@@ -1146,7 +1096,6 @@
     "days": {
       "label": "Beobachtungstag {day} von {of}",
       "started": "Begonnen {date}",
-      "legend": "Jedes gefüllte Quadrat ist ein vergangener Beobachtungstag. Das umrandete ist heute.",
       "ends": "Beobachtung endet {date}"
     },
     "tally": {
@@ -1184,12 +1133,11 @@
     "noted": {
       "label": "Vermerkt, nicht gehandelt",
       "title": "Was ich gesagt hätte",
-      "empty": "Noch nichts. Wenn eine Zahl ihren üblichen Bereich verlässt, Ihre Öffnungszeiten ein Signal zeigen oder ein Wettbewerber einen Preis ändert, vermerke ich es hier – und handle bei nichts davon.",
+      "empty": "Noch nichts.",
       "day": "Tag {day}"
     },
     "when": {
       "label": "Wenn die Beobachtung endet",
-      "foot": "Die Dauer der Beobachtung wird unter „So arbeite ich“ festgelegt.",
       "link": "So arbeite ich →",
       "ends": "Die Beobachtung endet. Der nächste Bericht wertet alles aus, was sie gesammelt hat.",
       "after": "danach",
@@ -1199,7 +1147,6 @@
     },
     "activity": {
       "label": "Aktivität",
-      "title": "Jeder Eintrag ist echte Arbeit",
       "empty": "Noch nichts. Die erste wöchentliche Momentaufnahme erscheint hier."
     },
     "rules": {
@@ -1209,7 +1156,6 @@
     },
     "modules": {
       "label": "Module",
-      "title": "Für die Zeit, wenn ich handle",
       "name": "{module, select, marketing {Marketing} sales {Vertrieb} support {Support} operations {Betrieb} finance {Finanzen} team {Team} other {{module}}}",
       "analytics": "Analyse, immer aktiv",
       "rolesNotPeople": "{module, select, team {Team} other {{module}}}: Rollen, nicht Personen",
@@ -1219,7 +1165,6 @@
       "label": "Wöchentliche E-Mail",
       "title": "Jeden Montag eine Zusammenfassung",
       "switch": "mir die Woche per E-Mail senden",
-      "lede": "Was ich in der Woche getan und gefunden habe und was auf Sie wartet. Jede Zeile ist ein Eintrag auf dieser Seite; eine ruhige Woche wird auch so benannt.",
       "signUp": "Registrieren Sie sich, dann geht sie an die Adresse, mit der Sie sich anmelden.",
       "off": "Aus. Es wird nichts per E-Mail gesendet; alles bleibt auf dieser Seite.",
       "notDecided": "Sie beginnt, sobald „So arbeite ich“ festgelegt ist.",
@@ -1271,7 +1216,6 @@
       "changes": "{count, plural, one {Tag {day} von {of}. # Änderung vorgenommen, jede freigegeben.} other {Tag {day} von {of}. # Änderungen vorgenommen, jede freigegeben.}}"
     },
     "notes": {
-      "hold": "Solange die Beobachtung läuft, wird nichts ausgeführt, was ich ändern könnte.",
       "readingEnds": "{count, plural, one {Täglich wird # Verbindung gelesen · Beobachtung endet {date}} other {Täglich werden # Verbindungen gelesen · Beobachtung endet {date}}}",
       "readingEnded": "{count, plural, one {Täglich wird # Verbindung gelesen · Beobachtung endete {date}} other {Täglich werden # Verbindungen gelesen · Beobachtung endete {date}}}",
       "noneEnds": "Keine Verbindung wird gelesen · <a>Verbindungen</a> · Beobachtung endet {date}",
@@ -1569,12 +1513,11 @@
       "title": "Verlauf — SYB"
     },
     "kicker": "Ihr Unternehmen · Verlauf",
-    "title": "Das Protokoll. Es wird nur ergänzt.",
+    "title": "Das Protokoll.",
     "reading": "Die Akte wird gelesen…",
     "label": "Verlauf",
     "signedOut": {
       "title": "Für diesen Browser ist nichts hinterlegt.",
-      "lede": "Das Protokoll gibt es, sobald es ein Unternehmen gibt, für das es geführt wird.",
       "start": "Beginnen"
     },
     "failed": {
@@ -2653,7 +2596,6 @@
       "signIn": "Anmelden"
     },
     "hero": {
-      "pill": "Ein Bluttest für Ihr Unternehmen",
       "titleA": "Ihr Unternehmen wirkt gesund.",
       "titleB": "<em>Seine Zahlen</em> vielleicht nicht.",
       "lede": "Wir führen {checks} Prüfungen Ihrer Verkäufe, Buchungen, Zahlungen und Anzeigen durch, beziffern jedes Leck in Euro und übergeben Ihnen in {daysText} {days, plural, one {Tag} other {Tagen}} einen unterzeichneten Bericht.",
@@ -2664,12 +2606,9 @@
       "trustRefund": "Rückerstattung, wenn wir nichts finden"
     },
     "chart": {
-      "kicker": "Das Chart",
-      "title": "Ihr Unternehmen, gelesen wie eine Aktie.",
-      "aside": "Wir markieren den Tag, an dem jedes Leck begann – und schattieren, was es Sie gekostet hat."
+      "title": "Ihr Unternehmen, gelesen wie eine Aktie."
     },
     "panels": {
-      "kicker": "Was wir testen",
       "title": "Neun Panels. Alles, was Ihren Gewinn bewegt.",
       "p01": {
         "name": "Konversion",
@@ -2709,7 +2648,6 @@
       }
     },
     "steps": {
-      "kicker": "So funktioniert es",
       "title": "Fünfzehn Minuten von Ihnen.",
       "whenMinutes": "Tag {day} · {minutes} Min.",
       "whenDay": "Tag {day}",
@@ -2727,7 +2665,6 @@
       }
     },
     "price": {
-      "kicker": "Preis",
       "titleA": "Ein Test.",
       "titleB": "Ein Preis.",
       "card": "Komplettpanel für Ihr Unternehmen",
@@ -2975,9 +2912,7 @@
   },
   "resume": {
     "meta": "Weitermachen — SYB",
-    "kicker": "Ihr Interview",
     "headline": "Machen Sie dort weiter, wo Sie aufgehört haben.",
-    "label": "Bestätigen",
     "title": "Mit diesem Interview weitermachen?",
     "button": "Weitermachen",
     "note": "Kein Link, den Sie angefordert haben? Schließen Sie diese Seite. In diesem Browser ändert sich nichts, solange Sie die Schaltfläche nicht drücken.",
@@ -2997,7 +2932,7 @@
     },
     "ask": {
       "title": "Die wöchentliche Zusammenfassung per E-Mail beenden?",
-      "body": "Ein Klick, und sie endet. Anmeldelinks und die Hinweise auf der Support-Seite sind nicht betroffen.",
+      "body": "Anmeldelinks und die Hinweise auf der Support-Seite sind nicht betroffen.",
       "button": "Diese E-Mails beenden"
     }
   },
@@ -3490,13 +3425,13 @@
       "connections": "Verbindungen",
       "history": "Verlauf",
       "unconnected": "Noch keine Verbindung misst {metric}. Verbinden Sie eine, dann füllt ihr Verlauf das Diagramm und den Ausgangspunkt.",
-      "unchecked": "Noch nicht geprüft. Die wöchentliche Prüfung liest jeden Montag jedes messbare Ziel."
+      "unchecked": "Die wöchentliche Prüfung liest jeden Montag jedes messbare Ziel."
     },
     "card": {
       "label": "{metric} · bis {day}",
       "goal": "Ziel",
       "untitled": "Ein Ziel noch ohne Worte",
-      "notMeasurable": "Dieses Ziel ist noch nicht messbar, deshalb kann ich Ihnen nicht sagen, ob es auf Kurs ist. Nennen Sie die Zahl, die es bewegen soll:",
+      "notMeasurable": "Nennen Sie die Zahl, die es bewegen soll:",
       "raise": "{metric} steigern",
       "lower": "{metric} senken",
       "now": "Jetzt",
@@ -3527,7 +3462,6 @@
     "setNew": "Ein neues Ziel setzen →",
     "how": {
       "label": "Wie Ziele funktionieren",
-      "title": "Nennen Sie ein Ziel, in Ihren eigenen Worten",
       "copy": "Ziele werden unter „Inhalte“ gesetzt, wo jedes geplante Stück das Ziel nennt, dem es dient. Machen Sie eines messbar (Umsatz, Anzahl der Verkäufe oder Website-Besuche, bis zu einem Datum), dann wird es jede Woche an einem geraden Kurs von seinem Ausgangspunkt bis dorthin gemessen, wo Sie es haben möchten. In den ersten acht Wochen und solange ich noch beobachte, wird nichts beurteilt."
     }
   },
@@ -4454,6 +4388,7 @@
       "emailAsk": "Noch nicht hinterlegt. Sobald Sie sie angeben, wird sie beim Lieferanten gespeichert.",
       "address": "Lieferung an",
       "addressOnFile": "Ihre hinterlegte Postanschrift. Für diese Bestellung hier ändern.",
+      "toConfirm": "Preis bestätigt der Lieferant",
       "note": "Hinweis an den Lieferanten (optional)",
       "col": {
         "order": "Bestellen",
@@ -4482,6 +4417,9 @@
         "executed": "erledigt",
         "sent": "am {day} gemailt",
         "notSent": "bereit, nicht gesendet",
+        "held": "freigegeben, zurückgehalten, bis der E-Mail-Versand eingerichtet ist",
+        "needsConfirming": "am {day} freigegeben, wartet erneut auf Ihr Ja",
+        "byHand": "am {day} von Ihnen gesendet",
         "failed": "nicht rausgegangen"
       },
       "why": {
@@ -4489,16 +4427,22 @@
         "real_writes_off": "Der echte Versand ist ausgeschaltet, bis der zweiwöchige unbeaufsichtigte Test abgeschlossen ist."
       },
       "notSentAfter": "Laden Sie sie herunter und senden Sie sie selbst.",
+      "heldAfter": "Sie gilt nicht als erledigt: Sie geht von selbst raus, sobald der Versand eingeschaltet ist. Bis dahin können Sie sie herunterladen, selbst senden und dann als von Hand gesendet markieren.",
+      "confirmAfter": "Ihr Ja liegt mehr als {days, plural, one {# Tag} other {# Tage}} zurück, deshalb wird sie nicht von selbst gemailt. „Jetzt senden“ schickt sie so, wie sie ist, oder Sie erstellen eine neue Bestellung.",
       "sendingReal": "Freigegebene Bestellungen werden wirklich an den Lieferanten gemailt.",
-      "sendingFake": "Freigegebene Bestellungen durchlaufen jede Prüfung, werden aber noch nicht gemailt:",
+      "sendingFake": "Freigegebene Bestellungen werden zurückgehalten, nicht gemailt, bis der Versand eingeschaltet ist:",
       "sendNow": "Jetzt senden",
       "sendingNow": "Wird gesendet…",
+      "markByHand": "Als von Hand gesendet markieren",
+      "markingByHand": "Wird gespeichert…",
       "download": "Herunterladen",
       "downloadPdf": "PDF herunterladen",
       "print": "Zum Drucken öffnen",
       "result": {
         "sent": "An den Lieferanten gesendet.",
-        "notSent": "Bereit, nicht gesendet."
+        "notSent": "Bereit, nicht gesendet.",
+        "held": "Zurückgehalten, nicht gesendet.",
+        "byHand": "Als von Hand gesendet markiert. Sie wird nicht gemailt."
       }
     }
   },
@@ -4575,7 +4519,6 @@
     "signedOut": {
       "title": "Bitte zuerst anmelden.",
       "label": "So arbeite ich",
-      "sheetTitle": "Diese Seite liest Ihr Profil.",
       "signIn": "Anmelden"
     },
     "none": {
@@ -4591,7 +4534,6 @@
       "answer": "Die Kernfragen beantworten"
     },
     "current": "Aktuell",
-    "everyYes": "Jeder Vorschlag braucht weiterhin Ihr Ja",
     "a": {
       "label": "Modus A",
       "title": "Zuerst beobachten",
@@ -5175,7 +5117,9 @@
       "videoProposed": "Vorgeschlagen. Jetzt unter <queue>Wartet auf Sie</queue>; vor Ihrem Ja wird nichts erzeugt und nichts ausgegeben.",
       "videoGenerated": "Die Kandidaten stehen unten, jeder als KI-generiert gekennzeichnet. Wählen Sie einen; ohne Ihr Ja wird nichts veröffentlicht.",
       "picked": "Gewählt. Er liegt auf dem Video-Eintrag, als KI-generiert gekennzeichnet, und sein Vorschlag zur Veröffentlichung steht unter <queue>Wartet auf Sie</queue>.",
-      "pickedNoProposal": "Gewählt. Er liegt auf dem Video-Eintrag, als KI-generiert gekennzeichnet."
+      "pickedNoProposal": "Gewählt. Er liegt auf dem Video-Eintrag, als KI-generiert gekennzeichnet.",
+      "videoSubmitted": "Gesendet. Die drei erscheinen in den nächsten Minuten unten, jeder als KI-generiert gekennzeichnet. Sie können diese Seite verlassen und später zurückkommen.",
+      "videoStillMaking": "Wird noch erzeugt. Schauen Sie später wieder vorbei: SYB holt sie weiter ab, mindestens einmal am Tag."
     },
     "niche": {
       "label": "Die am längsten laufenden Anzeigen der Nische",
@@ -5254,7 +5198,7 @@
       "proposing": "Wird vorgeschlagen…",
       "pending": "Wartet auf Ihr Ja unter <queue>Wartet auf Sie</queue>.",
       "generate": "Die drei erzeugen",
-      "generating": "Wird erzeugt. Das dauert ein paar Minuten…",
+      "generating": "Die drei werden an Higgsfield gesendet…",
       "approvedNote": "Freigegeben. Das Geld wird erst ausgegeben, wenn Sie es starten.",
       "notOffered": "Nicht angeboten: {reason}",
       "setLabel": "KANDIDATEN · {day}",
@@ -5269,7 +5213,10 @@
         "failed": "FEHLGESCHLAGEN",
         "chosen": "GEWÄHLT",
         "not_chosen": "NICHT GEWÄHLT · BEHALTEN"
-      }
+      },
+      "making": "Wird erzeugt: {ready} von {total} bereit.",
+      "makingNote": "Sie können diese Seite verlassen. SYB holt sie ab, solange sie geöffnet ist, und einmal am Tag im Hintergrund; ein fertiger kann schon jetzt gewählt werden.",
+      "progress": "{ready} von {total} bereit"
     }
   },
   "site": {
@@ -5747,6 +5694,7 @@
       "handoverSave": "Speichern",
       "callsTitle": "Anrufe",
       "callsEmpty": "Noch keine Anrufe. Jeder Anruf, den die Leitung annimmt, erscheint hier, mit Nachricht und Gesprächsverlauf.",
+      "viewerNote": "Sie sehen, wer angerufen hat und wie jeder Anruf endete. Was Anrufer gesagt haben, ihre Nachrichten und ihre vollständigen Nummern sind Inhabern und Managern vorbehalten.",
       "withheld": "Nummer unterdrückt",
       "outcome": {
         "answered": "Mit Ihren freigegebenen Antworten beantwortet",
@@ -5771,6 +5719,7 @@
         "stateOff": "Anrufe werden nicht aufgezeichnet. Anrufer hören, dass der Anruf transkribiert wird, und es wird kein Ton gespeichert.",
         "stateOn": "Anrufe werden aufgezeichnet. Jeder Anrufer hört, dass der Anruf aufgezeichnet wird, bevor die Aufzeichnung beginnt.",
         "explain": "Ist die Aufzeichnung an, erfahren Anrufer, dass der Anruf aufgezeichnet wird, bevor Ton gespeichert wird. Jede Aufzeichnung wird {days, plural, one {# Tag} other {# Tage}} aufbewahrt und dann endgültig gelöscht; wer einen Anruf oder einen Kontakt löscht, löscht auch die Aufzeichnung. Nur ein Inhaber kann sie anhören.",
+        "stopsOnTransfer": "Wird ein Anruf an Sie durchgestellt, stoppt die Aufzeichnung vorher – wer abnimmt, wird also nie aufgezeichnet.",
         "changed": "Zuletzt umgeschaltet: {when}.",
         "needsSetup": "Die Aufzeichnung lässt sich auf diesem Server noch nicht einschalten. Dafür fehlen diese Einstellungen:",
         "turnOn": "Anrufe aufzeichnen",
@@ -6034,16 +5983,13 @@
     "meta": {
       "title": "Ihre Einladung — SYB"
     },
-    "kicker": "Team-Einladung",
-    "label": "Einladung",
     "someBusiness": "ein Unternehmen auf SYB",
     "headline": {
       "join": "Treten Sie bei: {where}.",
       "bad": "Diese Einladung funktioniert nicht."
     },
     "title": {
-      "as": "Als {role, select, owner {Inhaber} manager {Manager} other {Betrachter}}, für {email}",
-      "none": "Hier ist keine Einladung"
+      "as": "Als {role, select, owner {Inhaber} manager {Manager} other {Betrachter}}, für {email}"
     },
     "unknown": "Diesen Link kenne ich nicht als Einladung. Bitten Sie die Person, die ihn geschickt hat, um einen neuen.",
     "status": {
@@ -6053,7 +5999,6 @@
     },
     "askNew": "Bitten Sie die Person, die ihn geschickt hat, um einen neuen.",
     "wrong": "Diese Einladung gilt für <b>{invited}</b>, und Sie sind als <b>{signedIn}</b> angemeldet. Ich füge nicht die falsche Person hinzu: Melden Sie sich ab und öffnen Sie diesen Link dann erneut.",
-    "signedIn": "Sie sind als <b>{email}</b> angemeldet. Beitreten zu {where} als {role, select, owner {Inhaber} manager {Manager} other {Betrachter}}?",
     "signIn": "Sie werden als <b>{email}</b> angemeldet, der Adresse, für die die Einladung gilt. Ich maile Ihnen dorthin einen Anmeldelink; wenn Sie ihn öffnen, werden Sie dem Team hinzugefügt.",
     "foot": "Nichts passiert, bevor Sie die Schaltfläche drücken. Nicht Ihre Adresse? Schließen Sie diese Seite.",
     "footLink": "Bei SYB anmelden",
@@ -6062,7 +6007,6 @@
       "devLink": "E-Mail ist hier nicht eingerichtet (Entwicklung), daher hier der Anmeldelink:",
       "emailed": "Ich habe einen Anmeldelink an {email} gemailt. Öffnen Sie ihn dort, dann treten Sie bei.",
       "signOut": "Abmelden",
-      "thenAsks": "Dann fragt diese Seite erneut, als {email}.",
       "join": "Beitreten",
       "emailLink": "Anmeldelink an {email} mailen",
       "signInJoin": "Anmelden und beitreten"
@@ -6084,6 +6028,7 @@
       "proposals_carry_out": "Nur ein Inhaber oder ein Manager kann einen freigegebenen Vorschlag ausführen oder rückgängig machen.",
       "content_draft": "Nur ein Inhaber oder ein Manager kann Inhalte entwerfen.",
       "support_answer": "Nur ein Inhaber oder ein Manager kann Support-Anfragen beantworten.",
+      "phone_transcripts": "Nur ein Inhaber oder ein Manager kann lesen, was Anrufer auf der Telefonleitung gesagt haben.",
       "reviews_answer": "Nur ein Inhaber oder ein Manager kann Bewertungen erfassen, beantworten oder entfernen.",
       "pipeline_edit": "Nur ein Inhaber oder ein Manager kann die Vertriebs-Pipeline ändern.",
       "connections_sync": "Nur ein Inhaber oder ein Manager kann ein verbundenes Konto jetzt erneut lesen.",
@@ -6109,7 +6054,8 @@
       "stop_resume": "Nur ein Inhaber kann nach einem Stopp alles wieder in Gang setzen.",
       "business_locale": "Nur ein Inhaber kann die Sprache oder Währung des Unternehmens ändern.",
       "payments_prepare": "Nur ein Inhaber kann Zahlungen vorbereiten oder angeben, dass eine bezahlt wurde.",
-      "phone_recordings": "Nur ein Inhaber kann Anrufaufzeichnungen anhören."
+      "phone_recordings": "Nur ein Inhaber kann Anrufaufzeichnungen anhören.",
+      "payments_read": "Nur ein Inhaber kann Zahlungen und ihre Bankdateien sehen."
     }
   },
   "authWords": {
@@ -6577,10 +6523,11 @@
       "subject": "Bestellung {number} von {business}",
       "greeting": "Guten Tag {supplier},",
       "intro": "{business} möchte Folgendes bestellen (Bestellung {number}):",
-      "line": "{quantity} × {item}",
+      "line": "{quantity} × {item}, Preis bestätigt der Lieferant",
       "linePriced": "{quantity} × {item} zu {unit} = {total}",
       "total": "Voraussichtliche Summe: {total}",
-      "totalPart": "Voraussichtliche Summe: {total}, dazu {unpriced, plural, one {# Position} other {# Positionen}} ohne Preis",
+      "totalPart": "Voraussichtliche Summe: {total}, dazu {unpriced, plural, one {# Position} other {# Positionen}}, deren Preis der Lieferant bestätigt",
+      "totalNone": "Noch keine Summe: Den Preis für {unpriced, plural, one {# Position} other {# Positionen}} bestätigt der Lieferant",
       "deliverTo": "Lieferung an:",
       "noteHead": "Hinweis:",
       "confirm": "Bitte bestätigen Sie die Bestellung, den Preis und den Liefertermin per Antwort auf diese E-Mail.",
@@ -6590,6 +6537,7 @@
         "title": "Bestellung {number}",
         "prepared": "{business} · erstellt am {day}",
         "statusSent": "Am {day} an den Lieferanten gemailt",
+        "statusSentByHand": "Am {day} an den Lieferanten gesendet",
         "status": {
           "draft": "Wartet auf Freigabe: nicht gesendet",
           "approved": "Freigegeben: noch nicht gesendet",
@@ -6601,6 +6549,7 @@
         "quantity": "Menge",
         "unit": "Stückpreis (voraussichtlich)",
         "lineTotal": "Positionssumme",
+        "toConfirm": "wird bestätigt",
         "foot": "Mit SYB erstellt. SYB ändert, storniert oder bezahlt nie eine Bestellung."
       }
     }
@@ -8950,7 +8899,8 @@
       "reference": "Verwendungszweck",
       "date": "Datum",
       "file": "Bankdatei",
-      "action": "Aktion"
+      "action": "Aktion",
+      "exported": "Heruntergeladen"
     },
     "file": {
       "yes": "In der SEPA-Datei",
@@ -8972,11 +8922,14 @@
       "on": "als bezahlt angegeben am {date}"
     },
     "download": {
-      "sepa": "{count, plural, one {SEPA-Datei herunterladen (# Zahlung)} other {SEPA-Datei herunterladen (# Zahlungen)}}",
-      "steps": "Schritt-für-Schritt-Anleitung herunterladen",
       "needPayer": "Hinterlegen Sie die Bankdaten, von denen Sie zahlen, um eine SEPA-Datei zu erhalten. Die Anleitung funktioniert auch ohne sie.",
       "noneForFile": "Keine davon kann in eine SEPA-Datei, die nur für Euro zwischen SEPA-Banken gilt. Nutzen Sie die Anleitung.",
-      "total": "{count, plural, one {Die Datei enthält # Zahlung, insgesamt {total}.} other {Die Datei enthält # Zahlungen, insgesamt {total}.}}"
+      "total": "{count, plural, one {Die Datei enthält # Zahlung, insgesamt {total}.} other {Die Datei enthält # Zahlungen, insgesamt {total}.}}",
+      "newSepa": "{count, plural, one {Neue SEPA-Datei herunterladen (# Zahlung)} other {Neue SEPA-Datei herunterladen (# Zahlungen)}}",
+      "newSteps": "{count, plural, one {Neue Anleitung herunterladen (# Zahlung)} other {Neue Anleitung herunterladen (# Zahlungen)}}",
+      "onlyNew": "Eine neue Datei enthält nur Zahlungen, die noch in keiner Datei sind, daher steht keine Zahlung je in zwei Dateien.",
+      "allInFile": "Jede bereite Zahlung ist schon in einer Datei, die Sie heruntergeladen haben. Unten können Sie eine Datei erneut herunterladen.",
+      "done": "{count, plural, one {Heruntergeladen: # Zahlung ist jetzt in einer Datei, und keine neue Datei enthält sie.} other {Heruntergeladen: # Zahlungen sind jetzt in einer Datei, und keine neue Datei enthält sie.}}"
     },
     "steps": {
       "fileTitle": "So nutzen Sie die SEPA-Datei",
@@ -9013,7 +8966,9 @@
         "notLatin": "Ein Name oder Verwendungszweck nicht in lateinischer Schrift, daher nicht in der SEPA-Datei: führen Sie sie von Hand aus.",
         "bicNeeded": "Eine Bank außerhalb des EWR braucht die BIC des Empfängers, daher nicht in der SEPA-Datei: führen Sie sie von Hand aus."
       },
-      "closing": "Sobald eine Zahlung ausgeführt ist, markieren Sie sie in SYB. Lehnt Ihre Bank eine Angabe ab, korrigieren Sie sie dort: SYB sendet nie etwas an Ihre Bank."
+      "closing": "Sobald eine Zahlung ausgeführt ist, markieren Sie sie in SYB. Lehnt Ihre Bank eine Angabe ab, korrigieren Sie sie dort: SYB sendet nie etwas an Ihre Bank.",
+      "batch": "Datei {ref}, erstellt am {date}. Keine Zahlung darin steht in einer anderen Datei von SYB.",
+      "copy": "KOPIE einer Datei, die zuerst am {date} heruntergeladen wurde. Wenn Sie diese Zahlungen schon gemacht haben, machen Sie sie nicht noch einmal: Prüfen Sie zuerst Ihre Bank."
     },
     "waiting": {
       "label": "Wartet auf Freigabe",
@@ -9098,7 +9053,32 @@
       "no_session": "Um anzugeben, dass eine Zahlung erfolgt ist, müssen Sie angemeldet sein.",
       "none_ready": "Noch ist nichts bereit für Ihre Bank. Eine Zahlung muss zuerst freigegeben werden.",
       "no_payer": "Eine SEPA-Datei braucht die Bankdaten, von denen Sie zahlen.",
-      "none_for_file": "Keine der bereiten Zahlungen kann in eine SEPA-Datei."
+      "none_for_file": "Keine der bereiten Zahlungen kann in eine SEPA-Datei.",
+      "all_in_file": "Jede dieser Zahlungen ist schon in einer heruntergeladenen Datei. Laden Sie stattdessen diese Datei aus der Liste erneut herunter.",
+      "taken": "Ein anderer Download hat diese Zahlungen gerade in eine Datei gelegt. Sehen Sie sich die heruntergeladenen Dateien an.",
+      "no_such_file": "Ich habe diese Datei nicht gefunden.",
+      "file_erased": "Diese Datei lässt sich nicht erneut erstellen: Die Bankdaten einer Zahlung darin wurden gelöscht."
+    },
+    "refused": "Zahlungen sind Sache des Inhabers",
+    "exported": {
+      "no": "Noch in keiner Datei",
+      "sepa": "In der SEPA-Datei vom {date}",
+      "steps": "In der Anleitung vom {date}"
+    },
+    "files": {
+      "label": "Heruntergeladene Dateien",
+      "title": "{count, plural, one {# Datei} other {# Dateien}}",
+      "foot": "Jede SEPA-Datei hat ihre eigene Nachrichten-ID. Eine Bank lehnt eine Datei ab, deren Nachrichten-ID sie schon kennt, daher zahlt dieselbe Datei auch zweimal hochgeladen nicht doppelt.",
+      "sepa": "SEPA-Datei vom {date}",
+      "steps": "Anleitung vom {date}",
+      "count": "{count, plural, one {# Zahlung} other {# Zahlungen}}",
+      "paid": "{count, plural, one {# als bezahlt markiert} other {# als bezahlt markiert}}",
+      "by": "heruntergeladen von {name}",
+      "again": "Erneut herunterladen",
+      "warn": "Sie haben diese Datei schon am {date} heruntergeladen. Wenn Sie sie bei Ihrer Bank hochgeladen oder ihre Zahlungen von Hand gemacht haben, tun Sie es nicht noch einmal: Sie würden doppelt zahlen. Prüfen Sie zuerst Ihre Bank.",
+      "sameId": "Die Kopie ist dieselbe Datei mit derselben Nachrichten-ID ({id}): Ihre Bank sollte sie ablehnen, wenn sie sie schon kennt.",
+      "confirm": "Ich habe meine Bank geprüft: dieselbe Datei erneut herunterladen",
+      "erased": "Diese Datei lässt sich nicht erneut erstellen: Die Bankdaten einer Zahlung darin wurden gelöscht."
     }
   }
 }

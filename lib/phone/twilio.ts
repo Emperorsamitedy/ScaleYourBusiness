@@ -12,7 +12,11 @@
 //     one way audio is kept is <Start><Recording> (P6-08), which only the
 //     line's own code asks for, when the owner switched recording on — and
 //     `twiml` refuses to write it unless a recording notice was spoken
-//     earlier in the same document (rule 32).
+//     earlier in the same document (rule 32). Decision 5 (owner,
+//     2026-11-09): a recording is stopped with <Stop><Recording> before
+//     any <Dial>, so the person who picks up a put-through — who heard no
+//     notice — is never recorded; `twiml` refuses a <Dial> while a
+//     recording may be running.
 //   · The voices: each of the seven languages SYB writes has a Twilio
 //     text-to-speech voice and a speech-recognition language, so the line
 //     speaks the business's own language.
@@ -129,6 +133,13 @@ export type Verb =
       callback: string;
     }
   | {
+      /**
+       * Decision 5 (owner, 2026-11-09): <Stop><Recording name="…"> — ends the
+       * call's recording, by the name it was started with, before a <Dial>.
+       */
+      verb: "stopRecording";
+    }
+  | {
       verb: "gather";
       /** Relative to the webhook ("/api/phone/voice?step=turn"): Twilio resolves and signs it. */
       action: string;
@@ -149,16 +160,56 @@ export class RecordingBeforeNoticeError extends Error {
 }
 
 /**
- * Pure: one TwiML document, every word escaped, every <Say> in the line's
- * voice. A `record` verb with no recording notice before it throws: TwiML
- * runs in order and a <Say> plays to its end before the next verb, so a
- * notice placed earlier has been heard when the recording starts.
+ * Thrown when a document would put a call through while it may be recorded
+ * (decision 5, owner 2026-11-09): the person who answers heard no notice, so
+ * the recording stops first.
  */
-export function twiml(voice: TwilioVoice, verbs: readonly Verb[]): string {
-  const firstNotice = verbs.findIndex((v) => v.verb === "say" && v.recordingNotice === true);
-  const firstRecord = verbs.findIndex((v) => v.verb === "record");
-  if (firstRecord !== -1 && (firstNotice === -1 || firstNotice > firstRecord)) {
-    throw new RecordingBeforeNoticeError();
+export class DialWhileRecordingError extends Error {
+  constructor() {
+    super(
+      "decision 5: a recording stops before a call is put through — the person who answers heard no notice",
+    );
+    this.name = "DialWhileRecordingError";
+  }
+}
+
+/**
+ * The name SYB gives the one recording a call has. Twilio stops a recording
+ * by the `name` it was started with, unique per call (specs/twilio-recording-v1.md).
+ */
+export const RECORDING_NAME = "syb-call";
+
+export interface TwimlState {
+  /**
+   * A recording may already be running from an earlier document of this
+   * call (it was answered with the recording notice and <Start><Recording>).
+   * Then a <Dial> needs a `stopRecording` before it in this document.
+   */
+  recording?: boolean;
+}
+
+/**
+ * Pure: one TwiML document, every word escaped, every <Say> in the line's
+ * voice. Two orders are refused, read verb by verb as Twilio runs them:
+ *
+ *   · a `record` with no recording notice before it (rule 32) — a <Say>
+ *     plays to its end before the next verb, so a notice placed earlier has
+ *     been heard when the recording starts;
+ *   · a `dial` while a recording may be running — started earlier in this
+ *     document, or in an earlier one (`state.recording`) — with no
+ *     `stopRecording` between (decision 5).
+ */
+export function twiml(voice: TwilioVoice, verbs: readonly Verb[], state: TwimlState = {}): string {
+  let noticeHeard = false;
+  let recording = state.recording === true;
+  for (const v of verbs) {
+    if (v.verb === "say" && v.recordingNotice === true) noticeHeard = true;
+    if (v.verb === "record") {
+      if (!noticeHeard) throw new RecordingBeforeNoticeError();
+      recording = true;
+    }
+    if (v.verb === "stopRecording") recording = false;
+    if (v.verb === "dial" && recording) throw new DialWhileRecordingError();
   }
   const say = (text: string) =>
     `<Say voice="${escapeXml(voice.voice)}" language="${escapeXml(voice.say)}">${escapeXml(text)}</Say>`;
@@ -183,11 +234,14 @@ export function twiml(voice: TwilioVoice, verbs: readonly Verb[]): string {
           // both sides, silence kept so it matches the transcript's timing,
           // and a callback only when it is finished (or absent).
           return (
-            `<Start><Recording channels="mono" track="both" trim="do-not-trim" ` +
+            `<Start><Recording name="${RECORDING_NAME}" channels="mono" track="both" trim="do-not-trim" ` +
             `recordingStatusCallback="${escapeXml(v.callback)}" ` +
             `recordingStatusCallbackMethod="POST" ` +
             `recordingStatusCallbackEvent="completed absent"/></Start>`
           );
+        case "stopRecording":
+          // Twilio's form (specs/twilio-recording-v1.md): stop by the start's name.
+          return `<Stop><Recording name="${RECORDING_NAME}"/></Stop>`;
         case "hangup":
           return "<Hangup/>";
       }

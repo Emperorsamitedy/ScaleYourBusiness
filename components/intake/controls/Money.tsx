@@ -157,7 +157,6 @@ export function MoneyControl({
         <button type="button" className="ix-link" aria-pressed={estimate} onClick={toggleEstimate}>
           {estimate ? t("estimated") : t("estimate")}
         </button>
-        {estimate && <span className="ix-note">{t("basis")}</span>}
       </div>
     </div>
   );

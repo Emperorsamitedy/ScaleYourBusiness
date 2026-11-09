@@ -36,11 +36,13 @@ import {
   liveLimitLlm,
 } from "../proposals/hard-limits";
 import type { NewProposal, ProposalRow } from "../proposals/service";
+import type { Money } from "../core/money";
+import type { SupplierInfo } from "../stock/cover";
 import type { CoverRow, CoverView } from "../stock/cover-load";
 import { loadCover } from "../stock/cover-load";
 import { STOCK_MODULE, createOnce, fmtFor } from "../stock/propose";
 import { reorderHold } from "../stock/reorder";
-import type { PoLine, PurchaseOrder, SuggestedLine } from "./po";
+import type { PoLine, PoPriceBasis, PurchaseOrder, SuggestedLine } from "./po";
 import {
   PO,
   PO_KIND,
@@ -72,22 +74,60 @@ export class PurchaseOrderError extends Error {
 
 /* ── reading what an order would hold ── */
 
-/** Pure: a warned row's suggestion as an order line (unit cost as reorderFor works it out). */
-export function suggestedLine(row: CoverRow): SuggestedLine | null {
+/**
+ * Pure: the unit price an order line may carry, with where it came from —
+ * or null, and the line reads "price to be confirmed by the supplier"
+ * (decision 4, 2026-11-09: never an estimate as a price). In order:
+ *   · the supplier's own stated purchase price (1.4.1.3), when that supplier
+ *     supplies exactly this one product — a "typical price" across several
+ *     products is no one product's price;
+ *   · the item's unit cost as measured (the store's or the stock file's) or
+ *     stated (the matched offer's cost_to_deliver), as the stock read keeps it.
+ * Never value at cost ÷ on hand: that is an average across variants.
+ */
+export function linePrice(
+  row: Pick<CoverRow, "item" | "cover">,
+  suppliers: readonly SupplierInfo[] = [],
+): { unit: Money; basis: PoPriceBasis; source: string } | null {
+  const { item } = row;
+  const sid = row.cover.lead.supplier?.id;
+  const info = sid ? suppliers.find((s) => s.id === sid) : undefined;
+  if (
+    info?.purchase_price &&
+    info.offer_ids.length === 1 &&
+    item.offer_id !== null &&
+    info.offer_ids[0] === item.offer_id
+  ) {
+    return {
+      unit: info.purchase_price,
+      basis: "supplier",
+      source: `suppliers.${info.id}.purchase_price`,
+    };
+  }
+  const u = item.unit_cost;
+  if (u && Number.isSafeInteger(u.money.amount_minor) && u.money.amount_minor >= 0) {
+    return { unit: u.money, basis: u.basis, source: u.source };
+  }
+  return null;
+}
+
+/** Pure: a warned row's suggestion as an order line, priced only from a stated or measured cost. */
+export function suggestedLine(
+  row: CoverRow,
+  suppliers: readonly SupplierInfo[] = [],
+): SuggestedLine | null {
   const r = row.cover.reorder;
   if (!r) return null;
   const { item } = row;
-  const unit =
-    item.value_at_cost !== null && item.currency !== null && item.on_hand > 0
-      ? { amount_minor: Math.round(item.value_at_cost / item.on_hand), currency: item.currency }
-      : null;
+  const price = linePrice(row, suppliers);
   return {
     key: `${item.connection_id}:${item.ref}`,
     name: item.name,
     suggested: r.quantity,
     arithmetic: r.arithmetic,
-    unit_cost: unit,
-    cost_basis: unit === null ? null : item.cost_basis,
+    unit_cost: price?.unit ?? null,
+    cost_basis: price?.basis ?? null,
+    price_source: price?.source ?? null,
   };
 }
 
@@ -174,7 +214,9 @@ export async function poDrafts(profileId: string, view: CoverView): Promise<PoDr
       supplier: { id, name },
       email: await answered(profileId, supplierEmailField(id)),
       address,
-      lines: rows.map(suggestedLine).filter((l): l is SuggestedLine => l !== null),
+      lines: rows
+        .map((r) => suggestedLine(r, view.suppliers))
+        .filter((l): l is SuggestedLine => l !== null),
       open: open.get(id) ?? null,
     });
   }
@@ -275,7 +317,7 @@ export async function proposePurchaseOrder(input: ProposePoInput): Promise<Propo
       : {};
   const lines: PoLine[] = [];
   for (const r of rows) {
-    const s = suggestedLine(r)!;
+    const s = suggestedLine(r, view.suppliers)!;
     const raw = Object.hasOwn(quantities, s.key) ? quantities[s.key] : undefined;
     const chosen = raw === undefined || raw === null || raw === "" ? null : readQuantity(raw);
     if (raw !== undefined && raw !== null && raw !== "" && chosen === null) {
@@ -350,6 +392,13 @@ export async function proposePurchaseOrder(input: ProposePoInput): Promise<Propo
 
 const plural = (n: number, word: string) => `${n} ${word}${n === 1 ? "" : "s"}`;
 
+/** Where a line's price came from, in English as stored. */
+const PRICE_FROM: Record<PoPriceBasis, string> = {
+  supplier: "the supplier's purchase price as you gave it",
+  stated: "your own cost for the product as you gave it",
+  measured: "the unit cost your stock records hold",
+};
+
 /** Pure: the proposal, in English as stored (rules 4 and 7). */
 export function purchaseOrderProposal(
   profileId: string,
@@ -360,10 +409,11 @@ export function purchaseOrderProposal(
   verdict: ReturnType<typeof checkHardLimits>,
 ): NewProposal {
   const fmtTotal = po.totals.map((t) => fmtFor(t.currency)(t.amount_minor)).join(" + ");
+  // Decision 4 (2026-11-09): only stated or measured prices are added up; the rest are the supplier's to price.
   const costPart =
     po.totals.length === 0
-      ? ""
-      : `, about ${fmtTotal} at cost${po.unpriced > 0 ? ` for the ${plural(po.lines.length - po.unpriced, "line")} with a cost on file` : ""}`;
+      ? ", prices to be confirmed by the supplier"
+      : `, ${fmtTotal} at the prices on file${po.unpriced > 0 ? ` for ${plural(po.lines.length - po.unpriced, "line")}, ${plural(po.unpriced, "line")} to be priced by the supplier` : ""}`;
   const lead = rows[0]!.cover.lead;
   const items =
     po.lines.length === 1
@@ -387,6 +437,19 @@ export function purchaseOrderProposal(
     source_field: lead.source_field,
     sensitivity: "high",
   });
+  // Rule 6: each line's price and the fact or measure it came from — or that there is none.
+  for (const l of po.lines) {
+    assumptions.push({
+      statement:
+        l.unit_cost && l.price_source
+          ? `${l.name}: ${fmtFor(l.unit_cost.currency)(l.unit_cost.amount_minor)} a unit, ${PRICE_FROM[l.cost_basis ?? "measured"]}`
+          : `${l.name}: no stated or measured unit price, so the supplier confirms it`,
+      value: null,
+      // A profile fact is named; a measured unit cost is a metric, not a fact key.
+      source_field: l.price_source && l.price_source !== "stock.unit_cost" ? l.price_source : null,
+      sensitivity: "medium",
+    });
+  }
   if (lead.moq !== null) {
     assumptions.push({
       statement: `Minimum order: ${lead.moq}`,
@@ -450,7 +513,7 @@ export function purchaseOrderProposal(
         profit_delta_monthly: null,
         formula: null,
       },
-      breakeven_condition: `Nothing to break even on here: the order's cost is yours to weigh${fmtTotal ? ` (${fmtTotal} at cost)` : ""}, and paying for it stays with you.`,
+      breakeven_condition: `Nothing to break even on here: the order's cost is yours to weigh${fmtTotal ? ` (${fmtTotal} at the prices on file)` : ""}, and paying for it stays with you.`,
     },
     reversibility: {
       level: "hard",

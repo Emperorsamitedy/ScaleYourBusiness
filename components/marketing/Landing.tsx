@@ -14,6 +14,10 @@
 //
 // L-3d: the page's words are the "landing" catalogue, its figures in the
 // reader's language (./words.ts); English is what the page always said.
+//
+// Decluttered 2026-11-09 on the owner's instruction: no hero pill, no
+// section kickers (the headings and the nav name each section) and no
+// chart aside; the questions stay folded as they were.
 
 import Link from "next/link";
 import type { ReactNode } from "react";
@@ -100,10 +104,6 @@ export async function Landing({ price }: { price: { amount_minor: number; curren
         <main>
           <section id="top" className="ll-w ll-hero" aria-labelledby="ll-h1">
             <div className="ll-hero-copy">
-              <div className="ll-m ll-pill">
-                <span className="ll-beat" aria-hidden="true" />
-                {t("hero.pill")}
-              </div>
               <h1 id="ll-h1" className="ll-s ll-hd">
                 {t("hero.titleA")}
                 <br />
@@ -144,15 +144,11 @@ export async function Landing({ price }: { price: { amount_minor: number; curren
             <div className="ll-w ll-pad-chart">
               <div className="ll-sec-top">
                 <div>
-                  <div className="ll-k" style={{ color: "#8FA8FF" }}>
-                    {t("chart.kicker")}
-                  </div>
                   <h2 id="ll-h-chart" className="ll-s ll-h2" style={{ maxWidth: "13em" }}>
                     {t("chart.title")}
                   </h2>
                 </div>
                 <div className="ll-sec-side">
-                  <p className="ll-sec-aside">{t("chart.aside")}</p>
                   <DemoSwitch />
                 </div>
               </div>
@@ -162,9 +158,6 @@ export async function Landing({ price }: { price: { amount_minor: number; curren
 
           <section id="panels" className="ll-paper" aria-labelledby="ll-h-panels">
             <div className="ll-w ll-pad-96">
-              <div className="ll-k" style={{ color: "#3E5248" }}>
-                {t("panels.kicker")}
-              </div>
               <h2 id="ll-h-panels" className="ll-s ll-h2" style={{ maxWidth: "14em" }}>
                 {t("panels.title")}
               </h2>
@@ -181,9 +174,6 @@ export async function Landing({ price }: { price: { amount_minor: number; curren
           </section>
 
           <section id="read" className="ll-w ll-pad-104" aria-labelledby="ll-h-read">
-            <div className="ll-k" style={{ color: "#A9BDB2" }}>
-              {t("steps.kicker")}
-            </div>
             <h2 id="ll-h-read" className="ll-s ll-h2" style={{ maxWidth: "13em" }}>
               {t("steps.title")}
             </h2>
@@ -201,9 +191,6 @@ export async function Landing({ price }: { price: { amount_minor: number; curren
           <section id="price" className="ll-paper" aria-labelledby="ll-h-price">
             <div className="ll-w ll-pad-96 ll-price">
               <div className="ll-price-head">
-                <div className="ll-k" style={{ color: "#3E5248" }}>
-                  {t("price.kicker")}
-                </div>
                 <h2 id="ll-h-price" className="ll-s ll-h2">
                   {t("price.titleA")}
                   <br />

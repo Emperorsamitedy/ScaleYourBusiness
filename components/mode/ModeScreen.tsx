@@ -19,6 +19,7 @@ import { useTranslations } from "next-intl";
 import { useBusinessNoun } from "../nav/useBusinessNoun";
 import { PageHead, SheetCard } from "../sheet/PageHead";
 import { useTr } from "../sheet/useTr";
+import { WhyFold } from "../report/WhyFold";
 import type { ModeDecision } from "./mode-view";
 import { chosenLine, dayMonth, headline, humanise, parseTs, watchDay } from "./mode-view";
 import "../../app/mode.css";
@@ -92,7 +93,7 @@ export function ModeScreen() {
     return (
       <main className="screen md-screen">
         <PageHead kicker={KICKER} title={tr("signedOut.title")} />
-        <SheetCard label={tr("signedOut.label")} title={tr("signedOut.sheetTitle")}>
+        <SheetCard label={tr("signedOut.label")}>
           <Link className="next" href="/login">
             {tr("signedOut.signIn")} <span aria-hidden="true">→</span>
           </Link>
@@ -106,7 +107,7 @@ export function ModeScreen() {
       <main className="screen md-screen">
         <PageHead kicker={KICKER} title={tr("none.title")} />
         <SheetCard label={tr("none.label")} title={tr("none.sheetTitle")}>
-          <p className="md-copy">{tr("none.copy")}</p>
+          <WhyFold className="md-fold">{tr("none.copy")}</WhyFold>
           <button type="button" className="next" onClick={() => void decide()}>
             {tr("none.decide")} <span aria-hidden="true">→</span>
           </button>
@@ -179,11 +180,7 @@ export function ModeScreen() {
       ) : (
         <>
           <p className="md-mode-copy">{tr("a.copyIdle")}</p>
-          <p className="md-mode-lines">
-            {tr("a.chosenWith", { sales: 10, months: 3 })}
-            <br />
-            {tr("everyYes")}
-          </p>
+          <p className="md-mode-lines">{tr("a.chosenWith", { sales: 10, months: 3 })}</p>
         </>
       )}
     </section>
@@ -207,8 +204,6 @@ export function ModeScreen() {
           <p className="md-mode-copy">{decision.reasoning}</p>
           <p className="md-mode-lines">
             {tr("b.started", { date: dayMonth(parseTs(decision.decided_at), locale) })}
-            <br />
-            {tr("everyYes")}
           </p>
           <div className="md-mode-acts">
             <Link className="next" href="/report">
@@ -219,11 +214,7 @@ export function ModeScreen() {
       ) : (
         <>
           <p className="md-mode-copy">{tr("b.copyIdle")}</p>
-          <p className="md-mode-lines">
-            {tr("b.onlyUnder", { sales: 10, months: 3 })}
-            <br />
-            {tr("everyYes")}
-          </p>
+          <p className="md-mode-lines">{tr("b.onlyUnder", { sales: 10, months: 3 })}</p>
         </>
       )}
     </section>

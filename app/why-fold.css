@@ -1,0 +1,55 @@
+/* The closed-by-default "How this works" disclosure (components/report/WhyFold).
+   Styled as the report's WHY toggle: a mono, uppercase label in the sheet ink. */
+
+.why-fold {
+  margin: 0;
+  font-family: var(--f-mono);
+  font-size: var(--t-mono-s);
+  line-height: 1.6;
+  color: var(--sheet-ink-2);
+}
+.why-fold > summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 32px;
+  cursor: pointer;
+  list-style: none;
+  font-size: var(--t-mono-xs);
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--sheet-ink);
+}
+.why-fold > summary::-webkit-details-marker {
+  display: none;
+}
+.why-fold > summary::after {
+  content: "→";
+  transition: transform 0.12s ease;
+}
+.why-fold[open] > summary::after {
+  transform: rotate(90deg);
+}
+.why-fold > summary:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.why-fold > summary:focus-visible {
+  outline: 2px solid var(--live);
+  outline-offset: 2px;
+}
+.why-fold-body {
+  padding: 4px 0 2px;
+}
+.why-fold-body > p {
+  margin: 0 0 6px;
+}
+.why-fold-body > p:last-child {
+  margin-bottom: 0;
+}
+@media (prefers-reduced-motion: reduce) {
+  .why-fold > summary::after {
+    transition: none;
+  }
+}

@@ -18,6 +18,11 @@
 //
 // First paint is skeleton-free: the shell renders immediately and the
 // first question rises when state arrives from a single POST on mount.
+//
+// Decluttered 2026-11-09 on the owner's instruction: captions that restate
+// a heading are gone, and explanations (the pause and done ledes, the boot
+// error's reason, the question's purpose, how a figure was worked out) sit
+// behind one closed "How this works" / "Why?" per card (.ix-how).
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
@@ -64,14 +69,13 @@ interface ErrorPayload {
 
 function DoneCard({ readout }: { readout: NonNullable<IntakeState["readout"]> }) {
   const t = useTranslations("intake.done");
+  const tHow = useTranslations("intake");
   const { locale } = useIntakeWords();
   return (
     <article className="ix-q sheet ix-done" aria-labelledby="ix-done-h">
-      <p className="ix-cap">{t("cap")}</p>
       <h2 className="ix-prompt" id="ix-done-h">
         {t("title")}
       </h2>
-      <p className="ix-done-lede">{t("lede")}</p>
       <dl className="ix-readout">
         <dt className="ix-cap">{t("answers")}</dt>
         <dd className="fig">{num(readout.answered, 0, locale)}</dd>
@@ -82,8 +86,12 @@ function DoneCard({ readout }: { readout: NonNullable<IntakeState["readout"]> })
         <dt className="ix-cap">{t("next")}</dt>
         <dd>{t("nextValue")}</dd>
       </dl>
-      <p className="ix-done-lede">{t("keep")}</p>
       <KeepAccess />
+      <details className="ix-how">
+        <summary>{tHow("how")}</summary>
+        <p>{t("lede")}</p>
+        <p>{t("keep")}</p>
+      </details>
     </article>
   );
 }
@@ -112,8 +120,6 @@ export function IntakeStage() {
   const [inFlight, setInFlight] = useState(0);
   const begin = useCallback(() => setInFlight((n) => n + 1), []);
   const end = useCallback(() => setInFlight((n) => Math.max(0, n - 1)), []);
-  // When this page opened, for the masthead's session clock.
-  const [openedAt] = useState(() => Date.now());
   const [pauseOpen, setPauseOpen] = useState(false);
   const t = useTranslations("intake");
   const { tr, locale } = useIntakeWords();
@@ -444,19 +450,13 @@ export function IntakeStage() {
   const activeArea = activeIndex >= 0 ? areas[activeIndex] : undefined;
   const channel = activeIndex >= 0 ? channelNo(activeIndex) : null;
   const previous = state ? previousQuestion(state.record.facts, question?.id ?? null) : null;
-  const machine =
-    inFlight > 0 || phase === "leaving"
-      ? "saving"
-      : phase === "answering" && question && !state?.done
-        ? "listening"
-        : null;
+  const saving = phase !== "boot_error" && (inFlight > 0 || phase === "leaving");
 
   return (
     <div className="ix desk">
       <Masthead
         businessName={state?.business_name ?? null}
-        machine={phase === "boot_error" ? null : machine}
-        openedAt={openedAt}
+        saving={saving}
         factCount={state ? state.record.fact_count : null}
         pauseOpen={pauseOpen}
         onPause={() => setPauseOpen((v) => !v)}
@@ -467,7 +467,10 @@ export function IntakeStage() {
             <h2 className="ix-cap" id="ix-pause-h">
               {t("pause.title")}
             </h2>
-            <p className="ix-pause-lede">{t("pause.lede")}</p>
+            <details className="ix-how">
+              <summary>{t("how")}</summary>
+              <p>{t("pause.lede")}</p>
+            </details>
           </div>
           <KeepAccess />
           <button type="button" className="ix-link" onClick={() => setPauseOpen(false)}>
@@ -498,12 +501,15 @@ export function IntakeStage() {
           {phase === "boot_error" && (
             <article className="ix-q sheet ix-plain">
               <h2 className="ix-prompt">{t("stage.bootTitle")}</h2>
-              <p className="ix-done-lede">{t("stage.bootLede")}</p>
               <div className="ix-actions">
                 <button type="button" className="act solid" onClick={() => void boot()}>
                   {t("stage.retry")} &rarr;
                 </button>
               </div>
+              <details className="ix-how">
+                <summary>{t("why")}</summary>
+                <p>{t("stage.bootLede")}</p>
+              </details>
             </article>
           )}
           {state?.done && state.readout && <DoneCard readout={state.readout} />}

@@ -16,6 +16,11 @@
 //   POST /api/payments  { action: "erase", payment_id | supplier_id }
 //        rule 22: the payee's bank details are erased
 //
+// The GET is the owner's too (role action "payments.read"): least privilege,
+// the owner's decision of 2026-11-09 — a manager or a viewer gets the role
+// refusal and reads nothing. Each payment says which downloaded file it is
+// already in, and `exports` lists those files (lib/payments/exports).
+//
 // Every POST is the owner's (role action "payments.prepare"). Nothing here
 // talks to a bank or a payment provider: no credential, no initiation
 // scope, no transfer call (lib/payments/fence.test.ts fails the build if
@@ -25,6 +30,8 @@ import { type NextRequest, NextResponse } from "next/server";
 import { resolveAccess } from "../../../lib/auth/access";
 import { requireRole, roleAllows, roleOf } from "../../../lib/auth/roles";
 import { logSafeError } from "../../../lib/core/log-safe";
+import type { ExportListing } from "../../../lib/payments/exports";
+import { listExports } from "../../../lib/payments/exports";
 import { maskIban } from "../../../lib/payments/iban";
 import type { SepaBar } from "../../../lib/payments/sepa";
 import { sepaBar } from "../../../lib/payments/sepa";
@@ -49,6 +56,8 @@ export interface PaymentRow extends PaymentListing {
 export interface PaymentsView {
   payer: { holder_name: string; iban_masked: string; bic: string | null; stated_at: string } | null;
   payments: PaymentRow[];
+  /** The files already downloaded, newest first: each can be downloaded again. */
+  exports: ExportListing[];
   things: PayableThings;
   /** Whether this person may prepare payments and download the files (owners). */
   can_prepare: boolean;
@@ -60,12 +69,15 @@ const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/
 export async function GET(): Promise<NextResponse> {
   const access = await resolveAccess();
   if (!access) return NextResponse.json({ error: "no intake session" }, { status: 401 });
+  const denied = requireRole(access, "payments.read");
+  if (denied) return denied;
   try {
-    const [payer, list, things, ready] = await Promise.all([
+    const [payer, list, things, ready, exports] = await Promise.all([
       currentPayer(access.profile_id),
       listPayments(access.profile_id),
       payableThings(access.profile_id),
       readyPayments(access.profile_id),
+      listExports(access.profile_id),
     ]);
     const bars = new Map(ready.map((p) => [p.id, sepaBar(p, payer)]));
     const role = roleOf(access);
@@ -79,6 +91,7 @@ export async function GET(): Promise<NextResponse> {
           }
         : null,
       payments: list.map((p) => ({ ...p, file_bar: bars.get(p.id) ?? null })),
+      exports,
       things,
       can_prepare: role !== null && roleAllows(role, "payments.prepare"),
       today: new Date().toISOString().slice(0, 10),

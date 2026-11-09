@@ -123,12 +123,15 @@ describe("reading a file — counted, never guessed", () => {
     expect(argan.map((o) => [o.metric_key, o.value_num ?? o.value_minor])).toEqual([
       ["stock.on_hand", 14],
       ["stock.value_at_cost", 14 * 950],
+      // P6-04: the file's own unit cost, as it is — a purchase order's price.
+      ["stock.unit_cost", 950],
       ["stock.value_at_price", 14 * 2400],
       ["stock.days_since_sale", 110],
       ["stock.units_sold_window", 0],
     ]);
     expect(argan[1]!.dimensions).toMatchObject({ currency: "EUR", item_name: "Argan oil 100 ml" });
-    expect(argan[4]!.dimensions.window_days).toBe("90");
+    expect(argan[2]!.dimensions).toMatchObject({ currency: "EUR" });
+    expect(argan[5]!.dimensions.window_days).toBe("90");
     for (const o of observations) {
       expect(o.period_date).toBe(AS_OF);
       expect(o.observed_at).toBe(NOW);
@@ -202,7 +205,8 @@ describe("importStockFile", () => {
       .select()
       .from(metricObservations)
       .where(eq(metricObservations.connection_id, conn!.id));
-    expect(rows).toHaveLength(6);
+    // Each costed line now also keeps its unit cost (stock.unit_cost, P6-04).
+    expect(rows).toHaveLength(8);
     expect(rows.find((r) => r.metric_key === "stock.value_at_cost")).toMatchObject({
       currency: "EUR",
     });

@@ -13,6 +13,7 @@ import { useTranslations } from "next-intl";
 import { SheetCard } from "../sheet/PageHead";
 import { useAppLocale } from "../sheet/useTr";
 import { fmtDate } from "./figures";
+import { WhyFold } from "./WhyFold";
 
 interface Share {
   id: string;
@@ -108,12 +109,12 @@ export function ShareCard() {
   };
 
   return (
-    <SheetCard id="rq-share" className="rq-card noprint" label={t("label")} title={t("title")}>
+    <SheetCard id="rq-share" className="rq-card noprint" label={t("label")}>
       {signedOut ? (
         <p className="rq-prose">{t("signedOut")}</p>
       ) : (
         <>
-          <p className="rq-prose">{t("lede")}</p>
+          <WhyFold>{t("lede")}</WhyFold>
           <div className="rq-share-row">
             <label className="rq-label" htmlFor="rq-share-days">
               {t("lasts")}

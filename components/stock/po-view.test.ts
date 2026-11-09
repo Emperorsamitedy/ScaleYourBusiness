@@ -8,7 +8,7 @@ import { createTranslator } from "next-intl";
 import { describe, expect, it } from "vitest";
 import type { Tr } from "../../lib/i18n/tr";
 import type { PoWords } from "./po-view";
-import { notSentWords, orderState, totalsText } from "./po-view";
+import { notSentWords, orderState, totalsText, unitPriceText, waitingWords } from "./po-view";
 
 function words(locale: "de-DE" | "en"): PoWords {
   const messages = JSON.parse(
@@ -54,6 +54,46 @@ describe("where an order stands", () => {
       "bereit, nicht gesendet",
     );
     expect(notSentWords(["real_writes_off"], de)).toMatch(/^Der echte Versand ist ausgeschaltet/);
+  });
+
+  it("held while sending is off: 'held', why, and that it goes out on its own — never 'done'", () => {
+    const held = { ...base, status: "approved", held: ["real_writes_off" as const] };
+    expect(orderState(held)).toEqual({
+      word: "approved, held until email is set up",
+      tone: "alarm",
+    });
+    const words = waitingWords({ ...held, needs_confirming: false }, 14);
+    expect(words).toContain("Real sending is switched off");
+    expect(words).toContain("it goes out on its own once sending is on");
+    expect(words).toContain("mark it as sent by hand");
+    // Not approved: nothing to say.
+    expect(waitingWords({ status: "executed", held: [], needs_confirming: false }, 14)).toBe("");
+  });
+
+  it("past fourteen days, it waits for a yes again; sent by hand says so, on a day in words", () => {
+    const old = {
+      ...base,
+      status: "approved",
+      held: [],
+      needs_confirming: true,
+      approved_on: "2026-10-20",
+    };
+    expect(orderState(old).word).toBe("approved on 20 Oct 2026, waiting for your yes again");
+    expect(waitingWords(old, 14)).toBe(
+      "You said yes more than 14 days ago, so it isn't emailed on its own. Send now sends it as it is, or make a new order.",
+    );
+    expect(
+      orderState({ ...base, status: "executed", by_hand_on: "2026-11-09" }, words("de-DE")).word,
+    ).toBe("am 9. Nov. 2026 von Ihnen gesendet");
+    expect(orderState({ ...base, status: "executed", by_hand_on: "2026-11-09" }).word).toBe(
+      "sent by you on 9 Nov 2026",
+    );
+  });
+
+  it("a line with no stated or measured price reads 'to be confirmed by the supplier'", () => {
+    expect(unitPriceText(null)).toBe("to be confirmed by the supplier");
+    expect(unitPriceText({ amount_minor: 980, currency: "EUR" })).toBe("€9.80");
+    expect(unitPriceText(null, words("de-DE"))).toBe("Preis bestätigt der Lieferant");
   });
 
   it("totals per currency, never added across two", () => {

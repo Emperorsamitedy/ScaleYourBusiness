@@ -7,10 +7,13 @@
 // delivery address and a note. Submitting puts the order in the approval
 // queue; nothing goes out until the owner approves it (rule 12). Below, the
 // orders made: where each stands, "Send now" for an approved one (through
-// the engine), and the order as a PDF (P6-09) or a page to download or
-// print. When email
-// can't really go out yet, the card says so before anything is made, and an
-// order that ran against the fake sender says "ready, not sent" and why.
+// the engine), "Mark as sent by hand", and the order as a PDF (P6-09) or a
+// page to download or print. When email can't really go out yet, the card
+// says so before anything is made, and an approved order is HELD, not done
+// (2026-11-09): it says why and that it goes out on its own once sending is
+// on — or, approved more than 14 days before, that it waits for a yes again.
+// A line without a stated or measured price reads "to be confirmed by the
+// supplier" (decision 4).
 
 import { useState } from "react";
 import Link from "next/link";
@@ -18,7 +21,8 @@ import type { PoBlock, PoDraftView } from "../../app/api/stock/route";
 import { num } from "../sheet/num";
 import { SheetCard } from "../sheet/PageHead";
 import { useTr } from "../sheet/useTr";
-import { notSentWords, orderState, totalsText } from "./po-view";
+import { PO_APPROVAL_MAX_AGE_DAYS } from "../../lib/execution/stale";
+import { notSentWords, orderState, totalsText, unitPriceText, waitingWords } from "./po-view";
 import type { PoWords } from "./po-view";
 
 function DraftForm({
@@ -135,7 +139,7 @@ function DraftForm({
                   />
                 </td>
                 <td className="num" data-label={tr("po.col.unit")}>
-                  {l.unit_cost ? totalsText([l.unit_cost], locale) : "—"}
+                  {unitPriceText(l.unit_cost, w)}
                 </td>
               </tr>
             ))}
@@ -199,18 +203,18 @@ function Orders({ block, onChange }: { block: PoBlock; onChange: () => Promise<v
   const [busy, setBusy] = useState<string | null>(null);
   const [said, setSaid] = useState<{ id: string; text: string } | null>(null);
 
-  const sendNow = async (id: string) => {
-    setBusy(id);
+  const act = async (id: string, action: "po_send" | "po_sent_by_hand") => {
+    setBusy(`${action}:${id}`);
     setSaid(null);
     try {
       const res = await fetch("/api/stock", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ action: "po_send", id }),
+        body: JSON.stringify({ action, id }),
       });
       const body = (await res.json()) as {
         error?: string;
-        result?: "sent" | "not_sent" | "refused" | "failed";
+        result?: "sent" | "held" | "not_sent" | "refused" | "failed" | "sent_by_hand";
         reasons?: ("email_not_set_up" | "real_writes_off")[];
         message?: string;
       };
@@ -218,9 +222,13 @@ function Orders({ block, onChange }: { block: PoBlock; onChange: () => Promise<v
         ? (body.error ?? tr("result.didntWork"))
         : body.result === "sent"
           ? tr("po.result.sent")
-          : body.result === "not_sent"
-            ? `${tr("po.result.notSent")} ${notSentWords(body.reasons ?? [], w)}`
-            : (body.message ?? tr("result.didntWork"));
+          : body.result === "sent_by_hand"
+            ? tr("po.result.byHand")
+            : body.result === "held"
+              ? `${tr("po.result.held")} ${notSentWords(body.reasons ?? [], w)} ${tr("po.heldAfter")}`
+              : body.result === "not_sent"
+                ? `${tr("po.result.notSent")} ${notSentWords(body.reasons ?? [], w)}`
+                : (body.message ?? tr("result.didntWork"));
       setSaid({ id, text });
       await onChange();
     } catch {
@@ -249,6 +257,7 @@ function Orders({ block, onChange }: { block: PoBlock; onChange: () => Promise<v
         <tbody>
           {block.orders.map((o) => {
             const state = orderState(o, w);
+            const waiting = waitingWords(o, PO_APPROVAL_MAX_AGE_DAYS, w);
             return (
               <tr key={o.id}>
                 <th scope="row">
@@ -268,6 +277,7 @@ function Orders({ block, onChange }: { block: PoBlock; onChange: () => Promise<v
                       {notSentWords(o.not_sent, w)} {tr("po.notSentAfter")}
                     </span>
                   )}
+                  {waiting && <span className="st-src">{waiting}</span>}
                   {o.error && o.sent === null && <span className="st-src">{o.error}</span>}
                   {o.status === "blocked" && o.blocked_by_limit && (
                     <span className="st-src">{tr("ruledOut", { rule: o.blocked_by_limit })}</span>
@@ -281,9 +291,21 @@ function Orders({ block, onChange }: { block: PoBlock; onChange: () => Promise<v
                         type="button"
                         className="act"
                         disabled={busy !== null}
-                        onClick={() => void sendNow(o.id)}
+                        onClick={() => void act(o.id, "po_send")}
                       >
-                        {busy === o.id ? tr("po.sendingNow") : tr("po.sendNow")}
+                        {busy === `po_send:${o.id}` ? tr("po.sendingNow") : tr("po.sendNow")}
+                      </button>
+                    )}
+                    {o.status === "approved" && (
+                      <button
+                        type="button"
+                        className="act"
+                        disabled={busy !== null}
+                        onClick={() => void act(o.id, "po_sent_by_hand")}
+                      >
+                        {busy === `po_sent_by_hand:${o.id}`
+                          ? tr("po.markingByHand")
+                          : tr("po.markByHand")}
                       </button>
                     )}
                     <a href={`/api/stock/po/${o.id}?format=pdf`} download={`${o.number}.pdf`}>

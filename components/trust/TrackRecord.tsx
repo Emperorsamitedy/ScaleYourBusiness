@@ -6,6 +6,7 @@
 
 import { useTranslations } from "next-intl";
 import type { TrackView, TrackWord } from "../../lib/forecasts/view";
+import { WhyFold } from "../report/WhyFold";
 
 const TONE: Record<TrackWord, string> = {
   inside: "ink",
@@ -63,8 +64,10 @@ export function TrackRecord({ track }: { track: TrackView }) {
         </div>
       )}
       <footer className="cs-foot hi-foot">
-        <p>{t("foot")}</p>
-        <p>{t("cantTell")}</p>
+        <WhyFold>
+          <p>{t("foot")}</p>
+          <p>{t("cantTell")}</p>
+        </WhyFold>
       </footer>
     </section>
   );

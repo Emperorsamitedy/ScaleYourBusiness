@@ -3,9 +3,18 @@
 // A reorder suggestion (lib/stock/cover's reorderFor, P5-03) can become a
 // purchase order: one supplier, its lines (the items it supplies that are
 // running low), each line's quantity with the arithmetic behind it (rule 6),
-// a unit cost as Money where the stock read carries one (rule 1), the
+// a unit price as Money only where one was stated or measured (rule 1), the
 // delivery address and the supplier's email address. Everything here is
 // arithmetic and wording: no database, no network, no model.
+//
+// Never an estimate as a price (the owner's decision of 2026-11-09): a line
+// carries a unit price only with the fact or measure it came from
+// (price_source) — the supplier's stated purchase price, the store's or the
+// stock file's own unit cost, or the owner's stated cost for the matched
+// offer. Value at cost ÷ on hand is an average, never a price; such a line
+// reads "price to be confirmed by the supplier", and the total says how many
+// lines are unpriced. A line without a price_source (an order made before
+// the decision) is shown unpriced too, whatever it stored.
 //
 // What this file decides:
 //   · the lines and their totals, per currency — never added across two;
@@ -44,6 +53,13 @@ export const PO = {
   max_quantity: 1_000_000,
 } as const;
 
+/**
+ * Where a line's unit price came from: the store's or the stock file's own
+ * unit cost ("measured"), the owner's cost for the matched offer ("stated"),
+ * or the supplier's stated purchase price ("supplier").
+ */
+export type PoPriceBasis = "measured" | "stated" | "supplier";
+
 export interface PoLine {
   /** connection_id:ref — which stock item. */
   key: string;
@@ -52,7 +68,14 @@ export interface PoLine {
   /** What the reorder suggestion said (rule 6): the owner may change it, and the order says so. */
   suggested: number;
   unit_cost: Money | null;
-  cost_basis: "measured" | "stated" | null;
+  cost_basis: PoPriceBasis | null;
+  /**
+   * The fact or measure the unit price came from (rule 6):
+   * "suppliers.<id>.purchase_price", "offers.<id>.cost_to_deliver" or
+   * "stock.unit_cost". Null with no price. A stored line without it shows no
+   * price (pricedLine).
+   */
+  price_source: string | null;
   line_total: Money | null;
   /** The suggestion's arithmetic, in English as stored (rules 4 and 7). */
   arithmetic: string;
@@ -127,9 +150,11 @@ export interface SuggestedLine {
   suggested: number;
   /** The suggestion's own arithmetic (cover.reorder.arithmetic, English). */
   arithmetic: string;
-  /** From the stock read: value at cost ÷ on hand, as reorderFor works it out. */
+  /** A unit price as stated or measured, never an average — null when there is none. */
   unit_cost: Money | null;
-  cost_basis: "measured" | "stated" | null;
+  cost_basis: PoPriceBasis | null;
+  /** The fact or measure it came from; null exactly when unit_cost is. */
+  price_source: string | null;
 }
 
 /** Pure: one line, at the owner's quantity when they gave one, with its arithmetic. */
@@ -139,19 +164,35 @@ export function poLine(s: SuggestedLine, chosen: number | null): PoLine {
     quantity === s.suggested
       ? s.arithmetic
       : `You chose ${quantity}; the suggestion was ${s.suggested}: ${s.arithmetic}`;
+  const priced = s.unit_cost !== null && s.price_source !== null;
   return {
     key: s.key,
     name: s.name,
     quantity,
     suggested: s.suggested,
-    unit_cost: s.unit_cost,
-    cost_basis: s.cost_basis,
+    unit_cost: priced ? s.unit_cost : null,
+    cost_basis: priced ? s.cost_basis : null,
+    price_source: priced ? s.price_source : null,
     line_total:
-      s.unit_cost === null
-        ? null
-        : { amount_minor: s.unit_cost.amount_minor * quantity, currency: s.unit_cost.currency },
+      priced && s.unit_cost
+        ? { amount_minor: s.unit_cost.amount_minor * quantity, currency: s.unit_cost.currency }
+        : null,
     arithmetic,
   };
+}
+
+/**
+ * Pure: the line's price as the order may show it — its unit price and line
+ * total — or null: no price, or one with no fact or measure behind it (an
+ * order stored before 2026-11-09, priced from an average). Every screen,
+ * page, PDF and email reads prices through this.
+ */
+export function pricedLine(
+  l: Pick<PoLine, "unit_cost" | "line_total"> & { price_source?: string | null },
+): { unit: Money; total: Money } | null {
+  if (!l.unit_cost || !l.line_total) return null;
+  if (typeof l.price_source !== "string" || l.price_source === "") return null;
+  return { unit: l.unit_cost, total: l.line_total };
 }
 
 /** Pure: the order's totals, one per currency, in the order the currencies first appear. */
@@ -159,11 +200,12 @@ export function poTotals(lines: readonly PoLine[]): { totals: Money[]; unpriced:
   const by = new Map<string, number>();
   let unpriced = 0;
   for (const l of lines) {
-    if (l.line_total === null) {
+    const p = pricedLine(l);
+    if (p === null) {
       unpriced++;
       continue;
     }
-    by.set(l.line_total.currency, (by.get(l.line_total.currency) ?? 0) + l.line_total.amount_minor);
+    by.set(p.total.currency, (by.get(p.total.currency) ?? 0) + p.total.amount_minor);
   }
   return {
     totals: [...by.entries()].map(([currency, amount_minor]) => ({ amount_minor, currency })),
@@ -246,24 +288,35 @@ const esc = (s: string) =>
 
 const fmt = (m: Money, locale: AppLocale) => exactMoney(m.amount_minor, m.currency, locale);
 
-/** Pure: one line in words: "50 × Speckled Everyday Mug at €9.80 = €490.00". */
+/**
+ * Pure: one line in words: "50 × Speckled Everyday Mug at €9.80 = €490.00",
+ * or, with no stated or measured price, "12 × Dinner Plate, price to be
+ * confirmed by the supplier".
+ */
 export function lineWords(l: PoLine, w: RecipientWords): string {
-  return l.unit_cost && l.line_total
+  const p = pricedLine(l);
+  return p
     ? w.t("linePriced", {
         quantity: l.quantity,
         item: l.name,
-        unit: fmt(l.unit_cost, w.locale),
-        total: fmt(l.line_total, w.locale),
+        unit: fmt(p.unit, w.locale),
+        total: fmt(p.total, w.locale),
       })
     : w.t("line", { quantity: l.quantity, item: l.name });
 }
 
-/** Pure: the totals in words, or null when no line has a price. */
+/**
+ * Pure: the totals in words, from the lines as they may be shown (never the
+ * stored totals): per currency, and how many lines the supplier is to price.
+ * With no line priced, it says so instead of a total. Null for no lines.
+ */
 export function totalWords(po: PurchaseOrder, w: RecipientWords): string | null {
-  if (po.totals.length === 0) return null;
-  const amounts = po.totals.map((t) => fmt(t, w.locale)).join(" + ");
-  return po.unpriced > 0
-    ? w.t("totalPart", { total: amounts, unpriced: po.unpriced })
+  if (po.lines.length === 0) return null;
+  const { totals, unpriced } = poTotals(po.lines);
+  if (totals.length === 0) return w.t("totalNone", { unpriced });
+  const amounts = totals.map((t) => fmt(t, w.locale)).join(" + ");
+  return unpriced > 0
+    ? w.t("totalPart", { total: amounts, unpriced })
     : w.t("total", { total: amounts });
 }
 
@@ -312,9 +365,26 @@ export function poEmail(po: PurchaseOrder, w: RecipientWords): PoEmail {
   return { subject, text, html };
 }
 
-/** Where the order stands, for the document's own line. */
+/**
+ * Where the order stands, for the document's own line. An approved order
+ * held until sending is on reads "approved": it is what the owner sends by
+ * hand. "sent_by_hand" is the owner's own statement that they sent it.
+ */
 export type PoDocStatus =
-  { kind: "draft" } | { kind: "approved" } | { kind: "sent"; on: string } | { kind: "not_sent" };
+  | { kind: "draft" }
+  | { kind: "approved" }
+  | { kind: "sent"; on: string }
+  | { kind: "sent_by_hand"; on: string }
+  | { kind: "not_sent" };
+
+/** Pure: the document's status line, in its words. */
+export function statusWords(status: PoDocStatus, w: RecipientWords): string {
+  return status.kind === "sent"
+    ? w.t("doc.statusSent", { day: isoDay(status.on, w.locale) })
+    : status.kind === "sent_by_hand"
+      ? w.t("doc.statusSentByHand", { day: isoDay(status.on, w.locale) })
+      : w.t(`doc.status.${status.kind}`);
+}
 
 /**
  * Pure: the order as a printable page — what the owner downloads, keeps,
@@ -324,15 +394,14 @@ export type PoDocStatus =
  */
 export function poDocument(po: PurchaseOrder, w: RecipientWords, status: PoDocStatus): string {
   const lang = w.locale === "zh-Hans" ? "zh-Hans" : w.locale.split("-")[0];
-  const row = (l: PoLine) =>
-    `<tr><td>${esc(l.name)}</td><td class="n">${esc(String(l.quantity))}</td><td class="n">${
-      l.unit_cost ? esc(fmt(l.unit_cost, w.locale)) : "—"
-    }</td><td class="n">${l.line_total ? esc(fmt(l.line_total, w.locale)) : "—"}</td></tr>`;
+  const row = (l: PoLine) => {
+    const p = pricedLine(l);
+    return `<tr><td>${esc(l.name)}</td><td class="n">${esc(String(l.quantity))}</td><td class="n">${
+      p ? esc(fmt(p.unit, w.locale)) : esc(w.t("doc.toConfirm"))
+    }</td><td class="n">${p ? esc(fmt(p.total, w.locale)) : "—"}</td></tr>`;
+  };
   const total = totalWords(po, w);
-  const statusLine =
-    status.kind === "sent"
-      ? w.t("doc.statusSent", { day: isoDay(status.on, w.locale) })
-      : w.t(`doc.status.${status.kind}`);
+  const statusLine = statusWords(status, w);
   return `<!doctype html>
 <html lang="${esc(lang ?? "en")}">
 <head>

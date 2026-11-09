@@ -6,7 +6,10 @@
 //   POST /api/studio {action:"make", brief_id, hook_index}  a shot-list PROPOSAL from one hook
 //   POST /api/studio {action:"propose_video", item_id}       P6-03: a PROPOSAL for three AI video
 //                                                            candidates for a brief's shot list
-//   POST /api/studio {action:"generate_video", proposal_id}  an APPROVED one → three labelled clips
+//   POST /api/studio {action:"generate_video", proposal_id}  an APPROVED one → three requests
+//                                                            SUBMITTED; answers at once (2026-11-09)
+//   POST /api/studio {action:"collect_video"}                while a set is being made: ask after
+//                                                            its clips, after this response
 //   POST /api/studio {action:"pick", candidate_id}           the owner's pick → its video item,
 //                                                            offered for publishing (another yes)
 //
@@ -16,7 +19,7 @@
 // AI video actions (P6-03) demand the signed-in owner too: one spends real
 // money once approved, and a pick is a decision recorded with who made it.
 
-import { type NextRequest, NextResponse } from "next/server";
+import { after, type NextRequest, NextResponse } from "next/server";
 import { matchingSession, resolveAccess } from "../../../lib/auth/access";
 import {
   BRIEF_CAPS,
@@ -27,7 +30,12 @@ import {
   writeBrief,
 } from "../../../lib/content/brief";
 import { listGoals } from "../../../lib/content/goals";
-import { pickCandidate, studioVideoView } from "../../../lib/content/candidates";
+import {
+  collectCandidates,
+  pendingCandidates,
+  pickCandidate,
+  studioVideoView,
+} from "../../../lib/content/candidates";
 import {
   generateFromProposal,
   generationSetup,
@@ -44,8 +52,13 @@ import { requireRole } from "../../../lib/auth/roles";
 import { requestLocale } from "../../../lib/i18n/server";
 import type { RoleAction } from "../../../lib/auth/roles";
 
-// P6-03: generating three clips submits, polls and labels inside this function.
+// P6-03: generating only submits now (the owner's decision of 2026-11-09);
+// the time is for collect_video's after(): a download, a label and a store
+// per finished clip, under collectCandidates' own caps and budget.
 export const maxDuration = 300;
+
+/** The studio's own collecting pass: this business only, a few at a time. */
+const STUDIO_COLLECT = { candidates: 3, downloads: 3, budget_ms: 150_000 } as const;
 
 function onError(error: unknown, accountId: string): NextResponse {
   if (
@@ -109,10 +122,11 @@ const STUDIO_ROLE: Record<string, RoleAction> = {
   make: "proposals.generate",
   propose_video: "proposals.generate",
   generate_video: "content.draft",
+  collect_video: "content.draft",
   pick: "content.draft",
 };
 
-const VIDEO_ACTIONS = new Set(["propose_video", "generate_video", "pick"]);
+const VIDEO_ACTIONS = new Set(["propose_video", "generate_video", "collect_video", "pick"]);
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
   const access = await resolveAccess();
@@ -156,6 +170,29 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           expectedProfileId: access.profile_id,
         });
         return NextResponse.json(outcome);
+      }
+      if (body.action === "collect_video") {
+        // Spends nothing new: the clips were paid for when submitted. After the response,
+        // inside this function's time; the collect-video cron is the backstop.
+        const pending = await pendingCandidates(access.profile_id);
+        if (pending > 0) {
+          const profileId = access.profile_id;
+          const accountId = access.account_id;
+          after(async () => {
+            try {
+              await collectCandidates({ profileId, limits: STUDIO_COLLECT });
+            } catch (error) {
+              console.error(
+                JSON.stringify({
+                  event: "studio_collect_failed",
+                  account_id: accountId,
+                  ...logSafeError(error),
+                }),
+              );
+            }
+          });
+        }
+        return NextResponse.json({ pending });
       }
       if (typeof body.candidate_id !== "string") {
         return NextResponse.json({ error: "candidate_id is required" }, { status: 422 });
@@ -223,7 +260,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     return NextResponse.json(
       {
         error:
-          'action must be "research", "brief", "make", "propose_video", "generate_video" or "pick"',
+          'action must be "research", "brief", "make", "propose_video", "generate_video", "collect_video" or "pick"',
       },
       { status: 422 },
     );

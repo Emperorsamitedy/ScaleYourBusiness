@@ -1,15 +1,17 @@
 // P6-03 — Higgsfield's API as a MediaProvider, against a fake HTTP layer
 // only: no test here (or anywhere) calls Higgsfield. What must hold: the
-// documented submit-then-poll flow with the key on Higgsfield's host and
-// nowhere else; the price in integer US cents; video only; every failure
-// named, the billable ones counted as charged and the unbilled ones not;
-// hard caps on submits and polls; and the switch and its env keys.
+// documented flow — submit, then one status check at a time, never a
+// wait (the owner's decision of 2026-11-09) — with the key on Higgsfield's
+// host and nowhere else; the price in integer US cents; video only; every
+// failure named, the billable ones counted as charged and the unbilled
+// ones not; a hard cap on submits; and the switch and its env keys.
 
 import "dotenv/config";
 import { afterEach, describe, expect, it } from "vitest";
 import { HIGGSFIELD_DEFAULTS, higgsfieldEnv, mediaProviderSetting } from "../../env";
 import { GENERATION_OFF, generationSetup } from "../generation";
 import {
+  HIGGSFIELD_LIMITS,
   HIGGSFIELD_NO_KEY,
   HIGGSFIELD_ORIGIN,
   HIGGSFIELD_VIDEO_ONLY,
@@ -21,7 +23,7 @@ import {
 } from "./higgsfield";
 import type { HttpFetch } from "./higgsfield";
 import { FIXED_INSTRUCTION, ProviderError } from "./provider";
-import type { GenerationRequest } from "./provider";
+import type { GenerationRequest, SubmittedJob } from "./provider";
 
 const MODEL = HIGGSFIELD_DEFAULTS.model;
 const KEY = { id: "kid-123", secret: "ksecret-456" };
@@ -107,7 +109,6 @@ const provider = (fetch: HttpFetch, limits = {}) =>
     model: MODEL,
     usd_micros_per_second: HIGGSFIELD_DEFAULTS.usd_micros_per_second,
     fetch,
-    sleep: async () => {},
     limits,
   });
 
@@ -165,20 +166,28 @@ describe("P6-03 — Higgsfield, pure", () => {
   });
 });
 
-describe("P6-03 — Higgsfield, submit then poll (fake HTTP only)", () => {
-  it("submits with the key, polls to completed, downloads without the key", async () => {
-    const api = fakeApi({ statuses: ["queued", "in_progress", "completed"] });
-    const out = await provider(api.fetch).generate(request);
-    expect(out).toMatchObject({
-      content_type: "video/mp4",
-      cost: { amount_minor: 56, currency: "USD" },
-      model: `higgsfield/${MODEL}`,
-      request_id: ID,
-    });
-    expect(out.bytes).toEqual(MP4);
+describe("P6-03 — Higgsfield, submit now and ask later (fake HTTP only)", () => {
+  const jobsOf = (fetch: HttpFetch, limits = {}) => provider(fetch, limits).jobs!;
+  const JOB: SubmittedJob = {
+    request_id: ID,
+    status_url: `${HIGGSFIELD_ORIGIN}/requests/${ID}/status`,
+    cancel_url: `${HIGGSFIELD_ORIGIN}/requests/${ID}/cancel`,
+  };
 
-    const [submit, ...rest] = api.sent;
-    expect(submit).toMatchObject({
+  it("has no in-request wait: it submits, checks and downloads, one call each", () => {
+    const p = provider(fakeApi({}).fetch);
+    expect(p.generate).toBeUndefined();
+    expect(p.jobs).toBeDefined();
+    expect(Object.keys(HIGGSFIELD_LIMITS)).not.toContain("max_polls");
+    expect(Object.keys(HIGGSFIELD_LIMITS)).not.toContain("poll_interval_ms");
+  });
+
+  it("submit returns at once with the key on Higgsfield's host — no status is read", async () => {
+    const api = fakeApi({ statuses: ["queued"] });
+    const job = await jobsOf(api.fetch).submit(request);
+    expect(job).toEqual(JOB);
+    expect(api.sent).toHaveLength(1);
+    expect(api.sent[0]).toMatchObject({
       url: `${HIGGSFIELD_ORIGIN}/${MODEL}`,
       method: "POST",
       headers: {
@@ -188,16 +197,42 @@ describe("P6-03 — Higgsfield, submit then poll (fake HTTP only)", () => {
       },
       body: { duration: 5, aspect_ratio: "9:16", sound: "off" },
     });
-    const polls = rest.filter((s) => s.url.endsWith("/status"));
-    expect(polls).toHaveLength(3);
+  });
+
+  it("one check is one GET with the key; the finished file is downloaded without it", async () => {
+    const api = fakeApi({ statuses: ["in_progress", "completed"] });
+    const jobs = jobsOf(api.fetch);
+    expect(await jobs.check(JOB)).toEqual({ state: "pending", status: "in_progress" });
+    const done = await jobs.check(JOB);
+    expect(done).toEqual({
+      state: "completed",
+      result_url: `https://cdn.higgsfield.test/${ID}.mp4`,
+    });
+    const out = await jobs.fetchResult(JOB, (done as { result_url: string }).result_url);
+    expect(out).toMatchObject({
+      content_type: "video/mp4",
+      cost: { amount_minor: 56, currency: "USD" },
+      model: `higgsfield/${MODEL}`,
+      request_id: ID,
+    });
+    expect(out.bytes).toEqual(MP4);
+    const polls = api.sent.filter((s) => s.url.endsWith("/status"));
+    expect(polls).toHaveLength(2);
     for (const p of polls) expect(p.headers.authorization).toBe(`Key ${KEY.id}:${KEY.secret}`);
-    const download = rest.find((s) => s.url.startsWith("https://cdn.higgsfield.test/"));
+    const download = api.sent.find((s) => s.url.startsWith("https://cdn.higgsfield.test/"));
     expect(download?.headers.authorization).toBeUndefined();
   });
 
-  it("never sends the key to a status URL on another host", async () => {
+  it("never sends the key to a status or cancel URL on another host", async () => {
     const api = fakeApi({ statusUrl: "https://collector.evil.test/requests/x/status" });
-    await provider(api.fetch).generate(request);
+    const jobs = jobsOf(api.fetch);
+    const job = await jobs.submit(request);
+    expect(job.status_url).toBe(`${HIGGSFIELD_ORIGIN}/requests/${ID}/status`);
+    // A stored address is checked again on use.
+    await jobs.check({ ...job, status_url: "https://collector.evil.test/requests/x/status" });
+    expect(await jobs.cancel({ ...job, cancel_url: "https://collector.evil.test/x/cancel" })).toBe(
+      false,
+    );
     const hosts = api.sent.filter((s) => s.headers.authorization).map((s) => new URL(s.url).origin);
     expect(new Set(hosts)).toEqual(new Set([HIGGSFIELD_ORIGIN]));
     expect(api.sent.some((s) => s.url.includes("evil.test"))).toBe(false);
@@ -221,7 +256,9 @@ describe("P6-03 — Higgsfield, submit then poll (fake HTTP only)", () => {
     expect(none.unavailable).toBe(HIGGSFIELD_NO_KEY);
     expect(none.unavailable).toMatch(/HIGGSFIELD_API_KEY/);
     expect(none.unavailable).toMatch(/separate from a web plan/);
-    await rejection(none.generate(request));
+    await rejection(none.jobs!.submit(request));
+    expect(await none.jobs!.check(JOB)).toMatchObject({ state: "pending" });
+    expect(await none.jobs!.cancel(JOB)).toBe(false);
     expect(api.sent).toHaveLength(0);
   });
 
@@ -233,7 +270,7 @@ describe("P6-03 — Higgsfield, submit then poll (fake HTTP only)", () => {
       [422, /refused the request: prompt too long/],
     ] as const) {
       const api = fakeApi({ submit: () => json(status, { detail: "prompt too long" }) });
-      const e = await rejection(provider(api.fetch).generate(request));
+      const e = await rejection(jobsOf(api.fetch).submit(request));
       expect(e.message).toMatch(words);
       expect(e.retryable).toBe(false);
       expect(e.cost).toBeNull();
@@ -244,7 +281,7 @@ describe("P6-03 — Higgsfield, submit then poll (fake HTTP only)", () => {
   it("a busy Higgsfield is worth another attempt, unbilled", async () => {
     for (const status of [423, 429, 500, 503]) {
       const api = fakeApi({ submit: () => json(status, { detail: "account_queue_full" }) });
-      const e = await rejection(provider(api.fetch).generate(request));
+      const e = await rejection(jobsOf(api.fetch).submit(request));
       expect(e).toMatchObject({ retryable: true, cost: null });
     }
   });
@@ -253,89 +290,67 @@ describe("P6-03 — Higgsfield, submit then poll (fake HTTP only)", () => {
     const api = fakeApi({
       submit: (n) => (n === 1 ? new Error("socket hang up") : json(200, {})),
     });
-    await provider(api.fetch).generate(request);
-    const submits = api.sent.filter((s) => s.method === "POST" && !s.url.endsWith("/cancel"));
+    await jobsOf(api.fetch).submit(request);
+    const submits = api.sent.filter((s) => s.method === "POST");
     expect(submits).toHaveLength(2);
     expect(submits[0]!.headers["idempotency-key"]).toBe(submits[1]!.headers["idempotency-key"]);
 
     // The cap: never a third.
     const down = fakeApi({ submit: () => new Error("socket hang up") });
-    const e = await rejection(provider(down.fetch).generate(request));
+    const e = await rejection(jobsOf(down.fetch).submit(request));
     expect(e.retryable).toBe(true);
     expect(down.sent).toHaveLength(2);
   });
 
+  it("an accepted request without an id is counted as charged", async () => {
+    const api = fakeApi({ submit: () => json(200, { status: "queued" }) });
+    const e = await rejection(jobsOf(api.fetch).submit(request));
+    expect(e.cost).toEqual({ amount_minor: 56, currency: "USD" });
+  });
+
   it("failed and moderated runs aren't billed; failed may be retried, moderated may not", async () => {
-    const failed = await rejection(
-      provider(fakeApi({ statuses: ["in_progress", "failed"] }).fetch).generate(request),
-    );
-    expect(failed).toMatchObject({ retryable: true, cost: null });
-    expect(failed.message).toMatch(/the model fell over/);
-    const nsfw = await rejection(provider(fakeApi({ statuses: ["nsfw"] }).fetch).generate(request));
-    expect(nsfw).toMatchObject({ retryable: false, cost: null });
-    expect(nsfw.message).toMatch(/moderation/);
+    const failed = await jobsOf(fakeApi({ statuses: ["failed"] }).fetch).check(JOB);
+    expect(failed).toMatchObject({ state: "failed", retryable: true, charged: null });
+    expect((failed as { message: string }).message).toMatch(/the model fell over/);
+    const nsfw = await jobsOf(fakeApi({ statuses: ["nsfw"] }).fetch).check(JOB);
+    expect(nsfw).toMatchObject({ state: "failed", retryable: false, charged: null });
+    expect((nsfw as { message: string }).message).toMatch(/moderation/);
+    const canceled = await jobsOf(fakeApi({ statuses: ["canceled"] }).fetch).check(JOB);
+    expect(canceled).toMatchObject({ state: "failed", retryable: false, charged: null });
   });
 
-  it("stops polling at the hard cap: canceled while queued is free, otherwise counted as spent", async () => {
-    const stuck = fakeApi({ statuses: ["in_progress"], cancel: 400 });
-    const e = await rejection(provider(stuck.fetch, { max_polls: 3 }).generate(request));
-    expect(stuck.sent.filter((s) => s.url.endsWith("/status"))).toHaveLength(3);
-    expect(stuck.sent.filter((s) => s.url.endsWith("/cancel"))).toHaveLength(1);
-    expect(e).toMatchObject({ retryable: false, cost: { amount_minor: 56, currency: "USD" } });
-    expect(e.message).toMatch(/counted as spent/);
-
-    const queued = fakeApi({ statuses: ["queued"], cancel: 202 });
-    const free = await rejection(provider(queued.fetch, { max_polls: 2 }).generate(request));
-    expect(free).toMatchObject({ retryable: false, cost: null });
-    expect(free.message).toMatch(/nothing was billed/);
-  });
-
-  it("stops waiting by the run's deadline, and submits nothing it couldn't wait for", async () => {
-    let t = 1_000_000;
-    const clocked = (fetch: HttpFetch) =>
-      higgsfieldMediaProvider({
-        key: KEY,
-        model: MODEL,
-        usd_micros_per_second: HIGGSFIELD_DEFAULTS.usd_micros_per_second,
-        fetch,
-        now: () => t,
-        sleep: async (ms) => {
-          t += ms;
-        },
-      });
-    // Three checks fit before the deadline; the cap (45) is never reached.
-    const stuck = fakeApi({ statuses: ["in_progress"], cancel: 400 });
-    const e = await rejection(
-      clocked(stuck.fetch).generate({ ...request, deadline_at: t + 16_000 }),
-    );
-    expect(stuck.sent.filter((s) => s.url.endsWith("/status"))).toHaveLength(3);
-    expect(stuck.sent.filter((s) => s.url.endsWith("/cancel"))).toHaveLength(1);
-    expect(e).toMatchObject({ retryable: false, cost: { amount_minor: 56, currency: "USD" } });
-    expect(e.message).toMatch(/within 3 checks/);
-
-    // No time left: nothing is sent at all, and nothing is billed.
-    const late = fakeApi({});
-    const none = await rejection(clocked(late.fetch).generate({ ...request, deadline_at: t + 1 }));
-    expect(late.sent).toHaveLength(0);
-    expect(none).toMatchObject({ retryable: false, cost: null });
-  });
-
-  it("a status poll that drops counts against the cap; a lost request stops at once", async () => {
-    const flaky = fakeApi({
-      statuses: [json(502, { detail: "bad gateway" }), "in_progress", "completed"],
+  it("a check that drops is asked again later; a lost request is counted as spent", async () => {
+    const flaky = jobsOf(fakeApi({ statuses: [json(502, { detail: "bad gateway" })] }).fetch);
+    expect(await flaky.check(JOB)).toEqual({ state: "pending", status: "http_502" });
+    const down = jobsOf(async () => {
+      throw new Error("socket hang up");
     });
-    await provider(flaky.fetch, { max_polls: 3 }).generate(request);
-    const lost = fakeApi({ statuses: [json(404, { detail: "not found" })] });
-    const e = await rejection(provider(lost.fetch).generate(request));
-    expect(e.message).toMatch(/lost track/);
-    expect(e.cost).toEqual({ amount_minor: 56, currency: "USD" });
+    expect(await down.check(JOB)).toEqual({ state: "pending", status: "no_answer" });
+    const lost = await jobsOf(
+      fakeApi({ statuses: [json(404, { detail: "not found" })] }).fetch,
+    ).check(JOB);
+    expect(lost).toMatchObject({
+      state: "failed",
+      retryable: false,
+      charged: { amount_minor: 56, currency: "USD" },
+    });
+    expect((lost as { message: string }).message).toMatch(/lost track/);
   });
 
-  it("refuses a finished file that isn't an MP4, and counts it as charged", async () => {
-    const api = fakeApi({ video: () => new Response("<html>oops</html>", { status: 200 }) });
-    const e = await rejection(provider(api.fetch).generate(request));
+  it("cancel is accepted only while queued (202): canceled is free", async () => {
+    expect(await jobsOf(fakeApi({ cancel: 202 }).fetch).cancel(JOB)).toBe(true);
+    expect(await jobsOf(fakeApi({ cancel: 400 }).fetch).cancel(JOB)).toBe(false);
+  });
+
+  it("a finished file that isn't an MP4 is refused and charged; a dropped download is tried again", async () => {
+    const url = `https://cdn.higgsfield.test/${ID}.mp4`;
+    const html = fakeApi({ video: () => new Response("<html>oops</html>", { status: 200 }) });
+    const e = await rejection(jobsOf(html.fetch).fetchResult(JOB, url));
     expect(e.message).toMatch(/isn't an MP4/);
-    expect(e.cost).toEqual({ amount_minor: 56, currency: "USD" });
+    expect(e).toMatchObject({ retryable: false, cost: { amount_minor: 56, currency: "USD" } });
+    const busy = fakeApi({ video: () => new Response("", { status: 503 }) });
+    const later = await rejection(jobsOf(busy.fetch).fetchResult(JOB, url));
+    expect(later.retryable).toBe(true);
   });
 });
 

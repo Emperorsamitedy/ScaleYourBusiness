@@ -44,6 +44,10 @@ export const ROLE_ACTIONS = {
   "proposals.carry_out": { min: "manager", what: "carry out or undo an approved proposal" },
   "content.draft": { min: "manager", what: "draft content" },
   "support.answer": { min: "manager", what: "answer support" },
+  // Decision 2 (owner, 2026-11-09): least privilege on calls. Those who answer
+  // support read what callers said — transcripts and messages, and the full
+  // number. A viewer sees the calls list only, the number masked.
+  "phone.transcripts": { min: "manager", what: "read what callers said on the phone line" },
   // Idea 45: filing, answering and removing reviews is answering customers, like support.
   "reviews.answer": { min: "manager", what: "file, answer or remove reviews" },
   // I-52b (owner, 2026-11-01): the pipeline's day-to-day, and reading a
@@ -85,6 +89,10 @@ export const ROLE_ACTIONS = {
   // approving one, stating the bank details it is paid from, downloading
   // the bank file and saying it was paid are an owner's alone.
   "payments.prepare": { min: "owner", what: "prepare payments or say one was paid" },
+  // Least privilege (the owner's decision of 2026-11-09): the payments list
+  // and the bank files are the owner's to see as well. A manager or a viewer
+  // gets this refusal, on every payments route, and the menu hides it.
+  "payments.read": { min: "owner", what: "see payments and their bank files" },
   // P6-08 (rule 32): a caller's recorded voice is heard by the owner alone.
   "phone.recordings": { min: "owner", what: "listen to call recordings" },
 } as const satisfies Record<string, RoleActionRow>;

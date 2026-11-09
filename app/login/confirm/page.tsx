@@ -29,11 +29,10 @@ export default async function ConfirmLoginPage({
     return (
       <ConfirmLink
         ok
-        kicker={t("kicker")}
         headline={t("headline")}
-        label={t("label")}
         title={t("title", { email })}
-        email={email}
+        // The title already names the address.
+        email={null}
         action="/api/auth/redeem"
         token={token}
         button={t("button")}
@@ -45,7 +44,6 @@ export default async function ConfirmLoginPage({
     return (
       <ConfirmLink
         ok={false}
-        kicker={t("kicker")}
         headline={t("expiredHeadline")}
         message={t("expiredMessage", { minutes: LOGIN_TTL_MINUTES })}
       />

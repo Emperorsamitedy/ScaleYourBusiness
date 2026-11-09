@@ -7,6 +7,12 @@
 // both downloaded here and taken to the owner's own bank. The owner then
 // says "paid in my bank". SYB never pays anything, and the screen says so.
 //
+// The owner's decisions of 2026-11-09: a NEW file holds only payments in no
+// file yet, and each payment says which file it is in and when; a file made
+// before can be downloaded again (the same file, the same message id, which
+// a bank refuses twice) only past a plain warning. The screen is the owner's
+// alone: a manager or a viewer reads the role refusal.
+//
 // IBANs reach this screen masked. The full numbers are only in the files,
 // which are the owner's to download.
 //
@@ -23,17 +29,21 @@ import type { AppLocale } from "../../lib/i18n/locales";
 import type { Tr } from "../../lib/i18n/tr";
 import { PageHead, SheetCard } from "../sheet/PageHead";
 import { useTr } from "../sheet/useTr";
+import type { ExportListing } from "../../lib/payments/exports";
 import {
   amountToMinor,
   fileTotalMinor,
   fileWord,
   groupPayments,
+  inFileWord,
   moneyText,
+  newFileRows,
   refusalWords,
   stageWord,
 } from "./payments-view";
 
 type Act = (body: Record<string, unknown>, done: string) => void;
+type Download = (format: "sepa" | "steps", count: number) => void;
 
 function Frame({ title, children }: { title: ReactNode; children?: ReactNode }) {
   const { tr } = useTr("payments");
@@ -57,15 +67,19 @@ function ReadyCard({
   view,
   rows,
   act,
+  download,
   busy,
 }: {
   view: PaymentsView;
   rows: PaymentRow[];
   act: Act;
+  download: Download;
   busy: boolean;
 }) {
   const { tr, locale } = useTr("payments");
-  const inFile = rows.filter((r) => r.file_bar === null);
+  // Only payments in no file yet go in a new one (the owner's decision of 2026-11-09).
+  const inFile = newFileRows(rows, "sepa");
+  const forSteps = newFileRows(rows, "steps");
   const total = fileTotalMinor(rows);
   return (
     <SheetCard
@@ -86,6 +100,7 @@ function ReadyCard({
                 <th scope="col">{tr("col.reference")}</th>
                 <th scope="col">{tr("col.date")}</th>
                 <th scope="col">{tr("col.file")}</th>
+                <th scope="col">{tr("col.exported")}</th>
                 <th scope="col">
                   <span className="py-sr">{tr("col.action")}</span>
                 </th>
@@ -104,6 +119,9 @@ function ReadyCard({
                   <td data-label={tr("col.reference")}>{r.reference}</td>
                   <td data-label={tr("col.date")}>{dateText(r.execution_date, locale)}</td>
                   <td data-label={tr("col.file")}>{fileWord(r, tr)}</td>
+                  <td data-label={tr("col.exported")}>
+                    {inFileWord(r, tr, (iso) => dateText(iso, locale))}
+                  </td>
                   <td data-label={tr("col.action")}>
                     {view.can_prepare && (
                       <button
@@ -124,20 +142,34 @@ function ReadyCard({
           </table>
         </div>
       )}
-      {rows.length > 0 && view.can_prepare && (
+      {rows.length > 0 && view.can_prepare && forSteps.length === 0 && (
+        <p className="py-fine py-downloads">{tr("download.allInFile")}</p>
+      )}
+      {forSteps.length > 0 && view.can_prepare && (
         <div className="py-downloads">
           {inFile.length > 0 && view.payer !== null ? (
-            <a className="act solid" href="/api/payments/file?format=sepa" download>
-              {tr("download.sepa", { count: inFile.length })}
-            </a>
+            <button
+              type="button"
+              className="act solid"
+              disabled={busy}
+              onClick={() => download("sepa", inFile.length)}
+            >
+              {tr("download.newSepa", { count: inFile.length })}
+            </button>
           ) : (
             <p className="py-fine">
               {view.payer === null ? tr("download.needPayer") : tr("download.noneForFile")}
             </p>
           )}
-          <a className="act" href="/api/payments/file?format=steps" download>
-            {tr("download.steps")}
-          </a>
+          <button
+            type="button"
+            className="act"
+            disabled={busy}
+            onClick={() => download("steps", forSteps.length)}
+          >
+            {tr("download.newSteps", { count: forSteps.length })}
+          </button>
+          <p className="py-fine">{tr("download.onlyNew")}</p>
           {inFile.length > 0 && view.payer !== null && (
             <p className="py-fine">
               {tr("download.total", {
@@ -160,6 +192,62 @@ function ReadyCard({
           </ol>
         </div>
       )}
+    </SheetCard>
+  );
+}
+
+/**
+ * The files already downloaded (the owner's decision of 2026-11-09). Each
+ * can be downloaded again — the same file, the same message id — but only
+ * after a plain warning that uploading or paying it twice pays twice.
+ */
+function FilesCard({ files }: { files: ExportListing[] }) {
+  const { tr, locale } = useTr("payments");
+  if (files.length === 0) return null;
+  return (
+    <SheetCard
+      label={tr("files.label")}
+      title={tr("files.title", { count: files.length })}
+      foot={tr("files.foot")}
+    >
+      <ul className="py-list">
+        {files.map((f) => {
+          const date = dateText(f.made_on, locale);
+          return (
+            <li key={f.id}>
+              <span className="py-who">{tr(`files.${f.format}`, { date })}</span>{" "}
+              <span className="py-mono">{f.msg_id}</span>{" "}
+              <span className="py-fine">
+                {tr("files.count", { count: f.count })}
+                {" · "}
+                {tr("files.paid", { count: f.paid })}
+                {f.by && (
+                  <>
+                    {" · "}
+                    {tr("files.by", { name: f.by })}
+                  </>
+                )}
+              </span>
+              {f.again ? (
+                <details className="py-again">
+                  <summary>{tr("files.again")}</summary>
+                  <p className="py-warn" role="note">
+                    {tr("files.warn", { date })}
+                  </p>
+                  {f.format === "sepa" && (
+                    <p className="py-fine">{tr("files.sameId", { id: f.msg_id })}</p>
+                  )}
+                  <a className="act" href={`/api/payments/file?batch=${f.id}`} download>
+                    {tr("files.confirm")}
+                  </a>
+                </details>
+              ) : (
+                <p className="py-fine">{tr("files.erased")}</p>
+              )}
+            </li>
+          );
+        })}
+      </ul>
     </SheetCard>
   );
 }
@@ -458,6 +546,7 @@ export function PaymentsScreen() {
   const { tr } = useTr("payments");
   const [view, setView] = useState<PaymentsView | null>(null);
   const [failed, setFailed] = useState<"signed_out" | "error" | null>(null);
+  const [refused, setRefused] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [note, setNote] = useState<string | null>(null);
 
@@ -465,6 +554,11 @@ export function PaymentsScreen() {
     try {
       const res = await fetch("/api/payments");
       if (res.status === 401) return setFailed("signed_out");
+      // Owner only (least privilege): a manager or a viewer reads the role refusal, nothing else.
+      if (res.status === 403) {
+        const j = (await res.json().catch(() => ({}))) as { error?: unknown };
+        return setRefused(typeof j.error === "string" ? j.error : "");
+      }
       if (!res.ok) return setFailed("error");
       setView((await res.json()) as PaymentsView);
     } catch {
@@ -499,6 +593,51 @@ export function PaymentsScreen() {
     })();
   };
 
+  // A NEW file: the server records it as a batch and puts in it only the
+  // payments in no file yet, then the browser saves it under its own name.
+  const download: Download = (format, count) => {
+    setBusy(true);
+    setNote(null);
+    void (async () => {
+      try {
+        const res = await fetch("/api/payments/file", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify({ format }),
+        });
+        if (!res.ok) {
+          setNote(refusalWords((await res.json()) as Record<string, unknown>, tr));
+          await load();
+          return;
+        }
+        const name =
+          /filename="([^"]+)"/.exec(res.headers.get("content-disposition") ?? "")?.[1] ??
+          `syb-${format}.txt`;
+        const href = URL.createObjectURL(await res.blob());
+        const a = document.createElement("a");
+        a.href = href;
+        a.download = name;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        window.setTimeout(() => URL.revokeObjectURL(href), 10_000);
+        setNote(tr("download.done", { count }));
+        await load();
+      } catch {
+        setNote(tr("error.ourSide"));
+      } finally {
+        setBusy(false);
+      }
+    })();
+  };
+
+  if (refused !== null) {
+    return (
+      <Frame title={tr("refused")}>
+        <p className="py-fine">{refused || tr("ownerOnly")}</p>
+      </Frame>
+    );
+  }
   if (failed === "signed_out") {
     return (
       <Frame title={tr("signedOut")}>
@@ -530,7 +669,8 @@ export function PaymentsScreen() {
           {note}
         </p>
       )}
-      <ReadyCard view={view} rows={groups.ready} act={act} busy={busy} />
+      <ReadyCard view={view} rows={groups.ready} act={act} download={download} busy={busy} />
+      <FilesCard files={view.exports} />
       <WaitingCard rows={groups.waiting} />
       {view.can_prepare && <NewPaymentCard view={view} act={act} busy={busy} tr={tr} />}
       <PayerCard view={view} act={act} busy={busy} />

@@ -68,6 +68,29 @@ export function staleAdChange(p: ApprovalView, now: Date): string | null {
 }
 
 /**
+ * A purchase order held while sending was off (P6-04, the owner's decision
+ * of 2026-11-09) goes out on the first run after sending is switched on —
+ * unless its last recorded yes is more than this many days old by then. Then
+ * the stock it was made from has moved on, so it is not emailed on its own:
+ * it stays APPROVED (unlike a lapsed ad change, nothing expires) and waits
+ * for the owner to confirm it again — "Send now" records that yes and sends
+ * it. The same fourteen days a purchase order lives undecided (PO.expiry_days,
+ * pinned equal in a test).
+ */
+export const PO_APPROVAL_MAX_AGE_DAYS = 14;
+
+/** The start of the sentence for a purchase order that needs confirming again. */
+export const PO_NEEDS_CONFIRMING = "This order needs your yes again before it is emailed.";
+
+/** The owner's sentence for a purchase order whose last yes is too old to send on its own, or null. */
+export function stalePurchaseOrder(lastYes: string | null, now: Date): string | null {
+  const at = instant(lastYes);
+  if (at === null) return null;
+  if (now.getTime() - at <= PO_APPROVAL_MAX_AGE_DAYS * 86_400_000) return null;
+  return `${PO_NEEDS_CONFIRMING} You approved it on ${dayWord(at)}, more than ${PO_APPROVAL_MAX_AGE_DAYS} days ago, and your stock has moved since. Nothing was sent; it stays approved. Press Send now to send it as it is, or make a new order.`;
+}
+
+/**
  * What the real-write gate's refusal adds for a provider whose approvals can
  * go stale — instead of promising it "goes out on the first run after it is
  * switched on", which was not what happens.

@@ -24,6 +24,7 @@ import type { ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import { PageHead, SheetCard } from "../sheet/PageHead";
 import { PhoneAlertsCard } from "./PhoneAlertsCard";
+import { WhyFold } from "../report/WhyFold";
 import { moneyText, num } from "../sheet/num";
 import { useAppLocale, useTr } from "../sheet/useTr";
 import { minorUnitExponent } from "../../lib/core/money";
@@ -160,7 +161,6 @@ function DayStrip({ w }: { w: WatchDays }) {
       </ol>
       <p className="wt-days-cap">
         <span>{t("days.started", { date: dayText(w.start, false, locale) })}</span>
-        <span>{t("days.legend")}</span>
         <span>{t("days.ends", { date: dayText(w.end, false, locale) })}</span>
       </p>
     </section>
@@ -180,10 +180,12 @@ function SignalsCard({ reading }: { reading: WatchReading }) {
     .join(" · ");
   const foot =
     hasThin || hasDrift ? (
-      <>
-        {hasThin && <>{t("signals.thinRule", { min: MIN_BASELINE_DAYS, of: THIN_WINDOW_DAYS })} </>}
-        {hasDrift && <>{t("signals.driftRule", { days: RUN_DAYS })}</>}
-      </>
+      <WhyFold>
+        {hasThin && (
+          <p>{t("signals.thinRule", { min: MIN_BASELINE_DAYS, of: THIN_WINDOW_DAYS })}</p>
+        )}
+        {hasDrift && <p>{t("signals.driftRule", { days: RUN_DAYS })}</p>}
+      </WhyFold>
     ) : undefined;
   return (
     <SheetCard
@@ -324,7 +326,6 @@ function WhenCard({ w }: { w: WatchDays }) {
       label={t("when.label")}
       foot={
         <span className="wt-foot-row">
-          <span>{t("when.foot")}</span>
           <Link className="act" href="/mode">
             {t("when.link")}
           </Link>
@@ -355,7 +356,7 @@ function ActivityCard({ log }: { log: LogEntry[] }) {
   const locale = useAppLocale();
   const work = log.filter((e) => !NOTED_KINDS.has(e.kind));
   return (
-    <SheetCard label={t("activity.label")} title={t("activity.title")}>
+    <SheetCard label={t("activity.label")}>
       {work.length === 0 ? (
         <p className="wt-empty">{t("activity.empty")}</p>
       ) : (
@@ -404,7 +405,7 @@ function ModulesCard({
   const t = useTranslations("watch");
   const ww = useWatchWords();
   return (
-    <SheetCard label={t("modules.label")} title={t("modules.title")}>
+    <SheetCard label={t("modules.label")}>
       <fieldset className="wt-modules">
         <legend className="sr-only">{t("modules.label")}</legend>
         {modules.modules
@@ -424,7 +425,6 @@ function ModulesCard({
           <span>{t("modules.analytics")}</span>
         </label>
       </fieldset>
-      <p className="wt-why">{moduleWords(modules.analytics.why, ww)}</p>
       {modules.modules
         .filter((m) => m.why)
         .map((m) => (
@@ -437,17 +437,21 @@ function ModulesCard({
               />
               <span>{t("modules.rolesNotPeople", { module: m.module })}</span>
             </label>
-            <p className="wt-why">
-              {moduleWords(m.why ?? "", ww)}
-              {m.enabled && (
-                <>
-                  {" "}
-                  <Link href="/team">{t("modules.teamLink")}</Link>
-                </>
-              )}
-            </p>
+            {m.enabled && (
+              <p className="wt-why">
+                <Link href="/team">{t("modules.teamLink")}</Link>
+              </p>
+            )}
           </div>
         ))}
+      <WhyFold className="wt-fold">
+        <p>{moduleWords(modules.analytics.why, ww)}</p>
+        {modules.modules
+          .filter((m) => m.why)
+          .map((m) => (
+            <p key={m.module}>{moduleWords(m.why ?? "", ww)}</p>
+          ))}
+      </WhyFold>
     </SheetCard>
   );
 }
@@ -485,9 +489,7 @@ function SummaryCard({
         />
         <span>{t("switch")}</span>
       </label>
-      <p className="wt-why">
-        {t("lede")} {status}
-      </p>
+      <p className="wt-why">{status}</p>
       {summary.owner && summary.whatsapp && (
         <WhatsAppSettings summary={summary} onChanged={onChanged} />
       )}
@@ -787,7 +789,6 @@ export function WatchScreen({ reading }: { reading: WatchReading | null }) {
       title={title}
       notes={
         <>
-          <p>{t("notes.hold")}</p>
           <p className="wt-live">
             <span className="wt-sq" aria-hidden="true" />
             {conns > 0 ? (

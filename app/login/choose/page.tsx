@@ -5,6 +5,8 @@
 // only, never anything inside a business — and each is a plain form post
 // to /api/auth/switch. The one you're signed in to already continues
 // straight in. "Add another business" makes a new one under the same email.
+// Decluttered 2026-11-09 on the owner's instruction: no sheet label or
+// instruction line; the one-business-never-shows-another note is folded.
 
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
@@ -51,16 +53,12 @@ export default async function ChooseBusinessPage({
       <main className="au-main">
         <section className="au-lede">
           <p className="au-kicker">{t("auth.choose.signedInAs", { email: session.email })}</p>
-          <h1 className="au-headline">{t("auth.choose.headline")}</h1>
+          <h1 className="au-headline" id="au-choose-h">
+            {t("auth.choose.headline")}
+          </h1>
         </section>
 
-        <section className="sheet au-sheet" aria-labelledby="au-sheet-title">
-          <header className="au-sheet-head">
-            <p className="au-sheet-label">{t("auth.choose.label")}</p>
-            <h2 className="au-sheet-title" id="au-sheet-title">
-              {t("auth.choose.title")}
-            </h2>
-          </header>
+        <section className="sheet au-sheet" aria-labelledby="au-choose-h">
           <div className="au-sheet-body">
             {error && (
               <p className="au-error" role="alert">
@@ -108,8 +106,11 @@ export default async function ChooseBusinessPage({
                 </span>
               </button>
             </form>
+            <details className="au-how">
+              <summary>{t("auth.how")}</summary>
+              <p>{t("auth.choose.foot")}</p>
+            </details>
           </div>
-          <footer className="au-sheet-foot">{t("auth.choose.foot")}</footer>
         </section>
       </main>
     </div>

@@ -252,7 +252,6 @@ describe("English stays what the screens said before (byte for byte)", () => {
     expect(t("auth.form.noteSignin", { minutes: 15 })).toBe(
       "No password. The link works once, for 15\u00a0minutes.",
     );
-    expect(t("auth.signup.takesDaysPending", { days: 7 })).toBe("[7] days");
   });
 
   it("formats the translated counts with the translator", () => {
@@ -303,10 +302,13 @@ describe("English stays what the screens said before (byte for byte)", () => {
       key: string,
       values?: Record<string, unknown>,
     ) => string;
-    expect(ru("auth.signup.takesDays", { days: 1 })).toBe("1 день");
-    expect(ru("auth.signup.takesDays", { days: 3 })).toBe("3 дня");
-    expect(ru("auth.signup.takesDays", { days: 5 })).toBe("5 дней");
-    expect(ru("auth.signup.takesDays", { days: 21 })).toBe("21 день");
+    // The sign-up steps' day count went with the steps (decluttered
+    // 2026-11-09); an invite's lifetime counts the same days.
+    const lasts = (days: number) => ru("invite.status.expired", { days });
+    expect(lasts(1)).toContain(" 1 день.");
+    expect(lasts(3)).toContain(" 3 дня.");
+    expect(lasts(5)).toContain(" 5 дней.");
+    expect(lasts(21)).toContain(" 21 день.");
   });
 });
 
