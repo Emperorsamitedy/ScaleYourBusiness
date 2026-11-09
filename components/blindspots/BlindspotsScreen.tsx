@@ -4,7 +4,9 @@
 // Phase 2 Session G (P2-32..37). What potential customers asked and
 // searched for, against what the business's own site shows them. Every
 // row names its counts and its sources; what isn't connected or checked
-// is said, not hidden. Read-only: a fix goes through the approval queue.
+// is said, not hidden. Read-only: a fix goes through the approval queue —
+// the steps folded under "How this works" (decluttered 2026-11-09 on the
+// owner's instruction).
 //
 // L-3b: the screen's own words are the "blindspots" catalogue; figures and
 // dates in the reader's locale. What the API words (a blindspot's label,
@@ -19,6 +21,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { useTranslations } from "next-intl";
+import { Fold } from "../sheet/Fold";
 import { PageHead, SheetCard } from "../sheet/PageHead";
 import { num } from "../sheet/num";
 import { useTr } from "../sheet/useTr";
@@ -217,31 +220,31 @@ function HowFixed({ fix }: { fix: string | null }) {
   const { tr } = useTr("blindspots");
   return (
     <SheetCard
-      label={tr("fixed.label")}
-      title={tr("fixed.title")}
+      title={tr("fixed.label")}
       foot={
         <span className="bs-foot-row">
-          <span>{tr("fixed.foot")}</span>
           <Link className="act" href="/site">
             {tr("fixed.link")}
           </Link>
         </span>
       }
     >
-      <ol className="bs-steps">
-        <li>
-          <span className="n">01</span>
-          <span>{tr("fixed.stepFix", { fix: fix ?? tr("fixed.fixDefault") })}</span>
-        </li>
-        <li>
-          <span className="n">02</span>
-          <span>{tr("fixed.stepWait")}</span>
-        </li>
-        <li>
-          <span className="n">03</span>
-          <span>{tr("fixed.stepRecheck", { days: RECHECK_DAYS })}</span>
-        </li>
-      </ol>
+      <Fold summary={tr("how")}>
+        <ol className="bs-steps">
+          <li>
+            <span className="n">01</span>
+            <span>{tr("fixed.stepFix", { fix: fix ?? tr("fixed.fixDefault") })}</span>
+          </li>
+          <li>
+            <span className="n">02</span>
+            <span>{tr("fixed.stepWait")}</span>
+          </li>
+          <li>
+            <span className="n">03</span>
+            <span>{tr("fixed.stepRecheck", { days: RECHECK_DAYS })}</span>
+          </li>
+        </ol>
+      </Fold>
     </SheetCard>
   );
 }
@@ -267,7 +270,7 @@ function Frame({
 function Coverage({ lines }: { lines: string[] }) {
   const { tr, locale } = useTr("blindspots");
   return (
-    <SheetCard label={tr("coverage.label")} title={tr("coverage.title")}>
+    <SheetCard title={tr("coverage.label")}>
       <ul className="bs-list">
         {lines.map((c) => (
           <li key={c}>
@@ -336,18 +339,11 @@ export function BlindspotsScreen() {
   return (
     <Frame title={headline(view, tr)} aside={aside}>
       {list.length > 0 ? (
-        <SheetCard
-          label={tr("list.label")}
-          title={tr("list.title", { count: list.length })}
-          meta={tr("list.meta")}
-        >
+        <SheetCard title={tr("list.title", { count: list.length })}>
           <BlindspotTable list={list} />
         </SheetCard>
       ) : (
-        <SheetCard
-          label={tr("list.label")}
-          title={view.site_checked_at ? tr("list.nothingMissing") : tr("list.nothingYet")}
-        >
+        <SheetCard title={view.site_checked_at ? tr("list.nothingMissing") : tr("list.nothingYet")}>
           <p className="bs-copy">
             {view.site_checked_at
               ? tr("list.allThere")
@@ -372,7 +368,7 @@ export function BlindspotsScreen() {
         (top && view.coverage.length > 0)) && (
         <div className="bs-grid">
           {view.hard_to_find.length > 0 && (
-            <SheetCard label={tr("hard.label")} title={tr("hard.title")}>
+            <SheetCard title={tr("hard.title")}>
               <ul className="bs-list">
                 {view.hard_to_find.map((h) => (
                   <li key={h.code}>
@@ -393,7 +389,7 @@ export function BlindspotsScreen() {
             </SheetCard>
           )}
           {view.seen_not_chosen.length > 0 && (
-            <SheetCard label={tr("seen.label")} title={tr("seen.title")}>
+            <SheetCard title={tr("seen.label")}>
               <div className="bs-table-wrap" tabIndex={0} aria-label={tr("seen.label")}>
                 <table className="rt">
                   <thead>
@@ -425,7 +421,7 @@ export function BlindspotsScreen() {
             </SheetCard>
           )}
           {view.topics.length > 0 && (
-            <SheetCard label={tr("topics.label")} title={tr("topics.title")}>
+            <SheetCard title={tr("topics.label")}>
               <ul className="bs-list">
                 {view.topics.map((tp) => (
                   <li key={tp.label}>

@@ -803,7 +803,8 @@
       "underLine": "unter der Linie",
       "when": "Wann",
       "cautiousCol": "Vorsichtiges Ende ({currency})",
-      "hopefulCol": "Zuversichtliches Ende ({currency})"
+      "hopefulCol": "Zuversichtliches Ende ({currency})",
+      "how": "So funktioniert es"
     },
     "market": {
       "kicker": "Erkenntnisse · Ihre Zahlen als Diagramm",
@@ -937,7 +938,8 @@
         "meta": "{source} · {noun} · BEOBACHTET",
         "foot": "Gegenüber Ihrer Medianwoche dieser {count, number}. Eine Saison braucht {needed, plural, one {# vollständige Woche} other {# vollständige Wochen}} der letzten {weeks, number}; Sie haben {have, number}.",
         "summary": "{count, plural, one {# vollständige Woche} other {# vollständige Wochen}} {noun}, gegenüber ihrem eigenen Median. Nicht genug Verlauf, um eine Saison zu benennen."
-      }
+      },
+      "how": "So funktioniert es"
     },
     "small": {
       "keyLabel": "Legende",
@@ -3007,7 +3009,6 @@
       "title": "Vergleich mit ähnlichen Unternehmen — SYB"
     },
     "kicker": "Erkenntnisse · Vergleich mit ähnlichen Unternehmen",
-    "kickerShort": "Vergleich mit ähnlichen Unternehmen",
     "aside": "Eurostat · nur lesend",
     "add": "{what} hinzufügen →",
     "addPeople": "Angeben, wie viele Personen hier arbeiten",
@@ -3055,7 +3056,8 @@
     "size": {
       "unknown": "Ich weiß nicht, wie viele Personen im Unternehmen arbeiten, deshalb umfasst die Gruppe alle Größen.",
       "spans": "Ihre Größe fällt in zwei Größenklassen von Eurostat, deshalb umfasst die Gruppe alle Größen."
-    }
+    },
+    "how": "So funktioniert es"
   },
   "blindspots": {
     "meta": {
@@ -3106,8 +3108,6 @@
     },
     "fixed": {
       "label": "Wie blinde Flecken behoben werden",
-      "title": "Mit Ihrer Freigabe, nie von selbst",
-      "foot": "Website-Änderungen warten unter „Website“.",
       "link": "Unter „Website“ prüfen →",
       "stepFix": "Eine Behebung ist {fix}.",
       "fixDefault": "eine Website-Änderung über die Freigabe-Warteschlange oder eine Antwort in Ihrem Support-Assistenten",
@@ -3115,8 +3115,7 @@
       "stepRecheck": "{days, plural, one {Ihre Website wird jeden Tag neu gelesen, sodass ein blinder Fleck, den sie jetzt abdeckt, von dieser Liste verschwindet.} other {Ihre Website wird alle # Tage neu gelesen, sodass ein blinder Fleck, den sie jetzt abdeckt, von dieser Liste verschwindet.}}"
     },
     "coverage": {
-      "label": "Was hier nicht sichtbar war",
-      "title": "Lücken, keine Fehler"
+      "label": "Was hier nicht sichtbar war"
     },
     "signedOut": {
       "title": "Hier gibt es noch kein Unternehmen.",
@@ -3134,9 +3133,7 @@
       "observed": "BEOBACHTET"
     },
     "list": {
-      "label": "Wonach Kunden gesucht haben, und was Ihre Website zeigt",
       "title": "{count, plural, one {# blinder Fleck, der größte zuerst} other {# blinde Flecken, die größten zuerst}}",
-      "meta": "Geordnet danach, wie viele Quellen darauf hinweisen, dann nach Häufigkeit",
       "nothingMissing": "Nichts fehlt",
       "nothingYet": "Noch nichts zu vergleichen",
       "allThere": "Alles, wonach Kunden gefragt oder gesucht haben und was ich zuordnen kann, steht auf Ihrer Website.",
@@ -3146,13 +3143,11 @@
     },
     "factSheet": "Faktenblatt",
     "hard": {
-      "label": "Auf Ihrer Website, und doch fragen Kunden immer wieder",
       "title": "Vielleicht schwer zu finden",
       "item": "<strong>{label}</strong>: {count, plural, one {# Mal} other {# Mal}} in Ihrem Support-Chat gefragt; es steht auf <link>{page}</link>."
     },
     "seen": {
       "label": "Bei Google gesehen, selten angeklickt",
-      "title": "Angezeigt, nicht gewählt",
       "search": "Suche",
       "shown": "Angezeigt",
       "clicked": "Angeklickt",
@@ -3160,9 +3155,9 @@
     },
     "topics": {
       "label": "Wonach sonst gesucht wurde",
-      "title": "Steht es auf Ihrer Website?",
       "item": "<strong>{label}</strong>: {count, plural, one {# Suche} other {# Suchen}} (z. B. {examples})"
-    }
+    },
+    "how": "So funktioniert es"
   },
   "carts": {
     "meta": {
@@ -3184,9 +3179,7 @@
     "ruledOut": "Ich habe das nicht in Ihre Warteschlange gelegt: Ihre Regel ({rule}) schließt es aus.",
     "products": {
       "label": "Was zurückgelassen wurde · {count, plural, one {# Warenkorb} other {# Warenkörbe}}",
-      "titleSome": "Was in den meisten Warenkörben lag, zuerst",
       "titleNone": "Kein Produkt zu nennen",
-      "meta": "Gemessen an den eigenen Bestellvorgängen Ihres Shops",
       "table": "In Warenkörben zurückgelassene Produkte",
       "product": "Produkt",
       "inCarts": "In Warenkörben",
@@ -3210,11 +3203,9 @@
     },
     "consent": {
       "label": "Wer per E-Mail erreichbar ist",
-      "title": "Nur Personen, die Ja gesagt haben",
       "checkout": "Wer beim Bestellvorgang von Shopify „E-Mails an mich“ ankreuzt, wird ein Kontakt mit diesem erfassten Ja, sobald SYB Ihre Shopify-Kunden lesen darf. Ein Ja, das Sie selbst erfasst haben, weicht nur einer späteren Abmeldung in Shopify."
     },
     "refusal": {
-      "label": "Abgebrochene Warenkörbe",
       "noneRead": "Ich habe noch keine Warenkörbe gelesen.",
       "rule": "Ich messe, sobald es Warenkörbe aus {days} Tagen gibt und in den letzten {window} Tagen {carts} Warenkörbe zurückgelassen wurden, damit eine ruhige Woche nicht als Muster gelesen wird."
     },
@@ -3237,7 +3228,9 @@
       "sent": "Versendet",
       "declined": "Abgelehnt",
       "expired": "Abgelaufen"
-    }
+    },
+    "how": "So funktioniert es",
+    "why": "Warum?"
   },
   "cash": {
     "meta": {
@@ -3259,12 +3252,10 @@
       "nothing": "Noch nichts, worauf sich eine Prognose stützen könnte",
       "readyOn": "Bereit ab etwa {day}, wenn die Synchronisierungen weiterlaufen",
       "gapLabel": "Was ich schon sagen kann und was noch nicht",
-      "gapTitle": "Ehrlich über die Lücke",
       "can": "Ich kann",
       "cannot": "Ich kann noch nicht"
     },
     "warning": {
-      "label": "Wenn das Geld knapp wird",
       "titleTight": "Die erste knappe Woche",
       "titleNone": "Keine knappe Woche in den nächsten {weeks}",
       "metaBuffer": "Gemessen am Mindestbetrag, den Sie auf dem Bankkonto haben möchten",
@@ -3275,7 +3266,6 @@
     },
     "weeks": {
       "label": "Woche für Woche",
-      "title": "Geld rein, Geld raus, der Kontostand",
       "meta": "Vorsichtig – zuversichtlich, ganze Einheiten",
       "week": "Woche",
       "moneyIn": "Eingänge",
@@ -3287,7 +3277,6 @@
       "under": "UNTER DER LINIE"
     },
     "scenarios": {
-      "label": "Szenarien · nebeneinander",
       "title": "Was wäre, wenn…",
       "meta": "Jedes rechnet dieselbe Prognose mit einer Änderung",
       "form": "Größe der Szenarien",
@@ -3310,7 +3299,6 @@
       "assumed": "ANGENOMMEN · {text}"
     },
     "sources": {
-      "label": "Worauf das beruht",
       "title": "Quellen und was ich angenommen habe",
       "meta": "Verlauf {from} bis {to}",
       "input": "Eingabe",
@@ -3334,7 +3322,9 @@
       "twelfth": "{item} (ein Zwölftel)",
       "signedRange": "{low} bis {high}",
       "chartLabel": "Die nächsten {weeks} Wochen · Kontostand am Ende jeder Woche"
-    }
+    },
+    "how": "So funktioniert es",
+    "details": "Einzelheiten"
   },
   "competitors": {
     "meta": {
@@ -3373,8 +3363,6 @@
       "label": "Wen ich beobachte",
       "nobody": "Noch niemanden",
       "count": "{count, plural, one {# Wettbewerber} other {# Wettbewerber}}",
-      "meta": "Deren öffentliche Seiten, wöchentlich gelesen",
-      "foot": "Die Namen stammen aus Ihren Antworten im Interview und aus dem, was Sie hier hinzufügen.",
       "addOne": "Einen Wettbewerber hinzufügen →",
       "add": "Hinzufügen",
       "empty": "Sagen Sie mir, mit wem Sie im Wettbewerb stehen: deren Website und die Buchungs- oder Eintragsseite, auf der ihre Preise stehen. Ich lese diese Seiten und sonst nichts.",
@@ -3391,7 +3379,6 @@
       "remove": "Entfernen"
     },
     "changes": {
-      "label": "Letzte Änderungen",
       "none": "Noch hat sich nichts bewegt",
       "title": "Was sich bewegt hat",
       "empty": "Jede Woche vergleiche ich ihre Seiten mit dem letzten Lesestand. Eine Preissenkung oder -erhöhung, ein neues oder weggefallenes Angebot oder eine veränderte Bewertungsnote erscheint hier und unter „Beobachtung“."
@@ -3442,7 +3429,8 @@
       "failedTitle": "Die Wettbewerber konnten nicht geladen werden.",
       "failedCopy": "Bei uns ist etwas schiefgelaufen. Laden Sie die Seite neu, um es erneut zu versuchen.",
       "loading": "Es wird gelesen, was ich über Ihre Wettbewerber weiß…"
-    }
+    },
+    "how": "So funktioniert es"
   },
   "goals": {
     "meta": {
@@ -3562,7 +3550,6 @@
     },
     "daysRange": "{from} bis {to}",
     "read": {
-      "label": "Auswertung",
       "none": "An den gemessenen Tagen fällt bei Ihren Öffnungszeiten nichts auf. Die Beobachtung prüft jede Woche erneut.",
       "closing": {
         "head": "Die letzte Stunde, {days}",
@@ -3610,7 +3597,6 @@
     "trials": {
       "title": "Testphasen",
       "none": "Noch kein Vorschlag",
-      "body": "Ein Signal ist nie eine Änderung auf gut Glück. Es wird zu einer vierwöchigen Testphase unter „Wartet auf Sie“, mit ihren Zahlen, und nichts ändert Ihre Öffnungszeiten, außer Sie selbst.",
       "waiting": "Wartet auf Sie →"
     },
     "signedOut": {
@@ -3628,7 +3614,6 @@
       "notYet": "Noch nicht: {reason}."
     },
     "needs": {
-      "label": "Marge nach Stunde",
       "title": "Was dafür nötig ist",
       "body": "Ihre Öffnungszeiten aus dem Interview, Ihre Zeitzone und stündliche Kartenumsätze aus einer verbundenen Kasse, einem Zahlungskonto oder einem Onlineshop."
     },
@@ -3658,7 +3643,8 @@
       "legend": "ABGELEITET. Schraffiert = geschlossen. Einnahmen, keine Marge.",
       "unparsed": "Nicht lesbar: {list}.",
       "wrong": "Falsche Öffnungszeiten? Ändern Sie Ihre Antwort im <link>Faktenblatt</link>."
-    }
+    },
+    "how": "So funktioniert es"
   },
   "patterns": {
     "meta": {
@@ -3670,7 +3656,6 @@
       "nothing": "Noch nichts gemessen, woraus sich Ihre Saisons ablesen ließen."
     },
     "seasons": {
-      "label": "Ihre Saisons",
       "nothing": "Noch nichts gemessen",
       "noData": "{connect}. Ich lese Ihre Saisons nur aus Ihrem eigenen Verlauf. <link>Verbindungen</link>"
     },
@@ -3682,7 +3667,6 @@
     },
     "gap": {
       "label": "Was ich schon sagen kann und was noch nicht",
-      "title": "Ehrlich über die Lücke",
       "can": "Ich kann",
       "cannot": "Ich kann noch nicht"
     },
@@ -3702,7 +3686,6 @@
       "quiet": "ruhig"
     },
     "months": {
-      "label": "Die Monate · {count, number} aus dem letzten Jahr",
       "title": "Jeder Monat auf eine Woche umgerechnet",
       "meta": "Monate mit {days, number} oder mehr gemessenen Tagen"
     },
@@ -3721,7 +3704,6 @@
     },
     "read": {
       "label": "Wie ich es lese",
-      "title": "Ihr eigener Verlauf, nichts geborgt",
       "otherCurrencies": "Ihre {noun} in {currencies} sind weggelassen: Geld in zwei Währungen wird nie zusammengezählt."
     },
     "count": {
@@ -3789,7 +3771,9 @@
     },
     "connections": "Verbindungen",
     "held": "Ein Vorschlag ist ein Entwurf für Sie: beide Artikel zum vollen Preis, ohne Rabatt. Ich ändere weder Ihren Shop noch Ihren Bestellvorgang — das Paar richten Sie selbst ein.",
-    "waiting": "Wartet auf Sie"
+    "waiting": "Wartet auf Sie",
+    "how": "So funktioniert es",
+    "why": "Warum?"
   },
   "pipeline": {
     "meta": {
@@ -3836,7 +3820,6 @@
     },
     "board": {
       "label": "Die Übersicht · {count} offen",
-      "title": "Phasen als Spalten, der längste in seiner Phase zuerst",
       "empty": "Noch keine Deals. Fügen Sie unten einen hinzu oder importieren Sie Ihre Tabelle.",
       "aria": "Deals nach Phase",
       "median": "Median {median} T. · ältester {oldest} T.",
@@ -3857,7 +3840,6 @@
     },
     "quiet": {
       "label": "Still geworden · {count}",
-      "title": "Kein nächster Schritt, oder ein nächster Schritt über dem Termin",
       "held": "Ich entwerfe eine Nachfass-E-Mail nur für einen Kontakt, der Ja zu E-Mails gesagt hat. Nichts wird versendet: Sie senden sie selbst.",
       "propose": "Nachfassen vorschlagen",
       "nothing": "Nichts Neues vorzuschlagen.",
@@ -3895,7 +3877,6 @@
       "cant": "Ich kann noch nicht",
       "ready": "Bereit {when}.",
       "stateRate": "Ihre Abschlussquote angeben",
-      "title": "Offener Wert, gewichtet mit Ihrer eigenen Abschlussquote",
       "currency": "Währung",
       "deals": "Deals",
       "open": "Offen",
@@ -3908,7 +3889,6 @@
     },
     "add": {
       "label": "Einen Deal hinzufügen",
-      "title": "Mit wem, und worum es geht",
       "foot": "Ein neuer Kontakt wird mit der Einwilligung UNSICHER erfasst: Ein Verkaufsgespräch ist keine Erlaubnis, ihm Werbung zu schicken.",
       "added": "Hinzugefügt.",
       "company": "Firma",
@@ -3928,7 +3908,6 @@
     },
     "import": {
       "label": "Import",
-      "title": "Deals aus einer Tabelle, unter Ihrer Bestätigung",
       "foot": "Spalten, die ich lese: {columns}.",
       "lede": "Eine Deal-Datei bringt Personen mit, deshalb wird sie wie eine Kundenliste übernommen: Sie geben an, worin die Personen darin eingewilligt haben und wie, und diese Angabe wird bei jedem Kontakt hinterlegt, den sie hinzufügt. Kontakte, die Sie schon haben, behalten ihre Einwilligung; eine gelöschte oder abgemeldete Adresse wird abgewiesen.",
       "done": "{count, plural, one {# Deal importiert.} other {# Deals importiert.}}",
@@ -3973,7 +3952,9 @@
         "rejected": "abgelehnt",
         "changes_requested": "Änderungen erbeten"
       }
-    }
+    },
+    "how": "So funktioniert es",
+    "why": "Warum?"
   },
   "reviews": {
     "meta": {
@@ -5860,7 +5841,6 @@
     },
     "refused": {
       "readyOn": "Bereit etwa am {day}, wenn weiter Daten eingehen.",
-      "label": "Besetzung nach Stunde",
       "title": "Noch nicht genug zum Auswerten",
       "can": "Ich kann",
       "cannot": "Ich kann noch nicht",
@@ -5868,7 +5848,6 @@
     },
     "roles": {
       "label": "Rollen",
-      "title": "Aus der Angabe, wer im Unternehmen arbeitet",
       "none": "Noch keine Rollen. Sie stammen aus dem Interview: wer im Unternehmen arbeitet und mit wie vielen Stunden pro Woche. <link>Faktenblatt</link>",
       "notStated": "Stunden nicht angegeben",
       "perWeek": "{hours} Std. / Woche",
@@ -5885,12 +5864,9 @@
       "onAverage": "im Dienst, durchschnittliche Stunde"
     },
     "ok": {
-      "basis": "Letzte {weeks, plural, one {# Woche} other {# Wochen}} · {from} bis {to} · {demand}",
-      "capacity": "angegebene Kapazität {perWeek} pro Woche (Ihre Antwort)",
       "noCapacity": "keine Kapazität in Geld, daher wird nichts knapp",
       "labelBookings": "Gebucht gegenüber angegebener Kapazität, nach Rolle",
       "labelTakings": "Einnahmen nach Stunde, nach Rolle",
-      "title": "Besetzung nach Rolle und Stunde",
       "legend": "Legende",
       "legendShort": "wird knapp ≥ {pct}",
       "legendCovered": "abgedeckt",
@@ -5903,21 +5879,17 @@
       "noDay": "Noch kein geöffneter Wochentag ausgewertet."
     },
     "reading": {
-      "label": "Auswertung",
       "none": "Nichts fällt auf",
-      "some": "Wo die Besetzung knapp wird oder ruhig ist",
-      "noneBody": "An den ausgewerteten Tagen wird keine Öffnungsstunde gegenüber Ihrer angegebenen Kapazität knapp oder ist ruhig."
+      "some": "Wo die Besetzung knapp wird oder ruhig ist"
     },
     "band": {
       "short": "Wird knapp",
       "quiet": "Ruhig"
     },
     "notes": {
-      "label": "Hinweise für Sie",
-      "title": "Von Ihnen abzuwägen"
+      "label": "Hinweise für Sie"
     },
     "built": {
-      "label": "Grundlage",
       "title": "Quellen und Annahmen",
       "body": "{days, plural, one {# Geschäftstag} other {# Geschäftstage}} aus {demand} gelesen, {from} bis {to}; insgesamt {history, plural, one {# Tag} other {# Tage}} Verlauf.",
       "capacity": "Angegebene Kapazität {perWeek} pro Woche über {hours} Öffnungsstunden.",
@@ -5935,7 +5907,9 @@
     "off": {
       "title": "Das Team-Modul ist aus.",
       "body": "Es bleibt aus, bis Sie es einschalten, unter „Module“ auf <link>Beobachtung</link>. Eingeschaltet liest es, wann die Woche mehr Besetzung braucht oder mehr hat, als sie braucht – nach Rolle und Stunde, und nie etwas über eine Person."
-    }
+    },
+    "how": "So funktioniert es",
+    "why": "Warum?"
   },
   "people": {
     "label": "Personen",
@@ -5979,7 +5953,6 @@
     },
     "capacity": {
       "label": "Termine pro Woche, die diese Person übernehmen kann",
-      "hint": "Ihre eigene Angabe. Die Auslastung wird nur daran gemessen.",
       "save": "Speichern",
       "clear": "Löschen",
       "invalid": "Eine ganze Zahl von {min} bis {max}."
@@ -5991,7 +5964,9 @@
       "no": "Behalten",
       "done": "Entfernt. {count, plural, one {# Termin bleibt} other {# Termine bleiben}} ohne Namen in den Zahlen des Unternehmens."
     },
-    "failed": "Bei uns ist etwas schiefgelaufen. Es wurde nichts geändert."
+    "failed": "Bei uns ist etwas schiefgelaufen. Es wurde nichts geändert.",
+    "how": "So funktioniert es",
+    "fence": "Fakten über die Arbeit. Nichts hier wird je zu einem Vorschlag über eine Person."
   },
   "teamAccess": {
     "meta": {

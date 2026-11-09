@@ -1,0 +1,28 @@
+/* components/sheet/Fold.tsx: the closed-by-default "How this works" line. */
+.fold {
+  margin: 10px 0 0;
+}
+.fold > summary {
+  cursor: pointer;
+  width: fit-content;
+  min-height: 24px;
+  font-family: var(--f-mono);
+  font-size: 11.5px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--mut);
+}
+.fold > summary:hover {
+  color: var(--ink);
+}
+.fold > summary:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+.fold-body {
+  margin-top: 6px;
+  max-width: var(--measure);
+}
+.fold-body > :first-child {
+  margin-top: 0;
+}

@@ -8,7 +8,9 @@
 //
 // Read-only (rule 26): there is no button that pays, moves, transfers or
 // collects anything, and no proposal is made here. The planning-aid note
-// and the sources line are on the page in every state, refusals included.
+// and the sources line are on the page in every state, refusals included,
+// folded under "How this works" (decluttered 2026-11-09 on the owner's
+// instruction): reachable on every visit, read out on none (rule 25).
 //
 // L-3b: the screen's fixed words are the "cash" catalogue; figures and
 // dates in the reader's locale, in the business's currency. L-4b: what the
@@ -28,6 +30,7 @@ import { minorUnitExponent } from "../../lib/core/money";
 import { CashChart } from "../charts/CashChart";
 import { basisName } from "../report/basis";
 import { num } from "../sheet/num";
+import { Fold } from "../sheet/Fold";
 import { PageHead, SheetCard } from "../sheet/PageHead";
 import { useTr } from "../sheet/useTr";
 import type { CashWords, SentenceWords } from "./cash-view";
@@ -68,8 +71,12 @@ function Frame({
   return (
     <main className="screen cf-screen">
       <PageHead kicker={tr("kicker")} title={title} aside={tr("aside")}>
-        <p className="cf-note">{tr("planningNote")}</p>
-        <p className="cf-note">{forecast ? sourcesLine(forecast, sentences) : tr("sourcesNone")}</p>
+        <Fold summary={tr("how")}>
+          <p className="cf-note">{tr("planningNote")}</p>
+          <p className="cf-note">
+            {forecast ? sourcesLine(forecast, sentences) : tr("sourcesNone")}
+          </p>
+        </Fold>
       </PageHead>
       {children}
     </main>
@@ -112,20 +119,20 @@ function Refused({ f }: { f: Extract<CashForecast, { status: "refused" }> }) {
             ))}
           </ul>
         )}
-      </SheetCard>
-      <SheetCard label={tr("refused.gapLabel")} title={tr("refused.gapTitle")}>
-        <p className="cf-sub">{tr("refused.can")}</p>
-        <ul className="cf-list">
-          {f.can.map((c) => (
-            <li key={c}>{c}</li>
-          ))}
-        </ul>
-        <p className="cf-sub">{tr("refused.cannot")}</p>
-        <ul className="cf-list">
-          {f.cannot.map((c) => (
-            <li key={c}>{c}</li>
-          ))}
-        </ul>
+        <Fold summary={tr("refused.gapLabel")}>
+          <p className="cf-sub">{tr("refused.can")}</p>
+          <ul className="cf-list">
+            {f.can.map((c) => (
+              <li key={c}>{c}</li>
+            ))}
+          </ul>
+          <p className="cf-sub">{tr("refused.cannot")}</p>
+          <ul className="cf-list">
+            {f.cannot.map((c) => (
+              <li key={c}>{c}</li>
+            ))}
+          </ul>
+        </Fold>
       </SheetCard>
     </div>
   );
@@ -137,7 +144,6 @@ function Warning({ view, f }: { view: CashView; f: CashReady }) {
   const rich = useTranslations("cash");
   return (
     <SheetCard
-      label={tr("warning.label")}
       title={
         t
           ? tr("warning.titleTight")
@@ -145,7 +151,7 @@ function Warning({ view, f }: { view: CashView; f: CashReady }) {
       }
       meta={f.line.kind === "buffer" ? tr("warning.metaBuffer") : tr("warning.metaZero")}
     >
-      {t ? (
+      {t && (
         <>
           <p className="cf-copy cf-strong">{t.sentence}</p>
           <ul className="cf-list">
@@ -154,20 +160,18 @@ function Warning({ view, f }: { view: CashView; f: CashReady }) {
             ))}
           </ul>
         </>
-      ) : (
-        <p className="cf-copy">{tr("warning.none")}</p>
       )}
-      <p className="cf-copy cf-quiet">
-        {tr("warning.reading")}
-        {f.line.kind === "zero" && (
-          <>
-            {" "}
-            {rich.rich("warning.askBuffer", {
-              link: (c) => <Link href="/intake?ask=5.3f">{c}</Link>,
-            })}
-          </>
-        )}
-      </p>
+      {f.line.kind === "zero" && (
+        <p className="cf-copy">
+          {rich.rich("warning.askBuffer", {
+            link: (c) => <Link href="/intake?ask=5.3f">{c}</Link>,
+          })}
+        </p>
+      )}
+      <Fold summary={tr("how")}>
+        {!t && <p className="cf-copy">{tr("warning.none")}</p>}
+        <p className="cf-copy cf-quiet">{tr("warning.reading")}</p>
+      </Fold>
     </SheetCard>
   );
 }
@@ -177,7 +181,7 @@ function Weeks({ f }: { f: CashReady }) {
   const { tr } = words;
   const rows = weekRows(f, words);
   return (
-    <SheetCard label={tr("weeks.label")} title={tr("weeks.title")} meta={tr("weeks.meta")}>
+    <SheetCard title={tr("weeks.label")} meta={tr("weeks.meta")}>
       <div className="cf-wrap">
         <table className="rt rt-stack cf-weeks">
           <thead>
@@ -269,11 +273,7 @@ function Scenarios({
     { key: "tight", label: tr("scenarios.firstTight"), pick: (c) => c.tight },
   ];
   return (
-    <SheetCard
-      label={tr("scenarios.label")}
-      title={tr("scenarios.title")}
-      meta={tr("scenarios.meta")}
-    >
+    <SheetCard title={tr("scenarios.title")}>
       <form className="cf-form" onSubmit={submit} aria-label={tr("scenarios.form")}>
         <label>
           <span>{tr("scenarios.slow")}</span>
@@ -390,15 +390,18 @@ function Scenarios({
           </tbody>
         </table>
       </div>
-      <ul className="cf-list cf-quiet">
-        {(view.scenarios ?? []).flatMap((c) =>
-          c.status === "ready"
-            ? c.result.assumptions.map((a) => (
-                <li key={c.result.kind + a}>{tr("scenarios.assumed", { text: a })}</li>
-              ))
-            : [],
-        )}
-      </ul>
+      <Fold summary={tr("how")}>
+        <p className="cf-copy cf-quiet">{tr("scenarios.meta")}</p>
+        <ul className="cf-list cf-quiet">
+          {(view.scenarios ?? []).flatMap((c) =>
+            c.status === "ready"
+              ? c.result.assumptions.map((a) => (
+                  <li key={c.result.kind + a}>{tr("scenarios.assumed", { text: a })}</li>
+                ))
+              : [],
+          )}
+        </ul>
+      </Fold>
     </SheetCard>
   );
 }
@@ -408,64 +411,65 @@ function Sources({ f }: { f: CashReady }) {
   const { sheet } = useSentenceWords();
   return (
     <SheetCard
-      label={tr("sources.label")}
       title={tr("sources.title")}
       meta={tr("sources.meta", {
         from: forecastDay(f.pattern.from, locale),
         to: forecastDay(f.pattern.to, locale),
       })}
     >
-      <table className="rt rt-stack cf-sources">
-        <thead>
-          <tr>
-            <th scope="col">{tr("sources.input")}</th>
-            <th scope="col">{tr("sources.value")}</th>
-            <th scope="col">{tr("sources.basis")}</th>
-            <th scope="col">{tr("sources.cameFrom")}</th>
-          </tr>
-        </thead>
-        <tbody>
-          {f.sources.map((s) => (
-            <tr key={s.key}>
-              <th scope="row">{s.label}</th>
-              <td data-label={tr("sources.value")}>{s.value}</td>
-              <td data-label={tr("sources.basis")}>
-                {s.basis ? <span className="flag">{basisName(s.basis, sheet)}</span> : "—"}
-              </td>
-              <td data-label={tr("sources.from")}>{s.source}</td>
+      <Fold summary={tr("details")}>
+        <table className="rt rt-stack cf-sources">
+          <thead>
+            <tr>
+              <th scope="col">{tr("sources.input")}</th>
+              <th scope="col">{tr("sources.value")}</th>
+              <th scope="col">{tr("sources.basis")}</th>
+              <th scope="col">{tr("sources.cameFrom")}</th>
             </tr>
+          </thead>
+          <tbody>
+            {f.sources.map((s) => (
+              <tr key={s.key}>
+                <th scope="row">{s.label}</th>
+                <td data-label={tr("sources.value")}>{s.value}</td>
+                <td data-label={tr("sources.basis")}>
+                  {s.basis ? <span className="flag">{basisName(s.basis, sheet)}</span> : "—"}
+                </td>
+                <td data-label={tr("sources.from")}>{s.source}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+        <p className="cf-sub">{tr("sources.assumedByName")}</p>
+        <ul className="cf-list">
+          {f.assumptions.map((a) => (
+            <li key={a}>{tr("scenarios.assumed", { text: a })}</li>
           ))}
-        </tbody>
-      </table>
-      <p className="cf-sub">{tr("sources.assumedByName")}</p>
-      <ul className="cf-list">
-        {f.assumptions.map((a) => (
-          <li key={a}>{tr("scenarios.assumed", { text: a })}</li>
-        ))}
-      </ul>
-      {f.left_out.length > 0 && (
-        <>
-          <p className="cf-sub">{tr("sources.leftOut")}</p>
-          <ul className="cf-list">
-            {f.left_out.map((l) => (
-              <li key={l}>{l}</li>
-            ))}
-          </ul>
-        </>
-      )}
-      {f.needs.length > 0 && (
-        <>
-          <p className="cf-sub">{tr("sources.sharpen")}</p>
-          <ul className="cf-list">
-            {f.needs.map((n) => (
-              <li key={n.href + n.what}>
-                <Link href={n.href}>{n.what}</Link>
-              </li>
-            ))}
-          </ul>
-        </>
-      )}
-      <p className="cf-copy cf-quiet">{tr("sources.yours")}</p>
+        </ul>
+        {f.left_out.length > 0 && (
+          <>
+            <p className="cf-sub">{tr("sources.leftOut")}</p>
+            <ul className="cf-list">
+              {f.left_out.map((l) => (
+                <li key={l}>{l}</li>
+              ))}
+            </ul>
+          </>
+        )}
+        {f.needs.length > 0 && (
+          <>
+            <p className="cf-sub">{tr("sources.sharpen")}</p>
+            <ul className="cf-list">
+              {f.needs.map((n) => (
+                <li key={n.href + n.what}>
+                  <Link href={n.href}>{n.what}</Link>
+                </li>
+              ))}
+            </ul>
+          </>
+        )}
+        <p className="cf-copy cf-quiet">{tr("sources.yours")}</p>
+      </Fold>
     </SheetCard>
   );
 }

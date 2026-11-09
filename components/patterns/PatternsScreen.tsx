@@ -12,6 +12,8 @@
 //
 // Read-only. "Propose this pair" drafts one proposal; nothing runs, no price
 // changes and the checkout is never touched — the owner sets a pair up.
+// Thresholds, windows, the method and that promise sit folded under "How I
+// read it" / "How this works" (decluttered 2026-11-09, the owner's instruction).
 //
 // L-3b: the screen's own words are the "patterns" catalogue, the chart's
 // "charts.season"; what lib/seasons and lib/bundles word (headlines, the
@@ -28,6 +30,7 @@ import type { BundleSource } from "../../lib/bundles/load";
 import { shortDate } from "../../lib/charts/model";
 import { monthYear } from "../../lib/i18n/format";
 import { SeasonChart } from "../charts/SeasonChart";
+import { Fold } from "../sheet/Fold";
 import { PageHead, SheetCard } from "../sheet/PageHead";
 import { num } from "../sheet/num";
 import { useTr } from "../sheet/useTr";
@@ -81,7 +84,7 @@ function Seasons({ view }: { view: PatternsView }) {
   const chart = seasonChartModel(r, chartWords);
   if (r.status === "no_data") {
     return (
-      <SheetCard label={tr("seasons.label")} title={tr("seasons.nothing")}>
+      <SheetCard title={tr("seasons.nothing")}>
         <p className="pt-copy">
           {t.rich("seasons.noData", {
             connect: view.seasons.connect,
@@ -95,22 +98,20 @@ function Seasons({ view }: { view: PatternsView }) {
     return (
       <>
         {chart && <SeasonChart model={chart} />}
-        <div className="pt-grid">
-          <SheetCard
-            label={tr("tooLittle.label", { source: r.series.source })}
-            title={tr("tooLittle.title", {
-              days: r.covered_days,
-              from: shortDate(r.first_day, locale),
-              to: shortDate(r.last_day, locale),
-            })}
-            meta={tr("tooLittle.meta", { have: r.complete_weeks, needed: r.needed_weeks })}
-          >
+        <SheetCard
+          label={tr("tooLittle.label", { source: r.series.source })}
+          title={tr("tooLittle.title", {
+            days: r.covered_days,
+            from: shortDate(r.first_day, locale),
+            to: shortDate(r.last_day, locale),
+          })}
+          meta={tr("tooLittle.meta", { have: r.complete_weeks, needed: r.needed_weeks })}
+        >
+          <p className="pt-copy">
+            {tr("tooLittle.readyOn", { day: shortDate(r.ready_on, locale) })}
+          </p>
+          <Fold summary={tr("gap.label")}>
             <p className="pt-copy">{r.headline}</p>
-            <p className="pt-copy">
-              {tr("tooLittle.readyOn", { day: shortDate(r.ready_on, locale) })}
-            </p>
-          </SheetCard>
-          <SheetCard label={tr("gap.label")} title={tr("gap.title")}>
             <p className="pt-sub">{tr("gap.can")}</p>
             <ul className="pt-list">
               {r.can.map((c) => (
@@ -123,8 +124,8 @@ function Seasons({ view }: { view: PatternsView }) {
                 <li key={c}>{c}</li>
               ))}
             </ul>
-          </SheetCard>
-        </div>
+          </Fold>
+        </SheetCard>
       </>
     );
   }
@@ -137,7 +138,6 @@ function Seasons({ view }: { view: PatternsView }) {
         <SheetCard
           label={tr("ahead.label", { count: rows.length })}
           title={r.upcoming.length === 0 ? tr("ahead.none") : aheadTitle(r.upcoming[0]!, w)}
-          meta={tr("ahead.meta", { weeks: WEEKS_BACK })}
         >
           {r.upcoming.map((u) => (
             <p className="pt-copy pt-strong" key={u.run.start}>
@@ -174,11 +174,7 @@ function Seasons({ view }: { view: PatternsView }) {
             </tbody>
           </table>
         </SheetCard>
-        <SheetCard
-          label={tr("months.label", { count: r.months.length })}
-          title={tr("months.title")}
-          meta={tr("months.meta", { days: MONTH_DAYS })}
-        >
+        <SheetCard title={tr("months.title")}>
           <table className="rt rt-stack pt-months">
             <thead>
               <tr>
@@ -203,8 +199,10 @@ function Seasons({ view }: { view: PatternsView }) {
           </table>
         </SheetCard>
       </div>
-      <SheetCard label={tr("read.label")} title={tr("read.title")}>
+      <Fold summary={tr("read.label")}>
         <ul className="pt-list">
+          <li>{tr("ahead.meta", { weeks: WEEKS_BACK })}</li>
+          <li>{tr("months.meta", { days: MONTH_DAYS })}</li>
           {r.notes.map((n) => (
             <li key={n}>{n}</li>
           ))}
@@ -214,7 +212,7 @@ function Seasons({ view }: { view: PatternsView }) {
             </li>
           )}
         </ul>
-      </SheetCard>
+      </Fold>
     </>
   );
 }
@@ -241,7 +239,9 @@ function Pairs({
   if (r.status === "too_few") {
     return (
       <SheetCard label={label} title={tr("pairs.tooFew", { amount: amount(r.baskets) })}>
-        <p className="pt-copy">{tr("pairs.tooFewBody", { amount: amount(r.needed) })}</p>
+        <Fold summary={tr("why")}>
+          <p className="pt-copy">{tr("pairs.tooFewBody", { amount: amount(r.needed) })}</p>
+        </Fold>
       </SheetCard>
     );
   }
@@ -265,12 +265,18 @@ function Pairs({
           ? tr("pairs.none")
           : tr("pairs.some", { count: source.pairs.length })
       }
-      meta={tr("pairs.meta", {
-        amount: amount(r.baskets),
-        from: longDate(source.from, locale),
-        to: longDate(source.to, locale),
-      })}
-      foot={`${rule} ${below}`}
+      foot={
+        <Fold summary={tr("how")}>
+          <p>
+            {tr("pairs.meta", {
+              amount: amount(r.baskets),
+              from: longDate(source.from, locale),
+              to: longDate(source.to, locale),
+            })}
+          </p>
+          <p>{`${rule} ${below}`}</p>
+        </Fold>
+      }
     >
       {source.pairs.length === 0 ? (
         <p className="pt-copy">
@@ -427,7 +433,7 @@ export function PatternsScreen() {
       <Seasons view={view} />
       <h2 className="pt-section">{tr("bundles.section")}</h2>
       {sources.length === 0 ? (
-        <SheetCard label={tr("bundles.section")} title={tr("bundles.emptyTitle")}>
+        <SheetCard title={tr("bundles.emptyTitle")}>
           <p className="pt-copy">
             {tr("bundles.emptyBody")}
             {view.bundles.without_lines.length > 0 &&
@@ -447,14 +453,21 @@ export function PatternsScreen() {
         ))
       )}
       {sources.some((s) => s.pairs.length > 0) && (
-        <p className="pt-copy pt-held">
-          {view.held ?? tr("held")}{" "}
-          {note && (
-            <>
-              {note} <Link href="/proposals">{tr("waiting")}</Link>
-            </>
+        <>
+          {(view.held || note) && (
+            <p className="pt-copy pt-held">
+              {view.held && `${view.held} `}
+              {note && (
+                <>
+                  {note} <Link href="/proposals">{tr("waiting")}</Link>
+                </>
+              )}
+            </p>
           )}
-        </p>
+          <Fold summary={tr("how")}>
+            <p className="pt-copy pt-held">{tr("held")}</p>
+          </Fold>
+        </>
       )}
     </Frame>
   );

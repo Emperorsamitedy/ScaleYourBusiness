@@ -16,11 +16,17 @@
 // role refusal and this renders nothing. With the team module off it also
 // renders nothing; the cover screen above already says how to switch it on.
 // The owner may state a person's weekly capacity, and remove a person.
+//
+// Decluttered 2026-11-09 on the owner's instruction: one short line under
+// the title says these are facts about the work and never a proposal about
+// a person; the longer framing, the source and window, and the gaps sit
+// folded under "How this works".
 
 import "../../app/people.css";
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
+import { Fold } from "../sheet/Fold";
 import { SheetCard } from "../sheet/PageHead";
 import { moneyText, num } from "../sheet/num";
 import { useTr } from "../sheet/useTr";
@@ -245,11 +251,11 @@ function PersonCard({
             {tr("capacity.clear")}
           </button>
         )}
-        <p className="pp-hint">
-          {invalid
-            ? tr("capacity.invalid", { min: num(CAP_MIN, 0, locale), max: num(CAP_MAX, 0, locale) })
-            : tr("capacity.hint")}
-        </p>
+        {invalid && (
+          <p className="pp-hint">
+            {tr("capacity.invalid", { min: num(CAP_MIN, 0, locale), max: num(CAP_MAX, 0, locale) })}
+          </p>
+        )}
       </form>
       <div className="pp-remove">
         {confirming ? (
@@ -338,17 +344,28 @@ export function PeopleFigures() {
           {tr("label")} · {tr("ownerOnly")}
         </p>
         <h2 id="pp-title">{tr("title")}</h2>
-        <p className="pp-copy">{tr("intro")}</p>
-        {view.status === "ok" && (
-          <p className="pp-basis">
-            {tr("basis", {
-              source: sourceText(view.source, tr),
-              from: dayIn(view.figures.from, locale),
-              to: dayIn(view.figures.to, locale),
-              count: view.figures.people.reduce((s, p) => s + p.appointments, 0),
-            })}
-          </p>
-        )}
+        <p className="pp-copy">{tr("fence")}</p>
+        <Fold summary={tr("how")}>
+          <p className="pp-copy">{tr("intro")}</p>
+          {view.status === "ok" && (
+            <>
+              <p className="pp-basis">
+                {tr("basis", {
+                  source: sourceText(view.source, tr),
+                  from: dayIn(view.figures.from, locale),
+                  to: dayIn(view.figures.to, locale),
+                  count: view.figures.people.reduce((s, p) => s + p.appointments, 0),
+                })}
+              </p>
+              <ul className="pp-foot">
+                {view.figures.unattributed > 0 && (
+                  <li>{tr("unattributed", { count: view.figures.unattributed })}</li>
+                )}
+                <li>{tr("sales")}</li>
+              </ul>
+            </>
+          )}
+        </Fold>
       </header>
       {note && (
         <p className="pp-note" role="status">
@@ -374,14 +391,6 @@ export function PeopleFigures() {
             />
           ))}
         </div>
-      )}
-      {view.status === "ok" && (
-        <ul className="pp-foot">
-          {view.figures.unattributed > 0 && (
-            <li>{tr("unattributed", { count: view.figures.unattributed })}</li>
-          )}
-          <li>{tr("sales")}</li>
-        </ul>
       )}
     </section>
   );
