@@ -21,6 +21,7 @@ import { useTranslations } from "next-intl";
 import "../../app/site.css";
 import type { SiteAuditView } from "../../lib/site/audit/view";
 import { EmergencyStop } from "../execution/EmergencyStop";
+import { Fold } from "../sheet/Fold";
 import { PageHead, SheetCard } from "../sheet/PageHead";
 import { useTr } from "../sheet/useTr";
 import type { AppLocale } from "../../lib/i18n/locales";
@@ -421,7 +422,9 @@ export function SiteScreen({
         )}
       </div>
 
-      <p className="st-fine">{tr("fine")}</p>
+      <Fold className="st-fine on-desk">
+        <p>{tr("fine")}</p>
+      </Fold>
     </main>
   );
 }

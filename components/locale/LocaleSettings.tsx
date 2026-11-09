@@ -14,6 +14,7 @@ import { useTranslations } from "next-intl";
 import type { AppLocale } from "../../lib/i18n/locales";
 import { LANGUAGE_NAMES } from "../../lib/i18n/locales";
 import type { PickerData } from "../../lib/i18n/picker";
+import { Fold } from "../sheet/Fold";
 import { PageHead, SheetCard } from "../sheet/PageHead";
 import type { SaveRefusal } from "./LocalePicker";
 import {
@@ -76,7 +77,6 @@ export function LocaleSettings({ data, business }: LocaleSettingsProps) {
         title={t("locale.settings.title")}
       />
       <SheetCard label={t("locale.settings.you")} title={t("locale.yourLanguage")}>
-        <p className="lp-help">{t("locale.yourLanguageHelp")}</p>
         <LanguageChoice
           languages={data.languages}
           value={own}
@@ -103,7 +103,6 @@ export function LocaleSettings({ data, business }: LocaleSettingsProps) {
 
       {business && bizLanguage && (
         <SheetCard label={t("locale.settings.business")} title={t("locale.businessLanguage")}>
-          <p className="lp-help">{t("locale.businessLanguageHelp")}</p>
           <LanguageChoice
             languages={bizLanguages}
             value={bizLanguage}
@@ -122,8 +121,11 @@ export function LocaleSettings({ data, business }: LocaleSettingsProps) {
               onChange={setCurrency}
               disabled={!data.canSetBusiness || busy !== null}
             />
-            <p className="lp-help">{t("locale.currencyHelp")}</p>
           </div>
+          <Fold className="lp-fold">
+            <p>{t("locale.businessLanguageHelp")}</p>
+            <p>{t("locale.currencyHelp")}</p>
+          </Fold>
           {data.canSetBusiness ? (
             <div className="lp-actions">
               <button

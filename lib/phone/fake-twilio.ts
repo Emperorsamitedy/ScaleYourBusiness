@@ -17,7 +17,7 @@ export function fakeCallSid(): string {
 
 /** A random E.164 number, so parallel tests never claim the same line. */
 export function fakeNumber(): string {
-  return `+4477009${String(Math.floor(Math.random() * 100_000)).padStart(5, "0")}`;
+  return `+4477009${String(Math.floor(Math.random() * 10_000_000)).padStart(7, "0")}`;
 }
 
 /** What Twilio posts when a call comes in, plus anything a later step adds. */

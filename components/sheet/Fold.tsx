@@ -1,24 +1,33 @@
-// One closed-by-default disclosure per section (2026-11-09, the owner's
-// "no extra wordings"): what a rule needs reachable but nobody needs to read
-// every visit (a forecast's basis, window and assumptions, provenance, the
-// "too early" reasons) sits behind one short summary like "How this works".
+"use client";
 
-import "../../app/fold.css";
+// One closed-by-default disclosure per section (the owner, 2026-11-09:
+// "no extra wordings/texts are required"). What a rule requires an owner
+// can check — how a figure was worked out, a forecast's basis and window,
+// provenance, why — stays on the page, folded under "How this works" or
+// "Why?", never deleted.
+
+import { useTranslations } from "next-intl";
 import type { ReactNode } from "react";
+import "../../app/fold.css";
 
 export function Fold({
+  label = "how",
   summary,
-  children,
   className,
+  children,
 }: {
-  /** The one line shown while closed, e.g. "How this works". */
-  summary: ReactNode;
-  children: ReactNode;
+  /** "how" reads "How this works"; "why" reads "Why?"; a string is used as is. */
+  label?: "how" | "why" | (string & {});
+  /** A summary line of the caller's own; wins over `label`. */
+  summary?: ReactNode;
   className?: string;
+  children: ReactNode;
 }) {
+  const t = useTranslations("common.fold");
+  const line = summary ?? (label === "how" ? t("how") : label === "why" ? t("why") : label);
   return (
-    <details className={`fold${className ? ` ${className}` : ""}`}>
-      <summary>{summary}</summary>
+    <details className={className ? `fold ${className}` : "fold"}>
+      <summary>{line}</summary>
       <div className="fold-body">{children}</div>
     </details>
   );

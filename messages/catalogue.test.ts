@@ -357,10 +357,6 @@ const GLOSSARY_EXCEPTIONS: Record<string, { terms: string[]; reason: string }> =
     terms: ["review"],
     reason: "“ad and content reviews”: SYB's own checks, not customer reviews",
   },
-  "proposals.bulk.ref": {
-    terms: ["review"],
-    reason: "“Bulk review”: deciding several at once, not customer reviews",
-  },
   "proposals.origin.ads": {
     terms: ["review"],
     reason: "“the ad review”: SYB's check of the ads, not customer reviews",

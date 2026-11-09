@@ -11,6 +11,10 @@
       "owner": "Inhaber",
       "manager": "Manager",
       "viewer": "Betrachter"
+    },
+    "fold": {
+      "how": "So funktioniert es",
+      "why": "Warum?"
     }
   },
   "nav": {
@@ -138,7 +142,6 @@
       "headline": "Wählen Sie Ihre Sprache und Währung."
     },
     "yourLanguage": "Ihre Sprache",
-    "yourLanguageHelp": "Die Sprache, in der Sie SYB lesen. Jede Person im Team wählt ihre eigene.",
     "businessLanguage": "Die Sprache Ihres Unternehmens",
     "businessLanguageHelp": "Was Ihre Kunden lesen: Support-Antworten, E-Mails und Antworten auf Bewertungen.",
     "currency": "Währung",
@@ -1347,8 +1350,7 @@
       "nothingWaiting": "Nichts wartet",
       "waiting": "{count, plural, one {# Entscheidung wartet} other {# Entscheidungen warten}}",
       "position": "{n} von {of}",
-      "next": "als Nächstes: {title}",
-      "foot": "Nichts wird ausgeführt, bevor Sie es freigeben."
+      "next": "als Nächstes: {title}"
     },
     "decide": {
       "label": "Ihre Entscheidung",
@@ -1356,17 +1358,16 @@
       "changes": "Änderungen erbitten",
       "approveVerb": "Freigeben — {verb}",
       "run": "Bei Freigabe ausführen",
-      "halted": "Gerade ist alles gestoppt: Nichts wird ausgeführt, bis Sie wieder starten.",
-      "readOnly": "Sie können hier alles lesen."
+      "halted": "Gerade ist alles gestoppt: Nichts wird ausgeführt, bis Sie wieder starten."
     },
     "sheet": {
       "ref": "Vorschlag {ref} · entworfen {when}",
       "from": "aus {origin}",
-      "deadline": "Entscheiden Sie bis {day}. Bleibt er bis dahin unbeantwortet, läuft er ab: nicht freigegeben – nichts wurde ausgeführt.",
-      "s1": "{n} · Was sich ändert — vorher → nachher",
+      "deadline": "Entscheiden Sie bis {day}.",
+      "s1": "{n} · Was sich ändert",
       "s2": "{n} · Erwartete Wirkung · geschätzt",
       "s2Span": "{n} · Erwartete Wirkung, {span} · geschätzt",
-      "s3": "{n} · Belege — jede Zeile mit ihrer Quelle",
+      "s3": "{n} · Belege",
       "s4": "{n} · Umkehrbarkeit"
     },
     "schedule": {
@@ -1378,10 +1379,8 @@
     },
     "bulk": {
       "label": "Mehrere gemeinsam entscheiden",
-      "ref": "Sammelentscheidung · jeder Vorschlag behält seinen eigenen Eintrag",
       "selected": "{count, plural, one {# ausgewählt} other {# ausgewählt}}",
       "tick": "Haken Sie Vorschläge in der Liste an",
-      "lede": "Jeder wird in der Akte weiterhin einzeln entschieden, mit eigenem Eintrag – das erspart Ihnen nur die Klicks.",
       "run": "{count, plural, one {Bei Freigabe wird er ausgeführt} other {Bei Freigabe werden alle # ausgeführt}}",
       "choose": "— Zeitpunkt wählen —",
       "noTime": "ohne festen Zeitpunkt – ein geplanter Beitrag behält seine Zeit",
@@ -1401,7 +1400,6 @@
       "earlier": "Früher · {count}",
       "expired": "Nicht freigegeben – nichts wurde ausgeführt. Die Zeit lief ohne Entscheidung ab; das ist kein Nein.",
       "runs": "Wird frühestens {day} ausgeführt.",
-      "foot": "Unbeantwortete Vorschläge laufen an ihrem Entscheidungsdatum ab, als „nicht freigegeben – nichts wurde ausgeführt“.",
       "oneAtATime": "Zurück zur Einzelansicht"
     },
     "history": {
@@ -1589,7 +1587,6 @@
       "title": "Verbindungen — SYB"
     },
     "kicker": "Ihr Unternehmen · Verbindungen",
-    "aside": "Lesen ist vom Schreiben getrennt – immer",
     "loading": "Ihre Verbindungen werden gelesen…",
     "unreachable": "Ich konnte den Server nicht erreichen. Versuchen Sie es erneut.",
     "error": {
@@ -3939,7 +3936,6 @@
       "worthKnowing": "Wissenswert",
       "noWords": "Sterne ohne Worte.",
       "draftLabel": "Vorgeschlagene Antwort · zum Bearbeiten für Sie",
-      "draftNote": "Ich habe das entworfen. Lesen Sie es und machen Sie es zu Ihrem: Sobald Sie es veröffentlichen, sind es Ihre Worte, unter Ihrem Namen. Ich veröffentliche nie etwas.",
       "copied": "Kopiert",
       "copyReply": "Antwort kopieren",
       "drafting": "Wird entworfen…",
@@ -4038,7 +4034,6 @@
       "body": "Bei mir ist etwas schiefgelaufen. Laden Sie die Seite neu, um es erneut zu versuchen."
     },
     "aside": {
-      "nothing": "Hier wird nichts ausgegeben und nichts versendet",
       "asOf": "Stand {date} · {currency}"
     },
     "kind": {
@@ -4150,7 +4145,6 @@
       "kicker": "Wachstum · Preise durchspielen",
       "loading": "Ihre Preise werden gelesen…",
       "failed": "„Preise durchspielen“ konnte nicht geladen werden.",
-      "aside": "Hier wird kein Preis geändert",
       "empty": {
         "title": "In Ihrem Profil ist noch nichts mit einem Preis erfasst.",
         "body": "<ask>Nennen Sie, was Sie verkaufen, mit Preis</ask>, oder importieren Sie Ihre Buchungen unter <conn>Verbindungen</conn>, dann füllt sich diese Seite."
@@ -4196,7 +4190,6 @@
       "never": "NIE",
       "card": {
         "label": "Preisänderung",
-        "meta": "Hier wird Ihr Preis nicht geändert",
         "breakEven": "Gewinnschwelle",
         "cautious": "Das ist das vorsichtige Ende: Wüsste ich, was Sie eine Einheit bis zur Erbringung kostet, könnte ich sagen, wie viele mehr Sie verlieren dürften.",
         "addCost": "Die Kosten hinzufügen →",
@@ -4768,7 +4761,6 @@
     "propose": {
       "label": "Vorschlagen",
       "title": "Nichts wird erstellt, bevor Sie es freigeben",
-      "body": "Beides erzeugt einen Vorschlag in Ihrer <link>Freigabe-Warteschlange</link>. Kein einziges Wort wird entworfen, bevor Sie dort Ja sagen.",
       "watching": "Noch nicht: Ich beobachte das Unternehmen bis {day} und schlage nichts vor, bevor die Beobachtung endet. Ihre Ziele oben bestimmen trotzdem, was ich dann vorschlage.",
       "calendar": "Einen Inhaltekalender vorschlagen",
       "calendarDone": "Der Kalender liegt in Ihrer Freigabe-Warteschlange.",
@@ -4867,7 +4859,6 @@
       "title": "Beginnen Sie mit dem Interview.",
       "begin": "Beginnen"
     },
-    "aside": "Aus der von Ihnen importierten Liste · nichts wird ohne Ihre Freigabe der E-Mail gesendet",
     "failed": "das hat nicht funktioniert",
     "headline": {
       "none": "Noch keine Kunden importiert.",
@@ -5932,7 +5923,6 @@
     "failedShort": "Das hat nicht funktioniert.",
     "title": "{count, plural, =1 {Nur Sie können sich hier anmelden.} one {# Person kann sich hier anmelden.} other {# Personen können sich hier anmelden.}}",
     "youAre": "Ihre Rolle: {role, select, owner {Inhaber} manager {Manager} other {Betrachter}}",
-    "readOnly": "Sie können sehen, wer hier ist.",
     "members": {
       "label": "Das Team",
       "title": "Wer sich anmelden kann",

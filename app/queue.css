@@ -324,14 +324,6 @@
   line-height: 1.45;
   color: var(--desk-ink-2);
 }
-.q-side-foot {
-  margin: 0;
-  padding: 14px 14px 8px;
-  font-family: var(--f-mono);
-  font-size: 12px;
-  line-height: 1.7;
-  color: var(--desk-ink-2);
-}
 .q-quiet {
   padding: 6px 2px;
   border: 0;
@@ -1040,13 +1032,6 @@
 }
 .q-mdecide .q-quiet {
   margin-top: 10px;
-}
-.q-m-foot {
-  margin: 14px 0 17px;
-  font-family: var(--f-mono);
-  font-size: 13px;
-  text-align: center;
-  color: var(--desk-ink-2);
 }
 .q-m .q-side-sec {
   padding: 14px 4px 4px;

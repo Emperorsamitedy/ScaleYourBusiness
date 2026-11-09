@@ -74,6 +74,7 @@ import {
 } from "./queue-model";
 import "../../app/queue.css";
 import { useRole } from "../auth/RoleContext";
+import { Fold } from "../sheet/Fold";
 
 interface Money {
   amount_minor: number;
@@ -887,7 +888,9 @@ export function QueueScreen() {
       <h1 className="q-title" tabIndex={-1} ref={emptyRef}>
         {t("empty.title")}
       </h1>
-      <p className="q-prose">{t("empty.lede")}</p>
+      <Fold>
+        <p>{t("empty.lede")}</p>
+      </Fold>
       <button
         type="button"
         className="q-btn q-btn-inline"
@@ -1038,7 +1041,7 @@ export function QueueScreen() {
           </p>
           {decideWhy && (
             <p className="q-role-note" role="note">
-              {decideWhy} {t("decide.readOnly")}
+              {decideWhy}
             </p>
           )}
         </section>
@@ -1084,7 +1087,6 @@ export function QueueScreen() {
           {noticeBox}
           {stampedNotes()}
           {open ? mobileCard(open) : emptySheet}
-          <p className="q-m-foot">{t("m.foot")}</p>
           {heldBack}
         </main>
       </div>
@@ -1224,7 +1226,7 @@ export function QueueScreen() {
           </p>
           {decideWhy && (
             <p className="q-role-note" role="note">
-              {decideWhy} {t("decide.readOnly")}
+              {decideWhy}
             </p>
           )}
         </section>
@@ -1235,11 +1237,9 @@ export function QueueScreen() {
   const bulkSheet = (
     <section className="q-sheet q-bulk" aria-label={t("bulk.label")}>
       <header className="q-sheet-head">
-        <p className="q-ref">{t("bulk.ref")}</p>
         <h1 className="q-title">
           {picked.size > 0 ? t("bulk.selected", { count: picked.size }) : t("bulk.tick")}
         </h1>
-        <p className="q-deadline">{t("bulk.lede")}</p>
       </header>
       {picked.size > 0 && (
         <section className="q-decide">
@@ -1450,7 +1450,6 @@ export function QueueScreen() {
             </section>
           )}
 
-          <p className="q-side-foot">{t("side.foot")}</p>
           {pendingIds.length > 1 && (
             <button
               type="button"

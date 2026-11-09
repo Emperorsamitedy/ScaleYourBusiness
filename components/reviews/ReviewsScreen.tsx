@@ -18,6 +18,7 @@ import Link from "next/link";
 import { useTranslations } from "next-intl";
 import type { ReactNode } from "react";
 import type { ReviewItem, ReviewsView } from "../../lib/review-desk/view";
+import { Fold } from "../sheet/Fold";
 import { PageHead, SheetCard } from "../sheet/PageHead";
 import { useRole } from "../auth/RoleContext";
 import { num } from "../sheet/num";
@@ -53,7 +54,9 @@ function Frame({
     <main className="screen rv-screen">
       <PageHead kicker={tr("kicker")} title={title} aside={aside} />
       {children}
-      <p className="rv-foot">{tr("foot")}</p>
+      <Fold className="rv-foot on-desk">
+        <p>{tr("foot")}</p>
+      </Fold>
     </main>
   );
 }
@@ -127,7 +130,6 @@ function ReviewEntry({ r, today, post }: { r: ReviewItem; today: string; post: P
               setCopied(false);
             }}
           />
-          <p className="rv-fine">{tr("entry.draftNote")}</p>
         </div>
       )}
 
@@ -265,17 +267,19 @@ function ForwardingCard({ view, post }: { view: ReviewsView; post: Post }) {
           )}
         </p>
       )}
-      <p className="rv-copy">{tr("forwarding.how")}</p>
-      {setupSteps(tr).map((s) => (
-        <div key={s.platform} className="rv-steps">
-          <p className="cs-label">{s.platform}</p>
-          <ol>
-            {s.steps.map((step) => (
-              <li key={step}>{step}</li>
-            ))}
-          </ol>
-        </div>
-      ))}
+      <Fold>
+        <p>{tr("forwarding.how")}</p>
+        {setupSteps(tr).map((s) => (
+          <div key={s.platform} className="rv-steps">
+            <p className="cs-label">{s.platform}</p>
+            <ol>
+              {s.steps.map((step) => (
+                <li key={step}>{step}</li>
+              ))}
+            </ol>
+          </div>
+        ))}
+      </Fold>
     </SheetCard>
   );
 }

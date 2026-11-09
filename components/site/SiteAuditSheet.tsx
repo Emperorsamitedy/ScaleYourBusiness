@@ -21,6 +21,7 @@ import { useState } from "react";
 import type { SiteAuditView } from "../../lib/site/audit/view";
 import { NEVER_LINES } from "../../lib/site/audit/view";
 import type { SiteFinding } from "../../lib/site/audit/findings";
+import { Fold } from "../sheet/Fold";
 import { SheetCard } from "../sheet/PageHead";
 import { useTr } from "../sheet/useTr";
 import {
@@ -87,7 +88,11 @@ export function SiteAuditSheet({
         label={tr("notRun.label")}
         title={tr("notRun.title")}
         meta={runButton}
-        foot={tr("notBuilt", { section: 2 })}
+        foot={
+          <Fold>
+            <p>{tr("notBuilt", { section: 2 })}</p>
+          </Fold>
+        }
       >
         {notice && (
           <p className="st-note" aria-live="polite">
@@ -133,9 +138,15 @@ export function SiteAuditSheet({
         </>
       }
       foot={
-        <>
-          {tr("notBuilt", { section: 2 })} {tr("footFix")}
-        </>
+        <Fold>
+          <p>{tr("footFix")}</p>
+          <ul className="st-unread">
+            {audit.never.map((l) => (
+              <li key={l}>{neverLine(l, t)}</li>
+            ))}
+          </ul>
+          <p>{tr("notBuilt", { section: 2 })}</p>
+        </Fold>
       }
     >
       {notice && (
@@ -292,11 +303,6 @@ export function SiteAuditSheet({
           </ul>
         </>
       )}
-      <ul className="st-unread">
-        {audit.never.map((l) => (
-          <li key={l}>{neverLine(l, t)}</li>
-        ))}
-      </ul>
     </SheetCard>
   );
 }

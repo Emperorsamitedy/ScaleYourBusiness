@@ -11,6 +11,10 @@
       "owner": "Owner",
       "manager": "Manager",
       "viewer": "Viewer"
+    },
+    "fold": {
+      "how": "How this works",
+      "why": "Why?"
     }
   },
   "nav": {
@@ -138,7 +142,6 @@
       "headline": "Choose your language and currency."
     },
     "yourLanguage": "Your language",
-    "yourLanguageHelp": "What you read SYB in. Everyone on the team chooses their own.",
     "businessLanguage": "Your business’s language",
     "businessLanguageHelp": "What your customers will read: support answers, emails and replies to reviews.",
     "currency": "Currency",
@@ -1347,8 +1350,7 @@
       "nothingWaiting": "Nothing waiting",
       "waiting": "{count, plural, one {# decision waiting} other {# decisions waiting}}",
       "position": "{n} of {of}",
-      "next": "next: {title}",
-      "foot": "Nothing runs until you approve it."
+      "next": "next: {title}"
     },
     "decide": {
       "label": "Your decision",
@@ -1356,17 +1358,16 @@
       "changes": "Request changes",
       "approveVerb": "Approve — {verb}",
       "run": "If approved, run",
-      "halted": "Everything is stopped right now: nothing runs until you start again.",
-      "readOnly": "You can read everything here."
+      "halted": "Everything is stopped right now: nothing runs until you start again."
     },
     "sheet": {
       "ref": "Proposal {ref} · drafted {when}",
       "from": "from {origin}",
-      "deadline": "Decide by {day}. Unanswered by then, it expires: not approved — nothing ran.",
-      "s1": "{n} · What changes — before → after",
+      "deadline": "Decide by {day}.",
+      "s1": "{n} · What changes",
       "s2": "{n} · Expected effect · estimated",
       "s2Span": "{n} · Expected effect, {span} · estimated",
-      "s3": "{n} · Evidence — every line with its source",
+      "s3": "{n} · Evidence",
       "s4": "{n} · Reversibility"
     },
     "schedule": {
@@ -1378,10 +1379,8 @@
     },
     "bulk": {
       "label": "Decide several together",
-      "ref": "Bulk review · every proposal keeps its own record",
       "selected": "{count, plural, one {# selected} other {# selected}}",
       "tick": "Tick proposals in the list",
-      "lede": "Each one is still decided separately in the record, with its own entry — this only saves you the clicks.",
       "run": "{count, plural, one {If approved, it runs} other {If approved, all # run}}",
       "choose": "— choose when —",
       "noTime": "with no set time — a planned post keeps its time",
@@ -1401,7 +1400,6 @@
       "earlier": "Earlier · {count}",
       "expired": "Not approved — nothing ran. It ran out of time undecided; that is not a no.",
       "runs": "Runs {day} at the earliest.",
-      "foot": "Unanswered proposals expire on their decide-by date as “not approved — nothing ran”.",
       "oneAtATime": "Back to one at a time"
     },
     "history": {
@@ -1589,7 +1587,6 @@
       "title": "Connections — SYB"
     },
     "kicker": "Your business · Connections",
-    "aside": "Reading is separate from writing — always",
     "loading": "Reading your connections…",
     "unreachable": "I couldn't reach the server. Try again.",
     "error": {
@@ -3939,7 +3936,6 @@
       "worthKnowing": "Worth knowing",
       "noWords": "A rating with no words.",
       "draftLabel": "Suggested reply · yours to edit",
-      "draftNote": "I drafted this. Read it and make it yours: once you post it, it's your words, under your name. I never post anything.",
       "copied": "Copied",
       "copyReply": "Copy the reply",
       "drafting": "Drafting…",
@@ -4038,7 +4034,6 @@
       "body": "Something went wrong on my side. Refresh to try again."
     },
     "aside": {
-      "nothing": "Nothing here spends or sends",
       "asOf": "As of {date} · {currency}"
     },
     "kind": {
@@ -4150,7 +4145,6 @@
       "kicker": "Grow · What-if pricing",
       "loading": "Reading your prices…",
       "failed": "What-if pricing didn't load.",
-      "aside": "Nothing here changes a price",
       "empty": {
         "title": "There's nothing priced on your profile yet.",
         "body": "<ask>List what you sell, with its price</ask>, or import your bookings on <conn>Connections</conn>, and this fills in."
@@ -4196,7 +4190,6 @@
       "never": "NEVER",
       "card": {
         "label": "Price change",
-        "meta": "Nothing here changes your price",
         "breakEven": "Break-even",
         "cautious": "That’s the cautious end: with what one costs you to deliver, I could say how many more you could lose.",
         "addCost": "Add the cost →",
@@ -4768,7 +4761,6 @@
     "propose": {
       "label": "Propose",
       "title": "Nothing is made until you approve",
-      "body": "Both of these create a proposal in your <link>approval queue</link>. Not a single word is drafted before you say yes there.",
       "watching": "Not yet: I’m watching the business until {day}, and I propose nothing before the watch ends. Your goals above still shape what I’ll propose then.",
       "calendar": "Propose a content calendar",
       "calendarDone": "The calendar is in your approval queue.",
@@ -4867,7 +4859,6 @@
       "title": "Start with the intake.",
       "begin": "Begin"
     },
-    "aside": "From the list you imported · nothing sends without your approval of the email",
     "failed": "that didn't work",
     "headline": {
       "none": "No customers imported yet.",
@@ -5932,7 +5923,6 @@
     "failedShort": "That didn't work.",
     "title": "{count, plural, =1 {Only you can sign in here.} one {# person can sign in here.} other {# people can sign in here.}}",
     "youAre": "You’re {role, select, owner {an owner} manager {a manager} other {a viewer}}",
-    "readOnly": "You can see who’s here.",
     "members": {
       "label": "The team",
       "title": "Who can sign in",

@@ -45,6 +45,7 @@ import {
 import { RESPONSE_BANDS } from "../../lib/simulate/pricing-bands";
 import type { AppLocale } from "../../lib/i18n/locales";
 import { intlTag } from "../../lib/i18n/locales";
+import { Fold } from "../sheet/Fold";
 import { PageHead, SheetCard } from "../sheet/PageHead";
 import { minorUnitExponent } from "../../lib/core/money";
 import { basisName } from "../report/basis";
@@ -342,7 +343,6 @@ function ChangeCard({ r, item }: { r: PriceResult; item: PriceItemRaw }) {
       className="sim-card"
       label={tr("pricing.card.label")}
       title={`${item.name}: ${moneyText(r.old_price_minor, r.currency, locale)} → ${moneyText(r.new_price_minor, r.currency, locale)}`}
-      meta={tr("pricing.card.meta")}
     >
       <p className="sim-what sim-be">
         <span className="cs-label">{tr("pricing.card.breakEven")}</span> {be.words}
@@ -512,13 +512,7 @@ export function PricingScreen() {
 
   const x = ready.inputs;
   const band = RESPONSE_BANDS[x.archetype];
-  const aside = (
-    <>
-      {tr("pricing.aside")}
-      <br />
-      {tr("aside.asOf", { date: asOfDay(x.as_of, locale), currency: x.currency })}
-    </>
-  );
+  const aside = tr("aside.asOf", { date: asOfDay(x.as_of, locale), currency: x.currency });
 
   if (x.items.length === 0) {
     return (
@@ -557,15 +551,17 @@ export function PricingScreen() {
         {cmp && cmp.results.length > 0 ? (
           <>
             <SideBySide cmp={cmp} />
-            <p className="sim-note on-desk">
-              {tr("pricing.assumption", {
-                one: onePct(locale),
-                low: bandPct(band.low, locale),
-                high: bandPct(band.high, locale),
-                kind: cmp.item.kind,
-              })}
-              {perOrder ? ` ${perOrder}` : ""}
-            </p>
+            <Fold className="sim-note on-desk">
+              <p>
+                {tr("pricing.assumption", {
+                  one: onePct(locale),
+                  low: bandPct(band.low, locale),
+                  high: bandPct(band.high, locale),
+                  kind: cmp.item.kind,
+                })}
+                {perOrder ? ` ${perOrder}` : ""}
+              </p>
+            </Fold>
             {cmp.results.some((r) => r.measures.profit.status === "range") ? (
               <SheetCard label={tr("profitCard.label")} title={tr("pricing.profitTitle")}>
                 <Whiskers
