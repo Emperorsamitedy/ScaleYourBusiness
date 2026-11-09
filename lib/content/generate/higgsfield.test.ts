@@ -103,12 +103,22 @@ function fakeApi(script: {
   return { fetch, sent };
 }
 
-const provider = (fetch: HttpFetch, limits = {}) =>
+const provider = (
+  fetch: HttpFetch,
+  limits = {},
+  // The real check (lib/site/fetch's vetAddresses) does a live DNS lookup;
+  // this suite's fixture host (cdn.higgsfield.test) is fake on purpose, so
+  // a no-op stub keeps the suite network-free by default. The real
+  // function has its own tests (lib/site/fetch.test.ts); one test below
+  // overrides this to prove the refusal path is actually wired in.
+  vetUrl: (url: URL) => Promise<unknown> = async () => undefined,
+) =>
   higgsfieldMediaProvider({
     key: KEY,
     model: MODEL,
     usd_micros_per_second: HIGGSFIELD_DEFAULTS.usd_micros_per_second,
     fetch,
+    vetUrl,
     limits,
   });
 
@@ -167,7 +177,8 @@ describe("P6-03 — Higgsfield, pure", () => {
 });
 
 describe("P6-03 — Higgsfield, submit now and ask later (fake HTTP only)", () => {
-  const jobsOf = (fetch: HttpFetch, limits = {}) => provider(fetch, limits).jobs!;
+  const jobsOf = (fetch: HttpFetch, limits = {}, vetUrl?: (url: URL) => Promise<unknown>) =>
+    provider(fetch, limits, vetUrl).jobs!;
   const JOB: SubmittedJob = {
     request_id: ID,
     status_url: `${HIGGSFIELD_ORIGIN}/requests/${ID}/status`,
@@ -351,6 +362,19 @@ describe("P6-03 — Higgsfield, submit now and ask later (fake HTTP only)", () =
     const busy = fakeApi({ video: () => new Response("", { status: 503 }) });
     const later = await rejection(jobsOf(busy.fetch).fetchResult(JOB, url));
     expect(later.retryable).toBe(true);
+  });
+
+  it("security review 2026-11-09: a video address vetUrl refuses is never fetched, and still counted as charged", async () => {
+    const url = `https://cdn.higgsfield.test/${ID}.mp4`;
+    const api = fakeApi({});
+    const refusingVet = async () => {
+      throw new Error("points inside a private network");
+    };
+    const e = await rejection(jobsOf(api.fetch, {}, refusingVet).fetchResult(JOB, url));
+    expect(e.message).toMatch(/doesn't look safe to fetch/);
+    expect(e).toMatchObject({ cost: { amount_minor: 56, currency: "USD" } });
+    // The guard ran before the network call — the delivery host was never hit.
+    expect(api.sent.some((s) => s.url.startsWith("https://cdn.higgsfield.test/"))).toBe(false);
   });
 });
 

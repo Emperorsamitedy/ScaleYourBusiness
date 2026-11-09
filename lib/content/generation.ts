@@ -684,32 +684,46 @@ export async function generateFromProposal(args: {
 
   const estimate = provider.estimate({ media, ...(seconds ? { seconds } : {}) });
   const caps = capsOf(setup);
-  const over = capRefusal(
-    await capRoom({ accountId, targetItemId: target.id, now, caps }),
-    estimate,
-  );
-  if (over) throw new ContentError(`Nothing was generated: ${over}. It stays approved.`, 409);
 
-  // The claim: one generation per approved proposal, ever.
+  // Security review 2026-11-09: the cap check and the claim it licenses now
+  // share one lockCaps transaction (candidates.ts's own pattern, reused
+  // rather than reinvented) — two proposals approved at once on the same
+  // account can no longer both read "room available" before either
+  // commits. Currently inert for real money: the only providers wired to
+  // this single-shot path are fake and vendor (vendor always refuses,
+  // lib/content/generate/vendor.ts), and Higgsfield — the one that spends
+  // real money — always goes through candidates.ts, already locked. This
+  // closes the gap for whoever wires up the next single-shot provider,
+  // rather than leaving it a trap.
   let claimId: string;
   try {
-    const [claim] = await db
-      .insert(mediaGenerations)
-      .values({
-        profile_id: proposal.profile_id,
-        account_id: accountId,
-        proposal_id: proposal.id,
-        target_item_id: target.id,
-        media,
-        provider: provider.id,
-        estimate_minor: estimate.amount_minor,
-        currency: estimate.currency,
-        prompt_sha256: promptHash(prompt),
-        created_at: now.toISOString(),
-      })
-      .returning({ id: mediaGenerations.id });
-    claimId = claim!.id;
+    claimId = await db.transaction(async (tx) => {
+      await lockCaps(tx, accountId);
+      const over = capRefusal(
+        await capRoom({ accountId, targetItemId: target.id, now, caps, exec: tx }),
+        estimate,
+      );
+      if (over) throw new ContentError(`Nothing was generated: ${over}. It stays approved.`, 409);
+      // The claim: one generation per approved proposal, ever.
+      const [claim] = await tx
+        .insert(mediaGenerations)
+        .values({
+          profile_id: proposal.profile_id,
+          account_id: accountId,
+          proposal_id: proposal.id,
+          target_item_id: target.id,
+          media,
+          provider: provider.id,
+          estimate_minor: estimate.amount_minor,
+          currency: estimate.currency,
+          prompt_sha256: promptHash(prompt),
+          created_at: now.toISOString(),
+        })
+        .returning({ id: mediaGenerations.id });
+      return claim!.id;
+    });
   } catch (error) {
+    if (error instanceof ContentError) throw error;
     if (
       /media_generations_proposal_uq/.test(String((error as { cause?: unknown }).cause ?? error))
     ) {

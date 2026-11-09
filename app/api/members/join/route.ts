@@ -27,7 +27,12 @@ import {
 import { sendLoginEmail } from "../../../../lib/auth/email";
 import { TeamError, joinWithSession, peekInvite } from "../../../../lib/auth/members";
 import { appOriginOf, isSameOriginPost } from "../../../../lib/auth/same-origin";
-import { currentSession, requestLogin, revokeSession } from "../../../../lib/auth/service";
+import {
+  AuthError,
+  currentSession,
+  requestLogin,
+  revokeSession,
+} from "../../../../lib/auth/service";
 import { logSafeError } from "../../../../lib/core/log-safe";
 import { LANGUAGE_COOKIE } from "../../../../lib/i18n/locales";
 import { addressLocale } from "../../../../lib/i18n/people";
@@ -77,7 +82,17 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       return response;
     }
 
-    const login = await requestLogin(invite.email, null, invite.invite_id);
+    const clientIp =
+      request.headers.get("x-real-ip") ??
+      request.headers.get("x-forwarded-for")?.split(",")[0] ??
+      null;
+    const login = await requestLogin(
+      invite.email,
+      null,
+      invite.invite_id,
+      undefined,
+      clientIp,
+    );
     const link = `${origin}/api/auth/redeem?token=${encodeURIComponent(login.token)}`;
     // L-6: their own language if an account holds one, else the one this page is in; through the gate.
     const locale = await addressLocale(login.email, store.get(LANGUAGE_COOKIE)?.value);
@@ -95,7 +110,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       ...(sent.delivered_via === "screen" ? { link } : {}),
     });
   } catch (error) {
-    if (error instanceof TeamError) {
+    if (error instanceof TeamError || error instanceof AuthError) {
       return NextResponse.json({ error: error.message }, { status: error.status });
     }
     console.error(JSON.stringify({ event: "invite_join_failed", ...logSafeError(error) }));

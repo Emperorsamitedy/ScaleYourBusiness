@@ -62,7 +62,10 @@ const post = (url: string, body: unknown) =>
   new NextRequest(url, {
     method: "POST",
     body: JSON.stringify(body),
-    headers: { "content-type": "application/json" },
+    // Security review 2026-11-09: /api/payments and /api/payments/file now
+    // check isSameOriginPost, like every other mutating route; this suite
+    // is about the role door behind it, so it presents as our own page.
+    headers: { "content-type": "application/json", "sec-fetch-site": "same-origin" },
   });
 
 /** Every door into payments, each with a request that would otherwise do something. */

@@ -8,10 +8,11 @@
 
 import { logSafeError } from "../../../lib/core/log-safe";
 import { resolveAccess } from "../../../lib/auth/access";
-import { NextResponse } from "next/server";
+import { appOriginOf, isSameOriginPost } from "../../../lib/auth/same-origin";
+import { type NextRequest, NextResponse } from "next/server";
 import { DiagnosisError } from "../../../lib/diagnosis/findings";
 import { hasPaidReport, paymentsConfigured } from "../../../lib/billing/stripe";
-import { generateReport, latestReport } from "../../../lib/report/service";
+import { ReportError, generateReport, latestReport } from "../../../lib/report/service";
 import { requireRole } from "../../../lib/auth/roles";
 import type { Access } from "../../../lib/auth/access";
 import { factWords, labelFactMap } from "../../../lib/bank/fact-words";
@@ -69,7 +70,14 @@ export async function GET(): Promise<NextResponse> {
   }
 }
 
-export async function POST(): Promise<NextResponse> {
+export async function POST(request: NextRequest): Promise<NextResponse> {
+  // Security review 2026-11-09: same-origin, defense-in-depth beyond
+  // SameSite=Lax, matching the pattern every other mutating route in the
+  // codebase follows — this triggers real Anthropic spend.
+  const origin = appOriginOf(request.url);
+  if (!isSameOriginPost(request.headers, origin)) {
+    return NextResponse.json({ error: "generate a report from our own page" }, { status: 403 });
+  }
   const session = await resolveSession();
   if (!session) return NextResponse.json({ error: "no intake session" }, { status: 401 });
   const denied = requireRole(session, "report.generate");
@@ -102,6 +110,9 @@ export async function POST(): Promise<NextResponse> {
   } catch (error) {
     if (error instanceof DiagnosisError) {
       return NextResponse.json({ error: error.message }, { status: 422 });
+    }
+    if (error instanceof ReportError) {
+      return NextResponse.json({ error: error.message }, { status: error.status });
     }
     // A copy without the AI key (a local demo) can't write a diagnosis.
     // Say so, instead of "something went wrong": nothing was lost.

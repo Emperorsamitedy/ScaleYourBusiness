@@ -66,6 +66,27 @@ const nextConfig: NextConfig = {
           { key: "Cache-Control", value: "private, no-store" },
         ],
       },
+      // Security review 2026-11-09: the unsubscribe link and the WhatsApp/
+      // weekly-summary opt-out link carry the same kind of bearer token in
+      // their own URL as /shared — the global default below is
+      // strict-origin-when-cross-origin (origin only), this is the same
+      // stricter override /shared and /ops already get.
+      {
+        source: "/u/:path*",
+        headers: [
+          { key: "Referrer-Policy", value: "no-referrer" },
+          { key: "X-Robots-Tag", value: "noindex, nofollow, noarchive" },
+          { key: "Cache-Control", value: "private, no-store" },
+        ],
+      },
+      {
+        source: "/summary/stop/:path*",
+        headers: [
+          { key: "Referrer-Policy", value: "no-referrer" },
+          { key: "X-Robots-Tag", value: "noindex, nofollow, noarchive" },
+          { key: "Cache-Control", value: "private, no-store" },
+        ],
+      },
     ];
   },
 };

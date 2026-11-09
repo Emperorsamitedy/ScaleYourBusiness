@@ -15,6 +15,7 @@ import { cookies } from "next/headers";
 import { type NextRequest, NextResponse } from "next/server";
 import type { AuthedSession } from "../../../../lib/auth/service";
 import { currentSession } from "../../../../lib/auth/service";
+import { appOriginOf, isSameOriginPost } from "../../../../lib/auth/same-origin";
 import { metaAccessLevel, metaLoginEnv } from "../../../../lib/env";
 import {
   ExecutionConnectionError,
@@ -47,6 +48,17 @@ async function signedIn(): Promise<AuthedSession | null> {
 
 function unauthorised(): NextResponse {
   return NextResponse.json({ error: "sign in to manage connections" }, { status: 401 });
+}
+
+// Security review 2026-11-09: every other mutating route in the codebase
+// re-asserts same-origin as a second line of defense beyond SameSite=Lax
+// (lib/auth/same-origin — closed "Login CSRF via GET links", 2026-10-17);
+// this one — which takes a pasted write-access credential and a typed
+// confirmation phrase — had been the one inconsistency.
+function crossOrigin(request: NextRequest): NextResponse | null {
+  const origin = appOriginOf(request.url);
+  if (isSameOriginPost(request.headers, origin)) return null;
+  return NextResponse.json({ error: "manage connections from our own page" }, { status: 403 });
 }
 
 function onError(error: unknown, accountId: string): NextResponse {
@@ -107,6 +119,8 @@ export async function GET(): Promise<NextResponse> {
 }
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
+  const crossOriginRefusal = crossOrigin(request);
+  if (crossOriginRefusal) return crossOriginRefusal;
   const session = await signedIn();
   if (!session) return unauthorised();
   const denied = requireRole(session, "write_access.manage");
@@ -142,6 +156,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 }
 
 export async function DELETE(request: NextRequest): Promise<NextResponse> {
+  const crossOriginRefusal = crossOrigin(request);
+  if (crossOriginRefusal) return crossOriginRefusal;
   const session = await signedIn();
   if (!session) return unauthorised();
   const denied = requireRole(session, "write_access.manage");

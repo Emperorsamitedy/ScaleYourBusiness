@@ -41,6 +41,7 @@ import { type NextRequest, NextResponse } from "next/server";
 import { db } from "../../../db";
 import { proposals } from "../../../db/schema";
 import { matchingSession, resolveAccess } from "../../../lib/auth/access";
+import { appOriginOf, isSameOriginPost } from "../../../lib/auth/same-origin";
 import { careState } from "../../../lib/care/day-zero";
 import { logSafeError } from "../../../lib/core/log-safe";
 import { STOCK } from "../../../lib/stock/assess";
@@ -492,6 +493,13 @@ const STOCK_ROLE: Record<string, RoleAction> = {
 };
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
+  // Security review 2026-11-09: same-origin, defense-in-depth beyond
+  // SameSite=Lax, matching the pattern every other mutating route in the
+  // codebase follows — this covers the reorder/import/purchase-order paths.
+  const origin = appOriginOf(request.url);
+  if (!isSameOriginPost(request.headers, origin)) {
+    return NextResponse.json({ error: "manage stock from our own page" }, { status: 403 });
+  }
   const access = await resolveAccess();
   if (!access) return NextResponse.json({ error: "no intake session" }, { status: 401 });
   if (!(await matchingSession())) {

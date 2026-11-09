@@ -14,6 +14,7 @@ import {
   fieldRecords,
   offers,
   profileSnapshots,
+  rateLimits,
   snapshotRecords,
 } from "../../db/schema";
 import { createField } from "../core/field";
@@ -25,7 +26,7 @@ import { DiagnosisError } from "../diagnosis/findings";
 import type { RecommendationsLlm } from "../diagnosis/recommendations";
 import { writeField } from "../profile/field-store";
 import { ownerLanguageLine } from "../llm/language";
-import { generateReport, latestReport, priorOf, respondToRecommendation } from "./service";
+import { ReportError, generateReport, latestReport, priorOf, respondToRecommendation } from "./service";
 
 let accountId: string;
 let profileId: string;
@@ -312,5 +313,142 @@ describe("L-5 — the report is written in its generator's language, and says so
     });
     expect(again.fresh).toBe(false);
     expect(again.report.language).toBe("de-DE");
+  });
+});
+
+describe("security review 2026-11-09 — fresh generation is rate-limited", () => {
+  // Its own account/profile: the shared fixture above is also asserting an
+  // exact findings/recs call count, which a rate-limit test must not disturb.
+  let rlAccountId: string;
+  let rlProfileId: string;
+  let rlOfferId: string;
+  let i = 0;
+
+  beforeAll(async () => {
+    const [account] = await db
+      .insert(accounts)
+      .values({ reporting_currency: "EUR", locale: "en" })
+      .returning();
+    const [profile] = await db
+      .insert(businessProfiles)
+      .values({ account_id: account!.id, schema_version: "1.0.0" })
+      .returning();
+    rlAccountId = account!.id;
+    rlProfileId = profile!.id;
+    const [offer] = await db
+      .insert(offers)
+      .values({ profile_id: rlProfileId, kind: "physical" })
+      .returning();
+    rlOfferId = offer!.id;
+    const field = (key: string, value: unknown) =>
+      writeField(
+        rlProfileId,
+        createField<unknown>({
+          id: fieldId(key),
+          value,
+          status: "answered",
+          confidence: 0.75,
+          source: { kind: "owner_input" },
+          observed_at: isoDateTime(new Date().toISOString()),
+          recorded_at: isoDateTime(new Date().toISOString()),
+        }),
+      );
+    await field(`offers.${rlOfferId}.name`, "Rate-limit test offer");
+    await field(`offers.${rlOfferId}.price`, { amount_minor: 1_000, currency: "EUR" });
+    await field(`offers.${rlOfferId}.cost_to_deliver`, { amount_minor: 500, currency: "EUR" });
+    await field(`offers.${rlOfferId}.volume_period`, 100);
+  });
+
+  afterAll(async () => {
+    await db.delete(rateLimits).where(eq(rateLimits.key, `report:fresh:${rlProfileId}:86400000`));
+    await db.delete(diagnosisReports).where(eq(diagnosisReports.profile_id, rlProfileId));
+    const snaps = await db
+      .select({ id: profileSnapshots.id })
+      .from(profileSnapshots)
+      .where(eq(profileSnapshots.profile_id, rlProfileId));
+    for (const s of snaps) {
+      await db.delete(snapshotRecords).where(eq(snapshotRecords.snapshot_id, s.id));
+    }
+    await db.delete(profileSnapshots).where(eq(profileSnapshots.profile_id, rlProfileId));
+    await db.delete(fieldRecords).where(eq(fieldRecords.profile_id, rlProfileId));
+    await db.delete(offers).where(eq(offers.profile_id, rlProfileId));
+    await db.delete(businessProfiles).where(eq(businessProfiles.id, rlProfileId));
+    await db.delete(accounts).where(eq(accounts.id, rlAccountId));
+  });
+
+  // Forces a genuinely different snapshot each call, so the cost guard
+  // (unchanged profile → fresh: false, no limit spent) never masks this.
+  async function freshGenerate(): Promise<{ fresh: boolean }> {
+    i += 1;
+    await writeField(
+      rlProfileId,
+      createField<unknown>({
+        id: fieldId("goals.main_goal"),
+        value: `goal ${i}`,
+        status: "answered",
+        confidence: 0.75,
+        source: { kind: "owner_input" },
+        observed_at: isoDateTime(new Date().toISOString()),
+        recorded_at: isoDateTime(new Date().toISOString()),
+      }),
+    );
+    const rlFindingsLlm: DiagnosisLlm = () =>
+      Promise.resolve({
+        text: JSON.stringify({
+          summary: "Price looks thin.",
+          findings: [
+            {
+              area: "finance",
+              title: "Thin margin",
+              detail: "Price sits close to nothing.",
+              evidence: [`offers.${rlOfferId}.price`],
+              severity: "low",
+              confidence: 0.6,
+            },
+          ],
+        }),
+        calls: [],
+      });
+    const rlRecommendationsLlm: RecommendationsLlm = () =>
+      Promise.resolve({
+        text: JSON.stringify({
+          recommendations: [
+            {
+              addresses: [0],
+              title: "Test a price rise",
+              rationale: "Thin margin.",
+              effort: "low",
+              reversibility_level: "easy",
+              if_you_change_your_mind: "Set the price back; nothing else moves.",
+              scenario: {
+                kind: "price_change",
+                offer_id: rlOfferId,
+                change_pct: 10,
+                volume_response_base_pct: -5,
+                volume_response_downside_pct: -20,
+                volume_response_upside_pct: 0,
+                gap_field_keys: null,
+                gap_why: null,
+              },
+            },
+          ],
+        }),
+        calls: [],
+      });
+    return generateReport({
+      accountId: rlAccountId,
+      profileId: rlProfileId,
+      findingsLlm: rlFindingsLlm,
+      recommendationsLlm: rlRecommendationsLlm,
+    });
+  }
+
+  it("allows 10 fresh generations a day, then refuses the 11th with a 429", async () => {
+    for (let n = 0; n < 10; n++) {
+      const { fresh } = await freshGenerate();
+      expect(fresh).toBe(true);
+    }
+    await expect(freshGenerate()).rejects.toMatchObject({ status: 429, name: "ReportError" });
+    await expect(freshGenerate()).rejects.toBeInstanceOf(ReportError);
   });
 });

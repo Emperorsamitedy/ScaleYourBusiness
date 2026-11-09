@@ -4265,3 +4265,21 @@ export const paymentExportItems = pgTable(
     uniqueIndex("payment_export_items_position_idx").on(t.export_id, t.position),
   ],
 );
+
+// ---------------------------------------------------------------------------
+// Rate limiting — security review 2026-11-09. Fixed-window counters for the
+// few unauthenticated-or-cheap-to-call endpoints with a real abuse cost
+// (login-link email spam, Anthropic spend on report generation): one row
+// per (caller, window), incremented atomically by lib/core/rate-limit.ts's
+// single upsert statement. No cleanup job — a row is at most a few hundred
+// bytes and the table self-bounds to "distinct callers in the retention
+// window", never growing per-request.
+// ---------------------------------------------------------------------------
+
+export const rateLimits = pgTable("rate_limits", {
+  /** "<scope>:<window_ms>:<identity>", e.g. "login:3600000:email:a@b.com". */
+  key: text("key").primaryKey(),
+  /** The fixed window's start, in epoch milliseconds — not a timestamp column: compared as a plain integer, never a timezone concern. */
+  window_start: bigint("window_start", { mode: "number" }).notNull(),
+  count: integer("count").notNull().default(1),
+});

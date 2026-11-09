@@ -23,6 +23,7 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { resolveAccess } from "../../../../lib/auth/access";
 import { requireRole } from "../../../../lib/auth/roles";
+import { appOriginOf, isSameOriginPost } from "../../../../lib/auth/same-origin";
 import { logSafeError } from "../../../../lib/core/log-safe";
 import { isAppLocale } from "../../../../lib/i18n/locales";
 import { requestWords } from "../../../../lib/i18n/request-words";
@@ -86,6 +87,13 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
 /** A new file of the ready payments that are in no file yet. */
 export async function POST(request: NextRequest): Promise<NextResponse> {
+  // Security review 2026-11-09: same-origin, defense-in-depth beyond
+  // SameSite=Lax, matching the pattern every other mutating route in the
+  // codebase follows — this produces the SEPA/steps file.
+  const origin = appOriginOf(request.url);
+  if (!isSameOriginPost(request.headers, origin)) {
+    return NextResponse.json({ error: "build the file from our own page" }, { status: 403 });
+  }
   const access = await resolveAccess();
   if (!access) return NextResponse.json({ error: "no intake session" }, { status: 401 });
   const denied = requireRole(access, "payments.prepare");

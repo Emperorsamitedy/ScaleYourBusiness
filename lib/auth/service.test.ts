@@ -12,13 +12,21 @@ import {
   businessProfiles,
   fieldRecords,
   loginTokens,
+  rateLimits,
   users,
 } from "../../db/schema";
 import { bootstrapIntake } from "../intake/service";
 import { NextRequest } from "next/server";
 import { GET as redeemGET, POST as redeemPOST } from "../../app/api/auth/redeem/route";
 import { appOriginOf } from "./same-origin";
-import { currentSession, peekLogin, redeemLogin, requestLogin, revokeSession } from "./service";
+import {
+  AuthError,
+  currentSession,
+  peekLogin,
+  redeemLogin,
+  requestLogin,
+  revokeSession,
+} from "./service";
 
 const cleanupEmails: string[] = [];
 const cleanupProfiles: { account_id: string; profile_id: string }[] = [];
@@ -46,6 +54,7 @@ afterAll(async () => {
       if (!profile) await db.delete(accounts).where(eq(accounts.id, u.account_id));
     }
     await db.delete(loginTokens).where(eq(loginTokens.email, email));
+    await db.delete(rateLimits).where(eq(rateLimits.key, `login:email:${email}:3600000`));
   }
   for (const s of cleanupProfiles) {
     await db.delete(fieldRecords).where(eq(fieldRecords.profile_id, s.profile_id));
@@ -168,5 +177,27 @@ describe("a sign-in link asks before it signs in", () => {
     expect(res.headers.get("set-cookie")).toContain("=");
     const again = await redeemPOST(post(login.token, { origin: ORIGIN }));
     expect(new URL(again.headers.get("location")!).pathname).toBe("/login");
+  });
+});
+
+describe("security review 2026-11-09 — login requests are rate-limited", () => {
+  it("refuses a 6th link for the same address inside an hour, with a 429", async () => {
+    const email = testEmail();
+    for (let i = 0; i < 5; i++) await requestLogin(email, null);
+    await expect(requestLogin(email, null)).rejects.toMatchObject({
+      status: 429,
+      name: "AuthError",
+    });
+    // Confirmed as an AuthError, not a generic one: the route maps it to
+    // a named 429, the same class of bug /api/chat had before this review.
+    await expect(requestLogin(email, null)).rejects.toBeInstanceOf(AuthError);
+  });
+
+  it("one address's limit never blocks a different address", async () => {
+    const blocked = testEmail();
+    for (let i = 0; i < 5; i++) await requestLogin(blocked, null);
+    await expect(requestLogin(blocked, null)).rejects.toMatchObject({ status: 429 });
+    // A fresh address still gets its link — the limit is per-email, not global.
+    await expect(requestLogin(testEmail(), null)).resolves.toMatchObject({ email: expect.any(String) });
   });
 });

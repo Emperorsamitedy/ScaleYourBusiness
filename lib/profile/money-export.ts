@@ -30,6 +30,7 @@ import {
 } from "../../db/schema";
 import type { FactWords } from "../bank/fact-words";
 import { displaySourceKind } from "../connectors/measured";
+import { csvCell } from "../core/csv";
 import { isIsoCurrency, money, toDecimalString } from "../core/money";
 import { sourceDetail } from "./factsheet";
 
@@ -185,18 +186,9 @@ export function toExportRow(
   };
 }
 
-/* ── CSV: RFC 4180, injection-safe ── */
+/* ── CSV: RFC 4180, injection-safe (lib/core/csv — shared with every other export) ── */
 
-/** A plain number ("-12.50", "0.750") is data, not a formula, and stays readable as one. */
-const PLAIN_NUMBER = /^-?\d+(\.\d+)?$/;
-/** What a spreadsheet would start evaluating (OWASP CSV injection), tab and CR included. */
-const FORMULA_START = /^[=+\-@\t\r]/;
-
-/** Pure: one cell, neutralised and quoted as needed. */
-export function csvCell(raw: string): string {
-  const safe = FORMULA_START.test(raw) && !PLAIN_NUMBER.test(raw) ? `'${raw}` : raw;
-  return /[",\r\n]/.test(safe) ? `"${safe.replace(/"/g, '""')}"` : safe;
-}
+export { csvCell };
 
 export const CURRENT_COLUMNS = [
   "field",

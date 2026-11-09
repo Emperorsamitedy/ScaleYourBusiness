@@ -645,6 +645,13 @@
       "when": 1794210734636,
       "tag": "0095_video_async",
       "breakpoints": true
+    },
+    {
+      "idx": 96,
+      "version": "7",
+      "when": 1794231373362,
+      "tag": "0096_loose_talos",
+      "breakpoints": true
     }
   ]
 }

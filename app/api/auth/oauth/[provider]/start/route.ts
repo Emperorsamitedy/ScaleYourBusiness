@@ -18,13 +18,14 @@ import {
   returnCookieOptions,
   returnPath,
 } from "../../../../../../lib/auth/return-to";
+import { appOriginOf } from "../../../../../../lib/auth/same-origin";
 
 export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ provider: string }> },
 ): Promise<NextResponse> {
   const { provider: providerId } = await params;
-  const origin = process.env.APP_URL || new URL(request.url).origin;
+  const origin = appOriginOf(request.url);
   const from = request.nextUrl.searchParams.get("from") === "signin" ? "/login" : "/signup";
 
   if (!KNOWN_PROVIDERS.includes(providerId)) {

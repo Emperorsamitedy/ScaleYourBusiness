@@ -31,6 +31,7 @@
 
 import { createHash } from "node:crypto";
 import type { Money } from "../core/money";
+import { multiply } from "../core/money";
 import type { AppLocale } from "../i18n/locales";
 import type { Words as RecipientWords } from "../i18n/recipient";
 import { exactMoney, isoDay } from "../stock/words";
@@ -173,10 +174,13 @@ export function poLine(s: SuggestedLine, chosen: number | null): PoLine {
     unit_cost: priced ? s.unit_cost : null,
     cost_basis: priced ? s.cost_basis : null,
     price_source: priced ? s.price_source : null,
-    line_total:
-      priced && s.unit_cost
-        ? { amount_minor: s.unit_cost.amount_minor * quantity, currency: s.unit_cost.currency }
-        : null,
+    // Security review 2026-11-09: every other money arithmetic in the
+    // codebase goes through multiply()/money()'s Number.isSafeInteger
+    // check (rule 1 — never a bare number); this line total was a bare
+    // object literal. unit_cost and quantity are already bounded (a
+    // non-negative safe integer, capped at PO.max_quantity), so this was
+    // never reachable for a negative or free order — just inconsistent.
+    line_total: priced && s.unit_cost ? multiply(s.unit_cost, quantity) : null,
     arithmetic,
   };
 }

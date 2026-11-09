@@ -19,6 +19,7 @@
 import { logSafeError } from "../../../lib/core/log-safe";
 import { resolveAccess } from "../../../lib/auth/access";
 import type { Access } from "../../../lib/auth/access";
+import { appOriginOf, isSameOriginPost } from "../../../lib/auth/same-origin";
 import { eq } from "drizzle-orm";
 import { type NextRequest, NextResponse } from "next/server";
 import { db } from "../../../db";
@@ -93,6 +94,14 @@ export async function GET(): Promise<NextResponse> {
 }
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
+  // Security review 2026-11-09: same-origin, defense-in-depth beyond
+  // SameSite=Lax, matching the pattern every other mutating route in the
+  // codebase follows (lib/auth/same-origin) — this starts a real Stripe
+  // checkout session, so it's worth the second check.
+  const origin = appOriginOf(request.url);
+  if (!isSameOriginPost(request.headers, origin)) {
+    return NextResponse.json({ error: "start checkout from our own page" }, { status: 403 });
+  }
   try {
     // The one door (lib/auth/access): a signed cookie, and an owned business only for its own account.
     const access = await resolveAccess();

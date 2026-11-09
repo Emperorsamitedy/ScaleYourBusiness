@@ -29,6 +29,7 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { resolveAccess } from "../../../lib/auth/access";
 import { requireRole, roleAllows, roleOf } from "../../../lib/auth/roles";
+import { appOriginOf, isSameOriginPost } from "../../../lib/auth/same-origin";
 import { logSafeError } from "../../../lib/core/log-safe";
 import type { ExportListing } from "../../../lib/payments/exports";
 import { listExports } from "../../../lib/payments/exports";
@@ -115,6 +116,13 @@ type Body =
   | { action: "erase"; payment_id?: string; supplier_id?: string };
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
+  // Security review 2026-11-09: same-origin, defense-in-depth beyond
+  // SameSite=Lax, matching the pattern every other mutating route in the
+  // codebase follows — this drafts and marks payments.
+  const origin = appOriginOf(request.url);
+  if (!isSameOriginPost(request.headers, origin)) {
+    return NextResponse.json({ error: "manage payments from our own page" }, { status: 403 });
+  }
   const access = await resolveAccess();
   if (!access) return NextResponse.json({ error: "no intake session" }, { status: 401 });
   const denied = requireRole(access, "payments.prepare");

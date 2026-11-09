@@ -15,7 +15,15 @@ import { viewStop } from "../../../../lib/summary/prefs";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("summaryStop");
-  return { title: t("meta"), robots: { index: false, follow: false } };
+  // Security review 2026-11-09: this page carries a bearer token in its own
+  // URL, exactly like /shared/<token> and /login/confirm, /invite, /resume
+  // — all of which set no-referrer so the token can't leave in a Referer
+  // header. This page had been the one left out.
+  return {
+    title: t("meta"),
+    robots: { index: false, follow: false },
+    referrer: "no-referrer",
+  };
 }
 export const dynamic = "force-dynamic";
 

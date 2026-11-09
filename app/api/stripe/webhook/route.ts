@@ -9,12 +9,21 @@
 import { type NextRequest, NextResponse } from "next/server";
 import { markCheckoutPaid, verifyStripeSignature } from "../../../../lib/billing/stripe";
 
+// Security review 2026-11-09: every other webhook route in the codebase
+// (Resend x2, Twilio x2) caps its raw body before reading it; this one
+// didn't. A Stripe checkout event is a few KB — 256KB matches the larger
+// Resend cap, generous for Stripe's payload shape with real headroom.
+const MAX_BODY_BYTES = 256 * 1024;
+
 export async function POST(request: NextRequest): Promise<NextResponse> {
   const secret = process.env.STRIPE_WEBHOOK_SECRET;
   if (!secret) {
     return NextResponse.json({ error: "webhook not configured" }, { status: 503 });
   }
   const rawBody = await request.text();
+  if (rawBody.length > MAX_BODY_BYTES) {
+    return NextResponse.json({ error: "too large" }, { status: 413 });
+  }
   const signature = request.headers.get("stripe-signature");
   if (!verifyStripeSignature(rawBody, signature, secret)) {
     return NextResponse.json({ error: "bad signature" }, { status: 400 });

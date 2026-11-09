@@ -23,7 +23,9 @@ import {
   signProfileCookie,
 } from "../../../../../../lib/auth/access";
 import { RETURN_COOKIE, returnPath } from "../../../../../../lib/auth/return-to";
+import { appOriginOf } from "../../../../../../lib/auth/same-origin";
 import { AuthError, signInWithEmail } from "../../../../../../lib/auth/service";
+import { secretMatches } from "../../../../../../lib/core/secret-compare";
 import { CURRENCY_COOKIE, LANGUAGE_COOKIE } from "../../../../../../lib/i18n/locales";
 import { languageCookieOptions } from "../../../../../../lib/i18n/server";
 
@@ -34,7 +36,7 @@ async function finish(
   state: string | null,
   providerError: string | null,
 ): Promise<NextResponse> {
-  const origin = process.env.APP_URL || new URL(request.url).origin;
+  const origin = appOriginOf(request.url);
   const store = await cookies();
   const stateCookie = store.get(STATE_COOKIE)?.value ?? "";
   const [expectedState, from = "/signup"] = stateCookie.split(":");
@@ -51,7 +53,11 @@ async function finish(
     if (providerError) {
       return fail(`${provider.label} sign-in failed — try again or use the email link`);
     }
-    if (!code || !state || !expectedState || state !== expectedState) {
+    // Timing-safe (security review 2026-11-09, matching every other secret
+    // compare in the codebase — lib/core/secret-compare): state is only a
+    // 192-bit random nonce, so this closes a theoretical gap rather than a
+    // demonstrated one, for the same reason the rest of the codebase pays it.
+    if (!code || !state || !expectedState || !secretMatches(state, expectedState)) {
       return fail("that sign-in attempt expired — try again");
     }
 

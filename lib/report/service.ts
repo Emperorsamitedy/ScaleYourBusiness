@@ -62,6 +62,21 @@ import { recordFunnelEvent } from "../intake/telemetry";
 import { applicableQuestions } from "../resolver/applicability";
 import type { AppLocale } from "../i18n/locales";
 import { isAppLocale } from "../i18n/locales";
+import { withinRateLimit } from "../core/rate-limit";
+
+export class ReportError extends Error {
+  readonly status: number;
+  constructor(message: string, status = 400) {
+    super(message);
+    this.name = "ReportError";
+    this.status = status;
+  }
+}
+
+const DAY_MS = 24 * 60 * 60_000;
+// Generous for genuine use (a few real re-diagnoses after real edits in a
+// day); far below the "hundreds per minute" an unbounded loop could do.
+const REPORT_FRESH_DAILY_LIMIT = 10;
 
 export type RecommendationResponse = "look_into" | "not_for_us";
 
@@ -250,6 +265,19 @@ export async function generateReport(args: {
     .limit(1);
   if (existing && existing.snapshot_id === snapshot.id) {
     return { report: await viewOf(existing), fresh: false };
+  }
+
+  // Security review 2026-11-09: the cost guard above only skips an
+  // UNCHANGED profile — nothing bounded how often a signed-in owner could
+  // force a fresh (paid, ~€0.12 per the comment above) generation by
+  // toggling any fact back and forth in a loop. A fixed daily cap per
+  // profile closes the unbounded-spend path without touching the
+  // legitimate case of a handful of genuine re-diagnoses after real edits.
+  if (!(await withinRateLimit(`report:fresh:${args.profileId}`, REPORT_FRESH_DAILY_LIMIT, DAY_MS))) {
+    throw new ReportError(
+      "too many fresh reports requested for this business today — try again tomorrow",
+      429,
+    );
   }
 
   // The expensive part — findings, then recommendations addressing them.

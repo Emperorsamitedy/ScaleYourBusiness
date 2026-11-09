@@ -37,6 +37,7 @@
 import { randomUUID } from "node:crypto";
 import type { Money } from "../../core/money";
 import { money } from "../../core/money";
+import { vetAddresses } from "../../site/fetch";
 import type {
   GeneratedMedia,
   GenerationOutput,
@@ -77,6 +78,14 @@ export interface HiggsfieldOptions {
   /** Higgsfield's published price, in millionths of a dollar per second. */
   usd_micros_per_second: number;
   fetch?: HttpFetch;
+  /**
+   * Checked against the finished video's delivery URL before it's fetched
+   * (security review 2026-11-09) — rejects by throwing. Defaults to the
+   * real DNS-resolving address check (lib/site/fetch's vetAddresses), the
+   * same one site-audit and competitor reads use; tests inject a stub so
+   * the suite stays network-free.
+   */
+  vetUrl?: (url: URL) => Promise<unknown>;
   limits?: Partial<Record<keyof typeof HIGGSFIELD_LIMITS, number>>;
 }
 
@@ -168,6 +177,7 @@ export function higgsfieldMediaProvider(opts: HiggsfieldOptions): MediaProvider 
     ...opts.limits,
   };
   const doFetch: HttpFetch = opts.fetch ?? ((url, init) => fetch(url, init));
+  const vetUrl = opts.vetUrl ?? vetAddresses;
   const key = opts.key;
   const model = opts.model;
   const auth = key ? `Key ${key.id}:${key.secret}` : "";
@@ -230,10 +240,27 @@ export function higgsfieldMediaProvider(opts: HiggsfieldOptions): MediaProvider 
     if (!url.startsWith("https://")) {
       throw new ProviderError("Higgsfield finished but gave no video address", charged);
     }
+    // Security review 2026-11-09: unlike status_url/cancel_url (checked
+    // against HIGGSFIELD_ORIGIN by onHiggsfieldHost), this delivery URL is
+    // legitimately on a different, unpredictable CDN host — so it can't be
+    // host-allowlisted the same way. What it CAN be is kept off a private
+    // network: the same address-vetting lib/site/fetch.ts uses for
+    // attacker-adjacent fetches (site audit, competitor reads), applied
+    // here against a vendor response that could in principle be
+    // manipulated (compromised account, MITM) into pointing this server at
+    // itself or at a cloud metadata address. No API key goes out on this
+    // request either way.
+    try {
+      await vetUrl(new URL(url));
+    } catch {
+      throw new ProviderError("Higgsfield's video address doesn't look safe to fetch", charged);
+    }
     let res: Response;
     try {
       // Without the key: the file sits on a delivery host, not the API.
-      res = await call(url, { method: "GET" }, limits.download_timeout_ms);
+      // redirect: "error" — a redirect would point at an address never
+      // vetted above; refuse rather than follow it blind.
+      res = await call(url, { method: "GET", redirect: "error" }, limits.download_timeout_ms);
     } catch {
       // Kept at Higgsfield for at least seven days: another run downloads it.
       throw new ProviderError("the finished video couldn't be downloaded from Higgsfield yet", {

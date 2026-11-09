@@ -31,6 +31,7 @@ import {
   users,
 } from "../../db/schema";
 import { isIsoCurrency } from "../core/currencies";
+import { withinRateLimit } from "../core/rate-limit";
 import { normaliseEmail } from "../intake/resume";
 import type { AppLocale } from "../i18n/locales";
 import { isAppLocale } from "../i18n/locales";
@@ -49,6 +50,18 @@ export class AuthError extends Error {
 const TOKEN_BYTES = 32;
 export const LOGIN_TTL_MINUTES = 15;
 export const SESSION_TTL_DAYS = 90;
+
+// Security review 2026-11-09: an unbounded /api/auth/login is a path to
+// email-bombing one victim's inbox (burying the real sign-in link, or as
+// cover for a separate attack) and to running up enough Resend volume to
+// trip ITS abuse controls — which would throttle EMAIL_FROM for every
+// SYB user, not just the attacker's target, i.e. a single-endpoint path
+// to a site-wide sign-in outage. Both limits apply to every caller of
+// requestLogin (this route and the invite-join route's unauthenticated
+// branch), not just one.
+const LOGIN_WINDOW_MS = 60 * 60_000; // 1 hour
+const LOGIN_LIMIT_PER_EMAIL = 5; // generous for a real owner who fat-fingers their address
+const LOGIN_LIMIT_PER_IP = 20; // looser: an office/NAT shares one address
 
 export function hash(token: string): string {
   return createHash("sha256").update(token).digest("hex");
@@ -96,8 +109,17 @@ export async function requestLogin(
   inviteId: string | null = null,
   /** L-1: carried by the link, so a link opened on another device still brings them. */
   choices?: SignInChoices,
+  /** The caller's address, as the platform reports it — for the per-IP limit only. */
+  clientIp?: string | null,
 ): Promise<LoginRequest> {
   const email = normaliseEmail(rawEmail);
+  if (!(await withinRateLimit(`login:email:${email}`, LOGIN_LIMIT_PER_EMAIL, LOGIN_WINDOW_MS))) {
+    throw new AuthError("too many sign-in links requested for that address — try again later", 429);
+  }
+  const ip = clientIp?.trim();
+  if (ip && !(await withinRateLimit(`login:ip:${ip}`, LOGIN_LIMIT_PER_IP, LOGIN_WINDOW_MS))) {
+    throw new AuthError("too many sign-in requests from this network — try again later", 429);
+  }
   const chosen = cleanChoices(choices);
   const token = randomBytes(TOKEN_BYTES).toString("base64url");
   const expires = new Date(Date.now() + LOGIN_TTL_MINUTES * 60_000).toISOString();

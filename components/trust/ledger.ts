@@ -16,6 +16,7 @@
 // sentence and a decline's reason are stored as they were written and
 // print as they are (rule 4).
 
+import { csvCell } from "../../lib/core/csv";
 import { intlMoney, intlNumber, dayMonthYear } from "../../lib/i18n/format";
 import type { AppLocale } from "../../lib/i18n/locales";
 import { intlTag } from "../../lib/i18n/locales";
@@ -425,8 +426,6 @@ export function byDay(
   return groups;
 }
 
-const cell = (v: string): string => (/[",\n\r]/.test(v) ? `"${v.replace(/"/g, '""')}"` : v);
-
 /** The CSV's columns, as exports.history in messages/<locale>.json names them. */
 export const CSV_COLUMNS = ["when", "kind", "entry", "reference", "detail", "by", "note"] as const;
 
@@ -439,7 +438,7 @@ export function toCsv(
   rows: readonly LedgerRow[],
   heading: (column: (typeof CSV_COLUMNS)[number]) => string = (c) => c,
 ): string {
-  const head = CSV_COLUMNS.map((c) => cell(heading(c)));
+  const head = CSV_COLUMNS.map((c) => csvCell(heading(c)));
   const lines = rows.map((r) =>
     [
       r.timed ? new Date(r.at).toISOString() : new Date(r.at).toISOString().slice(0, 10),
@@ -450,7 +449,7 @@ export function toCsv(
       r.actor,
       r.note,
     ]
-      .map(cell)
+      .map(csvCell)
       .join(","),
   );
   return [head.join(","), ...lines].join("\r\n");

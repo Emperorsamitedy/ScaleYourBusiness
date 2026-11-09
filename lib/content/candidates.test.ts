@@ -206,6 +206,12 @@ const higgsfield = (fetch: HttpFetch, monthCap = 6000): GenerationSetup => ({
     model: HIGGSFIELD_DEFAULTS.model,
     usd_micros_per_second: HIGGSFIELD_DEFAULTS.usd_micros_per_second,
     fetch,
+    // The real check (lib/site/fetch's vetAddresses, security review
+    // 2026-11-09) does a live DNS lookup; this suite's fixture hosts are
+    // fake on purpose, so a no-op stub keeps the suite network-free. The
+    // real function has its own tests (lib/site/fetch.test.ts); the
+    // refusal path's own test lives in generate/higgsfield.test.ts.
+    vetUrl: async () => undefined,
   }),
   reason: null,
   setting: "higgsfield",

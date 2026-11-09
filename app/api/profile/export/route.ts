@@ -11,6 +11,7 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { resolveAccess } from "../../../../lib/auth/access";
+import { requireRole } from "../../../../lib/auth/roles";
 import { loadFactWords } from "../../../../lib/bank/words";
 import { logSafeError } from "../../../../lib/core/log-safe";
 import { wordsFor } from "../../../../lib/i18n/recipient";
@@ -29,6 +30,10 @@ export async function GET(request: NextRequest): Promise<NextResponse | Response
   if (!access?.session) {
     return NextResponse.json({ error: "sign in to download your figures" }, { status: 401 });
   }
+  // Owner-only, same as every other money route (lib/auth/role-actions.ts
+  // "payments.read"): a manager or viewer gets the role refusal, not a file.
+  const denied = requireRole(access, "payments.read");
+  if (denied) return denied;
   const requested = request.nextUrl.searchParams.get("part") ?? "current";
   if (requested !== "current" && requested !== "history") {
     return NextResponse.json({ error: "part must be current or history" }, { status: 400 });
