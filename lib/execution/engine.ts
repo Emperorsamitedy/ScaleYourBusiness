@@ -78,7 +78,8 @@ import { sessionDRealWritesOn } from "../env";
 import { businessCountryIso, check as complianceCheck } from "../compliance/gate";
 import { releaseUnpublishedMedia } from "../content/media";
 import { authorize, resumeAll, stopAll } from "../ladder/ladder";
-import { LedgerError, openMeasurement, recordCounterfactual, requireOpen } from "../ledger/ledger";
+import { planFromProposal } from "../ledger/from-proposal";
+import { MeasurementRequiredError, openPlan, requireOpenPlan } from "../ledger/plans";
 import { latestDecision } from "../mode/service";
 import { cancelPendingProposals, recordExecution } from "../proposals/service";
 import type { ExecutionProviderId } from "./scopes";
@@ -466,9 +467,9 @@ export async function executeProposal(args: ExecuteArgs): Promise<ExecutionRow> 
   //       Stations 3 and 4 both still need the approval guard 2 checked —
   //       rule 12 is unchanged at every station (architecture-v2 D2).
   //   8b. ComplianceGate.check: a failure overrides whatever the ladder said.
-  //   8c. ProofLedger.open_measurement: the plan exists before anything runs
-  //       (one per proposal, so a retry reads the same plan); SHADOW records
-  //       its counterfactual against it and stops there.
+  //   8c. ProofLedger.open_measurement (the v1 spec §3.1): the plan exists
+  //       before anything runs (one per proposal, so a retry reads the same
+  //       plan); a SHADOW plan records what would have run and stops there.
   const ladder = await authorize(proposal.profile_id, args.provider.id);
   if (ladder.state === "BLOCKED") {
     // A stop pressed since guard 1 (mid pre-flight) set every station to 1
@@ -498,29 +499,30 @@ export async function executeProposal(args: ExecuteArgs): Promise<ExecutionRow> 
       `${verdict.reasons.join("; ")}. Nothing was sent; this stays approved.`,
     );
   }
-  const measurement = await openMeasurement({
-    profileId: proposal.profile_id,
-    accountId: ctx.account_id,
-    capability: args.provider.id,
-    metric: `${args.provider.id}:${args.op}`,
-    holdout: null,
-    proposalId: proposal.id,
-    now: now(),
-  });
+  // §3.1 (P7-36): the plan — the proposal's own forecast, as a range over a
+  // fixed window — is written before anything runs. SHADOW is decided here,
+  // at open, and kept on the plan: what would have been done, and nothing was.
+  const { plan } = await openPlan(
+    planFromProposal(proposal, {
+      accountId: ctx.account_id,
+      provider: args.provider.id,
+      op: args.op,
+      reversible: opSpec.reversible,
+      station: ladder.station,
+      shadow: ladder.state === "SHADOW",
+      now: now(),
+    }),
+  );
   try {
-    await requireOpen(measurement.measurement_id);
+    await requireOpenPlan(plan.id);
   } catch (error) {
-    if (!(error instanceof LedgerError)) throw error;
+    if (!(error instanceof MeasurementRequiredError)) throw error;
     throw new ExecutionRefused(
       "no_measurement",
       "this action's measurement plan is already closed, and nothing runs without an open one",
     );
   }
-  if (ladder.state === "SHADOW") {
-    await recordCounterfactual(
-      measurement.measurement_id,
-      `would have run ${args.op} on ${args.provider.id}`,
-    );
+  if (ladder.state === "SHADOW" || plan.shadow) {
     throw new ExecutionRefused(
       "shadow",
       `${spec?.label ?? args.provider.id} is in shadow on the trust ladder: I recorded what I would have done, and sent nothing. This stays approved.`,

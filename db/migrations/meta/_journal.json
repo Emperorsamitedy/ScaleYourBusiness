@@ -673,6 +673,34 @@
       "when": 1794262030525,
       "tag": "0099_peer_benchmark_consents",
       "breakpoints": true
+    },
+    {
+      "idx": 100,
+      "version": "7",
+      "when": 1794310985007,
+      "tag": "0100_figures_and_country_matrix",
+      "breakpoints": true
+    },
+    {
+      "idx": 101,
+      "version": "7",
+      "when": 1794310994939,
+      "tag": "0101_figures_grade_and_matrix_audit",
+      "breakpoints": true
+    },
+    {
+      "idx": 102,
+      "version": "7",
+      "when": 1794311900560,
+      "tag": "0102_proof_ledger_v1",
+      "breakpoints": true
+    },
+    {
+      "idx": 103,
+      "version": "7",
+      "when": 1794311928410,
+      "tag": "0103_proof_ledger_v1_triggers",
+      "breakpoints": true
     }
   ]
 }

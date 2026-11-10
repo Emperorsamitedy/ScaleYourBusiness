@@ -23,8 +23,7 @@ import type { StatedVsMeasured } from "../connectors/measured";
 import type { Money } from "../core/money";
 import { money, multiply, subtract } from "../core/money";
 import type { Grade } from "../core/grade";
-import { derivedGrade, lowestGrade } from "../core/grade";
-import { confidence as asConfidence } from "../core/confidence";
+import { lowestGrade, provenanceGrade, sourceGrade } from "../core/grade";
 import type { SnapshotEntity, SnapshotView } from "../profile/snapshot";
 
 /** A number nobody has to take on faith. */
@@ -103,6 +102,8 @@ interface FactLike {
   value: unknown;
   status: string;
   confidence: number;
+  /** The fact's SourceRef — its §6.1 grade comes from here. */
+  source: unknown;
 }
 
 function fact(view: SnapshotView, key: string): FactLike | null {
@@ -113,7 +114,7 @@ function fact(view: SnapshotView, key: string): FactLike | null {
   // derivations, but a sum of Stripe payments is an input, not a guess.
   const usable = f.status === "answered" || (f.status === "inferred" && isMeasuredSource(f.source));
   if (!usable) return null;
-  return { value: f.value, status: f.status, confidence: Number(f.confidence) };
+  return { value: f.value, status: f.status, confidence: Number(f.confidence), source: f.source };
 }
 
 function asMoney(v: unknown): Money | null {
@@ -143,11 +144,15 @@ function derivedConfidence(inputs: readonly (FactLike | null)[]): number {
   return Math.round(Math.min(...known.map((i) => i.confidence)) * 0.9 * 1000) / 1000;
 }
 
-/** Hard rule 3: the inputs' lowest grade. No known input is the floor grade, never a guess. */
+/**
+ * Hard rule 3 over §6.1: the inputs' lowest provenance grade. Arithmetic
+ * on measured inputs keeps their grade; one owner-stated input makes the
+ * figure D. No known input is the floor grade, never a guess.
+ */
 function inputsGrade(inputs: readonly (FactLike | null)[]): Grade {
   const known = inputs.filter((i): i is FactLike => i !== null);
   if (known.length === 0) return "D";
-  return derivedGrade(known.map((i) => asConfidence(i.confidence)));
+  return provenanceGrade({ source: "derived", inputs: known.map((i) => sourceGrade(i.source)) });
 }
 
 /** Sub-facts of one entity: "offers.<id>.price" → { price: … }. */
@@ -165,6 +170,7 @@ function entityFacts(view: SnapshotView, spine: string, id: string): Map<string,
       value: f.value,
       status: f.status,
       confidence: Number(f.confidence),
+      source: f.source,
     });
   }
   return out;

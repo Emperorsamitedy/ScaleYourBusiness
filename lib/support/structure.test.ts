@@ -256,6 +256,10 @@ describe("P4-08 — rule 21, held by the module graph", () => {
         // with no imports, so the phone line can read its business's country
         // for the country flag without reaching lib/profile.
         file === "lib/core/country.ts" ||
+        // Added deliberately by the v1 build spec §9.2 (P7-32): the country
+        // compliance matrix's reader, which imports only the database and
+        // its schema, so the line obeys the same row ComplianceGate does.
+        file === "lib/compliance/matrix.ts" ||
         // Added deliberately by L-5 and L-6 (rule 5 of TASKS-LANGUAGES.md):
         // the widget answers in the business's own language, so the tier
         // reads the language files — pure data and next-intl, held below to

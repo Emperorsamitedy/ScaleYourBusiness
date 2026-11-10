@@ -1,23 +1,71 @@
-// Test support for hard rule 6 (architecture-v2 D6): a phone line answers
-// only where its business's country is on PHONE_ANSWERING_COUNTRIES, so the
-// phone suites put their businesses in Hungary and switch Hungary on.
-// Imported by tests only — no entry point of the phone tier reaches it.
+// Test support for hard rule 6 (the v1 build spec §9.2): a phone line answers
+// only where its business's country is unblocked in the compliance matrix,
+// so the phone suites put their businesses in Hungary and unblock Hungary
+// for the suite — then put its row back exactly as it was. Imported by tests
+// only — no entry point of the phone tier reaches it.
 
+import type { CountryRule } from "../compliance/matrix";
+import { countryRule, removeCountryRule, setCountryRule } from "../compliance/matrix";
 import { confidence } from "../core/confidence";
 import { createField } from "../core/field";
 import { fieldId } from "../core/ids";
 import { isoDateTime } from "../core/iso";
 import { writeField } from "../profile/field-store";
-import { PHONE_COUNTRIES_KEY } from "./countries";
 
-/** Switch the suite's country on; returns the restore for afterAll. */
-export function switchPhoneCountryOn(countries = "HU"): () => void {
-  const saved = process.env[PHONE_COUNTRIES_KEY];
-  process.env[PHONE_COUNTRIES_KEY] = countries;
-  return () => {
-    if (saved === undefined) delete process.env[PHONE_COUNTRIES_KEY];
-    else process.env[PHONE_COUNTRIES_KEY] = saved;
+const ACTOR = "test suite";
+
+function restoreOf(country: string, before: CountryRule | null): () => Promise<void> {
+  return async () => {
+    if (before === null) {
+      if (await countryRule(country)) {
+        await removeCountryRule({ country, actor: ACTOR, reason: "test: put the row back" });
+      }
+      return;
+    }
+    await setCountryRule({
+      country,
+      change: {
+        recording_regime: before.recording_regime,
+        criminal_penalty: before.criminal_penalty,
+        outbound_consent_required: before.outbound_consent_required,
+        legal_signoff_date: before.legal_signoff_date,
+        legal_signoff_reference: before.legal_signoff_reference,
+        blocked: before.blocked,
+        outbound_blocked: before.outbound_blocked,
+        execution_halted: before.execution_halted,
+        note: before.note,
+      },
+      actor: ACTOR,
+      reason: "test: put the row back",
+    });
   };
+}
+
+/** Unblock the suite's country in the matrix; returns the restore for afterAll. */
+export async function switchPhoneCountryOn(country = "HU"): Promise<() => Promise<void>> {
+  const before = await countryRule(country);
+  await setCountryRule({
+    country,
+    change: {
+      blocked: false,
+      execution_halted: false,
+      legal_signoff_date: "2026-11-10",
+      legal_signoff_reference: "test suite sign-off — never a real one",
+    },
+    actor: ACTOR,
+    reason: "test: unblock phone answering for the suite",
+  });
+  return restoreOf(country, before);
+}
+
+/** Block the country again mid-suite (the switch's restore still puts the original back). */
+export async function blockPhoneCountry(country = "HU"): Promise<void> {
+  await setCountryRule({
+    country,
+    change: { blocked: true, outbound_blocked: true },
+    actor: ACTOR,
+    reason: "test: block phone answering",
+  });
 }
 
 /** legal.country as an owner would type it. */

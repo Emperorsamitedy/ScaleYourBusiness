@@ -4430,3 +4430,366 @@ export const peerBenchmarkConsents = pgTable(
       .where(sql`${t.withdrawn_at} is null`),
   ],
 );
+
+// ---------------------------------------------------------------------------
+// The figure provenance object — the v1 build spec §6.1 (Phase 7, P7-31).
+//
+// Every number the diagnosis, ledger or a partner report shows is a figure
+// row: its value, where it came from, when, and its grade. A derived figure
+// names the figures it was computed from (depends_on), and the database
+// itself refuses one whose grade is better than its inputs' lowest
+// (migration 0101's trigger) — grades never launder, whatever the caller
+// says. Figures are written, never edited: a new reading is a new figure.
+// Erasure deletes them with their business (rule 22's cascade).
+// ---------------------------------------------------------------------------
+
+export const figureSource = pgEnum("figure_source", [
+  "measured",
+  "stated",
+  "derived",
+  "peer",
+  "official",
+]);
+
+export const figures = pgTable(
+  "figures",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    profile_id: uuid("profile_id")
+      .notNull()
+      .references(() => businessProfiles.id, { onDelete: "cascade" }),
+    /** What the figure is, e.g. "revenue.monthly", "break_even.monthly". */
+    key: text("key").notNull(),
+    /**
+     * The value. With a currency it is integer minor units (rule 1) — the
+     * check below refuses a fraction; without one, a count or ratio.
+     */
+    value: numeric("value").notNull(),
+    currency: text("currency"),
+    source: figureSource("source").notNull(),
+    /** Plain words: "Stripe, 2026-10-01 to 2026-10-31". */
+    source_detail: text("source_detail").notNull(),
+    captured_at: timestamp("captured_at", { withTimezone: true, mode: "string" }).notNull(),
+    /** §6.1 calls the grade "confidence": A, B, C or D. */
+    confidence: text("confidence").notNull(),
+    /** derived: the figures it was computed from. Empty for every other source. */
+    depends_on: uuid("depends_on")
+      .array()
+      .notNull()
+      .default(sql`'{}'::uuid[]`),
+    /** derived: the formula, and the assumptions when modelled (rule 6). */
+    method: text("method"),
+    /** derived: the formula assumes something it didn't measure — C at best. */
+    modelled: boolean("modelled").notNull().default(false),
+    /** measured: the second source that agrees with it, which makes it A. */
+    cross_check_id: uuid("cross_check_id"),
+    recorded_at: timestamp("recorded_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    index("figures_profile_key_idx").on(t.profile_id, t.key, t.captured_at),
+    check("figures_grade", sql`${t.confidence} in ('A', 'B', 'C', 'D')`),
+    check(
+      "figures_money_is_minor_units",
+      sql`${t.currency} is null or (${t.currency} ~ '^[A-Z]{3}$' and ${t.value} = trunc(${t.value}))`,
+    ),
+    check("figures_stated_is_d", sql`${t.source} <> 'stated' or ${t.confidence} = 'D'`),
+    check(
+      "figures_reference_is_c",
+      sql`${t.source} not in ('peer', 'official') or ${t.confidence} = 'C'`,
+    ),
+    check(
+      "figures_measured_grade",
+      sql`${t.source} <> 'measured' or (${t.confidence} = 'A') = (${t.cross_check_id} is not null)`,
+    ),
+    check(
+      "figures_measured_is_a_or_b",
+      sql`${t.source} <> 'measured' or ${t.confidence} in ('A', 'B')`,
+    ),
+    check(
+      "figures_derived_names_inputs",
+      sql`(${t.source} = 'derived') = (cardinality(${t.depends_on}) > 0) and (${t.source} <> 'derived' or ${t.method} is not null)`,
+    ),
+  ],
+);
+
+// ---------------------------------------------------------------------------
+// The country compliance matrix — the v1 build spec §9.2 (P7-32).
+//
+// Configuration, not code: one row per country, changed without a deploy
+// (lib/compliance/matrix.ts), every change audit-logged by a trigger into
+// country_compliance_changes (migration 0101), which nothing may edit.
+// Strictest first: a row's defaults are all-party recording with criminal
+// penalties, and blocked. A country without a row is blocked.
+//
+//   blocked            phone answering, and the recording and transcription
+//                      beside it (§9.2: transcripts are recordings)
+//   outbound_blocked   outbound AI calling — unblocked only once inbound is,
+//   execution_halted   every external capability for businesses in this
+//                      country, at every station (§9.5) — an operator's stop
+//
+// Unblocking needs counsel's sign-off date and reference on the row: the
+// check constraint refuses the row otherwise.
+// ---------------------------------------------------------------------------
+
+export const recordingRegime = pgEnum("recording_regime", ["all_party", "single_party"]);
+
+export const countryComplianceMatrix = pgTable(
+  "country_compliance_matrix",
+  {
+    country: text("country").primaryKey(),
+    recording_regime: recordingRegime("recording_regime").notNull().default("all_party"),
+    criminal_penalty: boolean("criminal_penalty").notNull().default(true),
+    ai_disclosure_required: boolean("ai_disclosure_required").notNull().default(true),
+    outbound_consent_required: boolean("outbound_consent_required").notNull().default(true),
+    legal_signoff_date: date("legal_signoff_date", { mode: "string" }),
+    legal_signoff_reference: text("legal_signoff_reference"),
+    blocked: boolean("blocked").notNull().default(true),
+    outbound_blocked: boolean("outbound_blocked").notNull().default(true),
+    execution_halted: boolean("execution_halted").notNull().default(false),
+    note: text("note"),
+    updated_at: timestamp("updated_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    check("country_compliance_matrix_iso", sql`${t.country} ~ '^[A-Z]{2}$'`),
+    check(
+      "country_compliance_matrix_signoff",
+      sql`(${t.blocked} and ${t.outbound_blocked}) or (${t.legal_signoff_date} is not null and coalesce(trim(${t.legal_signoff_reference}), '') <> '')`,
+    ),
+    check(
+      "country_compliance_matrix_inbound_first",
+      sql`${t.outbound_blocked} or not ${t.blocked}`,
+    ),
+    check("country_compliance_matrix_disclosure", sql`${t.ai_disclosure_required}`),
+  ],
+);
+
+/** Every change to the matrix, written by its trigger. Append-only by trigger too. */
+export const countryComplianceChanges = pgTable(
+  "country_compliance_changes",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    country: text("country").notNull(),
+    op: text("op").notNull(),
+    before: jsonb("before"),
+    after: jsonb("after"),
+    actor: text("actor").notNull(),
+    reason: text("reason"),
+    at: timestamp("at", { withTimezone: true, mode: "string" }).notNull().defaultNow(),
+  },
+  (t) => [index("country_compliance_changes_country_idx").on(t.country, t.at)],
+);
+
+// ---------------------------------------------------------------------------
+// The Proof Ledger in full — the v1 build spec §3 (Phase 7, P7-33..38).
+//
+// measurement_plans: written before execution (§3.1), immutable once opened
+// (§3.7). Migration 0103's trigger turns any UPDATE or DELETE into a no-op
+// and records the attempt in ledger_tamper_events — so window_end can't
+// move and an edit leaves a trace instead of a change.
+//
+// ledger_entries: written at window close, append-only by trigger, chained
+// by SHA-256 (§3.5): entry_hash = sha256(prev_hash || canonical_json(entry)).
+// The trigger also refuses an entry whose prev_hash isn't the chain's head,
+// so the chain can't fork. A correction is a new entry naming the one it
+// corrects.
+//
+// Money is integer minor units plus the plan's currency (rule 1): the spec's
+// *_eur columns are *_minor here, in the plan's currency, never converted.
+//
+// proof_ledger (Session A, migration 0097) is kept as it was; nothing
+// writes to it any more.
+// ---------------------------------------------------------------------------
+
+export const planCapability = pgEnum("plan_capability", [
+  "meta_ads",
+  "google_ads",
+  "tiktok_ads",
+  "tiktok_post",
+  "site_copy",
+  "price_change",
+  "email_campaign",
+  "winback",
+  "reorder",
+  "purchase_order",
+  "bundle",
+  "hours_change",
+  "chat_answer",
+  // Not in §3.2's list, which names what SYB sells; the engine's own
+  // capabilities that don't map onto one of those (the in-repo fixture,
+  // Meta organic posts, review replies) are planned and measured too.
+  "meta_post",
+  "review_reply",
+  "fixture",
+]);
+
+export const planMetric = pgEnum("plan_metric", [
+  "revenue",
+  "gross_profit",
+  "orders",
+  "bookings",
+  "leads",
+  "cost",
+  "cash_days",
+]);
+
+export const planDesign = pgEnum("plan_design", [
+  "holdout_geo",
+  "holdout_audience",
+  "ab_split",
+  "switchback",
+  "matched_period",
+  "pre_post_adjusted",
+  "unmeasurable",
+]);
+
+export const planOpenedBy = pgEnum("plan_opened_by", ["agent", "owner", "partner"]);
+
+export const ledgerVerdict = pgEnum("ledger_verdict", [
+  "verified_gain",
+  "no_effect",
+  "loss",
+  "inconclusive",
+]);
+
+export const measurementPlans = pgTable(
+  "measurement_plans",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    profile_id: uuid("profile_id").notNull(),
+    account_id: uuid("account_id").notNull(),
+    /** The proposal this plan measures; one plan per proposal. */
+    proposal_id: uuid("proposal_id"),
+    capability: planCapability("capability").notNull(),
+    /** The engine's own provider id, verbatim ("meta_ads", "fixture"). */
+    provider: text("provider").notNull(),
+    action_summary: text("action_summary").notNull(),
+    hypothesis: text("hypothesis").notNull(),
+    primary_metric: planMetric("primary_metric").notNull(),
+    currency: text("currency").notNull(),
+    /** Signed, integer minor units. The owner sees the range, never the point alone. */
+    expected_effect_minor: bigint("expected_effect_minor", { mode: "number" }).notNull(),
+    expected_low_minor: bigint("expected_low_minor", { mode: "number" }).notNull(),
+    expected_high_minor: bigint("expected_high_minor", { mode: "number" }).notNull(),
+    window_start: timestamp("window_start", { withTimezone: true, mode: "string" }).notNull(),
+    window_end: timestamp("window_end", { withTimezone: true, mode: "string" }).notNull(),
+    design: planDesign("design").notNull(),
+    /** Null only when the design is unmeasurable. */
+    control_definition: jsonb("control_definition"),
+    /** Why a weaker design than the capability's strongest was chosen (§3.3). */
+    downgrade_reason: text("downgrade_reason"),
+    confidence_grade: text("confidence_grade").notNull(),
+    cost_minor: bigint("cost_minor", { mode: "number" }).notNull().default(0),
+    reversible: boolean("reversible").notNull(),
+    rollback_token: text("rollback_token"),
+    opened_by: planOpenedBy("opened_by").notNull(),
+    ladder_station_at_open: integer("ladder_station_at_open").notNull(),
+    /** SHADOW (station 2): what would have been done; nothing was. */
+    shadow: boolean("shadow").notNull().default(false),
+    opened_at: timestamp("opened_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    index("measurement_plans_profile_idx").on(t.profile_id, t.window_end),
+    uniqueIndex("measurement_plans_one_per_proposal")
+      .on(t.proposal_id)
+      .where(sql`${t.proposal_id} is not null`),
+    check("measurement_plans_grade", sql`${t.confidence_grade} in ('A', 'B', 'C', 'D')`),
+    check("measurement_plans_currency", sql`${t.currency} ~ '^[A-Z]{3}$'`),
+    check(
+      "measurement_plans_range",
+      sql`${t.expected_low_minor} <= ${t.expected_effect_minor} and ${t.expected_effect_minor} <= ${t.expected_high_minor}`,
+    ),
+    check("measurement_plans_window", sql`${t.window_end} > ${t.window_start}`),
+    check(
+      "measurement_plans_control",
+      sql`(${t.design} = 'unmeasurable') = (${t.control_definition} is null)`,
+    ),
+    check(
+      "measurement_plans_pre_post_caps_c",
+      sql`${t.design} <> 'pre_post_adjusted' or ${t.confidence_grade} in ('C', 'D')`,
+    ),
+    check("measurement_plans_rollback", sql`${t.reversible} or ${t.rollback_token} is null`),
+    check("measurement_plans_station", sql`${t.ladder_station_at_open} between 1 and 4`),
+    check("measurement_plans_cost", sql`${t.cost_minor} >= 0`),
+  ],
+);
+
+export const ledgerEntries = pgTable(
+  "ledger_entries",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    /** The chain's order, set by the insert trigger under the chain lock. */
+    seq: bigint("seq", { mode: "number" }).notNull(),
+    plan_id: uuid("plan_id")
+      .notNull()
+      .references(() => measurementPlans.id),
+    profile_id: uuid("profile_id").notNull(),
+    verdict: ledgerVerdict("verdict").notNull(),
+    currency: text("currency").notNull(),
+    /** Signed. Null when nothing could be observed (inconclusive). */
+    observed_effect_minor: bigint("observed_effect_minor", { mode: "number" }),
+    observed_low_minor: bigint("observed_low_minor", { mode: "number" }),
+    observed_high_minor: bigint("observed_high_minor", { mode: "number" }),
+    /** observed − the plan's cost. */
+    net_minor: bigint("net_minor", { mode: "number" }),
+    /** observed − expected. Feeds the calibration score (§3.6). */
+    forecast_error_minor: bigint("forecast_error_minor", { mode: "number" }),
+    method_notes: text("method_notes").notNull(),
+    corrects_entry_id: uuid("corrects_entry_id"),
+    prev_hash: text("prev_hash"),
+    entry_hash: text("entry_hash").notNull(),
+    created_at: timestamp("created_at", { withTimezone: true, mode: "string" }).notNull(),
+  },
+  (t) => [
+    uniqueIndex("ledger_entries_seq").on(t.seq),
+    uniqueIndex("ledger_entries_hash").on(t.entry_hash),
+    index("ledger_entries_profile_idx").on(t.profile_id, t.created_at),
+    index("ledger_entries_plan_idx").on(t.plan_id),
+    uniqueIndex("ledger_entries_one_close")
+      .on(t.plan_id)
+      .where(sql`${t.corrects_entry_id} is null`),
+    check("ledger_entries_currency", sql`${t.currency} ~ '^[A-Z]{3}$'`),
+    check(
+      "ledger_entries_observed",
+      sql`(${t.observed_effect_minor} is null) = (${t.net_minor} is null) and (${t.observed_effect_minor} is null) = (${t.forecast_error_minor} is null)`,
+    ),
+    check(
+      "ledger_entries_scored_verdicts",
+      sql`${t.verdict} = 'inconclusive' or ${t.observed_effect_minor} is not null`,
+    ),
+  ],
+);
+
+/** An attempt to change a plan, kept instead of the change (§3.7). Append-only. */
+export const ledgerTamperEvents = pgTable("ledger_tamper_events", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  table_name: text("table_name").notNull(),
+  row_id: uuid("row_id").notNull(),
+  op: text("op").notNull(),
+  attempted: jsonb("attempted"),
+  db_user: text("db_user").notNull(),
+  at: timestamp("at", { withTimezone: true, mode: "string" }).notNull().defaultNow(),
+});
+
+/**
+ * The chain head, published daily (§3.5). Append-only by trigger. Where an
+ * external write-once store is configured, each row also records where the
+ * head went (external_ref); without one, this table and the decision log
+ * carry it.
+ */
+export const ledgerChainHeads = pgTable("ledger_chain_heads", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  day: date("day", { mode: "string" }).notNull().unique(),
+  head_seq: bigint("head_seq", { mode: "number" }),
+  head_hash: text("head_hash"),
+  entries: integer("entries").notNull(),
+  external_ref: text("external_ref"),
+  published_at: timestamp("published_at", { withTimezone: true, mode: "string" })
+    .notNull()
+    .defaultNow(),
+});

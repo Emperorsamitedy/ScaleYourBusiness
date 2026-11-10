@@ -37,6 +37,10 @@
     {
       "path": "/api/cron/close-measurements",
       "schedule": "15 4 * * *"
+    },
+    {
+      "path": "/api/cron/ledger-head",
+      "schedule": "50 23 * * *"
     }
   ]
 }

@@ -50,7 +50,10 @@ import { loadCover } from "./cover-load";
 import { REORDER_KIND, proposeReorders } from "./reorder";
 import { STOCK_WARNING_KIND, logStockWarnings } from "./warnings";
 
-const TODAY = "2026-10-27";
+// The real day, not a pinned one: a note expires 14 days after NOW, and the
+// approval below runs on the real clock — a pinned day made this a time
+// bomb that went off on 2026-11-10.
+const TODAY = new Date().toISOString().slice(0, 10);
 const NOW = new Date(`${TODAY}T08:00:00Z`);
 
 const noLimits: LimitLlm = async () => ({ text: JSON.stringify({ limits: [] }), calls: [] });

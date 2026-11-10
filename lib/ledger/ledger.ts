@@ -1,4 +1,8 @@
-// The Proof Ledger — architecture-v2 (hard rules 1–3, I1, I2, D10–D12).
+// The Proof Ledger, Session A's cut — architecture-v2 (hard rules 1–3, I1,
+// I2, D10–D12). SUPERSEDED on 2026-11-10 by the v1 build spec §3: the engine
+// now writes measurement_plans and ledger_entries (./plans, ./close,
+// ./chain, ./counter). This module and its proof_ledger table are kept as
+// they were, not deleted; nothing in the product writes here any more.
 //
 // Every agent action gets a measurement plan BEFORE it runs
 // (openMeasurement), and the engine refuses to run without one

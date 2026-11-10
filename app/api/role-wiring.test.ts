@@ -58,6 +58,7 @@ export const ALLOWED: Record<string, Partial<Record<Method, string>>> = {
   },
   "ops/campaign-review/route.ts": { POST: "the operator panel: OPS_KEY, not a business session" },
   "ops/law-review/route.ts": { POST: "the operator panel: OPS_KEY, not a business session" },
+  "ops/compliance-matrix/route.ts": { POST: "the operator panel: OPS_KEY, not a business session" },
 };
 
 /** GET handlers that change something anyway, held to the same rule. */

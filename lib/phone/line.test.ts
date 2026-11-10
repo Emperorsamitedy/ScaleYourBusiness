@@ -43,7 +43,11 @@ import {
 } from "../phone-desk/desk";
 import { createProposal } from "../proposals/service";
 import { PHONE_COUNTRIES_KEY } from "./countries";
-import { inPhoneCountry as inCountry, switchPhoneCountryOn } from "./test-country";
+import {
+  blockPhoneCountry,
+  inPhoneCountry as inCountry,
+  switchPhoneCountryOn,
+} from "./test-country";
 import {
   FAKE_ACCOUNT_SID,
   FAKE_AUTH_TOKEN,
@@ -63,13 +67,13 @@ import {
 
 const created: { account_id: string; profile_id: string }[] = [];
 
-// Hard rule 6 (architecture-v2 D6): a line answers only where the business's
-// country is on PHONE_ANSWERING_COUNTRIES. These businesses are in Hungary,
-// and Hungary is switched on for the suite; the flag's own tests below
-// switch it off.
-let restoreCountries: () => void = () => undefined;
-beforeAll(() => {
-  restoreCountries = switchPhoneCountryOn();
+// Hard rule 6 (the v1 build spec §9.2): a line answers only where the
+// business's country is unblocked in the compliance matrix. These businesses
+// are in Hungary, and Hungary is unblocked for the suite; the flag's own
+// tests below block it again.
+let restoreCountries: () => Promise<void> | void = () => undefined;
+beforeAll(async () => {
+  restoreCountries = await switchPhoneCountryOn();
 });
 afterAll(() => restoreCountries());
 
@@ -795,13 +799,13 @@ describe("the owner's side: turning the line on, and where a person is reached",
 });
 
 describe("hard rule 6 — phone answering is behind a country flag, default blocked", () => {
-  afterEach(() => {
-    process.env[PHONE_COUNTRIES_KEY] = "HU";
+  afterEach(async () => {
+    await switchPhoneCountryOn();
   });
 
-  it("answers closed where the business's country isn't switched on — and keeps nothing", async () => {
+  it("answers closed where the business's country isn't unblocked — and keeps nothing", async () => {
     const b = await business();
-    process.env[PHONE_COUNTRIES_KEY] = "DE";
+    await blockPhoneCountry("HU");
     const { sid, xml } = await start(b);
     const says = saysOf(xml);
     // Rule 31 still holds on a refused line: the business and what it is, first.
@@ -812,19 +816,32 @@ describe("hard rule 6 — phone answering is behind a country flag, default bloc
     expect(rows).toHaveLength(0);
   });
 
-  it("with the list empty — the default — every line answers closed", async () => {
+  it("with no matrix row for the country — the default — every line answers closed", async () => {
     const b = await business();
-    process.env[PHONE_COUNTRIES_KEY] = "";
+    await inCountry(b.profile_id, "Luxembourg");
     expect(saysOf((await start(b)).xml)[1]).toMatch(/isn&apos;t taking calls/);
   });
 
-  it("a business with no country stated is blocked even when its list has entries", async () => {
+  it("the old environment list opens nothing: only the matrix decides", async () => {
+    const b = await business();
+    await inCountry(b.profile_id, "Luxembourg");
+    const saved = process.env[PHONE_COUNTRIES_KEY];
+    process.env[PHONE_COUNTRIES_KEY] = "LU";
+    try {
+      expect(saysOf((await start(b)).xml)[1]).toMatch(/isn&apos;t taking calls/);
+    } finally {
+      if (saved === undefined) delete process.env[PHONE_COUNTRIES_KEY];
+      else process.env[PHONE_COUNTRIES_KEY] = saved;
+    }
+  });
+
+  it("a business with no country stated is blocked even when its own country is unblocked", async () => {
     const b = await business();
     await db.delete(fieldRecords).where(eq(fieldRecords.profile_id, b.profile_id));
     expect(saysOf((await start(b)).xml)[1]).toMatch(/isn&apos;t taking calls/);
   });
 
-  it("the owner can't switch a blocked line on, and is told which setting decides it", async () => {
+  it("the owner can't switch a blocked line on, and is told the compliance matrix decides it", async () => {
     const saved = { ...process.env };
     process.env.TWILIO_ACCOUNT_SID = FAKE_ACCOUNT_SID;
     process.env.TWILIO_AUTH_TOKEN = FAKE_AUTH_TOKEN;
@@ -833,7 +850,7 @@ describe("hard rule 6 — phone answering is behind a country flag, default bloc
       const s = await bootstrapIntake();
       created.push(s);
       await inCountry(s.profile_id, "Austria");
-      await expect(enablePhoneLine(s.profile_id)).rejects.toThrow(/PHONE_ANSWERING_COUNTRIES/);
+      await expect(enablePhoneLine(s.profile_id)).rejects.toThrow(/compliance matrix/);
       await expect(enablePhoneLine(s.profile_id)).rejects.toBeInstanceOf(PhoneDeskError);
     } finally {
       for (const k of ["TWILIO_ACCOUNT_SID", "TWILIO_AUTH_TOKEN", "TWILIO_PHONE_NUMBER"]) {

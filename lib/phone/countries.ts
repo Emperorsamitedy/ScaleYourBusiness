@@ -1,26 +1,32 @@
-// Phone answering's country flag — architecture-v2 hard rule 6, D6.
+// Phone answering's country flag — hard rule 6; the v1 build spec §9.2.
 //
-// PHONE_ANSWERING_COUNTRIES is a comma list of ISO alpha-2 codes. Empty —
-// the default — blocks every country: AI phone answering (and the call
-// recording beside it) is regulated country by country, so a country is
-// switched on deliberately, never by omission. A business whose country
-// can't be read is blocked too.
+// Since 2026-11-10 the flag is the country compliance matrix
+// (lib/compliance/matrix.ts): a table changed without a deploy, every change
+// audit-logged, a country unblocked only with counsel's dated sign-off. A
+// country with no row — the default — is blocked, and so is a business
+// whose country can't be read. phoneAllowedFor reads the matrix, and
+// ComplianceGate reads the same row, so the line and the gate can't
+// disagree.
+//
+// PHONE_ANSWERING_COUNTRIES (architecture-v2 D6) was the first cut: an
+// environment list that needed a deploy to change. Its parser is kept below,
+// but nothing obeys it any more.
 //
 // This file sits inside the phone line's import fence
-// (lib/support/structure.test.ts): the database, its schema and the pure
-// country map only. ComplianceGate reads the same function, so the line and
-// the gate can't disagree.
+// (lib/support/structure.test.ts): the database, its schema, the pure
+// country map and the matrix reader only.
 
 import { and, eq, isNull } from "drizzle-orm";
 import { db } from "../../db";
 import { fieldRecords } from "../../db/schema";
 import { countryCode } from "../core/country";
+import { countryRule, inboundPhoneAllowed } from "../compliance/matrix";
 
 export const PHONE_COUNTRIES_KEY = "PHONE_ANSWERING_COUNTRIES";
 
 type EnvSource = Readonly<Record<string, string | undefined>>;
 
-/** The ISO codes switched on. Anything that isn't two letters is ignored, never guessed. */
+/** Superseded (see above). The ISO codes the old list named; junk is ignored, never guessed. */
 export function phoneAnsweringCountries(source: EnvSource = process.env): Set<string> {
   const raw = source[PHONE_COUNTRIES_KEY] ?? "";
   return new Set(
@@ -53,7 +59,7 @@ export async function businessCountryIso(profileId: string): Promise<string | nu
   return typeof row?.value === "string" ? countryCode(row.value) : null;
 }
 
-/** Whether this business's line may answer at all (hard rule 6). */
+/** Whether this business's line may answer at all (hard rule 6): its country's matrix row. */
 export async function phoneAllowedFor(profileId: string): Promise<boolean> {
-  return phoneAnsweringAllowed(await businessCountryIso(profileId));
+  return inboundPhoneAllowed(await countryRule(await businessCountryIso(profileId)));
 }

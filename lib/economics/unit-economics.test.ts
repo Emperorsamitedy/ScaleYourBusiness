@@ -129,10 +129,11 @@ describe("P1-07 — margin per offer", () => {
     ]);
     // §8.1 — a derivation is never more certain than its weakest input.
     expect(offer?.margin_pct?.confidence).toBeCloseTo(0.675, 3);
-    // Hard rule 3 (architecture-v2 D4): both inputs are precise owner answers
-    // (0.75, grade B), so the margin is B — not C, which its own 0.675 reads as.
-    expect(offer?.margin_pct?.grade).toBe("B");
-    expect(offer?.contribution?.grade).toBe("B");
+    // Hard rule 3 over the v1 spec §6.1: both inputs are owner answers, and
+    // anything that depends on an owner-stated number is grade D — however
+    // precise the answer (D4's numeric band read it as B; §6.1 superseded it).
+    expect(offer?.margin_pct?.grade).toBe("D");
+    expect(offer?.contribution?.grade).toBe("D");
   });
 
   it("refuses rather than assuming a cost it was never given", async () => {

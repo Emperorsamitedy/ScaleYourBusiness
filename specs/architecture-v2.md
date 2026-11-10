@@ -1,9 +1,16 @@
 # SYB architecture v2 — the five subsystems
 
-Received from the owner on 2026-11-10 (section 2 of a longer spec; sections
-1 and 3+ were not supplied). Phase 7 builds it — `TASKS-PHASE7.md`. Where
-this file and CLAUDE.md disagree, this file wins for the subsystems below;
-the eight non-negotiable rules in CLAUDE.md still hold everywhere.
+> **Superseded as the spec of record by `specs/syb-v1-build-spec.pdf`**
+> (the owner's full "SYB v1 build spec", Nov 9 2026, received 2026-11-10).
+> Section 2 below is that spec's section 2. Where a decision here conflicts
+> with the full spec, the full spec wins; the "Decisions after the full
+> spec" list at the end says which ones changed and records the owner's
+> answers to the three questions the full spec left open.
+
+Received from the owner on 2026-11-10. Phase 7 builds it — `TASKS-PHASE7.md`.
+Where this file and CLAUDE.md disagree, this file wins for the subsystems
+below; the eight non-negotiable rules in CLAUDE.md still hold everywhere,
+except rule 12 at station 4 (see D21).
 
 ## Hard rules (override anything else)
 
@@ -128,3 +135,108 @@ binding until the owner changes it here.
   already 1) before anything is claimed, and reported as the stop.
 - **Not yet routed through the ladder:** phone answering (it has its country
   flag, D6), the weekly WhatsApp summary and support replies — TASKS-PHASE7 P7-17.
+
+## Decisions after the full spec (2026-11-10)
+
+The full spec answers most of D1–D17. These replace the earlier choices:
+
+- **D1 → superseded.** Each section's acceptance criteria (§3.7, §4.7, §5.7,
+  §6.6, §7.7, §8.6, §9.5, §10.6, §11.5) and §12.1's definition of done are
+  the tests.
+- **D2 → superseded by §4.** Stations are Observe, Recommend (shadow), Act
+  with approval, Act within limits. Promotion follows §4.3's rules per
+  capability; auto-demotion after two consecutive losses; caps (§4.4) are
+  required before station 4; purchase orders stay at station 3 forever.
+- **D4 → superseded by §6.1.** Grades come from provenance, not a numeric
+  band: A measured and cross-checked against a second source, B measured from
+  one connected system, C derived from measured inputs with modelling
+  assumptions, D anything that depends on an owner-stated number.
+- **D5, D6 → superseded by §9.** ComplianceGate is a rules engine over a
+  per-country matrix held as configuration (a database table, changed
+  without a deploy, every change audit-logged). Phone answering is blocked
+  wherever the matrix row is blocked — every country by default.
+- **D7, D13 → superseded by §5.** Contribution is on by default with a
+  one-tap opt-out; only connector-measured values enter a cohort; benchmarks
+  are served as p25/p50/p75 plus the owner's percentile.
+- **D8 → superseded by §7.5 and §8.3.** Prices are set in the spec.
+- **D10–D12 → superseded by §3.** Plans carry their own design, window and
+  grade; the counter is §3.4's formula, losses included.
+
+The owner's answers to what the full spec left open:
+
+- **D18 — the five live businesses stay at station 3.** Their approval queue
+  keeps working. Businesses created after the rollout start at station 2 for
+  their first 30 days (§4.2).
+- **D19 — no tier ceiling while payments are unarmed.** As with the report
+  gate today, the tier ceiling (§8.6) is enforced from the moment Stripe keys
+  exist; promotion rules apply regardless.
+- **D20 — Hungary is the launch market.** Hungarian and English live; the
+  other five languages go behind the locale flag until each passes the
+  coverage check (§1, §11.3).
+- **D21 — CLAUDE.md rule 12 at station 4.** §4.1 defines station 4 as "acts
+  inside owner-set limits, reports after": no per-action approval within the
+  caps. Every other station keeps rule 12. Purchase orders never reach 4.
+
+## Decisions taken building Phase 0 (2026-11-10)
+
+Where the full spec left a detail open, the choice made and why. Each is
+binding until the owner changes it here.
+
+- **D22 — what the matrix's `blocked` blocks.** §9.2 defines the matrix for
+  the regulated capabilities, so `blocked` (default true) blocks phone
+  answering and the recording and transcription beside it, and
+  `outbound_blocked` (default true) blocks outbound AI calling — which the
+  table refuses to unblock before inbound. A third flag, `execution_halted`
+  (default false), is §9.5's "cannot execute even at station 4, even with an
+  owner override": it stops every external capability for businesses in
+  that country. Reading `blocked` as "every capability" would have stopped
+  every live business in Hungary until counsel signs the phone row. A
+  country with no row is blocked for the regulated capabilities and not
+  halted. AI disclosure can never be switched off (a table check).
+- **D23 — PHONE_ANSWERING_COUNTRIES is superseded by the matrix.** Its
+  parser stays, but nothing obeys it. A deployment that had phone answering
+  switched on through the variable needs the country's matrix row, with
+  counsel's sign-off, before its lines answer again.
+- **D24 — grades of the other SourceRef kinds (§6.1).** A connector reading
+  and an aggregate of connector series are B; a parsed document is B; web
+  research, a system default, and a peer or official reference standing in
+  for this business's own number are C (a model); an owner's answer typed
+  or said is D; an inference whose inputs aren't all connector series is D,
+  since its reference alone can't show it rests on nothing stated.
+- **D25 — the bank-statement connector reads closing balances only** in
+  Phase 0, as I-54a does. Reading money-in as revenue (§6.2's "uploaded bank
+  statement that parses cleanly") lands with Phase 3's Diagnosis Grade,
+  where it is decided what a deposit counts as.
+- **D26 — the numeric grade bands (D4) are kept, not deleted**, for the 0–1
+  confidence the profile still carries; no figure takes its grade from them.
+
+## Decisions taken building Phase 1 (2026-11-10)
+
+- **D27 — where the daily chain head goes.** §3.5 asks for an append-only
+  store the application can't rewrite (S3 Object Lock in compliance mode, or
+  equivalent). No such store is configured, so the head is published daily
+  to `ledger_chain_heads` (append-only by trigger) and `publishChainHead`
+  takes an external writer for when one is: its reference is kept with the
+  day's row. Until then a head is as durable as the database; the public
+  verify endpoint (`GET /api/ledger/verify`) lets anyone holding an earlier
+  head check the chain still ends in it.
+- **D28 — the spec's money columns are minor units in the plan's currency.**
+  `expected_effect_eur` and the rest are `*_minor` with the plan's
+  `currency` (CLAUDE.md rule 1); nothing is converted, and the counter sums
+  per currency.
+- **D29 — designs SYB can't run yet aren't claimed.** §3.3's preference
+  table is data (`DESIGN_PREFERENCE`); no holdout, split or switchback is
+  built yet, so every plan is pre/post (grade C at best) or unmeasurable,
+  with the downgrade's reason recorded on the plan.
+- **D30 — a plan's forecast is its proposal's scenario.** Base case as the
+  point, downside and upside as the range, the monthly profit change scaled
+  to the window. A proposal without money in its base case gets a plan that
+  says no forecast was made, and stays out of the calibration score.
+- **D31 — verdicts come from the observed interval.** Wholly above zero is a
+  verified gain, wholly below a loss; straddling zero is no effect when the
+  interval is no wider than the expected effect, otherwise inconclusive.
+- **D32 — a plan is scored at window close, never earlier**, and a stop or a
+  failed run leaves it to close inconclusive at its window's end.
+- **D33 — Session A's `proof_ledger` is kept, not written.** The engine
+  writes `measurement_plans` and `ledger_entries`; the old table, its
+  module and its tests stay as they were.

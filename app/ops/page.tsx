@@ -21,6 +21,8 @@ import { campaignsAwaitingReview } from "../../lib/crm/campaign-review";
 import { launchReadiness } from "../../lib/ops/readiness";
 import { readReadinessFacts } from "../../lib/ops/readiness-facts";
 import { LaunchReadiness } from "../../components/ops/LaunchReadiness";
+import { ComplianceMatrix } from "../../components/ops/ComplianceMatrix";
+import { listCountryRules, recentCountryChanges } from "../../lib/compliance/matrix";
 
 export const metadata: Metadata = { title: "Ops — SYB" };
 export const dynamic = "force-dynamic";
@@ -55,6 +57,7 @@ export default async function OpsPage({
     days?: string;
     law_review?: string;
     campaign_review?: string;
+    compliance_matrix?: string;
   }>;
 }) {
   const params = await searchParams;
@@ -68,14 +71,17 @@ export default async function OpsPage({
   }
   const days = Math.min(365, Math.max(1, Number.parseInt(params.days ?? "30", 10) || 30));
   const since = new Date(Date.now() - days * 86_400_000).toISOString();
-  const [funnel, abandonment, costs, storage, review, awaiting] = await Promise.all([
-    funnelSummary(since),
-    abandonmentSummary(since),
-    costSummary(since),
-    storageSummary(),
-    latestLawReview(),
-    campaignsAwaitingReview(),
-  ]);
+  const [funnel, abandonment, costs, storage, review, awaiting, matrix, matrixChanges] =
+    await Promise.all([
+      funnelSummary(since),
+      abandonmentSummary(since),
+      costSummary(since),
+      storageSummary(),
+      latestLawReview(),
+      campaignsAwaitingReview(),
+      listCountryRules(),
+      recentCountryChanges(),
+    ]);
   // P4-15: the email-law review — the table as it is now, and whether a review covers it.
   const tableHash = jurisdictionTableHash();
   const verdict = lawReviewVerdict(review, tableHash);
@@ -295,6 +301,13 @@ export default async function OpsPage({
           ))
         )}
       </section>
+
+      <ComplianceMatrix
+        opsKey={params.key ?? ""}
+        rules={matrix}
+        changes={matrixChanges}
+        outcome={params.compliance_matrix}
+      />
 
       <LaunchReadiness report={readiness} />
     </main>

@@ -15,14 +15,16 @@ import {
   executions,
   fieldRecords,
   intakeEvents,
+  measurementPlans,
   modeDecisions,
-  proofLedger,
   proposals,
   users,
 } from "../../db/schema";
 import { bootstrapIntake } from "../intake/service";
 import { setStation } from "../ladder/ladder";
-import { closeMeasurement, openMeasurement } from "../ledger/ledger";
+import { closePlan } from "../ledger/close";
+import { planFromProposal } from "../ledger/from-proposal";
+import { openPlan } from "../ledger/plans";
 import { approveProposal, createProposal } from "../proposals/service";
 import type { ProposalRow } from "../proposals/service";
 import { executeProposal } from "./engine";
@@ -83,8 +85,9 @@ const run = (proposalId: string, provider = fixtureExecutor) =>
     sleep: noSleep,
   });
 
-async function ledgerOf(proposalId: string) {
-  return db.select().from(proofLedger).where(eq(proofLedger.proposal_id, proposalId));
+/** The v1 spec §3.2's plans for a proposal (Session A's proof_ledger is no longer written). */
+async function plansOf(proposalId: string) {
+  return db.select().from(measurementPlans).where(eq(measurementPlans.proposal_id, proposalId));
 }
 
 async function claimOf(proposalId: string) {
@@ -132,25 +135,37 @@ describe("I1 — nothing runs without an open measurement plan, opened before it
     const execution = await run(p.id);
     expect(execution.status).toBe("succeeded");
     expect(fixtureExecuteCalls()).toBe(1);
-    const plans = (await ledgerOf(p.id)).filter((r) => r.kind === "plan");
+    const plans = await plansOf(p.id);
     expect(plans).toHaveLength(1);
-    expect(plans[0]!.capability).toBe("fixture");
+    expect(plans[0]!).toMatchObject({
+      capability: "fixture",
+      provider: "fixture",
+      action_summary: "fixture action",
+      ladder_station_at_open: 3,
+      shadow: false,
+      opened_by: "agent",
+    });
+    // No money in the scenario: the plan says no forecast was made.
+    expect(plans[0]!.hypothesis).toMatch(/No forecast in money/);
     // Opened BEFORE execution: the plan predates the execution's own start.
-    expect(Date.parse(plans[0]!.at)).toBeLessThanOrEqual(Date.parse(execution.started_at));
+    expect(Date.parse(plans[0]!.opened_at)).toBeLessThanOrEqual(Date.parse(execution.started_at));
   });
 
   it("a plan already closed is not a plan: the engine refuses, a hard error, and runs nothing", async () => {
     const s = await fresh();
     const p = await approved(s);
-    const opened = await openMeasurement({
-      profileId: s.profile_id,
-      accountId: s.account_id,
-      capability: "fixture",
-      metric: "set_value",
-      holdout: null,
-      proposalId: p.id,
-    });
-    await closeMeasurement(opened.measurement_id, { unscored: "closed before it ran" });
+    const { plan } = await openPlan(
+      planFromProposal(p, {
+        accountId: s.account_id,
+        provider: "fixture",
+        op: "set_value",
+        reversible: true,
+        station: 3,
+        shadow: false,
+        now: new Date("2026-01-01T00:00:00Z"),
+      }),
+    );
+    await closePlan(plan.id, { inconclusive: "closed before it ran" });
     await expect(run(p.id)).rejects.toMatchObject({ code: "no_measurement" });
     expect(fixtureExecuteCalls()).toBe(0);
     expect(await claimOf(p.id)).toBeNull();
@@ -161,7 +176,7 @@ describe("I1 — nothing runs without an open measurement plan, opened before it
     const p = await approved(s);
     await run(p.id);
     await run(p.id); // already succeeded: returns the existing run
-    expect((await ledgerOf(p.id)).filter((r) => r.kind === "plan")).toHaveLength(1);
+    expect(await plansOf(p.id)).toHaveLength(1);
   });
 
   it("ComplianceGate refuses an external capability with no write consent — over the ladder's yes", async () => {
@@ -176,7 +191,7 @@ describe("I1 — nothing runs without an open measurement plan, opened before it
     expect(fixtureExecuteCalls()).toBe(0);
     expect(await claimOf(p.id)).toBeNull();
     // Refused before a measurement was opened: step 3 never ran.
-    expect(await ledgerOf(p.id)).toHaveLength(0);
+    expect(await plansOf(p.id)).toHaveLength(0);
   });
 });
 
@@ -188,7 +203,7 @@ describe("I3 — station 1 or 2 never produces an external side effect, whoever 
     await expect(run(p.id)).rejects.toMatchObject({ code: "ladder_blocked" });
     expect(fixtureExecuteCalls()).toBe(0);
     expect(await claimOf(p.id)).toBeNull();
-    expect(await ledgerOf(p.id)).toHaveLength(0);
+    expect(await plansOf(p.id)).toHaveLength(0);
   });
 
   it("station 2 (SHADOW) records the counterfactual against an open plan, and runs nothing", async () => {
@@ -200,11 +215,11 @@ describe("I3 — station 1 or 2 never produces an external side effect, whoever 
     await expect(run(p.id)).rejects.toMatchObject({ code: "shadow" });
     expect(fixtureExecuteCalls()).toBe(0);
     expect(await claimOf(p.id)).toBeNull();
-    const rows = await ledgerOf(p.id);
-    expect(rows.filter((r) => r.kind === "plan")).toHaveLength(1);
-    const counterfactuals = rows.filter((r) => r.kind === "counterfactual");
-    expect(counterfactuals).toHaveLength(1);
-    expect(counterfactuals[0]!.note).toMatch(/set_value/);
+    // One plan, marked shadow at open: what would have been done, and nothing was.
+    const rows = await plansOf(p.id);
+    expect(rows).toHaveLength(1);
+    expect(rows[0]).toMatchObject({ shadow: true, ladder_station_at_open: 2 });
+    expect(rows[0]!.action_summary).toBe("fixture action");
     // The proposal stays approved: SHADOW is the ladder's answer, not the owner's.
     const [row] = await db
       .select()

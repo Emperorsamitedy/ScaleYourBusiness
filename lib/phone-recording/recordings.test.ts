@@ -63,9 +63,9 @@ import { openAudio } from "./seal";
 import { inPhoneCountry, switchPhoneCountryOn } from "../phone/test-country";
 
 // Hard rule 6 (architecture-v2 D6): these businesses are in a switched-on country.
-let restoreCountries: () => void = () => undefined;
-beforeAll(() => {
-  restoreCountries = switchPhoneCountryOn();
+let restoreCountries: () => Promise<void> | void = () => undefined;
+beforeAll(async () => {
+  restoreCountries = await switchPhoneCountryOn();
 });
 afterAll(() => restoreCountries());
 

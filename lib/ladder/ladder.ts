@@ -220,10 +220,15 @@ export async function resumeAll(
 }
 
 export interface LadderOutcome {
+  /** The ledger entry's verdict (the v1 spec §3.2); absent on Session A outcomes. */
+  verdict?: "verified_gain" | "no_effect" | "loss" | "inconclusive";
   verified: boolean;
+  /** Net of the action's cost, signed, integer minor units. */
   euro_minor: number | null;
   currency: string | null;
   grade: string | null;
+  /** A shadow plan's outcome: what would have happened. Nothing ran. */
+  shadow?: boolean;
 }
 
 /** TrustLadder.record_outcome — step 6, from a closed measurement. */
