@@ -48,7 +48,7 @@ import type { Basis } from "../../components/report/basis";
 import { moneyText } from "../../components/sheet/num";
 import { shortDate } from "../charts/model";
 import { enumCode } from "../core/enum-value";
-import { minorUnitExponent } from "../core/money";
+import { minorUnitExponent, perUnit } from "../core/money";
 import type { AppLocale } from "../i18n/locales";
 import { SEASONS, addDays, quantile } from "../seasons/forecast";
 import { CASH_ASK } from "./keys";
@@ -653,7 +653,8 @@ function datedCosts(
     cadences.add(cadence);
     const debt = enumCode(c.category) === DEBT_CATEGORY;
     const a = c.amount.amount_minor;
-    const monthly = cadence === "monthly" ? a : cadence === "quarterly" ? a / 3 : a / 12;
+    const monthly =
+      cadence === "monthly" ? a : cadence === "quarterly" ? perUnit(a, 3) : perUnit(a, 12);
     if (debt) debtMonthly += monthly;
     else fixedMonthly += monthly;
     for (const on of days) {
@@ -661,7 +662,7 @@ function datedCosts(
       due.push({
         key: c.key,
         label: c.label,
-        amount_minor: cadence === "annual" ? Math.round(a / 12) : a,
+        amount_minor: cadence === "annual" ? perUnit(a, 12) : a,
         cadence: cadence as DueItem["cadence"],
         debt,
         set_aside: cadence === "annual",

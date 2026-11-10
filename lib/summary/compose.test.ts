@@ -221,15 +221,15 @@ describe("I-42 — money in readbacks", () => {
     );
   });
 
-  it("HUF keeps its two minor digits (fillér, data-model §3.3)", () => {
+  it("HUF is stored in fillér (data-model §3.3) and shown in whole forints (the multi-market spec §A.2)", () => {
     const line = readbackLine({
       ...base,
       currency: "HUF",
       before_minor: 1_500_000,
       after_minor: 1_650_000,
     });
-    expect(line).toContain("HUF");
-    expect(line).toContain("16,500.00");
+    expect(line).toContain("16\u00a0500\u00a0Ft");
+    expect(line).not.toMatch(/16,500\.00/);
   });
 
   it("an unmeasured change gets no line; too early says so without a number", () => {

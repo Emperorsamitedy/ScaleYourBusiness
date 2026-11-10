@@ -9,6 +9,7 @@ import { and, eq, gte, inArray, lte } from "drizzle-orm";
 import { db } from "../../db";
 import { businessProfiles, connections, metricObservations } from "../../db/schema";
 import { MONEY_METRICS, type MetricKey } from "../connectors/provider";
+import { perUnit } from "../core/money";
 
 export interface Series {
   /** period_date → the day's business-wide total (minor units for money). */
@@ -94,6 +95,11 @@ export interface WindowStat {
   mean_minor: number;
 }
 
+/** A mean per day: money (whole minor units) divides exactly; a count series may carry decimals. */
+function meanOf(sum: number, days: number): number {
+  return Number.isSafeInteger(sum) ? perUnit(sum, days) : Math.round(sum / days);
+}
+
 export function windowStat(series: Series, from: string, to: string): WindowStat {
   let sum = 0;
   let days = 0;
@@ -104,5 +110,5 @@ export function windowStat(series: Series, from: string, to: string): WindowStat
       days += 1;
     }
   }
-  return { from, to, days_measured: days, mean_minor: days > 0 ? Math.round(sum / days) : 0 };
+  return { from, to, days_measured: days, mean_minor: days > 0 ? meanOf(sum, days) : 0 };
 }

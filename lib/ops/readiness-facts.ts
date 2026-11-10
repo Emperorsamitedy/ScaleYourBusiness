@@ -9,8 +9,10 @@
 // migration when its journal `when` is newer than the newest applied row's
 // created_at, so that is the comparison made here too.
 
-import { sql } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import { db } from "../../db";
+import { countryComplianceMatrix, priceBook, usageQuotas } from "../../db/schema";
+import { navGuideMissing } from "../connectors/nav/guide";
 import journal from "../../db/migrations/meta/_journal.json";
 import bank from "../../specs/question-bank-v1.json";
 import type { ReadinessFacts } from "./readiness";
@@ -80,7 +82,11 @@ export async function readReadinessFacts(known: {
   law_review: ReadinessFacts["law_review"];
   first_campaigns_waiting: number | null;
 }): Promise<ReadinessFacts> {
-  const [migrations, bankRow] = await Promise.all([appliedMigrations(), seededBank()]);
+  const [migrations, bankRow, hungary] = await Promise.all([
+    appliedMigrations(),
+    seededBank(),
+    hungaryFacts().catch(() => null),
+  ]);
   return {
     migrations,
     bundled_migrations: bundledMigrations(),
@@ -88,5 +94,26 @@ export async function readReadinessFacts(known: {
     bundled_bank_version: BUNDLED_BANK_VERSION,
     law_review: known.law_review,
     first_campaigns_waiting: known.first_campaigns_waiting,
+    hungary,
+  };
+}
+
+/** The multi-market spec's Hungary gates, read from the database and the guide's folder. */
+async function hungaryFacts(): Promise<NonNullable<ReadinessFacts["hungary"]>> {
+  const [quotas, prices, matrix] = await Promise.all([
+    db.select({ confirmed: usageQuotas.confirmed }).from(usageQuotas),
+    db.select({ enabled: priceBook.enabled }).from(priceBook).where(eq(priceBook.country, "HU")),
+    db.select().from(countryComplianceMatrix).where(eq(countryComplianceMatrix.country, "HU")),
+  ]);
+  const row = matrix[0];
+  return {
+    nav_guide_missing: navGuideMissing(),
+    quotas_confirmed: quotas.length > 0 && quotas.every((q) => q.confirmed),
+    prices_enabled: prices.length > 0 && prices.every((p) => p.enabled),
+    matrix: {
+      exists: row !== undefined,
+      signed_off: row?.legal_signoff_date != null,
+      phone_unblocked: row !== undefined && !row.blocked && !row.execution_halted,
+    },
   };
 }

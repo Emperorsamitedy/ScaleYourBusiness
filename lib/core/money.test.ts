@@ -120,10 +120,11 @@ describe("format", () => {
     expect(format(money(123_456, "EUR"), "en")).toBe("€1,234.56");
   });
 
-  it("formats HUF from fillér with two minor digits", () => {
-    // 420 000 000 fillér = 4 200 000.00 Ft. Intl separates the code from
-    // the number with a non-breaking space.
-    expect(format(money(420_000_000, "HUF"), "en")).toBe("HUF 4,200,000.00");
+  it("formats HUF as whole forints with Hungarian separators, in any reader's locale", () => {
+    // 420 000 000 fillér = 4 200 000 Ft. The fillér was withdrawn in 1999, so
+    // "HUF 4,200,000.00" is the bug the multi-market spec §A.2 names.
+    expect(format(money(420_000_000, "HUF"), "en")).toBe("4 200 000 Ft");
+    expect(format(money(420_000_050, "HUF"), "de")).toBe("4 200 001 Ft");
   });
 
   it("formats a zero-decimal currency without dividing", () => {

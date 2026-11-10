@@ -19,6 +19,7 @@ import { applicableQuestions } from "../resolver/applicability";
 import { englishLabels } from "../bank/english-labels";
 import { displaySourceKind } from "../connectors/measured";
 import type { Field } from "../core/field";
+import { toDecimalString } from "../core/money";
 import { SIZE_BAND_KEY, TEAM_SIZE_KEY, resolveSizeBand } from "./size-band";
 import { ensureSnapshot, readSnapshot } from "./snapshot";
 import type { ProfileSection } from "./sections";
@@ -137,9 +138,12 @@ export function repr(value: unknown): string | null {
     return /^[a-z0-9]+(_[a-z0-9]+)+$/.test(value) ? value.replace(/_/g, " ") : value;
   if (typeof value === "number" || typeof value === "boolean") return String(value);
   if (isMoney(value)) {
-    const digits = MINOR_UNITS[value.currency] ?? 2;
-    const major = value.amount_minor / 10 ** digits;
-    return `${major.toLocaleString("en-US").replace(/,/g, " ")} ${value.currency}`;
+    // From the integer's digits (hard rule 1): thousands grouped by spaces,
+    // trailing zero decimals dropped — the evidence's form as it always was.
+    const [whole = "0", fraction = ""] = toDecimalString(value).split(".");
+    const grouped = whole.replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+    const decimals = fraction.replace(/0+$/, "");
+    return `${grouped}${decimals ? `.${decimals}` : ""} ${value.currency}`;
   }
   if (Array.isArray(value)) {
     const parts = value.map(repr).filter((p): p is string => p !== null);

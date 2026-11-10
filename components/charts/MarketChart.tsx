@@ -62,6 +62,7 @@ import type { AppLocale } from "../../lib/i18n/locales";
 import { intlTag } from "../../lib/i18n/locales";
 import type { Tr } from "../../lib/i18n/tr";
 import { useChartWidth } from "./useChartWidth";
+import { perUnit } from "../../lib/core/money";
 
 /* ── geometry, in CSS pixels ── */
 
@@ -110,12 +111,15 @@ export function layout(
   const avgDay =
     recent.length === 0
       ? 0
-      : Math.round(recent.reduce((n, c) => n + c.close_minor, 0) / recent.length);
+      : perUnit(
+          recent.reduce((n, c) => n + c.close_minor, 0),
+          recent.length,
+        );
   const band = table
     ? {
         base: avgDay,
-        low: avgDay + Math.round(table.total.low_minor / 30),
-        high: avgDay + Math.round(table.total.high_minor / 30),
+        low: avgDay + perUnit(table.total.low_minor, 30),
+        high: avgDay + perUnit(table.total.high_minor, 30),
       }
     : null;
 

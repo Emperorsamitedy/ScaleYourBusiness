@@ -24,10 +24,12 @@
 // guessed: a wrong offset is a budget 100× off.
 
 import type { Money } from "../core/money";
-import { format, minorUnitExponent, money } from "../core/money";
+import { format, minorUnitExponent, money, perUnit, ratioBp } from "../core/money";
 
 /** P3-22c: no single change beyond this share of the current daily budget. */
 export const MAX_CHANGE_SHARE = 0.5;
+/** The same cap in basis points, so the comparison stays in integers. */
+const MAX_CHANGE_BP = Math.round(MAX_CHANGE_SHARE * 10_000);
 
 /**
  * Meta's currency offsets — the Marketing API "Currencies" page, read
@@ -222,9 +224,11 @@ export function spendGuard(a: SpendGuardArgs): string | null {
   if (!(a.current_daily_minor > 0)) {
     return "the campaign's current daily budget is zero or unknown, so a change can't be held to 50% of it";
   }
-  const share = (a.proposed_daily_minor - a.current_daily_minor) / a.current_daily_minor;
-  if (Math.abs(share) > MAX_CHANGE_SHARE + 1e-9) {
-    return `a ${Math.round(share * 100)}% change is beyond the ${MAX_CHANGE_SHARE * 100}% allowed in one approval`;
+  // Exact (hard rule 1): |change| × 10 000 against the cap in basis points × current, all integers.
+  const change = a.proposed_daily_minor - a.current_daily_minor;
+  if (Math.abs(change) * 10_000 > MAX_CHANGE_BP * a.current_daily_minor) {
+    const pct = perUnit(ratioBp(change, a.current_daily_minor), 100);
+    return `a ${pct}% change is beyond the ${MAX_CHANGE_SHARE * 100}% allowed in one approval`;
   }
   const floor = a.floor_minor ?? null;
   if (floor !== null && a.proposed_daily_minor < floor) {
@@ -236,7 +240,8 @@ export function spendGuard(a: SpendGuardArgs): string | null {
       return `your ad ceiling is in ${ceiling.currency} and this campaign spends in ${a.currency} — I won't convert to compare them`;
     }
     const account = a.account_daily_minor ?? a.current_daily_minor;
-    const projected = Math.round((account + (a.proposed_daily_minor - a.current_daily_minor)) * 30);
+    // Every term is whole minor units, so × 30 stays whole.
+    const projected = (account + (a.proposed_daily_minor - a.current_daily_minor)) * 30;
     if (projected > ceiling.amount_minor) {
       return `it would take monthly ad spend to about ${fmt(projected, a.currency)}, over your stated ceiling of ${fmt(ceiling.amount_minor, a.currency)}`;
     }
@@ -278,7 +283,7 @@ export function newSpendGuard(a: {
   if (ceiling.currency.toUpperCase() !== a.currency.toUpperCase()) {
     return `your ad ceiling is in ${ceiling.currency} and this ad spends in ${a.currency} — I won't convert to compare them`;
   }
-  const projected = Math.round(((a.account_daily_minor ?? 0) + a.daily_minor) * 30);
+  const projected = ((a.account_daily_minor ?? 0) + a.daily_minor) * 30;
   if (projected > ceiling.amount_minor) {
     return `it would take monthly ad spend to about ${fmt(projected, a.currency)}, over your stated ceiling of ${fmt(ceiling.amount_minor, a.currency)}`;
   }
@@ -308,7 +313,7 @@ export function reactivationGuard(a: {
   if (a.campaign_daily_minor === null) {
     return "its budget sits on its ad sets, so I can't tell what it would spend against your stated ceiling";
   }
-  const projected = Math.round(((a.account_daily_minor ?? 0) + a.campaign_daily_minor) * 30);
+  const projected = ((a.account_daily_minor ?? 0) + a.campaign_daily_minor) * 30;
   if (projected > ceiling.amount_minor) {
     return `running it again would take monthly ad spend to about ${fmt(projected, a.currency)}, over your stated ceiling of ${fmt(ceiling.amount_minor, a.currency)}`;
   }

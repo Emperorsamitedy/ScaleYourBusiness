@@ -74,7 +74,7 @@ import { createHash } from "node:crypto";
 import type { MetaResponse } from "../../connectors/providers/meta-ads";
 import { META_GRAPH_ORIGIN, META_IGNORED_PERMISSIONS } from "../../connectors/providers/meta-ads";
 import { isDisclosed } from "../../content/disclosure";
-import { format, money } from "../../core/money";
+import { format, money, scaleMinor } from "../../core/money";
 import {
   UnknownMetaCurrencyError,
   dailyBudgetFloor,
@@ -3086,7 +3086,7 @@ function adsProvider(ctx: Context, loadBackend: () => Promise<AdsBackend>): Exec
         `You approved this change in ${currency}, but the ad account bills in ${account.currency}. Nothing was changed; it needs approving again.`,
       );
     }
-    const target = Math.round(args.baseline_minor * (1 + args.share));
+    const target = args.baseline_minor + scaleMinor(args.baseline_minor, args.share);
     const { meta_value, sent_minor } = toMetaBudget(target, currency);
     const floor = dailyBudgetFloor(currency, account.min_daily_minor);
     if (floor === null) {

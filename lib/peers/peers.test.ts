@@ -22,7 +22,7 @@ import { isoDateTime } from "../core/iso";
 import { money } from "../core/money";
 import { bootstrapIntake } from "../intake/service";
 import { writeField } from "../profile/field-store";
-import { PEER_K, PEER_MAX_SHARE, peerAggregate } from "./aggregate";
+import { CohortCurrencyError, PEER_K, PEER_MAX_SHARE, peerAggregate } from "./aggregate";
 import { hasPeerConsent, optIntoPeers, optOutOfPeers } from "./consent";
 import { peerAverageOrderValue } from "./serve";
 
@@ -213,5 +213,23 @@ describe("D13 — average order value for the business's cohort", () => {
       shown: false,
       fallback: "eurostat",
     });
+  });
+});
+
+describe("the multi-market spec §A.7 — a cohort has exactly one currency", () => {
+  it("building a cohort with two currencies fails loudly", () => {
+    const rows = [
+      ...even(6).map((r) => ({ ...r, currency: "HUF" })),
+      { business: randomUUID(), numerator: 1_000, denominator: 10, currency: "EUR" },
+    ];
+    expect(() => peerAggregate(rows)).toThrow(CohortCurrencyError);
+    expect(() => peerAggregate(rows)).toThrow(/2 currencies \(EUR, HUF\)/);
+  });
+
+  it("one currency, or counts with none, build as before", () => {
+    expect(peerAggregate(even(7).map((r) => ({ ...r, currency: "HUF" })))).toMatchObject({
+      shown: true,
+    });
+    expect(peerAggregate(even(7))).toMatchObject({ shown: true });
   });
 });

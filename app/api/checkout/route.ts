@@ -78,9 +78,9 @@ export async function GET(): Promise<NextResponse> {
     const { others, paidBefore } = await ownedBusinesses(access);
     const body: CheckoutOptions = {
       configured: paymentsConfigured(),
-      price: reportPrice(),
-      extra_price: extraReportPrice(),
-      first_price: paidBefore ? extraReportPrice() : reportPrice(),
+      price: await reportPrice(),
+      extra_price: await extraReportPrice(),
+      first_price: paidBefore ? await extraReportPrice() : await reportPrice(),
       others: others.map((o) => ({ profile_id: o.profile_id, business: o.name })),
     };
     return NextResponse.json(body);

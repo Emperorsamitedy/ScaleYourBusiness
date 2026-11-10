@@ -65,7 +65,7 @@ describe("the content screen's figures in the reader's locale", () => {
   it("prints costs in the business's currency the reader's way, never converting", () => {
     expect(formatMinor({ amount_minor: 4, currency: "EUR" })).toBe("€0.04");
     expect(formatMinor({ amount_minor: 4, currency: "EUR" }, "de-DE")).toBe("0,04 €");
-    expect(formatMinor({ amount_minor: 50000, currency: "HUF" }, "hu-HU")).toMatch(/^500,00\sFt$/);
+    expect(formatMinor({ amount_minor: 50000, currency: "HUF" }, "hu-HU")).toMatch(/^500\sFt$/); // whole forints, the multi-market spec §A.2
   });
 
   it("groups measured figures the reader's way", () => {

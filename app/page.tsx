@@ -22,6 +22,6 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-export default function Home() {
-  return <Landing price={reportPrice()} />;
+export default async function Home() {
+  return <Landing price={await reportPrice()} />;
 }

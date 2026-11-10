@@ -8,8 +8,7 @@
 // English, and a finding stored before its figures were, print the stored
 // English. Pure.
 
-import { minorUnitExponent } from "../core/money";
-import { intlMoney, intlNumber } from "../i18n/format";
+import { intlNumber, presentMoney } from "../i18n/format";
 import type { AppLocale } from "../i18n/locales";
 import type { Tr } from "../i18n/tr";
 
@@ -58,8 +57,7 @@ export function findingWords(
   for (const name of needs) {
     const v = (args as Record<string, unknown>)[name];
     if (isMoney(v)) {
-      const exp = minorUnitExponent(v.currency);
-      values[name] = intlMoney(v.amount_minor / 10 ** exp, v.currency, 0, locale);
+      values[name] = presentMoney(v, locale, { whole: true });
     } else if (typeof v === "number" && Number.isFinite(v)) {
       // A count is passed as a number so a plural can agree with it.
       values[name] = name === "days" ? v : intlNumber(v, 0, locale);

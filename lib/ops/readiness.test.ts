@@ -96,6 +96,7 @@ describe("launch readiness — the order and the counts", () => {
       "recording",
       "whatsapp",
       "languages",
+      "hungary",
       "optional",
     ]);
     const names = report.groups.flatMap((g) => g.items.map((i) => i.name));
@@ -892,7 +893,7 @@ describe("payments", () => {
     expect(find(GOOD, name).says).toContain("€49.00, the default");
     expect(
       find({ ...GOOD, REPORT_PRICE_MINOR: "1500000", REPORT_CURRENCY: "huf" }, name).says,
-    ).toContain("15,000.00");
+    ).toContain("15 000 Ft"); // whole forints — the multi-market spec §A.2
     expect(status({ ...GOOD, REPORT_PRICE_MINOR: "49.00" }, name)).toBe("missing");
     expect(status({ ...GOOD, REPORT_PRICE_MINOR: "0" }, name)).toBe("missing");
     expect(status({ ...GOOD, REPORT_CURRENCY: "euro" }, name)).toBe("missing");

@@ -97,12 +97,13 @@ describe("where an order stands", () => {
   });
 
   it("totals per currency, never added across two", () => {
+    // HUF prints whole forints (the currency table: the fillér was withdrawn).
     expect(
       totalsText([
         { amount_minor: 49_000, currency: "EUR" },
         { amount_minor: 300_000, currency: "HUF" },
       ]),
-    ).toBe("€490.00 + 3,000.00 HUF");
+    ).toBe("€490.00 + 3,000 HUF");
     expect(totalsText([])).toBe("—");
   });
 });

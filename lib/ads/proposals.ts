@@ -61,7 +61,7 @@ import {
 } from "../../db/schema";
 import { careState } from "../care/day-zero";
 import { logSafeError } from "../core/log-safe";
-import { format, money } from "../core/money";
+import { format, money, perUnit, scaleMinor, scaleMinorBy } from "../core/money";
 import type { LimitLlm } from "../proposals/hard-limits";
 import {
   checkHardLimits,
@@ -229,7 +229,7 @@ export function budgetGuard(args: {
   const ceiling = args.monthly_ceiling_minor ?? null;
   return spendGuard({
     current_daily_minor: args.daily_spend_minor,
-    proposed_daily_minor: Math.round(args.daily_spend_minor * (1 + args.share)),
+    proposed_daily_minor: args.daily_spend_minor + scaleMinor(args.daily_spend_minor, args.share),
     currency: args.currency,
     ...(args.account_daily_spend_minor !== undefined
       ? { account_daily_minor: args.account_daily_spend_minor }
@@ -248,14 +248,13 @@ export function accountDailySpend(
   today: string,
   currency: string,
 ): number {
-  return Math.round(
-    campaigns
-      .filter((c) => c.currency.toUpperCase() === currency.toUpperCase())
-      .reduce((sum, c) => {
-        const w = windowOf(c, shiftDay(today, -ADS.raise_window_days), shiftDay(today, -1));
-        return sum + (w.measured_days > 0 ? w.spend_minor / w.measured_days : 0);
-      }, 0),
-  );
+  // Each campaign's mean is taken exactly in integers, then summed (hard rule 1).
+  return campaigns
+    .filter((c) => c.currency.toUpperCase() === currency.toUpperCase())
+    .reduce((sum, c) => {
+      const w = windowOf(c, shiftDay(today, -ADS.raise_window_days), shiftDay(today, -1));
+      return sum + (w.measured_days > 0 ? perUnit(w.spend_minor, w.measured_days) : 0);
+    }, 0);
 }
 
 /** The owner's stated monthly ad ceiling (8.1i), when answered. */
@@ -453,7 +452,7 @@ async function recordAdChange(
   }
   const w = change.window;
   const fmt = (m: number) => format(money(m, c.currency));
-  const dailySpend = Math.round(w.spend_minor / Math.max(1, w.measured_days));
+  const dailySpend = perUnit(w.spend_minor, Math.max(1, w.measured_days));
   const ceiling = ctx.ceiling;
   if (change.change !== "pause") {
     if (
@@ -480,10 +479,14 @@ async function recordAdChange(
   const verdict = checkHardLimits(await ctx.limits(), kind);
 
   const arithmetic = `${fmt(w.spend_minor)} spent, ${fmt(w.value_minor)} in ${pw.value}, over ${w.measured_days} measured days: return on ad spend ${roasWord(w.roas)}`;
-  const monthlyLoss = Math.round(((w.spend_minor - w.value_minor) / w.measured_days) * 30);
+  const monthlyLoss =
+    w.measured_days > 0 ? scaleMinorBy(w.spend_minor - w.value_minor, 30, w.measured_days) : 0;
   const sharePct = change.change === "pause" ? 0 : Math.round(change.share * 100);
-  const deltaDaily = change.change === "pause" ? 0 : Math.round(dailySpend * change.share);
-  const attributed = fmt(Math.round(deltaDaily * 30 * (w.roas ?? 0)));
+  const deltaDaily = change.change === "pause" ? 0 : scaleMinor(dailySpend, change.share);
+  // × ROAS is × value ÷ spend, taken exactly as that ratio of integers.
+  const attributed = fmt(
+    w.spend_minor > 0 ? scaleMinorBy(deltaDaily * 30, w.value_minor, w.spend_minor) : 0,
+  );
   const scenario: ScenarioBlock = {
     assumptions: [
       {

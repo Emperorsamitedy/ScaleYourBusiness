@@ -10,7 +10,7 @@
 // that names the missing forecast, and no place in the calibration score.
 
 import type { Money } from "../core/money";
-import { isIsoCurrency, money } from "../core/money";
+import { isIsoCurrency, money, scaleMinorBy } from "../core/money";
 import type { OpenPlanInput } from "./plans";
 import { DEFAULT_WINDOW_DAYS } from "./plans";
 
@@ -28,7 +28,7 @@ function moneyOf(c: CaseLike | undefined): Money | null {
 
 /** A monthly figure scaled to the plan's window, in whole minor units. */
 function forWindow(m: Money, days: number): Money {
-  return money(Math.round((m.amount_minor * days) / 30), m.currency);
+  return money(scaleMinorBy(m.amount_minor, days, 30), m.currency);
 }
 
 export interface ProposalLike {

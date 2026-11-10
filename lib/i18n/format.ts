@@ -9,6 +9,7 @@
 // from integer minor units at its currency's exponent (rule 1); the
 // currency is always named, and never converted.
 
+import { currencyRow, formatMoney, moneyDigits } from "../core/currency-table";
 import type { AppLocale } from "./locales";
 import { intlTag } from "./locales";
 
@@ -101,4 +102,51 @@ export function monthYear(day: string, locale: AppLocale): string {
   const d = dayOf(day);
   if (Number.isNaN(d.getTime())) return day;
   return dateFormat(`my|${locale}`, locale, { month: "long", year: "numeric" }).format(d);
+}
+
+/**
+ * Money for a reader — the multi-market spec §A.2, hard rules 1 and 3. The
+ * one way an amount becomes words on any surface: rounding and decimals
+ * from the currency table (HUF: whole forints), and the presentation the
+ * table names — the currency's own ("35 413 Ft" whoever reads it) or the
+ * reader's language for currencies written many ways (EUR). Intl is handed
+ * the exact decimal string, never a divided float. `whole` rounds to whole
+ * major units, for headline figures.
+ */
+export function presentMoney(
+  m: { amount_minor: number; currency: string },
+  locale: AppLocale,
+  opts: { whole?: boolean } = {},
+): string {
+  const row = currencyRow(m.currency);
+  if (row.presentation === "home" || locale === "en") return formatMoney(m, opts);
+  const d = moneyDigits(m, opts);
+  const exact = `${d.negative ? "-" : ""}${d.whole}${d.fraction ? `.${d.fraction}` : ""}`;
+  const f = numberFormat(`pm|${locale}|${m.currency}|${d.decimals}`, locale, {
+    style: "currency",
+    currency: m.currency,
+    minimumFractionDigits: d.decimals,
+    maximumFractionDigits: d.decimals,
+  });
+  // A decimal string is formatted exactly (ECMA-402 2023); no float in between.
+  return f.format(exact as unknown as number);
+}
+
+/** A plain amount of money's major units for a reader, without its symbol: "35 413", "1,234.56". */
+export function presentAmount(
+  m: { amount_minor: number; currency: string },
+  locale: AppLocale,
+  opts: { whole?: boolean } = {},
+): string {
+  const d = moneyDigits(m, opts);
+  const exact = `${d.negative ? "-" : ""}${d.whole}${d.fraction ? `.${d.fraction}` : ""}`;
+  const row = currencyRow(m.currency);
+  if (row.presentation === "home") {
+    const grouped = d.whole.replace(/\B(?=(\d{3})+(?!\d))/g, row.thousands_sep);
+    return `${d.negative ? "−" : ""}${grouped}${d.fraction ? row.decimal_sep + d.fraction : ""}`;
+  }
+  return numberFormat(`pa|${locale}|${d.decimals}`, locale, {
+    minimumFractionDigits: d.decimals,
+    maximumFractionDigits: d.decimals,
+  }).format(exact as unknown as number);
 }

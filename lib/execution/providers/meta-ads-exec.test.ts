@@ -1025,9 +1025,9 @@ describe("P3-22b/c — set_daily_budget", () => {
       share: -0.5,
       currency: "HUF",
     });
-    // 300 Ft is under the table's 400 Ft.
+    // 300 Ft is under the table's 400 Ft (HUF prints whole forints, the currency table's way).
     expect((await run(b)).outcomes[0]?.detail).toMatch(
-      /set the daily budget to HUF\s?300\.00, under Meta's minimum of HUF\s?400\.00 a day/,
+      /set the daily budget to 300\s?Ft, under Meta's minimum of 400\s?Ft a day/,
     );
     expect(graph.writes()).toHaveLength(0);
 

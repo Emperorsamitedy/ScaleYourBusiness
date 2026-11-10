@@ -17,6 +17,7 @@
 import { bearerMatches } from "../../../../lib/core/secret-compare";
 import { logSafeError } from "../../../../lib/core/log-safe";
 import { type NextRequest, NextResponse } from "next/server";
+import { runNavSync } from "../../../../lib/connectors/nav/service";
 import { runConnectorSync } from "../../../../lib/connectors/sync";
 import { runGoogleReviewReads } from "../../../../lib/google-business/read";
 import { runRecordingUpkeep } from "../../../../lib/phone-recording/recordings";
@@ -41,14 +42,16 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     const result = await isolated("connector_sync", () => runConnectorSync());
     const google_reviews = await isolated("google_reviews", () => runGoogleReviewReads());
     const phone_recordings = await isolated("phone_recordings", () => runRecordingUpkeep());
+    // The multi-market spec Part E: NAV keeps its own runner and keys.
+    const nav = await isolated("nav", () => runNavSync());
     // A failed sync is still the job failing, as before; the other steps ran anyway.
     if (result === null) {
       return NextResponse.json(
-        { error: "job failed", google_reviews, phone_recordings },
+        { error: "job failed", google_reviews, phone_recordings, nav },
         { status: 500 },
       );
     }
-    const body = { ...result, google_reviews, phone_recordings };
+    const body = { ...result, google_reviews, phone_recordings, nav };
     console.log(JSON.stringify({ event: "connector_sync_run", ...body }));
     return NextResponse.json(body);
   } catch (error) {

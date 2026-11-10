@@ -30,6 +30,7 @@ import { SCHEDULE_KEY, WEEKDAYS, openSpan } from "./schedule";
 import { competitorLine, competitorOpenings } from "./competitors";
 import { coverageLine } from "./coverage";
 import { ensureTimezone } from "./timezone";
+import { perUnit, ratioBp } from "../core/money";
 
 export const TRADING = {
   /** The window read, ending yesterday. */
@@ -182,7 +183,7 @@ export function analyseWeekday(args: {
   const hours = [...totals.keys()].sort((a, b) => a - b);
   const curve = hours.map((hour) => ({
     hour,
-    mean_minor: Math.round((totals.get(hour) ?? 0) / Math.max(1, days.length)),
+    mean_minor: perUnit(totals.get(hour) ?? 0, Math.max(1, days.length)),
   }));
   const inSpan = (h: number) => span !== null && h >= span.first && h <= span.last;
   const outside = hours.filter((h) => !inSpan(h)).reduce((s, h) => s + (totals.get(h) ?? 0), 0);
@@ -221,10 +222,12 @@ export function analyseWeekday(args: {
   const arithmetic: string[] = [];
   let opening = false;
   if (peak && peak.mean_minor > 0) {
-    const share = firstMean / peak.mean_minor;
-    opening = share >= TRADING.opening_share;
+    // Compared in integers: first × 10 000 against the signal in basis points × peak.
+    const openingBp = Math.round(TRADING.opening_share * 10_000);
+    opening = firstMean * 10_000 >= openingBp * peak.mean_minor;
+    const sharePct = perUnit(ratioBp(firstMean, peak.mean_minor), 100);
     arithmetic.push(
-      `first open hour (${label(span.first)}) averages ${money(firstMean)}, ${Math.round(share * 100)}% of the peak hour (${label(peak.hour)}, ${money(peak.mean_minor)}) — the opening signal starts at ${TRADING.opening_share * 100}%`,
+      `first open hour (${label(span.first)}) averages ${money(firstMean)}, ${sharePct}% of the peak hour (${label(peak.hour)}, ${money(peak.mean_minor)}) — the opening signal starts at ${TRADING.opening_share * 100}%`,
     );
   }
 

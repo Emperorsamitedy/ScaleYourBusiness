@@ -701,6 +701,27 @@
       "when": 1794311928410,
       "tag": "0103_proof_ledger_v1_triggers",
       "breakpoints": true
+    },
+    {
+      "idx": 104,
+      "version": "7",
+      "when": 1794336045804,
+      "tag": "0104_multi_market_foundations",
+      "breakpoints": true
+    },
+    {
+      "idx": 105,
+      "version": "7",
+      "when": 1794336077263,
+      "tag": "0105_multi_market_seed_and_locks",
+      "breakpoints": true
+    },
+    {
+      "idx": 106,
+      "version": "7",
+      "when": 1794336596906,
+      "tag": "0106_currency_presentation",
+      "breakpoints": true
     }
   ]
 }

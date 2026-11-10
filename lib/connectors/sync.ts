@@ -57,6 +57,9 @@ import { decryptSecret } from "./secrets";
 import { isProviderId } from "./scopes";
 import { upsertObservations } from "./service";
 
+/** Kept here as a literal so the runner never imports the NAV module. */
+const NAV_CONNECTOR_ID = "nav_online_szamla";
+
 export const MAX_CONSECUTIVE_FAILURES = 5;
 /** Hard cap on provider calls per connection per run. A 365-day fixture backfill is 5 pages. */
 export const MAX_PAGES_PER_RUN = 50;
@@ -542,6 +545,9 @@ export async function runConnectorSync(
           ),
         ),
         ne(connections.provider, BOOKINGS_IMPORT_PROVIDER),
+        // The multi-market spec Part E: NAV keeps its own per-business keys
+        // and its own runner (lib/connectors/nav/service.ts syncNav).
+        ne(connections.provider, NAV_CONNECTOR_ID),
         opts.accountIds ? inArray(connections.account_id, [...opts.accountIds]) : undefined,
       ),
     )

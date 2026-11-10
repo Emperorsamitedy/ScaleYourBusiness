@@ -41,6 +41,10 @@
     {
       "path": "/api/cron/ledger-head",
       "schedule": "50 23 * * *"
+    },
+    {
+      "path": "/api/cron/fx-rates",
+      "schedule": "30 16 * * 1-5"
     }
   ]
 }

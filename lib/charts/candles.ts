@@ -31,6 +31,7 @@
 // nearest minor unit, never left fractional.
 
 import { weekStart } from "../care/chart-view";
+import { perUnit } from "../core/money";
 
 export const BUCKETS = ["day", "week", "month"] as const;
 export type Bucket = (typeof BUCKETS)[number];
@@ -171,8 +172,8 @@ export function bucketCandles(points: readonly DayPoint[], bucket: Bucket): Cand
     );
     c.slip_low_minor = c.slip.reduce((n, s) => n + s.low_minor, 0);
     c.slip_high_minor = c.slip.reduce((n, s) => n + s.high_minor, 0);
-    c.kept_low_minor = c.close_minor + Math.round(c.slip_low_minor / c.days);
-    c.kept_high_minor = c.close_minor + Math.round(c.slip_high_minor / c.days);
+    c.kept_low_minor = c.close_minor + perUnit(c.slip_low_minor, c.days);
+    c.kept_high_minor = c.close_minor + perUnit(c.slip_high_minor, c.days);
   }
   return out;
 }

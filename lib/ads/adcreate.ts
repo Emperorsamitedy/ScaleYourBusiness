@@ -44,7 +44,7 @@ import {
 } from "../../db/schema";
 import { careState } from "../care/day-zero";
 import { enumCode } from "../core/enum-value";
-import { format, money } from "../core/money";
+import { format, money, roundMinorTo } from "../core/money";
 import type { ScenarioBlock } from "../diagnosis/recommendations";
 import { activeExecutionConnection, executionSecret } from "../execution/connections";
 import { consentLines, hashConsentPayload } from "../execution/consent";
@@ -269,7 +269,9 @@ export async function proposeAdRun(profileId: string, args: AdRunArgs): Promise<
     shiftDay(today, -1),
   );
   const accountDaily = series.length === 0 ? 0 : accountDailySpend(series, today, currency);
-  const headroomDaily = Math.floor((ceiling.amount_minor - accountDaily * 30) / 30);
+  // Floored to a whole multiple of 30 first, so the division is exact (hard rule 1).
+  const headroomMonthly = ceiling.amount_minor - accountDaily * 30;
+  const headroomDaily = roundMinorTo(headroomMonthly, 30, "down") / 30;
   let daily: number;
   try {
     const asked =

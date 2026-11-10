@@ -10,6 +10,9 @@
 // the four "gap" rules, whose whole point is a dangerous absence next to
 // a recorded presence.
 
+import { perUnit, ratioBp, scaleMinor } from "../core/money";
+import { presentAmount } from "../i18n/format";
+
 export const RULES_VERSION = "1.0.0";
 
 export type FindingKind = "gap" | "contradiction" | "implausible" | "stale";
@@ -81,7 +84,8 @@ function asBool(v: unknown): boolean | null {
 }
 
 function fmtMoney(m: MoneyValue): string {
-  return `${(m.amount_minor / 100).toLocaleString("en-US", { maximumFractionDigits: 0 })} ${m.currency}`;
+  // Whole major units from the integer's digits, by the currency table (hard rule 1).
+  return `${presentAmount(m, "en", { whole: true })} ${m.currency}`;
 }
 
 /** Offer margin in percentage points, when both sides are priceable. */
@@ -90,7 +94,8 @@ function offerMarginPct(row: Record<string, unknown>): number | null {
   const cost = asMoney(row["cost_to_deliver"]);
   if (!price || !cost) return null;
   if (price.currency !== cost.currency || price.amount_minor <= 0) return null;
-  return ((price.amount_minor - cost.amount_minor) / price.amount_minor) * 100;
+  const marginBp = ratioBp(price.amount_minor - cost.amount_minor, price.amount_minor);
+  return marginBp / 100; // percentage points, from exact basis points
 }
 
 /** Normalize a cost row to monthly minor units; null when not normalizable. */
@@ -101,9 +106,9 @@ function monthlyCostMinor(row: Record<string, unknown>): number | null {
     case "monthly":
       return amount.amount_minor;
     case "quarterly":
-      return amount.amount_minor / 3;
+      return perUnit(amount.amount_minor, 3);
     case "annual":
-      return amount.amount_minor / 12;
+      return perUnit(amount.amount_minor, 12);
     default:
       return null; // per_unit / per_job depend on volume — not comparable
   }
@@ -152,12 +157,12 @@ export const RULES: readonly ValidationRule[] = [
         const volume = asNumber(row["volume_period"]);
         if (!price || volume === null) continue;
         if (price.currency !== stated.currency) return null; // not comparable
-        sum += price.amount_minor * volume;
+        sum += scaleMinor(price.amount_minor, volume);
         counted += 1;
       }
       if (counted === 0) return null;
-      const ratio = Math.abs(sum - stated.amount_minor) / stated.amount_minor;
-      if (ratio <= 0.2) return null;
+      // Within 20% of the statement, compared in integers (basis points).
+      if (Math.abs(sum - stated.amount_minor) * 10_000 <= 2_000 * stated.amount_minor) return null;
       return {
         field_keys: ["revenue.monthly_revenue", "offers"],
         message: `You told me revenue is about ${fmtMoney(stated)} a month. Your offers' prices times volumes add up to about ${fmtMoney({ amount_minor: sum, currency: stated.currency })}.`,

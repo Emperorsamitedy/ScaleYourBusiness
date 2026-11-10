@@ -4740,6 +4740,16 @@ export const ledgerEntries = pgTable(
     /** observed − expected. Feeds the calibration score (§3.6). */
     forecast_error_minor: bigint("forecast_error_minor", { mode: "number" }),
     method_notes: text("method_notes").notNull(),
+    /**
+     * The multi-market spec §A.4: net, projected into EUR for SYB's own
+     * cross-market roll-ups ONLY — never an owner- or partner-facing figure,
+     * never the guarantee. Null when no stored ECB rate covers the day;
+     * the rate, its date and its source travel with it (§A.3).
+     */
+    reporting_eur_minor: bigint("reporting_eur_minor", { mode: "number" }),
+    reporting_fx_rate: text("reporting_fx_rate"),
+    reporting_fx_date: date("reporting_fx_date", { mode: "string" }),
+    reporting_fx_source: text("reporting_fx_source"),
     corrects_entry_id: uuid("corrects_entry_id"),
     prev_hash: text("prev_hash"),
     entry_hash: text("entry_hash").notNull(),
@@ -4757,6 +4767,10 @@ export const ledgerEntries = pgTable(
     check(
       "ledger_entries_observed",
       sql`(${t.observed_effect_minor} is null) = (${t.net_minor} is null) and (${t.observed_effect_minor} is null) = (${t.forecast_error_minor} is null)`,
+    ),
+    check(
+      "ledger_entries_reporting_fx",
+      sql`(${t.reporting_fx_rate} is null) = (${t.reporting_fx_date} is null) and (${t.reporting_fx_date} is null) = (${t.reporting_fx_source} is null)`,
     ),
     check(
       "ledger_entries_scored_verdicts",
@@ -4792,4 +4806,203 @@ export const ledgerChainHeads = pgTable("ledger_chain_heads", {
   published_at: timestamp("published_at", { withTimezone: true, mode: "string" })
     .notNull()
     .defaultNow(),
+});
+
+// ---------------------------------------------------------------------------
+// Multi-market foundations — the multi-market spec Parts A–D.
+//
+// currencies (§A.2): seeded from specs/currencies-v1.json by migration, never
+// inferred; a test holds the table and the file equal.
+// fx_rates (§A.3): ECB daily reference rates keyed (currency, date), each
+// kept as the decimal string published. A stored day is never rewritten.
+// price_book (§B): list prices per tier and country, as data; a row's
+// change is a new row (effective_from/to), logged in price_book_changes.
+// subscriptions (§B.3): the price resolved at signup, locked for life.
+// usage_quotas (§B.4): per tier, per metric, monthly soft and hard caps.
+// case_studies (§D.3): a mechanism in plain words, backed by verified
+// ledger entries.
+// country_launches (§D.2): a country opens publicly only through openCountry.
+// ---------------------------------------------------------------------------
+
+export const currencies = pgTable(
+  "currencies",
+  {
+    code: text("code").primaryKey(),
+    minor_units: integer("minor_units").notNull(),
+    rounding_increment_minor: integer("rounding_increment_minor").notNull(),
+    price_rounding_increment_minor: integer("price_rounding_increment_minor").notNull(),
+    symbol: text("symbol").notNull(),
+    symbol_position: text("symbol_position").notNull(),
+    thousands_sep: text("thousands_sep").notNull(),
+    decimal_sep: text("decimal_sep").notNull(),
+    processor_amount_divisor_minor: integer("processor_amount_divisor_minor").notNull(),
+    processor_notes: text("processor_notes"),
+    /** "home": the currency's own presentation everywhere (HUF); "reader": the reader's language (EUR). */
+    presentation: text("presentation").notNull().default("reader"),
+  },
+  (t) => [
+    check("currencies_code", sql`${t.code} ~ '^[A-Z]{3}$'`),
+    check(
+      "currencies_steps",
+      sql`${t.rounding_increment_minor} > 0 and ${t.price_rounding_increment_minor} > 0 and ${t.processor_amount_divisor_minor} > 0`,
+    ),
+    check("currencies_position", sql`${t.symbol_position} in ('before', 'after')`),
+    check("currencies_presentation", sql`${t.presentation} in ('home', 'reader')`),
+  ],
+);
+
+export const fxRates = pgTable(
+  "fx_rates",
+  {
+    currency: text("currency").notNull(),
+    date: date("date", { mode: "string" }).notNull(),
+    /** Units of `currency` per 1 EUR, exactly as published ("391.48"). */
+    per_eur: text("per_eur").notNull(),
+    source: text("source").notNull(),
+    fetched_at: timestamp("fetched_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    uniqueIndex("fx_rates_pk").on(t.currency, t.date),
+    check("fx_rates_rate", sql`${t.per_eur} ~ '^[0-9]{1,12}(\\.[0-9]{1,10})?$'`),
+  ],
+);
+
+export const priceTier = pgEnum("price_tier", [
+  "watch",
+  "act",
+  "autonomous",
+  "extra_business",
+  "full_diagnosis",
+  // §7.5's firm tiers, each a price per client per month.
+  "partner_starter",
+  "partner_practice",
+  "partner_network",
+]);
+
+export const priceBook = pgTable(
+  "price_book",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    tier: priceTier("tier").notNull(),
+    /** ISO alpha-2, or "*" for the default row a country without its own falls back to. */
+    country: text("country").notNull(),
+    currency: text("currency").notNull(),
+    list_amount_minor: bigint("list_amount_minor", { mode: "number" }).notNull(),
+    /** Purchasing-power index against the EUR base, as a decimal string ("0.52"). */
+    ppp_index: text("ppp_index").notNull(),
+    effective_from: date("effective_from", { mode: "string" }).notNull(),
+    effective_to: date("effective_to", { mode: "string" }),
+    /** Hungary's rows are off until the owner confirms the quotas (§B.4). */
+    enabled: boolean("enabled").notNull().default(false),
+  },
+  (t) => [
+    index("price_book_lookup").on(t.tier, t.country, t.effective_from),
+    check("price_book_amount", sql`${t.list_amount_minor} > 0`),
+    check(
+      "price_book_window",
+      sql`${t.effective_to} is null or ${t.effective_to} > ${t.effective_from}`,
+    ),
+  ],
+);
+
+/** The price book's changelog — §B.3's annual reviewed change. Append-only. */
+export const priceBookChanges = pgTable("price_book_changes", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  price_book_id: uuid("price_book_id").notNull(),
+  change: jsonb("change").notNull(),
+  reviewed_by: text("reviewed_by").notNull(),
+  reason: text("reason").notNull(),
+  at: timestamp("at", { withTimezone: true, mode: "string" }).notNull().defaultNow(),
+});
+
+export const subscriptions = pgTable(
+  "subscriptions",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    profile_id: uuid("profile_id")
+      .notNull()
+      .references(() => businessProfiles.id, { onDelete: "cascade" }),
+    tier: priceTier("tier").notNull(),
+    billing_country: text("billing_country").notNull(),
+    vat_country: text("vat_country").notNull(),
+    /** The price as resolved at signup — copied, never a reference that could move. */
+    currency: text("currency").notNull(),
+    price_amount_minor: bigint("price_amount_minor", { mode: "number" }).notNull(),
+    price_book_id: uuid("price_book_id").notNull(),
+    locked_at: timestamp("locked_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+    /** §B.3: billing and VAT country disagree — a person reviews before the cheaper rate applies. */
+    needs_review: boolean("needs_review").notNull().default(false),
+    status: text("status").notNull().default("active"),
+  },
+  (t) => [index("subscriptions_profile_idx").on(t.profile_id)],
+);
+
+export const quotaMetric = pgEnum("quota_metric", [
+  "llm_tokens",
+  "video_renders",
+  "connector_calls",
+]);
+
+export const usageQuotas = pgTable(
+  "usage_quotas",
+  {
+    tier: priceTier("tier").notNull(),
+    metric: quotaMetric("metric").notNull(),
+    monthly_soft: bigint("monthly_soft", { mode: "number" }).notNull(),
+    monthly_hard: bigint("monthly_hard", { mode: "number" }).notNull(),
+    /** Placeholders stay unconfirmed until the owner says otherwise; Hungary stays off until then. */
+    confirmed: boolean("confirmed").notNull().default(false),
+  },
+  (t) => [
+    uniqueIndex("usage_quotas_pk").on(t.tier, t.metric),
+    check(
+      "usage_quotas_order",
+      sql`0 <= ${t.monthly_soft} and ${t.monthly_soft} <= ${t.monthly_hard}`,
+    ),
+  ],
+);
+
+export const caseStudies = pgTable(
+  "case_studies",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    profile_id: uuid("profile_id")
+      .notNull()
+      .references(() => businessProfiles.id, { onDelete: "cascade" }),
+    country: text("country").notNull(),
+    currency: text("currency").notNull(),
+    nace: text("nace").notNull(),
+    segment: text("segment").notNull(),
+    local_amount_minor: bigint("local_amount_minor", { mode: "number" }).notNull(),
+    /** Internal only: never the figure a cross-border reader sees (§D.3). */
+    eur_equivalent_minor: bigint("eur_equivalent_minor", { mode: "number" }),
+    fx_rate_to_eur: text("fx_rate_to_eur"),
+    fx_rate_date: date("fx_rate_date", { mode: "string" }),
+    fx_source: text("fx_source"),
+    mechanism: text("mechanism").notNull(),
+    ledger_entry_ids: uuid("ledger_entry_ids").array().notNull(),
+    created_at: timestamp("created_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    check("case_studies_mechanism", sql`length(trim(${t.mechanism})) >= 20`),
+    check("case_studies_backed", sql`cardinality(${t.ledger_entry_ids}) > 0`),
+    check(
+      "case_studies_fx",
+      sql`(${t.eur_equivalent_minor} is null) = (${t.fx_rate_to_eur} is null) and (${t.fx_rate_to_eur} is null) = (${t.fx_rate_date} is null)`,
+    ),
+  ],
+);
+
+export const countryLaunches = pgTable("country_launches", {
+  country: text("country").primaryKey(),
+  opened_at: timestamp("opened_at", { withTimezone: true, mode: "string" }).notNull().defaultNow(),
+  opened_by: text("opened_by").notNull(),
+  /** The (NACE, segment) pair whose ≥ 7 contributing businesses allowed it. */
+  qualifying_cohort: jsonb("qualifying_cohort").notNull(),
 });

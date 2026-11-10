@@ -10,8 +10,9 @@
 // matter:
 //   · "paid" is only ever written by the VERIFIED webhook. The success
 //     redirect proves nothing — any browser can fabricate a URL.
-//   · Price comes from env (REPORT_PRICE_MINOR, integer minor units +
-//     REPORT_CURRENCY), defaulting to €49.00. Money stays integer.
+//   · Price comes from the price book (lib/billing/price-book.ts); an
+//     operator's REPORT_PRICE_MINOR + REPORT_CURRENCY still override it.
+//     Money stays integer.
 //   · When STRIPE_SECRET_KEY is absent, payments are NOT configured and
 //     the report gate stands down (today's behaviour, logged). The gate
 //     arms itself the moment the key exists.
@@ -28,6 +29,7 @@ import { createHmac, timingSafeEqual } from "node:crypto";
 import { and, eq, inArray, ne } from "drizzle-orm";
 import { db } from "../../db";
 import { businessProfiles, payments } from "../../db/schema";
+import { resolvePrice } from "./price-book";
 
 export class PaymentError extends Error {
   readonly status: number;
@@ -42,36 +44,65 @@ export function paymentsConfigured(): boolean {
   return typeof process.env.STRIPE_SECRET_KEY === "string" && process.env.STRIPE_SECRET_KEY !== "";
 }
 
-export function reportPrice(): { amount_minor: number; currency: string } {
+/**
+ * The report's price — from the price book (the multi-market spec Part B):
+ * the full-diagnosis row for the payer's country, else the default row.
+ * REPORT_PRICE_MINOR + REPORT_CURRENCY, when an operator sets them, still
+ * override it, as before; no price lives in code.
+ */
+export async function reportPrice(
+  country: string | null = null,
+): Promise<{ amount_minor: number; currency: string }> {
   // An empty env var (which hosted env editors happily produce) means
   // unset, not "the empty currency".
-  const raw = process.env.REPORT_PRICE_MINOR || "4900";
-  const amount = Number.parseInt(raw, 10);
-  if (!Number.isInteger(amount) || amount <= 0) {
-    throw new PaymentError("REPORT_PRICE_MINOR must be a positive integer of minor units", 500);
+  const raw = process.env.REPORT_PRICE_MINOR || "";
+  if (raw !== "") {
+    const amount = Number.parseInt(raw, 10);
+    if (!Number.isInteger(amount) || amount <= 0) {
+      throw new PaymentError("REPORT_PRICE_MINOR must be a positive integer of minor units", 500);
+    }
+    return { amount_minor: amount, currency: (process.env.REPORT_CURRENCY || "eur").toLowerCase() };
   }
-  return { amount_minor: amount, currency: (process.env.REPORT_CURRENCY || "eur").toLowerCase() };
+  const row = await resolvePrice("full_diagnosis", country ?? "*", today());
+  return { amount_minor: row.list_amount_minor, currency: row.currency.toLowerCase() };
 }
 
 /**
  * I-52a: each business after the first in one checkout. Same currency as
- * the report; never more than the report price.
+ * the report; never more than the report price. From the price book's
+ * extra-business row unless EXTRA_REPORT_PRICE_MINOR overrides it.
  */
-export function extraReportPrice(): { amount_minor: number; currency: string } {
-  const full = reportPrice();
-  const raw = process.env.EXTRA_REPORT_PRICE_MINOR || "2900";
-  const amount = Number.parseInt(raw, 10);
-  if (!Number.isInteger(amount) || amount <= 0) {
-    throw new PaymentError(
-      "EXTRA_REPORT_PRICE_MINOR must be a positive integer of minor units",
-      500,
-    );
+export async function extraReportPrice(
+  country: string | null = null,
+): Promise<{ amount_minor: number; currency: string }> {
+  const full = await reportPrice(country);
+  const raw = process.env.EXTRA_REPORT_PRICE_MINOR || "";
+  let amount: number;
+  if (raw !== "") {
+    amount = Number.parseInt(raw, 10);
+    if (!Number.isInteger(amount) || amount <= 0) {
+      throw new PaymentError(
+        "EXTRA_REPORT_PRICE_MINOR must be a positive integer of minor units",
+        500,
+      );
+    }
+  } else {
+    const row = await resolvePrice("extra_business", country ?? "*", today());
+    if (row.currency.toLowerCase() !== full.currency) {
+      throw new PaymentError(
+        "the extra-business price is in another currency than the report",
+        500,
+      );
+    }
+    amount = row.list_amount_minor;
   }
   if (amount > full.amount_minor) {
     throw new PaymentError("EXTRA_REPORT_PRICE_MINOR can't be more than the report price", 500);
   }
   return { amount_minor: amount, currency: full.currency };
 }
+
+const today = () => new Date().toISOString().slice(0, 10);
 
 /**
  * Pure: what each of `n` businesses costs in one checkout: the first in
@@ -144,8 +175,8 @@ export async function startCheckout(
 ): Promise<CheckoutStart> {
   if (!paymentsConfigured()) throw new PaymentError("payments are not configured", 503);
   const key = process.env.STRIPE_SECRET_KEY as string;
-  const price = reportPrice();
-  const extra = also.length > 0 || paidBefore ? extraReportPrice() : price;
+  const price = await reportPrice();
+  const extra = also.length > 0 || paidBefore ? await extraReportPrice() : price;
 
   const ids = [profileId, ...also.map((a) => a.profile_id)];
   if (new Set(ids).size !== ids.length) {

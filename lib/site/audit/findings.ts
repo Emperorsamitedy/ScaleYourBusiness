@@ -23,7 +23,7 @@
 
 import { format, money } from "../../core/money";
 import type { DiagnosisFinding, Severity } from "../../diagnosis/findings";
-import { intlNumber } from "../../i18n/format";
+import { intlNumber, presentMoney } from "../../i18n/format";
 import type { AppLocale } from "../../i18n/locales";
 import { intlTag } from "../../i18n/locales";
 import type { Tr } from "../../i18n/tr";
@@ -226,11 +226,11 @@ export function speedFormula(
 ): string {
   const conversion = (inputs.orders_per_month / inputs.sessions_per_month) * 100;
   const visits = Math.round(inputs.sessions_per_month);
-  const aov = money(Math.round(inputs.aov_minor), currency);
+  const aov = money(inputs.aov_minor, currency);
   return tr("euro.formula", {
     visits: locale === "en" ? visits.toLocaleString("en") : intlNumber(visits, 0, locale),
     conversion: locale === "en" ? `${conversion.toFixed(1)}%` : percent(conversion, 1, locale),
-    aov: locale === "en" ? format(aov) : format(aov, intlTag(locale)),
+    aov: locale === "en" ? format(aov) : presentMoney(aov, locale),
     range: lostRange(locale),
     over: seconds(inputs.over_s * 1000, tr, locale),
   });

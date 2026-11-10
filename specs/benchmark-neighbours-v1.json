@@ -1,0 +1,30 @@
+{
+  "version": "v1",
+  "about": "The multi-market spec §D.1's second rung: a country's neighbours, whose live cohorts stand in (same NACE, same segment) while its own national cohort is under k = 7. Land borders within the EU/EEA and Switzerland; data, never code. The served label names the countries and carries a cost-base caveat.",
+  "neighbours": {
+    "AT": ["DE", "CZ", "SK", "HU", "SI", "IT", "CH", "LI"],
+    "BE": ["NL", "DE", "LU", "FR"],
+    "BG": ["RO", "GR"],
+    "CZ": ["DE", "PL", "SK", "AT"],
+    "DE": ["DK", "PL", "CZ", "AT", "CH", "FR", "LU", "BE", "NL"],
+    "DK": ["DE"],
+    "EE": ["LV"],
+    "ES": ["FR", "PT"],
+    "FI": ["SE", "NO"],
+    "FR": ["BE", "LU", "DE", "CH", "IT", "ES"],
+    "GR": ["BG"],
+    "HR": ["SI", "HU"],
+    "HU": ["AT", "SK", "RO", "HR", "SI"],
+    "IT": ["FR", "CH", "AT", "SI"],
+    "LT": ["LV", "PL"],
+    "LU": ["BE", "DE", "FR"],
+    "LV": ["EE", "LT"],
+    "NL": ["DE", "BE"],
+    "PL": ["DE", "CZ", "SK", "LT"],
+    "PT": ["ES"],
+    "RO": ["HU", "BG"],
+    "SE": ["NO", "FI"],
+    "SI": ["IT", "AT", "HU", "HR"],
+    "SK": ["CZ", "PL", "HU", "AT"]
+  }
+}

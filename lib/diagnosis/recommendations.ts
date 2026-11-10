@@ -21,7 +21,8 @@ import { eq } from "drizzle-orm";
 import { db } from "../../db";
 import { accounts, bankEntitySchemas, bankVersions, businessProfiles } from "../../db/schema";
 import type { Money } from "../core/money";
-import { minorUnitExponent, money, subtract } from "../core/money";
+import { minorUnitExponent, money, scaleMinor, subtract } from "../core/money";
+import { moneyDigits } from "../core/currency-table";
 import { computeEconomics } from "../economics/unit-economics";
 import type { OfferEconomics } from "../economics/unit-economics";
 import { readAnswer } from "../llm/answer";
@@ -133,6 +134,12 @@ const exact = (minor: number, currency: string): string => {
   return `${text} ${currency}`;
 };
 
+/** An amount as plain digits for the model's prompt ("4990" HUF, "49.90" EUR): the table's rounding, no float. */
+const plainAmount = (m: Money): string => {
+  const d = moneyDigits(m);
+  return `${d.negative ? "-" : ""}${d.whole}${d.fraction ? `.${d.fraction}` : ""}`;
+};
+
 const pct1 = (n: number): string => `${(Math.round(n * 10) / 10).toLocaleString("en-US")}%`;
 /** A change with its sign, as a reader expects it: "+12%", "−3%", "0%". */
 const signedPct = (n: number): string => {
@@ -181,7 +188,9 @@ export function priceChangeScenario(inputs: PriceChangeInputs): ScenarioBlock {
   const currency = offer.price.currency;
   const volume = offer.volume;
   const marginNow = subtract(offer.price, offer.cost_to_deliver).amount_minor;
-  const priceNew = Math.round(offer.price.amount_minor * (1 + change_pct / 100));
+  // The change taken at its written decimal ("7.5" → 0.075) and applied once, exactly.
+  const changeFactor = Number(`${change_pct}e-2`);
+  const priceNew = offer.price.amount_minor + scaleMinor(offer.price.amount_minor, changeFactor);
   const marginNew = priceNew - offer.cost_to_deliver.amount_minor;
   const profitNow = marginNow * volume;
 
@@ -592,9 +601,9 @@ export async function runRecommendations(args: {
     [
       `OFFER ${o.offer_id}`,
       `name=${o.name}`,
-      `price=${o.price.amount_minor / 100} ${o.price.currency}`,
+      `price=${plainAmount(o.price)} ${o.price.currency}`,
       o.cost_to_deliver
-        ? `cost=${o.cost_to_deliver.amount_minor / 100} ${o.cost_to_deliver.currency}`
+        ? `cost=${plainAmount(o.cost_to_deliver)} ${o.cost_to_deliver.currency}`
         : `cost=UNKNOWN (fillable: offers.${o.offer_id}.cost_to_deliver)`,
       o.volume !== null
         ? `volume=${o.volume}/month`

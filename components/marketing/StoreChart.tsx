@@ -77,7 +77,7 @@ function geometry(
     const t = Math.min(yo, yc);
     const hh = Math.max(1, Math.abs(yo - yc));
     const body = `M${(x - bw / 2).toFixed(1)} ${t.toFixed(1)}h${bw.toFixed(1)}v${hh.toFixed(1)}h${(-bw).toFixed(1)}Z`;
-    const wick = `M${x.toFixed(1)} ${Y(euros(k.high_minor)).toFixed(1)}V${Y(euros(k.low_minor)).toFixed(1)}`;
+    const wick = `M${x.toFixed(1)} ${Y(euros(k.high_minor)).toFixed(1)}V${Y(euros(k.low_minor)).toFixed(1)}`; // not money: an SVG path's pixel coordinates
     const vh = (k.volume / maxV) * (V1 - V0);
     const vol = `M${(x - bw / 2).toFixed(1)} ${(V1 - vh).toFixed(1)}h${bw.toFixed(1)}V${V1}h${(-bw).toFixed(1)}Z`;
     if (up) {
@@ -89,7 +89,7 @@ function geometry(
       wD += wick;
       vD += vol;
     }
-    const iy = Y(euros(k.ideal_minor)).toFixed(1);
+    const iy = Y(euros(k.ideal_minor)).toFixed(1); // not money: a pixel coordinate
     ideal += `${i ? "L" : "M"}${x.toFixed(1)} ${iy}`;
     bot = `L${x.toFixed(1)} ${yc.toFixed(1)}${bot}`;
   });

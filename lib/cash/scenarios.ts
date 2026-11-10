@@ -32,7 +32,7 @@ import type { Words } from "./words";
 import { cashEnglish, wholePct } from "./words";
 import { shortDate } from "../charts/model";
 import { enumCode } from "../core/enum-value";
-import { minorUnitExponent } from "../core/money";
+import { minorUnitExponent, scaleMinor } from "../core/money";
 import type { PriceItemRaw, PriceResult } from "../simulate/pricing";
 import { PRICING } from "../simulate/pricing";
 import { BAND_SOURCE } from "../simulate/pricing-bands";
@@ -142,7 +142,7 @@ export function adjustFor(s: Scenario, plain: CashReady): Adjust {
       const extra_in = new Array<number>(n).fill(0);
       const extra_out = new Array<number>(n).fill(0);
       extra_in[k] = s.amount_minor;
-      extra_out[k] = Math.round(s.amount_minor * plain.variable.ratio);
+      extra_out[k] = scaleMinor(s.amount_minor, plain.variable.ratio);
       return { extra_in, extra_out };
     }
     case "hire": {

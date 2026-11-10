@@ -21,6 +21,8 @@ import {
   ladderEvents,
 } from "../../db/schema";
 import { EXECUTION_SCOPE_REGISTRY } from "../execution/scopes";
+import { segmentOf } from "../segments/read";
+import { segmentStationCeiling } from "../segments/segment";
 
 export type LadderState = "BLOCKED" | "SHADOW" | "NEEDS_APPROVAL" | "AUTHORIZED";
 export type Station = 1 | 2 | 3 | 4;
@@ -65,7 +67,11 @@ export async function stationOf(
         eq(capabilityStations.capability, capability),
       ),
     );
-  return row && isStation(row.station) ? row.station : DEFAULT_STATION;
+  const raw = row && isStation(row.station) ? row.station : DEFAULT_STATION;
+  // The multi-market spec §C: a sole operation's ceiling holds whatever is
+  // stored — no path, the owner's, a partner's or the engine's, passes it.
+  const ceiling = segmentStationCeiling((await segmentOf(profileId)).segment);
+  return (raw > ceiling ? ceiling : raw) as Station;
 }
 
 /** TrustLadder.authorize — step 1 of every agent action. */
@@ -104,6 +110,13 @@ export async function setStation(args: {
   }
   if (await profileHalted(args.profileId)) {
     throw new LadderError("the emergency stop is on — every station stays at 1 until you resume");
+  }
+  const segment = (await segmentOf(args.profileId)).segment;
+  if (args.station > segmentStationCeiling(segment)) {
+    throw new LadderError(
+      `a ${segment === "micro_sole" ? "sole trader's" : "business's"} capabilities stay at station ${segmentStationCeiling(segment)} or below`,
+      409,
+    );
   }
   const station = args.station;
   await db.transaction(async (tx) => {

@@ -279,10 +279,11 @@ export function pipelineClaims(
       unit: "money",
       window_start: today,
       window_end: due.by,
-      low_minor: Math.floor(l.low.amount_minor),
-      high_minor: Math.ceil(l.high.amount_minor),
+      // multiply() already rounded each end to whole minor units, exactly.
+      low_minor: l.low.amount_minor,
+      high_minor: l.high.amount_minor,
       currency: l.currency,
-      claim: `Of the ${n} deal${n === 1 ? "" : "s"} you expect to close by ${longDay(due.by)} (${wholeMoney(l.total.amount_minor, l.currency)} in all), about ${wholeMoney(Math.floor(l.low.amount_minor), l.currency)}–${wholeMoney(Math.ceil(l.high.amount_minor), l.currency)} is likely won.`,
+      claim: `Of the ${n} deal${n === 1 ? "" : "s"} you expect to close by ${longDay(due.by)} (${wholeMoney(l.total.amount_minor, l.currency)} in all), about ${wholeMoney(l.low.amount_minor, l.currency)}–${wholeMoney(l.high.amount_minor, l.currency)} is likely won.`,
       basis: `${due.sources.join("; ")}. Assumed: ${due.assumed.join("; ")}.`,
     };
   });

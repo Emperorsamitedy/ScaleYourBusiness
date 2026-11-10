@@ -21,7 +21,7 @@
 import { isMeasuredSource } from "../connectors/measured";
 import type { StatedVsMeasured } from "../connectors/measured";
 import type { Money } from "../core/money";
-import { money, multiply, subtract } from "../core/money";
+import { money, multiply, perUnit, scaleMinor, scaleMinorBy, subtract } from "../core/money";
 import type { Grade } from "../core/grade";
 import { lowestGrade, provenanceGrade, sourceGrade } from "../core/grade";
 import type { SnapshotEntity, SnapshotView } from "../profile/snapshot";
@@ -176,6 +176,16 @@ function entityFacts(view: SnapshotView, spine: string, id: string): Map<string,
   return out;
 }
 
+/**
+ * Minor units ÷ a count that may carry decimals (units sold, orders, new
+ * customers): a whole count divides exactly; a fractional one is taken to
+ * thousandths, so the division is still one exact integer division (hard rule 1).
+ */
+export function perCount(amountMinor: number, count: number): number {
+  if (Number.isInteger(count)) return perUnit(amountMinor, count);
+  return scaleMinorBy(amountMinor, 1000, Math.max(1, Math.round(count * 1000)));
+}
+
 const CADENCE_DIVISOR: Record<string, number> = {
   monthly: 1,
   quarterly: 3,
@@ -218,12 +228,13 @@ function offerEconomics(view: SnapshotView, entities: SnapshotEntity[]): OfferEc
         continue;
       }
       const contrib = subtract(price, cost);
-      const pct = (contrib.amount_minor / price.amount_minor) * 100;
+      // Per mille of the price, exact; the margin keeps one decimal of a percent.
+      const perMille = perUnit(contrib.amount_minor * 1000, price.amount_minor);
       const conf = derivedConfidence([priceFact, costFact]);
       const grade = inputsGrade([priceFact, costFact]);
       const from = [`offers.${e.id}.price`, `offers.${e.id}.cost_to_deliver`];
       marginPct = {
-        value: Math.round(pct * 10) / 10,
+        value: perMille / 10,
         derived_from: from,
         formula: "(price − cost_to_deliver) ÷ price × 100",
         confidence: conf,
@@ -288,7 +299,9 @@ function fixedMonthly(
   const fixed = entities.filter((e) => e.spine === "cost_items" && e.kind === "fixed");
   if (fixed.length === 0) return null;
 
-  let total = 0;
+  // Totalled in twelfths of a month's minor units, so every cadence divides exactly
+  // and the one rounding happens at the end (hard rule 1).
+  let totalTwelfths = 0;
   const from: string[] = [];
   const inputs: FactLike[] = [];
   const skipped: string[] = [];
@@ -316,7 +329,8 @@ function fixedMonthly(
       skipped.push(`costs.${e.id} (${cadence})`);
       continue;
     }
-    total += amount.amount_minor / divisor;
+    const twelfths = 12 / divisor; // 12, 4 or 1: whole
+    totalTwelfths += amount.amount_minor * twelfths;
     from.push(`costs.${e.id}.amount`, `costs.${e.id}.cadence`);
     if (amountFact) inputs.push(amountFact);
   }
@@ -331,7 +345,7 @@ function fixedMonthly(
   }
 
   return {
-    value: money(Math.round(total), currency),
+    value: money(perUnit(totalTwelfths, 12), currency),
     derived_from: from,
     formula: "Σ(fixed cost ÷ cadence months)",
     confidence: derivedConfidence(inputs),
@@ -369,9 +383,12 @@ function breakEven(
   const weightOf = (o: OfferEconomics) => (weighted.length > 0 ? (o.volume ?? 0) : 1);
   const totalWeight = use.reduce((n, o) => n + weightOf(o), 0);
 
-  const contribPerUnit =
-    use.reduce((n, o) => n + o.contribution!.value.amount_minor * weightOf(o), 0) / totalWeight;
-  if (contribPerUnit <= 0) {
+  // Σ(contribution × weight) and Σ(price × weight), each line scaled exactly to minor units.
+  const contribSum = use.reduce(
+    (n, o) => n + scaleMinor(o.contribution!.value.amount_minor, weightOf(o)),
+    0,
+  );
+  if (contribSum <= 0) {
     refusals.push({
       what: "break-even",
       missing: [],
@@ -379,16 +396,19 @@ function breakEven(
     });
     return null;
   }
-  const pricePerUnit =
-    use.reduce((n, o) => n + o.price.amount_minor * weightOf(o), 0) / totalWeight;
+  const priceSum = use.reduce((n, o) => n + scaleMinor(o.price.amount_minor, weightOf(o)), 0);
 
-  const units = fixed.value.amount_minor / contribPerUnit;
+  // fixed ÷ (contribSum ÷ weight) units; their revenue is fixed × priceSum ÷ contribSum, exactly.
+  const units = (fixed.value.amount_minor * totalWeight) / contribSum; // not money: a count of units, rounded up below
   return {
     value: {
       units_per_month: Math.ceil(units),
-      revenue_per_month: money(Math.round(units * pricePerUnit), currency),
+      revenue_per_month: money(
+        scaleMinorBy(fixed.value.amount_minor, priceSum, contribSum),
+        currency,
+      ),
       fixed_costs_per_month: fixed.value,
-      contribution_per_unit: money(Math.round(contribPerUnit), currency),
+      contribution_per_unit: money(perCount(contribSum, totalWeight), currency),
     },
     derived_from: [...fixed.derived_from, ...use.flatMap((o) => o.contribution!.derived_from)],
     formula:
@@ -425,7 +445,7 @@ function averageOrderValue(
   if (revenue.currency !== currency) return null;
 
   return {
-    value: money(Math.round(revenue.amount_minor / orders), currency),
+    value: money(perCount(revenue.amount_minor, orders), currency),
     derived_from: ["revenue.monthly_revenue", "revenue.order_count_monthly"],
     formula: "monthly revenue ÷ monthly orders",
     confidence: derivedConfidence([revFact, ordersFact]),
@@ -484,7 +504,7 @@ function costPerAcquisition(
   }
 
   return {
-    value: money(Math.round(spend!.amount_minor / newCustomers), currency),
+    value: money(perCount(spend!.amount_minor, newCustomers), currency),
     derived_from: [
       "marketing.monthly_ad_spend",
       "revenue.order_count_monthly",
@@ -538,8 +558,10 @@ function returnOnAdSpend(
     });
     return null;
   }
+  // In hundredths, exact; ROAS is a ratio shown to two decimals.
+  const roasHundredths = perUnit(revenue!.amount_minor * 100, spend!.amount_minor);
   return {
-    value: Math.round((revenue!.amount_minor / spend!.amount_minor) * 100) / 100,
+    value: roasHundredths / 100,
     derived_from: ["revenue.monthly_revenue", "marketing.monthly_ad_spend"],
     formula:
       "monthly revenue ÷ monthly ad spend (blended: all revenue over all ad spend, not attributed)",

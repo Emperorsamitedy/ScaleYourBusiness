@@ -24,6 +24,7 @@ import { createField } from "../core/field";
 import { fieldId } from "../core/ids";
 import { isoDateTime } from "../core/iso";
 import type { Money } from "../core/money";
+import { presentAmount } from "../i18n/format";
 import type { InputSpec } from "../interviewer/harness/answers";
 import { coerceParsedValue } from "../parser/coerce";
 import { writeField } from "../profile/field-store";
@@ -300,9 +301,7 @@ export async function writeEntityRows(args: {
       }
       if (key === "price" || key === "amount") {
         const m = value as Money;
-        labelParts.push(
-          `${new Intl.NumberFormat("en-GB").format(m.amount_minor / 100)} ${m.currency}`,
-        );
+        labelParts.push(`${presentAmount(m, "en")} ${m.currency}`);
       }
     }
     if (rowHasCost) rowsWithCosts++;

@@ -28,7 +28,7 @@
 import { and, eq, gte, inArray, lte, type SQL } from "drizzle-orm";
 import { db } from "../../db";
 import { connections, metricObservations } from "../../db/schema";
-import { format, money } from "../core/money";
+import { format, money, perUnit, ratioBp, scaleMinorBy } from "../core/money";
 import { shiftDay } from "./series";
 
 export const AD_READBACK = {
@@ -118,29 +118,46 @@ export function judgeCampaign(args: {
   const beforeLine =
     `"${args.name}" returned ${roasWord(before.roas)} on ad spend over the ${before.days} day(s) it spent ` +
     `before ${args.changed_on} (${fmt(before.spend_minor)} spent, ${fmt(before.value_minor)} ${who} attributes)`;
-  let delta: number;
+  // In basis points, null for "up from none" (hard rule 1: integers, one exact division).
+  let deltaBp: number | null;
   let afterLine: string;
   // Integer cross-products, one division: a boundary like +5% lands exactly.
   if (after.spend_minor === 0) {
-    delta = (before.spend_minor - before.value_minor) / before.spend_minor;
+    deltaBp = ratioBp(before.spend_minor - before.value_minor, before.spend_minor);
     afterLine =
       `after, it spent nothing on ${after.days} measured day(s), so a return of ` +
       `${roasWord(before.roas)} against the 1.00 break-even stopped`;
   } else {
     const cross = after.value_minor * before.spend_minor;
     const prior = before.value_minor * after.spend_minor;
-    delta = prior === 0 ? (cross > 0 ? Infinity : 0) : (cross - prior) / prior;
+    // Products past 2^53 fall back to after's value at before's spend, rounded once.
+    const exact = Number.isSafeInteger(cross) && Number.isSafeInteger(prior);
+    deltaBp =
+      prior === 0
+        ? cross > 0
+          ? null
+          : 0
+        : exact
+          ? ratioBp(cross - prior, prior)
+          : ratioBp(
+              scaleMinorBy(after.value_minor, before.spend_minor, after.spend_minor) -
+                before.value_minor,
+              before.value_minor,
+            );
     afterLine =
       `after, ${roasWord(after.roas)} over ${after.days} measured day(s) ` +
       `(${fmt(after.spend_minor)} spent, ${fmt(after.value_minor)} ${who} attributes)`;
   }
+  const helpedBp = Math.round(AD_READBACK.helped_at * 10_000);
+  const backfiredBp = Math.round(AD_READBACK.backfired_at * 10_000);
   const verdict: CampaignVerdict =
-    delta >= AD_READBACK.helped_at
+    deltaBp === null || deltaBp >= helpedBp
       ? "helped"
-      : delta <= AD_READBACK.backfired_at
+      : deltaBp <= backfiredBp
         ? "backfired"
         : "did_nothing";
-  const delta_pct = Number.isFinite(delta) ? Math.round(delta * 1000) / 10 : null;
+  const tenths = deltaBp === null ? null : perUnit(deltaBp, 10);
+  const delta_pct = tenths === null ? null : tenths / 10;
   return {
     ...base,
     verdict,

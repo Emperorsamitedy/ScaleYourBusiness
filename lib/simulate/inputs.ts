@@ -21,7 +21,8 @@ import { CADENCE, listChannels } from "../content/plan";
 import { listContacts, outboundPosture } from "../crm/contacts";
 import { SEGMENT_KIND, SEGMENT_MODULE } from "../crm/segment-proposals";
 import { computeSegments } from "../crm/segments";
-import { computeEconomics } from "../economics/unit-economics";
+import { computeEconomics, perCount } from "../economics/unit-economics";
+import { perUnit } from "../core/money";
 import type { ProposalRow } from "../proposals/service";
 import type { Field } from "../core/field";
 import { readCurrentField } from "../profile/field-store";
@@ -133,7 +134,7 @@ export async function gatherInputs(
   const revenueMonthly = valueBearing(statedRevenue) ? asMoney(statedRevenue!.value) : null;
   const statedAov =
     revenueMonthly && revenueMonthly.currency === currency && ordersMonthly && ordersMonthly > 0
-      ? Math.round(revenueMonthly.amount_minor / ordersMonthly)
+      ? perCount(revenueMonthly.amount_minor, ordersMonthly)
       : null;
 
   /* email — the segments behind the consent gate, and past campaigns read back */
@@ -154,7 +155,7 @@ export async function gatherInputs(
           c.spent_currency === currency &&
           (c.orders_count ?? 0) > 0,
       )
-      .map((c) => Math.round(c!.total_spent_minor! / c!.orders_count!));
+      .map((c) => perUnit(c!.total_spent_minor!, c!.orders_count!));
     return {
       key,
       label: s.label,

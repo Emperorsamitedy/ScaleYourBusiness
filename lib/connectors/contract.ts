@@ -98,6 +98,25 @@ export interface Connector {
   cost_model(): CostModel;
 }
 
+/**
+ * Which side of the business a metric is on (the multi-market spec §E.3):
+ * money in, money out, or neither. The diagnosis reads sides, never sources.
+ */
+export function sideOf(metric: MetricKey): "revenue" | "cost" | "other" {
+  switch (metric) {
+    case "revenue.daily":
+    case "revenue.hourly":
+    case "booking_revenue.daily":
+      return "revenue";
+    case "purchases.daily":
+    case "ad_spend.daily":
+    case "ad_spend.campaign.daily":
+      return "cost";
+    default:
+      return "other";
+  }
+}
+
 // ── Data: what each connector reads and costs ─────────────────────────────
 
 /**

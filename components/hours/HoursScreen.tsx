@@ -282,7 +282,7 @@ function Row({
         }
         if (judged && c.net_minor !== null && c.band) {
           // A paying hour deepens with what it nets; the figure carries the meaning.
-          const k = c.band === "pays" ? 45 + Math.round((55 * c.net_minor) / maxNet) : null;
+          const k = c.band === "pays" ? 45 + Math.round((55 * c.net_minor) / maxNet) : null; // not money: a colour depth in percent
           return (
             <td
               key={c.hour}

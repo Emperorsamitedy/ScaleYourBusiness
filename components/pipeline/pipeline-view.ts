@@ -14,7 +14,7 @@ import type { Tr } from "../../lib/i18n/tr";
 import { englishTr } from "../../lib/i18n/tr";
 import type { Money } from "../../lib/core/money";
 import type { DealAge, Staleness, Weighted, WinRate } from "../../lib/pipeline/maths";
-import { minorUnitExponent } from "../../lib/core/money";
+import { minorUnitExponent, roundMinorTo } from "../../lib/core/money";
 import { moneyText } from "../sheet/num";
 
 /** The screen's words and the reader's locale. */
@@ -30,7 +30,7 @@ export const money = (m: Money, locale: AppLocale = "en") =>
 /** A weighted figure in whole units: the range is an estimate, so cents would be false precision. */
 export const roughMoney = (m: Money, locale: AppLocale = "en") => {
   const unit = 10 ** minorUnitExponent(m.currency);
-  return moneyText(Math.round(m.amount_minor / unit) * unit, m.currency, locale);
+  return moneyText(roundMinorTo(m.amount_minor, unit), m.currency, locale);
 };
 
 /** "Nobody has spoken to Café Nua in 23 days" — the follow-up's own words. */

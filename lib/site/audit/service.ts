@@ -29,6 +29,7 @@ import { fieldId } from "../../core/ids";
 import { isoDateTime } from "../../core/iso";
 import { logSafeError } from "../../core/log-safe";
 import { format, money } from "../../core/money";
+import { perCount } from "../../economics/unit-economics";
 import type { DiagnosisFinding } from "../../diagnosis/findings";
 import { pagespeedApiKey } from "../../env";
 import { readCurrentField, writeField } from "../../profile/field-store";
@@ -164,7 +165,7 @@ export async function ownerSiteFigures(
   return {
     sessions_per_month: s,
     orders_per_month: o,
-    aov_minor: Math.round(r.amount_minor / o),
+    aov_minor: perCount(r.amount_minor, o),
     currency: r.currency,
     basis: allMeasured ? "measured" : "stated",
     window: EN(allMeasured ? "euro.window.measured" : "euro.window.stated", {

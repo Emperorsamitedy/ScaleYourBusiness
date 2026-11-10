@@ -138,3 +138,41 @@ ledger alone.
 
 **Gate:** a blocked country can't execute at any station; a refused consent
 yields a completed call with no audio or transcript.
+
+---
+
+## Multi-market foundations + NAV (the owner's spec §14–§15, 2026-11-10)
+
+Additive and corrective; nothing removed. Placed in Phase 0's order (A and E
+first, the ledger being append-only). Decisions D39–D48.
+
+- [x] **MM-A1** Money as a type: exact `scaleMoney`, `perUnit`, `scaleMinor`,
+      `ratioBp`; `multiply` exact on the factor's written decimal; display
+      through `presentMoney` — no float on any money path (source-scanned)
+- [x] **MM-A2** The seeded `currencies` table (HUF whole forints, Stripe's
+      divisible-by-100 asserted at the billing boundary)
+- [x] **MM-A3** ECB daily rates, stored once per day, conversions carrying
+      rate + date + source and reproducing from them; the fx-rates cron
+- [x] **MM-A4** The ledger's internal `reporting_eur` (never owner- or
+      partner-facing, scanned); the clean rebuild (D40)
+- [x] **MM-A5** The guarantee in the billing currency; a test fails if a
+      conversion is touched
+- [x] **MM-A7** A two-currency cohort fails loudly
+- [x] **MM-B** Price book as data (HU rows seeded off), locked subscription
+      prices, VAT mismatch review, reviewed annual changes, quota gate and
+      the startup check; usage per business per month and cost by tier and
+      capability
+- [x] **MM-C** Segments by form then staff; micro_sole capped at station 2
+      through every path and at Watch; segment as a cohort dimension
+- [x] **MM-D** The cold-start benchmark ladder with origin labels in seven
+      languages; the seeded-launch rule; case studies by mechanism
+- [x] **MM-E** NAV Online Számla, read-only: three query operations only
+      (source-scanned), SHA-512/SHA3-512 signing, per-business keys, log
+      redaction, connect-validate-name, both sides normalised (B), own
+      runner, Hungarian degradation, one-tap revocation, the guide with its
+      screenshot gate
+- [ ] **MM-E2** Partner bulk NAV setup — lands with the Partner Console (Phase 6)
+- [ ] **MM-B2** Wire the hard quota cap into video generation and the LLM path
+- [ ] **MM-A9** The LLM cost meter onto stored ECB rates (D48)
+- [ ] **Owner** NAV registration answer from counsel; NAV guide screenshots;
+      confirm quotas and HU prices; counsel's HU matrix sign-off; NAV DPIA/DPA

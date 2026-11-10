@@ -38,7 +38,7 @@
 import type { Basis } from "../../components/report/basis";
 import { moneyText, num } from "../../components/sheet/num";
 import type { ArchetypeKey } from "../charts/profiles";
-import { minorUnitExponent } from "../core/money";
+import { minorUnitExponent, ratioBp, scaleMinor } from "../core/money";
 import type { AppLocale } from "../i18n/locales";
 import { intlTag } from "../i18n/locales";
 import type { Tr } from "../i18n/tr";
@@ -136,7 +136,7 @@ export function changeKey(c: PriceChange): string {
 
 /** Pure: the new price in integer minor units, rounded once. */
 export function newPriceOf(price_minor: number, c: PriceChange): number {
-  return c.kind === "exact" ? c.price_minor : Math.round(price_minor * (1 + c.share));
+  return c.kind === "exact" ? c.price_minor : price_minor + scaleMinor(price_minor, c.share);
 }
 
 /**
@@ -156,11 +156,14 @@ export function changeError(
   if (c.kind === "share" && !Number.isFinite(c.share)) return t("refuse.notAChange");
   const next = newPriceOf(price_minor, c);
   if (next <= 0) return t("refuse.zero");
-  const s = (next - price_minor) / price_minor;
-  if (Math.abs(s) < PRICING.min_change_share - 1e-9) {
+  // The bounds compared in integers: |change| × 10 000 against basis points × price.
+  const change = Math.abs(next - price_minor) * 10_000;
+  const minBp = Math.round(PRICING.min_change_share * 10_000);
+  const maxBp = Math.round(PRICING.max_change_share * 10_000);
+  if (change < minBp * price_minor) {
     return t("refuse.tooSmall", { share: pctWords(PRICING.min_change_share, L) });
   }
-  if (Math.abs(s) > PRICING.max_change_share + 1e-9) {
+  if (change > maxBp * price_minor) {
     return t("refuse.tooBig", { share: pctWords(PRICING.max_change_share, L) });
   }
   return null;
@@ -293,9 +296,10 @@ export function changeTitle(
   if (c.kind === "share") {
     return t("title.share", { change: signedPct(c.share, L), price: price(next, currency, L) });
   }
+  const changeBp = ratioBp(next - old_minor, old_minor);
   return t("title.exact", {
     price: price(next, currency, L),
-    change: signedPct((next - old_minor) / old_minor, L),
+    change: signedPct(changeBp / 10_000, L), // a percentage shown as words, from exact basis points
   });
 }
 

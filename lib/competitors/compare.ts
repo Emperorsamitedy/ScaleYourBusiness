@@ -11,6 +11,7 @@
 // or anywhere downstream of it, changes a price (rule 12).
 
 import type { Money } from "../core/money";
+import { perUnit } from "../core/money";
 import { moneyText } from "../../components/sheet/num";
 import type { AppLocale } from "../i18n/locales";
 import { intlTag } from "../i18n/locales";
@@ -139,7 +140,7 @@ export function priceGap(
   const percent =
     yours.amount_minor === 0
       ? null
-      : Math.sign(diff) * Math.round((Math.abs(diff) * 100) / yours.amount_minor);
+      : Math.sign(diff) * perUnit(Math.abs(diff) * 100, yours.amount_minor);
   const amount = moneyText(Math.abs(diff), theirs.currency, w.locale);
   const side = diff < 0 ? "below" : "above";
   const words =

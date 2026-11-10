@@ -14,7 +14,7 @@
 // page says 20 USD for the same thing; the two disagree, so SYB keeps the
 // higher one (spec: verified false).
 
-import { minorUnitExponent } from "../core/money";
+import { minorUnitExponent, money, roundMinorTo, toDecimalString } from "../core/money";
 
 export const TIKTOK_BUDGET_CURRENCIES: Readonly<Record<string, readonly [number, 0 | 2]>> = {
   USD: [1, 2],
@@ -114,11 +114,12 @@ export function toTikTokBudget(
   const exp = minorUnitExponent(currency.toUpperCase());
   const keep = Math.min(decimals, exp);
   const step = 10 ** (exp - keep);
-  const round =
-    toward === undefined || toward === minor ? Math.round : toward < minor ? Math.floor : Math.ceil;
-  const sent_minor = round(minor / step) * step;
+  const mode =
+    toward === undefined || toward === minor ? "nearest" : toward < minor ? "down" : "up";
+  const sent_minor = roundMinorTo(minor, step, mode);
   if (sent_minor <= 0) throw new RangeError("that budget rounds to nothing in TikTok's precision");
-  return { value: sent_minor / 10 ** exp, sent_minor };
+  // TikTok takes major units as a JSON number: read from the exact decimal string, never divided.
+  return { value: Number(toDecimalString(money(sent_minor, currency.toUpperCase()))), sent_minor };
 }
 
 /** What TikTok reports (a float in major units) → SYB minor units. */

@@ -7,6 +7,7 @@
 // by currency. FX conversion is not this module's job: aggregates that
 // cross currencies carry their own rate and date (§3.3), in a later session.
 
+import { currencyRow, formatMoney, moneyDigits } from "./currency-table";
 import { isIsoCurrency } from "./currencies";
 
 export { isIsoCurrency };
@@ -98,18 +99,137 @@ export function subtract(a: Money, b: Money): Money {
   return money(a.amount_minor - b.amount_minor, a.currency);
 }
 
+/** a ÷ b rounded half away from zero, in BigInt — the one division money ever takes. */
+function divRound(a: bigint, b: bigint): bigint {
+  if (b === 0n) throw new InvalidMoneyError("division by zero");
+  const negative = a < 0n !== b < 0n;
+  const absA = a < 0n ? -a : a;
+  const absB = b < 0n ? -b : b;
+  const q = absA / absB;
+  const rounded = (absA % absB) * 2n >= absB ? q + 1n : q;
+  return negative ? -rounded : rounded;
+}
+
+function safe(n: bigint): number {
+  if (n > BigInt(Number.MAX_SAFE_INTEGER) || n < -BigInt(Number.MAX_SAFE_INTEGER)) {
+    throw new InvalidMoneyError("the result is too large to hold exactly");
+  }
+  return Number(n);
+}
+
 /**
- * Multiply by a scalar (quantity, percentage as fraction). The result is
- * rounded half away from zero to stay in integer minor units; callers that
- * need a different rounding policy round the factor themselves first.
+ * The multi-market spec, hard rule 1: scale money by a ratio of integers,
+ * exactly — one BigInt division, rounded half away from zero. Shares,
+ * percentages and per-day rates are numerator/denominator pairs, never a
+ * float factor.
+ */
+export function scaleMoney(m: Money, numerator: number, denominator: number): Money {
+  if (!Number.isSafeInteger(numerator) || !Number.isSafeInteger(denominator) || denominator === 0) {
+    throw new InvalidMoneyError("a money ratio is two whole numbers, the second not zero");
+  }
+  const checked = money(m.amount_minor, m.currency);
+  const r = safe(divRound(BigInt(checked.amount_minor) * BigInt(numerator), BigInt(denominator)));
+  return money(r === 0 ? 0 : r, checked.currency);
+}
+
+/** A ratio of two amounts in one currency, in basis points (1 % = 100), rounded half away from zero. */
+export function ratioOf(part: Money, whole: Money): number {
+  assertSameCurrency(part, whole, "compare");
+  return safe(divRound(BigInt(part.amount_minor) * 10_000n, BigInt(whole.amount_minor)));
+}
+
+/**
+ * Integer minor units ÷ a whole count (days, orders, months), rounded half
+ * away from zero — the exact way to take a mean or a per-unit amount.
+ */
+export function perUnit(amountMinor: number, count: number): number {
+  if (!Number.isSafeInteger(amountMinor) || !Number.isSafeInteger(count) || count === 0) {
+    throw new InvalidMoneyError("a per-unit amount is a whole amount over a whole, non-zero count");
+  }
+  const r = safe(divRound(BigInt(amountMinor), BigInt(count)));
+  return r === 0 ? 0 : r;
+}
+
+/** Integer minor units × a factor taken at its written decimal, rounded once. */
+export function scaleMinor(amountMinor: number, factor: number): number {
+  if (!Number.isSafeInteger(amountMinor)) throw new InvalidMoneyError("minor units are whole");
+  if (!Number.isFinite(factor)) throw new InvalidMoneyError(`factor must be finite, got ${factor}`);
+  const { num, den } = exactFraction(factor);
+  const r = safe(divRound(BigInt(amountMinor) * num, den));
+  return r === 0 ? 0 : r;
+}
+
+/** Integer minor units × a / b, rounded once — a ratio of two whole numbers. */
+export function scaleMinorBy(amountMinor: number, numerator: number, denominator: number): number {
+  if (![amountMinor, numerator, denominator].every(Number.isSafeInteger) || denominator === 0) {
+    throw new InvalidMoneyError("minor units scale by a ratio of two whole numbers");
+  }
+  const r = safe(divRound(BigInt(amountMinor) * BigInt(numerator), BigInt(denominator)));
+  return r === 0 ? 0 : r;
+}
+
+/** Round minor units to a multiple of `step` minor units, half away from zero. */
+export function roundMinorTo(
+  amountMinor: number,
+  step: number,
+  mode: "nearest" | "down" | "up" = "nearest",
+): number {
+  if (!Number.isSafeInteger(amountMinor) || !Number.isSafeInteger(step) || step <= 0) {
+    throw new InvalidMoneyError("rounding is a whole amount to a positive whole step");
+  }
+  const rem = ((amountMinor % step) + step) % step;
+  const down = amountMinor - rem;
+  const r =
+    mode === "down"
+      ? down
+      : mode === "up"
+        ? rem === 0
+          ? amountMinor
+          : down + step
+        : divRoundStep(amountMinor, step);
+  return r === 0 ? 0 : r;
+}
+
+function divRoundStep(amountMinor: number, step: number): number {
+  return safe(divRound(BigInt(amountMinor), BigInt(step))) * step;
+}
+
+/** a ÷ b as basis points (1 % = 100), for two whole amounts in the same unit. */
+export function ratioBp(a: number, b: number): number {
+  if (!Number.isSafeInteger(a) || !Number.isSafeInteger(b) || b === 0) {
+    throw new InvalidMoneyError("a ratio of whole amounts, the second not zero");
+  }
+  return safe(divRound(BigInt(a) * 10_000n, BigInt(b)));
+}
+
+/** A number's written decimal ("0.3", "1.15", "2e-3") as an exact fraction of integers. */
+function exactFraction(factor: number): { num: bigint; den: bigint } {
+  const written = String(factor);
+  const m = /^(-?)(\d+)(?:\.(\d+))?(?:e([+-]?\d+))?$/i.exec(written);
+  if (!m) throw new InvalidMoneyError(`factor ${written} can't be read exactly`);
+  const frac = m[3] ?? "";
+  let num = BigInt(`${m[2]}${frac}`);
+  let den = 10n ** BigInt(frac.length);
+  const exp = Number(m[4] ?? "0");
+  if (exp > 0) num *= 10n ** BigInt(exp);
+  if (exp < 0) den *= 10n ** BigInt(-exp);
+  return { num: m[1] === "-" ? -num : num, den };
+}
+
+/**
+ * Multiply by a scalar (quantity, percentage as fraction). The factor is
+ * taken as the decimal it is written as — 0.3, not 0.29999999999999998 —
+ * and the product is computed in integers and rounded once, half away
+ * from zero (hard rule 1: no float on any monetary path).
  */
 export function multiply(m: Money, factor: number): Money {
   if (!Number.isFinite(factor)) {
     throw new InvalidMoneyError(`factor must be finite, got ${factor}`);
   }
-  const product = m.amount_minor * factor;
-  const rounded = Math.sign(product) * Math.round(Math.abs(product));
-  return money(rounded === 0 ? 0 : rounded, m.currency);
+  const checked = money(m.amount_minor, m.currency);
+  const { num, den } = exactFraction(factor);
+  const r = safe(divRound(BigInt(checked.amount_minor) * num, den));
+  return money(r === 0 ? 0 : r, checked.currency);
 }
 
 /**
@@ -143,16 +263,28 @@ export function totalsByCurrency(items: readonly Money[]): ReadonlyMap<string, M
   return groups;
 }
 
-/** Format for display in the given locale, respecting the currency's minor-unit exponent. */
+/**
+ * Format for display. Rounding, decimals and presentation come from the
+ * currency table (lib/core/currency-table): HUF shows whole forints with
+ * Hungarian separators whoever reads it; a currency the table marks
+ * "reader" (EUR) follows the reader's language. Built from digits, never
+ * from a divided float (the multi-market spec §A.2, D42).
+ */
 export function format(m: Money, locale = "en"): string {
-  const exponent = minorUnitExponent(m.currency);
-  const major = m.amount_minor / 10 ** exponent;
+  const checked = money(m.amount_minor, m.currency);
+  if (currencyRow(checked.currency).presentation === "home" || locale.startsWith("en")) {
+    return formatMoney(checked);
+  }
+  // A currency written many ways (EUR): the reader's language, the table's
+  // decimals and rounding, Intl handed the exact decimal string.
+  const d = moneyDigits(checked);
+  const exact = `${d.negative ? "-" : ""}${d.whole}${d.fraction ? `.${d.fraction}` : ""}`;
   return new Intl.NumberFormat(locale, {
     style: "currency",
-    currency: m.currency,
-    minimumFractionDigits: exponent,
-    maximumFractionDigits: exponent,
-  }).format(major);
+    currency: checked.currency,
+    minimumFractionDigits: d.decimals,
+    maximumFractionDigits: d.decimals,
+  }).format(exact as unknown as number);
 }
 
 /**

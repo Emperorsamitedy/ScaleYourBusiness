@@ -352,8 +352,8 @@ export function AdsChart({ model }: { model: AdsChartModel }) {
         <tbody>
           {model.campaigns.map((c) => {
             const max = byCurrency.get(c.currency) ?? 1;
-            const sw = (c.spend_minor / max) * (barW - 4);
-            const vw = (c.value_minor / max) * (barW - 4);
+            const sw = (c.spend_minor / max) * (barW - 4); // not money: a bar's width in pixels
+            const vw = (c.value_minor / max) * (barW - 4); // not money: a bar's width in pixels
             return (
               <tr key={c.campaign_ref}>
                 <th scope="row">{c.campaign_name}</th>

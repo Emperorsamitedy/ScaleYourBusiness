@@ -34,6 +34,10 @@ const HASHED_FIELDS = [
   "net_minor",
   "forecast_error_minor",
   "method_notes",
+  "reporting_eur_minor",
+  "reporting_fx_rate",
+  "reporting_fx_date",
+  "reporting_fx_source",
   "corrects_entry_id",
   "prev_hash",
   "created_at",
@@ -44,6 +48,7 @@ type HashedEntry = Pick<Entry, (typeof HASHED_FIELDS)[number]>;
 function canonicalValue(key: string, value: unknown): string | null {
   if (value === null || value === undefined) return null;
   if (key === "created_at") return new Date(value as string).toISOString();
+  if (key === "reporting_fx_date") return String(value).slice(0, 10);
   return String(value);
 }
 

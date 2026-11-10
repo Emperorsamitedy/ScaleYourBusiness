@@ -17,12 +17,57 @@
 // currency always named. Money is still integer minor units until this
 // edge; nothing here converts one currency into another.
 
-import { minorUnitExponent } from "../../lib/core/money";
+import { minorUnitExponent, roundMinorTo } from "../../lib/core/money";
+import { currencyRow, displayDecimals } from "../../lib/core/currency-table";
 import type { AppLocale } from "../../lib/i18n/locales";
 import { intlNumber, intlMoney } from "../../lib/i18n/format";
 
 function group(intPart: string): string {
   return intPart.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+}
+
+/** A caller's stray fraction of a minor unit is rounded once, here at the display edge. */
+const wholeUnits = (n: number): number => (Number.isSafeInteger(n) ? n : Math.round(n));
+
+/**
+ * Hard rule 1: minor units as an exact decimal string in major units at
+ * `decimals` places ("4090", "49.50", "-0.05"), rounded half away from
+ * zero in integers — never a divided float.
+ */
+function exactMajor(amount: number, exp: number, decimals: number): string {
+  const whole = wholeUnits(amount);
+  const rounded = decimals < exp ? roundMinorTo(whole, 10 ** (exp - decimals)) : whole;
+  const digits = String(Math.abs(rounded)).padStart(exp + 1, "0");
+  const intPart = digits.slice(0, digits.length - exp);
+  const shown = exp === 0 ? "" : digits.slice(digits.length - exp);
+  const frac = decimals <= exp ? shown.slice(0, decimals) : shown.padEnd(decimals, "0");
+  return `${rounded < 0 ? "-" : ""}${intPart}${frac ? `.${frac}` : ""}`;
+}
+
+/** An exact decimal string in the hand-written English grammar: grouped, a true minus, never minus zero. */
+function grammar(exact: string): string {
+  const negative = exact.startsWith("-");
+  const [i = "0", f] = (negative ? exact.slice(1) : exact).split(".");
+  const body = f ? `${group(i)}.${f}` : group(i);
+  return negative && /[1-9]/.test(exact) ? `−${body}` : body;
+}
+
+/** The currency table's own rounding step, when the table lists the currency (HUF: whole forints). */
+function tableStep(code: string): number {
+  try {
+    return currencyRow(code).rounding_increment_minor;
+  } catch {
+    return 1;
+  }
+}
+
+/** Decimals a ledger shows: the table's (HUF: 0), else the ISO exponent. */
+function ledgerDecimals(code: string, exp: number): number {
+  try {
+    return displayDecimals(code);
+  } catch {
+    return exp;
+  }
 }
 
 /** A plain number at fixed decimals: 12345.6 → "12,345.6". Negative uses a true minus. */
@@ -46,8 +91,10 @@ export function moneyFig(
   decimals = 0,
   locale: AppLocale = "en",
 ): string {
-  const major = amount_minor / 10 ** minorUnitExponent(currency);
-  return num(major, decimals, locale);
+  const exact = exactMajor(amount_minor, minorUnitExponent(currency), decimals);
+  // Intl formats a decimal string exactly (ECMA-402 2023); no float in between.
+  if (locale !== "en") return intlNumber(exact as unknown as number, decimals, locale);
+  return grammar(exact);
 }
 
 /** Money with its unit, for prose and buttons: "€290", "4 090 HUF". */
@@ -57,12 +104,14 @@ export function moneyText(
   locale: AppLocale = "en",
 ): string {
   const exp = minorUnitExponent(currency);
-  const major = amount_minor / 10 ** exp;
-  const decimals = Number.isInteger(major) ? 0 : exp;
   const code = currency.toUpperCase();
-  if (locale !== "en") return intlMoney(major, code, decimals, locale);
+  // The table's rounding first (HUF: whole forints), then decimals only when needed.
+  const rounded = roundMinorTo(wholeUnits(amount_minor), tableStep(code));
+  const decimals = rounded % 10 ** exp === 0 ? 0 : exp;
+  const exact = exactMajor(rounded, exp, decimals);
+  if (locale !== "en") return intlMoney(exact as unknown as number, code, decimals, locale);
   const symbol = SYMBOLS[code];
-  return symbol ? `${symbol}${num(major, decimals)}` : `${num(major, decimals)} ${code}`;
+  return symbol ? `${symbol}${grammar(exact)}` : `${grammar(exact)} ${code}`;
 }
 
 const SYMBOLS: Record<string, string> = { EUR: "€", USD: "$", GBP: "£" };
@@ -75,8 +124,10 @@ export function moneyExact(
 ): string {
   const exp = minorUnitExponent(currency);
   const code = currency.toUpperCase();
-  if (locale !== "en") return intlMoney(amount_minor / 10 ** exp, code, exp, locale);
-  const body = num(amount_minor / 10 ** exp, exp);
+  const decimals = ledgerDecimals(code, exp);
+  const exact = exactMajor(amount_minor, exp, decimals);
+  if (locale !== "en") return intlMoney(exact as unknown as number, code, decimals, locale);
+  const body = grammar(exact);
   const symbol = SYMBOLS[code];
   return symbol ? `${symbol}${body}` : `${body} ${code}`;
 }

@@ -26,7 +26,7 @@
 // later change stands. An undo that would spend again (un-pausing, putting
 // a lowered budget back up) is held to the real-write gate and the ceiling.
 
-import { format, money } from "../../core/money";
+import { format, money, scaleMinor } from "../../core/money";
 import { reactivationGuard, spendGuard } from "../../ads/guard";
 import type { TikTokContext, TikTokCredential } from "../../tiktok/api";
 import {
@@ -267,7 +267,7 @@ export function createTikTokAdsExecutor(opts: TikTokExecutionOptions = {}): Exec
         `You approved this change in ${args.currency}, but the ad account bills in ${campaign.currency}. Nothing was changed; it needs approving again.`,
       );
     }
-    const target = Math.round(args.baseline_minor * (1 + args.share));
+    const target = args.baseline_minor + scaleMinor(args.baseline_minor, args.share);
     const { value, sent_minor } = toTikTokBudget(target, campaign.currency, args.baseline_minor);
     const ceiling = await run.b.ceiling(args.profile_id);
     const accountDaily = ceiling

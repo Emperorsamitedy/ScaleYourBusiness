@@ -17,6 +17,7 @@
 // reader's language (L-4c, lib/site/localize.ts); a link's own text is the
 // site's.
 
+import { currencyRow } from "../../lib/core/currency-table";
 import { useState } from "react";
 import type { SiteAuditView } from "../../lib/site/audit/view";
 import { NEVER_LINES } from "../../lib/site/audit/view";
@@ -110,15 +111,17 @@ export function SiteAuditSheet({
 
   const ps = audit.pagespeed;
   const measured = audit.pages.filter((p) => p.mobile || p.desktop);
-  // The money column names its currency: English's header as it always read; another
-  // language names the findings' own currency (never converted), or says "money".
+  // The money column names its currency (never converted), or says "money".
   const stakeCurrency = audit.findings.find((f) => f.euro.computed);
+  // The multi-market spec §A.4: the findings' own currency, never an assumed euro —
+  // its sign from the currency table in English ("Ft at stake"), its code elsewhere.
+  const stakeCode = stakeCurrency?.euro.computed ? stakeCurrency.euro.currency.toUpperCase() : null;
   const atStake =
-    locale === "en"
-      ? tr("table.atStake", { currency: "€" })
-      : stakeCurrency?.euro.computed
-        ? tr("table.atStake", { currency: stakeCurrency.euro.currency.toUpperCase() })
-        : tr("table.atStakeMoney");
+    stakeCode === null
+      ? tr("table.atStakeMoney")
+      : tr("table.atStake", {
+          currency: locale === "en" ? currencyRow(stakeCode).symbol : stakeCode,
+        });
   return (
     <SheetCard
       label={tr("ran", {

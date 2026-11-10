@@ -28,6 +28,7 @@ import { englishTr } from "../i18n/tr";
 import { num } from "../../components/sheet/num";
 import type { CartLine } from "../../db/schema";
 import { shiftDay } from "../anomaly/baseline";
+import { scaleMinor } from "../core/money";
 
 /** The pinned numbers, tested at their boundaries. */
 export const CARTS = {
@@ -477,8 +478,8 @@ export function measureCarts(
     win_back: sortedMoney(base).map((m) => ({
       currency: m.currency,
       base_minor: m.amount_minor,
-      low_minor: Math.round(m.amount_minor * WIN_BACK.low),
-      high_minor: Math.round(m.amount_minor * WIN_BACK.high),
+      low_minor: scaleMinor(m.amount_minor, WIN_BACK.low),
+      high_minor: scaleMinor(m.amount_minor, WIN_BACK.high),
     })),
   };
 }

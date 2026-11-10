@@ -109,6 +109,17 @@ export interface ReadinessFacts {
   bundled_bank_version: string;
   law_review: { state: "missing" | "stale" | "current"; words: string } | null;
   first_campaigns_waiting: number | null;
+  /** The multi-market spec's Hungary gates; absent when the database couldn't say. */
+  hungary?: {
+    /** NAV guide screenshots still missing, by file name. */
+    nav_guide_missing: string[];
+    /** Every per-tier usage quota confirmed by the owner (§B.4). */
+    quotas_confirmed: boolean;
+    /** Hungary's price book rows switched on. */
+    prices_enabled: boolean;
+    /** Hungary's compliance-matrix row, if any: signed off and unblocked for phone answering. */
+    matrix: { exists: boolean; signed_off: boolean; phone_unblocked: boolean };
+  } | null;
 }
 
 export type ReadinessEnv = Readonly<Record<string, string | undefined>>;
@@ -952,6 +963,114 @@ function optionalGroup(env: ReadinessEnv): ReadinessGroup {
               "off",
               "Error monitoring is off.",
               LINKS.sentry,
+            ),
+    ],
+  };
+}
+
+/* ── Hungary, the launch market (the multi-market spec) ──
+ *
+ * What only the owner can supply before Hungary opens: counsel's sign-off
+ * in the compliance matrix, SYB's NAV software identity (which waits on
+ * counsel's answer about registration), the NAV guide's screenshots, the
+ * per-tier quotas, and the Hungarian prices. Nothing here is a secret.
+ */
+function hungaryGroup(env: ReadinessEnv, facts: ReadinessFacts): ReadinessGroup {
+  const h = facts.hungary ?? null;
+  const MATRIX = { where_text: "/ops → country compliance matrix (below)" };
+  const SETUP = { where_text: "SETUP.md, section 9" };
+  const unknown = (name: string, where: { where_text: string }) =>
+    item(
+      name,
+      "check",
+      "The database couldn't be read for this, so it can't be checked now.",
+      null,
+      where,
+    );
+  const id = env.NAV_SOFTWARE_ID?.trim() ?? "";
+  const navId =
+    id === ""
+      ? item(
+          "NAV_SOFTWARE_ID",
+          "off",
+          "Empty, so SYB sends nothing to NAV. Set it once counsel confirms whether NAV needs the software registered.",
+          null,
+          { where_text: "SETUP.md, section 5; then Vercel → Environment Variables" },
+        )
+      : /^[0-9A-Z-]{18}$/.test(id) && has(env, "NAV_SOFTWARE_DEV_CONTACT")
+        ? item("NAV_SOFTWARE_ID", "ready", "SYB's NAV software identity is set.", null, {
+            where_text: "SETUP.md, section 5",
+          })
+        : item(
+            "NAV_SOFTWARE_ID",
+            "missing",
+            "Set, but not usable: it must be exactly 18 characters (0-9, A-Z, -) and NAV_SOFTWARE_DEV_CONTACT must be set too.",
+            null,
+            { where_text: "SETUP.md, section 5" },
+          );
+  return {
+    key: "hungary",
+    step: "Hungary",
+    title: "Hungary, the launch market",
+    items: [
+      h === null
+        ? unknown("Compliance matrix: HU", MATRIX)
+        : h.matrix.phone_unblocked
+          ? item(
+              "Compliance matrix: HU",
+              "ready",
+              "Hungary is signed off and unblocked for phone answering.",
+              null,
+              MATRIX,
+            )
+          : item(
+              "Compliance matrix: HU",
+              h.matrix.exists && h.matrix.signed_off ? "check" : "missing",
+              h.matrix.exists
+                ? "Hungary has a row but phone answering is still blocked. Unblock it in the matrix below once counsel has signed off."
+                : "Hungary has no row, so phone answering is blocked there. Add it in the matrix below with counsel's sign-off date and reference.",
+              null,
+              MATRIX,
+            ),
+      navId,
+      h === null
+        ? unknown("NAV guide screenshots", SETUP)
+        : h.nav_guide_missing.length === 0
+          ? item(
+              "NAV guide screenshots",
+              "ready",
+              "Every step of the NAV guide has its screenshot.",
+              null,
+              SETUP,
+            )
+          : item(
+              "NAV guide screenshots",
+              "missing",
+              `The NAV guide stays off until its screenshots are in public/nav-guide/: ${andList(h.nav_guide_missing)} ${isAre(h.nav_guide_missing.length)} missing.`,
+              null,
+              { where_text: "public/nav-guide/README.md" },
+            ),
+      h === null
+        ? unknown("Usage quotas", SETUP)
+        : h.quotas_confirmed
+          ? item("Usage quotas", "ready", "Every tier's usage quotas are confirmed.", null, SETUP)
+          : item(
+              "Usage quotas",
+              "missing",
+              "The per-tier quotas are placeholders until you confirm them; Hungary's prices can't be switched on before that.",
+              null,
+              SETUP,
+            ),
+      h === null
+        ? unknown("Hungarian prices", SETUP)
+        : h.prices_enabled
+          ? item("Hungarian prices", "ready", "Hungary's price book is on.", null, SETUP)
+          : item(
+              "Hungarian prices",
+              "off",
+              "Hungary's price book is seeded and off. It can be switched on once the quotas are confirmed.",
+              null,
+              SETUP,
             ),
     ],
   };
@@ -1858,6 +1977,7 @@ export function launchReadiness(env: ReadinessEnv, facts: ReadinessFacts): Readi
     recordingGroup(env),
     whatsappGroup(env),
     languagesGroup(env),
+    hungaryGroup(env, facts),
     optionalGroup(env),
   ];
   const counts: Record<ReadinessStatus, number> = { ready: 0, missing: 0, check: 0, off: 0 };

@@ -49,7 +49,7 @@ import { intlTag } from "../i18n/locales";
 import type { Words } from "../i18n/request-words";
 import type { CostLine, CountFact, MoneyFact, OfferLine } from "../cash/model";
 import { enumCode } from "../core/enum-value";
-import { minorUnitExponent } from "../core/money";
+import { minorUnitExponent, perUnit, scaleMinor, scaleMinorBy } from "../core/money";
 import type { SizeBand } from "../core/size-features";
 import type { MappedType, SizePick } from "./map";
 import {
@@ -560,12 +560,22 @@ export function ownMargin(
   const sold = x.offers.filter((o) => same(o.price) && o.volume_month && o.volume_month.value > 0);
   const costed = sold.length > 0 && sold.every((o) => same(o.cost));
   let costShare: number;
+  // Cost of sales in whole minor units, never revenue × a float share (hard rule 1).
+  let costOfSales: number;
   let units: number | null = null;
   let fromGrossMargin = false;
   if (costed) {
-    const sales = sold.reduce((n, o) => n + o.price!.amount_minor * o.volume_month!.value, 0);
-    const deliver = sold.reduce((n, o) => n + o.cost!.amount_minor * o.volume_month!.value, 0);
+    // A volume can be a fraction a month; each line is scaled exactly to whole minor units.
+    const sales = sold.reduce(
+      (n, o) => n + scaleMinor(o.price!.amount_minor, o.volume_month!.value),
+      0,
+    );
+    const deliver = sold.reduce(
+      (n, o) => n + scaleMinor(o.cost!.amount_minor, o.volume_month!.value),
+      0,
+    );
     costShare = deliver / sales;
+    costOfSales = sales === 0 ? 0 : scaleMinorBy(r.amount_minor, deliver, sales);
     units = sold.reduce((n, o) => n + o.volume_month!.value, 0);
     for (const o of sold)
       derived.push(`${o.key}.price`, `${o.key}.cost_to_deliver`, `${o.key}.volume_period`);
@@ -581,6 +591,9 @@ export function ownMargin(
   } else if (x.gross_margin && x.gross_margin.value >= 0 && x.gross_margin.value <= 100) {
     fromGrossMargin = true;
     costShare = 1 - x.gross_margin.value / 100;
+    // The stated margin taken at its written decimal ("36.4" → 0.364), scaled once.
+    const marginFactor = Number(`${x.gross_margin.value}e-2`);
+    costOfSales = r.amount_minor - scaleMinor(r.amount_minor, marginFactor);
     derived.push("costs.gross_margin");
     inputs.push({
       label: tr("input.costOfSales"),
@@ -600,7 +613,6 @@ export function ownMargin(
       ],
     };
   }
-  const costOfSales = r.amount_minor * costShare;
 
   // Review 2026-10-30: a stated gross margin already took these off; never twice.
   const alreadyIn = (c: CostLine): boolean => {
@@ -644,7 +656,7 @@ export function ownMargin(
       );
       continue;
     }
-    perSale += amount.amount_minor * count;
+    perSale += scaleMinor(amount.amount_minor, count);
     derived.push(`${c.key}.amount`, `${c.key}.cadence`);
     if (cadence === "per_job") derived.push("revenue.order_count_monthly");
   }
@@ -677,7 +689,7 @@ export function ownMargin(
       missed(c);
       continue;
     }
-    running += c.amount.amount_minor / months;
+    running += perUnit(c.amount.amount_minor, months);
     derived.push(`${c.key}.amount`, `${c.key}.cadence`);
   }
 
@@ -713,7 +725,9 @@ export function ownMargin(
   inputs.push(...staff.inputs);
 
   const surplus = r.amount_minor - costOfSales - perSale - running - staff.minor;
-  const pct = Math.round((surplus / r.amount_minor) * 1000) / 10;
+  // Per mille of revenue, exact; one decimal of a percent is what the line shows.
+  const perMille = perUnit(surplus * 1000, r.amount_minor);
+  const pct = perMille / 10;
   const part = (key: string, minor: number) => tr(key, { amount: wholeMoney(minor, cur, w) });
   const parts = [
     part("formula.revenue", r.amount_minor),
@@ -830,7 +844,7 @@ function turnoverLine(
   }
   const r = x.revenue;
   const persons = x.team_size.value;
-  const own = (r.amount_minor * BENCH.months_a_year) / persons;
+  const own = perUnit(r.amount_minor * BENCH.months_a_year, persons);
   const pick = pickCell(s, head.geo, type, sizes, "NETTUR_EMP_TEUR", w);
   if (!pick) return noCell(key, head, w);
   const conv = teurToMinor(s, pick.value.value, r.currency, pick.cell.year);
@@ -930,7 +944,7 @@ function staffLine(
     );
     if (salaries.length > 0) {
       monthly = salaries.reduce(
-        (n, c) => n + c.amount!.amount_minor / MONTHS[enumCode(c.cadence)!]!,
+        (n, c) => n + perUnit(c.amount!.amount_minor, MONTHS[enumCode(c.cadence)!]!),
         0,
       );
       from = salaries.flatMap((c) => [`${c.key}.amount`, `${c.key}.cadence`]);
@@ -952,7 +966,7 @@ function staffLine(
       needs: [{ what: tr("need.employeeCost"), href: BENCH_ASK.staff }],
     };
   }
-  const own = (monthly * BENCH.months_a_year) / employees.length;
+  const own = perUnit(monthly * BENCH.months_a_year, employees.length);
   const pick = pickCell(s, head.geo, type, sizes, "AVG_EXPN_SAL_BEN_TEUR", w);
   if (!pick) return noCell(key, head, w);
   const conv = teurToMinor(s, pick.value.value, cur, pick.cell.year);

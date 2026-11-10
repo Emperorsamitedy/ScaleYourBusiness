@@ -54,7 +54,7 @@ import {
   shiftDay,
 } from "../anomaly/baseline";
 import { weekStart } from "../care/chart-view";
-import { minorUnitExponent } from "../core/money";
+import { minorUnitExponent, perUnit, roundMinorTo, scaleMinor, scaleMinorBy } from "../core/money";
 import type { AppLocale } from "../i18n/locales";
 import type { Words } from "./words";
 import { constText, englishChartWords, priceCode, sentenceDay } from "./words";
@@ -196,8 +196,8 @@ export function rangeWhole(
   const unit = 10 ** minorUnitExponent(r.currency);
   return rangeText(
     {
-      low_minor: Math.round(r.low_minor / unit) * unit,
-      high_minor: Math.round(r.high_minor / unit) * unit,
+      low_minor: roundMinorTo(r.low_minor, unit),
+      high_minor: roundMinorTo(r.high_minor, unit),
       currency: r.currency,
     },
     locale,
@@ -217,7 +217,7 @@ export function windowEnding(to: string, days: number = OPPORTUNITY.window_days)
 
 /** Per 30 days, from a total over `days` measured days. Integers in, integers out. */
 export function perMonth(total_minor: number, days: number): number {
-  return days > 0 ? Math.round((total_minor * OPPORTUNITY.month_days) / days) : 0;
+  return days > 0 ? scaleMinorBy(total_minor, OPPORTUNITY.month_days, days) : 0;
 }
 
 function ordered(low: number, high: number): [number, number] {
@@ -237,7 +237,7 @@ function priced(args: {
   daily?: DaySlip[];
   note?: string | null;
 }): PricedComponent {
-  const [low, high] = ordered(Math.round(args.low_minor), Math.round(args.high_minor));
+  const [low, high] = ordered(args.low_minor, args.high_minor);
   const kind = COMPONENT_KIND[args.key];
   return {
     key: args.key,
@@ -333,7 +333,7 @@ export function bookingPriceRange(
       }),
     };
   }
-  const mean = Math.round(revenue / completed);
+  const mean = perUnit(revenue, completed);
   const weeks = new Map<string, { c: number; r: number }>();
   for (const d of days) {
     const k = weekStart(d.date);
@@ -344,7 +344,7 @@ export function bookingPriceRange(
   }
   const averages = [...weeks.values()]
     .filter((x) => x.c >= OPPORTUNITY.min_week_completed)
-    .map((x) => Math.round(x.r / x.c));
+    .map((x) => perUnit(x.r, x.c));
   const low = Math.min(mean, ...averages);
   const high = Math.max(mean, ...averages);
   return {
@@ -473,8 +473,9 @@ export function emptyCapacity(
     slots += weekSlots;
     held += weekHeld;
     unbooked += empty;
-    const lo = Math.round(empty * price.low_minor);
-    const hi = Math.round(empty * price.high_minor);
+    // Empty slots are a count (a fraction of a week's capacity); the price is scaled by it exactly.
+    const lo = scaleMinor(price.low_minor, empty);
+    const hi = scaleMinor(price.high_minor, empty);
     low += lo;
     high += hi;
     // Spread over the week's open days (any appointment held); the remainder lands on the last.
@@ -593,12 +594,16 @@ export function revenueDips(
     for (const v of run) {
       if (v.date < w.from) continue;
       days += 1;
-      const hi = Math.max(0, v.expected - v.actual);
-      const lo = Math.max(0, v.expected - v.scale - v.actual);
+      // The baseline's expectation and spread are statistics; each becomes whole minor
+      // units once, here, so the shortfall below is integer arithmetic (hard rule 1).
+      const expected = Math.round(v.expected);
+      const spread = Math.round(v.scale);
+      const hi = Math.max(0, expected - v.actual);
+      const lo = Math.max(0, expected - spread - v.actual);
       gross += hi;
       const other = explained.get(v.date);
-      const netLo = Math.round(Math.max(0, lo - (other?.high_minor ?? 0)));
-      const netHi = Math.round(Math.max(0, hi - (other?.low_minor ?? 0)));
+      const netLo = Math.max(0, lo - (other?.high_minor ?? 0));
+      const netHi = Math.max(0, hi - (other?.low_minor ?? 0));
       low += netLo;
       high += netHi;
       if (netLo > 0 || netHi > 0) daily.push({ date: v.date, low_minor: netLo, high_minor: netHi });
@@ -902,11 +907,11 @@ export interface Headline {
 export function aboutRange(r: MoneyRange): MoneyRange {
   const unit = 10 * 10 ** minorUnitExponent(r.currency);
   if (r.low_minor === r.high_minor) {
-    const at = Math.round(r.low_minor / unit) * unit;
+    const at = roundMinorTo(r.low_minor, unit);
     return { low_minor: at, high_minor: at, currency: r.currency };
   }
-  const low = Math.floor(r.low_minor / unit) * unit;
-  const high = Math.ceil(r.high_minor / unit) * unit;
+  const low = roundMinorTo(r.low_minor, unit, "down");
+  const high = roundMinorTo(r.high_minor, unit, "up");
   return { low_minor: low, high_minor: Math.max(low, high), currency: r.currency };
 }
 
@@ -940,13 +945,14 @@ export function headline(
     };
   }
   const lead = [...flows].sort((a, b) => b.monthly!.high_minor - a.monthly!.high_minor)[0]!;
-  const share = lead.monthly!.high_minor / high;
+  // "Mostly" is at least half the high end: compared in integers, no float share.
+  const mostly = lead.monthly!.high_minor * 2 >= high;
   const monthly = { low_minor: low, high_minor: high, currency };
   const about = aboutRange(monthly);
   const which =
     flows.filter((c) => c.monthly!.high_minor > 0).length === 1
       ? "headline.all"
-      : share >= 0.5
+      : mostly
         ? "headline.mostly"
         : "headline.biggest";
   return {

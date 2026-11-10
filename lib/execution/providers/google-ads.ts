@@ -40,7 +40,7 @@
 // paths in lowerCamelCase, and the dry run refuses a wrong one before
 // anything changes.
 
-import { format, money } from "../../core/money";
+import { format, money, scaleMinor } from "../../core/money";
 import { reactivationGuard, spendGuard, wholeUnitBudget } from "../../ads/guard";
 import type { FetchLike, GadsHeaderEnv } from "../../google-ads/client";
 import {
@@ -319,7 +319,7 @@ export function createGoogleAdsExecution(
     // Whole forints (and other whole-unit currencies) as Meta and TikTok
     // take them, rounded toward today's budget so ±50% still holds.
     const sent_minor = wholeUnitBudget(
-      Math.round(args.baseline_minor * (1 + args.share)),
+      args.baseline_minor + scaleMinor(args.baseline_minor, args.share),
       args.currency,
       args.baseline_minor,
     );

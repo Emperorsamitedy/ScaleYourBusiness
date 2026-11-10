@@ -240,3 +240,45 @@ binding until the owner changes it here.
 - **D33 — Session A's `proof_ledger` is kept, not written.** The engine
   writes `measurement_plans` and `ledger_entries`; the old table, its
   module and its tests stay as they were.
+
+## Decisions taken building the multi-market foundations (2026-11-10)
+
+The owner's multi-market spec (Parts A–E) and their answers of 2026-11-10:
+clean ledger rebuild, placeholder quotas, segments "by form, then staff",
+screenshot slots for the NAV guide.
+
+- **D39 — SYB's own spend caps stay in euros.** The support, review and
+  follow-up budgets are SYB's own money, kept in SYB's books in EUR; saying
+  "this month's support budget (€5) is spent" is not a converted figure of
+  the business's. A business's own money is never shown converted.
+- **D40 — the ledger's clean rebuild.** The v1 ledger tables were never
+  deployed; the local test rows were cleared and the chain restarts with the
+  EUR projection inside every hash. No chain_version split is carried.
+- **D41 — revenue doesn't decide the segment.** A revenue band would need
+  thresholds per currency, and comparing across currencies is forbidden. A
+  business whose legal form or size isn't known has no segment (and no cap)
+  until it is — it isn't guessed into one.
+- **D42 — a currency's presentation is data.** `presentation: home` renders
+  with the currency's own symbol and separators everywhere (HUF: "35 413 Ft"
+  whoever reads it); `reader` uses the reader's language with the table's
+  decimals (EUR, written differently across the euro area).
+- **D43 — price resolution.** A country's own enabled row prices it, else the
+  default row. A billing/VAT mismatch is flagged and priced at the market
+  with the higher PPP index — compared as indices, never through FX.
+- **D44 — the regional benchmark rung, for money, counts only neighbours in
+  the reader's own currency.** A cohort has one currency (§A.7) and nothing
+  is converted to compare.
+- **D45 — NAV.** Query-only, three operations, its own nightly runner. A
+  technical user NAV rejects (or three failed syncs in a row) marks the
+  connection failed with a Hungarian reconnect message; what was read stays.
+  The guide's screenshot gate is checked at runtime and on /ops, so the test
+  suite stays green while the owner's screenshots are on their way.
+- **D46 — the price-book startup check** fails the start when a country's own
+  prices are on while any quota is unconfirmed; a database that can't be
+  reached at boot is logged, not fatal.
+- **D47 — the partner per-client HUF rows** apply Hungary's list ratio (about
+  235 Ft per euro of list price) to §7.5's €39 / €29 / €22: 9 000, 7 000 and
+  5 000 Ft. Seeded off, for the owner to confirm.
+- **D48 — known gap: the LLM cost meter** estimates EUR from USD prices with
+  a fixed rate in lib/llm/pricing.ts. It is SYB's internal cost estimate, not
+  a business's money; moving it to stored ECB rates is a follow-up.

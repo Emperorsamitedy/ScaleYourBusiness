@@ -18,7 +18,7 @@ import type {
   IntakeRecord,
   RecordFact,
 } from "@/lib/intake/types";
-import { minorUnitExponent } from "@/lib/core/money";
+import { toDecimalString } from "@/lib/core/money";
 import { basisOf, gapWord } from "../report/basis";
 import { keyWords } from "../report/figures";
 import { moneyText, num } from "../sheet/num";
@@ -524,7 +524,8 @@ export function moneyReference(
   const v = question.already_read?.value;
   if (!isMoney(v)) return null;
   return {
-    major: v.amount_minor / 10 ** minorUnitExponent(v.currency),
+    // The ruler's scale, read from the exact decimal string — never a divided float.
+    major: Number(toDecimalString(v)),
     currency: v.currency,
     text: moneyText(v.amount_minor, v.currency, locale),
   };

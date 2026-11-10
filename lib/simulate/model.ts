@@ -32,7 +32,7 @@ import type { Basis } from "../../components/report/basis";
 import { BASES } from "../../components/report/basis";
 import { moneyText, num } from "../../components/sheet/num";
 import { MAX_CHANGE_SHARE, spendGuard } from "../ads/guard";
-import { minorUnitExponent } from "../core/money";
+import { minorUnitExponent, perUnit, scaleMinor } from "../core/money";
 import type { AppLocale } from "../i18n/locales";
 import { intlTag } from "../i18n/locales";
 import type { Tr } from "../i18n/tr";
@@ -943,7 +943,7 @@ export function campaignWindow(c: CampaignRaw, asOf: string) {
     measured_days: days.length,
     spend_minor: spend,
     value_minor: value,
-    daily_minor: days.length > 0 ? Math.round(spend / days.length) : 0,
+    daily_minor: days.length > 0 ? perUnit(spend, days.length) : 0,
   };
 }
 
@@ -1144,7 +1144,7 @@ function simulateAds(
       guard = spendGuard({
         current_daily_minor: win.daily_minor,
         proposed_daily_minor:
-          win.daily_minor + Math.round(win.daily_minor * o.share) * (o.change === "raise" ? 1 : -1),
+          win.daily_minor + scaleMinor(win.daily_minor, o.share) * (o.change === "raise" ? 1 : -1),
         currency: cur,
         account_daily_minor: accountDaily(x.ads.campaigns, x.as_of, cur),
         monthly_ceiling: ceiling,

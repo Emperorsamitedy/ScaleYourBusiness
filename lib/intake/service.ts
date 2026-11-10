@@ -34,6 +34,7 @@ import type { FieldStatus } from "../core/field-status";
 import { fieldId } from "../core/ids";
 import { isoDateTime } from "../core/iso";
 import type { Money } from "../core/money";
+import { presentAmount } from "../i18n/format";
 import type { InputSpec } from "../interviewer/harness/answers";
 import { pickNextQuestion } from "../interviewer/interviewer";
 import { selectCandidates } from "../interviewer/select";
@@ -817,8 +818,7 @@ function displayOf(spec: InputSpec, value: unknown, options: readonly IntakeOpti
   switch (spec.type) {
     case "money": {
       const m = value as Money;
-      const major = m.amount_minor / 100;
-      return `${new Intl.NumberFormat("en-GB").format(major)} ${m.currency}`;
+      return `${presentAmount(m, "en")} ${m.currency}`;
     }
     case "boolean":
       return value === true ? "Yes" : "No";

@@ -96,22 +96,22 @@ describe("P1-50 — paid state", () => {
 });
 
 describe("P1-50 — configuration", () => {
-  it("price defaults to €49.00 in integer minor units and follows env", () => {
+  it("price comes from the price book's default row, in integer minor units, and env overrides it", async () => {
     vi.stubEnv("REPORT_PRICE_MINOR", "");
     vi.stubEnv("REPORT_CURRENCY", "");
-    expect(reportPrice()).toEqual({ amount_minor: 4900, currency: "eur" });
+    expect(await reportPrice()).toEqual({ amount_minor: 4900, currency: "eur" });
     vi.stubEnv("REPORT_PRICE_MINOR", "2900");
     vi.stubEnv("REPORT_CURRENCY", "USD");
-    expect(reportPrice()).toEqual({ amount_minor: 2900, currency: "usd" });
+    expect(await reportPrice()).toEqual({ amount_minor: 2900, currency: "usd" });
   });
 
-  it("a nonsense price refuses to price rather than guessing", () => {
+  it("a nonsense price refuses to price rather than guessing", async () => {
     vi.stubEnv("REPORT_PRICE_MINOR", "49.00");
-    expect(() => reportPrice()).not.toThrow(); // parseInt("49.00") === 49 — integer, allowed
+    await expect(reportPrice()).resolves.toBeDefined(); // parseInt("49.00") === 49 — integer, allowed
     vi.stubEnv("REPORT_PRICE_MINOR", "-100");
-    expect(() => reportPrice()).toThrow();
+    await expect(reportPrice()).rejects.toThrow();
     vi.stubEnv("REPORT_PRICE_MINOR", "abc");
-    expect(() => reportPrice()).toThrow();
+    await expect(reportPrice()).rejects.toThrow();
   });
 
   it("the gate is unarmed without a key and armed with one", () => {
@@ -191,17 +191,17 @@ describe("I-52a — one bill for several businesses", () => {
     expect(checkoutAmounts(1, 4900, 2900, false)).toEqual([4900]);
   });
 
-  it("the extra price defaults to €29.00, follows env, and is never more than the report", () => {
+  it("the extra price comes from the price book, follows env, and is never more than the report", async () => {
     vi.stubEnv("REPORT_PRICE_MINOR", "");
     vi.stubEnv("REPORT_CURRENCY", "");
     vi.stubEnv("EXTRA_REPORT_PRICE_MINOR", "");
-    expect(extraReportPrice()).toEqual({ amount_minor: 2900, currency: "eur" });
+    expect(await extraReportPrice()).toEqual({ amount_minor: 2900, currency: "eur" });
     vi.stubEnv("EXTRA_REPORT_PRICE_MINOR", "3900");
-    expect(extraReportPrice().amount_minor).toBe(3900);
+    expect((await extraReportPrice()).amount_minor).toBe(3900);
     vi.stubEnv("EXTRA_REPORT_PRICE_MINOR", "5000");
-    expect(() => extraReportPrice()).toThrow(/more than the report price/);
+    await expect(extraReportPrice()).rejects.toThrow(/more than the report price/);
     vi.stubEnv("EXTRA_REPORT_PRICE_MINOR", "-1");
-    expect(() => extraReportPrice()).toThrow();
+    await expect(extraReportPrice()).rejects.toThrow();
   });
 
   it("names the extra business on its line, or says another business", () => {

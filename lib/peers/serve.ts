@@ -11,8 +11,9 @@ import { and, inArray, isNull } from "drizzle-orm";
 import { db } from "../../db";
 import { fieldRecords, peerBenchmarkConsents } from "../../db/schema";
 import { enumCode } from "../core/enum-value";
+import { segmentOf } from "../segments/read";
 import type { Money } from "../core/money";
-import { isIsoCurrency, money } from "../core/money";
+import { isIsoCurrency, money, scaleMinorBy } from "../core/money";
 import type { Contribution } from "./aggregate";
 import { peerAggregate } from "./aggregate";
 
@@ -67,12 +68,25 @@ async function currentFacts(
   return out;
 }
 
+/**
+ * Money ÷ an order count that may carry decimals (a stated monthly average):
+ * both scaled by the count's written decimals, then one exact division.
+ */
+function perOrders(revenueMinor: number, orders: number): number {
+  const decimals = (String(orders).split(".")[1] ?? "").length;
+  const scale = 10 ** decimals;
+  return scaleMinorBy(revenueMinor, scale, Math.round(orders * scale)); // not money: the count, made whole
+}
+
 /** D13: the cohort's average order value for this business, or nothing at all. */
 export async function peerAverageOrderValue(profileId: string): Promise<PeerServed> {
   const own = (await currentFacts([profileId])).get(profileId);
   const type = enumCode(own?.get(TYPE_KEY));
   const ownRevenue = asMoney(own?.get(REVENUE_KEY));
   if (type === null || ownRevenue === null) return NOT_SHOWN;
+  // The multi-market spec §C: the segment is a cohort dimension. When the
+  // reader's is known, only peers of the same segment count.
+  const ownSegment = (await segmentOf(profileId)).segment;
 
   const consented = await db
     .select({ profile_id: peerBenchmarkConsents.profile_id })
@@ -84,17 +98,27 @@ export async function peerAverageOrderValue(profileId: string): Promise<PeerServ
   const rows: Contribution[] = [];
   for (const [peer, f] of facts) {
     if (enumCode(f.get(TYPE_KEY)) !== type) continue;
+    if (ownSegment !== null && (await segmentOf(peer)).segment !== ownSegment) continue;
     const revenue = asMoney(f.get(REVENUE_KEY));
     const orders = asCount(f.get(ORDERS_KEY));
     if (revenue === null || orders === null || revenue.currency !== ownRevenue.currency) continue;
-    rows.push({ business: peer, numerator: revenue.amount_minor, denominator: orders });
+    rows.push({
+      business: peer,
+      numerator: revenue.amount_minor,
+      denominator: orders,
+      currency: revenue.currency,
+    });
   }
 
   const aggregate = peerAggregate(rows);
   if (!aggregate.shown) return NOT_SHOWN;
+  // The ratio of totals, in money: exact, from the cohort's own totals
+  // (hard rule 1) — the aggregate's float is for counts and shares only.
+  const totalRevenue = rows.reduce((n, r) => n + r.numerator, 0);
+  const totalOrders = rows.reduce((n, r) => n + r.denominator, 0);
   return {
     shown: true,
-    value: money(Math.round(aggregate.value), ownRevenue.currency),
+    value: money(perOrders(totalRevenue, totalOrders), ownRevenue.currency),
     businesses: aggregate.businesses,
   };
 }

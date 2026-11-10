@@ -13,6 +13,9 @@
 //                  or the plan's design is unmeasurable (logged, never scored)
 
 import { and, eq } from "drizzle-orm";
+import { toEur } from "../core/fx";
+import { money } from "../core/money";
+import { rateOn } from "../fx/ecb";
 import { db } from "../../db";
 import { ledgerEntries } from "../../db/schema";
 import type { Entry } from "./chain";
@@ -76,6 +79,33 @@ function entryFields(plan: Plan, o: Observation) {
   };
 }
 
+/**
+ * The multi-market spec §A.4: the net projected into EUR, for SYB's own
+ * cross-market roll-ups only — at the stored ECB rate for the close's day
+ * (or the last published before it), with the rate, date and source kept
+ * beside it. Never read by the counter, the guarantee or any owner- or
+ * partner-facing surface. No stored rate: no projection, rather than a guess.
+ */
+async function reportingEur(currency: string, netMinor: number | null, day: string) {
+  const none = {
+    reporting_eur_minor: null,
+    reporting_fx_rate: null,
+    reporting_fx_date: null,
+    reporting_fx_source: null,
+  };
+  if (netMinor === null) return none;
+  if (currency === "EUR") return { ...none, reporting_eur_minor: netMinor };
+  const rate = await rateOn(currency, day);
+  if (!rate) return none;
+  const eur = toEur(money(netMinor, currency), rate);
+  return {
+    reporting_eur_minor: eur.amount_minor,
+    reporting_fx_rate: eur.fx_rate_to_eur,
+    reporting_fx_date: eur.fx_rate_date,
+    reporting_fx_source: eur.fx_source,
+  };
+}
+
 /** ProofLedger.close_measurement — once per plan. */
 export async function closePlan(planId: string, o: Observation, now = new Date()): Promise<Entry> {
   const plan = await planById(planId);
@@ -85,6 +115,11 @@ export async function closePlan(planId: string, o: Observation, now = new Date()
     throw new PlanError("this plan's window hasn't ended — it is scored at window close", 409);
   }
   const fields = entryFields(plan, o);
+  const reporting = await reportingEur(
+    plan.currency,
+    fields.net_minor,
+    now.toISOString().slice(0, 10),
+  );
   return db.transaction(async (tx) => {
     const [closed] = await tx
       .select({ id: ledgerEntries.id })
@@ -100,6 +135,7 @@ export async function closePlan(planId: string, o: Observation, now = new Date()
       corrects_entry_id: null,
       created_at: now.toISOString(),
       ...fields,
+      ...reporting,
     });
   });
 }
@@ -117,6 +153,11 @@ export async function correctEntry(
   const plan = await planById(original.plan_id);
   if (!plan) throw new PlanError("the entry's plan is missing", 500);
   const fields = entryFields(plan, o);
+  const reporting = await reportingEur(
+    plan.currency,
+    fields.net_minor,
+    now.toISOString().slice(0, 10),
+  );
   return db.transaction(async (tx) =>
     appendEntry(tx, {
       id: crypto.randomUUID(),
@@ -126,6 +167,7 @@ export async function correctEntry(
       corrects_entry_id: original.id,
       created_at: now.toISOString(),
       ...fields,
+      ...reporting,
       method_notes: `${fields.method_notes} Correction: ${reason.trim()}`,
     }),
   );

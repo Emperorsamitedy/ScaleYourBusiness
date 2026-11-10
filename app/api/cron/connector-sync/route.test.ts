@@ -11,6 +11,9 @@ const recordings = vi.fn();
 
 vi.mock("../../../../lib/connectors/sync", () => ({ runConnectorSync: () => sync() }));
 vi.mock("../../../../lib/google-business/read", () => ({ runGoogleReviewReads: () => google() }));
+vi.mock("../../../../lib/connectors/nav/service", () => ({
+  runNavSync: async () => ({ connections: 0, synced: 0, failed: 0, skipped: "not_configured" }),
+}));
 vi.mock("../../../../lib/phone-recording/recordings", () => ({
   runRecordingUpkeep: () => recordings(),
 }));
@@ -45,6 +48,7 @@ describe("GET /api/cron/connector-sync", () => {
       synced: 2,
       google_reviews: null,
       phone_recordings: { stored: 0, released: 0, purged: 0, failed: 0 },
+      nav: { connections: 0, synced: 0, failed: 0, skipped: "not_configured" },
     });
     const logged = vi.mocked(console.error).mock.calls.map((c) => String(c[0]));
     expect(logged.some((l) => l.includes('"step":"google_reviews"'))).toBe(true);

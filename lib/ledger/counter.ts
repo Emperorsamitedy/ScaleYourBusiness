@@ -18,7 +18,7 @@ import { and, eq, lte } from "drizzle-orm";
 import { db } from "../../db";
 import { ledgerEntries, measurementPlans } from "../../db/schema";
 import type { Money } from "../core/money";
-import { money } from "../core/money";
+import { money, perUnit, ratioBp } from "../core/money";
 import type { Entry } from "./chain";
 import type { Plan } from "./plans";
 
@@ -141,15 +141,17 @@ export function calibrationOf(rows: readonly Row[]): Calibration {
     .sort((a, b) => Date.parse(b.plan.window_end) - Date.parse(a.plan.window_end))
     .slice(0, CALIBRATION_PLANS);
   if (scored.length === 0) return { median_error_pct: null, plans: 0 };
+  // Each error in basis points of its forecast, exact integers (hard rule 1).
   const errors = scored
-    .map(
-      ({ entry, plan }) =>
-        (Math.abs(entry.forecast_error_minor!) / Math.abs(plan.expected_effect_minor)) * 100,
+    .map(({ entry, plan }) =>
+      ratioBp(Math.abs(entry.forecast_error_minor!), Math.abs(plan.expected_effect_minor)),
     )
     .sort((a, b) => a - b);
   const mid = Math.floor(errors.length / 2);
-  const median = errors.length % 2 === 1 ? errors[mid]! : (errors[mid - 1]! + errors[mid]!) / 2;
-  return { median_error_pct: Math.round(median * 10) / 10, plans: scored.length };
+  // Twice the median, so an even count's midpoint stays whole; then to tenths of a percent.
+  const twiceMedian = errors.length % 2 === 1 ? 2 * errors[mid]! : errors[mid - 1]! + errors[mid]!;
+  const tenths = perUnit(twiceMedian, 20);
+  return { median_error_pct: tenths / 10, plans: scored.length };
 }
 
 /** Per business, or across every business when profileId is null (§3.6: "and globally"). */

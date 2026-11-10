@@ -19,6 +19,7 @@ import { NON_CONNECTOR_SOURCE_LABELS } from "../bookings/source";
 import { getProvider } from "./registry";
 import { executeReadSource } from "./execute-reads";
 import { isProviderId } from "./scopes";
+import { perUnit } from "../core/money";
 
 const round1 = (n: number): number => Math.round(n * 10) / 10;
 
@@ -49,10 +50,12 @@ export function measuredDelta(stated: unknown, measured: unknown): StatedVsMeasu
   // Two currencies is a refusal, not a conversion (rule 1).
   if (!s || !m || s.currency !== m.currency) return null;
   const amount = m.amount_minor - s.amount_minor;
+  // Per mille of the statement, exact; the percentage keeps one decimal.
+  const perMille = s.amount_minor === 0 ? null : perUnit(amount * 1000, s.amount_minor);
   return {
     amount,
     currency: m.currency,
-    pct: s.amount_minor === 0 ? null : round1((amount / s.amount_minor) * 100),
+    pct: perMille === null ? null : perMille / 10,
   };
 }
 

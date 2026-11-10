@@ -122,6 +122,13 @@ export const METRIC_KEYS = [
    * summed across days. No connector reads a balance.
    */
   "cash.balance",
+  /**
+   * The multi-market spec §E.3: what the business bought, per day, net of
+   * VAT, per currency — from invoices it RECEIVED (NAV Online Számla's
+   * buyer-side digests). The cost side of the same invoices revenue.daily
+   * reads from the issuer side. Money.
+   */
+  "purchases.daily",
 ] as const;
 
 export type MetricKey = (typeof METRIC_KEYS)[number];
@@ -142,6 +149,7 @@ export const MONEY_METRICS: ReadonlySet<MetricKey> = new Set([
   "stock.value_at_price",
   "stock.unit_cost",
   "cash.balance",
+  "purchases.daily",
 ]);
 
 /** Feature 34: the snapshot metrics — read as of one day, never summed across days. */

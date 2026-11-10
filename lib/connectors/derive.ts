@@ -44,7 +44,7 @@ import { fieldId } from "../core/ids";
 import type { ISODate, ISODateTime } from "../core/iso";
 import { isoDate, isoDateTime } from "../core/iso";
 import type { Money } from "../core/money";
-import { money } from "../core/money";
+import { money, scaleMinorBy } from "../core/money";
 import { readCurrentField, writeField } from "../profile/field-store";
 import type { MappingKind } from "./mapping";
 import { mappingKey } from "./mapping";
@@ -371,10 +371,13 @@ async function deriveCostPerPurchase(
     };
   }
   const single = attributing.length === 1;
+  // A purchase count can carry decimals (modelled conversions): taken in
+  // thousandths, so spend ÷ purchases is one exact integer division.
+  const countMilli = Math.max(1, Math.round(count * 1000));
   return writeMeasured({
     profileId,
     fieldKey: COST_PER_PURCHASE_KEY,
-    value: money(Math.round(total.value.amount_minor / count), total.value.currency),
+    value: money(scaleMinorBy(total.value.amount_minor, 1000, countMilli), total.value.currency),
     provider: conn.provider,
     ...(single ? {} : { providers }),
     metrics: ["ad_spend.daily", "ad_purchases.daily"],

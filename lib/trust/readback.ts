@@ -28,6 +28,7 @@ import { emailCampaignOutcome } from "./email-readback";
 import { postOutcome } from "./post-readback";
 import type { WindowStat } from "./series";
 import { dailySeries, shiftDay, windowStat } from "./series";
+import { perUnit, ratioBp } from "../core/money";
 
 export type { WindowStat } from "./series";
 
@@ -151,19 +152,32 @@ export async function readbackForProposal(
     };
   }
 
-  const delta = (after.mean_minor - before.mean_minor) / before.mean_minor;
-  base.delta_pct = Math.round(delta * 1000) / 10;
+  // The change in basis points of the baseline, exact (hard rule 1); a zero baseline has none.
+  const deltaBp =
+    before.mean_minor === 0
+      ? null
+      : ratioBp(after.mean_minor - before.mean_minor, before.mean_minor);
+  const tenths = deltaBp === null ? null : perUnit(deltaBp, 10);
+  base.delta_pct = tenths === null ? null : tenths / 10;
+  const helpedBp = Math.round(READBACK.helped_at * 10_000);
+  const backfiredBp = Math.round(READBACK.backfired_at * 10_000);
   const verdict: OutcomeVerdict =
-    delta >= READBACK.helped_at
-      ? "helped"
-      : delta <= READBACK.backfired_at
-        ? "backfired"
-        : "did_nothing";
+    deltaBp === null
+      ? after.mean_minor > 0
+        ? "helped"
+        : "did_nothing"
+      : deltaBp >= helpedBp
+        ? "helped"
+        : deltaBp <= backfiredBp
+          ? "backfired"
+          : "did_nothing";
   const arithmetic =
     `daily revenue averaged ${money(after.mean_minor, series.currency)} over the ` +
     `${after.days_measured} measured day(s) after ${day}, against ` +
     `${money(before.mean_minor, series.currency)} over the ${before.days_measured} before — ` +
-    `${base.delta_pct >= 0 ? "+" : ""}${base.delta_pct}%` +
+    (base.delta_pct === null
+      ? "up from none"
+      : `${base.delta_pct >= 0 ? "+" : ""}${base.delta_pct}%`) +
     ` (thresholds: helped at +${READBACK.helped_at * 100}%, backfired at ${READBACK.backfired_at * 100}%)`;
   return { ...base, verdict, arithmetic };
 }
