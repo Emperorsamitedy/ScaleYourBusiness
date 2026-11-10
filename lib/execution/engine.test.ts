@@ -11,6 +11,7 @@ import { db } from "../../db";
 import {
   accounts,
   businessProfiles,
+  connections,
   decisionLog,
   executionAttempts,
   executionHalts,
@@ -22,6 +23,7 @@ import {
   users,
 } from "../../db/schema";
 import { bootstrapIntake } from "../intake/service";
+import { connectForExecution, expectedExecutionScopes } from "./connections";
 import { approveProposal, createProposal } from "../proposals/service";
 import type { ProposalRow } from "../proposals/service";
 import type { ExecutionRefused } from "./engine";
@@ -119,6 +121,7 @@ afterAll(async () => {
     await db.delete(fieldRecords).where(inArray(fieldRecords.profile_id, ids));
   }
   for (const s of created) {
+    await db.delete(connections).where(eq(connections.account_id, s.account_id));
     await db.delete(executionHalts).where(eq(executionHalts.account_id, s.account_id));
     await db.delete(users).where(eq(users.account_id, s.account_id));
   }
@@ -361,6 +364,14 @@ describe("Session D — the real-write gate (guard 6a) and the provider's pre-fl
     expect((await run(p.id)).status).toBe("succeeded");
 
     process.env.SESSION_D_REAL_WRITES = "on";
+    // Architecture-v2 D5: an external capability also needs a live write
+    // consent (ComplianceGate) — the platform's own yes, recorded.
+    await connectForExecution({
+      accountId: s.account_id,
+      provider: "fixture",
+      secret: "fixture-write-token",
+      verify: async () => ({ granted_scopes: expectedExecutionScopes("fixture") }),
+    });
     const q = await approved(s);
     const done = await executeProposal({
       proposalId: q.id,

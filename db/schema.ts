@@ -4283,3 +4283,150 @@ export const rateLimits = pgTable("rate_limits", {
   window_start: bigint("window_start", { mode: "number" }).notNull(),
   count: integer("count").notNull().default(1),
 });
+
+// ---------------------------------------------------------------------------
+// Phase 7 — architecture v2 (specs/architecture-v2.md).
+//
+// The Proof Ledger (hard rule 2, I2): every agent action's measurement plan,
+// its counterfactual when in SHADOW, its euro score at window end, and any
+// correction — each a NEW row. Append-only by trigger (migration
+// 0098_proof_ledger_append_only), like decision_log. profile_id and
+// account_id are not foreign keys: the ledger outlives what it measured.
+// A plan's own id is its measurement_id; state is read, never stored —
+// a plan is open exactly while no close row names it.
+// ---------------------------------------------------------------------------
+
+export const proofEntryKind = pgEnum("proof_entry_kind", [
+  "plan", // ProofLedger.open_measurement — before execution
+  "counterfactual", // SHADOW: what would have been done, and nothing was
+  "close", // ProofLedger.close_measurement — scored, or unscored with the reason
+  "correction", // a later score for a close, naming it; the close stays
+]);
+
+export const proofLedger = pgTable(
+  "proof_ledger",
+  {
+    id: uuid("id").primaryKey(),
+    profile_id: uuid("profile_id").notNull(),
+    account_id: uuid("account_id").notNull(),
+    kind: proofEntryKind("kind").notNull(),
+    measurement_id: uuid("measurement_id").notNull(),
+    proposal_id: uuid("proposal_id"),
+    /** An execution provider id (lib/execution/scopes) or another named capability. */
+    capability: text("capability").notNull(),
+    at: timestamp("at", { withTimezone: true, mode: "string" }).notNull().defaultNow(),
+    /** plan: the window's end, when close_measurement is due (D12). */
+    window_ends_at: timestamp("window_ends_at", { withTimezone: true, mode: "string" }),
+    /** plan: { metric, holdout, window_days }. */
+    plan: jsonb("plan"),
+    /** close/correction: the score, integer minor units (rule 1). Null = unscored. */
+    euro_minor: bigint("euro_minor", { mode: "number" }),
+    currency: text("currency"),
+    /** close/correction: the lowest grade of the score's inputs (hard rule 3). */
+    grade: text("grade"),
+    /** close/correction: what the score was compared against. */
+    scored_against: text("scored_against"),
+    /** D10: holdout-scored and graded A or B. Only these reach the counter. */
+    verified: boolean("verified").notNull().default(false),
+    /** correction: the close (or earlier correction) it replaces. */
+    corrects_id: uuid("corrects_id"),
+    /** counterfactual: what would have run. close: why unscored. correction: why. */
+    note: text("note"),
+    /** sha256 of the canonical entry, so any tampering is detectable. */
+    payload_hash: text("payload_hash").notNull(),
+  },
+  (t) => [
+    index("proof_ledger_profile_at_idx").on(t.profile_id, t.at),
+    index("proof_ledger_measurement_idx").on(t.measurement_id),
+    uniqueIndex("proof_ledger_one_plan_per_proposal")
+      .on(t.proposal_id)
+      .where(sql`${t.kind} = 'plan' and ${t.proposal_id} is not null`),
+    uniqueIndex("proof_ledger_one_close")
+      .on(t.measurement_id)
+      .where(sql`${t.kind} = 'close'`),
+    uniqueIndex("proof_ledger_one_counterfactual")
+      .on(t.measurement_id)
+      .where(sql`${t.kind} = 'counterfactual'`),
+    check("proof_ledger_grade", sql`${t.grade} is null or ${t.grade} in ('A', 'B', 'C', 'D')`),
+    check(
+      "proof_ledger_scored_against",
+      sql`${t.scored_against} is null or ${t.scored_against} in ('holdout', 'before_after', 'none')`,
+    ),
+    check("proof_ledger_money", sql`(${t.euro_minor} is null) = (${t.currency} is null)`),
+  ],
+);
+
+// The Trust Ladder (D2): one row per business and capability once anything
+// has set it; no row is station 3, today's behaviour. The stop (I6) writes
+// station 1 for every capability and keeps the station it replaced in
+// pre_stop_station, which a resume puts back (D9).
+export const capabilityStations = pgTable(
+  "capability_stations",
+  {
+    profile_id: uuid("profile_id")
+      .notNull()
+      .references(() => businessProfiles.id, { onDelete: "cascade" }),
+    capability: text("capability").notNull(),
+    station: integer("station").notNull(),
+    pre_stop_station: integer("pre_stop_station"),
+    updated_at: timestamp("updated_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+    updated_by: uuid("updated_by"),
+  },
+  (t) => [
+    uniqueIndex("capability_stations_pk").on(t.profile_id, t.capability),
+    check("capability_stations_station", sql`${t.station} between 1 and 4`),
+    check(
+      "capability_stations_pre_stop",
+      sql`${t.pre_stop_station} is null or ${t.pre_stop_station} between 1 and 4`,
+    ),
+  ],
+);
+
+export const ladderEventKind = pgEnum("ladder_event_kind", ["set", "stop", "resume", "outcome"]);
+
+// The ladder's audit trail — append-only by the same trigger pattern.
+export const ladderEvents = pgTable(
+  "ladder_events",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    profile_id: uuid("profile_id").notNull(),
+    capability: text("capability").notNull(),
+    kind: ladderEventKind("kind").notNull(),
+    from_station: integer("from_station"),
+    to_station: integer("to_station"),
+    measurement_id: uuid("measurement_id"),
+    /** outcome: { verified, euro_minor, currency, grade } from the closing ledger entry. */
+    outcome: jsonb("outcome"),
+    by: uuid("by"),
+    reason: text("reason"),
+    at: timestamp("at", { withTimezone: true, mode: "string" }).notNull().defaultNow(),
+  },
+  (t) => [index("ladder_events_profile_capability_idx").on(t.profile_id, t.capability, t.at)],
+);
+
+// The Peer Benchmark Network's consent (D7): a business's figures join the
+// anonymous peer comparison only after an explicit opt-in. Withdrawing
+// stamps withdrawn_at and keeps the row, so who agreed and when stays
+// answerable; one live consent per business at a time.
+export const peerBenchmarkConsents = pgTable(
+  "peer_benchmark_consents",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    profile_id: uuid("profile_id")
+      .notNull()
+      .references(() => businessProfiles.id, { onDelete: "cascade" }),
+    consented_at: timestamp("consented_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+    consented_by: uuid("consented_by"),
+    withdrawn_at: timestamp("withdrawn_at", { withTimezone: true, mode: "string" }),
+    withdrawn_by: uuid("withdrawn_by"),
+  },
+  (t) => [
+    uniqueIndex("peer_benchmark_consents_one_live")
+      .on(t.profile_id)
+      .where(sql`${t.withdrawn_at} is null`),
+  ],
+);

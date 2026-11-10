@@ -6055,7 +6055,8 @@
       "business_locale": "Nur ein Inhaber kann die Sprache oder Währung des Unternehmens ändern.",
       "payments_prepare": "Nur ein Inhaber kann Zahlungen vorbereiten oder angeben, dass eine bezahlt wurde.",
       "phone_recordings": "Nur ein Inhaber kann Anrufaufzeichnungen anhören.",
-      "payments_read": "Nur ein Inhaber kann Zahlungen und ihre Bankdateien sehen."
+      "payments_read": "Nur ein Inhaber kann Zahlungen und ihre Bankdateien sehen.",
+      "peers_consent": "Nur ein Inhaber kann entscheiden, ob die Zahlen dieses Unternehmens in den Vergleich mit ähnlichen Unternehmen einfließen."
     }
   },
   "authWords": {

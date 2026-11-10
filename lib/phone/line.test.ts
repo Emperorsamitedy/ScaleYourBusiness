@@ -10,7 +10,7 @@
 
 import "dotenv/config";
 import { and, eq, inArray, sql } from "drizzle-orm";
-import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { db } from "../../db";
 import {
   accounts,
@@ -42,6 +42,8 @@ import {
   setHandoverNumber,
 } from "../phone-desk/desk";
 import { createProposal } from "../proposals/service";
+import { PHONE_COUNTRIES_KEY } from "./countries";
+import { inPhoneCountry as inCountry, switchPhoneCountryOn } from "./test-country";
 import {
   FAKE_ACCOUNT_SID,
   FAKE_AUTH_TOKEN,
@@ -61,6 +63,16 @@ import {
 
 const created: { account_id: string; profile_id: string }[] = [];
 
+// Hard rule 6 (architecture-v2 D6): a line answers only where the business's
+// country is on PHONE_ANSWERING_COUNTRIES. These businesses are in Hungary,
+// and Hungary is switched on for the suite; the flag's own tests below
+// switch it off.
+let restoreCountries: () => void = () => undefined;
+beforeAll(() => {
+  restoreCountries = switchPhoneCountryOn();
+});
+afterAll(() => restoreCountries());
+
 const scenario = {
   assumptions: [],
   base_case: { case: "base", statement: "t", profit_delta_monthly: null, formula: null },
@@ -78,6 +90,7 @@ const ENTRIES = [
 async function business(opts: { language?: string; handover?: string | null; name?: string } = {}) {
   const s = await bootstrapIntake();
   created.push(s);
+  await inCountry(s.profile_id);
   await ensureSupportSettings(s.profile_id);
   await db
     .update(supportSettings)
@@ -746,6 +759,8 @@ describe("the owner's side: turning the line on, and where a person is reached",
     const first = await bootstrapIntake();
     const second = await bootstrapIntake();
     created.push(first, second);
+    await inCountry(first.profile_id);
+    await inCountry(second.profile_id);
     const line = await enablePhoneLine(first.profile_id);
     expect(line).toMatchObject({ phone_number: number, enabled: true });
     expect(line.business_name).toBeTruthy();
@@ -776,5 +791,55 @@ describe("the owner's side: turning the line on, and where a person is reached",
     await expect(
       readCall(b.profile_id, (await callRow((await start(other)).sid)).id),
     ).rejects.toThrow(/no such call/);
+  });
+});
+
+describe("hard rule 6 — phone answering is behind a country flag, default blocked", () => {
+  afterEach(() => {
+    process.env[PHONE_COUNTRIES_KEY] = "HU";
+  });
+
+  it("answers closed where the business's country isn't switched on — and keeps nothing", async () => {
+    const b = await business();
+    process.env[PHONE_COUNTRIES_KEY] = "DE";
+    const { sid, xml } = await start(b);
+    const says = saysOf(xml);
+    // Rule 31 still holds on a refused line: the business and what it is, first.
+    expect(says[0]).toMatch(/Rosa&apos;s Bakery.*SYB&apos;s automated assistant/);
+    expect(says[1]).toMatch(/isn&apos;t taking calls/);
+    expect(xml).toContain("<Hangup/>");
+    const rows = await db.select().from(phoneCalls).where(eq(phoneCalls.call_sid, sid));
+    expect(rows).toHaveLength(0);
+  });
+
+  it("with the list empty — the default — every line answers closed", async () => {
+    const b = await business();
+    process.env[PHONE_COUNTRIES_KEY] = "";
+    expect(saysOf((await start(b)).xml)[1]).toMatch(/isn&apos;t taking calls/);
+  });
+
+  it("a business with no country stated is blocked even when its list has entries", async () => {
+    const b = await business();
+    await db.delete(fieldRecords).where(eq(fieldRecords.profile_id, b.profile_id));
+    expect(saysOf((await start(b)).xml)[1]).toMatch(/isn&apos;t taking calls/);
+  });
+
+  it("the owner can't switch a blocked line on, and is told which setting decides it", async () => {
+    const saved = { ...process.env };
+    process.env.TWILIO_ACCOUNT_SID = FAKE_ACCOUNT_SID;
+    process.env.TWILIO_AUTH_TOKEN = FAKE_AUTH_TOKEN;
+    process.env.TWILIO_PHONE_NUMBER = fakeNumber();
+    try {
+      const s = await bootstrapIntake();
+      created.push(s);
+      await inCountry(s.profile_id, "Austria");
+      await expect(enablePhoneLine(s.profile_id)).rejects.toThrow(/PHONE_ANSWERING_COUNTRIES/);
+      await expect(enablePhoneLine(s.profile_id)).rejects.toBeInstanceOf(PhoneDeskError);
+    } finally {
+      for (const k of ["TWILIO_ACCOUNT_SID", "TWILIO_AUTH_TOKEN", "TWILIO_PHONE_NUMBER"]) {
+        if (saved[k] === undefined) delete process.env[k];
+        else process.env[k] = saved[k];
+      }
+    }
   });
 });

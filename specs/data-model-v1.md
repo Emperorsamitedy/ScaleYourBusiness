@@ -731,6 +731,8 @@ Starting values by source, adjusted by rules:
 
 Adjustments: −0.2 if the field is older than 90 days and the business is in a fast-moving stage; −0.3 if involved in an unresolved contradiction; +0.1 if independently corroborated by a second source.
 
+**Grades** (architecture-v2 D4, hard rule 3): A ≥ 0.85, B ≥ 0.70, C ≥ 0.50, D below. A derived figure's grade is the lowest of its inputs' grades. It is read from the inputs, never from the inferred number: `min(inputs) × 0.9` stays the number's own confidence, but it can fall below the weakest input's band, and the grade must not (`lib/core/grade.ts`).
+
 ### 8.2 Completeness
 
 ```ts

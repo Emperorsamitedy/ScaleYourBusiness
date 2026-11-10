@@ -22,6 +22,10 @@
 //      undo that cannot be captured aborts BEFORE anything executes
 //   7. idempotency (P3-10, rule 16) — one executions row per proposal,
 //      held by a unique index; the losing racer reads, never runs
+//   8. (Phase 7, run just before 7) architecture v2's call order —
+//      TrustLadder.authorize, then ComplianceGate.check, then
+//      ProofLedger.open_measurement; station 1 refuses, station 2 records
+//      its counterfactual and stops (specs/architecture-v2.md)
 //
 // Between 6 and 7, two Session D checks (P3-21b/d) that must refuse
 // WITHOUT claiming, so the proposal stays approved and nothing burns:
@@ -71,8 +75,12 @@ import {
   watchActivity,
 } from "../../db/schema";
 import { sessionDRealWritesOn } from "../env";
+import { businessCountryIso, check as complianceCheck } from "../compliance/gate";
+import { releaseUnpublishedMedia } from "../content/media";
+import { authorize, resumeAll, stopAll } from "../ladder/ladder";
+import { LedgerError, openMeasurement, recordCounterfactual, requireOpen } from "../ledger/ledger";
 import { latestDecision } from "../mode/service";
-import { recordExecution } from "../proposals/service";
+import { cancelPendingProposals, recordExecution } from "../proposals/service";
 import type { ExecutionProviderId } from "./scopes";
 import { EXECUTION_SCOPE_REGISTRY } from "./scopes";
 import type { AttemptUsage } from "./attempt-usage";
@@ -126,7 +134,12 @@ export class ExecutionRefused extends Error {
     | "stale"
     | "real_writes_off"
     | "deferred"
-    | "preflight_refused";
+    | "preflight_refused"
+    // Architecture v2 (guard 8):
+    | "ladder_blocked"
+    | "compliance"
+    | "no_measurement"
+    | "shadow";
   readonly status: number;
   constructor(code: ExecutionRefused["code"], message: string, status = 409) {
     super(message);
@@ -184,6 +197,14 @@ async function logStop(
   });
 }
 
+async function accountProfileIds(executor: DbOrTx, accountId: string): Promise<string[]> {
+  const rows = await executor
+    .select({ id: businessProfiles.id })
+    .from(businessProfiles)
+    .where(eq(businessProfiles.account_id, accountId));
+  return rows.map((r) => r.id);
+}
+
 export async function haltExecutions(args: {
   accountId: string;
   userId?: string | null;
@@ -191,25 +212,55 @@ export async function haltExecutions(args: {
   /** Join the caller's transaction (the chat's confirm). */
   tx?: DbOrTx;
 }): Promise<void> {
-  const executor = args.tx ?? db;
-  const [row] = await executor
-    .insert(executionHalts)
-    .values({
-      account_id: args.accountId,
-      halted_by: args.userId ?? null,
+  const halt = async (executor: DbOrTx): Promise<string[]> => {
+    const [row] = await executor
+      .insert(executionHalts)
+      .values({
+        account_id: args.accountId,
+        halted_by: args.userId ?? null,
+        reason: args.reason ?? null,
+      })
+      .onConflictDoNothing()
+      .returning({ halted_at: executionHalts.halted_at });
+    // A second press while already stopped changes nothing, so it logs nothing.
+    if (row) {
+      await logStop(
+        executor,
+        args.accountId,
+        "stop",
+        haltRef(args.accountId, row.halted_at),
+        args.userId ?? null,
+        args.reason ?? null,
+      );
+    }
+    // Architecture-v2 I6, in the halt's own transaction: every capability to
+    // station 1, and every approval still waiting cancelled. Repeated on a
+    // second press, which harms nothing and catches anything queued since.
+    const profileIds = await accountProfileIds(executor, args.accountId);
+    await stopAll(executor, {
+      profileIds,
+      by: args.userId ?? null,
       reason: args.reason ?? null,
-    })
-    .onConflictDoNothing()
-    .returning({ halted_at: executionHalts.halted_at });
-  // A second press while already stopped changes nothing, so it logs nothing.
-  if (row) {
-    await logStop(
-      executor,
-      args.accountId,
-      "stop",
-      haltRef(args.accountId, row.halted_at),
-      args.userId ?? null,
-      args.reason ?? null,
+    });
+    return cancelPendingProposals(executor, profileIds);
+  };
+  if (args.tx) {
+    // The caller owns the transaction; renders are released only once a
+    // commit is certain, so a joined stop leaves them for the expiry sweep.
+    await halt(args.tx);
+    return;
+  }
+  const releasable = await db.transaction(halt);
+  // The stop has committed; tidying public renders must never make it look failed.
+  try {
+    await releaseUnpublishedMedia(releasable);
+  } catch (error) {
+    console.error(
+      JSON.stringify({
+        event: "stop_media_release_failed",
+        account_id: args.accountId,
+        ...logSafeError(error),
+      }),
     );
   }
 }
@@ -226,6 +277,10 @@ export async function resumeExecutions(
       .returning({ halted_at: executionHalts.halted_at });
     for (const r of released) {
       await logStop(tx, accountId, "stop_release", haltRef(accountId, r.halted_at), userId, null);
+    }
+    // D9: the stations the stop replaced come back. Cancelled proposals don't.
+    if (released.length > 0) {
+      await resumeAll(tx, { profileIds: await accountProfileIds(tx, accountId), by: userId });
     }
   });
 }
@@ -403,6 +458,73 @@ export async function executeProposal(args: ExecuteArgs): Promise<ExecutionRow> 
         refusal.message,
       );
     }
+  }
+
+  // Guard 8 — architecture v2's call order (hard rule 1, I1, I3), every
+  // step before the claim, so a refusal claims nothing and sends nothing.
+  //   8a. TrustLadder.authorize: station 1 refuses; station 2 is SHADOW.
+  //       Stations 3 and 4 both still need the approval guard 2 checked —
+  //       rule 12 is unchanged at every station (architecture-v2 D2).
+  //   8b. ComplianceGate.check: a failure overrides whatever the ladder said.
+  //   8c. ProofLedger.open_measurement: the plan exists before anything runs
+  //       (one per proposal, so a retry reads the same plan); SHADOW records
+  //       its counterfactual against it and stops there.
+  const ladder = await authorize(proposal.profile_id, args.provider.id);
+  if (ladder.state === "BLOCKED") {
+    // A stop pressed since guard 1 (mid pre-flight) set every station to 1
+    // (I6). It is still the stop, and the due runner counts it as one.
+    if (await isHalted(ctx.account_id)) {
+      throw new ExecutionRefused(
+        "halted",
+        "the emergency stop is on — nothing executes until you resume",
+      );
+    }
+    throw new ExecutionRefused(
+      "ladder_blocked",
+      `${spec?.label ?? args.provider.id} is at station 1 on the trust ladder — it can't act until it's raised. Nothing was sent; this stays approved.`,
+    );
+  }
+  const verdict = await complianceCheck({
+    profileId: proposal.profile_id,
+    accountId: ctx.account_id,
+    capability: args.provider.id,
+    country: await businessCountryIso(proposal.profile_id),
+    payload: { op: args.op, params: args.params },
+    external: args.provider.external === true,
+  });
+  if (!verdict.clear) {
+    throw new ExecutionRefused(
+      "compliance",
+      `${verdict.reasons.join("; ")}. Nothing was sent; this stays approved.`,
+    );
+  }
+  const measurement = await openMeasurement({
+    profileId: proposal.profile_id,
+    accountId: ctx.account_id,
+    capability: args.provider.id,
+    metric: `${args.provider.id}:${args.op}`,
+    holdout: null,
+    proposalId: proposal.id,
+    now: now(),
+  });
+  try {
+    await requireOpen(measurement.measurement_id);
+  } catch (error) {
+    if (!(error instanceof LedgerError)) throw error;
+    throw new ExecutionRefused(
+      "no_measurement",
+      "this action's measurement plan is already closed, and nothing runs without an open one",
+    );
+  }
+  if (ladder.state === "SHADOW") {
+    await recordCounterfactual(
+      measurement.measurement_id,
+      `would have run ${args.op} on ${args.provider.id}`,
+    );
+    throw new ExecutionRefused(
+      "shadow",
+      `${spec?.label ?? args.provider.id} is in shadow on the trust ladder: I recorded what I would have done, and sent nothing. This stays approved.`,
+    );
   }
 
   // Guard 7 — the idempotency claim. The unique index arbitrates.

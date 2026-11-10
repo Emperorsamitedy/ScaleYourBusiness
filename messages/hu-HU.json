@@ -6055,7 +6055,8 @@
       "business_locale": "Csak tulajdonos módosíthatja a vállalkozás nyelvét vagy pénznemét.",
       "payments_prepare": "Csak tulajdonos készíthet elő kifizetést, vagy jelezheti, hogy egy kifizetés megtörtént.",
       "phone_recordings": "Csak tulajdonos hallgathatja meg a hívásfelvételeket.",
-      "payments_read": "Csak tulajdonos láthatja a kifizetéseket és a banki fájljaikat."
+      "payments_read": "Csak tulajdonos láthatja a kifizetéseket és a banki fájljaikat.",
+      "peers_consent": "Csak tulajdonos döntheti el, hogy a vállalkozás számai bekerülnek-e a hasonló vállalkozásokkal való összehasonlításba."
     }
   },
   "authWords": {

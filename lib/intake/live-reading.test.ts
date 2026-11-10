@@ -94,7 +94,13 @@ describe("liveReadingOf", () => {
   });
 
   it("carries the owner's own stated margin when there is one, else null", () => {
-    const blended = { value: 71.4, derived_from: ["a", "b", "a"], formula: "f", confidence: 0.6 };
+    const blended = {
+      value: 71.4,
+      derived_from: ["a", "b", "a"],
+      formula: "f",
+      confidence: 0.6,
+      grade: "C" as const,
+    };
     const withStated = liveReadingOf({
       ...base,
       blended_margin_pct: blended,

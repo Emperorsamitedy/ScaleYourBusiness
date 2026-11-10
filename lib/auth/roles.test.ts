@@ -64,6 +64,8 @@ const NEVER_A_MANAGER: readonly RoleAction[] = [
   "payments.read",
   // P6-08 (rule 32): call recordings are heard by the owner alone.
   "phone.recordings",
+  // Architecture-v2 D7: whether the business's figures join peer benchmarks.
+  "peers.consent",
 ];
 
 const session = (role: Role): AuthedSession => ({

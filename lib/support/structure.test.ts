@@ -252,6 +252,10 @@ describe("P4-08 — rule 21, held by the module graph", () => {
         // function with no imports, reached through the model metering's
         // logs, that strips a query's bound values (PII) from error lines.
         file === "lib/core/log-safe.ts" ||
+        // Added deliberately by architecture-v2 hard rule 6 (D6): a pure map
+        // with no imports, so the phone line can read its business's country
+        // for the country flag without reaching lib/profile.
+        file === "lib/core/country.ts" ||
         // Added deliberately by L-5 and L-6 (rule 5 of TASKS-LANGUAGES.md):
         // the widget answers in the business's own language, so the tier
         // reads the language files — pure data and next-intl, held below to

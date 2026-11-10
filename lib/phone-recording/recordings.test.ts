@@ -18,11 +18,12 @@
 import "dotenv/config";
 import { createHash } from "node:crypto";
 import { and, eq, inArray } from "drizzle-orm";
-import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { db } from "../../db";
 import {
   accounts,
   businessProfiles,
+  fieldRecords,
   contacts,
   decisionLog,
   intakeEvents,
@@ -59,6 +60,14 @@ import {
   setRecordingDepsForTests,
 } from "./recordings";
 import { openAudio } from "./seal";
+import { inPhoneCountry, switchPhoneCountryOn } from "../phone/test-country";
+
+// Hard rule 6 (architecture-v2 D6): these businesses are in a switched-on country.
+let restoreCountries: () => void = () => undefined;
+beforeAll(() => {
+  restoreCountries = switchPhoneCountryOn();
+});
+afterAll(() => restoreCountries());
 
 const KEY = Buffer.alloc(32, 7);
 const created: { account_id: string; profile_id: string }[] = [];
@@ -108,6 +117,7 @@ afterAll(async () => {
     await db.delete(supportSettings).where(inArray(supportSettings.profile_id, profileIds));
     await db.delete(contacts).where(inArray(contacts.account_id, accountIds));
     await db.delete(intakeEvents).where(inArray(intakeEvents.profile_id, profileIds));
+    await db.delete(fieldRecords).where(inArray(fieldRecords.profile_id, profileIds));
     await db.delete(businessProfiles).where(inArray(businessProfiles.id, profileIds));
   }
   for (const s of created) await db.delete(accounts).where(eq(accounts.id, s.account_id));
@@ -116,6 +126,7 @@ afterAll(async () => {
 /** A business with a phone line on a number of its own; recording as asked (default: off). */
 async function business(opts: { record?: boolean; handover?: string } = {}) {
   const s = await bootstrapIntake();
+  await inPhoneCountry(s.profile_id);
   created.push(s);
   await ensureSupportSettings(s.profile_id);
   await db
@@ -287,6 +298,7 @@ describe("the owner's switch is a recorded fact", () => {
       /not set up on this server/,
     );
     const s = await bootstrapIntake();
+    await inPhoneCountry(s.profile_id);
     created.push(s);
     await expect(setCallRecording(s.profile_id, true, OWNER)).rejects.toBeInstanceOf(
       PhoneDeskError,

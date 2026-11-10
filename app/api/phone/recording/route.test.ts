@@ -7,11 +7,12 @@
 import "dotenv/config";
 import { eq, inArray } from "drizzle-orm";
 import { NextRequest } from "next/server";
-import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { afterAll, afterEach, beforeAll, beforeEach, describe, expect, it, vi } from "vitest";
 import { db } from "../../../../db";
 import {
   accounts,
   businessProfiles,
+  fieldRecords,
   intakeEvents,
   phoneCalls,
   phoneRecordings,
@@ -36,6 +37,14 @@ import {
 } from "../../../../lib/phone/fake-twilio";
 import { handleVoice } from "../../../../lib/phone/line";
 import { POST } from "./route";
+import { inPhoneCountry, switchPhoneCountryOn } from "../../../../lib/phone/test-country";
+
+// Hard rule 6 (architecture-v2 D6): these businesses are in a switched-on country.
+let restoreCountries: () => void = () => undefined;
+beforeAll(() => {
+  restoreCountries = switchPhoneCountryOn();
+});
+afterAll(() => restoreCountries());
 
 const URL_ = "https://syb.example/api/phone/recording";
 const created: { account_id: string; profile_id: string }[] = [];
@@ -63,6 +72,7 @@ beforeEach(async () => {
   vi.spyOn(console, "warn").mockImplementation(() => undefined);
   vi.spyOn(console, "error").mockImplementation(() => undefined);
   const s = await bootstrapIntake();
+  await inPhoneCountry(s.profile_id);
   created.push(s);
   profileId = s.profile_id;
   await ensureSupportSettings(s.profile_id);
@@ -91,6 +101,7 @@ afterAll(async () => {
     await db.delete(phoneSettings).where(inArray(phoneSettings.profile_id, profileIds));
     await db.delete(supportSettings).where(inArray(supportSettings.profile_id, profileIds));
     await db.delete(intakeEvents).where(inArray(intakeEvents.profile_id, profileIds));
+    await db.delete(fieldRecords).where(inArray(fieldRecords.profile_id, profileIds));
     await db.delete(businessProfiles).where(inArray(businessProfiles.id, profileIds));
   }
   for (const s of created) await db.delete(accounts).where(eq(accounts.id, s.account_id));

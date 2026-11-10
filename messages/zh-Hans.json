@@ -6055,7 +6055,8 @@
       "business_locale": "只有所有者可以更改企业的语言或货币。",
       "payments_prepare": "只有所有者可以准备付款或说明某笔付款已完成。",
       "phone_recordings": "只有所有者可以收听通话录音。",
-      "payments_read": "只有所有者可以查看付款及其银行文件。"
+      "payments_read": "只有所有者可以查看付款及其银行文件。",
+      "peers_consent": "只有所有者可以决定这家企业的数据是否加入同类企业对比。"
     }
   },
   "authWords": {

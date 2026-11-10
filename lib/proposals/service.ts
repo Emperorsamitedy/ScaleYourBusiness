@@ -10,7 +10,7 @@
 // is the arbiter (the field-store precedent).
 
 import { createHash } from "node:crypto";
-import { and, desc, eq, gt, lte, sql } from "drizzle-orm";
+import { and, desc, eq, gt, inArray, lte, sql } from "drizzle-orm";
 import { db } from "../../db";
 import type { DbOrTx } from "../../db";
 import { contentItems, decisionLog, proposals } from "../../db/schema";
@@ -503,6 +503,26 @@ export async function expireDueProposals(
   // Review 2026-10-23 (Session D #10): an expired post's render leaves public storage.
   await releaseUnpublishedMedia(publishItemIds(rows), store);
   return rows.length;
+}
+
+/**
+ * Architecture-v2 I6: the emergency stop cancels every approval still
+ * waiting — pending → expired, in the stop's own transaction. Like expiry,
+ * no decision-log entry here: the stop itself is logged. Returns the content
+ * items whose unpublished renders should leave public storage once the
+ * transaction has committed.
+ */
+export async function cancelPendingProposals(
+  executor: DbOrTx,
+  profileIds: readonly string[],
+): Promise<string[]> {
+  if (profileIds.length === 0) return [];
+  const rows = await executor
+    .update(proposals)
+    .set({ status: "expired" })
+    .where(and(inArray(proposals.profile_id, [...profileIds]), eq(proposals.status, "pending")))
+    .returning({ id: proposals.id, action: proposals.action });
+  return publishItemIds(rows);
 }
 
 /**

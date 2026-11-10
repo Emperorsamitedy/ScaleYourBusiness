@@ -860,10 +860,10 @@ describe("P3-24c — a halt between 'due' and 'publish' publishes nothing", () =
     expect(graph.where("POST", "/feed")).toHaveLength(0);
     expect(graph.calls.every((c) => c.method === "GET")).toBe(true);
     expect((await itemRow(item_id)).status).toBe("queued");
-    const execution = await executionFor(proposal_id);
-    expect(execution?.status).toBe("failed");
-    expect(execution?.held_for).toBe("stop");
-    expect(await attemptsOf(execution!.id)).toHaveLength(0);
+    // Architecture-v2 I6: the stop set every station to 1, so the engine's
+    // guard 8 refuses before the claim — no execution row at all, stronger
+    // than a held one. The proposal waits, approved, for the resume.
+    expect(await executionFor(proposal_id)).toBeUndefined();
     await resumeExecutions(b.account_id);
   });
 
@@ -997,8 +997,9 @@ describe("P3-24c — resuming re-evaluates every guard", () => {
         if (n === 1) await haltExecutions({ accountId: b.account_id });
       },
     });
-    await halt.run(b);
-    expect((await executionFor(proposal_id))?.held_for).toBe("stop");
+    expect((await halt.run(b)).halted).toBe(1);
+    // Architecture-v2 I6: refused before the claim (guard 8), so nothing is held — it waits approved.
+    expect(await executionFor(proposal_id)).toBeUndefined();
     await resumeExecutions(b.account_id);
 
     // The real-write gate.

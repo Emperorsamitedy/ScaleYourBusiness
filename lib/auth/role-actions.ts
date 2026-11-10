@@ -95,6 +95,11 @@ export const ROLE_ACTIONS = {
   "payments.read": { min: "owner", what: "see payments and their bank files" },
   // P6-08 (rule 32): a caller's recorded voice is heard by the owner alone.
   "phone.recordings": { min: "owner", what: "listen to call recordings" },
+  // Architecture-v2 D7: sharing the business's figures, even anonymised, is the owner's consent.
+  "peers.consent": {
+    min: "owner",
+    what: "decide whether this business's figures join the comparison with similar businesses",
+  },
 } as const satisfies Record<string, RoleActionRow>;
 
 export type RoleAction = keyof typeof ROLE_ACTIONS;

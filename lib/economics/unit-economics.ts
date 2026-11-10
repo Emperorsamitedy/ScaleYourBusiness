@@ -22,6 +22,9 @@ import { isMeasuredSource } from "../connectors/measured";
 import type { StatedVsMeasured } from "../connectors/measured";
 import type { Money } from "../core/money";
 import { money, multiply, subtract } from "../core/money";
+import type { Grade } from "../core/grade";
+import { derivedGrade, lowestGrade } from "../core/grade";
+import { confidence as asConfidence } from "../core/confidence";
 import type { SnapshotEntity, SnapshotView } from "../profile/snapshot";
 
 /** A number nobody has to take on faith. */
@@ -33,6 +36,8 @@ export interface Computed<T> {
   formula: string;
   /** min(input confidences) × 0.9, per §8.1. */
   confidence: number;
+  /** Hard rule 3 (architecture-v2 D4): the lowest grade among the inputs, read from the inputs. */
+  grade: Grade;
 }
 
 /** Something deliberately not computed, and exactly what is missing. */
@@ -138,6 +143,13 @@ function derivedConfidence(inputs: readonly (FactLike | null)[]): number {
   return Math.round(Math.min(...known.map((i) => i.confidence)) * 0.9 * 1000) / 1000;
 }
 
+/** Hard rule 3: the inputs' lowest grade. No known input is the floor grade, never a guess. */
+function inputsGrade(inputs: readonly (FactLike | null)[]): Grade {
+  const known = inputs.filter((i): i is FactLike => i !== null);
+  if (known.length === 0) return "D";
+  return derivedGrade(known.map((i) => asConfidence(i.confidence)));
+}
+
 /** Sub-facts of one entity: "offers.<id>.price" → { price: … }. */
 function entityFacts(view: SnapshotView, spine: string, id: string): Map<string, FactLike> {
   const out = new Map<string, FactLike>();
@@ -202,18 +214,21 @@ function offerEconomics(view: SnapshotView, entities: SnapshotEntity[]): OfferEc
       const contrib = subtract(price, cost);
       const pct = (contrib.amount_minor / price.amount_minor) * 100;
       const conf = derivedConfidence([priceFact, costFact]);
+      const grade = inputsGrade([priceFact, costFact]);
       const from = [`offers.${e.id}.price`, `offers.${e.id}.cost_to_deliver`];
       marginPct = {
         value: Math.round(pct * 10) / 10,
         derived_from: from,
         formula: "(price − cost_to_deliver) ÷ price × 100",
         confidence: conf,
+        grade,
       };
       contribution = {
         value: contrib,
         derived_from: from,
         formula: "price − cost_to_deliver",
         confidence: conf,
+        grade,
       };
     }
 
@@ -253,6 +268,7 @@ function blendedMargin(offers: OfferEconomics[]): Computed<number> | null {
         ? "Σ(offer margin × units sold) ÷ Σ(units sold)"
         : "mean(offer margins) — no volumes recorded, so each offer counts once",
     confidence: Math.min(...use.map((o) => o.margin_pct!.confidence)),
+    grade: lowestGrade(use.map((o) => o.margin_pct!.grade)),
   };
 }
 
@@ -313,6 +329,7 @@ function fixedMonthly(
     derived_from: from,
     formula: "Σ(fixed cost ÷ cadence months)",
     confidence: derivedConfidence(inputs),
+    grade: inputsGrade(inputs),
   };
 }
 
@@ -373,6 +390,7 @@ function breakEven(
         ? "fixed costs ÷ weighted contribution per unit — assumes the current offer mix holds"
         : "fixed costs ÷ mean contribution per unit — no volumes recorded, so the mix is assumed even",
     confidence: Math.min(fixed.confidence, ...use.map((o) => o.contribution!.confidence)),
+    grade: lowestGrade([fixed.grade, ...use.map((o) => o.contribution!.grade)]),
   };
 }
 
@@ -405,6 +423,7 @@ function averageOrderValue(
     derived_from: ["revenue.monthly_revenue", "revenue.order_count_monthly"],
     formula: "monthly revenue ÷ monthly orders",
     confidence: derivedConfidence([revFact, ordersFact]),
+    grade: inputsGrade([revFact, ordersFact]),
   };
 }
 
@@ -467,6 +486,7 @@ function costPerAcquisition(
     ],
     formula: "ad spend ÷ (orders × (1 − repeat rate))",
     confidence: derivedConfidence([spendFact, ordersFact, repeatFact]),
+    grade: inputsGrade([spendFact, ordersFact, repeatFact]),
   };
 }
 
@@ -518,6 +538,7 @@ function returnOnAdSpend(
     formula:
       "monthly revenue ÷ monthly ad spend (blended: all revenue over all ad spend, not attributed)",
     confidence: derivedConfidence([revFact, spendFact]),
+    grade: inputsGrade([revFact, spendFact]),
   };
 }
 

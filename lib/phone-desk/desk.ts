@@ -22,6 +22,7 @@ import { createHash } from "node:crypto";
 import { and, desc, eq } from "drizzle-orm";
 import { db } from "../../db";
 import { decisionLog, phoneCallTurns, phoneCalls, phoneSettings } from "../../db/schema";
+import { businessCountryIso, check } from "../compliance/gate";
 import { ensureSupportSettings } from "../crm/support-settings";
 import { twilioEnv } from "../env";
 import type { PhoneLine } from "../phone/settings";
@@ -53,6 +54,15 @@ export async function enablePhoneLine(profileId: string): Promise<PhoneLine> {
   const env = twilioEnv();
   if (!env) throw new PhoneDeskError("the phone line is not set up on this server", 409);
   const settings = await ensureSupportSettings(profileId);
+  // Hard rule 6 (architecture-v2 D6), through ComplianceGate: a line can't be
+  // switched on where its country isn't, and the owner is told why.
+  const verdict = await check({
+    profileId,
+    accountId: settings.account_id,
+    capability: "phone_answering",
+    country: await businessCountryIso(profileId),
+  });
+  if (!verdict.clear) throw new PhoneDeskError(verdict.reasons.join("; "), 409);
   const [holder] = await db
     .select({ profile_id: phoneSettings.profile_id })
     .from(phoneSettings)

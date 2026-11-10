@@ -57,6 +57,7 @@ import { customerLanguageLine, withLanguage } from "../llm/language";
 import { WANTS_HUMAN_RE } from "../support/chat";
 import type { KnowledgeEntryRow } from "../support/knowledge";
 import { publicKnowledge, selectEntries } from "../support/knowledge";
+import { phoneAllowedFor } from "./countries";
 import type { PhoneLine } from "./settings";
 import { lineByNumber, lineForProfile } from "./settings";
 import type { Verb } from "./twilio";
@@ -471,7 +472,9 @@ export async function startCall(params: TwilioParams, seams: PhoneSeams = {}): P
   const words = await wordsFor(locale, "phoneLine");
   const voice = TWILIO_VOICES[locale];
   const business = line.business_name;
-  if (!line.enabled) {
+  // Hard rule 6 (architecture-v2 D6): a line whose business's country isn't
+  // switched on answers exactly as a closed one does, and keeps nothing.
+  if (!line.enabled || !(await phoneAllowedFor(line.profile_id))) {
     // Rule 31: even a closed line's first sentence names the business and says it is automated.
     return twiml(voice, [
       { verb: "say", text: words.t("greeting", { business }) },

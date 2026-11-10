@@ -6055,7 +6055,8 @@
       "business_locale": "Only an owner can change the business's language or currency.",
       "payments_prepare": "Only an owner can prepare payments or say one was paid.",
       "phone_recordings": "Only an owner can listen to call recordings.",
-      "payments_read": "Only an owner can see payments and their bank files."
+      "payments_read": "Only an owner can see payments and their bank files.",
+      "peers_consent": "Only an owner can decide whether this business's figures join the comparison with similar businesses."
     }
   },
   "authWords": {

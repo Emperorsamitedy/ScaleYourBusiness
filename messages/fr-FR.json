@@ -6055,7 +6055,8 @@
       "business_locale": "Seul un propriétaire peut modifier la langue ou la devise de l’entreprise.",
       "payments_prepare": "Seul un propriétaire peut préparer des paiements ou indiquer qu’un paiement a été fait.",
       "phone_recordings": "Seul un propriétaire peut écouter les enregistrements d’appels.",
-      "payments_read": "Seul un propriétaire peut voir les paiements et leurs fichiers bancaires."
+      "payments_read": "Seul un propriétaire peut voir les paiements et leurs fichiers bancaires.",
+      "peers_consent": "Seul un propriétaire peut décider si les chiffres de cette entreprise entrent dans la comparaison avec des entreprises similaires."
     }
   },
   "authWords": {
