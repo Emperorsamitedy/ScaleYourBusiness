@@ -51,6 +51,8 @@ export const PUBLIC: Record<string, string> = {
   "email/events/route.ts": "Resend webhook, Svix-signed",
   "entry/route.ts":
     "the v1 spec §8.2's free entry: no account by design; same-origin, capped per hashed address",
+  "mandate/[token]/route.ts":
+    "the v1 spec §7.6's grant from the email: the one-use token is the credential; it makes the business and signs its owner in",
   "ledger/verify/route.ts":
     "the v1 spec §3.5's public chain check; reads no business, rate-limited",
   "ops/route.ts": "operator panel, OPS_KEY",

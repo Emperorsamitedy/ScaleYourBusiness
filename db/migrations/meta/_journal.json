@@ -785,6 +785,20 @@
       "when": 1794493872090,
       "tag": "0115_greedy_iron_patriot",
       "breakpoints": true
+    },
+    {
+      "idx": 116,
+      "version": "7",
+      "when": 1794497085369,
+      "tag": "0116_partner_console",
+      "breakpoints": true
+    },
+    {
+      "idx": 117,
+      "version": "7",
+      "when": 1794497090576,
+      "tag": "0117_partner_may",
+      "breakpoints": true
     }
   ]
 }

@@ -103,6 +103,8 @@ export const ROLE_ACTIONS = {
   // The v1 spec §4: what SYB may do on its own — stations, caps, standing
   // rules, the step to station 4 — is the owner's to decide.
   "ladder.manage": { min: "owner", what: "change what SYB may do on its own" },
+  // The v1 spec §7.1: a firm's access to the business is the owner's grant, revocable in one tap.
+  "mandates.manage": { min: "owner", what: "give or take back a firm's access to this business" },
 } as const satisfies Record<string, RoleActionRow>;
 
 export type RoleAction = keyof typeof ROLE_ACTIONS;

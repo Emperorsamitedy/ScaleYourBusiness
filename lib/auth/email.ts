@@ -239,3 +239,54 @@ export async function sendInviteEmail(
     return { delivered_via: "failed" };
   }
 }
+
+/**
+ * The v1 spec §7.6: a firm's mandate request, in the client's own language —
+ * an account email like the invite, so it leaves from here. The words are
+ * the "partner.mail" catalogue; the scopes are listed as the client will
+ * grant them.
+ */
+export async function sendMandateEmail(
+  mail: {
+    to: string;
+    locale: AppLocale;
+    firm: string;
+    business: string;
+    link: string;
+    scopes: readonly string[];
+  },
+  fetchImpl: EmailFetch = fetch,
+): Promise<"sent" | "not_configured" | "failed"> {
+  const key = process.env.RESEND_API_KEY?.trim();
+  if (!key) return "not_configured";
+  const w = await wordsFor(mail.locale, "partner");
+  const scopes = mail.scopes.map((s) => `• ${w.t(`scope.${s}`)}`).join("\n");
+  try {
+    const res = await fetchImpl("https://api.resend.com/emails", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
+      body: JSON.stringify({
+        from: FROM(),
+        to: [mail.to],
+        subject: w.t("mail.subject", { firm: mail.firm }),
+        text:
+          `${w.t("mail.intro", { firm: mail.firm, business: mail.business })}\n\n${scopes}\n\n` +
+          `${w.t("mail.open")}\n\n${mail.link}\n\n${w.t("mail.after")}`,
+      }),
+      signal: AbortSignal.timeout(OWNER_EMAIL_TIMEOUT_MS),
+    });
+    if (!res.ok) {
+      console.error(JSON.stringify({ event: "mandate_email_failed", status: res.status }));
+      return "failed";
+    }
+    return "sent";
+  } catch (error) {
+    console.error(
+      JSON.stringify({
+        event: "mandate_email_failed",
+        name: error instanceof Error ? error.name : "network",
+      }),
+    );
+    return "failed";
+  }
+}

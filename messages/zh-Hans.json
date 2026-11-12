@@ -64,7 +64,9 @@
       "payments": "付款",
       "ladder": "我可以做什么",
       "statement": "月度对账单",
-      "billing": "方案与账单"
+      "billing": "方案与账单",
+      "mandates": "有访问权限的事务所",
+      "partner": "合作伙伴控制台"
     },
     "count": {
       "paused": "{count} 个已暂停",
@@ -6060,7 +6062,8 @@
       "phone_recordings": "只有所有者可以收听通话录音。",
       "payments_read": "只有所有者可以查看付款及其银行文件。",
       "peers_consent": "只有所有者可以决定这家企业的数据是否加入同类企业对比。",
-      "ladder_manage": "只有所有者可以更改 SYB 可自行执行的操作。"
+      "ladder_manage": "只有所有者可以更改 SYB 可自行执行的操作。",
+      "mandates_manage": "只有所有者可以授予或收回事务所对这家企业的访问权限。"
     }
   },
   "authWords": {
@@ -9427,5 +9430,152 @@
     },
     "failed": "没有成功。请稍后再试。",
     "notArmed": "付款尚未开启。"
+  },
+  "partner": {
+    "meta": {
+      "title": "合作伙伴控制台"
+    },
+    "kicker": "合作伙伴控制台",
+    "noSession": "请先登录 SYB，使用你在事务所使用的地址。",
+    "create": {
+      "title": "设置你的事务所",
+      "intro": "事务所位于客户企业之上。只有当企业所有者向你的事务所授予委托后，你才能访问该企业。",
+      "name": "事务所名称",
+      "country": "国家",
+      "type": "事务所类型",
+      "submit": "创建事务所"
+    },
+    "type": {
+      "accountancy": "会计事务所",
+      "bookkeeping": "记账服务",
+      "marketing_agency": "营销机构",
+      "consultancy": "咨询公司"
+    },
+    "book": {
+      "title": "你的客户",
+      "rollup": "本季度客户的已核实收益：{amount}。",
+      "clients": "已授予委托的客户：{count}。",
+      "empty": "还没有客户向你的事务所授予委托。导入你的客户以向他们发出请求。"
+    },
+    "col": {
+      "client": "客户",
+      "sector": "行业",
+      "grade": "等级",
+      "leaks": "未处理的漏洞",
+      "largest": "最大的漏洞",
+      "verified": "本季度已核实",
+      "awaiting": "等待批准",
+      "health": "连接",
+      "activity": "最近活动"
+    },
+    "health": {
+      "healthy": "正常",
+      "attention": "需要查看",
+      "failed": "失败",
+      "none": "暂无"
+    },
+    "unnamed": "尚未命名",
+    "hidden": "等级 B 起显示金额",
+    "import": {
+      "link": "导入客户",
+      "title": "导入你的客户",
+      "intro": "一个文件，每行一个企业名称和一个邮箱地址，如有国家和语言也可填写。每位客户都会收到一封用其本人语言书写的邮件，请他们向你的事务所授予委托。",
+      "csv": "文件内容（CSV）",
+      "evidence": "委托协议编号",
+      "scopes": "你的事务所可以做什么",
+      "months": "多少个月",
+      "submit": "发送请求",
+      "done": "已请求：{requested}。已跳过：{skipped}。已发送邮件：{sent}。因邮件未开启而未发送：{notConfigured}。失败：{failed}。"
+    },
+    "scope": {
+      "read_diagnosis": "查看诊断",
+      "approve_actions": "批准 SYB 的建议",
+      "manage_connectors": "协助处理连接",
+      "receive_reports": "接收带有事务所名称的报告"
+    },
+    "client": {
+      "commentary": "你的事务所的评论",
+      "save": "保存评论",
+      "saved": "已保存",
+      "awaiting": "等待批准",
+      "approve": "批准",
+      "nudge": "请客户连接某个系统",
+      "nudgeWhat": "要连接什么，例如收银系统",
+      "nudgeSend": "发送请求",
+      "nudged": "已发送到客户的 SYB。",
+      "report": "打开带有你事务所名称的报告",
+      "noReport": "还没有诊断。",
+      "back": "返回客户列表"
+    },
+    "section": {
+      "summary": "摘要",
+      "findings": "发现",
+      "recommendations": "建议",
+      "gaps": "需要了解的内容",
+      "statement": "月度对账单"
+    },
+    "report": {
+      "byline": "由 {firm} 使用 SYB 编制",
+      "version": "版本 {version} · 诊断等级 {grade}",
+      "range": "每月 {low} 至 {high}"
+    },
+    "settings": {
+      "title": "你的事务所品牌",
+      "logo": "标志地址（https）",
+      "primary": "主色（#rrggbb）",
+      "accent": "强调色（#rrggbb）",
+      "domain": "发件域名",
+      "save": "保存品牌设置"
+    },
+    "members": {
+      "title": "事务所成员",
+      "email": "他们的邮箱",
+      "add": "添加"
+    },
+    "role": {
+      "manager": "经理",
+      "staff": "员工"
+    },
+    "failed": "没有成功：{why}",
+    "done": "完成。",
+    "mail": {
+      "subject": "{firm} 请求在 SYB 上访问你的企业",
+      "intro": "{firm} 希望在 SYB 上与 {business} 合作，并请求获准为你的企业做以下事情：",
+      "open": "如果同意，请打开此链接。你无需事先注册账户：",
+      "after": "你可以随时一键收回授权，并能看到事务所所做的一切。"
+    }
+  },
+  "mandates": {
+    "meta": {
+      "title": "有访问权限的事务所"
+    },
+    "kicker": "有访问权限的事务所",
+    "intro": "事务所只有在获得你的委托后才能访问你的企业：可以做什么、到何时为止、依据哪份委托协议。一键即可收回。事务所所做的一切都列在下方。",
+    "none": "没有事务所可以访问你的企业。",
+    "active": "{firm}，至 {date}",
+    "revoked": "{firm}，已于 {date} 收回",
+    "expired": "{firm}，已于 {date} 结束",
+    "evidence": "委托协议：{ref}",
+    "revoke": "收回访问权限",
+    "waiting": "等待你的答复",
+    "grant": "授予访问权限",
+    "activity": "事务所做了什么",
+    "activityNone": "暂无。",
+    "activityLine": "{date}：{firm} 的 {person}，{what}",
+    "act": {
+      "approve": "批准了一项建议",
+      "commentary": "写了一条评论",
+      "nudge": "请你连接某个系统",
+      "report": "打开了带有其名称的报告"
+    },
+    "page": {
+      "title": "{firm} 请求访问企业 {business}",
+      "intro": "如果你同意，{firm} 将可以：",
+      "until": "为期 {months} 个月，依据委托协议 {ref}。你可以随时收回。",
+      "yes": "授予访问权限",
+      "gone": "此链接已失效。",
+      "failed": "没有成功：{why}"
+    },
+    "failed": "没有成功。请稍后再试。"
   }
 }

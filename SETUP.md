@@ -73,6 +73,12 @@ while it is empty. The comments in `.env.example` have the exact formats.
       - **Smart Retries** set the retry schedule for failed payments; SYB
         tells the owner after each failure and points to the card update
       - the **customer portal** lets an owner update the card and see invoices
+- [ ] **Partner Console (v1 spec §7).** Firms ask their clients for a
+      mandate by email, so `RESEND_API_KEY` must be set for those emails to
+      go out (without it the requests are made and counted as "not sent").
+      A firm's own sender domain is stored but used only once it is verified
+      with Resend. One person should time a 40-client onboarding (§7.7: under
+      30 minutes).
 - [ ] **The free check's leak rates** (`specs/entry-v1.json`) are SYB's
       rules of thumb, shown as grade-D estimates. Correct any you know better.
 

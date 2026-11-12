@@ -169,6 +169,16 @@ export const SIZE_FEATURES = {
     reason:
       "What the plan costs, where it stands and how to leave it is the owner's at any size (the v1 spec §8.5).",
   },
+  "nav.mandates": {
+    bands: EVERY,
+    reason:
+      "Which firm can reach the business, and taking it back, is the owner's at any size (the v1 spec §7.1).",
+  },
+  "nav.partner": {
+    bands: EVERY,
+    reason:
+      "An accountant or agency reaches its clients' books from here, whatever the size of their own business (the v1 spec §7).",
+  },
   "nav.statement": {
     bands: EVERY,
     reason:

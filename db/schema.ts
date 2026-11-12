@@ -452,7 +452,8 @@ export const vocabularyEntries = pgTable(
 // §12 and must be decided, not defaulted.
 // ---------------------------------------------------------------------------
 
-export const decisionActor = pgEnum("decision_actor", ["system", "owner"]);
+/** "partner": a firm member acting under a mandate (v1 spec §7.1); user_id names the person. */
+export const decisionActor = pgEnum("decision_actor", ["system", "owner", "partner"]);
 
 export const decisionKind = pgEnum("decision_kind", [
   "proposal",
@@ -487,6 +488,9 @@ export const decisionKind = pgEnum("decision_kind", [
   "stop_release", // I-52d: things were started again; ref is the released execution_halts row, user_id who did it
   "media_pick", // P6-03: the owner picked one of three AI video candidates; ref is the media_candidates row
   "recording_consent", // P6-08: the owner switched call recording on or off; ref is the profile, user_id who did it
+  "mandate_grant", // v1 spec §7.1: the owner granted a firm a mandate; ref is the mandates row
+  "mandate_revoke", // §7.1: the owner revoked it; ref is the mandates row
+  "partner_action", // §7.7: a firm member acted under a mandate; ref is what they acted on, user_id who
 ]);
 
 export const decisionLog = pgTable(
@@ -5406,3 +5410,201 @@ export const billingEvents = pgTable("billing_events", {
     .notNull()
     .defaultNow(),
 });
+
+// ---------------------------------------------------------------------------
+// The Partner Console — the v1 build spec §7 (Phase 7, P7-80..82).
+//
+// A firm sits above businesses and is never a business (§7.1). A partner
+// reaches a client only through a mandate: explicit, time-bounded,
+// revocable, scoped, and evidenced by the engagement letter. The database
+// function partner_may(user, profile, scope) is the one test of it (see the
+// partner_may migration), and every partner read and action goes through it.
+
+export const firmType = pgEnum("firm_type", [
+  "accountancy",
+  "bookkeeping",
+  "marketing_agency",
+  "consultancy",
+]);
+export const firmRole = pgEnum("firm_role", ["principal", "manager", "staff"]);
+
+/** §7.3: the firm's branding. Colours are "#rrggbb"; the sender domain is used once verified. */
+export interface WhiteLabel {
+  logo_url?: string | null;
+  primary_color?: string | null;
+  accent_color?: string | null;
+  sender_domain?: string | null;
+}
+
+export const firms = pgTable("firms", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  name: text("name").notNull(),
+  /** ISO alpha-2. */
+  country: text("country").notNull(),
+  type: firmType("type").notNull(),
+  /** §7.5: partner_starter · partner_practice · partner_network, by active clients. */
+  tier: text("tier").notNull().default("partner_starter"),
+  white_label: jsonb("white_label").$type<WhiteLabel>().notNull().default({}),
+  /** §7.5's revenue share, in basis points (15 % = 1500). */
+  rev_share_bp: integer("rev_share_bp").notNull().default(1500),
+  /** §7.5: the firm pays, or the client pays and the firm takes the share. */
+  billing_mode: text("billing_mode").notNull().default("firm_pays"),
+  created_at: timestamp("created_at", { withTimezone: true, mode: "string" })
+    .notNull()
+    .defaultNow(),
+});
+
+export const firmMembers = pgTable(
+  "firm_members",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    firm_id: uuid("firm_id")
+      .notNull()
+      .references(() => firms.id, { onDelete: "cascade" }),
+    user_id: uuid("user_id").notNull(),
+    role: firmRole("role").notNull(),
+    created_at: timestamp("created_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+    removed_at: timestamp("removed_at", { withTimezone: true, mode: "string" }),
+  },
+  (t) => [
+    uniqueIndex("firm_members_one_live")
+      .on(t.firm_id, t.user_id)
+      .where(sql`${t.removed_at} is null`),
+  ],
+);
+
+/** §7.1's scope list. */
+export const MANDATE_SCOPES = [
+  "read_diagnosis",
+  "approve_actions",
+  "manage_connectors",
+  "receive_reports",
+] as const;
+
+/**
+ * §7.1: the mandate. Nothing about it changes after it is granted except
+ * its revocation, set once (the partner_may migration's trigger); a new term
+ * is a new mandate.
+ */
+export const mandates = pgTable(
+  "mandates",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    firm_id: uuid("firm_id")
+      .notNull()
+      .references(() => firms.id),
+    profile_id: uuid("profile_id")
+      .notNull()
+      .references(() => businessProfiles.id, { onDelete: "cascade" }),
+    scopes: text("scopes").array().notNull(),
+    granted_by_user_id: uuid("granted_by_user_id").notNull(),
+    granted_at: timestamp("granted_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+    expires_at: timestamp("expires_at", { withTimezone: true, mode: "string" }).notNull(),
+    revoked_at: timestamp("revoked_at", { withTimezone: true, mode: "string" }),
+    revoked_by_user_id: uuid("revoked_by_user_id"),
+    /** The engagement letter it rests on, as the firm referenced it. */
+    evidence_ref: text("evidence_ref").notNull(),
+  },
+  (t) => [
+    index("mandates_profile_idx").on(t.profile_id),
+    index("mandates_firm_idx").on(t.firm_id),
+    check("mandates_window", sql`${t.expires_at} > ${t.granted_at}`),
+    check(
+      "mandates_scopes",
+      sql`cardinality(${t.scopes}) > 0 and ${t.scopes} <@ array['read_diagnosis','approve_actions','manage_connectors','receive_reports']::text[]`,
+    ),
+    check("mandates_evidence", sql`length(trim(${t.evidence_ref})) > 0`),
+  ],
+);
+
+/**
+ * §7.6: a mandate asked for — by email, in the client's language, from a
+ * firm's bulk import. The token's hash only; the client's grant turns it
+ * into a mandate.
+ */
+export const mandateRequests = pgTable(
+  "mandate_requests",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    firm_id: uuid("firm_id")
+      .notNull()
+      .references(() => firms.id, { onDelete: "cascade" }),
+    business_name: text("business_name").notNull(),
+    email: text("email").notNull(),
+    country: text("country"),
+    locale: text("locale").notNull(),
+    scopes: text("scopes").array().notNull(),
+    months: integer("months").notNull().default(12),
+    evidence_ref: text("evidence_ref").notNull(),
+    token_hash: text("token_hash").notNull(),
+    /** sent · granted · declined */
+    status: text("status").notNull().default("sent"),
+    mandate_id: uuid("mandate_id"),
+    created_by_user_id: uuid("created_by_user_id").notNull(),
+    created_at: timestamp("created_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+    expires_at: timestamp("expires_at", { withTimezone: true, mode: "string" }).notNull(),
+  },
+  (t) => [
+    uniqueIndex("mandate_requests_token").on(t.token_hash),
+    uniqueIndex("mandate_requests_open")
+      .on(t.firm_id, t.email)
+      .where(sql`${t.status} = 'sent'`),
+  ],
+);
+
+/**
+ * §7.3: firm-authored commentary on a report section, kept apart from SYB's
+ * generated words and never overwritten by a re-run. An edit supersedes.
+ */
+export const firmCommentary = pgTable(
+  "firm_commentary",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    firm_id: uuid("firm_id")
+      .notNull()
+      .references(() => firms.id, { onDelete: "cascade" }),
+    profile_id: uuid("profile_id")
+      .notNull()
+      .references(() => businessProfiles.id, { onDelete: "cascade" }),
+    section: text("section").notNull(),
+    body: text("body").notNull(),
+    author_user_id: uuid("author_user_id").notNull(),
+    created_at: timestamp("created_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+    superseded_at: timestamp("superseded_at", { withTimezone: true, mode: "string" }),
+  },
+  (t) => [
+    uniqueIndex("firm_commentary_live")
+      .on(t.firm_id, t.profile_id, t.section)
+      .where(sql`${t.superseded_at} is null`),
+  ],
+);
+
+/** §7.4: the firm-level proof ledger, per quarter and per currency (never converted). */
+export const firmMetricRollups = pgTable(
+  "firm_metric_rollups",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    firm_id: uuid("firm_id")
+      .notNull()
+      .references(() => firms.id, { onDelete: "cascade" }),
+    /** "2026-Q4" */
+    period: text("period").notNull(),
+    currency: text("currency").notNull(),
+    verified_minor: bigint("verified_minor", { mode: "number" }).notNull(),
+    leaks_open: integer("leaks_open").notNull(),
+    leaks_fixed: integer("leaks_fixed").notNull(),
+    clients_active: integer("clients_active").notNull(),
+    computed_at: timestamp("computed_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [uniqueIndex("firm_metric_rollups_key").on(t.firm_id, t.period, t.currency)],
+);

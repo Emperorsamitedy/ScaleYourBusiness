@@ -64,7 +64,9 @@
       "payments": "Zahlungen",
       "ladder": "Was ich tun darf",
       "statement": "Monatsauszug",
-      "billing": "Plan und Abrechnung"
+      "billing": "Plan und Abrechnung",
+      "mandates": "Kanzleien mit Zugriff",
+      "partner": "Partnerkonsole"
     },
     "count": {
       "paused": "{count} pausiert",
@@ -6060,7 +6062,8 @@
       "phone_recordings": "Nur ein Inhaber kann Anrufaufzeichnungen anhören.",
       "payments_read": "Nur ein Inhaber kann Zahlungen und ihre Bankdateien sehen.",
       "peers_consent": "Nur ein Inhaber kann entscheiden, ob die Zahlen dieses Unternehmens in den Vergleich mit ähnlichen Unternehmen einfließen.",
-      "ladder_manage": "Nur ein Inhaber kann ändern, was SYB selbstständig tun darf."
+      "ladder_manage": "Nur ein Inhaber kann ändern, was SYB selbstständig tun darf.",
+      "mandates_manage": "Nur ein Inhaber kann einer Firma Zugriff auf dieses Unternehmen geben oder entziehen."
     }
   },
   "authWords": {
@@ -9427,5 +9430,152 @@
     },
     "failed": "Das ist nicht durchgegangen. Versuch es gleich noch einmal.",
     "notArmed": "Zahlungen sind noch nicht eingeschaltet."
+  },
+  "partner": {
+    "meta": {
+      "title": "Partnerkonsole"
+    },
+    "kicker": "Partnerkonsole",
+    "noSession": "Bitte zuerst bei SYB anmelden, mit der Adresse, die du in deiner Kanzlei nutzt.",
+    "create": {
+      "title": "Deine Kanzlei einrichten",
+      "intro": "Eine Kanzlei steht über den Unternehmen deiner Mandanten. Du erreichst ein Unternehmen nur, wenn sein Inhaber deiner Kanzlei ein Mandat erteilt.",
+      "name": "Name der Kanzlei",
+      "country": "Land",
+      "type": "Art der Kanzlei",
+      "submit": "Kanzlei anlegen"
+    },
+    "type": {
+      "accountancy": "Steuerberatung",
+      "bookkeeping": "Buchhaltung",
+      "marketing_agency": "Marketingagentur",
+      "consultancy": "Beratung"
+    },
+    "book": {
+      "title": "Dein Bestand",
+      "rollup": "Belegte Gewinne der Mandanten in diesem Quartal: {amount}.",
+      "clients": "Mandanten mit Mandat: {count}.",
+      "empty": "Noch hat kein Mandant deiner Kanzlei ein Mandat erteilt. Importiere deine Mandanten, um sie zu fragen."
+    },
+    "col": {
+      "client": "Mandant",
+      "sector": "Branche",
+      "grade": "Stufe",
+      "leaks": "Offene Lecks",
+      "largest": "Größtes Leck",
+      "verified": "Belegt in diesem Quartal",
+      "awaiting": "Wartet auf Freigabe",
+      "health": "Verbindungen",
+      "activity": "Letzte Aktivität"
+    },
+    "health": {
+      "healthy": "Läuft",
+      "attention": "Bitte prüfen",
+      "failed": "Fehlgeschlagen",
+      "none": "Noch keine"
+    },
+    "unnamed": "Noch ohne Namen",
+    "hidden": "Beträge ab Stufe B",
+    "import": {
+      "link": "Mandanten importieren",
+      "title": "Deine Mandanten importieren",
+      "intro": "Eine Datei mit einem Unternehmensnamen und einer E-Mail-Adresse pro Zeile, dazu Land und Sprache, wenn du sie hast. Jeder Mandant bekommt eine E-Mail in seiner eigenen Sprache mit der Bitte, deiner Kanzlei ein Mandat zu erteilen.",
+      "csv": "Der Inhalt der Datei (CSV)",
+      "evidence": "Referenz des Mandatsvertrags",
+      "scopes": "Was deine Kanzlei tun darf",
+      "months": "Für wie viele Monate",
+      "submit": "Anfragen senden",
+      "done": "Gefragt: {requested}. Ausgelassen: {skipped}. E-Mails gesendet: {sent}. Nicht gesendet, weil E-Mail nicht eingeschaltet ist: {notConfigured}. Fehlgeschlagen: {failed}."
+    },
+    "scope": {
+      "read_diagnosis": "Die Diagnose lesen",
+      "approve_actions": "Vorschläge von SYB freigeben",
+      "manage_connectors": "Bei Verbindungen helfen",
+      "receive_reports": "Berichte mit dem Namen der Kanzlei erhalten"
+    },
+    "client": {
+      "commentary": "Kommentar deiner Kanzlei",
+      "save": "Kommentar speichern",
+      "saved": "Gespeichert",
+      "awaiting": "Wartet auf Freigabe",
+      "approve": "Freigeben",
+      "nudge": "Den Mandanten bitten, etwas zu verbinden",
+      "nudgeWhat": "Was verbunden werden soll, zum Beispiel die Kasse",
+      "nudgeSend": "Bitte senden",
+      "nudged": "An das SYB des Mandanten gesendet.",
+      "report": "Bericht mit dem Namen deiner Kanzlei öffnen",
+      "noReport": "Noch keine Diagnose.",
+      "back": "Zurück zum Bestand"
+    },
+    "section": {
+      "summary": "Zusammenfassung",
+      "findings": "Befunde",
+      "recommendations": "Empfehlungen",
+      "gaps": "Was herauszufinden ist",
+      "statement": "Monatsauszug"
+    },
+    "report": {
+      "byline": "Erstellt von {firm} mit SYB",
+      "version": "Version {version} · Diagnose-Stufe {grade}",
+      "range": "{low} bis {high} im Monat"
+    },
+    "settings": {
+      "title": "Das Erscheinungsbild deiner Kanzlei",
+      "logo": "Adresse des Logos (https)",
+      "primary": "Hauptfarbe (#rrggbb)",
+      "accent": "Akzentfarbe (#rrggbb)",
+      "domain": "Absenderdomain",
+      "save": "Erscheinungsbild speichern"
+    },
+    "members": {
+      "title": "Menschen in der Kanzlei",
+      "email": "Ihre E-Mail-Adresse",
+      "add": "Hinzufügen"
+    },
+    "role": {
+      "manager": "Manager",
+      "staff": "Mitarbeitende"
+    },
+    "failed": "Das hat nicht geklappt: {why}",
+    "done": "Erledigt.",
+    "mail": {
+      "subject": "{firm} bittet um Zugriff auf dein Unternehmen bei SYB",
+      "intro": "{firm} möchte mit {business} bei SYB arbeiten und bittet darum, Folgendes tun zu dürfen (für dein Unternehmen):",
+      "open": "Um Ja zu sagen, öffne diesen Link. Du brauchst vorher kein Konto:",
+      "after": "Du kannst die Erlaubnis jederzeit mit einem Tippen zurücknehmen und siehst alles, was die Kanzlei tut."
+    }
+  },
+  "mandates": {
+    "meta": {
+      "title": "Kanzleien mit Zugriff"
+    },
+    "kicker": "Kanzleien mit Zugriff",
+    "intro": "Eine Kanzlei erreicht dein Unternehmen nur mit deinem Mandat: was sie tun darf, bis wann, und auf welchem Mandatsvertrag es beruht. Mit einem Tippen nimmst du es zurück. Alles, was eine Kanzlei tut, steht unten.",
+    "none": "Keine Kanzlei hat Zugriff auf dein Unternehmen.",
+    "active": "{firm}, bis {date}",
+    "revoked": "{firm}, zurückgenommen am {date}",
+    "expired": "{firm}, beendet am {date}",
+    "evidence": "Mandatsvertrag: {ref}",
+    "revoke": "Zugriff zurücknehmen",
+    "waiting": "Wartet auf deine Antwort",
+    "grant": "Zugriff erteilen",
+    "activity": "Was Kanzleien getan haben",
+    "activityNone": "Noch nichts.",
+    "activityLine": "{date}: {person} bei {firm}, {what}",
+    "act": {
+      "approve": "hat einem Vorschlag die Freigabe erteilt",
+      "commentary": "hat einen Kommentar geschrieben",
+      "nudge": "hat dich gebeten, etwas zu verbinden",
+      "report": "hat den Bericht mit ihrem Namen geöffnet"
+    },
+    "page": {
+      "title": "{firm} bittet um Zugriff auf das Unternehmen {business}",
+      "intro": "Wenn du Ja sagst, darf {firm}:",
+      "until": "Für {months} Monate, auf Grundlage des Mandatsvertrags {ref}. Du kannst es jederzeit zurücknehmen.",
+      "yes": "Zugriff erteilen",
+      "gone": "Dieser Link ist nicht mehr offen.",
+      "failed": "Das hat nicht geklappt: {why}"
+    },
+    "failed": "Das hat nicht geklappt. Versuch es gleich noch einmal."
   }
 }

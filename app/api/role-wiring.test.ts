@@ -25,6 +25,12 @@ const ROOT = join(process.cwd(), "app", "api");
 /** route file (relative to app/api, forward slashes) → method → why it has no role check. */
 export const ALLOWED: Record<string, Partial<Record<Method, string>>> = {
   "auth/login/route.ts": { POST: "sign-in: asks for a link; nobody is signed in yet" },
+  "partner/route.ts": {
+    POST: "the v1 spec §7: a firm member's actions — firm roles from firm_members and the database's partner_may per client, never a business role",
+  },
+  "mandate/[token]/route.ts": {
+    POST: "the v1 spec §7.6: the client grants from the email; the one-use token proves the address, and they become the business's owner",
+  },
   "entry/route.ts": {
     POST: "the v1 spec §8.2's free entry: no account and no business, so no role; it writes only its own lead",
   },

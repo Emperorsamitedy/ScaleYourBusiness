@@ -434,3 +434,37 @@ screenshot slots for the NAV guide.
   per quarter (idempotent per subscription and quarter), and the dormant
   check only when payments are armed.
 
+## Decisions taken building Phase 6 (2026-11-12)
+
+- **D69 — "enforced at the data layer" is a database function.**
+  `partner_may(user, business, scope)` (migration 0117) is the one test: a
+  live firm member, that firm's mandate for that business, unrevoked,
+  unexpired, the scope in it. Every partner read and action in
+  `lib/partners` puts it in its WHERE or asks it first, and nothing caches
+  its answer, so a revocation applies to the very next request. A trigger
+  lets a granted mandate change in one way only: its revocation, set once.
+- **D70 — partners act as themselves.** A firm member is an ordinary SYB
+  user acting through their own session, never through the client's door.
+  Their firm role (principal, manager, staff) decides what they may do in
+  the console; the client's mandate decides what they may do in the
+  business. Approving a proposal goes through the same decision path as an
+  owner's, logged with actor `partner` and the person's user id (rule 12
+  holds: a named human). Every partner action writes a `partner_action`
+  entry whose reference keeps the firm readable.
+- **D71 — a client grants from the email with no account beforehand.** The
+  emailed link proves the address. With no SYB user for it, the grant makes
+  the business and its owner and signs them in on the connections page. An
+  address that already uses SYB grants from Settings → Firms with access,
+  signed in, for the business it chooses.
+- **D72 — the book's money and order.** A leak's money shows only at
+  Diagnosis Grade A or B, as on the owner's report (§6.2). Money stays per
+  currency; ordering across currencies converts at the stored ECB rate for
+  the sort alone, and no converted figure is shown (D44). The firm-level
+  proof ledger (§7.4) is per quarter and per currency.
+- **D73 — the sender domain is stored, not used yet.** A firm's emails go
+  out from a domain only after it is verified with the email provider;
+  until then SYB's own sender is used and the domain is kept.
+- **D74 — the 30-minute onboarding is a timed test with a person**, like
+  P0-71. The automated part (40 clients imported, asked and emailed in
+  their languages) runs in seconds in the test suite.
+

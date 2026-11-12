@@ -64,7 +64,9 @@
       "payments": "Paiements",
       "ladder": "Ce que je peux faire",
       "statement": "Relevé mensuel",
-      "billing": "Formule et facturation"
+      "billing": "Formule et facturation",
+      "mandates": "Cabinets avec accès",
+      "partner": "Console partenaire"
     },
     "count": {
       "paused": "{count} en pause",
@@ -6060,7 +6062,8 @@
       "phone_recordings": "Seul un propriétaire peut écouter les enregistrements d’appels.",
       "payments_read": "Seul un propriétaire peut voir les paiements et leurs fichiers bancaires.",
       "peers_consent": "Seul un propriétaire peut décider si les chiffres de cette entreprise entrent dans la comparaison avec des entreprises similaires.",
-      "ladder_manage": "Seul un propriétaire peut changer ce que SYB peut faire de lui-même."
+      "ladder_manage": "Seul un propriétaire peut changer ce que SYB peut faire de lui-même.",
+      "mandates_manage": "Seul un propriétaire peut donner ou retirer à un cabinet l’accès à cette entreprise."
     }
   },
   "authWords": {
@@ -9427,5 +9430,152 @@
     },
     "failed": "Cela n’est pas passé. Réessayez dans un instant.",
     "notArmed": "Les paiements ne sont pas encore activés."
+  },
+  "partner": {
+    "meta": {
+      "title": "Console partenaire"
+    },
+    "kicker": "Console partenaire",
+    "noSession": "Connectez-vous d’abord à SYB, avec l’adresse que vous utilisez au cabinet.",
+    "create": {
+      "title": "Créez votre cabinet",
+      "intro": "Un cabinet se place au-dessus des entreprises de vos clients. Vous n’accédez à une entreprise que lorsque son propriétaire accorde un mandat à votre cabinet.",
+      "name": "Nom du cabinet",
+      "country": "Pays",
+      "type": "Type de cabinet",
+      "submit": "Créer le cabinet"
+    },
+    "type": {
+      "accountancy": "Expertise comptable",
+      "bookkeeping": "Tenue de comptes",
+      "marketing_agency": "Agence marketing",
+      "consultancy": "Conseil"
+    },
+    "book": {
+      "title": "Votre portefeuille",
+      "rollup": "Gains vérifiés de vos clients ce trimestre : {amount}.",
+      "clients": "Clients sous mandat : {count}.",
+      "empty": "Aucun client n’a encore accordé de mandat à votre cabinet. Importez vos clients pour le leur demander."
+    },
+    "col": {
+      "client": "Client",
+      "sector": "Secteur",
+      "grade": "Niveau",
+      "leaks": "Fuites ouvertes",
+      "largest": "Plus grande fuite",
+      "verified": "Vérifié ce trimestre",
+      "awaiting": "En attente de validation",
+      "health": "Connexions",
+      "activity": "Dernière activité"
+    },
+    "health": {
+      "healthy": "Fonctionne",
+      "attention": "À vérifier",
+      "failed": "En échec",
+      "none": "Aucune pour l’instant"
+    },
+    "unnamed": "Pas encore nommé",
+    "hidden": "montants à partir du niveau B",
+    "import": {
+      "link": "Importer des clients",
+      "title": "Importez vos clients",
+      "intro": "Un fichier avec le nom de l’entreprise et une adresse e-mail par ligne, ainsi que le pays et la langue si vous les avez. Chaque client reçoit un e-mail dans sa propre langue lui demandant d’accorder un mandat à votre cabinet.",
+      "csv": "Le contenu du fichier (CSV)",
+      "evidence": "Référence de la lettre de mission",
+      "scopes": "Ce que votre cabinet peut faire",
+      "months": "Pendant combien de mois",
+      "submit": "Envoyer les demandes",
+      "done": "Demandés : {requested}. Écartés : {skipped}. E-mails envoyés : {sent}. Non envoyés car l’e-mail n’est pas activé : {notConfigured}. En échec : {failed}."
+    },
+    "scope": {
+      "read_diagnosis": "Lire le diagnostic",
+      "approve_actions": "Donner la validation à ce que SYB suggère",
+      "manage_connectors": "Aider pour les connexions",
+      "receive_reports": "Recevoir les rapports au nom du cabinet"
+    },
+    "client": {
+      "commentary": "Commentaire de votre cabinet",
+      "save": "Enregistrer le commentaire",
+      "saved": "Enregistré",
+      "awaiting": "En attente de validation",
+      "approve": "Donner la validation",
+      "nudge": "Demander au client de relier quelque chose",
+      "nudgeWhat": "Ce qu’il faut relier, par exemple sa caisse",
+      "nudgeSend": "Envoyer la demande",
+      "nudged": "Envoyé dans le SYB du client.",
+      "report": "Ouvrir le rapport au nom de votre cabinet",
+      "noReport": "Pas encore de diagnostic.",
+      "back": "Retour au portefeuille"
+    },
+    "section": {
+      "summary": "Résumé",
+      "findings": "Constats",
+      "recommendations": "Recommandations",
+      "gaps": "Ce qu’il reste à savoir",
+      "statement": "Relevé mensuel"
+    },
+    "report": {
+      "byline": "Préparé par {firm} avec SYB",
+      "version": "Version {version} · niveau de diagnostic {grade}",
+      "range": "de {low} à {high} par mois"
+    },
+    "settings": {
+      "title": "L’identité visuelle de votre cabinet",
+      "logo": "Adresse du logo (https)",
+      "primary": "Couleur principale (#rrggbb)",
+      "accent": "Couleur d’accent (#rrggbb)",
+      "domain": "Domaine d’expédition",
+      "save": "Enregistrer l’identité visuelle"
+    },
+    "members": {
+      "title": "Les personnes du cabinet",
+      "email": "Leur adresse e-mail",
+      "add": "Ajouter"
+    },
+    "role": {
+      "manager": "Gestionnaire",
+      "staff": "Collaborateur"
+    },
+    "failed": "Cela n’a pas fonctionné : {why}",
+    "done": "C’est fait.",
+    "mail": {
+      "subject": "{firm} demande l’accès à votre entreprise sur SYB",
+      "intro": "{firm} souhaite travailler avec {business} sur SYB et demande à pouvoir faire ceci pour votre entreprise :",
+      "open": "Pour dire oui, ouvrez ce lien. Vous n’avez pas besoin de compte au préalable :",
+      "after": "Vous pouvez retirer l’autorisation à tout moment, d’un geste, et vous verrez tout ce que fait le cabinet."
+    }
+  },
+  "mandates": {
+    "meta": {
+      "title": "Cabinets avec accès"
+    },
+    "kicker": "Cabinets avec accès",
+    "intro": "Un cabinet n’accède à votre entreprise qu’avec votre mandat : ce qu’il peut faire, jusqu’à quand, et la lettre de mission sur laquelle il repose. Retirez-le d’un geste. Tout ce que fait un cabinet est listé ci-dessous.",
+    "none": "Aucun cabinet n’a accès à votre entreprise.",
+    "active": "{firm}, jusqu’au {date}",
+    "revoked": "{firm}, retiré le {date}",
+    "expired": "{firm}, terminé le {date}",
+    "evidence": "Lettre de mission : {ref}",
+    "revoke": "Retirer l’accès",
+    "waiting": "En attente de votre réponse",
+    "grant": "Accorder l’accès",
+    "activity": "Ce que les cabinets ont fait",
+    "activityNone": "Rien pour l’instant.",
+    "activityLine": "{date} : {person} chez {firm}, {what}",
+    "act": {
+      "approve": "a donné sa validation à une suggestion",
+      "commentary": "a écrit un commentaire",
+      "nudge": "vous a demandé de relier quelque chose",
+      "report": "a ouvert le rapport à son nom"
+    },
+    "page": {
+      "title": "{firm} demande l’accès à l’entreprise {business}",
+      "intro": "Si vous dites oui, {firm} pourra :",
+      "until": "Pendant {months} mois, sur la base de la lettre de mission {ref}. Vous pouvez le retirer à tout moment.",
+      "yes": "Accorder l’accès",
+      "gone": "Ce lien n’est plus ouvert.",
+      "failed": "Cela n’a pas fonctionné : {why}"
+    },
+    "failed": "Cela n’a pas fonctionné. Réessayez dans un instant."
   }
 }

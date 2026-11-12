@@ -64,7 +64,9 @@
       "payments": "Payments",
       "ladder": "What I may do",
       "statement": "Monthly statement",
-      "billing": "Plan and billing"
+      "billing": "Plan and billing",
+      "mandates": "Firms with access",
+      "partner": "Partner console"
     },
     "count": {
       "paused": "{count} paused",
@@ -6060,7 +6062,8 @@
       "phone_recordings": "Only an owner can listen to call recordings.",
       "payments_read": "Only an owner can see payments and their bank files.",
       "peers_consent": "Only an owner can decide whether this business's figures join the comparison with similar businesses.",
-      "ladder_manage": "Only an owner can change what SYB may do on its own."
+      "ladder_manage": "Only an owner can change what SYB may do on its own.",
+      "mandates_manage": "Only an owner can give or take back a firm's access to this business."
     }
   },
   "authWords": {
@@ -9427,5 +9430,152 @@
     },
     "failed": "That didn't go through. Try again in a moment.",
     "notArmed": "Payments aren't switched on yet."
+  },
+  "partner": {
+    "meta": {
+      "title": "Partner console"
+    },
+    "kicker": "Partner console",
+    "noSession": "Sign in to SYB first, with the address you use at your firm.",
+    "create": {
+      "title": "Set up your firm",
+      "intro": "A firm sits above your clients' businesses. You reach a client only when its owner grants your firm a mandate.",
+      "name": "Firm name",
+      "country": "Country",
+      "type": "What kind of firm",
+      "submit": "Create the firm"
+    },
+    "type": {
+      "accountancy": "Accountancy",
+      "bookkeeping": "Bookkeeping",
+      "marketing_agency": "Marketing agency",
+      "consultancy": "Consultancy"
+    },
+    "book": {
+      "title": "Your book",
+      "rollup": "Verified client gains this quarter: {amount}.",
+      "clients": "Clients with a mandate: {count}.",
+      "empty": "No client has granted your firm a mandate yet. Import your clients to ask them."
+    },
+    "col": {
+      "client": "Client",
+      "sector": "Sector",
+      "grade": "Grade",
+      "leaks": "Open leaks",
+      "largest": "Largest leak",
+      "verified": "Verified this quarter",
+      "awaiting": "Waiting for approval",
+      "health": "Connections",
+      "activity": "Last activity"
+    },
+    "health": {
+      "healthy": "Working",
+      "attention": "Needs a look",
+      "failed": "Failed",
+      "none": "None yet"
+    },
+    "unnamed": "Not named yet",
+    "hidden": "money shown from grade B",
+    "import": {
+      "link": "Import clients",
+      "title": "Import your clients",
+      "intro": "One file with a business name and an email on each row, and the country and language if you have them. Each client gets an email in their own language asking them to grant your firm a mandate.",
+      "csv": "What's in the file (CSV)",
+      "evidence": "Engagement letter reference",
+      "scopes": "What your firm may do",
+      "months": "For how many months",
+      "submit": "Send the requests",
+      "done": "Asked: {requested}. Left out: {skipped}. Emails sent: {sent}. Not sent because email isn't switched on: {notConfigured}. Failed: {failed}."
+    },
+    "scope": {
+      "read_diagnosis": "Read the diagnosis",
+      "approve_actions": "Give approval to what SYB suggests",
+      "manage_connectors": "Help with connections",
+      "receive_reports": "Receive reports with the firm's name"
+    },
+    "client": {
+      "commentary": "Your firm's comment",
+      "save": "Save the comment",
+      "saved": "Saved",
+      "awaiting": "Waiting for approval",
+      "approve": "Give approval",
+      "nudge": "Ask the client to connect something",
+      "nudgeWhat": "What to connect, for example their till",
+      "nudgeSend": "Send the request",
+      "nudged": "Sent to the client's SYB.",
+      "report": "Open the report with your firm's name",
+      "noReport": "No diagnosis yet.",
+      "back": "Back to the book"
+    },
+    "section": {
+      "summary": "Summary",
+      "findings": "Findings",
+      "recommendations": "Recommendations",
+      "gaps": "What to find out",
+      "statement": "Monthly statement"
+    },
+    "report": {
+      "byline": "Prepared by {firm} using SYB",
+      "version": "Version {version} · diagnosis grade {grade}",
+      "range": "{low} to {high} a month"
+    },
+    "settings": {
+      "title": "Your firm's branding",
+      "logo": "Logo address (https)",
+      "primary": "Main colour (#rrggbb)",
+      "accent": "Accent colour (#rrggbb)",
+      "domain": "Sender domain",
+      "save": "Save the branding"
+    },
+    "members": {
+      "title": "People at the firm",
+      "email": "Their email",
+      "add": "Add them"
+    },
+    "role": {
+      "manager": "Manager",
+      "staff": "Staff"
+    },
+    "failed": "That didn't work: {why}",
+    "done": "Done.",
+    "mail": {
+      "subject": "{firm} asks for access to your business on SYB",
+      "intro": "{firm} would like to work with {business} on SYB. They are asking to be allowed to:",
+      "open": "To say yes, open this link. You don't need an account first:",
+      "after": "You can take the permission back at any time, in one tap, and you'll see everything the firm does."
+    }
+  },
+  "mandates": {
+    "meta": {
+      "title": "Firms with access"
+    },
+    "kicker": "Firms with access",
+    "intro": "A firm reaches your business only with your mandate: what it may do, until when, and the engagement letter it rests on. Take it back in one tap. Everything a firm does is listed below.",
+    "none": "No firm has access to your business.",
+    "active": "{firm}, until {date}",
+    "revoked": "{firm}, taken back on {date}",
+    "expired": "{firm}, ended on {date}",
+    "evidence": "Engagement letter: {ref}",
+    "revoke": "Take access back",
+    "waiting": "Waiting for your answer",
+    "grant": "Grant access",
+    "activity": "What firms did",
+    "activityNone": "Nothing yet.",
+    "activityLine": "{date}: {person} at {firm}, {what}",
+    "act": {
+      "approve": "gave approval to a suggestion",
+      "commentary": "wrote a comment",
+      "nudge": "asked you to connect something",
+      "report": "opened the report with their name"
+    },
+    "page": {
+      "title": "{firm} asks for access to {business}",
+      "intro": "If you say yes, {firm} may:",
+      "until": "For {months} months, resting on the engagement letter {ref}. You can take it back at any time.",
+      "yes": "Grant access",
+      "gone": "This link isn't open any more.",
+      "failed": "That didn't work: {why}"
+    },
+    "failed": "That didn't work. Try again in a moment."
   }
 }

@@ -64,7 +64,9 @@
       "payments": "Kifizetések",
       "ladder": "Mit tehetek",
       "statement": "Havi kivonat",
-      "billing": "Csomag és számlázás"
+      "billing": "Csomag és számlázás",
+      "mandates": "Hozzáféréssel rendelkező irodák",
+      "partner": "Partnerkonzol"
     },
     "count": {
       "paused": "{count} szüneteltetve",
@@ -6060,7 +6062,8 @@
       "phone_recordings": "Csak tulajdonos hallgathatja meg a hívásfelvételeket.",
       "payments_read": "Csak tulajdonos láthatja a kifizetéseket és a banki fájljaikat.",
       "peers_consent": "Csak tulajdonos döntheti el, hogy a vállalkozás számai bekerülnek-e a hasonló vállalkozásokkal való összehasonlításba.",
-      "ladder_manage": "Csak tulajdonos módosíthatja, mit tehet a SYB önállóan."
+      "ladder_manage": "Csak tulajdonos módosíthatja, mit tehet a SYB önállóan.",
+      "mandates_manage": "Csak tulajdonos adhat vagy vonhat vissza egy iroda hozzáférését ehhez a vállalkozáshoz."
     }
   },
   "authWords": {
@@ -9427,5 +9430,152 @@
     },
     "failed": "Ez nem ment át. Próbáld újra egy pillanat múlva.",
     "notArmed": "A fizetés még nincs bekapcsolva."
+  },
+  "partner": {
+    "meta": {
+      "title": "Partnerkonzol"
+    },
+    "kicker": "Partnerkonzol",
+    "noSession": "Először bejelentkezés a SYB-be, azzal a címmel, amelyet az irodádban használsz.",
+    "create": {
+      "title": "Az irodád beállítása",
+      "intro": "Egy iroda az ügyfeleid vállalkozásai fölött áll. Egy vállalkozáshoz csak akkor férsz hozzá, ha a tulajdonosa megbízást ad az irodádnak.",
+      "name": "Az iroda neve",
+      "country": "Ország",
+      "type": "Milyen iroda",
+      "submit": "Iroda létrehozása"
+    },
+    "type": {
+      "accountancy": "Könyvvizsgálat és adótanácsadás",
+      "bookkeeping": "Könyvelés",
+      "marketing_agency": "Marketingügynökség",
+      "consultancy": "Tanácsadás"
+    },
+    "book": {
+      "title": "Az ügyfélköröd",
+      "rollup": "Az ügyfelek igazolt nyeresége ebben a negyedévben: {amount}.",
+      "clients": "Megbízással rendelkező ügyfelek: {count}.",
+      "empty": "Még egy ügyfél sem adott megbízást az irodádnak. Importáld az ügyfeleidet, hogy megkérdezd őket."
+    },
+    "col": {
+      "client": "Ügyfél",
+      "sector": "Ágazat",
+      "grade": "Szint",
+      "leaks": "Nyitott szivárgások",
+      "largest": "Legnagyobb szivárgás",
+      "verified": "Igazolva ebben a negyedévben",
+      "awaiting": "Jóváhagyásra vár",
+      "health": "Összekapcsolt fiókok",
+      "activity": "Utolsó tevékenység"
+    },
+    "health": {
+      "healthy": "Működik",
+      "attention": "Át kell nézni",
+      "failed": "Hibás",
+      "none": "Még nincs"
+    },
+    "unnamed": "Még névtelen",
+    "hidden": "összegek B szinttől",
+    "import": {
+      "link": "Ügyfelek importálása",
+      "title": "Ügyfeleid importálása",
+      "intro": "Egy fájl, soronként egy vállalkozás nevével és e-mail-címével, és ha megvan, az országgal és a nyelvvel. Minden ügyfél a saját nyelvén kap e-mailt, amelyben arra kérjük, adjon megbízást az irodádnak.",
+      "csv": "A fájl tartalma (CSV)",
+      "evidence": "A megbízási szerződés hivatkozása",
+      "scopes": "Mit tehet az irodád",
+      "months": "Hány hónapra",
+      "submit": "Kérések elküldése",
+      "done": "Megkérdezve: {requested}. Kihagyva: {skipped}. Elküldött e-mailek: {sent}. Nem küldött, mert az e-mail nincs bekapcsolva: {notConfigured}. Sikertelen: {failed}."
+    },
+    "scope": {
+      "read_diagnosis": "A diagnózis olvasása",
+      "approve_actions": "Jóváhagyás adása arra, amit a SYB javasol",
+      "manage_connectors": "Segítség az összekapcsolt fiókokkal",
+      "receive_reports": "Jelentések az iroda nevével"
+    },
+    "client": {
+      "commentary": "Az irodád megjegyzése",
+      "save": "Megjegyzés mentése",
+      "saved": "Mentve",
+      "awaiting": "Jóváhagyásra vár",
+      "approve": "Jóváhagyás",
+      "nudge": "Kérd meg az ügyfelet, hogy kössön be valamit",
+      "nudgeWhat": "Mit kössön be, például a kasszáját",
+      "nudgeSend": "Kérés elküldése",
+      "nudged": "Elküldve az ügyfél SYB-jébe.",
+      "report": "Jelentés megnyitása az irodád nevével",
+      "noReport": "Még nincs diagnózis.",
+      "back": "Vissza az ügyfélkörhöz"
+    },
+    "section": {
+      "summary": "Összefoglaló",
+      "findings": "Megállapítások",
+      "recommendations": "Javaslatok a teendőkre",
+      "gaps": "Amit ki kell deríteni",
+      "statement": "Havi kivonat"
+    },
+    "report": {
+      "byline": "Készítette: {firm}, a SYB segítségével",
+      "version": "{version}. változat · diagnózis szintje: {grade}",
+      "range": "havi {low} és {high} között"
+    },
+    "settings": {
+      "title": "Az irodád arculata",
+      "logo": "A logó címe (https)",
+      "primary": "Fő szín (#rrggbb)",
+      "accent": "Kiemelő szín (#rrggbb)",
+      "domain": "Küldő domain",
+      "save": "Arculat mentése"
+    },
+    "members": {
+      "title": "Az iroda munkatársai",
+      "email": "Az e-mail-címük",
+      "add": "Hozzáadás"
+    },
+    "role": {
+      "manager": "Menedzser",
+      "staff": "Munkatárs"
+    },
+    "failed": "Ez nem sikerült: {why}",
+    "done": "Kész.",
+    "mail": {
+      "subject": "A(z) {firm} hozzáférést kér a vállalkozásodhoz a SYB-ben",
+      "intro": "A(z) {firm} a SYB-ben szeretne dolgozni a(z) {business} vállalkozással, és engedélyt kér a következőkre:",
+      "open": "Ha igent mondasz, nyisd meg ezt a linket. Előtte nincs szükséged fiókra:",
+      "after": "Az engedélyt bármikor visszavonhatod egyetlen koppintással, és mindent látsz, amit az iroda tesz."
+    }
+  },
+  "mandates": {
+    "meta": {
+      "title": "Hozzáféréssel rendelkező irodák"
+    },
+    "kicker": "Hozzáféréssel rendelkező irodák",
+    "intro": "Egy iroda csak a megbízásoddal fér hozzá a vállalkozásodhoz: mit tehet, meddig, és melyik megbízási szerződésen alapul. Egyetlen koppintással visszavonhatod. Mindent, amit egy iroda tesz, lent látsz.",
+    "none": "Egy iroda sem fér hozzá a vállalkozásodhoz.",
+    "active": "{firm}, eddig: {date}",
+    "revoked": "{firm}, visszavonva: {date}",
+    "expired": "{firm}, lejárt: {date}",
+    "evidence": "Megbízási szerződés: {ref}",
+    "revoke": "Hozzáférés visszavonása",
+    "waiting": "A válaszodra vár",
+    "grant": "Hozzáférés megadása",
+    "activity": "Amit az irodák tettek",
+    "activityNone": "Még semmi.",
+    "activityLine": "{date}: {person} ({firm}): {what}",
+    "act": {
+      "approve": "jóváhagyást adott egy javaslatra",
+      "commentary": "megjegyzést írt",
+      "nudge": "megkért, hogy köss be valamit",
+      "report": "megnyitotta a jelentést a saját nevével"
+    },
+    "page": {
+      "title": "A(z) {firm} hozzáférést kér a(z) {business} vállalkozáshoz",
+      "intro": "Ha igent mondasz, a(z) {firm}:",
+      "until": "{months} hónapra, a(z) {ref} megbízási szerződés alapján. Bármikor visszavonhatod.",
+      "yes": "Hozzáférés megadása",
+      "gone": "Ez a link már nem érvényes.",
+      "failed": "Ez nem sikerült: {why}"
+    },
+    "failed": "Ez nem sikerült. Próbáld újra egy pillanat múlva."
   }
 }

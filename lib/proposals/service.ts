@@ -153,10 +153,13 @@ export async function approveProposal(args: {
   executeNotBefore?: string | null;
   /** Ownership scope: when set, only this profile's proposals decide. */
   profileId?: string;
+  /** v1 spec §7.1: a firm member approving under a mandate is logged as the partner. */
+  actor?: "owner" | "partner";
 }): Promise<ProposalRow> {
   return decide({
     proposalId: args.proposalId,
     userId: args.userId,
+    ...(args.actor ? { actor: args.actor } : {}),
     to: "approved",
     executeNotBefore: args.executeNotBefore ?? (await carriedSchedule(args.proposalId)),
     ...(args.profileId ? { profileId: args.profileId } : {}),
@@ -284,6 +287,7 @@ async function decide(args: {
   reason?: string;
   executeNotBefore?: string | null;
   profileId?: string;
+  actor?: "owner" | "partner";
 }): Promise<ProposalRow> {
   const now = new Date().toISOString();
   return db.transaction(async (tx) => {
@@ -398,7 +402,7 @@ async function decide(args: {
     const kind = LOG_KIND[args.to];
     await tx.insert(decisionLog).values({
       profile_id: row.profile_id,
-      actor: args.userId === null ? "system" : "owner",
+      actor: args.userId === null ? "system" : (args.actor ?? "owner"),
       kind,
       user_id: args.userId,
       ref_id: row.id,

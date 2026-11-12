@@ -64,7 +64,9 @@
       "payments": "Pagos",
       "ladder": "Lo que puedo hacer",
       "statement": "Extracto mensual",
-      "billing": "Plan y facturación"
+      "billing": "Plan y facturación",
+      "mandates": "Firmas con acceso",
+      "partner": "Consola de socios"
     },
     "count": {
       "paused": "{count} en pausa",
@@ -6060,7 +6062,8 @@
       "phone_recordings": "Solo un propietario puede escuchar las grabaciones de llamadas.",
       "payments_read": "Solo un propietario puede ver los pagos y sus archivos bancarios.",
       "peers_consent": "Solo un propietario puede decidir si las cifras de este negocio entran en la comparación con negocios similares.",
-      "ladder_manage": "Solo un propietario puede cambiar lo que SYB puede hacer por su cuenta."
+      "ladder_manage": "Solo un propietario puede cambiar lo que SYB puede hacer por su cuenta.",
+      "mandates_manage": "Solo un propietario puede dar o retirar a una firma el acceso a este negocio."
     }
   },
   "authWords": {
@@ -9427,5 +9430,152 @@
     },
     "failed": "No se ha completado. Inténtalo de nuevo en un momento.",
     "notArmed": "Los pagos aún no están activados."
+  },
+  "partner": {
+    "meta": {
+      "title": "Consola de socios"
+    },
+    "kicker": "Consola de socios",
+    "noSession": "Inicia sesión en SYB primero, con la dirección que usas en tu firma.",
+    "create": {
+      "title": "Configura tu firma",
+      "intro": "Una firma está por encima de los negocios de tus clientes. Solo accedes a un negocio cuando su propietario concede un mandato a tu firma.",
+      "name": "Nombre de la firma",
+      "country": "País",
+      "type": "Qué tipo de firma",
+      "submit": "Crear la firma"
+    },
+    "type": {
+      "accountancy": "Asesoría contable",
+      "bookkeeping": "Teneduría de libros",
+      "marketing_agency": "Agencia de marketing",
+      "consultancy": "Consultoría"
+    },
+    "book": {
+      "title": "Tu cartera",
+      "rollup": "Ganancias verificadas de tus clientes este trimestre: {amount}.",
+      "clients": "Clientes con mandato: {count}.",
+      "empty": "Ningún cliente ha concedido aún un mandato a tu firma. Importa tus clientes para pedírselo."
+    },
+    "col": {
+      "client": "Cliente",
+      "sector": "Sector",
+      "grade": "Grado",
+      "leaks": "Fugas abiertas",
+      "largest": "Mayor fuga",
+      "verified": "Verificado este trimestre",
+      "awaiting": "Esperando aprobación",
+      "health": "Conexiones",
+      "activity": "Última actividad"
+    },
+    "health": {
+      "healthy": "Funciona",
+      "attention": "Hay que revisarlo",
+      "failed": "Falló",
+      "none": "Ninguna aún"
+    },
+    "unnamed": "Aún sin nombre",
+    "hidden": "importes desde el grado B",
+    "import": {
+      "link": "Importar clientes",
+      "title": "Importa tus clientes",
+      "intro": "Un archivo con el nombre del negocio y un correo en cada fila, y el país y el idioma si los tienes. Cada cliente recibe un correo en su propio idioma pidiéndole que conceda un mandato a tu firma.",
+      "csv": "El contenido del archivo (CSV)",
+      "evidence": "Referencia de la carta de encargo",
+      "scopes": "Qué puede hacer tu firma",
+      "months": "Durante cuántos meses",
+      "submit": "Enviar las solicitudes",
+      "done": "Solicitados: {requested}. Omitidos: {skipped}. Correos enviados: {sent}. No enviados porque el correo no está activado: {notConfigured}. Fallidos: {failed}."
+    },
+    "scope": {
+      "read_diagnosis": "Leer el diagnóstico",
+      "approve_actions": "Dar la aprobación a lo que SYB sugiere",
+      "manage_connectors": "Ayudar con las conexiones",
+      "receive_reports": "Recibir informes con el nombre de la firma"
+    },
+    "client": {
+      "commentary": "Comentario de tu firma",
+      "save": "Guardar el comentario",
+      "saved": "Guardado",
+      "awaiting": "Esperando aprobación",
+      "approve": "Dar la aprobación",
+      "nudge": "Pedir al cliente que conecte algo",
+      "nudgeWhat": "Qué conectar, por ejemplo su caja",
+      "nudgeSend": "Enviar la petición",
+      "nudged": "Enviado al SYB del cliente.",
+      "report": "Abrir el informe con el nombre de tu firma",
+      "noReport": "Aún no hay diagnóstico.",
+      "back": "Volver a la cartera"
+    },
+    "section": {
+      "summary": "Resumen",
+      "findings": "Hallazgos",
+      "recommendations": "Recomendaciones",
+      "gaps": "Qué averiguar",
+      "statement": "Extracto mensual"
+    },
+    "report": {
+      "byline": "Preparado por {firm} con SYB",
+      "version": "Versión {version} · grado de diagnóstico {grade}",
+      "range": "de {low} a {high} al mes"
+    },
+    "settings": {
+      "title": "La imagen de tu firma",
+      "logo": "Dirección del logotipo (https)",
+      "primary": "Color principal (#rrggbb)",
+      "accent": "Color de acento (#rrggbb)",
+      "domain": "Dominio del remitente",
+      "save": "Guardar la imagen"
+    },
+    "members": {
+      "title": "Personas de la firma",
+      "email": "Su correo",
+      "add": "Añadir"
+    },
+    "role": {
+      "manager": "Gestor",
+      "staff": "Personal"
+    },
+    "failed": "No ha funcionado: {why}",
+    "done": "Hecho.",
+    "mail": {
+      "subject": "{firm} pide acceso a tu negocio en SYB",
+      "intro": "{firm} quiere trabajar con {business} en SYB y pide permiso para lo siguiente en tu negocio:",
+      "open": "Para decir que sí, abre este enlace. No necesitas una cuenta antes:",
+      "after": "Puedes retirar el permiso cuando quieras, con un toque, y verás todo lo que hace la firma."
+    }
+  },
+  "mandates": {
+    "meta": {
+      "title": "Firmas con acceso"
+    },
+    "kicker": "Firmas con acceso",
+    "intro": "Una firma solo accede a tu negocio con tu mandato: qué puede hacer, hasta cuándo y en qué carta de encargo se basa. Retíralo con un toque. Todo lo que hace una firma aparece abajo.",
+    "none": "Ninguna firma tiene acceso a tu negocio.",
+    "active": "{firm}, hasta el {date}",
+    "revoked": "{firm}, retirado el {date}",
+    "expired": "{firm}, terminado el {date}",
+    "evidence": "Carta de encargo: {ref}",
+    "revoke": "Retirar el acceso",
+    "waiting": "Esperando tu respuesta",
+    "grant": "Conceder acceso",
+    "activity": "Lo que hicieron las firmas",
+    "activityNone": "Nada aún.",
+    "activityLine": "{date}: {person} de {firm}, {what}",
+    "act": {
+      "approve": "dio la aprobación a una sugerencia",
+      "commentary": "escribió un comentario",
+      "nudge": "te pidió que conectaras algo",
+      "report": "abrió el informe con su nombre"
+    },
+    "page": {
+      "title": "{firm} pide acceso al negocio {business}",
+      "intro": "Si dices que sí, {firm} podrá:",
+      "until": "Durante {months} meses, basado en la carta de encargo {ref}. Puedes retirarlo cuando quieras.",
+      "yes": "Conceder acceso",
+      "gone": "Este enlace ya no está abierto.",
+      "failed": "No ha funcionado: {why}"
+    },
+    "failed": "No ha funcionado. Inténtalo de nuevo en un momento."
   }
 }

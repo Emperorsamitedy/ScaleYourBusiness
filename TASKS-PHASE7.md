@@ -129,12 +129,15 @@ lib/billing/lifecycle.test.ts). Decisions D62–D68.
 
 ## Phase 6 — Partner Console (§7)
 
-- [ ] **P7-80** Firm, firm member, mandate, rollup — access only via an
+- [x] **P7-80** Firm, firm member, mandate, rollup — access only via an
       active mandate, enforced at the data layer
-- [ ] **P7-81** Book view sorted by leak size; white-label; commentary blocks
-- [ ] **P7-82** Bulk onboarding of 40 clients
+- [x] **P7-81** Book view sorted by leak size; white-label; commentary blocks
+- [x] **P7-82** Bulk onboarding of 40 clients (the import, the emails and the
+      grant are built and tested; the 30-minute run is a timed test with a person, D74)
 
 **Gate:** no partner access without an active mandate; 40 clients < 30 min.
+**Passed 2026-11-12** for the mandate (lib/partners/partners.test.ts); the
+40-client timing waits on a person's timed run. Decisions D69–D74.
 
 ## Phase 7 — Growth engine (§10)
 
