@@ -49,6 +49,8 @@ export const PUBLIC: Record<string, string> = {
   "cron/weekly-watch/route.ts": "Vercel cron, CRON_SECRET",
   "debug-sentry/route.ts": "throws on purpose, SENTRY_TEST_KEY",
   "email/events/route.ts": "Resend webhook, Svix-signed",
+  "entry/route.ts":
+    "the v1 spec §8.2's free entry: no account by design; same-origin, capped per hashed address",
   "ledger/verify/route.ts":
     "the v1 spec §3.5's public chain check; reads no business, rate-limited",
   "ops/route.ts": "operator panel, OPS_KEY",

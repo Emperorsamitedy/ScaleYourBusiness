@@ -1,0 +1,2 @@
+DROP INDEX "subscriptions_stripe_idx";--> statement-breakpoint
+CREATE UNIQUE INDEX "subscriptions_stripe_idx" ON "subscriptions" USING btree ("stripe_subscription_id") WHERE "subscriptions"."stripe_subscription_id" is not null and "subscriptions"."status" <> 'canceled';

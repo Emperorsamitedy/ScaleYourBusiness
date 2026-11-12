@@ -87,12 +87,22 @@ function paymentsArmed(): boolean {
 async function tierCeiling(profileId: string): Promise<Station> {
   if (!paymentsArmed()) return 4;
   const [sub] = await db
-    .select({ tier: subscriptions.tier })
+    .select({ tier: subscriptions.tier, parent: subscriptions.parent_subscription_id })
     .from(subscriptions)
     .where(and(eq(subscriptions.profile_id, profileId), eq(subscriptions.status, "active")))
     .limit(1);
   // No subscription: the station-3 behaviour every business had before (D18, D49).
-  return sub ? (TIER_CEILING[sub.tier] ?? 3) : 3;
+  if (!sub) return 3;
+  // §8.3: an extra business is on its parent's tier; with no live parent, Watch's.
+  if (sub.tier === "extra_business") {
+    if (!sub.parent) return TIER_CEILING.watch!;
+    const [parent] = await db
+      .select({ tier: subscriptions.tier })
+      .from(subscriptions)
+      .where(and(eq(subscriptions.id, sub.parent), eq(subscriptions.status, "active")));
+    return parent ? (TIER_CEILING[parent.tier] ?? TIER_CEILING.watch!) : TIER_CEILING.watch!;
+  }
+  return TIER_CEILING[sub.tier] ?? 3;
 }
 
 /** Every ceiling over this business: its segment's and its tier's. */

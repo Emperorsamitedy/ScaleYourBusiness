@@ -394,3 +394,43 @@ screenshot slots for the NAV guide.
   multi-market resolver's neighbour rung (§D.1) stays as it is for its own
   callers.
 
+## Decisions taken building Phase 5 (2026-11-12)
+
+- **D62 — the free entry calls no model.** §8.2's six questions are
+  answered from data (`specs/entry-v1.json`): sector, country, a monthly
+  revenue band (§5.1's yearly bands ÷ 12), headcount, one channel question,
+  and one operations question chosen by sector group. The one leak is the
+  first rule that holds, priced as the band's midpoint × a low and a high
+  rate. Every rate is SYB's rule of thumb, labelled grade D and "your
+  estimate", with the rate shown, for the owner to correct. The euro range
+  is in euro, as §8.1 says. The peer comparison is revenue per person from
+  the live cohort, in euro only. The lead keeps the answers and the result,
+  never a person; the share token keeps the referral chain (§5.6).
+- **D63 — "rolls forward" means the window grows.** A quarter with fewer
+  than 8 closed plans pays nothing out, and the next evaluation covers both
+  quarters and both quarters' fees, until a quarter reaches 8. A credit is
+  always one quarter's fee ("the next quarter is free").
+- **D64 — the €49 credit is a one-time coupon on the first invoice**, at
+  most that invoice's amount, created for that subscription only. It is
+  recorded as a deferred credit when the diagnosis is paid and marked
+  applied when the first invoice is paid. A credit in another currency than
+  the subscription's is never converted: it waits for a person.
+- **D65 — a downgrade is a new locked row.** The price lock covers the tier,
+  so moving to Watch closes the current row and locks a new one at Watch's
+  price on the same Stripe subscription, with no proration.
+- **D66 — dormant means silence, not failure.** An active plan whose
+  connected measuring connectors have sent nothing for 45 days has its
+  collection paused (Stripe `pause_collection`, invoices voided), and the
+  owner is told. A failed connector is a connector problem, not dormancy.
+  Billing starts again only when the owner says so.
+- **D67 — the guarantee is reproducible outside the application.** Each
+  evaluation stores the standing ledger entries it read, with their chain
+  hashes, and the SHA-256 of its canonical inputs. `scripts/verify-guarantee.mjs`
+  (Node built-ins only) recomputes the outcome from an export and checks
+  the hash. The credit is a negative customer balance on Stripe; with
+  payments unarmed it stays pending, and that is said.
+- **D68 — an extra business takes its parent's ladder ceiling**, and Watch's
+  when its parent isn't live. Jobs ride the weekly beat: the guarantee once
+  per quarter (idempotent per subscription and quarter), and the dormant
+  check only when payments are armed.
+

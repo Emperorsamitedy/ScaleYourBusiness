@@ -115,14 +115,17 @@ attack can't isolate a business.
 
 ## Phase 5 — Entry funnel and pricing (§8)
 
-- [ ] **P7-70** One-number entry: 6 questions, no account, result in < 10 s
-- [ ] **P7-71** Tiers Watch / Act / Autonomous, extra business, annual −20%
-- [ ] **P7-72** €49 diagnosis credited against month 1 on the first invoice
-- [ ] **P7-73** Stripe subscription lifecycle, dunning, cancellation flow
-- [ ] **P7-74** The quarterly guarantee job, from the ledger alone
+- [x] **P7-70** One-number entry: 6 questions, no account, result in < 10 s
+- [x] **P7-71** Tiers Watch / Act / Autonomous, extra business, annual −20%
+- [x] **P7-72** €49 diagnosis credited against month 1 on the first invoice
+- [x] **P7-73** Stripe subscription lifecycle, dunning, cancellation flow
+      (built and tested against a stand-in Stripe; armed when the keys exist)
+- [x] **P7-74** The quarterly guarantee job, from the ledger alone
 
 **Gate:** free entry < 10 s with no account; the guarantee computes from the
 ledger alone.
+**Passed 2026-11-12** (lib/entry/one-number.test.ts, lib/billing/guarantee-run.test.ts,
+lib/billing/lifecycle.test.ts). Decisions D62–D68.
 
 ## Phase 6 — Partner Console (§7)
 

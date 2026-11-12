@@ -4966,9 +4966,35 @@ export const subscriptions = pgTable(
       .defaultNow(),
     /** §B.3: billing and VAT country disagree — a person reviews before the cheaper rate applies. */
     needs_review: boolean("needs_review").notNull().default(false),
+    /**
+     * incomplete (checkout not finished) · active · past_due (a payment
+     * failed, Stripe retrying) · unpaid · paused (§8.5 dormant: billing
+     * stopped by SYB) · canceled. Only "active" carries the tier's ceiling.
+     */
     status: text("status").notNull().default("active"),
+    /** §8.3: "month", or "year" at 20 % off. */
+    billing_interval: text("billing_interval").notNull().default("month"),
+    stripe_customer_id: text("stripe_customer_id"),
+    stripe_subscription_id: text("stripe_subscription_id"),
+    checkout_session_id: text("checkout_session_id"),
+    current_period_end: timestamp("current_period_end", { withTimezone: true, mode: "string" }),
+    cancel_at_period_end: boolean("cancel_at_period_end").notNull().default(false),
+    canceled_at: timestamp("canceled_at", { withTimezone: true, mode: "string" }),
+    past_due_since: timestamp("past_due_since", { withTimezone: true, mode: "string" }),
+    /** Why billing is paused, when it is ("dormant"). */
+    paused_reason: text("paused_reason"),
+    /** §8.3: an extra business bills at the extra rate on its parent's tier. */
+    parent_subscription_id: uuid("parent_subscription_id"),
   },
-  (t) => [index("subscriptions_profile_idx").on(t.profile_id)],
+  (t) => [
+    index("subscriptions_profile_idx").on(t.profile_id),
+    // One live row per Stripe subscription: a downgrade closes the old row and
+    // locks a new one at the new tier (the price lock covers the tier).
+    uniqueIndex("subscriptions_stripe_idx")
+      .on(t.stripe_subscription_id)
+      .where(sql`${t.stripe_subscription_id} is not null and ${t.status} <> 'canceled'`),
+    check("subscriptions_interval", sql`${t.billing_interval} in ('month', 'year')`),
+  ],
 );
 
 export const quotaMetric = pgEnum("quota_metric", [
@@ -5257,4 +5283,126 @@ export const leakEvents = pgTable("leak_events", {
   by: uuid("by"),
   note: text("note"),
   at: timestamp("at", { withTimezone: true, mode: "string" }).notNull().defaultNow(),
+});
+
+// ---------------------------------------------------------------------------
+// The entry funnel and the subscription lifecycle — the v1 build spec §8
+// (Phase 7, P7-70..74).
+
+/**
+ * §8.1 stage 1: the free one-number entry's lead record. No account and no
+ * personal data — the six answers, the result shown, the language, and the
+ * shared result it came from (the referral chain, §5.6). `token` is the
+ * share link's key.
+ */
+export const entryLeads = pgTable(
+  "entry_leads",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    token: text("token").notNull(),
+    answers: jsonb("answers").notNull(),
+    result: jsonb("result").notNull(),
+    locale: text("locale").notNull(),
+    referred_by: uuid("referred_by"),
+    created_at: timestamp("created_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [uniqueIndex("entry_leads_token").on(t.token), index("entry_leads_ref").on(t.referred_by)],
+);
+
+/**
+ * §8.1 stage 2: the €49 diagnosis is deferred revenue against month 1, not a
+ * sale. One row per paid diagnosis: deferred until the first subscription
+ * invoice carries it as a credit line, then applied. A credit in another
+ * currency than the subscription's is never converted: it waits for a person.
+ */
+export const diagnosisCredits = pgTable(
+  "diagnosis_credits",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    profile_id: uuid("profile_id")
+      .notNull()
+      .references(() => businessProfiles.id, { onDelete: "cascade" }),
+    payment_id: uuid("payment_id").notNull(),
+    amount_minor: bigint("amount_minor", { mode: "number" }).notNull(),
+    currency: text("currency").notNull(),
+    /** deferred · applied · needs_review */
+    status: text("status").notNull().default("deferred"),
+    subscription_id: uuid("subscription_id"),
+    stripe_coupon_id: text("stripe_coupon_id"),
+    applied_invoice_id: text("applied_invoice_id"),
+    created_at: timestamp("created_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+    applied_at: timestamp("applied_at", { withTimezone: true, mode: "string" }),
+  },
+  (t) => [
+    uniqueIndex("diagnosis_credits_payment").on(t.payment_id),
+    check("diagnosis_credits_status", sql`${t.status} in ('deferred', 'applied', 'needs_review')`),
+    check("diagnosis_credits_amount", sql`${t.amount_minor} > 0`),
+  ],
+);
+
+/**
+ * §8.4: one evaluation per subscription per quarter, append-only. It keeps
+ * the exact ledger entries it read (ids and their chain hashes), the fee,
+ * and the result, so an auditor can recompute it from the ledger alone
+ * (scripts/verify-guarantee.mjs).
+ */
+export const guaranteeEvaluations = pgTable(
+  "guarantee_evaluations",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    subscription_id: uuid("subscription_id").notNull(),
+    profile_id: uuid("profile_id")
+      .notNull()
+      .references(() => businessProfiles.id, { onDelete: "cascade" }),
+    /** "2026-Q4" */
+    quarter: text("quarter").notNull(),
+    tier: text("tier").notNull(),
+    fee_minor: bigint("fee_minor", { mode: "number" }).notNull(),
+    currency: text("currency").notNull(),
+    /** The standing ledger entries read: { id, plan_id, entry_hash, … }. */
+    entries: jsonb("entries").notNull(),
+    result: jsonb("result").notNull(),
+    /** SHA-256 of the canonical inputs (tier, fee, entries). */
+    inputs_hash: text("inputs_hash").notNull(),
+    created_at: timestamp("created_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [uniqueIndex("guarantee_evaluations_quarter").on(t.subscription_id, t.quarter)],
+);
+
+/** §8.4's credit ledger: a shortfall's credit, applied without the owner asking. */
+export const guaranteeCredits = pgTable(
+  "guarantee_credits",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    evaluation_id: uuid("evaluation_id").notNull(),
+    subscription_id: uuid("subscription_id").notNull(),
+    amount_minor: bigint("amount_minor", { mode: "number" }).notNull(),
+    currency: text("currency").notNull(),
+    /** pending (payments not armed, or Stripe refused) · applied */
+    status: text("status").notNull().default("pending"),
+    stripe_ref: text("stripe_ref"),
+    created_at: timestamp("created_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+    applied_at: timestamp("applied_at", { withTimezone: true, mode: "string" }),
+  },
+  (t) => [
+    uniqueIndex("guarantee_credits_evaluation").on(t.evaluation_id),
+    check("guarantee_credits_status", sql`${t.status} in ('pending', 'applied')`),
+  ],
+);
+
+/** Stripe events already handled — a redelivery changes nothing. */
+export const billingEvents = pgTable("billing_events", {
+  stripe_event_id: text("stripe_event_id").primaryKey(),
+  type: text("type").notNull(),
+  received_at: timestamp("received_at", { withTimezone: true, mode: "string" })
+    .notNull()
+    .defaultNow(),
 });

@@ -25,6 +25,9 @@ const ROOT = join(process.cwd(), "app", "api");
 /** route file (relative to app/api, forward slashes) → method → why it has no role check. */
 export const ALLOWED: Record<string, Partial<Record<Method, string>>> = {
   "auth/login/route.ts": { POST: "sign-in: asks for a link; nobody is signed in yet" },
+  "entry/route.ts": {
+    POST: "the v1 spec §8.2's free entry: no account and no business, so no role; it writes only its own lead",
+  },
   "auth/redeem/route.ts": { POST: "sign-in: redeems a link; nobody is signed in yet" },
   "auth/logout/route.ts": { POST: "ends this browser's own session; changes no business" },
   "auth/oauth/[provider]/callback/route.ts": { POST: "sign-in: the provider proves the email" },

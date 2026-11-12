@@ -63,7 +63,8 @@
       "language": "Language and currency",
       "payments": "Payments",
       "ladder": "What I may do",
-      "statement": "Monthly statement"
+      "statement": "Monthly statement",
+      "billing": "Plan and billing"
     },
     "count": {
       "paused": "{count} paused",
@@ -6037,7 +6038,7 @@
       "alerts_subscribe": "Only an owner or a manager can get phone alerts for proposals.",
       "connections_manage": "Only an owner can connect or disconnect accounts.",
       "write_access_manage": "Only an owner can grant or take back write access.",
-      "billing_manage": "Only an owner can pay for the report.",
+      "billing_manage": "Only an owner can pay for the report and manage the plan.",
       "erasure_run": "Only an owner can erase a customer's details.",
       "data_import": "Only an owner can import a file of customers, stock or bookings.",
       "team_manage": "Only an owner can invite, change or remove people on the team.",
@@ -9241,5 +9242,190 @@
       "start": "Contribute again",
       "failed": "That didn't save. Try again in a moment."
     }
+  },
+  "entry": {
+    "meta": {
+      "title": "Free check"
+    },
+    "kicker": "Free check · no account",
+    "title": "One number about your business, in three minutes",
+    "intro": "Six questions. No account, nothing to connect, nothing to install. You get one leak with its likely size, and how you compare with similar businesses.",
+    "q": {
+      "sector": "What kind of business is it?",
+      "country": "Which country is it in?",
+      "revenue_band": "Roughly how much comes in a month?",
+      "employees": "How many people work there, you included?",
+      "channel": "Where do most new customers find you?"
+    },
+    "pick": "Choose…",
+    "band": {
+      "under_4k": "under {to}",
+      "4k_12k": "{from} to {to}",
+      "12k_42k": "{from} to {to}",
+      "42k_125k": "{from} to {to}",
+      "125k_417k": "{from} to {to}",
+      "over_417k": "over {from}"
+    },
+    "channel": {
+      "word_of_mouth": "Word of mouth and passers-by",
+      "search_maps": "Google search and maps",
+      "social": "Social media",
+      "paid_ads": "Paid ads",
+      "marketplace": "A marketplace or booking platform"
+    },
+    "ops": {
+      "buying": {
+        "question": "How do you decide how much food and drink to buy?",
+        "from_records": "From records of what sold",
+        "by_feel": "By feel and experience"
+      },
+      "reminders": {
+        "question": "Do people get a reminder before their appointment?",
+        "automatic": "Yes, automatically",
+        "sometimes": "Sometimes, by hand",
+        "never": "No"
+      },
+      "slow_stock": {
+        "question": "Do you know which products haven't sold in the last three months?",
+        "know_exactly": "Yes, exactly",
+        "roughly": "Roughly",
+        "no_idea": "No"
+      },
+      "invoicing": {
+        "question": "How soon after a job do you send the invoice?",
+        "same_day": "The same day",
+        "within_week": "Within a week",
+        "later": "Later than that"
+      }
+    },
+    "submit": "Show my number",
+    "working": "Working it out…",
+    "failed": "That didn't work. Check the answers and try again.",
+    "tooMany": "Too many checks from here in the last hour. Try again later.",
+    "leak": {
+      "no_shows": "Missed appointments",
+      "food_waste": "Food and drink bought and thrown away",
+      "slow_stock": "Money tied up in products that don't sell",
+      "late_invoicing": "Money arriving late because the invoice goes out late",
+      "untracked_ads": "Ad spend that can't be traced to sales",
+      "one_channel": "Relying on one way of being found",
+      "price_drift": "Prices that haven't kept up with costs"
+    },
+    "result": {
+      "label": "Your number",
+      "range": "{low} to {high} a month",
+      "grade": "Grade D · your estimate",
+      "basis": "A rule of thumb: {low} to {high} of a month's revenue, for the band you chose. Nothing here is measured yet."
+    },
+    "measure": {
+      "bookings": "To measure it: connect your booking system, and SYB counts the missed appointments instead of estimating them.",
+      "sales_and_purchases": "To measure it: connect your till and your purchases, and SYB sets what was bought against what was sold.",
+      "stock": "To measure it: connect your shop, and SYB finds the products that haven't sold.",
+      "invoices": "To measure it: connect your invoicing, and SYB measures how long money takes to arrive.",
+      "ads_and_sales": "To measure it: connect your ads and your sales, and SYB traces the spend to what it sold.",
+      "sales": "To measure it: connect your sales system, and SYB measures it instead of estimating."
+    },
+    "peer": {
+      "label": "Similar businesses",
+      "served": "Revenue per person at {count} similar businesses: typically {p50}, the middle half {p25} to {p75}. Your estimate: {own}.",
+      "notEnough": "Not enough comparable businesses yet. We'll show this as soon as there are."
+    },
+    "share": "Share this result",
+    "copied": "Link copied",
+    "again": "Check another business",
+    "invite": "Check your own business: six questions, free, no account.",
+    "next": "Want it measured? The full diagnosis connects one system and ranks every leak it finds.",
+    "sharedLabel": "A shared result",
+    "missing": "That result isn't here."
+  },
+  "pricing": {
+    "meta": {
+      "title": "Plans"
+    },
+    "kicker": "Plans",
+    "title": "Pay for what SYB may do",
+    "intro": "Every plan starts with a shadow month: SYB shows what it would have done, scored, and changes nothing.",
+    "interval": {
+      "month": "Monthly",
+      "year": "Yearly, a fifth off"
+    },
+    "perMonth": "{amount} a month",
+    "perYear": "{amount} a year",
+    "tier": {
+      "watch": "Watch",
+      "act": "Act",
+      "autonomous": "Autonomous",
+      "extra_business": "Extra business"
+    },
+    "what": {
+      "watch": "Watching your numbers, a fresh diagnosis every month, how you compare with similar businesses, alerts, the monthly statement and shadow scoring.",
+      "act": "Everything in Watch, and SYB carries out what you say yes to: posts, ads, the words on your site, stock and bookings.",
+      "autonomous": "Everything in Act, and SYB acts on its own within the limits you set, your ads included, with the guarantee.",
+      "extra_business": "One more business, on the same plan as the first."
+    },
+    "ceiling": "Goes up to step {station} of what SYB may do",
+    "guarantee": "The guarantee, on Autonomous only: if the ledger doesn't show at least three times your fee in verified money over a quarter, the next quarter is free. SYB checks and credits it itself.",
+    "noGuarantee": "No guarantee on this plan: SYB doesn't act on its own here, so it doesn't promise an outcome.",
+    "credit": "Paid for a diagnosis? It comes off your first invoice.",
+    "choose": "Choose {tier}",
+    "signIn": "Sign in to choose a plan.",
+    "notArmed": "Payments aren't switched on yet. Nothing can be charged until they are.",
+    "failed": "That didn't start. Try again in a moment.",
+    "free": "Not sure yet? Try the free check: one number, no account."
+  },
+  "billing": {
+    "meta": {
+      "title": "Plan and billing"
+    },
+    "kicker": "Plan and billing",
+    "none": "No plan yet.",
+    "plans": "See the plans",
+    "tier": {
+      "watch": "Watch",
+      "act": "Act",
+      "autonomous": "Autonomous",
+      "extra_business": "Extra business"
+    },
+    "priceMonth": "{amount} a month",
+    "priceYear": "{amount} a year",
+    "status": {
+      "active": "Active",
+      "past_due": "A payment failed. Stripe will try again; update the card to be sure.",
+      "unpaid": "Unpaid",
+      "paused": "Billing paused",
+      "incomplete": "Waiting for the first payment",
+      "canceled": "Ended"
+    },
+    "renews": "Renews on {date}.",
+    "ends": "Ends on {date}.",
+    "verified": "Verified by the ledger so far: {amount}.",
+    "progress": "{verified} verified this quarter against a {fee} fee: {ratio}. The threshold is three times.",
+    "progressRolled": "Fewer than eight closed measurements this quarter so far. Below that, the guarantee rolls forward into the next quarter.",
+    "updateCard": "Update the card",
+    "downgrade": {
+      "offer": "Before you cancel: Watch keeps the watching, the monthly diagnosis and the statement, for {amount}.",
+      "button": "Move to Watch"
+    },
+    "cancel": {
+      "button": "Cancel the plan",
+      "stops": "If you cancel, these stop at the end of the period: {list}.",
+      "confirm": "Cancel at the end of the period",
+      "keep": "Keep the plan",
+      "done": "Cancelled. Everything carries on until the end of the period."
+    },
+    "stop": {
+      "watching": "watching your numbers",
+      "diagnosis": "the monthly diagnosis",
+      "statement": "the monthly statement",
+      "acting": "carrying out what you say yes to",
+      "limits": "acting within your limits",
+      "guarantee": "the guarantee"
+    },
+    "resume": {
+      "paused": "Billing is paused: nothing has come in from your connections for weeks, so SYB stopped charging. Start again whenever you're back.",
+      "button": "Start billing again"
+    },
+    "failed": "That didn't go through. Try again in a moment.",
+    "notArmed": "Payments aren't switched on yet."
   }
 }

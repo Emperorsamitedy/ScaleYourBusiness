@@ -63,7 +63,8 @@
       "language": "Langue et devise",
       "payments": "Paiements",
       "ladder": "Ce que je peux faire",
-      "statement": "Relevé mensuel"
+      "statement": "Relevé mensuel",
+      "billing": "Formule et facturation"
     },
     "count": {
       "paused": "{count} en pause",
@@ -6037,7 +6038,7 @@
       "alerts_subscribe": "Seul un propriétaire ou un gestionnaire peut recevoir des alertes sur téléphone pour les propositions.",
       "connections_manage": "Seul un propriétaire peut connecter ou déconnecter des comptes.",
       "write_access_manage": "Seul un propriétaire peut accorder ou retirer l’accès en écriture.",
-      "billing_manage": "Seul un propriétaire peut payer le rapport.",
+      "billing_manage": "Seul un propriétaire peut payer le rapport et gérer la formule.",
       "erasure_run": "Seul un propriétaire peut effacer les coordonnées d’un client.",
       "data_import": "Seul un propriétaire peut importer un fichier de clients, de stock ou de réservations.",
       "team_manage": "Seul un propriétaire peut inviter, modifier ou retirer des personnes de l’équipe.",
@@ -9241,5 +9242,190 @@
       "start": "Contribuer à nouveau",
       "failed": "Ce n’a pas été enregistré. Réessayez dans un instant."
     }
+  },
+  "entry": {
+    "meta": {
+      "title": "Bilan gratuit"
+    },
+    "kicker": "Bilan gratuit · sans compte",
+    "title": "Un chiffre sur votre entreprise, en trois minutes",
+    "intro": "Six questions. Pas de compte, rien à relier, rien à installer. Vous obtenez une fuite avec sa taille probable, et votre position face à des entreprises semblables.",
+    "q": {
+      "sector": "Quel type d’entreprise est-ce ?",
+      "country": "Dans quel pays est-elle ?",
+      "revenue_band": "Combien entre-t-il à peu près par mois ?",
+      "employees": "Combien de personnes y travaillent, vous compris ?",
+      "channel": "Où la plupart des nouveaux clients vous trouvent-ils ?"
+    },
+    "pick": "Choisir…",
+    "band": {
+      "under_4k": "moins de {to}",
+      "4k_12k": "de {from} à {to}",
+      "12k_42k": "de {from} à {to}",
+      "42k_125k": "de {from} à {to}",
+      "125k_417k": "de {from} à {to}",
+      "over_417k": "plus de {from}"
+    },
+    "channel": {
+      "word_of_mouth": "Le bouche-à-oreille et les passants",
+      "search_maps": "La recherche et les cartes Google",
+      "social": "Les réseaux sociaux",
+      "paid_ads": "Les publicités payantes",
+      "marketplace": "Une place de marché ou une plateforme de réservation"
+    },
+    "ops": {
+      "buying": {
+        "question": "Comment décidez-vous de la quantité de nourriture et de boissons à acheter ?",
+        "from_records": "D’après les relevés de ce qui s’est vendu",
+        "by_feel": "Au jugé, par expérience"
+      },
+      "reminders": {
+        "question": "Les gens reçoivent-ils un rappel avant leur rendez-vous ?",
+        "automatic": "Oui, automatiquement",
+        "sometimes": "Parfois, à la main",
+        "never": "Non"
+      },
+      "slow_stock": {
+        "question": "Savez-vous quels produits ne se sont pas vendus ces trois derniers mois ?",
+        "know_exactly": "Oui, exactement",
+        "roughly": "À peu près",
+        "no_idea": "Non"
+      },
+      "invoicing": {
+        "question": "Combien de temps après un travail envoyez-vous la facture ?",
+        "same_day": "Le jour même",
+        "within_week": "Dans la semaine",
+        "later": "Plus tard"
+      }
+    },
+    "submit": "Voir mon chiffre",
+    "working": "Calcul en cours…",
+    "failed": "Cela n’a pas fonctionné. Vérifiez les réponses et réessayez.",
+    "tooMany": "Trop de bilans depuis ici au cours de la dernière heure. Réessayez plus tard.",
+    "leak": {
+      "no_shows": "Rendez-vous manqués",
+      "food_waste": "Nourriture et boissons achetées puis jetées",
+      "slow_stock": "De l’argent immobilisé dans des produits qui ne se vendent pas",
+      "late_invoicing": "De l’argent qui arrive tard parce que la facture part tard",
+      "untracked_ads": "Des dépenses publicitaires qu’on ne peut pas relier aux ventes",
+      "one_channel": "Dépendre d’une seule façon d’être trouvé",
+      "price_drift": "Des prix qui n’ont pas suivi les coûts"
+    },
+    "result": {
+      "label": "Votre chiffre",
+      "range": "de {low} à {high} par mois",
+      "grade": "Niveau D · votre estimation",
+      "basis": "Une règle empirique : de {low} à {high} du chiffre d’affaires d’un mois, pour la tranche choisie. Rien n’est encore mesuré ici."
+    },
+    "measure": {
+      "bookings": "Pour le mesurer : reliez votre système de réservation, et SYB compte les rendez-vous manqués au lieu de les estimer.",
+      "sales_and_purchases": "Pour le mesurer : reliez votre caisse et vos achats, et SYB compare ce qui a été acheté à ce qui a été vendu.",
+      "stock": "Pour le mesurer : reliez votre boutique, et SYB trouve les produits qui ne se sont pas vendus.",
+      "invoices": "Pour le mesurer : reliez votre facturation, et SYB mesure le temps que met l’argent à arriver.",
+      "ads_and_sales": "Pour le mesurer : reliez vos publicités et vos ventes, et SYB rattache la dépense à ce qu’elle a vendu.",
+      "sales": "Pour le mesurer : reliez votre système de vente, et SYB le mesure au lieu de l’estimer."
+    },
+    "peer": {
+      "label": "Entreprises semblables",
+      "served": "Chiffre d’affaires par personne dans {count} entreprises semblables : typiquement {p50}, la moitié centrale de {p25} à {p75}. Votre estimation : {own}.",
+      "notEnough": "Pas encore assez d’entreprises comparables. Nous l’afficherons dès qu’il y en aura."
+    },
+    "share": "Partager ce résultat",
+    "copied": "Lien copié",
+    "again": "Vérifier une autre entreprise",
+    "invite": "Vérifiez votre propre entreprise : six questions, gratuit, sans compte.",
+    "next": "Vous voulez le mesurer ? Le diagnostic complet relie un système et classe chaque fuite qu’il trouve.",
+    "sharedLabel": "Un résultat partagé",
+    "missing": "Ce résultat n’est pas ici."
+  },
+  "pricing": {
+    "meta": {
+      "title": "Formules"
+    },
+    "kicker": "Formules",
+    "title": "Payez pour ce que SYB peut faire",
+    "intro": "Chaque formule commence par un mois dans l’ombre : SYB montre ce qu’il aurait fait, noté, et ne change rien.",
+    "interval": {
+      "month": "Mensuel",
+      "year": "Annuel, un cinquième de moins"
+    },
+    "perMonth": "{amount} par mois",
+    "perYear": "{amount} par an",
+    "tier": {
+      "watch": "Watch",
+      "act": "Act",
+      "autonomous": "Autonomous",
+      "extra_business": "Entreprise supplémentaire"
+    },
+    "what": {
+      "watch": "La surveillance de vos chiffres, un nouveau diagnostic chaque mois, la comparaison avec des entreprises semblables, des alertes, le relevé mensuel et la notation dans l’ombre.",
+      "act": "Tout Watch, et SYB réalise ce que vous acceptez : publications, publicités, les textes de votre site, stock et réservations.",
+      "autonomous": "Tout Act, et SYB agit seul dans les limites que vous fixez, vos publicités comprises, avec la garantie.",
+      "extra_business": "Une entreprise de plus, dans la même formule que la première."
+    },
+    "ceiling": "Va jusqu’au palier {station} de ce que SYB peut faire",
+    "guarantee": "La garantie, seulement avec Autonomous : si le registre ne montre pas au moins trois fois votre abonnement en argent vérifié sur un trimestre, le trimestre suivant est gratuit. SYB le vérifie et le crédite lui-même.",
+    "noGuarantee": "Pas de garantie avec cette formule : SYB n’agit pas seul ici, il ne promet donc pas de résultat.",
+    "credit": "Vous avez payé un diagnostic ? Il est déduit de votre première facture.",
+    "choose": "Choisir {tier}",
+    "signIn": "Connectez-vous pour choisir une formule.",
+    "notArmed": "Les paiements ne sont pas encore activés. Rien ne peut être facturé d’ici là.",
+    "failed": "Cela n’a pas démarré. Réessayez dans un instant.",
+    "free": "Pas encore sûr ? Essayez le bilan gratuit : un chiffre, sans compte."
+  },
+  "billing": {
+    "meta": {
+      "title": "Formule et facturation"
+    },
+    "kicker": "Formule et facturation",
+    "none": "Pas encore de formule.",
+    "plans": "Voir les formules",
+    "tier": {
+      "watch": "Watch",
+      "act": "Act",
+      "autonomous": "Autonomous",
+      "extra_business": "Entreprise supplémentaire"
+    },
+    "priceMonth": "{amount} par mois",
+    "priceYear": "{amount} par an",
+    "status": {
+      "active": "Active",
+      "past_due": "Un paiement a échoué. Stripe va réessayer ; mettez à jour la carte pour plus de sûreté.",
+      "unpaid": "Impayée",
+      "paused": "Facturation en pause",
+      "incomplete": "En attente du premier paiement",
+      "canceled": "Terminée"
+    },
+    "renews": "Se renouvelle le {date}.",
+    "ends": "Se termine le {date}.",
+    "verified": "Vérifié par le registre jusqu’ici : {amount}.",
+    "progress": "{verified} vérifiés ce trimestre pour des frais de {fee} : {ratio}. Le seuil est de trois fois.",
+    "progressRolled": "Moins de huit mesures clôturées ce trimestre pour l’instant. En dessous, la garantie est reportée au trimestre suivant.",
+    "updateCard": "Mettre à jour la carte",
+    "downgrade": {
+      "offer": "Avant de résilier : Watch garde la surveillance, le diagnostic mensuel et le relevé, pour {amount}.",
+      "button": "Passer à Watch"
+    },
+    "cancel": {
+      "button": "Résilier la formule",
+      "stops": "Si vous résiliez, ceci s’arrête à la fin de la période : {list}.",
+      "confirm": "Résilier à la fin de la période",
+      "keep": "Garder la formule",
+      "done": "Résiliée. Tout continue jusqu’à la fin de la période."
+    },
+    "stop": {
+      "watching": "la surveillance de vos chiffres",
+      "diagnosis": "le diagnostic mensuel",
+      "statement": "le relevé mensuel",
+      "acting": "la réalisation de ce que vous acceptez",
+      "limits": "l’action dans vos limites",
+      "guarantee": "la garantie"
+    },
+    "resume": {
+      "paused": "La facturation est en pause : rien n’arrive de vos connexions depuis des semaines, SYB a donc cessé de facturer. Reprenez quand vous voulez.",
+      "button": "Reprendre la facturation"
+    },
+    "failed": "Cela n’est pas passé. Réessayez dans un instant.",
+    "notArmed": "Les paiements ne sont pas encore activés."
   }
 }

@@ -1352,3 +1352,27 @@ a.auth-cta {
   padding: 0;
   border: 0;
 }
+
+/* /check: the free entry's questions and its result (v1 spec §8.2) */
+.entry-col {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.entry-q {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.entry-q select,
+.entry-q input {
+  min-height: 40px;
+}
+.entry-figure {
+  font-size: 22px;
+  font-weight: 600;
+  margin: 6px 0;
+}
+.entry-peer {
+  margin-top: 14px;
+}

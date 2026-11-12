@@ -20,6 +20,9 @@ import { runWeeklyWatch } from "../../../../lib/watch/job";
 import { pruneExpiredReviews } from "../../../../lib/reviews/store";
 import { pruneExpiredCarts } from "../../../../lib/carts/store";
 import { runMonthlyRediagnosis } from "../../../../lib/diagnosis/monthly";
+import { runGuaranteeQuarter } from "../../../../lib/billing/guarantee-run";
+import { paymentsConfigured } from "../../../../lib/billing/stripe";
+import { runDormantCheck } from "../../../../lib/billing/subscribe";
 
 /**
  * Review 2026-10-30: one step that throws is logged and reported as null,
@@ -70,6 +73,12 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     // P7-53: a business whose report is a month old is re-diagnosed, as a diff
     // against it — at no cost when nothing changed since.
     const rediagnosis = await isolated("rediagnosis", () => runMonthlyRediagnosis(new Date()));
+    // P7-74: the quarterly guarantee, once per quarter, credited unasked (§8.4).
+    const guarantee = await isolated("guarantee", () => runGuaranteeQuarter(new Date()));
+    // §8.5: a business whose connectors have gone silent stops being billed.
+    const dormant = paymentsConfigured()
+      ? await isolated("dormant", () => runDormantCheck(new Date()))
+      : null;
     // Idea 42: last, so it reports everything above — the owner's week, by email, once.
     const summaries = await runWeeklySummaries();
     console.log(
@@ -86,6 +95,8 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         reviews_expired,
         carts_expired,
         rediagnosis,
+        guarantee,
+        dormant,
         summaries,
       }),
     );
@@ -101,6 +112,8 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       reviews_expired,
       carts_expired,
       rediagnosis,
+      guarantee,
+      dormant,
       summaries,
     });
   } catch (error) {

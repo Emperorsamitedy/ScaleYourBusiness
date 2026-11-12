@@ -63,7 +63,8 @@
       "language": "Nyelv és pénznem",
       "payments": "Kifizetések",
       "ladder": "Mit tehetek",
-      "statement": "Havi kivonat"
+      "statement": "Havi kivonat",
+      "billing": "Csomag és számlázás"
     },
     "count": {
       "paused": "{count} szüneteltetve",
@@ -6037,7 +6038,7 @@
       "alerts_subscribe": "Csak tulajdonos vagy menedzser kaphat telefonos értesítést a javaslatokról.",
       "connections_manage": "Csak tulajdonos kapcsolhat össze fiókokat, vagy bonthatja szét a kapcsolatukat.",
       "write_access_manage": "Csak tulajdonos adhat vagy vonhat vissza írási hozzáférést.",
-      "billing_manage": "Csak tulajdonos fizethet a jelentésért.",
+      "billing_manage": "Csak tulajdonos fizethet a jelentésért és kezelheti a csomagot.",
       "erasure_run": "Csak tulajdonos törölheti egy ügyfél adatait.",
       "data_import": "Csak tulajdonos importálhat ügyfeleket, készletet vagy foglalásokat tartalmazó fájlt.",
       "team_manage": "Csak tulajdonos hívhat meg embereket a csapatba, illetve módosíthatja vagy távolíthatja el őket.",
@@ -9241,5 +9242,190 @@
       "start": "Hozzáadom újra",
       "failed": "Ez nem mentődött el. Próbáld újra egy pillanat múlva."
     }
+  },
+  "entry": {
+    "meta": {
+      "title": "Ingyenes ellenőrzés"
+    },
+    "kicker": "Ingyenes ellenőrzés · fiók nélkül",
+    "title": "Egy szám a vállalkozásodról, három perc alatt",
+    "intro": "Hat kérdés. Nincs fiók, nincs mit bekötni, nincs mit telepíteni. Kapsz egy szivárgást a valószínű méretével, és látod, hol állsz a hasonló vállalkozásokhoz képest.",
+    "q": {
+      "sector": "Milyen vállalkozás ez?",
+      "country": "Melyik országban működik?",
+      "revenue_band": "Nagyjából mennyi jön be egy hónapban?",
+      "employees": "Hányan dolgoznak ott, veled együtt?",
+      "channel": "Hol talál rád a legtöbb új ügyfél?"
+    },
+    "pick": "Válassz…",
+    "band": {
+      "under_4k": "{to} alatt",
+      "4k_12k": "{from} és {to} között",
+      "12k_42k": "{from} és {to} között",
+      "42k_125k": "{from} és {to} között",
+      "125k_417k": "{from} és {to} között",
+      "over_417k": "{from} fölött"
+    },
+    "channel": {
+      "word_of_mouth": "Szájhagyomány és betérők",
+      "search_maps": "Google-keresés és térkép",
+      "social": "Közösségi média",
+      "paid_ads": "Fizetett hirdetések",
+      "marketplace": "Piactér vagy foglalási platform"
+    },
+    "ops": {
+      "buying": {
+        "question": "Hogyan döntöd el, mennyi ételt és italt vásárolsz?",
+        "from_records": "Az eladások nyilvántartása alapján",
+        "by_feel": "Érzésre, tapasztalatból"
+      },
+      "reminders": {
+        "question": "Kapnak az emberek emlékeztetőt az időpontjuk előtt?",
+        "automatic": "Igen, automatikusan",
+        "sometimes": "Néha, kézzel",
+        "never": "Nem"
+      },
+      "slow_stock": {
+        "question": "Tudod, mely termékek nem keltek el az elmúlt három hónapban?",
+        "know_exactly": "Igen, pontosan",
+        "roughly": "Nagyjából",
+        "no_idea": "Nem"
+      },
+      "invoicing": {
+        "question": "Egy munka után mennyi idő múlva küldöd el a számlát?",
+        "same_day": "Még aznap",
+        "within_week": "Egy héten belül",
+        "later": "Később"
+      }
+    },
+    "submit": "Mutasd a számomat",
+    "working": "Számolom…",
+    "failed": "Ez nem sikerült. Nézd át a válaszokat, és próbáld újra.",
+    "tooMany": "Az elmúlt órában túl sok ellenőrzés érkezett innen. Próbáld később.",
+    "leak": {
+      "no_shows": "Elmaradt időpontok",
+      "food_waste": "Megvett, majd kidobott étel és ital",
+      "slow_stock": "Nem fogyó termékekben álló pénz",
+      "late_invoicing": "Későn érkező pénz, mert későn megy ki a számla",
+      "untracked_ads": "Eladáshoz nem köthető hirdetési költés",
+      "one_channel": "Egyetlen módon találnak rád",
+      "price_drift": "A költségekkel lépést nem tartó árak"
+    },
+    "result": {
+      "label": "A számod",
+      "range": "havi {low} és {high} között",
+      "grade": "D szint · a te becslésed",
+      "basis": "Ökölszabály: egy havi árbevétel {low}–{high} része, a választott sávra. Itt még semmi sincs megmérve."
+    },
+    "measure": {
+      "bookings": "A méréshez: kösd be a foglalási rendszered, és a SYB megszámolja az elmaradt időpontokat ahelyett, hogy becsülné.",
+      "sales_and_purchases": "A méréshez: kösd be a kasszád és a beszerzéseid, és a SYB összeveti, mit vettél és mit adtál el.",
+      "stock": "A méréshez: kösd be a boltodat, és a SYB megkeresi a nem fogyó termékeket.",
+      "invoices": "A méréshez: kösd be a számlázásod, és a SYB megméri, mennyi idő alatt érkezik meg a pénz.",
+      "ads_and_sales": "A méréshez: kösd be a hirdetéseidet és az eladásaidat, és a SYB a költést az eladásokhoz köti.",
+      "sales": "A méréshez: kösd be az értékesítési rendszered, és a SYB megméri becslés helyett."
+    },
+    "peer": {
+      "label": "Hasonló vállalkozások",
+      "served": "Egy főre jutó árbevétel {count} hasonló vállalkozásnál: jellemzően {p50}, a középső fele {p25} és {p75} között. A te becslésed: {own}.",
+      "notEnough": "Még nincs elég összehasonlítható vállalkozás. Amint lesz, megmutatjuk."
+    },
+    "share": "Eredmény megosztása",
+    "copied": "Link másolva",
+    "again": "Másik vállalkozás ellenőrzése",
+    "invite": "Ellenőrizd a saját vállalkozásodat: hat kérdés, ingyen, fiók nélkül.",
+    "next": "Megmérnéd? A teljes diagnózis beköt egy rendszert, és sorba állít minden talált szivárgást.",
+    "sharedLabel": "Megosztott eredmény",
+    "missing": "Ez az eredmény nincs itt."
+  },
+  "pricing": {
+    "meta": {
+      "title": "Csomagok"
+    },
+    "kicker": "Csomagok",
+    "title": "Fizess azért, amit a SYB megtehet",
+    "intro": "Minden csomag egy árnyékhónappal indul: a SYB megmutatja, mit tett volna, pontozva, és nem változtat semmin.",
+    "interval": {
+      "month": "Havi",
+      "year": "Éves, egyötöddel olcsóbb"
+    },
+    "perMonth": "havi {amount}",
+    "perYear": "évi {amount}",
+    "tier": {
+      "watch": "Watch",
+      "act": "Act",
+      "autonomous": "Autonomous",
+      "extra_business": "További vállalkozás"
+    },
+    "what": {
+      "watch": "A számaid figyelése, minden hónapban új diagnózis, összehasonlítás hasonló vállalkozásokkal, figyelmeztetések, a havi kivonat és az árnyékpontozás.",
+      "act": "Minden, ami a Watch-ban, és a SYB végrehajtja, amire igent mondasz: bejegyzések, hirdetések, az oldalad szövegei, készlet és foglalások.",
+      "autonomous": "Minden, ami az Act-ben, és a SYB önállóan cselekszik a megadott korlátaidon belül, a hirdetéseidet is beleértve, a garanciával.",
+      "extra_business": "Még egy vállalkozás, ugyanabban a csomagban, mint az első."
+    },
+    "ceiling": "Annak {station}. lépcsőjéig jut, amit a SYB megtehet",
+    "guarantee": "A garancia csak az Autonomous csomagban: ha a főkönyv egy negyedévben nem mutat legalább a díjad háromszorosát igazolt pénzben, a következő negyedév ingyenes. A SYB maga ellenőrzi és írja jóvá.",
+    "noGuarantee": "Ebben a csomagban nincs garancia: itt a SYB nem cselekszik önállóan, ezért eredményt sem ígér.",
+    "credit": "Fizettél egy diagnózisért? Levonjuk az első számládból.",
+    "choose": "{tier} választása",
+    "signIn": "Csomag választásához bejelentkezés szükséges.",
+    "notArmed": "A fizetés még nincs bekapcsolva. Addig semmit sem lehet felszámolni.",
+    "failed": "Ez nem indult el. Próbáld újra egy pillanat múlva.",
+    "free": "Még bizonytalan vagy? Próbáld ki az ingyenes ellenőrzést: egy szám, fiók nélkül."
+  },
+  "billing": {
+    "meta": {
+      "title": "Csomag és számlázás"
+    },
+    "kicker": "Csomag és számlázás",
+    "none": "Még nincs csomag.",
+    "plans": "Csomagok megtekintése",
+    "tier": {
+      "watch": "Watch",
+      "act": "Act",
+      "autonomous": "Autonomous",
+      "extra_business": "További vállalkozás"
+    },
+    "priceMonth": "havi {amount}",
+    "priceYear": "évi {amount}",
+    "status": {
+      "active": "Aktív",
+      "past_due": "Egy fizetés nem sikerült. A Stripe újrapróbálja; a biztonság kedvéért frissítsd a kártyát.",
+      "unpaid": "Kifizetetlen",
+      "paused": "Számlázás szüneteltetve",
+      "incomplete": "Az első fizetésre vár",
+      "canceled": "Lejárt"
+    },
+    "renews": "Megújul: {date}.",
+    "ends": "Lejár: {date}.",
+    "verified": "A főkönyv eddig igazolt: {amount}.",
+    "progress": "Ebben a negyedévben {verified} igazolva, {fee} díj mellett: {ratio}. A küszöb a háromszoros.",
+    "progressRolled": "Ebben a negyedévben eddig nyolcnál kevesebb lezárt mérés van. Ez alatt a garancia átkerül a következő negyedévre.",
+    "updateCard": "Kártya frissítése",
+    "downgrade": {
+      "offer": "Mielőtt lemondod: a Watch megtartja a figyelést, a havi diagnózist és a kivonatot, {amount} összegért.",
+      "button": "Váltás Watch-ra"
+    },
+    "cancel": {
+      "button": "Csomag lemondása",
+      "stops": "Ha lemondod, az időszak végén ezek leállnak: {list}.",
+      "confirm": "Lemondás az időszak végével",
+      "keep": "Csomag megtartása",
+      "done": "Lemondva. Az időszak végéig minden megy tovább."
+    },
+    "stop": {
+      "watching": "a számaid figyelése",
+      "diagnosis": "a havi diagnózis",
+      "statement": "a havi kivonat",
+      "acting": "annak végrehajtása, amire igent mondasz",
+      "limits": "a korlátaidon belüli önálló cselekvés",
+      "guarantee": "a garancia"
+    },
+    "resume": {
+      "paused": "A számlázás szünetel: hetek óta nem érkezett semmi az összekapcsolt fiókjaidból, ezért a SYB leállította a díjat. Indítsd újra, amikor visszatérsz.",
+      "button": "Számlázás újraindítása"
+    },
+    "failed": "Ez nem ment át. Próbáld újra egy pillanat múlva.",
+    "notArmed": "A fizetés még nincs bekapcsolva."
   }
 }

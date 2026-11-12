@@ -61,6 +61,20 @@ while it is empty. The comments in `.env.example` have the exact formats.
 - [ ] Prices are moving into a price book table (the multi-market spec,
       Part B). `REPORT_PRICE_MINOR`, `REPORT_CURRENCY` and
       `EXTRA_REPORT_PRICE_MINOR` still work until that lands.
+- [ ] **Subscriptions (v1 spec §8).** Plans, the €49 credit, dunning and
+      the guarantee are built and tested against a stand-in Stripe. When
+      the keys exist, in the Stripe dashboard:
+      - the webhook endpoint `/api/stripe/webhook` sends
+        `checkout.session.completed`, `checkout.session.async_payment_succeeded`,
+        `customer.subscription.created`, `customer.subscription.updated`,
+        `customer.subscription.deleted`, `invoice.paid` and
+        `invoice.payment_failed`
+      - **SEPA Direct Debit** is switched on (euro plans offer it beside cards)
+      - **Smart Retries** set the retry schedule for failed payments; SYB
+        tells the owner after each failure and points to the card update
+      - the **customer portal** lets an owner update the card and see invoices
+- [ ] **The free check's leak rates** (`specs/entry-v1.json`) are SYB's
+      rules of thumb, shown as grade-D estimates. Correct any you know better.
 
 ## 4. Measuring a business (read-only connectors)
 

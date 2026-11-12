@@ -8,6 +8,8 @@
 
 import { type NextRequest, NextResponse } from "next/server";
 import { markCheckoutPaid, verifyStripeSignature } from "../../../../lib/billing/stripe";
+import type { StripeEvent } from "../../../../lib/billing/subscribe";
+import { deferDiagnosisCredits, handleBillingEvent } from "../../../../lib/billing/subscribe";
 
 // Security review 2026-11-09: every other webhook route in the codebase
 // (Resend x2, Twilio x2) caps its raw body before reading it; this one
@@ -29,11 +31,28 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ error: "bad signature" }, { status: 400 });
   }
 
-  let event: { type?: string; data?: { object?: { id?: string; payment_status?: string } } };
+  let event: {
+    id?: string;
+    type?: string;
+    data?: { object?: { id?: string; payment_status?: string; mode?: string } };
+  };
   try {
     event = JSON.parse(rawBody) as typeof event;
   } catch {
     return NextResponse.json({ error: "bad payload" }, { status: 400 });
+  }
+
+  // The v1 spec §8: subscriptions — their checkout, their lifecycle, their
+  // invoices — go to the lifecycle handler, once each (lib/billing/subscribe).
+  if (
+    (event.type === "checkout.session.completed" && event.data?.object?.mode === "subscription") ||
+    event.type?.startsWith("customer.subscription.") ||
+    event.type === "invoice.paid" ||
+    event.type === "invoice.payment_failed"
+  ) {
+    const outcome = await handleBillingEvent(event as StripeEvent);
+    console.log(JSON.stringify({ event: "stripe_webhook", type: event.type, outcome }));
+    return NextResponse.json({ received: true });
   }
 
   // Paid means PAID: "completed" also fires with payment_status "unpaid"
@@ -58,6 +77,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     const sessionId = event.data?.object?.id;
     if (typeof sessionId === "string" && sessionId !== "") {
       const outcome = await markCheckoutPaid(sessionId);
+      // §8.1: a paid diagnosis is deferred revenue, credited against month 1.
+      if (outcome === "paid") await deferDiagnosisCredits(sessionId);
       console.log(JSON.stringify({ event: "stripe_webhook", type: event.type, outcome }));
       if (outcome === "unknown") {
         // A session we never created. Acknowledge (200) so Stripe stops

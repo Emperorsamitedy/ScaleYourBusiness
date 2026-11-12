@@ -1,0 +1,64 @@
+{
+  "version": "entry-v1",
+  "about": "The v1 build spec §8.2: the free one-number entry. Six questions, no account, no connector, no model call. Read by lib/entry/one-number.ts. Every leak rate below is SYB's rule-of-thumb assumption for a grade-D estimate, shown as 'your estimate' with its basis, for the owner to review; none is a measured figure.",
+  "questions": [
+    { "id": "sector", "kind": "business_type" },
+    { "id": "country", "kind": "country" },
+    {
+      "id": "revenue_band",
+      "kind": "choice",
+      "options": ["under_4k", "4k_12k", "12k_42k", "42k_125k", "125k_417k", "over_417k"]
+    },
+    { "id": "employees", "kind": "count", "min": 1, "max": 500 },
+    {
+      "id": "channel",
+      "kind": "choice",
+      "options": ["word_of_mouth", "search_maps", "social", "paid_ads", "marketplace"]
+    },
+    { "id": "operations", "kind": "by_sector" }
+  ],
+  "monthly_revenue_bands": {
+    "about": "Monthly revenue in euro cents: §5.1's yearly bands ÷ 12. 'to' is exclusive; null is open. The midpoint of an open band is 1.5 × its floor.",
+    "under_4k": { "from": 0, "to": 416700, "year_band": "under_50k" },
+    "4k_12k": { "from": 416700, "to": 1250000, "year_band": "50k_150k" },
+    "12k_42k": { "from": 1250000, "to": 4166700, "year_band": "150k_500k" },
+    "42k_125k": { "from": 4166700, "to": 12500000, "year_band": "500k_1_5m" },
+    "125k_417k": { "from": 12500000, "to": 41666700, "year_band": "1_5m_5m" },
+    "over_417k": { "from": 41666700, "to": null, "year_band": "over_5m" }
+  },
+  "sector_groups": {
+    "about": "Which operations question a business type gets. A type not listed is 'services'.",
+    "hospitality": ["restaurant", "cafe", "bar", "tourism_accommodation", "food_production"],
+    "appointments": [
+      "salon_beauty",
+      "barber",
+      "wellness_spa",
+      "gym_fitness",
+      "clinic_health",
+      "childcare",
+      "education_training",
+      "photography_creative"
+    ],
+    "retail": ["retail_shop", "ecommerce_store", "wholesale", "manufacturing", "agriculture", "automotive"]
+  },
+  "operations": {
+    "hospitality": { "question": "buying", "options": ["from_records", "by_feel"] },
+    "appointments": { "question": "reminders", "options": ["automatic", "sometimes", "never"] },
+    "retail": { "question": "slow_stock", "options": ["know_exactly", "roughly", "no_idea"] },
+    "services": { "question": "invoicing", "options": ["same_day", "within_week", "later"] }
+  },
+  "leaks": {
+    "about": "Tried in order; the first whose condition holds is the one leak shown. Each range is the band's midpoint × low_bp … × high_bp (basis points of monthly revenue), rounded to €10. 'measure' names what would turn the estimate into a measured number.",
+    "rules": [
+      { "id": "no_shows", "when": { "operations": ["never"] }, "low_bp": 500, "high_bp": 1200, "measure": "bookings" },
+      { "id": "no_shows", "when": { "operations": ["sometimes"] }, "low_bp": 300, "high_bp": 700, "measure": "bookings" },
+      { "id": "food_waste", "when": { "operations": ["by_feel"] }, "low_bp": 400, "high_bp": 1000, "measure": "sales_and_purchases" },
+      { "id": "slow_stock", "when": { "operations": ["no_idea"] }, "low_bp": 200, "high_bp": 600, "measure": "stock" },
+      { "id": "slow_stock", "when": { "operations": ["roughly"] }, "low_bp": 100, "high_bp": 300, "measure": "stock" },
+      { "id": "late_invoicing", "when": { "operations": ["later"] }, "low_bp": 200, "high_bp": 500, "measure": "invoices" },
+      { "id": "untracked_ads", "when": { "channel": ["paid_ads"] }, "low_bp": 100, "high_bp": 400, "measure": "ads_and_sales" },
+      { "id": "one_channel", "when": { "channel": ["word_of_mouth"] }, "low_bp": 200, "high_bp": 600, "measure": "sales" },
+      { "id": "price_drift", "when": {}, "low_bp": 100, "high_bp": 300, "measure": "sales" }
+    ]
+  }
+}

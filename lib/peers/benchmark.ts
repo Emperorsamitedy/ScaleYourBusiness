@@ -200,3 +200,66 @@ export async function peerBenchmarks(
   }
   return out;
 }
+
+export type AnonymousComparison =
+  | {
+      status: "served";
+      metric: PeerMetric;
+      currency: string | null;
+      p25: number;
+      p50: number;
+      p75: number;
+      /** The visitor's own estimate's percentile — always "stated" (§8.2: no connector). */
+      own_percentile: number | null;
+      cohort: CohortSpec & { businesses: number; month: string; widened: Widening[] };
+      source: typeof PEER_SOURCE;
+      as_of: string;
+    }
+  | {
+      status: "not_enough";
+      metric: PeerMetric;
+      month: string;
+      source: typeof PEER_SOURCE;
+      as_of: string;
+    };
+
+/**
+ * §8.2's one peer comparison for a visitor with no account (the free entry):
+ * the same pool, the same ladder, the same floor. The visitor is in no pool,
+ * so nobody is left out of it; their stated figure is compared, never added.
+ */
+export async function anonymousComparison(args: {
+  nace: string;
+  country: string;
+  band: string;
+  metric: PeerMetric;
+  currency: string | null;
+  own: number | null;
+  now?: Date;
+}): Promise<AnonymousComparison> {
+  const month = lastCompleteMonth(args.now ?? new Date());
+  const asOf = monthBounds(month).last;
+  const { pool } = await poolFor(month);
+  for (const rung of cohortLadder({ nace: args.nace, country: args.country, band: args.band })) {
+    const d = distribution(
+      pool.filter((m) => inCohort(m, rung.spec)),
+      args.metric,
+      args.currency,
+      args.own,
+    );
+    if (!d.shown) continue;
+    return {
+      status: "served",
+      metric: args.metric,
+      currency: d.currency,
+      p25: d.p25,
+      p50: d.p50,
+      p75: d.p75,
+      own_percentile: d.own_percentile,
+      cohort: { ...rung.spec, businesses: d.businesses, month, widened: rung.widened },
+      source: PEER_SOURCE,
+      as_of: asOf,
+    };
+  }
+  return { status: "not_enough", metric: args.metric, month, source: PEER_SOURCE, as_of: asOf };
+}

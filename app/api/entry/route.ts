@@ -1,0 +1,61 @@
+// POST /api/entry — the free one-number entry (v1 spec §8.2, P7-70).
+//
+// Public: no account, no session, no connector. The six answers in, the
+// result and its share token out, in milliseconds (no model is called).
+// Same-origin only, and capped per address per hour; the address is used
+// for the cap only, hashed, and never stored with the lead.
+
+import { createHash } from "node:crypto";
+import { type NextRequest, NextResponse } from "next/server";
+import { appOriginOf, isSameOriginPost } from "../../../lib/auth/same-origin";
+import { logSafeError } from "../../../lib/core/log-safe";
+import { withinRateLimit } from "../../../lib/core/rate-limit";
+import { EntryError, runEntry } from "../../../lib/entry/one-number";
+
+const PER_HOUR = 30;
+const MAX_BODY_BYTES = 4 * 1024;
+
+export async function POST(request: NextRequest): Promise<NextResponse> {
+  if (!isSameOriginPost(request.headers, appOriginOf(request.url))) {
+    return NextResponse.json({ error: "use the form on our page" }, { status: 403 });
+  }
+  const ip =
+    request.headers.get("x-real-ip") ?? request.headers.get("x-forwarded-for")?.split(",")[0] ?? "";
+  const who = createHash("sha256").update(`entry:${ip.trim()}`).digest("hex").slice(0, 32);
+  if (!(await withinRateLimit(`entry:${who}`, PER_HOUR, 3_600_000))) {
+    return NextResponse.json({ error: "too_many" }, { status: 429 });
+  }
+  const raw = await request.text();
+  if (raw.length > MAX_BODY_BYTES)
+    return NextResponse.json({ error: "too large" }, { status: 413 });
+  let body: { answers?: unknown; locale?: unknown; ref?: unknown };
+  try {
+    body = JSON.parse(raw) as typeof body;
+  } catch {
+    return NextResponse.json({ error: "bad request" }, { status: 400 });
+  }
+  try {
+    const out = await runEntry({
+      answers: body.answers,
+      locale: typeof body.locale === "string" ? body.locale : "en",
+      ref: typeof body.ref === "string" ? body.ref : null,
+    });
+    console.log(
+      JSON.stringify({
+        event: "entry_result",
+        account_id: null,
+        leak: out.result.leak.id,
+        peer: out.result.comparison.status,
+      }),
+    );
+    return NextResponse.json(out);
+  } catch (error) {
+    if (error instanceof EntryError) {
+      return NextResponse.json({ error: error.message }, { status: error.status });
+    }
+    console.error(
+      JSON.stringify({ event: "entry_failed", account_id: null, ...logSafeError(error) }),
+    );
+    return NextResponse.json({ error: "something went wrong on our side" }, { status: 500 });
+  }
+}

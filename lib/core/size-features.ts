@@ -164,6 +164,11 @@ export const SIZE_FEATURES = {
     bands: EVERY,
     reason: "What SYB may do on its own must be one tap away at any size (the v1 spec §4.6).",
   },
+  "nav.billing": {
+    bands: EVERY,
+    reason:
+      "What the plan costs, where it stands and how to leave it is the owner's at any size (the v1 spec §8.5).",
+  },
   "nav.statement": {
     bands: EVERY,
     reason:

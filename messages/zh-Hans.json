@@ -63,7 +63,8 @@
       "language": "语言和货币",
       "payments": "付款",
       "ladder": "我可以做什么",
-      "statement": "月度对账单"
+      "statement": "月度对账单",
+      "billing": "方案与账单"
     },
     "count": {
       "paused": "{count} 个已暂停",
@@ -6037,7 +6038,7 @@
       "alerts_subscribe": "只有所有者或经理可以接收提案的手机提醒。",
       "connections_manage": "只有所有者可以连接或断开账户。",
       "write_access_manage": "只有所有者可以授予或收回写入权限。",
-      "billing_manage": "只有所有者可以为报告付款。",
+      "billing_manage": "只有所有者可以为报告付款并管理方案。",
       "erasure_run": "只有所有者可以抹除某位客户的个人信息。",
       "data_import": "只有所有者可以导入客户、库存或预订文件。",
       "team_manage": "只有所有者可以邀请、更改或移除团队成员。",
@@ -9241,5 +9242,190 @@
       "start": "重新贡献",
       "failed": "没有保存成功。请稍后再试。"
     }
+  },
+  "entry": {
+    "meta": {
+      "title": "免费检查"
+    },
+    "kicker": "免费检查 · 无需账户",
+    "title": "三分钟，得到关于你企业的一个数字",
+    "intro": "六个问题。无需账户，无需连接，无需安装。你会得到一个漏洞及其可能的规模，以及与同类企业相比的位置。",
+    "q": {
+      "sector": "这是什么类型的企业？",
+      "country": "它在哪个国家？",
+      "revenue_band": "每月大约收入多少？",
+      "employees": "包括你在内，有多少人在那里工作？",
+      "channel": "大多数新客户是在哪里找到你的？"
+    },
+    "pick": "请选择…",
+    "band": {
+      "under_4k": "低于 {to}",
+      "4k_12k": "{from} 至 {to}",
+      "12k_42k": "{from} 至 {to}",
+      "42k_125k": "{from} 至 {to}",
+      "125k_417k": "{from} 至 {to}",
+      "over_417k": "高于 {from}"
+    },
+    "channel": {
+      "word_of_mouth": "口碑和路过的人",
+      "search_maps": "Google 搜索和地图",
+      "social": "社交媒体",
+      "paid_ads": "付费广告",
+      "marketplace": "电商平台或预订平台"
+    },
+    "ops": {
+      "buying": {
+        "question": "你如何决定采购多少食物和饮料？",
+        "from_records": "根据销售记录",
+        "by_feel": "凭感觉和经验"
+      },
+      "reminders": {
+        "question": "人们在预约前会收到提醒吗？",
+        "automatic": "会，自动发送",
+        "sometimes": "有时，手动发送",
+        "never": "不会"
+      },
+      "slow_stock": {
+        "question": "你知道哪些产品在过去三个月里没有卖出吗？",
+        "know_exactly": "知道，很清楚",
+        "roughly": "大致知道",
+        "no_idea": "不知道"
+      },
+      "invoicing": {
+        "question": "完成一项工作后，你多久寄出发票？",
+        "same_day": "当天",
+        "within_week": "一周内",
+        "later": "更晚"
+      }
+    },
+    "submit": "显示我的数字",
+    "working": "正在计算…",
+    "failed": "没有成功。请检查答案后重试。",
+    "tooMany": "过去一小时内从这里发起的检查太多。请稍后再试。",
+    "leak": {
+      "no_shows": "错过的预约",
+      "food_waste": "买来又扔掉的食物和饮料",
+      "slow_stock": "压在卖不动的产品里的钱",
+      "late_invoicing": "因为发票寄得晚，钱也到得晚",
+      "untracked_ads": "无法对应到销售的广告支出",
+      "one_channel": "只靠一种方式被找到",
+      "price_drift": "没有跟上成本的价格"
+    },
+    "result": {
+      "label": "你的数字",
+      "range": "每月 {low} 至 {high}",
+      "grade": "等级 D · 你的估算",
+      "basis": "经验法则：按你选择的区间，一个月营收的 {low} 至 {high}。这里还没有任何测量。"
+    },
+    "measure": {
+      "bookings": "要测量它：连接你的预约系统，SYB 会清点错过的预约，而不是估算。",
+      "sales_and_purchases": "要测量它：连接你的收银和采购，SYB 会把买进的和卖出的进行对比。",
+      "stock": "要测量它：连接你的店铺，SYB 会找出没有卖出的产品。",
+      "invoices": "要测量它：连接你的开票系统，SYB 会测量钱多久才到账。",
+      "ads_and_sales": "要测量它：连接你的广告和销售，SYB 会把支出对应到卖出的东西上。",
+      "sales": "要测量它：连接你的销售系统，SYB 会进行测量，而不是估算。"
+    },
+    "peer": {
+      "label": "同类企业",
+      "served": "{count} 家同类企业的人均营收：典型值 {p50}，中间一半为 {p25} 至 {p75}。你的估算：{own}。",
+      "notEnough": "可比较的企业还不够。一旦足够，我们就会显示。"
+    },
+    "share": "分享这个结果",
+    "copied": "链接已复制",
+    "again": "检查另一家企业",
+    "invite": "检查你自己的企业：六个问题，免费，无需账户。",
+    "next": "想要测量吗？完整诊断会连接一个系统，并对发现的每个漏洞进行排序。",
+    "sharedLabel": "分享的结果",
+    "missing": "这里没有这个结果。"
+  },
+  "pricing": {
+    "meta": {
+      "title": "方案"
+    },
+    "kicker": "方案",
+    "title": "为 SYB 可以做的事付费",
+    "intro": "每个方案都从一个影子月开始：SYB 展示它本会做什么，并打分，但不做任何改动。",
+    "interval": {
+      "month": "按月",
+      "year": "按年，便宜五分之一"
+    },
+    "perMonth": "每月 {amount}",
+    "perYear": "每年 {amount}",
+    "tier": {
+      "watch": "Watch",
+      "act": "Act",
+      "autonomous": "Autonomous",
+      "extra_business": "额外企业"
+    },
+    "what": {
+      "watch": "关注你的数字，每月一次新的诊断，与同类企业比较，提醒，月度对账单和影子评分。",
+      "act": "包含 Watch 的全部，SYB 还会执行你同意的事：帖子、广告、你网站上的文字、库存和预约。",
+      "autonomous": "包含 Act 的全部，SYB 还会在你设定的限度内自主行动，包括你的广告，并附带保证。",
+      "extra_business": "再加一家企业，与第一家使用同一方案。"
+    },
+    "ceiling": "可达到 SYB 可做之事的第 {station} 级",
+    "guarantee": "保证，仅限 Autonomous：如果台账在一个季度内没有显示至少三倍于你费用的已核实金额，下个季度免费。SYB 会自行核对并抵扣。",
+    "noGuarantee": "此方案没有保证：SYB 在这里不会自主行动，所以不承诺结果。",
+    "credit": "已经为诊断付过费？它会从你的第一张发票中抵扣。",
+    "choose": "选择 {tier}",
+    "signIn": "登录后即可选择方案。",
+    "notArmed": "付款尚未开启。在此之前不会收取任何费用。",
+    "failed": "没有开始。请稍后再试。",
+    "free": "还没想好？试试免费检查：一个数字，无需账户。"
+  },
+  "billing": {
+    "meta": {
+      "title": "方案与账单"
+    },
+    "kicker": "方案与账单",
+    "none": "还没有方案。",
+    "plans": "查看方案",
+    "tier": {
+      "watch": "Watch",
+      "act": "Act",
+      "autonomous": "Autonomous",
+      "extra_business": "额外企业"
+    },
+    "priceMonth": "每月 {amount}",
+    "priceYear": "每年 {amount}",
+    "status": {
+      "active": "有效",
+      "past_due": "一笔付款失败了。Stripe 会重试；为保险起见，请更新银行卡。",
+      "unpaid": "未付款",
+      "paused": "账单已暂停",
+      "incomplete": "等待首笔付款",
+      "canceled": "已结束"
+    },
+    "renews": "将于 {date} 续订。",
+    "ends": "将于 {date} 结束。",
+    "verified": "台账目前已核实：{amount}。",
+    "progress": "本季度已核实 {verified}，费用为 {fee}：{ratio}。门槛是三倍。",
+    "progressRolled": "本季度目前已结束的测量少于八次。低于这个数，保证会顺延到下个季度。",
+    "updateCard": "更新银行卡",
+    "downgrade": {
+      "offer": "取消之前：Watch 保留关注、月度诊断和对账单，费用为 {amount}。",
+      "button": "改为 Watch"
+    },
+    "cancel": {
+      "button": "取消方案",
+      "stops": "如果取消，以下内容将在本期结束时停止：{list}。",
+      "confirm": "在本期结束时取消",
+      "keep": "保留方案",
+      "done": "已取消。一切将持续到本期结束。"
+    },
+    "stop": {
+      "watching": "关注你的数字",
+      "diagnosis": "月度诊断",
+      "statement": "月度对账单",
+      "acting": "执行你同意的事",
+      "limits": "在你的限度内行动",
+      "guarantee": "保证"
+    },
+    "resume": {
+      "paused": "账单已暂停：你的连接已经数周没有任何数据进来，所以 SYB 停止了收费。等你回来时随时重新开始。",
+      "button": "重新开始计费"
+    },
+    "failed": "没有成功。请稍后再试。",
+    "notArmed": "付款尚未开启。"
   }
 }

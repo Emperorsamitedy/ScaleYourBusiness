@@ -60,7 +60,7 @@ export const ROLE_ACTIONS = {
   // ── owners only ──
   "connections.manage": { min: "owner", what: "connect or disconnect accounts" },
   "write_access.manage": { min: "owner", what: "grant or take back write access" },
-  "billing.manage": { min: "owner", what: "pay for the report" },
+  "billing.manage": { min: "owner", what: "pay for the report and manage the plan" },
   "erasure.run": { min: "owner", what: "erase a customer's details" },
   "data.import": { min: "owner", what: "import a file of customers, stock or bookings" },
   "team.manage": { min: "owner", what: "invite, change or remove people on the team" },

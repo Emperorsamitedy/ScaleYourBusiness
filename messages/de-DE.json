@@ -63,7 +63,8 @@
       "language": "Sprache und Währung",
       "payments": "Zahlungen",
       "ladder": "Was ich tun darf",
-      "statement": "Monatsauszug"
+      "statement": "Monatsauszug",
+      "billing": "Plan und Abrechnung"
     },
     "count": {
       "paused": "{count} pausiert",
@@ -6037,7 +6038,7 @@
       "alerts_subscribe": "Nur ein Inhaber oder ein Manager kann Benachrichtigungen zu Vorschlägen aufs Telefon erhalten.",
       "connections_manage": "Nur ein Inhaber kann Konten verbinden oder trennen.",
       "write_access_manage": "Nur ein Inhaber kann Schreibzugriff erteilen oder zurücknehmen.",
-      "billing_manage": "Nur ein Inhaber kann den Bericht bezahlen.",
+      "billing_manage": "Nur ein Inhaber kann den Bericht bezahlen und den Plan verwalten.",
       "erasure_run": "Nur ein Inhaber kann die Daten eines Kunden löschen.",
       "data_import": "Nur ein Inhaber kann eine Datei mit Kunden, Lagerbestand oder Buchungen importieren.",
       "team_manage": "Nur ein Inhaber kann Personen ins Team einladen, ihre Rolle im Team ändern oder sie entfernen.",
@@ -9241,5 +9242,190 @@
       "start": "Wieder beitragen",
       "failed": "Das wurde nicht gespeichert. Versuch es gleich noch einmal."
     }
+  },
+  "entry": {
+    "meta": {
+      "title": "Kostenloser Check"
+    },
+    "kicker": "Kostenloser Check · ohne Konto",
+    "title": "Eine Zahl über dein Unternehmen, in drei Minuten",
+    "intro": "Sechs Fragen. Kein Konto, nichts zu verbinden, nichts zu installieren. Du bekommst ein Leck mit seiner wahrscheinlichen Größe und siehst, wo du im Vergleich zu ähnlichen Unternehmen stehst.",
+    "q": {
+      "sector": "Was für ein Unternehmen ist es?",
+      "country": "In welchem Land ist es?",
+      "revenue_band": "Wie viel kommt ungefähr im Monat herein?",
+      "employees": "Wie viele Menschen arbeiten dort, dich eingeschlossen?",
+      "channel": "Wo finden dich die meisten neuen Kunden?"
+    },
+    "pick": "Wählen…",
+    "band": {
+      "under_4k": "unter {to}",
+      "4k_12k": "{from} bis {to}",
+      "12k_42k": "{from} bis {to}",
+      "42k_125k": "{from} bis {to}",
+      "125k_417k": "{from} bis {to}",
+      "over_417k": "über {from}"
+    },
+    "channel": {
+      "word_of_mouth": "Mundpropaganda und Laufkundschaft",
+      "search_maps": "Google-Suche und Karten",
+      "social": "Soziale Medien",
+      "paid_ads": "Bezahlte Anzeigen",
+      "marketplace": "Ein Marktplatz oder eine Buchungsplattform"
+    },
+    "ops": {
+      "buying": {
+        "question": "Wie entscheidest du, wie viel Essen und Getränke du einkaufst?",
+        "from_records": "Nach Aufzeichnungen, was verkauft wurde",
+        "by_feel": "Nach Gefühl und Erfahrung"
+      },
+      "reminders": {
+        "question": "Bekommen die Leute vor ihrem Termin eine Erinnerung?",
+        "automatic": "Ja, automatisch",
+        "sometimes": "Manchmal, von Hand",
+        "never": "Nein"
+      },
+      "slow_stock": {
+        "question": "Weißt du, welche Produkte sich in den letzten drei Monaten nicht verkauft haben?",
+        "know_exactly": "Ja, genau",
+        "roughly": "Ungefähr",
+        "no_idea": "Nein"
+      },
+      "invoicing": {
+        "question": "Wie bald nach einem Auftrag schickst du die Rechnung?",
+        "same_day": "Am selben Tag",
+        "within_week": "Innerhalb einer Woche",
+        "later": "Später"
+      }
+    },
+    "submit": "Meine Zahl zeigen",
+    "working": "Wird berechnet…",
+    "failed": "Das hat nicht geklappt. Prüfe die Antworten und versuch es noch einmal.",
+    "tooMany": "Zu viele Checks von hier in der letzten Stunde. Versuch es später noch einmal.",
+    "leak": {
+      "no_shows": "Verpasste Termine",
+      "food_waste": "Gekaufte und weggeworfene Lebensmittel und Getränke",
+      "slow_stock": "Geld, gebunden in Produkten, die sich nicht verkaufen",
+      "late_invoicing": "Geld, das spät kommt, weil die Rechnung spät rausgeht",
+      "untracked_ads": "Werbeausgaben, die sich keinem Verkauf zuordnen lassen",
+      "one_channel": "Nur ein Weg, gefunden zu werden",
+      "price_drift": "Preise, die mit den Kosten nicht Schritt gehalten haben"
+    },
+    "result": {
+      "label": "Deine Zahl",
+      "range": "{low} bis {high} im Monat",
+      "grade": "Stufe D · deine Schätzung",
+      "basis": "Eine Faustregel: {low} bis {high} des Umsatzes eines Monats, für den gewählten Bereich. Hier ist noch nichts gemessen."
+    },
+    "measure": {
+      "bookings": "Um es zu messen: Verbinde dein Buchungssystem, dann zählt SYB die verpassten Termine, statt sie zu schätzen.",
+      "sales_and_purchases": "Um es zu messen: Verbinde deine Kasse und deine Einkäufe, dann stellt SYB Eingekauftes und Verkauftes gegenüber.",
+      "stock": "Um es zu messen: Verbinde deinen Shop, dann findet SYB die Produkte, die sich nicht verkauft haben.",
+      "invoices": "Um es zu messen: Verbinde deine Buchhaltung, dann misst SYB, wie lange das Geld braucht.",
+      "ads_and_sales": "Um es zu messen: Verbinde deine Anzeigen und deine Verkäufe, dann ordnet SYB die Ausgaben den Verkäufen zu.",
+      "sales": "Um es zu messen: Verbinde dein Verkaufssystem, dann misst SYB es, statt zu schätzen."
+    },
+    "peer": {
+      "label": "Ähnliche Unternehmen",
+      "served": "Umsatz pro Person bei {count} ähnlichen Unternehmen: typisch {p50}, die mittlere Hälfte {p25} bis {p75}. Deine Schätzung: {own}.",
+      "notEnough": "Noch nicht genug vergleichbare Unternehmen. Wir zeigen es, sobald es genug gibt."
+    },
+    "share": "Ergebnis teilen",
+    "copied": "Link kopiert",
+    "again": "Ein anderes Unternehmen prüfen",
+    "invite": "Prüfe dein eigenes Unternehmen: sechs Fragen, kostenlos, ohne Konto.",
+    "next": "Soll es gemessen werden? Die volle Diagnose verbindet ein System und ordnet jedes Leck, das sie findet.",
+    "sharedLabel": "Ein geteiltes Ergebnis",
+    "missing": "Dieses Ergebnis gibt es hier nicht."
+  },
+  "pricing": {
+    "meta": {
+      "title": "Pläne"
+    },
+    "kicker": "Pläne",
+    "title": "Bezahle für das, was SYB tun darf",
+    "intro": "Jeder Plan beginnt mit einem Schattenmonat: SYB zeigt, was es getan hätte, bewertet, und ändert nichts.",
+    "interval": {
+      "month": "Monatlich",
+      "year": "Jährlich, ein Fünftel günstiger"
+    },
+    "perMonth": "{amount} im Monat",
+    "perYear": "{amount} im Jahr",
+    "tier": {
+      "watch": "Watch",
+      "act": "Act",
+      "autonomous": "Autonomous",
+      "extra_business": "Weiteres Unternehmen"
+    },
+    "what": {
+      "watch": "Deine Zahlen im Blick, jeden Monat eine neue Diagnose, der Vergleich mit ähnlichen Unternehmen, Hinweise, der Monatsauszug und die Schattenbewertung.",
+      "act": "Alles aus Watch, und SYB setzt um, wozu du Ja sagst: Beiträge, Anzeigen, die Texte deiner Seite, Lagerbestand und Buchungen.",
+      "autonomous": "Alles aus Act, und SYB handelt selbst innerhalb deiner Grenzen, auch bei deinen Anzeigen, mit der Garantie.",
+      "extra_business": "Ein weiteres Unternehmen, im selben Plan wie das erste."
+    },
+    "ceiling": "Reicht bis Stufe {station} dessen, was SYB tun darf",
+    "guarantee": "Die Garantie, nur bei Autonomous: Zeigt das Ledger in einem Quartal nicht mindestens das Dreifache deiner Gebühr an belegtem Geld, ist das nächste Quartal kostenlos. SYB prüft und schreibt es selbst gut.",
+    "noGuarantee": "Keine Garantie in diesem Plan: SYB handelt hier nicht selbst und verspricht deshalb kein Ergebnis.",
+    "credit": "Für eine Diagnose bezahlt? Sie wird von deiner ersten Rechnung abgezogen.",
+    "choose": "{tier} wählen",
+    "signIn": "Bitte anmelden, um einen Plan zu wählen.",
+    "notArmed": "Zahlungen sind noch nicht eingeschaltet. Bis dahin kann nichts berechnet werden.",
+    "failed": "Das hat nicht begonnen. Versuch es gleich noch einmal.",
+    "free": "Noch unsicher? Probier den kostenlosen Check: eine Zahl, ohne Konto."
+  },
+  "billing": {
+    "meta": {
+      "title": "Plan und Abrechnung"
+    },
+    "kicker": "Plan und Abrechnung",
+    "none": "Noch kein Plan.",
+    "plans": "Pläne ansehen",
+    "tier": {
+      "watch": "Watch",
+      "act": "Act",
+      "autonomous": "Autonomous",
+      "extra_business": "Weiteres Unternehmen"
+    },
+    "priceMonth": "{amount} im Monat",
+    "priceYear": "{amount} im Jahr",
+    "status": {
+      "active": "Aktiv",
+      "past_due": "Eine Zahlung ist fehlgeschlagen. Stripe versucht es erneut; aktualisiere zur Sicherheit die Karte.",
+      "unpaid": "Unbezahlt",
+      "paused": "Abrechnung pausiert",
+      "incomplete": "Wartet auf die erste Zahlung",
+      "canceled": "Beendet"
+    },
+    "renews": "Verlängert sich am {date}.",
+    "ends": "Endet am {date}.",
+    "verified": "Bisher vom Ledger belegt: {amount}.",
+    "progress": "{verified} belegt in diesem Quartal bei einer Gebühr von {fee}: {ratio}. Die Schwelle ist das Dreifache.",
+    "progressRolled": "Bisher weniger als acht abgeschlossene Messungen in diesem Quartal. Darunter wird die Garantie ins nächste Quartal übertragen.",
+    "updateCard": "Karte aktualisieren",
+    "downgrade": {
+      "offer": "Bevor du kündigst: Watch behält das Beobachten, die monatliche Diagnose und den Auszug, für {amount}.",
+      "button": "Zu Watch wechseln"
+    },
+    "cancel": {
+      "button": "Plan kündigen",
+      "stops": "Wenn du kündigst, endet zum Ende des Zeitraums: {list}.",
+      "confirm": "Zum Ende des Zeitraums kündigen",
+      "keep": "Plan behalten",
+      "done": "Gekündigt. Alles läuft bis zum Ende des Zeitraums weiter."
+    },
+    "stop": {
+      "watching": "das Beobachten deiner Zahlen",
+      "diagnosis": "die monatliche Diagnose",
+      "statement": "der Monatsauszug",
+      "acting": "das Umsetzen dessen, wozu du Ja sagst",
+      "limits": "das Handeln innerhalb deiner Grenzen",
+      "guarantee": "die Garantie"
+    },
+    "resume": {
+      "paused": "Die Abrechnung ist pausiert: Über deine Verbindungen kam seit Wochen nichts herein, deshalb hat SYB aufgehört zu berechnen. Starte wieder, wann immer du zurück bist.",
+      "button": "Abrechnung wieder starten"
+    },
+    "failed": "Das ist nicht durchgegangen. Versuch es gleich noch einmal.",
+    "notArmed": "Zahlungen sind noch nicht eingeschaltet."
   }
 }

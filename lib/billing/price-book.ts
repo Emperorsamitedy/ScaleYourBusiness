@@ -82,6 +82,13 @@ export async function lockSubscription(args: {
   billingCountry: string;
   vatCountry: string;
   now?: Date;
+  /** §8 lifecycle: "incomplete" until the checkout's webhook; default "active" as before. */
+  status?: string;
+  billingInterval?: "month" | "year";
+  /** §8.3: an extra business names the subscription it rides on. */
+  parentSubscriptionId?: string | null;
+  /** A downgrade keeps the Stripe subscription it moves. */
+  stripe?: { customer: string | null; subscription: string | null };
 }): Promise<Subscription> {
   const billing = args.billingCountry.trim().toUpperCase();
   const vat = args.vatCountry.trim().toUpperCase();
@@ -120,6 +127,15 @@ export async function lockSubscription(args: {
       price_book_id: row.id,
       needs_review: needsReview,
       ...(args.now ? { locked_at: args.now.toISOString() } : {}),
+      ...(args.status ? { status: args.status } : {}),
+      ...(args.billingInterval ? { billing_interval: args.billingInterval } : {}),
+      ...(args.parentSubscriptionId ? { parent_subscription_id: args.parentSubscriptionId } : {}),
+      ...(args.stripe
+        ? {
+            stripe_customer_id: args.stripe.customer,
+            stripe_subscription_id: args.stripe.subscription,
+          }
+        : {}),
     })
     .returning();
   return sub!;

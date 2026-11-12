@@ -21,6 +21,13 @@ vi.mock("../../../../lib/forecasts/run", () => ({ runForecastGrading: () => grad
 vi.mock("../../../../lib/reviews/store", () => ({ pruneExpiredReviews: () => reviewsPrune() }));
 vi.mock("../../../../lib/carts/store", () => ({ pruneExpiredCarts: () => cartsPrune() }));
 vi.mock("../../../../lib/summary/run", () => ({ runWeeklySummaries: () => summaries() }));
+vi.mock("../../../../lib/billing/guarantee-run", () => ({
+  runGuaranteeQuarter: async () => ({ evaluated: 0, credits: 0, rolled_forward: 0 }),
+}));
+vi.mock("../../../../lib/billing/stripe", () => ({ paymentsConfigured: () => false }));
+vi.mock("../../../../lib/billing/subscribe", () => ({
+  runDormantCheck: async () => ({ checked: 0, paused: 0 }),
+}));
 vi.mock("../../../../lib/diagnosis/monthly", () => ({
   runMonthlyRediagnosis: async () => ({
     checked: 2,
