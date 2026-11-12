@@ -43,6 +43,8 @@ export const ROLE_ACTIONS = {
   "proposals.generate": { min: "manager", what: "ask me for new proposals" },
   "proposals.carry_out": { min: "manager", what: "carry out or undo an approved proposal" },
   "content.draft": { min: "manager", what: "draft content" },
+  // The v1 spec §10.4: assets and evidence-cited briefs are content work.
+  "growth.manage": { min: "manager", what: "add assets and open creative briefs" },
   "support.answer": { min: "manager", what: "answer support" },
   // Decision 2 (owner, 2026-11-09): least privilege on calls. Those who answer
   // support read what callers said — transcripts and messages, and the full
@@ -104,6 +106,8 @@ export const ROLE_ACTIONS = {
   // rules, the step to station 4 — is the owner's to decide.
   "ladder.manage": { min: "owner", what: "change what SYB may do on its own" },
   // The v1 spec §7.1: a firm's access to the business is the owner's grant, revocable in one tap.
+  // The v1 spec §10.3 / Art. 50(4): the voice SYB writes in, and a person's consent to appear, are the owner's.
+  "growth.voice": { min: "owner", what: "confirm the brand voice and record identity releases" },
   "mandates.manage": { min: "owner", what: "give or take back a firm's access to this business" },
 } as const satisfies Record<string, RoleActionRow>;
 

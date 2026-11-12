@@ -21,6 +21,10 @@ import type { ActionFacts, CapsVerdict } from "./caps";
 import { capsOf, checkCaps, localClock } from "./caps";
 import { authorize } from "./ladder";
 import { rulesVerdict, standingRulesOf } from "./standing-rules";
+import { firstThreePending } from "../growth/library";
+
+/** Capabilities that publish generated content (§10.1 step 5). */
+const CONTENT_CAPABILITIES = new Set(["meta_publish", "tiktok_publish"]);
 
 export type LimitsVerdict = CapsVerdict;
 
@@ -55,6 +59,13 @@ export async function withinLimits(args: {
   now: Date;
   proposalId?: string;
 }): Promise<LimitsVerdict> {
+  // The v1 spec §10.3: the first three generated pieces always wait for the owner's yes.
+  if (CONTENT_CAPABILITIES.has(args.capability) && (await firstThreePending(args.profileId))) {
+    return {
+      verdict: "needs_approval",
+      reasons: ["the first three generated pieces always wait for your yes"],
+    };
+  }
   const ladder = await authorize(args.profileId, args.capability);
   if (ladder.state !== "AUTHORIZED") {
     return {

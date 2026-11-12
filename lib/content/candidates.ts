@@ -59,6 +59,8 @@ import { createProposal, recordExecution } from "../proposals/service";
 import { briefForItem, briefRefOf } from "./brief-links";
 import { mediaDisclosureLabel } from "./disclosure";
 import { readVideoComment, stampVideo, videoLabellingAvailable } from "./generate/label";
+import { BriefError, requireGenerationBrief } from "../growth/brief";
+import { recordLabelling } from "../growth/library";
 import type { GenerationOutput, MediaJobs, MediaProvider, SubmittedJob } from "./generate/provider";
 import { FIXED_INSTRUCTION, GENERATED_CLIP_SECONDS, ProviderError } from "./generate/provider";
 import { screenPrompt } from "./generate/guard";
@@ -637,6 +639,16 @@ export async function generateCandidatesFromProposal(args: {
   const target = await ownedItem(proposal.profile_id, d.target_item_id);
   const zero = money(0, caps.currency);
 
+  // The v1 spec §10.2: no evidence-cited brief, no generation (also held by the database).
+  let evidenceBriefId: string;
+  try {
+    evidenceBriefId = await requireGenerationBrief(proposal.profile_id, target.provenance);
+  } catch (error) {
+    if (error instanceof BriefError)
+      throw new ContentError(`Nothing was generated: ${error.message}.`, error.status);
+    throw error;
+  }
+
   // Footage arrived while this waited: real footage wins, nothing generated, nothing charged.
   const refusal = await generationRefusal(target);
   if (refusal) {
@@ -699,6 +711,7 @@ export async function generateCandidatesFromProposal(args: {
           estimate_minor: setPrice.amount_minor,
           currency: caps.currency,
           prompt_sha256: promptsHash(prompts),
+          creative_brief_id: evidenceBriefId,
           created_at: now.toISOString(),
         })
         .returning({ id: mediaGenerations.id });
@@ -1328,6 +1341,21 @@ export async function pickCandidate(args: {
     });
     itemId = placed.item.id;
     proposed = placed.publishing.created.length > 0;
+    // §10.6: the item's labelling record, from the stamp read back above.
+    const [fresh] = await db
+      .select({ media_path: contentItems.media_path })
+      .from(contentItems)
+      .where(eq(contentItems.id, itemId));
+    await recordLabelling({
+      profileId: args.profileId,
+      mediaUrl: fresh?.media_path ?? c.media_url ?? "",
+      label: c.label,
+      media: "video",
+      contentItemId: itemId,
+      generationId: c.generation_id,
+      candidateId: c.id,
+      at: now,
+    });
   } catch (error) {
     // Not placed: the pick is undone, so the owner can try again.
     await db

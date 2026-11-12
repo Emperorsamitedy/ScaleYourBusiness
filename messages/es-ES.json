@@ -66,7 +66,8 @@
       "statement": "Extracto mensual",
       "billing": "Plan y facturación",
       "mandates": "Firmas con acceso",
-      "partner": "Consola de socios"
+      "partner": "Consola de socios",
+      "growth": "Estudio de crecimiento"
     },
     "count": {
       "paused": "{count} en pausa",
@@ -6063,7 +6064,9 @@
       "payments_read": "Solo un propietario puede ver los pagos y sus archivos bancarios.",
       "peers_consent": "Solo un propietario puede decidir si las cifras de este negocio entran en la comparación con negocios similares.",
       "ladder_manage": "Solo un propietario puede cambiar lo que SYB puede hacer por su cuenta.",
-      "mandates_manage": "Solo un propietario puede dar o retirar a una firma el acceso a este negocio."
+      "mandates_manage": "Solo un propietario puede dar o retirar a una firma el acceso a este negocio.",
+      "growth_manage": "Solo un propietario o un gestor puede añadir recursos y abrir briefings creativos.",
+      "growth_voice": "Solo un propietario puede confirmar la voz de marca y registrar las autorizaciones de imagen."
     }
   },
   "authWords": {
@@ -9577,5 +9580,77 @@
       "failed": "No ha funcionado: {why}"
     },
     "failed": "No ha funcionado. Inténtalo de nuevo en un momento."
+  },
+  "growth": {
+    "meta": {
+      "title": "Estudio de crecimiento"
+    },
+    "kicker": "Estudio de crecimiento",
+    "intro": "SYB hace vídeos sobre tus propios productos solo a partir de tus propias cifras. Cada briefing nombra las cifras en que se basa, cada archivo generado lleva la etiqueta de hecho con IA, y nada se publica sin tu sí.",
+    "voice": {
+      "title": "Cómo describe SYB tu voz",
+      "none": "Aún no hay descripción. SYB la crea con tus propias frases, tu web y tus publicaciones.",
+      "build": "Crearla con lo que he dicho",
+      "draft": "Esta es la lectura de SYB. Corrígela o confírmala tal cual. Hasta entonces no se genera nada.",
+      "confirmed": "Confirmada. SYB escribe con esta voz.",
+      "edit": "Tus palabras",
+      "save": "Guardar mis palabras",
+      "confirm": "Está bien así"
+    },
+    "opps": {
+      "title": "Lo que tus cifras dicen que promociones",
+      "none": "Aún no hay oportunidad: SYB necesita antes algunas cifras medidas.",
+      "figures": "Cifras en que se basa: {count}",
+      "subject": "Qué promocionar",
+      "angle": "El enfoque",
+      "assets": "Qué grabar o fotografiar",
+      "open": "Abrir el briefing"
+    },
+    "trigger": {
+      "margin_opportunity": "Una línea con mucho margen",
+      "slow_stock": "Existencias lentas con dinero inmovilizado",
+      "dead_hours": "Horas tranquilas que llenar",
+      "seasonal_forecast": "Se acerca una temporada",
+      "winback": "Recuperar a los habituales",
+      "peer_signal": "Algo que hacen negocios parecidos"
+    },
+    "briefs": {
+      "title": "Briefings",
+      "none": "Aún no hay briefing.",
+      "evidence": "Se basa en: {keys}",
+      "noEvidence": "No cita ninguna cifra, así que no se genera nada con él."
+    },
+    "low": {
+      "title": "Se está acabando",
+      "line": "{description}: {have} de {need}"
+    },
+    "assets": {
+      "title": "Tus fotos y clips",
+      "none": "Aún no hay nada.",
+      "line": "{description} · grabado por {shotBy} · usado {uses} veces",
+      "person": "aparece una persona",
+      "released": "autorización registrada",
+      "noRelease": "sin autorización: no se usará en un vídeo",
+      "file": "El archivo",
+      "description": "Qué muestra",
+      "shotBy": "Quién lo grabó",
+      "personAppears": "Aparece una persona",
+      "release": "Su autorización",
+      "noneRelease": "Ninguna",
+      "add": "Añadir a la biblioteca"
+    },
+    "releases": {
+      "title": "Autorizaciones de imagen",
+      "intro": "Nunca se hace un vídeo que muestre a una persona real sin su autorización firmada.",
+      "none": "Ninguna registrada.",
+      "line": "{person} · {ref} · firmada el {date}",
+      "revoked": "retirada",
+      "person": "Quién es",
+      "ref": "La autorización firmada (nombre del archivo o número)",
+      "add": "Registrar la autorización",
+      "revoke": "Retirar"
+    },
+    "done": "Hecho.",
+    "failed": "No ha funcionado: {why}"
   }
 }

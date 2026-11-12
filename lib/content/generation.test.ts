@@ -38,6 +38,7 @@ import { mediaProviderSetting } from "../env";
 import { connectForExecution, expectedExecutionScopes } from "../execution/connections";
 import { disclosureViolation, publishCaption } from "../execution/providers/meta";
 import { bootstrapIntake } from "../intake/service";
+import { evidenceBrief } from "../growth/test-support";
 import { writeField } from "../profile/field-store";
 import type { LimitLlm } from "../proposals/hard-limits";
 import { approveProposal, createProposal } from "../proposals/service";
@@ -316,6 +317,7 @@ async function business() {
       role: "owner",
     })
     .returning({ id: users.id });
+  const growthBrief = await evidenceBrief(s.profile_id);
   const plan = await createProposal({
     profile_id: s.profile_id,
     module: "content",
@@ -341,6 +343,9 @@ async function business() {
         provenance: {
           item: { channel_id: ch!.id, focus: "Autumn menu", brief: "the new soups" },
           evidence: [`channels.${ch!.id}.type`],
+          // The v1 spec §10.2: generated media renders only from an evidence-cited brief.
+          brief_id: growthBrief.id,
+          hook_index: 0,
         },
       })
       .returning();
@@ -348,7 +353,7 @@ async function business() {
   };
   const approve = (proposalId: string) =>
     approveProposal({ proposalId, userId: u!.id, profileId: s.profile_id });
-  return { ...s, user_id: u!.id, item, approve };
+  return { ...s, user_id: u!.id, item, approve, brief_id: growthBrief.id };
 }
 
 describe("P3-53 — proposing", () => {
@@ -485,6 +490,7 @@ describe("P3-53 — proposing", () => {
         account_id: b.account_id,
         proposal_id: p.id,
         target_item_id: target,
+        creative_brief_id: b.brief_id,
         media: "image",
         provider: "fake",
         status: "generated",

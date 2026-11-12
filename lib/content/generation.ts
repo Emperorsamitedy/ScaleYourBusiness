@@ -80,6 +80,8 @@ import {
   higgsfieldMediaProvider,
 } from "./generate/higgsfield";
 import { readJpegLabels, readVideoComment, stampJpeg, stampVideo } from "./generate/label";
+import { BriefError, requireGenerationBrief } from "../growth/brief";
+import { recordLabelling } from "../growth/library";
 import type {
   GeneratedMedia,
   GenerationOutput,
@@ -681,6 +683,16 @@ export async function generateFromProposal(args: {
   const target = await ownedItem(proposal.profile_id, d.target_item_id);
   const zero = money(0, capsOf(setup).currency);
 
+  // The v1 spec §10.2: no evidence-cited brief, no generation (also held by the database).
+  let briefId: string;
+  try {
+    briefId = await requireGenerationBrief(proposal.profile_id, target.provenance);
+  } catch (error) {
+    if (error instanceof BriefError)
+      throw new ContentError(`Nothing was generated: ${error.message}.`, error.status);
+    throw error;
+  }
+
   // Footage arrived (or media did) while this waited: close it honestly, nothing generated, nothing charged.
   const refusal = await generationRefusal(target);
   if (refusal) {
@@ -732,6 +744,7 @@ export async function generateFromProposal(args: {
           estimate_minor: estimate.amount_minor,
           currency: estimate.currency,
           prompt_sha256: promptHash(prompt),
+          creative_brief_id: briefId,
           created_at: now.toISOString(),
         })
         .returning({ id: mediaGenerations.id });
@@ -878,6 +891,20 @@ export async function generateFromProposal(args: {
       store,
       ...(args.limitLlm ? { limitLlm: args.limitLlm } : {}),
       now,
+    });
+    // §10.6: the item's labelling record, written where the file was stamped.
+    const [fresh] = await db
+      .select({ media_path: contentItems.media_path })
+      .from(contentItems)
+      .where(eq(contentItems.id, placed.item.id));
+    await recordLabelling({
+      profileId: proposal.profile_id,
+      mediaUrl: fresh?.media_path ?? "",
+      label,
+      media,
+      contentItemId: placed.item.id,
+      generationId: claimId,
+      at: now,
     });
     await settle("generated", { result_item_id: placed.item.id });
     await recordExecution({

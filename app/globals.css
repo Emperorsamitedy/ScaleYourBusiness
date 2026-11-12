@@ -1441,3 +1441,8 @@ a.auth-cta {
     border-top-width: 0;
   }
 }
+
+/* /growth: the brand voice reads as the owner's own paragraph */
+.growth-voice {
+  white-space: pre-line;
+}

@@ -24,6 +24,7 @@
 // (reconcilePublishing — never by posting again), and Withdraw for
 // /content, which goes through the engine's undoExecution like any undo.
 
+import { markLabellingPublished } from "../growth/library";
 import { and, eq, inArray, lt, or, sql } from "drizzle-orm";
 import { db } from "../../db";
 import {
@@ -200,6 +201,8 @@ export function dbPublishBackend(opts: { store?: MediaStore } = {}): PublishBack
         .where(and(eq(contentItems.id, item.id), eq(contentItems.status, "publishing")))
         .returning({ id: contentItems.id });
       if (!row) return; // already recorded — a second record is not a second post
+      // §9.3: the labelling record says when it went out (the approval names who said yes).
+      await markLabellingPublished(item.id, item.media_path ?? null, null);
       await db.insert(watchActivity).values({
         profile_id: item.profile_id,
         kind: "content_published",

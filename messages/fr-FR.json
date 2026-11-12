@@ -66,7 +66,8 @@
       "statement": "Relevé mensuel",
       "billing": "Formule et facturation",
       "mandates": "Cabinets avec accès",
-      "partner": "Console partenaire"
+      "partner": "Console partenaire",
+      "growth": "Studio de croissance"
     },
     "count": {
       "paused": "{count} en pause",
@@ -6063,7 +6064,9 @@
       "payments_read": "Seul un propriétaire peut voir les paiements et leurs fichiers bancaires.",
       "peers_consent": "Seul un propriétaire peut décider si les chiffres de cette entreprise entrent dans la comparaison avec des entreprises similaires.",
       "ladder_manage": "Seul un propriétaire peut changer ce que SYB peut faire de lui-même.",
-      "mandates_manage": "Seul un propriétaire peut donner ou retirer à un cabinet l’accès à cette entreprise."
+      "mandates_manage": "Seul un propriétaire peut donner ou retirer à un cabinet l’accès à cette entreprise.",
+      "growth_manage": "Seul un propriétaire ou un gestionnaire peut ajouter des médias et ouvrir des briefs créatifs.",
+      "growth_voice": "Seul un propriétaire peut confirmer la voix de la marque et enregistrer les autorisations d’image."
     }
   },
   "authWords": {
@@ -9577,5 +9580,77 @@
       "failed": "Cela n’a pas fonctionné : {why}"
     },
     "failed": "Cela n’a pas fonctionné. Réessayez dans un instant."
+  },
+  "growth": {
+    "meta": {
+      "title": "Studio de croissance"
+    },
+    "kicker": "Studio de croissance",
+    "intro": "SYB fait des vidéos sur vos propres produits uniquement à partir de vos propres chiffres. Chaque brief nomme les chiffres sur lesquels il repose, chaque fichier généré est étiqueté comme fait par l’IA, et rien n’est publié sans votre accord.",
+    "voice": {
+      "title": "Comment SYB décrit votre voix",
+      "none": "Pas encore de description. SYB la construit à partir de vos propres phrases, de votre site et de vos publications.",
+      "build": "La construire à partir de ce que j’ai dit",
+      "draft": "Voici la lecture de SYB. Corrigez-la ou confirmez-la telle quelle. Rien n’est généré d’ici là.",
+      "confirmed": "Confirmée. SYB écrit avec cette voix.",
+      "edit": "Vos mots",
+      "save": "Enregistrer mes mots",
+      "confirm": "C’est juste ainsi"
+    },
+    "opps": {
+      "title": "Ce que vos chiffres invitent à promouvoir",
+      "none": "Pas encore d’opportunité : SYB a d’abord besoin de quelques chiffres mesurés.",
+      "figures": "Chiffres sur lesquels il repose : {count}",
+      "subject": "Ce qu’il faut promouvoir",
+      "angle": "L’angle",
+      "assets": "Ce qu’il faut filmer ou photographier",
+      "open": "Ouvrir le brief"
+    },
+    "trigger": {
+      "margin_opportunity": "Une ligne à forte marge",
+      "slow_stock": "Du stock lent qui immobilise de l’argent",
+      "dead_hours": "Des heures creuses à remplir",
+      "seasonal_forecast": "Une saison qui arrive",
+      "winback": "Des habitués à faire revenir",
+      "peer_signal": "Ce que font des entreprises semblables"
+    },
+    "briefs": {
+      "title": "Briefs",
+      "none": "Pas encore de brief.",
+      "evidence": "Repose sur : {keys}",
+      "noEvidence": "Ne cite aucun chiffre, rien n’en est donc généré."
+    },
+    "low": {
+      "title": "Bientôt à court",
+      "line": "{description} : {have} sur {need}"
+    },
+    "assets": {
+      "title": "Vos photos et clips",
+      "none": "Rien ici pour l’instant.",
+      "line": "{description} · tourné par {shotBy} · utilisé {uses} fois",
+      "person": "une personne apparaît",
+      "released": "autorisation enregistrée",
+      "noRelease": "aucune autorisation : ne sera pas utilisé dans une vidéo",
+      "file": "Le fichier",
+      "description": "Ce qu’il montre",
+      "shotBy": "Qui l’a tourné",
+      "personAppears": "Une personne y apparaît",
+      "release": "Son autorisation",
+      "noneRelease": "Aucune",
+      "add": "Ajouter à la bibliothèque"
+    },
+    "releases": {
+      "title": "Autorisations d’image",
+      "intro": "Une vidéo montrant une personne réelle n’est jamais faite sans son autorisation signée.",
+      "none": "Aucune enregistrée.",
+      "line": "{person} · {ref} · signée le {date}",
+      "revoked": "retirée",
+      "person": "Qui c’est",
+      "ref": "L’autorisation signée (nom du fichier ou numéro)",
+      "add": "Enregistrer l’autorisation",
+      "revoke": "Retirer"
+    },
+    "done": "C’est fait.",
+    "failed": "Cela n’a pas fonctionné : {why}"
   }
 }

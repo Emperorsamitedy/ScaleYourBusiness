@@ -48,6 +48,7 @@ import type { SourceRef } from "../core/source-ref";
 import { HIGGSFIELD_DEFAULTS } from "../env";
 import { connectForExecution, expectedExecutionScopes } from "../execution/connections";
 import { bootstrapIntake } from "../intake/service";
+import { growthReady } from "../growth/test-support";
 import { writeField } from "../profile/field-store";
 import type { LimitLlm } from "../proposals/hard-limits";
 import { approveProposal, createProposal } from "../proposals/service";
@@ -325,10 +326,13 @@ async function bakery() {
       role: "owner",
     })
     .returning({ id: users.id });
+  // The v1 spec §10: a brief cites a §6.1 figure, and the voice is confirmed, before anything renders.
+  const figureId = await growthReady(s.profile_id);
   const [brief] = await db
     .insert(creativeBriefs)
     .values({
       profile_id: s.profile_id,
+      evidence: [figureId],
       campaign: "Autumn loaves",
       brief: {
         audience: { text: "Local families", countries: ["HU"], cites: [] },
@@ -1089,6 +1093,7 @@ describe.skipIf(!ffmpegAvailable())("P6-03 — generating and picking", () => {
         account_id: b.account_id,
         proposal_id: p.id,
         target_item_id: sl.id,
+        creative_brief_id: b.brief_id,
         media: "video",
         provider: "higgsfield",
         estimate_minor: 56,

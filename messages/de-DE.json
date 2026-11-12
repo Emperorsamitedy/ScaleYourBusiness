@@ -66,7 +66,8 @@
       "statement": "Monatsauszug",
       "billing": "Plan und Abrechnung",
       "mandates": "Kanzleien mit Zugriff",
-      "partner": "Partnerkonsole"
+      "partner": "Partnerkonsole",
+      "growth": "Wachstumsstudio"
     },
     "count": {
       "paused": "{count} pausiert",
@@ -6063,7 +6064,9 @@
       "payments_read": "Nur ein Inhaber kann Zahlungen und ihre Bankdateien sehen.",
       "peers_consent": "Nur ein Inhaber kann entscheiden, ob die Zahlen dieses Unternehmens in den Vergleich mit ähnlichen Unternehmen einfließen.",
       "ladder_manage": "Nur ein Inhaber kann ändern, was SYB selbstständig tun darf.",
-      "mandates_manage": "Nur ein Inhaber kann einer Firma Zugriff auf dieses Unternehmen geben oder entziehen."
+      "mandates_manage": "Nur ein Inhaber kann einer Firma Zugriff auf dieses Unternehmen geben oder entziehen.",
+      "growth_manage": "Nur ein Inhaber oder ein Manager kann Medien hinzufügen und kreative Briefings anlegen.",
+      "growth_voice": "Nur ein Inhaber kann die Markenstimme bestätigen und Einwilligungen zur Abbildung erfassen."
     }
   },
   "authWords": {
@@ -9577,5 +9580,77 @@
       "failed": "Das hat nicht geklappt: {why}"
     },
     "failed": "Das hat nicht geklappt. Versuch es gleich noch einmal."
+  },
+  "growth": {
+    "meta": {
+      "title": "Wachstumsstudio"
+    },
+    "kicker": "Wachstumsstudio",
+    "intro": "SYB macht Videos über deine eigenen Produkte nur aus deinen eigenen Zahlen. Jedes Briefing nennt die Zahlen, auf denen es beruht, jede erzeugte Datei ist als KI-erstellt gekennzeichnet, und nichts wird ohne dein Ja veröffentlicht.",
+    "voice": {
+      "title": "Wie SYB deine Stimme beschreibt",
+      "none": "Noch keine Beschreibung. SYB erstellt sie aus deinen eigenen Sätzen, deiner Website und deinen Beiträgen.",
+      "build": "Aus meinen Angaben erstellen",
+      "draft": "Das ist SYBs Lesart. Korrigiere sie oder bestätige sie so. Bis dahin wird nichts erzeugt.",
+      "confirmed": "Bestätigt. SYB schreibt in dieser Stimme.",
+      "edit": "Deine Worte",
+      "save": "Meine Worte speichern",
+      "confirm": "So stimmt es"
+    },
+    "opps": {
+      "title": "Was deine Zahlen zu bewerben nahelegen",
+      "none": "Noch keine Gelegenheit: SYB braucht erst einige gemessene Zahlen.",
+      "figures": "Zahlen, auf denen es beruht: {count}",
+      "subject": "Was beworben wird",
+      "angle": "Der Blickwinkel",
+      "assets": "Was gefilmt oder fotografiert werden soll",
+      "open": "Briefing anlegen"
+    },
+    "trigger": {
+      "margin_opportunity": "Ein Artikel mit hoher Marge",
+      "slow_stock": "Langsamer Lagerbestand mit gebundenem Geld",
+      "dead_hours": "Ruhige Stunden zu füllen",
+      "seasonal_forecast": "Eine Saison steht bevor",
+      "winback": "Stammgäste zurückgewinnen",
+      "peer_signal": "Etwas, das ähnliche Unternehmen tun"
+    },
+    "briefs": {
+      "title": "Briefings",
+      "none": "Noch kein Briefing.",
+      "evidence": "Beruht auf: {keys}",
+      "noEvidence": "Nennt keine Zahl, daraus wird nichts erzeugt."
+    },
+    "low": {
+      "title": "Wird knapp",
+      "line": "{description}: {have} von {need}"
+    },
+    "assets": {
+      "title": "Deine Fotos und Clips",
+      "none": "Noch nichts hier.",
+      "line": "{description} · aufgenommen von {shotBy} · {uses}-mal verwendet",
+      "person": "eine Person ist zu sehen",
+      "released": "Einwilligung liegt vor",
+      "noRelease": "keine Einwilligung: wird in keinem Video verwendet",
+      "file": "Die Datei",
+      "description": "Was zu sehen ist",
+      "shotBy": "Wer es aufgenommen hat",
+      "personAppears": "Eine Person ist darauf zu sehen",
+      "release": "Ihre Einwilligung",
+      "noneRelease": "Keine",
+      "add": "Zur Sammlung hinzufügen"
+    },
+    "releases": {
+      "title": "Einwilligungen zur Abbildung",
+      "intro": "Ein Video, das eine echte Person zeigt, entsteht nie ohne deren unterschriebene Einwilligung.",
+      "none": "Keine erfasst.",
+      "line": "{person} · {ref} · unterschrieben am {date}",
+      "revoked": "zurückgezogen",
+      "person": "Wer es ist",
+      "ref": "Die unterschriebene Einwilligung (Dateiname oder Nummer)",
+      "add": "Einwilligung erfassen",
+      "revoke": "Zurückziehen"
+    },
+    "done": "Erledigt.",
+    "failed": "Das hat nicht geklappt: {why}"
   }
 }

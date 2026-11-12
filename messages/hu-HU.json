@@ -66,7 +66,8 @@
       "statement": "Havi kivonat",
       "billing": "Csomag és számlázás",
       "mandates": "Hozzáféréssel rendelkező irodák",
-      "partner": "Partnerkonzol"
+      "partner": "Partnerkonzol",
+      "growth": "Növekedési stúdió"
     },
     "count": {
       "paused": "{count} szüneteltetve",
@@ -6063,7 +6064,9 @@
       "payments_read": "Csak tulajdonos láthatja a kifizetéseket és a banki fájljaikat.",
       "peers_consent": "Csak tulajdonos döntheti el, hogy a vállalkozás számai bekerülnek-e a hasonló vállalkozásokkal való összehasonlításba.",
       "ladder_manage": "Csak tulajdonos módosíthatja, mit tehet a SYB önállóan.",
-      "mandates_manage": "Csak tulajdonos adhat vagy vonhat vissza egy iroda hozzáférését ehhez a vállalkozáshoz."
+      "mandates_manage": "Csak tulajdonos adhat vagy vonhat vissza egy iroda hozzáférését ehhez a vállalkozáshoz.",
+      "growth_manage": "Csak tulajdonos vagy menedzser adhat hozzá anyagokat és nyithat kreatív briefet.",
+      "growth_voice": "Csak tulajdonos erősítheti meg a márkahangot és rögzíthet képmás-felhasználási engedélyt."
     }
   },
   "authWords": {
@@ -9577,5 +9580,77 @@
       "failed": "Ez nem sikerült: {why}"
     },
     "failed": "Ez nem sikerült. Próbáld újra egy pillanat múlva."
+  },
+  "growth": {
+    "meta": {
+      "title": "Növekedési stúdió"
+    },
+    "kicker": "Növekedési stúdió",
+    "intro": "A SYB csak a saját számaidból készít videót a saját termékeidről. Minden brief megnevezi, mely számokon alapul, minden generált fájl MI által készítettként van jelölve, és semmi sem jelenik meg az igened nélkül.",
+    "voice": {
+      "title": "Hogyan írja le a SYB a hangodat",
+      "none": "Még nincs leírás. A SYB a saját mondataidból, az oldaladból és a bejegyzéseidből állítja össze.",
+      "build": "Összeállítás abból, amit mondtam",
+      "draft": "Ez a SYB olvasata. Javítsd, vagy erősítsd meg így. Addig semmi sem készül.",
+      "confirmed": "Megerősítve. A SYB ezen a hangon ír.",
+      "edit": "A te szavaid",
+      "save": "Szavaim mentése",
+      "confirm": "Így jó"
+    },
+    "opps": {
+      "title": "Amit a számaid szerint érdemes népszerűsíteni",
+      "none": "Még nincs lehetőség: a SYB-nek előbb néhány mért számra van szüksége.",
+      "figures": "Számok, amelyeken alapul: {count}",
+      "subject": "Mit népszerűsítsünk",
+      "angle": "A megközelítés",
+      "assets": "Mit kell filmezni vagy fotózni",
+      "open": "Brief megnyitása"
+    },
+    "trigger": {
+      "margin_opportunity": "Magas árrésű termék",
+      "slow_stock": "Lassan fogyó készlet, lekötött pénzzel",
+      "dead_hours": "Kitöltendő csendes órák",
+      "seasonal_forecast": "Közeledő szezon",
+      "winback": "Elmaradt törzsvendégek visszahozása",
+      "peer_signal": "Amit a hasonló vállalkozások csinálnak"
+    },
+    "briefs": {
+      "title": "Briefek",
+      "none": "Még nincs brief.",
+      "evidence": "Alapja: {keys}",
+      "noEvidence": "Egyetlen számot sem idéz, ezért semmi sem készül belőle."
+    },
+    "low": {
+      "title": "Fogyóban",
+      "line": "{description}: {have} / {need}"
+    },
+    "assets": {
+      "title": "A fotóid és klipjeid",
+      "none": "Még nincs itt semmi.",
+      "line": "{description} · készítette: {shotBy} · {uses} alkalommal használva",
+      "person": "személy látható rajta",
+      "released": "engedély megvan",
+      "noRelease": "nincs engedély: videóban nem használjuk",
+      "file": "A fájl",
+      "description": "Mit mutat",
+      "shotBy": "Ki készítette",
+      "personAppears": "Személy látható rajta",
+      "release": "Az engedélye",
+      "noneRelease": "Nincs",
+      "add": "Hozzáadás a gyűjteményhez"
+    },
+    "releases": {
+      "title": "Képmás-felhasználási engedélyek",
+      "intro": "Valódi személyt mutató videó soha nem készül az illető aláírt engedélye nélkül.",
+      "none": "Nincs rögzítve.",
+      "line": "{person} · {ref} · aláírva: {date}",
+      "revoked": "visszavonva",
+      "person": "Ki az",
+      "ref": "Az aláírt engedély (fájlnév vagy szám)",
+      "add": "Engedély rögzítése",
+      "revoke": "Visszavonás"
+    },
+    "done": "Kész.",
+    "failed": "Ez nem sikerült: {why}"
   }
 }

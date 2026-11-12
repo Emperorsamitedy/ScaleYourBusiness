@@ -35,6 +35,7 @@ import { fieldId } from "../core/ids";
 import { isoDateTime } from "../core/iso";
 import { connectForExecution, expectedExecutionScopes } from "../execution/connections";
 import { bootstrapIntake } from "../intake/service";
+import { evidenceBrief, labelledForTest } from "../growth/test-support";
 import { writeField } from "../profile/field-store";
 import type { LimitLlm } from "../proposals/hard-limits";
 import { createProposal } from "../proposals/service";
@@ -163,6 +164,7 @@ async function business() {
       role: "owner",
     })
     .returning({ id: users.id });
+  const growthBrief = await evidenceBrief(s.profile_id);
   const plan = await createProposal({
     profile_id: s.profile_id,
     module: "content",
@@ -186,6 +188,9 @@ async function business() {
         provenance: {
           item: { channel_id: ch!.id, focus: "Autumn menu", brief: "the new soups" },
           evidence: [`channels.${ch!.id}.type`],
+          // The v1 spec §10.2: generated media renders only from an evidence-cited brief.
+          brief_id: growthBrief.id,
+          hook_index: 0,
         },
       })
       .returning();
@@ -555,6 +560,13 @@ describe("Session K — real footage wins", () => {
     });
     expect(generated.item.disclosure).toBe(mediaDisclosureLabel("video", "generated_image"));
     expect(generated.item.body.endsWith("AI-generated image. Not a real photo.")).toBe(true);
+    // §10.6: the render path writes its labelling record; placeMedia alone stands in for render here.
+    await labelledForTest(
+      b.profile_id,
+      generated.item.id,
+      generated.item.media_path ?? "",
+      generated.item.disclosure,
+    );
     // Approved (the queue's yes), then the owner's footage arrives.
     await db
       .update(contentItems)

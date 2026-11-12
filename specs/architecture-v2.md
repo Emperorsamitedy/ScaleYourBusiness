@@ -468,3 +468,41 @@ screenshot slots for the NAV guide.
   P0-71. The automated part (40 clients imported, asked and emailed in
   their languages) runs in seconds in the test suite.
 
+## Decisions taken building Phase 7, the growth engine (2026-11-12)
+
+- **D75 — the §10.2 brief extends the existing creative_briefs table**
+  (P3-51) rather than adding a second one: trigger, evidence (§6.1 figure
+  ids), subject, angle, assets required and supplied, locale, brand voice,
+  measurement plan, and whether it depicts a real person. A brief written
+  before §10 cites no figure, so it no longer renders until figures are
+  cited (`citeEvidence`).
+- **D76 — "no evidence, no generation" is held in three places.** The render
+  paths call `requireGenerationBrief`. A trigger refuses a brief that cites
+  another business's figure. A NOT VALID check plus a trigger make every new
+  media_generations row name a brief that cites at least one figure; rows
+  from before the rule stay as they were.
+- **D77 — opportunity detection is data, not a model.** Each trigger lists
+  the figure key prefixes that support it (`TRIGGER_KEYS`); the evidence of
+  a brief opened from the studio is what detection found, never what the
+  request sent.
+- **D78 — the brand voice is confirmed before first use.** It is built from
+  the voice card (the owner's own sentences and stated tone, each with its
+  source) as plain lines, shown as a draft, and generation waits until the
+  owner confirms it or writes their own words. An edit supersedes; a
+  confirmed voice is never replaced by a rebuilt draft.
+- **D79 — labelling records are keyed by the stored media.** They are written
+  where the file is stamped (the two render paths), and a trigger refuses to
+  queue or publish an AI-generated item without one. Items made before the
+  rule were backfilled from their render stamp, which every generated file
+  has carried since P3-53. The publish step stamps when it went out; the
+  approval names who said yes.
+- **D80 — the first three generated pieces wait for a yes at any station**,
+  checked in the station-4 limits path before anything else. Ad promotion
+  of an organic post needs station 4 on the ad capability (`canPromoteToAd`);
+  publishing needs 3 (`canPublish`). Organic posts stay measured before and
+  after, grade C at best (§10.5).
+- **D81 — the library's upload route takes up to 4 MB** (photos and short
+  clips, what a serverless body allows); longer footage arrives through a
+  shot list's direct upload, as before. Connecting a Drive folder waits for
+  a Drive connector.
+

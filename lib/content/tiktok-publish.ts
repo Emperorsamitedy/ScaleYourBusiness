@@ -13,6 +13,7 @@
 //
 // Never here: a delete. TikTok's API has none (see the provider).
 
+import { markLabellingPublished } from "../growth/library";
 import { and, eq, gte, inArray, isNotNull, ne, sql } from "drizzle-orm";
 import { db } from "../../db";
 import {
@@ -283,6 +284,8 @@ export function dbTikTokPublishBackend(opts: { store?: MediaStore } = {}): TikTo
         .where(and(eq(contentItems.id, item.id), eq(contentItems.status, "publishing")))
         .returning({ id: contentItems.id });
       if (!row) return; // already recorded — a second record is not a second post
+      // §9.3: the labelling record says when it went out (the approval names who said yes).
+      await markLabellingPublished(item.id, item.media_path ?? null, null);
       await db.insert(watchActivity).values({
         profile_id: item.profile_id,
         kind: "content_published",

@@ -141,14 +141,16 @@ lib/billing/lifecycle.test.ts). Decisions D62–D68.
 
 ## Phase 7 — Growth engine (§10)
 
-- [ ] **P7-90** Evidence-cited briefs (no evidence, no generation)
-- [ ] **P7-91** Asset library with rights records; identity release before a
+- [x] **P7-90** Evidence-cited briefs (no evidence, no generation)
+- [x] **P7-91** Asset library with rights records; identity release before a
       real person renders
-- [ ] **P7-92** Brand voice profile as editable words; first three pieces
+- [x] **P7-92** Brand voice profile as editable words; first three pieces
       always approved
-- [ ] **P7-93** `labelling_record` per asset; no publish without one
+- [x] **P7-93** `labelling_record` per asset; no publish without one
 
 **Gate:** a brief without evidence fails; nothing publishes unlabelled.
+**Passed 2026-11-12** (lib/growth/growth.test.ts). Decisions D75–D81. A Drive
+folder connection for the library waits for a Drive connector.
 
 ## Phase 8 — Compliance completion (§9)
 

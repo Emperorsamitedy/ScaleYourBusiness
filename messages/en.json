@@ -66,7 +66,8 @@
       "statement": "Monthly statement",
       "billing": "Plan and billing",
       "mandates": "Firms with access",
-      "partner": "Partner console"
+      "partner": "Partner console",
+      "growth": "Growth studio"
     },
     "count": {
       "paused": "{count} paused",
@@ -6063,7 +6064,9 @@
       "payments_read": "Only an owner can see payments and their bank files.",
       "peers_consent": "Only an owner can decide whether this business's figures join the comparison with similar businesses.",
       "ladder_manage": "Only an owner can change what SYB may do on its own.",
-      "mandates_manage": "Only an owner can give or take back a firm's access to this business."
+      "mandates_manage": "Only an owner can give or take back a firm's access to this business.",
+      "growth_manage": "Only an owner or a manager can add assets and open creative briefs.",
+      "growth_voice": "Only an owner can confirm the brand voice and record identity releases."
     }
   },
   "authWords": {
@@ -9577,5 +9580,77 @@
       "failed": "That didn't work: {why}"
     },
     "failed": "That didn't work. Try again in a moment."
+  },
+  "growth": {
+    "meta": {
+      "title": "Growth studio"
+    },
+    "kicker": "Growth studio",
+    "intro": "SYB makes videos about your own products only from your own figures. Every brief names the figures it rests on, every generated file is labelled as made by AI, and nothing is published without your yes.",
+    "voice": {
+      "title": "How SYB describes your voice",
+      "none": "No description yet. SYB builds one from your own sentences, your site and your posts.",
+      "build": "Build it from what I've said",
+      "draft": "This is SYB's reading. Correct it, or confirm it as it is. Nothing is generated until you do.",
+      "confirmed": "Confirmed. SYB writes in this voice.",
+      "edit": "Your words",
+      "save": "Save my words",
+      "confirm": "It's right as it is"
+    },
+    "opps": {
+      "title": "What your figures say to promote",
+      "none": "No opportunity yet: SYB needs a few measured figures first.",
+      "figures": "Figures it rests on: {count}",
+      "subject": "What to promote",
+      "angle": "The angle",
+      "assets": "What to film or photograph",
+      "open": "Open the brief"
+    },
+    "trigger": {
+      "margin_opportunity": "A high-margin line",
+      "slow_stock": "Slow stock with money tied up",
+      "dead_hours": "Quiet hours to fill",
+      "seasonal_forecast": "A season coming",
+      "winback": "Lapsed regulars to win back",
+      "peer_signal": "Something similar businesses do"
+    },
+    "briefs": {
+      "title": "Briefs",
+      "none": "No brief yet.",
+      "evidence": "Rests on: {keys}",
+      "noEvidence": "Cites no figure, so nothing is generated from it."
+    },
+    "low": {
+      "title": "Running low",
+      "line": "{description}: {have} of {need}"
+    },
+    "assets": {
+      "title": "Your photos and clips",
+      "none": "Nothing here yet.",
+      "line": "{description} · shot by {shotBy} · used {uses} times",
+      "person": "a person appears",
+      "released": "release on file",
+      "noRelease": "no release on file: it won't be used in a video",
+      "file": "The file",
+      "description": "What it shows",
+      "shotBy": "Who shot it",
+      "personAppears": "A person appears in it",
+      "release": "Their release",
+      "noneRelease": "None",
+      "add": "Add to the library"
+    },
+    "releases": {
+      "title": "Identity releases",
+      "intro": "A video showing a real person is never made without that person's signed release.",
+      "none": "None recorded.",
+      "line": "{person} · {ref} · signed {date}",
+      "revoked": "withdrawn",
+      "person": "Who it is",
+      "ref": "The signed release (its file name or number)",
+      "add": "Record the release",
+      "revoke": "Withdraw"
+    },
+    "done": "Done.",
+    "failed": "That didn't work: {why}"
   }
 }

@@ -66,6 +66,7 @@ import {
 } from "../execution/tiktok-posting";
 import { phraseHash } from "../execution/meta-login";
 import { bootstrapIntake } from "../intake/service";
+import { labelledForTest } from "../growth/test-support";
 import { writeField } from "../profile/field-store";
 import type { LimitLlm } from "../proposals/hard-limits";
 import { ProposalError, approveProposal, createProposal } from "../proposals/service";
@@ -255,6 +256,10 @@ async function business(opts: { connect?: boolean } = {}) {
         },
       })
       .returning();
+    // §10.6: render writes a generated item's labelling record; this fixture stands in for render.
+    if ((over.generated ?? true) && row!.media_path) {
+      await labelledForTest(s.profile_id, row!.id, row!.media_path, LABEL);
+    }
     return row!;
   };
   return { ...s, user_id: u!.id, channel_id: ch!.id, video };

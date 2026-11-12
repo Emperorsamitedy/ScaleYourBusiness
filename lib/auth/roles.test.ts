@@ -43,6 +43,8 @@ const MANAGER_MAY: readonly RoleAction[] = [
   // I-52b (owner, 2026-11-01): the pipeline's day-to-day, and reading a connection again.
   "pipeline.edit",
   "connections.sync",
+  // The v1 spec §10.4: assets and evidence-cited briefs are content work, like drafting.
+  "growth.manage",
 ];
 /** And what the plan names as never a manager's — each must be owner-only. */
 const NEVER_A_MANAGER: readonly RoleAction[] = [
@@ -66,6 +68,10 @@ const NEVER_A_MANAGER: readonly RoleAction[] = [
   "phone.recordings",
   // Architecture-v2 D7: whether the business's figures join peer benchmarks.
   "peers.consent",
+  // The v1 spec §10.3 / Art. 50(4): the brand voice and a person's identity release.
+  "growth.voice",
+  // The v1 spec §7.1: a firm's access to the business.
+  "mandates.manage",
   // The v1 spec §4: what SYB may do on its own.
   "ladder.manage",
 ];

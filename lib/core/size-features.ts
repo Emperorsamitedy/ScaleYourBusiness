@@ -179,6 +179,11 @@ export const SIZE_FEATURES = {
     reason:
       "An accountant or agency reaches its clients' books from here, whatever the size of their own business (the v1 spec §7).",
   },
+  "nav.growth": {
+    bands: EVERY,
+    reason:
+      "What SYB may make about the business, from which figures, in whose voice, is the owner's to see at any size (the v1 spec §10).",
+  },
   "nav.statement": {
     bands: EVERY,
     reason:

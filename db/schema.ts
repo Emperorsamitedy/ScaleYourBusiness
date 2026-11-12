@@ -2270,6 +2270,12 @@ export const mediaGenerations = pgTable(
     currency: text("currency").notNull(),
     /** sha256 of the exact prompt sent, instruction included. */
     prompt_sha256: text("prompt_sha256").notNull(),
+    /**
+     * The v1 spec §10.2: the evidence-cited brief this generation renders.
+     * Required on every new row (a NOT VALID check in the growth migration:
+     * rows from before it stay), and the brief must cite evidence.
+     */
+    creative_brief_id: uuid("creative_brief_id"),
     error: text("error"),
     created_at: timestamp("created_at", { withTimezone: true, mode: "string" })
       .notNull()
@@ -3419,10 +3425,41 @@ export const creativeBriefs = pgTable(
     created_at: timestamp("created_at", { withTimezone: true, mode: "string" })
       .notNull()
       .defaultNow(),
+    // ── The v1 spec §10.2's creative_brief (Phase 7, P7-90) ──
+    /** margin_opportunity · slow_stock · dead_hours · seasonal_forecast · winback · peer_signal */
+    trigger: text("trigger"),
+    /**
+     * §6.1 figure ids every claim traces to. A brief with none never
+     * generates: a database trigger refuses a generation that names it, and
+     * another refuses an id that isn't this business's figure.
+     */
+    evidence: uuid("evidence")
+      .array()
+      .notNull()
+      .default(sql`'{}'::uuid[]`),
+    /** The product or service. */
+    subject: text("subject"),
+    angle: text("angle"),
+    /** [{ kind, description, duration_s, quantity }] — "3 clips of the pasta being plated". */
+    assets_required: jsonb("assets_required").$type<AssetNeed[]>().notNull().default([]),
+    /** library_assets ids supplied for it. */
+    assets_supplied: uuid("assets_supplied")
+      .array()
+      .notNull()
+      .default(sql`'{}'::uuid[]`),
+    locale: text("locale"),
+    brand_voice_profile_id: uuid("brand_voice_profile_id"),
+    measurement_plan_id: uuid("measurement_plan_id"),
+    /** §10.4 / Art. 50(4): the video shows a real person — an identity release is needed before render. */
+    depicts_real_person: boolean("depicts_real_person").notNull().default(false),
   },
   (t) => [
     index("creative_briefs_profile_idx").on(t.profile_id, t.created_at),
     check("creative_briefs_attempts", sql`${t.attempts} >= 1`),
+    check(
+      "creative_briefs_trigger",
+      sql`${t.trigger} is null or ${t.trigger} in ('margin_opportunity','slow_stock','dead_hours','seasonal_forecast','winback','peer_signal')`,
+    ),
   ],
 );
 
@@ -5607,4 +5644,151 @@ export const firmMetricRollups = pgTable(
       .defaultNow(),
   },
   (t) => [uniqueIndex("firm_metric_rollups_key").on(t.firm_id, t.period, t.currency)],
+);
+
+// ---------------------------------------------------------------------------
+// The growth engine — the v1 build spec §10 (Phase 7, P7-90..93).
+
+/** §10.2: one thing a brief needs filmed or photographed. */
+export interface AssetNeed {
+  kind: "video" | "photo";
+  description: string;
+  duration_s?: number | null;
+  quantity: number;
+}
+
+/**
+ * Art. 50(4) / §9.4: a real person's consent to appear in generated video.
+ * A video showing a real person cannot render without one (live, unrevoked).
+ */
+export const identityReleases = pgTable("identity_releases", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  profile_id: uuid("profile_id")
+    .notNull()
+    .references(() => businessProfiles.id, { onDelete: "cascade" }),
+  /** How the owner names the person ("Anna, our baker") — no more than that. */
+  person: text("person").notNull(),
+  /** The signed release's reference (a document id, a file name). */
+  evidence_ref: text("evidence_ref").notNull(),
+  signed_at: timestamp("signed_at", { withTimezone: true, mode: "string" }).notNull(),
+  revoked_at: timestamp("revoked_at", { withTimezone: true, mode: "string" }),
+  created_at: timestamp("created_at", { withTimezone: true, mode: "string" })
+    .notNull()
+    .defaultNow(),
+});
+
+/**
+ * §10.4: the asset library. Every asset carries its rights record — who shot
+ * it, whether a person appears, and the identity release where one does.
+ */
+export const libraryAssets = pgTable(
+  "library_assets",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    profile_id: uuid("profile_id")
+      .notNull()
+      .references(() => businessProfiles.id, { onDelete: "cascade" }),
+    kind: text("kind").notNull(),
+    /** The stored file's URL (lib/content/media.ts). */
+    url: text("url").notNull(),
+    content_type: text("content_type").notNull(),
+    /** What it shows, in the owner's words ("the terrace at 18:00"). */
+    description: text("description").notNull(),
+    /** upload · drive · footage */
+    source: text("source").notNull().default("upload"),
+    shot_by: text("shot_by").notNull(),
+    person_appears: boolean("person_appears").notNull(),
+    identity_release_id: uuid("identity_release_id"),
+    created_at: timestamp("created_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    index("library_assets_profile_idx").on(t.profile_id, t.created_at),
+    check("library_assets_kind", sql`${t.kind} in ('video', 'photo')`),
+    check("library_assets_shot_by", sql`length(trim(${t.shot_by})) > 0`),
+  ],
+);
+
+/** §10.4's usage history: which post used which asset. */
+export const assetUsages = pgTable(
+  "asset_usages",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    asset_id: uuid("asset_id")
+      .notNull()
+      .references(() => libraryAssets.id, { onDelete: "cascade" }),
+    content_item_id: uuid("content_item_id").notNull(),
+    used_at: timestamp("used_at", { withTimezone: true, mode: "string" }).notNull().defaultNow(),
+  },
+  (t) => [uniqueIndex("asset_usages_once").on(t.asset_id, t.content_item_id)],
+);
+
+/**
+ * §10.3: the brand voice, as plain words the owner reads and corrects —
+ * never a hidden embedding. Built from the owner's own posts, site copy and
+ * reviews (the voice card's traits, each with its source); confirmed by the
+ * owner before first use. An edit supersedes; nothing is overwritten.
+ */
+export const brandVoiceProfiles = pgTable(
+  "brand_voice_profiles",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    profile_id: uuid("profile_id")
+      .notNull()
+      .references(() => businessProfiles.id, { onDelete: "cascade" }),
+    description: text("description").notNull(),
+    /** The traits it was built from, each with its source (lib/content/voice.ts). */
+    traits: jsonb("traits").$type<{ statement: string; source: string }[]>().notNull(),
+    /** draft (built, not yet read by the owner) · confirmed */
+    status: text("status").notNull().default("draft"),
+    edited_by_owner: boolean("edited_by_owner").notNull().default(false),
+    confirmed_by: uuid("confirmed_by"),
+    confirmed_at: timestamp("confirmed_at", { withTimezone: true, mode: "string" }),
+    created_at: timestamp("created_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+    superseded_at: timestamp("superseded_at", { withTimezone: true, mode: "string" }),
+  },
+  (t) => [
+    uniqueIndex("brand_voice_profiles_live")
+      .on(t.profile_id)
+      .where(sql`${t.superseded_at} is null`),
+    check("brand_voice_profiles_status", sql`${t.status} in ('draft', 'confirmed')`),
+    check("brand_voice_profiles_words", sql`length(trim(${t.description})) > 0`),
+  ],
+);
+
+/**
+ * §9.3 / §10.6: one labelling record per generated asset — how it was
+ * labelled, to which standard, when, and who published it. Written where
+ * the label is stamped (the two render paths); an AI-generated item cannot
+ * be queued or published without one (a database trigger).
+ */
+export const labellingRecords = pgTable(
+  "labelling_records",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    profile_id: uuid("profile_id")
+      .notNull()
+      .references(() => businessProfiles.id, { onDelete: "cascade" }),
+    /** The stored media's URL, as the item will carry it. */
+    media_url: text("media_url").notNull(),
+    content_item_id: uuid("content_item_id"),
+    generation_id: uuid("generation_id"),
+    candidate_id: uuid("candidate_id"),
+    /** "iptc_xmp+jpeg_comment" · "mp4_comment" — what was written into the file. */
+    method: text("method").notNull(),
+    /** The standard it follows. */
+    standard_version: text("standard_version").notNull(),
+    /** The visible words that travel with it (the caption's disclosure). */
+    label: text("label").notNull(),
+    labelled_at: timestamp("labelled_at", { withTimezone: true, mode: "string" }).notNull(),
+    published_by: uuid("published_by"),
+    published_at: timestamp("published_at", { withTimezone: true, mode: "string" }),
+  },
+  (t) => [
+    index("labelling_records_url_idx").on(t.media_url),
+    index("labelling_records_item_idx").on(t.content_item_id),
+  ],
 );

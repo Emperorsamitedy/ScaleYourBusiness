@@ -66,7 +66,8 @@
       "statement": "月度对账单",
       "billing": "方案与账单",
       "mandates": "有访问权限的事务所",
-      "partner": "合作伙伴控制台"
+      "partner": "合作伙伴控制台",
+      "growth": "增长工作室"
     },
     "count": {
       "paused": "{count} 个已暂停",
@@ -6063,7 +6064,9 @@
       "payments_read": "只有所有者可以查看付款及其银行文件。",
       "peers_consent": "只有所有者可以决定这家企业的数据是否加入同类企业对比。",
       "ladder_manage": "只有所有者可以更改 SYB 可自行执行的操作。",
-      "mandates_manage": "只有所有者可以授予或收回事务所对这家企业的访问权限。"
+      "mandates_manage": "只有所有者可以授予或收回事务所对这家企业的访问权限。",
+      "growth_manage": "只有所有者或经理可以添加素材并创建创意简报。",
+      "growth_voice": "只有所有者可以确认品牌语气并记录肖像授权。"
     }
   },
   "authWords": {
@@ -9577,5 +9580,77 @@
       "failed": "没有成功：{why}"
     },
     "failed": "没有成功。请稍后再试。"
+  },
+  "growth": {
+    "meta": {
+      "title": "增长工作室"
+    },
+    "kicker": "增长工作室",
+    "intro": "SYB 只根据你自己的数字，为你自己的产品制作视频。每份简报都会注明所依据的数字，每个生成的文件都标注为 AI 制作，没有你的同意不会发布任何内容。",
+    "voice": {
+      "title": "SYB 如何描述你的语气",
+      "none": "还没有描述。SYB 会根据你自己的话、你的网站和你的帖子来整理。",
+      "build": "根据我说过的话整理",
+      "draft": "这是 SYB 的理解。请修改，或按原样确认。在此之前不会生成任何内容。",
+      "confirmed": "已确认。SYB 将以这种语气写作。",
+      "edit": "你的描述",
+      "save": "保存我的描述",
+      "confirm": "就是这样"
+    },
+    "opps": {
+      "title": "你的数字建议推广什么",
+      "none": "暂无机会：SYB 需要先有一些测量到的数字。",
+      "figures": "所依据的数字：{count}",
+      "subject": "推广什么",
+      "angle": "切入角度",
+      "assets": "需要拍摄什么",
+      "open": "创建简报"
+    },
+    "trigger": {
+      "margin_opportunity": "高利润率产品",
+      "slow_stock": "占用资金的滞销库存",
+      "dead_hours": "需要填补的冷清时段",
+      "seasonal_forecast": "即将到来的季节",
+      "winback": "挽回流失的老顾客",
+      "peer_signal": "同类企业在做的事"
+    },
+    "briefs": {
+      "title": "简报",
+      "none": "还没有简报。",
+      "evidence": "依据：{keys}",
+      "noEvidence": "没有引用任何数字，因此不会据此生成内容。"
+    },
+    "low": {
+      "title": "素材不足",
+      "line": "{description}：{have} / {need}"
+    },
+    "assets": {
+      "title": "你的照片和视频片段",
+      "none": "这里还没有内容。",
+      "line": "{description} · 拍摄者 {shotBy} · 已使用 {uses} 次",
+      "person": "出现了真人",
+      "released": "已有授权",
+      "noRelease": "没有授权：不会用于视频",
+      "file": "文件",
+      "description": "内容是什么",
+      "shotBy": "拍摄者",
+      "personAppears": "其中出现了真人",
+      "release": "其授权",
+      "noneRelease": "无",
+      "add": "加入素材库"
+    },
+    "releases": {
+      "title": "肖像授权",
+      "intro": "没有本人签署的授权，绝不会制作出现真人的视频。",
+      "none": "尚无记录。",
+      "line": "{person} · {ref} · 签署于 {date}",
+      "revoked": "已撤回",
+      "person": "是谁",
+      "ref": "已签署的授权（文件名或编号）",
+      "add": "记录授权",
+      "revoke": "撤回"
+    },
+    "done": "完成。",
+    "failed": "没有成功：{why}"
   }
 }
