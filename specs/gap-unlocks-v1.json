@@ -1,0 +1,19 @@
+{
+  "version": "v1",
+  "about": "The v1 build spec §6.3: how each kind of unanswered fact is best unlocked and roughly how many minutes it takes, matched by the fact key's longest prefix. Data, never code (lib/diagnosis/priced-gaps.ts). Connecting beats counting: a connected source answers the gap and every later version of it.",
+  "rules": [
+    { "prefix": "revenue.", "method": "connect", "what": "connect Stripe, your shop or NAV Online Számla", "effort_minutes": 5 },
+    { "prefix": "revenue.order_count", "method": "connect", "what": "connect your shop or Stripe", "effort_minutes": 5 },
+    { "prefix": "marketing.monthly_ad_spend", "method": "connect", "what": "connect your Meta or Google ads account", "effort_minutes": 5 },
+    { "prefix": "marketing.", "method": "count", "what": "look it up once in your ad accounts", "effort_minutes": 5 },
+    { "prefix": "costs.", "method": "upload", "what": "upload a bank statement or a month of invoices", "effort_minutes": 10 },
+    { "prefix": "offers.", "method": "count", "what": "check the price list and your supplier invoices", "effort_minutes": 5 },
+    { "prefix": "operations.staff", "method": "count", "what": "count who works in the business and their hours", "effort_minutes": 5 },
+    { "prefix": "operations.", "method": "count", "what": "answer it from how you work today", "effort_minutes": 3 },
+    { "prefix": "customers.", "method": "connect", "what": "connect your shop or booking system", "effort_minutes": 5 },
+    { "prefix": "cash.", "method": "upload", "what": "upload a recent bank statement", "effort_minutes": 5 },
+    { "prefix": "identity.", "method": "count", "what": "answer it once", "effort_minutes": 1 },
+    { "prefix": "legal.", "method": "count", "what": "answer it once", "effort_minutes": 1 },
+    { "prefix": "goals.", "method": "count", "what": "say it in your own words", "effort_minutes": 2 }
+  ]
+}

@@ -164,6 +164,11 @@ export const SIZE_FEATURES = {
     bands: EVERY,
     reason: "What SYB may do on its own must be one tap away at any size (the v1 spec §4.6).",
   },
+  "nav.statement": {
+    bands: EVERY,
+    reason:
+      "The monthly statement is the proof of what SYB did and what it was worth (the v1 spec §6.4).",
+  },
   "nav.team_access": {
     bands: EVERY,
     reason: "Who can sign in to the business is the owner's to see, at any size.",

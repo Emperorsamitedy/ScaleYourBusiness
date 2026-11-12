@@ -68,7 +68,8 @@ export async function ladderOverview(
     );
   const ceiling = await stationCeiling(profileId);
   const rows: LadderRow[] = [];
-  for (const capability of CAPABILITIES) {
+  // The in-repo fixtures exist for tests; an owner never sees them.
+  for (const capability of CAPABILITIES.filter((c) => !c.startsWith("fixture"))) {
     const station = await stationOf(profileId, capability, db, now);
     const mine = [...standing.values()].filter((e) => e.provider === capability);
     const real = mine.filter((e) => !e.shadow);

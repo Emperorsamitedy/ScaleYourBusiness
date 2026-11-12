@@ -32,6 +32,7 @@ import { logSafeError } from "../core/log-safe";
 import { createHash } from "node:crypto";
 import { and, desc, eq } from "drizzle-orm";
 import { db } from "../../db";
+import bankFile from "../../specs/question-bank-v1.json";
 import { accounts, businessProfiles, decisionLog, diagnosisReports } from "../../db/schema";
 import { displaySourceKind } from "../connectors/measured";
 import { statedVsMeasured } from "../connectors/stated-vs-measured";
@@ -63,6 +64,65 @@ import { applicableQuestions } from "../resolver/applicability";
 import type { AppLocale } from "../i18n/locales";
 import { isAppLocale } from "../i18n/locales";
 import { withinRateLimit } from "../core/rate-limit";
+import type { Grade } from "../core/grade";
+import { isGrade } from "../core/grade";
+import { QuotaError, assertWithinQuota } from "../billing/usage";
+import { diagnosisGrade } from "../diagnosis/diagnosis-grade";
+import type { DiffableFinding, DiffableReport, ReportDiff } from "../diagnosis/diff";
+import { diffReports } from "../diagnosis/diff";
+import { registerLeaks } from "../diagnosis/leaks";
+import type { PricedGap } from "../diagnosis/priced-gaps";
+import { priceGaps } from "../diagnosis/priced-gaps";
+
+/** A finding's key across versions: its area and its title, normalised. */
+function findingKey(f: { area?: string; title: string; severity: string }): DiffableFinding {
+  const key = `${f.area ?? ""}:${f.title.trim().toLowerCase().replace(/\s+/g, " ")}`;
+  return { key, title: f.title, severity: f.severity };
+}
+
+function moneyOrNull(m: unknown): { amount_minor: number; currency: string } | null {
+  const v = m as { amount_minor?: unknown; currency?: unknown } | null | undefined;
+  return v && Number.isSafeInteger(v.amount_minor) && typeof v.currency === "string"
+    ? { amount_minor: v.amount_minor as number, currency: v.currency }
+    : null;
+}
+
+/** The economics figures a diff compares: minor units or numbers, never words. */
+function figuresOf(e: EconomicsResult): Record<string, number | null> {
+  const m = (c: { value: { amount_minor: number } } | null | undefined) =>
+    c?.value.amount_minor ?? null;
+  return {
+    blended_margin_pct: e.blended_margin_pct?.value ?? null,
+    average_order_value: m(e.average_order_value),
+    cost_per_acquisition: m(e.cost_per_acquisition),
+    fixed_costs_monthly: m(e.fixed_costs_monthly),
+    break_even_revenue: e.break_even?.value.revenue_per_month.amount_minor ?? null,
+  };
+}
+
+function diffable(row: typeof diagnosisReports.$inferSelect): DiffableReport {
+  return {
+    id: row.id,
+    generated_at: row.generated_at,
+    grade: isGrade(row.diagnosis_grade) ? (row.diagnosis_grade as Grade) : null,
+    findings: (row.findings as DiagnosisFinding[]).map(findingKey),
+    figures: figuresOf(row.unit_economics as EconomicsResult),
+  };
+}
+
+/** The bank's question id → the fact key it writes (gaps carry the id). */
+let writesTo: Map<string, string> | null = null;
+function fieldKeyOf(questionId: string): string {
+  if (!writesTo) {
+    writesTo = new Map(
+      (bankFile as { questions: { id: string; writes_to: string }[] }).questions.map((q) => [
+        q.id,
+        q.writes_to,
+      ]),
+    );
+  }
+  return writesTo.get(questionId) ?? questionId;
+}
 
 export class ReportError extends Error {
   readonly status: number;
@@ -127,6 +187,13 @@ export interface ReportView {
    * generator's. A reader in another language reads it as written.
    */
   language: AppLocale;
+  /** The v1 spec §6.2: A or B may lead with money; C and D may not. Older reports read as D. */
+  diagnosis_grade: Grade;
+  /** §6.4: the version, and what moved since the report before (null on the first). */
+  version: number;
+  diff: ReportDiff | null;
+  /** §6.3: every gap priced and ranked; the first three are the first week. */
+  priced_gaps: PricedGap[];
 }
 
 export interface PriorReport {
@@ -207,6 +274,10 @@ function rowToView(
     history,
     prior,
     language: isAppLocale(row.language) ? row.language : "en",
+    diagnosis_grade: isGrade(row.diagnosis_grade) ? row.diagnosis_grade : "D",
+    version: row.version ?? 1,
+    diff: (row.diff as ReportDiff | null) ?? null,
+    priced_gaps: (row.priced_gaps as PricedGap[] | null) ?? [],
   };
 }
 
@@ -266,6 +337,13 @@ export async function generateReport(args: {
   if (existing && existing.snapshot_id === snapshot.id) {
     return { report: await viewOf(existing), fresh: false };
   }
+  // The multi-market spec §B.4: a plan's AI allowance is a hard cap.
+  try {
+    await assertWithinQuota(args.accountId, args.profileId, "llm_tokens");
+  } catch (error) {
+    if (error instanceof QuotaError) throw new ReportError(error.message, 429);
+    throw error;
+  }
 
   // Security review 2026-11-09: the cost guard above only skips an
   // UNCHANGED profile — nothing bounded how often a signed-in owner could
@@ -273,7 +351,9 @@ export async function generateReport(args: {
   // toggling any fact back and forth in a loop. A fixed daily cap per
   // profile closes the unbounded-spend path without touching the
   // legitimate case of a handful of genuine re-diagnoses after real edits.
-  if (!(await withinRateLimit(`report:fresh:${args.profileId}`, REPORT_FRESH_DAILY_LIMIT, DAY_MS))) {
+  if (
+    !(await withinRateLimit(`report:fresh:${args.profileId}`, REPORT_FRESH_DAILY_LIMIT, DAY_MS))
+  ) {
     throw new ReportError(
       "too many fresh reports requested for this business today — try again tomorrow",
       429,
@@ -391,6 +471,38 @@ export async function generateReport(args: {
     rejection_reason: null,
   }));
 
+  // The v1 spec §6: the Diagnosis Grade, the gaps priced against the
+  // recommendations resting on them, and — after the first — the diff
+  // against the report before. Deterministic; no model call.
+  const grade = await diagnosisGrade(args.accountId);
+  const stakes = recs.recommendations.map((r) => ({
+    cites: [...new Set(r.addresses.flatMap((i) => findings[i]?.evidence ?? []))],
+    low: moneyOrNull(r.scenario.downside_case?.profit_delta_monthly),
+    high: moneyOrNull(r.scenario.upside_case?.profit_delta_monthly),
+  }));
+  const pricedGaps = priceGaps(
+    gaps.map((g) => ({
+      question_id: g.question_id,
+      field_key: fieldKeyOf(g.question_id),
+      prompt: g.prompt,
+    })),
+    stakes,
+  );
+  const version = existing ? (existing.version ?? 1) + 1 : 1;
+  const diff = existing
+    ? diffReports(
+        diffable(existing),
+        {
+          id: "next",
+          generated_at: new Date().toISOString(),
+          grade: grade.grade,
+          findings: findings.map(findingKey),
+          figures: figuresOf(economics),
+        },
+        version,
+      )
+    : null;
+
   const [row] = await db
     .insert(diagnosisReports)
     .values({
@@ -405,9 +517,40 @@ export async function generateReport(args: {
       data_gaps: gaps,
       trading_hours: tradingHours,
       language: locale,
+      diagnosis_grade: grade.grade,
+      version,
+      diff,
+      priced_gaps: pricedGaps,
     })
     .returning();
   if (!row) throw new DiagnosisError("report insert failed");
+
+  // §6.4: the open leak register — each finding a recommendation prices,
+  // opened once and kept across re-diagnoses.
+  await registerLeaks(
+    args.profileId,
+    row.id,
+    recs.recommendations.flatMap((r) =>
+      r.addresses
+        .map((i) => findings[i])
+        .filter((f): f is DiagnosisFinding => f !== undefined)
+        .map((f) => ({
+          key: findingKey(f).key,
+          title: f.title,
+          low: moneyOrNull(r.scenario.downside_case?.profit_delta_monthly),
+          high: moneyOrNull(r.scenario.upside_case?.profit_delta_monthly),
+          grade: grade.grade,
+        })),
+    ),
+  ).catch((error: unknown) =>
+    console.error(
+      JSON.stringify({
+        event: "leak_register_failed",
+        account_id: args.accountId,
+        ...logSafeError(error),
+      }),
+    ),
+  );
 
   await recordFunnelEvent(args.profileId, "funnel_report_delivered");
   return { report: await viewOf(row), fresh: true };

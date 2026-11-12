@@ -21,7 +21,7 @@
 // lib/site/localize.ts runs siteFindings again over the stored measurements
 // with the reader's translator, so another language is said, not stored.
 
-import { format, money } from "../../core/money";
+import { format, money, roundMinorTo, scaleMinor } from "../../core/money";
 import type { DiagnosisFinding, Severity } from "../../diagnosis/findings";
 import { intlNumber, presentMoney } from "../../i18n/format";
 import type { AppLocale } from "../../i18n/locales";
@@ -267,11 +267,11 @@ export function speedEuro(
     SPEED_RULE_OF_THUMB.max_seconds,
   );
   if (over <= 0) return { computed: false, why: EN("euro.inside") };
-  const monthly =
-    figures.sessions_per_month *
-    (figures.orders_per_month / figures.sessions_per_month) *
-    figures.aov_minor;
-  const round = (minor: number) => Math.round(minor / 100) * 100;
+  // sessions × (orders ÷ sessions) × AOV is orders × AOV: one exact product,
+  // the order count taken at its written decimal (hard rule 1).
+  const monthly = scaleMinor(figures.aov_minor, figures.orders_per_month);
+  const round = (minor: number) => roundMinorTo(minor, 100);
+  const lost = (rate: number) => scaleMinor(scaleMinor(monthly, rate), over);
   const inputs: EuroInputs = {
     sessions_per_month: figures.sessions_per_month,
     orders_per_month: figures.orders_per_month,
@@ -282,8 +282,8 @@ export function speedEuro(
   };
   return {
     computed: true,
-    low_minor: round(monthly * SPEED_RULE_OF_THUMB.lost_per_second.low * over),
-    high_minor: round(monthly * SPEED_RULE_OF_THUMB.lost_per_second.high * over),
+    low_minor: round(lost(SPEED_RULE_OF_THUMB.lost_per_second.low)),
+    high_minor: round(lost(SPEED_RULE_OF_THUMB.lost_per_second.high)),
     currency: figures.currency,
     per: "month",
     formula: speedFormula(inputs, figures.currency),

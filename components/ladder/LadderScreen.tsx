@@ -10,6 +10,12 @@ import { useCallback, useEffect, useState } from "react";
 import { useTr } from "../sheet/useTr";
 import type { LadderOverview, LadderRow } from "../../lib/ladder/overview";
 
+/** Rules that read differently met or unmet carry the state in their key. */
+const SPLIT_RULES = new Set(["connector_healthy", "net_positive", "no_big_loss", "caps_set"]);
+function ruleKey(rule: string, met: boolean): string {
+  return SPLIT_RULES.has(rule) ? `rule.${rule}.${met ? "met" : "unmet"}` : `rule.${rule}`;
+}
+
 export function LadderScreen() {
   const { tr } = useTr("ladder");
   const [view, setView] = useState<LadderOverview | null>(null);
@@ -89,10 +95,12 @@ function Row({
   tr: (k: string, v?: Record<string, string | number>) => string;
   change: (b: Record<string, unknown>) => Promise<void>;
 }) {
-  const unmet = row.next?.checks.filter((c) => !c.met).map((c) => c.detail) ?? [];
+  const unmet =
+    row.next?.checks.filter((c) => !c.met).map((c) => tr(ruleKey(c.rule, c.met), c.params ?? {})) ??
+    [];
   return (
     <li className="ladder-row">
-      <b>{row.label}</b> — {tr(`station.${row.station}`)}
+      <b>{tr(`capability.${row.capability}`)}</b> — {tr(`station.${row.station}`)}
       <p className="auth-copy">
         {tr("record", {
           closed: row.record.closed,

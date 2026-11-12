@@ -20,6 +20,7 @@ import { englishLabels } from "../bank/english-labels";
 import { displaySourceKind } from "../connectors/measured";
 import type { Field } from "../core/field";
 import { toDecimalString } from "../core/money";
+import { moneyDigits } from "../core/currency-table";
 import { SIZE_BAND_KEY, TEAM_SIZE_KEY, resolveSizeBand } from "./size-band";
 import { ensureSnapshot, readSnapshot } from "./snapshot";
 import type { ProfileSection } from "./sections";
@@ -127,8 +128,6 @@ const isMoney = (v: unknown): v is { amount_minor: number; currency: string } =>
   v !== null &&
   typeof (v as { amount_minor?: unknown }).amount_minor === "number" &&
   typeof (v as { currency?: unknown }).currency === "string";
-
-const MINOR_UNITS: Record<string, number> = { HUF: 2, EUR: 2, USD: 2, GBP: 2, JPY: 0 };
 
 export function repr(value: unknown): string | null {
   if (value === null || value === undefined) return null;
@@ -345,10 +344,14 @@ const GOAL_METRIC_WORDS: Readonly<Record<string, string>> = {
 
 /** A level per 30 days, in whole units: money in its currency (stored in minor units, rule 1), else a count. */
 function levelWords(per30d: number, currency: unknown): string {
-  const whole = (n: number) => Math.round(n).toLocaleString("en-US").replace(/,/g, " ");
-  return typeof currency === "string" && currency !== ""
-    ? `${whole(per30d / 10 ** (MINOR_UNITS[currency] ?? 2))} ${currency}`
-    : whole(per30d);
+  const grouped = (digits: string) => digits.replace(/\B(?=(\d{3})+(?!\d))/g, " ");
+  if (typeof currency === "string" && currency !== "" && Number.isSafeInteger(per30d)) {
+    // Money: whole major units from the integer's digits (hard rule 1).
+    const d = moneyDigits({ amount_minor: per30d, currency }, { whole: true });
+    return `${d.negative ? "-" : ""}${grouped(d.whole)} ${currency}`;
+  }
+  const n = Math.round(per30d); // not money: a count per 30 days
+  return `${n < 0 ? "-" : ""}${grouped(String(Math.abs(n)))}`;
 }
 
 /**

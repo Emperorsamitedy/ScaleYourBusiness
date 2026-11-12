@@ -87,13 +87,17 @@ Decisions D34–D38, D49–D51.
 
 ## Phase 3 — Diagnosis rebuild (§6)
 
-- [ ] **P7-50** Grades on every figure in every view; no euro headline below B
-- [ ] **P7-51** Priced gaps: unlock value, method, effort; top three = week one
-- [ ] **P7-52** Leak register with lifecycle; fixed-and-verified needs a gain entry
-- [ ] **P7-53** Monthly re-diagnosis as a diff; monthly ledger statement
-- [ ] **P7-54** 8-minute first interview; questions a connector answers suppressed
+- [x] **P7-50** Grades on every figure in every view; no euro headline below B
+      (report headline and leak figures gated on the Diagnosis Grade; a bank
+      statement's money in counts, D52)
+- [x] **P7-51** Priced gaps: unlock value, method, effort; top three = week one
+- [x] **P7-52** Leak register with lifecycle; fixed-and-verified needs a gain entry
+- [x] **P7-53** Monthly re-diagnosis as a diff; monthly ledger statement
+      (/statement; re-diagnosis on the weekly beat, D53)
+- [x] **P7-54** 8-minute first interview; questions a connector answers suppressed
 
 **Gate:** no euro headline at grade C or D in any locale; re-diagnosis diffs.
+**Passed 2026-11-12** (lib/diagnosis/v1-diagnosis.test.ts). Decisions D52–D55.
 
 ## Phase 4 — Peer Benchmark Network (§5)
 
@@ -179,7 +183,7 @@ first, the ledger being append-only). Decisions D39–D48.
       runner, Hungarian degradation, one-tap revocation, the guide with its
       screenshot gate
 - [ ] **MM-E2** Partner bulk NAV setup — lands with the Partner Console (Phase 6)
-- [ ] **MM-B2** Wire the hard quota cap into video generation and the LLM path
-- [ ] **MM-A9** The LLM cost meter onto stored ECB rates (D48)
+- [x] **MM-B2** Wire the hard quota cap into video generation and the LLM path
+- [x] **MM-A9** The LLM cost meter onto stored ECB rates (D48)
 - [ ] **Owner** NAV registration answer from counsel; NAV guide screenshots;
       confirm quotas and HU prices; counsel's HU matrix sign-off; NAV DPIA/DPA

@@ -7,7 +7,7 @@
 
 import { logSafeError } from "../core/log-safe";
 import type { UsageTokens } from "./pricing";
-import { costEur, webSearchCostEur } from "./pricing";
+import { costEur, eurPerUsd, useEcbUsdRate, webSearchCostEur } from "./pricing";
 
 export interface LlmCallRecord {
   at: string;
@@ -58,6 +58,12 @@ export function logLlmCall(record: LlmCallRecord): void {
  * and losing one metering row is better than failing the answer.
  */
 export async function recordLlmCall(record: LlmCallRecord): Promise<void> {
+  // D48: EUR at the stored ECB rate. The record was costed at the rate in
+  // use when it was built; once today's rate is loaded, restate it.
+  const before = eurPerUsd().rate;
+  await loadEcbUsdRate();
+  const after = eurPerUsd().rate;
+  if (after !== before && before > 0) record.cost_eur = (record.cost_eur / before) * after;
   logLlmCall(record);
   try {
     const { db } = await import("../../db");
@@ -76,6 +82,36 @@ export async function recordLlmCall(record: LlmCallRecord): Promise<void> {
     });
   } catch (error) {
     console.error(JSON.stringify({ event: "llm_call_persist_failed", ...logSafeError(error) }));
+  }
+}
+
+/** The day whose ECB rate the meter last loaded ("YYYY-MM-DD"), or null. */
+let loadedFor: string | null = null;
+
+/**
+ * Load the stored ECB USD rate for today (or the latest before it) into the
+ * meter, once a day per process. Telemetry never breaks a call: a failed
+ * read keeps the rate already in use and tries again on the next call.
+ */
+export async function loadEcbUsdRate(now = new Date()): Promise<void> {
+  const today = now.toISOString().slice(0, 10);
+  if (loadedFor === today) return;
+  try {
+    // Read through the database the meter already writes to: the support
+    // tier's module graph (rule 21) gains nothing for this read.
+    const { db } = await import("../../db");
+    const { fxRates } = await import("../../db/schema");
+    const { and, desc, eq, lte } = await import("drizzle-orm");
+    const [row] = await db
+      .select({ per_eur: fxRates.per_eur, date: fxRates.date })
+      .from(fxRates)
+      .where(and(eq(fxRates.currency, "USD"), lte(fxRates.date, today)))
+      .orderBy(desc(fxRates.date))
+      .limit(1);
+    useEcbUsdRate(row ?? null);
+    loadedFor = today;
+  } catch (error) {
+    console.error(JSON.stringify({ event: "llm_fx_rate_unavailable", ...logSafeError(error) }));
   }
 }
 

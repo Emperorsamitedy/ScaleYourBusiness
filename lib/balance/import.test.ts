@@ -31,6 +31,7 @@ import {
   mapBalanceHeader,
   statementBalances,
 } from "./import";
+import { diagnosisGrade } from "../diagnosis/diagnosis-grade";
 
 const TODAY = "2026-11-01";
 const read = (csv: string, extra: Partial<Parameters<typeof statementBalances>[1]> = {}) =>
@@ -218,5 +219,81 @@ describe("importing a statement", () => {
       .where(eq(metricObservations.connection_id, conn!.id));
     expect(again).toHaveLength(3);
     expect(Number(again.find((r) => r.period_date === "2026-10-30")!.value_minor)).toBe(24_000);
+  });
+});
+
+describe("D52 — money in, beside the balances", () => {
+  it("a signed amount column: each day's positive amounts summed; quiet days are 0; payees never read", () => {
+    const r = read(
+      [
+        "Date,Payee,Amount,Balance",
+        "2026-10-27,Anna Kovacs,100.00,1000.00",
+        "2026-10-27,Rent,-400.00,600.00",
+        "2026-10-29,Card sale,50.50,650.50",
+      ].join("\n"),
+    );
+    expect([...r.moneyIn]).toEqual([
+      ["2026-10-27", 10_000],
+      ["2026-10-28", 0],
+      ["2026-10-29", 5_050],
+    ]);
+    expect(r.money_in).toEqual({
+      column: "Amount",
+      days: 3,
+      total_minor: 15_050,
+      amount_unreadable: 0,
+    });
+    expect(JSON.stringify({ ...r, closing: [...r.closing], moneyIn: [...r.moneyIn] })).not.toMatch(
+      /Anna|Kovacs/,
+    );
+  });
+
+  it("a credit column wins over an amount column, and an empty credit cell is a debit row", () => {
+    const r = read(
+      [
+        "Date,Amount,Credit,Debit,Balance",
+        "2026-10-01,-5.00,,5.00,95.00",
+        "2026-10-02,20.00,20.00,,115.00",
+      ].join("\n"),
+    );
+    expect(r.money_in?.column).toBe("Credit");
+    expect([...r.moneyIn]).toEqual([
+      ["2026-10-01", 0],
+      ["2026-10-02", 2_000],
+    ]);
+  });
+
+  it("an unreadable amount is counted and left out, never guessed", () => {
+    const r = read("Date,Amount,Balance\n2026-10-01,abc,10.00\n2026-10-02,3.00,13.00");
+    expect(r.money_in).toMatchObject({ total_minor: 300, amount_unreadable: 1 });
+  });
+
+  it("a statement without a money-in column imports its balances only, as before", () => {
+    const r = read("Date,Balance\n2026-10-01,10.00");
+    expect(r.money_in).toBeNull();
+    expect(r.moneyIn.size).toBe(0);
+  });
+});
+
+describe("D52 — a cleanly parsed statement with 60 days of money in grades the business B", () => {
+  it("writes cash.money_in.daily and the Diagnosis Grade reads it as a revenue-side source", async () => {
+    const s = await bootstrapIntake();
+    created.push(s);
+    const now = new Date(`${TODAY}T09:00:00Z`);
+    expect((await diagnosisGrade(s.account_id, now)).grade).toBe("D");
+    const lines = ["Date,Amount,Balance"];
+    let balance = 0;
+    for (let i = 70; i >= 1; i--) {
+      const day = new Date(Date.parse(`${TODAY}T00:00:00Z`) - i * 86_400_000)
+        .toISOString()
+        .slice(0, 10);
+      balance += 120;
+      lines.push(`${day},120.00,${balance}.00`);
+    }
+    await importBankStatement(s.account_id, lines.join("\n"), { currency: "EUR", now });
+    const grade = await diagnosisGrade(s.account_id, now);
+    expect(grade.grade).toBe("B");
+    expect(grade.sources[0]).toMatchObject({ provider: BALANCE_IMPORT_PROVIDER, days: 70 });
+    expect(grade.sources[0]!.totals["EUR"]).toBe(60 * 12_000);
   });
 });

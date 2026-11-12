@@ -14,17 +14,38 @@
 import { and, eq, gte } from "drizzle-orm";
 import { db } from "../../db";
 import { limitActions } from "../../db/schema";
+import { utcOfZonedHour } from "../connectors/hourly";
+import { TIMEZONE_KEY, isValidZone } from "../hours/timezone";
+import { readCurrentField } from "../profile/field-store";
 import type { ActionFacts, CapsVerdict } from "./caps";
-import { capsOf, checkCaps } from "./caps";
+import { capsOf, checkCaps, localClock } from "./caps";
 import { authorize } from "./ladder";
 import { rulesVerdict, standingRulesOf } from "./standing-rules";
 
 export type LimitsVerdict = CapsVerdict;
 
-function dayStart(now: Date): string {
+/**
+ * The start of the business's day containing `now` (D38): local midnight in
+ * its timezone, or UTC midnight when none is known. A zone whose midnight
+ * doesn't exist that day (a DST jump at 00:00) starts at its first hour.
+ */
+export function dayStart(now: Date, zone: string | null = null): string {
+  if (zone) {
+    const { day } = localClock(now, zone);
+    for (let hour = 0; hour < 3; hour++) {
+      const at = utcOfZonedHour(day, hour, zone);
+      if (at) return at.toISOString();
+    }
+  }
   return new Date(
     Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()),
   ).toISOString();
+}
+
+/** The business's timezone as the profile holds it (owner-stated or inferred), else null. Read only. */
+async function zoneOf(profileId: string): Promise<string | null> {
+  const f = await readCurrentField<string>(profileId, TIMEZONE_KEY);
+  return f && typeof f.value === "string" && isValidZone(f.value) ? f.value : null;
 }
 
 export async function withinLimits(args: {
@@ -60,6 +81,7 @@ export async function withinLimits(args: {
     };
   }
 
+  const zone = await zoneOf(args.profileId);
   const today = await db
     .select()
     .from(limitActions)
@@ -67,7 +89,7 @@ export async function withinLimits(args: {
       and(
         eq(limitActions.profile_id, args.profileId),
         eq(limitActions.capability, args.capability),
-        gte(limitActions.at, dayStart(args.now)),
+        gte(limitActions.at, dayStart(args.now, zone)),
       ),
     );
   const caps = await capsOf(args.profileId, args.capability);
@@ -75,7 +97,13 @@ export async function withinLimits(args: {
     (n, a) => n + (caps && a.currency === caps.currency ? Math.abs(a.spend_delta_minor ?? 0) : 0),
     0,
   );
-  return checkCaps(caps, args.facts, { actions: today.length, spend_moved_minor: moved }, args.now);
+  return checkCaps(
+    caps,
+    args.facts,
+    { actions: today.length, spend_moved_minor: moved },
+    args.now,
+    zone,
+  );
 }
 
 /** Record what station 4 approved itself, so the rest of the day counts it. */

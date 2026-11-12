@@ -1,6 +1,15 @@
 import { describe, expect, it } from "vitest";
 import { buildCallRecord, summarizeCalls } from "./cost-log";
-import { costEur, promptTokens, UnknownModelError, USD_TO_EUR, webSearchCostEur } from "./pricing";
+import {
+  costEur,
+  costUsd,
+  eurPerUsd,
+  promptTokens,
+  UnknownModelError,
+  USD_TO_EUR,
+  useEcbUsdRate,
+  webSearchCostEur,
+} from "./pricing";
 
 describe("costEur", () => {
   it("prices uncached input, output, cache writes and cache reads distinctly", () => {
@@ -208,5 +217,31 @@ describe("Haiku 5.5's two rate cards, chosen by prompt length (2026-10-24)", () 
     expect(record.model).toBe("claude-haiku-5-5");
     // 2,000 × $0.10/M + 300 × $0.50/M = $0.00035
     expect(record.cost_eur).toBeCloseTo(0.00035 * USD_TO_EUR, 12);
+  });
+});
+
+describe("D48 — the meter prices at the stored ECB rate", () => {
+  const usage = {
+    input_tokens: 1_000_000,
+    output_tokens: 0,
+    cache_creation_input_tokens: 0,
+    cache_read_input_tokens: 0,
+  };
+
+  it("an ECB row (USD per 1 EUR) sets the rate; the fallback only when none is readable", () => {
+    try {
+      useEcbUsdRate({ per_eur: "1.2500", date: "2026-11-11" });
+      expect(eurPerUsd()).toEqual({ rate: 0.8, date: "2026-11-11" });
+      // Sonnet 5: 1M input = $2 → €1.60 at 1.25 USD per EUR
+      expect(costEur("claude-sonnet-5", usage)).toBeCloseTo(1.6, 9);
+      expect(costUsd("claude-sonnet-5", usage)).toBeCloseTo(2, 9);
+
+      useEcbUsdRate({ per_eur: "not a rate", date: "2026-11-11" });
+      expect(eurPerUsd()).toEqual({ rate: USD_TO_EUR, date: null });
+      useEcbUsdRate(null);
+      expect(costEur("claude-sonnet-5", usage)).toBeCloseTo(2 * USD_TO_EUR, 9);
+    } finally {
+      useEcbUsdRate(null);
+    }
   });
 });

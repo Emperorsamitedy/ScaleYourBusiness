@@ -34,6 +34,7 @@
 
 import { desc, eq } from "drizzle-orm";
 import { db } from "../../db";
+import { QuotaError, assertWithinQuota } from "../billing/usage";
 import { diagnosisReports, utterances } from "../../db/schema";
 import type { AssistantChangeRow, ChangeSeams } from "../assistant/changes";
 import { openQuestion, prepareChange, recordPrepared, supersede } from "../assistant/changes";
@@ -317,6 +318,13 @@ export async function postMessage(
   if (trimmed === "") throw new ChatError("say something and I'll answer", 422);
   if (trimmed.length > 4000)
     throw new ChatError("that's longer than I can take in one message", 422);
+  // The multi-market spec §B.4: a plan's AI allowance is a hard cap.
+  try {
+    await assertWithinQuota(accountId, profileId, "llm_tokens");
+  } catch (error) {
+    if (error instanceof QuotaError) throw new ChatError(error.message, 429);
+    throw error;
+  }
 
   const {
     intent,

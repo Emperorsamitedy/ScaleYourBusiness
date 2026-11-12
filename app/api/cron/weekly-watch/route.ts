@@ -19,6 +19,7 @@ import { runWeeklySummaries } from "../../../../lib/summary/run";
 import { runWeeklyWatch } from "../../../../lib/watch/job";
 import { pruneExpiredReviews } from "../../../../lib/reviews/store";
 import { pruneExpiredCarts } from "../../../../lib/carts/store";
+import { runMonthlyRediagnosis } from "../../../../lib/diagnosis/monthly";
 
 /**
  * Review 2026-10-30: one step that throws is logged and reported as null,
@@ -66,6 +67,9 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     const reviews_expired = await isolated("reviews_prune", () => pruneExpiredReviews(new Date()));
     // Idea 47 (review 2026-10-30): nor carts their 90 days, for a store whose syncs stopped.
     const carts_expired = await isolated("carts_prune", () => pruneExpiredCarts(new Date()));
+    // P7-53: a business whose report is a month old is re-diagnosed, as a diff
+    // against it — at no cost when nothing changed since.
+    const rediagnosis = await isolated("rediagnosis", () => runMonthlyRediagnosis(new Date()));
     // Idea 42: last, so it reports everything above — the owner's week, by email, once.
     const summaries = await runWeeklySummaries();
     console.log(
@@ -81,6 +85,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         forecasts,
         reviews_expired,
         carts_expired,
+        rediagnosis,
         summaries,
       }),
     );
@@ -95,6 +100,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       forecasts,
       reviews_expired,
       carts_expired,
+      rediagnosis,
       summaries,
     });
   } catch (error) {

@@ -584,6 +584,13 @@ a.ghost {
   align-items: center;
   gap: 15px;
 }
+/* /statement: the month and the leak register, one width, stacked */
+.statement-col {
+  width: min(560px, 100%);
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
 .auth-card {
   width: 100%;
   padding: 24px 24px 21px;

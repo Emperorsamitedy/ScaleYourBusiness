@@ -62,7 +62,8 @@
       "team_access": "Csapat hozzáférése",
       "language": "Nyelv és pénznem",
       "payments": "Kifizetések",
-      "ladder": "Mit tehetek"
+      "ladder": "Mit tehetek",
+      "statement": "Havi kivonat"
     },
     "count": {
       "paused": "{count} szüneteltetve",
@@ -9110,7 +9111,41 @@
       "seen": "Értem"
     },
     "shadowLink": "Nézze meg, mit tett volna eddig",
-    "failed": "Nem sikerült: {why}"
+    "failed": "Nem sikerült: {why}",
+    "rule": {
+      "lower": "A lejjebb lépéshez nem kell bizonyíték.",
+      "one_step": "Egyszerre csak egy lépés.",
+      "ceiling": "Ennél sosem a(z) {station}. szint fölött.",
+      "connector_healthy": {
+        "met": "Egy összekapcsolt forrás méri.",
+        "unmet": "Előbb kössön be egy forrást, amely méri."
+      },
+      "closed_shadow_plans": "Mért javaslatok: {done} / {need}.",
+      "gain_share": "Igazolt nyereség: {share}%, a szükséges {need}%-ból.",
+      "net_positive": {
+        "met": "Nettó pozitív.",
+        "unmet": "Még nem nettó pozitív."
+      },
+      "no_big_loss": {
+        "met": "Nincs az alsó becslés kétszeresét meghaladó veszteség.",
+        "unmet": "Egy veszteség meghaladta az alsó becslés kétszeresét."
+      },
+      "executed_actions": "Végrehajtott műveletek: {done} / {need}.",
+      "caps_set": {
+        "met": "A határai be vannak állítva.",
+        "unmet": "Előbb állítsa be a határait."
+      }
+    },
+    "capability": {
+      "meta_publish": "Facebook- és Instagram-bejegyzések",
+      "tiktok_publish": "TikTok-bejegyzések",
+      "meta_ads": "Meta-hirdetések",
+      "tiktok_ads": "TikTok-hirdetések",
+      "google_ads": "Google Ads",
+      "email_campaign": "E-mailek a kapcsolattartóinak",
+      "purchase_order": "Megrendelések a beszállítóknak",
+      "google_business_reviews": "Válaszok a Google-értékelésekre"
+    }
   },
   "shadowSummary": {
     "meta": {
@@ -9128,5 +9163,37 @@
     "none": "Még nincs mért eredmény.",
     "share": "Megosztható link másolása",
     "copied": "Link másolva"
+  },
+  "statement": {
+    "title": "Havi kivonat",
+    "none": "Bejelentkezés után látod a havi kivonatodat.",
+    "nothing": "még semmi",
+    "did": "{count, plural, one {# elvégzett lépés} other {# elvégzett lépés}}, {undone, plural, =0 {egy sem visszavonva} one {# visszavonva} other {# visszavonva}}",
+    "worth": "Igazolt, nyereség és veszteség együtt: {amount}",
+    "losses": "Ebből veszteség: {amount}",
+    "fee": "Amennyibe a SYB ebben a hónapban került: {amount}",
+    "feeNone": "A SYB ebben a hónapban semmit nem számlázott.",
+    "net": "Igazolt, a SYB díja után: {amount}",
+    "unproven": "{count, plural, =0 {Semmi sem zárult bizonyíték nélkül} one {# változás egyelőre bizonyíték nélkül zárult} other {# változás egyelőre bizonyíték nélkül zárult}}",
+    "queued": "{count, plural, =0 {Semmi sem vár rád} one {# dolog vár rád} other {# dolog vár rád}}",
+    "decision": "Az egy döntés, amely rád vár:",
+    "open": "megnyitás",
+    "noDecision": "Semmi sem vár rád.",
+    "leaks": {
+      "title": "Talált szivárgások",
+      "none": "Még nem találtunk szivárgást.",
+      "range": "havonta {low} és {high} között",
+      "grade": "{grade} szint",
+      "rule": "Egy szivárgás csak akkor számít javítottnak, ha egy mért nyereség igazolja. Összegek A vagy B szinttől látszanak; alatta kapcsolj be egy eladási forrást a méréshez.",
+      "status": {
+        "open": "nyitott",
+        "in_progress": "javítás alatt",
+        "fixed_and_verified": "javítva és igazolva",
+        "accepted": "így elfogadva"
+      }
+    },
+    "meta": {
+      "title": "Havi kivonat"
+    }
   }
 }

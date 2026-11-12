@@ -294,7 +294,16 @@ export interface Headline {
   title: string;
 }
 
-export function headline(recs: readonly Rec[]): Headline | null {
+/**
+ * The v1 spec §6.2: a money figure leads only at Diagnosis Grade A or B. At
+ * C or D the headline is never a money range, whatever the language; the
+ * panel says what was computed instead, and the gaps say what to connect.
+ */
+export function headline(
+  recs: readonly Rec[],
+  grade: "A" | "B" | "C" | "D" = "D",
+): Headline | null {
+  if (grade !== "A" && grade !== "B") return null;
   for (const [index, r] of recs.entries()) {
     const range = forecastRange(
       r.scenario.downside_case,

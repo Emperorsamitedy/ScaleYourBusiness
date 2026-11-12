@@ -62,7 +62,8 @@
       "team_access": "Acceso del equipo",
       "language": "Idioma y moneda",
       "payments": "Pagos",
-      "ladder": "Lo que puedo hacer"
+      "ladder": "Lo que puedo hacer",
+      "statement": "Extracto mensual"
     },
     "count": {
       "paused": "{count} en pausa",
@@ -9110,7 +9111,41 @@
       "seen": "Entendido"
     },
     "shadowLink": "Ver lo que habría hecho hasta ahora",
-    "failed": "No funcionó: {why}"
+    "failed": "No funcionó: {why}",
+    "rule": {
+      "lower": "Bajar no necesita pruebas.",
+      "one_step": "Un paso cada vez.",
+      "ceiling": "Nunca por encima del paso {station} para esto.",
+      "connector_healthy": {
+        "met": "Una fuente conectada lo mide.",
+        "unmet": "Primero conecta una fuente que lo mida."
+      },
+      "closed_shadow_plans": "Sugerencias medidas: {done} de {need}.",
+      "gain_share": "Ganancias verificadas: {share}% del {need}% necesario.",
+      "net_positive": {
+        "met": "Neto positivo.",
+        "unmet": "Aún no es neto positivo."
+      },
+      "no_big_loss": {
+        "met": "Ninguna pérdida mayor que el doble de su estimación baja.",
+        "unmet": "Una pérdida superó el doble de su estimación baja."
+      },
+      "executed_actions": "Acciones realizadas: {done} de {need}.",
+      "caps_set": {
+        "met": "Tus límites están fijados.",
+        "unmet": "Primero fija sus límites."
+      }
+    },
+    "capability": {
+      "meta_publish": "Publicaciones en Facebook e Instagram",
+      "tiktok_publish": "Publicaciones en TikTok",
+      "meta_ads": "Anuncios de Meta",
+      "tiktok_ads": "Anuncios de TikTok",
+      "google_ads": "Google Ads",
+      "email_campaign": "Correos a tus contactos",
+      "purchase_order": "Pedidos a proveedores",
+      "google_business_reviews": "Respuestas a reseñas de Google"
+    }
   },
   "shadowSummary": {
     "meta": {
@@ -9128,5 +9163,37 @@
     "none": "Aún no hay nada medido.",
     "share": "Copiar un enlace para compartir",
     "copied": "Enlace copiado"
+  },
+  "statement": {
+    "title": "Extracto mensual",
+    "none": "Inicia sesión para ver tu extracto mensual.",
+    "nothing": "nada todavía",
+    "did": "{count, plural, one {# acción realizada} many {# acciones realizadas} other {# acciones realizadas}}, {undone, plural, =0 {ninguna deshecha} one {# deshecha} many {# deshechas} other {# deshechas}}",
+    "worth": "Verificado, ganancias y pérdidas juntas: {amount}",
+    "losses": "Pérdidas incluidas: {amount}",
+    "fee": "Lo que costó SYB este mes: {amount}",
+    "feeNone": "SYB no cobró nada este mes.",
+    "net": "Verificado, después de la tarifa de SYB: {amount}",
+    "unproven": "{count, plural, =0 {Nada cerrado sin prueba} one {# cambio cerrado aún sin prueba} many {# cambios cerrados aún sin prueba} other {# cambios cerrados aún sin prueba}}",
+    "queued": "{count, plural, =0 {Nada te espera} one {# cosa te espera} many {# cosas te esperan} other {# cosas te esperan}}",
+    "decision": "La decisión que te espera:",
+    "open": "abrirla",
+    "noDecision": "Nada te espera.",
+    "leaks": {
+      "title": "Fugas encontradas",
+      "none": "Todavía no se ha encontrado ninguna fuga.",
+      "range": "de {low} a {high} al mes",
+      "grade": "grado {grade}",
+      "rule": "Una fuga se marca como resuelta solo cuando una ganancia medida lo demuestra. Las cifras aparecen con grado A o B; por debajo, conecta una fuente de ventas para medirlas.",
+      "status": {
+        "open": "abierta",
+        "in_progress": "en arreglo",
+        "fixed_and_verified": "resuelta y verificada",
+        "accepted": "aceptada tal cual"
+      }
+    },
+    "meta": {
+      "title": "Extracto mensual"
+    }
   }
 }

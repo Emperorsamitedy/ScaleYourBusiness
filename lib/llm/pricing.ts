@@ -72,8 +72,33 @@ export const PRICING: Readonly<Record<string, ModelPricing>> = {
   },
 };
 
-/** Rough conversion for the €-denominated budget; measurement, not FX truth. */
+/**
+ * The fallback conversion for the €-denominated budget, used only until a
+ * stored ECB rate is loaded (D48): the meter prices with the day's ECB
+ * reference rate from fx_rates (lib/llm/cost-log.ts loads it once a day).
+ * SYB's own cost estimate, not a business's money.
+ */
 export const USD_TO_EUR = 0.92;
+
+/** EUR per USD the meter prices with: the loaded ECB rate, else the fallback. */
+let eurPerUsdNow: { rate: number; date: string | null } = { rate: USD_TO_EUR, date: null };
+
+/** The rate in use and the ECB date it came from (null: the fallback). */
+export function eurPerUsd(): { rate: number; date: string | null } {
+  return eurPerUsdNow;
+}
+
+/**
+ * Set the meter's rate from an ECB row ("USD per 1 EUR", as published).
+ * Anything unreadable puts the fallback back.
+ */
+export function useEcbUsdRate(row: { per_eur: string; date: string } | null): void {
+  const usdPerEur = row ? Number(row.per_eur) : NaN; // not money: a published FX rate
+  eurPerUsdNow =
+    row && Number.isFinite(usdPerEur) && usdPerEur > 0
+      ? { rate: 1 / usdPerEur, date: row.date }
+      : { rate: USD_TO_EUR, date: null };
+}
 
 export interface UsageTokens {
   input_tokens: number;
@@ -99,7 +124,8 @@ export function rateCard(p: ModelPricing, usage: UsageTokens): RateCard {
   return p.long_prompt && promptTokens(usage) > p.long_prompt.above_tokens ? p.long_prompt : p;
 }
 
-export function costEur(model: string, usage: UsageTokens): number {
+/** A call's cost in USD, from the rate card. */
+export function costUsd(model: string, usage: UsageTokens): number {
   const p = PRICING[model];
   if (!p) throw new UnknownModelError(model);
   const card = rateCard(p, usage);
@@ -109,7 +135,12 @@ export function costEur(model: string, usage: UsageTokens): number {
       usage.cache_read_input_tokens * card.input_usd_per_mtok * p.cache_read_multiplier +
       usage.output_tokens * card.output_usd_per_mtok) /
     1_000_000;
-  return usd * USD_TO_EUR;
+  return usd;
+}
+
+/** A call's cost in EUR, at the meter's rate (the stored ECB rate once loaded). */
+export function costEur(model: string, usage: UsageTokens): number {
+  return costUsd(model, usage) * eurPerUsdNow.rate;
 }
 
 /**
@@ -122,5 +153,5 @@ export const WEB_SEARCH_USD_PER_REQUEST = 0.01;
 
 export function webSearchCostEur(requests: number): number {
   if (!Number.isFinite(requests) || requests <= 0) return 0;
-  return Math.floor(requests) * WEB_SEARCH_USD_PER_REQUEST * USD_TO_EUR;
+  return Math.floor(requests) * WEB_SEARCH_USD_PER_REQUEST * eurPerUsdNow.rate;
 }

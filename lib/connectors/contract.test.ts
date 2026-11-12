@@ -78,11 +78,16 @@ describe("PHASE 0 GATE — Stripe and a bank statement both produce graded norma
     expect(await c.authorize()).toEqual({ ok: true, scopes_held: [] });
     const events = await c.pull("2026-09-02");
     expectGraded(events);
-    expect(events.map((e) => [e.day, e.amount?.amount_minor])).toEqual([
+    const balances = events.filter((e) => e.metric === "cash.balance");
+    expect(balances.map((e) => [e.day, e.amount?.amount_minor])).toEqual([
       ["2026-09-02", 60_000],
       ["2026-09-03", 60_000],
       ["2026-09-04", 65_050],
     ]);
+    // D52: the statement's money in, in the same schema, beside the balances.
+    const moneyIn = events.filter((e) => e.metric === "cash.money_in.daily");
+    expect(moneyIn.map((e) => e.day)).toEqual(["2026-09-02", "2026-09-03", "2026-09-04"]);
+    expect(moneyIn.find((e) => e.day === "2026-09-04")?.amount?.amount_minor).toBe(5_050);
     expect(events[0]?.metric).toBe("cash.balance");
     expect(events[0]?.source_detail).toBe("Bank statement, 2026-09-01 to 2026-09-04");
   });

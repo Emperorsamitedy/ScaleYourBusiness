@@ -26,7 +26,7 @@
 import { createHash } from "node:crypto";
 import type { BalanceImportOptions } from "../balance/import";
 import { BalanceImportError, statementBalances } from "../balance/import";
-import { BALANCE_METRIC } from "../balance/source";
+import { BALANCE_METRIC, MONEY_IN_METRIC } from "../balance/source";
 import type { Grade } from "../core/grade";
 import { provenanceGrade } from "../core/grade";
 import type { Money } from "../core/money";
@@ -394,22 +394,34 @@ export function bankStatementConnector(
       const currency = options.currency.trim().toUpperCase();
       const observedAt = now().toISOString();
       const detail = `${label}, ${parsed.from} to ${parsed.through}`;
-      return [...parsed.closing.entries()]
-        .filter(([day]) => day >= since)
-        .map(([day, minor]) => ({
-          ...normalise(BANK_STATEMENT_CONNECTOR, label, {
-            metric_key: BALANCE_METRIC,
-            period_date: day,
-            dimensions: { currency },
-            value_minor: minor,
-            observed_at: observedAt,
-          }),
-          source_detail: detail,
-        }));
+      const events = (
+        metric: typeof BALANCE_METRIC | typeof MONEY_IN_METRIC,
+        days: Map<string, number>,
+      ) =>
+        [...days.entries()]
+          .filter(([day]) => day >= since)
+          .map(([day, minor]) => ({
+            ...normalise(BANK_STATEMENT_CONNECTOR, label, {
+              metric_key: metric,
+              period_date: day,
+              dimensions: { currency },
+              value_minor: minor,
+              observed_at: observedAt,
+            }),
+            source_detail: detail,
+          }));
+      // D52: the money in beside the balances, when the file has a money-in column.
+      return [
+        ...events(BALANCE_METRIC, parsed.closing),
+        ...events(MONEY_IN_METRIC, parsed.moneyIn),
+      ];
     },
 
     capabilities() {
-      return [{ kind: "read", metric: BALANCE_METRIC }];
+      return [
+        { kind: "read", metric: BALANCE_METRIC },
+        { kind: "read", metric: MONEY_IN_METRIC },
+      ];
     },
 
     cost_model() {

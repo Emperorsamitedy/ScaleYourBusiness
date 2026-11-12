@@ -31,7 +31,8 @@ import type { OpenPlanInput } from "../ledger/plans";
 import { openPlan } from "../ledger/plans";
 import { createProposal } from "../proposals/service";
 import type { Caps } from "./caps";
-import { checkCaps, setCaps } from "./caps";
+import { checkCaps, localClock, setCaps } from "./caps";
+import { dayStart } from "./limits";
 import {
   DEFAULT_STATION,
   NEW_BUSINESS_SHADOW_DAYS,
@@ -593,5 +594,50 @@ describe("§11.2 — a failed connector demotes what depended on it", () => {
         and(eq(ownerNotices.profile_id, s.profile_id), eq(ownerNotices.kind, "connector_demotion")),
       );
     expect(notices).toHaveLength(1);
+  });
+});
+
+describe("D38 — quiet times on the business's own clock", () => {
+  const base = {
+    ...CAPS,
+    blackout_windows: [] as Caps["blackout_windows"],
+    profile_id: "x",
+    capability: "meta_ads",
+    set_by: null,
+  } as unknown as Caps;
+  const facts = { amount: money(1_000, "EUR"), targets: [] };
+  const day = { actions: 0, spend_moved_minor: 0 };
+
+  it("a weekday's quiet hours are the business's local hours, not UTC's", () => {
+    // Saturday 22:00–24:00 in Budapest; 21:30Z on Sat 2026-11-14 is 22:30 there (CET, UTC+1).
+    const caps = {
+      ...base,
+      blackout_windows: [{ weekday: 6, from_hour: 22, to_hour: 24 }],
+    } as Caps;
+    const at = new Date("2026-11-14T21:30:00Z");
+    expect(checkCaps(caps, facts, day, at, "Europe/Budapest").verdict).toBe("refused");
+    // Read in UTC it is 21:30, outside the window: no zone known, the old reading.
+    expect(checkCaps(caps, facts, day, at, null).verdict).not.toBe("refused");
+  });
+
+  it("a quiet date range is the business's local date", () => {
+    // 23:30Z on 23 Dec is already 24 Dec in Budapest.
+    const caps = { ...base, blackout_windows: [{ from: "2026-12-24", to: "2026-12-26" }] } as Caps;
+    const at = new Date("2026-12-23T23:30:00Z");
+    expect(checkCaps(caps, facts, day, at, "Europe/Budapest").verdict).toBe("refused");
+    expect(checkCaps(caps, facts, day, at, null).verdict).not.toBe("refused");
+  });
+
+  it("the local clock and the start of the business's day", () => {
+    expect(localClock(new Date("2026-11-14T23:30:00Z"), "Europe/Budapest")).toEqual({
+      day: "2026-11-15",
+      weekday: 0,
+      hour: 0,
+    });
+    expect(localClock(new Date("2026-11-14T23:30:00Z"), "Not/AZone").day).toBe("2026-11-14");
+    expect(dayStart(new Date("2026-11-14T23:30:00Z"), "Europe/Budapest")).toBe(
+      "2026-11-14T23:00:00.000Z",
+    );
+    expect(dayStart(new Date("2026-11-14T23:30:00Z"), null)).toBe("2026-11-14T00:00:00.000Z");
   });
 });

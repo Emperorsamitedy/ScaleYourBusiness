@@ -9,6 +9,10 @@
 //   within          act, and report after
 //   needs_approval  over the soft ceiling: back to station 3 behaviour
 //   refused         a hard limit, a blackout, or something never to touch
+//
+// A blackout is read on the business's own clock (D38, closed): a weekday's
+// hours and a date range are the business's local weekday, hour and date,
+// in its presence.timezone. Only when no timezone is known is UTC used.
 
 import { and, eq } from "drizzle-orm";
 import { db } from "../../db";
@@ -43,21 +47,65 @@ export type CapsVerdict =
   | { verdict: "needs_approval"; reasons: string[] }
   | { verdict: "refused"; reasons: string[] };
 
-function inBlackout(b: Blackout, now: Date): boolean {
-  if ("weekday" in b) {
-    const h = now.getUTCHours();
-    return now.getUTCDay() === b.weekday && h >= b.from_hour && h < b.to_hour;
+const WEEKDAYS = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+
+/**
+ * Pure: the business's local date, weekday (0 = Sunday) and hour at `now`,
+ * in `zone`; UTC when the zone is null or not a real zone.
+ */
+export function localClock(
+  now: Date,
+  zone: string | null,
+): { day: string; weekday: number; hour: number } {
+  if (zone) {
+    try {
+      const p = Object.fromEntries(
+        new Intl.DateTimeFormat("en-GB", {
+          timeZone: zone,
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+          weekday: "short",
+          hour: "2-digit",
+          hourCycle: "h23",
+        })
+          .formatToParts(now)
+          .map((x) => [x.type, x.value]),
+      );
+      return {
+        day: `${p.year}-${p.month}-${p.day}`,
+        weekday: WEEKDAYS.indexOf(p.weekday ?? ""),
+        hour: Number(p.hour),
+      };
+    } catch {
+      // not a zone this runtime knows: fall through to UTC
+    }
   }
-  const day = now.toISOString().slice(0, 10);
-  return day >= b.from && day <= b.to;
+  return {
+    day: now.toISOString().slice(0, 10),
+    weekday: now.getUTCDay(),
+    hour: now.getUTCHours(),
+  };
 }
 
-/** Pure: the action against the stored caps. */
+function inBlackout(b: Blackout, now: Date, zone: string | null): boolean {
+  const local = localClock(now, zone);
+  if ("weekday" in b) {
+    return local.weekday === b.weekday && local.hour >= b.from_hour && local.hour < b.to_hour;
+  }
+  return local.day >= b.from && local.day <= b.to;
+}
+
+/**
+ * Pure: the action against the stored caps. `zone` is the business's IANA
+ * timezone, which its quiet times are read in; null reads them in UTC.
+ */
 export function checkCaps(
   caps: Caps | null,
   facts: ActionFacts | null,
   today: DaySoFar,
   now: Date,
+  zone: string | null = null,
 ): CapsVerdict {
   if (caps === null) {
     return { verdict: "refused", reasons: ["no limits are set for this capability"] };
@@ -76,7 +124,7 @@ export function checkCaps(
   if (touched.length > 0)
     refused.push(`it touches something you said never to touch (${touched.join(", ")})`);
   for (const b of caps.blackout_windows as Blackout[]) {
-    if (inBlackout(b, now)) refused.push("it falls in a time you said nothing should act");
+    if (inBlackout(b, now, zone)) refused.push("it falls in a time you said nothing should act");
   }
   if (today.actions + 1 > caps.max_actions_per_day) {
     refused.push(

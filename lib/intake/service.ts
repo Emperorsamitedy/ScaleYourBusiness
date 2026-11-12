@@ -60,6 +60,7 @@ import { PROVIDER_IDS } from "../connectors/scopes";
 import type { ProfileSection } from "../profile/sections";
 import { isProfileSection } from "../profile/sections";
 import type { ApplicableQuestion } from "../resolver/applicability";
+import { applyFirstInterview } from "../interviewer/first-interview";
 import { applicableQuestions, buildConditionContext } from "../resolver/applicability";
 import type { AreaQuestion, ResponseKind } from "./areas";
 import { computeAreas, naturalIdCompare, responseKindOf } from "./areas";
@@ -577,7 +578,20 @@ export async function getIntakeState(
   const skippedIds = new Set(
     applicable.filter((q) => view.skippedKeys.has(q.writes_to)).map((q) => q.id),
   );
-  const selection = selectCandidates(applicable, view.responded, skippedIds);
+  const picked = selectCandidates(applicable, view.responded, skippedIds);
+  // The v1 spec §6.5: nothing a live connection measures, and the first
+  // interview's 8-minute budget (lib/interviewer/first-interview.ts).
+  const allowed = await applyFirstInterview({
+    profileId,
+    accountId,
+    applicable,
+    candidates: picked.candidates,
+  });
+  const selection = {
+    ...picked,
+    candidates: allowed,
+    tier: allowed.length > 0 ? picked.tier : null,
+  };
   const progress = progressOf(applicable, view.responded);
   // P1-52: the core-complete funnel stage, recorded the first time the
   // fraction reaches 1 (recordFunnelEvent deduplicates). Read-side on

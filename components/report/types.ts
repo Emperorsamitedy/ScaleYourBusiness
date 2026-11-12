@@ -156,4 +156,14 @@ export interface ReportView {
   prior?: { id: string; generated_at: string; unit_economics: Economics } | null;
   /** L-5: the language the model wrote the report in; absent before L-5 (English). */
   language?: string;
+  /**
+   * The v1 spec §6.2: the Diagnosis Grade. A money headline only at A or B;
+   * a report from before it reads as D.
+   */
+  diagnosis_grade?: "A" | "B" | "C" | "D";
+  /** §6.4: the version, and what moved since the report before. */
+  version?: number;
+  diff?: unknown;
+  /** §6.3: every gap priced and ranked; the first three are the first week. */
+  priced_gaps?: unknown[];
 }

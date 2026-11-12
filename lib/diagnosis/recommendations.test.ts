@@ -74,7 +74,8 @@ describe("P1-30/33 — the discount states its break-even, arithmetic shown", ()
       volume_response: { base_pct: -5, downside_pct: -25, upside_pct: 0 },
     });
     expect(s.breakeven_condition).toContain("sales can fall up to 40%");
-    expect(s.breakeven_condition).toContain("1,498.80 HUF");
+    // 1,498.80 HUF, printed in whole forints by the currency table (multi-market §A.2)
+    expect(s.breakeven_condition).toContain("1,499 HUF");
   });
 
   it("every shown formula adds up on a calculator, to the cent", () => {

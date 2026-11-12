@@ -20,6 +20,7 @@ import {
   footageRenders,
   llmCalls,
   mediaGenerations,
+  ownerNotices,
   subscriptions,
   usageQuotas,
 } from "../../db/schema";
@@ -222,4 +223,60 @@ export async function costByBusiness(now = new Date()): Promise<CostRow[]> {
     });
   }
   return out;
+}
+
+/** The plan's hard cap was reached: this kind of work stops until the month turns. */
+export class QuotaError extends Error {
+  readonly status = 429;
+  readonly metric: QuotaMetric;
+  constructor(metric: QuotaMetric) {
+    super(
+      metric === "llm_tokens"
+        ? "This month's AI allowance for your plan is used up. It starts again on the 1st."
+        : metric === "video_renders"
+          ? "This month's videos for your plan are used up. They start again on the 1st."
+          : "This month's data reads for your plan are used up. They start again on the 1st.",
+    );
+    this.name = "QuotaError";
+    this.metric = metric;
+  }
+}
+
+/**
+ * §B.4's hard cap, at the metered paths: throws QuotaError once this
+ * business is at its plan's hard cap for the metric. At the soft cap the
+ * owner is told once a month (owner_notices); nothing stops. A business with
+ * no subscription has no plan and no cap.
+ */
+export async function assertWithinQuota(
+  accountId: string,
+  profileId: string,
+  metric: QuotaMetric,
+  now = new Date(),
+): Promise<void> {
+  const r = await quotaReport(accountId, profileId, now);
+  const state = r.states[metric];
+  if (state === "hard") throw new QuotaError(metric);
+  if (state === "soft") {
+    const month = monthOf(now).start.slice(0, 7);
+    const seen = await db
+      .select({ id: ownerNotices.id })
+      .from(ownerNotices)
+      .where(
+        and(
+          eq(ownerNotices.profile_id, profileId),
+          eq(ownerNotices.kind, "quota_soft"),
+          sql`${ownerNotices.payload}->>'month' = ${month}`,
+          sql`${ownerNotices.payload}->>'metric' = ${metric}`,
+        ),
+      )
+      .limit(1);
+    if (seen.length === 0) {
+      await db.insert(ownerNotices).values({
+        profile_id: profileId,
+        kind: "quota_soft",
+        payload: { metric, month, used: r.usage[metric] },
+      });
+    }
+  }
 }

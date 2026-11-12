@@ -21,6 +21,15 @@ vi.mock("../../../../lib/forecasts/run", () => ({ runForecastGrading: () => grad
 vi.mock("../../../../lib/reviews/store", () => ({ pruneExpiredReviews: () => reviewsPrune() }));
 vi.mock("../../../../lib/carts/store", () => ({ pruneExpiredCarts: () => cartsPrune() }));
 vi.mock("../../../../lib/summary/run", () => ({ runWeeklySummaries: () => summaries() }));
+vi.mock("../../../../lib/diagnosis/monthly", () => ({
+  runMonthlyRediagnosis: async () => ({
+    checked: 2,
+    regenerated: 1,
+    unchanged: 1,
+    failed: 0,
+    deferred: 0,
+  }),
+}));
 
 const call = async () => {
   const { GET } = await import("./route");
@@ -51,6 +60,7 @@ describe("GET /api/cron/weekly-watch", () => {
       forecasts: null,
       reviews_expired: null,
       carts_expired: 3,
+      rediagnosis: { checked: 2, regenerated: 1 },
       summaries: { sent: 2 },
     });
     expect(summaries).toHaveBeenCalledOnce();

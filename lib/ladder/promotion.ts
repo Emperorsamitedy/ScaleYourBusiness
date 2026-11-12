@@ -44,8 +44,11 @@ export interface Eligibility {
   eligible: boolean;
   from: Station;
   to: Station;
-  /** Each rule, met or not, in plain words — the owner sees why. */
-  checks: { rule: string; met: boolean; detail: string }[];
+  /**
+   * Each rule, met or not. `detail` is English plain words (logs, errors);
+   * the screen words it from `rule` and `params` in the reader's language.
+   */
+  checks: { rule: string; met: boolean; detail: string; params?: Record<string, number> }[];
 }
 
 interface ClosedPlan {
@@ -85,7 +88,10 @@ async function closedPlans(
   return [...latest.values()];
 }
 
-const pct = (x: number) => `${Math.round(x * 100)}%`;
+const pct = (x: number) => `${Math.round(x * 100)}%`; // not money: a share shown as words
+/** A whole percentage of `part` in `whole`, for the screen's words. */
+const sharePct = (part: number, whole: number) =>
+  whole === 0 ? 0 : Math.round((part * 100) / whole);
 
 async function connectorHealthy(
   accountId: string,
@@ -147,6 +153,7 @@ export async function eligibility(args: {
       rule: "ceiling",
       met: false,
       detail: `${args.capability.replace(/_/g, " ")} never goes past station ${ceiling}`,
+      params: { station: ceiling },
     });
     return done();
   }
@@ -173,11 +180,13 @@ export async function eligibility(args: {
         rule: "closed_shadow_plans",
         met: plans.length >= r.min_closed,
         detail: `${plans.length} of ${r.min_closed} shadow plans closed`,
+        params: { done: plans.length, need: r.min_closed },
       },
       {
         rule: "gain_share",
         met: plans.length > 0 && gains / plans.length >= r.min_gain_share,
         detail: `${plans.length === 0 ? "0%" : pct(gains / plans.length)} verified gains, of ${pct(r.min_gain_share)} needed`,
+        params: { share: sharePct(gains, plans.length), need: Math.round(r.min_gain_share * 100) },
       },
       { rule: "net_positive", met: net > 0, detail: net > 0 ? "net positive" : "not net positive" },
       {
@@ -220,11 +229,13 @@ export async function eligibility(args: {
       rule: "executed_actions",
       met: n >= r.min_executed,
       detail: `${n} of ${r.min_executed} approved actions carried out`,
+      params: { done: n, need: r.min_executed },
     },
     {
       rule: "gain_share",
       met: plans.length > 0 && gains / plans.length >= r.min_gain_share,
       detail: `${plans.length === 0 ? "0%" : pct(gains / plans.length)} verified gains, of ${pct(r.min_gain_share)} needed`,
+      params: { share: sharePct(gains, plans.length), need: Math.round(r.min_gain_share * 100) },
     },
     {
       rule: "caps_set",

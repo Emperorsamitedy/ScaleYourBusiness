@@ -21,7 +21,7 @@ import { eq } from "drizzle-orm";
 import { db } from "../../db";
 import { accounts, bankEntitySchemas, bankVersions, businessProfiles } from "../../db/schema";
 import type { Money } from "../core/money";
-import { minorUnitExponent, money, scaleMinor, subtract } from "../core/money";
+import { money, scaleMinor, subtract } from "../core/money";
 import { moneyDigits } from "../core/currency-table";
 import { computeEconomics } from "../economics/unit-economics";
 import type { OfferEconomics } from "../economics/unit-economics";
@@ -114,24 +114,26 @@ export interface RecommendationsResult {
 // /100 was wrong for JPY (0 decimals) and KWD (3).
 // Grouped with commas, as the report's own figures are ("+1,253.92"), so a
 // scenario's line and its headline read the same number the same way.
-const fmt = (minor: number, currency: string): string =>
-  `${Math.round(minor / 10 ** minorUnitExponent(currency)).toLocaleString("en-US")} ${currency}`;
+const fmt = (minor: number, currency: string): string => {
+  const d = moneyDigits({ amount_minor: minor, currency }, { whole: true });
+  return `${d.negative ? "-" : ""}${d.whole.replace(/\B(?=(\d{3})+(?!\d))/g, ",")} ${currency}`;
+};
 
 /**
  * A money figure to the minor unit when it has one ("26.92 EUR", but
  * "34 EUR"): the arithmetic shown to the owner has to add up on a
  * calculator, so its inputs and result can't be rounded to whole units.
  */
+/**
+ * "4,990 HUF", "49.90 EUR": the amount from its digits, the currency table's
+ * rounding (HUF in whole forints), en-US grouping — never a divided float.
+ * A whole amount drops its zero decimals, as it always printed.
+ */
 const exact = (minor: number, currency: string): string => {
-  const e = minorUnitExponent(currency);
-  const text =
-    minor % 10 ** e === 0
-      ? Math.round(minor / 10 ** e).toLocaleString("en-US")
-      : (minor / 10 ** e).toLocaleString("en-US", {
-          minimumFractionDigits: e,
-          maximumFractionDigits: e,
-        });
-  return `${text} ${currency}`;
+  const d = moneyDigits({ amount_minor: minor, currency });
+  const grouped = d.whole.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  const fraction = d.fraction !== "" && /[1-9]/.test(d.fraction) ? `.${d.fraction}` : "";
+  return `${d.negative ? "-" : ""}${grouped}${fraction} ${currency}`;
 };
 
 /** An amount as plain digits for the model's prompt ("4990" HUF, "49.90" EUR): the table's rounding, no float. */

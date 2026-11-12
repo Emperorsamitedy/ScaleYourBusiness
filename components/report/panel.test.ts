@@ -196,11 +196,11 @@ describe("the head line", () => {
   });
 
   it("headlines the first recommendation the arithmetic gives a range — never a single point", () => {
-    const h = headline([rec(null, 5000), rec(21_400, 338_000)]);
+    const h = headline([rec(null, 5000), rec(21_400, 338_000)], "B"); // a measured business (§6.2)
     expect(h?.index).toBe(1);
     expect(h?.range.low.amount_minor).toBe(21_400);
     expect(h?.range.high.amount_minor).toBe(338_000);
-    expect(headline([rec(null, 5000)])).toBeNull();
+    expect(headline([rec(null, 5000)], "B")).toBeNull();
   });
 });
 

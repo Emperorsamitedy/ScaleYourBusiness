@@ -123,6 +123,15 @@ export const METRIC_KEYS = [
    */
   "cash.balance",
   /**
+   * D52: money that came INTO the account that day (money), only from an
+   * imported bank statement's credit or signed-amount column — every
+   * deposit, whatever it was; descriptions and payees are never read, so a
+   * transfer or a loan is not told apart from a sale. Summed per day. It
+   * counts toward the Diagnosis Grade as a revenue-side series; it is not
+   * called revenue anywhere a figure is shown.
+   */
+  "cash.money_in.daily",
+  /**
    * The multi-market spec §E.3: what the business bought, per day, net of
    * VAT, per currency — from invoices it RECEIVED (NAV Online Számla's
    * buyer-side digests). The cost side of the same invoices revenue.daily
@@ -149,6 +158,7 @@ export const MONEY_METRICS: ReadonlySet<MetricKey> = new Set([
   "stock.value_at_price",
   "stock.unit_cost",
   "cash.balance",
+  "cash.money_in.daily",
   "purchases.daily",
 ]);
 

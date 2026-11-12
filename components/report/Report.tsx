@@ -301,7 +301,7 @@ function Panel({
   onWhy: (id: string) => void;
 }) {
   const { t, tr, st, locale } = useWords();
-  const head = headline(report.recommendations);
+  const head = headline(report.recommendations, report.diagnosis_grade ?? "D");
   const tally = severityTally(report.findings, tr);
   const notComputed = rows.filter((r) => r.result === null).length;
   const computed = rows.length - notComputed;

@@ -34,6 +34,8 @@ import {
 import type { AskedEntry, InterviewerBank, SystemBlock } from "./prompt";
 import { buildSystemBlocks, buildUserMessage, loadInterviewerBank } from "./prompt";
 import type { CandidateSelection } from "./select";
+import { QuotaError, assertWithinQuota } from "../billing/usage";
+import { applyFirstInterview } from "./first-interview";
 import { selectCandidates } from "./select";
 
 export class InterviewerError extends Error {
@@ -199,6 +201,13 @@ export async function pickNextQuestion(args: {
   locale?: AppLocale;
 }): Promise<NextQuestion | null> {
   const model = args.model ?? sonnetModel();
+  // The multi-market spec §B.4: at the plan's hard cap the interviewer asks nothing more this month.
+  try {
+    await assertWithinQuota(args.accountId, args.profileId, "llm_tokens");
+  } catch (error) {
+    if (error instanceof QuotaError) return null;
+    throw error;
+  }
   const [{ system }, applicable, state] = await Promise.all([
     cachedSystem(args.locale ?? "en"),
     applicableQuestions(args.profileId),
@@ -206,7 +215,19 @@ export async function pickNextQuestion(args: {
   ]);
 
   const askedIds = new Set(args.asked.map((a) => a.question_id));
-  const selection = selectCandidates(applicable, state.responded, askedIds);
+  const picked = selectCandidates(applicable, state.responded, askedIds);
+  // The v1 spec §6.5: nothing a live connection measures; the 8-minute first interview.
+  const allowed = await applyFirstInterview({
+    profileId: args.profileId,
+    accountId: args.accountId,
+    applicable,
+    candidates: picked.candidates,
+  });
+  const selection = {
+    ...picked,
+    candidates: allowed,
+    tier: allowed.length > 0 ? picked.tier : null,
+  };
   if (selection.tier === null) return null;
 
   const byId = new Map(selection.candidates.map((q) => [q.id, q]));

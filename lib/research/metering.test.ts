@@ -14,7 +14,7 @@ import { accounts, businessProfiles, competitors, fieldRecords, llmCalls } from 
 import { createField } from "../core/field";
 import { fieldId } from "../core/ids";
 import { isoDateTime } from "../core/iso";
-import { USD_TO_EUR } from "../llm/pricing";
+import { eurPerUsd } from "../llm/pricing";
 import { readCurrentField, writeField } from "../profile/field-store";
 import type { FetchedPage as SiteFetchedPage, PageFetcher as GuardedFetch } from "../site/fetch";
 import type { ResearchLlm, ResearchUsage, SearchHit } from "./competitor";
@@ -269,10 +269,12 @@ describe("every paid call is persisted with the real account id and its search f
     );
     // Haiku 5.5, short card: 1,000 in at $0.10/M and 100 out at $0.50/M =
     // $0.00015, plus $0.01 a search.
-    const tokens = 0.00015 * USD_TO_EUR;
+    // In EUR at the meter's rate: the stored ECB rate once loaded, else the fallback (D48).
+    const rate = eurPerUsd().rate;
+    const tokens = 0.00015 * rate;
     expect(by.get(RESEARCH_WORKLOADS.extract)).toBeCloseTo(tokens, 6);
-    expect(by.get(RESEARCH_WORKLOADS.search)).toBeCloseTo(tokens + 0.01 * USD_TO_EUR, 6);
-    expect(by.get(RESEARCH_WORKLOADS.discovery)).toBeCloseTo(tokens + 0.03 * USD_TO_EUR, 6);
+    expect(by.get(RESEARCH_WORKLOADS.search)).toBeCloseTo(tokens + 0.01 * rate, 6);
+    expect(by.get(RESEARCH_WORKLOADS.discovery)).toBeCloseTo(tokens + 0.03 * rate, 6);
     expect(new Set(rows.map((r) => r.model))).toEqual(new Set(["claude-haiku-5-5"]));
   });
 });

@@ -282,6 +282,9 @@ screenshot slots for the NAV guide.
 - **D48 — known gap: the LLM cost meter** estimates EUR from USD prices with
   a fixed rate in lib/llm/pricing.ts. It is SYB's internal cost estimate, not
   a business's money; moving it to stored ECB rates is a follow-up.
+  *Closed in Phase 3 (2026-11-12):* the meter loads the stored ECB USD rate
+  once a day and prices with it; the fixed rate is only the fallback while
+  no rate is stored.
 
 ## Decisions taken building Phase 2 (2026-11-10)
 
@@ -311,7 +314,10 @@ screenshot slots for the NAV guide.
   count. Shadow losses count too: a capability whose recommendations would
   have lost money twice in a row drops from 2 to 1.
 - **D38 — blackout windows read in UTC** until the business's timezone is
-  threaded through the engine; the caps screen says so.
+  threaded through the engine; the caps screen says so. *Closed in Phase 3
+  (2026-11-12):* quiet hours, quiet dates and the "today" a daily cap counts
+  are read on the business's own clock (presence.timezone); UTC only when no
+  timezone is known.
 - **D49 — ceilings over every station.** A station never passes the
   business's segment ceiling (a sole trader: 2) or, once Stripe keys exist,
   its tier's (Watch 2, Act 3, Autonomous 4). A business with no subscription
@@ -323,3 +329,25 @@ screenshot slots for the NAV guide.
 - **D51 — raising a station goes through the evidence, everywhere.** The
   public setStation only lowers; changeStation and the request/confirm pair
   are the only ways up, and no "raise everything" call exists.
+
+## Decisions taken building Phase 3 (2026-11-12)
+
+- **D52 — what a deposit counts as.** An imported bank statement with a
+  credit column, or one signed amount column, has each day's money in
+  summed and written as `cash.money_in.daily`: every deposit, positive
+  amounts only, nothing told apart (descriptions and payees are still never
+  read, so a transfer or a loan counts too). It makes the statement a
+  revenue-side source for the Diagnosis Grade (§6.2's "uploaded bank
+  statement that parses cleanly"), and two sources agreeing within 5 % still
+  earn A. It is never called revenue where a figure is shown, and `sideOf`
+  keeps it on neither side. Closes D25.
+- **D53 — monthly re-diagnosis rides the weekly beat.** No cron of its own:
+  the Monday job re-runs a business whose latest report is 30 days old or
+  older, at most 25 a run. An unchanged profile returns the existing report
+  with no model call, and the plan's quota guard still applies.
+- **D54 — HUF printed in whole forints in recommendation words too.** The
+  break-even sentences use the currency table's rounding, so 1,498.80 HUF
+  reads 1,499 HUF; the arithmetic behind it is unchanged.
+- **D55 — the leak register shows money only at grade A or B**, the same
+  gate as the headline; below it the leak shows its grade and how to raise
+  it.

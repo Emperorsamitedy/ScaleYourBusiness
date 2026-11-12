@@ -194,6 +194,7 @@ export const GROUPS: readonly Group[] = [
       },
       { href: "/mode", label: "How I work", feature: "nav.mode" },
       { href: "/ladder", label: "What I may do", feature: "nav.ladder" },
+      { href: "/statement", label: "Monthly statement", feature: "nav.statement" },
       { href: "/history", label: "History", feature: "nav.history" },
       {
         href: "/settings/team",

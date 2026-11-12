@@ -12,6 +12,13 @@
 // the same days replaces them (the natural key), and the batch is one
 // decision-log entry with counts and a hash.
 //
+// D52 (Phase 3, the Diagnosis Grade): when the file also has a money-in
+// column (credits, paid in) or one signed amount column, each day's money
+// in is summed and written as `cash.money_in.daily` beside the balances —
+// the positive amounts only, every deposit counted, nothing told apart,
+// because descriptions and payees are still never read. A statement
+// without such a column imports its balances exactly as before.
+//
 // It is a read of what the bank already says, the same as a stock count's
 // file, and moves nothing: no bank is connected, there is no credential,
 // and no provider for a bank exists on either side (rule 26,
@@ -39,7 +46,7 @@ import { parseDateTime, parseDelimited, slashEvidence } from "../bookings/parse"
 import { upsertObservations } from "../connectors/service";
 import type { Observation } from "../connectors/provider";
 import type { DecimalStyle } from "../core/money";
-import { BALANCE_IMPORT_PROVIDER, BALANCE_METRIC } from "./source";
+import { BALANCE_IMPORT_PROVIDER, BALANCE_METRIC, MONEY_IN_METRIC } from "./source";
 import {
   DECIMAL_STYLE_MESSAGES,
   isIsoCurrency,
@@ -95,6 +102,55 @@ export const BALANCE_COLUMNS = {
 
 export type BalanceRole = keyof typeof BALANCE_COLUMNS;
 
+/**
+ * D52: the money-in columns, as data — a credit column (money in only) is
+ * preferred over one signed amount column (positive is money in).
+ */
+export const MONEY_IN_COLUMNS = {
+  credit: [
+    "credit",
+    "credits",
+    "moneyin",
+    "paidin",
+    "deposit",
+    "deposits",
+    "creditamount",
+    "haben",
+    "gutschrift",
+    "crédit",
+    "credito",
+    "crédito",
+    "ingreso",
+    "ingresos",
+    "jóváírás",
+    "приход",
+    "收入",
+  ],
+  amount: [
+    "amount",
+    "transactionamount",
+    "betrag",
+    "umsatz",
+    "montant",
+    "importe",
+    "összeg",
+    "сумма",
+    "金额",
+  ],
+} as const;
+
+/** Pure: the money-in column and how to read it, or null when the file has none. */
+export function mapMoneyInHeader(
+  header: readonly string[],
+): { index: number; kind: "credit" | "amount" } | null {
+  for (const kind of ["credit", "amount"] as const) {
+    const spellings: readonly string[] = MONEY_IN_COLUMNS[kind];
+    const index = header.findIndex((h) => spellings.includes(norm(h)));
+    if (index !== -1) return { index, kind };
+  }
+  return null;
+}
+
 export class BalanceImportError extends Error {
   readonly status: number;
   constructor(message: string, status = 422) {
@@ -131,6 +187,17 @@ export interface BalanceImportResult {
   skipped: { date_unreadable: number; balance_unreadable: number; day_unclear: number };
   /** The closing balance on the last day covered. */
   latest: { day: string; amount_minor: number; currency: string };
+  /**
+   * D52: the money in, when the file has a money-in column — its header,
+   * the days written, the total, and rows whose amount couldn't be read
+   * (left out, never guessed). Null when the file has no such column.
+   */
+  money_in: {
+    column: string;
+    days: number;
+    total_minor: number;
+    amount_unreadable: number;
+  } | null;
 }
 
 const norm = (h: string) => h.toLowerCase().replace(/[\s_\-.]/g, "");
@@ -158,7 +225,11 @@ const addDay = (day: string, n: number) =>
 export function statementBalances(
   csv: string,
   options: BalanceImportOptions & { today: string },
-): Omit<BalanceImportResult, "batch_id"> & { closing: Map<string, number> } {
+): Omit<BalanceImportResult, "batch_id"> & {
+  closing: Map<string, number>;
+  /** D52: each covered day's money in (0 on a quiet day); empty without a money-in column. */
+  moneyIn: Map<string, number>;
+} {
   if (csv.length > BALANCE_IMPORT_LIMITS.max_bytes) {
     throw new BalanceImportError("that file is too large for one import — split it", 413);
   }
@@ -303,6 +374,44 @@ export function statementBalances(
     date: (header[col.date] ?? "").trim(),
     balance: (header[col.balance] ?? "").trim(),
   };
+
+  // D52: money in, per covered day, from a credit or signed-amount column.
+  const moneyIn = new Map<string, number>();
+  let moneyInResult: BalanceImportResult["money_in"] = null;
+  const inCol = mapMoneyInHeader(header);
+  if (inCol !== null && inCol.index !== col.balance && inCol.index !== col.date) {
+    const inStyle = settleDecimalStyle(
+      body.map((r) => cell(r, inCol.index)).filter((c) => c !== ""),
+      options.decimal_style ?? settled.style,
+    );
+    if (inStyle.ok) {
+      for (const day of filled.keys()) moneyIn.set(day, 0);
+      let unreadable = 0;
+      for (const r of body) {
+        const parsed = parseDateTime(cell(r, col.date), order);
+        if (parsed === null || !moneyIn.has(parsed.day)) continue;
+        const raw = cell(r, inCol.index);
+        if (raw === "") continue; // a debit row of a credit/debit pair
+        const amount = parseAmountMinor(raw, currency, inStyle.style);
+        if (!amount.ok) {
+          unreadable++;
+          continue;
+        }
+        // A credit column holds money in; a signed amount is money in when positive.
+        const minor = inCol.kind === "credit" ? Math.abs(amount.minor) : amount.minor;
+        if (minor > 0) moneyIn.set(parsed.day, moneyIn.get(parsed.day)! + minor);
+      }
+      let total = 0;
+      for (const v of moneyIn.values()) total += v;
+      moneyInResult = {
+        column: (header[inCol.index] ?? "").trim(),
+        days: moneyIn.size,
+        total_minor: total,
+        amount_unreadable: unreadable,
+      };
+    }
+  }
+
   return {
     from,
     through,
@@ -311,8 +420,25 @@ export function statementBalances(
     columns,
     skipped,
     latest: { day: through, amount_minor: filled.get(through)!, currency },
+    money_in: moneyInResult,
     closing: filled,
+    moneyIn,
   };
+}
+
+/** Pure, D52: each day's money in as observations. */
+export function moneyInObservations(
+  moneyIn: ReadonlyMap<string, number>,
+  currency: string,
+  observedAt: string,
+): Observation[] {
+  return [...moneyIn.entries()].map(([day, minor]) => ({
+    metric_key: MONEY_IN_METRIC,
+    dimensions: { currency },
+    value_minor: minor,
+    period_date: day,
+    observed_at: observedAt,
+  }));
 }
 
 /** Pure: the closing balances as observations. */
@@ -369,7 +495,7 @@ export async function importBankStatement(
   options: BalanceImportOptions,
 ): Promise<BalanceImportResult> {
   const now = options.now ?? new Date();
-  const { closing, ...result } = statementBalances(csv, {
+  const { closing, moneyIn, ...result } = statementBalances(csv, {
     ...options,
     today: now.toISOString().slice(0, 10),
   });
@@ -381,7 +507,10 @@ export async function importBankStatement(
 
   const connectionId = await balanceConnection(accountId);
   const batchId = crypto.randomUUID();
-  const observations = balanceObservations(closing, result.latest.currency, now.toISOString());
+  const observations = [
+    ...balanceObservations(closing, result.latest.currency, now.toISOString()),
+    ...moneyInObservations(moneyIn, result.latest.currency, now.toISOString()),
+  ];
   await db.transaction(async (tx) => {
     await upsertObservations(connectionId, BALANCE_IMPORT_PROVIDER, observations, tx);
     await tx.insert(decisionLog).values({
@@ -402,6 +531,7 @@ export async function importBankStatement(
             rows_read: result.rows_read,
             columns: result.columns,
             skipped: result.skipped,
+            money_in: result.money_in,
             sha256: createHash("sha256").update(csv).digest("hex"),
           }),
         )

@@ -859,6 +859,14 @@ export const diagnosisReports = pgTable(
     data_gaps: jsonb("data_gaps").notNull(),
     /** P2-30: deterministic trading-hours findings; null when no hours or hourly sales are measured. */
     trading_hours: jsonb("trading_hours"),
+    /** The v1 spec §6.2: the Diagnosis Grade when it was generated. Null on older reports (read as D). */
+    diagnosis_grade: text("diagnosis_grade"),
+    /** §6.4: 1 for the first report, then 2, 3, 4… */
+    version: integer("version"),
+    /** §6.4: what moved since the report before (lib/diagnosis/diff.ts); null on the first. */
+    diff: jsonb("diff"),
+    /** §6.3: the gaps priced, ranked, the first week marked (lib/diagnosis/priced-gaps.ts). */
+    priced_gaps: jsonb("priced_gaps"),
     /**
      * L-5: the language the model wrote the summary, findings and
      * recommendations in — the language of the person who generated it
@@ -5188,3 +5196,65 @@ export const limitActions = pgTable(
     uniqueIndex("limit_actions_one_per_proposal").on(t.proposal_id),
   ],
 );
+
+// ---------------------------------------------------------------------------
+// The diagnosis rebuild — the v1 build spec §6 (Phase 7, P7-50..54).
+//
+// leaks: the open leak register. A leak is fixed-and-verified only with the
+// ledger entry that proves it (the check below); every move is a row in
+// leak_events, append-only by trigger (migration 0112).
+// ---------------------------------------------------------------------------
+
+export const leakStatus = pgEnum("leak_status", [
+  "open",
+  "in_progress",
+  "fixed_and_verified",
+  "accepted",
+]);
+
+export const leaks = pgTable(
+  "leaks",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    profile_id: uuid("profile_id")
+      .notNull()
+      .references(() => businessProfiles.id, { onDelete: "cascade" }),
+    /** The report that first found it. */
+    report_id: uuid("report_id"),
+    /** Stable across re-diagnoses: the finding's own key. */
+    key: text("key").notNull(),
+    title: text("title").notNull(),
+    status: leakStatus("status").notNull().default("open"),
+    currency: text("currency"),
+    low_minor: bigint("low_minor", { mode: "number" }),
+    high_minor: bigint("high_minor", { mode: "number" }),
+    grade: text("grade").notNull(),
+    verified_entry_id: uuid("verified_entry_id"),
+    created_at: timestamp("created_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+    updated_at: timestamp("updated_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    uniqueIndex("leaks_profile_key").on(t.profile_id, t.key),
+    check(
+      "leaks_verified_needs_entry",
+      sql`(${t.status} = 'fixed_and_verified') = (${t.verified_entry_id} is not null)`,
+    ),
+    check("leaks_grade", sql`${t.grade} in ('A', 'B', 'C', 'D')`),
+  ],
+);
+
+export const leakEvents = pgTable("leak_events", {
+  id: uuid("id").primaryKey().defaultRandom(),
+  leak_id: uuid("leak_id")
+    .notNull()
+    .references(() => leaks.id, { onDelete: "cascade" }),
+  from_status: text("from_status"),
+  to_status: text("to_status").notNull(),
+  by: uuid("by"),
+  note: text("note"),
+  at: timestamp("at", { withTimezone: true, mode: "string" }).notNull().defaultNow(),
+});

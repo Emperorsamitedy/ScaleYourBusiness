@@ -45,6 +45,7 @@ import os from "node:os";
 import path from "node:path";
 import { and, eq, gte, inArray, sql } from "drizzle-orm";
 import { db } from "../../db";
+import { QuotaError, assertWithinQuota } from "../billing/usage";
 import type { DbOrTx, DbTx } from "../../db";
 import {
   businessProfiles,
@@ -626,6 +627,20 @@ export async function generateFromProposal(args: {
     );
   }
   const d = ((proposal.action as { detail?: GenerationDetail }).detail ?? {}) as GenerationDetail;
+  // The multi-market spec §B.4: a plan's video allowance is a hard cap.
+  if (d.media === "video") {
+    try {
+      await assertWithinQuota(
+        await accountOf(proposal.profile_id),
+        proposal.profile_id,
+        "video_renders",
+        now,
+      );
+    } catch (error) {
+      if (error instanceof QuotaError) throw new ContentError(error.message, 429);
+      throw error;
+    }
+  }
   // P6-03: a set of candidates is generated, and picked, its own way.
   if (typeof d.candidates === "number" && d.candidates > 1) {
     return generateCandidatesFromProposal({

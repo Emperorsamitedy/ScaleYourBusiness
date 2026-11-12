@@ -62,7 +62,8 @@
       "team_access": "团队权限",
       "language": "语言和货币",
       "payments": "付款",
-      "ladder": "我可以做什么"
+      "ladder": "我可以做什么",
+      "statement": "月度对账单"
     },
     "count": {
       "paused": "{count} 个已暂停",
@@ -9110,7 +9111,41 @@
       "seen": "知道了"
     },
     "shadowLink": "查看到目前为止它会做什么",
-    "failed": "未成功：{why}"
+    "failed": "未成功：{why}",
+    "rule": {
+      "lower": "降低无需证据。",
+      "one_step": "一次只能提升一级。",
+      "ceiling": "此项永远不会高于第{station}级。",
+      "connector_healthy": {
+        "met": "已有连接的数据源在衡量它。",
+        "unmet": "请先连接一个能衡量它的数据源。"
+      },
+      "closed_shadow_plans": "已衡量的建议：{done}/{need}。",
+      "gain_share": "已验证收益：{share}%，需要{need}%。",
+      "net_positive": {
+        "met": "净额为正。",
+        "unmet": "净额尚未为正。"
+      },
+      "no_big_loss": {
+        "met": "没有超过低估值两倍的损失。",
+        "unmet": "有一次损失超过了低估值的两倍。"
+      },
+      "executed_actions": "已执行的操作：{done}/{need}。",
+      "caps_set": {
+        "met": "您的限额已设定。",
+        "unmet": "请先设定限额。"
+      }
+    },
+    "capability": {
+      "meta_publish": "Facebook 和 Instagram 帖子",
+      "tiktok_publish": "TikTok 帖子",
+      "meta_ads": "Meta 广告",
+      "tiktok_ads": "TikTok 广告",
+      "google_ads": "Google Ads",
+      "email_campaign": "发给联系人的邮件",
+      "purchase_order": "向供应商下单",
+      "google_business_reviews": "回复 Google 评价"
+    }
   },
   "shadowSummary": {
     "meta": {
@@ -9128,5 +9163,37 @@
     "none": "尚无衡量结果。",
     "share": "复制分享链接",
     "copied": "链接已复制"
+  },
+  "statement": {
+    "title": "月度对账单",
+    "none": "登录后查看你的月度对账单。",
+    "nothing": "暂无",
+    "did": "已执行 {count, plural, other {# 项操作}}，{undone, plural, =0 {无撤销} other {已撤销 # 项}}",
+    "worth": "已核实，盈亏合计：{amount}",
+    "losses": "其中的损失：{amount}",
+    "fee": "SYB 本月的费用：{amount}",
+    "feeNone": "SYB 本月未收取任何费用。",
+    "net": "已核实，扣除 SYB 费用后：{amount}",
+    "unproven": "{count, plural, =0 {没有未经证明就结束的变更} other {# 项变更结束时尚无证明}}",
+    "queued": "{count, plural, =0 {没有事项在等你} other {# 件事项在等你}}",
+    "decision": "等你做的那一个决定：",
+    "open": "打开",
+    "noDecision": "没有事项在等你。",
+    "leaks": {
+      "title": "发现的漏洞",
+      "none": "尚未发现漏洞。",
+      "range": "每月 {low} 至 {high}",
+      "grade": "等级 {grade}",
+      "rule": "只有经测量的收益证明后，漏洞才会标记为已修复。金额在等级 A 或 B 时显示；低于此等级时，请连接销售数据源来测量。",
+      "status": {
+        "open": "未处理",
+        "in_progress": "修复中",
+        "fixed_and_verified": "已修复并核实",
+        "accepted": "按现状接受"
+      }
+    },
+    "meta": {
+      "title": "月度对账单"
+    }
   }
 }
