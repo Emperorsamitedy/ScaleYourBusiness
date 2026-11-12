@@ -9195,5 +9195,51 @@
     "meta": {
       "title": "Relevé mensuel"
     }
+  },
+  "peers": {
+    "label": "Comparaison en direct",
+    "title": "Comment vous vous situez face à des entreprises comme la vôtre",
+    "metric": {
+      "average_order_value": "Panier moyen",
+      "revenue_per_employee": "Chiffre d’affaires par salarié",
+      "ad_spend_share": "Dépenses publicitaires rapportées au chiffre d’affaires",
+      "no_show_rate": "Absences et annulations tardives",
+      "gross_margin": "Marge brute",
+      "repeat_customer_rate": "Taux de client fidèle",
+      "cac_payback": "Coût pour gagner un acheteur, et semaines pour le rentabiliser",
+      "busiest_hours": "Heures les plus chargées et les plus calmes",
+      "stock_turns": "Rotation du stock"
+    },
+    "middle": "Moitié centrale : de {p25} à {p75}",
+    "typical": "Typique : {p50}",
+    "you": "Vous : {value}, au-dessus de {pct} d’entre elles",
+    "youStated": "Vous, d’après ce que vous m’avez dit : {value}, au-dessus de {pct} d’entre elles",
+    "cohort": "Entreprises comparées : {count} · {nace} · {place} · {band} · {month}",
+    "nace": "NACE {code}",
+    "band": {
+      "range": "de {from} à {to} par an",
+      "under": "moins de {to} par an",
+      "over": "plus de {from} par an",
+      "any": "toutes tailles"
+    },
+    "widened": "Élargi pour en trouver assez : {list}.",
+    "widen": {
+      "nace_3": "un type d’entreprise plus large",
+      "nace_2": "un secteur plus large encore",
+      "region": "pays voisins",
+      "any_band": "toutes tailles"
+    },
+    "notEnough": "Pas encore assez d’entreprises comparables. Nous l’afficherons dès qu’il y en aura.",
+    "official": "Les chiffres officiels de l’UE ci-dessous viennent d’Eurostat, avec leur année. Notre comparaison en direct n’est pas encore disponible pour cela, et les deux ne sont jamais fondus en un seul chiffre.",
+    "notMeasured": "Pas encore mesuré : {list}.",
+    "unplaced": "Dites-moi quel type d’entreprise c’est et dans quel pays, et je la comparerai.",
+    "source": "D’entreprises qui utilisent SYB, mesurées par leurs propres systèmes de vente, jamais d’après ce qu’un propriétaire a saisi. Mois : {month}.",
+    "contribute": {
+      "on": "Vos chiffres mesurés entrent anonymement dans ces comparaisons. Un chiffre ne s’affiche que s’il réunit au moins sept entreprises et qu’aucune n’en pèse plus d’un quart.",
+      "off": "Vous ne partagez pas vos chiffres. Vous voyez toujours chaque comparaison.",
+      "stop": "Ne plus contribuer",
+      "start": "Contribuer à nouveau",
+      "failed": "Ce n’a pas été enregistré. Réessayez dans un instant."
+    }
   }
 }

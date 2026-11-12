@@ -351,3 +351,46 @@ screenshot slots for the NAV guide.
 - **D55 — the leak register shows money only at grade A or B**, the same
   gate as the headline; below it the leak shows its grade and how to raise
   it.
+
+## Decisions taken building Phase 4 (2026-11-12)
+
+- **D56 — NACE at 4 digits is data.** `specs/peer-cohorts-v1.json` gives each
+  business type its finest NACE Rev. 2 code (the classification Eurostat SBS
+  still publishes), and a cohort widens by cutting it: "56.30" → "56.3" →
+  "56". A type broader than any 2-digit division (construction, professional
+  services, logistics, manufacturing) is held at its section letter, its only
+  level. "other" has no cohort. Each code is SYB's reading, for the owner to
+  correct.
+- **D57 — contribution on by default (§5.5), supersedes D7.** The consent
+  table is kept and reread: a business's latest row decides, a live row is in,
+  a withdrawn row is out, and no row at all is in. Opting out of a business
+  that never chose writes a row that is out from the moment it is written.
+  Every row is kept. D15 stands: reading needs nothing, and a business is
+  never in its own cohort. Aggregates are computed live, so an opt-out leaves
+  the very next one. The DPA basis is counsel's
+  (`specs/peer-benchmarks-dpa-notes.md`).
+- **D58 — the reader's band comes from their measured month only.** A reader
+  with no measured month is compared across every band. A stated revenue
+  never places anyone in a band, and never contributes (§5.3).
+- **D59 — the distribution's arithmetic.** Quartiles are linear between ranks
+  over integers (minor units, or basis points for a share), from one exact
+  division. The reader's percentile counts below, plus half of equal. The 25 %
+  revenue check is made in euro, for weighting only. A metric's own
+  numerator and denominator are checked only where they add up (one
+  currency, or counts). A zero total has no dominant business. Known
+  property: at k = 7 the median is one member's value, though not whose; the
+  floor, the fixed ladder and the dominance rule are the protection, and the
+  extraction-attack test holds them.
+- **D60 — what is measured now.** Average order value, revenue per employee
+  (with the owner-stated headcount, as §5.3 says), ad spend as a share of
+  revenue, and no-shows with late cancellations. Gross margin, repeat customer
+  rate, CAC and payback, busiest hours and stock turns show "not measured
+  yet" until a measured source exists. They are never filled from what an
+  owner said. D13's `peerAverageOrderValue` keeps its call and now answers
+  with the measured cohort's median.
+- **D61 — the band widens to every band**, not to the bands next to it.
+  §5.1's region groups are the country's fallback; FR and IT are groups of
+  one, and a country in no group widens straight to the band. The
+  multi-market resolver's neighbour rung (§D.1) stays as it is for its own
+  callers.
+

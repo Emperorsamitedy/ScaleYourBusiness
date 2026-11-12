@@ -234,7 +234,8 @@ function GapCard({ view, onProposed }: { view: BenchView; onProposed: () => Prom
   );
 }
 
-export function BenchmarksScreen() {
+/** `peers`: the live comparison (components/peers/PeerPanel), rendered on the server above the Eurostat sheets. */
+export function BenchmarksScreen({ peers }: { peers?: ReactNode } = {}) {
   const [load, setLoad] = useState<Load>({ phase: "loading" });
   const t = useTranslations("benchmarks");
   const w = useWords();
@@ -277,6 +278,7 @@ export function BenchmarksScreen() {
   if (r.status !== "ready") {
     return (
       <Frame title={headline(r, w)} aside={tr("aside")}>
+        {peers}
         <SheetCard title={tr("nothingToCompare")}>
           <p className="bm-copy">{r.why}</p>
           {"needs" in r && <Needs needs={r.needs} />}
@@ -304,6 +306,7 @@ export function BenchmarksScreen() {
         )
       }
     >
+      {peers}
       <div className="bm-stack">
         {r.lines.map((l) => (
           <Line key={l.key} line={l} />

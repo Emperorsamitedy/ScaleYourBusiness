@@ -9195,5 +9195,51 @@
     "meta": {
       "title": "Extracto mensual"
     }
+  },
+  "peers": {
+    "label": "Comparación en vivo",
+    "title": "Cómo te comparas con negocios como el tuyo",
+    "metric": {
+      "average_order_value": "Valor medio del pedido",
+      "revenue_per_employee": "Ingresos por empleado",
+      "ad_spend_share": "Gasto en anuncios sobre los ingresos",
+      "no_show_rate": "Ausencias y cancelaciones tardías",
+      "gross_margin": "Margen bruto",
+      "repeat_customer_rate": "Tasa de cliente recurrente",
+      "cac_payback": "Coste de ganar un comprador y semanas para recuperarlo",
+      "busiest_hours": "Horas de más y menos movimiento",
+      "stock_turns": "Rotación de existencias"
+    },
+    "middle": "Mitad central: de {p25} a {p75}",
+    "typical": "Típico: {p50}",
+    "you": "Tú: {value}, por encima del {pct} de ellos",
+    "youStated": "Tú, según lo que me dijiste: {value}, por encima del {pct} de ellos",
+    "cohort": "Negocios comparados: {count} · {nace} · {place} · {band} · {month}",
+    "nace": "NACE {code}",
+    "band": {
+      "range": "de {from} a {to} al año",
+      "under": "menos de {to} al año",
+      "over": "más de {from} al año",
+      "any": "cualquier tamaño"
+    },
+    "widened": "Ampliado para encontrar suficientes: {list}.",
+    "widen": {
+      "nace_3": "un tipo de negocio más amplio",
+      "nace_2": "un sector aún más amplio",
+      "region": "países vecinos",
+      "any_band": "cualquier tamaño"
+    },
+    "notEnough": "Aún no hay suficientes negocios comparables. Lo mostraremos en cuanto los haya.",
+    "official": "Las cifras oficiales de la UE de abajo son de Eurostat y llevan su año. Nuestra comparación en vivo aún no está disponible para esto, y nunca se mezclan en una sola cifra.",
+    "notMeasured": "Aún sin medir: {list}.",
+    "unplaced": "Dime qué tipo de negocio es y en qué país está, y lo compararé.",
+    "source": "De negocios que usan SYB, medidos por sus propios sistemas de venta, nunca con lo que un propietario escribió. Mes: {month}.",
+    "contribute": {
+      "on": "Tus cifras medidas entran en estas comparaciones de forma anónima. Una cifra solo aparece cuando hay al menos siete negocios y ninguno supone más de una cuarta parte.",
+      "off": "No aportas tus cifras. Sigues viendo todas las comparaciones.",
+      "stop": "Dejar de aportar",
+      "start": "Volver a aportar",
+      "failed": "No se ha guardado. Inténtalo de nuevo en un momento."
+    }
   }
 }

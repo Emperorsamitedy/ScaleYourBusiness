@@ -1,9 +1,10 @@
-// The peer benchmark opt-in — architecture-v2 D7.
+// Peer benchmark contribution — the v1 spec §5.5 (on by default, one-tap
+// opt-out), superseding architecture-v2 D7's opt-in.
 //
-//   GET    /api/peers/consent   whether this business's figures join the
-//                               comparison with similar businesses
-//   POST   /api/peers/consent   opt in (the owner's consent, recorded)
-//   DELETE /api/peers/consent   withdraw; the figures leave every aggregate
+//   GET    /api/peers/consent   whether this business's measured figures join
+//                               the comparison with similar businesses
+//   POST   /api/peers/consent   contribute again (the owner's choice, recorded)
+//   DELETE /api/peers/consent   stop; the figures leave the next aggregate
 //
 // Opting in and out are the owner's ("peers.consent"), from our own page.
 

@@ -9195,5 +9195,51 @@
     "meta": {
       "title": "Havi kivonat"
     }
+  },
+  "peers": {
+    "label": "Élő összehasonlítás",
+    "title": "Hogyan állsz a hozzád hasonló vállalkozásokhoz képest",
+    "metric": {
+      "average_order_value": "Átlagos kosárérték",
+      "revenue_per_employee": "Árbevétel egy munkatársra",
+      "ad_spend_share": "Hirdetési költés az árbevétel arányában",
+      "no_show_rate": "Meg nem jelenések és késői lemondások",
+      "gross_margin": "Bruttó árrés",
+      "repeat_customer_rate": "Visszatérő ügyfelek aránya",
+      "cac_payback": "Egy vevő megszerzésének költsége, és hány hét alatt térül meg",
+      "busiest_hours": "Legforgalmasabb és legcsendesebb órák",
+      "stock_turns": "A készlet forgása"
+    },
+    "middle": "Középső fele: {p25} és {p75} között",
+    "typical": "Jellemző: {p50}",
+    "you": "Te: {value}, többet, mint közülük {pct}",
+    "youStated": "Te, amit elmondtál alapján: {value}, többet, mint közülük {pct}",
+    "cohort": "Összehasonlított vállalkozás: {count} · {nace} · {place} · {band} · {month}",
+    "nace": "NACE {code}",
+    "band": {
+      "range": "évi {from} és {to} között",
+      "under": "évi {to} alatt",
+      "over": "évi {from} fölött",
+      "any": "bármilyen méret"
+    },
+    "widened": "Kibővítve, hogy elég legyen: {list}.",
+    "widen": {
+      "nace_3": "tágabb vállalkozástípus",
+      "nace_2": "még tágabb ágazat",
+      "region": "szomszédos országok",
+      "any_band": "bármilyen méret"
+    },
+    "notEnough": "Még nincs elég összehasonlítható vállalkozás. Amint lesz, megmutatjuk.",
+    "official": "Az alábbi hivatalos uniós adatok az Eurostattól származnak, az évükkel jelölve. Élő összehasonlításunk ehhez még nem érhető el, és a kettőt soha nem keverjük egy számba.",
+    "notMeasured": "Még nem mérjük: {list}.",
+    "unplaced": "Mondd el, milyen vállalkozás ez és melyik országban működik, és összehasonlítom.",
+    "source": "SYB-t használó vállalkozásoktól, a saját értékesítési rendszereik mérése alapján, sosem abból, amit egy tulajdonos beírt. Hónap: {month}.",
+    "contribute": {
+      "on": "A mért adataid névtelenül kerülnek ezekbe az összehasonlításokba. Egy szám csak akkor jelenik meg, ha legalább hét vállalkozás van benne, és egyik sem tesz ki belőle egy negyednél többet.",
+      "off": "Nem adod hozzá az adataidat. Minden összehasonlítást ugyanúgy látsz.",
+      "stop": "Ne adjam hozzá",
+      "start": "Hozzáadom újra",
+      "failed": "Ez nem mentődött el. Próbáld újra egy pillanat múlva."
+    }
   }
 }

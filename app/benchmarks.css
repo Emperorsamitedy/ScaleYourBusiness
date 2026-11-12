@@ -142,3 +142,24 @@
     font-size: 22px;
   }
 }
+
+/* The live peer comparison (v1 spec §5): above the Eurostat sheets, never mixed into them. */
+.pp-card {
+  margin-top: 15px;
+}
+.pp-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 14px;
+}
+.pp-line .bm-copy {
+  margin-top: 4px;
+}
+.pp-card .bm-note {
+  margin-top: 8px;
+}
+.pp-contribute {
+  margin-top: 14px;
+}

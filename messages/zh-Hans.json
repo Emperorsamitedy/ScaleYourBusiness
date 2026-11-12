@@ -9195,5 +9195,51 @@
     "meta": {
       "title": "月度对账单"
     }
+  },
+  "peers": {
+    "label": "实时比较",
+    "title": "与同类企业相比，你处在什么位置",
+    "metric": {
+      "average_order_value": "客单价",
+      "revenue_per_employee": "人均营收",
+      "ad_spend_share": "广告支出占营收的比例",
+      "no_show_rate": "爽约与临时取消",
+      "gross_margin": "毛利率",
+      "repeat_customer_rate": "回头客户比例",
+      "cac_payback": "获得一位买家的成本，以及回本所需的周数",
+      "busiest_hours": "最忙与最闲的时段",
+      "stock_turns": "库存周转"
+    },
+    "middle": "中间一半：{p25} 至 {p75}",
+    "typical": "典型：{p50}",
+    "you": "你：{value}，高于其中 {pct}",
+    "youStated": "你（根据你告诉我的）：{value}，高于其中 {pct}",
+    "cohort": "参与比较的企业：{count} · {nace} · {place} · {band} · {month}",
+    "nace": "NACE {code}",
+    "band": {
+      "range": "每年 {from} 至 {to}",
+      "under": "每年低于 {to}",
+      "over": "每年高于 {from}",
+      "any": "任何规模"
+    },
+    "widened": "为凑够数量而放宽：{list}。",
+    "widen": {
+      "nace_3": "更宽泛的企业类型",
+      "nace_2": "更宽泛的行业",
+      "region": "邻近国家",
+      "any_band": "任何规模"
+    },
+    "notEnough": "可比较的企业还不够。一旦足够，我们就会显示。",
+    "official": "下方的欧盟官方数据来自 Eurostat，并标明了年份。我们的实时比较暂时还无法用于此项，两者也绝不会混成一个数字。",
+    "notMeasured": "尚未测量：{list}。",
+    "unplaced": "告诉我这是什么类型的企业、在哪个国家，我就能进行比较。",
+    "source": "来自使用 SYB 的企业，由其自身销售系统测量，绝不采用所有者手动填写的数字。月份：{month}。",
+    "contribute": {
+      "on": "你测量到的数据会匿名计入这些比较。只有当至少七家企业参与、且没有任何一家占比超过四分之一时，才会显示数字。",
+      "off": "你没有贡献你的数据。你仍然可以看到所有比较。",
+      "stop": "停止贡献",
+      "start": "重新贡献",
+      "failed": "没有保存成功。请稍后再试。"
+    }
   }
 }

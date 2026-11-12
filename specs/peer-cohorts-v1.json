@@ -1,0 +1,72 @@
+{
+  "version": "peer-cohorts-v1",
+  "about": "The v1 build spec §5: how a peer cohort is built. Read by lib/peers/cohort.ts; nothing here is a figure.",
+  "floor": {
+    "about": "§5.2: below either, nothing is served — no number, no rounding, no bucket.",
+    "min_businesses": 7,
+    "max_share": 0.25
+  },
+  "period": {
+    "about": "§5.1: a calendar month. A business counts for a month only with at least min_days days measured in it.",
+    "min_days": 20
+  },
+  "nace": {
+    "about": "NACE Rev. 2, the classification Eurostat SBS still publishes (benchmark-map-v1.json). The finest code known for each business type, written 'dd.dd' (4-digit), 'dd.d' (3-digit) or 'dd' (2-digit); a cohort widens 4 → 3 → 2 by cutting it. A type broader than any 2-digit division is held at its section letter, which is its only level. null: no cohort. Each code is SYB's reading of the type, for the owner to correct.",
+    "business_types": {
+      "retail_shop": "47",
+      "ecommerce_store": "47.91",
+      "restaurant": "56.10",
+      "cafe": "56.30",
+      "bar": "56.30",
+      "food_production": "10",
+      "salon_beauty": "96.02",
+      "barber": "96.02",
+      "wellness_spa": "96.04",
+      "gym_fitness": "93.13",
+      "clinic_health": "86",
+      "construction": "F",
+      "trades_services": "43",
+      "cleaning_services": "81.21",
+      "automotive": "45.20",
+      "professional_services": "M",
+      "consulting": "70.22",
+      "agency_marketing": "73.11",
+      "it_services": "62",
+      "software_saas": "58.29",
+      "education_training": "85.59",
+      "childcare": "88.91",
+      "real_estate": "68",
+      "logistics": "H",
+      "manufacturing": "C",
+      "wholesale": "46",
+      "agriculture": "01",
+      "events": "82.30",
+      "photography_creative": "74.20",
+      "tourism_accommodation": "55.10",
+      "transport": "49",
+      "nonprofit": "94",
+      "other": null
+    }
+  },
+  "regions": {
+    "about": "§5.1's region groups, the country's fallback. FR and IT are groups of one: they never widen past themselves. A country in no group widens straight to the revenue band.",
+    "DACH": ["DE", "AT", "CH"],
+    "Nordics": ["DK", "SE", "NO", "FI", "IS"],
+    "Iberia": ["ES", "PT"],
+    "Benelux": ["BE", "NL", "LU"],
+    "CEE": ["PL", "CZ", "SK", "HU", "SI", "HR", "RO", "BG", "EE", "LV", "LT"],
+    "FR": ["FR"],
+    "IT": ["IT"]
+  },
+  "revenue_bands": {
+    "about": "§5.1's logarithmic bands, on a year's revenue in euro cents: the measured month × 12, converted at the month's last ECB rate for the band only — no figure is ever converted to compare (D44). 'to' is exclusive; null is open.",
+    "bands": [
+      { "id": "under_50k", "from": 0, "to": 5000000 },
+      { "id": "50k_150k", "from": 5000000, "to": 15000000 },
+      { "id": "150k_500k", "from": 15000000, "to": 50000000 },
+      { "id": "500k_1_5m", "from": 50000000, "to": 150000000 },
+      { "id": "1_5m_5m", "from": 150000000, "to": 500000000 },
+      { "id": "over_5m", "from": 500000000, "to": null }
+    ]
+  }
+}

@@ -9195,5 +9195,51 @@
     "meta": {
       "title": "Monatsauszug"
     }
+  },
+  "peers": {
+    "label": "Live-Vergleich",
+    "title": "Wie du im Vergleich zu ähnlichen Unternehmen dastehst",
+    "metric": {
+      "average_order_value": "Durchschnittlicher Bestellwert",
+      "revenue_per_employee": "Umsatz pro Mitarbeitendem",
+      "ad_spend_share": "Werbeausgaben als Anteil am Umsatz",
+      "no_show_rate": "Nichterscheinen und späte Absagen",
+      "gross_margin": "Bruttomarge",
+      "repeat_customer_rate": "Anteil wiederkehrender Kunden",
+      "cac_payback": "Kosten, um einen Käufer zu gewinnen, und Wochen bis sie wieder drin sind",
+      "busiest_hours": "Stärkste und ruhigste Stunden",
+      "stock_turns": "Umschlag des Lagerbestands"
+    },
+    "middle": "Mittlere Hälfte: {p25} bis {p75}",
+    "typical": "Typisch: {p50}",
+    "you": "Du: {value}, mehr als {pct} von ihnen",
+    "youStated": "Du, nach deinen Angaben: {value}, mehr als {pct} von ihnen",
+    "cohort": "Verglichene Unternehmen: {count} · {nace} · {place} · {band} · {month}",
+    "nace": "NACE {code}",
+    "band": {
+      "range": "{from} bis {to} im Jahr",
+      "under": "unter {to} im Jahr",
+      "over": "über {from} im Jahr",
+      "any": "jede Größe"
+    },
+    "widened": "Erweitert, um genug zu finden: {list}.",
+    "widen": {
+      "nace_3": "eine weiter gefasste Art von Unternehmen",
+      "nace_2": "eine noch weiter gefasste Branche",
+      "region": "Nachbarländer",
+      "any_band": "jede Größe"
+    },
+    "notEnough": "Noch nicht genug vergleichbare Unternehmen. Wir zeigen es, sobald es genug gibt.",
+    "official": "Die amtlichen EU-Zahlen unten stammen von Eurostat und tragen ihr Jahr. Unser Live-Vergleich ist dafür noch nicht verfügbar, und beides wird nie zu einer Zahl vermischt.",
+    "notMeasured": "Noch nicht gemessen: {list}.",
+    "unplaced": "Sag mir, was für ein Unternehmen das ist und in welchem Land, dann vergleiche ich es.",
+    "source": "Von Unternehmen, die SYB nutzen, gemessen von ihren eigenen Verkaufssystemen, nie aus Eingaben eines Inhabers. Monat: {month}.",
+    "contribute": {
+      "on": "Deine gemessenen Zahlen fließen anonym in diese Vergleiche ein. Eine Zahl erscheint nur, wenn mindestens sieben Unternehmen darin sind und keines mehr als ein Viertel davon ausmacht.",
+      "off": "Du steuerst keine Zahlen bei. Du siehst trotzdem jeden Vergleich.",
+      "stop": "Nicht mehr beitragen",
+      "start": "Wieder beitragen",
+      "failed": "Das wurde nicht gespeichert. Versuch es gleich noch einmal."
+    }
   }
 }

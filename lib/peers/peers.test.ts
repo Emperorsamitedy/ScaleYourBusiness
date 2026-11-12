@@ -150,10 +150,13 @@ async function shop(
   return s;
 }
 
-describe("D7 — a business contributes only after it opts in", () => {
-  it("records the opt-in and its withdrawal, keeping both", async () => {
+describe("§5.5 (supersedes D7) — contribution is on by default, one tap out", () => {
+  it("starts in; opting out and back in are each recorded, and every row is kept", async () => {
     const s = await shop(`peer_test_${randomUUID()}`, 100_000, 10, { consent: false });
+    expect(await hasPeerConsent(s.profile_id)).toBe(true); // the default
+    await optOutOfPeers({ profileId: s.profile_id, by: null });
     expect(await hasPeerConsent(s.profile_id)).toBe(false);
+    await new Promise((r) => setTimeout(r, 5)); // a later moment for the next choice
     await optIntoPeers({ profileId: s.profile_id, by: null });
     await optIntoPeers({ profileId: s.profile_id, by: null }); // twice is once
     expect(await hasPeerConsent(s.profile_id)).toBe(true);
@@ -163,12 +166,12 @@ describe("D7 — a business contributes only after it opts in", () => {
       .select()
       .from(peerBenchmarkConsents)
       .where(eq(peerBenchmarkConsents.profile_id, s.profile_id));
-    expect(rows).toHaveLength(1);
-    expect(rows[0]!.withdrawn_at).not.toBeNull();
+    expect(rows).toHaveLength(2);
+    expect(rows.every((r) => r.withdrawn_at !== null)).toBe(true);
   });
 });
 
-describe("D13 — average order value for the business's cohort", () => {
+describe("D13, now §5.3 — average order value from the measured cohort only", () => {
   it("six peers serve nothing — and the reader is told Eurostat is the reference instead", async () => {
     const type = `peer_test_${randomUUID()}`;
     const reader = await shop(type, 50_000, 10, { consent: false });
@@ -179,15 +182,13 @@ describe("D13 — average order value for the business's cohort", () => {
     });
   });
 
-  it("seven opted-in peers serve their ratio of totals, in the reader's currency", async () => {
+  it("seven peers with only STATED revenue serve nothing: a stated figure never contributes (§5.7)", async () => {
     const type = `peer_test_${randomUUID()}`;
     const reader = await shop(type, 50_000, 10, { consent: false });
     for (let i = 0; i < 7; i++) await shop(type, 100_000 + i * 1_000, 10);
-    // Σ revenue 721 000 ÷ Σ orders 70 = 10 300 minor units per order
     expect(await peerAverageOrderValue(reader.profile_id)).toEqual({
-      shown: true,
-      value: money(10_300, "EUR"),
-      businesses: 7,
+      shown: false,
+      fallback: "eurostat",
     });
   });
 

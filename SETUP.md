@@ -166,3 +166,7 @@ While it is empty, SYB sends nothing to NAV.
       changelog entry.
 - [ ] **A DPIA and a DPA entry for NAV.** The spec names NAV as its own
       processing activity. This is a document for counsel, not code.
+- [ ] **A DPA entry and a DPIA for peer benchmarks.** Contribution is on by
+      default with a one-tap opt-out (v1 spec §5.5). Counsel confirms the
+      legal basis and the sign-up notice. What the code does, and the
+      questions for counsel, are in `specs/peer-benchmarks-dpa-notes.md`.

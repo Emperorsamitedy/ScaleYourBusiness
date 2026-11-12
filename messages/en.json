@@ -9195,5 +9195,51 @@
     "meta": {
       "title": "Monthly statement"
     }
+  },
+  "peers": {
+    "label": "Live comparison",
+    "title": "How you compare with businesses like yours",
+    "metric": {
+      "average_order_value": "Average order value",
+      "revenue_per_employee": "Revenue per employee",
+      "ad_spend_share": "Ad spend as a share of revenue",
+      "no_show_rate": "No-shows and late cancellations",
+      "gross_margin": "Gross margin",
+      "repeat_customer_rate": "Repeat customer rate",
+      "cac_payback": "Cost to win a buyer, and weeks to earn it back",
+      "busiest_hours": "Busiest and quietest hours",
+      "stock_turns": "Stock turns"
+    },
+    "middle": "Middle half: {p25} to {p75}",
+    "typical": "Typical: {p50}",
+    "you": "You: {value}, higher than {pct} of them",
+    "youStated": "You, from what you told me: {value}, higher than {pct} of them",
+    "cohort": "Businesses compared: {count} · {nace} · {place} · {band} · {month}",
+    "nace": "NACE {code}",
+    "band": {
+      "range": "{from} to {to} a year",
+      "under": "under {to} a year",
+      "over": "over {from} a year",
+      "any": "every size"
+    },
+    "widened": "Widened to find enough: {list}.",
+    "widen": {
+      "nace_3": "a wider kind of business",
+      "nace_2": "a wider sector still",
+      "region": "neighbouring countries",
+      "any_band": "every size"
+    },
+    "notEnough": "Not enough comparable businesses yet. We'll show this as soon as there are.",
+    "official": "The EU official figures below are Eurostat's, labelled with their year. Our live comparison isn't available for this yet, and the two are never mixed into one figure.",
+    "notMeasured": "Not measured yet: {list}.",
+    "unplaced": "Tell me what kind of business this is and which country it is in, and I'll compare it.",
+    "source": "From businesses using SYB, measured by their own sales systems, never from what an owner typed in. Month: {month}.",
+    "contribute": {
+      "on": "Your measured figures join these comparisons anonymously. A figure shows only when at least seven businesses are in it and none is more than a quarter of it.",
+      "off": "You don't contribute your figures. You still see every comparison.",
+      "stop": "Stop contributing",
+      "start": "Contribute again",
+      "failed": "That didn't save. Try again in a moment."
+    }
   }
 }

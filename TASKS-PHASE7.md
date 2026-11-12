@@ -101,15 +101,17 @@ Decisions D34–D38, D49–D51.
 
 ## Phase 4 — Peer Benchmark Network (§5)
 
-- [ ] **P7-60** Cohorts: NACE 4→3→2, country→region, revenue band, month;
+- [x] **P7-60** Cohorts: NACE 4→3→2, country→region, revenue band, month;
       widening recorded and said in words
-- [ ] **P7-61** Floor in the query layer (k ≥ 7, ≤ 25%); extraction-attack test
-- [ ] **P7-62** Measured values only; p25/p50/p75 + the owner's percentile
-- [ ] **P7-63** Contribution on by default, one-tap opt-out, out within 24 hours
-- [ ] **P7-64** Eurostat labelled with its vintage, never blended
+- [x] **P7-61** Floor in the query layer (k ≥ 7, ≤ 25%); extraction-attack test
+- [x] **P7-62** Measured values only; p25/p50/p75 + the owner's percentile
+- [x] **P7-63** Contribution on by default, one-tap opt-out, out within 24 hours
+- [x] **P7-64** Eurostat labelled with its vintage, never blended
+      (live panel above the Eurostat sheets on /benchmarks; DPA notes for counsel)
 
 **Gate:** a cohort of 6 returns nothing through every path; the extraction
 attack can't isolate a business.
+**Passed 2026-11-12** (lib/peers/cohort.test.ts). Decisions D56–D61.
 
 ## Phase 5 — Entry funnel and pricing (§8)
 
