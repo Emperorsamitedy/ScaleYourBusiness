@@ -67,7 +67,8 @@
       "billing": "Csomag és számlázás",
       "mandates": "Hozzáféréssel rendelkező irodák",
       "partner": "Partnerkonzol",
-      "growth": "Növekedési stúdió"
+      "growth": "Növekedési stúdió",
+      "erasure": "A vállalkozás törlése"
     },
     "count": {
       "paused": "{count} szüneteltetve",
@@ -5773,7 +5774,12 @@
     "capped": "Sok mindent átbeszéltünk, ezért jobb, ha innen a(z) {business} egyik munkatársa veszi át.",
     "unavailable": "Erre most nem tudok válaszolni.",
     "closed": "Ez a vonal most nem fogad hívásokat. Kérem, próbálja újra később. Viszonthallásra.",
-    "busy": "A vonal most nagyon foglalt. Kérem, hívjon később újra. Viszonthallásra."
+    "busy": "A vonal most nagyon foglalt. Kérem, hívjon később újra. Viszonthallásra.",
+    "consentAsk": "Ahhoz, hogy segíthessek, le kell írnom ezt a hívást. Nyomja meg a(z) {yes} gombot, ha ez rendben van, vagy a(z) {no} gombot, ha nélküle folytatná.",
+    "consentAskRecorded": "Ahhoz, hogy segíthessek, rögzítenem és le kell írnom ezt a hívást. Nyomja meg a(z) {yes} gombot, ha ez rendben van, vagy a(z) {no} gombot, ha nélküle folytatná.",
+    "noRecord": "Rendben. A hívásból semmit nem írunk le és nem rögzítünk.",
+    "noRecordHandover": "Ha a(z) {business} egyik munkatársával beszélne, nyomja meg a(z) {key} gombot.",
+    "noRecordNobody": "Leírás nélkül nem tudom felvenni a kérdését, ezért kérem, hívjon újra, vagy írjon a(z) {business} címére. Viszonthallásra."
   },
   "team": {
     "meta": {
@@ -6066,7 +6072,8 @@
       "ladder_manage": "Csak tulajdonos módosíthatja, mit tehet a SYB önállóan.",
       "mandates_manage": "Csak tulajdonos adhat vagy vonhat vissza egy iroda hozzáférését ehhez a vállalkozáshoz.",
       "growth_manage": "Csak tulajdonos vagy menedzser adhat hozzá anyagokat és nyithat kreatív briefet.",
-      "growth_voice": "Csak tulajdonos erősítheti meg a márkahangot és rögzíthet képmás-felhasználási engedélyt."
+      "growth_voice": "Csak tulajdonos erősítheti meg a márkahangot és rögzíthet képmás-felhasználási engedélyt.",
+      "business_erase": "Csak tulajdonos kérheti a vállalkozás törlését."
     }
   },
   "authWords": {
@@ -9651,6 +9658,16 @@
       "revoke": "Visszavonás"
     },
     "done": "Kész.",
+    "failed": "Ez nem sikerült: {why}"
+  },
+  "erasure": {
+    "meta": {
+      "title": "A vállalkozás törlése"
+    },
+    "kicker": "A vállalkozás törlése",
+    "body": "Kérheted, hogy töröljük ezt a vállalkozást és mindent, amit a SYB tárol róla. A kérés pillanatától a számai kikerülnek minden összehasonlításból a hasonló vállalkozásokkal; a többit egy SYB-munkatárs törli, és megerősíti, ha kész.",
+    "ask": "Törlés kérése",
+    "requested": "Törlés kérve: {date}. A számai már kikerültek minden összehasonlításból.",
     "failed": "Ez nem sikerült: {why}"
   }
 }

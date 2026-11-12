@@ -70,6 +70,8 @@ const NEVER_A_MANAGER: readonly RoleAction[] = [
   "peers.consent",
   // The v1 spec §10.3 / Art. 50(4): the brand voice and a person's identity release.
   "growth.voice",
+  // The v1 spec §9.4: erasing the business.
+  "business.erase",
   // The v1 spec §7.1: a firm's access to the business.
   "mandates.manage",
   // The v1 spec §4: what SYB may do on its own.

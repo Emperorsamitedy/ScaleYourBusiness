@@ -27,6 +27,7 @@ import {
   labellingRecords,
   libraryAssets,
 } from "../../db/schema";
+import { LABEL_STANDARD, provenanceManifest } from "../compliance/labeller";
 import type { VoiceCard } from "../content/voice";
 
 export class LibraryError extends Error {
@@ -267,8 +268,7 @@ export async function confirmVoice(profileId: string, userId: string) {
 
 // ── §9.3 / §10.6: labelling records ──────────────────────────────────────
 
-export const LABEL_STANDARD =
-  "IPTC Digital Source Type trainedAlgorithmicMedia; EU AI Act Art. 50(2)";
+export { LABEL_STANDARD };
 
 export async function recordLabelling(args: {
   profileId: string;
@@ -279,7 +279,11 @@ export async function recordLabelling(args: {
   generationId?: string | null;
   candidateId?: string | null;
   at?: Date;
+  /** The labelled file's bytes, when at hand, for the manifest's hash. */
+  bytes?: Uint8Array | null;
 }) {
+  const at = args.at ?? new Date();
+  const method = args.media === "image" ? "iptc_xmp+jpeg_comment" : "mp4_comment";
   const [r] = await db
     .insert(labellingRecords)
     .values({
@@ -288,10 +292,17 @@ export async function recordLabelling(args: {
       content_item_id: args.contentItemId ?? null,
       generation_id: args.generationId ?? null,
       candidate_id: args.candidateId ?? null,
-      method: args.media === "image" ? "iptc_xmp+jpeg_comment" : "mp4_comment",
+      method,
       standard_version: LABEL_STANDARD,
       label: args.label,
-      labelled_at: (args.at ?? new Date()).toISOString(),
+      manifest: provenanceManifest({
+        media: args.media,
+        label: args.label,
+        method,
+        at,
+        bytes: args.bytes ?? null,
+      }),
+      labelled_at: at.toISOString(),
     })
     .returning();
   return r!;

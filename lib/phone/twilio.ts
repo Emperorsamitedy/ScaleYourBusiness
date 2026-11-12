@@ -148,6 +148,16 @@ export type Verb =
       /** Said while listening — the caller can talk over it. */
       prompt?: string;
     }
+  | {
+      /**
+       * The v1 spec §9.2: a keypad-only <Gather> — one digit, no speech, so
+       * nothing the caller says is transcribed while they decide.
+       */
+      verb: "keypad";
+      action: string;
+      timeout: number;
+      prompt: string;
+    }
   | { verb: "dial"; number: string; action: string; timeout: number }
   | { verb: "hangup" };
 
@@ -223,6 +233,11 @@ export function twiml(voice: TwilioVoice, verbs: readonly Verb[], state: TwimlSt
             `<Gather input="speech" action="${escapeXml(v.action)}" method="POST" ` +
             `language="${escapeXml(voice.gather)}" speechTimeout="auto" timeout="${v.timeout}" ` +
             `actionOnEmptyResult="true">${v.prompt ? say(v.prompt) : ""}</Gather>`
+          );
+        case "keypad":
+          return (
+            `<Gather input="dtmf" numDigits="1" action="${escapeXml(v.action)}" method="POST" ` +
+            `timeout="${v.timeout}" actionOnEmptyResult="true">${say(v.prompt)}</Gather>`
           );
         case "dial":
           return (

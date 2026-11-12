@@ -3,6 +3,7 @@
 // carries the RFC 8058 headers and a per-recipient idempotency key, and
 // build gates hold who may call it and what the provider can do.
 
+import { aiTextHeaders } from "../../compliance/labeller";
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import path from "node:path";
 import { describe, expect, it } from "vitest";
@@ -53,6 +54,7 @@ describe("P4-15 — sendCampaignEmail, the one way out", () => {
       headers: {
         "List-Unsubscribe": "<https://syb.test/api/u/tok>",
         "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
+        ...aiTextHeaders(), // the v1 spec §9.3: an AI-drafted email is marked machine-readably
       },
       // Review 2026-10-23 (#14): the row's id rides along as a tag, nothing personal.
       tags: [{ name: "syb_send", value: MAIL.send_id }],

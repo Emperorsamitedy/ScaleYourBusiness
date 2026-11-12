@@ -146,8 +146,13 @@ async function business(opts: { record?: boolean; handover?: string } = {}) {
 
 async function start(b: { number: string }, from = "+447700900001") {
   const sid = fakeCallSid();
-  const xml = await handleVoice("start", callParams({ callSid: sid, to: b.number, from }));
-  return { sid, xml };
+  // The v1 spec §9.2: the disclosure and the consent question first; the caller presses 1.
+  const first = await handleVoice("start", callParams({ callSid: sid, to: b.number, from }));
+  const consented = await handleVoice(
+    "consent",
+    callParams({ callSid: sid, to: b.number, from, Digits: "1" }),
+  );
+  return { sid, xml: first + consented, first };
 }
 
 async function callRow(sid: string) {
@@ -200,7 +205,7 @@ describe("off by default: no audio until the owner switches recording on", () =>
     const { sid, xml } = await start(b);
     const notice = xml.indexOf("This call is recorded and transcribed");
     const recording = xml.indexOf("<Start><Recording");
-    const listening = xml.indexOf("<Gather");
+    const listening = xml.indexOf('<Gather input="speech"');
     expect(notice).toBeGreaterThan(xml.indexOf("automated assistant")); // rule 31 first
     expect(recording).toBeGreaterThan(notice); // rule 32: the notice before the recording
     expect(listening).toBeGreaterThan(recording);

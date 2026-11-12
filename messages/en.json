@@ -67,7 +67,8 @@
       "billing": "Plan and billing",
       "mandates": "Firms with access",
       "partner": "Partner console",
-      "growth": "Growth studio"
+      "growth": "Growth studio",
+      "erasure": "Erase this business"
     },
     "count": {
       "paused": "{count} paused",
@@ -5773,7 +5774,12 @@
     "capped": "We've covered a lot, so it's best that someone at {business} takes it from here.",
     "unavailable": "I can't answer that right now.",
     "closed": "This line isn't taking calls right now. Please try again later. Goodbye.",
-    "busy": "The line is very busy right now. Please call again later. Goodbye."
+    "busy": "The line is very busy right now. Please call again later. Goodbye.",
+    "consentAsk": "To help you, I need to transcribe this call. Press {yes} if that's all right, or {no} to carry on without it.",
+    "consentAskRecorded": "To help you, I need to record and transcribe this call. Press {yes} if that's all right, or {no} to carry on without it.",
+    "noRecord": "No problem. Nothing on this call will be transcribed or recorded.",
+    "noRecordHandover": "To speak to someone at {business}, press {key}.",
+    "noRecordNobody": "Without transcribing I can't take your question, so please call again or write to {business}. Goodbye."
   },
   "team": {
     "meta": {
@@ -6066,7 +6072,8 @@
       "ladder_manage": "Only an owner can change what SYB may do on its own.",
       "mandates_manage": "Only an owner can give or take back a firm's access to this business.",
       "growth_manage": "Only an owner or a manager can add assets and open creative briefs.",
-      "growth_voice": "Only an owner can confirm the brand voice and record identity releases."
+      "growth_voice": "Only an owner can confirm the brand voice and record identity releases.",
+      "business_erase": "Only an owner can ask for this business to be erased."
     }
   },
   "authWords": {
@@ -9651,6 +9658,16 @@
       "revoke": "Withdraw"
     },
     "done": "Done.",
+    "failed": "That didn't work: {why}"
+  },
+  "erasure": {
+    "meta": {
+      "title": "Erase this business"
+    },
+    "kicker": "Erase this business",
+    "body": "You can ask for this business and everything SYB holds about it to be erased. From the moment you ask, its figures leave every comparison with similar businesses; the rest is removed by a person at SYB, who confirms when it is done.",
+    "ask": "Ask for erasure",
+    "requested": "Erasure asked for on {date}. Its figures are already out of every comparison.",
     "failed": "That didn't work: {why}"
   }
 }

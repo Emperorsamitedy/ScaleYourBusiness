@@ -108,6 +108,8 @@ export const ROLE_ACTIONS = {
   // The v1 spec §7.1: a firm's access to the business is the owner's grant, revocable in one tap.
   // The v1 spec §10.3 / Art. 50(4): the voice SYB writes in, and a person's consent to appear, are the owner's.
   "growth.voice": { min: "owner", what: "confirm the brand voice and record identity releases" },
+  // The v1 spec §9.4: erasing the whole business is the owner's request.
+  "business.erase": { min: "owner", what: "ask for this business to be erased" },
   "mandates.manage": { min: "owner", what: "give or take back a firm's access to this business" },
 } as const satisfies Record<string, RoleActionRow>;
 

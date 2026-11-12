@@ -95,7 +95,7 @@ async function rowsFor(sid: string) {
 }
 
 describe("POST /api/phone/voice", () => {
-  it("answers a signed call with TwiML: the disclosure, the notice, then listening", async () => {
+  it("answers a signed call with TwiML: the disclosure, then the keypad consent question (§9.2)", async () => {
     const sid = fakeCallSid();
     const res = await post(
       twilioRequest({ url: BASE, params: callParams({ callSid: sid, to: number }) }),
@@ -104,7 +104,8 @@ describe("POST /api/phone/voice", () => {
     expect(res.headers.get("content-type")).toMatch(/text\/xml/);
     const xml = await res.text();
     expect(xml).toMatch(/automated assistant, not a person/);
-    expect(xml).toContain('<Gather input="speech"');
+    expect(xml).toContain('<Gather input="dtmf"');
+    expect(xml).not.toContain('input="speech"'); // nothing is transcribed before consent
     expect(await rowsFor(sid)).toHaveLength(1);
   });
 

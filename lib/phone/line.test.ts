@@ -23,6 +23,7 @@ import {
   llmCalls,
   phoneCallTurns,
   phoneCalls,
+  phoneRecordings,
   phoneSettings,
   proposals,
   supportSettings,
@@ -166,8 +167,13 @@ const neverCalled: PhoneLlm = async () => {
 
 async function start(b: { number: string }, from: string | null = "+447700900001") {
   const sid = fakeCallSid();
-  const xml = await handleVoice("start", callParams({ callSid: sid, to: b.number, from }));
-  return { sid, xml };
+  // The v1 spec §9.2: the disclosure and the consent question first; the caller presses 1.
+  const first = await handleVoice("start", callParams({ callSid: sid, to: b.number, from }));
+  const consented = await handleVoice(
+    "consent",
+    callParams({ callSid: sid, to: b.number, from, Digits: "1" }),
+  );
+  return { sid, xml: first + consented, first };
 }
 
 async function callRow(sid: string) {
@@ -217,26 +223,30 @@ afterAll(async () => {
 });
 
 describe("rule 31: the first sentence names the business and says it is SYB's automated assistant", () => {
-  it("greets, gives the notice, and only then listens", async () => {
+  it("greets, asks consent by keypad, and only after a 1 gives the notice and listens (§9.2)", async () => {
     const b = await business();
-    const { sid, xml } = await start(b);
+    const { sid, xml, first: opening } = await start(b);
+    // The first document listens for one key and nothing else: no speech before consent.
+    expect(opening).toContain('<Gather input="dtmf"');
+    expect(opening).not.toContain('input="speech"');
     const says = saysOf(xml);
     const first = says[0]!.split(/(?<=[.!?])\s/)[0]!;
     expect(first).toContain("Rosa&apos;s Bakery");
     expect(first).toMatch(/SYB&apos;s automated assistant, not a person/);
     // Rule 32: the notice is its own <Say>, before the <Gather> and outside it.
-    expect(says[1]).toMatch(/transcribed/);
-    const notice = xml.indexOf("transcribed");
+    expect(says[1]).toMatch(/transcribe this call/); // the consent question
+    expect(says[2]).toMatch(/transcribed/); // the notice, after the 1
+    const notice = xml.indexOf("This call is transcribed");
     expect(notice).toBeGreaterThan(0);
-    expect(notice).toBeLessThan(xml.indexOf("<Gather"));
-    expect(xml.slice(0, xml.indexOf("<Gather"))).not.toContain("<Gather");
+    expect(notice).toBeLessThan(xml.indexOf('<Gather input="speech"'));
     expect(xml).toContain('action="/api/phone/voice?step=turn"');
     const call = await callRow(sid);
     expect(call.notice_at).not.toBeNull();
     expect(call.caller_number).toBe("+447700900001");
+    // Nothing before the consent is kept, not even SYB's own lines; the notice is the first.
     const turns = await turnsOf(sid);
     expect(turns[0]?.role).toBe("assistant");
-    expect(turns[0]?.text).toMatch(/^Hello, you've reached Rosa's Bakery/);
+    expect(turns[0]?.text).toMatch(/^This call is transcribed/);
   });
 
   it("speaks the business's own language: a German business greets in German, with a German voice", async () => {
@@ -858,5 +868,94 @@ describe("hard rule 6 — phone answering is behind a country flag, default bloc
         else process.env[k] = saved[k];
       }
     }
+  });
+});
+
+describe("§9.2 / §9.5 — the consent gate, and the no-record path built first", () => {
+  const opening = async (b: { number: string }) => {
+    const sid = fakeCallSid();
+    const first = await handleVoice("start", callParams({ callSid: sid, to: b.number }));
+    return { sid, first };
+  };
+
+  it("a refused consent gives a completed call with no transcript and no audio — even on a recording line", async () => {
+    const b = await business();
+    await db
+      .update(phoneSettings)
+      .set({ record_calls: true })
+      .where(eq(phoneSettings.profile_id, b.profile_id));
+    const { sid, first } = await opening(b);
+    // Asked by keypad only: nothing said is listened to before the answer.
+    expect(first).toContain('<Gather input="dtmf"');
+    expect(first).not.toContain('input="speech"');
+    expect(first).not.toContain("<Start><Recording");
+    expect(saysOf(first).join(" ")).toMatch(/record and transcribe this call/);
+
+    const refused = await handleVoice(
+      "consent",
+      callParams({ callSid: sid, to: b.number, Digits: "2" }),
+    );
+    expect(refused).not.toContain('input="speech"');
+    expect(refused).not.toContain("<Start><Recording");
+    expect(saysOf(refused).join(" ")).toMatch(
+      /Nothing on this call will be transcribed or recorded/,
+    );
+    // Whatever arrives as speech afterwards is dropped unread.
+    await handleVoice(
+      "turn",
+      callParams({ callSid: sid, to: b.number, SpeechResult: "My card number is 4242" }),
+      { llm: neverCalled },
+    );
+    await handleVoice(
+      "status",
+      callParams({ callSid: sid, to: b.number, CallStatus: "completed", CallDuration: "21" }),
+    );
+
+    const call = await callRow(sid);
+    expect(call).toMatchObject({
+      consent: "refused",
+      notice_at: null,
+      recording_notice_at: null,
+      duration_seconds: 21,
+    });
+    expect(call.ended_at).not.toBeNull();
+    expect(await turnsOf(sid)).toHaveLength(0); // no transcript, not even SYB's own lines
+    expect(
+      await db.select().from(phoneRecordings).where(eq(phoneRecordings.call_id, call.id)),
+    ).toHaveLength(0);
+  });
+
+  it("silence is a refusal too, and a retried webhook stays on the no-record path", async () => {
+    const b = await business();
+    const { sid } = await opening(b);
+    await handleVoice("consent", callParams({ callSid: sid, to: b.number })); // no Digits: the timeout
+    expect((await callRow(sid)).consent).toBe("refused");
+    const again = await handleVoice("start", callParams({ callSid: sid, to: b.number }));
+    expect(again).not.toContain('input="speech"');
+    // A late "1" can't turn a refused call into a transcribed one.
+    const late = await handleVoice(
+      "consent",
+      callParams({ callSid: sid, to: b.number, Digits: "1" }),
+    );
+    expect(late).not.toContain('input="speech"');
+    expect((await callRow(sid)).notice_at).toBeNull();
+  });
+
+  it("on the no-record path a caller can still reach a person by keypad, never recorded", async () => {
+    const b = await business({ handover: "+447700900123" });
+    const { sid } = await opening(b);
+    const refused = await handleVoice(
+      "consent",
+      callParams({ callSid: sid, to: b.number, Digits: "2" }),
+    );
+    expect(refused).toContain('action="/api/phone/voice?step=norecord"');
+    const through = await handleVoice(
+      "norecord",
+      callParams({ callSid: sid, to: b.number, Digits: "1" }),
+    );
+    expect(through).toContain("<Dial");
+    expect(through).not.toContain("<Start><Recording");
+    expect((await callRow(sid)).outcome).toBe("handed_over");
+    expect(await turnsOf(sid)).toHaveLength(0);
   });
 });

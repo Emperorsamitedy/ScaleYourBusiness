@@ -67,7 +67,8 @@
       "billing": "Formule et facturation",
       "mandates": "Cabinets avec accès",
       "partner": "Console partenaire",
-      "growth": "Studio de croissance"
+      "growth": "Studio de croissance",
+      "erasure": "Effacer cette entreprise"
     },
     "count": {
       "paused": "{count} en pause",
@@ -5773,7 +5774,12 @@
     "capped": "Nous avons abordé beaucoup de choses, il vaut mieux que quelqu’un de {business} prenne le relais.",
     "unavailable": "Je ne peux pas répondre à cela pour le moment.",
     "closed": "Cette ligne ne prend pas d’appels pour le moment. Veuillez réessayer plus tard. Au revoir.",
-    "busy": "La ligne est très chargée en ce moment. Veuillez rappeler plus tard. Au revoir."
+    "busy": "La ligne est très chargée en ce moment. Veuillez rappeler plus tard. Au revoir.",
+    "consentAsk": "Pour vous aider, je dois transcrire cet appel. Appuyez sur {yes} si vous êtes d’accord, ou sur {no} pour continuer sans.",
+    "consentAskRecorded": "Pour vous aider, je dois enregistrer et transcrire cet appel. Appuyez sur {yes} si vous êtes d’accord, ou sur {no} pour continuer sans.",
+    "noRecord": "Pas de problème. Rien de cet appel ne sera transcrit ni enregistré.",
+    "noRecordHandover": "Pour parler à quelqu’un chez {business}, appuyez sur {key}.",
+    "noRecordNobody": "Sans transcription, je ne peux pas recevoir votre question : rappelez plus tard ou écrivez à {business}. Au revoir."
   },
   "team": {
     "meta": {
@@ -6066,7 +6072,8 @@
       "ladder_manage": "Seul un propriétaire peut changer ce que SYB peut faire de lui-même.",
       "mandates_manage": "Seul un propriétaire peut donner ou retirer à un cabinet l’accès à cette entreprise.",
       "growth_manage": "Seul un propriétaire ou un gestionnaire peut ajouter des médias et ouvrir des briefs créatifs.",
-      "growth_voice": "Seul un propriétaire peut confirmer la voix de la marque et enregistrer les autorisations d’image."
+      "growth_voice": "Seul un propriétaire peut confirmer la voix de la marque et enregistrer les autorisations d’image.",
+      "business_erase": "Seul un propriétaire peut demander l’effacement de cette entreprise."
     }
   },
   "authWords": {
@@ -9651,6 +9658,16 @@
       "revoke": "Retirer"
     },
     "done": "C’est fait.",
+    "failed": "Cela n’a pas fonctionné : {why}"
+  },
+  "erasure": {
+    "meta": {
+      "title": "Effacer cette entreprise"
+    },
+    "kicker": "Effacer cette entreprise",
+    "body": "Vous pouvez demander l’effacement de cette entreprise et de tout ce que SYB détient à son sujet. Dès la demande, ses chiffres sortent de toute comparaison avec des entreprises semblables ; le reste est supprimé par une personne chez SYB, qui confirme quand c’est fait.",
+    "ask": "Demander l’effacement",
+    "requested": "Effacement demandé le {date}. Ses chiffres sont déjà hors de toute comparaison.",
     "failed": "Cela n’a pas fonctionné : {why}"
   }
 }

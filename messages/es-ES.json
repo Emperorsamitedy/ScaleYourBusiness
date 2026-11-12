@@ -67,7 +67,8 @@
       "billing": "Plan y facturación",
       "mandates": "Firmas con acceso",
       "partner": "Consola de socios",
-      "growth": "Estudio de crecimiento"
+      "growth": "Estudio de crecimiento",
+      "erasure": "Borrar este negocio"
     },
     "count": {
       "paused": "{count} en pausa",
@@ -5773,7 +5774,12 @@
     "capped": "Hemos tratado muchas cosas, así que es mejor que alguien de {business} continúe desde aquí.",
     "unavailable": "Ahora mismo no puedo responder a eso.",
     "closed": "Esta línea no atiende llamadas en este momento. Inténtelo más tarde. Adiós.",
-    "busy": "La línea está muy ocupada en este momento. Llame de nuevo más tarde. Adiós."
+    "busy": "La línea está muy ocupada en este momento. Llame de nuevo más tarde. Adiós.",
+    "consentAsk": "Para ayudarle, necesito transcribir esta llamada. Pulse {yes} si le parece bien, o {no} para continuar sin ello.",
+    "consentAskRecorded": "Para ayudarle, necesito grabar y transcribir esta llamada. Pulse {yes} si le parece bien, o {no} para continuar sin ello.",
+    "noRecord": "No hay problema. Nada de esta llamada se transcribirá ni se grabará.",
+    "noRecordHandover": "Para hablar con alguien de {business}, pulse {key}.",
+    "noRecordNobody": "Sin transcribir no puedo recoger su pregunta, así que llame de nuevo o escriba a {business}. Adiós."
   },
   "team": {
     "meta": {
@@ -6066,7 +6072,8 @@
       "ladder_manage": "Solo un propietario puede cambiar lo que SYB puede hacer por su cuenta.",
       "mandates_manage": "Solo un propietario puede dar o retirar a una firma el acceso a este negocio.",
       "growth_manage": "Solo un propietario o un gestor puede añadir recursos y abrir briefings creativos.",
-      "growth_voice": "Solo un propietario puede confirmar la voz de marca y registrar las autorizaciones de imagen."
+      "growth_voice": "Solo un propietario puede confirmar la voz de marca y registrar las autorizaciones de imagen.",
+      "business_erase": "Solo un propietario puede pedir que se borre este negocio."
     }
   },
   "authWords": {
@@ -9651,6 +9658,16 @@
       "revoke": "Retirar"
     },
     "done": "Hecho.",
+    "failed": "No ha funcionado: {why}"
+  },
+  "erasure": {
+    "meta": {
+      "title": "Borrar este negocio"
+    },
+    "kicker": "Borrar este negocio",
+    "body": "Puedes pedir que se borren este negocio y todo lo que SYB tiene sobre él. Desde el momento en que lo pides, sus cifras salen de toda comparación con negocios parecidos; el resto lo elimina una persona de SYB, que confirma cuando está hecho.",
+    "ask": "Pedir el borrado",
+    "requested": "Borrado pedido el {date}. Sus cifras ya están fuera de toda comparación.",
     "failed": "No ha funcionado: {why}"
   }
 }

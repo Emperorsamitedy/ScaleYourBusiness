@@ -9,6 +9,7 @@
 // re-checks the stop and the gate, never pretends without a key, and is
 // called from exactly one place.
 
+import { aiTextHeaders } from "../compliance/labeller";
 import "dotenv/config";
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import path from "node:path";
@@ -257,6 +258,7 @@ describe("P4-10 — THE DONE-WHEN: a fixture email becomes a ticket, the draft c
     expect(call.body.to).toEqual([mail.from.address]);
     expect(call.body.subject).toBe("Re: How long does shipping take?");
     expect(call.body.headers).toEqual({
+      ...aiTextHeaders(), // the v1 spec §9.3: an AI-drafted reply is marked machine-readably
       "In-Reply-To": mail.message_id,
       References: mail.message_id,
     });
@@ -615,7 +617,8 @@ describe("P4-11 — a chat ticket with an address is answered by email through t
       subject: "Your question to Fernhill Ceramics",
       text: "Hi, it's Aoife — happy to help.",
     });
-    expect(resend.calls[0]!.body.headers).toBeUndefined();
+    // Unthreaded: no In-Reply-To or References — only §9.3's machine-readable AI mark.
+    expect(resend.calls[0]!.body.headers).toEqual(aiTextHeaders());
     const { supportConversations } = await import("../../db/schema");
     await db.delete(supportTickets).where(eq(supportTickets.profile_id, b.profile_id));
     await db.delete(supportConversations).where(eq(supportConversations.profile_id, b.profile_id));

@@ -15,7 +15,7 @@
 
 import { and, desc, eq, isNull } from "drizzle-orm";
 import { db } from "../../db";
-import { peerBenchmarkConsents } from "../../db/schema";
+import { businessErasureRequests, peerBenchmarkConsents } from "../../db/schema";
 
 type Row = { profile_id: string; consented_at: string; withdrawn_at: string | null };
 
@@ -53,6 +53,11 @@ export async function optedOutProfiles(): Promise<Set<string>> {
   for (const r of rows) by.set(r.profile_id, [...(by.get(r.profile_id) ?? []), r]);
   const out = new Set<string>();
   for (const [profile, list] of by) if (!contributesFrom(list)) out.add(profile);
+  // The v1 spec §9.4: a business that asked to be erased leaves every aggregate from the next read.
+  const erasing = await db
+    .select({ id: businessErasureRequests.profile_id })
+    .from(businessErasureRequests);
+  for (const e of erasing) out.add(e.id);
   return out;
 }
 

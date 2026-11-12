@@ -2839,6 +2839,16 @@ export const phoneCalls = pgTable(
      * recording Twilio reports for a call without it is deleted unheard.
      */
     recording_notice_at: timestamp("recording_notice_at", { withTimezone: true, mode: "string" }),
+    /**
+     * The v1 spec §9.2: the caller's answer to the consent gate, by keypad
+     * (a spoken "yes" would already be transcription). Null until answered;
+     * "refused" — or no answer — keeps the call on the no-record path: no
+     * transcript, no audio.
+     */
+    consent: text("consent"),
+    consent_at: timestamp("consent_at", { withTimezone: true, mode: "string" }),
+    /** Whether the consent question asked to record too — fixed when the call came in. */
+    recording_asked: boolean("recording_asked").notNull().default(false),
     outcome: phoneCallOutcome("outcome"),
     turns: integer("turns").notNull().default(0),
     silences: integer("silences").notNull().default(0),
@@ -5439,6 +5449,20 @@ export const guaranteeCredits = pgTable(
   ],
 );
 
+/**
+ * §9.4: a business's erasure request. From the moment it is made the
+ * business is in no benchmark aggregate (lib/peers); an operator completes
+ * the removal of its data and stamps completed_at.
+ */
+export const businessErasureRequests = pgTable("business_erasure_requests", {
+  profile_id: uuid("profile_id").primaryKey(),
+  requested_by: uuid("requested_by"),
+  requested_at: timestamp("requested_at", { withTimezone: true, mode: "string" })
+    .notNull()
+    .defaultNow(),
+  completed_at: timestamp("completed_at", { withTimezone: true, mode: "string" }),
+});
+
 /** Stripe events already handled — a redelivery changes nothing. */
 export const billingEvents = pgTable("billing_events", {
   stripe_event_id: text("stripe_event_id").primaryKey(),
@@ -5783,6 +5807,8 @@ export const labellingRecords = pgTable(
     standard_version: text("standard_version").notNull(),
     /** The visible words that travel with it (the caption's disclosure). */
     label: text("label").notNull(),
+    /** §9.1: the C2PA-style provenance manifest (lib/compliance/labeller.ts). */
+    manifest: jsonb("manifest"),
     labelled_at: timestamp("labelled_at", { withTimezone: true, mode: "string" }).notNull(),
     published_by: uuid("published_by"),
     published_at: timestamp("published_at", { withTimezone: true, mode: "string" }),

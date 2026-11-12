@@ -16,6 +16,8 @@
 //   unknown  — a 5xx, a timeout, a dropped connection, an unreadable
 //              2xx or a 409 idempotency conflict: it may have gone out.
 
+import { aiTextHeaders } from "../compliance/labeller";
+
 export type MailOutcome =
   | { kind: "sent"; provider_id: string }
   | { kind: "refused"; status: number; message: string }
@@ -42,7 +44,8 @@ export async function sendSupportEmail(
   apiKey: string,
   fetchImpl: MailFetch = fetch,
 ): Promise<MailOutcome> {
-  const headers: Record<string, string> = {};
+  // §9.3: an AI-drafted reply is marked machine-readably, beside its visible line.
+  const headers: Record<string, string> = { ...aiTextHeaders() };
   if (mail.in_reply_to) headers["In-Reply-To"] = mail.in_reply_to;
   if (mail.references) headers.References = mail.references;
   let res: Response;

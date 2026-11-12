@@ -169,6 +169,11 @@ export const SIZE_FEATURES = {
     reason:
       "What the plan costs, where it stands and how to leave it is the owner's at any size (the v1 spec §8.5).",
   },
+  "nav.erasure": {
+    bands: EVERY,
+    reason:
+      "Asking for the business to be erased is the owner's right at any size (GDPR; the v1 spec §9.4).",
+  },
   "nav.mandates": {
     bands: EVERY,
     reason:

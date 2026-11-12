@@ -154,11 +154,15 @@ folder connection for the library waits for a Drive connector.
 
 ## Phase 8 — Compliance completion (§9)
 
-- [ ] **P7-95** Country matrix with legal sign-off dates; Article 50 marking
-- [ ] **P7-96** Phone: consent gate, the no-record path, outbound dark
+- [x] **P7-95** Country matrix with legal sign-off dates; Article 50 marking
+      (ContentLabeller: manifests on every labelling record, the AI mark on email, D84)
+- [x] **P7-96** Phone: consent gate, the no-record path, outbound dark (D82, D83)
 
 **Gate:** a blocked country can't execute at any station; a refused consent
 yields a completed call with no audio or transcript.
+**Passed 2026-11-12** (lib/compliance/gate.test.ts, lib/phone/line.test.ts,
+lib/compliance/phase8.test.ts). Decisions D82–D87. Counsel's sign-off per
+launch market remains the owner's.
 
 ---
 

@@ -48,6 +48,7 @@
 // send endpoint, and sendCampaignEmail is called from exactly one place,
 // the per-recipient loop below — both pinned by source-scan build gates.
 
+import { aiTextHeaders } from "../../compliance/labeller";
 import { createHash, randomBytes } from "node:crypto";
 import type { ExecutionContext, ExecutionProvider, HeldFor, PreflightRefusal } from "./fixture";
 
@@ -236,6 +237,8 @@ export async function sendCampaignEmail(
         headers: {
           "List-Unsubscribe": `<${mail.one_click_url}>`,
           "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
+          // §9.3: an AI-drafted email is marked machine-readably, beside its visible line.
+          ...aiTextHeaders(),
         },
         // The row's own id, never anything personal: Resend echoes it on every
         // event, so a complaint on a row whose send answer was lost still finds it.

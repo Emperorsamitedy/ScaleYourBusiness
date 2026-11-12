@@ -198,6 +198,7 @@ export const GROUPS: readonly Group[] = [
       { href: "/growth", label: "Growth studio", feature: "nav.growth" },
       { href: "/billing", label: "Plan and billing", feature: "nav.billing" },
       { href: "/settings/mandates", label: "Firms with access", feature: "nav.mandates" },
+      { href: "/settings/data", label: "Erase this business", feature: "nav.erasure" },
       { href: "/partner", label: "Partner console", feature: "nav.partner" },
       { href: "/history", label: "History", feature: "nav.history" },
       {

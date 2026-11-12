@@ -105,6 +105,7 @@ async function recorded() {
   });
   const callSid = fakeCallSid();
   await handleVoice("start", callParams({ callSid, to: number }));
+  await handleVoice("consent", callParams({ callSid, to: number, Digits: "1" })); // §9.2: the caller agreed
   const recordingSid = fakeRecordingSid();
   const audio = api.add(recordingSid);
   expect(await recordingCallback(recordingParams({ callSid, recordingSid }))).toBe("stored");

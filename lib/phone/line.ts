@@ -97,7 +97,9 @@ export const PHONE_DIAL_TIMEOUT_S = 20;
 export const VOICE_PATH = "/api/phone/voice";
 /** P6-08: Twilio's recording status callback — signed like the voice webhook, on the trusted side. */
 export const RECORDING_PATH = "/api/phone/recording";
-export const STEPS = ["start", "turn", "message", "dial", "status"] as const;
+export const STEPS = ["start", "consent", "norecord", "turn", "message", "dial", "status"] as const;
+/** Seconds the consent question waits for a key before the call goes on unrecorded. */
+export const PHONE_CONSENT_TIMEOUT_S = 8;
 export type Step = (typeof STEPS)[number];
 export const stepUrl = (step: Exclude<Step, "start">): string => `${VOICE_PATH}?step=${step}`;
 
@@ -394,14 +396,15 @@ interface Ctx {
 async function respond(
   ctx: Ctx,
   verbs: readonly Verb[],
-  extra: { grounded_on?: string[]; cost_eur?: number } = {},
+  extra: { grounded_on?: string[]; cost_eur?: number; keep?: boolean } = {},
 ): Promise<string> {
   const spoken = verbs
     .flatMap((v) =>
       v.verb === "say" ? [v.text] : v.verb === "gather" && v.prompt ? [v.prompt] : [],
     )
     .join(" ");
-  if (spoken !== "") {
+  // §9.2: before consent, and on the no-record path, not even SYB's own lines are kept as a transcript.
+  if (spoken !== "" && extra.keep !== false) {
     await say(ctx.call.id, "assistant", spoken, await nextStamp(ctx.call.id, ctx.now()), extra);
   }
   await db
@@ -451,6 +454,10 @@ export async function handleVoice(
   switch (step) {
     case "start":
       return startCall(params, seams);
+    case "consent":
+      return consentStep(params, seams);
+    case "norecord":
+      return noRecordStep(params, seams);
     case "turn":
       return callerTurn(params, seams);
     case "message":
@@ -534,8 +541,10 @@ export async function startCall(params: TwilioParams, seams: PhoneSeams = {}): P
           call_sid: callSid,
           caller_number: caller,
           language: locale,
-          notice_at: now().toISOString(),
-          recording_notice_at: line.record_calls ? now().toISOString() : null,
+          // §9.2: nothing is noticed, transcribed or recorded until the caller presses 1.
+          notice_at: null,
+          recording_notice_at: null,
+          recording_asked: line.record_calls,
           started_at: now().toISOString(),
           last_at: now().toISOString(),
         })
@@ -573,7 +582,140 @@ export async function startCall(params: TwilioParams, seams: PhoneSeams = {}): P
     );
   }
   const ctx: Ctx = { call, line, words, locale, now };
-  return respond(ctx, openingVerbs(words, business, call.recording_notice_at !== null));
+  // A retried webhook answers where the call is: consented, refused, or still asking.
+  if (call.consent === "given") {
+    return respond(ctx, consentedVerbs(words, business, call.recording_notice_at !== null));
+  }
+  if (call.consent === "refused") return respond(ctx, noRecordVerbs(ctx), { keep: false });
+  return respond(ctx, consentAskVerbs(words, business, call.recording_asked), { keep: false });
+}
+
+/**
+ * Pure: what a caller hears first (§9.2, Art. 50(1)) — the AI disclosure,
+ * then the consent gate, asked by keypad only.
+ */
+export function consentAskVerbs(
+  words: Pick<Words, "t">,
+  business: string,
+  recording: boolean,
+): Verb[] {
+  return [
+    { verb: "say", text: words.t("greeting", { business }) },
+    {
+      verb: "keypad",
+      action: stepUrl("consent"),
+      timeout: PHONE_CONSENT_TIMEOUT_S,
+      prompt: words.t(recording ? "consentAskRecorded" : "consentAsk", { yes: "1", no: "2" }),
+    },
+  ];
+}
+
+/**
+ * Pure: after the caller pressed 1 — the notice (and, for a recorded call,
+ * the recording notice and THEN <Start><Recording>), then the line listens.
+ */
+export function consentedVerbs(
+  words: Pick<Words, "t">,
+  business: string,
+  recorded: boolean,
+  days: number = phoneRecordingKeepDays(),
+): Verb[] {
+  return openingVerbs(words, business, recorded, days).slice(1);
+}
+
+/** The no-record path: no speech is listened to, nothing is kept; a person by keypad, or goodbye. */
+function noRecordVerbs(ctx: Ctx): Verb[] {
+  const business = ctx.line.business_name;
+  if (ctx.line.handover_number) {
+    return [
+      { verb: "say", text: ctx.words.t("noRecord") },
+      {
+        verb: "keypad",
+        action: stepUrl("norecord"),
+        timeout: PHONE_CONSENT_TIMEOUT_S,
+        prompt: ctx.words.t("noRecordHandover", { business, key: "1" }),
+      },
+      { verb: "say", text: ctx.words.t("goodbye", { business }) },
+      { verb: "hangup" },
+    ];
+  }
+  return [
+    { verb: "say", text: ctx.words.t("noRecord") },
+    { verb: "say", text: ctx.words.t("noRecordNobody", { business }) },
+    { verb: "hangup" },
+  ];
+}
+
+/** The caller answered the consent gate: 1 is yes; anything else, or nothing, is no. */
+export async function consentStep(params: TwilioParams, seams: PhoneSeams = {}): Promise<string> {
+  const now = seams.now ?? (() => new Date());
+  const call = await callBySid(params.CallSid);
+  if (!call || call.ended_at) return hangUp();
+  const line = await lineForProfile(call.profile_id);
+  if (!line) return hangUp();
+  const locale = localeOf(call);
+  const words = await wordsFor(locale, "phoneLine");
+  const yes = (params.Digits ?? "").trim() === "1";
+  if (call.consent === null) {
+    const at = now().toISOString();
+    const [updated] = await db
+      .update(phoneCalls)
+      .set(
+        yes
+          ? {
+              consent: "given",
+              consent_at: at,
+              notice_at: at,
+              recording_notice_at: call.recording_asked ? at : null,
+            }
+          : { consent: "refused", consent_at: at },
+      )
+      .where(and(eq(phoneCalls.id, call.id), sql`${phoneCalls.consent} is null`))
+      .returning();
+    console.log(
+      JSON.stringify({
+        event: "phone_consent",
+        account_id: call.account_id,
+        call_id: call.id,
+        consent: yes ? "given" : "refused",
+      }),
+    );
+    if (updated) Object.assign(call, updated);
+  }
+  const ctx: Ctx = { call, line, words, locale, now };
+  if (call.consent === "given") {
+    return respond(
+      ctx,
+      consentedVerbs(words, line.business_name, call.recording_notice_at !== null),
+    );
+  }
+  return respond(ctx, noRecordVerbs(ctx), { keep: false });
+}
+
+/** On the no-record path: 1 puts the caller through (nothing recorded); anything else says goodbye. */
+export async function noRecordStep(params: TwilioParams, seams: PhoneSeams = {}): Promise<string> {
+  const now = seams.now ?? (() => new Date());
+  const call = await callBySid(params.CallSid);
+  if (!call || call.ended_at || call.consent !== "refused") return hangUp();
+  const line = await lineForProfile(call.profile_id);
+  if (!line) return hangUp();
+  const locale = localeOf(call);
+  const words = await wordsFor(locale, "phoneLine");
+  const ctx: Ctx = { call, line, words, locale, now };
+  if ((params.Digits ?? "").trim() === "1" && line.handover_number) {
+    await settle(call.id, "handed_over");
+    return respond(ctx, handOverVerbs(words, line.business_name, line.handover_number, false), {
+      keep: false,
+    });
+  }
+  return respond(
+    ctx,
+    [
+      { verb: "say", text: words.t("goodbye", { business: line.business_name }) },
+      { verb: "hangup" },
+    ],
+    { keep: false },
+  );
 }
 
 /**

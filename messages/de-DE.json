@@ -67,7 +67,8 @@
       "billing": "Plan und Abrechnung",
       "mandates": "Kanzleien mit Zugriff",
       "partner": "Partnerkonsole",
-      "growth": "Wachstumsstudio"
+      "growth": "Wachstumsstudio",
+      "erasure": "Dieses Unternehmen löschen"
     },
     "count": {
       "paused": "{count} pausiert",
@@ -5773,7 +5774,12 @@
     "capped": "Wir haben schon viel besprochen, deshalb übernimmt am besten jemand von {business} ab hier.",
     "unavailable": "Darauf kann ich gerade nicht antworten.",
     "closed": "Diese Leitung nimmt gerade keine Anrufe an. Bitte versuchen Sie es später noch einmal. Auf Wiederhören.",
-    "busy": "Die Leitung ist gerade sehr ausgelastet. Bitte rufen Sie später noch einmal an. Auf Wiederhören."
+    "busy": "Die Leitung ist gerade sehr ausgelastet. Bitte rufen Sie später noch einmal an. Auf Wiederhören.",
+    "consentAsk": "Um Ihnen zu helfen, muss ich dieses Gespräch transkribieren. Drücken Sie {yes}, wenn das in Ordnung ist, oder {no}, um ohne fortzufahren.",
+    "consentAskRecorded": "Um Ihnen zu helfen, muss ich dieses Gespräch aufzeichnen und transkribieren. Drücken Sie {yes}, wenn das in Ordnung ist, oder {no}, um ohne fortzufahren.",
+    "noRecord": "Kein Problem. Nichts aus diesem Gespräch wird transkribiert oder aufgezeichnet.",
+    "noRecordHandover": "Um mit jemandem bei {business} zu sprechen, drücken Sie {key}.",
+    "noRecordNobody": "Ohne Transkription kann ich Ihre Frage nicht aufnehmen. Bitte rufen Sie erneut an oder schreiben Sie an {business}. Auf Wiederhören."
   },
   "team": {
     "meta": {
@@ -6066,7 +6072,8 @@
       "ladder_manage": "Nur ein Inhaber kann ändern, was SYB selbstständig tun darf.",
       "mandates_manage": "Nur ein Inhaber kann einer Firma Zugriff auf dieses Unternehmen geben oder entziehen.",
       "growth_manage": "Nur ein Inhaber oder ein Manager kann Medien hinzufügen und kreative Briefings anlegen.",
-      "growth_voice": "Nur ein Inhaber kann die Markenstimme bestätigen und Einwilligungen zur Abbildung erfassen."
+      "growth_voice": "Nur ein Inhaber kann die Markenstimme bestätigen und Einwilligungen zur Abbildung erfassen.",
+      "business_erase": "Nur ein Inhaber kann die Löschung dieses Unternehmens beantragen."
     }
   },
   "authWords": {
@@ -9651,6 +9658,16 @@
       "revoke": "Zurückziehen"
     },
     "done": "Erledigt.",
+    "failed": "Das hat nicht geklappt: {why}"
+  },
+  "erasure": {
+    "meta": {
+      "title": "Dieses Unternehmen löschen"
+    },
+    "kicker": "Dieses Unternehmen löschen",
+    "body": "Du kannst verlangen, dass dieses Unternehmen und alles, was SYB darüber hat, gelöscht wird. Ab dem Moment der Anfrage verlassen seine Zahlen jeden Vergleich mit ähnlichen Unternehmen; den Rest entfernt eine Person bei SYB und bestätigt, wenn es erledigt ist.",
+    "ask": "Löschung beantragen",
+    "requested": "Löschung am {date} beantragt. Seine Zahlen sind schon aus jedem Vergleich heraus.",
     "failed": "Das hat nicht geklappt: {why}"
   }
 }

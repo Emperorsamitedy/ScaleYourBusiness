@@ -73,6 +73,13 @@ while it is empty. The comments in `.env.example` have the exact formats.
       - **Smart Retries** set the retry schedule for failed payments; SYB
         tells the owner after each failure and points to the card update
       - the **customer portal** lets an owner update the card and see invoices
+- [ ] **Compliance (v1 spec §9).** Phone answering stays blocked in every
+      country until counsel in that market signs the matrix row (date and
+      reference) on /ops. Every call now asks consent by keypad before anything
+      is transcribed. When an owner asks for their business to be erased
+      (/settings/data), it leaves every benchmark at once; a person then removes
+      its data and marks the request done. DPIAs for the phone and benchmark
+      subsystems are counsel's before launch.
 - [ ] **Partner Console (v1 spec §7).** Firms ask their clients for a
       mandate by email, so `RESEND_API_KEY` must be set for those emails to
       go out (without it the requests are made and counted as "not sent").

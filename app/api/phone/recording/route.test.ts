@@ -112,6 +112,7 @@ const post = (req: Request) => POST(new NextRequest(req));
 async function recordedCall() {
   const callSid = fakeCallSid();
   await handleVoice("start", callParams({ callSid, to: number }));
+  await handleVoice("consent", callParams({ callSid, to: number, Digits: "1" })); // §9.2: the caller agreed
   const recordingSid = fakeRecordingSid();
   api.add(recordingSid);
   return { params: recordingParams({ callSid, recordingSid }), recordingSid };

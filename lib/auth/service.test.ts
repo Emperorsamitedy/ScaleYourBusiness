@@ -198,6 +198,8 @@ describe("security review 2026-11-09 — login requests are rate-limited", () =>
     for (let i = 0; i < 5; i++) await requestLogin(blocked, null);
     await expect(requestLogin(blocked, null)).rejects.toMatchObject({ status: 429 });
     // A fresh address still gets its link — the limit is per-email, not global.
-    await expect(requestLogin(testEmail(), null)).resolves.toMatchObject({ email: expect.any(String) });
+    await expect(requestLogin(testEmail(), null)).resolves.toMatchObject({
+      email: expect.any(String),
+    });
   });
 });

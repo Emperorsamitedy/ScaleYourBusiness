@@ -13,6 +13,7 @@
 // only the unsent, the erasure trail staying PII-free, and the due runner
 // routing a campaign.
 
+import { aiTextHeaders } from "../compliance/labeller";
 import "dotenv/config";
 import { and, eq, inArray } from "drizzle-orm";
 import { afterAll, afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -483,6 +484,7 @@ describe("P4-15 — THE DONE-WHEN", () => {
       expect(call.body.headers).toEqual({
         "List-Unsubscribe": `<https://syb.test/api/u/${token}>`,
         "List-Unsubscribe-Post": "List-Unsubscribe=One-Click",
+        ...aiTextHeaders(), // the v1 spec §9.3: an AI-drafted email is marked machine-readably
       });
       expect(call.body.from).toBe('"Emberworks via SYB" <hello@send.syb.test>');
       expect(call.body.reply_to).toBe("hello@emberworks.test");

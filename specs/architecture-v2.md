@@ -506,3 +506,38 @@ screenshot slots for the NAV guide.
   shot list's direct upload, as before. Connecting a Drive folder waits for
   a Drive connector.
 
+## Decisions taken building Phase 8, compliance completion (2026-11-12)
+
+- **D82 — the consent gate is asked by keypad.** Every call opens with the AI
+  disclosure (Art. 50(1)), then asks consent to transcribe — and to record,
+  when the owner switched recording on — with a keypad-only gather: a spoken
+  "yes" would already be transcription. 1 is yes; 2, any other key or
+  silence is no. Whether recording was asked is fixed when the call comes in.
+  The strictest version is the only version: every country, every call.
+- **D83 — the no-record path came first.** A refused call is listened to by
+  keypad only, never by speech; it can be put through to a person by keypad
+  (never recorded), or ends politely. Not even SYB's own lines are kept as a
+  transcript, and speech that arrives anyway is dropped unread — the call
+  completes with no transcript and no audio. A late 1 can't change it.
+- **D84 — ContentLabeller is lib/compliance/labeller.ts**, the one statement
+  of how SYB marks what a model made: the in-file stamp for images and video
+  (unchanged, at render), a C2PA-style provenance manifest on every labelling
+  record (generator, digital source type, visible label, method, standard,
+  file hash), and an `X-AI-Generated` header on every AI-drafted email (the
+  campaign sender and support replies) beside the visible line. Interactive
+  surfaces keep saying they are an AI first, in their own modules.
+- **D85 — a business's erasure is a request with an operator's completion.**
+  The owner asks (owner-only, `business.erase`); from that moment the
+  business is in no benchmark aggregate (no aggregate is stored, so there is
+  none to recompute) and the request is in the decision log. A person removes
+  the data and stamps completed_at — a whole-business deletion is not run by
+  a button.
+- **D86 — voiceprints don't exist in SYB.** §9.4 asks that enrolment sit
+  behind its own flag, off by default, with nothing depending on it; there is
+  no voiceprint code at all, and a source scan keeps it that way until a
+  decision says otherwise.
+- **D87 — counsel's sign-off is data, not a deploy.** The matrix already
+  refuses to unblock a country without a dated sign-off and reference and
+  logs every change; what is left is the owner's: counsel in each launch
+  market signs the row.
+
