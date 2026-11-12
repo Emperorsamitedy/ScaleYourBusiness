@@ -61,7 +61,8 @@
       "history": "Előzmények",
       "team_access": "Csapat hozzáférése",
       "language": "Nyelv és pénznem",
-      "payments": "Kifizetések"
+      "payments": "Kifizetések",
+      "ladder": "Mit tehetek"
     },
     "count": {
       "paused": "{count} szüneteltetve",
@@ -6056,7 +6057,8 @@
       "payments_prepare": "Csak tulajdonos készíthet elő kifizetést, vagy jelezheti, hogy egy kifizetés megtörtént.",
       "phone_recordings": "Csak tulajdonos hallgathatja meg a hívásfelvételeket.",
       "payments_read": "Csak tulajdonos láthatja a kifizetéseket és a banki fájljaikat.",
-      "peers_consent": "Csak tulajdonos döntheti el, hogy a vállalkozás számai bekerülnek-e a hasonló vállalkozásokkal való összehasonlításba."
+      "peers_consent": "Csak tulajdonos döntheti el, hogy a vállalkozás számai bekerülnek-e a hasonló vállalkozásokkal való összehasonlításba.",
+      "ladder_manage": "Csak tulajdonos módosíthatja, mit tehet a SYB önállóan."
     }
   },
   "authWords": {
@@ -9081,5 +9083,50 @@
       "confirm": "Megnéztem a bankomban, letöltöm újra ugyanezt a fájlt",
       "erased": "Ez a fájl nem készíthető el újra: egy benne lévő kifizetés banki adatait törölték."
     }
+  },
+  "ladder": {
+    "meta": {
+      "title": "Mit tehet a SYB"
+    },
+    "title": "Mit tehet most a SYB a vállalkozásában",
+    "intro": "Minden műveletfajta egy sor. Egy sort feljebb léptetni csak az alábbi eredmények alapján lehet; lejjebb bármikor, és a leállítás minden sort visszaállít a puszta figyelésre.",
+    "station": {
+      "1": "Csak figyel",
+      "2": "Elmondja, mit tenne, de semmit nem változtat",
+      "3": "Az Ön jóváhagyása után cselekszik",
+      "4": "A határain belül cselekszik, utána beszámol"
+    },
+    "record": "Mért: {closed} · nyereség: {gains} · veszteség: {losses}",
+    "raise": "Egy lépéssel feljebb",
+    "lower": "Egy lépéssel lejjebb",
+    "notYet": "Még nem: {why}",
+    "askLimits": "Kérem: cselekedjen határokon belül",
+    "confirm": "Megerősítem: cselekedjen a határaimon belül",
+    "confirmNote": "Mostantól nem kérdez minden alkalommal, csak az Ön által megadott határokon belül cselekszik. Bármikor lejjebb léptetheti, vagy mindent leállíthat.",
+    "ceiling": "Ez a sor itt nem léphet a(z) {station}. szint fölé.",
+    "notice": {
+      "auto_demotion": "{capability} kétszer egymás után pénzt veszített, ezért egy lépéssel lejjebb került.",
+      "connector_demotion": "{provider} leállt, ezért ami tőle függött, újra csak figyel.",
+      "seen": "Értem"
+    },
+    "shadowLink": "Nézze meg, mit tett volna eddig",
+    "failed": "Nem sikerült: {why}"
+  },
+  "shadowSummary": {
+    "meta": {
+      "title": "Mit tett volna a SYB"
+    },
+    "title": "Mit tett volna a SYB",
+    "period": "{from} és {to} között",
+    "changes": "Változtatások, amelyeket megtett volna: {count}",
+    "gained": "Nyereséget hozott volna: {count} · {amount}",
+    "nothing": "Nem hozott volna változást: {count}",
+    "lost": "Veszteséget okozott volna: {count} · {amount}",
+    "unproven": "Még nem bizonyított: {count}",
+    "open": "Még mérés alatt: {count}",
+    "net": "Nettó: {amount} — és semmihez nem nyúltunk.",
+    "none": "Még nincs mért eredmény.",
+    "share": "Megosztható link másolása",
+    "copied": "Link másolva"
   }
 }

@@ -16,6 +16,7 @@
 // while a language is in review. A refusal carries a code the screen words
 // in that language; the English message stays beside it.
 
+import { startShadowPeriod } from "../../../lib/ladder/ladder";
 import { logSafeError } from "../../../lib/core/log-safe";
 import type { Access } from "../../../lib/auth/access";
 import {
@@ -66,7 +67,14 @@ export async function POST(): Promise<NextResponse> {
       if (denied) return denied;
     }
     // L-1: a new intake starts in the language and currency of the first step.
-    const session = access ?? (await bootstrapIntake(await pendingChoices()));
+    let session: { account_id: string; profile_id: string };
+    if (access) {
+      session = access;
+    } else {
+      session = await bootstrapIntake(await pendingChoices());
+      // The v1 spec §4.2 (D35): a new business's first 30 days are shadow.
+      await startShadowPeriod(session.profile_id);
+    }
     const state = await getIntakeState(
       session.account_id,
       session.profile_id,

@@ -7,6 +7,7 @@
 // (retry and halt tests), and the call counter is how the idempotency
 // test proves "exactly once" rather than assuming it.
 
+import type { ActionFacts } from "../../ladder/caps";
 import type { ExecutionProviderId } from "../scopes";
 import type { ApprovalView } from "../stale";
 
@@ -95,6 +96,13 @@ export interface ExecutionProvider {
     params: Record<string, unknown>,
     ctx: ExecutionContext,
   ): Promise<PreflightRefusal | null>;
+  /**
+   * Optional, pure: what one action would do, read from the action itself —
+   * its size, the ad budget it moves per day, the ids it touches — for the
+   * caps at station 4 (the v1 spec §4.4). Without it, a station-4 action
+   * can't be sized and waits for the owner's yes.
+   */
+  capFacts?(op: string, params: Record<string, unknown>): ActionFacts | null;
   /** null = this op cannot be undone (must be labelled before approval). */
   captureUndo(
     op: string,
@@ -149,6 +157,16 @@ function bucket(profileId: string): Map<string, unknown> {
 
 export const fixtureExecutor: ExecutionProvider = {
   id: "fixture",
+
+  // The station-4 caps read the action itself (the v1 spec §4.4): the key it
+  // sets, and an amount when the params carry one in integer minor units.
+  capFacts(op, params) {
+    const amount =
+      Number.isSafeInteger(params.amount_minor) && typeof params.currency === "string"
+        ? { amount_minor: params.amount_minor as number, currency: params.currency }
+        : null;
+    return { amount, targets: typeof params.key === "string" ? [params.key] : [] };
+  },
 
   async captureUndo(op, params, ctx) {
     if (op === "set_value") {

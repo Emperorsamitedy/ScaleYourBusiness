@@ -31,6 +31,7 @@ export async function closeAndRecord(
         capability: plan.provider,
         measurementId: plan.id,
         outcome: {
+          entry_id: entry.id,
           verdict: entry.verdict,
           verified: entry.verdict === "verified_gain",
           euro_minor: entry.net_minor,

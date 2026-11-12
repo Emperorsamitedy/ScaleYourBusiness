@@ -163,6 +163,25 @@ export async function approveProposal(args: {
   });
 }
 
+/**
+ * The v1 spec §4.1's station 4 (D21, D36): a capability the owner promoted
+ * acts inside the limits they set and reports after. The engine calls this
+ * only after the ladder says AUTHORIZED and the stored caps say "within";
+ * the decision log records the approval as the system's, never a person's.
+ */
+export async function approveWithinLimits(args: {
+  proposalId: string;
+  profileId: string;
+}): Promise<ProposalRow> {
+  return decide({
+    proposalId: args.proposalId,
+    userId: null,
+    to: "approved",
+    executeNotBefore: null,
+    profileId: args.profileId,
+  });
+}
+
 /** Reject: same guard, and the reason is required (P3-28 feeds on it). */
 export async function rejectProposal(args: {
   proposalId: string;
@@ -259,7 +278,8 @@ const LOG_KIND = {
 
 async function decide(args: {
   proposalId: string;
-  userId: string;
+  /** Null: approved by the Trust Ladder at station 4, within the owner's caps (D21, D36). */
+  userId: string | null;
   to: "approved" | "rejected" | "changes_requested";
   reason?: string;
   executeNotBefore?: string | null;
@@ -273,6 +293,7 @@ async function decide(args: {
         status: args.to,
         decided_by: args.userId,
         decided_at: now,
+        approved_within_limits: args.userId === null && args.to === "approved",
         rejection_reason: args.to === "rejected" ? (args.reason as string) : null,
         change_request: args.to === "changes_requested" ? (args.reason as string) : null,
         execute_not_before: args.to === "approved" ? (args.executeNotBefore ?? null) : null,
@@ -377,7 +398,7 @@ async function decide(args: {
     const kind = LOG_KIND[args.to];
     await tx.insert(decisionLog).values({
       profile_id: row.profile_id,
-      actor: "owner",
+      actor: args.userId === null ? "system" : "owner",
       kind,
       user_id: args.userId,
       ref_id: row.id,

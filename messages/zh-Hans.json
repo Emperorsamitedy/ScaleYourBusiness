@@ -61,7 +61,8 @@
       "history": "历史记录",
       "team_access": "团队权限",
       "language": "语言和货币",
-      "payments": "付款"
+      "payments": "付款",
+      "ladder": "我可以做什么"
     },
     "count": {
       "paused": "{count} 个已暂停",
@@ -6056,7 +6057,8 @@
       "payments_prepare": "只有所有者可以准备付款或说明某笔付款已完成。",
       "phone_recordings": "只有所有者可以收听通话录音。",
       "payments_read": "只有所有者可以查看付款及其银行文件。",
-      "peers_consent": "只有所有者可以决定这家企业的数据是否加入同类企业对比。"
+      "peers_consent": "只有所有者可以决定这家企业的数据是否加入同类企业对比。",
+      "ladder_manage": "只有所有者可以更改 SYB 可自行执行的操作。"
     }
   },
   "authWords": {
@@ -9081,5 +9083,50 @@
       "confirm": "我已查看银行：再次下载同一文件",
       "erased": "无法再次生成此文件：其中一笔付款的银行信息已被清除。"
     }
+  },
+  "ladder": {
+    "meta": {
+      "title": "SYB 可以做什么"
+    },
+    "title": "SYB 现在可以在您的企业中做什么",
+    "intro": "每一行代表一类操作。提升一行需要下方的记录；降低则随时可以，紧急停止会让所有行回到仅观察。",
+    "station": {
+      "1": "仅观察",
+      "2": "说明会做什么，不做任何改动",
+      "3": "经您批准后执行",
+      "4": "在您的限额内执行，事后汇报"
+    },
+    "record": "已衡量：{closed} · 收益：{gains} · 损失：{losses}",
+    "raise": "提升一级",
+    "lower": "降低一级",
+    "notYet": "暂时不行：{why}",
+    "askLimits": "申请在限额内执行",
+    "confirm": "确认：允许在我的限额内执行",
+    "confirmNote": "从现在起，它只在您设定的限额内执行，无需每次询问。您可以随时降低，或停止一切。",
+    "ceiling": "此行在这里不能高于第{station}级。",
+    "notice": {
+      "auto_demotion": "{capability} 连续两次亏损，因此降低了一级。",
+      "connector_demotion": "{provider} 已停止工作，依赖它的操作已退回仅观察。",
+      "seen": "知道了"
+    },
+    "shadowLink": "查看到目前为止它会做什么",
+    "failed": "未成功：{why}"
+  },
+  "shadowSummary": {
+    "meta": {
+      "title": "SYB 本来会做什么"
+    },
+    "title": "SYB 本来会做什么",
+    "period": "{from} 至 {to}",
+    "changes": "本会做出的改动：{count}",
+    "gained": "本会带来收益：{count} · {amount}",
+    "nothing": "本不会有影响：{count}",
+    "lost": "本会造成损失：{count} · {amount}",
+    "unproven": "尚未证实：{count}",
+    "open": "仍在衡量：{count}",
+    "net": "净额：{amount}——且未做任何改动。",
+    "none": "尚无衡量结果。",
+    "share": "复制分享链接",
+    "copied": "链接已复制"
   }
 }

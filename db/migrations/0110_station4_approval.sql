@@ -1,0 +1,3 @@
+ALTER TABLE "proposals" DROP CONSTRAINT "proposals_decided_by_human";--> statement-breakpoint
+ALTER TABLE "proposals" ADD COLUMN "approved_within_limits" boolean DEFAULT false NOT NULL;--> statement-breakpoint
+ALTER TABLE "proposals" ADD CONSTRAINT "proposals_decided_by_human" CHECK ("proposals"."status" NOT IN ('approved', 'rejected', 'executed') OR ("proposals"."decided_by" IS NOT NULL AND "proposals"."decided_at" IS NOT NULL) OR ("proposals"."approved_within_limits" AND "proposals"."status" IN ('approved', 'executed') AND "proposals"."decided_at" IS NOT NULL));

@@ -61,7 +61,8 @@
       "history": "Verlauf",
       "team_access": "Teamzugang",
       "language": "Sprache und Währung",
-      "payments": "Zahlungen"
+      "payments": "Zahlungen",
+      "ladder": "Was ich tun darf"
     },
     "count": {
       "paused": "{count} pausiert",
@@ -6056,7 +6057,8 @@
       "payments_prepare": "Nur ein Inhaber kann Zahlungen vorbereiten oder angeben, dass eine bezahlt wurde.",
       "phone_recordings": "Nur ein Inhaber kann Anrufaufzeichnungen anhören.",
       "payments_read": "Nur ein Inhaber kann Zahlungen und ihre Bankdateien sehen.",
-      "peers_consent": "Nur ein Inhaber kann entscheiden, ob die Zahlen dieses Unternehmens in den Vergleich mit ähnlichen Unternehmen einfließen."
+      "peers_consent": "Nur ein Inhaber kann entscheiden, ob die Zahlen dieses Unternehmens in den Vergleich mit ähnlichen Unternehmen einfließen.",
+      "ladder_manage": "Nur ein Inhaber kann ändern, was SYB selbstständig tun darf."
     }
   },
   "authWords": {
@@ -9081,5 +9083,50 @@
       "confirm": "Ich habe meine Bank geprüft: dieselbe Datei erneut herunterladen",
       "erased": "Diese Datei lässt sich nicht erneut erstellen: Die Bankdaten einer Zahlung darin wurden gelöscht."
     }
+  },
+  "ladder": {
+    "meta": {
+      "title": "Was SYB tun darf"
+    },
+    "title": "Was SYB jetzt in Ihrem Unternehmen tun kann",
+    "intro": "Eine Zeile pro Art von Aktion. Eine Zeile anzuheben braucht die Bilanz darunter; sie zu senken nie, und der Stopp setzt jede Zeile auf reines Beobachten zurück.",
+    "station": {
+      "1": "Beobachtet nur",
+      "2": "Sagt, was es tun würde, ändert nichts",
+      "3": "Handelt nach Ihrer Freigabe",
+      "4": "Handelt innerhalb Ihrer Grenzen und berichtet danach"
+    },
+    "record": "Gemessen: {closed} · Gewinne: {gains} · Verluste: {losses}",
+    "raise": "Eine Stufe höher",
+    "lower": "Eine Stufe niedriger",
+    "notYet": "Noch nicht: {why}",
+    "askLimits": "Handeln innerhalb von Grenzen beantragen",
+    "confirm": "Bestätigen: innerhalb meiner Grenzen handeln lassen",
+    "confirmNote": "Ab jetzt handelt es, ohne jedes Mal zu fragen, nur innerhalb der Grenzen, die Sie gesetzt haben. Sie können es jederzeit senken oder alles stoppen.",
+    "ceiling": "Diese Zeile kann hier nicht über Stufe {station} hinaus.",
+    "notice": {
+      "auto_demotion": "{capability} hat zweimal hintereinander Geld verloren und ist eine Stufe gesunken.",
+      "connector_demotion": "{provider} funktioniert nicht mehr; was davon abhing, beobachtet jetzt nur noch.",
+      "seen": "Verstanden"
+    },
+    "shadowLink": "Sehen, was es bisher getan hätte",
+    "failed": "Das hat nicht geklappt: {why}"
+  },
+  "shadowSummary": {
+    "meta": {
+      "title": "Was SYB getan hätte"
+    },
+    "title": "Was SYB getan hätte",
+    "period": "Vom {from} bis {to}",
+    "changes": "Änderungen, die es vorgenommen hätte: {count}",
+    "gained": "Hätten gewonnen: {count} · {amount}",
+    "nothing": "Hätten nichts bewirkt: {count}",
+    "lost": "Hätten verloren: {count} · {amount}",
+    "unproven": "Noch nicht belegt: {count}",
+    "open": "Wird noch gemessen: {count}",
+    "net": "Netto: {amount} – und nichts wurde angefasst.",
+    "none": "Noch nichts gemessen.",
+    "share": "Link zum Teilen kopieren",
+    "copied": "Link kopiert"
   }
 }

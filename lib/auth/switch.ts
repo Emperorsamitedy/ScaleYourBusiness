@@ -10,6 +10,7 @@
 // row for the same email, then switches into it — the interview starts
 // there. Both go into the decision log as account_switch, ids only.
 
+import { startShadowPeriod } from "../ladder/ladder";
 import { and, eq, isNull } from "drizzle-orm";
 import { db } from "../../db";
 import { users } from "../../db/schema";
@@ -95,6 +96,8 @@ export async function addBusiness(args: {
   currentToken: string | undefined;
 }): Promise<Omit<RedeemedSession, "choose">> {
   const boot = await bootstrapIntake();
+  // The v1 spec §4.2 (D35): a new business's first 30 days are shadow.
+  await startShadowPeriod(boot.profile_id);
   const owner = await createOwner(boot.account_id, args.session.email);
   const next = await openSession(owner);
   await revokeSession(args.currentToken, { handOverTo: next.session_token });

@@ -1,4 +1,9 @@
-// The Trust Ladder — architecture-v2 (D2, D9, I3, I6).
+// The Trust Ladder — architecture-v2 (D2, D9, I3, I6), completed by the v1
+// build spec §4 (Phase 2): new businesses start in shadow for 30 days, a
+// station is raised only on the ledger's evidence (./promotion.ts), station
+// 4 acts within the owner's caps (./caps.ts), two consecutive losses demote
+// one station with the owner told, and a station never passes the business's
+// segment ceiling or, once payments are armed, its tier's (D49).
 //
 // Each business holds a station per capability (an execution provider id):
 //   1 BLOCKED · 2 SHADOW · 3 NEEDS_APPROVAL · 4 AUTHORIZED
@@ -11,7 +16,7 @@
 // replaced; resumeAll puts them back (D9). Every change is an append-only
 // ladder_events row (migration 0098).
 
-import { and, eq, inArray, isNotNull, sql } from "drizzle-orm";
+import { and, desc, eq, inArray, isNotNull, sql } from "drizzle-orm";
 import { db } from "../../db";
 import type { DbOrTx } from "../../db";
 import {
@@ -19,6 +24,8 @@ import {
   capabilityStations,
   executionHalts,
   ladderEvents,
+  ownerNotices,
+  subscriptions,
 } from "../../db/schema";
 import { EXECUTION_SCOPE_REGISTRY } from "../execution/scopes";
 import { segmentOf } from "../segments/read";
@@ -53,10 +60,53 @@ function isStation(n: number): n is Station {
   return n === 1 || n === 2 || n === 3 || n === 4;
 }
 
+/** The v1 spec §4.2: a new business's first days, every capability in shadow. */
+export const NEW_BUSINESS_SHADOW_DAYS = 30;
+
+/** Start a business's shadow period (D35: called where its intake starts in the app). */
+export async function startShadowPeriod(profileId: string, now: Date = new Date()): Promise<void> {
+  await db
+    .update(businessProfiles)
+    .set({
+      shadow_until: new Date(now.getTime() + NEW_BUSINESS_SHADOW_DAYS * 86_400_000).toISOString(),
+    })
+    .where(eq(businessProfiles.id, profileId));
+}
+
+/** The tier's ladder ceiling (v1 spec §8.3), enforced only once payments are armed (D19). */
+export const TIER_CEILING: Readonly<Record<string, Station>> = {
+  watch: 2,
+  act: 3,
+  autonomous: 4,
+};
+
+function paymentsArmed(): boolean {
+  return typeof process.env.STRIPE_SECRET_KEY === "string" && process.env.STRIPE_SECRET_KEY !== "";
+}
+
+async function tierCeiling(profileId: string): Promise<Station> {
+  if (!paymentsArmed()) return 4;
+  const [sub] = await db
+    .select({ tier: subscriptions.tier })
+    .from(subscriptions)
+    .where(and(eq(subscriptions.profile_id, profileId), eq(subscriptions.status, "active")))
+    .limit(1);
+  // No subscription: the station-3 behaviour every business had before (D18, D49).
+  return sub ? (TIER_CEILING[sub.tier] ?? 3) : 3;
+}
+
+/** Every ceiling over this business: its segment's and its tier's. */
+export async function stationCeiling(profileId: string): Promise<Station> {
+  const segment = segmentStationCeiling((await segmentOf(profileId)).segment);
+  const tier = await tierCeiling(profileId);
+  return (segment < tier ? segment : tier) as Station;
+}
+
 export async function stationOf(
   profileId: string,
   capability: string,
   executor: DbOrTx = db,
+  now: Date = new Date(),
 ): Promise<Station> {
   const [row] = await executor
     .select({ station: capabilityStations.station })
@@ -67,10 +117,19 @@ export async function stationOf(
         eq(capabilityStations.capability, capability),
       ),
     );
-  const raw = row && isStation(row.station) ? row.station : DEFAULT_STATION;
-  // The multi-market spec §C: a sole operation's ceiling holds whatever is
-  // stored — no path, the owner's, a partner's or the engine's, passes it.
-  const ceiling = segmentStationCeiling((await segmentOf(profileId)).segment);
+  let raw: Station;
+  if (row && isStation(row.station)) {
+    raw = row.station;
+  } else {
+    const [p] = await executor
+      .select({ shadow_until: businessProfiles.shadow_until })
+      .from(businessProfiles)
+      .where(eq(businessProfiles.id, profileId));
+    raw = p?.shadow_until && Date.parse(p.shadow_until) > now.getTime() ? 2 : DEFAULT_STATION;
+  }
+  // The multi-market spec §C and the tier (D49): ceilings hold whatever is
+  // stored — no path, the owner's, a partner's or the engine's, passes them.
+  const ceiling = await stationCeiling(profileId);
   return (raw > ceiling ? ceiling : raw) as Station;
 }
 
@@ -92,31 +151,29 @@ async function profileHalted(profileId: string): Promise<boolean> {
   return row !== undefined;
 }
 
-/** Set one capability's station, audited. Never 4 (D2); never while the stop is on (I6). */
-export async function setStation(args: {
+/**
+ * The ladder's one writer, audited. Never while the stop is on (I6), never
+ * past the business's ceiling. Callers that RAISE a station come through
+ * ./promotion.ts, which checks the ledger's evidence first; the public
+ * setStation below only lowers.
+ */
+export async function setStationUnchecked(args: {
   profileId: string;
   capability: string;
   station: number;
   by: string | null;
   reason?: string;
+  kind?: "set" | "auto_demotion" | "connector_demotion";
 }): Promise<void> {
   if (!Number.isInteger(args.station) || !isStation(args.station)) {
     throw new LadderError(`station ${args.station} doesn't exist — stations run 1 to 4`, 422);
   }
-  if (args.station === 4) {
-    throw new LadderError(
-      "promotion rules aren't defined yet, so nothing reaches station 4 (architecture-v2 D2)",
-    );
-  }
-  if (await profileHalted(args.profileId)) {
+  if (args.station > 1 && (await profileHalted(args.profileId))) {
     throw new LadderError("the emergency stop is on — every station stays at 1 until you resume");
   }
-  const segment = (await segmentOf(args.profileId)).segment;
-  if (args.station > segmentStationCeiling(segment)) {
-    throw new LadderError(
-      `a ${segment === "micro_sole" ? "sole trader's" : "business's"} capabilities stay at station ${segmentStationCeiling(segment)} or below`,
-      409,
-    );
+  const ceiling = await stationCeiling(args.profileId);
+  if (args.station > ceiling) {
+    throw new LadderError(await ceilingWords(args.profileId, ceiling), 409);
   }
   const station = args.station;
   await db.transaction(async (tx) => {
@@ -136,13 +193,52 @@ export async function setStation(args: {
     await tx.insert(ladderEvents).values({
       profile_id: args.profileId,
       capability: args.capability,
-      kind: "set",
+      kind: args.kind ?? "set",
       from_station: from,
       to_station: station,
       by: args.by,
       reason: args.reason ?? null,
     });
   });
+}
+
+async function ceilingWords(profileId: string, ceiling: number): Promise<string> {
+  const segment = (await segmentOf(profileId)).segment;
+  return `a ${segment === "micro_sole" ? "sole trader's" : "business's"} capabilities stay at station ${ceiling} or below`;
+}
+
+/**
+ * Set one capability's station — LOWERING only, or keeping it. A raise needs
+ * the ledger's evidence (v1 spec §4.3) and goes through changeStation /
+ * requestPromotion in ./promotion.ts; the API refuses it here even if a UI
+ * is bypassed.
+ */
+export async function setStation(args: {
+  profileId: string;
+  capability: string;
+  station: number;
+  by: string | null;
+  reason?: string;
+}): Promise<void> {
+  if (!Number.isInteger(args.station) || !isStation(args.station)) {
+    throw new LadderError(`station ${args.station} doesn't exist — stations run 1 to 4`, 422);
+  }
+  if (await profileHalted(args.profileId)) {
+    throw new LadderError("the emergency stop is on — every station stays at 1 until you resume");
+  }
+  const current = await stationOf(args.profileId, args.capability);
+  if (args.station > current) {
+    const ceiling = await stationCeiling(args.profileId);
+    if (args.station > ceiling)
+      throw new LadderError(await ceilingWords(args.profileId, ceiling), 409);
+    throw new LadderError(
+      args.station === 4
+        ? "station 4 needs its limits and a separate confirmation, on the ledger's evidence"
+        : "a station is raised only on the ledger's evidence — ask for the promotion",
+      409,
+    );
+  }
+  await setStationUnchecked({ ...args, reason: args.reason ?? "lowered by the owner" });
 }
 
 /**
@@ -160,6 +256,18 @@ export async function stopAll(
       .from(capabilityStations)
       .where(eq(capabilityStations.profile_id, profileId));
     const held = new Map(current.map((r) => [r.capability, r]));
+    // What each capability stood at, the shadow period and ceilings included,
+    // so a resume restores exactly that (D9).
+    const effective = new Map<string, Station>();
+    for (const capability of CAPABILITIES) {
+      const stored = held.get(capability);
+      effective.set(
+        capability,
+        stored && isStation(stored.station)
+          ? stored.station
+          : await stationOf(profileId, capability, executor),
+      );
+    }
     await executor
       .insert(capabilityStations)
       .values(
@@ -167,7 +275,7 @@ export async function stopAll(
           profile_id: profileId,
           capability,
           station: 1,
-          pre_stop_station: DEFAULT_STATION,
+          pre_stop_station: effective.get(capability) ?? DEFAULT_STATION,
           updated_by: args.by,
         })),
       )
@@ -180,14 +288,14 @@ export async function stopAll(
           updated_at: sql`now()`,
         },
       });
-    const moved = CAPABILITIES.filter((c) => (held.get(c)?.station ?? DEFAULT_STATION) !== 1);
+    const moved = CAPABILITIES.filter((c) => (effective.get(c) ?? DEFAULT_STATION) !== 1);
     if (moved.length > 0) {
       await executor.insert(ladderEvents).values(
         moved.map((capability) => ({
           profile_id: profileId,
           capability,
           kind: "stop" as const,
-          from_station: held.get(capability)?.station ?? DEFAULT_STATION,
+          from_station: effective.get(capability) ?? DEFAULT_STATION,
           to_station: 1,
           by: args.by,
           reason: args.reason ?? null,
@@ -233,6 +341,8 @@ export async function resumeAll(
 }
 
 export interface LadderOutcome {
+  /** The ledger entry that scored it (the v1 spec §3.2), for the owner's notice. */
+  entry_id?: string;
   /** The ledger entry's verdict (the v1 spec §3.2); absent on Session A outcomes. */
   verdict?: "verified_gain" | "no_effect" | "loss" | "inconclusive";
   verified: boolean;
@@ -244,13 +354,21 @@ export interface LadderOutcome {
   shadow?: boolean;
 }
 
-/** TrustLadder.record_outcome — step 6, from a closed measurement. */
+/** The v1 spec §4.3: this many consecutive loss verdicts drop a capability one station. */
+export const AUTO_DEMOTE_AFTER_LOSSES = 2;
+
+/**
+ * TrustLadder.record_outcome — step 6, from a closed measurement. Then the
+ * v1 spec §4.3's auto-demotion (D37): when the last two outcomes recorded
+ * since the capability's last station change are both losses, it drops one
+ * station, and the owner is told with both entries attached — never silently.
+ */
 export async function recordOutcome(args: {
   profileId: string;
   capability: string;
   measurementId: string;
   outcome: LadderOutcome;
-}): Promise<void> {
+}): Promise<{ demoted: { from: Station; to: Station } | null }> {
   await db.insert(ladderEvents).values({
     profile_id: args.profileId,
     capability: args.capability,
@@ -258,6 +376,50 @@ export async function recordOutcome(args: {
     measurement_id: args.measurementId,
     outcome: args.outcome,
   });
+  if (args.outcome.verdict !== "loss") return { demoted: null };
+
+  const events = await db
+    .select()
+    .from(ladderEvents)
+    .where(
+      and(
+        eq(ladderEvents.profile_id, args.profileId),
+        eq(ladderEvents.capability, args.capability),
+      ),
+    )
+    .orderBy(desc(ladderEvents.at), desc(ladderEvents.id));
+  const since: (typeof events)[number][] = [];
+  for (const e of events) {
+    if (e.kind !== "outcome") break; // the last station change ends the run
+    since.push(e);
+  }
+  const lastTwo = since.slice(0, AUTO_DEMOTE_AFTER_LOSSES);
+  const losses = lastTwo.filter((e) => (e.outcome as LadderOutcome | null)?.verdict === "loss");
+  if (losses.length < AUTO_DEMOTE_AFTER_LOSSES) return { demoted: null };
+
+  const from = await stationOf(args.profileId, args.capability);
+  if (from <= 1) return { demoted: null };
+  const to = (from - 1) as Station;
+  await setStationUnchecked({
+    profileId: args.profileId,
+    capability: args.capability,
+    station: to,
+    by: null,
+    reason: `two consecutive losses (${losses.map((e) => e.measurement_id).join(", ")})`,
+    kind: "auto_demotion",
+  });
+  await db.insert(ownerNotices).values({
+    profile_id: args.profileId,
+    kind: "auto_demotion",
+    payload: {
+      capability: args.capability,
+      from,
+      to,
+      plan_ids: losses.map((e) => e.measurement_id),
+      entry_ids: losses.map((e) => (e.outcome as LadderOutcome | null)?.entry_id ?? null),
+    },
+  });
+  return { demoted: { from, to } };
 }
 
 /**
@@ -284,7 +446,7 @@ export async function promotionEligibility(
   return {
     eligible: false,
     reason:
-      "promotion rules aren't defined yet, so no capability is eligible for station 4 (architecture-v2 D2)",
+      "superseded by the v1 spec §4.3: ask lib/ladder/promotion.ts eligibility() for a capability's evidence",
     outcomes: { total: rows.length, verified },
   };
 }

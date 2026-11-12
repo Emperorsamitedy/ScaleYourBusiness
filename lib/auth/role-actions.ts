@@ -100,6 +100,9 @@ export const ROLE_ACTIONS = {
     min: "owner",
     what: "decide whether this business's figures join the comparison with similar businesses",
   },
+  // The v1 spec §4: what SYB may do on its own — stations, caps, standing
+  // rules, the step to station 4 — is the owner's to decide.
+  "ladder.manage": { min: "owner", what: "change what SYB may do on its own" },
 } as const satisfies Record<string, RoleActionRow>;
 
 export type RoleAction = keyof typeof ROLE_ACTIONS;

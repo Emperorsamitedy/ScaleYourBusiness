@@ -61,7 +61,8 @@
       "history": "Historial",
       "team_access": "Acceso del equipo",
       "language": "Idioma y moneda",
-      "payments": "Pagos"
+      "payments": "Pagos",
+      "ladder": "Lo que puedo hacer"
     },
     "count": {
       "paused": "{count} en pausa",
@@ -6056,7 +6057,8 @@
       "payments_prepare": "Solo un propietario puede preparar pagos o indicar que se pagó uno.",
       "phone_recordings": "Solo un propietario puede escuchar las grabaciones de llamadas.",
       "payments_read": "Solo un propietario puede ver los pagos y sus archivos bancarios.",
-      "peers_consent": "Solo un propietario puede decidir si las cifras de este negocio entran en la comparación con negocios similares."
+      "peers_consent": "Solo un propietario puede decidir si las cifras de este negocio entran en la comparación con negocios similares.",
+      "ladder_manage": "Solo un propietario puede cambiar lo que SYB puede hacer por su cuenta."
     }
   },
   "authWords": {
@@ -9081,5 +9083,50 @@
       "confirm": "Ya revisé mi banco: volver a descargar el mismo archivo",
       "erased": "Este archivo no se puede volver a generar: se borraron los datos bancarios de uno de sus pagos."
     }
+  },
+  "ladder": {
+    "meta": {
+      "title": "Lo que SYB puede hacer"
+    },
+    "title": "Lo que SYB puede hacer ahora en tu negocio",
+    "intro": "Una línea por cada tipo de acción. Subir una línea exige el historial de abajo; bajarla nunca, y la parada devuelve todas las líneas a solo observar.",
+    "station": {
+      "1": "Solo observa",
+      "2": "Dice qué haría, sin cambiar nada",
+      "3": "Actúa tras tu aprobación",
+      "4": "Actúa dentro de tus límites e informa después"
+    },
+    "record": "Medidas: {closed} · ganancias: {gains} · pérdidas: {losses}",
+    "raise": "Subir un paso",
+    "lower": "Bajar un paso",
+    "notYet": "Todavía no: {why}",
+    "askLimits": "Pedir actuar dentro de límites",
+    "confirm": "Confirmar: que actúe dentro de mis límites",
+    "confirmNote": "Desde ahora actuará sin preguntar cada vez, solo dentro de los límites que fijaste. Puedes bajarlo o pararlo todo en cualquier momento.",
+    "ceiling": "Esta línea no puede pasar del paso {station} aquí.",
+    "notice": {
+      "auto_demotion": "{capability} perdió dinero dos veces seguidas, así que bajó un paso.",
+      "connector_demotion": "{provider} dejó de funcionar, así que lo que dependía de ello volvió a solo observar.",
+      "seen": "Entendido"
+    },
+    "shadowLink": "Ver lo que habría hecho hasta ahora",
+    "failed": "No funcionó: {why}"
+  },
+  "shadowSummary": {
+    "meta": {
+      "title": "Lo que SYB habría hecho"
+    },
+    "title": "Lo que SYB habría hecho",
+    "period": "Del {from} al {to}",
+    "changes": "Cambios que habría hecho: {count}",
+    "gained": "Habrían ganado: {count} · {amount}",
+    "nothing": "No habrían cambiado nada: {count}",
+    "lost": "Habrían perdido: {count} · {amount}",
+    "unproven": "Aún sin demostrar: {count}",
+    "open": "Aún midiéndose: {count}",
+    "net": "Neto: {amount}, y no se tocó nada.",
+    "none": "Aún no hay nada medido.",
+    "share": "Copiar un enlace para compartir",
+    "copied": "Enlace copiado"
   }
 }

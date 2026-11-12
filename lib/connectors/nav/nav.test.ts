@@ -329,7 +329,8 @@ describe("§E.5 — no NAV write or submit operation exists anywhere", () => {
       .filter((f) => FORBIDDEN.some((re) => re.test(readFileSync(f, "utf8"))))
       .map((f) => path.relative(ROOT, f));
     expect(hits).toEqual([]);
-  });
+    // A whole-repo scan: slow under a full parallel run, so it gets its own limit.
+  }, 120_000);
 
   it("the protocol's operations are the three reads, and nothing else", () => {
     expect([...NAV_OPERATIONS]).toEqual([

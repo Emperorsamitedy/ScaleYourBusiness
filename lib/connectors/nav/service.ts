@@ -19,6 +19,7 @@ import { db } from "../../../db";
 import { connections } from "../../../db/schema";
 import type { NormalisedEvent } from "../contract";
 import type { Observation } from "../provider";
+import { demoteOnConnectorFailure } from "../../ladder/connector-health";
 import { upsertObservations } from "../service";
 import type { NavConnector, NavTransport } from "./connector";
 import { NAV_CONNECTOR, NAV_WORDS, NavConnectorError, navConnector } from "./connector";
@@ -226,6 +227,9 @@ export async function syncNav(
         ...(failed ? { status: "failed" as const } : {}),
       })
       .where(eq(connections.id, row.id));
+    // The v1 spec §11.2: what depended on NAV drops to station 1, the owner told.
+    if (failed)
+      await demoteOnConnectorFailure({ accountId: row.account_id, provider: NAV_CONNECTOR });
     return { failed: true, message_hu: message };
   }
 }

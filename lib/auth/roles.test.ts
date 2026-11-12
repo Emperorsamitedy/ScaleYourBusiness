@@ -66,6 +66,8 @@ const NEVER_A_MANAGER: readonly RoleAction[] = [
   "phone.recordings",
   // Architecture-v2 D7: whether the business's figures join peer benchmarks.
   "peers.consent",
+  // The v1 spec §4: what SYB may do on its own.
+  "ladder.manage",
 ];
 
 const session = (role: Role): AuthedSession => ({

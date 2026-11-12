@@ -160,6 +160,10 @@ export const SIZE_FEATURES = {
     bands: EVERY,
     reason: "The decision log is the audit trail; it is never hidden.",
   },
+  "nav.ladder": {
+    bands: EVERY,
+    reason: "What SYB may do on its own must be one tap away at any size (the v1 spec §4.6).",
+  },
   "nav.team_access": {
     bands: EVERY,
     reason: "Who can sign in to the business is the owner's to see, at any size.",

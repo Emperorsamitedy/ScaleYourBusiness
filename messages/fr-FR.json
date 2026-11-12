@@ -61,7 +61,8 @@
       "history": "Historique",
       "team_access": "Accès de l’équipe",
       "language": "Langue et devise",
-      "payments": "Paiements"
+      "payments": "Paiements",
+      "ladder": "Ce que je peux faire"
     },
     "count": {
       "paused": "{count} en pause",
@@ -6056,7 +6057,8 @@
       "payments_prepare": "Seul un propriétaire peut préparer des paiements ou indiquer qu’un paiement a été fait.",
       "phone_recordings": "Seul un propriétaire peut écouter les enregistrements d’appels.",
       "payments_read": "Seul un propriétaire peut voir les paiements et leurs fichiers bancaires.",
-      "peers_consent": "Seul un propriétaire peut décider si les chiffres de cette entreprise entrent dans la comparaison avec des entreprises similaires."
+      "peers_consent": "Seul un propriétaire peut décider si les chiffres de cette entreprise entrent dans la comparaison avec des entreprises similaires.",
+      "ladder_manage": "Seul un propriétaire peut changer ce que SYB peut faire de lui-même."
     }
   },
   "authWords": {
@@ -9081,5 +9083,50 @@
       "confirm": "J’ai vérifié ma banque : télécharger à nouveau le même fichier",
       "erased": "Ce fichier ne peut pas être refait : les coordonnées bancaires d’un de ses paiements ont été effacées."
     }
+  },
+  "ladder": {
+    "meta": {
+      "title": "Ce que SYB peut faire"
+    },
+    "title": "Ce que SYB peut faire dans votre entreprise en ce moment",
+    "intro": "Une ligne par type d’action. Monter une ligne exige le bilan ci-dessous ; la descendre, jamais, et l’arrêt ramène chaque ligne à la simple observation.",
+    "station": {
+      "1": "Observe seulement",
+      "2": "Dit ce qu’il ferait, sans rien changer",
+      "3": "Agit après votre validation",
+      "4": "Agit dans vos limites et rend compte ensuite"
+    },
+    "record": "Mesurées : {closed} · gains : {gains} · pertes : {losses}",
+    "raise": "Monter d’un cran",
+    "lower": "Descendre d’un cran",
+    "notYet": "Pas encore : {why}",
+    "askLimits": "Demander à agir dans des limites",
+    "confirm": "Confirmer : le laisser agir dans mes limites",
+    "confirmNote": "Désormais il agit sans demander à chaque fois, seulement dans les limites que vous avez fixées. Vous pouvez le descendre, ou tout arrêter, à tout moment.",
+    "ceiling": "Cette ligne ne peut pas dépasser le cran {station} ici.",
+    "notice": {
+      "auto_demotion": "{capability} a perdu de l’argent deux fois de suite : il est descendu d’un cran.",
+      "connector_demotion": "{provider} ne fonctionne plus : ce qui en dépendait est revenu à la simple observation.",
+      "seen": "Compris"
+    },
+    "shadowLink": "Voir ce qu’il aurait fait jusqu’ici",
+    "failed": "Ça n’a pas marché : {why}"
+  },
+  "shadowSummary": {
+    "meta": {
+      "title": "Ce que SYB aurait fait"
+    },
+    "title": "Ce que SYB aurait fait",
+    "period": "Du {from} au {to}",
+    "changes": "Changements qu’il aurait faits : {count}",
+    "gained": "Auraient rapporté : {count} · {amount}",
+    "nothing": "N’auraient rien changé : {count}",
+    "lost": "Auraient fait perdre : {count} · {amount}",
+    "unproven": "Pas encore établi : {count}",
+    "open": "Encore en mesure : {count}",
+    "net": "Net : {amount}, sans que rien ne soit touché.",
+    "none": "Rien de mesuré pour l’instant.",
+    "share": "Copier un lien pour partager",
+    "copied": "Lien copié"
   }
 }

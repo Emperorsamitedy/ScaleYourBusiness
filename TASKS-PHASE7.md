@@ -65,18 +65,25 @@ that score each capability (each lands with its holdout).
 
 ## Phase 2 — Trust Ladder (§4)
 
-- [ ] **P7-40** Stations 1–4 as §4.1; new businesses at station 2 for 30 days
+- [x] **P7-40** Stations 1–4 as §4.1; new businesses at station 2 for 30 days
       (§4.2), the five live businesses at 3 (D18)
-- [ ] **P7-41** Promotion rules (§4.3), enforced in the API; no global switch
-- [ ] **P7-42** Station-4 caps (§4.4), per business per capability, enforced
+- [x] **P7-41** Promotion rules (§4.3), enforced in the API; no global switch
+- [x] **P7-42** Station-4 caps (§4.4), per business per capability, enforced
       server-side; purchase orders capped at 3
-- [ ] **P7-43** Auto-demotion after two consecutive losses, with the owner told
-- [ ] **P7-44** Standing rules as {scope, condition, action, expiry}, 90-day default
-- [ ] **P7-45** The ladder screen (§4.6) and the day-30 shadow summary (§4.2)
-- [ ] **P7-46** Tier ceilings (§8.6), unenforced while payments are unarmed (D19)
+- [x] **P7-43** Auto-demotion after two consecutive losses, with the owner told
+- [x] **P7-44** Standing rules as {scope, condition, action, expiry}, 90-day default
+- [x] **P7-45** The ladder screen (§4.6) and the day-30 shadow summary (§4.2)
+- [x] **P7-46** Tier ceilings (§8.6), unenforced while payments are unarmed (D19)
 
 **Gate:** no external call around the ladder; stop under one second;
-day-30 summary renders, zero gains included.
+day-30 summary renders, zero gains included. — **Passed 2026-11-10**
+(`lib/ladder/v1-ladder.test.ts`, `lib/ladder/share-render.test.ts`,
+`lib/execution/station4.test.ts`). Built: the 30-day shadow default for new
+businesses, the §4.3 promotion rules with the two-step 3 → 4, station-4 caps
+enforced in the engine from the stored row, typed standing rules with expiry,
+auto-demotion with owner notices, connector-failure demotion (§11.2), segment
+and tier ceilings, the /ladder screen and the shareable /shadow summary.
+Decisions D34–D38, D49–D51.
 
 ## Phase 3 — Diagnosis rebuild (§6)
 

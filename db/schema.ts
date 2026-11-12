@@ -137,6 +137,13 @@ export const businessProfiles = pgTable(
     benchmark_consent: boolean("benchmark_consent").notNull().default(false),
     /** System judgment that the profile has enough data to benchmark against. */
     benchmark_eligible: boolean("benchmark_eligible").notNull().default(false),
+    /**
+     * The v1 spec §4.2: a new business spends its first 30 days with every
+     * capability at station 2 (shadow). Set when its intake starts through
+     * the app (D35); null for the businesses that predate the ladder, which
+     * stay at station 3 (D18). A recorded station always wins.
+     */
+    shadow_until: timestamp("shadow_until", { withTimezone: true, mode: "string" }),
     // The interviewer's last pick, so that reading the intake state does not
     // re-run the interviewer. It is a cache, not a fact: it is honoured only
     // while it is still an open candidate, which makes it self-invalidating —
@@ -1751,6 +1758,8 @@ export const proposals = pgTable(
     expires_at: timestamp("expires_at", { withTimezone: true, mode: "string" }).notNull(),
     decided_by: uuid("decided_by").references(() => users.id),
     decided_at: timestamp("decided_at", { withTimezone: true, mode: "string" }),
+    /** D21/D36: approved by the Trust Ladder at station 4, within the owner's caps — no person. */
+    approved_within_limits: boolean("approved_within_limits").notNull().default(false),
     /** P3-05 scheduled actions: approved now, executed no earlier than this. */
     execute_not_before: timestamp("execute_not_before", { withTimezone: true, mode: "string" }),
     rejection_reason: text("rejection_reason"),
@@ -1775,9 +1784,13 @@ export const proposals = pgTable(
       "proposals_blocked_names_limit",
       sql`${t.status} <> 'blocked' OR ${t.blocked_by_limit} IS NOT NULL`,
     ),
+    // Rule 12, amended at station 4 only (D21): an approved or executed
+    // proposal names the person who approved it — unless the Trust Ladder
+    // approved it within the owner's caps, which it records as such. A
+    // rejection always names a person.
     check(
       "proposals_decided_by_human",
-      sql`${t.status} NOT IN ('approved', 'rejected', 'executed') OR (${t.decided_by} IS NOT NULL AND ${t.decided_at} IS NOT NULL)`,
+      sql`${t.status} NOT IN ('approved', 'rejected', 'executed') OR (${t.decided_by} IS NOT NULL AND ${t.decided_at} IS NOT NULL) OR (${t.approved_within_limits} AND ${t.status} IN ('approved', 'executed') AND ${t.decided_at} IS NOT NULL)`,
     ),
     check(
       "proposals_rejection_has_reason",
@@ -4384,7 +4397,16 @@ export const capabilityStations = pgTable(
   ],
 );
 
-export const ladderEventKind = pgEnum("ladder_event_kind", ["set", "stop", "resume", "outcome"]);
+export const ladderEventKind = pgEnum("ladder_event_kind", [
+  "set",
+  "stop",
+  "resume",
+  "outcome",
+  // The v1 spec §4.3: two consecutive losses dropped it one station.
+  "auto_demotion",
+  // §11.2: the connector it depends on failed, so it dropped to station 1.
+  "connector_demotion",
+]);
 
 // The ladder's audit trail — append-only by the same trigger pattern.
 export const ladderEvents = pgTable(
@@ -5006,3 +5028,163 @@ export const countryLaunches = pgTable("country_launches", {
   /** The (NACE, segment) pair whose ≥ 7 contributing businesses allowed it. */
   qualifying_cohort: jsonb("qualifying_cohort").notNull(),
 });
+
+// ---------------------------------------------------------------------------
+// The Trust Ladder in full — the v1 build spec §4 (Phase 7, P7-40..46).
+//
+// capability_caps (§4.4): required before a capability reaches station 4,
+// per business per capability — never a global default. Money in the caps'
+// own currency (rule 1). Enforced server-side by the engine, from this row
+// only; nothing a client sends can widen them.
+//
+// promotion_requests (§4.3): 3 → 4 needs the owner to re-confirm in a
+// separate step. A request records the eligibility it was granted on; a
+// confirm within its window promotes. One open request per capability.
+//
+// standing_rules (§4.5): typed {scope, condition, action, expiry}. Every rule
+// expires — 90 days by default — and surfaces for renewal before it does.
+//
+// owner_notices: what the ladder must tell the owner and never do silently
+// (§4.3's auto-demotion, with its two ledger entries), shown until seen.
+// ---------------------------------------------------------------------------
+
+export const capabilityCaps = pgTable(
+  "capability_caps",
+  {
+    profile_id: uuid("profile_id")
+      .notNull()
+      .references(() => businessProfiles.id, { onDelete: "cascade" }),
+    capability: text("capability").notNull(),
+    currency: text("currency").notNull(),
+    /** How much ad budget may move in a day. Null: this capability moves no budget. */
+    max_daily_spend_delta_minor: bigint("max_daily_spend_delta_minor", { mode: "number" }),
+    max_single_action_minor: bigint("max_single_action_minor", { mode: "number" }).notNull(),
+    max_actions_per_day: integer("max_actions_per_day").notNull(),
+    /** [{ "from": "2026-12-24", "to": "2026-12-26" } | { "weekday": 0..6, "from_hour": 0..23, "to_hour": 1..24 }] */
+    blackout_windows: jsonb("blackout_windows")
+      .notNull()
+      .default(sql`'[]'::jsonb`),
+    /** A soft ceiling: above it the action bounces back to station 3 behaviour. */
+    require_approval_above_minor: bigint("require_approval_above_minor", { mode: "number" }),
+    /** Campaign, product, page or supplier ids SYB never touches. */
+    never_touch: text("never_touch")
+      .array()
+      .notNull()
+      .default(sql`'{}'::text[]`),
+    set_by: uuid("set_by"),
+    set_at: timestamp("set_at", { withTimezone: true, mode: "string" }).notNull().defaultNow(),
+  },
+  (t) => [
+    uniqueIndex("capability_caps_pk").on(t.profile_id, t.capability),
+    check("capability_caps_currency", sql`${t.currency} ~ '^[A-Z]{3}$'`),
+    check(
+      "capability_caps_non_negative",
+      sql`${t.max_single_action_minor} >= 0 and ${t.max_actions_per_day} >= 0 and coalesce(${t.max_daily_spend_delta_minor}, 0) >= 0 and coalesce(${t.require_approval_above_minor}, 0) >= 0`,
+    ),
+  ],
+);
+
+export const promotionRequests = pgTable(
+  "promotion_requests",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    profile_id: uuid("profile_id")
+      .notNull()
+      .references(() => businessProfiles.id, { onDelete: "cascade" }),
+    capability: text("capability").notNull(),
+    to_station: integer("to_station").notNull(),
+    /** The evidence the request was granted on, as the owner saw it. */
+    eligibility: jsonb("eligibility").notNull(),
+    requested_by: uuid("requested_by"),
+    requested_at: timestamp("requested_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+    expires_at: timestamp("expires_at", { withTimezone: true, mode: "string" }).notNull(),
+    confirmed_by: uuid("confirmed_by"),
+    confirmed_at: timestamp("confirmed_at", { withTimezone: true, mode: "string" }),
+    withdrawn_at: timestamp("withdrawn_at", { withTimezone: true, mode: "string" }),
+  },
+  (t) => [
+    uniqueIndex("promotion_requests_one_open")
+      .on(t.profile_id, t.capability)
+      .where(sql`${t.confirmed_at} is null and ${t.withdrawn_at} is null`),
+    check("promotion_requests_station", sql`${t.to_station} = 4`),
+  ],
+);
+
+export const standingRuleAction = pgEnum("standing_rule_action", [
+  "allow",
+  "forbid",
+  "require_approval",
+]);
+
+export const standingRules = pgTable(
+  "standing_rules",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    profile_id: uuid("profile_id")
+      .notNull()
+      .references(() => businessProfiles.id, { onDelete: "cascade" }),
+    /** A capability ("meta_ads"), or "*" for every capability. */
+    scope: text("scope").notNull(),
+    /** Typed: { "kind": "always" } | { "kind": "amount_above", "minor": n, "currency": "EUR" } | { "kind": "target", "ids": [...] } | { "kind": "weekday", "days": [0..6] } */
+    condition: jsonb("condition").notNull(),
+    action: standingRuleAction("action").notNull(),
+    /** Plain words, as the owner would say it. */
+    words: text("words").notNull(),
+    expires_at: timestamp("expires_at", { withTimezone: true, mode: "string" }).notNull(),
+    created_by: uuid("created_by"),
+    created_at: timestamp("created_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+    renewed_at: timestamp("renewed_at", { withTimezone: true, mode: "string" }),
+    retired_at: timestamp("retired_at", { withTimezone: true, mode: "string" }),
+  },
+  (t) => [
+    index("standing_rules_profile_idx").on(t.profile_id, t.expires_at),
+    check("standing_rules_expiry", sql`${t.expires_at} > ${t.created_at}`),
+  ],
+);
+
+export const ownerNotices = pgTable(
+  "owner_notices",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    profile_id: uuid("profile_id")
+      .notNull()
+      .references(() => businessProfiles.id, { onDelete: "cascade" }),
+    kind: text("kind").notNull(),
+    payload: jsonb("payload").notNull(),
+    created_at: timestamp("created_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+    seen_at: timestamp("seen_at", { withTimezone: true, mode: "string" }),
+  },
+  (t) => [index("owner_notices_profile_idx").on(t.profile_id, t.created_at)],
+);
+
+/**
+ * What station 4 did inside the caps (the v1 spec §4.1, "acts inside
+ * owner-set limits, reports after"): one row per action it approved itself,
+ * with the figures its caps were checked against — today's count and spend
+ * moved are read from here. Append-only by trigger.
+ */
+export const limitActions = pgTable(
+  "limit_actions",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    profile_id: uuid("profile_id")
+      .notNull()
+      .references(() => businessProfiles.id, { onDelete: "cascade" }),
+    capability: text("capability").notNull(),
+    proposal_id: uuid("proposal_id").notNull(),
+    currency: text("currency"),
+    amount_minor: bigint("amount_minor", { mode: "number" }),
+    spend_delta_minor: bigint("spend_delta_minor", { mode: "number" }),
+    at: timestamp("at", { withTimezone: true, mode: "string" }).notNull().defaultNow(),
+  },
+  (t) => [
+    index("limit_actions_day_idx").on(t.profile_id, t.capability, t.at),
+    uniqueIndex("limit_actions_one_per_proposal").on(t.proposal_id),
+  ],
+);

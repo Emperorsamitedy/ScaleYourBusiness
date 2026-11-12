@@ -89,15 +89,19 @@ describe("authorize — stations to states (D2)", () => {
 
   it("maps 1 → BLOCKED and 2 → SHADOW", async () => {
     const s = await fresh();
-    await setStation({ profileId: s.profile_id, capability: "fixture", station: 1, by: null });
-    expect((await authorize(s.profile_id, "fixture")).state).toBe("BLOCKED");
+    // Lowering needs no evidence; raising does (the v1 spec §4.3, lib/ladder/promotion).
     await setStation({ profileId: s.profile_id, capability: "fixture", station: 2, by: null });
     expect((await authorize(s.profile_id, "fixture")).state).toBe("SHADOW");
+    await setStation({ profileId: s.profile_id, capability: "fixture", station: 1, by: null });
+    expect((await authorize(s.profile_id, "fixture")).state).toBe("BLOCKED");
+    await expect(
+      setStation({ profileId: s.profile_id, capability: "fixture", station: 2, by: null }),
+    ).rejects.toThrow(/ledger's evidence/);
     // Another capability is untouched.
     expect((await authorize(s.profile_id, "meta_ads")).state).toBe("NEEDS_APPROVAL");
   });
 
-  it("refuses station 4 while no promotion rules exist (D2), and stations outside 1–4", async () => {
+  it("refuses station 4 without its caps and a separate confirmation, and stations outside 1–4", async () => {
     const s = await fresh();
     await expect(
       setStation({ profileId: s.profile_id, capability: "fixture", station: 4, by: null }),
@@ -108,7 +112,7 @@ describe("authorize — stations to states (D2)", () => {
     expect(await stationOf(s.profile_id, "fixture")).toBe(3);
   });
 
-  it("promotion eligibility says the rules aren't defined, with the outcomes it has", async () => {
+  it("the old eligibility counter points to the v1 rules, with the outcomes it has", async () => {
     const s = await fresh();
     await recordOutcome({
       profileId: s.profile_id,
@@ -124,7 +128,7 @@ describe("authorize — stations to states (D2)", () => {
     });
     expect(await promotionEligibility(s.profile_id, "fixture")).toEqual({
       eligible: false,
-      reason: expect.stringMatching(/promotion rules aren't defined yet/),
+      reason: expect.stringMatching(/superseded by the v1 spec §4.3/),
       outcomes: { total: 2, verified: 1 },
     });
   });

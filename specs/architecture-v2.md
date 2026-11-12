@@ -282,3 +282,44 @@ screenshot slots for the NAV guide.
 - **D48 — known gap: the LLM cost meter** estimates EUR from USD prices with
   a fixed rate in lib/llm/pricing.ts. It is SYB's internal cost estimate, not
   a business's money; moving it to stored ECB rates is a follow-up.
+
+## Decisions taken building Phase 2 (2026-11-10)
+
+- **D34 — what a standing rule's expiry does.** An "allow" widens what SYB
+  may do, so once expired it stops applying; a "forbid" or
+  "require_approval" narrows it, so it keeps binding past its date, still
+  flagged for renewal, rather than loosening SYB's leash by the calendar.
+  Rules surface for renewal in their last 14 days. The owner's free-text
+  boundaries (Phase 3 rule 14's hard limits) stay the owner's never-list.
+- **D35 — where the 30-day shadow period starts.** A business's shadow
+  period (`business_profiles.shadow_until`) is set when its intake starts
+  through the app's own start route, not by every internal bootstrap, so
+  the five live businesses and every existing test business keep station 3
+  (D18). A recorded station always wins over the period.
+- **D36 — station 4 in the engine (D21).** A pending proposal for a
+  capability at station 4 runs without a per-action approval only when its
+  provider can state the action's size and targets (`capFacts`), the stored
+  caps say "within", and no standing rule forbids it or asks for approval.
+  Anything else stays pending for the owner — station 3 behaviour — or is
+  refused with the reason. The engine records the station-4 decision on the
+  proposal and in the decision log as an approval by the ladder, never by a
+  person.
+- **D37 — auto-demotion counts outcomes since the last move.** Two
+  consecutive loss verdicts on a capability, both recorded after its last
+  station change, drop it one station and leave an owner notice carrying
+  both plan and entry ids. A gain or a no-effect in between resets the
+  count. Shadow losses count too: a capability whose recommendations would
+  have lost money twice in a row drops from 2 to 1.
+- **D38 — blackout windows read in UTC** until the business's timezone is
+  threaded through the engine; the caps screen says so.
+- **D49 — ceilings over every station.** A station never passes the
+  business's segment ceiling (a sole trader: 2) or, once Stripe keys exist,
+  its tier's (Watch 2, Act 3, Autonomous 4). A business with no subscription
+  keeps station 3's behaviour, as the five live businesses do today (D18).
+- **D50 — the rule-12 constraint, amended at station 4 only.** The database
+  still requires a person behind every approval and rejection; the one
+  exception is a proposal the ladder approved within the owner's caps, marked
+  `approved_within_limits` and logged as the system's approval.
+- **D51 — raising a station goes through the evidence, everywhere.** The
+  public setStation only lowers; changeStation and the request/confirm pair
+  are the only ways up, and no "raise everything" call exists.

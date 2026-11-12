@@ -61,7 +61,8 @@
       "history": "History",
       "team_access": "Team access",
       "language": "Language and currency",
-      "payments": "Payments"
+      "payments": "Payments",
+      "ladder": "What I may do"
     },
     "count": {
       "paused": "{count} paused",
@@ -6056,7 +6057,8 @@
       "payments_prepare": "Only an owner can prepare payments or say one was paid.",
       "phone_recordings": "Only an owner can listen to call recordings.",
       "payments_read": "Only an owner can see payments and their bank files.",
-      "peers_consent": "Only an owner can decide whether this business's figures join the comparison with similar businesses."
+      "peers_consent": "Only an owner can decide whether this business's figures join the comparison with similar businesses.",
+      "ladder_manage": "Only an owner can change what SYB may do on its own."
     }
   },
   "authWords": {
@@ -9081,5 +9083,50 @@
       "confirm": "I've checked my bank: download the same file again",
       "erased": "This file can't be made again: a payment in it had its bank details erased."
     }
+  },
+  "ladder": {
+    "meta": {
+      "title": "What SYB may do"
+    },
+    "title": "What SYB can do in your business right now",
+    "intro": "One line per kind of action. Raising a line needs its record below; lowering it never does, and the stop sends every line back to watching.",
+    "station": {
+      "1": "Watches only",
+      "2": "Says what it would do, changes nothing",
+      "3": "Acts after your approval",
+      "4": "Acts within your limits, then tells you"
+    },
+    "record": "Measured: {closed} · gains: {gains} · losses: {losses}",
+    "raise": "Raise one step",
+    "lower": "Lower one step",
+    "notYet": "Not yet: {why}",
+    "askLimits": "Ask to act within limits",
+    "confirm": "Confirm: let it act within my limits",
+    "confirmNote": "From now on it acts without asking each time, only inside the limits you set. You can lower it, or stop everything, at any moment.",
+    "ceiling": "This line can't go above step {station} here.",
+    "notice": {
+      "auto_demotion": "{capability} lost money twice in a row, so it went down a step.",
+      "connector_demotion": "{provider} stopped working, so what depended on it went back to watching.",
+      "seen": "Got it"
+    },
+    "shadowLink": "See what it would have done so far",
+    "failed": "That didn’t work: {why}"
+  },
+  "shadowSummary": {
+    "meta": {
+      "title": "What SYB would have done"
+    },
+    "title": "What SYB would have done",
+    "period": "From {from} to {to}",
+    "changes": "Changes it would have made: {count}",
+    "gained": "Would have gained: {count} · {amount}",
+    "nothing": "Would have done nothing: {count}",
+    "lost": "Would have lost: {count} · {amount}",
+    "unproven": "Not yet proven either way: {count}",
+    "open": "Still being measured: {count}",
+    "net": "Net: {amount} — and nothing was touched.",
+    "none": "Nothing measured yet.",
+    "share": "Copy a link to share this",
+    "copied": "Link copied"
   }
 }

@@ -51,6 +51,7 @@ import {
 } from "../carts/consent";
 import { normalizeEmail } from "../crm/contacts";
 import { deriveBookingFacts, storeAppointments } from "../bookings/store";
+import { demoteOnConnectorFailure } from "../ladder/connector-health";
 import { getProvider } from "./registry";
 import { EXECUTE_READ_PROVIDERS, executeReadSource } from "./execute-reads";
 import { decryptSecret } from "./secrets";
@@ -437,6 +438,21 @@ export async function syncConnection(connectionId: string, now = new Date()): Pr
             status: failures >= MAX_CONSECUTIVE_FAILURES ? "failed" : row.status,
           })
           .where(eq(connections.id, row.id));
+        // The v1 spec §11.2: what depended on it drops to station 1, the owner told.
+        if (failures === MAX_CONSECUTIVE_FAILURES) {
+          await demoteOnConnectorFailure({
+            accountId: row.account_id,
+            provider: row.provider,
+          }).catch((e: unknown) =>
+            console.error(
+              JSON.stringify({
+                event: "connector_demotion_failed",
+                account_id: row.account_id,
+                name: e instanceof Error ? e.name : "unknown",
+              }),
+            ),
+          );
+        }
       }
 
       outcome.duration_ms = Date.now() - startedAt;

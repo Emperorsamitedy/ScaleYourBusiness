@@ -722,6 +722,34 @@
       "when": 1794336596906,
       "tag": "0106_currency_presentation",
       "breakpoints": true
+    },
+    {
+      "idx": 107,
+      "version": "7",
+      "when": 1794340637316,
+      "tag": "0107_trust_ladder_v1",
+      "breakpoints": true
+    },
+    {
+      "idx": 108,
+      "version": "7",
+      "when": 1794340821087,
+      "tag": "0108_limit_actions",
+      "breakpoints": true
+    },
+    {
+      "idx": 109,
+      "version": "7",
+      "when": 1794340827492,
+      "tag": "0109_ladder_v1_append_only",
+      "breakpoints": true
+    },
+    {
+      "idx": 110,
+      "version": "7",
+      "when": 1794341114716,
+      "tag": "0110_station4_approval",
+      "breakpoints": true
     }
   ]
 }

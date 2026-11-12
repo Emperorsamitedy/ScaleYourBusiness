@@ -81,7 +81,8 @@ import { authorize, resumeAll, stopAll } from "../ladder/ladder";
 import { planFromProposal } from "../ledger/from-proposal";
 import { MeasurementRequiredError, openPlan, requireOpenPlan } from "../ledger/plans";
 import { latestDecision } from "../mode/service";
-import { cancelPendingProposals, recordExecution } from "../proposals/service";
+import { approveWithinLimits, cancelPendingProposals, recordExecution } from "../proposals/service";
+import { recordLimitAction, withinLimits } from "../ladder/limits";
 import type { ExecutionProviderId } from "./scopes";
 import { EXECUTION_SCOPE_REGISTRY } from "./scopes";
 import type { AttemptUsage } from "./attempt-usage";
@@ -140,7 +141,8 @@ export class ExecutionRefused extends Error {
     | "ladder_blocked"
     | "compliance"
     | "no_measurement"
-    | "shadow";
+    | "shadow"
+    | "limits";
   readonly status: number;
   constructor(code: ExecutionRefused["code"], message: string, status = 409) {
     super(message);
@@ -332,8 +334,9 @@ export async function executeProposal(args: ExecuteArgs): Promise<ExecutionRow> 
   const sleep = args.sleep ?? defaultSleep;
   const now = args.now ?? (() => new Date());
 
-  const [proposal] = await db.select().from(proposals).where(eq(proposals.id, args.proposalId));
-  if (!proposal) throw new ExecutionRefused("not_found", "no such proposal", 404);
+  const [found] = await db.select().from(proposals).where(eq(proposals.id, args.proposalId));
+  if (!found) throw new ExecutionRefused("not_found", "no such proposal", 404);
+  let proposal = found;
 
   const ctx: ExecutionContext = await contextFor(proposal.profile_id);
 
@@ -353,6 +356,35 @@ export async function executeProposal(args: ExecuteArgs): Promise<ExecutionRow> 
       .where(eq(executions.proposal_id, proposal.id));
     if (existing) return existing;
     throw new ExecutionRefused("not_approved", "already executed, before this engine existed", 409);
+  }
+  // The v1 spec §4.1, D21/D36: at station 4 a pending proposal acts without
+  // a per-action approval — only within the owner's stored caps and
+  // standing rules, and never for a capability capped below 4. Anything
+  // else waits for the owner's yes, as at station 3.
+  if (proposal.status === "pending") {
+    const within = await withinLimits({
+      profileId: proposal.profile_id,
+      capability: args.provider.id,
+      facts: args.provider.capFacts?.(args.op, args.params) ?? null,
+      now: now(),
+    });
+    if (within.verdict === "within") {
+      proposal = await approveWithinLimits({
+        proposalId: proposal.id,
+        profileId: proposal.profile_id,
+      });
+      await recordLimitAction({
+        profileId: proposal.profile_id,
+        capability: args.provider.id,
+        proposalId: proposal.id,
+        facts: args.provider.capFacts?.(args.op, args.params) ?? null,
+      });
+    } else if (within.verdict === "refused") {
+      throw new ExecutionRefused(
+        "limits",
+        `this is outside the limits you set: ${within.reasons.join("; ")}. Nothing was sent; it waits for you.`,
+      );
+    }
   }
   if (proposal.status !== "approved") {
     throw new ExecutionRefused(
