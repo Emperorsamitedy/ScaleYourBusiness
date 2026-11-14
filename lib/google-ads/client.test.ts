@@ -9,7 +9,12 @@
 //   · any file in lib/google-ads calls fetch directly instead of through
 //     the fenced request function;
 //   · money leaves integer minor units (rule 1).
+//
+// No test here touches the database, but readCampaignRow's module loads the
+// consent module, which opens db/index — so the environment loads first,
+// as in the other google-ads tests.
 
+import "dotenv/config";
 import { readFileSync, readdirSync, statSync } from "node:fs";
 import { join, relative, sep } from "node:path";
 import { describe, expect, it, vi } from "vitest";
