@@ -32,3 +32,6 @@ reports/
 /public/ember.css
 /public/anno-engine.js
 .data/
+
+.vercel
+.env*
