@@ -1,0 +1,9 @@
+# Never upload local secrets or local-only files when deploying from a
+# machine with the Vercel CLI (`vercel deploy --prod`). Production keys live
+# in Vercel's own environment variables.
+.env
+.env.*
+!.env.example
+KEYS-TONIGHT.md
+DEMO-SCRIPT.md
+SYB-INTAKE-DRAFT.md
