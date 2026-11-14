@@ -9553,6 +9553,43 @@
       "intro": "{firm} souhaite travailler avec {business} sur SYB et demande à pouvoir faire ceci pour votre entreprise :",
       "open": "Pour dire oui, ouvrez ce lien. Vous n’avez pas besoin de compte au préalable :",
       "after": "Vous pouvez retirer l’autorisation à tout moment, d’un geste, et vous verrez tout ce que fait le cabinet."
+    },
+    "nav": {
+      "link": "Configurer NAV pour vos clients",
+      "title": "NAV Online Számla pour vos clients",
+      "intro": "Saisissez l’utilisateur technique NAV de chaque client. SYB vérifie chacun auprès de NAV tout de suite et affiche le nom que NAV a enregistré. Les données sont verrouillées avec la clé propre à ce client, utilisées seulement pour lire et jamais réaffichées. Laissez une ligne vide pour la passer.",
+      "who": "Les clients apparaissent ici quand leur mandat permet à votre cabinet de les aider à relier leurs outils.",
+      "empty": "Aucun mandat ne permet encore à votre cabinet d’aider à relier des outils.",
+      "notAllowed": "Seul un associé ou un gestionnaire du cabinet peut configurer NAV pour les clients.",
+      "col": {
+        "client": "Client",
+        "state": "NAV",
+        "login": "Utilisateur technique",
+        "password": "Mot de passe",
+        "signature_key": "Clé de signature",
+        "tax_number": "Numéro fiscal"
+      },
+      "state": {
+        "connected": "Relié",
+        "failed": "À relier de nouveau",
+        "none": "Non relié"
+      },
+      "outcome": {
+        "connected": "Relié — NAV le connaît sous le nom {name}",
+        "skipped": "Laissé vide",
+        "not_found": "Votre cabinet ne peut plus aider pour celui-ci",
+        "already_connected": "NAV est déjà relié ici",
+        "rejected": "NAV n’a pas accepté ces données",
+        "not_configured": "La liaison avec NAV n’est pas encore disponible",
+        "rate_limited": "Trop d’essais pour ce client — réessayez dans une heure",
+        "failed": "Un problème est survenu de notre côté"
+      },
+      "submit": "Vérifier auprès de NAV et relier",
+      "working": "Vérification auprès de NAV…",
+      "summary": "Reliés : {connected}. Refusés par NAV : {rejected}. Laissés vides : {skipped}. Non faits : {other}.",
+      "revoke": "Délier",
+      "revokeConfirm": "Supprimer maintenant de SYB les données NAV de ce client ?",
+      "revoked": "Supprimé de SYB. Demandez au client de supprimer aussi l’utilisateur technique dans Online Számla, pour qu’il ne puisse plus servir."
     }
   },
   "mandates": {

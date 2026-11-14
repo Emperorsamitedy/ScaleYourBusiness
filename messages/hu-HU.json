@@ -9553,6 +9553,43 @@
       "intro": "A(z) {firm} a SYB-ben szeretne dolgozni a(z) {business} vállalkozással, és engedélyt kér a következőkre:",
       "open": "Ha igent mondasz, nyisd meg ezt a linket. Előtte nincs szükséged fiókra:",
       "after": "Az engedélyt bármikor visszavonhatod egyetlen koppintással, és mindent látsz, amit az iroda tesz."
+    },
+    "nav": {
+      "link": "NAV beállítása az ügyfeleknek",
+      "title": "NAV Online Számla az ügyfeleinek",
+      "intro": "Adja meg minden ügyfél NAV technikai felhasználóját. A SYB mindegyiket azonnal ellenőrzi a NAV-nál, és megmutatja, milyen néven tartja nyilván a NAV. Az adatokat az adott ügyfél saját kulcsával zárjuk el, csak olvasásra használjuk, és soha többé nem jelennek meg. Ha egy sort üresen hagy, azt kihagyjuk.",
+      "who": "Azok az ügyfelek jelennek meg itt, akiknek a megbízása szerint az iroda segíthet nekik a kapcsolódásban.",
+      "empty": "Még egyik ügyfél megbízása sem engedi, hogy az iroda segítsen a kapcsolódásban.",
+      "notAllowed": "Ügyfeleknek NAV-ot csak az iroda vezetője vagy menedzsere állíthat be.",
+      "col": {
+        "client": "Ügyfél",
+        "state": "NAV",
+        "login": "Technikai felhasználó",
+        "password": "Jelszó",
+        "signature_key": "XML aláírókulcs",
+        "tax_number": "Adószám"
+      },
+      "state": {
+        "connected": "Kapcsolódva",
+        "failed": "Újra kell kapcsolni",
+        "none": "Nincs kapcsolódva"
+      },
+      "outcome": {
+        "connected": "Kapcsolódva — a NAV-nál ezen a néven szerepel: {name}",
+        "skipped": "Üresen hagyva",
+        "not_found": "Ebben az ügyfélben az iroda már nem segíthet",
+        "already_connected": "Itt a NAV már kapcsolódik",
+        "rejected": "A NAV nem fogadta el ezeket az adatokat",
+        "not_configured": "A NAV-kapcsolat még nem érhető el",
+        "rate_limited": "Túl sok próbálkozás ennél az ügyfélnél — próbálja újra egy óra múlva",
+        "failed": "Hiba történt nálunk"
+      },
+      "submit": "Ellenőrzés a NAV-nál és kapcsolódás",
+      "working": "Ellenőrzés a NAV-nál…",
+      "summary": "Kapcsolódva: {connected}. A NAV nem fogadta el: {rejected}. Üresen hagyva: {skipped}. Nem sikerült: {other}.",
+      "revoke": "Kapcsolat bontása",
+      "revokeConfirm": "Most törli az ügyfél NAV-adatait a SYB-ből?",
+      "revoked": "Törölve a SYB-ből. Kérje meg az ügyfelet, hogy a technikai felhasználót az Online Számlában is törölje, hogy többé ne lehessen használni."
     }
   },
   "mandates": {

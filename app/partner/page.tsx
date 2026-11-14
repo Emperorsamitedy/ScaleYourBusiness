@@ -139,6 +139,8 @@ export default async function PartnerPage() {
         {mine.role !== "staff" && (
           <p className="auth-copy">
             <Link href="/partner/import">{tr("import.link")}</Link>
+            {" · "}
+            <Link href="/partner/nav">{tr("nav.link")}</Link>
           </p>
         )}
       </section>

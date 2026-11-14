@@ -9553,6 +9553,43 @@
       "intro": "{firm} would like to work with {business} on SYB. They are asking to be allowed to:",
       "open": "To say yes, open this link. You don't need an account first:",
       "after": "You can take the permission back at any time, in one tap, and you'll see everything the firm does."
+    },
+    "nav": {
+      "link": "Set up NAV for your clients",
+      "title": "NAV Online Számla for your clients",
+      "intro": "Enter each client's NAV technical user. SYB checks every one with NAV straight away and shows the name NAV has on record. The details are locked under that client's own key, used only to read, and never shown again. Leave a row empty to skip it.",
+      "who": "Clients appear here when their mandate lets your firm help them connect things.",
+      "empty": "No client's mandate lets your firm help them connect things yet.",
+      "notAllowed": "Only a principal or a manager at the firm can set up NAV for clients.",
+      "col": {
+        "client": "Client",
+        "state": "NAV",
+        "login": "Technical user",
+        "password": "Password",
+        "signature_key": "Signature key",
+        "tax_number": "Tax number"
+      },
+      "state": {
+        "connected": "Connected",
+        "failed": "Needs reconnecting",
+        "none": "Not connected"
+      },
+      "outcome": {
+        "connected": "Connected — NAV has it as {name}",
+        "skipped": "Left empty",
+        "not_found": "Your firm can't help with this one any more",
+        "already_connected": "NAV is already connected here",
+        "rejected": "NAV didn't accept these details",
+        "not_configured": "Connecting NAV isn't available yet",
+        "rate_limited": "Too many tries for this client — try again in an hour",
+        "failed": "Something went wrong on our side"
+      },
+      "submit": "Check with NAV and connect",
+      "working": "Checking with NAV…",
+      "summary": "Connected: {connected}. Not accepted by NAV: {rejected}. Left empty: {skipped}. Not done: {other}.",
+      "revoke": "Disconnect",
+      "revokeConfirm": "Delete this client's NAV details from SYB now?",
+      "revoked": "Deleted from SYB. Ask the client to delete the technical user in Online Számla too, so it can't be used again."
     }
   },
   "mandates": {

@@ -196,7 +196,8 @@ first, the ledger being append-only). Decisions D39–D48.
       redaction, connect-validate-name, both sides normalised (B), own
       runner, Hungarian degradation, one-tap revocation, the guide with its
       screenshot gate
-- [ ] **MM-E2** Partner bulk NAV setup — lands with the Partner Console (Phase 6)
+- [x] **MM-E2** Partner bulk NAV setup — lands with the Partner Console (Phase 6)
+      (/partner/nav: each client under its own manage_connectors mandate, D88)
 - [x] **MM-B2** Wire the hard quota cap into video generation and the LLM path
 - [x] **MM-A9** The LLM cost meter onto stored ECB rates (D48)
 - [ ] **Owner** NAV registration answer from counsel; NAV guide screenshots;

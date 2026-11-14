@@ -9553,6 +9553,43 @@
       "intro": "{firm} 希望在 SYB 上与 {business} 合作，并请求获准为你的企业做以下事情：",
       "open": "如果同意，请打开此链接。你无需事先注册账户：",
       "after": "你可以随时一键收回授权，并能看到事务所所做的一切。"
+    },
+    "nav": {
+      "link": "为客户设置 NAV",
+      "title": "为您的客户接入 NAV Online Számla",
+      "intro": "请填写每位客户的 NAV 技术用户。SYB 会立即向 NAV 逐一核验，并显示 NAV 登记的名称。这些资料用该客户自己的密钥加密保存，只用于读取，之后不再显示。留空的行会被跳过。",
+      "who": "客户的委托允许贵所帮助其接入外部服务时，才会出现在这里。",
+      "empty": "目前还没有客户的委托允许贵所帮助接入外部服务。",
+      "notAllowed": "只有事务所的负责人或经理可以为客户设置 NAV。",
+      "col": {
+        "client": "客户",
+        "state": "NAV",
+        "login": "技术用户",
+        "password": "密码",
+        "signature_key": "签名密钥",
+        "tax_number": "税号"
+      },
+      "state": {
+        "connected": "已接入",
+        "failed": "需要重新接入",
+        "none": "未接入"
+      },
+      "outcome": {
+        "connected": "已接入 — NAV 登记的名称为 {name}",
+        "skipped": "留空",
+        "not_found": "贵所已无法再为这位客户提供帮助",
+        "already_connected": "这里已接入 NAV",
+        "rejected": "NAV 未接受这些资料",
+        "not_configured": "暂时还不能接入 NAV",
+        "rate_limited": "这位客户的尝试次数过多 — 请一小时后再试",
+        "failed": "我们这边出了问题"
+      },
+      "submit": "向 NAV 核验并接入",
+      "working": "正在向 NAV 核验…",
+      "summary": "已接入：{connected}。NAV 未接受：{rejected}。留空：{skipped}。未完成：{other}。",
+      "revoke": "断开",
+      "revokeConfirm": "现在从 SYB 删除这位客户的 NAV 资料吗？",
+      "revoked": "已从 SYB 删除。请让客户也在 Online Számla 中删除该技术用户，使其无法再被使用。"
     }
   },
   "mandates": {

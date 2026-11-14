@@ -9553,6 +9553,43 @@
       "intro": "{firm} möchte mit {business} bei SYB arbeiten und bittet darum, Folgendes tun zu dürfen (für dein Unternehmen):",
       "open": "Um Ja zu sagen, öffne diesen Link. Du brauchst vorher kein Konto:",
       "after": "Du kannst die Erlaubnis jederzeit mit einem Tippen zurücknehmen und siehst alles, was die Kanzlei tut."
+    },
+    "nav": {
+      "link": "NAV für Ihre Mandanten einrichten",
+      "title": "NAV Online Számla für Ihre Mandanten",
+      "intro": "Geben Sie für jeden Mandanten den technischen NAV-Benutzer ein. SYB prüft jeden sofort bei NAV und zeigt den Namen, den NAV dazu führt. Die Angaben werden mit dem eigenen Schlüssel dieses Mandanten verschlossen, nur zum Lesen verwendet und nie wieder angezeigt. Eine leere Zeile wird übersprungen.",
+      "who": "Hier erscheinen Mandanten, deren Mandat Ihrer Kanzlei erlaubt, beim Anbinden zu helfen.",
+      "empty": "Noch kein Mandat erlaubt Ihrer Kanzlei, beim Anbinden zu helfen.",
+      "notAllowed": "Nur die Kanzleileitung oder ein Manager kann NAV für Mandanten einrichten.",
+      "col": {
+        "client": "Mandant",
+        "state": "NAV",
+        "login": "Technischer Benutzer",
+        "password": "Passwort",
+        "signature_key": "Signaturschlüssel",
+        "tax_number": "Steuernummer"
+      },
+      "state": {
+        "connected": "Angebunden",
+        "failed": "Muss neu angebunden werden",
+        "none": "Nicht angebunden"
+      },
+      "outcome": {
+        "connected": "Angebunden — bei NAV als {name} geführt",
+        "skipped": "Leer gelassen",
+        "not_found": "Hier darf Ihre Kanzlei nicht mehr helfen",
+        "already_connected": "NAV ist hier schon angebunden",
+        "rejected": "NAV hat diese Angaben nicht angenommen",
+        "not_configured": "Die Anbindung an NAV ist noch nicht verfügbar",
+        "rate_limited": "Zu viele Versuche für diesen Mandanten — bitte in einer Stunde erneut",
+        "failed": "Bei uns ist etwas schiefgegangen"
+      },
+      "submit": "Bei NAV prüfen und anbinden",
+      "working": "Wird bei NAV geprüft…",
+      "summary": "Angebunden: {connected}. Von NAV nicht angenommen: {rejected}. Leer gelassen: {skipped}. Nicht erledigt: {other}.",
+      "revoke": "Trennen",
+      "revokeConfirm": "Die NAV-Angaben dieses Mandanten jetzt aus SYB löschen?",
+      "revoked": "Aus SYB gelöscht. Bitten Sie den Mandanten, den technischen Benutzer auch in Online Számla zu löschen, damit er nicht mehr verwendet werden kann."
     }
   },
   "mandates": {

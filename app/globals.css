@@ -1399,6 +1399,11 @@ a.auth-cta {
   border-bottom: 1px solid var(--line, #d9d9d9);
   vertical-align: top;
 }
+.partner-table input {
+  width: 100%;
+  min-width: 7.5rem;
+  box-sizing: border-box;
+}
 .partner-settings {
   width: min(560px, 100%);
 }

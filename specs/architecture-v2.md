@@ -541,3 +541,22 @@ screenshot slots for the NAV guide.
   logs every change; what is left is the owner's: counsel in each launch
   market signs the row.
 
+## Decisions taken building the bookkeeper path for NAV (2026-11-12)
+
+- **D88 — a firm sets up NAV through the owner's own door, client by
+  client.** The multi-market spec §E.4's bookkeeper path is a walk across the
+  book (lib/partners/nav), not a second way in: every row goes through
+  connectNav exactly as an owner's would (queryTaxpayer at once, the
+  registered name back, sealed under that business's own key, read-only
+  operations only). A principal or manager runs it, never staff. Each client
+  is asked of the database's partner_may with `manage_connectors` at that
+  moment, so a client without that mandate is "not found" and nothing is
+  stored for it. A firm shares each business's own hourly limit on NAV
+  attempts, so it can't try more passwords against a business than the owner
+  could. One client's failure is that client's outcome and the rest carry on.
+  The answer is a fixed outcome code per client, never an input, and a
+  failure's log line names only the account and the error's class. Every
+  connection and every console revocation is in the owner's audit trail as
+  the partner's own action. The owner keeps their own one-tap revocation; the
+  firm's is a second door to the same wipe, under the same mandate.
+

@@ -7,6 +7,13 @@
 //   commentary   { client, section, body }        read_diagnosis
 //   approve      { client, proposal_id }          approve_actions
 //   nudge        { client, what }                 manage_connectors
+//   nav_connect  { rows: [{ client, login, password, signature_key, tax_number }] }
+//                NAV across the book (multi-market §E.4), principal or
+//                manager; each row under its own manage_connectors mandate
+//   nav_revoke   { client }                       manage_connectors
+//
+// nav_connect's body holds NAV credentials: nothing here logs the body, and
+// its answer is an outcome code per client, never an input.
 //
 // The caller is the signed-in person (their session). What they may do in a
 // client's business is never read from the request: the firm role comes
@@ -30,6 +37,7 @@ import {
 } from "../../../lib/partners/actions";
 import { FirmError, addMember, createFirm, setWhiteLabel } from "../../../lib/partners/firm";
 import { MandateError, importClients } from "../../../lib/partners/mandates";
+import { NavBulkError, bulkConnectNav, revokeNavForClient } from "../../../lib/partners/nav";
 import { isAppLocale } from "../../../lib/i18n/locales";
 
 const MAX_BODY_BYTES = 512 * 1024;
@@ -107,6 +115,23 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       case "approve":
         await approveForClient({ userId, profileId: client, proposalId: str(b.proposal_id) });
         return NextResponse.json({ ok: true });
+      case "nav_connect": {
+        const rows = Array.isArray(b.rows) ? (b.rows as Record<string, unknown>[]) : [];
+        return NextResponse.json(
+          await bulkConnectNav({
+            userId,
+            rows: rows.map((r) => ({
+              client: str(r?.client),
+              login: str(r?.login),
+              password: str(r?.password),
+              signatureKey: str(r?.signature_key),
+              taxNumber: str(r?.tax_number),
+            })),
+          }),
+        );
+      }
+      case "nav_revoke":
+        return NextResponse.json(await revokeNavForClient({ userId, profileId: client }));
       case "nudge":
         await nudgeClient({ userId, profileId: client, what: str(b.what) });
         return NextResponse.json({ ok: true });
@@ -120,6 +145,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       FirmError,
       MandateError,
       ProposalError,
+      NavBulkError,
     ]) {
       if (error instanceof E)
         return NextResponse.json({ error: error.message }, { status: error.status });
