@@ -9173,7 +9173,37 @@
       "email_campaign": "E-mailek a kapcsolattartóinak",
       "purchase_order": "Megrendelések a beszállítóknak",
       "google_business_reviews": "Válaszok a Google-értékelésekre"
-    }
+    },
+    "kicker": "Bizalmi létra",
+    "col": {
+      "action": "Műveletfajta",
+      "record": "Eredmények"
+    },
+    "stepN": "{n}. szint",
+    "linesHere": "{count, plural, one {# sor itt} other {# sor itt}}",
+    "notOpen": "itt nem érhető el",
+    "group": {
+      "posts": "Bejegyzések",
+      "ads": "Hirdetések",
+      "customers": "Ügyfelek",
+      "suppliers": "Beszállítók",
+      "other": "Egyéb"
+    },
+    "rec": {
+      "none": "Még nincs eredmény",
+      "measured": "{count, plural, one {# mért} other {# mért}}",
+      "gains": "{count, plural, one {# nyereség} other {# nyereség}}",
+      "losses": "{count, plural, one {# veszteség} other {# veszteség}}"
+    },
+    "needs": "Amit a(z) {n}. szint megkövetel",
+    "met": "Teljesült",
+    "notMet": "Még nem",
+    "waitHint": "Akkor léphet feljebb, ha fent minden szabálynál „Teljesült” áll.",
+    "foot": {
+      "ceiling": "Jelenleg a(z) {n}. szint a legmagasabb ennél a vállalkozásnál.",
+      "own": "Minden sor a saját eredményei alapján lép feljebb."
+    },
+    "trackAria": "{total} szintből a(z) {n}."
   },
   "shadowSummary": {
     "meta": {
@@ -9782,5 +9812,253 @@
     },
     "kicker": "Az Ön vállalkozása · Értesítések és modulok",
     "title": "Hol dolgozom, és hogyan szólok Önnek."
+  },
+  "landingV2": {
+    "aMonth": "havi {amount}",
+    "found": "{count, plural, one {# szivárgás találva} other {# szivárgás találva}}",
+    "factSheet": "Ténylap",
+    "factCount": "{count, plural, one {# tény} other {# tény}}",
+    "decisions": "Döntések",
+    "notPricedYet": "még nincs beárazva",
+    "notPriced": "nincs beárazva",
+    "aiLabel": "Szemléltető üzlet · MI által készített felvétel",
+    "nav": {
+      "how": "Így működik",
+      "pricing": "Árak",
+      "firms": "Könyvelőirodáknak",
+      "check": "Ingyenes ellenőrzés",
+      "sections": "Szakaszok"
+    },
+    "rail": {
+      "read": "Olvasás",
+      "learn": "Megismerés",
+      "scan": "Átvizsgálás",
+      "leaks": "Szivárgások",
+      "decide": "Döntés",
+      "chart": "Grafikon",
+      "trust": "Bizalom",
+      "firms": "Irodák",
+      "check": "Ellenőrzés",
+      "start": "Kezdés"
+    },
+    "hero": {
+      "kicker": "Vérvizsgálat a vállalkozása számára",
+      "lede": "A ScaleX megtalálja, hol szivárog el a pénze, euróban beárazza, és csak akkor javítja ki, ha Ön igent mond.",
+      "run": "Ingyenes ellenőrzés indítása",
+      "see": "Nézze meg működés közben",
+      "trust": "Csak olvasás. Nincs jelszó. Ön nélkül semmi sem változik."
+    },
+    "tour": {
+      "aria": "Termékbemutató: a ScaleX csatlakozik egy üzlethez, elkészíti a ténylapját, szivárgást talál, és a tulajdonos jóváhagyása után kijavítja",
+      "demo": "bemutató üzlet",
+      "connections": "Összekapcsolt fiókok",
+      "readsOnly": "A ScaleX olvas, soha nem ír",
+      "reads": {
+        "shopify": "rendelések és termékek",
+        "analytics": "az oldala látogatásai",
+        "ads": "hirdetési költés és eredmények"
+      },
+      "connecting": "Csatlakozás…",
+      "connected": "Csak olvasás · csatlakoztatva",
+      "noPasswords": "Nincs jelszó. Egy összekapcsolt fiókot bármikor eltávolíthat.",
+      "twoMore": "Két további még nincs beárazva. A hiány is megállapítás.",
+      "tab": {
+        "connect": "Csatlakozás",
+        "facts": "Tények",
+        "diagnosis": "Diagnózis",
+        "finding": "Megállapítás",
+        "yes": "Az Ön igenje"
+      }
+    },
+    "fact": {
+      "revenue": "Árbevétel, {days} nap",
+      "revenueSrc": "Shopify · mért · ma",
+      "margin": "Összesített árrés",
+      "marginSrc": "az árai és költségei alapján számítva",
+      "shipping": "Szállítás rendelésenként",
+      "shippingSrc": "Ön mondta · {day}",
+      "repeat": "Visszatérő ügyfelek",
+      "repeatSrc": "hiány, nem találgatás",
+      "unknown": "Még nem ismert"
+    },
+    "leak": {
+      "breakage": "Törések a futárszolgálat-váltás óta",
+      "ads": "Egy hirdetési kampány többe kerül, mint amennyit hoz",
+      "pricing": "A legkelendőbb termék ára a piaci szint alatt van",
+      "bowl": "A tálalótál lassan fogy, és a leggyakrabban törik",
+      "repeat": "Senki sem tudja, mennyit ér egy visszatérő ügyfél"
+    },
+    "area": {
+      "operations": "Működés",
+      "marketing": "Marketing",
+      "pricing": "Árazás",
+      "product": "Termék",
+      "customers": "Ügyfelek"
+    },
+    "sev": {
+      "high": "Magas",
+      "medium": "Közepes",
+      "low": "Alacsony"
+    },
+    "decide": {
+      "waiting": "Döntés · Önre vár",
+      "pause": "A veszteséges hirdetési kampány szüneteltetése",
+      "whatChanges": "Mi változik",
+      "stops": "Ez az egy kampány nem költ tovább",
+      "ifApprove": "Ha jóváhagyja",
+      "kept": "havonta kb. {amount} megmarad",
+      "undo": "Visszavonás",
+      "undoHow": "Egy kattintás, bármikor",
+      "approve": "Jóváhagyás",
+      "nothing": "Semmi sem fut, amíg Ön igent nem mond.",
+      "recorded": "Az Ön nevével rögzítve · könnyen visszavonható",
+      "stamp": "Jóváhagyva · rögzítve"
+    },
+    "s1": {
+      "kicker": "Az interjú, majd a ténylap",
+      "title": "Egyszerre egy kérdés. <em>Minden válasz</em> megőrzi a forrását.",
+      "lede": "A „nem tudom” valódi válasz: a hiányból megállapítás lesz, soha nem találgatás. Amit Ön mond, amit a ScaleX mér, és amit kiszámol, mind egyetlen ténylapra kerül, dátummal ellátva, felülírás nélkül.",
+      "interview": "Interjú",
+      "asks": "A ScaleX kérdez",
+      "oneAtATime": "egyszerre egy kérdés",
+      "newest": "a legújabb elöl · semmi sincs felülírva",
+      "q": {
+        "shipping": "Nagyjából mennyibe kerül Önnek a szállítás rendelésenként?",
+        "repeat": "Az eladásainak mekkora része származik visszatérő ügyfelektől?",
+        "cash": "Legalább mennyi pénzt szeretne a bankban tartani?"
+      },
+      "under": "{amount} alatt",
+      "over": "{amount} felett",
+      "dontKnow": "Nem tudom",
+      "srcTold": "Ön mondta · közölt",
+      "srcGap": "hiány · megállapítás lesz belőle",
+      "notKnown": "nem ismert",
+      "cash": "Pénztartalék"
+    },
+    "s2": {
+      "kicker": "A diagnózis",
+      "title": "Teljes átvizsgálás. <em>Minden szivárgás</em> havi euróösszeggel beárazva.",
+      "lede": "Görgetés közben az átvizsgálás végighalad az üzleten. Minden megtalált szivárgás megmondja, mekkora, és mire támaszkodik.",
+      "scanned": "{pct} átvizsgálva",
+      "unpriced": "{count, plural, one {# még nincs beárazva} other {# még nincs beárazva}}"
+    },
+    "s3": {
+      "kicker": "Hová megy a pénz",
+      "title": "Minden nap elszivárog egy kevés. <em>Tömítse el</em>, és megáll.",
+      "lede": "A cső az Ön eladásai. A borostyánszín az, ami kiszivárog: meg nem térülő hirdetések, üres időpontok, álló készlet. Egy Ön által jóváhagyott javítás lezár egy illesztést.",
+      "leaking": "Szivárog",
+      "paused": "Szüneteltetve · rögzítve",
+      "approvePause": "A szüneteltetés jóváhagyása",
+      "undoPause": "A szüneteltetés visszavonása",
+      "perMonth": "havonta",
+      "cameBack": "Visszajött {amount}",
+      "lost": "{spent} költésből {lost} elveszett",
+      "source": "A Meta saját adatai alapján, az elmúlt {days} napból.",
+      "returns": "Egy hirdetési kampány {amount} összeget hoz vissza minden elköltött euróra",
+      "aMonthLeaking": "havonta, elszivárog",
+      "working": "{days} nap alatt {lost} veszteség × {month} ÷ {days} = havi {monthly}. A Meta saját adatai alapján."
+    },
+    "s4": {
+      "kicker": "Az Ön döntése",
+      "title": "Semmi sem történik, <em>amíg Ön igent nem mond.</em>",
+      "lede": "Javításonként egy lap: mi változik, mennyi pénzről van szó, és hogyan vonható vissza. Az Ön igenje a nevével együtt rögzül, örökre megmarad, és soha nem szerkesztik.",
+      "proof": {
+        "readOnly": "Csak olvasás",
+        "readOnlyWhy": "Az összekapcsolt fiókok csak olvasnak, soha nem írnak; a tesztek megbuknak, ha valamelyik írni tudna.",
+        "graded": "Értékelve",
+        "gradedWhy": "Minden előrejelzés nyíltan össze van vetve azzal, ami történt.",
+        "undo": "Visszavonás",
+        "undoWhy": "Minden változtatás a jóváhagyás előtt megmondja, hogyan vonható vissza.",
+        "labelled": "Megjelölve",
+        "labelledWhy": "Minden, amit az MI készít, MI által készítettként van megjelölve."
+      },
+      "waiting": "{count, plural, one {# várakozik} other {# várakozik}}",
+      "priceChange": "Árváltozás",
+      "decideBy": "döntés eddig: {day}",
+      "raise": "{pct} áremelés a Speckled Everyday Mug bögrére",
+      "now": "Most",
+      "after": "Utána",
+      "ledger": "Főkönyv · örökre megmarad, soha nem szerkesztik",
+      "onRecord": "{count, plural, one {# rögzítve} other {# rögzítve}}",
+      "pausedOne": "Egy hirdetési kampány szüneteltetése",
+      "approved": "Jóváhagyva",
+      "raiseShort": "{pct} áremelés a bögrére",
+      "byYou": "Ön által"
+    },
+    "s5": {
+      "kicker": "Mérve",
+      "lede": "Minden nap egy gyertya; ami elszivárgott, borostyánszínnel fölé rajzolva. Görgessen végig az elmúlt {days} napon. Utána minden előrejelzés értékelést kap aszerint, ami valóban történt.",
+      "marketView": "Piaci nézet",
+      "dayOf": "{day}. nap, összesen {days}",
+      "salesADay": "Napi eladások · elmúlt {days} nap",
+      "slipped": "elszivárgott",
+      "chartAria": "Gyertyadiagram az elmúlt {days} nap napi eladásairól, fölötte borostyánszínnel az elszivárgott pénz",
+      "daysAgo": "{days} nappal ezelőtt",
+      "today": "ma",
+      "open": "Nyitó",
+      "high": "Csúcs",
+      "low": "Mélypont",
+      "close": "Záró",
+      "forecastFor": "Előrejelzés: {from} – {to}",
+      "gradedAfter": "Értékelés {day} után"
+    },
+    "s6": {
+      "kicker": "A bizalmi létra, és amibe kerül",
+      "title": "Az önállóságot ki kell érdemelni. <em>Azért a szintért fizet,</em> amelyet engedélyez.",
+      "lede": "Minden művelettípus megfigyeléssel kezdődik. Csak igazolt eredményekkel lép feljebb, a leállítás pedig mindent visszaküld az aljára. Minden csomag egy árnyékhónappal indul, amely semmit sem változtat meg.",
+      "fine": "Éves díj: egyötöddel kevesebb · egy további vállalkozás havi {extra} · az egyszeri, {report} összegű diagnózis levonódik az első számlájából.",
+      "ladder": "Bizalmi létra",
+      "choose": "Ön választja a szintet",
+      "yourStep": "Az Ön szintje",
+      "step": {
+        "shadow": "Árnyékhónap",
+        "watch": "Watch",
+        "act": "Act",
+        "autonomous": "Autonomous"
+      },
+      "stepN": "{n}. szint",
+      "what": {
+        "watch": "Figyel, havonta diagnosztizál, javasol. Semmit sem változtat.",
+        "act": "Végrehajtja, amire Ön igent mond: bejegyzések, hirdetések, az oldala szövegei.",
+        "autonomous": "Az Ön által megadott korlátokon belül cselekszik. Ha az igazolt nyereség egy negyedévben nem éri el a díj {times}-szorosát, a következő ingyenes."
+      },
+      "perMonth": "havonta"
+    },
+    "s7": {
+      "kicker": "Könyvelőirodáknak",
+      "title": "A teljes ügyfélköre, <em>az elszivárgó pénz szerint rendezve.</em>",
+      "lede": "Vegye fel ügyfeleit egyetlen CSV-fájlból; minden tulajdonos a saját nyelvén kap megbízáskérést. Állítsa be a NAV-ot minden ügyfélnél egyszerre. A tulajdonosok egy koppintással visszavonhatják az Ön hozzáférését.",
+      "yourFirm": "Az Ön irodája",
+      "clientBook": "Ügyfélkör",
+      "clients": "{count, plural, one {# vállalkozás} other {# vállalkozás}} · szemléltető",
+      "business": "Vállalkozás",
+      "leaking": "Havi szivárgás",
+      "leaks": "Szivárgások",
+      "row": {
+        "bike": "Egy kerékpárszerviz",
+        "ceramics": "Egy kerámiaműhely",
+        "salon": "Egy fodrászszalon",
+        "cafe": "Egy környékbeli kávézó"
+      },
+      "more": "és további {count}, mindegyik saját megbízással"
+    },
+    "s8": {
+      "kicker": "Az ingyenes ellenőrzés",
+      "title": "Egy szám a vállalkozásáról, <em>három perc alatt.</em>",
+      "lede": "Hat kérdés, fiók nélkül. A valószínű szivárgás a méretével, és az, hogyan áll a hasonló vállalkozásokhoz képest.",
+      "try": "próbálja ki · bemutató",
+      "yourBusiness": "Az Ön vállalkozása",
+      "shop": "Egy webáruház",
+      "salon": "Egy szalon",
+      "cafe": "Egy kávézó",
+      "sales": "Havi eladások",
+      "likely": "havonta, valószínűleg elszivárog",
+      "rule": "A valódi ellenőrzés az Ön válaszait olvassa; ez a bemutató egy rögzített ökölszabályt használ."
+    },
+    "s9": {
+      "sizeA": "Kis vállalkozásoknak készült, amelyeknek minden héten valódi eladásaik vannak. Túl kicsi az olvasáshoz? Ezt még fizetés előtt megtudja.",
+      "eraseQ": "Mit lát az MI, és törölhetem?",
+      "eraseA": "Csak azt, amit Ön összekapcsol és elmond neki. A vállalkozását bármikor törölheti."
+    }
   }
 }

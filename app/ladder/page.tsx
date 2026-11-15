@@ -6,6 +6,7 @@ import type { Metadata } from "next";
 import { LadderScreen } from "../../components/ladder/LadderScreen";
 import { requestLocale } from "../../lib/i18n/server";
 import { trFor } from "../../lib/i18n/server-tr";
+import "../ladder.css";
 
 export async function generateMetadata(): Promise<Metadata> {
   return { title: trFor(await requestLocale(), "ladder")("meta.title") };

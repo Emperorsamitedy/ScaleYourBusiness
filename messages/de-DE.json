@@ -9173,7 +9173,37 @@
       "email_campaign": "E-Mails an Ihre Kontakte",
       "purchase_order": "Bestellungen bei Lieferanten",
       "google_business_reviews": "Antworten auf Google-Bewertungen"
-    }
+    },
+    "kicker": "Vertrauensleiter",
+    "col": {
+      "action": "Art der Aktion",
+      "record": "Bilanz"
+    },
+    "stepN": "Stufe {n}",
+    "linesHere": "{count, plural, one {# Zeile hier} other {# Zeilen hier}}",
+    "notOpen": "hier nicht offen",
+    "group": {
+      "posts": "Beiträge",
+      "ads": "Anzeigen",
+      "customers": "Kunden",
+      "suppliers": "Lieferanten",
+      "other": "Sonstiges"
+    },
+    "rec": {
+      "none": "Noch keine Bilanz",
+      "measured": "{count, plural, one {# gemessen} other {# gemessen}}",
+      "gains": "{count, plural, one {# Gewinn} other {# Gewinne}}",
+      "losses": "{count, plural, one {# Verlust} other {# Verluste}}"
+    },
+    "needs": "Was Stufe {n} braucht",
+    "met": "Erfüllt",
+    "notMet": "Noch nicht",
+    "waitHint": "Es kann aufsteigen, sobald bei jeder Regel oben „Erfüllt“ steht.",
+    "foot": {
+      "ceiling": "Stufe {n} ist derzeit die höchste Stufe für dieses Unternehmen.",
+      "own": "Jede Zeile steigt mit ihrer eigenen Bilanz auf."
+    },
+    "trackAria": "Stufe {n} von {total}"
   },
   "shadowSummary": {
     "meta": {
@@ -9782,5 +9812,253 @@
     },
     "kicker": "Ihr Unternehmen · Hinweise und Module",
     "title": "Wo ich arbeite und wie ich Ihnen Bescheid gebe."
+  },
+  "landingV2": {
+    "aMonth": "{amount} im Monat",
+    "found": "{count, plural, one {# Leck gefunden} other {# Lecks gefunden}}",
+    "factSheet": "Faktenblatt",
+    "factCount": "{count, plural, one {# Fakt} other {# Fakten}}",
+    "decisions": "Entscheidungen",
+    "notPricedYet": "noch nicht beziffert",
+    "notPriced": "nicht beziffert",
+    "aiLabel": "Beispielgeschäft · KI-generierte Aufnahmen",
+    "nav": {
+      "how": "So funktioniert es",
+      "pricing": "Preise",
+      "firms": "Für Buchhaltungskanzleien",
+      "check": "Kostenloser Check",
+      "sections": "Abschnitte"
+    },
+    "rail": {
+      "read": "Lesen",
+      "learn": "Lernen",
+      "scan": "Scan",
+      "leaks": "Lecks",
+      "decide": "Entscheiden",
+      "chart": "Chart",
+      "trust": "Vertrauen",
+      "firms": "Kanzleien",
+      "check": "Check",
+      "start": "Start"
+    },
+    "hero": {
+      "kicker": "Ein Bluttest für Ihr Unternehmen",
+      "lede": "ScaleX findet, wo Ihr Geld versickert, beziffert es in Euro und behebt es nur, wenn Sie Ja sagen.",
+      "run": "Kostenlosen Check starten",
+      "see": "In Aktion sehen",
+      "trust": "Nur Lesezugriff. Keine Passwörter. Nichts ändert sich ohne Sie."
+    },
+    "tour": {
+      "aria": "Produkttour: ScaleX verbindet sich mit einem Geschäft, erstellt dessen Faktenblatt, findet ein Leck und behebt es nach der Freigabe durch den Inhaber",
+      "demo": "Demo-Geschäft",
+      "connections": "Verbindungen",
+      "readsOnly": "ScaleX liest, schreibt nie",
+      "reads": {
+        "shopify": "Bestellungen und Produkte",
+        "analytics": "Besuche Ihrer Seite",
+        "ads": "Werbeausgaben und Ergebnisse"
+      },
+      "connecting": "Verbinde…",
+      "connected": "Nur Lesezugriff · verbunden",
+      "noPasswords": "Keine Passwörter. Sie können eine Verbindung jederzeit entfernen.",
+      "twoMore": "Zwei weitere sind noch nicht beziffert. Auch eine Lücke ist ein Befund.",
+      "tab": {
+        "connect": "Verbinden",
+        "facts": "Fakten",
+        "diagnosis": "Diagnose",
+        "finding": "Befund",
+        "yes": "Ihr Ja"
+      }
+    },
+    "fact": {
+      "revenue": "Umsatz, {days} Tage",
+      "revenueSrc": "Shopify · gemessen · heute",
+      "margin": "Gesamtmarge",
+      "marginSrc": "aus Ihren Preisen und Kosten berechnet",
+      "shipping": "Versand pro Bestellung",
+      "shippingSrc": "von Ihnen genannt · {day}",
+      "repeat": "Stammkunden",
+      "repeatSrc": "eine Lücke, keine Schätzung",
+      "unknown": "Noch nicht bekannt"
+    },
+    "leak": {
+      "breakage": "Bruch seit dem Wechsel des Paketdienstes",
+      "ads": "Eine Werbekampagne kostet mehr, als sie einbringt",
+      "pricing": "Bestseller liegt unter dem Marktpreis",
+      "bowl": "Die Servierschale verkauft sich langsam und zerbricht am häufigsten",
+      "repeat": "Niemand weiß, was ein Stammkunde wert ist"
+    },
+    "area": {
+      "operations": "Betrieb",
+      "marketing": "Marketing",
+      "pricing": "Preisgestaltung",
+      "product": "Produkt",
+      "customers": "Kunden"
+    },
+    "sev": {
+      "high": "Hoch",
+      "medium": "Mittel",
+      "low": "Niedrig"
+    },
+    "decide": {
+      "waiting": "Entscheidung · wartet auf Sie",
+      "pause": "Die Werbekampagne pausieren, die Geld verliert",
+      "whatChanges": "Was sich ändert",
+      "stops": "Diese eine Kampagne gibt nichts mehr aus",
+      "ifApprove": "Wenn Sie freigeben",
+      "kept": "rund {amount} im Monat behalten",
+      "undo": "Rückgängig",
+      "undoHow": "Ein Klick, jederzeit",
+      "approve": "Freigeben",
+      "nothing": "Nichts läuft, bevor Sie Ja sagen.",
+      "recorded": "Mit Ihrem Namen festgehalten · leicht rückgängig zu machen",
+      "stamp": "Freigegeben · festgehalten"
+    },
+    "s1": {
+      "kicker": "Das Interview, dann das Faktenblatt",
+      "title": "Eine Frage nach der anderen. <em>Jede Antwort</em> behält ihre Quelle.",
+      "lede": "„Ich weiß es nicht“ ist eine echte Antwort: Aus einer Lücke wird ein Befund, nie eine Schätzung. Was Sie sagen, was ScaleX misst und was es errechnet, landet alles in einem Faktenblatt, datiert und nie überschrieben.",
+      "interview": "Interview",
+      "asks": "ScaleX fragt",
+      "oneAtATime": "eine Frage nach der anderen",
+      "newest": "Neuestes zuerst · nichts überschrieben",
+      "q": {
+        "shipping": "Was kostet Sie der Versand ungefähr pro Bestellung?",
+        "repeat": "Wie viele Ihrer Verkäufe gehen an Stammkunden?",
+        "cash": "Wie viel Geld soll mindestens auf der Bank bleiben?"
+      },
+      "under": "Unter {amount}",
+      "over": "Über {amount}",
+      "dontKnow": "Ich weiß es nicht",
+      "srcTold": "von Ihnen genannt · angegeben",
+      "srcGap": "eine Lücke · wird zum Befund",
+      "notKnown": "nicht bekannt",
+      "cash": "Liquiditätspuffer"
+    },
+    "s2": {
+      "kicker": "Die Diagnose",
+      "title": "Ein vollständiger Scan. <em>Jedes Leck</em> in Euro pro Monat beziffert.",
+      "lede": "Beim Scrollen läuft der Scan durch das Geschäft. Jedes gefundene Leck sagt, wie groß es ist und worauf es beruht.",
+      "scanned": "{pct} gescannt",
+      "unpriced": "{count, plural, one {# noch nicht beziffert} other {# noch nicht beziffert}}"
+    },
+    "s3": {
+      "kicker": "Wohin das Geld fließt",
+      "title": "Jeden Tag versickert ein wenig. <em>Dichten Sie es ab</em>, und es hört auf.",
+      "lede": "Das Rohr sind Ihre Verkäufe. Das Bernsteinfarbene ist, was ausläuft: Anzeigen, die sich nicht auszahlen, leere Termine, Lagerbestand, der liegen bleibt. Eine Korrektur, die Sie freigeben, dichtet eine Nahtstelle ab.",
+      "leaking": "Läuft aus",
+      "paused": "Pausiert · festgehalten",
+      "approvePause": "Pause freigeben",
+      "undoPause": "Pause rückgängig machen",
+      "perMonth": "im Monat",
+      "cameBack": "Zurückgekommen {amount}",
+      "lost": "{lost} von {spent} Ausgaben verloren",
+      "source": "Aus Metas eigenen Zahlen der letzten {days} Tage.",
+      "returns": "Eine Werbekampagne bringt {amount} für jeden ausgegebenen Euro zurück",
+      "aMonthLeaking": "im Monat, läuft aus",
+      "working": "{lost} Verlust in {days} Tagen × {month} ÷ {days} = {monthly} im Monat. Aus Metas eigenen Zahlen."
+    },
+    "s4": {
+      "kicker": "Ihre Entscheidung",
+      "title": "Nichts geschieht, <em>bevor Sie Ja sagen.</em>",
+      "lede": "Ein Blatt pro Korrektur: was sich ändert, das Geld und wie es sich rückgängig machen lässt. Ihr Ja wird mit Ihrem Namen festgehalten, für immer aufbewahrt und nie bearbeitet.",
+      "proof": {
+        "readOnly": "Nur Lesezugriff",
+        "readOnlyWhy": "Verbindungen lesen und schreiben nie; die Tests schlagen fehl, wenn eine es könnte.",
+        "graded": "Benotet",
+        "gradedWhy": "Jede Prognose wird offen mit dem verglichen, was tatsächlich geschah.",
+        "undo": "Rückgängig",
+        "undoWhy": "Jede Änderung sagt vor Ihrer Freigabe, wie sie sich rückgängig machen lässt.",
+        "labelled": "Gekennzeichnet",
+        "labelledWhy": "Alles, was die KI erstellt, ist als KI-erstellt gekennzeichnet."
+      },
+      "waiting": "{count, plural, one {# offen} other {# offen}}",
+      "priceChange": "Preisänderung",
+      "decideBy": "entscheiden bis {day}",
+      "raise": "Preis der Speckled Everyday Mug um {pct} erhöhen",
+      "now": "Jetzt",
+      "after": "Danach",
+      "ledger": "Ledger · für immer aufbewahrt, nie bearbeitet",
+      "onRecord": "{count, plural, one {# festgehalten} other {# festgehalten}}",
+      "pausedOne": "Eine Werbekampagne pausieren",
+      "approved": "Freigegeben",
+      "raiseShort": "Tassenpreis um {pct} erhöhen",
+      "byYou": "von Ihnen"
+    },
+    "s5": {
+      "kicker": "Gemessen",
+      "lede": "Jeder Tag eine Kerze; was versickert ist, in Bernstein darüber gezeichnet. Scrollen Sie durch die letzten {days} Tage. Danach wird jede Prognose an dem gemessen, was wirklich geschah.",
+      "marketView": "Marktansicht",
+      "dayOf": "Tag {day} von {days}",
+      "salesADay": "Verkäufe pro Tag · letzte {days} Tage",
+      "slipped": "versickert",
+      "chartAria": "Kerzenchart der täglichen Verkäufe der letzten {days} Tage; das versickerte Geld ist in Bernstein darüber gezeichnet",
+      "daysAgo": "vor {days} Tagen",
+      "today": "heute",
+      "open": "Eröffnung",
+      "high": "Hoch",
+      "low": "Tief",
+      "close": "Schluss",
+      "forecastFor": "Prognose für {from} bis {to}",
+      "gradedAfter": "Bewertung nach dem {day}"
+    },
+    "s6": {
+      "kicker": "Die Vertrauensleiter und was sie kostet",
+      "title": "Autonomie wird verdient. <em>Zahlen Sie für die Stufe,</em> die Sie erlauben.",
+      "lede": "Jede Art von Aktion beginnt mit Beobachten. Sie steigt nur mit nachgewiesenen Ergebnissen auf, und der Stopp schickt alles wieder nach unten. Jeder Tarif beginnt mit einem Schattenmonat, der nichts verändert.",
+      "fine": "Jährlich: ein Fünftel günstiger · ein weiteres Unternehmen {extra} im Monat · eine einmalige Diagnose für {report} wird von Ihrer ersten Rechnung abgezogen.",
+      "ladder": "Vertrauensleiter",
+      "choose": "Sie wählen die Stufe",
+      "yourStep": "Ihre Stufe",
+      "step": {
+        "shadow": "Schattenmonat",
+        "watch": "Watch",
+        "act": "Act",
+        "autonomous": "Autonomous"
+      },
+      "stepN": "Stufe {n}",
+      "what": {
+        "watch": "Beobachtet, diagnostiziert monatlich, schlägt vor. Verändert nichts.",
+        "act": "Setzt um, wozu Sie Ja sagen: Beiträge, Anzeigen, die Texte Ihrer Seite.",
+        "autonomous": "Handelt innerhalb der Grenzen, die Sie setzen. Erreichen die belegten Gewinne in einem Quartal nicht das {times}-Fache der Gebühr, ist das nächste kostenlos."
+      },
+      "perMonth": "im Monat"
+    },
+    "s7": {
+      "kicker": "Für Buchhaltungskanzleien",
+      "title": "Ihr gesamter Mandantenstamm, <em>sortiert nach versickerndem Geld.</em>",
+      "lede": "Nehmen Sie Mandanten aus einer einzigen CSV-Datei auf; jeder Inhaber wird in seiner eigenen Sprache um ein Mandat gebeten. Richten Sie NAV für alle Mandanten in einem Zug ein. Inhaber entziehen Ihnen den Zugriff mit einem Tippen.",
+      "yourFirm": "Ihre Kanzlei",
+      "clientBook": "Mandantenstamm",
+      "clients": "{count, plural, one {# Unternehmen} other {# Unternehmen}} · Beispiel",
+      "business": "Unternehmen",
+      "leaking": "Verlust pro Monat",
+      "leaks": "Lecks",
+      "row": {
+        "bike": "Eine Fahrradwerkstatt",
+        "ceramics": "Ein Keramikstudio",
+        "salon": "Ein Friseursalon",
+        "cafe": "Ein Nachbarschaftscafé"
+      },
+      "more": "und {count} weitere, jedes mit eigenem Mandat"
+    },
+    "s8": {
+      "kicker": "Der kostenlose Check",
+      "title": "Eine Zahl über Ihr Unternehmen, <em>in drei Minuten.</em>",
+      "lede": "Sechs Fragen, kein Konto. Das wahrscheinliche Leck mit seiner Größe und Ihr Vergleich mit ähnlichen Unternehmen.",
+      "try": "ausprobieren · Demo",
+      "yourBusiness": "Ihr Unternehmen",
+      "shop": "Ein Onlineshop",
+      "salon": "Ein Salon",
+      "cafe": "Ein Café",
+      "sales": "Verkäufe pro Monat",
+      "likely": "im Monat, vermutlich verloren",
+      "rule": "Der echte Check liest Ihre Antworten; diese Demo nutzt eine feste Faustregel."
+    },
+    "s9": {
+      "sizeA": "Gebaut für kleine Unternehmen mit echten Verkäufen in jeder Woche. Zu klein zum Auslesen? Das erfahren Sie, bevor Sie zahlen.",
+      "eraseQ": "Was sieht die KI, und kann ich es löschen?",
+      "eraseA": "Nur das, was Sie verbinden und ihr sagen. Sie können Ihr Unternehmen jederzeit löschen."
+    }
   }
 }

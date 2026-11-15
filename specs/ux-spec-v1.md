@@ -288,6 +288,15 @@ At 360 px each row stacks the word above the text, with no horizontal scroll. Th
 
 Two screens are focused views with their own masthead and no rail: the report and "Waiting for you". Every other owner screen opens with the shared page head (`components/sheet/PageHead.tsx`). That head is a mono kicker, one Zilla Slab headline that states the screen's main fact from real data, and a rule.
 
+**The Trust Ladder screen** (`/ladder`, "What I may do"; redesigned 2026-11-16 on the owner's instruction, from the mockup they approved). It was a bulleted list that repeated the same three lines under every kind of action. It is now one sheet that is the ladder itself (`components/ladder/LadderScreen.tsx`, `ladder-view.ts`, `app/ladder.css`):
+- The four stations are columns across the top of the sheet. Each says its step number, what ScaleX does there, and how many lines stand on it. A station no line may reach here is hatched and says "not open here".
+- Every kind of action is a row, grouped by kind (Posts, Ads, Customers, Suppliers; a capability no group names lands under Other, never dropped). The row carries its name and station in words, a four-cell track with its marker in the column it has reached (cells above its ceiling are hatched and dashed), and its record: "No record yet", or the count measured with gains and losses beneath.
+- The ceiling is said once, in the sheet's foot, when every row shares one below the top ("Step 2 is the highest step for this business right now."), not under every row.
+- A row is a button. Opened, it shows what the next step needs as a list of the server's rules, each with a worded flag (Met / Not yet), then its controls: Raise one step, Ask to act within limits, Confirm (with its note), Lower one step. A row at its ceiling says so in words. One row is open at a time.
+- A demotion notice or a refused change sits above the sheet, once, with "Got it".
+
+The screen still decides nothing. It chooses which control to show from what `/api/ladder` returned (`nextMove`), and the server checks every change again. Colour never carries a state alone: the marker cell holds its step number, closed cells are hatched, and every rule has a worded flag. Under 760 px the columns stack two by two and each row stacks its track and record under its name.
+
 ---
 
 ## 4. Intake — the signature screen
@@ -491,6 +500,39 @@ Every sample is labelled as illustrative: "Illustrative store" for the webshop, 
 The price on every button is `reportPrice()`. The examiner, guarantee count and delivery days come from `lib/marketing/offer.ts`, and print as the mockup's bracketed placeholders until supplied.
 
 Two hero lines are promises the owner has not yet recorded in `offer.ts`: "Refund if we find nothing" and "Signed by a person". Confirm both before launch. `areas.ts` marks which panels have a read-only connector today.
+
+### 7.1b Landing page v2 (preview)
+
+The owner approved a second landing design on 2026-11-15 ("Good, keep going"). It is built as a preview at `/landing-v2`; the page at `/` (§7.1) is untouched and stays the front page until the owner says to switch. The preview is `noindex`. Files: `app/landing-v2/page.tsx`, `components/marketing/LandingV2.tsx`, `components/marketing/landing-v2-motion.ts`, `lib/marketing/landing-v2.ts`, `app/landing-v2.css`, and the footage in `public/landing-v2/`.
+
+**The idea.** One filmed scene per section sits fixed behind the page; in front of it, the copy and one ScaleX screen per section, drawn the way the app draws it: the masthead with the mark and the accent rule, then a white paper sheet with square corners, 1px rules, worded flags and the marker behind fresh ink. Unlike a sheet on the desk (§2), a screen here floats over film, so it carries one shadow for depth. This page keeps a kicker above each heading; the 2026-11-09 declutter (§7.1) applies to the first landing page only.
+
+The page, top to bottom:
+1. Header: the logo and name in the top-left corner, three anchors, sign in, and the free check.
+2. Hero ("Read"): the headline and one line on the left; on the right a product tour of five screens on a loop (Connect, Facts, Diagnosis, Finding, Your yes), with a pointer that approves the last one. The tabs are buttons and jump to a screen.
+3. The interview, then the fact sheet ("Learn"): a pointer picks an answer; the fact lands on the sheet with the marker, and a newer answer replaces the older row for the same fact.
+4. The diagnosis ("Scan"): five leaks appear as the reader scrolls; the total counts only what has been found so far, and unpriced leaks are counted, never priced.
+5. Where the money goes ("Leaks"): one finding with its working shown; approving the pause closes the split bar.
+6. Your decision ("Decide"): a decision sheet; approving stamps it and writes a line in the ledger.
+7. Measured ("Chart"): sixty daily candles with the slipped-away band; a reading line follows the scroll.
+8. The Trust Ladder and the plans ("Trust"): choosing a plan lights the ladder to that step.
+9. For accounting firms ("Firms"): the client book arrives A–Z, then sorts itself by money leaking.
+10. The free check ("Check"), then questions and the closing call ("Start").
+
+**Footage.** Nine scenes of one fictional ceramics shop: six are 7-second seamless loops (WebM with an MP4 fallback, 1280–1600 px wide, about 120–550 KB each) and three are stills. All of it is AI-generated and the page says so in a fixed label, "Illustrative store · AI-generated footage". No person appears, and no text or figure is baked into a frame: every word and number on the page is HTML. A scene's video is fetched only once its section pulls on the scene; before that, and always under reduced motion, the scene is its still frame.
+
+**Motion rules.**
+- Scenes are mixed by scroll: each section's pull on the scene falls off with its distance from the middle of the viewport, and layers are painted by their share of the pull, so two scenes cross-fade and never cut. The chart scene pans sideways with the scroll; still scenes drift slowly.
+- A screen is revealed top to bottom behind a line of light, then its rows land one after another. While it is away from the middle of the viewport it leans back and fades; at the middle it stands flat. On screens narrower than 900 px nothing leans.
+- Besides the footage itself, only the hero tour and the interview demo loop. Everything else moves because the reader scrolled or clicked.
+- Reduced motion: no video, no loops, no leaning, no reveal. The tour stands on its last screen, approved; every screen shows its finished state.
+- There is no loader, no pop-up over the hero, and no more than two calls to action in any section.
+
+**Words and figures.** The words are the `landingV2` catalogue in all seven languages (a few lines are the first landing's `landing` messages, reused word for word). No figure is typed into a message: the illustrative store's amounts are integer minor units in `lib/marketing/landing-v2.ts`, each derived figure is worked out there from the figures it rests on (the campaign's monthly loss, the price after the rise, the scan's running total, the free-check range), `landing-v2.test.ts` holds the sums, and the component formats them in the reader's language. Plan prices are the price book's (`planPrices`), and the one-off diagnosis is `reportPrice()`; if the book cannot be read the page shows a dash for a plan's price rather than failing.
+
+**Scoping.** Every rule in `app/landing-v2.css` sits under `.lx`, and class names that the app's global styles already use (`act`, `opt`, `stage`, `done`) have their own names here, so the page neither takes nor gives styles.
+
+**Still open, for the owner.** The footer prints `[Company details]` until supplied (as §7.1). Making this the front page is a one-line change in `app/page.tsx` and is not done.
 
 ---
 

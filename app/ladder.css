@@ -1,0 +1,343 @@
+/* The Trust Ladder screen (specs/ux-spec-v1.md §3, "The Trust Ladder
+   screen"). One paper sheet is the ladder itself: the four stations are
+   columns, and every kind of action is a row whose marker sits in the
+   column it has reached. Everything here is under .ladder or a tl- name. */
+
+.ladder {
+  max-width: 1120px;
+}
+.tl-intro {
+  margin: 0;
+  max-width: 68ch;
+  font-family: var(--f-prose);
+  font-size: 15px;
+  line-height: 1.5;
+}
+
+/* a demotion, or a change the server refused: said once above the sheet */
+.tl-notice {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--s-4);
+  flex-wrap: wrap;
+  margin: 0 0 var(--s-4);
+  padding: var(--s-3) var(--s-5);
+  background: var(--paper);
+  color: var(--drift);
+  border-left: 4px solid var(--drift);
+  font-weight: 500;
+}
+.tl-notice.alarm {
+  color: var(--alarm);
+  border-left-color: var(--alarm);
+}
+.tl-notice .act {
+  min-height: 36px;
+  padding: 0 var(--s-3);
+}
+
+/* the columns every row is read against */
+.tl-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 2.6fr) minmax(0, 0.95fr) 30px;
+  column-gap: var(--s-5);
+  align-items: center;
+}
+.tl-steps {
+  padding: var(--s-4) var(--s-5) 14px;
+  border-bottom: 3px double var(--sheet-ink);
+}
+.tl-hdr {
+  font-family: var(--f-mono);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--sheet-ink-2);
+}
+.tl-hdr.r {
+  text-align: right;
+}
+.tl-cols {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.tl-col {
+  display: grid;
+  gap: 3px;
+  align-content: start;
+  min-width: 0;
+  padding: 9px 10px 10px;
+  border-top: 3px solid var(--rule-soft);
+}
+.tl-col b {
+  font-family: var(--f-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--sheet-ink-2);
+}
+.tl-col span {
+  font-size: 13.5px;
+  font-weight: 600;
+  line-height: 1.25;
+}
+.tl-col small {
+  font-family: var(--f-mono);
+  font-size: 11.5px;
+  color: var(--sheet-ink-2);
+}
+.tl-col.has {
+  border-top-color: var(--ok);
+}
+/* a station not open here: hatched, so it reads as closed without colour */
+.tl-col.shut {
+  color: var(--sheet-ink-2);
+  background: repeating-linear-gradient(135deg, transparent 0 7px, var(--inset) 7px 9px);
+}
+.tl-col.shut span {
+  font-weight: 500;
+}
+
+.tl-group-name {
+  margin: 0;
+  padding: 14px var(--s-5) 6px;
+  border-top: 1px solid var(--rule);
+  font-family: var(--f-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--sheet-ink-2);
+}
+.tl-steps + .tl-group .tl-group-name {
+  border-top: 0;
+}
+.tl-rows {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.tl-row {
+  border-top: 1px solid var(--rule-soft);
+}
+.tl-row-btn {
+  width: 100%;
+  padding: 13px var(--s-5);
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color var(--d-press) linear;
+}
+.tl-row-btn:hover {
+  background: var(--inset);
+}
+.tl-row-btn:focus-visible {
+  outline: 2px solid var(--sheet-ink);
+  outline-offset: -2px;
+}
+.tl-name {
+  display: grid;
+  gap: 1px;
+  min-width: 0;
+}
+.tl-name b {
+  font-size: 15px;
+  font-weight: 600;
+}
+.tl-name span {
+  font-size: 12.5px;
+  color: var(--sheet-ink-2);
+}
+
+.tl-track {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 6px;
+}
+.tl-cell {
+  display: grid;
+  place-items: center;
+  height: 26px;
+  border: 1px solid var(--rule-soft);
+  background: var(--inset);
+  font-family: var(--f-mono);
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--paper);
+}
+.tl-cell.below {
+  background: var(--ok-band);
+  border-color: var(--ok-band);
+}
+.tl-cell.at {
+  background: var(--ok);
+  border-color: var(--ok);
+}
+.tl-cell.closed {
+  border-style: dashed;
+  background: repeating-linear-gradient(135deg, var(--paper) 0 7px, var(--inset) 7px 9px);
+}
+
+.tl-rec {
+  display: grid;
+  gap: 1px;
+  text-align: right;
+  font-family: var(--f-mono);
+  font-size: 12.5px;
+  font-variant-numeric: tabular-nums;
+}
+.tl-rec .none {
+  color: var(--sheet-ink-2);
+}
+.tl-rec .gain {
+  color: var(--ok);
+}
+.tl-rec .loss {
+  color: var(--alarm);
+}
+.tl-chev {
+  justify-self: end;
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border: 1px solid var(--rule-soft);
+  font-family: var(--f-mono);
+  font-size: 15px;
+  line-height: 1;
+  color: var(--sheet-ink-2);
+}
+.tl-row.open .tl-chev {
+  border-color: var(--sheet-ink);
+  background: var(--sheet-ink);
+  color: var(--paper);
+}
+
+/* an open row: what the next step needs, then its controls */
+.tl-more {
+  display: grid;
+  grid-template-columns: minmax(0, 1.25fr) minmax(0, 3.55fr) 30px;
+  column-gap: var(--s-5);
+  padding: var(--s-1) var(--s-5) 18px;
+}
+.tl-more-body {
+  grid-column: 2;
+  display: grid;
+  gap: var(--s-3);
+  min-width: 0;
+}
+.tl-need h3 {
+  margin: 0 0 6px;
+  font-family: var(--f-mono);
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--sheet-ink-2);
+}
+.tl-need ul {
+  display: grid;
+  gap: 5px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.tl-need li {
+  display: grid;
+  grid-template-columns: 74px minmax(0, 1fr);
+  gap: 10px;
+  align-items: baseline;
+  font-size: 14px;
+}
+.tl-need .flag {
+  justify-self: start;
+  padding: 3px 6px;
+  border: 1px solid currentColor;
+  line-height: 1;
+}
+.tl-need .flag.ok {
+  background: var(--ok-band);
+}
+.tl-acts {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.tl-acts .act {
+  min-height: 42px;
+}
+.tl-hint {
+  margin: 0;
+  font-size: 13.5px;
+  color: var(--sheet-ink-2);
+}
+
+.tl-foot {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--s-4);
+  flex-wrap: wrap;
+  padding: 14px var(--s-5);
+  border-top: 1px solid var(--sheet-ink);
+  font-size: 13.5px;
+  color: var(--sheet-ink-2);
+}
+.tl-foot a {
+  color: var(--sheet-ink);
+  font-weight: 600;
+  text-underline-offset: 3px;
+}
+
+@media (max-width: 760px) {
+  .tl-grid {
+    grid-template-columns: minmax(0, 1fr) 30px;
+    row-gap: 9px;
+  }
+  .tl-steps .tl-hdr,
+  .tl-steps > span:last-child {
+    display: none;
+  }
+  .tl-steps .tl-cols {
+    grid-column: 1 / -1;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .tl-row-btn .tl-name {
+    grid-column: 1;
+  }
+  .tl-row-btn .tl-chev {
+    grid-column: 2;
+    grid-row: 1;
+  }
+  .tl-row-btn .tl-track,
+  .tl-row-btn .tl-rec {
+    grid-column: 1 / -1;
+  }
+  .tl-rec {
+    display: flex;
+    gap: var(--s-3);
+    flex-wrap: wrap;
+    text-align: left;
+  }
+  .tl-more {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .tl-more-body {
+    grid-column: 1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .tl-row-btn {
+    transition: none;
+  }
+}

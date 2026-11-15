@@ -9173,7 +9173,37 @@
       "email_campaign": "Correos a tus contactos",
       "purchase_order": "Pedidos a proveedores",
       "google_business_reviews": "Respuestas a reseñas de Google"
-    }
+    },
+    "kicker": "Escalera de confianza",
+    "col": {
+      "action": "Tipo de acción",
+      "record": "Historial"
+    },
+    "stepN": "Paso {n}",
+    "linesHere": "{count, plural, one {# línea aquí} many {# líneas aquí} other {# líneas aquí}}",
+    "notOpen": "no disponible aquí",
+    "group": {
+      "posts": "Publicaciones",
+      "ads": "Anuncios",
+      "customers": "Clientes",
+      "suppliers": "Proveedores",
+      "other": "Otros"
+    },
+    "rec": {
+      "none": "Aún sin historial",
+      "measured": "{count, plural, one {# medida} many {# medidas} other {# medidas}}",
+      "gains": "{count, plural, one {# ganancia} many {# ganancias} other {# ganancias}}",
+      "losses": "{count, plural, one {# pérdida} many {# pérdidas} other {# pérdidas}}"
+    },
+    "needs": "Lo que exige el paso {n}",
+    "met": "Cumplido",
+    "notMet": "Aún no",
+    "waitHint": "Podrá subir cuando todas las reglas de arriba digan «Cumplido».",
+    "foot": {
+      "ceiling": "El paso {n} es ahora mismo el más alto para este negocio.",
+      "own": "Cada línea sube según su propio historial."
+    },
+    "trackAria": "Paso {n} de {total}"
   },
   "shadowSummary": {
     "meta": {
@@ -9782,5 +9812,253 @@
     },
     "kicker": "Su negocio · Avisos y módulos",
     "title": "Dónde trabajo y cómo le aviso."
+  },
+  "landingV2": {
+    "aMonth": "{amount} al mes",
+    "found": "{count, plural, one {# fuga encontrada} many {# fugas encontradas} other {# fugas encontradas}}",
+    "factSheet": "Ficha de datos",
+    "factCount": "{count, plural, one {# dato} many {# datos} other {# datos}}",
+    "decisions": "Decisiones",
+    "notPricedYet": "aún sin precio",
+    "notPriced": "sin precio",
+    "aiLabel": "Tienda ilustrativa · imágenes generadas por IA",
+    "nav": {
+      "how": "Cómo funciona",
+      "pricing": "Precios",
+      "firms": "Para asesorías contables",
+      "check": "Revisión gratuita",
+      "sections": "Secciones"
+    },
+    "rail": {
+      "read": "Leer",
+      "learn": "Aprender",
+      "scan": "Escáner",
+      "leaks": "Fugas",
+      "decide": "Decidir",
+      "chart": "Gráfico",
+      "trust": "Confianza",
+      "firms": "Asesorías",
+      "check": "Revisión",
+      "start": "Empezar"
+    },
+    "hero": {
+      "kicker": "Un análisis de sangre para su negocio",
+      "lede": "ScaleX encuentra por dónde se le escapa el dinero, le pone precio en euros y lo arregla solo cuando usted dice que sí.",
+      "run": "Hacer la revisión gratuita",
+      "see": "Verlo en acción",
+      "trust": "Solo lectura. Sin contraseñas. Nada cambia sin usted."
+    },
+    "tour": {
+      "aria": "Recorrido del producto: ScaleX se conecta a una tienda, elabora su ficha de datos, encuentra una fuga y la arregla tras la aprobación del propietario",
+      "demo": "tienda de demostración",
+      "connections": "Conexiones",
+      "readsOnly": "ScaleX lee, nunca escribe",
+      "reads": {
+        "shopify": "pedidos y productos",
+        "analytics": "visitas a su sitio",
+        "ads": "gasto en anuncios y resultados"
+      },
+      "connecting": "Conectando…",
+      "connected": "Solo lectura · conectado",
+      "noPasswords": "Sin contraseñas. Puede quitar una conexión en cualquier momento.",
+      "twoMore": "Otras dos aún no tienen precio. Una laguna también es un hallazgo.",
+      "tab": {
+        "connect": "Conectar",
+        "facts": "Datos",
+        "diagnosis": "Diagnóstico",
+        "finding": "Hallazgo",
+        "yes": "Su sí"
+      }
+    },
+    "fact": {
+      "revenue": "Ingresos, {days} días",
+      "revenueSrc": "Shopify · medido · hoy",
+      "margin": "Margen combinado",
+      "marginSrc": "calculado a partir de sus precios y costes",
+      "shipping": "Envío por pedido",
+      "shippingSrc": "usted me lo dijo · {day}",
+      "repeat": "Clientes recurrentes",
+      "repeatSrc": "una laguna, no una suposición",
+      "unknown": "Aún no se sabe"
+    },
+    "leak": {
+      "breakage": "Roturas desde el cambio de mensajería",
+      "ads": "Una campaña de anuncios cuesta más de lo que devuelve",
+      "pricing": "El más vendido tiene un precio por debajo de su mercado",
+      "bowl": "El cuenco de servir se vende despacio y es el que más se rompe",
+      "repeat": "Nadie sabe cuánto vale un cliente recurrente"
+    },
+    "area": {
+      "operations": "Operaciones",
+      "marketing": "Marketing",
+      "pricing": "Precios",
+      "product": "Producto",
+      "customers": "Clientes"
+    },
+    "sev": {
+      "high": "Alta",
+      "medium": "Media",
+      "low": "Baja"
+    },
+    "decide": {
+      "waiting": "Decisión · le espera",
+      "pause": "Pausar la campaña de anuncios que pierde dinero",
+      "whatChanges": "Qué cambia",
+      "stops": "Esa campaña deja de gastar",
+      "ifApprove": "Si da su aprobación",
+      "kept": "unos {amount} al mes conservados",
+      "undo": "Deshacer",
+      "undoHow": "Un clic, en cualquier momento",
+      "approve": "Aprobar",
+      "nothing": "Nada se ejecuta hasta que usted diga que sí.",
+      "recorded": "Registrado con su nombre · fácil de deshacer",
+      "stamp": "Aprobado · registrado"
+    },
+    "s1": {
+      "kicker": "La entrevista y después la ficha de datos",
+      "title": "Una pregunta cada vez. <em>Cada respuesta</em> conserva su origen.",
+      "lede": "«No lo sé» es una respuesta de verdad: una laguna se convierte en un hallazgo, nunca en una suposición. Lo que usted dice, lo que ScaleX mide y lo que calcula acaban en una sola ficha de datos, con fecha y sin sobrescribirse nunca.",
+      "interview": "Entrevista",
+      "asks": "ScaleX pregunta",
+      "oneAtATime": "una pregunta cada vez",
+      "newest": "lo más reciente primero · nada se sobrescribe",
+      "q": {
+        "shipping": "¿Cuánto le cuesta aproximadamente el envío por pedido?",
+        "repeat": "¿Qué parte de sus ventas son de clientes recurrentes?",
+        "cash": "¿Cuál es el mínimo de efectivo que quiere tener en el banco?"
+      },
+      "under": "Menos de {amount}",
+      "over": "Más de {amount}",
+      "dontKnow": "No lo sé",
+      "srcTold": "usted me lo dijo · declarado",
+      "srcGap": "una laguna · se convierte en hallazgo",
+      "notKnown": "no se sabe",
+      "cash": "Colchón de efectivo"
+    },
+    "s2": {
+      "kicker": "El diagnóstico",
+      "title": "Un escáner completo. <em>Cada fuga</em>, con su precio en euros al mes.",
+      "lede": "Al desplazarse, el escáner recorre la tienda. Cada fuga que encuentra dice cuánto supone y en qué se basa.",
+      "scanned": "{pct} escaneado",
+      "unpriced": "{count, plural, one {# aún sin precio} many {# aún sin precio} other {# aún sin precio}}"
+    },
+    "s3": {
+      "kicker": "Adónde va el dinero",
+      "title": "Cada día se escapa un poco. <em>Séllelo</em> y se detiene.",
+      "lede": "La tubería son sus ventas. El ámbar es lo que se escapa: anuncios que no se amortizan, huecos vacíos, existencias que no salen. Un arreglo con su aprobación cierra una junta.",
+      "leaking": "Con fuga",
+      "paused": "En pausa · registrado",
+      "approvePause": "Aprobar la pausa",
+      "undoPause": "Deshacer la pausa",
+      "perMonth": "al mes",
+      "cameBack": "Volvieron {amount}",
+      "lost": "Perdidos {lost} de {spent} gastados",
+      "source": "Según las propias cifras de Meta de los últimos {days} días.",
+      "returns": "Una campaña de anuncios devuelve {amount} por cada euro gastado",
+      "aMonthLeaking": "al mes, en fuga",
+      "working": "{lost} perdidos en {days} días × {month} ÷ {days} = {monthly} al mes. Según las propias cifras de Meta."
+    },
+    "s4": {
+      "kicker": "Su decisión",
+      "title": "No pasa nada <em>hasta que usted diga que sí.</em>",
+      "lede": "Una hoja por arreglo: qué cambia, el dinero y cómo deshacerlo. Su sí queda registrado con su nombre, se guarda para siempre y nunca se edita.",
+      "proof": {
+        "readOnly": "Solo lectura",
+        "readOnlyWhy": "Las conexiones leen y nunca escriben; las pruebas fallan si alguna pudiera hacerlo.",
+        "graded": "Evaluado",
+        "gradedWhy": "Cada previsión se contrasta con lo que ocurrió, a la vista de todos.",
+        "undo": "Deshacer",
+        "undoWhy": "Cada cambio indica cómo revertirlo antes de su aprobación.",
+        "labelled": "Etiquetado",
+        "labelledWhy": "Todo lo que crea la IA lleva la etiqueta de creado por IA."
+      },
+      "waiting": "{count, plural, one {# pendiente} many {# pendientes} other {# pendientes}}",
+      "priceChange": "Cambio de precio",
+      "decideBy": "decidir antes del {day}",
+      "raise": "Subir un {pct} el precio de la Speckled Everyday Mug",
+      "now": "Ahora",
+      "after": "Después",
+      "ledger": "Registro · se guarda para siempre, nunca se edita",
+      "onRecord": "{count, plural, one {# registrada} many {# registradas} other {# registradas}}",
+      "pausedOne": "Pausar una campaña de anuncios",
+      "approved": "Aprobado",
+      "raiseShort": "Subir un {pct} el precio de la taza",
+      "byYou": "por usted"
+    },
+    "s5": {
+      "kicker": "Medido",
+      "lede": "Cada día, una vela; lo que se escapó, dibujado encima en ámbar. Desplácese para recorrer los últimos {days} días. Después, cada previsión se evalúa frente a lo que ocurrió de verdad.",
+      "marketView": "Vista de mercado",
+      "dayOf": "Día {day} de {days}",
+      "salesADay": "Ventas por día · últimos {days} días",
+      "slipped": "se escapó",
+      "chartAria": "Gráfico de velas de las ventas diarias de los últimos {days} días, con el dinero que se escapó dibujado encima en ámbar",
+      "daysAgo": "hace {days} días",
+      "today": "hoy",
+      "open": "Apertura",
+      "high": "Máximo",
+      "low": "Mínimo",
+      "close": "Cierre",
+      "forecastFor": "Previsión del {from} al {to}",
+      "gradedAfter": "Se evalúa después del {day}"
+    },
+    "s6": {
+      "kicker": "La escalera de confianza y lo que cuesta",
+      "title": "La autonomía se gana. <em>Pague por el paso</em> que usted permita.",
+      "lede": "Cada tipo de acción empieza observando. Solo sube con resultados demostrados, y la parada lo devuelve todo abajo. Cada plan empieza con un mes en la sombra que no cambia nada.",
+      "fine": "Anual: una quinta parte menos · un negocio adicional, {extra} al mes · un diagnóstico único de {report} se descuenta de su primera factura.",
+      "ladder": "Escalera de confianza",
+      "choose": "usted elige el paso",
+      "yourStep": "Su paso",
+      "step": {
+        "shadow": "Mes en la sombra",
+        "watch": "Watch",
+        "act": "Act",
+        "autonomous": "Autonomous"
+      },
+      "stepN": "Paso {n}",
+      "what": {
+        "watch": "Observa, diagnostica cada mes, sugiere. No cambia nada.",
+        "act": "Lleva a cabo aquello a lo que usted dice que sí: publicaciones, anuncios, los textos de su sitio.",
+        "autonomous": "Actúa dentro de los límites que usted fija. Si las ganancias verificadas no llegan a {times} veces la cuota en un trimestre, el siguiente es gratis."
+      },
+      "perMonth": "al mes"
+    },
+    "s7": {
+      "kicker": "Para asesorías contables",
+      "title": "Toda su cartera de clientes, <em>ordenada por el dinero que se escapa.</em>",
+      "lede": "Dé de alta a sus clientes desde un solo CSV; a cada propietario se le pide un mandato en su propio idioma. Configure NAV para todos los clientes de una vez. Los propietarios revocan su acceso con un toque.",
+      "yourFirm": "Su asesoría",
+      "clientBook": "Cartera de clientes",
+      "clients": "{count, plural, one {# negocio} many {# negocios} other {# negocios}} · ilustrativo",
+      "business": "Negocio",
+      "leaking": "Fuga al mes",
+      "leaks": "Fugas",
+      "row": {
+        "bike": "Un taller de bicicletas",
+        "ceramics": "Un taller de cerámica",
+        "salon": "Una peluquería",
+        "cafe": "Una cafetería de barrio"
+      },
+      "more": "y {count} más, cada uno con su propio mandato"
+    },
+    "s8": {
+      "kicker": "La revisión gratuita",
+      "title": "Una cifra sobre su negocio, <em>en tres minutos.</em>",
+      "lede": "Seis preguntas, sin cuenta. La fuga probable con su tamaño y cómo se compara usted con negocios parecidos.",
+      "try": "pruébelo · demostración",
+      "yourBusiness": "Su negocio",
+      "shop": "Una tienda online",
+      "salon": "Un salón",
+      "cafe": "Una cafetería",
+      "sales": "Ventas al mes",
+      "likely": "al mes, probablemente en fuga",
+      "rule": "La revisión real lee sus respuestas; esta demostración usa una regla general fija."
+    },
+    "s9": {
+      "sizeA": "Pensado para negocios pequeños con ventas reales cada semana. ¿Demasiado pequeño para leerlo? Se le avisa antes de pagar.",
+      "eraseQ": "¿Qué ve la IA y puedo borrarlo?",
+      "eraseA": "Solo lo que usted conecta y le cuenta. Puede borrar su negocio en cualquier momento."
+    }
   }
 }

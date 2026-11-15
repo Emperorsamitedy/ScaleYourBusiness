@@ -9173,7 +9173,37 @@
       "email_campaign": "Email to your contacts",
       "purchase_order": "Orders to suppliers",
       "google_business_reviews": "Answers to Google reviews"
-    }
+    },
+    "kicker": "Trust Ladder",
+    "col": {
+      "action": "Kind of action",
+      "record": "Record"
+    },
+    "stepN": "Step {n}",
+    "linesHere": "{count, plural, one {# line here} other {# lines here}}",
+    "notOpen": "not open here",
+    "group": {
+      "posts": "Posts",
+      "ads": "Ads",
+      "customers": "Customers",
+      "suppliers": "Suppliers",
+      "other": "Other"
+    },
+    "rec": {
+      "none": "No record yet",
+      "measured": "{count, plural, one {# measured} other {# measured}}",
+      "gains": "{count, plural, one {# gain} other {# gains}}",
+      "losses": "{count, plural, one {# loss} other {# losses}}"
+    },
+    "needs": "What step {n} needs",
+    "met": "Met",
+    "notMet": "Not yet",
+    "waitHint": "It can go up once every rule above says Met.",
+    "foot": {
+      "ceiling": "Step {n} is the highest step for this business right now.",
+      "own": "Each line climbs on its own record."
+    },
+    "trackAria": "Step {n} of {total}"
   },
   "shadowSummary": {
     "meta": {
@@ -9782,5 +9812,253 @@
     },
     "kicker": "Your business · Alerts and modules",
     "title": "Where I work, and how I tell you."
+  },
+  "landingV2": {
+    "aMonth": "{amount} a month",
+    "found": "{count, plural, one {# leak found} other {# leaks found}}",
+    "factSheet": "Fact sheet",
+    "factCount": "{count, plural, one {# fact} other {# facts}}",
+    "decisions": "Decisions",
+    "notPricedYet": "not priced yet",
+    "notPriced": "not priced",
+    "aiLabel": "Illustrative store · AI-generated footage",
+    "nav": {
+      "how": "How it works",
+      "pricing": "Pricing",
+      "firms": "For accounting firms",
+      "check": "Free check",
+      "sections": "Sections"
+    },
+    "rail": {
+      "read": "Read",
+      "learn": "Learn",
+      "scan": "Scan",
+      "leaks": "Leaks",
+      "decide": "Decide",
+      "chart": "Chart",
+      "trust": "Trust",
+      "firms": "Firms",
+      "check": "Check",
+      "start": "Start"
+    },
+    "hero": {
+      "kicker": "A blood test for your business",
+      "lede": "ScaleX finds where your money leaks, prices it in euros, and fixes it only when you say yes.",
+      "run": "Run the free check",
+      "see": "See it work",
+      "trust": "Read-only. No passwords. Nothing changes without you."
+    },
+    "tour": {
+      "aria": "Product tour: ScaleX connects to a shop, builds its fact sheet, finds a leak, and fixes it after the owner approves",
+      "demo": "demo store",
+      "connections": "Connections",
+      "readsOnly": "ScaleX reads, never writes",
+      "reads": {
+        "shopify": "orders and products",
+        "analytics": "visits to your site",
+        "ads": "ad spend and results"
+      },
+      "connecting": "Connecting…",
+      "connected": "Read-only · connected",
+      "noPasswords": "No passwords. You can remove a connection at any time.",
+      "twoMore": "Two more are not priced yet. A gap is a finding too.",
+      "tab": {
+        "connect": "Connect",
+        "facts": "Facts",
+        "diagnosis": "Diagnosis",
+        "finding": "Finding",
+        "yes": "Your yes"
+      }
+    },
+    "fact": {
+      "revenue": "Revenue, {days} days",
+      "revenueSrc": "Shopify · measured · today",
+      "margin": "Blended margin",
+      "marginSrc": "calculated from your prices and costs",
+      "shipping": "Shipping per order",
+      "shippingSrc": "you told me · {day}",
+      "repeat": "Repeat customers",
+      "repeatSrc": "a gap, not a guess",
+      "unknown": "Not known yet"
+    },
+    "leak": {
+      "breakage": "Breakage since the courier change",
+      "ads": "One ad campaign costs more than it returns",
+      "pricing": "Best seller priced below its market",
+      "bowl": "The serving bowl sells slowly, breaks most",
+      "repeat": "Nobody knows what a repeat customer is worth"
+    },
+    "area": {
+      "operations": "Operations",
+      "marketing": "Marketing",
+      "pricing": "Pricing",
+      "product": "Product",
+      "customers": "Customers"
+    },
+    "sev": {
+      "high": "High",
+      "medium": "Medium",
+      "low": "Low"
+    },
+    "decide": {
+      "waiting": "Decision · waiting for you",
+      "pause": "Pause the ad campaign that loses money",
+      "whatChanges": "What changes",
+      "stops": "That one campaign stops spending",
+      "ifApprove": "If you approve",
+      "kept": "about {amount} a month kept",
+      "undo": "Undo",
+      "undoHow": "One click, any time",
+      "approve": "Approve",
+      "nothing": "Nothing runs until you say yes.",
+      "recorded": "Recorded with your name · easy to undo",
+      "stamp": "Approved · recorded"
+    },
+    "s1": {
+      "kicker": "The interview, then the fact sheet",
+      "title": "One question at a time. <em>Every answer</em> keeps its source.",
+      "lede": "\"I don't know\" is a real answer: a gap becomes a finding, never a guess. What you say, what ScaleX measures and what it works out all land in one fact sheet, dated and never overwritten.",
+      "interview": "Interview",
+      "asks": "ScaleX asks",
+      "oneAtATime": "one question at a time",
+      "newest": "newest first · nothing overwritten",
+      "q": {
+        "shipping": "Roughly what does shipping cost you per order?",
+        "repeat": "How many of your sales are repeat customers?",
+        "cash": "What's the least cash you want in the bank?"
+      },
+      "under": "Under {amount}",
+      "over": "Over {amount}",
+      "dontKnow": "I don't know",
+      "srcTold": "you told me · stated",
+      "srcGap": "a gap · becomes a finding",
+      "notKnown": "not known",
+      "cash": "Cash buffer"
+    },
+    "s2": {
+      "kicker": "The diagnosis",
+      "title": "A full scan. <em>Each leak</em> priced in euros a month.",
+      "lede": "As you scroll, the scan passes through the shop. Every leak it finds says how big it is, and what it rests on.",
+      "scanned": "{pct} scanned",
+      "unpriced": "{count, plural, one {# not priced yet} other {# not priced yet}}"
+    },
+    "s3": {
+      "kicker": "Where the money goes",
+      "title": "Every day, a little slips away. <em>Seal it</em> and it stops.",
+      "lede": "The pipe is your sales. The amber is what leaks out: ads that don't pay back, empty slots, stock that sits. A fix you approve closes one joint.",
+      "leaking": "Leaking",
+      "paused": "Paused · recorded",
+      "approvePause": "Approve the pause",
+      "undoPause": "Undo the pause",
+      "perMonth": "a month",
+      "cameBack": "Came back {amount}",
+      "lost": "Lost {lost} of {spent} spent",
+      "source": "From Meta's own figures for the last {days} days.",
+      "returns": "One ad campaign returns {amount} for every euro spent",
+      "aMonthLeaking": "a month, leaking",
+      "working": "{lost} lost in {days} days × {month} ÷ {days} = {monthly} a month. From Meta's own figures."
+    },
+    "s4": {
+      "kicker": "Your decision",
+      "title": "Nothing happens <em>until you say yes.</em>",
+      "lede": "One sheet per fix: what changes, the money, and how to undo it. Your yes is recorded with your name, kept forever, never edited.",
+      "proof": {
+        "readOnly": "Read-only",
+        "readOnlyWhy": "Connections read and never write; the tests fail if one could.",
+        "graded": "Graded",
+        "gradedWhy": "Every forecast is checked against what happened, in the open.",
+        "undo": "Undo",
+        "undoWhy": "Each change says how to reverse it before you approve.",
+        "labelled": "Labelled",
+        "labelledWhy": "Everything the AI makes is labelled as AI-made."
+      },
+      "waiting": "{count, plural, one {# waiting} other {# waiting}}",
+      "priceChange": "Price change",
+      "decideBy": "decide by {day}",
+      "raise": "Raise the Speckled Everyday Mug price by {pct}",
+      "now": "Now",
+      "after": "After",
+      "ledger": "Ledger · kept forever, never edited",
+      "onRecord": "{count, plural, one {# on record} other {# on record}}",
+      "pausedOne": "Pause one ad campaign",
+      "approved": "Approved",
+      "raiseShort": "Raise the mug price by {pct}",
+      "byYou": "by you"
+    },
+    "s5": {
+      "kicker": "Measured",
+      "lede": "Every day a candle; what slipped away drawn above it in amber. Scroll to fly through the last {days} days. Then every forecast is graded against what really happened.",
+      "marketView": "Market view",
+      "dayOf": "Day {day} of {days}",
+      "salesADay": "Sales a day · last {days} days",
+      "slipped": "slipped away",
+      "chartAria": "Candlestick chart of daily sales for the last {days} days, with the money that slipped away drawn above it in amber",
+      "daysAgo": "{days} days ago",
+      "today": "today",
+      "open": "Open",
+      "high": "High",
+      "low": "Low",
+      "close": "Close",
+      "forecastFor": "Forecast for {from} to {to}",
+      "gradedAfter": "Graded after {day}"
+    },
+    "s6": {
+      "kicker": "The Trust Ladder, and what it costs",
+      "title": "Autonomy is earned. <em>Pay for the step</em> you allow.",
+      "lede": "Every kind of action starts by watching. It climbs only with a record of results, and the stop sends everything back down. Every plan starts with a shadow month that changes nothing.",
+      "fine": "Yearly: a fifth off · an extra business {extra} a month · a {report} one-off diagnosis comes off your first invoice.",
+      "ladder": "Trust Ladder",
+      "choose": "you choose the step",
+      "yourStep": "Your step",
+      "step": {
+        "shadow": "Shadow month",
+        "watch": "Watch",
+        "act": "Act",
+        "autonomous": "Autonomous"
+      },
+      "stepN": "Step {n}",
+      "what": {
+        "watch": "Watches, diagnoses monthly, suggests. Changes nothing.",
+        "act": "Carries out what you say yes to: posts, ads, your site's words.",
+        "autonomous": "Acts within limits you set. If verified gains aren't {times} times the fee in a quarter, the next is free."
+      },
+      "perMonth": "a month"
+    },
+    "s7": {
+      "kicker": "For accounting firms",
+      "title": "Your whole client book, <em>sorted by money leaking.</em>",
+      "lede": "Onboard clients from one CSV, each owner asked for a mandate in their own language. Set up NAV for every client in one go. Owners revoke your access with one tap.",
+      "yourFirm": "Your firm",
+      "clientBook": "Client book",
+      "clients": "{count, plural, one {# business} other {# businesses}} · illustrative",
+      "business": "Business",
+      "leaking": "Leaking a month",
+      "leaks": "Leaks",
+      "row": {
+        "bike": "A bike repair shop",
+        "ceramics": "A ceramics studio",
+        "salon": "A hair salon",
+        "cafe": "A neighbourhood café"
+      },
+      "more": "and {count} more, each under its own mandate"
+    },
+    "s8": {
+      "kicker": "The free check",
+      "title": "One number about your business, <em>in three minutes.</em>",
+      "lede": "Six questions, no account. The likely leak with its size, and how you compare with similar businesses.",
+      "try": "try it · demo",
+      "yourBusiness": "Your business",
+      "shop": "An online shop",
+      "salon": "A salon",
+      "cafe": "A café",
+      "sales": "Sales a month",
+      "likely": "a month, likely leaking",
+      "rule": "The real check reads your answers; this demo uses a fixed rule of thumb."
+    },
+    "s9": {
+      "sizeA": "Built for small businesses with real sales every week. Too small to read? You're told before you pay.",
+      "eraseQ": "What does the AI see, and can I erase it?",
+      "eraseA": "Only what you connect and tell it. You can erase your business at any time."
+    }
   }
 }
