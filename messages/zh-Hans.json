@@ -1508,6 +1508,67 @@
       "signInToDecide": "登录后决定",
       "declineFoot": "拒绝：不会执行任何操作，也不会改变任何内容。我会连同您的理由记录下来。",
       "wholeQueue": "查看整个队列"
+    },
+    "chart": {
+      "mast": "本月已决定：{decided} 项中批准 {approved} 项",
+      "queue": {
+        "needs": "待决定",
+        "today": "今天已决定",
+        "held": "已搁置",
+        "earlier": "更早",
+        "aria": "队列：{needs} 项待决定，{today} 项今天已决定，{held} 项已搁置，{earlier} 项更早"
+      },
+      "value": {
+        "none": "无金额预测",
+        "scale": "刻度最高为每月 {top}"
+      },
+      "size": {
+        "title": "改动的大小",
+        "unit": "这一行的字词，改动前后",
+        "before": "改动前",
+        "after": "改动后",
+        "words": "{count, plural, other {# 个词}}",
+        "kept": "保留 · {count}",
+        "added": "新增 · {count}",
+        "removed": "删除 · {count}",
+        "aria": "改动前：{before} 个词。改动后：{after} 个词；保留 {kept} 个，新增 {added} 个，删除 {removed} 个。"
+      },
+      "rollback": {
+        "title": "何时自动回滚",
+        "unit": "页面加载时间，毫秒",
+        "today": "目前",
+        "past": "超过此值回滚",
+        "ms": "{ms} 毫秒",
+        "note": "取以下两者中较大的：目前加载时间的 {factor} 倍（{times}），或目前加载时间加 {seconds} 秒（{plus}）。比这更慢，页面就会恢复原样。",
+        "aria": "目前加载时间 {today}。如果页面加载超过 {limit}，改动会自动回滚。"
+      },
+      "evidence": {
+        "title": "依据是什么",
+        "aria": "{count, plural, other {# 条证据}}：{parts}"
+      },
+      "tree": {
+        "title": "这个决定是如何构成的",
+        "root": "批准这项改动？",
+        "facts": "{count, plural, other {事实 · #}}",
+        "fact": "事实 {n}",
+        "more": "另有 {count} 条",
+        "rules": "{count, plural, other {您的规则 · #}}",
+        "rulesSub": "您告诉我的",
+        "disagree": "{count, plural, other {分歧 · #}}",
+        "disagreeSub": "来源不一致",
+        "aria": "这个决定基于 {facts, plural, other {# 条事实}}、{rules, plural, other {您的 # 条规则}}和 {disagreements, plural, other {# 处分歧}}。"
+      },
+      "way": {
+        "title": "回退之路",
+        "now": "现在的样子",
+        "stored": "已保存",
+        "changed": "已改动",
+        "click": "一键",
+        "back": "恢复原样",
+        "auto": "或者在页面加载超过 {ms} 毫秒时自动恢复",
+        "aria": "现在的内容先被保存，然后改动；一键即可恢复原样。",
+        "ariaAuto": "现在的内容先被保存，然后改动；一键即可恢复原样，页面加载超过 {ms} 毫秒时也会自动恢复。"
+      }
     }
   },
   "stop": {

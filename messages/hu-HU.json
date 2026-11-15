@@ -1508,6 +1508,67 @@
       "signInToDecide": "Bejelentkezés a döntéshez",
       "declineFoot": "Elutasítás: semmi sem fut és semmi sem változik. Rögzítem az indokával együtt.",
       "wholeQueue": "A teljes várólista megtekintése"
+    },
+    "chart": {
+      "mast": "Ebben a hónapban eldöntve: {decided} közül {approved} jóváhagyva",
+      "queue": {
+        "needs": "Döntésre vár",
+        "today": "Ma eldöntve",
+        "held": "Visszatartva",
+        "earlier": "Korábban",
+        "aria": "A sor: {needs} döntésre vár, {today} ma eldöntve, {held} visszatartva, {earlier} korábban"
+      },
+      "value": {
+        "none": "nincs pénzbeli előrejelzés",
+        "scale": "havi {top} összegig terjedő skálán"
+      },
+      "size": {
+        "title": "A változás mérete",
+        "unit": "a sor szavai, előtte és utána",
+        "before": "Előtte",
+        "after": "Utána",
+        "words": "{count, plural, one {# szó} other {# szó}}",
+        "kept": "megmarad · {count}",
+        "added": "hozzáadva · {count}",
+        "removed": "eltávolítva · {count}",
+        "aria": "Előtte: {before} szó. Utána: {after} szó; {kept} megmarad, {added} hozzáadva, {removed} eltávolítva."
+      },
+      "rollback": {
+        "title": "Mikor áll vissza magától",
+        "unit": "oldalbetöltés, ezredmásodperc",
+        "today": "Ma",
+        "past": "Visszaáll e fölött",
+        "ms": "{ms} ms",
+        "note": "A mai betöltési idő {factor}-szorosa ({times}) és a mai betöltési idő plusz {seconds} másodperc ({plus}) közül a nagyobb. Ennél lassabb betöltésnél az oldal visszaáll a korábbira.",
+        "aria": "Mai betöltés {today}. A változás magától visszaáll, ha az oldal {limit} értéknél tovább tölt."
+      },
+      "evidence": {
+        "title": "Mire épül",
+        "aria": "{count, plural, one {# bizonyítéksor} other {# bizonyítéksor}}: {parts}"
+      },
+      "tree": {
+        "title": "Miből áll ez a döntés",
+        "root": "Jóváhagyja ezt a változást?",
+        "facts": "{count, plural, one {Tények · #} other {Tények · #}}",
+        "fact": "{n}. tény",
+        "more": "+{count} további",
+        "rules": "{count, plural, one {Az Ön szabálya · #} other {Az Ön szabályai · #}}",
+        "rulesSub": "amit Ön mondott",
+        "disagree": "{count, plural, one {Eltérés · #} other {Eltérések · #}}",
+        "disagreeSub": "eltérő források",
+        "aria": "Ez a döntés {facts, plural, one {# tényen} other {# tényen}}, {rules, plural, one {# szabályán} other {# szabályán}} és {disagreements, plural, one {# eltérésen} other {# eltérésen}} alapul."
+      },
+      "way": {
+        "title": "Az út vissza",
+        "now": "Ahogy most van",
+        "stored": "elmentve",
+        "changed": "Megváltoztatva",
+        "click": "egy kattintás",
+        "back": "Vissza a régire",
+        "auto": "vagy magától, ha az oldal {ms} ms-nál lassabb lesz",
+        "aria": "A mostani állapot elmentődik, majd megváltozik; egy kattintással visszaáll.",
+        "ariaAuto": "A mostani állapot elmentődik, majd megváltozik; egy kattintással visszaáll, és akkor is, ha az oldal {ms} ms-nál lassabb lesz."
+      }
     }
   },
   "stop": {

@@ -1601,6 +1601,67 @@
       "signInToDecide": "Iniciar sesión para decidir",
       "declineFoot": "Rechazar: no se ejecuta nada y no cambia nada. Lo registro con su motivo.",
       "wholeQueue": "Ver toda la cola"
+    },
+    "chart": {
+      "mast": "Decididas este mes: {approved} aprobadas de {decided}",
+      "queue": {
+        "needs": "Necesitan una decisión",
+        "today": "Decididas hoy",
+        "held": "Retenidas",
+        "earlier": "Anteriores",
+        "aria": "La cola: {needs} necesitan una decisión, {today} decididas hoy, {held} retenidas, {earlier} anteriores"
+      },
+      "value": {
+        "none": "sin previsión de dinero",
+        "scale": "en una escala de hasta {top} al mes"
+      },
+      "size": {
+        "title": "Tamaño del cambio",
+        "unit": "palabras de la línea, antes y después",
+        "before": "Antes",
+        "after": "Después",
+        "words": "{count, plural, one {# palabra} many {# palabras} other {# palabras}}",
+        "kept": "se mantienen · {count}",
+        "added": "añadidas · {count}",
+        "removed": "quitadas · {count}",
+        "aria": "Antes: {before} palabras. Después: {after} palabras; {kept} se mantienen, {added} añadidas, {removed} quitadas."
+      },
+      "rollback": {
+        "title": "Cuándo se revierte solo",
+        "unit": "carga de la página, milisegundos",
+        "today": "Hoy",
+        "past": "Se revierte a partir de",
+        "ms": "{ms} ms",
+        "note": "El mayor entre {factor} veces la carga de hoy ({times}) y la carga de hoy más {seconds} segundos ({plus}). Si tarda más, la página vuelve a como estaba.",
+        "aria": "Carga de hoy {today}. El cambio se revierte solo si la página tarda más de {limit}."
+      },
+      "evidence": {
+        "title": "En qué se basa",
+        "aria": "{count, plural, one {# línea de evidencia} many {# líneas de evidencia} other {# líneas de evidencia}}: {parts}"
+      },
+      "tree": {
+        "title": "Cómo se construye esta decisión",
+        "root": "¿Aprobar este cambio?",
+        "facts": "{count, plural, one {Datos · #} many {Datos · #} other {Datos · #}}",
+        "fact": "Dato {n}",
+        "more": "+{count} más",
+        "rules": "{count, plural, one {Su regla · #} many {Sus reglas · #} other {Sus reglas · #}}",
+        "rulesSub": "lo que usted me dijo",
+        "disagree": "{count, plural, one {Discrepancia · #} many {Discrepancias · #} other {Discrepancias · #}}",
+        "disagreeSub": "fuentes que no coinciden",
+        "aria": "Esta decisión se basa en {facts, plural, one {# dato} many {# datos} other {# datos}}, {rules, plural, one {# de sus reglas} many {# de sus reglas} other {# de sus reglas}} y {disagreements, plural, one {# discrepancia} many {# discrepancias} other {# discrepancias}}."
+      },
+      "way": {
+        "title": "El camino de vuelta",
+        "now": "Tal como está",
+        "stored": "guardado",
+        "changed": "Cambiado",
+        "click": "un clic",
+        "back": "Vuelve a como estaba",
+        "auto": "o solo, si la página tarda más de {ms} ms",
+        "aria": "Lo que hay ahora se guarda y luego se cambia; un clic lo devuelve a como estaba.",
+        "ariaAuto": "Lo que hay ahora se guarda y luego se cambia; un clic lo devuelve a como estaba, y también si la página tarda más de {ms} ms."
+      }
     }
   },
   "connections": {

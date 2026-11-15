@@ -580,6 +580,22 @@ In the queue (§8), an ad proposal's section 1 keeps the before → after table 
 
 `/proposals/<id>` is the page a phone alert opens (`components/proposals/ProposalCard.tsx`), a focused view like the queue: the ink masthead ("<business> · Decision", the emergency stop), then one sheet built at 360 px, read top to bottom: the title; WHAT CHANGES (before → after where the action states both, else the title stands); EXPECTED, as the downside-to-upside range in mono ("−€1,200 – +€4,800"), never a point, with "Worst case:" and the downside's money and words under it; REVERSIBLE or IRREVERSIBLE with what to do if you change your mind; CHECKED AGAINST YOUR LIMITS, in the owner's own 13.5 words ("Checked against “never discount”: it doesn't go against it." and "I can't check “…” for you: weigh this against it yourself."), or a sentence saying there was nothing to check it against. Then the queue's answers: the consequence verb ("Approve", "Publish to Instagram") and Decline, equal `.q-btn`s side by side, Decline opening the four reason chips and a sentence box. Both go through `PUT /api/proposals`, the queue's own path. After the answer the card reloads into its closed state, announced politely. A proposal already answered, expired or held back shows a boxed word (APPROVED, DONE, DECLINED, CHANGES REQUESTED, EXPIRED, HELD BACK) and its sentence ("This ran out of time on 12 Nov without a decision: not approved, and nothing ran."), with no buttons, only "Back to the queue →". Signed out, it asks "Sign in to decide." and the sign-in comes back to this card. The alert itself never approves: it has no action button, and this card is the only place a phone says yes.
 
+
+### Charts on the Decisions screen
+
+Added 2026-11-16 on the owner's instruction. The screen keeps its structure and every word, and gains charts beside what it already says (`components/proposals/QueueCharts.tsx`, `chart-model.ts`). Every chart is worked out from the same data as the words next to it; none shows a figure the words don't.
+
+- **Masthead:** a small ring beside "approved {n} of {m}". The approved share is lit and the rest is coral.
+- **The queue ring**, at the top of the side list. It is an arc-reactor ring with one lit cell per item, coloured by list (needs a decision, decided today, held back, earlier), and the total in the core. A legend lists the counts.
+- **A value bar on each waiting item.** Every item sits on one shared scale, so the longest bar is the biggest decision. An item without a money range gets a hatched bar that says "no money forecast". The bars are drawn only when all ranges are in one currency.
+- **Size of the change**, under the change table, for each wording line with three or more words (a word-level diff: kept, added, removed). Figures such as prices get no chart.
+- **When it rolls back by itself**, under the expected effect, for a site change that carries its load at proposal time. It is a bar graph of today's load against the limit from `lib/site/health-rule.ts`: three times the baseline or the baseline plus two seconds, whichever is larger. The engine uses the same rule.
+- **What it rests on**, in the evidence. An arc-reactor ring with one cell per evidence line, coloured by basis, with a legend.
+- **How this decision is built**, beside it. A tree: the question at the top; under it the facts (with their bases), your rules and any disagreements; under the facts, one box per fact.
+- **The way back**, in reversibility, for anything that can be undone: as it is now, then stored, then changed, then one click back. For a site change it adds the automatic rollback past its limit.
+
+The rings turn slowly and their cores pulse; under reduced motion nothing moves. Colour never carries meaning alone: every ring has a legend with counts, and every bar has its value written beside it. On a phone the same charts sit in the one-at-a-time view (the evidence charts inside "Evidence"), and a chart wider than the screen scrolls inside its own box.
+
 ---
 
 ## 9. Notifications

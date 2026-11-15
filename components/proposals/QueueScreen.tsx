@@ -33,7 +33,7 @@ import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { EmergencyStop } from "../execution/EmergencyStop";
 import { RangeBar } from "../sheet/RangeBar";
-import { moneyText } from "../sheet/num";
+import { moneyText, num } from "../sheet/num";
 import { useTr } from "../sheet/useTr";
 import type { AppLocale } from "../../lib/i18n/locales";
 import type { Tr } from "../../lib/i18n/tr";
@@ -75,6 +75,36 @@ import "../../app/queue.css";
 import { useRole } from "../auth/RoleContext";
 import { Fold } from "../sheet/Fold";
 import { Logo } from "../brand/Mark";
+import { rollbackThresholdMs } from "../../lib/site/health-rule";
+import { basisCounts, valueScaleTop, wordChange } from "./chart-model";
+import {
+  ChangeSize,
+  DecisionTree,
+  EvidenceRing,
+  MastRing,
+  Reactor,
+  RingKey,
+  RollbackBars,
+  ValueBar,
+  WayBack,
+  type RingSlice,
+} from "./QueueCharts";
+
+/** Each basis's colour on the evidence ring, strongest (measured) to weakest. */
+const BASIS_COLOR: Record<string, string> = {
+  OBSERVED: "#cdeeff",
+  DERIVED: "#5fc7b0",
+  ESTIMATED: "#8aa7ff",
+  STATED: "#3d6bff",
+  ASSUMED: "#e2b26b",
+  "NOT RECORDED": "#7a8a83",
+};
+
+/** A site change's load at proposal time, when the proposal carries one (lib/site/changes.ts). */
+function baselineMsOf(p: { action: { detail?: Record<string, unknown> } }): number | null {
+  const v = p.action.detail?.health_baseline_ms;
+  return typeof v === "number" && Number.isFinite(v) && v > 0 ? v : null;
+}
 
 interface Money {
   amount_minor: number;
@@ -550,6 +580,25 @@ export function QueueScreen() {
     ...q.decided.filter((p) => !stamps[p.id] && !(p.decided_at && isSameDay(p.decided_at, now))),
     ...q.expired,
   ];
+  // The side ring: the queue's mix, counted from the same lists the side prints.
+  const ringSlices: RingSlice[] = [
+    { key: "needs", label: t("chart.queue.needs"), count: pendingIds.length, color: "#cdeeff" },
+    { key: "today", label: t("chart.queue.today"), count: decidedToday.length, color: "#ff9d92" },
+    { key: "held", label: t("chart.queue.held"), count: q.blocked.length, color: "#e2b26b" },
+    { key: "earlier", label: t("chart.queue.earlier"), count: earlier.length, color: "#4fa08a" },
+  ];
+  const ringTotal = ringSlices.reduce((a, s) => a + s.count, 0);
+  // The value bars share one scale, and only when every money range is in one currency.
+  const waitingRanges = q.pending.flatMap((p) => {
+    const r = effectOf(p);
+    return r ? [r] : [];
+  });
+  const valueCurrencies = new Set(waitingRanges.map((r) => r.high.currency));
+  const valueCurrency = valueCurrencies.size === 1 ? [...valueCurrencies][0] : undefined;
+  const valueTop =
+    valueCurrencies.size > 1
+      ? undefined
+      : valueScaleTop(waitingRanges.map((r) => Math.max(r.low.amount_minor, r.high.amount_minor)));
 
   const generate = async () => {
     setState({ ...state, busy: true });
@@ -803,7 +852,27 @@ export function QueueScreen() {
     );
   };
 
-  const evidenceBlock = (p: Proposal) => {
+  /** The size of each wording change (up to three lines), drawn under the change table. */
+  const sizeCharts = (p: Proposal) =>
+    (changeLines(p.action, undefined, qw) ?? []).slice(0, 3).map((l) => {
+      const c = wordChange(l.before, l.after);
+      return c ? <ChangeSize key={l.line} change={c} tr={tr} locale={locale} /> : null;
+    });
+  /** A site change's rollback limit, when the proposal carries the page's load. */
+  const rollbackChart = (p: Proposal) => {
+    const ms = baselineMsOf(p);
+    return ms === null ? null : <RollbackBars baselineMs={ms} tr={tr} locale={locale} />;
+  };
+  /** The way back, for what can be undone. */
+  const wayBack = (p: Proposal, reversible: boolean) => {
+    if (!reversible) return null;
+    const ms = baselineMsOf(p);
+    return (
+      <WayBack autoMs={ms === null ? null : rollbackThresholdMs(ms)} tr={tr} locale={locale} />
+    );
+  };
+
+  const evidenceBlock = (p: Proposal, charts = false) => {
     const lines = evidenceLines(p.scenario.assumptions, facts, qw, st);
     const keys = new Set(
       p.scenario.assumptions.flatMap((a) => (a.source_field ? [a.source_field] : [])),
@@ -844,6 +913,29 @@ export function QueueScreen() {
         {manual.length > 0 && (
           <p className="q-manual">{t("evidence.manual", { limits: manual.join("” · “") })}</p>
         )}
+        {charts && (
+          <div className="q-fig-duo">
+            {lines.length > 0 && (
+              <EvidenceRing
+                slices={basisCounts(BASES, lines).map((c): RingSlice => ({
+                  key: c.basis,
+                  label: evidenceBasis(c.basis),
+                  count: c.count,
+                  color: BASIS_COLOR[c.basis] ?? "#7a8a83",
+                }))}
+                tr={tr}
+                locale={locale}
+              />
+            )}
+            <DecisionTree
+              facts={lines.map((l) => ({ basisLabel: evidenceBasis(l.basis) }))}
+              rules={manual.length}
+              disagreements={disagree.length}
+              tr={tr}
+              locale={locale}
+            />
+          </div>
+        )}
       </>
     );
   };
@@ -862,6 +954,11 @@ export function QueueScreen() {
       <div className="q-mast-right">
         {stats && (
           <span className="q-mast-stats">
+            <MastRing
+              approved={stats.approved}
+              decided={stats.decided}
+              label={t("chart.mast", { approved: stats.approved, decided: stats.decided })}
+            />
             {t("stats", {
               median: durationWord(stats.medianMs, qw),
               approved: stats.approved,
@@ -968,6 +1065,7 @@ export function QueueScreen() {
         <section className="q-msec">
           <h3 className="q-mlabel">{t("m.changes")}</h3>
           {changeBlock(p, true)}
+          {sizeCharts(p)}
           {adBlock(p)}
         </section>
         <section className="q-msec">
@@ -975,6 +1073,7 @@ export function QueueScreen() {
             {range ? t("m.expectedSpan", { span: effectSpan(p.action, qw) }) : t("m.expected")}
           </h3>
           {effectBlock(p, true)}
+          {rollbackChart(p)}
         </section>
         <section className="q-msec">
           <div className="q-rev-row">
@@ -983,6 +1082,7 @@ export function QueueScreen() {
             </span>
             <span className="q-rev-note">{rev.note}</span>
           </div>
+          {wayBack(p, rev.reversible)}
           <button
             type="button"
             className="q-evtoggle"
@@ -995,7 +1095,7 @@ export function QueueScreen() {
           </button>
           {shown && (
             <div id={`ev-${p.id}`} className="q-mev">
-              {evidenceBlock(p)}
+              {evidenceBlock(p, true)}
             </div>
           )}
         </section>
@@ -1130,6 +1230,7 @@ export function QueueScreen() {
             {t("sheet.s1", { n: 1 })}
           </h2>
           {changeBlock(p, false)}
+          {sizeCharts(p)}
           {adBlock(p)}
           {p.action.detail?.rationale && <p className="q-prose">{p.action.detail.rationale}</p>}
         </section>
@@ -1141,13 +1242,14 @@ export function QueueScreen() {
               : t("sheet.s2", { n: 2 })}
           </h2>
           {effectBlock(p, false)}
+          {rollbackChart(p)}
         </section>
 
         <section className="q-sec" aria-labelledby={`s3-${p.id}`}>
           <h2 className="q-h" id={`s3-${p.id}`}>
             {t("sheet.s3", { n: 3 })}
           </h2>
-          {evidenceBlock(p)}
+          {evidenceBlock(p, true)}
         </section>
 
         <section className="q-sec q-sec-rev" aria-labelledby={`s4-${p.id}`}>
@@ -1158,6 +1260,7 @@ export function QueueScreen() {
             {rev.word}
           </span>
           <p className="q-rev-note">{rev.note}</p>
+          {wayBack(p, rev.reversible)}
         </section>
 
         <section className="q-decide" aria-label={t("decide.label")}>
@@ -1320,6 +1423,21 @@ export function QueueScreen() {
             </h2>
             {pendingIds.length > 1 && <span className="q-side-keys sr-only">{t("side.keys")}</span>}
           </div>
+          {ringTotal > 0 && (
+            <div className="q-side-ring">
+              <Reactor
+                slices={ringSlices}
+                center={num(ringTotal, 0, locale)}
+                label={t("chart.queue.aria", {
+                  needs: ringSlices[0]?.count ?? 0,
+                  today: ringSlices[1]?.count ?? 0,
+                  held: ringSlices[2]?.count ?? 0,
+                  earlier: ringSlices[3]?.count ?? 0,
+                })}
+              />
+              <RingKey slices={ringSlices} locale={locale} />
+            </div>
+          )}
           {listed.length > 0 && (
             <ol className="q-items">
               {listed.map((p) => {
@@ -1376,6 +1494,27 @@ export function QueueScreen() {
                           : ""}
                         {shortReversibility(p.reversibility, tr)}
                       </span>
+                      {valueTop !== undefined && (
+                        <ValueBar
+                          low={range ? range.low.amount_minor : null}
+                          high={range ? range.high.amount_minor : null}
+                          top={valueTop}
+                          label={
+                            range
+                              ? t("side.perMonth", {
+                                  range: `${signedMoney(range.low, locale)}–${signedMoney(range.high, locale)}`,
+                                })
+                              : t("chart.value.none")
+                          }
+                          caption={
+                            range && valueTop !== null && valueCurrency
+                              ? t("chart.value.scale", {
+                                  top: moneyText(valueTop, valueCurrency, locale),
+                                })
+                              : t("chart.value.none")
+                          }
+                        />
+                      )}
                     </button>
                   </li>
                 );

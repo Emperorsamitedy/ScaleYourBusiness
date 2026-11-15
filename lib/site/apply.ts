@@ -27,17 +27,11 @@ import { livePageFetcher } from "./fetch";
 import type { SiteChangeDetail } from "./changes";
 import { siteRefusal } from "./changes";
 import { platformBrand } from "./platform";
+import { HEALTH, rollbackThresholdMs } from "./health-rule";
 
-/** P3-33's thresholds — code, with boundary tests, both directions. */
-export const HEALTH = {
-  /** A post-change load beyond baseline × this is a regression… */
-  load_factor: 3,
-  /** …but never for less than this absolute headroom, so a 40ms page
-   * isn't "regressed" at 121ms. */
-  load_floor_ms: 2000,
-  /** A page smaller than this came back effectively empty. */
-  min_bytes: 100,
-} as const;
+// P3-33's thresholds live in ./health-rule.ts, so the Decisions screen can
+// draw the same limit the engine applies.
+export { HEALTH } from "./health-rule";
 
 export interface HealthReport {
   ok: boolean;
@@ -53,7 +47,7 @@ export async function checkSiteHealth(
   baselineMs: number,
   fetcher: PageFetcher,
 ): Promise<HealthReport> {
-  const thresholdMs = Math.max(baselineMs * HEALTH.load_factor, baselineMs + HEALTH.load_floor_ms);
+  const thresholdMs = rollbackThresholdMs(baselineMs);
   try {
     const page = await fetcher(url);
     const reasons: string[] = [];

@@ -1109,3 +1109,405 @@
   min-height: 48px;
   padding: 0 var(--s-3);
 }
+
+/* ── charts (ux-spec §8, "Charts on the Decisions screen"): each draws what
+   the words beside it already say; circular ones are arc-reactor rings ── */
+
+.q-reactor {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.q-reactor .q-spin {
+  transform-origin: 100px 100px;
+  transform-box: view-box;
+  animation: q-spin 40s linear infinite;
+}
+.q-reactor .q-spin-rev {
+  animation-duration: 26s;
+  animation-direction: reverse;
+}
+.q-reactor .q-pulse {
+  animation: q-pulse 3.2s ease-in-out infinite;
+}
+@keyframes q-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes q-pulse {
+  50% {
+    opacity: 0.78;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .q-reactor .q-spin,
+  .q-reactor .q-pulse {
+    animation: none;
+  }
+}
+.q-ring-key {
+  display: grid;
+  gap: 5px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: 13px;
+}
+.q-ring-key li {
+  display: grid;
+  grid-template-columns: 10px minmax(0, 1fr) auto;
+  gap: 8px;
+  align-items: center;
+}
+.q-ring-key i {
+  display: block;
+  width: 10px;
+  height: 10px;
+}
+.q-ring-key b {
+  font-family: var(--f-mono);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+/* the side: the queue ring and the value bars */
+.q-side-ring {
+  display: grid;
+  grid-template-columns: 104px minmax(0, 1fr);
+  gap: 14px;
+  align-items: center;
+  padding: 14px;
+  border-bottom: 1px solid var(--desk-rule);
+  color: var(--desk-ink-2);
+}
+.q-side-ring b {
+  color: var(--desk-ink);
+}
+.q-vbar {
+  display: grid;
+  gap: 3px;
+  margin-top: 2px;
+}
+.q-vbar-track {
+  position: relative;
+  display: block;
+  height: 8px;
+  background: var(--masthead);
+  border: 1px solid var(--desk-rule);
+}
+.q-vbar-track i {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: var(--l, 0%);
+  width: var(--w, 0%);
+  min-width: 2px;
+  background: var(--desk-ink);
+}
+.q-vbar-track.none {
+  background: repeating-linear-gradient(135deg, transparent 0 4px, var(--desk-rule) 4px 6px);
+}
+.q-vbar small {
+  font-family: var(--f-mono);
+  font-size: 11px;
+  color: var(--desk-ink-2);
+}
+
+/* the masthead's small ring */
+.q-mast-stats {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+}
+.q-mast-ring {
+  flex: none;
+}
+
+/* a chart on the sheet */
+.q-fig {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 10px;
+  margin: 16px 0 0;
+  padding: 14px 16px;
+  border: 1px solid var(--rule-soft);
+  overflow-x: auto;
+}
+.q-fig figcaption {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  font-family: var(--f-mono);
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--sheet-ink-2);
+}
+.q-fig figcaption span {
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  text-transform: none;
+}
+.q-fig-note {
+  margin: 0;
+  max-width: 72ch;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--sheet-ink-2);
+}
+
+/* horizontal bars: label, track, value */
+.q-bars {
+  display: grid;
+  grid-template-columns: max-content minmax(160px, 1fr) max-content;
+  gap: 10px 12px;
+  align-items: center;
+  max-width: 680px;
+}
+.q-bars-lab {
+  font-size: 13.5px;
+  color: var(--sheet-ink-2);
+  text-align: right;
+}
+.q-bars-track {
+  position: relative;
+  display: flex;
+  height: 18px;
+}
+.q-bars-track i {
+  display: block;
+  height: 100%;
+  width: var(--w, 0%);
+}
+.q-bars b {
+  font-family: var(--f-mono);
+  font-size: 13px;
+  font-variant-numeric: tabular-nums;
+}
+.q-bars .kept,
+.q-fig-key .kept {
+  background: var(--rule);
+}
+.q-bars .in,
+.q-fig-key .in {
+  background: var(--live);
+}
+.q-bars .out,
+.q-fig-key .out {
+  background: repeating-linear-gradient(135deg, var(--paper) 0 3px, var(--rule) 3px 5px);
+  outline: 1px solid var(--rule);
+  outline-offset: -1px;
+}
+.q-bars .ink {
+  background: var(--sheet-ink);
+}
+.q-bars .limit {
+  background: repeating-linear-gradient(135deg, #fbe9c8 0 4px, #e2c493 4px 6px);
+  outline: 1px solid var(--drift);
+  outline-offset: -1px;
+}
+.q-fig-key {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-family: var(--f-mono);
+  font-size: 11.5px;
+  color: var(--sheet-ink-2);
+}
+.q-fig-key li {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.q-fig-key i {
+  display: block;
+  width: 10px;
+  height: 10px;
+}
+.q-ticks-row {
+  position: relative;
+  display: block;
+  height: 16px;
+  border-top: 1px solid var(--sheet-ink-2);
+  font-family: var(--f-mono);
+  font-size: 11px;
+  color: var(--sheet-ink-2);
+}
+.q-ticks-row span {
+  position: absolute;
+  top: 3px;
+  left: var(--l, 0%);
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+.q-ticks-row span:first-child {
+  transform: none;
+}
+
+/* the evidence ring and the decision tree, side by side */
+.q-fig-duo {
+  display: grid;
+  grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+  gap: 14px;
+  margin-top: 16px;
+}
+.q-fig-duo .q-fig {
+  margin: 0;
+  align-content: start;
+}
+.q-ring-row {
+  display: grid;
+  grid-template-columns: 150px minmax(0, 1fr);
+  gap: 16px;
+  align-items: center;
+}
+.q-ring-row .q-ring-key {
+  color: var(--sheet-ink);
+}
+
+/* a tree: the question, what it rests on, the facts under them */
+.q-tree {
+  display: grid;
+  justify-items: center;
+  min-width: 360px;
+  font-size: 12.5px;
+}
+.q-tree-root {
+  padding: 8px 16px;
+  background: var(--sheet-ink);
+  color: var(--paper);
+  font-weight: 700;
+  font-size: 13.5px;
+  text-align: center;
+}
+.q-tree-kids {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  margin: 0;
+  padding: 18px 0 0;
+  list-style: none;
+}
+.q-tree-kids::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  height: 9px;
+  border-left: 1px solid var(--sheet-ink-2);
+}
+.q-tree-kids > li {
+  position: relative;
+  display: grid;
+  justify-items: center;
+  align-content: start;
+  padding: 9px 6px 0;
+}
+.q-tree-kids > li::before,
+.q-tree-kids > li::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  width: 50%;
+  border-top: 1px solid var(--sheet-ink-2);
+}
+.q-tree-kids > li::before {
+  right: 50%;
+}
+.q-tree-kids > li::after {
+  left: 50%;
+  height: 9px;
+  border-left: 1px solid var(--sheet-ink-2);
+}
+.q-tree-kids > li:first-child::before,
+.q-tree-kids > li:last-child::after {
+  border-top: 0;
+}
+.q-tree-node {
+  display: grid;
+  gap: 1px;
+  min-width: 96px;
+  max-width: 170px;
+  padding: 6px 10px;
+  border: 1px solid var(--sheet-ink);
+  background: var(--paper);
+  text-align: center;
+}
+.q-tree-node b {
+  font-weight: 700;
+}
+.q-tree-node span {
+  font-size: 11.5px;
+  color: var(--sheet-ink-2);
+}
+.q-tree-node.yours {
+  background: var(--inset);
+}
+.q-tree-node.leaf {
+  min-width: 70px;
+  border-style: dashed;
+  border-color: var(--sheet-ink-2);
+}
+
+/* the way back: its own row under the reversibility line */
+.q-sec-rev .q-fig {
+  flex-basis: 100%;
+  margin-top: 6px;
+}
+.q-way {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.q-way-box {
+  padding: 8px 14px;
+  border: 1px solid var(--sheet-ink);
+  font-size: 13.5px;
+  font-weight: 700;
+}
+.q-way-box.ink {
+  background: var(--sheet-ink);
+  color: var(--paper);
+}
+.q-way-box.back {
+  background: var(--inset);
+}
+.q-way-arrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--f-mono);
+  font-size: 11.5px;
+  color: var(--sheet-ink-2);
+}
+.q-way-arrow::after {
+  content: "→";
+  font-size: 15px;
+  color: var(--sheet-ink);
+}
+.q-way-auto {
+  margin: 0;
+  font-family: var(--f-mono);
+  font-size: 12px;
+  color: var(--drift);
+}
+
+@media (max-width: 760px) {
+  .q-fig-duo {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .q-ring-row {
+    grid-template-columns: 120px minmax(0, 1fr);
+  }
+  .q-bars {
+    grid-template-columns: max-content minmax(96px, 1fr) max-content;
+    gap: 8px;
+  }
+}

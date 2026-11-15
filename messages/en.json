@@ -1508,6 +1508,67 @@
       "signInToDecide": "Sign in to decide",
       "declineFoot": "Declining: nothing runs and nothing changes. I record it with your reason.",
       "wholeQueue": "See the whole queue"
+    },
+    "chart": {
+      "mast": "Decided this month: {approved} approved of {decided}",
+      "queue": {
+        "needs": "Need a decision",
+        "today": "Decided today",
+        "held": "Held back",
+        "earlier": "Earlier",
+        "aria": "The queue: {needs} need a decision, {today} decided today, {held} held back, {earlier} earlier"
+      },
+      "value": {
+        "none": "no money forecast",
+        "scale": "on a scale up to {top} a month"
+      },
+      "size": {
+        "title": "Size of the change",
+        "unit": "words on the line, before and after",
+        "before": "Before",
+        "after": "After",
+        "words": "{count, plural, one {# word} other {# words}}",
+        "kept": "kept · {count}",
+        "added": "added · {count}",
+        "removed": "removed · {count}",
+        "aria": "Before: {before} words. After: {after} words; {kept} kept, {added} added, {removed} removed."
+      },
+      "rollback": {
+        "title": "When it rolls back by itself",
+        "unit": "page load, milliseconds",
+        "today": "Today",
+        "past": "Rolls back past",
+        "ms": "{ms} ms",
+        "note": "The larger of {factor} times today's load ({times}) and today's load plus {seconds} seconds ({plus}). Anything slower and the page goes back to how it was.",
+        "aria": "Today's load {today}. The change rolls back by itself if the page takes longer than {limit}."
+      },
+      "evidence": {
+        "title": "What it rests on",
+        "aria": "{count, plural, one {# evidence line} other {# evidence lines}}: {parts}"
+      },
+      "tree": {
+        "title": "How this decision is built",
+        "root": "Approve this change?",
+        "facts": "{count, plural, one {Facts · #} other {Facts · #}}",
+        "fact": "Fact {n}",
+        "more": "+{count} more",
+        "rules": "{count, plural, one {Your rule · #} other {Your rules · #}}",
+        "rulesSub": "what you told me",
+        "disagree": "{count, plural, one {Disagreement · #} other {Disagreements · #}}",
+        "disagreeSub": "sources that differ",
+        "aria": "This decision rests on {facts, plural, one {# fact} other {# facts}}, {rules, plural, one {# of your rules} other {# of your rules}} and {disagreements, plural, one {# disagreement} other {# disagreements}}."
+      },
+      "way": {
+        "title": "The way back",
+        "now": "As it is now",
+        "stored": "stored",
+        "changed": "Changed",
+        "click": "one click",
+        "back": "Back as it was",
+        "auto": "or by itself, if the page slows past {ms} ms",
+        "aria": "What is there now is stored, then changed; one click brings it back as it was.",
+        "ariaAuto": "What is there now is stored, then changed; one click brings it back as it was, and so does the page slowing past {ms} ms."
+      }
     }
   },
   "stop": {

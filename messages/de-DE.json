@@ -1508,6 +1508,67 @@
       "signInToDecide": "Zum Entscheiden anmelden",
       "declineFoot": "Ablehnen: Nichts wird ausgeführt und nichts ändert sich. Ich erfasse es mit Ihrem Grund.",
       "wholeQueue": "Die ganze Warteschlange ansehen"
+    },
+    "chart": {
+      "mast": "Diesen Monat entschieden: {approved} von {decided} freigegeben",
+      "queue": {
+        "needs": "Brauchen eine Entscheidung",
+        "today": "Heute entschieden",
+        "held": "Zurückgehalten",
+        "earlier": "Früher",
+        "aria": "Die Warteschlange: {needs} brauchen eine Entscheidung, {today} heute entschieden, {held} zurückgehalten, {earlier} früher"
+      },
+      "value": {
+        "none": "keine Geldprognose",
+        "scale": "auf einer Skala bis {top} im Monat"
+      },
+      "size": {
+        "title": "Umfang der Änderung",
+        "unit": "Wörter in der Zeile, vorher und nachher",
+        "before": "Vorher",
+        "after": "Nachher",
+        "words": "{count, plural, one {# Wort} other {# Wörter}}",
+        "kept": "behalten · {count}",
+        "added": "hinzugefügt · {count}",
+        "removed": "entfernt · {count}",
+        "aria": "Vorher: {before} Wörter. Nachher: {after} Wörter; {kept} behalten, {added} hinzugefügt, {removed} entfernt."
+      },
+      "rollback": {
+        "title": "Wann es sich selbst zurücknimmt",
+        "unit": "Ladezeit der Seite, Millisekunden",
+        "today": "Heute",
+        "past": "Zurück ab",
+        "ms": "{ms} ms",
+        "note": "Der größere Wert aus dem {factor}-Fachen der heutigen Ladezeit ({times}) und der heutigen Ladezeit plus {seconds} Sekunden ({plus}). Lädt die Seite langsamer, wird sie wieder wie vorher.",
+        "aria": "Heutige Ladezeit {today}. Die Änderung nimmt sich selbst zurück, wenn die Seite länger als {limit} braucht."
+      },
+      "evidence": {
+        "title": "Worauf es beruht",
+        "aria": "{count, plural, one {# Nachweiszeile} other {# Nachweiszeilen}}: {parts}"
+      },
+      "tree": {
+        "title": "Wie diese Entscheidung aufgebaut ist",
+        "root": "Diese Änderung freigeben?",
+        "facts": "{count, plural, one {Fakten · #} other {Fakten · #}}",
+        "fact": "Fakt {n}",
+        "more": "+{count} weitere",
+        "rules": "{count, plural, one {Ihre Regel · #} other {Ihre Regeln · #}}",
+        "rulesSub": "was Sie mir gesagt haben",
+        "disagree": "{count, plural, one {Widerspruch · #} other {Widersprüche · #}}",
+        "disagreeSub": "Quellen, die abweichen",
+        "aria": "Diese Entscheidung beruht auf {facts, plural, one {# Fakt} other {# Fakten}}, {rules, plural, one {# Ihrer Regeln} other {# Ihrer Regeln}} und {disagreements, plural, one {# Widerspruch} other {# Widersprüchen}}."
+      },
+      "way": {
+        "title": "Der Weg zurück",
+        "now": "So wie jetzt",
+        "stored": "gespeichert",
+        "changed": "Geändert",
+        "click": "ein Klick",
+        "back": "Wieder wie vorher",
+        "auto": "oder von selbst, wenn die Seite langsamer als {ms} ms lädt",
+        "aria": "Der jetzige Stand wird gespeichert und dann geändert; ein Klick stellt ihn wieder her.",
+        "ariaAuto": "Der jetzige Stand wird gespeichert und dann geändert; ein Klick stellt ihn wieder her, ebenso eine Ladezeit über {ms} ms."
+      }
     }
   },
   "stop": {
