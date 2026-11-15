@@ -101,10 +101,11 @@
       "createAccount": "Fiók létrehozása"
     },
     "signup": {
-      "headline": "Kezdje a diagnózissal."
+      "headline": "Üdvözöljük a ScaleX-ben"
     },
     "signin": {
-      "headline": "Vissza az irányítópultra."
+      "headline": "Üdvözöljük újra",
+      "sub": "A bejelentkezés után láthatja vállalkozása számait."
     },
     "sent": {
       "titleBelow": "A link lent található",
@@ -114,7 +115,15 @@
       "signInNow": "Bejelentkezés most",
       "sentTo": "Egyszer használható linket küldtünk erre a címre: <b>{email}</b>. {minutes} perc múlva lejár.",
       "wrongAddress": "Rossz cím?",
-      "sendAnother": "Új link küldése"
+      "sendAnother": "Új link küldése",
+      "checkEmail": "Nézze meg a postaládáját",
+      "openGmail": "Gmail megnyitása",
+      "openOutlook": "Outlook megnyitása",
+      "nothingYet": "Még nem érkezett meg? Nézze meg a spam mappát, vagy",
+      "resend": "küldje el újra",
+      "resendIn": "újraküldés {seconds} mp múlva",
+      "resent": "Újraküldve.",
+      "differentEmail": "Másik e-mail-cím"
     },
     "form": {
       "labelCreate": "Fiók létrehozása",
@@ -131,7 +140,11 @@
       "noteSignin": "Nincs jelszó. A link egyszer működik, {minutes} percig.",
       "orSignup": "Vagy regisztráljon ezzel:",
       "orSignin": "Vagy folytassa ezzel:",
-      "terms": "A fiók létrehozásával elfogadja a <terms>felhasználási feltételeket</terms> és az <privacy>adatvédelmi tájékoztatót</privacy>."
+      "terms": "A fiók létrehozásával elfogadja a <terms>felhasználási feltételeket</terms> és az <privacy>adatvédelmi tájékoztatót</privacy>.",
+      "or": "vagy",
+      "orEmail": "vagy e-mail-címmel",
+      "continueWith": "Folytatás ezzel: {provider}",
+      "lastUsed": "Legutóbb használt"
     },
     "confirm": {
       "headline": "Még egy lépés.",
@@ -150,7 +163,30 @@
       "foot": "Minden vállalkozásnak saját tényei, csapata és számlája van. Az egyikből semmi sem jelenik meg a másikban."
     },
     "how": "Hogyan működik",
-    "why": "Miért?"
+    "why": "Miért?",
+    "switch": {
+      "newHere": "Új a ScaleX-ben?",
+      "haveAccount": "Már van fiókja?"
+    },
+    "foot": {
+      "language": "Nyelv",
+      "terms": "Feltételek",
+      "privacy": "Adatvédelem"
+    },
+    "reel": {
+      "label": "Körbevezetés a ScaleX-ben",
+      "home": "A napja egy pillantással",
+      "report": "A diagnózisjelentés",
+      "proposals": "Javaslatok az Ön jóváhagyására",
+      "cash": "Pénzáramlási figyelmeztetések",
+      "stock": "Készlet, mielőtt elfogy",
+      "customers": "Elcsendesedő ügyfelek",
+      "support": "Támogatás, amely Ön helyett válaszol",
+      "competitors": "Versenytársfigyelés",
+      "benchmarks": "Ön és a hasonló vállalkozások",
+      "connections": "Az Ön adatai, csak olvasásra",
+      "chat": "Kérdezzen bármit az üzletéről"
+    }
   },
   "locale": {
     "meta": "Nyelv és pénznem — ScaleX",

@@ -101,10 +101,11 @@
       "createAccount": "Konto erstellen"
     },
     "signup": {
-      "headline": "Beginnen Sie mit der Diagnose."
+      "headline": "Willkommen bei ScaleX"
     },
     "signin": {
-      "headline": "Zurück zu Ihrer Übersicht."
+      "headline": "Willkommen zurück",
+      "sub": "Nach der Anmeldung sehen Sie die Zahlen Ihres Unternehmens."
     },
     "sent": {
       "titleBelow": "Ihr Link steht unten",
@@ -114,7 +115,15 @@
       "signInNow": "Jetzt anmelden",
       "sentTo": "Wir haben einen Einmal-Link an <b>{email}</b> gesendet. Er läuft in {minutes, plural, one {# Minute} other {# Minuten}} ab.",
       "wrongAddress": "Falsche Adresse?",
-      "sendAnother": "Neuen Link senden"
+      "sendAnother": "Neuen Link senden",
+      "checkEmail": "Prüfen Sie Ihre E-Mails",
+      "openGmail": "Gmail öffnen",
+      "openOutlook": "Outlook öffnen",
+      "nothingYet": "Noch nichts da? Sehen Sie im Spam-Ordner nach, oder",
+      "resend": "erneut senden",
+      "resendIn": "erneut senden in {seconds} s",
+      "resent": "Erneut gesendet.",
+      "differentEmail": "Andere E-Mail verwenden"
     },
     "form": {
       "labelCreate": "Konto erstellen",
@@ -131,7 +140,11 @@
       "noteSignin": "Kein Passwort. Der Link funktioniert einmal, {minutes, plural, one {# Minute} other {# Minuten}} lang.",
       "orSignup": "Oder registrieren mit",
       "orSignin": "Oder weiter mit",
-      "terms": "Mit dem Erstellen eines Kontos stimmen Sie den <terms>Nutzungsbedingungen</terms> und dem <privacy>Datenschutzhinweis</privacy> zu."
+      "terms": "Mit dem Erstellen eines Kontos stimmen Sie den <terms>Nutzungsbedingungen</terms> und dem <privacy>Datenschutzhinweis</privacy> zu.",
+      "or": "oder",
+      "orEmail": "oder mit Ihrer E-Mail",
+      "continueWith": "Weiter mit {provider}",
+      "lastUsed": "Zuletzt verwendet"
     },
     "confirm": {
       "headline": "Noch ein Schritt.",
@@ -150,7 +163,30 @@
       "foot": "Jedes Unternehmen behält seine eigenen Fakten, sein Team und seine Rechnung. Nichts aus einem wird je in einem anderen angezeigt."
     },
     "how": "So funktioniert es",
-    "why": "Warum?"
+    "why": "Warum?",
+    "switch": {
+      "newHere": "Neu bei ScaleX?",
+      "haveAccount": "Sie haben schon ein Konto?"
+    },
+    "foot": {
+      "language": "Sprache",
+      "terms": "Nutzungsbedingungen",
+      "privacy": "Datenschutz"
+    },
+    "reel": {
+      "label": "Ein Rundgang durch ScaleX",
+      "home": "Ihr Tag auf einen Blick",
+      "report": "Der Diagnose-Bericht",
+      "proposals": "Vorschläge zu Ihrer Freigabe",
+      "cash": "Cashflow-Warnungen",
+      "stock": "Lagerbestand, bevor er ausgeht",
+      "customers": "Kunden, die still werden",
+      "support": "Support, der für Sie antwortet",
+      "competitors": "Wettbewerber im Blick",
+      "benchmarks": "Sie im Vergleich zu ähnlichen Unternehmen",
+      "connections": "Ihre Daten, nur lesend",
+      "chat": "Fragen Sie alles über Ihr Geschäft"
+    }
   },
   "locale": {
     "meta": "Sprache und Währung — ScaleX",

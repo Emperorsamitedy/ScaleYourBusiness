@@ -101,10 +101,11 @@
       "createAccount": "Crear una cuenta"
     },
     "signup": {
-      "headline": "Empiece por el diagnóstico."
+      "headline": "Le damos la bienvenida a ScaleX"
     },
     "signin": {
-      "headline": "De vuelta a su panel."
+      "headline": "Hola de nuevo",
+      "sub": "Inicie sesión para ver las cifras de su negocio."
     },
     "sent": {
       "titleBelow": "Su enlace está abajo",
@@ -114,7 +115,15 @@
       "signInNow": "Iniciar sesión ahora",
       "sentTo": "Hemos enviado un enlace de un solo uso a <b>{email}</b>. Caduca en {minutes, plural, one {# minuto} many {# minutos} other {# minutos}}.",
       "wrongAddress": "¿Dirección equivocada?",
-      "sendAnother": "Enviar otro enlace"
+      "sendAnother": "Enviar otro enlace",
+      "checkEmail": "Revise su correo electrónico",
+      "openGmail": "Abrir Gmail",
+      "openOutlook": "Abrir Outlook",
+      "nothingYet": "¿Aún no le ha llegado? Revise la carpeta de spam, o",
+      "resend": "envíelo de nuevo",
+      "resendIn": "reenviar en {seconds} s",
+      "resent": "Enviado de nuevo.",
+      "differentEmail": "Usar otro correo electrónico"
     },
     "form": {
       "labelCreate": "Crear cuenta",
@@ -131,7 +140,11 @@
       "noteSignin": "Sin contraseña. El enlace funciona una sola vez, durante {minutes, plural, one {# minuto} many {# minutos} other {# minutos}}.",
       "orSignup": "O regístrese con",
       "orSignin": "O continúe con",
-      "terms": "Al crear una cuenta, acepta las <terms>condiciones</terms> y el <privacy>aviso de privacidad</privacy>."
+      "terms": "Al crear una cuenta, acepta las <terms>condiciones</terms> y el <privacy>aviso de privacidad</privacy>.",
+      "or": "o",
+      "orEmail": "o con su correo electrónico",
+      "continueWith": "Continuar con {provider}",
+      "lastUsed": "Usado la última vez"
     },
     "confirm": {
       "headline": "Un paso más.",
@@ -150,7 +163,30 @@
       "foot": "Cada negocio conserva sus propios datos, su equipo y su factura. Nada de uno se muestra nunca en otro."
     },
     "how": "Cómo funciona",
-    "why": "¿Por qué?"
+    "why": "¿Por qué?",
+    "switch": {
+      "newHere": "¿Es nuevo en ScaleX?",
+      "haveAccount": "¿Ya tiene una cuenta?"
+    },
+    "foot": {
+      "language": "Idioma",
+      "terms": "Condiciones",
+      "privacy": "Privacidad"
+    },
+    "reel": {
+      "label": "Un recorrido por ScaleX",
+      "home": "Su día de un vistazo",
+      "report": "El informe de diagnóstico",
+      "proposals": "Propuestas para su aprobación",
+      "cash": "Alertas de flujo de caja",
+      "stock": "Existencias antes de que se agoten",
+      "customers": "Clientes que se enfrían",
+      "support": "Soporte que responde por usted",
+      "competitors": "Vigilancia de competidores",
+      "benchmarks": "Usted frente a negocios similares",
+      "connections": "Sus datos, solo lectura",
+      "chat": "Pregunte lo que quiera sobre su tienda"
+    }
   },
   "locale": {
     "meta": "Idioma y moneda — ScaleX",

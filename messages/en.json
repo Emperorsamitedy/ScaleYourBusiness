@@ -101,10 +101,11 @@
       "createAccount": "Create an account"
     },
     "signup": {
-      "headline": "Start with the diagnosis."
+      "headline": "Welcome to ScaleX"
     },
     "signin": {
-      "headline": "Back to your panel."
+      "headline": "Welcome back",
+      "sub": "Sign in to see your business’s numbers."
     },
     "sent": {
       "titleBelow": "Your link is below",
@@ -114,7 +115,15 @@
       "signInNow": "Sign in now",
       "sentTo": "We sent a one-time link to <b>{email}</b>. It expires in {minutes, plural, one {# minute} other {# minutes}}.",
       "wrongAddress": "Wrong address?",
-      "sendAnother": "Send another link"
+      "sendAnother": "Send another link",
+      "checkEmail": "Check your email",
+      "openGmail": "Open Gmail",
+      "openOutlook": "Open Outlook",
+      "nothingYet": "Nothing yet? Check your spam folder, or",
+      "resend": "send it again",
+      "resendIn": "send again in {seconds} s",
+      "resent": "Sent again.",
+      "differentEmail": "Use a different email"
     },
     "form": {
       "labelCreate": "Create account",
@@ -131,7 +140,11 @@
       "noteSignin": "No password. The link works once, for {minutes, plural, one {# minute} other {# minutes}}.",
       "orSignup": "Or sign up with",
       "orSignin": "Or continue with",
-      "terms": "By creating an account you agree to the <terms>terms</terms> and <privacy>privacy notice</privacy>."
+      "terms": "By creating an account you agree to the <terms>terms</terms> and <privacy>privacy notice</privacy>.",
+      "or": "or",
+      "orEmail": "or with your email",
+      "continueWith": "Continue with {provider}",
+      "lastUsed": "Last used"
     },
     "confirm": {
       "headline": "One more step.",
@@ -150,7 +163,30 @@
       "foot": "Each business keeps its own facts, team and bill. Nothing from one is ever shown in another."
     },
     "how": "How this works",
-    "why": "Why?"
+    "why": "Why?",
+    "switch": {
+      "newHere": "New to ScaleX?",
+      "haveAccount": "Already have an account?"
+    },
+    "foot": {
+      "language": "Language",
+      "terms": "Terms",
+      "privacy": "Privacy"
+    },
+    "reel": {
+      "label": "A tour of ScaleX",
+      "home": "Your day at a glance",
+      "report": "The diagnosis report",
+      "proposals": "Proposals you approve",
+      "cash": "Cash flow warnings",
+      "stock": "Stock before it runs out",
+      "customers": "Customers going quiet",
+      "support": "Support that answers for you",
+      "competitors": "Competitor watch",
+      "benchmarks": "You vs similar businesses",
+      "connections": "Your data, read-only",
+      "chat": "Ask anything about your shop"
+    }
   },
   "locale": {
     "meta": "Language and currency — ScaleX",

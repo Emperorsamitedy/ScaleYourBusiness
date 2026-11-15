@@ -101,10 +101,11 @@
       "createAccount": "Créer un compte"
     },
     "signup": {
-      "headline": "Commencez par le diagnostic."
+      "headline": "Bienvenue sur ScaleX"
     },
     "signin": {
-      "headline": "De retour sur votre tableau de bord."
+      "headline": "Bon retour parmi nous",
+      "sub": "Connectez-vous pour voir les chiffres de votre entreprise."
     },
     "sent": {
       "titleBelow": "Votre lien est ci-dessous",
@@ -114,7 +115,15 @@
       "signInNow": "Se connecter maintenant",
       "sentTo": "Nous avons envoyé un lien à usage unique à <b>{email}</b>. Il expire dans {minutes, plural, one {# minute} many {# minutes} other {# minutes}}.",
       "wrongAddress": "Mauvaise adresse ?",
-      "sendAnother": "Envoyer un autre lien"
+      "sendAnother": "Envoyer un autre lien",
+      "checkEmail": "Consultez vos e-mails",
+      "openGmail": "Ouvrir Gmail",
+      "openOutlook": "Ouvrir Outlook",
+      "nothingYet": "Toujours rien ? Vérifiez vos spams, ou",
+      "resend": "renvoyez-le",
+      "resendIn": "renvoyer dans {seconds} s",
+      "resent": "Renvoyé.",
+      "differentEmail": "Utiliser une autre adresse e-mail"
     },
     "form": {
       "labelCreate": "Créer un compte",
@@ -131,7 +140,11 @@
       "noteSignin": "Pas de mot de passe. Le lien fonctionne une seule fois, pendant {minutes, plural, one {# minute} many {# minutes} other {# minutes}}.",
       "orSignup": "Ou inscrivez-vous avec",
       "orSignin": "Ou continuez avec",
-      "terms": "En créant un compte, vous acceptez les <terms>conditions d’utilisation</terms> et la <privacy>politique de confidentialité</privacy>."
+      "terms": "En créant un compte, vous acceptez les <terms>conditions d’utilisation</terms> et la <privacy>politique de confidentialité</privacy>.",
+      "or": "ou",
+      "orEmail": "ou avec votre e-mail",
+      "continueWith": "Continuer avec {provider}",
+      "lastUsed": "Dernière utilisation"
     },
     "confirm": {
       "headline": "Encore une étape.",
@@ -150,7 +163,30 @@
       "foot": "Chaque entreprise conserve ses propres faits, son équipe et sa facture. Rien de l’une n’apparaît jamais dans une autre."
     },
     "how": "Comment ça marche",
-    "why": "Pourquoi ?"
+    "why": "Pourquoi ?",
+    "switch": {
+      "newHere": "Nouveau sur ScaleX ?",
+      "haveAccount": "Vous avez déjà un compte ?"
+    },
+    "foot": {
+      "language": "Langue",
+      "terms": "Conditions",
+      "privacy": "Confidentialité"
+    },
+    "reel": {
+      "label": "Visite de ScaleX",
+      "home": "Votre journée en un coup d’œil",
+      "report": "Le rapport de diagnostic",
+      "proposals": "Des propositions que vous validez",
+      "cash": "Alertes de trésorerie",
+      "stock": "Le stock avant la rupture",
+      "customers": "Les clients qui décrochent",
+      "support": "Une assistance qui répond pour vous",
+      "competitors": "Veille des concurrents",
+      "benchmarks": "Vous face à des entreprises similaires",
+      "connections": "Vos données, en lecture seule",
+      "chat": "Posez toutes vos questions sur votre boutique"
+    }
   },
   "locale": {
     "meta": "Langue et devise — ScaleX",

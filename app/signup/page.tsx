@@ -1,12 +1,13 @@
 // /signup — the same one-motion auth, met with sign-up words (P1-49).
-// L-1: a browser that hasn't chosen a language and currency yet chooses
-// them first (TASKS-LANGUAGES.md); then the email form, in that language.
+// L-1, amended 2026-11-16: sign-up no longer stops for language and
+// currency first. The language is a footer switcher here; the intake asks
+// for both before its first question when they haven't been chosen
+// (app/intake/page.tsx, TASKS-LANGUAGES.md).
 
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { LoginScreen } from "../../components/auth/Login";
 import { configuredProviders } from "../../lib/auth/oauth";
-import { FirstStepScreen } from "../../components/locale/FirstStepScreen";
 import { pickerContext } from "../../lib/i18n/server";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -16,6 +17,12 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function SignupPage() {
   const picker = await pickerContext();
-  if (!picker.chosen) return <FirstStepScreen data={picker.data} signIn />;
-  return <LoginScreen variant="signup" providers={configuredProviders()} />;
+  return (
+    <LoginScreen
+      variant="signup"
+      providers={configuredProviders()}
+      languages={picker.data.languages}
+      language={picker.data.language}
+    />
+  );
 }
