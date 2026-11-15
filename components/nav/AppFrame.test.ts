@@ -5,16 +5,20 @@ import {
   GROUPS,
   connectionsCount,
   groupFor,
+  railItems,
   roleLine,
   showsNav,
+  stripStop,
   supportCount,
+  tabGroup,
   visibleGroups,
 } from "./AppFrame";
 
-// The owner's menu design: five labelled groups, every owner screen in one.
+// The owner's menu design, reorganised 2026-11-15: six labelled groups, Today first.
 describe("app navigation", () => {
-  it("has the five groups of the menu design", () => {
+  it("has the six groups of the menu design, Today first", () => {
     expect(GROUPS.map((g) => g.label)).toEqual([
+      "Today",
       "To approve",
       "Insights",
       "Grow",
@@ -35,7 +39,41 @@ describe("app navigation", () => {
 
   it("shows the rail on owner screens and the chat", () => {
     expect(showsNav("/watch")).toBe(true);
+    expect(showsNav("/home")).toBe(true);
     expect(showsNav("/chat")).toBe(true);
+  });
+
+  // 2026-11-15: the rail lists each group's main screens; the rest are tabs.
+  it("lists only a group's main screens in the rail, plus the one open now", () => {
+    const insights = GROUPS.find((g) => g.key === "insights")!;
+    expect(railItems(insights, "/watch").map((i) => i.href)).toEqual([
+      "/report",
+      "/watch",
+      "/progress",
+      "/cash",
+    ]);
+    expect(railItems(insights, "/hours").map((i) => i.href)).toContain("/hours");
+    const grow = GROUPS.find((g) => g.key === "grow")!;
+    expect(railItems(grow, "/home")).toEqual(grow.items); // none marked: all four listed
+  });
+
+  it("makes the open screen's group the tab strip, only with two or more screens", () => {
+    expect(tabGroup(GROUPS, "/hours")?.key).toBe("insights");
+    expect(tabGroup(GROUPS, "/settings/team")?.key).toBe("business");
+    expect(tabGroup(GROUPS, "/home")).toBeNull(); // Today holds one screen
+    expect(tabGroup(GROUPS, "/chat")).toBeNull();
+  });
+
+  it("puts the emergency stop in the strip, except where the screen carries its own", () => {
+    expect(stripStop("/home")).toBe(true);
+    expect(stripStop("/watch")).toBe(true);
+    expect(stripStop("/content")).toBe(false);
+    expect(stripStop("/site")).toBe(false);
+  });
+
+  it("files What I may do under To approve, beside the queue", () => {
+    expect(groupFor("/ladder")?.key).toBe("approve");
+    expect(groupFor("/home")?.key).toBe("today");
   });
 
   it("keeps the rail off focused views and public pages", () => {

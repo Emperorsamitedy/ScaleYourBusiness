@@ -45,6 +45,14 @@ const EVERY: readonly SizeBand[] = SIZE_BANDS;
 
 /** feature key → the bands it shows for, with the reason. Keys are used by the menu (components/nav/AppFrame.tsx). */
 export const SIZE_FEATURES = {
+  "nav.home": {
+    bands: EVERY,
+    reason: "Home answers what needs you today; every owner has a today.",
+  },
+  "nav.alerts": {
+    bands: EVERY,
+    reason: "How SYB tells you, and where it works, is a choice at every size.",
+  },
   "nav.proposals": {
     bands: EVERY,
     reason: "Nothing I do runs without your approval, whatever the size of the business.",

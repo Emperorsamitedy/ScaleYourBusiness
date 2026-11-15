@@ -312,10 +312,7 @@ function Panel({
     <section className="rq-panel" aria-labelledby="rq-panel-h">
       <header className="rq-panel-head">
         <p className="rq-label">
-          {t("panel.label", {
-            id: report.id.slice(0, 8),
-            issued: fmtDate(report.generated_at, locale),
-          })}
+          {t("panel.issued", { issued: fmtDate(report.generated_at, locale) })}
           {prior && t("panel.prior", { date: fmtDate(prior.generated_at, locale) })}
         </p>
         <h1 id="rq-panel-h" className="rq-head-line">

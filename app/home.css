@@ -1,0 +1,420 @@
+/* Home — /home (2026-11-15), components/home/HomeScreen.tsx. Sheet system
+   only: paper on the desk, square, no shadows, no icons. Every sheet keeps
+   its contents 20px from its edge (14px under 720px), so the edges of the
+   readings, the rows and the headers line up. */
+
+.home {
+  --pad: 20px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 20px;
+}
+.home > * {
+  min-width: 0;
+}
+.home .ph {
+  margin-bottom: 0;
+}
+.home-ans {
+  margin: 0;
+  font-family: var(--f-prose);
+  font-size: 17px;
+  color: var(--desk-ink-2);
+}
+
+/* the actions: ink on paper, or desk ink on the desk; 48px, square */
+.home-act {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  min-height: 48px;
+  padding: 0 18px;
+  border: 1px solid var(--sheet-ink);
+  background: var(--paper);
+  color: var(--sheet-ink);
+  font-family: var(--f-mono);
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-decoration: none;
+  white-space: nowrap;
+  transition:
+    background-color var(--d-press) linear,
+    color var(--d-press) linear;
+}
+.home-act:hover {
+  background: var(--sheet-ink);
+  color: var(--paper);
+}
+.home-act-desk {
+  background: transparent;
+  border-color: var(--desk-ink);
+  color: var(--desk-ink);
+}
+.home-act-desk:hover {
+  background: var(--desk-ink);
+  color: var(--desk);
+}
+.home-act-sm {
+  min-height: 38px;
+  padding: 0 12px;
+  font-size: 11.5px;
+}
+.home-link {
+  font-family: var(--f-mono);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: inherit;
+  text-underline-offset: 3px;
+}
+
+/* the one warning: a paper sheet with a drift rule drawn inside its edge */
+.home-alert {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+  padding: 16px var(--pad);
+  background: var(--paper);
+  color: var(--sheet-ink);
+  border: 1px solid var(--rule);
+  box-shadow: inset 5px 0 0 var(--drift);
+}
+.home-alert-tx {
+  flex: 1;
+  min-width: 220px;
+  display: grid;
+  gap: 4px;
+}
+.home-alert .flag {
+  margin: 0;
+}
+.home-alert-title {
+  margin: 0;
+  font-family: var(--f-display);
+  font-size: 21px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+.home-alert-line {
+  margin: 0;
+  font-size: 14px;
+  color: var(--sheet-ink-2);
+}
+
+/* the readings: one sheet split by hairlines, the number grammar in each */
+.home .cs-head,
+.home .cs-body {
+  padding-left: var(--pad);
+  padding-right: var(--pad);
+}
+.home-strip {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 190px), 1fr));
+}
+.home-reading {
+  display: grid;
+  gap: 6px;
+  align-content: start;
+  padding: 16px var(--pad) 18px;
+  border-left: 1px solid var(--rule-soft);
+  margin-left: -1px;
+}
+.home-r-lab {
+  margin: 0;
+  font-family: var(--f-mono);
+  font-size: 11.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--sheet-ink-2);
+}
+.home-r-val {
+  margin: 0;
+  font-family: var(--f-mono);
+  font-size: 28px;
+  font-weight: 500;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+.home-r-cmp {
+  margin: 0;
+  font-family: var(--f-mono);
+  font-size: 12.5px;
+  color: var(--sheet-ink-2);
+}
+.home-r-foot {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-top: 4px;
+}
+.home-why {
+  min-height: 32px;
+  padding: 0;
+  background: none;
+  border: 0;
+  color: var(--sheet-ink);
+  font-family: var(--f-mono);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+  justify-self: start;
+}
+
+/* the chart beside the watch */
+.home-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr);
+  gap: 20px;
+  align-items: start;
+}
+.home-grid > * {
+  min-width: 0;
+}
+.home-chart .mk {
+  margin: 0;
+}
+.home-days {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(6px, 1fr));
+  gap: 3px;
+  margin-bottom: 14px;
+}
+.home-days i {
+  height: 14px;
+  border: 1px solid var(--rule);
+}
+.home-days i.d {
+  background: var(--sheet-ink);
+  border-color: var(--sheet-ink);
+}
+.home-days i.n {
+  background: var(--live);
+  border-color: var(--live);
+}
+.home-note {
+  margin: 0 0 12px;
+  font-size: 14px;
+  color: var(--sheet-ink-2);
+}
+
+/* the waiting decisions: rows on one inner edge */
+.home-rows {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.home-rows li {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 14px var(--pad);
+  border-top: 1px solid var(--rule-soft);
+}
+.home-rows li:first-child {
+  border-top: 0;
+}
+.home-row-tx {
+  flex: 1;
+  min-width: 0;
+  display: grid;
+  gap: 3px;
+}
+.home-row-lab {
+  margin: 0;
+  font-family: var(--f-mono);
+  font-size: 11.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--sheet-ink-2);
+}
+.home-row-ti {
+  margin: 0;
+  font-weight: 600;
+  font-size: 15px;
+}
+.home-row-amt {
+  margin: 0;
+  font-family: var(--f-mono);
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--ok);
+  white-space: nowrap;
+}
+.home-empty {
+  margin: 0;
+  padding: 16px var(--pad);
+  color: var(--sheet-ink-2);
+}
+
+@media (max-width: 899px) {
+  .home-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (max-width: 719px) {
+  .home {
+    --pad: 14px;
+    gap: 16px;
+  }
+  .home-strip {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .home-reading {
+    border-top: 1px solid var(--rule-soft);
+  }
+  .home-r-val {
+    font-size: 22px;
+  }
+  .home-rows li {
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  .home-row-tx {
+    flex-basis: 100%;
+  }
+  .home .ph-aside,
+  .home .ph-aside .home-act {
+    width: 100%;
+  }
+}
+
+/* The Why sheet (components/sheet/WhySheet.tsx): paper from the right. */
+.why-layer {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+}
+.why-scrim {
+  position: absolute;
+  inset: 0;
+  background: rgba(6, 12, 8, 0.55);
+}
+.why-sheet {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: min(460px, 100%);
+  display: flex;
+  flex-direction: column;
+  background: var(--paper);
+  color: var(--sheet-ink);
+  border-left: 2px solid var(--live-rule);
+  animation: why-in var(--d-move) var(--ease-out);
+}
+@keyframes why-in {
+  from {
+    transform: translateX(24px);
+    opacity: 0;
+  }
+}
+.why-head {
+  display: grid;
+  gap: 6px;
+  padding: 20px 22px 16px;
+  border-bottom: 1px solid var(--rule);
+}
+.why-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.why-label {
+  margin: 0;
+  font-family: var(--f-mono);
+  font-size: 11.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--sheet-ink-2);
+}
+.why-close {
+  min-height: 40px;
+  padding: 0 14px;
+  border: 1px solid var(--sheet-ink);
+  background: var(--paper);
+  color: var(--sheet-ink);
+  font-family: var(--f-mono);
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+}
+.why-close:hover {
+  background: var(--sheet-ink);
+  color: var(--paper);
+}
+.why-title {
+  margin: 0;
+  font-family: var(--f-display);
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+.why-value {
+  margin: 0;
+  font-family: var(--f-mono);
+  font-size: 26px;
+  font-weight: 500;
+}
+.why-body {
+  display: grid;
+  gap: 18px;
+  align-content: start;
+  padding: 18px 22px;
+  overflow-y: auto;
+}
+.why-rows {
+  margin: 0;
+  border: 1px solid var(--rule);
+}
+.why-rows div {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 10px 14px;
+  border-top: 1px solid var(--rule-soft);
+  font-size: 14px;
+}
+.why-rows div:first-child {
+  border-top: 0;
+}
+.why-rows dt {
+  color: var(--sheet-ink-2);
+}
+.why-rows dd {
+  margin: 0;
+  font-weight: 600;
+  text-align: right;
+}
+.why-sec {
+  display: grid;
+  gap: 8px;
+}
+.why-lines {
+  background: var(--inset);
+  border: 1px solid var(--rule);
+  padding: 12px 14px;
+  font-family: var(--f-mono);
+  font-size: 13px;
+  line-height: 1.65;
+}
+.why-lines p {
+  margin: 0;
+}
+@media (prefers-reduced-motion: reduce) {
+  .why-sheet {
+    animation: none;
+  }
+}

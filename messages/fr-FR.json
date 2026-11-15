@@ -15,6 +15,11 @@
     "fold": {
       "how": "Comment ça marche",
       "why": "Pourquoi ?"
+    },
+    "why": {
+      "label": "Comment c’est calculé",
+      "close": "Fermer",
+      "arithmetic": "Le calcul"
     }
   },
   "nav": {
@@ -31,7 +36,8 @@
       "insights": "Analyses",
       "grow": "Croissance",
       "customers": "Clients",
-      "business": "Votre entreprise"
+      "business": "Votre entreprise",
+      "today": "Aujourd’hui"
     },
     "item": {
       "proposals": "En attente de votre décision",
@@ -68,7 +74,9 @@
       "mandates": "Cabinets avec accès",
       "partner": "Console partenaire",
       "growth": "Studio de croissance",
-      "erasure": "Effacer cette entreprise"
+      "erasure": "Effacer cette entreprise",
+      "home": "Accueil",
+      "alerts": "Alertes et modules"
     },
     "count": {
       "paused": "{count} en pause",
@@ -78,7 +86,8 @@
       "owner": "Votre rôle ici : propriétaire",
       "manager": "Votre rôle ici : gestionnaire",
       "viewer": "Votre rôle ici : lecteur. Vous pouvez consulter et appuyer sur l’arrêt d’urgence."
-    }
+    },
+    "tabs": "Écrans de ce groupe"
   },
   "auth": {
     "meta": {
@@ -505,7 +514,8 @@
       "notComputed": "{count, plural, one {<b>#</b> non calculée} many {<b>#</b> non calculées} other {<b>#</b> non calculées}}",
       "empty": "Aucune mesure n’a pu être calculée ni refusée — le profil ne contient encore rien sur quoi s’appuyer.",
       "caption": "Pour chaque mesure : son résultat, celui du rapport précédent, la plage de référence, une alerte, le montant par mois, sa base et la façon dont elle a été calculée",
-      "legend": "Plage · seuil d’urgence : tracés seulement là où l’un de vos objectifs chiffrés, ou une plage étayée par les données, couvre la mesure — aucun ne le fait encore, d’où le —. Le montant par mois n’est indiqué que là où l’écart d’une mesure est chiffré ; aucun ne l’est. CALCULÉ = obtenu à partir d’autres faits ; son POURQUOI montre la formule et les données d’entrée."
+      "legend": "Plage · seuil d’urgence : tracés seulement là où l’un de vos objectifs chiffrés, ou une plage étayée par les données, couvre la mesure — aucun ne le fait encore, d’où le —. Le montant par mois n’est indiqué que là où l’écart d’une mesure est chiffré ; aucun ne l’est. CALCULÉ = obtenu à partir d’autres faits ; son POURQUOI montre la formule et les données d’entrée.",
+      "issued": "Panneau de diagnostic · émis le {issued}"
     },
     "col": {
       "measure": "Mesure",
@@ -1154,7 +1164,8 @@
     },
     "activity": {
       "label": "Activité",
-      "empty": "Rien pour l’instant. Le premier instantané hebdomadaire apparaîtra ici."
+      "empty": "Rien pour l’instant. Le premier instantané hebdomadaire apparaîtra ici.",
+      "more": "{count, plural, one {Afficher # de plus} many {Afficher # de plus} other {Afficher # de plus}}"
     },
     "rules": {
       "label": "Ce qui interromprait l’observation",
@@ -1255,7 +1266,9 @@
       "tested": "Test : {results}.",
       "notTested": "Aucun test envoyé : {error}.",
       "ourSide": "un problème est survenu de notre côté"
-    }
+    },
+    "moved": "Le résumé hebdomadaire, les alertes sur téléphone et les modules sont dans les Réglages.",
+    "movedLink": "Alertes et modules"
   },
   "proposals": {
     "meta": {
@@ -1375,7 +1388,8 @@
       "s2": "{n} · Effet attendu · estimé",
       "s2Span": "{n} · Effet attendu, {span} · estimé",
       "s3": "{n} · Preuves",
-      "s4": "{n} · Réversibilité"
+      "s4": "{n} · Réversibilité",
+      "drafted": "Proposition · rédigée {when}"
     },
     "schedule": {
       "planned": "à l’heure prévue, {day} à {clock}",
@@ -9706,5 +9720,67 @@
     "ask": "Demander l’effacement",
     "requested": "Effacement demandé le {date}. Ses chiffres sont déjà hors de toute comparaison.",
     "failed": "Cela n’a pas fonctionné : {why}"
+  },
+  "home": {
+    "meta": {
+      "title": "Accueil — SYB"
+    },
+    "kicker": "Aujourd’hui · {date}",
+    "reading": "Lecture…",
+    "title": "{count, plural, =0 {Rien ne vous attend.} one {# décision vous attend.} many {# décisions vous attendent.} other {# décisions vous attendent.}}",
+    "biggest": "La plus importante pourrait rapporter {range} par mois.",
+    "review": "Les examiner",
+    "cash": {
+      "flag": "Sous votre réserve",
+      "title": "L’argent pourrait manquer la semaine du {date}.",
+      "line": "{low} dans le cas prudent, sous les {line} que vous voulez garder.",
+      "lineZero": "{low} dans le cas prudent : sous zéro.",
+      "open": "Voir la trésorerie"
+    },
+    "readings": {
+      "label": "Vos chiffres du jour",
+      "waiting": "En attente de vous",
+      "waitingCmp": "la plus forte {range} par mois",
+      "waitingNone": "rien à décider",
+      "cash": "Trésorerie du jour",
+      "cashCmp": "réserve {line}",
+      "cashZero": "aucune réserve indiquée",
+      "lowest": "Point le plus bas à venir",
+      "lowestCmp": "semaine du {date}",
+      "watch": "Observation",
+      "watchCmp": "jours d’observation"
+    },
+    "flag": {
+      "under": "Sous la réserve",
+      "above": "Au-dessus de la réserve",
+      "tight": "Tendu",
+      "clear": "Dégagé"
+    },
+    "why": {
+      "open": "Pourquoi",
+      "basis": "Base",
+      "from": "D’où",
+      "when": "Quand"
+    },
+    "watch": {
+      "label": "Observation",
+      "title": "Jour {day} sur {of}.",
+      "note": "Je lis chaque jour ce que vous avez relié et ne change rien de moi-même.",
+      "open": "Ouvrir l’observation"
+    },
+    "decisions": {
+      "label": "En attente de vous",
+      "all": "Toutes",
+      "open": "Ouvrir",
+      "empty": "Rien n’attend. Je mettrai la prochaine décision ici.",
+      "by": "à décider avant le {date}"
+    }
+  },
+  "alerts": {
+    "meta": {
+      "title": "Alertes et modules — SYB"
+    },
+    "kicker": "Votre entreprise · Alertes et modules",
+    "title": "Où je travaille, et comment je vous préviens."
   }
 }

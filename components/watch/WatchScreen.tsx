@@ -6,10 +6,10 @@
 // the mode decision, every signal is a series a connection actually
 // holds (judged by the anomaly layer's own rules, lib/watch/watch-view),
 // every note and log line is a watch_activity row for work performed.
-// Module selection (P1-48) stays at the foot: it has no other home, and
-// the weekly summary email's switch (idea 42) sits beside it, because the
-// email is this screen's week, sent. Phone alerts (idea 53) follow it: the
-// other way the owner hears from SYB without opening it.
+// Module selection (P1-48), the weekly summary's switch (idea 42) and
+// phone alerts (idea 53) moved to their own settings screen on 2026-11-15
+// (/settings/alerts, WatchSettingsScreen below): this screen says what is
+// being watched, and one line at its foot points to where they now live.
 //
 // L-3a: the screen's words are the "watch" catalogue in the reader's
 // language, and every figure and date their own writing. A signal's noun,
@@ -22,6 +22,7 @@ import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { useTranslations } from "next-intl";
+import { Fold } from "../sheet/Fold";
 import { PageHead, SheetCard } from "../sheet/PageHead";
 import { PhoneAlertsCard } from "./PhoneAlertsCard";
 import { WhyFold } from "../report/WhyFold";
@@ -355,22 +356,29 @@ function ActivityCard({ log }: { log: LogEntry[] }) {
   const ww = useWatchWords();
   const locale = useAppLocale();
   const work = log.filter((e) => !NOTED_KINDS.has(e.kind));
+  const row = (e: LogEntry, i: number) => (
+    <li key={`${e.at}-${e.kind}-${i}`}>
+      <span className="wt-at">{dayText(e.at, false, locale)}</span>
+      <p>
+        {e.subject ? `${e.subject} · ` : ""}
+        {logWords(e.detail, ww)}
+      </p>
+    </li>
+  );
   return (
     <SheetCard label={t("activity.label")}>
       {work.length === 0 ? (
         <p className="wt-empty">{t("activity.empty")}</p>
       ) : (
-        <ul className="wt-notes">
-          {work.slice(0, 12).map((e, i) => (
-            <li key={`${e.at}-${e.kind}-${i}`}>
-              <span className="wt-at">{dayText(e.at, false, locale)}</span>
-              <p>
-                {e.subject ? `${e.subject} · ` : ""}
-                {logWords(e.detail, ww)}
-              </p>
-            </li>
-          ))}
-        </ul>
+        <>
+          <ul className="wt-notes">{work.slice(0, 5).map(row)}</ul>
+          {/* 2026-11-15: the latest five in view; the rest one press away. */}
+          {work.length > 5 && (
+            <Fold summary={t("activity.more", { count: Math.min(work.length, 12) - 5 })}>
+              <ul className="wt-notes">{work.slice(5, 12).map(row)}</ul>
+            </Fold>
+          )}
+        </>
       )}
     </SheetCard>
   );
@@ -669,23 +677,25 @@ function Frame({
   );
 }
 
-export function WatchScreen({ reading }: { reading: WatchReading | null }) {
+/**
+ * The settings that used to sit at the foot of Watching (2026-11-15):
+ * which modules SYB works in, the weekly summary and phone alerts. Same
+ * cards, same APIs, now on /settings/alerts under Your business.
+ */
+export function WatchSettingsScreen() {
   const t = useTranslations("watch");
-  const locale = useAppLocale();
-  const [view, setView] = useState<WatchView | null>(null);
+  const a = useTranslations("alerts");
   const [modules, setModules] = useState<ModulesView | null>(null);
   const [summary, setSummary] = useState<SummaryView | null>(null);
-  const [failed, setFailed] = useState<"signed_out" | "error" | null>(null);
+  const [failed, setFailed] = useState(false);
 
   const load = useCallback(async () => {
     try {
-      const [w, m] = await Promise.all([fetch("/api/watch"), fetch("/api/modules")]);
-      if (w.status === 401) return setFailed("signed_out");
-      if (!w.ok || !m.ok) return setFailed("error");
-      setView((await w.json()) as WatchView);
+      const m = await fetch("/api/modules");
+      if (!m.ok) return setFailed(true);
       setModules((await m.json()) as ModulesView);
     } catch {
-      setFailed("error");
+      setFailed(true);
     }
     // The summary switch is optional: the screen stands without it.
     try {
@@ -718,6 +728,51 @@ export function WatchScreen({ reading }: { reading: WatchReading | null }) {
     await load();
   };
 
+  return (
+    <main className="screen wt-screen">
+      <PageHead kicker={a("kicker")} title={a("title")} />
+      {failed ? (
+        <p className="wt-wait">{t("failed.lede")}</p>
+      ) : !modules ? (
+        <p className="wt-wait">{t("reading")}</p>
+      ) : (
+        <div className="wt-settings">
+          <ModulesCard modules={modules} onToggle={(m, on) => void toggle(m, on)} />
+          {summary && (
+            <SummaryCard
+              summary={summary}
+              onToggle={(on) => void toggleSummary(on)}
+              onChanged={() => void load()}
+            />
+          )}
+          <PhoneAlertsCard />
+        </div>
+      )}
+    </main>
+  );
+}
+
+export function WatchScreen({ reading }: { reading: WatchReading | null }) {
+  const t = useTranslations("watch");
+  const locale = useAppLocale();
+  const [view, setView] = useState<WatchView | null>(null);
+  const [failed, setFailed] = useState<"signed_out" | "error" | null>(null);
+
+  const load = useCallback(async () => {
+    try {
+      const w = await fetch("/api/watch");
+      if (w.status === 401) return setFailed("signed_out");
+      if (!w.ok) return setFailed("error");
+      setView((await w.json()) as WatchView);
+    } catch {
+      setFailed("error");
+    }
+  }, []);
+
+  useEffect(() => {
+    void load();
+  }, [load]);
+
   if (failed === "signed_out") {
     return (
       <Frame title={t("signedOut.title")}>
@@ -734,7 +789,7 @@ export function WatchScreen({ reading }: { reading: WatchReading | null }) {
       </Frame>
     );
   }
-  if (!view || !modules) {
+  if (!view) {
     return <Frame title={t("reading")} />;
   }
 
@@ -745,15 +800,9 @@ export function WatchScreen({ reading }: { reading: WatchReading | null }) {
       <div className="wt-side">
         {!w && <NoticedCard log={view.log} />}
         <RulesCard thresholds={view.thresholds} />
-        <ModulesCard modules={modules} onToggle={(m, on) => void toggle(m, on)} />
-        {summary && (
-          <SummaryCard
-            summary={summary}
-            onToggle={(on) => void toggleSummary(on)}
-            onChanged={() => void load()}
-          />
-        )}
-        <PhoneAlertsCard />
+        <p className="wt-moved">
+          {t("moved")} <Link href="/settings/alerts">{t("movedLink")} →</Link>
+        </p>
       </div>
     </div>
   );

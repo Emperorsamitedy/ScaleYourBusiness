@@ -716,8 +716,10 @@
   min-height: 58px;
   padding: 0 15px 0 17px;
 }
+/* 2026-11-15: no keyboard hints on the page; A / R / D still answer. */
 .q-answer kbd {
-  display: inline-grid;
+  display: none;
+  place-items: center;
   place-items: center;
   min-width: 22px;
   height: 22px;

@@ -50,7 +50,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   try {
     const next = await switchAccount({ session, currentToken: token, targetAccountId: accountId });
     const response = NextResponse.redirect(
-      new URL(next.profile_id ? "/profile" : "/intake", origin),
+      new URL(next.profile_id ? "/home" : "/intake", origin),
       303,
     );
     response.cookies.set(AUTH_COOKIE, next.session_token, authCookieOptions());

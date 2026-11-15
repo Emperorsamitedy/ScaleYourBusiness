@@ -34,6 +34,7 @@ import { fullStop } from "../../lib/i18n/punctuation";
 import { useMemo, useState, type KeyboardEvent, type PointerEvent, type ReactNode } from "react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
+import { Fold } from "../sheet/Fold";
 import { num } from "../sheet/num";
 import { useTr } from "../sheet/useTr";
 import type { Bucket, Candle } from "../../lib/charts/candles";
@@ -209,12 +210,27 @@ function componentLabel(key: string, tr: Tr): string {
 
 /* ── the chart ── */
 
-export function MarketChart({ model }: { model: MarketChartModel }) {
-  if (model.status === "empty") return <EmptyMarket model={model} />;
-  return <DrawnMarket model={model} />;
+function MaybeFold({ folded, children }: { folded: boolean; children: ReactNode }) {
+  return folded ? <Fold className="mk-fold">{children}</Fold> : <>{children}</>;
 }
 
-function DrawnMarket({ model }: { model: DrawnModel }) {
+/**
+ * `compact` (Home, 2026-11-15): the event key and the table of every
+ * component fold closed under "How this works" — still on the page, one
+ * press away, as the fact sheet prints them open.
+ */
+export function MarketChart({
+  model,
+  compact = false,
+}: {
+  model: MarketChartModel;
+  compact?: boolean;
+}) {
+  if (model.status === "empty") return <EmptyMarket model={model} />;
+  return <DrawnMarket model={model} compact={compact} />;
+}
+
+function DrawnMarket({ model, compact }: { model: DrawnModel; compact: boolean }) {
   const words = useTranslations("charts.market");
   const { tr, locale } = useTr("charts.market");
   const { tr: sheet } = useTr("sheet");
@@ -523,73 +539,75 @@ function DrawnMarket({ model }: { model: DrawnModel }) {
         </svg>
       </div>
 
-      {model.events.length > 0 && (
-        <ol className="mk-events" aria-label={tr("eventsLabel")}>
-          {model.events.map((e, i) => (
-            <li key={`${e.date}-${i}`}>
-              <span className="mk-ev-n" aria-hidden="true">
-                {i + 1}
-              </span>
-              <span className="mk-ev-shape" data-kind={e.kind} aria-hidden="true" />
-              <span className="word">{tr(`event.${e.kind}`)}</span>{" "}
-              <span className="mk-ev-date">{shortDate(e.date, locale)}</span> · {e.label}
-              <span className="sr-only">. {e.detail}</span>
-            </li>
-          ))}
-        </ol>
-      )}
-
-      <div className="mk-components">
-        <table className="rt rt-stack">
-          <caption className="sr-only">{tr("componentsCaption")}</caption>
-          <thead>
-            <tr>
-              <th scope="col">{tr("colWhere")}</th>
-              <th scope="col" className="num">
-                {tr("colMonth", { currency: cur })}
-              </th>
-              <th scope="col">{tr("colBasis")}</th>
-              <th scope="col">{tr("colHow")}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {flows.map((k) => (
-              <ComponentRow key={k.key} c={k} />
+      <MaybeFold folded={compact}>
+        {model.events.length > 0 && (
+          <ol className="mk-events" aria-label={tr("eventsLabel")}>
+            {model.events.map((e, i) => (
+              <li key={`${e.date}-${i}`}>
+                <span className="mk-ev-n" aria-hidden="true">
+                  {i + 1}
+                </span>
+                <span className="mk-ev-shape" data-kind={e.kind} aria-hidden="true" />
+                <span className="word">{tr(`event.${e.kind}`)}</span>{" "}
+                <span className="mk-ev-date">{shortDate(e.date, locale)}</span> · {e.label}
+                <span className="sr-only">. {e.detail}</span>
+              </li>
             ))}
-          </tbody>
-          {others.length > 0 && (
-            <tbody className="mk-apart">
-              <tr className="mk-apart-head">
-                <th scope="rowgroup" colSpan={4}>
-                  {tr("apart")}
+          </ol>
+        )}
+
+        <div className="mk-components">
+          <table className="rt rt-stack">
+            <caption className="sr-only">{tr("componentsCaption")}</caption>
+            <thead>
+              <tr>
+                <th scope="col">{tr("colWhere")}</th>
+                <th scope="col" className="num">
+                  {tr("colMonth", { currency: cur })}
                 </th>
+                <th scope="col">{tr("colBasis")}</th>
+                <th scope="col">{tr("colHow")}</th>
               </tr>
-              {others.map((k) => (
+            </thead>
+            <tbody>
+              {flows.map((k) => (
                 <ComponentRow key={k.key} c={k} />
               ))}
             </tbody>
-          )}
-        </table>
-        <p className="mk-legend">
-          {tr("legend", {
-            days: num(30, 0, locale),
-            derived: sheet("basis.DERIVED"),
-            derivedMeaning: sheet("basisMeaning.DERIVED"),
-            estimated: sheet("basis.ESTIMATED"),
-          })}
-          {tableComp?.status === "priced" && (
-            <>
-              {" "}
-              <Link href="/proposals">{tr("seeWaiting")}</Link>
-            </>
-          )}
-        </p>
-        {model.notes.map((n) => (
-          <p key={n} className="mk-legend">
-            {n}
+            {others.length > 0 && (
+              <tbody className="mk-apart">
+                <tr className="mk-apart-head">
+                  <th scope="rowgroup" colSpan={4}>
+                    {tr("apart")}
+                  </th>
+                </tr>
+                {others.map((k) => (
+                  <ComponentRow key={k.key} c={k} />
+                ))}
+              </tbody>
+            )}
+          </table>
+          <p className="mk-legend">
+            {tr("legend", {
+              days: num(30, 0, locale),
+              derived: sheet("basis.DERIVED"),
+              derivedMeaning: sheet("basisMeaning.DERIVED"),
+              estimated: sheet("basis.ESTIMATED"),
+            })}
+            {tableComp?.status === "priced" && (
+              <>
+                {" "}
+                <Link href="/proposals">{tr("seeWaiting")}</Link>
+              </>
+            )}
           </p>
-        ))}
-      </div>
+          {model.notes.map((n) => (
+            <p key={n} className="mk-legend">
+              {n}
+            </p>
+          ))}
+        </div>
+      </MaybeFold>
 
       <div className="sr-only" id={descId}>
         <table>

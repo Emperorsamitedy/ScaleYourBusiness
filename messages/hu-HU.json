@@ -15,6 +15,11 @@
     "fold": {
       "how": "Hogyan működik",
       "why": "Miért?"
+    },
+    "why": {
+      "label": "Hogyan számoltam",
+      "close": "Bezárás",
+      "arithmetic": "A számítás"
     }
   },
   "nav": {
@@ -31,7 +36,8 @@
       "insights": "Elemzések",
       "grow": "Növekedés",
       "customers": "Ügyfelek",
-      "business": "Az Ön vállalkozása"
+      "business": "Az Ön vállalkozása",
+      "today": "Ma"
     },
     "item": {
       "proposals": "Önre vár",
@@ -68,7 +74,9 @@
       "mandates": "Hozzáféréssel rendelkező irodák",
       "partner": "Partnerkonzol",
       "growth": "Növekedési stúdió",
-      "erasure": "A vállalkozás törlése"
+      "erasure": "A vállalkozás törlése",
+      "home": "Kezdőlap",
+      "alerts": "Értesítések és modulok"
     },
     "count": {
       "paused": "{count} szüneteltetve",
@@ -78,7 +86,8 @@
       "owner": "Az Ön szerepköre itt: tulajdonos",
       "manager": "Az Ön szerepköre itt: menedzser",
       "viewer": "Az Ön szerepköre itt: megtekintő. Olvashat, és megnyomhatja a vészleállítót."
-    }
+    },
+    "tabs": "A csoport képernyői"
   },
   "auth": {
     "meta": {
@@ -505,7 +514,8 @@
       "notComputed": "{count, plural, one {<b>#</b> nincs kiszámítva} other {<b>#</b> nincs kiszámítva}}",
       "empty": "Egyetlen mérőszámot sem lehetett kiszámítani vagy elutasítani — a profilban még nincs miből dolgozni.",
       "caption": "Minden mérőszámnál: az eredménye, az előző jelentés eredménye, a referenciatartomány, egy jelölés, a havi összeg, az alapja és a kiszámítás módja",
-      "legend": "Tartomány · sürgősségi küszöb: csak ott jelenik meg, ahol az Ön valamelyik célértéke vagy az adatok által alátámasztott tartomány lefedi a mérőszámot — egyelőre egyiknél sem, ezért „—” látható. A havi összeg csak ott jelenik meg, ahol egy mérőszám eltérését pénzben kifejeztük; egyelőre sehol. SZÁMÍTOTT = más tényekből kiszámítva; a MIÉRT megmutatja a képletet és a bemeneteket."
+      "legend": "Tartomány · sürgősségi küszöb: csak ott jelenik meg, ahol az Ön valamelyik célértéke vagy az adatok által alátámasztott tartomány lefedi a mérőszámot — egyelőre egyiknél sem, ezért „—” látható. A havi összeg csak ott jelenik meg, ahol egy mérőszám eltérését pénzben kifejeztük; egyelőre sehol. SZÁMÍTOTT = más tényekből kiszámítva; a MIÉRT megmutatja a képletet és a bemeneteket.",
+      "issued": "Diagnosztikai panel · kiadva: {issued}"
     },
     "col": {
       "measure": "Mérőszám",
@@ -1154,7 +1164,8 @@
     },
     "activity": {
       "label": "Tevékenység",
-      "empty": "Még semmi. Az első heti pillanatkép itt jelenik meg."
+      "empty": "Még semmi. Az első heti pillanatkép itt jelenik meg.",
+      "more": "{count, plural, one {További # megjelenítése} other {További # megjelenítése}}"
     },
     "rules": {
       "label": "Mi szakítaná meg a figyelést",
@@ -1255,7 +1266,9 @@
       "tested": "Teszt: {results}.",
       "notTested": "Nem ment ki teszt: {error}.",
       "ourSide": "valami hiba történt a mi oldalunkon"
-    }
+    },
+    "moved": "A heti összefoglaló, a telefonos értesítések és a modulkapcsolók a Beállításokban vannak.",
+    "movedLink": "Értesítések és modulok"
   },
   "proposals": {
     "meta": {
@@ -1375,7 +1388,8 @@
       "s2": "{n} · Várható hatás · becsült",
       "s2Span": "{n} · Várható hatás, {span} · becsült",
       "s3": "{n} · Bizonyítékok",
-      "s4": "{n} · Visszafordíthatóság"
+      "s4": "{n} · Visszafordíthatóság",
+      "drafted": "Javaslat · megírva: {when}"
     },
     "schedule": {
       "planned": "a tervezett időpontban, {day} {clock}",
@@ -9706,5 +9720,67 @@
     "ask": "Törlés kérése",
     "requested": "Törlés kérve: {date}. A számai már kikerültek minden összehasonlításból.",
     "failed": "Ez nem sikerült: {why}"
+  },
+  "home": {
+    "meta": {
+      "title": "Kezdőlap — SYB"
+    },
+    "kicker": "Ma · {date}",
+    "reading": "Olvasom…",
+    "title": "{count, plural, =0 {Semmi sem vár Önre.} one {# döntés vár Önre.} other {# döntés vár Önre.}}",
+    "biggest": "A legnagyobb havi {range} összeget hozhat.",
+    "review": "Átnézem",
+    "cash": {
+      "flag": "A tartalék alatt",
+      "title": "A(z) {date} kezdetű héten szűkös lehet a pénz.",
+      "line": "Óvatos becsléssel {low}, a megtartani kívánt {line} alatt.",
+      "lineZero": "Óvatos becsléssel {low}: nulla alatt.",
+      "open": "A pénzáramlás megnyitása"
+    },
+    "readings": {
+      "label": "A mai számai",
+      "waiting": "Önre vár",
+      "waitingCmp": "a legnagyobb havi {range}",
+      "waitingNone": "nincs mit eldönteni",
+      "cash": "Mai pénz",
+      "cashCmp": "tartalék {line}",
+      "cashZero": "nincs megadott tartalék",
+      "lowest": "Várható mélypont",
+      "lowestCmp": "{date} hete",
+      "watch": "Figyelés",
+      "watchCmp": "a figyelés napjai"
+    },
+    "flag": {
+      "under": "Tartalék alatt",
+      "above": "Tartalék felett",
+      "tight": "Szűkös",
+      "clear": "Rendben"
+    },
+    "why": {
+      "open": "Miért",
+      "basis": "Alap",
+      "from": "Honnan",
+      "when": "Mikor"
+    },
+    "watch": {
+      "label": "Figyelés",
+      "title": "A(z) {day}. nap ({of} napból).",
+      "note": "Minden nap átolvasom, amit összekötött, és magamtól semmit sem változtatok.",
+      "open": "Figyelés megnyitása"
+    },
+    "decisions": {
+      "label": "Önre vár",
+      "all": "Mind",
+      "open": "Megnyitás",
+      "empty": "Semmi sem vár. A következő döntést ide teszem.",
+      "by": "döntés eddig: {date}"
+    }
+  },
+  "alerts": {
+    "meta": {
+      "title": "Értesítések és modulok — SYB"
+    },
+    "kicker": "Az Ön vállalkozása · Értesítések és modulok",
+    "title": "Hol dolgozom, és hogyan szólok Önnek."
   }
 }

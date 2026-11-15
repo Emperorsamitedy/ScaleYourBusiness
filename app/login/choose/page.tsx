@@ -70,7 +70,7 @@ export default async function ChooseBusinessPage({
                 m.account_id === session.account_id ? (
                   <Link
                     key={m.account_id}
-                    href={m.profile_id ? "/profile" : "/intake"}
+                    href={m.profile_id ? "/home" : "/intake"}
                     className="au-door"
                   >
                     <span>

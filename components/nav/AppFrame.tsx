@@ -1,11 +1,13 @@
 "use client";
 
 // The app's one navigation — the owner's menu design (2026-10-17) on
-// ux-spec §3: an ink rail with the wordmark, the business, and the live
-// state ("WATCHING · DAY 19 / 28") over a cobalt rule; then five labelled
-// groups listing every screen, each with its count where one exists; and
-// "Ask me anything →" at the foot. No icons and no section tabs: every
-// screen is one click from the rail.
+// ux-spec §3, reorganised 2026-11-15 (the owner: "retention matters the
+// most"): an ink rail with the wordmark, the business, and the live state
+// ("WATCHING · DAY 19 / 28") over a cobalt rule; then six labelled groups,
+// Today first. The rail lists each group's main screens (`rail: true`);
+// every other screen in the group is a tab in the strip across the top of
+// the page, beside the emergency stop. A screen open from a tab also shows
+// in the rail, so the reader never loses their place. No icons.
 //
 // Two screens are focused views with their own masthead and no rail —
 // the report and the approval queue (their designs). The landing, the
@@ -24,6 +26,7 @@ import type { NavAccess } from "../../app/api/nav/route";
 import type { SizeBand, SizeFeatureKey } from "../../lib/core/size-features";
 import { showsFor } from "../../lib/core/size-features";
 import { roleAllows } from "../../lib/auth/role-actions";
+import { EmergencyStop } from "../execution/EmergencyStop";
 
 interface Item {
   href: string;
@@ -31,6 +34,8 @@ interface Item {
   label: string;
   /** Its row in the size-feature table (lib/core/size-features.ts). */
   feature: SizeFeatureKey;
+  /** One of the group's main screens, listed in the rail; the rest are tabs. */
+  rail?: boolean;
   count?: (c: NavCounts, words?: CountWords) => string | null;
   /**
    * Feature 34: whether the screen exists for this business at all, read
@@ -79,6 +84,11 @@ export function supportCount(
 
 export const GROUPS: readonly Group[] = [
   {
+    key: "today",
+    label: "Today",
+    items: [{ href: "/home", label: "Home", feature: "nav.home", rail: true }],
+  },
+  {
     key: "approve",
     label: "To approve",
     items: [
@@ -86,22 +96,32 @@ export const GROUPS: readonly Group[] = [
         href: "/proposals",
         label: "Waiting for you",
         feature: "nav.proposals",
+        rail: true,
         count: (c) => n(c.pending),
       },
+      { href: "/ladder", label: "What I may do", feature: "nav.ladder", rail: true },
     ],
   },
   {
     key: "insights",
     label: "Insights",
     items: [
-      { href: "/report", label: "Report", feature: "nav.report" },
+      { href: "/report", label: "Report", feature: "nav.report", rail: true },
       {
         href: "/watch",
         label: "Watching",
         feature: "nav.watch",
+        rail: true,
         count: (c) => (c.watch ? `${c.watch.day}/${c.watch.of}` : null),
       },
-      { href: "/progress", label: "Goals", feature: "nav.goals", count: (c) => n(c.goals) },
+      {
+        href: "/progress",
+        label: "Goals",
+        feature: "nav.goals",
+        rail: true,
+        count: (c) => n(c.goals),
+      },
+      { href: "/cash", label: "Cash flow", feature: "nav.cash", rail: true },
       { href: "/hours", label: "Trading hours", feature: "nav.hours" },
       {
         href: "/team",
@@ -111,7 +131,6 @@ export const GROUPS: readonly Group[] = [
         appliesTo: (c) => c.team === true,
       },
       { href: "/patterns", label: "Seasons & bundles", feature: "nav.patterns" },
-      { href: "/cash", label: "Cash flow", feature: "nav.cash" },
       // P6-05: payments SYB prepares and the owner pays in their own bank.
       // Owner only (least privilege, the owner's decision of 2026-11-09): a
       // manager or a viewer never sees it, as /api/payments refuses them.
@@ -161,7 +180,7 @@ export const GROUPS: readonly Group[] = [
     key: "customers",
     label: "Customers",
     items: [
-      { href: "/customers", label: "Customers", feature: "nav.customers" },
+      { href: "/customers", label: "Customers", feature: "nav.customers", rail: true },
       // Idea 45: every business has reviews somewhere, so it always shows.
       { href: "/reviews", label: "Reviews", feature: "nav.reviews" },
       {
@@ -185,22 +204,28 @@ export const GROUPS: readonly Group[] = [
     key: "business",
     label: "Your business",
     items: [
-      { href: "/profile", label: "Fact sheet", feature: "nav.factsheet", count: (c) => n(c.facts) },
+      {
+        href: "/profile",
+        label: "Fact sheet",
+        feature: "nav.factsheet",
+        rail: true,
+        count: (c) => n(c.facts),
+      },
       {
         href: "/connections",
         label: "Connections",
         feature: "nav.connections",
+        rail: true,
         count: connectionsCount,
       },
+      { href: "/statement", label: "Monthly statement", feature: "nav.statement", rail: true },
+      { href: "/history", label: "History", feature: "nav.history", rail: true },
       { href: "/mode", label: "How I work", feature: "nav.mode" },
-      { href: "/ladder", label: "What I may do", feature: "nav.ladder" },
-      { href: "/statement", label: "Monthly statement", feature: "nav.statement" },
       { href: "/growth", label: "Growth studio", feature: "nav.growth" },
       { href: "/billing", label: "Plan and billing", feature: "nav.billing" },
       { href: "/settings/mandates", label: "Firms with access", feature: "nav.mandates" },
       { href: "/settings/data", label: "Erase this business", feature: "nav.erasure" },
       { href: "/partner", label: "Partner console", feature: "nav.partner" },
-      { href: "/history", label: "History", feature: "nav.history" },
       {
         href: "/settings/team",
         label: "Team access",
@@ -208,6 +233,8 @@ export const GROUPS: readonly Group[] = [
         // Idea 52: who can sign in — there is a team once someone has signed up.
         appliesTo: (c) => c.access?.signed_in === true,
       },
+      // 2026-11-15: the weekly summary, phone alerts and module switches, moved from Watching.
+      { href: "/settings/alerts", label: "Alerts and modules", feature: "nav.alerts" },
       // L-1: the language you read, and the business's language and currency.
       { href: "/settings/language", label: "Language and currency", feature: "nav.language" },
     ],
@@ -235,6 +262,30 @@ const FOCUSED = ["/report", "/proposals"];
 const LOOSE_ROUTES = ["/chat"];
 
 const matches = (path: string, href: string) => path === href || path.startsWith(`${href}/`);
+
+/**
+ * Pure: the items the rail lists for a group — its main screens, plus the
+ * screen open now if it is one of the group's tabs. A group with no main
+ * screen marked lists them all (Grow: four screens of equal weight).
+ */
+export function railItems(group: Group, path: string): Item[] {
+  if (!group.items.some((i) => i.rail)) return group.items;
+  return group.items.filter((i) => i.rail === true || matches(path, i.href));
+}
+
+/** Pure: the group whose screens make the tab strip on this path — only with two or more. */
+export function tabGroup(groups: readonly Group[], path: string): Group | null {
+  const g = groups.find((x) => x.items.some((i) => matches(path, i.href)));
+  return g && g.items.length > 1 ? g : null;
+}
+
+/** Screens that already carry the emergency stop in their own body. */
+const OWN_STOP = ["/content", "/site"];
+
+/** Pure: whether the top strip carries the emergency stop on this path. */
+export function stripStop(path: string): boolean {
+  return !OWN_STOP.some((r) => matches(path, r));
+}
 
 /** Pure: the group a path belongs to, or null when it isn't an owner screen. */
 export function groupFor(path: string): Group | null {
@@ -342,6 +393,8 @@ export function AppFrame({ children }: { children: ReactNode }) {
   useEffect(() => setOpen(false), [path]);
   const access = counts?.access ?? null;
   const role = roleKey(access);
+  const groups = visibleGroups(counts?.size_band?.band ?? null, counts);
+  const strip = tabGroup(groups, path);
   if (!showsNav(path)) {
     return (
       <AccessProvider value={access}>
@@ -355,7 +408,7 @@ export function AppFrame({ children }: { children: ReactNode }) {
     <div className="app-frame">
       <nav className={`app-rail${open ? " open" : ""}`} aria-label={t("label")}>
         <div className="app-rail-head">
-          <Link href="/watch" className="app-rail-mark">
+          <Link href="/home" className="app-rail-mark">
             SYB
           </Link>
           {counts?.business && <p className="app-rail-biz">{counts.business}</p>}
@@ -376,11 +429,11 @@ export function AppFrame({ children }: { children: ReactNode }) {
           </button>
         </div>
         <div className="app-rail-groups">
-          {visibleGroups(counts?.size_band?.band ?? null, counts).map((g) => (
+          {groups.map((g) => (
             <div key={g.key} className="app-rail-group">
               <p className="app-rail-label">{t(`group.${g.key as NavGroupKey}`)}</p>
               <ul>
-                {g.items.map((i) => {
+                {railItems(g, path).map((i) => {
                   const active = matches(path, i.href);
                   const c = counts && i.count ? i.count(counts, words) : null;
                   return (
@@ -414,6 +467,30 @@ export function AppFrame({ children }: { children: ReactNode }) {
       <div className="app-main">
         <AccessProvider value={access}>
           <DeepLinkMark />
+          <div className="app-strip">
+            {strip ? (
+              <nav className="app-tabs" aria-label={t("tabs")}>
+                {strip.items.map((i) => {
+                  const active = matches(path, i.href);
+                  const c = counts && i.count ? i.count(counts, words) : null;
+                  return (
+                    <Link
+                      key={i.href}
+                      href={i.href}
+                      className={`app-tab${active ? " active" : ""}`}
+                      aria-current={active ? "page" : undefined}
+                    >
+                      {t(`item.${itemKey(i)}`)}
+                      {c && <span className="app-tab-count">{c}</span>}
+                    </Link>
+                  );
+                })}
+              </nav>
+            ) : (
+              <span />
+            )}
+            {stripStop(path) && <EmergencyStop variant="masthead" />}
+          </div>
           {children}
         </AccessProvider>
       </div>

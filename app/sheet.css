@@ -390,7 +390,8 @@ optgroup {
 .ph-title {
   margin: 0;
   font-family: var(--f-display);
-  font-size: clamp(20px, 1.9vw, 27px);
+  /* 2026-11-15: the headline is the screen's answer, set large (ux-spec §2 display-2 → display-1). */
+  font-size: clamp(24px, 2.7vw, 38px);
   font-weight: 700;
   line-height: 1.08;
   letter-spacing: -0.01em;

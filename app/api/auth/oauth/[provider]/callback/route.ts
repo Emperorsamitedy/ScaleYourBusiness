@@ -83,7 +83,7 @@ async function finish(
     const response = NextResponse.redirect(
       // Idea 52: an email on several businesses' teams is asked which one first.
       new URL(
-        session.choose ? "/login/choose" : (back ?? (session.profile_id ? "/profile" : "/intake")),
+        session.choose ? "/login/choose" : (back ?? (session.profile_id ? "/home" : "/intake")),
         origin,
       ),
     );

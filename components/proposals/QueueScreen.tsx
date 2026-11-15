@@ -66,7 +66,6 @@ import {
   rangeAxis,
   reversibilityLabel,
   reviewStats,
-  shortRef,
   shortReversibility,
   signedMoney,
   stampText,
@@ -242,7 +241,8 @@ function historyStamp(p: Proposal, w: QWords): string {
     ? w.tr(`history.${p.status}`)
     : p.status.toUpperCase();
   const at = p.decided_at ? ` ${clockWord(p.decided_at, undefined, w.locale)}` : "";
-  return w.tr("history.stamp", { word, at, ref: shortRef(p.id) });
+  // 2026-11-15: no proposal code on the page; the record keeps the id.
+  return `${word}${at}`;
 }
 
 function effectOf(p: Proposal) {
@@ -957,9 +957,7 @@ export function QueueScreen() {
     return (
       <article className="q-sheet q-mcard" aria-labelledby={titleId}>
         <header className="q-mcard-head">
-          <p className="q-ref">
-            {shortRef(p.id)} · {moduleWord(p.module)}
-          </p>
+          <p className="q-ref">{moduleWord(p.module)}</p>
           <h2 id={titleId} className="q-title">
             {p.action.summary}
           </h2>
@@ -1109,8 +1107,7 @@ export function QueueScreen() {
       <article className="q-sheet" aria-labelledby={titleId} key={p.id}>
         <header className="q-sheet-head">
           <p className="q-ref">
-            {t("sheet.ref", {
-              ref: shortRef(p.id),
+            {t("sheet.drafted", {
               when: sameDay
                 ? clockWord(p.created_at, undefined, locale)
                 : `${dayWord(p.created_at, undefined, locale)} ${clockWord(p.created_at, undefined, locale)}`,
@@ -1318,7 +1315,7 @@ export function QueueScreen() {
             <h2 className="q-side-label q-side-label-ink">
               {t("side.needs", { count: pendingIds.length })}
             </h2>
-            {pendingIds.length > 1 && <span className="q-side-keys">{t("side.keys")}</span>}
+            {pendingIds.length > 1 && <span className="q-side-keys sr-only">{t("side.keys")}</span>}
           </div>
           {listed.length > 0 && (
             <ol className="q-items">
@@ -1366,9 +1363,7 @@ export function QueueScreen() {
                         if (bulk) setBulk(false);
                       }}
                     >
-                      <span className="q-item-ref">
-                        {shortRef(p.id)} · {moduleWord(p.module)}
-                      </span>
+                      <span className="q-item-ref">{moduleWord(p.module)}</span>
                       <span className="q-item-title">{p.action.summary}</span>
                       <span className="q-item-meta">
                         {range

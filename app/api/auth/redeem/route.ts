@@ -61,7 +61,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     // first — the card it started from may belong to another of them.
     const landing = session.choose
       ? "/login/choose"
-      : (back ?? (session.profile_id ? "/profile" : "/intake"));
+      : (back ?? (session.profile_id ? "/home" : "/intake"));
     const response = NextResponse.redirect(new URL(landing, origin), 303);
     response.cookies.delete(RETURN_COOKIE);
     response.cookies.set(AUTH_COOKIE, session.session_token, authCookieOptions());

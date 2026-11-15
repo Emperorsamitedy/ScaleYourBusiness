@@ -15,6 +15,11 @@
     "fold": {
       "how": "Cómo funciona",
       "why": "¿Por qué?"
+    },
+    "why": {
+      "label": "Cómo se calculó",
+      "close": "Cerrar",
+      "arithmetic": "El cálculo"
     }
   },
   "nav": {
@@ -31,7 +36,8 @@
       "insights": "Análisis",
       "grow": "Crecer",
       "customers": "Clientes",
-      "business": "Su negocio"
+      "business": "Su negocio",
+      "today": "Hoy"
     },
     "item": {
       "proposals": "Pendiente de usted",
@@ -68,7 +74,9 @@
       "mandates": "Firmas con acceso",
       "partner": "Consola de socios",
       "growth": "Estudio de crecimiento",
-      "erasure": "Borrar este negocio"
+      "erasure": "Borrar este negocio",
+      "home": "Inicio",
+      "alerts": "Avisos y módulos"
     },
     "count": {
       "paused": "{count} en pausa",
@@ -78,7 +86,8 @@
       "owner": "Su rol aquí: propietario",
       "manager": "Su rol aquí: gestor",
       "viewer": "Su rol aquí: lector. Puede consultar y pulsar la parada de emergencia."
-    }
+    },
+    "tabs": "Pantallas de este grupo"
   },
   "auth": {
     "meta": {
@@ -833,7 +842,8 @@
       "notComputed": "{count, plural, one {<b>#</b> sin calcular} many {<b>#</b> sin calcular} other {<b>#</b> sin calcular}}",
       "empty": "No se ha podido calcular ni descartar ninguna medida: el perfil aún no tiene nada con lo que trabajar.",
       "caption": "Cada medida: su resultado, el resultado del informe anterior, el rango de referencia, un aviso, el dinero al mes, su base y cómo se calculó",
-      "legend": "Rango · línea de actuar ya: solo se dibuja donde un objetivo suyo o un rango respaldado por los datos cubre la medida; todavía no lo hace ninguno, así que se muestra —. El dinero al mes solo se imprime donde la diferencia de una medida tiene un precio asignado; no lo tiene ninguna. DERIVADO = calculado a partir de otros datos; su POR QUÉ muestra la fórmula y los datos de entrada."
+      "legend": "Rango · línea de actuar ya: solo se dibuja donde un objetivo suyo o un rango respaldado por los datos cubre la medida; todavía no lo hace ninguno, así que se muestra —. El dinero al mes solo se imprime donde la diferencia de una medida tiene un precio asignado; no lo tiene ninguna. DERIVADO = calculado a partir de otros datos; su POR QUÉ muestra la fórmula y los datos de entrada.",
+      "issued": "Panel de diagnóstico · emitido el {issued}"
     },
     "col": {
       "measure": "Medida",
@@ -1247,7 +1257,8 @@
     },
     "activity": {
       "label": "Actividad",
-      "empty": "Aún nada. Aquí aparecerá la primera instantánea semanal."
+      "empty": "Aún nada. Aquí aparecerá la primera instantánea semanal.",
+      "more": "{count, plural, one {Mostrar # más} many {Mostrar # más} other {Mostrar # más}}"
     },
     "rules": {
       "label": "Qué interrumpiría la observación",
@@ -1348,7 +1359,9 @@
       "tested": "Prueba: {results}.",
       "notTested": "No se ha enviado ninguna prueba: {error}.",
       "ourSide": "algo ha fallado por nuestra parte"
-    }
+    },
+    "moved": "El resumen semanal, los avisos al teléfono y los interruptores de módulos están en Ajustes.",
+    "movedLink": "Avisos y módulos"
   },
   "proposals": {
     "meta": {
@@ -1468,7 +1481,8 @@
       "s2": "{n} · Efecto previsto · estimado",
       "s2Span": "{n} · Efecto previsto, {span} · estimado",
       "s3": "{n} · Pruebas",
-      "s4": "{n} · Reversibilidad"
+      "s4": "{n} · Reversibilidad",
+      "drafted": "Propuesta · redactada el {when}"
     },
     "schedule": {
       "planned": "a su hora prevista, {day} a las {clock}",
@@ -9706,5 +9720,67 @@
     "ask": "Pedir el borrado",
     "requested": "Borrado pedido el {date}. Sus cifras ya están fuera de toda comparación.",
     "failed": "No ha funcionado: {why}"
+  },
+  "home": {
+    "meta": {
+      "title": "Inicio — SYB"
+    },
+    "kicker": "Hoy · {date}",
+    "reading": "Leyendo…",
+    "title": "{count, plural, =0 {No hay nada esperándole.} one {# decisión le espera.} many {# decisiones le esperan.} other {# decisiones le esperan.}}",
+    "biggest": "La mayor podría sumar {range} al mes.",
+    "review": "Revisarlas",
+    "cash": {
+      "flag": "Por debajo de su colchón",
+      "title": "El dinero podría escasear la semana del {date}.",
+      "line": "{low} en el extremo prudente, por debajo de los {line} que quiere conservar.",
+      "lineZero": "{low} en el extremo prudente: por debajo de cero.",
+      "open": "Ver el flujo de caja"
+    },
+    "readings": {
+      "label": "Sus cifras de hoy",
+      "waiting": "Le esperan",
+      "waitingCmp": "la mayor {range} al mes",
+      "waitingNone": "nada que decidir",
+      "cash": "Efectivo hoy",
+      "cashCmp": "colchón {line}",
+      "cashZero": "sin colchón indicado",
+      "lowest": "Punto más bajo previsto",
+      "lowestCmp": "semana del {date}",
+      "watch": "Observando",
+      "watchCmp": "días de observación"
+    },
+    "flag": {
+      "under": "Bajo el colchón",
+      "above": "Sobre el colchón",
+      "tight": "Justo",
+      "clear": "Holgado"
+    },
+    "why": {
+      "open": "Por qué",
+      "basis": "Base",
+      "from": "De dónde",
+      "when": "Cuándo"
+    },
+    "watch": {
+      "label": "Observando",
+      "title": "Día {day} de {of}.",
+      "note": "Leo cada día lo que ha vinculado y no cambio nada por mi cuenta.",
+      "open": "Abrir la observación"
+    },
+    "decisions": {
+      "label": "Le esperan",
+      "all": "Todas",
+      "open": "Abrir",
+      "empty": "No hay nada pendiente. Pondré aquí la próxima decisión.",
+      "by": "decidir antes del {date}"
+    }
+  },
+  "alerts": {
+    "meta": {
+      "title": "Avisos y módulos — SYB"
+    },
+    "kicker": "Su negocio · Avisos y módulos",
+    "title": "Dónde trabajo y cómo le aviso."
   }
 }

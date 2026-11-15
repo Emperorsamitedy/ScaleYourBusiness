@@ -15,6 +15,11 @@
     "fold": {
       "how": "How this works",
       "why": "Why?"
+    },
+    "why": {
+      "label": "How this was worked out",
+      "close": "Close",
+      "arithmetic": "The arithmetic"
     }
   },
   "nav": {
@@ -31,7 +36,8 @@
       "insights": "Insights",
       "grow": "Grow",
       "customers": "Customers",
-      "business": "Your business"
+      "business": "Your business",
+      "today": "Today"
     },
     "item": {
       "proposals": "Waiting for you",
@@ -68,7 +74,9 @@
       "mandates": "Firms with access",
       "partner": "Partner console",
       "growth": "Growth studio",
-      "erasure": "Erase this business"
+      "erasure": "Erase this business",
+      "home": "Home",
+      "alerts": "Alerts and modules"
     },
     "count": {
       "paused": "{count} paused",
@@ -78,7 +86,8 @@
       "owner": "You're an owner here",
       "manager": "You're a manager here",
       "viewer": "You're a viewer here: you can read, and press stop"
-    }
+    },
+    "tabs": "Screens in this group"
   },
   "auth": {
     "meta": {
@@ -505,7 +514,8 @@
       "notComputed": "{count, plural, one {<b>#</b> not computed} other {<b>#</b> not computed}}",
       "empty": "No measure could be computed or refused — the profile has nothing to work from yet.",
       "caption": "Each measure: its result, the prior report’s result, the reference range, a flag, money a month, its basis, and how it was worked out",
-      "legend": "Range · act-now line: drawn only where a target of yours or a range the data supports covers the measure — none does yet, so it shows —. Money a month is printed only where a measure’s gap is priced; none is. DERIVED = worked out from other facts; its WHY shows the formula and inputs."
+      "legend": "Range · act-now line: drawn only where a target of yours or a range the data supports covers the measure — none does yet, so it shows —. Money a month is printed only where a measure’s gap is priced; none is. DERIVED = worked out from other facts; its WHY shows the formula and inputs.",
+      "issued": "Diagnostic panel · issued {issued}"
     },
     "col": {
       "measure": "Measure",
@@ -1154,7 +1164,8 @@
     },
     "activity": {
       "label": "Activity",
-      "empty": "Nothing yet. The first weekly snapshot will appear here."
+      "empty": "Nothing yet. The first weekly snapshot will appear here.",
+      "more": "{count, plural, one {Show # more} other {Show # more}}"
     },
     "rules": {
       "label": "What would interrupt the watch",
@@ -1255,7 +1266,9 @@
       "tested": "Test: {results}.",
       "notTested": "No test sent: {error}.",
       "ourSide": "something went wrong on our side"
-    }
+    },
+    "moved": "The weekly summary, phone alerts and module switches are in Settings.",
+    "movedLink": "Alerts and modules"
   },
   "proposals": {
     "meta": {
@@ -1375,7 +1388,8 @@
       "s2": "{n} · Expected effect · estimated",
       "s2Span": "{n} · Expected effect, {span} · estimated",
       "s3": "{n} · Evidence",
-      "s4": "{n} · Reversibility"
+      "s4": "{n} · Reversibility",
+      "drafted": "Proposal · drafted {when}"
     },
     "schedule": {
       "planned": "at its planned time, {day} {clock}",
@@ -9706,5 +9720,67 @@
     "ask": "Ask for erasure",
     "requested": "Erasure asked for on {date}. Its figures are already out of every comparison.",
     "failed": "That didn't work: {why}"
+  },
+  "home": {
+    "meta": {
+      "title": "Home — SYB"
+    },
+    "kicker": "Today · {date}",
+    "reading": "Reading…",
+    "title": "{count, plural, =0 {Nothing is waiting for you.} one {# decision is waiting for you.} other {# decisions are waiting for you.}}",
+    "biggest": "The biggest could add {range} a month.",
+    "review": "See them",
+    "cash": {
+      "flag": "Under your buffer",
+      "title": "Money could get tight in the week of {date}.",
+      "line": "{low} at the cautious end, under the {line} you want to keep.",
+      "lineZero": "{low} at the cautious end: under zero.",
+      "open": "See cash flow"
+    },
+    "readings": {
+      "label": "Your numbers today",
+      "waiting": "Waiting for you",
+      "waitingCmp": "the biggest {range} a month",
+      "waitingNone": "nothing to decide",
+      "cash": "Cash today",
+      "cashCmp": "buffer {line}",
+      "cashZero": "no buffer stated",
+      "lowest": "Lowest point ahead",
+      "lowestCmp": "week of {date}",
+      "watch": "Watching",
+      "watchCmp": "days of the watch"
+    },
+    "flag": {
+      "under": "Under buffer",
+      "above": "Above buffer",
+      "tight": "Tight",
+      "clear": "Clear"
+    },
+    "why": {
+      "open": "Why",
+      "basis": "Basis",
+      "from": "Where from",
+      "when": "When"
+    },
+    "watch": {
+      "label": "Watching",
+      "title": "Day {day} of {of}.",
+      "note": "I read what you connected every day and change nothing on my own.",
+      "open": "Open watching"
+    },
+    "decisions": {
+      "label": "Waiting for you",
+      "all": "All",
+      "open": "Open",
+      "empty": "Nothing is waiting. I'll put the next decision here.",
+      "by": "decide by {date}"
+    }
+  },
+  "alerts": {
+    "meta": {
+      "title": "Alerts and modules — SYB"
+    },
+    "kicker": "Your business · Alerts and modules",
+    "title": "Where I work, and how I tell you."
   }
 }
