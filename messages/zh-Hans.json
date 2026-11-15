@@ -101,10 +101,11 @@
       "createAccount": "创建账户"
     },
     "signup": {
-      "headline": "从诊断开始。"
+      "headline": "欢迎使用 ScaleX"
     },
     "signin": {
-      "headline": "回到您的面板。"
+      "headline": "欢迎回来",
+      "sub": "登录即可查看您企业的各项数据。"
     },
     "sent": {
       "titleBelow": "您的链接在下方",
@@ -114,7 +115,15 @@
       "signInNow": "立即登录",
       "sentTo": "我们已向 <b>{email}</b> 发送一次性链接。链接将在 {minutes} 分钟后失效。",
       "wrongAddress": "地址有误？",
-      "sendAnother": "重新发送链接"
+      "sendAnother": "重新发送链接",
+      "checkEmail": "请查看您的邮箱",
+      "openGmail": "打开 Gmail",
+      "openOutlook": "打开 Outlook",
+      "nothingYet": "还没收到？请查看垃圾邮件文件夹，或",
+      "resend": "重新发送",
+      "resendIn": "{seconds} 秒后重新发送",
+      "resent": "已重新发送。",
+      "differentEmail": "使用其他邮箱"
     },
     "form": {
       "labelCreate": "创建账户",
@@ -131,7 +140,11 @@
       "noteSignin": "无需密码。该链接仅可使用一次，有效期 {minutes} 分钟。",
       "orSignup": "或使用以下方式注册",
       "orSignin": "或使用以下方式继续",
-      "terms": "创建账户即表示您同意<terms>使用条款</terms>和<privacy>隐私声明</privacy>。"
+      "terms": "创建账户即表示您同意<terms>使用条款</terms>和<privacy>隐私声明</privacy>。",
+      "or": "或",
+      "orEmail": "或使用邮箱",
+      "continueWith": "使用 {provider} 继续",
+      "lastUsed": "上次使用"
     },
     "confirm": {
       "headline": "还差一步。",
@@ -150,7 +163,30 @@
       "foot": "每个企业都有各自的事实、团队和账单。一个企业的任何信息都不会出现在另一个企业中。"
     },
     "how": "运作方式",
-    "why": "为什么？"
+    "why": "为什么？",
+    "switch": {
+      "newHere": "初次使用 ScaleX？",
+      "haveAccount": "已有账户？"
+    },
+    "foot": {
+      "language": "语言",
+      "terms": "条款",
+      "privacy": "隐私"
+    },
+    "reel": {
+      "label": "ScaleX 功能一览",
+      "home": "一眼看清今天",
+      "report": "诊断报告",
+      "proposals": "由您批准的提案",
+      "cash": "现金流预警",
+      "stock": "库存告急前提醒",
+      "customers": "渐渐沉寂的客户",
+      "support": "替您回复的客户支持",
+      "competitors": "竞争对手监测",
+      "benchmarks": "您与同类企业对比",
+      "connections": "您的数据，只读访问",
+      "chat": "关于您的店铺，尽管问"
+    }
   },
   "locale": {
     "meta": "语言和货币 — ScaleX",
