@@ -222,7 +222,7 @@ afterAll(async () => {
   for (const s of created) await db.delete(accounts).where(eq(accounts.id, s.account_id));
 });
 
-describe("rule 31: the first sentence names the business and says it is SYB's automated assistant", () => {
+describe("rule 31: the first sentence names the business and says it is ScaleX's automated assistant", () => {
   it("greets, asks consent by keypad, and only after a 1 gives the notice and listens (§9.2)", async () => {
     const b = await business();
     const { sid, xml, first: opening } = await start(b);
@@ -232,7 +232,7 @@ describe("rule 31: the first sentence names the business and says it is SYB's au
     const says = saysOf(xml);
     const first = says[0]!.split(/(?<=[.!?])\s/)[0]!;
     expect(first).toContain("Rosa&apos;s Bakery");
-    expect(first).toMatch(/SYB&apos;s automated assistant, not a person/);
+    expect(first).toMatch(/ScaleX&apos;s automated assistant, not a person/);
     // Rule 32: the notice is its own <Say>, before the <Gather> and outside it.
     expect(says[1]).toMatch(/transcribe this call/); // the consent question
     expect(says[2]).toMatch(/transcribed/); // the notice, after the 1
@@ -256,7 +256,7 @@ describe("rule 31: the first sentence names the business and says it is SYB's au
     expect(xml).toContain("Google.de-DE-Standard-A");
     const first = saysOf(xml)[0]!;
     expect(first).toMatch(/^Guten Tag/);
-    expect(first).toContain("SYB");
+    expect(first).toContain("ScaleX");
     expect(first).toContain("Rosa&apos;s Bakery");
     expect((await callRow(sid)).language).toBe("de-DE");
   });
@@ -611,12 +611,12 @@ describe("the caps: past one, no model is called and the line takes a message", 
     expect(rows).toHaveLength(PHONE_MAX_CALLS_PER_CALLER_PER_DAY);
   });
 
-  it("rule 31: a turned-away or closed line still says first that it is SYB's automated assistant", async () => {
+  it("rule 31: a turned-away or closed line still says first that it is ScaleX's automated assistant", async () => {
     const b = await business();
     const from = "+447700900558";
     for (let i = 0; i < PHONE_MAX_CALLS_PER_CALLER_PER_DAY; i++) await start(b, from);
     const busy = saysOf((await start(b, from)).xml);
-    expect(busy[0]).toMatch(/Rosa&apos;s Bakery.*SYB&apos;s automated assistant/);
+    expect(busy[0]).toMatch(/Rosa&apos;s Bakery.*ScaleX&apos;s automated assistant/);
     expect(busy[1]).toMatch(/very busy/);
 
     await db
@@ -624,7 +624,7 @@ describe("the caps: past one, no model is called and the line takes a message", 
       .set({ enabled: false })
       .where(eq(phoneSettings.profile_id, b.profile_id));
     const closed = saysOf((await start(b)).xml);
-    expect(closed[0]).toMatch(/Rosa&apos;s Bakery.*SYB&apos;s automated assistant/);
+    expect(closed[0]).toMatch(/Rosa&apos;s Bakery.*ScaleX&apos;s automated assistant/);
     expect(closed[1]).toMatch(/isn&apos;t taking calls/);
   });
 
@@ -819,7 +819,7 @@ describe("hard rule 6 — phone answering is behind a country flag, default bloc
     const { sid, xml } = await start(b);
     const says = saysOf(xml);
     // Rule 31 still holds on a refused line: the business and what it is, first.
-    expect(says[0]).toMatch(/Rosa&apos;s Bakery.*SYB&apos;s automated assistant/);
+    expect(says[0]).toMatch(/Rosa&apos;s Bakery.*ScaleX&apos;s automated assistant/);
     expect(says[1]).toMatch(/isn&apos;t taking calls/);
     expect(xml).toContain("<Hangup/>");
     const rows = await db.select().from(phoneCalls).where(eq(phoneCalls.call_sid, sid));

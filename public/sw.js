@@ -16,7 +16,7 @@
  */
 "use strict";
 
-var FALLBACK = { title: "SYB", body: "Something waits for your yes.", url: "/proposals" };
+var FALLBACK = { title: "ScaleX", body: "Something waits for your yes.", url: "/proposals" };
 var CARD_PATH = /^\/proposals(\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})?$/;
 
 /* Only our own queue or one of its cards; anything else opens the queue. */

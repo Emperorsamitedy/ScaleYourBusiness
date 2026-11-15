@@ -73,7 +73,7 @@ describe("the web app manifest", () => {
   it("is installable standalone, with the two icon sizes", () => {
     const m = manifest();
     expect(m.display).toBe("standalone");
-    expect(m.name).toBe("SYB");
+    expect(m.name).toBe("ScaleX");
     expect(m.start_url).toBe("/proposals");
     expect(m.icons?.map((i) => i.sizes)).toEqual(["192x192", "512x512"]);
   });
@@ -104,10 +104,10 @@ describe("the service worker", () => {
     const w = loadWorker();
     await w.fire(
       "push",
-      pushOf({ title: "SYB", body: "1 thing waits for your yes", url: `/proposals/${ID}` }),
+      pushOf({ title: "ScaleX", body: "1 thing waits for your yes", url: `/proposals/${ID}` }),
     );
     expect(w.shown).toHaveLength(1);
-    expect(w.shown[0]?.title).toBe("SYB");
+    expect(w.shown[0]?.title).toBe("ScaleX");
     expect(w.shown[0]?.options.body).toBe("1 thing waits for your yes");
     expect(w.shown[0]?.options.data).toEqual({ url: `/proposals/${ID}` });
     expect(w.shown[0]?.options.actions).toBeUndefined();
@@ -138,7 +138,7 @@ describe("the service worker", () => {
     }
   });
 
-  it("reuses an open SYB window rather than opening another", async () => {
+  it("reuses an open ScaleX window rather than opening another", async () => {
     const w = loadWorker({ windows: [{ url: "https://syb.example/watch" }] });
     await w.fire("notificationclick", {
       notification: { close: () => undefined, data: { url: `/proposals/${ID}` } },

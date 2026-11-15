@@ -177,7 +177,7 @@ describe("P4-15 — unsubscribe", () => {
     expect(await viewUnsubscribe(r.token)).toEqual({ business: "Emberworks", done: true });
   });
 
-  it("a token SYB never minted changes nothing", async () => {
+  it("a token ScaleX never minted changes nothing", async () => {
     const r = await sentRow();
     const forged = Buffer.from(crypto.getRandomValues(new Uint8Array(32))).toString("base64url");
     expect(await viewUnsubscribe(forged)).toBeNull();

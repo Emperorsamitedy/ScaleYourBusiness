@@ -174,7 +174,7 @@ async function applyCredit(
     new URLSearchParams({
       amount: String(-amount),
       currency: sub.currency.toLowerCase(),
-      description: "SYB guarantee: the next quarter is free",
+      description: "ScaleX guarantee: the next quarter is free",
     }),
   );
   await db

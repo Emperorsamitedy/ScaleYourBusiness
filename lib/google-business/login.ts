@@ -206,7 +206,7 @@ export function verifyGoogleState(
   if (state.account_id !== args.accountId) {
     throw new GoogleLoginError(
       "foreign",
-      "That Google sign-in was started from a different SYB account.",
+      "That Google sign-in was started from a different ScaleX account.",
       403,
     );
   }

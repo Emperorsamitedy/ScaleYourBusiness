@@ -86,7 +86,7 @@ export async function addMember(args: {
     .from(users)
     .where(and(eq(users.email, args.email.trim().toLowerCase()), isNull(users.removed_at)))
     .limit(1);
-  if (!person) throw new FirmError("they need to sign in to SYB once before they can join", 404);
+  if (!person) throw new FirmError("they need to sign in to ScaleX once before they can join", 404);
   await db
     .insert(firmMembers)
     .values({ firm_id: firm.id, user_id: person.id, role: args.role })

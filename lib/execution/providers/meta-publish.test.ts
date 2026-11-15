@@ -1652,7 +1652,7 @@ describe("Review D #5 — a Facebook read-back needs the connected app, the Page
     }
   });
 
-  it("the control: SYB's own post (the app, the Page, at the send) is found and recorded", async () => {
+  it("the control: ScaleX's own post (the app, the Page, at the send) is found and recorded", async () => {
     const { b, item_id, run } = await handMadeRepost({});
     expect((await run(b)).reconciled).toMatchObject({ checked: 1, published: 1 });
     expect(await itemRow(item_id)).toMatchObject({

@@ -6,7 +6,7 @@ import { EXECUTION_SCOPE_REGISTRY } from "./scopes";
 
 /** Pure: '"<name> via SYB", with replies going to <address>' — what the consent names. */
 export function senderIdentity(senderName: string, replyTo: string): string {
-  return `"${senderName.trim()} via SYB", with replies going to ${replyTo.trim().toLowerCase()}`;
+  return `"${senderName.trim()} via ScaleX", with replies going to ${replyTo.trim().toLowerCase()}`;
 }
 
 /** Pure: the registry's consent lines, verbatim, {sender} filled. */

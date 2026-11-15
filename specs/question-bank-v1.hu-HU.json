@@ -197,7 +197,7 @@
     "8.1a": { "prompt": "Havonta mennyit költ hirdetésekre?" },
     "8.1i": {
       "prompt": "Legfeljebb mennyit szeretne egy hónapban hirdetésekre költeni?",
-      "help_text": "Ez felső határ, nem cél. Az SYB soha nem javasolja, hogy a hirdetési keret ezt túllépje."
+      "help_text": "Ez felső határ, nem cél. A ScaleX soha nem javasolja, hogy a hirdetési keret ezt túllépje."
     },
     "8.1b": { "prompt": "Mely platformokon hirdet?" },
     "8.1c": { "prompt": "Nagyjából mennyibe kerül Önnek egy hirdetésből származó eladás?" },

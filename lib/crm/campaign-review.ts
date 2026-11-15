@@ -51,7 +51,7 @@ export interface CampaignReviewVerdict {
 
 /** Said while an account's first campaign waits for its review. */
 export const FIRST_CAMPAIGN_UNREVIEWED =
-  "This is your first campaign, so a person at SYB reads it before it goes out. Campaigns share SYB's sending address, and this keeps it trusted for everyone. It sends once that review is recorded.";
+  "This is your first campaign, so a person at ScaleX reads it before it goes out. Campaigns share ScaleX's sending address, and this keeps it trusted for everyone. It sends once that review is recorded.";
 
 /** Pure: the verdict from the account's latest review, or none. */
 export function campaignReviewVerdict(
@@ -62,7 +62,7 @@ export function campaignReviewVerdict(
   }
   return {
     reviewed: true,
-    words: `Your first campaign was reviewed by SYB on ${latest.reviewed_on}.`,
+    words: `Your first campaign was reviewed by ScaleX on ${latest.reviewed_on}.`,
     reviewed_on: latest.reviewed_on,
   };
 }

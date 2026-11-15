@@ -42,7 +42,7 @@ import type { PushPayload } from "./send";
 
 export const QUIET_FROM_HOUR = 21;
 export const QUIET_UNTIL_HOUR = 8;
-export const PUSH_TITLE = "SYB";
+export const PUSH_TITLE = "ScaleX";
 export const PUSH_TAG = "syb-waiting";
 
 /**

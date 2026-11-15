@@ -197,7 +197,7 @@
     "8.1a": { "prompt": "Wie viel geben Sie pro Monat für Werbung aus?" },
     "8.1i": {
       "prompt": "Wie viel möchten Sie höchstens in einem Monat für Werbung ausgeben?",
-      "help_text": "Eine Obergrenze, kein Ziel. SYB schlägt nie vor, ein Werbebudget darüber hinaus zu erhöhen."
+      "help_text": "Eine Obergrenze, kein Ziel. ScaleX schlägt nie vor, ein Werbebudget darüber hinaus zu erhöhen."
     },
     "8.1b": { "prompt": "Auf welchen Plattformen werben Sie?" },
     "8.1c": { "prompt": "Was kostet Sie ein Verkauf über Werbung ungefähr?" },

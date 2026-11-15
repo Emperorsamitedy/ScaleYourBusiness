@@ -75,23 +75,23 @@ export function tiktokConsentLines(): string[] {
 /** Access honesty: what TikTok allows until it has audited SYB's app. */
 export const TIKTOK_ACCESS_WORDS: Readonly<Record<TikTokAuditStatus, string>> = {
   unaudited:
-    'Until TikTok audits SYB\'s app, everything SYB posts goes out private: only you can see it on TikTok ("Only me"). Once the audit passes you can choose who sees each post. TikTok also lets an unaudited app post for only a few accounts a day.',
+    'Until TikTok audits ScaleX\'s app, everything ScaleX posts goes out private: only you can see it on TikTok ("Only me"). Once the audit passes you can choose who sees each post. TikTok also lets an unaudited app post for only a few accounts a day.',
   audited:
-    "TikTok has audited SYB's app: you choose who can see each post, from TikTok's own options.",
+    "TikTok has audited ScaleX's app: you choose who can see each post, from TikTok's own options.",
 };
 
 /** What must be in place before it works. */
 export const TIKTOK_NEEDS: readonly string[] = [
-  "SYB's own TikTok app, with Login Kit and the Content Posting API (Direct Post) switched on.",
+  "ScaleX's own TikTok app, with Login Kit and the Content Posting API (Direct Post) switched on.",
   "You sign in with the TikTok account the posts go to, and allow what TikTok asks about.",
   "Each post is a video you approve, with who can see it chosen by you on Content first.",
 ];
 
 export const TIKTOK_NOT_SET_UP =
-  "Not set up yet: SYB's TikTok app keys aren't in place. Until then, nothing can be posted to TikTok.";
+  "Not set up yet: ScaleX's TikTok app keys aren't in place. Until then, nothing can be posted to TikTok.";
 
 export const TIKTOK_REVOKE_NOTE =
-  "Disconnecting deletes SYB's access here at once and asks TikTok to revoke it too. Posts already on TikTok stay there. To check on TikTok's side, open Settings and privacy, then Security and permissions, then Apps and services permissions.";
+  "Disconnecting deletes ScaleX's access here at once and asks TikTok to revoke it too. Posts already on TikTok stay there. To check on TikTok's side, open Settings and privacy, then Security and permissions, then Apps and services permissions.";
 
 /* ── configuration ─────────────────────────────────────────────────── */
 
@@ -237,7 +237,7 @@ export function verifyTikTokState(
   if (state.account_id !== args.accountId) {
     throw new TikTokLoginError(
       "foreign",
-      "That TikTok sign-in was started from a different SYB account.",
+      "That TikTok sign-in was started from a different ScaleX account.",
       403,
     );
   }

@@ -12,7 +12,7 @@ import { TIKTOK_REASONS, TIKTOK_GENERIC } from "./reasons";
 import en from "../../messages/en.json";
 
 describe("TikTok Ads — scope ids, named", () => {
-  it("names the four SYB asks for, exactly as the registry holds them", () => {
+  it("names the four ScaleX asks for, exactly as the registry holds them", () => {
     expect(tiktokScopeNames([201, 100, 44, 200])).toEqual(
       [...expectedExecutionScopes("tiktok_ads")].sort(),
     );

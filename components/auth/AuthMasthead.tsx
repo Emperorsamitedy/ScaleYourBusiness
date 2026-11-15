@@ -3,12 +3,13 @@
 
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { Logo } from "../brand/Mark";
 
 export function AuthMasthead({ href, children }: { href?: string; children?: ReactNode }) {
   return (
     <header className="au-mast">
       <Link href="/" className="au-mark">
-        SYB
+        <Logo onDark />
       </Link>
       {href && children ? (
         <Link href={href} className="au-mast-link">

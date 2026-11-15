@@ -178,7 +178,7 @@ export async function requireGenerationBrief(
     );
   if (voice?.status !== "confirmed") {
     throw new BriefError(
-      "read and confirm how SYB describes your voice before anything is generated",
+      "read and confirm how ScaleX describes your voice before anything is generated",
       409,
     );
   }

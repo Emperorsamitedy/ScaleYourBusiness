@@ -402,10 +402,10 @@ const escapeHtml = (s: string) =>
 // The sheet system's tokens (specs/ux-spec-v1.md §2), inline because mail
 // clients drop stylesheets: ink on paper, 1px rules, square corners, no
 // images, no colour carrying meaning, nothing below 12px.
-const INK = "#0E1A13";
-const INK_2 = "#3A4C42";
-const PAPER = "#F2F7F4";
-const RULE = "#71897D";
+const INK = "#0D1321";
+const INK_2 = "#4A5263";
+const PAPER = "#FFFFFF";
+const RULE = "#7A8494";
 const MONO = "'IBM Plex Mono',Menlo,Consolas,monospace";
 const PROSE = "Archivo,Helvetica,Arial,sans-serif";
 

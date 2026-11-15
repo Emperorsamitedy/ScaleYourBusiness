@@ -18,7 +18,7 @@ import { proposeMarginReview } from "../../../../lib/proposals/margin-review";
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
   if (!isSameOriginPost(request.headers, appOriginOf(request.url))) {
-    return NextResponse.json({ error: "this has to come from SYB's own page" }, { status: 403 });
+    return NextResponse.json({ error: "this has to come from ScaleX's own page" }, { status: 403 });
   }
   const access = await resolveAccess();
   if (!access) return NextResponse.json({ error: "no intake session" }, { status: 401 });

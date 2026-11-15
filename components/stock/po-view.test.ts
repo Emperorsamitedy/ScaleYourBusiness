@@ -43,7 +43,7 @@ describe("where an order stands", () => {
 
   it("why it wasn't sent, as sentences", () => {
     expect(notSentWords(["email_not_set_up", "real_writes_off"])).toBe(
-      "Email isn't set up on SYB's sending domain yet. Real sending is switched off until the two-week unattended test completes.",
+      "Email isn't set up on ScaleX's sending domain yet. Real sending is switched off until the two-week unattended test completes.",
     );
     expect(notSentWords([])).toBe("");
   });

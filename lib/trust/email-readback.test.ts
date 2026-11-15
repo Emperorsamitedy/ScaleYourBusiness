@@ -290,7 +290,7 @@ beforeEach(() => {
   process.env.SESSION_D_REAL_WRITES = "on";
   process.env.RESEND_API_KEY = "re_test_campaigns";
   process.env.APP_URL = "https://syb.test";
-  process.env.EMAIL_FROM = "SYB <hello@send.syb.test>";
+  process.env.EMAIL_FROM = "ScaleX <hello@send.syb.test>";
   process.env.RESEND_EVENTS_WEBHOOK_SECRET = SECRET;
   vi.stubGlobal("fetch", async () => {
     throw new Error("the network was touched");

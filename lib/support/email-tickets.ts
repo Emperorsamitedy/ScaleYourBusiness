@@ -121,7 +121,7 @@ export function storedAddresses(addresses: readonly string[]): string[] {
 /* ── our own mail (review 2026-10-23, #12) ── */
 
 /** What every SYB send uses when EMAIL_FROM is unset (lib/auth/email.ts and the rest). */
-const DEFAULT_FROM = "SYB <onboarding@resend.dev>";
+const DEFAULT_FROM = "ScaleX <onboarding@resend.dev>";
 
 function addressPart(raw: string): string | null {
   const address = (/<([^<>]+)>\s*$/.exec(raw)?.[1] ?? raw).trim().toLowerCase();

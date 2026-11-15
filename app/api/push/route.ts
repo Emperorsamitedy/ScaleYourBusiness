@@ -82,7 +82,7 @@ const TEST_WORDS: Record<string, string> = {
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
   if (!isSameOriginPost(request.headers, appOriginOf(request.url))) {
-    return NextResponse.json({ error: "this has to come from SYB's own page" }, { status: 403 });
+    return NextResponse.json({ error: "this has to come from ScaleX's own page" }, { status: 403 });
   }
   const who = await owner();
   if (!who) {

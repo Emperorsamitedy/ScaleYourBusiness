@@ -153,7 +153,7 @@ describe("§5.2 / §5.3 — the floor, and a distribution, never an average", ()
     expect(distribution(mixed, "average_order_value", "EUR")).toEqual({ shown: false });
   });
 
-  it("a metric SYB doesn't measure yet serves nothing, whatever the members say", () => {
+  it("a metric ScaleX doesn't measure yet serves nothing, whatever the members say", () => {
     expect(distribution(seven(), "gross_margin", null)).toEqual({ shown: false });
   });
 });

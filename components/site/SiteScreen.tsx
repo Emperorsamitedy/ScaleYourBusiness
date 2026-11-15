@@ -28,6 +28,7 @@ import type { AppLocale } from "../../lib/i18n/locales";
 import type { Tr } from "../../lib/i18n/tr";
 import { SiteAuditSheet } from "./SiteAuditSheet";
 import { bareUrl, dayWord } from "./site-view";
+import { Logo } from "../brand/Mark";
 
 interface SiteDetail {
   url: string;
@@ -176,7 +177,9 @@ export function SiteScreen({
     return (
       <main className="auth-stage">
         <div className="auth-col">
-          <span className="wordmark">SYB</span>
+          <span className="wordmark">
+            <Logo onDark />
+          </span>
           <section className="card auth-card">
             <span className="auth-eyebrow">{tr("signedOut.eyebrow")}</span>
             <h1 className="auth-title">{tr("signedOut.title")}</h1>

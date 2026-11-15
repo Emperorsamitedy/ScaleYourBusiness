@@ -3475,7 +3475,7 @@
         "en": "What's the most you'd want to spend on ads in a month?"
       },
       "help_text": {
-        "en": "A ceiling, not a target. SYB never proposes raising an ad budget past it."
+        "en": "A ceiling, not a target. ScaleX never proposes raising an ad budget past it."
       },
       "input": {
         "type": "money",

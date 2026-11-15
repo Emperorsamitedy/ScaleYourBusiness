@@ -21,6 +21,7 @@ import { useAppLocale } from "../sheet/useTr";
 import { ReportBody } from "./Report";
 import { fmtDate } from "./figures";
 import type { ReportView } from "./types";
+import { Logo } from "../brand/Mark";
 
 export function SharedReportScreen({ report, sharedAt }: { report: ReportView; sharedAt: string }) {
   const t = useTranslations("shared");
@@ -36,7 +37,9 @@ export function SharedReportScreen({ report, sharedAt }: { report: ReportView; s
     <div className="rq rq-shared">
       <header className="rq-mast">
         <div className="rq-mast-l">
-          <span className="rq-mark">SYB</span>
+          <span className="rq-mark">
+            <Logo onDark />
+          </span>
           {context.length > 0 && <span className="rq-ctx">{context.join(" · ")}</span>}
         </div>
         <div className="rq-mast-r">

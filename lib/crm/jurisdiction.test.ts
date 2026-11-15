@@ -46,7 +46,7 @@ describe("P4-16 — which regime a country sends under", () => {
     expect(regimeFor("LI")?.id).toBe("eu_gdpr");
   });
 
-  it("a country SYB has no rules for maps to none — Switzerland and Serbia are not the EEA", () => {
+  it("a country ScaleX has no rules for maps to none — Switzerland and Serbia are not the EEA", () => {
     expect(regimeFor("Switzerland")).toBeNull();
     expect(regimeFor("Serbia")).toBeNull();
     expect(regimeFor("Atlantis")).toBeNull();
@@ -106,7 +106,7 @@ describe("P4-16 — what a marketing message must carry", () => {
     ]);
   });
 
-  it("every regime needs the sender and a working https unsubscribe; SYB needs the disclosure everywhere", () => {
+  it("every regime needs the sender and a working https unsubscribe; ScaleX needs the disclosure everywhere", () => {
     const bare: MarketingMessage = {
       sender_name: " ",
       sender_email: "not-an-email",
@@ -117,7 +117,7 @@ describe("P4-16 — what a marketing message must carry", () => {
     expect(messageGaps(bare, [REGIMES.au_spam_act])).toEqual([
       "who sent it (the business's name and email) (Australia)",
       "a working unsubscribe link (Australia)",
-      "the AI disclosure line (SYB, everywhere)",
+      "the AI disclosure line (ScaleX, everywhere)",
     ]);
   });
 
@@ -127,7 +127,7 @@ describe("P4-16 — what a marketing message must carry", () => {
     expect(unsubscribeLinkDays([REGIMES.ca_casl, REGIMES.au_spam_act])).toBe(60);
   });
 
-  it("SYB honours every unsubscribe at once — inside every regime's legal deadline", () => {
+  it("ScaleX honours every unsubscribe at once — inside every regime's legal deadline", () => {
     const SYB_DAYS = 0; // rule 23: immediately and permanently
     for (const r of Object.values(REGIMES)) {
       if (r.honour_unsubscribe_business_days !== null) {
@@ -136,7 +136,7 @@ describe("P4-16 — what a marketing message must carry", () => {
     }
   });
 
-  it("every regime cites its source, and every one is looser than SYB's floor — none relaxes it", () => {
+  it("every regime cites its source, and every one is looser than ScaleX's floor — none relaxes it", () => {
     for (const r of Object.values(REGIMES)) {
       expect(r.source.length).toBeGreaterThan(10);
       expect(r.law_is_looser).toBe(true);

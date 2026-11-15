@@ -206,7 +206,7 @@ function googlePlan(
     };
   }
   if (change !== "raise_budget" && change !== "lower_budget") {
-    return { unroutable: `SYB makes no "${change}" change on Google Ads` };
+    return { unroutable: `ScaleX makes no "${change}" change on Google Ads` };
   }
   const share = typeof d.share === "number" && Number.isFinite(d.share) ? d.share : null;
   if (share === null || (change === "raise_budget" ? share <= 0 : share >= 0)) {
@@ -234,7 +234,7 @@ export function dbGoogleAdsBackend(opts: { now?: () => Date } = {}): GoogleAdsBa
     async credential(accountId) {
       const env = googleAdsEnv();
       if (env === null) {
-        return { refused: "Google Ads isn't set up on SYB yet. Nothing was changed." };
+        return { refused: "Google Ads isn't set up on ScaleX yet. Nothing was changed." };
       }
       const row = await activeExecutionConnection(accountId, "google_ads");
       if (!row) {
@@ -261,7 +261,7 @@ export function dbGoogleAdsBackend(opts: { now?: () => Date } = {}): GoogleAdsBa
       } catch {
         return {
           refused:
-            "Google no longer accepts SYB's Google Ads access. Reconnect it on Connections; nothing was changed.",
+            "Google no longer accepts ScaleX's Google Ads access. Reconnect it on Connections; nothing was changed.",
         };
       }
     },
@@ -311,7 +311,7 @@ function tiktokPlan(change: string, d: AdDetail): { plan: DispatchPlan } | { unr
     };
   }
   if (change !== "raise_budget" && change !== "lower_budget") {
-    return { unroutable: `SYB doesn't make a "${change}" change on TikTok` };
+    return { unroutable: `ScaleX doesn't make a "${change}" change on TikTok` };
   }
   const share = typeof d.share === "number" && Number.isFinite(d.share) ? d.share : null;
   if (share === null || (change === "raise_budget" ? share <= 0 : share >= 0)) {

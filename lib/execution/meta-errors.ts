@@ -47,7 +47,7 @@ const RECONNECT = "Reconnect it on Connections and I'll pick up where I left off
 
 /** Why the sign-in stopped working, when Meta says (code 190's subcodes). */
 const AUTH_SUBCODE_REASON: Readonly<Record<number, string>> = {
-  458: "SYB's app was removed from the Meta account",
+  458: "ScaleX's app was removed from the Meta account",
   460: "the Meta account's password changed, which signs out every app",
   463: "the connection's sign-in expired",
   467: "the connection's sign-in is no longer valid",
@@ -104,7 +104,7 @@ export function classifyMetaError(args: {
       ...base,
       kind: "permission",
       owner_sentence:
-        "Meta says SYB isn't allowed to do that: a permission was removed, or the Page or account isn't assigned to the connection. Reconnect with the permissions listed on Connections.",
+        "Meta says ScaleX isn't allowed to do that: a permission was removed, or the Page or account isn't assigned to the connection. Reconnect with the permissions listed on Connections.",
       connection_state: "paused",
       next_step: "reconnect",
       retryable: false,
@@ -126,7 +126,7 @@ export function classifyMetaError(args: {
       ...base,
       kind: "rate_limit",
       owner_sentence:
-        "Meta asked SYB to slow down. Nothing was lost — I'll try again after a pause.",
+        "Meta asked ScaleX to slow down. Nothing was lost — I'll try again after a pause.",
       connection_state: "connected",
       next_step: "wait",
       retryable: true,

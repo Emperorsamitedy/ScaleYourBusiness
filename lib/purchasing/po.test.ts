@@ -188,7 +188,7 @@ describe("held, not done (decision 3, 2026-11-09): when a held order needs a yes
   it("the held sentence names every reason and says it isn't marked done", () => {
     const s = heldSentence(["email_not_set_up", "real_writes_off"]);
     expect(s.startsWith(PO_HELD)).toBe(true);
-    expect(s).toContain("Email isn't set up on SYB's sending domain yet.");
+    expect(s).toContain("Email isn't set up on ScaleX's sending domain yet.");
     expect(s).toContain("Real sending is switched off");
     expect(s).toContain("it isn't marked done");
   });
@@ -216,7 +216,7 @@ describe("the order's fingerprint", () => {
 describe("whether an order can really be emailed", () => {
   const ready = {
     RESEND_API_KEY: "re_live",
-    EMAIL_FROM: "SYB <hello@syb.example>",
+    EMAIL_FROM: "ScaleX <hello@syb.example>",
     SESSION_D_REAL_WRITES: "on",
   };
 
@@ -241,7 +241,7 @@ describe("whether an order can really be emailed", () => {
       reasons: ["email_not_set_up"],
     });
     // Resend's sandbox sender reaches only the Resend account's own owner.
-    expect(sendingMode({ ...ready, EMAIL_FROM: "SYB <onboarding@resend.dev>" })).toMatchObject({
+    expect(sendingMode({ ...ready, EMAIL_FROM: "ScaleX <onboarding@resend.dev>" })).toMatchObject({
       reasons: ["email_not_set_up"],
     });
     expect(sendingMode({})).toEqual({
@@ -250,11 +250,13 @@ describe("whether an order can really be emailed", () => {
     });
   });
 
-  it("the From names the business and keeps SYB's verified address", () => {
+  it("the From names the business and keeps ScaleX's verified address", () => {
     expect(poFromHeader('Fern "hill" <x>', "hello@syb.example")).toBe(
-      '"Fern hill x via SYB" <hello@syb.example>',
+      '"Fern hill x via ScaleX" <hello@syb.example>',
     );
-    expect(poFromHeader("", "hello@syb.example")).toBe('"A business via SYB" <hello@syb.example>');
+    expect(poFromHeader("", "hello@syb.example")).toBe(
+      '"A business via ScaleX" <hello@syb.example>',
+    );
   });
 });
 

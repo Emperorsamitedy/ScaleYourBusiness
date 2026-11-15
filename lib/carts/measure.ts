@@ -118,7 +118,7 @@ export type CartReach =
   | "suppressed"
   /** An address that is none of the owner's contacts. */
   | "not_contact"
-  /** No address SYB could read. */
+  /** No address ScaleX could read. */
   | "no_email";
 
 export interface CartFact {

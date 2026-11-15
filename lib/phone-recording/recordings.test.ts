@@ -316,7 +316,7 @@ describe("the owner's switch is a recorded fact", () => {
   });
 });
 
-describe("one copy: stored sealed in SYB, then deleted at Twilio", () => {
+describe("one copy: stored sealed in ScaleX, then deleted at Twilio", () => {
   it("fetches the finished recording by its id, seals it, stores it, and deletes Twilio's copy", async () => {
     const b = await business({ record: true });
     const { recordingSid, audio, outcome, call } = await recordedCall(b);
@@ -475,7 +475,7 @@ describe("rule 32 at the callback: a recording nobody was told about is never ke
 });
 
 describe("rule 22: erasure removes both copies; the log keeps ids", () => {
-  it("erasing a call deletes its recording in SYB storage and the row; the log holds ids only", async () => {
+  it("erasing a call deletes its recording in ScaleX storage and the row; the log holds ids only", async () => {
     const b = await business({ record: true });
     const { call } = await recordedCall(b);
     const [row] = await recordingRows(b);

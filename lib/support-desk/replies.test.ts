@@ -63,7 +63,7 @@ const saved = { ...process.env };
 beforeAll(() => {
   process.env.RESEND_API_KEY = "re_test_fixture";
   process.env.SUPPORT_INBOUND_DOMAIN = DOMAIN;
-  process.env.EMAIL_FROM = "SYB <support@mail.syb.test>";
+  process.env.EMAIL_FROM = "ScaleX <support@mail.syb.test>";
 });
 
 afterAll(async () => {
@@ -266,7 +266,7 @@ describe("P4-10 — THE DONE-WHEN: a fixture email becomes a ticket, the draft c
     expect(call.body.reply_to).toBe(
       `s-${b.settings.inbound_token}+${ticket!.thread_token}@${DOMAIN}`,
     );
-    expect(String(call.body.from)).toBe('"Fernhill Ceramics via SYB" <support@mail.syb.test>');
+    expect(String(call.body.from)).toBe('"Fernhill Ceramics via ScaleX" <support@mail.syb.test>');
 
     // Sending again does nothing: at most once.
     expect(

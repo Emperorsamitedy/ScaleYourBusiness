@@ -155,7 +155,7 @@ const LINKS = {
   },
   vercelBlob: { label: "Vercel → Storage → Blob", href: "https://vercel.com/dashboard/stores" },
   meta: {
-    label: "Meta for Developers → the SYB app",
+    label: "Meta for Developers → the ScaleX app",
     href: "https://developers.facebook.com/apps/",
   },
   stripeKeys: { label: "Stripe → API keys", href: "https://dashboard.stripe.com/apikeys" },
@@ -189,7 +189,7 @@ const LINKS = {
     href: "https://console.cloud.google.com/google/ads-apis/overview",
   },
   tiktokDevelopers: {
-    label: "TikTok for Developers → Manage apps → the SYB app",
+    label: "TikTok for Developers → Manage apps → the ScaleX app",
     href: "https://developers.tiktok.com/",
   },
   tiktokBusiness: {
@@ -327,7 +327,7 @@ function emailGroup(env: ReadinessEnv): ReadinessGroup {
             ? item(
                 "EMAIL_FROM",
                 "missing",
-                `I can't read an email address in the sender, so I can't tell which domain it uses. Write it as "SYB <hello@your-domain>".`,
+                `I can't read an email address in the sender, so I can't tell which domain it uses. Write it as "ScaleX <hello@your-domain>".`,
                 LINKS.resendDomains,
               )
             : item(
@@ -650,7 +650,7 @@ function campaignGroup(env: ReadinessEnv, facts: ReadinessFacts): ReadinessGroup
     from = item(
       "CAMPAIGN_EMAIL_FROM",
       "missing",
-      `It's set but I can't read an email address in it. Write it as "SYB <hello@campaigns.your-domain>".`,
+      `It's set but I can't read an email address in it. Write it as "ScaleX <hello@campaigns.your-domain>".`,
       LINKS.resendDomains,
     );
   } else if (campaignDomain === signInDomain) {
@@ -993,7 +993,7 @@ function hungaryGroup(env: ReadinessEnv, facts: ReadinessFacts): ReadinessGroup 
       ? item(
           "NAV_SOFTWARE_ID",
           "off",
-          "Empty, so SYB sends nothing to NAV. Set it once counsel confirms whether NAV needs the software registered.",
+          "Empty, so ScaleX sends nothing to NAV. Set it once counsel confirms whether NAV needs the software registered.",
           null,
           { where_text: "SETUP.md, section 5; then Vercel → Environment Variables" },
         )
@@ -1350,7 +1350,7 @@ function recordingGroup(env: ReadinessEnv): ReadinessGroup {
 
   const app = appOrigin(env.APP_URL);
   const callbackWords =
-    "Twilio posts each finished recording here, signed. SYB names it in every recorded call, so there is nothing to set in Twilio; it only has to be reachable.";
+    "Twilio posts each finished recording here, signed. ScaleX names it in every recorded call, so there is nothing to set in Twilio; it only has to be reachable.";
   const callback =
     app === null
       ? item(
@@ -1358,10 +1358,10 @@ function recordingGroup(env: ReadinessEnv): ReadinessGroup {
           ready ? "missing" : "off",
           "Set APP_URL first; the callback is built from it.",
           null,
-          { where_text: "SYB names it to Twilio in each recorded call" },
+          { where_text: "ScaleX names it to Twilio in each recorded call" },
         )
       : item("recording callback", ready ? "ready" : "off", callbackWords, null, {
-          where_text: "SYB names it to Twilio in each recorded call",
+          where_text: "ScaleX names it to Twilio in each recorded call",
           paste: [`${app.origin}${PHONE_RECORDING_PATH}`],
         });
 
@@ -1644,7 +1644,7 @@ function googleAdsGroup(env: ReadinessEnv): ReadinessGroup {
     access = item(
       "GOOGLE_ADS_ACCESS_LEVEL",
       "check",
-      "It says test: Google lets SYB reach test accounts only, so a real owner's ad account is refused. Apply for Explorer on the Google Ads API overview page, then change it here.",
+      "It says test: Google lets ScaleX reach test accounts only, so a real owner's ad account is refused. Apply for Explorer on the Google Ads API overview page, then change it here.",
       LINKS.googleAds,
     );
   } else if (level !== null) {
@@ -1725,7 +1725,7 @@ function googleAdsGroup(env: ReadinessEnv): ReadinessGroup {
     }
     if (has(env, "GOOGLE_ADS_LOGIN_CUSTOMER_ID") && gads.login_customer_id === null) {
       issues.push(
-        "GOOGLE_ADS_LOGIN_CUSTOMER_ID isn't ten digits, so SYB reads each account directly.",
+        "GOOGLE_ADS_LOGIN_CUSTOMER_ID isn't ten digits, so ScaleX reads each account directly.",
       );
     }
     extras =
@@ -1734,7 +1734,7 @@ function googleAdsGroup(env: ReadinessEnv): ReadinessGroup {
         : item(
             extrasName,
             "ready",
-            `${gads.developer_token ? "A developer token is sent, though Google says it is ignored since 2026-09-09" : "No developer token, which Google no longer needs"}; SYB ${gads.login_customer_id ? "reads through a manager account" : "reads each account directly, the usual case"}.`,
+            `${gads.developer_token ? "A developer token is sent, though Google says it is ignored since 2026-09-09" : "No developer token, which Google no longer needs"}; ScaleX ${gads.login_customer_id ? "reads through a manager account" : "reads each account directly, the usual case"}.`,
             LINKS.googleAds,
           );
   }
@@ -1882,7 +1882,7 @@ function writesGroup(env: ReadinessEnv): ReadinessGroup {
     orders = item(
       "purchase-order emails",
       "missing",
-      "The gate is on, but SYB's email isn't set up for orders (RESEND_API_KEY and a From address on your own domain, not Resend's sandbox), so approved orders aren't sent.",
+      "The gate is on, but ScaleX's email isn't set up for orders (RESEND_API_KEY and a From address on your own domain, not Resend's sandbox), so approved orders aren't sent.",
       LINKS.resendDomains,
     );
   } else {
@@ -1926,7 +1926,7 @@ function languagesGroup(env: ReadinessEnv): ReadinessGroup {
   const ignoredWords =
     ignored.length === 0
       ? ""
-      : ` ${ignored.length} ${ignored.length === 1 ? "entry isn't" : "entries aren't"} a language SYB can send back${english ? " (English can't be: every catalogue is checked against it)" : ""}, so ${ignored.length === 1 ? "it is" : "they are"} ignored; codes are written like ru-RU or zh-Hans.`;
+      : ` ${ignored.length} ${ignored.length === 1 ? "entry isn't" : "entries aren't"} a language ScaleX can send back${english ? " (English can't be: every catalogue is checked against it)" : ""}, so ${ignored.length === 1 ? "it is" : "they are"} ignored; codes are written like ru-RU or zh-Hans.`;
   let status: ReadinessItem;
   if (back.length > 0) {
     status = item(

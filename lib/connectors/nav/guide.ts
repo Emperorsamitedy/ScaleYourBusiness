@@ -34,18 +34,18 @@ export const NAV_GUIDE_STEPS: readonly GuideStep[] = [
   },
   {
     image: "step-4-rights.png",
-    hu: "A jogosultságoknál CSAK a Számlák lekérdezése legyen bejelölve. A SYB csak olvas: semmilyen más jogot ne adjon.",
-    en: "Under permissions, tick ONLY Query invoices (Számlák lekérdezése). SYB only reads: give it nothing else.",
+    hu: "A jogosultságoknál CSAK a Számlák lekérdezése legyen bejelölve. A ScaleX csak olvas: semmilyen más jogot ne adjon.",
+    en: "Under permissions, tick ONLY Query invoices (Számlák lekérdezése). ScaleX only reads: give it nothing else.",
   },
   {
     image: "step-5-keys.png",
-    hu: "Mentés után a NAV megmutatja a felhasználónevet, a jelszót és az aláírókulcsot. Ezeket írja be a SYB-be. A cserekulcsra nincs szükség — a SYB soha nem kéri.",
-    en: "After saving, NAV shows the login, password and signature key. Enter those in SYB. The exchange key isn't needed — SYB never asks for it.",
+    hu: "Mentés után a NAV megmutatja a felhasználónevet, a jelszót és az aláírókulcsot. Ezeket írja be a ScaleX-be. A cserekulcsra nincs szükség — a ScaleX soha nem kéri.",
+    en: "After saving, NAV shows the login, password and signature key. Enter those in ScaleX. The exchange key isn't needed — ScaleX never asks for it.",
   },
   {
     image: "step-6-done.png",
-    hu: "A technikai felhasználó aktívként jelenik meg. Bármikor törölheti: ezzel a SYB hozzáférése is megszűnik.",
-    en: "The technical user shows as active. You can delete it any time, which ends SYB's access too.",
+    hu: "A technikai felhasználó aktívként jelenik meg. Bármikor törölheti: ezzel a ScaleX hozzáférése is megszűnik.",
+    en: "The technical user shows as active. You can delete it any time, which ends ScaleX's access too.",
   },
 ];
 

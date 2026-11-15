@@ -37,7 +37,7 @@ describe("contentWords English is what publishReadiness said before L-4c", () =>
     );
     expect(say({ code: "kind", values: { kind: "banner" } })).toBe("a banner isn't published");
     expect(say({ code: "channel", values: { channel: "youtube" } })).toBe(
-      "SYB can't publish to youtube — only to a Facebook Page, an Instagram account or a TikTok account you connect",
+      "ScaleX can't publish to youtube — only to a Facebook Page, an Instagram account or a TikTok account you connect",
     );
     expect(say({ code: "connect", values: { platform: "Facebook" } })).toBe(
       "connect Meta publishing on Connections to publish this to Facebook",

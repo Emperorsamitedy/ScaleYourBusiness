@@ -45,13 +45,13 @@ export const PUBLISH_KIND = "content_publishing";
 /** The local hour a publish proposal posts at unless the owner picks another (P3-21a). */
 export const DEFAULT_POSTING_HOUR = 10;
 export const PUBLISH_EXPIRY_DAYS = 14;
-export const PUBLISH_UNDO = "SYB deletes the post; Meta keeps no copy.";
+export const PUBLISH_UNDO = "ScaleX deletes the post; Meta keeps no copy.";
 /**
  * 2026-11-08: TikTok's API has no delete, so a TikTok post is labelled
  * irreversible ("hard") before approval and says how it comes down.
  */
 export const TIKTOK_PUBLISH_UNDO =
-  "TikTok doesn't let apps delete a post, so SYB can't take it down: delete it in the TikTok app.";
+  "TikTok doesn't let apps delete a post, so ScaleX can't take it down: delete it in the TikTok app.";
 
 export type PublishPlatform = "facebook" | "instagram" | "tiktok";
 
@@ -346,7 +346,7 @@ export async function proposePublishing(
         downside_case: {
           case: "downside",
           statement: isTikTok
-            ? "It does nothing you can measure — and SYB can't take it down: you'd delete it in the TikTok app."
+            ? "It does nothing you can measure — and ScaleX can't take it down: you'd delete it in the TikTok app."
             : "It does nothing you can measure — and you can withdraw it at any time.",
           profit_delta_monthly: null,
           formula: null,

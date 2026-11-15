@@ -89,7 +89,7 @@ describe("the languages and their status", () => {
     expect(languageStatus("zh-Hans")).toBe("live");
   });
 
-  it("languagesInReview: only languages SYB speaks, never English, in the table's order", () => {
+  it("languagesInReview: only languages ScaleX speaks, never English, in the table's order", () => {
     expect(languagesInReview("")).toEqual([]);
     expect(languagesInReview(undefined)).toEqual([]);
     expect(languagesInReview("zh-Hans, ru-RU,en,klingon")).toEqual(["ru-RU", "zh-Hans"]);

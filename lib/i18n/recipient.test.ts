@@ -183,7 +183,7 @@ describe("L-6 — the weekly summary", () => {
   it("English is unchanged by the words parameter", () => {
     const c = composeSummary(input(), englishWords("emails.summary"));
     expect(c).toEqual(composeSummary(input()));
-    expect(c.subject).toBe("Your week with SYB: 3 waiting for you");
+    expect(c.subject).toBe("Your week with ScaleX: 3 waiting for you");
     expect(c.text).toContain("— A proposal");
     expect(c.html).toContain('<html lang="en">');
   });
@@ -213,7 +213,7 @@ describe("L-6 — the weekly summary", () => {
     const toOther = fake.sent.find((m) => m.to === other.email)!;
     expect(toReviewer.subject).toBe(de.t("subjectQuiet"));
     expect(toReviewer.text).toContain(de.t("quiet"));
-    expect(toOther.subject).toBe("Your week with SYB: a quiet one");
+    expect(toOther.subject).toBe("Your week with ScaleX: a quiet one");
     expect(toOther.html).toContain('<html lang="en">');
   });
 });
@@ -276,13 +276,13 @@ describe("L-6 — phone alerts", () => {
 describe("L-6 — sign-in and invite emails", () => {
   it("German words for a German reader; English exactly as before", async () => {
     const de = loginEmailContent("https://x.test/l", await wordsFor("de-DE", "emails.signIn"));
-    expect(de.subject).not.toBe("Your sign-in link — SYB");
+    expect(de.subject).not.toBe("Your sign-in link — ScaleX");
     expect(de.text).toContain("https://x.test/l");
     expect(de.text).not.toMatch(/expires in/);
     expect(loginEmailContent("https://x.test/l")).toEqual({
-      subject: "Your sign-in link — SYB",
+      subject: "Your sign-in link — ScaleX",
       text:
-        "Click to sign in to SYB:\n\nhttps://x.test/l\n\nThe link works once and expires in 15 minutes. " +
+        "Click to sign in to ScaleX:\n\nhttps://x.test/l\n\nThe link works once and expires in 15 minutes. " +
         "If you didn't ask for it, ignore this email — nothing happens without the link.",
     });
     const invite = {
@@ -292,12 +292,12 @@ describe("L-6 — sign-in and invite emails", () => {
       role: "manager" as const,
     };
     expect(inviteEmailContent(invite).text).toBe(
-      "You've been invited to join Emberworks on SYB as a manager.\n\nOpen this link to accept:\n\nhttps://x.test/i\n\n" +
+      "You've been invited to join Emberworks on ScaleX as a manager.\n\nOpen this link to accept:\n\nhttps://x.test/i\n\n" +
         "It works once and expires in 7 days. You'll sign in with this address, a@b.test. " +
         "If you weren't expecting it, ignore this email — nothing happens without you.",
     );
     expect(inviteEmailContent({ ...invite, business: null, role: "owner" }).subject).toBe(
-      "You're invited to a business on SYB",
+      "You're invited to a business on ScaleX",
     );
     const fr = inviteEmailContent(invite, await wordsFor("fr-FR", "emails.invite"));
     expect(fr.subject).toContain("Emberworks");

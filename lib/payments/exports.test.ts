@@ -160,7 +160,7 @@ describe("a payment is never in two new files", () => {
     const steps = await newFile(s, "steps");
     expect(steps.count).toBe(2);
     expect(steps.body.split("\n")[0]).toBe(
-      `File ${steps.msg_id}, made on 2026-11-09. No payment in it is in any other file SYB made.`,
+      `File ${steps.msg_id}, made on 2026-11-09. No payment in it is in any other file ScaleX made.`,
     );
     expect(steps.filename).toBe(`syb-payments-2026-11-09-${steps.msg_id}.txt`);
     await expect(newFile(s, "sepa")).rejects.toMatchObject({ code: "all_in_file" });

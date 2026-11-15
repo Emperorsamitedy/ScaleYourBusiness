@@ -133,7 +133,7 @@ describe("§E.4 — connect validates at once and names the business back", () =
     expect(rows).toHaveLength(0);
   });
 
-  it("can't reach NAV at all until SYB's software ID is configured", async () => {
+  it("can't reach NAV at all until ScaleX's software ID is configured", async () => {
     expect(navSoftwareFromEnv({})).toBeNull();
     const accountId = await account();
     await expect(connectNav(accountId, CREDS, { ...deps(nav()), software: null })).rejects.toThrow(

@@ -205,9 +205,9 @@ describe("I-52a — one bill for several businesses", () => {
   });
 
   it("names the extra business on its line, or says another business", () => {
-    expect(alsoLine("Lumen Studio")).toBe("SYB business diagnosis: Lumen Studio");
-    expect(alsoLine("  ")).toBe("SYB business diagnosis: another business");
-    expect(alsoLine(null)).toBe("SYB business diagnosis: another business");
+    expect(alsoLine("Lumen Studio")).toBe("ScaleX business diagnosis: Lumen Studio");
+    expect(alsoLine("  ")).toBe("ScaleX business diagnosis: another business");
+    expect(alsoLine(null)).toBe("ScaleX business diagnosis: another business");
   });
 
   it("the webhook's mark pays every business of the session, and only once", async () => {

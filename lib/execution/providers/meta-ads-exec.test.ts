@@ -757,7 +757,7 @@ describe("Review D #4 — an ad undo never overrides the owner, and never raises
     return (await executionFor(pid))!;
   }
 
-  it("THE SCENARIO: SYB cut the budget, the owner then lowered it by hand — the undo refuses, theirs stands", async () => {
+  it("THE SCENARIO: ScaleX cut the budget, the owner then lowered it by hand — the undo refuses, theirs stands", async () => {
     const b = await business();
     const h = harness();
     const execution = await cut(b, h, "120000060", -0.5); // €10.00 → €5.00
@@ -1075,7 +1075,7 @@ describe("P3-22b — only live or paused campaigns, only in the connected accoun
     // Meta's word for it comes from the fake; SYB's code never sends it.
     campaign("120000040", { status: ["ARCH", "IVED"].join("") });
     await adProposal(b, { change: "resume", campaign_ref: "120000040" });
-    expect((await run(b)).outcomes[0]?.detail).toMatch(/SYB only pauses, resumes or re-budgets/);
+    expect((await run(b)).outcomes[0]?.detail).toMatch(/ScaleX only pauses, resumes or re-budgets/);
     expect(graph.calls.filter((c) => c.method === "POST")).toHaveLength(0);
   });
 

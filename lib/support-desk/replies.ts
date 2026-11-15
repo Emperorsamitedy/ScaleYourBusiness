@@ -347,10 +347,10 @@ export interface SendOutcome {
 
 /** "Fernhill Ceramics via SYB <support@…>": our verified sending address, their name. */
 function fromHeader(businessName: string): string {
-  const raw = process.env.EMAIL_FROM?.trim() || "SYB <onboarding@resend.dev>";
+  const raw = process.env.EMAIL_FROM?.trim() || "ScaleX <onboarding@resend.dev>";
   const address = /<([^<>]+)>\s*$/.exec(raw)?.[1] ?? raw;
   const name = businessName.replace(/["<>\r\n\\]/g, "").trim() || "Support";
-  return `"${name} via SYB" <${address.trim()}>`;
+  return `"${name} via ScaleX" <${address.trim()}>`;
 }
 
 /**

@@ -121,7 +121,7 @@ export function specialCategories(args: {
       (c) => `${SPECIAL_CATEGORY_WORD[c]} (special ad category): ${found.get(c)}`,
     ),
     refused: refusedBy
-      ? `This looks like an ad about ${SPECIAL_CATEGORY_WORD[refusedBy]} (${found.get(refusedBy)}). Meta needs its own authorisation for those, so SYB won't run it — you can set it up yourself in Ads Manager.`
+      ? `This looks like an ad about ${SPECIAL_CATEGORY_WORD[refusedBy]} (${found.get(refusedBy)}). Meta needs its own authorisation for those, so ScaleX won't run it — you can set it up yourself in Ads Manager.`
       : null,
   };
 }
@@ -333,7 +333,7 @@ export function targetingViolation(
       return `"${c}" isn't one of Meta's special ad categories`;
     }
     if (SPECIAL_CATEGORY_HANDLING[c as SpecialAdCategory] === "refuse") {
-      return `SYB doesn't run ${SPECIAL_CATEGORY_WORD[c as SpecialAdCategory]} ads`;
+      return `ScaleX doesn't run ${SPECIAL_CATEGORY_WORD[c as SpecialAdCategory]} ads`;
     }
   }
   if (categories.length > 0) {

@@ -121,7 +121,7 @@ export async function notifyOwnerOfEmailTicket(args: {
       "Idempotency-Key": `syb-owner-notice-${args.ticketId}`,
     },
     body: JSON.stringify({
-      from: process.env.EMAIL_FROM?.trim() || "SYB <onboarding@resend.dev>",
+      from: process.env.EMAIL_FROM?.trim() || "ScaleX <onboarding@resend.dev>",
       to: [owner.email],
       subject: content.subject,
       text: content.text,

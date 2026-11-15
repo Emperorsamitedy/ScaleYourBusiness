@@ -46,8 +46,8 @@ const FACTS: ReadinessFacts = {
 const GOOD: ReadinessEnv = {
   APP_URL: "https://app.syb.example",
   RESEND_API_KEY: "re_live_key",
-  EMAIL_FROM: "SYB <hello@syb.example>",
-  CAMPAIGN_EMAIL_FROM: "SYB <hello@campaigns.syb.example>",
+  EMAIL_FROM: "ScaleX <hello@syb.example>",
+  CAMPAIGN_EMAIL_FROM: "ScaleX <hello@campaigns.syb.example>",
   CONNECTOR_KEY: KEY_32_BASE64,
   CRON_SECRET: "cron",
   OPS_KEY: "ops",
@@ -156,7 +156,7 @@ describe("email", () => {
     expect(ok.status).toBe("ready");
     expect(ok.says).toContain("syb.example");
     expect(status({ ...GOOD, EMAIL_FROM: undefined }, "EMAIL_FROM")).toBe("missing");
-    expect(status({ ...GOOD, EMAIL_FROM: "SYB <onboarding@resend.dev>" }, "EMAIL_FROM")).toBe(
+    expect(status({ ...GOOD, EMAIL_FROM: "ScaleX <onboarding@resend.dev>" }, "EMAIL_FROM")).toBe(
       "missing",
     );
     expect(status({ ...GOOD, EMAIL_FROM: "not an address" }, "EMAIL_FROM")).toBe("missing");
@@ -924,9 +924,9 @@ describe("optional", () => {
 
 describe("the pure readers", () => {
   it("fromDomain reads the address's domain, or null", () => {
-    expect(fromDomain("SYB <Hello@Mail.Example.COM>")).toBe("mail.example.com");
+    expect(fromDomain("ScaleX <Hello@Mail.Example.COM>")).toBe("mail.example.com");
     expect(fromDomain("hello@example.com")).toBe("example.com");
-    expect(fromDomain("SYB")).toBeNull();
+    expect(fromDomain("ScaleX")).toBeNull();
     expect(fromDomain(undefined)).toBeNull();
   });
 
@@ -1034,8 +1034,8 @@ describe("no secret value appears anywhere in the readiness output", () => {
   function sentinelEnv(): Record<string, string> {
     const env: Record<string, string> = {
       APP_URL: "https://app.syb.example",
-      EMAIL_FROM: "SYB <hello@syb.example>",
-      CAMPAIGN_EMAIL_FROM: "SYB <hello@campaigns.syb.example>",
+      EMAIL_FROM: "ScaleX <hello@syb.example>",
+      CAMPAIGN_EMAIL_FROM: "ScaleX <hello@campaigns.syb.example>",
       SUPPORT_INBOUND_DOMAIN: "inbound.syb.example",
       // Non-secret settings holding a secret by mistake must not echo it either.
       INTERVIEWER_MODE: token("INTERVIEWERMODE"),

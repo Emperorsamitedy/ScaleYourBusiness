@@ -181,7 +181,7 @@ describe("I-45a — unconfigured", () => {
     expect(view).toMatchObject({ configured: false, connection: null, pick: null });
     expect(String(view.not_set_up)).toMatch(/^Not set up yet\./);
     expect(String(view.what_it_can_do)).toMatch(
-      /can also post replies to your reviews and edit your Business Profile listing\. SYB only reads your reviews with it\. You can revoke it any time\./,
+      /can also post replies to your reviews and edit your Business Profile listing\. ScaleX only reads your reviews with it\. You can revoke it any time\./,
     );
     const res = await startPOST(
       form("/api/connections/google-business/start", { confirmation: "allow reading reviews" }),

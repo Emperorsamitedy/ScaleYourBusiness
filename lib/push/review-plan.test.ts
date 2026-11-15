@@ -39,7 +39,7 @@ describe("I-45d — a review alert's own alert", () => {
       act: "send",
       send: [],
       reviews_done: [R1],
-      payload: { title: "SYB", body: "A 2-star review on Google", url: "/reviews" },
+      payload: { title: "ScaleX", body: "A 2-star review on Google", url: "/reviews" },
     });
   });
 

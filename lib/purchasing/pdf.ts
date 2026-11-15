@@ -167,8 +167,8 @@ export async function renderPurchaseOrderPdf(
   doc.setTitle(drawable(title, has), { showInWindowTitleBar: true });
   doc.setAuthor(drawable(po.business, has));
   doc.setSubject(drawable(title, has));
-  doc.setCreator("SYB");
-  doc.setProducer("SYB");
+  doc.setCreator("ScaleX");
+  doc.setProducer("ScaleX");
   doc.setCreationDate(when);
   doc.setModificationDate(when);
   doc.setLanguage(w.locale === "zh-Hans" ? "zh-Hans" : (w.locale.split("-")[0] ?? "en"));

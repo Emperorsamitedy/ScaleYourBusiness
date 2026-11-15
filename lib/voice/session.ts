@@ -28,7 +28,7 @@ export const END_GRACE_MS = 3_000;
 
 /** The one plain line (TASKS-FEEDBACK.md, idea 50), shown before audio leaves the device. */
 export const NOTICE =
-  "Your browser turns your speech into text. In Chrome, Google does this; SYB never receives the audio.";
+  "Your browser turns your speech into text. In Chrome, Google does this; ScaleX never receives the audio.";
 
 /** "Seen the notice" — per browser, so each new browser says it once. */
 export const NOTICE_KEY = "syb.voice_notice_seen";

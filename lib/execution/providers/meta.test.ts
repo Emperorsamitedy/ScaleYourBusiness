@@ -281,7 +281,9 @@ describe("P3-20g — the verifier proves the token and the asset", () => {
 
   it("rate limiting retries to the cap, then fails", async () => {
     const { exec, calls } = meta({ respond: () => metaError(17, "User request limit reached") });
-    await expect(exec.verifier("meta_ads")(ADS_SECRET)).rejects.toThrow(/asked SYB to slow down/);
+    await expect(exec.verifier("meta_ads")(ADS_SECRET)).rejects.toThrow(
+      /asked ScaleX to slow down/,
+    );
     expect(calls).toHaveLength(META_EXEC_MAX_ATTEMPTS);
   });
 });
@@ -609,7 +611,7 @@ describe("P3-22b — what an ad write may carry", () => {
     expect(code.filter((l) => l.includes("execution_options: VALIDATE_ONLY"))).toHaveLength(1);
   });
 
-  it("adWriteViolation: passes the writes SYB makes, refuses every other field and status", () => {
+  it("adWriteViolation: passes the writes ScaleX makes, refuses every other field and status", () => {
     const dry = { execution_options: VALIDATE_ONLY };
     expect(adWriteViolation("campaign_update", { status: "PAUSED" })).toBeNull();
     expect(adWriteViolation("campaign_update", { status: "ACTIVE", ...dry })).toBeNull();
@@ -654,7 +656,7 @@ describe("P3-22b — what an ad write may carry", () => {
     const { exec, calls } = meta();
     const ctx = { profile_id: "p", account_id: "a" };
     await expect(exec.ads.execute("delete_campaign", {}, ctx)).rejects.toThrow(
-      /not an ad change SYB makes/,
+      /not an ad change ScaleX makes/,
     );
     expect(calls).toHaveLength(0);
   });

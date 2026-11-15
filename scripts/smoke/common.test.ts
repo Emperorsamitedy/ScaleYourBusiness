@@ -87,7 +87,7 @@ describe("secrets are scrubbed from every line", () => {
     RESEND_API_KEY: "re_live_abcdefgh12345",
     DATABASE_URL: "postgresql://syb:pa55word-x@db.example/syb",
     CONNECTOR_KEY: "Y29ubmVjdG9yLWtleS1zZW50aW5lbA==",
-    EMAIL_FROM: "SYB <hello@syb.example>",
+    EMAIL_FROM: "ScaleX <hello@syb.example>",
     SESSION_D_REAL_WRITES: "on",
   };
 
@@ -168,9 +168,9 @@ describe("isReservedTestAddress — only names no real mailbox can have", () => 
 
 describe("addresses and origins", () => {
   it("fromAddress and domainOf read a From value", () => {
-    expect(fromAddress("SYB <Hello@Syb.Example>")).toBe("hello@syb.example");
+    expect(fromAddress("ScaleX <Hello@Syb.Example>")).toBe("hello@syb.example");
     expect(domainOf("hello@campaigns.syb.example")).toBe("campaigns.syb.example");
-    expect(fromAddress("SYB")).toBeNull();
+    expect(fromAddress("ScaleX")).toBeNull();
   });
 
   it("httpsOrigin accepts https only", () => {

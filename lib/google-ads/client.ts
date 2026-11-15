@@ -144,22 +144,22 @@ export function gadsFailure(status: number, body: unknown): GadsRequestError {
   if (ACCESS_LEVEL_CODES.some((code) => text.includes(code))) {
     return new GadsRequestError(
       "access_level",
-      "Google hasn't approved SYB's Google Ads access for real ad accounts yet. Nothing was read or changed.",
+      "Google hasn't approved ScaleX's Google Ads access for real ad accounts yet. Nothing was read or changed.",
       status,
     );
   }
   if (status === 401) {
-    return new GadsRequestError("auth", "Google no longer accepts SYB's access.", status);
+    return new GadsRequestError("auth", "Google no longer accepts ScaleX's access.", status);
   }
   if (status === 403) {
     return new GadsRequestError(
       "permission",
-      "Google says SYB isn't allowed into this Google Ads account.",
+      "Google says ScaleX isn't allowed into this Google Ads account.",
       status,
     );
   }
   if (status === 429) {
-    return new GadsRequestError("quota", "Google asked SYB to slow down.", status);
+    return new GadsRequestError("quota", "Google asked ScaleX to slow down.", status);
   }
   if (status >= 500) return new GadsRequestError("unavailable", "Google didn't answer.", status);
   return new GadsRequestError("refused", "Google refused the request.", status);
@@ -182,7 +182,7 @@ export async function gadsRequest(
 ): Promise<unknown> {
   const endpoint: GadsEndpoint = GADS_READ_ENDPOINTS[id];
   if (allowedReadEndpoint(endpoint.method, url) !== id) {
-    throw new GadsRequestError("fence", "refusing a request that isn't on SYB's read list");
+    throw new GadsRequestError("fence", "refusing a request that isn't on ScaleX's read list");
   }
   if (endpoint.method === "GET" && init.body !== undefined) {
     throw new GadsRequestError("fence", "a read carries no body");

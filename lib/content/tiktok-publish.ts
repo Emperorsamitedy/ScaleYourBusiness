@@ -143,7 +143,7 @@ export async function pauseTikTok(
 
 /** A refresh whose grant no longer matches the consent (another account, other scopes). */
 export const TIKTOK_GRANT_CHANGED =
-  "TikTok's sign-in no longer matches what you agreed to, so SYB stopped using it. Reconnect TikTok on Connections.";
+  "TikTok's sign-in no longer matches what you agreed to, so ScaleX stopped using it. Reconnect TikTok on Connections.";
 
 /**
  * The account's live TikTok posting credential, refreshed when it is due —
@@ -499,7 +499,7 @@ export async function saveTikTokSettings(args: {
     throw new ContentError(
       view.audited
         ? "TikTok doesn't offer that privacy for this account"
-        : "Until TikTok audits SYB's app, posts can only be private (only you can see them)",
+        : "Until TikTok audits ScaleX's app, posts can only be private (only you can see them)",
       422,
     );
   }

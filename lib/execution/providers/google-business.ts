@@ -11,7 +11,7 @@ import { ExecutionConnectionError } from "../verify";
 import type { ExecutionProvider } from "./fixture";
 
 const REFUSAL =
-  "SYB never writes to Google Business Profile: this permission is used only to read reviews.";
+  "ScaleX never writes to Google Business Profile: this permission is used only to read reviews.";
 
 function refuse(): never {
   throw new ExecutionConnectionError(REFUSAL, 422);

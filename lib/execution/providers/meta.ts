@@ -256,7 +256,7 @@ export function parseMetaExecutionCredential(
   };
   if (c["page_access_token"] !== undefined && c["page_access_token"] !== "") {
     throw new ExecutionConnectionError(
-      "meta: a pasted Page token can't be checked against your consent — assign the Page to the system user instead, and SYB derives the Page token from it",
+      "meta: a pasted Page token can't be checked against your consent — assign the Page to the system user instead, and ScaleX derives the Page token from it",
       400,
     );
   }
@@ -841,7 +841,10 @@ function userToken(body: Record<string, unknown>): string {
 function listOf(body: Record<string, unknown>): Record<string, unknown>[] {
   const data = body["data"];
   if (!Array.isArray(data)) {
-    throw new ExecutionConnectionError("meta: the list came back in a shape SYB can't read", 502);
+    throw new ExecutionConnectionError(
+      "meta: the list came back in a shape ScaleX can't read",
+      502,
+    );
   }
   return data.filter((d): d is Record<string, unknown> => d !== null && typeof d === "object");
 }
@@ -1198,7 +1201,7 @@ function refusalSentence(failure: MetaFailure): string {
   if (!failure.retryable) return failure.owner_sentence;
   return failure.kind === "unavailable"
     ? "Meta kept failing to answer, so nothing was published."
-    : "Meta kept asking SYB to slow down, so nothing was published.";
+    : "Meta kept asking ScaleX to slow down, so nothing was published.";
 }
 
 function stringId(body: Record<string, unknown>, key: string): string | null {
@@ -1425,7 +1428,7 @@ async function igWaitFinished(
     if (poll < IG_POLL_MAX) await ctx.sleep(Math.min(1000 * 2 ** (poll - 1), 15_000));
   }
   throw new PublishError(
-    "Instagram was still processing the media when SYB stopped waiting. Nothing was published.",
+    "Instagram was still processing the media when ScaleX stopped waiting. Nothing was published.",
   );
 }
 
@@ -2096,7 +2099,7 @@ function publishProvider(
             ? refusalSentence(error.failure)
             : error instanceof PublishError || error instanceof UndisclosedPublishError
               ? error.message
-              : "Something went wrong on SYB's side before anything was sent. Nothing was published.";
+              : "Something went wrong on ScaleX's side before anything was sent. Nothing was published.";
         await b.failed(item.id, sentence);
         log("failed");
         throw new PublishError(sentence, false);
@@ -2364,7 +2367,7 @@ function adBuildViolation(
       return `an ad set bids ${AD_BID_STRATEGY}, with no bid amount`;
     }
     if (!META_OPTIMIZATION_GOALS.includes(params["optimization_goal"] ?? "")) {
-      return "an ad set needs one of the optimisation goals SYB uses";
+      return "an ad set needs one of the optimisation goals ScaleX uses";
     }
     const dest = params["destination_type"];
     if (dest !== undefined && dest !== "WEBSITE") return "an ad set sends people to a website only";
@@ -2712,7 +2715,7 @@ export function adRunParams(params: Record<string, unknown>): AdRunParams {
   const goal = str("optimization_goal");
   if (!objective || !META_CAMPAIGN_OBJECTIVES.includes(objective))
     bad("has no objective Meta accepts");
-  if (!goal || !META_OPTIMIZATION_GOALS.includes(goal)) bad("has no optimisation goal SYB uses");
+  if (!goal || !META_OPTIMIZATION_GOALS.includes(goal)) bad("has no optimisation goal ScaleX uses");
   const dest = params["destination_type"];
   if (dest !== null && dest !== undefined && dest !== "WEBSITE") bad("sends people somewhere odd");
   const cats = params["special_ad_categories"];
@@ -2761,7 +2764,7 @@ export function adRunParams(params: Record<string, unknown>): AdRunParams {
   if (!link || !/^https:\/\/\S+$/.test(link)) bad("sends people nowhere");
   const cta = params["call_to_action"];
   if (cta !== null && cta !== undefined && !AD_CALLS_TO_ACTION.includes(String(cta))) {
-    bad("has a call to action SYB doesn't use");
+    bad("has a call to action ScaleX doesn't use");
   }
   const dsa = params["dsa"] as { beneficiary?: unknown; payor?: unknown } | null | undefined;
   if (
@@ -2955,7 +2958,7 @@ function adRefusal(failure: MetaFailure, dryRun: boolean): AdChangeError {
   }
   return new AdChangeError(
     failure.retryable && failure.kind !== "unavailable"
-      ? "Meta kept asking SYB to slow down. Nothing was changed — I'll try again."
+      ? "Meta kept asking ScaleX to slow down. Nothing was changed — I'll try again."
       : failure.owner_sentence,
     failure.retryable,
   );
@@ -3059,7 +3062,7 @@ function adsProvider(ctx: Context, loadBackend: () => Promise<AdsBackend>): Exec
   function touchable(c: CampaignState): void {
     if (!AD_STATUSES.includes(c.status)) {
       throw new AdChangeError(
-        `"${c.name}" is ${c.status.toLowerCase()} on Meta, and SYB only pauses, resumes or re-budgets live and paused campaigns. Nothing was changed.`,
+        `"${c.name}" is ${c.status.toLowerCase()} on Meta, and ScaleX only pauses, resumes or re-budgets live and paused campaigns. Nothing was changed.`,
       );
     }
   }
@@ -3254,7 +3257,7 @@ function adsProvider(ctx: Context, loadBackend: () => Promise<AdsBackend>): Exec
     const name = typeof body["name"] === "string" && body["name"] !== "" ? body["name"] : id;
     if (!AD_STATUSES.includes(status)) {
       throw new AdChangeError(
-        `"${name}" is ${status.toLowerCase()} on Meta, and SYB only pauses and resumes live and paused ads. Nothing was changed.`,
+        `"${name}" is ${status.toLowerCase()} on Meta, and ScaleX only pauses and resumes live and paused ads. Nothing was changed.`,
       );
     }
     return {
@@ -3271,7 +3274,7 @@ function adsProvider(ctx: Context, loadBackend: () => Promise<AdsBackend>): Exec
   async function consentCovers(run: Run): Promise<void> {
     if (!(await run.b.consentCurrent(run.account_id))) {
       throw new AdChangeError(
-        "Your Meta ad connection was agreed before SYB could create ads, so it hasn't agreed to this. Reconnect it on Connections to agree to the new wording. Nothing was created.",
+        "Your Meta ad connection was agreed before ScaleX could create ads, so it hasn't agreed to this. Reconnect it on Connections to agree to the new wording. Nothing was created.",
       );
     }
   }
@@ -3403,7 +3406,7 @@ function adsProvider(ctx: Context, loadBackend: () => Promise<AdsBackend>): Exec
     const journal = await b.adBuild(executionId, { build_tag: p.build_tag, item_id: p.item_id });
     if (journal.status === "uncertain" || journal.status === "failed") {
       throw new AdChangeError(
-        "This ad's build stopped earlier, and SYB never creates an ad's parts twice. Check Ads Manager; everything SYB made is paused.",
+        "This ad's build stopped earlier, and ScaleX never creates an ad's parts twice. Check Ads Manager; everything ScaleX made is paused.",
       );
     }
     const steps: Partial<Record<AdBuildStepKey, AdBuildStep>> = { ...journal.steps };
@@ -3428,7 +3431,7 @@ function adsProvider(ctx: Context, loadBackend: () => Promise<AdsBackend>): Exec
         const found = await readBackStep(run, key, name, p.build_tag);
         if (found === null) {
           throw new AdBuildUncertainError(
-            `I may have created the ${word} — check Ads Manager. Meta didn't confirm it and I couldn't find it, so I won't create it again. Nothing is live: everything SYB made is paused.`,
+            `I may have created the ${word} — check Ads Manager. Meta didn't confirm it and I couldn't find it, so I won't create it again. Nothing is live: everything ScaleX made is paused.`,
           );
         }
         await b.adStep(executionId, key, { id: found });
@@ -3629,7 +3632,7 @@ function adsProvider(ctx: Context, loadBackend: () => Promise<AdsBackend>): Exec
       }
       if (state === "error") {
         throw new AdChangeError(
-          "Meta couldn't process the video, so there is no ad to make from it. The campaign and ad set SYB made are on Meta, paused — nothing spends.",
+          "Meta couldn't process the video, so there is no ad to make from it. The campaign and ad set ScaleX made are on Meta, paused — nothing spends.",
         );
       }
       if (poll < AD_VIDEO_POLL_MAX) await ctx.sleep(Math.min(15_000, 2_000 * poll));
@@ -3656,7 +3659,7 @@ function adsProvider(ctx: Context, loadBackend: () => Promise<AdsBackend>): Exec
     }
     if (adset.daily_budget === null) {
       throw new AdChangeError(
-        `"${adset.name}" has no daily budget SYB can count against your ceiling. Nothing was changed.`,
+        `"${adset.name}" has no daily budget ScaleX can count against your ceiling. Nothing was changed.`,
       );
     }
     const account = await readAccount(run);
@@ -3725,7 +3728,7 @@ function adsProvider(ctx: Context, loadBackend: () => Promise<AdsBackend>): Exec
         ? error.message
         : error instanceof MetaRequestError
           ? adRefusal(error.failure, false).message
-          : "Something went wrong creating the ad. Check Ads Manager before approving it again; everything SYB made is paused.";
+          : "Something went wrong creating the ad. Check Ads Manager before approving it again; everything ScaleX made is paused.";
     const uncertain = error instanceof AdBuildUncertainError;
     log(uncertain ? "uncertain" : "failed", {
       error: error instanceof Error ? error.name : "unknown",
@@ -3771,7 +3774,7 @@ function adsProvider(ctx: Context, loadBackend: () => Promise<AdsBackend>): Exec
       let run: Run | undefined;
       try {
         if (!isAdOp(op))
-          return { code: "refused", message: `"${op}" is not an ad change SYB makes` };
+          return { code: "refused", message: `"${op}" is not an ad change ScaleX makes` };
         run = await open(pctx.account_id);
         if (op === "create_ad_paused") {
           // P3-54: every check the attempt makes again, reads only, before anything is claimed.
@@ -3809,7 +3812,7 @@ function adsProvider(ctx: Context, loadBackend: () => Promise<AdsBackend>): Exec
           if (op === "set_daily_budget") {
             if (c.daily_budget === null) {
               throw new AdChangeError(
-                `"${c.name}" has its budget on its ad sets, not the campaign, and SYB changes campaign budgets only. Nothing was changed.`,
+                `"${c.name}" has its budget on its ad sets, not the campaign, and ScaleX changes campaign budgets only. Nothing was changed.`,
               );
             }
             const account = await readAccount(run);
@@ -3903,7 +3906,7 @@ function adsProvider(ctx: Context, loadBackend: () => Promise<AdsBackend>): Exec
     },
 
     async execute(op, params, pctx) {
-      if (!isAdOp(op)) throw new AdChangeError(`"${op}" is not an ad change SYB makes`);
+      if (!isAdOp(op)) throw new AdChangeError(`"${op}" is not an ad change ScaleX makes`);
       const run = await open(pctx.account_id);
       if (pctx.halted) run.halted = pctx.halted;
       const log = (outcome: string, extra: Record<string, unknown> = {}) =>
@@ -4115,7 +4118,7 @@ function adsProvider(ctx: Context, loadBackend: () => Promise<AdsBackend>): Exec
       if (op === "pause_campaign" || op === "resume_campaign") {
         if (typeof u.status !== "string" || !AD_STATUSES.includes(u.status)) {
           throw new AdChangeError(
-            "the stored undo names no status SYB may set — nothing was changed",
+            "the stored undo names no status ScaleX may set — nothing was changed",
           );
         }
         const set = typeof done.status === "string" ? done.status : null;

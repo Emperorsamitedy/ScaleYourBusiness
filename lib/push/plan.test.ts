@@ -107,7 +107,7 @@ describe("grouping, and what the alert says", () => {
       act: "send",
       send: [A],
       payload: {
-        title: "SYB",
+        title: "ScaleX",
         body: "1 thing waits for your yes: a price change",
         url: `/proposals/${A}`,
       },

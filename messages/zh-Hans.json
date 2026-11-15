@@ -91,10 +91,10 @@
   },
   "auth": {
     "meta": {
-      "signIn": "登录 — SYB",
-      "signUp": "创建账户 — SYB",
-      "confirm": "确认登录 — SYB",
-      "choose": "选择企业 — SYB"
+      "signIn": "登录 — ScaleX",
+      "signUp": "创建账户 — ScaleX",
+      "confirm": "确认登录 — ScaleX",
+      "choose": "选择企业 — ScaleX"
     },
     "mast": {
       "signIn": "登录",
@@ -153,7 +153,7 @@
     "why": "为什么？"
   },
   "locale": {
-    "meta": "语言和货币 — SYB",
+    "meta": "语言和货币 — ScaleX",
     "first": {
       "headline": "请选择您的语言和货币。"
     },
@@ -179,7 +179,7 @@
   },
   "intake": {
     "meta": {
-      "title": "正在建立记录 — SYB"
+      "title": "正在建立记录 — ScaleX"
     },
     "area": {
       "identity": "企业基本信息",
@@ -430,7 +430,7 @@
     "speak": "语音输入",
     "listening": "正在聆听… 再次按“语音输入”即可停止。",
     "noticeStart": "{notice}再按“语音输入”开始。",
-    "notice": "您的浏览器会把您的语音转换成文字。在 Chrome 中，这一步由 Google 完成；SYB 从不接收音频。",
+    "notice": "您的浏览器会把您的语音转换成文字。在 Chrome 中，这一步由 Google 完成；ScaleX 从不接收音频。",
     "cap": "一分钟后我会停止聆听。按“语音输入”可以继续补充。",
     "error": {
       "blocked": "此网站的麦克风已被阻止。请在浏览器的网站设置中允许（地址栏旁的图标），然后再次按“语音输入”。",
@@ -482,7 +482,7 @@
   },
   "report": {
     "meta": {
-      "title": "您的诊断 — SYB"
+      "title": "您的诊断 — ScaleX"
     },
     "mast": {
       "watching": "观察中 · 第 {day} 天，共 {of} 天"
@@ -718,7 +718,7 @@
     },
     "share": {
       "label": "分享这份报告",
-      "signedOut": "登录后才能分享您的报告——离开 SYB 的链接只能由您本人创建，因此需要您登录。",
+      "signedOut": "登录后才能分享您的报告——离开 ScaleX 的链接只能由您本人创建，因此需要您登录。",
       "lede": "该链接显示这份报告当前的样子，不包含您对各项建议的回应，也不包含任何通往您账户的内容。链接创建后就不会再变化，您可以随时在这里撤销它。",
       "lasts": "有效期",
       "days": "{days, plural, other {# 天}}",
@@ -982,7 +982,7 @@
   },
   "factsheet": {
     "meta": {
-      "title": "您的事实表 — SYB"
+      "title": "您的事实表 — ScaleX"
     },
     "kicker": "您的企业 · 事实表",
     "titleEmpty": "记录。",
@@ -1107,7 +1107,7 @@
   },
   "watch": {
     "meta": {
-      "title": "观察 — SYB"
+      "title": "观察 — ScaleX"
     },
     "kicker": "洞察 · 观察",
     "days": {
@@ -1198,7 +1198,7 @@
       "whatsapp": {
         "numberLabel": "您的 WhatsApp 号码",
         "numberHint": "完整的国际号码：先输入加号，再输入国家代码。",
-        "consent": "通过 WhatsApp 将我的 SYB 每周摘要发送到此号码。我可以随时在这里停止，SYB 不会将此号码用于其他任何用途。",
+        "consent": "通过 WhatsApp 将我的 ScaleX 每周摘要发送到此号码。我可以随时在这里停止，ScaleX 不会将此号码用于其他任何用途。",
         "agree": "是的，通过 WhatsApp 发送",
         "on": "自 {date} 起，WhatsApp 消息发送到 {number}。",
         "withdraw": "停止 WhatsApp",
@@ -1246,9 +1246,9 @@
       "status": {
         "signIn": "请在此设备上登录以开启提醒。",
         "noKeys": "此服务器暂时无法发送手机提醒：其密钥尚未设置。",
-        "iphoneTab": "请先把 SYB 添加到主屏幕，然后在那里开启。在 Safari 中：点按“分享”，再点按“添加到主屏幕”（iOS {version} 或更高版本）。",
-        "unsupported": "此浏览器无法接收提醒。在 iPhone 上，请先把 SYB 添加到主屏幕，然后在那里开启。",
-        "denied": "此浏览器的设置中已阻止 SYB 的提醒。请在那里允许，然后再开启。",
+        "iphoneTab": "请先把 ScaleX 添加到主屏幕，然后在那里开启。在 Safari 中：点按“分享”，再点按“添加到主屏幕”（iOS {version} 或更高版本）。",
+        "unsupported": "此浏览器无法接收提醒。在 iPhone 上，请先把 ScaleX 添加到主屏幕，然后在那里开启。",
+        "denied": "此浏览器的设置中已阻止 ScaleX 的提醒。请在那里允许，然后再开启。",
         "on": "此设备已开启。"
       },
       "switchOn": "为此设备开启",
@@ -1272,8 +1272,8 @@
   },
   "proposals": {
     "meta": {
-      "title": "提案 — SYB",
-      "one": "一项提案 — SYB"
+      "title": "提案 — ScaleX",
+      "one": "一项提案 — ScaleX"
     },
     "module": "{module, select, marketing {营销} sales {销售} support {客户支持} operations {运营} finance {财务} team {团队} other {{module}}}",
     "loading": "正在读取队列…",
@@ -1531,7 +1531,7 @@
   },
   "history": {
     "meta": {
-      "title": "历史记录 — SYB"
+      "title": "历史记录 — ScaleX"
     },
     "kicker": "您的企业 · 历史记录",
     "title": "账本。",
@@ -1605,7 +1605,7 @@
   },
   "connections": {
     "meta": {
-      "title": "连接 — SYB"
+      "title": "连接 — ScaleX"
     },
     "kicker": "您的企业 · 连接",
     "loading": "正在读取您的连接…",
@@ -1629,7 +1629,7 @@
       "writesUnknown": "无法读取写入权限。",
       "canWrite": "{labels} 可以写入——仅限您批准的内容。",
       "nothingWritten": "没有任何内容可以写入。",
-      "readOnly": "{labels} 持有一项可以写入的权限；SYB 只用它读取。"
+      "readOnly": "{labels} 持有一项可以写入的权限；ScaleX 只用它读取。"
     },
     "status": {
       "connected": "已连接",
@@ -1671,7 +1671,7 @@
       "settings": "设置",
       "connect": "连接",
       "past": "{label} 已断开。凭据已删除；它产生的测量历史仍保留在您的档案中。",
-      "foot": "测量到的数字会在报告中取代您的估计值，而您的估计值仍保留在您的历史记录中。Google Ads 暂不可用：SYB 需要先获得 Google 的审核通过，任何账户才能连接。"
+      "foot": "测量到的数字会在报告中取代您的估计值，而您的估计值仍保留在您的历史记录中。Google Ads 暂不可用：ScaleX 需要先获得 Google 的审核通过，任何账户才能连接。"
     },
     "settings": {
       "access": "访问权限",
@@ -1846,7 +1846,7 @@
         },
         "s3": {
           "grant": "APPOINTMENTS_ALL_READ（可选，与上一项一起使用）",
-          "why": "您的预约。Square 需要这一项与上一项一起，才能读取您各个地点的每一个预约，而不只是通过 SYB 预订的那些。它无法更改任何预约。",
+          "why": "您的预约。Square 需要这一项与上一项一起，才能读取您各个地点的每一个预约，而不只是通过 ScaleX 预订的那些。它无法更改任何预约。",
           "gives": "您的预约"
         },
         "s4": {
@@ -2014,8 +2014,8 @@
       "typeToConfirm": "如需确认，请输入 <b>{phrase}</b>",
       "facebook": {
         "sub": "受邀测试者：使用 Facebook 登录",
-        "testerNote": "试点期间，只有受邀测试者才能使用 Facebook 登录。首先由 SYB 的 Samuel 或 Tedi 把您添加为 SYB 的 Meta 应用的测试者（Tester），您再用自己的 Facebook 账户接受邀请。然后 Meta 会请您授予上面列出的这些权限，不多也不少，您再在这里选择公共主页或广告账户。",
-        "oneConsent": "一个 Facebook 账户通过登录只能连接发布或广告管理中的一项，不能两者都连接：Meta 会把您之前授予的所有权限都交给 SYB 的应用，而 SYB 会拒绝持有超出本次同意范围的权限的令牌。另一项请使用下方您自己的 Meta 应用。",
+        "testerNote": "试点期间，只有受邀测试者才能使用 Facebook 登录。首先由 ScaleX 的 Samuel 或 Tedi 把您添加为 ScaleX 的 Meta 应用的测试者（Tester），您再用自己的 Facebook 账户接受邀请。然后 Meta 会请您授予上面列出的这些权限，不多也不少，您再在这里选择公共主页或广告账户。",
+        "oneConsent": "一个 Facebook 账户通过登录只能连接发布或广告管理中的一项，不能两者都连接：Meta 会把您之前授予的所有权限都交给 ScaleX 的应用，而 ScaleX 会拒绝持有超出本次同意范围的权限的令牌。另一项请使用下方您自己的 Meta 应用。",
         "opening": "正在打开 Facebook…",
         "signInPick": {
           "ad": "使用 Facebook 登录并选择广告账户",
@@ -2027,10 +2027,10 @@
       "pick": {
         "couldntList": "我无法列出 Meta 共享的内容。",
         "connected": "{label} 已通过 Facebook 连接，您的同意已记录在案。",
-        "cancelled": "Facebook 登录已取消。没有连接任何内容，SYB 也没有保留任何令牌。",
+        "cancelled": "Facebook 登录已取消。没有连接任何内容，ScaleX 也没有保留任何令牌。",
         "title": {
-          "ad": "选择 SYB 可以操作的广告账户",
-          "page": "选择 SYB 可以操作的公共主页"
+          "ad": "选择 ScaleX 可以操作的广告账户",
+          "page": "选择 ScaleX 可以操作的公共主页"
         },
         "asking": "正在向 Meta 查询您共享了什么…",
         "aria": {
@@ -2045,7 +2045,7 @@
           "ad": "允许并连接这个广告账户",
           "page": "允许并连接这个公共主页"
         },
-        "note": "在存储任何内容之前，SYB 会向 Meta 核实这次登录所持有的权限与上面列出的完全一致。"
+        "note": "在存储任何内容之前，ScaleX 会向 Meta 核实这次登录所持有的权限与上面列出的完全一致。"
       },
       "eachAction": "每项操作的作用",
       "undoable": "可以撤销。",
@@ -2116,37 +2116,37 @@
       "allowConnect": "允许并连接",
       "youCancelled": "您取消了 Facebook 登录。没有连接任何内容。",
       "reason": {
-        "start_here": "请从 SYB 的“连接”页面，用那里的按钮开始 Facebook 登录。没有向 Meta 发送任何内容。",
-        "signed_out": "请先登录 SYB，然后再次连接 Meta。",
+        "start_here": "请从 ScaleX 的“连接”页面，用那里的按钮开始 Facebook 登录。没有向 Meta 发送任何内容。",
+        "signed_out": "请先登录 ScaleX，然后再次连接 Meta。",
         "owner_only": "只有所有者才能授予或收回写入权限。没有向 Meta 发送任何内容。",
         "unavailable": "Facebook 登录暂不可用。请改用您自己的 Meta 应用。",
-        "provider": "SYB 不提供这种 Meta 连接。",
+        "provider": "ScaleX 不提供这种 Meta 连接。",
         "phrase": "确认短语不匹配。请按显示的内容输入，然后重新开始。",
         "already_connected": "这个 Meta 连接已经接通。请先断开它。",
         "start_again": "这次 Facebook 登录已过期或已被使用。请从“连接”重新开始。",
-        "foreign": "这次 Facebook 登录是从另一个 SYB 账户发起的。请以该账户登录 SYB，或重新开始。",
+        "foreign": "这次 Facebook 登录是从另一个 ScaleX 账户发起的。请以该账户登录 ScaleX，或重新开始。",
         "meta_error": "Facebook 登录没有完成。没有连接任何内容。",
-        "no_pages": "对于这个 Facebook 账户，Meta 没有向 SYB 显示任何公共主页。请在 Meta 的对话框中，选择您希望 SYB 发布到的公共主页（及其 Instagram 账户），然后重试。",
-        "no_ad_accounts": "对于这个 Facebook 账户，Meta 没有向 SYB 显示任何广告账户。请在 Meta 的对话框中，选择您希望 SYB 管理的广告账户，然后重试。",
+        "no_pages": "对于这个 Facebook 账户，Meta 没有向 ScaleX 显示任何公共主页。请在 Meta 的对话框中，选择您希望 ScaleX 发布到的公共主页（及其 Instagram 账户），然后重试。",
+        "no_ad_accounts": "对于这个 Facebook 账户，Meta 没有向 ScaleX 显示任何广告账户。请在 Meta 的对话框中，选择您希望 ScaleX 管理的广告账户，然后重试。",
         "meta_auth": "Facebook 登录没有完成：Meta 没有接受这次登录。请从“连接”重新开始。",
-        "meta_permission": "Facebook 登录没有完成：Meta 表示 SYB 无权执行该操作。请检查“连接”中列出的权限，然后重新开始。",
+        "meta_permission": "Facebook 登录没有完成：Meta 表示 ScaleX 无权执行该操作。请检查“连接”中列出的权限，然后重新开始。",
         "meta_busy": "Facebook 登录没有完成：Meta 繁忙或没有响应。没有连接任何内容——请过几分钟再试。",
         "meta_refused": "Facebook 登录没有完成：Meta 拒绝了它。没有连接任何内容。",
         "internal": "我们这边出了问题。没有连接任何内容。",
         "generic": "Facebook 登录没有完成。没有连接任何内容。"
       },
-      "nothingSent": "连接会验证令牌并记录您的同意。在您逐项批准之前，不会发布或更改任何内容，而且通过 SYB 发布的功能尚未开启。",
+      "nothingSent": "连接会验证令牌并记录您的同意。在您逐项批准之前，不会发布或更改任何内容，而且通过 ScaleX 发布的功能尚未开启。",
       "disconnectNote": "断开连接会立即删除这里的令牌。它不会撤销 Meta 那边的任何权限：如需在那边收回权限，请从您的业务设置中移除该应用。",
       "access": {
         "label": "Meta 访问级别 · {level}",
         "standard": {
           "word": "标准",
-          "headline": "Meta 尚未批准 SYB 开放注册。",
-          "body": "在 SYB 的公司注册以及 Meta 的各项审核（高级访问权限、企业验证和技术提供商验证）完成之前，对于任何不属于 SYB 自己企业的公共主页或广告账户，Meta 本身都会拒绝这些权限。在此期间，有两种试点途径可用。"
+          "headline": "Meta 尚未批准 ScaleX 开放注册。",
+          "body": "在 ScaleX 的公司注册以及 Meta 的各项审核（高级访问权限、企业验证和技术提供商验证）完成之前，对于任何不属于 ScaleX 自己企业的公共主页或广告账户，Meta 本身都会拒绝这些权限。在此期间，有两种试点途径可用。"
         },
         "advanced": {
           "word": "高级",
-          "headline": "Meta 已批准 SYB 申请这些权限。",
+          "headline": "Meta 已批准 ScaleX 申请这些权限。",
           "body": "任何企业都可以在这里连接自己的公共主页、Instagram 账户或广告账户。"
         }
       },
@@ -2159,14 +2159,14 @@
         "signIn": "使用 Facebook 登录",
         "signInOn": "登录，授予列出的权限，然后选择您的公共主页或广告账户。",
         "testers": "受邀测试者：使用 Facebook 登录",
-        "testersOn": "适用于 SYB 工作人员已在 Meta 中添加的测试者：先由 Samuel 或 Tedi 在 SYB 的 Meta 应用中添加您，您再接受邀请。",
-        "testersOff": "适用于 SYB 工作人员已在 Meta 中添加的测试者。{off}"
+        "testersOn": "适用于 ScaleX 工作人员已在 Meta 中添加的测试者：先由 Samuel 或 Tedi 在 ScaleX 的 Meta 应用中添加您，您再接受邀请。",
+        "testersOff": "适用于 ScaleX 工作人员已在 Meta 中添加的测试者。{off}"
       },
       "tier": {
-        "unseen": "尚未获知——SYB 第一次为广告变更调用接口时，Meta 会告知",
+        "unseen": "尚未获知——ScaleX 第一次为广告变更调用接口时，Meta 会告知",
         "development_access": "开发层级：Meta 最低的限额，供开发构建使用",
         "standard_access": "标准访问：这个广告账户每小时约可调用 {base} + {perAd} × 活跃广告数 次",
-        "note": "Meta 按层级限制 SYB 每小时可以对这个广告账户进行的调用次数。这足够一家企业使用，但不足以服务大量客户。每当 Meta 报告已用掉限额的 {share}，SYB 就会等到下一次运行。更高的限额需要通过 Meta 的审核；一旦在 {days, plural, other {# 天}}内累计 {calls, plural, other {# 次成功调用}}，SYB 就会提出申请。"
+        "note": "Meta 按层级限制 ScaleX 每小时可以对这个广告账户进行的调用次数。这足够一家企业使用，但不足以服务大量客户。每当 Meta 报告已用掉限额的 {share}，ScaleX 就会等到下一次运行。更高的限额需要通过 Meta 的审核；一旦在 {days, plural, other {# 天}}内累计 {calls, plural, other {# 次成功调用}}，ScaleX 就会提出申请。"
       }
     },
     "email": {
@@ -2197,7 +2197,7 @@
       "fact": {
         "status": "状态",
         "sentAs": "发件人",
-        "viaSyb": "{name}（经由 SYB）",
+        "viaSyb": "{name}（经由 ScaleX）",
         "repliesTo": "回复发送至"
       },
       "disconnectNote": "断开连接会立即停止所有营销活动邮件的发送。已经发出的邮件无法撤回。",
@@ -2207,7 +2207,7 @@
       },
       "undoable": "可以撤销。",
       "notUndoable": "无法撤销：已发送的邮件无法撤回，而且每个营销活动在您批准之前都会如此标注。",
-      "ownService": "营销活动通过 SYB 自己的邮件服务，以您的企业名称发出。您不需要为此向 SYB 提供任何密码或密钥。",
+      "ownService": "营销活动通过 ScaleX 自己的邮件服务，以您的企业名称发出。您不需要为此向 ScaleX 提供任何密码或密钥。",
       "sendAs": "发件人名称（您的企业名称）",
       "repliesTo": "回复发送至（一个您会查看的地址）",
       "typeToConfirm": "如需确认，请输入 <b>{phrase}</b>",
@@ -2216,18 +2216,18 @@
       "nothingSent": "授予会记录您的同意。在您批准一个营销活动以及邮件本身之前，不会发送任何内容，而且每位收件人都会在发送那一刻再次核查。",
       "how": {
         "label": "营销活动如何发送",
-        "title": "通过 SYB 自己的邮件服务，以您的名义发出。",
-        "body": "您不需要为此向 SYB 提供任何密码或密钥。每个营销活动只发送给明确同意接收您消息的客户，每一位都会在发送那一刻再次核查；每封邮件都附有自己的退订链接，一经点击立即生效，且永久有效。"
+        "title": "通过 ScaleX 自己的邮件服务，以您的名义发出。",
+        "body": "您不需要为此向 ScaleX 提供任何密码或密钥。每个营销活动只发送给明确同意接收您消息的客户，每一位都会在发送那一刻再次核查；每封邮件都附有自己的退订链接，一经点击立即生效，且永久有效。"
       },
       "realSendsOff": "{label} 已关闭，直到为期两周的无人值守测试完成为止。没有发送任何内容；此项仍保持已批准状态。开启后，它会在第一次运行时发出。",
-      "sharedSender": "目前，营销活动邮件和 SYB 自己的登录邮件从同一个发件地址发出。如果某个营销活动招致大量垃圾邮件投诉，登录邮件也可能被延缓。"
+      "sharedSender": "目前，营销活动邮件和 ScaleX 自己的登录邮件从同一个发件地址发出。如果某个营销活动招致大量垃圾邮件投诉，登录邮件也可能被延缓。"
     },
     "google": {
       "sectionLabel": "Google 商家资料 · 一项单独的同意",
       "label": "Google 商家资料评价",
       "title": {
         "on": "已授予，仅用于读取您的评价",
-        "off": "关闭。SYB 不会读取您的 Google 评价。"
+        "off": "关闭。ScaleX 不会读取您的 Google 评价。"
       },
       "status": {
         "connected": "已连接",
@@ -2246,44 +2246,44 @@
       "connectFailed": "连接未成功。",
       "revokeFailed": "撤销未成功。",
       "connected": "Google 商家资料已连接，您的同意已记录在案。",
-      "signedInPick": "已使用 Google 登录。请选择 SYB 应读取的地点。",
+      "signedInPick": "已使用 Google 登录。请选择 ScaleX 应读取的地点。",
       "youCancelled": "您在 Google 的页面上取消了。没有连接任何内容。",
       "nothingConnected": "没有连接任何内容。",
-      "revoked": "已撤销。SYB 对 Google 的访问权限已删除，读取已停止。",
+      "revoked": "已撤销。ScaleX 对 Google 的访问权限已删除，读取已停止。",
       "fact": {
         "status": "状态",
         "location": "地点",
         "lastRead": "上次读取",
-        "notYet": "尚未读取：SYB 每天读取一次"
+        "notYet": "尚未读取：ScaleX 每天读取一次"
       },
-      "revokeAsk": "SYB 将停止读取您的 Google 评价。",
+      "revokeAsk": "ScaleX 将停止读取您的 Google 评价。",
       "revoking": "正在撤销…",
       "yesRevoke": "是的，撤销",
       "revoke": "撤销",
-      "revokeNote": "撤销会立即删除 SYB 在这里的访问权限，SYB 也会停止读取。已读取的评价会保留在“评价”中，直到您移除它们或保留满一年。如需同时在 Google 那边移除 SYB，请打开您 Google 账户的“安全性”页面，然后打开其中的第三方连接。",
-      "pickTitle": "选择 SYB 读取的地点",
+      "revokeNote": "撤销会立即删除 ScaleX 在这里的访问权限，ScaleX 也会停止读取。已读取的评价会保留在“评价”中，直到您移除它们或保留满一年。如需同时在 Google 那边移除 ScaleX，请打开您 Google 账户的“安全性”页面，然后打开其中的第三方连接。",
+      "pickTitle": "选择 ScaleX 读取的地点",
       "recording": "正在记录…",
       "readLocation": "读取这个地点的评价",
       "googleScreen": "随后 Google 会显示它自己的页面，并询问这一项权限。请允许，然后回到这里。",
       "typeToConfirm": "如需确认，请输入 <b>{phrase}</b>",
       "opening": "正在打开 Google…",
       "signIn": "使用 Google 登录并允许读取评价",
-      "nothingWritten": "连接会记录您的同意，并每天读取一次您的评价。SYB 从不回复，也从不编辑您的商家信息：它只从 Google 读取。",
+      "nothingWritten": "连接会记录您的同意，并每天读取一次您的评价。ScaleX 从不回复，也从不编辑您的商家信息：它只从 Google 读取。",
       "reason": {
-        "start_here": "请从 SYB 的“连接”页面，用那里的按钮开始 Google 登录。没有向 Google 发送任何内容。",
-        "signed_out": "请先登录 SYB，然后再次连接 Google。",
+        "start_here": "请从 ScaleX 的“连接”页面，用那里的按钮开始 Google 登录。没有向 Google 发送任何内容。",
+        "signed_out": "请先登录 ScaleX，然后再次连接 Google。",
         "owner_only": "只有所有者才能授予或收回这项权限。没有向 Google 发送任何内容。",
         "unavailable": "从 Google 读取评价尚未设置。",
         "phrase": "确认短语不匹配。请按显示的内容输入，然后重新开始。",
         "already_connected": "Google 商家资料已经连接。请先撤销它，再连接另一个。",
         "start_again": "这次 Google 登录已过期或已被使用。请从“连接”重新开始。",
-        "foreign": "这次 Google 登录是从另一个 SYB 账户发起的。请以该账户登录 SYB，或重新开始。",
+        "foreign": "这次 Google 登录是从另一个 ScaleX 账户发起的。请以该账户登录 ScaleX，或重新开始。",
         "google_error": "Google 登录没有完成。没有连接任何内容。",
-        "scope": "Google 没有恰好授予 SYB 申请的那一项权限。请在 Google 的页面上允许商家资料权限，然后重试。",
-        "no_refresh": "Google 没有给 SYB 长期访问权限。请重新开始：Google 会再询问一次，SYB 需要这个回答。",
-        "no_locations": "对于这个 Google 账户，Google 没有向 SYB 显示任何商家资料。请使用管理您商家资料的账户登录，然后重试。",
+        "scope": "Google 没有恰好授予 ScaleX 申请的那一项权限。请在 Google 的页面上允许商家资料权限，然后重试。",
+        "no_refresh": "Google 没有给 ScaleX 长期访问权限。请重新开始：Google 会再询问一次，ScaleX 需要这个回答。",
+        "no_locations": "对于这个 Google 账户，Google 没有向 ScaleX 显示任何商家资料。请使用管理您商家资料的账户登录，然后重试。",
         "google_auth": "Google 没有接受这次登录。请从“连接”重新开始。",
-        "google_permission": "Google 表示 SYB 尚无权读取商家资料。没有连接任何内容。",
+        "google_permission": "Google 表示 ScaleX 尚无权读取商家资料。没有连接任何内容。",
         "google_busy": "Google 繁忙或没有响应。没有连接任何内容——请过几分钟再试。",
         "google_refused": "Google 拒绝了这次登录。没有连接任何内容。",
         "internal": "我们这边出了问题。没有连接任何内容。",
@@ -2407,8 +2407,8 @@
       "sectionLabel": "发布到 TikTok · 一项单独的同意",
       "label": "发布到 TikTok",
       "title": {
-        "on": "已授予：SYB 发布您批准的视频",
-        "off": "已关闭。SYB 不会向 TikTok 发布内容。"
+        "on": "已授予：ScaleX 发布您批准的视频",
+        "off": "已关闭。ScaleX 不会向 TikTok 发布内容。"
       },
       "status": {
         "connected": "已连接",
@@ -2426,47 +2426,47 @@
       "revokeFailed": "撤销没有成功。",
       "connected": "发布到 TikTok 已连接，您的同意已记录在案。",
       "youCancelled": "您在 TikTok 的页面上取消了。没有连接任何内容。",
-      "revoked": "已撤销。SYB 对 TikTok 的访问权限已在这里删除，并已请求 TikTok 也将其撤销。",
-      "revokedHereOnly": "已在这里撤销。TikTok 没有确认它也撤销了 SYB 的访问权限，请在 TikTok 应用中查看。",
+      "revoked": "已撤销。ScaleX 对 TikTok 的访问权限已在这里删除，并已请求 TikTok 也将其撤销。",
+      "revokedHereOnly": "已在这里撤销。TikTok 没有确认它也撤销了 ScaleX 的访问权限，请在 TikTok 应用中查看。",
       "fact": {
         "status": "状态",
         "account": "TikTok 账户",
         "whoSees": "谁能看到帖子",
-        "private": "仅您自己，直到 TikTok 审核 SYB 的应用",
+        "private": "仅您自己，直到 TikTok 审核 ScaleX 的应用",
         "chosen": "每个帖子由您选择"
       },
       "access": {
-        "unaudited": "在 TikTok 审核 SYB 的应用之前，SYB 发布的所有内容都以私密方式发出：在 TikTok 上只有您能看到。审核通过后，由您选择每个帖子谁能看到。在此之前，TikTok 每天也只允许 SYB 的应用为少数几个账户发布。",
-        "audited": "TikTok 已审核 SYB 的应用：您可以从 TikTok 自己的选项中选择每个帖子谁能看到。"
+        "unaudited": "在 TikTok 审核 ScaleX 的应用之前，ScaleX 发布的所有内容都以私密方式发出：在 TikTok 上只有您能看到。审核通过后，由您选择每个帖子谁能看到。在此之前，TikTok 每天也只允许 ScaleX 的应用为少数几个账户发布。",
+        "audited": "TikTok 已审核 ScaleX 的应用：您可以从 TikTok 自己的选项中选择每个帖子谁能看到。"
       },
       "before": "开始使用之前",
       "needs": {
-        "app": "SYB 自己的 TikTok 应用，并开启 Login Kit 和 TikTok 的发布 API（Direct Post）。",
+        "app": "ScaleX 自己的 TikTok 应用，并开启 Login Kit 和 TikTok 的发布 API（Direct Post）。",
         "signIn": "您用帖子要发往的 TikTok 账户登录，并允许 TikTok 询问的权限。",
         "choose": "每个帖子都是您批准的一段视频，并由您先选择谁能看到。"
       },
-      "notSetUp": "尚未设置：SYB 的 TikTok 应用密钥还没有到位。在此之前，无法向 TikTok 发布任何内容。",
-      "revokeAsk": "SYB 将停止向 TikTok 发布。已经发布的帖子会保留。",
+      "notSetUp": "尚未设置：ScaleX 的 TikTok 应用密钥还没有到位。在此之前，无法向 TikTok 发布任何内容。",
+      "revokeAsk": "ScaleX 将停止向 TikTok 发布。已经发布的帖子会保留。",
       "revoking": "正在撤销…",
       "yesRevoke": "是的，撤销",
       "revoke": "撤销",
-      "revokeNote": "撤销会立即在这里删除 SYB 的访问权限，并请求 TikTok 也将其撤销。已经在 TikTok 上的帖子会保留。如需在 TikTok 一侧查看，请打开“设置和隐私”，然后“安全与权限”，再到“应用和服务权限”。",
+      "revokeNote": "撤销会立即在这里删除 ScaleX 的访问权限，并请求 TikTok 也将其撤销。已经在 TikTok 上的帖子会保留。如需在 TikTok 一侧查看，请打开“设置和隐私”，然后“安全与权限”，再到“应用和服务权限”。",
       "tiktokScreen": "随后 TikTok 会显示它自己的页面，询问发布视频、您的基本资料和您的公开视频。请允许，然后回到这里。",
       "typeToConfirm": "如需确认，请输入 <b>{phrase}</b>",
       "opening": "正在打开 TikTok…",
       "signIn": "使用 TikTok 登录并允许发布",
-      "nothingWritten": "在您批准成品视频并选择谁能看到之前，不会发布任何东西。SYB 只读取您 TikTok 资料的名称和您公开视频的数据。",
+      "nothingWritten": "在您批准成品视频并选择谁能看到之前，不会发布任何东西。ScaleX 只读取您 TikTok 资料的名称和您公开视频的数据。",
       "reason": {
-        "start_here": "请从 SYB 的“连接”页面，用那里的按钮开始 TikTok 登录。没有向 TikTok 发送任何内容。",
-        "signed_out": "请先登录 SYB，然后再次连接 TikTok。",
+        "start_here": "请从 ScaleX 的“连接”页面，用那里的按钮开始 TikTok 登录。没有向 TikTok 发送任何内容。",
+        "signed_out": "请先登录 ScaleX，然后再次连接 TikTok。",
         "owner_only": "只有所有者才能授予或收回这项权限。没有向 TikTok 发送任何内容。",
         "unavailable": "发布到 TikTok 尚未设置。",
         "phrase": "确认短语不匹配。请按显示的内容输入，然后重新开始。",
         "already_connected": "发布到 TikTok 已经连接。请先撤销它，再连接另一个账户。",
         "start_again": "这次 TikTok 登录已过期或已被使用。请从“连接”重新开始。",
-        "foreign": "这次 TikTok 登录是从另一个 SYB 账户发起的。请以该账户登录 SYB，或重新开始。",
+        "foreign": "这次 TikTok 登录是从另一个 ScaleX 账户发起的。请以该账户登录 ScaleX，或重新开始。",
         "tiktok_error": "TikTok 登录没有完成。没有连接任何内容。",
-        "scope": "TikTok 没有恰好授予 SYB 申请的权限。请在 TikTok 的页面上允许列出的所有项目，然后重试。",
+        "scope": "TikTok 没有恰好授予 ScaleX 申请的权限。请在 TikTok 的页面上允许列出的所有项目，然后重试。",
         "tiktok_refused": "TikTok 拒绝了这次登录。没有连接任何内容。",
         "internal": "我们这边出了问题。没有连接任何内容。",
         "generic": "TikTok 登录没有完成。没有连接任何内容。"
@@ -2477,41 +2477,41 @@
       "sectionLabel": "TikTok Ads · 读取与操作，一项同意",
       "label": "TikTok 广告管理",
       "title": {
-        "on": "已连接。SYB 读取您的 TikTok 营销活动，只更改您批准的内容",
-        "off": "已关闭。SYB 不读取也不更改您的 TikTok 广告。"
+        "on": "已连接。ScaleX 读取您的 TikTok 营销活动，只更改您批准的内容",
+        "off": "已关闭。ScaleX 不读取也不更改您的 TikTok 广告。"
       },
       "connected": "TikTok 已连接，您的同意已记录在案。",
       "youCancelled": "您在 TikTok 的页面上取消了。没有连接任何内容。",
-      "revoked": "已撤销。SYB 对 TikTok 的访问权限已在此删除，读取和更改都已停止。",
-      "whyOne": "TikTok 只给一个应用一份权限清单，所以读取您的营销活动和更改它们是绑在一起的。SYB 把两者作为这一项同意来持有：每天读取一次，只有在您批准提案后才更改营销活动。",
+      "revoked": "已撤销。ScaleX 对 TikTok 的访问权限已在此删除，读取和更改都已停止。",
+      "whyOne": "TikTok 只给一个应用一份权限清单，所以读取您的营销活动和更改它们是绑在一起的。ScaleX 把两者作为这一项同意来持有：每天读取一次，只有在您批准提案后才更改营销活动。",
       "fact": {
         "status": "状态",
         "adAccounts": "广告账户",
         "lastRead": "上次读取",
-        "notYet": "尚未读取：SYB 每天读取一次"
+        "notYet": "尚未读取：ScaleX 每天读取一次"
       },
-      "revokeAsk": "SYB 将停止读取您的 TikTok 营销活动，也无法再更改它们。",
-      "revokeNote": "撤销会立即删除 SYB 在此处的访问权限。已读取的数据会保留。若要在 TikTok 一侧也移除 SYB，请将 SYB 的应用从您 TikTok 广告账户的已授权应用中移除。",
-      "tiktokScreen": "TikTok 随后会显示 SYB 的应用及这些权限，并通过电子邮件向您发送验证码，以确认是您本人。请允许，然后回到这里。",
+      "revokeAsk": "ScaleX 将停止读取您的 TikTok 营销活动，也无法再更改它们。",
+      "revokeNote": "撤销会立即删除 ScaleX 在此处的访问权限。已读取的数据会保留。若要在 TikTok 一侧也移除 ScaleX，请将 ScaleX 的应用从您 TikTok 广告账户的已授权应用中移除。",
+      "tiktokScreen": "TikTok 随后会显示 ScaleX 的应用及这些权限，并通过电子邮件向您发送验证码，以确认是您本人。请允许，然后回到这里。",
       "typeToConfirm": "如需确认，请输入 <b>{phrase}</b>",
       "opening": "正在打开 TikTok…",
       "signIn": "用 TikTok 登录并允许这些权限",
       "nothingWritten": "连接会记录您的同意，并每天读取一次您的营销活动。在您批准提案之前，TikTok 上不会有任何变化；在为期两周的无人值守测试完成之前，TikTok 广告更改会一直保持关闭。",
       "access": {
         "title": "关于访问权限，直说",
-        "check": "TikTok 会在每个开发者应用的登录可用之前对其进行审核，通常需要两到三个工作日。在 SYB 的应用通过审核之前，TikTok 会拒绝登录，SYB 也会如实告知。",
-        "sandbox": "SYB 只连接真实的广告账户。TikTok 将在十二月停用其沙盒账户，因此 SYB 不使用它们：请用您自己的广告账户和一个小型营销活动来测试。"
+        "check": "TikTok 会在每个开发者应用的登录可用之前对其进行审核，通常需要两到三个工作日。在 ScaleX 的应用通过审核之前，TikTok 会拒绝登录，ScaleX 也会如实告知。",
+        "sandbox": "ScaleX 只连接真实的广告账户。TikTok 将在十二月停用其沙盒账户，因此 ScaleX 不使用它们：请用您自己的广告账户和一个小型营销活动来测试。"
       },
       "missing": {
-        "title": "尚未设置。SYB 的服务器缺少以下设置："
+        "title": "尚未设置。ScaleX 的服务器缺少以下设置："
       },
       "steps": {
-        "title": "设置步骤（只需一次，在 SYB 的服务器上）",
+        "title": "设置步骤（只需一次，在 ScaleX 的服务器上）",
         "developer": "使用投放您广告的 TikTok 账号，在 TikTok 开发者网站 {site} 上注册为开发者，并等待您的开发者资料获得通过。",
         "app": "在“My Apps”下创建一个应用，并将 {callback} 填为其广告主重定向 URL。",
         "scopes": "在“Scope of permission”下，只勾选以下几项，其余都不要勾选：{scopes}。",
         "submit": "提交该应用。TikTok 会对其进行审核，通常需要两到三个工作日。",
-        "keys": "通过后，将应用“Basic Information”中的 App ID 和 Secret 复制到 SYB 服务器上的 {appId} 和 {secret}，并将重定向 URL 复制到 {redirect}。"
+        "keys": "通过后，将应用“Basic Information”中的 App ID 和 Secret 复制到 ScaleX 服务器上的 {appId} 和 {secret}，并将重定向 URL 复制到 {redirect}。"
       },
       "status": {
         "connected": "已连接",
@@ -2531,19 +2531,19 @@
       "yesRevoke": "是的，撤销",
       "revoke": "撤销",
       "reason": {
-        "start_here": "请从 SYB 的“连接”页面，用那里的按钮开始 TikTok 登录。没有向 TikTok 发送任何内容。",
-        "signed_out": "请先登录 SYB，然后再次连接 TikTok。",
+        "start_here": "请从 ScaleX 的“连接”页面，用那里的按钮开始 TikTok 登录。没有向 TikTok 发送任何内容。",
+        "signed_out": "请先登录 ScaleX，然后再次连接 TikTok。",
         "owner_only": "只有所有者才能授予或收回这项权限。没有向 TikTok 发送任何内容。",
         "unavailable": "TikTok Ads 尚未设置。",
         "phrase": "确认短语不匹配。请按显示的内容输入，然后重新开始。",
         "already_connected": "TikTok 已经连接。请先撤销，再重新连接。",
         "start_again": "这次 TikTok 登录已过期或已被使用。请从“连接”重新开始。",
-        "foreign": "这次 TikTok 登录是从另一个 SYB 账户发起的。请以该账户登录 SYB，或重新开始。",
+        "foreign": "这次 TikTok 登录是从另一个 ScaleX 账户发起的。请以该账户登录 ScaleX，或重新开始。",
         "tiktok_error": "TikTok 登录未完成。没有连接任何内容。",
-        "scope": "TikTok 授予的权限与 SYB 要求的不完全一致。请将应用的“Scope of permission”与“连接”页面上的清单核对后重试。",
-        "no_advertisers": "TikTok 没有为这次登录向 SYB 显示任何广告账户。请用投放您广告的 TikTok 账号登录，然后重试。",
-        "tiktok_auth": "TikTok 没有接受这次登录。如果 TikTok 仍在审核 SYB 的应用，请等待其通过；否则请重新开始。",
-        "tiktok_permission": "TikTok 表示 SYB 的应用无权读取该广告账户。没有连接任何内容。",
+        "scope": "TikTok 授予的权限与 ScaleX 要求的不完全一致。请将应用的“Scope of permission”与“连接”页面上的清单核对后重试。",
+        "no_advertisers": "TikTok 没有为这次登录向 ScaleX 显示任何广告账户。请用投放您广告的 TikTok 账号登录，然后重试。",
+        "tiktok_auth": "TikTok 没有接受这次登录。如果 TikTok 仍在审核 ScaleX 的应用，请等待其通过；否则请重新开始。",
+        "tiktok_permission": "TikTok 表示 ScaleX 的应用无权读取该广告账户。没有连接任何内容。",
         "tiktok_busy": "TikTok 繁忙或没有响应。没有连接任何内容，请几分钟后重试。",
         "tiktok_refused": "TikTok 拒绝了这次登录。没有连接任何内容。",
         "internal": "我们这边出了问题。没有连接任何内容。",
@@ -2554,48 +2554,48 @@
       "sectionLabel": "Google Ads · 单独的同意",
       "label": "Google Ads",
       "title": {
-        "on": "已授予：SYB 读取您的广告花费，只更改您批准的内容",
-        "off": "已关闭。SYB 不读取您的 Google Ads。"
+        "on": "已授予：ScaleX 读取您的广告花费，只更改您批准的内容",
+        "off": "已关闭。ScaleX 不读取您的 Google Ads。"
       },
-      "whatItCanDo": "Google 的权限也能更改您的营销活动、预算和广告。SYB 每天用它读取一次您的花费和效果，只有通过您批准的提案才会更改任何内容。您可以随时撤销。",
-      "notSetUp": "SYB 这边尚未设置。缺少：{keys}。",
+      "whatItCanDo": "Google 的权限也能更改您的营销活动、预算和广告。ScaleX 每天用它读取一次您的花费和效果，只有通过您批准的提案才会更改任何内容。您可以随时撤销。",
+      "notSetUp": "ScaleX 这边尚未设置。缺少：{keys}。",
       "accessLevel": {
-        "title": "Google 对 SYB 的批准",
-        "test": "仅限测试账户。Google 尚未批准 SYB 使用真实广告账户，因此在批准之前，真实账户会被拒绝。",
-        "explorer": "真实广告账户，SYB 服务的所有用户合计每天最多 {ops} 次操作。",
-        "basic": "真实广告账户，SYB 服务的所有用户合计每天最多 {ops} 次操作。Google 已先审核过 SYB。",
+        "title": "Google 对 ScaleX 的批准",
+        "test": "仅限测试账户。Google 尚未批准 ScaleX 使用真实广告账户，因此在批准之前，真实账户会被拒绝。",
+        "explorer": "真实广告账户，ScaleX 服务的所有用户合计每天最多 {ops} 次操作。",
+        "basic": "真实广告账户，ScaleX 服务的所有用户合计每天最多 {ops} 次操作。Google 已先审核过 ScaleX。",
         "standard": "真实广告账户，除 Google 自身的速率限制外没有每日上限。",
         "unknown": "尚未说明，所以请按仅限测试账户对待。"
       },
       "fact": {
         "account": "广告账户"
       },
-      "revokeAsk": "SYB 将停止读取您的 Google Ads，也无法在那里更改任何内容。",
-      "revokeNote": "撤销会立即删除 SYB 在这里的访问权限。已读取的花费保留在您的数字中。若要在 Google 那边也移除 SYB，请打开您的 Google 账户的“安全性”页面，然后进入第三方连接。",
+      "revokeAsk": "ScaleX 将停止读取您的 Google Ads，也无法在那里更改任何内容。",
+      "revokeNote": "撤销会立即删除 ScaleX 在这里的访问权限。已读取的花费保留在您的数字中。若要在 Google 那边也移除 ScaleX，请打开您的 Google 账户的“安全性”页面，然后进入第三方连接。",
       "connected": "Google Ads 已连接，您的同意已记录在案。",
-      "signedInPick": "已用 Google 登录。请选择 SYB 应读取的广告账户。",
-      "revoked": "已撤销。SYB 对 Google Ads 的访问已删除：不会读取或更改任何内容。",
+      "signedInPick": "已用 Google 登录。请选择 ScaleX 应读取的广告账户。",
+      "revoked": "已撤销。ScaleX 对 Google Ads 的访问已删除：不会读取或更改任何内容。",
       "pickTitle": "选择广告账户",
-      "managerNote": "经理账户：SYB 连接的是广告账户本身",
+      "managerNote": "经理账户：ScaleX 连接的是广告账户本身",
       "connectAccount": "连接这个广告账户",
       "signIn": "用 Google 登录并允许 Google Ads",
-      "nothingWritten": "连接会记录您的同意，SYB 每天读取一次您的花费。在您批准提案之前，Google Ads 上什么都不会改变；在 SYB 为期两周的真实更改测试完成之前，更改保持关闭。",
+      "nothingWritten": "连接会记录您的同意，ScaleX 每天读取一次您的花费。在您批准提案之前，Google Ads 上什么都不会改变；在 ScaleX 为期两周的真实更改测试完成之前，更改保持关闭。",
       "reason": {
         "unavailable": "Google Ads 尚未设置。",
         "already_connected": "Google Ads 已连接。请先撤销，才能连接另一个账户。",
-        "scope": "Google 没有恰好授予 SYB 请求的那一项权限。请在 Google 的页面上允许 Google Ads 权限，然后重试。",
-        "no_accounts": "Google 没有为该 Google 账户向 SYB 显示任何 Google Ads 账户。请用有权访问您广告的账户登录，然后重试。",
-        "managers_only": "该 Google 账户只能访问经理账户。SYB 连接的是广告账户本身：请让您的 Google 账户能够访问它，然后重试。",
-        "access_level": "Google 尚未批准 SYB 将 Google Ads 访问用于真实广告账户。没有连接任何内容。",
-        "google_permission": "Google 表示 SYB 无权访问该 Google Ads 账户。没有连接任何内容。",
-        "start_here": "请从 SYB 的“连接”页面，用那里的按钮开始 Google 登录。没有向 Google 发送任何内容。",
-        "signed_out": "请先登录 SYB，然后再次连接 Google。",
+        "scope": "Google 没有恰好授予 ScaleX 请求的那一项权限。请在 Google 的页面上允许 Google Ads 权限，然后重试。",
+        "no_accounts": "Google 没有为该 Google 账户向 ScaleX 显示任何 Google Ads 账户。请用有权访问您广告的账户登录，然后重试。",
+        "managers_only": "该 Google 账户只能访问经理账户。ScaleX 连接的是广告账户本身：请让您的 Google 账户能够访问它，然后重试。",
+        "access_level": "Google 尚未批准 ScaleX 将 Google Ads 访问用于真实广告账户。没有连接任何内容。",
+        "google_permission": "Google 表示 ScaleX 无权访问该 Google Ads 账户。没有连接任何内容。",
+        "start_here": "请从 ScaleX 的“连接”页面，用那里的按钮开始 Google 登录。没有向 Google 发送任何内容。",
+        "signed_out": "请先登录 ScaleX，然后再次连接 Google。",
         "owner_only": "只有所有者才能授予或收回这项权限。没有向 Google 发送任何内容。",
         "phrase": "确认短语不匹配。请按显示的内容输入，然后重新开始。",
         "start_again": "这次 Google 登录已过期或已被使用。请从“连接”重新开始。",
-        "foreign": "这次 Google 登录是从另一个 SYB 账户发起的。请以该账户登录 SYB，或重新开始。",
+        "foreign": "这次 Google 登录是从另一个 ScaleX 账户发起的。请以该账户登录 ScaleX，或重新开始。",
         "google_error": "Google 登录没有完成。没有连接任何内容。",
-        "no_refresh": "Google 没有给 SYB 长期访问权限。请重新开始：Google 会再询问一次，SYB 需要这个回答。",
+        "no_refresh": "Google 没有给 ScaleX 长期访问权限。请重新开始：Google 会再询问一次，ScaleX 需要这个回答。",
         "google_auth": "Google 没有接受这次登录。请从“连接”重新开始。",
         "google_busy": "Google 繁忙或没有响应。没有连接任何内容——请过几分钟再试。",
         "google_refused": "Google 拒绝了这次登录。没有连接任何内容。",
@@ -2606,7 +2606,7 @@
   },
   "landing": {
     "meta": {
-      "title": "SYB — 为您的企业做一次验血",
+      "title": "ScaleX — 为您的企业做一次验血",
       "description": "对您的销售、预约、付款和广告进行 {checks} 项检查，每一处漏洞都以欧元标价，并附上一份签字报告。"
     },
     "nav": {
@@ -2722,7 +2722,7 @@
     },
     "walk": {
       "figure": "产品演示视频",
-      "bar": "SYB · 产品演示",
+      "bar": "ScaleX · 产品演示",
       "chapterOf": "第 {n} 章，共 {total} 章 · {title}",
       "chapters": "章节",
       "play": "播放演示",
@@ -2917,22 +2917,22 @@
     }
   },
   "legal": {
-    "toBeSupplied": "本文件将由 SYB 在上线前提供。",
+    "toBeSupplied": "本文件将由 ScaleX 在上线前提供。",
     "terms": {
-      "meta": "使用条款 — SYB",
+      "meta": "使用条款 — ScaleX",
       "label": "条款",
       "title": "使用条款"
     },
     "privacy": {
-      "meta": "隐私声明 — SYB",
+      "meta": "隐私声明 — ScaleX",
       "label": "隐私",
       "title": "隐私声明",
       "speakingHead": "用语音回答",
-      "speaking": "当您按下“语音输入”时，您的浏览器会把您的语音转换成文字。如果浏览器能在您的设备上完成这一步，音频就会留在设备上。否则就由您浏览器的开发商完成：在 Chrome 中是 Google。SYB 从不接收音频，也不存储任何音频。只有您选择记录、提问或发送的文字才会被保存，就像您亲手输入的一样；仅仅说话不会记录任何内容。"
+      "speaking": "当您按下“语音输入”时，您的浏览器会把您的语音转换成文字。如果浏览器能在您的设备上完成这一步，音频就会留在设备上。否则就由您浏览器的开发商完成：在 Chrome 中是 Google。ScaleX 从不接收音频，也不存储任何音频。只有您选择记录、提问或发送的文字才会被保存，就像您亲手输入的一样；仅仅说话不会记录任何内容。"
     }
   },
   "resume": {
-    "meta": "继续 — SYB",
+    "meta": "继续 — ScaleX",
     "headline": "从上次停下的地方继续。",
     "title": "要继续这次访谈吗？",
     "button": "继续",
@@ -2941,7 +2941,7 @@
     "deadMessage": "继续访谈的链接在过期或被撤销后即失效。用您的邮箱登录，您的访谈仍停留在您离开时的位置。"
   },
   "summaryStop": {
-    "meta": "每周摘要 — SYB",
+    "meta": "每周摘要 — ScaleX",
     "label": "邮件偏好",
     "unknown": {
       "title": "我们不认识这个链接。",
@@ -2959,7 +2959,7 @@
   },
   "benchmarks": {
     "meta": {
-      "title": "与同类企业比较 — SYB"
+      "title": "与同类企业比较 — ScaleX"
     },
     "kicker": "洞察 · 与同类企业比较",
     "aside": "Eurostat · 只读",
@@ -3014,7 +3014,7 @@
   },
   "blindspots": {
     "meta": {
-      "title": "盲点 — SYB"
+      "title": "盲点 — ScaleX"
     },
     "kicker": "洞察 · 盲点",
     "quoted": "“{text}”",
@@ -3114,10 +3114,10 @@
   },
   "carts": {
     "meta": {
-      "title": "弃购购物车 — SYB"
+      "title": "弃购购物车 — ScaleX"
     },
     "kicker": "客户 · 弃购购物车",
-    "foot": "SYB 从不给没有同意的购物者发邮件。如果您使用 Shopify 自带的结账放弃提醒邮件，那是另一回事。",
+    "foot": "ScaleX 从不给没有同意的购物者发邮件。如果您使用 Shopify 自带的结账放弃提醒邮件，那是另一回事。",
     "signedOut": "这里还没有企业。",
     "startInterview": "<link>从访谈开始</link>。",
     "failedTitle": "购物车未能加载。",
@@ -3156,7 +3156,7 @@
     },
     "consent": {
       "label": "可以给谁发邮件",
-      "checkout": "在 Shopify 结账时勾选“给我发邮件”的购物者，一旦 SYB 获准读取您的 Shopify 客户，就会成为一个记录了该同意的联系人。您自己记录的同意，只会被之后在 Shopify 中的退订所取代。"
+      "checkout": "在 Shopify 结账时勾选“给我发邮件”的购物者，一旦 ScaleX 获准读取您的 Shopify 客户，就会成为一个记录了该同意的联系人。您自己记录的同意，只会被之后在 Shopify 中的退订所取代。"
     },
     "refusal": {
       "noneRead": "我还没有读取任何购物车。",
@@ -3187,11 +3187,11 @@
   },
   "cash": {
     "meta": {
-      "title": "现金流 — SYB"
+      "title": "现金流 — ScaleX"
     },
     "kicker": "洞察 · 现金流",
     "aside": "规划辅助 · 只读",
-    "planningNote": "根据您自己的数字所做的规划辅助，不是财务建议。SYB 从不转移、支付或收取任何款项。",
+    "planningNote": "根据您自己的数字所做的规划辅助，不是财务建议。ScaleX 从不转移、支付或收取任何款项。",
     "sourcesNone": "来源：您陈述的现金和成本，以及已测量的销售。",
     "signedOut": "这里还没有企业。",
     "startInterview": "<link>从访谈开始</link>。",
@@ -3281,7 +3281,7 @@
   },
   "competitors": {
     "meta": {
-      "title": "竞争对手 — SYB"
+      "title": "竞争对手 — ScaleX"
     },
     "kicker": "洞察 · 竞争对手",
     "aside": "仅限公开页面 · 每周读取 · 已观测",
@@ -3387,7 +3387,7 @@
   },
   "goals": {
     "meta": {
-      "title": "目标 — SYB"
+      "title": "目标 — ScaleX"
     },
     "kicker": "洞察 · 目标",
     "metric": {
@@ -3433,7 +3433,7 @@
     },
     "review": {
       "head": "警报复查 · {day}",
-      "headPerson": "警报复查 · {day} · 现在由 SYB 的一位工作人员处理",
+      "headPerson": "警报复查 · {day} · 现在由 ScaleX 的一位工作人员处理",
       "escalated": "自动复查已经尽力了。我们的工作人员正在查看这个目标，会与您联系。",
       "escalatedWhy": "自动复查已经尽力了（{reason}）。我们的工作人员正在查看这个目标，会与您联系。",
       "cause": "<strong>{cause}：</strong>{statement}（{count, plural, other {# 条证据}}）",
@@ -3488,7 +3488,7 @@
   },
   "hours": {
     "meta": {
-      "title": "营业时间 — SYB"
+      "title": "营业时间 — ScaleX"
     },
     "kicker": "洞察 · 营业时间",
     "weekdays": {
@@ -3600,7 +3600,7 @@
   },
   "patterns": {
     "meta": {
-      "title": "季节与组合 — SYB"
+      "title": "季节与组合 — ScaleX"
     },
     "kicker": "洞察 · 季节与组合",
     "head": {
@@ -3729,7 +3729,7 @@
   },
   "pipeline": {
     "meta": {
-      "title": "销售管道 — SYB"
+      "title": "销售管道 — ScaleX"
     },
     "kicker": "客户 · 销售管道",
     "loading": "正在读取您的销售管道…",
@@ -3910,10 +3910,10 @@
   },
   "reviews": {
     "meta": {
-      "title": "评价 — SYB"
+      "title": "评价 — ScaleX"
     },
     "kicker": "客户 · 评价",
-    "foot": "SYB 从不发布回复，也从不登录您的评价网站。只有在您连接了 Google 商家资料后，它才会读取您的 Google 评价，而且只读取。评价者的名字保留一年，您可以随时移除任何一条评价。",
+    "foot": "ScaleX 从不发布回复，也从不登录您的评价网站。只有在您连接了 Google 商家资料后，它才会读取您的 Google 评价，而且只读取。评价者的名字保留一年，您可以随时移除任何一条评价。",
     "stars": {
       "none": "无评分",
       "of": "{stars} / {max}"
@@ -3977,7 +3977,7 @@
     "forwarding": {
       "label": "转发",
       "offTitle": "转发尚未设置",
-      "offCopy": "一旦 SYB 的收件功能开启，您会在这里获得一个地址，用来转发您的评价邮件，我会在每封邮件到达时将其归档。在此之前，请在下方粘贴评价，我会以同样的方式归档。",
+      "offCopy": "一旦 ScaleX 的收件功能开启，您会在这里获得一个地址，用来转发您的评价邮件，我会在每封邮件到达时将其归档。在此之前，请在下方粘贴评价，我会以同样的方式归档。",
       "title": "把评价邮件转发到这里",
       "newStops": "新地址会使这个地址失效。之后请更新您的转发设置。",
       "newAddress": "获取新地址",
@@ -3987,22 +3987,22 @@
     },
     "google": {
       "label": "Google 商家资料",
-      "failed": "Google 已不再接受 SYB 的访问",
+      "failed": "Google 已不再接受 ScaleX 的访问",
       "reading": "正在读取您的 Google 评价",
       "readingFor": "正在读取您在 {location} 的 Google 评价",
       "readDirectly": "直接读取您的 Google 评价",
       "notSetUpTitle": "从 Google 读取尚未设置",
       "manage": "在“连接”中管理或撤销",
       "connect": "在“连接”中连接",
-      "connected": "SYB 每天读取一次您的评价，并把新评价归档到这里，与您转发的评价放在一起。通过两种方式到达的同一条评价只列出一次。",
+      "connected": "ScaleX 每天读取一次您的评价，并把新评价归档到这里，与您转发的评价放在一起。通过两种方式到达的同一条评价只列出一次。",
       "lastRead": "上次读取于 {day}。",
       "before": "开始使用之前",
-      "whatItCanDo": "Google 的这项权限也可以回复您的评价，以及编辑您的 Google 商家资料。SYB 只用它读取您的评价。您可以随时撤销。",
-      "notSetUp": "尚未设置。Google 只有在审核通过后才允许应用读取商家资料中的评价，而 SYB 尚未获得审核通过。在此之前，请转发 Google 的评价邮件或粘贴评价。",
+      "whatItCanDo": "Google 的这项权限也可以回复您的评价，以及编辑您的 Google 商家资料。ScaleX 只用它读取您的评价。您可以随时撤销。",
+      "notSetUp": "尚未设置。Google 只有在审核通过后才允许应用读取商家资料中的评价，而 ScaleX 尚未获得审核通过。在此之前，请转发 Google 的评价邮件或粘贴评价。",
       "needs": {
-        "approval": "SYB 获得 Google 审核通过，可以使用商家资料 API（这是 Google 自己对 SYB 的审查）。",
+        "approval": "ScaleX 获得 Google 审核通过，可以使用商家资料 API（这是 Google 自己对 ScaleX 的审查）。",
         "signIn": "您用管理您 Google 商家资料的 Google 账户登录，并允许 Google 询问的那一项权限。",
-        "location": "如果您管理多个地点，请选择 SYB 要读取的那一个。"
+        "location": "如果您管理多个地点，请选择 ScaleX 要读取的那一个。"
       },
       "readNote": "读取自您的 Google 商家资料。"
     },
@@ -4037,7 +4037,7 @@
   },
   "simulate": {
     "meta": {
-      "title": "模拟器 — SYB"
+      "title": "模拟器 — ScaleX"
     },
     "tabs": {
       "aria": "模拟器",
@@ -4259,7 +4259,7 @@
   },
   "stock": {
     "meta": {
-      "title": "库存 — SYB"
+      "title": "库存 — ScaleX"
     },
     "kicker": "洞察 · 库存",
     "signedOut": "这里还没有企业。",
@@ -4444,7 +4444,7 @@
         "failed": "未能发出"
       },
       "why": {
-        "email_not_set_up": "SYB 的发信域名尚未设置好邮件。",
+        "email_not_set_up": "ScaleX 的发信域名尚未设置好邮件。",
         "real_writes_off": "在两周无人值守测试完成之前，真实发送处于关闭状态。"
       },
       "notSentAfter": "请下载后自行发送。",
@@ -4469,7 +4469,7 @@
   },
   "chat": {
     "meta": {
-      "title": "有问题尽管问我 — SYB"
+      "title": "有问题尽管问我 — ScaleX"
     },
     "kicker": "有问题尽管问我 · 关于：{about}",
     "yourBusiness": "您的企业",
@@ -4529,7 +4529,7 @@
   },
   "mode": {
     "meta": {
-      "title": "我的工作方式 — SYB"
+      "title": "我的工作方式 — ScaleX"
     },
     "kicker": "您的企业 · 我的工作方式",
     "yourBusiness": "您的企业",
@@ -4598,7 +4598,7 @@
   },
   "content": {
     "meta": {
-      "title": "内容 — SYB"
+      "title": "内容 — ScaleX"
     },
     "kicker": "增长 · 内容",
     "loading": "正在读取内容队列…",
@@ -4672,14 +4672,14 @@
         "proposed": "广告已提议"
       },
       "text": {
-        "live": "这条广告会在您批准的天数内于 Meta 上投放，然后自动停止。紧急停止会叫停 SYB 仍在发送的任何内容。",
+        "live": "这条广告会在您批准的天数内于 Meta 上投放，然后自动停止。紧急停止会叫停 ScaleX 仍在发送的任何内容。",
         "pausedBlocked": "这条广告已在 Meta 上，处于暂停状态。您设定的一项限制扣下了上线操作。",
         "pausedPending": "这条广告已在 Meta 上，处于暂停状态。上线需要另一次同意，正在队列中等待。",
         "goLiveApprovedOn": "已批准上线：广告、广告组及其营销活动会在下一次运行时开启。",
         "goLiveApprovedOff": "已批准上线，正在等待开启 Meta 广告更改功能。在此之前不会产生任何花费。",
         "paused": "这条广告已在 Meta 上，处于暂停状态，不产生任何花费。上线需要另行批准。",
         "building": "正在 Meta 上创建，处于暂停状态。它会从中断的地方继续——不会重复创建任何东西。",
-        "buildStopped": "广告的创建中断了。请查看广告管理工具；SYB 创建的所有内容都已暂停。",
+        "buildStopped": "广告的创建中断了。请查看广告管理工具；ScaleX 创建的所有内容都已暂停。",
         "heldBack": "已作为广告提议，但被您设定的一项限制扣下。",
         "approvedOn": "已批准：广告会在下一次运行时于 Meta 上创建，处于暂停状态。",
         "approvedOff": "已批准，正在等待开启 Meta 广告更改功能。在此之前不会发送任何内容。",
@@ -4828,7 +4828,7 @@
         "generated": "已生成。",
         "approved": "已批准。生成会花费所列的费用。",
         "notOffered": "未提供：{reason}。",
-        "offer": "SYB 可以提议根据这一项自身的文字生成一张图片{image, select, none {} other {（约 {image}）}}或一段 {seconds} 秒的片段{video, select, none {} other {（约 {video}）}}。它会在文件和配文中标注为 AI 生成，绝不展示真实人物或品牌，并且需要您同意两次：一次是生成，一次是发布。只要您拍摄了自己的素材，它就会被取代。",
+        "offer": "ScaleX 可以提议根据这一项自身的文字生成一张图片{image, select, none {} other {（约 {image}）}}或一段 {seconds} 秒的片段{video, select, none {} other {（约 {video}）}}。它会在文件和配文中标注为 AI 生成，绝不展示真实人物或品牌，并且需要您同意两次：一次是生成，一次是发布。只要您拍摄了自己的素材，它就会被取代。",
         "dirLabel": "它应该展示什么（可选）",
         "dirPlaceholder": "一碗南瓜汤，俯拍",
         "proposed": "已提议。它连同费用已在您的批准队列中。",
@@ -4850,7 +4850,7 @@
         "FOLLOWER_OF_CREATOR": "粉丝",
         "SELF_ONLY": "仅自己"
       },
-      "privateOnly": "在 TikTok 审核 SYB 的应用之前，帖子只能是私密的：只有您能看到。",
+      "privateOnly": "在 TikTok 审核 ScaleX 的应用之前，帖子只能是私密的：只有您能看到。",
       "allowComment": "允许评论",
       "allowDuet": "允许合拍",
       "allowStitch": "允许拼接",
@@ -4871,7 +4871,7 @@
   },
   "customers": {
     "meta": {
-      "title": "客户 — SYB"
+      "title": "客户 — ScaleX"
     },
     "kicker": "客户",
     "opening": "正在打开客户…",
@@ -4973,7 +4973,7 @@
     },
     "erase": {
       "title": "删除这位客户",
-      "copy": "用于删除请求。从 SYB 中永久删除其姓名、邮箱、详细信息和客户支持对话。其地址会以哈希形式保留在退订名单上，因此他们永远不会再收到邮件；审计日志只保留匿名编号。",
+      "copy": "用于删除请求。从 ScaleX 中永久删除其姓名、邮箱、详细信息和客户支持对话。其地址会以哈希形式保留在退订名单上，因此他们永远不会再收到邮件；审计日志只保留匿名编号。",
       "irreversible": "不可撤销",
       "cannotUndo": "此操作无法撤销。",
       "done": "已删除。屏蔽用的哈希仍保留。",
@@ -5089,7 +5089,7 @@
   },
   "studio": {
     "meta": {
-      "title": "创意工作室 — SYB"
+      "title": "创意工作室 — ScaleX"
     },
     "kicker": "增长 · 创意工作室",
     "aside": "Meta 广告资料库 · 只读 · 已观测",
@@ -5140,12 +5140,12 @@
       "picked": "已选。它已放在视频项上，标注为 AI 生成，其发布提案在<queue>等待您处理</queue>中。",
       "pickedNoProposal": "已选。它已放在视频项上，标注为 AI 生成。",
       "videoSubmitted": "已发送。这三个会在接下来几分钟内出现在下方，每个都标注为 AI 生成。您可以离开此页面，稍后再回来。",
-      "videoStillMaking": "仍在生成。请稍后再来：SYB 会继续收取，至少每天一次。"
+      "videoStillMaking": "仍在生成。请稍后再来：ScaleX 会继续收取，至少每天一次。"
     },
     "niche": {
       "label": "细分市场中投放时间最长的广告",
       "nothingYet": "暂时没有可读取的内容",
-      "notSetUpNote": "Meta 只向身份已经过其验证的开发者账户开放广告资料库 API。SYB 的令牌设置好后，这里会以只读方式读取您所在细分市场投放的广告。",
+      "notSetUpNote": "Meta 只向身份已经过其验证的开发者账户开放广告资料库 API。ScaleX 的令牌设置好后，这里会以只读方式读取您所在细分市场投放的广告。",
       "blockedNote": "{why} 下面显示的是上一次读取的结果。",
       "termsLabel": "您所在细分市场的广告会用到的词，用逗号分隔（最多两个）",
       "termsPlaceholder": "例如：手工马克杯、陶艺课",
@@ -5236,13 +5236,13 @@
         "not_chosen": "未选 · 已保留"
       },
       "making": "正在生成：{total} 个中已有 {ready} 个就绪。",
-      "makingNote": "您可以离开此页面。页面打开时 SYB 会收取它们，后台每天也会收取一次；已就绪的现在就可以选。",
+      "makingNote": "您可以离开此页面。页面打开时 ScaleX 会收取它们，后台每天也会收取一次；已就绪的现在就可以选。",
       "progress": "{total} 个中 {ready} 个就绪"
     }
   },
   "site": {
     "meta": {
-      "title": "您的网站 — SYB"
+      "title": "您的网站 — ScaleX"
     },
     "kicker": "增长 · 网站",
     "loading": "正在读取您的网站更改…",
@@ -5404,7 +5404,7 @@
       "never": {
         "reads": "像访客一样读取公开页面，使用与其他所有网站读取相同的受保护抓取程序。",
         "noLogin": "绝不登录、绝不提交表单、绝不加入购物车、绝不打开结账页面。",
-        "pagespeed": "请 Google 公开的 PageSpeed Insights 加载页面；SYB 自己不运行任何浏览器。"
+        "pagespeed": "请 Google 公开的 PageSpeed Insights 加载页面；ScaleX 自己不运行任何浏览器。"
       },
       "ran": "已测量 · 运行于 {day} · 读取了 {pages, plural, other {# 个页面}} · {calls, plural, other {# 次 PageSpeed 调用}}",
       "title": {
@@ -5456,7 +5456,7 @@
   },
   "support": {
     "meta": {
-      "title": "客户支持 — SYB"
+      "title": "客户支持 — ScaleX"
     },
     "kicker": "客户 · 客户支持",
     "loading": "正在打开客户支持…",
@@ -5688,7 +5688,7 @@
     },
     "test": {
       "meta": {
-        "title": "小组件测试页 — SYB"
+        "title": "小组件测试页 — ScaleX"
       },
       "loading": "正在设置测试页…",
       "eyebrow": "小组件测试页",
@@ -5703,13 +5703,13 @@
       "label": "电话线路",
       "titleOn": "正在接听 {number} 的来电",
       "titleOff": "未接听来电",
-      "what": "线路会先说明自己是SYB的自动助理。它只用您批准的回答作答，从不预订、承诺或办理退款，遇到不知道的问题时会记下留言或把来电转接给您。来电者会在任何内容被转写之前听到通话将被转写的提示，并且不会保存任何录音。",
-      "whatRecorded": "线路会先说明自己是SYB的自动助理。它只用您批准的回答作答，从不预订、承诺或办理退款，遇到不知道的问题时会记下留言或把来电转接给您。来电者会在任何内容被录音或转写之前听到通话将被录音和转写的提示。",
-      "needsKeys": "要接听来电，SYB需要一个Twilio账户和一个Twilio号码。请在服务器上添加以下设置，然后回到这里：",
+      "what": "线路会先说明自己是ScaleX的自动助理。它只用您批准的回答作答，从不预订、承诺或办理退款，遇到不知道的问题时会记下留言或把来电转接给您。来电者会在任何内容被转写之前听到通话将被转写的提示，并且不会保存任何录音。",
+      "whatRecorded": "线路会先说明自己是ScaleX的自动助理。它只用您批准的回答作答，从不预订、承诺或办理退款，遇到不知道的问题时会记下留言或把来电转接给您。来电者会在任何内容被录音或转写之前听到通话将被录音和转写的提示。",
+      "needsKeys": "要接听来电，ScaleX需要一个Twilio账户和一个Twilio号码。请在服务器上添加以下设置，然后回到这里：",
       "setUp": "请在Twilio中，把这个号码的“A call comes in”网络钩子设为第一个地址，把通话状态通知设为第二个地址，两者都使用HTTP POST。",
       "turnOn": "在 {number} 上接听来电",
       "turnOff": "停止接听",
-      "offBody": "开启线路后，SYB会用您批准的回答替您接听 {number}。",
+      "offBody": "开启线路后，ScaleX会用您批准的回答替您接听 {number}。",
       "handoverLabel": "把要求找人的来电者转接到",
       "handoverHint": "您自己的号码，含国家区号。留空的话，来电者会改为留言。",
       "handoverSave": "保存",
@@ -5764,14 +5764,14 @@
         "badNumber": "请填写带国家区号的号码，以加号开头。",
         "noCall": "这通来电已经不在这里了。",
         "recordingNotSetUp": "此服务器尚未设置通话录音。",
-        "crossSite": "此页面只能在SYB内部修改。",
+        "crossSite": "此页面只能在ScaleX内部修改。",
         "signIn": "请先登录再修改电话线路。",
         "action": "电话线路无法做这件事。"
       }
     }
   },
   "phoneLine": {
-    "greeting": "您好，您已接通{business}，现在为您服务的是SYB的自动助理，不是真人。",
+    "greeting": "您好，您已接通{business}，现在为您服务的是ScaleX的自动助理，不是真人。",
     "notice": "本次通话会被转写成文字，以便{business}之后查看；不会保存任何录音。",
     "noticeRecorded": "本次通话会被录音并转写成文字，以便{business}之后收听和查看。录音保存{days, plural, other {#天}}，之后删除。",
     "howCanIHelp": "请问有什么可以帮您？",
@@ -5797,7 +5797,7 @@
   },
   "team": {
     "meta": {
-      "title": "团队排班 — SYB"
+      "title": "团队排班 — ScaleX"
     },
     "kicker": "洞察 · 团队排班",
     "aside": "岗位与工时 · 绝不针对个人",
@@ -5925,7 +5925,7 @@
     },
     "remove": {
       "button": "移除此人",
-      "confirm": "移除 {person}？其姓名和自己的数据将从 SYB 中抹除，之后的导入也不会把姓名带回来。其预约仍以无姓名的形式计入企业的数据。",
+      "confirm": "移除 {person}？其姓名和自己的数据将从 ScaleX 中抹除，之后的导入也不会把姓名带回来。其预约仍以无姓名的形式计入企业的数据。",
       "yes": "移除",
       "no": "保留",
       "done": "已移除。{count, plural, other {# 个预约}}仍以无姓名的形式计入企业的数据。"
@@ -5936,7 +5936,7 @@
   },
   "teamAccess": {
     "meta": {
-      "title": "团队权限 — SYB"
+      "title": "团队权限 — ScaleX"
     },
     "kicker": "您的企业 · 团队权限",
     "loading": "正在读取团队成员…",
@@ -6007,9 +6007,9 @@
   },
   "invite": {
     "meta": {
-      "title": "您的邀请 — SYB"
+      "title": "您的邀请 — ScaleX"
     },
-    "someBusiness": "SYB 上的一家企业",
+    "someBusiness": "ScaleX 上的一家企业",
     "headline": {
       "join": "加入 {where}。",
       "bad": "这个邀请无效。"
@@ -6027,7 +6027,7 @@
     "wrong": "这个邀请是发给 <b>{invited}</b> 的，而您登录的是 <b>{signedIn}</b>。我不会把错误的人加进来：请退出登录，然后再次打开这个链接。",
     "signIn": "您将以 <b>{email}</b> 登录，也就是这个邀请所针对的地址。我会把登录链接发到那里；打开它就会把您加入团队。",
     "foot": "在您按下按钮之前，什么都不会发生。不是您的地址？请关闭此页面。",
-    "footLink": "登录 SYB",
+    "footLink": "登录 ScaleX",
     "actions": {
       "failed": "没有成功。请过一分钟再试。",
       "devLink": "这里尚未设置电子邮件（开发环境），所以登录链接在这里：",
@@ -6048,7 +6048,7 @@
       "telemetry_record": "只有所有者或经理可以记录各个页面的使用情况。",
       "chat_ask": "只有所有者或经理可以在聊天中向我提问。",
       "alerts_remove_device": "只有所有者或经理可以把自己的某部手机从提醒中移除。",
-      "language_own": "只有所有者或经理可以选择阅读 SYB 所用的语言。",
+      "language_own": "只有所有者或经理可以选择阅读 ScaleX 所用的语言。",
       "proposals_decide": "只有所有者或经理可以批准或拒绝提案。",
       "proposals_generate": "只有所有者或经理可以让我提出新的提案。",
       "proposals_carry_out": "只有所有者或经理可以执行或撤销已批准的提案。",
@@ -6071,7 +6071,7 @@
       "profile_edit": "只有所有者可以更改企业的事实、目标或限额。",
       "report_generate": "只有所有者可以生成新的报告。",
       "report_respond": "只有所有者可以回应报告中的发现。",
-      "report_share": "只有所有者可以在 SYB 之外分享报告。",
+      "report_share": "只有所有者可以在 ScaleX 之外分享报告。",
       "competitors_manage": "只有所有者可以更改或调研竞争对手列表。",
       "site_audit": "只有所有者可以检查网站。",
       "support_settings": "只有所有者可以更改客户支持的设置方式。",
@@ -6083,7 +6083,7 @@
       "phone_recordings": "只有所有者可以收听通话录音。",
       "payments_read": "只有所有者可以查看付款及其银行文件。",
       "peers_consent": "只有所有者可以决定这家企业的数据是否加入同类企业对比。",
-      "ladder_manage": "只有所有者可以更改 SYB 可自行执行的操作。",
+      "ladder_manage": "只有所有者可以更改 ScaleX 可自行执行的操作。",
       "mandates_manage": "只有所有者可以授予或收回事务所对这家企业的访问权限。",
       "growth_manage": "只有所有者或经理可以添加素材并创建创意简报。",
       "growth_voice": "只有所有者可以确认品牌语气并记录肖像授权。",
@@ -6352,7 +6352,7 @@
       "stockPrices": "批准只是记下您的肯定答复。我不会改动您的价格：由您来改。",
       "stockAdvice": "仅为建议：我不会联系任何人。批准只是记下您打算这样做。",
       "reorder": "批准只是记下您打算重新订货，别无其他。我不会联系 {supplier}，也绝不会下单、更改或取消订单：这些由您来做。",
-      "purchaseOrder": "批准后，此订单将从 SYB 的地址通过邮件发送至 {email}，回复会发给您。已发送的邮件无法撤回，而且我从不修改、取消或支付订单：这些由您来做。"
+      "purchaseOrder": "批准后，此订单将从 ScaleX 的地址通过邮件发送至 {email}，回复会发给您。已发送的邮件无法撤回，而且我从不修改、取消或支付订单：这些由您来做。"
     }
   },
   "trackWords": {
@@ -6407,7 +6407,7 @@
   },
   "ledgerWords": {
     "actor": {
-      "syb": "SYB",
+      "syb": "ScaleX",
       "you": "您",
       "noAnswer": "未回答",
       "measured": "已测量"
@@ -6460,11 +6460,11 @@
   },
   "emails": {
     "summary": {
-      "subjectWaiting": "您与 SYB 的一周：{count, plural, other {# 项等待您处理}}",
-      "subjectQuiet": "您与 SYB 的一周：风平浪静",
-      "subjectCalm": "您与 SYB 的一周：没有需要您处理的事",
-      "heading": "您与 SYB 的一周",
-      "headingNamed": "{business}：您与 SYB 的一周",
+      "subjectWaiting": "您与 ScaleX 的一周：{count, plural, other {# 项等待您处理}}",
+      "subjectQuiet": "您与 ScaleX 的一周：风平浪静",
+      "subjectCalm": "您与 ScaleX 的一周：没有需要您处理的事",
+      "heading": "您与 ScaleX 的一周",
+      "headingNamed": "{business}：您与 ScaleX 的一周",
       "quiet": "平静的一周：您的账户上没有新的记录，也没有等待您处理的事项。",
       "titles": {
         "waiting": "等待您处理",
@@ -6524,20 +6524,20 @@
       "whatsappBusiness": "您的企业"
     },
     "signIn": {
-      "subject": "您的登录链接 — SYB",
-      "intro": "点击登录 SYB：",
+      "subject": "您的登录链接 — ScaleX",
+      "intro": "点击登录 ScaleX：",
       "expiry": "此链接只能使用一次，将在 {minutes, plural, other {# 分钟后失效}}。如果这不是您请求的，请忽略这封邮件——没有链接，什么都不会发生。"
     },
     "invite": {
-      "subject": "您受邀加入 SYB 上的 {business}",
-      "subjectUnnamed": "您受邀加入 SYB 上的一家企业",
-      "intro": "您受邀{role, select, owner {以所有者身份} manager {以经理身份} other {以查看者身份}}加入 SYB 上的 {business}。",
-      "introUnnamed": "您受邀{role, select, owner {以所有者身份} manager {以经理身份} other {以查看者身份}}加入 SYB 上的一家企业。",
+      "subject": "您受邀加入 ScaleX 上的 {business}",
+      "subjectUnnamed": "您受邀加入 ScaleX 上的一家企业",
+      "intro": "您受邀{role, select, owner {以所有者身份} manager {以经理身份} other {以查看者身份}}加入 ScaleX 上的 {business}。",
+      "introUnnamed": "您受邀{role, select, owner {以所有者身份} manager {以经理身份} other {以查看者身份}}加入 ScaleX 上的一家企业。",
       "open": "打开此链接即可接受邀请：",
       "expiry": "此链接只能使用一次，将在 {days, plural, other {# 天后失效}}。您将使用此地址登录：{email}。如果您没有预料到这封邀请，请忽略这封邮件——没有您的参与，什么都不会发生。"
     },
     "supportNotice": {
-      "subject": "有客户给您发了邮件 — SYB",
+      "subject": "有客户给您发了邮件 — ScaleX",
       "waiting": "有客户给 {business} 发了邮件，正在“客户支持”中等待您处理：{url}",
       "waitingNoLink": "有客户给 {business} 发了邮件，正在“客户支持”中等待您处理。",
       "nothingSent": "还没有向对方发送任何内容。只有在您批准后才会发出回复。",
@@ -6564,7 +6564,7 @@
       "noteHead": "备注：",
       "confirm": "请回复此邮件，确认订单、价格和交货日期。",
       "closing": "谢谢！\n{business}",
-      "footer": "此订单由 AI 助手 SYB 准备，并在发送前经企业批准。回复会直接发给企业。",
+      "footer": "此订单由 AI 助手 ScaleX 准备，并在发送前经企业批准。回复会直接发给企业。",
       "doc": {
         "title": "采购订单 {number}",
         "prepared": "{business} · 准备于 {day}",
@@ -6582,14 +6582,14 @@
         "unit": "单价（预计）",
         "lineTotal": "小计",
         "toConfirm": "待确认",
-        "foot": "由 SYB 准备。SYB 从不修改、取消或支付订单。"
+        "foot": "由 ScaleX 准备。ScaleX 从不修改、取消或支付订单。"
       }
     }
   },
   "push": {
     "one": "{count, plural, other {# 件事等您点头：{what}}}",
     "many": "{count, plural, other {# 件事等您点头}}",
-    "test": "这是来自 SYB 的测试。提醒将发送到此设备。",
+    "test": "这是来自 ScaleX 的测试。提醒将发送到此设备。",
     "kinds": {
       "price_increase": "一项价格调整",
       "price_decrease": "一项价格调整",
@@ -6640,7 +6640,7 @@
     }
   },
   "shared": {
-    "pageTitle": "共享的报告 — SYB",
+    "pageTitle": "共享的报告 — ScaleX",
     "label": "共享的报告",
     "readOnly": "共享的报告 · 只读",
     "deadTitle": "此链接已失效。",
@@ -6655,7 +6655,7 @@
       "pageTitle": "退订",
       "thisBusiness": "这家企业",
       "doneTitle": "您已退订 {business} 的邮件。",
-      "doneBody": "对方将不会再通过 SYB 向您发送营销邮件。此操作永久有效，您无需再做任何操作。",
+      "doneBody": "对方将不会再通过 ScaleX 向您发送营销邮件。此操作永久有效，您无需再做任何操作。",
       "askTitle": "停止接收 {business} 的营销邮件？",
       "askBody": "一键即可完成，永久有效。对您所提问题的回复不受影响。",
       "button": "退订"
@@ -7801,13 +7801,13 @@
   "reviewsWords": {
     "googleRead": {
       "ok": "读取正常。",
-      "auth": "Google 已不再接受 SYB 的访问，所以评价没有被读取。请在这里撤销访问，然后重新连接。",
-      "permission": "Google 表示 SYB 不再被允许读取您企业的这个商家资料。请确认您的 Google 账户仍在管理它。",
-      "quota": "Google 要求 SYB 放慢速度。SYB 会在下一次每日读取时重试。",
-      "unavailable": "Google 没有响应。SYB 会在下一次每日读取时重试。",
-      "refused": "Google 拒绝了这次读取。SYB 会在下一次每日读取时重试。",
-      "fence": "SYB 拦下了一个不是读取的请求。没有发送任何内容。",
-      "internal": "我们这边出了问题。SYB 会在下一次每日读取时重试。"
+      "auth": "Google 已不再接受 ScaleX 的访问，所以评价没有被读取。请在这里撤销访问，然后重新连接。",
+      "permission": "Google 表示 ScaleX 不再被允许读取您企业的这个商家资料。请确认您的 Google 账户仍在管理它。",
+      "quota": "Google 要求 ScaleX 放慢速度。ScaleX 会在下一次每日读取时重试。",
+      "unavailable": "Google 没有响应。ScaleX 会在下一次每日读取时重试。",
+      "refused": "Google 拒绝了这次读取。ScaleX 会在下一次每日读取时重试。",
+      "fence": "ScaleX 拦下了一个不是读取的请求。没有发送任何内容。",
+      "internal": "我们这边出了问题。ScaleX 会在下一次每日读取时重试。"
     },
     "draft": {
       "unreadable": "我无法读取这条评价的内容，所以无法建议回复。请到它原来的地方打开查看。",
@@ -8256,7 +8256,7 @@
       "runtime": "Google 无法加载该页面（{code}）",
       "quotaWeek": "本周该网站的 PageSpeed 调用次数已用完",
       "unreachable": "无法连接 Google 的 PageSpeed 服务",
-      "quotaKeyed": "SYB 密钥的 Google PageSpeed 配额暂时用完了",
+      "quotaKeyed": "ScaleX 密钥的 Google PageSpeed 配额暂时用完了",
       "quotaShared": "Google 共享的 PageSpeed 配额暂时用完了（未设置 PAGESPEED_API_KEY）",
       "couldntLoad": "Google 无法加载该页面进行测量",
       "refused": "Google 拒绝测量该页面（状态码 {status}）",
@@ -8303,7 +8303,7 @@
         "field": "过去 {days, plural, other {# 天}}内 Chrome 中的真实访客（Google 的实际用户数据，第 {pct} 百分位）",
         "field_origin": "过去 {days, plural, other {# 天}}内您整个网站的真实访客——Google 仅针对这一页面的数据太少",
         "lab": "在 Google 模拟设备上的一次测试加载（实验室数据）",
-        "page_read": "SYB 读取的页面自身 HTML"
+        "page_read": "ScaleX 读取的页面自身 HTML"
       },
       "detail": {
         "vital": "{what}。测量依据：{basis}。",
@@ -8313,7 +8313,7 @@
         "contrast": "Google 的颜色对比度检查（无障碍标准的最低要求），{on}。",
         "noEntry": "无法通过链接到达任何{entry, select, checkout {结账} other {预约}}入口。",
         "path": "{steps}。",
-        "price": "从页眉和菜单之后的页面自身文字中读取：手机首先显示的内容里没有价格（这是一种估算——SYB 不渲染页面）。",
+        "price": "从页眉和菜单之后的页面自身文字中读取：手机首先显示的内容里没有价格（这是一种估算——ScaleX 不渲染页面）。",
         "form": "{required, plural, other {其中 # 项必填。}}根据页面的 HTML 计数；表单没有提交。",
         "brokenOnPath": "它位于购买路径上，一个死胡同就意味着一笔损失的销售。",
         "broken": "点击它的访客会走进死胡同。"
@@ -8321,13 +8321,13 @@
       "threshold": {
         "google": "良好 ≤ {good}，较差 > {poor}（Google）",
         "lighthouse": "良好 ≤ {good}，较差 > {poor}（Lighthouse）",
-        "heavy": "偏重 > {medium}，很重 > {high}（SYB）",
-        "failures": "出现任何一处即为发现；{medium} 处或以上为中等（SYB）",
-        "entry": "从首页可通过链接到达的{entry, select, checkout {结账} other {预约}}入口（SYB）",
-        "clicks": "正常 ≤ {ok}，偏长 > {ok}，很长 > {medium, plural, other {# 次点击}}（SYB）",
-        "price": "产品或服务页面第一屏中的价格（SYB 估算：页面自身文字的前 {chars, plural, other {# 个字符}}）",
-        "form": "{medium} 个或以上字段为偏长，{high} 个或以上为很长（SYB）",
-        "broken": "您自己网站上返回 {status} 或以上、或无法加载的任何链接（SYB）"
+        "heavy": "偏重 > {medium}，很重 > {high}（ScaleX）",
+        "failures": "出现任何一处即为发现；{medium} 处或以上为中等（ScaleX）",
+        "entry": "从首页可通过链接到达的{entry, select, checkout {结账} other {预约}}入口（ScaleX）",
+        "clicks": "正常 ≤ {ok}，偏长 > {ok}，很长 > {medium, plural, other {# 次点击}}（ScaleX）",
+        "price": "产品或服务页面第一屏中的价格（ScaleX 估算：页面自身文字的前 {chars, plural, other {# 个字符}}）",
+        "form": "{medium} 个或以上字段为偏长，{high} 个或以上为很长（ScaleX）",
+        "broken": "您自己网站上返回 {status} 或以上、或无法加载的任何链接（ScaleX）"
       }
     },
     "euro": {
@@ -8335,7 +8335,7 @@
       "needsBecause": "未计算——需要您网站自身的流量和转化率（{missing}）",
       "zero": "未计算——您的流量、订单或订单金额为零",
       "inside": "未计算——该页面在良好范围之内",
-      "notSpeed": "未计算——没有任何经验法则能把这一点与 SYB 愿意给出数字的销售联系起来",
+      "notSpeed": "未计算——没有任何经验法则能把这一点与 ScaleX 愿意给出数字的销售联系起来",
       "missing": {
         "visits": "每月网站访问量",
         "orders": "每月订单数",
@@ -8411,10 +8411,10 @@
         "name": "企业名称",
         "postal_address": "企业的邮寄地址",
         "because": "{words}（{why}）",
-        "disclosure": "AI 生成声明（SYB 在所有地方都会加上）"
+        "disclosure": "AI 生成声明（ScaleX 在所有地方都会加上）"
       },
       "noCountry": "企业所在国家未知，因此其邮件规则也未知",
-      "noRules": "SYB 还不了解 {country} 的电子邮件营销规则——不会向那里发送任何邮件",
+      "noRules": "ScaleX 还不了解 {country} 的电子邮件营销规则——不会向那里发送任何邮件",
       "regime": {
         "eu_gdpr": "欧盟/欧洲经济区",
         "uk_pecr": "英国",
@@ -8430,14 +8430,14 @@
       "labelled_undoable": "这个营销活动被批准为可以撤销的操作，但已发送的邮件无法撤回。请在队列中拒绝它，然后重新提议。",
       "not_connected": "营销活动邮件尚未连接。请先在“连接”页面授权。",
       "outbound_off": "您自己关于客户同意的回答是“不同意”，所以在您的数据显示不同之前，营销邮件保持关闭。",
-      "email_not_set_up": "邮件尚未设置：缺少 SYB 的发送密钥或其公开网址，退订链接无处可指。",
+      "email_not_set_up": "邮件尚未设置：缺少 ScaleX 的发送密钥或其公开网址，退订链接无处可指。",
       "no_draft": "这个营销活动还没有起草邮件。",
       "draft_not_approved": "您还没有批准邮件本身。",
       "draft_changed": "邮件在您批准后已更改。请按现在的内容重新批准，然后才会发送。",
       "draft_incomplete": "邮件缺少退订占位或 AI 声明，因此无法按批准的内容发送。",
       "law_review_missing": "还没有人对照现行法律审核过邮件法规则，所以任何营销活动都不会发送。",
       "law_review_stale": "邮件法规则在上次审核（{date}）之后有变，那次审核已不再覆盖它们，在重新审核之前任何营销活动都不会发送。",
-      "first_campaign_unreviewed": "这是您的第一个营销活动，所以 SYB 的工作人员会在发送前阅读它。营销活动共用 SYB 的发件地址，这样能让它对所有人都保持可信。审核记录下来后就会发送。",
+      "first_campaign_unreviewed": "这是您的第一个营销活动，所以 ScaleX 的工作人员会在发送前阅读它。营销活动共用 ScaleX 的发件地址，这样能让它对所有人都保持可信。审核记录下来后就会发送。",
       "real_sends_off": "{label}已关闭，直到为期两周的无人值守测试完成。什么都没有发送；仍保持已批准状态。开启后的第一次运行就会发送。",
       "real_sends_label": "营销活动邮件"
     },
@@ -8587,7 +8587,7 @@
       "missing": "缺少同意所要求的 {scopes}",
       "sep": "；",
       "why": {
-        "removed": "SYB 的应用已从 Meta 账户中移除",
+        "removed": "ScaleX 的应用已从 Meta 账户中移除",
         "password": "Meta 账户的密码已更改，这会让所有应用退出登录",
         "expired": "该连接的登录已过期",
         "invalid": "该连接的登录已失效",
@@ -8640,8 +8640,8 @@
       "google": {
         "unreadable": "无法读取已保存的 Google 访问权限",
         "noSuchBusiness": "此账户中没有这家企业",
-        "neverWrites": "SYB 从不写入 Google 商家资料：此权限仅用于读取评价。",
-        "authLost": "Google 不再接受 SYB 的访问权限。请撤销后重新连接，以便继续读取评价。",
+        "neverWrites": "ScaleX 从不写入 Google 商家资料：此权限仅用于读取评价。",
+        "authLost": "Google 不再接受 ScaleX 的访问权限。请撤销后重新连接，以便继续读取评价。",
         "didntFinish": "Google 未完成：{reason}"
       },
       "metaCred": {
@@ -8650,7 +8650,7 @@
         "numberIg": "{provider}：Instagram 账户 ID 是一个数字",
         "numberAd": "{provider}：广告账户 ID 是一个数字",
         "bothNeeded": "{provider}：令牌和资产 ID 都是必需的",
-        "pageToken": "{provider}：粘贴的公共主页令牌无法与您的同意核对——请改为把公共主页分配给系统用户，SYB 会据此获取公共主页令牌",
+        "pageToken": "{provider}：粘贴的公共主页令牌无法与您的同意核对——请改为把公共主页分配给系统用户，ScaleX 会据此获取公共主页令牌",
         "publishPage": "{provider}：发布需要目标公共主页的 ID",
         "adsAccount": "{provider}：广告管理需要广告账户 ID，即广告管理工具中显示的数字",
         "differentPage": "{provider}：公共主页返回了不同的 ID",
@@ -8658,15 +8658,15 @@
         "differentAd": "{provider}：广告账户返回了不同的 ID",
         "noPageToken": "{provider}：无法为公共主页 {pageId} 获取令牌。请把该公共主页连同所列权限一起分配给系统用户",
         "noToken": "{provider}：Facebook 登录没有返回可用的令牌",
-        "shape": "{provider}：列表返回的格式 SYB 无法读取"
+        "shape": "{provider}：列表返回的格式 ScaleX 无法读取"
       },
       "metaLogin": {
         "startAgain": "这次 Facebook 登录已过期或已被使用。请从“连接”重新开始。",
         "noPending": "没有等待中的 Facebook 登录，或者它已过期。请再次使用 Facebook 登录。",
-        "foreign": "这次 Facebook 登录是从另一个 SYB 账户发起的。请以该账户登录 SYB，或重新开始。",
+        "foreign": "这次 Facebook 登录是从另一个 ScaleX 账户发起的。请以该账户登录 ScaleX，或重新开始。",
         "phraseNoMatch": "确认短语不匹配。请重新开始。",
         "typePhrase": "请输入“{phrase}”以确认。没有向 Meta 发送任何内容。",
-        "notOffered": "SYB 不提供这种 Meta 连接。",
+        "notOffered": "ScaleX 不提供这种 Meta 连接。",
         "unavailable": "Facebook 登录暂不可用。请改用您自己的 Meta 应用。",
         "already": "{label} 已连接。请先断开连接。",
         "pickPage": "请从列出的公共主页中选择一个。",
@@ -8674,9 +8674,9 @@
       },
       "meta": {
         "auth": "我无法连接到 Meta：{why}。请在“连接”中重新连接，我会从中断的地方继续。",
-        "permission": "Meta 表示 SYB 无权执行该操作：某项权限已被移除，或者公共主页或账户没有分配给该连接。请按“连接”中列出的权限重新连接。",
+        "permission": "Meta 表示 ScaleX 无权执行该操作：某项权限已被移除，或者公共主页或账户没有分配给该连接。请按“连接”中列出的权限重新连接。",
         "pageLimit": "Meta 对此公共主页的限额暂时用完了。没有丢失任何内容，我会在暂停后重试。",
-        "rateLimit": "Meta 要求 SYB 放慢速度。没有丢失任何内容，我会在暂停后重试。",
+        "rateLimit": "Meta 要求 ScaleX 放慢速度。没有丢失任何内容，我会在暂停后重试。",
         "unavailablePublished": "Meta 刚才没有响应。没有发布任何内容，我会重试。",
         "unavailableChanged": "Meta 刚才没有响应。没有更改任何内容，我会重试。",
         "codePublished": "Meta 以代码 {code} 拒绝；没有发布任何内容。",
@@ -8821,9 +8821,9 @@
         "proposed": "已提出发布提案",
         "notDraft": "当前状态为“{status}”，不是草稿",
         "shotList": "拍摄清单用于拍摄，不用于发布",
-        "email": "SYB 目前还不发送邮件",
+        "email": "ScaleX 目前还不发送邮件",
         "kind": "此类内容（{kind}）不会发布",
-        "channel": "SYB 无法发布到 {channel}，只能发布到您连接的 Facebook 主页、Instagram 账户或 TikTok 账户",
+        "channel": "ScaleX 无法发布到 {channel}，只能发布到您连接的 Facebook 主页、Instagram 账户或 TikTok 账户",
         "connect": "请在“连接”中开通 Meta 发布，才能将此内容发布到 {platform}",
         "noInstagram": "此 Meta 连接没有 Instagram 账户，请带上其 ID 重新连接后再在那里发布",
         "needsMedia": "{platform} 需要一张图片或一段视频，而此内容还没有",
@@ -8862,12 +8862,12 @@
       "itemId": "缺少 item_id（内容的 ID）",
       "buildId": "缺少 build_id（已创建广告的 ID）",
       "action": "action 必须是 \"plan\", \"shotlist\", \"produce\", \"withdraw\", \"run_ad\" 或 \"go_live\" 之一",
-      "sameOrigin": "此请求必须来自 SYB 自己的页面",
+      "sameOrigin": "此请求必须来自 ScaleX 自己的页面",
       "mediaSignedIn": "素材和生成的媒体需要您先登录",
       "noUploads": "此服务器未设置上传（没有媒体存储）",
       "clipSize": "在此上传的片段最大为 {mb} MB",
       "itemAndFile": "缺少 item_id 和文件",
-      "throughSyb": "此处上传经由 SYB，而不是直接上传到存储",
+      "throughSyb": "此处上传经由 ScaleX，而不是直接上传到存储",
       "noStorage": "此处没有媒体存储",
       "unknownAction": "未知操作"
     }
@@ -8900,10 +8900,10 @@
   },
   "payments": {
     "meta": {
-      "title": "付款 — SYB"
+      "title": "付款 — ScaleX"
     },
     "kicker": "洞察 · 付款",
-    "never": "SYB 准备付款，由您在自己的银行付款。SYB 无法转移资金。",
+    "never": "ScaleX 准备付款，由您在自己的银行付款。ScaleX 无法转移资金。",
     "title": {
       "ready": "{count, plural, other {# 笔付款已可交给您的银行}}",
       "none": "您在自己银行完成的付款"
@@ -8974,7 +8974,7 @@
         "mark": "回到这里，为每笔已完成的付款点击“已在我的银行付款”。"
       },
       "title": "需要在您自己银行完成的付款",
-      "intro": "SYB 已准备好这些付款。SYB 无法转移资金：每笔付款都由您在自己的银行亲自完成。",
+      "intro": "ScaleX 已准备好这些付款。ScaleX 无法转移资金：每笔付款都由您在自己的银行亲自完成。",
       "from": "付款账号：{name}，IBAN {iban}",
       "howTitle": "如何手动完成每笔付款：",
       "hand": {
@@ -8982,7 +8982,7 @@
         "copy": "按下方所写，准确复制收款人的姓名、IBAN 和 BIC。",
         "amount": "输入金额和附言，让收款人知道这笔付款的用途。",
         "confirm": "选择日期，再检查一遍所有信息，然后在您的银行确认付款。",
-        "mark": "回到 SYB，点击“已在我的银行付款”，让您的记录显示这一点。"
+        "mark": "回到 ScaleX，点击“已在我的银行付款”，让您的记录显示这一点。"
       },
       "paymentTitle": "第 {n} 笔，共 {count} 笔",
       "payTo": "收款人：{name}",
@@ -8998,8 +8998,8 @@
         "notLatin": "名称或附言不是拉丁字母，因此不在 SEPA 文件中：请手动付款。",
         "bicNeeded": "欧洲经济区以外的银行需要收款人的 BIC，因此不在 SEPA 文件中：请手动付款。"
       },
-      "closing": "付款完成后，请在 SYB 中标记。如果银行拒绝某项信息，请在银行中更正：SYB 从不向您的银行发送任何内容。",
-      "batch": "文件 {ref}，生成于 {date}。其中的付款都不在 SYB 生成的其他文件中。",
+      "closing": "付款完成后，请在 ScaleX 中标记。如果银行拒绝某项信息，请在银行中更正：ScaleX 从不向您的银行发送任何内容。",
+      "batch": "文件 {ref}，生成于 {date}。其中的付款都不在 ScaleX 生成的其他文件中。",
       "copy": "副本：此文件首次下载于 {date}。如果您已完成这些付款，请不要再付：请先查看您的银行。"
     },
     "waiting": {
@@ -9028,7 +9028,7 @@
     "payer": {
       "label": "付款来源",
       "none": "尚未填写您的银行信息",
-      "foot": "您的付款从这个名称和 IBAN 支出。它们会作为付款人写入 SEPA 文件；SYB 从不进入您的银行。",
+      "foot": "您的付款从这个名称和 IBAN 支出。它们会作为付款人写入 SEPA 文件；ScaleX 从不进入您的银行。",
       "change": "更改",
       "holder": "银行登记的名称",
       "save": "保存",
@@ -9115,9 +9115,9 @@
   },
   "ladder": {
     "meta": {
-      "title": "SYB 可以做什么"
+      "title": "ScaleX 可以做什么"
     },
-    "title": "SYB 现在可以在您的企业中做什么",
+    "title": "ScaleX 现在可以在您的企业中做什么",
     "intro": "每一行代表一类操作。提升一行需要下方的记录；降低则随时可以，紧急停止会让所有行回到仅观察。",
     "station": {
       "1": "仅观察",
@@ -9177,9 +9177,9 @@
   },
   "shadowSummary": {
     "meta": {
-      "title": "SYB 本来会做什么"
+      "title": "ScaleX 本来会做什么"
     },
-    "title": "SYB 本来会做什么",
+    "title": "ScaleX 本来会做什么",
     "period": "{from} 至 {to}",
     "changes": "本会做出的改动：{count}",
     "gained": "本会带来收益：{count} · {amount}",
@@ -9199,9 +9199,9 @@
     "did": "已执行 {count, plural, other {# 项操作}}，{undone, plural, =0 {无撤销} other {已撤销 # 项}}",
     "worth": "已核实，盈亏合计：{amount}",
     "losses": "其中的损失：{amount}",
-    "fee": "SYB 本月的费用：{amount}",
-    "feeNone": "SYB 本月未收取任何费用。",
-    "net": "已核实，扣除 SYB 费用后：{amount}",
+    "fee": "ScaleX 本月的费用：{amount}",
+    "feeNone": "ScaleX 本月未收取任何费用。",
+    "net": "已核实，扣除 ScaleX 费用后：{amount}",
     "unproven": "{count, plural, =0 {没有未经证明就结束的变更} other {# 项变更结束时尚无证明}}",
     "queued": "{count, plural, =0 {没有事项在等你} other {# 件事项在等你}}",
     "decision": "等你做的那一个决定：",
@@ -9261,7 +9261,7 @@
     "official": "下方的欧盟官方数据来自 Eurostat，并标明了年份。我们的实时比较暂时还无法用于此项，两者也绝不会混成一个数字。",
     "notMeasured": "尚未测量：{list}。",
     "unplaced": "告诉我这是什么类型的企业、在哪个国家，我就能进行比较。",
-    "source": "来自使用 SYB 的企业，由其自身销售系统测量，绝不采用所有者手动填写的数字。月份：{month}。",
+    "source": "来自使用 ScaleX 的企业，由其自身销售系统测量，绝不采用所有者手动填写的数字。月份：{month}。",
     "contribute": {
       "on": "你测量到的数据会匿名计入这些比较。只有当至少七家企业参与、且没有任何一家占比超过四分之一时，才会显示数字。",
       "off": "你没有贡献你的数据。你仍然可以看到所有比较。",
@@ -9345,12 +9345,12 @@
       "basis": "经验法则：按你选择的区间，一个月营收的 {low} 至 {high}。这里还没有任何测量。"
     },
     "measure": {
-      "bookings": "要测量它：连接你的预约系统，SYB 会清点错过的预约，而不是估算。",
-      "sales_and_purchases": "要测量它：连接你的收银和采购，SYB 会把买进的和卖出的进行对比。",
-      "stock": "要测量它：连接你的店铺，SYB 会找出没有卖出的产品。",
-      "invoices": "要测量它：连接你的开票系统，SYB 会测量钱多久才到账。",
-      "ads_and_sales": "要测量它：连接你的广告和销售，SYB 会把支出对应到卖出的东西上。",
-      "sales": "要测量它：连接你的销售系统，SYB 会进行测量，而不是估算。"
+      "bookings": "要测量它：连接你的预约系统，ScaleX 会清点错过的预约，而不是估算。",
+      "sales_and_purchases": "要测量它：连接你的收银和采购，ScaleX 会把买进的和卖出的进行对比。",
+      "stock": "要测量它：连接你的店铺，ScaleX 会找出没有卖出的产品。",
+      "invoices": "要测量它：连接你的开票系统，ScaleX 会测量钱多久才到账。",
+      "ads_and_sales": "要测量它：连接你的广告和销售，ScaleX 会把支出对应到卖出的东西上。",
+      "sales": "要测量它：连接你的销售系统，ScaleX 会进行测量，而不是估算。"
     },
     "peer": {
       "label": "同类企业",
@@ -9370,8 +9370,8 @@
       "title": "方案"
     },
     "kicker": "方案",
-    "title": "为 SYB 可以做的事付费",
-    "intro": "每个方案都从一个影子月开始：SYB 展示它本会做什么，并打分，但不做任何改动。",
+    "title": "为 ScaleX 可以做的事付费",
+    "intro": "每个方案都从一个影子月开始：ScaleX 展示它本会做什么，并打分，但不做任何改动。",
     "interval": {
       "month": "按月",
       "year": "按年，便宜五分之一"
@@ -9386,13 +9386,13 @@
     },
     "what": {
       "watch": "关注你的数字，每月一次新的诊断，与同类企业比较，提醒，月度对账单和影子评分。",
-      "act": "包含 Watch 的全部，SYB 还会执行你同意的事：帖子、广告、你网站上的文字、库存和预约。",
-      "autonomous": "包含 Act 的全部，SYB 还会在你设定的限度内自主行动，包括你的广告，并附带保证。",
+      "act": "包含 Watch 的全部，ScaleX 还会执行你同意的事：帖子、广告、你网站上的文字、库存和预约。",
+      "autonomous": "包含 Act 的全部，ScaleX 还会在你设定的限度内自主行动，包括你的广告，并附带保证。",
       "extra_business": "再加一家企业，与第一家使用同一方案。"
     },
-    "ceiling": "可达到 SYB 可做之事的第 {station} 级",
-    "guarantee": "保证，仅限 Autonomous：如果台账在一个季度内没有显示至少三倍于你费用的已核实金额，下个季度免费。SYB 会自行核对并抵扣。",
-    "noGuarantee": "此方案没有保证：SYB 在这里不会自主行动，所以不承诺结果。",
+    "ceiling": "可达到 ScaleX 可做之事的第 {station} 级",
+    "guarantee": "保证，仅限 Autonomous：如果台账在一个季度内没有显示至少三倍于你费用的已核实金额，下个季度免费。ScaleX 会自行核对并抵扣。",
+    "noGuarantee": "此方案没有保证：ScaleX 在这里不会自主行动，所以不承诺结果。",
     "credit": "已经为诊断付过费？它会从你的第一张发票中抵扣。",
     "choose": "选择 {tier}",
     "signIn": "登录后即可选择方案。",
@@ -9449,7 +9449,7 @@
       "guarantee": "保证"
     },
     "resume": {
-      "paused": "账单已暂停：你的连接已经数周没有任何数据进来，所以 SYB 停止了收费。等你回来时随时重新开始。",
+      "paused": "账单已暂停：你的连接已经数周没有任何数据进来，所以 ScaleX 停止了收费。等你回来时随时重新开始。",
       "button": "重新开始计费"
     },
     "failed": "没有成功。请稍后再试。",
@@ -9460,7 +9460,7 @@
       "title": "合作伙伴控制台"
     },
     "kicker": "合作伙伴控制台",
-    "noSession": "请先登录 SYB，使用你在事务所使用的地址。",
+    "noSession": "请先登录 ScaleX，使用你在事务所使用的地址。",
     "create": {
       "title": "设置你的事务所",
       "intro": "事务所位于客户企业之上。只有当企业所有者向你的事务所授予委托后，你才能访问该企业。",
@@ -9513,7 +9513,7 @@
     },
     "scope": {
       "read_diagnosis": "查看诊断",
-      "approve_actions": "批准 SYB 的建议",
+      "approve_actions": "批准 ScaleX 的建议",
       "manage_connectors": "协助处理连接",
       "receive_reports": "接收带有事务所名称的报告"
     },
@@ -9526,7 +9526,7 @@
       "nudge": "请客户连接某个系统",
       "nudgeWhat": "要连接什么，例如收银系统",
       "nudgeSend": "发送请求",
-      "nudged": "已发送到客户的 SYB。",
+      "nudged": "已发送到客户的 ScaleX。",
       "report": "打开带有你事务所名称的报告",
       "noReport": "还没有诊断。",
       "back": "返回客户列表"
@@ -9539,7 +9539,7 @@
       "statement": "月度对账单"
     },
     "report": {
-      "byline": "由 {firm} 使用 SYB 编制",
+      "byline": "由 {firm} 使用 ScaleX 编制",
       "version": "版本 {version} · 诊断等级 {grade}",
       "range": "每月 {low} 至 {high}"
     },
@@ -9563,15 +9563,15 @@
     "failed": "没有成功：{why}",
     "done": "完成。",
     "mail": {
-      "subject": "{firm} 请求在 SYB 上访问你的企业",
-      "intro": "{firm} 希望在 SYB 上与 {business} 合作，并请求获准为你的企业做以下事情：",
+      "subject": "{firm} 请求在 ScaleX 上访问你的企业",
+      "intro": "{firm} 希望在 ScaleX 上与 {business} 合作，并请求获准为你的企业做以下事情：",
       "open": "如果同意，请打开此链接。你无需事先注册账户：",
       "after": "你可以随时一键收回授权，并能看到事务所所做的一切。"
     },
     "nav": {
       "link": "为客户设置 NAV",
       "title": "为您的客户接入 NAV Online Számla",
-      "intro": "请填写每位客户的 NAV 技术用户。SYB 会立即向 NAV 逐一核验，并显示 NAV 登记的名称。这些资料用该客户自己的密钥加密保存，只用于读取，之后不再显示。留空的行会被跳过。",
+      "intro": "请填写每位客户的 NAV 技术用户。ScaleX 会立即向 NAV 逐一核验，并显示 NAV 登记的名称。这些资料用该客户自己的密钥加密保存，只用于读取，之后不再显示。留空的行会被跳过。",
       "who": "客户的委托允许贵所帮助其接入外部服务时，才会出现在这里。",
       "empty": "目前还没有客户的委托允许贵所帮助接入外部服务。",
       "notAllowed": "只有事务所的负责人或经理可以为客户设置 NAV。",
@@ -9602,8 +9602,8 @@
       "working": "正在向 NAV 核验…",
       "summary": "已接入：{connected}。NAV 未接受：{rejected}。留空：{skipped}。未完成：{other}。",
       "revoke": "断开",
-      "revokeConfirm": "现在从 SYB 删除这位客户的 NAV 资料吗？",
-      "revoked": "已从 SYB 删除。请让客户也在 Online Számla 中删除该技术用户，使其无法再被使用。"
+      "revokeConfirm": "现在从 ScaleX 删除这位客户的 NAV 资料吗？",
+      "revoked": "已从 ScaleX 删除。请让客户也在 Online Számla 中删除该技术用户，使其无法再被使用。"
     }
   },
   "mandates": {
@@ -9644,20 +9644,20 @@
       "title": "增长工作室"
     },
     "kicker": "增长工作室",
-    "intro": "SYB 只根据你自己的数字，为你自己的产品制作视频。每份简报都会注明所依据的数字，每个生成的文件都标注为 AI 制作，没有你的同意不会发布任何内容。",
+    "intro": "ScaleX 只根据你自己的数字，为你自己的产品制作视频。每份简报都会注明所依据的数字，每个生成的文件都标注为 AI 制作，没有你的同意不会发布任何内容。",
     "voice": {
-      "title": "SYB 如何描述你的语气",
-      "none": "还没有描述。SYB 会根据你自己的话、你的网站和你的帖子来整理。",
+      "title": "ScaleX 如何描述你的语气",
+      "none": "还没有描述。ScaleX 会根据你自己的话、你的网站和你的帖子来整理。",
       "build": "根据我说过的话整理",
-      "draft": "这是 SYB 的理解。请修改，或按原样确认。在此之前不会生成任何内容。",
-      "confirmed": "已确认。SYB 将以这种语气写作。",
+      "draft": "这是 ScaleX 的理解。请修改，或按原样确认。在此之前不会生成任何内容。",
+      "confirmed": "已确认。ScaleX 将以这种语气写作。",
       "edit": "你的描述",
       "save": "保存我的描述",
       "confirm": "就是这样"
     },
     "opps": {
       "title": "你的数字建议推广什么",
-      "none": "暂无机会：SYB 需要先有一些测量到的数字。",
+      "none": "暂无机会：ScaleX 需要先有一些测量到的数字。",
       "figures": "所依据的数字：{count}",
       "subject": "推广什么",
       "angle": "切入角度",
@@ -9716,14 +9716,14 @@
       "title": "删除这家企业"
     },
     "kicker": "删除这家企业",
-    "body": "你可以要求删除这家企业以及 SYB 保存的关于它的一切。从你提出请求的那一刻起，它的数字就会退出与同类企业的所有比较；其余数据由 SYB 的工作人员删除，并在完成后确认。",
+    "body": "你可以要求删除这家企业以及 ScaleX 保存的关于它的一切。从你提出请求的那一刻起，它的数字就会退出与同类企业的所有比较；其余数据由 ScaleX 的工作人员删除，并在完成后确认。",
     "ask": "申请删除",
     "requested": "已于 {date} 申请删除。它的数字已退出所有比较。",
     "failed": "没有成功：{why}"
   },
   "home": {
     "meta": {
-      "title": "首页 — SYB"
+      "title": "首页 — ScaleX"
     },
     "kicker": "今天 · {date}",
     "reading": "正在读取…",
@@ -9778,7 +9778,7 @@
   },
   "alerts": {
     "meta": {
-      "title": "提醒与模块 — SYB"
+      "title": "提醒与模块 — ScaleX"
     },
     "kicker": "您的企业 · 提醒与模块",
     "title": "我在哪里工作，以及如何通知您。"

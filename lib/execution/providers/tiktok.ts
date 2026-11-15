@@ -195,16 +195,20 @@ export function classifyTikTokError(httpStatus: number, code: string | null): Ti
     case "access_token_invalid":
     case "invalid_grant":
     case "token_not_authorized_for_specified_publish_id":
-      return f("auth", `TikTok no longer accepts SYB's sign-in. ${RECONNECT}`, false, true);
+      return f("auth", `TikTok no longer accepts ScaleX's sign-in. ${RECONNECT}`, false, true);
     case "scope_not_authorized":
       return f(
         "scope",
-        `TikTok says the account no longer allows SYB to post. ${RECONNECT}`,
+        `TikTok says the account no longer allows ScaleX to post. ${RECONNECT}`,
         false,
         true,
       );
     case "rate_limit_exceeded":
-      return f("rate_limit", "TikTok asked SYB to slow down. It goes out on the next run.", true);
+      return f(
+        "rate_limit",
+        "TikTok asked ScaleX to slow down. It goes out on the next run.",
+        true,
+      );
     case "spam_risk_too_many_posts":
       return f(
         "posting_limit",
@@ -214,7 +218,7 @@ export function classifyTikTokError(httpStatus: number, code: string | null): Ti
     case "reached_active_user_cap":
       return f(
         "app_cap",
-        "TikTok's daily limit on accounts SYB's app may post for is used up. It goes out on the next run.",
+        "TikTok's daily limit on accounts ScaleX's app may post for is used up. It goes out on the next run.",
         true,
       );
     case "spam_risk_user_banned_from_posting":
@@ -222,7 +226,7 @@ export function classifyTikTokError(httpStatus: number, code: string | null): Ti
     case "unaudited_client_can_only_post_to_private_accounts":
       return f(
         "unaudited",
-        "TikTok only lets SYB post privately (only you can see it) until it has audited SYB's app.",
+        "TikTok only lets ScaleX post privately (only you can see it) until it has audited ScaleX's app.",
         false,
       );
     case "privacy_level_option_mismatch":
@@ -238,10 +242,10 @@ export function classifyTikTokError(httpStatus: number, code: string | null): Ti
       break;
   }
   if (httpStatus === 401) {
-    return f("auth", `TikTok no longer accepts SYB's sign-in. ${RECONNECT}`, false, true);
+    return f("auth", `TikTok no longer accepts ScaleX's sign-in. ${RECONNECT}`, false, true);
   }
   if (httpStatus === 429)
-    return f("rate_limit", "TikTok asked SYB to slow down. It goes out on the next run.", true);
+    return f("rate_limit", "TikTok asked ScaleX to slow down. It goes out on the next run.", true);
   if (httpStatus === 0 || httpStatus >= 500) {
     return f("unavailable", "TikTok didn't answer properly. It goes out on the next run.", true);
   }
@@ -715,7 +719,7 @@ export const TIKTOK_STILL_PROCESSING =
 export const TIKTOK_NOT_AS_APPROVED =
   "What would go out isn't what you approved: the caption, the video or the TikTok settings changed after you approved it. Nothing was sent; it needs approving again.";
 export const TIKTOK_NO_UNDO =
-  "TikTok doesn't let apps delete a post, so SYB can't take this down. Delete it in the TikTok app if you want it gone.";
+  "TikTok doesn't let apps delete a post, so ScaleX can't take this down. Delete it in the TikTok app if you want it gone.";
 export const TIKTOK_NO_SETTINGS =
   "Choose who can see this on TikTok first, on Content. Nothing was sent.";
 
@@ -731,7 +735,7 @@ export function failReasonSentence(reason: string | null): string {
     internal: "TikTok had a problem of its own.",
     video_pull_failed: "TikTok couldn't fetch the video.",
     publish_cancelled: "The post was cancelled.",
-    auth_removed: "The TikTok account took SYB's access away while it was posting.",
+    auth_removed: "The TikTok account took ScaleX's access away while it was posting.",
     spam_risk_too_many_posts: "TikTok's daily limit on posts for this account was reached.",
     spam_risk_user_banned_from_posting: "TikTok says this account can't post right now.",
     spam_risk_text: "TikTok flagged the caption.",
@@ -1137,7 +1141,7 @@ function publishProvider(
       bytes = await b.readMedia(url, TIKTOK_MAX_UPLOAD_BYTES);
     } catch {
       throw new PublishError(
-        "SYB couldn't read the video from its own storage, or it is larger than SYB uploads to TikTok. Nothing was sent.",
+        "ScaleX couldn't read the video from its own storage, or it is larger than ScaleX uploads to TikTok. Nothing was sent.",
       );
     }
     if (bytes.byteLength === 0) throw new PublishError("The video is empty. Nothing was sent.");
@@ -1373,7 +1377,7 @@ function publishProvider(
           // No answer to init: no upload_url, so no bytes can follow — nothing goes out.
           if (error instanceof TikTokNoAnswerError) {
             throw new PublishError(
-              `TikTok didn't answer when SYB started the post. ${NOTHING_SENT}`,
+              `TikTok didn't answer when ScaleX started the post. ${NOTHING_SENT}`,
             );
           }
           throw error;
@@ -1483,7 +1487,7 @@ function publishProvider(
             ? `${error.failure.owner_sentence} ${NOTHING_SENT}`
             : error instanceof PublishError || error instanceof UndisclosedTikTokPostError
               ? error.message
-              : `Something went wrong on SYB's side before anything was sent. ${NOTHING_SENT}`;
+              : `Something went wrong on ScaleX's side before anything was sent. ${NOTHING_SENT}`;
         await b.failed(item.id, sentence);
         log("failed");
         throw new PublishError(sentence, false);

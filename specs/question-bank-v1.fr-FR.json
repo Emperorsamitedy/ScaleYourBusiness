@@ -343,7 +343,7 @@
     },
     "8.1i": {
       "prompt": "Quel montant maximum accepteriez-vous de dépenser en publicité sur un mois ?",
-      "help_text": "Un plafond, pas une cible. SYB ne propose jamais de dépasser ce budget publicitaire."
+      "help_text": "Un plafond, pas une cible. ScaleX ne propose jamais de dépasser ce budget publicitaire."
     },
     "8.1b": {
       "prompt": "Sur quelles plateformes faites-vous de la publicité ?"

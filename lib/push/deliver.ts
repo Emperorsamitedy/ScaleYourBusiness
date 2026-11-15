@@ -23,7 +23,7 @@ export interface DeviceOutcome {
 
 /** The test alert in one language (L-6; English by default). */
 export function testPayload(w: Words = englishWords("push")): PushPayload {
-  return { title: "SYB", body: w.t("test"), url: "/proposals", tag: "syb-test" };
+  return { title: "ScaleX", body: w.t("test"), url: "/proposals", tag: "syb-test" };
 }
 
 export const TEST_PAYLOAD: PushPayload = testPayload();

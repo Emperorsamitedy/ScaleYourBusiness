@@ -54,7 +54,7 @@ export { emailConsentLines, senderIdentity } from "./email-sender";
 export function sharedSenderNote(campaignFrom: string | null): string | null {
   return campaignFrom
     ? null
-    : "For now, campaigns and SYB's own sign-in emails go out from the same sending address. If a campaign drew many spam complaints, sign-in emails could be slowed too.";
+    : "For now, campaigns and ScaleX's own sign-in emails go out from the same sending address. If a campaign drew many spam complaints, sign-in emails could be slowed too.";
 }
 
 const EMAIL_RE = /^[^@\s<>"]+@[^@\s<>"]+\.[^@\s<>"]+$/;

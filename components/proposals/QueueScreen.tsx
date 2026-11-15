@@ -74,6 +74,7 @@ import {
 import "../../app/queue.css";
 import { useRole } from "../auth/RoleContext";
 import { Fold } from "../sheet/Fold";
+import { Logo } from "../brand/Mark";
 
 interface Money {
   amount_minor: number;
@@ -520,7 +521,9 @@ export function QueueScreen() {
     return (
       <main className="auth-stage">
         <div className="auth-col">
-          <span className="wordmark">SYB</span>
+          <span className="wordmark">
+            <Logo onDark />
+          </span>
           <section className="card auth-card">
             <span className="auth-eyebrow">{t("signedOut.eyebrow")}</span>
             <h1 className="auth-title">{t("signedOut.title")}</h1>
@@ -849,7 +852,7 @@ export function QueueScreen() {
     <header className="q-mast">
       <div className="q-mast-left">
         <Link href="/watch" className="q-wordmark">
-          SYB
+          <Logo onDark />
         </Link>
         <span className="q-mast-meta">
           {q.business ? `${q.business} · ` : ""}
@@ -1059,7 +1062,7 @@ export function QueueScreen() {
         <header className="q-mast q-mast-m">
           <div className="q-mast-row">
             <Link href="/watch" className="q-wordmark">
-              SYB
+              <Logo onDark />
             </Link>
             {q.business && <span className="q-mast-meta">{q.business}</span>}
           </div>

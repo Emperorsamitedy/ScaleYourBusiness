@@ -42,7 +42,7 @@ function browser() {
 }
 
 const PAYLOAD: PushPayload = {
-  title: "SYB",
+  title: "ScaleX",
   body: "1 thing waits for your yes: a post",
   url: "/proposals/0f8fad5b-d9cb-469f-a165-70867728950e",
   tag: "syb-waiting",

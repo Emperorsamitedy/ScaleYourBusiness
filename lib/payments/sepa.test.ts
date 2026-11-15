@@ -251,7 +251,7 @@ describe("SEPA text", () => {
     expect(sepaText("Łódź Straße — «Ölmühle» & Co.", 70)).toBe("Lodz Strasse - Olmuhle + Co.");
     expect(sepaText("a".repeat(200), 140)).toHaveLength(140);
     expect(sepaText("<script>", 70)).toBe("script");
-    expect(sepaId("SYB 2026-11-08 / x".repeat(4))).toHaveLength(35);
+    expect(sepaId("ScaleX 2026-11-08 / x".repeat(4))).toHaveLength(35);
     expect(sepaId("ab cd")).toBe("abcd");
   });
 });
@@ -268,7 +268,7 @@ describe("handInstructions — any currency, in plain steps", () => {
         ["u", "not_eur"],
       ]),
     );
-    expect(text).toContain("SYB can't move money");
+    expect(text).toContain("ScaleX can't move money");
     expect(text).toContain("Pay to: Bäckerei Groß & Söhne");
     expect(text).toContain("IBAN: NL91 ABNA 0417 1643 00");
     expect(text).toContain("BIC: ABNANL2A");

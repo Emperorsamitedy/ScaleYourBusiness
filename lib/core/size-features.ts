@@ -51,7 +51,7 @@ export const SIZE_FEATURES = {
   },
   "nav.alerts": {
     bands: EVERY,
-    reason: "How SYB tells you, and where it works, is a choice at every size.",
+    reason: "How ScaleX tells you, and where it works, is a choice at every size.",
   },
   "nav.proposals": {
     bands: EVERY,
@@ -170,7 +170,7 @@ export const SIZE_FEATURES = {
   },
   "nav.ladder": {
     bands: EVERY,
-    reason: "What SYB may do on its own must be one tap away at any size (the v1 spec §4.6).",
+    reason: "What ScaleX may do on its own must be one tap away at any size (the v1 spec §4.6).",
   },
   "nav.billing": {
     bands: EVERY,
@@ -195,12 +195,12 @@ export const SIZE_FEATURES = {
   "nav.growth": {
     bands: EVERY,
     reason:
-      "What SYB may make about the business, from which figures, in whose voice, is the owner's to see at any size (the v1 spec §10).",
+      "What ScaleX may make about the business, from which figures, in whose voice, is the owner's to see at any size (the v1 spec §10).",
   },
   "nav.statement": {
     bands: EVERY,
     reason:
-      "The monthly statement is the proof of what SYB did and what it was worth (the v1 spec §6.4).",
+      "The monthly statement is the proof of what ScaleX did and what it was worth (the v1 spec §6.4).",
   },
   "nav.team_access": {
     bands: EVERY,

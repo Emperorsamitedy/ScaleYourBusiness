@@ -90,7 +90,7 @@ describe("English is what the desk always said", () => {
     expect(supportErrorWords("no such ticket", EN, "en")).toBe("no such ticket");
   });
 
-  it("leaves English rows, and any sentence that isn't SYB's, as they came", () => {
+  it("leaves English rows, and any sentence that isn't ScaleX's, as they came", () => {
     const service =
       "Not sent: the email service refused it (422: invalid from). Nothing went out — write it again to retry.";
     expect(outcomeNoteWords(service, EN, "en")).toBe(service);
@@ -107,7 +107,7 @@ describe("English is what the desk always said", () => {
 });
 
 describe("in the reader's language", () => {
-  it("says notes, the draft refusal and a summary in German, keeping what isn't SYB's", () => {
+  it("says notes, the draft refusal and a summary in German, keeping what isn't ScaleX's", () => {
     const service =
       "Not sent: the email service refused it (422: invalid from). Nothing went out — write it again to retry.";
     const said = outcomeNoteWords(service, de, "de-DE")!;

@@ -40,6 +40,7 @@ import {
   lifecycleWord,
   maskEmail,
 } from "./customers-view";
+import { Logo } from "../brand/Mark";
 
 interface Contact {
   id: string;
@@ -214,7 +215,9 @@ export function CustomersScreen() {
     return (
       <main className="auth-stage">
         <div className="auth-col">
-          <span className="wordmark">SYB</span>
+          <span className="wordmark">
+            <Logo onDark />
+          </span>
           <section className="card auth-card">
             <span className="auth-eyebrow">{tr("signedOut.eyebrow")}</span>
             <h1 className="auth-title">{tr("signedOut.title")}</h1>

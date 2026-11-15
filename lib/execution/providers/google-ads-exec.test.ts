@@ -101,7 +101,7 @@ describe("P3-22 — the Google Ads executor is registered, external, and fenced"
     });
     expect(await exec.captureUndo("remove_campaign", {}, CTX)).toBeNull();
     await expect(exec.execute("remove_campaign", {}, CTX)).rejects.toThrow(
-      /not a change SYB makes/,
+      /not a change ScaleX makes/,
     );
   });
 });
@@ -345,7 +345,7 @@ describe("P3-22c — budgets, held to ±50% and the ceiling inside the executor"
     ).rejects.toThrow(/moved to another budget/);
   });
 
-  it("undo puts the previous budget back, only while it is still what SYB set", async () => {
+  it("undo puts the previous budget back, only while it is still what ScaleX set", async () => {
     const undo = {
       campaign_id: "111",
       budget_resource: "customers/1234567890/campaignBudgets/9",

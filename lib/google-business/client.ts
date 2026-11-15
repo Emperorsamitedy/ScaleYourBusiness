@@ -114,17 +114,17 @@ export type FetchLike = (input: string, init: RequestInit) => Promise<Response>;
 
 function failureFor(status: number): GbpRequestError {
   if (status === 401) {
-    return new GbpRequestError("auth", "Google no longer accepts SYB's access.", status);
+    return new GbpRequestError("auth", "Google no longer accepts ScaleX's access.", status);
   }
   if (status === 403) {
     return new GbpRequestError(
       "permission",
-      "Google says SYB isn't allowed to read this Business Profile.",
+      "Google says ScaleX isn't allowed to read this Business Profile.",
       status,
     );
   }
   if (status === 429) {
-    return new GbpRequestError("quota", "Google asked SYB to slow down.", status);
+    return new GbpRequestError("quota", "Google asked ScaleX to slow down.", status);
   }
   if (status >= 500) {
     return new GbpRequestError("unavailable", "Google didn't answer.", status);
@@ -144,7 +144,7 @@ export async function gbpRequest(
 ): Promise<unknown> {
   const endpoint: GbpEndpoint = GBP_ENDPOINTS[id];
   if (allowedEndpoint(endpoint.method, url) !== id) {
-    throw new GbpRequestError("fence", `refusing a request that isn't on SYB's read list`);
+    throw new GbpRequestError("fence", `refusing a request that isn't on ScaleX's read list`);
   }
   if (endpoint.method === "GET" && init.body !== undefined) {
     throw new GbpRequestError("fence", "a read carries no body");
@@ -176,7 +176,7 @@ export async function gbpRequest(
     if (id === "token" && res.status === 400) {
       const body = (await res.json().catch(() => null)) as { error?: unknown } | null;
       if (body?.error === "invalid_grant") {
-        throw new GbpRequestError("auth", "Google no longer accepts SYB's access.", 400);
+        throw new GbpRequestError("auth", "Google no longer accepts ScaleX's access.", 400);
       }
     }
     last = failureFor(res.status);

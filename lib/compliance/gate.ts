@@ -89,7 +89,7 @@ export const COMPLIANCE_RULES: readonly ComplianceRule[] = [
     applies: (a) => a.external === true || PHONE_CAPABILITIES.has(a.capability),
     refuse: async ({ args, rule }) =>
       rule?.execution_halted === true
-        ? `everything SYB does outside itself is halted for businesses in ${args.country} — the compliance matrix says so`
+        ? `everything ScaleX does outside itself is halted for businesses in ${args.country} — the compliance matrix says so`
         : null,
   },
   {

@@ -386,7 +386,7 @@ export const CHANGE_INTENT_SCHEMA = {
 };
 
 /** Built from the catalogue, so a new row is offered to the model without a prompt edit. */
-export const CHANGE_INTENT_SYSTEM = `You read one message from a small business owner to their business agent, SYB.
+export const CHANGE_INTENT_SYSTEM = `You read one message from a small business owner to their business agent, ScaleX.
 
 First the intent, exactly one:
   · ask — a question about their business, its numbers, or why the agent said something
@@ -396,7 +396,7 @@ First the intent, exactly one:
   · limit — states something the business must never do
   · social — greeting, thanks, chit-chat
 
-Then, if the owner wants to change something SYB holds or a setting in SYB, which ONE of these it is (kind), else "none":
+Then, if the owner wants to change something ScaleX holds or a setting in ScaleX, which ONE of these it is (kind), else "none":
 ${CHANGE_CATALOGUE.map((e) => `  · ${e.kind} — ${e.thing}`).join("\n")}
 An action out in the world (post this, run an ad, email customers) is "none" with intent request — that becomes a proposal elsewhere. A question is "none" even when it mentions something changeable.
 

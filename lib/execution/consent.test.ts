@@ -146,7 +146,7 @@ describe("P3-20h — consentToExecution", () => {
       hashConsentPayload({ ...base, granted_scopes: ["ads_management"] }),
     );
     expect(hashConsentPayload(base)).not.toBe(
-      hashConsentPayload({ ...base, consent_lines: ["SYB may do anything."] }),
+      hashConsentPayload({ ...base, consent_lines: ["ScaleX may do anything."] }),
     );
   });
 });

@@ -374,7 +374,7 @@ export async function draftPaymentProposal(args: {
             pays: what,
             what: "A payment prepared for you to make in your own bank: a SEPA file for euros, plain steps for any currency.",
             sending:
-              "Nothing is paid, now or on approval. SYB can't move money: approving makes it ready for your bank, and you pay it there yourself.",
+              "Nothing is paid, now or on approval. ScaleX can't move money: approving makes it ready for your bank, and you pay it there yourself.",
             manual_limits: verdict.manual.map((l) => l.quote),
           },
         },
@@ -661,7 +661,7 @@ export async function markPaidInBank(args: {
       stated_by: args.userId,
       stated_at: at,
       source: "owner_input",
-      note: "The owner made this payment in their own bank. SYB moved no money.",
+      note: "The owner made this payment in their own bank. ScaleX moved no money.",
     };
     const [p] = await tx
       .update(proposals)

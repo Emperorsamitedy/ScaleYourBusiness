@@ -236,7 +236,7 @@ async function main(): Promise<void> {
         "Eurostat's reuse policy: free reuse, commercial or not, with the source acknowledged (editorial content under CC BY 4.0).",
       attribution: `Source: Eurostat, ${DATASET} (https://doi.org/10.2908/SBS_SC_OVW), retrieved ${retrieved}.`,
       modified:
-        "SYB keeps each cell's latest year with a value, works out purchases as a share of net turnover, and converts euro figures to the business's own currency at Eurostat's annual average rate. Eurostat is not responsible for these uses of its data.",
+        "ScaleX keeps each cell's latest year with a value, works out purchases as a share of net turnover, and converts euro figures to the business's own currency at Eurostat's annual average rate. Eurostat is not responsible for these uses of its data.",
     },
     indicators: indicatorNames,
     flags,

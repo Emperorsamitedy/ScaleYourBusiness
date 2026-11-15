@@ -100,14 +100,14 @@ const STILL_APPROVED = "Nothing was sent; this stays approved.";
  */
 export function sendingAddress(): string {
   const raw =
-    campaignEmailFrom() ?? (process.env.EMAIL_FROM?.trim() || "SYB <onboarding@resend.dev>");
+    campaignEmailFrom() ?? (process.env.EMAIL_FROM?.trim() || "ScaleX <onboarding@resend.dev>");
   return (/<([^<>]+)>\s*$/.exec(raw)?.[1] ?? raw).trim();
 }
 
 /** Pure: '"Fernhill Ceramics via SYB" <address>' — their name, our verified address. */
 export function campaignFromHeader(senderName: string, address = sendingAddress()): string {
   const name = senderName.replace(/["<>\r\n\\]/g, "").trim() || "A business";
-  return `"${name} via SYB" <${address}>`;
+  return `"${name} via ScaleX" <${address}>`;
 }
 
 /* ── is it a campaign ── */
@@ -184,7 +184,7 @@ export const GATE_WORDS: Readonly<
   outbound_off:
     'Your own answer on customer consent was "no consent", so outbound email is off until your data says otherwise.',
   email_not_set_up:
-    "Email isn't set up yet: SYB's sending key or its public web address is missing, so there's nowhere for an unsubscribe link to point.",
+    "Email isn't set up yet: ScaleX's sending key or its public web address is missing, so there's nowhere for an unsubscribe link to point.",
   no_draft: "There's no email drafted for this campaign yet.",
   draft_not_approved: "You haven't approved the email itself yet.",
   draft_changed:

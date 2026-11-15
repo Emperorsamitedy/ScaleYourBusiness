@@ -95,7 +95,7 @@ describe("§3.3 — designs, strongest first, downgraded only with a reason", ()
     expect(DESIGN_PREFERENCE.chat_answer).toEqual(["unmeasurable"]);
   });
 
-  it("never claims a holdout SYB doesn't run — it says pre/post, and why", () => {
+  it("never claims a holdout ScaleX doesn't run — it says pre/post, and why", () => {
     const { design, downgrade_reason } = chooseDesign("meta_ads");
     expect(design).toBe("pre_post_adjusted");
     expect(downgrade_reason).toMatch(/holdout geo isn't built/);

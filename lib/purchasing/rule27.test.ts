@@ -119,7 +119,7 @@ describe("rule 27 amended — the one way out", () => {
   });
 });
 
-describe("rule 27 amended — lib/purchasing reaches nothing outside SYB", () => {
+describe("rule 27 amended — lib/purchasing reaches nothing outside ScaleX", () => {
   const files = sourceFiles(DIR).map((f) => ({ file: rel(f), text: readFileSync(f, "utf8") }));
 
   it("scans every purchasing source file", () => {

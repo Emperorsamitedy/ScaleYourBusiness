@@ -118,7 +118,7 @@ describe("TwiML: every word escaped, so nothing said becomes a verb (rule 24)", 
   });
 });
 
-describe("voices: the line speaks every language SYB writes", () => {
+describe("voices: the line speaks every language ScaleX writes", () => {
   it("has a voice, a speaking language and a listening language for each of the seven", () => {
     for (const l of LOCALES) {
       const v = TWILIO_VOICES[l];

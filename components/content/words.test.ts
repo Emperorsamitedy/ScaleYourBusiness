@@ -51,7 +51,7 @@ describe("the content screen's English is the code's own words", () => {
   it("states the AI fallback's offer with and without its costs", () => {
     expect(
       tr("mediaPanel.fallback.offer", { image: "€0.04", video: "none", seconds: "5" }),
-    ).toMatch(/^SYB can propose generating an image \(about €0\.04\) or a 5-second clip from/);
+    ).toMatch(/^ScaleX can propose generating an image \(about €0\.04\) or a 5-second clip from/);
     expect(tr("mediaPanel.fallback.lastTry", { error: "timed out", cost: "none" })).toBe(
       "The last try: timed out.",
     );

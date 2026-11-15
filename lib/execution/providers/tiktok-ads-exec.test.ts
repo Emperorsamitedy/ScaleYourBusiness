@@ -288,7 +288,7 @@ describe("TikTok Ads — adsPlan routes a TikTok proposal to the tiktok_ads exec
     });
   });
 
-  it("leaves unroutable what SYB doesn't do on TikTok, or doesn't add up", () => {
+  it("leaves unroutable what ScaleX doesn't do on TikTok, or doesn't add up", () => {
     for (const d of [
       { platform: "tiktok", change: "create_paused", name: "x" },
       { platform: "tiktok", change: "run_ad", ad: {} },

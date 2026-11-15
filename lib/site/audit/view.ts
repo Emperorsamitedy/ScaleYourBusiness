@@ -57,7 +57,7 @@ export interface SiteAuditView {
 export const NEVER_LINES = [
   "Reads public pages like a visitor, through the same guarded fetcher as every other site read.",
   "Never logs in, never sends a form, never adds to a cart, never opens checkout.",
-  "Asks Google's public PageSpeed Insights to load the pages; SYB runs no browser of its own.",
+  "Asks Google's public PageSpeed Insights to load the pages; ScaleX runs no browser of its own.",
 ] as const;
 
 export const NOT_BUILT =

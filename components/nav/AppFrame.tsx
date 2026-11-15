@@ -27,6 +27,7 @@ import type { SizeBand, SizeFeatureKey } from "../../lib/core/size-features";
 import { showsFor } from "../../lib/core/size-features";
 import { roleAllows } from "../../lib/auth/role-actions";
 import { EmergencyStop } from "../execution/EmergencyStop";
+import { Logo } from "../brand/Mark";
 
 interface Item {
   href: string;
@@ -409,7 +410,7 @@ export function AppFrame({ children }: { children: ReactNode }) {
       <nav className={`app-rail${open ? " open" : ""}`} aria-label={t("label")}>
         <div className="app-rail-head">
           <Link href="/home" className="app-rail-mark">
-            SYB
+            <Logo onDark />
           </Link>
           {counts?.business && <p className="app-rail-biz">{counts.business}</p>}
           <Switcher access={access} />

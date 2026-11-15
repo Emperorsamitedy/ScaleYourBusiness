@@ -100,7 +100,7 @@ describe("the PDF carries the order", () => {
       "Expected total: €490.00, plus 1 line with the price to be confirmed by the supplier",
     );
     expect(text).toContain("Please ring before delivery.");
-    expect(text).toContain("Prepared with SYB. SYB never changes, cancels or pays an order.");
+    expect(text).toContain("Prepared with ScaleX. ScaleX never changes, cancels or pays an order.");
     expect(text).toContain("PO-0007 · 1/1");
   });
 
@@ -168,14 +168,14 @@ describe("money in the PDF: integer minor units, per currency (rule 1)", () => {
 });
 
 describe("the same order, the same bytes", () => {
-  it("renders byte for byte the same, dated the day it was prepared, made by SYB", async () => {
+  it("renders byte for byte the same, dated the day it was prepared, made by ScaleX", async () => {
     const po = order();
     const a = await renderPurchaseOrderPdf(po, en, { kind: "approved" });
     const b = await renderPurchaseOrderPdf(po, en, { kind: "approved" });
     expect(Buffer.compare(Buffer.from(a), Buffer.from(b))).toBe(0);
     const read = await pdfText(a);
     expect(read.creationDate?.toISOString()).toBe("2026-11-08T00:00:00.000Z");
-    expect(read.producer).toBe("SYB");
+    expect(read.producer).toBe("ScaleX");
     // No random font-name suffix: the embedded names are fixed.
     expect(Buffer.from(a).toString("latin1")).toContain("SYB-DejaVuSans");
   });
@@ -265,7 +265,7 @@ describe("a long order", () => {
     }
     expect(read.pages).toBe(2);
     // The foot comes after the note, on the page the note ends on.
-    const foot = read.placed.find((r) => r.text.startsWith("Prepared with SYB"));
+    const foot = read.placed.find((r) => r.text.startsWith("Prepared with ScaleX"));
     expect(foot?.page).toBe(2);
   });
 });

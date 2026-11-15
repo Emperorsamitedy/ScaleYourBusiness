@@ -275,7 +275,7 @@ export function createGoogleAdsExecution(
   function touchable(c: CampaignState): void {
     if (!GADS_STATUSES.includes(c.status)) {
       throw new GoogleAdChangeError(
-        `"${c.name}" is ${c.status.toLowerCase()} on Google Ads, and SYB only pauses, resumes or re-budgets running and paused campaigns. Nothing was changed.`,
+        `"${c.name}" is ${c.status.toLowerCase()} on Google Ads, and ScaleX only pauses, resumes or re-budgets running and paused campaigns. Nothing was changed.`,
       );
     }
   }
@@ -294,7 +294,7 @@ export function createGoogleAdsExecution(
     }
     if (c.budget_period !== null && c.budget_period !== "DAILY") {
       throw new GoogleAdChangeError(
-        `"${c.name}" has a ${c.budget_period.toLowerCase().replace(/_/g, " ")} budget, not a daily one, so SYB won't change it. Nothing was changed.`,
+        `"${c.name}" has a ${c.budget_period.toLowerCase().replace(/_/g, " ")} budget, not a daily one, so ScaleX won't change it. Nothing was changed.`,
       );
     }
     return { resource: c.budget_resource, micros: c.budget_micros };
@@ -375,14 +375,14 @@ export function createGoogleAdsExecution(
     const url = `${GOOGLE_ADS_ORIGIN}/${V}/customers/${run.cred.customer_id}/${which}:mutate`;
     if (allowedMutateEndpoint(url) !== which) {
       throw new GoogleAdChangeError(
-        "refusing a change that isn't on SYB's list — nothing was sent",
+        "refusing a change that isn't on ScaleX's list — nothing was sent",
       );
     }
     const field = GADS_MUTATE_ENDPOINTS[which].field;
     const keys = Object.keys(update).filter((k) => k !== "resourceName");
     if (keys.length !== 1 || keys[0] !== field) {
       throw new GoogleAdChangeError(
-        "refusing a change to a field SYB doesn't write — nothing was sent",
+        "refusing a change to a field ScaleX doesn't write — nothing was sent",
       );
     }
     const operations = [{ updateMask: field, update }];
@@ -432,7 +432,7 @@ export function createGoogleAdsExecution(
 
     async preflight(op, params, pctx) {
       if (!OPS.has(op))
-        return { code: "refused", message: `"${op}" is not a change SYB makes on Google Ads` };
+        return { code: "refused", message: `"${op}" is not a change ScaleX makes on Google Ads` };
       try {
         const run = await open(pctx.account_id);
         const c = await readCampaign(run, campaignIdOf(params));
@@ -477,7 +477,7 @@ export function createGoogleAdsExecution(
 
     async execute(op, params, pctx: ExecutionContext) {
       if (!OPS.has(op))
-        throw new GoogleAdChangeError(`"${op}" is not a change SYB makes on Google Ads`);
+        throw new GoogleAdChangeError(`"${op}" is not a change ScaleX makes on Google Ads`);
       const run = await open(pctx.account_id);
       const c = await readCampaign(run, campaignIdOf(params));
       touchable(c);
@@ -594,7 +594,7 @@ export function createGoogleAdsExecution(
       if (op === "pause_campaign" || op === "resume_campaign") {
         if (typeof u.status !== "string" || !GADS_STATUSES.includes(u.status)) {
           throw new GoogleAdChangeError(
-            "the stored undo names no status SYB may set — nothing was changed",
+            "the stored undo names no status ScaleX may set — nothing was changed",
           );
         }
         if (c.status !== u.status) {

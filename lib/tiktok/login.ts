@@ -198,7 +198,7 @@ export function verifyTikTokState(
   if (state.account_id !== args.accountId) {
     throw new TikTokLoginError(
       "foreign",
-      "That TikTok sign-in was started from a different SYB account.",
+      "That TikTok sign-in was started from a different ScaleX account.",
       403,
     );
   }
@@ -263,10 +263,10 @@ export async function exchangeTikTokCode(
     throw new TikTokLoginError("tiktok_refused", "TikTok didn't return an access token.", 502);
   }
   if (ids.length === 0) {
-    throw new TikTokLoginError("no_advertisers", "TikTok showed SYB no ad account.", 422);
+    throw new TikTokLoginError("no_advertisers", "TikTok showed ScaleX no ad account.", 422);
   }
   if (!scope.every((s) => typeof s === "number" && Number.isInteger(s) && s >= 0)) {
-    throw new TikTokLoginError("tiktok_refused", "TikTok reported a scope SYB can't read.", 502);
+    throw new TikTokLoginError("tiktok_refused", "TikTok reported a scope ScaleX can't read.", 502);
   }
   return parseTikTokCredential(
     JSON.stringify({

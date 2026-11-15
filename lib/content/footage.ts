@@ -294,7 +294,7 @@ export async function confirmClipUpload(args: {
   const landed = await (args.head ?? blobHead)(clip.pathname);
   if (!landed) throw new ContentError("the clip hasn't arrived in storage — upload it again", 409);
   if (!BLOB_URL.test(landed.url) || !landed.url.endsWith(`/${clip.pathname}`)) {
-    throw new ContentError("the stored clip isn't where SYB put it — upload it again", 409);
+    throw new ContentError("the stored clip isn't where ScaleX put it — upload it again", 409);
   }
   // The token capped size and type at the store; checked again here, from the store's own answer.
   if (

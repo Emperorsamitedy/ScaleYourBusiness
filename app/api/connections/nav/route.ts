@@ -31,7 +31,7 @@ async function signedIn() {
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
   if (!isSameOriginPost(request.headers, appOriginOf(request.url))) {
-    return NextResponse.json({ error: "that has to come from SYB itself" }, { status: 403 });
+    return NextResponse.json({ error: "that has to come from ScaleX itself" }, { status: 403 });
   }
   const session = await signedIn();
   if (!session)
@@ -86,7 +86,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
 
 export async function DELETE(request: NextRequest): Promise<NextResponse> {
   if (!isSameOriginPost(request.headers, appOriginOf(request.url))) {
-    return NextResponse.json({ error: "that has to come from SYB itself" }, { status: 403 });
+    return NextResponse.json({ error: "that has to come from ScaleX itself" }, { status: 403 });
   }
   const session = await signedIn();
   if (!session)

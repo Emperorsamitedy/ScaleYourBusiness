@@ -329,7 +329,7 @@ export async function grantByToken(token: string, now = new Date()) {
     .where(and(eq(users.email, request.email), isNull(users.removed_at)))
     .limit(1);
   if (existing)
-    throw new MandateError("sign in to SYB with this address and grant it from Settings", 409);
+    throw new MandateError("sign in to ScaleX with this address and grant it from Settings", 409);
 
   const s = await bootstrapIntake({
     language: isAppLocale(request.locale) ? request.locale : "en",

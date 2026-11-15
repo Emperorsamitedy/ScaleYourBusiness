@@ -340,7 +340,7 @@ export async function publishPlan(
   }
   const op = publishOpFor(d.platform, item.media_path);
   if (op === null) {
-    return { unroutable: `nothing SYB publishes fits this item on ${LABEL[d.platform]}` };
+    return { unroutable: `nothing ScaleX publishes fits this item on ${LABEL[d.platform]}` };
   }
   return {
     plan: {

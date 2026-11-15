@@ -41,7 +41,7 @@ describe("MicButtonView", () => {
 
   it("shows the notice in the live line before the first listen, then as a fine line", () => {
     const first = html({ phase: "notice", notice: NOTICE });
-    expect(first).toContain("SYB never receives the audio. Press Speak again to start.");
+    expect(first).toContain("ScaleX never receives the audio. Press Speak again to start.");
     const after = html({ phase: "listening", notice: NOTICE });
     expect(after).toContain('class="vx-notice"');
   });

@@ -12,7 +12,7 @@ import { NavConnect } from "../../../components/connections/nav/NavConnect";
 import { NAV_GUIDE_STEPS, navGuideReady } from "../../../lib/connectors/nav/guide";
 import { navSoftwareFromEnv } from "../../../lib/connectors/nav/service";
 
-export const metadata: Metadata = { title: "NAV Online Számla — SYB" };
+export const metadata: Metadata = { title: "NAV Online Számla — ScaleX" };
 export const dynamic = "force-dynamic";
 
 export default async function NavPage() {
@@ -39,8 +39,8 @@ export default async function NavPage() {
           <>
             <p className="auth-copy">
               {hu
-                ? "A SYB csak olvassa a számláit a NAV-ból: a kiállítottakat bevételként, a befogadottakat költségként. Semmit nem küld be és nem módosít."
-                : "SYB only reads your invoices from NAV: those you issued as revenue, those you received as costs. It never submits or changes anything."}
+                ? "A ScaleX csak olvassa a számláit a NAV-ból: a kiállítottakat bevételként, a befogadottakat költségként. Semmit nem küld be és nem módosít."
+                : "ScaleX only reads your invoices from NAV: those you issued as revenue, those you received as costs. It never submits or changes anything."}
             </p>
             <ol className="nav-guide">
               {NAV_GUIDE_STEPS.map((s) => (

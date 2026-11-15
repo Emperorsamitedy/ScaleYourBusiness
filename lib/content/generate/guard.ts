@@ -124,7 +124,7 @@ export function screenPrompt(prompt: string, brands: readonly string[] = []): Gu
   if (b) return { ok: false, reason: "it asks for a logo or a trademark", matched: b[0] };
   for (const name of FAMOUS_BRANDS) {
     if (mentions(text, name)) {
-      return { ok: false, reason: "it names a brand SYB won't imitate", matched: name };
+      return { ok: false, reason: "it names a brand ScaleX won't imitate", matched: name };
     }
   }
   for (const name of brands) {

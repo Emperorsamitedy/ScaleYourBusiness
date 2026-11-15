@@ -11,14 +11,14 @@ import { generateVapidKeys } from "../lib/push/webpush";
 
 const { publicKey, privateKey } = generateVapidKeys();
 
-console.log(`A new VAPID key pair for SYB's phone alerts.
+console.log(`A new VAPID key pair for ScaleX's phone alerts.
 
 Put these three into Vercel yourself (Settings → Environment Variables,
 Production), then redeploy. Don't commit them anywhere.
 
 VAPID_PUBLIC_KEY=${publicKey}
 VAPID_PRIVATE_KEY=${privateKey}
-VAPID_SUBJECT=mailto:<an address that reads mail about SYB>
+VAPID_SUBJECT=mailto:<an address that reads mail about ScaleX>
 
 VAPID_SUBJECT is the contact a push service sees (a mailto: address or an
 https: URL). Keep the private key as secret as CONNECTOR_KEY. Replacing the

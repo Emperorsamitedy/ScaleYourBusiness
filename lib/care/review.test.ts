@@ -516,7 +516,7 @@ describe("P3-47 — a person, not a loop", () => {
         and(eq(watchActivity.profile_id, s.profile_id), eq(watchActivity.kind, "goal_escalated")),
       );
     expect(told).toHaveLength(1);
-    expect(told[0]!.detail).toContain("A person at SYB");
+    expect(told[0]!.detail).toContain("A person at ScaleX");
 
     // Resolved by a person: the next alert may be reviewed again.
     await resolveEscalation(row!.id);

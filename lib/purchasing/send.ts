@@ -386,7 +386,7 @@ export async function markPurchaseOrderSentByHand(args: {
       stated_by: args.userId,
       stated_at: at,
       source: "owner_input",
-      note: "The owner sent this order to the supplier themselves. SYB didn't email it.",
+      note: "The owner sent this order to the supplier themselves. ScaleX didn't email it.",
     };
     const [p] = await tx
       .update(proposals)

@@ -158,7 +158,7 @@ export function capsOf(setup: Pick<GenerationSetup, "caps">): GenerationCaps {
 }
 
 export const GENERATION_OFF =
-  "AI generation isn't set up here, so SYB doesn't propose it. Film it instead: real footage always comes first.";
+  "AI generation isn't set up here, so ScaleX doesn't propose it. Film it instead: real footage always comes first.";
 
 export function generationSetup(
   setting: MediaProviderSetting = mediaProviderSetting(),
@@ -326,7 +326,7 @@ export async function lockCaps(tx: DbTx, accountId: string): Promise<void> {
 export function capRefusal(room: CapRoom, next: Money): string | null {
   const currency = room.month_cap.currency;
   if (next.currency !== currency) {
-    return `the provider prices in ${next.currency} and the caps are in ${currency} — SYB doesn't convert money silently`;
+    return `the provider prices in ${next.currency} and the caps are in ${currency} — ScaleX doesn't convert money silently`;
   }
   if (room.item_spent.amount_minor + next.amount_minor > room.item_cap.amount_minor) {
     return `it would take this item past its ${format(room.item_cap)} cap (${format(room.item_spent)} spent on it so far)`;
@@ -426,7 +426,7 @@ export async function proposeGeneration(args: {
   const provider = setup.provider;
   if (provider.supports && !provider.supports.includes(media)) {
     throw new ContentError(
-      `SYB won't propose that: ${
+      `ScaleX won't propose that: ${
         provider.id === "higgsfield"
           ? HIGGSFIELD_VIDEO_ONLY
           : `the ${provider.id} provider doesn't make ${media === "image" ? "images" : "video"}`
@@ -440,7 +440,7 @@ export async function proposeGeneration(args: {
   const brief = args.brief ?? briefInputOf(await briefForItem(args.profileId, item.provenance));
   const refusal = await generationRefusal(item);
   if (refusal)
-    throw new ContentError(`SYB won't propose generating media for this: ${refusal}`, 409);
+    throw new ContentError(`ScaleX won't propose generating media for this: ${refusal}`, 409);
 
   const [pending] = await db
     .select({ id: proposals.id })
@@ -486,7 +486,7 @@ export async function proposeGeneration(args: {
   const verdict = screenPrompt(prompt, await competitorNames(args.profileId));
   if (!verdict.ok) {
     throw new ContentError(
-      `SYB won't propose that: ${verdict.reason} ("${verdict.matched}"). Reword the direction, or film it.`,
+      `ScaleX won't propose that: ${verdict.reason} ("${verdict.matched}"). Reword the direction, or film it.`,
       422,
     );
   }
@@ -496,7 +496,7 @@ export async function proposeGeneration(args: {
   const accountId = await accountOf(args.profileId);
   const room = await capRoom({ accountId, targetItemId: item.id, now, caps: capsOf(setup) });
   const over = capRefusal(room, estimate);
-  if (over) throw new ContentError(`SYB won't propose that: ${over}`, 409);
+  if (over) throw new ContentError(`ScaleX won't propose that: ${over}`, 409);
 
   const { limits } = await ensureHardLimits(args.profileId, args.limitLlm ?? liveLimitLlm);
   // Generated media exists to be published: the owner's content limits apply to it.

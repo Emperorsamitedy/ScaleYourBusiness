@@ -268,7 +268,7 @@ describe("I-42 — the email reads the week on record", () => {
     const fake = fakeSender();
     await runWeeklySummaries(NOW, { accountIds: [b.account_id], send: fake.send, origin: ORIGIN });
     const mail = fake.sent[0]!;
-    expect(mail.subject).toBe("Your week with SYB: 1 waiting for you");
+    expect(mail.subject).toBe("Your week with ScaleX: 1 waiting for you");
     expect(mail.text).toContain("Raise the cut price to €42");
     expect(mail.text).toContain("held steady");
     expect(mail.text).not.toContain("An old line");
@@ -279,7 +279,7 @@ describe("I-42 — the email reads the week on record", () => {
     const b = await business();
     const fake = fakeSender();
     await runWeeklySummaries(NOW, { accountIds: [b.account_id], send: fake.send, origin: ORIGIN });
-    expect(fake.sent[0]?.subject).toBe("Your week with SYB: a quiet one");
+    expect(fake.sent[0]?.subject).toBe("Your week with ScaleX: a quiet one");
     const [row] = await db
       .select()
       .from(weeklySummaries)

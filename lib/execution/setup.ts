@@ -108,7 +108,7 @@ export interface AccessLevelCopy {
  * for it. Shown beside the button, so nobody signs in to be refused.
  */
 export const TESTER_NOTE =
-  "During the pilot, Facebook sign-in works only for invited testers. First Samuel or Tedi at SYB adds you as a Tester on SYB's Meta app, and you accept the invite from your own Facebook account. Meta then asks you to approve exactly the permissions listed above, and you pick the Page or ad account here.";
+  "During the pilot, Facebook sign-in works only for invited testers. First Samuel or Tedi at ScaleX adds you as a Tester on ScaleX's Meta app, and you accept the invite from your own Facebook account. Meta then asks you to approve exactly the permissions listed above, and you pick the Page or ad account here.";
 
 /**
  * Meta hands SYB's app every permission a person ever granted it, so a
@@ -116,7 +116,7 @@ export const TESTER_NOTE =
  * permissions too, and the exact match refuses it by name.
  */
 export const ONE_CONSENT_PER_FACEBOOK_ACCOUNT =
-  "One Facebook account can connect publishing or ad management through sign-in, not both: Meta gives SYB's app everything you granted it before, and SYB refuses a token holding more than this consent names. For the other one, use your own Meta app below.";
+  "One Facebook account can connect publishing or ad management through sign-in, not both: Meta gives ScaleX's app everything you granted it before, and ScaleX refuses a token holding more than this consent names. For the other one, use your own Meta app below.";
 
 /** Said where Facebook sign-in would be, while META_APP_ID and META_APP_SECRET aren't set. */
 export const FACEBOOK_LOGIN_OFF = "Not switched on yet.";
@@ -130,7 +130,7 @@ export function accessLevelCopy(level: MetaAccessLevel, facebookLogin = false): 
   if (level === "advanced") {
     return {
       level,
-      headline: "Meta has approved SYB to ask for these permissions.",
+      headline: "Meta has approved ScaleX to ask for these permissions.",
       body: "Any business can connect its own Page, Instagram account or ad account here.",
       routes: [
         {
@@ -150,15 +150,15 @@ export function accessLevelCopy(level: MetaAccessLevel, facebookLogin = false): 
   }
   return {
     level,
-    headline: "Meta hasn't approved SYB for open sign-up yet.",
-    body: "Until SYB's company registration and Meta's approvals (Advanced Access, Business Verification and Tech Provider verification) are in place, Meta itself refuses these permissions on any Page or ad account SYB's own business doesn't own. Two pilot routes work meanwhile.",
+    headline: "Meta hasn't approved ScaleX for open sign-up yet.",
+    body: "Until ScaleX's company registration and Meta's approvals (Advanced Access, Business Verification and Tech Provider verification) are in place, Meta itself refuses these permissions on any Page or ad account ScaleX's own business doesn't own. Two pilot routes work meanwhile.",
     routes: [
       {
         title: "Invited testers: sign in with Facebook",
         available: facebookLogin,
         detail: facebookLogin
-          ? "For testers the SYB team has added in Meta: Samuel or Tedi adds you in SYB's Meta app first, and you accept the invite."
-          : `For testers the SYB team has added in Meta. ${FACEBOOK_LOGIN_OFF}`,
+          ? "For testers the ScaleX team has added in Meta: Samuel or Tedi adds you in ScaleX's Meta app first, and you accept the invite."
+          : `For testers the ScaleX team has added in Meta. ${FACEBOOK_LOGIN_OFF}`,
       },
       {
         title: "Your own Meta app",
@@ -171,7 +171,7 @@ export function accessLevelCopy(level: MetaAccessLevel, facebookLogin = false): 
 
 /** Said beside every consent: connecting proves and records; it publishes nothing. */
 export const NOTHING_SENT_YET =
-  "Connecting proves the token and records your consent. Nothing is published or changed until you approve each item, and publishing through SYB isn't switched on yet.";
+  "Connecting proves the token and records your consent. Nothing is published or changed until you approve each item, and publishing through ScaleX isn't switched on yet.";
 
 /** Said beside disconnect: SYB's side forgets; Meta's side is the owner's to revoke. */
 export const DISCONNECT_NOTE =
@@ -189,11 +189,11 @@ export const ADS_ACCESS_TIER_WORDS: Readonly<Record<string, string>> = {
 
 /** Before the first ads call there is nothing to show — and the screen says so. */
 export const ADS_ACCESS_TIER_UNSEEN =
-  "not seen yet — Meta reports it on SYB's first call for an ad change";
+  "not seen yet — Meta reports it on ScaleX's first call for an ad change";
 
 /** Beside the tier: what it means for the owner, and what lifts it. */
 export const ADS_ACCESS_TIER_NOTE =
-  "Meta limits how many calls SYB may make on this ad account each hour, by tier. That is enough for one business, not a customer base. SYB waits for the next run whenever Meta reports 75% of the limit used. Higher limits need Meta's review, which SYB applies for once 500 successful calls in 15 days exist.";
+  "Meta limits how many calls ScaleX may make on this ad account each hour, by tier. That is enough for one business, not a customer base. ScaleX waits for the next run whenever Meta reports 75% of the limit used. Higher limits need Meta's review, which ScaleX applies for once 500 successful calls in 15 days exist.";
 
 /** Pure: the tier as the owner reads it. Unknown tiers are shown as Meta named them. */
 export function accessTierWords(tier: string | null): string {

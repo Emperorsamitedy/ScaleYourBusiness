@@ -403,7 +403,7 @@ export function createEmailCampaignExecutor(options: EmailCampaignOptions = {}):
         if (day.room <= 0) {
           throw new CampaignHold(
             "remaining",
-            `Your account has sent its ${CAMPAIGN_DAILY_RECIPIENT_CAP} campaign emails for today, the most SYB sends for one business in a day, so I stopped there. The rest go out after midnight UTC.`,
+            `Your account has sent its ${CAMPAIGN_DAILY_RECIPIENT_CAP} campaign emails for today, the most ScaleX sends for one business in a day, so I stopped there. The rest go out after midnight UTC.`,
             day.resets_in_ms,
           );
         }
@@ -457,8 +457,8 @@ export function createEmailCampaignExecutor(options: EmailCampaignOptions = {}):
           throw new CampaignHold(
             "remaining",
             outcome.status === 429
-              ? "The email service asked SYB to slow down. Nothing more was sent; the rest go out on the next run."
-              : "The email service refused SYB's own sending key. Nothing more was sent; the rest go out once SYB has fixed it.",
+              ? "The email service asked ScaleX to slow down. Nothing more was sent; the rest go out on the next run."
+              : "The email service refused ScaleX's own sending key. Nothing more was sent; the rest go out once ScaleX has fixed it.",
           );
         }
         await b.record(row.send_id, outcome);

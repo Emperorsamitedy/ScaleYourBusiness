@@ -305,7 +305,7 @@ describe("an external capability needs a live write consent", () => {
     expect(verdict.clear === false && verdict.reasons).toHaveLength(2);
   });
 
-  it("phone answering runs on SYB's own line: no business account to connect", async () => {
+  it("phone answering runs on ScaleX's own line: no business account to connect", async () => {
     const verdict = await check(
       { ...business(), capability: "phone_answering", country: QN, external: true },
       {

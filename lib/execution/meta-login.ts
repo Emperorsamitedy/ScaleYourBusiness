@@ -282,7 +282,7 @@ export function verifyLoginState(
   if (state.account_id !== args.accountId) {
     throw new MetaLoginError(
       "foreign",
-      "That Facebook sign-in was started from a different SYB account. Sign in to SYB as that account, or start again.",
+      "That Facebook sign-in was started from a different ScaleX account. Sign in to ScaleX as that account, or start again.",
       403,
     );
   }
@@ -449,7 +449,7 @@ export async function startMetaLogin(args: {
   now?: Date;
 }): Promise<{ authorize_url: string; nonce: string; provider: MetaExecutionProviderId }> {
   if (!isMetaLoginProvider(args.provider)) {
-    throw new MetaLoginError("provider", "That isn't a Meta connection SYB offers.", 422);
+    throw new MetaLoginError("provider", "That isn't a Meta connection ScaleX offers.", 422);
   }
   const provider = args.provider;
   if (args.config === null) {
@@ -510,8 +510,8 @@ async function candidatesFor(
 
 function nothingToPick(provider: MetaExecutionProviderId): string {
   return provider === "meta_publish"
-    ? "Meta showed SYB no Pages for that Facebook account. In Meta's dialog, choose the Page (and its Instagram account) you want SYB to publish to, then try again."
-    : "Meta showed SYB no ad accounts for that Facebook account. In Meta's dialog, choose the ad account you want SYB to manage, then try again.";
+    ? "Meta showed ScaleX no Pages for that Facebook account. In Meta's dialog, choose the Page (and its Instagram account) you want ScaleX to publish to, then try again."
+    : "Meta showed ScaleX no ad accounts for that Facebook account. In Meta's dialog, choose the ad account you want ScaleX to manage, then try again.";
 }
 
 /**
@@ -576,7 +576,7 @@ export async function completeMetaCallback(args: {
         kind: "failed",
         provider: hinted,
         reason: "signed_out",
-        message: "Sign in to SYB first, then connect Meta again.",
+        message: "Sign in to ScaleX first, then connect Meta again.",
       },
       { reason: "signed_out" },
     );
@@ -680,7 +680,7 @@ export async function listMetaCandidates(args: {
   now?: Date;
 }): Promise<CandidateList> {
   if (!isMetaLoginProvider(args.provider)) {
-    throw new MetaLoginError("provider", "That isn't a Meta connection SYB offers.", 422);
+    throw new MetaLoginError("provider", "That isn't a Meta connection ScaleX offers.", 422);
   }
   const provider = args.provider;
   const pending = openPending(args.pendingCookie, {
@@ -720,7 +720,7 @@ export async function finishMetaLogin(args: {
   userId?: string | null;
 }): Promise<PublicExecutionConnection> {
   if (!isMetaLoginProvider(args.provider)) {
-    throw new MetaLoginError("provider", "That isn't a Meta connection SYB offers.", 422);
+    throw new MetaLoginError("provider", "That isn't a Meta connection ScaleX offers.", 422);
   }
   const provider = args.provider;
   const pending = openPending(args.pendingCookie, {

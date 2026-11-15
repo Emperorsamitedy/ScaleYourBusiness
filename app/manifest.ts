@@ -13,15 +13,15 @@ import type { MetadataRoute } from "next";
 export default function manifest(): MetadataRoute.Manifest {
   return {
     id: "/",
-    name: "SYB",
-    short_name: "SYB",
+    name: "ScaleX",
+    short_name: "ScaleX",
     description: "What waits for your yes, and the card to decide it on.",
     start_url: "/proposals",
     scope: "/",
     display: "standalone",
     // The sheet system's masthead and desk (ux-spec §2).
-    background_color: "#132119",
-    theme_color: "#0E1A13",
+    background_color: "#0d1321",
+    theme_color: "#0D1321",
     icons: [
       { src: "/icon/192", sizes: "192x192", type: "image/png", purpose: "any" },
       { src: "/icon/512", sizes: "512x512", type: "image/png", purpose: "any" },

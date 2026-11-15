@@ -44,8 +44,8 @@ export const NAV_SERVICE_WORDS = {
     hu: "A NAV már kapcsolódik ehhez a vállalkozáshoz — előbb bontsa a kapcsolatot.",
   },
   revoked: {
-    en: "SYB has deleted your NAV technical user's details. Now delete the technical user in Online Számla too, so it can't be used again.",
-    hu: "A SYB törölte a NAV technikai felhasználó adatait. Most törölje a technikai felhasználót az Online Számlában is, hogy többé ne lehessen használni.",
+    en: "ScaleX has deleted your NAV technical user's details. Now delete the technical user in Online Számla too, so it can't be used again.",
+    hu: "A ScaleX törölte a NAV technikai felhasználó adatait. Most törölje a technikai felhasználót az Online Számlában is, hogy többé ne lehessen használni.",
   },
   degraded: {
     en: "NAV stopped accepting the technical user. Figures from NAV are paused; reconnect it in Connections.",

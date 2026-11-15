@@ -353,29 +353,31 @@ describe("siteWords English is what lib/site said before L-4c, byte for byte", (
     );
     expect(by("lcp_slow")?.threshold).toBe("good ≤ 2.5 s, poor > 4.0 s (Google)");
     expect(by("page_heavy")?.title.en).toBe("The page weighs 4.5 MB — audit-shop.example");
-    expect(by("page_heavy")?.threshold).toBe("heavy > 3.0 MB, very heavy > 6.0 MB (SYB)");
+    expect(by("page_heavy")?.threshold).toBe("heavy > 3.0 MB, very heavy > 6.0 MB (ScaleX)");
     expect(by("tap_targets")?.title.en).toBe(
       "3 buttons or links are too small or too close to tap — audit-shop.example",
     );
-    expect(by("tap_targets")?.threshold).toBe("any is a finding; 5 or more is medium (SYB)");
+    expect(by("tap_targets")?.threshold).toBe("any is a finding; 5 or more is medium (ScaleX)");
     expect(by("form_long")?.title.en).toBe(
       "The contact form asks for 9 things — audit-shop.example/pages/contact",
     );
     expect(by("form_long")?.detail.en).toBe(
       "2 of them required. Counted from the page's HTML; the form was not sent.",
     );
-    expect(by("form_long")?.threshold).toBe("6 or more fields is long, 9 or more very long (SYB)");
+    expect(by("form_long")?.threshold).toBe(
+      "6 or more fields is long, 9 or more very long (ScaleX)",
+    );
     expect(by("price_hidden")?.title.en).toBe(
       "No price on the first screen of “Blue bowl” — audit-shop.example/products/blue-bowl",
     );
     expect(by("price_hidden")?.threshold).toBe(
-      "a price within the first screen of a product or service page (SYB heuristic: the first 600 characters of the page's own text)",
+      "a price within the first screen of a product or service page (ScaleX heuristic: the first 600 characters of the page's own text)",
     );
     expect(by("broken_link")?.title.en).toMatch(
       /^A link on audit-shop\.example(\/[a-z/-]*)? is broken: audit-shop\.example\/collections\/sale answers 404$/,
     );
     expect(by("broken_link")?.threshold).toBe(
-      "any link on your own site answering 400 or above, or not loading (SYB)",
+      "any link on your own site answering 400 or above, or not loading (ScaleX)",
     );
     expect(by("lcp_slow")?.euro).toEqual({
       computed: false,
@@ -492,7 +494,7 @@ describe("the website screen in German", () => {
     expect(out.action.detail.find).toBe("Old words");
   });
 
-  it("keeps a sentence SYB no longer says as it was stored", () => {
+  it("keeps a sentence ScaleX no longer says as it was stored", () => {
     const row = proposalRow();
     row.action.summary = "An older summary";
     row.reversibility.if_you_change_your_mind = "An older reversal";

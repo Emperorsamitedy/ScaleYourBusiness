@@ -47,7 +47,7 @@ const DAY_MS = 86_400_000;
 
 /** The fixed sentence stored on a connection Google stopped accepting. */
 export const GOOGLE_AUTH_LOST =
-  "Google no longer accepts SYB's access. Revoke it and connect again to keep reading reviews.";
+  "Google no longer accepts ScaleX's access. Revoke it and connect again to keep reading reviews.";
 
 export interface BusinessRead {
   outcome: GoogleReadOutcome;

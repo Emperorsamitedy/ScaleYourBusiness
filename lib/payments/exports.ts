@@ -100,7 +100,7 @@ export function fileMessageId(now: Date): string {
     .toISOString()
     .replace(/[-:TZ.]/g, "")
     .slice(0, 14);
-  return `SYB${stamp}${randomBytes(4).toString("hex").toUpperCase()}`;
+  return `ScaleX${stamp}${randomBytes(4).toString("hex").toUpperCase()}`;
 }
 
 const sha256 = (s: string) => createHash("sha256").update(s, "utf8").digest("hex");

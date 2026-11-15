@@ -21,7 +21,7 @@ import type { MediaProvider } from "./provider";
 import { ProviderError } from "./provider";
 
 export const VENDOR_NOT_CHOSEN =
-  "the AI generation provider isn't chosen yet (its price quotes are still pending), so SYB can't generate media";
+  "the AI generation provider isn't chosen yet (its price quotes are still pending), so ScaleX can't generate media";
 
 export const vendorMediaProvider: MediaProvider = {
   id: "vendor",

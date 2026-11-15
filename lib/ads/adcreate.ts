@@ -158,7 +158,7 @@ export async function adConsentCurrent(accountId: string): Promise<boolean> {
 
 /** The sentence when the ad connection's consent predates ad creation. */
 export const RECONSENT_FOR_ADS =
-  "your Meta ad connection was agreed before SYB could create ads — reconnect it on Connections to agree to the new wording";
+  "your Meta ad connection was agreed before ScaleX could create ads — reconnect it on Connections to agree to the new wording";
 
 /** The Page (and Instagram account) an ad runs as: the publish connection's ids, never its token. */
 export async function adIdentityFor(
@@ -168,7 +168,7 @@ export async function adIdentityFor(
   if (!row || row.status !== "connected") {
     return {
       refused:
-        "An ad runs as your Facebook Page, and SYB reads which Page from the Meta publishing connection — connect it on Connections. Nothing was created.",
+        "An ad runs as your Facebook Page, and ScaleX reads which Page from the Meta publishing connection — connect it on Connections. Nothing was created.",
     };
   }
   const cred = parseMetaExecutionCredential(executionSecret(row), "meta_publish");
@@ -344,7 +344,7 @@ export async function proposeAdRun(profileId: string, args: AdRunArgs): Promise<
   const g = AD_GOALS[goal];
   const link = site ?? `https://www.facebook.com/${identity.page_id}`;
   const caption = publishCaption(item);
-  const name = item.title.trim().slice(0, 100) || "SYB ad";
+  const name = item.title.trim().slice(0, 100) || "ScaleX ad";
   const ad: AdRunParams = {
     build_tag: `SYB-${randomBytes(4).toString("hex")}`,
     item_id: item.id,

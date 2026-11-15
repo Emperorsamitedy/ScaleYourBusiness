@@ -29,8 +29,8 @@ import { useDemo } from "./Demos";
 import { LANDING_FIGURES as F, factWords, moneyDash, optionWords, stampTime } from "./words";
 
 const TOTAL_TICKS = WALK_SECONDS * 10;
-const pressed: CSSProperties = { background: "#F3DF4E", color: "#132119" };
-const FLAG_COLOR = { ACT: "#A3261B", HIGH: "#8A5300", LOW: "#8A5300", OK: "#2E6B47" } as const;
+const pressed: CSSProperties = { background: "#F3DF4E", color: "#0d1321" };
+const FLAG_COLOR = { ACT: "#A3261B", HIGH: "#8A5300", LOW: "#8A5300", OK: "#00754A" } as const;
 
 export function Walkthrough() {
   const { sample } = useDemo();
@@ -77,10 +77,10 @@ export function Walkthrough() {
   return (
     <figure className="ll-player" aria-label={tr("figure")}>
       <div className="ll-vbar">
-        <span className="ll-m" style={{ fontSize: 11, letterSpacing: ".12em", color: "#A9BDB2" }}>
+        <span className="ll-m" style={{ fontSize: 11, letterSpacing: ".12em", color: "#9AA3B2" }}>
           {tr("bar")}
         </span>
-        <span className="ll-m" style={{ fontSize: 11, color: "#A9BDB2" }}>
+        <span className="ll-m" style={{ fontSize: 11, color: "#9AA3B2" }}>
           {tr("chapterOf", {
             n: whole(f.scene + 1),
             total: whole(CHAPTERS.length),
@@ -92,9 +92,9 @@ export function Walkthrough() {
       <div className="ll-screen">
         <div className="ll-appbar">
           <span className="ll-s" style={{ fontWeight: 700, fontSize: 14 }}>
-            SYB
+            ScaleX
           </span>
-          <span className="ll-m" style={{ fontSize: 10.5, color: "#3E5248" }}>
+          <span className="ll-m" style={{ fontSize: 10.5, color: "#4A5263" }}>
             {chapterWord(chap.n, "crumb")}
           </span>
           <span className="ll-m" style={{ fontSize: 10.5, marginLeft: "auto", color: "#1F4FD1" }}>
@@ -108,7 +108,7 @@ export function Walkthrough() {
         >
           {f.scene === 0 && (
             <div className="ll-sc" key={`s1-${sample.id}`}>
-              <div className="ll-k" style={{ color: "#3E5248" }}>
+              <div className="ll-k" style={{ color: "#4A5263" }}>
                 {tr("s1.step", { n: whole(1) })}
               </div>
               <div className="ll-s" style={{ fontSize: 26, fontWeight: 600, marginTop: 6 }}>
@@ -125,7 +125,7 @@ export function Walkthrough() {
                 </div>
                 <div
                   className="ll-m"
-                  style={{ fontSize: 12, color: "#3E5248", marginTop: 8, lineHeight: 1.7 }}
+                  style={{ fontSize: 12, color: "#4A5263", marginTop: 8, lineHeight: 1.7 }}
                 >
                   {own("reads")}
                 </div>
@@ -133,7 +133,7 @@ export function Walkthrough() {
                   <>
                     <div
                       className="ll-m"
-                      style={{ fontSize: 12.5, color: "#2E6B47", fontWeight: 600, marginTop: 14 }}
+                      style={{ fontSize: 12.5, color: "#00754A", fontWeight: 600, marginTop: 14 }}
                     >
                       ✓ {tr("s1.connected", { months: F.readMonths })}
                     </div>
@@ -141,7 +141,7 @@ export function Walkthrough() {
                       <div
                         style={{
                           height: "100%",
-                          background: "#2E6B47",
+                          background: "#00754A",
                           width: `${f.connect.bar.toFixed(1)}%`,
                         }}
                       />
@@ -159,7 +159,7 @@ export function Walkthrough() {
           {f.scene === 1 && (
             <div className="ll-sc" key={`s2-${sample.id}`} style={{ display: "flex", gap: 18 }}>
               <div style={{ flex: "3 1 0", minWidth: 0 }}>
-                <div className="ll-k" style={{ color: "#3E5248" }}>
+                <div className="ll-k" style={{ color: "#4A5263" }}>
                   {tr("s2.step", { n: whole(2) })}
                 </div>
                 <div
@@ -180,9 +180,9 @@ export function Walkthrough() {
                     const mine = i === sample.record.picked;
                     const style: CSSProperties =
                       mine && f.question.picked
-                        ? { background: "#132119", color: "#F2F7F4" }
+                        ? { background: "#0d1321", color: "#FFFFFF" }
                         : mine && f.question.hovered
-                          ? { background: "#DFE9E3" }
+                          ? { background: "#EEF1F5" }
                           : { background: "#FFFFFF" };
                     return (
                       <div key={label} className="ll-opt" style={style}>
@@ -191,7 +191,7 @@ export function Walkthrough() {
                     );
                   })}
                 </div>
-                <div className="ll-m" style={{ fontSize: 11, color: "#3E5248", marginTop: 10 }}>
+                <div className="ll-m" style={{ fontSize: 11, color: "#4A5263", marginTop: 10 }}>
                   {tr("s2.range")}
                 </div>
               </div>
@@ -204,7 +204,7 @@ export function Walkthrough() {
                   paddingLeft: 14,
                 }}
               >
-                <div className="ll-k" style={{ color: "#3E5248" }}>
+                <div className="ll-k" style={{ color: "#4A5263" }}>
                   {tr("s2.record")}
                 </div>
                 {f.question.fact && (
@@ -238,7 +238,7 @@ export function Walkthrough() {
                 }}
               >
                 <div>
-                  <div className="ll-k" style={{ color: "#3E5248" }}>
+                  <div className="ll-k" style={{ color: "#4A5263" }}>
                     {tr("s3.step", { n: whole(3) })}
                   </div>
                   <div className="ll-s" style={{ fontSize: 26, fontWeight: 600, marginTop: 6 }}>
@@ -262,7 +262,7 @@ export function Walkthrough() {
                     key={d}
                     style={
                       d < f.watch.filled
-                        ? { height: 22, background: "#132119" }
+                        ? { height: 22, background: "#0d1321" }
                         : d === f.watch.filled
                           ? { height: 22, background: "#1F4FD1" }
                           : { height: 22, border: "1px solid rgba(19,33,25,.25)" }
@@ -272,7 +272,7 @@ export function Walkthrough() {
               </div>
               <div className="ll-s3-stats">
                 <div>
-                  <div className="ll-k" style={{ color: "#3E5248" }}>
+                  <div className="ll-k" style={{ color: "#4A5263" }}>
                     {tr("s3.day")}
                   </div>
                   <div className="ll-m ll-s3-fig">
@@ -280,13 +280,13 @@ export function Walkthrough() {
                   </div>
                 </div>
                 <div>
-                  <div className="ll-k" style={{ color: "#3E5248" }}>
+                  <div className="ll-k" style={{ color: "#4A5263" }}>
                     {tr("s3.readings")}
                   </div>
                   <div className="ll-m ll-s3-fig">{whole(f.watch.readings)}</div>
                 </div>
                 <div>
-                  <div className="ll-k" style={{ color: "#3E5248" }}>
+                  <div className="ll-k" style={{ color: "#4A5263" }}>
                     {tr("s3.changes")}
                   </div>
                   <div className="ll-m ll-s3-fig">{whole(0)}</div>
@@ -307,7 +307,7 @@ export function Walkthrough() {
                 }}
               >
                 <div>
-                  <div className="ll-k" style={{ color: "#3E5248" }}>
+                  <div className="ll-k" style={{ color: "#4A5263" }}>
                     {tr("s4.step", { n: whole(4) })}
                   </div>
                   <div className="ll-s" style={{ fontSize: 24, fontWeight: 600, marginTop: 4 }}>
@@ -315,7 +315,7 @@ export function Walkthrough() {
                   </div>
                 </div>
                 <div style={{ textAlign: "right" }}>
-                  <div className="ll-k" style={{ color: "#3E5248" }}>
+                  <div className="ll-k" style={{ color: "#4A5263" }}>
                     {tr("s4.leak")}
                   </div>
                   <div className="ll-s" style={{ fontSize: 26, fontWeight: 700, color: "#A3261B" }}>
@@ -368,17 +368,17 @@ export function Walkthrough() {
 
           {f.scene === 4 && (
             <div className="ll-sc" key={`s5-${sample.id}`}>
-              <div className="ll-k" style={{ color: "#3E5248" }}>
+              <div className="ll-k" style={{ color: "#4A5263" }}>
                 {tr("s5.step", { n: whole(5) })}
               </div>
               <div className="ll-mini-card" style={{ marginTop: 10, position: "relative" }}>
                 <div style={{ display: "flex", justifyContent: "space-between", gap: 10 }}>
-                  <span className="ll-m" style={{ fontSize: 11, color: "#3E5248" }}>
+                  <span className="ll-m" style={{ fontSize: 11, color: "#4A5263" }}>
                     {tr("s5.proposal", { area: own("area") })}
                   </span>
                   <span
                     className="ll-m"
-                    style={{ fontSize: 11, color: "#2E6B47", fontWeight: 600 }}
+                    style={{ fontSize: 11, color: "#00754A", fontWeight: 600 }}
                   >
                     {tr("s5.recommended")}
                   </span>
@@ -391,7 +391,7 @@ export function Walkthrough() {
                 </div>
                 <div className="ll-s5-figs">
                   <div>
-                    <div className="ll-k" style={{ color: "#3E5248" }}>
+                    <div className="ll-k" style={{ color: "#4A5263" }}>
                       {tr("s5.expected")}
                     </div>
                     <div className="ll-m" style={{ fontSize: 16, fontWeight: 600 }}>
@@ -402,7 +402,7 @@ export function Walkthrough() {
                     </div>
                   </div>
                   <div>
-                    <div className="ll-k" style={{ color: "#3E5248" }}>
+                    <div className="ll-k" style={{ color: "#4A5263" }}>
                       {tr("s5.undo")}
                     </div>
                     <div className="ll-m" style={{ fontSize: 16, fontWeight: 600 }}>
@@ -414,7 +414,7 @@ export function Walkthrough() {
                   <div className="ll-vbtn" style={f.approve.pressed ? pressed : undefined}>
                     {tr("s5.approve")} →
                   </div>
-                  <div className="ll-vbtn" style={{ background: "transparent", color: "#132119" }}>
+                  <div className="ll-vbtn" style={{ background: "transparent", color: "#0d1321" }}>
                     {tr("s5.decline")}
                   </div>
                 </div>
@@ -437,7 +437,7 @@ export function Walkthrough() {
                 }}
               >
                 <div>
-                  <div className="ll-k" style={{ color: "#3E5248" }}>
+                  <div className="ll-k" style={{ color: "#4A5263" }}>
                     {tr("s6.step", { n: whole(6) })}
                   </div>
                   <div className="ll-s" style={{ fontSize: 24, fontWeight: 600, marginTop: 4 }}>
@@ -445,7 +445,7 @@ export function Walkthrough() {
                   </div>
                 </div>
                 <div style={{ textAlign: "right" }}>
-                  <div className="ll-k" style={{ color: "#3E5248" }}>
+                  <div className="ll-k" style={{ color: "#4A5263" }}>
                     {tr("s6.recovered")}
                   </div>
                   <div className="ll-s" style={{ fontSize: 28, fontWeight: 700, color: "#26A69A" }}>
@@ -491,7 +491,7 @@ export function Walkthrough() {
               <svg viewBox="0 0 20 24" width="20" height="24">
                 <path
                   d="M2 1 L2 19 L7 14.5 L10.5 22 L13.5 20.6 L10 13.2 L16.5 13 Z"
-                  fill="#132119"
+                  fill="#0d1321"
                   stroke="#FFFFFF"
                   strokeWidth="1.4"
                 />
@@ -544,13 +544,13 @@ export function Walkthrough() {
                 top: -3,
                 width: 2,
                 height: 10,
-                background: "#0B140F",
+                background: "#080C16",
                 left: `${((i / 6) * 100).toFixed(2)}%`,
               }}
             />
           ))}
         </div>
-        <span className="ll-m" style={{ fontSize: 11.5, color: "#A9BDB2", whiteSpace: "nowrap" }}>
+        <span className="ll-m" style={{ fontSize: 11.5, color: "#9AA3B2", whiteSpace: "nowrap" }}>
           0:{String(Math.floor(t)).padStart(2, "0")} / 0:{WALK_SECONDS}
         </span>
       </div>

@@ -35,11 +35,11 @@ describe("P3-20h — what the consent screen offers", () => {
   it("the consent lines say, verbatim, what the task promised", () => {
     const lines = (id: "meta_publish" | "meta_ads") =>
       EXECUTION_SCOPE_REGISTRY[id].consent.map((c) => c.why).join(" ");
-    expect(lines("meta_publish")).toContain("SYB may publish posts to the Page you choose");
+    expect(lines("meta_publish")).toContain("ScaleX may publish posts to the Page you choose");
     expect(lines("meta_ads")).toContain(
-      "SYB may pause, resume or change the daily budget of campaigns",
+      "ScaleX may pause, resume or change the daily budget of campaigns",
     );
-    expect(lines("meta_ads")).toContain("SYB will never touch billing or payment methods");
+    expect(lines("meta_ads")).toContain("ScaleX will never touch billing or payment methods");
   });
 
   it("the fields the screen asks for are the ones the connector reads", () => {
@@ -93,7 +93,7 @@ describe("P3-20i — access-level honesty", () => {
   it("at standard: two pilot routes, and open sign-up said to wait on registration and Meta's approvals", () => {
     const copy = accessLevelCopy("standard");
     expect(copy.routes).toHaveLength(2);
-    expect(copy.headline).toMatch(/hasn't approved SYB for open sign-up/);
+    expect(copy.headline).toMatch(/hasn't approved ScaleX for open sign-up/);
     expect(copy.body).toContain("company registration");
     expect(copy.body).toMatch(/Advanced Access.*Business Verification.*Tech Provider/);
     // Without SYB's Meta app keys, Facebook Login (P3-20j) is shown as unavailable, not pretended.
@@ -114,7 +114,7 @@ describe("P3-20i — access-level honesty", () => {
     const route = copy.routes.find((r) => /Facebook/.test(r.title));
     expect(route?.available).toBe(true);
     expect(route?.detail).toMatch(/Samuel or Tedi adds you/);
-    expect(TESTER_NOTE).toMatch(/Tester on SYB's Meta app/);
+    expect(TESTER_NOTE).toMatch(/Tester on ScaleX's Meta app/);
     expect(TESTER_NOTE).toMatch(/Samuel or Tedi/);
     expect(
       accessLevelCopy("advanced", true).routes.find((r) => /Facebook/.test(r.title)),

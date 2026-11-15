@@ -160,9 +160,9 @@ describe("rule 26 — the scanner catches each thing it fences, planted delibera
       "money_op:pay(",
     ]);
     // Prose and nouns are not operations.
-    expect(rules("// SYB never pays, transfers or collects money; payout timing is read.")).toEqual(
-      [],
-    );
+    expect(
+      rules("// ScaleX never pays, transfers or collects money; payout timing is read."),
+    ).toEqual([]);
     expect(rules("export function payoutFor() {}")).toEqual([]);
   });
 

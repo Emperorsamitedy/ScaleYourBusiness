@@ -6,12 +6,12 @@
    loaded by a client-side navigation. Fonts come from app/layout.tsx. */
 
 body:has(.ll) {
-  background: #132119;
+  background: #0d1321;
 }
 
 .ll {
-  background: #132119;
-  color: #f2f7f4;
+  background: #0d1321;
+  color: #ffffff;
   font-family: var(--f-prose);
   font-size: 16px;
   line-height: normal;
@@ -48,7 +48,7 @@ body:has(.ll) {
 .ll-mark {
   background: #f3df4e;
   padding: 0 3px;
-  color: #132119;
+  color: #0d1321;
 }
 .ll-h2 {
   font-size: 52px;
@@ -71,9 +71,9 @@ body:has(.ll) {
   gap: 14px;
   min-height: 56px;
   padding: 0 24px;
-  background: #f2f7f4;
-  color: #132119;
-  border: 1px solid #f2f7f4;
+  background: #ffffff;
+  color: #0d1321;
+  border: 1px solid #ffffff;
   font-family: var(--f-mono);
   font-size: 13.5px;
   letter-spacing: 0.08em;
@@ -89,35 +89,35 @@ body:has(.ll) {
   border-color: #f3df4e;
 }
 .ll-go.ink {
-  background: #132119;
-  color: #f2f7f4;
-  border-color: #132119;
+  background: #0d1321;
+  color: #ffffff;
+  border-color: #0d1321;
 }
 .ll-go.ink:hover {
   background: #f3df4e;
-  color: #132119;
+  color: #0d1321;
 }
 .ll-go.line {
   background: transparent;
-  color: #f2f7f4;
+  color: #ffffff;
 }
 .ll-go.line:hover {
-  background: #f2f7f4;
-  color: #132119;
+  background: #ffffff;
+  color: #0d1321;
 }
 .ll-go-full {
   width: 100%;
   margin-top: 24px;
 }
 .ll-nl {
-  color: #a9bdb2;
+  color: #9aa3b2;
   text-decoration: none;
   font-family: var(--f-mono);
   font-size: 12px;
   letter-spacing: 0.06em;
 }
 .ll-nl:hover {
-  color: #f2f7f4;
+  color: #ffffff;
 }
 
 /* Keyboard focus: the design's yellow ring on everything. */
@@ -150,7 +150,7 @@ body:has(.ll) {
 .ll-logo {
   font-size: 24px;
   font-weight: 700;
-  color: #f2f7f4;
+  color: #ffffff;
   text-decoration: none;
 }
 .ll-nav {
@@ -182,7 +182,7 @@ body:has(.ll) {
 .ll-lede {
   font-size: 20px;
   line-height: 1.5;
-  color: #d6e2db;
+  color: #dfe4ea;
   margin: 28px 0 0;
   max-width: 25em;
 }
@@ -197,7 +197,7 @@ body:has(.ll) {
   gap: 22px;
   flex-wrap: wrap;
   font-size: 12.5px;
-  color: #c9d8cf;
+  color: #aeb6c4;
   margin-top: 26px;
 }
 
@@ -206,8 +206,8 @@ body:has(.ll) {
   flex: 1 1 600px;
   min-width: 0;
   margin: 0;
-  background: #0b140f;
-  border: 1px solid #2a3a31;
+  background: #080c16;
+  border: 1px solid #2a3245;
   padding: 0 0 14px;
 }
 .ll-vbar {
@@ -215,15 +215,15 @@ body:has(.ll) {
   justify-content: space-between;
   gap: 12px;
   padding: 10px 14px;
-  border-bottom: 1px solid #22332a;
+  border-bottom: 1px solid #1f2636;
   flex-wrap: wrap;
 }
 .ll-screen {
   position: relative;
   margin: 14px 14px 0;
-  background: #f2f7f4;
-  color: #132119;
-  border: 1px solid #0a120d;
+  background: #ffffff;
+  color: #0d1321;
+  border: 1px solid #070a12;
   overflow: hidden;
 }
 .ll-appbar {
@@ -261,8 +261,8 @@ body:has(.ll) {
 .ll-tagg {
   font-size: 10px;
   letter-spacing: 0.1em;
-  border: 1px solid #2e6b47;
-  color: #2e6b47;
+  border: 1px solid #00754a;
+  color: #00754a;
   padding: 2px 6px;
 }
 .ll-vbtn {
@@ -271,13 +271,13 @@ body:has(.ll) {
   height: 36px;
   padding: 0 14px;
   margin-top: 14px;
-  border: 1px solid #132119;
+  border: 1px solid #0d1321;
   font-family: var(--f-mono);
   font-size: 12px;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  background: #132119;
-  color: #f2f7f4;
+  background: #0d1321;
+  color: #ffffff;
   transition:
     background-color 0.15s,
     color 0.15s;
@@ -287,7 +287,7 @@ body:has(.ll) {
   display: flex;
   align-items: center;
   justify-content: center;
-  border: 1px solid #132119;
+  border: 1px solid #0d1321;
   font-family: var(--f-mono);
   font-size: 12px;
   transition:
@@ -336,7 +336,7 @@ body:has(.ll) {
   display: flex;
   justify-content: space-between;
   font-size: 11px;
-  color: #3e5248;
+  color: #4a5263;
 }
 .ll-s4row {
   display: grid;
@@ -365,23 +365,23 @@ body:has(.ll) {
   top: 2px;
   height: 9px;
   background: rgba(46, 107, 71, 0.24);
-  border-left: 1px solid #2e6b47;
-  border-right: 1px solid #2e6b47;
+  border-left: 1px solid #00754a;
+  border-right: 1px solid #00754a;
 }
 .ll-rbar-tick {
   position: absolute;
   top: -3px;
   width: 3px;
   height: 19px;
-  background: #132119;
+  background: #0d1321;
   margin-left: -1px;
 }
 .ll-stampv {
   position: absolute;
   right: 14px;
   top: 40px;
-  border: 3px solid #2e6b47;
-  color: #2e6b47;
+  border: 3px solid #00754a;
+  color: #00754a;
   background: rgba(255, 255, 255, 0.9);
   font-family: var(--f-mono);
   font-weight: 600;
@@ -427,7 +427,7 @@ body:has(.ll) {
   bottom: 12px;
   transform: translateX(-50%);
   background: rgba(11, 20, 15, 0.92);
-  color: #f2f7f4;
+  color: #ffffff;
   font-size: 14px;
   padding: 7px 14px;
   white-space: nowrap;
@@ -443,8 +443,8 @@ body:has(.ll) {
   width: 38px;
   height: 34px;
   flex: 0 0 auto;
-  background: #f2f7f4;
-  color: #132119;
+  background: #ffffff;
+  color: #0d1321;
   border: 0;
   font-family: var(--f-mono);
   font-size: 13px;
@@ -471,18 +471,18 @@ body:has(.ll) {
   text-align: left;
   padding: 7px 9px;
   background: transparent;
-  color: #a9bdb2;
+  color: #9aa3b2;
   border: 1px solid rgba(242, 247, 244, 0.12);
   cursor: pointer;
 }
 .ll-chap:hover {
-  color: #f2f7f4;
+  color: #ffffff;
   border-color: rgba(242, 247, 244, 0.4);
 }
 .ll-chap.on {
-  color: #132119;
-  background: #f2f7f4;
-  border-color: #f2f7f4;
+  color: #0d1321;
+  background: #ffffff;
+  border-color: #ffffff;
 }
 
 /* ── the demo switch: which illustrative business the page shows ──
@@ -499,7 +499,7 @@ body:has(.ll) {
   margin-bottom: 10px;
 }
 .ll-demo-k {
-  color: #a9bdb2;
+  color: #9aa3b2;
   margin-right: 8px;
 }
 .ll-demo-b {
@@ -509,7 +509,7 @@ body:has(.ll) {
   min-height: 40px;
   padding: 0 14px;
   background: transparent;
-  color: #c9d8cf;
+  color: #aeb6c4;
   border: 1px solid rgba(242, 247, 244, 0.25);
   border-radius: 0;
   cursor: pointer;
@@ -518,13 +518,13 @@ body:has(.ll) {
     color 0.1s;
 }
 .ll-demo-b:hover {
-  color: #f2f7f4;
+  color: #ffffff;
   border-color: rgba(242, 247, 244, 0.5);
 }
 .ll-demo-b.on {
-  color: #132119;
-  background: #f2f7f4;
-  border-color: #f2f7f4;
+  color: #0d1321;
+  background: #ffffff;
+  border-color: #ffffff;
 }
 .ll-sec-side {
   display: flex;
@@ -538,7 +538,7 @@ body:has(.ll) {
 
 /* ── the chart ── */
 .ll-band-deep {
-  background: #0b140f;
+  background: #080c16;
   border-top: 1px solid rgba(242, 247, 244, 0.1);
   border-bottom: 1px solid rgba(242, 247, 244, 0.1);
 }
@@ -556,7 +556,7 @@ body:has(.ll) {
 .ll-tv {
   background: #ffffff;
   color: #131722;
-  border: 1px solid #0a120d;
+  border: 1px solid #070a12;
 }
 .ll-tv-bar {
   display: flex;
@@ -614,7 +614,7 @@ body:has(.ll) {
 }
 .ll-chart-key > div {
   font-size: 13px;
-  color: #c9d8cf;
+  color: #aeb6c4;
   line-height: 1.6;
 }
 .ll-chart-keybox {
@@ -631,8 +631,8 @@ body:has(.ll) {
 
 /* ── paper bands: the nine panels and the price ── */
 .ll-paper {
-  background: #f2f7f4;
-  color: #132119;
+  background: #ffffff;
+  color: #0d1321;
 }
 .ll-pad-96 {
   padding-top: 96px;
@@ -642,7 +642,7 @@ body:has(.ll) {
   list-style: none;
   margin: 48px 0 0;
   padding: 0;
-  border-top: 2px solid #132119;
+  border-top: 2px solid #0d1321;
 }
 .ll-panel {
   display: grid;
@@ -654,7 +654,7 @@ body:has(.ll) {
 }
 .ll-panel-no {
   font-size: 13px;
-  color: #3e5248;
+  color: #4a5263;
 }
 .ll-panel-name {
   font-size: 26px;
@@ -662,7 +662,7 @@ body:has(.ll) {
 }
 .ll-panel-markers {
   font-size: 13px;
-  color: #3e5248;
+  color: #4a5263;
   line-height: 1.6;
 }
 
@@ -696,7 +696,7 @@ body:has(.ll) {
 }
 .ll-step-d {
   font-size: 16px;
-  color: #c9d8cf;
+  color: #aeb6c4;
   margin: 8px 0 0;
   line-height: 1.5;
 }
@@ -713,7 +713,7 @@ body:has(.ll) {
 }
 .ll-price-card {
   flex: 1 1 460px;
-  border: 1px solid #132119;
+  border: 1px solid #0d1321;
   padding: 32px 34px;
 }
 .ll-price-top {
@@ -722,7 +722,7 @@ body:has(.ll) {
   align-items: baseline;
   gap: 16px;
   flex-wrap: wrap;
-  border-bottom: 3px double #132119;
+  border-bottom: 3px double #0d1321;
   padding-bottom: 16px;
 }
 .ll-price-fig {
@@ -744,7 +744,7 @@ body:has(.ll) {
 .ll-refund {
   font-size: 14px;
   margin: 14px 0 0;
-  color: #3e5248;
+  color: #4a5263;
 }
 
 /* ── questions ── */
@@ -789,7 +789,7 @@ body:has(.ll) {
   margin: 0 0 22px;
   font-size: 16px;
   line-height: 1.6;
-  color: #c9d8cf;
+  color: #aeb6c4;
 }
 
 /* ── footer ── */
@@ -810,7 +810,7 @@ body:has(.ll) {
   text-decoration: none;
 }
 .ll-foot-in a:not(.ll-go):hover {
-  color: #f2f7f4;
+  color: #ffffff;
   text-decoration: underline;
 }
 

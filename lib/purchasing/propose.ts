@@ -489,7 +489,7 @@ export function purchaseOrderProposal(
         arithmetic: formula,
         evidence: rows.map((r) => `${r.item.name}: ${r.cover.warning?.sentence ?? ""}`.trim()),
         manual_limits: verdict.manual.map((l) => l.quote),
-        sending: `Approving emails this order to ${po.supplier.email}, from SYB's address with replies going to you. A sent email can't be recalled, and I never change, cancel or pay an order: you do.`,
+        sending: `Approving emails this order to ${po.supplier.email}, from ScaleX's address with replies going to you. A sent email can't be recalled, and I never change, cancel or pay an order: you do.`,
       },
     },
     scenario: {

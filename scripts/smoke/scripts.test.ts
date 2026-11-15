@@ -27,7 +27,7 @@ const SENTINELS = {
 
 const ENV = {
   ...SENTINELS,
-  EMAIL_FROM: "SYB <hello@syb.example>",
+  EMAIL_FROM: "ScaleX <hello@syb.example>",
   APP_URL: "https://app.syb.example",
   SUPPORT_INBOUND_DOMAIN: "inbound.syb.example",
 };
@@ -55,7 +55,7 @@ describe("smoke:email", () => {
     const cases: [Record<string, string | undefined>, string[]][] = [
       [{ ...ENV, RESEND_API_KEY: "" }, ["--to", "me@syb.example", "--yes"]],
       [ENV, ["--yes"]],
-      [{ ...ENV, EMAIL_FROM: "SYB <onboarding@resend.dev>" }, ["--to", "me@x.example", "--yes"]],
+      [{ ...ENV, EMAIL_FROM: "ScaleX <onboarding@resend.dev>" }, ["--to", "me@x.example", "--yes"]],
       [{ ...ENV, APP_URL: "http://app.syb.example" }, ["--to", "me@x.example", "--yes"]],
       [ENV, ["--to", "me@x.example"]],
     ];
@@ -136,7 +136,7 @@ function inboundDeps(over: Partial<InboundDeps> = {}, landingAfter = 2): Inbound
 }
 
 describe("smoke:inbound", () => {
-  it("refuses without its keys, a profile id, a sender, or when the sender is SYB's own", async () => {
+  it("refuses without its keys, a profile id, a sender, or when the sender is ScaleX's own", async () => {
     const cases: [Record<string, string | undefined>, string[]][] = [
       [{ ...ENV, SUPPORT_INBOUND_DOMAIN: "" }, ["--profile", PROFILE, "--from", "me@x.example"]],
       [ENV, ["--profile", "nope", "--from", "me@x.example"]],

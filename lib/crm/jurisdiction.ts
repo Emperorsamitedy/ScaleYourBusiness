@@ -167,7 +167,7 @@ export function applicableRegimes(args: {
   if (own === null) {
     return {
       ok: false,
-      reason: `SYB doesn't yet know the email marketing rules for ${args.businessCountry.trim()} — nothing is sent there`,
+      reason: `ScaleX doesn't yet know the email marketing rules for ${args.businessCountry.trim()} — nothing is sent there`,
     };
   }
   const regimes = [own];
@@ -177,7 +177,7 @@ export function applicableRegimes(args: {
     if (other === null) {
       return {
         ok: false,
-        reason: `SYB doesn't yet know the email marketing rules for the recipient's country (${theirs.trim()})`,
+        reason: `ScaleX doesn't yet know the email marketing rules for the recipient's country (${theirs.trim()})`,
       };
     }
     if (other.id !== own.id) regimes.push(other);
@@ -215,7 +215,7 @@ export function messageGaps(
 ): string[] {
   const byId = new Map(regimes.map((g) => [g.id, g]));
   return messageGapParts(message, regimes, scope).map((p) => {
-    if (p.requirement === "disclosure") return "the AI disclosure line (SYB, everywhere)";
+    if (p.requirement === "disclosure") return "the AI disclosure line (ScaleX, everywhere)";
     const why = p.regimes.map((id) => byId.get(id)?.label.split(" — ")[0] ?? id);
     const words =
       scope === "draft" && p.requirement === "sender_identity"

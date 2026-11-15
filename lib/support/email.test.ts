@@ -533,7 +533,7 @@ describe("review #17 — a huge or malformed reference header can't break thread
   });
 });
 
-describe("review #12 — SYB's own mail, forwarded back, is never a ticket", () => {
+describe("review #12 — ScaleX's own mail, forwarded back, is never a ticket", () => {
   const saved = { from: process.env.EMAIL_FROM, campaign: process.env.CAMPAIGN_EMAIL_FROM };
   afterEach(() => {
     if (saved.from === undefined) delete process.env.EMAIL_FROM;
@@ -558,15 +558,15 @@ describe("review #12 — SYB's own mail, forwarded back, is never a ticket", () 
   }
 
   it("a sign-in link sent to the forwarded mailbox is dropped with a no-PII log line", async () => {
-    process.env.EMAIL_FROM = "SYB <login@syb-mail.test>";
+    process.env.EMAIL_FROM = "ScaleX <login@syb-mail.test>";
     const b = await business();
     const link = "https://syb.example/api/auth/redeem?token=SECRET-SIGN-IN-TOKEN";
     const magic = fixture({
-      from: "SYB <login@syb-mail.test>",
+      from: "ScaleX <login@syb-mail.test>",
       to: ["info@shop.example"],
       received_for: [b.address],
-      subject: "Your sign-in link — SYB",
-      text: `Click to sign in to SYB:\n\n${link}\n\nThe link works once.`,
+      subject: "Your sign-in link — ScaleX",
+      text: `Click to sign in to ScaleX:\n\n${link}\n\nThe link works once.`,
     });
     const log = vi.spyOn(console, "log").mockImplementation(() => {});
     try {
@@ -590,20 +590,20 @@ describe("review #12 — SYB's own mail, forwarded back, is never a ticket", () 
   });
 
   it("CAMPAIGN_EMAIL_FROM, when set, is ours too; unset, Resend's default sender is", async () => {
-    process.env.EMAIL_FROM = "SYB <login@syb-mail.test>";
-    process.env.CAMPAIGN_EMAIL_FROM = "Fernhill via SYB <news@campaigns-mail.test>";
+    process.env.EMAIL_FROM = "ScaleX <login@syb-mail.test>";
+    process.env.CAMPAIGN_EMAIL_FROM = "Fernhill via ScaleX <news@campaigns-mail.test>";
     const b = await business();
     const campaign = fixture({ from: "news@campaigns-mail.test", to: [b.address] });
     expect(await receiveInboundEmail(normalised(campaign), DOMAIN)).toEqual({ kind: "own_mail" });
     delete process.env.CAMPAIGN_EMAIL_FROM;
     delete process.env.EMAIL_FROM;
-    const fallback = fixture({ from: "SYB <onboarding@resend.dev>", to: [b.address] });
+    const fallback = fixture({ from: "ScaleX <onboarding@resend.dev>", to: [b.address] });
     expect(await receiveInboundEmail(normalised(fallback), DOMAIN)).toEqual({ kind: "own_mail" });
     await nothingFiledFor(b);
   });
 
   it("the passing case: a customer's mail — even one mentioning our domain — is filed", async () => {
-    process.env.EMAIL_FROM = "SYB <login@syb-mail.test>";
+    process.env.EMAIL_FROM = "ScaleX <login@syb-mail.test>";
     const b = await business();
     const customer = fixture({
       from: "Ana <ana@not-syb-mail.test>",

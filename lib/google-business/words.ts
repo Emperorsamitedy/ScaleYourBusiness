@@ -5,26 +5,26 @@
 
 /** Said beside the consent, in one breath. */
 export const GOOGLE_WHAT_IT_CAN_DO =
-  "Google's permission can also post replies to your reviews and edit your Business Profile listing. SYB only reads your reviews with it. You can revoke it any time.";
+  "Google's permission can also post replies to your reviews and edit your Business Profile listing. ScaleX only reads your reviews with it. You can revoke it any time.";
 
 /** Said while the connection is off for want of SYB's setup. */
 export const GOOGLE_NOT_SET_UP =
-  "Not set up yet. Google lets apps read Business Profile reviews only after it approves them, and SYB's approval isn't in place yet. Until then, forward Google's review emails or paste a review.";
+  "Not set up yet. Google lets apps read Business Profile reviews only after it approves them, and ScaleX's approval isn't in place yet. Until then, forward Google's review emails or paste a review.";
 
 /** What must be true before it works. */
 export const GOOGLE_NEEDS: readonly string[] = [
-  "SYB's approval from Google to use the Business Profile APIs (Google's own review of SYB).",
+  "ScaleX's approval from Google to use the Business Profile APIs (Google's own review of ScaleX).",
   "You sign in with the Google account that manages your Business Profile, and allow the one permission Google asks about.",
-  "If you manage more than one location, you pick the one SYB reads.",
+  "If you manage more than one location, you pick the one ScaleX reads.",
 ];
 
 /** Said beside the connect button: what connecting does and doesn't do. */
 export const GOOGLE_NOTHING_WRITTEN =
-  "Connecting records your consent and reads your reviews once a day. SYB never replies and never edits your listing: it only reads from Google.";
+  "Connecting records your consent and reads your reviews once a day. ScaleX never replies and never edits your listing: it only reads from Google.";
 
 /** Said beside revoke. */
 export const GOOGLE_REVOKE_NOTE =
-  "Revoking deletes SYB's access here at once, and SYB stops reading. Reviews already read stay on Reviews until you remove them or their year is up. To remove SYB on Google's side too, open your Google Account's Security page, then Third-party connections.";
+  "Revoking deletes ScaleX's access here at once, and ScaleX stops reading. Reviews already read stay on Reviews until you remove them or their year is up. To remove ScaleX on Google's side too, open your Google Account's Security page, then Third-party connections.";
 
 /** On /reviews: how the Google reviews got there. */
 export const GOOGLE_READ_NOTE = "Read from your Google Business Profile.";

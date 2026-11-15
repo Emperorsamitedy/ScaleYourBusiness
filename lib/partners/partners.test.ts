@@ -296,7 +296,7 @@ describe("§7.7 — a partner action is in the owner's audit trail with the part
 });
 
 describe("§7.3 — white-label commentary survives a diagnosis re-run", { timeout: 120_000 }, () => {
-  it("the firm's words stay on their section across report versions, kept apart from SYB's", async () => {
+  it("the firm's words stay on their section across report versions, kept apart from ScaleX's", async () => {
     await loadBank("specs/question-bank-v1.json");
     const p = await partner();
     const c = await client();
@@ -498,7 +498,7 @@ describe(
 );
 
 describe("§7.6 — bulk onboarding: 40 clients in one session", { timeout: 120_000 }, () => {
-  it("one CSV asks 40 clients in their own language; a client grants with no SYB account of their own", async () => {
+  it("one CSV asks 40 clients in their own language; a client grants with no ScaleX account of their own", async () => {
     const p = await partner();
     const sent: MandateEmail[] = [];
     const csv = [

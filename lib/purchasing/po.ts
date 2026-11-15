@@ -277,7 +277,7 @@ export function sendingMode(env: Readonly<Record<string, string | undefined>>): 
 /** Pure: '"Fernhill Ceramics via SYB" <address>' — the business's name, SYB's verified address. */
 export function poFromHeader(business: string, address: string): string {
   const name = business.replace(/["<>\r\n\\]/g, "").trim() || "A business";
-  return `"${name} via SYB" <${address}>`;
+  return `"${name} via ScaleX" <${address}>`;
 }
 
 /* ── the words ── */

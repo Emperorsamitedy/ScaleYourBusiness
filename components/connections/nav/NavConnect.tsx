@@ -101,8 +101,8 @@ export function NavConnect({ hu }: { hu: boolean }) {
       </label>
       <p className="auth-copy">
         {t(
-          "A cserekulcsra nincs szükség — a SYB soha nem kéri.",
-          "The exchange key isn't needed — SYB never asks for it.",
+          "A cserekulcsra nincs szükség — a ScaleX soha nem kéri.",
+          "The exchange key isn't needed — ScaleX never asks for it.",
         )}
       </p>
       {state.kind === "error" && (

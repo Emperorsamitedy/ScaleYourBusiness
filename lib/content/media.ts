@@ -136,7 +136,7 @@ export function vercelBlobStore(
     async get(url, maxBytes) {
       // A public Blob URL is fetchable as it stands; the store's own host only.
       if (!/^https:\/\/[a-z0-9-]+\.public\.blob\.vercel-storage\.com\//.test(url)) {
-        throw new MediaError("that address isn't in SYB's media store", 422);
+        throw new MediaError("that address isn't in ScaleX's media store", 422);
       }
       const res = await fetch(url, { signal: signal(opts.putTimeoutMs, BLOB_GET_TIMEOUT_MS) });
       if (!res.ok) throw new MediaError(`the stored file couldn't be read (${res.status})`, 502);

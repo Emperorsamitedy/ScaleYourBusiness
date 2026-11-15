@@ -276,7 +276,7 @@ describe("P2-20 — the consent", () => {
     expect(rows).toEqual([]);
   });
 
-  it("refuses a forged state and one from another SYB account", async () => {
+  it("refuses a forged state and one from another ScaleX account", async () => {
     const s = await business();
     const other = await business();
     const forged = signGoogleAdsState({

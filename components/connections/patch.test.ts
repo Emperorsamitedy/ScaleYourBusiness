@@ -46,7 +46,7 @@ describe("headline", () => {
       provider: "google_business_reviews",
     };
     expect(headline([], [google])).toBe(
-      "Nothing is plugged in yet. Google Business Profile reviews holds a permission that could write; SYB only reads with it.",
+      "Nothing is plugged in yet. Google Business Profile reviews holds a permission that could write; ScaleX only reads with it.",
     );
     expect(
       headline(
@@ -54,7 +54,7 @@ describe("headline", () => {
         [google, { status: "connected", label: "Meta publishing", provider: "meta_publish" }],
       ),
     ).toBe(
-      "Nothing is plugged in yet. Meta publishing can write — only what you approve. Google Business Profile reviews holds a permission that could write; SYB only reads with it.",
+      "Nothing is plugged in yet. Meta publishing can write — only what you approve. Google Business Profile reviews holds a permission that could write; ScaleX only reads with it.",
     );
     expect(headline([], [{ ...google, status: "disconnected" }])).toBe(
       "Nothing is plugged in yet. Nothing can be written.",

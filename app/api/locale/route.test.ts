@@ -121,7 +121,7 @@ describe("PUT /api/locale — the person's own language", () => {
     expect(await languageOf(biz.owner.user_id)).toBeNull();
   });
 
-  it("refuses a language SYB doesn't speak", async () => {
+  it("refuses a language ScaleX doesn't speak", async () => {
     signIn(null, null);
     for (const language of ["xx", "de", "en-US", 7, null]) {
       expect((await ownPUT(put("/api/locale", { language }))).status, String(language)).toBe(422);

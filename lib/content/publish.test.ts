@@ -91,7 +91,7 @@ describe("P3-21a — which drafts qualify, and why the rest don't", () => {
     expect(
       reason(ready({ platform: "youtube", item: { ...DRAFT, channel_label: "youtube" } })),
     ).toBe(
-      "SYB can't publish to youtube — only to a Facebook Page, an Instagram account or a TikTok account you connect",
+      "ScaleX can't publish to youtube — only to a Facebook Page, an Instagram account or a TikTok account you connect",
     );
     expect(reason(ready({ platform: null }))).toMatch(/can't publish to facebook/);
     expect(reason(ready({ assets: null }))).toBe(

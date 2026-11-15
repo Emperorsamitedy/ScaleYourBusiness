@@ -213,7 +213,7 @@ export function createGoogleAdsReadSource(opts: GoogleAdsReadOptions = {}): Goog
     label: "Google Ads",
     async pull(secret, cursor, now) {
       const env = envOf();
-      if (env === null) throw new ProviderError("google ads: not set up on SYB yet");
+      if (env === null) throw new ProviderError("google ads: not set up on ScaleX yet");
       const s = readGoogleAdsSecret(secret);
       const plan = planWindow({
         cursor,

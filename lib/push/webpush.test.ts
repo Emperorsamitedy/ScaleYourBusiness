@@ -127,7 +127,7 @@ describe("RFC 8291 payload encryption", () => {
 
   it("is something a browser holding the subscription's private key can read", () => {
     const body = encryptPayload({
-      plaintext: Buffer.from('{"title":"SYB"}'),
+      plaintext: Buffer.from('{"title":"ScaleX"}'),
       uaPublic: fromB64url(UA_PUBLIC),
       authSecret: fromB64url(AUTH),
     });
@@ -139,7 +139,7 @@ describe("RFC 8291 payload encryption", () => {
     );
     expect(rs).toBe(4096);
     expect(padded.at(-1)).toBe(0x02); // the last-record delimiter
-    expect(padded.subarray(0, -1).toString()).toBe('{"title":"SYB"}');
+    expect(padded.subarray(0, -1).toString()).toBe('{"title":"ScaleX"}');
   });
 
   it("draws a fresh key pair and salt for every message", () => {

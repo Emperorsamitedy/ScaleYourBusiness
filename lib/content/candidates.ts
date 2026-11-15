@@ -124,7 +124,7 @@ export const DIRECTION_REFUSED =
 export const NEEDS_BRIEF =
   "AI video is made from a creative brief's hook: make this shot list from a brief in the studio first";
 export const NEEDS_FACTS =
-  "SYB doesn't know yet what the business sells, so there is nothing true to film — answer that in the interview first";
+  "ScaleX doesn't know yet what the business sells, so there is nothing true to film — answer that in the interview first";
 
 /** sha256 of a set's exact prompts, the fixed instruction included — what the approval covers. */
 export function promptsHash(prompts: readonly string[]): string {
@@ -160,7 +160,7 @@ export async function proposeCandidates(args: {
     const verdict = screenPrompt(prompt, brands);
     if (!verdict.ok) {
       throw new ContentError(
-        `SYB won't propose that: ${verdict.reason} ("${verdict.matched}"), from your profile facts or the brief. Change that fact, or film it.`,
+        `ScaleX won't propose that: ${verdict.reason} ("${verdict.matched}"), from your profile facts or the brief. Change that fact, or film it.`,
         422,
       );
     }
@@ -172,7 +172,7 @@ export async function proposeCandidates(args: {
   const accountId = await accountOf(args.profileId);
   const room = await capRoom({ accountId, targetItemId: item.id, now: args.now, caps: args.caps });
   const over = capRefusal(room, total);
-  if (over) throw new ContentError(`SYB won't propose that: ${over}`, 409);
+  if (over) throw new ContentError(`ScaleX won't propose that: ${over}`, 409);
 
   const { limits } = await ensureHardLimits(args.profileId, args.limitLlm ?? liveLimitLlm);
   const limit = checkHardLimits(limits, "content_publishing");
@@ -954,7 +954,7 @@ export async function collectCandidates(
     } else if (caps.currency !== c.currency || each.currency !== c.currency) {
       found = {
         log,
-        reason: `the provider's prices aren't in ${c.currency} any more, and SYB doesn't convert money`,
+        reason: `the provider's prices aren't in ${c.currency} any more, and ScaleX doesn't convert money`,
       };
     } else {
       const [proposal] = await db
@@ -1015,7 +1015,7 @@ export async function collectCandidates(
         await failCandidate(
           ctx,
           c,
-          `SYB never heard back from ${ctx.provider.id} about this request within ${HOURS} hours${lost > 0 ? "; it may have been billed, so it is counted as spent" : ""}`,
+          `ScaleX never heard back from ${ctx.provider.id} about this request within ${HOURS} hours${lost > 0 ? "; it may have been billed, so it is counted as spent" : ""}`,
           charged + lost,
         );
         return "swept";
@@ -1113,7 +1113,7 @@ export async function collectCandidates(
     } catch (error) {
       if (!(error instanceof ProviderError)) throw error;
       if (error.retryable) {
-        await release(c.id, `${error.message}; SYB tries again on its next check`);
+        await release(c.id, `${error.message}; ScaleX tries again on its next check`);
         return "waiting";
       }
       const cost = error.cost?.currency === ctx.caps.currency ? error.cost.amount_minor : 0;

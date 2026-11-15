@@ -12,9 +12,9 @@
   /* the desk */
   --stage: var(--desk);
   --card-solid: var(--masthead);
-  --raised: #1c2e24; /* desk-ink 12.6:1 · desk-ink-2 9.3:1 */
+  --raised: #1a2233; /* desk-ink 12.6:1 · desk-ink-2 9.3:1 */
   --glass: var(--paper);
-  --glass-strong: #1c2e24;
+  --glass-strong: #1a2233;
   --ink: var(--desk-ink);
   --mut: var(--desk-ink-2);
   --hair: var(--desk-rule);
@@ -1177,7 +1177,7 @@ a.auth-cta {
   color: var(--desk-ink);
 }
 .app-rail-item.active {
-  background: #1c2e24;
+  background: #1a2233;
   border-left-color: var(--desk-ink);
   color: var(--desk-ink);
   font-weight: 600;
@@ -1523,4 +1523,31 @@ a.auth-cta {
 /* /growth: the brand voice reads as the owner's own paragraph */
 .growth-voice {
   white-space: pre-line;
+}
+
+/* ── The ScaleX logo (components/brand/Mark.tsx, 2026-11-15): the mark
+   and the wordmark, "Scale" in the ground's ink and the X in Accent. It
+   takes its size from the masthead it sits in. ── */
+.brand-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.42em;
+  line-height: 1;
+}
+.brand-logo svg {
+  width: 1.15em;
+  height: 1.15em;
+  flex: none;
+}
+.brand-word {
+  font-family: var(--f-prose);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--sheet-ink);
+}
+.brand-word.on-dark {
+  color: #ffffff;
+}
+.brand-x {
+  color: var(--accent);
 }

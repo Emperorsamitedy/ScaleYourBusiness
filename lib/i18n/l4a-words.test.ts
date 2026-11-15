@@ -266,7 +266,7 @@ describe("the watch (watchWords)", () => {
     expect(moduleWords(TEAM_WHY, de)).not.toBe(TEAM_WHY);
   });
 
-  it("reads the log lines SYB writes from numbers", () => {
+  it("reads the log lines ScaleX writes from numbers", () => {
     const sync = activityDetail("Stripe", "stripe", 3, [
       { field_key: "revenue.monthly_revenue", outcome: "written" },
       { field_key: "revenue.order_count_monthly", outcome: "written" },

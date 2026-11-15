@@ -59,6 +59,7 @@ import {
   valueText,
 } from "./panel";
 import type { FactInfo, FactMap, Rec, ReportView, StatedVsMeasuredRow } from "./types";
+import { Logo } from "../brand/Mark";
 
 /** The menu's counts (app/api/nav) — the masthead and sub-nav print only what they know. */
 interface NavCounts {
@@ -160,7 +161,7 @@ function Masthead({
     <header className="rq-mast">
       <div className="rq-mast-l">
         <Link href="/watch" className="rq-mark">
-          SYB
+          <Logo onDark />
         </Link>
         {context.length > 0 && <span className="rq-ctx">{context.join(" · ")}</span>}
       </div>

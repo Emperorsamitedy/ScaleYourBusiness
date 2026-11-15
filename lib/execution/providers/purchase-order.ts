@@ -70,7 +70,7 @@ export const PO_UNCONFIRMED = "The email service didn't confirm whether this ord
 export const PO_HELD = "Waiting for email to be set up.";
 
 const HELD_WHY: Record<NotSentReason, string> = {
-  email_not_set_up: "Email isn't set up on SYB's sending domain yet.",
+  email_not_set_up: "Email isn't set up on ScaleX's sending domain yet.",
   real_writes_off: "Real sending is switched off until the two-week unattended test completes.",
 };
 
@@ -352,13 +352,13 @@ export function createPurchaseOrderExecutor(options: PurchaseOrderOptions = {}):
         );
       }
       throw new PurchaseOrderRefused(
-        `${PO_UNCONFIRMED} It may have reached ${plan.po.supplier.name}, so SYB won't send it again: download it and check with them.`,
+        `${PO_UNCONFIRMED} It may have reached ${plan.po.supplier.name}, so ScaleX won't send it again: download it and check with them.`,
       );
     },
 
     async undo() {
       throw new PurchaseOrderRefused(
-        "A sent order can't be recalled, and SYB never changes or cancels an order. Tell the supplier yourself.",
+        "A sent order can't be recalled, and ScaleX never changes or cancels an order. Tell the supplier yourself.",
       );
     },
   };

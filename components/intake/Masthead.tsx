@@ -10,6 +10,7 @@
 // left is real: the fact count is the record's own.
 
 import { useTranslations } from "next-intl";
+import { Logo } from "../brand/Mark";
 
 export function Masthead({
   businessName,
@@ -30,7 +31,9 @@ export function Masthead({
 
   return (
     <header className="ix-mast">
-      <span className="ix-mark">SYB</span>
+      <span className="ix-mark">
+        <Logo onDark />
+      </span>
       {businessName && <span className="ix-mast-sub">{businessName}</span>}
       <span className="ix-mast-right">
         {saving && (

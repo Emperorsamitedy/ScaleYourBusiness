@@ -75,7 +75,7 @@ export async function runSmokeInbound(args: {
   if (!from) return r.refuse("Give the address you'll send from: --from you@your-domain.");
   if (ownSenderAddresses(env).includes(from)) {
     return r.refuse(
-      `${from} is one of SYB's own sending addresses, and the inbox drops its own mail by design. Send from another address.`,
+      `${from} is one of ScaleX's own sending addresses, and the inbox drops its own mail by design. Send from another address.`,
     );
   }
   const timeoutRaw = values.get("timeout");

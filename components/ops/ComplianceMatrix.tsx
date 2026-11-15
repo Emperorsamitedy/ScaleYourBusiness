@@ -26,8 +26,8 @@ export function ComplianceMatrix({
       <p className="auth-copy">
         A country with no row is blocked for phone answering and outbound calling. A country is
         unblocked only with counsel&rsquo;s sign-off date and reference. &ldquo;Halted&rdquo; stops
-        everything SYB does outside itself for businesses in that country, at every station. Every
-        change is logged with who made it and why.
+        everything ScaleX does outside itself for businesses in that country, at every station.
+        Every change is logged with who made it and why.
       </p>
       {outcome && (
         <p className="auth-copy" role="status">
@@ -94,8 +94,8 @@ export function ComplianceMatrix({
           <input type="checkbox" name="outbound_blocked" defaultChecked /> Outbound calling blocked
         </label>
         <label className="auth-copy">
-          <input type="checkbox" name="execution_halted" /> Halt everything SYB does outside itself
-          here
+          <input type="checkbox" name="execution_halted" /> Halt everything ScaleX does outside
+          itself here
         </label>
         <label className="auth-copy">
           Counsel&rsquo;s sign-off date <input name="legal_signoff_date" type="date" />

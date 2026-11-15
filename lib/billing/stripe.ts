@@ -209,7 +209,7 @@ export async function startCheckout(
     cancel_url: `${appUrl}/report?checkout=cancelled`,
     "metadata[profile_id]": profileId,
   });
-  const names = ["SYB business diagnosis", ...also.map((a) => alsoLine(a.name))];
+  const names = ["ScaleX business diagnosis", ...also.map((a) => alsoLine(a.name))];
   names.forEach((name, i) => {
     params.set(`line_items[${i}][price_data][currency]`, price.currency);
     params.set(`line_items[${i}][price_data][unit_amount]`, String(amounts[i]));
@@ -263,8 +263,8 @@ export async function startCheckout(
 export function alsoLine(name: string | null): string {
   const n = name?.trim();
   return n
-    ? `SYB business diagnosis: ${n.slice(0, 80)}`
-    : "SYB business diagnosis: another business";
+    ? `ScaleX business diagnosis: ${n.slice(0, 80)}`
+    : "ScaleX business diagnosis: another business";
 }
 
 /** Signature window — Stripe's own recommendation. */

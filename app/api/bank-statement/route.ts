@@ -50,7 +50,7 @@ export async function GET(): Promise<NextResponse> {
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
   if (!isSameOriginPost(request.headers, appOriginOf(request.url))) {
-    return NextResponse.json({ error: "that has to come from SYB itself" }, { status: 403 });
+    return NextResponse.json({ error: "that has to come from ScaleX itself" }, { status: 403 });
   }
   const access = await resolveAccess();
   if (!access) return NextResponse.json({ error: "no intake session" }, { status: 401 });

@@ -253,7 +253,7 @@ export function ChatScreen() {
             {s.turns.map((t) => (
               <article key={t.id} id={`turn-${t.id}`} className={`ak-turn ${t.role}`}>
                 <p className="ak-who">
-                  {t.role === "owner" ? tr("you") : "SYB"}
+                  {t.role === "owner" ? tr("you") : "ScaleX"}
                   {stamp(t.at, now, locale) !== "" && (
                     <span className="ak-at">{stamp(t.at, now, locale)}</span>
                   )}
@@ -274,7 +274,7 @@ export function ChatScreen() {
             {s.busy && (
               <article className="ak-turn system" aria-busy="true">
                 <p className="ak-who live">
-                  <span className="live-dot" aria-hidden="true" /> SYB
+                  <span className="live-dot" aria-hidden="true" /> ScaleX
                 </p>
                 <div className="ak-text">
                   <p className="ak-thinking">{tr("thinking")}</p>

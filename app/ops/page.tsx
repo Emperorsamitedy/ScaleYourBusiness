@@ -23,8 +23,9 @@ import { readReadinessFacts } from "../../lib/ops/readiness-facts";
 import { LaunchReadiness } from "../../components/ops/LaunchReadiness";
 import { ComplianceMatrix } from "../../components/ops/ComplianceMatrix";
 import { listCountryRules, recentCountryChanges } from "../../lib/compliance/matrix";
+import { Logo } from "../../components/brand/Mark";
 
-export const metadata: Metadata = { title: "Ops — SYB" };
+export const metadata: Metadata = { title: "Ops — ScaleX" };
 export const dynamic = "force-dynamic";
 
 const pct = (x: number) => `${Math.round(x * 100)}%`;
@@ -97,7 +98,9 @@ export default async function OpsPage({
   return (
     <main className="ops-shell">
       <header className="ops-head">
-        <span className="wordmark">SYB</span>
+        <span className="wordmark">
+          <Logo onDark />
+        </span>
         <span className="ops-meta">
           ops · last {days} days · {new Date().toISOString().slice(0, 10)} ·{" "}
           <a href="#launch-readiness">
@@ -261,7 +264,7 @@ export default async function OpsPage({
         </span>
         <p className="auth-copy">
           Each account&rsquo;s first campaign waits for a person to read it before it sends, because
-          every campaign goes out from SYB&rsquo;s own sending address. Read the email and the
+          every campaign goes out from ScaleX&rsquo;s own sending address. Read the email and the
           sender it goes out as; record it only if it reads like a real business writing to its own
           customers. Later campaigns from the same account don&rsquo;t wait.
         </p>
@@ -278,7 +281,7 @@ export default async function OpsPage({
               <p className="auth-copy">
                 Account <span className="ops-mono">{c.account_id.slice(0, 8)}</span> · campaign{" "}
                 <span className="ops-mono">{c.proposal_id}</span> · {c.recipients} recipients
-                approved · sent as &ldquo;{c.sender_name ?? "not connected yet"} via SYB&rdquo;
+                approved · sent as &ldquo;{c.sender_name ?? "not connected yet"} via ScaleX&rdquo;
               </p>
               <p className="auth-copy">{c.summary}</p>
               <p className="auth-copy">Subject: {c.subject ?? "not approved yet"}</p>

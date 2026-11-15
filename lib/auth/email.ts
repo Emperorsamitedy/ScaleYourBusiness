@@ -51,7 +51,7 @@ export interface SendResult {
   provider?: { status: number; id: string | null };
 }
 
-const FROM = () => process.env.EMAIL_FROM ?? "SYB <onboarding@resend.dev>";
+const FROM = () => process.env.EMAIL_FROM ?? "ScaleX <onboarding@resend.dev>";
 
 export async function sendLoginEmail(mail: LoginEmail): Promise<SendResult> {
   const key = process.env.RESEND_API_KEY;

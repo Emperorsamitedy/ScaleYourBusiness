@@ -148,17 +148,17 @@ export const EXECUTION_SCOPE_REGISTRY = {
       {
         scope: "pages_manage_posts",
         grant: "pages_manage_posts",
-        why: "SYB may publish posts to the Page you choose, and delete them again when you withdraw one.",
+        why: "ScaleX may publish posts to the Page you choose, and delete them again when you withdraw one.",
       },
       {
         scope: "instagram_content_publish",
         grant: "instagram_content_publish",
-        why: "SYB may publish posts and Reels to the Instagram account you choose, each one only after you approve it.",
+        why: "ScaleX may publish posts and Reels to the Instagram account you choose, each one only after you approve it.",
       },
       {
         scope: "instagram_manage_contents",
         grant: "instagram_manage_contents",
-        why: "SYB may delete an Instagram post it published, so withdrawing one takes it down.",
+        why: "ScaleX may delete an Instagram post it published, so withdrawing one takes it down.",
       },
     ],
   },
@@ -189,12 +189,12 @@ export const EXECUTION_SCOPE_REGISTRY = {
       {
         scope: "video.publish",
         grant: "video.publish",
-        why: "SYB may post the videos you approve to the TikTok account you sign in with, each with the privacy and settings you chose for it.",
+        why: "ScaleX may post the videos you approve to the TikTok account you sign in with, each with the privacy and settings you chose for it.",
       },
       {
         scope: "video.publish",
         grant: "video.publish",
-        why: "TikTok doesn't let apps delete a post, so SYB can't take one down: to remove a post, delete it in the TikTok app.",
+        why: "TikTok doesn't let apps delete a post, so ScaleX can't take one down: to remove a post, delete it in the TikTok app.",
       },
     ],
   },
@@ -269,7 +269,7 @@ export const EXECUTION_SCOPE_REGISTRY = {
       {
         scope: "ads_management",
         grant: "ads_management",
-        why: "SYB may pause, resume or change the daily budget of campaigns, and create new campaigns, ad sets, creatives and ads paused, from posts you approve. SYB will never touch billing or payment methods.",
+        why: "ScaleX may pause, resume or change the daily budget of campaigns, and create new campaigns, ad sets, creatives and ads paused, from posts you approve. ScaleX will never touch billing or payment methods.",
       },
     ],
   },
@@ -315,17 +315,17 @@ export const EXECUTION_SCOPE_REGISTRY = {
       {
         scope: "tiktok.create_and_update_campaigns",
         grant: "Reporting and Ads Management, which TikTok grants together",
-        why: "SYB reads each campaign's daily spend and the website purchases TikTok attributes to it, once a day.",
+        why: "ScaleX reads each campaign's daily spend and the website purchases TikTok attributes to it, once a day.",
       },
       {
         scope: "tiktok.create_and_update_campaigns",
         grant: "Ads Management: Create and Update Campaigns",
-        why: "SYB may pause, resume or change the daily budget of a campaign, each time only after you approve it. TikTok gives this together with reading, so SYB holds it as a separate consent you can revoke.",
+        why: "ScaleX may pause, resume or change the daily budget of a campaign, each time only after you approve it. TikTok gives this together with reading, so ScaleX holds it as a separate consent you can revoke.",
       },
       {
         scope: "tiktok.create_and_update_campaigns",
         grant: "Ads Management: Create and Update Campaigns",
-        why: "SYB never creates or deletes a campaign, and never touches billing or payment methods.",
+        why: "ScaleX never creates or deletes a campaign, and never touches billing or payment methods.",
       },
     ],
   },
@@ -355,13 +355,13 @@ export const EXECUTION_SCOPE_REGISTRY = {
     consent: [
       {
         scope: "email.send_marketing",
-        grant: "your consent here (SYB's own email service)",
-        why: "SYB may send the campaigns you approve, from {sender}, to customers who explicitly agreed to hear from you.",
+        grant: "your consent here (ScaleX's own email service)",
+        why: "ScaleX may send the campaigns you approve, from {sender}, to customers who explicitly agreed to hear from you.",
       },
       {
         scope: "email.send_marketing",
-        grant: "your consent here (SYB's own email service)",
-        why: "SYB will never email anyone who hasn't explicitly agreed, or who unsubscribed.",
+        grant: "your consent here (ScaleX's own email service)",
+        why: "ScaleX will never email anyone who hasn't explicitly agreed, or who unsubscribed.",
       },
     ],
   },
@@ -392,13 +392,13 @@ export const EXECUTION_SCOPE_REGISTRY = {
     consent: [
       {
         scope: "email.send_purchase_order",
-        grant: "your approval of each order (SYB's own email service)",
-        why: "SYB may email a purchase order you approved to the supplier named on it, at the address you gave, with replies going to you.",
+        grant: "your approval of each order (ScaleX's own email service)",
+        why: "ScaleX may email a purchase order you approved to the supplier named on it, at the address you gave, with replies going to you.",
       },
       {
         scope: "email.send_purchase_order",
-        grant: "your approval of each order (SYB's own email service)",
-        why: "SYB never edits, cancels or pays an order, and never signs in to a supplier's system.",
+        grant: "your approval of each order (ScaleX's own email service)",
+        why: "ScaleX never edits, cancels or pays an order, and never signs in to a supplier's system.",
       },
     ],
   },
@@ -428,12 +428,12 @@ export const EXECUTION_SCOPE_REGISTRY = {
       {
         scope: "https://www.googleapis.com/auth/business.manage",
         grant: "Google Business Profile (business.manage)",
-        why: "SYB uses it only to read your reviews. SYB never posts a reply or changes your listing: suggested replies stay drafts you post yourself.",
+        why: "ScaleX uses it only to read your reviews. ScaleX never posts a reply or changes your listing: suggested replies stay drafts you post yourself.",
       },
       {
         scope: "https://www.googleapis.com/auth/business.manage",
         grant: "Google Business Profile (business.manage)",
-        why: "You can revoke it here at any time, and SYB deletes the access it holds at once.",
+        why: "You can revoke it here at any time, and ScaleX deletes the access it holds at once.",
       },
     ],
   },
@@ -482,12 +482,12 @@ export const EXECUTION_SCOPE_REGISTRY = {
       {
         scope: "https://www.googleapis.com/auth/adwords",
         grant: "Google Ads (adwords)",
-        why: "SYB reads your daily spend and results with it. SYB changes something only when you approve a proposal: pausing or resuming a campaign, or changing its daily budget by at most half. SYB never touches billing or payment methods.",
+        why: "ScaleX reads your daily spend and results with it. ScaleX changes something only when you approve a proposal: pausing or resuming a campaign, or changing its daily budget by at most half. ScaleX never touches billing or payment methods.",
       },
       {
         scope: "https://www.googleapis.com/auth/adwords",
         grant: "Google Ads (adwords)",
-        why: "You can revoke it here at any time, and SYB deletes the access it holds at once.",
+        why: "You can revoke it here at any time, and ScaleX deletes the access it holds at once.",
       },
     ],
   },

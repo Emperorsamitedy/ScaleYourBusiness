@@ -60,6 +60,7 @@ import {
   shortId,
   stateWord,
 } from "./content-view";
+import { Logo } from "../brand/Mark";
 
 interface Goal {
   goal_id: string;
@@ -242,7 +243,9 @@ export function ContentScreen() {
     return (
       <main className="auth-stage">
         <div className="auth-col">
-          <span className="wordmark">SYB</span>
+          <span className="wordmark">
+            <Logo onDark />
+          </span>
           <section className="card auth-card">
             <span className="auth-eyebrow">{tr("signedOut.eyebrow")}</span>
             <h1 className="auth-title">{tr("signedOut.title")}</h1>

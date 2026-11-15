@@ -41,8 +41,8 @@ describe("the chat's English is the code's own words", () => {
     expect(cardKicker(card({ status: "stale" }))).toBe("Not made · Fact sheet");
     expect(cardKicker(card({ prepare: "proposal" }))).toBe("Drafted for your queue · Fact sheet");
     expect(cardFlag(card({ status: "applied" }), tr)?.word).toBe("Changed");
-    expect(en.chat.meta.title).toBe("Ask me anything — SYB");
-    expect(en.mode.meta.title).toBe("How I work — SYB");
+    expect(en.chat.meta.title).toBe("Ask me anything — ScaleX");
+    expect(en.mode.meta.title).toBe("How I work — ScaleX");
   });
 
   it("agrees an override's week count at one, the only English that moved", () => {

@@ -276,7 +276,7 @@ export function higgsfieldMediaProvider(opts: HiggsfieldOptions): MediaProvider 
     }
     const declared = Number(res.headers.get("content-length") ?? "0");
     if (declared > limits.max_bytes) {
-      throw new ProviderError("Higgsfield's video is larger than SYB accepts", charged);
+      throw new ProviderError("Higgsfield's video is larger than ScaleX accepts", charged);
     }
     const bytes = new Uint8Array(await res.arrayBuffer());
     if (bytes.byteLength === 0 || bytes.byteLength > limits.max_bytes) {
@@ -330,7 +330,7 @@ export function higgsfieldMediaProvider(opts: HiggsfieldOptions): MediaProvider 
         if (!statusUrl) {
           return {
             state: "failed",
-            message: "SYB has no usable address for this Higgsfield request; counted as spent",
+            message: "ScaleX has no usable address for this Higgsfield request; counted as spent",
             retryable: false,
             charged: clipCost,
           };

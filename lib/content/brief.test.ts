@@ -313,7 +313,7 @@ describe("P3-51 — the checks, in code", () => {
       /budget for your business/,
     );
     expect(briefCapRefusal({ account_calls: 0, account_eur: 0, total_eur: 10 })).toMatch(
-      /across SYB/,
+      /across ScaleX/,
     );
   });
 });

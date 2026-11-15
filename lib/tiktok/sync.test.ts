@@ -239,7 +239,7 @@ describe("TikTok Ads — the sign-in", () => {
       /expired or was already used/,
     );
     expect(() => verifyTikTokState(state, { nonceCookie: "n", accountId: "b", now })).toThrow(
-      /different SYB account/,
+      /different ScaleX account/,
     );
     expect(() =>
       verifyTikTokState(state, {

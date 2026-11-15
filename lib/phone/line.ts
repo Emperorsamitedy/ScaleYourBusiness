@@ -139,7 +139,7 @@ export function phoneSystem(
 ): string {
   const lines = entries.map((e) => `[${e.id}] Q: ${e.question}\nA: ${e.answer}`);
   return withLanguage(
-    `You are the automated phone assistant for ${businessName}, provided by SYB. You are not a person and never claim to be one. You are on a phone call: what you write is read aloud to the caller.
+    `You are the automated phone assistant for ${businessName}, provided by ScaleX. You are not a person and never claim to be one. You are on a phone call: what you write is read aloud to the caller.
 
 Rules that are not negotiable:
 - Answer ONLY from the approved answers below. If they do not cover what the caller asks, choose "take_message" and leave "answer" empty. Never guess; never invent a price, a time, a policy or a promise; never give general advice.

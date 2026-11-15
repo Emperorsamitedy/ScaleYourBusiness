@@ -33,6 +33,7 @@ import {
   shortRef,
 } from "./queue-model";
 import "../../app/queue.css";
+import { Logo } from "../brand/Mark";
 
 interface CardData {
   proposal: CardProposal & {
@@ -121,7 +122,7 @@ export function ProposalCard({ id }: { id: string }) {
     <header className="q-mast q-mast-m">
       <div className="q-mast-row">
         <Link href="/watch" className="q-wordmark">
-          SYB
+          <Logo onDark />
         </Link>
         <span className="q-mast-meta">
           {business ? `${business} · ` : ""}
@@ -146,7 +147,9 @@ export function ProposalCard({ id }: { id: string }) {
     return (
       <main className="auth-stage">
         <div className="auth-col">
-          <span className="wordmark">SYB</span>
+          <span className="wordmark">
+            <Logo onDark />
+          </span>
           <section className="card auth-card">
             <span className="auth-eyebrow">{t("card.eyebrow")}</span>
             <h1 className="auth-title">{t("signedOut.title")}</h1>

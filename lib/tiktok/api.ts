@@ -166,11 +166,11 @@ export function tiktokFailureSentence(
 ): string {
   switch (kind) {
     case "auth":
-      return "TikTok didn't accept SYB's access. It may have been revoked: reconnect TikTok on Connections.";
+      return "TikTok didn't accept ScaleX's access. It may have been revoked: reconnect TikTok on Connections.";
     case "permission":
-      return "TikTok says SYB's access can't do that on this ad account. Reconnect TikTok and allow the listed permissions.";
+      return "TikTok says ScaleX's access can't do that on this ad account. Reconnect TikTok and allow the listed permissions.";
     case "rate_limit":
-      return "TikTok kept asking SYB to slow down. Nothing was changed — I'll try again.";
+      return "TikTok kept asking ScaleX to slow down. Nothing was changed — I'll try again.";
     case "unavailable":
     case "network":
       return "TikTok didn't answer. Nothing was changed — I'll try again.";
@@ -208,16 +208,16 @@ export function tiktokBodyViolation(
   if (spec.method !== "POST") return `${which} is a GET and carries no body`;
   const allowed = spec.body_fields ?? [];
   for (const key of Object.keys(body)) {
-    if (!allowed.includes(key)) return `"${key}" is not a field SYB sends on ${which}`;
+    if (!allowed.includes(key)) return `"${key}" is not a field ScaleX sends on ${which}`;
   }
   if (which === "campaign_status_update") {
     const status = body["operation_status"];
     if (!(TIKTOK_STATUSES as readonly unknown[]).includes(status)) {
-      return `"${String(status)}" is not a status SYB sends (only ENABLE and DISABLE)`;
+      return `"${String(status)}" is not a status ScaleX sends (only ENABLE and DISABLE)`;
     }
     const ids = body["campaign_ids"];
     if (!Array.isArray(ids) || ids.length !== 1) {
-      return "SYB changes one campaign at a time";
+      return "ScaleX changes one campaign at a time";
     }
   }
   return null;
@@ -244,7 +244,7 @@ export async function tiktokCall(
   args: TikTokCallArgs = {},
 ): Promise<Record<string, unknown>> {
   if (!Object.prototype.hasOwnProperty.call(TIKTOK_REQUESTS, which)) {
-    throw new TikTokFenceError(`"${String(which)}" is not a TikTok request SYB makes`);
+    throw new TikTokFenceError(`"${String(which)}" is not a TikTok request ScaleX makes`);
   }
   const spec: RequestSpec = TIKTOK_REQUESTS[which];
   if (spec.method === "POST") {

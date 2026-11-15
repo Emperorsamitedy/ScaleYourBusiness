@@ -36,7 +36,7 @@ export const ROLE_ACTIONS = {
   // Idea 53: taking one of your own phones off alerts is always allowed.
   "alerts.remove_device": { min: "viewer", what: "remove one of your own phones from alerts" },
   // L-1 (TASKS-LANGUAGES.md): the language you read SYB in is your own choice.
-  "language.own": { min: "viewer", what: "choose the language you read SYB in" },
+  "language.own": { min: "viewer", what: "choose the language you read ScaleX in" },
 
   // ── managers and owners ──
   "proposals.decide": { min: "manager", what: "approve or decline proposals" },
@@ -77,7 +77,7 @@ export const ROLE_ACTIONS = {
   "profile.edit": { min: "owner", what: "change the business's facts, goals or limits" },
   "report.generate": { min: "owner", what: "make a new report" },
   "report.respond": { min: "owner", what: "answer the report's findings" },
-  "report.share": { min: "owner", what: "share the report outside SYB" },
+  "report.share": { min: "owner", what: "share the report outside ScaleX" },
   "competitors.manage": { min: "owner", what: "change or research the competitor list" },
   "site.audit": { min: "owner", what: "check the website" },
 
@@ -104,7 +104,7 @@ export const ROLE_ACTIONS = {
   },
   // The v1 spec §4: what SYB may do on its own — stations, caps, standing
   // rules, the step to station 4 — is the owner's to decide.
-  "ladder.manage": { min: "owner", what: "change what SYB may do on its own" },
+  "ladder.manage": { min: "owner", what: "change what ScaleX may do on its own" },
   // The v1 spec §7.1: a firm's access to the business is the owner's grant, revocable in one tap.
   // The v1 spec §10.3 / Art. 50(4): the voice SYB writes in, and a person's consent to appear, are the owner's.
   "growth.voice": { min: "owner", what: "confirm the brand voice and record identity releases" },

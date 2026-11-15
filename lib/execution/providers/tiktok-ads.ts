@@ -236,7 +236,7 @@ export function createTikTokAdsExecutor(opts: TikTokExecutionOptions = {}): Exec
   function touchable(c: CampaignState): void {
     if (!TOUCHABLE.includes(c.status) || /DELETE/i.test(c.secondary_status ?? "")) {
       throw new TikTokAdChangeError(
-        `"${c.name}" is ${c.status.toLowerCase()} on TikTok, and SYB only pauses, resumes or re-budgets campaigns that are on or off. Nothing was changed.`,
+        `"${c.name}" is ${c.status.toLowerCase()} on TikTok, and ScaleX only pauses, resumes or re-budgets campaigns that are on or off. Nothing was changed.`,
       );
     }
   }
@@ -244,7 +244,7 @@ export function createTikTokAdsExecutor(opts: TikTokExecutionOptions = {}): Exec
   function dailyBudgetMinor(c: CampaignState): number {
     if (c.budget_mode !== "BUDGET_MODE_DAY" || c.budget === null) {
       throw new TikTokAdChangeError(
-        `"${c.name}" has no daily budget on the campaign (TikTok calls its budget ${c.budget_mode ?? "unset"}), and SYB changes campaign daily budgets only. Nothing was changed.`,
+        `"${c.name}" has no daily budget on the campaign (TikTok calls its budget ${c.budget_mode ?? "unset"}), and ScaleX changes campaign daily budgets only. Nothing was changed.`,
       );
     }
     return fromTikTokBudget(c.budget, c.currency);
@@ -364,7 +364,7 @@ export function createTikTokAdsExecutor(opts: TikTokExecutionOptions = {}): Exec
 
     async preflight(op, params, pctx) {
       if (!isTikTokAdOp(op))
-        return { code: "refused", message: `"${op}" is not an ad change SYB makes on TikTok` };
+        return { code: "refused", message: `"${op}" is not an ad change ScaleX makes on TikTok` };
       try {
         await guarded(() => checks(op, params, pctx));
         logAdChange({ account_id: pctx.account_id, op, phase: "preflight", outcome: "ok" });
@@ -405,7 +405,7 @@ export function createTikTokAdsExecutor(opts: TikTokExecutionOptions = {}): Exec
 
     async execute(op, params, pctx) {
       if (!isTikTokAdOp(op))
-        throw new TikTokAdChangeError(`"${op}" is not an ad change SYB makes on TikTok`);
+        throw new TikTokAdChangeError(`"${op}" is not an ad change ScaleX makes on TikTok`);
       return guarded(async () => {
         const run = await open(pctx.account_id);
         const c = await readCampaign(run, campaignIdOf(params));
@@ -491,7 +491,7 @@ export function createTikTokAdsExecutor(opts: TikTokExecutionOptions = {}): Exec
 
     async undo(op, undoPayload, pctx) {
       if (!isTikTokAdOp(op))
-        throw new TikTokAdChangeError(`"${op}" is not an ad change SYB makes on TikTok`);
+        throw new TikTokAdChangeError(`"${op}" is not an ad change ScaleX makes on TikTok`);
       const u = (undoPayload ?? {}) as {
         campaign_id?: unknown;
         status?: unknown;
@@ -515,7 +515,7 @@ export function createTikTokAdsExecutor(opts: TikTokExecutionOptions = {}): Exec
         if (op === "pause_campaign" || op === "resume_campaign") {
           if (u.status !== "ENABLE" && u.status !== "DISABLE") {
             throw new TikTokAdChangeError(
-              "the stored undo names no status SYB may set — nothing was changed",
+              "the stored undo names no status ScaleX may set — nothing was changed",
             );
           }
           const set = typeof done.status === "string" ? done.status : null;

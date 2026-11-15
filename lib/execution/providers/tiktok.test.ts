@@ -279,7 +279,7 @@ describe("TikTok — the pure pieces", () => {
     expect(() => chunkPlan(0)).toThrow(/empty/);
   });
 
-  it("uploads only to an https tiktokapis.com host, and only a video SYB stores", () => {
+  it("uploads only to an https tiktokapis.com host, and only a video ScaleX stores", () => {
     expect(uploadTargetAllowed(UPLOAD)).toBe(true);
     expect(uploadTargetAllowed("https://evil.example/upload")).toBe(false);
     expect(uploadTargetAllowed("http://open-upload.tiktokapis.com/x")).toBe(false);
@@ -318,7 +318,7 @@ describe("TikTok — the pure pieces", () => {
     ).toBeNull();
   });
 
-  it("offers only 'Only me' while SYB's app is unaudited, and TikTok's own options once audited", () => {
+  it("offers only 'Only me' while ScaleX's app is unaudited, and TikTok's own options once audited", () => {
     const creator = { privacy_level_options: ["PUBLIC_TO_EVERYONE", "SELF_ONLY"] as never };
     expect(offeredPrivacy(creator, "unaudited")).toEqual(["SELF_ONLY"]);
     expect(offeredPrivacy(creator, "audited")).toEqual(["PUBLIC_TO_EVERYONE", "SELF_ONLY"]);
@@ -440,7 +440,7 @@ describe("TikTok — preflight (reads only; a refusal leaves the proposal approv
     const h = harness(pub);
     const r = await h.exec.publish.preflight!("publish_tiktok_video", params, ctx());
     expect(r?.code).toBe("refused");
-    expect(r?.message).toMatch(/only lets SYB post privately/);
+    expect(r?.message).toMatch(/only lets ScaleX post privately/);
     // Audited, the same post goes ahead.
     const audited = harness(pub, {}, "audited");
     expect(await audited.exec.publish.preflight!("publish_tiktok_video", params, ctx())).toBeNull();
@@ -639,7 +639,7 @@ describe("TikTok — execute, at most once", () => {
     ).rejects.toMatchObject({ retryable: false });
     expect(h.mem.state.item.status).toBe("failed");
     expect((h.mem.state.item as unknown as { last_error: string }).last_error).toMatch(
-      /only lets SYB post privately.*Nothing was sent to TikTok/,
+      /only lets ScaleX post privately.*Nothing was sent to TikTok/,
     );
   });
 

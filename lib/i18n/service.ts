@@ -83,7 +83,7 @@ export async function setBusinessLocale(
   change: { language?: AppLocale | undefined; currency?: string | undefined },
 ): Promise<BusinessLocale> {
   if (change.language !== undefined && !isAppLocale(change.language)) {
-    throw new LocaleError("that language isn't one SYB speaks", 422);
+    throw new LocaleError("that language isn't one ScaleX speaks", 422);
   }
   if (change.currency !== undefined && !isIsoCurrency(change.currency)) {
     throw new LocaleError("that isn't an ISO 4217 currency code", 422);

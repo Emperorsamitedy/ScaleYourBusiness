@@ -91,10 +91,10 @@
   },
   "auth": {
     "meta": {
-      "signIn": "Sign in — SYB",
-      "signUp": "Create your account — SYB",
-      "confirm": "Confirm sign-in — SYB",
-      "choose": "Which business? — SYB"
+      "signIn": "Sign in — ScaleX",
+      "signUp": "Create your account — ScaleX",
+      "confirm": "Confirm sign-in — ScaleX",
+      "choose": "Which business? — ScaleX"
     },
     "mast": {
       "signIn": "Sign in",
@@ -153,7 +153,7 @@
     "why": "Why?"
   },
   "locale": {
-    "meta": "Language and currency — SYB",
+    "meta": "Language and currency — ScaleX",
     "first": {
       "headline": "Choose your language and currency."
     },
@@ -179,7 +179,7 @@
   },
   "intake": {
     "meta": {
-      "title": "Setting up the record — SYB"
+      "title": "Setting up the record — ScaleX"
     },
     "area": {
       "identity": "Business basics",
@@ -430,7 +430,7 @@
     "speak": "Speak",
     "listening": "Listening… Press Speak again to stop.",
     "noticeStart": "{notice} Press Speak again to start.",
-    "notice": "Your browser turns your speech into text. In Chrome, Google does this; SYB never receives the audio.",
+    "notice": "Your browser turns your speech into text. In Chrome, Google does this; ScaleX never receives the audio.",
     "cap": "I stop listening after a minute. Press Speak to add more.",
     "error": {
       "blocked": "The microphone is blocked for this site. Allow it in your browser’s site settings (the icon beside the address), then press Speak again.",
@@ -482,7 +482,7 @@
   },
   "report": {
     "meta": {
-      "title": "Your diagnosis — SYB"
+      "title": "Your diagnosis — ScaleX"
     },
     "mast": {
       "watching": "Watching · day {day} of {of}"
@@ -718,7 +718,7 @@
     },
     "share": {
       "label": "Share this report",
-      "signedOut": "Sign in to share your report — a link that leaves SYB is yours to make, so it needs you signed in.",
+      "signedOut": "Sign in to share your report — a link that leaves ScaleX is yours to make, so it needs you signed in.",
       "lede": "The link shows this report as it is now, without your answers to the recommendations and without anything that leads into your account. It never changes after it is made, and you can revoke it here at any time.",
       "lasts": "Lasts",
       "days": "{days, plural, one {# day} other {# days}}",
@@ -982,7 +982,7 @@
   },
   "factsheet": {
     "meta": {
-      "title": "Your fact sheet — SYB"
+      "title": "Your fact sheet — ScaleX"
     },
     "kicker": "Your business · Fact sheet",
     "titleEmpty": "The record.",
@@ -1107,7 +1107,7 @@
   },
   "watch": {
     "meta": {
-      "title": "Watching — SYB"
+      "title": "Watching — ScaleX"
     },
     "kicker": "Insights · Watching",
     "days": {
@@ -1198,7 +1198,7 @@
       "whatsapp": {
         "numberLabel": "Your WhatsApp number",
         "numberHint": "The full international number: a plus sign, then the country code.",
-        "consent": "Send my weekly SYB summary to this number on WhatsApp. I can stop it here at any time, and SYB keeps the number for nothing else.",
+        "consent": "Send my weekly ScaleX summary to this number on WhatsApp. I can stop it here at any time, and ScaleX keeps the number for nothing else.",
         "agree": "Yes, send it on WhatsApp",
         "on": "WhatsApp goes to {number}, since {date}.",
         "withdraw": "Stop WhatsApp",
@@ -1246,9 +1246,9 @@
       "status": {
         "signIn": "Sign in on this device to switch alerts on.",
         "noKeys": "This server can't send phone alerts yet: its keys aren't set.",
-        "iphoneTab": "Add SYB to your Home Screen first, then switch this on there. In Safari: Share, then Add to Home Screen (iOS {version} or later).",
-        "unsupported": "This browser can't take alerts. On an iPhone, add SYB to your Home Screen first, then switch this on there.",
-        "denied": "Alerts are blocked for SYB in this browser's settings. Allow them there, then switch this on.",
+        "iphoneTab": "Add ScaleX to your Home Screen first, then switch this on there. In Safari: Share, then Add to Home Screen (iOS {version} or later).",
+        "unsupported": "This browser can't take alerts. On an iPhone, add ScaleX to your Home Screen first, then switch this on there.",
+        "denied": "Alerts are blocked for ScaleX in this browser's settings. Allow them there, then switch this on.",
         "on": "On for this device."
       },
       "switchOn": "Switch on for this device",
@@ -1272,8 +1272,8 @@
   },
   "proposals": {
     "meta": {
-      "title": "Proposals — SYB",
-      "one": "Proposal — SYB"
+      "title": "Proposals — ScaleX",
+      "one": "Proposal — ScaleX"
     },
     "module": "{module, select, marketing {marketing} sales {sales} support {support} operations {operations} finance {finance} team {team} other {{module}}}",
     "loading": "Reading the queue…",
@@ -1531,7 +1531,7 @@
   },
   "history": {
     "meta": {
-      "title": "History — SYB"
+      "title": "History — ScaleX"
     },
     "kicker": "Your business · History",
     "title": "The ledger.",
@@ -1605,7 +1605,7 @@
   },
   "connections": {
     "meta": {
-      "title": "Connections — SYB"
+      "title": "Connections — ScaleX"
     },
     "kicker": "Your business · Connections",
     "loading": "Reading your connections…",
@@ -1629,7 +1629,7 @@
       "writesUnknown": "Write access couldn't be read.",
       "canWrite": "{labels} can write — only what you approve.",
       "nothingWritten": "Nothing can be written.",
-      "readOnly": "{labels} holds a permission that could write; SYB only reads with it."
+      "readOnly": "{labels} holds a permission that could write; ScaleX only reads with it."
     },
     "status": {
       "connected": "connected",
@@ -1671,7 +1671,7 @@
       "settings": "Settings",
       "connect": "Connect",
       "past": "{label} disconnected. The credential was deleted; the measured history it produced stays in your profile.",
-      "foot": "Measured figures replace your estimates in the report, and your estimates stay in your history. Google Ads isn’t available yet: it needs SYB’s own approval from Google before any account can connect."
+      "foot": "Measured figures replace your estimates in the report, and your estimates stay in your history. Google Ads isn’t available yet: it needs ScaleX’s own approval from Google before any account can connect."
     },
     "settings": {
       "access": "access",
@@ -1846,7 +1846,7 @@
         },
         "s3": {
           "grant": "APPOINTMENTS_ALL_READ (optional, with the one above)",
-          "why": "Your appointments. Square needs this with the one above to read every booking at your locations, not only ones made through SYB. It can't change a booking.",
+          "why": "Your appointments. Square needs this with the one above to read every booking at your locations, not only ones made through ScaleX. It can't change a booking.",
           "gives": "Your appointments"
         },
         "s4": {
@@ -2014,8 +2014,8 @@
       "typeToConfirm": "To confirm, type <b>{phrase}</b>",
       "facebook": {
         "sub": "Invited testers: sign in with Facebook",
-        "testerNote": "During the pilot, Facebook sign-in works only for invited testers. First Samuel or Tedi at SYB adds you as a Tester on SYB's Meta app, and you accept the invite from your own Facebook account. Meta then asks you to approve exactly the permissions listed above, and you pick the Page or ad account here.",
-        "oneConsent": "One Facebook account can connect publishing or ad management through sign-in, not both: Meta gives SYB's app everything you granted it before, and SYB refuses a token holding more than this consent names. For the other one, use your own Meta app below.",
+        "testerNote": "During the pilot, Facebook sign-in works only for invited testers. First Samuel or Tedi at ScaleX adds you as a Tester on ScaleX's Meta app, and you accept the invite from your own Facebook account. Meta then asks you to approve exactly the permissions listed above, and you pick the Page or ad account here.",
+        "oneConsent": "One Facebook account can connect publishing or ad management through sign-in, not both: Meta gives ScaleX's app everything you granted it before, and ScaleX refuses a token holding more than this consent names. For the other one, use your own Meta app below.",
         "opening": "Opening Facebook…",
         "signInPick": {
           "ad": "Sign in with Facebook and pick the ad account",
@@ -2027,10 +2027,10 @@
       "pick": {
         "couldntList": "I couldn't list what Meta shared.",
         "connected": "{label} is connected through Facebook, and your consent is on record.",
-        "cancelled": "Facebook sign-in cancelled. Nothing was connected, and SYB kept no token.",
+        "cancelled": "Facebook sign-in cancelled. Nothing was connected, and ScaleX kept no token.",
         "title": {
-          "ad": "Pick the ad account SYB may act on",
-          "page": "Pick the Page SYB may act on"
+          "ad": "Pick the ad account ScaleX may act on",
+          "page": "Pick the Page ScaleX may act on"
         },
         "asking": "Asking Meta what you shared…",
         "aria": {
@@ -2045,7 +2045,7 @@
           "ad": "Allow and connect this ad account",
           "page": "Allow and connect this Page"
         },
-        "note": "SYB checks with Meta that the sign-in holds exactly the permissions listed above before anything is stored."
+        "note": "ScaleX checks with Meta that the sign-in holds exactly the permissions listed above before anything is stored."
       },
       "eachAction": "What each action does",
       "undoable": "Can be undone.",
@@ -2116,37 +2116,37 @@
       "allowConnect": "Allow and connect",
       "youCancelled": "You cancelled the Facebook sign-in. Nothing was connected.",
       "reason": {
-        "start_here": "Start Facebook sign-in from SYB's Connections screen, with the button there. Nothing was sent to Meta.",
-        "signed_out": "Sign in to SYB first, then connect Meta again.",
+        "start_here": "Start Facebook sign-in from ScaleX's Connections screen, with the button there. Nothing was sent to Meta.",
+        "signed_out": "Sign in to ScaleX first, then connect Meta again.",
         "owner_only": "Only an owner can grant or take back write access. Nothing was sent to Meta.",
         "unavailable": "Facebook sign-in isn't available yet. Use your own Meta app instead.",
-        "provider": "That isn't a Meta connection SYB offers.",
+        "provider": "That isn't a Meta connection ScaleX offers.",
         "phrase": "The confirmation phrase didn't match. Type it as shown, then start again.",
         "already_connected": "That Meta connection is already connected. Disconnect it first.",
         "start_again": "That Facebook sign-in expired or was already used. Start again from Connections.",
-        "foreign": "That Facebook sign-in was started from a different SYB account. Sign in to SYB as that account, or start again.",
+        "foreign": "That Facebook sign-in was started from a different ScaleX account. Sign in to ScaleX as that account, or start again.",
         "meta_error": "Facebook sign-in didn't finish. Nothing was connected.",
-        "no_pages": "Meta showed SYB no Pages for that Facebook account. In Meta's dialog, choose the Page (and its Instagram account) you want SYB to publish to, then try again.",
-        "no_ad_accounts": "Meta showed SYB no ad accounts for that Facebook account. In Meta's dialog, choose the ad account you want SYB to manage, then try again.",
+        "no_pages": "Meta showed ScaleX no Pages for that Facebook account. In Meta's dialog, choose the Page (and its Instagram account) you want ScaleX to publish to, then try again.",
+        "no_ad_accounts": "Meta showed ScaleX no ad accounts for that Facebook account. In Meta's dialog, choose the ad account you want ScaleX to manage, then try again.",
         "meta_auth": "Facebook sign-in didn't finish: Meta didn't accept the sign-in. Start again from Connections.",
-        "meta_permission": "Facebook sign-in didn't finish: Meta says SYB isn't allowed to do that. Check the permissions listed on Connections and start again.",
+        "meta_permission": "Facebook sign-in didn't finish: Meta says ScaleX isn't allowed to do that. Check the permissions listed on Connections and start again.",
         "meta_busy": "Facebook sign-in didn't finish: Meta was busy or didn't answer. Nothing was connected — try again in a few minutes.",
         "meta_refused": "Facebook sign-in didn't finish: Meta refused it. Nothing was connected.",
         "internal": "Something went wrong on our side. Nothing was connected.",
         "generic": "Facebook sign-in didn't finish. Nothing was connected."
       },
-      "nothingSent": "Connecting proves the token and records your consent. Nothing is published or changed until you approve each item, and publishing through SYB isn't switched on yet.",
+      "nothingSent": "Connecting proves the token and records your consent. Nothing is published or changed until you approve each item, and publishing through ScaleX isn't switched on yet.",
       "disconnectNote": "Disconnecting deletes the token here at once. It revokes nothing on Meta's side: to withdraw the permissions there, remove the app from your business settings.",
       "access": {
         "label": "Meta access level · {level}",
         "standard": {
           "word": "standard",
-          "headline": "Meta hasn't approved SYB for open sign-up yet.",
-          "body": "Until SYB's company registration and Meta's approvals (Advanced Access, Business Verification and Tech Provider verification) are in place, Meta itself refuses these permissions on any Page or ad account SYB's own business doesn't own. Two pilot routes work meanwhile."
+          "headline": "Meta hasn't approved ScaleX for open sign-up yet.",
+          "body": "Until ScaleX's company registration and Meta's approvals (Advanced Access, Business Verification and Tech Provider verification) are in place, Meta itself refuses these permissions on any Page or ad account ScaleX's own business doesn't own. Two pilot routes work meanwhile."
         },
         "advanced": {
           "word": "advanced",
-          "headline": "Meta has approved SYB to ask for these permissions.",
+          "headline": "Meta has approved ScaleX to ask for these permissions.",
           "body": "Any business can connect its own Page, Instagram account or ad account here."
         }
       },
@@ -2159,14 +2159,14 @@
         "signIn": "Sign in with Facebook",
         "signInOn": "Sign in, approve the permissions listed, and pick your Page or ad account.",
         "testers": "Invited testers: sign in with Facebook",
-        "testersOn": "For testers the SYB team has added in Meta: Samuel or Tedi adds you in SYB's Meta app first, and you accept the invite.",
-        "testersOff": "For testers the SYB team has added in Meta. {off}"
+        "testersOn": "For testers the ScaleX team has added in Meta: Samuel or Tedi adds you in ScaleX's Meta app first, and you accept the invite.",
+        "testersOff": "For testers the ScaleX team has added in Meta. {off}"
       },
       "tier": {
-        "unseen": "not seen yet — Meta reports it on SYB's first call for an ad change",
+        "unseen": "not seen yet — Meta reports it on ScaleX's first call for an ad change",
         "development_access": "development tier: Meta's lowest limits, meant for building",
         "standard_access": "standard access: about {base} + {perAd} × active ads calls an hour on this ad account",
-        "note": "Meta limits how many calls SYB may make on this ad account each hour, by tier. That is enough for one business, not a customer base. SYB waits for the next run whenever Meta reports {share} of the limit used. Higher limits need Meta's review, which SYB applies for once {calls, plural, one {# successful call} other {# successful calls}} in {days, plural, one {# day} other {# days}} exist."
+        "note": "Meta limits how many calls ScaleX may make on this ad account each hour, by tier. That is enough for one business, not a customer base. ScaleX waits for the next run whenever Meta reports {share} of the limit used. Higher limits need Meta's review, which ScaleX applies for once {calls, plural, one {# successful call} other {# successful calls}} in {days, plural, one {# day} other {# days}} exist."
       }
     },
     "email": {
@@ -2197,7 +2197,7 @@
       "fact": {
         "status": "status",
         "sentAs": "sent as",
-        "viaSyb": "{name} via SYB",
+        "viaSyb": "{name} via ScaleX",
         "repliesTo": "replies go to"
       },
       "disconnectNote": "Disconnecting stops every campaign send at once. It can't recall an email already sent.",
@@ -2207,7 +2207,7 @@
       },
       "undoable": "Can be undone.",
       "notUndoable": "Can't be undone: a sent email can't be recalled, and each campaign is labelled so before you approve it.",
-      "ownService": "Campaigns go out from SYB’s own email service, under your business name. You don’t give SYB any password or key for this.",
+      "ownService": "Campaigns go out from ScaleX’s own email service, under your business name. You don’t give ScaleX any password or key for this.",
       "sendAs": "Send as (your business name)",
       "repliesTo": "Replies go to (an address you read)",
       "typeToConfirm": "To confirm, type <b>{phrase}</b>",
@@ -2216,18 +2216,18 @@
       "nothingSent": "Granting records your consent. Nothing is sent until you approve a campaign and then the email itself, and every recipient is checked again at the moment it goes.",
       "how": {
         "label": "How campaigns are sent",
-        "title": "From SYB’s own email service, under your name.",
-        "body": "You give SYB no password or key for this. Each campaign goes only to customers who explicitly agreed to hear from you, each one checked again at the moment it goes, and every email carries its own unsubscribe link, honoured at once and for good."
+        "title": "From ScaleX’s own email service, under your name.",
+        "body": "You give ScaleX no password or key for this. Each campaign goes only to customers who explicitly agreed to hear from you, each one checked again at the moment it goes, and every email carries its own unsubscribe link, honoured at once and for good."
       },
       "realSendsOff": "{label} is switched off until the two-week unattended test completes. Nothing was sent; this stays approved. It goes out on the first run after it is switched on.",
-      "sharedSender": "For now, campaigns and SYB's own sign-in emails go out from the same sending address. If a campaign drew many spam complaints, sign-in emails could be slowed too."
+      "sharedSender": "For now, campaigns and ScaleX's own sign-in emails go out from the same sending address. If a campaign drew many spam complaints, sign-in emails could be slowed too."
     },
     "google": {
       "sectionLabel": "Google Business Profile · a separate consent",
       "label": "Google Business Profile reviews",
       "title": {
         "on": "Granted, used only to read your reviews",
-        "off": "Off. SYB doesn't read your Google reviews."
+        "off": "Off. ScaleX doesn't read your Google reviews."
       },
       "status": {
         "connected": "connected",
@@ -2246,44 +2246,44 @@
       "connectFailed": "That didn't connect.",
       "revokeFailed": "That didn't revoke.",
       "connected": "Google Business Profile is connected, and your consent is on record.",
-      "signedInPick": "Signed in with Google. Pick the location SYB should read.",
+      "signedInPick": "Signed in with Google. Pick the location ScaleX should read.",
       "youCancelled": "You cancelled on Google's screen. Nothing was connected.",
       "nothingConnected": "Nothing was connected.",
-      "revoked": "Revoked. SYB's access to Google is deleted, and reading has stopped.",
+      "revoked": "Revoked. ScaleX's access to Google is deleted, and reading has stopped.",
       "fact": {
         "status": "status",
         "location": "location",
         "lastRead": "last read",
-        "notYet": "not yet: SYB reads once a day"
+        "notYet": "not yet: ScaleX reads once a day"
       },
-      "revokeAsk": "SYB stops reading your Google reviews.",
+      "revokeAsk": "ScaleX stops reading your Google reviews.",
       "revoking": "Revoking…",
       "yesRevoke": "Yes, revoke",
       "revoke": "Revoke",
-      "revokeNote": "Revoking deletes SYB's access here at once, and SYB stops reading. Reviews already read stay on Reviews until you remove them or their year is up. To remove SYB on Google's side too, open your Google Account's Security page, then Third-party connections.",
-      "pickTitle": "Pick the location SYB reads",
+      "revokeNote": "Revoking deletes ScaleX's access here at once, and ScaleX stops reading. Reviews already read stay on Reviews until you remove them or their year is up. To remove ScaleX on Google's side too, open your Google Account's Security page, then Third-party connections.",
+      "pickTitle": "Pick the location ScaleX reads",
       "recording": "Recording…",
       "readLocation": "Read this location's reviews",
       "googleScreen": "Google then shows its own screen and asks about this one permission. Allow it, and come back here.",
       "typeToConfirm": "To confirm, type <b>{phrase}</b>",
       "opening": "Opening Google…",
       "signIn": "Sign in with Google and allow reading reviews",
-      "nothingWritten": "Connecting records your consent and reads your reviews once a day. SYB never replies and never edits your listing: it only reads from Google.",
+      "nothingWritten": "Connecting records your consent and reads your reviews once a day. ScaleX never replies and never edits your listing: it only reads from Google.",
       "reason": {
-        "start_here": "Start the Google sign-in from SYB's Connections screen, with the button there. Nothing was sent to Google.",
-        "signed_out": "Sign in to SYB first, then connect Google again.",
+        "start_here": "Start the Google sign-in from ScaleX's Connections screen, with the button there. Nothing was sent to Google.",
+        "signed_out": "Sign in to ScaleX first, then connect Google again.",
         "owner_only": "Only an owner can grant or take back this permission. Nothing was sent to Google.",
         "unavailable": "Reading reviews from Google isn't set up yet.",
         "phrase": "The confirmation phrase didn't match. Type it as shown, then start again.",
         "already_connected": "Google Business Profile is already connected. Revoke it first to connect another.",
         "start_again": "That Google sign-in expired or was already used. Start again from Connections.",
-        "foreign": "That Google sign-in was started from a different SYB account. Sign in to SYB as that account, or start again.",
+        "foreign": "That Google sign-in was started from a different ScaleX account. Sign in to ScaleX as that account, or start again.",
         "google_error": "Google sign-in didn't finish. Nothing was connected.",
-        "scope": "Google didn't grant exactly the one permission SYB asks for. On Google's screen, allow the Business Profile permission, then try again.",
-        "no_refresh": "Google didn't give SYB lasting access. Start again: Google asks once more, and SYB needs that answer.",
-        "no_locations": "Google showed SYB no Business Profile for that Google account. Sign in with the account that manages your profile, then try again.",
+        "scope": "Google didn't grant exactly the one permission ScaleX asks for. On Google's screen, allow the Business Profile permission, then try again.",
+        "no_refresh": "Google didn't give ScaleX lasting access. Start again: Google asks once more, and ScaleX needs that answer.",
+        "no_locations": "Google showed ScaleX no Business Profile for that Google account. Sign in with the account that manages your profile, then try again.",
         "google_auth": "Google didn't accept the sign-in. Start again from Connections.",
-        "google_permission": "Google says SYB isn't allowed to read Business Profiles yet. Nothing was connected.",
+        "google_permission": "Google says ScaleX isn't allowed to read Business Profiles yet. Nothing was connected.",
         "google_busy": "Google was busy or didn't answer. Nothing was connected — try again in a few minutes.",
         "google_refused": "Google refused the sign-in. Nothing was connected.",
         "internal": "Something went wrong on our side. Nothing was connected.",
@@ -2407,8 +2407,8 @@
       "sectionLabel": "TikTok posting · a separate consent",
       "label": "TikTok posting",
       "title": {
-        "on": "Granted: SYB posts the videos you approve",
-        "off": "Off. SYB doesn't post to TikTok."
+        "on": "Granted: ScaleX posts the videos you approve",
+        "off": "Off. ScaleX doesn't post to TikTok."
       },
       "status": {
         "connected": "connected",
@@ -2426,47 +2426,47 @@
       "revokeFailed": "That didn't revoke.",
       "connected": "TikTok posting is connected, and your consent is on record.",
       "youCancelled": "You cancelled on TikTok's screen. Nothing was connected.",
-      "revoked": "Revoked. SYB's access to TikTok is deleted here, and TikTok was asked to revoke it too.",
-      "revokedHereOnly": "Revoked here. TikTok didn't confirm it revoked SYB's access too, so check in the TikTok app.",
+      "revoked": "Revoked. ScaleX's access to TikTok is deleted here, and TikTok was asked to revoke it too.",
+      "revokedHereOnly": "Revoked here. TikTok didn't confirm it revoked ScaleX's access too, so check in the TikTok app.",
       "fact": {
         "status": "status",
         "account": "TikTok account",
         "whoSees": "who can see posts",
-        "private": "only you, until TikTok audits SYB's app",
+        "private": "only you, until TikTok audits ScaleX's app",
         "chosen": "you choose for each post"
       },
       "access": {
-        "unaudited": "Until TikTok audits SYB's app, everything SYB posts goes out private: only you can see it on TikTok. Once the audit passes, you choose who sees each post. Until then TikTok also lets SYB's app post for only a few accounts a day.",
-        "audited": "TikTok has audited SYB's app: you choose who can see each post, from TikTok's own options."
+        "unaudited": "Until TikTok audits ScaleX's app, everything ScaleX posts goes out private: only you can see it on TikTok. Once the audit passes, you choose who sees each post. Until then TikTok also lets ScaleX's app post for only a few accounts a day.",
+        "audited": "TikTok has audited ScaleX's app: you choose who can see each post, from TikTok's own options."
       },
       "before": "Before it works",
       "needs": {
-        "app": "SYB's own TikTok app, with Login Kit and TikTok's posting API (Direct Post) switched on.",
+        "app": "ScaleX's own TikTok app, with Login Kit and TikTok's posting API (Direct Post) switched on.",
         "signIn": "You sign in with the TikTok account the posts go to, and allow what TikTok asks about.",
         "choose": "Each post is a video you approve, with who can see it chosen by you first."
       },
-      "notSetUp": "Not set up yet: SYB's TikTok app keys aren't in place. Until then, nothing can be posted to TikTok.",
-      "revokeAsk": "SYB stops posting to TikTok. Posts already there stay.",
+      "notSetUp": "Not set up yet: ScaleX's TikTok app keys aren't in place. Until then, nothing can be posted to TikTok.",
+      "revokeAsk": "ScaleX stops posting to TikTok. Posts already there stay.",
       "revoking": "Revoking…",
       "yesRevoke": "Yes, revoke",
       "revoke": "Revoke",
-      "revokeNote": "Revoking deletes SYB's access here at once and asks TikTok to revoke it too. Posts already on TikTok stay there. To check on TikTok's side, open Settings and privacy, then Security and permissions, then Apps and services permissions.",
+      "revokeNote": "Revoking deletes ScaleX's access here at once and asks TikTok to revoke it too. Posts already on TikTok stay there. To check on TikTok's side, open Settings and privacy, then Security and permissions, then Apps and services permissions.",
       "tiktokScreen": "TikTok then shows its own screen and asks about posting videos, your basic profile and your public videos. Allow them, and come back here.",
       "typeToConfirm": "To confirm, type <b>{phrase}</b>",
       "opening": "Opening TikTok…",
       "signIn": "Sign in with TikTok and allow posting",
-      "nothingWritten": "Nothing is posted until you approve the finished video, with who can see it chosen by you. SYB reads only your TikTok profile's name and your public videos' counts.",
+      "nothingWritten": "Nothing is posted until you approve the finished video, with who can see it chosen by you. ScaleX reads only your TikTok profile's name and your public videos' counts.",
       "reason": {
-        "start_here": "Start the TikTok sign-in from SYB's Connections screen, with the button there. Nothing was sent to TikTok.",
-        "signed_out": "Sign in to SYB first, then connect TikTok again.",
+        "start_here": "Start the TikTok sign-in from ScaleX's Connections screen, with the button there. Nothing was sent to TikTok.",
+        "signed_out": "Sign in to ScaleX first, then connect TikTok again.",
         "owner_only": "Only an owner can grant or take back this permission. Nothing was sent to TikTok.",
         "unavailable": "TikTok posting isn't set up yet.",
         "phrase": "The confirmation phrase didn't match. Type it as shown, then start again.",
         "already_connected": "TikTok posting is already connected. Revoke it first to connect another account.",
         "start_again": "That TikTok sign-in expired or was already used. Start again from Connections.",
-        "foreign": "That TikTok sign-in was started from a different SYB account. Sign in to SYB as that account, or start again.",
+        "foreign": "That TikTok sign-in was started from a different ScaleX account. Sign in to ScaleX as that account, or start again.",
         "tiktok_error": "TikTok sign-in didn't finish. Nothing was connected.",
-        "scope": "TikTok didn't grant exactly what SYB asks for. On TikTok's screen, allow everything listed, then try again.",
+        "scope": "TikTok didn't grant exactly what ScaleX asks for. On TikTok's screen, allow everything listed, then try again.",
         "tiktok_refused": "TikTok refused the sign-in. Nothing was connected.",
         "internal": "Something went wrong on our side. Nothing was connected.",
         "generic": "TikTok sign-in didn't finish. Nothing was connected."
@@ -2477,41 +2477,41 @@
       "sectionLabel": "TikTok Ads · reading and acting, one consent",
       "label": "TikTok ad management",
       "title": {
-        "on": "Connected. SYB reads your TikTok campaigns and changes only what you approve",
-        "off": "Off. SYB doesn't read or change your TikTok ads."
+        "on": "Connected. ScaleX reads your TikTok campaigns and changes only what you approve",
+        "off": "Off. ScaleX doesn't read or change your TikTok ads."
       },
       "connected": "TikTok is connected, and your consent is on record.",
       "youCancelled": "You cancelled on TikTok's page. Nothing was connected.",
-      "revoked": "Revoked. SYB's access to TikTok is deleted here, and reading and changes have stopped.",
-      "whyOne": "TikTok gives an app one list of permissions, so reading your campaigns and changing them come together. SYB holds both as this one consent: it reads once a day, and changes a campaign only after you approve a proposal.",
+      "revoked": "Revoked. ScaleX's access to TikTok is deleted here, and reading and changes have stopped.",
+      "whyOne": "TikTok gives an app one list of permissions, so reading your campaigns and changing them come together. ScaleX holds both as this one consent: it reads once a day, and changes a campaign only after you approve a proposal.",
       "fact": {
         "status": "status",
         "adAccounts": "ad accounts",
         "lastRead": "last read",
-        "notYet": "not yet: SYB reads once a day"
+        "notYet": "not yet: ScaleX reads once a day"
       },
-      "revokeAsk": "SYB stops reading your TikTok campaigns and can't change them.",
-      "revokeNote": "Revoking deletes SYB's access here at once. Figures already read stay. To remove SYB on TikTok's side too, take SYB's app off the authorized apps of your TikTok ad account.",
-      "tiktokScreen": "TikTok then shows SYB's app with these permissions and emails you a code to confirm it's you. Allow it, and come back here.",
+      "revokeAsk": "ScaleX stops reading your TikTok campaigns and can't change them.",
+      "revokeNote": "Revoking deletes ScaleX's access here at once. Figures already read stay. To remove ScaleX on TikTok's side too, take ScaleX's app off the authorized apps of your TikTok ad account.",
+      "tiktokScreen": "TikTok then shows ScaleX's app with these permissions and emails you a code to confirm it's you. Allow it, and come back here.",
       "typeToConfirm": "To confirm, type <b>{phrase}</b>",
       "opening": "Opening TikTok…",
       "signIn": "Sign in with TikTok and allow these",
       "nothingWritten": "Connecting records your consent and reads your campaigns once a day. Nothing changes on TikTok until you approve a proposal, and TikTok ad changes stay switched off until the two-week unattended test completes.",
       "access": {
         "title": "Access, plainly",
-        "check": "TikTok checks every developer app before sign-ins with it work, usually within two to three working days. Until SYB's app has passed, TikTok refuses the sign-in, and SYB says so.",
-        "sandbox": "SYB connects real ad accounts only. TikTok is retiring its sandbox accounts this December, so SYB doesn't use them: test with your own ad account and a small campaign."
+        "check": "TikTok checks every developer app before sign-ins with it work, usually within two to three working days. Until ScaleX's app has passed, TikTok refuses the sign-in, and ScaleX says so.",
+        "sandbox": "ScaleX connects real ad accounts only. TikTok is retiring its sandbox accounts this December, so ScaleX doesn't use them: test with your own ad account and a small campaign."
       },
       "missing": {
-        "title": "Not set up yet. These settings are missing on SYB's server:"
+        "title": "Not set up yet. These settings are missing on ScaleX's server:"
       },
       "steps": {
-        "title": "Setting it up, once, for SYB's server",
+        "title": "Setting it up, once, for ScaleX's server",
         "developer": "Register as a developer on TikTok's developer site, {site}, with the TikTok login that runs your ads, and wait until your developer profile is accepted.",
         "app": "Under My Apps, create an app, and enter {callback} as its advertiser redirect URL.",
         "scopes": "Under Scope of permission, tick exactly these, and nothing else: {scopes}.",
         "submit": "Submit the app. TikTok checks it, usually within two to three working days.",
-        "keys": "Once it has passed, copy the App ID and Secret from the app's Basic Information into {appId} and {secret} on SYB's server, and the redirect URL into {redirect}."
+        "keys": "Once it has passed, copy the App ID and Secret from the app's Basic Information into {appId} and {secret} on ScaleX's server, and the redirect URL into {redirect}."
       },
       "status": {
         "connected": "connected",
@@ -2531,19 +2531,19 @@
       "yesRevoke": "Yes, revoke",
       "revoke": "Revoke",
       "reason": {
-        "start_here": "Start the TikTok sign-in from SYB's Connections screen, with the button there. Nothing was sent to TikTok.",
-        "signed_out": "Sign in to SYB first, then connect TikTok again.",
+        "start_here": "Start the TikTok sign-in from ScaleX's Connections screen, with the button there. Nothing was sent to TikTok.",
+        "signed_out": "Sign in to ScaleX first, then connect TikTok again.",
         "owner_only": "Only an owner can grant or take back this permission. Nothing was sent to TikTok.",
         "unavailable": "TikTok Ads isn't set up yet.",
         "phrase": "The confirmation phrase didn't match. Type it as shown, then start again.",
         "already_connected": "TikTok is already connected. Revoke it first to connect again.",
         "start_again": "That TikTok sign-in expired or was already used. Start again from Connections.",
-        "foreign": "That TikTok sign-in was started from a different SYB account. Sign in to SYB as that account, or start again.",
+        "foreign": "That TikTok sign-in was started from a different ScaleX account. Sign in to ScaleX as that account, or start again.",
         "tiktok_error": "TikTok sign-in didn't finish. Nothing was connected.",
-        "scope": "TikTok didn't grant exactly the permissions SYB asks for. Check the app's Scope of permission against the list on Connections, then try again.",
-        "no_advertisers": "TikTok showed SYB no ad account for that sign-in. Sign in with the TikTok login that runs your ads, then try again.",
-        "tiktok_auth": "TikTok didn't accept the sign-in. If TikTok is still checking SYB's app, wait until it has passed; otherwise start again.",
-        "tiktok_permission": "TikTok says SYB's app isn't allowed to read that ad account. Nothing was connected.",
+        "scope": "TikTok didn't grant exactly the permissions ScaleX asks for. Check the app's Scope of permission against the list on Connections, then try again.",
+        "no_advertisers": "TikTok showed ScaleX no ad account for that sign-in. Sign in with the TikTok login that runs your ads, then try again.",
+        "tiktok_auth": "TikTok didn't accept the sign-in. If TikTok is still checking ScaleX's app, wait until it has passed; otherwise start again.",
+        "tiktok_permission": "TikTok says ScaleX's app isn't allowed to read that ad account. Nothing was connected.",
         "tiktok_busy": "TikTok was busy or didn't answer. Nothing was connected — try again in a few minutes.",
         "tiktok_refused": "TikTok refused the sign-in. Nothing was connected.",
         "internal": "Something went wrong on our side. Nothing was connected.",
@@ -2554,48 +2554,48 @@
       "sectionLabel": "Google Ads · a separate consent",
       "label": "Google Ads",
       "title": {
-        "on": "Granted: SYB reads your ad spend, and changes only what you approve",
-        "off": "Off. SYB doesn't read your Google Ads."
+        "on": "Granted: ScaleX reads your ad spend, and changes only what you approve",
+        "off": "Off. ScaleX doesn't read your Google Ads."
       },
-      "whatItCanDo": "Google's permission can also change your campaigns, budgets and ads. SYB reads your spend and results with it once a day, and changes something only through a proposal you approve. You can revoke it any time.",
-      "notSetUp": "Not set up on SYB's side yet. Missing: {keys}.",
+      "whatItCanDo": "Google's permission can also change your campaigns, budgets and ads. ScaleX reads your spend and results with it once a day, and changes something only through a proposal you approve. You can revoke it any time.",
+      "notSetUp": "Not set up on ScaleX's side yet. Missing: {keys}.",
       "accessLevel": {
-        "title": "Google's approval for SYB",
-        "test": "Test accounts only. Google hasn't approved SYB for real ad accounts yet, so a real one is refused until it does.",
-        "explorer": "Real ad accounts, up to {ops} operations a day across everyone SYB serves.",
-        "basic": "Real ad accounts, up to {ops} operations a day across everyone SYB serves. Google checked SYB first.",
+        "title": "Google's approval for ScaleX",
+        "test": "Test accounts only. Google hasn't approved ScaleX for real ad accounts yet, so a real one is refused until it does.",
+        "explorer": "Real ad accounts, up to {ops} operations a day across everyone ScaleX serves.",
+        "basic": "Real ad accounts, up to {ops} operations a day across everyone ScaleX serves. Google checked ScaleX first.",
         "standard": "Real ad accounts, with no daily cap beyond Google's own rate limits.",
         "unknown": "Not stated yet, so treat it as test accounts only."
       },
       "fact": {
         "account": "ad account"
       },
-      "revokeAsk": "SYB stops reading your Google Ads, and can't change anything there.",
-      "revokeNote": "Revoking deletes SYB's access here at once. Spend already read stays in your numbers. To remove SYB on Google's side too, open your Google Account's Security page, then Third-party connections.",
+      "revokeAsk": "ScaleX stops reading your Google Ads, and can't change anything there.",
+      "revokeNote": "Revoking deletes ScaleX's access here at once. Spend already read stays in your numbers. To remove ScaleX on Google's side too, open your Google Account's Security page, then Third-party connections.",
       "connected": "Google Ads is connected, and your consent is on record.",
-      "signedInPick": "Signed in with Google. Pick the ad account SYB should read.",
-      "revoked": "Revoked. SYB's access to Google Ads is deleted: nothing is read or changed.",
+      "signedInPick": "Signed in with Google. Pick the ad account ScaleX should read.",
+      "revoked": "Revoked. ScaleX's access to Google Ads is deleted: nothing is read or changed.",
       "pickTitle": "Pick the ad account",
-      "managerNote": "a manager account: SYB connects the ad account itself",
+      "managerNote": "a manager account: ScaleX connects the ad account itself",
       "connectAccount": "Connect this ad account",
       "signIn": "Sign in with Google and allow Google Ads",
-      "nothingWritten": "Connecting records your consent and reads your spend once a day. Nothing changes on Google Ads until you approve a proposal, and changes stay switched off until SYB's two-week real-write test is complete.",
+      "nothingWritten": "Connecting records your consent and reads your spend once a day. Nothing changes on Google Ads until you approve a proposal, and changes stay switched off until ScaleX's two-week real-write test is complete.",
       "reason": {
         "unavailable": "Google Ads isn't set up yet.",
         "already_connected": "Google Ads is already connected. Revoke it first to connect another account.",
-        "scope": "Google didn't grant exactly the one permission SYB asks for. On Google's screen, allow the Google Ads permission, then try again.",
-        "no_accounts": "Google showed SYB no Google Ads account for that Google account. Sign in with the account that has access to your ads, then try again.",
-        "managers_only": "That Google account reaches only manager accounts. SYB connects the ad account itself: give your Google account access to it, then try again.",
-        "access_level": "Google hasn't approved SYB's Google Ads access for real ad accounts yet. Nothing was connected.",
-        "google_permission": "Google says SYB isn't allowed into that Google Ads account. Nothing was connected.",
-        "start_here": "Start the Google sign-in from SYB's Connections screen, with the button there. Nothing was sent to Google.",
-        "signed_out": "Sign in to SYB first, then connect Google again.",
+        "scope": "Google didn't grant exactly the one permission ScaleX asks for. On Google's screen, allow the Google Ads permission, then try again.",
+        "no_accounts": "Google showed ScaleX no Google Ads account for that Google account. Sign in with the account that has access to your ads, then try again.",
+        "managers_only": "That Google account reaches only manager accounts. ScaleX connects the ad account itself: give your Google account access to it, then try again.",
+        "access_level": "Google hasn't approved ScaleX's Google Ads access for real ad accounts yet. Nothing was connected.",
+        "google_permission": "Google says ScaleX isn't allowed into that Google Ads account. Nothing was connected.",
+        "start_here": "Start the Google sign-in from ScaleX's Connections screen, with the button there. Nothing was sent to Google.",
+        "signed_out": "Sign in to ScaleX first, then connect Google again.",
         "owner_only": "Only an owner can grant or take back this permission. Nothing was sent to Google.",
         "phrase": "The confirmation phrase didn't match. Type it as shown, then start again.",
         "start_again": "That Google sign-in expired or was already used. Start again from Connections.",
-        "foreign": "That Google sign-in was started from a different SYB account. Sign in to SYB as that account, or start again.",
+        "foreign": "That Google sign-in was started from a different ScaleX account. Sign in to ScaleX as that account, or start again.",
         "google_error": "Google sign-in didn't finish. Nothing was connected.",
-        "no_refresh": "Google didn't give SYB lasting access. Start again: Google asks once more, and SYB needs that answer.",
+        "no_refresh": "Google didn't give ScaleX lasting access. Start again: Google asks once more, and ScaleX needs that answer.",
         "google_auth": "Google didn't accept the sign-in. Start again from Connections.",
         "google_busy": "Google was busy or didn't answer. Nothing was connected — try again in a few minutes.",
         "google_refused": "Google refused the sign-in. Nothing was connected.",
@@ -2606,7 +2606,7 @@
   },
   "landing": {
     "meta": {
-      "title": "SYB — a blood test for your business",
+      "title": "ScaleX — a blood test for your business",
       "description": "{checks} checks on your sales, bookings, payments and ads, every leak priced in euros, and a signed report."
     },
     "nav": {
@@ -2722,7 +2722,7 @@
     },
     "walk": {
       "figure": "Product walkthrough video",
-      "bar": "SYB · PRODUCT WALKTHROUGH",
+      "bar": "ScaleX · PRODUCT WALKTHROUGH",
       "chapterOf": "Chapter {n} of {total} · {title}",
       "chapters": "Chapters",
       "play": "Play walkthrough",
@@ -2917,22 +2917,22 @@
     }
   },
   "legal": {
-    "toBeSupplied": "This document is to be supplied by SYB before launch.",
+    "toBeSupplied": "This document is to be supplied by ScaleX before launch.",
     "terms": {
-      "meta": "Terms — SYB",
+      "meta": "Terms — ScaleX",
       "label": "Terms",
       "title": "Terms of service"
     },
     "privacy": {
-      "meta": "Privacy notice — SYB",
+      "meta": "Privacy notice — ScaleX",
       "label": "Privacy",
       "title": "Privacy notice",
       "speakingHead": "Speaking an answer",
-      "speaking": "When you press Speak, your browser turns your speech into text. Where the browser can do that on your device, the audio stays on it. Otherwise your browser’s maker does it: in Chrome, Google. SYB never receives the audio and stores none. Only the words you choose to record, ask or send are saved, exactly as if you had typed them, and nothing is recorded by speaking alone."
+      "speaking": "When you press Speak, your browser turns your speech into text. Where the browser can do that on your device, the audio stays on it. Otherwise your browser’s maker does it: in Chrome, Google. ScaleX never receives the audio and stores none. Only the words you choose to record, ask or send are saved, exactly as if you had typed them, and nothing is recorded by speaking alone."
     }
   },
   "resume": {
-    "meta": "Carry on — SYB",
+    "meta": "Carry on — ScaleX",
     "headline": "Pick up where you stopped.",
     "title": "Carry on with this interview?",
     "button": "Carry on",
@@ -2941,7 +2941,7 @@
     "deadMessage": "Resume links stop working when they expire or are revoked. Sign in with your email and your interview is where you left it."
   },
   "summaryStop": {
-    "meta": "Weekly summary — SYB",
+    "meta": "Weekly summary — ScaleX",
     "label": "Email preferences",
     "unknown": {
       "title": "This link isn’t one we recognise.",
@@ -2959,7 +2959,7 @@
   },
   "benchmarks": {
     "meta": {
-      "title": "Compared with similar businesses — SYB"
+      "title": "Compared with similar businesses — ScaleX"
     },
     "kicker": "Insights · Compared with similar businesses",
     "aside": "Eurostat · read-only",
@@ -3014,7 +3014,7 @@
   },
   "blindspots": {
     "meta": {
-      "title": "Blindspots — SYB"
+      "title": "Blindspots — ScaleX"
     },
     "kicker": "Insights · Blindspots",
     "quoted": "“{text}”",
@@ -3114,10 +3114,10 @@
   },
   "carts": {
     "meta": {
-      "title": "Abandoned carts — SYB"
+      "title": "Abandoned carts — ScaleX"
     },
     "kicker": "Customers · Abandoned carts",
-    "foot": "SYB never emails a shopper who hasn't said yes. Shopify's own abandoned-checkout email, if you use it, is separate.",
+    "foot": "ScaleX never emails a shopper who hasn't said yes. Shopify's own abandoned-checkout email, if you use it, is separate.",
     "signedOut": "There's no business here yet.",
     "startInterview": "<link>Start with the interview</link>.",
     "failedTitle": "Carts didn't load.",
@@ -3156,7 +3156,7 @@
     },
     "consent": {
       "label": "Who can be emailed",
-      "checkout": "A shopper who ticks “email me” at Shopify's checkout becomes a contact with that yes recorded, once SYB may read your Shopify customers. A yes you recorded yourself only gives way to a later unsubscribe in Shopify."
+      "checkout": "A shopper who ticks “email me” at Shopify's checkout becomes a contact with that yes recorded, once ScaleX may read your Shopify customers. A yes you recorded yourself only gives way to a later unsubscribe in Shopify."
     },
     "refusal": {
       "noneRead": "I haven't read any carts yet.",
@@ -3187,11 +3187,11 @@
   },
   "cash": {
     "meta": {
-      "title": "Cash flow — SYB"
+      "title": "Cash flow — ScaleX"
     },
     "kicker": "Insights · Cash flow",
     "aside": "Planning aid · read-only",
-    "planningNote": "A planning aid from your own numbers, not financial advice. SYB never moves, pays or collects money.",
+    "planningNote": "A planning aid from your own numbers, not financial advice. ScaleX never moves, pays or collects money.",
     "sourcesNone": "Sources: your stated cash, costs and measured sales.",
     "signedOut": "There's no business here yet.",
     "startInterview": "<link>Start with the interview</link>.",
@@ -3281,7 +3281,7 @@
   },
   "competitors": {
     "meta": {
-      "title": "Competitors — SYB"
+      "title": "Competitors — ScaleX"
     },
     "kicker": "Insights · Competitors",
     "aside": "Public pages only · read weekly · OBSERVED",
@@ -3387,7 +3387,7 @@
   },
   "goals": {
     "meta": {
-      "title": "Goals — SYB"
+      "title": "Goals — ScaleX"
     },
     "kicker": "Insights · Goals",
     "metric": {
@@ -3433,7 +3433,7 @@
     },
     "review": {
       "head": "Alert review · {day}",
-      "headPerson": "Alert review · {day} · a person at SYB has this now",
+      "headPerson": "Alert review · {day} · a person at ScaleX has this now",
       "escalated": "The automatic review has done what it can. Someone from our team is looking at this goal and will be in touch.",
       "escalatedWhy": "The automatic review has done what it can ({reason}). Someone from our team is looking at this goal and will be in touch.",
       "cause": "<strong>{cause}:</strong> {statement} ({count, plural, one {# piece of evidence} other {# pieces of evidence}})",
@@ -3488,7 +3488,7 @@
   },
   "hours": {
     "meta": {
-      "title": "Trading hours — SYB"
+      "title": "Trading hours — ScaleX"
     },
     "kicker": "Insights · Trading hours",
     "weekdays": {
@@ -3600,7 +3600,7 @@
   },
   "patterns": {
     "meta": {
-      "title": "Seasons & bundles — SYB"
+      "title": "Seasons & bundles — ScaleX"
     },
     "kicker": "Insights · Seasons & bundles",
     "head": {
@@ -3729,7 +3729,7 @@
   },
   "pipeline": {
     "meta": {
-      "title": "Pipeline — SYB"
+      "title": "Pipeline — ScaleX"
     },
     "kicker": "Customers · Pipeline",
     "loading": "Reading your pipeline…",
@@ -3910,10 +3910,10 @@
   },
   "reviews": {
     "meta": {
-      "title": "Reviews — SYB"
+      "title": "Reviews — ScaleX"
     },
     "kicker": "Customers · Reviews",
-    "foot": "SYB never posts a reply and never signs in to your review sites. It reads your Google reviews only if you connect Google Business Profile, and only reads them. A reviewer's name is kept for a year, and you can remove any review at once.",
+    "foot": "ScaleX never posts a reply and never signs in to your review sites. It reads your Google reviews only if you connect Google Business Profile, and only reads them. A reviewer's name is kept for a year, and you can remove any review at once.",
     "stars": {
       "none": "No rating",
       "of": "{stars} of {max}"
@@ -3977,7 +3977,7 @@
     "forwarding": {
       "label": "Forwarding",
       "offTitle": "Forwarding isn't set up yet",
-      "offCopy": "Once SYB's inbound email is switched on, you'll get an address here to forward your review emails to, and I'll file each one as it comes. Until then, paste a review below and I'll file it the same way.",
+      "offCopy": "Once ScaleX's inbound email is switched on, you'll get an address here to forward your review emails to, and I'll file each one as it comes. Until then, paste a review below and I'll file it the same way.",
       "title": "Forward review emails here",
       "newStops": "A new address stops this one working. Update your forwarding after.",
       "newAddress": "Get a new address",
@@ -3987,22 +3987,22 @@
     },
     "google": {
       "label": "Google Business Profile",
-      "failed": "Google stopped accepting SYB's access",
+      "failed": "Google stopped accepting ScaleX's access",
       "reading": "Reading your Google reviews",
       "readingFor": "Reading your Google reviews for {location}",
       "readDirectly": "Read your Google reviews directly",
       "notSetUpTitle": "Reading from Google isn't set up yet",
       "manage": "Manage or revoke it on Connections",
       "connect": "Connect it on Connections",
-      "connected": "SYB reads your reviews once a day and files new ones here, alongside any you forward. The same review arriving both ways is listed once.",
+      "connected": "ScaleX reads your reviews once a day and files new ones here, alongside any you forward. The same review arriving both ways is listed once.",
       "lastRead": "Last read {day}.",
       "before": "Before it can work",
-      "whatItCanDo": "Google's permission can also post replies to your reviews and edit your Business Profile listing. SYB only reads your reviews with it. You can revoke it any time.",
-      "notSetUp": "Not set up yet. Google lets apps read Business Profile reviews only after it approves them, and SYB's approval isn't in place yet. Until then, forward Google's review emails or paste a review.",
+      "whatItCanDo": "Google's permission can also post replies to your reviews and edit your Business Profile listing. ScaleX only reads your reviews with it. You can revoke it any time.",
+      "notSetUp": "Not set up yet. Google lets apps read Business Profile reviews only after it approves them, and ScaleX's approval isn't in place yet. Until then, forward Google's review emails or paste a review.",
       "needs": {
-        "approval": "SYB's approval from Google to use the Business Profile APIs (Google's own review of SYB).",
+        "approval": "ScaleX's approval from Google to use the Business Profile APIs (Google's own review of ScaleX).",
         "signIn": "You sign in with the Google account that manages your Business Profile, and allow the one permission Google asks about.",
-        "location": "If you manage more than one location, you pick the one SYB reads."
+        "location": "If you manage more than one location, you pick the one ScaleX reads."
       },
       "readNote": "Read from your Google Business Profile."
     },
@@ -4037,7 +4037,7 @@
   },
   "simulate": {
     "meta": {
-      "title": "Simulator — SYB"
+      "title": "Simulator — ScaleX"
     },
     "tabs": {
       "aria": "Simulator",
@@ -4259,7 +4259,7 @@
   },
   "stock": {
     "meta": {
-      "title": "Stock — SYB"
+      "title": "Stock — ScaleX"
     },
     "kicker": "Insights · Stock",
     "signedOut": "There's no business here yet.",
@@ -4444,7 +4444,7 @@
         "failed": "didn't go out"
       },
       "why": {
-        "email_not_set_up": "Email isn't set up on SYB's sending domain yet.",
+        "email_not_set_up": "Email isn't set up on ScaleX's sending domain yet.",
         "real_writes_off": "Real sending is switched off until the two-week unattended test completes."
       },
       "notSentAfter": "Download it and send it yourself.",
@@ -4469,7 +4469,7 @@
   },
   "chat": {
     "meta": {
-      "title": "Ask me anything — SYB"
+      "title": "Ask me anything — ScaleX"
     },
     "kicker": "Ask me anything · About {about}",
     "yourBusiness": "your business",
@@ -4529,7 +4529,7 @@
   },
   "mode": {
     "meta": {
-      "title": "How I work — SYB"
+      "title": "How I work — ScaleX"
     },
     "kicker": "Your business · How I work",
     "yourBusiness": "your business",
@@ -4598,7 +4598,7 @@
   },
   "content": {
     "meta": {
-      "title": "Content — SYB"
+      "title": "Content — ScaleX"
     },
     "kicker": "Grow · Content",
     "loading": "Reading the content queue…",
@@ -4672,14 +4672,14 @@
         "proposed": "ad proposed"
       },
       "text": {
-        "live": "The ad is live on Meta for the days you approved, then it stops by itself. The emergency stop halts anything SYB is still sending.",
+        "live": "The ad is live on Meta for the days you approved, then it stops by itself. The emergency stop halts anything ScaleX is still sending.",
         "pausedBlocked": "The ad is on Meta, paused. Going live is held back by a limit you set.",
         "pausedPending": "The ad is on Meta, paused. Going live is a separate yes, waiting in the queue.",
         "goLiveApprovedOn": "Approved to go live: the ad, its ad set and its campaign switch on at the next run.",
         "goLiveApprovedOff": "Approved to go live, waiting for Meta ad changes to be switched on. Nothing spends until then.",
         "paused": "The ad is on Meta, paused, spending nothing. Going live is a separate approval.",
         "building": "Being created on Meta, paused. It carries on from where it stopped — nothing is created twice.",
-        "buildStopped": "The ad's build stopped. Check Ads Manager; everything SYB made is paused.",
+        "buildStopped": "The ad's build stopped. Check Ads Manager; everything ScaleX made is paused.",
         "heldBack": "Proposed as an ad, and held back by a limit you set.",
         "approvedOn": "Approved: the ad is created on Meta, paused, at the next run.",
         "approvedOff": "Approved, waiting for Meta ad changes to be switched on. Nothing is sent until then.",
@@ -4828,7 +4828,7 @@
         "generated": "Generated.",
         "approved": "Approved. Generating spends the stated cost.",
         "notOffered": "Not offered: {reason}.",
-        "offer": "SYB can propose generating an image{image, select, none {} other { (about {image})}} or a {seconds}-second clip{video, select, none {} other { (about {video})}} from this item's own words. It is labelled as AI-generated in the file and the caption, never shows a real person or a brand, and needs your yes twice: to generate, then to publish. Your own footage replaces it whenever you film it.",
+        "offer": "ScaleX can propose generating an image{image, select, none {} other { (about {image})}} or a {seconds}-second clip{video, select, none {} other { (about {video})}} from this item's own words. It is labelled as AI-generated in the file and the caption, never shows a real person or a brand, and needs your yes twice: to generate, then to publish. Your own footage replaces it whenever you film it.",
         "dirLabel": "What it should show (optional)",
         "dirPlaceholder": "a bowl of pumpkin soup, top down",
         "proposed": "Proposed. It's in your approval queue with its cost.",
@@ -4850,7 +4850,7 @@
         "FOLLOWER_OF_CREATOR": "Followers",
         "SELF_ONLY": "Only me"
       },
-      "privateOnly": "Until TikTok audits SYB's app, posts can only be private: only you can see them.",
+      "privateOnly": "Until TikTok audits ScaleX's app, posts can only be private: only you can see them.",
       "allowComment": "Allow comments",
       "allowDuet": "Allow duets",
       "allowStitch": "Allow stitches",
@@ -4871,7 +4871,7 @@
   },
   "customers": {
     "meta": {
-      "title": "Customers — SYB"
+      "title": "Customers — ScaleX"
     },
     "kicker": "Customers",
     "opening": "Opening customers…",
@@ -4973,7 +4973,7 @@
     },
     "erase": {
       "title": "Erase this customer",
-      "copy": "For a deletion request. Removes their name, email, details and support conversations from SYB for good. Their address stays on the unsubscribe list as a hash, so they are never emailed again; the audit log keeps only anonymous ids.",
+      "copy": "For a deletion request. Removes their name, email, details and support conversations from ScaleX for good. Their address stays on the unsubscribe list as a hash, so they are never emailed again; the audit log keeps only anonymous ids.",
       "irreversible": "irreversible",
       "cannotUndo": "This cannot be undone.",
       "done": "Erased. The suppression hash stays.",
@@ -5089,7 +5089,7 @@
   },
   "studio": {
     "meta": {
-      "title": "Creative studio — SYB"
+      "title": "Creative studio — ScaleX"
     },
     "kicker": "Grow · Creative studio",
     "aside": "Meta Ad Library · read-only · OBSERVED",
@@ -5140,12 +5140,12 @@
       "picked": "Picked. It’s on the video item, labelled as AI-generated, and its publish proposal is in <queue>Waiting for you</queue>.",
       "pickedNoProposal": "Picked. It’s on the video item, labelled as AI-generated.",
       "videoSubmitted": "Sent. The three arrive below over the next few minutes, each labelled as AI-generated. You can leave this page and come back.",
-      "videoStillMaking": "Still being made. Come back later: SYB keeps collecting them, at least once a day."
+      "videoStillMaking": "Still being made. Come back later: ScaleX keeps collecting them, at least once a day."
     },
     "niche": {
       "label": "The niche's longest-running ads",
       "nothingYet": "Nothing to read yet",
-      "notSetUpNote": "Meta opens its Ad Library API only to a developer account whose identity it has confirmed. Once SYB’s token is set, this reads the ads your niche runs, read-only.",
+      "notSetUpNote": "Meta opens its Ad Library API only to a developer account whose identity it has confirmed. Once ScaleX’s token is set, this reads the ads your niche runs, read-only.",
       "blockedNote": "{why} What is shown is the last read.",
       "termsLabel": "Words your niche’s ads would use, comma-separated (two at most)",
       "termsPlaceholder": "e.g. handmade mug, pottery class",
@@ -5236,13 +5236,13 @@
         "not_chosen": "NOT CHOSEN · KEPT"
       },
       "making": "Being made: {ready} of {total} ready.",
-      "makingNote": "You can leave this page. SYB collects them while it is open, and once a day in the background; a ready one can be picked now.",
+      "makingNote": "You can leave this page. ScaleX collects them while it is open, and once a day in the background; a ready one can be picked now.",
       "progress": "{ready} of {total} ready"
     }
   },
   "site": {
     "meta": {
-      "title": "Your site — SYB"
+      "title": "Your site — ScaleX"
     },
     "kicker": "Grow · Website",
     "loading": "Reading your site changes…",
@@ -5404,7 +5404,7 @@
       "never": {
         "reads": "Reads public pages like a visitor, through the same guarded fetcher as every other site read.",
         "noLogin": "Never logs in, never sends a form, never adds to a cart, never opens checkout.",
-        "pagespeed": "Asks Google's public PageSpeed Insights to load the pages; SYB runs no browser of its own."
+        "pagespeed": "Asks Google's public PageSpeed Insights to load the pages; ScaleX runs no browser of its own."
       },
       "ran": "Measured · ran {day} · {pages, plural, one {# page} other {# pages}} read · {calls, plural, one {# PageSpeed call} other {# PageSpeed calls}}",
       "title": {
@@ -5456,7 +5456,7 @@
   },
   "support": {
     "meta": {
-      "title": "Support — SYB"
+      "title": "Support — ScaleX"
     },
     "kicker": "Customers · Support",
     "loading": "Opening support…",
@@ -5688,7 +5688,7 @@
     },
     "test": {
       "meta": {
-        "title": "Widget test page — SYB"
+        "title": "Widget test page — ScaleX"
       },
       "loading": "Setting up the test page…",
       "eyebrow": "widget test page",
@@ -5703,9 +5703,9 @@
       "label": "Phone line",
       "titleOn": "Answering calls on {number}",
       "titleOff": "Not answering calls",
-      "what": "The line says first that it is SYB's automated assistant. It answers only from the answers you approved, never books, promises or refunds anything, and takes a message or puts the caller through to you when it doesn't know. Callers hear that the call is transcribed before anything is, and no audio is kept.",
-      "whatRecorded": "The line says first that it is SYB's automated assistant. It answers only from the answers you approved, never books, promises or refunds anything, and takes a message or puts the caller through to you when it doesn't know. Callers hear that the call is recorded and transcribed before any of it is.",
-      "needsKeys": "To answer calls, SYB needs a Twilio account and a Twilio number. Add these settings on the server, then come back here:",
+      "what": "The line says first that it is ScaleX's automated assistant. It answers only from the answers you approved, never books, promises or refunds anything, and takes a message or puts the caller through to you when it doesn't know. Callers hear that the call is transcribed before anything is, and no audio is kept.",
+      "whatRecorded": "The line says first that it is ScaleX's automated assistant. It answers only from the answers you approved, never books, promises or refunds anything, and takes a message or puts the caller through to you when it doesn't know. Callers hear that the call is recorded and transcribed before any of it is.",
+      "needsKeys": "To answer calls, ScaleX needs a Twilio account and a Twilio number. Add these settings on the server, then come back here:",
       "setUp": "In Twilio, set this number's “A call comes in” webhook to the first address and its call status callback to the second, both as HTTP POST.",
       "turnOn": "Answer calls on {number}",
       "turnOff": "Stop answering",
@@ -5764,14 +5764,14 @@
         "badNumber": "Write the number with its country code, starting with a plus sign.",
         "noCall": "That call isn't here any more.",
         "recordingNotSetUp": "Call recording isn't set up on this server yet.",
-        "crossSite": "This page can only be changed from SYB itself.",
+        "crossSite": "This page can only be changed from ScaleX itself.",
         "signIn": "Sign in to change the phone line.",
         "action": "That isn't something the phone line can do."
       }
     }
   },
   "phoneLine": {
-    "greeting": "Hello, you've reached {business}, and you're speaking with SYB's automated assistant, not a person.",
+    "greeting": "Hello, you've reached {business}, and you're speaking with ScaleX's automated assistant, not a person.",
     "notice": "This call is transcribed so that {business} can read it later; no audio is kept.",
     "noticeRecorded": "This call is recorded and transcribed so that {business} can listen to it and read it later. The recording is kept for {days, plural, one {# day} other {# days}}, then deleted.",
     "howCanIHelp": "How can I help?",
@@ -5797,7 +5797,7 @@
   },
   "team": {
     "meta": {
-      "title": "Team cover — SYB"
+      "title": "Team cover — ScaleX"
     },
     "kicker": "Insights · Team cover",
     "aside": "Roles and hours · never people",
@@ -5925,7 +5925,7 @@
     },
     "remove": {
       "button": "Remove this person",
-      "confirm": "Remove {person}? Their name and their own figures are erased from SYB, and a later import won't bring the name back. Their appointments stay in the business's figures, without a name.",
+      "confirm": "Remove {person}? Their name and their own figures are erased from ScaleX, and a later import won't bring the name back. Their appointments stay in the business's figures, without a name.",
       "yes": "Remove",
       "no": "Keep",
       "done": "Removed. {count, plural, one {# appointment stays} other {# appointments stay}} in the business's figures, without a name."
@@ -5936,7 +5936,7 @@
   },
   "teamAccess": {
     "meta": {
-      "title": "Team access — SYB"
+      "title": "Team access — ScaleX"
     },
     "kicker": "Your business · Team access",
     "loading": "Reading who’s on the team…",
@@ -6007,9 +6007,9 @@
   },
   "invite": {
     "meta": {
-      "title": "Your invite — SYB"
+      "title": "Your invite — ScaleX"
     },
-    "someBusiness": "a business on SYB",
+    "someBusiness": "a business on ScaleX",
     "headline": {
       "join": "Join {where}.",
       "bad": "That invite doesn't work."
@@ -6027,7 +6027,7 @@
     "wrong": "This invite is for <b>{invited}</b>, and you’re signed in as <b>{signedIn}</b>. I won’t add the wrong person: sign out, then open this link again.",
     "signIn": "You’ll sign in as <b>{email}</b>, the address the invite is for. I’ll email a sign-in link there; opening it adds you to the team.",
     "foot": "Nothing happens until you press the button. Not your address? Close this page.",
-    "footLink": "Sign in to SYB",
+    "footLink": "Sign in to ScaleX",
     "actions": {
       "failed": "That didn't work. Try again in a minute.",
       "devLink": "Email isn't set up here (development), so here's the sign-in link:",
@@ -6048,7 +6048,7 @@
       "telemetry_record": "Only an owner or a manager can record how the screens are used.",
       "chat_ask": "Only an owner or a manager can ask me things in the chat.",
       "alerts_remove_device": "Only an owner or a manager can remove one of your own phones from alerts.",
-      "language_own": "Only an owner or a manager can choose the language you read SYB in.",
+      "language_own": "Only an owner or a manager can choose the language you read ScaleX in.",
       "proposals_decide": "Only an owner or a manager can approve or decline proposals.",
       "proposals_generate": "Only an owner or a manager can ask me for new proposals.",
       "proposals_carry_out": "Only an owner or a manager can carry out or undo an approved proposal.",
@@ -6071,7 +6071,7 @@
       "profile_edit": "Only an owner can change the business's facts, goals or limits.",
       "report_generate": "Only an owner can make a new report.",
       "report_respond": "Only an owner can answer the report's findings.",
-      "report_share": "Only an owner can share the report outside SYB.",
+      "report_share": "Only an owner can share the report outside ScaleX.",
       "competitors_manage": "Only an owner can change or research the competitor list.",
       "site_audit": "Only an owner can check the website.",
       "support_settings": "Only an owner can change how support is set up.",
@@ -6083,7 +6083,7 @@
       "phone_recordings": "Only an owner can listen to call recordings.",
       "payments_read": "Only an owner can see payments and their bank files.",
       "peers_consent": "Only an owner can decide whether this business's figures join the comparison with similar businesses.",
-      "ladder_manage": "Only an owner can change what SYB may do on its own.",
+      "ladder_manage": "Only an owner can change what ScaleX may do on its own.",
       "mandates_manage": "Only an owner can give or take back a firm's access to this business.",
       "growth_manage": "Only an owner or a manager can add assets and open creative briefs.",
       "growth_voice": "Only an owner can confirm the brand voice and record identity releases.",
@@ -6352,7 +6352,7 @@
       "stockPrices": "Approving records your yes. I don't change your prices: you do.",
       "stockAdvice": "Advice only: I contact nobody. Approving records that you mean to do it.",
       "reorder": "Approving records that you mean to reorder, and nothing else. I don't contact {supplier}, and I never place, change or cancel an order: you do.",
-      "purchaseOrder": "Approving emails this order to {email}, from SYB's address with replies going to you. A sent email can't be recalled, and I never change, cancel or pay an order: you do."
+      "purchaseOrder": "Approving emails this order to {email}, from ScaleX's address with replies going to you. A sent email can't be recalled, and I never change, cancel or pay an order: you do."
     }
   },
   "trackWords": {
@@ -6407,7 +6407,7 @@
   },
   "ledgerWords": {
     "actor": {
-      "syb": "SYB",
+      "syb": "ScaleX",
       "you": "you",
       "noAnswer": "no answer",
       "measured": "measured"
@@ -6460,11 +6460,11 @@
   },
   "emails": {
     "summary": {
-      "subjectWaiting": "Your week with SYB: {count, plural, one {# waiting for you} other {# waiting for you}}",
-      "subjectQuiet": "Your week with SYB: a quiet one",
-      "subjectCalm": "Your week with SYB: nothing needs you",
-      "heading": "Your week with SYB",
-      "headingNamed": "{business}: your week with SYB",
+      "subjectWaiting": "Your week with ScaleX: {count, plural, one {# waiting for you} other {# waiting for you}}",
+      "subjectQuiet": "Your week with ScaleX: a quiet one",
+      "subjectCalm": "Your week with ScaleX: nothing needs you",
+      "heading": "Your week with ScaleX",
+      "headingNamed": "{business}: your week with ScaleX",
       "quiet": "A quiet week: nothing new was recorded on your account, and nothing is waiting for you.",
       "titles": {
         "waiting": "Waiting for you",
@@ -6524,20 +6524,20 @@
       "whatsappBusiness": "your business"
     },
     "signIn": {
-      "subject": "Your sign-in link — SYB",
-      "intro": "Click to sign in to SYB:",
+      "subject": "Your sign-in link — ScaleX",
+      "intro": "Click to sign in to ScaleX:",
       "expiry": "The link works once and expires in {minutes, plural, one {# minute} other {# minutes}}. If you didn't ask for it, ignore this email — nothing happens without the link."
     },
     "invite": {
-      "subject": "You're invited to {business} on SYB",
-      "subjectUnnamed": "You're invited to a business on SYB",
-      "intro": "You've been invited to join {business} on SYB as {role, select, owner {an owner} manager {a manager} other {a viewer}}.",
-      "introUnnamed": "You've been invited to join a business on SYB as {role, select, owner {an owner} manager {a manager} other {a viewer}}.",
+      "subject": "You're invited to {business} on ScaleX",
+      "subjectUnnamed": "You're invited to a business on ScaleX",
+      "intro": "You've been invited to join {business} on ScaleX as {role, select, owner {an owner} manager {a manager} other {a viewer}}.",
+      "introUnnamed": "You've been invited to join a business on ScaleX as {role, select, owner {an owner} manager {a manager} other {a viewer}}.",
       "open": "Open this link to accept:",
       "expiry": "It works once and expires in {days, plural, one {# day} other {# days}}. You'll sign in with this address, {email}. If you weren't expecting it, ignore this email — nothing happens without you."
     },
     "supportNotice": {
-      "subject": "A customer emailed you — SYB",
+      "subject": "A customer emailed you — ScaleX",
       "waiting": "A customer emailed {business}, and it's waiting for you in Support: {url}",
       "waitingNoLink": "A customer emailed {business}, and it's waiting for you in Support.",
       "nothingSent": "Nothing has been sent to them. A reply goes only when you approve it.",
@@ -6564,7 +6564,7 @@
       "noteHead": "Note:",
       "confirm": "Please confirm the order, its price and the delivery date by replying to this email.",
       "closing": "Thank you,\n{business}",
-      "footer": "This order was prepared with SYB, an AI assistant, and approved by the business before it was sent. Replies go to the business directly.",
+      "footer": "This order was prepared with ScaleX, an AI assistant, and approved by the business before it was sent. Replies go to the business directly.",
       "doc": {
         "title": "Purchase order {number}",
         "prepared": "{business} · prepared on {day}",
@@ -6582,14 +6582,14 @@
         "unit": "Unit price (expected)",
         "lineTotal": "Line total",
         "toConfirm": "to be confirmed",
-        "foot": "Prepared with SYB. SYB never changes, cancels or pays an order."
+        "foot": "Prepared with ScaleX. ScaleX never changes, cancels or pays an order."
       }
     }
   },
   "push": {
     "one": "{count, plural, one {# thing waits for your yes: {what}} other {# things wait for your yes: {what}}}",
     "many": "{count, plural, one {# thing waits for your yes} other {# things wait for your yes}}",
-    "test": "A test from SYB. Alerts will reach this device.",
+    "test": "A test from ScaleX. Alerts will reach this device.",
     "kinds": {
       "price_increase": "a price change",
       "price_decrease": "a price change",
@@ -6640,7 +6640,7 @@
     }
   },
   "shared": {
-    "pageTitle": "Shared report — SYB",
+    "pageTitle": "Shared report — ScaleX",
     "label": "Shared report",
     "readOnly": "Shared report · read only",
     "deadTitle": "This link is no longer active.",
@@ -6655,7 +6655,7 @@
       "pageTitle": "Unsubscribe",
       "thisBusiness": "this business",
       "doneTitle": "You’re unsubscribed from {business}.",
-      "doneBody": "They won’t send you marketing email through SYB again. This is permanent; you don’t need to do anything else.",
+      "doneBody": "They won’t send you marketing email through ScaleX again. This is permanent; you don’t need to do anything else.",
       "askTitle": "Stop marketing email from {business}?",
       "askBody": "One click and it’s done, for good. Replies to your own questions are not affected.",
       "button": "Unsubscribe"
@@ -7801,13 +7801,13 @@
   "reviewsWords": {
     "googleRead": {
       "ok": "Read without trouble.",
-      "auth": "Google no longer accepts SYB's access, so reviews aren't being read. Revoke it here and connect again.",
-      "permission": "Google says SYB isn't allowed to read this Business Profile any more. Check that your Google account still manages it.",
-      "quota": "Google asked SYB to slow down. SYB tries again on its next daily read.",
-      "unavailable": "Google didn't answer. SYB tries again on its next daily read.",
-      "refused": "Google refused the read. SYB tries again on its next daily read.",
-      "fence": "SYB stopped a request that wasn't a read. Nothing was sent.",
-      "internal": "Something went wrong on our side. SYB tries again on its next daily read."
+      "auth": "Google no longer accepts ScaleX's access, so reviews aren't being read. Revoke it here and connect again.",
+      "permission": "Google says ScaleX isn't allowed to read this Business Profile any more. Check that your Google account still manages it.",
+      "quota": "Google asked ScaleX to slow down. ScaleX tries again on its next daily read.",
+      "unavailable": "Google didn't answer. ScaleX tries again on its next daily read.",
+      "refused": "Google refused the read. ScaleX tries again on its next daily read.",
+      "fence": "ScaleX stopped a request that wasn't a read. Nothing was sent.",
+      "internal": "Something went wrong on our side. ScaleX tries again on its next daily read."
     },
     "draft": {
       "unreadable": "I couldn't read what this review says, so I can't suggest a reply. Open it where it lives.",
@@ -8120,7 +8120,7 @@
       "runtime": "Google couldn't load the page ({code})",
       "quotaWeek": "this week's PageSpeed calls for the site are used",
       "unreachable": "Google's PageSpeed service could not be reached",
-      "quotaKeyed": "Google's PageSpeed quota for SYB's key is spent for now",
+      "quotaKeyed": "Google's PageSpeed quota for ScaleX's key is spent for now",
       "quotaShared": "Google's shared PageSpeed quota is spent for now (no PAGESPEED_API_KEY is set)",
       "couldntLoad": "Google couldn't load the page to measure it",
       "refused": "Google refused to measure the page (status {status})",
@@ -8167,7 +8167,7 @@
         "field": "real visitors in Chrome over the last {days, plural, one {# day} other {# days}} (Google's field data, {pct}th percentile)",
         "field_origin": "real visitors across your whole site over the last {days, plural, one {# day} other {# days}} — Google had too few for this page alone",
         "lab": "one test load on Google's emulated device (lab data)",
-        "page_read": "SYB reading the page's own HTML"
+        "page_read": "ScaleX reading the page's own HTML"
       },
       "detail": {
         "vital": "{what}. Measured from {basis}.",
@@ -8177,7 +8177,7 @@
         "contrast": "Google's colour-contrast check (the accessibility standard's minimum), {on}.",
         "noEntry": "No {entry, select, checkout {checkout} other {booking}} entry was reachable by links.",
         "path": "{steps}.",
-        "price": "Read from the page's own text after the header and menu: no price in what a phone shows first (a heuristic — SYB doesn't render the page).",
+        "price": "Read from the page's own text after the header and menu: no price in what a phone shows first (a heuristic — ScaleX doesn't render the page).",
         "form": "{required, plural, one {# of them required.} other {# of them required.}} Counted from the page's HTML; the form was not sent.",
         "brokenOnPath": "It sits on the way to buying, where a dead end costs a sale.",
         "broken": "A visitor who clicks it hits a dead end."
@@ -8185,13 +8185,13 @@
       "threshold": {
         "google": "good ≤ {good}, poor > {poor} (Google)",
         "lighthouse": "good ≤ {good}, poor > {poor} (Lighthouse)",
-        "heavy": "heavy > {medium}, very heavy > {high} (SYB)",
-        "failures": "any is a finding; {medium} or more is medium (SYB)",
-        "entry": "a {entry, select, checkout {checkout} other {booking}} entry reachable by links from home (SYB)",
-        "clicks": "fine ≤ {ok}, long > {ok}, very long > {medium, plural, one {# click} other {# clicks}} (SYB)",
-        "price": "a price within the first screen of a product or service page (SYB heuristic: the first {chars, plural, one {# character} other {# characters}} of the page's own text)",
-        "form": "{medium} or more fields is long, {high} or more very long (SYB)",
-        "broken": "any link on your own site answering {status} or above, or not loading (SYB)"
+        "heavy": "heavy > {medium}, very heavy > {high} (ScaleX)",
+        "failures": "any is a finding; {medium} or more is medium (ScaleX)",
+        "entry": "a {entry, select, checkout {checkout} other {booking}} entry reachable by links from home (ScaleX)",
+        "clicks": "fine ≤ {ok}, long > {ok}, very long > {medium, plural, one {# click} other {# clicks}} (ScaleX)",
+        "price": "a price within the first screen of a product or service page (ScaleX heuristic: the first {chars, plural, one {# character} other {# characters}} of the page's own text)",
+        "form": "{medium} or more fields is long, {high} or more very long (ScaleX)",
+        "broken": "any link on your own site answering {status} or above, or not loading (ScaleX)"
       }
     },
     "euro": {
@@ -8199,7 +8199,7 @@
       "needsBecause": "not computed — it needs your own site traffic and conversion ({missing})",
       "zero": "not computed — your traffic, orders or order value is zero",
       "inside": "not computed — the page is inside the good line",
-      "notSpeed": "not computed — no rule of thumb links this to sales that SYB will put a number on",
+      "notSpeed": "not computed — no rule of thumb links this to sales that ScaleX will put a number on",
       "missing": {
         "visits": "monthly website visits",
         "orders": "monthly orders",
@@ -8368,7 +8368,7 @@
       "missing": "missing {scopes} which the consent requires",
       "sep": "; ",
       "why": {
-        "removed": "SYB's app was removed from the Meta account",
+        "removed": "ScaleX's app was removed from the Meta account",
         "password": "the Meta account's password changed, which signs out every app",
         "expired": "the connection's sign-in expired",
         "invalid": "the connection's sign-in is no longer valid",
@@ -8421,8 +8421,8 @@
       "google": {
         "unreadable": "the stored Google access couldn't be read",
         "noSuchBusiness": "no such business on this account",
-        "neverWrites": "SYB never writes to Google Business Profile: this permission is used only to read reviews.",
-        "authLost": "Google no longer accepts SYB's access. Revoke it and connect again to keep reading reviews.",
+        "neverWrites": "ScaleX never writes to Google Business Profile: this permission is used only to read reviews.",
+        "authLost": "Google no longer accepts ScaleX's access. Revoke it and connect again to keep reading reviews.",
         "didntFinish": "Google didn't finish: {reason}"
       },
       "metaCred": {
@@ -8431,7 +8431,7 @@
         "numberIg": "{provider}: the Instagram account id is a number",
         "numberAd": "{provider}: the ad account id is a number",
         "bothNeeded": "{provider}: the token and the asset ids are both needed",
-        "pageToken": "{provider}: a pasted Page token can't be checked against your consent — assign the Page to the system user instead, and SYB derives the Page token from it",
+        "pageToken": "{provider}: a pasted Page token can't be checked against your consent — assign the Page to the system user instead, and ScaleX derives the Page token from it",
         "publishPage": "{provider}: publishing needs the id of the Page to post to",
         "adsAccount": "{provider}: ad management needs the ad account id, the number in Ads Manager",
         "differentPage": "{provider}: the Page answered with a different id",
@@ -8439,15 +8439,15 @@
         "differentAd": "{provider}: the ad account answered with a different id",
         "noPageToken": "{provider}: no Page token could be had for Page {pageId}. Assign the Page to the system user with the permissions listed",
         "noToken": "{provider}: the Facebook sign-in returned no usable token",
-        "shape": "{provider}: the list came back in a shape SYB can't read"
+        "shape": "{provider}: the list came back in a shape ScaleX can't read"
       },
       "metaLogin": {
         "startAgain": "That Facebook sign-in expired or was already used. Start again from Connections.",
         "noPending": "There's no Facebook sign-in waiting, or it expired. Sign in with Facebook again.",
-        "foreign": "That Facebook sign-in was started from a different SYB account. Sign in to SYB as that account, or start again.",
+        "foreign": "That Facebook sign-in was started from a different ScaleX account. Sign in to ScaleX as that account, or start again.",
         "phraseNoMatch": "The confirmation phrase didn't match. Start again.",
         "typePhrase": "Type \"{phrase}\" to confirm. Nothing was sent to Meta.",
-        "notOffered": "That isn't a Meta connection SYB offers.",
+        "notOffered": "That isn't a Meta connection ScaleX offers.",
         "unavailable": "Facebook sign-in isn't available yet. Use your own Meta app instead.",
         "already": "{label} is already connected. Disconnect it first.",
         "pickPage": "Pick one of the Pages listed.",
@@ -8455,9 +8455,9 @@
       },
       "meta": {
         "auth": "I couldn't reach Meta: {why}. Reconnect it on Connections and I'll pick up where I left off.",
-        "permission": "Meta says SYB isn't allowed to do that: a permission was removed, or the Page or account isn't assigned to the connection. Reconnect with the permissions listed on Connections.",
+        "permission": "Meta says ScaleX isn't allowed to do that: a permission was removed, or the Page or account isn't assigned to the connection. Reconnect with the permissions listed on Connections.",
         "pageLimit": "Meta's limit for this Page is used up for now. Nothing was lost — I'll try again after a pause.",
-        "rateLimit": "Meta asked SYB to slow down. Nothing was lost — I'll try again after a pause.",
+        "rateLimit": "Meta asked ScaleX to slow down. Nothing was lost — I'll try again after a pause.",
         "unavailablePublished": "Meta didn't answer just now. Nothing was published — I'll try again.",
         "unavailableChanged": "Meta didn't answer just now. Nothing was changed — I'll try again.",
         "codePublished": "Meta refused with code {code}; nothing was published.",
@@ -8652,10 +8652,10 @@
         "name": "the business's name",
         "postal_address": "the business's postal address",
         "because": "{words} ({why})",
-        "disclosure": "the AI disclosure line (SYB, everywhere)"
+        "disclosure": "the AI disclosure line (ScaleX, everywhere)"
       },
       "noCountry": "the business's country isn't known, so its email rules aren't either",
-      "noRules": "SYB doesn't yet know the email marketing rules for {country} — nothing is sent there",
+      "noRules": "ScaleX doesn't yet know the email marketing rules for {country} — nothing is sent there",
       "regime": {
         "eu_gdpr": "EU/EEA",
         "uk_pecr": "UK",
@@ -8671,14 +8671,14 @@
       "labelled_undoable": "This campaign was approved as something that could be undone, and a sent email can't be recalled. Decline it in the queue and propose it again.",
       "not_connected": "Campaign email isn't connected. Grant it on Connections first.",
       "outbound_off": "Your own answer on customer consent was \"no consent\", so outbound email is off until your data says otherwise.",
-      "email_not_set_up": "Email isn't set up yet: SYB's sending key or its public web address is missing, so there's nowhere for an unsubscribe link to point.",
+      "email_not_set_up": "Email isn't set up yet: ScaleX's sending key or its public web address is missing, so there's nowhere for an unsubscribe link to point.",
       "no_draft": "There's no email drafted for this campaign yet.",
       "draft_not_approved": "You haven't approved the email itself yet.",
       "draft_changed": "The email changed after you approved it. Approve it again as it is now before it sends.",
       "draft_incomplete": "The email is missing its unsubscribe slot or its AI disclosure, so it can't be sent as approved.",
       "law_review_missing": "Nobody has reviewed the email-law rules against current law yet, so no campaign sends.",
       "law_review_stale": "The email-law rules changed after their last review ({date}), so that review no longer covers them and no campaign sends until they are reviewed again.",
-      "first_campaign_unreviewed": "This is your first campaign, so a person at SYB reads it before it goes out. Campaigns share SYB's sending address, and this keeps it trusted for everyone. It sends once that review is recorded.",
+      "first_campaign_unreviewed": "This is your first campaign, so a person at ScaleX reads it before it goes out. Campaigns share ScaleX's sending address, and this keeps it trusted for everyone. It sends once that review is recorded.",
       "real_sends_off": "{label} is switched off until the two-week unattended test completes. Nothing was sent; this stays approved. It goes out on the first run after it is switched on.",
       "real_sends_label": "Campaign email"
     },
@@ -8821,9 +8821,9 @@
         "proposed": "already proposed for publishing",
         "notDraft": "it is {status}, not a draft",
         "shotList": "a shot list is for filming, not publishing",
-        "email": "emails aren't sent through SYB yet",
+        "email": "emails aren't sent through ScaleX yet",
         "kind": "a {kind} isn't published",
-        "channel": "SYB can't publish to {channel} — only to a Facebook Page, an Instagram account or a TikTok account you connect",
+        "channel": "ScaleX can't publish to {channel} — only to a Facebook Page, an Instagram account or a TikTok account you connect",
         "connect": "connect Meta publishing on Connections to publish this to {platform}",
         "noInstagram": "the Meta connection has no Instagram account — reconnect with its id to publish there",
         "needsMedia": "{platform} needs an image or a video, and this item has none yet",
@@ -8862,12 +8862,12 @@
       "itemId": "item_id is required",
       "buildId": "build_id is required",
       "action": "action must be \"plan\", \"shotlist\", \"produce\", \"withdraw\", \"run_ad\" or \"go_live\"",
-      "sameOrigin": "this has to come from SYB's own page",
+      "sameOrigin": "this has to come from ScaleX's own page",
       "mediaSignedIn": "footage and generated media need you signed in",
       "noUploads": "uploads aren't set up on this server (no media storage)",
       "clipSize": "a clip uploaded here can be up to {mb} MB",
       "itemAndFile": "item_id and file are required",
-      "throughSyb": "uploads here go through SYB, not straight to storage",
+      "throughSyb": "uploads here go through ScaleX, not straight to storage",
       "noStorage": "no media storage here",
       "unknownAction": "unknown action"
     }
@@ -8900,10 +8900,10 @@
   },
   "payments": {
     "meta": {
-      "title": "Payments — SYB"
+      "title": "Payments — ScaleX"
     },
     "kicker": "Insights · Payments",
-    "never": "SYB prepares payments and you pay them in your own bank. SYB can't move money.",
+    "never": "ScaleX prepares payments and you pay them in your own bank. ScaleX can't move money.",
     "title": {
       "ready": "{count, plural, one {# payment is ready for your bank} other {# payments are ready for your bank}}",
       "none": "Payments you make in your own bank"
@@ -8974,7 +8974,7 @@
         "mark": "Back here, press “Paid in my bank” for each payment you made."
       },
       "title": "Payments to make in your own bank",
-      "intro": "SYB prepared these payments. SYB can't move money: you make each one yourself, in your own bank.",
+      "intro": "ScaleX prepared these payments. ScaleX can't move money: you make each one yourself, in your own bank.",
       "from": "Paid from: {name}, IBAN {iban}",
       "howTitle": "How to make each payment by hand:",
       "hand": {
@@ -8982,7 +8982,7 @@
         "copy": "Copy the payee's name, IBAN and BIC exactly as written below.",
         "amount": "Enter the amount and the reference, so the payee knows what it pays.",
         "confirm": "Choose the date, check everything once more, then confirm the payment in your bank.",
-        "mark": "Back in SYB, press “Paid in my bank” so your records show it."
+        "mark": "Back in ScaleX, press “Paid in my bank” so your records show it."
       },
       "paymentTitle": "Payment {n} of {count}",
       "payTo": "Pay to: {name}",
@@ -8998,8 +8998,8 @@
         "notLatin": "A name or reference not in Latin letters, so it isn't in the SEPA file: make it by hand.",
         "bicNeeded": "A bank outside the EEA needs the payee's BIC, so it isn't in the SEPA file: make it by hand."
       },
-      "closing": "Once a payment is made, mark it in SYB. If your bank refuses a detail, correct it there: SYB never sends anything to your bank.",
-      "batch": "File {ref}, made on {date}. No payment in it is in any other file SYB made.",
+      "closing": "Once a payment is made, mark it in ScaleX. If your bank refuses a detail, correct it there: ScaleX never sends anything to your bank.",
+      "batch": "File {ref}, made on {date}. No payment in it is in any other file ScaleX made.",
       "copy": "COPY of a file first downloaded on {date}. If you already made these payments, don't make them again: check your bank first."
     },
     "waiting": {
@@ -9028,7 +9028,7 @@
     "payer": {
       "label": "Paying from",
       "none": "Your bank details aren't stated yet",
-      "foot": "The name and IBAN your payments leave from. They go in the SEPA file as the payer; SYB never logs in to your bank.",
+      "foot": "The name and IBAN your payments leave from. They go in the SEPA file as the payer; ScaleX never logs in to your bank.",
       "change": "Change",
       "holder": "Name your bank knows you by",
       "save": "Save",
@@ -9115,9 +9115,9 @@
   },
   "ladder": {
     "meta": {
-      "title": "What SYB may do"
+      "title": "What ScaleX may do"
     },
-    "title": "What SYB can do in your business right now",
+    "title": "What ScaleX can do in your business right now",
     "intro": "One line per kind of action. Raising a line needs its record below; lowering it never does, and the stop sends every line back to watching.",
     "station": {
       "1": "Watches only",
@@ -9177,9 +9177,9 @@
   },
   "shadowSummary": {
     "meta": {
-      "title": "What SYB would have done"
+      "title": "What ScaleX would have done"
     },
-    "title": "What SYB would have done",
+    "title": "What ScaleX would have done",
     "period": "From {from} to {to}",
     "changes": "Changes it would have made: {count}",
     "gained": "Would have gained: {count} · {amount}",
@@ -9199,9 +9199,9 @@
     "did": "{count, plural, one {# action carried out} other {# actions carried out}}, {undone, plural, =0 {none undone} one {# undone} other {# undone}}",
     "worth": "Verified, gains and losses together: {amount}",
     "losses": "Losses inside that: {amount}",
-    "fee": "What SYB cost this month: {amount}",
-    "feeNone": "SYB charged nothing this month.",
-    "net": "Verified, after SYB's fee: {amount}",
+    "fee": "What ScaleX cost this month: {amount}",
+    "feeNone": "ScaleX charged nothing this month.",
+    "net": "Verified, after ScaleX's fee: {amount}",
     "unproven": "{count, plural, =0 {Nothing closed without proof} one {# change closed without proof yet} other {# changes closed without proof yet}}",
     "queued": "{count, plural, =0 {Nothing waiting for you} one {# thing waiting for you} other {# things waiting for you}}",
     "decision": "The one decision waiting on you:",
@@ -9261,7 +9261,7 @@
     "official": "The EU official figures below are Eurostat's, labelled with their year. Our live comparison isn't available for this yet, and the two are never mixed into one figure.",
     "notMeasured": "Not measured yet: {list}.",
     "unplaced": "Tell me what kind of business this is and which country it is in, and I'll compare it.",
-    "source": "From businesses using SYB, measured by their own sales systems, never from what an owner typed in. Month: {month}.",
+    "source": "From businesses using ScaleX, measured by their own sales systems, never from what an owner typed in. Month: {month}.",
     "contribute": {
       "on": "Your measured figures join these comparisons anonymously. A figure shows only when at least seven businesses are in it and none is more than a quarter of it.",
       "off": "You don't contribute your figures. You still see every comparison.",
@@ -9345,12 +9345,12 @@
       "basis": "A rule of thumb: {low} to {high} of a month's revenue, for the band you chose. Nothing here is measured yet."
     },
     "measure": {
-      "bookings": "To measure it: connect your booking system, and SYB counts the missed appointments instead of estimating them.",
-      "sales_and_purchases": "To measure it: connect your till and your purchases, and SYB sets what was bought against what was sold.",
-      "stock": "To measure it: connect your shop, and SYB finds the products that haven't sold.",
-      "invoices": "To measure it: connect your invoicing, and SYB measures how long money takes to arrive.",
-      "ads_and_sales": "To measure it: connect your ads and your sales, and SYB traces the spend to what it sold.",
-      "sales": "To measure it: connect your sales system, and SYB measures it instead of estimating."
+      "bookings": "To measure it: connect your booking system, and ScaleX counts the missed appointments instead of estimating them.",
+      "sales_and_purchases": "To measure it: connect your till and your purchases, and ScaleX sets what was bought against what was sold.",
+      "stock": "To measure it: connect your shop, and ScaleX finds the products that haven't sold.",
+      "invoices": "To measure it: connect your invoicing, and ScaleX measures how long money takes to arrive.",
+      "ads_and_sales": "To measure it: connect your ads and your sales, and ScaleX traces the spend to what it sold.",
+      "sales": "To measure it: connect your sales system, and ScaleX measures it instead of estimating."
     },
     "peer": {
       "label": "Similar businesses",
@@ -9370,8 +9370,8 @@
       "title": "Plans"
     },
     "kicker": "Plans",
-    "title": "Pay for what SYB may do",
-    "intro": "Every plan starts with a shadow month: SYB shows what it would have done, scored, and changes nothing.",
+    "title": "Pay for what ScaleX may do",
+    "intro": "Every plan starts with a shadow month: ScaleX shows what it would have done, scored, and changes nothing.",
     "interval": {
       "month": "Monthly",
       "year": "Yearly, a fifth off"
@@ -9386,13 +9386,13 @@
     },
     "what": {
       "watch": "Watching your numbers, a fresh diagnosis every month, how you compare with similar businesses, alerts, the monthly statement and shadow scoring.",
-      "act": "Everything in Watch, and SYB carries out what you say yes to: posts, ads, the words on your site, stock and bookings.",
-      "autonomous": "Everything in Act, and SYB acts on its own within the limits you set, your ads included, with the guarantee.",
+      "act": "Everything in Watch, and ScaleX carries out what you say yes to: posts, ads, the words on your site, stock and bookings.",
+      "autonomous": "Everything in Act, and ScaleX acts on its own within the limits you set, your ads included, with the guarantee.",
       "extra_business": "One more business, on the same plan as the first."
     },
-    "ceiling": "Goes up to step {station} of what SYB may do",
-    "guarantee": "The guarantee, on Autonomous only: if the ledger doesn't show at least three times your fee in verified money over a quarter, the next quarter is free. SYB checks and credits it itself.",
-    "noGuarantee": "No guarantee on this plan: SYB doesn't act on its own here, so it doesn't promise an outcome.",
+    "ceiling": "Goes up to step {station} of what ScaleX may do",
+    "guarantee": "The guarantee, on Autonomous only: if the ledger doesn't show at least three times your fee in verified money over a quarter, the next quarter is free. ScaleX checks and credits it itself.",
+    "noGuarantee": "No guarantee on this plan: ScaleX doesn't act on its own here, so it doesn't promise an outcome.",
     "credit": "Paid for a diagnosis? It comes off your first invoice.",
     "choose": "Choose {tier}",
     "signIn": "Sign in to choose a plan.",
@@ -9449,7 +9449,7 @@
       "guarantee": "the guarantee"
     },
     "resume": {
-      "paused": "Billing is paused: nothing has come in from your connections for weeks, so SYB stopped charging. Start again whenever you're back.",
+      "paused": "Billing is paused: nothing has come in from your connections for weeks, so ScaleX stopped charging. Start again whenever you're back.",
       "button": "Start billing again"
     },
     "failed": "That didn't go through. Try again in a moment.",
@@ -9460,7 +9460,7 @@
       "title": "Partner console"
     },
     "kicker": "Partner console",
-    "noSession": "Sign in to SYB first, with the address you use at your firm.",
+    "noSession": "Sign in to ScaleX first, with the address you use at your firm.",
     "create": {
       "title": "Set up your firm",
       "intro": "A firm sits above your clients' businesses. You reach a client only when its owner grants your firm a mandate.",
@@ -9513,7 +9513,7 @@
     },
     "scope": {
       "read_diagnosis": "Read the diagnosis",
-      "approve_actions": "Give approval to what SYB suggests",
+      "approve_actions": "Give approval to what ScaleX suggests",
       "manage_connectors": "Help with connections",
       "receive_reports": "Receive reports with the firm's name"
     },
@@ -9526,7 +9526,7 @@
       "nudge": "Ask the client to connect something",
       "nudgeWhat": "What to connect, for example their till",
       "nudgeSend": "Send the request",
-      "nudged": "Sent to the client's SYB.",
+      "nudged": "Sent to the client's ScaleX.",
       "report": "Open the report with your firm's name",
       "noReport": "No diagnosis yet.",
       "back": "Back to the book"
@@ -9539,7 +9539,7 @@
       "statement": "Monthly statement"
     },
     "report": {
-      "byline": "Prepared by {firm} using SYB",
+      "byline": "Prepared by {firm} using ScaleX",
       "version": "Version {version} · diagnosis grade {grade}",
       "range": "{low} to {high} a month"
     },
@@ -9563,15 +9563,15 @@
     "failed": "That didn't work: {why}",
     "done": "Done.",
     "mail": {
-      "subject": "{firm} asks for access to your business on SYB",
-      "intro": "{firm} would like to work with {business} on SYB. They are asking to be allowed to:",
+      "subject": "{firm} asks for access to your business on ScaleX",
+      "intro": "{firm} would like to work with {business} on ScaleX. They are asking to be allowed to:",
       "open": "To say yes, open this link. You don't need an account first:",
       "after": "You can take the permission back at any time, in one tap, and you'll see everything the firm does."
     },
     "nav": {
       "link": "Set up NAV for your clients",
       "title": "NAV Online Számla for your clients",
-      "intro": "Enter each client's NAV technical user. SYB checks every one with NAV straight away and shows the name NAV has on record. The details are locked under that client's own key, used only to read, and never shown again. Leave a row empty to skip it.",
+      "intro": "Enter each client's NAV technical user. ScaleX checks every one with NAV straight away and shows the name NAV has on record. The details are locked under that client's own key, used only to read, and never shown again. Leave a row empty to skip it.",
       "who": "Clients appear here when their mandate lets your firm help them connect things.",
       "empty": "No client's mandate lets your firm help them connect things yet.",
       "notAllowed": "Only a principal or a manager at the firm can set up NAV for clients.",
@@ -9602,8 +9602,8 @@
       "working": "Checking with NAV…",
       "summary": "Connected: {connected}. Not accepted by NAV: {rejected}. Left empty: {skipped}. Not done: {other}.",
       "revoke": "Disconnect",
-      "revokeConfirm": "Delete this client's NAV details from SYB now?",
-      "revoked": "Deleted from SYB. Ask the client to delete the technical user in Online Számla too, so it can't be used again."
+      "revokeConfirm": "Delete this client's NAV details from ScaleX now?",
+      "revoked": "Deleted from ScaleX. Ask the client to delete the technical user in Online Számla too, so it can't be used again."
     }
   },
   "mandates": {
@@ -9644,20 +9644,20 @@
       "title": "Growth studio"
     },
     "kicker": "Growth studio",
-    "intro": "SYB makes videos about your own products only from your own figures. Every brief names the figures it rests on, every generated file is labelled as made by AI, and nothing is published without your yes.",
+    "intro": "ScaleX makes videos about your own products only from your own figures. Every brief names the figures it rests on, every generated file is labelled as made by AI, and nothing is published without your yes.",
     "voice": {
-      "title": "How SYB describes your voice",
-      "none": "No description yet. SYB builds one from your own sentences, your site and your posts.",
+      "title": "How ScaleX describes your voice",
+      "none": "No description yet. ScaleX builds one from your own sentences, your site and your posts.",
       "build": "Build it from what I've said",
-      "draft": "This is SYB's reading. Correct it, or confirm it as it is. Nothing is generated until you do.",
-      "confirmed": "Confirmed. SYB writes in this voice.",
+      "draft": "This is ScaleX's reading. Correct it, or confirm it as it is. Nothing is generated until you do.",
+      "confirmed": "Confirmed. ScaleX writes in this voice.",
       "edit": "Your words",
       "save": "Save my words",
       "confirm": "It's right as it is"
     },
     "opps": {
       "title": "What your figures say to promote",
-      "none": "No opportunity yet: SYB needs a few measured figures first.",
+      "none": "No opportunity yet: ScaleX needs a few measured figures first.",
       "figures": "Figures it rests on: {count}",
       "subject": "What to promote",
       "angle": "The angle",
@@ -9716,14 +9716,14 @@
       "title": "Erase this business"
     },
     "kicker": "Erase this business",
-    "body": "You can ask for this business and everything SYB holds about it to be erased. From the moment you ask, its figures leave every comparison with similar businesses; the rest is removed by a person at SYB, who confirms when it is done.",
+    "body": "You can ask for this business and everything ScaleX holds about it to be erased. From the moment you ask, its figures leave every comparison with similar businesses; the rest is removed by a person at ScaleX, who confirms when it is done.",
     "ask": "Ask for erasure",
     "requested": "Erasure asked for on {date}. Its figures are already out of every comparison.",
     "failed": "That didn't work: {why}"
   },
   "home": {
     "meta": {
-      "title": "Home — SYB"
+      "title": "Home — ScaleX"
     },
     "kicker": "Today · {date}",
     "reading": "Reading…",
@@ -9778,7 +9778,7 @@
   },
   "alerts": {
     "meta": {
-      "title": "Alerts and modules — SYB"
+      "title": "Alerts and modules — ScaleX"
     },
     "kicker": "Your business · Alerts and modules",
     "title": "Where I work, and how I tell you."

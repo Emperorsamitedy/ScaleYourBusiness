@@ -91,10 +91,10 @@ async function notify(
 }
 
 const TIER_NAMES: Record<string, string> = {
-  watch: "SYB Watch",
-  act: "SYB Act",
-  autonomous: "SYB Autonomous",
-  extra_business: "SYB extra business",
+  watch: "ScaleX Watch",
+  act: "ScaleX Act",
+  autonomous: "ScaleX Autonomous",
+  extra_business: "ScaleX extra business",
 };
 
 // ── Starting a subscription ──────────────────────────────────────────────
@@ -209,7 +209,7 @@ export async function startSubscription(args: {
     "line_items[0][price_data][currency]": sub.currency.toLowerCase(),
     "line_items[0][price_data][unit_amount]": String(amount),
     "line_items[0][price_data][recurring][interval]": args.interval,
-    "line_items[0][price_data][product_data][name]": TIER_NAMES[args.tier] ?? "SYB",
+    "line_items[0][price_data][product_data][name]": TIER_NAMES[args.tier] ?? "ScaleX",
     "payment_method_types[0]": "card",
     "metadata[subscription_id]": sub.id,
     "subscription_data[metadata][subscription_id]": sub.id,

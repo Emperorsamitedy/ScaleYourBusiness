@@ -858,7 +858,7 @@ describe("P6-04 approved, the engine runs it", () => {
       `syb-po-${row.id}`,
     );
     expect(call.body).toMatchObject({
-      from: '"Fernhill Ceramics via SYB" <hello@syb.test>',
+      from: '"Fernhill Ceramics via ScaleX" <hello@syb.test>',
       to: ["orders@midland.test"],
       reply_to: s.owner_email,
       subject: "Purchase order PO-0001 from Fernhill Ceramics",

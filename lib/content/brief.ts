@@ -500,7 +500,7 @@ export function briefCapRefusal(spend: BriefSpend): string | null {
     return "this month's brief budget for your business is spent — briefs open again on the 1st";
   }
   if (spend.total_eur >= BRIEF_CAPS.max_eur_all_per_month) {
-    return "this month's brief budget is spent across SYB — briefs open again on the 1st";
+    return "this month's brief budget is spent across ScaleX — briefs open again on the 1st";
   }
   return null;
 }

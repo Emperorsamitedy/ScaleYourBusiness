@@ -207,7 +207,7 @@ describe("rule 26 (amended) — the scanner catches each thing it fences, plante
     ]);
     // Prose and nouns are not operations; preparing and marking paid are not moving money.
     expect(
-      rules("// SYB never pays or transfers money. preparedPayments; markPaidInBank();"),
+      rules("// ScaleX never pays or transfers money. preparedPayments; markPaidInBank();"),
     ).toEqual([]);
   });
 

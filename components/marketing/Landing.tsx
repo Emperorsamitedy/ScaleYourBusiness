@@ -31,6 +31,7 @@ import { DemoProvider, DemoSwitch } from "./Demos";
 import { StoreChart } from "./StoreChart";
 import { Walkthrough } from "./Walkthrough";
 import { LANDING_FIGURES as F, PENDING_DAYS, PENDING_LEAKS, offerFigure, sizeUsd } from "./words";
+import { Logo } from "../brand/Mark";
 
 /** The three steps of "How it works"; the last one's day is the delivery promise. */
 const STEPS = ["connect", "questions", "results"] as const;
@@ -81,7 +82,7 @@ export async function Landing({ price }: { price: { amount_minor: number; curren
       <header className="ll-head">
         <div className="ll-w ll-head-in">
           <a href="#top" className="ll-s ll-logo">
-            SYB
+            <Logo onDark />
           </a>
           <nav aria-label={t("nav.label")} className="ll-nav">
             <a className="ll-nl" href="#chart">
@@ -109,7 +110,7 @@ export async function Landing({ price }: { price: { amount_minor: number; curren
                 <br />
                 {t.rich("hero.titleB", {
                   em: (chunks) => (
-                    <span style={{ fontStyle: "italic", color: "#FF9C8F" }}>{chunks}</span>
+                    <span style={{ fontStyle: "italic", color: "#2BD594" }}>{chunks}</span>
                   ),
                 })}
               </h1>
@@ -249,7 +250,7 @@ export async function Landing({ price }: { price: { amount_minor: number; curren
       <footer className="ll-foot">
         <div className="ll-w ll-foot-in">
           <span className="ll-s" style={{ fontSize: 20, fontWeight: 700 }}>
-            SYB
+            ScaleX
           </span>
           <Link className="ll-go line" href="/signup" style={{ minHeight: 46 }}>
             {t("foot.book", { price: priceText })} →

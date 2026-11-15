@@ -199,7 +199,7 @@
     "8.1a": { "prompt": "¿Cuánto gasta en anuncios al mes?" },
     "8.1i": {
       "prompt": "¿Cuánto es lo máximo que querría gastar en anuncios en un mes?",
-      "help_text": "Un tope, no un objetivo. SYB nunca propone subir el presupuesto publicitario por encima de él."
+      "help_text": "Un tope, no un objetivo. ScaleX nunca propone subir el presupuesto publicitario por encima de él."
     },
     "8.1b": { "prompt": "¿En qué plataformas se anuncia?" },
     "8.1c": {

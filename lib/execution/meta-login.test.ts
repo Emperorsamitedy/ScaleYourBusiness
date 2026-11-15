@@ -761,7 +761,7 @@ describe("P3-20j — the flow, end to end against the fake Graph API", () => {
     });
     expect(foreign).toMatchObject({ kind: "failed" });
     if (foreign.kind === "failed") {
-      expect(foreign.message).toMatch(/different SYB account/);
+      expect(foreign.message).toMatch(/different ScaleX account/);
       expect(foreign.reason).toBe("foreign");
     }
     expect(graph.calls).toHaveLength(0);

@@ -176,7 +176,7 @@ describe("P2-20 — the pull, against the recorded-shape fake", () => {
     ]);
   });
 
-  it("refuses a currency that changed since consent, and refuses without SYB's setup", async () => {
+  it("refuses a currency that changed since consent, and refuses without ScaleX's setup", async () => {
     const fake = fakeGoogleAds({ customers: [{ id: "1234567890", name: "X", currency: "USD" }] });
     const source = createGoogleAdsReadSource({ fetch: fake.fetch, env: () => ENV });
     await expect(source.pull(SECRET, null, new Date("2026-11-08T06:00:00Z"))).rejects.toThrow(

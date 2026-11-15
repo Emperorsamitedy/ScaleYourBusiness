@@ -106,7 +106,7 @@ describe("English is what lib/crm always said", () => {
       "the business's country isn't known, so its email rules aren't either",
     ]);
     expect(draft("Narnia", null, null).gaps).toEqual([
-      "SYB doesn't yet know the email marketing rules for Narnia — nothing is sent there",
+      "ScaleX doesn't yet know the email marketing rules for Narnia — nothing is sent there",
     ]);
     for (const r of Object.values(REGIMES)) {
       expect(EN(`compliance.regime.${r.id}`)).toBe(r.label.split(" — ")[0]);
@@ -251,7 +251,7 @@ describe("in the reader's language", () => {
     expect(sendMessageWords(english, EN, "en")).toBe(english);
   });
 
-  it("says a stored campaign's summary and label again only when SYB's English is exactly it", () => {
+  it("says a stored campaign's summary and label again only when ScaleX's English is exactly it", () => {
     const detail = { segment: "lapsed", contact_ids: ["a", "b", "c"] };
     const stored = { summary: campaignSummary("winback", 3), label: "Lapsed customers" };
     const local = campaignWords(stored, detail, de, "de-DE");

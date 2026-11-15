@@ -50,7 +50,7 @@ describe("I-42 — a quiet week", () => {
     expect(c.quiet).toBe(true);
     expect(c.sections).toEqual([]);
     expect(c.line_count).toBe(0);
-    expect(c.subject).toBe("Your week with SYB: a quiet one");
+    expect(c.subject).toBe("Your week with ScaleX: a quiet one");
     expect(c.text).toContain(QUIET_LINE);
     expect(c.html).toContain("A quiet week");
     // Nothing invented: no section headings at all.
@@ -70,7 +70,7 @@ describe("I-42 — a quiet week", () => {
       }),
     );
     expect(c.quiet).toBe(false);
-    expect(c.subject).toBe("Your week with SYB: nothing needs you");
+    expect(c.subject).toBe("Your week with ScaleX: nothing needs you");
     expect(c.sections.map((s) => s.key)).toEqual(["done"]);
     expect(c.text).toContain("Mon 26 Oct · Weekly check: the profile held steady");
   });
@@ -128,7 +128,7 @@ describe("I-42 — a busy week", () => {
 
   it("puts what waits first, and counts it in the subject", () => {
     const c = composeSummary(busy);
-    expect(c.subject).toBe("Your week with SYB: 6 waiting for you");
+    expect(c.subject).toBe("Your week with ScaleX: 6 waiting for you");
     expect(c.sections.map((s) => s.key)).toEqual(["waiting", "done", "noticed", "goals"]);
     const waiting = c.sections[0]!;
     expect(waiting.lines[0]!.text).toBe(
