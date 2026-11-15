@@ -31,7 +31,7 @@ import { DemoProvider, DemoSwitch } from "./Demos";
 import { StoreChart } from "./StoreChart";
 import { Walkthrough } from "./Walkthrough";
 import { LANDING_FIGURES as F, PENDING_DAYS, PENDING_LEAKS, offerFigure, sizeUsd } from "./words";
-import { Logo } from "../brand/Mark";
+import { Logo, Wordmark } from "../brand/Mark";
 
 /** The three steps of "How it works"; the last one's day is the delivery promise. */
 const STEPS = ["connect", "questions", "results"] as const;
@@ -250,7 +250,7 @@ export async function Landing({ price }: { price: { amount_minor: number; curren
       <footer className="ll-foot">
         <div className="ll-w ll-foot-in">
           <span className="ll-s" style={{ fontSize: 20, fontWeight: 700 }}>
-            ScaleX
+            <Wordmark onDark />
           </span>
           <Link className="ll-go line" href="/signup" style={{ minHeight: 46 }}>
             {t("foot.book", { price: priceText })} →

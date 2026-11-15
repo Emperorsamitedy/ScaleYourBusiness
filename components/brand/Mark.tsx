@@ -76,20 +76,24 @@ export function Mark({
   );
 }
 
-/** "ScaleX": "Scale" in the ground's ink, the X in Accent. */
+/** "ScaleX": "Scale" in the ground's ink, and the X is the mark itself
+ *  (owner's logo, 2026-11-15: the wordmark's last letter is the Ascent X). */
 export function Wordmark({ onDark = false }: { onDark?: boolean }) {
   return (
-    <span className={`brand-word${onDark ? " on-dark" : ""}`}>
-      Scale<span className="brand-x">X</span>
+    <span className={`brand-word${onDark ? " on-dark" : ""}`} aria-label="ScaleX" role="img">
+      <span aria-hidden="true">Scale</span>
+      <span className="brand-x" aria-hidden="true">
+        <Mark onDark={onDark} />
+      </span>
     </span>
   );
 }
 
-/** Mark and wordmark together, as the rail and the page mastheads show them. */
-export function Logo({ size = 22, onDark = false }: { size?: number; onDark?: boolean }) {
+/** The logo as the rail and the page mastheads show it: the wordmark, whose
+ *  X is the mark. `size` is kept for callers; the wordmark sizes from its font. */
+export function Logo({ onDark = false }: { size?: number; onDark?: boolean }) {
   return (
     <span className="brand-logo">
-      <Mark size={size} onDark={onDark} />
       <Wordmark onDark={onDark} />
     </span>
   );

@@ -1525,29 +1525,34 @@ a.auth-cta {
   white-space: pre-line;
 }
 
-/* ── The ScaleX logo (components/brand/Mark.tsx, 2026-11-15): the mark
-   and the wordmark, "Scale" in the ground's ink and the X in Accent. It
-   takes its size from the masthead it sits in. ── */
+/* ── The ScaleX logo (components/brand/Mark.tsx, 2026-11-15): the
+   wordmark, "Scale" in the ground's ink with the mark standing in as the
+   X. It takes its size from the masthead it sits in. ── */
 .brand-logo {
   display: inline-flex;
   align-items: center;
-  gap: 0.42em;
   line-height: 1;
 }
-.brand-logo svg {
-  width: 1.15em;
-  height: 1.15em;
-  flex: none;
-}
 .brand-word {
+  display: inline-flex;
+  align-items: baseline;
   font-family: var(--f-prose);
   font-weight: 800;
   letter-spacing: -0.03em;
   color: var(--sheet-ink);
+  white-space: nowrap;
 }
 .brand-word.on-dark {
   color: #ffffff;
 }
 .brand-x {
-  color: var(--accent);
+  display: inline-block;
+  margin-left: 0.06em;
+  align-self: baseline;
+}
+.brand-x svg {
+  display: block;
+  width: 0.86em;
+  height: 0.86em;
+  transform: translateY(0.07em);
 }
