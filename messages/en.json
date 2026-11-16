@@ -123,7 +123,10 @@
       "resend": "send it again",
       "resendIn": "send again in {seconds} s",
       "resent": "Sent again.",
-      "differentEmail": "Use a different email"
+      "differentEmail": "Use a different email",
+      "codeLabel": "Or type the code from the email",
+      "codeSubmit": "Sign in",
+      "codeChecking": "Checking…"
     },
     "form": {
       "labelCreate": "Create account",
@@ -6211,7 +6214,9 @@
       "noBusiness": "no such business",
       "chooseAgain": "choose the business again on our page",
       "addOnPage": "add the business on our page",
-      "signInFirst": "sign in first"
+      "signInFirst": "sign in first",
+      "codeWrong": "that code isn't right, or it has expired — check it, or use the link in the email",
+      "codeTooMany": "too many codes tried for that address — use the link in the email, or try again later"
     },
     "why": {
       "otherApp": "issued for another app",
@@ -6623,7 +6628,8 @@
     "signIn": {
       "subject": "Your sign-in link — ScaleX",
       "intro": "Click to sign in to ScaleX:",
-      "expiry": "The link works once and expires in {minutes, plural, one {# minute} other {# minutes}}. If you didn't ask for it, ignore this email — nothing happens without the link."
+      "expiry": "The link works once and expires in {minutes, plural, one {# minute} other {# minutes}}. If you didn't ask for it, ignore this email — nothing happens without the link.",
+      "code": "Or type this code on the sign-in page: {code}"
     },
     "invite": {
       "subject": "You're invited to {business} on ScaleX",

@@ -123,7 +123,10 @@
       "resend": "erneut senden",
       "resendIn": "erneut senden in {seconds} s",
       "resent": "Erneut gesendet.",
-      "differentEmail": "Andere E-Mail verwenden"
+      "differentEmail": "Andere E-Mail verwenden",
+      "codeLabel": "Oder geben Sie den Code aus der E-Mail ein",
+      "codeSubmit": "Anmelden",
+      "codeChecking": "Wird geprüft…"
     },
     "form": {
       "labelCreate": "Konto erstellen",
@@ -6211,7 +6214,9 @@
       "noBusiness": "dieses Unternehmen gibt es nicht",
       "chooseAgain": "wählen Sie das Unternehmen auf unserer Seite erneut aus",
       "addOnPage": "fügen Sie das Unternehmen auf unserer Seite hinzu",
-      "signInFirst": "bitte zuerst anmelden"
+      "signInFirst": "bitte zuerst anmelden",
+      "codeWrong": "dieser Code stimmt nicht oder ist abgelaufen – prüfen Sie ihn oder nutzen Sie den Link in der E-Mail",
+      "codeTooMany": "zu viele Codes für diese Adresse versucht – nutzen Sie den Link in der E-Mail oder versuchen Sie es später erneut"
     },
     "why": {
       "otherApp": "für eine andere App ausgestellt",
@@ -6623,7 +6628,8 @@
     "signIn": {
       "subject": "Ihr Anmeldelink — ScaleX",
       "intro": "Klicken Sie hier für die Anmeldung bei ScaleX:",
-      "expiry": "Der Link funktioniert einmal und läuft in {minutes, plural, one {# Minute} other {# Minuten}} ab. Falls Sie ihn nicht angefordert haben, ignorieren Sie diese E-Mail — ohne den Link passiert nichts."
+      "expiry": "Der Link funktioniert einmal und läuft in {minutes, plural, one {# Minute} other {# Minuten}} ab. Falls Sie ihn nicht angefordert haben, ignorieren Sie diese E-Mail — ohne den Link passiert nichts.",
+      "code": "Oder geben Sie diesen Code auf der Anmeldeseite ein: {code}"
     },
     "invite": {
       "subject": "Einladung zu {business} auf ScaleX",

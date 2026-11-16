@@ -123,7 +123,10 @@
       "resend": "重新发送",
       "resendIn": "{seconds} 秒后重新发送",
       "resent": "已重新发送。",
-      "differentEmail": "使用其他邮箱"
+      "differentEmail": "使用其他邮箱",
+      "codeLabel": "或输入邮件中的验证码",
+      "codeSubmit": "登录",
+      "codeChecking": "正在验证…"
     },
     "form": {
       "labelCreate": "创建账户",
@@ -6211,7 +6214,9 @@
       "noBusiness": "没有这家企业",
       "chooseAgain": "请在我们的页面上重新选择企业",
       "addOnPage": "请在我们的页面上添加企业",
-      "signInFirst": "请先登录"
+      "signInFirst": "请先登录",
+      "codeWrong": "验证码不正确或已过期——请检查，或使用邮件中的链接",
+      "codeTooMany": "该地址尝试验证码次数过多——请使用邮件中的链接，或稍后再试"
     },
     "why": {
       "otherApp": "签发给了其他应用",
@@ -6623,7 +6628,8 @@
     "signIn": {
       "subject": "您的登录链接 — ScaleX",
       "intro": "点击登录 ScaleX：",
-      "expiry": "此链接只能使用一次，将在 {minutes, plural, other {# 分钟后失效}}。如果这不是您请求的，请忽略这封邮件——没有链接，什么都不会发生。"
+      "expiry": "此链接只能使用一次，将在 {minutes, plural, other {# 分钟后失效}}。如果这不是您请求的，请忽略这封邮件——没有链接，什么都不会发生。",
+      "code": "或在登录页面输入此验证码：{code}"
     },
     "invite": {
       "subject": "您受邀加入 ScaleX 上的 {business}",

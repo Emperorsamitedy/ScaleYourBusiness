@@ -123,7 +123,10 @@
       "resend": "envíelo de nuevo",
       "resendIn": "reenviar en {seconds} s",
       "resent": "Enviado de nuevo.",
-      "differentEmail": "Usar otro correo electrónico"
+      "differentEmail": "Usar otro correo electrónico",
+      "codeLabel": "O escriba el código del correo",
+      "codeSubmit": "Iniciar sesión",
+      "codeChecking": "Comprobando…"
     },
     "form": {
       "labelCreate": "Crear cuenta",
@@ -6211,7 +6214,9 @@
       "noBusiness": "no existe ese negocio",
       "chooseAgain": "vuelva a elegir el negocio en nuestra página",
       "addOnPage": "añada el negocio en nuestra página",
-      "signInFirst": "inicie sesión primero"
+      "signInFirst": "inicie sesión primero",
+      "codeWrong": "ese código no es correcto o ha caducado: compruébelo o use el enlace del correo",
+      "codeTooMany": "demasiados códigos probados para esa dirección: use el enlace del correo o vuelva a intentarlo más tarde"
     },
     "why": {
       "otherApp": "emitido para otra aplicación",
@@ -6623,7 +6628,8 @@
     "signIn": {
       "subject": "Su enlace de inicio de sesión — ScaleX",
       "intro": "Haga clic para iniciar sesión en ScaleX:",
-      "expiry": "El enlace funciona una sola vez y caduca en {minutes, plural, one {# minuto} many {# minutos} other {# minutos}}. Si no lo ha pedido, ignore este correo: sin el enlace no ocurre nada."
+      "expiry": "El enlace funciona una sola vez y caduca en {minutes, plural, one {# minuto} many {# minutos} other {# minutos}}. Si no lo ha pedido, ignore este correo: sin el enlace no ocurre nada.",
+      "code": "O escriba este código en la página de inicio de sesión: {code}"
     },
     "invite": {
       "subject": "Invitación para unirse a {business} en ScaleX",

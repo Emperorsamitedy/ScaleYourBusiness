@@ -123,7 +123,10 @@
       "resend": "küldje el újra",
       "resendIn": "újraküldés {seconds} mp múlva",
       "resent": "Újraküldve.",
-      "differentEmail": "Másik e-mail-cím"
+      "differentEmail": "Másik e-mail-cím",
+      "codeLabel": "Vagy írja be az e-mailben kapott kódot",
+      "codeSubmit": "Bejelentkezés",
+      "codeChecking": "Ellenőrzés…"
     },
     "form": {
       "labelCreate": "Fiók létrehozása",
@@ -6211,7 +6214,9 @@
       "noBusiness": "nincs ilyen vállalkozás",
       "chooseAgain": "válassza ki újra a vállalkozást az oldalunkon",
       "addOnPage": "adja hozzá a vállalkozást az oldalunkon",
-      "signInFirst": "előbb bejelentkezés szükséges"
+      "signInFirst": "előbb bejelentkezés szükséges",
+      "codeWrong": "a kód hibás vagy lejárt – ellenőrizze, vagy használja az e-mailben kapott linket",
+      "codeTooMany": "túl sok kódot próbáltak ki ehhez a címhez – használja az e-mailben kapott linket, vagy próbálja újra később"
     },
     "why": {
       "otherApp": "egy másik alkalmazásnak állították ki",
@@ -6623,7 +6628,8 @@
     "signIn": {
       "subject": "Az Ön bejelentkezési linkje — ScaleX",
       "intro": "Kattintson ide a ScaleX-be való bejelentkezéshez:",
-      "expiry": "A link egyszer használható, és {minutes, plural, one {# perc} other {# perc}} múlva lejár. Ha nem Ön kérte, hagyja figyelmen kívül ezt az e-mailt — a link nélkül semmi sem történik."
+      "expiry": "A link egyszer használható, és {minutes, plural, one {# perc} other {# perc}} múlva lejár. Ha nem Ön kérte, hagyja figyelmen kívül ezt az e-mailt — a link nélkül semmi sem történik.",
+      "code": "Vagy írja be ezt a kódot a bejelentkezési oldalon: {code}"
     },
     "invite": {
       "subject": "Meghívást kapott egy vállalkozáshoz a ScaleX-ben: {business}",

@@ -970,6 +970,13 @@ export const loginTokens = pgTable(
      */
     language: text("language"),
     currency: text("currency"),
+    /**
+     * 2026-11-16: the 6-digit code emailed beside the link, for signing in
+     * on a device other than the one reading the email. sha256 of the code
+     * salted with this row's token_hash (lib/auth/service codeHash); never
+     * the code itself. Null on tokens issued before the code existed.
+     */
+    code_hash: text("code_hash"),
   },
   (t) => [
     uniqueIndex("login_tokens_hash_idx").on(t.token_hash),

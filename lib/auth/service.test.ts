@@ -21,9 +21,14 @@ import { GET as redeemGET, POST as redeemPOST } from "../../app/api/auth/redeem/
 import { appOriginOf } from "./same-origin";
 import {
   AuthError,
+  CODE_REFUSED,
+  CODE_TOO_MANY,
+  codeHash,
   currentSession,
+  normaliseCode,
   peekLogin,
   redeemLogin,
+  redeemLoginCode,
   requestLogin,
   revokeSession,
 } from "./service";
@@ -55,6 +60,7 @@ afterAll(async () => {
     }
     await db.delete(loginTokens).where(eq(loginTokens.email, email));
     await db.delete(rateLimits).where(eq(rateLimits.key, `login:email:${email}:3600000`));
+    await db.delete(rateLimits).where(eq(rateLimits.key, `login-code:email:${email}:900000`));
   }
   for (const s of cleanupProfiles) {
     await db.delete(fieldRecords).where(eq(fieldRecords.profile_id, s.profile_id));
@@ -200,6 +206,67 @@ describe("security review 2026-11-09 — login requests are rate-limited", () =>
     // A fresh address still gets its link — the limit is per-email, not global.
     await expect(requestLogin(testEmail(), null)).resolves.toMatchObject({
       email: expect.any(String),
+    });
+  });
+});
+
+describe("2026-11-16 — the 6-digit code beside the link", () => {
+  it("reads six digits however they're typed, and nothing else", () => {
+    expect(normaliseCode("123456")).toBe("123456");
+    expect(normaliseCode(" 012 345 ")).toBe("012345");
+    expect(normaliseCode("012-345")).toBe("012345");
+    expect(normaliseCode("12345")).toBeNull();
+    expect(normaliseCode("12a456")).toBeNull();
+    expect(normaliseCode(123456)).toBeNull();
+  });
+
+  it("stores only a salted hash: the same code on two links hashes differently", async () => {
+    const login = await requestLogin(testEmail(), null);
+    expect(login.code).toMatch(/^\d{6}$/);
+    const rows = await db.select().from(loginTokens).where(eq(loginTokens.email, login.email));
+    const stored = JSON.stringify(rows);
+    expect(stored).not.toContain(login.code);
+    expect(codeHash("a", "123456")).not.toBe(codeHash("b", "123456"));
+  });
+
+  it("the code signs in once, and spends the link with it", async () => {
+    const login = await requestLogin(testEmail(), null);
+    const session = await redeemLoginCode(login.email, login.code);
+    expect(await currentSession(session.session_token)).not.toBeNull();
+    await expect(redeemLoginCode(login.email, login.code)).rejects.toMatchObject({
+      status: 401,
+      message: CODE_REFUSED,
+    });
+    await expect(redeemLogin(login.token)).rejects.toMatchObject({ status: 401 });
+  });
+
+  it("a code only works for the address it was sent to", async () => {
+    const login = await requestLogin(testEmail(), null);
+    await expect(redeemLoginCode(testEmail(), login.code)).rejects.toMatchObject({
+      message: CODE_REFUSED,
+    });
+    // The rightful owner can still use it.
+    await expect(redeemLoginCode(login.email, login.code)).resolves.toMatchObject({
+      email: login.email,
+    });
+  });
+
+  it("after a resend, the first email's code still works", async () => {
+    const email = testEmail();
+    const first = await requestLogin(email, null);
+    await requestLogin(email, null);
+    await expect(redeemLoginCode(email, first.code)).resolves.toMatchObject({ email });
+  });
+
+  it("guessing stops after 5 tries in 15 minutes, even with the right code next", async () => {
+    const login = await requestLogin(testEmail(), null);
+    const wrong = login.code === "000000" ? "111111" : "000000";
+    for (let i = 0; i < 5; i++) {
+      await expect(redeemLoginCode(login.email, wrong)).rejects.toMatchObject({ status: 401 });
+    }
+    await expect(redeemLoginCode(login.email, login.code)).rejects.toMatchObject({
+      status: 429,
+      message: CODE_TOO_MANY,
     });
   });
 });
