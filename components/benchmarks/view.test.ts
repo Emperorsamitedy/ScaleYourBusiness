@@ -8,6 +8,7 @@ import { SNAPSHOT } from "../../lib/benchmarks/snapshot";
 import {
   comparedCount,
   dateWords,
+  dumbRows,
   footLine,
   headline,
   lineSentence,
@@ -85,6 +86,27 @@ describe("the lines", () => {
     // I-44b: the purchases share is the second line, beside the margin.
     expect(r.lines.map(readingWord)).toEqual(["NOT YET", "BELOW", "BELOW", "NOT YET"]);
     expect(comparedCount(r)).toBe("2 of 4 compared");
+  });
+
+  it("draws each compared line as bench → yours, and leaves the rest in words", () => {
+    const rows = dumbRows(r.lines);
+    expect(rows.map((x) => x.key)).toEqual(
+      r.lines.filter((l) => l.status === "compared").map((l) => l.key),
+    );
+    const line = r.lines.find((l) => l.key === "turnover_per_person") as ComparedLine;
+    expect(rows.find((x) => x.key === "turnover_per_person")).toEqual({
+      key: "turnover_per_person",
+      label: line.title,
+      a: line.bench,
+      b: line.own,
+      display: "€730,550 → €228,000",
+    });
+  });
+
+  it("draws no mark for a figure below zero: the scale starts at zero", () => {
+    const t = r.lines.find((l) => l.key === "turnover_per_person") as ComparedLine;
+    expect(dumbRows([{ ...t, own: -1 }])).toEqual([]);
+    expect(dumbRows([{ ...t, bench: Number.NaN }])).toEqual([]);
   });
 
   it("says when the size is unknown", () => {

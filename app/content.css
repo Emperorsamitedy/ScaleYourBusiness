@@ -89,6 +89,149 @@
   text-transform: uppercase;
 }
 
+/* ── the gallery: each item's own picture or clip (ux-spec §2.1 "Small visuals") ── */
+
+.ct-screen .ct-gallery {
+  margin: 0 0 20px;
+}
+.ct-screen .ct-tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 12px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.ct-screen .ct-tiles > li {
+  min-width: 0;
+}
+.ct-screen .ct-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+  width: 100%;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  color: var(--sheet-ink);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.ct-screen .ct-tile-frame {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  border: 1px solid var(--rule);
+  background: var(--rule-soft);
+}
+.ct-screen .ct-tile[aria-pressed="true"] .ct-tile-frame {
+  border-color: var(--sheet-ink);
+  outline: 1px solid var(--sheet-ink);
+}
+.ct-screen .ct-tile-frame img,
+.ct-screen .ct-tile-frame video {
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 0;
+  object-fit: cover;
+}
+.ct-screen .ct-tile-line {
+  font-family: var(--f-mono);
+  font-size: var(--t-mono-s);
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+.ct-screen .ct-tile:hover .ct-tile-line {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.ct-screen .ct-tile .word {
+  white-space: normal;
+}
+.ct-screen .ct-tile-ai {
+  font-family: var(--f-mono);
+  font-size: var(--t-mono-xs);
+  line-height: 1.4;
+  color: var(--sheet-ink-2);
+}
+
+/* ── the calendar strip: the queue by day, a square per item ── */
+
+.ct-screen .ct-cal {
+  margin: 12px 0 6px;
+  padding-bottom: 14px;
+  border-bottom: 1px solid var(--rule-soft);
+}
+.ct-screen .ct-cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 2px;
+}
+.ct-screen .ct-cal-wd {
+  padding: 0 0 2px 4px;
+  font-family: var(--f-mono);
+  font-size: var(--t-mono-xs);
+  color: var(--sheet-ink-2);
+}
+.ct-screen .ct-cal-day {
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  min-width: 0;
+  min-height: 44px;
+  padding: 2px;
+  border: 1px solid var(--rule-soft);
+}
+.ct-screen .ct-cal-day.today {
+  border-color: var(--sheet-ink);
+  outline: 1px solid var(--sheet-ink);
+  outline-offset: -2px;
+}
+.ct-screen .ct-cal-num {
+  flex: 1 0 100%;
+  padding: 0 2px;
+  font-family: var(--f-mono);
+  font-size: var(--t-mono-xs);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.4;
+  color: var(--sheet-ink-2);
+}
+.ct-screen .ct-cal-day.today .ct-cal-num {
+  color: var(--sheet-ink);
+  font-weight: 600;
+}
+.ct-screen .ct-cal-pick {
+  display: grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  cursor: pointer;
+}
+.ct-screen .ct-cal-pick > span {
+  display: block;
+  width: 12px;
+  height: 12px;
+}
+.ct-screen .ct-cal-pick[aria-pressed="true"] > span {
+  outline: 1.5px solid var(--sheet-ink);
+  outline-offset: 1.5px;
+}
+.ct-screen .ct-cal-more {
+  margin: 8px 0 0;
+  font-family: var(--f-mono);
+  font-size: var(--t-mono-xs);
+  color: var(--sheet-ink-2);
+}
+
 /* ── the queue and the open draft ── */
 
 .ct-screen .ct-grid {

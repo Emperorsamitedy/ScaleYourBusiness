@@ -4,15 +4,17 @@
 
 import { describe, expect, it } from "vitest";
 import type { CartsScreenView } from "../../app/api/carts/route";
-import type { Measured } from "./carts-view";
+import type { CartsWords, Measured } from "./carts-view";
 import {
   cartsHeadline,
   checkoutConsentNotes,
   refusalTitle,
   consentNotes,
+  funnelRows,
   moneyList,
   proposeBlock,
   sourcesLine,
+  valueBars,
   weekLine,
   winBackText,
   windowLine,
@@ -125,6 +127,68 @@ describe("the head", () => {
       /^29 Sept? to 28 Oct: 47 checkouts started, 41 left, 6 finished later; 25% of all checkouts left unfinished\./,
     );
     noIso(line);
+  });
+});
+
+describe("the checkout funnel and the product bars", () => {
+  // The funnel's words are new catalogue keys: a stub says which key and values each row asks for.
+  const words: CartsWords = {
+    tr: (key, values) =>
+      values
+        ? `${key}(${Object.entries(values)
+            .map(([k, v]) => `${k}=${v}`)
+            .join(",")})`
+        : key,
+    locale: "en",
+  };
+
+  it("draws the window line's three counts on the scale of those started", () => {
+    expect(funnelRows(measured, words)).toEqual([
+      { key: "started", label: "funnel.started", value: 47, display: "47", tone: "ink" },
+      { key: "left", label: "funnel.left", value: 41, display: "41", tone: "hollow" },
+      { key: "recovered", label: "funnel.recovered", value: 6, display: "6", tone: "ok" },
+    ]);
+  });
+
+  it("names the window before only when it is compared", () => {
+    const prior = { ...measured.current, started: 60, left: 52, recovered: 8 };
+    const rows = funnelRows({ ...measured, prior, prior_note: null }, words);
+    expect(rows.map((r) => r.note)).toEqual([
+      "funnel.prior(days=30,count=60)",
+      "funnel.prior(days=30,count=52)",
+      "funnel.prior(days=30,count=8)",
+    ]);
+    expect(funnelRows(measured, words).some((r) => r.note?.includes("prior"))).toBe(false);
+  });
+
+  it("sets a product's value against the largest in its own currency, never another's", () => {
+    const product = (product_ref: string, value: Measured["products"][number]["value"]) => ({
+      product_ref,
+      title: null,
+      carts: 1,
+      units: 1,
+      value,
+    });
+    expect(
+      valueBars([
+        product("a", [{ currency: "EUR", amount_minor: 40_000 }]),
+        product("b", [
+          { currency: "EUR", amount_minor: 10_000 },
+          { currency: "HUF", amount_minor: 900_000 },
+        ]),
+        product("c", [{ currency: "HUF", amount_minor: 450_000 }]),
+      ]),
+    ).toEqual([
+      [{ currency: "EUR", share: 1 }],
+      [
+        { currency: "EUR", share: 0.25 },
+        { currency: "HUF", share: 1 },
+      ],
+      [{ currency: "HUF", share: 0.5 }],
+    ]);
+    expect(valueBars([product("z", [{ currency: "EUR", amount_minor: 0 }])])).toEqual([
+      [{ currency: "EUR", share: 0 }],
+    ]);
   });
 });
 

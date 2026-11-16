@@ -111,6 +111,12 @@
 .wt-table tbody .num {
   font-size: 14px;
 }
+/* the spark sits inside the row's own height */
+.wt-table tbody td.wt-spark {
+  padding-top: 0;
+  padding-bottom: 0;
+  vertical-align: middle;
+}
 .wt-empty {
   margin: 4px 0;
   max-width: var(--measure);

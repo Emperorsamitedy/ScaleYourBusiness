@@ -14,7 +14,9 @@ import type { PeerMetric } from "../../lib/peers/cohort";
 import { presentMoney } from "../../lib/i18n/format";
 import type { AppLocale } from "../../lib/i18n/locales";
 import type { Tr } from "../../lib/i18n/tr";
+import { peerStrip } from "../benchmarks/peer-strip";
 import { SheetCard } from "../sheet/PageHead";
+import { RangeBar } from "../sheet/RangeBar";
 import { PeerContribute } from "./PeerContribute";
 
 const BANDS = (
@@ -87,6 +89,7 @@ function Served({
       : placeWords(b.cohort.geography.countries, locale);
   const band = b.cohort.band === "any" ? tr("band.any") : bandWords(b.cohort.band, locale, tr);
   const list = new Intl.ListFormat([locale], { type: "conjunction" });
+  const strip = b.own ? peerStrip(b.p25, b.p75, b.own.value) : null;
   return (
     <li className="pp-line">
       <b>{tr(`metric.${b.metric}`)}</b>
@@ -104,6 +107,11 @@ function Served({
             ),
           })}
         </p>
+      )}
+      {b.own && strip && (
+        <div className="pp-strip">
+          <RangeBar scale={strip.scale} band={strip.band} value={b.own.value} />
+        </div>
       )}
       {b.own && (
         <p className="bm-copy">

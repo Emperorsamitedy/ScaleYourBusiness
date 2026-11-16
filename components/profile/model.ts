@@ -15,6 +15,7 @@
 import type { Basis, BasisInput } from "../report/basis";
 import { basisName, basisOf, gapWord } from "../report/basis";
 import { isFigureText, keyWords, refigureNumber } from "../report/figures";
+import type { Seg, Tone } from "../charts/Viz";
 import type { AppLocale } from "../../lib/i18n/locales";
 import type { Tr } from "../../lib/i18n/tr";
 import { englishTr } from "../../lib/i18n/tr";
@@ -236,6 +237,42 @@ export function basisCounts(facts: readonly BasisInput[]): {
     else out.gaps += 1;
   }
   return out;
+}
+
+const BASIS_BAR: readonly (readonly [Basis, Tone])[] = [
+  ["OBSERVED", "ink"],
+  ["DERIVED", "ink2"],
+  ["STATED", "hollow"],
+  ["ESTIMATED", "okband"],
+  ["ASSUMED", "faint"],
+];
+const GAP_BAR = ["unknown", "skipped", "unasked", "not_applicable"];
+
+/**
+ * The header line as one bar: a segment per basis class in the line's
+ * order — an exact answer hollow, an estimate the dashed band, so the two
+ * halves of "from you" are never drawn alike — then one per gap status,
+ * each kept apart (rule 5). The label is the basis column's own word.
+ */
+export function basisSegs(facts: readonly BasisInput[], w: FsWords = ENGLISH_FS()): Seg[] {
+  const counted = new Map<string, { label: string; value: number }>();
+  for (const f of facts) {
+    const b = basisWord(f, w);
+    const key = b.basis ?? `gap.${f.status}`;
+    const at = counted.get(key);
+    if (at) at.value += 1;
+    else counted.set(key, { label: b.word, value: 1 });
+  }
+  const seg = (key: string, tone: Tone): Seg[] => {
+    const c = counted.get(key);
+    counted.delete(key);
+    return c ? [{ key, label: c.label, value: c.value, tone }] : [];
+  };
+  return [
+    ...BASIS_BAR.flatMap(([basis, tone]) => seg(basis, tone)),
+    ...GAP_BAR.flatMap((status) => seg(`gap.${status}`, "soft")),
+    ...[...counted.keys()].sort().flatMap((key) => seg(key, "soft")),
+  ];
 }
 
 /* ── the source column ── */

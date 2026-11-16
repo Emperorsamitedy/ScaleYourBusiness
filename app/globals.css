@@ -12,9 +12,9 @@
   /* the desk */
   --stage: var(--desk);
   --card-solid: var(--masthead);
-  --raised: #1a2233; /* desk-ink 12.6:1 · desk-ink-2 9.3:1 */
+  --raised: #1c2e24; /* desk-ink 12.6:1 · desk-ink-2 9.3:1 */
   --glass: var(--paper);
-  --glass-strong: #1a2233;
+  --glass-strong: #1c2e24;
   --ink: var(--desk-ink);
   --mut: var(--desk-ink-2);
   --hair: var(--desk-rule);
@@ -590,6 +590,14 @@ a.ghost {
   display: flex;
   flex-direction: column;
   gap: 15px;
+}
+/* a card's small visuals (components/charts/Viz), above the lines that say the same */
+.card-viz {
+  margin: var(--s-4) 0;
+}
+/* /billing: verified money against three times the fee, above the sentence that says it */
+.billing-meter {
+  margin: 8px 0 4px;
 }
 .auth-card {
   width: 100%;
@@ -1177,7 +1185,7 @@ a.auth-cta {
   color: var(--desk-ink);
 }
 .app-rail-item.active {
-  background: #1a2233;
+  background: #1c2e24;
   border-left-color: var(--desk-ink);
   color: var(--desk-ink);
   font-weight: 600;
@@ -1448,6 +1456,23 @@ a.auth-cta {
 }
 .entry-peer {
   margin-top: 14px;
+}
+/* the result's strips (components/sheet/RangeBar): the leak's range from zero, and
+   the peers' middle half with the reader's own estimate ticked on it */
+.entry-bar {
+  margin: 0 0 6px;
+  padding: 3px 0;
+  line-height: 0;
+}
+.entry-bar .rbar {
+  display: block;
+  width: min(220px, 100%);
+}
+/* an estimate: the dashed band, as app/viz.css draws one */
+.entry-bar.est .rbar-band {
+  border: 0;
+  outline: 1px dashed var(--ok);
+  outline-offset: -1px;
 }
 
 /* The Partner Console (v1 spec §7): the book, and the co-branded report */

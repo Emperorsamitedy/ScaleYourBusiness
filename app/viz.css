@@ -1,0 +1,554 @@
+/* The small visuals (components/charts/Viz.tsx) — specs/ux-spec-v1.md §2.1
+   "Small visuals". Sheet tokens only: no colour is defined here, and a
+   tint is an existing token mixed into the paper, as app/charts.css does.
+
+   One grammar, the charts' own:
+     filled ink      a measured count or figure
+     hollow ink      what was stated, or a stage not reached
+     --ok filled     money earned or kept, a good outcome
+     --ok-band with a dashed --ok outline   an estimate or a forecast
+     --drift tint    watch this
+     hollow --alarm  money lost
+   Every bar's figure is printed beside it, so nothing is hover-only and
+   the page reads in grayscale. No cobalt. Square corners, no shadows. */
+
+.vz-ink {
+  background: var(--sheet-ink);
+}
+.vz-ink2 {
+  background: var(--sheet-ink-2);
+}
+.vz-soft {
+  background: color-mix(in srgb, var(--sheet-ink-2) 45%, var(--paper));
+}
+.vz-faint {
+  background: color-mix(in srgb, var(--sheet-ink-2) 14%, var(--paper));
+  box-shadow: inset 0 0 0 1px var(--rule-soft);
+}
+.vz-hollow {
+  background: var(--paper);
+  box-shadow: inset 0 0 0 1.5px var(--sheet-ink);
+}
+.vz-ok {
+  background: var(--ok);
+}
+.vz-okband {
+  background: var(--ok-band);
+  outline: 1px dashed var(--ok);
+  outline-offset: -1px;
+}
+.vz-drift {
+  background: color-mix(in srgb, var(--drift) 34%, var(--paper));
+  box-shadow: inset 0 0 0 1px var(--drift);
+}
+.vz-alarm {
+  background: var(--paper);
+  box-shadow: inset 0 0 0 1.5px var(--alarm);
+}
+
+/* ── the key under a visual ── */
+
+.vz-keys {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 16px;
+  margin: 8px 0 0;
+  padding: 0;
+  list-style: none;
+  font-family: var(--f-mono);
+  font-size: var(--t-mono-xs);
+  color: var(--sheet-ink-2);
+}
+.vz-keys li {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.vz-keys b {
+  color: var(--sheet-ink);
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+.vz-key {
+  display: inline-block;
+  flex: none;
+  width: 12px;
+  height: 10px;
+}
+
+/* ── SegBar: one stacked bar ── */
+
+.vz-seg {
+  display: flex;
+  gap: 2px;
+  width: 100%;
+  height: 22px;
+}
+.vz-seg > * {
+  min-width: 6px;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+}
+.vz-seg > button {
+  cursor: pointer;
+  transition: opacity var(--d-press) linear;
+}
+.vz-seg.picking > button:not([aria-pressed="true"]) {
+  opacity: 0.35;
+}
+.vz-seg > button:hover {
+  opacity: 1;
+}
+
+/* ── HBars: sorted horizontal bars, the figure printed at the end ── */
+
+.vz-bars {
+  display: grid;
+  grid-template-columns: minmax(0, max-content) minmax(60px, 1fr) max-content;
+  gap: 8px 12px;
+  align-items: center;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.vz-bars > li {
+  display: contents;
+}
+.vz-bar-label {
+  max-width: 28ch;
+  font-size: 13.5px;
+  line-height: 1.3;
+}
+.vz-bar-note {
+  display: block;
+  font-family: var(--f-mono);
+  font-size: var(--t-mono-xs);
+  color: var(--sheet-ink-2);
+}
+.vz-bar-track {
+  position: relative;
+  height: 14px;
+  border-left: 1px solid var(--sheet-ink);
+}
+.vz-bar-fill,
+.vz-bar-rest {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  min-width: 1px;
+  transition: width var(--d-move) var(--ease-out);
+}
+.vz-bar-rest {
+  opacity: 0.45;
+}
+.vz-bar-ref {
+  position: absolute;
+  top: -3px;
+  bottom: -3px;
+  border-left: 1px dashed var(--sheet-ink);
+}
+.vz-bar-fig {
+  font-family: var(--f-mono);
+  font-size: var(--t-mono-s);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  white-space: nowrap;
+}
+.vz-bars > li > button.vz-bar-label {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-size: 13.5px;
+  text-align: left;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+.vz-bars > li > button.vz-bar-label[aria-pressed="true"] {
+  background: var(--marker);
+}
+.vz-bars > li > a.vz-bar-label {
+  color: inherit;
+}
+.vz-ref-note {
+  margin: 8px 0 0;
+  font-family: var(--f-mono);
+  font-size: var(--t-mono-xs);
+  color: var(--sheet-ink-2);
+}
+.vz-ref-note i {
+  display: inline-block;
+  height: 10px;
+  margin-right: 6px;
+  border-left: 1px dashed var(--sheet-ink);
+  vertical-align: middle;
+}
+@media (max-width: 719px) {
+  .vz-bars {
+    grid-template-columns: minmax(60px, 1fr) max-content;
+  }
+  .vz-bar-label {
+    grid-column: 1 / -1;
+    max-width: none;
+    margin-bottom: -4px;
+  }
+}
+
+/* HBars proper: thick bars on rows that touch, so a reference line and the
+   gridlines run unbroken from the first row down to the scale beneath. */
+.vz-bars {
+  row-gap: 0;
+}
+.vz-bars > li > .vz-bar-label {
+  padding: 4px 0;
+}
+.vz-bars .vz-bar-track {
+  height: 32px;
+}
+.vz-bars .vz-bar-fill,
+.vz-bars .vz-bar-rest {
+  top: 6px;
+  bottom: 6px;
+}
+.vz-bars .vz-bar-ref {
+  top: 0;
+  bottom: 0;
+  z-index: 1;
+}
+.vz-bar-grid {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  border-left: 1px dotted var(--rule-soft);
+}
+.vz-axis {
+  position: relative;
+  display: block;
+  height: 22px;
+  font-family: var(--f-mono);
+  font-size: var(--t-mono-xs);
+  font-variant-numeric: tabular-nums;
+  color: var(--sheet-ink-2);
+}
+.vz-axis-row .vz-axis {
+  border-top: 1px solid var(--sheet-ink);
+  border-left: 1px solid var(--sheet-ink);
+}
+.vz-axis i {
+  position: absolute;
+  top: 0;
+  padding-top: 7px;
+  font-style: normal;
+  white-space: nowrap;
+  transform: translateX(-50%);
+}
+.vz-axis i::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 50%;
+  height: 5px;
+  border-left: 1px solid var(--sheet-ink);
+}
+.vz-axis i:first-child {
+  transform: none;
+}
+.vz-axis i:first-child::before {
+  left: 0;
+}
+.vz-axis i:last-child {
+  transform: translateX(-100%);
+}
+.vz-axis i:last-child::before {
+  left: auto;
+  right: 0;
+}
+.vz-ref-head .vz-axis {
+  height: 20px;
+}
+.vz-ref-head b {
+  position: absolute;
+  bottom: 3px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--sheet-ink);
+  transform: translateX(-50%);
+}
+
+/* ── Trend: a measured series as a printed chart ── */
+
+.vz-trend {
+  position: relative;
+  width: 100%;
+  line-height: 0;
+}
+.vz-trend svg {
+  display: block;
+  overflow: visible;
+}
+.vz-trend svg:focus-visible {
+  outline: 2px solid var(--sheet-ink);
+  outline-offset: 2px;
+}
+.vz-trend .grid {
+  stroke: var(--rule-soft);
+  stroke-width: 1;
+  stroke-dasharray: 1 3;
+}
+.vz-trend .axis {
+  stroke: var(--sheet-ink);
+  stroke-width: 1;
+}
+.vz-trend .tick {
+  fill: var(--sheet-ink-2);
+  font-family: var(--f-mono);
+  font-size: 11.5px;
+  font-variant-numeric: tabular-nums;
+}
+.vz-trend .area {
+  fill: var(--ok-band);
+}
+.vz-trend .line {
+  fill: none;
+  stroke: var(--sheet-ink);
+  stroke-width: 1.5;
+  stroke-linejoin: round;
+}
+.vz-trend .end {
+  fill: var(--ok);
+}
+.vz-trend .end-fig {
+  fill: var(--sheet-ink);
+  font-family: var(--f-mono);
+  font-size: 12.5px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  paint-order: stroke;
+  stroke: var(--paper);
+  stroke-width: 4px;
+  stroke-linejoin: round;
+}
+.vz-trend .cross {
+  stroke: var(--sheet-ink-2);
+  stroke-width: 1;
+}
+
+/* ── Dumbbell: said against measured, on one scale ── */
+
+.vz-dumb {
+  display: grid;
+  grid-template-columns: minmax(0, max-content) minmax(80px, 1fr) max-content;
+  gap: 10px 12px;
+  align-items: center;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.vz-dumb > li {
+  display: contents;
+}
+.vz-dumb-track {
+  position: relative;
+  height: 14px;
+  border-bottom: 1px solid var(--rule-soft);
+}
+.vz-dumb-join {
+  position: absolute;
+  top: 6px;
+  height: 2px;
+  background: var(--sheet-ink);
+}
+.vz-dumb-a,
+.vz-dumb-b {
+  position: absolute;
+  top: 1px;
+  width: 12px;
+  height: 12px;
+  margin-left: -6px;
+}
+.vz-dumb-a {
+  background: var(--paper);
+  box-shadow: inset 0 0 0 1.5px var(--sheet-ink);
+}
+.vz-dumb-b {
+  background: var(--sheet-ink);
+}
+@media (max-width: 719px) {
+  .vz-dumb {
+    grid-template-columns: minmax(80px, 1fr) max-content;
+  }
+  .vz-dumb .vz-bar-label {
+    grid-column: 1 / -1;
+    margin-bottom: -6px;
+  }
+}
+
+/* ── Bullet: start → target, where the path says, where it is now ── */
+
+.vz-bullet {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 16px;
+  margin: 4px 0 2px;
+  border-bottom: 1px solid var(--rule);
+}
+.vz-bullet-band {
+  position: absolute;
+  top: 3px;
+  bottom: 0;
+  background: var(--ok-band);
+  border-left: 1px solid var(--ok);
+  border-right: 1px solid var(--ok);
+}
+.vz-bullet-fill {
+  position: absolute;
+  top: 6px;
+  bottom: 3px;
+  background: var(--sheet-ink);
+  transition: width var(--d-move) var(--ease-out);
+}
+.vz-bullet-path {
+  position: absolute;
+  top: -2px;
+  bottom: -3px;
+  border-left: 1px dashed var(--sheet-ink);
+}
+.vz-bullet-now {
+  position: absolute;
+  top: -3px;
+  bottom: -3px;
+  width: 3px;
+  margin-left: -1px;
+  background: var(--sheet-ink);
+}
+
+/* ── Spark: a daily series at text height ── */
+
+.vz-spark {
+  position: relative;
+  display: inline-block;
+  vertical-align: middle;
+  line-height: 0;
+}
+.vz-spark svg {
+  display: block;
+  overflow: visible;
+}
+.vz-spark svg:focus-visible {
+  outline: 2px solid var(--sheet-ink);
+  outline-offset: 2px;
+}
+.vz-spark .line {
+  fill: none;
+  stroke: var(--sheet-ink);
+  stroke-width: 1.5;
+  stroke-linejoin: round;
+}
+.vz-spark .dot {
+  fill: var(--sheet-ink);
+}
+.vz-spark .span {
+  fill: color-mix(in srgb, var(--drift) 22%, var(--paper));
+}
+.vz-spark .base {
+  stroke: var(--rule-soft);
+  stroke-width: 1;
+}
+.vz-spark .cross {
+  stroke: var(--sheet-ink-2);
+  stroke-width: 1;
+}
+.vz-tip {
+  position: absolute;
+  bottom: calc(100% + 4px);
+  z-index: 2;
+  padding: 3px 7px;
+  background: var(--sheet-ink);
+  color: var(--paper);
+  font-family: var(--f-mono);
+  font-size: var(--t-mono-xs);
+  line-height: 1.5;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  pointer-events: none;
+  transform: translateX(-50%);
+}
+
+/* ── Steps: a process as connected squares ── */
+
+.vz-steps {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 0;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-family: var(--f-mono);
+  font-size: var(--t-mono-xs);
+  color: var(--sheet-ink-2);
+}
+.vz-steps li {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.vz-steps li + li::before {
+  content: "";
+  width: 22px;
+  margin: 0 8px;
+  border-top: 1px solid var(--rule);
+}
+.vz-step {
+  flex: none;
+  width: 10px;
+  height: 10px;
+  background: var(--paper);
+  box-shadow: inset 0 0 0 1px var(--rule);
+}
+.vz-steps .done .vz-step {
+  background: var(--sheet-ink);
+  box-shadow: none;
+}
+.vz-steps .now {
+  color: var(--sheet-ink);
+  font-weight: 600;
+}
+.vz-steps .now .vz-step {
+  box-shadow: inset 0 0 0 2px var(--sheet-ink);
+}
+.vz-steps .done {
+  color: var(--sheet-ink);
+}
+
+/* a visual's own block inside a card body */
+.vz-block {
+  margin: 0 0 var(--s-4);
+}
+.vz-block:last-child {
+  margin-bottom: 0;
+}
+.vz-cap {
+  margin: 0 0 8px;
+  font-family: var(--f-mono);
+  font-size: var(--t-mono-xs);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--sheet-ink-2);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vz-seg > button,
+  .vz-bar-fill,
+  .vz-bar-rest,
+  .vz-bullet-fill {
+    transition: none;
+  }
+}

@@ -782,6 +782,11 @@
       "revoke": "Visszavonás",
       "wrong": "valami hiba történt — próbálja újra",
       "unreachable": "Nem értem el a szervert — próbálja újra."
+    },
+    "viz": {
+      "marginsLabel": "Árrés termékenként",
+      "marginsTitle": "Mennyi marad egy-egy eladásból, termékenként.",
+      "priceCost": "ár {price} · költség {cost}"
     }
   },
   "charts": {
@@ -1181,7 +1186,8 @@
         "from": "Forrás",
         "days": "Beolvasott napok",
         "perDay": "Naponta, {week}. hét → most",
-        "status": "Állapot"
+        "status": "Állapot",
+        "daily": "Napról napra"
       },
       "below": "{date} óta a szokásos tartománya alatt",
       "above": "{date} óta a szokásos tartománya felett"
@@ -3283,7 +3289,13 @@
       "expired": "Lejárt"
     },
     "how": "Hogyan működik",
-    "why": "Miért?"
+    "why": "Miért?",
+    "funnel": {
+      "started": "Elindult",
+      "left": "Félbemaradt",
+      "recovered": "Később befejeződött",
+      "prior": "az előző {days, plural, one {# nap} other {# nap}}: {count}"
+    }
   },
   "cash": {
     "meta": {
@@ -4133,6 +4145,9 @@
       "nothingFiled": "Még semmi sincs iktatva",
       "listMeta": "A {stars, plural, one {# csillagos} other {# csillagos}} vagy annál kevesebb értékelést érdemes tudni",
       "emptyCopy": "Továbbítson egy értékelésről szóló e-mailt az alábbi címre, vagy illesszen be egyet, és itt megjelenik."
+    },
+    "spread": {
+      "label": "{count, plural, one {# értékelés} other {# értékelés}} nyilvántartva, csillagok szerint"
     }
   },
   "simulate": {
@@ -4355,7 +4370,8 @@
         "costUnknown": "a teljesítés költsége nem ismert"
       },
       "perOrder": "Nem része az egy darabra jutó költségnek: {list}. {count, plural, one {Ezt} other {Ezeket}} rendelésenként fizeti, nem darabonként, és egy rendelésben több darab is lehet. Ahol egy eladás egy rendelés, ott egy áremelés valamivel több eladást veszíthet, mint amennyi látszik, egy árcsökkentéshez pedig valamivel több eladás kell."
-    }
+    },
+    "adsMeasured": "{name} · az utolsó {window} napból {days} napon mérve"
   },
   "stock": {
     "meta": {
@@ -4967,6 +4983,16 @@
       "needChoice": "Válassza meg, ki láthatja, mielőtt jóváhagyja.",
       "processing": "Miután kikerül, a TikToknak néhány percbe telhet, mire megjelenik a profilján.",
       "noDelete": "A TikTok nem engedi, hogy alkalmazások bejegyzést töröljenek. Az eltávolításhoz törölje a TikTok alkalmazásban."
+    },
+    "gallery": {
+      "label": "Galéria",
+      "title": "A sor képei és klipjei"
+    },
+    "calendar": {
+      "label": "A sor napok szerint",
+      "planned": "tervezett",
+      "overdue": "lejárt dátumú",
+      "outside": "{count, plural, one {még # ezeken a heteken kívül} other {még # ezeken a heteken kívül}}"
     }
   },
   "customers": {
@@ -5868,6 +5894,13 @@
         "signIn": "A telefonvonal módosításához bejelentkezés szükséges.",
         "action": "Ezt a telefonvonal nem tudja megtenni."
       }
+    },
+    "viz": {
+      "byStanding": "Jegyek állapot szerint",
+      "awaiting": "Az Ön válaszára vár",
+      "waiting": "Az Ön válaszára vár, a legrégebben várakozó elöl",
+      "waitingTop": "A {shown} legrégebben várakozó a(z) {total} közül",
+      "clusters": "Az ügyfelek kérdései, a kérdezők száma szerint"
     }
   },
   "phoneLine": {
@@ -9306,7 +9339,12 @@
       "ceiling": "Jelenleg a(z) {n}. szint a legmagasabb ennél a vállalkozásnál.",
       "own": "Minden sor a saját eredményei alapján lép feljebb."
     },
-    "trackAria": "{total} szintből a(z) {n}."
+    "trackAria": "{total} szintből a(z) {n}.",
+    "viz": {
+      "gains": "Nyereség",
+      "losses": "Veszteség",
+      "neither": "Egyik sem"
+    }
   },
   "shadowSummary": {
     "meta": {
@@ -9323,7 +9361,14 @@
     "net": "Nettó: {amount} — és semmihez nem nyúltunk.",
     "none": "Még nincs mért eredmény.",
     "share": "Megosztható link másolása",
-    "copied": "Link másolva"
+    "copied": "Link másolva",
+    "viz": {
+      "gained": "Nyereséget hozott volna",
+      "nothing": "Nem hozott volna változást",
+      "lost": "Veszteséget okozott volna",
+      "unproven": "Még nem bizonyított",
+      "open": "Még mérés alatt"
+    }
   },
   "statement": {
     "title": "Havi kivonat",
@@ -9355,6 +9400,12 @@
     },
     "meta": {
       "title": "Havi kivonat"
+    },
+    "viz": {
+      "verified": "Igazolt, nyereség és veszteség együtt",
+      "losses": "Ebből veszteség",
+      "fee": "A ScaleX díja",
+      "net": "A ScaleX díja után"
     }
   },
   "peers": {
@@ -10171,6 +10222,22 @@
       "open": "Megnyitás",
       "empty": "Semmi sem vár. A következő döntést ide teszem.",
       "by": "döntés eddig: {date}"
+    },
+    "live": {
+      "label": "Az oldalán · élő",
+      "people": "{count, plural, one {# fő} other {# fő}}",
+      "since": "{time} óta",
+      "lastRead": "utoljára beolvasva {time}",
+      "window": "{minutes} perc",
+      "windowGroup": "Időszak",
+      "notConnected": "Kösse össze a Google Analyticsszel, és ez a vonal mozogni kezd.",
+      "paused": "Az összekapcsolt Google Analytics-fiók szünetel, ezért semmi sem kerül beolvasásra.",
+      "unavailable": "A Google Analytics most nem válaszolt. Fél perc múlva újra próbálom.",
+      "connect": "Összekapcsolás",
+      "summary": "Most {now} van az oldalán; {time}-kor {base}.",
+      "caption": "Látogatók az oldalán, percről percre",
+      "colTime": "Időpont",
+      "colPeople": "Látogatók"
     }
   },
   "alerts": {

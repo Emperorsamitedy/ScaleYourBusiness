@@ -22,6 +22,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import "../../app/customers.css";
+import { SegBar } from "../charts/Viz";
 import { Fold } from "../sheet/Fold";
 import { PageHead, SheetCard } from "../sheet/PageHead";
 import { moneyExact, num } from "../sheet/num";
@@ -33,6 +34,7 @@ import type { CampaignView } from "./CampaignCard";
 import { CampaignCard } from "./CampaignCard";
 import {
   LIFECYCLE_ORDER,
+  LIFECYCLE_TONE,
   LIFECYCLE_WORD,
   type Lifecycle,
   customersHeadline,
@@ -267,6 +269,12 @@ export function CustomersScreen() {
 
   const who = (c: Contact) => c.name ?? maskEmail(c.email, tr);
 
+  const stages = LIFECYCLE_ORDER.filter((l) => s.lifecycle[l] > 0);
+  const pickStage = (key: string) => {
+    const l = stages.find((x) => x === key);
+    if (l) setState({ ...s, filter: s.filter === l ? "all" : l, shown: PAGE });
+  };
+
   return (
     <main className="screen cu-screen">
       <PageHead
@@ -295,6 +303,21 @@ export function CustomersScreen() {
               value={s.query}
               onChange={(e) => setState({ ...s, query: e.target.value, shown: PAGE })}
             />
+            {stages.length > 0 && (
+              <SegBar
+                bare
+                segs={stages.map((l) => ({
+                  key: l,
+                  label: lifecycleWord(l, tr),
+                  value: s.lifecycle[l],
+                  display: num(s.lifecycle[l], 0, locale),
+                  tone: LIFECYCLE_TONE[l],
+                }))}
+                label={customersHeadline(s.contacts.length, s.lifecycle.lapsed, tr)}
+                active={s.filter === "all" ? null : s.filter}
+                onPick={pickStage}
+              />
+            )}
             <div className="cu-filters" role="group" aria-label={tr("list.filters")}>
               <button
                 type="button"

@@ -19,6 +19,9 @@ import {
   monthName,
   readNote,
   reviewsHeadline,
+  starKey,
+  starSpread,
+  starTone,
   starsWords,
   thisMonth,
 } from "./reviews-view";
@@ -123,6 +126,32 @@ describe("the list's words", () => {
       "Gmail sent a confirmation link: open it to switch on the forwarding.",
     );
     expect(gmailConfirmationLine(null)).toBeNull();
+  });
+});
+
+describe("the star spread", () => {
+  const at = "2026-10-01T00:00:00Z";
+
+  it("counts the listed reviews per rating, 5 down to 1", () => {
+    const spread = starSpread([item(5, at), item(5, at), item(4, at), item(2, at), item(1, at)]);
+    expect(spread.map((s) => [s.key, s.count])).toEqual([
+      ["5", 2],
+      ["4", 1],
+      ["3", 0],
+      ["2", 1],
+      ["1", 1],
+    ]);
+    expect(spread.map((s) => starTone(s.stars))).toEqual(["ok", "ok", "soft", "alarm", "alarm"]);
+  });
+
+  it("adds a row for reviews with no rating only when there are any", () => {
+    const spread = starSpread([item(null, at), item(3, at), item(null, at)]);
+    expect(spread).toHaveLength(6);
+    expect(spread.at(-1)).toEqual({ key: "none", stars: null, count: 2 });
+    expect(starTone(null)).toBe("hollow");
+    expect(starKey(null)).toBe("none");
+    expect(starSpread([])).toHaveLength(5);
+    expect(starSpread([]).every((s) => s.count === 0)).toBe(true);
   });
 });
 

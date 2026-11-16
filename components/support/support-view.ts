@@ -14,6 +14,7 @@ import type { Tr } from "../../lib/i18n/tr";
 import { englishTr } from "../../lib/i18n/tr";
 import type { SlaState } from "../../lib/support/sla";
 import { slaState } from "../../lib/support/sla";
+import type { Seg, Tone } from "../charts/Viz";
 import { num } from "../sheet/num";
 
 const EN = (): Tr => englishTr("support");
@@ -243,4 +244,93 @@ export function ticketLine(
     detail: words.detail,
     tone: SLA_TONE[state.flag],
   };
+}
+
+/* ── the tickets, drawn (components/charts/Viz): the list's own counts and waits ── */
+
+export type TicketStanding = "waiting" | "replied" | "answered" | "closed";
+
+const STANDINGS: readonly [TicketStanding, Tone][] = [
+  ["waiting", "drift"],
+  ["replied", "hollow"],
+  ["answered", "ok"],
+  ["closed", "soft"],
+];
+
+/** Where a ticket stands: open with their word last is waiting; open with ours last is replied. */
+export function ticketStanding(t: Pick<TicketForList, "status" | "waiting_since">): TicketStanding {
+  if (t.status !== "open") return t.status;
+  return t.waiting_since === null ? "replied" : "waiting";
+}
+
+/** Pure: one segment per standing, in the list's order; none when there are no tickets. */
+export function standingSegs(
+  tickets: readonly Pick<TicketForList, "status" | "waiting_since">[],
+  word: (s: TicketStanding) => string,
+  locale: AppLocale = "en",
+): Seg[] {
+  if (tickets.length === 0) return [];
+  return STANDINGS.map(([key, tone]) => {
+    const value = tickets.filter((t) => ticketStanding(t) === key).length;
+    return { key, label: word(key), value, display: num(value, 0, locale), tone };
+  });
+}
+
+export const WAITING_BARS_MAX = 8;
+
+export interface WaitingBar {
+  key: string;
+  who: string;
+  channel: string;
+  /** Clock hours waited, the bar's length. */
+  hours: number;
+  /** The same wait as the list prints it: "27 h". */
+  display: string;
+  tone: "drift" | "ink";
+}
+
+/**
+ * Pure: the tickets waiting for a person, longest first, capped. `total`
+ * counts everyone waiting, so the screen can say when the bars are a part.
+ */
+export function waitingBars(
+  tickets: readonly (TicketForList & { id: string })[],
+  now: Date,
+  replyHours: number | null,
+  tr: Tr = EN(),
+  locale: AppLocale = "en",
+  cap: number = WAITING_BARS_MAX,
+): { rows: WaitingBar[]; total: number } {
+  const waiting = tickets
+    .flatMap((t) =>
+      t.status === "open" && t.waiting_since !== null
+        ? [{ t, state: slaState(t.waiting_since, now, replyHours) }]
+        : [],
+    )
+    .sort((a, b) => b.state.waited_ms - a.state.waited_ms);
+  return {
+    total: waiting.length,
+    rows: waiting.slice(0, cap).map(({ t, state }) => ({
+      key: t.id,
+      who: t.from ?? (t.has_address ? tr("who.customer") : tr("who.noAddress")),
+      channel: t.channel === "email" ? tr("channel.email") : tr("channel.chat"),
+      hours: state.waited_ms / 3_600_000,
+      display: durationWords(state.waited_ms, tr, locale),
+      tone: state.flag === "overdue" ? "drift" : "ink",
+    })),
+  };
+}
+
+export const CLUSTER_BARS_MAX = 8;
+
+/** Pure: the clustered questions by how many asked, largest first, capped. */
+export function clusterBars(
+  clusters: readonly { question: string; members: readonly string[] }[],
+  cap: number = CLUSTER_BARS_MAX,
+): { key: string; question: string; count: number }[] {
+  return clusters
+    .map((c, i) => ({ key: `${i}:${c.question}`, question: c.question, count: c.members.length }))
+    .filter((c) => c.count > 0)
+    .sort((a, b) => b.count - a.count)
+    .slice(0, cap);
 }

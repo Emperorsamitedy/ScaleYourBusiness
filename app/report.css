@@ -121,7 +121,7 @@ a.rq-sub-i:hover {
   color: var(--desk-ink);
 }
 .rq-sub-i.on {
-  background: #1a2233;
+  background: #1c2e24;
   border-left-color: var(--desk-ink);
   color: var(--desk-ink);
   font-weight: 600;
@@ -973,4 +973,28 @@ a.rq-sub-i:hover {
   align-items: baseline;
   overflow-wrap: anywhere;
   cursor: pointer;
+}
+
+/* ── the report's small visuals (components/charts/Viz.tsx): its own dated
+   figures drawn, never a live series ── */
+
+.rq-panel-head .vz-block {
+  margin: 10px 0 12px;
+  max-width: 420px;
+}
+.rq-range-bar .rbar {
+  width: min(260px, 60vw);
+}
+.rq-svm-viz {
+  width: 22%;
+  min-width: 110px;
+}
+.rq-svm thead .vz-key {
+  vertical-align: baseline;
+  margin-right: 4px;
+}
+@media (max-width: 719px) {
+  .rq-svm-viz:empty {
+    display: none !important;
+  }
 }

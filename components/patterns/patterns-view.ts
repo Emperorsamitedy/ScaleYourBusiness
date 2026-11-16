@@ -194,6 +194,38 @@ export function aheadRows(r: Ready, w: PatternWords = ENGLISH()): AheadRow[] {
   }));
 }
 
+/* ── the bars beside the figures (ux-spec §2.1 "Small visuals") ── */
+
+export interface MonthBars {
+  /** Where the normal week (1.0×) sits on the scale, 0–1. */
+  normal: number;
+  /** One per month, in the months' own order: its index as a share of the largest shown. */
+  bars: { share: number; tone: "ink" | "drift" | "soft" }[];
+}
+
+/**
+ * Pure: each month's index on one scale that always holds the normal week,
+ * busy and quiet by lib/seasons' own lines. Null with no month to draw.
+ */
+export function monthBars(months: readonly Pick<Ratio, "index">[]): MonthBars | null {
+  if (months.length === 0) return null;
+  const top = Math.max(1, ...months.map((m) => m.index));
+  return {
+    normal: 1 / top,
+    bars: months.map((m) => ({
+      share: Math.max(0, m.index) / top,
+      tone:
+        m.index >= SEASONS.busy_index ? "ink" : m.index <= SEASONS.quiet_index ? "drift" : "soft",
+    })),
+  };
+}
+
+/** Pure: each pair's count together as a share (0–1) of the largest in the table — the order it is listed in. */
+export function togetherBars(pairs: readonly { together: number }[]): number[] {
+  const top = Math.max(0, ...pairs.map((p) => p.together));
+  return pairs.map((p) => (top > 0 ? Math.max(0, p.together) / top : 0));
+}
+
 /** "4 Oct 2025": the aside spans years, so it names them; in another language, its own (L-1). */
 export function longDate(day: string, locale: AppLocale = "en"): string {
   if (locale !== "en") return dayMonthYear(day, locale);

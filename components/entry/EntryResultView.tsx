@@ -7,6 +7,8 @@ import type { EntryResult } from "../../lib/entry/one-number";
 import { presentMoney } from "../../lib/i18n/format";
 import type { AppLocale } from "../../lib/i18n/locales";
 import type { Tr } from "../../lib/i18n/tr";
+import { peerStrip } from "../benchmarks/peer-strip";
+import { RangeBar } from "../sheet/RangeBar";
 
 const eur = (minor: number, locale: AppLocale) =>
   presentMoney({ amount_minor: minor, currency: "EUR" }, locale, { whole: true });
@@ -24,6 +26,12 @@ export function EntryResultView({
   locale: AppLocale;
 }) {
   const { leak, comparison } = result;
+  const leakTop = leak.high_minor * 1.15; // not money: the strip's drawing scale
+  const leakDrawn = leakTop > 0 && leak.low_minor >= 0 && leak.low_minor <= leak.high_minor;
+  const strip =
+    comparison.status === "served"
+      ? peerStrip(comparison.p25, comparison.p75, result.own_minor)
+      : null;
   return (
     <section className="card entry-result" aria-live="polite">
       <span className="auth-eyebrow">{tr("result.label")}</span>
@@ -34,6 +42,11 @@ export function EntryResultView({
           high: eur(leak.high_minor, locale),
         })}
       </p>
+      {leakDrawn && (
+        <div className="entry-bar est">
+          <RangeBar scale={[0, leakTop]} band={[leak.low_minor, leak.high_minor]} value={null} />
+        </div>
+      )}
       <p className="auth-copy">
         <b>{tr("result.grade")}</b>
       </p>
@@ -48,6 +61,11 @@ export function EntryResultView({
       <span className="auth-eyebrow entry-peer">{tr("peer.label")}</span>
       {comparison.status === "served" ? (
         <>
+          {strip && (
+            <div className="entry-bar">
+              <RangeBar scale={strip.scale} band={strip.band} value={result.own_minor} />
+            </div>
+          )}
           <p className="auth-copy">
             {tr("peer.served", {
               count: String(comparison.cohort.businesses),

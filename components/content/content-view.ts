@@ -256,6 +256,173 @@ export function performanceLine(
   };
 }
 
+export interface PerformanceBars {
+  rows: {
+    key: "reach" | "views" | "interactions";
+    label: string;
+    value: number;
+    display: string;
+  }[];
+  /** The verdict's tone in the small visuals' grammar; plain ink while there is no verdict. */
+  tone: "ok" | "soft" | "alarm" | "ink";
+}
+
+const BAR_TONE: Readonly<Record<PerformanceLike["verdict"], PerformanceBars["tone"]>> = {
+  helped: "ok",
+  did_nothing: "soft",
+  backfired: "alarm",
+  too_early: "ink",
+  unmeasured: "ink",
+};
+
+/**
+ * One post's own figures as bars on one scale, in the order the measured
+ * line prints them. Drawn only when that line prints figures, and never
+ * across posts: two posts are not read at the same age.
+ */
+export function performanceBars(
+  p: PerformanceLike | undefined,
+  tr: Tr = EN(),
+  locale: AppLocale = "en",
+): PerformanceBars | null {
+  const f = p?.figures;
+  if (!p || !f || p.age_days === null) return null;
+  // The catalogue words a figure as "reach {n}" ("elérés: {n}"): the word alone is the row's label.
+  const word = (key: string) => tr(key, { n: "" }).replace(/^[\s:：·]+|[\s:：·]+$/g, "");
+  const rows = (["reach", "views", "interactions"] as const).flatMap((key) => {
+    const value = f[key];
+    return value === null
+      ? []
+      : [{ key, label: word(`perf.${key}`), value, display: grouped(value, locale) }];
+  });
+  return rows.length > 0 ? { rows, tone: BAR_TONE[p.verdict] } : null;
+}
+
+/* ── the gallery and the calendar strip (ux-spec §2.1 "Small visuals") ── */
+
+export interface TileMedia {
+  kind: "image" | "video";
+  src: string;
+}
+
+/** lib/content/media's LOCAL_MEDIA_ORIGIN: the dev store's address, which only the server can read. */
+const LOCAL_MEDIA = "https://local-media.invalid/";
+
+/**
+ * Where a tile's picture loads from, or null when the item has none a
+ * browser can show. A stored render's own address is used as it is (the
+ * studio plays its candidates the same way); the dev store's is read back
+ * through GET /api/content/media, by item id.
+ */
+export function tileMedia(item: { id: string; media_path: string | null }): TileMedia | null {
+  const stored = item.media_path;
+  if (!stored) return null;
+  const m = /\/([a-z0-9-]+)\.(mp4|mov|jpe?g|png)$/i.exec(stored.split(/[?#]/)[0] ?? "");
+  if (!m || !m[1] || !m[2]) return null;
+  const kind = /^(mp4|mov)$/i.test(m[2]) ? "video" : "image";
+  if (stored.startsWith(LOCAL_MEDIA)) {
+    const src = `/api/content/media?item_id=${encodeURIComponent(item.id)}&v=${m[1].slice(-8)}`;
+    return { kind, src };
+  }
+  return stored.startsWith("https://") ? { kind, src: stored } : null;
+}
+
+/**
+ * The AI-generated wording for an item's media, or null when it was
+ * filmed — the words the open draft already uses, so a tile never shows a
+ * generated picture without them.
+ */
+export function aiMediaWord(
+  provenance: unknown,
+  kind: TileMedia["kind"],
+  tr: Tr = EN(),
+): string | null {
+  const media = (provenance as { media?: { origin?: unknown; is_ai_generated?: unknown } } | null)
+    ?.media;
+  if (media?.origin === "generated_image") return tr("origin.generatedImage");
+  if (media?.origin === "generated_video") return tr("origin.generatedVideo");
+  if (media?.is_ai_generated !== true) return null;
+  return tr(kind === "video" ? "origin.generatedVideo" : "origin.generatedImage");
+}
+
+export type DayMark = "posted" | "planned" | "overdue";
+
+export interface CalendarDay {
+  /** YYYY-MM-DD. */
+  date: string;
+  today: boolean;
+  entries: { id: string; mark: DayMark }[];
+}
+
+export interface CalendarStrip {
+  /** Whole weeks, Monday first. */
+  weeks: CalendarDay[][];
+  /** Dated items that fall outside the weeks drawn. */
+  outside: number;
+}
+
+export const CALENDAR_MIN_WEEKS = 2;
+export const CALENDAR_MAX_WEEKS = 6;
+
+const DAY_MS = 86_400_000;
+const WEEK_MS = 7 * DAY_MS;
+
+function dayOf(iso: string | null): number | null {
+  if (!iso || !/^\d{4}-\d{2}-\d{2}/.test(iso)) return null;
+  const t = Date.parse(`${iso.slice(0, 10)}T00:00:00Z`);
+  return Number.isNaN(t) ? null : t;
+}
+
+const mondayOf = (t: number) => t - ((new Date(t).getUTCDay() + 6) % 7) * DAY_MS;
+
+/**
+ * The queue by day: a posted item on the day it went out, an unposted one
+ * on its date — past its date once that day is behind today. A withdrawn
+ * item and one with no date are left out. The weeks the items cover, two
+ * at least and six at most; a longer queue shows the six around today.
+ * Null when nothing is dated.
+ */
+export function calendarStrip(items: readonly QueueItem[], today: string): CalendarStrip | null {
+  const now = dayOf(today);
+  const dated: { id: string; at: number; mark: DayMark }[] = [];
+  for (const item of items) {
+    if (item.status === "withdrawn") continue;
+    const posted = item.status === "published";
+    const at = (posted ? dayOf(item.published_at) : null) ?? dayOf(item.scheduled_for);
+    if (at === null) continue;
+    dated.push({
+      id: item.id,
+      at,
+      mark: posted ? "posted" : now !== null && at < now ? "overdue" : "planned",
+    });
+  }
+  if (dated.length === 0) return null;
+  const first = mondayOf(Math.min(...dated.map((d) => d.at)));
+  const last = mondayOf(Math.max(...dated.map((d) => d.at)));
+  const covered = Math.round((last - first) / WEEK_MS) + 1;
+  const count = Math.min(CALENDAR_MAX_WEEKS, Math.max(CALENDAR_MIN_WEEKS, covered));
+  const latestStart = last - (count - 1) * WEEK_MS;
+  const start =
+    covered <= count
+      ? first
+      : Math.min(latestStart, Math.max(first, mondayOf(now ?? first) - WEEK_MS));
+  const end = start + count * WEEK_MS;
+  const weeks: CalendarDay[][] = [];
+  for (let w = 0; w < count; w += 1) {
+    const week: CalendarDay[] = [];
+    for (let d = 0; d < 7; d += 1) {
+      const at = start + w * WEEK_MS + d * DAY_MS;
+      week.push({
+        date: new Date(at).toISOString().slice(0, 10),
+        today: at === now,
+        entries: dated.filter((e) => e.at === at).map(({ id, mark }) => ({ id, mark })),
+      });
+    }
+    weeks.push(week);
+  }
+  return { weeks, outside: dated.filter((e) => e.at < start || e.at >= end).length };
+}
+
 /* ── P3-54: "Run this as an ad" ── */
 
 /** What /content needs of an item's ad (lib/ads/adcreate, adItemStates). */

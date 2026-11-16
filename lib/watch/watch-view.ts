@@ -102,6 +102,38 @@ export interface WatchSignal {
   /** For an open anomaly: which way, and since when. */
   direction: "drop" | "spike" | null;
   since: string | null;
+  /** Every day since the watch began, oldest first; money stays integer minor units. */
+  series?: SeriesPoint[];
+}
+
+/** One day of a signal; `value` is null where no reading is on record. */
+export interface SeriesPoint {
+  date: string;
+  value: number | null;
+}
+
+/** The most days a signal's series carries to the screen. */
+export const SERIES_MAX_DAYS = 42;
+
+/**
+ * Pure: a signal's days from the watch's first day to its last reading, in
+ * date order, a missing day as null so the axis stays true to time. Only
+ * the last `max` days are kept.
+ */
+export function watchSeries(
+  values: ReadonlyMap<string, number>,
+  watchStart: string,
+  max = SERIES_MAX_DAYS,
+): SeriesPoint[] {
+  let end: string | null = null;
+  for (const d of values.keys()) if (end === null || d > end) end = d;
+  if (end === null || end < watchStart) return [];
+  const capped = shiftDay(end, -(max - 1));
+  const out: SeriesPoint[] = [];
+  for (let d = capped > watchStart ? capped : watchStart; d <= end; d = shiftDay(d, 1)) {
+    out.push({ date: d, value: values.get(d) ?? null });
+  }
+  return out;
 }
 
 export interface OpenAnomaly {
@@ -128,7 +160,10 @@ export function summariseSeries(args: {
   values: ReadonlyMap<string, number>;
   watchStart: string;
   open: OpenAnomaly | null;
-}): Pick<WatchSignal, "readings" | "first_week" | "last_week" | "status" | "direction" | "since"> {
+}): Pick<
+  WatchSignal,
+  "readings" | "first_week" | "last_week" | "status" | "direction" | "since"
+> & { series: SeriesPoint[] } {
   const { values, watchStart, open } = args;
   const dates = [...values.keys()].sort();
   const end = dates.at(-1) ?? null;
@@ -152,7 +187,18 @@ export function summariseSeries(args: {
     status,
     direction: open?.direction ?? null,
     since: open?.first_date ?? null,
+    series: watchSeries(values, watchStart),
   };
+}
+
+/** The tinted run of an open anomaly: [index of `since`, last index]; null when it isn't in the series. */
+export function anomalySpan(
+  series: readonly SeriesPoint[],
+  since: string | null,
+): [number, number] | null {
+  if (since === null) return null;
+  const from = series.findIndex((p) => p.date >= since);
+  return from < 0 ? null : [from, series.length - 1];
 }
 
 export const THIN_RULE = `fewer than ${MIN_BASELINE_DAYS} of the last 28 days on record`;

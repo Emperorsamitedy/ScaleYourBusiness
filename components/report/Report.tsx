@@ -45,7 +45,7 @@ import {
   severityFlag,
   signedMoney,
 } from "./figures";
-import type { MoneyLike } from "./figures";
+import type { MoneyLike, Severity } from "./figures";
 import type { MeasureRow, PanelWords } from "./panel";
 import {
   NOT_RECORDED,
@@ -60,6 +60,9 @@ import {
 } from "./panel";
 import type { FactInfo, FactMap, Rec, ReportView, StatedVsMeasuredRow } from "./types";
 import { Logo } from "../brand/Mark";
+import { HBars, SegBar } from "../charts/Viz";
+import type { Tone } from "../charts/Viz";
+import { RangeBar } from "../sheet/RangeBar";
 
 /** The menu's counts (app/api/nav) — the masthead and sub-nav print only what they know. */
 interface NavCounts {
@@ -76,6 +79,14 @@ const DECLINE_CHIPS = ["tried", "market", "now"] as const;
 const CASES = new Set(["base", "downside", "upside"]);
 
 const NONE = <span className="rq-none">—</span>;
+
+/** The severity bar's marks: heavier the more urgent, the tally's own tints. */
+const SEVERITY_TONE: Readonly<Record<Severity, Tone>> = {
+  critical: "alarm",
+  high: "drift",
+  medium: "soft",
+  low: "faint",
+};
 
 /** The report's translator, its shared sheet words, and the reader's locale. */
 function useWords() {
@@ -359,6 +370,22 @@ function Panel({
             </span>
           )}
         </p>
+        {tally.length > 0 && (
+          <SegBar
+            bare
+            label={tally.map((x) => `${num(x.n, 0, locale)} ${x.word}`).join(" · ")}
+            segs={tally.map((x) => ({
+              key: x.severity,
+              label: x.word,
+              value: x.n,
+              tone: SEVERITY_TONE[x.severity],
+            }))}
+            onPick={(severity) => {
+              const i = report.findings.findIndex((f) => f.severity === severity);
+              document.getElementById(`rq-f${i + 1}`)?.scrollIntoView({ block: "start" });
+            }}
+          />
+        )}
         <p className="rq-summary" lang={report.language ?? "en"}>
           {report.summary}
         </p>
@@ -578,6 +605,25 @@ function Evidence({ keys, map }: { keys: string[]; map: FactMap }) {
   );
 }
 
+/**
+ * Said and measured as two places on one zero-based scale, in percent of
+ * the larger; null unless both are figures in one unit.
+ */
+export function svmPair(stated: unknown, measured: unknown): { a: number; b: number } | null {
+  const amount = (v: unknown) =>
+    typeof v === "number" ? v : isMoneyLike(v) ? v.amount_minor : null;
+  const a = amount(stated);
+  const b = amount(measured);
+  if (a === null || b === null || a < 0 || b < 0) return null;
+  if (isMoneyLike(stated) !== isMoneyLike(measured)) return null;
+  if (isMoneyLike(stated) && isMoneyLike(measured) && stated.currency !== measured.currency) {
+    return null;
+  }
+  const top = Math.max(a, b);
+  if (top === 0) return null;
+  return { a: (a / top) * 94 + 3, b: (b / top) * 94 + 3 };
+}
+
 function StatedVsMeasured({ rows, map }: { rows: StatedVsMeasuredRow[]; map: FactMap }) {
   const { t, tr, st, locale } = useWords();
   const monies = rows.flatMap((r) =>
@@ -599,11 +645,12 @@ function StatedVsMeasured({ rows, map }: { rows: StatedVsMeasuredRow[]; map: Fac
           <tr>
             <th scope="col">{t("svm.measure")}</th>
             <th scope="col" className="num">
-              {t("svm.said")}
+              <span className="vz-key vz-hollow" aria-hidden="true" /> {t("svm.said")}
             </th>
             <th scope="col" className="num">
-              {t("svm.measured")}
+              <span className="vz-key vz-ink" aria-hidden="true" /> {t("svm.measured")}
             </th>
+            <th scope="col" className="rq-svm-viz" aria-hidden="true" />
             <th scope="col" className="num">
               {t("svm.difference")}
             </th>
@@ -614,6 +661,7 @@ function StatedVsMeasured({ rows, map }: { rows: StatedVsMeasuredRow[]; map: Fac
             const period = /over (\S+)\.\.(\S+)/.exec(s.measured.method);
             const statedBasis = basisOf(s.stated);
             const d = s.delta;
+            const pair = svmPair(s.stated.value, s.measured.value);
             return (
               <tr key={s.field_key}>
                 <th scope="row">
@@ -641,6 +689,21 @@ function StatedVsMeasured({ rows, map }: { rows: StatedVsMeasuredRow[]; map: Fac
                 </td>
                 <td className="num" data-label={t("svm.measured")}>
                   {show(s.measured.value)}
+                </td>
+                <td className="rq-svm-viz" aria-hidden="true">
+                  {pair !== null && (
+                    <span className="vz-dumb-track">
+                      <span
+                        className="vz-dumb-join"
+                        style={{
+                          left: `${Math.min(pair.a, pair.b).toFixed(2)}%`,
+                          width: `${Math.abs(pair.a - pair.b).toFixed(2)}%`,
+                        }}
+                      />
+                      <span className="vz-dumb-a" style={{ left: `${pair.a.toFixed(2)}%` }} />
+                      <span className="vz-dumb-b" style={{ left: `${pair.b.toFixed(2)}%` }} />
+                    </span>
+                  )}
                 </td>
                 <td className="num" data-label={t("svm.difference")}>
                   {d === null ? (
@@ -760,6 +823,17 @@ function Forecast({ rec }: { rec: Rec }) {
           <span className="fig rq-range-fig">
             {rangeText(range, locale)}{" "}
             <span className="rq-unit">{t("col.perMonth", { currency: range.currency })}</span>
+          </span>
+          <span className="rq-range-bar">
+            <RangeBar
+              scale={[
+                Math.min(0, range.low.amount_minor),
+                Math.max(0, range.high.amount_minor) || 1,
+              ]}
+              band={[range.low.amount_minor, range.high.amount_minor]}
+              value={s.base_case.profit_delta_monthly?.amount_minor ?? null}
+              actAt={range.low.amount_minor < 0 ? 0 : null}
+            />
           </span>
         </p>
       )}
@@ -965,6 +1039,13 @@ export function ReportBody({
   const eco = report.unit_economics;
   const map = report.fact_map;
   const measured = eco.stated_vs_measured ?? [];
+  const margins = useMemo(
+    () =>
+      eco.offers
+        .flatMap((o) => (o.margin_pct ? [{ ...o, margin: o.margin_pct.value }] : []))
+        .sort((a, b) => b.margin - a.margin),
+    [eco.offers],
+  );
 
   return (
     <>
@@ -974,6 +1055,40 @@ export function ReportBody({
           <WhySheet report={report} row={current} />
         </div>
       </div>
+
+      {margins.length > 1 && (
+        <SheetCard className="rq-card" label={t("viz.marginsLabel")} title={t("viz.marginsTitle")}>
+          <HBars
+            label={t("viz.marginsTitle")}
+            max={100}
+            axis={{ ticks: [0, 20, 40, 60, 80, 100], format: (v) => `${num(v, 0, locale)} %` }}
+            {...(eco.blended_margin_pct
+              ? {
+                  refAt: eco.blended_margin_pct.value,
+                  refLabel: `${t("measure.blended_margin.name")} ${num(eco.blended_margin_pct.value, 1, locale)} %`,
+                }
+              : {})}
+            rows={margins.map((o) => ({
+              key: o.offer_id,
+              label: o.name,
+              note:
+                o.cost_to_deliver !== null
+                  ? t("viz.priceCost", {
+                      price: moneyText(o.price.amount_minor, o.price.currency, locale),
+                      cost: moneyText(
+                        o.cost_to_deliver.amount_minor,
+                        o.cost_to_deliver.currency,
+                        locale,
+                      ),
+                    })
+                  : undefined,
+              value: Math.max(0, o.margin),
+              display: `${num(o.margin, 1, locale)} %`,
+              tone: "ok" as const,
+            }))}
+          />
+        </SheetCard>
+      )}
 
       {/* ── findings: a worded flag; colour only tints the word ── */}
       <SheetCard
@@ -991,7 +1106,7 @@ export function ReportBody({
             {report.findings.map((f, i) => {
               const flag = severityFlag(f.severity, st);
               return (
-                <li className="rq-item" key={f.title}>
+                <li className="rq-item" key={f.title} id={`rq-f${i + 1}`}>
                   <p className="rq-item-head">
                     <span className="rq-ref">F{i + 1}</span>
                     <span className={`word ${flag.tone}`}>{flag.word}</span>

@@ -20,12 +20,15 @@ import { ProviderError } from "./provider";
 import {
   GA4_DATA_ORIGIN,
   GA4_HISTORY_DAYS,
+  GA4_REALTIME_MINUTES,
   GA4_MAX_ATTEMPTS,
   GA4_REREAD_DAYS,
   GA4_SCOPE,
   GA4_TOKENINFO_URL,
   GA4_TOKEN_URL,
+  activeByMinute,
   aggregateSessions,
+  createGa4Live,
   createGa4Provider,
   parseGa4Credential,
 } from "./providers/ga4";
@@ -400,5 +403,79 @@ describe("P2-18 — listing channels for matching", () => {
     });
     const channels = (await provider.listChannels?.(SECRET)) ?? [];
     expect(channels.map((c) => c.ref)).toEqual(["Organic Search", "Paid Social", "Direct"]);
+  });
+});
+
+describe("Home's live line — people on the site, minute by minute", () => {
+  it("fills the minutes nobody was active in with 0 and orders them oldest first", () => {
+    const minutes = activeByMinute(
+      [
+        { dimensions: ["00"], metrics: ["7"] },
+        { dimensions: ["02"], metrics: ["3"] },
+        { dimensions: ["45"], metrics: ["9"] },
+        { dimensions: ["01"], metrics: ["not a number"] },
+      ],
+      4,
+    );
+    expect(minutes).toEqual([
+      { minutes_ago: 3, active: 0 },
+      { minutes_ago: 2, active: 3 },
+      { minutes_ago: 1, active: 0 },
+      { minutes_ago: 0, active: 7 },
+    ]);
+    expect(activeByMinute([])).toHaveLength(GA4_REALTIME_MINUTES);
+  });
+
+  it("asks the realtime report for active users by minute, with the read-only token, and nothing else", async () => {
+    const calls: { url: string; body: string | undefined; auth: string | undefined }[] = [];
+    const live = createGa4Live({
+      clock: () => NOW.getTime(),
+      sleep: async () => undefined,
+      fetch: async (url, init) => {
+        calls.push({ url, body: init.body, auth: init.headers["authorization"] });
+        if (url === GA4_TOKEN_URL) {
+          const assertion = new URLSearchParams(init.body).get("assertion") ?? "";
+          const claims = JSON.parse(
+            Buffer.from(assertion.split(".")[1] ?? "", "base64url").toString(),
+          );
+          expect(claims.scope).toBe(GA4_SCOPE);
+          return { status: 200, json: async () => ({ access_token: "tok", expires_in: 3600 }) };
+        }
+        return {
+          status: 200,
+          json: async () => ({
+            rows: [
+              { dimensionValues: [{ value: "00" }], metricValues: [{ value: "5" }] },
+              { dimensionValues: [{ value: "29" }], metricValues: [{ value: "2" }] },
+            ],
+          }),
+        };
+      },
+    });
+    const minutes = await live.activeNow(SECRET);
+    expect(minutes[0]).toEqual({ minutes_ago: 29, active: 2 });
+    expect(minutes.at(-1)).toEqual({ minutes_ago: 0, active: 5 });
+    expect(calls.map((c) => c.url)).toEqual([
+      GA4_TOKEN_URL,
+      `${GA4_DATA_ORIGIN}/v1beta/properties/${PROPERTY}:runRealtimeReport`,
+    ]);
+    expect(calls[1]?.auth).toBe("Bearer tok");
+    expect(JSON.parse(calls[1]?.body ?? "{}")).toEqual({
+      dimensions: [{ name: "minutesAgo" }],
+      metrics: [{ name: "activeUsers" }],
+      limit: GA4_REALTIME_MINUTES,
+    });
+  });
+
+  it("a property the account can't read is an error, never zero people", async () => {
+    const live = createGa4Live({
+      clock: () => NOW.getTime(),
+      sleep: async () => undefined,
+      fetch: async (url) =>
+        url === GA4_TOKEN_URL
+          ? { status: 200, json: async () => ({ access_token: "tok", expires_in: 3600 }) }
+          : { status: 403, json: async () => ({ error: { message: "denied" } }) },
+    });
+    await expect(live.activeNow(SECRET)).rejects.toBeInstanceOf(ProviderError);
   });
 });

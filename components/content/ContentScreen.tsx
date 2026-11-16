@@ -38,6 +38,7 @@ import { EmergencyStop } from "../execution/EmergencyStop";
 import { MediaPanel } from "./MediaPanel";
 import type { TikTokItemStateLike } from "./TikTokPostForm";
 import { TikTokPostForm } from "./TikTokPostForm";
+import { HBars } from "../charts/Viz";
 import { Fold } from "../sheet/Fold";
 import { PageHead, SheetCard } from "../sheet/PageHead";
 import { num } from "../sheet/num";
@@ -48,17 +49,22 @@ import type { Tr } from "../../lib/i18n/tr";
 import {
   type AdStateLike,
   type ContentStatus,
+  type DayMark,
   type MediaState,
   type PerformanceLike,
   adLine,
+  aiMediaWord,
+  calendarStrip,
   channelStrips,
   contentHeadline,
   mediaWord,
+  performanceBars,
   performanceLine,
   platformWord,
   publishLine,
   shortId,
   stateWord,
+  tileMedia,
 } from "./content-view";
 import { Logo } from "../brand/Mark";
 
@@ -167,6 +173,24 @@ function todayIso(): string {
   return new Date().toISOString().slice(0, 10);
 }
 
+/** Monday to Sunday, one narrow letter each (1 January 2024 was a Monday). */
+function weekdayInitials(locale: AppLocale): string[] {
+  return Array.from({ length: 7 }, (_, i) =>
+    new Date(Date.UTC(2024, 0, 1 + i)).toLocaleDateString(intlTag(locale), {
+      weekday: "narrow",
+      timeZone: "UTC",
+    }),
+  );
+}
+
+/** The calendar strip's marks in the small visuals' grammar (app/viz.css). */
+const MARK_TONE: Readonly<Record<DayMark, string>> = {
+  posted: "vz-ink",
+  planned: "vz-hollow",
+  overdue: "vz-drift",
+};
+const MARK_ORDER: readonly DayMark[] = ["posted", "planned", "overdue"];
+
 /** The id that produced a "channels.<id>.type" style key, if any. */
 const EVIDENCE = /^(channels|goals)\.([0-9a-f-]{36})\.(\w+)$/;
 
@@ -182,6 +206,8 @@ function watchDay(day: string, locale: AppLocale = "en"): string {
 
 export function ContentScreen() {
   const [state, setState] = useState<State>({ phase: "loading" });
+  /** Tile sources that didn't load: such an item gets no tile rather than an empty one. */
+  const [unloadable, setUnloadable] = useState<ReadonlySet<string>>(new Set());
   const detailRef = useRef<HTMLElement | null>(null);
   const { tr, locale } = useTr("content");
   const day = (iso: string) => dayWord(iso, locale);
@@ -331,6 +357,17 @@ export function ContentScreen() {
     }
   };
 
+  const tiles = s.items.flatMap((item) => {
+    const media = tileMedia(item);
+    return media && !unloadable.has(media.src) ? [{ item, media }] : [];
+  });
+  const calendar = calendarStrip(s.items, today);
+  const calendarDays = calendar?.weeks.flat() ?? [];
+  const itemById = new Map(s.items.map((i) => [i.id, i]));
+  const marksDrawn = new Set(calendarDays.flatMap((d) => d.entries.map((e) => e.mark)));
+  const markWord = (mark: DayMark) =>
+    mark === "posted" ? tr("state.posted") : tr(`calendar.${mark}`);
+
   const evidenceLine = (key: string, item: ContentItem): string => {
     const m = EVIDENCE.exec(key);
     if (m?.[1] === "channels") return tr("evidence.channel", { channel: item.channel_label });
@@ -406,6 +443,59 @@ export function ContentScreen() {
         </ul>
       )}
 
+      {tiles.length > 0 && (
+        <SheetCard label={tr("gallery.label")} title={tr("gallery.title")} className="ct-gallery">
+          <ul className="ct-tiles">
+            {tiles.map(({ item, media }) => {
+              const w = stateWord(item, short, tr);
+              const ai = aiMediaWord(item.provenance, media.kind, tr);
+              const date = item.published_at ?? item.scheduled_for;
+              const failed = () => setUnloadable((cur) => new Set(cur).add(media.src));
+              return (
+                <li key={item.id}>
+                  <button
+                    type="button"
+                    className="ct-tile"
+                    aria-pressed={open?.id === item.id}
+                    onClick={() => pick(item.id)}
+                  >
+                    <span className="ct-tile-frame" title={item.title}>
+                      {media.kind === "video" ? (
+                        // The fragment makes the first frame the poster where metadata alone draws none.
+                        <video
+                          src={`${media.src}#t=0.1`}
+                          preload="metadata"
+                          muted
+                          playsInline
+                          tabIndex={-1}
+                          aria-hidden="true"
+                          onError={failed}
+                        />
+                      ) : (
+                        // A plain img: the store's own address, which next/image is not configured for.
+                        <img
+                          src={media.src}
+                          alt=""
+                          loading="lazy"
+                          decoding="async"
+                          onError={failed}
+                        />
+                      )}
+                    </span>
+                    <span className="sr-only">{item.title}</span>
+                    <span className="ct-tile-line">
+                      {item.channel_label} · {date ? short(date) : tr("anytime")}
+                    </span>
+                    <span className={`word boxed ${w.tone}`}>{w.word}</span>
+                    {ai && <span className="ct-tile-ai">{ai}</span>}
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        </SheetCard>
+      )}
+
       <div className="ct-grid">
         <SheetCard
           label={tr("queue.label")}
@@ -413,6 +503,73 @@ export function ContentScreen() {
           className="ct-queue"
           id="ct-calendar"
         >
+          {calendar && (
+            <div className="ct-cal">
+              <p className="vz-cap">
+                {short(calendarDays[0]?.date ?? today)} –{" "}
+                {short(calendarDays[calendarDays.length - 1]?.date ?? today)}
+              </p>
+              <div className="ct-cal-grid" role="group" aria-label={tr("calendar.label")}>
+                {weekdayInitials(locale).map((initial, i) => (
+                  <span key={i} className="ct-cal-wd" aria-hidden="true">
+                    {initial}
+                  </span>
+                ))}
+                {calendarDays.map((d) => (
+                  <div
+                    key={d.date}
+                    className={`ct-cal-day${d.today ? " today" : ""}`}
+                    title={day(d.date)}
+                    aria-current={d.today ? "date" : undefined}
+                  >
+                    <span className="ct-cal-num" aria-hidden="true">
+                      {num(Number(d.date.slice(8)), 0, locale)}
+                    </span>
+                    {d.entries.map((e) => {
+                      const item = itemById.get(e.id);
+                      if (!item) return null;
+                      return (
+                        <button
+                          key={e.id}
+                          type="button"
+                          className="ct-cal-pick"
+                          title={item.title}
+                          aria-label={`${item.title} · ${stateWord(item, short, tr).word}`}
+                          aria-pressed={open?.id === e.id}
+                          onClick={() => pick(e.id)}
+                        >
+                          <span className={MARK_TONE[e.mark]} aria-hidden="true" />
+                        </button>
+                      );
+                    })}
+                  </div>
+                ))}
+              </div>
+              <ul className="vz-keys" aria-hidden="true">
+                {MARK_ORDER.filter((mark) => marksDrawn.has(mark)).map((mark) => (
+                  <li key={mark}>
+                    <span className={`vz-key ${MARK_TONE[mark]}`} />
+                    {markWord(mark)}
+                  </li>
+                ))}
+              </ul>
+              <ul className="sr-only">
+                {calendarDays
+                  .filter((d) => d.entries.length > 0)
+                  .map((d) => (
+                    <li key={d.date}>
+                      {day(d.date)}:{" "}
+                      {d.entries
+                        .map((e) => `${itemById.get(e.id)?.title ?? ""} (${markWord(e.mark)})`)
+                        .join("; ")}
+                    </li>
+                  ))}
+              </ul>
+              {calendar.outside > 0 && (
+                <p className="ct-cal-more">{tr("calendar.outside", { count: calendar.outside })}</p>
+              )}
+            </div>
+          )}
           {s.items.length === 0 ? (
             <p className="ct-empty">
               {s.watchingUntil
@@ -582,13 +739,23 @@ export function ContentScreen() {
               {(() => {
                 const perf = performanceLine(s.performance[open.id], tr, locale);
                 if (!perf) return null;
+                // This post's own figures only: two posts are never drawn on one scale.
+                const bars = performanceBars(s.performance[open.id], tr, locale);
                 return (
-                  <p className="ct-why">
-                    {tr("perf.measured")}{" "}
-                    <span className={`word boxed ${perf.tone}`}>{perf.word}</span>
-                    {perf.figures && ` ${perf.figures}`}
-                    <span className="src ct-sub">{perf.arithmetic}</span>
-                  </p>
+                  <>
+                    {bars && (
+                      <HBars
+                        label={`${tr("perf.measured")} ${perf.word} ${perf.figures ?? ""}`.trim()}
+                        rows={bars.rows.map((r) => ({ ...r, tone: bars.tone }))}
+                      />
+                    )}
+                    <p className="ct-why">
+                      {tr("perf.measured")}{" "}
+                      <span className={`word boxed ${perf.tone}`}>{perf.word}</span>
+                      {perf.figures && ` ${perf.figures}`}
+                      <span className="src ct-sub">{perf.arithmetic}</span>
+                    </p>
+                  </>
                 );
               })()}
               {(() => {

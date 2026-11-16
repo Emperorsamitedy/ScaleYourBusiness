@@ -1,5 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { customersHeadline, filterContacts, maskEmail, matchesQuery } from "./customers-view";
+import {
+  LIFECYCLE_ORDER,
+  LIFECYCLE_TONE,
+  customersHeadline,
+  filterContacts,
+  maskEmail,
+  matchesQuery,
+} from "./customers-view";
 
 describe("customersHeadline", () => {
   it("counts customers and the ones gone quiet, with comma thousands", () => {
@@ -10,6 +17,18 @@ describe("customersHeadline", () => {
   it("says so plainly when there is no one, or no one quiet", () => {
     expect(customersHeadline(0, 0)).toBe("No customers imported yet.");
     expect(customersHeadline(8, 0)).toBe("8 customers. None have gone quiet.");
+  });
+});
+
+describe("the lifecycle bar", () => {
+  it("gives every stage the chips list its own mark", () => {
+    expect(LIFECYCLE_ORDER.map((l) => LIFECYCLE_TONE[l])).toEqual([
+      "ok",
+      "ink",
+      "drift",
+      "soft",
+      "hollow",
+    ]);
   });
 });
 

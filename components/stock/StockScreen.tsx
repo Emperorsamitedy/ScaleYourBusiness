@@ -20,6 +20,7 @@
 // the headlines built here are the "stockWords" catalogue.
 
 import "../../app/stock.css";
+import "../../app/viz.css";
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import type { ReactNode } from "react";
@@ -39,7 +40,9 @@ import { num } from "../sheet/num";
 import { useTr } from "../sheet/useTr";
 import type { StockWords } from "./stock-view";
 import {
+  cashBars,
   cashText,
+  coverBars,
   coverFlagClass,
   coverText,
   flagClass,
@@ -65,6 +68,8 @@ function useStockWords(): StockWords {
   return useTr("stock");
 }
 
+const pct = (share: number) => `${(share * 100).toFixed(2)}%`;
+
 function Frame({
   title,
   aside,
@@ -87,6 +92,8 @@ function SlowTable({ items }: { items: StockItemView[] }) {
   const words = useStockWords();
   const { tr, locale } = words;
   const sold = tr("col.sold", { days: num(90, 0, locale) });
+  const bars = cashBars(items);
+  const drawn = bars.some((b) => b !== null);
   return (
     <div className="st-table-wrap" tabIndex={0} aria-label={tr("slowTable")}>
       <table className="rt rt-stack st-table">
@@ -108,13 +115,15 @@ function SlowTable({ items }: { items: StockItemView[] }) {
             <th scope="col" className="num">
               {tr("col.cashTied")}
             </th>
+            {drawn && <th aria-hidden="true" />}
             <th scope="col">{tr("col.flag")}</th>
             <th scope="col">{tr("col.ways")}</th>
           </tr>
         </thead>
         <tbody>
-          {items.map((item) => {
+          {items.map((item, k) => {
             const usable = item.options.filter((o) => o.unavailable === null).slice(0, 3);
+            const bar = bars[k] ?? null;
             return (
               <tr key={item.key}>
                 <th scope="row">
@@ -137,6 +146,18 @@ function SlowTable({ items }: { items: StockItemView[] }) {
                   {cashText(item.cash_tied_minor, item.currency, words)}
                   {item.cost_basis === "stated" && <span className="st-src">{tr("yourCost")}</span>}
                 </td>
+                {drawn && (
+                  <td className="st-bar" aria-hidden="true">
+                    {bar && (
+                      <span className="vz-bar-track">
+                        <span
+                          className={`vz-bar-fill vz-${bar.tone}`}
+                          style={{ left: 0, width: pct(bar.share) }}
+                        />
+                      </span>
+                    )}
+                  </td>
+                )}
                 <td data-label={tr("col.flag")}>
                   <span className={`flag ${flagClass(item.flag)}`}>{flagWord(item.flag, tr)}</span>
                 </td>
@@ -163,72 +184,105 @@ function SlowTable({ items }: { items: StockItemView[] }) {
   );
 }
 
-function CoverTable({ cover }: { cover: CoverBlock }) {
+function CoverTable({ cover, today }: { cover: CoverBlock; today: string | undefined }) {
   const words = useStockWords();
   const { tr, locale } = words;
   const n = num(cover.window_days, 0, locale);
   const sold = tr("col.sold", { days: n });
   const vsPrior = tr("col.vsPrior", { days: n });
+  const bars = coverBars(cover.items, today);
+  const drawn = bars.some((b) => b !== null);
   return (
-    <div className="st-table-wrap" tabIndex={0} aria-label={tr("coverTable")}>
-      <table className="rt rt-stack st-table">
-        <thead>
-          <tr>
-            <th scope="col">{tr("col.item")}</th>
-            <th scope="col" className="num">
-              {tr("col.onHand")}
-            </th>
-            <th scope="col" className="num">
-              {sold}
-            </th>
-            <th scope="col" className="num">
-              {vsPrior}
-            </th>
-            <th scope="col" className="num">
-              {tr("col.cover")}
-            </th>
-            <th scope="col">{tr("col.delivery")}</th>
-            <th scope="col">{tr("col.flag")}</th>
-          </tr>
-        </thead>
-        <tbody>
-          {cover.items.map((item) => (
-            <tr key={item.key}>
-              <th scope="row">
-                {item.name}
-                <span className="st-src">{item.source}</span>
+    <>
+      <div className="st-table-wrap" tabIndex={0} aria-label={tr("coverTable")}>
+        <table className="rt rt-stack st-table">
+          <thead>
+            <tr>
+              <th scope="col">{tr("col.item")}</th>
+              <th scope="col" className="num">
+                {tr("col.onHand")}
               </th>
-              <td className="num" data-label={tr("col.onHand")}>
-                {num(item.on_hand, 0, locale)}
-              </td>
-              <td className="num" data-label={sold}>
-                {item.sold_recent === null ? "—" : num(item.sold_recent, 0, locale)}
-              </td>
-              <td className="num" data-label={vsPrior} title={item.sell_through}>
-                {vsPriorText(item, words)}
-                {item.vs_prior && item.vs_prior.band > 0 && (
-                  <span className="st-src">
-                    {tr("chance", { band: num(item.vs_prior.band, 0, locale) })}
-                  </span>
-                )}
-              </td>
-              <td className="num" data-label={tr("col.cover")} title={item.why ?? item.sources}>
-                {item.cover_text}
-                {item.boosted && <span className="st-src">{tr("boosted")}</span>}
-              </td>
-              <td data-label={tr("col.delivery")} title={item.lead.why}>
-                <span className="st-mono">{leadText(item, words)}</span>
-              </td>
-              <td data-label={tr("col.flag")}>
-                <span className={`flag ${coverFlagClass(item.flag)}`}>
-                  {flagWord(item.flag, tr)}
-                </span>
-              </td>
+              <th scope="col" className="num">
+                {sold}
+              </th>
+              <th scope="col" className="num">
+                {vsPrior}
+              </th>
+              <th scope="col" className="num">
+                {tr("col.cover")}
+              </th>
+              {drawn && <th aria-hidden="true" />}
+              <th scope="col">{tr("col.delivery")}</th>
+              <th scope="col">{tr("col.flag")}</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+          </thead>
+          <tbody>
+            {cover.items.map((item, k) => {
+              const bar = bars[k] ?? null;
+              return (
+                <tr key={item.key}>
+                  <th scope="row">
+                    {item.name}
+                    <span className="st-src">{item.source}</span>
+                  </th>
+                  <td className="num" data-label={tr("col.onHand")}>
+                    {num(item.on_hand, 0, locale)}
+                  </td>
+                  <td className="num" data-label={sold}>
+                    {item.sold_recent === null ? "—" : num(item.sold_recent, 0, locale)}
+                  </td>
+                  <td className="num" data-label={vsPrior} title={item.sell_through}>
+                    {vsPriorText(item, words)}
+                    {item.vs_prior && item.vs_prior.band > 0 && (
+                      <span className="st-src">
+                        {tr("chance", { band: num(item.vs_prior.band, 0, locale) })}
+                      </span>
+                    )}
+                  </td>
+                  <td className="num" data-label={tr("col.cover")} title={item.why ?? item.sources}>
+                    {item.cover_text}
+                    {item.boosted && <span className="st-src">{tr("boosted")}</span>}
+                  </td>
+                  {drawn && (
+                    <td className="st-bar" aria-hidden="true">
+                      {bar && (
+                        <span className="vz-bar-track">
+                          {bar.high !== null && bar.high > bar.low && (
+                            <span
+                              className={`vz-bar-rest vz-${bar.tone}`}
+                              style={{ left: 0, width: pct(bar.high) }}
+                            />
+                          )}
+                          <span
+                            className={`vz-bar-fill vz-${bar.tone}`}
+                            style={{ left: 0, width: pct(bar.low) }}
+                          />
+                          <span className="vz-bar-ref" style={{ left: pct(bar.lead) }} />
+                        </span>
+                      )}
+                    </td>
+                  )}
+                  <td data-label={tr("col.delivery")} title={item.lead.why}>
+                    <span className="st-mono">{leadText(item, words)}</span>
+                  </td>
+                  <td data-label={tr("col.flag")}>
+                    <span className={`flag ${coverFlagClass(item.flag)}`}>
+                      {flagWord(item.flag, tr)}
+                    </span>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+      {drawn && (
+        <p className="vz-ref-note">
+          <i aria-hidden="true" />
+          {tr("col.delivery")}
+        </p>
+      )}
+    </>
   );
 }
 
@@ -277,11 +331,13 @@ function ReorderNote({ item }: { item: CoverItemView }) {
 
 function CoverCard({
   cover,
+  today,
   onReorder,
   busy,
   note,
 }: {
   cover: CoverBlock;
+  today: string | undefined;
   onReorder: () => void;
   busy: boolean;
   note: string | null;
@@ -316,7 +372,7 @@ function CoverCard({
         ) : undefined
       }
     >
-      <CoverTable cover={cover} />
+      <CoverTable cover={cover} today={today} />
       <p className="st-copy">{cover.season}</p>
       {busy && (
         <p className="st-copy live">
@@ -649,6 +705,7 @@ export function StockScreen() {
         <>
           <CoverCard
             cover={view.cover}
+            today={view.today}
             onReorder={() => void reorder()}
             busy={reordering}
             note={reordered}

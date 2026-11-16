@@ -21,6 +21,7 @@
 // from the server (L-4b, "patternsWords"). Item names are content.
 
 import "../../app/patterns.css";
+import "../../app/viz.css";
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import type { ReactNode } from "react";
@@ -42,9 +43,11 @@ import {
   lineIn,
   longDate,
   marginText,
+  monthBars,
   proposalWord,
   ratioIn,
   seasonChartModel,
+  togetherBars,
 } from "./patterns-view";
 
 /** How far back last year's week sits, so weekdays line up (lib/seasons). */
@@ -56,6 +59,8 @@ function useWords(): PatternWords {
   const { tr, locale } = useTr("patterns");
   return { tr, locale };
 }
+
+const pct = (share: number) => `${(share * 100).toFixed(2)}%`;
 
 function Frame({
   title,
@@ -131,6 +136,7 @@ function Seasons({ view }: { view: PatternsView }) {
   }
   const rows = aheadRows(r, w);
   const others = view.seasons.other_currencies;
+  const months = monthBars(r.months);
   return (
     <>
       {chart && <SeasonChart model={chart} />}
@@ -182,10 +188,11 @@ function Seasons({ view }: { view: PatternsView }) {
                 <th scope="col" className="num">
                   {tr("col.againstNormal")}
                 </th>
+                {months && <th aria-hidden="true" />}
               </tr>
             </thead>
             <tbody>
-              {r.months.map((m) => (
+              {r.months.map((m, k) => (
                 <tr key={m.month}>
                   <th scope="row">
                     {locale === "en" ? m.label : monthYear(`${m.month}-01`, locale)}
@@ -193,10 +200,27 @@ function Seasons({ view }: { view: PatternsView }) {
                   <td className="num" data-label={tr("col.againstNormal")}>
                     {ratioIn(m, locale)}
                   </td>
+                  {months && (
+                    <td className="pt-bar" aria-hidden="true">
+                      <span className="vz-bar-track">
+                        <span
+                          className={`vz-bar-fill vz-${months.bars[k]?.tone ?? "soft"}`}
+                          style={{ left: 0, width: pct(months.bars[k]?.share ?? 0) }}
+                        />
+                        <span className="vz-bar-ref" style={{ left: pct(months.normal) }} />
+                      </span>
+                    </td>
+                  )}
                 </tr>
               ))}
             </tbody>
           </table>
+          {months && (
+            <p className="vz-ref-note">
+              <i aria-hidden="true" />
+              {chartWords.tr("yourNormal")}
+            </p>
+          )}
         </SheetCard>
       </div>
       <Fold summary={tr("read.label")}>
@@ -236,6 +260,7 @@ function Pairs({
   const t = view.bundles.thresholds;
   const r = source.result;
   const label = tr("pairs.label", { kind, source: source.label });
+  const bars = togetherBars(source.pairs);
   if (r.status === "too_few") {
     return (
       <SheetCard label={label} title={tr("pairs.tooFew", { amount: amount(r.baskets) })}>
@@ -293,6 +318,7 @@ function Pairs({
                 <th scope="col" className="num">
                   {tr("col.together")}
                 </th>
+                <th aria-hidden="true" />
                 <th scope="col">{tr("col.alsoSecond")}</th>
                 <th scope="col" className="num">
                   {tr("col.againstChance")}
@@ -302,7 +328,7 @@ function Pairs({
               </tr>
             </thead>
             <tbody>
-              {source.pairs.map((p) => {
+              {source.pairs.map((p, k) => {
                 const word = proposalWord(view.proposed[p.key], tr);
                 return (
                   <tr key={p.key}>
@@ -311,6 +337,14 @@ function Pairs({
                     </th>
                     <td className="num" data-label={tr("col.together")}>
                       {amount(p.together)}
+                    </td>
+                    <td className="pt-bar" aria-hidden="true">
+                      <span className="vz-bar-track">
+                        <span
+                          className="vz-bar-fill vz-ink"
+                          style={{ left: 0, width: pct(bars[k] ?? 0) }}
+                        />
+                      </span>
                     </td>
                     <td data-label={tr("col.alsoSecond")}>
                       {tr("pairs.share", {

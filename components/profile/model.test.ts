@@ -7,6 +7,7 @@ import { describe, expect, it } from "vitest";
 import type { FactRow, FactSheet } from "./model";
 import {
   basisCounts,
+  basisSegs,
   basisWord,
   changedIn,
   displaySections,
@@ -107,6 +108,52 @@ describe("basisWord — the design's words, an estimate never shown as exact", (
     const all = displaySections(sheet).flatMap((s) => s.facts.map((d) => d.fact));
     expect(basisCounts(all)).toEqual({ observed: 0, derived: 1, fromYou: 4, assumed: 1, gaps: 0 });
     expect(basisCounts([fact("a.b", { value: null, status: "skipped" })]).gaps).toBe(1);
+  });
+});
+
+describe("basisSegs — the head line as one bar", () => {
+  const gap = (status: string) => fact("a.b", { value: null, status });
+  const facts = [
+    fact("a.b", { source_kind: "connector" }),
+    fact("a.b", { source_kind: "connector" }),
+    fact("a.b", { status: "inferred", source_kind: "inferred" }),
+    fact("a.b"),
+    fact("a.b", { note: "owner marked as estimate" }),
+    fact("a.b", { source_kind: "system_default" }),
+    gap("unasked"),
+    gap("unknown"),
+    gap("skipped"),
+    gap("unknown"),
+  ];
+
+  it("draws a segment per basis in the line's order, in the basis column's words", () => {
+    expect(basisSegs(facts).slice(0, 5)).toEqual([
+      { key: "OBSERVED", label: "OBSERVED", value: 2, tone: "ink" },
+      { key: "DERIVED", label: "DERIVED", value: 1, tone: "ink2" },
+      { key: "STATED", label: "FROM YOU", value: 1, tone: "hollow" },
+      { key: "ESTIMATED", label: "FROM YOU · EST.", value: 1, tone: "okband" },
+      { key: "ASSUMED", label: "ASSUMED", value: 1, tone: "faint" },
+    ]);
+  });
+
+  it("keeps not known, skipped and not asked as separate segments (rule 5)", () => {
+    expect(basisSegs(facts).slice(5)).toEqual([
+      { key: "gap.unknown", label: "NOT KNOWN", value: 2, tone: "soft" },
+      { key: "gap.skipped", label: "SKIPPED", value: 1, tone: "soft" },
+      { key: "gap.unasked", label: "NOT ASKED", value: 1, tone: "soft" },
+    ]);
+  });
+
+  it("adds up to the line's counts, and draws no segment for a class with no facts", () => {
+    const c = basisCounts(facts);
+    const of = (...keys: string[]) =>
+      basisSegs(facts)
+        .filter((s) => keys.includes(s.key))
+        .reduce((n, s) => n + s.value, 0);
+    expect(of("STATED", "ESTIMATED")).toBe(c.fromYou);
+    expect(of("gap.unknown", "gap.skipped", "gap.unasked")).toBe(c.gaps);
+    expect(basisSegs([fact("a.b")]).map((s) => s.key)).toEqual(["STATED"]);
+    expect(basisSegs([])).toEqual([]);
   });
 });
 

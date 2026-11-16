@@ -782,6 +782,11 @@
       "revoke": "Revoke",
       "wrong": "something went wrong — try again",
       "unreachable": "I couldn't reach the server — try again."
+    },
+    "viz": {
+      "marginsLabel": "Margin by product",
+      "marginsTitle": "What each sale leaves, product by product.",
+      "priceCost": "price {price} · costs {cost}"
     }
   },
   "charts": {
@@ -1181,7 +1186,8 @@
         "from": "Read from",
         "days": "Days read",
         "perDay": "Per day, week {week} → now",
-        "status": "Status"
+        "status": "Status",
+        "daily": "Day by day"
       },
       "below": "Below its usual range since {date}",
       "above": "Above its usual range since {date}"
@@ -3283,7 +3289,13 @@
       "expired": "Expired"
     },
     "how": "How this works",
-    "why": "Why?"
+    "why": "Why?",
+    "funnel": {
+      "started": "Started",
+      "left": "Left unfinished",
+      "recovered": "Finished later",
+      "prior": "the {days, plural, one {# day} other {# days}} before: {count}"
+    }
   },
   "cash": {
     "meta": {
@@ -4133,6 +4145,9 @@
       "nothingFiled": "Nothing filed yet",
       "listMeta": "{stars, plural, one {# star} other {# stars}} or fewer is worth knowing",
       "emptyCopy": "Forward a review email to the address below, or paste one, and it shows here."
+    },
+    "spread": {
+      "label": "{count, plural, one {# review} other {# reviews}} on file, by rating"
     }
   },
   "simulate": {
@@ -4355,7 +4370,8 @@
         "costUnknown": "cost to deliver not known"
       },
       "perOrder": "Not in the cost of one: {list}. You pay {count, plural, one {it} other {them}} per order, not per piece, and an order can hold several pieces. Where one sale is one order, a rise can lose a few more sales than shown, and a cut needs a few more."
-    }
+    },
+    "adsMeasured": "{name} · measured on {days} of the last {window} days"
   },
   "stock": {
     "meta": {
@@ -4967,6 +4983,16 @@
       "needChoice": "Choose who can see it before you approve it.",
       "processing": "Once it goes out, TikTok may take a few minutes before it shows on your profile.",
       "noDelete": "TikTok doesn't let apps delete a post. To take this down, delete it in the TikTok app."
+    },
+    "gallery": {
+      "label": "Gallery",
+      "title": "The queue's pictures and clips"
+    },
+    "calendar": {
+      "label": "The queue by day",
+      "planned": "planned",
+      "overdue": "past its date",
+      "outside": "{count, plural, one {# more outside these weeks} other {# more outside these weeks}}"
     }
   },
   "customers": {
@@ -5868,6 +5894,13 @@
         "signIn": "Sign in to change the phone line.",
         "action": "That isn't something the phone line can do."
       }
+    },
+    "viz": {
+      "byStanding": "Tickets by where they stand",
+      "awaiting": "Waiting for your reply",
+      "waiting": "Waiting for your reply, longest first",
+      "waitingTop": "The {shown} waiting longest, of {total}",
+      "clusters": "What customers asked, by how many asked"
     }
   },
   "phoneLine": {
@@ -9306,7 +9339,12 @@
       "ceiling": "Step {n} is the highest step for this business right now.",
       "own": "Each line climbs on its own record."
     },
-    "trackAria": "Step {n} of {total}"
+    "trackAria": "Step {n} of {total}",
+    "viz": {
+      "gains": "Gains",
+      "losses": "Losses",
+      "neither": "Neither"
+    }
   },
   "shadowSummary": {
     "meta": {
@@ -9323,7 +9361,14 @@
     "net": "Net: {amount} — and nothing was touched.",
     "none": "Nothing measured yet.",
     "share": "Copy a link to share this",
-    "copied": "Link copied"
+    "copied": "Link copied",
+    "viz": {
+      "gained": "Would have gained",
+      "nothing": "Would have done nothing",
+      "lost": "Would have lost",
+      "unproven": "Not yet proven either way",
+      "open": "Still being measured"
+    }
   },
   "statement": {
     "title": "Monthly statement",
@@ -9355,6 +9400,12 @@
     },
     "meta": {
       "title": "Monthly statement"
+    },
+    "viz": {
+      "verified": "Verified, gains and losses together",
+      "losses": "Losses inside that",
+      "fee": "ScaleX's fee",
+      "net": "After ScaleX's fee"
     }
   },
   "peers": {
@@ -10171,6 +10222,22 @@
       "open": "Open",
       "empty": "Nothing is waiting. I'll put the next decision here.",
       "by": "decide by {date}"
+    },
+    "live": {
+      "label": "On your site · live",
+      "people": "{count, plural, one {# person} other {# people}}",
+      "since": "since {time}",
+      "lastRead": "last read {time}",
+      "window": "{minutes} min",
+      "windowGroup": "Window",
+      "notConnected": "Connect Google Analytics and this line starts moving.",
+      "paused": "Your Google Analytics connection is paused, so nothing is read.",
+      "unavailable": "Google Analytics didn't answer just now. Trying again in half a minute.",
+      "connect": "Connect",
+      "summary": "{now} on your site now; {base} at {time}.",
+      "caption": "People on your site, minute by minute",
+      "colTime": "Time",
+      "colPeople": "People"
     }
   },
   "alerts": {
