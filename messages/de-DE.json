@@ -10290,7 +10290,7 @@
         "undo": "Rückgängig",
         "undoWhy": "Jede Änderung sagt vor Ihrer Freigabe, wie sie sich rückgängig machen lässt.",
         "labelled": "Gekennzeichnet",
-        "labelledWhy": "Alles, was die KI erstellt, ist als KI-erstellt gekennzeichnet."
+        "labelledWhy": "Alles, was die KI für Ihr Unternehmen erstellt, ist als KI-erstellt gekennzeichnet."
       },
       "waiting": "{count, plural, one {# offen} other {# offen}}",
       "priceChange": "Preisänderung",

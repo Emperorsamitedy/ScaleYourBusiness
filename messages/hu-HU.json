@@ -10290,7 +10290,7 @@
         "undo": "Visszavonás",
         "undoWhy": "Minden változtatás a jóváhagyás előtt megmondja, hogyan vonható vissza.",
         "labelled": "Megjelölve",
-        "labelledWhy": "Minden, amit az MI készít, MI által készítettként van megjelölve."
+        "labelledWhy": "Minden, amit az MI az Ön vállalkozásának készít, MI által készítettként van megjelölve."
       },
       "waiting": "{count, plural, one {# várakozik} other {# várakozik}}",
       "priceChange": "Árváltozás",
