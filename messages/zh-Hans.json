@@ -782,6 +782,11 @@
       "revoke": "撤销",
       "wrong": "出了点问题——请重试",
       "unreachable": "我无法连接服务器——请重试。"
+    },
+    "viz": {
+      "marginsLabel": "各产品毛利率",
+      "marginsTitle": "每笔销售留下多少，按产品看。",
+      "priceCost": "售价 {price} · 成本 {cost}"
     }
   },
   "charts": {
@@ -1181,7 +1186,8 @@
         "from": "读取自",
         "days": "已读取天数",
         "perDay": "每日，第 {week} 周 → 现在",
-        "status": "状态"
+        "status": "状态",
+        "daily": "逐日"
       },
       "below": "自 {date} 起低于常规范围",
       "above": "自 {date} 起高于常规范围"
@@ -3283,7 +3289,13 @@
       "expired": "已过期"
     },
     "how": "运作方式",
-    "why": "为什么？"
+    "why": "为什么？",
+    "funnel": {
+      "started": "已开始",
+      "left": "被留下",
+      "recovered": "之后完成",
+      "prior": "之前的{days, plural, other { # 天}}：{count}"
+    }
   },
   "cash": {
     "meta": {
@@ -4133,6 +4145,9 @@
       "nothingFiled": "尚未归档任何内容",
       "listMeta": "{stars, plural, other {# 星}}或以下的值得留意",
       "emptyCopy": "把评价邮件转发到下面的地址，或粘贴一条评价，它就会显示在这里。"
+    },
+    "spread": {
+      "label": "{count, plural, other {已存档 # 条评价}}，按评分"
     }
   },
   "simulate": {
@@ -4355,7 +4370,8 @@
         "costUnknown": "交付成本未知"
       },
       "perOrder": "单件成本中未包括：{list}。{count, plural, other {这些费用}}按订单而不是按件支付，而一个订单可以包含多件。如果一笔销售就是一个订单，涨价可能比显示的多少掉几笔销售，降价则需要多卖几笔。"
-    }
+    },
+    "adsMeasured": "{name} · 最近 {window} 天中有 {days} 天有测量数据"
   },
   "stock": {
     "meta": {
@@ -4967,6 +4983,16 @@
       "needChoice": "批准之前，请先选择谁能看到。",
       "processing": "发布后，TikTok 可能需要几分钟处理，才会显示在您的资料中。",
       "noDelete": "TikTok 不允许应用删除帖子。如需撤下，请在 TikTok 应用中删除。"
+    },
+    "gallery": {
+      "label": "图库",
+      "title": "队列中的图片和短片"
+    },
+    "calendar": {
+      "label": "按天查看队列",
+      "planned": "计划中",
+      "overdue": "已过期",
+      "outside": "{count, plural, other {另有 # 条不在这几周内}}"
     }
   },
   "customers": {
@@ -5868,6 +5894,13 @@
         "signIn": "请先登录再修改电话线路。",
         "action": "电话线路无法做这件事。"
       }
+    },
+    "viz": {
+      "byStanding": "工单按状态",
+      "awaiting": "等待您回复",
+      "waiting": "等待您回复，等待最久的在前",
+      "waitingTop": "共 {total} 位在等待，这是等待最久的 {shown} 位",
+      "clusters": "客户提出的问题，按提问人数"
     }
   },
   "phoneLine": {
@@ -9306,7 +9339,12 @@
       "ceiling": "目前第 {n} 级是这家企业的最高级别。",
       "own": "每一行都凭自己的记录提升。"
     },
-    "trackAria": "第 {n} 级，共 {total} 级"
+    "trackAria": "第 {n} 级，共 {total} 级",
+    "viz": {
+      "gains": "收益",
+      "losses": "损失",
+      "neither": "两者皆非"
+    }
   },
   "shadowSummary": {
     "meta": {
@@ -9323,7 +9361,14 @@
     "net": "净额：{amount}——且未做任何改动。",
     "none": "尚无衡量结果。",
     "share": "复制分享链接",
-    "copied": "链接已复制"
+    "copied": "链接已复制",
+    "viz": {
+      "gained": "本会带来收益",
+      "nothing": "本不会有影响",
+      "lost": "本会造成损失",
+      "unproven": "尚未证实",
+      "open": "仍在衡量"
+    }
   },
   "statement": {
     "title": "月度对账单",
@@ -9355,6 +9400,12 @@
     },
     "meta": {
       "title": "月度对账单"
+    },
+    "viz": {
+      "verified": "已核实，盈亏合计",
+      "losses": "其中的损失",
+      "fee": "ScaleX 费用",
+      "net": "扣除 ScaleX 费用后"
     }
   },
   "peers": {
@@ -10156,6 +10207,22 @@
       "open": "打开",
       "empty": "目前没有待办。下一项决定会出现在这里。",
       "by": "请在 {date} 前决定"
+    },
+    "live": {
+      "label": "网站在线 · 实时",
+      "people": "{count, plural, other {# 人}}",
+      "since": "自 {time} 起",
+      "lastRead": "上次读取 {time}",
+      "window": "{minutes} 分钟",
+      "windowGroup": "时间范围",
+      "notConnected": "连接 Google Analytics 后，这条线就会动起来。",
+      "paused": "您的 Google Analytics 连接已暂停，因此不会读取任何数据。",
+      "unavailable": "Google Analytics 暂时没有响应，半分钟后再试。",
+      "connect": "连接",
+      "summary": "现在网站上有 {now}；{time} 时为 {base}。",
+      "caption": "网站在线人数（按分钟）",
+      "colTime": "时间",
+      "colPeople": "人数"
     }
   },
   "alerts": {

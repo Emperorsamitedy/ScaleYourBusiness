@@ -194,6 +194,94 @@ export function leadText(item: CoverItemView, w: StockWords = ENGLISH()): string
     : tr("view.lead", { days, supplier: tr("view.assumed") });
 }
 
+/* ── the bars beside the figures (ux-spec §2.1 "Small visuals") ── */
+
+const DAY_MS = 86_400_000;
+const daysFrom = (a: string, b: string) =>
+  Math.round((Date.parse(`${b}T00:00:00Z`) - Date.parse(`${a}T00:00:00Z`)) / DAY_MS);
+
+export interface CoverBar {
+  /** Shares (0–1) of the longest stretch in the table: the soon end of the cover… */
+  low: number;
+  /** …its late end (null with no upper bound)… */
+  high: number | null;
+  /** …and the delivery time, on the same scale. */
+  lead: number;
+  tone: "drift" | "ink";
+}
+
+/** The cover scale ends at this many of the longest delivery time; longer cover fills the bar. */
+export const COVER_SCALE_LEADS = 4;
+
+/**
+ * Pure: each item's days of cover against its delivery time, on one scale —
+ * the longest cover or delivery time shown, capped at COVER_SCALE_LEADS
+ * delivery times. The days are read back from the
+ * run-out dates the row carries; an item without them has no bar. The tone
+ * is the row's own flag, so the bar can only repeat the word beside it.
+ */
+export function coverBars(
+  items: readonly CoverItemView[],
+  today: string | undefined,
+): (CoverBar | null)[] {
+  if (!today) return items.map(() => null);
+  const days = items.map((i) =>
+    i.runs_out
+      ? {
+          low: Math.max(0, daysFrom(today, i.runs_out.earliest)),
+          high: i.runs_out.latest === null ? null : Math.max(0, daysFrom(today, i.runs_out.latest)),
+        }
+      : null,
+  );
+  const top = Math.max(
+    0,
+    ...items.flatMap((item, k) => {
+      const d = days[k];
+      return d ? [d.low, d.high ?? 0, item.lead.days] : [];
+    }),
+  );
+  if (top <= 0) return items.map(() => null);
+  const longestLead = Math.max(0, ...items.map((i) => i.lead.days));
+  // A shelf of slow stock would squeeze every at-risk bar to a sliver.
+  const scale = longestLead > 0 ? Math.min(top, longestLead * COVER_SCALE_LEADS) : top;
+  const on = (d: number) => Math.min(1, d / scale);
+  return items.map((item, k) => {
+    const d = days[k];
+    if (!d) return null;
+    return {
+      low: on(d.low),
+      high: d.high === null ? null : on(d.high),
+      lead: on(Math.max(0, item.lead.days)),
+      tone: item.flag === "ACT NOW" || item.flag === "RUNNING LOW" ? "drift" : "ink",
+    };
+  });
+}
+
+export interface CashBar {
+  /** 0–1 of the most cash tied up in the same currency. */
+  share: number;
+  /** Hollow when the value rests on the owner's stated cost. */
+  tone: "ink" | "hollow";
+}
+
+/** Pure: each slow item's cash tied up against the largest in its own currency (rule 1); null where unknown. */
+export function cashBars(items: readonly StockItemView[]): (CashBar | null)[] {
+  const top = new Map<string, number>();
+  for (const i of items) {
+    if (i.cash_tied_minor === null || i.currency === null) continue;
+    top.set(i.currency, Math.max(top.get(i.currency) ?? 0, i.cash_tied_minor));
+  }
+  return items.map((i) => {
+    if (i.cash_tied_minor === null || i.currency === null) return null;
+    const max = top.get(i.currency) ?? 0;
+    if (max <= 0) return null;
+    return {
+      share: Math.max(0, i.cash_tied_minor) / max, // not money: a bar's width
+      tone: i.cost_basis === "stated" ? "hollow" : "ink",
+    };
+  });
+}
+
 /** A reorder note's cost, in its own currency: "€2,802.80 at cost". */
 export function moneyLine(
   m: { amount_minor: number; currency: string },

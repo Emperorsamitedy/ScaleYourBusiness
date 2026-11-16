@@ -25,6 +25,7 @@ import { useTranslations } from "next-intl";
 import { Fold } from "../sheet/Fold";
 import { PageHead, SheetCard } from "../sheet/PageHead";
 import { PhoneAlertsCard } from "./PhoneAlertsCard";
+import { Spark } from "../charts/Viz";
 import { WhyFold } from "../report/WhyFold";
 import { moneyText, num } from "../sheet/num";
 import { useAppLocale, useTr } from "../sheet/useTr";
@@ -35,6 +36,7 @@ import type { WatchReading } from "../../lib/watch/signals";
 import type { SignalStatus, WatchDays, WatchSignal } from "../../lib/watch/watch-view";
 import {
   NOTED_KINDS,
+  anomalySpan,
   dayOfWatch,
   notedLines,
   parseInstant,
@@ -144,6 +146,29 @@ function weeks(signal: WatchSignal, locale: AppLocale): string {
     : `${perDay(signal, signal.first_week, locale)} → ${last}`;
 }
 
+/** One day's figure: a count is whole, so it is printed whole. */
+function dayFigure(signal: WatchSignal, value: number, locale: AppLocale): string {
+  return signal.currency === null && Number.isInteger(value)
+    ? num(value, 0, locale)
+    : perDay(signal, value, locale);
+}
+
+/** The signal's days since the watch began, the open anomaly's days tinted. */
+function SignalSpark({ signal, label }: { signal: WatchSignal; label: string }) {
+  const locale = useAppLocale();
+  const days = signal.series ?? [];
+  return (
+    <Spark
+      values={days.map((p) => p.value)}
+      labels={days.map((p) => dayText(p.date, false, locale))}
+      format={(v) => dayFigure(signal, v, locale)}
+      label={label}
+      span={anomalySpan(days, signal.since)}
+      width={96}
+    />
+  );
+}
+
 function DayStrip({ w }: { w: WatchDays }) {
   const t = useTranslations("watch");
   const locale = useAppLocale();
@@ -172,6 +197,7 @@ function SignalsCard({ reading }: { reading: WatchReading }) {
   const t = useTranslations("watch");
   const ww = useWatchWords();
   const locale = useAppLocale();
+  const daily = useTr("watch").tr("signals.col.daily");
   const { signals } = reading;
   const hasThin = signals.some((s) => s.status === "thin");
   const hasDrift = signals.some((s) => s.status === "drifting" || s.status === "interrupted");
@@ -222,6 +248,7 @@ function SignalsCard({ reading }: { reading: WatchReading }) {
                 <th scope="col" className="num wt-wrap">
                   {t("signals.col.perDay", { week: 1 })}
                 </th>
+                <th scope="col">{daily}</th>
                 <th scope="col">{t("signals.col.status")}</th>
               </tr>
             </thead>
@@ -237,6 +264,12 @@ function SignalsCard({ reading }: { reading: WatchReading }) {
                   <td className="src">{sourceWords(s.read_from, ww)}</td>
                   <td className="num">{num(s.readings, 0, locale)}</td>
                   <td className="num">{weeks(s, locale)}</td>
+                  <td className="wt-spark" data-label={daily}>
+                    <SignalSpark
+                      signal={s}
+                      label={`${signalNoun(s.metric_key, s.noun, ww)} · ${t("signals.col.perDay", { week: 1 })}: ${weeks(s, locale)}`}
+                    />
+                  </td>
                   <td>
                     <span
                       className={`word ${STATUS_CLASS[s.status]}`}

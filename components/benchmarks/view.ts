@@ -15,6 +15,7 @@ import type { Tr } from "../../lib/i18n/tr";
 import { englishTr } from "../../lib/i18n/tr";
 import type { BenchLine, BenchResult, ComparedLine } from "../../lib/benchmarks/compare";
 import type { BenchSource } from "../../lib/benchmarks/snapshot";
+import type { DumbRow } from "../charts/Viz";
 
 /** The screen's words and the reader's locale: the "benchmarks" catalogue. */
 export interface BenchWords {
@@ -88,6 +89,31 @@ export function readingWordIn(l: BenchLine, w: BenchWords): string {
     return key ? w.tr(key) : l.reading.toUpperCase();
   }
   return w.tr(l.status === "missing" ? "reading.notYet" : "reading.none");
+}
+
+/**
+ * The compared lines as one list of marks: Eurostat's figure hollow, the
+ * owner's filled, each row on its own scale from zero, both figures printed.
+ * A line with a figure below zero stays in words: the scale starts at zero.
+ */
+export function dumbRows(lines: readonly BenchLine[]): DumbRow[] {
+  return lines.flatMap((l) =>
+    l.status === "compared" &&
+    Number.isFinite(l.own) &&
+    Number.isFinite(l.bench) &&
+    l.own >= 0 &&
+    l.bench >= 0
+      ? [
+          {
+            key: l.key,
+            label: l.title,
+            a: l.bench,
+            b: l.own,
+            display: `${l.bench_words} → ${l.own_words}`,
+          },
+        ]
+      : [],
+  );
 }
 
 /** How many lines could be compared, for the aside. */

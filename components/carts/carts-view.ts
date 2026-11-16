@@ -11,7 +11,13 @@
 
 import { listSep } from "../../lib/i18n/punctuation";
 import type { CartsScreenView } from "../../app/api/carts/route";
-import type { CartReach, CartsSentenceWords, Money, WindowStats } from "../../lib/carts/measure";
+import type {
+  CartReach,
+  CartsSentenceWords,
+  Money,
+  ProductLeft,
+  WindowStats,
+} from "../../lib/carts/measure";
 import type { CartShopperRead } from "../../lib/connectors/provider";
 import { CARTS, dayWords, englishCartsWords } from "../../lib/carts/measure";
 import type { AppLocale } from "../../lib/i18n/locales";
@@ -105,6 +111,71 @@ export function windowLine(m: Measured, s: CartsSentences = SENTENCES()): string
     ? tr("window.priorShare", { ...priorValues, share: pShare })
     : tr("window.prior", priorValues);
   return `${now} ${before}`;
+}
+
+/** One row of the checkout funnel, on the scale of the checkouts started. */
+export interface FunnelRow {
+  key: "started" | "left" | "recovered";
+  label: string;
+  value: number;
+  display: string;
+  /** The window before, when it is compared. */
+  note?: string;
+  tone: "ink" | "hollow" | "ok";
+}
+
+const FUNNEL: readonly Pick<FunnelRow, "key" | "tone">[] = [
+  { key: "started", tone: "ink" },
+  { key: "left", tone: "hollow" },
+  { key: "recovered", tone: "ok" },
+];
+
+/**
+ * The window line's three counts as bars. The window before is named only
+ * when windowLine compares it too (m.prior, measure.ts's two tests).
+ */
+export function funnelRows(m: Measured, w: CartsWords = ENGLISH()): FunnelRow[] {
+  const { tr, locale } = w;
+  const c = m.current;
+  return FUNNEL.map(({ key, tone }) => {
+    return {
+      key,
+      label: tr(`funnel.${key}`),
+      value: c[key],
+      display: num(c[key], 0, locale),
+      ...(m.prior
+        ? {
+            note: tr("funnel.prior", {
+              days: CARTS.window_days,
+              count: num(m.prior[key], 0, locale),
+            }),
+          }
+        : {}),
+      tone,
+    };
+  });
+}
+
+/**
+ * Each product's value left as a share (0–1) of the largest value left in
+ * the same currency, in the products' own order. One currency is never set
+ * against another.
+ */
+export function valueBars(
+  products: readonly ProductLeft[],
+): { currency: string; share: number }[][] {
+  const top = new Map<string, number>();
+  for (const p of products) {
+    for (const v of p.value)
+      top.set(v.currency, Math.max(top.get(v.currency) ?? 0, v.amount_minor));
+  }
+  return products.map((p) =>
+    p.value.map((v) => {
+      const max = top.get(v.currency) ?? 0;
+      const share = max > 0 ? Math.max(0, v.amount_minor) / max : 0; // not money: a bar's width
+      return { currency: v.currency, share };
+    }),
+  );
 }
 
 /** I-47b: why a cart carries no email, by whether the store's last read had the shopper. */

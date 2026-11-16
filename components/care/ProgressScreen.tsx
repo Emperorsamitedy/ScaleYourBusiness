@@ -32,6 +32,7 @@ import type { GoalChart } from "../../lib/care/charts";
 import type { GoalWord } from "../../lib/care/chart-view";
 import { goalWord, onPath } from "../../lib/care/chart-view";
 import { CandleChart } from "./CandleChart";
+import { Bullet } from "../charts/Viz";
 import { WhyFold } from "../report/WhyFold";
 
 interface Measure {
@@ -346,6 +347,7 @@ function GoalCard({
   const foot = footFor(goal, chart, tr);
   const nowValue = chart?.now?.per_30d ?? null;
   const pathValue = chart?.path_now_per_30d ?? null;
+  const startValue = chart?.baseline_per_30d ?? null;
   return (
     <SheetCard
       className="gl-card"
@@ -365,6 +367,23 @@ function GoalCard({
         </div>
       }
     >
+      {startValue !== null && nowValue !== null && (
+        <div className="gl-bullet">
+          <Bullet
+            start={startValue}
+            target={m.target_per_30d}
+            now={nowValue}
+            path={pathValue}
+            title={[
+              `${tr("card.now")} ${per30(nowValue, m.currency, locale)}`,
+              ...(pathValue === null
+                ? []
+                : [`${tr("card.pathSays")} ${per30(pathValue, m.currency, locale)}`]),
+              `${tr("card.target")} ${per30(m.target_per_30d, m.currency, locale)}`,
+            ].join(" · ")}
+          />
+        </div>
+      )}
       <dl className="gl-stats">
         <div className="gl-now">
           <dt>{tr("card.now")}</dt>

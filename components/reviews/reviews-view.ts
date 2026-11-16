@@ -12,6 +12,7 @@ import { intlTag } from "../../lib/i18n/locales";
 import type { Tr } from "../../lib/i18n/tr";
 import { englishTr } from "../../lib/i18n/tr";
 import type { ReviewItem, ReviewsView } from "../../lib/review-desk/view";
+import type { Tone } from "../charts/Viz";
 import { num } from "../sheet/num";
 
 const EN = (): Tr => englishTr("reviews");
@@ -26,6 +27,35 @@ export function starsWords(stars: number | null, tr: Tr = EN(), locale: AppLocal
   return stars === null
     ? tr("stars.none")
     : tr("stars.of", { stars: num(stars, 0, locale), max: num(MAX_STARS, 0, locale) });
+}
+
+/** One rating's row in the star spread; `key` is what the list is filtered by. */
+export interface StarCount {
+  key: string;
+  stars: number | null;
+  count: number;
+}
+
+/** A rating as a filter key: "5" … "1", or "none" for a review with no rating. */
+export function starKey(stars: number | null): string {
+  return stars === null ? "none" : String(stars);
+}
+
+/** How many of the listed reviews gave each rating, 5 down to 1; unrated ones last, only when there are any. */
+export function starSpread(items: readonly Pick<ReviewItem, "stars">[]): StarCount[] {
+  const count = (stars: number | null) => items.filter((r) => r.stars === stars).length;
+  const rows: StarCount[] = Array.from({ length: MAX_STARS }, (_, i) => MAX_STARS - i).map(
+    (stars) => ({ key: starKey(stars), stars, count: count(stars) }),
+  );
+  const unrated = count(null);
+  return unrated > 0 ? [...rows, { key: starKey(null), stars: null, count: unrated }] : rows;
+}
+
+/** A rating's mark in the spread (app/viz.css): good filled --ok, poor hollow --alarm. */
+export function starTone(stars: number | null): Tone {
+  if (stars === null) return "hollow";
+  if (stars > POOR_STARS) return "ok";
+  return stars === POOR_STARS ? "soft" : "alarm";
 }
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];

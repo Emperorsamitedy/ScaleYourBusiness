@@ -34,6 +34,18 @@
 .ct-table tbody th {
   font-weight: 500;
 }
+/* Value left as a bar, against the largest in the same currency. */
+.ct-table .ct-bar {
+  width: 24%;
+  min-width: 96px;
+  vertical-align: middle;
+}
+.ct-bar .vz-bar-track {
+  display: block;
+}
+.ct-bar .vz-bar-track + .vz-bar-track {
+  margin-top: 4px;
+}
 
 .ct-grid {
   display: grid;

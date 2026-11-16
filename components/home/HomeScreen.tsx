@@ -19,18 +19,25 @@ import { useTranslations } from "next-intl";
 import type { NavCounts } from "../../app/api/nav/route";
 import type { ChartsBundle } from "../../lib/charts/load";
 import { MarketChart } from "../charts/MarketChart";
+import { HBars, Trend } from "../charts/Viz";
+import type { BarRow } from "../charts/Viz";
 import { basisName, BASES } from "../report/basis";
 import type { Basis } from "../report/basis";
 import { PageHead } from "../sheet/PageHead";
-import { moneyText } from "../sheet/num";
+import { moneyText, num } from "../sheet/num";
 import { useTr } from "../sheet/useTr";
 import { WhySheet } from "../sheet/WhySheet";
 import type { WhyContent } from "../sheet/WhySheet";
 import { minorUnitExponent } from "../../lib/core/money";
+import { dayMoney, shortDate, volumeWord } from "../../lib/charts/model";
+import { niceTicks } from "../../lib/charts/ticks";
+import { rangeWhole } from "../../lib/charts/opportunity";
+import type { ComponentKey, PricedComponent } from "../../lib/charts/opportunity";
 import { intlTag } from "../../lib/i18n/locales";
 import type { AppLocale } from "../../lib/i18n/locales";
 import type { CashLike, PendingLike } from "./home-model";
 import { cashReading, rankPending } from "./home-model";
+import { LiveVisitors } from "./LiveVisitors";
 
 function useRead<T>(url: string): T | null {
   const [data, setData] = useState<T | null>(null);
@@ -71,9 +78,27 @@ interface Pending extends PendingLike {
   expires_at: string | null;
 }
 
+const SPARK_DAYS = 30;
+const PRICE_KEY: Readonly<Record<string, string>> = {
+  "revenue.daily": "revenue",
+  "booking_revenue.daily": "bookingRevenue",
+};
+/** The screen that owns each priced part of the month. */
+const COMPONENT_HREF: Readonly<Record<ComponentKey, string>> = {
+  revenue_dips: "/watch",
+  no_shows: "/profile",
+  late_cancellations: "/profile",
+  empty_capacity: "/profile",
+  losing_ads: "/profile",
+  slow_stock: "/stock",
+  on_the_table: "/proposals",
+};
+
 export function HomeScreen() {
   const t = useTranslations("home");
   const { tr: rtr, locale } = useTr("report");
+  const { tr: ctr } = useTr("charts.market");
+  const { tr: sheet } = useTr("sheet");
   const nav = useRead<NavCounts>("/api/nav");
   const queue = useRead<{ pending: Pending[] }>("/api/proposals");
   const cashView = useRead<CashLike>("/api/cash");
@@ -92,6 +117,29 @@ export function HomeScreen() {
     high: { amount_minor: number; currency: string };
   }) =>
     `${signed(r.low.amount_minor, r.low.currency, locale)} – ${signed(r.high.amount_minor, r.high.currency, locale)}`;
+
+  const market = charts?.market.status === "drawn" ? charts.market : null;
+  const recent = market ? market.days.slice(-SPARK_DAYS) : [];
+  const latest = recent.at(-1) ?? null;
+  const dayLabels = recent.map((d) => shortDate(d.date, locale));
+  const priceKey = market ? PRICE_KEY[market.price.metric] : undefined;
+  const priceLabel = market ? (priceKey ? ctr(`price.${priceKey}`) : market.price.label) : "";
+  const priced = (market?.components ?? []).filter(
+    (c): c is PricedComponent => c.status === "priced" && c.total.currency === market?.currency,
+  );
+  const partRow = (c: PricedComponent, r: PricedComponent["total"]): BarRow => ({
+    key: c.key,
+    label: ctr(`component.${c.key}`),
+    note: <span className="word">{sheet(`basis.${c.basis}`)}</span>,
+    value: r.high_minor,
+    low: r.low_minor,
+    display: rangeWhole(r, locale),
+    tone: c.kind === "forecast" ? "okband" : c.kind === "stock" ? "ink" : "drift",
+    href: COMPONENT_HREF[c.key],
+  });
+  const unit = market ? 10 ** minorUnitExponent(market.currency) : 1;
+  const monthRows = priced.flatMap((c) => (c.monthly ? [partRow(c, c.monthly)] : []));
+  const stockRows = priced.flatMap((c) => (c.monthly ? [] : [partRow(c, c.total)]));
 
   return (
     <main className="screen home">
@@ -132,9 +180,7 @@ export function HomeScreen() {
       )}
 
       <section className="cs home-readings" aria-label={t("readings.label")}>
-        <header className="cs-head">
-          <p className="cs-label">{t("readings.label")}</p>
-        </header>
+        <LiveVisitors />
         <div className="home-strip">
           <div className="home-reading">
             <p className="home-r-lab">{t("readings.waiting")}</p>
@@ -222,6 +268,40 @@ export function HomeScreen() {
             </div>
           )}
         </div>
+        {market && latest && (
+          <div className="home-trends">
+            <div className="home-trend">
+              <p className="home-r-lab">{priceLabel}</p>
+              <p className="home-r-val">{dayMoney(latest.value_minor, market.currency, locale)}</p>
+              <p className="home-r-cmp">
+                {shortDate(latest.date, locale)} · {market.price.source} ·{" "}
+                <span className="word">{sheet(`basis.${market.price.basis}`)}</span>
+              </p>
+              <Trend
+                points={recent.map((d, i) => ({ label: dayLabels[i] ?? "", value: d.value_minor }))}
+                format={(v) => dayMoney(v, market.currency, locale)}
+                step={10 ** minorUnitExponent(market.currency)}
+                label={`${priceLabel} · ${ctr("daysMeasured", { count: recent.length })}`}
+                columns={[ctr("table.day"), priceLabel]}
+              />
+            </div>
+            {market.volume && latest.volume !== null && (
+              <div className="home-trend">
+                <p className="home-r-lab">{volumeWord(market.volume.word, ctr)}</p>
+                <p className="home-r-val">{num(latest.volume, 0, locale)}</p>
+                <p className="home-r-cmp">
+                  {shortDate(latest.date, locale)} · {market.volume.source}
+                </p>
+                <Trend
+                  points={recent.map((d, i) => ({ label: dayLabels[i] ?? "", value: d.volume }))}
+                  format={(v) => num(v, 0, locale)}
+                  label={`${volumeWord(market.volume.word, ctr)} · ${ctr("daysMeasured", { count: recent.length })}`}
+                  columns={[ctr("table.day"), volumeWord(market.volume.word, ctr)]}
+                />
+              </div>
+            )}
+          </div>
+        )}
       </section>
 
       <section className="cs home-decisions">
@@ -257,6 +337,45 @@ export function HomeScreen() {
           ))}
         </ul>
       </section>
+
+      {market && priced.length > 0 && (
+        <section className="cs home-money" aria-label={ctr("componentsCaption")}>
+          <header className="cs-head">
+            <p className="cs-label">{ctr("colWhere")}</p>
+            <div className="cs-meta">{ctr("colMonth", { currency: market.currency })}</div>
+          </header>
+          <div className="cs-body">
+            {monthRows.length > 0 && (
+              <HBars
+                rows={monthRows}
+                label={ctr("componentsCaption")}
+                axis={{
+                  ticks: niceTicks(0, Math.max(...monthRows.map((r) => r.value)) / unit).map(
+                    (v) => v * unit,
+                  ),
+                  format: (v) => dayMoney(v, market.currency, locale),
+                }}
+              />
+            )}
+            {stockRows.length > 0 && (
+              <>
+                <p className="vz-cap">
+                  {ctr("apart")} · {ctr("row.tiedUp")}
+                </p>
+                <ul className="home-apart">
+                  {stockRows.map((r) => (
+                    <li key={r.key}>
+                      <a href={r.href}>{r.label}</a>
+                      {r.note}
+                      <span className="vz-bar-fig">{r.display}</span>
+                    </li>
+                  ))}
+                </ul>
+              </>
+            )}
+          </div>
+        </section>
+      )}
 
       <div className="home-grid">
         <div className="home-chart">{charts && <MarketChart model={charts.market} compact />}</div>

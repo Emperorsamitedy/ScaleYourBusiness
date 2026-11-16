@@ -782,6 +782,11 @@
       "revoke": "Révoquer",
       "wrong": "une erreur s’est produite — réessayez",
       "unreachable": "Je n’ai pas pu joindre le serveur — réessayez."
+    },
+    "viz": {
+      "marginsLabel": "Marge par produit",
+      "marginsTitle": "Ce que laisse chaque vente, produit par produit.",
+      "priceCost": "prix {price} · coût {cost}"
     }
   },
   "charts": {
@@ -1181,7 +1186,8 @@
         "from": "Lu depuis",
         "days": "Jours lus",
         "perDay": "Par jour, semaine {week} → aujourd’hui",
-        "status": "Statut"
+        "status": "Statut",
+        "daily": "Jour par jour"
       },
       "below": "Sous sa plage habituelle depuis le {date}",
       "above": "Au-dessus de sa plage habituelle depuis le {date}"
@@ -3283,7 +3289,13 @@
       "expired": "Expiré"
     },
     "how": "Comment ça marche",
-    "why": "Pourquoi ?"
+    "why": "Pourquoi ?",
+    "funnel": {
+      "started": "Commencés",
+      "left": "Sans suite",
+      "recovered": "Repris plus tard",
+      "prior": "{days, plural, one {le jour précédent} many {les # jours précédents} other {les # jours précédents}} : {count}"
+    }
   },
   "cash": {
     "meta": {
@@ -4133,6 +4145,9 @@
       "nothingFiled": "Rien de classé pour l’instant",
       "listMeta": "Un avis de {stars, plural, one {# étoile} many {# étoiles} other {# étoiles}} ou moins mérite votre attention",
       "emptyCopy": "Transférez un e-mail d’avis à l’adresse ci-dessous, ou collez-en un, et il apparaîtra ici."
+    },
+    "spread": {
+      "label": "{count, plural, one {# avis enregistré} many {# avis enregistrés} other {# avis enregistrés}}, par note"
     }
   },
   "simulate": {
@@ -4355,7 +4370,8 @@
         "costUnknown": "coût de fourniture inconnu"
       },
       "perOrder": "Non compris dans le coût unitaire : {list}. Vous {count, plural, one {le payez} many {les payez} other {les payez}} par commande, pas par pièce, et une commande peut contenir plusieurs pièces. Lorsqu’une vente correspond à une commande, une hausse peut faire perdre un peu plus de ventes qu’indiqué, et une baisse en demande un peu plus."
-    }
+    },
+    "adsMeasured": "{name} · mesurée sur {days} des {window} derniers jours"
   },
   "stock": {
     "meta": {
@@ -4967,6 +4983,16 @@
       "needChoice": "Choisissez qui peut la voir avant de la valider.",
       "processing": "Une fois partie, TikTok peut mettre quelques minutes avant de l’afficher sur votre profil.",
       "noDelete": "TikTok ne laisse pas les apps supprimer une publication. Pour la retirer, supprimez-la dans l’app TikTok."
+    },
+    "gallery": {
+      "label": "Galerie",
+      "title": "Les images et les clips de la file"
+    },
+    "calendar": {
+      "label": "La file jour par jour",
+      "planned": "prévu",
+      "overdue": "date dépassée",
+      "outside": "{count, plural, one {# autre en dehors de ces semaines} many {# autres en dehors de ces semaines} other {# autres en dehors de ces semaines}}"
     }
   },
   "customers": {
@@ -5868,6 +5894,13 @@
         "signIn": "Connectez-vous pour modifier la ligne téléphonique.",
         "action": "La ligne téléphonique ne sait pas faire cela."
       }
+    },
+    "viz": {
+      "byStanding": "Tickets selon leur état",
+      "awaiting": "En attente de votre réponse",
+      "waiting": "En attente de votre réponse, la plus longue attente d’abord",
+      "waitingTop": "Les {shown} plus longues attentes, sur {total}",
+      "clusters": "Les questions des clients, par nombre de personnes"
     }
   },
   "phoneLine": {
@@ -9306,7 +9339,12 @@
       "ceiling": "Le cran {n} est pour l’instant le plus haut pour cette entreprise.",
       "own": "Chaque ligne monte selon son propre bilan."
     },
-    "trackAria": "Cran {n} sur {total}"
+    "trackAria": "Cran {n} sur {total}",
+    "viz": {
+      "gains": "Gains",
+      "losses": "Pertes",
+      "neither": "Ni l’un ni l’autre"
+    }
   },
   "shadowSummary": {
     "meta": {
@@ -9323,7 +9361,14 @@
     "net": "Net : {amount}, sans que rien ne soit touché.",
     "none": "Rien de mesuré pour l’instant.",
     "share": "Copier un lien pour partager",
-    "copied": "Lien copié"
+    "copied": "Lien copié",
+    "viz": {
+      "gained": "Auraient rapporté",
+      "nothing": "N’auraient rien changé",
+      "lost": "Auraient fait perdre",
+      "unproven": "Pas encore établi",
+      "open": "Encore en mesure"
+    }
   },
   "statement": {
     "title": "Relevé mensuel",
@@ -9355,6 +9400,12 @@
     },
     "meta": {
       "title": "Relevé mensuel"
+    },
+    "viz": {
+      "verified": "Vérifié, gains et pertes ensemble",
+      "losses": "Pertes comprises",
+      "fee": "Frais de ScaleX",
+      "net": "Après les frais de ScaleX"
     }
   },
   "peers": {
@@ -10156,6 +10207,22 @@
       "open": "Ouvrir",
       "empty": "Rien n’attend. Je mettrai la prochaine décision ici.",
       "by": "à décider avant le {date}"
+    },
+    "live": {
+      "label": "Sur votre site · en direct",
+      "people": "{count, plural, one {# personne} many {# personnes} other {# personnes}}",
+      "since": "depuis {time}",
+      "lastRead": "dernière lecture {time}",
+      "window": "{minutes} min",
+      "windowGroup": "Période",
+      "notConnected": "Connectez Google Analytics et cette ligne se met à bouger.",
+      "paused": "Votre connexion Google Analytics est en pause : rien n’est lu.",
+      "unavailable": "Google Analytics n’a pas répondu. Nouvel essai dans une demi-minute.",
+      "connect": "Connecter",
+      "summary": "{now} sur votre site maintenant ; {base} à {time}.",
+      "caption": "Personnes sur votre site, minute par minute",
+      "colTime": "Heure",
+      "colPeople": "Personnes"
     }
   },
   "alerts": {

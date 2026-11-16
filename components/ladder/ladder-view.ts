@@ -3,6 +3,7 @@
 // about a station — every raise is still the server's call.
 
 import type { LadderRow } from "../../lib/ladder/overview";
+import type { Seg } from "../charts/Viz";
 
 export const STATIONS = [1, 2, 3, 4] as const;
 
@@ -71,4 +72,25 @@ export function nextMove(row: Pick<LadderRow, "station" | "next" | "open_request
   if (row.next.checks.some((c) => !c.met)) return "wait";
   if (row.station < 3) return "raise";
   return row.open_request ? "confirm" : "ask";
+}
+
+export type RecordPart = "gains" | "losses" | "neither";
+
+/**
+ * A row's measured record as one bar: gains, losses, and what closed as
+ * neither. Counts only; none when nothing has been measured.
+ */
+export function recordSegs(
+  record: Pick<LadderRow["record"], "closed" | "gains" | "losses">,
+  word: (part: RecordPart) => string,
+): Seg[] {
+  if (record.closed <= 0) return [];
+  const neither = record.closed - record.gains - record.losses;
+  return [
+    { key: "gains", label: word("gains"), value: record.gains, tone: "ok" },
+    { key: "losses", label: word("losses"), value: record.losses, tone: "alarm" },
+    ...(neither >= 0
+      ? [{ key: "neither", label: word("neither"), value: neither, tone: "soft" } as const]
+      : []),
+  ];
 }

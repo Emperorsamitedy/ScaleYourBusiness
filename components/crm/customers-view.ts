@@ -10,6 +10,7 @@
 
 import type { Tr } from "../../lib/i18n/tr";
 import { englishTr } from "../../lib/i18n/tr";
+import type { Tone } from "../charts/Viz";
 
 const EN = (): Tr => englishTr("customers");
 
@@ -38,6 +39,15 @@ export const LIFECYCLE_ORDER: readonly Lifecycle[] = [
   "lapsed",
   "unknown",
 ];
+
+/** The lifecycle bar's mark per stage, in the small visuals' grammar (app/viz.css). */
+export const LIFECYCLE_TONE: Record<Lifecycle, Tone> = {
+  active: "ok",
+  new: "ink",
+  lapsing: "drift",
+  lapsed: "soft",
+  unknown: "hollow",
+};
 
 /** The lifecycle word in the reader's language (English: LIFECYCLE_WORD's). */
 export function lifecycleWord(l: Lifecycle, tr: Tr = EN()): string {

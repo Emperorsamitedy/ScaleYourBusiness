@@ -4,10 +4,12 @@
 // counts real options; the whiskers share one axis that includes zero.
 
 import { describe, expect, it } from "vitest";
+import type { AdsChartModel } from "../../lib/charts/small";
 import { bare, full } from "../../lib/simulate/fixtures";
 import type { SimOption } from "../../lib/simulate/model";
 import { SIM, compareOptions, simulateOption } from "../../lib/simulate/model";
 import {
+  adsDays,
   allOptions,
   cellView,
   defaultPicks,
@@ -109,5 +111,50 @@ describe("the whiskers", () => {
         ).options,
       ),
     ).toBeNull();
+  });
+});
+
+describe("the ads chart beside the options", () => {
+  const ads: AdsChartModel = {
+    window: { from: "2026-10-12", to: "2026-10-25", days: 14 },
+    campaigns: [
+      {
+        campaign_ref: "120000001",
+        campaign_name: "Autumn glazes",
+        currency: "EUR",
+        measured_days: 14,
+        spend_minor: 42_000,
+        value_minor: 30_000,
+        roas: 30_000 / 42_000,
+        losing: true,
+      },
+      {
+        platform: "google",
+        campaign_ref: "77",
+        campaign_name: "Search · mugs",
+        currency: "EUR",
+        measured_days: 5,
+        spend_minor: 9_000,
+        value_minor: 21_000,
+        roas: 21_000 / 9_000,
+        losing: false,
+      },
+    ],
+    platforms: ["meta", "google"],
+    losing: 1,
+    summary: "",
+  };
+
+  it("lists each campaign's measured days of the chart's window", () => {
+    expect(adsDays(ads)).toEqual([
+      { key: "meta:120000001", name: "Autumn glazes", days: 14, window: 14 },
+      { key: "google:77", name: "Search · mugs", days: 5, window: 14 },
+    ]);
+  });
+
+  it("lists nothing without ads data", () => {
+    expect(adsDays(null)).toEqual([]);
+    expect(adsDays(undefined)).toEqual([]);
+    expect(adsDays({ ...ads, campaigns: [] })).toEqual([]);
   });
 });

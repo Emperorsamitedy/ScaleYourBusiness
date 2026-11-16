@@ -6,12 +6,15 @@
 
 import type { Metadata } from "next";
 import Link from "next/link";
+import { Fragment } from "react";
+import { HBars } from "../../components/charts/Viz";
 import { resolveAccess } from "../../lib/auth/access";
 import type { Grade } from "../../lib/core/grade";
 import { headlineMoneyAllowed } from "../../lib/diagnosis/diagnosis-grade";
 import { leaksOf } from "../../lib/diagnosis/leaks";
 import type { Leak } from "../../lib/diagnosis/leaks";
 import { monthlyStatement } from "../../lib/diagnosis/statement";
+import { leakBars, worthBars } from "../../lib/diagnosis/statement-bars";
 import { presentMoney } from "../../lib/i18n/format";
 import type { AppLocale } from "../../lib/i18n/locales";
 import { requestLocale } from "../../lib/i18n/server";
@@ -28,6 +31,16 @@ function amounts(list: MoneyList, locale: AppLocale, none: string): string {
   return list.length === 0
     ? none
     : list.map((m) => presentMoney(m, locale, { whole: true })).join(" · ");
+}
+
+/** §6.2: a leak's money shows only at grade A or B; below, the grade says why not. */
+function shownRange(l: Leak): { currency: string; low_minor: number; high_minor: number } | null {
+  return headlineMoneyAllowed(l.grade as Grade) &&
+    l.currency !== null &&
+    l.low_minor !== null &&
+    l.high_minor !== null
+    ? { currency: l.currency, low_minor: l.low_minor, high_minor: l.high_minor }
+    : null;
 }
 
 const ORDER: Record<Leak["status"], number> = {
@@ -67,6 +80,19 @@ export default async function StatementPage({
   const sorted = [...leaks].sort(
     (a, b) => ORDER[a.status] - ORDER[b.status] || a.created_at.localeCompare(b.created_at),
   );
+  const whole = (m: { amount_minor: number; currency: string }) =>
+    presentMoney(m, locale, { whole: true });
+  const rangeWords = (r: { currency: string; low_minor: number; high_minor: number }) =>
+    tr("leaks.range", {
+      low: whole({ amount_minor: r.low_minor, currency: r.currency }),
+      high: whole({ amount_minor: r.high_minor, currency: r.currency }),
+    });
+  const worth = worthBars(s.worth);
+  const listed = sorted.map((leak) => ({ leak, range: shownRange(leak) }));
+  const ranged = new Map(
+    listed.flatMap(({ leak, range }) => (range ? [[leak.id, { leak, range }] as const] : [])),
+  );
+  const leakBlocks = leakBars([...ranged].map(([key, { range }]) => ({ key, ...range })));
 
   return (
     <main className="auth-stage">
@@ -74,6 +100,32 @@ export default async function StatementPage({
         <section className="card">
           <span className="auth-eyebrow">{tr("title")}</span>
           <h1 className="auth-title">{monthWords}</h1>
+          {worth.length > 0 && (
+            <div className="card-viz">
+              {worth.map((b) => (
+                <Fragment key={b.currency}>
+                  {worth.length > 1 && <p className="vz-cap">{b.currency}</p>}
+                  <HBars
+                    label={tr("worth", {
+                      amount: amounts(
+                        s.worth.verified.filter((m) => m.currency === b.currency),
+                        locale,
+                        dash,
+                      ),
+                    })}
+                    max={b.max}
+                    rows={b.rows.map((r) => ({
+                      key: r.key,
+                      label: tr(`viz.${r.key}`),
+                      value: r.value,
+                      display: r.money ? whole(r.money) : dash,
+                      tone: r.tone,
+                    }))}
+                  />
+                </Fragment>
+              ))}
+            </div>
+          )}
           <ul className="shadow-summary">
             <li>{tr("did", { count: s.did.actions, undone: s.did.undone })}</li>
             <li>{tr("worth", { amount: amounts(s.worth.verified, locale, dash) })}</li>
@@ -105,36 +157,52 @@ export default async function StatementPage({
           {sorted.length === 0 ? (
             <p className="auth-copy">{tr("leaks.none")}</p>
           ) : (
-            <ul className="shadow-summary">
-              {sorted.map((l) => (
-                <li key={l.id}>
-                  <b>{l.title}</b> — {tr(`leaks.status.${l.status}`)}
-                  {/* §6.2: a leak's money shows only at grade A or B; below, the grade says why not. */}
-                  {headlineMoneyAllowed(l.grade as Grade) &&
-                    l.currency !== null &&
-                    l.low_minor !== null &&
-                    l.high_minor !== null && (
+            <>
+              {leakBlocks.length > 0 && (
+                <div className="card-viz">
+                  {leakBlocks.map((b) => (
+                    <Fragment key={b.currency}>
+                      {leakBlocks.length > 1 && <p className="vz-cap">{b.currency}</p>}
+                      <HBars
+                        label={tr("leaks.title")}
+                        max={b.max}
+                        rows={b.rows.flatMap((r) => {
+                          const shown = ranged.get(r.key);
+                          return shown
+                            ? [
+                                {
+                                  key: r.key,
+                                  label: shown.leak.title,
+                                  note: tr(`leaks.status.${shown.leak.status}`),
+                                  low: r.low,
+                                  value: r.value,
+                                  display: rangeWords(shown.range),
+                                  tone: "drift" as const,
+                                },
+                              ]
+                            : [];
+                        })}
+                      />
+                    </Fragment>
+                  ))}
+                </div>
+              )}
+              <ul className="shadow-summary">
+                {listed.map(({ leak: l, range }) => (
+                  <li key={l.id}>
+                    <b>{l.title}</b> — {tr(`leaks.status.${l.status}`)}
+                    {range && (
                       <>
                         {" · "}
-                        {tr("leaks.range", {
-                          low: presentMoney(
-                            { amount_minor: l.low_minor, currency: l.currency },
-                            locale,
-                            { whole: true },
-                          ),
-                          high: presentMoney(
-                            { amount_minor: l.high_minor, currency: l.currency },
-                            locale,
-                            { whole: true },
-                          ),
-                        })}
+                        {rangeWords(range)}
                       </>
                     )}
-                  {" · "}
-                  {tr("leaks.grade", { grade: l.grade })}
-                </li>
-              ))}
-            </ul>
+                    {" · "}
+                    {tr("leaks.grade", { grade: l.grade })}
+                  </li>
+                ))}
+              </ul>
+            </>
           )}
           <p className="auth-copy">{tr("leaks.rule")}</p>
         </section>

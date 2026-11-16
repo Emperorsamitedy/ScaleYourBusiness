@@ -65,6 +65,11 @@
   padding-top: 14px;
 }
 
+/* start → target, with now and the path marked, above the three figures */
+.gl-bullet {
+  margin: 0 0 12px;
+}
+
 /* now / path says / target */
 .gl-stats {
   display: flex;

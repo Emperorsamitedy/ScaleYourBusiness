@@ -7,8 +7,10 @@ import {
   headline,
   longDate,
   marginText,
+  monthBars,
   proposalWord,
   seasonChartModel,
+  togetherBars,
 } from "./patterns-view";
 
 const INFO = { noun: "revenue", source: "Shopify", currency: "EUR" };
@@ -104,5 +106,40 @@ describe("the next-weeks title", () => {
     expect(aheadTitle({ ...u, starts_in_weeks: 0 })).toBe("A busy stretch starts this week");
     expect(aheadTitle({ ...u, in_progress: true })).toBe("A busy stretch is under way");
     expect(longDate("2025-10-04")).toBe("4 Oct 2025");
+  });
+});
+
+describe("the bars beside the figures", () => {
+  it("sets each month against the largest shown, busy and quiet by the season's own lines", () => {
+    const m = monthBars([{ index: 2 }, { index: 1.25 }, { index: 1 }, { index: 0.8 }])!;
+    expect(m.normal).toBe(0.5);
+    expect(m.bars).toEqual([
+      { share: 1, tone: "ink" },
+      { share: 0.625, tone: "ink" },
+      { share: 0.5, tone: "soft" },
+      { share: 0.4, tone: "drift" },
+    ]);
+    // A year with no month above normal still holds the normal line on its scale.
+    expect(monthBars([{ index: 0.5 }])).toEqual({
+      normal: 1,
+      bars: [{ share: 0.5, tone: "drift" }],
+    });
+  });
+
+  it("draws the months of a measured year", () => {
+    const r = seasonForecast(year(), INFO, TODAY);
+    if (r.status !== "ready") throw new Error(r.status);
+    const m = monthBars(r.months)!;
+    expect(m.bars).toHaveLength(r.months.length);
+    expect(m.bars.some((b) => b.tone === "ink")).toBe(true);
+  });
+
+  it("has no month bars without months, and no pair bars without pairs", () => {
+    expect(monthBars([])).toBeNull();
+    expect(togetherBars([])).toEqual([]);
+  });
+
+  it("sets each pair's count together against the largest in the table", () => {
+    expect(togetherBars([{ together: 20 }, { together: 5 }])).toEqual([1, 0.25]);
   });
 });

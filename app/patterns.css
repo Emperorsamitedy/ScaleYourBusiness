@@ -100,6 +100,22 @@
 .pt-months {
   margin-top: 12px;
 }
+/* A row's figure again as a bar (app/viz.css), on the table's own scale. */
+.pt-bar {
+  vertical-align: top;
+}
+.pt-months .pt-bar {
+  width: 44%;
+  min-width: 96px;
+}
+.pt-pairs .pt-bar {
+  width: 9%;
+  min-width: 72px;
+}
+.pt-bar .vz-bar-track {
+  display: block;
+  margin-top: 3px;
+}
 
 @media (max-width: 760px) {
   .pt-grid {

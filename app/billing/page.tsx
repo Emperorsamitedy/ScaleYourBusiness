@@ -9,11 +9,13 @@ import Link from "next/link";
 import { and, desc, eq, ne } from "drizzle-orm";
 import { BillingButton } from "../../components/billing/BillingButton";
 import { CancelFlow } from "../../components/billing/CancelFlow";
+import { Bullet } from "../../components/charts/Viz";
 import { db } from "../../db";
 import { subscriptions } from "../../db/schema";
 import { resolveAccess } from "../../lib/auth/access";
 import { guaranteeProgress } from "../../lib/billing/guarantee-run";
 import { periodAmount, planPrices } from "../../lib/billing/plans";
+import { scaleMinorBy } from "../../lib/core/money";
 import { dayMonthYear, presentMoney } from "../../lib/i18n/format";
 import { requestLocale } from "../../lib/i18n/server";
 import { trFor } from "../../lib/i18n/server-tr";
@@ -72,6 +74,17 @@ export default async function BillingPage() {
       ? money(0, sub.currency)
       : counter.verified.map((m) => money(m.amount_minor, m.currency)).join(" · ");
   const progress = await guaranteeProgress(access.profile_id);
+  // Drawn only beside the sentence that prints both figures, in one currency.
+  const meter =
+    progress &&
+    progress.outcome !== "rolled_forward" &&
+    progress.fee.amount_minor > 0 &&
+    progress.verified.currency === progress.fee.currency
+      ? {
+          verified: progress.verified.amount_minor,
+          threshold: scaleMinorBy(progress.fee.amount_minor, progress.threshold_bp, 10_000),
+        }
+      : null;
   const watch = (await planPrices(sub.billing_country)).find((p) => p.tier === "watch");
   const list = new Intl.ListFormat([locale], { type: "conjunction" });
 
@@ -96,6 +109,11 @@ export default async function BillingPage() {
             )}
           </p>
           <p className="auth-copy">{tr("verified", { amount: verified })}</p>
+          {meter !== null && (
+            <div className="billing-meter">
+              <Bullet start={0} target={meter.threshold} now={meter.verified} />
+            </div>
+          )}
           {progress && (
             <p className="auth-copy">
               {progress.outcome === "rolled_forward"

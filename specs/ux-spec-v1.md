@@ -25,37 +25,39 @@ This is a real constraint, not a stylistic preference. In a product that will ev
 
 ### The brand (2026-11-15)
 
-The product is **ScaleX** (it was SYB). The logo is concept A, "Ascent": an X made of two short rounded Ink bars on one diagonal, crossed by an Accent arrow rising to the upper right, beside the wordmark "Scale" in the ground's ink with the "X" in Accent (Archivo 800, −0.03em). On a dark ground the bars are white. One geometry on a 100-unit grid (`components/brand/Mark.tsx`) draws the rail and mastheads (`<Logo onDark />`), the app icons (dark tile `#1B2030`, white bars) and the 32 px favicon (light tile, ink bars) through `components/sheet/AppIcon.tsx`. The name is never translated. Brand colours: Ink `#0D1321`, Accent `#00A86B`, Paper `#FFFFFF`. Accent is 3.1:1 on paper, so it is used only for the mark, large type and rules; small green text on paper uses `--ok`.
+The product is **ScaleX** (it was SYB). The logo is concept A, "Ascent": an X made of two short rounded Ink bars on one diagonal, crossed by an Accent arrow rising to the upper right, beside the wordmark "Scale" in the ground's ink with the "X" in Accent (Archivo 800, −0.03em). On a dark ground the bars are white. One geometry on a 100-unit grid (`components/brand/Mark.tsx`) draws the rail and mastheads (`<Logo onDark />`), the app icons (dark tile `#1B2030`, white bars) and the 32 px favicon (light tile, ink bars) through `components/sheet/AppIcon.tsx`. The name is never translated. The mark's own colours are Ink `#0D1321` and Accent `#00A86B`.
+
+**The app's colours are the forest desk and eucalyptus paper (owner decision, 2026-11-16).** The navy-and-white palette the rebrand brought to the app on 2026-11-15 is withdrawn: the owner's colours are green and white, as the sheet system was first adopted. The tables below are those values again. The logo keeps its Accent green; the landing page and the redesigned sign-in keep their own scoped palettes until the owner says otherwise.
 
 ### Surfaces
 
 | Token | Value | Use |
 |---|---|---|
-| `--desk` | `#0D1321` | The background: the receding navigation layer (ScaleX Ink) |
-| `--masthead` | `#080C16` | Ink masthead, with a 2px `--live-rule` (`#00A86B`, ScaleX Accent) beneath. The rule is static brand structure, not machine state |
-| `--paper` | `#FFFFFF` | The sheet. Content lives here (ScaleX Paper) |
-| `--inset` | `#EEF1F5` | Evidence boxes and stamps. Close to paper, so every inset also carries a 1px `--rule` |
-| `--rule` / `--rule-soft` | `#7A8494` / `#D5DAE2` | 1px rules: structural (3.8:1 on paper) and row hairlines |
-| `--accent` / `--accent-desk` | `#00A86B` / `#2BD594` | The brand green: the mark, large type, rules; as text on the desk, the lighter one (9.8:1) |
+| `--desk` | `#132119` | The background: the receding navigation layer (the forest desk) |
+| `--masthead` | `#0E1A13` | Ink masthead, with a 2px `--live-rule` (`#3D6BFF`) beneath. The rule is static structure, not machine state |
+| `--paper` | `#F2F7F4` | The sheet. Content lives here (eucalyptus paper) |
+| `--inset` | `#DFE9E3` | Evidence boxes and stamps. Close to paper, so every inset also carries a 1px `--rule` |
+| `--rule` / `--rule-soft` | `#71897D` / `#B9CBC1` | 1px rules: structural (3.5:1 on paper) and row hairlines |
+| `--accent` / `--accent-desk` | `#00A86B` / `#2BD594` | The logo's green only |
 
 Square corners everywhere. No shadows on sheets: separation comes from 1px rules, surface colour and whitespace. No icons: meaning is carried by words, typography, rules and position. Typographic characters such as → are allowed.
 
 ### Text and meaning
 
-Every text token is measured on each surface it appears on (WCAG 2 ratio; re-measured for the ScaleX palette on 2026-11-15). Every pair passes AA.
+Every text token is measured on each surface it appears on (WCAG 2 ratio; the figures are those recorded in `app/sheet.css` for this palette). Every pair passes AA.
 
 | Token | Value | On paper | On inset | On desk | Use |
 |---|---|---|---|---|---|
-| `--sheet-ink` | `#0D1321` | 18.6:1 | 16.4:1 | — | Text on sheets |
-| `--sheet-ink-2` | `#4A5263` | 7.8:1 | 6.9:1 | — | Secondary text on sheets |
-| `--desk-ink` | `#F4F6FA` | — | — | 17.1:1 | Text on the desk |
-| `--desk-ink-2` | `#AEB6C4` | — | — | 9.1:1 | Secondary text on the desk. Never a muted grey |
-| `--live` | `#1A3DAE` | 9.0:1 | 8.0:1 | — | Cobalt: the machine is working right now. Nothing else |
-| `--live-desk` | `#C2D4FF` | — | — | 12.5:1 | The same meaning, on the desk |
-| `--ok` | `#00754A` | 5.8:1 | 5.1:1 | — | Tints IN RANGE; the brand green deepened for text on paper |
-| `--low` | `#36495F` | 9.2:1 | 8.2:1 | — | Tints BELOW RANGE and idle |
-| `--drift` | `#683D00` | 9.3:1 | 8.2:1 | — | Tints ABOVE RANGE (slightly past) |
-| `--alarm` | `#8C1713` | 9.4:1 | 8.3:1 | — | Tints ACT NOW. Also underlined, so alarm differs from drift in shape, not only hue |
+| `--sheet-ink` | `#0E1A13` | 16.5:1 | 14.4:1 | — | Text on sheets |
+| `--sheet-ink-2` | `#3A4C42` | 8.5:1 | 7.4:1 | — | Secondary text on sheets |
+| `--desk-ink` | `#EAF2ED` | — | — | 14.6:1 | Text on the desk |
+| `--desk-ink-2` | `#C3D4CA` | — | — | 10.8:1 | Secondary text on the desk. Never a muted grey |
+| `--live` | `#1A3DAE` | 8.4:1 | 7.3:1 | — | Cobalt: the machine is working right now. Nothing else |
+| `--live-desk` | `#C2D4FF` | — | — | 11.2:1 | The same meaning, on the desk |
+| `--ok` | `#145530` | 8.2:1 | 7.1:1 | — | Tints IN RANGE |
+| `--low` | `#36495F` | 8.5:1 | 7.4:1 | — | Tints BELOW RANGE and idle |
+| `--drift` | `#683D00` | 8.6:1 | 7.5:1 | — | Tints ABOVE RANGE (slightly past) |
+| `--alarm` | `#8C1713` | 8.6:1 | 7.5:1 | — | Tints ACT NOW. Also underlined, so alarm differs from drift in shape, not only hue |
 | `--marker` | `#F7E26B` | — | — | — | Ink was just laid down. Only ever a background behind ink (13.7:1), **never text** |
 
 Colour never carries meaning alone: every status is a worded flag, and the screen must read in grayscale.
@@ -134,7 +136,21 @@ A missing input is never filled with an industry number, and two currencies are 
 
 - *The next 13 weeks of cash* (`CashChart.tsx`, P5-10), on `/cash`. Today's cash, then the balance at the end of each of the next 13 weeks as a tinted range band from the cautious end (slow sales, slow payouts) to the hopeful end, the cautious end a solid ink line along its lower edge and the hopeful end a hairline. The owner's buffer is a dashed `--drift` line with a mono BUFFER label (ZERO when none is stated). The first week whose cautious end dips under it carries a hollow square and "TIGHT". The readout gives both ends of the hovered week; the visually-hidden table lists every point.
 
-The Goals screen already carries its own weekly candles against the path (`components/care/CandleChart.tsx`), so no second chart is added there. The diagnosis report has no priced money-leak column yet ("Money a month is printed only where a measure's gap is priced; none is"), and it is a dated snapshot, so a live chart beside it would contradict its date. No chart is added there.
+**Small visuals (owner decision, 2026-11-16: "visualise information instead of making users read it").** A kit of small marks (`components/charts/Viz.tsx`, `app/viz.css`) draws what a screen already says in words, from the same data, in this section's grammar: plain SVG and CSS, sheet tokens only, no cobalt, square corners. Filled ink is a measured count, hollow ink what was stated or a stage not reached, `--ok` money earned or kept, the `--ok-band` with a dashed `--ok` outline an estimate, a `--drift` tint "watch this", and hollow `--alarm` money lost. A figure is always printed beside its mark, so nothing is hover-only. Motion is the existing press and move transitions only, off under reduced motion. A visual never approves, sends or executes anything, and none is drawn from data that is not there: the screen's words stand alone instead. The plan and what was left out are in `docs/visual-enhancement/`.
+
+**How a visual is drawn (2026-11-16, from a reference design the owner asked for).** A chart reads like a printed financial graphic, not a sketch. A series over time (`Trend`) has round-number ticks on a labelled scale, dotted gridlines, an ink line over the `--ok-band` fill, and the last reading marked with a `--ok` square and its figure; pointer or ←/→ reads one day, and every point is in a hidden table. Its scale is zoomed to the series, which the ticks say. Bars (`HBars`) are thick, on rows that touch, over a ruled scale with ticks and tick labels when one is given; a reference line runs unbroken through the rows with its name printed above. Bars always start at zero.
+
+- *Home.* Under the readings strip, the latest measured day of the market chart's price and volume series, each with a 30-day `Trend`. "Where it slips" draws the priced parts of the month as bars on one ruled money scale (a range solid to its low end, lighter to its high end), each linking to the screen that owns it; a balance such as slow stock sits apart without a bar, because it is not a monthly flow.
+- *The live line, on Home (owner decision, 2026-11-16: board B of the design canvas, "build it").* At the top of the readings card (`components/home/LiveVisitors.tsx`, `live-model.ts`): people on the business's own site in each minute, from its Google Analytics connection's realtime report (`GET /api/live/visitors`, `lib/live/visitors.ts`). The read uses the same `analytics.readonly` token and host as every other Google Analytics report, nothing is stored, and each business's answer is kept for 30 seconds. It is drawn like a trading chart's baseline style: a zigzag through the minutes, a dashed baseline at the window's first reading, the line and its fill green above it (the logo's `--accent`, since the line's head is the logo's arrow) and `--alarm` red below, the scale on the right with the latest figure tagged in the line's colour and the baseline's figure in a dashed tag, minute times along the bottom, and a crosshair (pointer or ←/→) that reads any minute with its time and figure on the axes. The legend gives the figure, the change since the window began (▲ / ▼, with its share) and the window's start; 15- and 30-minute windows. It is live only in true ways: read again every 30 seconds while the tab shows, and the window slides on with the clock in between. A reading older than three minutes, or a failed read, turns the line grey with a hollow head and says when it was last read. With no connection the row says what would start it and links to Connections; a paused connection says so.
+- *The diagnosis report.* All drawn from the report's own dated snapshot, never a live series, so nothing contradicts its date. A severity bar under the tally jumps to the first finding of that severity. "Margin by product" sorts the offers' margins as zero-based bars on a ruled 0–100 % scale with the blended margin as a dashed line. Each recommendation's range carries a range bar (the band from the low to the high case, a tick at the base case, a dashed line at zero when the low case loses money). Stated against measured places a hollow mark (said) and a filled mark (measured) on one zero-based scale per row, only when both are figures in one unit.
+- *Watching.* Each signal's row carries a spark of its days since the watch began (at most 42), gaps left as gaps, the open anomaly's days tinted.
+- *Goals.* A bullet above each measurable goal's three figures: the band from the starting figure to the target, a dashed tick where the path says the figure should be, an ink tick where it is. The weekly candles stay.
+- *Customers, Abandoned carts, Reviews.* The lifecycle stages as one stacked bar whose segments set the same filter as the chips. The checkout window as three bars (started, left unfinished, finished later) and each product's value left as a bar within its own currency. The ratings as five bars that filter the list, drawn only when there is a review.
+- *History, the shadow summary, the monthly statement.* The forecast track record as one stacked bar. What the shadow would have done as an outcome bar, with gained against lost per currency. The statement's verified, losses, fee and after-fee figures as bars per currency, and each leak's range as a bar under the same grade gate as its printed range; a range that crosses zero is listed, not drawn.
+- *Content.* A gallery of the items that still hold media: one tile per item with the picture or the clip's first frame, its channel, date and worded state, and the existing "generated" wording whenever the media is AI-made. A tile opens the item as its row does. The dev store's media is read through `GET /api/content/media?item_id=`, open only to that business's own readers and looked up by item id, never by a path. A calendar strip of whole weeks marks each dated item (filled posted, hollow planned, `--drift` past its date), today outlined. An open post's measured reach, views and interactions are bars toned by its verdict. Publishing stays behind the queue.
+- *Campaign simulator, Seasons and bundles, Stock.* The simulator shows the ads chart (spend against attributed value per campaign) above its options when ads are connected. Months carry a bar of their index against the normal week, with a tick at 1.0×; pairs a bar of how often they sold together. Each stock item's days of cover is a bar against its delivery time (a dashed tick), on a scale that ends at four delivery times so months of cover do not flatten the rest; cash tied up is a bar within its own currency, hollow when it rests on a stated cost.
+- *Support, the Trust Ladder.* Tickets by standing as one stacked bar, and those waiting for a person as bars of hours waited against the reply time. Each ladder row's gains and losses as a small bar beside the words. (The pipeline's stage funnel is built but waits to ship with the pipeline's follow-up work, which touches the same screen.)
+- *Billing, the fact sheet, Similar businesses, the free check.* The guarantee as a bullet of verified money against three times the fee. The fact sheet's facts by basis as one bar. Each Eurostat line as a hollow mark (the benchmark) and a filled mark (yours) on its own zero-based scale. A served peer metric, and the free check's peer comparison, as the middle half (p25–p75) with a tick at the reader's figure; the free check's leak as a range band. Nothing is drawn where the panel refuses for too few peers, and peer and Eurostat figures never share a mark.
 
 ---
 

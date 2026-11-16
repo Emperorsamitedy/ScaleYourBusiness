@@ -26,6 +26,7 @@ import "../../app/support.css";
 import { intlMoney } from "../../lib/i18n/format";
 import type { AppLocale } from "../../lib/i18n/locales";
 import type { Tr } from "../../lib/i18n/tr";
+import { HBars, SegBar } from "../charts/Viz";
 import { PageHead } from "../sheet/PageHead";
 import { num } from "../sheet/num";
 import { useTr } from "../sheet/useTr";
@@ -36,12 +37,15 @@ import {
   type TicketReason,
   type TicketStatus,
   EMAIL_KEPT_CHARS,
+  clusterBars,
   conversationWord,
   dayWord,
   reasonWord,
   senderNoteWord,
+  standingSegs,
   supportHeadline,
   ticketLine,
+  waitingBars,
   waitingTitle,
   whenFull,
   whenShort,
@@ -399,6 +403,28 @@ export function SupportScreen() {
   const replies = ticket && s.emailsOf === ticket.id ? s.replies : [];
   const typed = ticket ? (s.ticketAnswers[ticket.id] ?? "") : "";
   const now = new Date();
+  const replyHours = s.settings?.reply_hours ?? null;
+  const standing = standingSegs(
+    s.tickets,
+    (k) =>
+      k === "waiting"
+        ? tr("viz.awaiting")
+        : k === "replied"
+          ? tr("ticket.youReplied")
+          : k === "answered"
+            ? tr("ticket.answeredFlag")
+            : tr("ticket.closedFlag"),
+    locale,
+  );
+  const waiting = waitingBars(s.tickets, now, replyHours, tr, locale);
+  const waitingCap =
+    waiting.total > waiting.rows.length
+      ? tr("viz.waitingTop", {
+          shown: num(waiting.rows.length, 0, locale),
+          total: num(waiting.total, 0, locale),
+        })
+      : tr("viz.waiting");
+  const clusters = clusterBars(s.faq?.clusters ?? []);
 
   return (
     <main className="screen sp-screen">
@@ -453,6 +479,34 @@ export function SupportScreen() {
           </div>
         ) : (
           <>
+            {standing.length > 0 && (
+              <div className="sp-viz">
+                <p className="vz-cap">{tr("viz.byStanding")}</p>
+                <SegBar segs={standing} label={tr("viz.byStanding")} />
+                {waiting.rows.length > 0 && (
+                  <>
+                    <p className="vz-cap">{waitingCap}</p>
+                    <HBars
+                      label={waitingCap}
+                      {...(replyHours === null
+                        ? {}
+                        : {
+                            refAt: replyHours,
+                            refLabel: tr("sla.yourTime", { hours: num(replyHours, 0, locale) }),
+                          })}
+                      rows={waiting.rows.map((w) => ({
+                        key: w.key,
+                        label: w.who,
+                        note: w.channel,
+                        value: w.hours,
+                        display: w.display,
+                        tone: w.tone,
+                      }))}
+                    />
+                  </>
+                )}
+              </div>
+            )}
             <div className="sp-table-wrap">
               <table className="rt rt-stack sp-tickets">
                 <thead>
@@ -848,6 +902,22 @@ export function SupportScreen() {
                 </div>
               </div>
             ))}
+
+            {clusters.length > 0 && (
+              <div className="sp-clusters">
+                <p className="vz-cap">{tr("viz.clusters")}</p>
+                <HBars
+                  label={tr("viz.clusters")}
+                  rows={clusters.map((c) => ({
+                    key: c.key,
+                    label: c.question,
+                    value: c.count,
+                    display: num(c.count, 0, locale),
+                    tone: "ink" as const,
+                  }))}
+                />
+              </div>
+            )}
 
             {unanswered.map((c) => (
               <div key={c.question} className="sp-box">

@@ -22,6 +22,7 @@ import Link from "next/link";
 import { useTranslations } from "next-intl";
 import { useBusinessNoun } from "../nav/useBusinessNoun";
 import { ChartsPanel } from "../charts/ChartsPanel";
+import { SegBar } from "../charts/Viz";
 import { PageHead } from "../sheet/PageHead";
 import { num } from "../sheet/num";
 import { useTr } from "../sheet/useTr";
@@ -30,6 +31,7 @@ import { fmtDay } from "../report/figures";
 import type { DisplaySection, FactSheet, FsWords, GapRow, Mode, SupersededFact } from "./model";
 import {
   basisCounts,
+  basisSegs,
   basisWord,
   changedIn,
   displaySections,
@@ -331,6 +333,7 @@ export function FactSheetScreen() {
   );
   const allFacts = useMemo(() => sections.flatMap((s) => s.facts.map((d) => d.fact)), [sections]);
   const counts = useMemo(() => basisCounts(allFacts), [allFacts]);
+  const segs = useMemo(() => basisSegs(allFacts, w), [allFacts, w]);
   const supersededCount = useMemo(
     () => Object.values(history).reduce((x, l) => x + l.length, 0),
     [history],
@@ -414,6 +417,11 @@ export function FactSheetScreen() {
           </p>
         }
       >
+        {segs.length > 0 && (
+          <div className="fs-mix">
+            <SegBar bare segs={segs} label={t("title", { count: allFacts.length, noun })} />
+          </div>
+        )}
         <p className="fs-counts">
           <span>{t.rich("counts.observed", { count: counts.observed, b })}</span>
           <span>{t.rich("counts.derived", { count: counts.derived, b })}</span>

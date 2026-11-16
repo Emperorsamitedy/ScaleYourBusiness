@@ -26,6 +26,10 @@ import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import "../../app/simulate.css";
+import "../../app/charts.css";
+import type { ChartsBundle } from "../../lib/charts/load";
+import type { AdsChartModel } from "../../lib/charts/small";
+import { AdsChart } from "../charts/SmallCharts";
 import { minorUnitExponent } from "../../lib/core/money";
 import { dayMonthYear } from "../../lib/i18n/format";
 import type { AppLocale } from "../../lib/i18n/locales";
@@ -46,6 +50,7 @@ import { PageHead, SheetCard } from "../sheet/PageHead";
 import { moneyText, num } from "../sheet/num";
 import {
   DEFAULT_SHARE,
+  adsDays,
   cellView,
   defaultPicks,
   flagWord,
@@ -98,6 +103,24 @@ type PickId = string;
 interface Notice {
   ok: boolean;
   text: string;
+}
+
+/** A read that is left out in silence when it fails (components/home/HomeScreen's own pattern). */
+function useRead<T>(url: string): T | null {
+  const [data, setData] = useState<T | null>(null);
+  useEffect(() => {
+    let alive = true;
+    fetch(url, { cache: "no-store" })
+      .then((r) => (r.ok ? (r.json() as Promise<T>) : null))
+      .then((d) => {
+        if (alive) setData(d);
+      })
+      .catch(() => undefined);
+    return () => {
+      alive = false;
+    };
+  }, [url]);
+  return data;
 }
 
 function pickIdOf(o: SimOption): PickId {
@@ -414,6 +437,27 @@ function SideBySide({ cmp }: { cmp: Comparison }) {
   );
 }
 
+/** What the campaigns did lately (the /profile ads chart, as is), beside the options that change them. */
+function CampaignResults({ model }: { model: AdsChartModel }) {
+  const { tr, locale } = useTr("simulate");
+  return (
+    <div className="sim-ads">
+      <AdsChart model={model} />
+      <ul className="sim-note on-desk sim-ads-days">
+        {adsDays(model).map((d) => (
+          <li key={d.key}>
+            {tr("adsMeasured", {
+              name: d.name,
+              days: num(d.days, 0, locale),
+              window: num(d.window, 0, locale),
+            })}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
 export function Whiskers({
   results,
   caption,
@@ -629,6 +673,7 @@ export function SimulateScreen() {
   const [budget, setBudget] = useState("");
   const [busy, setBusy] = useState<string | null>(null);
   const [notices, setNotices] = useState<Record<string, Notice>>({});
+  const charts = useRead<ChartsBundle>("/api/charts");
 
   useEffect(() => {
     void (async () => {
@@ -723,6 +768,7 @@ export function SimulateScreen() {
   return (
     <Frame title={headline(ready.catalog, ready.inputs, tr)} aside={aside}>
       <div className="sim-stack">
+        {charts?.ads && <CampaignResults model={charts.ads} />}
         <Picker
           catalog={ready.catalog}
           picks={picks}
