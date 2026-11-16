@@ -1,7 +1,7 @@
 "use client";
 
-// The v2 landing page (specs/ux-spec-v1.md §7.1b), a preview at
-// /landing-v2 until the owner makes it the front page: one filmed scene
+// The v2 landing page, the front page (specs/ux-spec-v1.md §7.1b; previewed
+// at /landing-v2, now a redirect to "/"): one filmed scene
 // per section behind the page, and in front the copy and one ScaleX
 // screen per section — the interview, the diagnosis, a finding, a
 // decision, the market view, the Trust Ladder, the client book and the

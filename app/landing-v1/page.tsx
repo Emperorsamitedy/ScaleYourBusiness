@@ -1,0 +1,30 @@
+// /landing-v1 — the first landing page, the owner's landing design
+// (2026-10-17). It was the front page until the v2 landing replaced it on
+// 2026-11-16 (app/page.tsx); kept here, out of search, so nothing is lost.
+// The price on every button is the price checkout charges. L-3d: its words
+// are the "landing" catalogue, its figures in the reader's language.
+
+import type { Metadata } from "next";
+import { getLocale, getTranslations } from "next-intl/server";
+import { Landing } from "@/components/marketing/Landing";
+import { LANDING_FIGURES } from "@/components/marketing/words";
+import { num } from "@/components/sheet/num";
+import { isAppLocale } from "@/lib/i18n/locales";
+import type { Tr } from "@/lib/i18n/tr";
+import { reportPrice } from "@/lib/billing/stripe";
+import "../landing.css";
+
+export async function generateMetadata(): Promise<Metadata> {
+  const t = (await getTranslations("landing.meta" as "common")) as unknown as Tr;
+  const raw = await getLocale();
+  const locale = isAppLocale(raw) ? raw : "en";
+  return {
+    title: t("title"),
+    description: t("description", { checks: num(LANDING_FIGURES.checks, 0, locale) }),
+    robots: { index: false, follow: false },
+  };
+}
+
+export default async function LandingV1() {
+  return <Landing price={await reportPrice()} />;
+}

@@ -476,7 +476,9 @@ The shared view at `/shared/<token>` is the same report body, read only. Its mas
 
 **Accountant export (idea 49, 2026-10-26).** On `/profile`, the page head's aside holds two plain links: "Money facts, CSV" and "Earlier figures, CSV". They are file downloads, not screens. (The "For your accountant" caption over them was decluttered 2026-11-09 on the owner's instruction.)
 
-### 7.1 Landing page
+### 7.1 Landing page v1 (kept at /landing-v1)
+
+This was the front page until 2026-11-16, when the v2 landing (§7.1b) replaced it on the owner's instruction. It is kept, unchanged, at `/landing-v1` and out of search (`app/landing-v1/page.tsx`).
 
 The owner's landing mockup (HTML export, 2026-10-17) is the source for this page. It is built in `components/marketing/Landing.tsx`, `Walkthrough.tsx`, `StoreChart.tsx` and `Demos.tsx`, with styles in `app/landing.css`. The mockup's own colour values are scoped under `.ll` and apply to the landing page only.
 
@@ -501,9 +503,9 @@ The price on every button is `reportPrice()`. The examiner, guarantee count and 
 
 Two hero lines are promises the owner has not yet recorded in `offer.ts`: "Refund if we find nothing" and "Signed by a person". Confirm both before launch. `areas.ts` marks which panels have a read-only connector today.
 
-### 7.1b Landing page v2 (preview)
+### 7.1b Landing page v2 (the front page)
 
-The owner approved a second landing design on 2026-11-15 ("Good, keep going"). It is built as a preview at `/landing-v2`; the page at `/` (§7.1) is untouched and stays the front page until the owner says to switch. The preview is `noindex`. Files: `app/landing-v2/page.tsx`, `components/marketing/LandingV2.tsx`, `components/marketing/landing-v2-motion.ts`, `lib/marketing/landing-v2.ts`, `app/landing-v2.css`, and the footage in `public/landing-v2/`.
+The owner approved a second landing design on 2026-11-15 ("Good, keep going"). It was previewed at `/landing-v2` and became the front page on 2026-11-16 ("Yes, make it the front"); `/landing-v2` now redirects to `/`. Files: `app/page.tsx`, `lib/marketing/landing-v2-prices.ts`, `components/marketing/LandingV2.tsx`, `components/marketing/landing-v2-motion.ts`, `lib/marketing/landing-v2.ts`, `app/landing-v2.css`, and the footage in `public/landing-v2/`.
 
 **The idea.** One filmed scene per section sits fixed behind the page; in front of it, the copy and one ScaleX screen per section, drawn the way the app draws it: the masthead with the mark and the accent rule, then a white paper sheet with square corners, 1px rules, worded flags and the marker behind fresh ink. Unlike a sheet on the desk (§2), a screen here floats over film, so it carries one shadow for depth. This page keeps a kicker above each heading; the 2026-11-09 declutter (§7.1) applies to the first landing page only.
 
@@ -532,7 +534,7 @@ The page, top to bottom:
 
 **Scoping.** Every rule in `app/landing-v2.css` sits under `.lx`, and class names that the app's global styles already use (`act`, `opt`, `stage`, `done`) have their own names here, so the page neither takes nor gives styles.
 
-**Still open, for the owner.** The footer prints `[Company details]` until supplied (as §7.1). Making this the front page is a one-line change in `app/page.tsx` and is not done.
+**Still open, for the owner.** The footer prints `[Company details]` until supplied (as §7.1). 
 
 ---
 

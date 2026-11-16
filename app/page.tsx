@@ -1,27 +1,27 @@
-// The landing page — the owner's landing design (2026-10-17); the price
-// on every button is the price checkout charges. L-3d: its words are the
-// "landing" catalogue, its figures in the reader's language.
+// The front page — the v2 landing page (specs/ux-spec-v1.md §7.1b), made
+// the front page on the owner's instruction (2026-11-16). One filmed scene
+// per section behind the page; in front, the copy and one ScaleX screen per
+// section. Its words are the "landingV2" catalogue (with a few of the first
+// landing's), its figures in the reader's language. The first landing page
+// is kept at /landing-v1.
 
 import type { Metadata } from "next";
-import { getLocale, getTranslations } from "next-intl/server";
-import { Landing } from "@/components/marketing/Landing";
-import { LANDING_FIGURES } from "@/components/marketing/words";
-import { num } from "@/components/sheet/num";
-import { isAppLocale } from "@/lib/i18n/locales";
-import type { Tr } from "@/lib/i18n/tr";
-import { reportPrice } from "@/lib/billing/stripe";
-import "./landing.css";
+import { LandingV2 } from "@/components/marketing/LandingV2";
+import { requestLocale } from "@/lib/i18n/server";
+import { trFor } from "@/lib/i18n/server-tr";
+import { landingV2Prices } from "@/lib/marketing/landing-v2-prices";
+import "./landing-v2.css";
+
+export const dynamic = "force-dynamic";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const t = (await getTranslations("landing.meta" as "common")) as unknown as Tr;
-  const raw = await getLocale();
-  const locale = isAppLocale(raw) ? raw : "en";
+  const locale = await requestLocale();
   return {
-    title: t("title"),
-    description: t("description", { checks: num(LANDING_FIGURES.checks, 0, locale) }),
+    title: trFor(locale, "landing")("meta.title"),
+    description: trFor(locale, "landingV2")("hero.lede"),
   };
 }
 
 export default async function Home() {
-  return <Landing price={await reportPrice()} />;
+  return <LandingV2 prices={await landingV2Prices()} />;
 }
