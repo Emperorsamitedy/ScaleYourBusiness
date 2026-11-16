@@ -9707,7 +9707,9 @@
       "button": "Ötlet megtartása",
       "signIn": "Bejelentkezés után gyere vissza erre az oldalra, hogy megtartsd.",
       "signInLink": "Bejelentkezés",
-      "already": "Ezt az ötletet már megtartottad."
+      "already": "Ezt az ötletet már megtartottad.",
+      "label": "Ötlet: {type} · {place}",
+      "signInBack": "Bejelentkezés után ide jössz vissza, és megtarthatod."
     },
     "mine": {
       "title": "Az ötleted",

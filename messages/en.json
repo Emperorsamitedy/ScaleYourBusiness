@@ -9707,7 +9707,9 @@
       "button": "Keep this idea",
       "signIn": "Sign in first, then come back to this page to keep it.",
       "signInLink": "Sign in",
-      "already": "This idea is already kept."
+      "already": "This idea is already kept.",
+      "label": "{type} idea · {place}",
+      "signInBack": "Sign in, and you'll come back here to keep it."
     },
     "mine": {
       "title": "Your idea",

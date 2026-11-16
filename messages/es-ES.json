@@ -9707,7 +9707,9 @@
       "button": "Guardar esta idea",
       "signIn": "Primero inicia sesión y luego vuelve a esta página para guardarla.",
       "signInLink": "Iniciar sesión",
-      "already": "Esta idea ya está guardada."
+      "already": "Esta idea ya está guardada.",
+      "label": "Idea: {type} · {place}",
+      "signInBack": "Inicia sesión y volverás aquí para guardarla."
     },
     "mine": {
       "title": "Tu idea",

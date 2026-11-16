@@ -40,7 +40,11 @@ export function setSignInCookies(response: NextResponse, session: RedeemedSessio
     response.cookies.set(LANGUAGE_COOKIE, session.language, languageCookieOptions());
   }
   if (session.profile_id) {
-    response.cookies.set(INTAKE_COOKIE, signProfileCookie(session.profile_id), intakeCookieOptions());
+    response.cookies.set(
+      INTAKE_COOKIE,
+      signProfileCookie(session.profile_id),
+      intakeCookieOptions(),
+    );
   }
   return response;
 }

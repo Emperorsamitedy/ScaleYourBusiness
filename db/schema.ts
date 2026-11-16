@@ -5394,6 +5394,12 @@ export const ideaChecks = pgTable(
     token: text("token").notNull(),
     /** I-10: the idea business this check was kept as; null while it is only a shared check. */
     profile_id: uuid("profile_id"),
+    /**
+     * Gap 4 (2026-11-17): what the business switcher calls a kept idea until
+     * launch gives it a legal name — "Café idea · Budapest", in the person's
+     * language when kept. A label, not a fact: no legal name is invented.
+     */
+    label: text("label"),
     answers: jsonb("answers").notNull(),
     result: jsonb("result").notNull(),
     locale: text("locale").notNull(),

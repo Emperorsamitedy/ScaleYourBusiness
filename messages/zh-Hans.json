@@ -9707,7 +9707,9 @@
       "button": "保存这个想法",
       "signIn": "请先登录，然后回到本页面保存它。",
       "signInLink": "登录",
-      "already": "这个想法已经保存。"
+      "already": "这个想法已经保存。",
+      "label": "{type}想法 · {place}",
+      "signInBack": "登录后会回到这里，你就可以保留它。"
     },
     "mine": {
       "title": "你的想法",

@@ -9707,7 +9707,9 @@
       "button": "Diese Idee behalten",
       "signIn": "Nach dem Anmelden komm auf diese Seite zurück, um sie zu behalten.",
       "signInLink": "Anmelden",
-      "already": "Diese Idee ist bereits in deinem Konto."
+      "already": "Diese Idee ist bereits in deinem Konto.",
+      "label": "Idee: {type} · {place}",
+      "signInBack": "Nach dem Anmelden kommst du hierher zurück und kannst sie behalten."
     },
     "mine": {
       "title": "Deine Idee",

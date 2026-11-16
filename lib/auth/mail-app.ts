@@ -16,7 +16,10 @@ const OUTLOOK = new Set(["outlook.com", "hotmail.com", "live.com", "msn.com"]);
 export function mailAppFor(email: string): MailApp | null {
   const at = email.lastIndexOf("@");
   if (at === -1) return null;
-  const domain = email.slice(at + 1).trim().toLowerCase();
+  const domain = email
+    .slice(at + 1)
+    .trim()
+    .toLowerCase();
   if (GMAIL.has(domain)) return { name: "Gmail", url: "https://mail.google.com/mail/u/0/#inbox" };
   if (OUTLOOK.has(domain) || /^(outlook|hotmail|live)\.[a-z.]+$/.test(domain)) {
     return { name: "Outlook", url: "https://outlook.live.com/mail/0/inbox" };

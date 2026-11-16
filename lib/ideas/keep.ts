@@ -34,6 +34,9 @@ import {
   scoreTest,
 } from "./progress";
 import { toMinor } from "./units";
+import { loadFactWords } from "../bank/words";
+import { trFor } from "../i18n/server-tr";
+import { citiesOf } from "./local";
 
 const hash = (payload: unknown) =>
   createHash("sha256").update(JSON.stringify(payload)).digest("hex");
@@ -44,6 +47,23 @@ export function plannedRevenue(a: IdeaAnswers): { amount_minor: number; currency
     return null;
   }
   return { amount_minor: a.customers_month * toMinor(a.price, a.currency), currency: a.currency };
+}
+
+/** Gap 4: "Café idea · Budapest", in the person's language — the switcher's name until launch. */
+export async function ideaLabel(a: IdeaAnswers, language: AppLocale): Promise<string> {
+  const words = await loadFactWords(language);
+  const english = await loadFactWords("en");
+  const type =
+    words.value("identity.business_type", a.sector) ??
+    english.value("identity.business_type", a.sector) ??
+    a.sector;
+  const city = a.city ? citiesOf(a.country).find((c) => c.id === a.city) : undefined;
+  const place =
+    city?.names[language] ??
+    city?.names.en ??
+    new Intl.DisplayNames([language], { type: "region" }).of(a.country) ??
+    a.country;
+  return trFor(language, "ideas")("keep.label", { type, place });
 }
 
 /** What the person stated, as facts the rest of the system reads (grade D, owner-stated). */
@@ -117,7 +137,7 @@ export async function keepIdea(args: {
 
   const [linked] = await db
     .update(ideaChecks)
-    .set({ profile_id: profileId })
+    .set({ profile_id: profileId, label: await ideaLabel(answers, args.language) })
     .where(and(eq(ideaChecks.id, check.id), isNull(ideaChecks.profile_id)))
     .returning({ id: ideaChecks.id });
   if (!linked) throw new IdeaError("this idea is already kept", 409);

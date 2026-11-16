@@ -25,7 +25,10 @@ export function KeepIdea({ token }: { token: string }) {
   if (state === "signIn") {
     return (
       <p className="auth-copy">
-        {tr("keep.signIn")} <Link href="/login">{tr("keep.signInLink")}</Link>
+        {tr("keep.signInBack")}{" "}
+        <Link href={`/login?next=${encodeURIComponent(`/i/${token}`)}`}>
+          {tr("keep.signInLink")}
+        </Link>
       </p>
     );
   }

@@ -14,9 +14,17 @@ export const RETURN_COOKIE = "syb_return";
 
 const CARD_PATH = /^\/proposals(\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})?$/;
 
+/**
+ * TASKS-IDEAS: a signed-out person keeping an idea comes back to its shared
+ * check, or to their idea. Share tokens are case-sensitive, so this one is
+ * matched exactly as written, never lowercased.
+ */
+const IDEA_PATH = /^\/(i\/[A-Za-z0-9_-]{8,40}|idea(\/mine)?)$/;
+
 /** The path to come back to, or null for anything that isn't the queue or a card. */
 export function returnPath(raw: unknown): string | null {
   if (typeof raw !== "string") return null;
+  if (IDEA_PATH.test(raw.trim())) return raw.trim();
   const path = raw.trim().toLowerCase();
   return CARD_PATH.test(path) ? path : null;
 }

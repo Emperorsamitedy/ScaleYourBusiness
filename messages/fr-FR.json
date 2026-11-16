@@ -9707,7 +9707,9 @@
       "button": "Garder cette idée",
       "signIn": "Connectez-vous d’abord, puis revenez sur cette page pour la garder.",
       "signInLink": "Se connecter",
-      "already": "Cette idée est déjà dans votre compte."
+      "already": "Cette idée est déjà dans votre compte.",
+      "label": "Idée : {type} · {place}",
+      "signInBack": "Connectez-vous : vous reviendrez ici pour la garder."
     },
     "mine": {
       "title": "Votre idée",
