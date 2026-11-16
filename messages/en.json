@@ -10301,7 +10301,7 @@
         "undo": "Undo",
         "undoWhy": "Each change says how to reverse it before you approve.",
         "labelled": "Labelled",
-        "labelledWhy": "Everything the AI makes is labelled as AI-made."
+        "labelledWhy": "Everything the AI makes for your business is labelled as AI-made."
       },
       "waiting": "{count, plural, one {# waiting} other {# waiting}}",
       "priceChange": "Price change",

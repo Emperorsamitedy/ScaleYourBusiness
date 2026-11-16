@@ -10301,7 +10301,7 @@
         "undo": "Annuler",
         "undoWhy": "Chaque changement indique comment revenir en arrière avant que vous validiez.",
         "labelled": "Étiqueté",
-        "labelledWhy": "Tout ce que l’IA produit est étiqueté comme produit par IA."
+        "labelledWhy": "Tout ce que l’IA produit pour votre entreprise est étiqueté comme produit par IA."
       },
       "waiting": "{count, plural, one {# en attente} many {# en attente} other {# en attente}}",
       "priceChange": "Changement de prix",

@@ -7,8 +7,9 @@
 // decision, the market view, the Trust Ladder, the client book and the
 // free check — drawn the way the app draws them.
 //
-// The store is fictional and labelled so (lib/marketing/landing-v2.ts);
-// the footage is AI-generated and labelled so. Words are the
+// The store is fictional and its figures say "Demo data"
+// (lib/marketing/landing-v2.ts); the footage is AI-generated and carries
+// no on-page label, by the owner's decision (2026-11-16). Words are the
 // "landingV2" catalogue (a few are the first landing's, reused word for
 // word); every figure is formatted here in the reader's language and
 // never typed into a message. Plan prices are the price book's, passed
@@ -1082,9 +1083,6 @@ export function LandingV2({ prices }: { prices: V2Prices }) {
       </main>
       <footer className="ft">
         <span>ScaleX · {first("foot.company")}</span>
-        {/* The page's own "Labelled" card promises that AI-made work says so:
-            the footage's label lives here, not over the page (owner, 2026-11-16). */}
-        <span>{tr("aiLabel")}</span>
         <span>
           <Link href="/terms">{first("foot.terms")}</Link> ·{" "}
           <Link href="/privacy">{first("foot.privacy")}</Link>

@@ -10301,7 +10301,7 @@
         "undo": "Deshacer",
         "undoWhy": "Cada cambio indica cómo revertirlo antes de su aprobación.",
         "labelled": "Etiquetado",
-        "labelledWhy": "Todo lo que crea la IA lleva la etiqueta de creado por IA."
+        "labelledWhy": "Todo lo que la IA crea para su negocio lleva la etiqueta de creado por IA."
       },
       "waiting": "{count, plural, one {# pendiente} many {# pendientes} other {# pendientes}}",
       "priceChange": "Cambio de precio",
