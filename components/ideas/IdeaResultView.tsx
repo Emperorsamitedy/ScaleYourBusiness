@@ -289,7 +289,9 @@ export function IdeaResultView({
       )}
       {result.margin && <SectorP line={result.margin} kind="margin" tr={tr} f={f} />}
       {result.per_person && <SectorP line={result.per_person} kind="perPerson" tr={tr} f={f} />}
-      <p className="auth-copy idea-note">{tr("result.sources")}</p>
+      <p className="auth-copy idea-note">
+        {tr("result.sources", { datasets: "bd_9bd_sz_cl_r2, sbs_sc_ovw" })}
+      </p>
     </section>
   );
 }

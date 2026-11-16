@@ -9560,9 +9560,8 @@
     },
     "ramp": {
       "1": "Alrededor de un mes",
-      "3": "Alrededor de 3 meses",
-      "6": "Alrededor de 6 meses",
-      "12": "Alrededor de un año"
+      "12": "Alrededor de un año",
+      "months": "Alrededor de {count, plural, one {# mes} many {# meses} other {# meses}}"
     },
     "result": {
       "label": "Tu idea, con los números hechos",
@@ -9636,7 +9635,7 @@
         "below": "por debajo",
         "same": "más o menos igual"
       },
-      "sources": "Cifras de mercado: Eurostat (bd_9bd_sz_cl_r2, sbs_sc_ovw). Eurostat no es responsable de estos usos de sus datos."
+      "sources": "Cifras de mercado: Eurostat ({datasets}). Eurostat no es responsable de estos usos de sus datos."
     },
     "share": "Compartir esta revisión",
     "copied": "Enlace copiado",

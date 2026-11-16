@@ -9560,9 +9560,8 @@
     },
     "ramp": {
       "1": "Nagyjából egy hónap",
-      "3": "Nagyjából 3 hónap",
-      "6": "Nagyjából 6 hónap",
-      "12": "Nagyjából egy év"
+      "12": "Nagyjából egy év",
+      "months": "Nagyjából {count, plural, one {# hónap} other {# hónap}}"
     },
     "result": {
       "label": "Az ötleted, végigszámolva",
@@ -9636,7 +9635,7 @@
         "below": "alacsonyabb",
         "same": "nagyjából ugyanannyi"
       },
-      "sources": "Piaci adatok: Eurostat (bd_9bd_sz_cl_r2, sbs_sc_ovw). Az Eurostat nem felelős az adatai ilyen felhasználásáért."
+      "sources": "Piaci adatok: Eurostat ({datasets}). Az Eurostat nem felelős az adatai ilyen felhasználásáért."
     },
     "share": "Ellenőrzés megosztása",
     "copied": "Link másolva",
