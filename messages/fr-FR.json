@@ -2078,7 +2078,8 @@
         "meta_publish": "Publication Meta (Page Facebook et Instagram)",
         "meta_ads": "Gestion des publicités Meta",
         "email_campaign": "E-mail de campagne",
-        "google_business_reviews": "Avis de la Fiche d’établissement Google"
+        "google_business_reviews": "Fiche d’établissement Google",
+        "shopify_write": "Modifications de la boutique Shopify"
       },
       "status": {
         "connected": "connecté",
@@ -2163,10 +2164,16 @@
         "resume_adset": "Relancer un ensemble de publicités en pause.",
         "pause_adset": "Mettre en pause un ensemble de publicités en cours.",
         "resume_ad": "Relancer une publicité en pause.",
-        "pause_ad": "Mettre en pause une publicité en cours."
+        "pause_ad": "Mettre en pause une publicité en cours.",
+        "update_page_body": "Remplacer les mots approuvés sur l’une des pages de votre boutique ; l’annulation rétablit la page tant qu’elle est encore telle que ScaleX l’a laissée.",
+        "create_bundle": "Créer la paire approuvée comme un seul produit groupé au prix plein des deux articles ; l’annulation l’archive, sans jamais le supprimer.",
+        "set_variant_price": "Baisser le prix d’un article qui se vend lentement de la part approuvée, en affichant l’ancien prix comme prix barré ; l’annulation rétablit les deux."
       },
       "readback": "Pour voir les résultats de chaque publication, le même jeton lit aussi :",
       "ownApp": "Ou : configurez votre propre application Meta",
+      "ownAppFor": {
+        "shopify_write": "Configurez l’application de modifications de la boutique dans Shopify"
+      },
       "ownAppSteps": {
         "meta_publish": {
           "s0": "Dans Meta Business Suite, vérifiez que votre Page Facebook et son compte Instagram se trouvent tous deux dans votre portefeuille business.",
@@ -2181,6 +2188,12 @@
           "s2": "Ajoutez à l’application le cas d’usage Marketing API.",
           "s3": "Dans les paramètres de votre entreprise, ajoutez un utilisateur système, attribuez-lui votre compte publicitaire, et générez pour votre application un jeton avec exactement l’autorisation listée ci-dessus — pas plus.",
           "s4": "Collez ici le jeton avec l’ID du compte publicitaire indiqué dans le Gestionnaire de publicités."
+        },
+        "shopify_write": {
+          "s0": "Dans le Dev Dashboard de Shopify, créez une deuxième application pour votre boutique : pas celle avec laquelle ScaleX lit, qui ne doit garder que des droits de lecture.",
+          "s1": "Donnez-lui exactement les autorisations indiquées ci-dessus, write_products et write_online_store_pages, et aucune autre.",
+          "s2": "Installez-la sur votre boutique.",
+          "s3": "Collez ici l’adresse myshopify.com de votre boutique ainsi que l’ID client et le secret client de la nouvelle application."
         }
       },
       "field": {
@@ -2206,6 +2219,20 @@
           "ad_account_id": {
             "label": "ID du compte publicitaire",
             "placeholder": "ID du compte publicitaire, avec ou sans act_"
+          }
+        },
+        "shopify_write": {
+          "shop": {
+            "label": "adresse de la boutique",
+            "placeholder": "votre-boutique.myshopify.com"
+          },
+          "client_id": {
+            "label": "ID client",
+            "placeholder": "ID client"
+          },
+          "client_secret": {
+            "label": "secret client",
+            "placeholder": "Secret client"
           }
         }
       },
@@ -2364,8 +2391,8 @@
       "googleScreen": "Google affiche ensuite son propre écran et vous interroge sur cette seule autorisation. Accordez-la, puis revenez ici.",
       "typeToConfirm": "Pour confirmer, saisissez <b>{phrase}</b>",
       "opening": "Ouverture de Google…",
-      "signIn": "Se connecter avec Google et autoriser la lecture des avis",
-      "nothingWritten": "La connexion enregistre votre consentement et lit vos avis une fois par jour. ScaleX ne répond jamais et ne modifie jamais votre fiche : il ne fait que lire depuis Google.",
+      "signIn": "Se connecter avec Google et autoriser les réponses et les horaires",
+      "nothingWritten": "La connexion enregistre votre consentement et lit vos avis une fois par jour. ScaleX ne publie une réponse ou ne change vos horaires qu’après que vous avez validé ce changement précis, et ne modifie rien d’autre sur votre fiche.",
       "reason": {
         "start_here": "Lancez la connexion avec Google depuis l’écran Connexions de ScaleX, avec le bouton qui s’y trouve. Rien n’a été envoyé à Google.",
         "signed_out": "Connectez-vous d’abord à ScaleX, puis reconnectez Google.",
@@ -3903,7 +3930,18 @@
       "draft": "Rédiger l’e-mail",
       "dontSend": "Je ne l’envoie pas. Copiez-le dans votre propre e-mail à leur intention.",
       "copied": "Copié",
-      "copy": "Copier le texte"
+      "copy": "Copier le texte",
+      "draftedSend": "Rédigé. Lisez-le, donnez-lui un objet et validez-le : je l'envoie ensuite.",
+      "subject": "Objet",
+      "approveSend": "Valider et envoyer",
+      "adds": "À l'envoi, ScaleX ajoute son prénom dans la salutation, l'adresse de votre entreprise si elle est enregistrée, et un lien de désinscription. La mention IA figure déjà dans le texte. Son consentement est revérifié à l'envoi, et les réponses vous parviennent.",
+      "sentOn": "Envoyé le {date}.",
+      "waiting": "Validé. Il part dès que l'envoi est activé ; d'ici là, rien n'est envoyé.",
+      "ready": "Validé. Il part au prochain passage, dans l'heure.",
+      "unconfirmed": "Le service d'e-mail ne l'a jamais confirmé, donc ScaleX ne le renverra pas. Vérifiez vos e-mails envoyés ou demandez-leur.",
+      "notSent": "Non envoyé : {why}",
+      "sentNow": "Envoyé.",
+      "heldNow": "Validé. Il attend que l'envoi soit activé."
     },
     "due": {
       "label": "Probablement gagnées d’ici le {date}",
@@ -3999,7 +4037,12 @@
         "pending": "en attente de votre décision",
         "blocked": "bloquée par votre règle",
         "rejected": "refusée",
-        "changes_requested": "modifications demandées"
+        "changes_requested": "modifications demandées",
+        "sent": "envoyé",
+        "waiting": "validé, en attente d'envoi",
+        "ready": "part au prochain passage",
+        "unconfirmed": "non confirmé",
+        "notSent": "non envoyé"
       }
     },
     "how": "Comment ça marche",
@@ -4069,7 +4112,18 @@
       "removing": "Suppression…",
       "removeYes": "Oui, le supprimer",
       "keep": "Le garder",
-      "remove": "Supprimer cet avis"
+      "remove": "Supprimer cet avis",
+      "postGoogle": "Valider et publier sur Google",
+      "posting": "Publication…",
+      "postNote": "ScaleX publie exactement ce texte sous l’avis, terminé par « Written with AI assistance. », et peut le retirer si vous changez d’avis.",
+      "notGoogle": "ScaleX ne peut pas publier sur {site} : il n’a aucun moyen d’y répondre. Copiez la réponse et publiez-la vous-même.",
+      "reconnect": "Pour que ScaleX publie des réponses sur Google, reconnectez votre Fiche d’établissement dans Connexions.",
+      "postState": {
+        "waiting": "Approuvée. Elle paraîtra sur Google au premier passage après l’activation des changements réels.",
+        "posted": "Publiée sur Google.",
+        "failed": "Google ne l’a pas acceptée. Rien n’a été publié.",
+        "withdrawn": "Retirée de Google."
+      }
     },
     "forwarding": {
       "label": "Transfert",
@@ -4094,7 +4148,7 @@
       "connected": "ScaleX lit vos avis une fois par jour et classe ici les nouveaux, à côté de ceux que vous transférez. Un même avis arrivé par les deux voies n’apparaît qu’une fois.",
       "lastRead": "Dernière lecture le {day}.",
       "before": "Avant que cela puisse fonctionner",
-      "whatItCanDo": "L’autorisation de Google permet aussi de publier des réponses à vos avis et de modifier votre Fiche d’établissement. ScaleX ne s’en sert que pour lire vos avis. Vous pouvez la révoquer à tout moment.",
+      "whatItCanDo": "L’autorisation de Google permet aussi de publier des réponses à vos avis et de modifier votre Fiche d’établissement. ScaleX lit vos avis avec elle, et ne publie une réponse ou ne change vos horaires qu’après que vous avez validé ce changement précis. Vous pouvez la révoquer à tout moment.",
       "notSetUp": "Pas encore configuré. Google ne laisse des applications lire les avis des Fiches d’établissement qu’après les avoir approuvées, et l’accord de Google pour ScaleX n’est pas encore obtenu. D’ici là, transférez les e-mails d’avis de Google ou collez un avis.",
       "needs": {
         "approval": "L’accord de Google permettant à ScaleX d’utiliser les API de la Fiche d’établissement (l’examen de ScaleX par Google lui-même).",
@@ -6443,7 +6497,7 @@
       "bundleShop": "Valider enregistre votre oui. Je ne modifie ni votre boutique, ni vos prix, ni votre page de paiement : c’est vous qui mettez la paire en place.",
       "bundleBookings": "Valider enregistre votre oui. Je ne modifie ni votre système de réservation ni vos prix : c’est vous qui proposez la paire.",
       "segment": "Rien n’est envoyé à la validation. Valider me permet de rédiger l’e-mail ; rien ne part tant que vous n’avez pas validé l’e-mail terminé lui-même, et le consentement de chaque destinataire est alors vérifié de nouveau au moment de l’envoi.",
-      "followUp": "Rien n’est envoyé, ni maintenant ni à la validation. Valider me permet de rédiger l’e-mail ; vous le lisez, modifiez ce que vous voulez et l’envoyez vous-même depuis votre propre messagerie.",
+      "followUp": "Valider me permet de rédiger l’e-mail. Vous le lisez et validez cet e-mail précis, puis je l’envoie depuis le service d’e-mail de ScaleX au nom de votre entreprise, les réponses vous étant adressées. Son consentement est vérifié à nouveau au moment de l’envoi.",
       "stockContent": "Valider me permet de la rédiger dans Contenus. Rien n’est publié tant que vous n’avez pas validé la publication terminée elle-même.",
       "stockPair": "Valider enregistre votre oui. Je ne modifie pas votre boutique : c’est vous qui mettez la paire en place.",
       "stockPrices": "Valider enregistre votre oui. Je ne modifie pas vos prix : c’est vous qui le faites.",
@@ -8677,7 +8731,7 @@
       "meta_publish": "Publication Meta (Page Facebook et Instagram)",
       "meta_ads": "Gestion des publicités Meta",
       "email_campaign": "E-mail de campagne",
-      "google_business_reviews": "Avis de la Fiche d’établissement Google"
+      "google_business_reviews": "Fiche d’établissement Google"
     },
     "part": {
       "extra": "{scopes} accordé, que le consentement ne mentionne pas (une autorisation de trop est un refus, pas un bonus)",
@@ -9268,6 +9322,7 @@
       "tiktok_ads": "Publicités TikTok",
       "google_ads": "Google Ads",
       "email_campaign": "E-mails à vos contacts",
+      "followup_email": "Relances des affaires en sommeil",
       "purchase_order": "Commandes aux fournisseurs",
       "google_business_reviews": "Réponses aux avis Google"
     },

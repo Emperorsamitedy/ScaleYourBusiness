@@ -112,7 +112,7 @@ describe("I-45a — who may grant", () => {
     arm(true);
     await member("manager");
     const start = await startPOST(
-      form("/api/connections/google-business/start", { confirmation: "allow reading reviews" }),
+      form("/api/connections/google-business/start", { confirmation: "allow replies and hours" }),
     );
     expect(start.status).toBe(303);
     expect(start.headers.get("location")).toBe(
@@ -141,7 +141,7 @@ describe("I-45a — who may grant", () => {
     arm(true);
     await member("owner");
     const res = await startPOST(
-      form("/api/connections/google-business/start", { confirmation: "allow reading reviews" }),
+      form("/api/connections/google-business/start", { confirmation: "allow replies and hours" }),
     );
     expect(res.status).toBe(303);
     const to = new URL(res.headers.get("location") ?? "");
@@ -181,10 +181,10 @@ describe("I-45a — unconfigured", () => {
     expect(view).toMatchObject({ configured: false, connection: null, pick: null });
     expect(String(view.not_set_up)).toMatch(/^Not set up yet\./);
     expect(String(view.what_it_can_do)).toMatch(
-      /can also post replies to your reviews and edit your Business Profile listing\. ScaleX only reads your reviews with it\. You can revoke it any time\./,
+      /can also post replies to your reviews and edit your Business Profile listing\. ScaleX reads your reviews with it, and posts a reply or changes your opening hours only after you approve that exact change\. You can revoke it any time\./,
     );
     const res = await startPOST(
-      form("/api/connections/google-business/start", { confirmation: "allow reading reviews" }),
+      form("/api/connections/google-business/start", { confirmation: "allow replies and hours" }),
     );
     expect(res.headers.get("location")).toContain("reason=unavailable");
   });

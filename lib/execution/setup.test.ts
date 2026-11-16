@@ -27,8 +27,8 @@ afterEach(() => {
 });
 
 describe("P3-20h — what the consent screen offers", () => {
-  it("offers the two Meta consents and never a fixture", () => {
-    expect([...OFFERED_EXECUTION]).toEqual(["meta_publish", "meta_ads"]);
+  it("offers the two Meta consents and Shopify store changes (D6), never a fixture", () => {
+    expect([...OFFERED_EXECUTION]).toEqual(["meta_publish", "meta_ads", "shopify_write"]);
     for (const id of OFFERED_EXECUTION) expect(EXECUTION_SETUP[id]).toBeDefined();
   });
 

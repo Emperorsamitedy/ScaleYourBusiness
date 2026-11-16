@@ -154,7 +154,7 @@ describe("I-45a — starting the sign-in", () => {
     const { authorize_url, nonce } = await startGoogleLogin({
       accountId: s.account_id,
       profileId: s.profile_id,
-      confirmation: " Allow Reading Reviews ",
+      confirmation: " Allow Replies And Hours ",
       config: CONFIG,
     });
     const u = new URL(authorize_url);
@@ -355,7 +355,7 @@ describe("I-45a — the consent, recorded like Meta's", () => {
       fetchImpl: fakeGoogle().fetch,
     };
     await expect(consentToGoogleReviews({ ...args, confirmation: "ok" })).rejects.toThrow(
-      /type "allow reading reviews"/,
+      /type "allow replies and hours"/,
     );
     await expect(
       consentToGoogleReviews({ ...args, profileId: other.profile_id }),
@@ -385,17 +385,16 @@ describe("I-45a — revoke", () => {
   });
 });
 
-describe("I-45a — the executor executes nothing", () => {
-  it("refuses every op, before and at execution", async () => {
+describe("I-45a lifted — the executor runs only its two ops", () => {
+  it("refuses an op it doesn't have, before and at execution, and captures nothing for it", async () => {
     const ctx = { profile_id: "p", account_id: "a" };
-    expect(await googleBusinessExecutor.preflight?.("reply", {}, ctx)).toMatchObject({
+    expect(await googleBusinessExecutor.preflight?.("edit_listing", {}, ctx)).toMatchObject({
       code: "refused",
     });
-    await expect(googleBusinessExecutor.execute("reply", {}, ctx)).rejects.toThrow(
-      /never writes to Google Business Profile/,
+    await expect(googleBusinessExecutor.execute("edit_listing", {}, ctx)).rejects.toThrow(
+      /not a change ScaleX makes on Google/,
     );
-    await expect(googleBusinessExecutor.captureUndo("reply", {}, ctx)).rejects.toThrow();
-    await expect(googleBusinessExecutor.undo("reply", {}, ctx)).rejects.toThrow();
+    expect(await googleBusinessExecutor.captureUndo("edit_listing", {}, ctx)).toBeNull();
   });
 });
 

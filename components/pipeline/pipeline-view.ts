@@ -145,9 +145,16 @@ export function followUpWord(
     status: string;
     draft: unknown;
     blocked_by_limit: string | null;
+    /** P5-16b: where the send stands, once the exact email is approved. */
+    send?: "ready" | "waiting" | "sent" | "unconfirmed" | "not_sent" | null;
   },
   tr: Tr = ENGLISH().tr,
 ): { word: string; tone: FollowUpTone } {
+  if (f.send === "sent") return { word: tr("view.follow.sent"), tone: "ok" };
+  if (f.send === "unconfirmed") return { word: tr("view.follow.unconfirmed"), tone: "alarm" };
+  if (f.send === "not_sent") return { word: tr("view.follow.notSent"), tone: "low" };
+  if (f.send === "waiting") return { word: tr("view.follow.waiting"), tone: "drift" };
+  if (f.send === "ready") return { word: tr("view.follow.ready"), tone: "ok" };
   if (f.status === "approved" || f.status === "executed") {
     return f.draft
       ? { word: tr("view.follow.drafted"), tone: "ok" }

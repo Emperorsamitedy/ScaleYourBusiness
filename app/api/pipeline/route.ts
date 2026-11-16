@@ -9,12 +9,15 @@
 //        P4-03's attestation: new contacts land under the owner's own statement
 //   POST /api/pipeline {action:"propose_followups"}         stale deals → the approval queue
 //   POST /api/pipeline {action:"draft_followup", proposal_id}  an approved follow-up → its draft
+//   POST /api/pipeline {action:"approve_followup_email", proposal_id, subject, body_sha256}
+//        P5-16b: the owner approves the exact email, and it goes through the engine
 //
 // Reading needs the intake cookie; every write needs a signed-in user. A
 // business that sells only to consumers (PIPELINE_APPLIES, a condition over
 // 6.1a) gets `applies: false` and nothing else, and every write is refused.
-// Nothing here sends anything: a follow-up is a draft the owner sends
-// themselves (rule 29).
+// P5-16b (rule 29 amended 2026-11-16): an approved follow-up whose exact email
+// the owner approved is sent by SYB, through the engine, with the contact's
+// consent checked again as it goes; held while real sending is switched off.
 
 import { type NextRequest, NextResponse } from "next/server";
 import { matchingSession, resolveAccess } from "../../../lib/auth/access";
@@ -42,6 +45,11 @@ import {
   followUpsFor,
   proposeFollowUps,
 } from "../../../lib/pipeline/followups";
+import {
+  FollowUpSendError,
+  approveFollowUpEmail,
+  sendFollowUpNow,
+} from "../../../lib/pipeline/followup-send";
 import { importDeals } from "../../../lib/pipeline/import";
 import { pipelineClaims } from "../../../lib/forecasts/claims";
 import { recordForecastsQuietly } from "../../../lib/forecasts/record";
@@ -119,6 +127,7 @@ export interface PipelineView {
 function onError(error: unknown, accountId: string | null): NextResponse {
   if (
     error instanceof DealError ||
+    error instanceof FollowUpSendError ||
     error instanceof ContactError ||
     error instanceof ProposalError
   ) {
@@ -262,6 +271,7 @@ const PIPELINE_ROLE: Record<string, RoleAction> = {
   import: "data.import",
   propose_followups: "proposals.generate",
   draft_followup: "content.draft",
+  approve_followup_email: "proposals.decide",
 };
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
@@ -374,11 +384,35 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         });
         return NextResponse.json({ draft_id: draft.id, fresh }, { status: fresh ? 201 : 200 });
       }
+      case "approve_followup_email": {
+        if (
+          typeof body.proposal_id !== "string" ||
+          typeof body.subject !== "string" ||
+          typeof body.body_sha256 !== "string"
+        ) {
+          return NextResponse.json(
+            { error: "proposal_id, subject and body_sha256 are required" },
+            { status: 422 },
+          );
+        }
+        await approveFollowUpEmail({
+          profileId: access.profile_id,
+          proposalId: body.proposal_id,
+          userId: session.user_id,
+          subject: body.subject,
+          bodySha256: body.body_sha256,
+        });
+        const sent = await sendFollowUpNow({
+          profileId: access.profile_id,
+          proposalId: body.proposal_id,
+        });
+        return NextResponse.json({ approved: true, ...sent });
+      }
       default:
         return NextResponse.json(
           {
             error:
-              'action must be "add", "update", "import", "propose_followups" or "draft_followup"',
+              'action must be "add", "update", "import", "propose_followups", "draft_followup" or "approve_followup_email"',
           },
           { status: 422 },
         );

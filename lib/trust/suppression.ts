@@ -32,8 +32,11 @@ export async function suppressedKinds(profileId: string): Promise<Map<string, Su
 
   const byKind = new Map<string, SuppressedKind>();
   for (const row of rows) {
-    const kind = (row.action as { kind?: string }).kind;
+    const action = row.action as { kind?: string; detail?: { revert_of?: unknown } };
+    const kind = action.kind;
     if (typeof kind !== "string") continue;
+    // Declining to put a trial's hours back is keeping them — not a no to trials.
+    if (action.detail?.revert_of !== undefined) continue;
     const entry = byKind.get(kind) ?? { kind, rejections: 0, reasons: [] };
     entry.rejections += 1;
     if (row.reason) entry.reasons.push(row.reason);

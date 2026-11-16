@@ -8,6 +8,7 @@ import { db } from "../../db";
 import { reviews } from "../../db/schema";
 import { googleBusinessEnv, supportInboundDomain } from "../env";
 import { activeExecutionConnection } from "../execution/connections";
+import { googleWriteConsentCurrent } from "../google-business/consent";
 import { googleReadWords } from "../google-business/reasons";
 import { GOOGLE_NEEDS, GOOGLE_NOT_SET_UP, GOOGLE_WHAT_IT_CAN_DO } from "../google-business/words";
 import type { Tr } from "../i18n/tr";
@@ -17,6 +18,8 @@ import type { ReviewPlatformKey } from "../reviews/parse";
 import { PLATFORM_LABELS, REVIEW_PLATFORMS } from "../reviews/parse";
 import { REVIEW_RETENTION_DAYS, pruneExpiredReviews } from "../reviews/store";
 import { REVIEW_DRAFTS_PER_REVIEW } from "./draft";
+import type { ReplyState } from "./post";
+import { googleReviewName, replyStates } from "./post";
 import { ensureReviewSettings } from "./settings";
 
 /** The most reviews the screen lists, newest first. */
@@ -36,6 +39,8 @@ export interface ReviewItem {
   worth_knowing: boolean;
   draft: string | null;
   drafts_left: number;
+  /** I-45a lifted: a Google review ScaleX may post a reply under, and that reply's state. */
+  post: { can: boolean; state: ReplyState | null };
 }
 
 export interface ReviewsView {
@@ -52,6 +57,8 @@ export interface ReviewsView {
     connected: boolean;
     /** The connection is there but Google stopped accepting it. */
     failed: boolean;
+    /** I-45a lifted: the connection's consent covers posting replies. False = reconnect to allow it. */
+    can_post: boolean;
     location_title: string | null;
     last_read: { at: string; words: string | null } | null;
     what_it_can_do: string;
@@ -87,6 +94,8 @@ export async function loadReviewsView(
   const domain = supportInboundDomain();
   const google = await activeExecutionConnection(settings.account_id, "google_business_reviews");
   const googleConfigured = googleBusinessEnv() !== null;
+  const canPost = google !== null && (await googleWriteConsentCurrent(settings.account_id));
+  const states = await replyStates(profileId);
   return {
     today: now.toISOString().slice(0, 10),
     forwarding: {
@@ -98,6 +107,7 @@ export async function loadReviewsView(
       configured: googleConfigured,
       connected: google !== null,
       failed: google?.status === "failed",
+      can_post: canPost,
       location_title: google ? settings.google_location_title : null,
       last_read:
         google && settings.google_read_at
@@ -126,6 +136,7 @@ export async function loadReviewsView(
         worth_knowing: r.worth_knowing,
         draft: r.draft,
         drafts_left: Math.max(0, REVIEW_DRAFTS_PER_REVIEW - r.draft_calls),
+        post: { can: canPost && googleReviewName(r) !== null, state: states.get(r.id) ?? null },
       };
     }),
     platforms: [...REVIEW_PLATFORMS, "other" as const].map((key) => ({

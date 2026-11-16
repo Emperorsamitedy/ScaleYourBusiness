@@ -2078,7 +2078,8 @@
         "meta_publish": "Meta-közzététel (Facebook-oldal és Instagram)",
         "meta_ads": "Meta-hirdetéskezelés",
         "email_campaign": "Kampány-e-mail",
-        "google_business_reviews": "Google Cégprofil-értékelések"
+        "google_business_reviews": "Google Cégprofil",
+        "shopify_write": "Shopify-bolt módosításai"
       },
       "status": {
         "connected": "összekapcsolva",
@@ -2163,10 +2164,16 @@
         "resume_adset": "Egy szüneteltetett hirdetéssorozat folytatása.",
         "pause_adset": "Egy futó hirdetéssorozat szüneteltetése.",
         "resume_ad": "Egy szüneteltetett hirdetés folytatása.",
-        "pause_ad": "Egy futó hirdetés szüneteltetése."
+        "pause_ad": "Egy futó hirdetés szüneteltetése.",
+        "update_page_body": "A jóváhagyott szavak cseréje a bolt egyik oldalán; a visszavonás visszaállítja az oldalt, amíg az még úgy áll, ahogy a ScaleX hagyta.",
+        "create_bundle": "A jóváhagyott pár létrehozása egyetlen csomagtermékként a két termék teljes árán; a visszavonás archiválja, soha nem törli.",
+        "set_variant_price": "Egy jóváhagyott, lassan fogyó termék leárazása a jóváhagyott arányban, a régi árat összehasonlító árként mutatva; a visszavonás mindkettőt visszaállítja."
       },
       "readback": "Hogy lássa, hogyan teljesítenek a bejegyzések, ugyanez a token ezeket is beolvassa:",
       "ownApp": "Vagy: állítsa be a saját Meta-alkalmazását",
+      "ownAppFor": {
+        "shopify_write": "Állítsa be a boltmódosító alkalmazást a Shopifyban"
+      },
       "ownAppSteps": {
         "meta_publish": {
           "s0": "A Meta Business Suite-ban ellenőrizze, hogy a Facebook-oldala és a hozzá tartozó Instagram-fiók is az üzleti portfóliójában van.",
@@ -2181,6 +2188,12 @@
           "s2": "Adja hozzá az alkalmazáshoz a Marketing API felhasználási esetet.",
           "s3": "Az üzleti beállításaiban adjon hozzá egy rendszerfelhasználót, adja meg neki a hirdetési fiókját, és generáljon tokent az alkalmazásához pontosan a fent felsorolt engedéllyel — se többel.",
           "s4": "Illessze be ide a tokent az Ads Managerben látható hirdetésifiók-azonosítóval együtt."
+        },
+        "shopify_write": {
+          "s0": "A Shopify Dev Dashboardjában hozzon létre egy második alkalmazást a boltjához: ne azt, amellyel a ScaleX olvas, mert annak csak olvasási jogosultsága maradhat.",
+          "s1": "Adja meg neki pontosan a fent felsorolt jogosultságokat, a write_products és a write_online_store_pages jogosultságot, és semmi mást.",
+          "s2": "Telepítse a boltjára.",
+          "s3": "Illessze be ide a bolt myshopify.com-os címét, valamint az új alkalmazás ügyfél-azonosítóját és ügyféltitkát."
         }
       },
       "field": {
@@ -2206,6 +2219,20 @@
           "ad_account_id": {
             "label": "hirdetési fiók azonosítója",
             "placeholder": "Hirdetési fiók azonosítója, act_ előtaggal vagy anélkül"
+          }
+        },
+        "shopify_write": {
+          "shop": {
+            "label": "bolt címe",
+            "placeholder": "az-on-boltja.myshopify.com"
+          },
+          "client_id": {
+            "label": "ügyfél-azonosító",
+            "placeholder": "Ügyfél-azonosító"
+          },
+          "client_secret": {
+            "label": "ügyféltitok",
+            "placeholder": "Ügyféltitok"
           }
         }
       },
@@ -2364,8 +2391,8 @@
       "googleScreen": "Ezután a Google megjeleníti a saját képernyőjét, és erre az egy engedélyre kérdez rá. Engedélyezze, és térjen vissza ide.",
       "typeToConfirm": "A megerősítéshez írja be: <b>{phrase}</b>",
       "opening": "A Google megnyitása…",
-      "signIn": "Bejelentkezés Google-fiókkal és az értékelések olvasásának engedélyezése",
-      "nothingWritten": "Az összekapcsolás rögzíti a hozzájárulását, és naponta egyszer beolvassa az értékeléseit. A ScaleX soha nem válaszol, és soha nem szerkeszti az adatlapját: csak olvas a Google-ból.",
+      "signIn": "Bejelentkezés Google-fiókkal, válaszok és nyitvatartás engedélyezése",
+      "nothingWritten": "Az összekapcsolás rögzíti a hozzájárulását, és naponta egyszer beolvassa az értékeléseit. A ScaleX csak azután tesz közzé választ vagy módosítja a nyitvatartását, hogy Ön jóváhagyta pontosan azt a változást, és semmi mást nem módosít az adatlapján.",
       "reason": {
         "start_here": "Indítsa a Google-bejelentkezést a ScaleX Összekapcsolt fiókok oldaláról, az ott található gombbal. Semmi sem lett elküldve a Google-nak.",
         "signed_out": "A ScaleX-be való bejelentkezés után kapcsolja össze újra a Google-t.",
@@ -3903,7 +3930,18 @@
       "draft": "Az e-mail megfogalmazása",
       "dontSend": "Ezt nem én küldöm el. Másolja be a nekik írt saját e-mailjébe.",
       "copied": "Másolva",
-      "copy": "A szöveg másolása"
+      "copy": "A szöveg másolása",
+      "draftedSend": "Megírtam. Olvassa el, adjon neki tárgysort, és a jóváhagyása után elküldöm.",
+      "subject": "Tárgysor",
+      "approveSend": "Jóváhagyás és küldés",
+      "adds": "Küldéskor a ScaleX beírja a keresztnevét a megszólításba, a vállalkozása címét, ha meg van adva, és egy leiratkozási linket. Az MI-jelölés már benne van a szövegben. A hozzájárulását küldéskor újra ellenőrizzük, a válaszok pedig Önhöz érkeznek.",
+      "sentOn": "Elküldve: {date}.",
+      "waiting": "Jóváhagyva. Amint a küldés be van kapcsolva, elmegy; addig semmi sem megy ki.",
+      "ready": "Jóváhagyva. A következő futáskor megy ki, egy órán belül.",
+      "unconfirmed": "Az e-mail-szolgáltatás ezt nem igazolta vissza, ezért a ScaleX nem küldi el újra. Nézze meg az elküldött leveleit, vagy kérdezzen rá.",
+      "notSent": "Nem ment el: {why}",
+      "sentNow": "Elküldve.",
+      "heldNow": "Jóváhagyva. Vár, amíg a küldés be nem kapcsol."
     },
     "due": {
       "label": "Valószínűleg megnyerve eddig: {date}",
@@ -3999,7 +4037,12 @@
         "pending": "Önre vár",
         "blocked": "az Ön szabálya letiltotta",
         "rejected": "elutasítva",
-        "changes_requested": "módosítást kért"
+        "changes_requested": "módosítást kért",
+        "sent": "elküldve",
+        "waiting": "jóváhagyva, küldésre vár",
+        "ready": "a következő körben megy",
+        "unconfirmed": "nem megerősített",
+        "notSent": "nem ment el"
       }
     },
     "how": "Hogyan működik",
@@ -4069,7 +4112,18 @@
       "removing": "Eltávolítás…",
       "removeYes": "Igen, távolítsa el",
       "keep": "Megtartás",
-      "remove": "Az értékelés eltávolítása"
+      "remove": "Az értékelés eltávolítása",
+      "postGoogle": "Jóváhagyás és közzététel a Google-on",
+      "posting": "Közzététel…",
+      "postNote": "A ScaleX pontosan ezt a szöveget teszi közzé az értékelés alatt, a végén ezzel: „Written with AI assistance.”, és vissza is vonhatja, ha meggondolja magát.",
+      "notGoogle": "A ScaleX nem tud közzétenni itt: {site}, mert ott nincs módja válaszolni. Másolja ki, és tegye közzé Ön.",
+      "reconnect": "Ha szeretné, hogy a ScaleX válaszokat tegyen közzé a Google-on, újítsa meg a Google Cégprofil összekapcsolását a Kapcsolatok oldalon.",
+      "postState": {
+        "waiting": "Jóváhagyva. Az első futáskor kerül a Google-ra, miután a valódi módosítások be vannak kapcsolva.",
+        "posted": "Közzétéve a Google-on.",
+        "failed": "A Google nem fogadta el. Semmi sem jelent meg.",
+        "withdrawn": "Visszavonva a Google-ról."
+      }
     },
     "forwarding": {
       "label": "Továbbítás",
@@ -4094,7 +4148,7 @@
       "connected": "A ScaleX naponta egyszer beolvassa az értékeléseit, és az újakat itt iktatja, a továbbítottak mellett. Ha ugyanaz az értékelés mindkét úton megérkezik, csak egyszer szerepel.",
       "lastRead": "Legutóbb beolvasva: {day}.",
       "before": "Mielőtt működhetne",
-      "whatItCanDo": "A Google-engedéllyel válaszok is közzétehetők az értékeléseire, és szerkeszthető a Cégprofil-adatlapja. A ScaleX ezzel csak olvassa az értékeléseit. Bármikor visszavonhatja.",
+      "whatItCanDo": "A Google-engedéllyel válaszok is közzétehetők az értékeléseire, és szerkeszthető a Cégprofil-adatlapja. A ScaleX ezzel olvassa az értékeléseit, és csak azután tesz közzé választ vagy módosítja a nyitvatartását, hogy Ön jóváhagyta pontosan azt a változást. Bármikor visszavonhatja.",
       "notSetUp": "Még nincs beállítva. A Google csak azután engedi, hogy alkalmazások olvassák a Cégprofil-értékeléseket, hogy jóváhagyta őket, és a ScaleX jóváhagyása még nincs meg. Addig továbbítsa a Google értékelésekről szóló e-mailjeit, vagy illesszen be egy értékelést.",
       "needs": {
         "approval": "A Google jóváhagyása, hogy a ScaleX használhassa a Cégprofil API-kat (a Google saját vizsgálata a ScaleX-ről).",
@@ -6443,7 +6497,7 @@
       "bundleShop": "A jóváhagyás az Ön igenjét rögzíti. Nem módosítom a webáruházát, az árait vagy a pénztárfolyamatát: a párosítást Ön állítja be.",
       "bundleBookings": "A jóváhagyás az Ön igenjét rögzíti. Nem módosítom a foglalási rendszerét vagy az árait: a párosítást Ön kínálja.",
       "segment": "A jóváhagyással semmi sem megy ki. A jóváhagyás után megírhatom az e-mail tervezetét; semmi sem megy ki a kész e-mail jóváhagyásáig, és akkor is minden címzett hozzájárulását újra ellenőrzöm a küldés pillanatában.",
-      "followUp": "Semmi sem megy ki, sem most, sem a jóváhagyáskor. A jóváhagyás után megírom az e-mail tervezetét; Ön elolvassa, módosítja, amit szeretne, és maga küldi el a saját levelezőjéből.",
+      "followUp": "A jóváhagyás után megírom az e-mail tervezetét. Ön elolvassa és jóváhagyja pontosan ezt az e-mailt, majd a ScaleX e-mail-szolgáltatásán keresztül, a vállalkozása nevében elküldöm, a válaszok Önhöz érkeznek. A hozzájárulást a küldés pillanatában újra ellenőrzöm.",
       "stockContent": "A jóváhagyás után a Tartalom oldalon megírom a tervezetet. Semmi sem kerül ki a kész bejegyzés jóváhagyásáig.",
       "stockPair": "A jóváhagyás az Ön igenjét rögzíti. Nem módosítom a webáruházát: a párosítást Ön állítja be.",
       "stockPrices": "A jóváhagyás az Ön igenjét rögzíti. Nem módosítom az árait: azt Ön teszi meg.",
@@ -8677,7 +8731,7 @@
       "meta_publish": "Meta-közzététel (Facebook-oldal és Instagram)",
       "meta_ads": "Meta-hirdetéskezelés",
       "email_campaign": "Kampány-e-mail",
-      "google_business_reviews": "Google Cégprofil-értékelések"
+      "google_business_reviews": "Google Cégprofil"
     },
     "part": {
       "extra": "olyan engedélyt is megadtak, amelyet a hozzájárulás nem nevez meg: {scopes} (egy engedéllyel több elutasítást jelent, nem bónuszt)",
@@ -9268,6 +9322,7 @@
       "tiktok_ads": "TikTok-hirdetések",
       "google_ads": "Google Ads",
       "email_campaign": "E-mailek a kapcsolattartóinak",
+      "followup_email": "Utánkövetés elakadt üzleteknél",
       "purchase_order": "Megrendelések a beszállítóknak",
       "google_business_reviews": "Válaszok a Google-értékelésekre"
     },

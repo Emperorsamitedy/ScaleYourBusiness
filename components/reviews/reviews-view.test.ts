@@ -44,6 +44,7 @@ function item(
     worth_knowing: stars !== null && stars <= 3,
     draft: null,
     drafts_left: 3,
+    post: { can: false, state: null },
     ...over,
   };
 }

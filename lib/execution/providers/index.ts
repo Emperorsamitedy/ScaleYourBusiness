@@ -21,7 +21,9 @@ import { googleAdsExecutor } from "./google-ads";
 import { googleBusinessExecutor } from "./google-business";
 import { metaAdsExecutor, metaPublishExecutor } from "./meta";
 import { purchaseOrderExecutor } from "./purchase-order";
+import { followUpExecutor } from "./followup-email";
 import { tiktokAdsExecutor } from "./tiktok-ads";
+import { shopifyWriteExecutor } from "./shopify";
 import { tiktokPublishExecutor } from "./tiktok";
 
 const PROVIDERS: Readonly<Record<ExecutionProviderId, ExecutionProvider>> = {
@@ -36,10 +38,14 @@ const PROVIDERS: Readonly<Record<ExecutionProviderId, ExecutionProvider>> = {
   google_business_reviews: googleBusinessExecutor,
   // P6-04: an approved purchase order, emailed to its supplier (rule 27 amended).
   purchase_order: purchaseOrderExecutor,
+  // P5-16b: an approved deal follow-up, emailed to its contact (rule 29 amended 2026-11-16).
+  followup_email: followUpExecutor,
   // P2-20 / P3-22: Google Ads — pause, resume, daily budget, each reversible.
   google_ads: googleAdsExecutor,
   // TikTok Ads (2026-11-08): pause, resume and re-budget, the Meta ad ops' TikTok twins.
   tiktok_ads: tiktokAdsExecutor,
+  // D6 (2026-11-16): page words, bundles and markdowns on a Shopify store, each reversible.
+  shopify_write: shopifyWriteExecutor,
 };
 
 export class UnknownExecutionProviderError extends Error {

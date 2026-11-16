@@ -6,10 +6,14 @@
 //   POST /api/reviews {action:"draft", id}    suggest a reply (Sonnet, capped)
 //   POST /api/reviews {action:"remove", id}   remove a review, its reviewer and its draft
 //   POST /api/reviews {action:"rotate"}       a new forwarding address; the old one stops
+//   POST /api/reviews {action:"post", id, text}
+//                                             approve posting THIS reply under a Google
+//                                             review (I-45a lifted 2026-11-16): a
+//                                             proposal and its approval, then the engine
 //
 // Reading needs the intake cookie; every POST needs a signed-in owner and a
-// same-origin POST, as the other owner screens do. Nothing here posts a
-// reply anywhere: SYB writes to no review platform, ever.
+// same-origin POST, as the other owner screens do. Only "post" ever writes to
+// a review platform, only to Google, and only through the engine.
 
 import { type NextRequest, NextResponse } from "next/server";
 import { matchingSession, resolveAccess } from "../../../lib/auth/access";
@@ -21,6 +25,7 @@ import { requestWords } from "../../../lib/i18n/request-words";
 import { draftReviewReply } from "../../../lib/review-desk/draft";
 import { eraseReview } from "../../../lib/review-desk/erase";
 import { pasteReview, readPaste } from "../../../lib/review-desk/paste";
+import { approveGoogleReply } from "../../../lib/review-desk/post";
 import { ReviewDeskError, rotateReviewToken } from "../../../lib/review-desk/settings";
 import type { ReviewsView } from "../../../lib/review-desk/view";
 import { loadReviewsView } from "../../../lib/review-desk/view";
@@ -52,6 +57,7 @@ export async function GET(): Promise<NextResponse> {
 const REVIEWS_ROLE: Record<string, RoleAction> = {
   paste: "reviews.answer",
   draft: "reviews.answer",
+  post: "reviews.answer",
   remove: "reviews.answer",
   rotate: "reviews.settings",
 };
@@ -62,7 +68,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   }
   const access = await resolveAccess();
   if (!access) return NextResponse.json({ error: "no intake session" }, { status: 401 });
-  if (!(await matchingSession())) {
+  const session = await matchingSession();
+  if (!session) {
     return NextResponse.json({ error: "this needs you signed in" }, { status: 401 });
   }
   const body = (await request.json().catch(() => ({}))) as Record<string, unknown>;
@@ -85,6 +92,19 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         return NextResponse.json(
           out.drafted ? { drafted: true } : { drafted: false, message: out.message },
         );
+      }
+      case "post": {
+        if (!id) return NextResponse.json({ error: "which review?" }, { status: 422 });
+        if (typeof body.text !== "string") {
+          return NextResponse.json({ error: "which words?" }, { status: 422 });
+        }
+        const out = await approveGoogleReply({
+          profileId: access.profile_id,
+          reviewId: id,
+          userId: session.user_id,
+          text: body.text,
+        });
+        return NextResponse.json(out, { status: 201 });
       }
       case "remove": {
         if (!id) return NextResponse.json({ error: "which review?" }, { status: 422 });

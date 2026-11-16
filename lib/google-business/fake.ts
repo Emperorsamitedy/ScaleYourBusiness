@@ -3,9 +3,12 @@
 // follow Google's reference pages as read on 2026-11-01 (see ./client.ts);
 // no real response was captured, because SYB has no approved API access yet.
 //
-// It answers only the four endpoints SYB may call, records every request it
-// is sent (method and URL, never a body), and refuses anything else with a
-// 405, so a test can tell a request that should never have been made.
+// It answers only the endpoints SYB may call, records every request it is
+// sent (method and URL, never a body), and refuses anything else with a 405,
+// so a test can tell a request that should never have been made. Since I-45a
+// was lifted (2026-11-16) it also holds a reply per review and the location's
+// regular hours, and answers the three writes on them: a PUT or DELETE of a
+// reply, and a regularHours PATCH (validateOnly answered empty, unchanged).
 
 import { GBP_SCOPE } from "./client";
 
@@ -37,11 +40,19 @@ export interface FakeGoogleOptions {
   /** The refresh answers invalid_grant: the owner revoked SYB at Google. */
   revoked?: boolean;
   pageSize?: number;
+  /** Replies by review name ("accounts/a/locations/l/reviews/r"). Mutated by the writes. */
+  replies?: Record<string, string>;
+  /** Regular hours periods by location name ("locations/l"). Mutated by the writes. */
+  hours?: Record<string, unknown[]>;
+  /** An HTTP status every write answers with instead (a validateOnly patch too). */
+  writeStatus?: number;
 }
 
 export interface FakeGoogle {
   fetch: (input: string, init: RequestInit) => Promise<Response>;
   requests: { method: string; url: string }[];
+  replies: Record<string, string>;
+  hours: Record<string, unknown[]>;
 }
 
 const json = (status: number, body: unknown) =>
@@ -58,10 +69,63 @@ export function fakeGoogle(opts: FakeGoogleOptions = {}): FakeGoogle {
     },
   ];
   const size = opts.pageSize ?? 50;
+  const replies: Record<string, string> = { ...(opts.replies ?? {}) };
+  const hours: Record<string, unknown[]> = { ...(opts.hours ?? {}) };
   const fetchFake = async (input: string, init: RequestInit): Promise<Response> => {
     const method = (init.method ?? "GET").toUpperCase();
     const u = new URL(input);
     requests.push({ method, url: u.toString() });
+    const reply = /^\/v4\/(accounts\/[^/]+\/locations\/[^/]+\/reviews\/[^/]+)\/reply$/.exec(
+      u.pathname,
+    );
+    if (u.origin === "https://mybusiness.googleapis.com" && reply) {
+      if (opts.writeStatus) return json(opts.writeStatus, { error: { code: opts.writeStatus } });
+      const key = reply[1] as string;
+      if (method === "PUT") {
+        const body = JSON.parse(String(init.body ?? "{}")) as { comment?: string };
+        replies[key] = String(body.comment ?? "");
+        return json(200, { comment: replies[key], updateTime: "2026-11-16T10:00:00Z" });
+      }
+      if (method === "DELETE") {
+        delete replies[key];
+        return json(200, {});
+      }
+      return json(405, { error: { code: 405 } });
+    }
+    const oneReview = /^\/v4\/(accounts\/[^/]+\/locations\/[^/]+\/reviews\/[^/]+)$/.exec(
+      u.pathname,
+    );
+    if (u.origin === "https://mybusiness.googleapis.com" && oneReview && method === "GET") {
+      const key = oneReview[1] as string;
+      return json(200, {
+        name: key,
+        starRating: "TWO",
+        createTime: "2026-11-01T10:00:00Z",
+        ...(key in replies ? { reviewReply: { comment: replies[key] } } : {}),
+      });
+    }
+    const oneLocation = /^\/v1\/(locations\/[^/]+)$/.exec(u.pathname);
+    if (u.origin === "https://mybusinessbusinessinformation.googleapis.com" && oneLocation) {
+      const key = oneLocation[1] as string;
+      if (method === "GET") {
+        if (u.searchParams.get("readMask") !== "regularHours") {
+          return json(400, { error: { code: 400, status: "INVALID_ARGUMENT" } });
+        }
+        return json(200, key in hours ? { regularHours: { periods: hours[key] } } : {});
+      }
+      if (method === "PATCH") {
+        if (opts.writeStatus) return json(opts.writeStatus, { error: { code: opts.writeStatus } });
+        if (u.searchParams.get("updateMask") !== "regularHours") {
+          return json(400, { error: { code: 400, status: "INVALID_ARGUMENT" } });
+        }
+        if (u.searchParams.get("validateOnly") === "true") return new Response("", { status: 200 });
+        const body = JSON.parse(String(init.body ?? "{}")) as {
+          regularHours?: { periods?: unknown[] };
+        };
+        hours[key] = body.regularHours?.periods ?? [];
+        return json(200, { name: key, regularHours: { periods: hours[key] } });
+      }
+    }
     if (
       method === "POST" &&
       u.origin === "https://oauth2.googleapis.com" &&
@@ -145,5 +209,5 @@ export function fakeGoogle(opts: FakeGoogleOptions = {}): FakeGoogle {
     }
     return json(404, { error: { code: 404, status: "NOT_FOUND" } });
   };
-  return { fetch: fetchFake, requests };
+  return { fetch: fetchFake, requests, replies, hours };
 }

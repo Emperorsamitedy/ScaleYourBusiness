@@ -6,9 +6,11 @@
 // shown, not hidden), then suppression learning (P3-28: three declines of a
 // kind silence it, as for every kind), then createProposal, which writes
 // the proposal and its decision-log entry together. Nothing here executes
-// anything (rule 12): there is no executor for a stock proposal, so an
-// approved one waits for the owner to act, and the two that do have a path
-// keep it — a post goes through /content's drafting and its own publish
+// anything (rule 12). A markdown or a pair for an item in a Shopify store
+// connected for changes carries its Shopify ids (shopDetail, D6, owner
+// 2026-11-16) and runs through shopify_write once approved; any other
+// markdown or pair waits for the owner to act, and the two that have their
+// own path keep it — a post goes through /content's drafting and its own publish
 // approval, an email through the campaign path's drafting, the owner's
 // approval of the exact email, and the per-recipient consent check at the
 // moment of sending (P4-14/15).
@@ -49,6 +51,7 @@ import { proposeReorders } from "./reorder";
 import { watchingUntil } from "../care/watch-words";
 import type { Words } from "./words";
 import { englishStock, exactMoney } from "./words";
+import { bundleTitle, shopifyWriteConnected } from "../shop/writes";
 
 export const STOCK_MODULE = "stock";
 
@@ -120,7 +123,7 @@ export async function sharedContext(
 export function bestSellerFor(
   item: RankedItem,
   all: readonly RankedItem[],
-): { name: string; on_hand: number } | null {
+): { name: string; on_hand: number; ref: string } | null {
   const rate = (r: RankedItem) => r.assessment.rate?.per_day ?? 0;
   const candidates = all.filter(
     (r) =>
@@ -131,7 +134,42 @@ export function bestSellerFor(
       rate(r) > 0,
   );
   const best = candidates.sort((a, b) => rate(b) - rate(a))[0];
-  return best ? { name: best.item.name, on_hand: best.item.on_hand } : null;
+  return best ? { name: best.item.name, on_hand: best.item.on_hand, ref: best.item.ref } : null;
+}
+
+const SHOPIFY_PRODUCT = /^gid:\/\/shopify\/Product\/\d+$/;
+
+/**
+ * D6 (2026-11-16): what a markdown or a pair carries when the item is in a
+ * Shopify store connected for changes — the ids lib/shop/writes routes to
+ * shopify_write, and the words that say it happens on approval. Empty
+ * otherwise: the option stays the owner's to carry out, as before.
+ */
+export function shopDetail(
+  key: OptionKey,
+  r: RankedItem,
+  all: readonly RankedItem[],
+  connected: boolean,
+): Record<string, unknown> {
+  if (!connected || r.item.provider !== "shopify" || !SHOPIFY_PRODUCT.test(r.item.ref)) return {};
+  if (key === "markdown") {
+    return {
+      shopify: { product_id: r.item.ref },
+      execute_on_approval: true,
+      sending: `Approving lets me mark it down by ${Math.round(CLEARANCE.markdown_share * 100)}% in your Shopify store on the next run, with the old price shown as the compare-at price, never below its cost. Undo puts both prices back.`,
+    };
+  }
+  if (key === "bundle") {
+    const best = bestSellerFor(r, all);
+    if (!best || !SHOPIFY_PRODUCT.test(best.ref)) return {};
+    return {
+      shopify: { products: [r.item.ref, best.ref], title: bundleTitle(r.item.name, best.name) },
+      execute_on_approval: true,
+      sending:
+        "Approving lets me create the pair in your Shopify store as one bundle product at the two items' full price, on the next run. Undo archives it.",
+    };
+  }
+  return {};
 }
 
 /** Money in one currency, at its full decimals; English by default (L-4b, ./words). */
@@ -243,6 +281,7 @@ export async function proposeClearance(
     return out;
   }
   const shared = await sharedContext(profileId, profile.account_id, now);
+  const shopConnected = await shopifyWriteConnected(profile.account_id);
   const existing = new Set(
     (
       await db
@@ -298,6 +337,7 @@ export async function proposeClearance(
           summary: summaryFor(option.key, r, shared),
           detail: {
             ...detailFor(option, r, shared, now),
+            ...shopDetail(option.key, r, view.items, shopConnected),
             stock: stockDetail(r, labelOf(r)),
             option: option.key,
             rank: position + 1,

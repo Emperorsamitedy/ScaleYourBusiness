@@ -31,7 +31,15 @@ import type { Station } from "./ladder";
 import { LadderError, setStationUnchecked, stationOf } from "./ladder";
 
 /** §4.4: purchase orders to suppliers are capped at station 3 permanently. */
-export const MAX_STATION: Readonly<Record<string, Station>> = { purchase_order: 3 };
+export const MAX_STATION: Readonly<Record<string, Station>> = {
+  purchase_order: 3,
+  // P5-16b: a follow-up goes out only on the owner's yes to the exact email (rule 29 amended).
+  followup_email: 3,
+  // I-45a lifted (2026-11-16): a public reply or a listing change, only on the owner's yes.
+  google_business_reviews: 3,
+  // D6 (2026-11-16): prices and products in the owner's shop, only on the owner's yes.
+  shopify_write: 3,
+};
 
 export const RULES = {
   shadow_to_approval: { min_closed: 5, min_gain_share: 0.6, loss_cap_multiple: 2 },

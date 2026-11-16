@@ -21,6 +21,8 @@ import { proposals } from "../../db/schema";
 import { executeProposal, undoExecution } from "../execution/engine";
 import type { ExecutionRow } from "../execution/engine";
 import { fixtureSiteExecutor } from "../execution/providers/fixture-site";
+import { shopifyWriteExecutor } from "../execution/providers/shopify";
+import { accountOfProfile, shopifyWriteConnected } from "../shop/writes";
 import type { ExecutionProvider } from "../execution/providers/fixture";
 import type { PageFetcher } from "./fetch";
 import { livePageFetcher } from "./fetch";
@@ -114,13 +116,19 @@ export async function applySiteChange(args: ApplySiteChangeArgs): Promise<ApplyO
     );
   }
 
-  // Which provider can actually WRITE this site? Real platform write
-  // providers arrive with Session D, each behind its own consent —
-  // claiming success against anything else would be a progress bar
-  // over a lie. Only the in-repo fixture site is writable today.
-  const provider =
+  // Which provider can actually WRITE this site? Each real one sits behind
+  // its own consent — claiming success against anything else would be a
+  // progress bar over a lie. The in-repo fixture site, and (D6, 2026-11-16)
+  // a Shopify store whose owner connected store changes: its pages' words
+  // go through shopify_write, which finds the page by its /pages/ handle and
+  // refuses anything in the theme. Every other platform: "noWriter".
+  let provider: ExecutionProvider | null =
     args.provider ??
     (new URL(detail.url).hostname.endsWith(".example") ? fixtureSiteExecutor : null);
+  if (!provider && detail.platform.platform === "shopify") {
+    const accountId = await accountOfProfile(proposal.profile_id);
+    if (accountId && (await shopifyWriteConnected(accountId))) provider = shopifyWriteExecutor;
+  }
   if (!provider) {
     throw siteRefusal("error.noWriter", { platform: platformBrand(detail.platform.platform) }, 409);
   }
@@ -139,11 +147,16 @@ export async function applySiteChange(args: ApplySiteChangeArgs): Promise<ApplyO
   // text must be written as typed, never expanded into page content.
   const nextHtml = current.html.replace(detail.find, () => detail.replace);
 
+  // Shopify writes the page's own body, not the rendered theme around it:
+  // the provider re-finds the approved words there, exactly once.
+  const shopify = provider.id === "shopify_write";
   const execution = await executeProposal({
     proposalId: proposal.id,
     provider,
-    op: "apply_site_change",
-    params: { url: detail.url, next_html: nextHtml },
+    op: shopify ? "update_page_body" : "apply_site_change",
+    params: shopify
+      ? { url: detail.url, find: detail.find, replace: detail.replace }
+      : { url: detail.url, next_html: nextHtml },
     ...(args.sleep ? { sleep: args.sleep } : {}),
   });
   if (execution.status !== "succeeded") {

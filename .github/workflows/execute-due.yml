@@ -1,0 +1,34 @@
+name: Execute due
+
+# P3-20e interim scheduler (the hosting decision in TASKS-PHASE3.md D0): Vercel
+# Hobby crons fire once a day, so an approved post would go out "some time after
+# 05:00" rather than at its hour. This calls the same CRON_SECRET-guarded
+# endpoint hourly. The runner is idempotent (one execution row per proposal), so
+# overlapping with the Vercel cron is harmless. Retire it on Vercel Pro.
+
+on:
+  schedule:
+    - cron: "2 * * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: execute-due
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - name: Call the due runner
+        env:
+          APP_URL: ${{ secrets.SYB_APP_URL }}
+          CRON_SECRET: ${{ secrets.CRON_SECRET }}
+        run: |
+          if [ -z "$APP_URL" ] || [ -z "$CRON_SECRET" ]; then
+            echo "::notice::SYB_APP_URL or CRON_SECRET not set in repo secrets; skipping."
+            exit 0
+          fi
+          curl --fail-with-body --silent --show-error --max-time 300 \
+            -H "Authorization: Bearer $CRON_SECRET" \
+            "${APP_URL%/}/api/cron/execute-due"

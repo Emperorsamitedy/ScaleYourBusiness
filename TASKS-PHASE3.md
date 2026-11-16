@@ -112,6 +112,8 @@ What the fixture-proven engine still lacks before a real provider can hang off i
 
 **Status 2026-10-12:** Done — every clause of the done-when is a passing test, five commits, no network anywhere. Provider resolution is a typed map (a registry entry without a provider fails the build) and `undoExecution` resolves from the row, refusing a mismatched caller. Execution connections live in `connections` under `purpose = execute` with the unique index widened; migration 0030 installs a BEFORE trigger mirroring `isWriteCapable` so a measure row can never hold a write-capable scope — proven on a 13-scope sample both directions, insert and update — and `connectForExecution()` demands exactly `write_scopes ∪ readback_scopes` (a new registry field, empty for both fixtures, audited as reads). The measurement side filters every read on purpose and the runner skips an execute row as `not_measurement`. Media is Vercel Blob behind one interface with an in-memory twin; renders land at `renders/<profile>/<item>/<16 random bytes>` and `media_path` is written for the first time; release deletes and clears. Publish state is six statuses with three checks (migration 0031) and renders on `/content`. The due runner sweeps expiry across all profiles, selects scheduled approvals with no execution row, runs pre-bound plans and site changes through the engine, and leaves anything else approved and named rather than guessed; it never re-runs a failed row. **Hosting placeholder, on record:** `/api/cron/execute-due` is scheduled daily at 05:00 UTC in `vercel.json` because Hobby allows nothing more frequent; until the owner's hosting decision, a scheduled post goes out some time after 05:00 on its day, not at its hour. Two things found on the way: Stripe's dashboard confirms the permission is simply called "Balance" (the connector's wording stands), and the Session C production test had pinned its clock and began failing by itself on 2026-10-06 — fixed in the P3-20d commit. 29 new tests; 745 across 79 files, typecheck, lint and format clean.
 
+**Hosting decision, 2026-11-16 (owner: "make all these automatic, all the owner should do is just approve"):** the interim on record is taken. `.github/workflows/execute-due.yml` calls `/api/cron/execute-due` hourly (minute 2) with repo secrets `SYB_APP_URL` and `CRON_SECRET`, and skips with a notice while either is unset. Hourly rather than every 30 minutes keeps it inside GitHub's free minutes on a private repo. The daily Vercel cron stays; the runner is idempotent, so the overlap is harmless. Vercel Pro would retire the workflow.
+
 ### D1 — The Meta write connection and its consent _(~1.5 wks)_ — P3-20
 
 - [ ] **P3-20** First write connector, one platform (Meta is the likely first — its read side already exists): separate connection, separate consent screen naming exactly what may be written, write scopes from the P3-08 registry, secrets AES-encrypted like every other credential. **Platform confirmed 2026-09-30: Meta.**
@@ -256,6 +258,71 @@ Design decision, recorded: **the owner approves the finished item, not just the 
 
 _Verify at build_ (added to the list below): the Blob price, whether Vercel's GB is 10^9 or 2^30 bytes, and the included amount on the production plan. Also whether Meta sends usage headers on publishing POSTs as well as reads, and that an expired system-user or tester token comes back as 190 with subcode 463 (or 460 after a password change).
 
+### D6 — Shop writes (Shopify) _(owner override, 2026-11-16)_
+
+**Owner override, recorded 2026-11-16.**
+
+- The owner said "make all these automatic all the owner should do is just approve".
+- Asked which shop to write to first, they chose "Shopify first". The option read: "Page text, product bundles and price markdowns through Shopify's Admin API, each reversible with undo stored."
+- Site changes, pairs and slow-stock markdowns used to be approved and then applied by the owner by hand. On a Shopify store connected for changes they now run on approval.
+- Unchanged: checkout, payments, orders, customers, shipping, taxes and discounts stay untouchable (rule 18). Money and supplier orders stay manual. The two-week unattended clock still holds `SESSION_D_REAL_WRITES`, because the owner kept it.
+- Facts SYB relies on are in `specs/shopify-admin-api-v1.md`.
+
+- [x] **P3-60a** Registry `shopify_write`.
+  - Write scopes `write_products` and `write_online_store_pages`, and nothing else. A write scope grants its read, so no readback scopes are declared.
+  - Three reversible ops: `update_page_body`, `create_bundle` and `set_variant_price`.
+  - Consent lines include "never checkout, payments, orders, customers, shipping, taxes or discounts, and never deletes anything".
+  - Pinned in `scopes.test.ts`. The build gates (honest naming, the money fence) pass.
+- [x] **P3-60b** The connection.
+  - A separate Dev Dashboard app from the read one. A measurement connection can never hold a write scope (rule 9).
+  - The owner pastes the store address, client ID and client secret on `/connections` → Execution and types "allow shop changes". The consent goes in the decision log as with Meta.
+  - The verifier reads the installation's scopes back from Shopify. A `read_X` beside its own `write_X` is dropped as implied. Any other extra scope, or a missing one, is refused by name.
+  - The secret is AES-encrypted like every credential.
+  - Facebook sign-in now shows on Meta's cards only.
+- [x] **P3-60c** The executor, `lib/execution/providers/shopify.ts`. It is the only file allowed to send a Shopify mutation.
+  - **The fence.** It sends ten fixed documents, four of them mutations: `pageUpdate`, `productBundleCreate`, `productVariantsBulkUpdate` and `productUpdate` (status only). No document may contain checkout, payment, order, customer, shipping, tax, billing, fulfil, discount, delete, refund or gift. Each variables object is checked at the one choke point (`writeViolation`). A source scan finds no other file sending one of these mutations.
+  - **Gating.** `external: true`, so guard 6a holds everything while the gate is off. It is capped at station 3 on the trust ladder (`MAX_STATION`).
+  - **Measurement.** The Proof Ledger capability follows the op (`site_copy`, `bundle` or `price_change`). `capabilityOf` now takes the op, and `planFromProposal` passes it. No migration.
+- [x] **P3-60d** `update_page_body`, through `lib/site/apply`.
+  - It applies to a Shopify site change when `shopify_write` is connected, with the same drift check, health check and auto-rollback.
+  - Only the store's own `/pages/<handle>` pages, on its myshopify or primary domain, can be changed. Theme, product and collection text is refused by name and stays the owner's to change.
+  - The page body is captured before attempt one. The approved words must appear in it exactly once, and the body must not have moved since the read.
+  - Undo puts the old body back only while the live body is still exactly what SYB wrote (its sha256).
+  - A new site change to such a page carries `execute_on_approval`, so approving it is all the owner does.
+- [x] **P3-60e** `create_bundle`.
+  - Run with `productBundleCreate`, polled up to 10 times. The bundle variant's price is set to the two components' full price (no discount), then the product is made ACTIVE.
+  - A component whose variants have different prices is refused before anything is sent.
+  - It is never created twice. A retry in the same run after the create was sent refuses, and a run that died is never selected again.
+  - If the price can't be set after the bundle exists, the bundle is archived and the owner is told.
+  - Undo archives the bundle, never deletes it, and only while its title is still SYB's.
+- [x] **P3-60f** `set_variant_price`, the slow-stock markdown.
+  - The markdown share comes from `CLEARANCE` (25%), never from the proposal's detail.
+  - At most 50% per approval, never a raise, never below the unit cost Shopify holds in the shop's currency, and never on a variant already showing a compare-at price. Each refusal names its number.
+  - The old price becomes the compare-at price.
+  - The calculation starts from the prices captured before attempt one, so a retry never marks down twice.
+  - Undo restores price and compare-at price, only while both are still what SYB set.
+- [x] **P3-60g** Routing (`lib/shop/writes.ts` `shopPlanFor`, in the due runner).
+  - A pair from `/patterns` (module `bundles`), or a slow item's pair, routes to `create_bundle`. A slow-stock markdown routes to `set_variant_price`.
+  - The plan is built from the approved row's own ref and option. The generators (`lib/bundles/propose`, `lib/stock/propose` `shopDetail`) store the Shopify product ids only when the item came from Shopify and the store is connected for changes, and they add `execute_on_approval` and say so in `sending`.
+  - Proposals made without those ids are unroutable, with the reason given ("set it up in Shopify yourself").
+
+**Status 2026-11-16:** built against a fake Shopify (`lib/execution/providers/shopify-fake.ts`), with the global fetch stubbed to fail. Nothing was sent to Shopify. `shopify-write.test.ts` has 24 tests: the fence, the exact scope match and the verifier, each op and its undo, drift both ways, the markdown bounds, archive-not-delete, never-twice, the emergency stop, and the routes. There is no migration.
+
+**Open:**
+
+- No real store has been connected.
+- The engine-level "gate off holds" for this provider rests on guard 6a's existing tests, since `external: true` is asserted here.
+- Owners in other languages see the setup steps and field names in English until the catalogues gain them.
+- _Verify at build, against a Shopify development store_. Each item is `verified: false` in the spec:
+  - whether `accessScopes` lists `read_products` beside `write_products`
+  - the `pageUpdate` argument names
+  - the `pages(query: "handle:…")` filter
+  - the bundle product's status on creation
+  - whether a new bundle is published to the Online Store channel by itself (if not, the owner adds the channel)
+  - the `productUpdate(product:)` input form
+  - `compareAtPrice: null` clearing the compare-at price
+  - that the `shop` query needs no extra scope
+
 ### Owner-side checklist, non-code — start in parallel with D0
 
 1. ~~A Meta **business portfolio** with SYB's app connected to it; a **system user** with the test Page, its Instagram professional account and the test ad account assigned; a token generated with exactly the P3-20f scopes.~~ **Done 2026-10-13 (Samuel):** portfolio "SYB"; Page "SYB Test" (id 1405205332673295) with the Instagram professional account @kov.emma124 linked; app "SYB" in development mode with the Page, Instagram and Marketing API use cases (Facebook Login for Business came with them); sandbox ad account "SYB Sandbox" (`act_1831651904851664`, EUR); admin system user `syb-publisher` with the app, Page and Instagram assigned, and a non-expiring token carrying exactly the nine P3-20f scopes. App ID, App Secret and the token are held by Samuel outside the repo and go into Vercel and the connections screen at D1. The unverified portfolio allowed the system user — the P3-20g fallback was not needed.
@@ -388,7 +455,7 @@ The second half of `TASKS-PHASE2.md` Session F (P2-26..31). Data can only sugges
 
 - [x] **P3-41** Hours-trial proposals, from P2-30's signals only. Examples: "Open at 19:00 on Fridays for 4 weeks" and "Close at midnight on Tuesdays for 4 weeks".
   - **Scenarios** are arithmetic, pessimistic / expected / optimistic: the extra or saved hour's revenue, estimated from the measured first-hour or last-hour curve, minus or plus the cost of an open hour (P2-26). Money is in minor units and the arithmetic is shown.
-  - **Reversibility** is `easy`. The owner makes the change themselves: the proposal says plainly that SYB will not edit their Google listing or website (a write, so out of scope until a write connector covers it).
+  - **Reversibility** is `easy`. The owner makes the change themselves: the proposal says plainly that SYB will not edit their Google listing or website (a write, so out of scope until a write connector covers it). _2026-11-16, I-45a lifted by the owner (TASKS-FEEDBACK.md I-45e): when the business's Google connection can write, the trial carries a `google_change` and approving it moves the hour on the Google listing through the engine; the trial's end is a separate revert proposal. The website's hours stay the owner's._
   - **Rules:** hard limits, suppression (P3-28) and watching mode (rule 15) apply as to every proposal. One trial per weekday at a time, so the verdicts don't mix.
   - **Readback** (P3-25) judges the trial window on that weekday's measured revenue net of the hour's cost, against the same weekday before. The verdicts are helped / did nothing / backfired, plus `too_early` under 3 measured trial days.
   - The P2-26 schedule is updated as an owner-stated fact when the trial starts, and superseded back when it ends (rule 3).

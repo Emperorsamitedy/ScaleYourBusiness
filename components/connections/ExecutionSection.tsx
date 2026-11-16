@@ -582,9 +582,11 @@ function ConsentForm({
         </p>
       )}
 
-      <FacebookSignIn provider={provider} login={login} />
+      {provider.id.startsWith("meta_") && <FacebookSignIn provider={provider} login={login} />}
 
-      <p className="cn-sub">{t("ownApp")}</p>
+      <p className="cn-sub">
+        {t.has(`ownAppFor.${provider.id}`) ? t(`ownAppFor.${provider.id}`) : t("ownApp")}
+      </p>
       <ol className="cn-steps">
         {provider.own_app_steps.map((step, i) => {
           const key = `ownAppSteps.${provider.id}.s${i}`;

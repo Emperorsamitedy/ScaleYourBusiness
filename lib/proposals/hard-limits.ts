@@ -101,8 +101,15 @@ export type NoteKind = (typeof NOTE_KINDS)[number];
  */
 export const ORDER_KINDS = ["purchase_order"] as const;
 export type OrderKind = (typeof ORDER_KINDS)[number];
+/**
+ * I-45a lifted (2026-11-16): a reply the owner wrote or approved, posted under
+ * a Google review through the engine. Outside ACTION_KINDS for the note
+ * kinds' reason: only lib/review-desk/post makes one, from the owner's click.
+ */
+export const REPLY_KINDS = ["review_reply"] as const;
+export type ReplyKind = (typeof REPLY_KINDS)[number];
 /** Every kind a proposal can carry through the hard-limit check. */
-export type ProposalKind = ActionKind | NoteKind | OrderKind;
+export type ProposalKind = ActionKind | NoteKind | OrderKind | ReplyKind;
 
 /** code → the action kinds it forbids. The whole of rule 14's arithmetic. */
 export const LIMIT_TAXONOMY = {

@@ -834,6 +834,13 @@
       "when": 1794819118193,
       "tag": "0122_idea_checks",
       "breakpoints": true
+    },
+    {
+      "idx": 123,
+      "version": "7",
+      "when": 1794827622736,
+      "tag": "0123_followup_send",
+      "breakpoints": true
     }
   ]
 }

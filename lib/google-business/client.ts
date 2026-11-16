@@ -1,16 +1,34 @@
-// The Google Business Profile client — I-45a. Reads reviews, and nothing else.
+// The Google Business Profile client — I-45a. Reads reviews; writes exactly
+// three things, for the executor alone.
 //
 // Google offers one scope for the Business Profile APIs, business.manage,
 // and it can also reply to reviews and edit the listing. The owner holds it
-// as a write consent (lib/execution/scopes, google_business_reviews), and
-// SYB uses it only to READ. That promise is held here, in code, not hoped
-// for: every request goes through gbpRequest, which sends only to an
-// endpoint in GBP_ENDPOINTS, with that endpoint's method. Every endpoint is
-// a GET, except Google's OAuth token endpoint (the code exchange and the
-// refresh), which is a POST to oauth2.googleapis.com and touches no
-// business. There is no reply, update, or delete endpoint on the list, and
-// client.test.ts fails the build if one appears, if any other verb is sent,
-// or if any file in lib/google-business calls fetch outside gbpRequest.
+// as a write consent (lib/execution/scopes, google_business_reviews). Every
+// request goes through gbpRequest, which sends only to an endpoint in
+// GBP_ENDPOINTS, with that endpoint's method. The reads are GETs; Google's
+// OAuth token endpoint is a POST to oauth2.googleapis.com and touches no
+// business. Since the owner lifted I-45a (2026-11-16) three writes are on
+// the list too — a review's reply (PUT, DELETE) and the location's regular
+// hours (PATCH, with updateMask=regularHours and nothing else) — reached
+// only through putReviewReply, deleteReviewReply and patchRegularHours, which
+// client.test.ts lets nothing but lib/execution/providers/google-business.ts
+// call. That executor runs only inside the engine, after a recorded approval
+// of the exact change. Nothing else on the listing can be written: no other
+// update mask, path or verb leaves this file (client.test.ts holds it).
+//
+// Read in Google's documentation on 2026-11-16 (specs/google-business-api-v1.md):
+//   · reviews.get — GET https://mybusiness.googleapis.com/v4/{name=accounts/*/locations/*/reviews/*};
+//     a Review carries reviewReply {comment, updateTime} when one exists.
+//   · reviews.updateReply — PUT …/reviews/*/reply, body a ReviewReply
+//     ({comment}); creates the reply if there is none; verified locations only.
+//   · reviews.deleteReply — DELETE …/reviews/*/reply, empty body, answers {}.
+//   · locations.get — GET https://mybusinessbusinessinformation.googleapis.com/v1/{name=locations/*},
+//     readMask REQUIRED.
+//   · locations.patch — PATCH …/v1/{location.name=locations/*}, updateMask
+//     REQUIRED, validateOnly optional (validates without updating, answers
+//     empty when valid). regularHours is a BusinessHours {periods: TimePeriod[]};
+//     a TimePeriod is {openDay, openTime, closeDay, closeTime}, times 00:00–24:00
+//     (24:00 = midnight at the end of that day), zero values omitted in JSON.
 //
 // Read in Google's documentation on 2026-11-01:
 //   · reviews.list — GET https://mybusiness.googleapis.com/v4/{parent=accounts/*/locations/*}/reviews,
@@ -42,7 +60,7 @@ import type { GoogleBusinessEnv } from "../env";
 export const GBP_SCOPE = "https://www.googleapis.com/auth/business.manage";
 export const GOOGLE_AUTHORIZE_URL = "https://accounts.google.com/o/oauth2/v2/auth";
 
-export type GbpMethod = "GET" | "POST";
+export type GbpMethod = "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
 
 export interface GbpEndpoint {
   method: GbpMethod;
@@ -52,8 +70,9 @@ export interface GbpEndpoint {
 }
 
 const ID = "[A-Za-z0-9_-]+";
+const REVIEW_PATH = `^/v4/accounts/${ID}/locations/${ID}/reviews/${ID}`;
 
-/** THE FENCE: the only requests this client can send. Each is a read, but the token exchange. */
+/** THE FENCE: the only requests this client can send. Reads, the token exchange, and three writes. */
 export const GBP_ENDPOINTS = {
   token: { method: "POST", origin: "https://oauth2.googleapis.com", path: /^\/token$/ },
   accounts: {
@@ -71,9 +90,51 @@ export const GBP_ENDPOINTS = {
     origin: "https://mybusiness.googleapis.com",
     path: new RegExp(`^/v4/accounts/${ID}/locations/${ID}/reviews$`),
   },
+  review: {
+    method: "GET",
+    origin: "https://mybusiness.googleapis.com",
+    path: new RegExp(`${REVIEW_PATH}$`),
+  },
+  location: {
+    method: "GET",
+    origin: "https://mybusinessbusinessinformation.googleapis.com",
+    path: new RegExp(`^/v1/locations/${ID}$`),
+  },
+  // The writes (I-45a lifted, 2026-11-16) — the executor's alone.
+  reply_put: {
+    method: "PUT",
+    origin: "https://mybusiness.googleapis.com",
+    path: new RegExp(`${REVIEW_PATH}/reply$`),
+  },
+  reply_delete: {
+    method: "DELETE",
+    origin: "https://mybusiness.googleapis.com",
+    path: new RegExp(`${REVIEW_PATH}/reply$`),
+  },
+  hours_patch: {
+    method: "PATCH",
+    origin: "https://mybusinessbusinessinformation.googleapis.com",
+    path: new RegExp(`^/v1/locations/${ID}$`),
+  },
 } as const satisfies Record<string, GbpEndpoint>;
 
 export type GbpEndpointId = keyof typeof GBP_ENDPOINTS;
+
+/** The requests that carry no body: every read, and the reply's removal. */
+const BODYLESS: ReadonlySet<GbpEndpointId> = new Set([
+  "accounts",
+  "locations",
+  "reviews",
+  "review",
+  "location",
+  "reply_delete",
+]);
+
+/**
+ * The one listing field a PATCH may name, and its query exactly: anything
+ * else on the listing (name, phone, address, categories…) can't be written.
+ */
+const HOURS_QUERY = /^updateMask=regularHours(&validateOnly=true)?$/;
 
 /** Pure: the endpoint a request is, or null when it is on no list (and must not be sent). */
 export function allowedEndpoint(method: string, url: string): GbpEndpointId | null {
@@ -86,6 +147,7 @@ export function allowedEndpoint(method: string, url: string): GbpEndpointId | nu
   if (u.username !== "" || u.password !== "" || u.hash !== "") return null;
   for (const [id, e] of Object.entries(GBP_ENDPOINTS) as [GbpEndpointId, GbpEndpoint][]) {
     if (method.toUpperCase() === e.method && u.origin === e.origin && e.path.test(u.pathname)) {
+      if (id === "hours_patch" && !HOURS_QUERY.test(u.search.slice(1))) return null;
       return id;
     }
   }
@@ -107,19 +169,25 @@ export class GbpRequestError extends Error {
 }
 
 export const GBP_TIMEOUT_MS = 15_000;
-/** Attempts for a read Google says to retry (429, 5xx, no answer). The token POST is tried once. */
+/**
+ * Attempts for a read Google says to retry (429, 5xx, no answer). The token
+ * POST and every write are tried once here: the engine's own capped loop
+ * decides whether a write is tried again.
+ */
 export const GBP_MAX_ATTEMPTS = 2;
 
 export type FetchLike = (input: string, init: RequestInit) => Promise<Response>;
 
-function failureFor(status: number): GbpRequestError {
+function failureFor(status: number, read: boolean): GbpRequestError {
   if (status === 401) {
     return new GbpRequestError("auth", "Google no longer accepts ScaleX's access.", status);
   }
   if (status === 403) {
     return new GbpRequestError(
       "permission",
-      "Google says ScaleX isn't allowed to read this Business Profile.",
+      read
+        ? "Google says ScaleX isn't allowed to read this Business Profile."
+        : "Google says ScaleX isn't allowed to change this Business Profile.",
       status,
     );
   }
@@ -139,17 +207,18 @@ function failureFor(status: number): GbpRequestError {
 export async function gbpRequest(
   id: GbpEndpointId,
   url: string,
-  init: { headers?: Record<string, string>; body?: URLSearchParams },
+  init: { headers?: Record<string, string>; body?: URLSearchParams | string },
   fetchImpl: FetchLike = fetch,
 ): Promise<unknown> {
   const endpoint: GbpEndpoint = GBP_ENDPOINTS[id];
   if (allowedEndpoint(endpoint.method, url) !== id) {
-    throw new GbpRequestError("fence", `refusing a request that isn't on ScaleX's read list`);
+    throw new GbpRequestError("fence", `refusing a request that isn't on ScaleX's list`);
   }
-  if (endpoint.method === "GET" && init.body !== undefined) {
-    throw new GbpRequestError("fence", "a read carries no body");
+  if (BODYLESS.has(id) && init.body !== undefined) {
+    throw new GbpRequestError("fence", "a read or a delete carries no body");
   }
-  const attempts = endpoint.method === "GET" ? GBP_MAX_ATTEMPTS : 1;
+  const read = endpoint.method === "GET";
+  const attempts = read ? GBP_MAX_ATTEMPTS : 1;
   let last: GbpRequestError | null = null;
   for (let attempt = 1; attempt <= attempts; attempt++) {
     let res: Response;
@@ -166,8 +235,11 @@ export async function gbpRequest(
       continue;
     }
     if (res.ok) {
+      // A delete answers {}, and a validateOnly patch answers nothing at all.
+      const text = await res.text().catch(() => "");
+      if (!read && text.trim() === "") return {};
       try {
-        return (await res.json()) as unknown;
+        return JSON.parse(text) as unknown;
       } catch {
         throw new GbpRequestError("refused", "Google's answer couldn't be read.", res.status);
       }
@@ -179,7 +251,7 @@ export async function gbpRequest(
         throw new GbpRequestError("auth", "Google no longer accepts ScaleX's access.", 400);
       }
     }
-    last = failureFor(res.status);
+    last = failureFor(res.status, read);
     console.log(JSON.stringify({ event: "gbp_request_failed", endpoint: id, status: res.status }));
     if (last.kind !== "quota" && last.kind !== "unavailable") throw last;
   }
@@ -385,6 +457,116 @@ export function readReview(raw: unknown): GbpReview | null {
     text: comment === "" ? null : comment,
     created_at: new Date(Date.parse(created)).toISOString(),
   };
+}
+
+/* ── one review, and its reply (the executor's) ───────────────────── */
+
+export const REVIEW_NAME_RE = new RegExp(`^accounts/${ID}/locations/${ID}/reviews/${ID}$`);
+
+/** The reply on a review as Google holds it now: its words, or null when there is none. */
+export async function readReviewReply(
+  accessToken: string,
+  reviewName: string,
+  fetchImpl?: FetchLike,
+): Promise<string | null> {
+  if (!REVIEW_NAME_RE.test(reviewName)) {
+    throw new GbpRequestError("fence", "that isn't a Business Profile review");
+  }
+  const r = (await gbpRequest(
+    "review",
+    `${GBP_ENDPOINTS.review.origin}/v4/${reviewName}`,
+    { headers: bearer(accessToken) },
+    fetchImpl,
+  )) as { reviewReply?: { comment?: unknown } } | null;
+  const comment = r?.reviewReply?.comment;
+  return typeof comment === "string" ? comment : null;
+}
+
+/** Post (or replace) the reply under a review. Google creates one if there is none. */
+export async function putReviewReply(
+  accessToken: string,
+  reviewName: string,
+  comment: string,
+  fetchImpl?: FetchLike,
+): Promise<void> {
+  if (!REVIEW_NAME_RE.test(reviewName)) {
+    throw new GbpRequestError("fence", "that isn't a Business Profile review");
+  }
+  await gbpRequest(
+    "reply_put",
+    `${GBP_ENDPOINTS.reply_put.origin}/v4/${reviewName}/reply`,
+    {
+      headers: { ...bearer(accessToken), "content-type": "application/json" },
+      body: JSON.stringify({ comment }),
+    },
+    fetchImpl,
+  );
+}
+
+/** Remove the reply under a review. */
+export async function deleteReviewReply(
+  accessToken: string,
+  reviewName: string,
+  fetchImpl?: FetchLike,
+): Promise<void> {
+  if (!REVIEW_NAME_RE.test(reviewName)) {
+    throw new GbpRequestError("fence", "that isn't a Business Profile review");
+  }
+  await gbpRequest(
+    "reply_delete",
+    `${GBP_ENDPOINTS.reply_delete.origin}/v4/${reviewName}/reply`,
+    { headers: bearer(accessToken) },
+    fetchImpl,
+  );
+}
+
+/* ── the listing's regular hours (the executor's) ─────────────────── */
+
+/** The location's regular hours as Google holds them: its periods, raw; [] when none are set. */
+export async function readRegularHours(
+  accessToken: string,
+  location: string,
+  fetchImpl?: FetchLike,
+): Promise<unknown[]> {
+  if (!LOCATION_NAME_RE.test(location)) {
+    throw new GbpRequestError("fence", "that isn't a Business Profile location");
+  }
+  const url = new URL(`${GBP_ENDPOINTS.location.origin}/v1/${location}`);
+  url.searchParams.set("readMask", "regularHours");
+  const l = (await gbpRequest(
+    "location",
+    url.toString(),
+    { headers: bearer(accessToken) },
+    fetchImpl,
+  )) as { regularHours?: { periods?: unknown } } | null;
+  const periods = l?.regularHours?.periods;
+  return Array.isArray(periods) ? periods : [];
+}
+
+/**
+ * Replace the location's regular hours — regularHours and nothing else, by
+ * the update mask the fence pins. `validateOnly` is Google's dry run.
+ */
+export async function patchRegularHours(
+  accessToken: string,
+  location: string,
+  periods: readonly unknown[],
+  opts: { validateOnly: boolean },
+  fetchImpl?: FetchLike,
+): Promise<void> {
+  if (!LOCATION_NAME_RE.test(location)) {
+    throw new GbpRequestError("fence", "that isn't a Business Profile location");
+  }
+  const query = `updateMask=regularHours${opts.validateOnly ? "&validateOnly=true" : ""}`;
+  await gbpRequest(
+    "hours_patch",
+    `${GBP_ENDPOINTS.hours_patch.origin}/v1/${location}?${query}`,
+    {
+      headers: { ...bearer(accessToken), "content-type": "application/json" },
+      body: JSON.stringify({ regularHours: { periods } }),
+    },
+    fetchImpl,
+  );
 }
 
 export const GBP_REVIEWS_PAGE_SIZE = 50;

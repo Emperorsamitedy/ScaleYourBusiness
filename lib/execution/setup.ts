@@ -34,7 +34,12 @@ export interface ExecutionSetup {
 }
 
 /** Offered on the consent screen. The fixtures are proven in tests, never offered. */
-export const OFFERED_EXECUTION: readonly ExecutionProviderId[] = ["meta_publish", "meta_ads"];
+export const OFFERED_EXECUTION: readonly ExecutionProviderId[] = [
+  "meta_publish",
+  "meta_ads",
+  // D6 (owner, 2026-11-16): Shopify store changes, a second app beside the read one.
+  "shopify_write",
+];
 
 export const EXECUTION_SETUP: Readonly<Partial<Record<ExecutionProviderId, ExecutionSetup>>> = {
   meta_publish: {
@@ -85,6 +90,25 @@ export const EXECUTION_SETUP: Readonly<Partial<Record<ExecutionProviderId, Execu
       "Add the Marketing API use case to the app.",
       "In your business settings, add a system user, give it your ad account, and generate a token for your app with exactly the permission listed above — no more.",
       "Paste the token here with the ad account id from Ads Manager.",
+    ],
+  },
+  shopify_write: {
+    confirm_phrase: "allow shop changes",
+    credential_fields: [
+      {
+        name: "shop",
+        label: "store address",
+        placeholder: "your-store.myshopify.com",
+        secret: false,
+      },
+      { name: "client_id", label: "client ID", placeholder: "Client ID", secret: false },
+      { name: "client_secret", label: "client secret", placeholder: "Client secret", secret: true },
+    ],
+    own_app_steps: [
+      "In Shopify's Dev Dashboard, create a second app for your store: not the one ScaleX reads with, which must keep read permissions only.",
+      "Give it exactly the permissions listed above, write_products and write_online_store_pages, and nothing else.",
+      "Install it on your store.",
+      "Paste your store's myshopify.com address and the new app's client ID and client secret here.",
     ],
   },
 };

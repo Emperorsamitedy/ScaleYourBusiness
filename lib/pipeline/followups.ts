@@ -13,9 +13,13 @@
 // drafting. A sales follow-up is treated as outbound, conservatively: the
 // screen tells the owner to call anyone else, or to record their consent.
 //
-// Nothing is ever sent. The kind is unrouted (lib/execution/due: anything
-// else is UNROUTABLE, left approved), so approving records the owner's
-// intent and lets SYB draft; the owner sends the draft from their own mail.
+// Sending (P5-16b; rule 29 amended by the owner on 2026-11-16: "make all
+// these automatic all the owner should do is just approve"). Approving the
+// proposal lets SYB draft; approving the exact email (lib/pipeline/
+// followup-send approveFollowUpEmail) lets SYB send it. The due runner routes
+// it to the followup_email provider, which checks the contact's consent
+// again at the moment of sending and stays held until real sending is on.
+// A sent email can't be recalled, so new proposals are labelled "hard".
 //
 // Drafting (rule 24's minimum): Sonnet through Phase 3's drafting fence
 // (lib/content/draft: the voice card, no invented facts, disclosure applied
@@ -28,16 +32,20 @@
 // The proposal and the draft carry ids, never a contact's details (rule 22);
 // the draft goes with the deal when the contact is erased (db cascade).
 
-import { and, count, eq, gte, sql } from "drizzle-orm";
+import { createHash } from "node:crypto";
+import { and, count, eq, gte, inArray, sql } from "drizzle-orm";
 import { db } from "../../db";
 import {
   businessProfiles,
+  campaignSends,
   contacts,
   dealFollowups,
   deals,
+  executions,
   llmCalls,
   proposals,
 } from "../../db/schema";
+import { followUpSendingMode } from "../execution/providers/followup-email";
 import { careState } from "../care/day-zero";
 import type { DraftLlm } from "../content/draft";
 import { draftItem, draftLlmFor } from "../content/draft";
@@ -232,7 +240,7 @@ export async function proposeFollowUps(
           value,
           what: "One short email in your voice, checking in on a deal that has gone quiet.",
           sending:
-            "Nothing sends, now or on approval. Approving lets me draft the email; you read it, change what you like and send it yourself from your own mail.",
+            "Approving lets me draft the email. You read it and approve the exact email, and then I send it from ScaleX's email service under your business's name, with replies going to you. Their consent is checked again at the moment it goes.",
           manual_limits: verdict.manual.map((l) => l.quote),
         },
       },
@@ -270,12 +278,13 @@ export async function proposeFollowUps(
           profit_delta_monthly: null,
           formula: null,
         },
-        breakeven_condition: "not computed — a follow-up costs nothing but your time to send it",
+        breakeven_condition:
+          "not computed — a follow-up costs nothing but a minute of your reading",
       } as ScenarioBlock,
       reversibility: {
-        level: "easy",
+        level: "hard",
         if_you_change_your_mind:
-          "Nothing is sent by me. Decline it, or simply don't send the draft — no one hears anything.",
+          "A sent email can't be recalled. Until you approve the exact email nothing goes out: decline it, or don't approve the draft, and no one hears anything.",
       },
       expires_at: new Date(now.getTime() + FOLLOWUP.expiry_days * 86_400_000).toISOString(),
       blocked_by_limit: verdict.verdict === "blocked" ? limitCaption(verdict.limit) : null,
@@ -494,6 +503,16 @@ export function fillName(body: string, name: string | null): string {
   return body.split(NAME_SLOT).join(first === "" ? "there" : first);
 }
 
+/**
+ * P5-16b: where a follow-up's send stands, for the screen.
+ *   ready      the exact email is approved; it goes out on the next run
+ *   waiting    approved, but real sending is switched off: held until it is
+ *   sent       it went
+ *   unconfirmed the email service never confirmed it; never sent again
+ *   not_sent   refused at the moment of sending (consent, the service), or failed
+ */
+export type FollowUpSendState = "ready" | "waiting" | "sent" | "unconfirmed" | "not_sent";
+
 export interface FollowUpState {
   proposal_id: string;
   deal_id: string | null;
@@ -501,9 +520,37 @@ export interface FollowUpState {
   summary: string;
   blocked_by_limit: string | null;
   draft: { body: string; disclosure: string } | null;
+  /** sha256 of the draft body as it is now — what an approval must name. */
+  body_sha256: string | null;
+  /** The subject the owner approved the email under, once they have. */
+  approved_subject: string | null;
+  /** True when the approval names the draft as it is now. */
+  email_approved: boolean;
+  /** False for follow-ups proposed before 2026-11-16, labelled undoable: they can't be sent. */
+  sendable: boolean;
+  send: FollowUpSendState | null;
+  sent_at: string | null;
+  /** The engine's last sentence for this follow-up, when a run ended without sending. */
+  error: string | null;
 }
 
-/** Every follow-up proposal of the profile, newest first, with its draft. */
+/** Pure: the send state from the approval, the send row and whether real sending is on. */
+export function sendStateOf(args: {
+  email_approved: boolean;
+  row: { status: string } | null;
+  error: string | null;
+  real: boolean;
+}): FollowUpSendState | null {
+  const status = args.row?.status;
+  if (status === "sent") return "sent";
+  if (status === "sending" || status === "unknown") return "unconfirmed";
+  if (status === "refused" || status === "failed") return "not_sent";
+  if (args.error !== null) return "not_sent";
+  if (!args.email_approved) return null;
+  return args.real ? "ready" : "waiting";
+}
+
+/** Every follow-up proposal of the profile, newest first, with its draft and its send. */
 export async function followUpsFor(profileId: string): Promise<FollowUpState[]> {
   const rows = await db
     .select()
@@ -514,18 +561,55 @@ export async function followUpsFor(profileId: string): Promise<FollowUpState[]> 
     .select()
     .from(dealFollowups)
     .where(eq(dealFollowups.profile_id, profileId));
-  return rows
-    .filter((r) => (r.action as { kind?: string }).kind === FOLLOWUP_KIND)
-    .map((r) => {
-      const action = r.action as { summary?: string; detail?: { deal_id?: unknown } };
-      const d = drafts.find((x) => x.proposal_id === r.id);
-      return {
-        proposal_id: r.id,
-        deal_id: typeof action.detail?.deal_id === "string" ? action.detail.deal_id : null,
-        status: r.status,
-        summary: action.summary ?? "Follow up a quiet deal",
-        blocked_by_limit: r.blocked_by_limit,
-        draft: d ? { body: d.body, disclosure: d.disclosure } : null,
-      };
-    });
+  const followUps = rows.filter((r) => (r.action as { kind?: string }).kind === FOLLOWUP_KIND);
+  const ids = followUps.map((r) => r.id);
+  const sends = ids.length
+    ? await db
+        .select({
+          proposal_id: campaignSends.proposal_id,
+          status: campaignSends.status,
+          sent_at: campaignSends.sent_at,
+        })
+        .from(campaignSends)
+        .where(inArray(campaignSends.proposal_id, ids))
+    : [];
+  const runs = ids.length
+    ? await db
+        .select({
+          proposal_id: executions.proposal_id,
+          status: executions.status,
+          error: executions.error,
+          held_for: executions.held_for,
+        })
+        .from(executions)
+        .where(inArray(executions.proposal_id, ids))
+    : [];
+  const real = followUpSendingMode(process.env).mode === "real";
+  return followUps.map((r) => {
+    const action = r.action as { summary?: string; detail?: { deal_id?: unknown } };
+    const d = drafts.find((x) => x.proposal_id === r.id);
+    const bodySha = d ? createHash("sha256").update(d.body).digest("hex") : null;
+    const emailApproved =
+      d !== undefined && d.approved_sha256 === bodySha && d.approved_at !== null;
+    const row = sends.find((s) => s.proposal_id === r.id) ?? null;
+    const run = runs.find((x) => x.proposal_id === r.id);
+    // A held run (the stop, the service asking to slow down) resumes on its own: not an error.
+    const error =
+      run && run.status === "failed" && run.held_for === null && !row ? (run.error ?? null) : null;
+    return {
+      proposal_id: r.id,
+      deal_id: typeof action.detail?.deal_id === "string" ? action.detail.deal_id : null,
+      status: r.status,
+      summary: action.summary ?? "Follow up a quiet deal",
+      blocked_by_limit: r.blocked_by_limit,
+      draft: d ? { body: d.body, disclosure: d.disclosure } : null,
+      body_sha256: bodySha,
+      approved_subject: emailApproved ? (d?.approved_subject ?? null) : null,
+      email_approved: emailApproved,
+      sendable: (r.reversibility as { level?: string } | null)?.level === "hard",
+      send: sendStateOf({ email_approved: emailApproved, row, error, real }),
+      sent_at: row?.sent_at ?? null,
+      error,
+    };
+  });
 }

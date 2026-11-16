@@ -10,7 +10,10 @@ export const STATIONS = [1, 2, 3, 4] as const;
 export const GROUPS: readonly { key: string; capabilities: readonly string[] }[] = [
   { key: "posts", capabilities: ["meta_publish", "tiktok_publish"] },
   { key: "ads", capabilities: ["meta_ads", "tiktok_ads", "google_ads"] },
-  { key: "customers", capabilities: ["email_campaign", "google_business_reviews"] },
+  {
+    key: "customers",
+    capabilities: ["email_campaign", "followup_email", "google_business_reviews"],
+  },
   { key: "suppliers", capabilities: ["purchase_order"] },
 ];
 

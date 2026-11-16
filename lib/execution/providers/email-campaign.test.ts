@@ -145,14 +145,31 @@ const SOURCES = ["app", "lib", "components", "scripts"].flatMap((d) =>
 );
 
 describe("P4-15 — THE BUILD GATES", () => {
-  it("sendCampaignEmail is called from exactly one place: the provider's per-recipient loop", () => {
+  it("sendCampaignEmail is called from two places: the campaign's loop and the follow-up's one send", () => {
     const sites = SOURCES.flatMap((f) => {
       const src = readFileSync(f, "utf8");
       return [...src.matchAll(/\bsendCampaignEmail\(/g)]
         .filter((m) => !/function\s+$/.test(src.slice(Math.max(0, m.index - 16), m.index)))
         .map(() => rel(f));
     });
-    expect(sites).toEqual(["lib/execution/providers/email-campaign.ts"]);
+    // P5-16b (rule 29 amended 2026-11-16, added deliberately): the deal
+    // follow-up sender, an execution provider too — once, inside execute,
+    // after the stop, the consent check at the moment of sending, and the claim.
+    expect(sites.sort()).toEqual([
+      "lib/execution/providers/email-campaign.ts",
+      "lib/execution/providers/followup-email.ts",
+    ]);
+    const follow = readFileSync(
+      path.join(ROOT, "lib/execution/providers/followup-email.ts"),
+      "utf8",
+    );
+    const fExecute = follow.indexOf("async execute(op, params, ctx)");
+    const fCall = follow.indexOf("await sendCampaignEmail(");
+    expect([...follow.matchAll(/\bawait sendCampaignEmail\(/g)]).toHaveLength(1);
+    expect(fCall).toBeGreaterThan(fExecute);
+    expect(fCall).toBeGreaterThan(follow.indexOf("ctx.halted && (await ctx.halted())", fExecute));
+    expect(fCall).toBeGreaterThan(follow.indexOf("await b.check(proposalId", fExecute));
+    expect(fCall).toBeGreaterThan(follow.indexOf("await b.claim(", fExecute));
     const src = readFileSync(path.join(ROOT, "lib/execution/providers/email-campaign.ts"), "utf8");
     const execute = src.indexOf("async execute(op, params, ctx)");
     const call = src.indexOf("await sendCampaignEmail(");

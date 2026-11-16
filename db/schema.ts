@@ -491,6 +491,7 @@ export const decisionKind = pgEnum("decision_kind", [
   "mandate_grant", // v1 spec §7.1: the owner granted a firm a mandate; ref is the mandates row
   "mandate_revoke", // §7.1: the owner revoked it; ref is the mandates row
   "partner_action", // §7.7: a firm member acted under a mandate; ref is what they acted on, user_id who
+  "followup_approval", // P5-16b: the owner approved the exact deal follow-up email; ref is the proposal, ids and hashes only
 ]);
 
 export const decisionLog = pgTable(
@@ -3772,9 +3773,10 @@ export const dealEvents = pgTable(
 
 /**
  * P5-16: a follow-up email drafted for an approved follow-up proposal —
- * one per proposal. It is never sent by SYB: the owner copies it into
- * their own mail. The body holds a {{name}} slot, never the name, and goes
- * with the deal on erasure.
+ * one per proposal. The body holds a {{name}} slot, never the name, and goes
+ * with the deal on erasure. P5-16b (rule 29 amended 2026-11-16): once the
+ * owner approves this exact text (approved_*), SYB sends it; the send itself
+ * is a campaign_sends row on the same proposal.
  */
 export const dealFollowups = pgTable(
   "deal_followups",
@@ -3797,6 +3799,12 @@ export const dealFollowups = pgTable(
     created_at: timestamp("created_at", { withTimezone: true, mode: "string" })
       .notNull()
       .defaultNow(),
+    /* ── P5-16b: the owner's approval of this exact email ── */
+    approved_by: uuid("approved_by"),
+    approved_at: timestamp("approved_at", { withTimezone: true, mode: "string" }),
+    /** sha256 of `body` as the owner read it; a changed body needs a new approval. */
+    approved_sha256: text("approved_sha256"),
+    approved_subject: text("approved_subject"),
   },
   (t) => [
     uniqueIndex("deal_followups_proposal_idx").on(t.proposal_id),
@@ -4705,6 +4713,8 @@ export const planCapability = pgEnum("plan_capability", [
   "meta_post",
   "review_reply",
   "fixture",
+  // P5-16b: a deal follow-up email — one contact, so unmeasurable by design.
+  "deal_followup",
 ]);
 
 export const planMetric = pgEnum("plan_metric", [

@@ -8,10 +8,11 @@
 // Top to bottom: the headline stated from the weighted range (or why it
 // can't be weighed); the board, stages as columns, each deal with its value
 // and age; the deals gone quiet, each with its follow-up's state — a
-// proposal through the queue, a draft the owner sends from their own mail;
-// what's likely to close, with its window, sources and ASSUMED lines
-// (rule 25); then adding a deal and importing a CSV under the owner's
-// attestation (P4-03). Nothing on this screen sends anything. The window,
+// proposal through the queue, then a draft the owner approves word for word
+// and SYB sends (P5-16b, rule 29 amended 2026-11-16; older follow-ups stay
+// copy-and-send-yourself); what's likely to close, with its window, sources
+// and ASSUMED lines (rule 25); then adding a deal and importing a CSV under
+// the owner's attestation (P4-03). The window,
 // sources, ASSUMED lines and consent notes sit folded under "How this works"
 // (decluttered 2026-11-09 on the owner's instruction), reachable, not read out.
 //
@@ -223,6 +224,15 @@ function StaleRow({ s, busy, act }: { s: StaleView; busy: boolean; act: Act }) {
   const f = s.followup;
   const w = f ? followUpWord(f, tr) : null;
   const [copied, setCopied] = useState(false);
+  const [subject, setSubject] = useState("");
+  const canApprove =
+    f !== null &&
+    f.sendable &&
+    f.status === "approved" &&
+    f.filled !== null &&
+    f.body_sha256 !== null &&
+    !f.email_approved &&
+    f.send === null;
   return (
     <li className="pl-stale-row">
       <div>
@@ -249,7 +259,7 @@ function StaleRow({ s, busy, act }: { s: StaleView; busy: boolean; act: Act }) {
             disabled={busy}
             onClick={() =>
               act({ action: "draft_followup", proposal_id: f.proposal_id }, () =>
-                tr("stale.drafted"),
+                tr(f.sendable ? "stale.draftedSend" : "stale.drafted"),
               )
             }
           >
@@ -259,18 +269,72 @@ function StaleRow({ s, busy, act }: { s: StaleView; busy: boolean; act: Act }) {
         {f?.filled && (
           <div className="pl-draft">
             <pre>{f.filled}</pre>
-            <p className="pl-stale-why">
-              {tr("stale.dontSend")}{" "}
-              <button
-                type="button"
-                className="pl-link"
-                onClick={() => {
-                  void navigator.clipboard?.writeText(f.filled ?? "").then(() => setCopied(true));
-                }}
-              >
-                {copied ? tr("stale.copied") : tr("stale.copy")}
-              </button>
-            </p>
+            {f.sendable ? (
+              <>
+                {canApprove && (
+                  <>
+                    <p className="pl-stale-why">{tr("stale.adds")}</p>
+                    <label className="pl-field">
+                      <span className="label">{tr("stale.subject")}</span>
+                      <input
+                        value={subject}
+                        maxLength={200}
+                        onChange={(e) => setSubject(e.target.value)}
+                      />
+                    </label>
+                    <button
+                      type="button"
+                      className="act"
+                      disabled={busy || subject.trim() === ""}
+                      onClick={() =>
+                        act(
+                          {
+                            action: "approve_followup_email",
+                            proposal_id: f.proposal_id,
+                            subject: subject.trim(),
+                            body_sha256: f.body_sha256,
+                          },
+                          (j) =>
+                            j.result === "sent"
+                              ? tr("stale.sentNow")
+                              : j.result === "held"
+                                ? tr("stale.heldNow")
+                                : tr("stale.notSent", { why: String(j.message ?? "") }),
+                        )
+                      }
+                    >
+                      {tr("stale.approveSend")} <span aria-hidden="true">→</span>
+                    </button>
+                  </>
+                )}
+                {f.send === "sent" && f.sent_at && (
+                  <p className="pl-stale-why">
+                    {tr("stale.sentOn", { date: dateWords(f.sent_at.slice(0, 10), locale) })}
+                  </p>
+                )}
+                {f.send === "waiting" && <p className="pl-stale-why">{tr("stale.waiting")}</p>}
+                {f.send === "ready" && <p className="pl-stale-why">{tr("stale.ready")}</p>}
+                {f.send === "unconfirmed" && (
+                  <p className="pl-stale-why">{tr("stale.unconfirmed")}</p>
+                )}
+                {f.send === "not_sent" && f.error && (
+                  <p className="pl-stale-why">{tr("stale.notSent", { why: f.error })}</p>
+                )}
+              </>
+            ) : (
+              <p className="pl-stale-why">
+                {tr("stale.dontSend")}{" "}
+                <button
+                  type="button"
+                  className="pl-link"
+                  onClick={() => {
+                    void navigator.clipboard?.writeText(f.filled ?? "").then(() => setCopied(true));
+                  }}
+                >
+                  {copied ? tr("stale.copied") : tr("stale.copy")}
+                </button>
+              </p>
+            )}
           </div>
         )}
       </div>

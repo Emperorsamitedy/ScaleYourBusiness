@@ -49,8 +49,32 @@
 //     schedules it for now (execute_on_approval), so the next pass sends it;
 //     the provider decides at that moment whether it really goes out or runs
 //     against the fake sender, and says which
+//   - a deal follow-up (P5-16b, rule 29 amended 2026-11-16): lib/pipeline/
+//     followup-send's followUpPlanFor routes a pipeline deal_followup
+//     proposal to { followup_email, send_followup, {proposal_id} }. Its
+//     schedule floor is set when the owner approves the exact email, so a
+//     follow-up whose email nobody approved is never selected; while real
+//     sending is off the provider defers it, unclaimed, and it stays approved
+//   - a Google review reply (I-45a lifted 2026-11-16): lib/review-desk/post's
+//     googleReplyPlanFor routes a reviews review_reply proposal to
+//     { google_business_reviews, reply_to_review, {the approved words} },
+//     built from the approved row. Approving it schedules it for now
+//   - an hours trial on a Google listing (I-45a lifted 2026-11-16):
+//     lib/hours/trials' hoursPlanFor routes an hours proposal that carries a
+//     google_change (made while the Google connection could write) to
+//     { google_business_reviews, set_regular_hours, that change }; the trial's
+//     end is a separate revert proposal, never a silent change. A trial
+//     without a google_change is the owner's to carry out, as before
+//   - a shop change on Shopify (D6, owner 2026-11-16): lib/shop/writes'
+//     shopPlanFor routes a pair (bundles, or a slow item's pair) to
+//     { shopify_write, create_bundle } and a slow-stock markdown to
+//     { shopify_write, set_variant_price, CLEARANCE's share }, built from
+//     the approved row's own ref and the Shopify ids its generator stored
+//     while the store was connected. One made without them is unroutable,
+//     named, and the owner sets it up in Shopify
 //   - module "site": applySiteChange, which does its own drift check,
-//     health check and auto-rollback through the engine
+//     health check and auto-rollback through the engine (on a Shopify
+//     store with store changes connected, through shopify_write)
 //   - anything else is UNROUTABLE: counted, logged, left approved. The
 //     runner never guesses what an approval meant.
 //
@@ -88,6 +112,10 @@ import { adsPlan, isAdProposal } from "../ads/executing";
 import { reclaimStaleAdBuilds } from "../ads/adcreate";
 import { campaignPlanFor, reclaimStaleCampaignRuns } from "../crm/campaign-send";
 import { purchaseOrderPlanFor } from "../purchasing/send";
+import { followUpPlanFor } from "../pipeline/followup-send";
+import { googleReplyPlanFor } from "../review-desk/post";
+import { hoursPlanFor } from "../hours/trials";
+import { shopPlanFor } from "../shop/writes";
 import { applySiteChange } from "../site/apply";
 import { SiteChangeError } from "../site/changes";
 import { activeExecutionConnection } from "./connections";
@@ -341,6 +369,16 @@ async function runOne(
     }
     if (!plan) plan = campaignPlanFor(proposal);
     if (!plan) plan = purchaseOrderPlanFor(proposal);
+    if (!plan) plan = followUpPlanFor(proposal);
+    if (!plan) plan = googleReplyPlanFor(proposal);
+    if (!plan) plan = hoursPlanFor(proposal);
+    if (!plan) {
+      const routed = shopPlanFor(proposal);
+      if (routed && "unroutable" in routed) {
+        return { ...base, result: "unroutable", detail: `${routed.unroutable} — left approved` };
+      }
+      if (routed) plan = routed.plan;
+    }
     if (!plan && isAdProposal(proposal)) {
       const routed = adsPlan(proposal);
       if ("unroutable" in routed) {

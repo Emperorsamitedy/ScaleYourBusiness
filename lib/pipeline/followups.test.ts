@@ -1,7 +1,8 @@
 // P5-16 — follow-ups as drafted proposals. What must hold, each with a
 // passing and a failing case:
 //   · a stale open deal whose contact holds explicit consent is proposed,
-//     once per deal per month, naming no one; nothing is executed or sent;
+//     once per deal per month, naming no one, labelled irreversible (a sent
+//     email can't be recalled — P5-16b); nothing is executed by proposing;
 //   · implied, unsure, no-consent and suppressed contacts are refused by
 //     name (rule 23), and so is a deal that isn't stale;
 //   · b2c, the watch (rule 15) and the owner's 6.4b "no consent" hold it;
@@ -92,7 +93,7 @@ async function quietDeal(
 }
 
 describe("P5-16 — a quiet deal becomes a proposal", () => {
-  it("proposes a follow-up naming no one, easy to undo, with nothing executed", async () => {
+  it("proposes a follow-up naming no one, labelled irreversible, with nothing executed", async () => {
     const { s, contact, deal, tag } = await quietDeal();
     const out = await proposeFollowUps(s.profile_id, { now: NOW, limitLlm });
     expect(out.created).toHaveLength(1);
@@ -115,8 +116,9 @@ describe("P5-16 — a quiet deal becomes a proposal", () => {
     for (const leak of [tag, "Aoife", "cafenua", "555 0101", "Spring tableware"]) {
       expect(everything).not.toContain(leak);
     }
-    expect(p.reversibility).toMatchObject({ level: "easy" });
-    expect(JSON.stringify(p.action)).toMatch(/Nothing sends/);
+    // P5-16b: SYB sends it once the exact email is approved, so it is labelled before approval.
+    expect(p.reversibility).toMatchObject({ level: "hard" });
+    expect(JSON.stringify(p.action)).toMatch(/approve the exact email, and then I send it/);
     expect(await db.select().from(executions).where(eq(executions.proposal_id, p.id))).toEqual([]);
   });
 

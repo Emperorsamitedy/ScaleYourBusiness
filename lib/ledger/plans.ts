@@ -68,6 +68,7 @@ export const DESIGN_PREFERENCE: Readonly<Record<PlanCapability, readonly PlanDes
   meta_post: ["pre_post_adjusted"],
   chat_answer: ["unmeasurable"],
   review_reply: ["unmeasurable"],
+  deal_followup: ["unmeasurable"],
   fixture: ["pre_post_adjusted", "unmeasurable"],
 };
 
@@ -90,13 +91,32 @@ export const PROVIDER_CAPABILITY: Readonly<Record<string, PlanCapability>> = {
   meta_publish: "meta_post",
   email_campaign: "email_campaign",
   purchase_order: "purchase_order",
+  followup_email: "deal_followup",
   google_business_reviews: "review_reply",
+  // D6: the default for reads that name no op (connector health); the op decides in a plan.
+  shopify_write: "site_copy",
   fixture: "fixture",
   fixture_site: "fixture",
 };
 
-export function capabilityOf(provider: string, module?: string | null): PlanCapability {
+/** D6: one Shopify connection, three capabilities — the op says which. */
+const SHOPIFY_OP_CAPABILITY: Readonly<Record<string, PlanCapability>> = {
+  update_page_body: "site_copy",
+  create_bundle: "bundle",
+  set_variant_price: "price_change",
+};
+
+export function capabilityOf(
+  provider: string,
+  module?: string | null,
+  op?: string | null,
+): PlanCapability {
   if (provider === "email_campaign" && module === "winback") return "winback";
+  if (provider === "shopify_write" && op && SHOPIFY_OP_CAPABILITY[op]) {
+    return SHOPIFY_OP_CAPABILITY[op];
+  }
+  // I-45a lifted: the one Google connection both replies to reviews and moves listing hours.
+  if (provider === "google_business_reviews" && module === "hours") return "hours_change";
   const c = PROVIDER_CAPABILITY[provider];
   if (!c) throw new PlanError(`no measurement capability is defined for ${provider}`);
   return c;
@@ -119,6 +139,7 @@ export const PRIMARY_METRIC: Readonly<Record<PlanCapability, PlanMetric>> = {
   purchase_order: "cash_days",
   chat_answer: "leads",
   review_reply: "leads",
+  deal_followup: "leads",
   fixture: "revenue",
 };
 
@@ -216,6 +237,8 @@ export interface OpenPlanInput {
   provider: string;
   /** The proposal's module ("winback" makes an email a win-back). */
   module?: string | null;
+  /** The engine's op, where one provider spans capabilities (D6: shopify_write). */
+  op?: string | null;
   proposalId?: string | null;
   action_summary: string;
   hypothesis: string;
@@ -264,7 +287,7 @@ export async function openPlan(input: OpenPlanInput): Promise<{ plan: Plan; reus
     throw new PlanError("a plan's cost is in the plan's currency (rule 1)");
   }
 
-  const capability = capabilityOf(input.provider, input.module);
+  const capability = capabilityOf(input.provider, input.module, input.op);
   const metric = PRIMARY_METRIC[capability];
   const { design, downgrade_reason } = chooseDesign(capability);
   const grade = planGrade(design, await metricMeasured(input.accountId, metric));
