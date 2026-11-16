@@ -43,6 +43,8 @@ export const V2 = {
     high_minor: 2_039_600,
   },
   chartDays: 60,
+  /** The free check's length, as the page promises it ("in three minutes"). */
+  checkMinutes: 3,
   /** The Autonomous guarantee: verified gains of this many times the fee. */
   guaranteeTimes: 3,
   firm: {

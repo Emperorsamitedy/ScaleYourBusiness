@@ -71,8 +71,10 @@ export function chartGeo(series: Candle[]) {
   };
 }
 
-/** How long each tour screen stays up, in milliseconds. */
-const TOUR_MS = [4400, 4600, 5200, 4800, 5600];
+/** How long each tour screen stays up, in milliseconds; the diagnosis, the screen the tour opens on, longest. */
+const TOUR_MS = [4400, 4600, 7200, 4800, 5600];
+/** The tour opens on the diagnosis: the money at stake is the first thing a visitor reads. */
+const TOUR_START = 2;
 
 /** Start the page's motion on a rendered LandingV2; the returned function stops all of it. */
 export function mountLandingV2(root: HTMLElement, w: MotionWords): () => void {
@@ -217,17 +219,16 @@ export function mountLandingV2(root: HTMLElement, w: MotionWords): () => void {
     tabs.forEach((t, j) => on(t, "click", () => go(j)));
 
     if (reduced) {
-      // Stand on the last screen, approved: the whole story in one frame.
-      scenes.forEach((s, j) => s.classList.toggle("on", j === 4));
-      scenes[4]?.classList.add("is-done");
-      tabs.forEach((t) => t.classList.add("past"));
-      scr.textContent = w.screens[4] ?? "";
+      // Stand on the diagnosis, finished: the money at stake in one still frame.
+      scenes.forEach((s, j) => s.classList.toggle("on", j === TOUR_START));
+      tabs.forEach((t, j) => t.classList.toggle("past", j <= TOUR_START));
+      scr.textContent = w.screens[TOUR_START] ?? "";
       log.textContent = w.tourRecorded;
       count.textContent = w.facts(V2.tourFacts);
     } else {
-      go(0);
+      go(TOUR_START);
       on(document, "visibilitychange", () => {
-        if (!document.hidden) go(0);
+        if (!document.hidden) go(TOUR_START);
       });
     }
   }

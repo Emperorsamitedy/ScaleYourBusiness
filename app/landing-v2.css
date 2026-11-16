@@ -1417,3 +1417,360 @@
 .lx .closing .ctas {
   justify-content: center;
 }
+
+/* ── the first screen, refined (2026-11-16, ux-spec §7.1b): one editorial
+   headline in two lines with the turn in green, one way in, and the
+   diagnosis floating over the shop it read. Depth comes from light and
+   shadow in the scene, not from glass. ── */
+
+.lx .hero .in {
+  grid-template-columns: minmax(0, 1.12fr) minmax(0, 0.88fr);
+  gap: 48px;
+  align-items: center;
+}
+.lx .hero .copy {
+  max-width: 660px;
+  gap: 22px;
+}
+/* the copy sits in its own pool of shadow, so the footage never fights the words */
+.lx .hero .copy::before {
+  inset: -90px -140px -70px -120px;
+  background: radial-gradient(
+    ellipse 62% 58% at 38% 50%,
+    rgba(7, 11, 20, 0.86),
+    rgba(7, 11, 20, 0.55) 55%,
+    rgba(7, 11, 20, 0) 100%
+  );
+}
+.lx .hero .kick {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--hi);
+  letter-spacing: 0.14em;
+  font-size: 12.5px;
+}
+.lx .hero .kick::before {
+  content: "";
+  width: 28px;
+  height: 1px;
+  background: currentColor;
+}
+.lx .hero h1 {
+  font-size: clamp(40px, 4.3vw, 66px);
+  line-height: 1.02;
+  letter-spacing: -0.03em;
+  text-wrap: initial;
+}
+.lx .hero h1 .h-line {
+  display: block;
+}
+@media (min-width: 1180px) {
+  .lx .hero h1 .h-line {
+    white-space: nowrap;
+  }
+}
+.lx .hero h1 em {
+  font-style: normal;
+  color: var(--hi);
+  text-shadow: none;
+}
+.lx .hero .lede {
+  font-size: 19px;
+  line-height: 1.5;
+  color: #c9d0db;
+  max-width: 33em;
+}
+.lx .hero .ctas {
+  gap: 14px;
+  align-items: stretch;
+  margin-top: 4px;
+}
+.lx .hero .btn.cta {
+  min-height: 58px;
+  padding: 0 22px 0 24px;
+  gap: 14px;
+  font-size: 16.5px;
+}
+.lx .hero .cta-meta {
+  padding-left: 14px;
+  border-left: 1px solid rgba(3, 18, 11, 0.35);
+  font-size: 13.5px;
+  font-weight: 500;
+  opacity: 0.8;
+}
+.lx .hero .btn.lx-ghost {
+  min-height: 58px;
+  border-color: rgba(244, 246, 250, 0.42);
+  background: rgba(7, 11, 20, 0.35);
+}
+.lx .hero .btn.lx-ghost:hover {
+  border-color: var(--fg);
+}
+.lx .hero .trust {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 0;
+  margin: 2px 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 13.5px;
+  color: var(--fg-2);
+}
+.lx .hero .trust li + li::before {
+  content: "";
+  display: inline-block;
+  width: 1px;
+  height: 11px;
+  margin: 0 14px;
+  background: rgba(244, 246, 250, 0.3);
+  vertical-align: -1px;
+}
+
+/* the floating diagnosis: held above the counter, with its own shadow on the scene */
+.lx .tourwrap {
+  position: relative;
+  align-self: center;
+  justify-self: end;
+  width: min(500px, 100%);
+  margin-top: 56px;
+}
+.lx .tour-ground {
+  position: absolute;
+  left: 8%;
+  right: 8%;
+  bottom: -46px;
+  height: 60px;
+  background: radial-gradient(ellipse at 50% 50%, rgba(0, 0, 0, 0.55), rgba(0, 0, 0, 0) 70%);
+  filter: blur(6px);
+  pointer-events: none;
+}
+.lx .hero .win {
+  box-shadow:
+    0 1px 0 rgba(255, 255, 255, 0.5) inset,
+    0 0 0 1px rgba(255, 255, 255, 0.08),
+    0 34px 70px -34px rgba(0, 0, 0, 0.9),
+    -30px 0 80px -50px rgba(43, 213, 148, 0.35);
+}
+
+/* the tour's steps: a quiet rail, not a row of tabs */
+.lx .hero .tabs {
+  background: var(--paper);
+  border-bottom: 1px solid var(--p-line);
+  padding: 0 10px;
+}
+.lx .hero .tabs button {
+  border-left: 0;
+  padding: 10px 2px 11px;
+  font-size: 11.5px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  color: #8a93a3;
+}
+.lx .hero .tabs button.on {
+  color: var(--p-ink);
+  font-weight: 700;
+}
+.lx .hero .tabs button.past {
+  color: var(--p-ink-2);
+}
+.lx .hero .tabs button i {
+  left: 10%;
+  right: 10%;
+  width: auto;
+  max-width: 0;
+  transition: none;
+}
+.lx .hero .tabs button.past i {
+  max-width: 80%;
+  background: var(--p-line);
+}
+.lx .hero .tabs button.on i {
+  max-width: 80%;
+  animation: lx-fill-max var(--dur, 4000ms) linear forwards;
+}
+@keyframes lx-fill-max {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+.lx .hero .scenes {
+  height: 356px;
+}
+/* a shorter tour screen sits in the middle of the panel, not stranded at the top */
+.lx .hero .scene {
+  align-content: center;
+}
+.lx .hero .scene.diag {
+  align-content: start;
+}
+/* the section rail lives in the left margin; where there is no margin, it goes */
+@media (max-width: 1379px) {
+  .lx .rail {
+    display: none;
+  }
+}
+
+/* the diagnosis screen: the money at stake first, then one line per finding */
+.lx .diag {
+  gap: 9px;
+  padding-top: 16px;
+}
+.lx .stake {
+  display: grid;
+  gap: 2px;
+  padding-bottom: 6px;
+}
+.lx .stake-v {
+  font-family: var(--f-mono);
+  font-size: 32px;
+  font-weight: 600;
+  letter-spacing: -0.035em;
+  line-height: 1.05;
+  color: var(--p-ink);
+  font-variant-numeric: tabular-nums;
+}
+.lx .stake-k {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  font-size: 13.5px;
+  font-weight: 600;
+}
+.lx .stake-k span {
+  font-family: var(--f-mono);
+  font-size: 11.5px;
+  font-weight: 400;
+  color: var(--p-ink-2);
+}
+.lx .fnd-h {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 4px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--p-ink);
+  font-family: var(--f-mono);
+  font-size: 10.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--p-ink-2);
+}
+.lx .fnd {
+  display: grid;
+  grid-template-columns: 4px minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+  padding: 2px 0 9px;
+  border-bottom: 1px solid var(--p-line);
+}
+.lx .fnd .sev {
+  align-self: stretch;
+  width: 4px;
+  background: #8a93a3;
+}
+.lx .fnd.sev-high .sev {
+  background: #c4321f;
+}
+.lx .fnd.sev-medium .sev {
+  background: #d98b00;
+}
+.lx .fnd-t {
+  display: grid;
+  gap: 1px;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.3;
+}
+.lx .fnd-t small {
+  font-family: var(--f-mono);
+  font-size: 10.5px;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--p-ink-2);
+}
+.lx .fnd-v {
+  font-family: var(--f-mono);
+  font-size: 16px;
+  font-weight: 600;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.lx .fnd-v.loss {
+  color: #b42318;
+}
+.lx .fnd-v.gain {
+  color: var(--ok);
+}
+.lx .fnd-v.tied {
+  color: #8a5300;
+}
+
+@media (max-width: 900px) {
+  .lx .hero .in {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 36px;
+  }
+  .lx .hero .copy {
+    text-align: left;
+    justify-items: start;
+    margin-inline: 0;
+    padding-top: 2vh;
+  }
+  .lx .hero .ctas {
+    justify-content: flex-start;
+  }
+  .lx .hero h1 {
+    font-size: clamp(36px, 9.6vw, 52px);
+  }
+  .lx .hero .lede {
+    font-size: 17px;
+  }
+  .lx .tourwrap {
+    justify-self: stretch;
+    width: 100%;
+    margin-top: 0;
+  }
+  .lx .hero .scenes {
+    height: 404px;
+  }
+}
+@media (max-width: 480px) {
+  .lx .hero .btn.cta,
+  .lx .hero .btn.lx-ghost {
+    width: 100%;
+    justify-content: space-between;
+  }
+  /* on a phone the button's promise sits on its own line under the label */
+  .lx .hero .btn.cta {
+    flex-wrap: wrap;
+    row-gap: 2px;
+    padding-block: 12px;
+  }
+  .lx .hero .btn.cta > span:first-child {
+    flex: 1;
+  }
+  .lx .hero .cta-meta {
+    order: 3;
+    width: 100%;
+    padding-left: 0;
+    border-left: 0;
+  }
+  .lx .hero .trust {
+    font-size: 13px;
+    gap: 4px 16px;
+  }
+  .lx .hero .trust li + li::before {
+    display: none;
+  }
+  .lx .stake-v {
+    font-size: 27px;
+  }
+  .lx .hero .tabs button {
+    font-size: 10.5px;
+  }
+}

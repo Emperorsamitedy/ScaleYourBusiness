@@ -10157,12 +10157,17 @@
       "kicker": "Ein Bluttest für Ihr Unternehmen",
       "lede": "ScaleX findet, wo Ihr Geld versickert, beziffert es in Euro und behebt es nur, wenn Sie Ja sagen.",
       "run": "Kostenlosen Check starten",
-      "see": "In Aktion sehen",
-      "trust": "Nur Lesezugriff. Keine Passwörter. Nichts ändert sich ohne Sie."
+      "see": "So funktioniert es",
+      "trust": "Nur Lesezugriff. Keine Passwörter. Nichts ändert sich ohne Sie.",
+      "titleB": "<em>Seine Zahlen vielleicht nicht.</em>",
+      "ctaMeta": "{minutes, plural, one {# Minute} other {# Minuten}} · kein Konto",
+      "trustRead": "Nur Lesezugriff",
+      "trustPw": "Keine Passwörter",
+      "trustYes": "Nichts ändert sich ohne Ihr Ja"
     },
     "tour": {
       "aria": "Produkttour: ScaleX verbindet sich mit einem Geschäft, erstellt dessen Faktenblatt, findet ein Leck und behebt es nach der Freigabe durch den Inhaber",
-      "demo": "Demo-Geschäft",
+      "demo": "Demodaten",
       "connections": "Verbindungen",
       "readsOnly": "ScaleX liest, schreibt nie",
       "reads": {
@@ -10180,7 +10185,10 @@
         "diagnosis": "Diagnose",
         "finding": "Befund",
         "yes": "Ihr Ja"
-      }
+      },
+      "atStake": "im Monat auf dem Spiel",
+      "pricedSplit": "{priced} beziffert · {unpriced} noch nicht",
+      "findingCol": "Befund"
     },
     "fact": {
       "revenue": "Umsatz, {days} Tage",
