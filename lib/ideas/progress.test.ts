@@ -3,7 +3,7 @@
 
 import { describe, expect, it } from "vitest";
 import type { NextTest } from "./check";
-import { firstConnector, planVsActual, scoreTest } from "./progress";
+import { assumptionsVsActual, firstConnector, planVsActual, scoreTest } from "./progress";
 
 const presale: NextTest = {
   id: "presale",
@@ -100,5 +100,73 @@ describe("I-52 — the first connector, as data", () => {
     expect(firstConnector("one_off", "ecommerce_store")).toBe("shopify");
     expect(firstConnector("one_off", "cafe")).toBe("square");
     expect(firstConnector("one_off", "consulting")).toBe("stripe");
+  });
+});
+
+describe("I-51 — per assumption: customers, price, and costs said to be unmeasured", () => {
+  const planned = { customers: 400, price_minor: 2_000, currency: "EUR" };
+
+  it("customers against measured orders a month; price against the average sale", () => {
+    // 45 days: 450 orders (300 a month) and 1 012 500 in revenue (2 250 a sale).
+    expect(
+      assumptionsVsActual({
+        model: "one_off",
+        planned,
+        revenue: { sum_minor: 1_012_500, days: 45, currency: "EUR" },
+        orders: { sum: 450, days: 45 },
+      }),
+    ).toEqual([
+      { key: "customers", status: "compared", planned: 400, actual: 300, delta_bp: -2_500 },
+      {
+        key: "price",
+        status: "compared",
+        currency: "EUR",
+        planned_minor: 2_000,
+        actual_minor: 2_250,
+        delta_bp: 1_250,
+      },
+      { key: "costs", status: "not_measured" },
+    ]);
+  });
+
+  it("a subscription's orders aren't its subscribers: neither is compared", () => {
+    const lines = assumptionsVsActual({
+      model: "subscription",
+      planned,
+      revenue: { sum_minor: 1, days: 30, currency: "EUR" },
+      orders: { sum: 1, days: 30 },
+    });
+    expect(lines.slice(0, 2)).toEqual([
+      { key: "customers", status: "not_comparable", why: "subscription" },
+      { key: "price", status: "not_comparable", why: "subscription" },
+    ]);
+  });
+
+  it("no orders measured, no customer estimate, or another currency: said, never guessed", () => {
+    const base = {
+      model: "one_off" as const,
+      revenue: { sum_minor: 1, days: 30, currency: "EUR" },
+    };
+    expect(
+      assumptionsVsActual({ ...base, planned, orders: { sum: 10, days: 29 } }).slice(0, 2),
+    ).toEqual([
+      { key: "customers", status: "not_comparable", why: "no_orders" },
+      { key: "price", status: "not_comparable", why: "no_orders" },
+    ]);
+    expect(
+      assumptionsVsActual({
+        ...base,
+        planned: { ...planned, customers: null },
+        orders: { sum: 10, days: 30 },
+      })[0],
+    ).toEqual({ key: "customers", status: "not_comparable", why: "no_estimate" });
+    expect(
+      assumptionsVsActual({
+        ...base,
+        planned,
+        revenue: { sum_minor: 1, days: 30, currency: "HUF" },
+        orders: { sum: 10, days: 30 },
+      })[1],
+    ).toEqual({ key: "price", status: "not_comparable", why: "other_currency" });
   });
 });

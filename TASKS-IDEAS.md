@@ -216,6 +216,9 @@ interview is part 2.
 
 **Gate:** a launched profile shows its own plan beside its measured month;
 no planned figure is lost or edited.
+**Passed 2026-11-17**: revenue, customers (measured orders a month) and price
+(the measured average sale) each beside the plan; costs said to be unmeasured;
+a subscription's orders not read as subscribers (lib/ideas/keep.test.ts).
 
 ---
 

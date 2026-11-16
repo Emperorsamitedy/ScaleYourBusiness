@@ -9696,7 +9696,22 @@
       "tooEarly": "Eddig {days} mért nap a szükséges {needed} napból. Az összevetés akkor jön, ha elég összegyűlt.",
       "otherCurrency": "A terved {planned} pénznemben van, az eladásaidat pedig {measured} pénznemben mérjük. Semmit nem váltunk át, ezért nem vetjük össze őket.",
       "noPlan": "A tervedben nem volt ügyfélszám-becslés, így nincs tervezett hónap, amivel összevethetnénk.",
-      "kept": "A mért adatok nem változtatják meg a tervedet. Mindkettő megmarad, egymás mellett."
+      "kept": "A mért adatok nem változtatják meg a tervedet. Mindkettő megmarad, egymás mellett.",
+      "customers": "Ügyfelek: havi {planned} ügyfelet terveztél; a mért rendelések száma havi {actual}, az eltérés {gap}.",
+      "price": "Ár: eladásonként {planned} összeget terveztél; a mért átlagos eladás {actual}, az eltérés {gap}.",
+      "costs": "Költségek: még egyetlen összekapcsolt rendszerből sem mérjük őket, ezért a megadott költségeid úgy maradnak, ahogy megadtad.",
+      "not": {
+        "customers": {
+          "subscription": "Ügyfelek: a rendelések nem előfizetők, ezért egy előfizetés ügyfeleit még nem vetjük össze.",
+          "no_estimate": "Ügyfelek: a tervedben nem volt ügyfélszám-becslés, amivel összevethetnénk.",
+          "no_orders": "Ügyfelek: a rendeléseket még nem mértük elég napon át."
+        },
+        "price": {
+          "subscription": "Ár: egy előfizetés átlagos kosárértéke nem azonos a havi árával, ezért nem vetjük össze.",
+          "no_orders": "Ár: az átlagos eladáshoz elég napnyi mért rendelés kell.",
+          "other_currency": "Ár: az eladásokat más pénznemben mérjük, és semmit nem váltunk át."
+        }
+      }
     },
     "provider": {
       "stripe": "Stripe",

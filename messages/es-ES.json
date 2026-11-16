@@ -9696,7 +9696,22 @@
       "tooEarly": "Días medidos hasta ahora: {days} de {needed}. La comparación llegará cuando haya suficientes.",
       "otherCurrency": "Tu plan está en {planned} y tus ventas se miden en {measured}. No se convierte nada, así que no se comparan.",
       "noPlan": "Tu plan no tenía estimación de clientes, así que no hay un mes previsto con el que comparar.",
-      "kept": "Lo medido no cambia tu plan. Los dos se quedan, uno al lado del otro."
+      "kept": "Lo medido no cambia tu plan. Los dos se quedan, uno al lado del otro.",
+      "customers": "Clientes: planeaste {planned} al mes; los pedidos medidos suman {actual} al mes, una diferencia de {gap}.",
+      "price": "Precio: planeaste {planned} por venta; la venta media medida es de {actual}, una diferencia de {gap}.",
+      "costs": "Costes: todavía no se miden desde ningún sistema conectado, así que tus costes declarados se mantienen tal como los indicaste.",
+      "not": {
+        "customers": {
+          "subscription": "Clientes: los pedidos no son suscriptores, así que los clientes de una suscripción todavía no se comparan.",
+          "no_estimate": "Clientes: tu plan no tenía una estimación de clientes con la que comparar.",
+          "no_orders": "Clientes: los pedidos todavía no se han medido durante suficientes días."
+        },
+        "price": {
+          "subscription": "Precio: el pedido medio de una suscripción no es su precio mensual, así que no se compara.",
+          "no_orders": "Precio: la venta media necesita suficientes días de pedidos medidos.",
+          "other_currency": "Precio: las ventas se miden en otra moneda y no se convierte nada."
+        }
+      }
     },
     "provider": {
       "stripe": "Stripe",

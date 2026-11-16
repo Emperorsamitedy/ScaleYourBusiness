@@ -9696,7 +9696,22 @@
       "tooEarly": "Bisher gemessene Tage: {days} von {needed}. Der Vergleich kommt, sobald es genug sind.",
       "otherCurrency": "Dein Plan ist in {planned}, deine Verkäufe werden in {measured} gemessen. Es wird nichts umgerechnet, deshalb werden sie nicht verglichen.",
       "noPlan": "Dein Plan hatte keine Schätzung der Kunden, also gibt es keinen geplanten Monat zum Vergleich.",
-      "kept": "Dein Plan wird durch das Gemessene nicht verändert. Beides bleibt, nebeneinander."
+      "kept": "Dein Plan wird durch das Gemessene nicht verändert. Beides bleibt, nebeneinander.",
+      "customers": "Kunden: Du hast {planned} pro Monat geplant; die gemessenen Bestellungen kommen auf {actual} pro Monat, eine Abweichung von {gap}.",
+      "price": "Preis: Du hast {planned} pro Verkauf geplant; der gemessene durchschnittliche Verkauf liegt bei {actual}, eine Abweichung von {gap}.",
+      "costs": "Kosten: Noch aus keinem verbundenen System gemessen, deshalb gelten deine angegebenen Kosten so, wie du sie angegeben hast.",
+      "not": {
+        "customers": {
+          "subscription": "Kunden: Bestellungen sind keine Abonnenten, deshalb werden die Kunden eines Abonnements noch nicht verglichen.",
+          "no_estimate": "Kunden: Dein Plan hatte keine Schätzung der Kunden, mit der sich vergleichen ließe.",
+          "no_orders": "Kunden: Bestellungen wurden noch nicht an genug Tagen gemessen."
+        },
+        "price": {
+          "subscription": "Preis: Die durchschnittliche Bestellung eines Abonnements ist nicht sein monatlicher Preis, deshalb wird sie nicht verglichen.",
+          "no_orders": "Preis: Für den durchschnittlichen Verkauf braucht es genug Tage mit gemessenen Bestellungen.",
+          "other_currency": "Preis: Die Verkäufe werden in einer anderen Währung gemessen, und es wird nichts umgerechnet."
+        }
+      }
     },
     "provider": {
       "stripe": "Stripe",

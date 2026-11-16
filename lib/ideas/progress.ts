@@ -5,7 +5,7 @@
 import ideaFile from "../../specs/idea-v1.json";
 import { isProviderId } from "../connectors/scopes";
 import type { ProviderId } from "../connectors/scopes";
-import { ratioBp, scaleMinorBy } from "../core/money";
+import { perUnit, ratioBp, scaleMinorBy } from "../core/money";
 import type { NextTest } from "./check";
 import type { RevenueModel } from "./model";
 
@@ -89,6 +89,86 @@ export function planVsActual(args: {
     days_measured: measured.days,
     delta_bp: ratioBp(actual - args.planned.amount_minor, args.planned.amount_minor),
   };
+}
+
+export type AssumptionLine =
+  | {
+      key: "customers";
+      status: "compared";
+      planned: number;
+      /** Measured orders, scaled to 30 days. */
+      actual: number;
+      delta_bp: number;
+    }
+  | {
+      key: "price";
+      status: "compared";
+      currency: string;
+      planned_minor: number;
+      /** Measured revenue ÷ measured orders: the average sale. */
+      actual_minor: number;
+      delta_bp: number;
+    }
+  | {
+      key: "customers" | "price";
+      status: "not_comparable";
+      why: "subscription" | "no_estimate" | "no_orders" | "other_currency";
+    }
+  | { key: "costs"; status: "not_measured" };
+
+/**
+ * Pure: I-51, per assumption. Customers against measured orders (scaled to
+ * a 30-day month) and price against the measured average sale (revenue ÷
+ * orders, same days). Costs aren't measured from any connected source yet,
+ * and say so. A subscription's orders aren't its subscribers, so neither
+ * line is compared for one. Shown beside the plan, never swapped in.
+ */
+export function assumptionsVsActual(args: {
+  model: RevenueModel;
+  planned: { customers: number | null; price_minor: number; currency: string };
+  revenue: { sum_minor: number; days: number; currency: string | null };
+  orders: { sum: number; days: number };
+}): AssumptionLine[] {
+  const costs: AssumptionLine = { key: "costs", status: "not_measured" };
+  if (args.model === "subscription") {
+    return [
+      { key: "customers", status: "not_comparable", why: "subscription" },
+      { key: "price", status: "not_comparable", why: "subscription" },
+      costs,
+    ];
+  }
+  const enough = args.orders.days >= MIN_MEASURED_DAYS && args.orders.sum > 0;
+  const customers: AssumptionLine =
+    args.planned.customers === null || args.planned.customers <= 0
+      ? { key: "customers", status: "not_comparable", why: "no_estimate" }
+      : !enough
+        ? { key: "customers", status: "not_comparable", why: "no_orders" }
+        : (() => {
+            const actual = Math.round((args.orders.sum * 30) / args.orders.days); // not money: orders per 30 days
+            return {
+              key: "customers" as const,
+              status: "compared" as const,
+              planned: args.planned.customers,
+              actual,
+              delta_bp: ratioBp(actual - args.planned.customers, args.planned.customers),
+            };
+          })();
+  const price: AssumptionLine = !enough
+    ? { key: "price", status: "not_comparable", why: "no_orders" }
+    : args.revenue.currency !== args.planned.currency
+      ? { key: "price", status: "not_comparable", why: "other_currency" }
+      : (() => {
+          const actual = perUnit(args.revenue.sum_minor, args.orders.sum);
+          return {
+            key: "price" as const,
+            status: "compared" as const,
+            currency: args.planned.currency,
+            planned_minor: args.planned.price_minor,
+            actual_minor: actual,
+            delta_bp: ratioBp(actual - args.planned.price_minor, args.planned.price_minor),
+          };
+        })();
+  return [customers, price, costs];
 }
 
 const FIRST = ideaFile.first_connector as {

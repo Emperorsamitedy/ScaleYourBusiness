@@ -25,8 +25,14 @@ import { writeField } from "../profile/field-store";
 import { dailySeries, shiftDay } from "../trust/series";
 import type { IdeaAnswers, IdeaResult } from "./check";
 import { IdeaError } from "./check";
-import type { PlanVsActual, TestReading } from "./progress";
-import { MIN_MEASURED_DAYS, firstConnector, planVsActual, scoreTest } from "./progress";
+import type { AssumptionLine, PlanVsActual, TestReading } from "./progress";
+import {
+  MIN_MEASURED_DAYS,
+  assumptionsVsActual,
+  firstConnector,
+  planVsActual,
+  scoreTest,
+} from "./progress";
 import { toMinor } from "./units";
 
 const hash = (payload: unknown) =>
@@ -262,27 +268,54 @@ export async function launchIdea(args: {
   };
 }
 
-/** I-51: the plan against the measured days since launch (the last 60 at most). */
+/** I-51: the plan against the measured days since launch (the last 60 at most), whole and per assumption. */
 export async function ideaPlanVsActual(
   profileId: string,
   idea: KeptIdea,
   now = new Date(),
-): Promise<PlanVsActual | null> {
+): Promise<{ revenue: PlanVsActual; assumptions: AssumptionLine[] } | null> {
   if (idea.kind !== "operating" || !idea.launched_at) return null;
   const today = now.toISOString().slice(0, 10);
   const launched = idea.launched_at.slice(0, 10);
   const from = [launched, shiftDay(today, -60)].sort().at(-1)!;
-  const series = await dailySeries(profileId, "revenue.daily", from, shiftDay(today, -1));
+  const to = shiftDay(today, -1);
+  const [revenue, orders] = await Promise.all([
+    dailySeries(profileId, "revenue.daily", from, to),
+    dailySeries(profileId, "orders.daily", from, to),
+  ]);
+  const currency = revenue && revenue.currencies.size === 1 ? revenue.currency : null;
   let sum = 0;
-  for (const v of series?.values.values() ?? []) sum += v;
-  return planVsActual({
-    planned: plannedRevenue(idea.answers),
-    measured: {
-      sum_minor: sum,
-      days: series?.values.size ?? 0,
-      currency: series && series.currencies.size === 1 ? series.currency : null,
-    },
-  });
+  for (const v of revenue?.values.values() ?? []) sum += v;
+  // The average sale uses only days on which both were measured.
+  let ordersSum = 0;
+  let revenueOnOrderDays = 0;
+  for (const [day, n] of orders?.values ?? []) {
+    const r = revenue?.values.get(day);
+    if (r === undefined) continue;
+    ordersSum += n;
+    revenueOnOrderDays += r;
+  }
+  const bothDays = [...(orders?.values.keys() ?? [])].filter((d) => revenue?.values.has(d)).length;
+  const a = idea.answers;
+  return {
+    revenue: planVsActual({
+      planned: plannedRevenue(a),
+      measured: { sum_minor: sum, days: revenue?.values.size ?? 0, currency },
+    }),
+    assumptions:
+      a.revenue_model === "recruitment" || a.price === null
+        ? []
+        : assumptionsVsActual({
+            model: a.revenue_model,
+            planned: {
+              customers: a.customers_month,
+              price_minor: toMinor(a.price, a.currency),
+              currency: a.currency,
+            },
+            revenue: { sum_minor: revenueOnOrderDays, days: bothDays, currency },
+            orders: { sum: Math.round(ordersSum), days: bothDays },
+          }),
+  };
 }
 
 /** I-10: what this business is — an idea, or one that trades. */

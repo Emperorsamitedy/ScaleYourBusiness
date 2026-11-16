@@ -44,10 +44,14 @@ export default async function MyIdeaPage() {
   const a = idea.answers;
   const r = idea.result;
   const dates = new Intl.DateTimeFormat(locale, { dateStyle: "medium" });
-  const vs = await ideaPlanVsActual(access.profile_id, idea);
+  const pva = await ideaPlanVsActual(access.profile_id, idea);
+  const vs = pva?.revenue ?? null;
   const money = (minor: number, currency: string) =>
     presentMoney({ amount_minor: minor, currency }, locale, { whole: true });
   const pct = new Intl.NumberFormat(locale, { style: "percent", maximumFractionDigits: 1 });
+  const count = new Intl.NumberFormat(locale);
+  const unitMoney = (minor: number, currency: string) =>
+    presentMoney({ amount_minor: minor, currency }, locale);
   const connector =
     a.revenue_model === "recruitment" ? null : firstConnector(a.revenue_model, a.sector);
 
@@ -91,6 +95,29 @@ export default async function MyIdeaPage() {
               </p>
             ) : (
               <p className="auth-copy">{tr("actual.noPlan")}</p>
+            )}
+            {vs?.status === "compared" && (pva?.assumptions.length ?? 0) > 0 && (
+              <ul className="idea-list">
+                {pva!.assumptions.map((l) => (
+                  <li key={l.key}>
+                    {l.status === "compared" && l.key === "customers"
+                      ? tr("actual.customers", {
+                          planned: count.format(l.planned),
+                          actual: count.format(l.actual),
+                          gap: pct.format(l.delta_bp / 10_000), // not money: basis points as a percent
+                        })
+                      : l.status === "compared" && l.key === "price"
+                        ? tr("actual.price", {
+                            planned: unitMoney(l.planned_minor, l.currency),
+                            actual: unitMoney(l.actual_minor, l.currency),
+                            gap: pct.format(l.delta_bp / 10_000), // not money: basis points as a percent
+                          })
+                        : l.status === "not_comparable"
+                          ? tr(`actual.not.${l.key}.${l.why}`)
+                          : tr("actual.costs")}
+                  </li>
+                ))}
+              </ul>
             )}
             <p className="auth-copy idea-note">{tr("actual.kept")}</p>
             {connector && (

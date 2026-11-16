@@ -9696,7 +9696,22 @@
       "tooEarly": "{days} of {needed} measured days so far. The comparison comes once there are enough.",
       "otherCurrency": "Your plan is in {planned} and your sales are measured in {measured}. Nothing is converted, so they aren't compared.",
       "noPlan": "Your plan had no customer estimate, so there's no planned month to compare with.",
-      "kept": "Your plan isn't changed by what's measured. Both stay, side by side."
+      "kept": "Your plan isn't changed by what's measured. Both stay, side by side.",
+      "customers": "Customers: you planned {planned} a month; measured orders come to {actual} a month, a gap of {gap}.",
+      "price": "Price: you planned {planned} a sale; the measured average sale is {actual}, a gap of {gap}.",
+      "costs": "Costs: not measured from any connected system yet, so your stated costs stand as stated.",
+      "not": {
+        "customers": {
+          "subscription": "Customers: orders aren't subscribers, so a subscription's customers aren't compared yet.",
+          "no_estimate": "Customers: your plan had no customer estimate to compare with.",
+          "no_orders": "Customers: orders haven't been measured for enough days yet."
+        },
+        "price": {
+          "subscription": "Price: a subscription's average order isn't its monthly price, so it isn't compared.",
+          "no_orders": "Price: the average sale needs enough days of measured orders.",
+          "other_currency": "Price: sales are measured in another currency, and nothing is converted."
+        }
+      }
     },
     "provider": {
       "stripe": "Stripe",

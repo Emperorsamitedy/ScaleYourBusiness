@@ -9696,7 +9696,22 @@
       "tooEarly": "Jours mesurés jusqu’ici : {days} sur {needed}. La comparaison viendra quand il y en aura assez.",
       "otherCurrency": "Votre plan est en {planned} et vos ventes sont mesurées en {measured}. Rien n’est converti, donc aucune comparaison n’est faite.",
       "noPlan": "Votre plan ne comportait pas d’estimation du nombre de clients, il n’y a donc pas de mois prévu à comparer.",
-      "kept": "Ce qui est mesuré ne modifie pas votre plan. Les deux restent, côte à côte."
+      "kept": "Ce qui est mesuré ne modifie pas votre plan. Les deux restent, côte à côte.",
+      "customers": "Clients : vous aviez prévu {planned} par mois ; les commandes mesurées s’élèvent à {actual} par mois, soit un écart de {gap}.",
+      "price": "Prix : vous aviez prévu {planned} par vente ; la vente moyenne mesurée est de {actual}, soit un écart de {gap}.",
+      "costs": "Coûts : pas encore mesurés par un système connecté, donc vos coûts déclarés restent tels que vous les avez indiqués.",
+      "not": {
+        "customers": {
+          "subscription": "Clients : les commandes ne sont pas des abonnés, donc les clients d’un abonnement ne sont pas encore comparés.",
+          "no_estimate": "Clients : votre plan ne comportait pas d’estimation du nombre de clients à comparer.",
+          "no_orders": "Clients : les commandes n’ont pas encore été mesurées sur assez de jours."
+        },
+        "price": {
+          "subscription": "Prix : le panier moyen d’un abonnement n’est pas son prix mensuel, il n’est donc pas comparé.",
+          "no_orders": "Prix : la vente moyenne nécessite assez de jours de commandes mesurées.",
+          "other_currency": "Prix : les ventes sont mesurées dans une autre devise, et rien n’est converti."
+        }
+      }
     },
     "provider": {
       "stripe": "Stripe",

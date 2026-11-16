@@ -12,6 +12,7 @@ import {
   decisionLog,
   fieldRecords,
   ideaTestResults,
+  metricObservations,
 } from "../../db/schema";
 import { createOwner, currentSession, openSession } from "../auth/service";
 import { bootstrapIntake } from "../intake/service";
@@ -178,11 +179,75 @@ describe("I-50 — launching is one way, and the plan is kept", () => {
       ),
     ).toMatch(/can't become an idea/);
     // I-51: nothing measured yet, so the comparison waits.
-    expect(await ideaPlanVsActual(profileId, idea!)).toMatchObject({ status: "too_early" });
+    expect((await ideaPlanVsActual(profileId, idea!))?.revenue).toMatchObject({
+      status: "too_early",
+    });
   });
 
   it("an ordinary business was never an idea", async () => {
     const { session } = await signedIn();
     expect(await keptIdea(session.profile_id!)).toBeNull();
+  });
+});
+
+describe("I-51 — after launch, the plan beside what was measured, per assumption", () => {
+  it("compares revenue, customers and price once thirty days are measured", async () => {
+    const { profileId, next } = await kept();
+    const now = new Date();
+    const launched = new Date(now.getTime() - 40 * 86_400_000);
+    await launchIdea({ profileId, userId: next.user_id, now: launched });
+    const [conn] = await db
+      .insert(connections)
+      .values({ account_id: next.account_id, provider: "stripe" })
+      .returning({ id: connections.id });
+    // 35 measured days: 40 sales a day at 1 600 Ft each.
+    const rows = [];
+    for (let i = 1; i <= 35; i++) {
+      const day = new Date(now.getTime() - i * 86_400_000).toISOString().slice(0, 10);
+      const base = {
+        connection_id: conn!.id,
+        provider: "stripe",
+        period_date: day,
+        observed_at: now.toISOString(),
+      };
+      rows.push(
+        {
+          ...base,
+          metric_key: "revenue.daily",
+          dimensions: { currency: "HUF" },
+          dimension_key: '{"currency":"HUF"}',
+          value_minor: 40 * 1_600 * 100,
+          currency: "HUF",
+        },
+        {
+          ...base,
+          metric_key: "orders.daily",
+          dimensions: {},
+          dimension_key: "{}",
+          value_num: "40",
+        },
+      );
+    }
+    await db.insert(metricObservations).values(rows);
+    const idea = await keptIdea(profileId);
+    const got = await ideaPlanVsActual(profileId, idea!, now);
+    // Planned: 1 500 customers × 1 500 Ft = 2 250 000 Ft a month.
+    expect(got?.revenue).toMatchObject({
+      status: "compared",
+      planned_minor: 1_500 * 1_500 * 100,
+      actual_minor: 30 * 40 * 1_600 * 100,
+    });
+    expect(got?.assumptions).toEqual([
+      { key: "customers", status: "compared", planned: 1_500, actual: 1_200, delta_bp: -2_000 },
+      {
+        key: "price",
+        status: "compared",
+        currency: "HUF",
+        planned_minor: 150_000,
+        actual_minor: 160_000,
+        delta_bp: 667,
+      },
+      { key: "costs", status: "not_measured" },
+    ]);
   });
 });
