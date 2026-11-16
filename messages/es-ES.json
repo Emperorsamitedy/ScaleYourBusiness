@@ -9384,6 +9384,13 @@
       "region": "países vecinos",
       "any_band": "cualquier tamaño"
     },
+    "rough": "Solo una referencia aproximada: {list}.",
+    "roughWhy": {
+      "few_businesses": "solo {count} negocios",
+      "wide_industry": "un sector más amplio que el tuyo",
+      "wide_area": "incluye países vecinos",
+      "any_size": "negocios de todos los tamaños"
+    },
     "notEnough": "Aún no hay suficientes negocios comparables. Lo mostraremos en cuanto los haya.",
     "official": "Las cifras oficiales de la UE de abajo son de Eurostat y llevan su año. Nuestra comparación en vivo aún no está disponible para esto, y nunca se mezclan en una sola cifra.",
     "notMeasured": "Aún sin medir: {list}.",
@@ -9482,6 +9489,13 @@
     "peer": {
       "label": "Negocios parecidos",
       "served": "Ingresos por persona en {count} negocios parecidos: lo típico {p50}, la mitad central de {p25} a {p75}. Tu estimación: {own}.",
+      "rough": "Solo una referencia aproximada: {list}.",
+      "roughWhy": {
+        "few_businesses": "solo {count} negocios",
+        "wide_industry": "un sector más amplio que el tuyo",
+        "wide_area": "incluye países vecinos",
+        "any_size": "negocios de todos los tamaños"
+      },
       "notEnough": "Aún no hay suficientes negocios comparables. Lo mostraremos en cuanto los haya."
     },
     "share": "Compartir este resultado",

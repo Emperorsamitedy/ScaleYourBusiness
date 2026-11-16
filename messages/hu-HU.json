@@ -9384,6 +9384,13 @@
       "region": "szomszédos országok",
       "any_band": "bármilyen méret"
     },
+    "rough": "Csak durva iránymutatás: {list}.",
+    "roughWhy": {
+      "few_businesses": "csak {count} vállalkozás",
+      "wide_industry": "a tiédnél tágabb ágazat",
+      "wide_area": "a szomszédos országokkal együtt",
+      "any_size": "minden méretű vállalkozás"
+    },
     "notEnough": "Még nincs elég összehasonlítható vállalkozás. Amint lesz, megmutatjuk.",
     "official": "Az alábbi hivatalos uniós adatok az Eurostattól származnak, az évükkel jelölve. Élő összehasonlításunk ehhez még nem érhető el, és a kettőt soha nem keverjük egy számba.",
     "notMeasured": "Még nem mérjük: {list}.",
@@ -9482,6 +9489,13 @@
     "peer": {
       "label": "Hasonló vállalkozások",
       "served": "Egy főre jutó árbevétel {count} hasonló vállalkozásnál: jellemzően {p50}, a középső fele {p25} és {p75} között. A te becslésed: {own}.",
+      "rough": "Csak durva iránymutatás: {list}.",
+      "roughWhy": {
+        "few_businesses": "csak {count} vállalkozás",
+        "wide_industry": "a tiédnél tágabb ágazat",
+        "wide_area": "a szomszédos országokkal együtt",
+        "any_size": "minden méretű vállalkozás"
+      },
       "notEnough": "Még nincs elég összehasonlítható vállalkozás. Amint lesz, megmutatjuk."
     },
     "share": "Eredmény megosztása",

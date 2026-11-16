@@ -94,6 +94,17 @@ function Served({
         {tr("middle", { p25: valueWords(b, b.p25, locale), p75: valueWords(b, b.p75, locale) })} ·{" "}
         {tr("typical", { p50: valueWords(b, b.p50, locale) })}
       </p>
+      {b.precision.level === "rough" && (
+        <p className="bm-copy pp-rough">
+          {tr("rough", {
+            list: list.format(
+              b.precision.reasons.map((r) =>
+                tr(`roughWhy.${r}`, { count: String(b.cohort.businesses) }),
+              ),
+            ),
+          })}
+        </p>
+      )}
       {b.own && (
         <p className="bm-copy">
           {tr(b.own.basis === "measured" ? "you" : "youStated", {

@@ -164,6 +164,21 @@ yields a completed call with no audio or transcript.
 lib/compliance/phase8.test.ts). Decisions D82–D87. Counsel's sign-off per
 launch market remains the owner's.
 
+## Accuracy before launch (owner, 2026-11-17: "ok build it")
+
+- [x] **P7-97** Score pre/post plans: difference in differences against the
+      same weeks a year earlier, honest interval, refusals said in words (D89;
+      lib/ledger/revenue-measure.ts, registered for every real capability)
+- [x] **P7-98** Precision beside every served peer comparison: rough guide
+      below 20 businesses or after a wide widening, reasons named (D90)
+
+**Gate:** a seasonal rise shared with last year is never a verified gain; a
+plan overlapping another action, or with no year of history, is never
+scored; a cohort of seven reads as a rough guide in every locale.
+**Passed 2026-11-17** (lib/ledger/revenue-measure.test.ts,
+lib/peers/precision.test.ts). Decisions D89–D90. Holdouts (the only route to
+grade A) remain unbuilt.
+
 ---
 
 ## Multi-market foundations + NAV (the owner's spec §14–§15, 2026-11-10)

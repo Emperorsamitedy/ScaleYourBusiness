@@ -47,15 +47,30 @@ export function EntryResultView({
 
       <span className="auth-eyebrow entry-peer">{tr("peer.label")}</span>
       {comparison.status === "served" ? (
-        <p className="auth-copy">
-          {tr("peer.served", {
-            count: String(comparison.cohort.businesses),
-            p50: eur(comparison.p50, locale),
-            p25: eur(comparison.p25, locale),
-            p75: eur(comparison.p75, locale),
-            own: eur(result.own_minor, locale),
-          })}
-        </p>
+        <>
+          <p className="auth-copy">
+            {tr("peer.served", {
+              count: String(comparison.cohort.businesses),
+              p50: eur(comparison.p50, locale),
+              p25: eur(comparison.p25, locale),
+              p75: eur(comparison.p75, locale),
+              own: eur(result.own_minor, locale),
+            })}
+          </p>
+          {comparison.precision.level === "rough" && (
+            <p className="auth-copy">
+              <b>
+                {tr("peer.rough", {
+                  list: new Intl.ListFormat([locale], { type: "conjunction" }).format(
+                    comparison.precision.reasons.map((r) =>
+                      tr(`peer.roughWhy.${r}`, { count: String(comparison.cohort.businesses) }),
+                    ),
+                  ),
+                })}
+              </b>
+            </p>
+          )}
+        </>
       ) : (
         <p className="auth-copy">{tr("peer.notEnough")}</p>
       )}

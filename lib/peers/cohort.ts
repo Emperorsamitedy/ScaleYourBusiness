@@ -190,6 +190,35 @@ export function cohortLadder(reader: {
   return out;
 }
 
+// ── Precision (D90) ──────────────────────────────────────────────────────
+
+/**
+ * The floor protects privacy, not precision: at seven businesses the median
+ * is one of them. Below this many, a served comparison is a rough guide.
+ */
+export const PRECISION_FAIR_FROM = 20;
+
+export type PrecisionReason = "few_businesses" | "wide_industry" | "wide_area" | "any_size";
+export interface Precision {
+  level: "fair" | "rough";
+  reasons: PrecisionReason[];
+}
+
+/**
+ * Pure: how far a served comparison can be leaned on. A 3-digit NACE
+ * widening stays fair (a close neighbour); widening to the 2-digit
+ * division, to a region, or to every size makes it rough, as does a small
+ * cohort. Rough is said in words beside the figure, never hidden.
+ */
+export function precisionOf(businesses: number, widened: readonly Widening[]): Precision {
+  const reasons: PrecisionReason[] = [];
+  if (businesses < PRECISION_FAIR_FROM) reasons.push("few_businesses");
+  if (widened.includes("nace_2")) reasons.push("wide_industry");
+  if (widened.includes("region")) reasons.push("wide_area");
+  if (widened.includes("any_band")) reasons.push("any_size");
+  return { level: reasons.length > 0 ? "rough" : "fair", reasons };
+}
+
 /** Pure: is this member inside this cohort? */
 export function inCohort(m: Member, spec: CohortSpec): boolean {
   if (m.nace === null || m.country === null || m.band === null) return false;

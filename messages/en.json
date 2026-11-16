@@ -9384,6 +9384,13 @@
       "region": "neighbouring countries",
       "any_band": "every size"
     },
+    "rough": "A rough guide: {list}.",
+    "roughWhy": {
+      "few_businesses": "only {count} businesses",
+      "wide_industry": "a wider sector than yours",
+      "wide_area": "neighbouring countries included",
+      "any_size": "businesses of every size"
+    },
     "notEnough": "Not enough comparable businesses yet. We'll show this as soon as there are.",
     "official": "The EU official figures below are Eurostat's, labelled with their year. Our live comparison isn't available for this yet, and the two are never mixed into one figure.",
     "notMeasured": "Not measured yet: {list}.",
@@ -9482,6 +9489,13 @@
     "peer": {
       "label": "Similar businesses",
       "served": "Revenue per person at {count} similar businesses: typically {p50}, the middle half {p25} to {p75}. Your estimate: {own}.",
+      "rough": "A rough guide: {list}.",
+      "roughWhy": {
+        "few_businesses": "only {count} businesses",
+        "wide_industry": "a wider sector than yours",
+        "wide_area": "neighbouring countries included",
+        "any_size": "businesses of every size"
+      },
       "notEnough": "Not enough comparable businesses yet. We'll show this as soon as there are."
     },
     "share": "Share this result",

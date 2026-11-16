@@ -9384,6 +9384,13 @@
       "region": "邻近国家",
       "any_band": "任何规模"
     },
+    "rough": "仅供粗略参考：{list}。",
+    "roughWhy": {
+      "few_businesses": "仅 {count} 家企业",
+      "wide_industry": "比你所在行业更宽泛的行业",
+      "wide_area": "包含邻近国家",
+      "any_size": "各种规模的企业"
+    },
     "notEnough": "可比较的企业还不够。一旦足够，我们就会显示。",
     "official": "下方的欧盟官方数据来自 Eurostat，并标明了年份。我们的实时比较暂时还无法用于此项，两者也绝不会混成一个数字。",
     "notMeasured": "尚未测量：{list}。",
@@ -9482,6 +9489,13 @@
     "peer": {
       "label": "同类企业",
       "served": "{count} 家同类企业的人均营收：典型值 {p50}，中间一半为 {p25} 至 {p75}。你的估算：{own}。",
+      "rough": "仅供粗略参考：{list}。",
+      "roughWhy": {
+        "few_businesses": "仅 {count} 家企业",
+        "wide_industry": "比你所在行业更宽泛的行业",
+        "wide_area": "包含邻近国家",
+        "any_size": "各种规模的企业"
+      },
       "notEnough": "可比较的企业还不够。一旦足够，我们就会显示。"
     },
     "share": "分享这个结果",

@@ -24,7 +24,7 @@ import type { AppLocale } from "../i18n/locales";
 import { roundMinorTo, scaleMinorBy } from "../core/money";
 import type { AnonymousComparison } from "../peers/benchmark";
 import { anonymousComparison } from "../peers/benchmark";
-import { naceOfType } from "../peers/cohort";
+import { naceOfType, precisionOf } from "../peers/cohort";
 
 const SPEC = entryFile as unknown as {
   monthly_revenue_bands: Record<
@@ -241,13 +241,14 @@ export async function entryByToken(
 ): Promise<{ answers: EntryAnswers; result: EntryResult; created_at: string } | null> {
   if (!/^[A-Za-z0-9_-]{8,40}$/.test(token)) return null;
   const [row] = await db.select().from(entryLeads).where(eq(entryLeads.token, token)).limit(1);
-  return row
-    ? {
-        answers: row.answers as EntryAnswers,
-        result: row.result as EntryResult,
-        created_at: row.created_at,
-      }
-    : null;
+  if (!row) return null;
+  const result = row.result as EntryResult;
+  const c = result.comparison;
+  // A result saved before D90 has no precision; it follows from what was saved.
+  if (c.status === "served" && !(c as Partial<typeof c>).precision) {
+    c.precision = precisionOf(c.cohort.businesses, c.cohort.widened);
+  }
+  return { answers: row.answers as EntryAnswers, result, created_at: row.created_at };
 }
 
 /** §5.6: how far a shared result travelled — the leads that came from it, and theirs. */

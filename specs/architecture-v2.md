@@ -560,3 +560,45 @@ screenshot slots for the NAV guide.
   the partner's own action. The owner keeps their own one-tap revocation; the
   firm's is a second door to the same wipe, under the same mandate.
 
+
+## Decisions taken closing the accuracy gaps before launch (2026-11-17)
+
+The owner asked for the accuracy risks to be fixed before going live ("ok
+build it"). Two were found to be real: no plan was ever scored (the
+measurer registry was empty, so every plan closed inconclusive), and a
+served peer comparison at the privacy floor read as precise as one of
+hundreds.
+
+- **D89 — pre/post is scored as a difference in differences against the
+  business's own same weeks a year earlier, or not at all.** The control
+  D29 promised as "adjusted for the trend of similar businesses" was never
+  built, and a cohort's monthly figures can't line up with a 28-day window;
+  the business's own last year can, weekday for weekday. Each day after the
+  action is compared with the same weekday a whole number of weeks before
+  it (clear of the action's own day), minus the same comparison 364 days
+  earlier. The interval is a 95 % t-interval on the daily effects (the t
+  value conservative between tabled df), widened by the AR(1) factor for
+  their lag-1 correlation (capped at 0.9), in integers end to end with an
+  integer square root rounded up. It closes inconclusive, saying why, rather
+  than score: no revenue for the same weeks a year earlier; under 75 % of
+  the window's days measured in all four arms; more than one currency, or a
+  series in another currency than the plan (nothing is converted); a metric
+  other than revenue (gross profit and cash days aren't measured yet, and
+  revenue doesn't stand in for them); or any other non-shadow, measurable
+  plan whose window touches these weeks or the same weeks a year earlier —
+  one business-wide series can't tell two actions apart, so neither is
+  credited. A missing last day is waited for 3 days, then scored without
+  it. The grade stays C (§3.3: pre/post caps at C, whatever the control);
+  holdouts remain the only way to A. Tradeoff accepted: a business that
+  runs actions back to back, or connected less than about a month before
+  acting, earns no verified figure until it doesn't — the counter undercounts
+  rather than overcounts.
+- **D90 — a served peer comparison says how far it can be leaned on.** The
+  k ≥ 7 floor protects privacy, not precision: at seven the median is one
+  member's value. A comparison is "a rough guide" — said beside the figure,
+  with each reason named — below 20 businesses, or when the ladder widened
+  to the 2-digit division, a region, or every size; a 3-digit widening alone
+  stays fair. Nothing is blended to make it look steadier (§5.4, P7-64), and
+  no order statistic is shown (a cohort's extremes are its members' own
+  values). A shared entry result saved before this derives its label from
+  the cohort size and widenings it saved.

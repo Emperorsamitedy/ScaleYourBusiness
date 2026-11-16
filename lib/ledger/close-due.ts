@@ -11,8 +11,20 @@
 import { recordOutcome } from "../ladder/ladder";
 import type { Measurer } from "./close";
 import { closeDuePlans } from "./close";
+import type { PlanCapability } from "./plans";
+import { PRIMARY_METRIC } from "./plans";
+import { measureRevenue } from "./revenue-measure";
 
-export const MEASURERS: Readonly<Record<string, Measurer>> = {};
+/**
+ * Every real capability goes through the revenue measurer (D89), which
+ * closes a plan on any other metric inconclusive with the reason. The
+ * fixture stays unmeasured: it acts on nothing.
+ */
+export const MEASURERS: Readonly<Record<string, Measurer>> = Object.fromEntries(
+  (Object.keys(PRIMARY_METRIC) as PlanCapability[])
+    .filter((c) => c !== "fixture")
+    .map((c) => [c, (plan) => measureRevenue(plan)] satisfies [string, Measurer]),
+);
 
 export async function closeAndRecord(
   args: {

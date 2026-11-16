@@ -16,8 +16,15 @@ import { and, eq, isNull } from "drizzle-orm";
 import { db } from "../../db";
 import { fieldRecords } from "../../db/schema";
 import { isIsoCurrency, perUnit } from "../core/money";
-import type { CohortSpec, Member, PeerMetric, Widening } from "./cohort";
-import { MEASURED_METRICS, PEER_METRICS, cohortLadder, distribution, inCohort } from "./cohort";
+import type { CohortSpec, Member, PeerMetric, Precision, Widening } from "./cohort";
+import {
+  MEASURED_METRICS,
+  PEER_METRICS,
+  cohortLadder,
+  distribution,
+  inCohort,
+  precisionOf,
+} from "./cohort";
 import { optedOutProfiles } from "./consent";
 import { lastCompleteMonth, membersFor, monthBounds } from "./pool";
 
@@ -58,6 +65,8 @@ export type PeerBenchmark =
       p75: number;
       own: Own | null;
       cohort: CohortSpec & { businesses: number; month: string; widened: Widening[] };
+      /** D90: how far it can be leaned on, said beside the figure. */
+      precision: Precision;
       source: typeof PEER_SOURCE;
       as_of: string;
     }
@@ -191,6 +200,7 @@ export async function peerBenchmarks(
                 percentile: d.own_percentile,
               },
         cohort: { ...rung.spec, businesses: d.businesses, month, widened: rung.widened },
+        precision: precisionOf(d.businesses, rung.widened),
         source: PEER_SOURCE,
         as_of: asOf,
       };
@@ -212,6 +222,8 @@ export type AnonymousComparison =
       /** The visitor's own estimate's percentile — always "stated" (§8.2: no connector). */
       own_percentile: number | null;
       cohort: CohortSpec & { businesses: number; month: string; widened: Widening[] };
+      /** D90: how far it can be leaned on, said beside the figure. */
+      precision: Precision;
       source: typeof PEER_SOURCE;
       as_of: string;
     }
@@ -257,6 +269,7 @@ export async function anonymousComparison(args: {
       p75: d.p75,
       own_percentile: d.own_percentile,
       cohort: { ...rung.spec, businesses: d.businesses, month, widened: rung.widened },
+      precision: precisionOf(d.businesses, rung.widened),
       source: PEER_SOURCE,
       as_of: asOf,
     };

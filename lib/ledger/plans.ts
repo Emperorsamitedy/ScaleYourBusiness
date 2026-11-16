@@ -186,7 +186,7 @@ export function chooseDesign(capability: PlanCapability): {
     downgrade_reason:
       design === strongest
         ? null
-        : `${strongest.replace(/_/g, " ")} isn't built for this yet, so it is measured ${design === "unmeasurable" ? "not at all" : "before and after, adjusted for the trend of similar businesses"}`,
+        : `${strongest.replace(/_/g, " ")} isn't built for this yet, so it is measured ${design === "unmeasurable" ? "not at all" : "before and after, against the same weeks a year earlier"}`,
   };
 }
 
@@ -203,7 +203,8 @@ export function controlFor(
       kind: "pre_period",
       days,
       ends_at: windowStart,
-      adjustment: "peer cohort trend, where a cohort is shown; otherwise none, said so",
+      adjustment:
+        "the same weeks a year earlier (difference in differences, D89); with no year of history it isn't scored",
     };
   }
   return { kind: design };

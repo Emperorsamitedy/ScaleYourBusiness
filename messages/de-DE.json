@@ -9384,6 +9384,13 @@
       "region": "Nachbarländer",
       "any_band": "jede Größe"
     },
+    "rough": "Nur ein grober Anhaltspunkt: {list}.",
+    "roughWhy": {
+      "few_businesses": "nur {count} Unternehmen",
+      "wide_industry": "eine weiter gefasste Branche als deine",
+      "wide_area": "Nachbarländer mit eingerechnet",
+      "any_size": "Unternehmen jeder Größe"
+    },
     "notEnough": "Noch nicht genug vergleichbare Unternehmen. Wir zeigen es, sobald es genug gibt.",
     "official": "Die amtlichen EU-Zahlen unten stammen von Eurostat und tragen ihr Jahr. Unser Live-Vergleich ist dafür noch nicht verfügbar, und beides wird nie zu einer Zahl vermischt.",
     "notMeasured": "Noch nicht gemessen: {list}.",
@@ -9482,6 +9489,13 @@
     "peer": {
       "label": "Ähnliche Unternehmen",
       "served": "Umsatz pro Person bei {count} ähnlichen Unternehmen: typisch {p50}, die mittlere Hälfte {p25} bis {p75}. Deine Schätzung: {own}.",
+      "rough": "Nur ein grober Anhaltspunkt: {list}.",
+      "roughWhy": {
+        "few_businesses": "nur {count} Unternehmen",
+        "wide_industry": "eine weiter gefasste Branche als deine",
+        "wide_area": "Nachbarländer mit eingerechnet",
+        "any_size": "Unternehmen jeder Größe"
+      },
       "notEnough": "Noch nicht genug vergleichbare Unternehmen. Wir zeigen es, sobald es genug gibt."
     },
     "share": "Ergebnis teilen",

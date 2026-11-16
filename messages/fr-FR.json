@@ -9384,6 +9384,13 @@
       "region": "pays voisins",
       "any_band": "toutes tailles"
     },
+    "rough": "Simple ordre de grandeur : {list}.",
+    "roughWhy": {
+      "few_businesses": "seulement {count} entreprises",
+      "wide_industry": "un secteur plus large que le vôtre",
+      "wide_area": "pays voisins inclus",
+      "any_size": "des entreprises de toutes tailles"
+    },
     "notEnough": "Pas encore assez d’entreprises comparables. Nous l’afficherons dès qu’il y en aura.",
     "official": "Les chiffres officiels de l’UE ci-dessous viennent d’Eurostat, avec leur année. Notre comparaison en direct n’est pas encore disponible pour cela, et les deux ne sont jamais fondus en un seul chiffre.",
     "notMeasured": "Pas encore mesuré : {list}.",
@@ -9482,6 +9489,13 @@
     "peer": {
       "label": "Entreprises semblables",
       "served": "Chiffre d’affaires par personne dans {count} entreprises semblables : typiquement {p50}, la moitié centrale de {p25} à {p75}. Votre estimation : {own}.",
+      "rough": "Simple ordre de grandeur : {list}.",
+      "roughWhy": {
+        "few_businesses": "seulement {count} entreprises",
+        "wide_industry": "un secteur plus large que le vôtre",
+        "wide_area": "pays voisins inclus",
+        "any_size": "des entreprises de toutes tailles"
+      },
       "notEnough": "Pas encore assez d’entreprises comparables. Nous l’afficherons dès qu’il y en aura."
     },
     "share": "Partager ce résultat",
