@@ -10227,6 +10227,10 @@
     },
     "kicker": "Hoy · {date}",
     "reading": "Leyendo…",
+    "unread": {
+      "title": "No he podido leer lo que le espera.",
+      "body": "Actualice la página para volver a intentarlo."
+    },
     "title": "{count, plural, =0 {No hay nada esperándole.} one {# decisión le espera.} many {# decisiones le esperan.} other {# decisiones le esperan.}}",
     "biggest": "La mayor podría sumar {range} al mes.",
     "review": "Revisarlas",

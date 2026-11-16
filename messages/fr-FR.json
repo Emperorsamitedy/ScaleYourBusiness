@@ -10227,6 +10227,10 @@
     },
     "kicker": "Aujourd’hui · {date}",
     "reading": "Lecture…",
+    "unread": {
+      "title": "Je n’ai pas pu lire ce qui vous attend.",
+      "body": "Actualisez la page pour réessayer."
+    },
     "title": "{count, plural, =0 {Rien ne vous attend.} one {# décision vous attend.} many {# décisions vous attendent.} other {# décisions vous attendent.}}",
     "biggest": "La plus importante pourrait rapporter {range} par mois.",
     "review": "Les examiner",

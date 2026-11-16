@@ -10227,6 +10227,10 @@
     },
     "kicker": "Today · {date}",
     "reading": "Reading…",
+    "unread": {
+      "title": "I couldn't read what's waiting for you.",
+      "body": "Refresh the page to try again."
+    },
     "title": "{count, plural, =0 {Nothing is waiting for you.} one {# decision is waiting for you.} other {# decisions are waiting for you.}}",
     "biggest": "The biggest could add {range} a month.",
     "review": "See them",

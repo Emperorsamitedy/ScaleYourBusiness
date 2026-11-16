@@ -10227,6 +10227,10 @@
     },
     "kicker": "Heute · {date}",
     "reading": "Wird gelesen…",
+    "unread": {
+      "title": "Ich konnte nicht lesen, was auf Sie wartet.",
+      "body": "Laden Sie die Seite neu, um es erneut zu versuchen."
+    },
     "title": "{count, plural, =0 {Nichts wartet auf Sie.} one {# Entscheidung wartet auf Sie.} other {# Entscheidungen warten auf Sie.}}",
     "biggest": "Die größte könnte {range} im Monat bringen.",
     "review": "Ansehen",

@@ -10227,6 +10227,10 @@
     },
     "kicker": "Ma · {date}",
     "reading": "Olvasom…",
+    "unread": {
+      "title": "Nem tudtam beolvasni, mi vár Önre.",
+      "body": "Frissítse az oldalt az újrapróbáláshoz."
+    },
     "title": "{count, plural, =0 {Semmi sem vár Önre.} one {# döntés vár Önre.} other {# döntés vár Önre.}}",
     "biggest": "A legnagyobb havi {range} összeget hozhat.",
     "review": "Átnézem",

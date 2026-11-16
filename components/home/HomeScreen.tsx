@@ -9,11 +9,15 @@
 //
 // It reads screens that already exist (/api/nav, /api/proposals,
 // /api/cash, /api/charts) and adds no figure of its own. A part whose read
-// fails or refuses is left out in silence; the rest still shows.
+// fails is left out in silence; the rest still shows. A read still out is
+// never taken for an answer ("nothing to decide" needs a counted zero), and
+// a refused one means the sign-in is gone: Home sends the visitor to sign
+// in rather than standing empty (page.tsx checks first, on the server).
 
 import "../../app/home.css";
 import "../../app/charts.css";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import { useTranslations } from "next-intl";
 import type { NavCounts } from "../../app/api/nav/route";
@@ -35,25 +39,40 @@ import { rangeWhole } from "../../lib/charts/opportunity";
 import type { ComponentKey, PricedComponent } from "../../lib/charts/opportunity";
 import { intlTag } from "../../lib/i18n/locales";
 import type { AppLocale } from "../../lib/i18n/locales";
-import type { CashLike, PendingLike } from "./home-model";
-import { cashReading, rankPending } from "./home-model";
+import type { CashLike, PendingLike, Read } from "./home-model";
+import {
+  cashReading,
+  dataOf,
+  rankPending,
+  readOutcome,
+  signedOut,
+  waitingCount,
+  waitingLine,
+} from "./home-model";
 import { LiveVisitors } from "./LiveVisitors";
 
-function useRead<T>(url: string): T | null {
-  const [data, setData] = useState<T | null>(null);
+function useRead<T>(url: string): Read<T> {
+  const [read, setRead] = useState<Read<T>>({ state: "reading" });
   useEffect(() => {
     let alive = true;
     fetch(url, { cache: "no-store" })
-      .then((r) => (r.ok ? (r.json() as Promise<T>) : null))
-      .then((d) => {
-        if (alive) setData(d);
+      .then(async (r): Promise<Read<T>> => {
+        const outcome = readOutcome(r.status);
+        return outcome === "read"
+          ? { state: "read", data: (await r.json()) as T }
+          : { state: outcome };
       })
-      .catch(() => undefined);
+      .then((next) => {
+        if (alive) setRead(next);
+      })
+      .catch(() => {
+        if (alive) setRead({ state: "failed" });
+      });
     return () => {
       alive = false;
     };
   }, [url]);
-  return data;
+  return read;
 }
 
 const tagOf = (locale: AppLocale) => (locale === "en" ? "en-GB" : intlTag(locale));
@@ -99,16 +118,29 @@ export function HomeScreen() {
   const { tr: rtr, locale } = useTr("report");
   const { tr: ctr } = useTr("charts.market");
   const { tr: sheet } = useTr("sheet");
-  const nav = useRead<NavCounts>("/api/nav");
-  const queue = useRead<{ pending: Pending[] }>("/api/proposals");
-  const cashView = useRead<CashLike>("/api/cash");
-  const charts = useRead<ChartsBundle>("/api/charts");
+  const router = useRouter();
+  const navRead = useRead<NavCounts>("/api/nav");
+  const queueRead = useRead<{ pending: Pending[] }>("/api/proposals");
+  const cashRead = useRead<CashLike>("/api/cash");
+  const chartsRead = useRead<ChartsBundle>("/api/charts");
   const [why, setWhy] = useState<WhyContent | null>(null);
   const shut = useCallback(() => setWhy(null), []);
+  // A refused read means the sign-in ended while the page was open: page.tsx
+  // already sent anyone signed out away before the first render.
+  const out = signedOut([navRead, queueRead, cashRead, chartsRead]);
+  useEffect(() => {
+    if (out) router.replace("/login");
+  }, [out, router]);
 
+  const nav = dataOf(navRead);
+  const queue = dataOf(queueRead);
+  const cashView = dataOf(cashRead);
+  const charts = dataOf(chartsRead);
   const ranked = rankPending(queue?.pending ?? []);
-  const count = nav?.pending ?? queue?.pending.length ?? null;
+  const waiting = waitingCount(navRead, queueRead);
+  const count = waiting.state === "known" ? waiting.count : null;
   const top = ranked[0]?.range ?? null;
+  const line = waitingLine(count, top !== null);
   const cash = cashReading(cashView);
   const basis = (b: string) =>
     (BASES as readonly string[]).includes(b) ? basisName(b as Basis, rtr) : b;
@@ -141,11 +173,18 @@ export function HomeScreen() {
   const monthRows = priced.flatMap((c) => (c.monthly ? [partRow(c, c.monthly)] : []));
   const stockRows = priced.flatMap((c) => (c.monthly ? [] : [partRow(c, c.total)]));
 
+  if (out) return null;
   return (
     <main className="screen home">
       <PageHead
         kicker={t("kicker", { date: longDay(new Date(), locale) })}
-        title={count === null ? t("reading") : t("title", { count })}
+        title={
+          count !== null
+            ? t("title", { count })
+            : waiting.state === "unread"
+              ? t("unread.title")
+              : t("reading")
+        }
         aside={
           count !== null && count > 0 ? (
             <Link href="/proposals" className="home-act home-act-desk">
@@ -155,6 +194,7 @@ export function HomeScreen() {
         }
       >
         {top && <p className="home-ans">{t("biggest", { range: range(top) })}</p>}
+        {waiting.state === "unread" && <p className="home-ans">{t("unread.body")}</p>}
       </PageHead>
 
       {cash?.tight && (
@@ -182,33 +222,39 @@ export function HomeScreen() {
       <section className="cs home-readings" aria-label={t("readings.label")}>
         <LiveVisitors />
         <div className="home-strip">
-          <div className="home-reading">
-            <p className="home-r-lab">{t("readings.waiting")}</p>
-            <p className="home-r-val">{count ?? "—"}</p>
-            <p className="home-r-cmp">
-              {top ? t("readings.waitingCmp", { range: range(top) }) : t("readings.waitingNone")}
-            </p>
-            {ranked[0]?.range && (
-              <button
-                type="button"
-                className="home-why"
-                onClick={() => {
-                  const p = ranked[0]!.proposal;
-                  setWhy({
-                    title: p.action.summary,
-                    value: range(ranked[0]!.range!),
-                    rows: [{ label: t("why.basis"), value: basis("ESTIMATED") }],
-                    lines: [
-                      p.scenario.downside_case?.formula,
-                      p.scenario.upside_case?.formula,
-                    ].filter((l): l is string => typeof l === "string" && l.length > 0),
-                  });
-                }}
-              >
-                {t("why.open")}
-              </button>
-            )}
-          </div>
+          {waiting.state !== "unread" && (
+            <div className="home-reading">
+              <p className="home-r-lab">{t("readings.waiting")}</p>
+              <p className="home-r-val">{count ?? "—"}</p>
+              <p className="home-r-cmp">
+                {line === "none"
+                  ? t("readings.waitingNone")
+                  : line === "biggest" && top
+                    ? t("readings.waitingCmp", { range: range(top) })
+                    : null}
+              </p>
+              {ranked[0]?.range && (
+                <button
+                  type="button"
+                  className="home-why"
+                  onClick={() => {
+                    const p = ranked[0]!.proposal;
+                    setWhy({
+                      title: p.action.summary,
+                      value: range(ranked[0]!.range!),
+                      rows: [{ label: t("why.basis"), value: basis("ESTIMATED") }],
+                      lines: [
+                        p.scenario.downside_case?.formula,
+                        p.scenario.upside_case?.formula,
+                      ].filter((l): l is string => typeof l === "string" && l.length > 0),
+                    });
+                  }}
+                >
+                  {t("why.open")}
+                </button>
+              )}
+            </div>
+          )}
           {cash && (
             <div className="home-reading">
               <p className="home-r-lab">{t("readings.cash")}</p>
@@ -304,39 +350,41 @@ export function HomeScreen() {
         )}
       </section>
 
-      <section className="cs home-decisions">
-        <header className="cs-head">
-          <div>
-            <p className="cs-label">{t("decisions.label")}</p>
-          </div>
-          {ranked.length > 0 && (
-            <div className="cs-meta">
-              <Link href="/proposals" className="home-link">
-                {t("decisions.all")} →
-              </Link>
+      {(queueRead.state === "reading" || queueRead.state === "read") && (
+        <section className="cs home-decisions">
+          <header className="cs-head">
+            <div>
+              <p className="cs-label">{t("decisions.label")}</p>
             </div>
-          )}
-        </header>
-        {queue && ranked.length === 0 && <p className="home-empty">{t("decisions.empty")}</p>}
-        <ul className="home-rows">
-          {ranked.map(({ proposal: p, range: r }) => (
-            <li key={p.id}>
-              <div className="home-row-tx">
-                {p.expires_at && (
-                  <p className="home-row-lab">
-                    {t("decisions.by", { date: shortDay(p.expires_at, locale) })}
-                  </p>
-                )}
-                <p className="home-row-ti">{p.action.summary}</p>
+            {ranked.length > 0 && (
+              <div className="cs-meta">
+                <Link href="/proposals" className="home-link">
+                  {t("decisions.all")} →
+                </Link>
               </div>
-              {r && <p className="home-row-amt">{range(r)}</p>}
-              <Link href="/proposals" className="home-act home-act-sm">
-                {t("decisions.open")} <span aria-hidden="true">→</span>
-              </Link>
-            </li>
-          ))}
-        </ul>
-      </section>
+            )}
+          </header>
+          {queue && ranked.length === 0 && <p className="home-empty">{t("decisions.empty")}</p>}
+          <ul className="home-rows">
+            {ranked.map(({ proposal: p, range: r }) => (
+              <li key={p.id}>
+                <div className="home-row-tx">
+                  {p.expires_at && (
+                    <p className="home-row-lab">
+                      {t("decisions.by", { date: shortDay(p.expires_at, locale) })}
+                    </p>
+                  )}
+                  <p className="home-row-ti">{p.action.summary}</p>
+                </div>
+                {r && <p className="home-row-amt">{range(r)}</p>}
+                <Link href="/proposals" className="home-act home-act-sm">
+                  {t("decisions.open")} <span aria-hidden="true">→</span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
 
       {market && priced.length > 0 && (
         <section className="cs home-money" aria-label={ctr("componentsCaption")}>

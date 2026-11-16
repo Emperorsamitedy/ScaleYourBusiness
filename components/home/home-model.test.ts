@@ -1,6 +1,14 @@
 import { describe, expect, it } from "vitest";
-import type { CashLike, PendingLike } from "./home-model";
-import { cashReading, rankPending } from "./home-model";
+import type { CashLike, PendingLike, Read } from "./home-model";
+import {
+  cashReading,
+  dataOf,
+  rankPending,
+  readOutcome,
+  signedOut,
+  waitingCount,
+  waitingLine,
+} from "./home-model";
 
 const eur = (amount_minor: number) => ({ amount_minor, currency: "EUR" });
 const pending = (id: string, low: number | null, high: number | null): PendingLike => ({
@@ -84,5 +92,52 @@ describe("Home: the cash figures", () => {
   it("prints no cash figure when the forecast refused or wasn't read", () => {
     expect(cashReading({ forecast: { status: "refused" }, tight: null })).toBeNull();
     expect(cashReading(null)).toBeNull();
+  });
+});
+
+describe("Home: a read is an answer only once it has answered", () => {
+  const reading = { state: "reading" } as const;
+  const failed = { state: "failed" } as const;
+  const out = { state: "signed_out" } as const;
+  const nav = (pending: number): Read<{ pending: number }> => ({
+    state: "read",
+    data: { pending },
+  });
+  const queue = (n: number): Read<{ pending: readonly unknown[] }> => ({
+    state: "read",
+    data: { pending: Array.from({ length: n }, (_, i) => i) },
+  });
+
+  it("tells a refused read from a failed one, by status alone", () => {
+    expect(readOutcome(200)).toBe("read");
+    expect(readOutcome(401)).toBe("signed_out");
+    expect(readOutcome(403)).toBe("failed");
+    expect(readOutcome(500)).toBe("failed");
+  });
+
+  it("sends the visitor to sign in when any read was refused, and only then", () => {
+    expect(signedOut([nav(2), out, failed])).toBe(true);
+    expect(signedOut([nav(2), failed, reading])).toBe(false);
+  });
+
+  it("counts from the rail first, the queue second, and never from a read still out", () => {
+    expect(waitingCount(nav(3), queue(1))).toEqual({ state: "known", count: 3 });
+    expect(waitingCount(failed, queue(2))).toEqual({ state: "known", count: 2 });
+    expect(waitingCount(reading, failed)).toEqual({ state: "reading" });
+    expect(dataOf(reading)).toBeNull();
+  });
+
+  it('says it could not read, not "Reading…" for ever, when neither read answers', () => {
+    expect(waitingCount(failed, failed)).toEqual({ state: "unread" });
+    expect(waitingCount(out, out)).toEqual({ state: "unread" });
+  });
+
+  it('says "nothing to decide" only under a counted zero', () => {
+    expect(waitingLine(0, false)).toBe("none");
+    expect(waitingLine(3, true)).toBe("biggest");
+    // Three decisions with no money range are not nothing: no line at all.
+    expect(waitingLine(3, false)).toBeNull();
+    // An unknown count, still reading or unread, claims nothing either.
+    expect(waitingLine(null, false)).toBeNull();
   });
 });

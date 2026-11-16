@@ -100,3 +100,58 @@ export function cashReading(view: CashLike | null): CashReading | null {
     source: { basis: f.start.basis, source: f.start.source, on: f.start.on },
   };
 }
+
+/**
+ * What one of Home's reads came back as. A refused read (401: no session
+ * for this business) is not a failed one: it sends the visitor to sign in,
+ * where a failed read only leaves its part out. A read still out is
+ * "reading", and never taken for an answer.
+ */
+export type Read<T> =
+  { state: "reading" } | { state: "read"; data: T } | { state: "signed_out" } | { state: "failed" };
+
+/** Pure: a response status as the outcome of a read, before its body is parsed. */
+export function readOutcome(status: number): "read" | "signed_out" | "failed" {
+  if (status === 401) return "signed_out";
+  return status >= 200 && status < 300 ? "read" : "failed";
+}
+
+/** Pure: what a read holds, or null while it is out or when it came back without data. */
+export function dataOf<T>(read: Read<T>): T | null {
+  return read.state === "read" ? read.data : null;
+}
+
+/** Pure: whether any read was refused for want of a session. */
+export function signedOut(reads: readonly Read<unknown>[]): boolean {
+  return reads.some((r) => r.state === "signed_out");
+}
+
+export type Waiting =
+  { state: "known"; count: number } | { state: "reading" } | { state: "unread" };
+
+/**
+ * Pure: how many decisions wait, from the two reads that can say so: the
+ * rail's counts first, the queue itself second. "unread" once neither can
+ * answer: the headline then says so instead of "Reading…" for ever, and
+ * the waiting figure is left out rather than shown as nothing.
+ */
+export function waitingCount(
+  nav: Read<{ pending: number }>,
+  queue: Read<{ pending: readonly unknown[] }>,
+): Waiting {
+  const count = dataOf(nav)?.pending ?? dataOf(queue)?.pending.length ?? null;
+  if (count !== null) return { state: "known", count };
+  if (nav.state === "reading" || queue.state === "reading") return { state: "reading" };
+  return { state: "unread" };
+}
+
+/**
+ * Pure: the line under the waiting figure. "Nothing to decide" only under
+ * a counted zero, the biggest range only when there is one, and otherwise
+ * no line: an unknown count, or decisions without a money range, are not
+ * "nothing".
+ */
+export function waitingLine(count: number | null, hasRange: boolean): "none" | "biggest" | null {
+  if (count === 0) return "none";
+  return count !== null && hasRange ? "biggest" : null;
+}
