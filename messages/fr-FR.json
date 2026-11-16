@@ -10168,12 +10168,17 @@
       "kicker": "Une prise de sang pour votre entreprise",
       "lede": "ScaleX trouve où votre argent s’échappe, le chiffre en euros et ne le corrige que lorsque vous dites oui.",
       "run": "Lancer le bilan gratuit",
-      "see": "Voir la démonstration",
-      "trust": "Lecture seule. Aucun mot de passe. Rien ne change sans vous."
+      "see": "Voir comment ça marche",
+      "trust": "Lecture seule. Aucun mot de passe. Rien ne change sans vous.",
+      "titleB": "<em>Ses chiffres, peut-être pas.</em>",
+      "ctaMeta": "{minutes, plural, one {# minute} many {# minutes} other {# minutes}} · sans compte",
+      "trustRead": "Lecture seule",
+      "trustPw": "Aucun mot de passe",
+      "trustYes": "Rien ne change sans votre oui"
     },
     "tour": {
       "aria": "Visite du produit : ScaleX se connecte à une boutique, établit sa fiche des faits, trouve une fuite et la corrige après la validation du propriétaire",
-      "demo": "boutique de démonstration",
+      "demo": "Données de démonstration",
       "connections": "Connexions",
       "readsOnly": "ScaleX lit, n’écrit jamais",
       "reads": {
@@ -10191,7 +10196,10 @@
         "diagnosis": "Diagnostic",
         "finding": "Constat",
         "yes": "Votre oui"
-      }
+      },
+      "atStake": "par mois en jeu",
+      "pricedSplit": "{priced} chiffrées · {unpriced} pas encore",
+      "findingCol": "Constat"
     },
     "fact": {
       "revenue": "Chiffre d’affaires, {days} jours",

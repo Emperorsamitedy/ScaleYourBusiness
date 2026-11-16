@@ -10168,12 +10168,17 @@
       "kicker": "为您的企业做一次验血",
       "lede": "ScaleX 找出您的钱从哪里流失，以欧元标价，并且只在您同意后才修复。",
       "run": "开始免费检查",
-      "see": "看看它如何工作",
-      "trust": "只读。无需密码。未经您同意，什么都不会改变。"
+      "see": "了解运作方式",
+      "trust": "只读。无需密码。未经您同意，什么都不会改变。",
+      "titleB": "<em>它的数字却未必。</em>",
+      "ctaMeta": "{minutes, plural, other {# 分钟}} · 无需账户",
+      "trustRead": "只读访问",
+      "trustPw": "无需密码",
+      "trustYes": "未经您同意，什么都不会改变"
     },
     "tour": {
       "aria": "产品导览：ScaleX 连接一家店铺，建立它的事实表，发现一处漏洞，并在所有者批准后修复",
-      "demo": "演示店铺",
+      "demo": "演示数据",
       "connections": "连接",
       "readsOnly": "ScaleX 只读取，从不写入",
       "reads": {
@@ -10191,7 +10196,10 @@
         "diagnosis": "诊断",
         "finding": "发现",
         "yes": "您的同意"
-      }
+      },
+      "atStake": "每月面临流失",
+      "pricedSplit": "已标价 {priced} 处 · 尚未标价 {unpriced} 处",
+      "findingCol": "发现"
     },
     "fact": {
       "revenue": "营收，{days} 天",

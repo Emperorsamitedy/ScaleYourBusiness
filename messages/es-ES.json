@@ -10168,12 +10168,17 @@
       "kicker": "Un análisis de sangre para su negocio",
       "lede": "ScaleX encuentra por dónde se le escapa el dinero, le pone precio en euros y lo arregla solo cuando usted dice que sí.",
       "run": "Hacer la revisión gratuita",
-      "see": "Verlo en acción",
-      "trust": "Solo lectura. Sin contraseñas. Nada cambia sin usted."
+      "see": "Cómo funciona",
+      "trust": "Solo lectura. Sin contraseñas. Nada cambia sin usted.",
+      "titleB": "<em>Sus cifras, quizá no.</em>",
+      "ctaMeta": "{minutes, plural, one {# minuto} many {# minutos} other {# minutos}} · sin cuenta",
+      "trustRead": "Solo lectura",
+      "trustPw": "Sin contraseñas",
+      "trustYes": "Nada cambia sin su sí"
     },
     "tour": {
       "aria": "Recorrido del producto: ScaleX se conecta a una tienda, elabora su ficha de datos, encuentra una fuga y la arregla tras la aprobación del propietario",
-      "demo": "tienda de demostración",
+      "demo": "Datos de demostración",
       "connections": "Conexiones",
       "readsOnly": "ScaleX lee, nunca escribe",
       "reads": {
@@ -10191,7 +10196,10 @@
         "diagnosis": "Diagnóstico",
         "finding": "Hallazgo",
         "yes": "Su sí"
-      }
+      },
+      "atStake": "al mes en juego",
+      "pricedSplit": "{priced} con precio · {unpriced} aún no",
+      "findingCol": "Hallazgo"
     },
     "fact": {
       "revenue": "Ingresos, {days} días",
