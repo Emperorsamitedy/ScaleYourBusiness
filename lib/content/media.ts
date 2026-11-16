@@ -250,7 +250,10 @@ export function localDiskMediaStore(
     ) {
       throw new MediaError("that address isn't in the local media store", 422);
     }
-    return path.join(root, ...rel.split("/"));
+    // Never used in production, so the deploy must not trace it: a dynamic
+    // path here made the bundler ship the whole project (public/ included)
+    // as server code, which pushed the deploy past Vercel's size limit.
+    return path.join(/* turbopackIgnore: true */ root, ...rel.split("/"));
   };
   return {
     kind: "local_disk",
