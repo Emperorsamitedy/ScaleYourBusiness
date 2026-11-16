@@ -1,5 +1,5 @@
 {
-  "id": "d4700ed9-4726-4bfa-9d28-794536f78554",
+  "id": "20fb9721-172f-41b7-a3bd-dfc3603a5517",
   "prevId": "aef6437d-67c7-493e-84de-954be9ac7437",
   "version": "7",
   "dialect": "postgresql",
@@ -5289,30 +5289,6 @@
           "primaryKey": false,
           "notNull": true,
           "default": "now()"
-        },
-        "approved_by": {
-          "name": "approved_by",
-          "type": "uuid",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "approved_at": {
-          "name": "approved_at",
-          "type": "timestamp with time zone",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "approved_sha256": {
-          "name": "approved_sha256",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
-        },
-        "approved_subject": {
-          "name": "approved_subject",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false
         }
       },
       "indexes": {
@@ -9935,6 +9911,12 @@
         },
         "currency": {
           "name": "currency",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "code_hash": {
+          "name": "code_hash",
           "type": "text",
           "primaryKey": false,
           "notNull": false
@@ -18688,8 +18670,7 @@
         "recording_consent",
         "mandate_grant",
         "mandate_revoke",
-        "partner_action",
-        "followup_approval"
+        "partner_action"
       ]
     },
     "public.execution_status": {
@@ -18939,8 +18920,7 @@
         "chat_answer",
         "meta_post",
         "review_reply",
-        "fixture",
-        "deal_followup"
+        "fixture"
       ]
     },
     "public.plan_design": {

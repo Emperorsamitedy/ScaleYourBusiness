@@ -239,6 +239,22 @@
   align-items: center;
   justify-content: center;
 }
+.ax-code-row {
+  display: flex;
+  gap: 10px;
+}
+.ax-code {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 50px;
+  font-size: 20px;
+  letter-spacing: 0.2em;
+  font-variant-numeric: tabular-nums;
+}
+.ax-code-row .ax-btn {
+  flex: none;
+  padding: 0 22px;
+}
 .ax-sent-foot {
   display: flex;
   flex-wrap: wrap;

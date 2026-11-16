@@ -18,6 +18,11 @@
   margin-top: 15px;
 }
 
+.rv-spread {
+  max-width: var(--measure);
+  margin-bottom: var(--s-2);
+}
+
 .rv-list {
   margin: 0;
   padding: 0;

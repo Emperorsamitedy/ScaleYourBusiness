@@ -648,3 +648,78 @@ the defaults to its five open questions; the defaults are taken as D91.
   the stated figure and failing at its breaking point. They are stored with
   the result when it is made (rule 41), so a shared check shows the lines as
   they were set.
+- **D96 — an idea is its own business, and the database keeps it from
+  operating (part 2).** One account holds one profile (the v1 invariant),
+  so keeping a check makes a NEW account and profile for the same verified
+  email, as "add a business" does (idea 52), created as `kind = 'idea'`
+  from the start: triggers in migration 0124 refuse any connection,
+  proposal or execution for an idea, refuse turning an operating business
+  into an idea, keep a launch date as it was, and keep test results
+  append-only. Triggers rather than a check at each call, because a
+  connection is made in seven places. What was stated is written as owner
+  facts where the data model has a field, the plan's monthly revenue
+  included with a note that it is planned; measured sales supersede it
+  after launch (rule 3) and I-51 sets the plan beside them, never swapped.
+  Sign-in has no return path yet, so a signed-out person is told to sign in
+  and come back to the shared check. The conversational version (I-11's
+  bank section, I-12's extraction) is not in part 2: the form covers the
+  same inputs, and the interviewer is its own piece of work.
+- **D97 — the conversational version is a description read into the form,
+  not new bank questions.** The bank already models an idea: question 1.5's
+  `identity.stage` has the code `idea`, and its pre-launch questions read
+  it. So keeping an idea writes `identity.stage = idea` (and launching,
+  `recently_launched`), an idea business opened at `/intake` goes to its
+  plan, and the operating interview never asks it trading questions. I-11's
+  "idea section of the bank" is therefore not added: the idea's own inputs
+  stay in `specs/idea-v1.json` (D93), and growing the bank the interviewer
+  sends every turn by thirteen questions would buy nothing the form lacks.
+  I-12 is a free-text "describe your idea" box: Haiku reads it into the
+  form's answers under a fixed schema, every value re-checked against the
+  form's own lists and bounds, nothing kept, each filled answer marked "from
+  your description" until the person touches it and sends the form. Public
+  like the free check, so its spend is capped per address (10 an hour) and
+  for everyone (300 a day), and costed under workload `idea_describe`
+  against the nil-UUID "no account" line, since llm_calls needs an account
+  and a visitor has none.
+- **D98 — local competition is a dated snapshot of map counts, offered city
+  by city.** The owner chose it on 2026-11-17 ("Local competition"), lifting
+  TASKS-IDEAS's "not in scope". OpenStreetMap is the only open source of
+  record for places by kind (ODbL, attribution shown with every count). A
+  live query per check was tried and refused: the public Overpass server
+  took 36–44 s a count and often answered 502, and its mirrors timed out.
+  So, as with Eurostat (D92), a script run by hand (`npm run local:fetch`)
+  writes `specs/local-counts-v1.json`: each country's three largest cities
+  from Wikidata (CC0: population, OSM relation, names in the seven
+  languages), and per city, inside its own boundary, one count per group in
+  `idea-v1.json`'s `local.groups`. The run is resumable and polite; a city
+  that never answered is left out, and the city question offers only
+  counted cities ("somewhere else" otherwise). Shown: the count, places per
+  10,000 residents, and the same for the country's other counted cities.
+  A count is a floor, never a total, and is said to be one (rule 37); a
+  business type that sells online, is too broad, or is rarely mapped gets
+  its reason and no number. Population is Wikidata's largest truthy value.
+- **D99 — the idea check's six open gaps, closed (owner, 2026-11-17: "all
+  these gaps should have a solution and get closed").** (3) Signing in from
+  "Keep this idea" comes back to the shared check: `/i/<token>`, `/idea` and
+  `/idea/mine` join the return-to allowlist, matched exactly (share tokens
+  are case-sensitive), never lowercased. (4) A kept idea is named in the
+  business switcher by a label stored when it is kept ("Café idea ·
+  Budapest", in the person's language) until launch brings a legal name; no
+  legal name is invented (migration 0125). (6) Eurostat's newer table
+  (`bd_size`, from 2021) publishes the one-year rate to 2024; it is stored
+  as `newer_y1` and shown on its own line, never mixed with the 2020 set
+  (D92 stands). (8) After a description is read, the form names what is
+  still missing and asks for it in the person's own words; the next read is
+  told which questions it answers and fills only what is still empty. (7) A
+  town outside the snapshot can be named: it is queued once per country and
+  town (migration 0126) and the daily job `/api/cron/count-towns` counts two
+  a run through Nominatim and Overpass — never while a person waits — with
+  "not found" and "given up after three tries" said in words. (5) A kept
+  idea can have one ScaleX-hosted test page (`/t/<slug>`, migration 0127):
+  the owner's one line (no links or addresses) and the plan's price, with
+  an "I'd buy this at this price" button. It records unique visits a day
+  and unique interest as HMACs under a derived key — no address, cookie,
+  email or payment is kept — append-only, read against lines stored when
+  the page is made (at least 100 visits; 10 % saying they'd buy passes,
+  under 3 % fails, fixed values from `idea-v1.json`). The owner shares it;
+  ScaleX posts it nowhere (rule 40). It closes at launch.

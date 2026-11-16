@@ -123,7 +123,10 @@
       "resend": "send it again",
       "resendIn": "send again in {seconds} s",
       "resent": "Sent again.",
-      "differentEmail": "Use a different email"
+      "differentEmail": "Use a different email",
+      "codeLabel": "Or type the code from the email",
+      "codeSubmit": "Sign in",
+      "codeChecking": "Checking…"
     },
     "form": {
       "labelCreate": "Create account",
@@ -779,6 +782,11 @@
       "revoke": "Revoke",
       "wrong": "something went wrong — try again",
       "unreachable": "I couldn't reach the server — try again."
+    },
+    "viz": {
+      "marginsLabel": "Margin by product",
+      "marginsTitle": "What each sale leaves, product by product.",
+      "priceCost": "price {price} · costs {cost}"
     }
   },
   "charts": {
@@ -1178,7 +1186,8 @@
         "from": "Read from",
         "days": "Days read",
         "perDay": "Per day, week {week} → now",
-        "status": "Status"
+        "status": "Status",
+        "daily": "Day by day"
       },
       "below": "Below its usual range since {date}",
       "above": "Above its usual range since {date}"
@@ -3307,7 +3316,13 @@
       "expired": "Expired"
     },
     "how": "How this works",
-    "why": "Why?"
+    "why": "Why?",
+    "funnel": {
+      "started": "Started",
+      "left": "Left unfinished",
+      "recovered": "Finished later",
+      "prior": "the {days, plural, one {# day} other {# days}} before: {count}"
+    }
   },
   "cash": {
     "meta": {
@@ -4184,6 +4199,9 @@
       "nothingFiled": "Nothing filed yet",
       "listMeta": "{stars, plural, one {# star} other {# stars}} or fewer is worth knowing",
       "emptyCopy": "Forward a review email to the address below, or paste one, and it shows here."
+    },
+    "spread": {
+      "label": "{count, plural, one {# review} other {# reviews}} on file, by rating"
     }
   },
   "simulate": {
@@ -4406,7 +4424,8 @@
         "costUnknown": "cost to deliver not known"
       },
       "perOrder": "Not in the cost of one: {list}. You pay {count, plural, one {it} other {them}} per order, not per piece, and an order can hold several pieces. Where one sale is one order, a rise can lose a few more sales than shown, and a cut needs a few more."
-    }
+    },
+    "adsMeasured": "{name} · measured on {days} of the last {window} days"
   },
   "stock": {
     "meta": {
@@ -5018,6 +5037,16 @@
       "needChoice": "Choose who can see it before you approve it.",
       "processing": "Once it goes out, TikTok may take a few minutes before it shows on your profile.",
       "noDelete": "TikTok doesn't let apps delete a post. To take this down, delete it in the TikTok app."
+    },
+    "gallery": {
+      "label": "Gallery",
+      "title": "The queue's pictures and clips"
+    },
+    "calendar": {
+      "label": "The queue by day",
+      "planned": "planned",
+      "overdue": "past its date",
+      "outside": "{count, plural, one {# more outside these weeks} other {# more outside these weeks}}"
     }
   },
   "customers": {
@@ -5919,6 +5948,13 @@
         "signIn": "Sign in to change the phone line.",
         "action": "That isn't something the phone line can do."
       }
+    },
+    "viz": {
+      "byStanding": "Tickets by where they stand",
+      "awaiting": "Waiting for your reply",
+      "waiting": "Waiting for your reply, longest first",
+      "waitingTop": "The {shown} waiting longest, of {total}",
+      "clusters": "What customers asked, by how many asked"
     }
   },
   "phoneLine": {
@@ -6265,7 +6301,9 @@
       "noBusiness": "no such business",
       "chooseAgain": "choose the business again on our page",
       "addOnPage": "add the business on our page",
-      "signInFirst": "sign in first"
+      "signInFirst": "sign in first",
+      "codeWrong": "that code isn't right, or it has expired — check it, or use the link in the email",
+      "codeTooMany": "too many codes tried for that address — use the link in the email, or try again later"
     },
     "why": {
       "otherApp": "issued for another app",
@@ -6677,7 +6715,8 @@
     "signIn": {
       "subject": "Your sign-in link — ScaleX",
       "intro": "Click to sign in to ScaleX:",
-      "expiry": "The link works once and expires in {minutes, plural, one {# minute} other {# minutes}}. If you didn't ask for it, ignore this email — nothing happens without the link."
+      "expiry": "The link works once and expires in {minutes, plural, one {# minute} other {# minutes}}. If you didn't ask for it, ignore this email — nothing happens without the link.",
+      "code": "Or type this code on the sign-in page: {code}"
     },
     "invite": {
       "subject": "You're invited to {business} on ScaleX",
@@ -9355,7 +9394,12 @@
       "ceiling": "Step {n} is the highest step for this business right now.",
       "own": "Each line climbs on its own record."
     },
-    "trackAria": "Step {n} of {total}"
+    "trackAria": "Step {n} of {total}",
+    "viz": {
+      "gains": "Gains",
+      "losses": "Losses",
+      "neither": "Neither"
+    }
   },
   "shadowSummary": {
     "meta": {
@@ -9372,7 +9416,14 @@
     "net": "Net: {amount} — and nothing was touched.",
     "none": "Nothing measured yet.",
     "share": "Copy a link to share this",
-    "copied": "Link copied"
+    "copied": "Link copied",
+    "viz": {
+      "gained": "Would have gained",
+      "nothing": "Would have done nothing",
+      "lost": "Would have lost",
+      "unproven": "Not yet proven either way",
+      "open": "Still being measured"
+    }
   },
   "statement": {
     "title": "Monthly statement",
@@ -9404,6 +9455,12 @@
     },
     "meta": {
       "title": "Monthly statement"
+    },
+    "viz": {
+      "verified": "Verified, gains and losses together",
+      "losses": "Losses inside that",
+      "fee": "ScaleX's fee",
+      "net": "After ScaleX's fee"
     }
   },
   "peers": {
@@ -9600,7 +9657,11 @@
       "startup": "One-off costs to start (fit-out, equipment, first stock)",
       "capital": "Money you have to start with",
       "team": "People working in it, you included",
-      "ramp_months": "How long until sales reach that level?"
+      "ramp_months": "How long until sales reach that level?",
+      "city": "Which city? (optional)",
+      "cityElsewhere": "Somewhere else, or not decided yet",
+      "town": "Which town? (optional)",
+      "townHint": "If it isn't in the list above"
     },
     "customer": {
       "consumer": "People (consumers)",
@@ -9615,9 +9676,8 @@
     },
     "ramp": {
       "1": "About a month",
-      "3": "About 3 months",
-      "6": "About 6 months",
-      "12": "About a year"
+      "12": "About a year",
+      "months": "About {count, plural, one {# month} other {# months}}"
     },
     "result": {
       "label": "Your idea, worked through",
@@ -9682,7 +9742,8 @@
         "about": "That's about businesses of this kind, not about your idea.",
         "unmapped": "There's no one Eurostat group for this kind of business, so there are no market figures to set beside it.",
         "outside_eu": "Eurostat's figures cover the EU. Outside it, only your own numbers are worked through.",
-        "unpublished": "Eurostat doesn't publish survival rates for this group in this country."
+        "unpublished": "Eurostat doesn't publish survival rates for this group in this country.",
+        "newer": "Eurostat's newer table ({dataset}) puts the one-year figure at {pct} for {year}. It's counted a different way, so it's shown here on its own, not mixed with the figures above."
       },
       "margin": "Your planned margin: {own}. Across {cell}: {bench}, so yours is {reading}.",
       "perPerson": "Your plan, per person a year: {own}. Across {cell}: {bench}, so yours is {reading}.",
@@ -9691,14 +9752,173 @@
         "below": "below",
         "same": "about the same"
       },
-      "sources": "Market figures: Eurostat (bd_9bd_sz_cl_r2, sbs_sc_ovw). Eurostat is not responsible for these uses of its data."
+      "sources": "Market figures: Eurostat ({datasets}). Eurostat is not responsible for these uses of its data."
     },
     "share": "Share this check",
     "copied": "Link copied",
     "again": "Check another idea",
     "next": "Already trading? Measure the real thing.",
     "sharedLabel": "A shared idea check",
-    "missing": "That idea check isn't here."
+    "missing": "That idea check isn't here.",
+    "keep": {
+      "why": "Keep this idea in your account: record what your test shows, and when you launch, your real sales are measured against this plan.",
+      "button": "Keep this idea",
+      "signIn": "Sign in first, then come back to this page to keep it.",
+      "signInLink": "Sign in",
+      "already": "This idea is already kept.",
+      "label": "{type} idea · {place}",
+      "signInBack": "Sign in, and you'll come back here to keep it."
+    },
+    "mine": {
+      "title": "Your idea",
+      "kicker": "Your idea",
+      "titleIdea": "Your idea, before launch",
+      "titleLaunched": "Your plan, beside what's measured",
+      "launchedOn": "Launched on {date}.",
+      "notIdea": "This business wasn't started as an idea, so there's no plan to show here.",
+      "signedOut": "Sign in to see the idea you kept."
+    },
+    "record": {
+      "title": "What did the test show?",
+      "presale": "Paid deposits taken",
+      "pilots": "Businesses that agreed to a paid pilot",
+      "quotes": "The middle quote ({currency})",
+      "submit": "Record the result",
+      "line": "{date}: {value}, {reading}",
+      "reading": {
+        "pass": "a pass against the line set before the test",
+        "fail": "a fail against the line set before the test",
+        "between": "between the lines: not a pass, not a fail"
+      }
+    },
+    "launch": {
+      "title": "Launched?",
+      "body": "When it's trading, say so here. Your plan stays exactly as it was, and once your sales are measured they're set beside it.",
+      "button": "It's launched",
+      "sure": "This can't be undone: the idea becomes your business, and its plan is kept as it was.",
+      "confirm": "Yes, it's trading",
+      "notYet": "Not yet",
+      "connect": "Start by connecting {provider}: it's what your plan's sales run through.",
+      "connectLink": "Connect it"
+    },
+    "actual": {
+      "title": "Your plan against your first month",
+      "compared": "You planned {planned} a month. Measured over the last {days} days, scaled to a month: {actual}, a gap of {gap}.",
+      "tooEarly": "{days} of {needed} measured days so far. The comparison comes once there are enough.",
+      "otherCurrency": "Your plan is in {planned} and your sales are measured in {measured}. Nothing is converted, so they aren't compared.",
+      "noPlan": "Your plan had no customer estimate, so there's no planned month to compare with.",
+      "kept": "Your plan isn't changed by what's measured. Both stay, side by side.",
+      "customers": "Customers: you planned {planned} a month; measured orders come to {actual} a month, a gap of {gap}.",
+      "price": "Price: you planned {planned} a sale; the measured average sale is {actual}, a gap of {gap}.",
+      "costs": "Costs: not measured from any connected system yet, so your stated costs stand as stated.",
+      "not": {
+        "customers": {
+          "subscription": "Customers: orders aren't subscribers, so a subscription's customers aren't compared yet.",
+          "no_estimate": "Customers: your plan had no customer estimate to compare with.",
+          "no_orders": "Customers: orders haven't been measured for enough days yet."
+        },
+        "price": {
+          "subscription": "Price: a subscription's average order isn't its monthly price, so it isn't compared.",
+          "no_orders": "Price: the average sale needs enough days of measured orders.",
+          "other_currency": "Price: sales are measured in another currency, and nothing is converted."
+        }
+      }
+    },
+    "provider": {
+      "stripe": "Stripe",
+      "shopify": "Shopify",
+      "square": "Square",
+      "woocommerce": "WooCommerce",
+      "ga4": "Google Analytics",
+      "meta_ads": "Meta Ads",
+      "search_console": "Google Search Console",
+      "fixture": "the test connector"
+    },
+    "describe": {
+      "label": "Describe your idea in your own words (optional)",
+      "placeholder": "For example: a small coffee bar near the station, takeaway coffee and pastries for commuters. I'd charge about the same as the chains, rent is the big cost, and I have some savings to start.",
+      "button": "Fill the form from this",
+      "working": "Reading it…",
+      "filled": "{count, plural, one {# answer was} other {# answers were}} filled from your description. Check each one: nothing counts until you send the form.",
+      "fromText": "from your description, check it",
+      "none": "Nothing in that could be read as an answer. Fill the form below instead.",
+      "short": "Describe the idea in a sentence or two, and keep it under a page.",
+      "tooMany": "Too many descriptions read from here for now. Fill the form below instead.",
+      "missing": "Still missing: {list}. Tell me about them in your own words below.",
+      "complete": "That covers everything the form needs. Check each answer, then send it.",
+      "followPlaceholder": "For example: rent and wages come to about … a month, and I'd start with … saved.",
+      "followButton": "Add this to the form"
+    },
+    "local": {
+      "shown": "Mapped on OpenStreetMap in {city}: {count} {group}, about {per} for every {base} residents.",
+      "others": "Elsewhere in the country, for every {base} residents: {list}.",
+      "other": "{city} {per}",
+      "floor": "Mapped by volunteers, so these are floors, not totals: some places are missing, more in some cities than others. © OpenStreetMap contributors, counted {date}.",
+      "noCity": "Choose one of the listed cities to see how many places like this are mapped there.",
+      "notCounted": {
+        "online": "This kind of business sells online or goes to its customers, so places nearby aren't counted.",
+        "too_broad": "This kind of business is too broad to count on the map honestly.",
+        "rarely_mapped": "Businesses of this kind are rarely on the map, so a count would mislead."
+      },
+      "group": {
+        "restaurants": "restaurants and takeaways",
+        "cafes": "cafés",
+        "bars": "bars and pubs",
+        "hairdressers": "hairdressers and barbers",
+        "beauty": "beauty salons and hairdressers",
+        "fitness": "gyms",
+        "massage_spa": "massage and spa places",
+        "health": "clinics, doctors and dentists",
+        "childcare": "childcare places and kindergartens",
+        "car_repair": "car and tyre repair shops",
+        "stays": "hotels, guest houses and hostels",
+        "estate_agents": "estate agents",
+        "bakeries": "bakeries and pastry shops"
+      },
+      "town": {
+        "queued": "{town} isn't counted yet. It's queued, and places like this there are counted on the map within a day or two: keep this idea to see it.",
+        "notFound": "{town} couldn't be found on the map, so there's no count for it.",
+        "countedNoPop": "Mapped on OpenStreetMap in {town}: {count} {group}. The map has no population for it, so there's no figure per resident."
+      }
+    },
+    "field": {
+      "sector": "the kind of business",
+      "country": "the country",
+      "customer": "who would buy",
+      "revenue_model": "how money comes in",
+      "price": "the price",
+      "variable_cost": "what one sale costs you",
+      "customers_month": "customers a month",
+      "fixed_month": "monthly costs",
+      "startup": "start-up costs",
+      "capital": "the money you have to start with",
+      "team": "how many people work in it",
+      "ramp_months": "how long until full sales"
+    },
+    "testPage": {
+      "title": "A test of an idea",
+      "missing": "This test page isn't here.",
+      "closed": "This test has ended. Thank you for looking.",
+      "honest": "This is a test of a business idea, made with ScaleX. Nothing is sold here, no payment is taken and no details are asked for: the button only counts that someone would buy.",
+      "buy": "I'd buy this at this price",
+      "thanks": "Thank you. That's counted, and nothing else is taken.",
+      "sectionTitle": "A test page that measures interest",
+      "why": "Make a simple page with one line about your offer and your price, and share its link wherever your customers are. It counts visits and how many people say they'd buy, so the result is measured, not typed in.",
+      "pitchLabel": "One line about what you'd offer",
+      "pitchHint": "For example: fresh coffee by the station, ready in a minute",
+      "pitchRule": "Keep it to one short line of words, with no links or addresses.",
+      "make": "Make the test page",
+      "yours": "Your test page: \"{pitch}\"",
+      "copy": "Copy its link",
+      "counts": "{visits} visits so far, {interested} said they'd buy.",
+      "tooFew": "A reading needs at least {min} visits.",
+      "reading": {
+        "pass": "{rate} said they'd buy: a pass against the line set when the page was made.",
+        "fail": "{rate} said they'd buy: a fail against the line set when the page was made.",
+        "between": "{rate} said they'd buy: between the lines, not a pass and not a fail."
+      },
+      "lines": "The lines, set when the page was made: at least {min} visits; {pass} or more saying they'd buy is a pass, under {fail} is a fail."
+    }
   },
   "pricing": {
     "meta": {
@@ -10109,6 +10329,22 @@
       "open": "Open",
       "empty": "Nothing is waiting. I'll put the next decision here.",
       "by": "decide by {date}"
+    },
+    "live": {
+      "label": "On your site · live",
+      "people": "{count, plural, one {# person} other {# people}}",
+      "since": "since {time}",
+      "lastRead": "last read {time}",
+      "window": "{minutes} min",
+      "windowGroup": "Window",
+      "notConnected": "Connect Google Analytics and this line starts moving.",
+      "paused": "Your Google Analytics connection is paused, so nothing is read.",
+      "unavailable": "Google Analytics didn't answer just now. Trying again in half a minute.",
+      "connect": "Connect",
+      "summary": "{now} on your site now; {base} at {time}.",
+      "caption": "People on your site, minute by minute",
+      "colTime": "Time",
+      "colPeople": "People"
     }
   },
   "alerts": {

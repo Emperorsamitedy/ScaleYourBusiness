@@ -7,6 +7,7 @@
 import type { IdeaAnswers, IdeaResult, NextTest } from "../../lib/ideas/check";
 import { toMinor } from "../../lib/ideas/units";
 import type { InputKey, Lever } from "../../lib/ideas/model";
+import type { Local } from "../../lib/ideas/local";
 import type { SectorLine, SurvivalRate } from "../../lib/ideas/sector";
 import { presentMoney } from "../../lib/i18n/format";
 import type { AppLocale } from "../../lib/i18n/locales";
@@ -64,6 +65,94 @@ function SectorP({
       })}
       {line.cell.fallback && <span className="idea-note"> {line.cell.fallback}</span>}
     </p>
+  );
+}
+
+function LocalP({
+  local,
+  tr,
+  f,
+  locale,
+}: {
+  local: Local | undefined;
+  tr: Tr;
+  f: Fmt;
+  locale: AppLocale;
+}) {
+  // A check made before D98 carries no local figure: nothing to say.
+  if (!local) return null;
+  if (local.status === "not_counted") {
+    return <p className="auth-copy">{tr(`local.notCounted.${local.why}`)}</p>;
+  }
+  if (local.status === "no_city") {
+    return local.offered ? <p className="auth-copy idea-note">{tr("local.noCity")}</p> : null;
+  }
+  if (local.status === "town") {
+    if (local.state === "queued") {
+      return <p className="auth-copy idea-note">{tr("local.town.queued", { town: local.town })}</p>;
+    }
+    if (local.state === "not_found") {
+      return (
+        <p className="auth-copy idea-note">{tr("local.town.notFound", { town: local.town })}</p>
+      );
+    }
+    const day = new Intl.DateTimeFormat(locale, { dateStyle: "medium" });
+    return (
+      <>
+        <p className="auth-copy">
+          {local.per_10k === null
+            ? tr("local.town.countedNoPop", {
+                town: local.town,
+                count: f.count(local.count),
+                group: tr(`local.group.${local.group}`),
+              })
+            : tr("local.shown", {
+                city: local.town,
+                count: f.count(local.count),
+                group: tr(`local.group.${local.group}`),
+                per: new Intl.NumberFormat(locale, { maximumFractionDigits: 1 }).format(
+                  local.per_10k,
+                ),
+                base: f.count(10_000),
+              })}
+        </p>
+        <p className="auth-copy idea-note">
+          {tr("local.floor", { date: day.format(new Date(local.counted_at)) })}
+        </p>
+      </>
+    );
+  }
+  const name = (n: Record<string, string>) => n[locale] ?? n.en ?? "";
+  const one = new Intl.NumberFormat(locale, { maximumFractionDigits: 1 });
+  const dates = new Intl.DateTimeFormat(locale, { dateStyle: "medium" });
+  const list = new Intl.ListFormat([locale], { type: "conjunction" });
+  return (
+    <>
+      <p className="auth-copy">
+        {tr("local.shown", {
+          city: name(local.city.names),
+          count: f.count(local.city.count),
+          group: tr(`local.group.${local.group}`),
+          per: one.format(local.city.per_10k),
+          base: f.count(10_000),
+        })}
+      </p>
+      {local.others.length > 0 && (
+        <p className="auth-copy">
+          {tr("local.others", {
+            base: f.count(10_000),
+            list: list.format(
+              local.others.map((o) =>
+                tr("local.other", { city: name(o.names), per: one.format(o.per_10k) }),
+              ),
+            ),
+          })}
+        </p>
+      )}
+      <p className="auth-copy idea-note">
+        {tr("local.floor", { date: dates.format(new Date(local.counted_at)) })}
+      </p>
+    </>
   );
 }
 
@@ -266,15 +355,17 @@ export function IdeaResultView({
       <h3 className="idea-h">{tr("result.market")}</h3>
       {s.status === "shown" ? (
         <>
-          <p className="auth-copy">
-            {tr("result.survival.shown", {
-              group: s.group,
-              country: countryName,
-              y1: survivalText(s.y1, f),
-              y3: survivalText(s.y3, f),
-              y5: survivalText(s.y5, f),
-            })}
-          </p>
+          {(s.y1 || s.y3 || s.y5) && (
+            <p className="auth-copy">
+              {tr("result.survival.shown", {
+                group: s.group,
+                country: countryName,
+                y1: survivalText(s.y1, f),
+                y3: survivalText(s.y3, f),
+                y5: survivalText(s.y5, f),
+              })}
+            </p>
+          )}
           <p className="auth-copy idea-note">
             {tr("result.survival.about")} {s.parent && `${tr("result.survival.parent")} `}
             {[s.y1, s.y3, s.y5].some((r) => r?.flag === "b") && `${tr("result.survival.break")} `}
@@ -283,13 +374,25 @@ export function IdeaResultView({
               year: String(s.y5?.year ?? s.y3?.year ?? s.y1?.year ?? ""),
             })}
           </p>
+          {s.newer_y1 && (
+            <p className="auth-copy idea-note">
+              {tr("result.survival.newer", {
+                pct: f.pctOf(s.newer_y1.pct),
+                year: String(s.newer_y1.year),
+                dataset: "bd_size",
+              })}
+            </p>
+          )}
         </>
       ) : (
         <p className="auth-copy">{tr(`result.survival.${s.why}`)}</p>
       )}
+      <LocalP local={result.local} tr={tr} f={f} locale={locale} />
       {result.margin && <SectorP line={result.margin} kind="margin" tr={tr} f={f} />}
       {result.per_person && <SectorP line={result.per_person} kind="perPerson" tr={tr} f={f} />}
-      <p className="auth-copy idea-note">{tr("result.sources")}</p>
+      <p className="auth-copy idea-note">
+        {tr("result.sources", { datasets: "bd_9bd_sz_cl_r2, sbs_sc_ovw" })}
+      </p>
     </section>
   );
 }

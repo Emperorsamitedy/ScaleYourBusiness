@@ -10,7 +10,10 @@ import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { IntakeStage } from "@/components/intake/IntakeStage";
 import { FirstStepScreen } from "@/components/locale/FirstStepScreen";
+import { redirect } from "next/navigation";
+import { resolveAccess } from "@/lib/auth/access";
 import { pickerContext } from "@/lib/i18n/server";
+import { profileKind } from "@/lib/ideas/keep";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("intake.meta");
@@ -18,6 +21,9 @@ export async function generateMetadata(): Promise<Metadata> {
 }
 
 export default async function IntakePage() {
+  // TASKS-IDEAS I-10: an idea isn't interviewed as a trading business; its plan is its page.
+  const access = await resolveAccess();
+  if (access && (await profileKind(access.profile_id)) === "idea") redirect("/idea/mine");
   const picker = await pickerContext();
   if (!picker.chosen && !picker.access) return <FirstStepScreen data={picker.data} />;
   return <IntakeStage />;

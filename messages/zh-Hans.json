@@ -123,7 +123,10 @@
       "resend": "重新发送",
       "resendIn": "{seconds} 秒后重新发送",
       "resent": "已重新发送。",
-      "differentEmail": "使用其他邮箱"
+      "differentEmail": "使用其他邮箱",
+      "codeLabel": "或输入邮件中的验证码",
+      "codeSubmit": "登录",
+      "codeChecking": "正在验证…"
     },
     "form": {
       "labelCreate": "创建账户",
@@ -779,6 +782,11 @@
       "revoke": "撤销",
       "wrong": "出了点问题——请重试",
       "unreachable": "我无法连接服务器——请重试。"
+    },
+    "viz": {
+      "marginsLabel": "各产品毛利率",
+      "marginsTitle": "每笔销售留下多少，按产品看。",
+      "priceCost": "售价 {price} · 成本 {cost}"
     }
   },
   "charts": {
@@ -1178,7 +1186,8 @@
         "from": "读取自",
         "days": "已读取天数",
         "perDay": "每日，第 {week} 周 → 现在",
-        "status": "状态"
+        "status": "状态",
+        "daily": "逐日"
       },
       "below": "自 {date} 起低于常规范围",
       "above": "自 {date} 起高于常规范围"
@@ -3307,7 +3316,13 @@
       "expired": "已过期"
     },
     "how": "运作方式",
-    "why": "为什么？"
+    "why": "为什么？",
+    "funnel": {
+      "started": "已开始",
+      "left": "被留下",
+      "recovered": "之后完成",
+      "prior": "之前的{days, plural, other { # 天}}：{count}"
+    }
   },
   "cash": {
     "meta": {
@@ -4184,6 +4199,9 @@
       "nothingFiled": "尚未归档任何内容",
       "listMeta": "{stars, plural, other {# 星}}或以下的值得留意",
       "emptyCopy": "把评价邮件转发到下面的地址，或粘贴一条评价，它就会显示在这里。"
+    },
+    "spread": {
+      "label": "{count, plural, other {已存档 # 条评价}}，按评分"
     }
   },
   "simulate": {
@@ -4406,7 +4424,8 @@
         "costUnknown": "交付成本未知"
       },
       "perOrder": "单件成本中未包括：{list}。{count, plural, other {这些费用}}按订单而不是按件支付，而一个订单可以包含多件。如果一笔销售就是一个订单，涨价可能比显示的多少掉几笔销售，降价则需要多卖几笔。"
-    }
+    },
+    "adsMeasured": "{name} · 最近 {window} 天中有 {days} 天有测量数据"
   },
   "stock": {
     "meta": {
@@ -5018,6 +5037,16 @@
       "needChoice": "批准之前，请先选择谁能看到。",
       "processing": "发布后，TikTok 可能需要几分钟处理，才会显示在您的资料中。",
       "noDelete": "TikTok 不允许应用删除帖子。如需撤下，请在 TikTok 应用中删除。"
+    },
+    "gallery": {
+      "label": "图库",
+      "title": "队列中的图片和短片"
+    },
+    "calendar": {
+      "label": "按天查看队列",
+      "planned": "计划中",
+      "overdue": "已过期",
+      "outside": "{count, plural, other {另有 # 条不在这几周内}}"
     }
   },
   "customers": {
@@ -5919,6 +5948,13 @@
         "signIn": "请先登录再修改电话线路。",
         "action": "电话线路无法做这件事。"
       }
+    },
+    "viz": {
+      "byStanding": "工单按状态",
+      "awaiting": "等待您回复",
+      "waiting": "等待您回复，等待最久的在前",
+      "waitingTop": "共 {total} 位在等待，这是等待最久的 {shown} 位",
+      "clusters": "客户提出的问题，按提问人数"
     }
   },
   "phoneLine": {
@@ -6265,7 +6301,9 @@
       "noBusiness": "没有这家企业",
       "chooseAgain": "请在我们的页面上重新选择企业",
       "addOnPage": "请在我们的页面上添加企业",
-      "signInFirst": "请先登录"
+      "signInFirst": "请先登录",
+      "codeWrong": "验证码不正确或已过期——请检查，或使用邮件中的链接",
+      "codeTooMany": "该地址尝试验证码次数过多——请使用邮件中的链接，或稍后再试"
     },
     "why": {
       "otherApp": "签发给了其他应用",
@@ -6677,7 +6715,8 @@
     "signIn": {
       "subject": "您的登录链接 — ScaleX",
       "intro": "点击登录 ScaleX：",
-      "expiry": "此链接只能使用一次，将在 {minutes, plural, other {# 分钟后失效}}。如果这不是您请求的，请忽略这封邮件——没有链接，什么都不会发生。"
+      "expiry": "此链接只能使用一次，将在 {minutes, plural, other {# 分钟后失效}}。如果这不是您请求的，请忽略这封邮件——没有链接，什么都不会发生。",
+      "code": "或在登录页面输入此验证码：{code}"
     },
     "invite": {
       "subject": "您受邀加入 ScaleX 上的 {business}",
@@ -9355,7 +9394,12 @@
       "ceiling": "目前第 {n} 级是这家企业的最高级别。",
       "own": "每一行都凭自己的记录提升。"
     },
-    "trackAria": "第 {n} 级，共 {total} 级"
+    "trackAria": "第 {n} 级，共 {total} 级",
+    "viz": {
+      "gains": "收益",
+      "losses": "损失",
+      "neither": "两者皆非"
+    }
   },
   "shadowSummary": {
     "meta": {
@@ -9372,7 +9416,14 @@
     "net": "净额：{amount}——且未做任何改动。",
     "none": "尚无衡量结果。",
     "share": "复制分享链接",
-    "copied": "链接已复制"
+    "copied": "链接已复制",
+    "viz": {
+      "gained": "本会带来收益",
+      "nothing": "本不会有影响",
+      "lost": "本会造成损失",
+      "unproven": "尚未证实",
+      "open": "仍在衡量"
+    }
   },
   "statement": {
     "title": "月度对账单",
@@ -9404,6 +9455,12 @@
     },
     "meta": {
       "title": "月度对账单"
+    },
+    "viz": {
+      "verified": "已核实，盈亏合计",
+      "losses": "其中的损失",
+      "fee": "ScaleX 费用",
+      "net": "扣除 ScaleX 费用后"
     }
   },
   "peers": {
@@ -9600,7 +9657,11 @@
       "startup": "一次性启动成本（装修、设备、首批库存）",
       "capital": "你的启动资金",
       "team": "参与工作的人数，包括你",
-      "ramp_months": "销售需要多久才能达到这个水平？"
+      "ramp_months": "销售需要多久才能达到这个水平？",
+      "city": "哪个城市？（可选）",
+      "cityElsewhere": "其他地方，或尚未决定",
+      "town": "哪个城市？（可选）",
+      "townHint": "如果不在上面的列表中"
     },
     "customer": {
       "consumer": "个人（消费者）",
@@ -9615,9 +9676,8 @@
     },
     "ramp": {
       "1": "大约一个月",
-      "3": "大约 3 个月",
-      "6": "大约 6 个月",
-      "12": "大约一年"
+      "12": "大约一年",
+      "months": "大约 {count, plural, other {# 个月}}"
     },
     "result": {
       "label": "你的想法，算一遍之后",
@@ -9682,7 +9742,8 @@
         "about": "这说的是这类企业，而不是你的想法。",
         "unmapped": "这类企业没有对应的单一 Eurostat 类别，所以没有可以对照的市场数据。",
         "outside_eu": "Eurostat 的数据覆盖欧盟。在欧盟之外，只计算你自己的数字。",
-        "unpublished": "Eurostat 未发布该类别在这个国家的存活率。"
+        "unpublished": "Eurostat 未发布该类别在这个国家的存活率。",
+        "newer": "Eurostat 较新的数据表（{dataset}）给出的 {year} 年一年存活率为 {pct}。它的统计方式不同，所以在这里单独列出，不与上面的数据混在一起。"
       },
       "margin": "你计划的利润率：{own}。在 {cell} 中：{bench}，所以你的水平{reading}。",
       "perPerson": "你的计划，每人每年：{own}。在 {cell} 中：{bench}，所以你的水平{reading}。",
@@ -9691,14 +9752,173 @@
         "below": "更低",
         "same": "差不多"
       },
-      "sources": "市场数据：Eurostat（bd_9bd_sz_cl_r2、sbs_sc_ovw）。Eurostat 不对其数据的这些用途负责。"
+      "sources": "市场数据：Eurostat（{datasets}）。Eurostat 不对其数据的这些用途负责。"
     },
     "share": "分享这次检查",
     "copied": "链接已复制",
     "again": "检查另一个想法",
     "next": "已经在经营了？测量真实情况。",
     "sharedLabel": "分享的想法检查",
-    "missing": "这里没有这个想法检查。"
+    "missing": "这里没有这个想法检查。",
+    "keep": {
+      "why": "把这个想法保存在你的账户里：记录测试的结果；等你正式开业后，你的真实销售会与这份计划对照衡量。",
+      "button": "保存这个想法",
+      "signIn": "请先登录，然后回到本页面保存它。",
+      "signInLink": "登录",
+      "already": "这个想法已经保存。",
+      "label": "{type}想法 · {place}",
+      "signInBack": "登录后会回到这里，你就可以保留它。"
+    },
+    "mine": {
+      "title": "你的想法",
+      "kicker": "你的想法",
+      "titleIdea": "你的想法（开业前）",
+      "titleLaunched": "你的计划与实测数据对照",
+      "launchedOn": "于 {date} 开业。",
+      "notIdea": "这家企业不是从想法开始的，所以这里没有可显示的计划。",
+      "signedOut": "登录后即可查看你保存的想法。"
+    },
+    "record": {
+      "title": "测试结果如何？",
+      "presale": "已收取的付费定金",
+      "pilots": "同意付费试点的企业",
+      "quotes": "居中的那份报价（{currency}）",
+      "submit": "记录结果",
+      "line": "{date}：{value}，{reading}",
+      "reading": {
+        "pass": "按测试前定下的标准，算通过",
+        "fail": "按测试前定下的标准，算不通过",
+        "between": "介于两条标准之间：既不算通过，也不算不通过"
+      }
+    },
+    "launch": {
+      "title": "已开业？",
+      "body": "开始营业后，在这里告诉我们。你的计划会原样保留；一旦测得你的销售数据，就会把它们并排放在计划旁边。",
+      "button": "已开业",
+      "sure": "此操作无法撤销：这个想法将成为你的企业，它的计划会原样保留。",
+      "confirm": "是的，已在营业",
+      "notYet": "还没有",
+      "connect": "先连接 {provider}：你计划中的销售都经由它进行。",
+      "connectLink": "连接"
+    },
+    "actual": {
+      "title": "你的计划与第一个月对比",
+      "compared": "你计划每月 {planned}。按最近 {days} 天的实测数据折算成一个月：{actual}，差距为 {gap}。",
+      "tooEarly": "目前已测 {days} 天，需要 {needed} 天。数据足够后才会进行对比。",
+      "otherCurrency": "你的计划使用 {planned}，而你的销售以 {measured} 计量。系统不做任何换算，所以不进行对比。",
+      "noPlan": "你的计划里没有客户数估算，所以没有可供对比的计划月份。",
+      "kept": "实测数据不会改变你的计划。两者并排保留。",
+      "customers": "客户：你计划每月 {planned}；实测订单为每月 {actual}，差距为 {gap}。",
+      "price": "价格：你计划每笔销售 {planned}；实测客单价为 {actual}，差距为 {gap}。",
+      "costs": "成本：尚未从任何已连接的系统中测得，所以你填写的成本按原样保留。",
+      "not": {
+        "customers": {
+          "subscription": "客户：订单不等于订阅者，所以暂不对比订阅的客户数。",
+          "no_estimate": "客户：你的计划里没有可供对比的客户数估算。",
+          "no_orders": "客户：订单的实测天数还不够。"
+        },
+        "price": {
+          "subscription": "价格：订阅的客单价并不是它的月度价格，所以不进行对比。",
+          "no_orders": "价格：客单价需要足够天数的实测订单。",
+          "other_currency": "价格：销售以另一种货币计量，系统不做任何换算。"
+        }
+      }
+    },
+    "provider": {
+      "stripe": "Stripe",
+      "shopify": "Shopify",
+      "square": "Square",
+      "woocommerce": "WooCommerce",
+      "ga4": "Google Analytics",
+      "meta_ads": "Meta Ads",
+      "search_console": "Google Search Console",
+      "fixture": "测试连接器"
+    },
+    "describe": {
+      "label": "用你自己的话描述你的想法（可选）",
+      "placeholder": "例如：车站附近的一家小咖啡吧，为通勤者提供外带咖啡和糕点。我的定价会和连锁店差不多，租金是最大的成本，我有一些积蓄用来起步。",
+      "button": "据此填写表单",
+      "working": "正在读取…",
+      "filled": "{count, plural, other {已根据你的描述填写了 # 个回答}}。请逐一检查：在你提交表单之前，这些都不算数。",
+      "fromText": "来自你的描述，请检查",
+      "none": "这段文字中没有可以作为回答读取的内容。请改为填写下方的表单。",
+      "short": "用一两句话描述这个想法，篇幅不要超过一页。",
+      "tooMany": "从这里读取的描述暂时太多了。请改为填写下方的表单。",
+      "missing": "还缺少：{list}。请在下方用你自己的话说明。",
+      "complete": "表单需要的内容都齐了。请逐一检查每个回答，然后提交。",
+      "followPlaceholder": "例如：租金和工资每月大约 …，我会用 … 的积蓄起步。",
+      "followButton": "添加到表单"
+    },
+    "local": {
+      "shown": "在 OpenStreetMap 上，{city} 标注了 {count} 家{group}，约合每 {base} 名居民 {per} 家。",
+      "others": "国内其他城市，每 {base} 名居民：{list}。",
+      "other": "{city} {per}",
+      "floor": "这些数据由志愿者标注，因此只是下限而非总数：有些地点没有标注，某些城市缺得比其他城市多。© OpenStreetMap contributors，统计于 {date}。",
+      "noCity": "从列表中选择一个城市，查看那里标注了多少家此类场所。",
+      "notCounted": {
+        "online": "这类企业在网上销售或上门服务客户，因此不统计附近的场所。",
+        "too_broad": "这类企业的范围太宽，无法在地图上如实统计。",
+        "rarely_mapped": "这类企业很少出现在地图上，统计数字会产生误导。"
+      },
+      "group": {
+        "restaurants": "餐馆和外卖店",
+        "cafes": "咖啡馆",
+        "bars": "酒吧和小酒馆",
+        "hairdressers": "理发店和男士理发店",
+        "beauty": "美容院和美发店",
+        "fitness": "健身房",
+        "massage_spa": "按摩和水疗场所",
+        "health": "诊所、医生诊室和牙科诊所",
+        "childcare": "托儿机构和幼儿园",
+        "car_repair": "汽车和轮胎维修店",
+        "stays": "酒店、民宿和青年旅舍",
+        "estate_agents": "房产中介",
+        "bakeries": "面包店和糕点店"
+      },
+      "town": {
+        "queued": "{town} 尚未统计。它已排入队列，那里的此类场所会在一两天内在地图上完成统计：保存这个想法即可查看。",
+        "notFound": "在地图上找不到 {town}，因此没有它的统计。",
+        "countedNoPop": "在 OpenStreetMap 上，{town} 标注了 {count} 家{group}。地图上没有它的人口数据，因此没有按居民计算的数字。"
+      }
+    },
+    "field": {
+      "sector": "企业类型",
+      "country": "国家",
+      "customer": "谁会购买",
+      "revenue_model": "钱从哪里来",
+      "price": "价格",
+      "variable_cost": "一笔销售的成本",
+      "customers_month": "每月客户数",
+      "fixed_month": "每月成本",
+      "startup": "启动成本",
+      "capital": "你的启动资金",
+      "team": "参与工作的人数",
+      "ramp_months": "多久能达到完整的销售水平"
+    },
+    "testPage": {
+      "title": "一个想法的测试",
+      "missing": "这里没有这个测试页面。",
+      "closed": "这个测试已经结束。感谢你的浏览。",
+      "honest": "这是一个企业想法的测试，由 ScaleX 制作。这里不出售任何东西，不收取任何付款，也不索取任何信息：这个按钮只记录有人愿意购买。",
+      "buy": "按这个价格，我愿意买",
+      "thanks": "谢谢。已记录，除此之外不收集任何信息。",
+      "sectionTitle": "衡量兴趣的测试页面",
+      "why": "制作一个简单的页面，用一行字介绍你的产品或服务和价格，然后在你的客户所在的地方分享它的链接。它会统计访问次数和表示愿意购买的人数，所以结果是实际测得的，而不是手动填写的。",
+      "pitchLabel": "用一行字介绍你会提供什么",
+      "pitchHint": "例如：车站旁的现磨咖啡，一分钟就好",
+      "pitchRule": "只写一行简短的文字，不要包含链接或地址。",
+      "make": "制作测试页面",
+      "yours": "你的测试页面：“{pitch}”",
+      "copy": "复制链接",
+      "counts": "目前已有 {visits} 次访问，{interested} 人表示愿意购买。",
+      "tooFew": "至少需要 {min} 次访问才能得出读数。",
+      "reading": {
+        "pass": "{rate} 表示愿意购买：按制作页面时定下的标准，算通过。",
+        "fail": "{rate} 表示愿意购买：按制作页面时定下的标准，算不通过。",
+        "between": "{rate} 表示愿意购买：介于两条标准之间，既不算通过，也不算不通过。"
+      },
+      "lines": "制作页面时定下的标准：至少 {min} 次访问；表示愿意购买的达到 {pass} 或以上算通过，低于 {fail} 算不通过。"
+    }
   },
   "pricing": {
     "meta": {
@@ -10109,6 +10329,22 @@
       "open": "打开",
       "empty": "目前没有待办。下一项决定会出现在这里。",
       "by": "请在 {date} 前决定"
+    },
+    "live": {
+      "label": "网站在线 · 实时",
+      "people": "{count, plural, other {# 人}}",
+      "since": "自 {time} 起",
+      "lastRead": "上次读取 {time}",
+      "window": "{minutes} 分钟",
+      "windowGroup": "时间范围",
+      "notConnected": "连接 Google Analytics 后，这条线就会动起来。",
+      "paused": "您的 Google Analytics 连接已暂停，因此不会读取任何数据。",
+      "unavailable": "Google Analytics 暂时没有响应，半分钟后再试。",
+      "connect": "连接",
+      "summary": "现在网站上有 {now}；{time} 时为 {base}。",
+      "caption": "网站在线人数（按分钟）",
+      "colTime": "时间",
+      "colPeople": "人数"
     }
   },
   "alerts": {

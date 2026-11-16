@@ -221,8 +221,25 @@ interface BusinessProfile {
   completeness: CompletenessScore;
   last_material_change: ISODateTime;
   schema_version: string;
+
+  // TASKS-IDEAS.md I-10: a business that exists, or one that doesn't yet.
+  // Not a fact (no Field<T>): it is what the business IS, set at creation.
+  kind: "operating" | "idea";
+  // I-50: when an idea was launched (it is then "operating"); null otherwise.
+  launched_at: ISODateTime | null;
 }
 ```
+
+**Idea profiles (TASKS-IDEAS.md, rules 36–41).** A profile of kind `"idea"`
+holds what a person stated about a business that doesn't exist yet, as
+ordinary owner-stated facts (`source.kind: "owner_input"`) where a field
+exists for them — business type, country, team size, cash available, and
+the plan's monthly revenue in `revenue.monthly_revenue` with a note saying
+it is planned, not earned — and the whole plan on its `idea_checks` row.
+An idea has no connection, proposal or execution: the database refuses
+them (migration 0124). Launching makes it `"operating"` one way; the
+stated plan stays, and measured facts supersede it the ordinary way (rule
+3), the stated-vs-measured delta shown (Phase 2).
 
 The section split follows MAIN.txt deliberately. Keeping the document's structure means you can point at any question in the original and find where it lands, which matters for maintenance and for anyone new reading both.
 

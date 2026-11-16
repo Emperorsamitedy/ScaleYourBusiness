@@ -27,3 +27,19 @@ describe("returnPath", () => {
     }
   });
 });
+
+describe("returnPath — TASKS-IDEAS: back to the idea after signing in", () => {
+  it("takes a shared check exactly as written (tokens are case-sensitive), and the idea pages", () => {
+    expect(returnPath("/i/NiMTSTnoilFAYm1K")).toBe("/i/NiMTSTnoilFAYm1K");
+    expect(returnPath("/idea")).toBe("/idea");
+    expect(returnPath("/idea/mine")).toBe("/idea/mine");
+  });
+
+  it("refuses anything that only looks like one", () => {
+    expect(returnPath("/i/short")).toBeNull();
+    expect(returnPath("/i/abc/../../admin")).toBeNull();
+    expect(returnPath("//evil.example/i/NiMTSTnoilFAYm1K")).toBeNull();
+    expect(returnPath("/i/NiMTSTnoilFAYm1K?x=https://evil.example")).toBeNull();
+    expect(returnPath("/idea/other")).toBeNull();
+  });
+});

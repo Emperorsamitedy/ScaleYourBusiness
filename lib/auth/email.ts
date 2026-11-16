@@ -21,6 +21,8 @@ import { LOGIN_TTL_MINUTES } from "./service";
 export interface LoginEmail {
   to: string;
   link: string;
+  /** The 6-digit code typed on the sign-in screen instead of opening the link (2026-11-16). */
+  code?: string;
   /** The recipient's language, already through the gate. English when absent. */
   locale?: AppLocale;
 }
@@ -29,10 +31,15 @@ export interface LoginEmail {
 export function loginEmailContent(
   link: string,
   w: Words = englishWords("emails.signIn"),
+  code?: string,
 ): { subject: string; text: string } {
+  // Spaced "123 456" so it reads at a glance; the screen accepts it either way.
+  const codeLine = code
+    ? `${w.t("code", { code: `${code.slice(0, 3)} ${code.slice(3)}` })}\n\n`
+    : "";
   return {
     subject: w.t("subject"),
-    text: `${w.t("intro")}\n\n${link}\n\n${w.t("expiry", { minutes: LOGIN_TTL_MINUTES })}`,
+    text: `${w.t("intro")}\n\n${link}\n\n${codeLine}${w.t("expiry", { minutes: LOGIN_TTL_MINUTES })}`,
   };
 }
 
@@ -63,6 +70,7 @@ export async function sendLoginEmail(mail: LoginEmail): Promise<SendResult> {
   const content = loginEmailContent(
     mail.link,
     await wordsFor(mail.locale ?? "en", "emails.signIn"),
+    mail.code,
   );
   const res = await fetch("https://api.resend.com/emails", {
     method: "POST",

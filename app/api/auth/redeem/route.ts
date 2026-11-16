@@ -13,18 +13,10 @@
 import { logSafeError } from "../../../../lib/core/log-safe";
 import { cookies } from "next/headers";
 import { type NextRequest, NextResponse } from "next/server";
-import {
-  AUTH_COOKIE,
-  INTAKE_COOKIE,
-  authCookieOptions,
-  intakeCookieOptions,
-  signProfileCookie,
-} from "../../../../lib/auth/access";
-import { RETURN_COOKIE, returnPath } from "../../../../lib/auth/return-to";
+import { landingPath, setSignInCookies } from "../../../../lib/auth/landing";
+import { RETURN_COOKIE } from "../../../../lib/auth/return-to";
 import { appOriginOf, isSameOriginPost } from "../../../../lib/auth/same-origin";
 import { AuthError, redeemLogin } from "../../../../lib/auth/service";
-import { LANGUAGE_COOKIE } from "../../../../lib/i18n/locales";
-import { languageCookieOptions } from "../../../../lib/i18n/server";
 
 export function GET(request: NextRequest): NextResponse {
   const token = request.nextUrl.searchParams.get("token") ?? "";
@@ -53,30 +45,12 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   }
   try {
     const session = await redeemLogin(token);
-    // Idea 53: back to the proposal card the sign-in started from, once.
-    const back = session.profile_id
-      ? returnPath((await cookies()).get(RETURN_COOKIE)?.value)
-      : null;
-    // Idea 52: an email on several businesses' teams is asked which one
-    // first — the card it started from may belong to another of them.
-    const landing = session.choose
-      ? "/login/choose"
-      : (back ?? (session.profile_id ? "/home" : "/intake"));
-    const response = NextResponse.redirect(new URL(landing, origin), 303);
-    response.cookies.delete(RETURN_COOKIE);
-    response.cookies.set(AUTH_COOKIE, session.session_token, authCookieOptions());
-    // L-1: the person's own language follows them to this browser.
-    if (session.language) {
-      response.cookies.set(LANGUAGE_COOKIE, session.language, languageCookieOptions());
-    }
-    if (session.profile_id) {
-      response.cookies.set(
-        INTAKE_COOKIE,
-        signProfileCookie(session.profile_id),
-        intakeCookieOptions(),
-      );
-    }
-    return response;
+    // Read only when there's a business to return to, as before the shared helper.
+    const landing = landingPath(
+      session,
+      session.profile_id ? (await cookies()).get(RETURN_COOKIE)?.value : undefined,
+    );
+    return setSignInCookies(NextResponse.redirect(new URL(landing, origin), 303), session);
   } catch (error) {
     const message = error instanceof AuthError ? error.message : "something went wrong on our side";
     if (!(error instanceof AuthError)) {

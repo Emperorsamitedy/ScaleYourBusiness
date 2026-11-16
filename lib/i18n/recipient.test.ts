@@ -285,6 +285,13 @@ describe("L-6 — sign-in and invite emails", () => {
         "Click to sign in to ScaleX:\n\nhttps://x.test/l\n\nThe link works once and expires in 15 minutes. " +
         "If you didn't ask for it, ignore this email — nothing happens without the link.",
     });
+    // 2026-11-16: the code sits between the link and the expiry, spaced for reading.
+    expect(loginEmailContent("https://x.test/l", undefined, "012345").text).toBe(
+      "Click to sign in to ScaleX:\n\nhttps://x.test/l\n\nOr type this code on the sign-in page: 012 345\n\n" +
+        "The link works once and expires in 15 minutes. " +
+        "If you didn't ask for it, ignore this email — nothing happens without the link.",
+    );
+    expect(de.text).not.toContain("012");
     const invite = {
       to: "a@b.test",
       link: "https://x.test/i",

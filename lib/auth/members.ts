@@ -31,6 +31,7 @@ import {
   businessProfiles,
   decisionLog,
   fieldRecords,
+  ideaChecks,
   pushSubscriptions,
   teamInvites,
   users,
@@ -168,6 +169,18 @@ async function businessNames(profileIds: readonly string[]): Promise<Map<string,
   const out = new Map<string, string>();
   for (const r of rows) {
     if (typeof r.value === "string" && r.value.trim() !== "") out.set(r.profile_id, r.value.trim());
+  }
+  // TASKS-IDEAS gap 4: a kept idea has no legal name until it launches and is
+  // asked; until then the switcher shows the label it was kept with.
+  const unnamed = profileIds.filter((id) => !out.has(id));
+  if (unnamed.length > 0) {
+    const ideas = await db
+      .select({ profile_id: ideaChecks.profile_id, label: ideaChecks.label })
+      .from(ideaChecks)
+      .where(inArray(ideaChecks.profile_id, unnamed));
+    for (const i of ideas) {
+      if (i.profile_id && i.label) out.set(i.profile_id, i.label);
+    }
   }
   return out;
 }

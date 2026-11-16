@@ -18,6 +18,9 @@ import { workMoney } from "./model";
 import type { SectorLine, Survival } from "./sector";
 import { sectorLines, survivalFor } from "./sector";
 import { toMinor } from "./units";
+import type { Local } from "./local";
+import { isCityOf, localFor } from "./local";
+import { TOWN_RE, requestTown, townLocal, townRow } from "./towns";
 
 export { toMinor };
 
@@ -64,6 +67,10 @@ export interface IdeaAnswers {
   capital: number | null;
   team: number | null;
   ramp_months: number | null;
+  /** D98: the chosen city (its Wikidata id, from the local snapshot), or null for "somewhere else". */
+  city?: string | null;
+  /** Gap 7: a town named when no listed city fits, queued for the daily count. */
+  town?: string | null;
 }
 
 export type NextTest =
@@ -94,6 +101,8 @@ export type IdeaResult =
       survival: Survival;
       margin: SectorLine | null;
       per_person: SectorLine | null;
+      /** D98: places of the same kind mapped nearby, a floor (rule 37). */
+      local: Local;
       /** Null when the plan doesn't cover itself on paper: the levers come first. */
       test: NextTest | null;
     };
@@ -115,7 +124,13 @@ export function checkIdeaAnswers(raw: unknown): IdeaAnswers {
   const customer = oneOf(a.customer, CUSTOMERS, "who buys");
   const revenue_model = oneOf(a.revenue_model, REVENUE_MODELS, "how money comes in");
   const currency = oneOf(a.currency, CURRENCIES, "a currency");
-  const base = { sector, country, customer, revenue_model, currency };
+  const city = typeof a.city === "string" && a.city !== "" ? a.city : null;
+  if (city !== null && !isCityOf(country, city)) throw new IdeaError("choose a city from the list");
+  const townRaw = typeof a.town === "string" ? a.town.trim().replace(/\s+/g, " ") : "";
+  if (townRaw !== "" && !TOWN_RE.test(townRaw))
+    throw new IdeaError("give the town's name in letters");
+  const town = city === null && townRaw !== "" ? townRaw : null;
+  const base = { sector, country, customer, revenue_model, currency, city, town };
   if (revenue_model === "recruitment") {
     return {
       ...base,
@@ -228,6 +243,7 @@ export function evaluateIdea(a: IdeaAnswers, w: Words = benchEnglish()): IdeaRes
     survival: survivalFor(a.sector, a.country, w),
     margin: lines.margin,
     per_person: lines.per_person,
+    local: localFor(a.sector, a.country, a.city ?? null),
     test: nextTest(money, a.customer),
   };
 }
@@ -243,17 +259,33 @@ export async function runIdea(args: {
   words?: Words;
 }): Promise<{ token: string; result: IdeaResult; answers: IdeaAnswers }> {
   const answers = checkIdeaAnswers(args.answers);
-  const result = evaluateIdea(answers, args.words);
+  let result = evaluateIdea(answers, args.words);
+  // Gap 7: a named town is queued (never fetched while the person waits).
+  if (result.status === "worked" && answers.town && result.local.status === "no_city") {
+    const row = await requestTown(answers.country, answers.town);
+    result = { ...result, local: townLocal(answers.sector, row) };
+  }
   const locale: AppLocale = isAppLocale(args.locale) ? args.locale : "en";
   const token = newToken();
   await db.insert(ideaChecks).values({ token, answers, result, locale });
   return { token, result, answers };
 }
 
+/** Gap 7: a queued town's count, read again now — it may have been counted since. */
+export async function freshLocal(result: IdeaResult, answers: IdeaAnswers): Promise<IdeaResult> {
+  if (result.status !== "worked" || result.local.status !== "town" || !answers.town) return result;
+  const row = await townRow(answers.country, answers.town);
+  return row ? { ...result, local: townLocal(answers.sector, row) } : result;
+}
+
 /** A shared idea check, as it was when it was made. */
-export async function ideaByToken(
-  token: string,
-): Promise<{ answers: IdeaAnswers; result: IdeaResult; created_at: string } | null> {
+export async function ideaByToken(token: string): Promise<{
+  answers: IdeaAnswers;
+  result: IdeaResult;
+  created_at: string;
+  /** Kept as an idea business already (part 2): it can't be kept twice. */
+  kept: boolean;
+} | null> {
   if (!/^[A-Za-z0-9_-]{8,40}$/.test(token)) return null;
   const [row] = await db.select().from(ideaChecks).where(eq(ideaChecks.token, token)).limit(1);
   if (!row) return null;
@@ -261,5 +293,6 @@ export async function ideaByToken(
     answers: row.answers as IdeaAnswers,
     result: row.result as IdeaResult,
     created_at: row.created_at,
+    kept: row.profile_id !== null,
   };
 }

@@ -265,6 +265,7 @@ function measureFlag(id: string, c: Computed<unknown>, eco: Economics, tr: Tr): 
 /* ── the head line under the headline: findings by severity ── */
 
 export interface Tally {
+  severity: Severity;
   n: number;
   word: string;
   tone: FlagWord["tone"];
@@ -280,6 +281,7 @@ const SEVERITY_WORDS: readonly { s: Severity; tone: FlagWord["tone"] }[] = [
 /** "2 act now · 3 high · 1 low" — only the severities that occur, most urgent first. */
 export function severityTally(findings: readonly Finding[], tr: Tr = ENGLISH().tr): Tally[] {
   return SEVERITY_WORDS.map(({ s, tone }) => ({
+    severity: s,
     n: findings.filter((f) => f.severity === s).length,
     word: tr(`tally.${s}`),
     tone,

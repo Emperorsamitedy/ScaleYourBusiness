@@ -3,8 +3,11 @@
 **Opened 2026-11-17 by the owner ("build and ship it")**, the same recorded
 way as every phase before, with the default answers to the open questions
 (D91 in `specs/architecture-v2.md`; D92–D95 are the decisions taken
-building it). Part 1, the free idea check at `/idea`, is built; part 2
-(an idea kept on an account, and the launch handover) follows.
+building it). Part 1, the free idea check at `/idea`, and part 2 — an idea
+kept on an account, its test results, the launch and the plan beside the
+measured month (D96) — are built, and so is the conversational version: a
+description read into the form (I-12), with the bank's own stage fact in
+place of a new bank section (I-11, D97).
 
 ## What it is
 
@@ -85,9 +88,9 @@ written, never re-read to fit.
 
 ## Not in scope
 
-- Local competitor density ("how many cafés within 1 km") — needs a new data
-  source (map or business-register data) with its own terms and costs. Held
-  for a later phase; see open question 4.
+- Local competitor density — **now built (D98, the owner's choice of
+  2026-11-17)**: a dated OpenStreetMap snapshot for each country's largest
+  cities, counts shown as floors.
 - Countries outside Eurostat's coverage get the money maths but no sector
   base rates, and say so.
 - Any write to anything external (CLAUDE.md "Do not build yet" still binds).
@@ -116,10 +119,10 @@ missing cell says it's missing and is never filled from another country
 
 ## Session B — The idea profile (~16h)
 
-- [ ] **I-10** `profile_kind: "idea" | "operating"` in `data-model-v1.md`
+- [x] **I-10** `profile_kind: "idea" | "operating"` in `data-model-v1.md`
       and the schema, in the same commit. An idea profile has no connectors
       and no execution, enforced at the data layer.
-- [ ] **I-11** The idea section of the question bank, branching in
+- [x] **I-11** The idea section of the question bank, branching in
       `ConditionExpr` data (rule 4), passing `lint_bank.py`. Core questions:
       what is sold; to whom (business, consumer, both); business type;
       country and city; how customers will find it; price; expected
@@ -129,7 +132,7 @@ missing cell says it's missing and is never filled from another country
       money comes in (one-off, subscription, commission, marketplace,
       recruitment-based). "I don't know" stays a real answer and becomes a
       gap, not a zero (rule 5).
-- [ ] **I-12** Free-text idea description → structured fields: Haiku,
+- [x] **I-12** Free-text idea description → structured fields: Haiku,
       extraction only, every extracted field shown back for confirmation
       before it counts.
 - [x] **I-13** Words in all seven locales via the glossary (one term, one
@@ -171,14 +174,16 @@ I-22 as built ranks the estimates only (D94).
 - [x] **I-31** Choosing a test sets its pass and fail thresholds first
       (rule 41), derived from the break-even maths ("you need 1 in 25
       visitors to sign up; under 1 in 60 fails the assumption").
-- [ ] **I-32** Recording a result: owner-entered (grade D), or measured
+- [x] **I-32** Recording a result: owner-entered (grade D), or measured
       where a connector can see it (a landing page's analytics, grade B).
       The model reruns with the result as a superseding fact (rule 3).
 
 **Gate:** a test can't be scored without thresholds recorded before its
 result; a result supersedes the assumption, and the old one is kept.
-I-30 and I-31 are built (D95; the price test was dropped with D94). I-32,
-recording a result, needs an account and lands in part 2.
+I-30 and I-31 are built (D95; the price test was dropped with D94). I-32 is
+built in part 2: owner-entered results, read against the stored lines,
+append-only (lib/ideas/keep.test.ts). A measured result (a landing page's
+analytics) waits for that connector to be made after launch.
 
 ## Session E — The screens (~16h)
 
@@ -200,19 +205,31 @@ interview is part 2.
 
 ## Session F — Launch handover (~10h)
 
-- [ ] **I-50** "I've launched": the idea profile becomes an operating
+- [x] **I-50** "I've launched": the idea profile becomes an operating
       profile. Stated assumptions keep their provenance and are superseded,
       never overwritten, as measured facts arrive.
-- [ ] **I-51** After 30 measured days: planned vs actual, per assumption,
+- [x] **I-51** After 30 measured days: planned vs actual, per assumption,
       the stated-vs-measured delta shown rather than silently swapped
       (Phase 2's rule).
-- [ ] **I-52** The first connector suggested from what the plan rests on
+- [x] **I-52** The first connector suggested from what the plan rests on
       (a subscription idea → Stripe first).
 
 **Gate:** a launched profile shows its own plan beside its measured month;
 no planned figure is lost or edited.
+**Passed 2026-11-17**: revenue, customers (measured orders a month) and price
+(the measured average sale) each beside the plan; costs said to be unmeasured;
+a subscription's orders not read as subscribers (lib/ideas/keep.test.ts).
 
 ---
+
+## Gaps closed (owner, 2026-11-17, D99)
+
+- [x] **G-3** Signing in from "Keep this idea" comes back to the check
+- [x] **G-4** A kept idea is named in the business switcher until launch (0125)
+- [x] **G-5** A ScaleX-hosted test page that measures interest, no personal data (0127)
+- [x] **G-6** Eurostat's newer one-year survival rate, shown on its own line
+- [x] **G-7** A town outside the snapshot, queued and counted by the daily job (0126)
+- [x] **G-8** Follow-up questions for what a description left out
 
 **Estimate: ~78 hours** across six sessions.
 

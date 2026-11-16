@@ -205,6 +205,13 @@ describe("I-03, I-21 — the market's side, labelled and never merged (rule 37)"
     });
   });
 
+  it("gap 6: the newer table's one-year rate comes apart, with its own year, when it is newer", () => {
+    const s = survivalFor("restaurant", "HU");
+    if (s.status !== "shown") throw new Error("expected shown");
+    expect(s.y1?.year).toBe(2020);
+    expect(s.newer_y1).toMatchObject({ pct: 81.24, year: 2024 });
+  });
+
   it("falls back to the parent group, says so, and never to another country", () => {
     const types = (
       benchmarkMap as {

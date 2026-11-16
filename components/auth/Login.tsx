@@ -167,6 +167,8 @@ export function LoginScreen({
   const [lastUsed, setLastUsed] = useState<string | null>(null);
   const [wait, setWait] = useState(0);
   const [resent, setResent] = useState(false);
+  const [code, setCode] = useState("");
+  const [checking, setChecking] = useState(false);
 
   const signup = variant === "signup";
   const sending = phase === "sending";
@@ -219,6 +221,30 @@ export function LoginScreen({
       setResent(true);
       setWait(RESEND_SECONDS);
     }
+  };
+
+  // The 6-digit code from the same email: signs in on THIS device, for an
+  // owner reading their email somewhere else (POST /api/auth/redeem-code).
+  const redeemCode = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setChecking(true);
+    setError(null);
+    try {
+      const res = await fetch("/api/auth/redeem-code", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ email, code }),
+      });
+      const payload = (await res.json()) as { error?: string; landing?: string };
+      if (res.ok && payload.landing) {
+        window.location.href = payload.landing;
+        return;
+      }
+      setError(payload.error ?? tc("somethingWrong"));
+    } catch {
+      setError(tc("unreachable"));
+    }
+    setChecking(false);
   };
 
   const sso = (provider: string) => {
@@ -297,12 +323,35 @@ export function LoginScreen({
             })}
           </p>
           {mailApp && (
-            <a className="ax-btn ax-primary" href={mailApp.url} target="_blank" rel="noreferrer">
+            <a className="ax-btn ax-door" href={mailApp.url} target="_blank" rel="noreferrer">
               <span>{mailApp.name === "Gmail" ? t("sent.openGmail") : t("sent.openOutlook")}</span>
             </a>
           )}
         </>
       )}
+      <form className="ax-field" onSubmit={(e) => void redeemCode(e)}>
+        <label className="ax-label" htmlFor="ax-code">
+          {t("sent.codeLabel")}
+        </label>
+        <div className="ax-code-row">
+          <input
+            id="ax-code"
+            className="ax-input ax-code"
+            type="text"
+            inputMode="numeric"
+            autoComplete="one-time-code"
+            placeholder="123 456"
+            maxLength={9}
+            required
+            value={code}
+            onChange={(e) => setCode(e.target.value)}
+            disabled={checking}
+          />
+          <button className="ax-btn ax-primary" type="submit" disabled={checking}>
+            <span>{checking ? t("sent.codeChecking") : t("sent.codeSubmit")}</span>
+          </button>
+        </div>
+      </form>
       {errorLine}
       <div className="ax-sent-foot">
         {!screenLink && (

@@ -6,7 +6,9 @@
 
 import { useTranslations } from "next-intl";
 import type { TrackView, TrackWord } from "../../lib/forecasts/view";
+import { SegBar } from "../charts/Viz";
 import { WhyFold } from "../report/WhyFold";
+import { trackSegs } from "./track-segs";
 
 const TONE: Record<TrackWord, string> = {
   inside: "ink",
@@ -18,6 +20,7 @@ const TONE: Record<TrackWord, string> = {
 
 export function TrackRecord({ track }: { track: TrackView }) {
   const t = useTranslations("history.track");
+  const segs = trackSegs(track, (w) => t(`word.${w}`));
   return (
     <section className="cs hi-track" aria-labelledby="hi-track-title">
       <header className="cs-head">
@@ -30,6 +33,11 @@ export function TrackRecord({ track }: { track: TrackView }) {
       </header>
       {track.entries.length > 0 && (
         <div className="hi-track-body">
+          {segs.length > 0 && (
+            <div className="hi-track-bar">
+              <SegBar segs={segs} label={track.headline} />
+            </div>
+          )}
           {track.kinds.length > 0 && (
             <ul className="hi-track-kinds">
               {track.kinds.map((k) => (

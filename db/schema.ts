@@ -157,12 +157,22 @@ export const businessProfiles = pgTable(
      * not a fact about the business (no Field<T>): it is how SYB speaks.
      */
     language: text("language").notNull().default("en"),
+    /**
+     * TASKS-IDEAS.md I-10: a business that exists ("operating") or one that
+     * doesn't yet ("idea"). An idea has no connection, proposal or execution,
+     * held by triggers in migration 0124 (rule 40). Launching turns an idea
+     * into an operating business, one way only.
+     */
+    kind: text("kind").notNull().default("operating"),
+    /** I-50: when an idea was launched; null for one that never was an idea, or isn't launched yet. */
+    launched_at: timestamp("launched_at", { withTimezone: true, mode: "string" }),
   },
   (t) => [
     check(
       "business_profiles_language_known",
       sql`${t.language} in ('en', 'es-ES', 'de-DE', 'fr-FR', 'hu-HU', 'ru-RU', 'zh-Hans')`,
     ),
+    check("business_profiles_kind_known", sql`${t.kind} in ('operating', 'idea')`),
   ],
 );
 
@@ -491,6 +501,9 @@ export const decisionKind = pgEnum("decision_kind", [
   "mandate_grant", // v1 spec §7.1: the owner granted a firm a mandate; ref is the mandates row
   "mandate_revoke", // §7.1: the owner revoked it; ref is the mandates row
   "partner_action", // §7.7: a firm member acted under a mandate; ref is what they acted on, user_id who
+  "idea_saved", // TASKS-IDEAS I-10: an idea check was kept as an idea business; ref is the idea_checks row
+  "idea_test_result", // I-32: the owner recorded what a test showed; ref is the idea_test_results row
+  "idea_launch", // I-50: the idea was launched and became an operating business; ref is the profile
   "followup_approval", // P5-16b: the owner approved the exact deal follow-up email; ref is the proposal, ids and hashes only
 ]);
 
@@ -971,6 +984,13 @@ export const loginTokens = pgTable(
      */
     language: text("language"),
     currency: text("currency"),
+    /**
+     * 2026-11-16: the 6-digit code emailed beside the link, for signing in
+     * on a device other than the one reading the email. sha256 of the code
+     * salted with this row's token_hash (lib/auth/service codeHash); never
+     * the code itself. Null on tokens issued before the code existed.
+     */
+    code_hash: text("code_hash"),
   },
   (t) => [
     uniqueIndex("login_tokens_hash_idx").on(t.token_hash),
@@ -5382,6 +5402,14 @@ export const ideaChecks = pgTable(
   {
     id: uuid("id").primaryKey().defaultRandom(),
     token: text("token").notNull(),
+    /** I-10: the idea business this check was kept as; null while it is only a shared check. */
+    profile_id: uuid("profile_id"),
+    /**
+     * Gap 4 (2026-11-17): what the business switcher calls a kept idea until
+     * launch gives it a legal name — "Café idea · Budapest", in the person's
+     * language when kept. A label, not a fact: no legal name is invented.
+     */
+    label: text("label"),
     answers: jsonb("answers").notNull(),
     result: jsonb("result").notNull(),
     locale: text("locale").notNull(),
@@ -5389,7 +5417,131 @@ export const ideaChecks = pgTable(
       .notNull()
       .defaultNow(),
   },
-  (t) => [uniqueIndex("idea_checks_token").on(t.token)],
+  (t) => [
+    uniqueIndex("idea_checks_token").on(t.token),
+    uniqueIndex("idea_checks_profile")
+      .on(t.profile_id)
+      .where(sql`${t.profile_id} is not null`),
+  ],
+);
+
+/**
+ * Gap 5 (TASKS-IDEAS, 2026-11-17): a ScaleX-hosted test page for a kept
+ * idea — the owner's one-line pitch and the plan's price, with an "I'd buy
+ * this" button. Its lines are stored when it is made (rule 41). Public at
+ * /t/<slug>; closed once the idea launches.
+ */
+export const ideaTestPages = pgTable(
+  "idea_test_pages",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    profile_id: uuid("profile_id").notNull(),
+    idea_check_id: uuid("idea_check_id")
+      .notNull()
+      .references(() => ideaChecks.id),
+    slug: text("slug").notNull(),
+    pitch: text("pitch").notNull(),
+    price_minor: bigint("price_minor", { mode: "number" }).notNull(),
+    currency: text("currency").notNull(),
+    min_visits: integer("min_visits").notNull(),
+    pass_rate_bp: integer("pass_rate_bp").notNull(),
+    fail_below_rate_bp: integer("fail_below_rate_bp").notNull(),
+    created_at: timestamp("created_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    uniqueIndex("idea_test_pages_slug").on(t.slug),
+    uniqueIndex("idea_test_pages_profile").on(t.profile_id),
+  ],
+);
+
+/**
+ * Gap 5: what the test page measured. No personal data: a visitor is a
+ * salted hash of the page, the address and the browser, per day for visits
+ * and once for interest; nothing that could be turned back into who they
+ * are is kept. Append-only (migration 0127).
+ */
+export const ideaTestEvents = pgTable(
+  "idea_test_events",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    page_id: uuid("page_id")
+      .notNull()
+      .references(() => ideaTestPages.id),
+    kind: text("kind").notNull(),
+    visitor: text("visitor").notNull(),
+    day: date("day").notNull(),
+    at: timestamp("at", { withTimezone: true, mode: "string" }).notNull().defaultNow(),
+  },
+  (t) => [
+    uniqueIndex("idea_test_events_once").on(t.page_id, t.kind, t.visitor, t.day),
+    check("idea_test_events_kind", sql`${t.kind} in ('visit', 'interest')`),
+  ],
+);
+
+/**
+ * Gap 7 (TASKS-IDEAS, 2026-11-17): a town someone named that the local
+ * snapshot doesn't hold, queued and counted by the daily job
+ * (/api/cron/count-towns) on OpenStreetMap, the same groups as the
+ * snapshot. One row per country and town; a count is a floor (rule 37).
+ */
+export const localTowns = pgTable(
+  "local_towns",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    country: text("country").notNull(),
+    /** As first typed, for display. */
+    name: text("name").notNull(),
+    /** Lowercased, spaces collapsed: one row per town. */
+    normalized: text("normalized").notNull(),
+    status: text("status").notNull().default("queued"),
+    osm_relation: bigint("osm_relation", { mode: "number" }),
+    population: integer("population"),
+    counts: jsonb("counts"),
+    attempts: integer("attempts").notNull().default(0),
+    requested_at: timestamp("requested_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+    counted_at: timestamp("counted_at", { withTimezone: true, mode: "string" }),
+  },
+  (t) => [
+    uniqueIndex("local_towns_place").on(t.country, t.normalized),
+    index("local_towns_status").on(t.status, t.requested_at),
+    check(
+      "local_towns_status_known",
+      sql`${t.status} in ('queued', 'counted', 'not_found', 'gave_up')`,
+    ),
+  ],
+);
+
+/**
+ * I-32: what a test showed, read against the lines stored with it (rule
+ * 41). Append-only (migration 0124): a later result is a new row, and the
+ * earlier one stays.
+ */
+export const ideaTestResults = pgTable(
+  "idea_test_results",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    profile_id: uuid("profile_id").notNull(),
+    idea_check_id: uuid("idea_check_id")
+      .notNull()
+      .references(() => ideaChecks.id),
+    /** A count (pre-sale, pilots) or minor units of the plan's currency (quotes). */
+    observed: bigint("observed", { mode: "number" }).notNull(),
+    reading: text("reading").notNull(),
+    note: text("note"),
+    user_id: uuid("user_id"),
+    recorded_at: timestamp("recorded_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    index("idea_test_results_profile").on(t.profile_id, t.recorded_at),
+    check("idea_test_results_reading", sql`${t.reading} in ('pass', 'fail', 'between')`),
+    check("idea_test_results_observed", sql`${t.observed} >= 0`),
+  ],
 );
 
 /**

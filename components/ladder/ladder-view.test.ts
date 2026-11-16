@@ -7,6 +7,7 @@ import {
   groupRows,
   highestOpen,
   nextMove,
+  recordSegs,
   sharedCeiling,
   stationCounts,
 } from "./ladder-view";
@@ -92,5 +93,25 @@ describe("the control for going up a step", () => {
     const open = { id: "r1", expires_at: "2026-12-01T00:00:00Z" };
     expect(nextMove({ station: 3, next: next(true), open_request: open })).toBe("confirm");
     expect(nextMove({ station: 3, next: next(false), open_request: open })).toBe("wait");
+  });
+});
+
+describe("a row's record as a bar", () => {
+  it("splits what was measured into gains, losses and neither, adding up to the total", () => {
+    const segs = recordSegs({ closed: 7, gains: 4, losses: 1 }, (p) => p);
+    expect(segs.map((s) => [s.key, s.value, s.tone])).toEqual([
+      ["gains", 4, "ok"],
+      ["losses", 1, "alarm"],
+      ["neither", 2, "soft"],
+    ]);
+    expect(segs.reduce((n, s) => n + s.value, 0)).toBe(7);
+  });
+
+  it("draws nothing with no record, and never a negative remainder", () => {
+    expect(recordSegs({ closed: 0, gains: 0, losses: 0 }, (p) => p)).toEqual([]);
+    expect(recordSegs({ closed: 2, gains: 2, losses: 1 }, (p) => p).map((s) => s.key)).toEqual([
+      "gains",
+      "losses",
+    ]);
   });
 });

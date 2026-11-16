@@ -1,3 +1,5 @@
+// GET  /api/content/media?item_id=<id> — an item's own picture or clip, read
+//                                        back for the /content gallery (./serve)
 // POST /api/content/media — footage in (P3-52) and the AI fallback (P3-53).
 //
 //   multipart  {item_id, file}                    development only: a clip through the route
@@ -21,7 +23,10 @@
 // else Origin; neither → refused). Uploading spends storage, generating
 // spends money, and both put media on something that may be published.
 
+import { and, eq } from "drizzle-orm";
 import { after, type NextRequest, NextResponse } from "next/server";
+import { db } from "../../../../db";
+import { contentItems } from "../../../../db/schema";
 import { resolveAccess } from "../../../../lib/auth/access";
 import { appOriginOf, isSameOriginPost } from "../../../../lib/auth/same-origin";
 import { logSafeError } from "../../../../lib/core/log-safe";
@@ -45,6 +50,7 @@ import { CONTENT_WORDS, blockWords } from "../../../../lib/content/publish-words
 import { requestTr } from "../../../../lib/i18n/request-tr";
 import { ProposalError } from "../../../../lib/proposals/service";
 import { requireRole } from "../../../../lib/auth/roles";
+import { serveItemMedia } from "./serve";
 
 // A render runs after the response, inside this function's lifetime.
 export const maxDuration = 300;
@@ -70,6 +76,29 @@ function briefOf(raw: unknown): BriefInput | null {
   const hook = clip(r.hook);
   const script = clip(r.script);
   return hook || script ? { ...(hook ? { hook } : {}), ...(script ? { script } : {}) } : null;
+}
+
+// The gallery's tiles: anyone who may open /content for this business (the
+// same door as GET /api/content, which already lists these items) reads an
+// item's media by its id. Nothing is written; the path comes from the row.
+export async function GET(request: NextRequest): Promise<Response> {
+  return serveItemMedia(
+    {
+      itemId: request.nextUrl.searchParams.get("item_id"),
+      range: request.headers.get("range"),
+    },
+    {
+      access: resolveAccess,
+      mediaPathOf: async (profileId, itemId) => {
+        const [row] = await db
+          .select({ media_path: contentItems.media_path })
+          .from(contentItems)
+          .where(and(eq(contentItems.id, itemId), eq(contentItems.profile_id, profileId)));
+        return row?.media_path ?? null;
+      },
+      store: configuredMediaStore,
+    },
+  );
 }
 
 export async function POST(request: NextRequest): Promise<NextResponse> {

@@ -12,6 +12,7 @@
 
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
+import { SegBar } from "../charts/Viz";
 import { PageHead } from "../sheet/PageHead";
 import { num } from "../sheet/num";
 import { useTr } from "../sheet/useTr";
@@ -24,6 +25,7 @@ import {
   groupRows,
   highestOpen,
   nextMove,
+  recordSegs,
   sharedCeiling,
   stationCounts,
 } from "./ladder-view";
@@ -172,6 +174,7 @@ function Row({
 }) {
   const n = (v: number) => num(v, 0, locale);
   const panel = `tl-more-${row.capability}`;
+  const segs = recordSegs(row.record, (part) => tr(`viz.${part}`));
   return (
     <li className={`tl-row${open ? " open" : ""}`}>
       <button
@@ -207,6 +210,12 @@ function Row({
                 {" · "}
                 <span className="loss">{tr("rec.losses", { count: row.record.losses })}</span>
               </span>
+              {segs.length > 0 && (
+                // The counts beside it are the words; the bar only repeats them.
+                <span className="tl-rec-bar" aria-hidden="true">
+                  <SegBar bare segs={segs} label={tr("record", row.record)} />
+                </span>
+              )}
             </>
           )}
         </span>

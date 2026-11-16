@@ -35,3 +35,13 @@
 .idea-check input {
   min-height: auto;
 }
+/* I-12: an answer read from the description, until the person touches it */
+.idea-from {
+  color: var(--mut);
+  font-size: 12px;
+  font-style: italic;
+}
+.entry-q textarea {
+  min-height: 96px;
+  font: inherit;
+}

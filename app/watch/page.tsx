@@ -2,7 +2,8 @@
 //
 // The signals table is read here, on the server, behind the same door
 // every profile route uses (lib/auth/access): the series a connection
-// holds are many rows, and only their verdicts need to reach the browser.
+// holds are many rows, and only their verdicts and the watch's own days
+// (at most 42 per signal, lib/watch/watch-view) need to reach the browser.
 
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";

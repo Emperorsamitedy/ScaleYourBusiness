@@ -6,11 +6,14 @@ import { describe, expect, it } from "vitest";
 import { shiftDay } from "../anomaly/baseline";
 import {
   REVIEW_ALERT_KIND,
+  SERIES_MAX_DAYS,
+  anomalySpan,
   dayOfWatch,
   notedLines,
   statusTally,
   summariseSeries,
   watchDays,
+  watchSeries,
 } from "./watch-view";
 
 const NOW = new Date("2026-10-17T12:00:00Z");
@@ -99,6 +102,76 @@ describe("summariseSeries", () => {
     const s = summariseSeries({ values: long, watchStart: start, open: null });
     expect(s.first_week).toBe(10);
     expect(s.last_week).toBe(20);
+  });
+
+  it("carries the watch's days as its series, and none from before it", () => {
+    const values = series(shiftDay(start, -30), 33, (i) => i);
+    const s = summariseSeries({ values, watchStart: start, open: null });
+    expect(s.series).toEqual([
+      { date: "2026-09-29", value: 30 },
+      { date: "2026-09-30", value: 31 },
+      { date: "2026-10-01", value: 32 },
+    ]);
+  });
+});
+
+describe("watchSeries", () => {
+  const start = "2026-09-29";
+
+  it("is in date order whatever order the days were read in, a missing day as null", () => {
+    const values = new Map([
+      ["2026-10-02", 400],
+      ["2026-09-29", 100],
+      ["2026-09-30", 200],
+    ]);
+    expect(watchSeries(values, start)).toEqual([
+      { date: "2026-09-29", value: 100 },
+      { date: "2026-09-30", value: 200 },
+      { date: "2026-10-01", value: null },
+      { date: "2026-10-02", value: 400 },
+    ]);
+  });
+
+  it("starts on the watch's first day even when the first reading came later", () => {
+    const s = watchSeries(new Map([["2026-10-01", 5]]), start);
+    expect(s.map((p) => p.value)).toEqual([null, null, 5]);
+  });
+
+  it("keeps only the last 42 days of a longer watch", () => {
+    const s = watchSeries(
+      series(start, 60, (i) => i),
+      start,
+    );
+    expect(s).toHaveLength(SERIES_MAX_DAYS);
+    expect(s[0]).toEqual({ date: shiftDay(start, 18), value: 18 });
+    expect(s.at(-1)).toEqual({ date: shiftDay(start, 59), value: 59 });
+  });
+
+  it("is empty when nothing has been read since the watch began", () => {
+    const before = series(shiftDay(start, -10), 5, () => 1);
+    expect(watchSeries(before, start)).toEqual([]);
+    expect(watchSeries(new Map(), start)).toEqual([]);
+  });
+});
+
+describe("anomalySpan", () => {
+  const days = watchSeries(
+    series("2026-09-29", 10, () => 1),
+    "2026-09-29",
+  );
+
+  it("runs from the day the anomaly began to the last day", () => {
+    expect(anomalySpan(days, "2026-10-05")).toEqual([6, 9]);
+  });
+
+  it("starts at the first day when the anomaly began before the series does", () => {
+    expect(anomalySpan(days, "2026-09-01")).toEqual([0, 9]);
+  });
+
+  it("is null with no open anomaly, or one that began after the last reading", () => {
+    expect(anomalySpan(days, null)).toBeNull();
+    expect(anomalySpan(days, "2026-10-20")).toBeNull();
+    expect(anomalySpan([], "2026-10-05")).toBeNull();
   });
 });
 

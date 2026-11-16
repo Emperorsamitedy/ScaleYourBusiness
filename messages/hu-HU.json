@@ -123,7 +123,10 @@
       "resend": "küldje el újra",
       "resendIn": "újraküldés {seconds} mp múlva",
       "resent": "Újraküldve.",
-      "differentEmail": "Másik e-mail-cím"
+      "differentEmail": "Másik e-mail-cím",
+      "codeLabel": "Vagy írja be az e-mailben kapott kódot",
+      "codeSubmit": "Bejelentkezés",
+      "codeChecking": "Ellenőrzés…"
     },
     "form": {
       "labelCreate": "Fiók létrehozása",
@@ -779,6 +782,11 @@
       "revoke": "Visszavonás",
       "wrong": "valami hiba történt — próbálja újra",
       "unreachable": "Nem értem el a szervert — próbálja újra."
+    },
+    "viz": {
+      "marginsLabel": "Árrés termékenként",
+      "marginsTitle": "Mennyi marad egy-egy eladásból, termékenként.",
+      "priceCost": "ár {price} · költség {cost}"
     }
   },
   "charts": {
@@ -1178,7 +1186,8 @@
         "from": "Forrás",
         "days": "Beolvasott napok",
         "perDay": "Naponta, {week}. hét → most",
-        "status": "Állapot"
+        "status": "Állapot",
+        "daily": "Napról napra"
       },
       "below": "{date} óta a szokásos tartománya alatt",
       "above": "{date} óta a szokásos tartománya felett"
@@ -3307,7 +3316,13 @@
       "expired": "Lejárt"
     },
     "how": "Hogyan működik",
-    "why": "Miért?"
+    "why": "Miért?",
+    "funnel": {
+      "started": "Elindult",
+      "left": "Félbemaradt",
+      "recovered": "Később befejeződött",
+      "prior": "az előző {days, plural, one {# nap} other {# nap}}: {count}"
+    }
   },
   "cash": {
     "meta": {
@@ -4184,6 +4199,9 @@
       "nothingFiled": "Még semmi sincs iktatva",
       "listMeta": "A {stars, plural, one {# csillagos} other {# csillagos}} vagy annál kevesebb értékelést érdemes tudni",
       "emptyCopy": "Továbbítson egy értékelésről szóló e-mailt az alábbi címre, vagy illesszen be egyet, és itt megjelenik."
+    },
+    "spread": {
+      "label": "{count, plural, one {# értékelés} other {# értékelés}} nyilvántartva, csillagok szerint"
     }
   },
   "simulate": {
@@ -4406,7 +4424,8 @@
         "costUnknown": "a teljesítés költsége nem ismert"
       },
       "perOrder": "Nem része az egy darabra jutó költségnek: {list}. {count, plural, one {Ezt} other {Ezeket}} rendelésenként fizeti, nem darabonként, és egy rendelésben több darab is lehet. Ahol egy eladás egy rendelés, ott egy áremelés valamivel több eladást veszíthet, mint amennyi látszik, egy árcsökkentéshez pedig valamivel több eladás kell."
-    }
+    },
+    "adsMeasured": "{name} · az utolsó {window} napból {days} napon mérve"
   },
   "stock": {
     "meta": {
@@ -5018,6 +5037,16 @@
       "needChoice": "Válassza meg, ki láthatja, mielőtt jóváhagyja.",
       "processing": "Miután kikerül, a TikToknak néhány percbe telhet, mire megjelenik a profilján.",
       "noDelete": "A TikTok nem engedi, hogy alkalmazások bejegyzést töröljenek. Az eltávolításhoz törölje a TikTok alkalmazásban."
+    },
+    "gallery": {
+      "label": "Galéria",
+      "title": "A sor képei és klipjei"
+    },
+    "calendar": {
+      "label": "A sor napok szerint",
+      "planned": "tervezett",
+      "overdue": "lejárt dátumú",
+      "outside": "{count, plural, one {még # ezeken a heteken kívül} other {még # ezeken a heteken kívül}}"
     }
   },
   "customers": {
@@ -5919,6 +5948,13 @@
         "signIn": "A telefonvonal módosításához bejelentkezés szükséges.",
         "action": "Ezt a telefonvonal nem tudja megtenni."
       }
+    },
+    "viz": {
+      "byStanding": "Jegyek állapot szerint",
+      "awaiting": "Az Ön válaszára vár",
+      "waiting": "Az Ön válaszára vár, a legrégebben várakozó elöl",
+      "waitingTop": "A {shown} legrégebben várakozó a(z) {total} közül",
+      "clusters": "Az ügyfelek kérdései, a kérdezők száma szerint"
     }
   },
   "phoneLine": {
@@ -6265,7 +6301,9 @@
       "noBusiness": "nincs ilyen vállalkozás",
       "chooseAgain": "válassza ki újra a vállalkozást az oldalunkon",
       "addOnPage": "adja hozzá a vállalkozást az oldalunkon",
-      "signInFirst": "előbb bejelentkezés szükséges"
+      "signInFirst": "előbb bejelentkezés szükséges",
+      "codeWrong": "a kód hibás vagy lejárt – ellenőrizze, vagy használja az e-mailben kapott linket",
+      "codeTooMany": "túl sok kódot próbáltak ki ehhez a címhez – használja az e-mailben kapott linket, vagy próbálja újra később"
     },
     "why": {
       "otherApp": "egy másik alkalmazásnak állították ki",
@@ -6677,7 +6715,8 @@
     "signIn": {
       "subject": "Az Ön bejelentkezési linkje — ScaleX",
       "intro": "Kattintson ide a ScaleX-be való bejelentkezéshez:",
-      "expiry": "A link egyszer használható, és {minutes, plural, one {# perc} other {# perc}} múlva lejár. Ha nem Ön kérte, hagyja figyelmen kívül ezt az e-mailt — a link nélkül semmi sem történik."
+      "expiry": "A link egyszer használható, és {minutes, plural, one {# perc} other {# perc}} múlva lejár. Ha nem Ön kérte, hagyja figyelmen kívül ezt az e-mailt — a link nélkül semmi sem történik.",
+      "code": "Vagy írja be ezt a kódot a bejelentkezési oldalon: {code}"
     },
     "invite": {
       "subject": "Meghívást kapott egy vállalkozáshoz a ScaleX-ben: {business}",
@@ -9355,7 +9394,12 @@
       "ceiling": "Jelenleg a(z) {n}. szint a legmagasabb ennél a vállalkozásnál.",
       "own": "Minden sor a saját eredményei alapján lép feljebb."
     },
-    "trackAria": "{total} szintből a(z) {n}."
+    "trackAria": "{total} szintből a(z) {n}.",
+    "viz": {
+      "gains": "Nyereség",
+      "losses": "Veszteség",
+      "neither": "Egyik sem"
+    }
   },
   "shadowSummary": {
     "meta": {
@@ -9372,7 +9416,14 @@
     "net": "Nettó: {amount} — és semmihez nem nyúltunk.",
     "none": "Még nincs mért eredmény.",
     "share": "Megosztható link másolása",
-    "copied": "Link másolva"
+    "copied": "Link másolva",
+    "viz": {
+      "gained": "Nyereséget hozott volna",
+      "nothing": "Nem hozott volna változást",
+      "lost": "Veszteséget okozott volna",
+      "unproven": "Még nem bizonyított",
+      "open": "Még mérés alatt"
+    }
   },
   "statement": {
     "title": "Havi kivonat",
@@ -9404,6 +9455,12 @@
     },
     "meta": {
       "title": "Havi kivonat"
+    },
+    "viz": {
+      "verified": "Igazolt, nyereség és veszteség együtt",
+      "losses": "Ebből veszteség",
+      "fee": "A ScaleX díja",
+      "net": "A ScaleX díja után"
     }
   },
   "peers": {
@@ -9600,7 +9657,11 @@
       "startup": "Egyszeri indulási költségek (kialakítás, felszerelés, első készlet)",
       "capital": "Pénz, amivel indulsz",
       "team": "Benne dolgozók száma, veled együtt",
-      "ramp_months": "Mennyi idő alatt érik el az eladások ezt a szintet?"
+      "ramp_months": "Mennyi idő alatt érik el az eladások ezt a szintet?",
+      "city": "Melyik város? (nem kötelező)",
+      "cityElsewhere": "Máshol, vagy még nem döntöttem el",
+      "town": "Melyik város? (nem kötelező)",
+      "townHint": "Ha nincs a fenti listában"
     },
     "customer": {
       "consumer": "Magánszemélyek (fogyasztók)",
@@ -9615,9 +9676,8 @@
     },
     "ramp": {
       "1": "Nagyjából egy hónap",
-      "3": "Nagyjából 3 hónap",
-      "6": "Nagyjából 6 hónap",
-      "12": "Nagyjából egy év"
+      "12": "Nagyjából egy év",
+      "months": "Nagyjából {count, plural, one {# hónap} other {# hónap}}"
     },
     "result": {
       "label": "Az ötleted, végigszámolva",
@@ -9682,7 +9742,8 @@
         "about": "Ez az ilyen típusú vállalkozásokról szól, nem az ötletedről.",
         "unmapped": "Ehhez a vállalkozástípushoz nincs egyetlen Eurostat-csoport, ezért nincsenek piaci adatok, amelyeket mellé lehetne tenni.",
         "outside_eu": "Az Eurostat adatai az EU-ra vonatkoznak. Azon kívül csak a saját számaidat számoljuk végig.",
-        "unpublished": "Az Eurostat nem közöl túlélési arányt erre a csoportra ebben az országban."
+        "unpublished": "Az Eurostat nem közöl túlélési arányt erre a csoportra ebben az országban.",
+        "newer": "Az Eurostat újabb táblázata ({dataset}) szerint az egyéves érték {year} évre {pct}. Ezt másképp számolják, ezért itt külön szerepel, nem keverjük a fenti adatokkal."
       },
       "margin": "A tervezett árrésed: {own}. {cell} körében: {bench}, vagyis a tiéd {reading}.",
       "perPerson": "A terved, személyenként évente: {own}. {cell} körében: {bench}, vagyis a tiéd {reading}.",
@@ -9691,14 +9752,173 @@
         "below": "alacsonyabb",
         "same": "nagyjából ugyanannyi"
       },
-      "sources": "Piaci adatok: Eurostat (bd_9bd_sz_cl_r2, sbs_sc_ovw). Az Eurostat nem felelős az adatai ilyen felhasználásáért."
+      "sources": "Piaci adatok: Eurostat ({datasets}). Az Eurostat nem felelős az adatai ilyen felhasználásáért."
     },
     "share": "Ellenőrzés megosztása",
     "copied": "Link másolva",
     "again": "Másik ötlet ellenőrzése",
     "next": "Már működsz? Mérd a valóságot.",
     "sharedLabel": "Megosztott ötletellenőrzés",
-    "missing": "Ez az ötletellenőrzés nincs itt."
+    "missing": "Ez az ötletellenőrzés nincs itt.",
+    "keep": {
+      "why": "Tartsd meg ezt az ötletet a fiókodban: rögzítsd, mit mutat a teszted, és amikor elindulsz, a valódi eladásaidat ehhez a tervhez mérjük.",
+      "button": "Ötlet megtartása",
+      "signIn": "Bejelentkezés után gyere vissza erre az oldalra, hogy megtartsd.",
+      "signInLink": "Bejelentkezés",
+      "already": "Ezt az ötletet már megtartottad.",
+      "label": "Ötlet: {type} · {place}",
+      "signInBack": "Bejelentkezés után ide jössz vissza, és megtarthatod."
+    },
+    "mine": {
+      "title": "Az ötleted",
+      "kicker": "Az ötleted",
+      "titleIdea": "Az ötleted, indulás előtt",
+      "titleLaunched": "A terved, a mért adatok mellett",
+      "launchedOn": "Elindult: {date}.",
+      "notIdea": "Ez a vállalkozás nem ötletként indult, így itt nincs megmutatható terv.",
+      "signedOut": "Bejelentkezés után itt látod a megtartott ötletedet."
+    },
+    "record": {
+      "title": "Mit mutatott a teszt?",
+      "presale": "Beszedett fizetett előlegek",
+      "pilots": "Vállalkozások, amelyek elfogadtak egy fizetős próbaidőszakot",
+      "quotes": "A középső ajánlat ({currency})",
+      "submit": "Eredmény rögzítése",
+      "line": "{date}: {value}, {reading}",
+      "reading": {
+        "pass": "sikeres a teszt előtt rögzített határhoz képest",
+        "fail": "sikertelen a teszt előtt rögzített határhoz képest",
+        "between": "a határok között: se nem sikeres, se nem sikertelen"
+      }
+    },
+    "launch": {
+      "title": "Elindult?",
+      "body": "Ha már működik, jelezd itt. A terved pontosan olyan marad, amilyen volt, és amint az eladásaidat mérjük, mellé kerülnek.",
+      "button": "Elindult",
+      "sure": "Ez nem vonható vissza: az ötletből a vállalkozásod lesz, a terve pedig változatlanul megmarad.",
+      "confirm": "Igen, már működik",
+      "notYet": "Még nem",
+      "connect": "Kezdd azzal, hogy összekapcsolod ezt: {provider}. Ezen keresztül futnak a terved eladásai.",
+      "connectLink": "Összekapcsolás"
+    },
+    "actual": {
+      "title": "A terved az első hónapodhoz képest",
+      "compared": "Havi {planned} összeget terveztél. Az elmúlt {days} nap mérése alapján, egy hónapra vetítve: {actual}, az eltérés {gap}.",
+      "tooEarly": "Eddig {days} mért nap a szükséges {needed} napból. Az összevetés akkor jön, ha elég összegyűlt.",
+      "otherCurrency": "A terved {planned} pénznemben van, az eladásaidat pedig {measured} pénznemben mérjük. Semmit nem váltunk át, ezért nem vetjük össze őket.",
+      "noPlan": "A tervedben nem volt ügyfélszám-becslés, így nincs tervezett hónap, amivel összevethetnénk.",
+      "kept": "A mért adatok nem változtatják meg a tervedet. Mindkettő megmarad, egymás mellett.",
+      "customers": "Ügyfelek: havi {planned} ügyfelet terveztél; a mért rendelések száma havi {actual}, az eltérés {gap}.",
+      "price": "Ár: eladásonként {planned} összeget terveztél; a mért átlagos eladás {actual}, az eltérés {gap}.",
+      "costs": "Költségek: még egyetlen összekapcsolt rendszerből sem mérjük őket, ezért a megadott költségeid úgy maradnak, ahogy megadtad.",
+      "not": {
+        "customers": {
+          "subscription": "Ügyfelek: a rendelések nem előfizetők, ezért egy előfizetés ügyfeleit még nem vetjük össze.",
+          "no_estimate": "Ügyfelek: a tervedben nem volt ügyfélszám-becslés, amivel összevethetnénk.",
+          "no_orders": "Ügyfelek: a rendeléseket még nem mértük elég napon át."
+        },
+        "price": {
+          "subscription": "Ár: egy előfizetés átlagos kosárértéke nem azonos a havi árával, ezért nem vetjük össze.",
+          "no_orders": "Ár: az átlagos eladáshoz elég napnyi mért rendelés kell.",
+          "other_currency": "Ár: az eladásokat más pénznemben mérjük, és semmit nem váltunk át."
+        }
+      }
+    },
+    "provider": {
+      "stripe": "Stripe",
+      "shopify": "Shopify",
+      "square": "Square",
+      "woocommerce": "WooCommerce",
+      "ga4": "Google Analytics",
+      "meta_ads": "Meta Ads",
+      "search_console": "Google Search Console",
+      "fixture": "a tesztösszekötő"
+    },
+    "describe": {
+      "label": "Írd le az ötletedet a saját szavaiddal (nem kötelező)",
+      "placeholder": "Például: egy kis kávézó az állomás közelében, elvitelre kávé és péksütemény az ingázóknak. Nagyjából annyit kérnék, mint a láncok, a bérleti díj a legnagyobb költség, és van némi megtakarításom az induláshoz.",
+      "button": "Űrlap kitöltése ebből",
+      "working": "Olvasom…",
+      "filled": "{count, plural, one {# válasz töltődött ki} other {# válasz töltődött ki}} a leírásod alapján. Ellenőrizd mindegyiket: semmi sem számít, amíg el nem küldöd az űrlapot.",
+      "fromText": "a leírásodból, ellenőrizd",
+      "none": "Ebből semmit sem lehetett válaszként értelmezni. Töltsd ki inkább a lenti űrlapot.",
+      "short": "Írd le az ötletet egy-két mondatban, és maradj egy oldalon belül.",
+      "tooMany": "Innen egyelőre túl sok leírást olvastunk be. Töltsd ki inkább a lenti űrlapot.",
+      "missing": "Még hiányzik: {list}. Írd le ezeket alább a saját szavaiddal.",
+      "complete": "Ezzel az űrlapon minden szükséges adat megvan. Ellenőrizd az összes választ, aztán küldd el.",
+      "followPlaceholder": "Például: a bérleti díj és a bérek havonta nagyjából … tesznek ki, és … megtakarítással indulnék.",
+      "followButton": "Hozzáadás az űrlaphoz"
+    },
+    "local": {
+      "shown": "{city} városban az OpenStreetMap térképén {count} {group} szerepel, ez nagyjából {per} minden {base} lakosra.",
+      "others": "Az ország más városaiban, minden {base} lakosra: {list}.",
+      "other": "{city}: {per}",
+      "floor": "Önkéntesek térképezik fel, ezért ezek minimumok, nem teljes számok: néhány hely hiányzik, egyes városokban több, mint másokban. © OpenStreetMap contributors, számolva: {date}.",
+      "noCity": "Válassz egyet a felsorolt városok közül, hogy lásd, hány ilyen hely szerepel ott a térképen.",
+      "notCounted": {
+        "online": "Az ilyen vállalkozás online értékesít, vagy az ügyfeleihez megy, ezért a közeli helyeket nem számoljuk.",
+        "too_broad": "Ez a vállalkozástípus túl tág ahhoz, hogy becsületesen meg lehessen számolni a térképen.",
+        "rarely_mapped": "Az ilyen vállalkozások ritkán szerepelnek a térképen, ezért egy darabszám félrevezető lenne."
+      },
+      "group": {
+        "restaurants": "étterem és elviteles étkezde",
+        "cafes": "kávézó",
+        "bars": "bár és kocsma",
+        "hairdressers": "fodrász és borbély",
+        "beauty": "szépségszalon és fodrász",
+        "fitness": "edzőterem",
+        "massage_spa": "masszázsszalon és wellnesshely",
+        "health": "klinika, orvosi és fogorvosi rendelő",
+        "childcare": "gyermekfelügyeleti hely és óvoda",
+        "car_repair": "autó- és gumiszerviz",
+        "stays": "szálloda, panzió és hostel",
+        "estate_agents": "ingatlaniroda",
+        "bakeries": "pékség és cukrászda"
+      },
+      "town": {
+        "queued": "{town} még nincs megszámolva. Sorban áll, és az ott lévő ilyen helyeket egy-két napon belül megszámoljuk a térképen: tartsd meg ezt az ötletet, hogy lásd.",
+        "notFound": "{town} nem található a térképen, ezért nincs hozzá számlálás.",
+        "countedNoPop": "{town} városban az OpenStreetMap térképén {count} {group} szerepel. A térképen nincs lakosságszám hozzá, ezért nincs lakosonkénti adat."
+      }
+    },
+    "field": {
+      "sector": "a vállalkozás típusa",
+      "country": "az ország",
+      "customer": "ki vásárolna",
+      "revenue_model": "honnan jön a pénz",
+      "price": "az ár",
+      "variable_cost": "amibe egy eladás neked kerül",
+      "customers_month": "a havi ügyfélszám",
+      "fixed_month": "a havi költségek",
+      "startup": "az indulási költségek",
+      "capital": "a pénz, amivel indulsz",
+      "team": "hányan dolgoznak benne",
+      "ramp_months": "mennyi idő alatt érik el az eladások a teljes szintet"
+    },
+    "testPage": {
+      "title": "Egy ötlet tesztje",
+      "missing": "Ez a tesztoldal nincs itt.",
+      "closed": "Ez a teszt véget ért. Köszönjük, hogy megnézted.",
+      "honest": "Ez egy vállalkozási ötlet tesztje, a ScaleX segítségével készült. Itt semmit sem árulnak, nincs fizetés és nem kérünk adatokat: a gomb csak azt számolja, hogy valaki megvenné.",
+      "buy": "Ezen az áron megvenném",
+      "thanks": "Köszönjük. Ezt megszámoltuk, és semmi mást nem rögzítünk.",
+      "sectionTitle": "Tesztoldal, amely az érdeklődést méri",
+      "why": "Készíts egy egyszerű oldalt egy sorral az ajánlatodról és az áradról, és oszd meg a linkjét ott, ahol az ügyfeleid vannak. Számolja a látogatásokat és azt, hányan mondják, hogy megvennék, így az eredmény mért, nem beírt.",
+      "pitchLabel": "Egy sor arról, mit kínálnál",
+      "pitchHint": "Például: friss kávé az állomásnál, egy perc alatt kész",
+      "pitchRule": "Maradj egyetlen rövid sornál, linkek és címek nélkül.",
+      "make": "Tesztoldal létrehozása",
+      "yours": "A tesztoldalad: „{pitch}”",
+      "copy": "Link másolása",
+      "counts": "Eddig {visits} látogatás, {interested} fő mondta, hogy megvenné.",
+      "tooFew": "Az értékeléshez legalább {min} látogatás kell.",
+      "reading": {
+        "pass": "{rate} mondta, hogy megvenné: sikeres az oldal létrehozásakor rögzített határhoz képest.",
+        "fail": "{rate} mondta, hogy megvenné: sikertelen az oldal létrehozásakor rögzített határhoz képest.",
+        "between": "{rate} mondta, hogy megvenné: a határok között, se nem sikeres, se nem sikertelen."
+      },
+      "lines": "A határok, az oldal létrehozásakor rögzítve: legalább {min} látogatás; ha {pass} vagy több mondja, hogy megvenné, az sikeres, {fail} alatt sikertelen."
+    }
   },
   "pricing": {
     "meta": {
@@ -10109,6 +10329,22 @@
       "open": "Megnyitás",
       "empty": "Semmi sem vár. A következő döntést ide teszem.",
       "by": "döntés eddig: {date}"
+    },
+    "live": {
+      "label": "Az oldalán · élő",
+      "people": "{count, plural, one {# fő} other {# fő}}",
+      "since": "{time} óta",
+      "lastRead": "utoljára beolvasva {time}",
+      "window": "{minutes} perc",
+      "windowGroup": "Időszak",
+      "notConnected": "Kösse össze a Google Analyticsszel, és ez a vonal mozogni kezd.",
+      "paused": "Az összekapcsolt Google Analytics-fiók szünetel, ezért semmi sem kerül beolvasásra.",
+      "unavailable": "A Google Analytics most nem válaszolt. Fél perc múlva újra próbálom.",
+      "connect": "Összekapcsolás",
+      "summary": "Most {now} van az oldalán; {time}-kor {base}.",
+      "caption": "Látogatók az oldalán, percről percre",
+      "colTime": "Időpont",
+      "colPeople": "Látogatók"
     }
   },
   "alerts": {

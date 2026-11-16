@@ -1,16 +1,21 @@
 import { describe, expect, it } from "vitest";
 import {
   type AdStateLike,
+  type PerformanceLike,
   type QueueItem,
   adLine,
+  aiMediaWord,
+  calendarStrip,
   channelStrips,
   contentHeadline,
   formatMinor,
   mediaWord,
+  performanceBars,
   performanceLine,
   publishLine,
   shortId,
   stateWord,
+  tileMedia,
 } from "./content-view";
 
 const item = (over: Partial<QueueItem>): QueueItem => ({
@@ -223,5 +228,141 @@ describe("P3-52/53 — what an item's media is, in the owner's words", () => {
   it("prices come as integer minor units and print as money", () => {
     expect(formatMinor({ amount_minor: 4, currency: "EUR" })).toBe("€0.04");
     expect(formatMinor({ amount_minor: 50, currency: "EUR" })).toBe("€0.50");
+  });
+});
+
+describe("the small visuals — the calendar strip", () => {
+  const flat = (items: QueueItem[], today: string) =>
+    (calendarStrip(items, today)?.weeks ?? []).flat().filter((d) => d.entries.length > 0);
+
+  it("puts each dated item on its day: posted, planned, or past its date", () => {
+    const strip = calendarStrip(
+      [
+        item({ id: "a", status: "published", published_at: "2026-10-14T09:30:00Z" }),
+        item({ id: "b", scheduled_for: "2026-10-15" }),
+        item({ id: "c", status: "queued", scheduled_for: "2026-10-22" }),
+        item({ id: "d", scheduled_for: "2026-10-22" }),
+      ],
+      "2026-10-17",
+    );
+    // Two whole weeks, Monday first: 12–25 October.
+    expect(strip?.weeks.map((w) => w.length)).toEqual([7, 7]);
+    expect(strip?.weeks[0]?.[0]?.date).toBe("2026-10-12");
+    expect(strip?.weeks[1]?.[6]?.date).toBe("2026-10-25");
+    expect(strip?.weeks.flat().filter((d) => d.today)).toEqual([
+      { date: "2026-10-17", today: true, entries: [] },
+    ]);
+    expect(
+      strip?.weeks
+        .flat()
+        .filter((d) => d.entries.length > 0)
+        .map((d) => [d.date, d.entries]),
+    ).toEqual([
+      ["2026-10-14", [{ id: "a", mark: "posted" }]],
+      ["2026-10-15", [{ id: "b", mark: "overdue" }]],
+      [
+        "2026-10-22",
+        [
+          { id: "c", mark: "planned" },
+          { id: "d", mark: "planned" },
+        ],
+      ],
+    ]);
+    expect(strip?.outside).toBe(0);
+  });
+
+  it("is nothing for an empty queue or one with no dates", () => {
+    expect(calendarStrip([], "2026-10-17")).toBeNull();
+    expect(calendarStrip([item({ scheduled_for: null })], "2026-10-17")).toBeNull();
+  });
+
+  it("leaves out an item with no date, and a withdrawn one", () => {
+    const days = flat(
+      [
+        item({ id: "dated" }),
+        item({ id: "undated", scheduled_for: null }),
+        item({ id: "gone", status: "withdrawn", published_at: "2026-10-20T08:00:00Z" }),
+      ],
+      "2026-10-17",
+    );
+    expect(days.flatMap((d) => d.entries.map((e) => e.id))).toEqual(["dated"]);
+  });
+
+  it("draws six weeks at most, around today, and counts what falls outside", () => {
+    const strip = calendarStrip(
+      [
+        item({ id: "old", status: "published", published_at: "2026-08-03T08:00:00Z" }),
+        item({ id: "soon", scheduled_for: "2026-10-22" }),
+        item({ id: "far", scheduled_for: "2026-12-30" }),
+      ],
+      "2026-10-17",
+    );
+    expect(strip?.weeks).toHaveLength(6);
+    // The week before today's, then five more.
+    expect(strip?.weeks[0]?.[0]?.date).toBe("2026-10-05");
+    expect(strip?.outside).toBe(2);
+  });
+});
+
+describe("the small visuals — a post's own figures as bars", () => {
+  const p = (over: Partial<PerformanceLike>): PerformanceLike => ({
+    verdict: "helped",
+    audience_metric: "reach",
+    age_days: 7,
+    figures: { views: 2400, reach: 1240, interactions: 86 },
+    arithmetic: "x",
+    ...over,
+  });
+
+  it("draws the figures the measured line prints, in its order, toned by the verdict", () => {
+    expect(performanceBars(p({}))).toEqual({
+      tone: "ok",
+      rows: [
+        { key: "reach", label: "reach", value: 1240, display: "1 240" },
+        { key: "views", label: "views", value: 2400, display: "2 400" },
+        { key: "interactions", label: "interactions", value: 86, display: "86" },
+      ],
+    });
+    expect(performanceBars(p({ verdict: "did_nothing" }))?.tone).toBe("soft");
+    const one = performanceBars(
+      p({ verdict: "backfired", figures: { views: 10, reach: null, interactions: null } }),
+    );
+    expect(one).toMatchObject({ tone: "alarm", rows: [{ key: "views", display: "10" }] });
+  });
+
+  it("draws nothing where the line prints no figures", () => {
+    expect(performanceBars(undefined)).toBeNull();
+    expect(performanceBars(p({ verdict: "too_early", age_days: null, figures: null }))).toBeNull();
+    expect(performanceBars(p({ age_days: null }))).toBeNull();
+    expect(
+      performanceBars(p({ figures: { views: null, reach: null, interactions: null } })),
+    ).toBeNull();
+  });
+});
+
+describe("the small visuals — a gallery tile", () => {
+  const id = "64e2a1a7-b362-4bef-9f5f-318a2d4a0aaa";
+  const blob = "https://abc123.public.blob.vercel-storage.com/renders/p/i/0123456789abcdef";
+
+  it("shows a stored picture or clip from its own address, and nothing it can't show", () => {
+    expect(tileMedia({ id, media_path: `${blob}.png` })).toEqual({
+      kind: "image",
+      src: `${blob}.png`,
+    });
+    expect(tileMedia({ id, media_path: `${blob}.MP4` })?.kind).toBe("video");
+    expect(tileMedia({ id, media_path: null })).toBeNull();
+    expect(tileMedia({ id, media_path: `${blob}.pdf` })).toBeNull();
+    expect(tileMedia({ id, media_path: "/tmp/render.png" })).toBeNull();
+  });
+
+  it("never drops the AI-generated wording from a generated picture", () => {
+    expect(aiMediaWord({ media: { origin: "generated_image" } }, "image")).toBe(
+      "AI-generated image",
+    );
+    expect(aiMediaWord({ media: { is_ai_generated: true } }, "video")).toBe("AI-generated video");
+    expect(aiMediaWord({ media: { origin: "footage", is_ai_generated: false } }, "video")).toBe(
+      null,
+    );
+    expect(aiMediaWord(null, "image")).toBeNull();
   });
 });

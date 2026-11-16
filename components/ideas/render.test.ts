@@ -18,6 +18,7 @@ import { evaluateIdea } from "../../lib/ideas/check";
 import { LOCALES } from "../../lib/i18n/locales";
 import type { AppLocale } from "../../lib/i18n/locales";
 import { trFor } from "../../lib/i18n/server-tr";
+import snapshot from "../../specs/local-counts-v1.json";
 import { IdeaResultView } from "./IdeaResultView";
 
 const BASE: IdeaAnswers = {
@@ -36,7 +37,13 @@ const BASE: IdeaAnswers = {
   ramp_months: 3,
 };
 
+// D98: a city the local snapshot counted, whichever it is.
+const COUNTED = (
+  snapshot as unknown as { cities: { country: string; wikidata: string; counts?: object }[] }
+).cities.find((c) => c.counts)!;
+
 const CASES: Record<string, IdeaAnswers> = {
+  withCity: { ...BASE, country: COUNTED.country, city: COUNTED.wikidata, currency: "EUR" },
   worked: BASE,
   unknownCustomers: { ...BASE, customers_month: null },
   short: { ...BASE, customers_month: 100 },
@@ -75,7 +82,7 @@ describe("the idea check renders every kind of result, in every locale", () => {
       for (const locale of LOCALES) {
         const out = html(a, locale);
         expect(out, `${name} ${locale}`).not.toMatch(
-          /\bresult\.[a-z_.]+|\{[a-z_]+\}|undefined|NaN/,
+          /\b(result|local|ideas)\.[a-zA-Z_.]+|\{[a-z_]+\}|undefined|NaN/,
         );
       }
     });
@@ -129,6 +136,50 @@ describe("rule 36 — no verdict on an idea, in any locale", () => {
           s !== (CATALOGUES[locale].ideas as { result: { notVerdict: string } }).result.notVerdict,
       );
       expect(offenders).toEqual([]);
+    });
+  }
+});
+
+describe("gap 7 — every town state renders in every locale", () => {
+  const worked = evaluateIdea(BASE);
+  if (worked.status !== "worked") throw new Error("expected worked");
+  const states = {
+    queued: { status: "town", town: "Kecskemét", state: "queued" },
+    notFound: { status: "town", town: "Nowhere", state: "not_found" },
+    counted: {
+      status: "town",
+      town: "Szolnok",
+      state: "counted",
+      group: "cafes",
+      count: 12,
+      per_10k: 1.7,
+      counted_at: "2026-11-17T00:00:00.000Z",
+    },
+    countedNoPop: {
+      status: "town",
+      town: "Tata",
+      state: "counted",
+      group: "cafes",
+      count: 12,
+      per_10k: null,
+      counted_at: "2026-11-17T00:00:00.000Z",
+    },
+  } as const;
+  for (const [name, local] of Object.entries(states)) {
+    it(name, () => {
+      for (const locale of LOCALES) {
+        const out = renderToStaticMarkup(
+          createElement(IdeaResultView, {
+            result: { ...worked, local: local as never },
+            answers: BASE,
+            tr: trFor(locale, "ideas"),
+            locale,
+          }),
+        );
+        expect(out, `${name} ${locale}`).not.toMatch(
+          /\b(result|local|ideas)\.[a-zA-Z_.]+|\{[a-z_]+\}|undefined|NaN/,
+        );
+      }
     });
   }
 });

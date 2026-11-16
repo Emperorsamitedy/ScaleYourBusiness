@@ -36,6 +36,17 @@
   text-align: right;
 }
 
+/* A row's figure again as a bar (app/viz.css), on the table's own scale. */
+.st-table .st-bar {
+  width: 14%;
+  min-width: 96px;
+  vertical-align: top;
+}
+.st-bar .vz-bar-track {
+  display: block;
+  margin-top: 3px;
+}
+
 .st-opts {
   margin: 0;
   padding: 0 0 0 18px;

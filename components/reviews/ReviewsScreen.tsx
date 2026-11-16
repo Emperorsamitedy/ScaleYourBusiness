@@ -20,6 +20,7 @@ import Link from "next/link";
 import { useTranslations } from "next-intl";
 import type { ReactNode } from "react";
 import type { ReviewItem, ReviewsView } from "../../lib/review-desk/view";
+import { HBars } from "../charts/Viz";
 import { Fold } from "../sheet/Fold";
 import { PageHead, SheetCard } from "../sheet/PageHead";
 import { useRole } from "../auth/RoleContext";
@@ -36,6 +37,9 @@ import {
   monthName,
   readNote,
   reviewsHeadline,
+  starKey,
+  starSpread,
+  starTone,
   starsWords,
   thisMonth,
 } from "./reviews-view";
@@ -515,6 +519,7 @@ export function ReviewsScreen() {
   const [view, setView] = useState<ReviewsView | null>(null);
   const [failed, setFailed] = useState<"signed_out" | "error" | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [rating, setRating] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     try {
@@ -572,6 +577,10 @@ export function ReviewsScreen() {
   if (!view) return <Frame title={tr("screen.loading")} />;
 
   const month = thisMonth(view.reviews, view.today);
+  const spread = starSpread(view.reviews);
+  const picked = spread.some((s) => s.key === rating && s.count > 0) ? rating : null;
+  const listed =
+    picked === null ? view.reviews : view.reviews.filter((r) => starKey(r.stars) === picked);
   return (
     <Frame title={reviewsHeadline(view, tr)} aside={asideLine(view, tr)}>
       {error && <p className="rv-note rv-error">{error}</p>}
@@ -584,17 +593,33 @@ export function ReviewsScreen() {
         meta={tr("screen.listMeta", { stars: POOR_STARS })}
       >
         {view.reviews.length > 0 ? (
-          <ul className="rv-list">
-            {view.reviews.map((r) => (
-              <ReviewEntry
-                key={r.id}
-                r={r}
-                today={view.today}
-                post={post}
-                googleConnected={view.google.connected}
+          <>
+            <div className="rv-spread">
+              <HBars
+                rows={spread.map((s) => ({
+                  key: s.key,
+                  label: starsWords(s.stars, tr, locale),
+                  value: s.count,
+                  display: num(s.count, 0, locale),
+                  tone: starTone(s.stars),
+                }))}
+                label={tr("spread.label", { count: view.reviews.length })}
+                active={picked}
+                onPick={(key) => setRating(picked === key ? null : key)}
               />
-            ))}
-          </ul>
+            </div>
+            <ul className="rv-list">
+              {listed.map((r) => (
+                <ReviewEntry
+                  key={r.id}
+                  r={r}
+                  today={view.today}
+                  post={post}
+                  googleConnected={view.google.connected}
+                />
+              ))}
+            </ul>
+          </>
         ) : (
           <p className="rv-copy">{tr("screen.emptyCopy")}</p>
         )}

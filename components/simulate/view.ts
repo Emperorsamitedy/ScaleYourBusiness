@@ -4,6 +4,7 @@
 // picks and the whisker chart's geometry.
 
 import { listSep } from "../../lib/i18n/punctuation";
+import type { AdsChartModel } from "../../lib/charts/small";
 import type {
   Catalog,
   Cell,
@@ -248,6 +249,27 @@ export function whiskerChart(
       };
     }),
   };
+}
+
+/* ── the ads chart beside the options: the one figure it doesn't print ── */
+
+export interface AdsDays {
+  key: string;
+  name: string;
+  /** Days of the chart's window the campaign was measured on. */
+  days: number;
+  window: number;
+}
+
+/** Pure: each drawn campaign's measured days of the chart's window; none without ads data. */
+export function adsDays(ads: AdsChartModel | null | undefined): AdsDays[] {
+  if (!ads) return [];
+  return ads.campaigns.map((c) => ({
+    key: `${c.platform ?? "meta"}:${c.campaign_ref}`,
+    name: c.campaign_name,
+    days: c.measured_days,
+    window: ads.window.days,
+  }));
 }
 
 /** The kind's label, for a card's mono kicker (English; the screen says "simulate.kind.<kind>"). */

@@ -8,6 +8,8 @@ import { STOCK_APPLIES } from "../../lib/stock/applies";
 import { GROUPS, visibleGroups } from "../nav/AppFrame";
 import type { NavCounts } from "../../app/api/nav/route";
 import {
+  cashBars,
+  coverBars,
   coverFlagClass,
   coverText,
   headline,
@@ -207,5 +209,72 @@ describe("P5-05 — what runs out, in words", () => {
     expect(statusWord({ status: "rejected" }).word).toBe("Declined");
     expect(moneyLine({ amount_minor: 280_280, currency: "EUR" })).toBe("€2,802.80 at cost");
     expect(proposalWord({ unavailable: "no price", proposal: null } as never)?.word).toBe("Can't");
+  });
+});
+
+describe("the bars beside the figures", () => {
+  it("draws cover against the delivery time on one scale, the tone following the row's flag", () => {
+    const bars = coverBars(
+      [
+        coverItem(),
+        coverItem({
+          key: "c:vase",
+          runs_out: { earliest: "2026-11-06", latest: "2026-11-16" },
+          lead: { days: 14, basis: "assumed", supplier: null, why: "" },
+          flag: "IN RANGE",
+        }),
+        coverItem({ key: "c:jug", runs_out: { earliest: "2026-11-01", latest: null } }),
+        coverItem({ key: "c:new", runs_out: null, flag: "TOO EARLY" }),
+      ],
+      "2026-10-27",
+    );
+    // 3–4 days against a 10-day delivery, on a scale of the longest stretch (20 days).
+    expect(bars[0]).toEqual({ low: 0.15, high: 0.2, lead: 0.5, tone: "drift" });
+    expect(bars[1]).toEqual({ low: 0.5, high: 1, lead: 0.7, tone: "ink" });
+    expect(bars[2]).toMatchObject({ low: 0.25, high: null });
+    expect(bars[3]).toBeNull();
+  });
+
+  it("ends the scale at four delivery times, so months of cover fill the bar and the rest stay readable", () => {
+    const bars = coverBars(
+      [
+        coverItem(),
+        coverItem({
+          key: "c:bowl",
+          runs_out: { earliest: "2027-04-17", latest: "2027-06-28" },
+          flag: "IN RANGE",
+        }),
+      ],
+      "2026-10-27",
+    );
+    // A 10-day delivery: the scale is 40 days, not the bowl's 244.
+    expect(bars[0]).toMatchObject({ low: 0.075, high: 0.1, lead: 0.25 });
+    expect(bars[1]).toMatchObject({ low: 1, high: 1 });
+  });
+
+  it("draws no cover bar without the dates to read it from", () => {
+    expect(coverBars([], "2026-10-27")).toEqual([]);
+    expect(coverBars([coverItem()], undefined)).toEqual([null]);
+    expect(coverBars([coverItem({ runs_out: null })], "2026-10-27")).toEqual([null]);
+  });
+
+  it("sets cash tied up against the largest in its own currency, hollow on a stated cost", () => {
+    const bars = cashBars([
+      item(),
+      item({ key: "b", cash_tied_minor: 26_000, cost_basis: "stated" }),
+      item({ key: "c", cash_tied_minor: 900_000, currency: "HUF" }),
+      item({ key: "d", cash_tied_minor: null, currency: null, cost_basis: null }),
+    ]);
+    expect(bars).toEqual([
+      { share: 1, tone: "ink" },
+      { share: 0.25, tone: "hollow" },
+      { share: 1, tone: "ink" },
+      null,
+    ]);
+  });
+
+  it("draws no cash bar where nothing is known", () => {
+    expect(cashBars([])).toEqual([]);
+    expect(cashBars([item({ cash_tied_minor: 0 })])).toEqual([null]);
   });
 });

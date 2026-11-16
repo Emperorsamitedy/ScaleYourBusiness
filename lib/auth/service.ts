@@ -19,7 +19,7 @@
 // (`choose`), so the screen can ask "Which business?". Moving to another
 // is a switch (lib/auth/switch.ts), never a session that spans two.
 
-import { createHash, randomBytes } from "node:crypto";
+import { createHash, randomBytes, randomInt, timingSafeEqual } from "node:crypto";
 import { and, eq, gt, isNull, sql } from "drizzle-orm";
 import { db } from "../../db";
 import {
@@ -67,6 +67,37 @@ export function hash(token: string): string {
   return createHash("sha256").update(token).digest("hex");
 }
 
+// 2026-11-16: every sign-in email carries a 6-digit code beside the link,
+// for an owner reading their email on one device and signing in on another.
+// The code proves the same thing the link does (they can read that inbox),
+// lives exactly as long (LOGIN_TTL_MINUTES) and is spent with it. A million
+// codes is a small space, so guessing is capped per address and per network
+// (5 and 30 tries in 15 minutes); wrong, expired and used all fail alike.
+const CODE_WINDOW_MS = 15 * 60_000;
+const CODE_LIMIT_PER_EMAIL = 5;
+const CODE_LIMIT_PER_IP = 30;
+export const CODE_REFUSED =
+  "that code isn't right, or it has expired — check it, or use the link in the email";
+export const CODE_TOO_MANY =
+  "too many codes tried for that address — use the link in the email, or try again later";
+
+/** A fresh code: six digits, leading zeros kept. */
+export function newLoginCode(): string {
+  return randomInt(0, 1_000_000).toString().padStart(6, "0");
+}
+
+/** Pure: the stored form of a code, salted with its own token's hash. */
+export function codeHash(tokenHash: string, code: string): string {
+  return hash(`login-code:${tokenHash}:${code}`);
+}
+
+/** Pure: six digits from what was typed (spaces and dashes allowed), else null. */
+export function normaliseCode(raw: unknown): string | null {
+  if (typeof raw !== "string") return null;
+  const digits = raw.replace(/[\s-]/g, "");
+  return /^\d{6}$/.test(digits) ? digits : null;
+}
+
 /**
  * L-1: the language and currency a browser chose before signing in (the
  * sign-up screen's first step). Used only when a sign-in creates the
@@ -91,6 +122,8 @@ function cleanChoices(c: SignInChoices | undefined): {
 export interface LoginRequest {
   /** Goes into the emailed link. Never stored. */
   token: string;
+  /** Goes into the same email, beside the link. Never stored. */
+  code: string;
   email: string;
   expires_at: string;
   /** L-6: the language the link carries (login_tokens.language), for the email itself. */
@@ -122,11 +155,14 @@ export async function requestLogin(
   }
   const chosen = cleanChoices(choices);
   const token = randomBytes(TOKEN_BYTES).toString("base64url");
+  const code = newLoginCode();
+  const tokenHash = hash(token);
   const expires = new Date(Date.now() + LOGIN_TTL_MINUTES * 60_000).toISOString();
 
   await db.insert(loginTokens).values({
     email,
-    token_hash: hash(token),
+    token_hash: tokenHash,
+    code_hash: codeHash(tokenHash, code),
     profile_id: profileId,
     expires_at: expires,
     invite_id: inviteId,
@@ -134,7 +170,7 @@ export async function requestLogin(
     currency: chosen.currency,
   });
 
-  return { token, email, expires_at: expires, language: chosen.language };
+  return { token, code, email, expires_at: expires, language: chosen.language };
 }
 
 export interface RedeemedSession {
@@ -198,7 +234,58 @@ export async function redeemLogin(token: string): Promise<RedeemedSession> {
       ),
     );
   if (!row) throw new AuthError("that sign-in link is no longer valid", 401);
+  return spendLogin(row, now, "that sign-in link is no longer valid");
+}
 
+/**
+ * Redeem the 6-digit code from a sign-in email instead of its link. Any of
+ * the address's live codes works (a resend issues another without killing
+ * the first); the one that matches is spent exactly as its link would be.
+ */
+export async function redeemLoginCode(
+  rawEmail: string,
+  rawCode: unknown,
+  /** The caller's address, as the platform reports it — for the per-IP limit only. */
+  clientIp?: string | null,
+): Promise<RedeemedSession> {
+  const email = normaliseEmail(rawEmail);
+  if (!(await withinRateLimit(`login-code:email:${email}`, CODE_LIMIT_PER_EMAIL, CODE_WINDOW_MS))) {
+    throw new AuthError(CODE_TOO_MANY, 429);
+  }
+  const ip = clientIp?.trim();
+  if (ip && !(await withinRateLimit(`login-code:ip:${ip}`, CODE_LIMIT_PER_IP, CODE_WINDOW_MS))) {
+    throw new AuthError(CODE_TOO_MANY, 429);
+  }
+  const code = normaliseCode(rawCode);
+  if (!code) throw new AuthError(CODE_REFUSED, 401);
+
+  const now = new Date().toISOString();
+  const live = await db
+    .select()
+    .from(loginTokens)
+    .where(
+      and(
+        eq(loginTokens.email, email),
+        isNull(loginTokens.used_at),
+        gt(loginTokens.expires_at, now),
+      ),
+    );
+  const row = live.find((r) => {
+    if (!r.code_hash) return false;
+    const want = Buffer.from(r.code_hash);
+    const got = Buffer.from(codeHash(r.token_hash, code));
+    return want.length === got.length && timingSafeEqual(want, got);
+  });
+  if (!row) throw new AuthError(CODE_REFUSED, 401);
+  return spendLogin(row, now, CODE_REFUSED);
+}
+
+/** Spend a live login token — link or code — and sign its owner in. */
+async function spendLogin(
+  row: typeof loginTokens.$inferSelect,
+  now: string,
+  refusal: string,
+): Promise<RedeemedSession> {
   // Claimed atomically: of two concurrent redeems, only the one that flips
   // used_at from null wins — the other gets the same refusal as a used link.
   const claimed = await db
@@ -206,7 +293,7 @@ export async function redeemLogin(token: string): Promise<RedeemedSession> {
     .set({ used_at: now })
     .where(and(eq(loginTokens.id, row.id), isNull(loginTokens.used_at)))
     .returning({ id: loginTokens.id });
-  if (claimed.length === 0) throw new AuthError("that sign-in link is no longer valid", 401);
+  if (claimed.length === 0) throw new AuthError(refusal, 401);
 
   if (row.invite_id) {
     // Imported here: members.ts builds its sessions with this file's helpers.

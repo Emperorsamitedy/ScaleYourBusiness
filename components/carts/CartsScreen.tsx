@@ -24,6 +24,7 @@ import type { ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import type { CartsScreenView } from "../../app/api/carts/route";
 import { percentText } from "../cash/cash-view";
+import { HBars } from "../charts/Viz";
 import { Fold } from "../sheet/Fold";
 import { PageHead, SheetCard } from "../sheet/PageHead";
 import { moneyText, num } from "../sheet/num";
@@ -34,10 +35,12 @@ import {
   checkoutConsentNotes,
   refusalTitle,
   consentNotes,
+  funnelRows,
   moneyList,
   proposalWord,
   proposeBlock,
   sourcesLine,
+  valueBars,
   weekLine,
   winBackText,
   windowLine,
@@ -78,12 +81,21 @@ function Frame({
 
 function ProductsCard({ m, names }: { m: Measured; names: Record<string, string> }) {
   const words = useCartsWords();
+  const sentences = useCartsSentences();
   const { tr, locale } = words;
+  const bars = valueBars(m.products);
   return (
     <SheetCard
       label={tr("products.label", { count: m.current.left })}
       title={m.products.length > 0 ? undefined : tr("products.titleNone")}
     >
+      {m.current.started > 0 && (
+        <HBars
+          rows={funnelRows(m, words)}
+          max={m.current.started}
+          label={windowLine(m, sentences)}
+        />
+      )}
       {m.products.length > 0 ? (
         <div className="ct-table-wrap" tabIndex={0} aria-label={tr("products.table")}>
           <table className="rt rt-stack ct-table">
@@ -99,10 +111,11 @@ function ProductsCard({ m, names }: { m: Measured; names: Record<string, string>
                 <th scope="col" className="num">
                   {tr("products.valueLeft")}
                 </th>
+                <th aria-hidden="true" />
               </tr>
             </thead>
             <tbody>
-              {m.products.map((p) => (
+              {m.products.map((p, i) => (
                 <tr key={p.product_ref}>
                   <th scope="row">{names[p.product_ref] ?? p.title ?? tr("products.aProduct")}</th>
                   <td className="num" data-label={tr("products.inCarts")}>
@@ -113,6 +126,16 @@ function ProductsCard({ m, names }: { m: Measured; names: Record<string, string>
                   </td>
                   <td className="num" data-label={tr("products.valueLeft")}>
                     {moneyList(p.value, words)}
+                  </td>
+                  <td className="ct-bar" aria-hidden="true">
+                    {(bars[i] ?? []).map((b) => (
+                      <span key={b.currency} className="vz-bar-track">
+                        <span
+                          className="vz-bar-fill vz-drift"
+                          style={{ left: 0, width: `${(b.share * 100).toFixed(2)}%` }}
+                        />
+                      </span>
+                    ))}
                   </td>
                 </tr>
               ))}

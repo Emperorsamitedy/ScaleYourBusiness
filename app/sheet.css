@@ -29,28 +29,30 @@
 
 :root {
   /* surfaces */
-  --desk: #0d1321; /* ScaleX Ink (2026-11-15) */
-  --masthead: #080c16;
-  --paper: #ffffff; /* ScaleX Paper */
-  --inset: #eef1f5;
-  --rule: #7a8494;
-  --rule-soft: #d5dae2;
-  --desk-rule: #2a3245;
+  /* The forest desk and eucalyptus paper, restored 2026-11-16 (owner
+     decision: the 2026-11-15 navy and white are not the app's colours). */
+  --desk: #132119;
+  --masthead: #0e1a13;
+  --paper: #f2f7f4;
+  --inset: #dfe9e3;
+  --rule: #71897d;
+  --rule-soft: #b9cbc1;
+  --desk-rule: #2f4538;
 
   /* text */
-  --sheet-ink: #0d1321;
-  --sheet-ink-2: #4a5263;
-  --desk-ink: #f4f6fa;
-  --desk-ink-2: #aeb6c4;
+  --sheet-ink: #0e1a13;
+  --sheet-ink-2: #3a4c42;
+  --desk-ink: #eaf2ed;
+  --desk-ink-2: #c3d4ca;
 
   /* meaning */
   --live: #1a3dae;
   --live-desk: #c2d4ff;
-  --live-rule: #00a86b; /* the masthead's rule: ScaleX Accent — static brand structure */
-  --accent: #00a86b; /* ScaleX Accent: the mark, large type and rules only (3.1:1 on paper) */
-  --accent-desk: #2bd594; /* Accent as text on the desk (9.8:1) */
-  --ok: #00754a; /* Accent, deepened for text on paper (5.8:1) */
-  --ok-band: #cdeedf;
+  --live-rule: #3d6bff; /* the masthead's cobalt rule — static structure */
+  --accent: #00a86b; /* the ScaleX mark's green: the logo only */
+  --accent-desk: #2bd594;
+  --ok: #145530;
+  --ok-band: #cfe5d7;
   --low: #36495f;
   --drift: #683d00;
   --alarm: #8c1713;

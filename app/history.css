@@ -205,6 +205,9 @@
 .hi-track-body {
   padding: 8px 12px 4px;
 }
+.hi-track-bar {
+  padding: 7px 12px 12px;
+}
 .hi-track-kinds {
   list-style: none;
   margin: 0;
@@ -262,6 +265,7 @@
   .hi-track-body {
     padding: 4px 0;
   }
+  .hi-track-bar,
   .hi-track-kinds {
     padding-left: 14px;
     padding-right: 14px;

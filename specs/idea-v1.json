@@ -46,6 +46,67 @@
   },
   "max_amount_major": 100000000,
   "horizon_months": 36,
+  "first_connector": {
+    "about": "I-52: the first connector suggested at launch, from what the plan rests on. By revenue model first, then by kind of business, then the default. Provider ids are lib/connectors/scopes.ts's.",
+    "by_model": { "subscription": "stripe", "commission": "stripe" },
+    "by_sector": {
+      "ecommerce_store": "shopify",
+      "restaurant": "square",
+      "cafe": "square",
+      "bar": "square",
+      "retail_shop": "square",
+      "salon_beauty": "square",
+      "barber": "square"
+    },
+    "default": "stripe"
+  },
+  "plan_vs_actual": { "min_measured_days": 30 },
+  "local": {
+    "about": "Local competition (owner, 2026-11-17, D98): how many places of the same kind are mapped on OpenStreetMap in the chosen city, from the dated snapshot specs/local-counts-v1.json (scripts/fetch-local.ts). A group lists OSM tag selectors, each [key, regex]; a business type maps to one group, or to null with the reason it isn't counted. OpenStreetMap is volunteer-mapped: a count is a floor, never a total (rule 37).",
+    "cities_per_country": 3,
+    "groups": {
+      "restaurants": [["amenity", "^(restaurant|fast_food)$"]],
+      "cafes": [["amenity", "^cafe$"]],
+      "bars": [["amenity", "^(bar|pub)$"]],
+      "hairdressers": [["shop", "^hairdresser$"]],
+      "beauty": [["shop", "^(beauty|hairdresser|cosmetics)$"]],
+      "fitness": [["leisure", "^fitness_centre$"]],
+      "massage_spa": [["shop", "^massage$"], ["leisure", "^spa$"]],
+      "health": [["amenity", "^(clinic|doctors|dentist)$"]],
+      "childcare": [["amenity", "^(childcare|kindergarten)$"]],
+      "car_repair": [["shop", "^(car_repair|tyres)$"]],
+      "stays": [["tourism", "^(hotel|guest_house|hostel|apartment)$"]],
+      "estate_agents": [["office", "^estate_agent$"]],
+      "bakeries": [["shop", "^(bakery|pastry)$"]]
+    },
+    "by_type": {
+      "restaurant": "restaurants",
+      "cafe": "cafes",
+      "bar": "bars",
+      "barber": "hairdressers",
+      "salon_beauty": "beauty",
+      "gym_fitness": "fitness",
+      "wellness_spa": "massage_spa",
+      "clinic_health": "health",
+      "childcare": "childcare",
+      "automotive": "car_repair",
+      "tourism_accommodation": "stays",
+      "real_estate": "estate_agents",
+      "food_production": "bakeries"
+    },
+    "not_counted": {
+      "online": ["ecommerce_store", "software_saas", "it_services", "agency_marketing", "consulting", "professional_services"],
+      "too_broad": ["retail_shop", "other"],
+      "rarely_mapped": ["construction", "trades_services", "cleaning_services", "education_training", "events", "photography_creative", "logistics", "transport", "manufacturing", "wholesale", "agriculture", "nonprofit"]
+    }
+  },
+  "test_page": {
+    "about": "Gap 5 (2026-11-17): a ScaleX-hosted page for a kept idea that measures interest — unique visits a day and unique 'I'd buy this at this price' clicks — with no personal data. Its lines are set when it is made (rule 41) and are these fixed values, not worked from the plan.",
+    "min_visits": 100,
+    "pass_rate_bp": 1000,
+    "fail_below_rate_bp": 300,
+    "max_pitch_chars": 120
+  },
   "tests": {
     "about": "The cheapest next test for the riskiest assumption (I-30, D95). Pass and fail are worked out from the plan's own break-even before any result exists (rule 41), and kept with the result.",
     "presale": {

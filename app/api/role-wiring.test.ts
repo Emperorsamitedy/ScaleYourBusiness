@@ -34,7 +34,22 @@ export const ALLOWED: Record<string, Partial<Record<Method, string>>> = {
   "entry/route.ts": {
     POST: "the v1 spec §8.2's free entry: no account and no business, so no role; it writes only its own lead",
   },
+  "idea/route.ts": {
+    POST: "TASKS-IDEAS's free idea check: no account and no business, so no role; it writes only its own check",
+  },
+  "idea/describe/route.ts": {
+    POST: "TASKS-IDEAS I-12: reads a description for the free check's form; no account, and nothing is kept",
+  },
+  "idea/interest/route.ts": {
+    POST: "gap 5: a stranger on a public test page says they'd buy; no account, and only an HMAC of the visitor is kept",
+  },
+  "idea/keep/route.ts": {
+    POST: "identity: keeps a shared idea check as a NEW idea business the person owns, like auth/business; nothing in this one changes",
+  },
   "auth/redeem/route.ts": { POST: "sign-in: redeems a link; nobody is signed in yet" },
+  "auth/redeem-code/route.ts": {
+    POST: "sign-in: redeems the emailed code; nobody is signed in yet, and guessing is capped in redeemLoginCode",
+  },
   "auth/logout/route.ts": { POST: "ends this browser's own session; changes no business" },
   "auth/oauth/[provider]/callback/route.ts": { POST: "sign-in: the provider proves the email" },
   "auth/switch/route.ts": {

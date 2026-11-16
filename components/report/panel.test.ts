@@ -161,8 +161,8 @@ describe("the head line", () => {
 
   it("tallies severities most urgent first and leaves out the ones that do not occur", () => {
     expect(severityTally([f("high"), f("critical"), f("critical")])).toEqual([
-      { n: 2, word: "act now", tone: "alarm" },
-      { n: 1, word: "high", tone: "drift" },
+      { severity: "critical", n: 2, word: "act now", tone: "alarm" },
+      { severity: "high", n: 1, word: "high", tone: "drift" },
     ]);
     expect(severityTally([])).toEqual([]);
   });

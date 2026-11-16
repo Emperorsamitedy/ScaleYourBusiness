@@ -204,6 +204,17 @@
 .tl-rec .loss {
   color: var(--alarm);
 }
+/* the record as one small bar (components/charts/Viz.tsx SegBar) */
+.tl-rec-bar {
+  display: block;
+  justify-self: end;
+  width: 100%;
+  max-width: 160px;
+  margin-top: 5px;
+}
+.tl-rec-bar .vz-seg {
+  height: 8px;
+}
 .tl-chev {
   justify-self: end;
   display: grid;
@@ -328,6 +339,10 @@
     gap: var(--s-3);
     flex-wrap: wrap;
     text-align: left;
+  }
+  .tl-rec-bar {
+    align-self: center;
+    margin-top: 0;
   }
   .tl-more {
     grid-template-columns: minmax(0, 1fr);

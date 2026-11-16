@@ -10,8 +10,10 @@
 //
 // READ-ONLY, PROVEN. Google's tokeninfo endpoint reports the scopes a token
 // actually carries, so the connect check is real (scopeVerification:
-// "reported"). This module knows exactly three URLs: the token endpoint,
-// tokeninfo, and runReport on the owner's property. It never uses the
+// "reported"). This module knows exactly four URLs: the token endpoint,
+// tokeninfo, and runReport and runRealtimeReport on the owner's property
+// (the realtime one since 2026-11-16, for Home's live line; same scope,
+// same host, a read like the others). It never uses the
 // token_uri written in the key file, so a doctored key cannot point it
 // anywhere else. ga4.test.ts scans this source and fails the build if the
 // full analytics scope, or any other Google host, ever appears.
@@ -163,6 +165,11 @@ export function signAssertion(cred: Ga4Credential, issuedAtSeconds: number): str
 
 const runReportUrl = (propertyId: string): string =>
   `${GA4_DATA_ORIGIN}/v1beta/properties/${propertyId}:runReport`;
+const runRealtimeReportUrl = (propertyId: string): string =>
+  `${GA4_DATA_ORIGIN}/v1beta/properties/${propertyId}:runRealtimeReport`;
+
+/** The minutes a standard GA4 property's realtime report covers (360 properties: 60). */
+export const GA4_REALTIME_MINUTES = 30;
 
 interface Token {
   value: string;
@@ -194,7 +201,10 @@ async function request(
   init: Ga4RequestInit,
 ): Promise<{ status: number; body: unknown }> {
   const allowed =
-    url === GA4_TOKEN_URL || url === GA4_TOKENINFO_URL || url === runReportUrl(cred.property_id);
+    url === GA4_TOKEN_URL ||
+    url === GA4_TOKENINFO_URL ||
+    url === runReportUrl(cred.property_id) ||
+    url === runRealtimeReportUrl(cred.property_id);
   if (!allowed) throw new ProviderError("ga4: refusing to call an unregistered address");
 
   for (let attempt = 1; ; attempt += 1) {
@@ -524,6 +534,91 @@ const defaultFetch: Ga4Fetch = async (url, init) => {
   return { status: response.status, json: () => response.json() as Promise<unknown> };
 };
 
+/** People active in one minute: `minutes_ago` 0 is the minute now under way. */
+export interface ActiveMinute {
+  minutes_ago: number;
+  active: number;
+}
+
+/**
+ * Pure: the realtime report's rows as one figure per minute, oldest first.
+ * GA4 leaves out a minute nobody was active in, so a missing minute is a 0,
+ * not a gap; a row outside the span or with no number is ignored.
+ */
+export function activeByMinute(
+  rows: readonly ReportRow[],
+  span: number = GA4_REALTIME_MINUTES,
+): ActiveMinute[] {
+  const counts = new Map<number, number>();
+  for (const row of rows) {
+    const minutesAgo = Number(row.dimensions[0]);
+    const active = Number(row.metrics[0]);
+    if (!Number.isInteger(minutesAgo) || minutesAgo < 0 || minutesAgo >= span) continue;
+    if (!Number.isFinite(active) || active < 0) continue;
+    counts.set(minutesAgo, (counts.get(minutesAgo) ?? 0) + active);
+  }
+  return Array.from({ length: span }, (_, i) => {
+    const minutesAgo = span - 1 - i;
+    return { minutes_ago: minutesAgo, active: counts.get(minutesAgo) ?? 0 };
+  });
+}
+
+/**
+ * The realtime read behind Home's live line: people active on the site in
+ * each of the last 30 minutes. A read with the same analytics.readonly token
+ * as every other report here; nothing is stored, the figure goes to the
+ * screen only.
+ */
+export function createGa4Live(options: Ga4ProviderOptions = {}) {
+  const ctx: Context = {
+    fetch: options.fetch ?? defaultFetch,
+    sleep: options.sleep ?? ((ms) => new Promise((resolve) => setTimeout(resolve, ms))),
+    clock: options.clock ?? (() => Date.now()),
+    tokens: new Map(),
+  };
+  return {
+    async activeNow(secret: string): Promise<ActiveMinute[]> {
+      const cred = parseGa4Credential(secret);
+      let token = await accessToken(ctx, cred);
+      const call = () =>
+        request(ctx, cred, runRealtimeReportUrl(cred.property_id), {
+          method: "POST",
+          headers: { authorization: `Bearer ${token}`, "content-type": "application/json" },
+          body: JSON.stringify({
+            dimensions: [{ name: "minutesAgo" }],
+            metrics: [{ name: "activeUsers" }],
+            limit: GA4_REALTIME_MINUTES,
+          }),
+        });
+      let { status, body } = await call();
+      if (status === 401) {
+        token = await accessToken(ctx, cred, true); // the cached token expired early
+        ({ status, body } = await call());
+      }
+      if (status === 403) {
+        throw new ProviderError(
+          `ga4: ${cred.client_email} can't read property ${cred.property_id}'s realtime figures`,
+        );
+      }
+      if (status !== 200) {
+        throw new ProviderError(
+          `ga4: the realtime report failed (${status}${googleMessage(body) ? `: ${googleMessage(body)}` : ""})`,
+        );
+      }
+      const rows = ((body as { rows?: unknown } | null)?.rows ?? []) as {
+        dimensionValues?: { value?: unknown }[];
+        metricValues?: { value?: unknown }[];
+      }[];
+      return activeByMinute(
+        rows.map((r) => ({
+          dimensions: (r.dimensionValues ?? []).map((d) => String(d.value ?? "")),
+          metrics: (r.metricValues ?? []).map((m) => String(m.value ?? "")),
+        })),
+      );
+    },
+  };
+}
+
 export function createGa4Provider(options: Ga4ProviderOptions = {}): Provider {
   const ctx: Context = {
     fetch: options.fetch ?? defaultFetch,
@@ -604,3 +699,4 @@ export function createGa4Provider(options: Ga4ProviderOptions = {}): Provider {
 }
 
 export const ga4Provider = createGa4Provider();
+export const ga4Live = createGa4Live();

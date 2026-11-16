@@ -32,7 +32,7 @@ const RATES = { V97041: "y1", V97043: "y3", V97045: "y5" } as const;
 
 const DELAY_MS = 1_500;
 const MAX_ATTEMPTS = 3;
-const MAX_REQUESTS = 40;
+const MAX_REQUESTS = 80;
 const TIMEOUT_MS = 90_000;
 
 let requests = 0;
@@ -65,7 +65,12 @@ interface Cell {
   geo: string;
   nace: string;
   rates: Partial<Record<(typeof RATES)[keyof typeof RATES], Latest>>;
+  /** Gap 6: the newer table's one-year rate (bd_size), kept apart — another method, never mixed in. */
+  newer_y1?: Latest;
 }
+
+/** Gap 6: bd_size, "from 2021 onwards", publishes the one-year survival rate only so far. */
+const NEWER = { dataset: "bd_size", indicator: "ENT_SRVLR_BRTH_PC", age: "Y1", since: 2021 };
 
 async function main(): Promise<void> {
   const retrieved = new Date().toISOString().slice(0, 10);
@@ -131,6 +136,40 @@ async function main(): Promise<void> {
     coverage.push(`${geo}: ${kept} cells, latest ${latestYear || "—"}`);
   }
 
+  // Gap 6: the newer one-year rate, cell by cell, kept apart from the 2020 set.
+  for (const geo of geos) {
+    const q = [
+      ["format", "JSON"],
+      ["lang", "EN"],
+      ["geo", geo],
+      ["sizeclas", "TOTAL"],
+      ["age", NEWER.age],
+      ["indic_sbs", NEWER.indicator],
+      ...naceCodes.map((n) => ["nace_r2", n]),
+      ["sinceTimePeriod", String(NEWER.since)],
+    ]
+      .map(([k, v]) => `${k}=${encodeURIComponent(v!)}`)
+      .join("&");
+    console.log(`${NEWER.dataset} ${geo}`);
+    const d = await get(`${API}/${NEWER.dataset}?${q}`);
+    Object.assign(flags, flagLabels(d));
+    const byNace = new Map<string, { year: number; value: number | null; flag: string | null }[]>();
+    for (const o of observations(d)) {
+      const { nace_r2: nace, time } = o.codes;
+      if (!nace || !time) continue;
+      const list = byNace.get(nace) ?? [];
+      byNace.set(nace, list);
+      list.push({ year: Number(time), value: o.value, flag: o.flag });
+    }
+    for (const [nace, list] of byNace) {
+      const v = latest(list);
+      if (!("value" in v)) continue;
+      const cell = cells.find((c) => c.geo === geo && c.nace === nace);
+      if (cell) cell.newer_y1 = v;
+      else cells.push({ geo, nace, rates: {}, newer_y1: v });
+    }
+  }
+
   const head = {
     version: "1",
     source: {
@@ -150,6 +189,7 @@ async function main(): Promise<void> {
       y1: "V97041: enterprises born in t-1 still active in t, over births in t-1 (%)",
       y3: "V97043: enterprises born in t-3 still active in t, over births in t-3 (%)",
       y5: "V97045: enterprises born in t-5 still active in t, over births in t-5 (%)",
+      newer_y1: `${NEWER.dataset} ${NEWER.indicator} age ${NEWER.age}: the newer table's one-year survival rate (%), a different method — shown apart, never mixed with y1`,
     },
     flags,
     geos: geoNames,

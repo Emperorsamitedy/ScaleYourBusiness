@@ -56,7 +56,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     const link = `${origin}/api/auth/redeem?token=${encodeURIComponent(login.token)}`;
     // L-6: in the person's own language if an account holds one, else the link's; through the gate.
     const locale = await addressLocale(login.email, login.language);
-    const sent = await sendLoginEmail({ to: login.email, link, locale });
+    const sent = await sendLoginEmail({ to: login.email, link, code: login.code, locale });
     if (sent.delivered_via === "failed") {
       return NextResponse.json(
         { error: "I couldn't send the sign-in email just now — try again in a minute." },
@@ -69,7 +69,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       expires_at: login.expires_at,
       delivered_via: sent.delivered_via,
       // Only in local development with no email provider configured.
-      ...(sent.delivered_via === "screen" ? { link } : {}),
+      ...(sent.delivered_via === "screen" ? { link, code: login.code } : {}),
     });
     // Idea 53: a sign-in started from a proposal's card comes back to it.
     const back = returnPath(body.next);
