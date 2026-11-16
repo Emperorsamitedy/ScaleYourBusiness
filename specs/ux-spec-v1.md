@@ -521,7 +521,7 @@ The page, top to bottom:
 9. For accounting firms ("Firms"): the client book arrives A–Z, then sorts itself by money leaking.
 10. The free check ("Check"), then questions and the closing call ("Start").
 
-**Footage.** Nine scenes of one fictional ceramics shop: six are 7-second seamless loops (WebM with an MP4 fallback, 1280–1600 px wide, about 120–550 KB each) and three are stills. All of it is AI-generated and the page says so in a fixed label, "Illustrative store · AI-generated footage". No person appears, and no text or figure is baked into a frame: every word and number on the page is HTML. A scene's video is fetched only once its section pulls on the scene; before that, and always under reduced motion, the scene is its still frame.
+**Footage.** Nine scenes of one fictional ceramics shop: six are 7-second seamless loops (WebM with an MP4 fallback, 1280–1600 px wide, about 120–550 KB each) and three are stills. All of it is AI-generated and the page says so once, in its footer: "Illustrative store · AI-generated footage". The owner asked (2026-11-16) for the label to come off the screen; it stays in the footer because the page's own "Labelled" card promises that everything AI-made says so. No person appears, and no text or figure is baked into a frame: every word and number on the page is HTML. A scene's video is fetched only once its section pulls on the scene; before that, and always under reduced motion, the scene is its still frame.
 
 **Motion rules.**
 - Scenes are mixed by scroll: each section's pull on the scene falls off with its distance from the middle of the viewport, and layers are painted by their share of the pull, so two scenes cross-fade and never cut. The chart scene pans sideways with the scroll; still scenes drift slowly.

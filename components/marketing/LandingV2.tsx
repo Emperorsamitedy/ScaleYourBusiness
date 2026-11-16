@@ -327,7 +327,6 @@ export function LandingV2({ prices }: { prices: V2Prices }) {
           </a>
         ))}
       </nav>
-      <span className="ailabel">{tr("aiLabel")}</span>
 
       <main>
         {/* 0 · hero */}
@@ -1036,6 +1035,9 @@ export function LandingV2({ prices }: { prices: V2Prices }) {
       </main>
       <footer className="ft">
         <span>ScaleX · {first("foot.company")}</span>
+        {/* The page's own "Labelled" card promises that AI-made work says so:
+            the footage's label lives here, not over the page (owner, 2026-11-16). */}
+        <span>{tr("aiLabel")}</span>
         <span>
           <Link href="/terms">{first("foot.terms")}</Link> ·{" "}
           <Link href="/privacy">{first("foot.privacy")}</Link>
