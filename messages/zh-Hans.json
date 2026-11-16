@@ -10228,7 +10228,7 @@
         "undo": "可撤销",
         "undoWhy": "每项更改都会在您批准之前说明如何还原。",
         "labelled": "有标注",
-        "labelledWhy": "AI 生成的一切都会标注为 AI 生成。"
+        "labelledWhy": "AI 为您的企业生成的一切都会标注为 AI 生成。"
       },
       "waiting": "{count, plural, other {# 项待处理}}",
       "priceChange": "价格调整",
