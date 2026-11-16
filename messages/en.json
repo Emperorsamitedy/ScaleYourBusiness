@@ -10095,12 +10095,17 @@
       "kicker": "A blood test for your business",
       "lede": "ScaleX finds where your money leaks, prices it in euros, and fixes it only when you say yes.",
       "run": "Run the free check",
-      "see": "See it work",
-      "trust": "Read-only. No passwords. Nothing changes without you."
+      "see": "See how it works",
+      "trust": "Read-only. No passwords. Nothing changes without you.",
+      "titleB": "<em>Its numbers might not.</em>",
+      "ctaMeta": "{minutes, plural, one {# minute} other {# minutes}} · no account",
+      "trustRead": "Read-only access",
+      "trustPw": "No passwords",
+      "trustYes": "Nothing changes without your yes"
     },
     "tour": {
       "aria": "Product tour: ScaleX connects to a shop, builds its fact sheet, finds a leak, and fixes it after the owner approves",
-      "demo": "demo store",
+      "demo": "Demo data",
       "connections": "Connections",
       "readsOnly": "ScaleX reads, never writes",
       "reads": {
@@ -10118,7 +10123,10 @@
         "diagnosis": "Diagnosis",
         "finding": "Finding",
         "yes": "Your yes"
-      }
+      },
+      "atStake": "a month at stake",
+      "pricedSplit": "{priced} priced · {unpriced} not yet",
+      "findingCol": "Finding"
     },
     "fact": {
       "revenue": "Revenue, {days} days",

@@ -29,6 +29,7 @@ import {
   checkRange,
   mugAfter_minor,
   scanLeaks,
+  scanTotal,
   type ScanLeak,
   type Severity,
 } from "../../lib/marketing/landing-v2";
@@ -131,7 +132,6 @@ export function LandingV2({ prices }: { prices: V2Prices }) {
   const { tr, locale } = useTr("landingV2");
   const { tr: first } = useTr("landing");
   const rich = useTranslations("landingV2" as "common") as unknown as Rich;
-  const firstRich = useTranslations("landing" as "common") as unknown as Rich;
   const root = useRef<HTMLDivElement>(null);
 
   const eur = (minor: number) => moneyText(minor, V2_CURRENCY, locale);
@@ -157,6 +157,15 @@ export function LandingV2({ prices }: { prices: V2Prices }) {
       : range(l.low_minor, l.high_minor);
   };
   const tourLeaks = leaks.filter((l) => l.high_minor !== null);
+  const stake = scanTotal(1);
+  /** A finding's monthly figure on the diagnosis screen: a loss, an opportunity, or money tied up. */
+  const tourAmount = (l: ScanLeak): { text: string; tone: "loss" | "gain" | "tied" } => {
+    const low = l.low_minor ?? 0;
+    const high = l.high_minor ?? 0;
+    if (l.key === "ads") return { text: `−${eur(low)}`, tone: "loss" };
+    if (l.key === "pricing") return { text: `+${range(low, high)}`, tone: "gain" };
+    return { text: range(low, high), tone: "tied" };
+  };
 
   const words: MotionWords = {
     screens: [
@@ -271,7 +280,8 @@ export function LandingV2({ prices }: { prices: V2Prices }) {
 
   const heading = (
     <>
-      {first("hero.titleA")} {firstRich.rich("hero.titleB", EM)}
+      <span className="h-line">{first("hero.titleA")}</span>{" "}
+      <span className="h-line">{rich.rich("hero.titleB", EM)}</span>
     </>
   );
   const run = (
@@ -333,18 +343,29 @@ export function LandingV2({ prices }: { prices: V2Prices }) {
         <section className="s hero" id="s0" data-g="0">
           <div className="in">
             <div className="copy">
-              <span className="lab rv">{tr("hero.kicker")}</span>
+              <span className="lab kick rv">{tr("hero.kicker")}</span>
               <h1 className="rv d1">{heading}</h1>
               <p className="lede rv d2">{tr("hero.lede")}</p>
               <div className="ctas rv d3">
-                {run}
-                <a className="btn" href="#s1">
+                <Link className="btn go cta" href="/check">
+                  <span>{tr("hero.run")}</span>
+                  <span className="cta-meta">
+                    {tr("hero.ctaMeta", { minutes: V2.checkMinutes })}
+                  </span>
+                  <span aria-hidden="true">→</span>
+                </Link>
+                <a className="btn lx-ghost" href="#s1">
                   {tr("hero.see")}
                 </a>
               </div>
-              <p className="trust rv d3">{tr("hero.trust")}</p>
+              <ul className="trust rv d3">
+                <li>{tr("hero.trustRead")}</li>
+                <li>{tr("hero.trustPw")}</li>
+                <li>{tr("hero.trustYes")}</li>
+              </ul>
             </div>
             <div className="tourwrap">
+              <i className="tour-ground" aria-hidden="true" />
               <div className="win fx" data-m="tour" role="group" aria-label={tr("tour.aria")}>
                 <Bar who={store} screen={<span data-m="tourScr">{tr("tour.connections")}</span>}>
                   {tr("tour.demo")}
@@ -419,24 +440,50 @@ export function LandingV2({ prices }: { prices: V2Prices }) {
                       <span className="flag low">{tr("fact.unknown")}</span>
                     </div>
                   </div>
-                  <div className="scene">
+                  <div className="scene diag">
                     <p className="lb st" style={at(0)}>
                       <span>{tr("tour.tab.diagnosis")}</span>
                       <span>{tr("found", { count: leaks.length })}</span>
                     </p>
+                    <div className="stake st" style={at(1)}>
+                      <p className="stake-v">{range(stake.low_minor, stake.high_minor)}</p>
+                      <p className="stake-k">
+                        {tr("tour.atStake")}
+                        <span>
+                          {tr("tour.pricedSplit", {
+                            priced: num(stake.found - stake.unpriced, 0, locale),
+                            unpriced: num(stake.unpriced, 0, locale),
+                          })}
+                        </span>
+                      </p>
+                    </div>
                     <div className="meter auto">
                       <i />
                     </div>
-                    {tourLeaks.map((l, i) => (
-                      <div key={l.key} className="rw st" style={at(3 + i * 3)}>
-                        <span>
-                          {tr(`leak.${l.key}`)}
-                          <small>{tr(`area.${l.area}`)}</small>
-                        </span>
-                        <span className="v">{leakAmount(l)}</span>
-                      </div>
-                    ))}
-                    <p className="foot st" style={at(12)}>
+                    <p className="fnd-h st" style={at(2)}>
+                      <span>{tr("tour.findingCol")}</span>
+                      <span>{tr("s3.perMonth")}</span>
+                    </p>
+                    {tourLeaks.map((l, i) => {
+                      const a = tourAmount(l);
+                      return (
+                        <div
+                          key={l.key}
+                          className={`fnd st sev-${l.severity}`}
+                          style={at(3 + i * 2)}
+                        >
+                          <i className="sev" aria-hidden="true" />
+                          <span className="fnd-t">
+                            <small>
+                              {tr(`area.${l.area}`)} · {tr(`sev.${l.severity}`)}
+                            </small>
+                            {tr(`leak.${l.key}`)}
+                          </span>
+                          <span className={`fnd-v ${a.tone}`}>{a.text}</span>
+                        </div>
+                      );
+                    })}
+                    <p className="foot st" style={at(10)}>
                       {tr("tour.twoMore")}
                     </p>
                   </div>

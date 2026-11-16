@@ -521,6 +521,12 @@ The page, top to bottom:
 9. For accounting firms ("Firms"): the client book arrives A–Z, then sorts itself by money leaking.
 10. The free check ("Check"), then questions and the closing call ("Start").
 
+**The first screen** (refined 2026-11-16 on the owner's brief, keeping its direction: the shop film, the editorial headline, the green turn, the floating diagnosis).
+- **The headline** runs as two lines, one sentence each; the whole second sentence ("Its numbers might not.") is the green turn. The kicker, "A blood test for your business", sits above it behind a short green rule.
+- **One way in.** "Run the free check", carrying its promise in the button ("3 minutes · no account"), and a quieter "See how it works". The reassurance is three short facts: read-only access, no passwords, nothing changes without your yes.
+- **The tour opens on the diagnosis**, the money shot. It shows the money at stake first (the priced total, with how many leaks are priced and how many not yet), then one line per finding: its area and severity, a severity bar, and the monthly figure, coloured by kind (a loss, an opportunity, money tied up). The tour's tabs are a quiet step rail, the panel carries "Demo data", and a soft shadow on the scene holds it above the counter. Under reduced motion the tour stands on the diagnosis.
+- **On a phone** the copy comes first and the panel follows full-width; the button's promise drops to its own line under the label.
+
 **Footage.** Nine scenes of one fictional ceramics shop: six are 7-second seamless loops (WebM with an MP4 fallback, 1280–1600 px wide, about 120–550 KB each) and three are stills. All of it is AI-generated and the page says so once, in its footer: "Illustrative store · AI-generated footage". The owner asked (2026-11-16) for the label to come off the screen; it stays in the footer because the page's own "Labelled" card promises that everything AI-made says so. No person appears, and no text or figure is baked into a frame: every word and number on the page is HTML. A scene's video is fetched only once its section pulls on the scene; before that, and always under reduced motion, the scene is its still frame.
 
 **Motion rules.**

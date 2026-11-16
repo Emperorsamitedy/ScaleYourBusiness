@@ -10095,12 +10095,17 @@
       "kicker": "Vérvizsgálat a vállalkozása számára",
       "lede": "A ScaleX megtalálja, hol szivárog el a pénze, euróban beárazza, és csak akkor javítja ki, ha Ön igent mond.",
       "run": "Ingyenes ellenőrzés indítása",
-      "see": "Nézze meg működés közben",
-      "trust": "Csak olvasás. Nincs jelszó. Ön nélkül semmi sem változik."
+      "see": "Így működik",
+      "trust": "Csak olvasás. Nincs jelszó. Ön nélkül semmi sem változik.",
+      "titleB": "<em>A számai lehet, hogy nem.</em>",
+      "ctaMeta": "{minutes, plural, one {# perc} other {# perc}} · fiók nélkül",
+      "trustRead": "Csak olvasás",
+      "trustPw": "Nincs jelszó",
+      "trustYes": "Semmi sem változik az Ön igenje nélkül"
     },
     "tour": {
       "aria": "Termékbemutató: a ScaleX csatlakozik egy üzlethez, elkészíti a ténylapját, szivárgást talál, és a tulajdonos jóváhagyása után kijavítja",
-      "demo": "bemutató üzlet",
+      "demo": "Bemutató adatok",
       "connections": "Összekapcsolt fiókok",
       "readsOnly": "A ScaleX olvas, soha nem ír",
       "reads": {
@@ -10118,7 +10123,10 @@
         "diagnosis": "Diagnózis",
         "finding": "Megállapítás",
         "yes": "Az Ön igenje"
-      }
+      },
+      "atStake": "havonta forog kockán",
+      "pricedSplit": "{priced} beárazva · {unpriced} még nem",
+      "findingCol": "Megállapítás"
     },
     "fact": {
       "revenue": "Árbevétel, {days} nap",
