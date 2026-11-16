@@ -58,6 +58,8 @@ async function writeStatedFacts(profileId: string, a: IdeaAnswers, now: Date): P
       }),
     );
   const from = "Stated in the idea check.";
+  // The bank's own stage (question 1.5): its idea questions and skips read it.
+  await stated("identity.stage", { code: "idea" }, from);
   await stated("identity.business_type", { code: a.sector }, from);
   await stated("legal.country", a.country, from);
   if (a.team !== null) await stated("identity.team_size", a.team, from);
@@ -240,6 +242,20 @@ export async function launchIdea(args: {
       user_id: args.userId,
     });
   });
+  const at = isoDateTime(now.toISOString());
+  await writeField(
+    args.profileId,
+    createField({
+      id: fieldId("identity.stage"),
+      value: { code: "recently_launched" },
+      status: "answered",
+      confidence: confidence(0.75),
+      source: { kind: "owner_input" },
+      observed_at: at,
+      recorded_at: at,
+      note: "Launched from the idea check.",
+    }),
+  );
   const a = idea.answers;
   return {
     connector: a.revenue_model === "recruitment" ? null : firstConnector(a.revenue_model, a.sector),
@@ -267,6 +283,16 @@ export async function ideaPlanVsActual(
       currency: series && series.currencies.size === 1 ? series.currency : null,
     },
   });
+}
+
+/** I-10: what this business is — an idea, or one that trades. */
+export async function profileKind(profileId: string): Promise<"idea" | "operating" | null> {
+  const [row] = await db
+    .select({ kind: businessProfiles.kind })
+    .from(businessProfiles)
+    .where(eq(businessProfiles.id, profileId));
+  if (!row) return null;
+  return row.kind === "idea" ? "idea" : "operating";
 }
 
 export { MIN_MEASURED_DAYS };

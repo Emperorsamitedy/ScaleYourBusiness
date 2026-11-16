@@ -9705,6 +9705,17 @@
       "meta_ads": "Meta Ads",
       "search_console": "Google Search Console",
       "fixture": "a tesztösszekötő"
+    },
+    "describe": {
+      "label": "Írd le az ötletedet a saját szavaiddal (nem kötelező)",
+      "placeholder": "Például: egy kis kávézó az állomás közelében, elvitelre kávé és péksütemény az ingázóknak. Nagyjából annyit kérnék, mint a láncok, a bérleti díj a legnagyobb költség, és van némi megtakarításom az induláshoz.",
+      "button": "Űrlap kitöltése ebből",
+      "working": "Olvasom…",
+      "filled": "{count, plural, one {# válasz töltődött ki} other {# válasz töltődött ki}} a leírásod alapján. Ellenőrizd mindegyiket: semmi sem számít, amíg el nem küldöd az űrlapot.",
+      "fromText": "a leírásodból, ellenőrizd",
+      "none": "Ebből semmit sem lehetett válaszként értelmezni. Töltsd ki inkább a lenti űrlapot.",
+      "short": "Írd le az ötletet egy-két mondatban, és maradj egy oldalon belül.",
+      "tooMany": "Innen egyelőre túl sok leírást olvastunk be. Töltsd ki inkább a lenti űrlapot."
     }
   },
   "pricing": {

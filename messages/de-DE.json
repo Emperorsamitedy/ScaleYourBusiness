@@ -9705,6 +9705,17 @@
       "meta_ads": "Meta Ads",
       "search_console": "Google Search Console",
       "fixture": "die Testverbindung"
+    },
+    "describe": {
+      "label": "Beschreibe deine Idee in eigenen Worten (optional)",
+      "placeholder": "Zum Beispiel: eine kleine Kaffeebar in der Nähe des Bahnhofs, Kaffee zum Mitnehmen und Gebäck für Pendler. Ich würde etwa so viel verlangen wie die Ketten, die Miete ist der größte Kostenpunkt, und ich habe etwas Erspartes für den Start.",
+      "button": "Formular daraus ausfüllen",
+      "working": "Wird gelesen…",
+      "filled": "{count, plural, one {# Antwort wurde} other {# Antworten wurden}} aus deiner Beschreibung ausgefüllt. Prüfe jede einzelne: Nichts zählt, bevor du das Formular abschickst.",
+      "fromText": "aus deiner Beschreibung, bitte prüfen",
+      "none": "Daraus ließ sich keine Antwort herauslesen. Fülle stattdessen das Formular unten aus.",
+      "short": "Beschreibe die Idee in ein, zwei Sätzen und bleib unter einer Seite.",
+      "tooMany": "Von hier wurden vorerst zu viele Beschreibungen gelesen. Fülle stattdessen das Formular unten aus."
     }
   },
   "pricing": {

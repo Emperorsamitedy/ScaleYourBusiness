@@ -9705,6 +9705,17 @@
       "meta_ads": "Meta Ads",
       "search_console": "Google Search Console",
       "fixture": "the test connector"
+    },
+    "describe": {
+      "label": "Describe your idea in your own words (optional)",
+      "placeholder": "For example: a small coffee bar near the station, takeaway coffee and pastries for commuters. I'd charge about the same as the chains, rent is the big cost, and I have some savings to start.",
+      "button": "Fill the form from this",
+      "working": "Reading it…",
+      "filled": "{count, plural, one {# answer was} other {# answers were}} filled from your description. Check each one: nothing counts until you send the form.",
+      "fromText": "from your description, check it",
+      "none": "Nothing in that could be read as an answer. Fill the form below instead.",
+      "short": "Describe the idea in a sentence or two, and keep it under a page.",
+      "tooMany": "Too many descriptions read from here for now. Fill the form below instead."
     }
   },
   "pricing": {

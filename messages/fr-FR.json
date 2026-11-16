@@ -9705,6 +9705,17 @@
       "meta_ads": "Meta Ads",
       "search_console": "Google Search Console",
       "fixture": "le connecteur de test"
+    },
+    "describe": {
+      "label": "Décrivez votre idée avec vos propres mots (facultatif)",
+      "placeholder": "Par exemple : un petit bar à café près de la gare, café à emporter et viennoiseries pour les navetteurs. Je pratiquerais à peu près les mêmes prix que les chaînes, le loyer est le gros poste de coûts, et j’ai un peu d’épargne pour démarrer.",
+      "button": "Remplir le formulaire à partir de ceci",
+      "working": "Lecture en cours…",
+      "filled": "{count, plural, one {# réponse a été remplie} many {# réponses ont été remplies} other {# réponses ont été remplies}} à partir de votre description. Vérifiez chacune : rien ne compte tant que vous n’avez pas envoyé le formulaire.",
+      "fromText": "d’après votre description, à vérifier",
+      "none": "Rien dans ce texte n’a pu être lu comme une réponse. Remplissez plutôt le formulaire ci-dessous.",
+      "short": "Décrivez l’idée en une phrase ou deux, sans dépasser une page.",
+      "tooMany": "Trop de descriptions lues depuis ici pour le moment. Remplissez plutôt le formulaire ci-dessous."
     }
   },
   "pricing": {

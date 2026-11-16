@@ -664,3 +664,20 @@ the defaults to its five open questions; the defaults are taken as D91.
   and come back to the shared check. The conversational version (I-11's
   bank section, I-12's extraction) is not in part 2: the form covers the
   same inputs, and the interviewer is its own piece of work.
+- **D97 — the conversational version is a description read into the form,
+  not new bank questions.** The bank already models an idea: question 1.5's
+  `identity.stage` has the code `idea`, and its pre-launch questions read
+  it. So keeping an idea writes `identity.stage = idea` (and launching,
+  `recently_launched`), an idea business opened at `/intake` goes to its
+  plan, and the operating interview never asks it trading questions. I-11's
+  "idea section of the bank" is therefore not added: the idea's own inputs
+  stay in `specs/idea-v1.json` (D93), and growing the bank the interviewer
+  sends every turn by thirteen questions would buy nothing the form lacks.
+  I-12 is a free-text "describe your idea" box: Haiku reads it into the
+  form's answers under a fixed schema, every value re-checked against the
+  form's own lists and bounds, nothing kept, each filled answer marked "from
+  your description" until the person touches it and sends the form. Public
+  like the free check, so its spend is capped per address (10 an hour) and
+  for everyone (300 a day), and costed under workload `idea_describe`
+  against the nil-UUID "no account" line, since llm_calls needs an account
+  and a visitor has none.

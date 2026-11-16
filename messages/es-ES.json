@@ -9705,6 +9705,17 @@
       "meta_ads": "Meta Ads",
       "search_console": "Google Search Console",
       "fixture": "el conector de prueba"
+    },
+    "describe": {
+      "label": "Describe tu idea con tus propias palabras (opcional)",
+      "placeholder": "Por ejemplo: una pequeña cafetería cerca de la estación, café para llevar y bollería para quienes van al trabajo. Cobraría más o menos lo mismo que las cadenas, el alquiler es el gran coste y tengo algunos ahorros para empezar.",
+      "button": "Rellenar el formulario con esto",
+      "working": "Leyéndolo…",
+      "filled": "{count, plural, one {Se ha rellenado # respuesta} many {Se han rellenado # respuestas} other {Se han rellenado # respuestas}} a partir de tu descripción. Revisa cada una: nada cuenta hasta que envíes el formulario.",
+      "fromText": "de tu descripción, revísala",
+      "none": "No se ha podido leer nada de eso como una respuesta. Rellena el formulario de abajo.",
+      "short": "Describe la idea en una o dos frases, y que no pase de una página.",
+      "tooMany": "Por ahora se han leído demasiadas descripciones desde aquí. Rellena el formulario de abajo."
     }
   },
   "pricing": {

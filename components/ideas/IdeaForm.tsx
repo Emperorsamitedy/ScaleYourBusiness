@@ -56,15 +56,62 @@ export function IdeaForm(p: IdeaFormProps) {
     result: IdeaResult;
     answers: IdeaAnswers;
   } | null>(null);
+  // I-12: a description read into the form; each answer it filled is marked until touched.
+  const [text, setText] = useState("");
+  const [reading, setReading] = useState(false);
+  const [readNote, setReadNote] = useState<string | null>(null);
+  const [fromText, setFromText] = useState<ReadonlySet<Key>>(new Set());
   const recruitment = a.revenue_model === "recruitment";
   const model = a.revenue_model && !recruitment ? a.revenue_model : "one_off";
 
-  const set = (k: Key) => (e: { target: { value: string } }) =>
+  const set = (k: Key) => (e: { target: { value: string } }) => {
+    setFromText((prev) => {
+      if (!prev.has(k)) return prev;
+      const next = new Set(prev);
+      next.delete(k);
+      return next;
+    });
     setA((prev) => ({
       ...prev,
       [k]: e.target.value,
       ...(k === "country" ? { currency: p.currencyByCountry[e.target.value] ?? "EUR" } : {}),
     }));
+  };
+
+  async function readDescription() {
+    setReading(true);
+    setReadNote(null);
+    try {
+      const res = await fetch("/api/idea/describe", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ text }),
+      });
+      if (res.status === 429) return setReadNote(tr("describe.tooMany"));
+      if (res.status === 422) return setReadNote(tr("describe.short"));
+      if (!res.ok) return setReadNote(tr("failed"));
+      const { fields } = (await res.json()) as { fields: Partial<Record<Key, string | number>> };
+      const keys = (Object.keys(fields) as Key[]).filter((k) => k in EMPTY);
+      if (keys.length === 0) return setReadNote(tr("describe.none"));
+      setA((prev) => {
+        const next = { ...prev };
+        for (const k of keys) next[k] = String(fields[k]);
+        if (!keys.includes("currency") && keys.includes("country")) {
+          next.currency = p.currencyByCountry[next.country] ?? prev.currency;
+        }
+        return next;
+      });
+      if (keys.includes("customers_month")) setUnknown(false);
+      setFromText(new Set(keys));
+      setReadNote(tr("describe.filled", { count: keys.length }));
+    } catch {
+      setReadNote(tr("failed"));
+    } finally {
+      setReading(false);
+    }
+  }
+  const mark = (k: Key) =>
+    fromText.has(k) ? <span className="idea-from"> {tr("describe.fromText")}</span> : null;
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -131,7 +178,10 @@ export function IdeaForm(p: IdeaFormProps) {
 
   const select = (k: Key, label: string, options: Option[]) => (
     <label className="entry-q">
-      <span>{label}</span>
+      <span>
+        {label}
+        {mark(k)}
+      </span>
       <select value={a[k]} onChange={set(k)} required>
         {k !== "currency" && <option value="">{tr("pick")}</option>}
         {options.map((o) => (
@@ -146,6 +196,7 @@ export function IdeaForm(p: IdeaFormProps) {
     <label className="entry-q">
       <span>
         {label} <span className="idea-unit">({a.currency})</span>
+        {mark(k)}
       </span>
       <input
         type="number"
@@ -160,85 +211,120 @@ export function IdeaForm(p: IdeaFormProps) {
   );
 
   return (
-    <form className="card entry-col" onSubmit={submit}>
-      {select("sector", tr("q.sector"), p.sectors)}
-      {select("country", tr("q.country"), p.countries)}
-      {select(
-        "customer",
-        tr("q.customer"),
-        CUSTOMERS.map((c) => ({ value: c, label: tr(`customer.${c}`) })),
-      )}
-      {select(
-        "revenue_model",
-        tr("q.revenue_model"),
-        MODELS.map((m) => ({ value: m, label: tr(`model.${m}`) })),
-      )}
-      {!recruitment && (
-        <>
-          {select(
-            "currency",
-            tr("q.currency"),
-            p.currencies.map((c) => ({ value: c, label: c })),
-          )}
-          {amount("price", tr(`q.price.${model}`), 1)}
-          {amount("variable_cost", tr(`q.variable_cost.${model}`), 0)}
-          <label className="entry-q">
-            <span>{tr(`q.customers_month.${model}`)}</span>
-            <input
-              type="number"
-              inputMode="numeric"
-              min={1}
-              step={1}
-              value={unknown ? "" : a.customers_month}
-              onChange={set("customers_month")}
-              disabled={unknown}
-              required={!unknown}
-            />
-            <span className="idea-check">
+    <>
+      <section className="card entry-col">
+        <label className="entry-q">
+          <span>{tr("describe.label")}</span>
+          <textarea
+            rows={4}
+            maxLength={2000}
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            placeholder={tr("describe.placeholder")}
+          />
+        </label>
+        <button
+          type="button"
+          className="next"
+          disabled={reading || text.trim().length < 20}
+          onClick={() => void readDescription()}
+        >
+          {reading ? tr("describe.working") : tr("describe.button")}
+        </button>
+        {readNote && (
+          <p className="auth-copy idea-note" role="status">
+            {readNote}
+          </p>
+        )}
+      </section>
+      <form className="card entry-col" onSubmit={submit}>
+        {select("sector", tr("q.sector"), p.sectors)}
+        {select("country", tr("q.country"), p.countries)}
+        {select(
+          "customer",
+          tr("q.customer"),
+          CUSTOMERS.map((c) => ({ value: c, label: tr(`customer.${c}`) })),
+        )}
+        {select(
+          "revenue_model",
+          tr("q.revenue_model"),
+          MODELS.map((m) => ({ value: m, label: tr(`model.${m}`) })),
+        )}
+        {!recruitment && (
+          <>
+            {select(
+              "currency",
+              tr("q.currency"),
+              p.currencies.map((c) => ({ value: c, label: c })),
+            )}
+            {amount("price", tr(`q.price.${model}`), 1)}
+            {amount("variable_cost", tr(`q.variable_cost.${model}`), 0)}
+            <label className="entry-q">
+              <span>
+                {tr(`q.customers_month.${model}`)}
+                {mark("customers_month")}
+              </span>
               <input
-                type="checkbox"
-                checked={unknown}
-                onChange={(e) => setUnknown(e.target.checked)}
-                id="idea-unknown"
+                type="number"
+                inputMode="numeric"
+                min={1}
+                step={1}
+                value={unknown ? "" : a.customers_month}
+                onChange={set("customers_month")}
+                disabled={unknown}
+                required={!unknown}
               />
-              <label htmlFor="idea-unknown">{tr("dontKnow")}</label>
-            </span>
-          </label>
-          {amount("fixed_month", tr("q.fixed_month"), 0)}
-          {amount("startup", tr("q.startup"), 0)}
-          {amount("capital", tr("q.capital"), 0)}
-          <label className="entry-q">
-            <span>{tr("q.team")}</span>
-            <input
-              type="number"
-              inputMode="numeric"
-              min={1}
-              max={500}
-              step={1}
-              value={a.team}
-              onChange={set("team")}
-              required
-            />
-          </label>
-          {select(
-            "ramp_months",
-            tr("q.ramp_months"),
-            RAMPS.map((r) => ({
-              value: r,
-              label:
-                r === "1" || r === "12" ? tr(`ramp.${r}`) : tr("ramp.months", { count: Number(r) }),
-            })),
-          )}
-        </>
-      )}
-      {error && (
-        <p className="auth-copy" role="alert">
-          {error}
-        </p>
-      )}
-      <button type="submit" className="act" disabled={busy}>
-        {busy ? tr("working") : tr("submit")}
-      </button>
-    </form>
+              <span className="idea-check">
+                <input
+                  type="checkbox"
+                  checked={unknown}
+                  onChange={(e) => setUnknown(e.target.checked)}
+                  id="idea-unknown"
+                />
+                <label htmlFor="idea-unknown">{tr("dontKnow")}</label>
+              </span>
+            </label>
+            {amount("fixed_month", tr("q.fixed_month"), 0)}
+            {amount("startup", tr("q.startup"), 0)}
+            {amount("capital", tr("q.capital"), 0)}
+            <label className="entry-q">
+              <span>
+                {tr("q.team")}
+                {mark("team")}
+              </span>
+              <input
+                type="number"
+                inputMode="numeric"
+                min={1}
+                max={500}
+                step={1}
+                value={a.team}
+                onChange={set("team")}
+                required
+              />
+            </label>
+            {select(
+              "ramp_months",
+              tr("q.ramp_months"),
+              RAMPS.map((r) => ({
+                value: r,
+                label:
+                  r === "1" || r === "12"
+                    ? tr(`ramp.${r}`)
+                    : tr("ramp.months", { count: Number(r) }),
+              })),
+            )}
+          </>
+        )}
+        {error && (
+          <p className="auth-copy" role="alert">
+            {error}
+          </p>
+        )}
+        <button type="submit" className="act" disabled={busy}>
+          {busy ? tr("working") : tr("submit")}
+        </button>
+      </form>
+    </>
   );
 }

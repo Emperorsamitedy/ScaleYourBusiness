@@ -5,8 +5,9 @@ way as every phase before, with the default answers to the open questions
 (D91 in `specs/architecture-v2.md`; D92–D95 are the decisions taken
 building it). Part 1, the free idea check at `/idea`, and part 2 — an idea
 kept on an account, its test results, the launch and the plan beside the
-measured month (D96) — are built. The conversational version (I-11, I-12)
-remains.
+measured month (D96) — are built, and so is the conversational version: a
+description read into the form (I-12), with the bank's own stage fact in
+place of a new bank section (I-11, D97).
 
 ## What it is
 
@@ -121,7 +122,7 @@ missing cell says it's missing and is never filled from another country
 - [x] **I-10** `profile_kind: "idea" | "operating"` in `data-model-v1.md`
       and the schema, in the same commit. An idea profile has no connectors
       and no execution, enforced at the data layer.
-- [ ] **I-11** The idea section of the question bank, branching in
+- [x] **I-11** The idea section of the question bank, branching in
       `ConditionExpr` data (rule 4), passing `lint_bank.py`. Core questions:
       what is sold; to whom (business, consumer, both); business type;
       country and city; how customers will find it; price; expected
@@ -131,7 +132,7 @@ missing cell says it's missing and is never filled from another country
       money comes in (one-off, subscription, commission, marketplace,
       recruitment-based). "I don't know" stays a real answer and becomes a
       gap, not a zero (rule 5).
-- [ ] **I-12** Free-text idea description → structured fields: Haiku,
+- [x] **I-12** Free-text idea description → structured fields: Haiku,
       extraction only, every extracted field shown back for confirmation
       before it counts.
 - [x] **I-13** Words in all seven locales via the glossary (one term, one
