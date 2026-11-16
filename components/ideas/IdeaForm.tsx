@@ -221,7 +221,11 @@ export function IdeaForm(p: IdeaFormProps) {
           {select(
             "ramp_months",
             tr("q.ramp_months"),
-            RAMPS.map((r) => ({ value: r, label: tr(`ramp.${r}`) })),
+            RAMPS.map((r) => ({
+              value: r,
+              label:
+                r === "1" || r === "12" ? tr(`ramp.${r}`) : tr("ramp.months", { count: Number(r) }),
+            })),
           )}
         </>
       )}

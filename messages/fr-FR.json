@@ -9566,9 +9566,8 @@
     },
     "ramp": {
       "1": "Environ un mois",
-      "3": "Environ 3 mois",
-      "6": "Environ 6 mois",
-      "12": "Environ un an"
+      "12": "Environ un an",
+      "months": "Environ {count, plural, one {# mois} many {# mois} other {# mois}}"
     },
     "result": {
       "label": "Votre idée, chiffrée",
@@ -9642,7 +9641,7 @@
         "below": "en dessous",
         "same": "à peu près au même niveau"
       },
-      "sources": "Chiffres de marché : Eurostat (bd_9bd_sz_cl_r2, sbs_sc_ovw). Eurostat n’est pas responsable de ces utilisations de ses données."
+      "sources": "Chiffres de marché : Eurostat ({datasets}). Eurostat n’est pas responsable de ces utilisations de ses données."
     },
     "share": "Partager ce bilan",
     "copied": "Lien copié",

@@ -9566,9 +9566,8 @@
     },
     "ramp": {
       "1": "大约一个月",
-      "3": "大约 3 个月",
-      "6": "大约 6 个月",
-      "12": "大约一年"
+      "12": "大约一年",
+      "months": "大约 {count, plural, other {# 个月}}"
     },
     "result": {
       "label": "你的想法，算一遍之后",
@@ -9642,7 +9641,7 @@
         "below": "更低",
         "same": "差不多"
       },
-      "sources": "市场数据：Eurostat（bd_9bd_sz_cl_r2、sbs_sc_ovw）。Eurostat 不对其数据的这些用途负责。"
+      "sources": "市场数据：Eurostat（{datasets}）。Eurostat 不对其数据的这些用途负责。"
     },
     "share": "分享这次检查",
     "copied": "链接已复制",

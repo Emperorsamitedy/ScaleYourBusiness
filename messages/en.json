@@ -9566,9 +9566,8 @@
     },
     "ramp": {
       "1": "About a month",
-      "3": "About 3 months",
-      "6": "About 6 months",
-      "12": "About a year"
+      "12": "About a year",
+      "months": "About {count, plural, one {# month} other {# months}}"
     },
     "result": {
       "label": "Your idea, worked through",
@@ -9642,7 +9641,7 @@
         "below": "below",
         "same": "about the same"
       },
-      "sources": "Market figures: Eurostat (bd_9bd_sz_cl_r2, sbs_sc_ovw). Eurostat is not responsible for these uses of its data."
+      "sources": "Market figures: Eurostat ({datasets}). Eurostat is not responsible for these uses of its data."
     },
     "share": "Share this check",
     "copied": "Link copied",

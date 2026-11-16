@@ -9566,9 +9566,8 @@
     },
     "ramp": {
       "1": "Etwa einen Monat",
-      "3": "Etwa 3 Monate",
-      "6": "Etwa 6 Monate",
-      "12": "Etwa ein Jahr"
+      "12": "Etwa ein Jahr",
+      "months": "Etwa {count, plural, one {# Monat} other {# Monate}}"
     },
     "result": {
       "label": "Deine Idee, durchgerechnet",
@@ -9642,7 +9641,7 @@
         "below": "darunter",
         "same": "etwa gleichauf"
       },
-      "sources": "Marktzahlen: Eurostat (bd_9bd_sz_cl_r2, sbs_sc_ovw). Eurostat ist nicht verantwortlich für diese Nutzung seiner Daten."
+      "sources": "Marktzahlen: Eurostat ({datasets}). Eurostat ist nicht verantwortlich für diese Nutzung seiner Daten."
     },
     "share": "Diesen Check teilen",
     "copied": "Link kopiert",
