@@ -9551,7 +9551,9 @@
       "startup": "Egyszeri indulási költségek (kialakítás, felszerelés, első készlet)",
       "capital": "Pénz, amivel indulsz",
       "team": "Benne dolgozók száma, veled együtt",
-      "ramp_months": "Mennyi idő alatt érik el az eladások ezt a szintet?"
+      "ramp_months": "Mennyi idő alatt érik el az eladások ezt a szintet?",
+      "city": "Melyik város? (nem kötelező)",
+      "cityElsewhere": "Máshol, vagy még nem döntöttem el"
     },
     "customer": {
       "consumer": "Magánszemélyek (fogyasztók)",
@@ -9716,6 +9718,33 @@
       "none": "Ebből semmit sem lehetett válaszként értelmezni. Töltsd ki inkább a lenti űrlapot.",
       "short": "Írd le az ötletet egy-két mondatban, és maradj egy oldalon belül.",
       "tooMany": "Innen egyelőre túl sok leírást olvastunk be. Töltsd ki inkább a lenti űrlapot."
+    },
+    "local": {
+      "shown": "{city} városban az OpenStreetMap térképén {count} {group} szerepel, ez nagyjából {per} minden {base} lakosra.",
+      "others": "Az ország más városaiban, minden {base} lakosra: {list}.",
+      "other": "{city}: {per}",
+      "floor": "Önkéntesek térképezik fel, ezért ezek minimumok, nem teljes számok: néhány hely hiányzik, egyes városokban több, mint másokban. © OpenStreetMap contributors, számolva: {date}.",
+      "noCity": "Válassz egyet a felsorolt városok közül, hogy lásd, hány ilyen hely szerepel ott a térképen.",
+      "notCounted": {
+        "online": "Az ilyen vállalkozás online értékesít, vagy az ügyfeleihez megy, ezért a közeli helyeket nem számoljuk.",
+        "too_broad": "Ez a vállalkozástípus túl tág ahhoz, hogy becsületesen meg lehessen számolni a térképen.",
+        "rarely_mapped": "Az ilyen vállalkozások ritkán szerepelnek a térképen, ezért egy darabszám félrevezető lenne."
+      },
+      "group": {
+        "restaurants": "étterem és elviteles étkezde",
+        "cafes": "kávézó",
+        "bars": "bár és kocsma",
+        "hairdressers": "fodrász és borbély",
+        "beauty": "szépségszalon és fodrász",
+        "fitness": "edzőterem",
+        "massage_spa": "masszázsszalon és wellnesshely",
+        "health": "klinika, orvosi és fogorvosi rendelő",
+        "childcare": "gyermekfelügyeleti hely és óvoda",
+        "car_repair": "autó- és gumiszerviz",
+        "stays": "szálloda, panzió és hostel",
+        "estate_agents": "ingatlaniroda",
+        "bakeries": "pékség és cukrászda"
+      }
     }
   },
   "pricing": {

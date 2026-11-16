@@ -6,6 +6,7 @@ import ideaFile from "../../specs/idea-v1.json";
 import { loadFactWords } from "../bank/words";
 import type { AppLocale } from "../i18n/locales";
 import { BUSINESS_TYPES, CURRENCIES, IDEA_COUNTRIES } from "./check";
+import { citiesOf } from "./local";
 
 export async function ideaOptions(locale: AppLocale) {
   const words = await loadFactWords(locale);
@@ -25,5 +26,12 @@ export async function ideaOptions(locale: AppLocale) {
     ),
     currencies: [...CURRENCIES],
     currencyByCountry: ideaFile.currency_by_country as Record<string, string>,
+    /** D98: each country's counted cities, named in the reader's language. */
+    citiesByCountry: Object.fromEntries(
+      IDEA_COUNTRIES.map((iso) => [
+        iso,
+        citiesOf(iso).map((c) => ({ value: c.id, label: c.names[locale] ?? c.names.en ?? c.id })),
+      ]),
+    ),
   };
 }

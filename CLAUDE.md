@@ -14,35 +14,36 @@ An AI business operating system for small businesses. It interviews an owner, bu
 
 ## The specs are the source of truth
 
-| File                                   | What it defines                                                     |
-| -------------------------------------- | ------------------------------------------------------------------- |
-| `specs/data-model-v1.md`               | Every entity, field, rule and score. The spine.                     |
-| `specs/question-bank-v1.json`          | 160 questions, 57 vocabularies, 8 entity schemas                    |
-| `specs/question-bank-v1.<locale>.json` | The bank's words per language (L-2): words only, keyed by bank ids  |
-| `specs/glossary-v1.json`               | One term, one translation, per language (rule 2 of TASKS-LANGUAGES) |
-| `specs/field-names-en.json`            | Short English names for the fields the bank's questions write       |
-| `specs/vocabulary-labels-en.json`      | English words for vocabulary codes whose humanised form reads badly |
-| `specs/question-bank-notes.md`         | Structure, the core 25, branching fixes                             |
-| `specs/ux-spec-v1.md`                  | Design tokens, screens, interaction detail                          |
-| `specs/conversation-channel.md`        | Conversation as a fact source; confidence bases                     |
-| `specs/site-audit.md`                  | Site audit inputs to the profile                                    |
-| `specs/intake-mockup.html`             | Reference mockup for the intake UI                                  |
-| `specs/build-sequence.md`              | 99 numbered steps                                                   |
-| `specs/benchmark-map-v1.json`          | Business type → Eurostat NACE group, size classes, cost treatment   |
-| `specs/benchmarks-eurostat-v1.json`    | Eurostat SBS snapshot, dated; the app's only benchmark source       |
-| `specs/business-demography-v1.json`    | Eurostat survival rates (1/3/5 years) by NACE and country, dated    |
-| `specs/idea-v1.json`                   | The idea check's questions, currencies and test library (D93)       |
-| `specs/review-notifications-v1.json`   | Review notification email formats per platform (all unverified)     |
-| `specs/tiktok-ads-api-v1.md`           | TikTok Marketing API facts SYB relies on, each verified true/false  |
-| `specs/google-ads-api-v1.md`           | Google Ads API facts, each marked verified true/false (P2-20)       |
-| `specs/higgsfield-api-v1.md`           | Higgsfield's video API as SYB uses it (P6-03), each fact `verified` |
-| `specs/tiktok-posting-api-v1.md`       | TikTok's Content Posting API as SYB uses it, each fact `verified`   |
-| `specs/whatsapp-summary-v1.md`         | The weekly summary on WhatsApp (P6-07): Twilio facts, the template  |
-| `specs/twilio-recording-v1.md`         | Twilio call recording as SYB uses it (P6-08), confirmed vs not      |
-| `specs/glossary-v1.json`               | Business terms per language; one term, one translation (L-1)        |
-| `specs/syb-v1-build-spec.pdf`          | The owner's v1 build spec (Phase 7): sections 1–13, build order §12 |
-| `specs/architecture-v2.md`             | Decisions taken against the v1 spec, incl. the owner's D18–D21      |
-| `scripts/lint_bank.py`                 | Validates the question bank. Must pass in CI.                       |
+| File                                   | What it defines                                                      |
+| -------------------------------------- | -------------------------------------------------------------------- |
+| `specs/data-model-v1.md`               | Every entity, field, rule and score. The spine.                      |
+| `specs/question-bank-v1.json`          | 160 questions, 57 vocabularies, 8 entity schemas                     |
+| `specs/question-bank-v1.<locale>.json` | The bank's words per language (L-2): words only, keyed by bank ids   |
+| `specs/glossary-v1.json`               | One term, one translation, per language (rule 2 of TASKS-LANGUAGES)  |
+| `specs/field-names-en.json`            | Short English names for the fields the bank's questions write        |
+| `specs/vocabulary-labels-en.json`      | English words for vocabulary codes whose humanised form reads badly  |
+| `specs/question-bank-notes.md`         | Structure, the core 25, branching fixes                              |
+| `specs/ux-spec-v1.md`                  | Design tokens, screens, interaction detail                           |
+| `specs/conversation-channel.md`        | Conversation as a fact source; confidence bases                      |
+| `specs/site-audit.md`                  | Site audit inputs to the profile                                     |
+| `specs/intake-mockup.html`             | Reference mockup for the intake UI                                   |
+| `specs/build-sequence.md`              | 99 numbered steps                                                    |
+| `specs/benchmark-map-v1.json`          | Business type → Eurostat NACE group, size classes, cost treatment    |
+| `specs/benchmarks-eurostat-v1.json`    | Eurostat SBS snapshot, dated; the app's only benchmark source        |
+| `specs/business-demography-v1.json`    | Eurostat survival rates (1/3/5 years) by NACE and country, dated     |
+| `specs/idea-v1.json`                   | The idea check's questions, currencies and test library (D93)        |
+| `specs/local-counts-v1.json`           | OpenStreetMap counts by kind for each country's largest cities (D98) |
+| `specs/review-notifications-v1.json`   | Review notification email formats per platform (all unverified)      |
+| `specs/tiktok-ads-api-v1.md`           | TikTok Marketing API facts SYB relies on, each verified true/false   |
+| `specs/google-ads-api-v1.md`           | Google Ads API facts, each marked verified true/false (P2-20)        |
+| `specs/higgsfield-api-v1.md`           | Higgsfield's video API as SYB uses it (P6-03), each fact `verified`  |
+| `specs/tiktok-posting-api-v1.md`       | TikTok's Content Posting API as SYB uses it, each fact `verified`    |
+| `specs/whatsapp-summary-v1.md`         | The weekly summary on WhatsApp (P6-07): Twilio facts, the template   |
+| `specs/twilio-recording-v1.md`         | Twilio call recording as SYB uses it (P6-08), confirmed vs not       |
+| `specs/glossary-v1.json`               | Business terms per language; one term, one translation (L-1)         |
+| `specs/syb-v1-build-spec.pdf`          | The owner's v1 build spec (Phase 7): sections 1–13, build order §12  |
+| `specs/architecture-v2.md`             | Decisions taken against the v1 spec, incl. the owner's D18–D21       |
+| `scripts/lint_bank.py`                 | Validates the question bank. Must pass in CI.                        |
 
 If a spec and this file disagree, the spec wins. If the spec is wrong, change the spec in the same commit — don't work around it in code.
 

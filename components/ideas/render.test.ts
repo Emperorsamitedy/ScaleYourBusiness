@@ -18,6 +18,7 @@ import { evaluateIdea } from "../../lib/ideas/check";
 import { LOCALES } from "../../lib/i18n/locales";
 import type { AppLocale } from "../../lib/i18n/locales";
 import { trFor } from "../../lib/i18n/server-tr";
+import snapshot from "../../specs/local-counts-v1.json";
 import { IdeaResultView } from "./IdeaResultView";
 
 const BASE: IdeaAnswers = {
@@ -36,7 +37,13 @@ const BASE: IdeaAnswers = {
   ramp_months: 3,
 };
 
+// D98: a city the local snapshot counted, whichever it is.
+const COUNTED = (
+  snapshot as unknown as { cities: { country: string; wikidata: string; counts?: object }[] }
+).cities.find((c) => c.counts)!;
+
 const CASES: Record<string, IdeaAnswers> = {
+  withCity: { ...BASE, country: COUNTED.country, city: COUNTED.wikidata, currency: "EUR" },
   worked: BASE,
   unknownCustomers: { ...BASE, customers_month: null },
   short: { ...BASE, customers_month: 100 },
@@ -75,7 +82,7 @@ describe("the idea check renders every kind of result, in every locale", () => {
       for (const locale of LOCALES) {
         const out = html(a, locale);
         expect(out, `${name} ${locale}`).not.toMatch(
-          /\bresult\.[a-z_.]+|\{[a-z_]+\}|undefined|NaN/,
+          /\b(result|local|ideas)\.[a-zA-Z_.]+|\{[a-z_]+\}|undefined|NaN/,
         );
       }
     });

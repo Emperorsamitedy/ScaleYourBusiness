@@ -1,0 +1,105 @@
+{
+  "version": "1",
+  "about": "Local competition (D98): places of each kind mapped on OpenStreetMap inside each city's own boundary, for each country's largest cities. A count is a floor, never a total: OpenStreetMap is volunteer-mapped and misses places, more in some cities than others.",
+  "sources": {
+    "cities": "Wikidata (CC0): population P1082 (largest truthy value), OpenStreetMap relation P402, labels.",
+    "counts": "© OpenStreetMap contributors, ODbL (https://www.openstreetmap.org/copyright), through the Overpass API.",
+    "retrieved": "2026-11-16"
+  },
+  "groups": {
+    "restaurants": [
+      [
+        "amenity",
+        "^(restaurant|fast_food)$"
+      ]
+    ],
+    "cafes": [
+      [
+        "amenity",
+        "^cafe$"
+      ]
+    ],
+    "bars": [
+      [
+        "amenity",
+        "^(bar|pub)$"
+      ]
+    ],
+    "hairdressers": [
+      [
+        "shop",
+        "^hairdresser$"
+      ]
+    ],
+    "beauty": [
+      [
+        "shop",
+        "^(beauty|hairdresser|cosmetics)$"
+      ]
+    ],
+    "fitness": [
+      [
+        "leisure",
+        "^fitness_centre$"
+      ]
+    ],
+    "massage_spa": [
+      [
+        "shop",
+        "^massage$"
+      ],
+      [
+        "leisure",
+        "^spa$"
+      ]
+    ],
+    "health": [
+      [
+        "amenity",
+        "^(clinic|doctors|dentist)$"
+      ]
+    ],
+    "childcare": [
+      [
+        "amenity",
+        "^(childcare|kindergarten)$"
+      ]
+    ],
+    "car_repair": [
+      [
+        "shop",
+        "^(car_repair|tyres)$"
+      ]
+    ],
+    "stays": [
+      [
+        "tourism",
+        "^(hotel|guest_house|hostel|apartment)$"
+      ]
+    ],
+    "estate_agents": [
+      [
+        "office",
+        "^estate_agent$"
+      ]
+    ],
+    "bakeries": [
+      [
+        "shop",
+        "^(bakery|pastry)$"
+      ]
+    ]
+  },
+  "absent": "A city missing here never answered within the run's attempts; it is not offered.",
+  "cities": [
+    {"country":"AT","wikidata":"Q1741","osm_relation":109166,"population":2028289,"names":{"de-DE":"Wien","fr-FR":"Vienne","en":"Vienna","hu-HU":"Bécs","es-ES":"Viena","zh-Hans":"維也納","ru-RU":"Вена"},"counts":{"restaurants":4432,"cafes":1233,"bars":700,"hairdressers":1202,"beauty":1725,"fitness":269,"massage_spa":168,"health":1825,"childcare":713,"car_repair":257,"stays":574,"estate_agents":100,"bakeries":615},"counted_at":"2026-11-16"},
+    {"country":"AT","wikidata":"Q13298","osm_relation":34719,"population":306971,"names":{"ru-RU":"Грац","zh-Hans":"格拉茨","de-DE":"Graz","en":"Graz","es-ES":"Graz","fr-FR":"Graz","hu-HU":"Graz"},"counts":{"restaurants":685,"cafes":268,"bars":129,"hairdressers":207,"beauty":296,"fitness":42,"massage_spa":19,"health":1132,"childcare":177,"car_repair":71,"stays":94,"estate_agents":50,"bakeries":108},"counted_at":"2026-11-16"},
+    {"country":"AT","wikidata":"Q41329","osm_relation":86708,"population":211944,"names":{"de-DE":"Linz","en":"Linz","ru-RU":"Линц","es-ES":"Linz","fr-FR":"Linz","zh-Hans":"林茨","hu-HU":"Linz"},"counts":{"restaurants":457,"cafes":116,"bars":117,"hairdressers":109,"beauty":142,"fitness":16,"massage_spa":18,"health":171,"childcare":182,"car_repair":39,"stays":55,"estate_agents":19,"bakeries":78},"counted_at":"2026-11-16"},
+    {"country":"BE","wikidata":"Q12892","osm_relation":59518,"population":529247,"names":{"en":"Antwerp","de-DE":"Antwerpen","fr-FR":"Anvers","zh-Hans":"安特卫普","hu-HU":"Antwerpen","ru-RU":"Антверпен","es-ES":"Amberes"},"counts":{"restaurants":1185,"cafes":296,"bars":433,"hairdressers":170,"beauty":255,"fitness":48,"massage_spa":5,"health":103,"childcare":38,"car_repair":29,"stays":131,"estate_agents":22,"bakeries":154},"counted_at":"2026-11-16"},
+    {"country":"BE","wikidata":"Q1296","osm_relation":897671,"population":272657,"names":{"de-DE":"Gent","en":"Ghent","zh-Hans":"根特","fr-FR":"Gand","es-ES":"Gante","hu-HU":"Gent","ru-RU":"Гент"},"counts":{"restaurants":925,"cafes":173,"bars":339,"hairdressers":218,"beauty":293,"fitness":42,"massage_spa":11,"health":200,"childcare":55,"car_repair":34,"stays":98,"estate_agents":51,"bakeries":111},"counted_at":"2026-11-16"},
+    {"country":"BE","wikidata":"Q239","osm_relation":58274,"population":195546,"names":{"en":"Brussels","de-DE":"Brüssel","fr-FR":"Bruxelles","es-ES":"Bruselas","ru-RU":"Брюссель","hu-HU":"Brüsszel","zh-Hans":"布鲁塞尔"},"counts":{"restaurants":1114,"cafes":237,"bars":334,"hairdressers":170,"beauty":311,"fitness":23,"massage_spa":20,"health":93,"childcare":44,"car_repair":20,"stays":149,"estate_agents":35,"bakeries":99},"counted_at":"2026-11-16"},
+    {"country":"BG","wikidata":"Q472","osm_relation":4283101,"population":1213134,"names":{"en":"Sofia","es-ES":"Sofía","fr-FR":"Sofia","de-DE":"Sofia","ru-RU":"София","zh-Hans":"索菲亞","hu-HU":"Szófia"}},
+    {"country":"BG","wikidata":"Q6506","osm_relation":13477567,"population":322683,"names":{"en":"Varna","es-ES":"Varna","fr-FR":"Varna","de-DE":"Warna","ru-RU":"Варна","zh-Hans":"瓦爾納","hu-HU":"Várna"}},
+    {"country":"BG","wikidata":"Q6509","osm_relation":18971477,"population":189086,"names":{"en":"Burgas","de-DE":"Burgas","es-ES":"Burgas","fr-FR":"Bourgas","ru-RU":"Бургас","hu-HU":"Burgasz","zh-Hans":"布爾加斯"}}
+  ]
+}

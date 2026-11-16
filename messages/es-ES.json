@@ -9551,7 +9551,9 @@
       "startup": "Costes únicos para empezar (acondicionamiento, equipos, primeras existencias)",
       "capital": "Dinero con el que empiezas",
       "team": "Personas que trabajan en él, tú incluido",
-      "ramp_months": "¿Cuánto tardarían las ventas en llegar a ese nivel?"
+      "ramp_months": "¿Cuánto tardarían las ventas en llegar a ese nivel?",
+      "city": "¿Qué ciudad? (opcional)",
+      "cityElsewhere": "En otro sitio, o aún sin decidir"
     },
     "customer": {
       "consumer": "Personas (consumidores)",
@@ -9716,6 +9718,33 @@
       "none": "No se ha podido leer nada de eso como una respuesta. Rellena el formulario de abajo.",
       "short": "Describe la idea en una o dos frases, y que no pase de una página.",
       "tooMany": "Por ahora se han leído demasiadas descripciones desde aquí. Rellena el formulario de abajo."
+    },
+    "local": {
+      "shown": "En OpenStreetMap figuran en {city}: {count} {group}, aproximadamente {per} por cada {base} habitantes.",
+      "others": "En otras ciudades del país, por cada {base} habitantes: {list}.",
+      "other": "{city} {per}",
+      "floor": "Los registran voluntarios, así que son mínimos, no totales: faltan algunos lugares, más en unas ciudades que en otras. © OpenStreetMap contributors, recuento: {date}.",
+      "noCity": "Elige una de las ciudades de la lista para ver cuántos lugares de este tipo figuran allí.",
+      "notCounted": {
+        "online": "Este tipo de negocio vende en línea o va a casa de sus clientes, así que no se cuentan los locales cercanos.",
+        "too_broad": "Este tipo de negocio es demasiado amplio para contarlo en el mapa con honestidad.",
+        "rarely_mapped": "Los negocios de este tipo rara vez aparecen en el mapa, así que un recuento induciría a error."
+      },
+      "group": {
+        "restaurants": "restaurantes y locales de comida para llevar",
+        "cafes": "cafeterías",
+        "bars": "bares y pubs",
+        "hairdressers": "peluquerías y barberías",
+        "beauty": "salones de belleza y peluquerías",
+        "fitness": "gimnasios",
+        "massage_spa": "centros de masaje y spas",
+        "health": "clínicas, consultas médicas y dentistas",
+        "childcare": "guarderías y escuelas infantiles",
+        "car_repair": "talleres de coches y neumáticos",
+        "stays": "hoteles, pensiones y albergues",
+        "estate_agents": "agencias inmobiliarias",
+        "bakeries": "panaderías y pastelerías"
+      }
     }
   },
   "pricing": {

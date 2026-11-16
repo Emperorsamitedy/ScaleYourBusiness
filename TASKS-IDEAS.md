@@ -88,9 +88,9 @@ written, never re-read to fit.
 
 ## Not in scope
 
-- Local competitor density ("how many cafés within 1 km") — needs a new data
-  source (map or business-register data) with its own terms and costs. Held
-  for a later phase; see open question 4.
+- Local competitor density — **now built (D98, the owner's choice of
+  2026-11-17)**: a dated OpenStreetMap snapshot for each country's largest
+  cities, counts shown as floors.
 - Countries outside Eurostat's coverage get the money maths but no sector
   base rates, and say so.
 - Any write to anything external (CLAUDE.md "Do not build yet" still binds).

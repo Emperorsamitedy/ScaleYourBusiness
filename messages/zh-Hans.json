@@ -9551,7 +9551,9 @@
       "startup": "一次性启动成本（装修、设备、首批库存）",
       "capital": "你的启动资金",
       "team": "参与工作的人数，包括你",
-      "ramp_months": "销售需要多久才能达到这个水平？"
+      "ramp_months": "销售需要多久才能达到这个水平？",
+      "city": "哪个城市？（可选）",
+      "cityElsewhere": "其他地方，或尚未决定"
     },
     "customer": {
       "consumer": "个人（消费者）",
@@ -9716,6 +9718,33 @@
       "none": "这段文字中没有可以作为回答读取的内容。请改为填写下方的表单。",
       "short": "用一两句话描述这个想法，篇幅不要超过一页。",
       "tooMany": "从这里读取的描述暂时太多了。请改为填写下方的表单。"
+    },
+    "local": {
+      "shown": "在 OpenStreetMap 上，{city} 标注了 {count} 家{group}，约合每 {base} 名居民 {per} 家。",
+      "others": "国内其他城市，每 {base} 名居民：{list}。",
+      "other": "{city} {per}",
+      "floor": "这些数据由志愿者标注，因此只是下限而非总数：有些地点没有标注，某些城市缺得比其他城市多。© OpenStreetMap contributors，统计于 {date}。",
+      "noCity": "从列表中选择一个城市，查看那里标注了多少家此类场所。",
+      "notCounted": {
+        "online": "这类企业在网上销售或上门服务客户，因此不统计附近的场所。",
+        "too_broad": "这类企业的范围太宽，无法在地图上如实统计。",
+        "rarely_mapped": "这类企业很少出现在地图上，统计数字会产生误导。"
+      },
+      "group": {
+        "restaurants": "餐馆和外卖店",
+        "cafes": "咖啡馆",
+        "bars": "酒吧和小酒馆",
+        "hairdressers": "理发店和男士理发店",
+        "beauty": "美容院和美发店",
+        "fitness": "健身房",
+        "massage_spa": "按摩和水疗场所",
+        "health": "诊所、医生诊室和牙科诊所",
+        "childcare": "托儿机构和幼儿园",
+        "car_repair": "汽车和轮胎维修店",
+        "stays": "酒店、民宿和青年旅舍",
+        "estate_agents": "房产中介",
+        "bakeries": "面包店和糕点店"
+      }
     }
   },
   "pricing": {

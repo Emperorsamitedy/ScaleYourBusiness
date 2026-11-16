@@ -681,3 +681,20 @@ the defaults to its five open questions; the defaults are taken as D91.
   for everyone (300 a day), and costed under workload `idea_describe`
   against the nil-UUID "no account" line, since llm_calls needs an account
   and a visitor has none.
+- **D98 — local competition is a dated snapshot of map counts, offered city
+  by city.** The owner chose it on 2026-11-17 ("Local competition"), lifting
+  TASKS-IDEAS's "not in scope". OpenStreetMap is the only open source of
+  record for places by kind (ODbL, attribution shown with every count). A
+  live query per check was tried and refused: the public Overpass server
+  took 36–44 s a count and often answered 502, and its mirrors timed out.
+  So, as with Eurostat (D92), a script run by hand (`npm run local:fetch`)
+  writes `specs/local-counts-v1.json`: each country's three largest cities
+  from Wikidata (CC0: population, OSM relation, names in the seven
+  languages), and per city, inside its own boundary, one count per group in
+  `idea-v1.json`'s `local.groups`. The run is resumable and polite; a city
+  that never answered is left out, and the city question offers only
+  counted cities ("somewhere else" otherwise). Shown: the count, places per
+  10,000 residents, and the same for the country's other counted cities.
+  A count is a floor, never a total, and is said to be one (rule 37); a
+  business type that sells online, is too broad, or is rarely mapped gets
+  its reason and no number. Population is Wikidata's largest truthy value.

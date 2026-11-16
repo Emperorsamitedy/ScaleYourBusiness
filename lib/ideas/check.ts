@@ -18,6 +18,8 @@ import { workMoney } from "./model";
 import type { SectorLine, Survival } from "./sector";
 import { sectorLines, survivalFor } from "./sector";
 import { toMinor } from "./units";
+import type { Local } from "./local";
+import { isCityOf, localFor } from "./local";
 
 export { toMinor };
 
@@ -64,6 +66,8 @@ export interface IdeaAnswers {
   capital: number | null;
   team: number | null;
   ramp_months: number | null;
+  /** D98: the chosen city (its Wikidata id, from the local snapshot), or null for "somewhere else". */
+  city?: string | null;
 }
 
 export type NextTest =
@@ -94,6 +98,8 @@ export type IdeaResult =
       survival: Survival;
       margin: SectorLine | null;
       per_person: SectorLine | null;
+      /** D98: places of the same kind mapped nearby, a floor (rule 37). */
+      local: Local;
       /** Null when the plan doesn't cover itself on paper: the levers come first. */
       test: NextTest | null;
     };
@@ -115,7 +121,9 @@ export function checkIdeaAnswers(raw: unknown): IdeaAnswers {
   const customer = oneOf(a.customer, CUSTOMERS, "who buys");
   const revenue_model = oneOf(a.revenue_model, REVENUE_MODELS, "how money comes in");
   const currency = oneOf(a.currency, CURRENCIES, "a currency");
-  const base = { sector, country, customer, revenue_model, currency };
+  const city = typeof a.city === "string" && a.city !== "" ? a.city : null;
+  if (city !== null && !isCityOf(country, city)) throw new IdeaError("choose a city from the list");
+  const base = { sector, country, customer, revenue_model, currency, city };
   if (revenue_model === "recruitment") {
     return {
       ...base,
@@ -228,6 +236,7 @@ export function evaluateIdea(a: IdeaAnswers, w: Words = benchEnglish()): IdeaRes
     survival: survivalFor(a.sector, a.country, w),
     margin: lines.margin,
     per_person: lines.per_person,
+    local: localFor(a.sector, a.country, a.city ?? null),
     test: nextTest(money, a.customer),
   };
 }

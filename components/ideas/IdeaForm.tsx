@@ -20,6 +20,8 @@ export interface IdeaFormProps {
   countries: Option[];
   currencies: string[];
   currencyByCountry: Record<string, string>;
+  /** D98: each country's cities in the local snapshot. */
+  citiesByCountry: Record<string, Option[]>;
 }
 
 const CUSTOMERS = ["consumer", "business", "both"];
@@ -29,6 +31,7 @@ const RAMPS = ["1", "3", "6", "12"];
 const EMPTY = {
   sector: "",
   country: "",
+  city: "",
   customer: "",
   revenue_model: "",
   currency: "EUR",
@@ -74,7 +77,9 @@ export function IdeaForm(p: IdeaFormProps) {
     setA((prev) => ({
       ...prev,
       [k]: e.target.value,
-      ...(k === "country" ? { currency: p.currencyByCountry[e.target.value] ?? "EUR" } : {}),
+      ...(k === "country"
+        ? { currency: p.currencyByCountry[e.target.value] ?? "EUR", city: "" }
+        : {}),
     }));
   };
 
@@ -99,6 +104,7 @@ export function IdeaForm(p: IdeaFormProps) {
         if (!keys.includes("currency") && keys.includes("country")) {
           next.currency = p.currencyByCountry[next.country] ?? prev.currency;
         }
+        if (keys.includes("country") && !keys.includes("city")) next.city = "";
         return next;
       });
       if (keys.includes("customers_month")) setUnknown(false);
@@ -127,6 +133,7 @@ export function IdeaForm(p: IdeaFormProps) {
         }
       : {
           ...a,
+          city: a.city === "" ? null : a.city,
           price: whole(a.price),
           variable_cost: whole(a.variable_cost),
           customers_month: unknown ? null : whole(a.customers_month),
@@ -240,6 +247,22 @@ export function IdeaForm(p: IdeaFormProps) {
       <form className="card entry-col" onSubmit={submit}>
         {select("sector", tr("q.sector"), p.sectors)}
         {select("country", tr("q.country"), p.countries)}
+        {(p.citiesByCountry[a.country]?.length ?? 0) > 0 && (
+          <label className="entry-q">
+            <span>
+              {tr("q.city")}
+              {mark("city")}
+            </span>
+            <select value={a.city} onChange={set("city")}>
+              <option value="">{tr("q.cityElsewhere")}</option>
+              {p.citiesByCountry[a.country]!.map((o) => (
+                <option key={o.value} value={o.value}>
+                  {o.label}
+                </option>
+              ))}
+            </select>
+          </label>
+        )}
         {select(
           "customer",
           tr("q.customer"),

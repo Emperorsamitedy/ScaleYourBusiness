@@ -9551,7 +9551,9 @@
       "startup": "One-off costs to start (fit-out, equipment, first stock)",
       "capital": "Money you have to start with",
       "team": "People working in it, you included",
-      "ramp_months": "How long until sales reach that level?"
+      "ramp_months": "How long until sales reach that level?",
+      "city": "Which city? (optional)",
+      "cityElsewhere": "Somewhere else, or not decided yet"
     },
     "customer": {
       "consumer": "People (consumers)",
@@ -9716,6 +9718,33 @@
       "none": "Nothing in that could be read as an answer. Fill the form below instead.",
       "short": "Describe the idea in a sentence or two, and keep it under a page.",
       "tooMany": "Too many descriptions read from here for now. Fill the form below instead."
+    },
+    "local": {
+      "shown": "Mapped on OpenStreetMap in {city}: {count} {group}, about {per} for every {base} residents.",
+      "others": "Elsewhere in the country, for every {base} residents: {list}.",
+      "other": "{city} {per}",
+      "floor": "Mapped by volunteers, so these are floors, not totals: some places are missing, more in some cities than others. © OpenStreetMap contributors, counted {date}.",
+      "noCity": "Choose one of the listed cities to see how many places like this are mapped there.",
+      "notCounted": {
+        "online": "This kind of business sells online or goes to its customers, so places nearby aren't counted.",
+        "too_broad": "This kind of business is too broad to count on the map honestly.",
+        "rarely_mapped": "Businesses of this kind are rarely on the map, so a count would mislead."
+      },
+      "group": {
+        "restaurants": "restaurants and takeaways",
+        "cafes": "cafés",
+        "bars": "bars and pubs",
+        "hairdressers": "hairdressers and barbers",
+        "beauty": "beauty salons and hairdressers",
+        "fitness": "gyms",
+        "massage_spa": "massage and spa places",
+        "health": "clinics, doctors and dentists",
+        "childcare": "childcare places and kindergartens",
+        "car_repair": "car and tyre repair shops",
+        "stays": "hotels, guest houses and hostels",
+        "estate_agents": "estate agents",
+        "bakeries": "bakeries and pastry shops"
+      }
     }
   },
   "pricing": {

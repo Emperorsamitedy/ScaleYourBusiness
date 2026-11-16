@@ -9551,7 +9551,9 @@
       "startup": "Coûts ponctuels de démarrage (aménagement, équipement, premier stock)",
       "capital": "Argent dont vous disposez au départ",
       "team": "Personnes qui y travaillent, vous compris",
-      "ramp_months": "Combien de temps avant que les ventes atteignent ce niveau ?"
+      "ramp_months": "Combien de temps avant que les ventes atteignent ce niveau ?",
+      "city": "Quelle ville ? (facultatif)",
+      "cityElsewhere": "Ailleurs, ou pas encore décidé"
     },
     "customer": {
       "consumer": "Des particuliers (consommateurs)",
@@ -9716,6 +9718,33 @@
       "none": "Rien dans ce texte n’a pu être lu comme une réponse. Remplissez plutôt le formulaire ci-dessous.",
       "short": "Décrivez l’idée en une phrase ou deux, sans dépasser une page.",
       "tooMany": "Trop de descriptions lues depuis ici pour le moment. Remplissez plutôt le formulaire ci-dessous."
+    },
+    "local": {
+      "shown": "Sur OpenStreetMap, à {city} : {count} {group}, soit environ {per} pour {base} habitants.",
+      "others": "Ailleurs dans le pays, pour {base} habitants : {list}.",
+      "other": "{city} {per}",
+      "floor": "Cartographiés par des bénévoles, ces chiffres sont des minimums, pas des totaux : certains lieux manquent, davantage dans certaines villes que dans d’autres. © OpenStreetMap contributors, décompte : {date}.",
+      "noCity": "Choisissez l’une des villes de la liste pour voir combien de lieux de ce type y sont cartographiés.",
+      "notCounted": {
+        "online": "Ce type d’entreprise vend en ligne ou se déplace chez ses clients, donc les lieux à proximité ne sont pas comptés.",
+        "too_broad": "Ce type d’entreprise est trop large pour être compté honnêtement sur la carte.",
+        "rarely_mapped": "Les entreprises de ce type figurent rarement sur la carte, un décompte serait donc trompeur."
+      },
+      "group": {
+        "restaurants": "restaurants et vente à emporter",
+        "cafes": "cafés",
+        "bars": "bars et pubs",
+        "hairdressers": "salons de coiffure et barbiers",
+        "beauty": "instituts de beauté et salons de coiffure",
+        "fitness": "salles de sport",
+        "massage_spa": "lieux de massage et spas",
+        "health": "cliniques, médecins et dentistes",
+        "childcare": "crèches et écoles maternelles",
+        "car_repair": "garages et centres pneus",
+        "stays": "hôtels, chambres d’hôtes et auberges de jeunesse",
+        "estate_agents": "agences immobilières",
+        "bakeries": "boulangeries et pâtisseries"
+      }
     }
   },
   "pricing": {
