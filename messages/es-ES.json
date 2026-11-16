@@ -9648,7 +9648,64 @@
     "again": "Revisar otra idea",
     "next": "¿Ya tienes el negocio en marcha? Mide lo real.",
     "sharedLabel": "Una revisión de idea compartida",
-    "missing": "Esa revisión de idea no está aquí."
+    "missing": "Esa revisión de idea no está aquí.",
+    "keep": {
+      "why": "Guarda esta idea en tu cuenta: anota lo que muestra tu prueba y, cuando lances el negocio, tus ventas reales se medirán frente a este plan.",
+      "button": "Guardar esta idea",
+      "signIn": "Primero inicia sesión y luego vuelve a esta página para guardarla.",
+      "signInLink": "Iniciar sesión",
+      "already": "Esta idea ya está guardada."
+    },
+    "mine": {
+      "title": "Tu idea",
+      "kicker": "Tu idea",
+      "titleIdea": "Tu idea, antes del lanzamiento",
+      "titleLaunched": "Tu plan, junto a lo medido",
+      "launchedOn": "Lanzado el {date}.",
+      "notIdea": "Este negocio no empezó como una idea, así que aquí no hay ningún plan que mostrar.",
+      "signedOut": "Inicia sesión para ver la idea que guardaste."
+    },
+    "record": {
+      "title": "¿Qué mostró la prueba?",
+      "presale": "Señales cobradas",
+      "pilots": "Negocios que aceptaron un piloto de pago",
+      "quotes": "El presupuesto del medio ({currency})",
+      "submit": "Registrar el resultado",
+      "line": "{date}: {value}, {reading}",
+      "reading": {
+        "pass": "un aprobado según el umbral fijado antes de la prueba",
+        "fail": "un suspenso según el umbral fijado antes de la prueba",
+        "between": "entre los umbrales: ni aprobado ni suspenso"
+      }
+    },
+    "launch": {
+      "title": "¿Lanzado?",
+      "body": "Cuando esté en marcha, dilo aquí. Tu plan se queda exactamente como estaba y, en cuanto se midan tus ventas, se pondrán a su lado.",
+      "button": "Ya está lanzado",
+      "sure": "Esto no se puede deshacer: la idea pasa a ser tu negocio y su plan se conserva tal como estaba.",
+      "confirm": "Sí, ya está en marcha",
+      "notYet": "Todavía no",
+      "connect": "Empieza conectando {provider}: es por donde pasan las ventas de tu plan.",
+      "connectLink": "Conectarlo"
+    },
+    "actual": {
+      "title": "Tu plan frente a tu primer mes",
+      "compared": "Planeaste {planned} al mes. Medido en los últimos {days} días y llevado a un mes: {actual}, una diferencia de {gap}.",
+      "tooEarly": "Días medidos hasta ahora: {days} de {needed}. La comparación llegará cuando haya suficientes.",
+      "otherCurrency": "Tu plan está en {planned} y tus ventas se miden en {measured}. No se convierte nada, así que no se comparan.",
+      "noPlan": "Tu plan no tenía estimación de clientes, así que no hay un mes previsto con el que comparar.",
+      "kept": "Lo medido no cambia tu plan. Los dos se quedan, uno al lado del otro."
+    },
+    "provider": {
+      "stripe": "Stripe",
+      "shopify": "Shopify",
+      "square": "Square",
+      "woocommerce": "WooCommerce",
+      "ga4": "Google Analytics",
+      "meta_ads": "Meta Ads",
+      "search_console": "Google Search Console",
+      "fixture": "el conector de prueba"
+    }
   },
   "pricing": {
     "meta": {

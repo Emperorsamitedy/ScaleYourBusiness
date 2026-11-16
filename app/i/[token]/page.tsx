@@ -3,6 +3,7 @@
 
 import type { Metadata } from "next";
 import Link from "next/link";
+import { KeepIdea } from "../../../components/ideas/IdeaActions";
 import { IdeaResultView } from "../../../components/ideas/IdeaResultView";
 import { ideaByToken } from "../../../lib/ideas/check";
 import { requestLocale } from "../../../lib/i18n/server";
@@ -31,6 +32,7 @@ export default async function SharedIdeaPage({ params }: { params: Promise<{ tok
               tr={tr}
               locale={locale}
             />
+            {!shared.kept && shared.result.status === "worked" && <KeepIdea token={token} />}
           </>
         ) : (
           <p className="auth-copy">{tr("missing")}</p>

@@ -251,9 +251,13 @@ export async function runIdea(args: {
 }
 
 /** A shared idea check, as it was when it was made. */
-export async function ideaByToken(
-  token: string,
-): Promise<{ answers: IdeaAnswers; result: IdeaResult; created_at: string } | null> {
+export async function ideaByToken(token: string): Promise<{
+  answers: IdeaAnswers;
+  result: IdeaResult;
+  created_at: string;
+  /** Kept as an idea business already (part 2): it can't be kept twice. */
+  kept: boolean;
+} | null> {
   if (!/^[A-Za-z0-9_-]{8,40}$/.test(token)) return null;
   const [row] = await db.select().from(ideaChecks).where(eq(ideaChecks.token, token)).limit(1);
   if (!row) return null;
@@ -261,5 +265,6 @@ export async function ideaByToken(
     answers: row.answers as IdeaAnswers,
     result: row.result as IdeaResult,
     created_at: row.created_at,
+    kept: row.profile_id !== null,
   };
 }

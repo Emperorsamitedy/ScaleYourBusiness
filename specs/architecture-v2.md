@@ -648,3 +648,19 @@ the defaults to its five open questions; the defaults are taken as D91.
   the stated figure and failing at its breaking point. They are stored with
   the result when it is made (rule 41), so a shared check shows the lines as
   they were set.
+- **D96 — an idea is its own business, and the database keeps it from
+  operating (part 2).** One account holds one profile (the v1 invariant),
+  so keeping a check makes a NEW account and profile for the same verified
+  email, as "add a business" does (idea 52), created as `kind = 'idea'`
+  from the start: triggers in migration 0124 refuse any connection,
+  proposal or execution for an idea, refuse turning an operating business
+  into an idea, keep a launch date as it was, and keep test results
+  append-only. Triggers rather than a check at each call, because a
+  connection is made in seven places. What was stated is written as owner
+  facts where the data model has a field, the plan's monthly revenue
+  included with a note that it is planned; measured sales supersede it
+  after launch (rule 3) and I-51 sets the plan beside them, never swapped.
+  Sign-in has no return path yet, so a signed-out person is told to sign in
+  and come back to the shared check. The conversational version (I-11's
+  bank section, I-12's extraction) is not in part 2: the form covers the
+  same inputs, and the interviewer is its own piece of work.

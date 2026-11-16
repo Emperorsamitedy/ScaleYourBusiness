@@ -9648,7 +9648,64 @@
     "again": "检查另一个想法",
     "next": "已经在经营了？测量真实情况。",
     "sharedLabel": "分享的想法检查",
-    "missing": "这里没有这个想法检查。"
+    "missing": "这里没有这个想法检查。",
+    "keep": {
+      "why": "把这个想法保存在你的账户里：记录测试的结果；等你正式开业后，你的真实销售会与这份计划对照衡量。",
+      "button": "保存这个想法",
+      "signIn": "请先登录，然后回到本页面保存它。",
+      "signInLink": "登录",
+      "already": "这个想法已经保存。"
+    },
+    "mine": {
+      "title": "你的想法",
+      "kicker": "你的想法",
+      "titleIdea": "你的想法（开业前）",
+      "titleLaunched": "你的计划与实测数据对照",
+      "launchedOn": "于 {date} 开业。",
+      "notIdea": "这家企业不是从想法开始的，所以这里没有可显示的计划。",
+      "signedOut": "登录后即可查看你保存的想法。"
+    },
+    "record": {
+      "title": "测试结果如何？",
+      "presale": "已收取的付费定金",
+      "pilots": "同意付费试点的企业",
+      "quotes": "居中的那份报价（{currency}）",
+      "submit": "记录结果",
+      "line": "{date}：{value}，{reading}",
+      "reading": {
+        "pass": "按测试前定下的标准，算通过",
+        "fail": "按测试前定下的标准，算不通过",
+        "between": "介于两条标准之间：既不算通过，也不算不通过"
+      }
+    },
+    "launch": {
+      "title": "已开业？",
+      "body": "开始营业后，在这里告诉我们。你的计划会原样保留；一旦测得你的销售数据，就会把它们并排放在计划旁边。",
+      "button": "已开业",
+      "sure": "此操作无法撤销：这个想法将成为你的企业，它的计划会原样保留。",
+      "confirm": "是的，已在营业",
+      "notYet": "还没有",
+      "connect": "先连接 {provider}：你计划中的销售都经由它进行。",
+      "connectLink": "连接"
+    },
+    "actual": {
+      "title": "你的计划与第一个月对比",
+      "compared": "你计划每月 {planned}。按最近 {days} 天的实测数据折算成一个月：{actual}，差距为 {gap}。",
+      "tooEarly": "目前已测 {days} 天，需要 {needed} 天。数据足够后才会进行对比。",
+      "otherCurrency": "你的计划使用 {planned}，而你的销售以 {measured} 计量。系统不做任何换算，所以不进行对比。",
+      "noPlan": "你的计划里没有客户数估算，所以没有可供对比的计划月份。",
+      "kept": "实测数据不会改变你的计划。两者并排保留。"
+    },
+    "provider": {
+      "stripe": "Stripe",
+      "shopify": "Shopify",
+      "square": "Square",
+      "woocommerce": "WooCommerce",
+      "ga4": "Google Analytics",
+      "meta_ads": "Meta Ads",
+      "search_console": "Google Search Console",
+      "fixture": "测试连接器"
+    }
   },
   "pricing": {
     "meta": {

@@ -157,12 +157,22 @@ export const businessProfiles = pgTable(
      * not a fact about the business (no Field<T>): it is how SYB speaks.
      */
     language: text("language").notNull().default("en"),
+    /**
+     * TASKS-IDEAS.md I-10: a business that exists ("operating") or one that
+     * doesn't yet ("idea"). An idea has no connection, proposal or execution,
+     * held by triggers in migration 0124 (rule 40). Launching turns an idea
+     * into an operating business, one way only.
+     */
+    kind: text("kind").notNull().default("operating"),
+    /** I-50: when an idea was launched; null for one that never was an idea, or isn't launched yet. */
+    launched_at: timestamp("launched_at", { withTimezone: true, mode: "string" }),
   },
   (t) => [
     check(
       "business_profiles_language_known",
       sql`${t.language} in ('en', 'es-ES', 'de-DE', 'fr-FR', 'hu-HU', 'ru-RU', 'zh-Hans')`,
     ),
+    check("business_profiles_kind_known", sql`${t.kind} in ('operating', 'idea')`),
   ],
 );
 
@@ -491,6 +501,9 @@ export const decisionKind = pgEnum("decision_kind", [
   "mandate_grant", // v1 spec §7.1: the owner granted a firm a mandate; ref is the mandates row
   "mandate_revoke", // §7.1: the owner revoked it; ref is the mandates row
   "partner_action", // §7.7: a firm member acted under a mandate; ref is what they acted on, user_id who
+  "idea_saved", // TASKS-IDEAS I-10: an idea check was kept as an idea business; ref is the idea_checks row
+  "idea_test_result", // I-32: the owner recorded what a test showed; ref is the idea_test_results row
+  "idea_launch", // I-50: the idea was launched and became an operating business; ref is the profile
 ]);
 
 export const decisionLog = pgTable(
@@ -5379,6 +5392,8 @@ export const ideaChecks = pgTable(
   {
     id: uuid("id").primaryKey().defaultRandom(),
     token: text("token").notNull(),
+    /** I-10: the idea business this check was kept as; null while it is only a shared check. */
+    profile_id: uuid("profile_id"),
     answers: jsonb("answers").notNull(),
     result: jsonb("result").notNull(),
     locale: text("locale").notNull(),
@@ -5386,7 +5401,41 @@ export const ideaChecks = pgTable(
       .notNull()
       .defaultNow(),
   },
-  (t) => [uniqueIndex("idea_checks_token").on(t.token)],
+  (t) => [
+    uniqueIndex("idea_checks_token").on(t.token),
+    uniqueIndex("idea_checks_profile")
+      .on(t.profile_id)
+      .where(sql`${t.profile_id} is not null`),
+  ],
+);
+
+/**
+ * I-32: what a test showed, read against the lines stored with it (rule
+ * 41). Append-only (migration 0124): a later result is a new row, and the
+ * earlier one stays.
+ */
+export const ideaTestResults = pgTable(
+  "idea_test_results",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    profile_id: uuid("profile_id").notNull(),
+    idea_check_id: uuid("idea_check_id")
+      .notNull()
+      .references(() => ideaChecks.id),
+    /** A count (pre-sale, pilots) or minor units of the plan's currency (quotes). */
+    observed: bigint("observed", { mode: "number" }).notNull(),
+    reading: text("reading").notNull(),
+    note: text("note"),
+    user_id: uuid("user_id"),
+    recorded_at: timestamp("recorded_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    index("idea_test_results_profile").on(t.profile_id, t.recorded_at),
+    check("idea_test_results_reading", sql`${t.reading} in ('pass', 'fail', 'between')`),
+    check("idea_test_results_observed", sql`${t.observed} >= 0`),
+  ],
 );
 
 /**

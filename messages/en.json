@@ -9648,7 +9648,64 @@
     "again": "Check another idea",
     "next": "Already trading? Measure the real thing.",
     "sharedLabel": "A shared idea check",
-    "missing": "That idea check isn't here."
+    "missing": "That idea check isn't here.",
+    "keep": {
+      "why": "Keep this idea in your account: record what your test shows, and when you launch, your real sales are measured against this plan.",
+      "button": "Keep this idea",
+      "signIn": "Sign in first, then come back to this page to keep it.",
+      "signInLink": "Sign in",
+      "already": "This idea is already kept."
+    },
+    "mine": {
+      "title": "Your idea",
+      "kicker": "Your idea",
+      "titleIdea": "Your idea, before launch",
+      "titleLaunched": "Your plan, beside what's measured",
+      "launchedOn": "Launched on {date}.",
+      "notIdea": "This business wasn't started as an idea, so there's no plan to show here.",
+      "signedOut": "Sign in to see the idea you kept."
+    },
+    "record": {
+      "title": "What did the test show?",
+      "presale": "Paid deposits taken",
+      "pilots": "Businesses that agreed to a paid pilot",
+      "quotes": "The middle quote ({currency})",
+      "submit": "Record the result",
+      "line": "{date}: {value}, {reading}",
+      "reading": {
+        "pass": "a pass against the line set before the test",
+        "fail": "a fail against the line set before the test",
+        "between": "between the lines: not a pass, not a fail"
+      }
+    },
+    "launch": {
+      "title": "Launched?",
+      "body": "When it's trading, say so here. Your plan stays exactly as it was, and once your sales are measured they're set beside it.",
+      "button": "It's launched",
+      "sure": "This can't be undone: the idea becomes your business, and its plan is kept as it was.",
+      "confirm": "Yes, it's trading",
+      "notYet": "Not yet",
+      "connect": "Start by connecting {provider}: it's what your plan's sales run through.",
+      "connectLink": "Connect it"
+    },
+    "actual": {
+      "title": "Your plan against your first month",
+      "compared": "You planned {planned} a month. Measured over the last {days} days, scaled to a month: {actual}, a gap of {gap}.",
+      "tooEarly": "{days} of {needed} measured days so far. The comparison comes once there are enough.",
+      "otherCurrency": "Your plan is in {planned} and your sales are measured in {measured}. Nothing is converted, so they aren't compared.",
+      "noPlan": "Your plan had no customer estimate, so there's no planned month to compare with.",
+      "kept": "Your plan isn't changed by what's measured. Both stay, side by side."
+    },
+    "provider": {
+      "stripe": "Stripe",
+      "shopify": "Shopify",
+      "square": "Square",
+      "woocommerce": "WooCommerce",
+      "ga4": "Google Analytics",
+      "meta_ads": "Meta Ads",
+      "search_console": "Google Search Console",
+      "fixture": "the test connector"
+    }
   },
   "pricing": {
     "meta": {

@@ -46,6 +46,21 @@
   },
   "max_amount_major": 100000000,
   "horizon_months": 36,
+  "first_connector": {
+    "about": "I-52: the first connector suggested at launch, from what the plan rests on. By revenue model first, then by kind of business, then the default. Provider ids are lib/connectors/scopes.ts's.",
+    "by_model": { "subscription": "stripe", "commission": "stripe" },
+    "by_sector": {
+      "ecommerce_store": "shopify",
+      "restaurant": "square",
+      "cafe": "square",
+      "bar": "square",
+      "retail_shop": "square",
+      "salon_beauty": "square",
+      "barber": "square"
+    },
+    "default": "stripe"
+  },
+  "plan_vs_actual": { "min_measured_days": 30 },
   "tests": {
     "about": "The cheapest next test for the riskiest assumption (I-30, D95). Pass and fail are worked out from the plan's own break-even before any result exists (rule 41), and kept with the result.",
     "presale": {

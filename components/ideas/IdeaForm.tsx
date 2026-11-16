@@ -10,6 +10,7 @@ import { useState } from "react";
 import type { IdeaAnswers, IdeaResult } from "../../lib/ideas/check";
 import { ShareLink } from "../ladder/ShareLink";
 import { useTr } from "../sheet/useTr";
+import { KeepIdea } from "./IdeaActions";
 import { IdeaResultView } from "./IdeaResultView";
 
 type Option = { value: string; label: string };
@@ -108,6 +109,7 @@ export function IdeaForm(p: IdeaFormProps) {
     return (
       <div className="entry-col">
         <IdeaResultView result={done.result} answers={done.answers} tr={tr} locale={locale} />
+        {done.result.status === "worked" && <KeepIdea token={done.token} />}
         <ShareLink path={`/i/${done.token}`} label={tr("share")} done={tr("copied")} />
         <p className="auth-copy">
           {tr("next")} <Link href="/check">→</Link>

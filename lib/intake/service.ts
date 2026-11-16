@@ -446,7 +446,12 @@ async function reportingCurrency(profileId: string): Promise<string> {
  * without them, English and the default the country may later replace.
  */
 export async function bootstrapIntake(
-  choices: { language?: AppLocale | null; currency?: string | null } = {},
+  choices: {
+    language?: AppLocale | null;
+    currency?: string | null;
+    /** TASKS-IDEAS I-10: an idea is made one from the start; an operating business never becomes one. */
+    kind?: "operating" | "idea";
+  } = {},
 ): Promise<{ account_id: string; profile_id: string }> {
   const currency = choices.currency && isIsoCurrency(choices.currency) ? choices.currency : null;
   const [account] = await db
@@ -464,6 +469,7 @@ export async function bootstrapIntake(
       account_id: account.id,
       schema_version: "1.0.0",
       language: isAppLocale(choices.language) ? choices.language : "en",
+      kind: choices.kind ?? "operating",
     })
     .returning();
   if (!profile) throw new IntakeError("profile creation failed", 500);

@@ -9648,7 +9648,64 @@
     "again": "Eine andere Idee prüfen",
     "next": "Schon am Markt? Miss, was wirklich passiert.",
     "sharedLabel": "Ein geteilter Ideen-Check",
-    "missing": "Diesen Ideen-Check gibt es hier nicht."
+    "missing": "Diesen Ideen-Check gibt es hier nicht.",
+    "keep": {
+      "why": "Behalte diese Idee in deinem Konto: Halte fest, was dein Test zeigt, und wenn du startest, werden deine echten Verkäufe an diesem Plan gemessen.",
+      "button": "Diese Idee behalten",
+      "signIn": "Nach dem Anmelden komm auf diese Seite zurück, um sie zu behalten.",
+      "signInLink": "Anmelden",
+      "already": "Diese Idee ist bereits in deinem Konto."
+    },
+    "mine": {
+      "title": "Deine Idee",
+      "kicker": "Deine Idee",
+      "titleIdea": "Deine Idee, vor dem Start",
+      "titleLaunched": "Dein Plan, neben dem Gemessenen",
+      "launchedOn": "Gestartet am {date}.",
+      "notIdea": "Dieses Unternehmen hat nicht als Idee angefangen, deshalb gibt es hier keinen Plan zu zeigen.",
+      "signedOut": "Nach dem Anmelden siehst du hier die Idee, die du behalten hast."
+    },
+    "record": {
+      "title": "Was hat der Test gezeigt?",
+      "presale": "Erhaltene bezahlte Anzahlungen",
+      "pilots": "Unternehmen, die einem bezahlten Pilotprojekt zugestimmt haben",
+      "quotes": "Das mittlere Angebot ({currency})",
+      "submit": "Ergebnis festhalten",
+      "line": "{date}: {value}, {reading}",
+      "reading": {
+        "pass": "bestanden, gemessen an der Grenze, die vor dem Test festgelegt wurde",
+        "fail": "durchgefallen, gemessen an der Grenze, die vor dem Test festgelegt wurde",
+        "between": "zwischen den Grenzen: weder bestanden noch durchgefallen"
+      }
+    },
+    "launch": {
+      "title": "Gestartet?",
+      "body": "Wenn es läuft, sag es hier. Dein Plan bleibt genau so, wie er war, und sobald deine Verkäufe gemessen sind, werden sie daneben gestellt.",
+      "button": "Es ist gestartet",
+      "sure": "Das lässt sich nicht rückgängig machen: Die Idee wird zu deinem Unternehmen, und ihr Plan bleibt so, wie er war.",
+      "confirm": "Ja, es läuft",
+      "notYet": "Noch nicht",
+      "connect": "Verbinde zuerst {provider}: Darüber laufen die Verkäufe deines Plans.",
+      "connectLink": "Verbinden"
+    },
+    "actual": {
+      "title": "Dein Plan im Vergleich zu deinem ersten Monat",
+      "compared": "Du hast {planned} pro Monat geplant. Gemessen über die letzten {days} Tage, auf einen Monat hochgerechnet: {actual}, eine Abweichung von {gap}.",
+      "tooEarly": "Bisher gemessene Tage: {days} von {needed}. Der Vergleich kommt, sobald es genug sind.",
+      "otherCurrency": "Dein Plan ist in {planned}, deine Verkäufe werden in {measured} gemessen. Es wird nichts umgerechnet, deshalb werden sie nicht verglichen.",
+      "noPlan": "Dein Plan hatte keine Schätzung der Kunden, also gibt es keinen geplanten Monat zum Vergleich.",
+      "kept": "Dein Plan wird durch das Gemessene nicht verändert. Beides bleibt, nebeneinander."
+    },
+    "provider": {
+      "stripe": "Stripe",
+      "shopify": "Shopify",
+      "square": "Square",
+      "woocommerce": "WooCommerce",
+      "ga4": "Google Analytics",
+      "meta_ads": "Meta Ads",
+      "search_console": "Google Search Console",
+      "fixture": "die Testverbindung"
+    }
   },
   "pricing": {
     "meta": {

@@ -10,6 +10,7 @@
 // row for the same email, then switches into it — the interview starts
 // there. Both go into the decision log as account_switch, ids only.
 
+import type { AppLocale } from "../i18n/locales";
 import { startShadowPeriod } from "../ladder/ladder";
 import { and, eq, isNull } from "drizzle-orm";
 import { db } from "../../db";
@@ -94,8 +95,12 @@ export async function switchAccount(args: {
 export async function addBusiness(args: {
   session: AuthedSession;
   currentToken: string | undefined;
+  /** TASKS-IDEAS I-10: the new business is an idea, in this currency and language. */
+  idea?: { currency: string; language: AppLocale };
 }): Promise<Omit<RedeemedSession, "choose">> {
-  const boot = await bootstrapIntake();
+  const boot = await bootstrapIntake(
+    args.idea ? { currency: args.idea.currency, language: args.idea.language, kind: "idea" } : {},
+  );
   // The v1 spec §4.2 (D35): a new business's first 30 days are shadow.
   await startShadowPeriod(boot.profile_id);
   const owner = await createOwner(boot.account_id, args.session.email);

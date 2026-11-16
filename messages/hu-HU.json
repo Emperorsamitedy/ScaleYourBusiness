@@ -9648,7 +9648,64 @@
     "again": "Másik ötlet ellenőrzése",
     "next": "Már működsz? Mérd a valóságot.",
     "sharedLabel": "Megosztott ötletellenőrzés",
-    "missing": "Ez az ötletellenőrzés nincs itt."
+    "missing": "Ez az ötletellenőrzés nincs itt.",
+    "keep": {
+      "why": "Tartsd meg ezt az ötletet a fiókodban: rögzítsd, mit mutat a teszted, és amikor elindulsz, a valódi eladásaidat ehhez a tervhez mérjük.",
+      "button": "Ötlet megtartása",
+      "signIn": "Bejelentkezés után gyere vissza erre az oldalra, hogy megtartsd.",
+      "signInLink": "Bejelentkezés",
+      "already": "Ezt az ötletet már megtartottad."
+    },
+    "mine": {
+      "title": "Az ötleted",
+      "kicker": "Az ötleted",
+      "titleIdea": "Az ötleted, indulás előtt",
+      "titleLaunched": "A terved, a mért adatok mellett",
+      "launchedOn": "Elindult: {date}.",
+      "notIdea": "Ez a vállalkozás nem ötletként indult, így itt nincs megmutatható terv.",
+      "signedOut": "Bejelentkezés után itt látod a megtartott ötletedet."
+    },
+    "record": {
+      "title": "Mit mutatott a teszt?",
+      "presale": "Beszedett fizetett előlegek",
+      "pilots": "Vállalkozások, amelyek elfogadtak egy fizetős próbaidőszakot",
+      "quotes": "A középső ajánlat ({currency})",
+      "submit": "Eredmény rögzítése",
+      "line": "{date}: {value}, {reading}",
+      "reading": {
+        "pass": "sikeres a teszt előtt rögzített határhoz képest",
+        "fail": "sikertelen a teszt előtt rögzített határhoz képest",
+        "between": "a határok között: se nem sikeres, se nem sikertelen"
+      }
+    },
+    "launch": {
+      "title": "Elindult?",
+      "body": "Ha már működik, jelezd itt. A terved pontosan olyan marad, amilyen volt, és amint az eladásaidat mérjük, mellé kerülnek.",
+      "button": "Elindult",
+      "sure": "Ez nem vonható vissza: az ötletből a vállalkozásod lesz, a terve pedig változatlanul megmarad.",
+      "confirm": "Igen, már működik",
+      "notYet": "Még nem",
+      "connect": "Kezdd azzal, hogy összekapcsolod ezt: {provider}. Ezen keresztül futnak a terved eladásai.",
+      "connectLink": "Összekapcsolás"
+    },
+    "actual": {
+      "title": "A terved az első hónapodhoz képest",
+      "compared": "Havi {planned} összeget terveztél. Az elmúlt {days} nap mérése alapján, egy hónapra vetítve: {actual}, az eltérés {gap}.",
+      "tooEarly": "Eddig {days} mért nap a szükséges {needed} napból. Az összevetés akkor jön, ha elég összegyűlt.",
+      "otherCurrency": "A terved {planned} pénznemben van, az eladásaidat pedig {measured} pénznemben mérjük. Semmit nem váltunk át, ezért nem vetjük össze őket.",
+      "noPlan": "A tervedben nem volt ügyfélszám-becslés, így nincs tervezett hónap, amivel összevethetnénk.",
+      "kept": "A mért adatok nem változtatják meg a tervedet. Mindkettő megmarad, egymás mellett."
+    },
+    "provider": {
+      "stripe": "Stripe",
+      "shopify": "Shopify",
+      "square": "Square",
+      "woocommerce": "WooCommerce",
+      "ga4": "Google Analytics",
+      "meta_ads": "Meta Ads",
+      "search_console": "Google Search Console",
+      "fixture": "a tesztösszekötő"
+    }
   },
   "pricing": {
     "meta": {

@@ -9648,7 +9648,64 @@
     "again": "Vérifier une autre idée",
     "next": "Déjà en activité ? Mesurez la réalité.",
     "sharedLabel": "Un bilan d’idée partagé",
-    "missing": "Ce bilan d’idée n’est pas ici."
+    "missing": "Ce bilan d’idée n’est pas ici.",
+    "keep": {
+      "why": "Gardez cette idée dans votre compte : notez ce que montre votre test et, quand vous vous lancerez, vos ventes réelles seront mesurées au regard de ce plan.",
+      "button": "Garder cette idée",
+      "signIn": "Connectez-vous d’abord, puis revenez sur cette page pour la garder.",
+      "signInLink": "Se connecter",
+      "already": "Cette idée est déjà dans votre compte."
+    },
+    "mine": {
+      "title": "Votre idée",
+      "kicker": "Votre idée",
+      "titleIdea": "Votre idée, avant le lancement",
+      "titleLaunched": "Votre plan, à côté de ce qui est mesuré",
+      "launchedOn": "Lancée le {date}.",
+      "notIdea": "Cette entreprise n’a pas commencé comme une idée, il n’y a donc aucun plan à afficher ici.",
+      "signedOut": "Connectez-vous pour voir l’idée que vous avez gardée."
+    },
+    "record": {
+      "title": "Qu’a montré le test ?",
+      "presale": "Acomptes payés encaissés",
+      "pilots": "Entreprises ayant accepté un pilote payant",
+      "quotes": "Le devis médian ({currency})",
+      "submit": "Enregistrer le résultat",
+      "line": "{date} : {value}, {reading}",
+      "reading": {
+        "pass": "réussi au regard du seuil fixé avant le test",
+        "fail": "un échec au regard du seuil fixé avant le test",
+        "between": "entre les seuils : ni réussi, ni un échec"
+      }
+    },
+    "launch": {
+      "title": "C’est lancé ?",
+      "body": "Quand l’activité tourne, dites-le ici. Votre plan reste exactement tel qu’il était et, dès que vos ventes sont mesurées, elles sont placées à côté.",
+      "button": "C’est lancé",
+      "sure": "Impossible de revenir en arrière : l’idée devient votre entreprise, et son plan est conservé tel qu’il était.",
+      "confirm": "Oui, l’activité tourne",
+      "notYet": "Pas encore",
+      "connect": "Commencez par connecter {provider} : c’est par là que passent les ventes de votre plan.",
+      "connectLink": "Le connecter"
+    },
+    "actual": {
+      "title": "Votre plan face à votre premier mois",
+      "compared": "Vous aviez prévu {planned} par mois. Mesuré sur les {days} derniers jours, ramené à un mois : {actual}, soit un écart de {gap}.",
+      "tooEarly": "Jours mesurés jusqu’ici : {days} sur {needed}. La comparaison viendra quand il y en aura assez.",
+      "otherCurrency": "Votre plan est en {planned} et vos ventes sont mesurées en {measured}. Rien n’est converti, donc aucune comparaison n’est faite.",
+      "noPlan": "Votre plan ne comportait pas d’estimation du nombre de clients, il n’y a donc pas de mois prévu à comparer.",
+      "kept": "Ce qui est mesuré ne modifie pas votre plan. Les deux restent, côte à côte."
+    },
+    "provider": {
+      "stripe": "Stripe",
+      "shopify": "Shopify",
+      "square": "Square",
+      "woocommerce": "WooCommerce",
+      "ga4": "Google Analytics",
+      "meta_ads": "Meta Ads",
+      "search_console": "Google Search Console",
+      "fixture": "le connecteur de test"
+    }
   },
   "pricing": {
     "meta": {
