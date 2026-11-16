@@ -103,3 +103,24 @@ describe("I-12 — reading a description into the idea check's answers", () => {
     expect(DESCRIBE_SCHEMA.additionalProperties).toBe(false);
   });
 });
+
+describe("gap 8 — a follow-up round asks for what is still missing", () => {
+  it("tells the model what was asked, accepts a short answer, and drops unknown questions", async () => {
+    let seen = "";
+    const got = await describeIdea(
+      "about 900k a month",
+      async ({ user }) => {
+        seen = user;
+        return JSON.stringify({ fixed_month: 900_000 });
+      },
+      ["fixed_month", "not_a_question"],
+    );
+    expect(seen).toMatch(/asked only about: fixed_month\./);
+    expect(seen).not.toMatch(/not_a_question/);
+    expect(got).toEqual({ fixed_month: 900_000 });
+  });
+
+  it("a first round still needs a sentence or two", async () => {
+    await expect(describeIdea("900k", async () => "{}")).rejects.toThrow(/sentence or two/);
+  });
+});

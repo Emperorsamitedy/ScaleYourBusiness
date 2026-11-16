@@ -6,12 +6,15 @@
 
 import type { Metadata } from "next";
 import Link from "next/link";
-import { LaunchIdea, RecordResult } from "../../../components/ideas/IdeaActions";
+import { LaunchIdea, MakeTestPage, RecordResult } from "../../../components/ideas/IdeaActions";
+import { ShareLink } from "../../../components/ladder/ShareLink";
+import { testPageOf, testPageResult } from "../../../lib/ideas/testpage";
 import { IdeaResultView } from "../../../components/ideas/IdeaResultView";
 import { resolveAccess } from "../../../lib/auth/access";
 import { presentMoney } from "../../../lib/i18n/format";
 import { requestLocale } from "../../../lib/i18n/server";
 import { trFor } from "../../../lib/i18n/server-tr";
+import { freshLocal } from "../../../lib/ideas/check";
 import { ideaPlanVsActual, keptIdea } from "../../../lib/ideas/keep";
 import { firstConnector } from "../../../lib/ideas/progress";
 import "../../ideas.css";
@@ -42,9 +45,11 @@ export default async function MyIdeaPage() {
   }
 
   const a = idea.answers;
-  const r = idea.result;
+  const r = await freshLocal(idea.result, a);
   const dates = new Intl.DateTimeFormat(locale, { dateStyle: "medium" });
   const pva = await ideaPlanVsActual(access.profile_id, idea);
+  const page = await testPageOf(access.profile_id);
+  const pageResult = page ? await testPageResult(page) : null;
   const vs = pva?.revenue ?? null;
   const money = (minor: number, currency: string) =>
     presentMoney({ amount_minor: minor, currency }, locale, { whole: true });
@@ -151,6 +156,45 @@ export default async function MyIdeaPage() {
               </ul>
             )}
             <RecordResult test={r.test} currency={r.currency} />
+          </section>
+        )}
+
+        {idea.kind === "idea" && r.status === "worked" && a.price !== null && (
+          <section className="card">
+            <h2 className="idea-h">{tr("testPage.sectionTitle")}</h2>
+            {page && pageResult ? (
+              <>
+                <p className="auth-copy">{tr("testPage.yours", { pitch: page.pitch })}</p>
+                <ShareLink
+                  path={`/t/${page.slug}`}
+                  label={tr("testPage.copy")}
+                  done={tr("copied")}
+                />
+                <p className="auth-copy">
+                  {tr("testPage.counts", {
+                    visits: count.format(pageResult.visits),
+                    interested: count.format(pageResult.interested),
+                  })}{" "}
+                  {pageResult.reading === "too_few"
+                    ? tr("testPage.tooFew", { min: count.format(page.min_visits) })
+                    : tr(`testPage.reading.${pageResult.reading}`, {
+                        rate: pct.format((pageResult.rate_bp ?? 0) / 10_000), // not money: a rate
+                      })}
+                </p>
+                <p className="auth-copy idea-note">
+                  {tr("testPage.lines", {
+                    min: count.format(page.min_visits),
+                    pass: pct.format(page.pass_rate_bp / 10_000), // not money: a rate
+                    fail: pct.format(page.fail_below_rate_bp / 10_000), // not money: a rate
+                  })}
+                </p>
+              </>
+            ) : (
+              <>
+                <p className="auth-copy">{tr("testPage.why")}</p>
+                <MakeTestPage />
+              </>
+            )}
           </section>
         )}
 

@@ -139,3 +139,47 @@ describe("rule 36 — no verdict on an idea, in any locale", () => {
     });
   }
 });
+
+describe("gap 7 — every town state renders in every locale", () => {
+  const worked = evaluateIdea(BASE);
+  if (worked.status !== "worked") throw new Error("expected worked");
+  const states = {
+    queued: { status: "town", town: "Kecskemét", state: "queued" },
+    notFound: { status: "town", town: "Nowhere", state: "not_found" },
+    counted: {
+      status: "town",
+      town: "Szolnok",
+      state: "counted",
+      group: "cafes",
+      count: 12,
+      per_10k: 1.7,
+      counted_at: "2026-11-17T00:00:00.000Z",
+    },
+    countedNoPop: {
+      status: "town",
+      town: "Tata",
+      state: "counted",
+      group: "cafes",
+      count: 12,
+      per_10k: null,
+      counted_at: "2026-11-17T00:00:00.000Z",
+    },
+  } as const;
+  for (const [name, local] of Object.entries(states)) {
+    it(name, () => {
+      for (const locale of LOCALES) {
+        const out = renderToStaticMarkup(
+          createElement(IdeaResultView, {
+            result: { ...worked, local: local as never },
+            answers: BASE,
+            tr: trFor(locale, "ideas"),
+            locale,
+          }),
+        );
+        expect(out, `${name} ${locale}`).not.toMatch(
+          /\b(result|local|ideas)\.[a-zA-Z_.]+|\{[a-z_]+\}|undefined|NaN/,
+        );
+      }
+    });
+  }
+});

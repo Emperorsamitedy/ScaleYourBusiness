@@ -698,3 +698,28 @@ the defaults to its five open questions; the defaults are taken as D91.
   A count is a floor, never a total, and is said to be one (rule 37); a
   business type that sells online, is too broad, or is rarely mapped gets
   its reason and no number. Population is Wikidata's largest truthy value.
+- **D99 — the idea check's six open gaps, closed (owner, 2026-11-17: "all
+  these gaps should have a solution and get closed").** (3) Signing in from
+  "Keep this idea" comes back to the shared check: `/i/<token>`, `/idea` and
+  `/idea/mine` join the return-to allowlist, matched exactly (share tokens
+  are case-sensitive), never lowercased. (4) A kept idea is named in the
+  business switcher by a label stored when it is kept ("Café idea ·
+  Budapest", in the person's language) until launch brings a legal name; no
+  legal name is invented (migration 0125). (6) Eurostat's newer table
+  (`bd_size`, from 2021) publishes the one-year rate to 2024; it is stored
+  as `newer_y1` and shown on its own line, never mixed with the 2020 set
+  (D92 stands). (8) After a description is read, the form names what is
+  still missing and asks for it in the person's own words; the next read is
+  told which questions it answers and fills only what is still empty. (7) A
+  town outside the snapshot can be named: it is queued once per country and
+  town (migration 0126) and the daily job `/api/cron/count-towns` counts two
+  a run through Nominatim and Overpass — never while a person waits — with
+  "not found" and "given up after three tries" said in words. (5) A kept
+  idea can have one ScaleX-hosted test page (`/t/<slug>`, migration 0127):
+  the owner's one line (no links or addresses) and the plan's price, with
+  an "I'd buy this at this price" button. It records unique visits a day
+  and unique interest as HMACs under a derived key — no address, cookie,
+  email or payment is kept — append-only, read against lines stored when
+  the page is made (at least 100 visits; 10 % saying they'd buy passes,
+  under 3 % fails, fixed values from `idea-v1.json`). The owner shares it;
+  ScaleX posts it nowhere (rule 40). It closes at launch.

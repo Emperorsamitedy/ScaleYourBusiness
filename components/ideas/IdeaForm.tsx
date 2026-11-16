@@ -32,6 +32,7 @@ const EMPTY = {
   sector: "",
   country: "",
   city: "",
+  town: "",
   customer: "",
   revenue_model: "",
   currency: "EUR",
@@ -45,6 +46,23 @@ const EMPTY = {
   ramp_months: "",
 };
 type Key = keyof typeof EMPTY;
+
+/** Gap 8: what the form needs before it can be sent, in the order it asks. */
+const NEEDED: readonly Key[] = [
+  "sector",
+  "country",
+  "customer",
+  "revenue_model",
+  "price",
+  "variable_cost",
+  "customers_month",
+  "fixed_month",
+  "startup",
+  "capital",
+  "team",
+  "ramp_months",
+];
+const NEEDED_RECRUITMENT: readonly Key[] = ["sector", "country", "customer", "revenue_model"];
 
 const whole = (v: string) => Number.parseInt(v, 10);
 
@@ -64,6 +82,8 @@ export function IdeaForm(p: IdeaFormProps) {
   const [reading, setReading] = useState(false);
   const [readNote, setReadNote] = useState<string | null>(null);
   const [fromText, setFromText] = useState<ReadonlySet<Key>>(new Set());
+  // Gap 8: after a read, what is still missing — asked for in the next round.
+  const [missing, setMissing] = useState<readonly Key[]>([]);
   const recruitment = a.revenue_model === "recruitment";
   const model = a.revenue_model && !recruitment ? a.revenue_model : "one_off";
 
@@ -78,7 +98,7 @@ export function IdeaForm(p: IdeaFormProps) {
       ...prev,
       [k]: e.target.value,
       ...(k === "country"
-        ? { currency: p.currencyByCountry[e.target.value] ?? "EUR", city: "" }
+        ? { currency: p.currencyByCountry[e.target.value] ?? "EUR", city: "", town: "" }
         : {}),
     }));
   };
@@ -90,26 +110,42 @@ export function IdeaForm(p: IdeaFormProps) {
       const res = await fetch("/api/idea/describe", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ text }),
+        body: JSON.stringify({ text, ask: missing }),
       });
       if (res.status === 429) return setReadNote(tr("describe.tooMany"));
       if (res.status === 422) return setReadNote(tr("describe.short"));
       if (!res.ok) return setReadNote(tr("failed"));
       const { fields } = (await res.json()) as { fields: Partial<Record<Key, string | number>> };
-      const keys = (Object.keys(fields) as Key[]).filter((k) => k in EMPTY);
+      // A follow-up round only fills what is still empty: an answer already there stays.
+      const keys = (Object.keys(fields) as Key[]).filter(
+        (k) => k in EMPTY && (missing.length === 0 || a[k] === "" || missing.includes(k)),
+      );
       if (keys.length === 0) return setReadNote(tr("describe.none"));
-      setA((prev) => {
-        const next = { ...prev };
-        for (const k of keys) next[k] = String(fields[k]);
-        if (!keys.includes("currency") && keys.includes("country")) {
-          next.currency = p.currencyByCountry[next.country] ?? prev.currency;
-        }
-        if (keys.includes("country") && !keys.includes("city")) next.city = "";
-        return next;
-      });
+      const next = { ...a };
+      for (const k of keys) next[k] = String(fields[k]);
+      if (!keys.includes("currency") && keys.includes("country")) {
+        next.currency = p.currencyByCountry[next.country] ?? a.currency;
+      }
+      if (keys.includes("country") && !keys.includes("city")) next.city = "";
+      setA(next);
       if (keys.includes("customers_month")) setUnknown(false);
-      setFromText(new Set(keys));
-      setReadNote(tr("describe.filled", { count: keys.length }));
+      setFromText((prev) => new Set([...prev, ...keys]));
+      const still = (next.revenue_model === "recruitment" ? NEEDED_RECRUITMENT : NEEDED).filter(
+        (k) => next[k] === "" && !(k === "customers_month" && unknown),
+      );
+      setMissing(still);
+      setText("");
+      setReadNote(
+        `${tr("describe.filled", { count: keys.length })} ${
+          still.length > 0
+            ? tr("describe.missing", {
+                list: new Intl.ListFormat([locale], { type: "conjunction" }).format(
+                  still.map((k) => tr(`field.${k}`)),
+                ),
+              })
+            : tr("describe.complete")
+        }`,
+      );
     } catch {
       setReadNote(tr("failed"));
     } finally {
@@ -134,6 +170,7 @@ export function IdeaForm(p: IdeaFormProps) {
       : {
           ...a,
           city: a.city === "" ? null : a.city,
+          town: a.city === "" && a.town.trim() !== "" ? a.town.trim() : null,
           price: whole(a.price),
           variable_cost: whole(a.variable_cost),
           customers_month: unknown ? null : whole(a.customers_month),
@@ -227,16 +264,20 @@ export function IdeaForm(p: IdeaFormProps) {
             maxLength={2000}
             value={text}
             onChange={(e) => setText(e.target.value)}
-            placeholder={tr("describe.placeholder")}
+            placeholder={tr(
+              missing.length > 0 ? "describe.followPlaceholder" : "describe.placeholder",
+            )}
           />
         </label>
         <button
           type="button"
           className="next"
-          disabled={reading || text.trim().length < 20}
+          disabled={reading || text.trim().length < (missing.length > 0 ? 3 : 20)}
           onClick={() => void readDescription()}
         >
-          {reading ? tr("describe.working") : tr("describe.button")}
+          {reading
+            ? tr("describe.working")
+            : tr(missing.length > 0 ? "describe.followButton" : "describe.button")}
         </button>
         {readNote && (
           <p className="auth-copy idea-note" role="status">
@@ -261,6 +302,18 @@ export function IdeaForm(p: IdeaFormProps) {
                 </option>
               ))}
             </select>
+          </label>
+        )}
+        {a.country !== "" && a.city === "" && (
+          <label className="entry-q">
+            <span>{tr("q.town")}</span>
+            <input
+              type="text"
+              maxLength={60}
+              value={a.town}
+              onChange={set("town")}
+              placeholder={tr("q.townHint")}
+            />
           </label>
         )}
         {select(

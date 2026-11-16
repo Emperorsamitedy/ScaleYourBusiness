@@ -100,6 +100,13 @@
       "rarely_mapped": ["construction", "trades_services", "cleaning_services", "education_training", "events", "photography_creative", "logistics", "transport", "manufacturing", "wholesale", "agriculture", "nonprofit"]
     }
   },
+  "test_page": {
+    "about": "Gap 5 (2026-11-17): a ScaleX-hosted page for a kept idea that measures interest — unique visits a day and unique 'I'd buy this at this price' clicks — with no personal data. Its lines are set when it is made (rule 41) and are these fixed values, not worked from the plan.",
+    "min_visits": 100,
+    "pass_rate_bp": 1000,
+    "fail_below_rate_bp": 300,
+    "max_pitch_chars": 120
+  },
   "tests": {
     "about": "The cheapest next test for the riskiest assumption (I-30, D95). Pass and fail are worked out from the plan's own break-even before any result exists (rule 41), and kept with the result.",
     "presale": {

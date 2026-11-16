@@ -222,6 +222,15 @@ a subscription's orders not read as subscribers (lib/ideas/keep.test.ts).
 
 ---
 
+## Gaps closed (owner, 2026-11-17, D99)
+
+- [x] **G-3** Signing in from "Keep this idea" comes back to the check
+- [x] **G-4** A kept idea is named in the business switcher until launch (0125)
+- [x] **G-5** A ScaleX-hosted test page that measures interest, no personal data (0127)
+- [x] **G-6** Eurostat's newer one-year survival rate, shown on its own line
+- [x] **G-7** A town outside the snapshot, queued and counted by the daily job (0126)
+- [x] **G-8** Follow-up questions for what a description left out
+
 **Estimate: ~78 hours** across six sessions.
 
 ## Open questions for the owner

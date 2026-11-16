@@ -9604,7 +9604,9 @@
       "team": "People working in it, you included",
       "ramp_months": "How long until sales reach that level?",
       "city": "Which city? (optional)",
-      "cityElsewhere": "Somewhere else, or not decided yet"
+      "cityElsewhere": "Somewhere else, or not decided yet",
+      "town": "Which town? (optional)",
+      "townHint": "If it isn't in the list above"
     },
     "customer": {
       "consumer": "People (consumers)",
@@ -9685,7 +9687,8 @@
         "about": "That's about businesses of this kind, not about your idea.",
         "unmapped": "There's no one Eurostat group for this kind of business, so there are no market figures to set beside it.",
         "outside_eu": "Eurostat's figures cover the EU. Outside it, only your own numbers are worked through.",
-        "unpublished": "Eurostat doesn't publish survival rates for this group in this country."
+        "unpublished": "Eurostat doesn't publish survival rates for this group in this country.",
+        "newer": "Eurostat's newer table ({dataset}) puts the one-year figure at {pct} for {year}. It's counted a different way, so it's shown here on its own, not mixed with the figures above."
       },
       "margin": "Your planned margin: {own}. Across {cell}: {bench}, so yours is {reading}.",
       "perPerson": "Your plan, per person a year: {own}. Across {cell}: {bench}, so yours is {reading}.",
@@ -9785,7 +9788,11 @@
       "fromText": "from your description, check it",
       "none": "Nothing in that could be read as an answer. Fill the form below instead.",
       "short": "Describe the idea in a sentence or two, and keep it under a page.",
-      "tooMany": "Too many descriptions read from here for now. Fill the form below instead."
+      "tooMany": "Too many descriptions read from here for now. Fill the form below instead.",
+      "missing": "Still missing: {list}. Tell me about them in your own words below.",
+      "complete": "That covers everything the form needs. Check each answer, then send it.",
+      "followPlaceholder": "For example: rent and wages come to about … a month, and I'd start with … saved.",
+      "followButton": "Add this to the form"
     },
     "local": {
       "shown": "Mapped on OpenStreetMap in {city}: {count} {group}, about {per} for every {base} residents.",
@@ -9812,7 +9819,50 @@
         "stays": "hotels, guest houses and hostels",
         "estate_agents": "estate agents",
         "bakeries": "bakeries and pastry shops"
+      },
+      "town": {
+        "queued": "{town} isn't counted yet. It's queued, and places like this there are counted on the map within a day or two: keep this idea to see it.",
+        "notFound": "{town} couldn't be found on the map, so there's no count for it.",
+        "countedNoPop": "Mapped on OpenStreetMap in {town}: {count} {group}. The map has no population for it, so there's no figure per resident."
       }
+    },
+    "field": {
+      "sector": "the kind of business",
+      "country": "the country",
+      "customer": "who would buy",
+      "revenue_model": "how money comes in",
+      "price": "the price",
+      "variable_cost": "what one sale costs you",
+      "customers_month": "customers a month",
+      "fixed_month": "monthly costs",
+      "startup": "start-up costs",
+      "capital": "the money you have to start with",
+      "team": "how many people work in it",
+      "ramp_months": "how long until full sales"
+    },
+    "testPage": {
+      "title": "A test of an idea",
+      "missing": "This test page isn't here.",
+      "closed": "This test has ended. Thank you for looking.",
+      "honest": "This is a test of a business idea, made with ScaleX. Nothing is sold here, no payment is taken and no details are asked for: the button only counts that someone would buy.",
+      "buy": "I'd buy this at this price",
+      "thanks": "Thank you. That's counted, and nothing else is taken.",
+      "sectionTitle": "A test page that measures interest",
+      "why": "Make a simple page with one line about your offer and your price, and share its link wherever your customers are. It counts visits and how many people say they'd buy, so the result is measured, not typed in.",
+      "pitchLabel": "One line about what you'd offer",
+      "pitchHint": "For example: fresh coffee by the station, ready in a minute",
+      "pitchRule": "Keep it to one short line of words, with no links or addresses.",
+      "make": "Make the test page",
+      "yours": "Your test page: \"{pitch}\"",
+      "copy": "Copy its link",
+      "counts": "{visits} visits so far, {interested} said they'd buy.",
+      "tooFew": "A reading needs at least {min} visits.",
+      "reading": {
+        "pass": "{rate} said they'd buy: a pass against the line set when the page was made.",
+        "fail": "{rate} said they'd buy: a fail against the line set when the page was made.",
+        "between": "{rate} said they'd buy: between the lines, not a pass and not a fail."
+      },
+      "lines": "The lines, set when the page was made: at least {min} visits; {pass} or more saying they'd buy is a pass, under {fail} is a fail."
     }
   },
   "pricing": {

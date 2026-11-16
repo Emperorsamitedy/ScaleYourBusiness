@@ -37,6 +37,7 @@ interface DemoCell {
   geo: string;
   nace: string;
   rates: Partial<Record<"y1" | "y3" | "y5", Rate>>;
+  newer_y1?: Rate;
 }
 const CELLS = (demography as unknown as { cells: DemoCell[] }).cells;
 const BY_KEY = new Map(CELLS.map((c) => [`${c.geo}|${c.nace}`, c]));
@@ -67,6 +68,8 @@ export type Survival =
       y3: SurvivalRate | null;
       y5: SurvivalRate | null;
       dataset: string;
+      /** Gap 6: the newer table's one-year rate (bd_size), when newer than y1 — shown apart, never mixed. */
+      newer_y1: SurvivalRate | null;
     }
   | { status: "none"; why: "unmapped" | "outside_eu" | "unpublished" };
 
@@ -85,7 +88,9 @@ export function survivalFor(typeCode: string, iso: string, w: Words = benchEngli
     const y1 = rateOf(cell.rates.y1);
     const y3 = rateOf(cell.rates.y3);
     const y5 = rateOf(cell.rates.y5);
-    if (!y1 && !y3 && !y5) continue;
+    const newer = rateOf(cell.newer_y1);
+    const newerY1 = newer && (!y1 || newer.year > y1.year) ? newer : null;
+    if (!y1 && !y3 && !y5 && !newerY1) continue;
     return {
       status: "shown",
       geo: g.geo,
@@ -96,6 +101,7 @@ export function survivalFor(typeCode: string, iso: string, w: Words = benchEngli
       y3,
       y5,
       dataset: DEMOGRAPHY_SOURCE.dataset,
+      newer_y1: newerY1,
     };
   }
   return { status: "none", why: "unpublished" };

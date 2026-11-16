@@ -87,6 +87,41 @@ function LocalP({
   if (local.status === "no_city") {
     return local.offered ? <p className="auth-copy idea-note">{tr("local.noCity")}</p> : null;
   }
+  if (local.status === "town") {
+    if (local.state === "queued") {
+      return <p className="auth-copy idea-note">{tr("local.town.queued", { town: local.town })}</p>;
+    }
+    if (local.state === "not_found") {
+      return (
+        <p className="auth-copy idea-note">{tr("local.town.notFound", { town: local.town })}</p>
+      );
+    }
+    const day = new Intl.DateTimeFormat(locale, { dateStyle: "medium" });
+    return (
+      <>
+        <p className="auth-copy">
+          {local.per_10k === null
+            ? tr("local.town.countedNoPop", {
+                town: local.town,
+                count: f.count(local.count),
+                group: tr(`local.group.${local.group}`),
+              })
+            : tr("local.shown", {
+                city: local.town,
+                count: f.count(local.count),
+                group: tr(`local.group.${local.group}`),
+                per: new Intl.NumberFormat(locale, { maximumFractionDigits: 1 }).format(
+                  local.per_10k,
+                ),
+                base: f.count(10_000),
+              })}
+        </p>
+        <p className="auth-copy idea-note">
+          {tr("local.floor", { date: day.format(new Date(local.counted_at)) })}
+        </p>
+      </>
+    );
+  }
   const name = (n: Record<string, string>) => n[locale] ?? n.en ?? "";
   const one = new Intl.NumberFormat(locale, { maximumFractionDigits: 1 });
   const dates = new Intl.DateTimeFormat(locale, { dateStyle: "medium" });
@@ -320,15 +355,17 @@ export function IdeaResultView({
       <h3 className="idea-h">{tr("result.market")}</h3>
       {s.status === "shown" ? (
         <>
-          <p className="auth-copy">
-            {tr("result.survival.shown", {
-              group: s.group,
-              country: countryName,
-              y1: survivalText(s.y1, f),
-              y3: survivalText(s.y3, f),
-              y5: survivalText(s.y5, f),
-            })}
-          </p>
+          {(s.y1 || s.y3 || s.y5) && (
+            <p className="auth-copy">
+              {tr("result.survival.shown", {
+                group: s.group,
+                country: countryName,
+                y1: survivalText(s.y1, f),
+                y3: survivalText(s.y3, f),
+                y5: survivalText(s.y5, f),
+              })}
+            </p>
+          )}
           <p className="auth-copy idea-note">
             {tr("result.survival.about")} {s.parent && `${tr("result.survival.parent")} `}
             {[s.y1, s.y3, s.y5].some((r) => r?.flag === "b") && `${tr("result.survival.break")} `}
@@ -337,6 +374,15 @@ export function IdeaResultView({
               year: String(s.y5?.year ?? s.y3?.year ?? s.y1?.year ?? ""),
             })}
           </p>
+          {s.newer_y1 && (
+            <p className="auth-copy idea-note">
+              {tr("result.survival.newer", {
+                pct: f.pctOf(s.newer_y1.pct),
+                year: String(s.newer_y1.year),
+                dataset: "bd_size",
+              })}
+            </p>
+          )}
         </>
       ) : (
         <p className="auth-copy">{tr(`result.survival.${s.why}`)}</p>

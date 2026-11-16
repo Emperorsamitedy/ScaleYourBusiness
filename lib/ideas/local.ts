@@ -81,7 +81,20 @@ export type Local =
     }
   | { status: "not_counted"; why: "online" | "too_broad" | "rarely_mapped" }
   /** No city chosen, or none counted; `offered` when the country has counted cities to choose. */
-  | { status: "no_city"; offered: boolean };
+  | { status: "no_city"; offered: boolean }
+  /** Gap 7: a town the person named, queued for the daily count or already counted. */
+  | { status: "town"; town: string; state: "queued" }
+  | { status: "town"; town: string; state: "not_found" }
+  | {
+      status: "town";
+      town: string;
+      state: "counted";
+      group: string;
+      count: number;
+      /** Null when OpenStreetMap has no population for the town. */
+      per_10k: number | null;
+      counted_at: string;
+    };
 
 const per10k = (count: number, population: number) =>
   Math.round((count * 100_000) / population) / 10; // not money: places per 10,000 residents, one decimal

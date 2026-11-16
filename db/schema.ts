@@ -5416,6 +5416,96 @@ export const ideaChecks = pgTable(
 );
 
 /**
+ * Gap 5 (TASKS-IDEAS, 2026-11-17): a ScaleX-hosted test page for a kept
+ * idea — the owner's one-line pitch and the plan's price, with an "I'd buy
+ * this" button. Its lines are stored when it is made (rule 41). Public at
+ * /t/<slug>; closed once the idea launches.
+ */
+export const ideaTestPages = pgTable(
+  "idea_test_pages",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    profile_id: uuid("profile_id").notNull(),
+    idea_check_id: uuid("idea_check_id")
+      .notNull()
+      .references(() => ideaChecks.id),
+    slug: text("slug").notNull(),
+    pitch: text("pitch").notNull(),
+    price_minor: bigint("price_minor", { mode: "number" }).notNull(),
+    currency: text("currency").notNull(),
+    min_visits: integer("min_visits").notNull(),
+    pass_rate_bp: integer("pass_rate_bp").notNull(),
+    fail_below_rate_bp: integer("fail_below_rate_bp").notNull(),
+    created_at: timestamp("created_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [
+    uniqueIndex("idea_test_pages_slug").on(t.slug),
+    uniqueIndex("idea_test_pages_profile").on(t.profile_id),
+  ],
+);
+
+/**
+ * Gap 5: what the test page measured. No personal data: a visitor is a
+ * salted hash of the page, the address and the browser, per day for visits
+ * and once for interest; nothing that could be turned back into who they
+ * are is kept. Append-only (migration 0127).
+ */
+export const ideaTestEvents = pgTable(
+  "idea_test_events",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    page_id: uuid("page_id")
+      .notNull()
+      .references(() => ideaTestPages.id),
+    kind: text("kind").notNull(),
+    visitor: text("visitor").notNull(),
+    day: date("day").notNull(),
+    at: timestamp("at", { withTimezone: true, mode: "string" }).notNull().defaultNow(),
+  },
+  (t) => [
+    uniqueIndex("idea_test_events_once").on(t.page_id, t.kind, t.visitor, t.day),
+    check("idea_test_events_kind", sql`${t.kind} in ('visit', 'interest')`),
+  ],
+);
+
+/**
+ * Gap 7 (TASKS-IDEAS, 2026-11-17): a town someone named that the local
+ * snapshot doesn't hold, queued and counted by the daily job
+ * (/api/cron/count-towns) on OpenStreetMap, the same groups as the
+ * snapshot. One row per country and town; a count is a floor (rule 37).
+ */
+export const localTowns = pgTable(
+  "local_towns",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    country: text("country").notNull(),
+    /** As first typed, for display. */
+    name: text("name").notNull(),
+    /** Lowercased, spaces collapsed: one row per town. */
+    normalized: text("normalized").notNull(),
+    status: text("status").notNull().default("queued"),
+    osm_relation: bigint("osm_relation", { mode: "number" }),
+    population: integer("population"),
+    counts: jsonb("counts"),
+    attempts: integer("attempts").notNull().default(0),
+    requested_at: timestamp("requested_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+    counted_at: timestamp("counted_at", { withTimezone: true, mode: "string" }),
+  },
+  (t) => [
+    uniqueIndex("local_towns_place").on(t.country, t.normalized),
+    index("local_towns_status").on(t.status, t.requested_at),
+    check(
+      "local_towns_status_known",
+      sql`${t.status} in ('queued', 'counted', 'not_found', 'gave_up')`,
+    ),
+  ],
+);
+
+/**
  * I-32: what a test showed, read against the lines stored with it (rule
  * 41). Append-only (migration 0124): a later result is a new row, and the
  * earlier one stays.

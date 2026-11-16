@@ -28,7 +28,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   if (raw.length > MAX_DESCRIPTION_CHARS * 4) {
     return NextResponse.json({ error: "too large" }, { status: 413 });
   }
-  let body: { text?: unknown };
+  let body: { text?: unknown; ask?: unknown };
   try {
     body = JSON.parse(raw) as typeof body;
   } catch {
@@ -47,7 +47,10 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ error: "too_many" }, { status: 429 });
   }
   try {
-    const fields = await describeIdea(body.text, liveDescribeLlm(NO_ACCOUNT));
+    const ask = Array.isArray(body.ask)
+      ? body.ask.filter((k): k is string => typeof k === "string").slice(0, 20)
+      : [];
+    const fields = await describeIdea(body.text, liveDescribeLlm(NO_ACCOUNT), ask);
     console.log(
       JSON.stringify({
         event: "idea_described",

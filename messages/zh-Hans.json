@@ -9604,7 +9604,9 @@
       "team": "参与工作的人数，包括你",
       "ramp_months": "销售需要多久才能达到这个水平？",
       "city": "哪个城市？（可选）",
-      "cityElsewhere": "其他地方，或尚未决定"
+      "cityElsewhere": "其他地方，或尚未决定",
+      "town": "哪个城市？（可选）",
+      "townHint": "如果不在上面的列表中"
     },
     "customer": {
       "consumer": "个人（消费者）",
@@ -9685,7 +9687,8 @@
         "about": "这说的是这类企业，而不是你的想法。",
         "unmapped": "这类企业没有对应的单一 Eurostat 类别，所以没有可以对照的市场数据。",
         "outside_eu": "Eurostat 的数据覆盖欧盟。在欧盟之外，只计算你自己的数字。",
-        "unpublished": "Eurostat 未发布该类别在这个国家的存活率。"
+        "unpublished": "Eurostat 未发布该类别在这个国家的存活率。",
+        "newer": "Eurostat 较新的数据表（{dataset}）给出的 {year} 年一年存活率为 {pct}。它的统计方式不同，所以在这里单独列出，不与上面的数据混在一起。"
       },
       "margin": "你计划的利润率：{own}。在 {cell} 中：{bench}，所以你的水平{reading}。",
       "perPerson": "你的计划，每人每年：{own}。在 {cell} 中：{bench}，所以你的水平{reading}。",
@@ -9785,7 +9788,11 @@
       "fromText": "来自你的描述，请检查",
       "none": "这段文字中没有可以作为回答读取的内容。请改为填写下方的表单。",
       "short": "用一两句话描述这个想法，篇幅不要超过一页。",
-      "tooMany": "从这里读取的描述暂时太多了。请改为填写下方的表单。"
+      "tooMany": "从这里读取的描述暂时太多了。请改为填写下方的表单。",
+      "missing": "还缺少：{list}。请在下方用你自己的话说明。",
+      "complete": "表单需要的内容都齐了。请逐一检查每个回答，然后提交。",
+      "followPlaceholder": "例如：租金和工资每月大约 …，我会用 … 的积蓄起步。",
+      "followButton": "添加到表单"
     },
     "local": {
       "shown": "在 OpenStreetMap 上，{city} 标注了 {count} 家{group}，约合每 {base} 名居民 {per} 家。",
@@ -9812,7 +9819,50 @@
         "stays": "酒店、民宿和青年旅舍",
         "estate_agents": "房产中介",
         "bakeries": "面包店和糕点店"
+      },
+      "town": {
+        "queued": "{town} 尚未统计。它已排入队列，那里的此类场所会在一两天内在地图上完成统计：保存这个想法即可查看。",
+        "notFound": "在地图上找不到 {town}，因此没有它的统计。",
+        "countedNoPop": "在 OpenStreetMap 上，{town} 标注了 {count} 家{group}。地图上没有它的人口数据，因此没有按居民计算的数字。"
       }
+    },
+    "field": {
+      "sector": "企业类型",
+      "country": "国家",
+      "customer": "谁会购买",
+      "revenue_model": "钱从哪里来",
+      "price": "价格",
+      "variable_cost": "一笔销售的成本",
+      "customers_month": "每月客户数",
+      "fixed_month": "每月成本",
+      "startup": "启动成本",
+      "capital": "你的启动资金",
+      "team": "参与工作的人数",
+      "ramp_months": "多久能达到完整的销售水平"
+    },
+    "testPage": {
+      "title": "一个想法的测试",
+      "missing": "这里没有这个测试页面。",
+      "closed": "这个测试已经结束。感谢你的浏览。",
+      "honest": "这是一个企业想法的测试，由 ScaleX 制作。这里不出售任何东西，不收取任何付款，也不索取任何信息：这个按钮只记录有人愿意购买。",
+      "buy": "按这个价格，我愿意买",
+      "thanks": "谢谢。已记录，除此之外不收集任何信息。",
+      "sectionTitle": "衡量兴趣的测试页面",
+      "why": "制作一个简单的页面，用一行字介绍你的产品或服务和价格，然后在你的客户所在的地方分享它的链接。它会统计访问次数和表示愿意购买的人数，所以结果是实际测得的，而不是手动填写的。",
+      "pitchLabel": "用一行字介绍你会提供什么",
+      "pitchHint": "例如：车站旁的现磨咖啡，一分钟就好",
+      "pitchRule": "只写一行简短的文字，不要包含链接或地址。",
+      "make": "制作测试页面",
+      "yours": "你的测试页面：“{pitch}”",
+      "copy": "复制链接",
+      "counts": "目前已有 {visits} 次访问，{interested} 人表示愿意购买。",
+      "tooFew": "至少需要 {min} 次访问才能得出读数。",
+      "reading": {
+        "pass": "{rate} 表示愿意购买：按制作页面时定下的标准，算通过。",
+        "fail": "{rate} 表示愿意购买：按制作页面时定下的标准，算不通过。",
+        "between": "{rate} 表示愿意购买：介于两条标准之间，既不算通过，也不算不通过。"
+      },
+      "lines": "制作页面时定下的标准：至少 {min} 次访问；表示愿意购买的达到 {pass} 或以上算通过，低于 {fail} 算不通过。"
     }
   },
   "pricing": {

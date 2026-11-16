@@ -5,7 +5,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { KeepIdea } from "../../../components/ideas/IdeaActions";
 import { IdeaResultView } from "../../../components/ideas/IdeaResultView";
-import { ideaByToken } from "../../../lib/ideas/check";
+import { freshLocal, ideaByToken } from "../../../lib/ideas/check";
 import { requestLocale } from "../../../lib/i18n/server";
 import { trFor } from "../../../lib/i18n/server-tr";
 import "../../ideas.css";
@@ -19,7 +19,8 @@ export default async function SharedIdeaPage({ params }: { params: Promise<{ tok
   const { token } = await params;
   const locale = await requestLocale();
   const tr = trFor(locale, "ideas");
-  const shared = await ideaByToken(token);
+  const found = await ideaByToken(token);
+  const shared = found ? { ...found, result: await freshLocal(found.result, found.answers) } : null;
   return (
     <main className="auth-stage">
       <div className="statement-col">

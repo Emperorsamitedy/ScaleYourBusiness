@@ -9604,7 +9604,9 @@
       "team": "Personas que trabajan en él, tú incluido",
       "ramp_months": "¿Cuánto tardarían las ventas en llegar a ese nivel?",
       "city": "¿Qué ciudad? (opcional)",
-      "cityElsewhere": "En otro sitio, o aún sin decidir"
+      "cityElsewhere": "En otro sitio, o aún sin decidir",
+      "town": "¿Qué ciudad? (opcional)",
+      "townHint": "Si no está en la lista de arriba"
     },
     "customer": {
       "consumer": "Personas (consumidores)",
@@ -9685,7 +9687,8 @@
         "about": "Esto habla de los negocios de este tipo, no de tu idea.",
         "unmapped": "No hay un único grupo de Eurostat para este tipo de negocio, así que no hay cifras de mercado que poner al lado.",
         "outside_eu": "Las cifras de Eurostat cubren la UE. Fuera de ella, solo se trabajan tus propios números.",
-        "unpublished": "Eurostat no publica tasas de supervivencia para este grupo en este país."
+        "unpublished": "Eurostat no publica tasas de supervivencia para este grupo en este país.",
+        "newer": "La tabla más reciente de Eurostat ({dataset}) sitúa la cifra a un año en {pct} para {year}. Se cuenta de otra manera, así que se muestra aquí aparte, sin mezclarla con las cifras de arriba."
       },
       "margin": "Tu margen previsto: {own}. En {cell}: {bench}, así que el tuyo está {reading}.",
       "perPerson": "Tu plan, por persona y año: {own}. En {cell}: {bench}, así que el tuyo está {reading}.",
@@ -9785,7 +9788,11 @@
       "fromText": "de tu descripción, revísala",
       "none": "No se ha podido leer nada de eso como una respuesta. Rellena el formulario de abajo.",
       "short": "Describe la idea en una o dos frases, y que no pase de una página.",
-      "tooMany": "Por ahora se han leído demasiadas descripciones desde aquí. Rellena el formulario de abajo."
+      "tooMany": "Por ahora se han leído demasiadas descripciones desde aquí. Rellena el formulario de abajo.",
+      "missing": "Todavía sin responder: {list}. Cuéntamelo abajo con tus propias palabras.",
+      "complete": "Con esto el formulario tiene todo lo que necesita. Revisa cada respuesta y luego envíalo.",
+      "followPlaceholder": "Por ejemplo: el alquiler y los sueldos suman unos … al mes, y empezaría con … ahorrados.",
+      "followButton": "Añadir esto al formulario"
     },
     "local": {
       "shown": "En OpenStreetMap figuran en {city}: {count} {group}, aproximadamente {per} por cada {base} habitantes.",
@@ -9812,7 +9819,50 @@
         "stays": "hoteles, pensiones y albergues",
         "estate_agents": "agencias inmobiliarias",
         "bakeries": "panaderías y pastelerías"
+      },
+      "town": {
+        "queued": "{town} aún no está contada. Está en cola, y los lugares de este tipo que hay allí se cuentan en el mapa en un día o dos: guarda esta idea para verlo.",
+        "notFound": "No se ha encontrado {town} en el mapa, así que no hay recuento.",
+        "countedNoPop": "En OpenStreetMap figuran en {town}: {count} {group}. El mapa no tiene su población, así que no hay cifra por habitante."
       }
+    },
+    "field": {
+      "sector": "el tipo de negocio",
+      "country": "el país",
+      "customer": "quién compraría",
+      "revenue_model": "cómo entra el dinero",
+      "price": "el precio",
+      "variable_cost": "lo que te cuesta una venta",
+      "customers_month": "los clientes al mes",
+      "fixed_month": "los costes mensuales",
+      "startup": "los costes de puesta en marcha",
+      "capital": "el dinero con el que empiezas",
+      "team": "cuántas personas trabajan en él",
+      "ramp_months": "cuánto tardan las ventas en llegar a su nivel pleno"
+    },
+    "testPage": {
+      "title": "Una prueba de una idea",
+      "missing": "Esta página de prueba no está aquí.",
+      "closed": "Esta prueba ha terminado. Gracias por echar un vistazo.",
+      "honest": "Esta es una prueba de una idea de negocio, hecha con ScaleX. Aquí no se vende nada, no se cobra nada y no se piden datos: el botón solo cuenta que alguien compraría.",
+      "buy": "Lo compraría a este precio",
+      "thanks": "Gracias. Queda contado, y no se recoge nada más.",
+      "sectionTitle": "Una página de prueba que mide el interés",
+      "why": "Crea una página sencilla con una línea sobre tu oferta y tu precio, y comparte su enlace allí donde estén tus clientes. Cuenta las visitas y cuántas personas dicen que comprarían, así que el resultado se mide, no se escribe a mano.",
+      "pitchLabel": "Una línea sobre lo que ofrecerías",
+      "pitchHint": "Por ejemplo: café recién hecho junto a la estación, listo en un minuto",
+      "pitchRule": "Que sea una sola línea corta de texto, sin enlaces ni direcciones.",
+      "make": "Crear la página de prueba",
+      "yours": "Tu página de prueba: «{pitch}»",
+      "copy": "Copiar su enlace",
+      "counts": "Hasta ahora, {visits} visitas; {interested} dijeron que comprarían.",
+      "tooFew": "Para una lectura hacen falta al menos {min} visitas.",
+      "reading": {
+        "pass": "{rate} dijeron que comprarían: un aprobado según el umbral fijado al crear la página.",
+        "fail": "{rate} dijeron que comprarían: un suspenso según el umbral fijado al crear la página.",
+        "between": "{rate} dijeron que comprarían: entre los umbrales, ni aprobado ni suspenso."
+      },
+      "lines": "Los umbrales, fijados al crear la página: al menos {min} visitas; {pass} o más que digan que comprarían es un aprobado, por debajo de {fail} es un suspenso."
     }
   },
   "pricing": {

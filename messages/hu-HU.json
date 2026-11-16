@@ -9604,7 +9604,9 @@
       "team": "Benne dolgozók száma, veled együtt",
       "ramp_months": "Mennyi idő alatt érik el az eladások ezt a szintet?",
       "city": "Melyik város? (nem kötelező)",
-      "cityElsewhere": "Máshol, vagy még nem döntöttem el"
+      "cityElsewhere": "Máshol, vagy még nem döntöttem el",
+      "town": "Melyik város? (nem kötelező)",
+      "townHint": "Ha nincs a fenti listában"
     },
     "customer": {
       "consumer": "Magánszemélyek (fogyasztók)",
@@ -9685,7 +9687,8 @@
         "about": "Ez az ilyen típusú vállalkozásokról szól, nem az ötletedről.",
         "unmapped": "Ehhez a vállalkozástípushoz nincs egyetlen Eurostat-csoport, ezért nincsenek piaci adatok, amelyeket mellé lehetne tenni.",
         "outside_eu": "Az Eurostat adatai az EU-ra vonatkoznak. Azon kívül csak a saját számaidat számoljuk végig.",
-        "unpublished": "Az Eurostat nem közöl túlélési arányt erre a csoportra ebben az országban."
+        "unpublished": "Az Eurostat nem közöl túlélési arányt erre a csoportra ebben az országban.",
+        "newer": "Az Eurostat újabb táblázata ({dataset}) szerint az egyéves érték {year} évre {pct}. Ezt másképp számolják, ezért itt külön szerepel, nem keverjük a fenti adatokkal."
       },
       "margin": "A tervezett árrésed: {own}. {cell} körében: {bench}, vagyis a tiéd {reading}.",
       "perPerson": "A terved, személyenként évente: {own}. {cell} körében: {bench}, vagyis a tiéd {reading}.",
@@ -9785,7 +9788,11 @@
       "fromText": "a leírásodból, ellenőrizd",
       "none": "Ebből semmit sem lehetett válaszként értelmezni. Töltsd ki inkább a lenti űrlapot.",
       "short": "Írd le az ötletet egy-két mondatban, és maradj egy oldalon belül.",
-      "tooMany": "Innen egyelőre túl sok leírást olvastunk be. Töltsd ki inkább a lenti űrlapot."
+      "tooMany": "Innen egyelőre túl sok leírást olvastunk be. Töltsd ki inkább a lenti űrlapot.",
+      "missing": "Még hiányzik: {list}. Írd le ezeket alább a saját szavaiddal.",
+      "complete": "Ezzel az űrlapon minden szükséges adat megvan. Ellenőrizd az összes választ, aztán küldd el.",
+      "followPlaceholder": "Például: a bérleti díj és a bérek havonta nagyjából … tesznek ki, és … megtakarítással indulnék.",
+      "followButton": "Hozzáadás az űrlaphoz"
     },
     "local": {
       "shown": "{city} városban az OpenStreetMap térképén {count} {group} szerepel, ez nagyjából {per} minden {base} lakosra.",
@@ -9812,7 +9819,50 @@
         "stays": "szálloda, panzió és hostel",
         "estate_agents": "ingatlaniroda",
         "bakeries": "pékség és cukrászda"
+      },
+      "town": {
+        "queued": "{town} még nincs megszámolva. Sorban áll, és az ott lévő ilyen helyeket egy-két napon belül megszámoljuk a térképen: tartsd meg ezt az ötletet, hogy lásd.",
+        "notFound": "{town} nem található a térképen, ezért nincs hozzá számlálás.",
+        "countedNoPop": "{town} városban az OpenStreetMap térképén {count} {group} szerepel. A térképen nincs lakosságszám hozzá, ezért nincs lakosonkénti adat."
       }
+    },
+    "field": {
+      "sector": "a vállalkozás típusa",
+      "country": "az ország",
+      "customer": "ki vásárolna",
+      "revenue_model": "honnan jön a pénz",
+      "price": "az ár",
+      "variable_cost": "amibe egy eladás neked kerül",
+      "customers_month": "a havi ügyfélszám",
+      "fixed_month": "a havi költségek",
+      "startup": "az indulási költségek",
+      "capital": "a pénz, amivel indulsz",
+      "team": "hányan dolgoznak benne",
+      "ramp_months": "mennyi idő alatt érik el az eladások a teljes szintet"
+    },
+    "testPage": {
+      "title": "Egy ötlet tesztje",
+      "missing": "Ez a tesztoldal nincs itt.",
+      "closed": "Ez a teszt véget ért. Köszönjük, hogy megnézted.",
+      "honest": "Ez egy vállalkozási ötlet tesztje, a ScaleX segítségével készült. Itt semmit sem árulnak, nincs fizetés és nem kérünk adatokat: a gomb csak azt számolja, hogy valaki megvenné.",
+      "buy": "Ezen az áron megvenném",
+      "thanks": "Köszönjük. Ezt megszámoltuk, és semmi mást nem rögzítünk.",
+      "sectionTitle": "Tesztoldal, amely az érdeklődést méri",
+      "why": "Készíts egy egyszerű oldalt egy sorral az ajánlatodról és az áradról, és oszd meg a linkjét ott, ahol az ügyfeleid vannak. Számolja a látogatásokat és azt, hányan mondják, hogy megvennék, így az eredmény mért, nem beírt.",
+      "pitchLabel": "Egy sor arról, mit kínálnál",
+      "pitchHint": "Például: friss kávé az állomásnál, egy perc alatt kész",
+      "pitchRule": "Maradj egyetlen rövid sornál, linkek és címek nélkül.",
+      "make": "Tesztoldal létrehozása",
+      "yours": "A tesztoldalad: „{pitch}”",
+      "copy": "Link másolása",
+      "counts": "Eddig {visits} látogatás, {interested} fő mondta, hogy megvenné.",
+      "tooFew": "Az értékeléshez legalább {min} látogatás kell.",
+      "reading": {
+        "pass": "{rate} mondta, hogy megvenné: sikeres az oldal létrehozásakor rögzített határhoz képest.",
+        "fail": "{rate} mondta, hogy megvenné: sikertelen az oldal létrehozásakor rögzített határhoz képest.",
+        "between": "{rate} mondta, hogy megvenné: a határok között, se nem sikeres, se nem sikertelen."
+      },
+      "lines": "A határok, az oldal létrehozásakor rögzítve: legalább {min} látogatás; ha {pass} vagy több mondja, hogy megvenné, az sikeres, {fail} alatt sikertelen."
     }
   },
   "pricing": {

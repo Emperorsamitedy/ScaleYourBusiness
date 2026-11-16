@@ -20,6 +20,7 @@ import { sectorLines, survivalFor } from "./sector";
 import { toMinor } from "./units";
 import type { Local } from "./local";
 import { isCityOf, localFor } from "./local";
+import { TOWN_RE, requestTown, townLocal, townRow } from "./towns";
 
 export { toMinor };
 
@@ -68,6 +69,8 @@ export interface IdeaAnswers {
   ramp_months: number | null;
   /** D98: the chosen city (its Wikidata id, from the local snapshot), or null for "somewhere else". */
   city?: string | null;
+  /** Gap 7: a town named when no listed city fits, queued for the daily count. */
+  town?: string | null;
 }
 
 export type NextTest =
@@ -123,7 +126,11 @@ export function checkIdeaAnswers(raw: unknown): IdeaAnswers {
   const currency = oneOf(a.currency, CURRENCIES, "a currency");
   const city = typeof a.city === "string" && a.city !== "" ? a.city : null;
   if (city !== null && !isCityOf(country, city)) throw new IdeaError("choose a city from the list");
-  const base = { sector, country, customer, revenue_model, currency, city };
+  const townRaw = typeof a.town === "string" ? a.town.trim().replace(/\s+/g, " ") : "";
+  if (townRaw !== "" && !TOWN_RE.test(townRaw))
+    throw new IdeaError("give the town's name in letters");
+  const town = city === null && townRaw !== "" ? townRaw : null;
+  const base = { sector, country, customer, revenue_model, currency, city, town };
   if (revenue_model === "recruitment") {
     return {
       ...base,
@@ -252,11 +259,23 @@ export async function runIdea(args: {
   words?: Words;
 }): Promise<{ token: string; result: IdeaResult; answers: IdeaAnswers }> {
   const answers = checkIdeaAnswers(args.answers);
-  const result = evaluateIdea(answers, args.words);
+  let result = evaluateIdea(answers, args.words);
+  // Gap 7: a named town is queued (never fetched while the person waits).
+  if (result.status === "worked" && answers.town && result.local.status === "no_city") {
+    const row = await requestTown(answers.country, answers.town);
+    result = { ...result, local: townLocal(answers.sector, row) };
+  }
   const locale: AppLocale = isAppLocale(args.locale) ? args.locale : "en";
   const token = newToken();
   await db.insert(ideaChecks).values({ token, answers, result, locale });
   return { token, result, answers };
+}
+
+/** Gap 7: a queued town's count, read again now — it may have been counted since. */
+export async function freshLocal(result: IdeaResult, answers: IdeaAnswers): Promise<IdeaResult> {
+  if (result.status !== "worked" || result.local.status !== "town" || !answers.town) return result;
+  const row = await townRow(answers.country, answers.town);
+  return row ? { ...result, local: townLocal(answers.sector, row) } : result;
 }
 
 /** A shared idea check, as it was when it was made. */

@@ -168,3 +168,51 @@ export function LaunchIdea() {
     </div>
   );
 }
+
+/** Gap 5: make the idea's test page from one line about the offer. */
+export function MakeTestPage() {
+  const { tr } = useTr("ideas");
+  const [pitch, setPitch] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  return (
+    <form
+      className="entry-col"
+      onSubmit={async (e) => {
+        e.preventDefault();
+        setBusy(true);
+        setError(null);
+        try {
+          const res = await post("/api/idea/testpage", { pitch });
+          if (res.status === 422) return setError(tr("testPage.pitchRule"));
+          if (!res.ok) return setError(tr("failed"));
+          window.location.reload();
+        } catch {
+          setError(tr("failed"));
+        } finally {
+          setBusy(false);
+        }
+      }}
+    >
+      <label className="entry-q">
+        <span>{tr("testPage.pitchLabel")}</span>
+        <input
+          type="text"
+          maxLength={120}
+          value={pitch}
+          onChange={(e) => setPitch(e.target.value)}
+          placeholder={tr("testPage.pitchHint")}
+          required
+        />
+      </label>
+      <button type="submit" className="act" disabled={busy}>
+        {busy ? tr("working") : tr("testPage.make")}
+      </button>
+      {error && (
+        <p className="auth-copy" role="alert">
+          {error}
+        </p>
+      )}
+    </form>
+  );
+}
