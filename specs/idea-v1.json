@@ -1,0 +1,73 @@
+{
+  "version": "1",
+  "about": "The idea check (TASKS-IDEAS.md, D93): a person with a business idea answers these, and lib/ideas sets the plan's own arithmetic beside Eurostat's figures for that kind of business in that country. Questions, options and every threshold live here as data; the code only applies them. Money is whole units of the chosen currency in the form and integer minor units everywhere after (rule 1).",
+  "questions": [
+    { "id": "sector", "kind": "business_type" },
+    { "id": "country", "kind": "country" },
+    { "id": "customer", "kind": "choice", "options": ["consumer", "business", "both"] },
+    {
+      "id": "revenue_model",
+      "kind": "choice",
+      "options": ["one_off", "subscription", "commission", "recruitment"]
+    },
+    { "id": "currency", "kind": "currency" },
+    { "id": "price", "kind": "money", "min": 1, "unless": { "revenue_model": "recruitment" } },
+    { "id": "variable_cost", "kind": "money", "min": 0, "unless": { "revenue_model": "recruitment" } },
+    {
+      "id": "customers_month",
+      "kind": "count_or_unknown",
+      "min": 1,
+      "max": 1000000,
+      "unless": { "revenue_model": "recruitment" }
+    },
+    { "id": "fixed_month", "kind": "money", "min": 0, "unless": { "revenue_model": "recruitment" } },
+    { "id": "startup", "kind": "money", "min": 0, "unless": { "revenue_model": "recruitment" } },
+    { "id": "capital", "kind": "money", "min": 0, "unless": { "revenue_model": "recruitment" } },
+    { "id": "team", "kind": "count", "min": 1, "max": 500, "unless": { "revenue_model": "recruitment" } },
+    {
+      "id": "ramp_months",
+      "kind": "choice",
+      "options": ["1", "3", "6", "12"],
+      "unless": { "revenue_model": "recruitment" }
+    }
+  ],
+  "currencies": ["EUR", "BGN", "CZK", "DKK", "HUF", "PLN", "RON", "SEK", "GBP", "CHF", "NOK", "USD"],
+  "currency_by_country": {
+    "BG": "BGN",
+    "CZ": "CZK",
+    "DK": "DKK",
+    "HU": "HUF",
+    "PL": "PLN",
+    "RO": "RON",
+    "SE": "SEK",
+    "GB": "GBP",
+    "CH": "CHF",
+    "NO": "NOK"
+  },
+  "max_amount_major": 100000000,
+  "horizon_months": 36,
+  "tests": {
+    "about": "The cheapest next test for the riskiest assumption (I-30, D95). Pass and fail are worked out from the plan's own break-even before any result exists (rule 41), and kept with the result.",
+    "presale": {
+      "for": ["customers"],
+      "customer": ["consumer"],
+      "weeks": 4,
+      "pass_share_of_break_even_bp": 2500,
+      "fail_below_share_of_break_even_bp": 1000
+    },
+    "pilots": {
+      "for": ["customers"],
+      "customer": ["business", "both"],
+      "weeks": 3,
+      "conversations": 10,
+      "pass_at_least": 3,
+      "fail_at_most": 0
+    },
+    "quotes": {
+      "for": ["variable_cost", "fixed_month"],
+      "customer": ["consumer", "business", "both"],
+      "weeks": 2,
+      "quotes": 3
+    }
+  }
+}

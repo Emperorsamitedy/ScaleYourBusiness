@@ -9506,6 +9506,145 @@
     "sharedLabel": "分享的结果",
     "missing": "这里没有这个结果。"
   },
+  "ideas": {
+    "meta": {
+      "title": "想法检查"
+    },
+    "kicker": "想法检查 · 免费 · 无需账户",
+    "title": "在花钱之前，先把一个企业想法算清楚",
+    "intro": "大约两分钟。用你自己的数字算一遍：需要多少客户才能覆盖成本，钱会在什么时候用完，计划最依赖哪个数字，以及最便宜的验证方法。旁边列出 Eurostat 关于同类企业的数据。绝不是对你想法的评判。",
+    "fromCheck": "还没开始经营？那就先把一个想法算一遍。",
+    "pick": "请选择…",
+    "dontKnow": "我还不知道",
+    "submit": "算一遍",
+    "working": "正在计算…",
+    "failed": "没有成功。请稍后再试。",
+    "tooMany": "过去一小时内从这里发起的检查太多。请稍后再试。",
+    "q": {
+      "sector": "会是什么类型的企业？",
+      "country": "会在哪里？",
+      "customer": "谁会购买？",
+      "revenue_model": "钱会怎么进来？",
+      "currency": "货币",
+      "price": {
+        "one_off": "一笔销售的价格",
+        "subscription": "每位订阅者每月的价格",
+        "commission": "你从一笔销售中能赚多少"
+      },
+      "variable_cost": {
+        "one_off": "一笔销售的成本（材料、库存、配送、支付手续费）",
+        "subscription": "每位订阅者每月的成本",
+        "commission": "促成一笔销售的成本"
+      },
+      "customers_month": {
+        "one_off": "步入正轨后每月的销售笔数",
+        "subscription": "步入正轨后的订阅者数量",
+        "commission": "步入正轨后每月的销售笔数"
+      },
+      "fixed_month": "每月都有的成本，无论卖多少（租金、工资、软件）",
+      "startup": "一次性启动成本（装修、设备、首批库存）",
+      "capital": "你的启动资金",
+      "team": "参与工作的人数，包括你",
+      "ramp_months": "销售需要多久才能达到这个水平？"
+    },
+    "customer": {
+      "consumer": "个人（消费者）",
+      "business": "其他企业",
+      "both": "两者都有"
+    },
+    "model": {
+      "one_off": "销售商品或服务，一笔一笔地卖",
+      "subscription": "按月订阅",
+      "commission": "从我促成的每笔销售中收取佣金",
+      "recruitment": "主要靠招募其他销售者"
+    },
+    "ramp": {
+      "1": "大约一个月",
+      "3": "大约 3 个月",
+      "6": "大约 6 个月",
+      "12": "大约一年"
+    },
+    "result": {
+      "label": "你的想法，算一遍之后",
+      "notVerdict": "这不是对你想法的评判。这是用你自己的数字算出来的结果，并与同类企业的记录数据放在一起。",
+      "yours": "你的数字 · 你的估算",
+      "market": "同类企业 · 记录数据",
+      "recruitment": {
+        "title": "这里不计算来自招募的收入",
+        "body": "如果大部分收入来自招募其他销售者，而不是向终端客户销售，那么只有招募持续增长，这些数字才成立。主要为招募付钱的模式在整个欧盟都被禁止（《不公平商业行为指令》附件一）。如果你会自己向终端客户销售产品，请改选单笔销售。凡是为招募付钱的，请先咨询律师。"
+      },
+      "losesPerSale": "每笔销售扣除自身成本后剩下 {amount}，没有余钱支付其他开支。必须先改变价格或单笔销售的成本，其他数字才能算下去。",
+      "contribution": "每笔销售扣除自身成本后剩下 {amount}。",
+      "breakEven": "每月有 {count} 位客户，就能覆盖你的每月成本。",
+      "atPlan": "按每月 {customers} 计算：每月收入 {revenue}，剩余 {profit}，利润率 {margin}。",
+      "short": "按每月 {customers} 计算，你每月会缺 {loss}。以下任何一项都能单独填补这个缺口：",
+      "cash": {
+        "start": "启动资金 {capital}，减去 {startup} 的启动成本，剩下 {left}。",
+        "dayOne": "启动成本比你手上的钱多出 {shortfall}。",
+        "runsOut": "按你预期的节奏，钱会在第 {month} 个月用完。要撑过去，你大约还需要 {shortfall}。",
+        "holds": "按你预期的节奏，钱在第 {month} 个月最少，为 {lowest}，三年内不会用完。",
+        "covers": "第一个能覆盖自身成本的月份是第 {month} 个月。",
+        "neverCovers": "三年内没有任何一个月能覆盖自身成本。"
+      },
+      "riskiest": {
+        "title": "你的计划最依赖的数字",
+        "unknown": "你会有多少客户。你现在还不知道，而计划每月需要 {count} 位客户才能覆盖成本。",
+        "customers": "你的客户数估算。它可以下降 {room}，降到每月 {to}，之后才会有月份覆盖不了成本。这比你估算的任何其他数字的余地都小。",
+        "variable_cost": "一笔销售的成本。它只能上升 {room}，升到 {to}，之后就会有月份覆盖不了成本。这比你估算的任何其他数字的余地都小。",
+        "fixed_month": "你的每月成本。它只能上升 {room}，升到 {to}，之后就会有月份覆盖不了成本。这比你估算的任何其他数字的余地都小。",
+        "above_sector": "你的客户数估算。按计划，每人每年带来 {own}；在 {cell} 中，这一数字为 {bench}。你的计划要求的人均产出高于该行业的水平。"
+      },
+      "room": {
+        "title": "每个数字有多少余地",
+        "customers": "每月客户数：{stated}，计划最低可承受到 {to}",
+        "price": "价格（由你决定）：{stated}，计划最低可承受到 {to}",
+        "variable_cost": "单笔销售成本：{stated}，计划最高可承受到 {to}",
+        "fixed_month": "每月成本：{stated}，计划最高可承受到 {to}"
+      },
+      "lever": {
+        "customers": "每月 {to} 位客户",
+        "price": "价格定为 {to}",
+        "variable_cost": "单笔销售成本为 {to}",
+        "fixed_month": "每月成本为 {to}"
+      },
+      "test": {
+        "title": "最便宜的验证方法",
+        "presale": "在做任何东西之前，先收取付费定金。在 {weeks} 周内，达到 {pass} 或以上算通过，少于 {fail} 算不通过。你每月需要 {count} 位客户才能覆盖成本。",
+        "pilots": "和 {conversations} 家可能购买的企业谈一谈。在 {weeks} 周内，如果有 {pass} 家或以上同意按你的价格做付费试点，就算通过；{fail} 家或以下则算不通过。",
+        "quotes": "为{cost}拿到 {quotes} 份书面报价。如果居中的那份报价不高于 {pass}，就算通过。不低于 {fail} 则算不通过：那正是某个月开始覆盖不了成本的位置。",
+        "cost": {
+          "variable_cost": "单笔销售的成本",
+          "fixed_month": "你的每月成本"
+        },
+        "setNow": "这些标准现在就定下，在你开始测试之前，这样结果就无法事后迁就地解读。",
+        "none": "先让数字在纸面上算得通。测试之后再说。"
+      },
+      "survival": {
+        "shown": "在 {country} 新成立的{group}中，{y1} 在一年后仍在经营，三年后为 {y3}，五年后为 {y5}。",
+        "source": "Eurostat，{dataset}，{year}。",
+        "parent": "Eurostat 没有发布你这类企业的确切数据，所以这里用的是更大的类别。",
+        "break": "Eurostat 标注这组数据存在断点。",
+        "about": "这说的是这类企业，而不是你的想法。",
+        "unmapped": "这类企业没有对应的单一 Eurostat 类别，所以没有可以对照的市场数据。",
+        "outside_eu": "Eurostat 的数据覆盖欧盟。在欧盟之外，只计算你自己的数字。",
+        "unpublished": "Eurostat 未发布该类别在这个国家的存活率。"
+      },
+      "margin": "你计划的利润率：{own}。在 {cell} 中：{bench}，所以你的水平{reading}。",
+      "perPerson": "你的计划，每人每年：{own}。在 {cell} 中：{bench}，所以你的水平{reading}。",
+      "reading": {
+        "above": "更高",
+        "below": "更低",
+        "same": "差不多"
+      },
+      "sources": "市场数据：Eurostat（bd_9bd_sz_cl_r2、sbs_sc_ovw）。Eurostat 不对其数据的这些用途负责。"
+    },
+    "share": "分享这次检查",
+    "copied": "链接已复制",
+    "again": "检查另一个想法",
+    "next": "已经在经营了？测量真实情况。",
+    "sharedLabel": "分享的想法检查",
+    "missing": "这里没有这个想法检查。"
+  },
   "pricing": {
     "meta": {
       "title": "方案"

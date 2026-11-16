@@ -2,6 +2,7 @@
 // questions, no account, the result on the same page. Public.
 
 import type { Metadata } from "next";
+import Link from "next/link";
 import { EntryForm } from "../../components/entry/EntryForm";
 import { entryOptions } from "../../lib/entry/options";
 import { requestLocale } from "../../lib/i18n/server";
@@ -28,6 +29,9 @@ export default async function CheckPage({
           <span className="auth-eyebrow">{tr("kicker")}</span>
           <h1 className="auth-title">{tr("title")}</h1>
           <p className="auth-copy">{tr("intro")}</p>
+          <p className="auth-copy">
+            <Link href="/idea">{trFor(locale, "ideas")("fromCheck")}</Link>
+          </p>
         </section>
         <EntryForm
           {...options}

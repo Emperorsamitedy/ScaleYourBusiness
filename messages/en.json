@@ -9506,6 +9506,145 @@
     "sharedLabel": "A shared result",
     "missing": "That result isn't here."
   },
+  "ideas": {
+    "meta": {
+      "title": "Idea check"
+    },
+    "kicker": "Idea check · free · no account",
+    "title": "Work a business idea through before you spend on it",
+    "intro": "About two minutes. Your own numbers, worked through: how many customers it takes to cover your costs, when the money would run out, the number the plan leans on most, and the cheapest way to test it. Set beside Eurostat's figures for businesses like it. Never a verdict on your idea.",
+    "fromCheck": "Not trading yet? Work an idea through instead.",
+    "pick": "Choose…",
+    "dontKnow": "I don't know yet",
+    "submit": "Work it through",
+    "working": "Working it through…",
+    "failed": "That didn't work. Try again in a moment.",
+    "tooMany": "Too many checks from here in the last hour. Try again later.",
+    "q": {
+      "sector": "What kind of business would it be?",
+      "country": "Where would it be?",
+      "customer": "Who would buy?",
+      "revenue_model": "How would money come in?",
+      "currency": "Currency",
+      "price": {
+        "one_off": "Price of one sale",
+        "subscription": "Price a month, per subscriber",
+        "commission": "What you'd earn on one sale"
+      },
+      "variable_cost": {
+        "one_off": "What one sale costs you (materials, stock, delivery, payment fees)",
+        "subscription": "What one subscriber costs you a month",
+        "commission": "What one sale costs you to arrange"
+      },
+      "customers_month": {
+        "one_off": "Sales a month, once it's going",
+        "subscription": "Subscribers, once it's going",
+        "commission": "Sales a month, once it's going"
+      },
+      "fixed_month": "Costs every month, whatever you sell (rent, pay, software)",
+      "startup": "One-off costs to start (fit-out, equipment, first stock)",
+      "capital": "Money you have to start with",
+      "team": "People working in it, you included",
+      "ramp_months": "How long until sales reach that level?"
+    },
+    "customer": {
+      "consumer": "People (consumers)",
+      "business": "Other businesses",
+      "both": "Both"
+    },
+    "model": {
+      "one_off": "Selling things or services, one sale at a time",
+      "subscription": "A monthly subscription",
+      "commission": "A commission on each sale I arrange",
+      "recruitment": "Mostly from signing up other sellers"
+    },
+    "ramp": {
+      "1": "About a month",
+      "3": "About 3 months",
+      "6": "About 6 months",
+      "12": "About a year"
+    },
+    "result": {
+      "label": "Your idea, worked through",
+      "notVerdict": "This isn't a verdict on your idea. It's your own numbers worked through, set beside what's on record for businesses like it.",
+      "yours": "Your numbers · your estimate",
+      "market": "Businesses like this · on record",
+      "recruitment": {
+        "title": "Income from recruiting isn't worked through here",
+        "body": "When most of the income comes from signing up other sellers rather than selling to end customers, the numbers only hold while recruiting keeps growing. Schemes that pay mainly for recruiting are banned across the EU (Unfair Commercial Practices Directive, Annex I). If you'd sell a product to end customers yourself, choose one-off sales instead. For anything that pays for recruiting, ask a lawyer first."
+      },
+      "losesPerSale": "Each sale leaves {amount} after its own cost, so nothing is left to pay the rest. The price or the cost of a sale has to change before anything else can be worked out.",
+      "contribution": "Each sale leaves {amount} after its own cost.",
+      "breakEven": "You cover your monthly costs from {count} customers a month.",
+      "atPlan": "At {customers} a month: {revenue} in and {profit} left each month, a {margin} margin.",
+      "short": "At {customers} a month you'd be {loss} short each month. Any one of these would close the gap on its own:",
+      "cash": {
+        "start": "{capital} to start with, less {startup} of start-up costs, leaves {left}.",
+        "dayOne": "The start-up costs are more than the money you have, by {shortfall}.",
+        "runsOut": "At the pace you expect, the money runs out in month {month}. To get through, you'd need about {shortfall} more.",
+        "holds": "At the pace you expect, the money is lowest in month {month}, at {lowest}, and doesn't run out within three years.",
+        "covers": "The first month that covers its own costs is month {month}.",
+        "neverCovers": "No month within three years covers its own costs."
+      },
+      "riskiest": {
+        "title": "The number your plan leans on most",
+        "unknown": "How many customers you'll get. You don't know yet, and the plan needs {count} a month to cover its costs.",
+        "customers": "Your customer estimate. It can fall by {room}, to {to} a month, before a month stops covering its costs. That's less room than any other number you estimated.",
+        "variable_cost": "What one sale costs you. It can rise by only {room}, to {to}, before a month stops covering its costs. That's less room than any other number you estimated.",
+        "fixed_month": "Your monthly costs. They can rise by only {room}, to {to}, before a month stops covering its costs. That's less room than any other number you estimated.",
+        "above_sector": "Your customer estimate. The plan brings in {own} a year per person; across {cell}, it's {bench}. Your plan needs more per person than the sector makes."
+      },
+      "room": {
+        "title": "How much room each number has",
+        "customers": "Customers a month: {stated}, the plan holds down to {to}",
+        "price": "Price, yours to set: {stated}, the plan holds down to {to}",
+        "variable_cost": "Cost of one sale: {stated}, the plan holds up to {to}",
+        "fixed_month": "Monthly costs: {stated}, the plan holds up to {to}"
+      },
+      "lever": {
+        "customers": "{to} customers a month",
+        "price": "a price of {to}",
+        "variable_cost": "a cost of {to} per sale",
+        "fixed_month": "monthly costs of {to}"
+      },
+      "test": {
+        "title": "The cheapest way to test it",
+        "presale": "Take paid deposits before you build anything. Over {weeks} weeks, {pass} or more is a pass and fewer than {fail} is a fail. You need {count} customers a month to cover your costs.",
+        "pilots": "Talk to {conversations} businesses that would buy. Over {weeks} weeks, {pass} or more agreeing to a paid pilot at your price is a pass, and {fail} or fewer is a fail.",
+        "quotes": "Get {quotes} written quotes for {cost}. If the middle quote is at or below {pass}, it passes. At or above {fail}, it fails: that's where a month stops covering its costs.",
+        "cost": {
+          "variable_cost": "what one sale costs you",
+          "fixed_month": "your monthly costs"
+        },
+        "setNow": "These lines are set now, before you run it, so the result can't be read to fit.",
+        "none": "Make the numbers work on paper first. The test comes after."
+      },
+      "survival": {
+        "shown": "Of new {group} in {country}, {y1} were still trading after one year, {y3} after three and {y5} after five.",
+        "source": "Eurostat, {dataset}, {year}.",
+        "parent": "Eurostat doesn't publish this for your exact kind of business, so this is the wider group.",
+        "break": "Eurostat marks a break in this series.",
+        "about": "That's about businesses of this kind, not about your idea.",
+        "unmapped": "There's no one Eurostat group for this kind of business, so there are no market figures to set beside it.",
+        "outside_eu": "Eurostat's figures cover the EU. Outside it, only your own numbers are worked through.",
+        "unpublished": "Eurostat doesn't publish survival rates for this group in this country."
+      },
+      "margin": "Your planned margin: {own}. Across {cell}: {bench}, so yours is {reading}.",
+      "perPerson": "Your plan, per person a year: {own}. Across {cell}: {bench}, so yours is {reading}.",
+      "reading": {
+        "above": "above",
+        "below": "below",
+        "same": "about the same"
+      },
+      "sources": "Market figures: Eurostat (bd_9bd_sz_cl_r2, sbs_sc_ovw). Eurostat is not responsible for these uses of its data."
+    },
+    "share": "Share this check",
+    "copied": "Link copied",
+    "again": "Check another idea",
+    "next": "Already trading? Measure the real thing.",
+    "sharedLabel": "A shared idea check",
+    "missing": "That idea check isn't here."
+  },
   "pricing": {
     "meta": {
       "title": "Plans"

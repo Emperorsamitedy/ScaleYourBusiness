@@ -9506,6 +9506,145 @@
     "sharedLabel": "Un resultado compartido",
     "missing": "Ese resultado no está aquí."
   },
+  "ideas": {
+    "meta": {
+      "title": "Revisión de idea"
+    },
+    "kicker": "Revisión de idea · gratis · sin cuenta",
+    "title": "Haz los números de una idea de negocio antes de gastar en ella",
+    "intro": "Unos dos minutos. Tus propios números, trabajados: cuántos clientes hacen falta para cubrir tus costes, cuándo se acabaría el dinero, el número en el que más se apoya el plan y la forma más barata de ponerlo a prueba. Junto a las cifras de Eurostat para negocios parecidos. Nunca un veredicto sobre tu idea.",
+    "fromCheck": "¿Todavía no has empezado? Haz los números de una idea.",
+    "pick": "Elige…",
+    "dontKnow": "Aún no lo sé",
+    "submit": "Hacer los números",
+    "working": "Haciendo los números…",
+    "failed": "No ha funcionado. Inténtalo de nuevo en un momento.",
+    "tooMany": "Demasiadas revisiones desde aquí en la última hora. Inténtalo más tarde.",
+    "q": {
+      "sector": "¿Qué tipo de negocio sería?",
+      "country": "¿Dónde estaría?",
+      "customer": "¿Quién compraría?",
+      "revenue_model": "¿Cómo entraría el dinero?",
+      "currency": "Moneda",
+      "price": {
+        "one_off": "Precio de una venta",
+        "subscription": "Precio al mes, por suscriptor",
+        "commission": "Lo que ganarías con una venta"
+      },
+      "variable_cost": {
+        "one_off": "Lo que te cuesta una venta (materiales, existencias, envío, comisiones de pago)",
+        "subscription": "Lo que te cuesta un suscriptor al mes",
+        "commission": "Lo que te cuesta gestionar una venta"
+      },
+      "customers_month": {
+        "one_off": "Ventas al mes, una vez en marcha",
+        "subscription": "Suscriptores, una vez en marcha",
+        "commission": "Ventas al mes, una vez en marcha"
+      },
+      "fixed_month": "Costes de cada mes, vendas lo que vendas (alquiler, sueldos, software)",
+      "startup": "Costes únicos para empezar (acondicionamiento, equipos, primeras existencias)",
+      "capital": "Dinero con el que empiezas",
+      "team": "Personas que trabajan en él, tú incluido",
+      "ramp_months": "¿Cuánto tardarían las ventas en llegar a ese nivel?"
+    },
+    "customer": {
+      "consumer": "Personas (consumidores)",
+      "business": "Otros negocios",
+      "both": "Ambos"
+    },
+    "model": {
+      "one_off": "Vender productos o servicios, una venta cada vez",
+      "subscription": "Una suscripción mensual",
+      "commission": "Una comisión por cada venta que gestiono",
+      "recruitment": "Sobre todo por captar a otros vendedores"
+    },
+    "ramp": {
+      "1": "Alrededor de un mes",
+      "3": "Alrededor de 3 meses",
+      "6": "Alrededor de 6 meses",
+      "12": "Alrededor de un año"
+    },
+    "result": {
+      "label": "Tu idea, con los números hechos",
+      "notVerdict": "Esto no es un veredicto sobre tu idea. Son tus propios números trabajados, junto a lo que consta para negocios parecidos.",
+      "yours": "Tus números · tu estimación",
+      "market": "Negocios parecidos · lo que consta",
+      "recruitment": {
+        "title": "Aquí no se calculan los ingresos por captación",
+        "body": "Cuando la mayor parte de los ingresos viene de captar a otros vendedores en lugar de vender a clientes finales, los números solo se sostienen mientras la captación siga creciendo. Los sistemas que pagan sobre todo por captar están prohibidos en toda la UE (Directiva sobre las prácticas comerciales desleales, anexo I). Si vas a vender tú mismo un producto a clientes finales, elige en su lugar ventas sueltas. Para cualquier cosa que pague por captar, consulta antes a un abogado."
+      },
+      "losesPerSale": "Cada venta deja {amount} después de su propio coste, así que no queda nada para pagar el resto. El precio o el coste de una venta tiene que cambiar antes de poder calcular nada más.",
+      "contribution": "Cada venta deja {amount} después de su propio coste.",
+      "breakEven": "Cubres tus costes mensuales a partir de {count} clientes al mes.",
+      "atPlan": "Con {customers} al mes: {revenue} de entrada y {profit} de sobra cada mes, un margen de {margin}.",
+      "short": "Con {customers} al mes te faltarían {loss} cada mes. Cualquiera de estos cambios cerraría la diferencia por sí solo:",
+      "cash": {
+        "start": "{capital} para empezar, menos {startup} de costes de puesta en marcha, deja {left}.",
+        "dayOne": "Los costes de puesta en marcha superan el dinero que tienes en {shortfall}.",
+        "runsOut": "Al ritmo que esperas, el dinero se acaba en el mes {month}. Para salir adelante, necesitarías unos {shortfall} más.",
+        "holds": "Al ritmo que esperas, el dinero llega a su punto más bajo en el mes {month}, con {lowest}, y no se acaba en tres años.",
+        "covers": "El primer mes que cubre sus propios costes es el mes {month}.",
+        "neverCovers": "Ningún mes en tres años cubre sus propios costes."
+      },
+      "riskiest": {
+        "title": "El número en el que más se apoya tu plan",
+        "unknown": "Cuántos clientes tendrás. Aún no lo sabes, y el plan necesita {count} al mes para cubrir sus costes.",
+        "customers": "Tu estimación de clientes. Puede bajar un {room}, hasta {to} al mes, antes de que un mes deje de cubrir sus costes. Es menos holgura que la de cualquier otro número que hayas estimado.",
+        "variable_cost": "Lo que te cuesta una venta. Solo puede subir un {room}, hasta {to}, antes de que un mes deje de cubrir sus costes. Es menos holgura que la de cualquier otro número que hayas estimado.",
+        "fixed_month": "Tus costes mensuales. Solo pueden subir un {room}, hasta {to}, antes de que un mes deje de cubrir sus costes. Es menos holgura que la de cualquier otro número que hayas estimado.",
+        "above_sector": "Tu estimación de clientes. El plan genera {own} al año por persona; en {cell}, son {bench}. Tu plan necesita más por persona de lo que obtiene el sector."
+      },
+      "room": {
+        "title": "Cuánta holgura tiene cada número",
+        "customers": "Clientes al mes: {stated}, el plan aguanta si baja hasta {to}",
+        "price": "Precio, lo decides tú: {stated}, el plan aguanta si baja hasta {to}",
+        "variable_cost": "Coste de una venta: {stated}, el plan aguanta si sube hasta {to}",
+        "fixed_month": "Costes mensuales: {stated}, el plan aguanta si suben hasta {to}"
+      },
+      "lever": {
+        "customers": "{to} clientes al mes",
+        "price": "un precio de {to}",
+        "variable_cost": "un coste de {to} por venta",
+        "fixed_month": "unos costes mensuales de {to}"
+      },
+      "test": {
+        "title": "La forma más barata de ponerlo a prueba",
+        "presale": "Cobra señales antes de construir nada. En {weeks} semanas, {pass} o más es un aprobado y menos de {fail} es un suspenso. Necesitas {count} clientes al mes para cubrir tus costes.",
+        "pilots": "Habla con {conversations} negocios que comprarían. En {weeks} semanas, si {pass} o más aceptan un piloto de pago a tu precio, es un aprobado; si son {fail} o menos, es un suspenso.",
+        "quotes": "Pide {quotes} presupuestos por escrito para {cost}. Si el presupuesto del medio está en {pass} o por debajo, es un aprobado. En {fail} o por encima, es un suspenso: ahí es donde un mes deja de cubrir sus costes.",
+        "cost": {
+          "variable_cost": "lo que te cuesta una venta",
+          "fixed_month": "tus costes mensuales"
+        },
+        "setNow": "Estos umbrales se fijan ahora, antes de hacer la prueba, para que el resultado no pueda leerse a conveniencia.",
+        "none": "Primero haz que los números cuadren sobre el papel. La prueba viene después."
+      },
+      "survival": {
+        "shown": "De los negocios nuevos del grupo {group} en {country}, {y1} seguían en activo al cabo de un año, {y3} al cabo de tres y {y5} al cabo de cinco.",
+        "source": "Eurostat, {dataset}, {year}.",
+        "parent": "Eurostat no publica esto para tu tipo exacto de negocio, así que este es el grupo más amplio.",
+        "break": "Eurostat marca una ruptura en esta serie.",
+        "about": "Esto habla de los negocios de este tipo, no de tu idea.",
+        "unmapped": "No hay un único grupo de Eurostat para este tipo de negocio, así que no hay cifras de mercado que poner al lado.",
+        "outside_eu": "Las cifras de Eurostat cubren la UE. Fuera de ella, solo se trabajan tus propios números.",
+        "unpublished": "Eurostat no publica tasas de supervivencia para este grupo en este país."
+      },
+      "margin": "Tu margen previsto: {own}. En {cell}: {bench}, así que el tuyo está {reading}.",
+      "perPerson": "Tu plan, por persona y año: {own}. En {cell}: {bench}, así que el tuyo está {reading}.",
+      "reading": {
+        "above": "por encima",
+        "below": "por debajo",
+        "same": "más o menos igual"
+      },
+      "sources": "Cifras de mercado: Eurostat (bd_9bd_sz_cl_r2, sbs_sc_ovw). Eurostat no es responsable de estos usos de sus datos."
+    },
+    "share": "Compartir esta revisión",
+    "copied": "Enlace copiado",
+    "again": "Revisar otra idea",
+    "next": "¿Ya tienes el negocio en marcha? Mide lo real.",
+    "sharedLabel": "Una revisión de idea compartida",
+    "missing": "Esa revisión de idea no está aquí."
+  },
   "pricing": {
     "meta": {
       "title": "Planes"

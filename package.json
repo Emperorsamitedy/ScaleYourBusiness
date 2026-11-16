@@ -27,6 +27,7 @@
     "smoke:erasure": "tsx scripts/smoke-erasure.ts",
     "smoke:widget": "tsx scripts/smoke-widget.ts",
     "benchmarks:fetch": "tsx scripts/fetch-benchmarks.ts",
+    "demography:fetch": "tsx scripts/fetch-demography.ts",
     "vapid:generate": "tsx scripts/vapid-generate.ts"
   },
   "devDependencies": {

@@ -9506,6 +9506,145 @@
     "sharedLabel": "Un résultat partagé",
     "missing": "Ce résultat n’est pas ici."
   },
+  "ideas": {
+    "meta": {
+      "title": "Bilan d’idée"
+    },
+    "kicker": "Bilan d’idée · gratuit · sans compte",
+    "title": "Chiffrez une idée d’entreprise avant d’y dépenser de l’argent",
+    "intro": "Environ deux minutes. Vos propres chiffres, déroulés : combien de clients il faut pour couvrir vos coûts, quand l’argent viendrait à manquer, le chiffre sur lequel le plan repose le plus, et la façon la moins chère de le tester. À côté des chiffres d’Eurostat pour des entreprises semblables. Jamais un verdict sur votre idée.",
+    "fromCheck": "Pas encore en activité ? Chiffrez plutôt une idée.",
+    "pick": "Choisir…",
+    "dontKnow": "Je ne sais pas encore",
+    "submit": "Faire les calculs",
+    "working": "Calculs en cours…",
+    "failed": "Cela n’a pas fonctionné. Réessayez dans un instant.",
+    "tooMany": "Trop de bilans depuis ici au cours de la dernière heure. Réessayez plus tard.",
+    "q": {
+      "sector": "Quel type d’entreprise serait-ce ?",
+      "country": "Où serait-elle ?",
+      "customer": "Qui achèterait ?",
+      "revenue_model": "Comment l’argent rentrerait-il ?",
+      "currency": "Devise",
+      "price": {
+        "one_off": "Prix d’une vente",
+        "subscription": "Prix par mois et par abonné",
+        "commission": "Ce que vous gagneriez sur une vente"
+      },
+      "variable_cost": {
+        "one_off": "Ce qu’une vente vous coûte (matériaux, stock, livraison, frais de paiement)",
+        "subscription": "Ce qu’un abonné vous coûte par mois",
+        "commission": "Ce que vous coûte l’organisation d’une vente"
+      },
+      "customers_month": {
+        "one_off": "Ventes par mois, une fois l’activité lancée",
+        "subscription": "Abonnés, une fois l’activité lancée",
+        "commission": "Ventes par mois, une fois l’activité lancée"
+      },
+      "fixed_month": "Coûts de chaque mois, quoi que vous vendiez (loyer, salaires, logiciels)",
+      "startup": "Coûts ponctuels de démarrage (aménagement, équipement, premier stock)",
+      "capital": "Argent dont vous disposez au départ",
+      "team": "Personnes qui y travaillent, vous compris",
+      "ramp_months": "Combien de temps avant que les ventes atteignent ce niveau ?"
+    },
+    "customer": {
+      "consumer": "Des particuliers (consommateurs)",
+      "business": "D’autres entreprises",
+      "both": "Les deux"
+    },
+    "model": {
+      "one_off": "Vendre des produits ou des services, une vente à la fois",
+      "subscription": "Un abonnement mensuel",
+      "commission": "Une commission sur chaque vente que j’organise",
+      "recruitment": "Surtout en recrutant d’autres vendeurs"
+    },
+    "ramp": {
+      "1": "Environ un mois",
+      "3": "Environ 3 mois",
+      "6": "Environ 6 mois",
+      "12": "Environ un an"
+    },
+    "result": {
+      "label": "Votre idée, chiffrée",
+      "notVerdict": "Ce n’est pas un verdict sur votre idée. Ce sont vos propres chiffres, déroulés, mis à côté de ce qui est enregistré pour des entreprises semblables.",
+      "yours": "Vos chiffres · votre estimation",
+      "market": "Entreprises semblables · données publiées",
+      "recruitment": {
+        "title": "Les revenus tirés du recrutement ne sont pas chiffrés ici",
+        "body": "Quand l’essentiel des revenus vient du recrutement d’autres vendeurs plutôt que de ventes aux clients finaux, les chiffres ne tiennent que tant que le recrutement continue de croître. Les systèmes qui rémunèrent principalement le recrutement sont interdits dans toute l’UE (directive sur les pratiques commerciales déloyales, annexe I). Si vous vendiez vous-même un produit à des clients finaux, choisissez plutôt la vente à l’unité. Pour tout ce qui rémunère le recrutement, consultez d’abord un avocat."
+      },
+      "losesPerSale": "Chaque vente laisse {amount} après son propre coût, il ne reste donc rien pour payer le reste. Le prix ou le coût d’une vente doit changer avant que quoi que ce soit d’autre puisse être chiffré.",
+      "contribution": "Chaque vente laisse {amount} après son propre coût.",
+      "breakEven": "Vous couvrez vos coûts mensuels à partir de {count} clients par mois.",
+      "atPlan": "À {customers} par mois : {revenue} encaissés et {profit} restants chaque mois, soit une marge de {margin}.",
+      "short": "À {customers} par mois, il vous manquerait {loss} chaque mois. Chacune de ces options suffirait à elle seule à combler l’écart :",
+      "cash": {
+        "start": "{capital} au départ, moins {startup} de coûts de démarrage, il reste {left}.",
+        "dayOne": "Les coûts de démarrage dépassent de {shortfall} l’argent dont vous disposez.",
+        "runsOut": "Au rythme que vous prévoyez, l’argent s’épuise au mois {month}. Pour tenir, il vous faudrait environ {shortfall} de plus.",
+        "holds": "Au rythme que vous prévoyez, l’argent est au plus bas au mois {month}, à {lowest}, et ne s’épuise pas en trois ans.",
+        "covers": "Le premier mois qui couvre ses propres coûts est le mois {month}.",
+        "neverCovers": "Aucun mois sur trois ans ne couvre ses propres coûts."
+      },
+      "riskiest": {
+        "title": "Le chiffre sur lequel votre plan repose le plus",
+        "unknown": "Le nombre de clients que vous aurez. Vous ne le savez pas encore, et le plan en a besoin de {count} par mois pour couvrir ses coûts.",
+        "customers": "Votre estimation du nombre de clients. Elle peut baisser de {room}, jusqu’à {to} par mois, avant qu’un mois ne couvre plus ses coûts. C’est moins de latitude que pour tout autre chiffre que vous avez estimé.",
+        "variable_cost": "Ce qu’une vente vous coûte. Ce coût ne peut augmenter que de {room}, jusqu’à {to}, avant qu’un mois ne couvre plus ses coûts. C’est moins de latitude que pour tout autre chiffre que vous avez estimé.",
+        "fixed_month": "Vos coûts mensuels. Ils ne peuvent augmenter que de {room}, jusqu’à {to}, avant qu’un mois ne couvre plus ses coûts. C’est moins de latitude que pour tout autre chiffre que vous avez estimé.",
+        "above_sector": "Votre estimation du nombre de clients. Le plan rapporte {own} par an et par personne ; pour {cell}, c’est {bench}. Votre plan exige plus par personne que ce que le secteur réalise."
+      },
+      "room": {
+        "title": "La latitude de chaque chiffre",
+        "customers": "Clients par mois : {stated}, le plan tient jusqu’à {to} à la baisse",
+        "price": "Prix, à vous de le fixer : {stated}, le plan tient jusqu’à {to} à la baisse",
+        "variable_cost": "Coût d’une vente : {stated}, le plan tient jusqu’à {to} à la hausse",
+        "fixed_month": "Coûts mensuels : {stated}, le plan tient jusqu’à {to} à la hausse"
+      },
+      "lever": {
+        "customers": "{to} clients par mois",
+        "price": "un prix de {to}",
+        "variable_cost": "un coût de {to} par vente",
+        "fixed_month": "des coûts mensuels de {to}"
+      },
+      "test": {
+        "title": "La façon la moins chère de le tester",
+        "presale": "Encaissez des acomptes avant de construire quoi que ce soit. Sur {weeks} semaines, {pass} ou plus, c’est réussi ; moins de {fail}, c’est un échec. Il vous faut {count} clients par mois pour couvrir vos coûts.",
+        "pilots": "Parlez à {conversations} entreprises qui achèteraient. Sur {weeks} semaines, si {pass} ou plus acceptent un pilote payant à votre prix, c’est réussi ; à {fail} ou moins, c’est un échec.",
+        "quotes": "Obtenez {quotes} devis écrits pour {cost}. Si le devis médian est égal ou inférieur à {pass}, c’est réussi. À {fail} ou plus, c’est un échec : c’est là qu’un mois cesse de couvrir ses coûts.",
+        "cost": {
+          "variable_cost": "ce qu’une vente vous coûte",
+          "fixed_month": "vos coûts mensuels"
+        },
+        "setNow": "Ces seuils sont fixés maintenant, avant le test, pour que le résultat ne puisse pas être interprété après coup.",
+        "none": "Faites d’abord tenir les chiffres sur le papier. Le test vient ensuite."
+      },
+      "survival": {
+        "shown": "Parmi les nouvelles entreprises du groupe {group} ({country}), {y1} étaient encore en activité après un an, {y3} après trois ans et {y5} après cinq ans.",
+        "source": "Eurostat, {dataset}, {year}.",
+        "parent": "Eurostat ne publie pas ces données pour votre type exact d’entreprise ; c’est donc le groupe plus large qui est présenté.",
+        "break": "Eurostat signale une rupture dans cette série.",
+        "about": "Cela concerne les entreprises de ce type, pas votre idée.",
+        "unmapped": "Il n’existe pas de groupe Eurostat unique pour ce type d’entreprise, il n’y a donc pas de chiffres de marché à mettre en regard.",
+        "outside_eu": "Les chiffres d’Eurostat couvrent l’UE. En dehors, seuls vos propres chiffres sont déroulés.",
+        "unpublished": "Eurostat ne publie pas de taux de survie pour ce groupe dans ce pays."
+      },
+      "margin": "Votre marge prévue : {own}. Pour {cell} : {bench}, la vôtre est donc {reading}.",
+      "perPerson": "Votre plan, par personne et par an : {own}. Pour {cell} : {bench}, le vôtre est donc {reading}.",
+      "reading": {
+        "above": "au-dessus",
+        "below": "en dessous",
+        "same": "à peu près au même niveau"
+      },
+      "sources": "Chiffres de marché : Eurostat (bd_9bd_sz_cl_r2, sbs_sc_ovw). Eurostat n’est pas responsable de ces utilisations de ses données."
+    },
+    "share": "Partager ce bilan",
+    "copied": "Lien copié",
+    "again": "Vérifier une autre idée",
+    "next": "Déjà en activité ? Mesurez la réalité.",
+    "sharedLabel": "Un bilan d’idée partagé",
+    "missing": "Ce bilan d’idée n’est pas ici."
+  },
   "pricing": {
     "meta": {
       "title": "Formules"

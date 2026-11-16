@@ -9506,6 +9506,145 @@
     "sharedLabel": "Ein geteiltes Ergebnis",
     "missing": "Dieses Ergebnis gibt es hier nicht."
   },
+  "ideas": {
+    "meta": {
+      "title": "Ideen-Check"
+    },
+    "kicker": "Ideen-Check · kostenlos · ohne Konto",
+    "title": "Rechne eine Idee für ein Unternehmen durch, bevor du Geld dafür ausgibst",
+    "intro": "Etwa zwei Minuten. Deine eigenen Zahlen, durchgerechnet: wie viele Kunden es braucht, um deine Kosten zu decken, wann das Geld ausgehen würde, auf welcher Zahl der Plan am stärksten aufbaut und der günstigste Weg, sie zu testen. Daneben die Zahlen von Eurostat für ähnliche Unternehmen. Nie ein Urteil über deine Idee.",
+    "fromCheck": "Noch nicht gestartet? Rechne stattdessen eine Idee durch.",
+    "pick": "Wählen…",
+    "dontKnow": "Weiß ich noch nicht",
+    "submit": "Durchrechnen",
+    "working": "Wird durchgerechnet…",
+    "failed": "Das hat nicht geklappt. Versuch es gleich noch einmal.",
+    "tooMany": "Zu viele Checks von hier in der letzten Stunde. Versuch es später noch einmal.",
+    "q": {
+      "sector": "Was für ein Unternehmen wäre es?",
+      "country": "Wo wäre es?",
+      "customer": "Wer würde kaufen?",
+      "revenue_model": "Wie käme das Geld herein?",
+      "currency": "Währung",
+      "price": {
+        "one_off": "Preis eines Verkaufs",
+        "subscription": "Preis pro Monat und Abonnent",
+        "commission": "Was du an einem Verkauf verdienen würdest"
+      },
+      "variable_cost": {
+        "one_off": "Was dich ein Verkauf kostet (Material, Warenbestand, Versand, Zahlungsgebühren)",
+        "subscription": "Was dich ein Abonnent im Monat kostet",
+        "commission": "Was es dich kostet, einen Verkauf zu vermitteln"
+      },
+      "customers_month": {
+        "one_off": "Verkäufe pro Monat, wenn es läuft",
+        "subscription": "Abonnenten, wenn es läuft",
+        "commission": "Verkäufe pro Monat, wenn es läuft"
+      },
+      "fixed_month": "Kosten jeden Monat, egal wie viel du verkaufst (Miete, Löhne, Software)",
+      "startup": "Einmalige Kosten für den Start (Ausbau, Ausstattung, erster Warenbestand)",
+      "capital": "Geld, mit dem du startest",
+      "team": "Menschen, die darin arbeiten, dich eingeschlossen",
+      "ramp_months": "Wie lange, bis die Verkäufe dieses Niveau erreichen?"
+    },
+    "customer": {
+      "consumer": "Privatpersonen (Verbraucher)",
+      "business": "Andere Unternehmen",
+      "both": "Beides"
+    },
+    "model": {
+      "one_off": "Waren oder Leistungen verkaufen, Verkauf für Verkauf",
+      "subscription": "Ein monatliches Abonnement",
+      "commission": "Eine Provision auf jeden Verkauf, den ich vermittle",
+      "recruitment": "Hauptsächlich durch das Anwerben anderer Verkäufer"
+    },
+    "ramp": {
+      "1": "Etwa einen Monat",
+      "3": "Etwa 3 Monate",
+      "6": "Etwa 6 Monate",
+      "12": "Etwa ein Jahr"
+    },
+    "result": {
+      "label": "Deine Idee, durchgerechnet",
+      "notVerdict": "Das ist kein Urteil über deine Idee. Es sind deine eigenen Zahlen, durchgerechnet und neben das gestellt, was für ähnliche Unternehmen erfasst ist.",
+      "yours": "Deine Zahlen · deine Schätzung",
+      "market": "Ähnliche Unternehmen · erfasst",
+      "recruitment": {
+        "title": "Einnahmen aus Anwerbung werden hier nicht durchgerechnet",
+        "body": "Wenn die meisten Einnahmen daraus kommen, andere Verkäufer anzuwerben, statt an Endkunden zu verkaufen, gehen die Zahlen nur auf, solange das Anwerben weiter wächst. Systeme, die hauptsächlich für das Anwerben zahlen, sind in der ganzen EU verboten (Richtlinie über unlautere Geschäftspraktiken, Anhang I). Wenn du selbst ein Produkt an Endkunden verkaufen würdest, wähle stattdessen Einzelverkäufe. Bei allem, was für das Anwerben zahlt, frag zuerst einen Anwalt."
+      },
+      "losesPerSale": "Jeder Verkauf lässt nach seinen eigenen Kosten {amount} übrig, also bleibt nichts, um den Rest zu bezahlen. Erst muss sich der Preis oder die Kosten eines Verkaufs ändern, bevor sich irgendetwas anderes durchrechnen lässt.",
+      "contribution": "Jeder Verkauf lässt nach seinen eigenen Kosten {amount} übrig.",
+      "breakEven": "Ab {count} Kunden im Monat deckst du deine monatlichen Kosten.",
+      "atPlan": "Bei {customers} im Monat: {revenue} Einnahmen und {profit} übrig pro Monat, eine Marge von {margin}.",
+      "short": "Bei {customers} im Monat würden dir jeden Monat {loss} fehlen. Jede einzelne dieser Änderungen würde die Lücke allein schließen:",
+      "cash": {
+        "start": "{capital} zum Start, abzüglich {startup} Startkosten, bleiben {left}.",
+        "dayOne": "Die Startkosten übersteigen dein Geld um {shortfall}.",
+        "runsOut": "In dem Tempo, das du erwartest, geht das Geld im Monat {month} aus. Um durchzukommen, bräuchtest du etwa {shortfall} mehr.",
+        "holds": "In dem Tempo, das du erwartest, ist das Geld im Monat {month} am niedrigsten, bei {lowest}, und geht innerhalb von drei Jahren nicht aus.",
+        "covers": "Der erste Monat, der seine eigenen Kosten deckt, ist Monat {month}.",
+        "neverCovers": "Kein Monat innerhalb von drei Jahren deckt seine eigenen Kosten."
+      },
+      "riskiest": {
+        "title": "Die Zahl, auf der dein Plan am stärksten aufbaut",
+        "unknown": "Wie viele Kunden du bekommst. Das weißt du noch nicht, und der Plan braucht {count} im Monat, um seine Kosten zu decken.",
+        "customers": "Deine Schätzung der Kunden. Sie kann um {room} fallen, auf {to} im Monat, bevor ein Monat seine Kosten nicht mehr deckt. Das ist weniger Spielraum als bei jeder anderen Zahl, die du geschätzt hast.",
+        "variable_cost": "Was dich ein Verkauf kostet. Das kann nur um {room} steigen, auf {to}, bevor ein Monat seine Kosten nicht mehr deckt. Das ist weniger Spielraum als bei jeder anderen Zahl, die du geschätzt hast.",
+        "fixed_month": "Deine monatlichen Kosten. Sie können nur um {room} steigen, auf {to}, bevor ein Monat seine Kosten nicht mehr deckt. Das ist weniger Spielraum als bei jeder anderen Zahl, die du geschätzt hast.",
+        "above_sector": "Deine Schätzung der Kunden. Der Plan bringt {own} pro Person und Jahr ein; in {cell} sind es {bench}. Dein Plan braucht mehr pro Person, als die Branche erwirtschaftet."
+      },
+      "room": {
+        "title": "Wie viel Spielraum jede Zahl hat",
+        "customers": "Kunden pro Monat: {stated}, der Plan hält bis hinunter auf {to}",
+        "price": "Preis, den du selbst festlegst: {stated}, der Plan hält bis hinunter auf {to}",
+        "variable_cost": "Kosten eines Verkaufs: {stated}, der Plan hält bis hinauf zu {to}",
+        "fixed_month": "Monatliche Kosten: {stated}, der Plan hält bis hinauf zu {to}"
+      },
+      "lever": {
+        "customers": "{to} Kunden im Monat",
+        "price": "ein Preis von {to}",
+        "variable_cost": "Kosten von {to} pro Verkauf",
+        "fixed_month": "monatliche Kosten von {to}"
+      },
+      "test": {
+        "title": "Der günstigste Weg, es zu testen",
+        "presale": "Nimm bezahlte Anzahlungen, bevor du irgendetwas aufbaust. Über {weeks} Wochen gilt: {pass} oder mehr ist bestanden, weniger als {fail} ist durchgefallen. Du brauchst {count} Kunden im Monat, um deine Kosten zu decken.",
+        "pilots": "Sprich mit {conversations} Unternehmen, die kaufen würden. Über {weeks} Wochen gilt: Stimmen {pass} oder mehr einem bezahlten Pilotprojekt zu deinem Preis zu, ist der Test bestanden; bei {fail} oder weniger ist er durchgefallen.",
+        "quotes": "Hol {quotes} schriftliche Angebote für {cost} ein. Liegt das mittlere Angebot bei oder unter {pass}, ist der Test bestanden. Bei oder über {fail} ist er durchgefallen: Dort hört ein Monat auf, seine Kosten zu decken.",
+        "cost": {
+          "variable_cost": "das, was dich ein Verkauf kostet",
+          "fixed_month": "deine monatlichen Kosten"
+        },
+        "setNow": "Diese Grenzen werden jetzt festgelegt, bevor du den Test machst, damit sich das Ergebnis nicht passend lesen lässt.",
+        "none": "Bring die Zahlen zuerst auf dem Papier zum Aufgehen. Der Test kommt danach."
+      },
+      "survival": {
+        "shown": "Von den neu gegründeten Unternehmen der Gruppe {group} in {country} waren nach einem Jahr noch {y1} tätig, nach drei Jahren {y3} und nach fünf {y5}.",
+        "source": "Eurostat, {dataset}, {year}.",
+        "parent": "Eurostat veröffentlicht das nicht für genau deine Art von Unternehmen, deshalb ist das hier die übergeordnete Gruppe.",
+        "break": "Eurostat kennzeichnet in dieser Reihe einen Bruch.",
+        "about": "Das betrifft Unternehmen dieser Art, nicht deine Idee.",
+        "unmapped": "Für diese Art von Unternehmen gibt es keine einzelne Eurostat-Gruppe, daher gibt es keine Marktzahlen, die man danebenstellen könnte.",
+        "outside_eu": "Die Zahlen von Eurostat decken die EU ab. Außerhalb davon werden nur deine eigenen Zahlen durchgerechnet.",
+        "unpublished": "Eurostat veröffentlicht für diese Gruppe in diesem Land keine Überlebensraten."
+      },
+      "margin": "Deine geplante Marge: {own}. In {cell}: {bench}, deine liegt also {reading}.",
+      "perPerson": "Dein Plan, pro Person und Jahr: {own}. In {cell}: {bench}, deiner liegt also {reading}.",
+      "reading": {
+        "above": "darüber",
+        "below": "darunter",
+        "same": "etwa gleichauf"
+      },
+      "sources": "Marktzahlen: Eurostat (bd_9bd_sz_cl_r2, sbs_sc_ovw). Eurostat ist nicht verantwortlich für diese Nutzung seiner Daten."
+    },
+    "share": "Diesen Check teilen",
+    "copied": "Link kopiert",
+    "again": "Eine andere Idee prüfen",
+    "next": "Schon am Markt? Miss, was wirklich passiert.",
+    "sharedLabel": "Ein geteilter Ideen-Check",
+    "missing": "Diesen Ideen-Check gibt es hier nicht."
+  },
   "pricing": {
     "meta": {
       "title": "Pläne"

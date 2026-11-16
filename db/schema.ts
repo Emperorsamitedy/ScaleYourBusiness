@@ -5363,6 +5363,26 @@ export const entryLeads = pgTable(
 );
 
 /**
+ * TASKS-IDEAS.md: one idea check, as it was made — the answers, the worked
+ * result (with its next test's pass and fail already set, rule 41) and the
+ * share token. No account, no person: nothing here names anyone.
+ */
+export const ideaChecks = pgTable(
+  "idea_checks",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    token: text("token").notNull(),
+    answers: jsonb("answers").notNull(),
+    result: jsonb("result").notNull(),
+    locale: text("locale").notNull(),
+    created_at: timestamp("created_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [uniqueIndex("idea_checks_token").on(t.token)],
+);
+
+/**
  * §8.1 stage 2: the €49 diagnosis is deferred revenue against month 1, not a
  * sale. One row per paid diagnosis: deferred until the first subscription
  * invoice carries it as a credit line, then applied. A credit in another

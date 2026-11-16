@@ -602,3 +602,49 @@ hundreds.
   no order statistic is shown (a cohort's extremes are its members' own
   values). A shared entry result saved before this derives its label from
   the cohort size and widenings it saved.
+
+## Decisions taken opening and building the idea check (2026-11-17)
+
+The owner opened TASKS-IDEAS.md ("build and ship it") after being offered
+the defaults to its five open questions; the defaults are taken as D91.
+
+- **D91 — the idea plan's open questions, answered by default.** (1) The
+  short idea check is free and needs no account; a full version kept on an
+  account is part of the paid plans. (2) Keeping an idea for the launch
+  handover needs an account; the free check is anonymous and shared by
+  token, like `/check`. (3) Recruitment-based income is explained, never
+  worked through (rule 39). (4) Local competitor density is left out until a
+  source of record is chosen. (5) Countries outside the EU get the money
+  maths and say they have no market figures. Shipped in two parts: part 1
+  (the free check, I-01..I-03, I-20..I-23, I-30..I-31, I-40..I-42); part 2
+  (I-10, I-11 in the bank, I-32, I-50..I-52) keeps an idea on an account and
+  hands it over at launch.
+- **D92 — survival rates come from bd_9bd_sz_cl_r2, all three from one
+  table.** The newer bd_size (from 2021) publishes only the 1-year rate so
+  far, and the two tables differ in method; mixing them would set a 2023
+  one-year rate beside 2020 three- and five-year rates from another method.
+  So V97041/43/45, every size class together, the latest year per cell
+  (2020 at retrieval), the year and Eurostat's break-in-series flag shown.
+  A type's own NACE code, then its parent group, said so; never another
+  country. Refreshed by hand (`npm run demography:fetch`).
+- **D93 — the free check is a form from `specs/idea-v1.json`, not the
+  question bank.** Like `/check` (entry-v1.json), it is a fixed set of
+  structured questions with its branching as data (`unless`); the bank's
+  idea section (I-11) and free-text extraction (I-12) belong to part 2's
+  conversational version. No model is called: every figure is arithmetic.
+- **D94 — the riskiest assumption is ranked among the estimates only.** As
+  a share of itself, the price always has the least room in a plan that
+  covers its costs (revenue is the largest base), so ranking it would always
+  name the price and say nothing. The price is a decision and is shown as a
+  lever. Among customers, cost per sale and monthly costs the least room
+  wins (in practice the customers, unless each sale's own cost outweighs
+  what it leaves); and when the plan's revenue per person is above the
+  sector's (Eurostat, outside the ±15 % band), the customers are the
+  riskiest whatever the room, said so.
+- **D95 — the next test's lines come from the plan's own break-even.** A
+  pre-sale passes at a quarter of break-even customers and fails below a
+  tenth, both rounded up; business buyers get ten conversations, three paid
+  pilots to pass, none to fail; a cost gets three written quotes, passing at
+  the stated figure and failing at its breaking point. They are stored with
+  the result when it is made (rule 41), so a shared check shows the lines as
+  they were set.

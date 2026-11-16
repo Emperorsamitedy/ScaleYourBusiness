@@ -827,6 +827,13 @@
       "when": 1794506249403,
       "tag": "0121_compliance_completion",
       "breakpoints": true
+    },
+    {
+      "idx": 122,
+      "version": "7",
+      "when": 1794819118193,
+      "tag": "0122_idea_checks",
+      "breakpoints": true
     }
   ]
 }

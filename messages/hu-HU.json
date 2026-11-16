@@ -9506,6 +9506,145 @@
     "sharedLabel": "Megosztott eredmény",
     "missing": "Ez az eredmény nincs itt."
   },
+  "ideas": {
+    "meta": {
+      "title": "Ötletellenőrzés"
+    },
+    "kicker": "Ötletellenőrzés · ingyenes · fiók nélkül",
+    "title": "Számold végig egy vállalkozási ötletet, mielőtt pénzt költesz rá",
+    "intro": "Nagyjából két perc. A saját számaid, végigszámolva: hány ügyfél kell a költségeid fedezéséhez, mikor fogyna el a pénz, melyik számon múlik leginkább a terv, és mi a legolcsóbb módja a kipróbálásának. Mellette az Eurostat adatai a hasonló vállalkozásokról. Soha nem ítélet az ötletedről.",
+    "fromCheck": "Még nem működsz? Számolj végig inkább egy ötletet.",
+    "pick": "Válassz…",
+    "dontKnow": "Még nem tudom",
+    "submit": "Számold végig",
+    "working": "Végigszámolom…",
+    "failed": "Ez nem sikerült. Próbáld újra egy kicsit később.",
+    "tooMany": "Az elmúlt órában túl sok ellenőrzés érkezett innen. Próbáld később.",
+    "q": {
+      "sector": "Milyen vállalkozás lenne?",
+      "country": "Hol lenne?",
+      "customer": "Ki vásárolna?",
+      "revenue_model": "Honnan jönne a pénz?",
+      "currency": "Pénznem",
+      "price": {
+        "one_off": "Egy eladás ára",
+        "subscription": "Havi ár előfizetőnként",
+        "commission": "Amennyit egy eladáson keresnél"
+      },
+      "variable_cost": {
+        "one_off": "Amibe egy eladás neked kerül (anyag, készlet, szállítás, fizetési díjak)",
+        "subscription": "Amibe egy előfizető havonta neked kerül",
+        "commission": "Amibe egy eladás közvetítése neked kerül"
+      },
+      "customers_month": {
+        "one_off": "Eladások havonta, ha már beindult",
+        "subscription": "Előfizetők, ha már beindult",
+        "commission": "Eladások havonta, ha már beindult"
+      },
+      "fixed_month": "Havi költségek, bármennyit adsz el (bérleti díj, bérek, szoftver)",
+      "startup": "Egyszeri indulási költségek (kialakítás, felszerelés, első készlet)",
+      "capital": "Pénz, amivel indulsz",
+      "team": "Benne dolgozók száma, veled együtt",
+      "ramp_months": "Mennyi idő alatt érik el az eladások ezt a szintet?"
+    },
+    "customer": {
+      "consumer": "Magánszemélyek (fogyasztók)",
+      "business": "Más vállalkozások",
+      "both": "Mindkettő"
+    },
+    "model": {
+      "one_off": "Termékek vagy szolgáltatások eladása, egyenként",
+      "subscription": "Havi előfizetés",
+      "commission": "Jutalék minden eladás után, amit közvetítek",
+      "recruitment": "Főleg más értékesítők beszervezéséből"
+    },
+    "ramp": {
+      "1": "Nagyjából egy hónap",
+      "3": "Nagyjából 3 hónap",
+      "6": "Nagyjából 6 hónap",
+      "12": "Nagyjából egy év"
+    },
+    "result": {
+      "label": "Az ötleted, végigszámolva",
+      "notVerdict": "Ez nem ítélet az ötletedről. A saját számaid, végigszámolva, mellettük pedig a hasonló vállalkozások nyilvántartott adatai.",
+      "yours": "A te számaid · a te becslésed",
+      "market": "Hasonló vállalkozások · nyilvántartott adat",
+      "recruitment": {
+        "title": "A beszervezésből származó bevételt itt nem számoljuk végig",
+        "body": "Ha a bevétel nagy része más értékesítők beszervezéséből jön, nem pedig a végső ügyfeleknek történő eladásból, a számok csak addig jönnek ki, amíg a beszervezés tovább nő. Azokat a rendszereket, amelyek főleg a beszervezésért fizetnek, az egész EU-ban tiltják (a tisztességtelen kereskedelmi gyakorlatokról szóló irányelv, I. melléklet). Ha te magad adnál el terméket a végső ügyfeleknek, válaszd inkább az egyenkénti eladást. Bármire, ami a beszervezésért fizet, előbb kérdezz meg egy ügyvédet."
+      },
+      "losesPerSale": "Minden eladás után a saját költsége levonásával {amount} marad, így semmi sem marad a többi kiadásra. Előbb az árnak vagy egy eladás költségének kell változnia, csak utána lehet bármi mást kiszámolni.",
+      "contribution": "Minden eladás után a saját költsége levonásával {amount} marad.",
+      "breakEven": "Havonta {count} ügyféllel fedezed a havi költségeidet.",
+      "atPlan": "Havi {customers} esetén: havonta {revenue} jön be és {profit} marad, ez {margin} árrés.",
+      "short": "Havi {customers} esetén minden hónapban {loss} hiányozna. Ezek közül bármelyik önmagában is bezárná a rést:",
+      "cash": {
+        "start": "{capital} induló pénzből {startup} indulási költség levonása után {left} marad.",
+        "dayOne": "Az indulási költségek {shortfall} összeggel többek, mint a pénzed.",
+        "runsOut": "A várt ütemben a pénz az indulás utáni {month}. hónapban fogy el. A túléléshez nagyjából {shortfall} összeggel többre lenne szükséged.",
+        "holds": "A várt ütemben a pénz az indulás utáni {month}. hónapban a legkevesebb, {lowest}, és három éven belül nem fogy el.",
+        "covers": "Az első hónap, amely fedezi a saját költségeit, az indulás utáni {month}. hónap.",
+        "neverCovers": "Három éven belül egyetlen hónap sem fedezi a saját költségeit."
+      },
+      "riskiest": {
+        "title": "A szám, amelyen a terved leginkább múlik",
+        "unknown": "Hány ügyfeled lesz. Ezt még nem tudod, és a tervnek havi {count} kell a költségei fedezéséhez.",
+        "customers": "Az ügyfélszám-becslésed. {room} mértékben csökkenhet, havi {to} értékig, mielőtt egy hónap már nem fedezi a költségeit. Ez kevesebb mozgástér, mint bármely más számnál, amelyet becsültél.",
+        "variable_cost": "Amibe egy eladás neked kerül. Csak {room} mértékben nőhet, {to} értékig, mielőtt egy hónap már nem fedezi a költségeit. Ez kevesebb mozgástér, mint bármely más számnál, amelyet becsültél.",
+        "fixed_month": "A havi költségeid. Csak {room} mértékben nőhetnek, {to} értékig, mielőtt egy hónap már nem fedezi a költségeit. Ez kevesebb mozgástér, mint bármely más számnál, amelyet becsültél.",
+        "above_sector": "Az ügyfélszám-becslésed. A terv személyenként évi {own} bevételt hoz; {cell} körében ez {bench}. A terved személyenként többet igényel, mint amennyit az ágazat termel."
+      },
+      "room": {
+        "title": "Mennyi mozgástere van az egyes számoknak",
+        "customers": "Ügyfelek havonta: {stated}, a terv {to} értékig lefelé is kitart",
+        "price": "Ár, te szabod meg: {stated}, a terv {to} értékig lefelé is kitart",
+        "variable_cost": "Egy eladás költsége: {stated}, a terv {to} értékig felfelé is kitart",
+        "fixed_month": "Havi költségek: {stated}, a terv {to} értékig felfelé is kitart"
+      },
+      "lever": {
+        "customers": "havi {to} ügyfél",
+        "price": "{to} értékű ár",
+        "variable_cost": "eladásonként {to} költség",
+        "fixed_month": "{to} havi költség"
+      },
+      "test": {
+        "title": "A legolcsóbb módja a kipróbálásnak",
+        "presale": "Szedj be fizetett előlegeket, mielőtt bármit is felépítesz. {weeks} hét alatt {pass} vagy több sikeres, {fail} alatt sikertelen. Havonta {count} ügyfél kell a költségeid fedezéséhez.",
+        "pilots": "Beszélj {conversations} olyan vállalkozással, amely vásárolna. {weeks} hét alatt, ha {pass} vagy több elfogad egy fizetős próbaidőszakot a te áradon, az sikeres; ha {fail} vagy kevesebb, az sikertelen.",
+        "quotes": "Kérj {quotes} írásos árajánlatot erre: {cost}. Ha a középső ajánlat legfeljebb {pass}, a teszt sikeres. Ha legalább {fail}, sikertelen: ott hagyja abba egy hónap a költségei fedezését.",
+        "cost": {
+          "variable_cost": "amibe egy eladás neked kerül",
+          "fixed_month": "a havi költségeid"
+        },
+        "setNow": "Ezeket a határokat most rögzítjük, mielőtt lefuttatod, hogy az eredményt ne lehessen utólag kényelmesen értelmezni.",
+        "none": "Előbb papíron jöjjenek ki a számok. A teszt csak utána jön."
+      },
+      "survival": {
+        "shown": "Az új vállalkozások közül ({group}, {country}) {y1} működött még egy év után, {y3} három év után és {y5} öt év után.",
+        "source": "Eurostat, {dataset}, {year}.",
+        "parent": "Az Eurostat nem közöl ilyen adatot pontosan a te vállalkozásod típusára, ezért ez a tágabb csoport.",
+        "break": "Az Eurostat törést jelöl ebben az idősorban.",
+        "about": "Ez az ilyen típusú vállalkozásokról szól, nem az ötletedről.",
+        "unmapped": "Ehhez a vállalkozástípushoz nincs egyetlen Eurostat-csoport, ezért nincsenek piaci adatok, amelyeket mellé lehetne tenni.",
+        "outside_eu": "Az Eurostat adatai az EU-ra vonatkoznak. Azon kívül csak a saját számaidat számoljuk végig.",
+        "unpublished": "Az Eurostat nem közöl túlélési arányt erre a csoportra ebben az országban."
+      },
+      "margin": "A tervezett árrésed: {own}. {cell} körében: {bench}, vagyis a tiéd {reading}.",
+      "perPerson": "A terved, személyenként évente: {own}. {cell} körében: {bench}, vagyis a tiéd {reading}.",
+      "reading": {
+        "above": "magasabb",
+        "below": "alacsonyabb",
+        "same": "nagyjából ugyanannyi"
+      },
+      "sources": "Piaci adatok: Eurostat (bd_9bd_sz_cl_r2, sbs_sc_ovw). Az Eurostat nem felelős az adatai ilyen felhasználásáért."
+    },
+    "share": "Ellenőrzés megosztása",
+    "copied": "Link másolva",
+    "again": "Másik ötlet ellenőrzése",
+    "next": "Már működsz? Mérd a valóságot.",
+    "sharedLabel": "Megosztott ötletellenőrzés",
+    "missing": "Ez az ötletellenőrzés nincs itt."
+  },
   "pricing": {
     "meta": {
       "title": "Csomagok"
