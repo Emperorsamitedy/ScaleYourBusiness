@@ -12,9 +12,10 @@ import { useEffect, useId, useMemo, useRef, useState } from "react";
 import type { ReactElement } from "react";
 import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
-import { Search } from "lucide-react";
+import { Search, X } from "lucide-react";
 import { useTranslations } from "next-intl";
 import type { NavAccess } from "../../app/api/nav/route";
+import { IconButton } from "../ui/IconButton";
 import { Kbd } from "../ui/Kbd";
 import { useOverlay } from "../ui/overlay";
 import { useLex } from "./NavContext";
@@ -70,6 +71,7 @@ export function CommandPalette({
 }): ReactElement | null {
   const t = useTranslations("palette");
   const nav = useTranslations("nav");
+  const common = useTranslations("common");
   const router = useRouter();
   const lex = useLex();
   const id = useId();
@@ -224,6 +226,10 @@ export function CommandPalette({
               }
             }}
           />
+          {/* A phone has no Escape key and no scrim to tap: the palette fills its screen. */}
+          <IconButton label={common("close")} className="ui-palette-x" onClick={onClose}>
+            <X size={18} strokeWidth={1.75} aria-hidden="true" />
+          </IconButton>
         </div>
         <div id={`${id}-list`} className="ui-palette-list" role="listbox" aria-label={t("label")}>
           {rows.length === 0 && <p className="ui-palette-empty">{t("empty")}</p>}

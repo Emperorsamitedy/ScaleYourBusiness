@@ -61,11 +61,11 @@ import type { WhyContent } from "../sheet/WhySheet";
 import { Skeleton } from "../ui/Skeleton";
 import { TabPanel, Tabs } from "../ui/Tabs";
 import { useToast } from "../ui/Toast";
+import { attentionCount, attentionItems } from "../nav/attention";
 import { ActivityFeed } from "./ActivityFeed";
 import type { LogLike } from "./activity-model";
 import { mergeFeed } from "./activity-model";
 import { DecisionCard } from "./DecisionCard";
-import type { Answer } from "./DecisionCard";
 import { FailedRead } from "./FailedRead";
 import { longDay, moneyRange, shortDay, whole } from "./format";
 import type { CashLike, PendingLike } from "./home-model";
@@ -77,7 +77,6 @@ import {
   rankPending,
   signedOut,
   waitingCount,
-  waitingLine,
 } from "./home-model";
 import { LiveVisitors } from "./LiveVisitors";
 import { MadeList } from "./MadeList";
@@ -217,7 +216,6 @@ export function HomeScreen() {
   const waiting = waitingCount(navRead, queueRead);
   const count = waiting.state === "known" ? waiting.count : null;
   const top = ranked[0]?.range ?? null;
-  const line = waitingLine(count, top !== null);
   const cash = cashReading(cashView);
   // Unknown until the menu has been read: only a counted "no" shows the sign-in note.
   const signedIn = nav ? nav.access?.signed_in === true : null;
@@ -249,7 +247,10 @@ export function HomeScreen() {
     buffer: cash ? cash.lineKind === "buffer" : null,
     goals: nav ? nav.goals : null,
   });
-  const needsCount = count === null ? null : count + (paused > 0 ? 1 : 0) + (tightWeek ? 1 : 0);
+  // One definition with the bell (components/nav/attention.ts): decisions waiting,
+  // connections paused, support tickets open. A tight week in the cash forecast is a
+  // warning in the list, not a thing to answer, so it is not counted.
+  const needsCount = nav ? attentionCount(attentionItems(nav)) : count;
 
   // An answered decision leaves the list, and the button it was answered on
   // goes with it. Focus lost that way is put on the open tab, not dropped
@@ -267,19 +268,15 @@ export function HomeScreen() {
     if (queueRead.state !== "read" || !queueRead.refreshing) holding.current = false;
   }, [queueRead, holdFocus]);
 
-  // An answer recorded here: say so, and read everything it changed again.
-  const afterAnswer = useCallback(
-    (_id: string, answer: Answer) => {
-      toast(answer === "approve" ? t("toast.approved") : t("toast.declined"));
-      holding.current = true;
-      window.requestAnimationFrame(holdFocus);
-      reloadQueue();
-      reloadNav();
-      reloadWatch();
-      refreshNav();
-    },
-    [toast, t, holdFocus, reloadQueue, reloadNav, reloadWatch, refreshNav],
-  );
+  // An answer recorded here: read everything it changed again.
+  const afterAnswer = useCallback(() => {
+    holding.current = true;
+    window.requestAnimationFrame(holdFocus);
+    reloadQueue();
+    reloadNav();
+    reloadWatch();
+    refreshNav();
+  }, [holdFocus, reloadQueue, reloadNav, reloadWatch, refreshNav]);
 
   // The conversation: the latest exchange under the composer, and the
   // proposal a request just became, answered or opened right there.
@@ -475,26 +472,6 @@ export function HomeScreen() {
             <Skeleton lines={2} />
           ) : (
             <div className="home-strip">
-              {waiting.state !== "unread" && (
-                <button
-                  type="button"
-                  className="home-reading home-tile"
-                  onClick={() => {
-                    showTab("needs");
-                    document.getElementById("home-work")?.scrollIntoView({ block: "nearest" });
-                  }}
-                >
-                  <span className="home-r-lab">{t("readings.waiting")}</span>
-                  <span className="home-r-val">{count ?? "—"}</span>
-                  <span className="home-r-cmp">
-                    {line === "none"
-                      ? t("readings.waitingNone")
-                      : line === "biggest" && top
-                        ? t("readings.waitingCmp", { range: moneyRange(top, locale) })
-                        : null}
-                  </span>
-                </button>
-              )}
               {cash && (
                 <button
                   type="button"
@@ -542,15 +519,6 @@ export function HomeScreen() {
                       {cash.lowest.under ? t("flag.tight") : t("flag.clear")}
                     </span>
                   </span>
-                </Link>
-              )}
-              {nav?.watch && (
-                <Link className="home-reading home-tile" href="/watch">
-                  <span className="home-r-lab">{t("readings.watch")}</span>
-                  <span className="home-r-val">
-                    {nav.watch.day} / {nav.watch.of}
-                  </span>
-                  <span className="home-r-cmp">{t("readings.watchCmp")}</span>
                 </Link>
               )}
               {cashRead.state === "reading" && (
@@ -709,6 +677,7 @@ export function HomeScreen() {
                   total={count}
                   signedIn={signedIn}
                   paused={paused}
+                  support={nav?.support_open ?? 0}
                   tightWeek={tightWeek}
                   steps={steps}
                   locale={locale}
@@ -771,9 +740,11 @@ export function HomeScreen() {
         halted={halted}
         returnTo={review ? `/home?review=${review}` : "/home"}
         onClose={closeReview}
-        onAnswered={(id, answer) => {
+        onAnswered={(_id, answer) => {
           closeReview();
-          afterAnswer(id, answer);
+          // The sheet closes on an answer, so the toast is its receipt.
+          toast(answer === "approve" ? t("toast.approved") : t("toast.declined"));
+          afterAnswer();
         }}
       />
       <WhySheet content={why} onClose={shut} />

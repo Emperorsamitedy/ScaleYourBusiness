@@ -66,7 +66,9 @@ describe("the palette's rows", () => {
       "recent:/cash",
       "recent:/watch",
     ]);
-    expect(rows.slice(2, 4).map((r) => r.id)).toEqual(["action:ask", "action:signout"]);
+    // then the places, and the actions last: "Sign out" is not what the palette is opened for
+    expect(rows[2]?.kind).toBe("screen");
+    expect(rows.slice(-ACTIONS.length).map((r) => r.id)).toEqual(ACTIONS.map((a) => a.id));
     expect(rows).toHaveLength(2 + ACTIONS.length + SCREENS.length);
     expect(new Set(rows.map((r) => r.id)).size).toBe(rows.length); // ids stay unique
   });

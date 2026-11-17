@@ -74,9 +74,10 @@ export function ProposalSections({ data, titleId }: { data: CardData; titleId?: 
         </header>
       )}
 
-      <section className="q-msec">
-        <h2 className="q-mlabel">{t("m.changes")}</h2>
-        {lines ? (
+      {/* With no before and after stated, the title is the change (ux-spec §8.3): nothing is printed. */}
+      {lines && (
+        <section className="q-msec">
+          <h2 className="q-mlabel">{t("m.changes")}</h2>
           <dl className="q-mlines">
             {lines.map((l) =>
               // A page's wording does not fit a right-aligned figure line: it
@@ -107,10 +108,8 @@ export function ProposalSections({ data, titleId }: { data: CardData; titleId?: 
               ),
             )}
           </dl>
-        ) : (
-          <p className="q-nolines">{t("card.noLines")}</p>
-        )}
-      </section>
+        </section>
+      )}
 
       <section className="q-msec">
         <h2 className="q-mlabel">{t("m.expectedSpan", { span: effectSpan(p.action, qw) })}</h2>

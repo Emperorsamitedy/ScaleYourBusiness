@@ -1356,7 +1356,7 @@
       "signIn": "登录"
     },
     "reason": {
-      "why": "为什么不要？点一下就够了",
+      "why": "为什么不要？",
       "whyAll": "这 {count} 项为什么都不要？点一下就够了",
       "label": "您的理由，用您自己的话说",
       "placeholder": "或者用一句话说明——我会从中学习。",
@@ -1561,7 +1561,6 @@
       "missingLede": "该链接可能属于另一个企业，或者有误。",
       "failedLede": "我们这边出了点问题。请刷新重试。",
       "openQueue": "打开队列",
-      "noLines": "它没有说明改动前后的情况：改动内容就是标题。",
       "noRange": "这一项没有预测金额范围。",
       "worst": "最坏情形：{worst}",
       "limits": "已对照您的限制核对",
@@ -10255,16 +10254,11 @@
     "biggest": "其中最大的一项每月可增加 {range}。",
     "readings": {
       "label": "今日数据",
-      "waiting": "待您处理",
-      "waitingCmp": "最大一项每月 {range}",
-      "waitingNone": "暂无待决事项",
       "cash": "今日现金",
       "cashCmp": "缓冲额 {line}",
       "cashZero": "未设定缓冲额",
       "lowest": "未来最低点",
-      "lowestCmp": "{date} 当周",
-      "watch": "观察",
-      "watchCmp": "观察天数"
+      "lowestCmp": "{date} 当周"
     },
     "flag": {
       "under": "低于缓冲额",
@@ -10317,7 +10311,6 @@
     },
     "decide": {
       "recorded": "已以您的名义记录。",
-      "details": "详情",
       "open": "打开"
     },
     "trend": {
@@ -10706,7 +10699,6 @@
   "shortcuts": {
     "title": "快捷键",
     "everywhere": "任何页面",
-    "deciding": "做决定时",
     "then": "然后",
     "palette": "搜索或问 Lex",
     "go": "前往 {screen}",

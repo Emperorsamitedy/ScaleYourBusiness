@@ -52,7 +52,9 @@ const SCREEN: Readonly<Record<string, NavItemKey>> = {
   "/proposals": "proposals",
 };
 
-const STEP = 20;
+/** Eight rows at first: a feed is glanced at, and the rest is one press away. */
+const FIRST = 8;
+const STEP = 12;
 
 export function ActivityFeed({
   rows,
@@ -68,7 +70,7 @@ export function ActivityFeed({
   const t = useTranslations("home");
   const nav = useTranslations("nav");
   const { tr: ww, locale } = useTr("watchWords");
-  const [shown, setShown] = useState(STEP);
+  const [shown, setShown] = useState(FIRST);
   const [open, setOpen] = useState<string | null>(null);
   const { fresh, arrived } = news;
 

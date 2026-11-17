@@ -91,6 +91,26 @@ describe("the figures", () => {
     expect(worstCase({ ...base, scenario: {} })).toBe("No worst case was forecast for this one.");
   });
 
+  // 2026-11-18: an estimate printed to the cent claims more than it knows.
+  it("prints an estimate in whole units, in the currency’s own step", () => {
+    const cents: CardProposal = {
+      ...base,
+      scenario: {
+        downside_case: {
+          statement: "",
+          profit_delta_monthly: { amount_minor: 136_32, currency: "EUR" },
+        },
+        upside_case: {
+          statement: "",
+          profit_delta_monthly: { amount_minor: 1_213_12, currency: "EUR" },
+        },
+      },
+    };
+    expect(gainLine(cents)).toBe("+€136 – +€1,213");
+    expect(worstCase(cents)).toBe("+€136");
+    expect(gainLine(cents)).not.toContain(".32");
+  });
+
   it("says whether it can be undone", () => {
     expect(undoLine(base)).toMatchObject({ reversible: true, word: "REVERSIBLE · EASY TO UNDO" });
     expect(undoLine({ ...base, reversibility: null }).reversible).toBe(false);

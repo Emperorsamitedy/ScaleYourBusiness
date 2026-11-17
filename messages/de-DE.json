@@ -1356,7 +1356,7 @@
       "signIn": "Anmelden"
     },
     "reason": {
-      "why": "Warum nicht? Ein Tippen genügt",
+      "why": "Warum nicht?",
       "whyAll": "Warum nicht, für alle {count}? Ein Tippen genügt",
       "label": "Ihr Grund, in Ihren Worten",
       "placeholder": "Oder sagen Sie es in einem Satz – ich lerne daraus.",
@@ -1561,7 +1561,6 @@
       "missingLede": "Der Link gehört vielleicht zu einem anderen Unternehmen oder ist fehlerhaft.",
       "failedLede": "Bei uns ist etwas schiefgelaufen. Laden Sie die Seite neu, um es erneut zu versuchen.",
       "openQueue": "Warteschlange öffnen",
-      "noLines": "Er nennt kein Vorher und Nachher: Die Änderung ist der Titel.",
       "noRange": "Für diesen Vorschlag gibt es keine Prognose mit Geldspanne.",
       "worst": "Schlimmster Fall: {worst}",
       "limits": "Geprüft gegen Ihre Grenzen",
@@ -10255,16 +10254,11 @@
     "biggest": "Die größte könnte {range} im Monat bringen.",
     "readings": {
       "label": "Ihre Zahlen heute",
-      "waiting": "Wartet auf Sie",
-      "waitingCmp": "die größte {range} im Monat",
-      "waitingNone": "nichts zu entscheiden",
       "cash": "Geld heute",
       "cashCmp": "Puffer {line}",
       "cashZero": "kein Puffer angegeben",
       "lowest": "Tiefster Punkt voraus",
-      "lowestCmp": "Woche vom {date}",
-      "watch": "Beobachtung",
-      "watchCmp": "Tage der Beobachtung"
+      "lowestCmp": "Woche vom {date}"
     },
     "flag": {
       "under": "Unter Puffer",
@@ -10317,7 +10311,6 @@
     },
     "decide": {
       "recorded": "Mit Ihrem Namen aufgezeichnet.",
-      "details": "Details",
       "open": "Öffnen"
     },
     "trend": {
@@ -10706,7 +10699,6 @@
   "shortcuts": {
     "title": "Tastenkürzel",
     "everywhere": "Überall",
-    "deciding": "Beim Entscheiden",
     "then": "dann",
     "palette": "Suchen oder Lex fragen",
     "go": "Zu {screen}",

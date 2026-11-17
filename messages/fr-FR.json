@@ -1356,7 +1356,7 @@
       "signIn": "Se connecter"
     },
     "reason": {
-      "why": "Pourquoi pas ? Un seul appui suffit",
+      "why": "Pourquoi pas ?",
       "whyAll": "Pourquoi pas, pour les {count} ? Un seul appui suffit",
       "label": "Votre raison, avec vos mots",
       "placeholder": "Ou dites-le en une phrase — j’en tire des leçons.",
@@ -1561,7 +1561,6 @@
       "missingLede": "Le lien concerne peut-être une autre entreprise, ou il est erroné.",
       "failedLede": "Un problème est survenu de notre côté. Actualisez pour réessayer.",
       "openQueue": "Ouvrir la file d’attente",
-      "noLines": "Elle n’indique ni avant ni après : le changement, c’est le titre.",
       "noRange": "Aucune fourchette financière n’a fait l’objet d’une prévision pour celle-ci.",
       "worst": "Pire scénario : {worst}",
       "limits": "Vérifiée par rapport à vos limites",
@@ -10255,16 +10254,11 @@
     "biggest": "La plus importante pourrait rapporter {range} par mois.",
     "readings": {
       "label": "Vos chiffres du jour",
-      "waiting": "En attente de vous",
-      "waitingCmp": "la plus forte {range} par mois",
-      "waitingNone": "rien à décider",
       "cash": "Trésorerie du jour",
       "cashCmp": "réserve {line}",
       "cashZero": "aucune réserve indiquée",
       "lowest": "Point le plus bas à venir",
-      "lowestCmp": "semaine du {date}",
-      "watch": "Observation",
-      "watchCmp": "jours d’observation"
+      "lowestCmp": "semaine du {date}"
     },
     "flag": {
       "under": "Sous la réserve",
@@ -10317,7 +10311,6 @@
     },
     "decide": {
       "recorded": "Enregistré à votre nom.",
-      "details": "Détails",
       "open": "Ouvrir"
     },
     "trend": {
@@ -10706,7 +10699,6 @@
   "shortcuts": {
     "title": "Raccourcis clavier",
     "everywhere": "Partout",
-    "deciding": "Pendant une décision",
     "then": "puis",
     "palette": "Rechercher ou demander à Lex",
     "go": "Aller à {screen}",

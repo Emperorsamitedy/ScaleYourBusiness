@@ -103,6 +103,9 @@
   padding: 18px 22px;
 }
 .ui-sheet-foot {
+  /* a tall foot (a decline's reasons) scrolls in itself and leaves the body its room */
+  max-height: 62%;
+  overflow-y: auto;
   padding: 14px 22px;
   border-top: 1px solid var(--rule);
 }
@@ -251,7 +254,9 @@
 
 .ui-toasts {
   position: fixed;
-  right: 22px;
+  /* at the foot of the page's own column, beside the rail: never over the
+     side column, where the next decision's buttons are */
+  left: calc(212px + 22px);
   bottom: 22px;
   z-index: 80;
   display: grid;
@@ -416,6 +421,10 @@
   padding: 0 16px;
   border-bottom: 1px solid var(--rule);
   color: var(--sheet-ink-2);
+}
+.ui-palette-x {
+  flex: none;
+  margin-right: -8px;
 }
 .ui-palette-field input {
   flex: 1;

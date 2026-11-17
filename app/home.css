@@ -124,24 +124,6 @@
   color: var(--desk);
 }
 /* an action inside a line of text */
-.home-textbtn {
-  min-height: 32px;
-  padding: 0;
-  border: 0;
-  background: none;
-  color: var(--sheet-ink);
-  font: inherit;
-  font-weight: 600;
-  text-decoration: underline;
-  text-underline-offset: 3px;
-  cursor: pointer;
-}
-.home-textbtn:disabled {
-  color: var(--sheet-ink-2);
-  font-weight: 400;
-  text-decoration: none;
-  cursor: default;
-}
 .home-link {
   font-family: var(--f-mono);
   font-size: 12px;
@@ -150,6 +132,21 @@
   text-transform: uppercase;
   color: inherit;
   text-underline-offset: 3px;
+}
+/* the same link as a button ("Read now"): one link style on the screen */
+.home-linkbtn {
+  min-height: 32px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--sheet-ink);
+  text-decoration: underline;
+  cursor: pointer;
+}
+.home-linkbtn:disabled {
+  color: var(--sheet-ink-2);
+  text-decoration: none;
+  cursor: default;
 }
 /* the row that ends a list: more of it, or all of it */
 .home .home-more,
@@ -463,14 +460,15 @@
 }
 /* one line most days; two when a read names what gave no answer */
 .home-now-line {
-  min-height: 32px;
+  /* room for two lines, so the card does not jump when a read reports */
+  min-height: 54px;
   margin: 0;
   padding: 5px 0;
   font-size: 14px;
   line-height: 1.55;
   color: var(--sheet-ink-2);
 }
-.home-now-line .home-textbtn {
+.home-now-line .home-linkbtn {
   min-height: 0;
 }
 .home-now-line .live-dot {
@@ -1126,6 +1124,12 @@
   .home-chips::-webkit-scrollbar {
     display: none;
   }
+  /* its right edge fades, so a question cut short reads as "more this way" */
+  .home-chips {
+    padding-right: 40px;
+    -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 40px), transparent);
+    mask-image: linear-gradient(to right, #000 calc(100% - 40px), transparent);
+  }
   .home-chip {
     flex: none;
     min-height: 40px;
@@ -1137,8 +1141,8 @@
   /* a finger needs 40px, even for an action that is only a word */
   .hd-more,
   .hd-title-btn,
-  .home-textbtn,
-  .home-now-line .home-textbtn,
+  .home-linkbtn,
+  .home-now-line .home-linkbtn,
   .home .home-link {
     display: inline-flex;
     align-items: center;

@@ -12,7 +12,8 @@
 import type { AppLocale } from "../../lib/i18n/locales";
 import type { Tr } from "../../lib/i18n/tr";
 import { englishTr } from "../../lib/i18n/tr";
-import type { ReversibilityLike, ScenarioOutcomeLike } from "./queue-model";
+import { minorUnitExponent } from "../../lib/core/money";
+import type { MoneyLike, ReversibilityLike, ScenarioOutcomeLike } from "./queue-model";
 import { dayWord, clockWord, effectRange, reversibilityLabel, signedMoney } from "./queue-model";
 
 export interface CardProposal {
@@ -104,9 +105,17 @@ export function cardState(
 }
 
 /** The gain as a range, never a point: "+€120 – +€480". Null when the cases carry no money. */
+/** An estimate's end in whole major units: printed to the cent it would claim more than it knows. */
+function whole(m: MoneyLike): MoneyLike {
+  const unit = 10 ** minorUnitExponent(m.currency);
+  return { ...m, amount_minor: Math.round(m.amount_minor / unit) * unit };
+}
+
 export function gainLine(p: CardProposal, locale: AppLocale = "en"): string | null {
   const range = effectRange(p.scenario.downside_case, p.scenario.upside_case);
-  return range ? `${signedMoney(range.low, locale)} – ${signedMoney(range.high, locale)}` : null;
+  return range
+    ? `${signedMoney(whole(range.low), locale)} – ${signedMoney(whole(range.high), locale)}`
+    : null;
 }
 
 /** Past this many characters a change's two sides are sentences, not figures (the queue's own line). */
@@ -127,7 +136,8 @@ export function worstCase(p: CardProposal, w: CardWords = ENGLISH()): string {
   const money = d?.profit_delta_monthly;
   const words = d?.statement?.trim() ?? "";
   if (money && Number.isSafeInteger(money.amount_minor) && typeof money.currency === "string") {
-    return words ? `${signedMoney(money, w.locale)}: ${words}` : signedMoney(money, w.locale);
+    const sum = signedMoney(whole(money), w.locale);
+    return words ? `${sum}: ${words}` : sum;
   }
   return words || w.tr("card.noWorst");
 }

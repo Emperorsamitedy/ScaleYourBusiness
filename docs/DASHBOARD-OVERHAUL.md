@@ -42,7 +42,7 @@ Legend: `[ ]` open · `[x]` done and used in the browser · `[~]` done in part, 
 ## C. Home as a workspace
 
 - [x] C1. Reads that behave: what was read last shows at once on return and refreshes behind it; reads repeat while the tab is visible; a failed read shows one sentence and a Retry button instead of a missing card.
-- [x] C2. Lex's status card: one line that is always true (stopped, watching day N of M, or working with approvals), the emergency stop inside it, and "Read now", which reads every connection again and says what it read.
+- [x] C2. Lex's status card: one line that is always true (stopped, watching day N of M, or working with approvals) and "Read now", which reads every connection again and says what it read. The emergency stop stays in the strip, the same place on every screen (review, round 1).
 - [x] C3. Side tabs: **Needs you** (with its count), **Activity**, **Made**.
 - [x] C4. Needs you: each decision can be answered in place (two equal buttons, a reason on decline) or opened for a full read; paused connections and a tight cash week sit in the same list; when nothing waits it says so and offers the next steps.
 - [x] C5. The review sheet: a decision opened in place, with what changes, what is expected, the worst case, how to undo it, what it was checked against, then Approve and Decline. The address carries it (`?review=`), so Back closes it and a link opens it.
@@ -83,6 +83,25 @@ Legend: `[ ]` open · `[x]` done and used in the browser · `[~]` done in part, 
 - [x] H2. The catalogue test passes in seven languages.
 - [x] H3. `specs/ux-spec-v1.md` says what the app now does: §2 (icons on controls), §3 (the shell's palette, Lex's sheet, the bell, shortcuts; Home's tabs, review sheet, activity, next steps), §8 (the review sheet), §4.2 and §10 (speaking); `specs/conversation-channel.md` §7 (Lex on every screen).
 - [x] H4. `docs/DESIGN-DASHBOARD.md` lists the shared interactive pieces and the rules for using them.
+
+## The independent review, round 1 (2026-11-18)
+
+An evaluator on another model read the captures against the owner's words and Foundable's frames, and returned "needs revision": the direction is right and it feels alive, with a short list of interaction defects. What was done about each:
+
+- [x] R1. The command palette has its own close button (a phone has no Escape and no scrim).
+- [x] R2. "Needs you" has one definition, shared by the bell and Home's tab (`components/nav/attention.ts`): decisions waiting, connections paused, support tickets open. The cash week is a warning in the list and is not counted.
+- [x] R3. One emergency stop per screen. It stays in the strip everywhere; Home's status card reports the stopped state and carries no second button.
+- [x] R4. The rail's head and foot are pinned and only its groups scroll, so "Ask Lex" is always in reach.
+- [x] R5. Home says each thing once: the waiting and watching tiles left the readings.
+- [x] R6. The review sheet says less: nothing under "What changes" when the title is the change; an estimate in whole units; "Why not?" without "one tap is enough"; a tall decline panel scrolls in the sheet's foot.
+- [x] R7. Toasts sit at the foot of the page's own column, never over the side column; a card answered in the list shows its own receipt and only the sheet's answer is toasted.
+- [x] R8. The shortcuts sheet lists the queue's keys under the queue's own name.
+- [x] R9. A phone's header is two rows: search and the bell on the wordmark's row, the tabs with the stop. The chips' row fades at its right edge.
+- [x] R10. Smaller: one link style ("Read now" like the others); "Open" wherever a decision is opened; the status card keeps its height; the feed shows eight rows first; the palette lists places before actions; the rail's watching line stays on one line.
+- [later] A paused measurement connection (Google Analytics) is said on Home's live line but not counted: the menu's counts know only write connections that paused themselves. It needs one more count in `/api/nav`.
+- [later] A failed reply from Lex has no "Try again".
+- [later] In Lex's sheet and on the conversation page "Open" still goes to the decision's own page; a sheet over a sheet was not attempted.
+- [later] The note under Approve ("With no set time, it doesn't run by itself") is the queue's own sentence and reads unclear out of context; it wants a rewrite in seven languages.
 
 ## Later rounds (parked on purpose)
 

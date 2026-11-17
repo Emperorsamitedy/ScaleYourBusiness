@@ -65,7 +65,7 @@ export function ShortcutsHelp({ open, onClose }: { open: boolean; onClose: () =>
         <Row keys={["?"]}>{t("help")}</Row>
         <Row keys={["Esc"]}>{t("close")}</Row>
       </dl>
-      <p className="ui-label">{t("deciding")}</p>
+      <p className="ui-label">{nav("item.proposals")}</p>
       <dl className="sk-list">
         <Row keys={["J", "K"]}>{t("next")}</Row>
         <Row keys={["A"]}>{p("act.approve")}</Row>

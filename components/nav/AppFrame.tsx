@@ -39,6 +39,7 @@ import { showsFor } from "../../lib/core/size-features";
 import { roleAllows } from "../../lib/auth/role-actions";
 import { EmergencyStop } from "../execution/EmergencyStop";
 import { Logo, Mark } from "../brand/Mark";
+import { IconButton } from "../ui/IconButton";
 import { Kbd } from "../ui/Kbd";
 import { ToastProvider } from "../ui/Toast";
 import { CommandPalette, rememberScreen } from "./CommandPalette";
@@ -612,6 +613,13 @@ export function AppFrame({ children }: { children: ReactNode }) {
                       {t("watching", { day: counts.watch.day, of: counts.watch.of })}
                     </p>
                   )}
+                  {/* On a phone, search and the bell sit on the wordmark's row. */}
+                  <div className="app-rail-tools">
+                    <IconButton label={t("search")} onClick={() => setPalette(true)}>
+                      <Search size={18} strokeWidth={1.75} aria-hidden="true" />
+                    </IconButton>
+                    <Notifications counts={counts} />
+                  </div>
                   <button
                     type="button"
                     className="app-rail-toggle"
@@ -681,23 +689,25 @@ export function AppFrame({ children }: { children: ReactNode }) {
                     <span />
                   )}
                   <div className="app-tools">
-                    <button
-                      type="button"
-                      className="app-search"
-                      aria-haspopup="dialog"
-                      aria-expanded={palette}
-                      aria-label={t("search")}
-                      title={t("search")}
-                      onClick={() => setPalette(true)}
-                    >
-                      <Search size={16} strokeWidth={1.75} aria-hidden="true" />
-                      <span className="app-search-word">{t("search")}</span>
-                      <span className="app-search-keys" aria-hidden="true">
-                        <ModKey />
-                        <Kbd>K</Kbd>
-                      </span>
-                    </button>
-                    <Notifications counts={counts} />
+                    <div className="app-tools-desk">
+                      <button
+                        type="button"
+                        className="app-search"
+                        aria-haspopup="dialog"
+                        aria-expanded={palette}
+                        aria-label={t("search")}
+                        title={t("search")}
+                        onClick={() => setPalette(true)}
+                      >
+                        <Search size={16} strokeWidth={1.75} aria-hidden="true" />
+                        <span className="app-search-word">{t("search")}</span>
+                        <span className="app-search-keys" aria-hidden="true">
+                          <ModKey />
+                          <Kbd>K</Kbd>
+                        </span>
+                      </button>
+                      <Notifications counts={counts} />
+                    </div>
                     {stripStop(path) && <EmergencyStop variant="masthead" />}
                   </div>
                 </div>

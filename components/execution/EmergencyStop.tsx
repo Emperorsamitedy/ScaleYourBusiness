@@ -23,11 +23,11 @@
 // confirm-to-restart step, inline. `onState` tells the host screen
 // whether everything is halted, so it can say so beside its own buttons.
 //
-// Home's status card (2026-11-17, docs/DASHBOARD-OVERHAUL.md C2) carries it
-// too: variant "card" is the same control on paper, one full-width button
-// with what it does spoken rather than printed. A page can now hold two
-// (the strip's and the card's), so a press on one is told to the others
-// (a window event) and each reads the state again: they never disagree.
+// A press is told to the page (the STOP_CHANGED window event), so whatever
+// else shows the state reads it again and never disagrees: a second stop
+// on the same page, or Home's status card (2026-11-17), which says
+// "Stopped. Nothing executes." but carries no stop of its own. The stop
+// lives in the strip, in the same place on every screen.
 
 import { useCallback, useEffect, useId, useState } from "react";
 import "../../app/queue.css";
@@ -46,8 +46,9 @@ interface Halt {
   reason: string | null;
 }
 
-/** Told to every stop on the page when one of them was pressed; `detail` is the presser's id. */
-const CHANGED = "syb:stop-changed";
+/** Told to the page when a stop was pressed; `detail` is the presser's id. */
+export const STOP_CHANGED = "syb:stop-changed";
+const CHANGED = STOP_CHANGED;
 
 type State =
   | { phase: "hidden" }
@@ -78,7 +79,7 @@ export function EmergencyStop({
   variant = "bar",
   onState,
 }: {
-  variant?: "bar" | "masthead" | "card";
+  variant?: "bar" | "masthead";
   onState?: (halted: boolean) => void;
 } = {}) {
   const self = useId();
@@ -126,73 +127,6 @@ export function EmergencyStop({
     setState({ phase: "ready", halt: j, busy: false, confirming: false, error: null });
     window.dispatchEvent(new CustomEvent(CHANGED, { detail: self }));
   };
-
-  if (variant === "card") {
-    if (!s.halt.halted) {
-      return (
-        <div className="es-card" data-focus="emergency-stop">
-          <button
-            type="button"
-            className="es-card-stop"
-            disabled={s.busy}
-            aria-describedby={`${self}-what`}
-            onClick={() => void send("POST")}
-          >
-            {s.busy ? t("stopping") : t("stop")}
-          </button>
-          <span className="sr-only" id={`${self}-what`}>
-            {t("what")}
-          </span>
-          {s.error && (
-            <p className="es-card-note" role="alert">
-              {s.error}
-            </p>
-          )}
-        </div>
-      );
-    }
-    return (
-      <div className="es-card es-card-halted" role="status" data-focus="emergency-stop">
-        {s.confirming ? (
-          <>
-            <p className="es-card-note">{t("startNote")}</p>
-            <div className="es-card-pair">
-              <button
-                type="button"
-                className="es-card-go"
-                disabled={s.busy}
-                onClick={() => void send("DELETE")}
-              >
-                {s.busy ? t("starting") : t("yesStart")}
-              </button>
-              <button
-                type="button"
-                className="es-card-go"
-                onClick={() => setState({ ...s, confirming: false })}
-              >
-                {t("stay")}
-              </button>
-            </div>
-          </>
-        ) : resumeWhy ? (
-          <p className="es-card-note">{resumeWhy}</p>
-        ) : (
-          <button
-            type="button"
-            className="es-card-go"
-            onClick={() => setState({ ...s, confirming: true })}
-          >
-            {t("startUp")}
-          </button>
-        )}
-        {s.error && (
-          <p className="es-card-note" role="alert">
-            {s.error}
-          </p>
-        )}
-      </div>
-    );
-  }
 
   if (variant === "masthead") {
     if (!s.halt.halted) {

@@ -1449,7 +1449,7 @@
       "signIn": "Iniciar sesión"
     },
     "reason": {
-      "why": "¿Por qué no? Con un toque basta",
+      "why": "¿Por qué no?",
       "whyAll": "¿Por qué no, para las {count}? Con un toque basta",
       "label": "Su motivo, con sus palabras",
       "placeholder": "O dígalo en una frase: aprendo de ello.",
@@ -1654,7 +1654,6 @@
       "missingLede": "Puede que el enlace sea de otro negocio, o que sea incorrecto.",
       "failedLede": "Algo ha fallado por nuestra parte. Actualice la página para volver a intentarlo.",
       "openQueue": "Abrir la cola",
-      "noLines": "No indica un antes y un después: el cambio es el título.",
       "noRange": "No hay ninguna previsión de rango económico para esta propuesta.",
       "worst": "Peor escenario: {worst}",
       "limits": "Comprobada frente a sus límites",
@@ -10255,16 +10254,11 @@
     "biggest": "La mayor podría sumar {range} al mes.",
     "readings": {
       "label": "Sus cifras de hoy",
-      "waiting": "Le esperan",
-      "waitingCmp": "la mayor {range} al mes",
-      "waitingNone": "nada que decidir",
       "cash": "Efectivo hoy",
       "cashCmp": "colchón {line}",
       "cashZero": "sin colchón indicado",
       "lowest": "Punto más bajo previsto",
-      "lowestCmp": "semana del {date}",
-      "watch": "Observando",
-      "watchCmp": "días de observación"
+      "lowestCmp": "semana del {date}"
     },
     "flag": {
       "under": "Bajo el colchón",
@@ -10317,7 +10311,6 @@
     },
     "decide": {
       "recorded": "Registrado con su nombre.",
-      "details": "Detalles",
       "open": "Abrir"
     },
     "trend": {
@@ -10706,7 +10699,6 @@
   "shortcuts": {
     "title": "Atajos de teclado",
     "everywhere": "En todas partes",
-    "deciding": "Al decidir",
     "then": "luego",
     "palette": "Buscar o preguntar a Lex",
     "go": "Ir a {screen}",

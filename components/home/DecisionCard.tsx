@@ -210,7 +210,7 @@ export function DecisionCard({
         )
       ) : (
         <Link className="hd-more" href={`/proposals/${p.id}`}>
-          {h("decide.details")}
+          {h("decide.open")}
         </Link>
       )}
     </article>

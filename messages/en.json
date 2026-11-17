@@ -1356,7 +1356,7 @@
       "signIn": "Sign in"
     },
     "reason": {
-      "why": "Why not? One tap is enough",
+      "why": "Why not?",
       "whyAll": "Why not, for all {count}? One tap is enough",
       "label": "Your reason, in your words",
       "placeholder": "Or say it in a sentence — I learn from it.",
@@ -1561,7 +1561,6 @@
       "missingLede": "The link may be for another business, or wrong.",
       "failedLede": "Something went wrong on our side. Refresh to try again.",
       "openQueue": "Open the queue",
-      "noLines": "It states no before and after: the change is the title.",
       "noRange": "No money range was forecast for this one.",
       "worst": "Worst case: {worst}",
       "limits": "Checked against your limits",
@@ -10255,16 +10254,11 @@
     "biggest": "The biggest could add {range} a month.",
     "readings": {
       "label": "Your numbers today",
-      "waiting": "Waiting for you",
-      "waitingCmp": "the biggest {range} a month",
-      "waitingNone": "nothing to decide",
       "cash": "Cash today",
       "cashCmp": "buffer {line}",
       "cashZero": "no buffer stated",
       "lowest": "Lowest point ahead",
-      "lowestCmp": "week of {date}",
-      "watch": "Watching",
-      "watchCmp": "days of the watch"
+      "lowestCmp": "week of {date}"
     },
     "flag": {
       "under": "Under buffer",
@@ -10317,7 +10311,6 @@
     },
     "decide": {
       "recorded": "Recorded with your name.",
-      "details": "Details",
       "open": "Open"
     },
     "trend": {
@@ -10706,7 +10699,6 @@
   "shortcuts": {
     "title": "Shortcuts",
     "everywhere": "Everywhere",
-    "deciding": "While deciding",
     "then": "then",
     "palette": "Search or ask Lex",
     "go": "Go to {screen}",

@@ -3,7 +3,8 @@
 // Home's "Needs you" (docs/DASHBOARD-OVERHAUL.md C4, C8): the waiting
 // decisions, each answered in place or opened for a full read; then, as
 // quiet rows, what else wants the owner (a connection that paused itself,
-// a tight week in the cash forecast), each a link. When nothing waits it
+// support tickets left open, a tight week in the cash forecast), each a
+// link. The first three are what the bell counts too (nav/attention.ts). When nothing waits it
 // says so, and offers the next steps worked out from what Home already
 // read (next-steps.ts). It is drawn only once the queue has been read: an
 // unread queue is never "nothing needs you".
@@ -26,6 +27,7 @@ export function NeedsList<P extends Waiting>({
   total,
   signedIn,
   paused,
+  support,
   tightWeek,
   steps,
   locale,
@@ -39,6 +41,8 @@ export function NeedsList<P extends Waiting>({
   signedIn: boolean | null;
   /** Write connections that paused themselves. */
   paused: number;
+  /** Support tickets waiting for a person. */
+  support: number;
   /** The first week the cash forecast dips under the line, or null. */
   tightWeek: string | null;
   steps: readonly NextStep[];
@@ -48,7 +52,7 @@ export function NeedsList<P extends Waiting>({
 }) {
   const t = useTranslations("home");
   const nav = useTranslations("nav");
-  const quiet = ranked.length === 0 && paused === 0 && tightWeek === null;
+  const quiet = ranked.length === 0 && paused === 0 && support === 0 && tightWeek === null;
   return (
     <>
       {ranked.length > 0 && (
@@ -66,13 +70,21 @@ export function NeedsList<P extends Waiting>({
           ))}
         </div>
       )}
-      {(paused > 0 || tightWeek !== null) && (
+      {(paused > 0 || support > 0 || tightWeek !== null) && (
         <ul className="home-attn">
           {paused > 0 && (
             <li>
               <p>{t("needs.paused", { count: paused })}</p>
               <Link className="home-btn" href="/connections">
                 {nav("item.connections")}
+              </Link>
+            </li>
+          )}
+          {support > 0 && (
+            <li>
+              <p>{nav("bell.support", { count: support })}</p>
+              <Link className="home-btn" href="/support">
+                {nav("item.support")}
               </Link>
             </li>
           )}

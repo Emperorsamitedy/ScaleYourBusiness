@@ -63,7 +63,7 @@ export function pushRecent(recent: readonly string[], href: string, max = 6): st
 
 /**
  * What the palette lists, top to bottom. With nothing typed: the recent
- * screens (never the one already open), the actions, then every screen.
+ * screens (never the one already open), every screen, then the actions.
  * With a query: the screens and actions that fit, then, last, the row
  * that hands the words to Lex as a question.
  */
@@ -85,7 +85,7 @@ export function paletteRows(args: {
       .filter((s): s is PaletteItem => s !== undefined)
       .slice(0, args.maxRecent ?? 5)
       .map((s) => ({ ...s, id: `recent:${s.href ?? s.id}`, kind: "recent" as const }));
-    return [...recent, ...args.actions, ...args.screens];
+    return [...recent, ...args.screens, ...args.actions];
   }
   return [...filterItems(args.screens, q), ...filterItems(args.actions, q), args.ask(q)];
 }

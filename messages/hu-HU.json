@@ -1356,7 +1356,7 @@
       "signIn": "Bejelentkezés"
     },
     "reason": {
-      "why": "Miért nem? Egy koppintás elég",
+      "why": "Miért nem?",
       "whyAll": "Miért nem ({count} javaslat)? Egy koppintás elég",
       "label": "Az Ön indoka, saját szavaival",
       "placeholder": "Vagy mondja el egy mondatban — tanulok belőle.",
@@ -1561,7 +1561,6 @@
       "missingLede": "Lehet, hogy a link egy másik vállalkozáshoz tartozik, vagy hibás.",
       "failedLede": "Hiba történt a mi oldalunkon. Frissítse az oldalt az újrapróbáláshoz.",
       "openQueue": "A várólista megnyitása",
-      "noLines": "Nem ad meg előtte–utána állapotot: a változás maga a cím.",
       "noRange": "Ehhez nem készült előrejelzés pénzbeli tartománnyal.",
       "worst": "Legrosszabb eset: {worst}",
       "limits": "Összevetve az Ön korlátaival",
@@ -10255,16 +10254,11 @@
     "biggest": "A legnagyobb havi {range} összeget hozhat.",
     "readings": {
       "label": "A mai számai",
-      "waiting": "Önre vár",
-      "waitingCmp": "a legnagyobb havi {range}",
-      "waitingNone": "nincs mit eldönteni",
       "cash": "Mai pénz",
       "cashCmp": "tartalék {line}",
       "cashZero": "nincs megadott tartalék",
       "lowest": "Várható mélypont",
-      "lowestCmp": "{date} hete",
-      "watch": "Figyelés",
-      "watchCmp": "a figyelés napjai"
+      "lowestCmp": "{date} hete"
     },
     "flag": {
       "under": "Tartalék alatt",
@@ -10317,7 +10311,6 @@
     },
     "decide": {
       "recorded": "Az Ön nevével rögzítve.",
-      "details": "Részletek",
       "open": "Megnyitás"
     },
     "trend": {
@@ -10706,7 +10699,6 @@
   "shortcuts": {
     "title": "Billentyűparancsok",
     "everywhere": "Mindenhol",
-    "deciding": "Döntés közben",
     "then": "majd",
     "palette": "Keresés vagy kérdés Lexnek",
     "go": "Ugrás ide: {screen}",

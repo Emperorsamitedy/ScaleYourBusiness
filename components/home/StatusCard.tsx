@@ -2,10 +2,12 @@
 
 // Lex's status card (docs/DASHBOARD-OVERHAUL.md C2): the side column's
 // first sheet. One line that is always true (everything stopped; watching,
-// day N of M; or working with approvals), the emergency stop inside it,
-// and "Read now", which reads every connected account again through the
-// connections screen's own "Sync now" (POST /api/connections/sync) and
-// says what it read. Cobalt shows only while a read is genuinely out.
+// day N of M; or working with approvals) and "Read now", which reads every
+// connected account again through the connections screen's own "Sync now"
+// (POST /api/connections/sync) and says what it read. Cobalt shows only
+// while a read is genuinely out. The emergency stop is not here: it lives
+// in the strip above, in the same place on every screen, and this card
+// hears when it is pressed (STOP_CHANGED) and says so.
 //
 // Reading again needs a signed-in person whose role may (a manager or an
 // owner): when the list can't be read or the role may not, "Read now" is
@@ -17,7 +19,7 @@ import { useTranslations } from "next-intl";
 import type { NavCounts } from "../../app/api/nav/route";
 import { parseTs } from "../chat/chat-view";
 import { useRole } from "../auth/RoleContext";
-import { EmergencyStop } from "../execution/EmergencyStop";
+import { STOP_CHANGED } from "../execution/EmergencyStop";
 import { useAppLocale } from "../sheet/useTr";
 import { agoText } from "./format";
 import type { ReadNowTally } from "./read-now";
@@ -59,13 +61,26 @@ export function StatusCard({
   const [cooling, setCooling] = useState(false);
   const cool = useRef<number | null>(null);
 
-  const onState = useCallback(
-    (h: boolean) => {
+  // Whether everything is stopped: read once, and again whenever a stop on
+  // this page is pressed. A read that fails leaves the line as it was.
+  const loadHalt = useCallback(async () => {
+    try {
+      const res = await fetch("/api/stop", { cache: "no-store" });
+      if (!res.ok) return;
+      const j = (await res.json()) as { halted?: unknown };
+      const h = j.halted === true;
       setHalted(h);
       onHalted(h);
-    },
-    [onHalted],
-  );
+    } catch {
+      // Unreachable: nothing is claimed either way.
+    }
+  }, [onHalted]);
+  useEffect(() => {
+    void loadHalt();
+    const on = () => void loadHalt();
+    window.addEventListener(STOP_CHANGED, on);
+    return () => window.removeEventListener(STOP_CHANGED, on);
+  }, [loadHalt]);
 
   const loadConnections = useCallback(async () => {
     try {
@@ -178,7 +193,7 @@ export function StatusCard({
               {" "}
               <button
                 type="button"
-                className="home-textbtn"
+                className="home-link home-linkbtn"
                 disabled={cooling}
                 onClick={() => void readNow()}
               >
@@ -187,7 +202,6 @@ export function StatusCard({
             </>
           )}
         </p>
-        <EmergencyStop variant="card" onState={onState} />
       </div>
     </section>
   );
