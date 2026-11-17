@@ -10311,43 +10311,46 @@
     "decisions": "Decisiones",
     "notPricedYet": "aún sin precio",
     "notPriced": "sin precio",
-    "aiLabel": "Tienda ilustrativa · imágenes generadas por IA",
+    "aiLabel": "Tienda de ejemplo, imágenes hechas por IA",
     "nav": {
       "how": "Cómo funciona",
       "pricing": "Precios",
-      "firms": "Para asesorías contables",
+      "firms": "Para asesorías",
       "check": "Revisión gratuita",
-      "sections": "Secciones"
+      "sections": "Secciones",
+      "signIn": "Iniciar sesión",
+      "label": "Principal"
     },
     "rail": {
-      "read": "Leer",
-      "learn": "Aprender",
-      "scan": "Escáner",
+      "read": "Inicio",
+      "learn": "Preguntas",
+      "scan": "Revisión",
       "leaks": "Fugas",
-      "decide": "Decidir",
-      "chart": "Gráfico",
-      "trust": "Confianza",
+      "decide": "Su sí",
+      "chart": "Resultados",
+      "trust": "Precios",
       "firms": "Asesorías",
-      "check": "Revisión",
+      "check": "Revisión gratuita",
       "start": "Empezar"
     },
     "hero": {
-      "kicker": "Un análisis de sangre para su negocio",
-      "lede": "ScaleX encuentra por dónde se le escapa el dinero, le pone precio en euros y lo arregla solo cuando usted dice que sí.",
-      "run": "Hacer la revisión gratuita",
+      "kicker": "Para pequeños negocios",
+      "lede": "ScaleX se conecta a su tienda, sus anuncios y su sitio web. Encuentra lo que le hace perder dinero, dice cuánto y lo arregla. Nada cambia hasta que pulsa Aprobar, y cualquier cambio se puede deshacer.",
+      "run": "Revisar mi negocio gratis",
       "see": "Cómo funciona",
       "trust": "Solo lectura. Sin contraseñas. Nada cambia sin usted.",
-      "titleB": "<em>Sus cifras, quizá no.</em>",
+      "titleB": "<em>Usted solo dice que sí.</em>",
       "ctaMeta": "{minutes, plural, one {# minuto} many {# minutos} other {# minutos}} · sin cuenta",
-      "trustRead": "Solo lectura",
+      "trustRead": "Solo lee",
       "trustPw": "Sin contraseñas",
-      "trustYes": "Nada cambia sin su sí"
+      "trustYes": "Nada cambia sin su sí",
+      "titleA": "ScaleX se encarga de su marketing, sus anuncios y su sitio web."
     },
     "tour": {
-      "aria": "Recorrido del producto: ScaleX se conecta a una tienda, elabora su ficha de datos, encuentra una fuga y la arregla tras la aprobación del propietario",
+      "aria": "Recorrido del producto: ScaleX se conecta a una tienda, crea su ficha de datos, encuentra una fuga y la arregla cuando el propietario dice que sí",
       "demo": "Datos de demostración",
       "connections": "Conexiones",
-      "readsOnly": "ScaleX lee, nunca escribe",
+      "readsOnly": "ScaleX solo lee",
       "reads": {
         "shopify": "pedidos y productos",
         "analytics": "visitas a su sitio",
@@ -10356,7 +10359,7 @@
       "connecting": "Conectando…",
       "connected": "Solo lectura · conectado",
       "noPasswords": "Sin contraseñas. Puede quitar una conexión en cualquier momento.",
-      "twoMore": "Otras dos aún no tienen precio. Una laguna también es un hallazgo.",
+      "twoMore": "Otras dos aún no se pueden cuantificar. Eso también es bueno saberlo.",
       "tab": {
         "connect": "Conectar",
         "facts": "Datos",
@@ -10376,7 +10379,7 @@
       "shipping": "Envío por pedido",
       "shippingSrc": "usted me lo dijo · {day}",
       "repeat": "Clientes recurrentes",
-      "repeatSrc": "una laguna, no una suposición",
+      "repeatSrc": "aún no se sabe, no es una suposición",
       "unknown": "Aún no se sabe"
     },
     "leak": {
@@ -10413,9 +10416,9 @@
       "stamp": "Aprobado · registrado"
     },
     "s1": {
-      "kicker": "La entrevista y después la ficha de datos",
-      "title": "Una pregunta cada vez. <em>Cada respuesta</em> conserva su origen.",
-      "lede": "«No lo sé» es una respuesta de verdad: una laguna se convierte en un hallazgo, nunca en una suposición. Lo que usted dice, lo que ScaleX mide y lo que calcula acaban en una sola ficha de datos, con fecha y sin sobrescribirse nunca.",
+      "kicker": "Paso {n}: conectar y responder",
+      "title": "Unas pocas preguntas. <em>Cada respuesta</em> se guarda con su fuente.",
+      "lede": "ScaleX hace una pregunta cada vez. «No lo sé» es una respuesta válida. Lo que usted dice, lo que ScaleX mide y lo que calcula va a una misma ficha de datos, con la fecha y el origen.",
       "interview": "Entrevista",
       "asks": "ScaleX pregunta",
       "oneAtATime": "una pregunta cada vez",
@@ -10428,22 +10431,22 @@
       "under": "Menos de {amount}",
       "over": "Más de {amount}",
       "dontKnow": "No lo sé",
-      "srcTold": "usted me lo dijo · declarado",
-      "srcGap": "una laguna · se convierte en hallazgo",
+      "srcTold": "usted me lo dijo",
+      "srcGap": "aún no se sabe",
       "notKnown": "no se sabe",
       "cash": "Colchón de efectivo"
     },
     "s2": {
-      "kicker": "El diagnóstico",
-      "title": "Un escáner completo. <em>Cada fuga</em>, con su precio en euros al mes.",
-      "lede": "Al desplazarse, el escáner recorre la tienda. Cada fuga que encuentra dice cuánto supone y en qué se basa.",
+      "kicker": "Paso {n}: la revisión",
+      "title": "Una revisión completa. <em>Cada fuga</em> tiene su precio.",
+      "lede": "Mientras se desplaza, ScaleX recorre la tienda. Cada fuga que encuentra dice cuánto cuesta al mes y en qué se basa.",
       "scanned": "{pct} escaneado",
       "unpriced": "{count, plural, one {# aún sin precio} many {# aún sin precio} other {# aún sin precio}}"
     },
     "s3": {
       "kicker": "Adónde va el dinero",
-      "title": "Cada día se escapa un poco. <em>Séllelo</em> y se detiene.",
-      "lede": "La tubería son sus ventas. El ámbar es lo que se escapa: anuncios que no se amortizan, huecos vacíos, existencias que no salen. Un arreglo con su aprobación cierra una junta.",
+      "title": "Cada día se escapa un poco. <em>Arréglelo</em> y se acaba.",
+      "lede": "Un anuncio que cuesta más de lo que trae. Huecos vacíos. Existencias paradas en la estantería. Cada arreglo al que dice que sí cierra una fuga.",
       "leaking": "Con fuga",
       "paused": "En pausa · registrado",
       "approvePause": "Aprobar la pausa",
@@ -10457,18 +10460,18 @@
       "working": "{lost} perdidos en {days} días × {month} ÷ {days} = {monthly} al mes. Según las propias cifras de Meta."
     },
     "s4": {
-      "kicker": "Su decisión",
+      "kicker": "Paso {n}: su sí",
       "title": "No pasa nada <em>hasta que usted diga que sí.</em>",
-      "lede": "Una hoja por arreglo: qué cambia, el dinero y cómo deshacerlo. Su sí queda registrado con su nombre, se guarda para siempre y nunca se edita.",
+      "lede": "Una tarjeta por arreglo: qué cambia, cuánto vale y cómo deshacerlo. Su sí se guarda con su nombre y nunca se borra.",
       "proof": {
-        "readOnly": "Solo lectura",
-        "readOnlyWhy": "Las conexiones leen y nunca escriben; las pruebas fallan si alguna pudiera hacerlo.",
-        "graded": "Evaluado",
-        "gradedWhy": "Cada previsión se contrasta con lo que ocurrió, a la vista de todos.",
+        "readOnly": "Solo lee",
+        "readOnlyWhy": "ScaleX puede leer sus cuentas, pero nunca cambiarlas.",
+        "graded": "Comprobado",
+        "gradedWhy": "Cada previsión se compara con lo que pasó de verdad.",
         "undo": "Deshacer",
-        "undoWhy": "Cada cambio indica cómo revertirlo antes de su aprobación.",
+        "undoWhy": "Cada cambio dice cómo deshacerlo antes de que diga que sí.",
         "labelled": "Etiquetado",
-        "labelledWhy": "Todo lo que la IA crea para su negocio lleva la etiqueta de creado por IA."
+        "labelledWhy": "Todo lo que la IA crea para usted se marca como hecho por IA."
       },
       "waiting": "{count, plural, one {# pendiente} many {# pendientes} other {# pendientes}}",
       "priceChange": "Cambio de precio",
@@ -10476,7 +10479,7 @@
       "raise": "Subir un {pct} el precio de la Speckled Everyday Mug",
       "now": "Ahora",
       "after": "Después",
-      "ledger": "Registro · se guarda para siempre, nunca se edita",
+      "ledger": "Registro: se guarda para siempre, nunca se cambia",
       "onRecord": "{count, plural, one {# registrada} many {# registradas} other {# registradas}}",
       "pausedOne": "Pausar una campaña de anuncios",
       "approved": "Aprobado",
@@ -10484,9 +10487,9 @@
       "byYou": "por usted"
     },
     "s5": {
-      "kicker": "Medido",
-      "lede": "Cada día, una vela; lo que se escapó, dibujado encima en ámbar. Desplácese para recorrer los últimos {days} días. Después, cada previsión se evalúa frente a lo que ocurrió de verdad.",
-      "marketView": "Vista de mercado",
+      "kicker": "Paso {n}: resultados",
+      "lede": "Cada vela es un día de ventas. El ámbar encima es lo que se escapó. Desplácese para recorrer los últimos {days} días. Después, cada previsión se comprueba con lo que pasó de verdad.",
+      "marketView": "Sus ventas",
       "dayOf": "Día {day} de {days}",
       "salesADay": "Ventas por día · últimos {days} días",
       "slipped": "se escapó",
@@ -10498,36 +10501,37 @@
       "low": "Mínimo",
       "close": "Cierre",
       "forecastFor": "Previsión del {from} al {to}",
-      "gradedAfter": "Se evalúa después del {day}"
+      "gradedAfter": "Se evalúa después del {day}",
+      "title": "Cada día medido. <em>Cada previsión</em> comprobada."
     },
     "s6": {
-      "kicker": "La escalera de confianza y lo que cuesta",
-      "title": "La autonomía se gana. <em>Pague por el paso</em> que usted permita.",
-      "lede": "Cada tipo de acción empieza observando. Solo sube con resultados demostrados, y la parada lo devuelve todo abajo. Cada plan empieza con un mes en la sombra que no cambia nada.",
-      "fine": "Anual: una quinta parte menos · un negocio adicional, {extra} al mes · un diagnóstico único de {report} se descuenta de su primera factura.",
+      "kicker": "Precios",
+      "title": "Empiece gratis. <em>Pague solo</em> por lo que le permite hacer.",
+      "lede": "Todos los planes empiezan con un mes gratis en el que ScaleX solo observa y no cambia nada. Solo puede hacer más cuando se ha ganado su confianza, y el botón de parada lo devuelve al principio.",
+      "fine": "Pague anualmente y ahorre una quinta parte. Un negocio adicional cuesta {extra} al mes. La revisión única de {report} se descuenta de su primera factura.",
       "ladder": "Escalera de confianza",
       "choose": "usted elige el paso",
       "yourStep": "Su paso",
       "step": {
-        "shadow": "Mes en la sombra",
+        "shadow": "Mes gratis",
         "watch": "Watch",
         "act": "Act",
         "autonomous": "Autonomous"
       },
       "stepN": "Paso {n}",
       "what": {
-        "watch": "Observa, diagnostica cada mes, sugiere. No cambia nada.",
-        "act": "Lleva a cabo aquello a lo que usted dice que sí: publicaciones, anuncios, los textos de su sitio.",
-        "autonomous": "Actúa dentro de los límites que usted fija. Si las ganancias verificadas no llegan a {times} veces la cuota en un trimestre, el siguiente es gratis."
+        "watch": "Revisa sus números cada mes y propone arreglos. No cambia nada.",
+        "act": "Hace lo que usted aprueba: publicaciones, anuncios, los textos de su sitio web.",
+        "autonomous": "Actúa por su cuenta dentro de los límites que usted fija. Si en un trimestre no gana {times} veces su cuota, el siguiente trimestre es gratis."
       },
       "perMonth": "al mes"
     },
     "s7": {
-      "kicker": "Para asesorías contables",
-      "title": "Toda su cartera de clientes, <em>ordenada por el dinero que se escapa.</em>",
-      "lede": "Dé de alta a sus clientes desde un solo CSV; a cada propietario se le pide un mandato en su propio idioma. Configure NAV para todos los clientes de una vez. Los propietarios revocan su acceso con un toque.",
+      "kicker": "Para asesorías",
+      "title": "Todos sus clientes, <em>ordenados por el dinero que se fuga.</em>",
+      "lede": "Añada sus clientes desde un solo archivo. Cada propietario da su permiso en su propio idioma. Conecte NAV para todos a la vez. Un propietario puede retirarle el acceso con un toque.",
       "yourFirm": "Su asesoría",
-      "clientBook": "Cartera de clientes",
+      "clientBook": "Lista de clientes",
       "clients": "{count, plural, one {# negocio} many {# negocios} other {# negocios}} · ilustrativo",
       "business": "Negocio",
       "leaking": "Fuga al mes",
@@ -10538,25 +10542,39 @@
         "salon": "Una peluquería",
         "cafe": "Una cafetería de barrio"
       },
-      "more": "y {count} más, cada uno con su propio mandato"
+      "more": "y {count} más, cada uno con su propio permiso"
     },
     "s8": {
       "kicker": "La revisión gratuita",
-      "title": "Una cifra sobre su negocio, <em>en tres minutos.</em>",
-      "lede": "Seis preguntas, sin cuenta. La fuga probable con su tamaño y cómo se compara usted con negocios parecidos.",
-      "try": "pruébelo · demostración",
+      "title": "Un número sobre su negocio, <em>en {minutes} minutos.</em>",
+      "lede": "Seis preguntas, sin cuenta. Recibe la fuga más probable, su tamaño y cómo se compara con negocios como el suyo.",
+      "try": "pruébelo, datos de demostración",
       "yourBusiness": "Su negocio",
       "shop": "Una tienda online",
       "salon": "Un salón",
       "cafe": "Una cafetería",
       "sales": "Ventas al mes",
       "likely": "al mes, probablemente en fuga",
-      "rule": "La revisión real lee sus respuestas; esta demostración usa una regla general fija."
+      "rule": "La revisión real lee sus respuestas. Esta demostración usa una regla general sencilla."
     },
     "s9": {
-      "sizeA": "Pensado para negocios pequeños con ventas reales cada semana. ¿Demasiado pequeño para leerlo? Se le avisa antes de pagar.",
+      "sizeA": "ScaleX está hecho para pequeños negocios con ventas cada semana. Si el suyo es demasiado pequeño para leerlo, se lo dice antes de pagar.",
       "eraseQ": "¿Qué ve la IA y puedo borrarlo?",
-      "eraseA": "Solo lo que usted conecta y le cuenta. Puede borrar su negocio en cualquier momento."
+      "eraseA": "Solo lo que usted conecta y le cuenta. Puede borrar su negocio en cualquier momento.",
+      "title": "Preguntas",
+      "passwordQ": "¿Necesita mis contraseñas?",
+      "passwordA": "No. Conecta sus cuentas con acceso de solo lectura y puede retirarlo cuando quiera.",
+      "changeQ": "¿Puede ScaleX cambiar algo sin mí?",
+      "changeA": "No. Nada cambia hasta que pulsa Aprobar. Cualquier cambio se puede deshacer.",
+      "sizeQ": "¿Mi negocio tiene el tamaño adecuado?"
+    },
+    "meta": {
+      "title": "ScaleX se encarga de su marketing, sus anuncios y su sitio web"
+    },
+    "foot": {
+      "company": "[Datos de la empresa]",
+      "privacy": "Privacidad",
+      "terms": "Condiciones"
     }
   }
 }

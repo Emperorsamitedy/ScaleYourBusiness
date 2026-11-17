@@ -10311,43 +10311,46 @@
     "decisions": "Entscheidungen",
     "notPricedYet": "noch nicht beziffert",
     "notPriced": "nicht beziffert",
-    "aiLabel": "Beispielgeschäft · KI-generierte Aufnahmen",
+    "aiLabel": "Beispielgeschäft, KI-gemachte Aufnahmen",
     "nav": {
       "how": "So funktioniert es",
       "pricing": "Preise",
-      "firms": "Für Buchhaltungskanzleien",
+      "firms": "Für Steuerberater",
       "check": "Kostenloser Check",
-      "sections": "Abschnitte"
+      "sections": "Abschnitte",
+      "signIn": "Anmelden",
+      "label": "Hauptnavigation"
     },
     "rail": {
-      "read": "Lesen",
-      "learn": "Lernen",
-      "scan": "Scan",
+      "read": "Start",
+      "learn": "Fragen",
+      "scan": "Check",
       "leaks": "Lecks",
-      "decide": "Entscheiden",
-      "chart": "Chart",
-      "trust": "Vertrauen",
-      "firms": "Kanzleien",
-      "check": "Check",
-      "start": "Start"
+      "decide": "Ihr Ja",
+      "chart": "Ergebnisse",
+      "trust": "Preise",
+      "firms": "Steuerberater",
+      "check": "Kostenloser Check",
+      "start": "Loslegen"
     },
     "hero": {
-      "kicker": "Ein Bluttest für Ihr Unternehmen",
-      "lede": "ScaleX findet, wo Ihr Geld versickert, beziffert es in Euro und behebt es nur, wenn Sie Ja sagen.",
-      "run": "Kostenlosen Check starten",
+      "kicker": "Für kleine Unternehmen",
+      "lede": "ScaleX verbindet sich mit Ihrem Shop, Ihren Anzeigen und Ihrer Website. Es findet, was Sie Geld kostet, sagt wie viel, und behebt es. Nichts ändert sich, bevor Sie auf Freigeben tippen, und jede Änderung lässt sich rückgängig machen.",
+      "run": "Mein Unternehmen kostenlos prüfen",
       "see": "So funktioniert es",
       "trust": "Nur Lesezugriff. Keine Passwörter. Nichts ändert sich ohne Sie.",
-      "titleB": "<em>Seine Zahlen vielleicht nicht.</em>",
+      "titleB": "<em>Sie sagen nur Ja.</em>",
       "ctaMeta": "{minutes, plural, one {# Minute} other {# Minuten}} · kein Konto",
-      "trustRead": "Nur Lesezugriff",
+      "trustRead": "Liest nur",
       "trustPw": "Keine Passwörter",
-      "trustYes": "Nichts ändert sich ohne Ihr Ja"
+      "trustYes": "Nichts ändert sich ohne Ihr Ja",
+      "titleA": "Ihr Marketing, Ihre Anzeigen und Ihre Website, für Sie erledigt."
     },
     "tour": {
-      "aria": "Produkttour: ScaleX verbindet sich mit einem Geschäft, erstellt dessen Faktenblatt, findet ein Leck und behebt es nach der Freigabe durch den Inhaber",
+      "aria": "Produkttour: ScaleX verbindet sich mit einem Shop, erstellt das Faktenblatt, findet ein Leck und behebt es, sobald der Inhaber Ja sagt",
       "demo": "Demodaten",
       "connections": "Verbindungen",
-      "readsOnly": "ScaleX liest, schreibt nie",
+      "readsOnly": "ScaleX liest nur",
       "reads": {
         "shopify": "Bestellungen und Produkte",
         "analytics": "Besuche Ihrer Seite",
@@ -10356,7 +10359,7 @@
       "connecting": "Verbinde…",
       "connected": "Nur Lesezugriff · verbunden",
       "noPasswords": "Keine Passwörter. Sie können eine Verbindung jederzeit entfernen.",
-      "twoMore": "Zwei weitere sind noch nicht beziffert. Auch eine Lücke ist ein Befund.",
+      "twoMore": "Zwei weitere lassen sich noch nicht beziffern. Auch das ist gut zu wissen.",
       "tab": {
         "connect": "Verbinden",
         "facts": "Fakten",
@@ -10376,7 +10379,7 @@
       "shipping": "Versand pro Bestellung",
       "shippingSrc": "von Ihnen genannt · {day}",
       "repeat": "Stammkunden",
-      "repeatSrc": "eine Lücke, keine Schätzung",
+      "repeatSrc": "noch nicht bekannt, keine Schätzung",
       "unknown": "Noch nicht bekannt"
     },
     "leak": {
@@ -10413,9 +10416,9 @@
       "stamp": "Freigegeben · festgehalten"
     },
     "s1": {
-      "kicker": "Das Interview, dann das Faktenblatt",
-      "title": "Eine Frage nach der anderen. <em>Jede Antwort</em> behält ihre Quelle.",
-      "lede": "„Ich weiß es nicht“ ist eine echte Antwort: Aus einer Lücke wird ein Befund, nie eine Schätzung. Was Sie sagen, was ScaleX misst und was es errechnet, landet alles in einem Faktenblatt, datiert und nie überschrieben.",
+      "kicker": "Schritt {n}: verbinden und antworten",
+      "title": "Ein paar Fragen. <em>Jede Antwort</em> wird mit ihrer Quelle aufbewahrt.",
+      "lede": "ScaleX stellt eine Frage nach der anderen. „Weiß ich nicht“ ist eine gute Antwort. Was Sie sagen, was ScaleX misst und was es ausrechnet, landet auf einem Faktenblatt, mit Datum und Herkunft.",
       "interview": "Interview",
       "asks": "ScaleX fragt",
       "oneAtATime": "eine Frage nach der anderen",
@@ -10428,22 +10431,22 @@
       "under": "Unter {amount}",
       "over": "Über {amount}",
       "dontKnow": "Ich weiß es nicht",
-      "srcTold": "von Ihnen genannt · angegeben",
-      "srcGap": "eine Lücke · wird zum Befund",
+      "srcTold": "von Ihnen",
+      "srcGap": "noch nicht bekannt",
       "notKnown": "nicht bekannt",
       "cash": "Liquiditätspuffer"
     },
     "s2": {
-      "kicker": "Die Diagnose",
-      "title": "Ein vollständiger Scan. <em>Jedes Leck</em> in Euro pro Monat beziffert.",
-      "lede": "Beim Scrollen läuft der Scan durch das Geschäft. Jedes gefundene Leck sagt, wie groß es ist und worauf es beruht.",
+      "kicker": "Schritt {n}: der Check",
+      "title": "Ein kompletter Check. <em>Jedes Leck</em> bekommt einen Preis.",
+      "lede": "Während Sie scrollen, geht ScaleX den Shop durch. Jedes gefundene Leck sagt, was es im Monat kostet und worauf das beruht.",
       "scanned": "{pct} gescannt",
       "unpriced": "{count, plural, one {# noch nicht beziffert} other {# noch nicht beziffert}}"
     },
     "s3": {
-      "kicker": "Wohin das Geld fließt",
-      "title": "Jeden Tag versickert ein wenig. <em>Dichten Sie es ab</em>, und es hört auf.",
-      "lede": "Das Rohr sind Ihre Verkäufe. Das Bernsteinfarbene ist, was ausläuft: Anzeigen, die sich nicht auszahlen, leere Termine, Lagerbestand, der liegen bleibt. Eine Korrektur, die Sie freigeben, dichtet eine Nahtstelle ab.",
+      "kicker": "Wohin das Geld geht",
+      "title": "Jeden Tag geht ein bisschen verloren. <em>Beheben Sie es</em>, und es hört auf.",
+      "lede": "Eine Anzeige, die mehr kostet, als sie einbringt. Leere Termine. Lagerbestand, der im Regal liegt. Jede Korrektur, der Sie zustimmen, schließt ein Leck.",
       "leaking": "Läuft aus",
       "paused": "Pausiert · festgehalten",
       "approvePause": "Pause freigeben",
@@ -10457,18 +10460,18 @@
       "working": "{lost} Verlust in {days} Tagen × {month} ÷ {days} = {monthly} im Monat. Aus Metas eigenen Zahlen."
     },
     "s4": {
-      "kicker": "Ihre Entscheidung",
+      "kicker": "Schritt {n}: Ihr Ja",
       "title": "Nichts geschieht, <em>bevor Sie Ja sagen.</em>",
-      "lede": "Ein Blatt pro Korrektur: was sich ändert, das Geld und wie es sich rückgängig machen lässt. Ihr Ja wird mit Ihrem Namen festgehalten, für immer aufbewahrt und nie bearbeitet.",
+      "lede": "Eine Karte pro Korrektur: was sich ändert, was es wert ist und wie man es rückgängig macht. Ihr Ja wird mit Ihrem Namen gespeichert und nie gelöscht.",
       "proof": {
-        "readOnly": "Nur Lesezugriff",
-        "readOnlyWhy": "Verbindungen lesen und schreiben nie; die Tests schlagen fehl, wenn eine es könnte.",
-        "graded": "Benotet",
-        "gradedWhy": "Jede Prognose wird offen mit dem verglichen, was tatsächlich geschah.",
+        "readOnly": "Liest nur",
+        "readOnlyWhy": "ScaleX kann Ihre Konten lesen, aber nie verändern.",
+        "graded": "Geprüft",
+        "gradedWhy": "Jede Prognose wird mit dem verglichen, was wirklich passiert ist.",
         "undo": "Rückgängig",
-        "undoWhy": "Jede Änderung sagt vor Ihrer Freigabe, wie sie sich rückgängig machen lässt.",
+        "undoWhy": "Jede Änderung sagt, wie man sie rückgängig macht, bevor Sie Ja sagen.",
         "labelled": "Gekennzeichnet",
-        "labelledWhy": "Alles, was die KI für Ihr Unternehmen erstellt, ist als KI-erstellt gekennzeichnet."
+        "labelledWhy": "Alles, was die KI für Sie erstellt, ist als KI-gemacht gekennzeichnet."
       },
       "waiting": "{count, plural, one {# offen} other {# offen}}",
       "priceChange": "Preisänderung",
@@ -10476,7 +10479,7 @@
       "raise": "Preis der Speckled Everyday Mug um {pct} erhöhen",
       "now": "Jetzt",
       "after": "Danach",
-      "ledger": "Ledger · für immer aufbewahrt, nie bearbeitet",
+      "ledger": "Protokoll: für immer aufbewahrt, nie verändert",
       "onRecord": "{count, plural, one {# festgehalten} other {# festgehalten}}",
       "pausedOne": "Eine Werbekampagne pausieren",
       "approved": "Freigegeben",
@@ -10484,9 +10487,9 @@
       "byYou": "von Ihnen"
     },
     "s5": {
-      "kicker": "Gemessen",
-      "lede": "Jeder Tag eine Kerze; was versickert ist, in Bernstein darüber gezeichnet. Scrollen Sie durch die letzten {days} Tage. Danach wird jede Prognose an dem gemessen, was wirklich geschah.",
-      "marketView": "Marktansicht",
+      "kicker": "Schritt {n}: Ergebnisse",
+      "lede": "Jede Kerze ist ein Verkaufstag. Das Bernstein darüber ist, was verloren ging. Scrollen Sie durch die letzten {days} Tage. Danach wird jede Prognose an dem geprüft, was wirklich passiert ist.",
+      "marketView": "Ihre Verkäufe",
       "dayOf": "Tag {day} von {days}",
       "salesADay": "Verkäufe pro Tag · letzte {days} Tage",
       "slipped": "versickert",
@@ -10498,36 +10501,37 @@
       "low": "Tief",
       "close": "Schluss",
       "forecastFor": "Prognose für {from} bis {to}",
-      "gradedAfter": "Bewertung nach dem {day}"
+      "gradedAfter": "Bewertung nach dem {day}",
+      "title": "Jeder Tag gemessen. <em>Jede Prognose</em> geprüft."
     },
     "s6": {
-      "kicker": "Die Vertrauensleiter und was sie kostet",
-      "title": "Autonomie wird verdient. <em>Zahlen Sie für die Stufe,</em> die Sie erlauben.",
-      "lede": "Jede Art von Aktion beginnt mit Beobachten. Sie steigt nur mit nachgewiesenen Ergebnissen auf, und der Stopp schickt alles wieder nach unten. Jeder Tarif beginnt mit einem Schattenmonat, der nichts verändert.",
-      "fine": "Jährlich: ein Fünftel günstiger · ein weiteres Unternehmen {extra} im Monat · eine einmalige Diagnose für {report} wird von Ihrer ersten Rechnung abgezogen.",
+      "kicker": "Preise",
+      "title": "Kostenlos starten. <em>Zahlen Sie nur</em> für das, was Sie erlauben.",
+      "lede": "Jeder Plan beginnt mit einem kostenlosen Monat, in dem ScaleX nur beobachtet und nichts verändert. Mehr darf es erst, wenn es sich Ihr Vertrauen verdient hat, und der Stopp-Knopf schickt es wieder zurück.",
+      "fine": "Zahlen Sie jährlich und sparen Sie ein Fünftel. Ein weiteres Unternehmen kostet {extra} im Monat. Der einmalige Check für {report} wird von Ihrer ersten Rechnung abgezogen.",
       "ladder": "Vertrauensleiter",
       "choose": "Sie wählen die Stufe",
       "yourStep": "Ihre Stufe",
       "step": {
-        "shadow": "Schattenmonat",
+        "shadow": "Gratismonat",
         "watch": "Watch",
         "act": "Act",
         "autonomous": "Autonomous"
       },
       "stepN": "Stufe {n}",
       "what": {
-        "watch": "Beobachtet, diagnostiziert monatlich, schlägt vor. Verändert nichts.",
-        "act": "Setzt um, wozu Sie Ja sagen: Beiträge, Anzeigen, die Texte Ihrer Seite.",
-        "autonomous": "Handelt innerhalb der Grenzen, die Sie setzen. Erreichen die belegten Gewinne in einem Quartal nicht das {times}-Fache der Gebühr, ist das nächste kostenlos."
+        "watch": "Prüft jeden Monat Ihre Zahlen und schlägt Korrekturen vor. Ändert nichts.",
+        "act": "Macht, wozu Sie Ja sagen: Beiträge, Anzeigen, die Texte auf Ihrer Website.",
+        "autonomous": "Handelt eigenständig innerhalb Ihrer Grenzen. Bringt es in einem Quartal nicht das {times}-Fache seiner Gebühr ein, ist das nächste Quartal kostenlos."
       },
       "perMonth": "im Monat"
     },
     "s7": {
-      "kicker": "Für Buchhaltungskanzleien",
-      "title": "Ihr gesamter Mandantenstamm, <em>sortiert nach versickerndem Geld.</em>",
-      "lede": "Nehmen Sie Mandanten aus einer einzigen CSV-Datei auf; jeder Inhaber wird in seiner eigenen Sprache um ein Mandat gebeten. Richten Sie NAV für alle Mandanten in einem Zug ein. Inhaber entziehen Ihnen den Zugriff mit einem Tippen.",
+      "kicker": "Für Steuerberater",
+      "title": "Alle Ihre Mandanten, <em>sortiert nach Geldverlust.</em>",
+      "lede": "Legen Sie Ihre Mandanten aus einer Datei an. Jeder Inhaber erteilt die Erlaubnis in seiner eigenen Sprache. Verbinden Sie NAV für alle auf einmal. Ein Inhaber kann Ihren Zugang mit einem Tipp entziehen.",
       "yourFirm": "Ihre Kanzlei",
-      "clientBook": "Mandantenstamm",
+      "clientBook": "Mandantenliste",
       "clients": "{count, plural, one {# Unternehmen} other {# Unternehmen}} · Beispiel",
       "business": "Unternehmen",
       "leaking": "Verlust pro Monat",
@@ -10538,25 +10542,39 @@
         "salon": "Ein Friseursalon",
         "cafe": "Ein Nachbarschaftscafé"
       },
-      "more": "und {count} weitere, jedes mit eigenem Mandat"
+      "more": "und {count} weitere, jeder mit eigener Erlaubnis"
     },
     "s8": {
       "kicker": "Der kostenlose Check",
-      "title": "Eine Zahl über Ihr Unternehmen, <em>in drei Minuten.</em>",
-      "lede": "Sechs Fragen, kein Konto. Das wahrscheinliche Leck mit seiner Größe und Ihr Vergleich mit ähnlichen Unternehmen.",
-      "try": "ausprobieren · Demo",
+      "title": "Eine Zahl über Ihr Unternehmen, <em>in {minutes} Minuten.</em>",
+      "lede": "Sechs Fragen, kein Konto. Sie bekommen das wahrscheinliche Leck, seine Größe und den Vergleich mit Unternehmen wie Ihrem.",
+      "try": "ausprobieren, Demodaten",
       "yourBusiness": "Ihr Unternehmen",
       "shop": "Ein Onlineshop",
       "salon": "Ein Salon",
       "cafe": "Ein Café",
       "sales": "Verkäufe pro Monat",
       "likely": "im Monat, vermutlich verloren",
-      "rule": "Der echte Check liest Ihre Antworten; diese Demo nutzt eine feste Faustregel."
+      "rule": "Der echte Check liest Ihre Antworten. Diese Demo nutzt eine einfache Faustregel."
     },
     "s9": {
-      "sizeA": "Gebaut für kleine Unternehmen mit echten Verkäufen in jeder Woche. Zu klein zum Auslesen? Das erfahren Sie, bevor Sie zahlen.",
+      "sizeA": "ScaleX ist für kleine Unternehmen mit Verkäufen jede Woche gebaut. Ist Ihres zu klein zum Lesen, sagt es Ihnen das, bevor Sie zahlen.",
       "eraseQ": "Was sieht die KI, und kann ich es löschen?",
-      "eraseA": "Nur das, was Sie verbinden und ihr sagen. Sie können Ihr Unternehmen jederzeit löschen."
+      "eraseA": "Nur das, was Sie verbinden und ihr sagen. Sie können Ihr Unternehmen jederzeit löschen.",
+      "title": "Fragen",
+      "passwordQ": "Brauchen Sie meine Passwörter?",
+      "passwordA": "Nein. Sie verbinden Ihre Konten mit reinem Lesezugriff, und Sie können ihn jederzeit entfernen.",
+      "changeQ": "Kann ScaleX ohne mich etwas ändern?",
+      "changeA": "Nein. Nichts ändert sich, bevor Sie auf Freigeben tippen. Jede Änderung lässt sich rückgängig machen.",
+      "sizeQ": "Hat mein Unternehmen die richtige Größe?"
+    },
+    "meta": {
+      "title": "ScaleX: Ihr Marketing, Ihre Anzeigen und Ihre Website, für Sie erledigt"
+    },
+    "foot": {
+      "company": "[Firmenangaben]",
+      "privacy": "Datenschutz",
+      "terms": "Nutzungsbedingungen"
     }
   }
 }

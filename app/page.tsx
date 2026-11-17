@@ -17,7 +17,7 @@ export const dynamic = "force-dynamic";
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await requestLocale();
   return {
-    title: trFor(locale, "landing")("meta.title"),
+    title: trFor(locale, "landingV2")("meta.title"),
     description: trFor(locale, "landingV2")("hero.lede"),
   };
 }
