@@ -1898,4 +1898,19 @@ a.auth-cta {
   .app-rail:not(.open) .app-rail-live {
     display: none;
   }
+  /* The strip's stop says one word (EmergencyStop.tsx), so the group's tabs have the row. */
+  .app-strip .es-long {
+    display: none;
+  }
+  .app-strip .es-short {
+    display: inline;
+  }
+}
+@media (min-width: 760px) {
+  /* the groups fade out at the pinned foot rather than being cut mid-line */
+  .app-rail-groups {
+    -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 26px), transparent);
+    mask-image: linear-gradient(to bottom, #000 calc(100% - 26px), transparent);
+    padding-bottom: 26px;
+  }
 }

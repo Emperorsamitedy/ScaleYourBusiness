@@ -4,6 +4,7 @@
 import { minorUnitExponent } from "../../lib/core/money";
 import { intlTag } from "../../lib/i18n/locales";
 import type { AppLocale } from "../../lib/i18n/locales";
+import { rangeWords } from "../proposals/queue-model";
 import { moneyText } from "../sheet/num";
 import { ago } from "./activity-model";
 
@@ -29,18 +30,14 @@ export const whole = (minor: number, currency: string, locale: AppLocale): strin
   return minor < 0 ? `−${text}` : text;
 };
 
-const signed = (minor: number, currency: string, locale: AppLocale): string =>
-  `${minor > 0 ? "+" : minor < 0 ? "−" : ""}${whole(Math.abs(minor), currency, locale)}`;
-
-/** A money range as a decision states it: "+€134 – +€1,238". */
+/** A money range as a decision states it: "+€134 – +€1,238" (the queue's own wording). */
 export const moneyRange = (
   r: {
     low: { amount_minor: number; currency: string };
     high: { amount_minor: number; currency: string };
   },
   locale: AppLocale,
-): string =>
-  `${signed(r.low.amount_minor, r.low.currency, locale)} – ${signed(r.high.amount_minor, r.high.currency, locale)}`;
+): string => rangeWords(r, locale);
 
 /** "2 hr. ago", "now", "yesterday"; the day and month once it is more than four weeks back. */
 export function agoText(ms: number, now: number, locale: AppLocale): string {

@@ -385,6 +385,17 @@
   padding: 0;
   border-top: 0;
 }
+/* The conversation page's own box: its label is only spoken (the sheet's title
+   says it), and it keeps the page's padding and the rule above it. */
+.ak-screen .ak-sheet > .ak-composer.compact {
+  padding: 15px 20px 17px;
+  border-top: 3px double var(--sheet-ink);
+}
+@media (max-width: 719px) {
+  .ak-screen .ak-sheet > .ak-composer.compact {
+    padding: 15px 14px 14px;
+  }
+}
 /* A request that became a proposal, answered under the reply (InPlaceDecision.tsx). */
 .ak-decide {
   margin-top: 14px;

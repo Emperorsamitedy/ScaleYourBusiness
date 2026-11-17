@@ -1653,7 +1653,8 @@
     "titleSince": "Minden le van állítva — {when} óta.",
     "copy": "A jóváhagyott műveletek jóváhagyva maradnak, és várnak. Semmi sem fut, semmi sem kerül közzétételre, és semmi sem változik a weboldalán — beleértve azt is, ami épp folyamatban volt, amikor leállította. Az olvasás, a tervezés és a javaslattétel a szokásos módon folytatódik.",
     "youSaid": "Ön ezt mondta: „{reason}”",
-    "yesExecute": "Igen — a végrehajtás újraindítása"
+    "yesExecute": "Igen — a végrehajtás újraindítása",
+    "stopShort": "Leállítás"
   },
   "history": {
     "meta": {

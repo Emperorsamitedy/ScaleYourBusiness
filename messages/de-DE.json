@@ -1653,7 +1653,8 @@
     "titleSince": "Alles ist gestoppt — seit {when}.",
     "copy": "Freigegebene Aktionen bleiben freigegeben und warten. Nichts wird ausgeführt, nichts veröffentlicht, nichts auf Ihrer Website geändert – auch nichts, was beim Stoppen gerade lief. Lesen, Planen und Vorschlagen laufen ganz normal weiter.",
     "youSaid": "Sie haben gesagt: „{reason}“",
-    "yesExecute": "Ja — Ausführung wieder starten"
+    "yesExecute": "Ja — Ausführung wieder starten",
+    "stopShort": "Stopp"
   },
   "history": {
     "meta": {

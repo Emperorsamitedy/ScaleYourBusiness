@@ -308,10 +308,12 @@ export function ProposalAnswers({
           </button>
         </div>
       )}
-      <p className="q-approve-note">
-        {approvalNote({ runAt, sending: p.action.detail?.sending, tr, locale, qw })}
-        {halted && ` ${t("decide.halted")}`}
-      </p>
+      {!declining && (
+        <p className="q-approve-note">
+          {approvalNote({ runAt, sending: p.action.detail?.sending, tr, locale, qw })}
+          {halted && ` ${t("decide.halted")}`}
+        </p>
+      )}
       {data.decide_why && (
         <p className="q-role-note" role="note">
           {data.decide_why}

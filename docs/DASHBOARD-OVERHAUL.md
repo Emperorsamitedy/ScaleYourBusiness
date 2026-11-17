@@ -103,6 +103,21 @@ An evaluator on another model read the captures against the owner's words and Fo
 - [later] In Lex's sheet and on the conversation page "Open" still goes to the decision's own page; a sheet over a sheet was not attempted.
 - [later] The note under Approve ("With no set time, it doesn't run by itself") is the queue's own sentence and reads unclear out of context; it wants a rewrite in seven languages.
 
+## The independent review, round 2 (2026-11-18)
+
+The same evaluator read the fixes and returned "pass": all of round 1 confirmed, with small leftovers. What was done about each:
+
+- [x] S1. On a phone the strip's stop says one word ("Stop", seven languages), so the open tab's neighbours show and the row reads as a row that scrolls. The queue's own masthead keeps the full name.
+- [x] S2. While a decline's reasons are open, the note about approving is not shown.
+- [x] S3. One link style inside a sheet: "See the whole queue" and "Open the full conversation" are the app's mono links.
+- [x] S4. The status card ends closer to its last line (one line stays reserved for what "Read now" read, so the card never jumps).
+- [x] S5. The rail's groups fade at the pinned foot where there is more to scroll to.
+- [x] S6. The conversation page names its box once: the sheet's title says it and the label is only spoken.
+- [x] S7. Found while checking, not by the review: the queue and the conversation still printed an estimate to the cent while Home and the sheet rounded it. One function words the range now (`rangeWords`, `components/proposals/queue-model.ts`), used by all four.
+- [later] On a phone, a group with one screen (Home) still gives the strip's row to the stop alone.
+- [later] Activity's "Checked" rows are many and alike; they want grouping by day or by connection.
+- [later] "Cash today" beside a higher "Lowest point ahead" is correct (the lowest point is the lowest of the weeks ahead, and today is not one of them) but reads oddly when today is the low; the tile wants a second look at its words.
+
 ## Later rounds (parked on purpose)
 
 - [later] The rail folding to icons, with an icon per screen. The palette and shortcuts cover fast movement first.

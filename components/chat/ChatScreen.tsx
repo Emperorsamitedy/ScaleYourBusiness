@@ -204,6 +204,7 @@ export function ChatScreen() {
             onSend={() => void chat.send(tr("sendFailed"))}
             tr={tr}
             inputRef={inputRef}
+            compact
           />
         </section>
 

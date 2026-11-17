@@ -572,3 +572,25 @@
     padding: 0 8px;
   }
 }
+
+/* An action that is only a word, inside a sheet: the app's mono link. */
+.ui-sheet .q-quiet,
+.ui-sheet .lx-full a {
+  padding: 6px 0;
+  font-family: var(--f-mono);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--sheet-ink);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+@media (max-width: 759px) {
+  /* a finger's height, as the app's other one-word links have on a phone */
+  .ui-sheet .q-quiet {
+    display: inline-flex;
+    align-items: center;
+    min-height: 40px;
+  }
+}

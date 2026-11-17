@@ -16,7 +16,7 @@ import { DecisionCard } from "../home/DecisionCard";
 import type { DecisionLike } from "../home/DecisionCard";
 import { useNavRefresh } from "../nav/NavContext";
 import "../../app/home.css";
-import { effectRange, signedMoney } from "../proposals/queue-model";
+import { effectRange, rangeWords } from "../proposals/queue-model";
 import type { ScenarioOutcomeLike } from "../proposals/queue-model";
 import { useTr } from "../sheet/useTr";
 import { intlTag } from "../../lib/i18n/locales";
@@ -79,7 +79,7 @@ export function InPlaceDecision({ id }: { id: string }) {
       <p className="ak-queued inset">{tr("queued.text")}</p>
       <DecisionCard
         proposal={p}
-        range={r ? `${signedMoney(r.low, locale)} – ${signedMoney(r.high, locale)}` : null}
+        range={r ? rangeWords(r, locale) : null}
         by={by}
         signedIn={access ? access.signed_in === true : null}
         onDecided={refresh}

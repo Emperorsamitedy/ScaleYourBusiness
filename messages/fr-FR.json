@@ -1653,7 +1653,8 @@
     "titleSince": "Tout est arrêté — depuis le {when}.",
     "copy": "Les actions validées restent validées et attendent. Rien ne s’exécute, rien n’est publié, rien ne change sur votre site — y compris ce qui était en cours au moment de l’arrêt. La lecture, la planification et les propositions continuent normalement.",
     "youSaid": "Vous avez dit : « {reason} »",
-    "yesExecute": "Oui — reprendre l’exécution"
+    "yesExecute": "Oui — reprendre l’exécution",
+    "stopShort": "Arrêter"
   },
   "history": {
     "meta": {

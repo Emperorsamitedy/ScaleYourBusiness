@@ -67,7 +67,7 @@ import {
   reversibilityLabel,
   reviewStats,
   shortReversibility,
-  signedMoney,
+  rangeWords,
   stampText,
   lapsedSentence,
 } from "./queue-model";
@@ -795,9 +795,7 @@ export function QueueScreen() {
       return (
         <div className={compact ? "q-effect q-effect-m" : "q-effect"}>
           <div className="q-effect-fig">
-            <p className="q-fig fig">
-              {signedMoney(range.low, locale)} – {signedMoney(range.high, locale)}
-            </p>
+            <p className="q-fig fig">{rangeWords(range, locale)}</p>
             <p className="q-mono-note">
               {t("effect.profit", { span: effectSpan(p.action, qw) })}
               {!compact && base?.statement
@@ -1489,7 +1487,7 @@ export function QueueScreen() {
                       <span className="q-item-meta">
                         {range
                           ? `${t("side.perMonth", {
-                              range: `${signedMoney(range.low, locale)}–${signedMoney(range.high, locale)}`,
+                              range: rangeWords(range, locale, "–"),
                             })} · `
                           : ""}
                         {shortReversibility(p.reversibility, tr)}
@@ -1502,7 +1500,7 @@ export function QueueScreen() {
                           label={
                             range
                               ? t("side.perMonth", {
-                                  range: `${signedMoney(range.low, locale)}–${signedMoney(range.high, locale)}`,
+                                  range: rangeWords(range, locale, "–"),
                                 })
                               : t("chart.value.none")
                           }

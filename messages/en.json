@@ -1653,7 +1653,8 @@
     "titleSince": "Everything is stopped — since {when}.",
     "copy": "Approved actions stay approved and wait. Nothing runs, nothing publishes, nothing changes on your site — including anything that was mid-flight when you stopped it. Reading, planning and proposing all carry on as normal.",
     "youSaid": "You said: “{reason}”",
-    "yesExecute": "Yes — start executing again"
+    "yesExecute": "Yes — start executing again",
+    "stopShort": "Stop"
   },
   "history": {
     "meta": {

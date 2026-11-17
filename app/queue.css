@@ -1546,3 +1546,8 @@
     gap: 8px;
   }
 }
+
+/* The stop's one-word name, shown only where the strip is short (a phone). */
+.es-short {
+  display: none;
+}

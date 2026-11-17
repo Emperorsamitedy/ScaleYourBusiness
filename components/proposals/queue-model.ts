@@ -14,6 +14,7 @@
 import { type BasisInput, basisOfKey, sourceLabel } from "../report/basis";
 import { moneyText, num } from "../sheet/num";
 import { CREATES_PAUSED_NOTE } from "../../lib/ads/ad-words";
+import { minorUnitExponent } from "../../lib/core/money";
 import type { AppLocale } from "../../lib/i18n/locales";
 import { intlTag } from "../../lib/i18n/locales";
 import type { Tr } from "../../lib/i18n/tr";
@@ -107,6 +108,30 @@ export function signedMoney(m: MoneyLike, locale: AppLocale = "en"): string {
   if (m.amount_minor > 0) return `+${body}`;
   if (m.amount_minor < 0) return `−${body}`;
   return body;
+}
+
+/**
+ * An estimate's end in whole major units, in the currency's own step: printed
+ * to the cent it would claim more than it knows. Half a unit rounds away from
+ * zero on both sides, and what rounds to nothing is a plain zero.
+ */
+export function wholeMoney(m: MoneyLike): MoneyLike {
+  const unit = 10 ** minorUnitExponent(m.currency);
+  const major = Math.round(Math.abs(m.amount_minor) / unit) * unit;
+  return { ...m, amount_minor: major === 0 ? 0 : m.amount_minor < 0 ? -major : major };
+}
+
+/**
+ * The expected effect as every screen words it (Home, the review sheet, the
+ * conversation, the queue): "+€136 – +€1,213", each end in whole units. One
+ * function, so one proposal is never worded two ways.
+ */
+export function rangeWords(
+  range: { low: MoneyLike; high: MoneyLike },
+  locale: AppLocale = "en",
+  between = " – ",
+): string {
+  return `${signedMoney(wholeMoney(range.low), locale)}${between}${signedMoney(wholeMoney(range.high), locale)}`;
 }
 
 /**

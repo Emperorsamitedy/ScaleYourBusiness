@@ -139,7 +139,15 @@ export function EmergencyStop({
             aria-describedby="es-mast-what"
             onClick={() => void send("POST")}
           >
-            {s.busy ? t("stopping") : t("stop")}
+            {s.busy ? (
+              t("stopping")
+            ) : (
+              <>
+                {/* One word where room is short (the strip on a phone); the full name everywhere else. */}
+                <span className="es-long">{t("stop")}</span>
+                <span className="es-short">{t("stopShort")}</span>
+              </>
+            )}
           </button>
           <span className="sr-only" id="es-mast-what">
             {t("what")}

@@ -789,7 +789,8 @@
     "titleSince": "Todo está detenido desde {when}.",
     "copy": "Las acciones aprobadas siguen aprobadas y esperan. No se ejecuta nada, no se publica nada y no cambia nada en su sitio web, incluido lo que estuviera a medias cuando lo detuvo. La lectura, la planificación y las propuestas continúan con normalidad.",
     "youSaid": "Usted dijo: «{reason}»",
-    "yesExecute": "Sí, volver a ejecutar"
+    "yesExecute": "Sí, volver a ejecutar",
+    "stopShort": "Detener"
   },
   "history": {
     "meta": {

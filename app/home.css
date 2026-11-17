@@ -440,6 +440,8 @@
 .home-now .cs-body {
   display: grid;
   gap: 12px;
+  /* the last line already reserves room for a read's report: the card ends there */
+  padding-bottom: 8px;
 }
 .home-days {
   display: grid;
