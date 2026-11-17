@@ -9561,7 +9561,8 @@
     "invite": "Check your own business: six questions, free, no account.",
     "next": "Want it measured? The full diagnosis connects one system and ranks every leak it finds.",
     "sharedLabel": "A shared result",
-    "missing": "That result isn't here."
+    "missing": "That result isn't here.",
+    "nextLink": "Start the full diagnosis"
   },
   "ideas": {
     "meta": {
@@ -10334,17 +10335,17 @@
       "start": "Begin"
     },
     "hero": {
-      "kicker": "For small businesses",
-      "lede": "ScaleX connects to your shop, your ads and your website. It finds what loses you money, says how much, and fixes it. Nothing changes until you press Approve, and you can undo any change.",
+      "kicker": "For businesses of every size",
+      "lede": "Your marketing, ads and website, run for you. ScaleX finds what loses you money, says how much, and fixes it. Nothing changes until you press Approve, and you can undo any change.",
       "run": "Check my business for free",
       "see": "See how it works",
       "trust": "Read-only. No passwords. Nothing changes without you.",
-      "titleB": "<em>You only say yes.</em>",
+      "titleB": "<em>with ScaleX.</em>",
       "ctaMeta": "{minutes, plural, one {# minute} other {# minutes}} · no account",
       "trustRead": "Reads only",
       "trustPw": "No passwords",
       "trustYes": "Nothing changes without your yes",
-      "titleA": "Your marketing, ads and website, run for you."
+      "titleA": "Manage your business's online presence"
     },
     "tour": {
       "aria": "Product tour: ScaleX connects to a shop, builds its fact sheet, finds a leak, and fixes it after the owner says yes",
@@ -10569,7 +10570,7 @@
       "sizeQ": "Is my business the right size?"
     },
     "meta": {
-      "title": "ScaleX: your marketing, ads and website, run for you"
+      "title": "ScaleX: manage your business's online presence"
     },
     "foot": {
       "company": "[Company details]",

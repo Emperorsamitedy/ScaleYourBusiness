@@ -95,7 +95,7 @@ function rememberLastUsed(door: string) {
 }
 
 /** The footer: a language switcher that saves through /api/locale, then the legal links. */
-function AuthFooter({
+export function AuthFooter({
   languages,
   language,
 }: {

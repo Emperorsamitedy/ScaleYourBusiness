@@ -9561,7 +9561,8 @@
     "invite": "Vérifiez votre propre entreprise : six questions, gratuit, sans compte.",
     "next": "Vous voulez le mesurer ? Le diagnostic complet relie un système et classe chaque fuite qu’il trouve.",
     "sharedLabel": "Un résultat partagé",
-    "missing": "Ce résultat n’est pas ici."
+    "missing": "Ce résultat n’est pas ici.",
+    "nextLink": "Lancer le diagnostic complet"
   },
   "ideas": {
     "meta": {
@@ -10334,17 +10335,17 @@
       "start": "Commencer"
     },
     "hero": {
-      "kicker": "Pour les petites entreprises",
-      "lede": "ScaleX se connecte à votre boutique, vos publicités et votre site web. Il trouve ce qui vous fait perdre de l’argent, dit combien, et le corrige. Rien ne change tant que vous n’appuyez pas sur Valider, et chaque changement peut être annulé.",
+      "kicker": "Pour les entreprises de toute taille",
+      "lede": "Votre marketing, vos publicités et votre site web, pris en charge pour vous. ScaleX trouve ce qui vous fait perdre de l’argent, dit combien, et le corrige. Rien ne change tant que vous n’appuyez pas sur Valider, et chaque changement peut être annulé.",
       "run": "Vérifier mon entreprise gratuitement",
       "see": "Voir comment ça marche",
       "trust": "Lecture seule. Aucun mot de passe. Rien ne change sans vous.",
-      "titleB": "<em>Vous dites simplement oui.</em>",
+      "titleB": "<em>avec ScaleX.</em>",
       "ctaMeta": "{minutes, plural, one {# minute} many {# minutes} other {# minutes}} · sans compte",
       "trustRead": "Lecture seule",
       "trustPw": "Aucun mot de passe",
       "trustYes": "Rien ne change sans votre oui",
-      "titleA": "Votre marketing, vos publicités et votre site web, pris en charge pour vous."
+      "titleA": "Gérez la présence en ligne de votre entreprise"
     },
     "tour": {
       "aria": "Visite du produit : ScaleX se connecte à une boutique, construit sa fiche des faits, trouve une fuite et la corrige quand le propriétaire dit oui",
@@ -10569,7 +10570,7 @@
       "sizeQ": "Mon entreprise a-t-elle la bonne taille ?"
     },
     "meta": {
-      "title": "ScaleX s’occupe de votre marketing, de vos publicités et de votre site web"
+      "title": "ScaleX : gérez la présence en ligne de votre entreprise"
     },
     "foot": {
       "company": "[Informations sur la société]",

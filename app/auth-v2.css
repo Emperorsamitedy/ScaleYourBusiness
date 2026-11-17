@@ -628,3 +628,96 @@
     font-size: 28px;
   }
 }
+
+/* ── The free check (/check) and a shared result (/e): dressed like sign-up
+   and sign-in since 2026-11-17 (the owner), so the landing page's button
+   lands inside the same door. ── */
+.ax-kicker {
+  margin: 0;
+  font-family: var(--f-mono), "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #006b45;
+}
+.ax-check .ax-col-in {
+  max-width: 480px;
+}
+.ax-check .ax-signup-main {
+  margin-top: 44px;
+  gap: 18px;
+}
+.ax-check .ax-form {
+  gap: 14px;
+  margin-top: 6px;
+}
+.ax-check .ax-error {
+  margin: 0;
+}
+select.ax-input {
+  appearance: none;
+  background-color: #ffffff;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%230d1321' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'><path d='M6 9l6 6 6-6'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  padding-right: 40px;
+  color: var(--ax-ink);
+}
+.ax-result {
+  border: 1.5px solid var(--ax-line);
+  border-radius: 16px;
+  padding: 22px 22px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.ax-result .ax-title {
+  font-size: 22px;
+}
+.ax-result .entry-figure {
+  margin: 0;
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--ax-ink);
+}
+.ax-result .entry-peer {
+  margin-top: 12px;
+}
+.ax-check-result {
+  gap: 14px;
+}
+/* The share button (components/ladder/ShareLink.tsx) keeps its dashboard class;
+   inside the entrance it is drawn as the entrance's bordered button. */
+.ax .next {
+  min-height: 50px;
+  border: 1.5px solid var(--ax-line);
+  border-radius: 10px;
+  background: #ffffff;
+  color: var(--ax-ink);
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: normal;
+  text-transform: none;
+  padding: 0 16px;
+  cursor: pointer;
+}
+.ax .next:hover:not(:disabled) {
+  border-color: var(--ax-ink);
+  background: #ffffff;
+  color: var(--ax-ink);
+}
+.ax-copy a {
+  color: var(--ax-ink);
+  font-weight: 600;
+  text-underline-offset: 3px;
+}
+.ax-card-wide {
+  max-width: 600px;
+}
+@media (max-width: 900px) {
+  .ax-check .ax-signup-main {
+    margin-top: 32px;
+  }
+}

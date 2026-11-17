@@ -17,7 +17,7 @@ Owners of small and medium businesses, often on a phone, in a hurry, not always 
 - No em dashes, en dashes or underscores in copy. A colon or a full stop does the work. A middle dot separates short facts on one line.
 - No figure typed into a message. Amounts, counts, minutes and percentages are formatted in code (`lib/marketing/landing-v2.ts`, `components/sheet/num.ts`) and passed in. The catalogue test fails on a typed digit (rule 3 of `TASKS-LANGUAGES.md`).
 - Every word exists in all seven languages (`messages/*.json`, the `landingV2` namespace) and uses the glossary's term (`specs/glossary-v1.json`) for "business", "website", "account", "fact sheet", "forecast", "owner" and the rest. `messages/catalogue.test.ts` holds all of this.
-- The headline promises what the product does at the Act step ("Your marketing, ads and website, run for you. You only say yes."), and the pricing section says plainly that every plan starts with a free month that changes nothing.
+- The headline is the owner's promise, "Manage your business's online presence with ScaleX.", at the top and again at the bottom; the lede says what that means ("Your marketing, ads and website, run for you."); "Nothing happens until you say yes." belongs to the decision section only. The pricing section says plainly that every plan starts with a free month that changes nothing.
 
 ## 2. Brand
 

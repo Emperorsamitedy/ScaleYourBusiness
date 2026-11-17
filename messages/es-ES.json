@@ -9561,7 +9561,8 @@
     "invite": "Revisa tu propio negocio: seis preguntas, gratis, sin cuenta.",
     "next": "¿Quieres medirlo? El diagnóstico completo conecta un sistema y ordena cada fuga que encuentra.",
     "sharedLabel": "Un resultado compartido",
-    "missing": "Ese resultado no está aquí."
+    "missing": "Ese resultado no está aquí.",
+    "nextLink": "Empezar el diagnóstico completo"
   },
   "ideas": {
     "meta": {
@@ -10334,17 +10335,17 @@
       "start": "Empezar"
     },
     "hero": {
-      "kicker": "Para pequeños negocios",
-      "lede": "ScaleX se conecta a su tienda, sus anuncios y su sitio web. Encuentra lo que le hace perder dinero, dice cuánto y lo arregla. Nada cambia hasta que pulsa Aprobar, y cualquier cambio se puede deshacer.",
+      "kicker": "Para negocios de cualquier tamaño",
+      "lede": "Su marketing, sus anuncios y su sitio web, gestionados por ScaleX. Encuentra lo que le hace perder dinero, dice cuánto y lo arregla. Nada cambia hasta que pulsa Aprobar, y cualquier cambio se puede deshacer.",
       "run": "Revisar mi negocio gratis",
       "see": "Cómo funciona",
       "trust": "Solo lectura. Sin contraseñas. Nada cambia sin usted.",
-      "titleB": "<em>Usted solo dice que sí.</em>",
+      "titleB": "<em>con ScaleX.</em>",
       "ctaMeta": "{minutes, plural, one {# minuto} many {# minutos} other {# minutos}} · sin cuenta",
       "trustRead": "Solo lee",
       "trustPw": "Sin contraseñas",
       "trustYes": "Nada cambia sin su sí",
-      "titleA": "ScaleX se encarga de su marketing, sus anuncios y su sitio web."
+      "titleA": "Gestione la presencia online de su negocio"
     },
     "tour": {
       "aria": "Recorrido del producto: ScaleX se conecta a una tienda, crea su ficha de datos, encuentra una fuga y la arregla cuando el propietario dice que sí",
@@ -10569,7 +10570,7 @@
       "sizeQ": "¿Mi negocio tiene el tamaño adecuado?"
     },
     "meta": {
-      "title": "ScaleX se encarga de su marketing, sus anuncios y su sitio web"
+      "title": "ScaleX: gestione la presencia online de su negocio"
     },
     "foot": {
       "company": "[Datos de la empresa]",

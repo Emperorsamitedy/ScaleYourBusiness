@@ -9561,7 +9561,8 @@
     "invite": "Ellenőrizd a saját vállalkozásodat: hat kérdés, ingyen, fiók nélkül.",
     "next": "Megmérnéd? A teljes diagnózis beköt egy rendszert, és sorba állít minden talált szivárgást.",
     "sharedLabel": "Megosztott eredmény",
-    "missing": "Ez az eredmény nincs itt."
+    "missing": "Ez az eredmény nincs itt.",
+    "nextLink": "A teljes diagnózis indítása"
   },
   "ideas": {
     "meta": {
@@ -10334,17 +10335,17 @@
       "start": "Indulás"
     },
     "hero": {
-      "kicker": "Kisvállalkozásoknak",
-      "lede": "A ScaleX összekapcsolódik a boltjával, a hirdetéseivel és a weboldalával. Megtalálja, ami pénzt visz el, megmondja, mennyit, és kijavítja. Semmi sem változik, amíg rá nem nyom a Jóváhagyás gombra, és bármelyik változtatás visszavonható.",
+      "kicker": "Minden méretű vállalkozásnak",
+      "lede": "A marketingjét, a hirdetéseit és a weboldalát elintézzük Ön helyett. A ScaleX megtalálja, ami pénzt visz el, megmondja, mennyit, és kijavítja. Semmi sem változik, amíg rá nem nyom a Jóváhagyás gombra, és bármelyik változtatás visszavonható.",
       "run": "Vállalkozásom ingyenes ellenőrzése",
       "see": "Így működik",
       "trust": "Csak olvasás. Nincs jelszó. Ön nélkül semmi sem változik.",
-      "titleB": "<em>Önnek csak igent kell mondania.</em>",
+      "titleB": "<em>a ScaleX-szel.</em>",
       "ctaMeta": "{minutes, plural, one {# perc} other {# perc}} · fiók nélkül",
       "trustRead": "Csak olvas",
       "trustPw": "Nincs jelszó",
       "trustYes": "Semmi sem változik az Ön igenje nélkül",
-      "titleA": "A marketingjét, a hirdetéseit és a weboldalát elintézzük Ön helyett."
+      "titleA": "Kezelje vállalkozása online jelenlétét"
     },
     "tour": {
       "aria": "Termékbemutató: a ScaleX összekapcsolódik egy bolttal, elkészíti a ténylapját, talál egy szivárgást, és kijavítja, amint a tulajdonos igent mond",
@@ -10569,7 +10570,7 @@
       "sizeQ": "Megfelelő méretű a vállalkozásom?"
     },
     "meta": {
-      "title": "ScaleX: a marketingjét, a hirdetéseit és a weboldalát elintézi Ön helyett"
+      "title": "ScaleX: kezelje vállalkozása online jelenlétét"
     },
     "foot": {
       "company": "[Cégadatok]",

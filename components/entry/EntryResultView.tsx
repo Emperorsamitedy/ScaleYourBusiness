@@ -33,9 +33,9 @@ export function EntryResultView({
       ? peerStrip(comparison.p25, comparison.p75, result.own_minor)
       : null;
   return (
-    <section className="card entry-result" aria-live="polite">
-      <span className="auth-eyebrow">{tr("result.label")}</span>
-      <h2 className="auth-title">{tr(`leak.${leak.id}`)}</h2>
+    <section className="ax-result entry-result" aria-live="polite">
+      <span className="ax-kicker">{tr("result.label")}</span>
+      <h2 className="ax-title">{tr(`leak.${leak.id}`)}</h2>
       <p className="entry-figure">
         {tr("result.range", {
           low: eur(leak.low_minor, locale),
@@ -47,18 +47,18 @@ export function EntryResultView({
           <RangeBar scale={[0, leakTop]} band={[leak.low_minor, leak.high_minor]} value={null} />
         </div>
       )}
-      <p className="auth-copy">
+      <p className="ax-copy">
         <b>{tr("result.grade")}</b>
       </p>
-      <p className="auth-copy">
+      <p className="ax-copy">
         {tr("result.basis", {
           low: pct(leak.basis.low_bp, locale),
           high: pct(leak.basis.high_bp, locale),
         })}
       </p>
-      <p className="auth-copy">{tr(`measure.${leak.measure}`)}</p>
+      <p className="ax-copy">{tr(`measure.${leak.measure}`)}</p>
 
-      <span className="auth-eyebrow entry-peer">{tr("peer.label")}</span>
+      <span className="ax-kicker entry-peer">{tr("peer.label")}</span>
       {comparison.status === "served" ? (
         <>
           {strip && (
@@ -66,7 +66,7 @@ export function EntryResultView({
               <RangeBar scale={strip.scale} band={strip.band} value={result.own_minor} />
             </div>
           )}
-          <p className="auth-copy">
+          <p className="ax-copy">
             {tr("peer.served", {
               count: String(comparison.cohort.businesses),
               p50: eur(comparison.p50, locale),
@@ -76,7 +76,7 @@ export function EntryResultView({
             })}
           </p>
           {comparison.precision.level === "rough" && (
-            <p className="auth-copy">
+            <p className="ax-copy">
               <b>
                 {tr("peer.rough", {
                   list: new Intl.ListFormat([locale], { type: "conjunction" }).format(
@@ -90,7 +90,7 @@ export function EntryResultView({
           )}
         </>
       ) : (
-        <p className="auth-copy">{tr("peer.notEnough")}</p>
+        <p className="ax-copy">{tr("peer.notEnough")}</p>
       )}
     </section>
   );

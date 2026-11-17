@@ -9561,7 +9561,8 @@
     "invite": "Prüfe dein eigenes Unternehmen: sechs Fragen, kostenlos, ohne Konto.",
     "next": "Soll es gemessen werden? Die volle Diagnose verbindet ein System und ordnet jedes Leck, das sie findet.",
     "sharedLabel": "Ein geteiltes Ergebnis",
-    "missing": "Dieses Ergebnis gibt es hier nicht."
+    "missing": "Dieses Ergebnis gibt es hier nicht.",
+    "nextLink": "Die volle Diagnose starten"
   },
   "ideas": {
     "meta": {
@@ -10334,17 +10335,17 @@
       "start": "Loslegen"
     },
     "hero": {
-      "kicker": "Für kleine Unternehmen",
-      "lede": "ScaleX verbindet sich mit Ihrem Shop, Ihren Anzeigen und Ihrer Website. Es findet, was Sie Geld kostet, sagt wie viel, und behebt es. Nichts ändert sich, bevor Sie auf Freigeben tippen, und jede Änderung lässt sich rückgängig machen.",
+      "kicker": "Für Unternehmen jeder Größe",
+      "lede": "Ihr Marketing, Ihre Anzeigen und Ihre Website, für Sie erledigt. ScaleX findet, was Sie Geld kostet, sagt wie viel, und behebt es. Nichts ändert sich, bevor Sie auf Freigeben tippen, und jede Änderung lässt sich rückgängig machen.",
       "run": "Mein Unternehmen kostenlos prüfen",
       "see": "So funktioniert es",
       "trust": "Nur Lesezugriff. Keine Passwörter. Nichts ändert sich ohne Sie.",
-      "titleB": "<em>Sie sagen nur Ja.</em>",
+      "titleB": "<em>mit ScaleX.</em>",
       "ctaMeta": "{minutes, plural, one {# Minute} other {# Minuten}} · kein Konto",
       "trustRead": "Liest nur",
       "trustPw": "Keine Passwörter",
       "trustYes": "Nichts ändert sich ohne Ihr Ja",
-      "titleA": "Ihr Marketing, Ihre Anzeigen und Ihre Website, für Sie erledigt."
+      "titleA": "Führen Sie den Online-Auftritt Ihres Unternehmens"
     },
     "tour": {
       "aria": "Produkttour: ScaleX verbindet sich mit einem Shop, erstellt das Faktenblatt, findet ein Leck und behebt es, sobald der Inhaber Ja sagt",
@@ -10569,7 +10570,7 @@
       "sizeQ": "Hat mein Unternehmen die richtige Größe?"
     },
     "meta": {
-      "title": "ScaleX: Ihr Marketing, Ihre Anzeigen und Ihre Website, für Sie erledigt"
+      "title": "ScaleX: den Online-Auftritt Ihres Unternehmens führen"
     },
     "foot": {
       "company": "[Firmenangaben]",
