@@ -1572,12 +1572,14 @@ a.auth-cta {
 }
 .brand-x {
   display: inline-block;
-  margin-left: 0.06em;
+  margin-left: 0.05em;
   align-self: baseline;
 }
+/* The X stands as tall as the capitals, its tip a touch above (the final
+   logo system, 2026-11-17). */
 .brand-x svg {
   display: block;
-  width: 0.86em;
-  height: 0.86em;
-  transform: translateY(0.07em);
+  width: 0.94em;
+  height: 0.94em;
+  transform: translateY(0.12em);
 }
