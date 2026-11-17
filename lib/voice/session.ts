@@ -9,10 +9,13 @@
 // Who hears the audio. Where the browser can recognise on the device
 // (SpeechRecognition.available with processLocally, Chrome 139+ per MDN's
 // compatibility data), the session asks for that and nothing else hears
-// it. Otherwise the browser picks, and in Chrome that is Google's server:
-// the first tap in a browser then shows NOTICE and listens only on the
-// next tap, so the owner reads who hears it before any audio goes. A
-// language pack is never downloaded on the owner's behalf (install()).
+// it. Otherwise the browser picks, and in Chrome that is Google's server.
+// Until 2026-11-17 the first tap in a browser showed a sentence saying so
+// and listened only on the next tap. The owner asked for that sentence to
+// leave the screen ("the user doesn't necessarily need to know that"):
+// one press listens now, and the privacy page says who hears it
+// (legal.privacy.speaking). A language pack is never downloaded on the
+// owner's behalf (install()).
 //
 // A session stops on a second tap, after SILENCE_MS with nothing heard,
 // at the CAP_MS cap, or when the owner types in the box — their own text
@@ -25,13 +28,6 @@ export const CAP_MS = 60_000;
 export const SILENCE_MS = 8_000;
 /** Review 2026-10-30: a stop whose onend never comes is forced back to idle after this. */
 export const END_GRACE_MS = 3_000;
-
-/** The one plain line (TASKS-FEEDBACK.md, idea 50), shown before audio leaves the device. */
-export const NOTICE =
-  "Your browser turns your speech into text. In Chrome, Google does this; ScaleX never receives the audio.";
-
-/** "Seen the notice" — per browser, so each new browser says it once. */
-export const NOTICE_KEY = "syb.voice_notice_seen";
 
 export interface RecognitionEventLike {
   readonly results: ResultListLike;
@@ -62,8 +58,6 @@ export interface RecognitionCtor {
   available?: (options: { langs: string[]; processLocally: boolean }) => Promise<string>;
 }
 
-type Store = Pick<Storage, "getItem" | "setItem">;
-
 /** The constructor this browser offers, prefixed or not; null where there is none (Firefox). */
 export function recognitionIn(win: unknown): RecognitionCtor | null {
   if (typeof win !== "object" || win === null) return null;
@@ -72,14 +66,12 @@ export function recognitionIn(win: unknown): RecognitionCtor | null {
   return typeof ctor === "function" ? (ctor as RecognitionCtor) : null;
 }
 
-export type Phase = "idle" | "checking" | "notice" | "listening";
+export type Phase = "idle" | "checking" | "listening";
 
 export interface SessionState {
   phase: Phase;
   /** True while recognising on this device; null until a session has asked. */
   onDevice: boolean | null;
-  /** NOTICE, while it applies to this browser's sessions. */
-  notice: string | null;
   /** What happened last, in words: a stop, the cap, or a failure. */
   message: string | null;
 }
@@ -90,17 +82,15 @@ export interface SessionDeps {
   lang: string;
   getText: () => string;
   setText: (next: string) => void;
-  /** Words for when a session ends normally, e.g. "Read it over, then record it." */
-  after: string;
-  store?: Store | null;
+  /** Words for when a session ends normally, e.g. "Read it over, then record it."; null says nothing. */
+  after: string | null;
   onState?: (state: SessionState) => void;
-  /** L-3a: the session's own lines in the person's language; English (NOTICE, errorWords) by default. */
+  /** L-3a: the session's own lines in the person's language; English (errorWords) by default. */
   words?: SessionWords | undefined;
 }
 
 /** The lines a session says itself, in one language. */
 export interface SessionWords {
-  notice: string;
   /** The one-minute cap's stop line. */
   cap: string;
   /** As errorWords: null where nothing went wrong. */
@@ -109,10 +99,7 @@ export interface SessionWords {
 
 /** English: the words the session always said. */
 export const ENGLISH_SESSION_WORDS: SessionWords = {
-  get notice() {
-    return NOTICE;
-  },
-  cap: "I stop listening after a minute. Press Speak to add more.",
+  cap: "Stopped after a minute.",
   error: (code, lang) => errorWords(code, lang),
 };
 
@@ -123,39 +110,23 @@ export function errorWords(code: string, lang: string): string | null {
       return null;
     case "not-allowed":
     case "service-not-allowed":
-      return "The microphone is blocked for this site. Allow it in your browser’s site settings (the icon beside the address), then press Speak again.";
+      return "The microphone is blocked. Allow it in your browser’s site settings.";
     case "no-speech":
-      return "I didn’t hear anything. Press Speak and talk once it says Listening.";
+      return "I didn’t hear anything.";
     case "audio-capture":
-      return "No microphone was found. Check one is connected and switched on, then press Speak again.";
+      return "No microphone found.";
     case "network":
-      return "Your browser couldn’t reach its speech service. Check your connection, or type the answer.";
+      return "Your browser couldn’t reach its speech service.";
     case "language-not-supported":
-      return `Your browser can’t turn ${lang} speech into text. Type the answer instead.`;
+      return `Your browser can’t turn ${lang} speech into text.`;
     default:
-      return "Listening stopped before any words came through. Press Speak to try again, or type the answer.";
-  }
-}
-
-function seen(store: Store | null | undefined): boolean {
-  try {
-    return store?.getItem(NOTICE_KEY) === "1";
-  } catch {
-    return false; // storage blocked: say it again rather than never
-  }
-}
-
-function markSeen(store: Store | null | undefined): void {
-  try {
-    store?.setItem(NOTICE_KEY, "1");
-  } catch {
-    /* storage blocked: the notice shows again next time */
+      return "Listening stopped.";
   }
 }
 
 export class SpeechSession {
   private readonly deps: SessionDeps;
-  private state: SessionState = { phase: "idle", onDevice: null, notice: null, message: null };
+  private state: SessionState = { phase: "idle", onDevice: null, message: null };
   private rec: RecognitionLike | null = null;
   private base = "";
   private lastWritten = "";
@@ -208,19 +179,11 @@ export class SpeechSession {
     const { phase } = this.state;
     if (phase === "listening") return this.stop(this.deps.after);
     if (phase === "checking") return;
-    if (phase === "notice") {
-      markSeen(this.deps.store);
-      return this.listen(false);
-    }
     this.set({ phase: "checking", message: null });
     const onDevice = await this.canRecogniseHere();
     if (this.disposed) return;
     if (this.disabled) {
       this.set({ phase: "idle", message: null });
-      return;
-    }
-    if (!onDevice && !seen(this.deps.store)) {
-      this.set({ phase: "notice", onDevice, notice: this.words.notice });
       return;
     }
     this.listen(onDevice);
@@ -237,7 +200,7 @@ export class SpeechSession {
       });
       return status === "available";
     } catch {
-      return false; // a bad tag or a blocked policy: fall back, with the notice
+      return false; // a bad tag or a blocked policy: the browser's own recognition
     }
   }
 

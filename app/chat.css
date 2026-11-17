@@ -211,7 +211,9 @@
 }
 .ak-row {
   display: flex;
-  gap: 12px;
+  flex-wrap: wrap;
+  /* the microphone's line wraps onto a row of its own (app/voice.css) */
+  gap: 0 12px;
   align-items: stretch;
 }
 .ak-input {
@@ -297,10 +299,16 @@
   .ak-composer {
     padding: 15px 14px 14px;
   }
-  .ak-row {
-    flex-direction: column;
+  /* a phone: the box on a row of its own, then the microphone and Ask */
+  .ak-row .ak-input {
+    flex: 1 0 100%;
+  }
+  .ak-row .vx-icon-mic,
+  .ak-row .ak-ask {
+    margin-top: 10px;
   }
   .ak-ask {
+    flex: 1;
     align-self: stretch;
   }
   .ak-side-body {
@@ -349,4 +357,92 @@
 .ak-queued-link {
   margin: 10px 0 0;
   font-size: 14px;
+}
+
+/* Lex's sheet (components/nav/LexPanel.tsx): the conversation on any
+   screen. The thread fills the sheet's body; the composer is its foot. */
+.lx-thread .ak-turn {
+  grid-template-columns: minmax(0, 1fr);
+  row-gap: 6px;
+}
+.lx-thread .ak-who {
+  padding-top: 0;
+}
+.lx-thread .ak-at {
+  display: inline;
+  margin-left: 8px;
+}
+.lx-note {
+  margin: 0 0 16px;
+  max-width: var(--measure);
+  color: var(--sheet-ink-2);
+}
+.lx-full {
+  margin: 4px 0 0;
+  font-size: 14px;
+}
+.ak-composer.compact {
+  padding: 0;
+  border-top: 0;
+}
+/* A request that became a proposal, answered under the reply (InPlaceDecision.tsx). */
+.ak-decide {
+  margin-top: 14px;
+}
+.ak-decide .hd {
+  margin-top: 10px;
+  padding: 14px 16px 15px;
+  border: var(--line);
+  background: var(--inset);
+}
+
+/* The empty thread (2026-11-17): one line saying what Lex answers from,
+   and three chips that ask a first question. Small text, no paragraph. */
+.ak-start {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+.ak-descriptor {
+  margin: 0;
+  max-width: var(--measure);
+  font-size: 14px;
+  color: var(--sheet-ink-2);
+}
+.ak-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.ak-chip {
+  min-height: 40px;
+  padding: 0 12px;
+  border: 1px solid var(--rule);
+  background: var(--paper);
+  color: var(--sheet-ink);
+  font: inherit;
+  font-size: 14px;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    background-color var(--d-press) linear,
+    border-color var(--d-press) linear;
+}
+.ak-chip:hover:not(:disabled) {
+  border-color: var(--sheet-ink);
+  background: var(--inset);
+}
+.ak-chip:disabled {
+  border-style: dashed;
+  color: var(--sheet-ink-2);
+  cursor: not-allowed;
+}
+
+/* Touch targets on a phone (docs/DASHBOARD-OVERHAUL.md G2): the sheet's link to the full conversation. */
+@media (max-width: 759px) {
+  .lx-full a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 40px;
+  }
 }

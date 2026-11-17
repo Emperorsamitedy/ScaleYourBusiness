@@ -12,13 +12,21 @@
 // groups are a dock along the bottom, each opening its first screen, and
 // the strip across the top then lists that group's others (2026-11-17).
 //
+// The shell is interactive (docs/DASHBOARD-OVERHAUL.md B, 2026-11-17): the
+// strip's tabs sit in one row that scrolls sideways; beside them a search
+// button (the command palette, Ctrl+K), the bell (what needs the owner)
+// and the emergency stop. "Ask Lex" opens the conversation as a side
+// sheet on any screen (LexPanel.tsx). The counts stay live. A thin cobalt
+// bar shows while the next screen loads. The keyboard works (Shortcuts.tsx).
+//
 // Two screens are focused views with their own masthead and no rail —
 // the report and the approval queue (their designs). The landing, the
 // intake, sign-in and the operator panel never show it.
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import Link from "next/link";
+import { Search } from "lucide-react";
 import { useTranslations } from "next-intl";
 import type en from "../../messages/en.json";
 import { usePathname, useRouter } from "next/navigation";
@@ -31,7 +39,16 @@ import { showsFor } from "../../lib/core/size-features";
 import { roleAllows } from "../../lib/auth/role-actions";
 import { EmergencyStop } from "../execution/EmergencyStop";
 import { Logo, Mark } from "../brand/Mark";
+import { Kbd } from "../ui/Kbd";
+import { ToastProvider } from "../ui/Toast";
+import { CommandPalette, rememberScreen } from "./CommandPalette";
+import type { PaletteScreen } from "./CommandPalette";
 import { GroupGlyph } from "./GroupGlyph";
+import { LexHost, inlineComposer } from "./LexPanel";
+import { Notifications } from "./Notifications";
+import { RouteProgress } from "./RouteProgress";
+import { Shortcuts } from "./Shortcuts";
+import { NavRefreshProvider, useLex } from "./NavContext";
 
 interface Item {
   href: string;
@@ -309,13 +326,28 @@ export function showsNav(path: string): boolean {
   return groupFor(path) !== null || LOOSE_ROUTES.some((r) => matches(path, r));
 }
 
-function useCounts(path: string): NavCounts | null {
+/** How often the menu's counts are read again while the tab is visible. */
+const COUNTS_EVERY_MS = 60_000;
+/** A window that regains focus reads again, but not more often than this. */
+const FOCUS_GAP_MS = 10_000;
+
+/**
+ * The menu's counts. Read on every move (so a decision just made is
+ * reflected), and, on an owner screen (`live`), again every minute while
+ * the tab is visible, when the window regains focus, and whenever a screen
+ * asks through `useNavRefresh()` (docs/DASHBOARD-OVERHAUL.md B4).
+ */
+function useCounts(path: string, live: boolean): { counts: NavCounts | null; refresh: () => void } {
   const [counts, setCounts] = useState<NavCounts | null>(null);
+  const [tick, setTick] = useState(0);
+  const refresh = useCallback(() => setTick((n) => n + 1), []);
+  // A stranger's page (a shared report, idea 51) never asks for the owner's counts.
+  const shared = path.startsWith("/shared/");
+
   useEffect(() => {
-    // A stranger's page (a shared report, idea 51) never asks for the owner's counts.
-    if (path.startsWith("/shared/")) return;
+    if (shared) return;
     let alive = true;
-    void fetch("/api/nav")
+    void fetch("/api/nav", { cache: "no-store" })
       .then(async (res) => (res.ok ? ((await res.json()) as NavCounts) : null))
       .then((c) => {
         if (alive && c) setCounts(c);
@@ -324,8 +356,30 @@ function useCounts(path: string): NavCounts | null {
     return () => {
       alive = false;
     };
-  }, [path]); // refreshed on every move, so a decision just made is reflected
-  return counts;
+  }, [path, tick, shared]);
+
+  useEffect(() => {
+    if (!live || shared) return;
+    let last = Date.now();
+    const again = () => {
+      if (document.visibilityState !== "visible") return;
+      last = Date.now();
+      refresh();
+    };
+    const every = window.setInterval(again, COUNTS_EVERY_MS);
+    const onFocus = () => {
+      if (Date.now() - last >= FOCUS_GAP_MS) again();
+    };
+    window.addEventListener("focus", onFocus);
+    document.addEventListener("visibilitychange", onFocus);
+    return () => {
+      window.clearInterval(every);
+      window.removeEventListener("focus", onFocus);
+      document.removeEventListener("visibilitychange", onFocus);
+    };
+  }, [live, shared, refresh]);
+
+  return { counts, refresh };
 }
 
 /**
@@ -394,139 +448,275 @@ function SignOut() {
   );
 }
 
+/** "Ask Lex" at the rail's foot: opens the conversation where the owner stands. */
+function AskLex({ path }: { path: string }) {
+  const t = useTranslations("nav");
+  const lex = useLex();
+  const here = matches(path, "/chat");
+  return (
+    <button
+      type="button"
+      className={`app-rail-ask${here ? " active" : ""}`}
+      aria-current={here ? "page" : undefined}
+      onClick={() => lex.open()}
+    >
+      <span className="app-rail-ask-mark" aria-hidden="true">
+        <Mark size={13} onDark />
+      </span>
+      <span>{t("ask")}</span>
+    </button>
+  );
+}
+
+/** "Ask Lex" above the dock on a phone, wherever the page has no composer of its own. */
+function LexFab({ path }: { path: string }) {
+  const t = useTranslations("nav");
+  const lex = useLex();
+  if (inlineComposer(path) !== null) return null;
+  return (
+    <button type="button" className="app-fab" onClick={() => lex.open()}>
+      <span className="app-rail-ask-mark" aria-hidden="true">
+        <Mark size={13} onDark />
+      </span>
+      <span>{t("ask")}</span>
+    </button>
+  );
+}
+
+/** "Ctrl" or, on a Mac, "⌘": known only in the browser, so the server says Ctrl. */
+function ModKey() {
+  const [mac, setMac] = useState(false);
+  useEffect(() => setMac(/Mac|iPhone|iPad/.test(navigator.platform)), []);
+  return <Kbd>{mac ? "⌘" : "Ctrl"}</Kbd>;
+}
+
+/** The open group's screens: one row that scrolls sideways, the open tab kept in view. */
+function StripTabs({
+  group,
+  path,
+  counts,
+  words,
+}: {
+  group: Group;
+  path: string;
+  counts: NavCounts | null;
+  words: CountWords;
+}) {
+  const t = useTranslations("nav");
+  const row = useRef<HTMLElement>(null);
+  // Where the row has more to scroll to: it fades on that side only.
+  const [more, setMore] = useState<"none" | "left" | "right" | "both">("none");
+  const measure = useCallback(() => {
+    const el = row.current;
+    if (!el) return;
+    const left = el.scrollLeft > 1;
+    const right = el.scrollLeft + el.clientWidth < el.scrollWidth - 1;
+    setMore(left && right ? "both" : left ? "left" : right ? "right" : "none");
+  }, []);
+  // The open tab in view: on arrival, and again when the counts add tabs.
+  const tabs = group.items.length;
+  useEffect(() => {
+    const el = row.current;
+    const on = el?.querySelector<HTMLElement>(".app-tab.active");
+    if (el && on) {
+      // The row's own scroll, never the page's.
+      const at = on.getBoundingClientRect().left - el.getBoundingClientRect().left;
+      el.scrollLeft += at - (el.clientWidth - on.offsetWidth) / 2;
+    }
+    measure();
+  }, [path, group.key, tabs, measure]);
+  useEffect(() => {
+    window.addEventListener("resize", measure);
+    return () => window.removeEventListener("resize", measure);
+  }, [measure]);
+  return (
+    <nav className="app-tabs" aria-label={t("tabs")} ref={row} data-more={more} onScroll={measure}>
+      {group.items.map((i) => {
+        const active = matches(path, i.href);
+        const c = counts && i.count ? i.count(counts, words) : null;
+        return (
+          <Link
+            key={i.href}
+            href={i.href}
+            className={`app-tab${active ? " active" : ""}`}
+            aria-current={active ? "page" : undefined}
+          >
+            {t(`item.${itemKey(i)}`)}
+            {c && <span className="app-tab-count">{c}</span>}
+          </Link>
+        );
+      })}
+    </nav>
+  );
+}
+
 export function AppFrame({ children }: { children: ReactNode }) {
   const t = useTranslations("nav");
   const words: CountWords = (kind, count) => t(`count.${kind}`, { count });
   const path = usePathname() ?? "/";
-  const counts = useCounts(path);
+  const framed = showsNav(path);
+  const { counts, refresh } = useCounts(path, framed);
   const [open, setOpen] = useState(false);
   useEffect(() => setOpen(false), [path]);
+  const [palette, setPalette] = useState(false);
+  const [help, setHelp] = useState(false);
+  // The palette's "Recent": the owner screens visited, latest first.
+  useEffect(() => {
+    if (groupFor(path)) rememberScreen(path);
+  }, [path]);
   const access = counts?.access ?? null;
   const role = roleKey(access);
   const groups = visibleGroups(counts?.size_band?.band ?? null, counts);
   const strip = tabGroup(groups, path);
-  if (!showsNav(path)) {
-    return (
+  const screens: PaletteScreen[] = groups.flatMap((g) =>
+    g.items.map((i) => ({
+      href: i.href,
+      label: t(`item.${itemKey(i)}`),
+      group: t(`group.${g.key as NavGroupKey}`),
+      keywords: `${i.label} ${g.label}`,
+    })),
+  );
+  if (!framed) {
+    // The focused owner views (the queue, the report) say what was recorded too.
+    const page = (
       <AccessProvider value={access}>
         <DeepLinkMark />
         {children}
       </AccessProvider>
     );
+    return FOCUSED.some((r) => matches(path, r)) ? (
+      <ToastProvider>
+        <NavRefreshProvider value={refresh}>{page}</NavRefreshProvider>
+      </ToastProvider>
+    ) : (
+      page
+    );
   }
 
   return (
-    <div className="app-frame">
-      <nav className={`app-rail${open ? " open" : ""}`} aria-label={t("label")}>
-        <div className="app-rail-head">
-          <Link href="/home" className="app-rail-mark">
-            <Logo onDark />
-          </Link>
-          {counts?.business && <p className="app-rail-biz">{counts.business}</p>}
-          <Switcher access={access} />
-          {counts?.watch && (
-            <p className="app-rail-live">
-              <span className="app-rail-sq" aria-hidden="true" />
-              {t("watching", { day: counts.watch.day, of: counts.watch.of })}
-            </p>
-          )}
-          <button
-            type="button"
-            className="app-rail-toggle"
-            aria-expanded={open}
-            onClick={() => setOpen((o) => !o)}
-          >
-            {open ? t("close") : t("menu")}
-          </button>
-        </div>
-        <div className="app-rail-groups">
-          {groups.map((g) => (
-            <div key={g.key} className="app-rail-group">
-              <p className="app-rail-label">
-                <GroupGlyph group={g.key} />
-                <span>{t(`group.${g.key as NavGroupKey}`)}</span>
-              </p>
-              <ul>
-                {railItems(g, path).map((i) => {
-                  const active = matches(path, i.href);
-                  const c = counts && i.count ? i.count(counts, words) : null;
-                  return (
-                    <li key={i.href}>
-                      <Link
-                        href={i.href}
-                        className={`app-rail-item${active ? " active" : ""}`}
-                        aria-current={active ? "page" : undefined}
-                      >
-                        <span>{t(`item.${itemKey(i)}`)}</span>
-                        {c && <span className="app-rail-count">{c}</span>}
-                      </Link>
-                    </li>
-                  );
-                })}
-              </ul>
-            </div>
-          ))}
-        </div>
-        <Link
-          href="/chat"
-          className={`app-rail-ask${matches(path, "/chat") ? " active" : ""}`}
-          aria-current={matches(path, "/chat") ? "page" : undefined}
-        >
-          <span className="app-rail-ask-mark" aria-hidden="true">
-            <Mark size={13} onDark />
-          </span>
-          <span>{t("ask")}</span>
-        </Link>
-        {role && <p className="app-rail-who">{t(`role.${role}`)}</p>}
-        <SignOut />
-      </nav>
-      <nav className="app-dock" aria-label={t("dock")}>
-        {groups.map((g) => {
-          const active = groupFor(path)?.key === g.key;
-          const c = g.key === "approve" && counts ? n(counts.pending) : null;
-          return (
-            <Link
-              key={g.key}
-              href={groupHome(g)}
-              className={`app-dock-item${active ? " active" : ""}`}
-              aria-current={active ? "page" : undefined}
-            >
-              <GroupGlyph group={g.key} size={22} />
-              <span>{t(`dockLabel.${g.key as NavGroupKey}`)}</span>
-              {c && <span className="app-dock-count">{c}</span>}
-            </Link>
-          );
-        })}
-      </nav>
-      <div className="app-main">
+    <ToastProvider>
+      <NavRefreshProvider value={refresh}>
         <AccessProvider value={access}>
-          <DeepLinkMark />
-          <div className="app-strip">
-            {strip ? (
-              <nav className="app-tabs" aria-label={t("tabs")}>
-                {strip.items.map((i) => {
-                  const active = matches(path, i.href);
-                  const c = counts && i.count ? i.count(counts, words) : null;
+          <LexHost path={path} business={counts?.business ?? null}>
+            <div className="app-frame">
+              <nav className={`app-rail${open ? " open" : ""}`} aria-label={t("label")}>
+                <div className="app-rail-head">
+                  <Link href="/home" className="app-rail-mark">
+                    <Logo onDark />
+                  </Link>
+                  {counts?.business && <p className="app-rail-biz">{counts.business}</p>}
+                  <Switcher access={access} />
+                  {counts?.watch && (
+                    <p className="app-rail-live">
+                      <span className="app-rail-sq" aria-hidden="true" />
+                      {t("watching", { day: counts.watch.day, of: counts.watch.of })}
+                    </p>
+                  )}
+                  <button
+                    type="button"
+                    className="app-rail-toggle"
+                    aria-expanded={open}
+                    onClick={() => setOpen((o) => !o)}
+                  >
+                    {open ? t("close") : t("menu")}
+                  </button>
+                </div>
+                <div className="app-rail-groups">
+                  {groups.map((g) => (
+                    <div key={g.key} className="app-rail-group">
+                      <p className="app-rail-label">
+                        <GroupGlyph group={g.key} />
+                        <span>{t(`group.${g.key as NavGroupKey}`)}</span>
+                      </p>
+                      <ul>
+                        {railItems(g, path).map((i) => {
+                          const active = matches(path, i.href);
+                          const c = counts && i.count ? i.count(counts, words) : null;
+                          return (
+                            <li key={i.href}>
+                              <Link
+                                href={i.href}
+                                className={`app-rail-item${active ? " active" : ""}`}
+                                aria-current={active ? "page" : undefined}
+                              >
+                                <span>{t(`item.${itemKey(i)}`)}</span>
+                                {c && <span className="app-rail-count">{c}</span>}
+                              </Link>
+                            </li>
+                          );
+                        })}
+                      </ul>
+                    </div>
+                  ))}
+                </div>
+                <AskLex path={path} />
+                {role && <p className="app-rail-who">{t(`role.${role}`)}</p>}
+                <SignOut />
+              </nav>
+              <nav className="app-dock" aria-label={t("dock")}>
+                {groups.map((g) => {
+                  const active = groupFor(path)?.key === g.key;
+                  const c = g.key === "approve" && counts ? n(counts.pending) : null;
                   return (
                     <Link
-                      key={i.href}
-                      href={i.href}
-                      className={`app-tab${active ? " active" : ""}`}
+                      key={g.key}
+                      href={groupHome(g)}
+                      className={`app-dock-item${active ? " active" : ""}`}
                       aria-current={active ? "page" : undefined}
                     >
-                      {t(`item.${itemKey(i)}`)}
-                      {c && <span className="app-tab-count">{c}</span>}
+                      <GroupGlyph group={g.key} size={22} />
+                      <span>{t(`dockLabel.${g.key as NavGroupKey}`)}</span>
+                      {c && <span className="app-dock-count">{c}</span>}
                     </Link>
                   );
                 })}
               </nav>
-            ) : (
-              <span />
-            )}
-            {stripStop(path) && <EmergencyStop variant="masthead" />}
-          </div>
-          {children}
+              <div className="app-main">
+                <DeepLinkMark />
+                <RouteProgress path={path} />
+                <div className="app-strip">
+                  {strip ? (
+                    <StripTabs group={strip} path={path} counts={counts} words={words} />
+                  ) : (
+                    <span />
+                  )}
+                  <div className="app-tools">
+                    <button
+                      type="button"
+                      className="app-search"
+                      aria-haspopup="dialog"
+                      aria-expanded={palette}
+                      aria-label={t("search")}
+                      title={t("search")}
+                      onClick={() => setPalette(true)}
+                    >
+                      <Search size={16} strokeWidth={1.75} aria-hidden="true" />
+                      <span className="app-search-word">{t("search")}</span>
+                      <span className="app-search-keys" aria-hidden="true">
+                        <ModKey />
+                        <Kbd>K</Kbd>
+                      </span>
+                    </button>
+                    <Notifications counts={counts} />
+                    {stripStop(path) && <EmergencyStop variant="masthead" />}
+                  </div>
+                </div>
+                {children}
+              </div>
+              <LexFab path={path} />
+            </div>
+            <CommandPalette
+              open={palette}
+              onClose={() => setPalette(false)}
+              path={path}
+              screens={screens}
+              access={access}
+              onHelp={() => setHelp(true)}
+            />
+            <Shortcuts onPalette={() => setPalette((o) => !o)} help={help} onHelp={setHelp} />
+          </LexHost>
         </AccessProvider>
-      </div>
-    </div>
+      </NavRefreshProvider>
+    </ToastProvider>
   );
 }

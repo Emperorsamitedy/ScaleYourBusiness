@@ -1,16 +1,18 @@
-/* Home — /home, rebuilt 2026-11-17 around the conversation (the owner:
-   chat centred, approvals as an exchange, graphs few and simple).
-   components/home/HomeScreen.tsx. Sheet system only: paper on the desk,
-   square, no shadows. Every sheet keeps its contents 20px from its edge
-   (14px under 720px), so the edges of the readings, the rows and the
-   headers line up. Two columns on a desk: Lex's words and the composer on
-   the left, Lex's side on the right (needs your yes, doing now, done).
-   One column under 1100px, the decisions straight after the composer. */
+/* Home — /home (components/home/*). Built around the conversation and
+   made a workspace on 2026-11-17 (docs/DASHBOARD-OVERHAUL.md section C).
+   Sheet system only: paper on the desk, square, 1px rules, no shadows.
+   Every sheet keeps its contents 20px from its edge (14px under 720px),
+   so the edges of the readings, the rows and the headers line up.
+
+   Two columns on a desk: Lex's words, the composer and the figures on the
+   left; Lex's side on the right (the status card, then three tabs over
+   one sheet). One column under 1100px: the status and the tabs come
+   straight after the composer. */
 
 .home {
   --pad: 20px;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(300px, 340px);
+  grid-template-columns: minmax(0, 1fr) minmax(320px, 380px);
   gap: 20px;
   align-items: start;
   max-width: 1480px;
@@ -34,6 +36,7 @@
   grid-column: 1 / -1;
   display: grid;
   gap: 10px;
+  justify-items: start;
   padding: 22px 0 16px;
   border-bottom: 1px solid var(--desk-rule);
   color: var(--desk-ink);
@@ -81,31 +84,63 @@
   color: var(--desk-ink-2);
 }
 
-/* the one action on paper: 48px, square, mono caps */
-.home-act {
+/* ── the small controls ── */
+
+/* a small action: the system's ink-bordered verb, 40px */
+.home .home-btn,
+.home-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 14px;
-  min-height: 48px;
-  padding: 0 18px;
+  flex: none;
+  min-height: 40px;
+  padding: 0 14px;
   border: 1px solid var(--sheet-ink);
   background: var(--paper);
   color: var(--sheet-ink);
   font-family: var(--f-mono);
-  font-size: 12.5px;
+  font-size: 12px;
   font-weight: 600;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   text-decoration: none;
   white-space: nowrap;
+  cursor: pointer;
   transition:
     background-color var(--d-press) linear,
     color var(--d-press) linear;
 }
-.home-act:hover {
+.home-btn:hover {
   background: var(--sheet-ink);
   color: var(--paper);
+}
+.home .home-btn-desk {
+  background: transparent;
+  border-color: var(--desk-ink);
+  color: var(--desk-ink);
+}
+.home .home-btn-desk:hover {
+  background: var(--desk-ink);
+  color: var(--desk);
+}
+/* an action inside a line of text */
+.home-textbtn {
+  min-height: 32px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--sheet-ink);
+  font: inherit;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+.home-textbtn:disabled {
+  color: var(--sheet-ink-2);
+  font-weight: 400;
+  text-decoration: none;
+  cursor: default;
 }
 .home-link {
   font-family: var(--f-mono);
@@ -116,40 +151,29 @@
   color: inherit;
   text-underline-offset: 3px;
 }
-
-/* the one warning: a paper sheet with a drift rule drawn inside its edge */
-.home-alert {
-  grid-column: 1 / -1;
+/* the row that ends a list: more of it, or all of it */
+.home .home-more,
+.home-more {
   display: flex;
   align-items: center;
-  gap: 20px;
-  flex-wrap: wrap;
-  padding: 16px var(--pad);
-  background: var(--paper);
+  width: 100%;
+  min-height: 44px;
+  padding: 0 var(--pad);
+  border: 0;
+  border-top: 1px solid var(--rule-soft);
+  background: none;
   color: var(--sheet-ink);
-  border: 1px solid var(--rule);
-  box-shadow: inset 5px 0 0 var(--drift);
+  font-family: var(--f-mono);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
 }
-.home-alert-tx {
-  flex: 1;
-  min-width: 220px;
-  display: grid;
-  gap: 4px;
-}
-.home-alert .flag {
-  margin: 0;
-}
-.home-alert-title {
-  margin: 0;
-  font-family: var(--f-display);
-  font-size: 21px;
-  font-weight: 700;
-  line-height: 1.2;
-}
-.home-alert-line {
-  margin: 0;
-  font-size: 14px;
-  color: var(--sheet-ink-2);
+.home-more:hover {
+  background: var(--inset);
 }
 
 /* every sheet's inner edge */
@@ -163,19 +187,54 @@
   padding: 16px var(--pad);
   color: var(--sheet-ink-2);
 }
-.home-note {
-  margin: 0 0 12px;
-  font-size: 14px;
+/* a read that failed with nothing to show: one sentence and Retry */
+.home-failed {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 16px;
+  padding: 16px var(--pad);
   color: var(--sheet-ink-2);
 }
+.home-failed p {
+  flex: 1 1 180px;
+  margin: 0;
+}
 
-/* the composer sheet: the box first, the latest exchange under a rule */
+/* ── the composer sheet: the box, three questions, the latest exchange ── */
+
 .home-ask-title {
   overflow-wrap: anywhere;
 }
-.home-ask .ak-composer {
-  padding: 15px var(--pad) 14px;
+.home .home-ask .ak-composer {
+  padding: 15px var(--pad) 12px;
   border-top: 0;
+}
+.home-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 0 var(--pad) 16px;
+}
+.home-chip {
+  min-height: 36px;
+  padding: 0 12px;
+  border: 1px solid var(--rule);
+  background: var(--paper);
+  color: var(--sheet-ink);
+  font-family: var(--f-prose);
+  font-size: 13.5px;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color var(--d-press) linear;
+}
+.home-chip:hover:not([aria-disabled="true"]) {
+  border-color: var(--sheet-ink);
+  background: var(--inset);
+}
+.home-chip[aria-disabled="true"] {
+  color: var(--sheet-ink-2);
+  cursor: default;
 }
 .home-thread {
   padding: 16px var(--pad) 6px;
@@ -194,7 +253,8 @@
   background: var(--inset);
 }
 
-/* a decision, decided where it stands: the card's two equal answers */
+/* ── a decision, answered where it stands: the card's two equal answers ── */
+
 .home-cards {
   display: grid;
 }
@@ -221,6 +281,21 @@
   font-size: 16px;
   font-weight: 700;
   line-height: 1.25;
+}
+/* the title as the way in to the full read */
+.hd-title-btn {
+  justify-self: start;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.hd-title-btn:hover {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
 }
 .hd-amt {
   margin: 0;
@@ -288,7 +363,7 @@
   margin-bottom: 8px;
 }
 .hd-chip {
-  min-height: 36px;
+  min-height: 40px;
   padding: 0 10px;
   border: 1px solid var(--rule);
   background: var(--paper);
@@ -347,21 +422,32 @@
 }
 .hd-more {
   justify-self: start;
+  min-height: 32px;
+  padding: 0;
+  border: 0;
+  background: none;
   font-family: var(--f-mono);
   font-size: 11.5px;
   font-weight: 500;
   letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: inherit;
+  text-decoration: underline;
   text-underline-offset: 3px;
+  color: inherit;
+  cursor: pointer;
 }
 
-/* doing now: the watch's days */
+/* ── Lex's side ── */
+
+/* the status card: one line that is always true, the watch's days, the stop */
+.home-now .cs-body {
+  display: grid;
+  gap: 12px;
+}
 .home-days {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(6px, 1fr));
   gap: 3px;
-  margin-bottom: 14px;
 }
 .home-days i {
   height: 14px;
@@ -375,36 +461,225 @@
   background: var(--live);
   border-color: var(--live);
 }
+/* one line most days; two when a read names what gave no answer */
+.home-now-line {
+  min-height: 32px;
+  margin: 0;
+  padding: 5px 0;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--sheet-ink-2);
+}
+.home-now-line .home-textbtn {
+  min-height: 0;
+}
+.home-now-line .live-dot {
+  margin-right: 6px;
+  vertical-align: 1px;
+}
 
-/* done: the record, a word and a title per row */
-.home-done-rows {
+/* three tabs over one sheet: the open tab is the sheet's own top edge */
+.home-work {
+  display: grid;
+  min-width: 0;
+  scroll-margin-top: 72px;
+}
+.home-work .ui-tabs {
+  position: relative;
+  z-index: 1;
+  margin-bottom: -1px;
+}
+.home-panel {
+  min-height: 132px;
+}
+.home-panel-foot {
+  margin: 0;
+  padding: 12px var(--pad);
+  border-top: 1px solid var(--rule-soft);
+}
+
+/* what else wants the owner, and the next steps: a sentence and one action a row */
+.home-attn,
+.home-next ul {
   list-style: none;
   margin: 0;
   padding: 0;
 }
-.home-done-rows li {
-  display: grid;
-  grid-template-columns: auto minmax(0, 1fr) auto;
-  align-items: baseline;
-  gap: 10px;
-  padding: 11px var(--pad);
+.home-attn li,
+.home-next li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px var(--pad);
   border-top: 1px solid var(--rule-soft);
-  font-size: 13.5px;
 }
-.home-done-rows li:first-child {
+.home-attn:first-child li:first-child {
   border-top: 0;
 }
-.home-done-ti {
-  overflow-wrap: anywhere;
+.home-attn p,
+.home-next li p {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.45;
 }
-.home-done-at {
+.home-next {
+  border-top: 1px solid var(--rule-soft);
+}
+.home-next .cs-label {
+  margin: 0;
+  padding: 14px var(--pad) 2px;
+}
+.home-next li:first-child {
+  border-top: 0;
+}
+
+/* the activity feed: a tag, how long ago, one line; a row opens to its detail */
+.hf {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.hf-row {
+  border-top: 1px solid var(--rule-soft);
+  transition: background-color var(--d-record) linear;
+}
+.hf-row:first-child {
+  border-top: 0;
+}
+/* ink just laid down */
+.hf-row.is-new {
+  background: var(--marker);
+}
+.hf-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 4px 10px;
+  width: 100%;
+  padding: 11px var(--pad);
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.hf-head:hover {
+  background: var(--inset);
+}
+.hf-row.is-new .hf-head:hover {
+  background: none;
+}
+.hf-head:focus-visible,
+.hm-row:focus-visible,
+.home-tile:focus-visible {
+  outline-offset: -3px;
+}
+.hf-meta {
+  grid-column: 1;
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+.hf-when {
   font-family: var(--f-mono);
   font-size: 11.5px;
   color: var(--sheet-ink-2);
   white-space: nowrap;
 }
+.hf-text {
+  grid-column: 1;
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  font-size: 13.5px;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+.hf-text.open {
+  display: block;
+}
+.hf-chev {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  align-self: center;
+  color: var(--sheet-ink-2);
+  transition: transform var(--d-press) linear;
+}
+.hf-chev.open {
+  transform: rotate(180deg);
+}
+.hf-more {
+  display: grid;
+  gap: 8px;
+  justify-items: start;
+  padding: 0 var(--pad) 14px;
+}
+.hf-said {
+  margin: 0;
+  padding: 8px 10px;
+  border: var(--line);
+  background: var(--inset);
+  font-size: 13.5px;
+  line-height: 1.45;
+}
+.hf-at {
+  margin: 0;
+  font-family: var(--f-mono);
+  font-size: 11.5px;
+  color: var(--sheet-ink-2);
+}
 
-/* the readings: one sheet split by hairlines, the number grammar in each */
+/* everything Lex made: the title, one line of the thing itself, its state */
+.hm {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.hm li {
+  border-top: 1px solid var(--rule-soft);
+}
+.hm li:first-child {
+  border-top: 0;
+}
+.hm-row {
+  display: grid;
+  gap: 4px;
+  justify-items: start;
+  width: 100%;
+  padding: 12px var(--pad);
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.hm-row:hover {
+  background: var(--inset);
+}
+.hm-title {
+  font-family: var(--f-display);
+  font-size: 15px;
+  font-weight: 700;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+.hm-prev {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  font-size: 13.5px;
+  line-height: 1.45;
+  color: var(--sheet-ink-2);
+  overflow-wrap: anywhere;
+}
+
+/* ── the readings: one sheet split by hairlines; each reading is a button ── */
+
 .home-strip {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 170px), 1fr));
@@ -416,6 +691,22 @@
   padding: 16px var(--pad) 18px;
   border-left: 1px solid var(--rule-soft);
   margin-left: -1px;
+}
+.home .home-tile,
+.home-tile {
+  border-top: 0;
+  border-right: 0;
+  border-bottom: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color var(--d-press) linear;
+}
+.home-tile:hover {
+  background: var(--inset);
 }
 .home-r-lab {
   margin: 0;
@@ -447,12 +738,7 @@
   gap: 10px;
   margin-top: 4px;
 }
-.home-why {
-  min-height: 32px;
-  padding: 0;
-  background: none;
-  border: 0;
-  color: var(--sheet-ink);
+.home-r-more {
   font-family: var(--f-mono);
   font-size: 12px;
   font-weight: 500;
@@ -460,8 +746,13 @@
   text-transform: uppercase;
   text-decoration: underline;
   text-underline-offset: 3px;
-  cursor: pointer;
-  justify-self: start;
+}
+.home-reading .home-tile-skel {
+  padding: 0;
+}
+.home-strip .home-failed {
+  grid-column: 1 / -1;
+  border-top: 1px solid var(--rule-soft);
 }
 
 /* The live line (components/home/LiveVisitors.tsx), drawn like a trading
@@ -697,7 +988,39 @@
   }
 }
 
-/* your sales: the last days as one printed line each, nothing more */
+/* your sales: the measured days as one printed line each, and a switch for how many */
+.home-sales-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px 16px;
+}
+.home-period {
+  display: flex;
+  gap: 2px;
+}
+.home-period button {
+  min-width: 48px;
+  min-height: 40px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--sheet-ink-2);
+  font-family: var(--f-mono);
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition:
+    background-color var(--d-press) linear,
+    color var(--d-press) linear;
+}
+.home-period button[aria-pressed="true"] {
+  background: var(--sheet-ink);
+  color: var(--paper);
+}
 .home-trends {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
@@ -743,7 +1066,7 @@
   margin-left: auto;
 }
 
-/* one column: the two wrappers dissolve, and the decisions follow the composer */
+/* one column: the two wrappers dissolve; the status and the tabs follow the composer */
 @media (max-width: 1099px) {
   .home {
     grid-template-columns: minmax(0, 1fr);
@@ -753,31 +1076,25 @@
     display: contents;
   }
   .home-head {
-    order: -2;
-  }
-  .home-alert {
     order: -1;
   }
   .home-ask {
     order: 1;
   }
-  .home-decisions {
+  .home-now {
     order: 2;
   }
-  .home-readings {
+  .home-work {
     order: 3;
   }
-  .home-doing {
+  .home-readings {
     order: 4;
   }
   .home-sales {
     order: 5;
   }
-  .home-done {
-    order: 6;
-  }
   .home-slips {
-    order: 7;
+    order: 6;
   }
 }
 @media (max-width: 719px) {
@@ -800,142 +1117,64 @@
   .home-title {
     max-width: none;
   }
+  /* the three questions in one row that scrolls sideways */
+  .home-chips {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .home-chips::-webkit-scrollbar {
+    display: none;
+  }
+  .home-chip {
+    flex: none;
+    min-height: 40px;
+  }
+  .home-attn li,
+  .home-next li {
+    flex-wrap: wrap;
+  }
+  /* a finger needs 40px, even for an action that is only a word */
+  .hd-more,
+  .hd-title-btn,
+  .home-textbtn,
+  .home-now-line .home-textbtn,
+  .home .home-link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 40px;
+  }
 }
 /* room on a big monitor: the two columns widen before the type does (globals.css zooms the frame) */
 @media (min-width: 1800px) {
   .home {
     max-width: 1680px;
-    grid-template-columns: minmax(0, 1fr) 380px;
+    grid-template-columns: minmax(0, 1fr) 420px;
     gap: 24px;
   }
 }
-
-/* The Why sheet (components/sheet/WhySheet.tsx): paper from the right. */
-.why-layer {
-  position: fixed;
-  inset: 0;
-  z-index: 60;
-}
-.why-scrim {
-  position: absolute;
-  inset: 0;
-  background: rgba(6, 12, 8, 0.55);
-}
-.why-sheet {
-  position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  width: min(460px, 100%);
-  display: flex;
-  flex-direction: column;
-  background: var(--paper);
-  color: var(--sheet-ink);
-  border-left: 2px solid var(--live-rule);
-  animation: why-in var(--d-move) var(--ease-out);
-}
-@keyframes why-in {
-  from {
-    transform: translateX(24px);
-    opacity: 0;
+@media (prefers-reduced-motion: reduce) {
+  .hf-row,
+  .hf-chev,
+  .home-tile,
+  .home-chip,
+  .home-period button {
+    transition: none;
   }
 }
-.why-head {
-  display: grid;
-  gap: 6px;
-  padding: 20px 22px 16px;
-  border-bottom: 1px solid var(--rule);
-}
-.why-top {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-.why-label {
-  margin: 0;
-  font-family: var(--f-mono);
-  font-size: 11.5px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--sheet-ink-2);
-}
-.why-close {
-  min-height: 40px;
-  padding: 0 14px;
-  border: 1px solid var(--sheet-ink);
-  background: var(--paper);
+
+/* The sign-in note's link reads as ink, never a browser blue. */
+.hd-note a {
   color: var(--sheet-ink);
-  font-family: var(--f-mono);
-  font-size: 11.5px;
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
-.why-close:hover {
-  background: var(--sheet-ink);
-  color: var(--paper);
-}
-.why-title {
-  margin: 0;
-  font-family: var(--f-display);
-  font-size: 22px;
-  font-weight: 700;
-  line-height: 1.2;
-}
-.why-value {
-  margin: 0;
-  font-family: var(--f-mono);
-  font-size: 26px;
-  font-weight: 500;
-}
-.why-body {
-  display: grid;
-  gap: 18px;
-  align-content: start;
-  padding: 18px 22px;
-  overflow-y: auto;
-}
-.why-rows {
-  margin: 0;
-  border: 1px solid var(--rule);
-}
-.why-rows div {
-  display: flex;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 10px 14px;
-  border-top: 1px solid var(--rule-soft);
-  font-size: 14px;
-}
-.why-rows div:first-child {
-  border-top: 0;
-}
-.why-rows dt {
-  color: var(--sheet-ink-2);
-}
-.why-rows dd {
-  margin: 0;
-  font-weight: 600;
-  text-align: right;
-}
-.why-sec {
-  display: grid;
-  gap: 8px;
-}
-.why-lines {
-  background: var(--inset);
-  border: 1px solid var(--rule);
-  padding: 12px 14px;
-  font-family: var(--f-mono);
-  font-size: 13px;
-  line-height: 1.65;
-}
-.why-lines p {
-  margin: 0;
-}
-@media (prefers-reduced-motion: reduce) {
-  .why-sheet {
-    animation: none;
+
+/* Touch targets on a phone (docs/DASHBOARD-OVERHAUL.md G2): the live line's one link. */
+@media (max-width: 759px) {
+  .lv-link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 40px;
   }
 }

@@ -1,52 +1,16 @@
 import { describe, expect, it } from "vitest";
-import type { CashLike, DoneLike, PendingLike, Read } from "./home-model";
+import type { CashLike, PendingLike, Read } from "./home-model";
 import {
   cashReading,
   dataOf,
-  doneRows,
+  periodFor,
+  periodOptions,
   rankPending,
   readOutcome,
   signedOut,
   waitingCount,
   waitingLine,
 } from "./home-model";
-
-// 2026-11-17: Home's "Done" is the queue's own record, newest first, in words.
-describe("Home: what was done", () => {
-  const row = (id: string, status: string, over: Partial<DoneLike> = {}): DoneLike => ({
-    id,
-    status,
-    action: { summary: id },
-    ...over,
-  });
-
-  it("words each recorded answer, newest first, and leaves pending out", () => {
-    const got = doneRows([
-      row("old", "approved", { decided_at: "2026-11-01 10:00:00+00" }),
-      row("ran", "executed", { decided_at: "2026-11-10 09:00:00+00" }),
-      row("no", "rejected", { decided_at: "2026-11-12 09:00:00+00" }),
-      row("late", "expired", { expires_at: "2026-11-05 00:00:00+00" }),
-      row("wait", "pending"),
-      row("held", "blocked", { created_at: "2026-11-03 08:00:00+00" }),
-    ]);
-    expect(got.map((r) => `${r.id}:${r.word}`)).toEqual([
-      "no:declined",
-      "ran:done",
-      "late:expired",
-      "held:blocked",
-      "old:approved",
-    ]);
-    expect(got[0]?.title).toBe("no");
-    expect(got[2]?.at).toBe("2026-11-05 00:00:00+00");
-  });
-
-  it("never lists more than asked, and an unknown status is left out rather than guessed", () => {
-    const rows = [row("a", "approved"), row("b", "approved"), row("c", "mystery")];
-    expect(doneRows(rows, 1)).toHaveLength(1);
-    expect(doneRows(rows).map((r) => r.id)).toEqual(["a", "b"]);
-    expect(doneRows([])).toEqual([]);
-  });
-});
 
 const eur = (amount_minor: number) => ({ amount_minor, currency: "EUR" });
 const pending = (id: string, low: number | null, high: number | null): PendingLike => ({
@@ -177,5 +141,32 @@ describe("Home: a read is an answer only once it has answered", () => {
     expect(waitingLine(3, false)).toBeNull();
     // An unknown count, still reading or unread, claims nothing either.
     expect(waitingLine(null, false)).toBeNull();
+  });
+});
+
+// docs/DASHBOARD-OVERHAUL.md C12: "Your sales" has a period switch.
+describe("Home: the sales period switch", () => {
+  it("offers each standard window the measured days fill, then all of them when they end between two", () => {
+    expect(periodOptions(90)).toEqual([7, 30, 90]);
+    expect(periodOptions(45)).toEqual([7, 30, 45]);
+    expect(periodOptions(30)).toEqual([7, 30]);
+    expect(periodOptions(22)).toEqual([7, 22]);
+    expect(periodOptions(7)).toEqual([7]);
+    expect(periodOptions(5)).toEqual([5]);
+  });
+
+  it("offers nothing without measured days, and never more than the widest window", () => {
+    expect(periodOptions(0)).toEqual([]);
+    expect(periodOptions(-3)).toEqual([]);
+    expect(periodOptions(2.5)).toEqual([]);
+    expect(periodOptions(400)).toEqual([7, 30, 90]);
+  });
+
+  it("shows the owner's last choice when it is offered, else thirty days, else the widest", () => {
+    expect(periodFor(7, [7, 30, 90])).toBe(7);
+    expect(periodFor(90, [7, 30])).toBe(30); // the days no longer reach ninety
+    expect(periodFor(null, [7, 30, 90])).toBe(30);
+    expect(periodFor(null, [7, 22])).toBe(22);
+    expect(periodFor(30, [])).toBeNull();
   });
 });

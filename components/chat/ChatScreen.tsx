@@ -5,11 +5,13 @@
 // surface in the product (conversation-channel §7): everything else the
 // system starts. One paper sheet holds the thread, titled with the owner's
 // latest question, and the composer; a side sheet lists the owner's
-// earlier questions. A request only ever becomes a proposal in the queue —
-// nothing runs on phrasing — and the proposal's own card is the one thing
-// that asks for a decision. Home (components/home/HomeScreen.tsx) carries
-// the same conversation through the same hook (useChat.ts) and pieces
-// (ChatTurn.tsx, Composer.tsx).
+// earlier questions. A request only ever becomes a proposal — nothing runs
+// on phrasing — and that proposal is answered right under the reply
+// (InPlaceDecision.tsx): two equal answers, a reason on decline, recorded
+// with the signed-in name like any other.
+//
+// The conversation is the frame's one (useChat.ts): what is asked here
+// shows on Home and in Lex's sheet, and the other way round.
 //
 // Feature 33: when the owner asks for a CHANGE, the reply carries a change
 // card (ChangeCard.tsx) — the drafted change, what is set now, "Make this
@@ -19,6 +21,10 @@
 // chat service returns no citations, and a source list made up on this
 // side would be exactly the unexplainable number rule 6 forbids.
 //
+// Small text (the owner, 2026-11-17): the opening paragraph and the
+// composer's rule left the screen. One line says what Lex answers from,
+// and while the thread is empty three chips ask a first question.
+//
 // L-3c (TASKS-LANGUAGES.md): the screen's fixed words are the "chat"
 // catalogue and the stamps follow the reader's locale; the microphone
 // listens in it. The turns are content: the owner's questions as typed,
@@ -27,14 +33,26 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { useTranslations } from "next-intl";
+import { useMessages } from "next-intl";
 import { businessNoun } from "../../lib/core/business-noun";
 import { useTr } from "../sheet/useTr";
 import { ChatBusy, ChatTurn } from "./ChatTurn";
 import { Composer } from "./Composer";
+import { InPlaceDecision } from "./InPlaceDecision";
 import { earlierQuestions, latestQuestion } from "./chat-view";
 import { useChat } from "./useChat";
 import "../../app/chat.css";
+
+/** The questions a chip asks, in the order shown; Home's own (home.ask.chip). */
+const CHIPS = ["today", "sales", "first"] as const;
+
+/** The chips' words where the catalogue has them; none where it does not. */
+export function chipQuestions(messages: unknown): string[] {
+  const chip = (messages as { home?: { ask?: { chip?: Record<string, unknown> } } })?.home?.ask
+    ?.chip;
+  if (!chip) return [];
+  return CHIPS.map((k) => chip[k]).filter((q): q is string => typeof q === "string" && q !== "");
+}
 
 export function ChatScreen() {
   const chat = useChat();
@@ -43,7 +61,7 @@ export function ChatScreen() {
   // "your salon", "your gym" — from the business_type answer; "your business" until known.
   const [englishNoun, setNoun] = useState(businessNoun(null));
   const { tr, locale } = useTr("chat");
-  const tChat = useTranslations("chat");
+  const chips = chipQuestions(useMessages());
   // English's noun table ("your salon"); other languages say "your business".
   const noun = locale === "en" ? englishNoun : tr("yourBusiness");
   const endRef = useRef<HTMLDivElement | null>(null);
@@ -138,7 +156,27 @@ export function ChatScreen() {
           </header>
 
           <div className="ak-thread" aria-live="polite">
-            {s.turns.map((turn) => (
+            {s.turns.length === 0 && (
+              <div className="ak-start">
+                <p className="ak-descriptor">{tr("descriptor")}</p>
+                {chips.length > 0 && (
+                  <div className="ak-chips">
+                    {chips.map((q) => (
+                      <button
+                        key={q}
+                        type="button"
+                        className="ak-chip"
+                        disabled={s.busy}
+                        onClick={() => void chat.ask(q, tr("sendFailed"))}
+                      >
+                        {q}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+            {s.turns.map((turn, i) => (
               <ChatTurn
                 key={turn.id}
                 turn={turn}
@@ -147,17 +185,13 @@ export function ChatScreen() {
                 now={now}
                 locale={locale}
                 tr={tr}
-              />
+              >
+                {i === s.turns.length - 1 && turn.role === "system" && s.lastProposal && (
+                  <InPlaceDecision id={s.lastProposal} />
+                )}
+              </ChatTurn>
             ))}
             {s.busy && <ChatBusy text={tr("thinking")} />}
-            {s.lastProposal && (
-              <div className="ak-turn system">
-                <span aria-hidden="true" />
-                <p className="ak-queued inset">
-                  {tr("queued.text")} <Link href="/proposals">{tr("queued.link")}</Link>
-                </p>
-              </div>
-            )}
             <div ref={endRef} />
           </div>
 
@@ -170,11 +204,6 @@ export function ChatScreen() {
             onSend={() => void chat.send(tr("sendFailed"))}
             tr={tr}
             inputRef={inputRef}
-            intro={
-              s.turns.length === 0 ? (
-                <p>{tChat.rich("empty", { noun, em: (chunks) => <em>{chunks}</em> })}</p>
-              ) : undefined
-            }
           />
         </section>
 

@@ -85,9 +85,18 @@ function useNow(): number | null {
   return now;
 }
 
-export function LiveVisitors() {
+export function LiveVisitors({
+  onStatus,
+}: {
+  /** Tells Home what the line is doing, so its next steps can offer the missing connection. */
+  onStatus?: (status: Reading["status"]) => void;
+} = {}) {
   const { tr, locale } = useTr("home.live");
   const { latest, lastLive } = useLive();
+  const status = latest?.status ?? null;
+  useEffect(() => {
+    if (status !== null) onStatus?.(status);
+  }, [status, onStatus]);
   const now = useNow();
   const [win, setWin] = useState<Window>(30);
   const [at, setAt] = useState<number | null>(null);

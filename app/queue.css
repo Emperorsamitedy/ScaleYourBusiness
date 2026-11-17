@@ -144,6 +144,62 @@
   text-align: right;
 }
 
+/* The stop on paper, in Home's status card (variant "card", 2026-11-17):
+   the masthead's control in the sheet's own alarm ink, full width. */
+.es-card {
+  display: grid;
+  gap: 8px;
+}
+.es-card-stop,
+.es-card-go {
+  min-height: 44px;
+  padding: 0 14px;
+  background: var(--paper);
+  font-family: var(--f-mono);
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition:
+    background-color var(--d-press) linear,
+    color var(--d-press) linear;
+}
+.es-card-stop {
+  border: 1px solid var(--alarm);
+  color: var(--alarm);
+}
+.es-card-stop:hover:not(:disabled),
+.es-card-stop:active:not(:disabled) {
+  background: var(--alarm);
+  color: var(--paper);
+}
+.es-card-go {
+  border: 1px solid var(--sheet-ink);
+  color: var(--sheet-ink);
+}
+.es-card-go:hover:not(:disabled),
+.es-card-go:active:not(:disabled) {
+  background: var(--sheet-ink);
+  color: var(--paper);
+}
+.es-card-stop:disabled,
+.es-card-go:disabled {
+  border-style: dashed;
+  cursor: not-allowed;
+}
+.es-card-pair {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+.es-card-note {
+  margin: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--sheet-ink-2);
+}
+
 /* ── the body: list on the desk, sheet beside it ── */
 
 .q-body {
@@ -1042,6 +1098,41 @@
 }
 .q-m .q-empty {
   padding: 17px 15px;
+}
+
+/* A decision opened in place (ReviewSheet.tsx, 2026-11-17): the phone card's
+   sections inside the side sheet, on the sheet's own edge; its answers in
+   the sheet's foot. */
+.q-review .q-msec {
+  padding: 14px 0 15px;
+}
+.q-review .q-msec:first-child {
+  padding-top: 0;
+}
+.q-review .q-msec:last-child {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+.q-review .q-review-skel {
+  padding: 0;
+}
+.ui-sheet-foot .q-mdecide {
+  margin-top: 0;
+  padding: 0;
+  border-top: 0;
+}
+.ui-sheet-foot .q-mpair {
+  margin-top: 0;
+}
+.ui-sheet-foot .q-mpair .q-btn {
+  text-align: center;
+}
+.ui-sheet-foot .q-panel {
+  max-height: 44vh;
+  overflow-y: auto;
+}
+.ui-sheet-foot .q-approve-note {
+  margin-top: 10px;
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -20,7 +20,8 @@
       "label": "计算方式",
       "close": "关闭",
       "arithmetic": "算式"
-    }
+    },
+    "close": "关闭"
   },
   "nav": {
     "label": "主菜单",
@@ -96,6 +97,16 @@
       "insights": "洞察",
       "grow": "增长",
       "customers": "客户"
+    },
+    "search": "搜索",
+    "bell": {
+      "title": "需要您处理",
+      "count": "{count, plural, =0 {通知。没有需要您处理的事项} other {通知。有 # 项需要您处理}}",
+      "decisions": "{count, plural, other {# 项决定待处理}}",
+      "paused": "{count, plural, other {# 个连接已暂停}}",
+      "support": "{count, plural, other {# 张客户支持工单待处理}}",
+      "empty": "没有需要您处理的事项。",
+      "reading": "正在读取…"
     }
   },
   "auth": {
@@ -476,17 +487,15 @@
   },
   "voice": {
     "speak": "语音输入",
-    "listening": "正在聆听… 再次按“语音输入”即可停止。",
-    "noticeStart": "{notice}再按“语音输入”开始。",
-    "notice": "您的浏览器会把您的语音转换成文字。在 Chrome 中，这一步由 Google 完成；ScaleX 从不接收音频。",
-    "cap": "一分钟后我会停止聆听。按“语音输入”可以继续补充。",
+    "listening": "正在聆听…",
+    "cap": "一分钟后已停止。",
     "error": {
-      "blocked": "此网站的麦克风已被阻止。请在浏览器的网站设置中允许（地址栏旁的图标），然后再次按“语音输入”。",
-      "noSpeech": "我没有听到任何声音。请按“语音输入”，等显示“正在聆听”后再开始说话。",
-      "noMicrophone": "未找到麦克风。请检查麦克风已连接并已打开，然后再次按“语音输入”。",
-      "network": "您的浏览器无法连接到其语音服务。请检查网络连接，或直接输入答案。",
-      "language": "您的浏览器无法将{lang}的语音转换为文字。请改为直接输入答案。",
-      "stopped": "还没有识别到任何字词，聆听就停止了。请按“语音输入”重试，或直接输入答案。"
+      "blocked": "麦克风已被阻止。请在浏览器的网站设置中允许。",
+      "noSpeech": "我没有听到任何声音。",
+      "noMicrophone": "未找到麦克风。",
+      "network": "您的浏览器无法连接到其语音服务。",
+      "language": "您的浏览器无法将{lang}的语音转换为文字。",
+      "stopped": "聆听已停止。"
     }
   },
   "sheet": {
@@ -1623,6 +1632,9 @@
         "aria": "现在的内容先被保存，然后改动；一键即可恢复原样。",
         "ariaAuto": "现在的内容先被保存，然后改动；一键即可恢复原样，页面加载超过 {ms} 毫秒时也会自动恢复。"
       }
+    },
+    "review": {
+      "retry": "重试"
     }
   },
   "stop": {
@@ -4594,14 +4606,14 @@
   },
   "chat": {
     "meta": {
-      "title": "Lex — ScaleX"
+      "title": "Lex · ScaleX"
     },
     "kicker": "Lex · 关于：{about}",
     "yourBusiness": "您的企业",
     "loading": "正在打开对话…",
     "signedOut": {
       "title": "我根据您的企业来回答。",
-      "copy": "这个对话只依据一份档案——您的档案。开始访谈后，就有真正可谈的内容了。",
+      "copy": "这个对话只依据一份档案：您的档案。开始访谈后，就有真正可谈的内容了。",
       "begin": "开始"
     },
     "error": {
@@ -4610,21 +4622,18 @@
     },
     "titleEmpty": "您想了解什么？",
     "newQuestion": "新问题",
-    "empty": "关于{noun}，您可以问我任何问题：报告为什么那样说、您的数字说明了什么、我会关注什么。请我<em>更改</em>某项内容——您的营业时间、某个目标、您的回复时间——我会先起草，等您同意，或者带您去它所在的页面。如果您请我在现实中<em>执行</em>某件事，它会成为您队列中的一项提案；仅凭措辞，什么都不会执行。",
     "you": "您",
     "thinking": "正在读取您的档案…",
     "queued": {
       "text": "它现在是一项提案，正在等待您的同意。",
       "link": "打开“等待您处理”"
     },
-    "sendFailed": "我这边出了点问题——能再说一遍吗？",
+    "sendFailed": "我这边出了点问题。能再说一遍吗？",
     "composer": {
       "label": "询问关于{noun}的问题",
       "placeholder": "输入问题…",
       "ask": "提问",
-      "speak": "语音输入：说出您的问题",
-      "spokenAfter": "请通读一遍并修改有误之处，然后按“提问”。",
-      "rule": "我只根据您的档案和报告中的内容回答。您要求的更改会先起草——在您按下它的按钮之前，什么都不会写入；您在这里提出的限制会一直有效。"
+      "speak": "语音输入：说出您的问题"
     },
     "earlier": "之前的问题",
     "change": {
@@ -4650,7 +4659,9 @@
       "stale": "未完成 · {screen}",
       "proposal": "已为您的队列起草 · {screen}",
       "prepared": "已起草，尚未执行 · {screen}"
-    }
+    },
+    "descriptor": "根据您企业的事实作答。未经您批准，不会有任何更改。",
+    "openFull": "打开完整对话"
   },
   "mode": {
     "meta": {
@@ -10238,18 +10249,10 @@
     "kicker": "今天 · {date}",
     "reading": "正在读取…",
     "unread": {
-      "title": "无法读取等待您处理的事项。",
-      "body": "请刷新页面重试。"
+      "title": "无法读取等待您处理的事项。"
     },
     "title": "{count, plural, =0 {没有等待您处理的事项。} other {有 # 项决定等待您处理。}}",
     "biggest": "其中最大的一项每月可增加 {range}。",
-    "cash": {
-      "flag": "低于您的缓冲额",
-      "title": "{date} 那一周资金可能吃紧。",
-      "line": "保守估计为 {low}，低于您想保留的 {line}。",
-      "lineZero": "保守估计为 {low}：低于零。",
-      "open": "查看现金流"
-    },
     "readings": {
       "label": "今日数据",
       "waiting": "待您处理",
@@ -10276,16 +10279,10 @@
       "when": "时间"
     },
     "watch": {
-      "label": "观察",
       "title": "第 {day} 天，共 {of} 天。",
-      "note": "我每天读取您接入的数据，绝不自行更改任何内容。",
-      "open": "打开观察"
+      "note": "我每天读取您接入的数据，绝不自行更改任何内容。"
     },
     "decisions": {
-      "label": "待您处理",
-      "all": "全部",
-      "open": "打开",
-      "empty": "目前没有待办。下一项决定会出现在这里。",
       "by": "请在 {date} 前决定"
     },
     "live": {
@@ -10306,42 +10303,106 @@
     },
     "side": {
       "label": "Lex 的一侧",
-      "decisions": "需要您的同意",
-      "decisionsCount": "{count, plural, =0 {暂无待决事项} other {# 项决定}}",
-      "unread": "无法读取队列。请刷新重试。",
-      "doing": "正在进行",
-      "done": "已完成",
       "history": "历史记录"
     },
     "ask": {
       "label": "问 Lex",
-      "title": "您想了解什么？"
-    },
-    "doing": {
-      "idle": "目前没有在观察。",
-      "idleNote": "当您选择我的工作方式后，观察就会开始。",
-      "connections": "{count, plural, =0 {尚未连接} other {每天读取 # 个连接}}",
-      "paused": "{count, plural, other {# 个连接已暂停，需要您处理}}"
-    },
-    "done": {
-      "empty": "尚无记录。您的第一个同意或拒绝会显示在这里。",
-      "approved": "已批准",
-      "declined": "已拒绝",
-      "changes": "已要求修改",
-      "done": "已完成",
-      "expired": "已超时",
-      "blocked": "已搁置"
+      "title": "您想了解什么？",
+      "chips": "可以提问的问题",
+      "chip": {
+        "today": "今天有什么需要我处理？",
+        "sales": "本周销售为什么有变化？",
+        "first": "我应该先解决什么？"
+      }
     },
     "decide": {
       "recorded": "已以您的名义记录。",
-      "details": "详情"
+      "details": "详情",
+      "open": "打开"
     },
     "trend": {
       "label": "您的销售",
-      "market": "查看完整图表"
+      "market": "查看完整图表",
+      "period": "显示天数",
+      "days": "{count} 天"
     },
     "slips": {
       "label": "本月资金流失在哪里"
+    },
+    "needs": {
+      "tightFlag": "低于您的缓冲额",
+      "tight": "{date} 那一周资金可能吃紧。",
+      "empty": "没有需要您处理的事项。",
+      "paused": "{count, plural, other {# 个连接已暂停。}}",
+      "all": "{count, plural, other {查看队列中的全部 # 项决定}}"
+    },
+    "feed": {
+      "tag": {
+        "approved": "已批准",
+        "declined": "已拒绝",
+        "changes": "已要求修改",
+        "done": "已完成",
+        "expired": "已超时",
+        "blocked": "已搁置",
+        "read": "已读取",
+        "noticed": "已发现",
+        "checked": "已检查",
+        "watch": "观察",
+        "proposed": "已提出"
+      },
+      "empty": "暂无内容。",
+      "more": "显示更多",
+      "new": "{count, plural, other {# 条新记录}}",
+      "said": "您说：“{words}”"
+    },
+    "tabs": {
+      "label": "Lex 的工作",
+      "needs": "需要您",
+      "activity": "动态",
+      "made": "已创建"
+    },
+    "now": {
+      "label": "Lex 此刻",
+      "stopped": "已停止。不会执行任何操作。",
+      "working": "我按您的批准工作。"
+    },
+    "read": {
+      "now": "立即读取",
+      "reading": "正在读取 {name}…",
+      "done": "{count, plural, =0 {未读取任何内容。} other {已读取 # 个连接。}}",
+      "silent": "{names} 没有响应。",
+      "last": "上次读取：{when}"
+    },
+    "next": {
+      "label": "下一步",
+      "connect": {
+        "text": "连接一个系统，我才能开始测量。",
+        "go": "连接"
+      },
+      "analytics": {
+        "text": "连接 Google Analytics，实时查看访客。",
+        "go": "连接"
+      },
+      "buffer": {
+        "text": "告诉我您希望至少保留多少现金。",
+        "go": "现金流"
+      },
+      "goal": {
+        "text": "设定一个目标，让我朝它努力。",
+        "go": "目标"
+      }
+    },
+    "made": {
+      "empty": "尚无草稿。",
+      "waiting": "等待您处理"
+    },
+    "failed": {
+      "text": "无法读取此内容。",
+      "retry": "重试"
+    },
+    "toast": {
+      "approved": "已批准。已以您的名义记录。",
+      "declined": "已拒绝。已连同您的理由记录。"
     }
   },
   "alerts": {
@@ -10624,5 +10685,33 @@
       "privacy": "隐私",
       "terms": "条款"
     }
+  },
+  "palette": {
+    "label": "搜索或问 Lex",
+    "group": {
+      "recent": "最近",
+      "screens": "页面",
+      "actions": "操作"
+    },
+    "askLine": "问 Lex：{question}",
+    "switchTo": "切换到 {name}",
+    "shortcuts": "快捷键",
+    "empty": "没有匹配项。",
+    "hint": {
+      "move": "移动",
+      "open": "打开",
+      "close": "关闭"
+    }
+  },
+  "shortcuts": {
+    "title": "快捷键",
+    "everywhere": "任何页面",
+    "deciding": "做决定时",
+    "then": "然后",
+    "palette": "搜索或问 Lex",
+    "go": "前往 {screen}",
+    "help": "显示此列表",
+    "close": "关闭已打开的内容",
+    "next": "下一项和上一项"
   }
 }

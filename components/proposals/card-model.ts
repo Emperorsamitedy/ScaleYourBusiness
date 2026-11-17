@@ -109,6 +109,18 @@ export function gainLine(p: CardProposal, locale: AppLocale = "en"): string | nu
   return range ? `${signedMoney(range.low, locale)} – ${signedMoney(range.high, locale)}` : null;
 }
 
+/** Past this many characters a change's two sides are sentences, not figures (the queue's own line). */
+export const WORDS_OVER = 48;
+
+/**
+ * Pure: whether a change's before and after read as sentences. Figures sit
+ * on one right-aligned line ("€38.00 → €41.40"); sentences stack, each side
+ * named, so the two can't run together.
+ */
+export function readsAsWords(line: { before: string; after: string }): boolean {
+  return line.before.length + line.after.length > WORDS_OVER;
+}
+
 /** The worst case: the downside's money when it has some, and its words. */
 export function worstCase(p: CardProposal, w: CardWords = ENGLISH()): string {
   const d = p.scenario.downside_case;

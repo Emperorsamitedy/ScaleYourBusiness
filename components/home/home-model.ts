@@ -4,7 +4,6 @@
 // forecast, the watch — and the arithmetic of what to put first lives
 // here, pure, so it is testable without a browser or the database.
 
-import { parseTs } from "../chat/chat-view";
 import { effectRange } from "../proposals/queue-model";
 import type { MoneyLike, ScenarioOutcomeLike } from "../proposals/queue-model";
 
@@ -109,7 +108,17 @@ export function cashReading(view: CashLike | null): CashReading | null {
  * "reading", and never taken for an answer.
  */
 export type Read<T> =
-  { state: "reading" } | { state: "read"; data: T } | { state: "signed_out" } | { state: "failed" };
+  | { state: "reading" }
+  | {
+      state: "read";
+      data: T;
+      /** What was read last is on screen while a newer read is out (read-model.ts). */
+      refreshing?: boolean;
+      /** The newest read failed; what shows is the read before it. */
+      lapsed?: boolean;
+    }
+  | { state: "signed_out" }
+  | { state: "failed" };
 
 /** Pure: a response status as the outcome of a read, before its body is parsed. */
 export function readOutcome(status: number): "read" | "signed_out" | "failed" {
@@ -146,51 +155,27 @@ export function waitingCount(
   return { state: "unread" };
 }
 
-/** A proposal as the queue's decided and expired lists carry it. */
-export interface DoneLike {
-  id: string;
-  status: string;
-  action: { summary: string };
-  decided_at?: string | null;
-  expires_at?: string | null;
-  created_at?: string | null;
-}
-
-export type DoneWord = "approved" | "declined" | "changes" | "done" | "expired" | "blocked";
-
-export interface DoneRow {
-  id: string;
-  word: DoneWord;
-  title: string;
-  /** When it was answered, ran out of time, or was made; null when unknown. */
-  at: string | null;
-}
-
-const DONE_WORD: Readonly<Record<string, DoneWord>> = {
-  approved: "approved",
-  rejected: "declined",
-  changes_requested: "changes",
-  executed: "done",
-  expired: "expired",
-  blocked: "blocked",
-};
+/** The windows "Your sales" can show, in days. */
+export const PERIODS = [7, 30, 90] as const;
 
 /**
- * Pure: the last `limit` recorded answers and runs for Home's "Done",
- * newest first. A pending proposal is not done, and a status this list
- * has no word for is left out rather than guessed at.
+ * Pure: the windows the period switch offers for `measured` days: each
+ * standard window the days fill, then all of them when they end between
+ * two ("7, 22" for 22 measured days). Fewer than two means no switch.
  */
-export function doneRows(rows: readonly DoneLike[], limit = 5): DoneRow[] {
-  const known = rows.flatMap((r): DoneRow[] => {
-    const word = DONE_WORD[r.status];
-    if (!word) return [];
-    const at =
-      r.decided_at ?? (r.status === "expired" ? r.expires_at : null) ?? r.created_at ?? null;
-    return [{ id: r.id, word, title: r.action.summary, at }];
-  });
-  const ms = (at: string | null) => (at === null ? 0 : parseTs(at) || 0);
-  known.sort((a, b) => ms(b.at) - ms(a.at));
-  return known.slice(0, limit);
+export function periodOptions(measured: number): number[] {
+  if (!Number.isInteger(measured) || measured <= 0) return [];
+  const out: number[] = PERIODS.filter((p) => measured >= p);
+  const widest = PERIODS[PERIODS.length - 1]!;
+  if (measured < widest && !out.includes(measured)) out.push(measured);
+  return out;
+}
+
+/** Pure: the window to show: the owner's last choice when it is offered, else 30 days, else the widest. */
+export function periodFor(saved: number | null, options: readonly number[]): number | null {
+  if (options.length === 0) return null;
+  if (saved !== null && options.includes(saved)) return saved;
+  return options.includes(30) ? 30 : options[options.length - 1]!;
 }
 
 /**

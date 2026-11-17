@@ -20,7 +20,8 @@
       "label": "How this was worked out",
       "close": "Close",
       "arithmetic": "The arithmetic"
-    }
+    },
+    "close": "Close"
   },
   "nav": {
     "label": "Main",
@@ -96,6 +97,16 @@
       "insights": "Insights",
       "grow": "Grow",
       "customers": "Customers"
+    },
+    "search": "Search",
+    "bell": {
+      "title": "Needs you",
+      "count": "{count, plural, =0 {Notifications. Nothing needs you} one {Notifications. # thing needs you} other {Notifications. # things need you}}",
+      "decisions": "{count, plural, one {# decision waiting} other {# decisions waiting}}",
+      "paused": "{count, plural, one {# connection paused} other {# connections paused}}",
+      "support": "{count, plural, one {# support ticket open} other {# support tickets open}}",
+      "empty": "Nothing needs you.",
+      "reading": "Reading…"
     }
   },
   "auth": {
@@ -476,17 +487,15 @@
   },
   "voice": {
     "speak": "Speak",
-    "listening": "Listening… Press Speak again to stop.",
-    "noticeStart": "{notice} Press Speak again to start.",
-    "notice": "Your browser turns your speech into text. In Chrome, Google does this; ScaleX never receives the audio.",
-    "cap": "I stop listening after a minute. Press Speak to add more.",
+    "listening": "Listening…",
+    "cap": "Stopped after a minute.",
     "error": {
-      "blocked": "The microphone is blocked for this site. Allow it in your browser’s site settings (the icon beside the address), then press Speak again.",
-      "noSpeech": "I didn’t hear anything. Press Speak and talk once it says Listening.",
-      "noMicrophone": "No microphone was found. Check one is connected and switched on, then press Speak again.",
-      "network": "Your browser couldn’t reach its speech service. Check your connection, or type the answer.",
-      "language": "Your browser can’t turn {lang} speech into text. Type the answer instead.",
-      "stopped": "Listening stopped before any words came through. Press Speak to try again, or type the answer."
+      "blocked": "The microphone is blocked. Allow it in your browser’s site settings.",
+      "noSpeech": "I didn’t hear anything.",
+      "noMicrophone": "No microphone found.",
+      "network": "Your browser couldn’t reach its speech service.",
+      "language": "Your browser can’t turn {lang} speech into text.",
+      "stopped": "Listening stopped."
     }
   },
   "sheet": {
@@ -1623,6 +1632,9 @@
         "aria": "What is there now is stored, then changed; one click brings it back as it was.",
         "ariaAuto": "What is there now is stored, then changed; one click brings it back as it was, and so does the page slowing past {ms} ms."
       }
+    },
+    "review": {
+      "retry": "Try again"
     }
   },
   "stop": {
@@ -4594,14 +4606,14 @@
   },
   "chat": {
     "meta": {
-      "title": "Lex — ScaleX"
+      "title": "Lex · ScaleX"
     },
     "kicker": "Lex · About {about}",
     "yourBusiness": "your business",
     "loading": "Opening the conversation…",
     "signedOut": {
       "title": "I answer from your business.",
-      "copy": "This channel is grounded in one profile — yours. Start the intake and there is something real to talk about.",
+      "copy": "This channel is grounded in one profile: yours. Start the intake and there is something real to talk about.",
       "begin": "Begin"
     },
     "error": {
@@ -4610,21 +4622,18 @@
     },
     "titleEmpty": "What would you like to know?",
     "newQuestion": "New question",
-    "empty": "Ask me anything about {noun} — why the report said what it said, what your numbers show, what I’d watch. Ask me to <em>change</em> something — your hours, a goal, your reply time — and I’ll draft it for your yes, or take you to the page where it lives. If you ask me to <em>do</em> something out in the world, it becomes a proposal in your queue; nothing runs on phrasing alone.",
     "you": "You",
     "thinking": "Reading your profile…",
     "queued": {
       "text": "It’s a proposal now, waiting for your yes.",
       "link": "Open Waiting for you"
     },
-    "sendFailed": "Something went wrong on my side — say that again?",
+    "sendFailed": "Something went wrong on my side. Say that again?",
     "composer": {
       "label": "Ask about {noun}",
       "placeholder": "Type a question…",
       "ask": "Ask",
-      "speak": "Speak your question",
-      "spokenAfter": "Read it over and fix anything, then press Ask.",
-      "rule": "I answer only from what your profile and report hold. A change you ask for is drafted first — nothing is written until you press its button; limits you state here stick."
+      "speak": "Speak your question"
     },
     "earlier": "Earlier questions",
     "change": {
@@ -4650,7 +4659,9 @@
       "stale": "Not made · {screen}",
       "proposal": "Drafted for your queue · {screen}",
       "prepared": "Drafted, not yet made · {screen}"
-    }
+    },
+    "descriptor": "Answers from your business’s facts. Nothing changes until you approve.",
+    "openFull": "Open the full conversation"
   },
   "mode": {
     "meta": {
@@ -10238,18 +10249,10 @@
     "kicker": "Today · {date}",
     "reading": "Reading…",
     "unread": {
-      "title": "I couldn't read what's waiting for you.",
-      "body": "Refresh the page to try again."
+      "title": "I couldn't read what's waiting for you."
     },
     "title": "{count, plural, =0 {Nothing is waiting for you.} one {# decision is waiting for you.} other {# decisions are waiting for you.}}",
     "biggest": "The biggest could add {range} a month.",
-    "cash": {
-      "flag": "Under your buffer",
-      "title": "Money could get tight in the week of {date}.",
-      "line": "{low} at the cautious end, under the {line} you want to keep.",
-      "lineZero": "{low} at the cautious end: under zero.",
-      "open": "See cash flow"
-    },
     "readings": {
       "label": "Your numbers today",
       "waiting": "Waiting for you",
@@ -10276,16 +10279,10 @@
       "when": "When"
     },
     "watch": {
-      "label": "Watching",
       "title": "Day {day} of {of}.",
-      "note": "I read what you connected every day and change nothing on my own.",
-      "open": "Open watching"
+      "note": "I read what you connected every day and change nothing on my own."
     },
     "decisions": {
-      "label": "Waiting for you",
-      "all": "All",
-      "open": "Open",
-      "empty": "Nothing is waiting. I'll put the next decision here.",
       "by": "decide by {date}"
     },
     "live": {
@@ -10306,42 +10303,106 @@
     },
     "side": {
       "label": "Lex's side",
-      "decisions": "Needs your yes",
-      "decisionsCount": "{count, plural, =0 {Nothing to decide} one {# decision} other {# decisions}}",
-      "unread": "I couldn't read the queue. Refresh to try again.",
-      "doing": "Doing now",
-      "done": "Done",
       "history": "History"
     },
     "ask": {
       "label": "Ask Lex",
-      "title": "What would you like to know?"
-    },
-    "doing": {
-      "idle": "Not watching right now.",
-      "idleNote": "The watch starts once you choose how I work.",
-      "connections": "{count, plural, =0 {Nothing connected yet} one {# connection read every day} other {# connections read every day}}",
-      "paused": "{count, plural, one {# connection paused, it needs you} other {# connections paused, they need you}}"
-    },
-    "done": {
-      "empty": "Nothing recorded yet. Your first yes or no lands here.",
-      "approved": "Approved",
-      "declined": "Declined",
-      "changes": "Changes asked",
-      "done": "Done",
-      "expired": "Ran out of time",
-      "blocked": "Held back"
+      "title": "What would you like to know?",
+      "chips": "Questions to ask",
+      "chip": {
+        "today": "What needs me today?",
+        "sales": "Why did sales change this week?",
+        "first": "What should I fix first?"
+      }
     },
     "decide": {
       "recorded": "Recorded with your name.",
-      "details": "Details"
+      "details": "Details",
+      "open": "Open"
     },
     "trend": {
       "label": "Your sales",
-      "market": "See the whole chart"
+      "market": "See the whole chart",
+      "period": "Days shown",
+      "days": "{count} d"
     },
     "slips": {
       "label": "Where money slips away this month"
+    },
+    "needs": {
+      "tightFlag": "Under your buffer",
+      "tight": "Money could get tight in the week of {date}.",
+      "empty": "Nothing needs you.",
+      "paused": "{count, plural, one {# connection is paused.} other {# connections are paused.}}",
+      "all": "{count, plural, one {See # decision in the queue} other {See all # decisions in the queue}}"
+    },
+    "feed": {
+      "tag": {
+        "approved": "Approved",
+        "declined": "Declined",
+        "changes": "Changes asked",
+        "done": "Done",
+        "expired": "Ran out of time",
+        "blocked": "Held back",
+        "read": "Read",
+        "noticed": "Noticed",
+        "checked": "Checked",
+        "watch": "Watch",
+        "proposed": "Proposed"
+      },
+      "empty": "Nothing yet.",
+      "more": "Show more",
+      "new": "{count, plural, one {# new entry} other {# new entries}}",
+      "said": "You said: “{words}”"
+    },
+    "tabs": {
+      "label": "Lex's work",
+      "needs": "Needs you",
+      "activity": "Activity",
+      "made": "Made"
+    },
+    "now": {
+      "label": "Lex now",
+      "stopped": "Stopped. Nothing executes.",
+      "working": "Working with your approvals."
+    },
+    "read": {
+      "now": "Read now",
+      "reading": "Reading {name}…",
+      "done": "{count, plural, =0 {Nothing was read.} one {Read # connection.} other {Read # connections.}}",
+      "silent": "No answer from {names}.",
+      "last": "Last read {when}"
+    },
+    "next": {
+      "label": "Next steps",
+      "connect": {
+        "text": "Connect a system so I can measure.",
+        "go": "Connect"
+      },
+      "analytics": {
+        "text": "Connect Google Analytics to see visitors live.",
+        "go": "Connect"
+      },
+      "buffer": {
+        "text": "Tell me the least cash you want to keep.",
+        "go": "Cash flow"
+      },
+      "goal": {
+        "text": "Set a goal for me to work toward.",
+        "go": "Goals"
+      }
+    },
+    "made": {
+      "empty": "Nothing drafted yet.",
+      "waiting": "Waiting for you"
+    },
+    "failed": {
+      "text": "I couldn't read this.",
+      "retry": "Try again"
+    },
+    "toast": {
+      "approved": "Approved. Recorded with your name.",
+      "declined": "Declined. Recorded with your reason."
     }
   },
   "alerts": {
@@ -10624,5 +10685,33 @@
       "privacy": "Privacy",
       "terms": "Terms"
     }
+  },
+  "palette": {
+    "label": "Search or ask Lex",
+    "group": {
+      "recent": "Recent",
+      "screens": "Screens",
+      "actions": "Actions"
+    },
+    "askLine": "Ask Lex: {question}",
+    "switchTo": "Switch to {name}",
+    "shortcuts": "Shortcuts",
+    "empty": "Nothing matches.",
+    "hint": {
+      "move": "move",
+      "open": "open",
+      "close": "close"
+    }
+  },
+  "shortcuts": {
+    "title": "Shortcuts",
+    "everywhere": "Everywhere",
+    "deciding": "While deciding",
+    "then": "then",
+    "palette": "Search or ask Lex",
+    "go": "Go to {screen}",
+    "help": "Show this list",
+    "close": "Close what is open",
+    "next": "Next and previous"
   }
 }

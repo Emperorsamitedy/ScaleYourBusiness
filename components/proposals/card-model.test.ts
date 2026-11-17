@@ -2,7 +2,7 @@
 
 import { describe, expect, it } from "vitest";
 import type { CardProposal } from "./card-model";
-import { cardState, gainLine, limitLines, undoLine, worstCase } from "./card-model";
+import { cardState, gainLine, limitLines, readsAsWords, undoLine, worstCase } from "./card-model";
 
 const NOW = new Date("2026-11-10T09:00:00Z");
 
@@ -94,6 +94,19 @@ describe("the figures", () => {
   it("says whether it can be undone", () => {
     expect(undoLine(base)).toMatchObject({ reversible: true, word: "REVERSIBLE · EASY TO UNDO" });
     expect(undoLine({ ...base, reversibility: null }).reversible).toBe(false);
+  });
+
+  it("keeps a figure on one line and stacks a sentence, each side named", () => {
+    expect(readsAsWords({ before: "€38.00", after: "€41.40" })).toBe(false);
+    expect(
+      readsAsWords({
+        before: "dipped in our oatmeal speckle glaze.",
+        after: "dipped in our oatmeal speckle glaze. Dishwasher and microwave safe.",
+      }),
+    ).toBe(true);
+    // The line itself: 48 characters still fit, one more does not.
+    expect(readsAsWords({ before: "a".repeat(24), after: "b".repeat(24) })).toBe(false);
+    expect(readsAsWords({ before: "a".repeat(24), after: "b".repeat(25) })).toBe(true);
   });
 });
 

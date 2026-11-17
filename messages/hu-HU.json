@@ -20,7 +20,8 @@
       "label": "Hogyan számoltam",
       "close": "Bezárás",
       "arithmetic": "A számítás"
-    }
+    },
+    "close": "Bezárás"
   },
   "nav": {
     "label": "Főmenü",
@@ -28,7 +29,7 @@
     "close": "Bezárás",
     "switchBusiness": "Másik vállalkozás",
     "watching": "Figyelés · {day}. nap / {of}",
-    "ask": "Kérdezd Lexet",
+    "ask": "Kérdezze Lexet",
     "signOut": "Kijelentkezés",
     "signingOut": "Kijelentkezés…",
     "group": {
@@ -96,6 +97,16 @@
       "insights": "Elemzések",
       "grow": "Növekedés",
       "customers": "Ügyfelek"
+    },
+    "search": "Keresés",
+    "bell": {
+      "title": "Önre vár",
+      "count": "{count, plural, =0 {Értesítések. Semmi sem vár Önre} one {Értesítések. # dolog vár Önre} other {Értesítések. # dolog vár Önre}}",
+      "decisions": "{count, plural, one {# döntés vár} other {# döntés vár}}",
+      "paused": "{count, plural, one {# összekapcsolt fiók szünetel} other {# összekapcsolt fiók szünetel}}",
+      "support": "{count, plural, one {# nyitott támogatási jegy} other {# nyitott támogatási jegy}}",
+      "empty": "Semmi sem vár Önre.",
+      "reading": "Olvasom…"
     }
   },
   "auth": {
@@ -476,17 +487,15 @@
   },
   "voice": {
     "speak": "Diktálás",
-    "listening": "Figyelek… A leállításhoz nyomja meg újra a Diktálás gombot.",
-    "noticeStart": "{notice} Az indításhoz nyomja meg újra a Diktálás gombot.",
-    "notice": "A böngészője alakítja szöveggé a beszédét. Chrome-ban ezt a Google végzi; a ScaleX soha nem kapja meg a hangot.",
-    "cap": "Egy perc után abbahagyom a figyelést. Ha folytatná, nyomja meg a Diktálás gombot.",
+    "listening": "Figyelek…",
+    "cap": "Egy perc után leállt.",
     "error": {
-      "blocked": "A mikrofon le van tiltva ezen az oldalon. Engedélyezze a böngésző webhelybeállításaiban (a cím melletti ikonnál), majd nyomja meg újra a Diktálás gombot.",
-      "noSpeech": "Nem hallottam semmit. Nyomja meg a Diktálás gombot, és akkor kezdjen beszélni, amikor megjelenik a „Figyelek” felirat.",
-      "noMicrophone": "Nem található mikrofon. Ellenőrizze, hogy csatlakoztatva és bekapcsolva van-e, majd nyomja meg újra a Diktálás gombot.",
-      "network": "A böngészője nem érte el a beszédfelismerő szolgáltatását. Ellenőrizze az internetkapcsolatát, vagy gépelje be a választ.",
-      "language": "A böngészője ezen a nyelven nem tudja szöveggé alakítani a beszédet: {lang}. Inkább gépelje be a választ.",
-      "stopped": "A figyelés leállt, mielőtt bármit hallottam volna. Az újrapróbáláshoz nyomja meg a Diktálás gombot, vagy gépelje be a választ."
+      "blocked": "A mikrofon le van tiltva. Engedélyezze a böngésző webhelybeállításaiban.",
+      "noSpeech": "Nem hallottam semmit.",
+      "noMicrophone": "Nem található mikrofon.",
+      "network": "A böngészője nem érte el a beszédfelismerő szolgáltatását.",
+      "language": "A böngészője ezen a nyelven nem tudja szöveggé alakítani a beszédet: {lang}.",
+      "stopped": "A figyelés leállt."
     }
   },
   "sheet": {
@@ -1623,6 +1632,9 @@
         "aria": "A mostani állapot elmentődik, majd megváltozik; egy kattintással visszaáll.",
         "ariaAuto": "A mostani állapot elmentődik, majd megváltozik; egy kattintással visszaáll, és akkor is, ha az oldal {ms} ms-nál lassabb lesz."
       }
+    },
+    "review": {
+      "retry": "Újrapróbálás"
     }
   },
   "stop": {
@@ -4594,14 +4606,14 @@
   },
   "chat": {
     "meta": {
-      "title": "Lex — ScaleX"
+      "title": "Lex · ScaleX"
     },
     "kicker": "Lex · Téma: {about}",
     "yourBusiness": "az Ön vállalkozása",
     "loading": "A beszélgetés megnyitása…",
     "signedOut": {
       "title": "Az Ön vállalkozásának adataiból válaszolok.",
-      "copy": "Ez a csatorna egyetlen profilra épül — az Önére. Kezdje el az interjút, és máris lesz miről beszélnünk.",
+      "copy": "Ez a csatorna egyetlen profilra épül: az Önére. Kezdje el az interjút, és máris lesz miről beszélnünk.",
       "begin": "Kezdés"
     },
     "error": {
@@ -4610,21 +4622,18 @@
     },
     "titleEmpty": "Mire kíváncsi?",
     "newQuestion": "Új kérdés",
-    "empty": "Kérdezzen bármit erről: {noun} — miért azt mondta a jelentés, amit mondott, mit mutatnak a számai, mit figyelnék én. Kérje, hogy <em>módosítsak</em> valamit — a nyitvatartását, egy célt, a válaszidejét —, és előkészítem, hogy Ön igent mondhasson rá, vagy elviszem arra az oldalra, ahol beállíthatja. Ha arra kér, hogy a valóságban <em>tegyek</em> valamit, abból javaslat lesz a várólistáján; puszta megfogalmazásra semmi sem fut le.",
     "you": "Ön",
     "thinking": "A profilja olvasása…",
     "queued": {
       "text": "Ez most már javaslat, és az Ön igenjére vár.",
       "link": "Az „Önre vár” megnyitása"
     },
-    "sendFailed": "Valami hiba történt nálam — megismételné?",
+    "sendFailed": "Valami hiba történt nálam. Megismételné?",
     "composer": {
       "label": "Kérdés erről: {noun}",
       "placeholder": "Írjon be egy kérdést…",
       "ask": "Küldés",
-      "speak": "Diktálás: mondja el a kérdését",
-      "spokenAfter": "Olvassa át, javítson ki mindent, ami kell, majd nyomja meg a Küldés gombot.",
-      "rule": "Csak abból válaszolok, ami a profiljában és a jelentésében szerepel. A kért változtatást előbb előkészítem — semmi sem íródik be, amíg meg nem nyomja a hozzá tartozó gombot; az itt megadott korlátok érvényben maradnak."
+      "speak": "Diktálás: mondja el a kérdését"
     },
     "earlier": "Korábbi kérdések",
     "change": {
@@ -4650,7 +4659,9 @@
       "stale": "Nincs elvégezve · {screen}",
       "proposal": "Előkészítve a várólistára · {screen}",
       "prepared": "Előkészítve, még nincs elvégezve · {screen}"
-    }
+    },
+    "descriptor": "A vállalkozása tényeiből válaszol. Semmi sem változik az Ön jóváhagyása nélkül.",
+    "openFull": "A teljes beszélgetés megnyitása"
   },
   "mode": {
     "meta": {
@@ -10238,18 +10249,10 @@
     "kicker": "Ma · {date}",
     "reading": "Olvasom…",
     "unread": {
-      "title": "Nem tudtam beolvasni, mi vár Önre.",
-      "body": "Frissítse az oldalt az újrapróbáláshoz."
+      "title": "Nem tudtam beolvasni, mi vár Önre."
     },
     "title": "{count, plural, =0 {Semmi sem vár Önre.} one {# döntés vár Önre.} other {# döntés vár Önre.}}",
     "biggest": "A legnagyobb havi {range} összeget hozhat.",
-    "cash": {
-      "flag": "A tartalék alatt",
-      "title": "A(z) {date} kezdetű héten szűkös lehet a pénz.",
-      "line": "Óvatos becsléssel {low}, a megtartani kívánt {line} alatt.",
-      "lineZero": "Óvatos becsléssel {low}: nulla alatt.",
-      "open": "A pénzáramlás megnyitása"
-    },
     "readings": {
       "label": "A mai számai",
       "waiting": "Önre vár",
@@ -10276,16 +10279,10 @@
       "when": "Mikor"
     },
     "watch": {
-      "label": "Figyelés",
       "title": "A(z) {day}. nap ({of} napból).",
-      "note": "Minden nap átolvasom, amit összekötött, és magamtól semmit sem változtatok.",
-      "open": "Figyelés megnyitása"
+      "note": "Minden nap átolvasom, amit összekötött, és magamtól semmit sem változtatok."
     },
     "decisions": {
-      "label": "Önre vár",
-      "all": "Mind",
-      "open": "Megnyitás",
-      "empty": "Semmi sem vár. A következő döntést ide teszem.",
       "by": "döntés eddig: {date}"
     },
     "live": {
@@ -10306,42 +10303,106 @@
     },
     "side": {
       "label": "Lex oldala",
-      "decisions": "Az Ön igenjére vár",
-      "decisionsCount": "{count, plural, =0 {Nincs eldöntendő} one {# döntés} other {# döntés}}",
-      "unread": "Nem tudtam beolvasni a sort. Frissítsen, és próbálja újra.",
-      "doing": "Most folyamatban",
-      "done": "Kész",
       "history": "Előzmények"
     },
     "ask": {
-      "label": "Kérdezd Lexet",
-      "title": "Mit szeretne tudni?"
-    },
-    "doing": {
-      "idle": "Jelenleg nincs figyelés.",
-      "idleNote": "A figyelés akkor indul, amikor kiválasztja, hogyan dolgozom.",
-      "connections": "{count, plural, =0 {Még semmi sincs összekapcsolva} one {# összekapcsolt fiók, naponta beolvasva} other {# összekapcsolt fiók, naponta beolvasva}}",
-      "paused": "{count, plural, one {# összekapcsolt fiók szünetel, Önre vár} other {# összekapcsolt fiók szünetel, Önre vár}}"
-    },
-    "done": {
-      "empty": "Még nincs semmi rögzítve. Az első igen vagy nem ide kerül.",
-      "approved": "Jóváhagyva",
-      "declined": "Elutasítva",
-      "changes": "Módosítás kérve",
-      "done": "Kész",
-      "expired": "Lejárt",
-      "blocked": "Visszatartva"
+      "label": "Kérdezze Lexet",
+      "title": "Mit szeretne tudni?",
+      "chips": "Lehetséges kérdések",
+      "chip": {
+        "today": "Mi vár rám ma?",
+        "sales": "Miért változtak az eladások ezen a héten?",
+        "first": "Mit javítsak ki először?"
+      }
     },
     "decide": {
       "recorded": "Az Ön nevével rögzítve.",
-      "details": "Részletek"
+      "details": "Részletek",
+      "open": "Megnyitás"
     },
     "trend": {
       "label": "Az Ön eladásai",
-      "market": "A teljes grafikon megnézése"
+      "market": "A teljes grafikon megnézése",
+      "period": "Megjelenített napok",
+      "days": "{count} nap"
     },
     "slips": {
       "label": "Hol folyik el a pénz ebben a hónapban"
+    },
+    "needs": {
+      "tightFlag": "A tartalék alatt",
+      "tight": "A(z) {date} kezdetű héten szűkös lehet a pénz.",
+      "empty": "Semmi sem vár Önre.",
+      "paused": "{count, plural, one {# összekapcsolt fiók szünetel.} other {# összekapcsolt fiók szünetel.}}",
+      "all": "{count, plural, one {# döntés megtekintése a sorban} other {Mind a(z) # döntés megtekintése a sorban}}"
+    },
+    "feed": {
+      "tag": {
+        "approved": "Jóváhagyva",
+        "declined": "Elutasítva",
+        "changes": "Módosítás kérve",
+        "done": "Kész",
+        "expired": "Lejárt",
+        "blocked": "Visszatartva",
+        "read": "Beolvasva",
+        "noticed": "Észlelve",
+        "checked": "Ellenőrizve",
+        "watch": "Figyelés",
+        "proposed": "Javasolva"
+      },
+      "empty": "Még semmi.",
+      "more": "Több megjelenítése",
+      "new": "{count, plural, one {# új bejegyzés} other {# új bejegyzés}}",
+      "said": "Ön ezt mondta: „{words}”"
+    },
+    "tabs": {
+      "label": "Lex munkája",
+      "needs": "Önre vár",
+      "activity": "Tevékenység",
+      "made": "Elkészült"
+    },
+    "now": {
+      "label": "Lex most",
+      "stopped": "Leállítva. Semmi sem fut.",
+      "working": "Az Ön jóváhagyásaival dolgozom."
+    },
+    "read": {
+      "now": "Beolvasás most",
+      "reading": "{name} beolvasása…",
+      "done": "{count, plural, =0 {Semmi sem lett beolvasva.} one {# összekapcsolt fiók beolvasva.} other {# összekapcsolt fiók beolvasva.}}",
+      "silent": "Nem válaszolt: {names}.",
+      "last": "Utoljára beolvasva: {when}"
+    },
+    "next": {
+      "label": "Következő lépések",
+      "connect": {
+        "text": "Kapcsoljon össze egy rendszert, hogy mérni tudjak.",
+        "go": "Összekapcsolás"
+      },
+      "analytics": {
+        "text": "Kapcsolja össze a Google Analytics szolgáltatást, hogy élőben lássa a látogatókat.",
+        "go": "Összekapcsolás"
+      },
+      "buffer": {
+        "text": "Mondja meg, legalább mennyi pénzt szeretne megtartani.",
+        "go": "Pénzáramlás"
+      },
+      "goal": {
+        "text": "Tűzzön ki egy célt, amelyért dolgozhatok.",
+        "go": "Célok"
+      }
+    },
+    "made": {
+      "empty": "Még nincs vázlat.",
+      "waiting": "Önre vár"
+    },
+    "failed": {
+      "text": "Ezt nem tudtam beolvasni.",
+      "retry": "Újrapróbálás"
+    },
+    "toast": {
+      "approved": "Jóváhagyva. Az Ön nevével rögzítve.",
+      "declined": "Elutasítva. Az Ön indokával rögzítve."
     }
   },
   "alerts": {
@@ -10624,5 +10685,33 @@
       "privacy": "Adatvédelem",
       "terms": "Feltételek"
     }
+  },
+  "palette": {
+    "label": "Keresés vagy kérdés Lexnek",
+    "group": {
+      "recent": "Legutóbbiak",
+      "screens": "Képernyők",
+      "actions": "Műveletek"
+    },
+    "askLine": "Kérdés Lexnek: {question}",
+    "switchTo": "Váltás erre: {name}",
+    "shortcuts": "Billentyűparancsok",
+    "empty": "Nincs találat.",
+    "hint": {
+      "move": "mozgás",
+      "open": "megnyitás",
+      "close": "bezárás"
+    }
+  },
+  "shortcuts": {
+    "title": "Billentyűparancsok",
+    "everywhere": "Mindenhol",
+    "deciding": "Döntés közben",
+    "then": "majd",
+    "palette": "Keresés vagy kérdés Lexnek",
+    "go": "Ugrás ide: {screen}",
+    "help": "A lista megjelenítése",
+    "close": "A megnyitott elem bezárása",
+    "next": "Következő és előző"
   }
 }

@@ -1,12 +1,26 @@
 "use client";
 
-// The conversation's state, shared by the chat screen and Home (the owner,
-// 2026-11-17: the dashboard is built around the conversation). One thread
-// per business (GET /api/chat), one message at a time (POST), the change
-// cards a reply carries, and the proposal a request became — which the
-// click on its own card decides, never the sentence that asked for it.
+// The conversation's state: one thread per business (GET /api/chat), one
+// message at a time (POST), the change cards a reply carries, and the
+// proposal a request became — which the click on its own card decides,
+// never the sentence that asked for it.
+//
+// Inside the app's frame there is ONE conversation (2026-11-17, the owner:
+// the dashboard is built around it): Home's composer, the conversation
+// page and Lex's sheet on every other screen all read the same state
+// through `useChat()`, shared by the frame (components/nav/LexPanel.tsx).
+// Nothing is read until something needs it. Outside the frame `useChat()`
+// keeps a conversation of its own, as it always did.
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import type { MutableRefObject } from "react";
 import type { ChangeCardView, Turn } from "./chat-view";
 import { upsertCard } from "./chat-view";
@@ -28,6 +42,17 @@ export type ChatState =
 /** The service's own ceiling on one message (lib/chat/service.ts). */
 export const MAX_CHARS = 4000;
 
+/**
+ * The line that stands where a reply did not come. A refusal that gives its
+ * reason (too long, a key this server lacks) keeps the reason. The server's
+ * plain 500 is one English sentence for every reader, so `failed` says it
+ * in the reader's own language instead; so does a server that never answered.
+ */
+export function failureLine(status: number | null, error: string | null, failed: string): string {
+  if (status === null || status === 500) return failed;
+  return error !== null && error.trim() !== "" ? error : failed;
+}
+
 export interface Chat {
   state: ChatState;
   /** The composer's text as of the last change, so the microphone (idea 50) can tell the owner's typing from its own. */
@@ -35,16 +60,37 @@ export interface Chat {
   setDraft: (draft: string) => void;
   /** Sends the draft; `failed` is the line shown when the server can't be reached. */
   send: (failed: string) => Promise<void>;
+  /**
+   * Sends this text now, whatever the draft holds (a suggestion chip, the
+   * palette's "Ask Lex"). Asked before the thread has loaded, it is sent
+   * as soon as it has. Dropped while a reply is still being written.
+   */
+  ask: (text: string, failed: string) => Promise<void>;
   /** A change card after a click on it. */
   onChanged: (card: ChangeCardView) => void;
   reload: () => Promise<void>;
 }
 
-export function useChat(): Chat {
+export interface SharedChat {
+  chat: Chat;
+  /** Starts the first read if nothing has yet. */
+  ensure: () => void;
+}
+
+const SharedChatContext = createContext<SharedChat | null>(null);
+export const SharedChatProvider = SharedChatContext.Provider;
+
+/**
+ * The conversation itself. `lazy`: nothing is read until `ensure()` is
+ * called, so a screen that never opens the conversation never fetches it.
+ */
+export function useChatCore(lazy = false): SharedChat {
   const [state, setState] = useState<ChatState>({ phase: "loading" });
   const stateRef = useRef<ChatState>(state);
   stateRef.current = state;
   const draftRef = useRef("");
+  const started = useRef(false);
+  const queued = useRef<{ text: string; failed: string } | null>(null);
 
   const reload = useCallback(async () => {
     try {
@@ -56,7 +102,7 @@ export function useChat(): Chat {
         phase: "ready",
         turns: j.turns,
         cards: j.changes ?? [],
-        draft: "",
+        draft: draftRef.current,
         busy: false,
         lastProposal: null,
       });
@@ -65,9 +111,15 @@ export function useChat(): Chat {
     }
   }, []);
 
-  useEffect(() => {
+  const ensure = useCallback(() => {
+    if (started.current) return;
+    started.current = true;
     void reload();
   }, [reload]);
+
+  useEffect(() => {
+    if (!lazy) ensure();
+  }, [lazy, ensure]);
 
   const setDraft = useCallback((draft: string) => {
     draftRef.current = draft;
@@ -80,10 +132,10 @@ export function useChat(): Chat {
     );
   }, []);
 
-  const send = useCallback(async (failed: string) => {
+  const post = useCallback(async (raw: string, failed: string, fromDraft: boolean) => {
     const s = stateRef.current;
     if (s.phase !== "ready") return;
-    const text = s.draft.trim();
+    const text = raw.trim().slice(0, MAX_CHARS);
     if (text === "" || s.busy) return;
     const optimistic: Turn = {
       id: `tmp-${Date.now()}`,
@@ -92,9 +144,16 @@ export function useChat(): Chat {
       at: new Date().toISOString(),
       intent: null,
     };
-    draftRef.current = "";
-    setState({ ...s, turns: [...s.turns, optimistic], draft: "", busy: true, lastProposal: null });
+    if (fromDraft) draftRef.current = "";
+    setState({
+      ...s,
+      turns: [...s.turns, optimistic],
+      draft: fromDraft ? "" : s.draft,
+      busy: true,
+      lastProposal: null,
+    });
     let reply: Turn | null = null;
+    let status: number | null = null;
     let error: string | null = null;
     let proposal: string | null = null;
     let card: ChangeCardView | null = null;
@@ -104,6 +163,7 @@ export function useChat(): Chat {
         headers: { "content-type": "application/json" },
         body: JSON.stringify({ text }),
       });
+      status = res.status;
       const j = (await res.json().catch(() => ({}))) as {
         reply?: Turn;
         proposal_id?: string | null;
@@ -126,7 +186,7 @@ export function useChat(): Chat {
             {
               id: `err-${Date.now()}`,
               role: "system" as const,
-              text: error ?? failed,
+              text: failureLine(status, error, failed),
               at: new Date().toISOString(),
               intent: null,
             },
@@ -141,5 +201,52 @@ export function useChat(): Chat {
     });
   }, []);
 
-  return { state, draftRef, setDraft, send, onChanged, reload };
+  const send = useCallback(
+    async (failed: string) => {
+      const s = stateRef.current;
+      if (s.phase === "ready") await post(s.draft, failed, true);
+    },
+    [post],
+  );
+
+  const ask = useCallback(
+    async (text: string, failed: string) => {
+      if (stateRef.current.phase === "loading") {
+        queued.current = { text, failed };
+        ensure();
+        return;
+      }
+      await post(text, failed, false);
+    },
+    [post, ensure],
+  );
+
+  // A question asked before the thread had loaded is sent once it has.
+  const phase = state.phase;
+  useEffect(() => {
+    if (phase !== "ready" || !queued.current) return;
+    const q = queued.current;
+    queued.current = null;
+    void post(q.text, q.failed, false);
+  }, [phase, post]);
+
+  const chat = useMemo<Chat>(
+    () => ({ state, draftRef, setDraft, send, ask, onChanged, reload }),
+    [state, setDraft, send, ask, onChanged, reload],
+  );
+  return useMemo(() => ({ chat, ensure }), [chat, ensure]);
+}
+
+/**
+ * The conversation: the frame's shared one where there is a frame, else
+ * one of this component's own.
+ */
+export function useChat(): Chat {
+  const shared = useContext(SharedChatContext);
+  // Always called, so the hooks keep their order; lazy and never started when shared.
+  const own = useChatCore(shared !== null);
+  useEffect(() => {
+    shared?.ensure();
+  }, [shared]);
+  return shared ? shared.chat : own.chat;
 }

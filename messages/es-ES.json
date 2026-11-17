@@ -20,7 +20,8 @@
       "label": "Cómo se calculó",
       "close": "Cerrar",
       "arithmetic": "El cálculo"
-    }
+    },
+    "close": "Cerrar"
   },
   "nav": {
     "label": "Principal",
@@ -28,7 +29,7 @@
     "close": "Cerrar",
     "switchBusiness": "Cambiar de negocio",
     "watching": "Observando · día {day} de {of}",
-    "ask": "Pregunta a Lex",
+    "ask": "Pregunte a Lex",
     "signOut": "Cerrar sesión",
     "signingOut": "Cerrando sesión…",
     "group": {
@@ -96,6 +97,16 @@
       "insights": "Análisis",
       "grow": "Crecer",
       "customers": "Clientes"
+    },
+    "search": "Buscar",
+    "bell": {
+      "title": "Le necesita",
+      "count": "{count, plural, =0 {Notificaciones. Nada le necesita} one {Notificaciones. # asunto le necesita} many {Notificaciones. # asuntos le necesitan} other {Notificaciones. # asuntos le necesitan}}",
+      "decisions": "{count, plural, one {# decisión pendiente} many {# decisiones pendientes} other {# decisiones pendientes}}",
+      "paused": "{count, plural, one {# conexión en pausa} many {# conexiones en pausa} other {# conexiones en pausa}}",
+      "support": "{count, plural, one {# ticket de soporte abierto} many {# tickets de soporte abiertos} other {# tickets de soporte abiertos}}",
+      "empty": "Nada le necesita.",
+      "reading": "Leyendo…"
     }
   },
   "auth": {
@@ -476,17 +487,15 @@
   },
   "voice": {
     "speak": "Hablar",
-    "listening": "Escuchando… Pulse Hablar de nuevo para parar.",
-    "noticeStart": "{notice} Pulse Hablar de nuevo para empezar.",
-    "notice": "Su navegador convierte su voz en texto. En Chrome lo hace Google; ScaleX nunca recibe el audio.",
-    "cap": "Dejo de escuchar al cabo de un minuto. Pulse Hablar para añadir más.",
+    "listening": "Escuchando…",
+    "cap": "Se ha detenido tras un minuto.",
     "error": {
-      "blocked": "El micrófono está bloqueado para este sitio. Permítalo en la configuración del sitio de su navegador (el icono junto a la dirección) y vuelva a pulsar Hablar.",
-      "noSpeech": "No he oído nada. Pulse Hablar y empiece a hablar cuando aparezca «Escuchando».",
-      "noMicrophone": "No se ha encontrado ningún micrófono. Compruebe que hay uno conectado y encendido, y vuelva a pulsar Hablar.",
-      "network": "Su navegador no ha podido acceder a su servicio de reconocimiento de voz. Compruebe su conexión a internet o escriba la respuesta.",
-      "language": "Su navegador no puede convertir en texto la voz en {lang}. Escriba la respuesta.",
-      "stopped": "La escucha se ha detenido antes de captar ninguna palabra. Pulse Hablar para volver a intentarlo o escriba la respuesta."
+      "blocked": "El micrófono está bloqueado. Permítalo en la configuración del sitio de su navegador.",
+      "noSpeech": "No he oído nada.",
+      "noMicrophone": "No se ha encontrado ningún micrófono.",
+      "network": "Su navegador no ha podido acceder a su servicio de reconocimiento de voz.",
+      "language": "Su navegador no puede convertir en texto la voz en {lang}.",
+      "stopped": "La escucha se ha detenido."
     }
   },
   "sheet": {
@@ -1716,6 +1725,9 @@
         "aria": "Lo que hay ahora se guarda y luego se cambia; un clic lo devuelve a como estaba.",
         "ariaAuto": "Lo que hay ahora se guarda y luego se cambia; un clic lo devuelve a como estaba, y también si la página tarda más de {ms} ms."
       }
+    },
+    "review": {
+      "retry": "Reintentar"
     }
   },
   "connections": {
@@ -4594,7 +4606,7 @@
   },
   "chat": {
     "meta": {
-      "title": "Lex — ScaleX"
+      "title": "Lex · ScaleX"
     },
     "kicker": "Lex · Sobre: {about}",
     "yourBusiness": "su negocio",
@@ -4610,7 +4622,6 @@
     },
     "titleEmpty": "¿Qué le gustaría saber?",
     "newQuestion": "Nueva pregunta",
-    "empty": "Pregúnteme lo que quiera sobre {noun}: por qué el informe dijo lo que dijo, qué muestran sus cifras, qué vigilaría yo. Pídame que <em>cambie</em> algo (su horario, un objetivo, su tiempo de respuesta) y lo prepararé para que usted dé el sí, o le llevaré a la página donde se encuentra. Si me pide que <em>haga</em> algo fuera de aquí, se convierte en una propuesta en su cola; nada se ejecuta solo por cómo esté formulado.",
     "you": "Usted",
     "thinking": "Leyendo su perfil…",
     "queued": {
@@ -4622,9 +4633,7 @@
       "label": "Pregunte sobre {noun}",
       "placeholder": "Escriba una pregunta…",
       "ask": "Preguntar",
-      "speak": "Hablar: diga su pregunta",
-      "spokenAfter": "Reléala y corrija lo que haga falta; después pulse Preguntar.",
-      "rule": "Solo respondo a partir de lo que contienen su perfil y su informe. Un cambio que usted pida se prepara primero: no se escribe nada hasta que pulse su botón; los límites que fije aquí se mantienen."
+      "speak": "Hablar: diga su pregunta"
     },
     "earlier": "Preguntas anteriores",
     "change": {
@@ -4650,7 +4659,9 @@
       "stale": "No hecho · {screen}",
       "proposal": "Preparado para su cola · {screen}",
       "prepared": "Preparado, aún sin hacer · {screen}"
-    }
+    },
+    "descriptor": "Responde con los datos de su negocio. Nada cambia sin su aprobación.",
+    "openFull": "Abrir la conversación completa"
   },
   "mode": {
     "meta": {
@@ -10238,18 +10249,10 @@
     "kicker": "Hoy · {date}",
     "reading": "Leyendo…",
     "unread": {
-      "title": "No he podido leer lo que le espera.",
-      "body": "Actualice la página para volver a intentarlo."
+      "title": "No he podido leer lo que le espera."
     },
     "title": "{count, plural, =0 {No hay nada esperándole.} one {# decisión le espera.} many {# decisiones le esperan.} other {# decisiones le esperan.}}",
     "biggest": "La mayor podría sumar {range} al mes.",
-    "cash": {
-      "flag": "Por debajo de su colchón",
-      "title": "El dinero podría escasear la semana del {date}.",
-      "line": "{low} en el extremo prudente, por debajo de los {line} que quiere conservar.",
-      "lineZero": "{low} en el extremo prudente: por debajo de cero.",
-      "open": "Ver el flujo de caja"
-    },
     "readings": {
       "label": "Sus cifras de hoy",
       "waiting": "Le esperan",
@@ -10276,16 +10279,10 @@
       "when": "Cuándo"
     },
     "watch": {
-      "label": "Observando",
       "title": "Día {day} de {of}.",
-      "note": "Leo cada día lo que ha vinculado y no cambio nada por mi cuenta.",
-      "open": "Abrir la observación"
+      "note": "Leo cada día lo que ha vinculado y no cambio nada por mi cuenta."
     },
     "decisions": {
-      "label": "Le esperan",
-      "all": "Todas",
-      "open": "Abrir",
-      "empty": "No hay nada pendiente. Pondré aquí la próxima decisión.",
       "by": "decidir antes del {date}"
     },
     "live": {
@@ -10306,42 +10303,106 @@
     },
     "side": {
       "label": "El lado de Lex",
-      "decisions": "Necesita tu sí",
-      "decisionsCount": "{count, plural, =0 {Nada que decidir} one {# decisión} many {# decisiones} other {# decisiones}}",
-      "unread": "No pude leer la cola. Actualiza para intentarlo de nuevo.",
-      "doing": "En marcha",
-      "done": "Hecho",
       "history": "Historial"
     },
     "ask": {
-      "label": "Pregunta a Lex",
-      "title": "¿Qué quieres saber?"
-    },
-    "doing": {
-      "idle": "Ahora mismo no hay observación.",
-      "idleNote": "La observación empieza cuando eliges cómo trabajo.",
-      "connections": "{count, plural, =0 {Aún nada conectado} one {# conexión leída cada día} many {# conexiones leídas cada día} other {# conexiones leídas cada día}}",
-      "paused": "{count, plural, one {# conexión en pausa, te necesita} many {# conexiones en pausa, te necesitan} other {# conexiones en pausa, te necesitan}}"
-    },
-    "done": {
-      "empty": "Aún no hay nada registrado. Tu primer sí o no aparecerá aquí.",
-      "approved": "Aprobada",
-      "declined": "Rechazada",
-      "changes": "Cambios pedidos",
-      "done": "Hecho",
-      "expired": "Fuera de plazo",
-      "blocked": "Retenida"
+      "label": "Pregunte a Lex",
+      "title": "¿Qué quiere saber?",
+      "chips": "Preguntas posibles",
+      "chip": {
+        "today": "¿Qué requiere mi atención hoy?",
+        "sales": "¿Por qué han cambiado las ventas esta semana?",
+        "first": "¿Qué debería arreglar primero?"
+      }
     },
     "decide": {
-      "recorded": "Registrado con tu nombre.",
-      "details": "Detalles"
+      "recorded": "Registrado con su nombre.",
+      "details": "Detalles",
+      "open": "Abrir"
     },
     "trend": {
       "label": "Tus ventas",
-      "market": "Ver el gráfico completo"
+      "market": "Ver el gráfico completo",
+      "period": "Días mostrados",
+      "days": "{count} d"
     },
     "slips": {
       "label": "Dónde se escapa el dinero este mes"
+    },
+    "needs": {
+      "tightFlag": "Por debajo de su colchón",
+      "tight": "El dinero podría escasear la semana del {date}.",
+      "empty": "Nada le necesita.",
+      "paused": "{count, plural, one {# conexión está en pausa.} many {# conexiones están en pausa.} other {# conexiones están en pausa.}}",
+      "all": "{count, plural, one {Ver # decisión en la cola} many {Ver las # decisiones en la cola} other {Ver las # decisiones en la cola}}"
+    },
+    "feed": {
+      "tag": {
+        "approved": "Aprobada",
+        "declined": "Rechazada",
+        "changes": "Cambios pedidos",
+        "done": "Hecho",
+        "expired": "Fuera de plazo",
+        "blocked": "Retenida",
+        "read": "Leído",
+        "noticed": "Detectado",
+        "checked": "Comprobado",
+        "watch": "Observación",
+        "proposed": "Propuesto"
+      },
+      "empty": "Nada todavía.",
+      "more": "Mostrar más",
+      "new": "{count, plural, one {# entrada nueva} many {# entradas nuevas} other {# entradas nuevas}}",
+      "said": "Usted dijo: «{words}»"
+    },
+    "tabs": {
+      "label": "El trabajo de Lex",
+      "needs": "Le necesita",
+      "activity": "Actividad",
+      "made": "Creado"
+    },
+    "now": {
+      "label": "Lex ahora",
+      "stopped": "Detenido. No se ejecuta nada.",
+      "working": "Trabajo con sus aprobaciones."
+    },
+    "read": {
+      "now": "Leer ahora",
+      "reading": "Leyendo {name}…",
+      "done": "{count, plural, =0 {No se leyó nada.} one {# conexión leída.} many {# conexiones leídas.} other {# conexiones leídas.}}",
+      "silent": "Sin respuesta de {names}.",
+      "last": "Última lectura {when}"
+    },
+    "next": {
+      "label": "Próximos pasos",
+      "connect": {
+        "text": "Conecte un sistema para que pueda medir.",
+        "go": "Conectar"
+      },
+      "analytics": {
+        "text": "Conecte Google Analytics para ver las visitas en directo.",
+        "go": "Conectar"
+      },
+      "buffer": {
+        "text": "Dígame el mínimo de efectivo que quiere mantener.",
+        "go": "Flujo de caja"
+      },
+      "goal": {
+        "text": "Fije un objetivo hacia el que pueda trabajar.",
+        "go": "Objetivos"
+      }
+    },
+    "made": {
+      "empty": "Aún no hay borradores.",
+      "waiting": "Pendiente de usted"
+    },
+    "failed": {
+      "text": "No pude leer esto.",
+      "retry": "Reintentar"
+    },
+    "toast": {
+      "approved": "Aprobada. Registrada con su nombre.",
+      "declined": "Rechazada. Registrada con su motivo."
     }
   },
   "alerts": {
@@ -10624,5 +10685,33 @@
       "privacy": "Privacidad",
       "terms": "Condiciones"
     }
+  },
+  "palette": {
+    "label": "Buscar o preguntar a Lex",
+    "group": {
+      "recent": "Recientes",
+      "screens": "Pantallas",
+      "actions": "Acciones"
+    },
+    "askLine": "Preguntar a Lex: {question}",
+    "switchTo": "Cambiar a {name}",
+    "shortcuts": "Atajos de teclado",
+    "empty": "Sin resultados.",
+    "hint": {
+      "move": "mover",
+      "open": "abrir",
+      "close": "cerrar"
+    }
+  },
+  "shortcuts": {
+    "title": "Atajos de teclado",
+    "everywhere": "En todas partes",
+    "deciding": "Al decidir",
+    "then": "luego",
+    "palette": "Buscar o preguntar a Lex",
+    "go": "Ir a {screen}",
+    "help": "Mostrar esta lista",
+    "close": "Cerrar lo que esté abierto",
+    "next": "Siguiente y anterior"
   }
 }

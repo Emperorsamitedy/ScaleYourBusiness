@@ -20,7 +20,8 @@
       "label": "Wie das berechnet wurde",
       "close": "Schließen",
       "arithmetic": "Die Rechnung"
-    }
+    },
+    "close": "Schließen"
   },
   "nav": {
     "label": "Hauptmenü",
@@ -96,6 +97,16 @@
       "insights": "Erkenntnisse",
       "grow": "Wachstum",
       "customers": "Kunden"
+    },
+    "search": "Suchen",
+    "bell": {
+      "title": "Braucht Sie",
+      "count": "{count, plural, =0 {Mitteilungen. Nichts braucht Sie} one {Mitteilungen. # Sache braucht Sie} other {Mitteilungen. # Sachen brauchen Sie}}",
+      "decisions": "{count, plural, one {# Entscheidung wartet} other {# Entscheidungen warten}}",
+      "paused": "{count, plural, one {# Verbindung pausiert} other {# Verbindungen pausiert}}",
+      "support": "{count, plural, one {# Support-Ticket offen} other {# Support-Tickets offen}}",
+      "empty": "Nichts braucht Sie.",
+      "reading": "Wird gelesen…"
     }
   },
   "auth": {
@@ -476,17 +487,15 @@
   },
   "voice": {
     "speak": "Sprechen",
-    "listening": "Hört zu… Drücken Sie erneut „Sprechen“, um aufzuhören.",
-    "noticeStart": "{notice} Drücken Sie erneut „Sprechen“, um zu beginnen.",
-    "notice": "Ihr Browser wandelt Ihre Sprache in Text um. In Chrome übernimmt das Google; ScaleX erhält die Aufnahme nie.",
-    "cap": "Nach einer Minute höre ich auf zuzuhören. Drücken Sie „Sprechen“, um mehr hinzuzufügen.",
+    "listening": "Hört zu…",
+    "cap": "Nach einer Minute beendet.",
     "error": {
-      "blocked": "Das Mikrofon ist für diese Website gesperrt. Erlauben Sie es in den Website-Einstellungen Ihres Browsers (das Symbol neben der Adresse) und drücken Sie dann erneut „Sprechen“.",
-      "noSpeech": "Ich habe nichts gehört. Drücken Sie „Sprechen“ und reden Sie, sobald „Hört zu“ angezeigt wird.",
-      "noMicrophone": "Es wurde kein Mikrofon gefunden. Prüfen Sie, ob eines angeschlossen und eingeschaltet ist, und drücken Sie dann erneut „Sprechen“.",
-      "network": "Ihr Browser konnte seinen Spracherkennungsdienst nicht erreichen. Prüfen Sie Ihre Internetverbindung oder tippen Sie die Antwort ein.",
-      "language": "Ihr Browser kann gesprochenes {lang} nicht in Text umwandeln. Tippen Sie die Antwort stattdessen ein.",
-      "stopped": "Das Zuhören wurde beendet, bevor Worte ankamen. Drücken Sie „Sprechen“, um es erneut zu versuchen, oder tippen Sie die Antwort ein."
+      "blocked": "Das Mikrofon ist gesperrt. Erlauben Sie es in den Website-Einstellungen Ihres Browsers.",
+      "noSpeech": "Ich habe nichts gehört.",
+      "noMicrophone": "Kein Mikrofon gefunden.",
+      "network": "Ihr Browser konnte seinen Spracherkennungsdienst nicht erreichen.",
+      "language": "Ihr Browser kann gesprochenes {lang} nicht in Text umwandeln.",
+      "stopped": "Das Zuhören wurde beendet."
     }
   },
   "sheet": {
@@ -1623,6 +1632,9 @@
         "aria": "Der jetzige Stand wird gespeichert und dann geändert; ein Klick stellt ihn wieder her.",
         "ariaAuto": "Der jetzige Stand wird gespeichert und dann geändert; ein Klick stellt ihn wieder her, ebenso eine Ladezeit über {ms} ms."
       }
+    },
+    "review": {
+      "retry": "Erneut versuchen"
     }
   },
   "stop": {
@@ -4594,14 +4606,14 @@
   },
   "chat": {
     "meta": {
-      "title": "Lex — ScaleX"
+      "title": "Lex · ScaleX"
     },
     "kicker": "Lex · Zu: {about}",
     "yourBusiness": "Ihr Unternehmen",
     "loading": "Das Gespräch wird geöffnet…",
     "signedOut": {
       "title": "Ich antworte aus Ihrem Unternehmen heraus.",
-      "copy": "Dieser Kanal stützt sich auf ein einziges Profil – Ihres. Beginnen Sie das Interview, dann gibt es etwas Konkretes zu besprechen.",
+      "copy": "Dieser Kanal stützt sich auf ein einziges Profil: Ihres. Beginnen Sie das Interview, dann gibt es etwas Konkretes zu besprechen.",
       "begin": "Beginnen"
     },
     "error": {
@@ -4610,21 +4622,18 @@
     },
     "titleEmpty": "Was möchten Sie wissen?",
     "newQuestion": "Neue Frage",
-    "empty": "Fragen Sie mich alles zum Thema {noun} – warum der Bericht sagte, was er sagte, was Ihre Zahlen zeigen, worauf ich achten würde. Bitten Sie mich, etwas zu <em>ändern</em> – Ihre Zeiten, ein Ziel, Ihre Antwortzeit –, dann entwerfe ich es für Ihr Ja oder bringe Sie zu der Seite, auf der es steht. Bitten Sie mich, draußen in der Welt etwas zu <em>tun</em>, wird daraus ein Vorschlag in Ihrer Warteschlange; nichts läuft allein aufgrund einer Formulierung.",
     "you": "Sie",
     "thinking": "Ihr Profil wird gelesen…",
     "queued": {
       "text": "Das ist jetzt ein Vorschlag und wartet auf Ihr Ja.",
       "link": "„Wartet auf Sie“ öffnen"
     },
-    "sendFailed": "Bei mir ist etwas schiefgelaufen – können Sie das noch einmal sagen?",
+    "sendFailed": "Bei mir ist etwas schiefgelaufen. Können Sie das noch einmal sagen?",
     "composer": {
       "label": "Frage zum Thema {noun}",
       "placeholder": "Frage eingeben…",
       "ask": "Fragen",
-      "speak": "Sprechen: Ihre Frage diktieren",
-      "spokenAfter": "Lesen Sie den Text durch und korrigieren Sie, was nötig ist; drücken Sie dann „Fragen“.",
-      "rule": "Ich antworte nur aus dem, was Ihr Profil und Ihr Bericht enthalten. Eine Änderung, um die Sie bitten, wird zuerst entworfen – nichts wird geschrieben, bevor Sie ihre Schaltfläche drücken; Grenzen, die Sie hier nennen, gelten weiter."
+      "speak": "Sprechen: Ihre Frage diktieren"
     },
     "earlier": "Frühere Fragen",
     "change": {
@@ -4650,7 +4659,9 @@
       "stale": "Nicht vorgenommen · {screen}",
       "proposal": "Für Ihre Warteschlange entworfen · {screen}",
       "prepared": "Entworfen, noch nicht vorgenommen · {screen}"
-    }
+    },
+    "descriptor": "Antwortet aus den Fakten Ihres Unternehmens. Nichts ändert sich ohne Ihre Freigabe.",
+    "openFull": "Das ganze Gespräch öffnen"
   },
   "mode": {
     "meta": {
@@ -10238,18 +10249,10 @@
     "kicker": "Heute · {date}",
     "reading": "Wird gelesen…",
     "unread": {
-      "title": "Ich konnte nicht lesen, was auf Sie wartet.",
-      "body": "Laden Sie die Seite neu, um es erneut zu versuchen."
+      "title": "Ich konnte nicht lesen, was auf Sie wartet."
     },
     "title": "{count, plural, =0 {Nichts wartet auf Sie.} one {# Entscheidung wartet auf Sie.} other {# Entscheidungen warten auf Sie.}}",
     "biggest": "Die größte könnte {range} im Monat bringen.",
-    "cash": {
-      "flag": "Unter Ihrem Puffer",
-      "title": "In der Woche vom {date} könnte das Geld knapp werden.",
-      "line": "{low} im vorsichtigen Fall, unter den {line}, die Sie behalten möchten.",
-      "lineZero": "{low} im vorsichtigen Fall: unter null.",
-      "open": "Cashflow ansehen"
-    },
     "readings": {
       "label": "Ihre Zahlen heute",
       "waiting": "Wartet auf Sie",
@@ -10276,16 +10279,10 @@
       "when": "Wann"
     },
     "watch": {
-      "label": "Beobachtung",
       "title": "Tag {day} von {of}.",
-      "note": "Ich lese täglich, was Sie angebunden haben, und ändere von mir aus nichts.",
-      "open": "Beobachtung öffnen"
+      "note": "Ich lese täglich, was Sie angebunden haben, und ändere von mir aus nichts."
     },
     "decisions": {
-      "label": "Wartet auf Sie",
-      "all": "Alle",
-      "open": "Öffnen",
-      "empty": "Nichts wartet. Die nächste Entscheidung lege ich hierher.",
       "by": "entscheiden bis {date}"
     },
     "live": {
@@ -10306,42 +10303,106 @@
     },
     "side": {
       "label": "Lex’ Seite",
-      "decisions": "Braucht Ihr Ja",
-      "decisionsCount": "{count, plural, =0 {Nichts zu entscheiden} one {# Entscheidung} other {# Entscheidungen}}",
-      "unread": "Ich konnte die Warteschlange nicht lesen. Laden Sie die Seite neu.",
-      "doing": "Gerade dabei",
-      "done": "Erledigt",
       "history": "Verlauf"
     },
     "ask": {
       "label": "Lex fragen",
-      "title": "Was möchten Sie wissen?"
-    },
-    "doing": {
-      "idle": "Gerade keine Beobachtung.",
-      "idleNote": "Die Beobachtung beginnt, sobald Sie wählen, wie ich arbeite.",
-      "connections": "{count, plural, =0 {Noch nichts verbunden} one {# Verbindung wird täglich gelesen} other {# Verbindungen werden täglich gelesen}}",
-      "paused": "{count, plural, one {# Verbindung pausiert, sie braucht Sie} other {# Verbindungen pausiert, sie brauchen Sie}}"
-    },
-    "done": {
-      "empty": "Noch nichts aufgezeichnet. Ihr erstes Ja oder Nein landet hier.",
-      "approved": "Freigegeben",
-      "declined": "Abgelehnt",
-      "changes": "Änderungen erbeten",
-      "done": "Erledigt",
-      "expired": "Zeit abgelaufen",
-      "blocked": "Zurückgehalten"
+      "title": "Was möchten Sie wissen?",
+      "chips": "Mögliche Fragen",
+      "chip": {
+        "today": "Was braucht mich heute?",
+        "sales": "Warum haben sich die Verkäufe diese Woche verändert?",
+        "first": "Was sollte ich zuerst beheben?"
+      }
     },
     "decide": {
       "recorded": "Mit Ihrem Namen aufgezeichnet.",
-      "details": "Details"
+      "details": "Details",
+      "open": "Öffnen"
     },
     "trend": {
       "label": "Ihre Verkäufe",
-      "market": "Das ganze Diagramm ansehen"
+      "market": "Das ganze Diagramm ansehen",
+      "period": "Angezeigte Tage",
+      "days": "{count} T"
     },
     "slips": {
       "label": "Wo diesen Monat Geld verloren geht"
+    },
+    "needs": {
+      "tightFlag": "Unter Ihrem Puffer",
+      "tight": "In der Woche vom {date} könnte das Geld knapp werden.",
+      "empty": "Nichts braucht Sie.",
+      "paused": "{count, plural, one {# Verbindung ist pausiert.} other {# Verbindungen sind pausiert.}}",
+      "all": "{count, plural, one {# Entscheidung in der Warteschlange ansehen} other {Alle # Entscheidungen in der Warteschlange ansehen}}"
+    },
+    "feed": {
+      "tag": {
+        "approved": "Freigegeben",
+        "declined": "Abgelehnt",
+        "changes": "Änderungen erbeten",
+        "done": "Erledigt",
+        "expired": "Zeit abgelaufen",
+        "blocked": "Zurückgehalten",
+        "read": "Gelesen",
+        "noticed": "Bemerkt",
+        "checked": "Geprüft",
+        "watch": "Beobachtung",
+        "proposed": "Vorgeschlagen"
+      },
+      "empty": "Noch nichts.",
+      "more": "Mehr anzeigen",
+      "new": "{count, plural, one {# neuer Eintrag} other {# neue Einträge}}",
+      "said": "Sie sagten: „{words}“"
+    },
+    "tabs": {
+      "label": "Lex’ Arbeit",
+      "needs": "Braucht Sie",
+      "activity": "Aktivität",
+      "made": "Erstellt"
+    },
+    "now": {
+      "label": "Lex jetzt",
+      "stopped": "Gestoppt. Nichts wird ausgeführt.",
+      "working": "Ich arbeite mit Ihren Freigaben."
+    },
+    "read": {
+      "now": "Jetzt lesen",
+      "reading": "Lese {name}…",
+      "done": "{count, plural, =0 {Nichts wurde gelesen.} one {# Verbindung gelesen.} other {# Verbindungen gelesen.}}",
+      "silent": "Keine Antwort von {names}.",
+      "last": "Zuletzt gelesen {when}"
+    },
+    "next": {
+      "label": "Nächste Schritte",
+      "connect": {
+        "text": "Verbinden Sie ein System, damit ich messen kann.",
+        "go": "Verbinden"
+      },
+      "analytics": {
+        "text": "Verbinden Sie Google Analytics, um Besucher live zu sehen.",
+        "go": "Verbinden"
+      },
+      "buffer": {
+        "text": "Sagen Sie mir, wie viel Geld Sie mindestens behalten möchten.",
+        "go": "Cashflow"
+      },
+      "goal": {
+        "text": "Setzen Sie ein Ziel, auf das ich hinarbeiten kann.",
+        "go": "Ziele"
+      }
+    },
+    "made": {
+      "empty": "Noch nichts entworfen.",
+      "waiting": "Wartet auf Sie"
+    },
+    "failed": {
+      "text": "Das konnte ich nicht lesen.",
+      "retry": "Erneut versuchen"
+    },
+    "toast": {
+      "approved": "Freigegeben. Mit Ihrem Namen aufgezeichnet.",
+      "declined": "Abgelehnt. Mit Ihrem Grund aufgezeichnet."
     }
   },
   "alerts": {
@@ -10624,5 +10685,33 @@
       "privacy": "Datenschutz",
       "terms": "Nutzungsbedingungen"
     }
+  },
+  "palette": {
+    "label": "Suchen oder Lex fragen",
+    "group": {
+      "recent": "Zuletzt",
+      "screens": "Seiten",
+      "actions": "Aktionen"
+    },
+    "askLine": "Lex fragen: {question}",
+    "switchTo": "Zu {name} wechseln",
+    "shortcuts": "Tastenkürzel",
+    "empty": "Nichts gefunden.",
+    "hint": {
+      "move": "bewegen",
+      "open": "öffnen",
+      "close": "schließen"
+    }
+  },
+  "shortcuts": {
+    "title": "Tastenkürzel",
+    "everywhere": "Überall",
+    "deciding": "Beim Entscheiden",
+    "then": "dann",
+    "palette": "Suchen oder Lex fragen",
+    "go": "Zu {screen}",
+    "help": "Diese Liste zeigen",
+    "close": "Schließen, was offen ist",
+    "next": "Nächster und vorheriger"
   }
 }

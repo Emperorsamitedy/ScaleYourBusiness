@@ -37,7 +37,7 @@ import { ROLE_WORD } from "../lib/auth/role-actions";
 import { BASES, BASIS_MEANING, SOURCE_LABEL } from "../components/report/basis";
 import { MEASURES, OFFER_ROW } from "../components/report/panel";
 import { sessionWords } from "../components/voice/MicButton";
-import { ENGLISH_SESSION_WORDS, NOTICE, errorWords } from "../lib/voice/session";
+import { ENGLISH_SESSION_WORDS, errorWords } from "../lib/voice/session";
 import type { AppLocale } from "../lib/i18n/locales";
 import { LOCALES } from "../lib/i18n/locales";
 import { L3D_GLOSSARY_EXCEPTIONS } from "./glossary-exceptions-l3d";
@@ -279,8 +279,11 @@ describe("English stays what the screens said before (byte for byte)", () => {
     for (const [kind, word] of Object.entries(SOURCE_LABEL)) {
       expect(en(`sheet.source.${kind}`), kind).toBe(word);
     }
-    // The microphone says in English exactly what its session always said.
-    expect(en("voice.notice")).toBe(NOTICE);
+    // The microphone says in English exactly what its session says. The notice
+    // about who hears the audio left the screen on 2026-11-17 (the owner);
+    // the privacy page keeps the sentence.
+    expect(en("voice.notice")).toBeUndefined();
+    expect(en("legal.privacy.speaking")).toMatch(/ScaleX never receives the audio/);
     expect(en("voice.cap")).toBe(ENGLISH_SESSION_WORDS.cap);
     const words = sessionWords((k, v) => t(`voice.${k}`, v));
     for (const code of [
@@ -337,10 +340,6 @@ const GLOSSARY_EXCEPTIONS: Record<string, { terms: string[]; reason: string }> =
   ...L3D_GLOSSARY_EXCEPTIONS,
   // L-4c's (team, site, customers, content, support, connections).
   ...L4C_GLOSSARY_EXCEPTIONS,
-  "voice.error.network": {
-    terms: ["connection"],
-    reason: "the device's internet connection, not a connected account",
-  },
   "report.panel.legend": {
     terms: ["support"],
     reason: "“a range the data supports”: backs up, not customer support",

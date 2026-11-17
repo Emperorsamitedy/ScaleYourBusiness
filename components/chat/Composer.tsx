@@ -1,14 +1,15 @@
 "use client";
 
 // The composer, the one place the owner starts something (conversation
-// channel §7). Shared by the chat screen and Home: a label, the box, Ask,
-// the microphone (idea 50), and the rule the composer keeps under a closed
-// fold. Enter sends and Shift+Enter breaks a line; nothing is sent while a
-// reply is being written.
+// channel §7). Shared by the conversation page, Home and Lex's sheet: the
+// box, the microphone as an icon (idea 50) and Ask. Enter sends and
+// Shift+Enter breaks a line; nothing is sent while a reply is being
+// written. Small text (the owner, 2026-11-17): no paragraph sits under the
+// box any more. What Lex answers from is one line on the conversation
+// page, and the microphone's only words are "Listening…" and a failure.
 
-import type { ReactNode, RefObject } from "react";
+import type { RefObject } from "react";
 import type { Tr } from "../../lib/i18n/tr";
-import { Fold } from "../sheet/Fold";
 import { MicButton } from "../voice/MicButton";
 import { MAX_CHARS } from "./useChat";
 
@@ -22,10 +23,11 @@ export function Composer({
   onSend,
   tr,
   inputRef,
-  intro,
+  compact = false,
+  autoFocus = false,
 }: {
   id?: string;
-  /** The mono line above the box. */
+  /** The box's name: a mono line above it, or only spoken when `compact`. */
   label: string;
   draft: string;
   busy: boolean;
@@ -35,18 +37,20 @@ export function Composer({
   /** The "chat" catalogue. */
   tr: Tr;
   inputRef?: RefObject<HTMLTextAreaElement | null>;
-  /** Inside the fold, above the rule: what to ask, shown while the thread is empty. */
-  intro?: ReactNode;
+  /** The label is spoken, not shown: in a sheet's foot, or under a heading that already says it. */
+  compact?: boolean;
+  /** The overlay this composer sits in puts the cursor here when it opens. */
+  autoFocus?: boolean;
 }) {
   return (
     <form
-      className="ak-composer"
+      className={compact ? "ak-composer compact" : "ak-composer"}
       onSubmit={(e) => {
         e.preventDefault();
         onSend();
       }}
     >
-      <label className="ak-label" htmlFor={id}>
+      <label className={compact ? "sr-only" : "ak-label"} htmlFor={id}>
         {label}
       </label>
       <div className="ak-row">
@@ -66,23 +70,19 @@ export function Composer({
             }
           }}
           disabled={busy}
-          aria-describedby={`${id}-rule`}
+          data-autofocus={autoFocus ? "" : undefined}
+        />
+        <MicButton
+          variant="icon"
+          label={tr("composer.speak")}
+          getText={() => draftRef.current}
+          setText={(next) => setDraft(next.slice(0, MAX_CHARS))}
+          disabled={busy}
         />
         <button type="submit" className="next ak-ask" disabled={busy || draft.trim() === ""}>
           {tr("composer.ask")}
         </button>
       </div>
-      <MicButton
-        label={tr("composer.speak")}
-        getText={() => draftRef.current}
-        setText={(next) => setDraft(next.slice(0, MAX_CHARS))}
-        after={tr("composer.spokenAfter")}
-        disabled={busy}
-      />
-      <Fold className="ak-rule">
-        {intro}
-        <p id={`${id}-rule`}>{tr("composer.rule")}</p>
-      </Fold>
     </form>
   );
 }

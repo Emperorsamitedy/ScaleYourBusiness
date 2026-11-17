@@ -1,16 +1,23 @@
 "use client";
 
-// One waiting decision, decided where it is shown: on Home's "Needs your
-// yes", and under the reply that drafted it (the owner, 2026-11-17: the
-// yes may be an exchange with the assistant, as long as it stays an
-// approval). The two answers are equal (ux-spec §8), a decline takes a
-// reason, and both go through PUT /api/proposals, the queue's own path:
-// the same checks, the same decision log, the yes recorded with the
-// signed-in person's name (rule 12). Nothing here runs anything.
+// One waiting decision, decided where it is shown: on Home's "Needs you",
+// and under the reply that drafted it (the owner, 2026-11-17: the yes may
+// be an exchange with the assistant, as long as it stays an approval). The
+// two answers are equal (ux-spec §8), a decline takes a reason, and both go
+// through PUT /api/proposals, the queue's own path: the same checks, the
+// same decision log, the yes recorded with the signed-in person's name
+// (rule 12). A role that may not decide (idea 52: a viewer) sees the two
+// answers off and one sentence saying why, as in the queue. Nothing here
+// runs anything.
+//
+// With `onReview` (Home, 2026-11-17) the title and "Open" open the
+// decision in place for a full read (components/proposals/ReviewSheet.tsx);
+// without it the card links to the proposal's own page, as before.
 
-import { useState } from "react";
+import { useId, useState } from "react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
+import { useRole } from "../auth/RoleContext";
 import type { ReasonChip } from "../proposals/queue-model";
 import {
   REASON_CHIPS,
@@ -34,20 +41,27 @@ export function DecisionCard({
   by,
   signedIn,
   onDecided,
+  onReview,
 }: {
   proposal: DecisionLike;
   /** The money range, already in words, or null when the proposal states none. */
   range: string | null;
   /** "decide by 12 Nov", or null. */
   by: string | null;
-  /** Deciding is recorded with a name, so it needs a signed-in person. */
-  signedIn: boolean;
+  /** Deciding is recorded with a name, so it needs a signed-in person. Null while that is not known yet: the answers stay, and the route refuses whoever may not. */
+  signedIn: boolean | null;
   /** After a recorded answer; the caller re-reads the queue. */
   onDecided: (id: string, answer: Answer) => void;
+  /** Opens the decision in place for a full read. */
+  onReview?: (id: string) => void;
 }) {
+  // One proposal can stand on a page twice (under Lex's reply and in the list): the ids stay apart.
+  const uid = useId();
   const t = useTranslations("proposals");
   const { tr, locale } = useTr("proposals");
   const { tr: h } = useTr("home");
+  /** Why this role can't decide, or null when it may. */
+  const why = useRole().why("proposals.decide");
   const [busy, setBusy] = useState(false);
   const [declining, setDeclining] = useState(false);
   const [reason, setReason] = useState("");
@@ -94,16 +108,22 @@ export function DecisionCard({
   return (
     <article className="hd" aria-label={t("decide.label")}>
       {by && <p className="hd-lab">{by}</p>}
-      <p className="hd-title">{p.action.summary}</p>
+      {onReview ? (
+        <button type="button" className="hd-title hd-title-btn" onClick={() => onReview(p.id)}>
+          {p.action.summary}
+        </button>
+      ) : (
+        <p className="hd-title">{p.action.summary}</p>
+      )}
       {range && <p className="hd-amt fig">{range}</p>}
       {recorded ? (
         <p className="hd-done" role="status">
           <span className={`flag ${recorded === "approve" ? "ok" : "low"}`}>
-            {recorded === "approve" ? h("done.approved") : h("done.declined")}
+            {recorded === "approve" ? h("feed.tag.approved") : h("feed.tag.declined")}
           </span>{" "}
           {h("decide.recorded")}
         </p>
-      ) : !signedIn ? (
+      ) : signedIn === false ? (
         <p className="hd-note">
           {t("card.needSignIn")}{" "}
           <Link href={`/login?next=${encodeURIComponent("/home")}`}>
@@ -116,7 +136,7 @@ export function DecisionCard({
             <button
               type="button"
               className="hd-btn"
-              disabled={busy}
+              disabled={busy || why !== null}
               onClick={() => void decide("approve")}
             >
               {consequence(p.action, tr, locale)}
@@ -124,19 +144,24 @@ export function DecisionCard({
             <button
               type="button"
               className="hd-btn"
-              disabled={busy}
+              disabled={busy || why !== null}
               aria-expanded={declining}
               onClick={() => setDeclining((d) => !d)}
             >
               {t("decide.decline")}
             </button>
           </div>
+          {why && (
+            <p className="hd-note" role="note">
+              {why}
+            </p>
+          )}
           {declining && (
             <div className="hd-panel">
-              <p className="hd-panel-lab" id={`why-${p.id}`}>
+              <p className="hd-panel-lab" id={`${uid}-why`}>
                 {t("reason.why")}
               </p>
-              <div className="hd-chips" role="group" aria-labelledby={`why-${p.id}`}>
+              <div className="hd-chips" role="group" aria-labelledby={`${uid}-why`}>
                 {REASON_CHIPS.map((c: ReasonChip) => (
                   <button
                     key={c}
@@ -149,11 +174,11 @@ export function DecisionCard({
                   </button>
                 ))}
               </div>
-              <label className="sr-only" htmlFor={`reason-${p.id}`}>
+              <label className="sr-only" htmlFor={`${uid}-reason`}>
                 {t("reason.label")}
               </label>
               <textarea
-                id={`reason-${p.id}`}
+                id={`${uid}-reason`}
                 className="hd-text"
                 placeholder={t("reason.placeholder")}
                 value={reason}
@@ -177,9 +202,17 @@ export function DecisionCard({
           {notice}
         </p>
       )}
-      <Link className="hd-more" href={`/proposals/${p.id}`}>
-        {h("decide.details")}
-      </Link>
+      {onReview ? (
+        !recorded && (
+          <button type="button" className="hd-more" onClick={() => onReview(p.id)}>
+            {h("decide.open")}
+          </button>
+        )
+      ) : (
+        <Link className="hd-more" href={`/proposals/${p.id}`}>
+          {h("decide.details")}
+        </Link>
+      )}
     </article>
   );
 }

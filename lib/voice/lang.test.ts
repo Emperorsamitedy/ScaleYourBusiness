@@ -45,7 +45,7 @@ describe("where the microphone's language comes from", () => {
 
   it("no box sets the microphone's language itself", () => {
     for (const rel of [
-      "components/chat/ChatScreen.tsx",
+      "components/chat/Composer.tsx", // the conversation's box, on its page, on Home and in Lex's sheet
       "components/intake/controls/LongText.tsx",
       "components/intake/controls/Text.tsx",
       "components/support/ReplyBox.tsx",

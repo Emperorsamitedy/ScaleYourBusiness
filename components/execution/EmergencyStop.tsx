@@ -22,8 +22,14 @@
 // mono button, and — when halted — a STOPPED word with the same
 // confirm-to-restart step, inline. `onState` tells the host screen
 // whether everything is halted, so it can say so beside its own buttons.
+//
+// Home's status card (2026-11-17, docs/DASHBOARD-OVERHAUL.md C2) carries it
+// too: variant "card" is the same control on paper, one full-width button
+// with what it does spoken rather than printed. A page can now hold two
+// (the strip's and the card's), so a press on one is told to the others
+// (a window event) and each reads the state again: they never disagree.
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useId, useState } from "react";
 import "../../app/queue.css";
 import { useTranslations } from "next-intl";
 import { useRole } from "../auth/RoleContext";
@@ -39,6 +45,9 @@ interface Halt {
   halted_at: string | null;
   reason: string | null;
 }
+
+/** Told to every stop on the page when one of them was pressed; `detail` is the presser's id. */
+const CHANGED = "syb:stop-changed";
 
 type State =
   | { phase: "hidden" }
@@ -69,9 +78,10 @@ export function EmergencyStop({
   variant = "bar",
   onState,
 }: {
-  variant?: "bar" | "masthead";
+  variant?: "bar" | "masthead" | "card";
   onState?: (halted: boolean) => void;
 } = {}) {
+  const self = useId();
   const t = useTranslations("stop");
   const locale = useAppLocale();
   const [state, setState] = useState<State>({ phase: "hidden" });
@@ -93,6 +103,15 @@ export function EmergencyStop({
     void load();
   }, [load]);
 
+  // Another stop on this page was pressed: read the state it left.
+  useEffect(() => {
+    const on = (e: Event) => {
+      if ((e as CustomEvent<string>).detail !== self) void load();
+    };
+    window.addEventListener(CHANGED, on);
+    return () => window.removeEventListener(CHANGED, on);
+  }, [load, self]);
+
   if (state.phase === "hidden") return null;
   const s = state;
 
@@ -105,7 +124,75 @@ export function EmergencyStop({
       return;
     }
     setState({ phase: "ready", halt: j, busy: false, confirming: false, error: null });
+    window.dispatchEvent(new CustomEvent(CHANGED, { detail: self }));
   };
+
+  if (variant === "card") {
+    if (!s.halt.halted) {
+      return (
+        <div className="es-card" data-focus="emergency-stop">
+          <button
+            type="button"
+            className="es-card-stop"
+            disabled={s.busy}
+            aria-describedby={`${self}-what`}
+            onClick={() => void send("POST")}
+          >
+            {s.busy ? t("stopping") : t("stop")}
+          </button>
+          <span className="sr-only" id={`${self}-what`}>
+            {t("what")}
+          </span>
+          {s.error && (
+            <p className="es-card-note" role="alert">
+              {s.error}
+            </p>
+          )}
+        </div>
+      );
+    }
+    return (
+      <div className="es-card es-card-halted" role="status" data-focus="emergency-stop">
+        {s.confirming ? (
+          <>
+            <p className="es-card-note">{t("startNote")}</p>
+            <div className="es-card-pair">
+              <button
+                type="button"
+                className="es-card-go"
+                disabled={s.busy}
+                onClick={() => void send("DELETE")}
+              >
+                {s.busy ? t("starting") : t("yesStart")}
+              </button>
+              <button
+                type="button"
+                className="es-card-go"
+                onClick={() => setState({ ...s, confirming: false })}
+              >
+                {t("stay")}
+              </button>
+            </div>
+          </>
+        ) : resumeWhy ? (
+          <p className="es-card-note">{resumeWhy}</p>
+        ) : (
+          <button
+            type="button"
+            className="es-card-go"
+            onClick={() => setState({ ...s, confirming: true })}
+          >
+            {t("startUp")}
+          </button>
+        )}
+        {s.error && (
+          <p className="es-card-note" role="alert">
+            {s.error}
+          </p>
+        )}
+      </div>
+    );
+  }
 
   if (variant === "masthead") {
     if (!s.halt.halted) {
