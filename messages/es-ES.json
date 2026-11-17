@@ -28,7 +28,7 @@
     "close": "Cerrar",
     "switchBusiness": "Cambiar de negocio",
     "watching": "Observando · día {day} de {of}",
-    "ask": "Pregúnteme lo que quiera",
+    "ask": "Pregunta a Lex",
     "signOut": "Cerrar sesión",
     "signingOut": "Cerrando sesión…",
     "group": {
@@ -87,7 +87,16 @@
       "manager": "Su rol aquí: gestor",
       "viewer": "Su rol aquí: lector. Puede consultar y pulsar la parada de emergencia."
     },
-    "tabs": "Pantallas de este grupo"
+    "tabs": "Pantallas de este grupo",
+    "dock": "Secciones",
+    "dockLabel": {
+      "approve": "Decidir",
+      "business": "Negocio",
+      "today": "Hoy",
+      "insights": "Análisis",
+      "grow": "Crecer",
+      "customers": "Clientes"
+    }
   },
   "auth": {
     "meta": {
@@ -4585,9 +4594,9 @@
   },
   "chat": {
     "meta": {
-      "title": "Pregúnteme lo que quiera — ScaleX"
+      "title": "Lex — ScaleX"
     },
-    "kicker": "Pregúnteme lo que quiera · Sobre: {about}",
+    "kicker": "Lex · Sobre: {about}",
     "yourBusiness": "su negocio",
     "loading": "Abriendo la conversación…",
     "signedOut": {
@@ -4606,7 +4615,7 @@
     "thinking": "Leyendo su perfil…",
     "queued": {
       "text": "Ahora es una propuesta que espera su sí.",
-      "link": "Abrir Pendiente de usted →"
+      "link": "Abrir Pendiente de usted"
     },
     "sendFailed": "Algo ha salido mal por mi parte. ¿Puede repetirlo?",
     "composer": {
@@ -10234,7 +10243,6 @@
     },
     "title": "{count, plural, =0 {No hay nada esperándole.} one {# decisión le espera.} many {# decisiones le esperan.} other {# decisiones le esperan.}}",
     "biggest": "La mayor podría sumar {range} al mes.",
-    "review": "Revisarlas",
     "cash": {
       "flag": "Por debajo de su colchón",
       "title": "El dinero podría escasear la semana del {date}.",
@@ -10295,6 +10303,45 @@
       "caption": "Personas en tu web, minuto a minuto",
       "colTime": "Hora",
       "colPeople": "Personas"
+    },
+    "side": {
+      "label": "El lado de Lex",
+      "decisions": "Necesita tu sí",
+      "decisionsCount": "{count, plural, =0 {Nada que decidir} one {# decisión} many {# decisiones} other {# decisiones}}",
+      "unread": "No pude leer la cola. Actualiza para intentarlo de nuevo.",
+      "doing": "En marcha",
+      "done": "Hecho",
+      "history": "Historial"
+    },
+    "ask": {
+      "label": "Pregunta a Lex",
+      "title": "¿Qué quieres saber?"
+    },
+    "doing": {
+      "idle": "Ahora mismo no hay observación.",
+      "idleNote": "La observación empieza cuando eliges cómo trabajo.",
+      "connections": "{count, plural, =0 {Aún nada conectado} one {# conexión leída cada día} many {# conexiones leídas cada día} other {# conexiones leídas cada día}}",
+      "paused": "{count, plural, one {# conexión en pausa, te necesita} many {# conexiones en pausa, te necesitan} other {# conexiones en pausa, te necesitan}}"
+    },
+    "done": {
+      "empty": "Aún no hay nada registrado. Tu primer sí o no aparecerá aquí.",
+      "approved": "Aprobada",
+      "declined": "Rechazada",
+      "changes": "Cambios pedidos",
+      "done": "Hecho",
+      "expired": "Fuera de plazo",
+      "blocked": "Retenida"
+    },
+    "decide": {
+      "recorded": "Registrado con tu nombre.",
+      "details": "Detalles"
+    },
+    "trend": {
+      "label": "Tus ventas",
+      "market": "Ver el gráfico completo"
+    },
+    "slips": {
+      "label": "Dónde se escapa el dinero este mes"
     }
   },
   "alerts": {

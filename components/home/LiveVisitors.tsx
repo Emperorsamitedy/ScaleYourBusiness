@@ -129,7 +129,7 @@ export function LiveVisitors() {
         <p className="lv-why">{tr(why)}</p>
         {why !== "unavailable" && (
           <Link href="/connections" className="lv-link">
-            {tr("connect")} <span aria-hidden="true">→</span>
+            {tr("connect")}
           </Link>
         )}
       </>,

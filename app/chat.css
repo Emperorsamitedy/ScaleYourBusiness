@@ -59,6 +59,10 @@
   overflow-y: auto;
   padding: 18px 20px 8px;
 }
+/* No turns yet: the thread takes no room between the head and the composer. */
+.ak-thread:has(> :only-child) {
+  padding: 0;
+}
 .ak-turn {
   display: grid;
   grid-template-columns: 140px minmax(0, 1fr);
@@ -323,4 +327,26 @@
 }
 .ak-screen a:not([class]):hover {
   text-decoration-thickness: 2px;
+}
+
+/* Lex, named (2026-11-17): the mark on a small ink tile before the name,
+   wherever Lex speaks. Cobalt only while an answer is being written. */
+.ak-lex {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.ak-lex-mark {
+  display: inline-grid;
+  place-items: center;
+  width: 18px;
+  height: 18px;
+  background: var(--sheet-ink);
+}
+.ak-lex.live {
+  color: var(--live);
+}
+.ak-queued-link {
+  margin: 10px 0 0;
+  font-size: 14px;
 }

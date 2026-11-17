@@ -4,6 +4,7 @@
 // forecast, the watch — and the arithmetic of what to put first lives
 // here, pure, so it is testable without a browser or the database.
 
+import { parseTs } from "../chat/chat-view";
 import { effectRange } from "../proposals/queue-model";
 import type { MoneyLike, ScenarioOutcomeLike } from "../proposals/queue-model";
 
@@ -143,6 +144,53 @@ export function waitingCount(
   if (count !== null) return { state: "known", count };
   if (nav.state === "reading" || queue.state === "reading") return { state: "reading" };
   return { state: "unread" };
+}
+
+/** A proposal as the queue's decided and expired lists carry it. */
+export interface DoneLike {
+  id: string;
+  status: string;
+  action: { summary: string };
+  decided_at?: string | null;
+  expires_at?: string | null;
+  created_at?: string | null;
+}
+
+export type DoneWord = "approved" | "declined" | "changes" | "done" | "expired" | "blocked";
+
+export interface DoneRow {
+  id: string;
+  word: DoneWord;
+  title: string;
+  /** When it was answered, ran out of time, or was made; null when unknown. */
+  at: string | null;
+}
+
+const DONE_WORD: Readonly<Record<string, DoneWord>> = {
+  approved: "approved",
+  rejected: "declined",
+  changes_requested: "changes",
+  executed: "done",
+  expired: "expired",
+  blocked: "blocked",
+};
+
+/**
+ * Pure: the last `limit` recorded answers and runs for Home's "Done",
+ * newest first. A pending proposal is not done, and a status this list
+ * has no word for is left out rather than guessed at.
+ */
+export function doneRows(rows: readonly DoneLike[], limit = 5): DoneRow[] {
+  const known = rows.flatMap((r): DoneRow[] => {
+    const word = DONE_WORD[r.status];
+    if (!word) return [];
+    const at =
+      r.decided_at ?? (r.status === "expired" ? r.expires_at : null) ?? r.created_at ?? null;
+    return [{ id: r.id, word, title: r.action.summary, at }];
+  });
+  const ms = (at: string | null) => (at === null ? 0 : parseTs(at) || 0);
+  known.sort((a, b) => ms(b.at) - ms(a.at));
+  return known.slice(0, limit);
 }
 
 /**

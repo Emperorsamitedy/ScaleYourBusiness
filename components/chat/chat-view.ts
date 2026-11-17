@@ -145,3 +145,13 @@ export function upsertCard(
     ? cards.map((c) => (c.id === card.id ? card : c))
     : [...cards, card];
 }
+
+/**
+ * The latest exchange, for Home: the owner's last question and everything
+ * said since. Nothing while the owner has not asked anything yet.
+ */
+export function latestExchange(turns: readonly Turn[]): Turn[] {
+  let i = turns.length - 1;
+  while (i >= 0 && turns[i]?.role !== "owner") i -= 1;
+  return i < 0 ? [] : turns.slice(i);
+}

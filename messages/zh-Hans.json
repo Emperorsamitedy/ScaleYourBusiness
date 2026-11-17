@@ -28,7 +28,7 @@
     "close": "关闭",
     "switchBusiness": "切换企业",
     "watching": "观察中 · 第 {day} 天，共 {of} 天",
-    "ask": "有问题尽管问我",
+    "ask": "问 Lex",
     "signOut": "退出登录",
     "signingOut": "正在退出…",
     "group": {
@@ -87,7 +87,16 @@
       "manager": "您在这里的角色：经理",
       "viewer": "您在这里的角色：查看者。您可以查看，也可以按下紧急停止。"
     },
-    "tabs": "本组页面"
+    "tabs": "本组页面",
+    "dock": "分组",
+    "dockLabel": {
+      "approve": "决定",
+      "business": "企业",
+      "today": "今天",
+      "insights": "洞察",
+      "grow": "增长",
+      "customers": "客户"
+    }
   },
   "auth": {
     "meta": {
@@ -4585,9 +4594,9 @@
   },
   "chat": {
     "meta": {
-      "title": "有问题尽管问我 — ScaleX"
+      "title": "Lex — ScaleX"
     },
-    "kicker": "有问题尽管问我 · 关于：{about}",
+    "kicker": "Lex · 关于：{about}",
     "yourBusiness": "您的企业",
     "loading": "正在打开对话…",
     "signedOut": {
@@ -4606,7 +4615,7 @@
     "thinking": "正在读取您的档案…",
     "queued": {
       "text": "它现在是一项提案，正在等待您的同意。",
-      "link": "打开“等待您处理” →"
+      "link": "打开“等待您处理”"
     },
     "sendFailed": "我这边出了点问题——能再说一遍吗？",
     "composer": {
@@ -10234,7 +10243,6 @@
     },
     "title": "{count, plural, =0 {没有等待您处理的事项。} other {有 # 项决定等待您处理。}}",
     "biggest": "其中最大的一项每月可增加 {range}。",
-    "review": "查看",
     "cash": {
       "flag": "低于您的缓冲额",
       "title": "{date} 那一周资金可能吃紧。",
@@ -10295,6 +10303,45 @@
       "caption": "网站在线人数（按分钟）",
       "colTime": "时间",
       "colPeople": "人数"
+    },
+    "side": {
+      "label": "Lex 的一侧",
+      "decisions": "需要您的同意",
+      "decisionsCount": "{count, plural, =0 {暂无待决事项} other {# 项决定}}",
+      "unread": "无法读取队列。请刷新重试。",
+      "doing": "正在进行",
+      "done": "已完成",
+      "history": "历史记录"
+    },
+    "ask": {
+      "label": "问 Lex",
+      "title": "您想了解什么？"
+    },
+    "doing": {
+      "idle": "目前没有在观察。",
+      "idleNote": "当您选择我的工作方式后，观察就会开始。",
+      "connections": "{count, plural, =0 {尚未连接} other {每天读取 # 个连接}}",
+      "paused": "{count, plural, other {# 个连接已暂停，需要您处理}}"
+    },
+    "done": {
+      "empty": "尚无记录。您的第一个同意或拒绝会显示在这里。",
+      "approved": "已批准",
+      "declined": "已拒绝",
+      "changes": "已要求修改",
+      "done": "已完成",
+      "expired": "已超时",
+      "blocked": "已搁置"
+    },
+    "decide": {
+      "recorded": "已以您的名义记录。",
+      "details": "详情"
+    },
+    "trend": {
+      "label": "您的销售",
+      "market": "查看完整图表"
+    },
+    "slips": {
+      "label": "本月资金流失在哪里"
     }
   },
   "alerts": {

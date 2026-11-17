@@ -89,7 +89,7 @@ export function ChangeCard({
           <span />
         )}
         <Link className="act" href={card.link}>
-          {tr("change.open")} <span aria-hidden="true">→</span>
+          {tr("change.open")}
         </Link>
       </div>
       {busy && (

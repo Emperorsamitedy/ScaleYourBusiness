@@ -7,7 +7,10 @@
 // Today first. The rail lists each group's main screens (`rail: true`);
 // every other screen in the group is a tab in the strip across the top of
 // the page, beside the emergency stop. A screen open from a tab also shows
-// in the rail, so the reader never loses their place. No icons.
+// in the rail, so the reader never loses their place. Each group carries
+// one glyph (GroupGlyph.tsx); screens carry none. On a phone the six
+// groups are a dock along the bottom, each opening its first screen, and
+// the strip across the top then lists that group's others (2026-11-17).
 //
 // Two screens are focused views with their own masthead and no rail —
 // the report and the approval queue (their designs). The landing, the
@@ -27,7 +30,8 @@ import type { SizeBand, SizeFeatureKey } from "../../lib/core/size-features";
 import { showsFor } from "../../lib/core/size-features";
 import { roleAllows } from "../../lib/auth/role-actions";
 import { EmergencyStop } from "../execution/EmergencyStop";
-import { Logo } from "../brand/Mark";
+import { Logo, Mark } from "../brand/Mark";
+import { GroupGlyph } from "./GroupGlyph";
 
 interface Item {
   href: string;
@@ -294,6 +298,11 @@ export function groupFor(path: string): Group | null {
   return GROUPS.find((g) => g.items.some((i) => matches(path, i.href))) ?? null;
 }
 
+/** Pure: the screen a group opens on from the dock — its first main screen, else its first. */
+export function groupHome(group: Pick<Group, "items">): string {
+  return (group.items.find((i) => i.rail) ?? group.items[0])?.href ?? "/home";
+}
+
 /** Pure: whether a path shows the rail at all. */
 export function showsNav(path: string): boolean {
   if (FOCUSED.some((r) => matches(path, r))) return false;
@@ -432,7 +441,10 @@ export function AppFrame({ children }: { children: ReactNode }) {
         <div className="app-rail-groups">
           {groups.map((g) => (
             <div key={g.key} className="app-rail-group">
-              <p className="app-rail-label">{t(`group.${g.key as NavGroupKey}`)}</p>
+              <p className="app-rail-label">
+                <GroupGlyph group={g.key} />
+                <span>{t(`group.${g.key as NavGroupKey}`)}</span>
+              </p>
               <ul>
                 {railItems(g, path).map((i) => {
                   const active = matches(path, i.href);
@@ -459,11 +471,31 @@ export function AppFrame({ children }: { children: ReactNode }) {
           className={`app-rail-ask${matches(path, "/chat") ? " active" : ""}`}
           aria-current={matches(path, "/chat") ? "page" : undefined}
         >
+          <span className="app-rail-ask-mark" aria-hidden="true">
+            <Mark size={13} onDark />
+          </span>
           <span>{t("ask")}</span>
-          <span aria-hidden="true">→</span>
         </Link>
         {role && <p className="app-rail-who">{t(`role.${role}`)}</p>}
         <SignOut />
+      </nav>
+      <nav className="app-dock" aria-label={t("dock")}>
+        {groups.map((g) => {
+          const active = groupFor(path)?.key === g.key;
+          const c = g.key === "approve" && counts ? n(counts.pending) : null;
+          return (
+            <Link
+              key={g.key}
+              href={groupHome(g)}
+              className={`app-dock-item${active ? " active" : ""}`}
+              aria-current={active ? "page" : undefined}
+            >
+              <GroupGlyph group={g.key} size={22} />
+              <span>{t(`dockLabel.${g.key as NavGroupKey}`)}</span>
+              {c && <span className="app-dock-count">{c}</span>}
+            </Link>
+          );
+        })}
       </nav>
       <div className="app-main">
         <AccessProvider value={access}>

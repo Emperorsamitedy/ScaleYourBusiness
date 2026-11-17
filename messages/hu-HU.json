@@ -28,7 +28,7 @@
     "close": "Bezárás",
     "switchBusiness": "Másik vállalkozás",
     "watching": "Figyelés · {day}. nap / {of}",
-    "ask": "Kérdezzen bármit",
+    "ask": "Kérdezd Lexet",
     "signOut": "Kijelentkezés",
     "signingOut": "Kijelentkezés…",
     "group": {
@@ -87,7 +87,16 @@
       "manager": "Az Ön szerepköre itt: menedzser",
       "viewer": "Az Ön szerepköre itt: megtekintő. Olvashat, és megnyomhatja a vészleállítót."
     },
-    "tabs": "A csoport képernyői"
+    "tabs": "A csoport képernyői",
+    "dock": "Területek",
+    "dockLabel": {
+      "approve": "Döntés",
+      "business": "Vállalkozás",
+      "today": "Ma",
+      "insights": "Elemzések",
+      "grow": "Növekedés",
+      "customers": "Ügyfelek"
+    }
   },
   "auth": {
     "meta": {
@@ -4585,9 +4594,9 @@
   },
   "chat": {
     "meta": {
-      "title": "Kérdezzen bármit — ScaleX"
+      "title": "Lex — ScaleX"
     },
-    "kicker": "Kérdezzen bármit · Téma: {about}",
+    "kicker": "Lex · Téma: {about}",
     "yourBusiness": "az Ön vállalkozása",
     "loading": "A beszélgetés megnyitása…",
     "signedOut": {
@@ -4606,7 +4615,7 @@
     "thinking": "A profilja olvasása…",
     "queued": {
       "text": "Ez most már javaslat, és az Ön igenjére vár.",
-      "link": "Az „Önre vár” megnyitása →"
+      "link": "Az „Önre vár” megnyitása"
     },
     "sendFailed": "Valami hiba történt nálam — megismételné?",
     "composer": {
@@ -10234,7 +10243,6 @@
     },
     "title": "{count, plural, =0 {Semmi sem vár Önre.} one {# döntés vár Önre.} other {# döntés vár Önre.}}",
     "biggest": "A legnagyobb havi {range} összeget hozhat.",
-    "review": "Átnézem",
     "cash": {
       "flag": "A tartalék alatt",
       "title": "A(z) {date} kezdetű héten szűkös lehet a pénz.",
@@ -10295,6 +10303,45 @@
       "caption": "Látogatók az oldalán, percről percre",
       "colTime": "Időpont",
       "colPeople": "Látogatók"
+    },
+    "side": {
+      "label": "Lex oldala",
+      "decisions": "Az Ön igenjére vár",
+      "decisionsCount": "{count, plural, =0 {Nincs eldöntendő} one {# döntés} other {# döntés}}",
+      "unread": "Nem tudtam beolvasni a sort. Frissítsen, és próbálja újra.",
+      "doing": "Most folyamatban",
+      "done": "Kész",
+      "history": "Előzmények"
+    },
+    "ask": {
+      "label": "Kérdezd Lexet",
+      "title": "Mit szeretne tudni?"
+    },
+    "doing": {
+      "idle": "Jelenleg nincs figyelés.",
+      "idleNote": "A figyelés akkor indul, amikor kiválasztja, hogyan dolgozom.",
+      "connections": "{count, plural, =0 {Még semmi sincs összekapcsolva} one {# összekapcsolt fiók, naponta beolvasva} other {# összekapcsolt fiók, naponta beolvasva}}",
+      "paused": "{count, plural, one {# összekapcsolt fiók szünetel, Önre vár} other {# összekapcsolt fiók szünetel, Önre vár}}"
+    },
+    "done": {
+      "empty": "Még nincs semmi rögzítve. Az első igen vagy nem ide kerül.",
+      "approved": "Jóváhagyva",
+      "declined": "Elutasítva",
+      "changes": "Módosítás kérve",
+      "done": "Kész",
+      "expired": "Lejárt",
+      "blocked": "Visszatartva"
+    },
+    "decide": {
+      "recorded": "Az Ön nevével rögzítve.",
+      "details": "Részletek"
+    },
+    "trend": {
+      "label": "Az Ön eladásai",
+      "market": "A teljes grafikon megnézése"
+    },
+    "slips": {
+      "label": "Hol folyik el a pénz ebben a hónapban"
     }
   },
   "alerts": {

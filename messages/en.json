@@ -28,7 +28,7 @@
     "close": "Close",
     "switchBusiness": "Switch business",
     "watching": "Watching · day {day} / {of}",
-    "ask": "Ask me anything",
+    "ask": "Ask Lex",
     "signOut": "Sign out",
     "signingOut": "Signing out…",
     "group": {
@@ -87,7 +87,16 @@
       "manager": "You're a manager here",
       "viewer": "You're a viewer here: you can read, and press stop"
     },
-    "tabs": "Screens in this group"
+    "tabs": "Screens in this group",
+    "dock": "Groups",
+    "dockLabel": {
+      "approve": "Decide",
+      "business": "Business",
+      "today": "Today",
+      "insights": "Insights",
+      "grow": "Grow",
+      "customers": "Customers"
+    }
   },
   "auth": {
     "meta": {
@@ -4585,9 +4594,9 @@
   },
   "chat": {
     "meta": {
-      "title": "Ask me anything — ScaleX"
+      "title": "Lex — ScaleX"
     },
-    "kicker": "Ask me anything · About {about}",
+    "kicker": "Lex · About {about}",
     "yourBusiness": "your business",
     "loading": "Opening the conversation…",
     "signedOut": {
@@ -4606,7 +4615,7 @@
     "thinking": "Reading your profile…",
     "queued": {
       "text": "It’s a proposal now, waiting for your yes.",
-      "link": "Open Waiting for you →"
+      "link": "Open Waiting for you"
     },
     "sendFailed": "Something went wrong on my side — say that again?",
     "composer": {
@@ -10234,7 +10243,6 @@
     },
     "title": "{count, plural, =0 {Nothing is waiting for you.} one {# decision is waiting for you.} other {# decisions are waiting for you.}}",
     "biggest": "The biggest could add {range} a month.",
-    "review": "See them",
     "cash": {
       "flag": "Under your buffer",
       "title": "Money could get tight in the week of {date}.",
@@ -10295,6 +10303,45 @@
       "caption": "People on your site, minute by minute",
       "colTime": "Time",
       "colPeople": "People"
+    },
+    "side": {
+      "label": "Lex's side",
+      "decisions": "Needs your yes",
+      "decisionsCount": "{count, plural, =0 {Nothing to decide} one {# decision} other {# decisions}}",
+      "unread": "I couldn't read the queue. Refresh to try again.",
+      "doing": "Doing now",
+      "done": "Done",
+      "history": "History"
+    },
+    "ask": {
+      "label": "Ask Lex",
+      "title": "What would you like to know?"
+    },
+    "doing": {
+      "idle": "Not watching right now.",
+      "idleNote": "The watch starts once you choose how I work.",
+      "connections": "{count, plural, =0 {Nothing connected yet} one {# connection read every day} other {# connections read every day}}",
+      "paused": "{count, plural, one {# connection paused, it needs you} other {# connections paused, they need you}}"
+    },
+    "done": {
+      "empty": "Nothing recorded yet. Your first yes or no lands here.",
+      "approved": "Approved",
+      "declined": "Declined",
+      "changes": "Changes asked",
+      "done": "Done",
+      "expired": "Ran out of time",
+      "blocked": "Held back"
+    },
+    "decide": {
+      "recorded": "Recorded with your name.",
+      "details": "Details"
+    },
+    "trend": {
+      "label": "Your sales",
+      "market": "See the whole chart"
+    },
+    "slips": {
+      "label": "Where money slips away this month"
     }
   },
   "alerts": {

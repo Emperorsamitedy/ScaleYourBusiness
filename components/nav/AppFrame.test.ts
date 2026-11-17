@@ -5,6 +5,7 @@ import {
   GROUPS,
   connectionsCount,
   groupFor,
+  groupHome,
   railItems,
   roleLine,
   showsNav,
@@ -25,6 +26,20 @@ describe("app navigation", () => {
       "Customers",
       "Your business",
     ]);
+  });
+
+  // 2026-11-17: on a phone each group is a dock item that opens its first main screen.
+  it("opens each group from the dock on its first main screen", () => {
+    const home = Object.fromEntries(GROUPS.map((g) => [g.key, groupHome(g)]));
+    expect(home).toEqual({
+      today: "/home",
+      approve: "/proposals",
+      insights: "/report",
+      grow: "/content",
+      customers: "/customers",
+      business: "/profile",
+    });
+    expect(groupHome({ items: [] })).toBe("/home");
   });
 
   it("places every owner screen in exactly one group", () => {

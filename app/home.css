@@ -1,19 +1,78 @@
-/* Home — /home (2026-11-15), components/home/HomeScreen.tsx. Sheet system
-   only: paper on the desk, square, no shadows, no icons. Every sheet keeps
-   its contents 20px from its edge (14px under 720px), so the edges of the
-   readings, the rows and the headers line up. */
+/* Home — /home, rebuilt 2026-11-17 around the conversation (the owner:
+   chat centred, approvals as an exchange, graphs few and simple).
+   components/home/HomeScreen.tsx. Sheet system only: paper on the desk,
+   square, no shadows. Every sheet keeps its contents 20px from its edge
+   (14px under 720px), so the edges of the readings, the rows and the
+   headers line up. Two columns on a desk: Lex's words and the composer on
+   the left, Lex's side on the right (needs your yes, doing now, done).
+   One column under 1100px, the decisions straight after the composer. */
 
 .home {
   --pad: 20px;
   display: grid;
-  grid-template-columns: minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr) minmax(300px, 340px);
   gap: 20px;
+  align-items: start;
+  max-width: 1480px;
 }
 .home > * {
   min-width: 0;
 }
-.home .ph {
-  margin-bottom: 0;
+.home-main,
+.home-side {
+  display: grid;
+  gap: 20px;
+  min-width: 0;
+}
+.home-main > *,
+.home-side > * {
+  min-width: 0;
+}
+
+/* Lex speaks first: the mark and the name, then the day's answer. */
+.home-head {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: 10px;
+  padding: 22px 0 16px;
+  border-bottom: 1px solid var(--desk-rule);
+  color: var(--desk-ink);
+}
+.home-kicker {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 14px;
+  margin: 0;
+  font-family: var(--f-mono);
+  font-size: 11.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--desk-ink-2);
+}
+.home-lex {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--desk-ink);
+  font-weight: 600;
+}
+.home-lex-mark {
+  display: inline-grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  background: var(--masthead);
+  border: 1px solid var(--desk-rule);
+}
+.home-title {
+  margin: 0;
+  max-width: 26ch;
+  font-family: var(--f-display);
+  font-size: clamp(24px, 2.7vw, 38px);
+  font-weight: 700;
+  line-height: 1.08;
+  letter-spacing: -0.01em;
 }
 .home-ans {
   margin: 0;
@@ -22,11 +81,11 @@
   color: var(--desk-ink-2);
 }
 
-/* the actions: ink on paper, or desk ink on the desk; 48px, square */
+/* the one action on paper: 48px, square, mono caps */
 .home-act {
   display: inline-flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   gap: 14px;
   min-height: 48px;
   padding: 0 18px;
@@ -48,20 +107,6 @@
   background: var(--sheet-ink);
   color: var(--paper);
 }
-.home-act-desk {
-  background: transparent;
-  border-color: var(--desk-ink);
-  color: var(--desk-ink);
-}
-.home-act-desk:hover {
-  background: var(--desk-ink);
-  color: var(--desk);
-}
-.home-act-sm {
-  min-height: 38px;
-  padding: 0 12px;
-  font-size: 11.5px;
-}
 .home-link {
   font-family: var(--f-mono);
   font-size: 12px;
@@ -74,6 +119,7 @@
 
 /* the one warning: a paper sheet with a drift rule drawn inside its edge */
 .home-alert {
+  grid-column: 1 / -1;
   display: flex;
   align-items: center;
   gap: 20px;
@@ -106,15 +152,262 @@
   color: var(--sheet-ink-2);
 }
 
-/* the readings: one sheet split by hairlines, the number grammar in each */
+/* every sheet's inner edge */
 .home .cs-head,
 .home .cs-body {
   padding-left: var(--pad);
   padding-right: var(--pad);
 }
+.home-empty {
+  margin: 0;
+  padding: 16px var(--pad);
+  color: var(--sheet-ink-2);
+}
+.home-note {
+  margin: 0 0 12px;
+  font-size: 14px;
+  color: var(--sheet-ink-2);
+}
+
+/* the composer sheet: the box first, the latest exchange under a rule */
+.home-ask-title {
+  overflow-wrap: anywhere;
+}
+.home-ask .ak-composer {
+  padding: 15px var(--pad) 14px;
+  border-top: 0;
+}
+.home-thread {
+  padding: 16px var(--pad) 6px;
+  border-top: 1px solid var(--rule-soft);
+}
+.home-thread .ak-turn {
+  grid-template-columns: 110px minmax(0, 1fr);
+}
+.home-thread .ak-queued {
+  margin-top: 12px;
+}
+.home-thread .hd {
+  margin-top: 12px;
+  padding: 14px 16px 15px;
+  border: var(--line);
+  background: var(--inset);
+}
+
+/* a decision, decided where it stands: the card's two equal answers */
+.home-cards {
+  display: grid;
+}
+.hd {
+  display: grid;
+  gap: 8px;
+  padding: 14px var(--pad) 16px;
+  border-top: 1px solid var(--rule-soft);
+}
+.hd:first-child {
+  border-top: 0;
+}
+.hd-lab {
+  margin: 0;
+  font-family: var(--f-mono);
+  font-size: 11.5px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--sheet-ink-2);
+}
+.hd-title {
+  margin: 0;
+  font-family: var(--f-display);
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 1.25;
+}
+.hd-amt {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--ok);
+}
+.hd-pair {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 4px;
+}
+.hd-btn {
+  min-height: 44px;
+  padding: 0 10px;
+  border: 1px solid var(--sheet-ink);
+  background: var(--paper);
+  color: var(--sheet-ink);
+  font-family: var(--f-mono);
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition:
+    background-color var(--d-press) linear,
+    color var(--d-press) linear;
+}
+.hd-btn:hover:not(:disabled),
+.hd-btn:active:not(:disabled) {
+  background: var(--sheet-ink);
+  color: var(--paper);
+}
+.hd-btn:disabled {
+  border-style: dashed;
+  color: var(--sheet-ink-2);
+  cursor: not-allowed;
+}
+.hd-btn-inline {
+  justify-self: start;
+  margin-top: 10px;
+}
+.hd-panel {
+  margin-top: 4px;
+  padding: 12px;
+  border: var(--line);
+  background: var(--inset);
+}
+.home-thread .hd .hd-panel {
+  background: var(--paper);
+}
+.hd-panel-lab {
+  margin: 0 0 8px;
+  font-family: var(--f-mono);
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.hd-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+.hd-chip {
+  min-height: 36px;
+  padding: 0 10px;
+  border: 1px solid var(--rule);
+  background: var(--paper);
+  color: var(--sheet-ink);
+  font-family: var(--f-mono);
+  font-size: 11.5px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  transition: background-color var(--d-press) linear;
+}
+.hd-chip:hover {
+  border-color: var(--sheet-ink);
+}
+.hd-chip[aria-pressed="true"] {
+  border-color: var(--sheet-ink);
+  background: var(--sheet-ink);
+  color: var(--paper);
+}
+.hd-text {
+  display: block;
+  width: 100%;
+  min-height: 64px;
+  padding: 8px 10px;
+  border: 1px solid var(--rule);
+  background: var(--paper);
+  color: var(--sheet-ink);
+  font-family: var(--f-prose);
+  font-size: 13.5px;
+  line-height: 1.5;
+  resize: vertical;
+}
+.hd-text:focus {
+  border-color: var(--sheet-ink);
+}
+.hd-panel-foot {
+  margin: 8px 0 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--sheet-ink-2);
+}
+.hd-note,
+.hd-done {
+  margin: 0;
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--sheet-ink-2);
+}
+.hd-done .flag {
+  margin-right: 4px;
+}
+.hd-notice {
+  margin: 0;
+  font-size: 13.5px;
+  color: var(--alarm);
+}
+.hd-more {
+  justify-self: start;
+  font-family: var(--f-mono);
+  font-size: 11.5px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: inherit;
+  text-underline-offset: 3px;
+}
+
+/* doing now: the watch's days */
+.home-days {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(6px, 1fr));
+  gap: 3px;
+  margin-bottom: 14px;
+}
+.home-days i {
+  height: 14px;
+  border: 1px solid var(--rule);
+}
+.home-days i.d {
+  background: var(--sheet-ink);
+  border-color: var(--sheet-ink);
+}
+.home-days i.n {
+  background: var(--live);
+  border-color: var(--live);
+}
+
+/* done: the record, a word and a title per row */
+.home-done-rows {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.home-done-rows li {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: 10px;
+  padding: 11px var(--pad);
+  border-top: 1px solid var(--rule-soft);
+  font-size: 13.5px;
+}
+.home-done-rows li:first-child {
+  border-top: 0;
+}
+.home-done-ti {
+  overflow-wrap: anywhere;
+}
+.home-done-at {
+  font-family: var(--f-mono);
+  font-size: 11.5px;
+  color: var(--sheet-ink-2);
+  white-space: nowrap;
+}
+
+/* the readings: one sheet split by hairlines, the number grammar in each */
 .home-strip {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 190px), 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 170px), 1fr));
 }
 .home-reading {
   display: grid;
@@ -171,93 +464,6 @@
   justify-self: start;
 }
 
-/* the chart beside the watch */
-.home-grid {
-  display: grid;
-  grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr);
-  gap: 20px;
-  align-items: start;
-}
-.home-grid > * {
-  min-width: 0;
-}
-.home-chart .mk {
-  margin: 0;
-}
-.home-days {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(6px, 1fr));
-  gap: 3px;
-  margin-bottom: 14px;
-}
-.home-days i {
-  height: 14px;
-  border: 1px solid var(--rule);
-}
-.home-days i.d {
-  background: var(--sheet-ink);
-  border-color: var(--sheet-ink);
-}
-.home-days i.n {
-  background: var(--live);
-  border-color: var(--live);
-}
-.home-note {
-  margin: 0 0 12px;
-  font-size: 14px;
-  color: var(--sheet-ink-2);
-}
-
-/* the waiting decisions: rows on one inner edge */
-.home-rows {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-.home-rows li {
-  display: flex;
-  align-items: center;
-  gap: 18px;
-  padding: 14px var(--pad);
-  border-top: 1px solid var(--rule-soft);
-}
-.home-rows li:first-child {
-  border-top: 0;
-}
-.home-row-tx {
-  flex: 1;
-  min-width: 0;
-  display: grid;
-  gap: 3px;
-}
-.home-row-lab {
-  margin: 0;
-  font-family: var(--f-mono);
-  font-size: 11.5px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--sheet-ink-2);
-}
-.home-row-ti {
-  margin: 0;
-  font-weight: 600;
-  font-size: 15px;
-}
-.home-row-amt {
-  margin: 0;
-  font-family: var(--f-mono);
-  font-size: 15px;
-  font-weight: 500;
-  color: var(--ok);
-  white-space: nowrap;
-}
-.home-empty {
-  margin: 0;
-  padding: 16px var(--pad);
-  color: var(--sheet-ink-2);
-}
-
-/* where it slips: the month's parts as bars; a balance sits apart, unbarred */
 /* The live line (components/home/LiveVisitors.tsx), drawn like a trading
    chart's baseline style: green above the window's first reading, red
    below, the scale on the right. Green is the logo's own (--accent), since
@@ -491,10 +697,10 @@
   }
 }
 
+/* your sales: the last days as one printed line each, nothing more */
 .home-trends {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
-  border-top: 1px solid var(--rule-soft);
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
 }
 .home-trend {
   display: grid;
@@ -509,6 +715,18 @@
 }
 .home-trend .vz-trend {
   margin-top: 6px;
+}
+
+/* where the money slips: folded, the month's parts as bars when opened */
+.home-slips .cs-body {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+.home-slips-meta {
+  margin: 0 0 10px;
+  font-family: var(--f-mono);
+  font-size: 12.5px;
+  color: var(--sheet-ink-2);
 }
 .home-apart {
   list-style: none;
@@ -525,9 +743,41 @@
   margin-left: auto;
 }
 
-@media (max-width: 899px) {
-  .home-grid {
+/* one column: the two wrappers dissolve, and the decisions follow the composer */
+@media (max-width: 1099px) {
+  .home {
     grid-template-columns: minmax(0, 1fr);
+  }
+  .home-main,
+  .home-side {
+    display: contents;
+  }
+  .home-head {
+    order: -2;
+  }
+  .home-alert {
+    order: -1;
+  }
+  .home-ask {
+    order: 1;
+  }
+  .home-decisions {
+    order: 2;
+  }
+  .home-readings {
+    order: 3;
+  }
+  .home-doing {
+    order: 4;
+  }
+  .home-sales {
+    order: 5;
+  }
+  .home-done {
+    order: 6;
+  }
+  .home-slips {
+    order: 7;
   }
 }
 @media (max-width: 719px) {
@@ -544,16 +794,19 @@
   .home-r-val {
     font-size: 22px;
   }
-  .home-rows li {
-    flex-wrap: wrap;
-    gap: 10px;
+  .home-thread .ak-turn {
+    grid-template-columns: minmax(0, 1fr);
   }
-  .home-row-tx {
-    flex-basis: 100%;
+  .home-title {
+    max-width: none;
   }
-  .home .ph-aside,
-  .home .ph-aside .home-act {
-    width: 100%;
+}
+/* room on a big monitor: the two columns widen before the type does (globals.css zooms the frame) */
+@media (min-width: 1800px) {
+  .home {
+    max-width: 1680px;
+    grid-template-columns: minmax(0, 1fr) 380px;
+    gap: 24px;
   }
 }
 

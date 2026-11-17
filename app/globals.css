@@ -1342,6 +1342,100 @@ a.auth-cta {
   display: none;
 }
 
+/* The dashboard pass (2026-11-17): a glyph beside each group's name, the
+   mark before "Ask Lex", a dock along the bottom of a phone, and room on a
+   big monitor — the whole frame grows a step at 1800px and again at 2400px. */
+.app-rail-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.nav-glyph {
+  flex: none;
+  opacity: 0.85;
+}
+.app-rail-ask {
+  justify-content: flex-start;
+  gap: 10px;
+}
+.app-rail-ask-mark {
+  display: inline-grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  background: #1c2e24;
+  border: 1px solid var(--desk-rule);
+}
+.app-dock {
+  display: none;
+}
+@media (max-width: 759px) {
+  .app-dock {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 45;
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(0, 1fr);
+    padding: 6px 4px calc(6px + env(safe-area-inset-bottom));
+    background: var(--masthead);
+    border-top: 1px solid var(--desk-rule);
+  }
+  .app-dock-item {
+    position: relative;
+    display: grid;
+    justify-items: center;
+    gap: 3px;
+    min-width: 0;
+    padding: 4px 2px;
+    color: var(--desk-ink-2);
+    text-decoration: none;
+    font-size: 10.5px;
+    line-height: 1.2;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .app-dock-item.active {
+    color: var(--desk-ink);
+  }
+  .app-dock-item.active .nav-glyph {
+    color: var(--accent-desk);
+    opacity: 1;
+  }
+  .app-dock-count {
+    position: absolute;
+    top: 0;
+    right: 12%;
+    min-width: 16px;
+    height: 16px;
+    padding: 0 4px;
+    display: grid;
+    place-items: center;
+    background: var(--accent-desk);
+    color: var(--masthead);
+    font-family: var(--f-mono);
+    font-size: 10px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+  }
+  .app-main {
+    padding-bottom: 76px;
+  }
+}
+@media (min-width: 1800px) {
+  .app-frame {
+    zoom: 1.08;
+  }
+}
+@media (min-width: 2400px) {
+  .app-frame {
+    zoom: 1.2;
+  }
+}
+
 @media (max-width: 759px) {
   .app-rail {
     position: sticky;
