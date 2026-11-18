@@ -57,6 +57,7 @@
   transition:
     background-color var(--d-press) linear,
     color var(--d-press) linear;
+  border-radius: var(--r-s, 0);
 }
 .hi-tab:hover,
 .hi-tab[aria-pressed="true"] {

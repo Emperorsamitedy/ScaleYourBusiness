@@ -54,7 +54,7 @@ export async function POST(
         name: error instanceof Error ? error.name : "unknown",
       }),
     );
-    return new NextResponse("something went wrong on our side — try the link again", {
+    return new NextResponse("something went wrong on our side: try the link again", {
       status: 500,
     });
   }

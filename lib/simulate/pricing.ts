@@ -177,7 +177,7 @@ export interface PriceInput {
   label: string;
   /** The label as it reads inside a sentence ("price now: …"), in the same words as `label`. */
   label_inline: string;
-  /** What the screen prints in the value column; "—" when missing. */
+  /** What the screen prints in the value column; "-" when missing. */
   value: string;
   basis: Basis | null;
   source: string;
@@ -323,7 +323,7 @@ function priceInput(item: PriceItemRaw, { t, L }: W): PriceInput {
     : {
         key: "price",
         ...labelled(t, "price"),
-        value: "—",
+        value: "-",
         basis: null,
         source: t("notKnown"),
         needs: { what: t("priceNeeds", { name: item.name }), href: item.asks.price },
@@ -352,7 +352,7 @@ function costInput(item: PriceItemRaw, { t, L }: W): PriceInput {
   return {
     key: "unit_cost",
     ...labelled(t, "cost"),
-    value: "—",
+    value: "-",
     basis: null,
     source: c
       ? t("costOtherCurrency", { costCurrency: c.currency, currency: item.currency })
@@ -383,7 +383,7 @@ function volumeInput(item: PriceItemRaw, { t, L }: W): PriceInput {
     : {
         key: "volume",
         ...label,
-        value: "—",
+        value: "-",
         basis: null,
         source: t("notKnown"),
         needs: {
@@ -435,7 +435,7 @@ function capacityInput(item: PriceItemRaw, { t, L }: W): PriceInput | null {
   return {
     key: "capacity",
     ...label,
-    value: "—",
+    value: "-",
     basis: null,
     source: t("notKnown"),
     needs: item.asks.capacity ? { what: t("capacityNeeds"), href: item.asks.capacity } : null,
@@ -669,7 +669,7 @@ export function simulatePrice(
 
   const needs = (keys: PriceInput["key"][]) =>
     inputs
-      .filter((i) => keys.includes(i.key) && i.needs !== null && i.value === "—")
+      .filter((i) => keys.includes(i.key) && i.needs !== null && i.value === "-")
       .map((i) => t("needLine", { label: i.label_inline, needs: i.needs!.what }));
 
   const factBases = orderBases([item.price.basis, item.volume?.basis ?? null]);

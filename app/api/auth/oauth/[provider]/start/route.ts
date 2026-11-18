@@ -34,7 +34,7 @@ export async function GET(
   const provider = oauthProvider(providerId);
   if (!provider) {
     const label = providerId.charAt(0).toUpperCase() + providerId.slice(1);
-    const message = `${label} sign-in isn't connected yet — your email below works today.`;
+    const message = `${label} sign-in isn't connected yet. Your email below works today.`;
     return NextResponse.redirect(new URL(`${from}?error=${encodeURIComponent(message)}`, origin));
   }
 

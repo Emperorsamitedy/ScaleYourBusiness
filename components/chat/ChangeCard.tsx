@@ -64,7 +64,7 @@ export function ChangeCard({
         <dl className="ak-change-vals">
           <div>
             <dt>{card.status === "applied" ? tr("change.was") : tr("change.now")}</dt>
-            <dd>{card.current ?? "—"}</dd>
+            <dd>{card.current ?? "-"}</dd>
           </div>
           {card.proposed !== null && (
             <div>

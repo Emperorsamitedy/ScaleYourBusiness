@@ -110,6 +110,7 @@
 .gl-chart {
   border: 1px solid var(--rule-soft);
   background: var(--gl-plot);
+  border-radius: var(--r-card, 0);
 }
 .gl-legend {
   margin: 0;
@@ -245,6 +246,7 @@
   background: var(--inset);
   border: 1px solid var(--rule);
   font-size: 14px;
+  border-radius: var(--r-ctl, 0);
 }
 .gl-review h3 {
   margin: 0 0 6px;
@@ -280,6 +282,7 @@
   color: var(--sheet-ink);
   font-family: var(--f-mono);
   font-size: 13.5px;
+  border-radius: var(--r-s, 0);
 }
 .gl-form select:focus-visible,
 .gl-form input:focus-visible {

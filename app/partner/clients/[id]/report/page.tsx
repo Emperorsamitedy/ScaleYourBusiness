@@ -60,7 +60,7 @@ export default async function WhiteLabelPage({ params }: { params: Promise<{ id:
           section === "findings"
             ? r.report?.findings.map((f) => (
                 <p key={f.title}>
-                  <b>{f.title}</b> — {f.detail}
+                  <b>{f.title}</b>: {f.detail}
                 </p>
               ))
             : section === "recommendations"

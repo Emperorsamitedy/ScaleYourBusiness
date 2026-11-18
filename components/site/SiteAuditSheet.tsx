@@ -287,7 +287,7 @@ export function SiteAuditSheet({
             .filter((p) => p.speed_error)
             .map((p) => (
               <li key={p.url}>
-                {pagePath(p.url, t)} — {p.speed_error}
+                {pagePath(p.url, t)}: {p.speed_error}
               </li>
             ))}
         </ul>
@@ -299,7 +299,7 @@ export function SiteAuditSheet({
           <ul className="st-unread">
             {audit.refused.slice(0, 8).map((r) => (
               <li key={r.url}>
-                {r.reason === "external_booking" ? new URL(r.url).hostname : pagePath(r.url, t)} —{" "}
+                {r.reason === "external_booking" ? new URL(r.url).hostname : pagePath(r.url, t)}:{" "}
                 {tr(`refused.${r.reason}`)}
               </li>
             ))}

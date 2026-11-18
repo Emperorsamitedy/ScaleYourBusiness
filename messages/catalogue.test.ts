@@ -650,3 +650,50 @@ describe("the glossary (rule 2: one term, one translation)", () => {
     ).toBe(false);
   });
 });
+
+// L7 of the owner's third round (2026-11-18): "no em and en dashes
+// throughout the app". A range says the language's own word (or a hyphen),
+// a page's title a middle dot, and a dash that joined two thoughts became
+// the punctuation the sentence wanted (ux-spec §2).
+describe("no long dashes in what the app prints (L7)", () => {
+  /** The landing "can stay as it is" (the owner); legal text is not reworded by a script. */
+  const OUTSIDE = /^(landing|landingV2|legal)\./;
+  /** Russian's own dash stands where its grammar has no verb to put there. */
+  const GRAMMAR_DASH: readonly AppLocale[] = ["ru-RU"];
+
+  it("has no en dash in any language", () => {
+    for (const [l, cat] of CATALOGUES) {
+      for (const [k, v] of cat) {
+        if (OUTSIDE.test(k)) continue;
+        expect(v, `${l} ${k}`).not.toContain("–");
+      }
+    }
+  });
+
+  it("has no em dash either, but for the one Russian needs", () => {
+    for (const [l, cat] of CATALOGUES) {
+      if (GRAMMAR_DASH.includes(l)) continue;
+      for (const [k, v] of cat) {
+        if (OUTSIDE.test(k)) continue;
+        expect(v, `${l} ${k}`).not.toContain("—");
+      }
+    }
+  });
+
+  it("gives no English message the dash where Russian keeps one", () => {
+    // The Russian exception is about Russian: it never lets a dash back into the source.
+    for (const [k, v] of EN) {
+      if (OUTSIDE.test(k)) continue;
+      expect(v, k).not.toMatch(/[–—]/);
+    }
+  });
+
+  it("ends no button's label with an arrow (ux-spec §2)", () => {
+    for (const [l, cat] of CATALOGUES) {
+      for (const [k, v] of cat) {
+        if (OUTSIDE.test(k) || k.startsWith("intake.")) continue;
+        expect(v, `${l} ${k}`).not.toMatch(/→\s*$/);
+      }
+    }
+  });
+});

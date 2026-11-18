@@ -106,11 +106,11 @@ export function parseTs(s: string): number {
 
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
-/** "14:00" today, "9 Oct" before, "—" never — in the reader's writing outside English. */
+/** "14:00" today, "9 Oct" before, "-" never — in the reader's writing outside English. */
 export function lastRead(iso: string | null, now: number, locale: AppLocale = "en"): string {
-  if (iso === null) return "—";
+  if (iso === null) return "-";
   const ms = parseTs(iso);
-  if (Number.isNaN(ms)) return "—";
+  if (Number.isNaN(ms)) return "-";
   const d = new Date(ms);
   const today = new Date(now).toDateString() === d.toDateString();
   if (locale !== "en") {

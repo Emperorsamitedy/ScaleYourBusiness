@@ -212,7 +212,7 @@ export function readbackFlag(
 
 /** A share to one decimal: "40.0%" in English, the language's own percent otherwise. */
 function rate(n: number, d: number, locale: AppLocale = "en"): string {
-  if (d === 0) return "—";
+  if (d === 0) return "-";
   if (locale === "en") return `${((n / d) * 100).toFixed(1)}%`;
   return new Intl.NumberFormat(intlTag(locale), {
     style: "percent",
@@ -234,7 +234,7 @@ export function readbackRows(
   const reported = (n: number, unit: (n: number) => string) =>
     r.delivery_reported
       ? { count: unit(n), rate: pc(n, d.sent) }
-      : { count: tr("readback.notReported"), rate: "—" };
+      : { count: tr("readback.notReported"), rate: "-" };
   const measuredOf = (g: ReadbackGroup) =>
     tr("readback.measuredOf", {
       returned: num(g.returned, 0, locale),
@@ -250,7 +250,7 @@ export function readbackRows(
       rate: pc(d.unsubscribed, d.sent),
     },
     { label: tr("readback.row.spam"), ...reported(d.complained, people) },
-    { label: tr("readback.row.replied"), count: tr("readback.notCounted"), rate: "—" },
+    { label: tr("readback.row.replied"), count: tr("readback.notCounted"), rate: "-" },
     {
       label: tr("readback.row.boughtAgain"),
       count: measuredOf(r.recipients),

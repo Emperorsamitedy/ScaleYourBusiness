@@ -57,7 +57,14 @@ export interface CashChartModel {
   currency: string;
 }
 
-export function CashChart({ model }: { model: CashChartModel }) {
+export function CashChart({
+  model,
+  tightWord,
+}: {
+  model: CashChartModel;
+  /** The screen's own word for a tight week ("Tight"), so the chart and the page say it one way. */
+  tightWord?: string;
+}) {
   const t = useTranslations("charts.cash");
   const locale = useAppLocale();
   const [at, setAt] = useState<number | null>(null);
@@ -205,7 +212,7 @@ export function CashChart({ model }: { model: CashChartModel }) {
                 y={Math.min(TOP + H - 5, y(tight.low) + 21)}
                 textAnchor={tightAnchor}
               >
-                {t("tight")}
+                {tightWord ?? t("tight")}
               </text>
             </g>
           )}

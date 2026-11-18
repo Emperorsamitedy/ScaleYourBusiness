@@ -138,7 +138,7 @@ function BlindspotTable({ list }: { list: Blindspot[] }) {
             return (
               <tr key={b.code}>
                 <th scope="row">{tr("quoted", { text: b.label })}</th>
-                <td className="num">{times > 0 ? num(times, 0, locale) : "—"}</td>
+                <td className="num">{times > 0 ? num(times, 0, locale) : "-"}</td>
                 <td className="bs-barcell">
                   <span className="bs-bar" aria-hidden="true">
                     <span style={{ width: `${Math.round((times / max) * 100)}%` }} />

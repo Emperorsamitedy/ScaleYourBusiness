@@ -25,7 +25,7 @@ import { ComplianceMatrix } from "../../components/ops/ComplianceMatrix";
 import { listCountryRules, recentCountryChanges } from "../../lib/compliance/matrix";
 import { Logo } from "../../components/brand/Mark";
 
-export const metadata: Metadata = { title: "Ops — ScaleX" };
+export const metadata: Metadata = { title: "Ops · ScaleX" };
 export const dynamic = "force-dynamic";
 
 const pct = (x: number) => `${Math.round(x * 100)}%`;
@@ -44,7 +44,7 @@ const size = (bytes: number) =>
 function storageLine(st: StorageSummary): string {
   if (!st.known) return st.reason;
   return [
-    `${size(st.bytes)} in ${st.objects} ${st.objects === 1 ? "render" : "renders"}${st.truncated ? " (at least — the listing stopped at its cap)" : ""}`,
+    `${size(st.bytes)} in ${st.objects} ${st.objects === 1 ? "render" : "renders"}${st.truncated ? " (at least: the listing stopped at its cap)" : ""}`,
     `${usdMicro(st.monthly_list_micro_usd)} a month at list price (${usdMicro(st.price_micro_usd_per_gb_month)} per GB-month; verify at build)`,
     st.within_hobby_included ? "within Hobby's included 1 GB" : "over Hobby's included 1 GB",
   ].join(" · ");

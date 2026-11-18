@@ -50,6 +50,7 @@
   background: var(--paper);
   color: var(--sheet-ink);
   font-size: 13.5px;
+  border-radius: var(--r-ctl, 0);
 }
 
 /* the watch list */
@@ -146,6 +147,7 @@
   color: var(--sheet-ink);
   font-family: var(--f-mono);
   font-size: 13px;
+  border-radius: var(--r-s, 0);
 }
 .cp-form textarea {
   resize: vertical;
@@ -222,6 +224,7 @@
   color: var(--sheet-ink);
   font-family: var(--f-mono);
   font-size: 12.5px;
+  border-radius: var(--r-ctl, 0);
 }
 .cp-gap .word {
   white-space: normal;

@@ -155,12 +155,12 @@ function importNotice(j: Record<string, unknown>, tr: Tr, locale: AppLocale): st
 
 function spent(c: Contact, locale: AppLocale): string {
   return c.total_spent_minor === null || c.spent_currency === null
-    ? "—"
+    ? "-"
     : moneyExact(c.total_spent_minor, c.spent_currency, locale);
 }
 
 function lastOrder(iso: string | null, locale: AppLocale): string {
-  if (!iso) return "—";
+  if (!iso) return "-";
   const d = new Date(iso);
   const sameYear = d.getUTCFullYear() === new Date().getUTCFullYear();
   if (locale !== "en") {
@@ -376,7 +376,7 @@ export function CustomersScreen() {
                           {c.name && <span className="src cu-sub">{maskEmail(c.email, tr)}</span>}
                         </th>
                         <td className="num" data-label={tr("list.purchases")}>
-                          {c.orders_count === null ? "—" : count(c.orders_count, locale)}
+                          {c.orders_count === null ? "-" : count(c.orders_count, locale)}
                         </td>
                         <td className="num" data-label={tr("list.spent")}>
                           {spent(c, locale)}
@@ -453,7 +453,7 @@ export function CustomersScreen() {
             <dl className="cu-stats">
               <div>
                 <dt>{tr("record.purchases")}</dt>
-                <dd>{open.orders_count === null ? "—" : count(open.orders_count, locale)}</dd>
+                <dd>{open.orders_count === null ? "-" : count(open.orders_count, locale)}</dd>
               </div>
               <div>
                 <dt>{tr("record.spent")}</dt>

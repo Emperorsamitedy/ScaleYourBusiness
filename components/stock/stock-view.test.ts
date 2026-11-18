@@ -143,7 +143,7 @@ const coverItem = (over: Partial<CoverItemView> = {}): CoverItemView => ({
   sold_recent: 416,
   vs_prior: { change: 23, band: 40, direction: "flat" },
   sell_through: "",
-  cover_text: "3–4",
+  cover_text: "3 to 4",
   runs_out: { earliest: "2026-10-30", latest: "2026-10-31" },
   lead: { days: 10, basis: "stated", supplier: "Midland Clay Supplies", why: "" },
   flag: "ACT NOW",

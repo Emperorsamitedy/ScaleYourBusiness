@@ -20,6 +20,7 @@
   background: var(--marker);
   color: var(--sheet-ink);
   font-size: 13.5px;
+  border-radius: var(--r-ctl, 0);
 }
 
 /* the board */
@@ -173,6 +174,7 @@
   padding: 10px 12px;
   border: 1px solid var(--rule);
   background: var(--inset);
+  border-radius: var(--r-ctl, 0);
 }
 .pl-draft pre {
   margin: 0;
@@ -269,6 +271,7 @@
   color: var(--sheet-ink);
   font-family: var(--f-mono);
   font-size: 13px;
+  border-radius: var(--r-s, 0);
 }
 .pl-field textarea {
   resize: vertical;

@@ -33,6 +33,7 @@
   color: var(--desk-ink);
   --ink: var(--desk-ink);
   --on-ember: var(--desk);
+  border-radius: var(--r-card, 0);
 }
 .md-mode.current {
   border-color: var(--rule);

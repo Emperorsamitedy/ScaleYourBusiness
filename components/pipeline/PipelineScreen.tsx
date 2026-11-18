@@ -32,6 +32,7 @@ import type { DealStage } from "../../lib/pipeline/stages";
 import { DEAL_STAGES } from "../../lib/pipeline/stages";
 import { minorUnitExponent } from "../../lib/core/money";
 import { monthYear } from "../../lib/i18n/format";
+import { rangeOf } from "../../lib/i18n/range";
 import type { Tr } from "../../lib/i18n/tr";
 import { Fold } from "../sheet/Fold";
 import { PageHead, SheetCard } from "../sheet/PageHead";
@@ -411,7 +412,7 @@ function Weighing({ view }: { view: PipelineView }) {
               <td className="num">{num(l.deals, 0, locale)}</td>
               <td className="num">{money(l.open_total, locale)}</td>
               <td className="num">
-                {roughMoney(l.low, locale)} – {roughMoney(l.high, locale)}
+                {rangeOf(roughMoney(l.low, locale), roughMoney(l.high, locale), locale)}
               </td>
             </tr>
           ))}

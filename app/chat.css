@@ -228,6 +228,7 @@
   font-size: 15px;
   line-height: 1.45;
   resize: vertical;
+  border-radius: var(--r-s, 0);
 }
 .ak-input::placeholder {
   color: var(--sheet-ink-2);
@@ -398,6 +399,7 @@
   padding: 14px 16px 15px;
   border: var(--line);
   background: var(--inset);
+  border-radius: var(--r-ctl, 0);
 }
 
 /* The empty thread (2026-11-17): one line saying what Lex answers from,
@@ -431,6 +433,7 @@
   transition:
     background-color var(--d-press) linear,
     border-color var(--d-press) linear;
+  border-radius: var(--r-pill, 0);
 }
 .ak-chip:hover:not(:disabled) {
   border-color: var(--sheet-ink);

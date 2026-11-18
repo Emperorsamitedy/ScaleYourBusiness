@@ -6,6 +6,7 @@
 import fieldNames from "../../specs/field-names-en.json";
 import { minorUnitExponent } from "../../lib/core/money";
 import type { AppLocale } from "../../lib/i18n/locales";
+import { rangeOf } from "../../lib/i18n/range";
 import type { Tr } from "../../lib/i18n/tr";
 import { englishTr } from "../../lib/i18n/tr";
 import { dayMonth, dayMonthYear } from "../../lib/i18n/format";
@@ -88,10 +89,14 @@ export function forecastRange(
   };
 }
 
-/** "−120 – +340" at one decimal count for both ends. */
+/** "−120 to +340" at one decimal count for both ends. */
 export function rangeText(r: ForecastRange, locale: AppLocale = "en"): string {
   const decimals = columnDecimals([r.low, r.high]);
-  return `${signedMoney(r.low, decimals, locale)} – ${signedMoney(r.high, decimals, locale)}`;
+  return rangeOf(
+    signedMoney(r.low, decimals, locale),
+    signedMoney(r.high, decimals, locale),
+    locale,
+  );
 }
 
 /* ── re-figuring money the server already turned into text ── */

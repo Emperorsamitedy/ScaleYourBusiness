@@ -20,6 +20,7 @@
   color: var(--sheet-ink);
   font-size: 13.5px;
   max-width: var(--measure);
+  border-radius: var(--r-ctl, 0);
 }
 
 /* the on / off / never marks */
@@ -230,6 +231,7 @@
   color: var(--sheet-ink);
   font: inherit;
   font-size: 13.5px;
+  border-radius: var(--r-s, 0);
 }
 .cn-input::placeholder {
   color: var(--sheet-ink-2);
@@ -369,6 +371,7 @@
   padding: 10px 12px;
   border: 1px solid var(--rule);
   background: var(--inset);
+  border-radius: var(--r-ctl, 0);
 }
 /* Facebook Login's picker (P3-20j): one row per Page or ad account Meta shared */
 .cn-pick {
@@ -417,6 +420,7 @@
   color: var(--sheet-ink);
   --ink: var(--sheet-ink);
   --mut: var(--sheet-ink-2);
+  border-radius: var(--r-ctl, 0);
 }
 .cn-access-label {
   margin: 0 0 10px;

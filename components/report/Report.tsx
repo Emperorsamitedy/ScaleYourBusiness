@@ -9,7 +9,7 @@
 // service computed (each with derived_from + formula, rule 6) or refused
 // to compute (with the reason); the derivation sheet's history is the
 // superseded field_records of the inputs (rule 3). Where the data has no
-// reference range, no money-a-month and no prior, the cell says "—" —
+// reference range, no money-a-month and no prior, the cell says "-" —
 // components/report/panel.ts states each of those rules and tests them.
 //
 // Below the panel: the findings with their evidence, what was measured
@@ -26,6 +26,7 @@ import { quietLine, splitByMateriality } from "../../lib/connectors/materiality"
 import { gapBuysWords } from "../../lib/profile/gap-words";
 import { hoursLineWords } from "../../lib/hours/words";
 import type { AppLocale } from "../../lib/i18n/locales";
+import { rangeOf } from "../../lib/i18n/range";
 import { intlTag } from "../../lib/i18n/locales";
 import { delta, moneyFig, moneyText, num } from "../sheet/num";
 import { SheetCard } from "../sheet/PageHead";
@@ -78,7 +79,7 @@ const DECLINE_CHIPS = ["tried", "market", "now"] as const;
 
 const CASES = new Set(["base", "downside", "upside"]);
 
-const NONE = <span className="rq-none">—</span>;
+const NONE = <span className="rq-none">-</span>;
 
 /** The severity bar's marks: heavier the more urgent, the tally's own tints. */
 const SEVERITY_TONE: Readonly<Record<Severity, Tone>> = {
@@ -193,7 +194,7 @@ function Masthead({
 
 function SubNav({ findings, nav }: { findings: number | null; nav: NavCounts | null }) {
   const { t, locale } = useWords();
-  const count = (n: number | null | undefined) => (n == null ? "—" : num(n, 0, locale));
+  const count = (n: number | null | undefined) => (n == null ? "-" : num(n, 0, locale));
   return (
     <nav className="rq-sub noprint" aria-label={t("sub.label")}>
       <ul>
@@ -219,13 +220,13 @@ function SubNav({ findings, nav }: { findings: number | null; nav: NavCounts | n
         <li>
           <span className="rq-sub-i off" aria-disabled="true" title={t("sub.notBuilt")}>
             <span>{t("sub.shadow")}</span>
-            <span className="rq-sub-n">—</span>
+            <span className="rq-sub-n">-</span>
           </span>
         </li>
         <li>
           <span className="rq-sub-i off" aria-disabled="true" title={t("sub.notBuilt")}>
             <span>{t("sub.outcomes")}</span>
-            <span className="rq-sub-n">—</span>
+            <span className="rq-sub-n">-</span>
           </span>
         </li>
       </ul>
@@ -234,7 +235,7 @@ function SubNav({ findings, nav }: { findings: number | null; nav: NavCounts | n
         <li>
           <span className="rq-sub-i off" aria-disabled="true" title={t("sub.notBuilt")}>
             <span>{t("sub.rules")}</span>
-            <span className="rq-sub-n">—</span>
+            <span className="rq-sub-n">-</span>
           </span>
         </li>
         <li>
@@ -331,7 +332,7 @@ function Panel({
           {head ? (
             <>
               <span className="rq-big">
-                {signed(head.range.low, locale)}–{signed(head.range.high, locale)}
+                {rangeOf(signed(head.range.low, locale), signed(head.range.high, locale), locale)}
               </span>{" "}
               <span className="rq-big-unit">
                 {t("panel.headUnit", { ref: `R${head.index + 1}` })}
@@ -449,7 +450,7 @@ function Panel({
                     {NONE}
                   </td>
                   <td data-label={t("col.basis")}>
-                    <span className="rq-basis-w">{r.basis ? basisName(r.basis, st) : "—"}</span>
+                    <span className="rq-basis-w">{r.basis ? basisName(r.basis, st) : "-"}</span>
                   </td>
                   <td className="rq-why-cell">
                     <button
@@ -459,7 +460,7 @@ function Panel({
                       aria-controls="rq-why"
                       onClick={() => onWhy(r.id)}
                     >
-                      {t("why.button")} <span aria-hidden="true">→</span>
+                      {t("why.button")}
                       <span className="sr-only">{t("why.buttonSr", { name: r.name })}</span>
                     </button>
                   </td>
@@ -521,7 +522,7 @@ function WhySheet({ report, row }: { report: ReportView; row: MeasureRow | null 
               {row.result.unit !== "" && <span className="rq-why-unit"> {row.result.unit}</span>}
             </>
           ) : (
-            <span className="rq-why-num">—</span>
+            <span className="rq-why-num">-</span>
           )}
           {row.flag && <span className={`word ${row.flag.tone}`}>{row.flag.word}</span>}
         </p>
@@ -548,7 +549,7 @@ function WhySheet({ report, row }: { report: ReportView; row: MeasureRow | null 
                     : `${i.source} · ${i.basis ? basisName(i.basis, st) : t("why.basisNotRecorded")}`}
                 </span>
               </div>
-              <span className="rq-in-val">{i.value ?? "—"}</span>
+              <span className="rq-in-val">{i.value ?? "-"}</span>
             </li>
           ))}
           {missingWords.map((m) => (
@@ -557,7 +558,7 @@ function WhySheet({ report, row }: { report: ReportView; row: MeasureRow | null 
                 <span className="rq-in-name">{m.charAt(0).toUpperCase() + m.slice(1)}</span>
                 <span className="rq-in-src">{t("why.missing")}</span>
               </div>
-              <span className="rq-in-val">—</span>
+              <span className="rq-in-val">-</span>
             </li>
           ))}
         </ul>
@@ -670,7 +671,11 @@ function StatedVsMeasured({ rows, map }: { rows: StatedVsMeasuredRow[]; map: Fac
                     {t("svm.observed", {
                       provider: s.provider,
                       when: period
-                        ? `${fmtDate(period[1] ?? "", locale)} – ${fmtDate(period[2] ?? "", locale)}`
+                        ? rangeOf(
+                            fmtDate(period[1] ?? "", locale),
+                            fmtDate(period[2] ?? "", locale),
+                            locale,
+                          )
                         : t("svm.read", { date: fmtDate(s.measured.observed_at, locale) }),
                     })}
                   </span>

@@ -147,6 +147,7 @@
 .ui-kv {
   margin: 0 0 18px;
   border: 1px solid var(--rule);
+  border-radius: var(--r-ctl, 0);
 }
 .ui-kv div {
   display: flex;
@@ -182,6 +183,7 @@
   font-family: var(--f-mono);
   font-size: 13px;
   line-height: 1.65;
+  border-radius: var(--r-ctl, 0);
 }
 .ui-lines p {
   margin: 0;
@@ -250,6 +252,7 @@
   font-weight: 500;
   line-height: 1;
   white-space: nowrap;
+  border-radius: var(--r-xs, 0);
 }
 
 /* ── toasts: one line at the foot of the screen ── */
@@ -279,6 +282,7 @@
   box-shadow: inset 4px 0 0 var(--ok);
   --ink: var(--sheet-ink);
   animation: ui-toast-in var(--d-move) var(--ease-out);
+  border-radius: var(--r-ctl, 0);
 }
 .ui-toast.drift {
   box-shadow: inset 4px 0 0 var(--drift);
@@ -417,6 +421,7 @@
   --ink: var(--sheet-ink);
   --mut: var(--sheet-ink-2);
   animation: ui-toast-in var(--d-move) var(--ease-out);
+  border-radius: var(--r-card, 0);
 }
 .ui-palette-field {
   display: flex;
@@ -527,6 +532,7 @@
 .sk-list {
   margin: 0 0 22px;
   border: 1px solid var(--rule);
+  border-radius: var(--r-ctl, 0);
 }
 .sk-row {
   display: flex;

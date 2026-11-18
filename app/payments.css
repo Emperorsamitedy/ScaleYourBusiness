@@ -20,6 +20,7 @@
   background: var(--marker);
   color: var(--sheet-ink);
   font-size: 13.5px;
+  border-radius: var(--r-ctl, 0);
 }
 
 .py-table-wrap {
@@ -131,6 +132,7 @@
   color: var(--sheet-ink);
   font-size: 13.5px;
   max-width: 64ch;
+  border-radius: var(--r-ctl, 0);
 }
 
 /* forms */
@@ -163,6 +165,7 @@
   color: var(--sheet-ink);
   font-family: var(--f-mono);
   font-size: 13px;
+  border-radius: var(--r-s, 0);
 }
 .py-form .act {
   min-height: 44px;

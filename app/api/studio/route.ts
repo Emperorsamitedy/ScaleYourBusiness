@@ -146,7 +146,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       const session = await matchingSession();
       if (!session) {
         return NextResponse.json(
-          { error: "AI video needs you signed in — it spends real money once approved" },
+          { error: "AI video needs you signed in: it spends real money once approved" },
           { status: 401 },
         );
       }
@@ -227,7 +227,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     if (body.action === "brief") {
       if (!(await matchingSession())) {
         return NextResponse.json(
-          { error: "writing a brief needs you signed in — it spends real model calls" },
+          { error: "writing a brief needs you signed in: it spends real model calls" },
           { status: 401 },
         );
       }

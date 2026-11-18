@@ -913,7 +913,7 @@ export function ConnectionsScreen() {
             </div>
             <p className="cs-meta cn-legend" aria-hidden="true">
               <span className="cn-box on" /> {t("panel.legendOn")} <span className="cn-box" />{" "}
-              {t("panel.legendOff")} <span className="cn-dash">—</span> {t("panel.legendNever")}
+              {t("panel.legendOff")} <span className="cn-dash">-</span> {t("panel.legendNever")}
             </p>
           </header>
           <div className="cn-table-wrap">
@@ -956,7 +956,7 @@ export function ConnectionsScreen() {
                         </td>
                         <td className="cn-c" data-label={t("panel.write")}>
                           <span className="cn-dash" aria-hidden="true">
-                            —
+                            -
                           </span>
                           <span className="sr-only">{t("panel.writeNever")}</span>
                         </td>

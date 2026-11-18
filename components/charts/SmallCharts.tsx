@@ -390,7 +390,7 @@ export function AdsChart({ model }: { model: AdsChartModel }) {
                   </span>
                 </td>
                 <td className="num" data-label={tr("ads.colReturn")}>
-                  {c.roas === null ? "—" : num(c.roas, 2, locale)}
+                  {c.roas === null ? "-" : num(c.roas, 2, locale)}
                 </td>
                 <td data-label={tr("ads.colFlag")}>
                   {c.losing ? (

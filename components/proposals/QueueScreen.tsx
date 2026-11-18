@@ -1291,9 +1291,7 @@ export function QueueScreen() {
               aria-keyshortcuts="A"
               onClick={() => approveFor(p)}
             >
-              <span>
-                {plain ? verb : t("decide.approveVerb", { verb })} <span aria-hidden="true">→</span>
-              </span>
+              <span>{plain ? verb : t("decide.approveVerb", { verb })}</span>
               <kbd aria-hidden="true">A</kbd>
             </button>
             <button
@@ -1385,9 +1383,7 @@ export function QueueScreen() {
                 });
               }}
             >
-              <span>
-                {t("bulk.approve", { count: picked.size })} <span aria-hidden="true">→</span>
-              </span>
+              <span>{t("bulk.approve", { count: picked.size })}</span>
             </button>
             <button
               type="button"
@@ -1487,7 +1483,7 @@ export function QueueScreen() {
                       <span className="q-item-meta">
                         {range
                           ? `${t("side.perMonth", {
-                              range: rangeWords(range, locale, "–"),
+                              range: rangeWords(range, locale),
                             })} · `
                           : ""}
                         {shortReversibility(p.reversibility, tr)}
@@ -1500,7 +1496,7 @@ export function QueueScreen() {
                           label={
                             range
                               ? t("side.perMonth", {
-                                  range: rangeWords(range, locale, "–"),
+                                  range: rangeWords(range, locale),
                                 })
                               : t("chart.value.none")
                           }

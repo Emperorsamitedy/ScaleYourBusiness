@@ -175,6 +175,7 @@
   color: var(--sheet-ink);
   font-family: var(--f-mono);
   font-size: 13px;
+  border-radius: var(--r-s, 0);
 }
 .st-field textarea {
   resize: vertical;
@@ -247,4 +248,10 @@
   flex-wrap: wrap;
   gap: 8px 12px;
   align-items: center;
+}
+
+/* L6: each option's sum under "How this works": the option's name on its own line. */
+.st-how li strong {
+  display: block;
+  font-weight: 600;
 }

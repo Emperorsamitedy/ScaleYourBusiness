@@ -46,19 +46,19 @@ async function finish(
 
   try {
     const provider = oauthProvider(providerId);
-    if (!provider) return fail("that sign-in isn't connected yet — your email works today.");
+    if (!provider) return fail("that sign-in isn't connected yet. Your email works today.");
     if (providerError === "access_denied" || providerError === "user_cancelled_authorize") {
       return NextResponse.redirect(new URL(from, origin));
     }
     if (providerError) {
-      return fail(`${provider.label} sign-in failed — try again or use the email link`);
+      return fail(`${provider.label} sign-in failed: try again or use the email link`);
     }
     // Timing-safe (security review 2026-11-09, matching every other secret
     // compare in the codebase — lib/core/secret-compare): state is only a
     // 192-bit random nonce, so this closes a theoretical gap rather than a
     // demonstrated one, for the same reason the rest of the codebase pays it.
     if (!code || !state || !expectedState || !secretMatches(state, expectedState)) {
-      return fail("that sign-in attempt expired — try again");
+      return fail("that sign-in attempt expired: try again");
     }
 
     const redirectUri = `${origin}/api/auth/oauth/${provider.id}/callback`;
@@ -110,7 +110,7 @@ async function finish(
         ...logSafeError(error),
       }),
     );
-    return fail("something went wrong on our side — the email link still works");
+    return fail("something went wrong on our side: the email link still works");
   }
 }
 

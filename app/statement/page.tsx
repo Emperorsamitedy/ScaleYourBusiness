@@ -190,7 +190,7 @@ export default async function StatementPage({
               <ul className="shadow-summary">
                 {listed.map(({ leak: l, range }) => (
                   <li key={l.id}>
-                    <b>{l.title}</b> — {tr(`leaks.status.${l.status}`)}
+                    <b>{l.title}</b>: {tr(`leaks.status.${l.status}`)}
                     {range && (
                       <>
                         {" · "}

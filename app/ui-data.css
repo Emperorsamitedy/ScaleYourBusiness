@@ -34,6 +34,7 @@
   transition:
     background-color var(--d-press) linear,
     color var(--d-press) linear;
+  border-radius: var(--r-s, 0);
 }
 .ui-tab:hover {
   color: var(--desk-ink);

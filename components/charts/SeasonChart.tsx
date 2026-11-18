@@ -23,6 +23,7 @@ import { num } from "../sheet/num";
 import { Fold } from "../sheet/Fold";
 import { SheetCard } from "../sheet/PageHead";
 import { useTr } from "../sheet/useTr";
+import { rangeOf } from "../../lib/i18n/range";
 import { useChartWidth } from "./useChartWidth";
 
 export interface SeasonChartWeek {
@@ -225,10 +226,7 @@ export function SeasonChart({ model }: { model: SeasonChartModel }) {
           <b>
             {x10(w.index)}
             {w.low !== null && (
-              <>
-                {" "}
-                ({one(w.low)}–{w.high === null ? "?" : one(w.high)}×)
-              </>
+              <> ({rangeOf(one(w.low), w.high === null ? "?" : one(w.high), locale)}×)</>
             )}
           </b>{" "}
           {tr(model.lines ? "yourNormal" : "yourMedian")}
@@ -254,7 +252,7 @@ export function SeasonChart({ model }: { model: SeasonChartModel }) {
                 <th scope="row">{shortDate(wk.start, locale)}</th>
                 <td>{value(wk.value)}</td>
                 <td>{x10(wk.index)}</td>
-                <td>{wk.flag ? flagWord(wk.flag) : "—"}</td>
+                <td>{wk.flag ? flagWord(wk.flag) : "-"}</td>
               </tr>
             ))}
           </tbody>

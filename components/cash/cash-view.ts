@@ -272,7 +272,7 @@ export function weekRows(f: CashReady, words: CashWords = ENGLISH()): WeekRow[] 
       ),
       due:
         w.due.length === 0
-          ? "—"
+          ? "-"
           : w.due
               .map((d) => {
                 const item = `${d.label} ${wholeMoney(d.amount_minor, cur, locale)}`;
@@ -327,7 +327,7 @@ export function scenarioColumns(
     lowest: wholeMoney(f.lowest.balance.low, cur, locale),
     lowest_week: weekOf(f.weeks[f.lowest.index]!.start),
     end: rangeText(f.end, cur, words),
-    vs_plain: "—",
+    vs_plain: "-",
     tight: tightWords(tightIndex, f),
     why: null,
     needs: [],
@@ -339,13 +339,13 @@ export function scenarioColumns(
         return {
           key: c.kind,
           title: c.title,
-          change: "—",
+          change: "-",
           status: "missing",
-          lowest: "—",
+          lowest: "-",
           lowest_week: "",
-          end: "—",
-          vs_plain: "—",
-          tight: "—",
+          end: "-",
+          vs_plain: "-",
+          tight: "-",
           why: c.why,
           needs: c.needs,
         };

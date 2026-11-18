@@ -323,7 +323,7 @@ function DrawnMarket({ model, compact }: { model: DrawnModel; compact: boolean }
               }}
             >
               {tr(`period.${b}`, { count: num(1, 0, locale) })}
-              <span className="sr-only"> — {tr(`periodSr.${b}`)}</span>
+              <span className="sr-only">, {tr(`periodSr.${b}`)}</span>
             </button>
           ))}
         </div>
@@ -653,7 +653,7 @@ function ComponentRow({ c }: { c: OpportunityComponent }) {
         <td className="num" data-label={tr("row.aMonth")}>
           <span className="word none">{tr("row.notMeasured")}</span>
         </td>
-        <td data-label={tr("row.basis")}>—</td>
+        <td data-label={tr("row.basis")}>-</td>
         <td data-label={tr("row.wouldFill")}>
           {capitalFirst(c.reason, locale)}
           {fullStop(locale)}
@@ -719,7 +719,7 @@ function EmptyMarket({ model }: { model: EmptyModel }) {
         <ul className="mk-would">
           {model.components.map((k) => (
             <li key={k.key}>
-              <b>{componentLabel(k.key, tr)}</b> — {k.reason}.
+              <b>{componentLabel(k.key, tr)}</b>: {k.reason}.
             </li>
           ))}
         </ul>

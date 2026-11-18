@@ -124,10 +124,10 @@
   },
   "auth": {
     "meta": {
-      "signIn": "登录 — ScaleX",
-      "signUp": "创建账户 — ScaleX",
-      "confirm": "确认登录 — ScaleX",
-      "choose": "选择企业 — ScaleX"
+      "signIn": "登录 · ScaleX",
+      "signUp": "创建账户 · ScaleX",
+      "confirm": "确认登录 · ScaleX",
+      "choose": "选择企业 · ScaleX"
     },
     "mast": {
       "signIn": "登录",
@@ -225,7 +225,7 @@
     }
   },
   "locale": {
-    "meta": "语言和货币 — ScaleX",
+    "meta": "语言和货币 · ScaleX",
     "first": {
       "headline": "请选择您的语言和货币。"
     },
@@ -235,7 +235,7 @@
     "currency": "货币",
     "currencyHelp": "该企业的所有数字均以这种货币显示。不会进行任何换算：已记录的金额保留其录入时的货币。",
     "currencyChoose": "请选择货币",
-    "currencyOption": "{code} — {name}",
+    "currencyOption": "{code}：{name}",
     "beingChecked": "审核中",
     "checkingNote": "标记为“审核中”的语言仅对您和审核人可见，直到母语人士审阅完毕。",
     "onlyOwner": "只有所有者才能更改企业的语言或货币。",
@@ -251,7 +251,7 @@
   },
   "intake": {
     "meta": {
-      "title": "正在建立记录 — ScaleX"
+      "title": "正在建立记录 · ScaleX"
     },
     "area": {
       "identity": "企业基本信息",
@@ -288,7 +288,7 @@
       "legendMeasured": "读取自 {connector}",
       "tileChannel": "频道 {channel}",
       "tilePct": "{pct}%",
-      "tileWords": "频道 {channel}，{area}：{status}，已回答 {pct}% — {bars}。",
+      "tileWords": "频道 {channel}，{area}：{status}，已回答 {pct}%，{bars}。",
       "tileAsk": "{words}点击从这个方面开始提问。",
       "bar": {
         "owner": "{count, plural, other {# 项来自您}}",
@@ -342,21 +342,21 @@
       "left": "此频道还剩 {left, plural, other {<fig>#</fig> 个}} · 约 {minutes, plural, other {<fig>#</fig> 分钟}}",
       "measured": "已测量 · {provider}",
       "missing": "缺失的部分",
-      "missingRest": "其余部分 — {provider} 未测量的内容",
+      "missingRest": "其余部分：{provider} 未测量的内容",
       "ruler": "测量参考：{value}",
       "backTitle": "重新打开该回答以便修改；旧回答会保留在历史记录中",
       "skip": "暂时跳过",
       "next": "下一题",
       "yes": "是",
       "no": "否",
-      "unknown": "无读数 — 我不知道",
-      "emptyUnknown": "请回答此问题，或选择“无读数 — 我不知道”继续。",
+      "unknown": "无读数，我不知道",
+      "emptyUnknown": "请回答此问题，或选择“无读数，我不知道”继续。",
       "emptySkip": "请回答此问题，或选择“暂时跳过”继续。",
       "entityEmpty": "至少填写一行的第一个字段才能记录。",
       "speak": "语音回答",
       "spokenAfter": "请检查一遍并修改，然后按“下一题”记录。",
       "fileStub": "上传功能将在后续版本推出",
-      "fileUnknown": "选择“无读数 — 我不知道”继续",
+      "fileUnknown": "选择“无读数，我不知道”继续",
       "fileSkip": "暂时跳过以继续"
     },
     "amount": {
@@ -386,7 +386,7 @@
       "unlocks": "此回答将解锁",
       "open": "已开放",
       "locked": "未解锁",
-      "skippedEarlier": "之前已跳过 — 现在可以回答。",
+      "skippedEarlier": "之前已跳过。现在可以回答。",
       "answerNow": "现在回答",
       "keepSkipped": "保持跳过",
       "whatChanged": "有什么变化？",
@@ -436,8 +436,8 @@
       "factsOnFile": "{count, plural, other {已记录 # 项事实}}"
     },
     "live": {
-      "dial": "{label}：{value}%（刻度 {min}–{max}）",
-      "dialStated": "{label}：{value}%（刻度 {min}–{max}）；您陈述的是 {stated}%",
+      "dial": "{label}：{value}%（刻度 {min}-{max}）",
+      "dialStated": "{label}：{value}%（刻度 {min}-{max}）；您陈述的是 {stated}%",
       "noRange": "暂无参考范围",
       "stated": "您陈述的是 <fig>{value} %</fig>",
       "foot": "<strong>推导</strong> · {formula} · 基于 {inputs, plural, other {<fig>#</fig> 项已记录的事实}}",
@@ -487,7 +487,7 @@
       "not_parseable": "此回答需要用专门的表单填写",
       "needs_answer": "此问题需要回答",
       "reason_needed": "修改回答需要说明原因",
-      "not_askable": "该问题现在无法回答 — 页面已经继续了",
+      "not_askable": "该问题现在无法回答：页面已经继续了",
       "no_answer_to_reopen": "该问题没有可修改的回答",
       "rows_range": "需要 {min} 到 {max} 行",
       "not_entity": "该问题不接受列表",
@@ -548,11 +548,11 @@
       "medium": "中",
       "low": "低"
     },
-    "none": "—"
+    "none": "-"
   },
   "report": {
     "meta": {
-      "title": "您的诊断 — ScaleX"
+      "title": "您的诊断 · ScaleX"
     },
     "mast": {
       "watching": "观察中 · 第 {day} 天，共 {of} 天"
@@ -582,9 +582,9 @@
       "diagnosis": "诊断",
       "noFindings": "没有需要指出的发现",
       "notComputed": "{count, plural, other {<b>#</b> 项未计算}}",
-      "empty": "没有任何指标能够计算，也无法给出不计算的理由——档案中还没有可依据的内容。",
+      "empty": "没有任何指标能够计算，也无法给出不计算的理由：档案中还没有可依据的内容。",
       "caption": "每项指标：其结果、上一份报告的结果、参考范围、标记、每月金额、依据，以及计算方式",
-      "legend": "范围 · 立即处理线：只有当您的某个目标或数据所支撑的范围涵盖该指标时才会绘制——目前都没有，所以显示 —。每月金额只在某项指标的差距已被定价时才显示；目前都没有。推导 = 根据其他事实计算得出；其“为什么”会显示公式和输入。",
+      "legend": "范围 · 立即处理线：只有当您的某个目标或数据所支撑的范围涵盖该指标时才会绘制。目前都没有，所以显示 -。每月金额只在某项指标的差距已被定价时才显示；目前都没有。推导 = 根据其他事实计算得出；其“为什么”会显示公式和输入。",
       "issued": "诊断面板 · 签发于 {issued}"
     },
     "col": {
@@ -601,10 +601,10 @@
     },
     "why": {
       "button": "为什么",
-      "buttonSr": " — {name} 是如何计算的",
+      "buttonSr": "：{name} 是如何计算的",
       "sheet": "推导表",
       "nothing": "未选择任何内容",
-      "choose": "在某项指标上选择“为什么 →”，即可查看它是如何计算的。",
+      "choose": "在某项指标上选择“为什么”，即可查看它是如何计算的。",
       "formula": "公式（文字说明）",
       "notComputed": "为什么没有计算",
       "inputs": "输入",
@@ -621,7 +621,7 @@
     "measure": {
       "blended_margin": {
         "name": "综合利润率",
-        "words": "每笔销售扣除交付成本后剩余的部分占售价的比例——按您各项产品或服务的销量加权平均。"
+        "words": "每笔销售扣除交付成本后剩余的部分占售价的比例，按您各项产品或服务的销量加权平均。"
       },
       "average_order_value": {
         "name": "客单价",
@@ -633,7 +633,7 @@
       },
       "return_on_ad_spend": {
         "name": "广告支出回报率",
-        "words": "您每月的全部营收除以每月的全部广告支出——综合计算，不归因于任何单个广告。"
+        "words": "您每月的全部营收除以每月的全部广告支出，综合计算，不归因于任何单个广告。"
       },
       "fixed_costs": {
         "name": "固定成本",
@@ -641,7 +641,7 @@
       },
       "break_even": {
         "name": "盈亏平衡销量",
-        "words": "您的固定成本除以每笔销售扣除自身成本后的贡献——即每月能覆盖全部开支所需的销售笔数。"
+        "words": "您的固定成本除以每笔销售扣除自身成本后的贡献：即每月能覆盖全部开支所需的销售笔数。"
       },
       "offer": {
         "name": "利润率 · {name}",
@@ -669,10 +669,10 @@
     },
     "history": {
       "computed": "本报告中计算为 {figure}",
-      "notComputed": "本报告中未计算——{why}",
+      "notComputed": "本报告中未计算：{why}",
       "was": "上一份报告中为 {figure}",
       "notKnown": "不知道",
-      "superseded": "{name} 曾为 {was}——已被更新的{kind, select, measurement {测量} reading {读数} calculation {计算} answer {回答} other {记录}}取代"
+      "superseded": "{name} 曾为 {was}，已被更新的{kind, select, measurement {测量} reading {读数} calculation {计算} answer {回答} other {记录}}取代"
     },
     "svm": {
       "caption": "您所说的与已连接账户测量到的结果对比",
@@ -692,7 +692,7 @@
       "show": "显示"
     },
     "decline": {
-      "lede": "选填——为什么不要？",
+      "lede": "选填：为什么不要？",
       "chip": {
         "tried": "我们以前试过",
         "market": "在我的市场里行不通",
@@ -726,8 +726,8 @@
       "nobody": "没有人测量或陈述过这一点",
       "sensitivity": "敏感度 {level, select, high {高} medium {中} low {低} other {{level}}}",
       "changeMind": "如果您改变主意：",
-      "lookInto": "研究一下 →",
-      "notForUs": "不适合我们 →",
+      "lookInto": "研究一下",
+      "notForUs": "不适合我们",
       "recorded": "已记录",
       "lookingInto": "您正在研究这一项",
       "declined": "已拒绝",
@@ -747,17 +747,17 @@
       "title": "{count, plural, other {# 条建议。}}"
     },
     "hours": {
-      "label": "营业时间 · 已观测 · {from} – {to}",
+      "label": "营业时间 · 已观测 · {from} 至 {to}",
       "none": "在任何已测量的日子里都没有出现信号。",
       "title": "{count, plural, other {您的每小时销售中有 # 个信号。}}",
-      "link": "查看每个工作日 →",
+      "link": "查看每个工作日",
       "tooEarly": "现在下结论还为时过早"
     },
     "gaps": {
       "label": "什么能让结论更准确",
       "priority": "{priority, select, core {核心} important {重要} deep {深入} optional {选填} other {{priority}}}",
       "blocking": "阻塞项",
-      "answer": "现在回答 →"
+      "answer": "现在回答"
     },
     "foot": "每个数字都标明了来源。估计值都标注为估计值；没有任何内容是编造的。",
     "generatedFrom": "根据快照 {id} 生成。",
@@ -766,29 +766,29 @@
       "priceReturning": "这份报告的价格是 {price}，因为您已经为您的另一个企业付过费。",
       "others": "{count, plural, other {您还有其他企业没有付费报告：可以把它们加入同一笔付款，每份 {price}。}}",
       "total": "{count, plural, other {合计：{total}，共 # 份报告，一次付款。每个企业的报告会在您到那里打开时撰写。}}",
-      "pay": "支付 {total} →",
+      "pay": "支付 {total}",
       "notNow": "暂不"
     },
     "state": {
       "label": "诊断面板",
       "noReport": "还没有报告",
       "checking": "正在查找您的报告…",
-      "error": "加载报告时出了点问题。请刷新重试——您告诉我的内容都不会丢失。",
-      "openingCheckout": "正在打开结账页面——报告在付款之后才会撰写",
+      "error": "加载报告时出了点问题。请刷新重试。您告诉我的内容都不会丢失。",
+      "openingCheckout": "正在打开结账页面：报告在付款之后才会撰写",
       "confirming": "正在等待 Stripe 确认您的付款",
-      "reading": "正在读取您的档案——请求正在处理中",
+      "reading": "正在读取您的档案：请求正在处理中",
       "readingLede": "利润率、盈亏平衡点、发现以及应对办法。通常需要大约一分钟；在任何内容显示到页面之前，都会先核对计算。",
-      "readNow": "现在读取我的档案 →",
-      "answerMore": "先多回答一些 →",
+      "readNow": "现在读取我的档案",
+      "answerMore": "先多回答一些",
       "payFailed": "无法发起付款",
-      "payUnreachable": "我无法连接服务器——没有扣款；请重试。",
+      "payUnreachable": "我无法连接服务器。没有扣款；请重试。",
       "notConfirmed": "Stripe 尚未确认您的付款。请一分钟后刷新此页面：您不会被重复扣款，付款确认后报告就会开始撰写。",
       "generationFailed": "生成失败",
-      "unreachable": "我无法连接服务器——您的回答都很安全；请重试。"
+      "unreachable": "我无法连接服务器。您的回答都很安全；请重试。"
     },
     "share": {
       "label": "分享这份报告",
-      "signedOut": "登录后才能分享您的报告——离开 ScaleX 的链接只能由您本人创建，因此需要您登录。",
+      "signedOut": "登录后才能分享您的报告：离开 ScaleX 的链接只能由您本人创建，因此需要您登录。",
       "lede": "该链接显示这份报告当前的样子，不包含您对各项建议的回应，也不包含任何通往您账户的内容。链接创建后就不会再变化，您可以随时在这里撤销它。",
       "lasts": "有效期",
       "days": "{days, plural, other {# 天}}",
@@ -811,8 +811,8 @@
       "lastOpened": "{count, plural, other {最近打开于 {date}（# 次查看）}}",
       "reportOf": "{date} 的报告",
       "revoke": "撤销",
-      "wrong": "出了点问题——请重试",
-      "unreachable": "我无法连接服务器——请重试。"
+      "wrong": "出了点问题：请重试",
+      "unreachable": "我无法连接服务器。请重试。"
     },
     "viz": {
       "marginsLabel": "各产品毛利率",
@@ -823,7 +823,7 @@
   "charts": {
     "panel": {
       "label": "以图表展示您的数字",
-      "failed": "我暂时无法读取您的数字来生成图表。请刷新重试——没有任何内容丢失。",
+      "failed": "我暂时无法读取您的数字来生成图表。请刷新重试。没有任何内容丢失。",
       "reading": "正在读取您已测量的日子…"
     },
     "candle": {
@@ -850,7 +850,7 @@
       "lineZero": "零线",
       "tight": "吃紧",
       "today": "今天",
-      "readoutRange": "谨慎 <b>{low}</b> – 乐观 <b>{high}</b>",
+      "readoutRange": "谨慎 <b>{low}</b> 至 乐观 <b>{high}</b>",
       "underLine": "低于该线",
       "when": "时间",
       "cautiousCol": "谨慎端（{currency}）",
@@ -925,7 +925,7 @@
       "colHow": "计算方式",
       "apart": "未计入当月",
       "legend": "一个月按 {days} 天计：每项流量都在其自身的时间窗口内读取，并按 {days} 天折算，正如其所在行所示。{derived} = {derivedMeaning}。此处的 {estimated} = 等待中的提案自身的预测。区间从低端到高端；只有一个数字表示其中没有计入任何估计值。",
-      "seeWaiting": "查看正在等待的内容 →",
+      "seeWaiting": "查看正在等待的内容",
       "row": {
         "notMeasured": "未测量",
         "aMonth": "每月",
@@ -938,7 +938,7 @@
       },
       "empty": {
         "nothing": "暂时没有可绘制的内容。",
-        "connections": "前往“连接” →",
+        "connections": "前往“连接”",
         "would": "连接之后，我会算出钱在哪些地方流失："
       },
       "weekOf": "{day} 当周",
@@ -985,7 +985,7 @@
       },
       "short": {
         "label": "现有的周 · {count, number}",
-        "title": "您的各周相互对比——还算不上季节规律",
+        "title": "您的各周相互对比，还算不上季节规律",
         "meta": "{source} · {noun} · 已观测",
         "foot": "对比这 {count, number} 周的中位周。季节规律需要过去 {weeks, number} 周中有{needed, plural, other { # 个完整周}}；您现有 {have, number} 个。",
         "summary": "{count, plural, other {# 个完整周}}的{noun}，对比其自身的中位数。历史数据不足，无法说出季节规律。"
@@ -1019,12 +1019,12 @@
         "label": "广告 · {count, plural, other {最近 # 天}}",
         "titleNone": "每项营销活动都能赚回其成本",
         "titleLosing": "{count, plural, other {有 # 项营销活动的成本高于其带回的收入}}",
-        "window": "Meta Ads · {from}–{to}",
-        "windowPlatforms": "{platforms} · {from}–{to}",
+        "window": "Meta Ads · {from}-{to}",
+        "windowPlatforms": "{platforms} · {from}-{to}",
         "derivedFrom": "<word>{derived}</word>，依据 Meta 自己的归因",
         "derivedFromPlatforms": "<word>{derived}</word>，依据各平台自己的归因",
-        "foot": "回报 = Meta 归因于该营销活动的购买价值 ÷ 其花费。低于 {even} 时，按 Meta 自己的统计它在亏钱——这就是我提议暂停的那条线。",
-        "footPlatforms": "回报 = 平台归因于该营销活动的价值 ÷ 其花费。低于 {even} 时，按该平台自己的统计它在亏钱——这就是我提议暂停的那条线。",
+        "foot": "回报 = Meta 归因于该营销活动的购买价值 ÷ 其花费。低于 {even} 时，按 Meta 自己的统计它在亏钱：这就是我提议暂停的那条线。",
+        "footPlatforms": "回报 = 平台归因于该营销活动的价值 ÷ 其花费。低于 {even} 时，按该平台自己的统计它在亏钱：这就是我提议暂停的那条线。",
         "keySpent": "花费：空心",
         "keyBack": "Meta 归因的回收：实心",
         "keyBackPlatforms": "平台归因的回收：实心",
@@ -1057,14 +1057,14 @@
   },
   "factsheet": {
     "meta": {
-      "title": "您的事实表 — ScaleX"
+      "title": "您的事实表 · ScaleX"
     },
     "kicker": "您的企业 · 事实表",
     "titleEmpty": "记录。",
     "title": "{count, plural, other {关于{noun}的 # 项事实。}}",
     "yourBusiness": "您的企业",
-    "noSession": "此设备上还没有档案。<a>开始回答问题</a>——或者打开我发给您的链接。",
-    "failed": "加载您的档案时出了点问题。请刷新重试——您告诉我的内容都不会丢失。",
+    "noSession": "此设备上还没有档案。<a>开始回答问题</a>，或者打开我发给您的链接。",
+    "failed": "加载您的档案时出了点问题。请刷新重试。您告诉我的内容都不会丢失。",
     "reading": "正在读取您的档案…",
     "export": {
       "current": "资金类事实，CSV",
@@ -1091,7 +1091,7 @@
     "stillOpen": "仍待回答",
     "empty": {
       "query": "没有与“{query}”匹配的事实。",
-      "assumed": "没有任何事实依赖于假设——每个值都来自您、某个连接或计算。",
+      "assumed": "没有任何事实依赖于假设。每个值都来自您、某个连接或计算。",
       "changed": "本月没有任何内容被替换。",
       "none": "暂无记录。"
     },
@@ -1117,7 +1117,7 @@
       "optional": "选填"
     },
     "blocking": "阻塞项",
-    "answerNow": "现在回答 →",
+    "answerNow": "现在回答",
     "showFewer": "收起",
     "showAll": "显示全部 {count} 项",
     "section": {
@@ -1163,7 +1163,7 @@
     },
     "value": {
       "pagesSilent": "他们的网页没有提及",
-      "unknown": "您不知道——已记录",
+      "unknown": "您不知道，已记录",
       "skipped": "暂时跳过",
       "notApplicable": "不适用",
       "unasked": "尚未提问"
@@ -1173,16 +1173,16 @@
       "unreachable": "我无法连接服务器。请稍后重试。",
       "failed": "调研失败",
       "searching": "正在搜索网络…",
-      "find": "查找我的竞争对手 →",
+      "find": "查找我的竞争对手",
       "searchingFrom": "正在根据您告诉我的信息搜索",
       "readingPages": "正在阅读他们的网页",
       "readingPagesNow": "正在阅读他们的网页…",
-      "thatsOne": "添加 →"
+      "thatsOne": "添加"
     }
   },
   "watch": {
     "meta": {
-      "title": "观察 — ScaleX"
+      "title": "观察 · ScaleX"
     },
     "kicker": "洞察 · 观察",
     "days": {
@@ -1210,7 +1210,7 @@
       "thinRule": "数据不足 = 最近 {of} 天中有记录的天数少于 {min} 天，因此还没有可供判断的常规范围。",
       "driftRule": "偏离 = 连续 {days} 天或更久超出其常规范围；中断 = 触发了停止观察的规则。",
       "connect": "连接您的收款、收银机或网店、分析工具或广告，它们所含的每个企业整体数字每天都会在这里读取。<a>连接</a>",
-      "noDaily": "您的连接中还没有每日数字——它们会在下一次同步时到来。",
+      "noDaily": "您的连接中还没有每日数字。它们会在下一次同步时到来。",
       "tableLabel": "信号表",
       "col": {
         "signal": "信号",
@@ -1231,7 +1231,7 @@
     },
     "when": {
       "label": "观察期结束时",
-      "link": "我的工作方式 →",
+      "link": "我的工作方式",
       "ends": "观察期结束。下一份报告会读取这期间收集到的所有内容。",
       "after": "之后",
       "afterText": "您批准的提案可以执行。观察期不再搁置它们。",
@@ -1348,8 +1348,8 @@
   },
   "proposals": {
     "meta": {
-      "title": "提案 — ScaleX",
-      "one": "一项提案 — ScaleX"
+      "title": "提案 · ScaleX",
+      "one": "一项提案 · ScaleX"
     },
     "module": "{module, select, marketing {营销} sales {销售} support {客户支持} operations {运营} finance {财务} team {团队} other {{module}}}",
     "loading": "正在读取队列…",
@@ -1365,15 +1365,15 @@
     "signedOut": {
       "eyebrow": "提案",
       "title": "登录后再做决定。",
-      "copy": "批准或拒绝提案会以您的名字记录——这需要您登录，而不仅仅是使用这个浏览器。",
+      "copy": "批准或拒绝提案会以您的名字记录。这需要您登录，而不仅仅是使用这个浏览器。",
       "signIn": "登录"
     },
     "reason": {
       "why": "为什么不要？",
       "whyAll": "这 {count} 项为什么都不要？点一下就够了",
       "label": "您的理由，用您自己的话说",
-      "placeholder": "或者用一句话说明——我会从中学习。",
-      "need": "请先选择一个理由——拒绝时需要说明原因，记录会保留您的回答。",
+      "placeholder": "或者用一句话说明。我会从中学习。",
+      "need": "请先选择一个理由。拒绝时需要说明原因，记录会保留您的回答。",
       "foot": "拒绝：不会执行任何操作，也不会改变任何内容。我会连同您的理由记录下来，并且不会据此行动。",
       "record": "记录拒绝",
       "recordAll": "为 {count} 项记录拒绝"
@@ -1393,7 +1393,7 @@
     "changes": {
       "label": "应该有什么不同？",
       "placeholder": "例如：只针对去年的客户，并且不打折。",
-      "need": "请先说明应该改什么——记录会保留您的原话。",
+      "need": "请先说明应该改什么：记录会保留您的原话。",
       "foot": "未批准，也不是拒绝：不会执行任何操作。您的原话会连同您的名字记入记录。目前还不会自动重新起草。",
       "record": "记录该请求"
     },
@@ -1408,7 +1408,7 @@
       "profit": "利润 {span}，从下行到上行",
       "likeliest": "最可能：{statement}",
       "none": "这一项没有预测资金影响。",
-      "noRange": "这一项没有预测金额范围——各情形的文字描述如下：",
+      "noRange": "这一项没有预测金额范围。各情形的文字描述如下：",
       "case": {
         "downside": "下行",
         "likeliest": "最可能",
@@ -1422,19 +1422,19 @@
       "notRecorded": "未记录",
       "disagree": "{count, plural, other {# 个来源意见不一}}",
       "breakEven": "盈亏平衡点",
-      "manual": "您告诉过我：“{limits}”——请您自己权衡这一点；我无法替您核对。"
+      "manual": "您告诉过我：“{limits}”。请您自己权衡这一点；我无法替您核对。"
     },
     "decisions": "决定",
     "stats": "本月从起草到决定的中位时间：{median} · 已批准 {approved} / {decided}",
     "empty": {
       "title": "没有需要决定的事项。",
-      "lede": "提案来自您最新的诊断报告、观察循环在您的数字中发现的变化、未能达成的目标、广告和内容审查，以及您在聊天中提出的请求。每一项都会先出现在这里——会发生什么、依据是什么，以及拒绝意味着什么。没有您的同意，什么都不会执行。",
+      "lede": "提案来自您最新的诊断报告、观察循环在您的数字中发现的变化、未能达成的目标、广告和内容审查，以及您在聊天中提出的请求。每一项都会先出现在这里：会发生什么、依据是什么，以及拒绝意味着什么。没有您的同意，什么都不会执行。",
       "check": "查看最新报告中的提案"
     },
     "held": {
       "label": "按您的指示搁置 · {count}",
       "stamp": "已搁置 · 不会被提出",
-      "note": "我写好了这一项，然后自己拦下了它——您说过“{limit}”。"
+      "note": "我写好了这一项，然后自己拦下了它。您说过“{limit}”。"
     },
     "m": {
       "changes": "改动内容",
@@ -1452,7 +1452,7 @@
       "label": "您的决定",
       "decline": "拒绝",
       "changes": "请求修改",
-      "approveVerb": "批准——{verb}",
+      "approveVerb": "批准：{verb}",
       "run": "如果批准，执行时间",
       "halted": "目前一切都已停止：在您重新启动之前，什么都不会执行。"
     },
@@ -1479,9 +1479,9 @@
       "selected": "{count, plural, other {已选择 # 项}}",
       "tick": "在列表中勾选提案",
       "run": "{count, plural, other {如果批准，这 # 项的执行时间}}",
-      "choose": "— 选择时间 —",
-      "noTime": "不设定时间——已计划的发布保留原定时间",
-      "need": "请先选择它们的执行时间——批量批准需要说明执行安排。",
+      "choose": "选择时间",
+      "noTime": "不设定时间：已计划的发布保留原定时间",
+      "need": "请先选择它们的执行时间：批量批准需要说明执行安排。",
       "approve": "批准 {count} 项",
       "decline": "拒绝 {count} 项"
     },
@@ -1495,7 +1495,7 @@
       "youAsked": "您要求：“{words}”",
       "youSaid": "您说过：“{words}”",
       "earlier": "更早 · {count}",
-      "expired": "未批准——没有执行任何操作。它在未作决定的情况下超时了；这并不代表拒绝。",
+      "expired": "未批准。没有执行任何操作。它在未作决定的情况下超时了；这并不代表拒绝。",
       "runs": "最早于 {day} 执行。",
       "oneAtATime": "返回逐项处理"
     },
@@ -1517,7 +1517,7 @@
       "reversible": "可撤销 · {level, select, easy {容易撤销} moderate {撤销难度中等} hard {难以撤销} other {{level}}}",
       "reversibleWord": "可撤销",
       "irreversible": "不可撤销",
-      "noUndo": "此项没有声明撤销方式——请视为永久性改动。",
+      "noUndo": "此项没有声明撤销方式。请视为永久性改动。",
       "short": "{level, select, easy {容易撤销} moderate {撤销难度中等} hard {难以撤销} other {{level}}}",
       "shortIrreversible": "不可撤销"
     },
@@ -1544,7 +1544,7 @@
       "queued": "批准后，它会排入队列，最早于 {day} {clock} 执行。批准无法撤回；紧急停止仍可以叫停它。",
       "noTime": "批准会以您的名字记录您的同意。由于没有设定时间，它不会自行执行。"
     },
-    "lapsed": "您批准了这一项，但它在执行之前已失效——没有执行任何操作。",
+    "lapsed": "您批准了这一项，但它在执行之前已失效。没有执行任何操作。",
     "card": {
       "when": "{day} {clock}",
       "earlier": "更早",
@@ -1657,21 +1657,21 @@
     "stoppedAt": "已于 {when} 停止 · 不会执行任何操作",
     "stoppedShort": "已停止 · 不会执行任何操作",
     "starting": "正在启动…",
-    "yesStart": "是——重新启动",
+    "yesStart": "是，重新启动",
     "stay": "保持停止",
     "startNote": "重新启动后，已批准的操作就可以执行。这需要您登录。",
     "startUp": "重新启动",
     "flag": "已停止 · 不会执行任何操作",
     "title": "一切都已停止。",
-    "titleSince": "一切都已停止——自 {when} 起。",
-    "copy": "已批准的操作保持批准状态并等待。不会执行、不会发布，您的网站上也不会有任何改动——包括您停止时正在进行中的任何操作。读取、计划和提出提案都会照常进行。",
+    "titleSince": "一切都已停止，自 {when} 起。",
+    "copy": "已批准的操作保持批准状态并等待。不会执行、不会发布，您的网站上也不会有任何改动，包括您停止时正在进行中的任何操作。读取、计划和提出提案都会照常进行。",
     "youSaid": "您说过：“{reason}”",
-    "yesExecute": "是——重新开始执行",
+    "yesExecute": "是，重新开始执行",
     "stopShort": "停止"
   },
   "history": {
     "meta": {
-      "title": "历史记录 — ScaleX"
+      "title": "历史记录 · ScaleX"
     },
     "kicker": "您的企业 · 历史记录",
     "title": "账本。",
@@ -1721,11 +1721,11 @@
       "superseded": "已取代"
     },
     "foot": {
-      "append": "条目无法编辑或删除——更正会作为新条目添加，并指向原条目。",
+      "append": "条目无法编辑或删除：更正会作为新条目添加，并指向原条目。",
       "rate": "批准率：{arithmetic}。",
       "tooEarly": "{count, plural, other {# 项现在评判还为时过早。}}",
-      "unmeasured": "{count, plural, other {# 项未测量——评判需要一个已连接的来源。}}",
-      "verdict": "每个评判都是基于已测量日子的计算，于当下读取——不会根据意图打分。"
+      "unmeasured": "{count, plural, other {# 项未测量：评判需要一个已连接的来源。}}",
+      "verdict": "每个评判都是基于已测量日子的计算，于当下读取。不会根据意图打分。"
     },
     "track": {
       "label": "我的过往准确率",
@@ -1745,7 +1745,7 @@
   },
   "connections": {
     "meta": {
-      "title": "连接 — ScaleX"
+      "title": "连接 · ScaleX"
     },
     "kicker": "您的企业 · 连接",
     "loading": "正在读取您的连接…",
@@ -1767,7 +1767,7 @@
       "stalled": "目前没有任何来源在读取。",
       "none": "还没有接入任何来源。",
       "writesUnknown": "无法读取写入权限。",
-      "canWrite": "{labels} 可以写入——仅限您批准的内容。",
+      "canWrite": "{labels} 可以写入：仅限您批准的内容。",
       "nothingWritten": "没有任何内容可以写入。",
       "readOnly": "{labels} 持有一项可以写入的权限；ScaleX 只用它读取。"
     },
@@ -1806,7 +1806,7 @@
       "reading": "读取中",
       "notReading": "未在读取，{status}",
       "off": "关",
-      "writeNever": "从不——设计上就是只读",
+      "writeNever": "从不：设计上就是只读",
       "close": "关闭",
       "settings": "设置",
       "connect": "连接",
@@ -2021,10 +2021,10 @@
       "square": {
         "s1": "在 <b>Square Developer Console</b> 中，创建一个应用（或打开现有应用），并复制它的 <b>Production access token</b>。",
         "s2": "只给它以下权限：",
-        "s3": "把令牌粘贴到下方。在 Square 中记录的付款——刷卡和现金——都会被读取；从不经过收银机的现金，任何工具都看不到。有了这两项预约权限，您在 Square Appointments 中的预约也会被读取。"
+        "s3": "把令牌粘贴到下方。在 Square 中记录的付款（刷卡和现金）都会被读取；从不经过收银机的现金，任何工具都看不到。有了这两项预约权限，您在 Square Appointments 中的预约也会被读取。"
       },
       "search_console": {
-        "s1": "在 <b>Google Cloud Console</b> 中，为某个项目启用 <b>Google Search Console API</b>，并创建一个带 <b>JSON 密钥</b>的服务账户——用于 Google Analytics 的那个也可以。",
+        "s1": "在 <b>Google Cloud Console</b> 中，为某个项目启用 <b>Google Search Console API</b>，并创建一个带 <b>JSON 密钥</b>的服务账户：用于 Google Analytics 的那个也可以。",
         "s2": "在 <b>Search Console</b> 中，打开<b>设置</b>，然后打开<b>用户和权限</b>，并添加服务账户的邮箱：",
         "s3": "按 Search Console 中显示的名称原样填写媒体资源，并附上密钥文件的内容。出于隐私考虑，Google 会隐藏罕见的搜索，所以我读取到的搜索总数会比 Google 自己的总数略少一些。"
       },
@@ -2215,14 +2215,14 @@
           "s0": "在 Meta Business Suite 中，确认您的 Facebook 公共主页及其 Instagram 账户都在您的业务资产组合中。",
           "s1": "在 developers.facebook.com 上，创建一个归属于同一业务资产组合的 Business 类型应用。",
           "s2": "为应用添加 Pages 和 Instagram 用例。",
-          "s3": "在您的业务设置中，添加一个系统用户，把您的公共主页和 Instagram 账户分配给它，并为您的应用生成一个令牌，权限与上面列出的完全一致——不多也不少。",
+          "s3": "在您的业务设置中，添加一个系统用户，把您的公共主页和 Instagram 账户分配给它，并为您的应用生成一个令牌，权限与上面列出的完全一致。不多也不少。",
           "s4": "把令牌连同您的公共主页 ID 粘贴到这里；如果也要发布到 Instagram，还需填写 Instagram 账户 ID。"
         },
         "meta_ads": {
           "s0": "在 Meta Business Suite 中，确认您的广告账户在您的业务资产组合中。",
           "s1": "在 developers.facebook.com 上，创建一个归属于同一业务资产组合的 Business 类型应用。",
           "s2": "为应用添加 Marketing API 用例。",
-          "s3": "在您的业务设置中，添加一个系统用户，把您的广告账户分配给它，并为您的应用生成一个令牌，权限与上面列出的完全一致——不能多。",
+          "s3": "在您的业务设置中，添加一个系统用户，把您的广告账户分配给它，并为您的应用生成一个令牌，权限与上面列出的完全一致。不能多。",
           "s4": "把令牌连同 Ads Manager 中的广告账户 ID 一起粘贴到这里。"
         }
       },
@@ -2270,7 +2270,7 @@
         "no_ad_accounts": "对于这个 Facebook 账户，Meta 没有向 ScaleX 显示任何广告账户。请在 Meta 的对话框中，选择您希望 ScaleX 管理的广告账户，然后重试。",
         "meta_auth": "Facebook 登录没有完成：Meta 没有接受这次登录。请从“连接”重新开始。",
         "meta_permission": "Facebook 登录没有完成：Meta 表示 ScaleX 无权执行该操作。请检查“连接”中列出的权限，然后重新开始。",
-        "meta_busy": "Facebook 登录没有完成：Meta 繁忙或没有响应。没有连接任何内容——请过几分钟再试。",
+        "meta_busy": "Facebook 登录没有完成：Meta 繁忙或没有响应。没有连接任何内容。请过几分钟再试。",
         "meta_refused": "Facebook 登录没有完成：Meta 拒绝了它。没有连接任何内容。",
         "internal": "我们这边出了问题。没有连接任何内容。",
         "generic": "Facebook 登录没有完成。没有连接任何内容。"
@@ -2303,7 +2303,7 @@
         "testersOff": "适用于 ScaleX 工作人员已在 Meta 中添加的测试者。{off}"
       },
       "tier": {
-        "unseen": "尚未获知——ScaleX 第一次为广告变更调用接口时，Meta 会告知",
+        "unseen": "尚未获知：ScaleX 第一次为广告变更调用接口时，Meta 会告知",
         "development_access": "开发层级：Meta 最低的限额，供开发构建使用",
         "standard_access": "标准访问：这个广告账户每小时约可调用 {base} + {perAd} × 活跃广告数 次",
         "note": "Meta 按层级限制 ScaleX 每小时可以对这个广告账户进行的调用次数。这足够一家企业使用，但不足以服务大量客户。每当 Meta 报告已用掉限额的 {share}，ScaleX 就会等到下一次运行。更高的限额需要通过 Meta 的审核；一旦在 {days, plural, other {# 天}}内累计 {calls, plural, other {# 次成功调用}}，ScaleX 就会提出申请。"
@@ -2424,7 +2424,7 @@
         "no_locations": "对于这个 Google 账户，Google 没有向 ScaleX 显示任何商家资料。请使用管理您商家资料的账户登录，然后重试。",
         "google_auth": "Google 没有接受这次登录。请从“连接”重新开始。",
         "google_permission": "Google 表示 ScaleX 尚无权读取商家资料。没有连接任何内容。",
-        "google_busy": "Google 繁忙或没有响应。没有连接任何内容——请过几分钟再试。",
+        "google_busy": "Google 繁忙或没有响应。没有连接任何内容。请过几分钟再试。",
         "google_refused": "Google 拒绝了这次登录。没有连接任何内容。",
         "internal": "我们这边出了问题。没有连接任何内容。",
         "generic": "Google 登录没有完成。没有连接任何内容。"
@@ -2737,7 +2737,7 @@
         "google_error": "Google 登录没有完成。没有连接任何内容。",
         "no_refresh": "Google 没有给 ScaleX 长期访问权限。请重新开始：Google 会再询问一次，ScaleX 需要这个回答。",
         "google_auth": "Google 没有接受这次登录。请从“连接”重新开始。",
-        "google_busy": "Google 繁忙或没有响应。没有连接任何内容——请过几分钟再试。",
+        "google_busy": "Google 繁忙或没有响应。没有连接任何内容。请过几分钟再试。",
         "google_refused": "Google 拒绝了这次登录。没有连接任何内容。",
         "internal": "我们这边出了问题。没有连接任何内容。",
         "generic": "Google 登录没有完成。没有连接任何内容。"
@@ -3072,7 +3072,7 @@
     }
   },
   "resume": {
-    "meta": "继续 — ScaleX",
+    "meta": "继续 · ScaleX",
     "headline": "从上次停下的地方继续。",
     "title": "要继续这次访谈吗？",
     "button": "继续",
@@ -3081,7 +3081,7 @@
     "deadMessage": "继续访谈的链接在过期或被撤销后即失效。用您的邮箱登录，您的访谈仍停留在您离开时的位置。"
   },
   "summaryStop": {
-    "meta": "每周摘要 — ScaleX",
+    "meta": "每周摘要 · ScaleX",
     "label": "邮件偏好",
     "unknown": {
       "title": "我们不认识这个链接。",
@@ -3099,11 +3099,11 @@
   },
   "benchmarks": {
     "meta": {
-      "title": "与同类企业比较 — ScaleX"
+      "title": "与同类企业比较 · ScaleX"
     },
     "kicker": "洞察 · 与同类企业比较",
     "aside": "Eurostat · 只读",
-    "add": "添加{what} →",
+    "add": "添加{what}",
     "addPeople": "添加这里有多少人工作",
     "notComparedYet": "尚未比较",
     "noComparison": "无可比较",
@@ -3154,7 +3154,7 @@
   },
   "blindspots": {
     "meta": {
-      "title": "盲点 — ScaleX"
+      "title": "盲点 · ScaleX"
     },
     "kicker": "洞察 · 盲点",
     "quoted": "“{text}”",
@@ -3201,7 +3201,7 @@
     },
     "fixed": {
       "label": "盲点如何被修复",
-      "link": "在“网站”中查看 →",
+      "link": "在“网站”中查看",
       "stepFix": "修复方法是{fix}。",
       "fixDefault": "通过批准队列进行的一项网站更改，或您的客户支持助手中的一条回答",
       "stepWait": "不会自行改变任何东西：修复会在“等待您处理”中等待，直到您批准。",
@@ -3254,7 +3254,7 @@
   },
   "carts": {
     "meta": {
-      "title": "弃购购物车 — ScaleX"
+      "title": "弃购购物车 · ScaleX"
     },
     "kicker": "客户 · 弃购购物车",
     "foot": "ScaleX 从不给没有同意的购物者发邮件。如果您使用 Shopify 自带的结账放弃提醒邮件，那是另一回事。",
@@ -3287,9 +3287,9 @@
       "titleRange": "可能挽回 {range}",
       "titleNone": "暂时没有可以通过邮件挽回的",
       "inQueue": "今天的提醒已在您的队列中。",
-      "oneEmail": "一封邮件，发给在 {min}–{max} 天前留下购物车并表示同意的 {count, plural, other {# 位联系人}}。在您批准这封邮件本身之前，什么都不会发出。",
-      "button": "提出挽回邮件 →",
-      "rangeOf": "{base} 的 {low}–{high}",
+      "oneEmail": "一封邮件，发给在 {min}-{max} 天前留下购物车并表示同意的 {count, plural, other {# 位联系人}}。在您批准这封邮件本身之前，什么都不会发出。",
+      "button": "提出挽回邮件",
+      "rangeOf": "{base} 的 {low}-{high}",
       "rangeBase": "{count, plural, other {# 个购物者同意接收邮件的购物车}}的金额",
       "nobody": "在最近 {days} 天内留下购物车的人中，没有可以发邮件的，所以我不给出数字。",
       "working": "正在准备提醒"
@@ -3333,7 +3333,7 @@
   },
   "cash": {
     "meta": {
-      "title": "现金流 — ScaleX"
+      "title": "现金流 · ScaleX"
     },
     "kicker": "洞察 · 现金流",
     "aside": "规划辅助 · 只读",
@@ -3365,7 +3365,7 @@
     },
     "weeks": {
       "label": "逐周",
-      "meta": "谨慎 – 乐观，按整数单位",
+      "meta": "谨慎 至 乐观，按整数单位",
       "week": "周",
       "moneyIn": "进账",
       "goingOut": "出账",
@@ -3429,7 +3429,7 @@
   },
   "competitors": {
     "meta": {
-      "title": "竞争对手 — ScaleX"
+      "title": "竞争对手 · ScaleX"
     },
     "kicker": "洞察 · 竞争对手",
     "aside": "仅限公开页面 · 每周读取 · 已观测",
@@ -3464,7 +3464,7 @@
       "label": "我正在关注谁",
       "nobody": "还没有任何人",
       "count": "{count, plural, other {# 个竞争对手}}",
-      "addOne": "添加一个竞争对手 →",
+      "addOne": "添加一个竞争对手",
       "add": "添加",
       "empty": "告诉我您和谁竞争：他们的网站，以及列有他们价格的预约或商户页面。我只读取这些页面，别的都不读。",
       "save": "保存",
@@ -3535,7 +3535,7 @@
   },
   "goals": {
     "meta": {
-      "title": "目标 — ScaleX"
+      "title": "目标 · ScaleX"
     },
     "kicker": "洞察 · 目标",
     "metric": {
@@ -3585,9 +3585,9 @@
       "escalated": "自动复查已经尽力了。我们的工作人员正在查看这个目标，会与您联系。",
       "escalatedWhy": "自动复查已经尽力了（{reason}）。我们的工作人员正在查看这个目标，会与您联系。",
       "cause": "<strong>{cause}：</strong>{statement}（{count, plural, other {# 条证据}}）",
-      "waiting": "{title} — 等待您处理",
-      "waitingNote": "{title} — 等待您处理（{note}）",
-      "yours": "{title} — 由您决定"
+      "waiting": "{title}：等待您处理",
+      "waitingNote": "{title}：等待您处理（{note}）",
+      "yours": "{title}：由您决定"
     },
     "foot": {
       "waiting": "等待您处理",
@@ -3627,8 +3627,8 @@
       "someOn": "{goals}{count, plural, other {有 # 个在路径上。}}"
     },
     "aside": "{one} 根蜡烛 = {one} 周 · 蓝线 = 通往目标值的路径",
-    "setFirst": "设定一个目标 →",
-    "setNew": "设定新目标 →",
+    "setFirst": "设定一个目标",
+    "setNew": "设定新目标",
     "how": {
       "label": "目标如何运作",
       "copy": "目标在“内容”中设定，那里每一篇计划中的内容都会写明它服务的目标。把一个目标变得可测量（营收、销售笔数或网站访问量，并设定日期），之后每周都会将它与一条从起点到您期望位置的直线路径进行对照。在最初八周内，或在我仍在观察期间，不做任何判断。"
@@ -3636,7 +3636,7 @@
   },
   "hours": {
     "meta": {
-      "title": "营业时间 — ScaleX"
+      "title": "营业时间 · ScaleX"
     },
     "kicker": "洞察 · 营业时间",
     "weekdays": {
@@ -3697,7 +3697,7 @@
     "trials": {
       "title": "试行",
       "none": "还不是提案",
-      "waiting": "等待您处理 →"
+      "waiting": "等待您处理"
     },
     "signedOut": {
       "title": "这里还没有企业。",
@@ -3748,7 +3748,7 @@
   },
   "patterns": {
     "meta": {
-      "title": "季节与组合 — ScaleX"
+      "title": "季节与组合 · ScaleX"
     },
     "kicker": "洞察 · 季节与组合",
     "head": {
@@ -3820,7 +3820,7 @@
       "tooFewBody": "当有 {amount} 时我才会寻找组合：数量更少时，仅凭偶然就能让任意两件商品看起来形影不离。",
       "none": "没有任何组合一起出现的频率高于随机情况",
       "some": "{count, plural, other {# 个组合}}一起出现的频率高于随机情况",
-      "meta": "{amount}，{from} – {to} · 已观测",
+      "meta": "{amount}，{from} 至 {to} · 已观测",
       "footRule": "当一个组合共同出现 {amount} 或以上，且出现频率至少是随机情况的 {lift} 时，才会显示。",
       "footBelow": "{below, plural, other {有 # 个组合}}出现得太少，另有 {belowLift, number} 个出现频率不高于随机情况。",
       "footBelowUngrouped": "{below, plural, other {有 # 个组合}}出现得太少，另有 {belowLift, number} 个出现频率不高于随机情况；{ungrouped, plural, other {有 # 个预约}}没有客户或服务信息，无法归入某次到访。",
@@ -3831,7 +3831,7 @@
       "had": "{amount} 含有 {a}",
       "byChance": "随机情况下约 {count, number} 个",
       "drafting": "正在起草…",
-      "propose": "提出这个组合 →"
+      "propose": "提出这个组合"
     },
     "margin": {
       "unknown": "利润率未知：{why}。",
@@ -3861,7 +3861,7 @@
     "loading": "正在读取您的历史数据…",
     "aside": {
       "none": "尚无测量数据",
-      "span": "{source} · {from} – {to} · 已测量"
+      "span": "{source} · {from} 至 {to} · 已测量"
     },
     "bundles": {
       "section": "哪些东西会一起出现",
@@ -3870,14 +3870,14 @@
       "withoutLines": "{names} 记录的是付款，而不是产品，所以无法说明哪些东西一起出现。"
     },
     "connections": "连接",
-    "held": "提案是给您的一份草稿：两件商品都按原价，没有折扣。我不会改变您的网店或结账流程——组合由您自己设置。",
+    "held": "提案是给您的一份草稿：两件商品都按原价，没有折扣。我不会改变您的网店或结账流程。组合由您自己设置。",
     "waiting": "等待您处理",
     "how": "运作方式",
     "why": "为什么？"
   },
   "pipeline": {
     "meta": {
-      "title": "销售管道 — ScaleX"
+      "title": "销售管道 · ScaleX"
     },
     "kicker": "客户 · 销售管道",
     "loading": "正在读取您的销售管道…",
@@ -3963,7 +3963,7 @@
       "undated": "{count, plural, other {有 # 笔进行中的交易}}没有预计成交日期。",
       "title": "{days, plural, other {您预计在接下来 # 天内成交的交易}}",
       "meta": "计入我的过往准确率：届时我会对照您标为已赢单的交易进行核对。",
-      "line": "{count, plural, other {# 笔交易}}，金额 {total}：预计约 {low} – {high} 赢单。",
+      "line": "{count, plural, other {# 笔交易}}，金额 {total}：预计约 {low} 至 {high} 赢单。",
       "unvalued": "到期的交易中有 {count} 笔没有金额，未计入这些数字。",
       "undatedOut": "{count, plural, other {有 # 笔进行中的交易没有预计成交日期，因此未计入此次预测。}}",
       "assumed": "假设",
@@ -4037,13 +4037,13 @@
       "noNextStep": "没有下一步",
       "overdue": "{days, plural, other {下一步应于 {day} 完成，已过去 # 天}}",
       "rateNone": "尚不知道",
-      "rateMeasured": "已测量 {point}：已结束的 {closed} 笔中赢单 {won} 笔，可能为 {low}–{high}",
-      "rateStated": "您陈述的 {point}，按 {low}–{high} 解读",
+      "rateMeasured": "已测量 {point}：已结束的 {closed} 笔中赢单 {won} 笔，可能为 {low}-{high}",
+      "rateStated": "您陈述的 {point}，按 {low}-{high} 解读",
       "headNone": "还没有进行中的交易。",
       "headNoValue": "{open, plural, other {# 笔进行中的交易}}，都还没有金额。",
       "headCantWeigh": "{open, plural, other {# 笔进行中的交易}}，金额 {totals}。我暂时还无法加权。",
-      "headLikely": "在您进行中的 {total} 中，{low}–{high} 可能成交。",
-      "headLikelyMore": "在您进行中的 {total} 中，{low}–{high} 可能成交，另有部分以{others, plural, other {另外 # 种货币}}计。",
+      "headLikely": "在您进行中的 {total} 中，{low}-{high} 可能成交。",
+      "headLikelyMore": "在您进行中的 {total} 中，{low}-{high} 可能成交，另有部分以{others, plural, other {另外 # 种货币}}计。",
       "follow": {
         "drafted": "已起草",
         "approved": "已批准",
@@ -4058,7 +4058,7 @@
   },
   "reviews": {
     "meta": {
-      "title": "评价 — ScaleX"
+      "title": "评价 · ScaleX"
     },
     "kicker": "客户 · 评价",
     "foot": "ScaleX 从不发布回复，也从不登录您的评价网站。只有在您连接了 Google 商家资料后，它才会读取您的 Google 评价，而且只读取。评价者的名字保留一年，您可以随时移除任何一条评价。",
@@ -4108,8 +4108,8 @@
       "copied": "已复制",
       "copyReply": "复制回复",
       "drafting": "正在起草…",
-      "suggestAnother": "再建议一个 →",
-      "suggest": "建议一条回复 →",
+      "suggestAnother": "再建议一个",
+      "suggest": "建议一条回复",
       "openOn": "在 {site} 上打开 ↗",
       "theSite": "该网站",
       "noneLeft": "这条评价已没有剩余的建议次数：请您自己撰写。",
@@ -4188,7 +4188,7 @@
   },
   "simulate": {
     "meta": {
-      "title": "模拟器 — ScaleX"
+      "title": "模拟器 · ScaleX"
     },
     "tabs": {
       "aria": "模拟器",
@@ -4268,11 +4268,11 @@
       "setByOption": "由选项设定",
       "needs": "需要 {list}"
     },
-    "headNone": "您的 {total} 个营销活动选项中，还没有一个能根据您自己的数字测算——每个选项都列出了它缺少的内容。",
+    "headNone": "您的 {total} 个营销活动选项中，还没有一个能根据您自己的数字测算。每个选项都列出了它缺少的内容。",
     "headSome": "您的 {total} 个营销活动选项中，有 {priced} 个可以根据您自己的数字测算。",
     "whisker": {
       "caption": "预期利润，从低到高 · 方块表示最坏情况",
-      "currencies": "这些选项使用不止一种货币，所以不能共用一条坐标轴——我不会在货币之间换算。",
+      "currencies": "这些选项使用不止一种货币，所以不能共用一条坐标轴。我不会在货币之间换算。",
       "withWorst": "{range}，最坏 {worst}",
       "notWorkedOut": "未算出"
     },
@@ -4284,7 +4284,7 @@
       "canPropose": "可以提出",
       "notProposable": "暂时还不能提出",
       "proposing": "正在提出",
-      "propose": "提出这个方案 →",
+      "propose": "提出这个方案",
       "restsOn": "依据是什么",
       "value": "数值",
       "basis": "依据",
@@ -4364,9 +4364,9 @@
         "label": "价格变化",
         "breakEven": "盈亏平衡点",
         "cautious": "这是谨慎的一端：如果知道交付一件的成本，我就能说出您还能再少掉多少。",
-        "addCost": "添加成本 →",
-        "addNeed": "添加{what} →",
-        "needs": "需要{what}——<link>添加</link>"
+        "addCost": "添加成本",
+        "addNeed": "添加{what}",
+        "needs": "需要{what}：<link>添加</link>"
       },
       "math": {
         "volume": "{kind, select, service {预约数} other {销量}}",
@@ -4374,7 +4374,7 @@
         "profit": "利润",
         "worst": "最坏情况"
       },
-      "assumption": "这些区间假设：价格每变动 {one}，{kind, select, service {预约数} other {销量}}会反向变动 {low} 到 {high}——这是针对您这类企业的规划假设，不是测量结果。盈亏平衡点不做任何假设。",
+      "assumption": "这些区间假设：价格每变动 {one}，{kind, select, service {预约数} other {销量}}会反向变动 {low} 到 {high}：这是针对您这类企业的规划假设，不是测量结果。盈亏平衡点不做任何假设。",
       "profitTitle": "每个价格的分布范围",
       "caption": "利润变化（{period}），从低到高 · 方块表示最坏情况",
       "cantDraw": "暂时还画不出利润：需要知道交付一{kind, select, service {次预约} other {笔销售}}的成本。<link>添加</link>。",
@@ -4411,7 +4411,7 @@
   },
   "stock": {
     "meta": {
-      "title": "库存 — ScaleX"
+      "title": "库存 · ScaleX"
     },
     "kicker": "洞察 · 库存",
     "signedOut": "这里还没有企业。",
@@ -4465,9 +4465,9 @@
       "label": "什么会售罄、何时售罄 · {total} 件商品中有 {warned} 件低于交货时间",
       "titleWarned": "最先售罄的排在前面",
       "titleNone": "在下次到货前没有商品会售罄",
-      "meta": "可售天数：现有数量 ÷ 您最近 {days} 天的销售速度，取低–高，对照每家供应商的交货时间（否则按 {lead} 天，假设）",
+      "meta": "可售天数：现有数量 ÷ 您最近 {days} 天的销售速度，取低-高，对照每家供应商的交货时间（否则按 {lead} 天，假设）",
       "held": "每件即将缺货的商品一条补货备忘。在您批准之前什么都不会执行，而批准也不会下任何订单。",
-      "button": "把补货备忘放进我的队列 →",
+      "button": "把补货备忘放进我的队列",
       "working": "正在整理备忘"
     },
     "workingItOut": "正在计算…",
@@ -4492,7 +4492,7 @@
       "dotDecimal": "{example}（逗号分隔千位）",
       "commaDecimal": "{example}（点号分隔千位）",
       "importing": "正在读取…",
-      "button": "导入库存 →",
+      "button": "导入库存",
       "readingFile": "正在读取您的文件",
       "failed": "导入未成功。",
       "ourSide": "我们这边出了问题。请重试。",
@@ -4515,7 +4515,7 @@
       "title": "占用资金最多的排在前面",
       "meta": "{stuck}：{stuckDays} 天内没有销售 · {slow}：可售天数超过 {slowDays} 天",
       "held": "我会为前 {count} 件提出清理方式。在您批准之前什么都不会执行。",
-      "button": "把这些放进我的队列 →",
+      "button": "把这些放进我的队列",
       "working": "正在整理选项",
       "emptyLabel": "卖不动的商品",
       "nothingSlow": "没有动销慢的商品",
@@ -4680,7 +4680,7 @@
   },
   "mode": {
     "meta": {
-      "title": "我的工作方式 — ScaleX"
+      "title": "我的工作方式 · ScaleX"
     },
     "kicker": "您的企业 · 我的工作方式",
     "yourBusiness": "您的企业",
@@ -4736,7 +4736,7 @@
     "never": {
       "label": "在任一模式下",
       "title": "什么永远不变",
-      "one": "没有您的批准，什么都不会执行。未答复的提案会过期——它们绝不会默认执行。",
+      "one": "没有您的批准，什么都不会执行。未答复的提案会过期。它们绝不会默认执行。",
       "two": "<link>等待您处理</link>中的“全部停止”会立即叫停所有执行，无需登录。",
       "three": "您设定的限制始终有效：会突破限制的提案会被扣下，绝不会当作没问题一样交给您。"
     },
@@ -4749,7 +4749,7 @@
   },
   "content": {
     "meta": {
-      "title": "内容 — ScaleX"
+      "title": "内容 · ScaleX"
     },
     "kicker": "增长 · 内容",
     "loading": "正在读取内容队列…",
@@ -4757,7 +4757,7 @@
     "signedOut": {
       "eyebrow": "内容",
       "title": "从访谈开始。",
-      "body": "内容根据您的档案来规划——渠道、目标、产品与服务。回答十二个问题，就有真正可以用来规划的素材了。",
+      "body": "内容根据您的档案来规划：渠道、目标、产品与服务。回答十二个问题，就有真正可以用来规划的素材了。",
       "cta": "开始"
     },
     "aside": "更改内容目标",
@@ -4829,12 +4829,12 @@
         "goLiveApprovedOn": "已批准上线：广告、广告组及其营销活动会在下一次运行时开启。",
         "goLiveApprovedOff": "已批准上线，正在等待开启 Meta 广告更改功能。在此之前不会产生任何花费。",
         "paused": "这条广告已在 Meta 上，处于暂停状态，不产生任何花费。上线需要另行批准。",
-        "building": "正在 Meta 上创建，处于暂停状态。它会从中断的地方继续——不会重复创建任何东西。",
+        "building": "正在 Meta 上创建，处于暂停状态。它会从中断的地方继续。不会重复创建任何东西。",
         "buildStopped": "广告的创建中断了。请查看广告管理工具；ScaleX 创建的所有内容都已暂停。",
         "heldBack": "已作为广告提议，但被您设定的一项限制扣下。",
         "approvedOn": "已批准：广告会在下一次运行时于 Meta 上创建，处于暂停状态。",
         "approvedOff": "已批准，正在等待开启 Meta 广告更改功能。在此之前不会发送任何内容。",
-        "proposed": "已作为广告提议——需要您在队列中同意。",
+        "proposed": "已作为广告提议。需要您在队列中同意。",
         "offer": "把它作为广告投放：一项提案，附带预算、受众和预期范围。创建时处于暂停状态；上线需要另行批准；创建的对象无法删除，只能暂停。"
       },
       "run": "作为广告投放",
@@ -4873,9 +4873,9 @@
     "queue": {
       "label": "队列",
       "titleOn": "已撰写、已排期、已发布",
-      "titleOff": "已撰写并排期——发布功能已关闭",
+      "titleOff": "已撰写并排期：发布功能已关闭",
       "emptyWatching": "队列是空的。观察期于 {day} 结束后才会开始提出提案。",
-      "empty": "队列是空的。请在下方提议一份日历——您在队列中批准后，我会在这里起草。"
+      "empty": "队列是空的。请在下方提议一份日历。您在队列中批准后，我会在这里起草。"
     },
     "col": {
       "draft": "草稿",
@@ -4923,7 +4923,7 @@
     "goals": {
       "label": "目标",
       "title": "内容服务于什么",
-      "empty": "还没有目标。请写下一个，或采用一条建议——每一条计划的内容都会注明它所服务的目标。",
+      "empty": "还没有目标。请写下一个，或采用一条建议。每一条计划的内容都会注明它所服务的目标。",
       "horizon": "{months, plural, other {# 个月}}",
       "target": "目标值 {value}",
       "inputLabel": "用您自己的话写下一个目标",
@@ -4938,7 +4938,7 @@
       "calendarDone": "这份日历已在您的批准队列中。",
       "shotlist": "提议一份拍摄清单",
       "shotlistDone": "这份拍摄清单已在您的批准队列中。",
-      "ready": "已批准——可以起草",
+      "ready": "已批准：可以起草",
       "draft": "起草",
       "drafted": "已起草。每一项都附有它的披露说明和来源。"
     },
@@ -4962,11 +4962,11 @@
       "upload": {
         "more": "添加更多片段",
         "first": "上传您拍摄的内容",
-        "label": "{action}——{mp4} 或 {mov}，每个不超过 {mb} MB，{count, plural, other {最多 # 个片段}}"
+        "label": "{action}：{mp4} 或 {mov}，每个不超过 {mb} MB，{count, plural, other {最多 # 个片段}}"
       },
       "cut": {
         "done": "正在剪辑。完成后视频会出现在队列中。",
-        "caption": "配文——帖子在视频下方显示的文字",
+        "caption": "配文：帖子在视频下方显示的文字",
         "onScreen": "画面文字（可选，会嵌入视频）",
         "date": "发布日期",
         "button": "剪辑",
@@ -5032,7 +5032,7 @@
   },
   "customers": {
     "meta": {
-      "title": "客户 — ScaleX"
+      "title": "客户 · ScaleX"
     },
     "kicker": "客户",
     "opening": "正在打开客户…",
@@ -5060,15 +5060,15 @@
     "noEmail": "无邮箱",
     "consent": {
       "explicit_consent": "明确同意",
-      "implied_consent": "默示同意——并非明确同意",
+      "implied_consent": "默示同意，并非明确同意",
       "no_consent": "未同意",
-      "unsure": "不确定——并非明确同意"
+      "unsure": "不确定，并非明确同意"
     },
     "posture": {
-      "enabled": "您说过客户给出了明确同意——可以按联系人逐一对外发送。",
-      "caution": "您对同意问题的回答是默示或不确定——只有给出明确同意的联系人才能收到邮件。",
-      "disabled": "您说过客户没有给出同意——对外邮件已关闭。",
-      "unknown": "您还没有回答同意问题（{question}）——按谨慎处理。"
+      "enabled": "您说过客户给出了明确同意：可以按联系人逐一对外发送。",
+      "caution": "您对同意问题的回答是默示或不确定：只有给出明确同意的联系人才能收到邮件。",
+      "disabled": "您说过客户没有给出同意：对外邮件已关闭。",
+      "unknown": "您还没有回答同意问题（{question}），按谨慎处理。"
     },
     "import": {
       "imported": "已导入 {count} 位。",
@@ -5086,7 +5086,7 @@
       "country": "{count, plural, other {有 # 个国家无法识别，已标为未知。}}",
       "label": "导入",
       "title": "基于您的声明担保",
-      "prose": "粘贴来自您的收银系统、预约系统、网店或电子表格的 CSV。它能识别的列：email、name、phone、country（这样每位客户都适用其所在地的邮件规则），以及——用于判断购买周期的——last order date、order count、total spent。请说明这些联系人同意了什么以及是如何同意的；这一声明会记录在每一行上。",
+      "prose": "粘贴来自您的收银系统、预约系统、网店或电子表格的 CSV。它能识别的列：email、name、phone、country（这样每位客户都适用其所在地的邮件规则），以及（用于判断购买周期的）last order date、order count、total spent。请说明这些联系人同意了什么以及是如何同意的；这一声明会记录在每一行上。",
       "csv": "CSV 内容",
       "status": "他们同意了什么",
       "option": {
@@ -5106,7 +5106,7 @@
       "search": "姓名或邮箱",
       "filters": "按购买模式筛选",
       "all": "全部 · {count}",
-      "empty": "还没有客户。请在下方导入您的客户名单——并由您自己声明担保他们同意了什么。",
+      "empty": "还没有客户。请在下方导入您的客户名单，并由您自己声明担保他们同意了什么。",
       "noMatch": "没有匹配的人。",
       "customer": "客户",
       "purchases": "购买次数",
@@ -5130,7 +5130,7 @@
       "consent": "同意：{consent} · 依据您导入时的声明担保",
       "pattern": "购买模式：{pattern}",
       "segment": "分群：{segment} · 共 {size} 位",
-      "note": "逐笔购买记录不会导入——这些是您导出文件中的合计。"
+      "note": "逐笔购买记录不会导入。这些是您导出文件中的合计。"
     },
     "erase": {
       "title": "删除这位客户",
@@ -5153,7 +5153,7 @@
       "hide": "隐藏",
       "why": "原因",
       "propose": "提议一封挽回邮件和一封感谢邮件",
-      "proposed": "{count, plural, other {您的批准队列中有 # 项提案。}}批准后不会直接发送——发送时会单独重新核对同意。",
+      "proposed": "{count, plural, other {您的批准队列中有 # 项提案。}}批准后不会直接发送。发送时会单独重新核对同意。",
       "nothing": "没有可提议的内容。",
       "queue": "打开队列"
     },
@@ -5161,10 +5161,10 @@
       "label": "已批准的营销活动",
       "title": "只有在您批准邮件本身之后才会发送"
     },
-    "fine": "每位客户的记录来自您自己导出的客户文件，而不是来自您连接的账户——那些账户衡量的是整个企业。删除客户属于 GDPR 删除：其详细信息会被删除，记录只保留匿名编号。",
+    "fine": "每位客户的记录来自您自己导出的客户文件，而不是来自您连接的账户，那些账户衡量的是整个企业。删除客户属于 GDPR 删除：其详细信息会被删除，记录只保留匿名编号。",
     "campaign": {
       "fallbackLabel": "营销活动",
-      "drafted": "已用您的语气起草，附有 AI 披露说明和页脚。请在下方阅读——什么都还没有发送。",
+      "drafted": "已用您的语气起草，附有 AI 披露说明和页脚。请在下方阅读。什么都还没有发送。",
       "alreadyDrafted": "这个营销活动已经有草稿了。",
       "done": "完成。",
       "draft": "起草邮件",
@@ -5250,7 +5250,7 @@
   },
   "studio": {
     "meta": {
-      "title": "创意工作室 — ScaleX"
+      "title": "创意工作室 · ScaleX"
     },
     "kicker": "增长 · 创意工作室",
     "aside": "Meta 广告资料库 · 只读 · 已观测",
@@ -5270,7 +5270,7 @@
       "briefsNotRead": "已撰写 {count, plural, other {# 份简报}}；我还没有读取您所在细分市场的广告。",
       "notRead": "我还没有读取您的{noun}所在细分市场的广告。",
       "notReadBusiness": "我还没有读取您的企业所在细分市场的广告。",
-      "longest": "{page} 的{format, select, video {视频} other {广告}}已投放 {days, plural, other {# 天}}——这是我找到的投放时间最长的创意。"
+      "longest": "{page} 的{format, select, video {视频} other {广告}}已投放 {days, plural, other {# 天}}：这是我找到的投放时间最长的创意。"
     },
     "running": {
       "days": "{count, plural, other {# 天}}",
@@ -5311,8 +5311,8 @@
       "termsLabel": "您所在细分市场的广告会用到的词，用逗号分隔（最多两个）",
       "termsPlaceholder": "例如：手工马克杯、陶艺课",
       "reading": "正在读取…",
-      "readAgain": "重新读取 →",
-      "readLibrary": "读取广告资料库 →",
+      "readAgain": "重新读取",
+      "readLibrary": "读取广告资料库",
       "searches": "资料库会按广告本身使用的语言搜索广告中的文字。我也会查找您列出的竞争对手。",
       "searchesNamed": "资料库会按广告本身使用的语言搜索广告中的文字。我也会查找您列出的竞争对手（{names}）。",
       "freshFrom": "从 {when} 起可以重新读取。",
@@ -5321,7 +5321,7 @@
       "noAds": "我于 {day} 在 Meta 广告资料库中搜索了 {terms}，没有找到覆盖 {country} 的广告。请换些词试试。",
       "yourCompetitors": "您的竞争对手",
       "yourCountry": "您所在的国家",
-      "notReadCopy": "我会读取与您类似的企业中哪些广告投放得最久——以 Meta 公开的广告资料库所显示的为限。",
+      "notReadCopy": "我会读取与您类似的企业中哪些广告投放得最久，以 Meta 公开的广告资料库所显示的为限。",
       "lastTry": "上一次尝试（{day}）：{reason}。",
       "foundTitle": "来自 {businesses, plural, other {# 家企业}}的 {count, plural, other {# 个广告创意}}，读取于 {day}",
       "ranked": "按持续投放时间排序 · 这只是替代指标，并非效果",
@@ -5337,7 +5337,7 @@
       "opens": "开场方式",
       "offer": "优惠 · 行动号召",
       "youListed": "由您列出",
-      "inLibrary": "在广告资料库中 →",
+      "inLibrary": "在广告资料库中",
       "noText": "无文字",
       "noOffer": "未找到优惠",
       "noCta": "未找到行动号召"
@@ -5353,7 +5353,7 @@
       "goalLabel": "或它所服务的目标",
       "noGoal": "没有特定目标",
       "writing": "正在撰写…",
-      "write": "撰写简报 →",
+      "write": "撰写简报",
       "allowance": "本月还剩 {left} 次简报撰写调用，共 {perMonth} 次；一份简报最多需要 {attempts}。我只根据您看到的引用内容撰写，并会拒绝任何与其他企业广告连续五个词相同的句子。",
       "cardLabel": "创意简报 · {day}",
       "attempts": "{count, plural, other {# 次尝试}}",
@@ -5363,7 +5363,7 @@
       "script": "脚本 · 约 {seconds} 秒",
       "why": "原因：{why}",
       "proposing": "正在提议…",
-      "make": "制作这个 →",
+      "make": "制作这个",
       "watching": "观察将持续到 {day}；在此之前不会提议任何内容。",
       "makeNote": "把这份拍摄清单放入“等待您处理”。批准后，它会成为一项“拍摄这个”任务；您拍摄的素材会进入剪辑室。"
     },
@@ -5403,7 +5403,7 @@
   },
   "site": {
     "meta": {
-      "title": "您的网站 — ScaleX"
+      "title": "您的网站 · ScaleX"
     },
     "kicker": "增长 · 网站",
     "loading": "正在读取您的网站更改…",
@@ -5411,18 +5411,18 @@
     "homePage": "首页",
     "page": "页面",
     "noAction": "无操作",
-    "fine": "每一项更改都基于真实页面预览，只有在您于队列中同意后才会应用，永久保留撤销功能，并会在严重故障时自动回滚——但绝不会因为某一周比较平淡而回滚。",
+    "fine": "每一项更改都基于真实页面预览，只有在您于队列中同意后才会应用，永久保留撤销功能，并会在严重故障时自动回滚，但绝不会因为某一周比较平淡而回滚。",
     "signedOut": {
       "eyebrow": "您的网站",
       "title": "从访谈开始。",
-      "copy": "网站更改属于某份档案——请先开始，然后再回来。",
+      "copy": "网站更改属于某份档案。请先开始，然后再回来。",
       "begin": "开始"
     },
     "notice": {
-      "rolledBack": "已应用——但健康检查未通过，所以我立刻把它回滚了。原因写在卡片上。",
-      "proposed": "已提议——前后对比在它的标签页中，决定在您的队列中。",
+      "rolledBack": "已应用，但健康检查未通过，所以我立刻把它回滚了。原因写在卡片上。",
+      "proposed": "已提议：前后对比在它的标签页中，决定在您的队列中。",
       "applied": "已应用，页面通过了健康检查。",
-      "undone": "已撤销——页面已逐字节恢复到之前的状态。"
+      "undone": "已撤销：页面已逐字节恢复到之前的状态。"
     },
     "headline": {
       "pending": "为您的网站提议了 {count, plural, other {# 项更改}}。",
@@ -5459,19 +5459,19 @@
     "auditTab": {
       "label": "审计 · 检查于 {day}",
       "title": "客户在寻找什么，以及您的网站是否展示了它",
-      "foot": "只读。修复其中任何一项都要经过批准队列——<link>请查看“盲点”</link>。",
+      "foot": "只读。修复其中任何一项都要经过批准队列：<link>请查看“盲点”</link>。",
       "what": "他们会查看什么",
       "onSite": "在您的网站上",
       "foundOn": "发现于",
       "check": "检查项",
       "shown": "已展示",
       "notFound": "未找到",
-      "unreadable": "无法读取 {url}——{reason}"
+      "unreadable": "无法读取 {url}：{reason}"
     },
     "propose": {
       "label": "提议一项更改",
       "title": "在应用之前一定会先展示给您",
-      "foot": "结账、购物车、付款和账单页面会被直接拒绝——无论批准级别如何，它们甚至都不能被提议。",
+      "foot": "结账、购物车、付款和账单页面会被直接拒绝。无论批准级别如何，它们甚至都不能被提议。",
       "url": "页面地址",
       "urlPlaceholder": "yoursite.com/about",
       "find": "要更改的确切文字",
@@ -5506,7 +5506,7 @@
       "ifWrong": "如果出了问题：{what}",
       "decide": "在队列中决定",
       "apply": "应用到页面",
-      "undo": "撤销——恢复页面"
+      "undo": "撤销：恢复页面"
     },
     "audit": {
       "severity": {
@@ -5525,7 +5525,7 @@
         "mobile": "移动端",
         "desktop": "桌面端"
       },
-      "euroRange": "每月 {low}–{high}",
+      "euroRange": "每月 {low}-{high}",
       "unit": {
         "seconds": "{value} 秒",
         "ms": "{value} 毫秒",
@@ -5541,15 +5541,15 @@
       },
       "from": {
         "notMeasured": "未测量",
-        "labOnly": "仅实验室数据——访客太少，没有 Google 的实际用户数据",
+        "labOnly": "仅实验室数据：访客太少，没有 Google 的实际用户数据",
         "fieldSite": "实际用户数据（整个网站）+ 实验室数据",
         "field": "实际用户数据 + 实验室数据"
       },
       "notice": {
         "lastFailed": "上一次运行（{day}）失败了：{reason}",
         "didntRun": "审计没有运行",
-        "measured": "已测量——下面的发现来自这一次运行。",
-        "tryAgain": "审计没有运行——请稍后再试"
+        "measured": "已测量：下面的发现来自这一次运行。",
+        "tryAgain": "审计没有运行：请稍后再试"
       },
       "run": {
         "busy": "正在读取网站…（最多两分钟）",
@@ -5561,7 +5561,7 @@
         "title": "速度、手机端体验和购买路径，全部经过测量"
       },
       "notBuilt": "仅限测量。根据截图评判设计（site-audit §{section}，视觉层）尚未构建：不会截图，也不会询问模型。",
-      "footFix": "修复其中任何一项都要经过提案和队列；结账页面绝不会被自动更改——那里的发现会附带操作说明。",
+      "footFix": "修复其中任何一项都要经过提案和队列；结账页面绝不会被自动更改：那里的发现会附带操作说明。",
       "never": {
         "reads": "像访客一样读取公开页面，使用与其他所有网站读取相同的受保护抓取程序。",
         "noLogin": "绝不登录、绝不提交表单、绝不加入购物车、绝不打开结账页面。",
@@ -5608,16 +5608,16 @@
       },
       "refused": {
         "label": "看到了，但没有打开",
-        "login_or_account": "登录或账户页面——审计绝不登录",
-        "cart_action": "会更改购物车的链接——审计绝不加入购物车",
-        "checkout": "结账——只从外部计数，绝不打开",
-        "external_booking": "另一家公司网站上的预约页面——计数，但不读取"
+        "login_or_account": "登录或账户页面：审计绝不登录",
+        "cart_action": "会更改购物车的链接：审计绝不加入购物车",
+        "checkout": "结账：只从外部计数，绝不打开",
+        "external_booking": "另一家公司网站上的预约页面：计数，但不读取"
       }
     }
   },
   "support": {
     "meta": {
-      "title": "客户支持 — ScaleX"
+      "title": "客户支持 · ScaleX"
     },
     "kicker": "客户 · 客户支持",
     "loading": "正在打开客户支持…",
@@ -5635,10 +5635,10 @@
     "testWidget": "测试小组件",
     "failed": "没有成功",
     "faq": {
-      "tooFew": "{count, plural, other {只有 # 个待解决的问题——暂时还没有可归类的内容。有三个人问过，才算一个常见问题。}}",
+      "tooFew": "{count, plural, other {只有 # 个待解决的问题：暂时还没有可归类的内容。有三个人问过，才算一个常见问题。}}",
       "proposed": "已归类。您已经给出的回答在您的批准队列中；其余的列在下面，等您回答。",
       "none": "已归类：还没有三个人问过同一件事。",
-      "unanswered": "已归类。这些问题还没有人回答——请在对应的对话中回答其中一个，然后重新归类。"
+      "unanswered": "已归类。这些问题还没有人回答。请在对应的对话中回答其中一个，然后重新归类。"
     },
     "convos": {
       "label": "工单 · {tickets} · 对话 · {conversations}",
@@ -5689,7 +5689,7 @@
       "closedFlag": "已关闭",
       "youReplied": "您已回复",
       "theirTurn": "等对方回复",
-      "answerLabel": "您告诉了对方什么——仅作记录，不会发送",
+      "answerLabel": "您告诉了对方什么：仅作记录，不会发送",
       "answered": "我已经回答了对方",
       "propose": "提议作为回答",
       "close": "关闭",
@@ -5770,7 +5770,7 @@
       "title": "一个会说明自己是 AI 的助手",
       "paste": "把这一行代码粘贴到您的网站中。访客会看到一个自我介绍为自动回复的助手，它只根据上面已批准的列表回答，并会在对方要求转人工时立即转交给您。",
       "rotate": "更换密钥",
-      "keyPublic": "这个密钥按设计就是公开的——它只说明某次对话属于哪家企业。它不是登录凭据。",
+      "keyPublic": "这个密钥按设计就是公开的。它只说明某次对话属于哪家企业。它不是登录凭据。",
       "notEnabled": "尚未启用。启用后会创建小组件的公开密钥；在您批准回答之前，它不会对任何人说任何话。",
       "enable": "启用助手",
       "foot": "助手只读取已批准的回答，其他什么都不读：不读您的档案、不读您的数字、不读您的连接，而且它无法更改任何东西。"
@@ -5796,7 +5796,7 @@
       "notify": "当有客户发来邮件时，给我的登录邮箱发通知（每小时最多一次，且仅在邮件功能设置好之后）"
     },
     "notice": {
-      "answeredBlank": "已标记为已回答。下次请写下您说了什么——它可以成为一条已批准的回答。",
+      "answeredBlank": "已标记为已回答。下次请写下您说了什么。它可以成为一条已批准的回答。",
       "answeredWords": "已标记为已回答，您的话已记录在案。",
       "proposedAnswer": "已提议作为回答。请在队列中批准它，然后在这里发布。",
       "closed": "已关闭。",
@@ -5834,7 +5834,7 @@
       "draft": "起草回复",
       "writeMyself": "我自己写",
       "draftUses": "草稿只使用您已批准的回答。",
-      "aiLabel": "助手的草稿——可以随意编辑",
+      "aiLabel": "助手的草稿：可以随意编辑",
       "yourReply": "您的回复",
       "speak": "语音输入：说出您的回复",
       "speakAfter": "请在保存或批准之前通读一遍并修改有误之处。",
@@ -5849,7 +5849,7 @@
     },
     "test": {
       "meta": {
-        "title": "小组件测试页 — ScaleX"
+        "title": "小组件测试页 · ScaleX"
       },
       "loading": "正在设置测试页…",
       "eyebrow": "小组件测试页",
@@ -5858,7 +5858,7 @@
       "goSupport": "前往客户支持",
       "pretend": "一个模拟的客户页面 · 小组件在右下角",
       "seesLabel": "访客看到的样子",
-      "body": "这个页面代替您的网站。角落里的按钮就是真实的小组件，由同一个脚本加载，并与客户会使用的同一个公开端点通信。请问它一个您已批准的问题、一个您没有批准的问题，然后要求转人工——每一种情况都应当像<link>客户支持页面</link>上承诺的那样表现。"
+      "body": "这个页面代替您的网站。角落里的按钮就是真实的小组件，由同一个脚本加载，并与客户会使用的同一个公开端点通信。请问它一个您已批准的问题、一个您没有批准的问题，然后要求转人工。每一种情况都应当像<link>客户支持页面</link>上承诺的那样表现。"
     },
     "phone": {
       "label": "电话线路",
@@ -5965,7 +5965,7 @@
   },
   "team": {
     "meta": {
-      "title": "团队排班 — ScaleX"
+      "title": "团队排班 · ScaleX"
     },
     "kicker": "洞察 · 团队排班",
     "aside": "岗位与工时 · 绝不针对个人",
@@ -5994,7 +5994,7 @@
       "takings": "营业额",
       "ofCapacity": "占所述接待能力",
       "ofBusiest": "占最忙时段",
-      "cellTitle": "一般情况下为 {typical}，{days, plural, other {# 天}}中居中一半的天数为 {low}–{high}",
+      "cellTitle": "一般情况下为 {typical}，{days, plural, other {# 天}}中居中一半的天数为 {low}-{high}",
       "onAverage": "平均每个营业小时在岗"
     },
     "ok": {
@@ -6104,7 +6104,7 @@
   },
   "teamAccess": {
     "meta": {
-      "title": "团队权限 — ScaleX"
+      "title": "团队权限 · ScaleX"
     },
     "kicker": "您的企业 · 团队权限",
     "loading": "正在读取团队成员…",
@@ -6175,7 +6175,7 @@
   },
   "invite": {
     "meta": {
-      "title": "您的邀请 — ScaleX"
+      "title": "您的邀请 · ScaleX"
     },
     "someBusiness": "ScaleX 上的一家企业",
     "headline": {
@@ -6261,20 +6261,20 @@
   "authWords": {
     "error": {
       "emailNeeded": "需要一个电子邮箱地址",
-      "emailNotSent": "我刚才没能发送登录邮件——请过一分钟再试。",
+      "emailNotSent": "我刚才没能发送登录邮件。请过一分钟再试。",
       "wrong": "我们这边出了点问题",
-      "wrongEmailWorks": "我们这边出了点问题——邮件中的链接仍然有效",
+      "wrongEmailWorks": "我们这边出了点问题：邮件中的链接仍然有效",
       "linkInvalid": "该登录链接已失效",
       "signInInvalid": "该登录已失效",
       "accountFailed": "无法创建账户",
       "malformedToken": "服务提供方返回了格式错误的令牌",
-      "noEmail": "{provider} 没有提供电子邮箱地址——请改用邮件链接",
-      "unverified": "{provider} 显示该地址未经验证——请改用邮件链接",
-      "notVerified": "{provider} 登录无法验证（{why}）——请改用邮件链接",
-      "failed": "{provider} 登录失败——请重试或使用邮件链接",
-      "notConnected": "该登录方式尚未接入——您的电子邮箱现在就能用。",
-      "notConnectedNamed": "{provider} 登录尚未接入——下方的电子邮箱现在就能用。",
-      "expired": "该登录尝试已过期——请重试",
+      "noEmail": "{provider} 没有提供电子邮箱地址：请改用邮件链接",
+      "unverified": "{provider} 显示该地址未经验证：请改用邮件链接",
+      "notVerified": "{provider} 登录无法验证（{why}）：请改用邮件链接",
+      "failed": "{provider} 登录失败：请重试或使用邮件链接",
+      "notConnected": "该登录方式尚未接入。您的电子邮箱现在就能用。",
+      "notConnectedNamed": "{provider} 登录尚未接入。下方的电子邮箱现在就能用。",
+      "expired": "该登录尝试已过期：请重试",
       "notEmail": "这看起来不像电子邮箱地址",
       "noProfile": "没有这个档案",
       "linkNotValid": "此链接无效",
@@ -6283,8 +6283,8 @@
       "chooseAgain": "请在我们的页面上重新选择企业",
       "addOnPage": "请在我们的页面上添加企业",
       "signInFirst": "请先登录",
-      "codeWrong": "验证码不正确或已过期——请检查，或使用邮件中的链接",
-      "codeTooMany": "该地址尝试验证码次数过多——请使用邮件中的链接，或稍后再试"
+      "codeWrong": "验证码不正确或已过期：请检查，或使用邮件中的链接",
+      "codeTooMany": "该地址尝试验证码次数过多：请使用邮件中的链接，或稍后再试"
     },
     "why": {
       "otherApp": "签发给了其他应用",
@@ -6306,14 +6306,14 @@
       "marginFor": "{name} 的利润率"
     },
     "why": {
-      "fixedCurrency": "记录的货币是 {recorded}，而档案以 {reporting} 呈报——换算需要汇率，但没有人提供给我",
+      "fixedCurrency": "记录的货币是 {recorded}，而档案以 {reporting} 呈报：换算需要汇率，但没有人提供给我",
       "fixedPartial": "这些成本项没有金额、没有支付周期，或者按单位计费，不是固定的每月数字",
       "noFixed": "没有记录每月固定成本，因此没有需要覆盖的部分",
       "noContribution": "没有任何产品同时记录了价格和成本，因此无法计算每笔销售的贡献",
-      "losesMoney": "按这些价格，每笔销售都在亏钱——无论销量多少都无法达到盈亏平衡",
+      "losesMoney": "按这些价格，每笔销售都在亏钱：无论销量多少都无法达到盈亏平衡",
       "aovInputs": "月营收和订单数量两者都需要；我不会估算其中任何一个",
       "cpaInputs": "三项缺一，我就无法区分新客户和回头客，而把回头购买者算作新获客的 CPA 会让数字显得比实际更好",
-      "cpaCurrency": "广告支出以 {spend} 计，但档案以 {reporting} 呈报——这需要汇率",
+      "cpaCurrency": "广告支出以 {spend} 计，但档案以 {reporting} 呈报：这需要汇率",
       "noNewCustomers": "按复购率计算，本月没有新客户",
       "roasInputs": "月营收和每月广告支出两者都需要；其中一边靠猜的比率只是猜测",
       "noSpend": "广告支出为零，因此谈不上回报",
@@ -6326,10 +6326,10 @@
       "offerMargin": "(价格 − 交付成本) ÷ 价格 × {hundred}",
       "contribution": "价格 − 交付成本",
       "blendedWeighted": "Σ(产品利润率 × 销量) ÷ Σ(销量)",
-      "blendedMean": "平均值(各产品利润率)——没有记录销量，因此每个产品只计一次",
+      "blendedMean": "平均值(各产品利润率)：没有记录销量，因此每个产品只计一次",
       "fixed": "Σ(固定成本 ÷ 支付周期月数)",
-      "breakEvenWeighted": "固定成本 ÷ 每单位加权贡献——假定当前的产品组合保持不变",
-      "breakEvenMean": "固定成本 ÷ 每单位平均贡献——没有记录销量，因此假定产品组合均匀",
+      "breakEvenWeighted": "固定成本 ÷ 每单位加权贡献：假定当前的产品组合保持不变",
+      "breakEvenMean": "固定成本 ÷ 每单位平均贡献：没有记录销量，因此假定产品组合均匀",
       "aov": "月营收 ÷ 月订单数",
       "cpa": "广告支出 ÷ (订单数 × ({one} − 复购率))",
       "roas": "月营收 ÷ 月广告支出（综合计算：全部营收除以全部广告支出，不做归因）"
@@ -6350,8 +6350,8 @@
       "allSmall": "您给我的全部 {n} 个数字都与您账户中的数据相符，误差在 {pct}% 以内或只差一小笔。"
     },
     "gap": {
-      "core": "属于核心问题——缺少它，诊断将无法运行",
-      "coreOpens": "属于核心问题——缺少它，诊断将无法运行，并会引出 {count, plural, other {# 个后续问题}}",
+      "core": "属于核心问题：缺少它，诊断将无法运行",
+      "coreOpens": "属于核心问题：缺少它，诊断将无法运行，并会引出 {count, plural, other {# 个后续问题}}",
       "important": "让涉及它的发现更加精准",
       "importantOpens": "让涉及它的发现更加精准，并会引出 {count, plural, other {# 个后续问题}}",
       "deep": "在核心情况清楚之后增加精确度",
@@ -6363,7 +6363,7 @@
   "validationWords": {
     "margin_mismatch": "您告诉我您的毛利率约为 {stated}%。根据您的产品价格和成本计算，约为 {computed}%。",
     "revenue_vs_offers": "您告诉我每月营收约为 {stated}。您各产品的价格乘以销量，加起来约为 {sum}。",
-    "costs_exceed_revenue": "您的每月成本加起来约为 {total}，超过了进账的 {revenue}——而营收却被标记为正在增长。",
+    "costs_exceed_revenue": "您的每月成本加起来约为 {total}，超过了进账的 {revenue}，而营收却被标记为正在增长。",
     "inventory_without_supplier": "您的产品持有存货，但我还没有记录任何供应商。",
     "channel_without_revenue": "您标记了一个主要销售渠道，但它还没有营收数字。",
     "key_person_undocumented": "这项服务高度依赖某一个人，而且还没有任何书面流程。",
@@ -6373,9 +6373,9 @@
   },
   "hoursWords": {
     "line": {
-      "squareOnly": "在 Square 中收银的刷卡和现金付款——从不经过收银机的现金无法看到",
-      "squareAnd": "在 Square 中收银的刷卡和现金付款，以及通过 {providers} 的刷卡付款——从不经过收银机的现金无法看到",
-      "cards": "仅限通过 {providers} 的刷卡付款——任何连接都看不到现金销售",
+      "squareOnly": "在 Square 中收银的刷卡和现金付款：从不经过收银机的现金无法看到",
+      "squareAnd": "在 Square 中收银的刷卡和现金付款，以及通过 {providers} 的刷卡付款：从不经过收银机的现金无法看到",
+      "cards": "仅限通过 {providers} 的刷卡付款：任何连接都看不到现金销售",
       "limit": "不营业的时段不会记录任何销售，因此这只能推测提前开门或推迟关门会带来什么。为期四周的试行才是证明。"
     }
   },
@@ -6399,7 +6399,7 @@
       "reopen": "您重新打开了诊断所依据的某个核心回答"
     },
     "module": {
-      "analytics": "没有测量，观察模式就什么也看不见——分析正是它用来观察的工具。",
+      "analytics": "没有测量，观察模式就什么也看不见：分析正是它用来观察的工具。",
       "team": "团队：当一周需要更多人手，或人手多于所需时，按岗位和时段提示；并且仅向所有者显示每个人在预约中的自身数据。它从不对任何人打分或排名，也从不就某个人提出任何建议。除非您开启，否则保持关闭。"
     },
     "data": {
@@ -6426,11 +6426,11 @@
     },
     "log": {
       "started": "开始观察：为期 {weeks} 周，于 {date} 复查。",
-      "shortened": "观察期缩短为 {weeks} 周——已经所有者确认。",
+      "shortened": "观察期缩短为 {weeks} 周，已经所有者确认。",
       "extended": "应所有者要求，观察期延长至 {weeks} 周。",
       "complete": "观察期已完成。下一份报告会读取这期间收集到的所有内容。",
       "baseline": "已记录基线快照：{count} 个事实。",
-      "steady": "每周检查：档案保持平稳——自上周以来没有任何变化。",
+      "steady": "每周检查：档案保持平稳。自上周以来没有任何变化。",
       "diff": "每周快照：自上周以来 {parts}。",
       "cleared": "截至 {date}，{noun}已回到常规范围内。",
       "fell": "{noun}连续 {days} 天比预期水平低 {pct}%：{date} 为 {actual}，而预期为 {expected}（{window} 天平均值 {mean} × {weekday}系数 {factor}；为常规波动的 {deviation} 倍，阈值为 {k} 倍）。",
@@ -6491,7 +6491,7 @@
       "placements": "版位",
       "goal": "优化目标",
       "special": "特殊类别",
-      "specialValue": "{categories}——适用 Meta 的受限定向规则",
+      "specialValue": "{categories}：适用 Meta 的受限定向规则",
       "note": "备注",
       "createsPaused": "创建时处于暂停状态；上线需要另行批准；已创建的对象无法删除，只能暂停。",
       "goLiveNote": "依次开启广告、它的广告组，然后是营销活动。再次暂停即可停止花费。"
@@ -6511,7 +6511,7 @@
     },
     "sending": {
       "adRun": "批准后，它会在下一次计划运行时发往 Meta：每一部分之前先做一次试运行，然后依次创建营销活动、广告组、广告素材和广告，全部处于暂停状态，并按您的限额重新检查。紧急停止可以在任意两步之间让它停下。在为期两周的无人值守测试完成之前，Meta 广告改动保持关闭；在此之前，它以已批准状态等待。",
-      "goLive": "批准后，它会在下一次计划运行时发往 Meta：依次开启广告、它的广告组，然后是营销活动——每一步都先做试运行，并按您的上限重新检查。在为期两周的无人值守测试完成之前，Meta 广告改动保持关闭；在此之前，它以已批准状态等待。",
+      "goLive": "批准后，它会在下一次计划运行时发往 Meta：依次开启广告、它的广告组，然后是营销活动，每一步都先做试运行，并按您的上限重新检查。在为期两周的无人值守测试完成之前，Meta 广告改动保持关闭；在此之前，它以已批准状态等待。",
       "adChange": "批准后，它会在下一次计划运行时发往 Meta：先做一次试运行，然后执行改动，并按您的限额重新检查。在为期两周的无人值守测试完成之前，Meta 广告改动保持关闭；在此之前，它以已批准状态等待。",
       "bundleShop": "批准只是记下您的肯定答复。我不会改动您的店铺、价格或结账流程：这个组合由您自己设置。",
       "bundleBookings": "批准只是记下您的肯定答复。我不会改动您的预订系统或价格：这个组合由您自己提供。",
@@ -6547,9 +6547,9 @@
     "saidOn": "于 {day} 给出",
     "range": {
       "aboutMoney": "约 {value}",
-      "money": "{lo}–{hi}",
+      "money": "{lo}-{hi}",
       "aboutCount": "约 {value} {subject}",
-      "count": "{lo}–{hi} {subject}",
+      "count": "{lo}-{hi} {subject}",
       "on": "于 {day}",
       "dates": "{from} 至 {to}"
     },
@@ -6617,15 +6617,15 @@
     },
     "rate": {
       "some": "在 {concluded} 项已有结论的事项中批准了 {approved} 项（拒绝 {declined} 项，过期 {lapsed} 项；因您的限额搁置 {withheld} 项，不计入）= {rate}%",
-      "none": "还没有任何已有结论的事项——在您做出最初的几个决定后才会有这个比率"
+      "none": "还没有任何已有结论的事项：在您做出最初的几个决定后才会有这个比率"
     },
     "arith": {
-      "neverRan": "从未执行——没有可测量的内容",
-      "noSeries": "没有已测量的营收序列——连接一个来源后才能作出评判",
-      "noBaseline": "该操作之前没有已测量的日子——没有可供对比的基线",
-      "tooEarly": "自 {day} 以来已测量 {days} 天——评判需要 {need}",
-      "revenue": "{day} 之后的 {afterDays} 个已测量日中，日均营收为 {after}，而之前的 {beforeDays} 天为 {before}——{delta}%（阈值：+{helped}% 为有帮助，{backfired}% 为适得其反）",
-      "notOnRecord": "已发布的内容不在记录中——没有可测量的内容"
+      "neverRan": "从未执行：没有可测量的内容",
+      "noSeries": "没有已测量的营收序列：连接一个来源后才能作出评判",
+      "noBaseline": "该操作之前没有已测量的日子：没有可供对比的基线",
+      "tooEarly": "自 {day} 以来已测量 {days} 天：评判需要 {need}",
+      "revenue": "{day} 之后的 {afterDays} 个已测量日中，日均营收为 {after}，而之前的 {beforeDays} 天为 {before}：{delta}%（阈值：+{helped}% 为有帮助，{backfired}% 为适得其反）",
+      "notOnRecord": "已发布的内容不在记录中：没有可测量的内容"
     }
   },
   "emails": {
@@ -6657,7 +6657,7 @@
         "track": "我的过往准确率"
       },
       "pending": "{count, plural, other {# 项提案正等待您决定}}。未经您批准，什么都不会执行。",
-      "pendingMore": "——另有 {count} 项。",
+      "pendingMore": "- 另有 {count} 项。",
       "aProposal": "一项提案",
       "tickets": "{count, plural, other {# 个客户问题正在“客户支持”中等待您回复}}。",
       "executed": "已执行一项您批准的改动：{summary}",
@@ -6675,11 +6675,11 @@
         "campaign": "营销活动的广告支出回报率",
         "email": "这封邮件的效果"
       },
-      "tooEarly": "{summary}：现在下结论还为时过早——执行以来测量的天数还不够。",
-      "revenue": "{summary}：{verdict}——执行后日均营收为 {after}，执行前为 {before}，基于测量数据。",
-      "revenuePct": "{summary}：{verdict}——执行后日均营收为 {after}，执行前为 {before}（{pct}），基于测量数据。",
-      "judgedOn": "{summary}：{verdict}——依据 {basis} 评判，基于测量数据。",
-      "judgedOnPct": "{summary}：{verdict}——依据 {basis}（{pct}）评判，基于测量数据。",
+      "tooEarly": "{summary}：现在下结论还为时过早，执行以来测量的天数还不够。",
+      "revenue": "{summary}：{verdict}，执行后日均营收为 {after}，执行前为 {before}，基于测量数据。",
+      "revenuePct": "{summary}：{verdict}，执行后日均营收为 {after}，执行前为 {before}（{pct}），基于测量数据。",
+      "judgedOn": "{summary}：{verdict}，依据 {basis} 评判，基于测量数据。",
+      "judgedOnPct": "{summary}：{verdict}，依据 {basis}（{pct}）评判，基于测量数据。",
       "forecasts": "本周我为自己的 {total, plural, other {# 项预测评了分}}：{inside, plural, other {# 项落在我给出的范围内}}，{misses}{cant}。",
       "missedNone": "无一落空",
       "missedAbove": "{missed} 项落空（{above, plural, other {# 项高于范围}}）",
@@ -6694,9 +6694,9 @@
       "whatsappBusiness": "您的企业"
     },
     "signIn": {
-      "subject": "您的登录链接 — ScaleX",
+      "subject": "您的登录链接 · ScaleX",
       "intro": "点击登录 ScaleX：",
-      "expiry": "此链接只能使用一次，将在 {minutes, plural, other {# 分钟后失效}}。如果这不是您请求的，请忽略这封邮件——没有链接，什么都不会发生。",
+      "expiry": "此链接只能使用一次，将在 {minutes, plural, other {# 分钟后失效}}。如果这不是您请求的，请忽略这封邮件。没有链接，什么都不会发生。",
       "code": "或在登录页面输入此验证码：{code}"
     },
     "invite": {
@@ -6705,10 +6705,10 @@
       "intro": "您受邀{role, select, owner {以所有者身份} manager {以经理身份} other {以查看者身份}}加入 ScaleX 上的 {business}。",
       "introUnnamed": "您受邀{role, select, owner {以所有者身份} manager {以经理身份} other {以查看者身份}}加入 ScaleX 上的一家企业。",
       "open": "打开此链接即可接受邀请：",
-      "expiry": "此链接只能使用一次，将在 {days, plural, other {# 天后失效}}。您将使用此地址登录：{email}。如果您没有预料到这封邀请，请忽略这封邮件——没有您的参与，什么都不会发生。"
+      "expiry": "此链接只能使用一次，将在 {days, plural, other {# 天后失效}}。您将使用此地址登录：{email}。如果您没有预料到这封邀请，请忽略这封邮件。没有您的参与，什么都不会发生。"
     },
     "supportNotice": {
-      "subject": "有客户给您发了邮件 — ScaleX",
+      "subject": "有客户给您发了邮件 · ScaleX",
       "waiting": "有客户给 {business} 发了邮件，正在“客户支持”中等待您处理：{url}",
       "waitingNoLink": "有客户给 {business} 发了邮件，正在“客户支持”中等待您处理。",
       "nothingSent": "还没有向对方发送任何内容。只有在您批准后才会发出回复。",
@@ -6811,7 +6811,7 @@
     }
   },
   "shared": {
-    "pageTitle": "共享的报告 — ScaleX",
+    "pageTitle": "共享的报告 · ScaleX",
     "label": "共享的报告",
     "readOnly": "共享的报告 · 只读",
     "deadTitle": "此链接已失效。",
@@ -6910,10 +6910,10 @@
       "currencyCannot": "在没有人给出汇率的情况下，把 {series} 的销售加到 {cash} 的现金上。"
     },
     "assumption": {
-      "growth": "每一周都按去年同一周的情况运行，并按您最近{weeks, plural, other { # 周}}与一年前同期各周的对比进行缩放（{low}–{high}）。",
+      "growth": "每一周都按去年同一周的情况运行，并按您最近{weeks, plural, other { # 周}}与一年前同期各周的对比进行缩放（{low}-{high}）。",
       "span": "每一周都落在去年同一周与您最近各周之间：只有一年的历史数据，我无法区分您的增长和季节规律，所以区间同时涵盖两者。",
       "fallback": "{count, plural, other {去年有 # 周没有完整测量；这些周改用您最近各周的数据。}}",
-      "recent": "未来各周按您最近{count, plural, other { # 个完整周}}的情况运行：取其中间一半，每周 {low}–{high}。历史数据不足一年，季节规律未知，因此没有套用任何季节规律。",
+      "recent": "未来各周按您最近{count, plural, other { # 个完整周}}的情况运行：取其中间一半，每周 {low}-{high}。历史数据不足一年，季节规律未知，因此没有套用任何季节规律。",
       "sameDay": "销售款当天到账。",
       "payout": "一笔销售从成交到进入您的账户：{days}（{why}）。谨慎端取较慢的一端。",
       "evenly": "销售额平均分布在当周的每一天。",
@@ -6973,7 +6973,7 @@
       "sameDay": "当天",
       "days": "{count, plural, other {# 天}}",
       "sameDayTo": "当天至{count, plural, other { # 天}}",
-      "range": "{low}–{high, plural, other {# 天}}"
+      "range": "{low}-{high, plural, other {# 天}}"
     },
     "tight": {
       "quarterly": "{label}（{amount}，按季度）",
@@ -7053,15 +7053,15 @@
       "stuck": "{count, plural, other {{days} 天}}内没有销售，现有数量 {onHand}",
       "stuckOnRecord": "在有记录的{count, plural, other { {days} 天}}内没有销售，现有数量 {onHand}",
       "slowNoSale": "在已测量的{count, plural, other { {days} 天}}内没有销售",
-      "slowCover": "按每天 {rate} 的速度可售 {cover} 天——超过 {limit}",
-      "selling": "可售 {cover} 天——正常销售中",
+      "slowCover": "按每天 {rate} 的速度可售 {cover} 天，超过 {limit}",
+      "selling": "可售 {cover} 天：正常销售中",
       "noRate": "没有可以用来判断的销售速度"
     },
     "sell": {
       "fileOneWindow": "库存文件只包含一个时间段的售出数量，所以我无法把最近 {n} 天与之前的 {n} 天对比。连接网店后就可以。",
       "tooLittle": "只测量了{count, plural, other { {days} 天}}的销售；对比两个 {n} 天的时间段需要 {needed} 天。我能说出卖了什么，但在 {ready} 之前无法说出销售是否在加快。",
       "nothing": "两个 {n} 天的时间段内都没有任何销售。",
-      "flat": "最近 {n} 天售出 {a}，之前 {n} 天售出 {b}：基本持平——{diff} 的差异在偶然波动范围内（±{band}）。",
+      "flat": "最近 {n} 天售出 {a}，之前 {n} 天售出 {b}：基本持平。{diff} 的差异在偶然波动范围内（±{band}）。",
       "moved": "最近 {n} 天售出 {a}，之前 {n} 天售出 {b}：{direction, select, up {增加} other {减少}}了 {diff}，超出偶然波动（±{band}）。",
       "movedPct": "最近 {n} 天售出 {a}，之前 {n} 天售出 {b}：{direction, select, up {增加} other {减少}}了 {diff}（{pct}），超出偶然波动（±{band}）。"
     },
@@ -7112,7 +7112,7 @@
       "sourcesOnHand": "现有数量 {onHand}，于 {day} 读取自 {source}",
       "assumedPace": "未来几天按最近{count, plural, other { {days} 天}}的速度销售（售出 {units}），上下有偶然波动（±{band}）",
       "assumedLead": "假设的交货时间：{why}",
-      "assumedSeason": "假设：这件商品遵循您企业自身的季节规律——繁忙时段依据的是您{readFrom}，而不是这件商品本身",
+      "assumedSeason": "假设：这件商品遵循您企业自身的季节规律。繁忙时段依据的是您{readFrom}，而不是这件商品本身",
       "assumedElapsed": "假设：自 {day} 读取库存以来（{count, plural, other {{days} 天}}前），它一直按这个速度销售",
       "windowFile": "截至 {to} 的 {days} 天内售出 {units}，来自您的库存文件",
       "windowMeasured": "{from} 至 {to} 售出 {units}，由 {source} 测量",
@@ -7127,7 +7127,7 @@
       "sentenceFromStretch": "{name} 将在{range}后售罄；{lead}。这已计入您从 {start} 开始的繁忙时段。",
       "head": "{name} 将在{range}后售罄。",
       "rangeOpen": "约{count, plural, other { {days} 天}}或更久",
-      "rangeClosed": "约 {low}–{high} 天"
+      "rangeClosed": "约 {low}-{high} 天"
     },
     "option": {
       "label": {
@@ -7151,13 +7151,13 @@
       "noCost": "它的成本未知",
       "emailOff": "您自己对客户同意的回答是“未同意”，所以邮件保持关闭",
       "arithmetic": {
-        "content": "现有数量 {onHand} × 按原价售出 {low}–{high} = {unitsLow}–{unitsHigh} 件，{backLow}–{backHigh}；不让出任何东西",
+        "content": "现有数量 {onHand} × 按原价售出 {low}-{high} = {unitsLow}-{unitsHigh} 件，{backLow}-{backHigh}；不让出任何东西",
         "bundleNone": "没有现有库存的畅销品可以搭配",
-        "bundle": "现有数量 {onHand} × {low}–{high}，以 {seller} 的现有数量 {cap} 为上限 = {unitsLow}–{unitsHigh} 件，{backLow}–{backHigh}；两件都按原价，不让出任何东西",
-        "email": "{customers} 位同意接收邮件的客户 × {low}–{high} 购买一件，以现有数量 {onHand} 为上限 = {unitsLow}–{unitsHigh} 件，{backLow}–{backHigh}；没有折扣，不让出任何东西",
-        "markdown": "现有数量 {onHand} × 按 {cut} 折扣售出 {low}–{high} = {unitsLow}–{unitsHigh} 件，{backLow}–{backHigh}，让出原价中的 {givenLow}–{givenHigh}",
+        "bundle": "现有数量 {onHand} × {low}-{high}，以 {seller} 的现有数量 {cap} 为上限 = {unitsLow}-{unitsHigh} 件，{backLow}-{backHigh}；两件都按原价，不让出任何东西",
+        "email": "{customers} 位同意接收邮件的客户 × {low}-{high} 购买一件，以现有数量 {onHand} 为上限 = {unitsLow}-{unitsHigh} 件，{backLow}-{backHigh}；没有折扣，不让出任何东西",
+        "markdown": "现有数量 {onHand} × 按 {cut} 折扣售出 {low}-{high} = {unitsLow}-{unitsHigh} 件，{backLow}-{backHigh}，让出原价中的 {givenLow}-{givenHigh}",
         "selloffNone": "没有可用于估值的成本记录",
-        "selloff": "成本价 {cost} × {low}–{high} = {backLow}–{backHigh}，相对原价 {price} 让出 {givenLow}–{givenHigh}"
+        "selloff": "成本价 {cost} × {low}-{high} = {backLow}-{backHigh}，相对原价 {price} 让出 {givenLow}-{givenHigh}"
       },
       "efficiencyFree": "可能收回 {back}，不让出任何东西",
       "efficiencyNet": "可能收回 {back} − 让出 {given} = 净得 {net}（每让出 {one} 收回 {ratio}）",
@@ -7172,7 +7172,7 @@
       "file": "您的库存文件"
     },
     "history": {
-      "summary": "{count, plural, other {{n} 件最滞销商品}}按成本占用的资金，{from} 至 {to} 的每次盘点：{items}。这是库存存量，在每个盘点日读取——从不跨天累加。",
+      "summary": "{count, plural, other {{n} 件最滞销商品}}按成本占用的资金，{from} 至 {to} 的每次盘点：{items}。这是库存存量，在每个盘点日读取，从不跨天累加。",
       "oneCount": "{name} {amount}（一次盘点）",
       "change": "{name} 从 {from} 到 {to}"
     },
@@ -7182,7 +7182,7 @@
       "notSelling": "{count, plural, other {{n} 件卖不动的商品}}。",
       "tiedUp": "{amount} 占用在{count, plural, other { {n} 件卖不动的商品}}上。",
       "svmOtherCurrency": "您估计您的呆滞库存为 {stated}；我测量的数据不是以 {currency} 计，所以我不做比较。",
-      "svm": "您估计您的呆滞库存为 {stated}；我按成本测量到卖不动的库存为 {measured}——{direction, select, more {多} other {少}} {diff}。您的估计保留在事实表上。"
+      "svm": "您估计您的呆滞库存为 {stated}；我按成本测量到卖不动的库存为 {measured}：{direction, select, more {多} other {少}} {diff}。您的估计保留在事实表上。"
     }
   },
   "cartsWords": {
@@ -7226,9 +7226,9 @@
       "both": "在最近一周留下购物车的联系人中，{cant, plural, other {有 # 位无法发邮件}}，另有{count, plural, other { # 位}}在最近{days, plural, other { # 天}}内已经为其提出过提醒。"
     },
     "block": {
-      "everyone": "所有在 {min}–{max, plural, other {# 天}}前留下购物车并同意接收邮件的人，在最近{days, plural, other { # 天}}内都已经为其提出过提醒。",
+      "everyone": "所有在 {min}-{max, plural, other {# 天}}前留下购物车并同意接收邮件的人，在最近{days, plural, other { # 天}}内都已经为其提出过提醒。",
       "everyoneWeek": "所有在最近一周留下购物车并同意接收邮件的人，在最近{days, plural, other { # 天}}内都已经为其提出过提醒。",
-      "nobody": "没有同意接收邮件的联系人在 {min}–{max, plural, other {# 天}}前留下购物车，所以没有需要提醒的人。",
+      "nobody": "没有同意接收邮件的联系人在 {min}-{max, plural, other {# 天}}前留下购物车，所以没有需要提醒的人。",
       "nobodyWeek": "最近一周没有同意接收邮件的联系人留下购物车，所以没有需要提醒的人。"
     },
     "sources": {
@@ -7255,7 +7255,7 @@
     },
     "ruleOfThumb": {
       "label": "假设",
-      "statement": "经验法则，不是您的数字：在提醒邮件送达的购物车中，约 {low}–{high} 会回来下单。"
+      "statement": "经验法则，不是您的数字：在提醒邮件送达的购物车中，约 {low}-{high} 会回来下单。"
     },
     "held": {
       "noConsent": "您告诉我您的客户没有同意接收营销邮件，所以我一封也不发。"
@@ -7278,7 +7278,7 @@
       "readyStated": "在您陈述成交率之后",
       "sourcePipeline": "您的销售管道：{count, plural, other {{n} 笔进行中的交易}}",
       "sourceClosed": "您在 {from} 至 {to} 之间结束的{count, plural, other { {n} 笔交易}}",
-      "oneRate": "每笔进行中的交易都按这一个成交率结束，不论处于哪个阶段——早期的潜在客户成交的可能性通常低于已发报价方案的交易，所以请先看低端",
+      "oneRate": "每笔进行中的交易都按这一个成交率结束，不论处于哪个阶段：早期的潜在客户成交的可能性通常低于已发报价方案的交易，所以请先看低端",
       "estimated": "{count, plural, other {{n} 个金额}}是您的估计而非报价，按同样方式计入"
     },
     "due": {
@@ -7292,15 +7292,15 @@
     },
     "hold": {
       "notB2b": "销售管道适用于面向其他企业销售的企业：您告诉我您面向消费者销售（{question}）。",
-      "noConsent": "您自己对客户同意的回答（{question}）是“未同意”——在您的数据显示并非如此之前，我不会提出邮件"
+      "noConsent": "您自己对客户同意的回答（{question}）是“未同意”：在您的数据显示并非如此之前，我不会提出邮件"
     },
     "skip": {
       "noneQuiet": "没有交易沉寂下来",
-      "perRun": "我每次提出 {max} 条——这一条等下一次运行",
+      "perRun": "我每次提出 {max} 条：这一条等下一次运行",
       "already": "本月已经提出过",
       "cantEmail": "我无法提出邮件：{why}。请给他们打电话，或在“客户”中记录他们的同意。",
       "contactGone": "该联系人已不存在",
-      "declined": "您已经拒绝过跟进{count, plural, other { # 次}}——我已停止提出"
+      "declined": "您已经拒绝过跟进{count, plural, other { # 次}}：我已停止提出"
     },
     "noName": "一位没有名字的联系人"
   },
@@ -7344,13 +7344,13 @@
       "revenueFormula": "{orders} 个订单 × {value}",
       "profitFormula": "{revenue} × {margin} 利润率 − {spend}",
       "worstUnknown": "没有上面的输入，我无法估算最坏情况。",
-      "currencies": "以 {currencies} 计——我不在货币之间换算",
+      "currencies": "以 {currencies} 计：我不在货币之间换算",
       "margin": {
-        "both": "根据您的产品和服务计算（{computed}），以及按您告诉我的（{stated}）——区间同时涵盖两者",
+        "both": "根据您的产品和服务计算（{computed}），以及按您告诉我的（{stated}）：区间同时涵盖两者",
         "computed": "根据您的产品和服务计算：{formula}",
         "formulaDefault": "价格减去交付成本",
         "stated": "按您告诉我的（您的毛利率）",
-        "needs": "您的毛利率，或每件产品的交付成本——然后就能算出利润"
+        "needs": "您的毛利率，或每件产品的交付成本，然后就能算出利润"
       },
       "aov": {
         "measured": "最近 {window} 中{count, plural, other { # 个已测量日}}的营收 ÷ 订单数，取中间一半",
@@ -7366,21 +7366,21 @@
         "noDelivery": "您的营销活动还没有一次有送达报告",
         "deliveryNeeds": "一次已发送并带有送达报告的营销活动",
         "before": "之前",
-        "boughtAgainOne": "{kind, select, winback {您在 {day} 发出的挽回邮件：{measured} 位已测量的收件人中有 {returned} 位再次购买——误差为正负一人} other {您在 {day} 发出的感谢邮件：{measured} 位已测量的收件人中有 {returned} 位再次购买——误差为正负一人}}",
+        "boughtAgainOne": "{kind, select, winback {您在 {day} 发出的挽回邮件：{measured} 位已测量的收件人中有 {returned} 位再次购买，误差为正负一人} other {您在 {day} 发出的感谢邮件：{measured} 位已测量的收件人中有 {returned} 位再次购买，误差为正负一人}}",
         "boughtAgainMany": "{kind, select, winback {再次购买数 ÷ 已测量数，基于您最近{count, plural, other { # 次挽回营销活动}}，取中间一半} other {再次购买数 ÷ 已测量数，基于您最近{count, plural, other { # 次感谢营销活动}}，取中间一半}}",
         "boughtAgainNone": "{kind, select, winback {您的挽回邮件还没有一次被回读} other {您的感谢邮件还没有一次被回读}}",
         "boughtAgainNeeds": "{kind, select, winback {一次已发送的挽回邮件，以及在其之后至少{count, plural, other { # 天}}导出的客户名单} other {一次已发送的感谢邮件，以及在其之后至少{count, plural, other { # 天}}导出的客户名单}}",
         "spendsSource": "{count, plural, other {# 位收件人}}的总消费 ÷ 订单数，来自您的客户名单，取中间一半",
-        "costFormula": "没有花费——邮件按您的套餐发送",
+        "costFormula": "没有花费：邮件按您的套餐发送",
         "reachedFormula": "{recipients} 位收件人 × {rate} 送达",
         "ordersFormula": "{recipients} 位收件人 × {rate} 再次购买",
         "worstFormula": "没有人再次购买：没有进账，也没有花费",
         "worstWords": "没有人再次购买：进账 {zero}，花费 {zero}。",
-        "harmWords": "按您过往表现最差的营销活动的比例（{rate}），约有{count, plural, other { # 人}}会退订——立即且永久生效。",
+        "harmWords": "按您过往表现最差的营销活动的比例（{rate}），约有{count, plural, other { # 人}}会退订，立即且永久生效。",
         "what": "{segment, select, lapsed {一封以您的口吻撰写的邮件，发给 {emailable} 位同意接收邮件的流失客户。} other {一封以您的口吻撰写的邮件，发给 {emailable} 位同意接收邮件的最佳客户。}}",
-        "whatNoList": "一封发给某一群体客户的邮件——在您的客户名单导入之后。",
+        "whatNoList": "一封发给某一群体客户的邮件，在您的客户名单导入之后。",
         "assumption": "{kind, select, winback {这次发送的效果与您过往的挽回邮件相同。} other {这次发送的效果与您过往的感谢邮件相同。}}",
-        "assumptionSource": "我的预测——下一次营销活动要发出后才能测量",
+        "assumptionSource": "我的预测：下一次营销活动要发出后才能测量",
         "keyRate": "再次购买",
         "noConsent": "您告诉我您的客户没有同意接收邮件，所以外发邮件保持关闭。",
         "nobodyEmailable": "这个群体中没有人同意接收邮件，所以没有可以发送的对象。",
@@ -7401,7 +7401,7 @@
         "roasSource": "{which, select, pooled {Meta 归因的购买 ÷ 花费，按最近 {window} 天内滚动的 {block} 天周计算，涵盖您已测量的所有营销活动，取中间一半（{count, plural, other {# 周}}）} other {Meta 归因的购买 ÷ 花费，按最近 {window} 天内滚动的 {block} 天周计算，取中间一半（{count, plural, other {# 周}}）}}",
         "roasSourceOn": "{platform} 归因的价值 ÷ 花费，按最近 {window} 天内滚动的 {block} 天周计算，取中间一半（{count, plural, other {# 周}}）",
         "roasNonePooled": "您的营销活动中没有一项在 {currency} 下有 {days} 个已测量日",
-        "roasNone": "{count, plural, other {# 个已测量日}}——我需要 {need} 个",
+        "roasNone": "{count, plural, other {# 个已测量日}}：我需要 {need} 个",
         "roasNeeds": "{which, select, pooled {一项营销活动的 {days} 个已测量日} other {这项营销活动的 {days} 个已测量日}}",
         "reachNotRead": "没有读取 Meta 每项营销活动的触达人数",
         "reachNotReadOn": "没有读取 {platform} 每项营销活动的触达人数",
@@ -7412,8 +7412,8 @@
         "worstFormula": "{spend} × 回报 {roas} × {margin} − {spend}",
         "worstWeakest": "每周的回报都与您表现最差的已测量周相同（{roas}）：{days} 天内 {amount}。",
         "worstBest": "您要停掉的那些周与您表现最好的已测量周一样好（{roas}）：{days} 天内 {amount}。",
-        "worstUnsized": "最坏情况下，{amount} 全部花出去而几乎没有回报——没有上面的输入，我无法估算。",
-        "guardCurrency": "您的广告上限以 {ceiling} 计，而这个预算以 {currency} 计——我不会换算来比较它们",
+        "worstUnsized": "最坏情况下，{amount} 全部花出去而几乎没有回报。没有上面的输入，我无法估算。",
+        "guardCurrency": "您的广告上限以 {ceiling} 计，而这个预算以 {currency} 计：我不会换算来比较它们",
         "guardCeiling": "这会让每月广告花费达到约 {projected}，超过您陈述的上限 {ceiling}",
         "titleNew": "以每天 {amount} 开始一项新的营销活动",
         "titleNewOpen": "以您选择的预算开始一项新的营销活动",
@@ -7430,14 +7430,14 @@
         "guarded": "我不会提出这项：{guard}。",
         "assumeStop": "您停掉的花费，其回报与这项营销活动最近几周相同。",
         "assumeExtra": "额外的花费，其回报与最近几周相同。",
-        "assumptionSource": "我根据 Meta 自己的归因所做的预测——其中一些购买可能本来就会发生",
-        "assumptionSourceOn": "我根据 {platform} 自己的归因所做的预测——其中一些销售可能本来就会发生",
+        "assumptionSource": "我根据 Meta 自己的归因所做的预测：其中一些购买可能本来就会发生",
+        "assumptionSourceOn": "我根据 {platform} 自己的归因所做的预测：其中一些销售可能本来就会发生",
         "keyRate": "广告支出回报"
       },
       "content": {
         "postNeeds": "{count, plural, other {# 篇在发布一周后测量过的已发布帖子}}",
         "postNeedsConnect": "您的 Instagram 或 Facebook 主页已连接用于发布，并有几篇帖子已测量",
-        "postsSource": "{count, plural, other {# 个社交渠道}} × 每周 {perWeek} 篇 × {weeks} 周——日历中的社交帖子；其中的邮件和网站内容不做模拟",
+        "postsSource": "{count, plural, other {# 个社交渠道}} × 每周 {perWeek} 篇 × {weeks} 周：日历中的社交帖子；其中的邮件和网站内容不做模拟",
         "noChannel": "您的资料中没有社交渠道",
         "channelNeeds": "一个您发帖的社交渠道，添加到您的资料中",
         "reachSource": "{platform}，发布后第 {age} 天，您最近{count, plural, other { # 篇帖子}}，取中间一半",
@@ -7450,13 +7450,13 @@
         "conversionSource": "最近 {window} 中{count, plural, other { # 个已测量日}}的订单 ÷ 访问，取中间一半",
         "conversionStated": "您的月订单数 ÷ 您的月网站访问量，按您告诉我的",
         "conversionNeeds": "连接 Google Analytics 和您的网店，或者提供您的月访问量和订单数",
-        "costFormula": "没有花费——只有您审阅草稿的时间",
+        "costFormula": "没有花费：只有您审阅草稿的时间",
         "reachedFormula": "{audience, select, views {{posts} 篇帖子 × {reach} 浏览} other {{posts} 篇帖子 × {reach} 触达}}",
         "ordersFormula": "{posts} 篇帖子 × {interactions} 次互动 × 每次 {visits} 次访问 × {rate} 购买",
         "worstFormula": "没有人购买：没有进账，也没有花费",
         "title": "{weeks} 周的内容日历",
         "what": "{count, plural, other {在您已在运营的社交渠道上发布 # 篇帖子，以您的口吻起草，每一篇都等待您的同意。}}",
-        "whatNone": "在您已在运营的社交渠道上发布的帖子——在您的资料中添加一个渠道之后。",
+        "whatNone": "在您已在运营的社交渠道上发布的帖子，在您的资料中添加一个渠道之后。",
         "assumption": "{channels, select, many {计划中的帖子在每个渠道上的表现都与您最近在 {platform} 上的帖子相同。} other {计划中的帖子的表现与您最近在 {platform} 上的帖子相同。}}",
         "assumptionSource": "我根据您自己已测量的帖子所做的预测",
         "worstWeakest": "每篇帖子的触达都与您最弱的一篇相同（{weakest}），且没有人购买：损失 {zero}，只花了您的审阅时间。",
@@ -7478,7 +7478,7 @@
       "refuse": {
         "zero": "新价格必须大于零",
         "notAChange": "这不是一次价格调整",
-        "tooSmall": "这个调整不到 {share}——太小，无法模拟",
+        "tooSmall": "这个调整不到 {share}：太小，无法模拟",
         "tooBig": "我只模拟上下 {share} 以内的调整；超过这个幅度，反应区间就不再是可靠的参考"
       },
       "title": {
@@ -7503,13 +7503,13 @@
       "needLine": "{label}：{needs}",
       "noPrice": "您的资料中还没有 {name} 的价格",
       "priceNeeds": "{name} 的价格",
-      "costOtherCurrency": "记录的成本以 {costCurrency} 计，价格以 {currency} 计——我不在货币之间换算",
-      "costNeedsService": "一次 {name} 的交付成本——在您销售的项目中列出“{name}”及其成本，我就会把它与您的预约对应起来",
+      "costOtherCurrency": "记录的成本以 {costCurrency} 计，价格以 {currency} 计：我不在货币之间换算",
+      "costNeedsService": "一次 {name} 的交付成本：在您销售的项目中列出“{name}”及其成本，我就会把它与您的预约对应起来",
       "costNeedsIn": "一份 {name} 以 {currency} 计的交付成本",
       "costNeeds": "一份 {name} 的交付成本",
       "volumeNeedsService": "您 {name} 的预约，导入或连接均可",
       "volumeNeeds": "您每月大约卖出多少 {name}",
-      "responseSource": "价格每变动 {one}，就有 {low} 至 {high} 的{kind, select, service {预约} other {销量}}朝相反方向变动——{why}",
+      "responseSource": "价格每变动 {one}，就有 {low} 至 {high} 的{kind, select, service {预约} other {销量}}朝相反方向变动：{why}",
       "band": {
         "shop": "客户可以比较、而且常常能在别处买到的商品，对价格调整的反应往往很强烈",
         "hospitality": "一顿饭或一晚住宿部分取决于地方和习惯，所以客户对价格的反应比在商店里弱",
@@ -7517,38 +7517,38 @@
         "services": "基于信任购买的服务，对价格的反应比商品弱，但报价是可以比较的",
         "default": "您的资料中没有企业类型，所以区间取我使用的最宽范围"
       },
-      "capacityNeeds": "您每周能接多少预约——这样降价带来的增量会被限制在您的空余容量内",
+      "capacityNeeds": "您每周能接多少预约，这样降价带来的增量会被限制在您的空余容量内",
       "be": {
         "needPrice": "我需要先知道 {name} 的价格。",
         "change": "{dir, select, rise {涨价 {share}} other {降价 {share}}}",
         "changeStart": "{dir, select, rise {涨价 {share}} other {降价 {share}}}",
         "costNeed": "单件的交付成本",
-        "neverToday": "按今天的 {price}，每{kind, select, service {个预约} other {笔销售}}的交付成本已经是 {cost}，所以今天它本身就没有利润，谈不上盈亏平衡——先看成本，再看价格。",
+        "neverToday": "按今天的 {price}，每{kind, select, service {个预约} other {笔销售}}的交付成本已经是 {cost}，所以今天它本身就没有利润，谈不上盈亏平衡：先看成本，再看价格。",
         "unitFormula": "{kind, select, service {{price} − {cost} = 每个预约 {margin}} other {{price} − {cost} = 每笔销售 {margin}}}",
-        "neverNew": "按 {price}，每{kind, select, service {个预约} other {笔销售}}的交付成本将是 {cost}——每多一笔都在亏钱，所以无论多出多少{kind, select, service {预约} other {销量}}，{change} 都不划算。",
+        "neverNew": "按 {price}，每{kind, select, service {个预约} other {笔销售}}的交付成本将是 {cost}。每多一笔都在亏钱，所以无论多出多少{kind, select, service {预约} other {销量}}，{change} 都不划算。",
         "shareFormula": "（{high} − {low}）÷（{next} − {cost}）= {share}",
-        "shareFormulaNoCost": "（{high} − {low}）÷ {next} = {share}——未计入交付成本",
+        "shareFormulaNoCost": "（{high} − {low}）÷ {next} = {share}，未计入交付成本",
         "formulaOf": "{volume} {kind, select, service {个预约} other {笔销售}}的 {formula} = {units}",
         "loseShare": "只要您流失的{kind, select, service {预约} other {销量}}少于 {share}，{change} 就划算。",
         "loseCount": "只要在您约 {volume} 的{kind, select, service {每 {days} 天预约数} other {每月销量}}中流失少于 {count}（{share}），{change} 就划算。",
         "loseShareAnyCost": "无论每一笔的成本是多少，只要您流失的{kind, select, service {预约} other {销量}}少于 {share}，{change} 就划算。",
         "loseCountAnyCost": "无论每一笔的成本是多少，只要在您约 {volume} 的{kind, select, service {每 {days} 天预约数} other {每月销量}}中流失少于 {count}（{share}），{change} 就划算。",
-        "needCostShare": "要说出{change} 需要多出多少{kind, select, service {预约} other {销量}}，我需要知道单件的交付成本。不计成本时，它至少需要 {share}——真实数字会更高。",
-        "needCostCount": "要说出{change} 需要多出多少{kind, select, service {预约} other {销量}}，我需要知道单件的交付成本。不计成本时，它至少需要多出 {count}（{share}）——真实数字会更高。",
+        "needCostShare": "要说出{change} 需要多出多少{kind, select, service {预约} other {销量}}，我需要知道单件的交付成本。不计成本时，它至少需要 {share}：真实数字会更高。",
+        "needCostCount": "要说出{change} 需要多出多少{kind, select, service {预约} other {销量}}，我需要知道单件的交付成本。不计成本时，它至少需要多出 {count}（{share}）：真实数字会更高。",
         "noRoom": "您的预约簿在 {days} 天内只能再容纳 {room} 个，所以仅靠额外的预约无法让它划算。",
         "winShare": "只有当您多赢得超过 {share} 的{kind, select, service {预约} other {销量}}时，{change} 才划算。",
         "winCount": "只有当您在约 {volume} 的{kind, select, service {每 {days} 天} other {每月}}基础上多赢得超过 {count} 的{kind, select, service {预约} other {销量}}（+{share}）时，{change} 才划算。"
       },
       "formula": {
         "volume": "{volume} {kind, select, service {个预约} other {笔销售}} ×（{one} {sign} {share} × {band}）{held, select, yes {，限制在您预约簿还能容纳的 {room} 个以内} other {}}",
-        "revenue": "{low} – {high} {kind, select, service {个预约} other {笔销售}} × {next} − {volume} × {price}",
-        "profit": "{low} – {high} ×（{next} − {cost}）− {volume} ×（{price} − {cost}）",
+        "revenue": "{low} 至 {high} {kind, select, service {个预约} other {笔销售}} × {next} − {volume} × {price}",
+        "profit": "{low} 至 {high} ×（{next} − {cost}）− {volume} ×（{price} − {cost}）",
         "worst": "{units} ×（{next} − {cost}）− {volume} ×（{price} − {cost}）"
       },
       "worstUnknown": "没有上面的输入，我无法估算最坏情况。",
       "worstWords": "客户的反应处于区间的{end, select, strong {强烈} other {温和}}一端：{kind, select, service {预约} other {销量}}{dir, select, fall {下降} other {上升}} {share}，降至约 {units}，{name} 的利润{kind, select, service {每 {days} 天} other {每月}}变动 {amount}。",
       "assumeBand": "无论涨价还是降价，客户对这次调整的反应都如区间所示，其间其他一切不变。",
-      "bandSource": "这是针对这类企业的规划假设，不是测量结果——还没有人测量过您的客户对价格调整的反应",
+      "bandSource": "这是针对这类企业的规划假设，不是测量结果：还没有人测量过您的客户对价格调整的反应",
       "assumeFits": "额外的预约能排进预约簿。",
       "assumeFitsSource": "您还没有告诉我您每周的接待能力，所以我无法把增量限制在您的空余容量内",
       "headPick": "为 {name} 选择一个价格调整，看看它在流失多少的情况下仍然划算。",
@@ -7654,7 +7654,7 @@
     "caveat": "这些是该组别中所有企业的合计，而不是一家典型企业。",
     "size": {
       "upTo": "{count, plural, other {{n} 人及以下}}",
-      "range": "{min}–{max} 人",
+      "range": "{min}-{max} 人",
       "atLeast": "{min} 人及以上",
       "every": "所有规模"
     },
@@ -7798,7 +7798,7 @@
       "noGoogle": "没有 Google 搜索数据（请连接 Search Console）",
       "googleHides": "Google 出于隐私考虑隐藏了罕见的搜索，所以统计到的搜索加起来略少于 Google 的总数",
       "noCompetitors": "没有调研任何竞争对手",
-      "unmatched": "{count, plural, other {{n} 个客户支持问题没有匹配任何常见检查项——它们只计数，不引用}}"
+      "unmatched": "{count, plural, other {{n} 个客户支持问题没有匹配任何常见检查项：它们只计数，不引用}}"
     },
     "siteNote": {
       "noSite": "资料中没有网站",
@@ -7825,8 +7825,8 @@
     },
     "baseline": {
       "noSource": "没有任何已连接的来源测量{metric}",
-      "currencies": "{metric}以 {currencies} 计——需要只用一种货币",
-      "fewDays": "{count, plural, other {{day} 之前的 {window} 天中有 {n} 个已测量日——起始值需要 {min} 个}}",
+      "currencies": "{metric}以 {currencies} 计：需要只用一种货币",
+      "fewDays": "{count, plural, other {{day} 之前的 {window} 天中有 {n} 个已测量日：起始值需要 {min} 个}}",
       "otherCurrency": "{metric}以 {currency} 计，而目标值以 {target} 计"
     },
     "check": {
@@ -7841,15 +7841,15 @@
       },
       "amount": "每 {days} 天{metric} {value}",
       "notInCare": "企业还没有进入托管",
-      "underCare": "{count, plural, other {自 {since} 起处于托管中——进展从 {from} 起判断（{n} 周）}}",
+      "underCare": "{count, plural, other {自 {since} 起处于托管中：进展从 {from} 起判断（{n} 周）}}",
       "watching": "仍处于观察期，直到 {day}",
-      "goalNew": "目标设定于 {day}——它的第一个完整的 {days} 天周期于 {ends} 结束",
-      "noBaseline": "{day} 之前没有{metric}的已测量起始值——连接一个来源，历史数据就会补上",
-      "fewDays": "{count, plural, other {最近 {window} 天中有 {n} 个已测量日——判断需要 {min} 个}}",
+      "goalNew": "目标设定于 {day}：它的第一个完整的 {days} 天周期于 {ends} 结束",
+      "noBaseline": "{day} 之前没有{metric}的已测量起始值：连接一个来源，历史数据就会补上",
+      "fewDays": "{count, plural, other {最近 {window} 天中有 {n} 个已测量日：判断需要 {min} 个}}",
       "noCurrent": "最近 {days} 天没有已测量的{metric}",
       "path": "最近 {days} 个已测量日为 {actual}，而按从 {baseline}（{baselineDay}）到 {target}（{deadline}）的路径，到 {today} 应为 {expected}",
       "reached": "已达到目标值：{path}",
-      "progress": "{path}——达到预期进展的 {ratio}，落后于路径 {shortfall}",
+      "progress": "{path}：达到预期进展的 {ratio}，落后于路径 {shortfall}",
       "away": "正在远离目标值：{detail}"
     }
   },
@@ -7857,9 +7857,9 @@
     "season": {
       "headline": {
         "flat": "您的大多数周都没有测量到{noun}，所以没有可以用来与季节对比的常态周。",
-        "stale": "最近 {weeks, number} 周中只有{count, plural, other { # 周}}被完整测量（最后一个测量日是 {day}）——太少，无法说出您的季节规律。",
-        "shortMonths": "我现有您{months, plural, other {约 # 个月}}的{noun}数据——不足以说出一年中哪些周是您的繁忙周。",
-        "shortDays": "我现有您{count, plural, other { # 天}}的{noun}数据——不足以说出一年中哪些周是您的繁忙周。",
+        "stale": "最近 {weeks, number} 周中只有{count, plural, other { # 周}}被完整测量（最后一个测量日是 {day}）：太少，无法说出您的季节规律。",
+        "shortMonths": "我现有您{months, plural, other {约 # 个月}}的{noun}数据，不足以说出一年中哪些周是您的繁忙周。",
+        "shortDays": "我现有您{count, plural, other { # 天}}的{noun}数据，不足以说出一年中哪些周是您的繁忙周。",
         "underWay": "您的繁忙周正在进行：去年同一时段为您常态周的 {ratio}。",
         "startsThisWeek": "您的繁忙时段从本周开始：去年它为您常态周的 {ratio}。",
         "startsIn": "您的繁忙时段将在{count, plural, other { # 周}}后开始：去年它为您常态周的 {ratio}。",
@@ -7873,10 +7873,10 @@
       },
       "cannot": {
         "year": "说出一年中哪些周或月份高于或低于您的常态：您自己一年的历史数据，是能显示季节规律的最低要求。",
-        "forecast": "根据去年同期各周预测未来几周——我没有去年的数据。",
+        "forecast": "根据去年同期各周预测未来几周：我没有去年的数据。",
         "borrow": "借用与您类似的其他企业的季节规律。行业平均值不是您的历史数据，所以我不会把它当作您的来呈现。"
       },
-      "upcoming": "去年从 {from} 到 {to} 的{count, plural, other { # 周}}为您常态周的 {ratio}——{kind, select, busy {高于常态} other {低于常态}}。{when}",
+      "upcoming": "去年从 {from} 到 {to} 的{count, plural, other { # 周}}为您常态周的 {ratio}：{kind, select, busy {高于常态} other {低于常态}}。{when}",
       "when": {
         "underWay": "今年的同期各周现在正在进行，持续到 {day}。",
         "thisWeek": "今年的同期各周从本周 {day} 开始。",
@@ -7961,13 +7961,13 @@
       "couldntRead": "无法读取它",
       "onlyHttp": "只能读取 http(s) 网站",
       "credentials": "网站网址中不应包含登录凭据",
-      "private": "该地址指向私有网络内部——拒绝获取",
+      "private": "该地址指向私有网络内部：拒绝获取",
       "notWebAddress": "这看起来不像一个网址",
-      "redirects": "重定向次数过多——网站始终没有稳定下来",
+      "redirects": "重定向次数过多：网站始终没有稳定下来",
       "cap": "超出了每个竞争对手 {pages, number} 个页面的上限",
       "answered": "页面返回了 {status}",
       "timeout": "{seconds, plural, other {# 秒}}内没有响应",
-      "resolve": "“{host}”无法解析——地址正确吗？",
+      "resolve": "“{host}”无法解析。地址正确吗？",
       "ports": "只能读取标准端口 {http} 和 {https} 上的 http(s)"
     }
   },
@@ -7984,10 +7984,10 @@
     },
     "draft": {
       "unreadable": "我无法读取这条评价的内容，所以无法建议回复。请到它原来的地方打开查看。",
-      "budget": "本月的客户支持预算（{amount}）已用完，所以我不会起草——请您自己撰写。",
-      "cap": "我已经为这条评价建议过{count, plural, other { # 次}}回复——这一条请您自己撰写。",
-      "unreachable": "我刚才无法连接到起草模型——请您自己撰写，或稍后再试。",
-      "empty": "我这次没能起草回复——请您自己撰写。",
+      "budget": "本月的客户支持预算（{amount}）已用完，所以我不会起草：请您自己撰写。",
+      "cap": "我已经为这条评价建议过{count, plural, other { # 次}}回复：这一条请您自己撰写。",
+      "unreachable": "我刚才无法连接到起草模型：请您自己撰写，或稍后再试。",
+      "empty": "我这次没能起草回复：请您自己撰写。",
       "offer": "我起草的回复提出了给钱或免费提供某样东西，而我不做这种事，所以把它丢弃了。请重试，或者这一条请您自己撰写。",
       "name": "我起草的回复点名了某个人，所以把它丢弃了。请重试，或者这一条请您自己撰写。",
       "contact": "我起草的回复中包含地址或电话号码，所以把它丢弃了。请重试，或者这一条请您自己撰写。"
@@ -8044,18 +8044,18 @@
     "headline": {
       "nothing": "在我目前能测量的数据中，还没有显示有钱在流失。",
       "zero": "目前已测量的部分没有流失。",
-      "all": "每月约有 {range} 在流失——全部来自{lead, select, revenue_dips {营收下滑} no_shows {爽约} late_cancellations {临时取消} empty_capacity {空闲时段} losing_ads {亏钱的广告} slow_stock {滞销库存} other {等待中的提案}}。",
-      "mostly": "每月约有 {range} 在流失——主要来自{lead, select, revenue_dips {营收下滑} no_shows {爽约} late_cancellations {临时取消} empty_capacity {空闲时段} losing_ads {亏钱的广告} slow_stock {滞销库存} other {等待中的提案}}。",
-      "biggest": "每月约有 {range} 在流失——最大的一块来自{lead, select, revenue_dips {营收下滑} no_shows {爽约} late_cancellations {临时取消} empty_capacity {空闲时段} losing_ads {亏钱的广告} slow_stock {滞销库存} other {等待中的提案}}。"
+      "all": "每月约有 {range} 在流失：全部来自{lead, select, revenue_dips {营收下滑} no_shows {爽约} late_cancellations {临时取消} empty_capacity {空闲时段} losing_ads {亏钱的广告} slow_stock {滞销库存} other {等待中的提案}}。",
+      "mostly": "每月约有 {range} 在流失：主要来自{lead, select, revenue_dips {营收下滑} no_shows {爽约} late_cancellations {临时取消} empty_capacity {空闲时段} losing_ads {亏钱的广告} slow_stock {滞销库存} other {等待中的提案}}。",
+      "biggest": "每月约有 {range} 在流失：最大的一块来自{lead, select, revenue_dips {营收下滑} no_shows {爽约} late_cancellations {临时取消} empty_capacity {空闲时段} losing_ads {亏钱的广告} slow_stock {滞销库存} other {等待中的提案}}。"
     },
     "reason": {
-      "noPrices": "{source} 没有价格——在导出文件中加上价格列，我就会为错过的部分定价",
+      "noPrices": "{source} 没有价格：在导出文件中加上价格列，我就会为错过的部分定价",
       "noPricedCompleted": "{from} 至 {to} 之间没有带价格的已完成预约，所以我无法说出一个预约值多少",
       "noBookings": "导入您的预约导出文件（或连接 Square），我就会统计错过的部分",
       "lateNotSeparated": "{source} 没有把临时取消和爽约分开，所以它们和爽约一起定价",
-      "noCapacity": "告诉我您每周能接多少预约，我就会为空闲时段定价——我不会假设接待能力",
+      "noCapacity": "告诉我您每周能接多少预约，我就会为空闲时段定价：我不会假设接待能力",
       "noTakings": "连接记录您营业额的地方（您的网店、收银机或 Stripe），我就会对照每天的通常水平进行检查",
-      "shortHistory": "要判断某一天，我需要它之前 {window} 天内至少有 {min} 个已测量日的{price, select, revenue {营收} bookingRevenue {预约营收} other {{noun}}}——目前历史数据还太短",
+      "shortHistory": "要判断某一天，我需要它之前 {window} 天内至少有 {min} 个已测量日的{price, select, revenue {营收} bookingRevenue {预约营收} other {{noun}}}：目前历史数据还太短",
       "noMeta": "连接 Meta Ads，我就会检查哪些营销活动的成本高于它们带回的收入",
       "noSpend": "{from} 至 {to} 之间没有任何营销活动产生花费",
       "noStock": "连接您的网店或导入库存文件，我就会显示压在货架上的现金",
@@ -8135,10 +8135,10 @@
     "title": "您的经营利润率比同类企业低 {points} 个百分点。",
     "rule": "当差距达到 Eurostat 公布数字以下 {threshold} 个百分点或更多时，我称之为较大差距，并且只做同口径比较：同一国家、同一类企业，以及与您相同的规模或全部规模。",
     "where": "它现在作为一项发现出现在您的报告中，我也可以提议梳理您的价格和成本。批准本身不会改变任何东西。",
-    "propose": "提议梳理价格和成本 →",
+    "propose": "提议梳理价格和成本",
     "drafting": "正在起草…",
     "status": "{status, select, pending {在您的队列中等待您处理} blocked {被您的一条规则拦截} approved {已批准} rejected {已拒绝} expired {已过期} other {已提议}}",
-    "queue": "在队列中打开 →",
+    "queue": "在队列中打开",
     "drafted": "已起草。它在等待您处理；批准它不会写入任何价格或成本。",
     "blocked": "您的一条规则排除了它，所以它以已拦截状态留在您的队列中。",
     "failed": "没有成功。"
@@ -8150,13 +8150,13 @@
       "export": "您导出的预约文件"
     },
     "run": {
-      "mon": "每周一 {from}–{to}",
-      "tue": "每周二 {from}–{to}",
-      "wed": "每周三 {from}–{to}",
-      "thu": "每周四 {from}–{to}",
-      "fri": "每周五 {from}–{to}",
-      "sat": "每周六 {from}–{to}",
-      "sun": "每周日 {from}–{to}"
+      "mon": "每周一 {from}-{to}",
+      "tue": "每周二 {from}-{to}",
+      "wed": "每周三 {from}-{to}",
+      "thu": "每周四 {from}-{to}",
+      "fri": "每周五 {from}-{to}",
+      "sat": "每周六 {from}-{to}",
+      "sun": "每周日 {from}-{to}"
     },
     "days": {
       "mon": "周一",
@@ -8258,7 +8258,7 @@
       "headUnderWay": "您的繁忙期已经开始：去年这段时间是平常一周的 {index} 倍（{range}）。",
       "headStarts": "您的繁忙期从 {day} 开始：去年这段时间是平常一周的 {index} 倍（{range}）。",
       "atLeast": "至少 {low} 倍",
-      "between": "{low}–{high} 倍",
+      "between": "{low}-{high} 倍",
       "noFurther": "{head}即使按其下限，也不会再有其他小时超出您所述的接待能力。",
       "further": "{head}按其下限，以下时段也会超出您所述的接待能力：{hours}。"
     },
@@ -8308,10 +8308,10 @@
     },
     "platform": {
       "line": {
-        "api": "{platform}——在您授予更改权限后，更改可以由我们替您应用——这是单独的一步，在单独的页面上进行。",
-        "partial": "{platform}——部分元素可以通过程序更改，但不是全部；其余部分以操作说明的形式提供。",
-        "manual": "{platform} 无法通过程序编辑——您会得到渲染出的确切更改前后对比，以及针对您的编辑器的分步说明。这就是这项功能在您的平台上诚实的样子。",
-        "unknown": "我们无法判断这个网站由什么提供服务——会向您展示更改和差异，在弄清之前，应用更改仍需手动进行。"
+        "api": "{platform}：在您授予更改权限后，更改可以由我们替您应用，这是单独的一步，在单独的页面上进行。",
+        "partial": "{platform}：部分元素可以通过程序更改，但不是全部；其余部分以操作说明的形式提供。",
+        "manual": "{platform} 无法通过程序编辑：您会得到渲染出的确切更改前后对比，以及针对您的编辑器的分步说明。这就是这项功能在您的平台上诚实的样子。",
+        "unknown": "我们无法判断这个网站由什么提供服务。会向您展示更改和差异，在弄清之前，应用更改仍需手动进行。"
       },
       "editable": {
         "api": "可通过 API",
@@ -8332,32 +8332,32 @@
     },
     "change": {
       "summary": "在 {host} 上：“{find}” → “{replace}”",
-      "previewTooLarge": "页面太大，无法提供实时预览——上方的差异是准确的，但不显示渲染效果",
+      "previewTooLarge": "页面太大，无法提供实时预览：上方的差异是准确的，但不显示渲染效果",
       "manual": {
         "open": "在您的 {editor} 编辑器中打开 {url}。",
         "find": "找到这段文字：“{find}”",
         "replace": "替换为：“{replace}”",
         "compare": "用编辑器的预览与这里显示的前后对比进行比较。",
         "publish": "与更改后的样子一致时再发布。",
-        "wix": "在编辑器中直接点击该文本元素——Wix 支持就地编辑。",
+        "wix": "在编辑器中直接点击该文本元素：Wix 支持就地编辑。",
         "squarespace": "编辑包含该文字的页面区块（悬停 → 编辑）。"
       },
       "rationale": {
-        "manual": "您的平台无法通过程序编辑，因此批准后您会得到渲染出的确切更改和操作步骤——不会替您应用任何内容。",
+        "manual": "您的平台无法通过程序编辑，因此批准后您会得到渲染出的确切更改和操作步骤。不会替您应用任何内容。",
         "engine": "批准后更改进入队列；应用通过执行引擎进行，页面之前的状态会被永久保存，一键即可恢复。"
       },
       "assumption": {
         "platform": "页面由 {platform} 提供（{marker}）",
-        "baseline": "提案时的基准加载时间：{ms} 毫秒——自动回滚的参照"
+        "baseline": "提案时的基准加载时间：{ms} 毫秒；自动回滚的参照"
       },
       "case": {
         "base": "页面显示新的内容；其他一切不变。",
-        "downside": "更改后页面出错或明显变慢——会自动回滚，并告诉您原因。",
+        "downside": "更改后页面出错或明显变慢。会自动回滚，并告诉您原因。",
         "upside": "接入测量后，可以对比更改前后各几周的情况。",
-        "breakeven": "无需花费——只是一行文字"
+        "breakeven": "无需花费：只是一行文字"
       },
       "reverse": {
-        "manual": "您在自己的编辑器里改回去——这里的更改前渲染就是参照。",
+        "manual": "您在自己的编辑器里改回去：这里的更改前渲染就是参照。",
         "engine": "一键即可：页面之前的状态被永久保存，而不只保存一段时间。"
       }
     },
@@ -8365,17 +8365,17 @@
       "findEmpty": "请说明要查找的文字",
       "replaceEmpty": "请说明要改成什么",
       "nothing": "这样什么都没有改变",
-      "moneyPath": "该页面是涉及资金的页面——结账、购物车、付款和账单页面在任何批准级别下都不可触碰（规则 {rule}）",
-      "pageStatus": "页面返回了 {status}——那里没有可更改的内容",
-      "notFound": "在该页面上找不到“{find}”——请按页面上显示的原样复制",
-      "notUnique": "“{find}”在该页面上出现了 {count, plural, other {# 次}}——请加入足够的上下文，使其唯一",
-      "moneyContext": "这段文字位于页面的结账或付款区域内——涉及资金的区域不可触碰，因此连提议都不行（规则 {rule}）",
+      "moneyPath": "该页面是涉及资金的页面：结账、购物车、付款和账单页面在任何批准级别下都不可触碰（规则 {rule}）",
+      "pageStatus": "页面返回了 {status}：那里没有可更改的内容",
+      "notFound": "在该页面上找不到“{find}”：请按页面上显示的原样复制",
+      "notUnique": "“{find}”在该页面上出现了 {count, plural, other {# 次}}：请加入足够的上下文，使其唯一",
+      "moneyContext": "这段文字位于页面的结账或付款区域内：涉及资金的区域不可触碰，因此连提议都不行（规则 {rule}）",
       "noProposal": "没有这条提案",
       "notSite": "这不是网站提案",
-      "manualApply": "{platform} 无法通过程序编辑——这项更改由您自己按照卡片上的说明完成",
-      "noWriter": "要在 {platform} 上应用，需要先连接其写入权限——这项权限您会在单独的页面上另行授予。在此之前，这张卡片及其前后对比就是您自行更改的参照",
-      "driftGone": "自您批准以来页面已发生变化——那段文字已不在了；请针对今天的页面重新提议",
-      "driftNotUnique": "自您批准以来页面已发生变化——那段文字已不再唯一；请针对今天的页面重新提议",
+      "manualApply": "{platform} 无法通过程序编辑：这项更改由您自己按照卡片上的说明完成",
+      "noWriter": "要在 {platform} 上应用，需要先连接其写入权限：这项权限您会在单独的页面上另行授予。在此之前，这张卡片及其前后对比就是您自行更改的参照",
+      "driftGone": "自您批准以来页面已发生变化：那段文字已不在了；请针对今天的页面重新提议",
+      "driftNotUnique": "自您批准以来页面已发生变化：那段文字已不再唯一；请针对今天的页面重新提议",
       "signedIn": "更改线上网站需要您先登录",
       "proposalId": "必须提供 proposal_id",
       "executionId": "必须提供 execution_id",
@@ -8385,16 +8385,16 @@
     "fetch": {
       "scheme": "只能读取 http(s) 网站",
       "credentials": "网站地址中不应包含登录凭据",
-      "noResolve": "“{host}”无法解析——地址正确吗？",
-      "private": "该地址指向私有网络——拒绝抓取",
+      "noResolve": "“{host}”无法解析。地址正确吗？",
+      "private": "该地址指向私有网络：拒绝抓取",
       "notAddress": "这看起来不像网址",
       "ports": "只能读取标准端口 {http} 和 {https} 上的 http(s)",
-      "redirects": "重定向次数过多——网站始终没有稳定下来"
+      "redirects": "重定向次数过多：网站始终没有稳定下来"
     },
     "audit": {
-      "noSite": "您的档案中没有可审计的网站——请把它添加到您的事实表中。",
+      "noSite": "您的档案中没有可审计的网站。请把它添加到您的事实表中。",
       "badSite": "您档案中的网站看起来不像网址。",
-      "cooldown": "该网站在不到一小时前刚审计过——下一次审计在 UTC {time} 开放。",
+      "cooldown": "该网站在不到一小时前刚审计过：下一次审计在 UTC {time} 开放。",
       "running": "这个网站的审计已经在进行中。",
       "homeUnreadable": "无法读取您的首页：{reason}",
       "homeUnreadableBare": "无法读取您的首页",
@@ -8413,9 +8413,9 @@
       "book": "预约",
       "note": {
         "counted": "从首页起沿网站自身的链接计数；没有把任何东西加入购物车，也从未打开结账页面。",
-        "noAddToCart": "在“{label}”页面本身中没有找到“加入购物车”按钮——它可能由我们不运行的脚本绘制。",
-        "assumedCart": "假设：“加入购物车”会把买家带到购物车，或打开带有结账按钮的购物车侧栏——所以结账在它之后一次点击。",
-        "cartEmpty": "购物车页面在空状态下读取时，其 HTML 中没有结账按钮——放入商品后它可能才会出现。",
+        "noAddToCart": "在“{label}”页面本身中没有找到“加入购物车”按钮。它可能由我们不运行的脚本绘制。",
+        "assumedCart": "假设：“加入购物车”会把买家带到购物车，或打开带有结账按钮的购物车侧栏，所以结账在它之后一次点击。",
+        "cartEmpty": "购物车页面在空状态下读取时，其 HTML 中没有结账按钮。放入商品后它可能才会出现。",
         "booking": "从首页起沿网站自身的链接计数；没有进行任何预约，也没有提交任何表单。",
         "external": "预约本身在另一家公司的网站上进行，审计不会读取；计数止于指向它的链接。",
         "cartOnly": "从首页的链接能到达购物车，但到不了任何产品页面，因此无法计算购买所需的点击次数。",
@@ -8433,16 +8433,16 @@
       "quotaShared": "Google 共享的 PageSpeed 配额暂时用完了（未设置 PAGESPEED_API_KEY）",
       "couldntLoad": "Google 无法加载该页面进行测量",
       "refused": "Google 拒绝测量该页面（状态码 {status}）",
-      "badKey": "Google 拒绝了 PageSpeed 密钥（状态码 {status}）——请检查该密钥是否允许使用 PageSpeed Insights API",
+      "badKey": "Google 拒绝了 PageSpeed 密钥（状态码 {status}）：请检查该密钥是否允许使用 PageSpeed Insights API",
       "failed": "Google 的 PageSpeed 服务出错（状态码 {status}）",
       "failedBare": "Google 的 PageSpeed 服务出错",
       "noKey": "未测量页面速度：Google 的 PageSpeed 服务需要一个免费的 API 密钥（PAGESPEED_API_KEY），没有它会拒绝所有请求。购买路径和失效链接仍已读取。",
-      "stopped": "{reason}——已完成测量：{made} / {planned}。",
+      "stopped": "{reason}：已完成测量：{made} / {planned}。",
       "weekUsed": "本周该网站的 PageSpeed 调用次数（{cap} 次）已用完，因此本次没有测量速度。",
       "short": "本周该网站的 PageSpeed 调用次数不够：已完成测量：{made} / {planned}，优先测量手机。"
     },
     "finding": {
-      "withPage": "{title}——{page}",
+      "withPage": "{title}：{page}",
       "on": {
         "mobile": "在手机上",
         "desktop": "在电脑上"
@@ -8467,14 +8467,14 @@
         "broken": "{page} 上有一个失效链接：{url} {reason}"
       },
       "what": {
-        "lcp": "Largest Contentful Paint——屏幕上最大的元素显示出来需要多久",
-        "cls": "Cumulative Layout Shift——版面在访客手指下移动了多少",
-        "inp": "Interaction to Next Paint——从点按到页面响应之间的延迟",
-        "tbt": "Total Blocking Time——在实验室中测量，用以代替需要真实访客的 INP"
+        "lcp": "Largest Contentful Paint：屏幕上最大的元素显示出来需要多久",
+        "cls": "Cumulative Layout Shift：版面在访客手指下移动了多少",
+        "inp": "Interaction to Next Paint：从点按到页面响应之间的延迟",
+        "tbt": "Total Blocking Time，在实验室中测量，用以代替需要真实访客的 INP"
       },
       "basis": {
         "field": "过去 {days, plural, other {# 天}}内 Chrome 中的真实访客（Google 的实际用户数据，第 {pct} 百分位）",
-        "field_origin": "过去 {days, plural, other {# 天}}内您整个网站的真实访客——Google 仅针对这一页面的数据太少",
+        "field_origin": "过去 {days, plural, other {# 天}}内您整个网站的真实访客：Google 仅针对这一页面的数据太少",
         "lab": "在 Google 模拟设备上的一次测试加载（实验室数据）",
         "page_read": "ScaleX 读取的页面自身 HTML"
       },
@@ -8486,7 +8486,7 @@
         "contrast": "Google 的颜色对比度检查（无障碍标准的最低要求），{on}。",
         "noEntry": "无法通过链接到达任何{entry, select, checkout {结账} other {预约}}入口。",
         "path": "{steps}。",
-        "price": "从页眉和菜单之后的页面自身文字中读取：手机首先显示的内容里没有价格（这是一种估算——ScaleX 不渲染页面）。",
+        "price": "从页眉和菜单之后的页面自身文字中读取：手机首先显示的内容里没有价格（这是一种估算，ScaleX 不渲染页面）。",
         "form": "{required, plural, other {其中 # 项必填。}}根据页面的 HTML 计数；表单没有提交。",
         "brokenOnPath": "它位于购买路径上，一个死胡同就意味着一笔损失的销售。",
         "broken": "点击它的访客会走进死胡同。"
@@ -8504,11 +8504,11 @@
       }
     },
     "euro": {
-      "needs": "未计算——需要您网站自身的流量和转化率",
-      "needsBecause": "未计算——需要您网站自身的流量和转化率（{missing}）",
-      "zero": "未计算——您的流量、订单或订单金额为零",
-      "inside": "未计算——该页面在良好范围之内",
-      "notSpeed": "未计算——没有任何经验法则能把这一点与 ScaleX 愿意给出数字的销售联系起来",
+      "needs": "未计算：需要您网站自身的流量和转化率",
+      "needsBecause": "未计算：需要您网站自身的流量和转化率（{missing}）",
+      "zero": "未计算：您的流量、订单或订单金额为零",
+      "inside": "未计算：该页面在良好范围之内",
+      "notSpeed": "未计算：没有任何经验法则能把这一点与 ScaleX 愿意给出数字的销售联系起来",
       "missing": {
         "visits": "每月网站访问量",
         "orders": "每月订单数",
@@ -8522,7 +8522,7 @@
         "stated": "您自己的月度数据，截至 {day}"
       },
       "assumed": {
-        "wait": "假设：手机在 {good} 之后每多等一秒，就会损失 {range} 的订单——这是来自已发表零售研究的经验法则，并非在您的网站上测得。",
+        "wait": "假设：手机在 {good} 之后每多等一秒，就会损失 {range} 的订单，这是来自已发表零售研究的经验法则，并非在您的网站上测得。",
         "everyOrder": "假设：每一笔计入的订单都经过这个页面的加载；来自手机的比例没有测量，因此上限偏高。",
         "max": "假设：最多计入 {max, plural, other {# 秒}}。"
       }
@@ -8554,14 +8554,14 @@
     "skip": {
       "line": "{segment}：{reason}",
       "watching": "我会观察到 {date}，在此之前不提出任何建议。",
-      "posture": "您自己关于客户同意的回答（{question}）是“不同意”——在您的数据显示不同之前，营销邮件保持关闭",
+      "posture": "您自己关于客户同意的回答（{question}）是“不同意”：在您的数据显示不同之前，营销邮件保持关闭",
       "alreadyToday": "今天已经提出过",
       "alreadyMonth": "本月已经提出过",
       "cartRecent": "本周留下购物车并同意接收邮件的每个人，在过去 {days, number} 天内都已被提议过提醒",
       "noCart": "过去一周内没有同意接收邮件的联系人留下购物车",
       "nobody": "这个分组里没有人",
-      "noConsent": "分组中有 {count, number} 人，但没有人给出明确的邮件同意——没有可发送的对象",
-      "declined": "您已拒绝客户邮件 {count, number} 次——我已停止提议"
+      "noConsent": "分组中有 {count, number} 人，但没有人给出明确的邮件同意：没有可发送的对象",
+      "declined": "您已拒绝客户邮件 {count, number} 次：我已停止提议"
     },
     "campaign": {
       "fallback": "营销活动",
@@ -8587,7 +8587,7 @@
         "disclosure": "AI 生成声明（ScaleX 在所有地方都会加上）"
       },
       "noCountry": "企业所在国家未知，因此其邮件规则也未知",
-      "noRules": "ScaleX 还不了解 {country} 的电子邮件营销规则——不会向那里发送任何邮件",
+      "noRules": "ScaleX 还不了解 {country} 的电子邮件营销规则：不会向那里发送任何邮件",
       "regime": {
         "eu_gdpr": "欧盟/欧洲经济区",
         "uk_pecr": "英国",
@@ -8623,23 +8623,23 @@
     "readback": {
       "recipients": "{count, plural, other {{n} 位收件人}}",
       "comparisonCustomers": "{count, plural, other {{n} 位对照客户}}",
-      "harm": "{recipients}退订或标记为垃圾邮件（退订 {unsubscribed}，投诉 {complained}），共发送 {sent}，占 {rate}——达到 {harmRate} 且至少 {harmMin} 人，或投诉达到 {complaintRate} 及以上，即判定为适得其反",
-      "nothingSent": "什么都没有发送——没有可衡量的",
+      "harm": "{recipients}退订或标记为垃圾邮件（退订 {unsubscribed}，投诉 {complained}），共发送 {sent}，占 {rate}，达到 {harmRate} 且至少 {harmMin} 人，或投诉达到 {complaintRate} 及以上，即判定为适得其反",
+      "nothingSent": "什么都没有发送：没有可衡量的",
       "bought": "此后再次购买：{returned}/{measured} 位已衡量的收件人（{rate}）",
-      "noExport": "邮件发出至少 {days} 天后，还没有覆盖他们的客户导出——导入一份，就能得出结论",
-      "noExportOf": "{date} 的邮件发出至少 {days} 天后，还没有覆盖他们的客户导出——导入一份，就能得出结论",
-      "fewMeasured": "邮件发出至少 {days} 天后由客户导出衡量的：{recipients}——结论需要 {min}",
-      "canEver": "最多只能衡量 {recipients}（已删除 {erased}）——结论需要 {min}",
-      "compared": "{bought}，对比无法发邮件的{group}：{returned}/{measured}（{rate}）——{lift} 个百分点（达到 {helped} 为有帮助，达到 {backfired} 为适得其反）",
+      "noExport": "邮件发出至少 {days} 天后，还没有覆盖他们的客户导出：导入一份，就能得出结论",
+      "noExportOf": "{date} 的邮件发出至少 {days} 天后，还没有覆盖他们的客户导出：导入一份，就能得出结论",
+      "fewMeasured": "邮件发出至少 {days} 天后由客户导出衡量的：{recipients}；结论需要 {min}",
+      "canEver": "最多只能衡量 {recipients}（已删除 {erased}）：结论需要 {min}",
+      "compared": "{bought}，对比无法发邮件的{group}：{returned}/{measured}（{rate}）；{lift} 个百分点（达到 {helped} 为有帮助，达到 {backfired} 为适得其反）",
       "group": {
         "winback": "已沉寂客户",
         "vip": "最佳客户"
       },
       "notRandom": "非随机：对照组从未同意接收邮件，所以他们与收件人的差别不只在于邮件",
-      "uncontrolledBase": "已衡量 {customers}——对照需要 {min}",
+      "uncontrolledBase": "已衡量 {customers}：对照需要 {min}",
       "nobodyBought": "没有人再次购买，因此任何对照都无法让它变成收益（{uncontrolled}）",
       "nextExport": "{uncontrolled}；下一次导出可以衡量其余的人",
-      "uncontrolled": "无对照：{uncontrolled}，所以我不能说是邮件带来的——单纯的提升永远不算“有帮助”"
+      "uncontrolled": "无对照：{uncontrolled}，所以我不能说是邮件带来的；单纯的提升永远不算“有帮助”"
     },
     "measured": {
       "delivery": "来自邮件服务的送达、退回和垃圾邮件投诉",
@@ -8662,27 +8662,27 @@
       "requiredMany": "{fields} 为必填项",
       "action": "action 必须是 {actions}",
       "noFields": "联系人至少需要邮箱、姓名或电话",
-      "provenance": "同意需要注明来源——是如何取得的？",
-      "suppressed": "该地址已被永久屏蔽（{reason}）——无法重新添加",
+      "provenance": "同意需要注明来源：是如何取得的？",
+      "suppressed": "该地址已被永久屏蔽（{reason}）：无法重新添加",
       "duplicate": "已有使用该邮箱的联系人",
       "noContact": "没有这个联系人",
       "noConversation": "没有这个对话",
       "noTicket": "没有这个工单",
-      "attestation": "导入需要您的声明担保——这些联系人同意了什么，是如何同意的？",
-      "tooLarge": "该文件太大，无法一次导入——请拆分",
+      "attestation": "导入需要您的声明担保：这些联系人同意了什么，是如何同意的？",
+      "tooLarge": "该文件太大，无法一次导入：请拆分",
       "noRows": "CSV 需要一行表头和至少一个联系人",
-      "maxRows": "一次导入最多 {max, number} 行——请拆分文件",
-      "noColumns": "没有找到可用的列——表头至少需要以下之一：{columns}",
-      "currency": "文件中有 spent 列——请说明它使用的货币（三个字母，例如 {example}）",
+      "maxRows": "一次导入最多 {max, number} 行：请拆分文件",
+      "noColumns": "没有找到可用的列：表头至少需要以下之一：{columns}",
+      "currency": "文件中有 spent 列：请说明它使用的货币（三个字母，例如 {example}）",
       "noProposal": "没有这个提案",
       "notEmail": "这个提案不是客户邮件",
-      "draftNotApproved": "只有已批准的营销活动才会起草——这个的状态是：{status, select, pending {待处理} approved {已批准} rejected {已拒绝} expired {已过期} executed {已执行} blocked {已阻止} changes_requested {已要求修改} other {{status}}}",
+      "draftNotApproved": "只有已批准的营销活动才会起草：这个的状态是：{status, select, pending {待处理} approved {已批准} rejected {已拒绝} expired {已过期} executed {已执行} blocked {已阻止} changes_requested {已要求修改} other {{status}}}",
       "notStored": "草稿无法保存",
       "noProfile": "没有这个档案",
       "noCampaign": "没有这个营销活动",
-      "sendNotApproved": "只有已批准的营销活动才会发送——这个的状态是：{status, select, pending {待处理} approved {已批准} rejected {已拒绝} expired {已过期} executed {已执行} blocked {已阻止} changes_requested {已要求修改} other {{status}}}",
+      "sendNotApproved": "只有已批准的营销活动才会发送：这个的状态是：{status, select, pending {待处理} approved {已批准} rejected {已拒绝} expired {已过期} executed {已执行} blocked {已阻止} changes_requested {已要求修改} other {{status}}}",
       "subject": "主题必须是一行，最多 {max, number} 个字符",
-      "changed": "自您打开后邮件已更改——请按现在的内容重新阅读，然后批准"
+      "changed": "自您打开后邮件已更改：请按现在的内容重新阅读，然后批准"
     }
   },
   "supportWords": {
@@ -8694,12 +8694,12 @@
       "required": "{field} 为必填项",
       "requiredBoth": "{first} 和 {second} 为必填项",
       "action": "action 必须是 {actions}",
-      "nothingNew": "没有新的可提议内容——档案所能支撑的每个回答都已公开或已在您的队列中",
+      "nothingNew": "没有新的可提议内容：档案所能支撑的每个回答都已公开或已在您的队列中",
       "bothRequired": "问题和回答都必须填写",
       "tooLong": "问题请少于 {question, number} 个字符，回答请少于 {answer, number} 个字符",
       "noProposal": "没有这个提案",
       "notKnowledge": "这个提案不是知识库提案",
-      "notApproved": "只有已批准的提案才会发布——这个的状态是：{status, select, pending {待处理} approved {已批准} rejected {已拒绝} expired {已过期} executed {已执行} blocked {已阻止} changes_requested {已要求修改} other {{status}}}",
+      "notApproved": "只有已批准的提案才会发布：这个的状态是：{status, select, pending {待处理} approved {已批准} rejected {已拒绝} expired {已过期} executed {已执行} blocked {已阻止} changes_requested {已要求修改} other {{status}}}",
       "noEntries": "该提案没有任何条目",
       "noEntry": "没有这个公开条目",
       "noProfile": "没有这个档案",
@@ -8711,7 +8711,7 @@
       "notRecorded": "转人工无法记录",
       "faqDeclined": "归类模型拒绝处理这些问题；没有提出任何内容",
       "noReply": "没有这个回复",
-      "liveReply": "这个工单已有回复——请先完成或拒绝它",
+      "liveReply": "这个工单已有回复：请先完成或拒绝它",
       "noAddressDraft": "这个工单没有可回复的地址，所以无需起草",
       "notEnabled": "这家企业还没有启用客户支持",
       "writeFirst": "请先写回复",
@@ -8724,21 +8724,21 @@
       "decided": "这个回复刚刚已被处理"
     },
     "draft": {
-      "cant": "我无法根据您批准的回答起草这条回复——请您自己写。",
-      "budget": "本月的客户支持预算（{budget}）已用完，所以我不起草了——请您自己写。",
-      "times": "这个工单我已起草过 {count, number} 次——这次请您自己写。",
-      "unreachable": "我现在无法连接起草模型——请您自己写，或稍后再试。"
+      "cant": "我无法根据您批准的回答起草这条回复：请您自己写。",
+      "budget": "本月的客户支持预算（{budget}）已用完，所以我不起草了：请您自己写。",
+      "times": "这个工单我已起草过 {count, number} 次：这次请您自己写。",
+      "unreachable": "我现在无法连接起草模型：请您自己写，或稍后再试。"
     },
     "note": {
       "notSetUp": "未发送：邮件尚未设置。",
       "stopped": "未发送：一切都已停止（紧急停止已开启）。它仍保持已批准状态；您恢复并发送时就会发出。",
-      "maybeSent": "这条可能已经发出：邮件服务没有确认任何一种情况。我不会自行再次发送——再次回复前，请检查您的已发送邮件，或询问客户。",
+      "maybeSent": "这条可能已经发出：邮件服务没有确认任何一种情况。我不会自行再次发送。再次回复前，请检查您的已发送邮件，或询问客户。",
       "noAddress": "未发送：这个工单没有可回复的地址。",
-      "suppressed": "未发送：检查拒绝了它——已屏蔽（{reason}）。",
-      "refused": "未发送：检查拒绝了它——{reason}。",
+      "suppressed": "未发送：检查拒绝了它，已屏蔽（{reason}）。",
+      "refused": "未发送：检查拒绝了它，{reason}。",
       "notEnabled": "未发送：这家企业还没有启用客户支持。",
       "textChanged": "未发送：文本已与您批准的内容不一致。",
-      "serviceRefused": "未发送：邮件服务拒绝了它（{what}）。什么都没有发出——请重新写一次以重试。"
+      "serviceRefused": "未发送：邮件服务拒绝了它（{what}）。什么都没有发出：请重新写一次以重试。"
     },
     "summary": {
       "facts": "{count, plural, other {发布 {n} 条客户助手可以给出的回答}}",
@@ -8823,7 +8823,7 @@
         "numberIg": "{provider}：Instagram 账户 ID 是一个数字",
         "numberAd": "{provider}：广告账户 ID 是一个数字",
         "bothNeeded": "{provider}：令牌和资产 ID 都是必需的",
-        "pageToken": "{provider}：粘贴的公共主页令牌无法与您的同意核对——请改为把公共主页分配给系统用户，ScaleX 会据此获取公共主页令牌",
+        "pageToken": "{provider}：粘贴的公共主页令牌无法与您的同意核对；请改为把公共主页分配给系统用户，ScaleX 会据此获取公共主页令牌",
         "publishPage": "{provider}：发布需要目标公共主页的 ID",
         "adsAccount": "{provider}：广告管理需要广告账户 ID，即广告管理工具中显示的数字",
         "differentPage": "{provider}：公共主页返回了不同的 ID",
@@ -8874,7 +8874,7 @@
         "squareNotToken": "{provider}：这看起来不像 Square 访问令牌",
         "squareRejected": "{provider}：Square 没有接受该访问令牌。它可能已被撤销，或属于另一个环境",
         "squareMissing": "{provider}：该令牌缺少一项权限",
-        "squareMissingSaid": "{provider}：该令牌缺少一项权限——{message}",
+        "squareMissingSaid": "{provider}：该令牌缺少一项权限，{message}",
         "squarePathFailed": "{provider}：{path} 失败，状态码 {status}",
         "squarePathFailedSaid": "{provider}：{path} 失败，状态码 {status}。{message}",
         "squarePerms": "{provider}：Square 无法确认该令牌的权限",
@@ -8909,7 +8909,7 @@
         "gaReportFailedSaid": "{provider}：报告失败，状态码 {status}。{message}",
         "gaNotReadOnly": "{provider}：该令牌没有只读的 Analytics 访问权限",
         "scBothNeeded": "{provider}：资源和服务账户密钥都是必需的",
-        "scProperty": "{provider}：资源是 Search Console 中显示的网站地址——https://www.example.com/ 或 sc-domain:example.com",
+        "scProperty": "{provider}：资源是 Search Console 中显示的网站地址，https://www.example.com/ 或 sc-domain:example.com",
         "scCantRead": "{provider}：{email} 无法读取 {site}。请在 Search Console 中打开“设置”，然后打开“用户和权限”，将该地址添加为用户",
         "scQueryFailed": "{provider}：查询失败，状态码 {status}",
         "scQueryFailedSaid": "{provider}：查询失败，状态码 {status}。{message}",
@@ -8950,22 +8950,22 @@
         "sumUnpriced": "{count, plural, other {{n} 个已完成预约}}的标价，{period}（无价格、按零计算：{unpriced}）"
       },
       "utilisation": {
-        "none": "您还没有告诉我每周可以接多少个预约，所以我无法判断预约饱和度——我不会假设一个接待能力",
+        "none": "您还没有告诉我每周可以接多少个预约，所以我无法判断预约饱和度：我不会假设一个接待能力",
         "arithmetic": "已完成 {completed} 个，按所述每周 {cap} 个 × {weeks} 周 = {slots} 个名额，{period}"
       },
       "refuse": {
-        "tooLarge": "该文件太大，无法一次导入——请按日期拆分",
+        "tooLarge": "该文件太大，无法一次导入：请按日期拆分",
         "needsRows": "文件需要一个标题行和至少一个预约",
-        "tooMany": "一次导入最多接受 {max} 个预约——请按日期拆分文件",
-        "noDate": "我找不到日期列——标题行需要有一列，例如 Date 或 Start",
+        "tooMany": "一次导入最多接受 {max} 个预约：请按日期拆分文件",
+        "noDate": "我找不到日期列：标题行需要有一列，例如 Date 或 Start",
         "noStatus": "我找不到状态列。没有它，已赴约的预约和爽约看起来一样，所以我不会猜测",
-        "noCurrency": "文件有价格列——请说明它使用哪种货币（三个字母，例如 {example}）",
+        "noCurrency": "文件有价格列：请说明它使用哪种货币（三个字母，例如 {example}）",
         "bothOrders": "此文件中的日期既有日在前也有月在前的写法（{dmy} 和 {mdy}），所以我无法读取",
         "saidDayFirst": "您说日期是日在前，但文件中有只能按月在前读取的日期",
         "saidMonthFirst": "您说日期是月在前，但文件中有只能按日在前读取的日期",
-        "ambiguousDates": "像 {sample} 这样的日期可能是 {asDmy}，也可能是 {asMdy}——请说明是日在前还是月在前",
+        "ambiguousDates": "像 {sample} 这样的日期可能是 {asDmy}，也可能是 {asMdy}：请说明是日在前还是月在前",
         "decimal": {
-          "ambiguous": "像 {amount} 这样的金额可能是一千二百，也可能是一点二——请说明是点还是逗号分隔千位",
+          "ambiguous": "像 {amount} 这样的金额可能是一千二百，也可能是一点二：请说明是点还是逗号分隔千位",
           "both": "此文件中的金额两种写法都有（{comma} 和 {dot}），所以我无法读取",
           "contradicts_stated": "您说明了哪个符号分隔千位，但文件中有只能反过来读取的金额"
         },
@@ -9073,7 +9073,7 @@
   },
   "payments": {
     "meta": {
-      "title": "付款 — ScaleX"
+      "title": "付款 · ScaleX"
     },
     "kicker": "洞察 · 付款",
     "never": "ScaleX 准备付款，由您在自己的银行付款。ScaleX 无法转移资金。",
@@ -9395,7 +9395,7 @@
     "lost": "本会造成损失：{count} · {amount}",
     "unproven": "尚未证实：{count}",
     "open": "仍在衡量：{count}",
-    "net": "净额：{amount}——且未做任何改动。",
+    "net": "净额：{amount}，且未做任何改动。",
     "none": "尚无衡量结果。",
     "share": "复制分享链接",
     "copied": "链接已复制",
@@ -10127,13 +10127,13 @@
         "none": "未接入"
       },
       "outcome": {
-        "connected": "已接入 — NAV 登记的名称为 {name}",
+        "connected": "已接入：NAV 登记的名称为 {name}",
         "skipped": "留空",
         "not_found": "贵所已无法再为这位客户提供帮助",
         "already_connected": "这里已接入 NAV",
         "rejected": "NAV 未接受这些资料",
         "not_configured": "暂时还不能接入 NAV",
-        "rate_limited": "这位客户的尝试次数过多 — 请一小时后再试",
+        "rate_limited": "这位客户的尝试次数过多：请一小时后再试",
         "failed": "我们这边出了问题"
       },
       "submit": "向 NAV 核验并接入",
@@ -10261,7 +10261,7 @@
   },
   "home": {
     "meta": {
-      "title": "首页 — ScaleX"
+      "title": "首页 · ScaleX"
     },
     "kicker": "今天 · {date}",
     "reading": "正在读取…",
@@ -10418,7 +10418,7 @@
   },
   "alerts": {
     "meta": {
-      "title": "提醒与模块 — ScaleX"
+      "title": "提醒与模块 · ScaleX"
     },
     "kicker": "您的企业 · 提醒与模块",
     "title": "我在哪里工作，以及如何通知您。"

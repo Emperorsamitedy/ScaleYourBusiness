@@ -1,0 +1,52 @@
+{
+  "decisions": {
+    "report.panel.legend": ["stop", "glyph"],
+    "report.why.buttonSr": ["colonlead"],
+    "emails.summary.pendingMore": ["bullet"],
+    "site.audit.refused.checkout": ["colon"],
+    "site.audit.refused.external_booking": ["colon"],
+    "queueWords.sending.goLive": ["comma"],
+    "siteWords.platform.line.api": ["colon", "comma"],
+    "patternsWords.season.cannot.forecast": ["colon"],
+    "connectionsWords.said.metaCred.pageToken": ["semi"],
+    "customersWords.readback.uncontrolled": ["semi"],
+    "stockWords.sell.flat": ["stop"],
+    "stockWords.cover.assumedSeason": ["stop"],
+    "proposals.effect.noRange": ["stop"]
+  },
+  "en": {
+    "report.panel.legend": "Range · act-now line: drawn only where a target of yours or a range the data supports covers the measure. None does yet, so it shows -. Money a month is printed only where a measure’s gap is priced; none is. DERIVED = worked out from other facts; its WHY shows the formula and inputs.",
+    "report.why.buttonSr": ": how {name} was worked out",
+    "emails.summary.pendingMore": "- and {count} more.",
+    "stop.titleSince": "Everything has been stopped since {when}.",
+    "site.audit.refused.checkout": "checkout: counted from the outside, never opened",
+    "site.audit.refused.external_booking": "a booking page on another company's site: counted, not read",
+    "queueWords.sending.goLive": "Approved, it goes to Meta on the next scheduled run: the ad, then its ad set, then the campaign are switched on, each with a dry run first, re-checked against your ceiling. Meta ad changes stay switched off until the two-week unattended test completes; until then it waits, approved.",
+    "siteWords.platform.line.api": "{platform}: changes can be applied for you once you give it permission to make changes, a separate step, on its own screen.",
+    "patternsWords.season.cannot.forecast": "Forecast the coming weeks from the same weeks last year: I don't have last year.",
+    "connectionsWords.said.metaCred.pageToken": "{provider}: a pasted Page token can't be checked against your consent; assign the Page to the system user instead, and ScaleX derives the Page token from it",
+    "connectionsWords.said.source.squareMissingSaid": "{provider}: the token is missing a permission ({message})",
+    "customersWords.readback.uncontrolled": "uncontrolled: {uncontrolled}, so I can't say the email caused it; a lift alone is never \"helped\"",
+    "stockWords.sell.flat": "{a} sold in the last {n} days against {b} in the {n} before: about the same. A difference of {diff} is within chance (±{band}).",
+    "stockWords.cover.assumedSeason": "ASSUMED: this item follows your business's own season. The busy stretch is read from your {readFrom}, not from this item",
+    "proposals.effect.noRange": "No money range was forecast for this one. The cases, in words:"
+  },
+  "de-DE": {
+    "connections.guide.stripe.s0.why": "Ihr Zahlungsverlauf, also jede Zahlung und jede Rückerstattung. Daraus stammen Monatsumsatz und Bestellanzahl.",
+    "connections.guide.shopify.s0.why": "Ihre Bestellungen (daraus stammen Tagesumsatz, Bestellanzahl und verkaufte Einheiten) sowie die nicht abgeschlossenen Bestellvorgänge mit ihrem Inhalt.",
+    "connections.guide.woocommerce.s0.why": "Ihre Bestellungen. Daraus stammen Tagesumsatz, Bestellanzahl und verkaufte Einheiten.",
+    "connections.guide.ga4.s0.why": "Sitzungen pro Tag und pro Kanal. Daraus stammt der gemessene Website-Traffic. Betrachter können Berichte lesen und nichts ändern.",
+    "connections.guide.square.s0.why": "Jede Zahlung an Ihren Kassen, Karte und Bargeld, in Square erfasst. Daraus stammen die täglichen und stündlichen Einnahmen.",
+    "connections.email.op.send_campaign": "Eine freigegebene Kampagnen-E-Mail an die Kunden senden, die ausdrücklich zugestimmt haben, von Ihnen zu hören. Jede Person wird im Moment des Versands erneut geprüft.",
+    "support.phone.recording.stopsOnTransfer": "Wird ein Anruf an Sie durchgestellt, stoppt die Aufzeichnung vorher. Wer abnimmt, wird also nie aufgezeichnet.",
+    "reportWords.gap.contextOpens": "Kontext, wenn Ihnen danach ist; öffnet {count, plural, one {# Folgefrage} other {# Folgefragen}}",
+    "siteWords.walk.note.cartOnly": "Ich habe über die Links der Startseite den Warenkorb erreicht, aber keine Produktseite. Die Klicks bis zum Kauf lassen sich daher nicht zählen."
+  },
+  "hu-HU": {
+    "intake.record.listLabel": "Rögzített tények: {area}",
+    "connections.headline.readOnly": "{labels}: olyan engedély birtokában, amellyel írni is lehetne; a ScaleX csak olvasásra használja."
+  },
+  "fr-FR": {
+    "report.measure.average_order_value.words": "Votre chiffre d’affaires mensuel divisé par le nombre de ventes du mois (commandes, réservations ou visites)."
+  }
+}

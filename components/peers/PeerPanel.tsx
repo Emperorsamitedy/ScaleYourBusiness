@@ -176,7 +176,7 @@ export function PeerPanel({
           )}
           {short.length > 0 && (
             <p className="bm-copy">
-              <b>{names(short.map((b) => b.metric))}</b> — {tr("notEnough")}
+              <b>{names(short.map((b) => b.metric))}</b>: {tr("notEnough")}
             </p>
           )}
           {served.length === 0 && <p className="bm-note">{tr("official")}</p>}

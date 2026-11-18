@@ -102,6 +102,7 @@
   transition:
     background-color var(--d-press) linear,
     color var(--d-press) linear;
+  border-radius: var(--r-ctl, 0);
 }
 .home-btn:hover {
   background: var(--sheet-ink);
@@ -217,6 +218,7 @@
   text-align: left;
   cursor: pointer;
   transition: background-color var(--d-press) linear;
+  border-radius: var(--r-pill, 0);
 }
 .home-chip:hover:not([aria-disabled="true"]) {
   border-color: var(--sheet-ink);
@@ -241,6 +243,7 @@
   padding: 14px 16px 15px;
   border: var(--line);
   background: var(--inset);
+  border-radius: var(--r-ctl, 0);
 }
 
 /* ── a decision, answered where it stands: the card's two equal answers ── */
@@ -314,6 +317,7 @@
   transition:
     background-color var(--d-press) linear,
     color var(--d-press) linear;
+  border-radius: var(--r-ctl, 0);
 }
 .hd-btn:hover:not(:disabled),
 .hd-btn:active:not(:disabled) {
@@ -334,6 +338,7 @@
   padding: 12px;
   border: var(--line);
   background: var(--inset);
+  border-radius: var(--r-ctl, 0);
 }
 .home-thread .hd .hd-panel {
   background: var(--paper);
@@ -364,6 +369,7 @@
   letter-spacing: 0.06em;
   cursor: pointer;
   transition: background-color var(--d-press) linear;
+  border-radius: var(--r-pill, 0);
 }
 .hd-chip:hover {
   border-color: var(--sheet-ink);
@@ -385,6 +391,7 @@
   font-size: 13.5px;
   line-height: 1.5;
   resize: vertical;
+  border-radius: var(--r-s, 0);
 }
 .hd-text:focus {
   border-color: var(--sheet-ink);
@@ -444,6 +451,7 @@
 .home-days i {
   height: 14px;
   border: 1px solid var(--rule);
+  border-radius: var(--r-s, 0);
 }
 .home-days i.d {
   background: var(--sheet-ink);
@@ -617,6 +625,7 @@
   background: var(--inset);
   font-size: 13.5px;
   line-height: 1.45;
+  border-radius: var(--r-ctl, 0);
 }
 .hf-at {
   margin: 0;

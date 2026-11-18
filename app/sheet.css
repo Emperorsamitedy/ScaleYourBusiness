@@ -141,11 +141,67 @@
   --r-card: 18px;
   --r-ctl: 12px;
   --r-s: 10px;
+  --r-xs: 6px;
   --r-pill: 999px;
   --card-border: 0;
   --card-head-rule: 1px solid var(--rule-soft);
   --menu-border: 0;
   --menu-shadow: 0 2px 6px rgba(0, 0, 0, 0.18), 0 18px 44px rgba(0, 0, 0, 0.36);
+}
+
+/* ── the owner app's motion and captions (2026-11-18) ──
+   Every button eases its fill and gives a little under a press; a caption
+   written in lower case to sit inside a line starts with a capital when it
+   stands alone. Both only inside the app; nothing moves under reduced motion. */
+@media (prefers-reduced-motion: no-preference) {
+  :root:has(.app-frame, .q-app, .rq)
+    :is(
+      .act,
+      .next,
+      .ghost,
+      .prop-btn,
+      .rp-act,
+      .q-btn,
+      .q-primary,
+      .home-btn,
+      .hd-btn,
+      .rq-print,
+      .rq-why-btn
+    ) {
+    transition:
+      background-color 0.16s var(--ease-out),
+      border-color 0.16s var(--ease-out),
+      color 0.16s var(--ease-out),
+      transform var(--d-press) linear;
+  }
+  :root:has(.app-frame, .q-app, .rq)
+    :is(
+      .act,
+      .next,
+      .ghost,
+      .prop-btn,
+      .rp-act,
+      .q-btn,
+      .q-primary,
+      .home-btn,
+      .hd-btn,
+      .rq-print,
+      .rq-why-btn
+    ):active:not(:disabled) {
+    transform: scale(0.98);
+  }
+}
+:root:has(.app-frame, .q-app, .rq)
+  :is(
+    .home-r-cmp,
+    .q-item-ref,
+    .q-item-meta,
+    .q-vbar small,
+    .cs-meta,
+    .ph-aside,
+    .lv-why
+  )::first-letter {
+  text-transform: uppercase;
 }
 
 /* ── the desk and the sheet ── */
@@ -195,6 +251,24 @@
   font-variant-numeric: tabular-nums;
   font-feature-settings: "tnum" 1;
   white-space: nowrap;
+}
+
+/* The owner app's buttons and links carry no arrow (ux-spec §2: "new
+   buttons and links carry none"; the mockups the owner picked have none).
+   The classic look drew one as a classless span, hidden from speech, at the
+   end of a control: that span is not shown here. A disclosure that turns its
+   own marker (.q-evtoggle) keeps it. Outside the app nothing changes. */
+:root:has(.app-frame, .q-app, .rq)
+  :is(button, a):not(.q-evtoggle)
+  > span[aria-hidden="true"]:not([class]):last-child {
+  display: none;
+}
+
+/* Rounded cards never touch (the owner's third round: "a few overlaps here
+   and there"). In the classic look stacked cards shared a square edge; with
+   a radius they need air. Zero specificity, so a screen's own spacing wins. */
+:where(:root:has(.app-frame, .q-app, .rq)) :where(.screen) > :where(.cs) + :where(.cs) {
+  margin-top: 15px;
 }
 
 /* A caption written to sit inside a line starts with a capital when it stands alone. */
@@ -522,6 +596,10 @@ optgroup {
 .cs-body {
   padding: 15px 20px 15px;
 }
+/* A card with nothing to list shows no empty band between its head and its foot. */
+.cs-body:empty {
+  display: none;
+}
 .cs-foot {
   padding: 14px 20px;
   border-top: 1px solid var(--rule-soft);
@@ -665,6 +743,7 @@ optgroup {
   display: inline-block;
   padding: 4px 9px;
   border: 1px solid currentColor;
+  border-radius: var(--r-s, 0);
 }
 
 /* ── the unsubscribe page (P4-15): a stranger's page, one sheet, one button ── */

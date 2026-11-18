@@ -35,6 +35,7 @@ import { MAX_CHANGE_SHARE, spendGuard } from "../ads/guard";
 import { minorUnitExponent, perUnit, scaleMinor } from "../core/money";
 import type { AppLocale } from "../i18n/locales";
 import { intlTag } from "../i18n/locales";
+import { rangeOf } from "../i18n/range";
 import type { Tr } from "../i18n/tr";
 import type { SimText } from "./words";
 import { andList, englishSimText, int, isoDay, pointsPct, section, wholePct } from "./words";
@@ -495,7 +496,7 @@ const twoDp = (x: number, locale: AppLocale = "en"): string => num(x, 2, locale)
 const count = (x: number, locale: AppLocale = "en"): string =>
   Number.isInteger(x) ? num(x, 0, locale) : num(x, 1, locale);
 
-/** "a – b" for a cell; a single figure in an arithmetic line when both ends agree. */
+/** "a to b" for a cell; a single figure in an arithmetic line when both ends agree. */
 function rangeText(
   r: Range,
   unit: Unit,
@@ -511,7 +512,7 @@ function rangeText(
         : unit === "ratio"
           ? (v: number) => twoDp(v, locale)
           : (v: number) => count(v, locale);
-  return collapse && f(r.low) === f(r.high) ? f(r.low) : `${f(r.low)} – ${f(r.high)}`;
+  return collapse && f(r.low) === f(r.high) ? f(r.low) : rangeOf(f(r.low), f(r.high), locale);
 }
 
 /** An input or intermediate figure inside an arithmetic line. */
@@ -529,7 +530,8 @@ export function valueText(
   if (exact && r.low === r.high) {
     return unit === "money"
       ? money(r.low, currency, locale)
-      : rangeText(r, unit, currency, false, locale).split(" – ")[0]!;
+      : // Both ends are one figure here: print it once.
+        rangeText(r, unit, currency, true, locale);
   }
   return rangeText(r, unit, currency, false, locale);
 }

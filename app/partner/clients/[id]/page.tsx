@@ -65,7 +65,7 @@ export default async function ClientPage({ params }: { params: Promise<{ id: str
             {section === "findings" &&
               view.report?.findings.map((f) => (
                 <p key={f.title} className="auth-copy">
-                  <b>{f.title}</b> — {f.detail}
+                  <b>{f.title}</b>: {f.detail}
                 </p>
               ))}
             {section === "recommendations" &&

@@ -61,6 +61,7 @@
   width: 14px;
   height: 14px;
   border: 1px solid var(--rule-soft);
+  border-radius: var(--r-s, 0);
 }
 .tm-sw.short {
   background: var(--tm-short);
@@ -90,6 +91,7 @@
   text-transform: var(--caps, uppercase);
   letter-spacing: var(--caps-ls, 0.06em);
   cursor: pointer;
+  border-radius: var(--r-s, 0);
 }
 .tm-days button[aria-pressed="true"] {
   background: var(--sheet-ink);
@@ -259,6 +261,7 @@
   border: 1px solid var(--rule);
   color: var(--sheet-ink);
   --ink: var(--sheet-ink);
+  border-radius: var(--r-ctl, 0);
 }
 .tm-inset h2 {
   margin: 0 0 8px;

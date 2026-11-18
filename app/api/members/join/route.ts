@@ -48,7 +48,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     const invite = await peekInvite(token);
     if (!invite || invite.status !== "pending") {
       return NextResponse.json(
-        { error: "that invite is no longer open — ask for a new one" },
+        { error: "that invite is no longer open: ask for a new one" },
         { status: 410 },
       );
     }
@@ -86,20 +86,14 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       request.headers.get("x-real-ip") ??
       request.headers.get("x-forwarded-for")?.split(",")[0] ??
       null;
-    const login = await requestLogin(
-      invite.email,
-      null,
-      invite.invite_id,
-      undefined,
-      clientIp,
-    );
+    const login = await requestLogin(invite.email, null, invite.invite_id, undefined, clientIp);
     const link = `${origin}/api/auth/redeem?token=${encodeURIComponent(login.token)}`;
     // L-6: their own language if an account holds one, else the one this page is in; through the gate.
     const locale = await addressLocale(login.email, store.get(LANGUAGE_COOKIE)?.value);
     const sent = await sendLoginEmail({ to: login.email, link, locale });
     if (sent.delivered_via === "failed") {
       return NextResponse.json(
-        { error: "I couldn't send the sign-in email just now — try again in a minute." },
+        { error: "I couldn't send the sign-in email just now. Try again in a minute." },
         { status: 503 },
       );
     }

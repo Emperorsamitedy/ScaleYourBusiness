@@ -17,6 +17,7 @@ import { CREATES_PAUSED_NOTE } from "../../lib/ads/ad-words";
 import { minorUnitExponent } from "../../lib/core/money";
 import type { AppLocale } from "../../lib/i18n/locales";
 import { intlTag } from "../../lib/i18n/locales";
+import { rangeOf } from "../../lib/i18n/range";
 import type { Tr } from "../../lib/i18n/tr";
 import { englishTr } from "../../lib/i18n/tr";
 import { readStored } from "../../lib/i18n/stored";
@@ -123,15 +124,19 @@ export function wholeMoney(m: MoneyLike): MoneyLike {
 
 /**
  * The expected effect as every screen words it (Home, the review sheet, the
- * conversation, the queue): "+€136 – +€1,213", each end in whole units. One
- * function, so one proposal is never worded two ways.
+ * conversation, the queue): "+€136 to +€1,213", each end in whole units, the
+ * word between them the reader's language's own (lib/i18n/range.ts; no dash,
+ * the owner 2026-11-18). One function, so one proposal is never worded two ways.
  */
 export function rangeWords(
   range: { low: MoneyLike; high: MoneyLike },
   locale: AppLocale = "en",
-  between = " – ",
 ): string {
-  return `${signedMoney(wholeMoney(range.low), locale)}${between}${signedMoney(wholeMoney(range.high), locale)}`;
+  return rangeOf(
+    signedMoney(wholeMoney(range.low), locale),
+    signedMoney(wholeMoney(range.high), locale),
+    locale,
+  );
 }
 
 /**
@@ -267,9 +272,11 @@ export function chipPhrase(chip: ReasonChip, tr: Tr = EN()): string {
 /**
  * Put a chip's phrase at the front of the reason, replacing any chip
  * phrase already there and keeping whatever the owner typed after it.
- * "" + WRONG DATA → "Wrong data"; "Wrong data — the stock is off" +
- * TOO RISKY → "Too risky — the stock is off".
+ * "" + WRONG DATA → "Wrong data"; "Wrong data: the stock is off" +
+ * TOO RISKY → "Too risky: the stock is off". A reason written when the
+ * two were joined by a long dash is still read.
  */
+const CHIP_JOINS = [": ", " — "] as const;
 export function applyReasonChip(current: string, chip: ReasonChip, tr: Tr = EN()): string {
   let rest = current.trim();
   for (const c of REASON_CHIPS) {
@@ -278,13 +285,14 @@ export function applyReasonChip(current: string, chip: ReasonChip, tr: Tr = EN()
       rest = "";
       break;
     }
-    if (rest.startsWith(`${p} — `)) {
-      rest = rest.slice(p.length + 3).trim();
+    const join = CHIP_JOINS.find((j) => rest.startsWith(`${p}${j}`));
+    if (join) {
+      rest = rest.slice(p.length + join.length).trim();
       break;
     }
   }
   const phrase = chipPhrase(chip, tr);
-  return rest === "" ? phrase : `${phrase} — ${rest}`;
+  return rest === "" ? phrase : `${phrase}: ${rest}`;
 }
 
 /** Which chip, if any, currently leads the reason. */
@@ -292,7 +300,7 @@ export function activeChip(current: string, tr: Tr = EN()): ReasonChip | null {
   const t = current.trim();
   for (const c of REASON_CHIPS) {
     const p = chipPhrase(c, tr);
-    if (t === p || t.startsWith(`${p} — `)) return c;
+    if (t === p || CHIP_JOINS.some((j) => t.startsWith(`${p}${j}`))) return c;
   }
   return null;
 }
@@ -645,7 +653,7 @@ export function changeLines(
       },
     ];
     const what = str(d.what);
-    if (what) lines.push({ line: tr("change.email"), sub: null, before: "—", after: what });
+    if (what) lines.push({ line: tr("change.email"), sub: null, before: "-", after: what });
     return lines;
   }
 

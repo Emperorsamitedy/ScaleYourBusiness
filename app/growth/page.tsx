@@ -153,7 +153,7 @@ export default async function GrowthPage() {
               <br />
               {b.evidence.length > 0
                 ? tr("briefs.evidence", {
-                    keys: b.evidence.map((e) => keys.get(e) ?? "—").join(", "),
+                    keys: b.evidence.map((e) => keys.get(e) ?? "-").join(", "),
                   })
                 : tr("briefs.noEvidence")}
             </p>

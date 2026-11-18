@@ -37,6 +37,7 @@
   font-family: var(--f-mono);
   font-size: 13px;
   color: var(--desk-ink);
+  border-radius: var(--r-ctl, 0);
 }
 
 .sp-screen .sp-grid {
@@ -61,6 +62,7 @@
   padding: 14px 14px 15px;
   background: var(--inset);
   border: 1px solid var(--sheet-ink);
+  border-radius: var(--r-ctl, 0);
 }
 .sp-screen .sp-box-label {
   margin: 0 0 8px;
@@ -106,6 +108,7 @@
   background: var(--paper);
   line-height: 1.5;
   resize: vertical;
+  border-radius: var(--r-s, 0);
 }
 .sp-screen .sp-fine {
   margin: 8px 0 0;
@@ -330,6 +333,7 @@
   align-self: flex-start;
   border: 1px solid var(--rule);
   background: var(--paper);
+  border-radius: var(--r-ctl, 0);
 }
 .sp-screen .sp-msg.assistant {
   align-self: flex-end;
@@ -385,6 +389,7 @@
   line-height: 1.6;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
+  border-radius: var(--r-ctl, 0);
 }
 
 @media (max-width: 1199px) {
@@ -476,6 +481,7 @@
   line-height: 1.5;
   white-space: pre-wrap;
   word-break: break-word;
+  border-radius: var(--r-ctl, 0);
 }
 .sp-screen .sp-note {
   color: var(--sheet-ink);

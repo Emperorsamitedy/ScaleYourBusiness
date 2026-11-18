@@ -43,6 +43,7 @@
   border: 1px solid var(--rule);
   --ink: var(--sheet-ink);
   --mut: var(--sheet-ink-2);
+  border-radius: var(--r-card, 0);
 }
 .fs-msg {
   padding: 17px 20px;
@@ -118,6 +119,7 @@
   transition:
     background-color var(--d-press) linear,
     color var(--d-press) linear;
+  border-radius: var(--r-ctl, 0);
 }
 .fs-filter:hover,
 .fs-filter.on {
@@ -352,6 +354,7 @@
   text-decoration: none !important;
   white-space: nowrap;
   cursor: pointer;
+  border-radius: var(--r-ctl, 0);
 }
 .fs-btn:hover:not(:disabled) {
   background: var(--sheet-ink);

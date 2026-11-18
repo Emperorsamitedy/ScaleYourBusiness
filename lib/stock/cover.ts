@@ -36,6 +36,7 @@
 import { money } from "../core/money";
 import type { Money } from "../core/money";
 import { intlTag } from "../i18n/locales";
+import { rangeOf as rangeWords } from "../i18n/range";
 import type { SeasonResult } from "../seasons/forecast";
 import type { StockItem } from "./assess";
 import { shiftDay } from "./assess";
@@ -826,18 +827,18 @@ export function assessCover(
   };
 }
 
-/** Pure: the cover column's text ("9–10", "365+", "sold out", "—"). */
+/** Pure: the cover column's text ("9 to 10", "365+", "sold out", "-"). */
 export function coverColumn(c: CoverAssessment, w: Words = englishStock()): string {
   const { tr, locale } = w;
   if (c.sold_out) return tr("cover.colSoldOut");
-  if (c.cover === null) return c.status === "no_sales" ? tr("cover.colNoSales") : "—";
+  if (c.cover === null) return c.status === "no_sales" ? tr("cover.colNoSales") : "-";
   const lo = Math.round(c.cover.low);
   const max = int(COVER.max_cover_days, locale);
   if (lo >= COVER.max_cover_days) return `${max}+`;
   if (c.cover.high === null) return `${int(lo, locale)}+`;
-  if (Math.round(c.cover.high) >= COVER.max_cover_days) return `${int(lo, locale)}–${max}+`;
+  if (Math.round(c.cover.high) >= COVER.max_cover_days) return rangeWords(int(lo, locale), `${max}+`, locale);
   const [a, b] = wholeDays({ low: c.cover.low, high: c.cover.high });
-  return `${int(a, locale)}–${int(b, locale)}`;
+  return rangeWords(int(a, locale), int(b, locale), locale);
 }
 
 /** Pure: the warned items, ACT NOW first, then the soonest out. */

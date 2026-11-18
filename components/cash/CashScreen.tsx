@@ -254,6 +254,7 @@ function Tiles({ f, onWhy }: { f: CashReady; onWhy: (c: WhyContent) => void }) {
 
 function Weeks({ f }: { f: CashReady }) {
   const words = useCashWords();
+  const home = useTr("home").tr;
   const { tr } = words;
   const rows = weekRows(f, words);
   const [all, setAll] = useState(false);
@@ -298,8 +299,8 @@ function Weeks({ f }: { f: CashReady }) {
               <tr key={r.key}>
                 <th scope="row">
                   <span className="cf-week">{r.week}</span>
-                  {r.under && <span className="flag drift">{tr("weeks.under")}</span>}
-                  {r.due !== "—" && (
+                  {r.under && <span className="flag drift">{home("flag.tight")}</span>}
+                  {r.due !== "-" && (
                     <span className="cf-due">
                       {tr("weeks.due")}: {r.due}
                     </span>
@@ -555,7 +556,7 @@ function Sources({ f }: { f: CashReady }) {
                   <th scope="row">{s.label}</th>
                   <td data-label={tr("sources.value")}>{s.value}</td>
                   <td data-label={tr("sources.basis")}>
-                    {s.basis ? <span className="flag">{basisName(s.basis, sheet)}</span> : "—"}
+                    {s.basis ? <span className="flag">{basisName(s.basis, sheet)}</span> : "-"}
                   </td>
                   <td data-label={tr("sources.from")}>{s.source}</td>
                 </tr>
@@ -695,7 +696,10 @@ export function CashScreen() {
         </p>
       )}
       <Tiles f={f} onWhy={setWhy} />
-      <CashChart model={cashChartModel(f, view.tight?.index ?? null, words, sentences)} />
+      <CashChart
+        model={cashChartModel(f, view.tight?.index ?? null, words, sentences)}
+        tightWord={home("flag.tight")}
+      />
       <WhatIf view={view} f={f} onRun={(q) => void load(q)} busy={busy} />
       <Weeks f={f} />
       <Sources f={f} />

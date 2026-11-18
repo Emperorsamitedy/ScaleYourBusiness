@@ -21,6 +21,7 @@ import type {
 import type { CartShopperRead } from "../../lib/connectors/provider";
 import { CARTS, dayWords, englishCartsWords } from "../../lib/carts/measure";
 import type { AppLocale } from "../../lib/i18n/locales";
+import { rangeOf } from "../../lib/i18n/range";
 import type { Tr } from "../../lib/i18n/tr";
 import { englishTr } from "../../lib/i18n/tr";
 import { percentText } from "../cash/cash-view";
@@ -255,9 +256,12 @@ export function winBackText(m: Measured, words: CartsWords = ENGLISH()): string 
   if (m.win_back.length === 0) return null;
   const { tr, locale } = words;
   return m.win_back
-    .map(
-      (w) =>
-        `${moneyText(w.low_minor, w.currency, locale)}–${moneyText(w.high_minor, w.currency, locale)}`,
+    .map((w) =>
+      rangeOf(
+        moneyText(w.low_minor, w.currency, locale),
+        moneyText(w.high_minor, w.currency, locale),
+        locale,
+      ),
     )
     .reduce((acc, part) => tr("view.and", { first: acc, last: part }));
 }

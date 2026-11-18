@@ -61,6 +61,7 @@
   width: 14px;
   height: 14px;
   border: 1px solid var(--rule-soft);
+  border-radius: var(--r-s, 0);
 }
 .hr-sw.loses {
   background: var(--hr-loses);
@@ -179,6 +180,7 @@
   border: 1px solid var(--rule);
   color: var(--sheet-ink);
   --ink: var(--sheet-ink);
+  border-radius: var(--r-ctl, 0);
 }
 .hr-inset h2 {
   margin: 0 0 8px;
@@ -233,6 +235,7 @@
   color: var(--sheet-ink);
   font-family: var(--f-mono);
   font-size: 13.5px;
+  border-radius: var(--r-s, 0);
 }
 .hr-zone select:focus-visible {
   outline: 2px solid var(--sheet-ink);

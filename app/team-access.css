@@ -20,6 +20,7 @@
   color: var(--sheet-ink);
   font-size: 13.5px;
   line-height: 1.5;
+  border-radius: var(--r-ctl, 0);
 }
 
 .ta-wait {

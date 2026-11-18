@@ -639,7 +639,7 @@ export function Trend({
             {points.map((p, i) => (
               <tr key={i}>
                 <th scope="row">{p.label}</th>
-                <td>{p.value === null ? "—" : format(p.value)}</td>
+                <td>{p.value === null ? "-" : format(p.value)}</td>
               </tr>
             ))}
           </tbody>

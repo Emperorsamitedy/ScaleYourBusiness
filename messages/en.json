@@ -5,7 +5,7 @@
     "saving": "Saving…",
     "saved": "Saved.",
     "businessUnnamed": "A business not named yet",
-    "unreachable": "I couldn't reach the server — try again.",
+    "unreachable": "I couldn't reach the server. Try again.",
     "somethingWrong": "something went wrong",
     "roles": {
       "owner": "Owner",
@@ -124,10 +124,10 @@
   },
   "auth": {
     "meta": {
-      "signIn": "Sign in — ScaleX",
-      "signUp": "Create your account — ScaleX",
-      "confirm": "Confirm sign-in — ScaleX",
-      "choose": "Which business? — ScaleX"
+      "signIn": "Sign in · ScaleX",
+      "signUp": "Create your account · ScaleX",
+      "confirm": "Confirm sign-in · ScaleX",
+      "choose": "Which business? · ScaleX"
     },
     "mast": {
       "signIn": "Sign in",
@@ -225,7 +225,7 @@
     }
   },
   "locale": {
-    "meta": "Language and currency — ScaleX",
+    "meta": "Language and currency · ScaleX",
     "first": {
       "headline": "Choose your language and currency."
     },
@@ -235,7 +235,7 @@
     "currency": "Currency",
     "currencyHelp": "Every figure for this business is shown in this currency. Nothing is converted: amounts already on record keep the currency they were given in.",
     "currencyChoose": "Choose a currency",
-    "currencyOption": "{code} — {name}",
+    "currencyOption": "{code}: {name}",
     "beingChecked": "being checked",
     "checkingNote": "A language marked “being checked” is shown only to you and its reviewer until a native speaker has read it.",
     "onlyOwner": "Only an owner can change the business’s language or currency.",
@@ -251,7 +251,7 @@
   },
   "intake": {
     "meta": {
-      "title": "Setting up the record — ScaleX"
+      "title": "Setting up the record · ScaleX"
     },
     "area": {
       "identity": "Business basics",
@@ -288,7 +288,7 @@
       "legendMeasured": "read from {connector}",
       "tileChannel": "CH {channel}",
       "tilePct": "{pct}%",
-      "tileWords": "Channel {channel}, {area}: {status}, {pct}% answered — {bars}.",
+      "tileWords": "Channel {channel}, {area}: {status}, {pct}% answered, {bars}.",
       "tileAsk": "{words} Ask from this area.",
       "bar": {
         "owner": "{count, plural, one {# from you} other {# from you}}",
@@ -342,7 +342,7 @@
       "left": "{left, plural, one {<fig>#</fig> left in this channel} other {<fig>#</fig> left in this channel}} · about {minutes, plural, one {<fig>#</fig> min} other {<fig>#</fig> min}}",
       "measured": "Already measured · {provider}",
       "missing": "The missing piece",
-      "missingRest": "the rest — what {provider} doesn’t measure",
+      "missingRest": "the rest: what {provider} doesn’t measure",
       "ruler": "Measured reference: {value}",
       "backTitle": "Reopens that answer to change it; the old one stays in history",
       "skip": "Skip for now",
@@ -386,7 +386,7 @@
       "unlocks": "What this answer unlocks",
       "open": "Open",
       "locked": "Locked",
-      "skippedEarlier": "Skipped earlier — it can be answered now.",
+      "skippedEarlier": "Skipped earlier. It can be answered now.",
       "answerNow": "Answer it now",
       "keepSkipped": "Keep it skipped",
       "whatChanged": "What changed?",
@@ -487,7 +487,7 @@
       "not_parseable": "this answer needs its own form",
       "needs_answer": "this question needs an answer",
       "reason_needed": "a reason is needed to change an answer",
-      "not_askable": "that question can’t be answered right now — the screen has moved on",
+      "not_askable": "that question can’t be answered right now: the screen has moved on",
       "no_answer_to_reopen": "that question has no answer to change",
       "rows_range": "between {min} and {max} rows required",
       "not_entity": "that question doesn’t take a list",
@@ -548,11 +548,11 @@
       "medium": "MEDIUM",
       "low": "LOW"
     },
-    "none": "—"
+    "none": "-"
   },
   "report": {
     "meta": {
-      "title": "Your diagnosis — ScaleX"
+      "title": "Your diagnosis · ScaleX"
     },
     "mast": {
       "watching": "Watching · day {day} of {of}"
@@ -582,9 +582,9 @@
       "diagnosis": "Diagnosis",
       "noFindings": "no findings called out",
       "notComputed": "{count, plural, one {<b>#</b> not computed} other {<b>#</b> not computed}}",
-      "empty": "No measure could be computed or refused — the profile has nothing to work from yet.",
+      "empty": "No measure could be computed or refused: the profile has nothing to work from yet.",
       "caption": "Each measure: its result, the prior report’s result, the reference range, a flag, money a month, its basis, and how it was worked out",
-      "legend": "Range · act-now line: drawn only where a target of yours or a range the data supports covers the measure — none does yet, so it shows —. Money a month is printed only where a measure’s gap is priced; none is. DERIVED = worked out from other facts; its WHY shows the formula and inputs.",
+      "legend": "Range · act-now line: drawn only where a target of yours or a range the data supports covers the measure. None does yet, so it shows -. Money a month is printed only where a measure’s gap is priced; none is. DERIVED = worked out from other facts; its WHY shows the formula and inputs.",
       "issued": "Diagnostic panel · issued {issued}"
     },
     "col": {
@@ -601,10 +601,10 @@
     },
     "why": {
       "button": "Why",
-      "buttonSr": " — how {name} was worked out",
+      "buttonSr": ": how {name} was worked out",
       "sheet": "Derivation sheet",
       "nothing": "Nothing selected",
-      "choose": "Choose WHY → on a measure to see how it was worked out.",
+      "choose": "Choose “Why” on a measure to see how it was worked out.",
       "formula": "Formula, in words",
       "notComputed": "Why it was not computed",
       "inputs": "Inputs",
@@ -621,11 +621,11 @@
     "measure": {
       "blended_margin": {
         "name": "Blended margin",
-        "words": "What each sale leaves after what it costs you to deliver, as a share of its price — averaged across your offers, weighted by how many of each you sell."
+        "words": "What each sale leaves after what it costs you to deliver, as a share of its price, averaged across your offers, weighted by how many of each you sell."
       },
       "average_order_value": {
         "name": "Average order value",
-        "words": "Your monthly revenue divided by the number of sales — orders, bookings or visits — in the month."
+        "words": "Your monthly revenue divided by the number of sales (orders, bookings or visits) in the month."
       },
       "cost_per_acquisition": {
         "name": "Cost to acquire a customer",
@@ -633,7 +633,7 @@
       },
       "return_on_ad_spend": {
         "name": "Return on ad spend",
-        "words": "All your monthly revenue divided by all your monthly ad spend — blended, not attributed to any one ad."
+        "words": "All your monthly revenue divided by all your monthly ad spend, blended, not attributed to any one ad."
       },
       "fixed_costs": {
         "name": "Fixed costs",
@@ -641,7 +641,7 @@
       },
       "break_even": {
         "name": "Break-even volume",
-        "words": "Your fixed costs divided by what each sale contributes after its own cost — the number of sales a month that pays for everything."
+        "words": "Your fixed costs divided by what each sale contributes after its own cost: the number of sales a month that pays for everything."
       },
       "offer": {
         "name": "Margin · {name}",
@@ -669,10 +669,10 @@
     },
     "history": {
       "computed": "Computed {figure} in this report",
-      "notComputed": "Not computed in this report — {why}",
+      "notComputed": "Not computed in this report: {why}",
       "was": "Was {figure} in the previous report",
       "notKnown": "not known",
-      "superseded": "{name} was {was} — superseded by a newer {kind, select, measurement {measurement} reading {reading} calculation {calculation} answer {answer} other {record}}"
+      "superseded": "{name} was {was}, superseded by a newer {kind, select, measurement {measurement} reading {reading} calculation {calculation} answer {answer} other {record}}"
     },
     "svm": {
       "caption": "What you said against what a connected account measured",
@@ -692,7 +692,7 @@
       "show": "Show them"
     },
     "decline": {
-      "lede": "Optional — why not?",
+      "lede": "Optional: why not?",
       "chip": {
         "tried": "we tried this before",
         "market": "not possible in my market",
@@ -726,8 +726,8 @@
       "nobody": "nobody measured or stated this",
       "sensitivity": "sensitivity {level, select, high {high} medium {medium} low {low} other {{level}}}",
       "changeMind": "If you change your mind:",
-      "lookInto": "Look into this →",
-      "notForUs": "Not for us →",
+      "lookInto": "Look into this",
+      "notForUs": "Not for us",
       "recorded": "Recorded",
       "lookingInto": "you’re looking into this",
       "declined": "Declined",
@@ -747,17 +747,17 @@
       "title": "{count, plural, one {# recommendation.} other {# recommendations.}}"
     },
     "hours": {
-      "label": "Trading hours · OBSERVED · {from} – {to}",
+      "label": "Trading hours · OBSERVED · {from} to {to}",
       "none": "No signal fires on any measured day.",
       "title": "{count, plural, one {# signal in your hourly sales.} other {# signals in your hourly sales.}}",
-      "link": "See every weekday →",
+      "link": "See every weekday",
       "tooEarly": "Too early to say"
     },
     "gaps": {
       "label": "What would sharpen this",
       "priority": "{priority, select, core {core} important {important} deep {deep} optional {optional} other {{priority}}}",
       "blocking": "Blocking",
-      "answer": "Answer now →"
+      "answer": "Answer now"
     },
     "foot": "Every figure prints where it came from. Estimates are marked as estimates; nothing is invented.",
     "generatedFrom": "Generated from snapshot {id}.",
@@ -766,29 +766,29 @@
       "priceReturning": "This report is {price}, since you've already paid for another of your businesses.",
       "others": "{count, plural, one {You own another business without a paid report: add it to the same payment at {price} each.} other {You own other businesses without a paid report: add them to the same payment at {price} each.}}",
       "total": "{count, plural, one {Total: {total} for # report, one payment. Each business’s report is written when you open it there.} other {Total: {total} for # reports, one payment. Each business’s report is written when you open it there.}}",
-      "pay": "Pay {total} →",
+      "pay": "Pay {total}",
       "notNow": "Not now"
     },
     "state": {
       "label": "Diagnostic panel",
       "noReport": "No report yet",
       "checking": "Checking for your report…",
-      "error": "Something went wrong loading the report. Refresh to try again — nothing you told me is lost.",
-      "openingCheckout": "Opening checkout — the report is paid for before it is written",
+      "error": "Something went wrong loading the report. Refresh to try again. Nothing you told me is lost.",
+      "openingCheckout": "Opening checkout: the report is paid for before it is written",
       "confirming": "Waiting for Stripe to confirm your payment",
-      "reading": "Reading your profile — the request is running",
+      "reading": "Reading your profile: the request is running",
       "readingLede": "Margins, break-even, the findings and what to do about them. This usually takes about a minute; the arithmetic is checked before anything reaches the page.",
-      "readNow": "Read my profile now →",
-      "answerMore": "Answer more first →",
+      "readNow": "Read my profile now",
+      "answerMore": "Answer more first",
       "payFailed": "payment could not be started",
-      "payUnreachable": "I couldn't reach the server — nothing was charged; try again.",
+      "payUnreachable": "I couldn't reach the server. Nothing was charged; try again.",
       "notConfirmed": "Stripe hasn't confirmed your payment yet. Refresh this page in a minute: you won't be charged again, and the report starts once it's confirmed.",
       "generationFailed": "generation failed",
-      "unreachable": "I couldn't reach the server — your answers are safe; try again."
+      "unreachable": "I couldn't reach the server. Your answers are safe; try again."
     },
     "share": {
       "label": "Share this report",
-      "signedOut": "Sign in to share your report — a link that leaves ScaleX is yours to make, so it needs you signed in.",
+      "signedOut": "Sign in to share your report: a link that leaves ScaleX is yours to make, so it needs you signed in.",
       "lede": "The link shows this report as it is now, without your answers to the recommendations and without anything that leads into your account. It never changes after it is made, and you can revoke it here at any time.",
       "lasts": "Lasts",
       "days": "{days, plural, one {# day} other {# days}}",
@@ -811,8 +811,8 @@
       "lastOpened": "{count, plural, one {last opened {date} (# view)} other {last opened {date} (# views)}}",
       "reportOf": "report of {date}",
       "revoke": "Revoke",
-      "wrong": "something went wrong — try again",
-      "unreachable": "I couldn't reach the server — try again."
+      "wrong": "something went wrong: try again",
+      "unreachable": "I couldn't reach the server. Try again."
     },
     "viz": {
       "marginsLabel": "Margin by product",
@@ -823,7 +823,7 @@
   "charts": {
     "panel": {
       "label": "Your numbers as a chart",
-      "failed": "I couldn’t read your numbers for the chart just now. Refresh to try again — nothing is lost.",
+      "failed": "I couldn’t read your numbers for the chart just now. Refresh to try again. Nothing is lost.",
       "reading": "Reading your measured days…"
     },
     "candle": {
@@ -850,7 +850,7 @@
       "lineZero": "ZERO",
       "tight": "TIGHT",
       "today": "Today",
-      "readoutRange": "<b>{low}</b> cautious – <b>{high}</b> hopeful",
+      "readoutRange": "<b>{low}</b> cautious to <b>{high}</b> hopeful",
       "underLine": "under the line",
       "when": "When",
       "cautiousCol": "Cautious end ({currency})",
@@ -925,7 +925,7 @@
       "colHow": "How it was worked out",
       "apart": "Not added to the month",
       "legend": "A month is {days} days: each flow is read over its own window and scaled to {days} days, as its line says. {derived} = {derivedMeaning}. {estimated} here = the waiting proposals’ own forecasts. Ranges run from the low end to the high end; one figure means nothing estimated went in.",
-      "seeWaiting": "See what’s waiting →",
+      "seeWaiting": "See what’s waiting",
       "row": {
         "notMeasured": "Not measured",
         "aMonth": "A month",
@@ -938,7 +938,7 @@
       },
       "empty": {
         "nothing": "Nothing to draw yet.",
-        "connections": "Go to Connections →",
+        "connections": "Go to Connections",
         "would": "When it’s connected, I’ll price where money slips away:"
       },
       "weekOf": "Week of {day}",
@@ -985,7 +985,7 @@
       },
       "short": {
         "label": "The weeks there are · {count, number}",
-        "title": "Your weeks against each other — not a season yet",
+        "title": "Your weeks against each other, not a season yet",
         "meta": "{source} · {noun} · OBSERVED",
         "foot": "Against your median week of these {count, number}. A season needs {needed, plural, one {# complete week} other {# complete weeks}} of the last {weeks, number}; you have {have, number}.",
         "summary": "{count, plural, one {# complete week} other {# complete weeks}} of {noun}, against their own median. Not enough history to name a season."
@@ -1019,12 +1019,12 @@
         "label": "Ads · the last {count, plural, one {# day} other {# days}}",
         "titleNone": "Every campaign brings back what it costs",
         "titleLosing": "{count, plural, one {# campaign costs more than it brings back} other {# campaigns cost more than it brings back}}",
-        "window": "Meta Ads · {from}–{to}",
-        "windowPlatforms": "{platforms} · {from}–{to}",
+        "window": "Meta Ads · {from} to {to}",
+        "windowPlatforms": "{platforms} · {from} to {to}",
         "derivedFrom": "<word>{derived}</word> from Meta’s own attribution",
         "derivedFromPlatforms": "<word>{derived}</word> from each platform’s own attribution",
-        "foot": "Return = the purchase value Meta attributes to the campaign ÷ what it spent. Below {even} it loses money by Meta's own count — the line I propose a pause at.",
-        "footPlatforms": "Return = the value the platform attributes to the campaign ÷ what it spent. Below {even} it loses money by that platform's own count — the line I propose a pause at.",
+        "foot": "Return = the purchase value Meta attributes to the campaign ÷ what it spent. Below {even} it loses money by Meta's own count: the line I propose a pause at.",
+        "footPlatforms": "Return = the value the platform attributes to the campaign ÷ what it spent. Below {even} it loses money by that platform's own count: the line I propose a pause at.",
         "keySpent": "spent: hollow",
         "keyBack": "Meta attributes back: filled",
         "keyBackPlatforms": "the platform attributes back: filled",
@@ -1057,14 +1057,14 @@
   },
   "factsheet": {
     "meta": {
-      "title": "Your fact sheet — ScaleX"
+      "title": "Your fact sheet · ScaleX"
     },
     "kicker": "Your business · Fact sheet",
     "titleEmpty": "The record.",
     "title": "{count, plural, one {# fact about {noun}.} other {# facts about {noun}.}}",
     "yourBusiness": "your business",
-    "noSession": "There’s no profile on this device yet. <a>Start the questions</a> — or open the link I sent you.",
-    "failed": "Something went wrong loading your profile. Refresh to try again — nothing you told me is lost.",
+    "noSession": "There’s no profile on this device yet. <a>Start the questions</a>, or open the link I sent you.",
+    "failed": "Something went wrong loading your profile. Refresh to try again. Nothing you told me is lost.",
     "reading": "Reading your profile…",
     "export": {
       "current": "Money facts, CSV",
@@ -1091,7 +1091,7 @@
     "stillOpen": "Still open",
     "empty": {
       "query": "No fact matches “{query}”.",
-      "assumed": "No fact rests on an assumption — every value came from you, a connection or arithmetic.",
+      "assumed": "No fact rests on an assumption. Every value came from you, a connection or arithmetic.",
       "changed": "Nothing was replaced this month.",
       "none": "Nothing recorded yet."
     },
@@ -1117,7 +1117,7 @@
       "optional": "optional"
     },
     "blocking": "Blocking",
-    "answerNow": "Answer now →",
+    "answerNow": "Answer now",
     "showFewer": "Show fewer",
     "showAll": "Show all {count}",
     "section": {
@@ -1163,7 +1163,7 @@
     },
     "value": {
       "pagesSilent": "their pages didn't say",
-      "unknown": "you didn't know — recorded",
+      "unknown": "you didn't know, recorded",
       "skipped": "skipped for now",
       "notApplicable": "doesn't apply",
       "unasked": "not asked yet"
@@ -1173,16 +1173,16 @@
       "unreachable": "I couldn't reach the server. Try again in a moment.",
       "failed": "research failed",
       "searching": "Searching the web…",
-      "find": "Find my competitors →",
+      "find": "Find my competitors",
       "searchingFrom": "Searching from what you told me",
       "readingPages": "Reading their pages",
       "readingPagesNow": "Reading their pages…",
-      "thatsOne": "Add →"
+      "thatsOne": "Add"
     }
   },
   "watch": {
     "meta": {
-      "title": "Watching — ScaleX"
+      "title": "Watching · ScaleX"
     },
     "kicker": "Insights · Watching",
     "days": {
@@ -1210,7 +1210,7 @@
       "thinRule": "THIN = fewer than {min} of the last {of} days on record, so no usual range to judge against yet.",
       "driftRule": "DRIFTING = outside its usual range {days} days or more in a row; INTERRUPTED = past a rule that stops the watch.",
       "connect": "Connect your payments, till or online shop, analytics or ads, and every business-wide figure they hold is read here every day. <a>Connections</a>",
-      "noDaily": "Your connections hold no daily figures yet — they arrive with the next sync.",
+      "noDaily": "Your connections hold no daily figures yet. They arrive with the next sync.",
       "tableLabel": "Signals table",
       "col": {
         "signal": "Signal",
@@ -1231,7 +1231,7 @@
     },
     "when": {
       "label": "When the watch ends",
-      "link": "How I work →",
+      "link": "How I work",
       "ends": "The watch ends. The next report reads everything it gathered.",
       "after": "after",
       "afterText": "Proposals you approve can run. The watch no longer holds them.",
@@ -1348,8 +1348,8 @@
   },
   "proposals": {
     "meta": {
-      "title": "Proposals — ScaleX",
-      "one": "Proposal — ScaleX"
+      "title": "Proposals · ScaleX",
+      "one": "Proposal · ScaleX"
     },
     "module": "{module, select, marketing {marketing} sales {sales} support {support} operations {operations} finance {finance} team {team} other {{module}}}",
     "loading": "Reading the queue…",
@@ -1365,15 +1365,15 @@
     "signedOut": {
       "eyebrow": "proposals",
       "title": "Sign in to decide.",
-      "copy": "Approving or declining a proposal is recorded with your name on it — that needs you signed in, not just this browser.",
+      "copy": "Approving or declining a proposal is recorded with your name on it. That needs you signed in, not just this browser.",
       "signIn": "Sign in"
     },
     "reason": {
       "why": "Why not?",
       "whyAll": "Why not, for all {count}? One tap is enough",
       "label": "Your reason, in your words",
-      "placeholder": "Or say it in a sentence — I learn from it.",
-      "need": "Pick a reason first — declining asks why, and the record keeps your answer.",
+      "placeholder": "Or say it in a sentence. I learn from it.",
+      "need": "Pick a reason first. Declining asks why, and the record keeps your answer.",
       "foot": "Declining: nothing runs and nothing changes. I record it with your reason and don’t act on it.",
       "record": "Record the decline",
       "recordAll": "Record the decline for {count}"
@@ -1393,7 +1393,7 @@
     "changes": {
       "label": "What should be different?",
       "placeholder": "e.g. only last year's customers, and no discount.",
-      "need": "Say what should change first — the record keeps your words.",
+      "need": "Say what should change first: the record keeps your words.",
       "foot": "Not approved, and not a no: nothing runs. Your words go on the record with your name. A redraft isn’t automatic yet.",
       "record": "Record the request"
     },
@@ -1408,7 +1408,7 @@
       "profit": "profit {span}, downside to upside",
       "likeliest": "likeliest: {statement}",
       "none": "No money effect was forecast for this one.",
-      "noRange": "No money range was forecast for this one — the cases, in words:",
+      "noRange": "No money range was forecast for this one. The cases, in words:",
       "case": {
         "downside": "downside",
         "likeliest": "likeliest",
@@ -1422,19 +1422,19 @@
       "notRecorded": "NOT RECORDED",
       "disagree": "{count, plural, one {# source disagrees} other {# sources disagree}}",
       "breakEven": "Breakeven",
-      "manual": "You told me: “{limits}” — weigh this against that yourself; I can’t check it for you."
+      "manual": "You told me: “{limits}”. Weigh this against that yourself; I can’t check it for you."
     },
     "decisions": "Decisions",
     "stats": "Median time from draft to decision this month: {median} · approved {approved} of {decided}",
     "empty": {
       "title": "Nothing needs a decision.",
-      "lede": "Proposals come from your latest diagnosis report, from changes the watching loop spots in your numbers, from goals that slip, from ad and content reviews, and from things you ask for in chat. Each one lands here first — what will happen, what it rests on, and what declining means. Nothing runs without your yes.",
+      "lede": "Proposals come from your latest diagnosis report, from changes the watching loop spots in your numbers, from goals that slip, from ad and content reviews, and from things you ask for in chat. Each one lands here first: what will happen, what it rests on, and what declining means. Nothing runs without your yes.",
       "check": "Check the latest report for proposals"
     },
     "held": {
       "label": "Held back on your instruction · {count}",
       "stamp": "HELD BACK · will not be proposed",
-      "note": "I wrote this up and then blocked it myself — you said “{limit}”."
+      "note": "I wrote this up and then blocked it myself. You said “{limit}”."
     },
     "m": {
       "changes": "What changes",
@@ -1452,7 +1452,7 @@
       "label": "Your decision",
       "decline": "Decline",
       "changes": "Request changes",
-      "approveVerb": "Approve — {verb}",
+      "approveVerb": "Approve: {verb}",
       "run": "If approved, run",
       "halted": "Everything is stopped right now: nothing runs until you start again."
     },
@@ -1479,9 +1479,9 @@
       "selected": "{count, plural, one {# selected} other {# selected}}",
       "tick": "Tick proposals in the list",
       "run": "{count, plural, one {If approved, it runs} other {If approved, all # run}}",
-      "choose": "— choose when —",
-      "noTime": "with no set time — a planned post keeps its time",
-      "need": "Choose when they run first — a bulk approval states its schedule.",
+      "choose": "Choose when",
+      "noTime": "with no set time: a planned post keeps its time",
+      "need": "Choose when they run first: a bulk approval states its schedule.",
       "approve": "Approve {count}",
       "decline": "Decline {count}"
     },
@@ -1495,7 +1495,7 @@
       "youAsked": "You asked: “{words}”",
       "youSaid": "You said: “{words}”",
       "earlier": "Earlier · {count}",
-      "expired": "Not approved — nothing ran. It ran out of time undecided; that is not a no.",
+      "expired": "Not approved. Nothing ran. It ran out of time undecided; that is not a no.",
       "runs": "Runs {day} at the earliest.",
       "oneAtATime": "Back to one at a time"
     },
@@ -1517,7 +1517,7 @@
       "reversible": "REVERSIBLE · {level, select, easy {EASY} moderate {MODERATE} hard {HARD} other {{level}}} TO UNDO",
       "reversibleWord": "REVERSIBLE",
       "irreversible": "IRREVERSIBLE",
-      "noUndo": "No undo is declared for this — treat it as permanent.",
+      "noUndo": "No undo is declared for this. Treat it as permanent.",
       "short": "{level, select, easy {easy} moderate {moderate} hard {hard} other {{level}}} to undo",
       "shortIrreversible": "irreversible"
     },
@@ -1544,7 +1544,7 @@
       "queued": "Approving queues it to run no earlier than {day}, {clock}. There is no un-approve; the emergency stop can still halt it.",
       "noTime": "Approving records your yes with your name. With no set time, it doesn't run by itself."
     },
-    "lapsed": "You approved this, but it lapsed before it could run — nothing ran.",
+    "lapsed": "You approved this, but it lapsed before it could run. Nothing ran.",
     "card": {
       "when": "{day}, {clock}",
       "earlier": "earlier",
@@ -1657,21 +1657,21 @@
     "stoppedAt": "Stopped {when} · nothing executes",
     "stoppedShort": "Stopped · nothing executes",
     "starting": "Starting…",
-    "yesStart": "Yes — start again",
+    "yesStart": "Yes, start again",
     "stay": "Stay stopped",
     "startNote": "Starting again lets approved actions run. It needs you signed in.",
     "startUp": "Start things up again",
     "flag": "stopped · nothing will execute",
     "title": "Everything is stopped.",
-    "titleSince": "Everything is stopped — since {when}.",
-    "copy": "Approved actions stay approved and wait. Nothing runs, nothing publishes, nothing changes on your site — including anything that was mid-flight when you stopped it. Reading, planning and proposing all carry on as normal.",
+    "titleSince": "Everything has been stopped since {when}.",
+    "copy": "Approved actions stay approved and wait. Nothing runs, nothing publishes, nothing changes on your site, including anything that was mid-flight when you stopped it. Reading, planning and proposing all carry on as normal.",
     "youSaid": "You said: “{reason}”",
-    "yesExecute": "Yes — start executing again",
+    "yesExecute": "Yes, start executing again",
     "stopShort": "Stop"
   },
   "history": {
     "meta": {
-      "title": "History — ScaleX"
+      "title": "History · ScaleX"
     },
     "kicker": "Your business · History",
     "title": "The ledger.",
@@ -1721,11 +1721,11 @@
       "superseded": "superseded"
     },
     "foot": {
-      "append": "Entries can’t be edited or removed — corrections are new entries that point back.",
+      "append": "Entries can’t be edited or removed: corrections are new entries that point back.",
       "rate": "Approval rate: {arithmetic}.",
       "tooEarly": "{count, plural, one {# too early to judge.} other {# too early to judge.}}",
-      "unmeasured": "{count, plural, one {# unmeasured — a verdict needs a connected source.} other {# unmeasured — a verdict needs a connected source.}}",
-      "verdict": "Every verdict is arithmetic over measured days, read now — nothing is graded on intention."
+      "unmeasured": "{count, plural, one {# unmeasured: a verdict needs a connected source.} other {# unmeasured: a verdict needs a connected source.}}",
+      "verdict": "Every verdict is arithmetic over measured days, read now. Nothing is graded on intention."
     },
     "track": {
       "label": "My track record",
@@ -1745,7 +1745,7 @@
   },
   "connections": {
     "meta": {
-      "title": "Connections — ScaleX"
+      "title": "Connections · ScaleX"
     },
     "kicker": "Your business · Connections",
     "loading": "Reading your connections…",
@@ -1767,7 +1767,7 @@
       "stalled": "Nothing is reading right now.",
       "none": "Nothing is plugged in yet.",
       "writesUnknown": "Write access couldn't be read.",
-      "canWrite": "{labels} can write — only what you approve.",
+      "canWrite": "{labels} can write: only what you approve.",
       "nothingWritten": "Nothing can be written.",
       "readOnly": "{labels} holds a permission that could write; ScaleX only reads with it."
     },
@@ -1806,7 +1806,7 @@
       "reading": "reading",
       "notReading": "not reading, {status}",
       "off": "off",
-      "writeNever": "never — read-only by design",
+      "writeNever": "never: read-only by design",
       "close": "Close",
       "settings": "Settings",
       "connect": "Connect",
@@ -2021,10 +2021,10 @@
       "square": {
         "s1": "In the <b>Square Developer Console</b>, create an application (or open one) and copy its <b>Production access token</b>.",
         "s2": "Give it only these permissions:",
-        "s3": "Paste the token below. Payments rung up in Square — card and cash — are read; cash that never goes through the till can’t be seen by anything. With the two appointment permissions, your Square Appointments bookings are read too."
+        "s3": "Paste the token below. Payments rung up in Square (card and cash) are read; cash that never goes through the till can’t be seen by anything. With the two appointment permissions, your Square Appointments bookings are read too."
       },
       "search_console": {
-        "s1": "In <b>Google Cloud Console</b>, enable the <b>Google Search Console API</b> on a project and create a service account with a <b>JSON key</b> — the same one you use for Google Analytics is fine.",
+        "s1": "In <b>Google Cloud Console</b>, enable the <b>Google Search Console API</b> on a project and create a service account with a <b>JSON key</b>: the same one you use for Google Analytics is fine.",
         "s2": "In <b>Search Console</b>, open <b>Settings</b>, then <b>Users and permissions</b>, and add the service account’s email:",
         "s3": "Enter the property exactly as Search Console names it, with the contents of the key file. Rare searches are hidden by Google for privacy, so the searches I read add up to a little less than Google’s own total."
       },
@@ -2215,14 +2215,14 @@
           "s0": "In Meta Business Suite, check that your Facebook Page and its Instagram account both sit in your business portfolio.",
           "s1": "At developers.facebook.com, create a Business app owned by that same portfolio.",
           "s2": "Add the Pages and Instagram use cases to the app.",
-          "s3": "In your business settings, add a system user, give it your Page and Instagram account, and generate a token for your app with exactly the permissions listed above — no more, no fewer.",
+          "s3": "In your business settings, add a system user, give it your Page and Instagram account, and generate a token for your app with exactly the permissions listed above. No more, no fewer.",
           "s4": "Paste the token here with your Page id and, to publish to Instagram too, the Instagram account id."
         },
         "meta_ads": {
           "s0": "In Meta Business Suite, check that your ad account sits in your business portfolio.",
           "s1": "At developers.facebook.com, create a Business app owned by that same portfolio.",
           "s2": "Add the Marketing API use case to the app.",
-          "s3": "In your business settings, add a system user, give it your ad account, and generate a token for your app with exactly the permission listed above — no more.",
+          "s3": "In your business settings, add a system user, give it your ad account, and generate a token for your app with exactly the permission listed above. No more.",
           "s4": "Paste the token here with the ad account id from Ads Manager."
         }
       },
@@ -2270,7 +2270,7 @@
         "no_ad_accounts": "Meta showed ScaleX no ad accounts for that Facebook account. In Meta's dialog, choose the ad account you want ScaleX to manage, then try again.",
         "meta_auth": "Facebook sign-in didn't finish: Meta didn't accept the sign-in. Start again from Connections.",
         "meta_permission": "Facebook sign-in didn't finish: Meta says ScaleX isn't allowed to do that. Check the permissions listed on Connections and start again.",
-        "meta_busy": "Facebook sign-in didn't finish: Meta was busy or didn't answer. Nothing was connected — try again in a few minutes.",
+        "meta_busy": "Facebook sign-in didn't finish: Meta was busy or didn't answer. Nothing was connected. Try again in a few minutes.",
         "meta_refused": "Facebook sign-in didn't finish: Meta refused it. Nothing was connected.",
         "internal": "Something went wrong on our side. Nothing was connected.",
         "generic": "Facebook sign-in didn't finish. Nothing was connected."
@@ -2303,7 +2303,7 @@
         "testersOff": "For testers the ScaleX team has added in Meta. {off}"
       },
       "tier": {
-        "unseen": "not seen yet — Meta reports it on ScaleX's first call for an ad change",
+        "unseen": "not seen yet: Meta reports it on ScaleX's first call for an ad change",
         "development_access": "development tier: Meta's lowest limits, meant for building",
         "standard_access": "standard access: about {base} + {perAd} × active ads calls an hour on this ad account",
         "note": "Meta limits how many calls ScaleX may make on this ad account each hour, by tier. That is enough for one business, not a customer base. ScaleX waits for the next run whenever Meta reports {share} of the limit used. Higher limits need Meta's review, which ScaleX applies for once {calls, plural, one {# successful call} other {# successful calls}} in {days, plural, one {# day} other {# days}} exist."
@@ -2424,7 +2424,7 @@
         "no_locations": "Google showed ScaleX no Business Profile for that Google account. Sign in with the account that manages your profile, then try again.",
         "google_auth": "Google didn't accept the sign-in. Start again from Connections.",
         "google_permission": "Google says ScaleX isn't allowed to read Business Profiles yet. Nothing was connected.",
-        "google_busy": "Google was busy or didn't answer. Nothing was connected — try again in a few minutes.",
+        "google_busy": "Google was busy or didn't answer. Nothing was connected. Try again in a few minutes.",
         "google_refused": "Google refused the sign-in. Nothing was connected.",
         "internal": "Something went wrong on our side. Nothing was connected.",
         "generic": "Google sign-in didn't finish. Nothing was connected."
@@ -2684,7 +2684,7 @@
         "no_advertisers": "TikTok showed ScaleX no ad account for that sign-in. Sign in with the TikTok login that runs your ads, then try again.",
         "tiktok_auth": "TikTok didn't accept the sign-in. If TikTok is still checking ScaleX's app, wait until it has passed; otherwise start again.",
         "tiktok_permission": "TikTok says ScaleX's app isn't allowed to read that ad account. Nothing was connected.",
-        "tiktok_busy": "TikTok was busy or didn't answer. Nothing was connected — try again in a few minutes.",
+        "tiktok_busy": "TikTok was busy or didn't answer. Nothing was connected. Try again in a few minutes.",
         "tiktok_refused": "TikTok refused the sign-in. Nothing was connected.",
         "internal": "Something went wrong on our side. Nothing was connected.",
         "generic": "TikTok sign-in didn't finish. Nothing was connected."
@@ -2737,7 +2737,7 @@
         "google_error": "Google sign-in didn't finish. Nothing was connected.",
         "no_refresh": "Google didn't give ScaleX lasting access. Start again: Google asks once more, and ScaleX needs that answer.",
         "google_auth": "Google didn't accept the sign-in. Start again from Connections.",
-        "google_busy": "Google was busy or didn't answer. Nothing was connected — try again in a few minutes.",
+        "google_busy": "Google was busy or didn't answer. Nothing was connected. Try again in a few minutes.",
         "google_refused": "Google refused the sign-in. Nothing was connected.",
         "internal": "Something went wrong on our side. Nothing was connected.",
         "generic": "Google sign-in didn't finish. Nothing was connected."
@@ -3072,7 +3072,7 @@
     }
   },
   "resume": {
-    "meta": "Carry on — ScaleX",
+    "meta": "Carry on · ScaleX",
     "headline": "Pick up where you stopped.",
     "title": "Carry on with this interview?",
     "button": "Carry on",
@@ -3081,7 +3081,7 @@
     "deadMessage": "Resume links stop working when they expire or are revoked. Sign in with your email and your interview is where you left it."
   },
   "summaryStop": {
-    "meta": "Weekly summary — ScaleX",
+    "meta": "Weekly summary · ScaleX",
     "label": "Email preferences",
     "unknown": {
       "title": "This link isn’t one we recognise.",
@@ -3099,11 +3099,11 @@
   },
   "benchmarks": {
     "meta": {
-      "title": "Compared with similar businesses — ScaleX"
+      "title": "Compared with similar businesses · ScaleX"
     },
     "kicker": "Insights · Compared with similar businesses",
     "aside": "Eurostat · read-only",
-    "add": "Add {what} →",
+    "add": "Add {what}",
     "addPeople": "Add how many people work here",
     "notComparedYet": "Not compared yet",
     "noComparison": "No comparison",
@@ -3154,7 +3154,7 @@
   },
   "blindspots": {
     "meta": {
-      "title": "Blindspots — ScaleX"
+      "title": "Blindspots · ScaleX"
     },
     "kicker": "Insights · Blindspots",
     "quoted": "“{text}”",
@@ -3201,7 +3201,7 @@
     },
     "fixed": {
       "label": "How blindspots get fixed",
-      "link": "Review on Website →",
+      "link": "Review on Website",
       "stepFix": "A fix is {fix}.",
       "fixDefault": "a website change through the approval queue, or an answer in your support assistant",
       "stepWait": "Nothing changes on its own: a fix waits in “Waiting for you” until you approve it.",
@@ -3254,7 +3254,7 @@
   },
   "carts": {
     "meta": {
-      "title": "Abandoned carts — ScaleX"
+      "title": "Abandoned carts · ScaleX"
     },
     "kicker": "Customers · Abandoned carts",
     "foot": "ScaleX never emails a shopper who hasn't said yes. Shopify's own abandoned-checkout email, if you use it, is separate.",
@@ -3287,9 +3287,9 @@
       "titleRange": "{range} likely back",
       "titleNone": "Nothing to win back by email yet",
       "inQueue": "Today's reminder is in your queue.",
-      "oneEmail": "One email to the {count, plural, one {# contact} other {# contacts}} who left a cart {min}–{max} days ago and said yes. Nothing sends until you approve the email itself.",
-      "button": "Propose win-back emails →",
-      "rangeOf": "{low}–{high} of {base}",
+      "oneEmail": "One email to the {count, plural, one {# contact} other {# contacts}} who left a cart {min} to {max} days ago and said yes. Nothing sends until you approve the email itself.",
+      "button": "Propose win-back emails",
+      "rangeOf": "{low} to {high} of {base}",
       "rangeBase": "the value of the {count, plural, one {# cart} other {# carts}} whose shopper said yes to email",
       "nobody": "Nobody who left a cart in the last {days} days can be emailed, so I put no figure on it.",
       "working": "Working out the reminder"
@@ -3333,7 +3333,7 @@
   },
   "cash": {
     "meta": {
-      "title": "Cash flow — ScaleX"
+      "title": "Cash flow · ScaleX"
     },
     "kicker": "Insights · Cash flow",
     "aside": "Planning aid · read-only",
@@ -3365,7 +3365,7 @@
     },
     "weeks": {
       "label": "Week by week",
-      "meta": "Cautious – hopeful, whole units",
+      "meta": "Cautious to hopeful, whole units",
       "week": "Week",
       "moneyIn": "Money in",
       "goingOut": "Going out",
@@ -3429,7 +3429,7 @@
   },
   "competitors": {
     "meta": {
-      "title": "Competitors — ScaleX"
+      "title": "Competitors · ScaleX"
     },
     "kicker": "Insights · Competitors",
     "aside": "Public pages only · read weekly · OBSERVED",
@@ -3464,7 +3464,7 @@
       "label": "Who I'm watching",
       "nobody": "Nobody yet",
       "count": "{count, plural, one {# competitor} other {# competitors}}",
-      "addOne": "Add a competitor →",
+      "addOne": "Add a competitor",
       "add": "Add",
       "empty": "Tell me who you compete with: their website, and the booking or listing page where their prices are. I read those pages and nothing else.",
       "save": "Save",
@@ -3535,7 +3535,7 @@
   },
   "goals": {
     "meta": {
-      "title": "Goals — ScaleX"
+      "title": "Goals · ScaleX"
     },
     "kicker": "Insights · Goals",
     "metric": {
@@ -3585,9 +3585,9 @@
       "escalated": "The automatic review has done what it can. Someone from our team is looking at this goal and will be in touch.",
       "escalatedWhy": "The automatic review has done what it can ({reason}). Someone from our team is looking at this goal and will be in touch.",
       "cause": "<strong>{cause}:</strong> {statement} ({count, plural, one {# piece of evidence} other {# pieces of evidence}})",
-      "waiting": "{title} — waiting for you",
-      "waitingNote": "{title} — waiting for you ({note})",
-      "yours": "{title} — yours to decide"
+      "waiting": "{title}: waiting for you",
+      "waitingNote": "{title}: waiting for you ({note})",
+      "yours": "{title}: yours to decide"
     },
     "foot": {
       "waiting": "Waiting for you",
@@ -3627,8 +3627,8 @@
       "someOn": "{goals} {count, plural, one {# on its path.} other {# on their path.}}"
     },
     "aside": "{one} candle = {one} week · blue line = the path to your target",
-    "setFirst": "Set a goal →",
-    "setNew": "Set a new goal →",
+    "setFirst": "Set a goal",
+    "setNew": "Set a new goal",
     "how": {
       "label": "How goals work",
       "copy": "Goals are set on Content, where every planned piece names the goal it serves. Make one measurable (revenue, number of sales or website visits, by a date) and each week it is checked against a straight path from where it started to where you want it. Nothing is judged in the first eight weeks or while I'm still watching."
@@ -3636,7 +3636,7 @@
   },
   "hours": {
     "meta": {
-      "title": "Trading hours — ScaleX"
+      "title": "Trading hours · ScaleX"
     },
     "kicker": "Insights · Trading hours",
     "weekdays": {
@@ -3697,7 +3697,7 @@
     "trials": {
       "title": "Trials",
       "none": "Not a proposal yet",
-      "waiting": "Waiting for you →"
+      "waiting": "Waiting for you"
     },
     "signedOut": {
       "title": "There's no business here yet.",
@@ -3748,7 +3748,7 @@
   },
   "patterns": {
     "meta": {
-      "title": "Seasons & bundles — ScaleX"
+      "title": "Seasons & bundles · ScaleX"
     },
     "kicker": "Insights · Seasons & bundles",
     "head": {
@@ -3820,7 +3820,7 @@
       "tooFewBody": "I look for pairs once there are {amount}: with fewer, chance alone can make any two items look inseparable.",
       "none": "Nothing goes together more than chance",
       "some": "{count, plural, one {# pair} other {# pairs}} more often together than chance",
-      "meta": "{amount}, {from} – {to} · OBSERVED",
+      "meta": "{amount}, {from} to {to} · OBSERVED",
       "footRule": "A pair shows when it shared {amount} or more and came up at least {lift} as often as chance would give.",
       "footBelow": "{below, plural, one {# pair was} other {# pairs were}} seen too rarely, and {belowLift, number} no more often than chance.",
       "footBelowUngrouped": "{below, plural, one {# pair was} other {# pairs were}} seen too rarely, and {belowLift, number} no more often than chance; {ungrouped, plural, one {# appointment} other {# appointments}} with no client or service couldn't be grouped into a visit.",
@@ -3831,7 +3831,7 @@
       "had": "{amount} had {a}",
       "byChance": "about {count, number} by chance",
       "drafting": "Drafting…",
-      "propose": "Propose this pair →"
+      "propose": "Propose this pair"
     },
     "margin": {
       "unknown": "Margin unknown: {why}.",
@@ -3861,7 +3861,7 @@
     "loading": "Reading your history…",
     "aside": {
       "none": "Nothing measured yet",
-      "span": "{source} · {from} – {to} · MEASURED"
+      "span": "{source} · {from} to {to} · MEASURED"
     },
     "bundles": {
       "section": "What goes together",
@@ -3870,14 +3870,14 @@
       "withoutLines": "{names} records payments, not products, so it can't say what went together."
     },
     "connections": "Connections",
-    "held": "A proposal is a draft for you: both items at full price, no discount. I don't change your shop or your checkout — you set the pair up.",
+    "held": "A proposal is a draft for you: both items at full price, no discount. I don't change your shop or your checkout. You set the pair up.",
     "waiting": "Waiting for you",
     "how": "How this works",
     "why": "Why?"
   },
   "pipeline": {
     "meta": {
-      "title": "Pipeline — ScaleX"
+      "title": "Pipeline · ScaleX"
     },
     "kicker": "Customers · Pipeline",
     "loading": "Reading your pipeline…",
@@ -3963,7 +3963,7 @@
       "undated": "{count, plural, one {# open deal has} other {# open deals have}} no expected close date.",
       "title": "The deals you expect to close in the next {days, plural, one {day} other {# days}}",
       "meta": "On my track record: I check it against the deals you mark won by then.",
-      "line": "{count, plural, one {# deal} other {# deals}} worth {total}: about {low} – {high} likely won.",
+      "line": "{count, plural, one {# deal} other {# deals}} worth {total}: about {low} to {high} likely won.",
       "unvalued": "{count} of the deals due have no value and aren't in these figures.",
       "undatedOut": "{count, plural, one {# open deal has no expected close date, so it isn't in this forecast.} other {# open deals have no expected close date, so they aren't in this forecast.}}",
       "assumed": "Assumed",
@@ -4037,13 +4037,13 @@
       "noNextStep": "No next step",
       "overdue": "Next step was due {day}, {days, plural, one {# day} other {# days}} ago",
       "rateNone": "Not known yet",
-      "rateMeasured": "{point} measured: {won} won of {closed} closed, likely {low}–{high}",
-      "rateStated": "{point} as you stated it, read as {low}–{high}",
+      "rateMeasured": "{point} measured: {won} won of {closed} closed, likely {low} to {high}",
+      "rateStated": "{point} as you stated it, read as {low} to {high}",
       "headNone": "No open deals yet.",
       "headNoValue": "{open, plural, one {# open deal} other {# open deals}}, none with a value yet.",
       "headCantWeigh": "{open, plural, one {# open deal} other {# open deals}} worth {totals}. I can't weigh them yet.",
-      "headLikely": "{low}–{high} of your {total} open is likely to close.",
-      "headLikelyMore": "{low}–{high} of your {total} open is likely to close, and more in {others, plural, one {# other currency} other {# other currencies}}.",
+      "headLikely": "{low} to {high} of your {total} open is likely to close.",
+      "headLikelyMore": "{low} to {high} of your {total} open is likely to close, and more in {others, plural, one {# other currency} other {# other currencies}}.",
       "follow": {
         "drafted": "drafted",
         "approved": "approved",
@@ -4058,7 +4058,7 @@
   },
   "reviews": {
     "meta": {
-      "title": "Reviews — ScaleX"
+      "title": "Reviews · ScaleX"
     },
     "kicker": "Customers · Reviews",
     "foot": "ScaleX never posts a reply and never signs in to your review sites. It reads your Google reviews only if you connect Google Business Profile, and only reads them. A reviewer's name is kept for a year, and you can remove any review at once.",
@@ -4108,8 +4108,8 @@
       "copied": "Copied",
       "copyReply": "Copy the reply",
       "drafting": "Drafting…",
-      "suggestAnother": "Suggest another →",
-      "suggest": "Suggest a reply →",
+      "suggestAnother": "Suggest another",
+      "suggest": "Suggest a reply",
       "openOn": "Open on {site} ↗",
       "theSite": "the site",
       "noneLeft": "No suggestions left for this review: write it yourself.",
@@ -4188,7 +4188,7 @@
   },
   "simulate": {
     "meta": {
-      "title": "Simulator — ScaleX"
+      "title": "Simulator · ScaleX"
     },
     "tabs": {
       "aria": "Simulator",
@@ -4268,11 +4268,11 @@
       "setByOption": "SET BY THE OPTION",
       "needs": "needs {list}"
     },
-    "headNone": "None of your {total} campaign options can be priced from your own numbers yet — each one shows what it's missing.",
+    "headNone": "None of your {total} campaign options can be priced from your own numbers yet. Each one shows what it's missing.",
     "headSome": "{priced} of your {total} campaign options can be priced from your own numbers.",
     "whisker": {
       "caption": "Expected profit, low to high · the square is the worst case",
-      "currencies": "The options are in more than one currency, so they can’t share one axis — I don’t convert between currencies.",
+      "currencies": "The options are in more than one currency, so they can’t share one axis. I don’t convert between currencies.",
       "withWorst": "{range}, worst {worst}",
       "notWorkedOut": "not worked out"
     },
@@ -4284,7 +4284,7 @@
       "canPropose": "Can be proposed",
       "notProposable": "Not proposable yet",
       "proposing": "Proposing",
-      "propose": "Propose this →",
+      "propose": "Propose this",
       "restsOn": "What it rests on",
       "value": "Value",
       "basis": "Basis",
@@ -4364,9 +4364,9 @@
         "label": "Price change",
         "breakEven": "Break-even",
         "cautious": "That’s the cautious end: with what one costs you to deliver, I could say how many more you could lose.",
-        "addCost": "Add the cost →",
-        "addNeed": "Add {what} →",
-        "needs": "needs {what} — <link>add it</link>"
+        "addCost": "Add the cost",
+        "addNeed": "Add {what}",
+        "needs": "needs {what}: <link>add it</link>"
       },
       "math": {
         "volume": "{kind, select, service {bookings} other {sales}}",
@@ -4374,7 +4374,7 @@
         "profit": "profit",
         "worst": "Worst case"
       },
-      "assumption": "The ranges assume that for each {one} on the price, {low} to {high} of {kind, select, service {bookings} other {sales}} move the other way — a planning assumption for your kind of business, not a measurement. The break-even assumes nothing.",
+      "assumption": "The ranges assume that for each {one} on the price, {low} to {high} of {kind, select, service {bookings} other {sales}} move the other way: a planning assumption for your kind of business, not a measurement. The break-even assumes nothing.",
       "profitTitle": "The spread of each price",
       "caption": "Profit change {period}, low to high · the square is the worst case",
       "cantDraw": "Profit can’t be drawn yet: it needs what one {kind, select, service {booking} other {sale}} costs you to deliver. <link>Add it</link>.",
@@ -4411,7 +4411,7 @@
   },
   "stock": {
     "meta": {
-      "title": "Stock — ScaleX"
+      "title": "Stock · ScaleX"
     },
     "kicker": "Insights · Stock",
     "signedOut": "There's no business here yet.",
@@ -4465,9 +4465,9 @@
       "label": "What runs out, and when · {warned} of {total} items below their delivery time",
       "titleWarned": "Soonest out first",
       "titleNone": "Nothing runs out before a delivery",
-      "meta": "Cover: on hand ÷ your last {days} days' rate, low–high, against each supplier's delivery time (else {lead} days, ASSUMED)",
+      "meta": "Cover: on hand ÷ your last {days} days' rate, low to high, against each supplier's delivery time (else {lead} days, ASSUMED)",
       "held": "A reorder note per item running low. Nothing runs until you approve it, and approving orders nothing.",
-      "button": "Put the reorder notes in my queue →",
+      "button": "Put the reorder notes in my queue",
       "working": "Working out the notes"
     },
     "workingItOut": "Working it out…",
@@ -4492,7 +4492,7 @@
       "dotDecimal": "{example} (the comma separates thousands)",
       "commaDecimal": "{example} (the dot separates thousands)",
       "importing": "Reading…",
-      "button": "Import stock →",
+      "button": "Import stock",
       "readingFile": "Reading your file",
       "failed": "That didn't import.",
       "ourSide": "Something went wrong on our side. Try again.",
@@ -4515,7 +4515,7 @@
       "title": "Most cash tied up first",
       "meta": "{stuck}: no sale in {stuckDays} days · {slow}: over {slowDays} days of cover",
       "held": "I propose ways to clear the top {count}. Nothing runs until you approve it.",
-      "button": "Put these in my queue →",
+      "button": "Put these in my queue",
       "working": "Working out the options",
       "emptyLabel": "What isn't selling",
       "nothingSlow": "Nothing slow",
@@ -4680,7 +4680,7 @@
   },
   "mode": {
     "meta": {
-      "title": "How I work — ScaleX"
+      "title": "How I work · ScaleX"
     },
     "kicker": "Your business · How I work",
     "yourBusiness": "your business",
@@ -4736,7 +4736,7 @@
     "never": {
       "label": "In either mode",
       "title": "What never changes",
-      "one": "Nothing runs without your approval. Unanswered proposals expire — they never run by default.",
+      "one": "Nothing runs without your approval. Unanswered proposals expire. They never run by default.",
       "two": "“Stop everything” on <link>Waiting for you</link> halts every execution at once, no sign-in needed.",
       "three": "Limits you set hold: a proposal that would break one is withheld, never put to you as if it were fine."
     },
@@ -4749,7 +4749,7 @@
   },
   "content": {
     "meta": {
-      "title": "Content — ScaleX"
+      "title": "Content · ScaleX"
     },
     "kicker": "Grow · Content",
     "loading": "Reading the content queue…",
@@ -4757,7 +4757,7 @@
     "signedOut": {
       "eyebrow": "content",
       "title": "Start with the intake.",
-      "body": "Content is planned from your profile — channels, goals, offers. Twelve questions and there is something real to plan with.",
+      "body": "Content is planned from your profile: channels, goals, offers. Twelve questions and there is something real to plan with.",
       "cta": "Begin"
     },
     "aside": "Change content goals",
@@ -4829,12 +4829,12 @@
         "goLiveApprovedOn": "Approved to go live: the ad, its ad set and its campaign switch on at the next run.",
         "goLiveApprovedOff": "Approved to go live, waiting for Meta ad changes to be switched on. Nothing spends until then.",
         "paused": "The ad is on Meta, paused, spending nothing. Going live is a separate approval.",
-        "building": "Being created on Meta, paused. It carries on from where it stopped — nothing is created twice.",
+        "building": "Being created on Meta, paused. It carries on from where it stopped. Nothing is created twice.",
         "buildStopped": "The ad's build stopped. Check Ads Manager; everything ScaleX made is paused.",
         "heldBack": "Proposed as an ad, and held back by a limit you set.",
         "approvedOn": "Approved: the ad is created on Meta, paused, at the next run.",
         "approvedOff": "Approved, waiting for Meta ad changes to be switched on. Nothing is sent until then.",
-        "proposed": "Proposed as an ad — it needs your yes in the queue.",
+        "proposed": "Proposed as an ad. It needs your yes in the queue.",
         "offer": "Run this as an ad: one proposal with its budget, audience and expected range. Creates paused; going live is a separate approval; created objects can't be deleted, only paused."
       },
       "run": "Run this as an ad",
@@ -4873,9 +4873,9 @@
     "queue": {
       "label": "Queue",
       "titleOn": "Written, scheduled, posted",
-      "titleOff": "Written and scheduled — publishing is off",
+      "titleOff": "Written and scheduled: publishing is off",
       "emptyWatching": "The queue is empty. Proposals start once the watch ends on {day}.",
-      "empty": "The queue is empty. Propose a calendar below — once you approve it in the queue, I draft it here."
+      "empty": "The queue is empty. Propose a calendar below. Once you approve it in the queue, I draft it here."
     },
     "col": {
       "draft": "Draft",
@@ -4923,7 +4923,7 @@
     "goals": {
       "label": "Goals",
       "title": "What the content serves",
-      "empty": "No goals yet. State one, or take a suggestion — every planned piece will name the goal it serves.",
+      "empty": "No goals yet. State one, or take a suggestion. Every planned piece will name the goal it serves.",
       "horizon": "{months, plural, one {# month} other {# months}}",
       "target": "target {value}",
       "inputLabel": "A goal in your own words",
@@ -4938,7 +4938,7 @@
       "calendarDone": "The calendar is in your approval queue.",
       "shotlist": "Propose a shot list",
       "shotlistDone": "The shot list is in your approval queue.",
-      "ready": "Approved — ready to draft",
+      "ready": "Approved: ready to draft",
       "draft": "Draft it",
       "drafted": "Drafted. Every item carries its disclosure and its sources."
     },
@@ -4962,11 +4962,11 @@
       "upload": {
         "more": "Add more clips",
         "first": "Upload what you filmed",
-        "label": "{action} — {mp4} or {mov}, up to {mb} MB each, {count, plural, one {# clip at most} other {# clips at most}}"
+        "label": "{action}: {mp4} or {mov}, up to {mb} MB each, {count, plural, one {# clip at most} other {# clips at most}}"
       },
       "cut": {
         "done": "Cutting. The video appears in the queue when it's done.",
-        "caption": "Caption — what the post says under the video",
+        "caption": "Caption: what the post says under the video",
         "onScreen": "On-screen line (optional, burned into the video)",
         "date": "Goes out on",
         "button": "Cut it",
@@ -5032,7 +5032,7 @@
   },
   "customers": {
     "meta": {
-      "title": "Customers — ScaleX"
+      "title": "Customers · ScaleX"
     },
     "kicker": "Customers",
     "opening": "Opening customers…",
@@ -5060,15 +5060,15 @@
     "noEmail": "no email",
     "consent": {
       "explicit_consent": "explicit consent",
-      "implied_consent": "implied consent — not explicit",
+      "implied_consent": "implied consent, not explicit",
       "no_consent": "no consent",
-      "unsure": "unsure — not explicit"
+      "unsure": "unsure, not explicit"
     },
     "posture": {
-      "enabled": "You said customers gave explicit consent — outbound is possible, per contact.",
-      "caution": "Your consent answer was implied or unsure — only contacts with explicit consent can be emailed.",
-      "disabled": "You said customers gave no consent — outbound email is off.",
-      "unknown": "You haven't answered the consent question ({question}) — treated as caution."
+      "enabled": "You said customers gave explicit consent: outbound is possible, per contact.",
+      "caution": "Your consent answer was implied or unsure: only contacts with explicit consent can be emailed.",
+      "disabled": "You said customers gave no consent: outbound email is off.",
+      "unknown": "You haven't answered the consent question ({question}), treated as caution."
     },
     "import": {
       "imported": "Imported {count}.",
@@ -5086,7 +5086,7 @@
       "country": "{count, plural, one {# country wasn't recognised and was left unknown.} other {# countries weren't recognised and were left unknown.}}",
       "label": "Import",
       "title": "Under your attestation",
-      "prose": "Paste a CSV from your till, booking system, online shop or spreadsheet. Columns it understands: email, name, phone, country (so each customer’s own email rules apply), and — for lifecycle — last order date, order count, total spent. You state what these contacts consented to and how; that statement lands on every row.",
+      "prose": "Paste a CSV from your till, booking system, online shop or spreadsheet. Columns it understands: email, name, phone, country (so each customer’s own email rules apply), and (for lifecycle) last order date, order count, total spent. You state what these contacts consented to and how; that statement lands on every row.",
       "csv": "The CSV",
       "status": "What they consented to",
       "option": {
@@ -5106,7 +5106,7 @@
       "search": "name or email",
       "filters": "Filter by pattern",
       "all": "All · {count}",
-      "empty": "No customers yet. Import your customer list below — under your own attestation of what they consented to.",
+      "empty": "No customers yet. Import your customer list below, under your own attestation of what they consented to.",
       "noMatch": "Nobody matches that.",
       "customer": "Customer",
       "purchases": "Purchases",
@@ -5130,7 +5130,7 @@
       "consent": "Consent: {consent} · as you attested at import",
       "pattern": "Pattern: {pattern}",
       "segment": "Segment: {segment} · {size} in it",
-      "note": "Purchase-by-purchase history isn’t imported — these are the totals from your export."
+      "note": "Purchase-by-purchase history isn’t imported. These are the totals from your export."
     },
     "erase": {
       "title": "Erase this customer",
@@ -5153,7 +5153,7 @@
       "hide": "Hide",
       "why": "Why",
       "propose": "Propose a win-back and a thank-you",
-      "proposed": "{count, plural, one {# proposal in your approval queue.} other {# proposals in your approval queue.}} Nothing sends on approval — sending arrives with its own consent re-check.",
+      "proposed": "{count, plural, one {# proposal in your approval queue.} other {# proposals in your approval queue.}} Nothing sends on approval. Sending arrives with its own consent re-check.",
       "nothing": "Nothing to propose.",
       "queue": "Open the queue"
     },
@@ -5164,7 +5164,7 @@
     "fine": "Per-customer history comes from your own customer export, not from your connected accounts, which measure the business as a whole. Erasing a customer is GDPR erasure: their details go, and the record keeps only anonymous ids.",
     "campaign": {
       "fallbackLabel": "campaign",
-      "drafted": "Drafted in your voice, with the AI disclosure and the footer. Read it below — nothing has been sent.",
+      "drafted": "Drafted in your voice, with the AI disclosure and the footer. Read it below. Nothing has been sent.",
       "alreadyDrafted": "This campaign already has its draft.",
       "done": "Done.",
       "draft": "Draft the email",
@@ -5250,7 +5250,7 @@
   },
   "studio": {
     "meta": {
-      "title": "Creative studio — ScaleX"
+      "title": "Creative studio · ScaleX"
     },
     "kicker": "Grow · Creative studio",
     "aside": "Meta Ad Library · read-only · OBSERVED",
@@ -5270,7 +5270,7 @@
       "briefsNotRead": "{count, plural, =1 {One brief} one {# brief} other {# briefs}} written; I haven't read your niche's ads yet.",
       "notRead": "I haven't read the ads in your {noun}'s niche yet.",
       "notReadBusiness": "I haven't read the ads in your business's niche yet.",
-      "longest": "{page}'s {format, select, video {video} other {ad}} has run {days, plural, one {# day} other {# days}} — the longest-running concept I found."
+      "longest": "{page}'s {format, select, video {video} other {ad}} has run {days, plural, one {# day} other {# days}}: the longest-running concept I found."
     },
     "running": {
       "days": "{count, plural, one {# day} other {# days}}",
@@ -5311,8 +5311,8 @@
       "termsLabel": "Words your niche’s ads would use, comma-separated (two at most)",
       "termsPlaceholder": "e.g. handmade mug, pottery class",
       "reading": "Reading…",
-      "readAgain": "Read again →",
-      "readLibrary": "Read the Ad Library →",
+      "readAgain": "Read again",
+      "readLibrary": "Read the Ad Library",
       "searches": "The Library searches the words in the ads themselves, in their own language. I also look for the competitors you listed.",
       "searchesNamed": "The Library searches the words in the ads themselves, in their own language. I also look for the competitors you listed ({names}).",
       "freshFrom": "A fresh read is allowed from {when}.",
@@ -5337,7 +5337,7 @@
       "opens": "How it opens",
       "offer": "Offer · call to action",
       "youListed": "You listed them",
-      "inLibrary": "In the Ad Library →",
+      "inLibrary": "In the Ad Library",
       "noText": "no text",
       "noOffer": "no offer found",
       "noCta": "no call to action found"
@@ -5353,7 +5353,7 @@
       "goalLabel": "Or the goal it serves",
       "noGoal": "No particular goal",
       "writing": "Writing…",
-      "write": "Write a brief →",
+      "write": "Write a brief",
       "allowance": "{left} of {perMonth} brief-writing calls left this month; one brief takes up to {attempts}. I write only from what you see cited, and refuse any line that repeats five words in a row from another business’s ad.",
       "cardLabel": "Creative brief · {day}",
       "attempts": "{count, plural, one {# attempt} other {# attempts}}",
@@ -5363,7 +5363,7 @@
       "script": "Script · about {seconds} s",
       "why": "Why: {why}",
       "proposing": "Proposing…",
-      "make": "Make this →",
+      "make": "Make this",
       "watching": "Still watching until {day}; nothing is proposed before then.",
       "makeNote": "Puts this shot list in Waiting for you. Approved, it becomes a “film this” item; your footage goes to the cutting room."
     },
@@ -5403,7 +5403,7 @@
   },
   "site": {
     "meta": {
-      "title": "Your site — ScaleX"
+      "title": "Your site · ScaleX"
     },
     "kicker": "Grow · Website",
     "loading": "Reading your site changes…",
@@ -5411,18 +5411,18 @@
     "homePage": "home page",
     "page": "page",
     "noAction": "no action",
-    "fine": "Every change previews from the real page, applies only after your yes in the queue, keeps its undo forever, and rolls itself back on a hard failure — never on a quiet week.",
+    "fine": "Every change previews from the real page, applies only after your yes in the queue, keeps its undo forever, and rolls itself back on a hard failure, never on a quiet week.",
     "signedOut": {
       "eyebrow": "your site",
       "title": "Start with the intake.",
-      "copy": "Site changes belong to a profile — begin and come back.",
+      "copy": "Site changes belong to a profile. Begin and come back.",
       "begin": "Begin"
     },
     "notice": {
-      "rolledBack": "Applied — and the health check failed, so I rolled it straight back. The reasons are on the card.",
-      "proposed": "Proposed — the before/after is on its tab, and the decision is in your queue.",
+      "rolledBack": "Applied, and the health check failed, so I rolled it straight back. The reasons are on the card.",
+      "proposed": "Proposed: the before/after is on its tab, and the decision is in your queue.",
       "applied": "Applied, and the page passed its health check.",
-      "undone": "Undone — the page's previous state is back, byte for byte."
+      "undone": "Undone: the page's previous state is back, byte for byte."
     },
     "headline": {
       "pending": "{count, plural, one {# change} other {# changes}} proposed for your site.",
@@ -5459,19 +5459,19 @@
     "auditTab": {
       "label": "Audit · checked {day}",
       "title": "What customers look for, and whether your site shows it",
-      "foot": "Read-only. Fixing one goes through the approval queue — <link>see Blindspots</link>.",
+      "foot": "Read-only. Fixing one goes through the approval queue: <link>see Blindspots</link>.",
       "what": "What they check",
       "onSite": "On your site",
       "foundOn": "Found on",
       "check": "Check",
       "shown": "shown",
       "notFound": "not found",
-      "unreadable": "Couldn’t read {url} — {reason}"
+      "unreadable": "Couldn’t read {url}: {reason}"
     },
     "propose": {
       "label": "Propose a change",
       "title": "Shown before it is ever applied",
-      "foot": "Checkout, cart, payment and billing pages are refused outright — they cannot even be proposed, at any approval level.",
+      "foot": "Checkout, cart, payment and billing pages are refused outright. They cannot even be proposed, at any approval level.",
       "url": "Page address",
       "urlPlaceholder": "yoursite.com/about",
       "find": "The exact text to change",
@@ -5506,7 +5506,7 @@
       "ifWrong": "If it goes wrong: {what}",
       "decide": "Decide in the queue",
       "apply": "Apply it to the page",
-      "undo": "Undo — restore the page"
+      "undo": "Undo: restore the page"
     },
     "audit": {
       "severity": {
@@ -5525,7 +5525,7 @@
         "mobile": "mobile",
         "desktop": "desktop"
       },
-      "euroRange": "{low}–{high} a month",
+      "euroRange": "{low} to {high} a month",
       "unit": {
         "seconds": "{value} s",
         "ms": "{value} ms",
@@ -5541,15 +5541,15 @@
       },
       "from": {
         "notMeasured": "not measured",
-        "labOnly": "lab only — too few visitors for Google's field data",
+        "labOnly": "lab only: too few visitors for Google's field data",
         "fieldSite": "field (whole site) + lab",
         "field": "field + lab"
       },
       "notice": {
         "lastFailed": "The last run, {day}, failed: {reason}",
         "didntRun": "the audit didn't run",
-        "measured": "Measured — the findings below are this run's.",
-        "tryAgain": "the audit didn't run — try again in a moment"
+        "measured": "Measured: the findings below are this run's.",
+        "tryAgain": "the audit didn't run: try again in a moment"
       },
       "run": {
         "busy": "Reading the site… (up to two minutes)",
@@ -5561,7 +5561,7 @@
         "title": "Speed, phones and the path to buying, measured"
       },
       "notBuilt": "Measured only. Judging the design from screenshots (site-audit §{section}, the vision layer) isn't built: no screenshot is taken and no model is asked.",
-      "footFix": "Fixing one goes through a proposal and the queue; checkout is never changed automatically — findings there come with instructions.",
+      "footFix": "Fixing one goes through a proposal and the queue; checkout is never changed automatically: findings there come with instructions.",
       "never": {
         "reads": "Reads public pages like a visitor, through the same guarded fetcher as every other site read.",
         "noLogin": "Never logs in, never sends a form, never adds to a cart, never opens checkout.",
@@ -5608,16 +5608,16 @@
       },
       "refused": {
         "label": "Seen and left alone",
-        "login_or_account": "a login or account page — the audit never signs in",
-        "cart_action": "a link that changes a cart — the audit never adds to one",
-        "checkout": "checkout — counted from the outside, never opened",
-        "external_booking": "a booking page on another company's site — counted, not read"
+        "login_or_account": "a login or account page: the audit never signs in",
+        "cart_action": "a link that changes a cart: the audit never adds to one",
+        "checkout": "checkout: counted from the outside, never opened",
+        "external_booking": "a booking page on another company's site: counted, not read"
       }
     }
   },
   "support": {
     "meta": {
-      "title": "Support — ScaleX"
+      "title": "Support · ScaleX"
     },
     "kicker": "Customers · Support",
     "loading": "Opening support…",
@@ -5635,10 +5635,10 @@
     "testWidget": "Test the widget",
     "failed": "that didn't work",
     "faq": {
-      "tooFew": "{count, plural, one {Only # open question — nothing to cluster yet. Three askers make a frequently asked question.} other {Only # open questions — nothing to cluster yet. Three askers make a frequently asked question.}}",
+      "tooFew": "{count, plural, one {Only # open question: nothing to cluster yet. Three askers make a frequently asked question.} other {Only # open questions: nothing to cluster yet. Three askers make a frequently asked question.}}",
       "proposed": "Clustered. The answers you already gave are in your approval queue; the rest are listed for you to answer.",
       "none": "Clustered: no three people have asked the same thing yet.",
-      "unanswered": "Clustered. Nobody has answered these yet — answer one on its conversation and cluster again."
+      "unanswered": "Clustered. Nobody has answered these yet. Answer one on its conversation and cluster again."
     },
     "convos": {
       "label": "Tickets · {tickets} · conversations · {conversations}",
@@ -5689,7 +5689,7 @@
       "closedFlag": "Closed",
       "youReplied": "You replied",
       "theirTurn": "their turn",
-      "answerLabel": "What you told them — kept on record, not sent",
+      "answerLabel": "What you told them: kept on record, not sent",
       "answered": "I answered them",
       "propose": "Propose as an answer",
       "close": "Close",
@@ -5770,7 +5770,7 @@
       "title": "An assistant that says it is one",
       "paste": "Paste this one line into your website. Visitors see an assistant that introduces itself as automated, answers only from the approved list above, and hands over to you the moment they ask for a person.",
       "rotate": "Rotate the key",
-      "keyPublic": "The key is public by design — it only says which business a conversation belongs to. It is not a login.",
+      "keyPublic": "The key is public by design. It only says which business a conversation belongs to. It is not a login.",
       "notEnabled": "Not enabled yet. Enabling creates the widget's public key; nothing is said to anyone until you approve answers.",
       "enable": "Enable the assistant",
       "foot": "The assistant reads approved answers and nothing else: not your profile, not your numbers, not your connections, and it cannot change anything."
@@ -5796,7 +5796,7 @@
       "notify": "Email me at my sign-in address when a customer emails (at most one an hour, and only once email is set up)"
     },
     "notice": {
-      "answeredBlank": "Marked answered. Next time, write what you said — it can become an approved answer.",
+      "answeredBlank": "Marked answered. Next time, write what you said. It can become an approved answer.",
       "answeredWords": "Marked answered, with your words on record.",
       "proposedAnswer": "Proposed as an answer. Approve it in the queue, then publish it here.",
       "closed": "Closed.",
@@ -5834,7 +5834,7 @@
       "draft": "Draft a reply",
       "writeMyself": "Write it myself",
       "draftUses": "A draft uses only your approved answers.",
-      "aiLabel": "The assistant's draft — edit it freely",
+      "aiLabel": "The assistant's draft: edit it freely",
       "yourReply": "Your reply",
       "speak": "Speak your reply",
       "speakAfter": "Read it over and fix anything before you save or approve it.",
@@ -5849,7 +5849,7 @@
     },
     "test": {
       "meta": {
-        "title": "Widget test page — ScaleX"
+        "title": "Widget test page · ScaleX"
       },
       "loading": "Setting up the test page…",
       "eyebrow": "widget test page",
@@ -5858,7 +5858,7 @@
       "goSupport": "Go to support",
       "pretend": "a pretend customer page · the widget is bottom right",
       "seesLabel": "what a visitor sees",
-      "body": "This page stands in for your website. The button in the corner is the real widget, loaded by the same script and talking to the same public endpoint a customer would use. Ask it something you have approved, something you have not, and then ask for a person — each should behave as promised on the <link>support screen</link>."
+      "body": "This page stands in for your website. The button in the corner is the real widget, loaded by the same script and talking to the same public endpoint a customer would use. Ask it something you have approved, something you have not, and then ask for a person. Each should behave as promised on the <link>support screen</link>."
     },
     "phone": {
       "label": "Phone line",
@@ -5892,8 +5892,8 @@
       "assistant": "Assistant (automated)",
       "messageLabel": "Message",
       "erase": "Erase this call",
-      "eraseConfirm": "Erase this call for good — the caller's number, what was said and any message?",
-      "eraseConfirmRecorded": "Erase this call for good — the caller's number, what was said, any message and the recording?",
+      "eraseConfirm": "Erase this call for good: the caller's number, what was said and any message?",
+      "eraseConfirmRecorded": "Erase this call for good: the caller's number, what was said, any message and the recording?",
       "eraseYes": "Erase for good",
       "keep": "Keep it",
       "recording": {
@@ -5965,7 +5965,7 @@
   },
   "team": {
     "meta": {
-      "title": "Team cover — ScaleX"
+      "title": "Team cover · ScaleX"
     },
     "kicker": "Insights · Team cover",
     "aside": "Roles and hours · never people",
@@ -5994,7 +5994,7 @@
       "takings": "Takings",
       "ofCapacity": "of stated capacity",
       "ofBusiest": "of the busiest hour",
-      "cellTitle": "{typical} on a typical day, {low}–{high} on the middle half of {days, plural, one {# day} other {# days}}",
+      "cellTitle": "{typical} on a typical day, {low} to {high} on the middle half of {days, plural, one {# day} other {# days}}",
       "onAverage": "on, average hour"
     },
     "ok": {
@@ -6104,7 +6104,7 @@
   },
   "teamAccess": {
     "meta": {
-      "title": "Team access — ScaleX"
+      "title": "Team access · ScaleX"
     },
     "kicker": "Your business · Team access",
     "loading": "Reading who’s on the team…",
@@ -6175,7 +6175,7 @@
   },
   "invite": {
     "meta": {
-      "title": "Your invite — ScaleX"
+      "title": "Your invite · ScaleX"
     },
     "someBusiness": "a business on ScaleX",
     "headline": {
@@ -6261,20 +6261,20 @@
   "authWords": {
     "error": {
       "emailNeeded": "an email address is needed",
-      "emailNotSent": "I couldn't send the sign-in email just now — try again in a minute.",
+      "emailNotSent": "I couldn't send the sign-in email just now. Try again in a minute.",
       "wrong": "something went wrong on our side",
-      "wrongEmailWorks": "something went wrong on our side — the email link still works",
+      "wrongEmailWorks": "something went wrong on our side: the email link still works",
       "linkInvalid": "that sign-in link is no longer valid",
       "signInInvalid": "that sign-in is no longer valid",
       "accountFailed": "could not create the account",
       "malformedToken": "the provider returned a malformed token",
-      "noEmail": "{provider} didn't share an email address — use the email link instead",
-      "unverified": "{provider} reports that address as unverified — use the email link instead",
-      "notVerified": "{provider} sign-in couldn't be verified ({why}) — use the email link instead",
-      "failed": "{provider} sign-in failed — try again or use the email link",
-      "notConnected": "that sign-in isn't connected yet — your email works today.",
-      "notConnectedNamed": "{provider} sign-in isn't connected yet — your email below works today.",
-      "expired": "that sign-in attempt expired — try again",
+      "noEmail": "{provider} didn't share an email address: use the email link instead",
+      "unverified": "{provider} reports that address as unverified: use the email link instead",
+      "notVerified": "{provider} sign-in couldn't be verified ({why}): use the email link instead",
+      "failed": "{provider} sign-in failed: try again or use the email link",
+      "notConnected": "that sign-in isn't connected yet. Your email works today.",
+      "notConnectedNamed": "{provider} sign-in isn't connected yet. Your email below works today.",
+      "expired": "that sign-in attempt expired: try again",
       "notEmail": "that doesn't look like an email address",
       "noProfile": "no such profile",
       "linkNotValid": "this link isn't valid",
@@ -6283,8 +6283,8 @@
       "chooseAgain": "choose the business again on our page",
       "addOnPage": "add the business on our page",
       "signInFirst": "sign in first",
-      "codeWrong": "that code isn't right, or it has expired — check it, or use the link in the email",
-      "codeTooMany": "too many codes tried for that address — use the link in the email, or try again later"
+      "codeWrong": "that code isn't right, or it has expired: check it, or use the link in the email",
+      "codeTooMany": "too many codes tried for that address: use the link in the email, or try again later"
     },
     "why": {
       "otherApp": "issued for another app",
@@ -6306,14 +6306,14 @@
       "marginFor": "margin for {name}"
     },
     "why": {
-      "fixedCurrency": "recorded in {recorded}, the profile reports in {reporting} — converting would need an FX rate nobody has given me",
+      "fixedCurrency": "recorded in {recorded}, the profile reports in {reporting}: converting would need an FX rate nobody has given me",
       "fixedPartial": "these cost items have no amount, no cadence, or a per-unit cadence that isn't a fixed monthly figure",
       "noFixed": "no fixed monthly costs recorded, so there is nothing to cover",
       "noContribution": "no offer has both a price and a cost, so a contribution per sale can't be computed",
-      "losesMoney": "every sale loses money at these prices — there is no volume that breaks even",
+      "losesMoney": "every sale loses money at these prices: there is no volume that breaks even",
       "aovInputs": "both monthly revenue and an order count are needed; I won't estimate either",
       "cpaInputs": "without all three I can't separate new customers from returning ones, and a CPA that counts repeat buyers as acquisitions flatters the number",
-      "cpaCurrency": "ad spend is in {spend} but the profile reports in {reporting} — that needs an FX rate",
+      "cpaCurrency": "ad spend is in {spend} but the profile reports in {reporting}: that needs an FX rate",
       "noNewCustomers": "the repeat rate implies no new customers this month",
       "roasInputs": "monthly revenue and monthly ad spend are both needed; a ratio with a guessed side is a guess",
       "noSpend": "ad spend is zero, so there is nothing to return on",
@@ -6326,10 +6326,10 @@
       "offerMargin": "(price − cost_to_deliver) ÷ price × {hundred}",
       "contribution": "price − cost_to_deliver",
       "blendedWeighted": "Σ(offer margin × units sold) ÷ Σ(units sold)",
-      "blendedMean": "mean(offer margins) — no volumes recorded, so each offer counts once",
+      "blendedMean": "mean(offer margins): no volumes recorded, so each offer counts once",
       "fixed": "Σ(fixed cost ÷ cadence months)",
-      "breakEvenWeighted": "fixed costs ÷ weighted contribution per unit — assumes the current offer mix holds",
-      "breakEvenMean": "fixed costs ÷ mean contribution per unit — no volumes recorded, so the mix is assumed even",
+      "breakEvenWeighted": "fixed costs ÷ weighted contribution per unit: assumes the current offer mix holds",
+      "breakEvenMean": "fixed costs ÷ mean contribution per unit: no volumes recorded, so the mix is assumed even",
       "aov": "monthly revenue ÷ monthly orders",
       "cpa": "ad spend ÷ (orders × ({one} − repeat rate))",
       "roas": "monthly revenue ÷ monthly ad spend (blended: all revenue over all ad spend, not attributed)"
@@ -6350,8 +6350,8 @@
       "allSmall": "All {n} figures you gave me matched your accounts within {pct}% or by a small amount."
     },
     "gap": {
-      "core": "part of the core set — the diagnosis will not run without it",
-      "coreOpens": "part of the core set — the diagnosis will not run without it and opens {count, plural, one {# follow-up} other {# follow-ups}}",
+      "core": "part of the core set: the diagnosis will not run without it",
+      "coreOpens": "part of the core set: the diagnosis will not run without it and opens {count, plural, one {# follow-up} other {# follow-ups}}",
       "important": "sharpens the findings that touch it",
       "importantOpens": "sharpens the findings that touch it and opens {count, plural, one {# follow-up} other {# follow-ups}}",
       "deep": "adds precision once the core picture exists",
@@ -6363,7 +6363,7 @@
   "validationWords": {
     "margin_mismatch": "You told me your gross margin is about {stated}%. Your offer prices and costs work out to about {computed}%.",
     "revenue_vs_offers": "You told me revenue is about {stated} a month. Your offers' prices times volumes add up to about {sum}.",
-    "costs_exceed_revenue": "Your monthly costs add up to about {total}, more than the {revenue} coming in — while revenue is marked as growing.",
+    "costs_exceed_revenue": "Your monthly costs add up to about {total}, more than the {revenue} coming in, while revenue is marked as growing.",
     "inventory_without_supplier": "Your products hold inventory, but I have no supplier recorded yet.",
     "channel_without_revenue": "You marked a primary sales channel, but it has no revenue figure yet.",
     "key_person_undocumented": "The service depends heavily on one person, and no written procedures exist yet.",
@@ -6373,9 +6373,9 @@
   },
   "hoursWords": {
     "line": {
-      "squareOnly": "card and cash payments rung up in Square — cash that never goes through a till isn't seen",
-      "squareAnd": "card and cash payments rung up in Square, and card payments through {providers} — cash that never goes through a till isn't seen",
-      "cards": "card payments through {providers} only — cash sales aren't seen by any connection",
+      "squareOnly": "card and cash payments rung up in Square: cash that never goes through a till isn't seen",
+      "squareAnd": "card and cash payments rung up in Square, and card payments through {providers}: cash that never goes through a till isn't seen",
+      "cards": "card payments through {providers} only: cash sales aren't seen by any connection",
       "limit": "A closed hour records no sales, so this can only suggest what an earlier opening or a later closing would do. A four-week trial is the proof."
     }
   },
@@ -6399,7 +6399,7 @@
       "reopen": "You reopen a core answer the diagnosis rests on"
     },
     "module": {
-      "analytics": "The watching mode is blind without measurement — analytics is what it watches with.",
+      "analytics": "The watching mode is blind without measurement: analytics is what it watches with.",
       "team": "Team: when the week needs more cover, or has more than it needs, by role and hour, and, for the owner only, each person's own figures from your bookings. It never scores or ranks anyone, and never suggests anything about a person. Off unless you switch it on."
     },
     "data": {
@@ -6426,11 +6426,11 @@
     },
     "log": {
       "started": "Started watching: {weeks} weeks, reviewing {date}.",
-      "shortened": "Watch shortened to {weeks} weeks — acknowledged by the owner.",
+      "shortened": "Watch shortened to {weeks} weeks, acknowledged by the owner.",
       "extended": "Watch extended to {weeks} weeks at the owner's request.",
       "complete": "The watch period is complete. The next report reads everything gathered.",
       "baseline": "Baseline snapshot recorded: {count} facts.",
-      "steady": "Weekly check: the profile held steady — nothing changed since last week.",
+      "steady": "Weekly check: the profile held steady. Nothing changed since last week.",
       "diff": "Weekly snapshot: {parts} since last week.",
       "cleared": "{noun} is back within its usual range as of {date}.",
       "fell": "{noun} fell {pct}% below the expected level for {days} days in a row: {actual} on {date} against an expected {expected} ({window}-day average {mean} × {weekday} factor {factor}; {deviation}× the usual variation, threshold {k}×).",
@@ -6491,7 +6491,7 @@
       "placements": "Placements",
       "goal": "Optimised for",
       "special": "Special category",
-      "specialValue": "{categories} — Meta's restricted targeting applies",
+      "specialValue": "{categories}: Meta's restricted targeting applies",
       "note": "Note",
       "createsPaused": "Creates paused; going live is a separate approval; created objects can't be deleted, only paused.",
       "goLiveNote": "Switches on the ad, its ad set, then the campaign. Pausing it again stops the spend."
@@ -6511,7 +6511,7 @@
     },
     "sending": {
       "adRun": "Approved, it goes to Meta on the next scheduled run: a dry run before each part, then the campaign, ad set, creative and ad, one after another, all paused and re-checked against your limits. The emergency stop halts it between any two. Meta ad changes stay switched off until the two-week unattended test completes; until then it waits, approved.",
-      "goLive": "Approved, it goes to Meta on the next scheduled run: the ad, then its ad set, then the campaign are switched on — each with a dry run first, re-checked against your ceiling. Meta ad changes stay switched off until the two-week unattended test completes; until then it waits, approved.",
+      "goLive": "Approved, it goes to Meta on the next scheduled run: the ad, then its ad set, then the campaign are switched on, each with a dry run first, re-checked against your ceiling. Meta ad changes stay switched off until the two-week unattended test completes; until then it waits, approved.",
       "adChange": "Approved, it goes to Meta on the next scheduled run: a dry run first, then the change, re-checked against your limits. Meta ad changes stay switched off until the two-week unattended test completes; until then it waits, approved.",
       "bundleShop": "Approving records your yes. I don't change your shop, your prices or your checkout: you set the pair up yourself.",
       "bundleBookings": "Approving records your yes. I don't change your booking system or your prices: you offer the pair yourself.",
@@ -6547,9 +6547,9 @@
     "saidOn": "Said on {day}",
     "range": {
       "aboutMoney": "about {value}",
-      "money": "{lo}–{hi}",
+      "money": "{lo} to {hi}",
       "aboutCount": "about {value} {subject}",
-      "count": "{lo}–{hi} {subject}",
+      "count": "{lo} to {hi} {subject}",
       "on": "on {day}",
       "dates": "{from} to {to}"
     },
@@ -6617,15 +6617,15 @@
     },
     "rate": {
       "some": "{approved} approved of {concluded} concluded ({declined} declined, {lapsed} lapsed; {withheld} withheld by your limits, not counted) = {rate}%",
-      "none": "nothing concluded yet — the rate exists after your first decisions"
+      "none": "nothing concluded yet: the rate exists after your first decisions"
     },
     "arith": {
-      "neverRan": "never executed — nothing to measure",
-      "noSeries": "no measured revenue series — connect a source and the verdict becomes possible",
-      "noBaseline": "no measured days before the action — no baseline to compare against",
-      "tooEarly": "{days} measured day(s) since {day} — the verdict needs {need}",
-      "revenue": "daily revenue averaged {after} over the {afterDays} measured day(s) after {day}, against {before} over the {beforeDays} before — {delta}% (thresholds: helped at +{helped}%, backfired at {backfired}%)",
-      "notOnRecord": "the published item is not on record — nothing to measure"
+      "neverRan": "never executed: nothing to measure",
+      "noSeries": "no measured revenue series: connect a source and the verdict becomes possible",
+      "noBaseline": "no measured days before the action: no baseline to compare against",
+      "tooEarly": "{days} measured day(s) since {day}: the verdict needs {need}",
+      "revenue": "daily revenue averaged {after} over the {afterDays} measured day(s) after {day}, against {before} over the {beforeDays} before: {delta}% (thresholds: helped at +{helped}%, backfired at {backfired}%)",
+      "notOnRecord": "the published item is not on record: nothing to measure"
     }
   },
   "emails": {
@@ -6657,7 +6657,7 @@
         "track": "My track record"
       },
       "pending": "{count, plural, one {# proposal waits} other {# proposals wait}} for your decision. Nothing runs until you approve it.",
-      "pendingMore": "— and {count} more.",
+      "pendingMore": "- and {count} more.",
       "aProposal": "A proposal",
       "tickets": "{count, plural, one {# customer question waits} other {# customer questions wait}} for your answer on Support.",
       "executed": "Made a change you approved: {summary}",
@@ -6675,11 +6675,11 @@
         "campaign": "the campaign's return on ad spend",
         "email": "the email's results"
       },
-      "tooEarly": "{summary}: too early to say — not enough measured days since it ran.",
-      "revenue": "{summary}: {verdict} — daily revenue averaged {after} after, against {before} before, measured.",
-      "revenuePct": "{summary}: {verdict} — daily revenue averaged {after} after, against {before} before ({pct}), measured.",
-      "judgedOn": "{summary}: {verdict} — judged on {basis}, measured.",
-      "judgedOnPct": "{summary}: {verdict} — judged on {basis} ({pct}), measured.",
+      "tooEarly": "{summary}: too early to say, not enough measured days since it ran.",
+      "revenue": "{summary}: {verdict}, daily revenue averaged {after} after, against {before} before, measured.",
+      "revenuePct": "{summary}: {verdict}, daily revenue averaged {after} after, against {before} before ({pct}), measured.",
+      "judgedOn": "{summary}: {verdict}, judged on {basis}, measured.",
+      "judgedOnPct": "{summary}: {verdict}, judged on {basis} ({pct}), measured.",
       "forecasts": "I graded {total, plural, one {# of my forecasts} other {# of my forecasts}} this week: {inside, plural, one {# landed} other {# landed}} inside the range I gave, {misses}{cant}.",
       "missedNone": "none missed",
       "missedAbove": "{missed} missed ({above, plural, one {# came in above it} other {# came in above it}})",
@@ -6694,9 +6694,9 @@
       "whatsappBusiness": "your business"
     },
     "signIn": {
-      "subject": "Your sign-in link — ScaleX",
+      "subject": "Your sign-in link · ScaleX",
       "intro": "Click to sign in to ScaleX:",
-      "expiry": "The link works once and expires in {minutes, plural, one {# minute} other {# minutes}}. If you didn't ask for it, ignore this email — nothing happens without the link.",
+      "expiry": "The link works once and expires in {minutes, plural, one {# minute} other {# minutes}}. If you didn't ask for it, ignore this email. Nothing happens without the link.",
       "code": "Or type this code on the sign-in page: {code}"
     },
     "invite": {
@@ -6705,10 +6705,10 @@
       "intro": "You've been invited to join {business} on ScaleX as {role, select, owner {an owner} manager {a manager} other {a viewer}}.",
       "introUnnamed": "You've been invited to join a business on ScaleX as {role, select, owner {an owner} manager {a manager} other {a viewer}}.",
       "open": "Open this link to accept:",
-      "expiry": "It works once and expires in {days, plural, one {# day} other {# days}}. You'll sign in with this address, {email}. If you weren't expecting it, ignore this email — nothing happens without you."
+      "expiry": "It works once and expires in {days, plural, one {# day} other {# days}}. You'll sign in with this address, {email}. If you weren't expecting it, ignore this email. Nothing happens without you."
     },
     "supportNotice": {
-      "subject": "A customer emailed you — ScaleX",
+      "subject": "A customer emailed you · ScaleX",
       "waiting": "A customer emailed {business}, and it's waiting for you in Support: {url}",
       "waitingNoLink": "A customer emailed {business}, and it's waiting for you in Support.",
       "nothingSent": "Nothing has been sent to them. A reply goes only when you approve it.",
@@ -6811,7 +6811,7 @@
     }
   },
   "shared": {
-    "pageTitle": "Shared report — ScaleX",
+    "pageTitle": "Shared report · ScaleX",
     "label": "Shared report",
     "readOnly": "Shared report · read only",
     "deadTitle": "This link is no longer active.",
@@ -6910,10 +6910,10 @@
       "currencyCannot": "Add {series} sales to {cash} cash without an exchange rate nobody gave me."
     },
     "assumption": {
-      "growth": "Each week runs like the same week last year, scaled by how your last {weeks, plural, one {# week} other {# weeks}} compare with the same weeks a year before ({low}–{high}).",
+      "growth": "Each week runs like the same week last year, scaled by how your last {weeks, plural, one {# week} other {# weeks}} compare with the same weeks a year before ({low} to {high}).",
       "span": "Each week runs somewhere between the same week last year and your recent weeks: with one year of history I can't tell your growth from your season, so the range spans both.",
       "fallback": "{count, plural, one {# week last year weren't measured in full; those use your recent weeks instead.} other {# weeks last year weren't measured in full; those use your recent weeks instead.}}",
-      "recent": "The coming weeks run like your last {count, plural, one {# complete week} other {# complete weeks}}: the middle half of them, {low}–{high} a week. With under a year of history no season is known, so none is applied.",
+      "recent": "The coming weeks run like your last {count, plural, one {# complete week} other {# complete weeks}}: the middle half of them, {low} to {high} a week. With under a year of history no season is known, so none is applied.",
       "sameDay": "Sales are money in the same day.",
       "payout": "A sale reaches your account {days} after it is made ({why}). The cautious end takes the slow end.",
       "evenly": "Sales are spread evenly over the days of their week.",
@@ -6973,7 +6973,7 @@
       "sameDay": "the same day",
       "days": "{count, plural, one {# day} other {# days}}",
       "sameDayTo": "the same day to {count, plural, one {# day} other {# days}}",
-      "range": "{low}–{high, plural, one {# day} other {# days}}"
+      "range": "{low} to {high, plural, one {# day} other {# days}}"
     },
     "tight": {
       "quarterly": "{label} ({amount}, quarterly)",
@@ -7053,15 +7053,15 @@
       "stuck": "no sale in {count, plural, one {{days} day} other {{days} days}}, with {onHand} on hand",
       "stuckOnRecord": "no sale in the {count, plural, one {{days} day} other {{days} days}} on record, with {onHand} on hand",
       "slowNoSale": "no sale in the {count, plural, one {{days} day} other {{days} days}} measured",
-      "slowCover": "{cover} days of cover at {rate} a day — over {limit}",
-      "selling": "{cover} days of cover — selling",
+      "slowCover": "{cover} days of cover at {rate} a day, over {limit}",
+      "selling": "{cover} days of cover: selling",
       "noRate": "no rate of sale to judge by"
     },
     "sell": {
       "fileOneWindow": "A stock file carries one window of units sold, so I can't set {n} days against the {n} before. Connect the shop and I can.",
       "tooLittle": "Only {count, plural, one {{days} day} other {{days} days}} of sales measured; comparing two {n}-day windows needs {needed}. I can say what sold; I can't say whether it's speeding up until {ready}.",
       "nothing": "Nothing sold in either {n}-day window.",
-      "flat": "{a} sold in the last {n} days against {b} in the {n} before: about the same — a difference of {diff} is within chance (±{band}).",
+      "flat": "{a} sold in the last {n} days against {b} in the {n} before: about the same. A difference of {diff} is within chance (±{band}).",
       "moved": "{a} sold in the last {n} days against {b} in the {n} before: {direction, select, up {up} other {down}} {diff}, more than chance (±{band}).",
       "movedPct": "{a} sold in the last {n} days against {b} in the {n} before: {direction, select, up {up} other {down}} {diff} ({pct}), more than chance (±{band})."
     },
@@ -7112,7 +7112,7 @@
       "sourcesOnHand": "{onHand} on hand, read from {source} on {day}",
       "assumedPace": "the coming days sell at the pace of the last {count, plural, one {{days} day} other {{days} days}} ({units} sold), give or take chance (±{band})",
       "assumedLead": "ASSUMED delivery time: {why}",
-      "assumedSeason": "ASSUMED: this item follows your business's own season — the busy stretch is read from your {readFrom}, not from this item",
+      "assumedSeason": "ASSUMED: this item follows your business's own season. The busy stretch is read from your {readFrom}, not from this item",
       "assumedElapsed": "ASSUMED: it kept selling at that pace since the stock was read on {day}, {count, plural, one {{days} day} other {{days} days}} ago",
       "windowFile": "{units} sold in the {days} days to {to}, from your stock file",
       "windowMeasured": "{units} sold {from} to {to}, measured by {source}",
@@ -7127,7 +7127,7 @@
       "sentenceFromStretch": "{name} runs out in {range}; {lead}. That counts your busy stretch from {start}.",
       "head": "{name} runs out in {range}.",
       "rangeOpen": "about {count, plural, one {{days} day} other {{days} days}} or more",
-      "rangeClosed": "about {low}–{high} days"
+      "rangeClosed": "about {low} to {high} days"
     },
     "option": {
       "label": {
@@ -7151,13 +7151,13 @@
       "noCost": "what it cost you isn't known",
       "emailOff": "your own answer on customer consent was \"no consent\", so email stays off",
       "arithmetic": {
-        "content": "{onHand} on hand × {low}–{high} sold at full price = {unitsLow}–{unitsHigh} units, {backLow}–{backHigh}; nothing given up",
+        "content": "{onHand} on hand × {low} to {high} sold at full price = {unitsLow} to {unitsHigh} units, {backLow} to {backHigh}; nothing given up",
         "bundleNone": "no best seller with stock on hand to pair it with",
-        "bundle": "{onHand} on hand × {low}–{high}, capped at {cap} {seller} on hand = {unitsLow}–{unitsHigh} units, {backLow}–{backHigh}; both at full price, nothing given up",
-        "email": "{customers} customers who said yes to email × {low}–{high} buying one, capped at {onHand} on hand = {unitsLow}–{unitsHigh} units, {backLow}–{backHigh}; no discount, nothing given up",
-        "markdown": "{onHand} on hand × {low}–{high} sold at {cut} off = {unitsLow}–{unitsHigh} units, {backLow}–{backHigh}, giving up {givenLow}–{givenHigh} of the full price",
+        "bundle": "{onHand} on hand × {low} to {high}, capped at {cap} {seller} on hand = {unitsLow} to {unitsHigh} units, {backLow} to {backHigh}; both at full price, nothing given up",
+        "email": "{customers} customers who said yes to email × {low} to {high} buying one, capped at {onHand} on hand = {unitsLow} to {unitsHigh} units, {backLow} to {backHigh}; no discount, nothing given up",
+        "markdown": "{onHand} on hand × {low} to {high} sold at {cut} off = {unitsLow} to {unitsHigh} units, {backLow} to {backHigh}, giving up {givenLow} to {givenHigh} of the full price",
         "selloffNone": "no cost on record to value it at",
-        "selloff": "{cost} at cost × {low}–{high} = {backLow}–{backHigh}, giving up {givenLow}–{givenHigh} against {price} at full price"
+        "selloff": "{cost} at cost × {low} to {high} = {backLow} to {backHigh}, giving up {givenLow} to {givenHigh} against {price} at full price"
       },
       "efficiencyFree": "{back} likely back, nothing given up",
       "efficiencyNet": "{back} likely back − {given} given up = {net} net ({ratio} back for every {one} given up)",
@@ -7172,7 +7172,7 @@
       "file": "Your stock file"
     },
     "history": {
-      "summary": "Cash tied up at cost in the {count, plural, one {{n} slowest item} other {{n} slowest items}}, on each stock count from {from} to {to}: {items}. A stock, read on each count day — never added across days.",
+      "summary": "Cash tied up at cost in the {count, plural, one {{n} slowest item} other {{n} slowest items}}, on each stock count from {from} to {to}: {items}. A stock, read on each count day, never added across days.",
       "oneCount": "{name} {amount} (one count)",
       "change": "{name} from {from} to {to}"
     },
@@ -7182,7 +7182,7 @@
       "notSelling": "{count, plural, one {{n} item that isn't selling} other {{n} items that aren't selling}}.",
       "tiedUp": "{amount} is tied up in {count, plural, one {{n} item that isn't selling} other {{n} items that aren't selling}}.",
       "svmOtherCurrency": "You estimated your dead stock at {stated}; what I measured isn't in {currency}, so I don't compare them.",
-      "svm": "You estimated your dead stock at {stated}; I measure {measured} at cost in stock that isn't selling — {diff} {direction, select, more {more} other {less}}. Your estimate stays on your fact sheet."
+      "svm": "You estimated your dead stock at {stated}; I measure {measured} at cost in stock that isn't selling: {diff} {direction, select, more {more} other {less}}. Your estimate stays on your fact sheet."
     }
   },
   "cartsWords": {
@@ -7226,9 +7226,9 @@
       "both": "Of the contacts who left a cart in the last week, {cant, plural, one {# can't be emailed} other {# can't be emailed}}, and {count, plural, one {# was} other {# were}} already proposed a reminder in the last {days, plural, one {# day} other {# days}}."
     },
     "block": {
-      "everyone": "Everyone who left a cart {min}–{max, plural, one {# day} other {# days}} ago and said yes to email was proposed a reminder in the last {days, plural, one {# day} other {# days}}.",
+      "everyone": "Everyone who left a cart {min} to {max, plural, one {# day} other {# days}} ago and said yes to email was proposed a reminder in the last {days, plural, one {# day} other {# days}}.",
       "everyoneWeek": "Everyone who left a cart in the last week and said yes to email was proposed a reminder in the last {days, plural, one {# day} other {# days}}.",
-      "nobody": "No contact who said yes to email left a cart {min}–{max, plural, one {# day} other {# days}} ago, so there is nobody to remind.",
+      "nobody": "No contact who said yes to email left a cart {min} to {max, plural, one {# day} other {# days}} ago, so there is nobody to remind.",
       "nobodyWeek": "No contact who said yes to email left a cart in the last week, so there is nobody to remind."
     },
     "sources": {
@@ -7255,7 +7255,7 @@
     },
     "ruleOfThumb": {
       "label": "ASSUMED",
-      "statement": "Rule of thumb, not your number: of the carts a reminder email reaches, about {low}–{high} come back as an order."
+      "statement": "Rule of thumb, not your number: of the carts a reminder email reaches, about {low} to {high} come back as an order."
     },
     "held": {
       "noConsent": "You told me your customers haven't agreed to marketing email, so I send none."
@@ -7278,7 +7278,7 @@
       "readyStated": "as soon as you state your win rate",
       "sourcePipeline": "your pipeline: {count, plural, one {{n} open deal} other {{n} open deals}}",
       "sourceClosed": "{count, plural, one {{n} deal} other {{n} deals}} you closed between {from} and {to}",
-      "oneRate": "every open deal closes at that one rate, whatever its stage — an early lead likely closes less often than a proposal sent, so read the low end first",
+      "oneRate": "every open deal closes at that one rate, whatever its stage: an early lead likely closes less often than a proposal sent, so read the low end first",
       "estimated": "{count, plural, one {{n} value is} other {{n} values are}} your estimate rather than a quote, and count the same"
     },
     "due": {
@@ -7292,15 +7292,15 @@
     },
     "hold": {
       "notB2b": "Your pipeline is for businesses that sell to other businesses: you told me you sell to consumers ({question}).",
-      "noConsent": "your own answer on customer consent ({question}) was \"no consent\" — I don’t propose emails until your data says otherwise"
+      "noConsent": "your own answer on customer consent ({question}) was \"no consent\": I don’t propose emails until your data says otherwise"
     },
     "skip": {
       "noneQuiet": "no deal has gone quiet",
-      "perRun": "I propose {max} at a time — this one waits for the next run",
+      "perRun": "I propose {max} at a time: this one waits for the next run",
       "already": "already proposed this month",
       "cantEmail": "I can't propose an email: {why}. Call them, or record their consent on Customers.",
       "contactGone": "the contact is gone",
-      "declined": "you've declined follow-ups {count, plural, one {# time} other {# times}} — I've stopped proposing them"
+      "declined": "you've declined follow-ups {count, plural, one {# time} other {# times}}: I've stopped proposing them"
     },
     "noName": "a contact with no name"
   },
@@ -7344,13 +7344,13 @@
       "revenueFormula": "{orders} orders × {value}",
       "profitFormula": "{revenue} × {margin} margin − {spend}",
       "worstUnknown": "I can't size the worst case without the inputs above.",
-      "currencies": "in {currencies} — I don't convert between currencies",
+      "currencies": "in {currencies}: I don't convert between currencies",
       "margin": {
-        "both": "worked out from your offers ({computed}) and as you told me ({stated}) — the range spans both",
+        "both": "worked out from your offers ({computed}) and as you told me ({stated}): the range spans both",
         "computed": "worked out from your offers: {formula}",
         "formulaDefault": "price minus cost to deliver",
         "stated": "as you told me (your gross margin)",
-        "needs": "your gross margin, or what each product costs you to deliver — then profit can be worked out"
+        "needs": "your gross margin, or what each product costs you to deliver, then profit can be worked out"
       },
       "aov": {
         "measured": "revenue ÷ orders on {count, plural, one {# measured day} other {# measured days}} of the last {window}, middle half",
@@ -7366,21 +7366,21 @@
         "noDelivery": "no campaign of yours has a delivery report yet",
         "deliveryNeeds": "one sent campaign with its delivery reports",
         "before": "before",
-        "boughtAgainOne": "{kind, select, winback {your win-back of {day}: {returned} of {measured} measured recipients bought again — one person either way} other {your thank-you of {day}: {returned} of {measured} measured recipients bought again — one person either way}}",
+        "boughtAgainOne": "{kind, select, winback {your win-back of {day}: {returned} of {measured} measured recipients bought again, one person either way} other {your thank-you of {day}: {returned} of {measured} measured recipients bought again, one person either way}}",
         "boughtAgainMany": "{kind, select, winback {bought again ÷ measured, across your last {count, plural, one {# win-back campaign} other {# win-back campaigns}}, middle half} other {bought again ÷ measured, across your last {count, plural, one {# thank-you campaign} other {# thank-you campaigns}}, middle half}}",
         "boughtAgainNone": "{kind, select, winback {no win-back of yours has been read back yet} other {no thank-you of yours has been read back yet}}",
         "boughtAgainNeeds": "{kind, select, winback {one sent win-back and a customer export at least {count, plural, one {# day} other {# days}} after it} other {one sent thank-you and a customer export at least {count, plural, one {# day} other {# days}} after it}}",
         "spendsSource": "total spent ÷ orders for {count, plural, one {# recipient} other {# recipients}}, from your customer list, middle half",
-        "costFormula": "no spend — the email sends on your plan",
+        "costFormula": "no spend: the email sends on your plan",
         "reachedFormula": "{recipients} recipients × {rate} delivered",
         "ordersFormula": "{recipients} recipients × {rate} bought again",
         "worstFormula": "nobody buys again: nothing in, nothing spent",
         "worstWords": "Nobody buys again: {zero} in, {zero} spent.",
-        "harmWords": "At your worst past campaign's rate ({rate}), about {count, plural, one {# person} other {# people}} would unsubscribe — honoured at once, for good.",
+        "harmWords": "At your worst past campaign's rate ({rate}), about {count, plural, one {# person} other {# people}} would unsubscribe, honoured at once, for good.",
         "what": "{segment, select, lapsed {One email, in your voice, to the {emailable} lapsed customers who said yes to email.} other {One email, in your voice, to the {emailable} best customers who said yes to email.}}",
-        "whatNoList": "One email to a segment of your customers — once your customer list is in.",
+        "whatNoList": "One email to a segment of your customers, once your customer list is in.",
         "assumption": "{kind, select, winback {This send does what your past win-back emails did.} other {This send does what your past thank-you emails did.}}",
-        "assumptionSource": "my projection — the next campaign isn't measured until it's sent",
+        "assumptionSource": "my projection: the next campaign isn't measured until it's sent",
         "keyRate": "bought again",
         "noConsent": "You told me your customers gave no consent to email, so outbound email stays off.",
         "nobodyEmailable": "Nobody in this segment said yes to email, so there's no one to send it to.",
@@ -7401,7 +7401,7 @@
         "roasSource": "{which, select, pooled {Meta-attributed purchases ÷ spend, per rolling {block}-day week over the last {window} days, across your measured campaigns, middle half ({count, plural, one {# week} other {# weeks}})} other {Meta-attributed purchases ÷ spend, per rolling {block}-day week over the last {window} days, middle half ({count, plural, one {# week} other {# weeks}})}}",
         "roasSourceOn": "value {platform} attributes ÷ spend, per rolling {block}-day week over the last {window} days, middle half ({count, plural, one {# week} other {# weeks}})",
         "roasNonePooled": "no campaign of yours has {days} measured days in {currency}",
-        "roasNone": "{count, plural, one {# measured day} other {# measured days}} — I need {need}",
+        "roasNone": "{count, plural, one {# measured day} other {# measured days}}: I need {need}",
         "roasNeeds": "{which, select, pooled {{days} measured days of a campaign} other {{days} measured days of this campaign}}",
         "reachNotRead": "Meta's reach per campaign isn't read",
         "reachNotReadOn": "{platform}'s reach per campaign isn't read",
@@ -7412,8 +7412,8 @@
         "worstFormula": "{spend} × return {roas} × {margin} − {spend}",
         "worstWeakest": "Every week returns what your weakest measured week did ({roas}): {amount} over {days} days.",
         "worstBest": "The weeks you'd stop were as good as your best measured week ({roas}): {amount} over {days} days.",
-        "worstUnsized": "At worst all {amount} goes out and little comes back — I can't size it without the inputs above.",
-        "guardCurrency": "your ad ceiling is in {ceiling} and this budget is in {currency} — I won't convert to compare them",
+        "worstUnsized": "At worst all {amount} goes out and little comes back. I can't size it without the inputs above.",
+        "guardCurrency": "your ad ceiling is in {ceiling} and this budget is in {currency}: I won't convert to compare them",
         "guardCeiling": "it would take monthly ad spend to about {projected}, over your stated ceiling of {ceiling}",
         "titleNew": "Start a new campaign at {amount} a day",
         "titleNewOpen": "Start a new campaign at a budget you choose",
@@ -7430,14 +7430,14 @@
         "guarded": "I won't propose this: {guard}.",
         "assumeStop": "The spend you stop was returning what the campaign's recent weeks did.",
         "assumeExtra": "Extra spend returns what the recent weeks returned.",
-        "assumptionSource": "my projection from Meta's own attribution — some of those purchases might have happened anyway",
-        "assumptionSourceOn": "my projection from {platform}'s own attribution — some of those sales might have happened anyway",
+        "assumptionSource": "my projection from Meta's own attribution: some of those purchases might have happened anyway",
+        "assumptionSourceOn": "my projection from {platform}'s own attribution: some of those sales might have happened anyway",
         "keyRate": "return on ad spend"
       },
       "content": {
         "postNeeds": "{count, plural, one {# published post measured a week after posting} other {# published posts measured a week after posting}}",
         "postNeedsConnect": "your Instagram or Facebook page connected for publishing, and a few posts measured",
-        "postsSource": "{count, plural, one {# social channel} other {# social channels}} × {perWeek} a week × {weeks} weeks — the calendar's social posts; its email and website pieces aren't simulated",
+        "postsSource": "{count, plural, one {# social channel} other {# social channels}} × {perWeek} a week × {weeks} weeks: the calendar's social posts; its email and website pieces aren't simulated",
         "noChannel": "no social channel on your profile",
         "channelNeeds": "a social channel you post on, added to your profile",
         "reachSource": "{platform}, day {age} after posting, your last {count, plural, one {# post} other {# posts}}, middle half",
@@ -7450,13 +7450,13 @@
         "conversionSource": "orders ÷ visits on {count, plural, one {# measured day} other {# measured days}} of the last {window}, middle half",
         "conversionStated": "your monthly orders ÷ your monthly site visits, as you told me",
         "conversionNeeds": "Google Analytics and your shop connected, or your monthly visits and orders",
-        "costFormula": "no spend — your time reviewing the drafts",
+        "costFormula": "no spend: your time reviewing the drafts",
         "reachedFormula": "{audience, select, views {{posts} posts × {reach} views} other {{posts} posts × {reach} reach}}",
         "ordersFormula": "{posts} posts × {interactions} interactions × {visits} visits each × {rate} buy",
         "worstFormula": "nobody buys: nothing in, nothing spent",
         "title": "A {weeks}-week content calendar",
         "what": "{count, plural, one {# post on the social channels you already run, drafted in your voice, each one waiting for your yes.} other {# posts on the social channels you already run, drafted in your voice, each one waiting for your yes.}}",
-        "whatNone": "Posts on the social channels you already run — once one is on your profile.",
+        "whatNone": "Posts on the social channels you already run, once one is on your profile.",
         "assumption": "{channels, select, many {The planned posts do what your last {platform} posts did, on every channel.} other {The planned posts do what your last {platform} posts did.}}",
         "assumptionSource": "my projection from your own measured posts",
         "worstWeakest": "Every post reaches what your weakest did ({weakest}) and nobody buys: {zero} lost, only your review time.",
@@ -7478,7 +7478,7 @@
       "refuse": {
         "zero": "a new price has to be above zero",
         "notAChange": "that isn't a price change",
-        "tooSmall": "that's less than a {share} change — too small to simulate",
+        "tooSmall": "that's less than a {share} change: too small to simulate",
         "tooBig": "I simulate changes up to {share} either way; past that the response band is no fair guide"
       },
       "title": {
@@ -7503,13 +7503,13 @@
       "needLine": "{label}: {needs}",
       "noPrice": "{name} has no price on your profile yet",
       "priceNeeds": "the price of {name}",
-      "costOtherCurrency": "recorded in {costCurrency}, the price is in {currency} — I don't convert between currencies",
-      "costNeedsService": "what one {name} costs you to deliver — list \"{name}\" among what you sell, with its cost, and I'll match it to your bookings",
+      "costOtherCurrency": "recorded in {costCurrency}, the price is in {currency}: I don't convert between currencies",
+      "costNeedsService": "what one {name} costs you to deliver: list \"{name}\" among what you sell, with its cost, and I'll match it to your bookings",
       "costNeedsIn": "what one {name} costs you to deliver in {currency}",
       "costNeeds": "what one {name} costs you to deliver",
       "volumeNeedsService": "your bookings with {name}, imported or connected",
       "volumeNeeds": "roughly how many {name} you sell a month",
-      "responseSource": "for each {one} on the price, {low} to {high} of {kind, select, service {bookings} other {sales}} move the other way — {why}",
+      "responseSource": "for each {one} on the price, {low} to {high} of {kind, select, service {bookings} other {sales}} move the other way: {why}",
       "band": {
         "shop": "goods a customer can compare and often buy elsewhere tend to answer a price change strongly",
         "hospitality": "a meal or a night is partly the place and the habit, so customers answer price less than in a shop",
@@ -7517,38 +7517,38 @@
         "services": "a service bought on trust answers price less than goods do, but a quote can be compared",
         "default": "the kind of business isn't on your profile, so the band is the widest I use"
       },
-      "capacityNeeds": "how many appointments you can take a week — then a cut is held to the room you have",
+      "capacityNeeds": "how many appointments you can take a week, then a cut is held to the room you have",
       "be": {
         "needPrice": "I need the price of {name} first.",
         "change": "{dir, select, rise {a {share} rise} other {a {share} cut}}",
         "changeStart": "{dir, select, rise {A {share} rise} other {A {share} cut}}",
         "costNeed": "what one costs you to deliver",
-        "neverToday": "At today's {price} each {kind, select, service {booking} other {sale}} already costs you {cost} to deliver, so there is no profit on it today to break even against — look at the cost before the price.",
+        "neverToday": "At today's {price} each {kind, select, service {booking} other {sale}} already costs you {cost} to deliver, so there is no profit on it today to break even against: look at the cost before the price.",
         "unitFormula": "{kind, select, service {{price} − {cost} = {margin} a booking} other {{price} − {cost} = {margin} a sale}}",
-        "neverNew": "At {price} each {kind, select, service {booking} other {sale}} would cost you {cost} to deliver — every extra one loses money, so no amount of extra {kind, select, service {bookings} other {sales}} makes {change} pay.",
+        "neverNew": "At {price} each {kind, select, service {booking} other {sale}} would cost you {cost} to deliver. Every extra one loses money, so no amount of extra {kind, select, service {bookings} other {sales}} makes {change} pay.",
         "shareFormula": "({high} − {low}) ÷ ({next} − {cost}) = {share}",
-        "shareFormulaNoCost": "({high} − {low}) ÷ {next} = {share} — with no cost to deliver counted",
+        "shareFormulaNoCost": "({high} − {low}) ÷ {next} = {share}, with no cost to deliver counted",
         "formulaOf": "{formula} of {volume} {kind, select, service {bookings} other {sales}} = {units}",
         "loseShare": "{change} pays as long as you lose fewer than {share} of your {kind, select, service {bookings} other {sales}}.",
         "loseCount": "{change} pays as long as you lose fewer than {count} of your ~{volume} {kind, select, service {bookings every {days} days} other {sales a month}} ({share}).",
         "loseShareAnyCost": "Whatever each one costs you, {change} pays as long as you lose fewer than {share} of your {kind, select, service {bookings} other {sales}}.",
         "loseCountAnyCost": "Whatever each one costs you, {change} pays as long as you lose fewer than {count} of your ~{volume} {kind, select, service {bookings every {days} days} other {sales a month}} ({share}).",
-        "needCostShare": "To say how many more {kind, select, service {bookings} other {sales}} {change} needs, I need what one costs you to deliver. With no cost counted it needs at least {share} — the true figure is higher.",
-        "needCostCount": "To say how many more {kind, select, service {bookings} other {sales}} {change} needs, I need what one costs you to deliver. With no cost counted it needs at least {count} more ({share}) — the true figure is higher.",
+        "needCostShare": "To say how many more {kind, select, service {bookings} other {sales}} {change} needs, I need what one costs you to deliver. With no cost counted it needs at least {share}: the true figure is higher.",
+        "needCostCount": "To say how many more {kind, select, service {bookings} other {sales}} {change} needs, I need what one costs you to deliver. With no cost counted it needs at least {count} more ({share}): the true figure is higher.",
         "noRoom": "Your book has room for {room} more in {days} days, so it can't pay from extra bookings alone.",
         "winShare": "{change} pays only if you win more than {share} more {kind, select, service {bookings} other {sales}}.",
         "winCount": "{change} pays only if you win more than {count} extra {kind, select, service {bookings} other {sales}} on your ~{volume} {kind, select, service {every {days} days} other {a month}} (+{share})."
       },
       "formula": {
         "volume": "{volume} {kind, select, service {bookings} other {sales}} × ({one} {sign} {share} × {band}){held, select, yes {, held to the {room} more your book has room for} other {}}",
-        "revenue": "{low} – {high} {kind, select, service {bookings} other {sales}} × {next} − {volume} × {price}",
-        "profit": "{low} – {high} × ({next} − {cost}) − {volume} × ({price} − {cost})",
+        "revenue": "{low} to {high} {kind, select, service {bookings} other {sales}} × {next} − {volume} × {price}",
+        "profit": "{low} to {high} × ({next} − {cost}) − {volume} × ({price} − {cost})",
         "worst": "{units} × ({next} − {cost}) − {volume} × ({price} − {cost})"
       },
       "worstUnknown": "I can't size the worst case without the inputs above.",
       "worstWords": "Customers answer at the {end, select, strong {strong} other {gentle}} end of the band: {kind, select, service {bookings} other {sales}} {dir, select, fall {fall} other {rise}} {share} to about {units}, and profit on {name} moves {amount} {kind, select, service {every {days} days} other {a month}}.",
       "assumeBand": "Customers answer this change as the band says, for a rise or a cut alike, and nothing else changes in the meantime.",
-      "bandSource": "a planning assumption for this kind of business, not a measurement — nobody has measured how your customers answer a price change yet",
+      "bandSource": "a planning assumption for this kind of business, not a measurement: nobody has measured how your customers answer a price change yet",
       "assumeFits": "Extra bookings fit in the book.",
       "assumeFitsSource": "you haven't told me your weekly capacity, so I can't hold the gain to the room you have",
       "headPick": "Pick a price change for {name} to see what it can lose and still pay.",
@@ -7654,7 +7654,7 @@
     "caveat": "These are totals across every business in the group, not a typical business.",
     "size": {
       "upTo": "{count, plural, one {with up to {n} person} other {with up to {n} people}}",
-      "range": "with {min}–{max} people",
+      "range": "with {min} to {max} people",
       "atLeast": "with {min} or more people",
       "every": "of every size"
     },
@@ -7798,7 +7798,7 @@
       "noGoogle": "no Google searches (connect Search Console)",
       "googleHides": "Google hides rare searches for privacy, so the searches counted add up to a little less than Google's total",
       "noCompetitors": "no competitors researched",
-      "unmatched": "{count, plural, one {{n} support question(s) matched none of the usual checks — they're counted, not quoted} other {{n} support question(s) matched none of the usual checks — they're counted, not quoted}}"
+      "unmatched": "{count, plural, one {{n} support question(s) matched none of the usual checks: they're counted, not quoted} other {{n} support question(s) matched none of the usual checks: they're counted, not quoted}}"
     },
     "siteNote": {
       "noSite": "no website in the profile",
@@ -7825,8 +7825,8 @@
     },
     "baseline": {
       "noSource": "no connected source measures {metric}",
-      "currencies": "{metric} is measured in {currencies} — one currency is needed",
-      "fewDays": "{count, plural, one {{n} measured day(s) in the {window} before {day} — a baseline needs {min}} other {{n} measured day(s) in the {window} before {day} — a baseline needs {min}}}",
+      "currencies": "{metric} is measured in {currencies}: one currency is needed",
+      "fewDays": "{count, plural, one {{n} measured day(s) in the {window} before {day}: a baseline needs {min}} other {{n} measured day(s) in the {window} before {day}: a baseline needs {min}}}",
       "otherCurrency": "{metric} is measured in {currency}, the target is in {target}"
     },
     "check": {
@@ -7841,15 +7841,15 @@
       },
       "amount": "{value} {metric} per {days} days",
       "notInCare": "the business has not entered care yet",
-      "underCare": "{count, plural, one {under care since {since} — progress is judged from {from} ({n} week)} other {under care since {since} — progress is judged from {from} ({n} weeks)}}",
+      "underCare": "{count, plural, one {under care since {since}: progress is judged from {from} ({n} week)} other {under care since {since}: progress is judged from {from} ({n} weeks)}}",
       "watching": "still in the watching period until {day}",
-      "goalNew": "the goal was set on {day} — its first full {days}-day window ends {ends}",
-      "noBaseline": "no measured baseline for {metric} before {day} — connect a source and the history fills it",
-      "fewDays": "{count, plural, one {{n} measured day(s) in the last {window} — a verdict needs {min}} other {{n} measured day(s) in the last {window} — a verdict needs {min}}}",
+      "goalNew": "the goal was set on {day}: its first full {days}-day window ends {ends}",
+      "noBaseline": "no measured baseline for {metric} before {day}: connect a source and the history fills it",
+      "fewDays": "{count, plural, one {{n} measured day(s) in the last {window}: a verdict needs {min}} other {{n} measured day(s) in the last {window}: a verdict needs {min}}}",
       "noCurrent": "no measured {metric} in the last {days} days",
       "path": "{actual} over the last {days} measured days, against {expected} expected by {today} on the path from {baseline} ({baselineDay}) to {target} ({deadline})",
       "reached": "target reached: {path}",
-      "progress": "{path} — {ratio} of the expected progress, {shortfall} behind the path",
+      "progress": "{path}: {ratio} of the expected progress, {shortfall} behind the path",
       "away": "moving away from the target: {detail}"
     }
   },
@@ -7857,9 +7857,9 @@
     "season": {
       "headline": {
         "flat": "Most of your weeks measured no {noun}, so there is no normal week to compare a season with.",
-        "stale": "Only {count, plural, one {# week} other {# weeks}} of the last {weeks, number} were measured in full (the last measured day is {day}) — too few to name your seasons.",
-        "shortMonths": "I have {months, plural, one {about # month} other {about # months}} of your {noun} — not enough to say which weeks of the year are your busy ones.",
-        "shortDays": "I have {count, plural, one {# day} other {# days}} of your {noun} — not enough to say which weeks of the year are your busy ones.",
+        "stale": "Only {count, plural, one {# week} other {# weeks}} of the last {weeks, number} were measured in full (the last measured day is {day}): too few to name your seasons.",
+        "shortMonths": "I have {months, plural, one {about # month} other {about # months}} of your {noun}, not enough to say which weeks of the year are your busy ones.",
+        "shortDays": "I have {count, plural, one {# day} other {# days}} of your {noun}, not enough to say which weeks of the year are your busy ones.",
         "underWay": "Your busy weeks are under way: last year the same stretch ran {ratio} your normal week.",
         "startsThisWeek": "Your busy stretch starts this week: last year it ran {ratio} your normal week.",
         "startsIn": "Your busy stretch starts in {count, plural, one {# week} other {# weeks}}: last year it ran {ratio} your normal week.",
@@ -7873,10 +7873,10 @@
       },
       "cannot": {
         "year": "Say which weeks or months of the year run above or below your normal: one year of your own history is the least that shows a season.",
-        "forecast": "Forecast the coming weeks from the same weeks last year — I don't have last year.",
+        "forecast": "Forecast the coming weeks from the same weeks last year: I don't have last year.",
         "borrow": "Borrow a season from other businesses like yours. An industry average isn't your history, so I don't present one as yours."
       },
-      "upcoming": "The {count, plural, one {# week} other {# weeks}} from {from} to {to} last year ran {ratio} your normal week — {kind, select, busy {above it} other {below it}}. {when}",
+      "upcoming": "The {count, plural, one {# week} other {# weeks}} from {from} to {to} last year ran {ratio} your normal week: {kind, select, busy {above it} other {below it}}. {when}",
       "when": {
         "underWay": "The same weeks this year are under way now, to {day}.",
         "thisWeek": "The same weeks this year start this week, on {day}.",
@@ -7961,13 +7961,13 @@
       "couldntRead": "it couldn't be read",
       "onlyHttp": "only http(s) sites can be read",
       "credentials": "credentials don't belong in a site URL",
-      "private": "that address points inside a private network — refusing to fetch it",
+      "private": "that address points inside a private network: refusing to fetch it",
       "notWebAddress": "that doesn't look like a web address",
-      "redirects": "too many redirects — the site never settled",
+      "redirects": "too many redirects: the site never settled",
       "cap": "past the {pages, number}-page limit per competitor",
       "answered": "the page answered {status}",
       "timeout": "no answer within {seconds, plural, one {# second} other {# seconds}}",
-      "resolve": "\"{host}\" doesn't resolve — is the address right?",
+      "resolve": "\"{host}\" doesn't resolve. Is the address right?",
       "ports": "only http(s) on the standard ports {http} and {https} can be read"
     }
   },
@@ -7984,10 +7984,10 @@
     },
     "draft": {
       "unreadable": "I couldn't read what this review says, so I can't suggest a reply. Open it where it lives.",
-      "budget": "This month's support budget ({amount}) is spent, so I won't draft — write it yourself.",
-      "cap": "I've suggested a reply to this review {count, plural, one {# time} other {# times}} already — write this one yourself.",
-      "unreachable": "I couldn't reach the drafting model just now — write it yourself, or try again later.",
-      "empty": "I couldn't draft a reply this time — write it yourself.",
+      "budget": "This month's support budget ({amount}) is spent, so I won't draft: write it yourself.",
+      "cap": "I've suggested a reply to this review {count, plural, one {# time} other {# times}} already: write this one yourself.",
+      "unreachable": "I couldn't reach the drafting model just now: write it yourself, or try again later.",
+      "empty": "I couldn't draft a reply this time: write it yourself.",
       "offer": "I drafted a reply that offered money or something free, and I don't do that, so I threw it away. Try again, or write this one yourself.",
       "name": "I drafted a reply that named someone, so I threw it away. Try again, or write this one yourself.",
       "contact": "I drafted a reply with an address or a phone number in it, so I threw it away. Try again, or write this one yourself."
@@ -8044,18 +8044,18 @@
     "headline": {
       "nothing": "Nothing I can measure yet shows money slipping away.",
       "zero": "Nothing measured is slipping away right now.",
-      "all": "About {range} a month is slipping away — all of it {lead, select, revenue_dips {revenue dips} no_shows {no-shows} late_cancellations {late cancellations} empty_capacity {empty slots} losing_ads {ads that lose money} slow_stock {slow stock} other {waiting proposals}}.",
-      "mostly": "About {range} a month is slipping away — mostly {lead, select, revenue_dips {revenue dips} no_shows {no-shows} late_cancellations {late cancellations} empty_capacity {empty slots} losing_ads {ads that lose money} slow_stock {slow stock} other {waiting proposals}}.",
-      "biggest": "About {range} a month is slipping away — the biggest share in {lead, select, revenue_dips {revenue dips} no_shows {no-shows} late_cancellations {late cancellations} empty_capacity {empty slots} losing_ads {ads that lose money} slow_stock {slow stock} other {waiting proposals}}."
+      "all": "About {range} a month is slipping away: all of it {lead, select, revenue_dips {revenue dips} no_shows {no-shows} late_cancellations {late cancellations} empty_capacity {empty slots} losing_ads {ads that lose money} slow_stock {slow stock} other {waiting proposals}}.",
+      "mostly": "About {range} a month is slipping away: mostly {lead, select, revenue_dips {revenue dips} no_shows {no-shows} late_cancellations {late cancellations} empty_capacity {empty slots} losing_ads {ads that lose money} slow_stock {slow stock} other {waiting proposals}}.",
+      "biggest": "About {range} a month is slipping away: the biggest share in {lead, select, revenue_dips {revenue dips} no_shows {no-shows} late_cancellations {late cancellations} empty_capacity {empty slots} losing_ads {ads that lose money} slow_stock {slow stock} other {waiting proposals}}."
     },
     "reason": {
-      "noPrices": "{source} has no prices — add the price column to the export and I'll price what was missed",
+      "noPrices": "{source} has no prices: add the price column to the export and I'll price what was missed",
       "noPricedCompleted": "no priced, completed appointments between {from} and {to}, so I can't say what one is worth",
       "noBookings": "import your bookings export (or connect Square) and I'll count what was missed",
       "lateNotSeparated": "{source} doesn't separate late cancellations from no-shows, so they are priced with the no-shows",
-      "noCapacity": "tell me how many appointments you can take a week and I'll price the empty slots — I won't assume a capacity",
+      "noCapacity": "tell me how many appointments you can take a week and I'll price the empty slots: I won't assume a capacity",
       "noTakings": "connect where your takings live (your shop, your till or Stripe) and I'll check each day against its usual level",
-      "shortHistory": "I need at least {min} measured days of {price, select, revenue {revenue} bookingRevenue {booking revenue} other {{noun}}} in the {window} before a day to judge it — the history is too short yet",
+      "shortHistory": "I need at least {min} measured days of {price, select, revenue {revenue} bookingRevenue {booking revenue} other {{noun}}} in the {window} before a day to judge it: the history is too short yet",
       "noMeta": "connect Meta Ads and I'll check which campaigns cost more than they bring back",
       "noSpend": "no campaign spent anything between {from} and {to}",
       "noStock": "connect your store or import a stock file and I'll show the cash sitting on the shelf",
@@ -8135,10 +8135,10 @@
     "title": "Your operating margin is {points} points under that of similar businesses.",
     "rule": "I call a gap large at {threshold} points or more under the figure Eurostat publishes, compared like for like: the same country, the same kind of business, and your size or every size.",
     "where": "It now appears in your report as a finding, and I can propose going through your prices and costs. Approving that changes nothing by itself.",
-    "propose": "Propose going through prices and costs →",
+    "propose": "Propose going through prices and costs",
     "drafting": "Drafting…",
     "status": "{status, select, pending {Waiting for you in your queue} blocked {Blocked by a rule of yours} approved {Approved} rejected {Declined} expired {Expired} other {Proposed}}",
-    "queue": "Open it in your queue →",
+    "queue": "Open it in your queue",
     "drafted": "Drafted. It waits for you; approving it writes no price and no cost.",
     "blocked": "A rule of yours rules this out, so it sits blocked in your queue.",
     "failed": "That didn't work."
@@ -8172,10 +8172,10 @@
     },
     "platform": {
       "line": {
-        "api": "{platform} — changes can be applied for you once you give it permission to make changes — a separate step, on its own screen.",
-        "partial": "{platform} — some elements can be changed programmatically, not all; anything beyond that comes as instructions.",
-        "manual": "{platform} can't be edited programmatically — you'll get the exact change rendered before/after, plus step-by-step instructions for your editor. That's the honest version of this feature for your platform.",
-        "unknown": "I can't tell what serves this site — I'll show you the change and the diff, and applying it stays manual until I can."
+        "api": "{platform}: changes can be applied for you once you give it permission to make changes, a separate step, on its own screen.",
+        "partial": "{platform}: some elements can be changed programmatically, not all; anything beyond that comes as instructions.",
+        "manual": "{platform} can't be edited programmatically: you'll get the exact change rendered before/after, plus step-by-step instructions for your editor. That's the honest version of this feature for your platform.",
+        "unknown": "I can't tell what serves this site. I'll show you the change and the diff, and applying it stays manual until I can."
       },
       "editable": {
         "api": "api",
@@ -8196,32 +8196,32 @@
     },
     "change": {
       "summary": "On {host}: “{find}” → “{replace}”",
-      "previewTooLarge": "the page is too large to carry a live preview — the diff above is exact, the render is not shown",
+      "previewTooLarge": "the page is too large to carry a live preview: the diff above is exact, the render is not shown",
       "manual": {
         "open": "Open {url} in your {editor} editor.",
         "find": "Find the text: “{find}”",
         "replace": "Replace it with: “{replace}”",
         "compare": "Use the editor's preview to compare against the before/after shown here.",
         "publish": "Publish when it matches the after.",
-        "wix": "In the editor, click the text element itself — Wix edits in place.",
+        "wix": "In the editor, click the text element itself: Wix edits in place.",
         "squarespace": "Edit the page section containing the text (hover → Edit)."
       },
       "rationale": {
-        "manual": "Your platform can't be edited programmatically, so approving this gives you the exact rendered change and the steps — nothing is applied for you.",
+        "manual": "Your platform can't be edited programmatically, so approving this gives you the exact rendered change and the steps. Nothing is applied for you.",
         "engine": "Approving queues the change; applying goes through the engine with the page's previous state stored forever, one click from restored."
       },
       "assumption": {
         "platform": "The page is served by {platform} ({marker})",
-        "baseline": "Baseline load {ms}ms at proposal time — the auto-rollback reference"
+        "baseline": "Baseline load {ms}ms at proposal time: the auto-rollback reference"
       },
       "case": {
         "base": "The page says the new thing; nothing else about it changes.",
-        "downside": "The page errors or slows hard after the change — it rolls back automatically and you see why.",
+        "downside": "The page errors or slows hard after the change. It rolls back automatically and you see why.",
         "upside": "The readback can compare the weeks either side, once measurement is connected.",
-        "breakeven": "no spend — one line of copy"
+        "breakeven": "no spend: one line of copy"
       },
       "reverse": {
-        "manual": "You change it back in your editor — the before render here is the reference.",
+        "manual": "You change it back in your editor: the before render here is the reference.",
         "engine": "One click: the page's previous state is stored permanently, not for a window."
       }
     },
@@ -8229,17 +8229,17 @@
       "findEmpty": "say what text to find",
       "replaceEmpty": "say what it should become",
       "nothing": "that changes nothing",
-      "moneyPath": "that page is a money surface — checkout, cart, payment and billing pages are untouchable at any approval level (rule {rule})",
-      "pageStatus": "the page answered {status} — nothing to change there",
-      "notFound": "I can't find “{find}” on that page — copy it exactly as it appears",
-      "notUnique": "“{find}” appears {count, plural, one {# time} other {# times}} on that page — include enough surrounding text to make it unique",
-      "moneyContext": "that text sits inside a checkout or payment area of the page — money surfaces are untouchable, so this cannot even be proposed (rule {rule})",
+      "moneyPath": "that page is a money surface: checkout, cart, payment and billing pages are untouchable at any approval level (rule {rule})",
+      "pageStatus": "the page answered {status}: nothing to change there",
+      "notFound": "I can't find “{find}” on that page: copy it exactly as it appears",
+      "notUnique": "“{find}” appears {count, plural, one {# time} other {# times}} on that page: include enough surrounding text to make it unique",
+      "moneyContext": "that text sits inside a checkout or payment area of the page: money surfaces are untouchable, so this cannot even be proposed (rule {rule})",
       "noProposal": "no such proposal",
       "notSite": "not a site proposal",
-      "manualApply": "{platform} can't be edited programmatically — this change is applied by you, with the instructions on the card",
-      "noWriter": "applying to {platform} needs its write access connected — you will give that permission separately, on its own screen. Until then this card, with its before/after, is the reference for changing it yourself",
-      "driftGone": "the page changed since you approved — the text isn't there any more; re-propose against today's page",
-      "driftNotUnique": "the page changed since you approved — the text is no longer unique; re-propose against today's page",
+      "manualApply": "{platform} can't be edited programmatically: this change is applied by you, with the instructions on the card",
+      "noWriter": "applying to {platform} needs its write access connected: you will give that permission separately, on its own screen. Until then this card, with its before/after, is the reference for changing it yourself",
+      "driftGone": "the page changed since you approved: the text isn't there any more; re-propose against today's page",
+      "driftNotUnique": "the page changed since you approved: the text is no longer unique; re-propose against today's page",
       "signedIn": "changing a live site needs you signed in",
       "proposalId": "proposal_id is required",
       "executionId": "execution_id is required",
@@ -8249,16 +8249,16 @@
     "fetch": {
       "scheme": "only http(s) sites can be read",
       "credentials": "credentials don't belong in a site URL",
-      "noResolve": "\"{host}\" doesn't resolve — is the address right?",
-      "private": "that address points inside a private network — refusing to fetch it",
+      "noResolve": "\"{host}\" doesn't resolve. Is the address right?",
+      "private": "that address points inside a private network: refusing to fetch it",
       "notAddress": "that doesn't look like a web address",
       "ports": "only http(s) on the standard ports {http} and {https} can be read",
-      "redirects": "too many redirects — the site never settled"
+      "redirects": "too many redirects: the site never settled"
     },
     "audit": {
-      "noSite": "There's no website in your profile to audit — add it to your fact sheet.",
+      "noSite": "There's no website in your profile to audit. Add it to your fact sheet.",
       "badSite": "The website in your profile doesn't look like a web address.",
-      "cooldown": "The site was audited less than an hour ago — the next run opens at {time} UTC.",
+      "cooldown": "The site was audited less than an hour ago: the next run opens at {time} UTC.",
       "running": "An audit of this site is already running.",
       "homeUnreadable": "Your home page couldn't be read: {reason}",
       "homeUnreadableBare": "Your home page couldn't be read",
@@ -8277,9 +8277,9 @@
       "book": "Book",
       "note": {
         "counted": "Counted by following the site's own links from the home page; nothing was added to a cart and checkout was never opened.",
-        "noAddToCart": "I found no Add to cart button on “{label}” in the page itself — it may be drawn by a script I don't run.",
-        "assumedCart": "ASSUMED: Add to cart takes the buyer to the cart, or opens a cart drawer, with a checkout button — so checkout is one click after it.",
-        "cartEmpty": "The cart page, read empty, showed no checkout button in its own HTML — it may appear once something is in it.",
+        "noAddToCart": "I found no Add to cart button on “{label}” in the page itself. It may be drawn by a script I don't run.",
+        "assumedCart": "ASSUMED: Add to cart takes the buyer to the cart, or opens a cart drawer, with a checkout button, so checkout is one click after it.",
+        "cartEmpty": "The cart page, read empty, showed no checkout button in its own HTML. It may appear once something is in it.",
         "booking": "Counted by following the site's own links from the home page; no booking was made and no form was sent.",
         "external": "The booking itself happens on another company's site, which the audit doesn't read; the count stops at its link.",
         "cartOnly": "I reached the cart but no product page from the home page's links, so the clicks to buy can't be counted.",
@@ -8297,16 +8297,16 @@
       "quotaShared": "Google's shared PageSpeed quota is spent for now (no PAGESPEED_API_KEY is set)",
       "couldntLoad": "Google couldn't load the page to measure it",
       "refused": "Google refused to measure the page (status {status})",
-      "badKey": "Google refused the PageSpeed key (status {status}) — check that the key allows the PageSpeed Insights API",
+      "badKey": "Google refused the PageSpeed key (status {status}): check that the key allows the PageSpeed Insights API",
       "failed": "Google's PageSpeed service failed (status {status})",
       "failedBare": "Google's PageSpeed service failed",
       "noKey": "Page speed wasn't measured: Google's PageSpeed service needs a free API key (PAGESPEED_API_KEY) and refuses every request without one. The path to buying and the broken links were still read.",
-      "stopped": "{reason} — {made} of {planned} measurements made.",
+      "stopped": "{reason}: {made} of {planned} measurements made.",
       "weekUsed": "This week's {cap} PageSpeed calls for the site are used, so speed wasn't measured this run.",
       "short": "This week's PageSpeed calls for the site ran short: {made} of {planned} measurements made, phones first."
     },
     "finding": {
-      "withPage": "{title} — {page}",
+      "withPage": "{title}: {page}",
       "on": {
         "mobile": "on a phone",
         "desktop": "on a computer"
@@ -8331,14 +8331,14 @@
         "broken": "A link on {page} is broken: {url} {reason}"
       },
       "what": {
-        "lcp": "Largest Contentful Paint — how long until the biggest thing on the screen shows",
-        "cls": "Cumulative Layout Shift — how much the layout moves under the visitor's thumb",
-        "inp": "Interaction to Next Paint — the delay between a tap and the page answering it",
-        "tbt": "Total Blocking Time — measured in the lab in place of INP, which needs real visitors"
+        "lcp": "Largest Contentful Paint: how long until the biggest thing on the screen shows",
+        "cls": "Cumulative Layout Shift: how much the layout moves under the visitor's thumb",
+        "inp": "Interaction to Next Paint: the delay between a tap and the page answering it",
+        "tbt": "Total Blocking Time, measured in the lab in place of INP, which needs real visitors"
       },
       "basis": {
         "field": "real visitors in Chrome over the last {days, plural, one {# day} other {# days}} (Google's field data, {pct}th percentile)",
-        "field_origin": "real visitors across your whole site over the last {days, plural, one {# day} other {# days}} — Google had too few for this page alone",
+        "field_origin": "real visitors across your whole site over the last {days, plural, one {# day} other {# days}}: Google had too few for this page alone",
         "lab": "one test load on Google's emulated device (lab data)",
         "page_read": "ScaleX reading the page's own HTML"
       },
@@ -8350,7 +8350,7 @@
         "contrast": "Google's colour-contrast check (the accessibility standard's minimum), {on}.",
         "noEntry": "No {entry, select, checkout {checkout} other {booking}} entry was reachable by links.",
         "path": "{steps}.",
-        "price": "Read from the page's own text after the header and menu: no price in what a phone shows first (a heuristic — ScaleX doesn't render the page).",
+        "price": "Read from the page's own text after the header and menu: no price in what a phone shows first (a heuristic, ScaleX doesn't render the page).",
         "form": "{required, plural, one {# of them required.} other {# of them required.}} Counted from the page's HTML; the form was not sent.",
         "brokenOnPath": "It sits on the way to buying, where a dead end costs a sale.",
         "broken": "A visitor who clicks it hits a dead end."
@@ -8368,11 +8368,11 @@
       }
     },
     "euro": {
-      "needs": "not computed — it needs your own site traffic and conversion",
-      "needsBecause": "not computed — it needs your own site traffic and conversion ({missing})",
-      "zero": "not computed — your traffic, orders or order value is zero",
-      "inside": "not computed — the page is inside the good line",
-      "notSpeed": "not computed — no rule of thumb links this to sales that ScaleX will put a number on",
+      "needs": "not computed: it needs your own site traffic and conversion",
+      "needsBecause": "not computed: it needs your own site traffic and conversion ({missing})",
+      "zero": "not computed: your traffic, orders or order value is zero",
+      "inside": "not computed: the page is inside the good line",
+      "notSpeed": "not computed: no rule of thumb links this to sales that ScaleX will put a number on",
       "missing": {
         "visits": "monthly website visits",
         "orders": "monthly orders",
@@ -8386,7 +8386,7 @@
         "stated": "your own monthly figures, as of {day}"
       },
       "assumed": {
-        "wait": "ASSUMED: each second a phone waits past {good} loses {range} of orders — a rule of thumb from published retail studies, not measured on your site.",
+        "wait": "ASSUMED: each second a phone waits past {good} loses {range} of orders, a rule of thumb from published retail studies, not measured on your site.",
         "everyOrder": "ASSUMED: every order counted passes through this page's load; the share that comes on a phone isn't measured, so the high end overstates.",
         "max": "ASSUMED: at most {max, plural, one {# second is} other {# seconds are}} counted."
       }
@@ -8399,13 +8399,13 @@
       "export": "your bookings export"
     },
     "run": {
-      "mon": "Mondays {from}–{to}",
-      "tue": "Tuesdays {from}–{to}",
-      "wed": "Wednesdays {from}–{to}",
-      "thu": "Thursdays {from}–{to}",
-      "fri": "Fridays {from}–{to}",
-      "sat": "Saturdays {from}–{to}",
-      "sun": "Sundays {from}–{to}"
+      "mon": "Mondays {from} to {to}",
+      "tue": "Tuesdays {from} to {to}",
+      "wed": "Wednesdays {from} to {to}",
+      "thu": "Thursdays {from} to {to}",
+      "fri": "Fridays {from} to {to}",
+      "sat": "Saturdays {from} to {to}",
+      "sun": "Sundays {from} to {to}"
     },
     "days": {
       "mon": "Mondays",
@@ -8507,7 +8507,7 @@
       "headUnderWay": "Your busy stretch is under way: last year it ran {index}× ({range}) your normal week.",
       "headStarts": "Your busy stretch starts on {day}: last year it ran {index}× ({range}) your normal week.",
       "atLeast": "at least {low}×",
-      "between": "{low}–{high}×",
+      "between": "{low} to {high}×",
       "noFurther": "{head} Even at its low end, no further hour would run past your stated capacity.",
       "further": "{head} At its low end, these hours would also run past your stated capacity: {hours}."
     },
@@ -8562,7 +8562,7 @@
       },
       "connect": {
         "unknownProvider": "unknown provider \"{provider}\"",
-        "alreadyConnected": "{provider} is already connected — disconnect it first",
+        "alreadyConnected": "{provider} is already connected: disconnect it first",
         "notStored": "connection could not be stored",
         "noProfileYet": "this account has no business profile yet",
         "nothingToMatch": "{label} has nothing to match",
@@ -8575,19 +8575,19 @@
       },
       "execute": {
         "notExecute": "not an execute connection",
-        "noCredential": "no credential at rest — reconnect the provider",
+        "noCredential": "no credential at rest: reconnect the provider",
         "unknownProvider": "unknown execution provider \"{provider}\"",
-        "already": "{label} is already connected for execution — disconnect it first",
-        "changed": "{label} changed while reconnecting — try again",
+        "already": "{label} is already connected for execution: disconnect it first",
+        "changed": "{label} changed while reconnecting: try again",
         "notOffered": "\"{provider}\" is not offered for execution",
-        "typeToConfirm": "type \"{phrase}\" to confirm — nothing was connected",
+        "typeToConfirm": "type \"{phrase}\" to confirm: nothing was connected",
         "noBusinessProfile": "no business profile on this account yet",
         "refuseScopes": "refusing to connect {label} for execution: {parts}"
       },
       "email": {
         "senderName": "the sender name must be your business name: one line, at most {max} characters, no quotes or angle brackets",
         "replyAddress": "replies need an email address you read, such as {example}",
-        "already": "Campaign email is already granted — disconnect it first to change the sender",
+        "already": "Campaign email is already granted: disconnect it first to change the sender",
         "alreadyBare": "Campaign email is already granted",
         "consentNotStored": "the consent could not be stored"
       },
@@ -8604,7 +8604,7 @@
         "numberIg": "{provider}: the Instagram account id is a number",
         "numberAd": "{provider}: the ad account id is a number",
         "bothNeeded": "{provider}: the token and the asset ids are both needed",
-        "pageToken": "{provider}: a pasted Page token can't be checked against your consent — assign the Page to the system user instead, and ScaleX derives the Page token from it",
+        "pageToken": "{provider}: a pasted Page token can't be checked against your consent; assign the Page to the system user instead, and ScaleX derives the Page token from it",
         "publishPage": "{provider}: publishing needs the id of the Page to post to",
         "adsAccount": "{provider}: ad management needs the ad account id, the number in Ads Manager",
         "differentPage": "{provider}: the Page answered with a different id",
@@ -8629,10 +8629,10 @@
       "meta": {
         "auth": "I couldn't reach Meta: {why}. Reconnect it on Connections and I'll pick up where I left off.",
         "permission": "Meta says ScaleX isn't allowed to do that: a permission was removed, or the Page or account isn't assigned to the connection. Reconnect with the permissions listed on Connections.",
-        "pageLimit": "Meta's limit for this Page is used up for now. Nothing was lost — I'll try again after a pause.",
-        "rateLimit": "Meta asked ScaleX to slow down. Nothing was lost — I'll try again after a pause.",
-        "unavailablePublished": "Meta didn't answer just now. Nothing was published — I'll try again.",
-        "unavailableChanged": "Meta didn't answer just now. Nothing was changed — I'll try again.",
+        "pageLimit": "Meta's limit for this Page is used up for now. Nothing was lost. I'll try again after a pause.",
+        "rateLimit": "Meta asked ScaleX to slow down. Nothing was lost. I'll try again after a pause.",
+        "unavailablePublished": "Meta didn't answer just now. Nothing was published. I'll try again.",
+        "unavailableChanged": "Meta didn't answer just now. Nothing was changed. I'll try again.",
         "codePublished": "Meta refused with code {code}; nothing was published.",
         "codeChanged": "Meta refused with code {code}; nothing was changed.",
         "statusPublished": "Meta refused with status {status}; nothing was published.",
@@ -8655,7 +8655,7 @@
         "squareNotToken": "{provider}: that doesn't look like a Square access token",
         "squareRejected": "{provider}: Square didn't accept the access token. It may have been revoked, or be for the other environment",
         "squareMissing": "{provider}: the token is missing a permission",
-        "squareMissingSaid": "{provider}: the token is missing a permission — {message}",
+        "squareMissingSaid": "{provider}: the token is missing a permission ({message})",
         "squarePathFailed": "{provider}: {path} failed with status {status}",
         "squarePathFailedSaid": "{provider}: {path} failed with status {status}. {message}",
         "squarePerms": "{provider}: Square could not confirm the token's permissions",
@@ -8690,7 +8690,7 @@
         "gaReportFailedSaid": "{provider}: the report failed with status {status}. {message}",
         "gaNotReadOnly": "{provider}: the token doesn't carry read-only analytics access",
         "scBothNeeded": "{provider}: the property and the service account key are both needed",
-        "scProperty": "{provider}: the property is your site's address as Search Console shows it — https://www.example.com/ or sc-domain:example.com",
+        "scProperty": "{provider}: the property is your site's address as Search Console shows it, https://www.example.com/ or sc-domain:example.com",
         "scCantRead": "{provider}: {email} can't read {site}. In Search Console, open Settings, then Users and permissions, and add it as a user",
         "scQueryFailed": "{provider}: the query failed with status {status}",
         "scQueryFailedSaid": "{provider}: the query failed with status {status}. {message}",
@@ -8731,22 +8731,22 @@
         "sumUnpriced": "the listed price of {count, plural, one {{n} completed appointment} other {{n} completed appointments}}, {period} ({unpriced} had no price and count as nothing)"
       },
       "utilisation": {
-        "none": "you haven't told me how many appointments you can take a week, so I can't say how full you are — I won't assume a capacity",
+        "none": "you haven't told me how many appointments you can take a week, so I can't say how full you are: I won't assume a capacity",
         "arithmetic": "{completed} completed of a stated {cap} a week × {weeks} weeks = {slots} slots, {period}"
       },
       "refuse": {
-        "tooLarge": "that file is too large for one import — split it by date",
+        "tooLarge": "that file is too large for one import: split it by date",
         "needsRows": "the file needs a header row and at least one appointment",
-        "tooMany": "one import takes up to {max} appointments — split the file by date",
-        "noDate": "I couldn't find a date column — the header needs one, such as Date or Start",
+        "tooMany": "one import takes up to {max} appointments: split the file by date",
+        "noDate": "I couldn't find a date column: the header needs one, such as Date or Start",
         "noStatus": "I couldn't find a status column. Without it a kept appointment and a no-show look the same, so I won't guess",
-        "noCurrency": "the file has a price column — say which currency it is in (three letters, e.g. {example})",
+        "noCurrency": "the file has a price column: say which currency it is in (three letters, e.g. {example})",
         "bothOrders": "the dates in this file are written both day-first and month-first ({dmy} and {mdy}), so I can't read them",
         "saidDayFirst": "you said the dates are day first, but the file has dates that only read month first",
         "saidMonthFirst": "you said the dates are month first, but the file has dates that only read day first",
-        "ambiguousDates": "dates like {sample} could be {asDmy} or {asMdy} — say whether the day or the month comes first",
+        "ambiguousDates": "dates like {sample} could be {asDmy} or {asMdy}: say whether the day or the month comes first",
         "decimal": {
-          "ambiguous": "amounts like {amount} could be one thousand two hundred or one point two — say whether the dot or the comma separates thousands",
+          "ambiguous": "amounts like {amount} could be one thousand two hundred or one point two: say whether the dot or the comma separates thousands",
           "both": "the amounts in this file are written both ways ({comma} and {dot}), so I can't read them",
           "contradicts_stated": "you said which mark separates thousands, but the file has amounts that only read the other way"
         },
@@ -8795,14 +8795,14 @@
     "skip": {
       "line": "{segment}: {reason}",
       "watching": "I'm watching until {date}, and I propose nothing before then.",
-      "posture": "your own answer on customer consent ({question}) was \"no consent\" — outbound email stays off until your data says otherwise",
+      "posture": "your own answer on customer consent ({question}) was \"no consent\": outbound email stays off until your data says otherwise",
       "alreadyToday": "already proposed today",
       "alreadyMonth": "already proposed this month",
       "cartRecent": "everyone who left a cart this week and said yes to email was already proposed a reminder in the last {days} days",
       "noCart": "no contact who said yes to email left a cart in the last week",
       "nobody": "nobody is in this segment",
-      "noConsent": "{count} in the segment, none with explicit email consent — nothing to send to",
-      "declined": "you've declined customer email {count} times — I've stopped proposing it"
+      "noConsent": "{count} in the segment, none with explicit email consent: nothing to send to",
+      "declined": "you've declined customer email {count} times: I've stopped proposing it"
     },
     "campaign": {
       "fallback": "campaign",
@@ -8828,7 +8828,7 @@
         "disclosure": "the AI disclosure line (ScaleX, everywhere)"
       },
       "noCountry": "the business's country isn't known, so its email rules aren't either",
-      "noRules": "ScaleX doesn't yet know the email marketing rules for {country} — nothing is sent there",
+      "noRules": "ScaleX doesn't yet know the email marketing rules for {country}: nothing is sent there",
       "regime": {
         "eu_gdpr": "EU/EEA",
         "uk_pecr": "UK",
@@ -8864,23 +8864,23 @@
     "readback": {
       "recipients": "{count, plural, one {{n} recipient} other {{n} recipients}}",
       "comparisonCustomers": "{count, plural, one {{n} comparison customer} other {{n} comparison customers}}",
-      "harm": "{recipients} unsubscribed or marked it as spam ({unsubscribed} unsubscribed, {complained} complained) of {sent} sent, {rate} — backfired at {harmRate} with at least {harmMin} people, or any complaints at {complaintRate} or more",
-      "nothingSent": "nothing was sent — nothing to measure",
+      "harm": "{recipients} unsubscribed or marked it as spam ({unsubscribed} unsubscribed, {complained} complained) of {sent} sent, {rate}, backfired at {harmRate} with at least {harmMin} people, or any complaints at {complaintRate} or more",
+      "nothingSent": "nothing was sent: nothing to measure",
       "bought": "bought again since: {returned} of {measured} measured recipients ({rate})",
-      "noExport": "no customer export covering them has come in at least {days} days after the email — import one and the verdict becomes possible",
-      "noExportOf": "no customer export covering them has come in at least {days} days after the email of {date} — import one and the verdict becomes possible",
-      "fewMeasured": "{recipients} measured by a customer export at least {days} days after the email — the verdict needs {min}",
-      "canEver": "only {recipients} can ever be measured ({erased} erased) — the verdict needs {min}",
-      "compared": "{bought}, against {returned} of {measured} {group} I couldn't email ({rate}) — {lift} points (helped at {helped}, backfired at {backfired})",
+      "noExport": "no customer export covering them has come in at least {days} days after the email: import one and the verdict becomes possible",
+      "noExportOf": "no customer export covering them has come in at least {days} days after the email of {date}: import one and the verdict becomes possible",
+      "fewMeasured": "{recipients} measured by a customer export at least {days} days after the email: the verdict needs {min}",
+      "canEver": "only {recipients} can ever be measured ({erased} erased): the verdict needs {min}",
+      "compared": "{bought}, against {returned} of {measured} {group} I couldn't email ({rate}): {lift} points (helped at {helped}, backfired at {backfired})",
       "group": {
         "winback": "lapsed customers",
         "vip": "best customers"
       },
       "notRandom": "not randomised: the comparison group never said yes to email, so they differ in more than the email",
-      "uncontrolledBase": "{customers} measured — the comparison needs {min}",
+      "uncontrolledBase": "{customers} measured: the comparison needs {min}",
       "nobodyBought": "nobody bought again, so no comparison could make it a gain ({uncontrolled})",
       "nextExport": "{uncontrolled}; the next export can measure the rest",
-      "uncontrolled": "uncontrolled: {uncontrolled}, so I can't say the email caused it — a lift alone is never \"helped\""
+      "uncontrolled": "uncontrolled: {uncontrolled}, so I can't say the email caused it; a lift alone is never \"helped\""
     },
     "measured": {
       "delivery": "delivery, bounces and spam reports from the email service",
@@ -8903,27 +8903,27 @@
       "requiredMany": "{fields} are required",
       "action": "action must be {actions}",
       "noFields": "a contact needs at least an email, a name or a phone",
-      "provenance": "consent needs its provenance — how was it obtained?",
-      "suppressed": "that address is permanently suppressed ({reason}) — it cannot be re-added",
+      "provenance": "consent needs its provenance: how was it obtained?",
+      "suppressed": "that address is permanently suppressed ({reason}): it cannot be re-added",
       "duplicate": "a contact with that email already exists",
       "noContact": "no such contact",
       "noConversation": "no such conversation",
       "noTicket": "no such ticket",
-      "attestation": "an import needs your attestation — what did these contacts consent to, and how?",
-      "tooLarge": "that file is too large for one import — split it",
+      "attestation": "an import needs your attestation: what did these contacts consent to, and how?",
+      "tooLarge": "that file is too large for one import: split it",
       "noRows": "the CSV needs a header row and at least one contact",
-      "maxRows": "one import takes up to {max} rows — split the file",
-      "noColumns": "no usable columns found — the header needs at least one of: {columns}",
-      "currency": "the file has a spent column — say which currency it is in (three letters, e.g. {example})",
+      "maxRows": "one import takes up to {max} rows: split the file",
+      "noColumns": "no usable columns found: the header needs at least one of: {columns}",
+      "currency": "the file has a spent column: say which currency it is in (three letters, e.g. {example})",
       "noProposal": "no such proposal",
       "notEmail": "this proposal isn't a customer email",
-      "draftNotApproved": "only an approved campaign is drafted — this one is {status}",
+      "draftNotApproved": "only an approved campaign is drafted: this one is {status}",
       "notStored": "the draft could not be stored",
       "noProfile": "no such profile",
       "noCampaign": "no such campaign",
-      "sendNotApproved": "only an approved campaign is sent — this one is {status}",
+      "sendNotApproved": "only an approved campaign is sent: this one is {status}",
       "subject": "the subject line must be one line of at most {max} characters",
-      "changed": "the email changed since you opened it — read it again as it is now, then approve"
+      "changed": "the email changed since you opened it: read it again as it is now, then approve"
     }
   },
   "supportWords": {
@@ -8935,12 +8935,12 @@
       "required": "{field} is required",
       "requiredBoth": "{first} and {second} are required",
       "action": "action must be {actions}",
-      "nothingNew": "nothing new to propose — every answer the profile supports is already public or already in your queue",
+      "nothingNew": "nothing new to propose: every answer the profile supports is already public or already in your queue",
       "bothRequired": "a question and an answer are both required",
       "tooLong": "keep the question under {question} characters and the answer under {answer}",
       "noProposal": "no such proposal",
       "notKnowledge": "this proposal is not a knowledge proposal",
-      "notApproved": "only an approved proposal publishes — this one is {status}",
+      "notApproved": "only an approved proposal publishes: this one is {status}",
       "noEntries": "the proposal carried no entries",
       "noEntry": "no such public entry",
       "noProfile": "no such profile",
@@ -8952,7 +8952,7 @@
       "notRecorded": "the escalation could not be recorded",
       "faqDeclined": "the grouping model declined these questions; nothing was proposed",
       "noReply": "no such reply",
-      "liveReply": "there's already a reply on this ticket — finish or decline it first",
+      "liveReply": "there's already a reply on this ticket: finish or decline it first",
       "noAddressDraft": "there's no address to reply to on this ticket, so there is nothing to draft",
       "notEnabled": "support isn't enabled for this business",
       "writeFirst": "write the reply first",
@@ -8965,21 +8965,21 @@
       "decided": "this reply was decided a moment ago"
     },
     "draft": {
-      "cant": "I can't draft this from your approved answers — write it yourself.",
-      "budget": "This month's support budget ({budget}) is spent, so I won't draft — write it yourself.",
-      "times": "I've drafted this ticket {count} times already — write this one yourself.",
-      "unreachable": "I couldn't reach the drafting model just now — write it yourself, or try again later."
+      "cant": "I can't draft this from your approved answers: write it yourself.",
+      "budget": "This month's support budget ({budget}) is spent, so I won't draft: write it yourself.",
+      "times": "I've drafted this ticket {count} times already: write this one yourself.",
+      "unreachable": "I couldn't reach the drafting model just now: write it yourself, or try again later."
     },
     "note": {
       "notSetUp": "Not sent: email isn't set up yet.",
       "stopped": "Not sent: everything is stopped (the emergency stop is on). It stays approved; it sends when you resume and send it.",
-      "maybeSent": "I may have sent this: the email service didn't confirm either way. I won't send it again by myself — check your sent mail, or ask the customer, before you write again.",
+      "maybeSent": "I may have sent this: the email service didn't confirm either way. I won't send it again by myself. Check your sent mail, or ask the customer, before you write again.",
       "noAddress": "Not sent: there's no address to reply to on this ticket.",
-      "suppressed": "Not sent: the gate refused it — suppressed ({reason}).",
-      "refused": "Not sent: the gate refused it — {reason}.",
+      "suppressed": "Not sent: the gate refused it, suppressed ({reason}).",
+      "refused": "Not sent: the gate refused it, {reason}.",
       "notEnabled": "Not sent: support isn't enabled for this business.",
       "textChanged": "Not sent: the text no longer matches what you approved.",
-      "serviceRefused": "Not sent: the email service refused it ({what}). Nothing went out — write it again to retry."
+      "serviceRefused": "Not sent: the email service refused it ({what}). Nothing went out: write it again to retry."
     },
     "summary": {
       "facts": "{count, plural, one {Publish {n} answer the customer assistant may give} other {Publish {n} answers the customer assistant may give}}",
@@ -8996,14 +8996,14 @@
         "shotList": "a shot list is for filming, not publishing",
         "email": "emails aren't sent through ScaleX yet",
         "kind": "a {kind} isn't published",
-        "channel": "ScaleX can't publish to {channel} — only to a Facebook Page, an Instagram account or a TikTok account you connect",
+        "channel": "ScaleX can't publish to {channel}: only to a Facebook Page, an Instagram account or a TikTok account you connect",
         "connect": "connect Meta publishing on Connections to publish this to {platform}",
-        "noInstagram": "the Meta connection has no Instagram account — reconnect with its id to publish there",
+        "noInstagram": "the Meta connection has no Instagram account: reconnect with its id to publish there",
         "needsMedia": "{platform} needs an image or a video, and this item has none yet",
         "png": "Instagram takes JPEG images only, and this item's image is a PNG",
         "noDate": "it has no date to go out on",
         "zone": "the posting time can't be set: {reason}",
-        "declined": "{count, plural, one {you've declined publishing # time — I've stopped proposing it} other {you've declined publishing # times — I've stopped proposing it}}",
+        "declined": "{count, plural, one {you've declined publishing # time: I've stopped proposing it} other {you've declined publishing # times: I've stopped proposing it}}",
         "passed": "its date ({date}) has passed",
         "connectTikTok": "connect TikTok posting on Connections to publish this to TikTok",
         "tiktokNeedsVideo": "TikTok needs a video, and this item has none yet"
@@ -9029,8 +9029,8 @@
       }
     },
     "error": {
-      "produceSignedIn": "producing drafts needs you signed in — it spends real model calls",
-      "withdrawSignedIn": "withdrawing a post needs you signed in — it deletes it on Meta",
+      "produceSignedIn": "producing drafts needs you signed in: it spends real model calls",
+      "withdrawSignedIn": "withdrawing a post needs you signed in: it deletes it on Meta",
       "proposalId": "proposal_id is required",
       "itemId": "item_id is required",
       "buildId": "build_id is required",
@@ -9073,7 +9073,7 @@
   },
   "payments": {
     "meta": {
-      "title": "Payments — ScaleX"
+      "title": "Payments · ScaleX"
     },
     "kicker": "Insights · Payments",
     "never": "ScaleX prepares payments and you pay them in your own bank. ScaleX can't move money.",
@@ -9395,7 +9395,7 @@
     "lost": "Would have lost: {count} · {amount}",
     "unproven": "Not yet proven either way: {count}",
     "open": "Still being measured: {count}",
-    "net": "Net: {amount} — and nothing was touched.",
+    "net": "Net: {amount}, and nothing was touched.",
     "none": "Nothing measured yet.",
     "share": "Copy a link to share this",
     "copied": "Link copied",
@@ -10127,13 +10127,13 @@
         "none": "Not connected"
       },
       "outcome": {
-        "connected": "Connected — NAV has it as {name}",
+        "connected": "Connected: NAV has it as {name}",
         "skipped": "Left empty",
         "not_found": "Your firm can't help with this one any more",
         "already_connected": "NAV is already connected here",
         "rejected": "NAV didn't accept these details",
         "not_configured": "Connecting NAV isn't available yet",
-        "rate_limited": "Too many tries for this client — try again in an hour",
+        "rate_limited": "Too many tries for this client: try again in an hour",
         "failed": "Something went wrong on our side"
       },
       "submit": "Check with NAV and connect",
@@ -10261,7 +10261,7 @@
   },
   "home": {
     "meta": {
-      "title": "Home — ScaleX"
+      "title": "Home · ScaleX"
     },
     "kicker": "Today · {date}",
     "reading": "Reading…",
@@ -10418,7 +10418,7 @@
   },
   "alerts": {
     "meta": {
-      "title": "Alerts and modules — ScaleX"
+      "title": "Alerts and modules · ScaleX"
     },
     "kicker": "Your business · Alerts and modules",
     "title": "Where I work, and how I tell you."

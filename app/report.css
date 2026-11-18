@@ -116,6 +116,7 @@
   font-size: 14px;
   color: var(--desk-ink-2);
   text-decoration: none !important;
+  border-radius: 0 var(--r-s, 0) var(--r-s, 0) 0;
 }
 a.rq-sub-i:hover {
   color: var(--desk-ink);
@@ -153,6 +154,7 @@ a.rq-sub-i:hover {
   letter-spacing: var(--caps-ls, 0.08em);
   text-transform: var(--caps, uppercase);
   cursor: pointer;
+  border-radius: var(--r-s, 0);
 }
 .rq-print:hover {
   background: var(--desk-ink);
@@ -187,6 +189,7 @@ a.rq-sub-i:hover {
   border: 1px solid var(--rule);
   font-family: var(--f-mono);
   font-size: 13px;
+  border-radius: var(--r-ctl, 0);
 }
 .rq-status {
   display: flex;
@@ -201,11 +204,13 @@ a.rq-sub-i:hover {
 .rq-panel {
   background: var(--paper);
   color: var(--sheet-ink);
-  border: 1px solid var(--rule);
+  border: var(--card-border, 1px solid var(--rule));
+  border-radius: var(--r-card, 0);
+  overflow: clip;
 }
 .rq-panel-head {
   padding: 17px 18px 14px;
-  border-bottom: 3px double var(--sheet-ink);
+  border-bottom: var(--card-head-rule, 3px double var(--sheet-ink));
 }
 .rq-head-line {
   display: flex;
@@ -361,14 +366,14 @@ a.rq-sub-i:hover {
   width: 1%;
   text-align: right;
 }
+/* One word, one line: the arrow under it left with the owner app's other arrows (2026-11-18). */
 .rq-why-btn {
   display: inline-flex;
-  flex-direction: column;
   align-items: center;
   min-width: 54px;
-  min-height: 48px;
+  min-height: 40px;
   justify-content: center;
-  padding: 6px 10px;
+  padding: 0 14px;
   border: 1px solid var(--sheet-ink);
   background: var(--paper);
   color: var(--sheet-ink);
@@ -382,6 +387,7 @@ a.rq-sub-i:hover {
   transition:
     background-color var(--d-press) linear,
     color var(--d-press) linear;
+  border-radius: var(--r-s, 0);
 }
 .rq-why-btn:hover,
 .rq-why-btn[aria-pressed="true"] {
@@ -407,11 +413,13 @@ a.rq-sub-i:hover {
 .rq-why {
   background: var(--paper);
   color: var(--sheet-ink);
-  border: 1px solid var(--rule);
+  border: var(--card-border, 1px solid var(--rule));
+  border-radius: var(--r-card, 0);
+  overflow: clip;
 }
 .rq-why-head {
   padding: 15px 17px 14px;
-  border-bottom: 3px double var(--sheet-ink);
+  border-bottom: var(--card-head-rule, 3px double var(--sheet-ink));
 }
 .rq-why-title {
   margin: 10px 0 0;
@@ -646,6 +654,7 @@ a.rq-sub-i:hover {
   background: var(--inset);
   border: 1px solid var(--rule);
   font-size: 14px;
+  border-radius: var(--r-ctl, 0);
 }
 .rq-sub-h {
   margin: 12px 0 0;
@@ -932,6 +941,7 @@ a.rq-sub-i:hover {
   color: var(--sheet-ink);
   font-family: var(--f-mono);
   font-size: 13px;
+  border-radius: var(--r-s, 0);
 }
 .rq-share-url {
   flex: 1 1 320px;
@@ -943,6 +953,7 @@ a.rq-sub-i:hover {
   color: var(--sheet-ink);
   font-family: var(--f-fig);
   font-size: 12.5px;
+  border-radius: var(--r-s, 0);
 }
 .rq-share-list {
   list-style: none;

@@ -17,6 +17,7 @@
   font-family: var(--f-mono);
   font-size: 13px;
   color: var(--desk-ink);
+  border-radius: var(--r-ctl, 0);
 }
 
 /* ── tabs: outlined on the desk, the open one is paper ── */
@@ -45,6 +46,7 @@
   transition:
     background-color var(--d-press) linear,
     color var(--d-press) linear;
+  border-radius: var(--r-s, 0);
 }
 .st-screen .st-tab:hover {
   background: var(--raised);

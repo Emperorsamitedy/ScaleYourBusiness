@@ -8,6 +8,7 @@ import Link from "next/link";
 import { PostForm } from "../../components/partner/PostForm";
 import { loadFactWords } from "../../lib/bank/words";
 import { dayMonthYear, presentMoney } from "../../lib/i18n/format";
+import { rangeOf } from "../../lib/i18n/range";
 import { requestLocale } from "../../lib/i18n/server";
 import { trFor } from "../../lib/i18n/server-tr";
 import { firmOf } from "../../lib/partners/access";
@@ -124,7 +125,7 @@ export default async function PartnerPage() {
       ? (words.value("identity.business_type", code) ??
         english.value("identity.business_type", code) ??
         code)
-      : "—";
+      : "-";
   return (
     <main className="screen partner-screen">
       <section className="card">
@@ -177,11 +178,11 @@ export default async function PartnerPage() {
                     <Link href={`/partner/clients/${r.profile_id}`}>{r.name ?? tr("unnamed")}</Link>
                   </td>
                   <td>{sector(r.sector)}</td>
-                  <td>{r.grade ?? "—"}</td>
+                  <td>{r.grade ?? "-"}</td>
                   <td>
                     {r.leaks_open}
                     {r.leaks_money.length > 0
-                      ? ` · ${r.leaks_money.map((m) => `${money(m.low)}–${money(m.high)}`).join(" · ")}`
+                      ? ` · ${r.leaks_money.map((m) => rangeOf(money(m.low), money(m.high), locale)).join(" · ")}`
                       : r.leaks_open > 0
                         ? ` · ${tr("hidden")}`
                         : ""}
@@ -189,17 +190,17 @@ export default async function PartnerPage() {
                   <td>
                     {r.largest_leak
                       ? `${r.largest_leak.title}${r.largest_leak.high ? ` · ${money(r.largest_leak.high)}` : ""}`
-                      : "—"}
+                      : "-"}
                   </td>
                   <td>
                     {r.verified_quarter.length > 0
                       ? r.verified_quarter.map(money).join(" · ")
-                      : "—"}
+                      : "-"}
                   </td>
                   <td>{r.awaiting_approval}</td>
                   <td>{tr(`health.${r.health}`)}</td>
                   <td>
-                    {r.last_activity ? dayMonthYear(r.last_activity.slice(0, 10), locale) : "—"}
+                    {r.last_activity ? dayMonthYear(r.last_activity.slice(0, 10), locale) : "-"}
                   </td>
                 </tr>
               ))}

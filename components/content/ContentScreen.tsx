@@ -44,6 +44,7 @@ import { PageHead, SheetCard } from "../sheet/PageHead";
 import { num } from "../sheet/num";
 import { useTr } from "../sheet/useTr";
 import type { AppLocale } from "../../lib/i18n/locales";
+import { rangeOf } from "../../lib/i18n/range";
 import { intlTag } from "../../lib/i18n/locales";
 import type { Tr } from "../../lib/i18n/tr";
 import {
@@ -408,7 +409,7 @@ export function ContentScreen() {
               st.first && st.last
                 ? st.first === st.last
                   ? short(st.first)
-                  : `${short(st.first)} – ${short(st.last)}`
+                  : rangeOf(short(st.first), short(st.last), locale)
                 : tr("strips.undated");
             return (
               <li key={st.channel} className="ct-strip">
@@ -506,8 +507,11 @@ export function ContentScreen() {
           {calendar && (
             <div className="ct-cal">
               <p className="vz-cap">
-                {short(calendarDays[0]?.date ?? today)} –{" "}
-                {short(calendarDays[calendarDays.length - 1]?.date ?? today)}
+                {rangeOf(
+                  short(calendarDays[0]?.date ?? today),
+                  short(calendarDays[calendarDays.length - 1]?.date ?? today),
+                  locale,
+                )}
               </p>
               <div className="ct-cal-grid" role="group" aria-label={tr("calendar.label")}>
                 {weekdayInitials(locale).map((initial, i) => (
@@ -611,7 +615,7 @@ export function ContentScreen() {
                       <td data-label={tr("col.channel")} className="ct-mono">
                         {item.channel_label}
                       </td>
-                      <td data-label={tr("col.goal")}>{goal?.statement ?? "—"}</td>
+                      <td data-label={tr("col.goal")}>{goal?.statement ?? "-"}</td>
                       <td data-label={tr("col.state")}>
                         <span className={`word boxed ${w.tone}`}>{w.word}</span>
                       </td>
@@ -943,7 +947,7 @@ export function ContentScreen() {
             <ul className="ct-goal-list">
               {s.goals.map((g) => (
                 <li key={g.goal_id}>
-                  <span>{g.statement ?? "—"}</span>
+                  <span>{g.statement ?? "-"}</span>
                   <span className="ct-goal-meta">
                     {g.horizon ? horizonWord(g.horizon, tr) : ""}
                     {g.target_value ? ` · ${tr("goals.target", { value: g.target_value })}` : ""}

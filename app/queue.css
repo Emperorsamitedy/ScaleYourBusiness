@@ -103,6 +103,7 @@
   transition:
     background-color var(--d-press) linear,
     color var(--d-press) linear;
+  border-radius: var(--r-ctl, 0);
 }
 .es-mast-stop:hover:not(:disabled),
 .es-mast-stop:active:not(:disabled) {
@@ -359,11 +360,13 @@
   --mut: var(--sheet-ink-2);
   background: var(--paper);
   color: var(--sheet-ink);
-  border: 1px solid var(--rule);
+  border: var(--card-border, 1px solid var(--rule));
+  border-radius: var(--r-card, 0);
+  overflow: clip;
 }
 .q-sheet-head {
   padding: 18px 20px 17px;
-  border-bottom: 3px double var(--sheet-ink);
+  border-bottom: var(--card-head-rule, 3px double var(--sheet-ink));
 }
 .q-ref {
   margin: 0 0 10px;
@@ -601,6 +604,7 @@
   border: 1px dashed var(--drift);
   font-size: 14px;
   line-height: 1.5;
+  border-radius: var(--r-ctl, 0);
 }
 .q-disagree-word {
   margin-right: 10px;
@@ -624,6 +628,7 @@
   background: var(--inset);
   font-size: 14px;
   max-width: var(--measure);
+  border-radius: var(--r-ctl, 0);
 }
 
 /* 4 · reversibility */
@@ -655,7 +660,7 @@
 
 .q-decide {
   padding: 17px 20px 20px;
-  border-top: 3px double var(--sheet-ink);
+  border-top: var(--card-head-rule, 3px double var(--sheet-ink));
   margin-top: -1px;
 }
 .q-schedule {
@@ -676,6 +681,7 @@
   color: var(--sheet-ink);
   font-family: var(--f-mono);
   font-size: 12.5px;
+  border-radius: var(--r-s, 0);
 }
 .q-answers {
   display: grid;
@@ -705,6 +711,7 @@
   transition:
     background-color var(--d-press) linear,
     color var(--d-press) linear;
+  border-radius: var(--r-ctl, 0);
 }
 .q-btn:hover:not(:disabled),
 .q-btn:active:not(:disabled) {
@@ -733,6 +740,7 @@
   font-size: 12px;
   font-weight: 400;
   letter-spacing: 0;
+  border-radius: var(--r-xs, 0);
 }
 .q-btn-inline {
   display: inline-flex;
@@ -763,6 +771,7 @@
   padding: 15px 14px 14px;
   border: var(--line);
   background: var(--inset);
+  border-radius: var(--r-ctl, 0);
 }
 .q-panel-label {
   display: block;
@@ -792,6 +801,7 @@
   letter-spacing: 0.08em;
   cursor: pointer;
   transition: background-color var(--d-press) linear;
+  border-radius: var(--r-pill, 0);
 }
 .q-chip:hover {
   border-color: var(--sheet-ink);
@@ -813,6 +823,7 @@
   font-size: 13.5px;
   line-height: 1.5;
   resize: vertical;
+  border-radius: var(--r-s, 0);
 }
 .q-text:focus {
   border-color: var(--sheet-ink);
@@ -836,6 +847,7 @@
   border: 1px solid var(--q-alarm-desk);
   font-size: 14px;
   color: var(--desk-ink);
+  border-radius: var(--r-ctl, 0);
 }
 
 /* ── the phone: one proposal at a time ── */
@@ -903,7 +915,7 @@
 }
 .q-mcard-head {
   padding: 14px 15px 14px;
-  border-bottom: 3px double var(--sheet-ink);
+  border-bottom: var(--card-head-rule, 3px double var(--sheet-ink));
 }
 .q-mcard .q-ref {
   margin-bottom: 8px;
@@ -1011,7 +1023,7 @@
 }
 .q-mdecide {
   padding: 14px 11px 15px;
-  border-top: 3px double var(--sheet-ink);
+  border-top: var(--card-head-rule, 3px double var(--sheet-ink));
   margin-top: -1px;
 }
 .q-primary {
@@ -1273,6 +1285,7 @@
   padding: 14px 16px;
   border: 1px solid var(--rule-soft);
   overflow-x: auto;
+  border-radius: var(--r-ctl, 0);
 }
 .q-fig figcaption {
   display: flex;
@@ -1478,6 +1491,7 @@
   border: 1px solid var(--sheet-ink);
   background: var(--paper);
   text-align: center;
+  border-radius: var(--r-s, 0);
 }
 .q-tree-node b {
   font-weight: 700;
@@ -1511,6 +1525,7 @@
   border: 1px solid var(--sheet-ink);
   font-size: 13.5px;
   font-weight: 700;
+  border-radius: var(--r-s, 0);
 }
 .q-way-box.ink {
   background: var(--sheet-ink);

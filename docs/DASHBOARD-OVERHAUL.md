@@ -144,11 +144,25 @@ The list. Nothing here is ticked until he has seen it.
   - [~] b. A side panel for now (Lex's sheet, opened from "Ask Lex" on every screen and from the face on a phone). [later] An interactive pop-up, and present in more places than one.
 - [~] L5. **The microphone.** He sees no browser pop-up when he presses it. Found and fixed: see below. A blocked or missing microphone was already said on the screen (`lib/voice/session.ts`).
 - [~] L6. **Less to read at once.** Cash flow is built (see below); the other screens follow. "There's still a lot of text on some pages like the cash flow", and "a few overlaps here and there". The content may stay ("I absolutely don't mind you keeping it") but "no one will probably sit down and read that much text": present it "as concise and accurate and small as possible". Cash flow first, then screen by screen.
-- [ ] L7. **No long dashes.** "No em and en dashes throughout the app"; underscores "only to a very certain limit". This reaches the seven catalogues and the range's wording ("+€136 – +€1,213" becomes "+€136 to +€1,213").
+- [~] L7. **No long dashes.** Built for everything a screen prints: see "L7, as built" below. "No em and en dashes throughout the app"; underscores "only to a very certain limit". This reaches the seven catalogues and the range's wording ("+€136 – +€1,213" becomes "+€136 to +€1,213").
 - [ ] L8. **Straight into the app.** After signing in or signing up a person lands in the app, with no interview first. The dashboard reminds them to do it, and Lex offers to do it in conversation for those who would rather talk (the conversation is already a fact source: `specs/conversation-channel.md`).
 - [ ] L9. **What was already left for later** in this file (the two review rounds and "Later rounds") stays on the list behind these.
 
 Order: L1, L2, his pick, then L3, L4 and L6 built to the pick, then L7, L5, L8, then L9.
+
+### L7, as built (2026-11-18)
+
+"No em and en dashes throughout the app", and the range's wording.
+
+- **The seven catalogues.** About 2,900 strings were rewritten. English was decided string by string (419 of them): a full stop where a new sentence starts ("I couldn't reach the server. Try again."), a colon before an explanation, a comma before a trailing clause, brackets around an aside, a middle dot in a page's title ("Cash flow · ScaleX"), a hyphen where a dash stood for "no value". Fifteen were rewritten by hand where a rule read badly. Every other language follows English's choice at the same dash with its own punctuation; the few strings where a language had a dash and English had none were read one by one (German, French, Hungarian) and eleven were written by hand.
+- **Russian keeps 307 dashes**, on purpose. Russian has no "is": "Запуск — отдельное «да»" needs its dash, and a comma or a colon there is a mistake a Russian reader sees at once. Where the Russian dash stood where the English one did, it went the same way (410 strings). No language keeps an en dash.
+- **Ranges** say the language's own word: "+€136 to +€1,213", "bis", "a", "à", "至"; Hungarian and Russian take a spaced hyphen, because "from X to Y" in those languages would need the nouns around it in another case. One function, `rangeOf` in `lib/i18n/range.ts`, for every range a screen builds in code (the queue, Home, the report, Cash flow, the charts, the simulator, the pipeline, content, carts).
+- **In code**: the lone dash that meant "no value" is a hyphen (74 places in 37 files a screen prints from), the sentences a screen or a route joined with a dash got the same punctuation as the catalogue (about 60 lines), and a decline's reason reads "Wrong data: the stock is off" (a reason recorded with the old dash is still read).
+- **Arrows.** Buttons and links carry none, as in the mockups: 36 labels lost a trailing "→" in every language, and the arrow a screen drew as a hidden span is not shown inside the app (one rule in `app/sheet.css`). Before → after, a formula's result and ↗ stay.
+- **Held by tests**: `messages/catalogue.test.ts` fails on an en dash anywhere, on an em dash outside Russian, on any dash in English, and on a label ending in an arrow. `lib/i18n/range.test.ts` holds the range.
+- **Left as they are, on purpose**: the landing page ("can stay as it is") and the legal texts; and everything that is not a screen's words: about 760 lines in `lib/` that are prompts sent to a model, patterns that parse text, lines that are hashed or stored as a record (the case file, a proposal's evidence), emails already composed, legal citations and operator tools. Changing those is not typography: it would change what a model reads, break a stored hash or rewrite a record. They want a pass of their own with Tedi, module by module.
+- **Old records keep their dashes.** The decision log and the watch log are append-only (rule 7): an entry written before today still reads as it was written. The demo business shows fresh wording after `npm run db:seed-demo -- --fresh`.
+- [later] Captions that start in lower case because they were written to sit inside a line ("buffer €10,900", "easy to undo", "after", "always") start with a capital where this round touched them (`.cap1`); the rest are still to do, screen by screen.
 
 ### L3 to L6, as built (2026-11-18)
 

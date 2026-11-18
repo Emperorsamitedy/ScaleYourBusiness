@@ -86,7 +86,7 @@ describe("stock words — English", () => {
       "3.0 a day (up to 3.3) over 10 days = 30, + 4 safety margin (the fast end of the range) = 34; Midland Clay Supplies' minimum order is 50, so 50.",
     );
     expect(c.reorder!.cost_arithmetic).toBe("50 × €1,234.56 at cost = €61,728.00");
-    expect(coverColumn(c)).toBe("6–7");
+    expect(coverColumn(c)).toBe("6 to 7");
   });
 
   it("the history summary reads as before", () => {

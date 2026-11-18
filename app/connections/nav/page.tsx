@@ -12,7 +12,7 @@ import { NavConnect } from "../../../components/connections/nav/NavConnect";
 import { NAV_GUIDE_STEPS, navGuideReady } from "../../../lib/connectors/nav/guide";
 import { navSoftwareFromEnv } from "../../../lib/connectors/nav/service";
 
-export const metadata: Metadata = { title: "NAV Online Számla — ScaleX" };
+export const metadata: Metadata = { title: "NAV Online Számla · ScaleX" };
 export const dynamic = "force-dynamic";
 
 export default async function NavPage() {

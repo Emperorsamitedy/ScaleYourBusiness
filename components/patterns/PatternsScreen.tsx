@@ -172,7 +172,7 @@ function Seasons({ view }: { view: PatternsView }) {
                         {tr(`flag.${a.flag}`)}
                       </span>
                     ) : (
-                      "—"
+                      "-"
                     )}
                   </td>
                 </tr>

@@ -139,7 +139,7 @@ function perDay(signal: WatchSignal, value: number, locale: AppLocale): string {
 }
 
 function weeks(signal: WatchSignal, locale: AppLocale): string {
-  if (signal.last_week === null) return "—";
+  if (signal.last_week === null) return "-";
   const last = perDay(signal, signal.last_week, locale);
   return signal.first_week === null
     ? last
@@ -834,7 +834,7 @@ export function WatchScreen({ reading }: { reading: WatchReading | null }) {
         {!w && <NoticedCard log={view.log} />}
         <RulesCard thresholds={view.thresholds} />
         <p className="wt-moved">
-          {t("moved")} <Link href="/settings/alerts">{t("movedLink")} →</Link>
+          {t("moved")} <Link href="/settings/alerts">{t("movedLink")}</Link>
         </p>
       </div>
     </div>

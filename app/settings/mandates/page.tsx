@@ -143,7 +143,7 @@ export default async function MandatesPage() {
                   {tr("activityLine", {
                     date: date(l.at),
                     person: l.person,
-                    firm: names.get(firmId ?? "") ?? "—",
+                    firm: names.get(firmId ?? "") ?? "-",
                     what: tr(`act.${what}`),
                   })}
                 </li>

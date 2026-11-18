@@ -74,6 +74,7 @@
   color: var(--sheet-ink);
   font-family: var(--f-mono);
   font-size: 12.5px;
+  border-radius: var(--r-s, 0);
 }
 .sim-budget {
   display: inline-flex;
@@ -327,6 +328,7 @@
   letter-spacing: var(--caps-ls, 0.06em);
   text-transform: var(--caps, uppercase);
   text-decoration: none;
+  border-radius: var(--r-s, 0);
 }
 .sim-tab:hover {
   background: var(--raised);

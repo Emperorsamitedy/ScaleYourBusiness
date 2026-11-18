@@ -138,7 +138,7 @@ export function breakEvenView(
       return { figure: t("be.never"), sub: t("be.neverSub"), flag: "NEVER" };
     case "missing":
       return {
-        figure: "—",
+        figure: "-",
         sub: be.needs.map((n) => n.what).join(listSep(locale)),
         flag: "MISSING",
       };

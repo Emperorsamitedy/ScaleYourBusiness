@@ -52,6 +52,7 @@
   font-size: 11px;
   font-variant-numeric: tabular-nums;
   color: var(--desk-ink-2);
+  border-radius: var(--r-s, 0);
 }
 .wt-day.past {
   background: var(--paper);
@@ -222,6 +223,7 @@
   text-transform: var(--caps, uppercase);
   letter-spacing: var(--caps-ls, 0.06em);
   cursor: pointer;
+  border-radius: var(--r-card, 0);
 }
 .wt-module input {
   margin: 0;

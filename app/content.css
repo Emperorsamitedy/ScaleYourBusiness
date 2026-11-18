@@ -20,6 +20,7 @@
   font-family: var(--f-mono);
   font-size: 13px;
   color: var(--desk-ink);
+  border-radius: var(--r-ctl, 0);
 }
 
 /* ── the strips ── */
@@ -31,6 +32,7 @@
   padding: 0;
   list-style: none;
   border: 1px solid var(--hair-2);
+  border-radius: var(--r-card, 0);
 }
 .ct-screen .ct-strip {
   padding: 15px 17px 14px;
@@ -186,6 +188,7 @@
   min-height: 44px;
   padding: 2px;
   border: 1px solid var(--rule-soft);
+  border-radius: var(--r-s, 0);
 }
 .ct-screen .ct-cal-day.today {
   border-color: var(--sheet-ink);
