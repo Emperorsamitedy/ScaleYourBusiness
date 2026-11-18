@@ -445,6 +445,10 @@ const GLOSSARY_EXCEPTIONS: Record<string, { terms: string[]; reason: string }> =
     terms: ["business"],
     reason: "Google Business Profile: Google's product name, as Google names it in each language",
   },
+  "reviews.entry.reconnect": {
+    terms: ["business"],
+    reason: "Google Business Profile: Google's product name, as Google names it in each language",
+  },
   "reviews.google.readNote": {
     terms: ["business"],
     reason: "Google Business Profile: Google's product name, as Google names it in each language",

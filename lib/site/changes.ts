@@ -33,6 +33,8 @@ import { livePageFetcher } from "./fetch";
 import type { PlatformVerdict } from "./platform";
 import { detectPlatform, editabilityLine, markerWords, platformBrand } from "./platform";
 import { plain, siteEnglish } from "./say";
+import { pageHandleOf } from "../execution/providers/shopify";
+import { accountOfProfile, shopifyWriteConnected } from "../shop/writes";
 
 const EN = siteEnglish();
 
@@ -96,6 +98,12 @@ export interface SiteChangeDetail {
   health_baseline_ms: number;
   manual_limits: string[];
   rationale: string;
+  /**
+   * D6: set when the change is to one of a Shopify store's own pages and the
+   * store is connected for changes — approving then schedules it for the next
+   * run (lib/proposals/service carriedSchedule), with nothing else to click.
+   */
+  execute_on_approval?: boolean;
 }
 
 /** Deterministic editor walk-throughs — the honest path for platforms
@@ -283,6 +291,11 @@ export async function proposeSiteChange(
     manual_limits: [],
     rationale: words.rationale,
   };
+
+  if (platform.platform === "shopify" && pageHandleOf(page.url) !== null) {
+    const accountId = await accountOfProfile(profileId);
+    if (accountId && (await shopifyWriteConnected(accountId))) detail.execute_on_approval = true;
+  }
 
   const { limits } = await ensureHardLimits(profileId, args.limitLlm);
   const verdict = checkHardLimits(limits, "operations_change");

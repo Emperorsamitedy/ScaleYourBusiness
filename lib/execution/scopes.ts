@@ -403,22 +403,75 @@ export const EXECUTION_SCOPE_REGISTRY = {
     ],
   },
   /**
+   * Deal follow-ups (P5-16b; rule 29 amended by the owner on 2026-11-16:
+   * "make all these automatic all the owner should do is just approve").
+   * An approved follow-up email, sent to the deal's one contact from SYB's
+   * own email service under the business's name, with replies going to the
+   * person who approved it. Like purchase orders there is no owner
+   * credential: each email carries its own approval of the exact text. The
+   * contact's consent is checked again at the moment of sending (rule 23),
+   * and a sent email can't be recalled, so the one op is irreversible.
+   */
+  followup_email: {
+    label: "Deal follow-up email",
+    write_scopes: ["email.send_followup"],
+    readback_scopes: [],
+    operations: [
+      {
+        op: "send_followup",
+        description:
+          "Email one approved follow-up to the deal's contact, exactly as approved, checking their consent at the moment it goes.",
+        reversible: false,
+      },
+    ],
+    consent: [
+      {
+        scope: "email.send_followup",
+        grant: "your approval of each email (ScaleX's own email service)",
+        why: "ScaleX may send a follow-up email you approved, word for word, from its own email service under your business's name, with replies going to you.",
+      },
+      {
+        scope: "email.send_followup",
+        grant: "your approval of each email (ScaleX's own email service)",
+        why: "ScaleX sends it only to a contact who explicitly agreed to hear from you, checked again at the moment it goes, and never to anyone who unsubscribed.",
+      },
+    ],
+  },
+  /**
    * Google Business Profile reviews (I-45a, owner decision 2026-11-01: "go
    * ahead with I-45a", then, asked how SYB should hold the permission: "as a
    * write consent"). Google offers ONE scope for the Business Profile APIs,
    * business.manage, and it can also reply to reviews and edit the listing.
    * So it sits here, as a write consent the owner grants and can revoke,
-   * never in the measurement registry (rule 9 stays exactly as it was). SYB
-   * uses it ONLY to read reviews: there are NO operations, so the engine has
-   * nothing it could run with it, and lib/google-business's client can send
-   * GET only, to a fixed list of read endpoints (client.test.ts holds it).
-   * FENCED_SCOPES below keeps the scope to this one provider.
+   * never in the measurement registry (rule 9 stays exactly as it was).
+   *
+   * I-45a lifted by the owner on 2026-11-16 ("make all these automatic all
+   * the owner should do is just approve", then "Google review replies +
+   * hours"): two ops, each run only through the engine after a recorded
+   * approval of the exact change, and each reversible. lib/google-business's
+   * client may send exactly these writes, from the executor alone
+   * (client.test.ts holds it). HOMED_SCOPES keeps the scope to this provider.
+   * A connection consented before these lines can't run either op
+   * (lib/google-business/consent.ts, googleWriteConsentCurrent).
    */
   google_business_reviews: {
-    label: "Google Business Profile reviews",
+    label: "Google Business Profile",
     write_scopes: ["https://www.googleapis.com/auth/business.manage"],
     readback_scopes: [],
-    operations: [],
+    operations: [
+      {
+        op: "reply_to_review",
+        description:
+          "Post the reply you approved, word for word, under one Google review; undo puts back the reply that was there before, or removes it.",
+        reversible: true,
+      },
+      {
+        op: "set_regular_hours",
+        description:
+          "Move one opening or closing time on one weekday of your Google listing, as approved; undo moves it back while it is still as ScaleX set it.",
+        reversible: true,
+      },
+    ],
     consent: [
       {
         scope: "https://www.googleapis.com/auth/business.manage",
@@ -428,7 +481,12 @@ export const EXECUTION_SCOPE_REGISTRY = {
       {
         scope: "https://www.googleapis.com/auth/business.manage",
         grant: "Google Business Profile (business.manage)",
-        why: "ScaleX uses it only to read your reviews. ScaleX never posts a reply or changes your listing: suggested replies stay drafts you post yourself.",
+        why: "ScaleX reads your reviews with it once a day. ScaleX may post a reply you approved, word for word and labelled as written with AI assistance, and may change your listing's opening hours after you approve the exact change.",
+      },
+      {
+        scope: "https://www.googleapis.com/auth/business.manage",
+        grant: "Google Business Profile (business.manage)",
+        why: "ScaleX never changes anything else on your listing, and never touches billing. Every reply and hours change can be undone from ScaleX.",
       },
       {
         scope: "https://www.googleapis.com/auth/business.manage",
@@ -491,6 +549,61 @@ export const EXECUTION_SCOPE_REGISTRY = {
       },
     ],
   },
+  /**
+   * Shopify store changes (D6; owner, 2026-11-16: "make all these automatic
+   * all the owner should do is just approve", then "Shopify first" for shop
+   * writes). A SEPARATE app and consent from the read-only Shopify
+   * connection (rule 13): its token holds exactly these two write scopes,
+   * which Shopify says also grant the matching reads, so nothing else is
+   * declared beside them. Three reversible ops, each run by the engine
+   * through lib/execution/providers/shopify.ts — the one file that may send
+   * a Shopify mutation, and only the four it names (shopify-write.test.ts).
+   * Checkout, payments, orders, customers, shipping, taxes and discounts
+   * are untouchable (rule 18): no scope here reaches them, and the fence
+   * refuses any document that names them.
+   */
+  shopify_write: {
+    label: "Shopify store changes",
+    write_scopes: ["write_products", "write_online_store_pages"],
+    readback_scopes: [],
+    operations: [
+      {
+        op: "update_page_body",
+        description:
+          "Replace the approved words on one of your store's pages; undo puts the page back while it is still as ScaleX left it.",
+        reversible: true,
+      },
+      {
+        op: "create_bundle",
+        description:
+          "Create the approved pair as one bundle product at the two items' full price; undo archives it, never deletes it.",
+        reversible: true,
+      },
+      {
+        op: "set_variant_price",
+        description:
+          "Mark an approved slow item down by the approved share, showing the old price as the compare-at price; undo puts both back.",
+        reversible: true,
+      },
+    ],
+    consent: [
+      {
+        scope: "write_products",
+        grant: "Shopify: write_products",
+        why: "ScaleX may create a bundle you approved and mark down an item you approved, by at most half and never below its cost. Each one can be undone from ScaleX.",
+      },
+      {
+        scope: "write_online_store_pages",
+        grant: "Shopify: write_online_store_pages",
+        why: "ScaleX may change the words on one of your store's pages after you approve the exact change, and checks the page still loads afterwards.",
+      },
+      {
+        scope: "write_products",
+        grant: "Shopify: write_products",
+        why: "ScaleX never touches checkout, payments, orders, customers, shipping, taxes or discounts, and never deletes anything.",
+      },
+    ],
+  },
 } as const satisfies Record<string, ExecutionProviderSpec>;
 
 export type ExecutionProviderId = keyof typeof EXECUTION_SCOPE_REGISTRY;
@@ -543,24 +656,15 @@ export function touchesMoneySurface(value: string): boolean {
 }
 
 /**
- * I-45a: scopes that may appear under ONE provider only, and only as a
- * write scope of a provider with no operations: the permission is held as
- * a consent, and used for reads alone. Pinned in scopes.test.ts; adding a
- * line is the same deliberate edit as adding a write scope.
- */
-export const FENCED_SCOPES: Readonly<Record<string, string>> = {
-  "https://www.googleapis.com/auth/business.manage": "google_business_reviews",
-};
-
-/**
  * P2-20: scopes that may appear under ONE provider only, as a write scope.
- * Unlike FENCED_SCOPES the provider may run operations (approved proposals,
- * through the engine); what the fence keeps is the home. Pinned in
- * scopes.test.ts; adding a line is the same deliberate edit as adding a
- * write scope.
+ * The provider may run operations (approved proposals, through the engine);
+ * what the fence keeps is the home. Pinned in scopes.test.ts; adding a line
+ * is the same deliberate edit as adding a write scope. business.manage moved
+ * here from the read-only fence when the owner lifted I-45a (2026-11-16).
  */
 export const HOMED_SCOPES: Readonly<Record<string, string>> = {
   "https://www.googleapis.com/auth/adwords": "google_ads",
+  "https://www.googleapis.com/auth/business.manage": "google_business_reviews",
 };
 
 export interface ExecutionScopeViolation {
@@ -572,10 +676,8 @@ export interface ExecutionScopeViolation {
     | "empty"
     | "op_money_surface"
     | "readback_write_shaped"
-    /** I-45a: a fenced scope under any provider but its own, or as a readback. */
-    | "fenced_scope_elsewhere"
-    /** I-45a: the fenced scope's provider declares an operation; it may only read. */
-    | "fenced_provider_operation";
+    /** A homed scope under any provider but its own, or as a readback. */
+    | "fenced_scope_elsewhere";
 }
 
 /**
@@ -618,13 +720,9 @@ export function auditExecutionRegistry(
       if (touchesMoneySurface(operation.op))
         violations.push({ provider, value: operation.op, reason: "op_money_surface" });
     }
-    // I-45a: a fenced scope belongs to its one provider, as a write scope.
-    // P2-20: and so does a homed one.
+    // P2-20, I-45a: a homed scope belongs to its one provider, as a write scope.
     for (const scope of spec.readback_scopes ?? []) {
-      if (
-        Object.prototype.hasOwnProperty.call(FENCED_SCOPES, scope) ||
-        Object.prototype.hasOwnProperty.call(HOMED_SCOPES, scope)
-      )
+      if (Object.prototype.hasOwnProperty.call(HOMED_SCOPES, scope))
         violations.push({ provider, value: scope, reason: "fenced_scope_elsewhere" });
     }
     for (const scope of spec.write_scopes) {
@@ -633,19 +731,6 @@ export function auditExecutionRegistry(
         HOMED_SCOPES[scope] !== provider
       )
         violations.push({ provider, value: scope, reason: "fenced_scope_elsewhere" });
-    }
-    for (const scope of spec.write_scopes) {
-      const owner = Object.prototype.hasOwnProperty.call(FENCED_SCOPES, scope)
-        ? FENCED_SCOPES[scope]
-        : undefined;
-      if (owner === undefined) continue;
-      if (owner !== provider) {
-        violations.push({ provider, value: scope, reason: "fenced_scope_elsewhere" });
-      } else {
-        for (const operation of spec.operations) {
-          violations.push({ provider, value: operation.op, reason: "fenced_provider_operation" });
-        }
-      }
     }
   }
   return violations;

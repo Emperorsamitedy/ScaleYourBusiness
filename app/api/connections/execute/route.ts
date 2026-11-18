@@ -24,6 +24,7 @@ import {
 } from "../../../../lib/execution/connections";
 import { consentToExecution } from "../../../../lib/execution/consent";
 import { metaExecution } from "../../../../lib/execution/providers/meta";
+import { shopifyWriteVerifier } from "../../../../lib/execution/providers/shopify";
 import { EXECUTION_SCOPE_REGISTRY } from "../../../../lib/execution/scopes";
 import {
   ADS_ACCESS_TIER_NOTE,
@@ -132,7 +133,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       confirmation?: unknown;
     } | null;
     const provider = body?.provider;
-    if (provider !== "meta_publish" && provider !== "meta_ads") {
+    if (provider !== "meta_publish" && provider !== "meta_ads" && provider !== "shopify_write") {
       return NextResponse.json({ error: "unknown provider" }, { status: 422 });
     }
     if (typeof body?.secret !== "string") {
@@ -146,7 +147,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       provider,
       secret: body.secret,
       confirmation: body.confirmation,
-      verify: metaExecution.verifier(provider),
+      verify:
+        provider === "shopify_write" ? shopifyWriteVerifier() : metaExecution.verifier(provider),
       userId: session.user_id,
     });
     return NextResponse.json(connection, { status: 201 });

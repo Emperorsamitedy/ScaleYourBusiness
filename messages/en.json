@@ -2121,7 +2121,8 @@
         "meta_publish": "Meta publishing (Facebook Page and Instagram)",
         "meta_ads": "Meta ad management",
         "email_campaign": "Campaign email",
-        "google_business_reviews": "Google Business Profile reviews"
+        "google_business_reviews": "Google Business Profile",
+        "shopify_write": "Shopify store changes"
       },
       "status": {
         "connected": "connected",
@@ -2206,10 +2207,16 @@
         "resume_adset": "Resume a paused ad set.",
         "pause_adset": "Pause a running ad set.",
         "resume_ad": "Resume a paused ad.",
-        "pause_ad": "Pause a running ad."
+        "pause_ad": "Pause a running ad.",
+        "update_page_body": "Replace the approved words on one of your store's pages; undo puts the page back while it is still as ScaleX left it.",
+        "create_bundle": "Create the approved pair as one bundle product at the two items' full price; undo archives it, never deletes it.",
+        "set_variant_price": "Mark an approved slow item down by the approved share, showing the old price as the compare-at price; undo puts both back."
       },
       "readback": "To see how each post does, the same token also reads:",
       "ownApp": "Or: set up your own Meta app",
+      "ownAppFor": {
+        "shopify_write": "Set up the store-changes app in Shopify"
+      },
       "ownAppSteps": {
         "meta_publish": {
           "s0": "In Meta Business Suite, check that your Facebook Page and its Instagram account both sit in your business portfolio.",
@@ -2224,6 +2231,12 @@
           "s2": "Add the Marketing API use case to the app.",
           "s3": "In your business settings, add a system user, give it your ad account, and generate a token for your app with exactly the permission listed above. No more.",
           "s4": "Paste the token here with the ad account id from Ads Manager."
+        },
+        "shopify_write": {
+          "s0": "In Shopify's Dev Dashboard, create a second app for your store: not the one ScaleX reads with, which must keep read permissions only.",
+          "s1": "Give it exactly the permissions listed above, write_products and write_online_store_pages, and nothing else.",
+          "s2": "Install it on your store.",
+          "s3": "Paste your store's myshopify.com address and the new app's client ID and client secret here."
         }
       },
       "field": {
@@ -2249,6 +2262,20 @@
           "ad_account_id": {
             "label": "ad account id",
             "placeholder": "Ad account id, with or without act_"
+          }
+        },
+        "shopify_write": {
+          "shop": {
+            "label": "store address",
+            "placeholder": "your-store.myshopify.com"
+          },
+          "client_id": {
+            "label": "client ID",
+            "placeholder": "Client ID"
+          },
+          "client_secret": {
+            "label": "client secret",
+            "placeholder": "Client secret"
           }
         }
       },
@@ -2407,8 +2434,8 @@
       "googleScreen": "Google then shows its own screen and asks about this one permission. Allow it, and come back here.",
       "typeToConfirm": "To confirm, type <b>{phrase}</b>",
       "opening": "Opening Google…",
-      "signIn": "Sign in with Google and allow reading reviews",
-      "nothingWritten": "Connecting records your consent and reads your reviews once a day. ScaleX never replies and never edits your listing: it only reads from Google.",
+      "signIn": "Sign in with Google and allow replies and hours",
+      "nothingWritten": "Connecting records your consent and reads your reviews once a day. ScaleX posts a reply or changes your opening hours only after you approve that exact change, and changes nothing else on your listing.",
       "reason": {
         "start_here": "Start the Google sign-in from ScaleX's Connections screen, with the button there. Nothing was sent to Google.",
         "signed_out": "Sign in to ScaleX first, then connect Google again.",
@@ -3954,7 +3981,18 @@
       "draft": "Draft the email",
       "dontSend": "I don't send this. Copy it into your own email to them.",
       "copied": "Copied",
-      "copy": "Copy the text"
+      "copy": "Copy the text",
+      "draftedSend": "Drafted. Read it, give it a subject line and approve it, and I send it.",
+      "subject": "Subject line",
+      "approveSend": "Approve and send",
+      "adds": "When it goes, ScaleX adds their first name to the greeting, your business address if it's on file, and an unsubscribe link. The AI label is already in the text. Their consent is checked again as it goes, and replies come to you.",
+      "sentOn": "Sent {date}.",
+      "waiting": "Approved. It goes out as soon as sending is switched on; nothing is sent until then.",
+      "ready": "Approved. It goes out on the next run, within the hour.",
+      "unconfirmed": "The email service never confirmed this one, so ScaleX won't send it again. Check your sent mail, or ask them.",
+      "notSent": "Not sent: {why}",
+      "sentNow": "Sent.",
+      "heldNow": "Approved. It waits until sending is switched on."
     },
     "due": {
       "label": "Likely won by {date}",
@@ -4050,7 +4088,12 @@
         "pending": "waiting for you",
         "blocked": "blocked by your rule",
         "rejected": "declined",
-        "changes_requested": "changes asked"
+        "changes_requested": "changes asked",
+        "sent": "sent",
+        "waiting": "approved, waiting to send",
+        "ready": "goes out next",
+        "unconfirmed": "unconfirmed",
+        "notSent": "not sent"
       }
     },
     "how": "How this works",
@@ -4120,7 +4163,18 @@
       "removing": "Removing…",
       "removeYes": "Yes, remove it",
       "keep": "Keep it",
-      "remove": "Remove this review"
+      "remove": "Remove this review",
+      "postGoogle": "Approve and post on Google",
+      "posting": "Posting…",
+      "postNote": "ScaleX posts exactly these words under the review, ending with “Written with AI assistance.”, and can take them back off if you change your mind.",
+      "notGoogle": "ScaleX can't post on {site}: it has no way to reply there. Copy it and post it yourself.",
+      "reconnect": "To let ScaleX post replies on Google, reconnect Google Business Profile on Connections.",
+      "postState": {
+        "waiting": "Approved. It goes on Google on the first run after real changes are switched on.",
+        "posted": "Posted on Google.",
+        "failed": "Google didn't take it. Nothing was posted.",
+        "withdrawn": "Taken back off Google."
+      }
     },
     "forwarding": {
       "label": "Forwarding",
@@ -4145,7 +4199,7 @@
       "connected": "ScaleX reads your reviews once a day and files new ones here, alongside any you forward. The same review arriving both ways is listed once.",
       "lastRead": "Last read {day}.",
       "before": "Before it can work",
-      "whatItCanDo": "Google's permission can also post replies to your reviews and edit your Business Profile listing. ScaleX only reads your reviews with it. You can revoke it any time.",
+      "whatItCanDo": "Google's permission can also post replies to your reviews and edit your Business Profile listing. ScaleX reads your reviews with it, and posts a reply or changes your opening hours only after you approve that exact change. You can revoke it any time.",
       "notSetUp": "Not set up yet. Google lets apps read Business Profile reviews only after it approves them, and ScaleX's approval isn't in place yet. Until then, forward Google's review emails or paste a review.",
       "needs": {
         "approval": "ScaleX's approval from Google to use the Business Profile APIs (Google's own review of ScaleX).",
@@ -6516,7 +6570,7 @@
       "bundleShop": "Approving records your yes. I don't change your shop, your prices or your checkout: you set the pair up yourself.",
       "bundleBookings": "Approving records your yes. I don't change your booking system or your prices: you offer the pair yourself.",
       "segment": "Nothing sends on approval. Approving lets me draft the email; nothing sends until you approve the finished email itself, and then every recipient's consent is checked again at the moment it goes.",
-      "followUp": "Nothing sends, now or on approval. Approving lets me draft the email; you read it, change what you like and send it yourself from your own mail.",
+      "followUp": "Approving lets me draft the email. You read it and approve the exact email, and then I send it from ScaleX's email service under your business's name, with replies going to you. Their consent is checked again at the moment it goes.",
       "stockContent": "Approving lets me draft it on Content. Nothing is posted until you approve the finished post itself.",
       "stockPair": "Approving records your yes. I don't change your shop: you set the pair up yourself.",
       "stockPrices": "Approving records your yes. I don't change your prices: you do.",
@@ -8534,7 +8588,7 @@
       "meta_publish": "Meta publishing (Facebook Page and Instagram)",
       "meta_ads": "Meta ad management",
       "email_campaign": "Campaign email",
-      "google_business_reviews": "Google Business Profile reviews"
+      "google_business_reviews": "Google Business Profile"
     },
     "part": {
       "extra": "granted {scopes} which the consent does not name (one scope too many is a refusal, not a bonus)",
@@ -9344,6 +9398,7 @@
       "tiktok_ads": "TikTok ads",
       "google_ads": "Google Ads",
       "email_campaign": "Email to your contacts",
+      "followup_email": "Follow-ups on quiet deals",
       "purchase_order": "Orders to suppliers",
       "google_business_reviews": "Answers to Google reviews"
     },

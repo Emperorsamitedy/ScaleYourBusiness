@@ -2121,7 +2121,8 @@
         "meta_publish": "Publicación en Meta (página de Facebook e Instagram)",
         "meta_ads": "Gestión de anuncios de Meta",
         "email_campaign": "Correo de campañas",
-        "google_business_reviews": "Reseñas del Perfil de Empresa de Google"
+        "google_business_reviews": "Perfil de Empresa de Google",
+        "shopify_write": "Cambios en la tienda Shopify"
       },
       "status": {
         "connected": "conectada",
@@ -2206,10 +2207,16 @@
         "resume_adset": "Reanudar un conjunto de anuncios en pausa.",
         "pause_adset": "Pausar un conjunto de anuncios en curso.",
         "resume_ad": "Reanudar un anuncio en pausa.",
-        "pause_ad": "Pausar un anuncio en curso."
+        "pause_ad": "Pausar un anuncio en curso.",
+        "update_page_body": "Sustituir las palabras aprobadas en una de las páginas de su tienda; deshacer devuelve la página mientras siga como ScaleX la dejó.",
+        "create_bundle": "Crear el par aprobado como un único producto en lote al precio completo de los dos artículos; deshacer lo archiva, nunca lo elimina.",
+        "set_variant_price": "Rebajar un artículo de venta lenta aprobado en la proporción aprobada, mostrando el precio anterior como precio de comparación; deshacer restablece ambos."
       },
       "readback": "Para ver qué resultado da cada publicación, el mismo token también lee:",
       "ownApp": "O bien: configure su propia aplicación de Meta",
+      "ownAppFor": {
+        "shopify_write": "Configure la aplicación de cambios en la tienda en Shopify"
+      },
       "ownAppSteps": {
         "meta_publish": {
           "s0": "En Meta Business Suite, compruebe que su página de Facebook y su cuenta de Instagram están ambas en su portfolio comercial.",
@@ -2224,6 +2231,12 @@
           "s2": "Añada a la aplicación el caso de uso de la Marketing API.",
           "s3": "En la configuración del negocio, añada un usuario del sistema, asígnele su cuenta publicitaria y genere un token para su aplicación con exactamente el permiso indicado arriba, ni uno más.",
           "s4": "Pegue aquí el token con el ID de la cuenta publicitaria que aparece en el Administrador de anuncios."
+        },
+        "shopify_write": {
+          "s0": "En el Dev Dashboard de Shopify, cree una segunda aplicación para su tienda: no la que usa ScaleX para leer, que debe conservar solo permisos de lectura.",
+          "s1": "Concédale exactamente los permisos indicados arriba, write_products y write_online_store_pages, y ninguno más.",
+          "s2": "Instálela en su tienda.",
+          "s3": "Pegue aquí la dirección myshopify.com de su tienda y el ID de cliente y el secreto de cliente de la nueva aplicación."
         }
       },
       "field": {
@@ -2249,6 +2262,20 @@
           "ad_account_id": {
             "label": "ID de la cuenta publicitaria",
             "placeholder": "ID de la cuenta publicitaria, con o sin act_"
+          }
+        },
+        "shopify_write": {
+          "shop": {
+            "label": "dirección de la tienda",
+            "placeholder": "su-tienda.myshopify.com"
+          },
+          "client_id": {
+            "label": "ID de cliente",
+            "placeholder": "ID de cliente"
+          },
+          "client_secret": {
+            "label": "secreto de cliente",
+            "placeholder": "Secreto de cliente"
           }
         }
       },
@@ -2407,8 +2434,8 @@
       "googleScreen": "Después, Google muestra su propia pantalla y pregunta por este único permiso. Permítalo y vuelva aquí.",
       "typeToConfirm": "Para confirmar, escriba <b>{phrase}</b>",
       "opening": "Abriendo Google…",
-      "signIn": "Iniciar sesión con Google y permitir la lectura de reseñas",
-      "nothingWritten": "Al conectar se registra su consentimiento y se leen sus reseñas una vez al día. ScaleX nunca responde ni edita su ficha: solo lee de Google.",
+      "signIn": "Iniciar sesión con Google y permitir respuestas y horarios",
+      "nothingWritten": "Al conectar se registra su consentimiento y se leen sus reseñas una vez al día. ScaleX solo publica una respuesta o cambia su horario después de que usted haya aprobado ese cambio exacto, y no cambia nada más de su ficha.",
       "reason": {
         "start_here": "Empiece el inicio de sesión con Google desde la pantalla Conexiones de ScaleX, con el botón que hay allí. No se ha enviado nada a Google.",
         "signed_out": "Inicie sesión primero en ScaleX y vuelva a conectar Google.",
@@ -3954,7 +3981,18 @@
       "draft": "Redactar el correo",
       "dontSend": "Yo no envío esto. Cópielo en su propio correo para ellos.",
       "copied": "Copiado",
-      "copy": "Copiar el texto"
+      "copy": "Copiar el texto",
+      "draftedSend": "Redactado. Léalo, póngale un asunto y dé su aprobación; después lo envío yo.",
+      "subject": "Asunto",
+      "approveSend": "Aprobar y enviar",
+      "adds": "Al enviarlo, ScaleX añade su nombre en el saludo, la dirección de su negocio si consta y un enlace para darse de baja. La etiqueta de IA ya está en el texto. Su consentimiento se vuelve a comprobar al enviarlo, y las respuestas le llegan a usted.",
+      "sentOn": "Enviado el {date}.",
+      "waiting": "Aprobado. Sale en cuanto se active el envío; hasta entonces no se envía nada.",
+      "ready": "Aprobado. Sale en la próxima ejecución, dentro de la hora.",
+      "unconfirmed": "El servicio de correo nunca lo confirmó, así que ScaleX no lo volverá a enviar. Revise sus enviados o pregúnteles.",
+      "notSent": "No enviado: {why}",
+      "sentNow": "Enviado.",
+      "heldNow": "Aprobado. Espera a que se active el envío."
     },
     "due": {
       "label": "Probablemente ganadas para el {date}",
@@ -4050,7 +4088,12 @@
         "pending": "pendiente de usted",
         "blocked": "bloqueado por su regla",
         "rejected": "rechazado",
-        "changes_requested": "cambios solicitados"
+        "changes_requested": "cambios solicitados",
+        "sent": "enviado",
+        "waiting": "aprobado, en espera de envío",
+        "ready": "sale a continuación",
+        "unconfirmed": "sin confirmar",
+        "notSent": "no enviado"
       }
     },
     "how": "Cómo funciona",
@@ -4120,7 +4163,18 @@
       "removing": "Quitando…",
       "removeYes": "Sí, quitarla",
       "keep": "Conservarla",
-      "remove": "Quitar esta reseña"
+      "remove": "Quitar esta reseña",
+      "postGoogle": "Aprobar y publicar en Google",
+      "posting": "Publicando…",
+      "postNote": "ScaleX publica exactamente este texto bajo la reseña, terminado en «Written with AI assistance.», y puede retirarlo si cambia de opinión.",
+      "notGoogle": "ScaleX no puede publicar en {site}: no tiene forma de responder allí. Cópiela y publíquela usted.",
+      "reconnect": "Para que ScaleX publique respuestas en Google, vuelva a conectar su Perfil de Empresa en Conexiones.",
+      "postState": {
+        "waiting": "Aprobada. Se publicará en Google en la primera ejecución después de que se activen los cambios reales.",
+        "posted": "Publicada en Google.",
+        "failed": "Google no la aceptó. No se publicó nada.",
+        "withdrawn": "Retirada de Google."
+      }
     },
     "forwarding": {
       "label": "Reenvío",
@@ -4145,7 +4199,7 @@
       "connected": "ScaleX lee sus reseñas una vez al día y archiva aquí las nuevas, junto a las que reenvíe. Si la misma reseña llega por las dos vías, aparece una sola vez.",
       "lastRead": "Última lectura: {day}.",
       "before": "Antes de que pueda funcionar",
-      "whatItCanDo": "El permiso de Google también puede publicar respuestas a sus reseñas y editar la ficha de su Perfil de Empresa. ScaleX solo lo usa para leer sus reseñas. Puede revocarlo en cualquier momento.",
+      "whatItCanDo": "El permiso de Google también puede publicar respuestas a sus reseñas y editar la ficha de su Perfil de Empresa. ScaleX lee sus reseñas con él, y solo publica una respuesta o cambia su horario después de que usted haya aprobado ese cambio exacto. Puede revocarlo en cualquier momento.",
       "notSetUp": "Todavía no está configurado. Google solo deja que las aplicaciones lean las reseñas del Perfil de Empresa después de darles el visto bueno, y ScaleX todavía no lo tiene. Hasta entonces, reenvíe los correos de reseñas de Google o pegue una reseña.",
       "needs": {
         "approval": "El visto bueno de Google para que ScaleX use las API del Perfil de Empresa (la verificación de ScaleX por parte de Google).",
@@ -6516,7 +6570,7 @@
       "bundleShop": "Al aprobarla, queda registrado su sí. No cambio su tienda, sus precios ni su proceso de pago: es usted quien configura el par de productos.",
       "bundleBookings": "Al aprobarla, queda registrado su sí. No cambio su sistema de reservas ni sus precios: es usted quien ofrece el par.",
       "segment": "No se envía nada al aprobar. Aprobarla me permite redactar el correo; no se envía nada hasta que usted apruebe el correo terminado, y entonces se vuelve a comprobar el consentimiento de cada destinatario en el momento en que sale.",
-      "followUp": "No se envía nada, ni ahora ni al aprobar. Aprobarla me permite redactar el correo; usted lo lee, cambia lo que quiera y lo envía desde su propio correo.",
+      "followUp": "Al aprobarla puedo redactar el correo. Usted lo lee y aprueba ese correo exacto, y entonces lo envío desde el servicio de correo de ScaleX en nombre de su negocio, con las respuestas dirigidas a usted. Su consentimiento se comprueba de nuevo en el momento del envío.",
       "stockContent": "Aprobarla me permite redactarlo en Contenido. No se publica nada hasta que usted apruebe la publicación terminada.",
       "stockPair": "Al aprobarla, queda registrado su sí. No cambio su tienda: es usted quien configura el par.",
       "stockPrices": "Al aprobarla, queda registrado su sí. No cambio sus precios: los cambia usted.",
@@ -8753,7 +8807,7 @@
       "meta_publish": "Publicación en Meta (página de Facebook e Instagram)",
       "meta_ads": "Gestión de anuncios de Meta",
       "email_campaign": "Correo de campañas",
-      "google_business_reviews": "Reseñas del Perfil de Empresa de Google"
+      "google_business_reviews": "Perfil de Empresa de Google"
     },
     "part": {
       "extra": "se ha concedido {scopes}, que el consentimiento no menciona (un permiso de más es un rechazo, no un extra)",
@@ -9344,6 +9398,7 @@
       "tiktok_ads": "Anuncios de TikTok",
       "google_ads": "Google Ads",
       "email_campaign": "Correos a tus contactos",
+      "followup_email": "Seguimientos de oportunidades paradas",
       "purchase_order": "Pedidos a proveedores",
       "google_business_reviews": "Respuestas a reseñas de Google"
     },

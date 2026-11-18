@@ -9,7 +9,6 @@ import { describe, expect, it } from "vitest";
 import { SCOPE_REGISTRY, auditRegistry, isWriteCapable } from "../connectors/scopes";
 import {
   EXECUTION_SCOPE_REGISTRY,
-  FENCED_SCOPES,
   HOMED_SCOPES,
   VENDOR_MISNAMED_AD_FIELDS,
   VENDOR_MISNAMED_READS,
@@ -313,14 +312,56 @@ describe("P3-08 — the pinned allowlist (rule 13)", () => {
           },
         ],
       },
+      // P5-16b, 2026-11-16 (rule 29 amended by the owner): an approved deal
+      // follow-up, emailed to the deal's contact. One write scope, one
+      // irreversible op, and two consent lines: what SYB may do, and the
+      // consent and unsubscribe it always honours.
+      followup_email: {
+        label: "Deal follow-up email",
+        write_scopes: ["email.send_followup"],
+        readback_scopes: [],
+        operations: [
+          {
+            op: "send_followup",
+            description:
+              "Email one approved follow-up to the deal's contact, exactly as approved, checking their consent at the moment it goes.",
+            reversible: false,
+          },
+        ],
+        consent: [
+          {
+            scope: "email.send_followup",
+            grant: "your approval of each email (ScaleX's own email service)",
+            why: "ScaleX may send a follow-up email you approved, word for word, from its own email service under your business's name, with replies going to you.",
+          },
+          {
+            scope: "email.send_followup",
+            grant: "your approval of each email (ScaleX's own email service)",
+            why: "ScaleX sends it only to a contact who explicitly agreed to hear from you, checked again at the moment it goes, and never to anyone who unsubscribed.",
+          },
+        ],
+      },
       // I-45a, 2026-11-01: Google Business Profile, held as a write consent
-      // because its only scope can write, and used to read reviews alone —
-      // no operations, so nothing could ever be executed with it.
+      // because its only scope can write. Lifted by the owner 2026-11-16:
+      // two reversible ops, each only after an approval of the exact change.
       google_business_reviews: {
-        label: "Google Business Profile reviews",
+        label: "Google Business Profile",
         write_scopes: ["https://www.googleapis.com/auth/business.manage"],
         readback_scopes: [],
-        operations: [],
+        operations: [
+          {
+            op: "reply_to_review",
+            description:
+              "Post the reply you approved, word for word, under one Google review; undo puts back the reply that was there before, or removes it.",
+            reversible: true,
+          },
+          {
+            op: "set_regular_hours",
+            description:
+              "Move one opening or closing time on one weekday of your Google listing, as approved; undo moves it back while it is still as ScaleX set it.",
+            reversible: true,
+          },
+        ],
         consent: [
           {
             scope: "https://www.googleapis.com/auth/business.manage",
@@ -330,7 +371,12 @@ describe("P3-08 — the pinned allowlist (rule 13)", () => {
           {
             scope: "https://www.googleapis.com/auth/business.manage",
             grant: "Google Business Profile (business.manage)",
-            why: "ScaleX uses it only to read your reviews. ScaleX never posts a reply or changes your listing: suggested replies stay drafts you post yourself.",
+            why: "ScaleX reads your reviews with it once a day. ScaleX may post a reply you approved, word for word and labelled as written with AI assistance, and may change your listing's opening hours after you approve the exact change.",
+          },
+          {
+            scope: "https://www.googleapis.com/auth/business.manage",
+            grant: "Google Business Profile (business.manage)",
+            why: "ScaleX never changes anything else on your listing, and never touches billing. Every reply and hours change can be undone from ScaleX.",
           },
           {
             scope: "https://www.googleapis.com/auth/business.manage",
@@ -381,11 +427,59 @@ describe("P3-08 — the pinned allowlist (rule 13)", () => {
           },
         ],
       },
+      // D6, 2026-11-16 (owner: "make all these automatic…", then "Shopify
+      // first"): Shopify store changes, a separate app and consent from the
+      // read connector. Three reversible ops, none near checkout (rule 18).
+      shopify_write: {
+        label: "Shopify store changes",
+        write_scopes: ["write_products", "write_online_store_pages"],
+        readback_scopes: [],
+        operations: [
+          {
+            op: "update_page_body",
+            description:
+              "Replace the approved words on one of your store's pages; undo puts the page back while it is still as ScaleX left it.",
+            reversible: true,
+          },
+          {
+            op: "create_bundle",
+            description:
+              "Create the approved pair as one bundle product at the two items' full price; undo archives it, never deletes it.",
+            reversible: true,
+          },
+          {
+            op: "set_variant_price",
+            description:
+              "Mark an approved slow item down by the approved share, showing the old price as the compare-at price; undo puts both back.",
+            reversible: true,
+          },
+        ],
+        consent: [
+          {
+            scope: "write_products",
+            grant: "Shopify: write_products",
+            why: "ScaleX may create a bundle you approved and mark down an item you approved, by at most half and never below its cost. Each one can be undone from ScaleX.",
+          },
+          {
+            scope: "write_online_store_pages",
+            grant: "Shopify: write_online_store_pages",
+            why: "ScaleX may change the words on one of your store's pages after you approve the exact change, and checks the page still loads afterwards.",
+          },
+          {
+            scope: "write_products",
+            grant: "Shopify: write_products",
+            why: "ScaleX never touches checkout, payments, orders, customers, shipping, taxes or discounts, and never deletes anything.",
+          },
+        ],
+      },
     });
   });
 
-  it("P2-20: the homed scopes are exactly this", () => {
-    expect(HOMED_SCOPES).toEqual({ "https://www.googleapis.com/auth/adwords": "google_ads" });
+  it("P2-20, I-45a: the homed scopes are exactly this", () => {
+    expect(HOMED_SCOPES).toEqual({
+      "https://www.googleapis.com/auth/adwords": "google_ads",
+      "https://www.googleapis.com/auth/business.manage": "google_business_reviews",
+    });
   });
 
   it("P2-20: adwords is write-shaped by the measurement audit's own vocabulary, and accepted under google_ads", () => {
@@ -465,24 +559,18 @@ describe("P3-08 — the pinned allowlist (rule 13)", () => {
     ]);
   });
 
-  it("I-45a: the fenced scopes are exactly this", () => {
-    expect(FENCED_SCOPES).toEqual({
-      "https://www.googleapis.com/auth/business.manage": "google_business_reviews",
-    });
-  });
-
-  it("I-45a: business.manage is accepted under its own provider, which has no operations", () => {
-    const fenced = auditExecutionRegistry(
+  it("I-45a lifted: business.manage is accepted under its own provider, with its two ops", () => {
+    const homed = auditExecutionRegistry(
       {
         google_business_reviews: {
           write_scopes: ["https://www.googleapis.com/auth/business.manage"],
           readback_scopes: [],
-          operations: [],
+          operations: [{ op: "reply_to_review", description: "", reversible: true }],
         },
       },
       isWriteCapable,
     );
-    expect(fenced).toEqual([]);
+    expect(homed).toEqual([]);
     // And it sits under no other provider in the real registry.
     const holders = Object.entries(EXECUTION_SCOPE_REGISTRY)
       .filter(([, spec]) =>
@@ -494,7 +582,7 @@ describe("P3-08 — the pinned allowlist (rule 13)", () => {
     expect(holders).toEqual(["google_business_reviews"]);
   });
 
-  it("I-45a: business.manage planted under another provider, as a readback, or beside an operation is caught", () => {
+  it("I-45a: business.manage planted under another provider, or as a readback, is caught", () => {
     const violations = auditExecutionRegistry(
       {
         meta_publish: {
@@ -505,10 +593,6 @@ describe("P3-08 — the pinned allowlist (rule 13)", () => {
           write_scopes: ["publish_things"],
           readback_scopes: ["https://www.googleapis.com/auth/business.manage"],
           operations: [],
-        },
-        google_business_reviews: {
-          write_scopes: ["https://www.googleapis.com/auth/business.manage"],
-          operations: [{ op: "reply_to_review", description: "", reversible: true }],
         },
       },
       isWriteCapable,
@@ -529,11 +613,17 @@ describe("P3-08 — the pinned allowlist (rule 13)", () => {
         value: "https://www.googleapis.com/auth/business.manage",
         reason: "fenced_scope_elsewhere",
       },
-      {
-        provider: "google_business_reviews",
-        value: "reply_to_review",
-        reason: "fenced_provider_operation",
-      },
+    ]);
+  });
+
+  it("I-45a lifted: Google Business Profile's ops are a reply and an hours move, each reversible", () => {
+    const ops = EXECUTION_SCOPE_REGISTRY.google_business_reviews.operations.map((o) => [
+      o.op,
+      o.reversible,
+    ]);
+    expect(ops).toEqual([
+      ["reply_to_review", true],
+      ["set_regular_hours", true],
     ]);
   });
 

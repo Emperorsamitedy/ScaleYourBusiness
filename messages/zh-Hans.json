@@ -2121,7 +2121,8 @@
         "meta_publish": "Meta 发布（Facebook 公共主页和 Instagram）",
         "meta_ads": "Meta 广告管理",
         "email_campaign": "营销活动邮件",
-        "google_business_reviews": "Google 商家资料评价"
+        "google_business_reviews": "Google 商家资料",
+        "shopify_write": "Shopify 店铺修改"
       },
       "status": {
         "connected": "已连接",
@@ -2206,10 +2207,16 @@
         "resume_adset": "恢复一个已暂停的广告组。",
         "pause_adset": "暂停一个正在投放的广告组。",
         "resume_ad": "恢复一条已暂停的广告。",
-        "pause_ad": "暂停一条正在投放的广告。"
+        "pause_ad": "暂停一条正在投放的广告。",
+        "update_page_body": "替换您店铺某个页面上已批准的文字；只要页面仍保持 ScaleX 修改后的样子，撤销就会把页面恢复原样。",
+        "create_bundle": "把已批准的两件商品按两者全价建成一个组合商品；撤销会将其归档，绝不删除。",
+        "set_variant_price": "按已批准的比例为一件已批准的滞销商品降价，并把原价显示为对比价；撤销会把两个价格都恢复。"
       },
       "readback": "为了查看每条帖子的表现，同一个令牌还会读取：",
       "ownApp": "或者：设置您自己的 Meta 应用",
+      "ownAppFor": {
+        "shopify_write": "在 Shopify 中设置用于修改店铺的应用"
+      },
       "ownAppSteps": {
         "meta_publish": {
           "s0": "在 Meta Business Suite 中，确认您的 Facebook 公共主页及其 Instagram 账户都在您的业务资产组合中。",
@@ -2224,6 +2231,12 @@
           "s2": "为应用添加 Marketing API 用例。",
           "s3": "在您的业务设置中，添加一个系统用户，把您的广告账户分配给它，并为您的应用生成一个令牌，权限与上面列出的完全一致。不能多。",
           "s4": "把令牌连同 Ads Manager 中的广告账户 ID 一起粘贴到这里。"
+        },
+        "shopify_write": {
+          "s0": "在 Shopify 的 Dev Dashboard 中为您的店铺创建第二个应用：不是 ScaleX 用来读取数据的那个，那个应用只能保留读取权限。",
+          "s1": "只授予它上面列出的权限，即 write_products 和 write_online_store_pages，其他一概不给。",
+          "s2": "把它安装到您的店铺。",
+          "s3": "把店铺的 myshopify.com 地址以及新应用的客户端 ID 和客户端密钥粘贴到这里。"
         }
       },
       "field": {
@@ -2249,6 +2262,20 @@
           "ad_account_id": {
             "label": "广告账户 ID",
             "placeholder": "广告账户 ID，带不带 act_ 均可"
+          }
+        },
+        "shopify_write": {
+          "shop": {
+            "label": "店铺地址",
+            "placeholder": "your-store.myshopify.com"
+          },
+          "client_id": {
+            "label": "客户端 ID",
+            "placeholder": "客户端 ID"
+          },
+          "client_secret": {
+            "label": "客户端密钥",
+            "placeholder": "客户端密钥"
           }
         }
       },
@@ -2407,8 +2434,8 @@
       "googleScreen": "随后 Google 会显示它自己的页面，并询问这一项权限。请允许，然后回到这里。",
       "typeToConfirm": "如需确认，请输入 <b>{phrase}</b>",
       "opening": "正在打开 Google…",
-      "signIn": "使用 Google 登录并允许读取评价",
-      "nothingWritten": "连接会记录您的同意，并每天读取一次您的评价。ScaleX 从不回复，也从不编辑您的商家信息：它只从 Google 读取。",
+      "signIn": "使用 Google 登录并允许回复和营业时间",
+      "nothingWritten": "连接会记录您的同意，并每天读取一次您的评价。只有在您批准了那项具体更改之后，ScaleX 才会发布回复或修改您的营业时间，商家信息的其他内容一概不改。",
       "reason": {
         "start_here": "请从 ScaleX 的“连接”页面，用那里的按钮开始 Google 登录。没有向 Google 发送任何内容。",
         "signed_out": "请先登录 ScaleX，然后再次连接 Google。",
@@ -3954,7 +3981,18 @@
       "draft": "起草邮件",
       "dontSend": "我不会发送它。请把它复制到您自己写给对方的邮件中。",
       "copied": "已复制",
-      "copy": "复制文本"
+      "copy": "复制文本",
+      "draftedSend": "已起草。请阅读、填写主题并批准，之后由我发送。",
+      "subject": "邮件主题",
+      "approveSend": "批准并发送",
+      "adds": "发送时，ScaleX 会在问候语中加入对方的名字、已登记的企业地址以及退订链接。AI 标注已在正文中。发送时会再次核对对方的同意，回复会发给您。",
+      "sentOn": "已于 {date} 发送。",
+      "waiting": "已批准。发送功能开启后即发出；在此之前不会发送任何内容。",
+      "ready": "已批准。将在下一轮发送，一小时内发出。",
+      "unconfirmed": "邮件服务始终未确认这封邮件，因此 ScaleX 不会再次发送。请查看您的已发送邮件，或直接询问对方。",
+      "notSent": "未发送：{why}",
+      "sentNow": "已发送。",
+      "heldNow": "已批准。等待发送功能开启。"
     },
     "due": {
       "label": "预计在 {date} 前赢单",
@@ -4050,7 +4088,12 @@
         "pending": "等待您处理",
         "blocked": "被您的规则拦下",
         "rejected": "已拒绝",
-        "changes_requested": "已要求修改"
+        "changes_requested": "已要求修改",
+        "sent": "已发送",
+        "waiting": "已批准，等待发送",
+        "ready": "即将发送",
+        "unconfirmed": "未确认",
+        "notSent": "未发送"
       }
     },
     "how": "运作方式",
@@ -4120,7 +4163,18 @@
       "removing": "正在移除…",
       "removeYes": "是的，移除",
       "keep": "保留",
-      "remove": "移除这条评价"
+      "remove": "移除这条评价",
+      "postGoogle": "批准并发布到 Google",
+      "posting": "正在发布…",
+      "postNote": "ScaleX 会在这条评价下发布与此完全一致的文字，结尾带有“Written with AI assistance.”，如果您改变主意，还可以撤回。",
+      "notGoogle": "ScaleX 无法在 {site} 上发布：它在那里没有回复的途径。请复制后自行发布。",
+      "reconnect": "如需让 ScaleX 在 Google 上发布回复，请在“连接”中重新连接 Google 商家资料。",
+      "postState": {
+        "waiting": "已批准。实际更改开启后，首次运行时会发布到 Google。",
+        "posted": "已发布到 Google。",
+        "failed": "Google 没有接受。没有发布任何内容。",
+        "withdrawn": "已从 Google 撤回。"
+      }
     },
     "forwarding": {
       "label": "转发",
@@ -4145,7 +4199,7 @@
       "connected": "ScaleX 每天读取一次您的评价，并把新评价归档到这里，与您转发的评价放在一起。通过两种方式到达的同一条评价只列出一次。",
       "lastRead": "上次读取于 {day}。",
       "before": "开始使用之前",
-      "whatItCanDo": "Google 的这项权限也可以回复您的评价，以及编辑您的 Google 商家资料。ScaleX 只用它读取您的评价。您可以随时撤销。",
+      "whatItCanDo": "Google 的这项权限也可以回复您的评价，以及编辑您的 Google 商家资料。ScaleX 用它读取您的评价，只有在您批准了那项具体更改之后，才会发布回复或修改您的营业时间。您可以随时撤销。",
       "notSetUp": "尚未设置。Google 只有在审核通过后才允许应用读取商家资料中的评价，而 ScaleX 尚未获得审核通过。在此之前，请转发 Google 的评价邮件或粘贴评价。",
       "needs": {
         "approval": "ScaleX 获得 Google 审核通过，可以使用商家资料 API（这是 Google 自己对 ScaleX 的审查）。",
@@ -6516,7 +6570,7 @@
       "bundleShop": "批准只是记下您的肯定答复。我不会改动您的店铺、价格或结账流程：这个组合由您自己设置。",
       "bundleBookings": "批准只是记下您的肯定答复。我不会改动您的预订系统或价格：这个组合由您自己提供。",
       "segment": "批准时不会发送任何内容。批准后我可以起草这封邮件；在您批准完成后的邮件本身之前，什么都不会发送，而且在发送的那一刻会再次核对每位收件人的同意。",
-      "followUp": "无论现在还是批准时，都不会发送任何内容。批准后我可以起草这封邮件；您阅读、随意修改，然后用您自己的邮箱亲自发送。",
+      "followUp": "批准后我可以起草这封邮件。您阅读并批准这封具体的邮件后，我会通过 ScaleX 的邮件服务以您企业的名义发送，回复会发给您。发送时会再次核实对方的同意。",
       "stockContent": "批准后我可以在“内容”中起草它。在您批准完成后的帖子本身之前，什么都不会发布。",
       "stockPair": "批准只是记下您的肯定答复。我不会改动您的店铺：这个组合由您自己设置。",
       "stockPrices": "批准只是记下您的肯定答复。我不会改动您的价格：由您来改。",
@@ -8753,7 +8807,7 @@
       "meta_publish": "Meta 发布（Facebook 公共主页和 Instagram）",
       "meta_ads": "Meta 广告管理",
       "email_campaign": "营销活动邮件",
-      "google_business_reviews": "Google 商家资料评价"
+      "google_business_reviews": "Google 商家资料"
     },
     "part": {
       "extra": "授予了同意中未列出的 {scopes}（多一项权限就是拒绝，而不是额外收获）",
@@ -9344,6 +9398,7 @@
       "tiktok_ads": "TikTok 广告",
       "google_ads": "Google Ads",
       "email_campaign": "发给联系人的邮件",
+      "followup_email": "停滞交易的跟进邮件",
       "purchase_order": "向供应商下单",
       "google_business_reviews": "回复 Google 评价"
     },

@@ -5,8 +5,10 @@
 // fewer, of how many. Then every review on file, newest first, with its
 // platform, its stars in words, when, the words, and "Suggest a reply";
 // the forwarding address with plain setup steps; and a "Paste a review"
-// form. SYB never posts a reply: a suggestion is text to edit and copy,
-// with a link to where the review lives.
+// form. A suggestion is text to edit; under a review read from Google, with
+// a connection consented to replies (I-45a lifted 2026-11-16), "Approve and
+// post on Google" approves those exact words and ScaleX posts them through
+// the engine. Anywhere else it stays text to copy, with a link to the review.
 //
 // L-3b (TASKS-LANGUAGES.md): the screen's own words are the "reviews"
 // catalogue; dates and counts in the reader's locale. A review's words,
@@ -74,10 +76,20 @@ async function copyText(text: string): Promise<boolean> {
   }
 }
 
-function ReviewEntry({ r, today, post }: { r: ReviewItem; today: string; post: Post }) {
+function ReviewEntry({
+  r,
+  today,
+  post,
+  googleConnected,
+}: {
+  r: ReviewItem;
+  today: string;
+  post: Post;
+  googleConnected: boolean;
+}) {
   const { tr, locale } = useTr("reviews");
   const [draft, setDraft] = useState(r.draft ?? "");
-  const [busy, setBusy] = useState<"draft" | "remove" | null>(null);
+  const [busy, setBusy] = useState<"draft" | "remove" | "post" | null>(null);
   const [note, setNote] = useState<string | null>(null);
   const [confirm, setConfirm] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -102,6 +114,15 @@ function ReviewEntry({ r, today, post }: { r: ReviewItem; today: string; post: P
     await post({ action: "remove", id: r.id });
     setBusy(null);
   };
+  const postOnGoogle = async () => {
+    setBusy("post");
+    setNote(null);
+    const out = await post({ action: "post", id: r.id, text: draft });
+    if (out && out.result === "refused" && typeof out.message === "string") setNote(out.message);
+    setBusy(null);
+  };
+  const waiting = r.post.state === "waiting";
+  const site = r.platform === "other" ? tr("entry.theSite") : r.platform_label;
 
   return (
     <li className={`rv-item${r.worth_knowing ? " rv-worth" : ""}`}>
@@ -138,10 +159,20 @@ function ReviewEntry({ r, today, post }: { r: ReviewItem; today: string; post: P
       )}
 
       <div className="rv-actions">
-        {r.draft ? (
+        {r.draft && r.post.can ? (
           <button
             type="button"
             className="act solid"
+            disabled={draft.trim() === "" || busy !== null || waiting || answerWhy !== null}
+            onClick={() => void postOnGoogle()}
+          >
+            {busy === "post" ? tr("entry.posting") : tr("entry.postGoogle")}
+          </button>
+        ) : null}
+        {r.draft ? (
+          <button
+            type="button"
+            className={r.post.can ? "act" : "act solid"}
             disabled={draft.trim() === ""}
             onClick={() => void copyText(draft).then(setCopied)}
           >
@@ -180,6 +211,14 @@ function ReviewEntry({ r, today, post }: { r: ReviewItem; today: string; post: P
           <span className="live-dot" aria-hidden="true" /> {tr("entry.draftingLive")}
         </p>
       )}
+      {r.draft && r.post.can && !r.post.state && <p className="rv-fine">{tr("entry.postNote")}</p>}
+      {r.draft && !r.post.can && r.platform !== "google" && (
+        <p className="rv-fine">{tr("entry.notGoogle", { site })}</p>
+      )}
+      {r.draft && !r.post.can && r.source === "google" && googleConnected && (
+        <p className="rv-fine">{tr("entry.reconnect")}</p>
+      )}
+      {r.post.state && <p className="rv-fine">{tr(`entry.postState.${r.post.state}`)}</p>}
       {note && <p className="rv-note">{note}</p>}
       {answerWhy && <p className="rv-fine">{answerWhy}</p>}
 
@@ -571,7 +610,13 @@ export function ReviewsScreen() {
             </div>
             <ul className="rv-list">
               {listed.map((r) => (
-                <ReviewEntry key={r.id} r={r} today={view.today} post={post} />
+                <ReviewEntry
+                  key={r.id}
+                  r={r}
+                  today={view.today}
+                  post={post}
+                  googleConnected={view.google.connected}
+                />
               ))}
             </ul>
           </>

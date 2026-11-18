@@ -21,9 +21,16 @@
 // Revoking deletes the access here at once (disconnectExecution wipes the
 // secret and keeps the row for provenance). Reviews already read stay on
 // /reviews, each removable there, and go after their year like any other.
+//
+// I-45a lifted (2026-11-16): the consent lines now say SYB may post approved
+// replies and change approved opening hours, and the typed phrase says so. A
+// connection whose `consent` row was written under the old lines ("ScaleX
+// never posts a reply") stays a reading connection: googleWriteConsentCurrent
+// recomputes the hash under today's lines and phrase, and only a match lets
+// the executor write. The owner reconnects to consent to the new lines.
 
 import { createHash } from "node:crypto";
-import { and, eq } from "drizzle-orm";
+import { and, desc, eq } from "drizzle-orm";
 import { db } from "../../db";
 import { businessProfiles, decisionLog, reviewSettings } from "../../db/schema";
 import type { GoogleBusinessEnv } from "../env";
@@ -33,6 +40,7 @@ import {
   activeExecutionConnection,
   connectForExecution,
   disconnectExecution,
+  executionSecret,
 } from "../execution/connections";
 import { EXECUTION_SCOPE_REGISTRY } from "../execution/scopes";
 import { ensureReviewSettings } from "../review-desk/settings";
@@ -42,7 +50,7 @@ import { refreshAccess } from "./client";
 export const GOOGLE_PROVIDER = "google_business_reviews" as const;
 
 /** What the owner types to confirm: the act, in their words. */
-export const GOOGLE_REVIEWS_PHRASE = "allow reading reviews";
+export const GOOGLE_REVIEWS_PHRASE = "allow replies and hours";
 
 export function googlePhraseMatches(typed: string): boolean {
   return typed.trim().toLowerCase() === GOOGLE_REVIEWS_PHRASE;
@@ -218,6 +226,55 @@ export async function consentToGoogleReviews(
     }),
   );
   return { connection, consent_hash };
+}
+
+/**
+ * Does this account's live Google connection carry a consent to TODAY's
+ * lines — the ones that allow replies and hours changes? Recomputed from the
+ * connection, its location and the registry's lines, and matched against
+ * the connection's latest `consent` row. Reads only.
+ */
+export async function googleWriteConsentCurrent(accountId: string): Promise<boolean> {
+  const row = await activeExecutionConnection(accountId, GOOGLE_PROVIDER);
+  if (!row || row.status !== "connected") return false;
+  let secret: GoogleSecret;
+  try {
+    secret = readGoogleSecret(executionSecret(row));
+  } catch {
+    return false;
+  }
+  const [logged] = await db
+    .select({ hash: decisionLog.payload_hash })
+    .from(decisionLog)
+    .where(and(eq(decisionLog.kind, "consent"), eq(decisionLog.ref_id, row.id)))
+    .orderBy(desc(decisionLog.at))
+    .limit(1);
+  if (!logged) return false;
+  return (
+    logged.hash ===
+    hashGoogleConsent({
+      account_id: accountId,
+      connection_id: row.id,
+      granted_scopes: row.granted_scopes,
+      consent_lines: googleConsentLines(),
+      typed_confirmation: GOOGLE_REVIEWS_PHRASE,
+      location: `${secret.account}/${secret.location}`,
+    })
+  );
+}
+
+/** The listing ScaleX may change for this business, or null when its Google connection can't write. */
+export async function googleWritableListing(
+  accountId: string,
+  profileId: string,
+): Promise<{ location: string; title: string } | null> {
+  if (!(await googleWriteConsentCurrent(accountId))) return null;
+  const row = await activeExecutionConnection(accountId, GOOGLE_PROVIDER);
+  if (!row) return null;
+  const secret = readGoogleSecret(executionSecret(row));
+  return secret.profile_id === profileId
+    ? { location: secret.location, title: secret.title }
+    : null;
 }
 
 /**

@@ -2121,7 +2121,8 @@
         "meta_publish": "Meta-Veröffentlichung (Facebook-Seite und Instagram)",
         "meta_ads": "Meta-Anzeigenverwaltung",
         "email_campaign": "Kampagnen-E-Mail",
-        "google_business_reviews": "Bewertungen im Google Unternehmensprofil"
+        "google_business_reviews": "Google Unternehmensprofil",
+        "shopify_write": "Shopify-Shop-Änderungen"
       },
       "status": {
         "connected": "verbunden",
@@ -2206,10 +2207,16 @@
         "resume_adset": "Eine pausierte Anzeigengruppe fortsetzen.",
         "pause_adset": "Eine laufende Anzeigengruppe pausieren.",
         "resume_ad": "Eine pausierte Anzeige fortsetzen.",
-        "pause_ad": "Eine laufende Anzeige pausieren."
+        "pause_ad": "Eine laufende Anzeige pausieren.",
+        "update_page_body": "Die freigegebenen Wörter auf einer Seite Ihres Shops ersetzen; Rückgängig stellt die Seite wieder her, solange sie noch so ist, wie ScaleX sie hinterlassen hat.",
+        "create_bundle": "Das freigegebene Paar als ein Bundle-Produkt zum vollen Preis beider Artikel anlegen; Rückgängig archiviert es, löscht es aber nie.",
+        "set_variant_price": "Einen freigegebenen Ladenhüter um den freigegebenen Anteil reduzieren und den alten Preis als Vergleichspreis zeigen; Rückgängig stellt beide Preise wieder her."
       },
       "readback": "Um zu sehen, wie jeder Beitrag ankommt, liest dasselbe Token außerdem:",
       "ownApp": "Oder: Richten Sie Ihre eigene Meta-App ein",
+      "ownAppFor": {
+        "shopify_write": "Richten Sie die App für Shop-Änderungen in Shopify ein"
+      },
       "ownAppSteps": {
         "meta_publish": {
           "s0": "Prüfen Sie in der Meta Business Suite, dass Ihre Facebook-Seite und das zugehörige Instagram-Konto beide in Ihrem Business-Portfolio liegen.",
@@ -2224,6 +2231,12 @@
           "s2": "Fügen Sie der App den Anwendungsfall Marketing API hinzu.",
           "s3": "Fügen Sie in Ihren Unternehmenseinstellungen einen Systemnutzer hinzu, weisen Sie ihm Ihr Werbekonto zu und generieren Sie für Ihre App ein Token mit genau der oben aufgeführten Berechtigung. Nicht mehr.",
           "s4": "Fügen Sie das Token hier zusammen mit der Werbekonto-ID aus dem Werbeanzeigenmanager ein."
+        },
+        "shopify_write": {
+          "s0": "Legen Sie im Dev Dashboard von Shopify eine zweite App für Ihren Shop an, nicht die, mit der ScaleX liest; diese behält nur Leserechte.",
+          "s1": "Geben Sie ihr genau die oben aufgeführten Berechtigungen, write_products und write_online_store_pages, und sonst keine.",
+          "s2": "Installieren Sie sie in Ihrem Shop.",
+          "s3": "Fügen Sie hier die myshopify.com-Adresse Ihres Shops sowie die Client-ID und das Client-Secret der neuen App ein."
         }
       },
       "field": {
@@ -2249,6 +2262,20 @@
           "ad_account_id": {
             "label": "Werbekonto-ID",
             "placeholder": "Werbekonto-ID, mit oder ohne act_"
+          }
+        },
+        "shopify_write": {
+          "shop": {
+            "label": "Shop-Adresse",
+            "placeholder": "ihr-shop.myshopify.com"
+          },
+          "client_id": {
+            "label": "Client-ID",
+            "placeholder": "Client-ID"
+          },
+          "client_secret": {
+            "label": "Client-Secret",
+            "placeholder": "Client-Secret"
           }
         }
       },
@@ -2407,8 +2434,8 @@
       "googleScreen": "Google zeigt dann eine eigene Seite und fragt nach dieser einen Berechtigung. Erlauben Sie sie und kommen Sie hierher zurück.",
       "typeToConfirm": "Geben Sie zur Bestätigung <b>{phrase}</b> ein",
       "opening": "Google wird geöffnet…",
-      "signIn": "Mit Google anmelden und das Lesen von Bewertungen erlauben",
-      "nothingWritten": "Das Verbinden erfasst Ihre Einwilligung und liest Ihre Bewertungen einmal täglich. ScaleX antwortet nie und bearbeitet nie Ihren Eintrag: Es liest nur von Google.",
+      "signIn": "Mit Google anmelden und Antworten und Öffnungszeiten erlauben",
+      "nothingWritten": "Das Verbinden erfasst Ihre Einwilligung und liest Ihre Bewertungen einmal täglich. ScaleX veröffentlicht eine Antwort oder ändert Ihre Öffnungszeiten erst nach Ihrer Freigabe genau dieser Änderung und ändert sonst nichts an Ihrem Eintrag.",
       "reason": {
         "start_here": "Starten Sie die Google-Anmeldung auf der Seite „Verbindungen“ von ScaleX, mit der Schaltfläche dort. An Google wurde nichts gesendet.",
         "signed_out": "Sie müssen sich zuerst bei ScaleX anmelden; verbinden Sie Google dann erneut.",
@@ -3954,7 +3981,18 @@
       "draft": "E-Mail entwerfen",
       "dontSend": "Ich sende das nicht. Kopieren Sie es in Ihre eigene E-Mail an sie.",
       "copied": "Kopiert",
-      "copy": "Text kopieren"
+      "copy": "Text kopieren",
+      "draftedSend": "Entworfen. Lesen Sie sie, geben Sie ihr eine Betreffzeile und erteilen Sie die Freigabe, dann sende ich sie.",
+      "subject": "Betreffzeile",
+      "approveSend": "Freigeben und senden",
+      "adds": "Beim Versand ergänzt ScaleX den Vornamen in der Anrede, die Adresse Ihres Unternehmens, falls hinterlegt, und einen Abmeldelink. Der KI-Hinweis steht schon im Text. Die Einwilligung wird beim Versand erneut geprüft, und Antworten gehen an Sie.",
+      "sentOn": "Gesendet am {date}.",
+      "waiting": "Freigegeben. Sie geht raus, sobald der Versand eingeschaltet ist; bis dahin wird nichts gesendet.",
+      "ready": "Freigegeben. Sie geht beim nächsten Durchlauf raus, innerhalb der Stunde.",
+      "unconfirmed": "Der E-Mail-Dienst hat diese nie bestätigt, deshalb sendet ScaleX sie nicht noch einmal. Prüfen Sie Ihre gesendeten E-Mails oder fragen Sie nach.",
+      "notSent": "Nicht gesendet: {why}",
+      "sentNow": "Gesendet.",
+      "heldNow": "Freigegeben. Sie wartet, bis der Versand eingeschaltet ist."
     },
     "due": {
       "label": "Wahrscheinlich gewonnen bis {date}",
@@ -4050,7 +4088,12 @@
         "pending": "wartet auf Sie",
         "blocked": "durch Ihre Regel blockiert",
         "rejected": "abgelehnt",
-        "changes_requested": "Änderungen erbeten"
+        "changes_requested": "Änderungen erbeten",
+        "sent": "gesendet",
+        "waiting": "freigegeben, wartet auf Versand",
+        "ready": "geht als Nächstes raus",
+        "unconfirmed": "unbestätigt",
+        "notSent": "nicht gesendet"
       }
     },
     "how": "So funktioniert es",
@@ -4120,7 +4163,18 @@
       "removing": "Wird entfernt…",
       "removeYes": "Ja, entfernen",
       "keep": "Behalten",
-      "remove": "Diese Bewertung entfernen"
+      "remove": "Diese Bewertung entfernen",
+      "postGoogle": "Freigeben und auf Google veröffentlichen",
+      "posting": "Wird veröffentlicht…",
+      "postNote": "ScaleX veröffentlicht genau diesen Text unter der Bewertung, mit dem Zusatz „Written with AI assistance.“ am Ende, und kann ihn wieder entfernen, wenn Sie es sich anders überlegen.",
+      "notGoogle": "ScaleX kann auf {site} nicht veröffentlichen: Dort hat es keine Möglichkeit zu antworten. Kopieren Sie die Antwort und veröffentlichen Sie sie selbst.",
+      "reconnect": "Damit ScaleX Antworten auf Google veröffentlichen kann, verbinden Sie das Google Unternehmensprofil unter Verbindungen neu.",
+      "postState": {
+        "waiting": "Freigegeben. Die Antwort erscheint auf Google beim ersten Lauf, nachdem echte Änderungen eingeschaltet sind.",
+        "posted": "Auf Google veröffentlicht.",
+        "failed": "Google hat sie nicht angenommen. Nichts wurde veröffentlicht.",
+        "withdrawn": "Wieder von Google entfernt."
+      }
     },
     "forwarding": {
       "label": "Weiterleitung",
@@ -4145,7 +4199,7 @@
       "connected": "ScaleX liest Ihre Bewertungen einmal täglich und legt neue hier ab, neben denen, die Sie weiterleiten. Dieselbe Bewertung, die auf beiden Wegen ankommt, erscheint nur einmal.",
       "lastRead": "Zuletzt gelesen am {day}.",
       "before": "Bevor es funktionieren kann",
-      "whatItCanDo": "Die Berechtigung von Google erlaubt auch, Antworten auf Ihre Bewertungen zu veröffentlichen und Ihren Eintrag im Google Unternehmensprofil zu bearbeiten. ScaleX liest damit nur Ihre Bewertungen. Sie können sie jederzeit widerrufen.",
+      "whatItCanDo": "Die Berechtigung von Google erlaubt auch, Antworten auf Ihre Bewertungen zu veröffentlichen und Ihren Eintrag im Google Unternehmensprofil zu bearbeiten. ScaleX liest damit Ihre Bewertungen und veröffentlicht eine Antwort oder ändert Ihre Öffnungszeiten erst nach Ihrer Freigabe genau dieser Änderung. Sie können sie jederzeit widerrufen.",
       "notSetUp": "Noch nicht eingerichtet. Google lässt Apps Bewertungen aus dem Unternehmensprofil erst lesen, nachdem es sie zugelassen hat, und die Zulassung für ScaleX liegt noch nicht vor. Bis dahin leiten Sie die Bewertungs-E-Mails von Google weiter oder fügen eine Bewertung ein.",
       "needs": {
         "approval": "Die Zulassung von ScaleX durch Google zur Nutzung der Unternehmensprofil-APIs (Googles eigene Prüfung von ScaleX).",
@@ -6516,7 +6570,7 @@
       "bundleShop": "Die Freigabe hält Ihr Ja fest. Ich ändere weder Ihren Shop noch Ihre Preise noch Ihren Checkout: Das Paar richten Sie selbst ein.",
       "bundleBookings": "Die Freigabe hält Ihr Ja fest. Ich ändere weder Ihr Buchungssystem noch Ihre Preise: Das Paar bieten Sie selbst an.",
       "segment": "Bei der Freigabe wird nichts gesendet. Mit der Freigabe darf ich die E-Mail entwerfen; nichts wird gesendet, bis Sie die fertige E-Mail selbst freigeben, und dann wird die Einwilligung jeder Person auf der Empfängerliste im Moment des Versands erneut geprüft.",
-      "followUp": "Nichts wird gesendet, weder jetzt noch bei der Freigabe. Mit der Freigabe darf ich die E-Mail entwerfen; Sie lesen sie, ändern, was Sie möchten, und senden sie selbst aus Ihrem eigenen E-Mail-Programm.",
+      "followUp": "Mit der Freigabe darf ich die E-Mail entwerfen. Sie lesen sie und geben genau diese E-Mail frei, dann sende ich sie über den E-Mail-Dienst von ScaleX im Namen Ihres Unternehmens, und Antworten gehen an Sie. Die Einwilligung wird im Moment des Versands erneut geprüft.",
       "stockContent": "Mit der Freigabe darf ich ihn unter Inhalte entwerfen. Nichts wird veröffentlicht, bis Sie den fertigen Beitrag selbst freigeben.",
       "stockPair": "Die Freigabe hält Ihr Ja fest. Ich ändere Ihren Shop nicht: Das Paar richten Sie selbst ein.",
       "stockPrices": "Die Freigabe hält Ihr Ja fest. Ich ändere Ihre Preise nicht: Das tun Sie.",
@@ -8753,7 +8807,7 @@
       "meta_publish": "Meta-Veröffentlichung (Facebook-Seite und Instagram)",
       "meta_ads": "Meta-Anzeigenverwaltung",
       "email_campaign": "Kampagnen-E-Mail",
-      "google_business_reviews": "Bewertungen im Google Unternehmensprofil"
+      "google_business_reviews": "Google Unternehmensprofil"
     },
     "part": {
       "extra": "{scopes} erteilt, die in der Einwilligung nicht genannt sind (eine Berechtigung zu viel ist ein Ablehnungsgrund, kein Bonus)",
@@ -9344,6 +9398,7 @@
       "tiktok_ads": "TikTok-Anzeigen",
       "google_ads": "Google Ads",
       "email_campaign": "E-Mails an Ihre Kontakte",
+      "followup_email": "Nachfass-E-Mails zu ruhigen Deals",
       "purchase_order": "Bestellungen bei Lieferanten",
       "google_business_reviews": "Antworten auf Google-Bewertungen"
     },

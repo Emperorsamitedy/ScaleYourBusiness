@@ -504,6 +504,7 @@ export const decisionKind = pgEnum("decision_kind", [
   "idea_saved", // TASKS-IDEAS I-10: an idea check was kept as an idea business; ref is the idea_checks row
   "idea_test_result", // I-32: the owner recorded what a test showed; ref is the idea_test_results row
   "idea_launch", // I-50: the idea was launched and became an operating business; ref is the profile
+  "followup_approval", // P5-16b: the owner approved the exact deal follow-up email; ref is the proposal, ids and hashes only
 ]);
 
 export const decisionLog = pgTable(
@@ -3792,9 +3793,10 @@ export const dealEvents = pgTable(
 
 /**
  * P5-16: a follow-up email drafted for an approved follow-up proposal —
- * one per proposal. It is never sent by SYB: the owner copies it into
- * their own mail. The body holds a {{name}} slot, never the name, and goes
- * with the deal on erasure.
+ * one per proposal. The body holds a {{name}} slot, never the name, and goes
+ * with the deal on erasure. P5-16b (rule 29 amended 2026-11-16): once the
+ * owner approves this exact text (approved_*), SYB sends it; the send itself
+ * is a campaign_sends row on the same proposal.
  */
 export const dealFollowups = pgTable(
   "deal_followups",
@@ -3817,6 +3819,12 @@ export const dealFollowups = pgTable(
     created_at: timestamp("created_at", { withTimezone: true, mode: "string" })
       .notNull()
       .defaultNow(),
+    /* ── P5-16b: the owner's approval of this exact email ── */
+    approved_by: uuid("approved_by"),
+    approved_at: timestamp("approved_at", { withTimezone: true, mode: "string" }),
+    /** sha256 of `body` as the owner read it; a changed body needs a new approval. */
+    approved_sha256: text("approved_sha256"),
+    approved_subject: text("approved_subject"),
   },
   (t) => [
     uniqueIndex("deal_followups_proposal_idx").on(t.proposal_id),
@@ -4725,6 +4733,8 @@ export const planCapability = pgEnum("plan_capability", [
   "meta_post",
   "review_reply",
   "fixture",
+  // P5-16b: a deal follow-up email — one contact, so unmeasurable by design.
+  "deal_followup",
 ]);
 
 export const planMetric = pgEnum("plan_metric", [

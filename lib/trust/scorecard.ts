@@ -67,13 +67,14 @@ export async function buildTrustView(
   for (const row of rows) {
     if (row.status in counts) counts[row.status as keyof typeof counts] += 1;
     let outcome: ProposalOutcome | null = null;
-    if (row.status === "executed") {
-      outcome = await readbackForProposal(row, now);
-      outcomes[outcome.verdict] += 1;
-    } else if (row.status === "approved" && row.module === HOURS_MODULE) {
-      // P3-41: an hours trial is carried out by the owner, so it stays
-      // approved; it is judged on its weekday's takings all the same.
+    if ((row.status === "approved" || row.status === "executed") && row.module === HOURS_MODULE) {
+      // P3-41: an hours trial is judged on its weekday's takings — whether the
+      // owner carried it out (approved) or ScaleX moved the hour on Google
+      // (executed, I-45a lifted 2026-11-16).
       outcome = await trialOutcome(row, now);
+      outcomes[outcome.verdict] += 1;
+    } else if (row.status === "executed") {
+      outcome = await readbackForProposal(row, now);
       outcomes[outcome.verdict] += 1;
     }
     history.push({ proposal: row, outcome });

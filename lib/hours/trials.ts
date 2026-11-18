@@ -13,17 +13,30 @@
 //                    downside 100% lost · base 50% · upside 0%
 //
 // The shares are assumptions, stated as such on the card, and the trial
-// exists precisely to replace them with a measurement. Nothing here
-// touches the business's Google listing or website: the owner changes
-// their own hours (rule 12 — and a listing edit would be a write no
-// connector holds). Watching mode (rule 15), hard limits (rule 14) and
-// decline-suppression (P3-28) apply as to every proposal. One trial per
-// weekday at a time, so two verdicts never mix.
+// exists precisely to replace them with a measurement. Watching mode (rule
+// 15), hard limits (rule 14) and decline-suppression (P3-28) apply as to
+// every proposal. One trial per weekday at a time, so two verdicts never mix.
+//
+// The Google listing (I-45a lifted by the owner, 2026-11-16): a trial
+// proposed while the business's Google connection can write carries a
+// `google_change` — one opening or closing time moved on one weekday — and
+// approving it is all the owner does: the engine moves that time on Google
+// (lib/execution/providers/google-business, set_regular_hours). When the
+// trial's weeks are over, putting the hour back is a separate proposal
+// (proposeTrialReverts), never a silent change; declining it keeps the new
+// hours. The website's hours stay the owner's to change: no connector holds
+// a write there. A trial without a google_change is carried out by the
+// owner, as before.
 
 import { logSafeError } from "../core/log-safe";
 import { and, eq } from "drizzle-orm";
 import { db } from "../../db";
-import { modeDecisions, proposals } from "../../db/schema";
+import { businessProfiles, modeDecisions, proposals } from "../../db/schema";
+import type { DispatchPlan } from "../execution/due";
+import { GBP_HOURS_OP } from "../execution/providers/google-business";
+import { googleWritableListing } from "../google-business/consent";
+import type { HoursChange } from "../google-business/hours";
+import { changeProblem, clockWords } from "../google-business/hours";
 import { careState } from "../care/day-zero";
 import { confidence } from "../core/confidence";
 import { createField } from "../core/field";
@@ -79,6 +92,86 @@ export interface TrialDetail {
   anchor_minor: number;
   hour_cost_minor: number | null;
 }
+
+/** I-45a lifted: the one time a trial moves on the business's Google listing. */
+export interface GoogleHoursChange extends HoursChange {
+  /** locations/{l}, the listing the connection named when the trial was proposed. */
+  location: string;
+}
+
+/**
+ * Pure: the trial's change on Google, or null when it can't be one (an
+ * opening before midnight's start, a close past the next day). Trading-day
+ * hours already count past midnight (25 = 01:00 after), as moveEdge does.
+ */
+export function trialGoogleChange(
+  detail: Pick<TrialDetail, "weekday" | "change" | "hour">,
+  location: string,
+): GoogleHoursChange | null {
+  const c: HoursChange = {
+    weekday: detail.weekday,
+    edge: detail.change === "open_earlier" ? "open" : "close",
+    from: (detail.hour + 1) * 60,
+    to: detail.hour * 60,
+  };
+  return changeProblem(c) === null ? { location, ...c } : null;
+}
+
+/** Pure: a google_change read back from a stored detail, or null. */
+function storedChange(raw: unknown): GoogleHoursChange | null {
+  if (raw === null || typeof raw !== "object") return null;
+  const r = raw as Record<string, unknown>;
+  if (typeof r["location"] !== "string" || !/^locations\/[A-Za-z0-9_-]+$/.test(r["location"])) {
+    return null;
+  }
+  const c = {
+    weekday: r["weekday"],
+    edge: r["edge"],
+    from: r["from"],
+    to: r["to"],
+  } as unknown as HoursChange;
+  return changeProblem(c) === null ? { location: r["location"], ...c } : null;
+}
+
+/** The due runner's route for an hours proposal that moves a time on Google. */
+export function hoursPlanFor(
+  proposal: Pick<ProposalRow, "module" | "action">,
+): DispatchPlan | null {
+  if (proposal.module !== HOURS_MODULE) return null;
+  const detail = (proposal.action as { detail?: { google_change?: unknown } } | null)?.detail;
+  const change = storedChange(detail?.google_change);
+  if (change === null) return null;
+  return {
+    provider: "google_business_reviews",
+    op: GBP_HOURS_OP,
+    params: { ...change },
+  };
+}
+
+/** The Google listing ScaleX may change for this business, or null. Never fatal to a proposal run. */
+async function writableListing(
+  profileId: string,
+): Promise<{ location: string; title: string } | null> {
+  try {
+    const [p] = await db
+      .select({ account_id: businessProfiles.account_id })
+      .from(businessProfiles)
+      .where(eq(businessProfiles.id, profileId));
+    return p ? await googleWritableListing(p.account_id, profileId) : null;
+  } catch (error) {
+    console.error(
+      JSON.stringify({
+        event: "hours_listing_unread",
+        profile_id: profileId,
+        ...logSafeError(error),
+      }),
+    );
+    return null;
+  }
+}
+
+const isRevert = (row: { action: unknown }) =>
+  (row.action as { detail?: { revert_of?: unknown } } | null)?.detail?.revert_of !== undefined;
 
 type Fmt = (minor: number) => string;
 
@@ -328,6 +421,7 @@ export async function proposeHoursTrials(
   const { limits } = await ensureHardLimits(profileId, opts.limitLlm ?? liveLimitLlm);
   const verdict = checkHardLimits(limits, TRIAL_KIND);
   const month = now.toISOString().slice(0, 7);
+  const listing = await writableListing(profileId);
 
   for (const w of analysis.weekdays) {
     const changes: TrialChange[] = [];
@@ -358,6 +452,7 @@ export async function proposeHoursTrials(
         out.skipped.push({ ref, reason: "a closing trial needs the cost of an open hour" });
         continue;
       }
+      const google = listing ? trialGoogleChange(trial.detail, listing.location) : null;
       const row = await createProposal({
         profile_id: profileId,
         module: HOURS_MODULE,
@@ -365,16 +460,37 @@ export async function proposeHoursTrials(
         action: {
           kind: TRIAL_KIND,
           summary: trial.summary,
-          detail: {
-            ...trial.detail,
-            how: "You change your own hours — we won't touch your Google listing or website. The trial starts the first such day after you approve, and the verdict comes from what's measured.",
-          },
+          detail: google
+            ? {
+                ...trial.detail,
+                google_change: google,
+                execute_on_approval: true,
+                how: `When you approve, ScaleX changes this on your Google listing (${listing!.title}) — your website and your door sign you change yourself. The trial starts the first such day after, the verdict comes from what's measured, and when it ends ScaleX asks before putting the hour back.`,
+              }
+            : {
+                ...trial.detail,
+                how: "You change your own hours — we won't touch your Google listing or website. The trial starts the first such day after you approve, and the verdict comes from what's measured.",
+              },
         },
-        scenario: trial.scenario as never,
+        scenario: (google
+          ? {
+              ...(trial.scenario as { assumptions: unknown[] }),
+              assumptions: [
+                {
+                  statement: `When you approve, ScaleX moves this hour on your Google listing (${listing!.title}); your website and your door sign you change yourself`,
+                  value: null,
+                  source_field: null,
+                  sensitivity: "low",
+                },
+                ...(trial.scenario as { assumptions: unknown[] }).assumptions,
+              ],
+            }
+          : trial.scenario) as never,
         reversibility: {
           level: "easy",
-          if_you_change_your_mind:
-            "Go back to your usual hours any week — the trial simply ends early.",
+          if_you_change_your_mind: google
+            ? "Undo puts your Google listing's hour back at once; or end the trial early any week."
+            : "Go back to your usual hours any week — the trial simply ends early.",
         },
         expires_at: new Date(now.getTime() + TRIAL.expiry_days * 86_400_000).toISOString(),
         blocked_by_limit: verdict.verdict === "blocked" ? limitCaption(verdict.limit) : null,
@@ -384,6 +500,90 @@ export async function proposeHoursTrials(
     }
   }
   return out;
+}
+
+/**
+ * The trial's end, on Google: for every trial whose change ScaleX made on the
+ * listing and whose weeks are over, ONE proposal to put the hour back. The
+ * owner approves it (the engine moves the hour back) or declines it, which
+ * keeps the new hours — and never counts toward silencing trials
+ * (lib/trust/suppression). Nothing moves without that answer.
+ */
+export async function proposeTrialReverts(
+  profileId: string,
+  now: Date = new Date(),
+): Promise<ProposalRow[]> {
+  const today = now.toISOString().slice(0, 10);
+  const rows = await db
+    .select()
+    .from(proposals)
+    .where(and(eq(proposals.profile_id, profileId), eq(proposals.module, HOURS_MODULE)));
+  const asked = new Set(rows.map((r) => r.originating_finding));
+  const created: ProposalRow[] = [];
+  for (const row of rows) {
+    if (row.status !== "executed" || !row.decided_at || isRevert(row)) continue;
+    const detail = (row.action as { detail?: TrialDetail & { google_change?: unknown } }).detail;
+    const change = storedChange(detail?.google_change);
+    if (!detail || change === null) continue;
+    if (today <= trialWindow(row.decided_at, detail.trial_weeks).to) continue;
+    const ref = `hours:revert:${row.id}`;
+    if (asked.has(ref)) continue;
+    const back: GoogleHoursChange = { ...change, from: change.to, to: change.from };
+    const what = `${change.edge === "open" ? "opening" : "closing"} time on ${DAY_WORD[change.weekday]}`;
+    created.push(
+      await createProposal({
+        profile_id: profileId,
+        module: HOURS_MODULE,
+        originating_finding: ref,
+        action: {
+          kind: TRIAL_KIND,
+          summary: `Put your ${what} back to ${clockWords(change.from)} on Google — the ${detail.trial_weeks}-week trial has ended`,
+          detail: {
+            revert_of: row.id,
+            weekday: change.weekday,
+            google_change: back,
+            execute_on_approval: true,
+            how: `Approve, and ScaleX moves your Google listing's ${what} from ${clockWords(change.to)} back to ${clockWords(change.from)}. Decline to keep the trial's hours — that's an answer too, and it won't stop future trials.`,
+          },
+        },
+        scenario: {
+          assumptions: [
+            {
+              statement: "the trial's verdict is on the Hours screen; this only puts the hour back",
+              value: null,
+              source_field: null,
+              sensitivity: "low",
+            },
+          ],
+          base_case: {
+            case: "base",
+            statement: "Your Google listing shows your usual hours again.",
+            profit_delta_monthly: null,
+            formula: null,
+          },
+          downside_case: {
+            case: "downside",
+            statement: "If the trial helped, going back gives that up.",
+            profit_delta_monthly: null,
+            formula: null,
+          },
+          upside_case: {
+            case: "upside",
+            statement: "If the trial didn't help, the hour it cost stops.",
+            profit_delta_monthly: null,
+            formula: null,
+          },
+          breakeven_condition: "see the trial's verdict",
+        } as never,
+        reversibility: {
+          level: "easy",
+          if_you_change_your_mind: "Undo moves the hour on Google to the trial's time again.",
+        },
+        expires_at: new Date(now.getTime() + TRIAL.expiry_days * 86_400_000).toISOString(),
+      }),
+    );
+  }
+  return created;
 }
 
 export { TRIALS_KEY };
@@ -427,6 +627,7 @@ export async function syncRunningTrials(
     const detail = (row.action as { detail?: TrialDetail }).detail;
     if (!detail || !row.decided_at || (row.status !== "approved" && row.status !== "executed"))
       continue;
+    if (isRevert(row)) continue;
     const window = trialWindow(row.decided_at, detail.trial_weeks);
     if (today < window.from || today > window.to) continue;
     running.push({
@@ -481,6 +682,7 @@ export async function runHoursTrials(
   for (const { profile_id } of inCare) {
     try {
       await syncRunningTrials(profile_id, now);
+      await proposeTrialReverts(profile_id, now);
       await parseCompetitorHours(profile_id);
       await groupDemandTopics(profile_id, { now }); // P2-37: at most once a week, ≥3 searches
       created += (await proposeHoursTrials(profile_id, { now })).created.length;
@@ -548,6 +750,9 @@ export async function judgeHoursTrial(
 ): Promise<TrialVerdict> {
   const detail = (row.action as { detail?: TrialDetail }).detail;
   const base = { proposal_id: row.id, delta_pct: null };
+  if (isRevert(row)) {
+    return { ...base, verdict: "unmeasured", arithmetic: "putting the hour back, not a trial" };
+  }
   if (!detail || !row.decided_at || (row.status !== "approved" && row.status !== "executed")) {
     return { ...base, verdict: "unmeasured", arithmetic: "not an approved trial" };
   }

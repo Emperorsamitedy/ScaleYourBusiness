@@ -57,7 +57,11 @@ export const PHONE_CAPABILITIES: ReadonlySet<string> = new Set([
  * order" (lib/execution/scopes). Rule 12's recorded approval is checked by
  * the engine before this gate is reached.
  */
-export const APPROVAL_IS_THE_CONSENT: ReadonlySet<string> = new Set(["purchase_order"]);
+export const APPROVAL_IS_THE_CONSENT: ReadonlySet<string> = new Set([
+  "purchase_order",
+  // P5-16b: a deal follow-up, sent from SYB's own email service on its approved text.
+  "followup_email",
+]);
 
 async function liveWriteConsent(accountId: string, capability: string): Promise<boolean> {
   if (!isExecutionProviderId(capability)) return false;

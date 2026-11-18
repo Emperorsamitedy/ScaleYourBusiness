@@ -11,14 +11,20 @@
 //     change at full price is not a discount, and it never becomes one;
 //   · createProposal writes it with its decision-log entry (rule 7).
 //
-// It is a DRAFT for the owner to act on. There is no executor for module
-// "bundles", so an approval is recorded and left for the owner: no price is
-// written, no product created, checkout untouched (rule 18). The detail says
-// so in its own words, and the queue shows it.
+// Where the pair's orders came from a Shopify store whose owner connected
+// store changes (D6, 2026-11-16), the proposal carries the two product ids
+// and runs on approval: lib/shop/writes routes it to shopify_write's
+// create_bundle — one bundle product at the two items' full price, undone by
+// archiving it. Otherwise it is a DRAFT for the owner to act on: an approval
+// is recorded and left for them, no price written, no product created.
+// Checkout is untouched either way (rule 18). The detail says which, in its
+// own words, and the queue shows it.
 
 import { and, eq } from "drizzle-orm";
 import { db } from "../../db";
-import { businessProfiles, proposals } from "../../db/schema";
+import { businessProfiles, connections, proposals } from "../../db/schema";
+import type { ShopifyBundleTarget } from "../shop/writes";
+import { bundleTitle, shopifyWriteConnected } from "../shop/writes";
 import { careState } from "../care/day-zero";
 import { format, money } from "../core/money";
 import type { LimitLlm } from "../proposals/hard-limits";
@@ -69,6 +75,28 @@ export function bundleEvidence(p: PairView, source: BundleSource): string[] {
     lines.push(`the pair's margin is unknown: ${p.margin.why}`);
   }
   return lines;
+}
+
+/**
+ * D6: the Shopify target for a pair, when its orders came from a Shopify
+ * store and the account's store is connected for changes; else null, and
+ * the proposal stays the owner's to set up.
+ */
+async function shopifyBundleTarget(
+  accountId: string,
+  source: BundleSource,
+  pair: PairView,
+): Promise<ShopifyBundleTarget | null> {
+  if (source.kind !== "orders") return null;
+  const [conn] = await db
+    .select({ provider: connections.provider })
+    .from(connections)
+    .where(eq(connections.id, source.connection_id));
+  if (conn?.provider !== "shopify") return null;
+  const gid = /^gid:\/\/shopify\/Product\/\d+$/;
+  if (!gid.test(pair.a) || !gid.test(pair.b) || pair.a === pair.b) return null;
+  if (!(await shopifyWriteConnected(accountId))) return null;
+  return { products: [pair.a, pair.b], title: bundleTitle(pair.a_name, pair.b_name) };
 }
 
 export async function proposeBundle(
@@ -126,6 +154,8 @@ export async function proposeBundle(
   const limits = (await ensureHardLimits(profileId, opts.limitLlm ?? liveLimitLlm)).limits;
   const verdict = checkHardLimits(limits, BUNDLE_KIND);
   const evidence = bundleEvidence(pair, source);
+  // D6: a pair from a Shopify store connected for changes is made there on approval.
+  const shopify = await shopifyBundleTarget(profile.account_id, source, pair);
   const what =
     source.kind === "orders"
       ? `Show ${pair.a_name} and ${pair.b_name} together — side by side on each product's page, or as a set — both at full price. No discount in it.`
@@ -156,11 +186,19 @@ export async function proposeBundle(
           margin: pair.margin,
         },
         evidence,
-        draft_only: true,
-        sending:
-          source.kind === "orders"
-            ? "Approving records your yes. I don't change your shop, your prices or your checkout: you set the pair up yourself."
-            : "Approving records your yes. I don't change your booking system or your prices: you offer the pair yourself.",
+        ...(shopify
+          ? {
+              shopify,
+              execute_on_approval: true,
+              sending: `Approving lets me create "${shopify.title}" in your Shopify store as one bundle product at the two items' full price, on the next run. I don't touch either item, your prices or your checkout.`,
+            }
+          : {
+              draft_only: true,
+              sending:
+                source.kind === "orders"
+                  ? "Approving records your yes. I don't change your shop, your prices or your checkout: you set the pair up yourself."
+                  : "Approving records your yes. I don't change your booking system or your prices: you offer the pair yourself.",
+            }),
         manual_limits: verdict.manual.map((l) => l.quote),
       },
     },
@@ -206,7 +244,9 @@ export async function proposeBundle(
     },
     reversibility: {
       level: "easy",
-      if_you_change_your_mind: "Take the pair down again; nothing about either item changed.",
+      if_you_change_your_mind: shopify
+        ? "Undo it from ScaleX and I archive the bundle I made (never delete it); nothing about either item changed."
+        : "Take the pair down again; nothing about either item changed.",
     },
     expires_at: new Date(now.getTime() + EXPIRY_DAYS * 86_400_000).toISOString(),
     blocked_by_limit: verdict.verdict === "blocked" ? limitCaption(verdict.limit) : null,

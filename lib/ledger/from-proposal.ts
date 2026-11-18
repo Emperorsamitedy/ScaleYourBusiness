@@ -94,6 +94,7 @@ export function planFromProposal(
     accountId: args.accountId,
     provider: args.provider,
     module: proposal.module,
+    op: args.op,
     proposalId: proposal.id,
     action_summary: summary,
     hypothesis,
