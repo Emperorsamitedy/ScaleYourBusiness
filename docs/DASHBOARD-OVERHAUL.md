@@ -132,7 +132,7 @@ What he said after using the app, in his words where they matter:
 The list. Nothing here is ticked until he has seen it.
 
 - [~] L1. **The font.** "Reformed into something a bit more simplistic", as on Foundable's video: one plain sans, sentence case, calm weights. Built and waiting for his look: see "L1, as built" below.
-- [ ] L2. **Mockups to pick from.** Made in Claude's design canvas on the account he and Tedi share, from this repository (a prompt alone would make it guess): ScaleX's design system filled in (colours, type, spacing, rules of voice), then artboards for the shell, Home, Lex, and one text-heavy screen. A written brief goes with them so he can generate more there himself. He picks; the pick becomes the expectation every later item is built to.
+- [~] L2. **Mockups to pick from.** Published on 2026-11-18 and waiting for his pick: see "L2, as built" below. The pick becomes the expectation every later item is built to.
 - [ ] L3. **Navigation.**
   - [ ] a. The rail's contents are "a bit messy here and there".
   - [ ] b. Some of it can sit at the top, "up to 4 max just as on Foundable's".
@@ -149,6 +149,27 @@ The list. Nothing here is ticked until he has seen it.
 - [ ] L9. **What was already left for later** in this file (the two review rounds and "Later rounds") stays on the list behind these.
 
 Order: L1, L2, his pick, then L3, L4 and L6 built to the pick, then L7, L5, L8, then L9.
+
+### L2, as built (2026-11-18)
+
+Both are private artifacts on the claude.ai account he shares with Tedi, made from this repository so the design feature in Claude Desktop has our identity to work from. Its own picture of ScaleX stops at about 16 November (the landing, sign-in, the logo): the nine commits of `dashboard-v2` were never pushed, so nothing there knew about Lex, the interactive pass or the new type.
+
+- **The ScaleX design system**: https://claude.ai/artifact/9kzHEw5awTkDUB2jvtjpjp. 33 colours and 13 text styles with a usage note each, the spacing scale, the mark exported from `components/brand/Mark.tsx`, a brand book of rules (voice, colour, type, shape, the screen, icons) and a Direction section that is the brief for new designs, in his words. It was an empty system before.
+- **The canvas "ScaleX owner app: directions"**: https://claude.ai/artifact/HaqQt8HcP3YoPAbRD5H72k. Seven artboards:
+  - Home A, Desk: the dark desk refined, two columns, Lex's side dark.
+  - Home B, Paper: light, the conversation centred, three columns under it.
+  - Home C, Split: a light workspace under the dark bar, Lex as a pop-up that holds the conversation and a decision inside it.
+  - Cash flow: a headline, three figures, one chart, four what-if cards and three weeks, with the rest behind "Show all 13 weeks"; the rail unfolded, an icon on every item.
+  - A decision: opened as a page with "Back to Home" and previous and next; the rail folded to icons with a tooltip.
+  - Lex: three faces (A bars, B sheet, C mark) and face A in six states.
+  - Home on a phone: the four top places as the bottom bar.
+- What the mockups propose, all of it his to accept or change:
+  - **Four places across the top**: Home, Decisions, Insights, Grow. Customers sits inside Grow; Your business (fact sheet, connections, statement, history, settings) sits under the business's name.
+  - **The rail lists only the open place's screens**, with icons, and folds. The tab strip goes, so the top and the rail never say the same thing twice. Home has no rail.
+  - **Every screen has a way back**: the queue and the report come inside the frame; a page opened from another says where it came from.
+  - **Lex has a face** built from the mark (its two bars are the eyes, the smile rises to the right) with states for idle, listening, working, speaking, needs you and stopped.
+  - **A small curve** (10 to 18px) and pill-shaped places and chips, where today every corner is square; hover, press and open have their own motion.
+- Not checked in the canvas's own viewer: each artboard was drawn in a plain browser here before it was sent. The two interactive ones (Home A's tabs and first decision; the decision's Approve and Decline) use the canvas's own state and events, which could not be run locally.
 
 ### L1, as built (2026-11-18)
 
