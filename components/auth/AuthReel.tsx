@@ -37,7 +37,16 @@ function StatusBar() {
         <rect x="9" y="3.5" width="3" height="8.5" rx="1" />
         <rect x="13.5" y="1" width="3" height="11" rx="1" />
         <path d="M28 3.4a9 9 0 0 1 12 0l-1.4 1.5a7 7 0 0 0-9.2 0z M30.6 6.2a5.2 5.2 0 0 1 6.8 0L36 7.7a3.2 3.2 0 0 0-4 0z M33 9.3a1.6 1.6 0 0 1 2 0L34 10.7z" />
-        <rect x="45" y="1.5" width="15" height="9" rx="2.6" fill="none" stroke="#FFFFFF" strokeOpacity="0.45" />
+        <rect
+          x="45"
+          y="1.5"
+          width="15"
+          height="9"
+          rx="2.6"
+          fill="none"
+          stroke="#FFFFFF"
+          strokeOpacity="0.45"
+        />
         <rect x="46.5" y="3" width="11" height="6" rx="1.5" />
         <rect x="60.8" y="4.3" width="1.6" height="3.4" rx="0.8" fillOpacity="0.45" />
       </svg>
@@ -81,7 +90,11 @@ export function AuthReel() {
       </div>
       <div className="reel-caps" aria-hidden="true">
         {REEL.map(([file, key], i) => (
-          <span key={file} className="reel-cap" style={{ animationDelay: `${i * REEL_STEP_SECONDS}s` }}>
+          <span
+            key={file}
+            className="reel-cap"
+            style={{ animationDelay: `${i * REEL_STEP_SECONDS}s` }}
+          >
             {t(key)}
           </span>
         ))}

@@ -1105,10 +1105,7 @@ async function seed(): Promise<void> {
       await answer("13.2", "lack_of_time");
       await answer("13.3a", "TikTok ads last spring, and a wholesale fair in Frankfurt.");
       await answer("13.3b", "The TikTok ads brought views but almost no sales.");
-      await answer(
-        "13.3c",
-        "Discount codes for influencers: the codes ended up on voucher sites.",
-      );
+      await answer("13.3c", "Discount codes for influencers: the codes ended up on voucher sites.");
       await answer("13.4", ["new_markets", "more_automation"]);
       await answer(
         "13.5",

@@ -836,7 +836,8 @@ export function coverColumn(c: CoverAssessment, w: Words = englishStock()): stri
   const max = int(COVER.max_cover_days, locale);
   if (lo >= COVER.max_cover_days) return `${max}+`;
   if (c.cover.high === null) return `${int(lo, locale)}+`;
-  if (Math.round(c.cover.high) >= COVER.max_cover_days) return rangeWords(int(lo, locale), `${max}+`, locale);
+  if (Math.round(c.cover.high) >= COVER.max_cover_days)
+    return rangeWords(int(lo, locale), `${max}+`, locale);
   const [a, b] = wholeDays({ low: c.cover.low, high: c.cover.high });
   return rangeWords(int(a, locale), int(b, locale), locale);
 }

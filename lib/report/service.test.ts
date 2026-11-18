@@ -26,7 +26,13 @@ import { DiagnosisError } from "../diagnosis/findings";
 import type { RecommendationsLlm } from "../diagnosis/recommendations";
 import { writeField } from "../profile/field-store";
 import { ownerLanguageLine } from "../llm/language";
-import { ReportError, generateReport, latestReport, priorOf, respondToRecommendation } from "./service";
+import {
+  ReportError,
+  generateReport,
+  latestReport,
+  priorOf,
+  respondToRecommendation,
+} from "./service";
 
 let accountId: string;
 let profileId: string;

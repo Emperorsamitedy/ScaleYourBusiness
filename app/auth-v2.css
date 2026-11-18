@@ -142,7 +142,10 @@
   padding: 0 16px;
   cursor: pointer;
   text-decoration: none;
-  transition: background 0.15s, border-color 0.15s, box-shadow 0.15s;
+  transition:
+    background 0.15s,
+    border-color 0.15s,
+    box-shadow 0.15s;
 }
 .ax-btn:focus-visible {
   outline: 3px solid rgba(0, 168, 107, 0.45);
@@ -396,7 +399,11 @@
 .ax-visual-shade {
   position: absolute;
   inset: 0;
-  background: radial-gradient(ellipse at center, rgba(13, 19, 33, 0.15) 0%, rgba(13, 19, 33, 0.75) 75%);
+  background: radial-gradient(
+    ellipse at center,
+    rgba(13, 19, 33, 0.15) 0%,
+    rgba(13, 19, 33, 0.75) 75%
+  );
 }
 
 /* The phone: titanium edge, black border, Dynamic Island, tilted right. */
@@ -446,7 +453,15 @@
   inset: 0;
   border-radius: 56px;
   padding: 3px;
-  background: linear-gradient(150deg, #e6e4df 0%, #9d9991 20%, #d6d3cc 42%, #7a766f 68%, #cbc8c1 88%, #8f8b84 100%);
+  background: linear-gradient(
+    150deg,
+    #e6e4df 0%,
+    #9d9991 20%,
+    #d6d3cc 42%,
+    #7a766f 68%,
+    #cbc8c1 88%,
+    #8f8b84 100%
+  );
 }
 .ip-bezel {
   width: 100%;
@@ -513,7 +528,12 @@
 .ip-glare {
   position: absolute;
   inset: 0;
-  background: linear-gradient(118deg, rgba(255, 255, 255, 0.16) 0%, rgba(255, 255, 255, 0.05) 26%, rgba(255, 255, 255, 0) 38%);
+  background: linear-gradient(
+    118deg,
+    rgba(255, 255, 255, 0.16) 0%,
+    rgba(255, 255, 255, 0.05) 26%,
+    rgba(255, 255, 255, 0) 38%
+  );
   pointer-events: none;
   z-index: 5;
 }
@@ -563,22 +583,51 @@
   animation: ax-bar 3s linear infinite;
 }
 @keyframes ax-reel {
-  0% { opacity: 0; transform: scale(1.04); }
-  1.5% { opacity: 1; }
-  9% { opacity: 1; transform: scale(1); }
-  10.5% { opacity: 0; transform: scale(1); }
-  100% { opacity: 0; }
+  0% {
+    opacity: 0;
+    transform: scale(1.04);
+  }
+  1.5% {
+    opacity: 1;
+  }
+  9% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  10.5% {
+    opacity: 0;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+  }
 }
 @keyframes ax-cap {
-  0% { opacity: 0; transform: translateY(8px); }
-  1.5% { opacity: 1; transform: translateY(0); }
-  9% { opacity: 1; }
-  10.5% { opacity: 0; }
-  100% { opacity: 0; }
+  0% {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  1.5% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  9% {
+    opacity: 1;
+  }
+  10.5% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 0;
+  }
 }
 @keyframes ax-bar {
-  from { transform: scaleX(0); }
-  to { transform: scaleX(1); }
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
 }
 @media (prefers-reduced-motion: reduce) {
   .reel-slide,

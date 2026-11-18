@@ -3,3 +3,5 @@ node_modules/
 productos/
 specs/
 package-lock.json
+# Written by drizzle-kit, never by hand: its own layout, not ours to reformat.
+db/migrations/meta/
