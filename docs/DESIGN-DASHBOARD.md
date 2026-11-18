@@ -6,20 +6,20 @@ What came from the Secuno review, and only this: tokens with a stated duty, one 
 
 ## 1. The look in one paragraph
 
-A lab-report look. Paper sheets (`--paper`) on a dark forest desk (`--desk`); one ink masthead with the wordmark; a rail of six labelled groups, one glyph each, a dock on a phone; headings in Zilla Slab, body in Archivo, machine truth in IBM Plex Mono; square corners and 1px rules. The owner talks to Lex (`lib/core/assistant.ts`), who speaks under the mark on an ink tile; Home is built around that conversation. Colour is used only to mean something: green for ok, amber for drift, red for alarm, cobalt for live, a yellow marker behind fresh ink. The one accent is the brand green. The wordmark is `components/brand/Mark.tsx`, matched to the owner's final logo system on 2026-11-17.
+A lab-report look. Paper sheets (`--paper`) on a dark forest desk (`--desk`); one ink masthead with the wordmark; a rail of six labelled groups, one glyph each, a dock on a phone; one plain sans (Archivo) for headings, labels, controls and prose in sentence case, with IBM Plex Mono kept for figures (since 2026-11-18; the landing and the entrance keep Zilla Slab headings and mono labels); square corners and 1px rules. The owner talks to Lex (`lib/core/assistant.ts`), who speaks under the mark on an ink tile; Home is built around that conversation. Colour is used only to mean something: green for ok, amber for drift, red for alarm, cobalt for live, a yellow marker behind fresh ink. The one accent is the brand green. The wordmark is `components/brand/Mark.tsx`, matched to the owner's final logo system on 2026-11-17.
 
 ## 2. Tokens: read `app/sheet.css`, don't copy it
 
-| Group    | Variables                                                                                            | Duty                                              |
-| -------- | ---------------------------------------------------------------------------------------------------- | ------------------------------------------------- |
-| Surfaces | `--desk`, `--masthead`, `--paper`, `--inset`                                                         | the page, the top bar, a sheet, an inset panel    |
-| Rules    | `--rule`, `--rule-soft`, `--desk-rule`; `--hair`, `--line`, `--line-ink`                             | the three line weights                            |
-| Ink      | `--sheet-ink`, `--sheet-ink-2`, `--desk-ink`, `--desk-ink-2` (aliases `--ink`, `--mut`)              | text on paper, text on the desk                   |
-| Meaning  | `--ok`, `--drift`, `--alarm`, `--low` and their `-band` fills; `--live`; `--marker`                  | verdicts, live state, fresh ink; never decoration |
-| Brand    | `--accent`, `--accent-desk`                                                                          | the one accent                                    |
-| Type     | `--f-display`, `--f-prose`, `--f-mono`; `--t-display-1` to `-3`, `--t-prose*`, `--t-mono*`           | the whole scale; a new size is a design bug       |
-| Space    | `--s-1` (4px) to `--s-9` (64px), `--gutter`, `--measure` (68ch)                                      | every gap sits on the scale                       |
-| Motion   | `--d-press` 100ms, `--d-move` 220ms, `--d-record` 280ms, `--ease-out`; all zero under reduced motion | the three durations                               |
+| Group    | Variables                                                                                                                                                            | Duty                                                                                          |
+| -------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| Surfaces | `--desk`, `--masthead`, `--paper`, `--inset`                                                                                                                         | the page, the top bar, a sheet, an inset panel                                                |
+| Rules    | `--rule`, `--rule-soft`, `--desk-rule`; `--hair`, `--line`, `--line-ink`                                                                                             | the three line weights                                                                        |
+| Ink      | `--sheet-ink`, `--sheet-ink-2`, `--desk-ink`, `--desk-ink-2` (aliases `--ink`, `--mut`)                                                                              | text on paper, text on the desk                                                               |
+| Meaning  | `--ok`, `--drift`, `--alarm`, `--low` and their `-band` fills; `--live`; `--marker`                                                                                  | verdicts, live state, fresh ink; never decoration                                             |
+| Brand    | `--accent`, `--accent-desk`                                                                                                                                          | the one accent                                                                                |
+| Type     | `--f-ui` (the app's face), `--f-fig` (figures), `--f-display`, `--f-prose`, `--f-mono`; `--caps*`, `--w-display`; `--t-display-1` to `-3`, `--t-prose*`, `--t-mono*` | the whole scale; a new size is a design bug. The app's switch is one block in `app/sheet.css` |
+| Space    | `--s-1` (4px) to `--s-9` (64px), `--gutter`, `--measure` (68ch)                                                                                                      | every gap sits on the scale                                                                   |
+| Motion   | `--d-press` 100ms, `--d-move` 220ms, `--d-record` 280ms, `--ease-out`; all zero under reduced motion                                                                 | the three durations                                                                           |
 
 Rule: a new colour gets a variable and a duty comment. A raw hex value in a component is a bug.
 

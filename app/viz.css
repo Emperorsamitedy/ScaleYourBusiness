@@ -150,7 +150,7 @@
   border-left: 1px dashed var(--sheet-ink);
 }
 .vz-bar-fig {
-  font-family: var(--f-mono);
+  font-family: var(--f-fig);
   font-size: var(--t-mono-s);
   font-variant-numeric: tabular-nums;
   text-align: right;
@@ -230,7 +230,7 @@
   position: relative;
   display: block;
   height: 22px;
-  font-family: var(--f-mono);
+  font-family: var(--f-fig);
   font-size: var(--t-mono-xs);
   font-variant-numeric: tabular-nums;
   color: var(--sheet-ink-2);
@@ -275,8 +275,8 @@
   position: absolute;
   bottom: 3px;
   font-weight: 600;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  letter-spacing: var(--caps-ls, 0.06em);
+  text-transform: var(--caps, uppercase);
   white-space: nowrap;
   color: var(--sheet-ink);
   transform: translateX(-50%);
@@ -308,7 +308,7 @@
 }
 .vz-trend .tick {
   fill: var(--sheet-ink-2);
-  font-family: var(--f-mono);
+  font-family: var(--f-fig);
   font-size: 11.5px;
   font-variant-numeric: tabular-nums;
 }
@@ -326,7 +326,7 @@
 }
 .vz-trend .end-fig {
   fill: var(--sheet-ink);
-  font-family: var(--f-mono);
+  font-family: var(--f-fig);
   font-size: 12.5px;
   font-weight: 600;
   font-variant-numeric: tabular-nums;
@@ -473,7 +473,7 @@
   padding: 3px 7px;
   background: var(--sheet-ink);
   color: var(--paper);
-  font-family: var(--f-mono);
+  font-family: var(--f-fig);
   font-size: var(--t-mono-xs);
   line-height: 1.5;
   font-variant-numeric: tabular-nums;
@@ -538,9 +538,9 @@
 .vz-cap {
   margin: 0 0 8px;
   font-family: var(--f-mono);
-  font-size: var(--t-mono-xs);
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  font-size: calc(var(--t-mono-xs) + var(--caps-bump, 0px));
+  letter-spacing: var(--caps-ls, 0.06em);
+  text-transform: var(--caps, uppercase);
   color: var(--sheet-ink-2);
 }
 
@@ -551,4 +551,10 @@
   .vz-bullet-fill {
     transition: none;
   }
+}
+
+/* Sentence case: a label the classic look set in capitals starts with one
+   (the owner app's type, app/sheet.css). In the classic look it follows the label. */
+:is(.vz-ref-head b, .vz-cap)::first-letter {
+  text-transform: var(--caps-first, inherit);
 }

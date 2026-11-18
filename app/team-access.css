@@ -119,9 +119,9 @@
   flex-direction: column;
   gap: 4px;
   font-family: var(--f-mono);
-  font-size: 11.5px;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  font-size: calc(11.5px + var(--caps-bump, 0px));
+  letter-spacing: var(--caps-ls, 0.06em);
+  text-transform: var(--caps, uppercase);
   color: var(--sheet-ink-2);
 }
 .ta-field input {
@@ -184,4 +184,10 @@
 }
 .ta-fold {
   margin: 0 0 14px;
+}
+
+/* Sentence case: a label the classic look set in capitals starts with one
+   (the owner app's type, app/sheet.css). In the classic look it follows the label. */
+:is(.ta-field)::first-letter {
+  text-transform: var(--caps-first, inherit);
 }

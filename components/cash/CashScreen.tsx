@@ -379,7 +379,12 @@ function Scenarios({
                       </td>
                     ) : null
                   ) : (
-                    <td key={c.key} className="num">
+                    <td
+                      key={c.key}
+                      className={
+                        row.key === "change" || row.key === "tight" ? "num cf-words" : "num"
+                      }
+                    >
                       {row.pick(c)}
                     </td>
                   ),

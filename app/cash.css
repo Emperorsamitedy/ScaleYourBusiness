@@ -53,9 +53,9 @@
 .cf-sub {
   margin: 14px 0 4px;
   font-family: var(--f-mono);
-  font-size: 12px;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  font-size: calc(12px + var(--caps-bump, 0px));
+  letter-spacing: var(--caps-ls, 0.06em);
+  text-transform: var(--caps, uppercase);
   color: var(--sheet-ink-2);
 }
 .cf-list {
@@ -93,9 +93,16 @@
   color: var(--sheet-ink);
   vertical-align: bottom;
 }
-.cf-scen td {
+/* .rt .num keeps a figure on one line; this table's cells also hold sentences, which wrap. */
+.cf-scen td,
+.cf-scen td.num {
   white-space: normal;
   vertical-align: top;
+}
+/* A cell of words in a figure column reads in the labels' face. */
+.cf-scen td.cf-words {
+  font-family: var(--f-mono);
+  line-height: 1.45;
 }
 .cf-weeks td,
 .cf-sources td {
@@ -137,4 +144,10 @@
   .cf-grid {
     grid-template-columns: minmax(0, 1fr);
   }
+}
+
+/* Sentence case: a label the classic look set in capitals starts with one
+   (the owner app's type, app/sheet.css). In the classic look it follows the label. */
+:is(.cf-sub)::first-letter {
+  text-transform: var(--caps-first, inherit);
 }

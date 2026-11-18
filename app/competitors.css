@@ -132,9 +132,9 @@
 }
 .cp-form label > span {
   font-family: var(--f-mono);
-  font-size: 11px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+  font-size: calc(11px + var(--caps-bump, 0px));
+  letter-spacing: var(--caps-ls, 0.1em);
+  text-transform: var(--caps, uppercase);
   color: var(--sheet-ink-2);
 }
 .cp-form input,
@@ -239,4 +239,10 @@
   .cp-form {
     grid-template-columns: minmax(0, 1fr);
   }
+}
+
+/* Sentence case: a label the classic look set in capitals starts with one
+   (the owner app's type, app/sheet.css). In the classic look it follows the label. */
+:is(.cp-form label > span)::first-letter {
+  text-transform: var(--caps-first, inherit);
 }

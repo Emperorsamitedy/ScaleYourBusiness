@@ -112,7 +112,7 @@
 }
 .st-rank-fig {
   margin-top: 3px !important;
-  font-family: var(--f-mono);
+  font-family: var(--f-fig);
   font-size: 13px;
   font-variant-numeric: tabular-nums;
 }
@@ -213,7 +213,7 @@
   margin-top: 15px;
 }
 .st-mono {
-  font-family: var(--f-mono);
+  font-family: var(--f-fig);
   font-size: 12.5px;
 }
 .st-warn {

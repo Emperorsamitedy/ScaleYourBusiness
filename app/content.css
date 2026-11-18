@@ -43,9 +43,9 @@
 .ct-screen .ct-strip-label {
   margin: 0 0 10px;
   font-family: var(--f-mono);
-  font-size: 11.5px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+  font-size: calc(11.5px + var(--caps-bump, 0px));
+  letter-spacing: var(--caps-ls, 0.1em);
+  text-transform: var(--caps, uppercase);
   color: var(--desk-ink-2);
 }
 .ct-screen .ct-strip-row {
@@ -58,11 +58,11 @@
 .ct-screen .ct-strip-title {
   font-family: var(--f-display);
   font-size: 15.5px;
-  font-weight: 700;
+  font-weight: var(--w-display, 700);
   line-height: 1.1;
 }
 .ct-screen .ct-strip-fig {
-  font-family: var(--f-mono);
+  font-family: var(--f-fig);
   font-size: 13.5px;
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
@@ -83,10 +83,10 @@
 .ct-screen .ct-strip-state {
   margin: 10px 0 0;
   font-family: var(--f-mono);
-  font-size: 12px;
+  font-size: calc(12px + var(--caps-bump, 0px));
   font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  letter-spacing: var(--caps-ls, 0.08em);
+  text-transform: var(--caps, uppercase);
 }
 
 /* ── the gallery: each item's own picture or clip (ux-spec §2.1 "Small visuals") ── */
@@ -195,7 +195,7 @@
 .ct-screen .ct-cal-num {
   flex: 1 0 100%;
   padding: 0 2px;
-  font-family: var(--f-mono);
+  font-family: var(--f-fig);
   font-size: var(--t-mono-xs);
   font-variant-numeric: tabular-nums;
   line-height: 1.4;
@@ -272,7 +272,7 @@
   font-weight: 400;
 }
 .ct-screen .ct-mono {
-  font-family: var(--f-mono);
+  font-family: var(--f-fig);
   font-size: 14px;
 }
 .ct-screen .word.live {
@@ -305,9 +305,9 @@
   background: var(--sheet-ink);
   color: var(--desk-ink-2);
   font-family: var(--f-mono);
-  font-size: 11.5px;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  font-size: calc(11.5px + var(--caps-bump, 0px));
+  letter-spacing: var(--caps-ls, 0.06em);
+  text-transform: var(--caps, uppercase);
 }
 .ct-screen .ct-media-path {
   text-transform: none;
@@ -490,9 +490,9 @@
   .ct-screen .ct-table tbody td::before {
     content: attr(data-label) " · ";
     font-family: var(--f-mono);
-    font-size: 11px;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
+    font-size: calc(11px + var(--caps-bump, 0px));
+    letter-spacing: var(--caps-ls, 0.08em);
+    text-transform: var(--caps, uppercase);
     color: var(--sheet-ink-2);
   }
   .ct-screen .ct-table tbody td[data-label="State"] {
@@ -554,4 +554,10 @@
 }
 .ct-screen .ct-fallback {
   margin-top: 6px;
+}
+
+/* Sentence case: a label the classic look set in capitals starts with one
+   (the owner app's type, app/sheet.css). In the classic look it follows the label. */
+:is(.ct-screen .ct-strip-label, .ct-screen .ct-strip-state, .ct-screen .ct-media)::first-letter {
+  text-transform: var(--caps-first, inherit);
 }

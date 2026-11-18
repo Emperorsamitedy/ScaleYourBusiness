@@ -34,7 +34,7 @@
   font-weight: 500;
 }
 .py-mono {
-  font-family: var(--f-mono);
+  font-family: var(--f-fig);
   font-size: 13px;
   white-space: nowrap;
 }

@@ -48,7 +48,7 @@
   height: 44px;
   padding-bottom: 4px;
   border: 1px solid var(--desk-rule);
-  font-family: var(--f-mono);
+  font-family: var(--f-fig);
   font-size: 11px;
   font-variant-numeric: tabular-nums;
   color: var(--desk-ink-2);
@@ -218,9 +218,9 @@
   padding: 0 10px;
   border: 1px solid var(--rule);
   font-family: var(--f-mono);
-  font-size: 12.5px;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
+  font-size: calc(12.5px + var(--caps-bump, 0px));
+  text-transform: var(--caps, uppercase);
+  letter-spacing: var(--caps-ls, 0.06em);
   cursor: pointer;
 }
 .wt-module input {
@@ -259,9 +259,9 @@
 .wt-whatsapp legend {
   margin-bottom: 8px;
   font-family: var(--f-mono);
-  font-size: 12px;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
+  font-size: calc(12px + var(--caps-bump, 0px));
+  text-transform: var(--caps, uppercase);
+  letter-spacing: var(--caps-ls, 0.06em);
   color: var(--sheet-ink-2);
 }
 .wt-whatsapp-form {
@@ -297,9 +297,9 @@
   border-radius: 0;
   background: transparent;
   font-family: var(--f-mono);
-  font-size: 12.5px;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
+  font-size: calc(12.5px + var(--caps-bump, 0px));
+  text-transform: var(--caps, uppercase);
+  letter-spacing: var(--caps-ls, 0.06em);
   cursor: pointer;
 }
 .wt-whatsapp button:disabled {
@@ -379,4 +379,10 @@
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
   gap: 20px;
   align-items: start;
+}
+
+/* Sentence case: a label the classic look set in capitals starts with one
+   (the owner app's type, app/sheet.css). In the classic look it follows the label. */
+:is(.wt-module, .wt-whatsapp legend, .wt-whatsapp button)::first-letter {
+  text-transform: var(--caps-first, inherit);
 }

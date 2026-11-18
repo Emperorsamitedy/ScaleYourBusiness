@@ -127,9 +127,9 @@ body {
 }
 .wordmark {
   font-family: var(--f-display);
-  font-weight: 700;
+  font-weight: var(--w-display, 700);
   font-size: 16.5px;
-  letter-spacing: -0.01em;
+  letter-spacing: var(--ls-display, -0.01em);
   display: inline-flex;
   align-items: center;
   gap: 9px;
@@ -606,9 +606,9 @@ a.ghost {
 .auth-eyebrow {
   display: block;
   font-family: var(--mono);
-  font-size: 11px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  font-size: calc(11px + var(--caps-bump, 0px));
+  letter-spacing: var(--caps-ls, 0.14em);
+  text-transform: var(--caps, uppercase);
   color: var(--ember);
   margin-bottom: 12px;
 }
@@ -699,9 +699,9 @@ a.auth-cta {
 .ops-table th {
   text-align: left;
   font-family: var(--mono);
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
+  font-size: calc(11px + var(--caps-bump, 0px));
+  text-transform: var(--caps, uppercase);
+  letter-spacing: var(--caps-ls, 0.08em);
   color: var(--mut);
   font-weight: 500;
   padding: 6px 10px 6px 0;
@@ -950,10 +950,10 @@ a.auth-cta {
   min-height: 48px;
   padding: 0 14px;
   font-family: var(--f-mono);
-  font-size: 12.5px;
+  font-size: calc(12.5px + var(--caps-bump, 0px));
   font-weight: 600;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  letter-spacing: var(--caps-ls, 0.06em);
+  text-transform: var(--caps, uppercase);
   text-align: center;
   text-decoration: none;
   border: 1px solid var(--ink);
@@ -1117,8 +1117,8 @@ a.auth-cta {
   text-decoration: none;
   font-family: var(--f-display);
   font-size: 17.5px;
-  font-weight: 700;
-  letter-spacing: -0.01em;
+  font-weight: var(--w-display, 700);
+  letter-spacing: var(--ls-display, -0.01em);
   line-height: 1.1;
 }
 .app-rail-biz {
@@ -1133,9 +1133,9 @@ a.auth-cta {
   gap: 9px;
   margin: 10px 0 0;
   font-family: var(--f-mono);
-  font-size: 12px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  font-size: calc(12px + var(--caps-bump, 0px));
+  letter-spacing: var(--caps-ls, 0.08em);
+  text-transform: var(--caps, uppercase);
   color: var(--live-desk);
 }
 .app-rail-sq {
@@ -1154,9 +1154,9 @@ a.auth-cta {
 .app-rail-label {
   margin: 12px 14px 6px;
   font-family: var(--f-mono);
-  font-size: 11px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
+  font-size: calc(11px + var(--caps-bump, 0px));
+  letter-spacing: var(--caps-ls, 0.12em);
+  text-transform: var(--caps, uppercase);
   color: var(--desk-ink-2);
 }
 .app-rail-group:first-child .app-rail-label {
@@ -1191,7 +1191,7 @@ a.auth-cta {
   font-weight: 600;
 }
 .app-rail-count {
-  font-family: var(--f-mono);
+  font-family: var(--f-fig);
   font-size: 12.5px;
   font-weight: 400;
   font-variant-numeric: tabular-nums;
@@ -1220,8 +1220,8 @@ a.auth-cta {
 }
 .app-rail-switch summary {
   cursor: pointer;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  letter-spacing: var(--caps-ls, 0.06em);
+  text-transform: var(--caps, uppercase);
   text-decoration: underline;
   text-underline-offset: 3px;
   min-height: 32px;
@@ -1263,9 +1263,9 @@ a.auth-cta {
   background: none;
   border: 0;
   font-family: var(--f-mono);
-  font-size: 11.5px;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  font-size: calc(11.5px + var(--caps-bump, 0px));
+  letter-spacing: var(--caps-ls, 0.06em);
+  text-transform: var(--caps, uppercase);
   text-decoration: underline;
   text-underline-offset: 3px;
   color: var(--desk-ink-2);
@@ -1336,9 +1336,9 @@ a.auth-cta {
   text-decoration: none;
   white-space: nowrap;
   font-family: var(--f-mono);
-  font-size: 12px;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  font-size: calc(12px + var(--caps-bump, 0px));
+  letter-spacing: var(--caps-ls, 0.06em);
+  text-transform: var(--caps, uppercase);
   transition:
     background-color var(--d-press) linear,
     color var(--d-press) linear;
@@ -1448,7 +1448,7 @@ a.auth-cta {
     place-items: center;
     background: var(--accent-desk);
     color: var(--masthead);
-    font-family: var(--f-mono);
+    font-family: var(--f-fig);
     font-size: 10px;
     font-weight: 700;
     font-variant-numeric: tabular-nums;
@@ -1489,9 +1489,9 @@ a.auth-cta {
   background: transparent;
   color: var(--desk-ink-2);
   font-family: var(--f-mono);
-  font-size: 12px;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  font-size: calc(12px + var(--caps-bump, 0px));
+  letter-spacing: var(--caps-ls, 0.06em);
+  text-transform: var(--caps, uppercase);
   cursor: pointer;
   transition:
     border-color var(--d-press) linear,
@@ -1616,9 +1616,9 @@ a.auth-cta {
     border: 1px solid var(--desk-ink);
     color: var(--desk-ink);
     font-family: var(--f-mono);
-    font-size: 12px;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
+    font-size: calc(12px + var(--caps-bump, 0px));
+    letter-spacing: var(--caps-ls, 0.08em);
+    text-transform: var(--caps, uppercase);
     cursor: pointer;
   }
   .app-rail-groups,
@@ -1913,4 +1913,25 @@ a.auth-cta {
     mask-image: linear-gradient(to bottom, #000 calc(100% - 26px), transparent);
     padding-bottom: 26px;
   }
+}
+
+/* Sentence case: a label the classic look set in capitals starts with one
+   (the owner app's type, app/sheet.css). In the classic look it follows the label. */
+:is(
+  .auth-eyebrow,
+  .ops-table th,
+  .next,
+  .ghost,
+  .prop-btn,
+  .rp-act,
+  .es-stop,
+  .app-rail-live,
+  .app-rail-label,
+  .app-rail-switch summary,
+  .app-rail-signout,
+  .app-tab,
+  .app-search,
+  .app-rail-toggle
+)::first-letter {
+  text-transform: var(--caps-first, inherit);
 }

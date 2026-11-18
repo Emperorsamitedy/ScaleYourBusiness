@@ -28,9 +28,9 @@
 .lp-checking {
   margin-left: auto;
   font-family: var(--f-mono);
-  font-size: var(--t-mono-xs);
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
+  font-size: calc(var(--t-mono-xs) + var(--caps-bump, 0px));
+  letter-spacing: var(--caps-ls, 0.04em);
+  text-transform: var(--caps, uppercase);
   color: var(--sheet-ink-2);
 }
 .lp-currency,
@@ -64,4 +64,10 @@
 }
 .lp-screen .cs + .cs {
   margin-top: 18px;
+}
+
+/* Sentence case: a label the classic look set in capitals starts with one
+   (the owner app's type, app/sheet.css). In the classic look it follows the label. */
+:is(.lp-checking)::first-letter {
+  text-transform: var(--caps-first, inherit);
 }

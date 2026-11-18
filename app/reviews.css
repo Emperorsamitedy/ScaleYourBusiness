@@ -46,14 +46,14 @@
   align-items: baseline;
   gap: 4px 14px;
   margin: 0;
-  font-family: var(--f-mono);
+  font-family: var(--f-fig);
   font-size: 12.5px;
   font-variant-numeric: tabular-nums;
 }
 .rv-platform {
   font-weight: 600;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
+  letter-spacing: var(--caps-ls, 0.04em);
+  text-transform: var(--caps, uppercase);
 }
 .rv-who {
   margin: 6px 0 0;
@@ -257,4 +257,10 @@
   .rv-item {
     padding-left: 10px;
   }
+}
+
+/* Sentence case: a label the classic look set in capitals starts with one
+   (the owner app's type, app/sheet.css). In the classic look it follows the label. */
+:is(.rv-platform)::first-letter {
+  text-transform: var(--caps-first, inherit);
 }

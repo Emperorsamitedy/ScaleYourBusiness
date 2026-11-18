@@ -15,10 +15,10 @@
   min-height: 32px;
   cursor: pointer;
   list-style: none;
-  font-size: var(--t-mono-xs);
+  font-size: calc(var(--t-mono-xs) + var(--caps-bump, 0px));
   font-weight: 500;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  letter-spacing: var(--caps-ls, 0.08em);
+  text-transform: var(--caps, uppercase);
   color: var(--sheet-ink);
 }
 .why-fold > summary::-webkit-details-marker {
@@ -52,4 +52,10 @@
   .why-fold > summary::after {
     transition: none;
   }
+}
+
+/* Sentence case: a label the classic look set in capitals starts with one
+   (the owner app's type, app/sheet.css). In the classic look it follows the label. */
+:is(.why-fold > summary)::first-letter {
+  text-transform: var(--caps-first, inherit);
 }

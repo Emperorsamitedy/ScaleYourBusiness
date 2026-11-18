@@ -48,9 +48,9 @@
   gap: 8px 14px;
   margin: 0;
   font-family: var(--f-mono);
-  font-size: 11.5px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
+  font-size: calc(11.5px + var(--caps-bump, 0px));
+  letter-spacing: var(--caps-ls, 0.12em);
+  text-transform: var(--caps, uppercase);
   color: var(--desk-ink-2);
 }
 .home-lex {
@@ -73,9 +73,9 @@
   max-width: 26ch;
   font-family: var(--f-display);
   font-size: clamp(24px, 2.7vw, 38px);
-  font-weight: 700;
+  font-weight: var(--w-display, 700);
   line-height: 1.08;
-  letter-spacing: -0.01em;
+  letter-spacing: var(--ls-display, -0.01em);
 }
 .home-ans {
   margin: 0;
@@ -99,10 +99,10 @@
   background: var(--paper);
   color: var(--sheet-ink);
   font-family: var(--f-mono);
-  font-size: 12px;
+  font-size: calc(12px + var(--caps-bump, 0px));
   font-weight: 600;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  letter-spacing: var(--caps-ls, 0.06em);
+  text-transform: var(--caps, uppercase);
   text-decoration: none;
   white-space: nowrap;
   cursor: pointer;
@@ -126,10 +126,10 @@
 /* an action inside a line of text */
 .home-link {
   font-family: var(--f-mono);
-  font-size: 12px;
+  font-size: calc(12px + var(--caps-bump, 0px));
   font-weight: 500;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  letter-spacing: var(--caps-ls, 0.06em);
+  text-transform: var(--caps, uppercase);
   color: inherit;
   text-underline-offset: 3px;
 }
@@ -161,10 +161,10 @@
   background: none;
   color: var(--sheet-ink);
   font-family: var(--f-mono);
-  font-size: 12px;
+  font-size: calc(12px + var(--caps-bump, 0px));
   font-weight: 500;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  letter-spacing: var(--caps-ls, 0.06em);
+  text-transform: var(--caps, uppercase);
   text-decoration: underline;
   text-underline-offset: 3px;
   cursor: pointer;
@@ -267,16 +267,16 @@
 .hd-lab {
   margin: 0;
   font-family: var(--f-mono);
-  font-size: 11.5px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  font-size: calc(11.5px + var(--caps-bump, 0px));
+  letter-spacing: var(--caps-ls, 0.08em);
+  text-transform: var(--caps, uppercase);
   color: var(--sheet-ink-2);
 }
 .hd-title {
   margin: 0;
   font-family: var(--f-display);
   font-size: 16px;
-  font-weight: 700;
+  font-weight: var(--w-display, 700);
   line-height: 1.25;
 }
 /* the title as the way in to the full read */
@@ -313,10 +313,10 @@
   background: var(--paper);
   color: var(--sheet-ink);
   font-family: var(--f-mono);
-  font-size: 12px;
+  font-size: calc(12px + var(--caps-bump, 0px));
   font-weight: 600;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  letter-spacing: var(--caps-ls, 0.06em);
+  text-transform: var(--caps, uppercase);
   cursor: pointer;
   transition:
     background-color var(--d-press) linear,
@@ -348,10 +348,10 @@
 .hd-panel-lab {
   margin: 0 0 8px;
   font-family: var(--f-mono);
-  font-size: 11.5px;
+  font-size: calc(11.5px + var(--caps-bump, 0px));
   font-weight: 600;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
+  letter-spacing: var(--caps-ls, 0.12em);
+  text-transform: var(--caps, uppercase);
 }
 .hd-chips {
   display: flex;
@@ -424,10 +424,10 @@
   border: 0;
   background: none;
   font-family: var(--f-mono);
-  font-size: 11.5px;
+  font-size: calc(11.5px + var(--caps-bump, 0px));
   font-weight: 500;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  letter-spacing: var(--caps-ls, 0.06em);
+  text-transform: var(--caps, uppercase);
   text-decoration: underline;
   text-underline-offset: 3px;
   color: inherit;
@@ -663,7 +663,7 @@
 .hm-title {
   font-family: var(--f-display);
   font-size: 15px;
-  font-weight: 700;
+  font-weight: var(--w-display, 700);
   line-height: 1.25;
   overflow-wrap: anywhere;
 }
@@ -711,14 +711,14 @@
 .home-r-lab {
   margin: 0;
   font-family: var(--f-mono);
-  font-size: 11.5px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  font-size: calc(11.5px + var(--caps-bump, 0px));
+  letter-spacing: var(--caps-ls, 0.08em);
+  text-transform: var(--caps, uppercase);
   color: var(--sheet-ink-2);
 }
 .home-r-val {
   margin: 0;
-  font-family: var(--f-mono);
+  font-family: var(--f-fig);
   font-size: 28px;
   font-weight: 500;
   line-height: 1.1;
@@ -740,10 +740,10 @@
 }
 .home-r-more {
   font-family: var(--f-mono);
-  font-size: 12px;
+  font-size: calc(12px + var(--caps-bump, 0px));
   font-weight: 500;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  letter-spacing: var(--caps-ls, 0.06em);
+  text-transform: var(--caps, uppercase);
   text-decoration: underline;
   text-underline-offset: 3px;
 }
@@ -779,7 +779,7 @@
   align-items: baseline;
   gap: 2px 12px;
   margin: 0;
-  font-family: var(--f-mono);
+  font-family: var(--f-fig);
   font-variant-numeric: tabular-nums;
 }
 .lv-value {
@@ -809,10 +809,10 @@
 }
 .lv-link {
   font-family: var(--f-mono);
-  font-size: 12px;
+  font-size: calc(12px + var(--caps-bump, 0px));
   font-weight: 600;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  letter-spacing: var(--caps-ls, 0.06em);
+  text-transform: var(--caps, uppercase);
   color: var(--sheet-ink);
   text-underline-offset: 3px;
   white-space: nowrap;
@@ -920,7 +920,7 @@
 }
 .lv-tick {
   fill: var(--sheet-ink-2);
-  font-family: var(--f-mono);
+  font-family: var(--f-fig);
   font-size: 11.5px;
   font-variant-numeric: tabular-nums;
 }
@@ -931,7 +931,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: var(--f-mono);
+  font-family: var(--f-fig);
   font-size: 11.5px;
   font-weight: 600;
   line-height: 1;
@@ -1183,4 +1183,24 @@
     align-items: center;
     min-height: 40px;
   }
+}
+
+/* Sentence case: a label the classic look set in capitals starts with one
+   (the owner app's type, app/sheet.css). In the classic look it follows the label. */
+:is(
+  .home-kicker,
+  .home .home-btn,
+  .home-btn,
+  .home-link,
+  .home .home-more,
+  .home-more,
+  .hd-lab,
+  .hd-btn,
+  .hd-panel-lab,
+  .hd-more,
+  .home-r-lab,
+  .home-r-more,
+  .lv-link
+)::first-letter {
+  text-transform: var(--caps-first, inherit);
 }

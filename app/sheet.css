@@ -112,6 +112,29 @@
   }
 }
 
+/* ── the owner app's type (2026-11-18) ──
+   The owner: "something a bit more simplistic". On the owner's screens (the
+   frame, the queue, the report) one plain sans sets headings, labels,
+   controls and prose, in sentence case; the mono stays for figures, keys and
+   formulas (--f-fig). The landing, the entrance and the interview keep the
+   three faces above. Every rule reads these through a token whose fallback
+   is the classic value, so this block is the whole switch. */
+:root {
+  --f-ui: var(--font-archivo), "Archivo", system-ui, sans-serif;
+  --f-fig: var(--font-plex-mono), "IBM Plex Mono", ui-monospace, monospace;
+}
+:root:has(.app-frame, .q-app, .rq) {
+  --f-display: var(--f-ui);
+  --f-prose: var(--f-ui);
+  --f-mono: var(--f-ui);
+  --w-display: 650;
+  --ls-display: -0.02em;
+  --caps: none;
+  --caps-ls: 0;
+  --caps-bump: 1px;
+  --caps-first: uppercase;
+}
+
 /* ── the desk and the sheet ── */
 
 .desk {
@@ -143,15 +166,15 @@
 
 .display {
   font-family: var(--f-display);
-  font-weight: 700;
-  letter-spacing: -0.01em;
+  font-weight: var(--w-display, 700);
+  letter-spacing: var(--ls-display, -0.01em);
   line-height: 1.08;
   margin: 0;
 }
 
 .mono,
 .fig {
-  font-family: var(--f-mono);
+  font-family: var(--f-fig);
 }
 /* Tabular on the figure itself, not on the words around it. */
 .fig {
@@ -163,10 +186,10 @@
 /* Caps are reserved for mono labels and flags. */
 .label {
   font-family: var(--f-mono);
-  font-size: var(--t-mono-xs);
+  font-size: calc(var(--t-mono-xs) + var(--caps-bump, 0px));
   font-weight: 500;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  letter-spacing: var(--caps-ls, 0.06em);
+  text-transform: var(--caps, uppercase);
 }
 
 .prose {
@@ -200,10 +223,10 @@
   background: var(--paper);
   color: var(--sheet-ink);
   font-family: var(--f-mono);
-  font-size: var(--t-mono-s);
+  font-size: calc(var(--t-mono-s) + var(--caps-bump, 0px));
   font-weight: 600;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  letter-spacing: var(--caps-ls, 0.06em);
+  text-transform: var(--caps, uppercase);
   text-decoration: none !important;
   cursor: pointer;
   transition:
@@ -267,10 +290,10 @@ optgroup {
 
 .flag {
   font-family: var(--f-mono);
-  font-size: var(--t-mono-xs);
+  font-size: calc(var(--t-mono-xs) + var(--caps-bump, 0px));
   font-weight: 600;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  letter-spacing: var(--caps-ls, 0.06em);
+  text-transform: var(--caps, uppercase);
   white-space: nowrap;
 }
 .flag.ok {
@@ -386,9 +409,9 @@ optgroup {
 .ph-kicker {
   margin: 0 0 10px;
   font-family: var(--f-mono);
-  font-size: 11.5px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
+  font-size: calc(11.5px + var(--caps-bump, 0px));
+  letter-spacing: var(--caps-ls, 0.12em);
+  text-transform: var(--caps, uppercase);
   color: var(--desk-ink-2);
 }
 .ph-title {
@@ -396,9 +419,9 @@ optgroup {
   font-family: var(--f-display);
   /* 2026-11-15: the headline is the screen's answer, set large (ux-spec §2 display-2 → display-1). */
   font-size: clamp(24px, 2.7vw, 38px);
-  font-weight: 700;
+  font-weight: var(--w-display, 700);
   line-height: 1.08;
-  letter-spacing: -0.01em;
+  letter-spacing: var(--ls-display, -0.01em);
 }
 .ph-notes {
   margin-top: 10px;
@@ -433,16 +456,16 @@ optgroup {
 .cs-label {
   margin: 0 0 8px;
   font-family: var(--f-mono);
-  font-size: 11px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
+  font-size: calc(11px + var(--caps-bump, 0px));
+  letter-spacing: var(--caps-ls, 0.12em);
+  text-transform: var(--caps, uppercase);
   color: var(--sheet-ink-2);
 }
 .cs-title {
   margin: 0;
   font-family: var(--f-display);
   font-size: clamp(16px, 1.3vw, 19px);
-  font-weight: 700;
+  font-weight: var(--w-display, 700);
   line-height: 1.15;
 }
 .cs-meta {
@@ -486,10 +509,10 @@ optgroup {
   padding: 10px 10px 8px;
   border-bottom: 1px solid var(--sheet-ink);
   font-family: var(--f-mono);
-  font-size: 11px;
+  font-size: calc(11px + var(--caps-bump, 0px));
   font-weight: 500;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+  letter-spacing: var(--caps-ls, 0.1em);
+  text-transform: var(--caps, uppercase);
   text-align: left;
   color: var(--sheet-ink-2);
   white-space: nowrap;
@@ -508,9 +531,13 @@ optgroup {
 .rt .num,
 .rt th.num {
   text-align: right;
-  font-family: var(--f-mono);
+  font-family: var(--f-fig);
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
+}
+/* A figure column's heading is a label, not a figure: it follows the labels' face. */
+.rt thead th.num {
+  font-family: var(--f-mono);
 }
 .rt .src {
   font-family: var(--f-mono);
@@ -560,9 +587,9 @@ optgroup {
   .rt.rt-stack tbody td[data-label]::before {
     content: attr(data-label) " · ";
     font-family: var(--f-mono);
-    font-size: 11px;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
+    font-size: calc(11px + var(--caps-bump, 0px));
+    letter-spacing: var(--caps-ls, 0.08em);
+    text-transform: var(--caps, uppercase);
     color: var(--sheet-ink-2);
   }
 }
@@ -570,10 +597,10 @@ optgroup {
 /* worded status in mono caps — STEADY, DRIFTING, IN RANGE … */
 .word {
   font-family: var(--f-mono);
-  font-size: 11.5px;
+  font-size: calc(11.5px + var(--caps-bump, 0px));
   font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  letter-spacing: var(--caps-ls, 0.08em);
+  text-transform: var(--caps, uppercase);
   white-space: nowrap;
 }
 .word.ok {
@@ -614,4 +641,10 @@ optgroup {
 }
 .unsub-sheet form {
   margin: 0;
+}
+
+/* Sentence case: a label the classic look set in capitals starts with one
+   (the owner app's type, app/sheet.css). In the classic look it follows the label. */
+:is(.label, .act, .flag, .ph-kicker, .cs-label, .rt thead th, .word)::first-letter {
+  text-transform: var(--caps-first, inherit);
 }

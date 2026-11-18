@@ -82,14 +82,14 @@
 }
 .gl-stats dt {
   font-family: var(--f-mono);
-  font-size: 11px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
+  font-size: calc(11px + var(--caps-bump, 0px));
+  letter-spacing: var(--caps-ls, 0.12em);
+  text-transform: var(--caps, uppercase);
   color: var(--sheet-ink-2);
 }
 .gl-stats dd {
   margin: 4px 0 0;
-  font-family: var(--f-mono);
+  font-family: var(--f-fig);
   font-size: 15.5px;
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
@@ -114,7 +114,7 @@
 .gl-legend {
   margin: 0;
   padding: 10px 10px 0;
-  font-family: var(--f-mono);
+  font-family: var(--f-fig);
   font-size: 12px;
   line-height: 1.6;
   color: var(--sheet-ink-2);
@@ -234,9 +234,9 @@
 .gl-foot a {
   flex: none;
   font-family: var(--f-mono);
-  font-size: 12.5px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  font-size: calc(12.5px + var(--caps-bump, 0px));
+  letter-spacing: var(--caps-ls, 0.08em);
+  text-transform: var(--caps, uppercase);
   color: var(--sheet-ink);
 }
 .gl-review {
@@ -249,10 +249,10 @@
 .gl-review h3 {
   margin: 0 0 6px;
   font-family: var(--f-mono);
-  font-size: 11px;
+  font-size: calc(11px + var(--caps-bump, 0px));
   font-weight: 600;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+  letter-spacing: var(--caps-ls, 0.1em);
+  text-transform: var(--caps, uppercase);
   color: var(--sheet-ink-2);
 }
 .gl-review p,
@@ -333,4 +333,10 @@
     flex-direction: column;
     gap: var(--s-3);
   }
+}
+
+/* Sentence case: a label the classic look set in capitals starts with one
+   (the owner app's type, app/sheet.css). In the classic look it follows the label. */
+:is(.gl-stats dt, .gl-foot a, .gl-review h3)::first-letter {
+  text-transform: var(--caps-first, inherit);
 }

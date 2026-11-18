@@ -12,6 +12,8 @@ Started 2026-11-17 on the owner's instruction, and corrected by him the same day
 
 So the look stays the sheet system as it is (`specs/ux-spec-v1.md` §2: the dark forest desk, paper sheets, 1px rules, slab headings, mono labels, cobalt for "the machine is working", the yellow marker for "ink just laid down"). What changes is how much the app _does_ under the owner's hands.
 
+**Amended 2026-11-18.** After seeing the interactive pass the owner opened the look as well: see "The owner's third round" below. The theme and the identity stay; the type, the navigation and the presentation are being reshaped, from mockups he picks.
+
 ## What was studied
 
 - **Foundable's demo video (28 frames).** What makes it feel alive is not its styling: the assistant's status is always visible with one Stop button; an activity feed ticks as work happens; "Needs your OK" is reviewed and answered in place, without leaving the page; tabs separate activity, what was made and runs; suggested tasks are one click; charts carry a period switch; a message box is always one click away.
@@ -117,6 +119,49 @@ The same evaluator read the fixes and returned "pass": all of round 1 confirmed,
 - [later] On a phone, a group with one screen (Home) still gives the strip's row to the stop alone.
 - [later] Activity's "Checked" rows are many and alike; they want grouping by day or by connection.
 - [later] "Cash today" beside a higher "Lowest point ahead" is correct (the lowest point is the lowest of the weeks ahead, and today is not one of them) but reads oddly when today is the low; the tile wants a second look at its words.
+
+## The owner's third round (2026-11-18): the look, from mockups he picks
+
+What he said after using the app, in his words where they matter:
+
+- The results "aren't too bad" and the technical side was learned, but it is "nowhere near where I want it to be just yet".
+- It "almost should kinda resemble Foundable's UI/UX but in our own unique ways on buttons and animations and transitions and hover effects and coloring and fonts". Foundable is the closest competitor. "I don't absolutely want ScaleX to be similar to that. I just want us to have our own identity preserved but reshaped in a way that is more appealing just as much as Foundable's."
+- Secuno is a different project for a different purpose: its technique was worth learning, its look is not the target.
+- How to work: "step by step". The font first. Then mockups made with Claude's design feature that "retain our current identity in terms of overall theme and a bit of fonts", so there is "some sort of set expectation to be followed". The UI and UX design is finalised first, then everything else.
+
+The list. Nothing here is ticked until he has seen it.
+
+- [~] L1. **The font.** "Reformed into something a bit more simplistic", as on Foundable's video: one plain sans, sentence case, calm weights. Built and waiting for his look: see "L1, as built" below.
+- [ ] L2. **Mockups to pick from.** Made in Claude's design canvas on the account he and Tedi share, from this repository (a prompt alone would make it guess): ScaleX's design system filled in (colours, type, spacing, rules of voice), then artboards for the shell, Home, Lex, and one text-heavy screen. A written brief goes with them so he can generate more there himself. He picks; the pick becomes the expectation every later item is built to.
+- [ ] L3. **Navigation.**
+  - [ ] a. The rail's contents are "a bit messy here and there".
+  - [ ] b. Some of it can sit at the top, "up to 4 max just as on Foundable's".
+  - [ ] c. A clear way back. The queue and the report are focused views with their own masthead and no rail (`AppFrame.tsx`, `FOCUSED`): they fill the screen and "there's no clear way to go back", which "confuses the user's eye".
+  - [ ] d. The rail expands and retracts, and every item has its own icon.
+  - [ ] e. The tabs across the top of a screen are "not bad": tidy them the same way, and never let the top navigation and those tabs overlap or say the same thing twice.
+- [ ] L4. **Lex.**
+  - [ ] a. A face, as Foundable's Ted has one. Ours, not theirs.
+  - [ ] b. A side panel for now. Later an interactive pop-up, and present in more places than one.
+- [ ] L5. **The microphone.** He sees no browser pop-up when he presses it. Check that a press raises the browser's own permission prompt, and that a blocked or missing microphone is said on the screen.
+- [ ] L6. **Less to read at once.** "There's still a lot of text on some pages like the cash flow", and "a few overlaps here and there". The content may stay ("I absolutely don't mind you keeping it") but "no one will probably sit down and read that much text": present it "as concise and accurate and small as possible". Cash flow first, then screen by screen.
+- [ ] L7. **No long dashes.** "No em and en dashes throughout the app"; underscores "only to a very certain limit". This reaches the seven catalogues and the range's wording ("+€136 – +€1,213" becomes "+€136 to +€1,213").
+- [ ] L8. **Straight into the app.** After signing in or signing up a person lands in the app, with no interview first. The dashboard reminds them to do it, and Lex offers to do it in conversation for those who would rather talk (the conversation is already a fact source: `specs/conversation-channel.md`).
+- [ ] L9. **What was already left for later** in this file (the two review rounds and "Later rounds") stays on the list behind these.
+
+Order: L1, L2, his pick, then L3, L4 and L6 built to the pick, then L7, L5, L8, then L9.
+
+### L1, as built (2026-11-18)
+
+He saw the first capture mid-work and said it was what he wanted; he then added that the landing page "can stay as it is".
+
+- One sans, Archivo, for headings, labels, controls and prose on the owner's screens; sentence case; a heading at weight 650. The mono stays for figures, keys, formulas and addresses. Stamps written in capitals in the catalogue stay stamps.
+- Scope: the frame, the queue and the report (and so every sheet, the palette and toasts opened from them). The landing, the free check, sign-in and the interview are untouched: checked in the browser, the landing's headline is still Zilla Slab.
+- A mechanical change: 128 capitals rules, 60 figure rules and 27 heading weights now read tokens whose fallback is the old value, and one block in `app/sheet.css` switches the owner's screens. Changing the face later is one line (`--f-ui`) and one font import.
+- Checked on 21 screens at 1440 and on Home at 390: no text wider than its box, and no sideways scroll once the report was fixed (below).
+- Found on the way, his own example: the Cash flow what-if table ran its sentences across the neighbouring columns. They wrap now. And the report scrolled sideways at desktop width (1587px in 1440) because a fact written as a sentence was held on one line; it was so before this change, and it wraps now.
+- Five other faces were rendered on the real Home for him to compare (Geist, Manrope, Hanken Grotesk, Onest, IBM Plex Sans). Archivo has no Russian letters of its own, so the Russian screens fall back to the system's sans; Geist, Manrope, Onest and Plex Sans cover them.
+- [later] Captions written in lower case for the old look ("buffer €10,900", "week of 18 Nov", "easy to undo") still start small. They belong to the copy pass (L7), which rewrites the catalogues anyway.
+- [later] The arrows on Tedi's queue buttons ("Approve →") and the interview's type.
 
 ## Later rounds (parked on purpose)
 

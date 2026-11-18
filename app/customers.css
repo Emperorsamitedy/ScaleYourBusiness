@@ -62,10 +62,10 @@
   background: transparent;
   color: var(--sheet-ink);
   font-family: var(--f-mono);
-  font-size: 12.5px;
+  font-size: calc(12.5px + var(--caps-bump, 0px));
   font-weight: 500;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  letter-spacing: var(--caps-ls, 0.06em);
+  text-transform: var(--caps, uppercase);
   font-variant-numeric: tabular-nums;
   cursor: pointer;
   transition:
@@ -162,14 +162,14 @@
 }
 .cu-screen .cu-stats dt {
   font-family: var(--f-mono);
-  font-size: 11px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
+  font-size: calc(11px + var(--caps-bump, 0px));
+  letter-spacing: var(--caps-ls, 0.12em);
+  text-transform: var(--caps, uppercase);
   color: var(--sheet-ink-2);
 }
 .cu-screen .cu-stats dd {
   margin: 6px 0 0;
-  font-family: var(--f-mono);
+  font-family: var(--f-fig);
   font-size: clamp(15px, 1.12vw, 15.5px);
   font-weight: 600;
   font-variant-numeric: tabular-nums;
@@ -199,10 +199,10 @@
 .cu-screen .cu-erase-title {
   margin: 0 0 8px;
   font-family: var(--f-mono);
-  font-size: 12px;
+  font-size: calc(12px + var(--caps-bump, 0px));
   font-weight: 600;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+  letter-spacing: var(--caps-ls, 0.1em);
+  text-transform: var(--caps, uppercase);
 }
 .cu-screen .cu-erase-copy {
   margin: 0 0 14px;
@@ -396,9 +396,9 @@
   .cu-screen .cu-table tbody td.num[data-label]::before {
     content: attr(data-label) " · ";
     font-family: var(--f-mono);
-    font-size: 11px;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
+    font-size: calc(11px + var(--caps-bump, 0px));
+    letter-spacing: var(--caps-ls, 0.08em);
+    text-transform: var(--caps, uppercase);
     color: var(--sheet-ink-2);
   }
   .cu-screen .cu-seg th,
@@ -455,4 +455,10 @@
 .cu-screen .cu-readback-table {
   margin-top: var(--s-2);
   max-width: 560px;
+}
+
+/* Sentence case: a label the classic look set in capitals starts with one
+   (the owner app's type, app/sheet.css). In the classic look it follows the label. */
+:is(.cu-screen .cu-chip, .cu-screen .cu-stats dt, .cu-screen .cu-erase-title)::first-letter {
+  text-transform: var(--caps-first, inherit);
 }

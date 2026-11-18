@@ -257,7 +257,7 @@
   overflow-wrap: anywhere;
 }
 .sp-screen .sp-sla-fig {
-  font-family: var(--f-mono);
+  font-family: var(--f-fig);
   font-size: 12.5px;
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
@@ -346,9 +346,9 @@
 .sp-screen .sp-msg-meta {
   margin: 8px 0 0;
   font-family: var(--f-mono);
-  font-size: 11.5px;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  font-size: calc(11.5px + var(--caps-bump, 0px));
+  letter-spacing: var(--caps-ls, 0.06em);
+  text-transform: var(--caps, uppercase);
   opacity: 0.85;
 }
 .sp-screen .sp-msg.customer .sp-msg-meta {
@@ -479,4 +479,10 @@
 }
 .sp-screen .sp-note {
   color: var(--sheet-ink);
+}
+
+/* Sentence case: a label the classic look set in capitals starts with one
+   (the owner app's type, app/sheet.css). In the classic look it follows the label. */
+:is(.sp-screen .sp-msg-meta)::first-letter {
+  text-transform: var(--caps-first, inherit);
 }

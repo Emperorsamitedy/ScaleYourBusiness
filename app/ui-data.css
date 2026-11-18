@@ -26,9 +26,9 @@
   background: transparent;
   color: var(--desk-ink-2);
   font-family: var(--f-mono);
-  font-size: 12px;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  font-size: calc(12px + var(--caps-bump, 0px));
+  letter-spacing: var(--caps-ls, 0.06em);
+  text-transform: var(--caps, uppercase);
   white-space: nowrap;
   cursor: pointer;
   transition:
@@ -94,4 +94,10 @@
     padding-left: 14px;
     padding-right: 14px;
   }
+}
+
+/* Sentence case: a label the classic look set in capitals starts with one
+   (the owner app's type, app/sheet.css). In the classic look it follows the label. */
+:is(.ui-tab)::first-letter {
+  text-transform: var(--caps-first, inherit);
 }
