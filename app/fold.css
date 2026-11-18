@@ -46,12 +46,22 @@
   margin-bottom: 0;
 }
 
-/* On the desk (a screen's foot outside the paper sheets): desk ink. */
+/* On the desk (a screen's head or foot outside the paper sheets): desk ink. */
 .fold.on-desk > summary,
-.fold.on-desk > summary:hover,
-.fold.on-desk .fold-body {
+.fold.on-desk .fold-body,
+.ph-notes .fold > summary,
+.ph-notes .fold .fold-body {
   color: var(--desk-ink-2);
 }
-.fold.on-desk > summary:focus-visible {
+.fold.on-desk > summary:hover,
+.ph-notes .fold > summary:hover {
+  color: var(--desk-ink);
+}
+.fold.on-desk > summary:focus-visible,
+.ph-notes .fold > summary:focus-visible {
   outline-color: var(--desk-ink);
+}
+.ph-notes .fold-body {
+  font-family: var(--f-prose);
+  line-height: 1.55;
 }

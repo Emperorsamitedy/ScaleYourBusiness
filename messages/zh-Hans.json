@@ -107,6 +107,19 @@
       "support": "{count, plural, other {# 张客户支持工单待处理}}",
       "empty": "没有需要您处理的事项。",
       "reading": "正在读取…"
+    },
+    "place": {
+      "decisions": "决定"
+    },
+    "more": "更多",
+    "rail": {
+      "fold": "收起菜单",
+      "unfold": "展开菜单",
+      "more": "还有 {count} 个",
+      "fewer": "收起"
+    },
+    "section": {
+      "marketing": "营销"
     }
   },
   "auth": {
@@ -3360,7 +3373,9 @@
       "due": "到期",
       "balanceEnd": "期末余额",
       "balance": "余额",
-      "under": "低于该线"
+      "under": "低于该线",
+      "showAll": "显示全部 {count} 周",
+      "showFewer": "收起"
     },
     "scenarios": {
       "title": "如果……",
@@ -7004,6 +7019,8 @@
     },
     "view": {
       "headlineTight": "{when, select, now {本周} other {{day} 当周}}资金可能吃紧：谨慎端为 {amount}。",
+      "headTight": "{when, select, now {本周} other {{day} 当周}}资金可能吃紧。",
+      "subTight": "在谨慎端，余额约为 {low}，{line, select, buffer {低于您希望保留的 {buffer}} other {低于零，即账户透支}}。",
       "headlineBuffer": "未来 {weeks} 周内，即使在谨慎端，也没有一周低于您 {amount} 的缓冲金额。",
       "headlineZero": "未来 {weeks} 周内，即使在谨慎端，也没有一周低于零。",
       "sourcesHistory": "来源：{source} 的{noun}，{from} 至 {to}，已测量{days, plural, other { # 天}}；需要{needed, plural, other { # 个完整周}}，现有 {complete} 个。",

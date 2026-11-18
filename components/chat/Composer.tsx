@@ -9,6 +9,7 @@
 // page, and the microphone's only words are "Listening…" and a failure.
 
 import type { RefObject } from "react";
+import { Send } from "lucide-react";
 import type { Tr } from "../../lib/i18n/tr";
 import { MicButton } from "../voice/MicButton";
 import { MAX_CHARS } from "./useChat";
@@ -81,6 +82,7 @@ export function Composer({
         />
         <button type="submit" className="next ak-ask" disabled={busy || draft.trim() === ""}>
           {tr("composer.ask")}
+          <Send size={15} strokeWidth={1.9} aria-hidden="true" />
         </button>
       </div>
     </form>

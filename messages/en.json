@@ -107,6 +107,19 @@
       "support": "{count, plural, one {# support ticket open} other {# support tickets open}}",
       "empty": "Nothing needs you.",
       "reading": "Reading…"
+    },
+    "place": {
+      "decisions": "Decisions"
+    },
+    "more": "More",
+    "rail": {
+      "fold": "Fold the menu",
+      "unfold": "Unfold the menu",
+      "more": "{count} more",
+      "fewer": "Show fewer"
+    },
+    "section": {
+      "marketing": "Marketing"
     }
   },
   "auth": {
@@ -3360,7 +3373,9 @@
       "due": "Due",
       "balanceEnd": "Balance at the end",
       "balance": "Balance",
-      "under": "UNDER THE LINE"
+      "under": "UNDER THE LINE",
+      "showAll": "Show all {count} weeks",
+      "showFewer": "Show fewer weeks"
     },
     "scenarios": {
       "title": "What if…",
@@ -7004,6 +7019,8 @@
     },
     "view": {
       "headlineTight": "Money could get tight {when, select, now {this week} other {in the week of {day}}}: the cautious end is {amount}.",
+      "headTight": "Money could get tight {when, select, now {this week} other {in the week of {day}}}.",
+      "subTight": "At the cautious end the balance is about {low}, {line, select, buffer {under the {buffer} you want to keep} other {below zero, an overdrawn account}}.",
       "headlineBuffer": "No week of the next {weeks} dips under your {amount} buffer, even at the cautious end.",
       "headlineZero": "No week of the next {weeks} goes below zero, even at the cautious end.",
       "sourcesHistory": "Sources: {source} {noun}, {days, plural, one {# measured day} other {# measured days}} from {from} to {to}; {complete} of {needed, plural, one {# complete week} other {# complete weeks}} needed.",

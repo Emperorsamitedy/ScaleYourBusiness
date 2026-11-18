@@ -60,14 +60,73 @@ export function forecastDay(day: string, locale: AppLocale = "en"): string {
   return dayMonthYear(day, locale);
 }
 
-/** "€3,100 – €5,400", or one figure when both ends round alike. */
-export function rangeText(r: Range, currency: string, locale: AppLocale = "en"): string {
-  const a = wholeMoney(r.low, currency, locale);
-  const b = wholeMoney(r.high, currency, locale);
-  return a === b ? a : `${a} – ${b}`;
+/** "€3,100 to €5,400" in the reader's language, or one figure when both ends round alike. */
+export function rangeText(r: Range, currency: string, words: CashWords = ENGLISH()): string {
+  const a = wholeMoney(r.low, currency, words.locale);
+  const b = wholeMoney(r.high, currency, words.locale);
+  return a === b ? a : words.tr("view.signedRange", { low: a, high: b });
 }
 
-/** The page's one display line. */
+/**
+ * The head as the screen sets it (2026-11-18, "less text at once"): a short
+ * title, and one line under it with the figures. A tight week is named in
+ * the title and sized in the line; a clear forecast says so in the title
+ * and what that means in the line; a refusal is its own headline.
+ */
+export function headTitle(view: CashView, words: SentenceWords = SENTENCES()): string {
+  const f = view.forecast;
+  if (f.status !== "ready" || !view.tight) return headline(view, words);
+  return words.tr("view.headTight", {
+    when: view.tight.index === 0 ? "now" : "later",
+    day: shortDate(view.tight.start, words.locale),
+  });
+}
+
+/** The line under the title; null when the title already says all there is (a refusal). */
+export function headLede(
+  view: CashView,
+  words: SentenceWords = SENTENCES(),
+  screen: CashWords = ENGLISH(),
+): string | null {
+  const f = view.forecast;
+  if (f.status !== "ready") return null;
+  const t = view.tight;
+  if (!t) return screen.tr("warning.none");
+  return words.tr("view.subTight", {
+    low: wholeMoney(t.balance.low, f.currency, words.locale),
+    line: t.line_kind,
+    buffer: t.line_kind === "buffer" ? wholeMoney(t.line, f.currency, words.locale) : "",
+  });
+}
+
+/** The three figures over the chart: cash today, the lowest point, the end of the 13 weeks. */
+export interface CashTiles {
+  today: { value: string; source: string; on: string | null; basis: Basis };
+  lowest: { value: string; week: string; under: boolean };
+  end: { value: string };
+}
+
+export function cashTiles(f: CashReady, words: CashWords = ENGLISH()): CashTiles {
+  const { tr, locale } = words;
+  const cur = f.currency;
+  const low = f.weeks[f.lowest.index]!;
+  return {
+    today: {
+      value: wholeMoney(f.start.amount_minor, cur, locale),
+      source: f.start.source,
+      on: f.start.on ? shortDate(f.start.on, locale) : null,
+      basis: f.start.basis,
+    },
+    lowest: {
+      value: wholeMoney(f.lowest.balance.low, cur, locale),
+      week: tr("view.weekOf", { day: shortDate(low.start, locale) }),
+      under: f.lowest.balance.low < f.line.amount_minor,
+    },
+    end: { value: rangeText(f.end, cur, words) },
+  };
+}
+
+/** The page's main fact as one sentence: the browser tab's and the tests' wording. */
 export function headline(view: CashView, words: SentenceWords = SENTENCES()): string {
   const { tr, locale } = words;
   const f = view.forecast;
@@ -173,7 +232,7 @@ export function cashChartModel(
     summary: `${s("view.summary", {
       weeks: CASH.horizon_weeks,
       start: wholeMoney(f.start.amount_minor, cur, locale),
-      end: rangeText(f.end, cur, locale),
+      end: rangeText(f.end, cur, words),
     })} ${s(tightIndex === null ? "view.summaryAbove" : "view.summaryUnder", lineArgs)}`,
     points,
     line: { amount: f.line.amount_minor, label: f.line.kind === "buffer" ? "BUFFER" : "ZERO" },
@@ -205,11 +264,11 @@ export function weekRows(f: CashReady, words: CashWords = ENGLISH()): WeekRow[] 
     return {
       key: w.start,
       week: tr("view.weekOf", { day: shortDate(w.start, locale) }),
-      money_in: rangeText(w.money_in, cur, locale),
+      money_in: rangeText(w.money_in, cur, words),
       going_out: rangeText(
         { low: Math.min(out.low, out.high), high: Math.max(out.low, out.high) },
         cur,
-        locale,
+        words,
       ),
       due:
         w.due.length === 0
@@ -220,7 +279,7 @@ export function weekRows(f: CashReady, words: CashWords = ENGLISH()): WeekRow[] 
                 return d.set_aside ? tr("view.twelfth", { item }) : item;
               })
               .join(" · "),
-      balance: rangeText(w.balance, cur, locale),
+      balance: rangeText(w.balance, cur, words),
       under: w.balance.low < f.line.amount_minor,
     };
   });
@@ -267,7 +326,7 @@ export function scenarioColumns(
     status: "ready",
     lowest: wholeMoney(f.lowest.balance.low, cur, locale),
     lowest_week: weekOf(f.weeks[f.lowest.index]!.start),
-    end: rangeText(f.end, cur, locale),
+    end: rangeText(f.end, cur, words),
     vs_plain: "—",
     tight: tightWords(tightIndex, f),
     why: null,
@@ -299,7 +358,7 @@ export function scenarioColumns(
         status: "ready",
         lowest: wholeMoney(r.lowest.balance.low, cur, locale),
         lowest_week: weekOf(r.forecast.weeks[r.lowest.index]!.start),
-        end: rangeText(r.end, cur, locale),
+        end: rangeText(r.end, cur, words),
         vs_plain: signedRange(r.vs_plain, cur, words),
         tight: r.tight === null ? tr("view.none") : weekOf(r.tight.start),
         why: null,

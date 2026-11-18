@@ -27,3 +27,11 @@ export const LexApiProvider = LexCtx.Provider;
 export function useLex(): LexApi {
   return useContext(LexCtx);
 }
+
+const BusyCtx = createContext(false);
+export const LexBusyProvider = BusyCtx.Provider;
+
+/** Whether Lex is answering right now, so a face can show it; false outside the frame. */
+export function useLexBusy(): boolean {
+  return useContext(BusyCtx);
+}

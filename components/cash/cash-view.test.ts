@@ -13,6 +13,9 @@ import { tightWeek } from "../../lib/cash/warnings";
 import {
   PLANNING_NOTE,
   cashChartModel,
+  cashTiles,
+  headLede,
+  headTitle,
   headline,
   rangeText,
   scenarioColumns,
@@ -79,6 +82,30 @@ describe("P5-10 — the head states the main fact", () => {
     const refused = forecastCash(baseInputs({ revenue: daily(TODAY, 30, () => 1) }));
     expect(headline(viewOf(refused))).toMatch(/a 13-week cash forecast needs 8/);
   });
+
+  it("on the screen: a short title, and the figures in one line under it", () => {
+    const tight = viewOf(ready);
+    expect(headTitle(tight)).toBe("Money could get tight in the week of 29 Dec.");
+    expect(headLede(tight)).toBe(
+      "At the cautious end the balance is about −€600, under the €2,000 you want to keep.",
+    );
+    const clear = viewOf(forecastCash(baseInputs()));
+    expect(headTitle(clear)).toBe(headline(clear));
+    expect(headLede(clear)).toMatch(/stays above the line every week/);
+    const refused = viewOf(forecastCash(baseInputs({ revenue: daily(TODAY, 30, () => 1) })));
+    expect(headTitle(refused)).toBe(headline(refused));
+    expect(headLede(refused)).toBeNull();
+  });
+
+  it("three figures over the chart: today, the lowest point and its week, where the 13 weeks end", () => {
+    const tiles = cashTiles(ready);
+    expect(tiles.today).toMatchObject({ value: "€5,000", basis: "STATED" });
+    expect(tiles.lowest).toMatchObject({ value: "−€600", week: "Week of 29 Dec", under: true });
+    // This fixture's weeks all run alike, so both ends round to one figure.
+    expect(tiles.end.value).toBe(rangeText(ready.end, "EUR"));
+    expect(tiles.end.value).toBe("€1,500");
+    expect(cashTiles(forecastCash(baseInputs()) as CashReady).lowest.under).toBe(false);
+  });
 });
 
 describe("P5-10 — the chart model and the tables", () => {
@@ -108,7 +135,7 @@ describe("P5-10 — the chart model and the tables", () => {
   });
 
   it("a range prints both ends, a point once", () => {
-    expect(rangeText({ low: 310_000, high: 540_000 }, "EUR")).toBe("€3,100 – €5,400");
+    expect(rangeText({ low: 310_000, high: 540_000 }, "EUR")).toBe("€3,100 to €5,400");
     expect(rangeText({ low: 310_000, high: 310_049 }, "EUR")).toBe("€3,100");
   });
 });

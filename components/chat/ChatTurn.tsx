@@ -2,7 +2,7 @@
 
 // One turn of the conversation, as the chat screen and Home draw it: the
 // owner's words, or Lex's reply with the change cards it carries. Lex
-// speaks under the mark (components/brand/Mark.tsx), so the reader always
+// speaks under its own face (components/brand/LexFace.tsx), so the reader always
 // sees who wrote what: the owner's own assistant is named the way a
 // customer-facing one says it is one (rule 20).
 
@@ -10,18 +10,16 @@ import type { ReactNode } from "react";
 import { ASSISTANT } from "../../lib/core/assistant";
 import type { AppLocale } from "../../lib/i18n/locales";
 import type { Tr } from "../../lib/i18n/tr";
-import { Mark } from "../brand/Mark";
+import { LexFace } from "../brand/LexFace";
 import { ChangeCard } from "./ChangeCard";
 import type { ChangeCardView, Turn } from "./chat-view";
 import { cardsFor, paragraphs, stamp } from "./chat-view";
 
-/** Lex's name with the mark before it, on a small ink tile. */
+/** Lex's name with its face before it; the face works while an answer is on its way. */
 export function Speaker({ live = false }: { live?: boolean }) {
   return (
     <span className={`ak-lex${live ? " live" : ""}`}>
-      <span className="ak-lex-mark" aria-hidden="true">
-        <Mark size={12} onDark />
-      </span>
+      <LexFace size={20} state={live ? "working" : "idle"} />
       {ASSISTANT}
     </span>
   );

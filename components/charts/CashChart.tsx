@@ -3,12 +3,18 @@
 // The 13-week cash chart (P5-10, specs/ux-spec-v1.md §2.1), on the chart
 // family's sheet tokens: today's cash, then the balance at the end of each
 // of the next 13 weeks as a tinted RANGE BAND from the cautious end to the
-// hopeful end, the cautious end drawn as a solid ink line on its lower edge.
-// The owner's buffer (or zero, when none is stated) is a dashed line with
-// its mono label; the first week whose cautious end dips under it carries a
-// hollow square and "TIGHT". Read in grayscale: no colour carries meaning.
+// hopeful end, the cautious end drawn as a solid line on its lower edge.
+// The owner's buffer (or zero, when none is stated) is a dashed line; the
+// first week whose cautious end dips under it carries a hollow ring and
+// "Tight". The figures at the right edge are the ones a reader looks for:
+// where the band ends, and the line (kept apart by lib/charts/labels). Read
+// in grayscale: shape and position carry the meaning, the tint repeats it.
 // What it rests on (the sources line and how the band is drawn) sits folded
 // under "How this works" (decluttered 2026-11-09 on the owner's instruction).
+//
+// Redrawn 2026-11-18 from the mockup the owner picked: the head is the
+// chart's name with its key beside it, and nothing repeats the page's
+// headline.
 //
 // Plain SVG at the container's width (useChartWidth); ←/→ step the
 // crosshair (lib/charts/keys); every value is also in a table.
@@ -21,6 +27,7 @@ import { useState, type KeyboardEvent } from "react";
 import { useTranslations } from "next-intl";
 import "../../app/charts.css";
 import { stepKey } from "../../lib/charts/keys";
+import { spreadLabels } from "../../lib/charts/labels";
 import { wholeMoney } from "../../lib/cash/model";
 import { shortDate } from "../../lib/charts/model";
 import { Fold } from "../sheet/Fold";
@@ -56,10 +63,10 @@ export function CashChart({ model }: { model: CashChartModel }) {
   const [at, setAt] = useState<number | null>(null);
   const { ref, width, narrow } = useChartWidth<HTMLDivElement>(720);
   const pts = model.points;
-  const TOP = 18;
-  const H = narrow ? 150 : 200;
-  const AXIS_W = 64;
-  const height = TOP + H + 24;
+  const TOP = 14;
+  const H = narrow ? 160 : 220;
+  const AXIS_W = narrow ? 64 : 76;
+  const height = TOP + H + 28;
   const plotR = width - AXIS_W;
   const step = (plotR - 12) / Math.max(1, pts.length - 1);
   const x = (i: number) => 6 + step * i;
@@ -71,9 +78,9 @@ export function CashChart({ model }: { model: CashChartModel }) {
   const bottom = min - pad;
   const y = (v: number) => TOP + ((top - v) / (top - bottom)) * H;
   const money = (v: number) => wholeMoney(v, model.currency, locale);
-  const lineWord = model.line.label === "BUFFER" ? t("lineBuffer") : t("lineZero");
   const shown = at ?? model.tight ?? pts.length - 1;
   const p = pts[shown];
+  const last = pts[pts.length - 1];
 
   const band =
     pts.map((q, i) => `${i === 0 ? "M" : "L"}${x(i)},${y(q.high)}`).join(" ") +
@@ -88,6 +95,18 @@ export function CashChart({ model }: { model: CashChartModel }) {
   const highLine = pts.map((q, i) => `${i === 0 ? "M" : "L"}${x(i)},${y(q.high)}`).join(" ");
   const every = narrow ? 4 : 2;
 
+  // The figures at the right edge: where the band ends, and the line.
+  const ends = last
+    ? [
+        { key: "high", y: y(last.high), text: money(last.high), line: false },
+        ...(money(last.low) === money(last.high)
+          ? []
+          : [{ key: "low", y: y(last.low), text: money(last.low), line: false }]),
+        { key: "line", y: y(model.line.amount), text: money(model.line.amount), line: true },
+      ]
+    : [];
+  const sideLabels = spreadLabels(ends, TOP + 4, TOP + H, 15);
+
   const onKey = (ev: KeyboardEvent<SVGSVGElement>) => {
     const { next, handled } = stepKey(ev.key, at, pts.length);
     if (!handled) return;
@@ -95,11 +114,31 @@ export function CashChart({ model }: { model: CashChartModel }) {
     setAt(next);
   };
 
+  const tight = model.tight !== null ? (pts[model.tight] ?? null) : null;
+  const tightX = model.tight !== null ? x(model.tight) : 0;
+  // The word sits under its ring, and never runs off either side of the plot.
+  const tightAnchor = tightX < 40 ? "start" : tightX > plotR - 40 ? "end" : "middle";
+
   return (
     <SheetCard
       className="sc cf"
-      label={model.label}
-      title={model.title}
+      title={model.label}
+      meta={
+        <ul className="sc-keys" aria-label={t("key")}>
+          <li>
+            <span className="sc-key cf-band" aria-hidden="true" />
+            <span className="cap1">{t("band")}</span>
+          </li>
+          <li>
+            <span className="sc-key cf-low" aria-hidden="true" />
+            <span className="cap1">{t("low")}</span>
+          </li>
+          <li>
+            <span className="sc-key cf-line" aria-hidden="true" />
+            <span className="cap1">{model.line.label === "BUFFER" ? t("buffer") : t("zero")}</span>
+          </li>
+        </ul>
+      }
       foot={
         <Fold summary={t("how")}>
           <p>{model.meta}</p>
@@ -107,18 +146,6 @@ export function CashChart({ model }: { model: CashChartModel }) {
         </Fold>
       }
     >
-      <ul className="sc-keys" aria-label={t("key")}>
-        <li>
-          <span className="sc-key cf-band" aria-hidden="true" /> {t("band")}
-        </li>
-        <li>
-          <span className="sc-key cf-low" aria-hidden="true" /> {t("low")}
-        </li>
-        <li>
-          <span className="sc-key cf-line" aria-hidden="true" />{" "}
-          {model.line.label === "BUFFER" ? t("buffer") : t("zero")}
-        </li>
-      </ul>
       <div className="sc-plot" ref={ref}>
         <svg
           className="sc-svg"
@@ -137,7 +164,11 @@ export function CashChart({ model }: { model: CashChartModel }) {
           }}
           onPointerLeave={() => setAt(null)}
         >
-          {bottom < 0 && top > 0 && <line className="grid" x1={0} x2={plotR} y1={y(0)} y2={y(0)} />}
+          {bottom < 0 && top > 0 ? (
+            <line className="grid" x1={0} x2={plotR} y1={y(0)} y2={y(0)} />
+          ) : (
+            <line className="grid" x1={0} x2={plotR} y1={TOP + H} y2={TOP + H} />
+          )}
           <path className="cf-band" d={band} />
           <path className="cf-high" d={highLine} />
           <path className="cf-low" d={lowLine} />
@@ -148,29 +179,31 @@ export function CashChart({ model }: { model: CashChartModel }) {
             y1={y(model.line.amount)}
             y2={y(model.line.amount)}
           />
-          <text className="tick" x={plotR + 6} y={y(model.line.amount) + 4}>
-            {lineWord}
-          </text>
-          <text className="tick" x={plotR + 6} y={y(top - pad) + 4}>
-            {money(top - pad)}
-          </text>
-          <text className="tick" x={plotR + 6} y={y(bottom + pad) + 4}>
-            {money(bottom + pad)}
-          </text>
-          {at !== null && <line className="cf-cross" x1={x(at)} x2={x(at)} y1={TOP} y2={TOP + H} />}
-          {model.tight !== null && pts[model.tight] && (
+          {sideLabels.map((l) => (
+            <text
+              key={l.key}
+              className={l.line ? "val cf-line-val" : "val"}
+              x={plotR + 8}
+              y={l.y + 4}
+            >
+              {l.text}
+            </text>
+          ))}
+          {at !== null && pts[at] && (
+            <g className="cf-at">
+              <line className="cf-cross" x1={x(at)} x2={x(at)} y1={TOP} y2={TOP + H} />
+              <circle className="cf-dot" cx={x(at)} cy={y(pts[at]!.high)} r={3.5} />
+              <circle className="cf-dot" cx={x(at)} cy={y(pts[at]!.low)} r={3.5} />
+            </g>
+          )}
+          {tight && (
             <g className="cf-tight">
-              <rect
-                x={x(model.tight) - 5}
-                y={y(pts[model.tight]!.low) - 5}
-                width={10}
-                height={10}
-              />
+              <circle cx={tightX} cy={y(tight.low)} r={5.5} />
               <text
                 className="pane-label"
-                x={x(model.tight)}
-                y={Math.min(TOP + H - 2, y(pts[model.tight]!.low) + 20)}
-                textAnchor="middle"
+                x={tightX}
+                y={Math.min(TOP + H - 5, y(tight.low) + 21)}
+                textAnchor={tightAnchor}
               >
                 {t("tight")}
               </text>
@@ -182,7 +215,7 @@ export function CashChart({ model }: { model: CashChartModel }) {
                 key={q.start}
                 className="tick"
                 x={x(i)}
-                y={height - 6}
+                y={height - 8}
                 textAnchor={i === 0 ? "start" : "middle"}
               >
                 {i === 0 ? t("today") : shortDate(q.start, locale)}

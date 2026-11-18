@@ -146,7 +146,19 @@ export function HBars({
           <li className="vz-ref-head" aria-hidden="true">
             <span />
             <span className="vz-axis">
-              <b style={{ left: share(refAt, top) }}>{refLabel}</b>
+              {/* The name sits over its line, and leans inward near either end so it never
+                  runs off the chart (a phone's axis is narrower than the name). */}
+              <b
+                style={
+                  refAt / (top || 1) > 0.6
+                    ? { right: share(top - refAt, top), transform: "none" }
+                    : refAt / (top || 1) < 0.25
+                      ? { left: share(refAt, top), transform: "none" }
+                      : { left: share(refAt, top) }
+                }
+              >
+                {refLabel}
+              </b>
             </span>
             <span />
           </li>

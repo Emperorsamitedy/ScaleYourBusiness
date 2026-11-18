@@ -17,6 +17,8 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import type { NavCounts } from "../../app/api/nav/route";
+import { LexFace } from "../brand/LexFace";
+import type { LexState } from "../brand/LexFace";
 import { parseTs } from "../chat/chat-view";
 import { useRole } from "../auth/RoleContext";
 import { STOP_CHANGED } from "../execution/EmergencyStop";
@@ -42,11 +44,14 @@ const COOL_MS = 60_000;
 
 export function StatusCard({
   nav,
+  face,
   onHalted,
   onRead,
 }: {
   /** The menu's counts; null while they are out. */
   nav: NavCounts | null;
+  /** What Lex's face shows right now (Home works it out once, for both faces). */
+  face: LexState;
   /** Tells Home whether everything is stopped. */
   onHalted: (halted: boolean) => void;
   /** After a read: Home reads its feed again. */
@@ -148,61 +153,54 @@ export function StatusCard({
           ? t("now.working")
           : t("reading");
 
+  const watch = halted !== true ? (nav?.watch ?? null) : null;
+  const done = watch ? Math.min(100, Math.round((watch.day / watch.of) * 1000) / 10) : 0;
+
   return (
-    <section className="cs home-now" aria-labelledby="home-now-title">
-      <header className="cs-head">
-        <div>
-          <p className="cs-label">{t("now.label")}</p>
-          <h2 className="cs-title" id="home-now-title">
-            {title}
-          </h2>
-        </div>
-      </header>
-      <div className="cs-body">
-        {nav?.watch && halted !== true && (
-          <div className="home-days" aria-hidden="true">
-            {Array.from({ length: nav.watch.of }, (_, i) => (
-              <i
-                key={i}
-                className={i < nav.watch!.day - 1 ? "d" : i === nav.watch!.day - 1 ? "n" : ""}
-              />
-            ))}
-          </div>
-        )}
-        <p className="home-now-line">
-          {/* The line is the live part; the button beside it is not read out with it. */}
-          <span role="status">
-            {run.phase === "reading" ? (
-              <span className="live">
-                <span className="live-dot" aria-hidden="true" />{" "}
-                {t("read.reading", { name: run.name })}
-              </span>
-            ) : run.phase === "done" ? (
-              <>
-                {t("read.done", { count: run.read })}
-                {run.silent.length > 0 && ` ${t("read.silent", { names: run.silent.join(", ") })}`}
-              </>
-            ) : lastRead !== undefined ? (
-              t("read.last", { when: agoText(lastRead, Date.now(), locale) })
-            ) : nav?.watch ? (
-              t("watch.note")
-            ) : null}
-          </span>
-          {canRead && run.phase !== "reading" && (
-            <>
-              {" "}
-              <button
-                type="button"
-                className="home-link home-linkbtn"
-                disabled={cooling}
-                onClick={() => void readNow()}
-              >
-                {t("read.now")}
-              </button>
-            </>
-          )}
-        </p>
+    <section className="home-now" aria-labelledby="home-now-title">
+      <div className="home-now-top">
+        {/* While a read is out the face works too: cobalt, as the line beside it. */}
+        <LexFace size={42} state={run.phase === "reading" && face === "idle" ? "working" : face} />
+        <h3 className="home-now-title" id="home-now-title">
+          {title}
+        </h3>
       </div>
+      {watch && (
+        <div className="home-now-bar" aria-hidden="true">
+          <span style={{ width: `${done}%` }} />
+          <i style={{ left: `${done}%` }} />
+        </div>
+      )}
+      <p className="home-now-line">
+        {/* The line is the live part; the button beside it is not read out with it. */}
+        <span role="status">
+          {run.phase === "reading" ? (
+            <span className="live">
+              <span className="live-dot" aria-hidden="true" />{" "}
+              {t("read.reading", { name: run.name })}
+            </span>
+          ) : run.phase === "done" ? (
+            <>
+              {t("read.done", { count: run.read })}
+              {run.silent.length > 0 && ` ${t("read.silent", { names: run.silent.join(", ") })}`}
+            </>
+          ) : lastRead !== undefined ? (
+            t("read.last", { when: agoText(lastRead, Date.now(), locale) })
+          ) : nav?.watch ? (
+            t("watch.note")
+          ) : null}
+        </span>
+        {canRead && run.phase !== "reading" && (
+          <button
+            type="button"
+            className="home-now-read"
+            disabled={cooling}
+            onClick={() => void readNow()}
+          >
+            {t("read.now")}
+          </button>
+        )}
+      </p>
     </section>
   );
 }

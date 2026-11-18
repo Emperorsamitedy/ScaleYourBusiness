@@ -27,7 +27,7 @@ import { SharedChatProvider, useChatCore } from "../chat/useChat";
 import type { Chat } from "../chat/useChat";
 import { useTr } from "../sheet/useTr";
 import { Sheet } from "../ui/Sheet";
-import { LexApiProvider } from "./NavContext";
+import { LexApiProvider, LexBusyProvider } from "./NavContext";
 import type { LexApi } from "./NavContext";
 import "../../app/chat.css";
 
@@ -186,16 +186,20 @@ export function LexHost({
     [],
   );
 
+  const state = shared.chat.state;
+  const busy = state.phase === "ready" && state.busy;
   return (
     <SharedChatProvider value={shared}>
       <LexApiProvider value={api}>
-        {children}
-        <LexSheet
-          chat={shared.chat}
-          open={open}
-          onClose={() => setOpen(false)}
-          business={business}
-        />
+        <LexBusyProvider value={busy}>
+          {children}
+          <LexSheet
+            chat={shared.chat}
+            open={open}
+            onClose={() => setOpen(false)}
+            business={business}
+          />
+        </LexBusyProvider>
       </LexApiProvider>
     </SharedChatProvider>
   );

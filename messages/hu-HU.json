@@ -107,6 +107,19 @@
       "support": "{count, plural, one {# nyitott támogatási jegy} other {# nyitott támogatási jegy}}",
       "empty": "Semmi sem vár Önre.",
       "reading": "Olvasom…"
+    },
+    "place": {
+      "decisions": "Döntések"
+    },
+    "more": "Több",
+    "rail": {
+      "fold": "Menü összecsukása",
+      "unfold": "Menü kinyitása",
+      "more": "még {count}",
+      "fewer": "Kevesebb"
+    },
+    "section": {
+      "marketing": "Marketing"
     }
   },
   "auth": {
@@ -3360,7 +3373,9 @@
       "due": "Esedékes",
       "balanceEnd": "Egyenleg a hét végén",
       "balance": "Egyenleg",
-      "under": "A VONAL ALATT"
+      "under": "A VONAL ALATT",
+      "showAll": "Összes hét megjelenítése ({count})",
+      "showFewer": "Kevesebb hét megjelenítése"
     },
     "scenarios": {
       "title": "Mi lenne, ha…",
@@ -7004,6 +7019,8 @@
     },
     "view": {
       "headlineTight": "{when, select, now {Ezen a héten} other {Azon a héten, amelynek első napja {day},}} szűkös lehet a pénz: az óvatos végen az egyenleg {amount}.",
+      "headTight": "{when, select, now {Ezen a héten} other {Azon a héten, amelynek első napja {day},}} szűkös lehet a pénz.",
+      "subTight": "Az óvatos végen az egyenleg nagyjából {low}, {line, select, buffer {a megtartani kívánt {buffer} alatt} other {nulla alatt, vagyis a számla mínuszban van}}.",
       "headlineBuffer": "A következő {weeks} hét egyikén sem süllyed az egyenleg az Ön {amount} összegű tartaléka alá, még az óvatos végen sem.",
       "headlineZero": "A következő {weeks} hét egyikén sem megy az egyenleg nulla alá, még az óvatos végen sem.",
       "sourcesHistory": "Források: {source} · {noun}, {days, plural, one {# mért nap} other {# mért nap}}, {from} – {to}; {complete} / {needed, plural, one {# szükséges teljes hét} other {# szükséges teljes hét}}.",

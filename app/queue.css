@@ -83,6 +83,11 @@
   gap: 8px 12px;
   flex-wrap: wrap;
 }
+/* Its place, kept while its state is read (EmergencyStop.tsx). */
+.es-mast-wait {
+  visibility: hidden;
+  pointer-events: none;
+}
 .es-mast-stop {
   min-height: 40px;
   padding: 0 15px;

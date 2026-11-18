@@ -107,6 +107,19 @@
       "support": "{count, plural, one {# ticket d’assistance ouvert} many {# tickets d’assistance ouverts} other {# tickets d’assistance ouverts}}",
       "empty": "Rien ne vous attend.",
       "reading": "Lecture…"
+    },
+    "place": {
+      "decisions": "Décisions"
+    },
+    "more": "Plus",
+    "rail": {
+      "fold": "Replier le menu",
+      "unfold": "Déplier le menu",
+      "more": "{count} de plus",
+      "fewer": "Afficher moins"
+    },
+    "section": {
+      "marketing": "Marketing"
     }
   },
   "auth": {
@@ -3360,7 +3373,9 @@
       "due": "À payer",
       "balanceEnd": "Solde en fin de semaine",
       "balance": "Solde",
-      "under": "SOUS LA LIGNE"
+      "under": "SOUS LA LIGNE",
+      "showAll": "Afficher les {count} semaines",
+      "showFewer": "Afficher moins de semaines"
     },
     "scenarios": {
       "title": "Et si…",
@@ -7004,6 +7019,8 @@
     },
     "view": {
       "headlineTight": "L’argent pourrait se faire rare {when, select, now {cette semaine} other {la semaine du {day}}} : le cas prudent est de {amount}.",
+      "headTight": "L’argent pourrait se faire rare {when, select, now {cette semaine} other {la semaine du {day}}}.",
+      "subTight": "Dans le cas prudent, le solde est d’environ {low}, {line, select, buffer {sous la réserve de {buffer} que vous voulez garder} other {sous zéro, un compte à découvert}}.",
       "headlineBuffer": "Aucune des {weeks} prochaines semaines ne passe sous votre réserve de {amount}, même dans le cas prudent.",
       "headlineZero": "Aucune des {weeks} prochaines semaines ne passe sous zéro, même dans le cas prudent.",
       "sourcesHistory": "Sources : {noun} ({source}), {days, plural, one {# jour mesuré} many {# jours mesurés} other {# jours mesurés}} du {from} au {to} ; {complete} sur {needed, plural, one {# semaine complète nécessaire} many {# semaines complètes nécessaires} other {# semaines complètes nécessaires}}.",

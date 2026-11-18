@@ -131,24 +131,39 @@ What he said after using the app, in his words where they matter:
 
 The list. Nothing here is ticked until he has seen it.
 
-- [~] L1. **The font.** "Reformed into something a bit more simplistic", as on Foundable's video: one plain sans, sentence case, calm weights. Built and waiting for his look: see "L1, as built" below.
-- [~] L2. **Mockups to pick from.** Published on 2026-11-18 and waiting for his pick: see "L2, as built" below. The pick becomes the expectation every later item is built to.
-- [ ] L3. **Navigation.**
-  - [ ] a. The rail's contents are "a bit messy here and there".
-  - [ ] b. Some of it can sit at the top, "up to 4 max just as on Foundable's".
-  - [ ] c. A clear way back. The queue and the report are focused views with their own masthead and no rail (`AppFrame.tsx`, `FOCUSED`): they fill the screen and "there's no clear way to go back", which "confuses the user's eye".
-  - [ ] d. The rail expands and retracts, and every item has its own icon.
-  - [ ] e. The tabs across the top of a screen are "not bad": tidy them the same way, and never let the top navigation and those tabs overlap or say the same thing twice.
-- [ ] L4. **Lex.**
-  - [ ] a. A face, as Foundable's Ted has one. Ours, not theirs.
-  - [ ] b. A side panel for now. Later an interactive pop-up, and present in more places than one.
-- [ ] L5. **The microphone.** He sees no browser pop-up when he presses it. Check that a press raises the browser's own permission prompt, and that a blocked or missing microphone is said on the screen.
-- [ ] L6. **Less to read at once.** "There's still a lot of text on some pages like the cash flow", and "a few overlaps here and there". The content may stay ("I absolutely don't mind you keeping it") but "no one will probably sit down and read that much text": present it "as concise and accurate and small as possible". Cash flow first, then screen by screen.
+- [x] L1. **The font.** "Reformed into something a bit more simplistic", as on Foundable's video: one plain sans, sentence case, calm weights. He saw it and said it was what he wanted: see "L1, as built" below.
+- [x] L2. **Mockups to pick from.** Published on 2026-11-18. His pick, the same day: Home is "a mix between A and B" ("you can discard C"); for Lex's face "I like none of them", it should have "an almost 3D feel", and "I trust you on what to pick and how to design that"; yes to the four points of the navigation. He would rather say what he wants here than brief Claude Desktop. The pick is the expectation every later item is built to.
+- [~] L3. **Navigation.** Built and waiting for his look: see "L3 to L6, as built" below.
+  - [~] a. The rail's contents are "a bit messy here and there".
+  - [~] b. Some of it can sit at the top, "up to 4 max just as on Foundable's".
+  - [~] c. A clear way back. The queue and the report were focused views with their own masthead and no rail: they filled the screen and "there's no clear way to go back", which "confuses the user's eye".
+  - [~] d. The rail expands and retracts, and every item has its own icon.
+  - [~] e. The tabs across the top of a screen are "not bad": tidy them the same way, and never let the top navigation and those tabs overlap or say the same thing twice.
+- [~] L4. **Lex.**
+  - [~] a. A face, as Foundable's Ted has one. Ours, not theirs. Built: see below.
+  - [~] b. A side panel for now (Lex's sheet, opened from "Ask Lex" on every screen and from the face on a phone). [later] An interactive pop-up, and present in more places than one.
+- [~] L5. **The microphone.** He sees no browser pop-up when he presses it. Found and fixed: see below. A blocked or missing microphone was already said on the screen (`lib/voice/session.ts`).
+- [~] L6. **Less to read at once.** Cash flow is built (see below); the other screens follow. "There's still a lot of text on some pages like the cash flow", and "a few overlaps here and there". The content may stay ("I absolutely don't mind you keeping it") but "no one will probably sit down and read that much text": present it "as concise and accurate and small as possible". Cash flow first, then screen by screen.
 - [ ] L7. **No long dashes.** "No em and en dashes throughout the app"; underscores "only to a very certain limit". This reaches the seven catalogues and the range's wording ("+€136 – +€1,213" becomes "+€136 to +€1,213").
 - [ ] L8. **Straight into the app.** After signing in or signing up a person lands in the app, with no interview first. The dashboard reminds them to do it, and Lex offers to do it in conversation for those who would rather talk (the conversation is already a fact source: `specs/conversation-channel.md`).
 - [ ] L9. **What was already left for later** in this file (the two review rounds and "Later rounds") stays on the list behind these.
 
 Order: L1, L2, his pick, then L3, L4 and L6 built to the pick, then L7, L5, L8, then L9.
+
+### L3 to L6, as built (2026-11-18)
+
+Built to his pick and checked in a browser at 1440 and 390 wide. Nothing was pushed.
+
+- **The frame** (`components/nav/AppFrame.tsx`, `app/shell.css`). A bar across the top: the wordmark, the business's name (a menu of the "Your business" screens, the switcher, who is signed in and Sign out), four places (Home, Decisions with its count, Insights, Grow), then Search, the bell, Ask Lex and the emergency stop. A rail under it lists only the open place's screens, an icon on each (`nav-icons.tsx`, 37 screens), the main ones first and the rest behind "N more"; it folds to 64px of icons that name themselves on hover and focus, and remembers the choice. The tab strip, the six-group rail and the phone's dock are gone. On a phone: the places along the bottom with "More", the screens as one row of chips with the open one brought into view. The menu's data (`GROUPS`) did not change; `PLACES` groups it, with tests.
+- **A way back.** The queue and the report sit inside the frame with the rail folded. Their own mastheads keep only the line that says where you are; the wordmark and the stop are the bar's.
+- **Lex's face** (`components/brand/LexFace.tsx`, `app/lex.css`): a rounded tile in the mark's green lit from the upper left, a darker side under it, a shadow on the ground, eyes with a point of light, a smile rising to the right. States: idle (blinks; floats on Home), working (a cobalt halo while Lex answers), listening, speaking, stopped (grey). `lexState()` decides, under test. It is in the bar, on Home, in "Lex now", beside Lex's turns and as the phone's button.
+- **Home** to the merged mockup: Lex in the middle (face, day, the headline, the box to ask as one pill, three chips, the latest exchange), then three named columns: Needs you (each decision a card), Your numbers today (two tiles, sales with the period switch, visitors, where money slips), Lex now (the dark status card, then Activity and Made).
+- **The shape**, one switch: 18px cards without a border, 12 and 10px controls, pills; a lift only on what opens; a small press. The classic look is the fallback of every rule, so the landing, the free check, sign-in and the interview did not move.
+- **Cash flow** to its mockup: "Money could get tight this week." with one line under it; a "Why?" fold; three figures (cash today opens its source); the chart with the figures at its right edge; the four what-ifs as cards with their sizes in a side sheet; three weeks with "Show all 13 weeks"; sources folded. A range says "to" here now. Every figure and sentence that was on the page is still reachable.
+- **The microphone.** The site's own `Permissions-Policy` header said `microphone=()`, left from the security review of 2026-10-17, eleven days before the microphone was built. A browser refuses the microphone under that header before it can ask, so no prompt ever came and the screen said "blocked". It is `microphone=(self)` now; the browser's permission state on the app went from refused to "prompt" (checked), and a test holds the header. He needs to try it once on his own machine: a real prompt cannot be pressed from here.
+- **Found on the way.** The stop arrived late and pushed the bar's other buttons; it keeps its place now. The activity list's "Show more" was pale on paper. The report ran 32px wide on a phone (a chart label hanging off its line), from before this round. The local dev server, restarted after it ran out of memory, told every page to reload forever until its cache was cleared; nothing in the code.
+- [later] The queue's and the report's own cards, tables and buttons still have the classic square look inside the new frame.
+- [later] The other screens' own cards (the fact sheet, Connections, Stock and the rest) screen by screen, and less to read on each.
 
 ### L2, as built (2026-11-18)
 
@@ -186,7 +201,6 @@ He saw the first capture mid-work and said it was what he wanted; he then added 
 
 ## Later rounds (parked on purpose)
 
-- [later] The rail folding to icons, with an icon per screen. The palette and shortcuts cover fast movement first.
 - [later] A Home the owner can rearrange or trim.
 - [later] The same treatment screen by screen, where a list or a table would gain from it: the queue (already keyboard-driven), Watching (a signal opened in place), the fact sheet (search and filter), Connections (a read's progress shown live), Customers and Support (rows opened in place), History (filters).
 - [later] The sign-up reel's screenshots and the landing page's drawn screens, once the owner has seen the app.

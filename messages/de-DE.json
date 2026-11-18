@@ -107,6 +107,19 @@
       "support": "{count, plural, one {# Support-Ticket offen} other {# Support-Tickets offen}}",
       "empty": "Nichts braucht Sie.",
       "reading": "Wird gelesen…"
+    },
+    "place": {
+      "decisions": "Entscheidungen"
+    },
+    "more": "Mehr",
+    "rail": {
+      "fold": "Menü einklappen",
+      "unfold": "Menü ausklappen",
+      "more": "{count} weitere",
+      "fewer": "Weniger zeigen"
+    },
+    "section": {
+      "marketing": "Marketing"
     }
   },
   "auth": {
@@ -3360,7 +3373,9 @@
       "due": "Fällig",
       "balanceEnd": "Kontostand am Ende",
       "balance": "Kontostand",
-      "under": "UNTER DER LINIE"
+      "under": "UNTER DER LINIE",
+      "showAll": "Alle {count} Wochen zeigen",
+      "showFewer": "Weniger Wochen zeigen"
     },
     "scenarios": {
       "title": "Was wäre, wenn…",
@@ -7004,6 +7019,8 @@
     },
     "view": {
       "headlineTight": "Das Geld könnte {when, select, now {diese Woche} other {in der Woche vom {day}}} knapp werden: Das vorsichtige Ende liegt bei {amount}.",
+      "headTight": "Das Geld könnte {when, select, now {diese Woche} other {in der Woche vom {day}}} knapp werden.",
+      "subTight": "Am vorsichtigen Ende liegt der Kontostand bei etwa {low}, {line, select, buffer {unter dem Puffer von {buffer}, den Sie halten möchten} other {unter null, ein überzogenes Konto}}.",
       "headlineBuffer": "In keiner der nächsten {weeks} Wochen fällt der Kontostand unter Ihren Puffer von {amount}, auch nicht am vorsichtigen Ende.",
       "headlineZero": "In keiner der nächsten {weeks} Wochen fällt der Kontostand unter null, auch nicht am vorsichtigen Ende.",
       "sourcesHistory": "Quellen: {noun} ({source}), {days, plural, one {# gemessener Tag} other {# gemessene Tage}}, {from} bis {to}; {complete} von {needed, plural, one {# nötigen vollständigen Woche} other {# nötigen vollständigen Wochen}}.",

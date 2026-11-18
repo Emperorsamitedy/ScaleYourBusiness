@@ -25,7 +25,7 @@ export function Notifications({ counts }: { counts: NavCounts | null }) {
       trigger={(props) => (
         <IconButton
           {...props}
-          className="app-bell"
+          className="sx-tool"
           label={counts ? t("count", { count: total }) : t("title")}
           badge={total > 0 ? (total > 9 ? "9+" : total) : null}
         >

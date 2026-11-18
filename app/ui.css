@@ -55,6 +55,7 @@
   background: var(--paper);
   color: var(--sheet-ink);
   border-left: 2px solid var(--live-rule);
+  border-radius: var(--r-card, 0) 0 0 var(--r-card, 0);
   outline: none;
   --ink: var(--sheet-ink);
   --mut: var(--sheet-ink-2);
@@ -197,6 +198,7 @@
   height: 40px;
   padding: 0;
   border: 1px solid transparent;
+  border-radius: var(--r-s, 0);
   background: transparent;
   color: inherit;
   cursor: pointer;
@@ -256,7 +258,7 @@
   position: fixed;
   /* at the foot of the page's own column, beside the rail: never over the
      side column, where the next decision's buttons are */
-  left: calc(212px + 22px);
+  left: 22px;
   bottom: 22px;
   z-index: 80;
   display: grid;
@@ -340,7 +342,9 @@
   max-width: min(360px, calc(100vw - 24px));
   background: var(--paper);
   color: var(--sheet-ink);
-  border: 1px solid var(--sheet-ink);
+  border: var(--menu-border, 1px solid var(--sheet-ink));
+  border-radius: var(--r-ctl, 0);
+  box-shadow: var(--menu-shadow, none);
   --ink: var(--sheet-ink);
   --mut: var(--sheet-ink-2);
 }

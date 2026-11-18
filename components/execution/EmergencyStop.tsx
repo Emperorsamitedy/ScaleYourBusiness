@@ -51,6 +51,8 @@ export const STOP_CHANGED = "syb:stop-changed";
 const CHANGED = STOP_CHANGED;
 
 type State =
+  // Not answered yet: the masthead keeps the control's place, so nothing beside it moves.
+  | { phase: "reading" }
   | { phase: "hidden" }
   | { phase: "ready"; halt: Halt; busy: boolean; confirming: boolean; error: string | null };
 
@@ -85,7 +87,7 @@ export function EmergencyStop({
   const self = useId();
   const t = useTranslations("stop");
   const locale = useAppLocale();
-  const [state, setState] = useState<State>({ phase: "hidden" });
+  const [state, setState] = useState<State>({ phase: "reading" });
   // Idea 52: anyone on the team can stop; starting again is an owner's.
   const resumeWhy = useRole().why("stop.resume");
   const halted = state.phase === "ready" ? state.halt.halted : null;
@@ -113,6 +115,18 @@ export function EmergencyStop({
     return () => window.removeEventListener(CHANGED, on);
   }, [load, self]);
 
+  if (state.phase === "reading") {
+    if (variant !== "masthead") return null;
+    // The control's own width, unseen and unpressable, until its state is known.
+    return (
+      <div className="es-mast es-mast-wait" aria-hidden="true">
+        <span className="es-mast-stop">
+          <span className="es-long">{t("stop")}</span>
+          <span className="es-short">{t("stopShort")}</span>
+        </span>
+      </div>
+    );
+  }
   if (state.phase === "hidden") return null;
   const s = state;
 

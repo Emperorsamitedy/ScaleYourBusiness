@@ -1,19 +1,19 @@
 "use client";
 
 // Home — /home, the first screen after sign-in. Built around the
-// conversation (2026-11-17, the owner: "chatbot centred") and then made a
-// workspace (the same day: "improve the technicality of it and sort of
-// make it interactive"; docs/DASHBOARD-OVERHAUL.md section C). The look is
-// the sheet system's, unchanged.
+// conversation (2026-11-17, the owner: "chatbot centred"), made a workspace
+// the same day ("improve the technicality of it and sort of make it
+// interactive"; docs/DASHBOARD-OVERHAUL.md section C), and laid out again on
+// 2026-11-18 from the mockups he picked ("a mix between A and B").
 //
-// Lex speaks first: what needs the owner today, as the headline. Under it
-// the composer with three questions one press away, and the latest
-// exchange with the cards it carried. Beside it, Lex's side: the status
-// card (stopped, watching or working; "Read now"; the emergency stop),
-// then three tabs over one sheet: what needs the owner (answered in place
-// or opened for a full read), the activity feed, and everything Lex made.
-// Then the readings, each a button, the sales lines with a period switch
-// and, folded, where the money slips.
+// Lex speaks first, in the middle of the page: the face, what needs the
+// owner today as the headline, the box to ask with three questions one
+// press away, and the latest exchange with the cards it carried. Under it,
+// three columns, each with its name: what needs the owner (answered in
+// place or opened for a full read); the numbers (two readings, each a
+// button, the sales lines with a period switch and, folded, where the money
+// slips); and Lex right now (the status card with "Read now", then the
+// activity feed and everything Lex made, as two tabs).
 //
 // It reads screens that already exist (/api/nav, /api/proposals,
 // /api/cash, /api/charts, /api/chat, /api/watch) and adds no figure of its
@@ -42,14 +42,14 @@ import { niceTicks } from "../../lib/charts/ticks";
 import { rangeWhole } from "../../lib/charts/opportunity";
 import type { ComponentKey, PricedComponent } from "../../lib/charts/opportunity";
 import type { LiveVisitors as LiveReading } from "../../lib/live/visitors";
-import { Mark } from "../brand/Mark";
+import { LexFace, lexState } from "../brand/LexFace";
 import { HBars, Trend } from "../charts/Viz";
 import type { BarRow } from "../charts/Viz";
 import { ChatBusy, ChatTurn } from "../chat/ChatTurn";
 import { Composer } from "../chat/Composer";
 import { latestExchange, latestQuestion } from "../chat/chat-view";
 import { useChat } from "../chat/useChat";
-import { useNavRefresh } from "../nav/NavContext";
+import { useLexBusy, useNavRefresh } from "../nav/NavContext";
 import { ReviewSheet } from "../proposals/ReviewSheet";
 import { basisName, BASES } from "../report/basis";
 import type { Basis } from "../report/basis";
@@ -116,9 +116,9 @@ interface Queue {
   expired: QueueRow[];
 }
 
-type WorkTab = "needs" | "activity" | "made";
-const isWorkTab = (v: string | null): v is WorkTab =>
-  v === "needs" || v === "activity" || v === "made";
+/** Lex's two lists; what needs the owner has a column of its own. */
+type WorkTab = "activity" | "made";
+const isWorkTab = (v: string | null): v is WorkTab => v === "activity" || v === "made";
 
 /** How often the open tab reads again. */
 const EVERY = { counts: 60_000, queue: 60_000, feed: 30_000 } as const;
@@ -142,6 +142,7 @@ const COMPONENT_HREF: Readonly<Record<ComponentKey, string>> = {
 
 export function HomeScreen() {
   const t = useTranslations("home");
+  const navT = useTranslations("nav");
   const { locale } = useTr("report");
   const { tr: ctr } = useTr("charts.market");
   const { tr: sheet } = useTr("sheet");
@@ -167,7 +168,7 @@ export function HomeScreen() {
 
   // The open tab and the decision opened in place live in the address.
   const [tabParam, setTabParam] = useAddressParam("tab");
-  const tab: WorkTab = isWorkTab(tabParam) ? tabParam : "needs";
+  const tab: WorkTab = isWorkTab(tabParam) ? tabParam : "activity";
   const [review, setReview] = useAddressParam("review");
   /** Whether this page put the review into the history: then closing is Back. */
   const pushed = useRef(false);
@@ -186,7 +187,7 @@ export function HomeScreen() {
   }, [setReview]);
   const showTab = useCallback(
     (next: WorkTab) => {
-      setTabParam(next === "needs" ? null : next);
+      setTabParam(next === "activity" ? null : next);
     },
     [setTabParam],
   );
@@ -253,14 +254,14 @@ export function HomeScreen() {
   const needsCount = nav ? attentionCount(attentionItems(nav)) : count;
 
   // An answered decision leaves the list, and the button it was answered on
-  // goes with it. Focus lost that way is put on the open tab, not dropped
-  // to the top of the page for the next press of Tab.
+  // goes with it. Focus lost that way is put on the column's own name, not
+  // dropped to the top of the page for the next press of Tab.
   const holding = useRef(false);
   const holdFocus = useCallback(() => {
     const at = document.activeElement;
     if (at && at !== document.body) return;
-    document.getElementById(`home-work-tab-${tab}`)?.focus({ preventScroll: true });
-  }, [tab]);
+    document.getElementById("home-needs-title")?.focus({ preventScroll: true });
+  }, []);
   useEffect(() => {
     if (!holding.current) return;
     holdFocus();
@@ -284,6 +285,9 @@ export function HomeScreen() {
   const exchange = latestExchange(turns);
   const question = latestQuestion(turns);
   const busy = chat.state.phase === "ready" && chat.state.busy;
+  // The face says what Lex is doing: grey when everything is stopped, cobalt while it answers.
+  const lexBusy = useLexBusy();
+  const face = lexState({ stopped: halted, working: busy || lexBusy });
   const justProposed = chat.state.phase === "ready" ? chat.state.lastProposal : null;
   useEffect(() => {
     if (justProposed) reloadQueue();
@@ -335,16 +339,11 @@ export function HomeScreen() {
 
   if (out) return null;
   return (
-    <main className="screen home">
-      <header className="home-head">
-        <p className="home-kicker">
-          <span className="home-lex">
-            <span className="home-lex-mark" aria-hidden="true">
-              <Mark size={14} onDark />
-            </span>
-            {ASSISTANT}
-          </span>
-          <span>{t("kicker", { date: longDay(new Date(), locale) })}</span>
+    <main className="screen home hx">
+      <header className="hx-hero">
+        <LexFace size={92} state={face} float title={ASSISTANT} />
+        <p className="hx-kicker">
+          <b>{ASSISTANT}</b> · {t("kicker", { date: longDay(new Date(), locale) })}
         </p>
         <h1 className="home-title">
           {count !== null
@@ -366,25 +365,8 @@ export function HomeScreen() {
             {t("failed.retry")}
           </button>
         )}
-      </header>
 
-      <div className="home-main">
-        <section className="cs home-ask" aria-labelledby="home-ask-title">
-          <header className="cs-head">
-            <div>
-              <p className="cs-label">{t("ask.label")}</p>
-              <h2 className="cs-title home-ask-title" id="home-ask-title">
-                {question ?? t("ask.title")}
-              </h2>
-            </div>
-            {turns.length > 0 && (
-              <div className="cs-meta">
-                <Link href="/chat" className="home-link">
-                  {chatTr("earlier")}
-                </Link>
-              </div>
-            )}
-          </header>
+        <section className="hx-ask" aria-label={t("ask.label")}>
           {chat.state.phase === "ready" ? (
             <>
               <Composer
@@ -416,6 +398,14 @@ export function HomeScreen() {
               </div>
               {(exchange.length > 0 || busy) && (
                 <div className="home-thread" aria-live="polite">
+                  {question && (
+                    <p className="hx-thread-head">
+                      <span>{question}</span>
+                      <Link href="/chat" className="home-link">
+                        {chatTr("earlier")}
+                      </Link>
+                    </p>
+                  )}
                   {exchange.map((turn, i) => (
                     <ChatTurn
                       key={turn.id}
@@ -458,20 +448,72 @@ export function HomeScreen() {
               )}
             </>
           ) : chat.state.phase === "loading" ? (
-            <Skeleton lines={2} />
+            <div className="hx-ask-wait">
+              <Skeleton lines={1} />
+            </div>
           ) : chat.state.phase === "signedout" ? (
             <p className="home-empty">{chatTr("signedOut.copy")}</p>
           ) : (
             <FailedRead onRetry={() => void chat.reload()} />
           )}
         </section>
+      </header>
 
-        <section className="cs home-readings" aria-label={t("readings.label")}>
-          <LiveVisitors onStatus={setLive} />
+      <div className="hx-cols">
+        <section className="hx-col" aria-labelledby="home-needs-title">
+          <header className="hx-col-head">
+            <h2 className="hx-col-title" id="home-needs-title" tabIndex={-1}>
+              {t("tabs.needs")}
+              {needsCount !== null && needsCount > 0 && (
+                <span className="hx-count">{needsCount}</span>
+              )}
+            </h2>
+            <Link href="/proposals" className="hx-col-link">
+              {navT("item.proposals")}
+            </Link>
+          </header>
+          <div className="hx-needs" aria-busy={queueRead.state === "reading"}>
+            {queue ? (
+              <NeedsList
+                ranked={ranked}
+                total={count}
+                signedIn={signedIn}
+                paused={paused}
+                support={nav?.support_open ?? 0}
+                tightWeek={tightWeek}
+                steps={steps}
+                locale={locale}
+                onDecided={afterAnswer}
+                onReview={openReview}
+              />
+            ) : queueRead.state === "failed" ? (
+              <div className="hx-card">
+                <FailedRead onRetry={reloadQueue} />
+              </div>
+            ) : (
+              <div className="hx-card">
+                <Skeleton lines={5} />
+              </div>
+            )}
+          </div>
+        </section>
+
+        <section className="hx-col" aria-labelledby="home-numbers-title">
+          <header className="hx-col-head">
+            <h2 className="hx-col-title" id="home-numbers-title">
+              {t("readings.label")}
+            </h2>
+            <Link href="/cash" className="hx-col-link">
+              {navT("item.cash")}
+            </Link>
+          </header>
+
           {readingStrip ? (
-            <Skeleton lines={2} />
+            <div className="hx-card">
+              <Skeleton lines={2} />
+            </div>
           ) : (
-            <div className="home-strip">
+            <div className="hx-tiles">
               {cash && (
                 <button
                   type="button"
@@ -526,203 +568,198 @@ export function HomeScreen() {
                   <Skeleton lines={3} className="home-tile-skel" />
                 </div>
               )}
-              {cashRead.state === "failed" && <FailedRead onRetry={reloadCash} />}
-            </div>
-          )}
-        </section>
-
-        {chartsRead.state === "reading" && (
-          <section className="cs home-sales" aria-busy="true" aria-label={t("trend.label")}>
-            <header className="cs-head">
-              <p className="cs-label">{t("trend.label")}</p>
-            </header>
-            <Skeleton lines={4} />
-          </section>
-        )}
-        {chartsRead.state === "failed" && (
-          <section className="cs home-sales" aria-label={t("trend.label")}>
-            <header className="cs-head">
-              <p className="cs-label">{t("trend.label")}</p>
-            </header>
-            <FailedRead onRetry={reloadCharts} />
-          </section>
-        )}
-        {market && latest && (
-          <section className="cs home-sales" aria-label={t("trend.label")}>
-            <header className="cs-head">
-              <div>
-                <p className="cs-label">{t("trend.label")}</p>
-                <h2 className="cs-title">{ctr("daysMeasured", { count: recent.length })}</h2>
-              </div>
-              <div className="cs-meta home-sales-meta">
-                {periods.length > 1 && (
-                  <div className="home-period" role="group" aria-label={t("trend.period")}>
-                    {periods.map((days) => (
-                      <button
-                        key={days}
-                        type="button"
-                        aria-pressed={days === period}
-                        title={ctr("daysMeasured", { count: days })}
-                        onClick={() => choosePeriod(days)}
-                      >
-                        {t("trend.days", { count: days })}
-                      </button>
-                    ))}
-                  </div>
-                )}
-                <Link href="/watch" className="home-link">
-                  {t("trend.market")}
-                </Link>
-              </div>
-            </header>
-            <div className="home-trends">
-              <div className="home-trend">
-                <p className="home-r-lab">{priceLabel}</p>
-                <p className="home-r-val">
-                  {dayMoney(latest.value_minor, market.currency, locale)}
-                </p>
-                <p className="home-r-cmp">
-                  {shortDate(latest.date, locale)} · {market.price.source} ·{" "}
-                  <span className="word">{sheet(`basis.${market.price.basis}`)}</span>
-                </p>
-                <Trend
-                  points={recent.map((d, i) => ({
-                    label: dayLabels[i] ?? "",
-                    value: d.value_minor,
-                  }))}
-                  format={(v) => dayMoney(v, market.currency, locale)}
-                  step={10 ** minorUnitExponent(market.currency)}
-                  label={`${priceLabel} · ${ctr("daysMeasured", { count: recent.length })}`}
-                  columns={[ctr("table.day"), priceLabel]}
-                />
-              </div>
-              {market.volume && latest.volume !== null && (
-                <div className="home-trend">
-                  <p className="home-r-lab">{volumeWord(market.volume.word, ctr)}</p>
-                  <p className="home-r-val">{num(latest.volume, 0, locale)}</p>
-                  <p className="home-r-cmp">
-                    {shortDate(latest.date, locale)} · {market.volume.source}
-                  </p>
-                  <Trend
-                    points={recent.map((d, i) => ({ label: dayLabels[i] ?? "", value: d.volume }))}
-                    format={(v) => num(v, 0, locale)}
-                    label={`${volumeWord(market.volume.word, ctr)} · ${ctr("daysMeasured", { count: recent.length })}`}
-                    columns={[ctr("table.day"), volumeWord(market.volume.word, ctr)]}
-                  />
+              {cashRead.state === "failed" && (
+                <div className="hx-card hx-wide">
+                  <FailedRead onRetry={reloadCash} />
                 </div>
               )}
             </div>
-          </section>
-        )}
+          )}
 
-        {market && priced.length > 0 && (
-          <section className="cs home-slips" aria-label={t("slips.label")}>
-            <div className="cs-body">
-              <Fold summary={t("slips.label")} className="home-fold">
-                <p className="home-slips-meta">{ctr("colMonth", { currency: market.currency })}</p>
-                {monthRows.length > 0 && (
-                  <HBars
-                    rows={monthRows}
-                    label={ctr("componentsCaption")}
-                    axis={{
-                      ticks: niceTicks(0, Math.max(...monthRows.map((r) => r.value)) / unit).map(
-                        (v) => v * unit,
-                      ),
-                      format: (v) => dayMoney(v, market.currency, locale),
+          {chartsRead.state === "reading" && (
+            <section className="cs home-sales" aria-busy="true" aria-label={t("trend.label")}>
+              <header className="cs-head">
+                <p className="cs-label">{t("trend.label")}</p>
+              </header>
+              <Skeleton lines={4} />
+            </section>
+          )}
+          {chartsRead.state === "failed" && (
+            <section className="cs home-sales" aria-label={t("trend.label")}>
+              <header className="cs-head">
+                <p className="cs-label">{t("trend.label")}</p>
+              </header>
+              <FailedRead onRetry={reloadCharts} />
+            </section>
+          )}
+          {market && latest && (
+            <section className="cs home-sales" aria-label={t("trend.label")}>
+              <header className="cs-head">
+                <div>
+                  <p className="cs-label">{t("trend.label")}</p>
+                  <h3 className="cs-title">{ctr("daysMeasured", { count: recent.length })}</h3>
+                </div>
+                <div className="cs-meta home-sales-meta">
+                  {periods.length > 1 && (
+                    <div className="home-period" role="group" aria-label={t("trend.period")}>
+                      {periods.map((days) => (
+                        <button
+                          key={days}
+                          type="button"
+                          aria-pressed={days === period}
+                          title={ctr("daysMeasured", { count: days })}
+                          onClick={() => choosePeriod(days)}
+                        >
+                          {t("trend.days", { count: days })}
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </header>
+              <div className="home-trends">
+                <div className="home-trend">
+                  <p className="home-r-lab">{priceLabel}</p>
+                  <p className="home-r-val">
+                    {dayMoney(latest.value_minor, market.currency, locale)}
+                  </p>
+                  <p className="home-r-cmp">
+                    {shortDate(latest.date, locale)} · {market.price.source} ·{" "}
+                    <span className="word">{sheet(`basis.${market.price.basis}`)}</span>
+                  </p>
+                  <Trend
+                    points={recent.map((d, i) => ({
+                      label: dayLabels[i] ?? "",
+                      value: d.value_minor,
+                    }))}
+                    format={(v) => dayMoney(v, market.currency, locale)}
+                    step={10 ** minorUnitExponent(market.currency)}
+                    label={`${priceLabel} · ${ctr("daysMeasured", { count: recent.length })}`}
+                    columns={[ctr("table.day"), priceLabel]}
+                  />
+                </div>
+                {market.volume && latest.volume !== null && (
+                  <div className="home-trend">
+                    <p className="home-r-lab">{volumeWord(market.volume.word, ctr)}</p>
+                    <p className="home-r-val">{num(latest.volume, 0, locale)}</p>
+                    <p className="home-r-cmp">
+                      {shortDate(latest.date, locale)} · {market.volume.source}
+                    </p>
+                    <Trend
+                      points={recent.map((d, i) => ({
+                        label: dayLabels[i] ?? "",
+                        value: d.volume,
+                      }))}
+                      format={(v) => num(v, 0, locale)}
+                      label={`${volumeWord(market.volume.word, ctr)} · ${ctr("daysMeasured", { count: recent.length })}`}
+                      columns={[ctr("table.day"), volumeWord(market.volume.word, ctr)]}
+                    />
+                  </div>
+                )}
+              </div>
+              <p className="hx-card-foot">
+                <Link href="/watch" className="home-link">
+                  {t("trend.market")}
+                </Link>
+              </p>
+            </section>
+          )}
+
+          <section className="cs home-readings" aria-label={t("live.label")}>
+            <LiveVisitors onStatus={setLive} />
+          </section>
+
+          {market && priced.length > 0 && (
+            <section className="cs home-slips" aria-label={t("slips.label")}>
+              <div className="cs-body">
+                <Fold summary={t("slips.label")} className="home-fold">
+                  <p className="home-slips-meta">
+                    {ctr("colMonth", { currency: market.currency })}
+                  </p>
+                  {monthRows.length > 0 && (
+                    <HBars
+                      rows={monthRows}
+                      label={ctr("componentsCaption")}
+                      axis={{
+                        ticks: niceTicks(0, Math.max(...monthRows.map((r) => r.value)) / unit).map(
+                          (v) => v * unit,
+                        ),
+                        format: (v) => dayMoney(v, market.currency, locale),
+                      }}
+                    />
+                  )}
+                  {stockRows.length > 0 && (
+                    <>
+                      <p className="vz-cap">
+                        {ctr("apart")} · {ctr("row.tiedUp")}
+                      </p>
+                      <ul className="home-apart">
+                        {stockRows.map((r) => (
+                          <li key={r.key}>
+                            <a href={r.href}>{r.label}</a>
+                            {r.note}
+                            <span className="vz-bar-fig">{r.display}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </>
+                  )}
+                </Fold>
+              </div>
+            </section>
+          )}
+        </section>
+
+        <section className="hx-col" aria-labelledby="home-lex-title">
+          <header className="hx-col-head">
+            <h2 className="hx-col-title" id="home-lex-title">
+              {t("now.label")}
+            </h2>
+            <Link href="/history" className="hx-col-link">
+              {t("side.history")}
+            </Link>
+          </header>
+          <StatusCard nav={nav} face={face} onHalted={setHalted} onRead={reloadWatch} />
+
+          <div className="home-work" id="home-work">
+            <Tabs<WorkTab>
+              id="home-work"
+              label={t("tabs.label")}
+              tabs={[
+                { key: "activity", label: t("tabs.activity") },
+                { key: "made", label: t("tabs.made") },
+              ]}
+              value={tab}
+              onChange={showTab}
+            />
+            <section className="cs home-panel" aria-busy={queueRead.state === "reading"}>
+              <TabPanel id="home-work" tab="activity" open={tab === "activity"}>
+                {queue || watch ? (
+                  <ActivityFeed rows={feed} news={news} onReview={openReview} />
+                ) : queueRead.state === "failed" && watchRead.state === "failed" ? (
+                  <FailedRead
+                    onRetry={() => {
+                      reloadQueue();
+                      reloadWatch();
                     }}
                   />
+                ) : (
+                  <Skeleton lines={6} />
                 )}
-                {stockRows.length > 0 && (
-                  <>
-                    <p className="vz-cap">
-                      {ctr("apart")} · {ctr("row.tiedUp")}
-                    </p>
-                    <ul className="home-apart">
-                      {stockRows.map((r) => (
-                        <li key={r.key}>
-                          <a href={r.href}>{r.label}</a>
-                          {r.note}
-                          <span className="vz-bar-fig">{r.display}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  </>
+              </TabPanel>
+              <TabPanel id="home-work" tab="made" open={tab === "made"}>
+                {queue ? (
+                  <MadeList rows={made} onReview={openReview} />
+                ) : queueRead.state === "failed" ? (
+                  <FailedRead onRetry={reloadQueue} />
+                ) : (
+                  <Skeleton lines={5} />
                 )}
-              </Fold>
-            </div>
-          </section>
-        )}
+              </TabPanel>
+            </section>
+          </div>
+        </section>
       </div>
-
-      <aside className="home-side" aria-label={t("side.label")}>
-        <StatusCard nav={nav} onHalted={setHalted} onRead={reloadWatch} />
-
-        <div className="home-work" id="home-work">
-          <Tabs<WorkTab>
-            id="home-work"
-            label={t("tabs.label")}
-            tabs={[
-              { key: "needs", label: t("tabs.needs"), count: needsCount },
-              { key: "activity", label: t("tabs.activity") },
-              { key: "made", label: t("tabs.made") },
-            ]}
-            value={tab}
-            onChange={showTab}
-          />
-          <section className="cs home-panel" aria-busy={queueRead.state === "reading"}>
-            <TabPanel id="home-work" tab="needs" open={tab === "needs"}>
-              {queue ? (
-                <NeedsList
-                  ranked={ranked}
-                  total={count}
-                  signedIn={signedIn}
-                  paused={paused}
-                  support={nav?.support_open ?? 0}
-                  tightWeek={tightWeek}
-                  steps={steps}
-                  locale={locale}
-                  onDecided={afterAnswer}
-                  onReview={openReview}
-                />
-              ) : queueRead.state === "failed" ? (
-                <FailedRead onRetry={reloadQueue} />
-              ) : (
-                <Skeleton lines={5} />
-              )}
-            </TabPanel>
-            <TabPanel id="home-work" tab="activity" open={tab === "activity"}>
-              {queue || watch ? (
-                <>
-                  <ActivityFeed rows={feed} news={news} onReview={openReview} />
-                  <p className="home-panel-foot">
-                    <Link href="/history" className="home-link">
-                      {t("side.history")}
-                    </Link>
-                  </p>
-                </>
-              ) : queueRead.state === "failed" && watchRead.state === "failed" ? (
-                <FailedRead
-                  onRetry={() => {
-                    reloadQueue();
-                    reloadWatch();
-                  }}
-                />
-              ) : (
-                <Skeleton lines={6} />
-              )}
-            </TabPanel>
-            <TabPanel id="home-work" tab="made" open={tab === "made"}>
-              {queue ? (
-                <MadeList rows={made} onReview={openReview} />
-              ) : queueRead.state === "failed" ? (
-                <FailedRead onRetry={reloadQueue} />
-              ) : (
-                <Skeleton lines={5} />
-              )}
-            </TabPanel>
-          </section>
-        </div>
-      </aside>
 
       <ReviewSheet
         id={review}

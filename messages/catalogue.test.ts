@@ -485,6 +485,10 @@ const GLOSSARY_EXCEPTIONS: Record<string, { terms: string[]; reason: string }> =
     terms: ["account"],
     reason: "an overdrawn bank account, not a sign-in or connected account",
   },
+  "cashWords.view.subTight": {
+    terms: ["account"],
+    reason: "an overdrawn bank account (the line cut from tight.sentence), not a sign-in account",
+  },
   "stockWords.reorder.arithmetic": {
     terms: ["margin"],
     reason: "a safety margin: spare stock, not a profit margin",

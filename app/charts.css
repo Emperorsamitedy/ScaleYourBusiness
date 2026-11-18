@@ -614,10 +614,86 @@
   stroke: var(--sheet-ink-2);
   stroke-width: 1;
 }
-.cf .sc-svg .cf-tight rect {
+.cf .sc-svg .cf-dot {
   fill: var(--paper);
   stroke: var(--sheet-ink);
   stroke-width: 1.5;
+}
+/* the first tight week: a hollow ring on the cautious end, and the word under it */
+.cf .sc-svg .cf-tight circle {
+  fill: var(--paper);
+  stroke: var(--drift);
+  stroke-width: 2.25;
+}
+/* The word keeps a margin of paper, so a line under it never runs through it. */
+.cf .sc-svg .cf-tight .pane-label {
+  fill: var(--drift);
+  font-weight: 600;
+  letter-spacing: var(--caps-ls, 0.08em);
+  paint-order: stroke;
+  stroke: var(--paper);
+  stroke-width: 5px;
+  stroke-linejoin: round;
+}
+.cf .sc-svg .cf-line-val {
+  fill: var(--drift);
+}
+.cf .cs-head {
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px var(--s-4);
+}
+.cf .cs-head .sc-keys {
+  margin: 0;
+}
+.cf .cs-foot .fold {
+  margin-top: 0;
+}
+
+/* The owner app (app/sheet.css's switch): the band is a forecast's own tint
+   (--ok-band, as "on the table" is on the market chart) and its cautious
+   edge the --ok ink. The ring, the dashes and the line's position still say
+   it without colour. */
+:root:has(.app-frame) .cf .sc-svg .cf-band,
+:root:has(.app-frame) .sc-key.cf-band {
+  fill: var(--ok-band);
+  background: var(--ok-band);
+}
+:root:has(.app-frame) .sc-key.cf-band {
+  border-radius: 3px;
+}
+:root:has(.app-frame) .cf .sc-svg .cf-low {
+  stroke: var(--ok);
+  stroke-width: 2.25;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+:root:has(.app-frame) .sc-key.cf-low {
+  border-top-color: var(--ok);
+}
+:root:has(.app-frame) .cf .sc-svg .cf-high {
+  stroke: color-mix(in srgb, var(--ok) 30%, var(--ok-band));
+}
+:root:has(.app-frame) .cf .sc-svg .cf-dot {
+  stroke: var(--ok);
+}
+:root:has(.app-frame) .cf .sc-keys {
+  font-size: 12.5px;
+}
+/* The readout is a sentence with figures in it: words in the labels' face. */
+.cf .sc-readout {
+  font-family: var(--f-mono);
+}
+.cf .sc-readout b {
+  font-family: var(--f-fig);
+  font-weight: 500;
+}
+:root:has(.app-frame) .cf .sc-readout {
+  font-size: 13.5px;
+}
+:root:has(.app-frame) .cf .sc-svg .cf-tight .pane-label {
+  font-family: var(--f-ui);
+  font-size: 12.5px;
 }
 
 /* Sentence case: a label the classic look set in capitals starts with one
