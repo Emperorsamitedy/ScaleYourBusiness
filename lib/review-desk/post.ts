@@ -68,7 +68,7 @@ export function postedWords(text: string): string {
 /** Pure: why these words can't be posted, or null when they can. */
 export function postProblem(text: string, reviewer: string | null): string | null {
   const words = text.trim();
-  if (words === "") return "There's no reply to post — write one first.";
+  if (words === "") return "There's no reply to post. Write one first.";
   if (postedWords(words).length > GBP_REPLY_MAX) {
     return `That reply is too long to post; keep it under ${GBP_REPLY_MAX - 100} characters.`;
   }
@@ -121,7 +121,7 @@ function scenario(): ScenarioBlock {
     base_case: none("base", "The reviewer and everyone reading the review sees you answered."),
     downside_case: none("downside", "Nobody reads it; nothing changes."),
     upside_case: none("upside", "A future customer reads a fair answer and chooses you."),
-    breakeven_condition: "not computed — a reply costs nothing to post",
+    breakeven_condition: "not computed: a reply costs nothing to post",
   } as ScenarioBlock;
 }
 

@@ -180,7 +180,7 @@ export function seasonClaims(owner: Owner, view: SeasonsView, now: Date): Foreca
       window_start: a.start,
       window_end: end,
       ...range,
-      claim: `The week of ${shortDate(a.start)} to ${shortDate(end)}: ${lowWords}–${highWords} of ${r.series.noun}, if it runs as the same week did last year.`,
+      claim: `The week of ${shortDate(a.start)} to ${shortDate(end)}: ${lowWords} to ${highWords} of ${r.series.noun}, if it runs as the same week did last year.`,
       basis:
         `Last year the week of ${longDay(a.last_year_start)} ran ${ratioText(ly)} your normal week, ` +
         `and your normal week is ${value(median)} (the median of ${r.normal.weeks} complete weeks, ` +
@@ -236,7 +236,7 @@ export function cashClaims(
       low_minor: Math.floor(low),
       high_minor: Math.ceil(high),
       currency,
-      claim: `Cash in the bank at the end of ${shortDate(w.end)}: ${wholeMoney(Math.floor(low), currency)}–${wholeMoney(Math.ceil(high), currency)}.`,
+      claim: `Cash in the bank at the end of ${shortDate(w.end)}: ${wholeMoney(Math.floor(low), currency)} to ${wholeMoney(Math.ceil(high), currency)}.`,
       basis:
         `Started from your bank statement's closing balance of ${wholeMoney(start.amount_minor, currency)} on ${longDay(on)}, ` +
         `with money in from ${forecast.series.source} ${forecast.series.noun} and money out from your costs list. ` +
@@ -283,7 +283,7 @@ export function pipelineClaims(
       low_minor: l.low.amount_minor,
       high_minor: l.high.amount_minor,
       currency: l.currency,
-      claim: `Of the ${n} deal${n === 1 ? "" : "s"} you expect to close by ${longDay(due.by)} (${wholeMoney(l.total.amount_minor, l.currency)} in all), about ${wholeMoney(l.low.amount_minor, l.currency)}–${wholeMoney(l.high.amount_minor, l.currency)} is likely won.`,
+      claim: `Of the ${n} deal${n === 1 ? "" : "s"} you expect to close by ${longDay(due.by)} (${wholeMoney(l.total.amount_minor, l.currency)} in all), about ${wholeMoney(l.low.amount_minor, l.currency)} to ${wholeMoney(l.high.amount_minor, l.currency)} is likely won.`,
       basis: `${due.sources.join("; ")}. Assumed: ${due.assumed.join("; ")}.`,
     };
   });

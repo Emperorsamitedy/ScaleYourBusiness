@@ -110,7 +110,7 @@ export function differenceInDifferences(arms: Arms, windowDays: number): Observa
   const needed = Math.ceil((n * REVENUE_MEASURE.min_paired_share_bp) / 10_000);
   if (m < Math.max(needed, 2)) {
     return {
-      inconclusive: `Only ${m} of ${n} days were measured this year, before and after, and a year earlier — scoring needs ${Math.max(needed, 2)}.`,
+      inconclusive: `Only ${m} of ${n} days were measured this year, before and after, and a year earlier: scoring needs ${Math.max(needed, 2)}.`,
     };
   }
 
@@ -221,17 +221,17 @@ export class NotSyncedYetError extends Error {
 export async function measureRevenue(plan: Plan, now = new Date()): Promise<Observation> {
   if (plan.primary_metric !== "revenue") {
     return {
-      inconclusive: `This is scored on ${plan.primary_metric.replace(/_/g, " ")}, which SYB doesn't measure from a connected source yet — revenue alone can't stand in for it.`,
+      inconclusive: `This is scored on ${plan.primary_metric.replace(/_/g, " ")}, which SYB doesn't measure from a connected source yet: revenue alone can't stand in for it.`,
     };
   }
   const days = armDays(plan.window_start, plan.window_end);
   if (days.n < 7) {
-    return { inconclusive: "The window is shorter than a week — too short to score." };
+    return { inconclusive: "The window is shorter than a week: too short to score." };
   }
   if (await overlapping(plan, days)) {
     return {
       inconclusive:
-        "Another change ran in the same weeks (this year or the same weeks last year), and one revenue series can't tell their effects apart — so neither is credited.",
+        "Another change ran in the same weeks (this year or the same weeks last year), and one revenue series can't tell their effects apart, so neither is credited.",
     };
   }
 
@@ -242,11 +242,11 @@ export async function measureRevenue(plan: Plan, now = new Date()): Promise<Obse
     days.after[days.n - 1]!,
   );
   if (!series || series.values.size === 0) {
-    return { inconclusive: "No connected revenue series — connect a source and it can be scored." };
+    return { inconclusive: "No connected revenue series: connect a source and it can be scored." };
   }
   if (series.currencies.size > 1) {
     return {
-      inconclusive: `Revenue arrives in ${series.currencies.size} currencies, and they are never added together — it can't be scored as one number.`,
+      inconclusive: `Revenue arrives in ${series.currencies.size} currencies, and they are never added together: it can't be scored as one number.`,
     };
   }
   if (series.currency !== plan.currency) {
@@ -264,7 +264,7 @@ export async function measureRevenue(plan: Plan, now = new Date()): Promise<Obse
   if (!lastYearMeasured) {
     return {
       inconclusive:
-        "There's no revenue on record for the same weeks a year earlier, so the season can't be taken out — a before/after alone isn't scored.",
+        "There's no revenue on record for the same weeks a year earlier, so the season can't be taken out: a before/after alone isn't scored.",
     };
   }
   return differenceInDifferences(

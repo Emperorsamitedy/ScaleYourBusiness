@@ -39,7 +39,7 @@ const LIKENESS: readonly { re: RegExp; why: string }[] = [
   { re: /(?:^|\s)@[A-Za-z0-9_.]{2,}/, why: "it names a real account" },
   {
     re: /\b(?:my|our) (?:own )?(?:face|faces|staff|team|employees?|customers?|clients?|husband|wife|partner|son|daughter|kids?|children|family|mum|mom|dad)\b|\bof me\b|\bselfies?\b|\breal (?:customers?|people|person)\b/i,
-    why: "it asks to show a real person — the business's own people are real too; film them, with their permission",
+    why: "it asks to show a real person: the business's own people are real too; film them, with their permission",
   },
 ];
 

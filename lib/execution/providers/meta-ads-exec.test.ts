@@ -692,7 +692,7 @@ describe("Review D #1 — an ad change approved more than 14 days ago is not mad
     const summary = await run(b);
     expect(summary.refused).toBe(1);
     expect(summary.outcomes[0]?.detail).toMatch(
-      /^stale: I didn't make this change — you approved it on .+, and the numbers behind it are more than 14 days old now\./,
+      /^stale: I didn't make this change: you approved it on .+, and the numbers behind it are more than 14 days old now\./,
     );
     expect(graph.calls).toHaveLength(0);
     const row = await proposalRow(id);
@@ -767,7 +767,7 @@ describe("Review D #4 — an ad undo never overrides the owner, and never raises
     await expect(
       undoExecution({ executionId: execution.id, userId: b.user_id, provider: h.exec.ads }),
     ).rejects.toThrow(
-      `I didn't undo this: "Autumn menu" is at €2.00 a day on Meta now, not the €5.00 budget I set — you've changed it since, and I won't override that. Nothing was changed.`,
+      `I didn't undo this: "Autumn menu" is at €2.00 a day on Meta now, not the €5.00 budget I set: you've changed it since, and I won't override that. Nothing was changed.`,
     );
     expect(h.graph.writes()).toHaveLength(writes);
     expect(h.graph.campaigns.get("120000060")?.daily_budget).toBe(200);
@@ -1165,7 +1165,7 @@ describe("P3-22b — create_campaign_paused, irreversible and at most once", () 
     expect(graph.writes()).toHaveLength(1);
     expect(graph.campaigns.size).toBe(1); // it landed; we never learned its id
     expect((await executionFor(id))?.error).toMatch(
-      /I may have created this campaign — check Ads Manager/,
+      /I may have created this campaign: check Ads Manager/,
     );
     expect((await run(b)).due).toBe(0); // the runner never re-runs it
     expect(graph.writes()).toHaveLength(1);
@@ -1186,7 +1186,7 @@ describe("P3-22b — create_campaign_paused, irreversible and at most once", () 
     expect(graph.writes()).toHaveLength(1);
     const execution = await executionFor(id);
     expect(execution?.attempts).toBe(1);
-    expect(execution?.error).toMatch(/I may have created this campaign — check Ads Manager/);
+    expect(execution?.error).toMatch(/I may have created this campaign: check Ads Manager/);
   });
 
   it("review D #2, the control: a dry run answered 500 code 2 is retried — it creates nothing", async () => {

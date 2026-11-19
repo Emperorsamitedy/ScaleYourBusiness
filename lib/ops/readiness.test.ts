@@ -736,7 +736,7 @@ describe("TikTok Ads", () => {
     expect(status(TIKTOK_ADS, "TIKTOK_ADS_REDIRECT_URI")).toBe("ready");
     const review = find(TIKTOK_ADS, "TikTok app review");
     expect(review.status).toBe("check");
-    expect(review.says).toContain("2–3 business days");
+    expect(review.says).toContain("2 to 3 business days");
   });
 
   it("none set is OFF; the redirect is never derived, so unset beside the keys is MISSING", () => {

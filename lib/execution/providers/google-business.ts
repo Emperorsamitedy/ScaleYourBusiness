@@ -89,20 +89,18 @@ function replyParams(params: Record<string, unknown>): ReplyParams {
   const sha = params["comment_sha256"];
   const replaces = params["replaces_sha256"];
   if (typeof name !== "string" || !REVIEW_NAME_RE.test(name)) {
-    throw new GoogleBusinessChangeError("the reply names no Google review — nothing was sent");
+    throw new GoogleBusinessChangeError("the reply names no Google review: nothing was sent");
   }
   if (typeof comment !== "string" || comment.trim() === "" || comment.length > GBP_REPLY_MAX) {
-    throw new GoogleBusinessChangeError(
-      "the reply has no words ScaleX may post — nothing was sent",
-    );
+    throw new GoogleBusinessChangeError("the reply has no words ScaleX may post: nothing was sent");
   }
   if (sha !== sha256(comment)) {
     throw new GoogleBusinessChangeError(
-      "the reply isn't the one you approved, word for word — nothing was sent",
+      "the reply isn't the one you approved, word for word: nothing was sent",
     );
   }
   if (replaces !== null && (typeof replaces !== "string" || !/^[0-9a-f]{64}$/.test(replaces))) {
-    throw new GoogleBusinessChangeError("the reply's approval is unreadable — nothing was sent");
+    throw new GoogleBusinessChangeError("the reply's approval is unreadable: nothing was sent");
   }
   return { review_name: name, comment, replaces_sha256: replaces };
 }
@@ -121,7 +119,7 @@ function hoursParams(params: Record<string, unknown>): HoursParams {
   } as Record<string, unknown>;
   if (typeof c.location !== "string" || c.location === "") {
     throw new GoogleBusinessChangeError(
-      "the hours change names no Google listing — nothing was sent",
+      "the hours change names no Google listing: nothing was sent",
     );
   }
   const change: HoursChange = {
@@ -131,7 +129,7 @@ function hoursParams(params: Record<string, unknown>): HoursParams {
     to: c.to as number,
   };
   const problem = changeProblem(change);
-  if (problem !== null) throw new GoogleBusinessChangeError(`${problem} — nothing was sent`);
+  if (problem !== null) throw new GoogleBusinessChangeError(`${problem}: nothing was sent`);
   return { location: c.location, ...change };
 }
 
@@ -380,13 +378,11 @@ export function createGoogleBusinessExecution(
         const previous = u["previous"];
         if (typeof name !== "string" || !REVIEW_NAME_RE.test(name)) {
           throw new GoogleBusinessChangeError(
-            "the stored undo names no review — nothing was changed",
+            "the stored undo names no review: nothing was changed",
           );
         }
         if (previous !== null && typeof previous !== "string") {
-          throw new GoogleBusinessChangeError(
-            "the stored undo is unreadable — nothing was changed",
-          );
+          throw new GoogleBusinessChangeError("the stored undo is unreadable: nothing was changed");
         }
         sameLocation(run, name);
         const done = (ctx.result ?? {}) as { comment_sha256?: unknown };
@@ -395,7 +391,7 @@ export function createGoogleBusinessExecution(
         if (liveSha !== (previous === null ? null : sha256(previous))) {
           if (liveSha === null || liveSha !== done.comment_sha256) {
             throw new GoogleBusinessChangeError(
-              "I didn't undo this: the reply on Google isn't the one ScaleX posted any more — it has been changed since, and I won't override that. Nothing was changed.",
+              "I didn't undo this: the reply on Google isn't the one ScaleX posted any more: it has been changed since, and I won't override that. Nothing was changed.",
             );
           }
           try {
@@ -423,7 +419,7 @@ export function createGoogleBusinessExecution(
         const moved = moveEdge(periods, back);
         if (moved.kind === "refused") {
           throw new GoogleBusinessChangeError(
-            `I didn't undo this: your Google listing's ${p.edge === "open" ? "opening" : "closing"} time on ${DAY_WORD[p.weekday]} isn't ${clockWords(p.to)} any more — you've changed it since, and I won't override that. Nothing was changed.`,
+            `I didn't undo this: your Google listing's ${p.edge === "open" ? "opening" : "closing"} time on ${DAY_WORD[p.weekday]} isn't ${clockWords(p.to)} any more: you've changed it since, and I won't override that. Nothing was changed.`,
           );
         }
         if (moved.kind === "moved") await writeHours(run, p.location, moved.periods, undefined);

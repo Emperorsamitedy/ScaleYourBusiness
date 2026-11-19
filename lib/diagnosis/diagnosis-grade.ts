@@ -107,7 +107,7 @@ export function gradeFromCoverage(
   }
   return {
     grade: "D",
-    basis: "no revenue is measured yet — the figures rest on what you told me",
+    basis: "no revenue is measured yet: the figures rest on what you told me",
     connect_next: ["stripe", "shopify", "square", "nav_online_szamla"],
   };
 }

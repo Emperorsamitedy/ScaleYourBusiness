@@ -324,7 +324,7 @@ describe("P5-03 reorder notes", () => {
     expect(note.module).toBe("stock");
     expect(kindOf(note)).toBe(REORDER_KIND);
     expect((note.action as { summary: string }).summary).toBe(
-      "Reorder 50 × Blue Mug from Midland Clay — a note for you, not an order",
+      "Reorder 50 × Blue Mug from Midland Clay: a note for you, not an order",
     );
     const d = detailOf(note);
     expect(d.note_only).toBe(true);

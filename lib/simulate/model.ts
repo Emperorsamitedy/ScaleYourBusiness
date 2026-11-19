@@ -1489,7 +1489,7 @@ export function compareOptions(
 ): Comparison {
   if (options.length < SIM.min_options || options.length > SIM.max_options) {
     throw new SimulateError(
-      `pick between ${SIM.min_options} and ${SIM.max_options} options to compare — ${options.length} given`,
+      `pick between ${SIM.min_options} and ${SIM.max_options} options to compare: ${options.length} given`,
     );
   }
   const keys = options.map(optionKey);

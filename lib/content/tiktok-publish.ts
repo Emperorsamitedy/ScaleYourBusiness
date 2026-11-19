@@ -490,7 +490,7 @@ export async function saveTikTokSettings(args: {
   if (!state) throw new ContentError("this item isn't headed for TikTok", 409);
   if (!state.can_choose) {
     throw new ContentError(
-      "its TikTok settings were approved with it and can't change now — decline it and ask again to change them",
+      "its TikTok settings were approved with it and can't change now: decline it and ask again to change them",
       409,
     );
   }
@@ -516,7 +516,7 @@ export async function saveTikTokSettings(args: {
     .set({ tiktok_settings: json(settings) })
     .where(and(eq(contentItems.id, item.id), eq(contentItems.status, "drafted")))
     .returning({ id: contentItems.id });
-  if (updated.length !== 1) throw new ContentError("the item changed — reload and try again", 409);
+  if (updated.length !== 1) throw new ContentError("the item changed: reload and try again", 409);
   return settings;
 }
 

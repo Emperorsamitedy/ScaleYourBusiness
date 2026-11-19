@@ -186,7 +186,7 @@ describe("English is the code's own words, byte for byte", () => {
     expect(daysText(["tue", "wed", "thu"])).toBe("Tuesdays to Thursdays");
     expect(daysText(["mon", "wed", "fri"])).toBe("Mondays, Wednesdays and Fridays");
     expect(rangeWords({ low: 0.91, high: 1 }, 8, "Saturdays")).toBe(
-      "(91–100% on the middle half of the 8 Saturdays read)",
+      "(91 to 100% on the middle half of the 8 Saturdays read)",
     );
     expect(rolesOf([{ role_title: null, hours_per_week: 4 }], 4)[0]?.role).toBe("Untitled role");
   });

@@ -147,7 +147,7 @@ export async function consentToGoogleAds(
   }
   if (args.customer.manager) {
     throw new ExecutionConnectionError(
-      "that is a manager account; pick the ad account itself — nothing was connected",
+      "that is a manager account; pick the ad account itself: nothing was connected",
       422,
     );
   }

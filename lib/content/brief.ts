@@ -256,7 +256,7 @@ export async function gatherBriefSources(
     add(
       "finding",
       `finding:${report!.id}#${i}`,
-      `${f.title}${typeof f.detail === "string" ? ` — ${f.detail}` : ""}`,
+      `${f.title}${typeof f.detail === "string" ? `: ${f.detail}` : ""}`,
     );
   });
 
@@ -351,7 +351,7 @@ export async function gatherBriefSources(
       add(
         "ad",
         `ad:${g.lead_ad_id}`,
-        `${g.page_name}${g.competitor_id ? " (a competitor you listed)" : ""} — ${bits.join("; ")}`,
+        `${g.page_name}${g.competitor_id ? " (a competitor you listed)" : ""}: ${bits.join("; ")}`,
       );
     }
   }
@@ -494,13 +494,13 @@ export const briefUsage: BriefUsage = async (accountId, now) => {
 /** Pure: why another brief call may not be made now, or null when it may. */
 export function briefCapRefusal(spend: BriefSpend): string | null {
   if (spend.account_calls >= BRIEF_CAPS.max_calls_per_account_per_month) {
-    return `this month's ${BRIEF_CAPS.max_calls_per_account_per_month} brief-writing calls are used — briefs open again on the 1st`;
+    return `this month's ${BRIEF_CAPS.max_calls_per_account_per_month} brief-writing calls are used: briefs open again on the 1st`;
   }
   if (spend.account_eur >= BRIEF_CAPS.max_eur_per_account_per_month) {
-    return "this month's brief budget for your business is spent — briefs open again on the 1st";
+    return "this month's brief budget for your business is spent: briefs open again on the 1st";
   }
   if (spend.total_eur >= BRIEF_CAPS.max_eur_all_per_month) {
-    return "this month's brief budget is spent across ScaleX — briefs open again on the 1st";
+    return "this month's brief budget is spent across ScaleX: briefs open again on the 1st";
   }
   return null;
 }
@@ -614,7 +614,7 @@ export function checkBrief(
   const copied = (text: string, where: string) => {
     for (const b of findBorrowings(text, borrowed)) {
       reasons.push(
-        `${where} repeats "${b.phrase}" from another business's ad (${nameOf(b.ref)}) — say it in the owner's own words`,
+        `${where} repeats "${b.phrase}" from another business's ad (${nameOf(b.ref)}): say it in the owner's own words`,
       );
     }
   };
@@ -662,7 +662,7 @@ export function checkBrief(
       (words < BRIEF_RULES.min_script_words || words > BRIEF_RULES.max_script_words)
     ) {
       reasons.push(
-        `the script of ${where} is ${words} words; a 15–30 second Reel is ${BRIEF_RULES.min_script_words}–${BRIEF_RULES.max_script_words}`,
+        `the script of ${where} is ${words} words; a 15 to 30 second Reel is ${BRIEF_RULES.min_script_words} to ${BRIEF_RULES.max_script_words}`,
       );
     }
     const hookCites = cites(o["cites"], where);
@@ -763,7 +763,7 @@ export async function writeBrief(args: WriteBriefArgs): Promise<BriefRow> {
   );
   if (!gathered.sources.some((s) => s.kind === "fact")) {
     throw new BriefError(
-      "I know too little about the business to write a brief yet — finish the interview first",
+      "I know too little about the business to write a brief yet: finish the interview first",
     );
   }
   const index = borrowedIndex(gathered.borrowed);
@@ -844,7 +844,7 @@ export async function writeBrief(args: WriteBriefArgs): Promise<BriefRow> {
     },
     () => {
       throw new BriefError(
-        "a brief for this business is already being written — give it a moment",
+        "a brief for this business is already being written: give it a moment",
         409,
       );
     },
@@ -974,7 +974,7 @@ export async function proposeShotListFromBrief(
     module: "content",
     action: {
       kind: "content_publishing",
-      summary: `A shot list for “${hook.hook}” — ${shots.length} shots from your creative brief, cut for ${channelLabel}`,
+      summary: `A shot list for “${hook.hook}”: ${shots.length} shots from your creative brief, cut for ${channelLabel}`,
       detail: {
         shots,
         channel_label: channelLabel,
@@ -1014,7 +1014,7 @@ export async function proposeShotListFromBrief(
         profit_delta_monthly: null,
         formula: null,
       },
-      breakeven_condition: "no spend — a phone and an afternoon",
+      breakeven_condition: "no spend: a phone and an afternoon",
     } as never,
     reversibility: {
       level: "easy",

@@ -348,7 +348,7 @@ export async function buildDiagnosisPrompt(
   ]);
 
   if (view.facts.size === 0) {
-    throw new DiagnosisError("the profile holds no facts — nothing to diagnose");
+    throw new DiagnosisError("the profile holds no facts: nothing to diagnose");
   }
 
   const factKeys = new Set(view.facts.keys());

@@ -190,7 +190,7 @@ export function scheduleWords(value: unknown): string | null {
     if (unstated.has(d) || !Array.isArray(periods)) return `${name(d)} not stated`;
     const ok = periods.filter(isPeriod);
     if (ok.length === 0) return `${name(d)} closed`;
-    return `${name(d)} ${ok.map((p) => `${p.open}–${p.close}`).join(", ")}`;
+    return `${name(d)} ${ok.map((p) => `${p.open} to ${p.close}`).join(", ")}`;
   }).join(" · ");
 }
 

@@ -104,7 +104,7 @@ export function bundleTitle(a: string, b: string): string {
 }
 
 export const SET_UP_YOURSELF =
-  "made before your Shopify store was connected for changes (or not a Shopify item) — set it up in Shopify yourself";
+  "made before your Shopify store was connected for changes (or not a Shopify item): set it up in Shopify yourself";
 
 type Routed = { plan: DispatchPlan } | { unroutable: string };
 

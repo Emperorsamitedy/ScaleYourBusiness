@@ -821,7 +821,7 @@ describe.skipIf(!ffmpegAvailable())("P6-03 — generating and picking", () => {
     expect(rows[0]!.error).toMatch(/didn't finish this clip within 2 hours.*counted as spent/);
     expect(rows[0]!.cost_minor).toBe(56);
     // Never billed: its room is given back.
-    expect(rows[1]!.error).toMatch(/canceled — nothing was billed/);
+    expect(rows[1]!.error).toMatch(/canceled: nothing was billed/);
     expect(rows[1]!.cost_minor).toBe(0);
     expect(api.sent.filter((s) => s.url.endsWith("/cancel"))).toHaveLength(2);
     expect(await claimOf(p.id)).toMatchObject({ status: "generated", cost_minor: 112 });

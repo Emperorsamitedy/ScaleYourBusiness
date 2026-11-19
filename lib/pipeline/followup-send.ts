@@ -442,7 +442,7 @@ export async function approveFollowUpEmail(args: {
   }
   if (proposal.status !== "approved") {
     throw new FollowUpSendError(
-      `only an approved follow-up is sent — this one is ${proposal.status}`,
+      `only an approved follow-up is sent: this one is ${proposal.status}`,
       409,
     );
   }

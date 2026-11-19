@@ -352,7 +352,7 @@ function reviewScenario(rationale: string) {
     ),
     upside_case: outcome("upside", "It removes the main cause and the goal returns to its path."),
     breakeven_condition:
-      "not computed — the alert review proposes; the readback judges what happened",
+      "not computed: the alert review proposes; the readback judges what happened",
   };
 }
 
@@ -383,7 +383,7 @@ async function logWatch(profileId: string, kind: string, detail: string, meta: o
 }
 
 const ESCALATED_DETAIL =
-  "A person at ScaleX is now looking at this goal — the automatic review has done what it can.";
+  "A person at ScaleX is now looking at this goal: the automatic review has done what it can.";
 
 /** Run the review for a goal in alert. Guards first; one model call at most. */
 export async function runAlertReview(
@@ -498,7 +498,7 @@ export async function runAlertReview(
       suggestions.push({
         ...s,
         proposal_id: null,
-        note: "yours to decide — nothing runs this for you",
+        note: "yours to decide: nothing runs this for you",
       });
       continue;
     }
@@ -508,7 +508,7 @@ export async function runAlertReview(
       suggestions.push({
         ...s,
         proposal_id: null,
-        note: `not proposed — you've declined ${kind.replace(/_/g, " ")} ${suppression.rejections} times`,
+        note: `not proposed: you've declined ${kind.replace(/_/g, " ")} ${suppression.rejections} times`,
       });
       continue;
     }

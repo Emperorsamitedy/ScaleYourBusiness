@@ -40,8 +40,8 @@ export const NAV_SERVICE_WORDS = {
     hu: "A NAV-kapcsolat még nem érhető el.",
   },
   alreadyConnected: {
-    en: "NAV is already connected for this business — disconnect it first.",
-    hu: "A NAV már kapcsolódik ehhez a vállalkozáshoz — előbb bontsa a kapcsolatot.",
+    en: "NAV is already connected for this business: disconnect it first.",
+    hu: "A NAV már kapcsolódik ehhez a vállalkozáshoz: előbb bontsa a kapcsolatot.",
   },
   revoked: {
     en: "ScaleX has deleted your NAV technical user's details. Now delete the technical user in Online Számla too, so it can't be used again.",

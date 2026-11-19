@@ -90,8 +90,8 @@ export const FACT_TEMPLATES: readonly FactTemplate[] = [
       const b = yesNo(v);
       if (b === null) return null;
       return b
-        ? "Yes — you can buy directly on our website."
-        : "Not directly on the website — get in touch and we'll sort it out.";
+        ? "Yes, you can buy directly on our website."
+        : "Not directly on the website: get in touch and we'll sort it out.";
     },
   },
   {
@@ -133,7 +133,7 @@ export const FACT_TEMPLATES: readonly FactTemplate[] = [
     answer: (v) => {
       const b = yesNo(v);
       if (b === null) return null;
-      return b ? "Yes — appointments can be booked." : "We don't take appointments.";
+      return b ? "Yes, appointments can be booked." : "We don't take appointments.";
     },
   },
   {
@@ -329,7 +329,7 @@ async function propose(
         downside_case: {
           case: "downside",
           statement:
-            "An answer goes stale when a fact changes — retire it and re-propose; the assistant stops saying it at once.",
+            "An answer goes stale when a fact changes: retire it and re-propose; the assistant stops saying it at once.",
           profit_delta_monthly: null,
           formula: null,
         },
@@ -340,7 +340,7 @@ async function propose(
           profit_delta_monthly: null,
           formula: null,
         },
-        breakeven_condition: "not computed — publishing answers carries no spend",
+        breakeven_condition: "not computed: publishing answers carries no spend",
       } as never,
       reversibility: {
         level: "easy",

@@ -39,8 +39,8 @@ export const NAV_GUIDE_STEPS: readonly GuideStep[] = [
   },
   {
     image: "step-5-keys.png",
-    hu: "Mentés után a NAV megmutatja a felhasználónevet, a jelszót és az aláírókulcsot. Ezeket írja be a ScaleX-be. A cserekulcsra nincs szükség — a ScaleX soha nem kéri.",
-    en: "After saving, NAV shows the login, password and signature key. Enter those in ScaleX. The exchange key isn't needed — ScaleX never asks for it.",
+    hu: "Mentés után a NAV megmutatja a felhasználónevet, a jelszót és az aláírókulcsot. Ezeket írja be a ScaleX-be. A cserekulcsra nincs szükség: a ScaleX soha nem kéri.",
+    en: "After saving, NAV shows the login, password and signature key. Enter those in ScaleX. The exchange key isn't needed: ScaleX never asks for it.",
   },
   {
     image: "step-6-done.png",

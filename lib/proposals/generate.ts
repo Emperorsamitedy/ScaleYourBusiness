@@ -140,7 +140,7 @@ function anomalyScenario(detail: string) {
     base_case: outcome("base", "The cause is found and named within a day of looking."),
     downside_case: outcome("downside", "The dip is real and continues while uninvestigated."),
     upside_case: outcome("upside", "It is a data artefact and the series is corrected."),
-    breakeven_condition: "not applicable — investigating changes nothing by itself",
+    breakeven_condition: "not applicable: investigating changes nothing by itself",
   };
 }
 
@@ -243,7 +243,7 @@ export async function generateProposals(
       });
       const kind = coerceKind(text);
       if (kind === null) {
-        out.skipped.push({ ref, reason: "unclassifiable — not proposing on a guess" });
+        out.skipped.push({ ref, reason: "unclassifiable: not proposing on a guess" });
         continue;
       }
       const suppression = suppressed.get(kind);
@@ -279,7 +279,7 @@ export async function generateProposals(
       scenario: anomalyScenario(a.detail),
       reversibility: {
         level: "easy",
-        if_you_change_your_mind: "An investigation changes nothing by itself — stop any time.",
+        if_you_change_your_mind: "An investigation changes nothing by itself. Stop any time.",
       },
     });
   }

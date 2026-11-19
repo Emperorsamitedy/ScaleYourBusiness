@@ -64,7 +64,7 @@ describe("the seasonal index", () => {
     expect(r.index).toBeCloseTo(2);
     expect(r.low).toBeCloseTo(1500 / 825);
     expect(r.high).toBeCloseTo(1500 / 675);
-    expect(ratioText(r)).toBe("2.0× (1.8–2.2×)");
+    expect(ratioText(r)).toBe("2.0× (1.8 to 2.2×)");
   });
 
   it("has no upper bound when a quarter of the weeks were zero", () => {
@@ -250,6 +250,6 @@ describe("the year-over-year window", () => {
     expect(busy.index).toBeCloseTo(2);
     expect(busy.low).toBeCloseTo(1.6);
     expect(busy.high).toBeCloseTo(2);
-    expect(ratioText(busy)).toBe("2.0× (1.6–2.0×)");
+    expect(ratioText(busy)).toBe("2.0× (1.6 to 2.0×)");
   });
 });

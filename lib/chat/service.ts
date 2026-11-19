@@ -372,7 +372,7 @@ export async function postMessage(
     const reply = await say(
       profileId,
       "I heard you, and I won't quietly record a number from one sentence. If you want it changed, " +
-        "say it as the change — “set my average order value to 45 euros” — and I'll draft it for " +
+        "say it as the change (“set my average order value to 45 euros”) and I'll draft it for " +
         "your yes. The fact sheet shows every value with its source.",
       0,
     );
@@ -436,7 +436,7 @@ async function handleRequest(
   if (decision?.mode === "watching") {
     const reply = await say(
       profileId,
-      `I can't take requests while I'm watching — the watch runs to ${decision.review_at.slice(0, 10)} ` +
+      `I can't take requests while I'm watching: the watch runs to ${decision.review_at.slice(0, 10)} ` +
         "and blocks every change, however it's phrased. Ask me anything, tell me anything; " +
         "doing things waits until the watch ends.",
       0,
@@ -474,7 +474,7 @@ async function handleRequest(
       ? await say(
           profileId,
           `I wrote that up and then stopped myself: you told me "${verdict.limit.quote}", and this ` +
-            "falls under it. It's in your queue's held-back section so you can see the restraint — " +
+            "falls under it. It's in your queue's held-back section so you can see the restraint: " +
             "it will not be proposed or run. If that limit should change, that's a settings decision, " +
             "not a chat message.",
           0,

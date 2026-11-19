@@ -37,7 +37,7 @@ export async function proposeFromChat(args: {
         detail: {
           rationale:
             args.rationale ??
-            "You asked for this in chat — written up as a proposal, because nothing runs on phrasing alone.",
+            "You asked for this in chat: written up as a proposal, because nothing runs on phrasing alone.",
           manual_limits: verdict.manual.map((l) => l.quote),
           ...(args.extra ?? {}),
         },
@@ -69,7 +69,7 @@ export async function proposeFromChat(args: {
           profit_delta_monthly: null,
           formula: null,
         },
-        breakeven_condition: "not computed — a chat request carries no scenario arithmetic yet",
+        breakeven_condition: "not computed: a chat request carries no scenario arithmetic yet",
       } as never,
       reversibility: {
         level: "moderate",

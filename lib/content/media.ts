@@ -319,7 +319,7 @@ export function contentTypeFor(file: string): string {
   const type = CONTENT_TYPES[path.extname(file).toLowerCase()];
   if (!type) {
     throw new MediaError(
-      `"${path.extname(file) || file}" is not a media type the platforms accept — mp4, mov, jpg or png`,
+      `"${path.extname(file) || file}" is not a media type the platforms accept: mp4, mov, jpg or png`,
       422,
     );
   }

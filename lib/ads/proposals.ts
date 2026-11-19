@@ -356,7 +356,7 @@ export async function loadCampaignSeries(
   }));
 }
 
-const roasWord = (r: number | null) => (r === null ? "—" : r.toFixed(2));
+const roasWord = (r: number | null) => (r === null ? "-" : r.toFixed(2));
 
 export interface AdRun {
   created: ProposalRow[];
@@ -383,7 +383,7 @@ async function adContext(
   limitLlm: LimitLlm | undefined,
 ): Promise<AdContext | { skip: string }> {
   const care = await careState(profileId);
-  if (!care) return { skip: "not in care yet — no mode decision" };
+  if (!care) return { skip: "not in care yet: no mode decision" };
   if (care.watch_ends_at && now.toISOString() < care.watch_ends_at) {
     return {
       skip: watchingUntil(care.watch_ends_at),
@@ -498,8 +498,8 @@ async function recordAdChange(
       {
         statement:
           platform === "google"
-            ? "Google's attribution is its own — some of these conversions might have happened anyway"
-            : `${pw.name}'s attribution is its own — some of these purchases might have happened anyway`,
+            ? "Google's attribution is its own: some of these conversions might have happened anyway"
+            : `${pw.name}'s attribution is its own: some of these purchases might have happened anyway`,
         value: null,
         source_field: null,
         sensitivity: "high",
@@ -523,10 +523,10 @@ async function recordAdChange(
       case: "downside",
       statement:
         change.change === "pause"
-          ? "Some sales the campaign did drive stop — resuming it restores it."
+          ? "Some sales the campaign did drive stop. Resuming it restores it."
           : change.change === "raise_budget"
-            ? "The extra spend returns less than the campaign's average — restoring the budget undoes it."
-            : "The spend you cut was earning more than the average — restoring the budget undoes it.",
+            ? "The extra spend returns less than the campaign's average. Restoring the budget undoes it."
+            : "The spend you cut was earning more than the average. Restoring the budget undoes it.",
       profit_delta_monthly: null,
       formula: null,
     },
@@ -543,7 +543,7 @@ async function recordAdChange(
     },
     breakeven_condition:
       change.change === "pause"
-        ? "a return on ad spend of 1.0 — the campaign paying for itself"
+        ? "a return on ad spend of 1.0: the campaign paying for itself"
         : change.change === "raise_budget"
           ? "the extra spend returning at least what it costs"
           : "the spend you cut returning less than it cost",
@@ -557,11 +557,11 @@ async function recordAdChange(
       summary:
         change.change === "pause"
           ? w.roas !== null && w.roas < ADS.pause_roas_below
-            ? `Pause "${c.campaign_name}" — it spent more than ${pw.name} says it brought back over ${w.measured_days} days`
-            : `Pause "${c.campaign_name}" — return on ad spend ${roasWord(w.roas)} over ${w.measured_days} days`
+            ? `Pause "${c.campaign_name}": it spent more than ${pw.name} says it brought back over ${w.measured_days} days`
+            : `Pause "${c.campaign_name}": return on ad spend ${roasWord(w.roas)} over ${w.measured_days} days`
           : change.change === "raise_budget"
-            ? `Raise "${c.campaign_name}"'s daily budget by ${sharePct}% — return on ad spend ${roasWord(w.roas)} over ${w.measured_days} days`
-            : `Cut "${c.campaign_name}"'s daily budget by ${sharePct}% — return on ad spend ${roasWord(w.roas)} over ${w.measured_days} days`,
+            ? `Raise "${c.campaign_name}"'s daily budget by ${sharePct}%: return on ad spend ${roasWord(w.roas)} over ${w.measured_days} days`
+            : `Cut "${c.campaign_name}"'s daily budget by ${sharePct}%: return on ad spend ${roasWord(w.roas)} over ${w.measured_days} days`,
       detail: {
         campaign_ref: c.campaign_ref,
         campaign_name: c.campaign_name,
@@ -598,7 +598,7 @@ async function recordAdChange(
       level: "easy",
       if_you_change_your_mind:
         change.change === "pause"
-          ? "Resume the campaign — it picks up where it stopped."
+          ? "Resume the campaign: it picks up where it stopped."
           : "Restore the previous daily budget.",
     },
     expires_at: new Date(ctx.now.getTime() + ADS.expiry_days * 86_400_000).toISOString(),
@@ -676,7 +676,7 @@ export async function proposeRequestedAdChange(
   if (w.measured_days < ADS.min_measured_days) {
     out.skipped.push({
       ref: args.campaign_ref,
-      reason: `${w.measured_days} measured days — an ad proposal needs ${ADS.min_measured_days}`,
+      reason: `${w.measured_days} measured days: an ad proposal needs ${ADS.min_measured_days}`,
     });
     return out;
   }

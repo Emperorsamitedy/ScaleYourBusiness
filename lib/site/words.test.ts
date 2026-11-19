@@ -399,10 +399,10 @@ describe("siteWords English is what lib/site said before L-4c, byte for byte", (
     const euro = speedEuro(4500, figures);
     if (!euro.computed) throw new Error("expected a € line");
     expect(euro.formula).toBe(
-      "4,000 visits × 2.0% conversion × €45.00 order value × 1–4% per second × 2.0 s over the good line",
+      "4,000 visits × 2.0% conversion × €45.00 order value × 1 to 4% per second × 2.0 s over the good line",
     );
     expect(euro.assumed).toEqual([
-      "ASSUMED: each second a phone waits past 2.5 s loses 1–4% of orders, a rule of thumb from published retail studies, not measured on your site.",
+      "ASSUMED: each second a phone waits past 2.5 s loses 1 to 4% of orders, a rule of thumb from published retail studies, not measured on your site.",
       "ASSUMED: every order counted passes through this page's load; the share that comes on a phone isn't measured, so the high end overstates.",
       "ASSUMED: at most 3 seconds are counted.",
     ]);
@@ -410,7 +410,7 @@ describe("siteWords English is what lib/site said before L-4c, byte for byte", (
     if (!de2.computed) throw new Error("expected a € line");
     // Intl's own no-break spaces, as plain ones for reading.
     expect(de2.formula.replace(/[\u00a0\u202f]/g, " ")).toBe(
-      "4.000 Besuche × 2,0 % Konversion × 45,00 € Bestellwert × 1–4 % pro Sekunde × 2,0 s über dem guten Bereich",
+      "4.000 Besuche × 2,0 % Konversion × 45,00 € Bestellwert × 1 bis 4 % pro Sekunde × 2,0 s über dem guten Bereich",
     );
     expect(de2.window).toBe("der letzte Monat Ihrer Datenquellen, Stand 26. Okt. 2026");
     expect(de2.assumed[2]).toBe("ANGENOMMEN: Gezählt werden höchstens 3 Sekunden.");

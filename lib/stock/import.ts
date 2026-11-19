@@ -178,7 +178,7 @@ export function stockFileObservations(
   if (rows.length < 2) throw new StockImportError("the file needs a header row and one item");
   if (rows.length - 1 > STOCK_IMPORT_LIMITS.max_rows) {
     throw new StockImportError(
-      `one import takes up to ${STOCK_IMPORT_LIMITS.max_rows} items — split the file`,
+      `one import takes up to ${STOCK_IMPORT_LIMITS.max_rows} items: split the file`,
       413,
     );
   }
@@ -186,18 +186,18 @@ export function stockFileObservations(
   const col = mapStockHeader(header);
   if (col.item === -1 && col.sku === -1) {
     throw new StockImportError(
-      "no item column found — the header needs a name or a SKU column (item, name, product, sku)",
+      "no item column found: the header needs a name or a SKU column (item, name, product, sku)",
     );
   }
   if (col.on_hand === -1) {
     throw new StockImportError(
-      "no stock column found — the header needs how many are on hand (on hand, stock, quantity)",
+      "no stock column found: the header needs how many are on hand (on hand, stock, quantity)",
     );
   }
   const currency = options.currency?.trim().toUpperCase() ?? "";
   if ((col.unit_cost !== -1 || col.price !== -1) && !isIsoCurrency(currency)) {
     throw new StockImportError(
-      "the file has a cost or price column — say which currency it is in (three letters, e.g. EUR)",
+      "the file has a cost or price column: say which currency it is in (three letters, e.g. EUR)",
     );
   }
   // The money columns' style, settled by the file or the owner's word, as a date order is.
@@ -216,7 +216,7 @@ export function stockFileObservations(
       windowDays > MAX_WINDOW_DAYS)
   ) {
     throw new StockImportError(
-      "the file has a units-sold column — say how many days it covers (for example 90)",
+      "the file has a units-sold column: say how many days it covers (for example 90)",
     );
   }
 
@@ -372,7 +372,7 @@ export async function importStockFile(
     now.toISOString(),
   );
   if (result.imported === 0) {
-    throw new StockImportError("no item in the file could be read — nothing was imported");
+    throw new StockImportError("no item in the file could be read: nothing was imported");
   }
 
   const [profile] = await db

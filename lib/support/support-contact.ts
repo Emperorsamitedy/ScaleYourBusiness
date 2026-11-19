@@ -172,10 +172,10 @@ export async function contactForSupport(
 
 /** Provenance for an emailed-in contact. */
 export function emailedSource(at: string): string {
-  return `emailed support ${at.slice(0, 10)} — a support request is not marketing consent`;
+  return `emailed support ${at.slice(0, 10)}: a support request is not marketing consent`;
 }
 
 /** Provenance for an address given in the website chat. */
 export function chatAddressSource(at: string): string {
-  return `gave this address in the website chat ${at.slice(0, 10)} so a person could reply — used only to answer that question, not marketing consent`;
+  return `gave this address in the website chat ${at.slice(0, 10)} so a person could reply: used only to answer that question, not marketing consent`;
 }

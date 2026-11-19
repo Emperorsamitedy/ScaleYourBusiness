@@ -346,8 +346,8 @@ export async function proposePublishing(
         downside_case: {
           case: "downside",
           statement: isTikTok
-            ? "It does nothing you can measure — and ScaleX can't take it down: you'd delete it in the TikTok app."
-            : "It does nothing you can measure — and you can withdraw it at any time.",
+            ? "It does nothing you can measure, and ScaleX can't take it down: you'd delete it in the TikTok app."
+            : "It does nothing you can measure, and you can withdraw it at any time.",
           profit_delta_monthly: null,
           formula: null,
         },
@@ -358,7 +358,7 @@ export async function proposePublishing(
           profit_delta_monthly: null,
           formula: null,
         },
-        breakeven_condition: "no spend — the cost is your review time",
+        breakeven_condition: "no spend: the cost is your review time",
       } as never,
       // TikTok's API has no delete: labelled irreversible BEFORE approval (rule 16).
       reversibility: isTikTok

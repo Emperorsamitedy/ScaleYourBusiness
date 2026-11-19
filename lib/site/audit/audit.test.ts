@@ -554,7 +554,7 @@ describe("P5-13 / rule 25 — the € figure", () => {
       expect(["critical", "high", "medium"]).toContain(f.severity);
     }
     const speed = report.find((f) => /main content takes/.test(f.title));
-    expect(speed?.detail).toMatch(/about 72 EUR–288 EUR a month at stake/);
+    expect(speed?.detail).toMatch(/about 72 EUR to 288 EUR a month at stake/);
     expect(report.find((f) => /broken/.test(f.title))?.detail).toMatch(/not computed/);
   });
 });

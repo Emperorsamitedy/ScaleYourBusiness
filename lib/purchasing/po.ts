@@ -402,7 +402,7 @@ export function poDocument(po: PurchaseOrder, w: RecipientWords, status: PoDocSt
     const p = pricedLine(l);
     return `<tr><td>${esc(l.name)}</td><td class="n">${esc(String(l.quantity))}</td><td class="n">${
       p ? esc(fmt(p.unit, w.locale)) : esc(w.t("doc.toConfirm"))
-    }</td><td class="n">${p ? esc(fmt(p.total, w.locale)) : "—"}</td></tr>`;
+    }</td><td class="n">${p ? esc(fmt(p.total, w.locale)) : "-"}</td></tr>`;
   };
   const total = totalWords(po, w);
   const statusLine = statusWords(status, w);

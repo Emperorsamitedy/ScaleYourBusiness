@@ -78,7 +78,7 @@ describe("moving one edge", () => {
     expect(out).toEqual({
       kind: "refused",
       reason:
-        "Your Google listing doesn't say you open at 10:00 on Mondays, so ScaleX didn't change it — your hours on Google have moved since this was approved.",
+        "Your Google listing doesn't say you open at 10:00 on Mondays, so ScaleX didn't change it: your hours on Google have moved since this was approved.",
     });
   });
 

@@ -244,7 +244,7 @@ export async function writeEntityRows(args: {
         // bad input — loud, before anything is written.
         throw Object.assign(
           new Error(
-            `unknown field "${key}" for ${args.schemaKey} — expected one of: ${[...byKey.keys()].join(", ")}`,
+            `unknown field "${key}" for ${args.schemaKey}; expected one of: ${[...byKey.keys()].join(", ")}`,
           ),
           { status: 422, code: "unknown_field", values: { field: key } },
         );

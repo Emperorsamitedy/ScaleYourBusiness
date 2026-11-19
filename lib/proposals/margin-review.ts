@@ -100,7 +100,7 @@ export async function proposeMarginReview(
   if (silenced) {
     return {
       status: "suppressed",
-      reason: `you've declined operations changes ${silenced.rejections} times — I've stopped proposing them`,
+      reason: `you've declined operations changes ${silenced.rejections} times: I've stopped proposing them`,
     };
   }
 
@@ -172,7 +172,7 @@ export async function proposeMarginReview(
         profit_delta_monthly: null,
         formula: gap.formula,
       },
-      breakeven_condition: "nothing to break even on — a review changes nothing by itself",
+      breakeven_condition: "nothing to break even on: a review changes nothing by itself",
     },
     reversibility: {
       level: "easy",

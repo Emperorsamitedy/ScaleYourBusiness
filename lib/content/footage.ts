@@ -95,7 +95,7 @@ async function targetItem(profileId: string, itemId: string): Promise<ContentIte
 function extensionFor(contentType: string): ".mp4" | ".mov" {
   const ext = FOOTAGE_TYPES[contentType];
   if (!ext) {
-    throw new ContentError("clips must be MP4 or MOV video — what a phone camera records", 415);
+    throw new ContentError("clips must be MP4 or MOV video: what a phone camera records", 415);
   }
   return ext;
 }
@@ -140,14 +140,14 @@ async function assertRoom(itemId: string, bytes: number, now: Date): Promise<voi
   );
   if (live.length >= MAX_CLIPS_PER_ITEM) {
     throw new ContentError(
-      `that's ${MAX_CLIPS_PER_ITEM} clips already — cut these, or remove one first`,
+      `that's ${MAX_CLIPS_PER_ITEM} clips already: cut these, or remove one first`,
       409,
     );
   }
   const held = live.reduce((n, c) => n + (c.bytes ?? c.declared_bytes), 0);
   if (held + bytes > MAX_ITEM_FOOTAGE_BYTES) {
     throw new ContentError(
-      `these clips would come to more than ${MAX_ITEM_FOOTAGE_BYTES / MB} MB for one video — shorter clips, or fewer`,
+      `these clips would come to more than ${MAX_ITEM_FOOTAGE_BYTES / MB} MB for one video: shorter clips, or fewer`,
       413,
     );
   }
@@ -158,7 +158,7 @@ function assertSize(bytes: unknown, cap: number): number {
     throw new ContentError("the clip's size is required", 422);
   }
   if (bytes > cap) {
-    throw new ContentError(`a clip can be up to ${cap / MB} MB — this one is bigger`, 413);
+    throw new ContentError(`a clip can be up to ${cap / MB} MB: this one is bigger`, 413);
   }
   return bytes;
 }
@@ -287,14 +287,14 @@ export async function confirmClipUpload(args: {
   if (clip.status !== "issued") return clip; // confirmed already — idempotent
   if (Date.parse(clip.created_at) + UPLOAD_GRANT_MS < now.getTime()) {
     throw new ContentError(
-      "that upload took longer than its 30-minute window — upload it again",
+      "that upload took longer than its 30-minute window: upload it again",
       410,
     );
   }
   const landed = await (args.head ?? blobHead)(clip.pathname);
-  if (!landed) throw new ContentError("the clip hasn't arrived in storage — upload it again", 409);
+  if (!landed) throw new ContentError("the clip hasn't arrived in storage: upload it again", 409);
   if (!BLOB_URL.test(landed.url) || !landed.url.endsWith(`/${clip.pathname}`)) {
-    throw new ContentError("the stored clip isn't where ScaleX put it — upload it again", 409);
+    throw new ContentError("the stored clip isn't where ScaleX put it: upload it again", 409);
   }
   // The token capped size and type at the store; checked again here, from the store's own answer.
   if (
@@ -302,7 +302,7 @@ export async function confirmClipUpload(args: {
     landed.size > MAX_CLIP_BYTES ||
     landed.contentType !== clip.content_type
   ) {
-    throw new ContentError("what arrived isn't the clip that was granted — upload it again", 422);
+    throw new ContentError("what arrived isn't the clip that was granted: upload it again", 422);
   }
   const [row] = await db
     .update(footageClips)
@@ -439,7 +439,7 @@ export async function requestRender(args: {
   }
   const caption = typeof args.caption === "string" ? args.caption.trim() : "";
   if (target.kind === "shot_list" && caption === "") {
-    throw new ContentError("the video needs a caption — what the post says under it", 422);
+    throw new ContentError("the video needs a caption: what the post says under it", 422);
   }
   if (caption.length > CAPTION_MAX) {
     throw new ContentError(`a caption can be up to ${CAPTION_MAX} characters`, 422);
@@ -576,7 +576,7 @@ export async function runRender(
       .from(footageClips)
       .where(and(inArray(footageClips.id, ids), eq(footageClips.status, "uploaded")));
     if (clips.length !== ids.length || ids.length === 0) {
-      throw new ContentError("a clip in this cut is gone — upload it again and cut again", 409);
+      throw new ContentError("a clip in this cut is gone: upload it again and cut again", 409);
     }
     const ordered = ids.map((id) => clips.find((c) => c.id === id)!);
 
@@ -677,7 +677,7 @@ export async function runRender(
     const sentence = sentenceOf(error);
     const note = final
       ? `The cut failed: ${sentence}.`
-      : `That try failed (${sentence}); it tries again on the next run — attempt ${run.attempts} of ${MAX_RENDER_ATTEMPTS}.`;
+      : `That try failed (${sentence}); it tries again on the next run, attempt ${run.attempts} of ${MAX_RENDER_ATTEMPTS}.`;
     await db
       .update(footageRenders)
       .set({

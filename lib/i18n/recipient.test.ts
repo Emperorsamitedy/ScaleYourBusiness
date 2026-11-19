@@ -168,7 +168,10 @@ describe("L-6 — the weekly summary", () => {
     expect(c.subject).toBe(de.t("subjectWaiting", { count: 3 }));
     expect(c.subject).not.toMatch(/waiting for you/);
     expect(c.heading).toContain("Hair & Co");
-    expect(c.period).toBe("19.–26. Okt. 2026");
+    // The two days joined by German's own word, never the long dash the
+    // platform's date range would draw (docs/DASHBOARD-OVERHAUL.md, L7).
+    expect(c.period).toBe("19. Okt. bis 26. Okt. 2026");
+    expect(c.period).not.toMatch(/[–—]/);
     expect(c.text).toMatch(/1\.240,00\s€/);
     expect(c.text).toMatch(/\+12,7\s%/);
     expect(c.text).toContain("Raise the cut price"); // a proposal's own words, as recorded
@@ -412,7 +415,7 @@ describe("L-6 — the business's customers", () => {
     expect(es).toContain("{{unsubscribe_url}}");
     expect(es).not.toContain("You're getting this");
     expect(complianceFooter(null, null)).toBe(
-      "—\nThis business\nYou're getting this because you agreed to hear from This business. Unsubscribe: {{unsubscribe_url}}",
+      "---\nThis business\nYou're getting this because you agreed to hear from This business. Unsubscribe: {{unsubscribe_url}}",
     );
   });
 });

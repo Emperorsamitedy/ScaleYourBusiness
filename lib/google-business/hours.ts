@@ -187,7 +187,7 @@ export function moveEdge(periods: readonly GbpPeriod[], c: HoursChange): MoveRes
     if (toHits.length === 1) return { kind: "already", index: toHits[0]!.i };
     return {
       kind: "refused",
-      reason: `Your Google listing doesn't say you ${what} at ${clockWords(c.from)} on ${DAY_NAME[c.weekday]}, so ScaleX didn't change it — your hours on Google have moved since this was approved.`,
+      reason: `Your Google listing doesn't say you ${what} at ${clockWords(c.from)} on ${DAY_NAME[c.weekday]}, so ScaleX didn't change it: your hours on Google have moved since this was approved.`,
     };
   }
   if (fromHits.length > 1) {

@@ -263,7 +263,7 @@ export async function proposeClearance(
   }
   const care = await careState(profileId);
   if (!care) {
-    out.skipped.push({ ref: "profile", reason: "not in care yet — no mode decision" });
+    out.skipped.push({ ref: "profile", reason: "not in care yet: no mode decision" });
     return out;
   }
   if (care.watch_ends_at && now.toISOString() < care.watch_ends_at) {
@@ -428,7 +428,7 @@ function summaryFor(key: OptionKey, r: RankedItem, shared: Shared): string {
     case "markdown":
       return `Mark "${name}" down by ${Math.round(CLEARANCE.markdown_share * 100)}%`;
     case "selloff":
-      return `Sell off "${name}" or send it back to the supplier — advice only`;
+      return `Sell off "${name}" or send it back to the supplier: advice only`;
     case "email":
       return `Email customers who said yes about "${name}"`;
   }
@@ -438,7 +438,7 @@ function detailFor(option: ClearanceOption, r: RankedItem, shared: Shared, now: 
   const name = r.item.name;
   if (option.key === "content") {
     const ch = shared.content_channel!;
-    const brief = `A ${ch.format === "short_video" ? "short video" : "post"} that shows ${name} in use — what it is, what it's for, that it's in stock. No discount, no invented offer, no urgency that isn't true.`;
+    const brief = `A ${ch.format === "short_video" ? "short video" : "post"} that shows ${name} in use: what it is, what it's for, that it's in stock. No discount, no invented offer, no urgency that isn't true.`;
     const item: PlannedItem = {
       date: shiftDay(now.toISOString().slice(0, 10), 2),
       channel_id: ch.channel_id,
@@ -514,7 +514,7 @@ function scenarioFor(
     ],
     base_case: {
       case: "base",
-      statement: `About ${fmt(rec.expected)} back (${fmt(rec.low)}–${fmt(rec.high)}), ${option.given_up.expected > 0 ? `giving up about ${fmt(option.given_up.expected)}` : "giving nothing up"}.`,
+      statement: `About ${fmt(rec.expected)} back (${fmt(rec.low)} to ${fmt(rec.high)}), ${option.given_up.expected > 0 ? `giving up about ${fmt(option.given_up.expected)}` : "giving nothing up"}.`,
       profit_delta_monthly: null,
       formula: option.arithmetic,
     },
@@ -532,8 +532,8 @@ function scenarioFor(
     },
     breakeven_condition:
       option.given_up.expected > 0
-        ? `worth it while the cash back beats what holding it costs — ${efficiencyLine(option, fmt)}`
-        : "nothing to break even on — it gives nothing up",
+        ? `worth it while the cash back beats what holding it costs: ${efficiencyLine(option, fmt)}`
+        : "nothing to break even on: it gives nothing up",
   };
 }
 

@@ -119,13 +119,13 @@ export const researchUsage: ResearchUsage = async (accountId, now) => {
 /** Pure: why a run needing `callsNeeded` paid calls may not start, or null. */
 export function researchRefusal(spend: ResearchSpend, callsNeeded: number): string | null {
   if (spend.account_calls + callsNeeded > RESEARCH_DAILY_CAPS.max_calls_per_profile) {
-    return "today's competitor searches for this business are used up — try again tomorrow";
+    return "today's competitor searches for this business are used up: try again tomorrow";
   }
   if (spend.account_eur >= RESEARCH_DAILY_CAPS.max_eur_per_profile) {
-    return "today's competitor research budget for this business is spent — try again tomorrow";
+    return "today's competitor research budget for this business is spent: try again tomorrow";
   }
   if (spend.total_eur >= RESEARCH_DAILY_CAPS.max_eur_all) {
-    return "competitor research is paused for today — try again tomorrow";
+    return "competitor research is paused for today: try again tomorrow";
   }
   return null;
 }
@@ -148,7 +148,7 @@ export async function withResearchAllowance<T>(
       return run();
     },
     () => {
-      throw new ResearchError("a search for this business is already running — give it a moment");
+      throw new ResearchError("a search for this business is already running: give it a moment");
     },
   );
 }
@@ -365,7 +365,7 @@ async function assertOwnCompetitor(
     .where(and(eq(competitors.id, competitorId), eq(competitors.profile_id, profileId)));
   if (!row) throw new ResearchError("no such competitor on this profile");
   if (row.researched_at && now - Date.parse(row.researched_at) < RERESEARCH_COOLDOWN_MS) {
-    throw new ResearchError("this competitor was researched in the last day — try again tomorrow");
+    throw new ResearchError("this competitor was researched in the last day: try again tomorrow");
   }
 }
 

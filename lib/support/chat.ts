@@ -304,7 +304,7 @@ export const WANTS_HUMAN_RE =
 
 export function disclosure(businessName: string): string {
   return (
-    `Hi — I'm ${businessName}'s automated assistant, not a person. I answer from what ` +
+    `Hi, I'm ${businessName}'s automated assistant, not a person. I answer from what ` +
     `${businessName} has approved me to say, and I'll get you a human whenever you ask.`
   );
 }
@@ -392,7 +392,7 @@ export async function startConversation(
       ),
     );
   if ((count?.n ?? 0) >= SUPPORT_MAX_NEW_CONVERSATIONS_PER_DAY) {
-    throw new SupportError("the assistant is busy right now — please try again later", 429);
+    throw new SupportError("the assistant is busy right now. Please try again later", 429);
   }
   const ip = seams.clientIp?.trim() ?? "";
   const client = ip !== "" ? clientHash(ip, siteKey, now().toISOString().slice(0, 10)) : null;
@@ -409,7 +409,7 @@ export async function startConversation(
       );
     if ((mine?.n ?? 0) >= SUPPORT_MAX_CONVERSATIONS_PER_CLIENT_PER_DAY) {
       throw new SupportError(
-        "you've started a lot of conversations today — please try again tomorrow",
+        "you've started a lot of conversations today. Please try again tomorrow",
         429,
       );
     }
@@ -530,7 +530,7 @@ async function escalate(
   const timing = handoverTiming(settings?.reply_hours ?? null);
   const text = created
     ? `${reply} ${timing}`
-    : "This conversation is already with a person — they'll pick up from here, including what you just wrote.";
+    : "This conversation is already with a person: they'll pick up from here, including what you just wrote.";
   const row = await sayTo(conversation.id, text, costEur, at);
   await db
     .update(supportConversations)
@@ -556,7 +556,7 @@ export async function postCustomerMessage(
   const conversation = await conversationByToken(token);
   if (!conversation) throw new SupportError("no such conversation", 404);
   if (conversation.status === "closed") {
-    throw new SupportError("this conversation is closed — start a new one", 410);
+    throw new SupportError("this conversation is closed: start a new one", 410);
   }
   const trimmed = text.trim();
   if (trimmed === "") throw new SupportError("say something and I'll answer", 422);
@@ -590,7 +590,7 @@ export async function postCustomerMessage(
       conversation,
       "conversation_cap",
       trimmed,
-      `We've gone back and forth a lot — I've passed this to a person at ${settings.business_name} so you get a proper answer.`,
+      `We've gone back and forth a lot. I've passed this to a person at ${settings.business_name} so you get a proper answer.`,
       0,
       "capped",
       replyAt(),
@@ -604,7 +604,7 @@ export async function postCustomerMessage(
       conversation,
       "cost_cap",
       trimmed,
-      `I've passed this to a person at ${settings.business_name} — they'll follow up with you from here.`,
+      `I've passed this to a person at ${settings.business_name}. They'll follow up with you from here.`,
       0,
       "capped",
       replyAt(),
@@ -634,7 +634,7 @@ export async function postCustomerMessage(
         conversation,
         "no_answer",
         trimmed,
-        `I can't answer that right now, so I've passed it to a person at ${settings.business_name} — they'll pick up from here.`,
+        `I can't answer that right now, so I've passed it to a person at ${settings.business_name}. They'll pick up from here.`,
         0,
         "question",
         replyAt(),
@@ -668,7 +668,7 @@ export async function postCustomerMessage(
         conversation,
         "customer_asked",
         trimmed,
-        `Of course — I've passed this to a person at ${settings.business_name}. They'll pick up from here with everything you've written.`,
+        `Of course. I've passed this to a person at ${settings.business_name}. They'll pick up from here with everything you've written.`,
         intentCost,
         intent,
         replyAt(),
@@ -678,7 +678,7 @@ export async function postCustomerMessage(
     if (intent === "social") {
       const row = await sayTo(
         conversation.id,
-        `Hello! Ask me anything about ${settings.business_name} — and if you'd rather talk to a person, just say so.`,
+        `Hello! Ask me anything about ${settings.business_name}, and if you'd rather talk to a person, just say so.`,
         intentCost,
         replyAt(),
       );
@@ -696,7 +696,7 @@ export async function postCustomerMessage(
     const entries = await publicKnowledge(conversation.profile_id);
     const selected = selectEntries(trimmed, entries);
     const handover =
-      `I don't have an approved answer for that, so I'm not going to guess — I've passed it to a ` +
+      `I don't have an approved answer for that, so I'm not going to guess. I've passed it to a ` +
       `person at ${settings.business_name}.`;
     if (selected.length === 0) {
       return escalate(conversation, "no_answer", trimmed, handover, intentCost, intent, replyAt());

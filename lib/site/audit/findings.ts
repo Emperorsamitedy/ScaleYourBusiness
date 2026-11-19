@@ -25,6 +25,7 @@ import { format, money, roundMinorTo, scaleMinor } from "../../core/money";
 import type { DiagnosisFinding, Severity } from "../../diagnosis/findings";
 import { intlNumber, presentMoney } from "../../i18n/format";
 import type { AppLocale } from "../../i18n/locales";
+import { rangeOf } from "../../i18n/range";
 import { intlTag } from "../../i18n/locales";
 import type { Tr } from "../../i18n/tr";
 import { fixed, joinSentences, plain, siteEnglish } from "../say";
@@ -213,8 +214,8 @@ function lostRange(locale: AppLocale): string {
   const low = SPEED_RULE_OF_THUMB.lost_per_second.low * 100;
   const high = SPEED_RULE_OF_THUMB.lost_per_second.high * 100;
   return locale === "en"
-    ? `${low.toFixed(0)}–${high.toFixed(0)}%`
-    : `${intlNumber(low, 0, locale)}–${percent(high, 0, locale)}`;
+    ? `${low.toFixed(0)} to ${high.toFixed(0)}%`
+    : rangeOf(intlNumber(low, 0, locale), percent(high, 0, locale), locale);
 }
 
 /** Pure: how a computed € line was worked out, in words. */
@@ -713,7 +714,7 @@ export function euroWords(
   format: (minor: number, currency: string) => string,
 ): string {
   if (!euro.computed) return euro.why;
-  return `about ${format(euro.low_minor, euro.currency)}–${format(euro.high_minor, euro.currency)} a month at stake (${euro.window})`;
+  return `about ${format(euro.low_minor, euro.currency)} to ${format(euro.high_minor, euro.currency)} a month at stake (${euro.window})`;
 }
 
 /* ── into the report ── */
@@ -763,5 +764,5 @@ export function auditSummary(findings: readonly SiteFinding[], pagesMeasured: nu
     .slice(0, 5)
     .map((f) => `${f.severity}: ${f.title.en}`)
     .join("; ");
-  return `Site audit (measured): ${findings.length} finding${findings.length === 1 ? "" : "s"} — ${head}.`;
+  return `Site audit (measured): ${findings.length} finding${findings.length === 1 ? "" : "s"}: ${head}.`;
 }

@@ -89,7 +89,7 @@ const PATTERN_REASONS: readonly [
   ["cap", /^past the (\d+)-page limit per competitor$/, (m) => ({ pages: Number(m[1]) })],
   ["answered", /^the page answered (\d+)$/, (m) => ({ status: m[1]! })],
   ["timeout", /^no answer within (\d+) seconds$/, (m) => ({ seconds: Number(m[1]) })],
-  ["resolve", /^"(.+)" doesn't resolve — is the address right\?$/, (m) => ({ host: m[1]! })],
+  ["resolve", /^"(.+)" doesn't resolve\. Is the address right\?$/, (m) => ({ host: m[1]! })],
   [
     "ports",
     /^only http\(s\) on the standard ports (\d+) and (\d+) can be read$/,

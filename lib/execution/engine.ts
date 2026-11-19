@@ -344,7 +344,7 @@ export async function executeProposal(args: ExecuteArgs): Promise<ExecutionRow> 
   if (await isHalted(ctx.account_id)) {
     throw new ExecutionRefused(
       "halted",
-      "the emergency stop is on — nothing executes until you resume",
+      "the emergency stop is on: nothing executes until you resume",
     );
   }
 
@@ -389,7 +389,7 @@ export async function executeProposal(args: ExecuteArgs): Promise<ExecutionRow> 
   if (proposal.status !== "approved") {
     throw new ExecutionRefused(
       "not_approved",
-      `only an approved proposal can execute — this one is ${proposal.status}`,
+      `only an approved proposal can execute: this one is ${proposal.status}`,
     );
   }
 
@@ -430,13 +430,13 @@ export async function executeProposal(args: ExecuteArgs): Promise<ExecutionRow> 
   if (!decision) {
     throw new ExecutionRefused(
       "no_mode_decision",
-      "no mode decision on record — nothing executes before one",
+      "no mode decision on record: nothing executes before one",
     );
   }
   if (decision.mode === "watching") {
     throw new ExecutionRefused(
       "watching",
-      "this business is being watched, not changed — the watch blocks every write until it ends",
+      "this business is being watched, not changed: the watch blocks every write until it ends",
     );
   }
 
@@ -455,7 +455,7 @@ export async function executeProposal(args: ExecuteArgs): Promise<ExecutionRow> 
   if (!opSpec.reversible && claimed !== "hard") {
     throw new ExecutionRefused(
       "reversibility_lie",
-      `"${args.op}" cannot be undone, but the proposal was labelled "${claimed ?? "unknown"}" — irreversible actions are labelled before approval, not discovered after`,
+      `"${args.op}" cannot be undone, but the proposal was labelled "${claimed ?? "unknown"}": irreversible actions are labelled before approval, not discovered after`,
     );
   }
 
@@ -509,12 +509,12 @@ export async function executeProposal(args: ExecuteArgs): Promise<ExecutionRow> 
     if (await isHalted(ctx.account_id)) {
       throw new ExecutionRefused(
         "halted",
-        "the emergency stop is on — nothing executes until you resume",
+        "the emergency stop is on: nothing executes until you resume",
       );
     }
     throw new ExecutionRefused(
       "ladder_blocked",
-      `${spec?.label ?? args.provider.id} is at station 1 on the trust ladder — it can't act until it's raised. Nothing was sent; this stays approved.`,
+      `${spec?.label ?? args.provider.id} is at station 1 on the trust ladder: it can't act until it's raised. Nothing was sent; this stays approved.`,
     );
   }
   const verdict = await complianceCheck({
@@ -648,7 +648,7 @@ export async function executeProposal(args: ExecuteArgs): Promise<ExecutionRow> 
         .where(ownRun(execution));
       throw new ExecutionRefused(
         "reversibility_lie",
-        "the undo this op promises could not be captured — refusing to run without it",
+        "the undo this op promises could not be captured: refusing to run without it",
       );
     }
     await db
@@ -668,7 +668,7 @@ export async function executeProposal(args: ExecuteArgs): Promise<ExecutionRow> 
       await holdForStop(execution, attempt - 1, now());
       throw new ExecutionRefused(
         "halted",
-        "the emergency stop came on mid-flight — execution halted",
+        "the emergency stop came on mid-flight: execution halted",
       );
     }
     const started = Date.now();
@@ -694,7 +694,7 @@ export async function executeProposal(args: ExecuteArgs): Promise<ExecutionRow> 
         await holdForStop(execution, attempt, now(), lastError);
         throw new ExecutionRefused(
           "halted",
-          "the emergency stop came on mid-flight — execution halted",
+          "the emergency stop came on mid-flight: execution halted",
         );
       }
       if (hold !== null || isFinal(error)) break;
@@ -855,7 +855,7 @@ export async function undoExecution(args: {
   if (args.provider && args.provider.id !== execution.provider) {
     throw new ExecutionRefused(
       "not_undoable",
-      `this execution ran on ${execution.provider}, not ${args.provider.id} — undo goes through the provider that did it`,
+      `this execution ran on ${execution.provider}, not ${args.provider.id}: undo goes through the provider that did it`,
       422,
     );
   }
@@ -868,7 +868,7 @@ export async function undoExecution(args: {
     result: execution.result,
   };
   if (await isHalted(ctx.account_id)) {
-    throw new ExecutionRefused("halted", "the emergency stop is on — resume before undoing");
+    throw new ExecutionRefused("halted", "the emergency stop is on: resume before undoing");
   }
   // The Session D real-write gate (guard 6a) applies to an undo only when the
   // undo would INCREASE spend — re-activating a campaign SYB paused, or
@@ -891,13 +891,13 @@ export async function undoExecution(args: {
   if (decision?.mode === "watching") {
     throw new ExecutionRefused(
       "watching",
-      "this business is being watched, not changed — the watch blocks every write, undo included",
+      "this business is being watched, not changed: the watch blocks every write, undo included",
     );
   }
   if (execution.undo_payload === null) {
     throw new ExecutionRefused(
       "not_undoable",
-      "this action was labelled irreversible before you approved it — there is no undo",
+      "this action was labelled irreversible before you approved it: there is no undo",
     );
   }
   if (execution.status !== "succeeded") {

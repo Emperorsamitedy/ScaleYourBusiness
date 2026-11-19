@@ -516,7 +516,7 @@ describe("P6-04 nothing goes out without a recorded approval (rule 12)", () => {
       provider,
     });
     expect(out).toMatchObject({ result: "refused" });
-    expect(out.message).toMatch(/only an approved proposal can execute — this one is pending/);
+    expect(out.message).toMatch(/only an approved proposal can execute: this one is pending/);
     expect(calls).toHaveLength(0);
     expect(await runsOf(row.id)).toHaveLength(0);
   });

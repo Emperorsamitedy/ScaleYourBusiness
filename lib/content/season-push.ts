@@ -99,7 +99,7 @@ export function seasonOccasion(
   const range =
     u.run.high === null
       ? ""
-      : ` (your middle half of weeks: ${times(u.run.low)}–${times(u.run.high)})`;
+      : ` (your middle half of weeks: ${times(u.run.low)} to ${times(u.run.high)})`;
   return {
     ref: seasonPushRef(u),
     lead: `Ahead of your busy weeks from ${shortDate(u.starts_on)}`,
@@ -153,7 +153,7 @@ export async function proposeSeasonPush(
   if (!profile) return { status: "not_found", reason: "no such business" };
 
   const care = await careState(profileId);
-  if (!care) return { status: "held", reason: "not in care yet — no mode decision" };
+  if (!care) return { status: "held", reason: "not in care yet: no mode decision" };
   if (care.watch_ends_at && now.toISOString() < care.watch_ends_at) {
     return { status: "held", reason: watchingUntil(care.watch_ends_at) };
   }
@@ -185,7 +185,7 @@ export async function proposeSeasonPush(
   if (silenced) {
     return {
       status: "suppressed",
-      reason: `you've declined content calendars ${silenced.rejections} times — I've stopped proposing them`,
+      reason: `you've declined content calendars ${silenced.rejections} times: I've stopped proposing them`,
     };
   }
 

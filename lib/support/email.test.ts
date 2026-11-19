@@ -294,7 +294,7 @@ describe("P4-09 — routing, threading and idempotency", () => {
       consent_status: "unsure",
     });
     expect(contact?.consent_source).toMatch(
-      /^emailed support \d{4}-\d{2}-\d{2} — a support request is not marketing consent$/,
+      /^emailed support \d{4}-\d{2}-\d{2}: a support request is not marketing consent$/,
     );
 
     // The same delivery again: acknowledged, nothing filed twice.

@@ -278,8 +278,7 @@ export async function proposeFollowUps(
           profit_delta_monthly: null,
           formula: null,
         },
-        breakeven_condition:
-          "not computed — a follow-up costs nothing but a minute of your reading",
+        breakeven_condition: "not computed: a follow-up costs nothing but a minute of your reading",
       } as ScenarioBlock,
       reversibility: {
         level: "hard",
@@ -378,7 +377,7 @@ export async function draftFollowUp(
   }
   if (proposal.status !== "approved") {
     throw new FollowUpError(
-      `only an approved follow-up is drafted — this one is ${proposal.status}`,
+      `only an approved follow-up is drafted: this one is ${proposal.status}`,
       409,
     );
   }
@@ -395,10 +394,10 @@ export async function draftFollowUp(
         .from(deals)
         .where(and(eq(deals.id, dealId), eq(deals.profile_id, proposal.profile_id)))
     : [];
-  if (!deal) throw new FollowUpError("that deal is gone — it went with its contact", 410);
+  if (!deal) throw new FollowUpError("that deal is gone: it went with its contact", 410);
   if (!isOpenStage(deal.stage)) {
     throw new FollowUpError(
-      `that deal is ${STAGE_LABELS[deal.stage].toLowerCase()} now — no follow-up needed`,
+      `that deal is ${STAGE_LABELS[deal.stage].toLowerCase()} now: no follow-up needed`,
       409,
     );
   }
@@ -410,7 +409,7 @@ export async function draftFollowUp(
     throw new FollowUpError(`I can't draft an email to them now: ${permission.reason}`, 409);
   }
   if ((await outboundPosture(proposal.profile_id)) === "disabled") {
-    throw new FollowUpError('your 6.4b answer is "no consent" — outbound email is off', 409);
+    throw new FollowUpError('your 6.4b answer is "no consent": outbound email is off', 409);
   }
 
   // The caps, before any call.
@@ -425,13 +424,13 @@ export async function draftFollowUp(
     );
   if (Number(drafted?.n ?? 0) >= FOLLOWUP.drafts_per_month) {
     throw new FollowUpError(
-      `I've drafted ${FOLLOWUP.drafts_per_month} follow-ups this month, my limit — write this one yourself`,
+      `I've drafted ${FOLLOWUP.drafts_per_month} follow-ups this month, my limit: write this one yourself`,
       429,
     );
   }
   if ((await monthlySpendEur(deal.account_id, now)) >= FOLLOWUP.monthly_cap_eur) {
     throw new FollowUpError(
-      `this month's drafting budget for follow-ups (€${FOLLOWUP.monthly_cap_eur}) is used — write this one yourself`,
+      `this month's drafting budget for follow-ups (€${FOLLOWUP.monthly_cap_eur}) is used: write this one yourself`,
       429,
     );
   }

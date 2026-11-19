@@ -109,7 +109,7 @@ export class UnknownMetaCurrencyError extends Error {
   readonly retryable = false;
   constructor(currency: string) {
     super(
-      `Meta's currency table doesn't list ${currency}, so I won't send a budget in it — a wrong unit would be a budget 100× off. Nothing was changed.`,
+      `Meta's currency table doesn't list ${currency}, so I won't send a budget in it: a wrong unit would be a budget 100× off. Nothing was changed.`,
     );
     this.name = "UnknownMetaCurrencyError";
   }

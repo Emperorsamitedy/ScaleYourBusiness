@@ -195,7 +195,7 @@ async function call(
     }
     if (response.status === 403) {
       throw new ProviderError(
-        `square: the token is missing a permission${squareMessage(body) ? ` — ${squareMessage(body)}` : ""}`,
+        `square: the token is missing a permission${squareMessage(body) ? `: ${squareMessage(body)}` : ""}`,
       );
     }
     if (response.status !== 200) {

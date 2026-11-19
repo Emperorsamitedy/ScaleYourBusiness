@@ -163,7 +163,7 @@ export async function isOpen(measurementId: string): Promise<boolean> {
 export async function requireOpen(measurementId: string): Promise<void> {
   if (!(await isOpen(measurementId))) {
     throw new LedgerError(
-      "there is no open measurement plan for this action — nothing runs without one",
+      "there is no open measurement plan for this action: nothing runs without one",
     );
   }
 }

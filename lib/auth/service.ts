@@ -147,11 +147,11 @@ export async function requestLogin(
 ): Promise<LoginRequest> {
   const email = normaliseEmail(rawEmail);
   if (!(await withinRateLimit(`login:email:${email}`, LOGIN_LIMIT_PER_EMAIL, LOGIN_WINDOW_MS))) {
-    throw new AuthError("too many sign-in links requested for that address — try again later", 429);
+    throw new AuthError("too many sign-in links requested for that address: try again later", 429);
   }
   const ip = clientIp?.trim();
   if (ip && !(await withinRateLimit(`login:ip:${ip}`, LOGIN_LIMIT_PER_IP, LOGIN_WINDOW_MS))) {
-    throw new AuthError("too many sign-in requests from this network — try again later", 429);
+    throw new AuthError("too many sign-in requests from this network: try again later", 429);
   }
   const chosen = cleanChoices(choices);
   const token = randomBytes(TOKEN_BYTES).toString("base64url");

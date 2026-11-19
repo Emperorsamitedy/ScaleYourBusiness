@@ -60,9 +60,9 @@ const AUTH_SUBCODE_REASON: Readonly<Record<number, string>> = {
  * connection itself carries the classified sentence (why it stopped).
  */
 export const PAUSED_WORK_SENTENCE: Readonly<Record<"publish" | "ad_change", string>> = {
-  publish: "I couldn't post — the connection expired. Reconnect and I'll pick up where I left off.",
+  publish: "I couldn't post: the connection expired. Reconnect and I'll pick up where I left off.",
   ad_change:
-    "I couldn't change the ad — the connection expired. Reconnect and I'll pick up where I left off.",
+    "I couldn't change the ad: the connection expired. Reconnect and I'll pick up where I left off.",
 };
 
 /** P3-24b: a refusal that pauses the execute connection itself — the auth class, and only it. */
@@ -139,7 +139,7 @@ export function classifyMetaError(args: {
     return {
       ...base,
       kind: "unavailable",
-      owner_sentence: `Meta didn't answer just now. Nothing was ${done} — I'll try again.`,
+      owner_sentence: `Meta didn't answer just now. Nothing was ${done}. I'll try again.`,
       connection_state: "connected",
       next_step: "wait",
       retryable: true,

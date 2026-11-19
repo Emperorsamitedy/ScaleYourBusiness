@@ -90,7 +90,7 @@ export function complianceFooter(
 ): string {
   const who = senderName ?? w.t("thisBusiness");
   return [
-    "—",
+    "---",
     postalAddress ? `${who} · ${postalAddress}` : who,
     w.t("why", { business: who, link: UNSUBSCRIBE_SLOT }),
   ].join("\n");
@@ -290,7 +290,7 @@ export async function draftCampaign(
         kind: "email",
         channel_label: `email · ${label}`,
         scheduled_for: null,
-        title: `${label} — campaign email`,
+        title: `${label}: campaign email`,
         body: `${cart ? `${words.t("greeting")}\n\n` : ""}${draft.body}\n\n${complianceFooter(senderName, postalAddress, words)}`,
         disclosure: disclosureLabel("email"),
         provenance: {

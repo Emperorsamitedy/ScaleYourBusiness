@@ -60,7 +60,7 @@ export function adReadiness(item: AdItemLike): AdReadiness {
     };
   }
   if (item.media_path === null) {
-    return { ok: false, reason: "it has no image or video yet — an ad needs one" };
+    return { ok: false, reason: "it has no image or video yet: an ad needs one" };
   }
   const kind = mediaKindOf(item.media_path);
   if (kind === null) return { ok: false, reason: "I can't tell what kind of media it carries" };
@@ -125,15 +125,15 @@ export function adScenario(a: AdScenarioArgs): AdScenario {
 
   const assumptions: ScenarioBlock["assumptions"] = [
     {
-      statement: `Spend: ${m(a.daily_minor)} a day for ${a.run_days} days, at most ${m(spend)} — Meta may spend less, never more over the run`,
+      statement: `Spend: ${m(a.daily_minor)} a day for ${a.run_days} days, at most ${m(spend)} (Meta may spend less, never more over the run)`,
       value: null,
       source_field: null,
       sensitivity: "low",
     },
     {
       statement: roas
-        ? `Return on ad spend: ${ratio(roas)} — Meta-attributed purchases ÷ spend, per rolling ${SIM.ads_block_days}-day week across your measured campaigns, middle half (${blocks.length} weeks)`
-        : `Return on ad spend: not measured — no campaign of yours has ${SIM.ads_min_measured_days} measured days in ${cur}`,
+        ? `Return on ad spend: ${ratio(roas)}; Meta-attributed purchases ÷ spend, per rolling ${SIM.ads_block_days}-day week across your measured campaigns, middle half (${blocks.length} weeks)`
+        : `Return on ad spend: not measured; no campaign of yours has ${SIM.ads_min_measured_days} measured days in ${cur}`,
       value: null,
       source_field: null,
       sensitivity: "high",
@@ -141,7 +141,7 @@ export function adScenario(a: AdScenarioArgs): AdScenario {
     {
       statement: margin.range
         ? `Your margin: ${valueText(margin.range, "rate", cur)} (${margin.source})`
-        : `Your margin: not known — ${margin.needs ?? "not known"}`,
+        : `Your margin: not known; ${margin.needs ?? "not known"}`,
       value: null,
       source_field: null,
       sensitivity: "medium",
@@ -155,7 +155,7 @@ export function adScenario(a: AdScenarioArgs): AdScenario {
     },
     {
       statement:
-        "Meta's attribution is its own — some of these purchases might have happened anyway",
+        "Meta's attribution is its own: some of these purchases might have happened anyway",
       value: null,
       source_field: null,
       sensitivity: "high",
@@ -167,7 +167,7 @@ export function adScenario(a: AdScenarioArgs): AdScenario {
     base_case: {
       case: "base",
       statement: revenue
-        ? `Up to ${m(spend)} spent over ${a.run_days} days, with about ${money2(revenue)} in purchases Meta attributes${profit ? ` — profit ${money2(profit)} after the spend` : ""}, if it returns what your campaigns' recent weeks did.`
+        ? `Up to ${m(spend)} spent over ${a.run_days} days, with about ${money2(revenue)} in purchases Meta attributes${profit ? ` (profit ${money2(profit)} after the spend)` : ""}, if it returns what your campaigns' recent weeks did.`
         : `Up to ${m(spend)} spent over ${a.run_days} days. What it brings back can't be sized yet: no campaign of yours has ${SIM.ads_min_measured_days} measured days.`,
       profit_delta_monthly: null,
       formula: roas
@@ -190,13 +190,13 @@ export function adScenario(a: AdScenarioArgs): AdScenario {
       case: "upside",
       statement: profit
         ? `The high end: ${m(profit.high)} over the run.`
-        : "It brings in more than it costs — not sizeable until your campaigns are measured.",
+        : "It brings in more than it costs: not sizeable until your campaigns are measured.",
       profit_delta_monthly: profit ? money_(profit.high) : null,
       formula:
         profit && roas ? `${m(spend)} × ${roas.high.toFixed(2)} × margin − ${m(spend)}` : null,
     },
     breakeven_condition: margin.range
-      ? `a return on ad spend of about ${(1 / Math.max(0.01, (margin.range.low + margin.range.high) / 2)).toFixed(2)} — 1 ÷ your margin`
+      ? `a return on ad spend of about ${(1 / Math.max(0.01, (margin.range.low + margin.range.high) / 2)).toFixed(2)} (1 ÷ your margin)`
       : "the purchases it brings in covering what it costs to deliver them, plus the spend",
   };
   return { scenario, spend_minor: spend, revenue, profit, roas };

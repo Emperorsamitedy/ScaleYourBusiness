@@ -107,7 +107,7 @@ const CAMPAIGNS: Record<"lapsed" | "vip", Campaign> = {
     segment: "vip",
     ref: "vip",
     summary: (n) => campaignSummary("vip", n),
-    what: "One email, in your voice, thanking the customers who buy most often or spend most — no offer attached unless you add one.",
+    what: "One email, in your voice, thanking the customers who buy most often or spend most. No offer attached unless you add one.",
     base: "They feel seen; the readback watches whether they keep buying.",
     upside: "The customers most worth keeping are the ones most worth thanking.",
   },
@@ -335,7 +335,7 @@ export async function proposeFromSegments(
           downside_case: {
             case: "downside",
             statement:
-              "Nobody answers, and a few unsubscribe — honoured immediately and permanently.",
+              "Nobody answers, and a few unsubscribe (honoured immediately and permanently).",
             profit_delta_monthly: null,
             formula: null,
           },
@@ -346,7 +346,7 @@ export async function proposeFromSegments(
             formula: null,
           },
           breakeven_condition:
-            "not computed — no per-customer revenue series exists yet to compute it from",
+            "not computed: no per-customer revenue series exists yet to compute it from",
         } as ScenarioBlock,
         opts.simulation,
       ) as never,

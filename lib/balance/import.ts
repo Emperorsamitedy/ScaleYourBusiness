@@ -250,12 +250,12 @@ export function statementBalances(
   const col = mapBalanceHeader(header);
   if (col.date === -1) {
     throw new BalanceImportError(
-      "no date column found — the header needs a date (date, booking date)",
+      "no date column found: the header needs a date (date, booking date)",
     );
   }
   if (col.balance === -1) {
     throw new BalanceImportError(
-      "no balance column found — the statement needs the running balance after each row (balance, running balance). A file of amounts alone can't say what was in the account.",
+      "no balance column found: the statement needs the running balance after each row (balance, running balance). A file of amounts alone can't say what was in the account.",
     );
   }
   const body = rows.slice(1);
@@ -302,7 +302,7 @@ export function statementBalances(
     );
   }
   if (read.length === 0) {
-    throw new BalanceImportError("no row in the file could be read — nothing was imported");
+    throw new BalanceImportError("no row in the file could be read: nothing was imported");
   }
 
   // Newest first or oldest first, by the file's own dates; both ways is refused.
@@ -314,7 +314,7 @@ export function statementBalances(
   }
   if (up && down) {
     throw new BalanceImportError(
-      "the rows aren't in date order, so I can't tell which balance closed each day — export the statement sorted by date",
+      "the rows aren't in date order, so I can't tell which balance closed each day: export the statement sorted by date",
     );
   }
   const latestFirst = down;
@@ -336,7 +336,7 @@ export function statementBalances(
   }
   if (closing.size === 0) {
     throw new BalanceImportError(
-      "the rows of that one day disagree and the file can't say which came last — nothing was imported",
+      "the rows of that one day disagree and the file can't say which came last: nothing was imported",
     );
   }
 
@@ -357,7 +357,7 @@ export function statementBalances(
     Math.round((Date.parse(`${through}T00:00:00Z`) - Date.parse(`${from}T00:00:00Z`)) / DAY_MS) + 1;
   if (span > BALANCE_IMPORT_LIMITS.max_days) {
     throw new BalanceImportError(
-      `one import covers up to ${BALANCE_IMPORT_LIMITS.max_days} days — split the statement`,
+      `one import covers up to ${BALANCE_IMPORT_LIMITS.max_days} days: split the statement`,
       413,
     );
   }

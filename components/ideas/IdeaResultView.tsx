@@ -39,7 +39,7 @@ function leverValue(l: Lever, key: "stated" | "breaking_point", f: Fmt): string 
 }
 
 function survivalText(r: SurvivalRate | null, f: Fmt): string {
-  return r ? f.pctOf(r.pct) : "—";
+  return r ? f.pctOf(r.pct) : "-";
 }
 
 function SectorP({
@@ -247,7 +247,7 @@ export function IdeaResultView({
                 customers: f.count(answers.customers_month),
                 revenue: f.big(m.at_plan.revenue_minor),
                 profit: f.big(m.at_plan.profit_minor),
-                margin: m.at_plan.margin_bp === null ? "—" : f.bp(m.at_plan.margin_bp),
+                margin: m.at_plan.margin_bp === null ? "-" : f.bp(m.at_plan.margin_bp),
               })}
             </p>
           )}

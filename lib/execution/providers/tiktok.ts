@@ -288,7 +288,7 @@ export class TikTokNoAnswerError extends Error {
 /** Rule 17: an init body that would go out undisclosed. Never sent. */
 export class UndisclosedTikTokPostError extends Error {
   constructor(reason: string) {
-    super(`refusing to post to TikTok without its AI disclosure: ${reason} — nothing was sent`);
+    super(`refusing to post to TikTok without its AI disclosure: ${reason}: nothing was sent`);
     this.name = "UndisclosedTikTokPostError";
   }
 }
@@ -713,7 +713,7 @@ export interface TikTokPublishBackend {
 }
 
 export const TIKTOK_MAY_HAVE_POSTED =
-  "I may have posted this — check TikTok. TikTok didn't confirm it, and I won't post it again.";
+  "I may have posted this: check TikTok. TikTok didn't confirm it, and I won't post it again.";
 export const TIKTOK_STILL_PROCESSING =
   "TikTok is still processing this post. I'll check again on the next run, and I won't post it again.";
 export const TIKTOK_NOT_AS_APPROVED =
@@ -755,11 +755,11 @@ function publishParams(params: Record<string, unknown>): PublishParams {
   const platform = params["platform"];
   const target = params["target"] as Record<string, unknown> | null | undefined;
   if (typeof itemId !== "string" || platform !== "tiktok") {
-    throw new PublishError("the publish plan names no item for TikTok — nothing was sent");
+    throw new PublishError("the publish plan names no item for TikTok: nothing was sent");
   }
   const openId = target?.["open_id"];
   if (typeof openId !== "string" || openId === "") {
-    throw new PublishError("the publish plan names no TikTok account — nothing was sent");
+    throw new PublishError("the publish plan names no TikTok account: nothing was sent");
   }
   return { item_id: itemId, open_id: openId };
 }
@@ -1202,7 +1202,7 @@ function publishProvider(
 
     async preflight(op, params, pctx): Promise<PreflightRefusal | null> {
       if (op !== "publish_tiktok_video") {
-        return { code: "refused", message: `"${op}" isn't a TikTok op — nothing was sent` };
+        return { code: "refused", message: `"${op}" isn't a TikTok op: nothing was sent` };
       }
       const b = await loadBackend();
       let p: PublishParams;
@@ -1213,12 +1213,12 @@ function publishProvider(
       }
       const item = await b.item(p.item_id, pctx.profile_id);
       if (!item)
-        return { code: "refused", message: "the item to publish is gone — nothing was sent" };
+        return { code: "refused", message: "the item to publish is gone: nothing was sent" };
       if (item.status === "publishing" || item.status === "published") return null;
       if (item.status !== "drafted" && item.status !== "queued") {
         return {
           code: "refused",
-          message: `it is ${item.status}, so it isn't published — nothing was sent`,
+          message: `it is ${item.status}, so it isn't published: nothing was sent`,
         };
       }
       const refuse = async (refusal: PreflightRefusal): Promise<PreflightRefusal> => {
@@ -1281,11 +1281,11 @@ function publishProvider(
 
     async execute(op, params, pctx) {
       if (op !== "publish_tiktok_video")
-        throw new PublishError(`"${op}" isn't a TikTok op — nothing was sent`);
+        throw new PublishError(`"${op}" isn't a TikTok op: nothing was sent`);
       const b = await loadBackend();
       const p = publishParams(params);
       const item = await b.item(p.item_id, pctx.profile_id);
-      if (!item) throw new PublishError("the item to publish is gone — nothing was sent");
+      if (!item) throw new PublishError("the item to publish is gone: nothing was sent");
       if (item.status === "published" && item.platform_post_id !== null) {
         return {
           platform: "tiktok",
@@ -1311,7 +1311,7 @@ function publishProvider(
         return settle(b, await readBack(b, item, cred, pctx.account_id), item, pctx.account_id);
       }
       if (item.status !== "drafted" && item.status !== "queued") {
-        throw new PublishError(`it is ${item.status}, so it isn't published — nothing was sent`);
+        throw new PublishError(`it is ${item.status}, so it isn't published: nothing was sent`);
       }
       if (!asApproved(item)) throw new PublishError(TIKTOK_NOT_AS_APPROVED);
       const caption = publishCaption(item);
@@ -1320,7 +1320,7 @@ function publishProvider(
         caption_sha256: captionHash(caption),
       };
       if (!(await b.claim(item.id, pctx.execution_id ?? null, attempt))) {
-        throw new PublishError("the item changed before it could be sent — nothing was sent");
+        throw new PublishError("the item changed before it could be sent: nothing was sent");
       }
       const note = async (patch: Partial<TikTokPublishAttempt>) => {
         Object.assign(attempt, patch);

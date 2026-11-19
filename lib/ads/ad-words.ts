@@ -7,7 +7,7 @@ export const CREATES_PAUSED_NOTE =
   "Creates paused; going live is a separate approval; created objects can't be deleted, only paused.";
 
 export const AD_RUN_UNDO =
-  "Everything is created paused, so nothing spends until you approve going live. Meta's campaigns, ad sets, creatives and ads can't be deleted once made — only paused, and paused they spend nothing.";
+  "Everything is created paused, so nothing spends until you approve going live. Meta's campaigns, ad sets, creatives and ads can't be deleted once made, only paused, and paused they spend nothing.";
 
 export const GO_LIVE_UNDO =
   "Pause it again: the campaign, its ad set and its ad go back to paused, and spending stops.";

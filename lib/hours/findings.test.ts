@@ -119,7 +119,7 @@ describe("P2-30 — findings from the analysis", () => {
     const early = block!.findings.find((f) => f.signal === "too_early")!;
     expect(early.weekdays).toEqual(["mon", "tue"]);
     expect(early.title).toBe(
-      "Too early to judge Mondays and Tuesdays — about 3 more weeks of measured sales",
+      "Too early to judge Mondays and Tuesdays: about 3 more weeks of measured sales",
     );
     expect(early.arithmetic).toEqual([
       "Mondays: 3 of 4 measured days",

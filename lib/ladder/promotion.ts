@@ -123,7 +123,7 @@ async function connectorHealthy(
     ? { met: true, detail: `a connected source measures its ${metric.replace(/_/g, " ")}` }
     : {
         met: false,
-        detail: `connect a source that measures ${metric.replace(/_/g, " ")} first${(failing?.n ?? 0) > 0 ? " — one of yours needs reconnecting" : ""}`,
+        detail: `connect a source that measures ${metric.replace(/_/g, " ")} first${(failing?.n ?? 0) > 0 ? " (one of yours needs reconnecting)" : ""}`,
       };
 }
 
@@ -268,7 +268,7 @@ export async function changeStation(args: {
 }): Promise<Eligibility> {
   if (args.to === 4) {
     throw new LadderError(
-      "station 4 needs its limits and a separate confirmation — ask for it, then confirm it",
+      "station 4 needs its limits and a separate confirmation: ask for it, then confirm it",
       409,
     );
   }
@@ -361,10 +361,10 @@ export async function confirmPromotion(args: {
       ),
     );
   if (!req || req.withdrawn_at !== null || req.confirmed_at !== null) {
-    throw new LadderError("there's no open request to confirm — ask again", 404);
+    throw new LadderError("there's no open request to confirm: ask again", 404);
   }
   if (Date.parse(req.expires_at) < now.getTime()) {
-    throw new LadderError("that request has run out — ask again, then confirm", 409);
+    throw new LadderError("that request has run out: ask again, then confirm", 409);
   }
   const e = await eligibility({
     profileId: args.profileId,
@@ -373,7 +373,7 @@ export async function confirmPromotion(args: {
     to: 4,
   });
   if (!e.eligible) {
-    throw new LadderError("the evidence changed since you asked — it isn't eligible now", 409);
+    throw new LadderError("the evidence changed since you asked: it isn't eligible now", 409);
   }
   await db
     .update(promotionRequests)

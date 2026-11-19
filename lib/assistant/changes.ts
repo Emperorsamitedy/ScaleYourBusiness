@@ -270,7 +270,7 @@ const linkOnly = (
 });
 
 const already = (entry: CatalogueEntry, lead: string, current: string, slot?: string | null) =>
-  linkOnly(entry, `${lead} — so there's nothing to change.`, current, slot);
+  linkOnly(entry, `${lead}, so there's nothing to change.`, current, slot);
 
 function prepared(
   entry: CatalogueEntry,
@@ -288,7 +288,7 @@ function prepared(
   const how =
     entry.prepare === "proposal"
       ? `I've drafted it below: “${entry.confirm}” sends it to your approval queue, and nothing happens until you approve it there.`
-      : `I've drafted the change below — nothing changes until you press “${entry.confirm}”.`;
+      : `I've drafted the change below. Nothing changes until you press “${entry.confirm}”.`;
   return {
     status: "prepared",
     reply: [
@@ -313,7 +313,7 @@ function prepared(
 function periodsWords(periods: readonly OpenPeriod[] | null | undefined): string {
   if (periods === null || periods === undefined) return "not stated";
   if (periods.length === 0) return "closed";
-  return periods.map((p) => `${p.open}–${p.close}`).join(", ");
+  return periods.map((p) => `${p.open} to ${p.close}`).join(", ");
 }
 
 /** A schedule back into the words the hours answer is written in — deterministic, readable on the door. */
@@ -357,7 +357,7 @@ const hoursHandler: Handler = {
     if (days.length > 1) {
       return asked(
         entry,
-        `One day at a time, so nothing changes that you didn't mean — which first: ${days
+        `One day at a time, so nothing changes that you didn't mean. Which first: ${days
           .map((d) => DAY_NAME[d])
           .join(" or ")}?`,
       );
@@ -365,7 +365,7 @@ const hoursHandler: Handler = {
     const day = days[0] as Weekday;
     const { open, close, closed } = change.params;
     if (!closed && (!open || !close)) {
-      return asked(entry, `What hours on ${DAY_NAME[day]}? For example 10:00–16:00, or closed.`);
+      return asked(entry, `What hours on ${DAY_NAME[day]}? For example 10:00 to 16:00, or closed.`);
     }
     const schedule = await readSchedule(ctx);
     const known = schedule !== null && !schedule.unstated.includes(day);
@@ -574,7 +574,7 @@ async function prepareFact(
   if (!question) {
     return linkOnly(
       entry,
-      `Your ${label} is ${now}. That one isn't an answer I can change from chat — the page shows where it comes from.`,
+      `Your ${label} is ${now}. That one isn't an answer I can change from chat: the page shows where it comes from.`,
       now,
       slot,
     );
@@ -597,7 +597,7 @@ async function prepareFact(
   if (rec && rec.field.source.kind === "connector") {
     return linkOnly(
       entry,
-      `Your ${label} is ${now}, measured from your connection. I don't overwrite a measurement from chat — the page shows it beside what you told me.`,
+      `Your ${label} is ${now}, measured from your connection. I don't overwrite a measurement from chat: the page shows it beside what you told me.`,
       now,
       slot,
     );
@@ -632,7 +632,7 @@ async function prepareFact(
     const pct = Math.round(wire * 100 * 1000) / 1000;
     return asked(
       entry,
-      `Did you mean ${pct} %? I keep your ${label} as the number of percent — ${pct} for ${pct} %. Say ${pct} %, or ${wire} % if it really is that small.`,
+      `Did you mean ${pct} %? I keep your ${label} as the number of percent: ${pct} for ${pct} %. Say ${pct} %, or ${wire} % if it really is that small.`,
       slot,
     );
   }
@@ -652,7 +652,7 @@ async function prepareFact(
         : spec.type === "number" && (spec.min !== undefined || spec.max !== undefined)
           ? `a number${spec.min !== undefined ? ` from ${spec.min}` : ""}${spec.max !== undefined ? ` ${spec.min !== undefined ? "to" : "up to"} ${spec.max}` : ""}`
           : (TYPE_WORD[spec.type] ?? "a value");
-    return asked(entry, `I need ${want} for your ${label} — what should it be?`, slot);
+    return asked(entry, `I need ${want} for your ${label}. What should it be?`, slot);
   }
   const value = coerced.value;
   const proposed =
@@ -707,7 +707,7 @@ const factHandler: Handler = {
     if (!subject) {
       return asked(
         entry,
-        "Which fact do you mean? Name it as the fact sheet does — for example “average order value”.",
+        "Which fact do you mean? Name it as the fact sheet does, for example “average order value”.",
       );
     }
     const match = await matchFact(ctx.profileId, subject);
@@ -721,7 +721,7 @@ const factHandler: Handler = {
     if ("ambiguous" in match) {
       return asked(
         entry,
-        `Which one — ${match.ambiguous.map((k) => quote(keyLabel(k))).join(" or ")}?`,
+        `Which one: ${match.ambiguous.map((k) => quote(keyLabel(k))).join(" or ")}?`,
       );
     }
     // A fact another row owns is changed by that row's rules (the hours by the day).
@@ -803,7 +803,7 @@ const ruleHandler: Handler = {
         existing === ""
           ? "You have no standing rules yet."
           : `Your standing rules now read ${quote(existing.replace(/\n/g, " · "))}.`,
-      extra: "Once added, a rule can't be removed from chat — limits exist to survive a bad day.",
+      extra: "Once added, a rule can't be removed from chat: limits exist to survive a bad day.",
       summary: `Add the standing rule ${quote(rule)}`,
       current: existing === "" ? "no standing rules" : existing.replace(/\n/g, " · "),
       proposed: rule,
@@ -874,7 +874,7 @@ const goalHandler: Handler = {
     if (!goal) {
       return asked(
         entry,
-        `Which goal — ${goals
+        `Which goal: ${goals
           .slice(0, 3)
           .map((g) => quote(g.statement ?? ""))
           .join(" or ")}?`,
@@ -989,7 +989,7 @@ const replyTimeHandler: Handler = {
     }
     const hours = change.params.hours;
     if (hours !== null && (!Number.isInteger(hours) || hours < 1 || hours > 720)) {
-      return asked(entry, "A reply time is a whole number of hours, from 1 to 720 — how many?");
+      return asked(entry, "A reply time is a whole number of hours, from 1 to 720. How many?");
     }
     if (hours === current)
       return already(entry, `It's already ${hoursWords(current)}`, hoursWords(current));
@@ -1028,7 +1028,7 @@ const notifyHandler: Handler = {
   async prepare(ctx, change, entry) {
     const settings = await settingsForProfile(ctx.profileId);
     const current = settings?.notify_owner ?? true;
-    const words = (on: boolean) => (on ? "on — you're emailed" : "off — no email");
+    const words = (on: boolean) => (on ? "on: you're emailed" : "off: no email");
     if (change.params.on === undefined) {
       return asked(entry, `Ticket emails are ${words(current)} now. On or off?`);
     }
@@ -1079,7 +1079,7 @@ const stopHandler: Handler = {
     }
     return prepared(entry, {
       nowLine: "Everything is running now.",
-      summary: "Stop everything I do for you — anything queued or scheduled is held",
+      summary: "Stop everything I do for you: anything queued or scheduled is held",
       current: "running",
       proposed: "stopped",
       payload: {},
@@ -1119,7 +1119,7 @@ const resumeHandler: Handler = {
           `Everything is stopped, since ${(state.halted_at ?? "").slice(0, 10)}.`,
           "stopped",
         )
-      : linkOnly(entry, "Nothing is stopped right now — everything is running.", "running");
+      : linkOnly(entry, "Nothing is stopped right now: everything is running.", "running");
   },
 };
 
@@ -1171,7 +1171,7 @@ async function watchingLink(ctx: Ctx, entry: CatalogueEntry): Promise<Prepared |
   if (decision?.mode !== "watching") return null;
   return linkOnly(
     entry,
-    `I can't queue anything while I'm watching — the watch runs to ${decision.review_at.slice(0, 10)} and blocks every request, however it's phrased. The page shows what's there now.`,
+    `I can't queue anything while I'm watching: the watch runs to ${decision.review_at.slice(0, 10)} and blocks every request, however it's phrased. The page shows what's there now.`,
     null,
   );
 }
@@ -1367,13 +1367,13 @@ const contentHandler: Handler = {
     const describe = (i: { title: string; scheduled_for: string | null }) =>
       `${quote(i.title)}${i.scheduled_for ? ` on ${i.scheduled_for}` : ""}`;
     if (pool.length > 1) {
-      return asked(entry, `Which one — ${pool.slice(0, 3).map(describe).join(" or ")}?`);
+      return asked(entry, `Which one: ${pool.slice(0, 3).map(describe).join(" or ")}?`);
     }
     const item = pool[0] as (typeof items)[number];
     if (item.status !== EDITABLE_STATUS) {
       return linkOnly(
         entry,
-        `${describe(item)} is ${item.status === "queued" ? "already queued to publish" : item.status} — I only change drafts from chat.`,
+        `${describe(item)} is ${item.status === "queued" ? "already queued to publish" : item.status}: I only change drafts from chat.`,
         describe(item),
       );
     }
@@ -1498,7 +1498,7 @@ export async function prepareChange(
   if (change.count > 1) {
     return asked(
       entry,
-      "That's more than one change. I make one at a time, so nothing changes that you didn't mean — which should I do first?",
+      "That's more than one change. I make one at a time, so nothing changes that you didn't mean. Which should I do first?",
     );
   }
   const ctx: Ctx = { ...args, seams };
@@ -1621,7 +1621,7 @@ export async function confirmChange(args: {
   const entry = entryFor(row.kind);
   if (entry.signed_in && !args.signedIn) {
     throw new ChangeError(
-      `changing ${entry.thing} needs you signed in — the ${entry.screen} page asks the same`,
+      `changing ${entry.thing} needs you signed in: the ${entry.screen} page asks the same`,
       401,
     );
   }
@@ -1676,7 +1676,7 @@ export async function confirmChange(args: {
       const live = await handler.basisNow(ctx, row);
       if (live.basis !== row.basis) {
         return settle(
-          `Not changed: it moved since I drafted this — it's ${live.now} now. Ask me again if you still want it.`,
+          `Not changed: it moved since I drafted this (it's ${live.now} now). Ask me again if you still want it.`,
         );
       }
     }

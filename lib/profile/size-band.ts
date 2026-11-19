@@ -30,7 +30,7 @@ export const TEAM_SIZE_KEY = "identity.team_size";
  * EU's "small", and "large" is the EU's medium and up.
  */
 export const SIZE_BAND_METHOD =
-  "EU SME headcount bands on team size: 1 → solo, 2–9 → small, 10–49 → medium, 50+ → large";
+  "EU SME headcount bands on team size: 1 → solo, 2 to 9 → small, 10 to 49 → medium, 50+ → large";
 
 /** Pure: the formula. Null for a headcount that names nobody. */
 export function bandForTeamSize(teamSize: number): SizeBand | null {

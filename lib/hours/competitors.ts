@@ -96,6 +96,6 @@ export function competitorLine(
     `${earlier} of the ${entry.known} competitor(s) whose hours we found open before you (${hh(ownFirst)})` +
     (earlier > 0 ? `, the earliest at ${hh(earliest)}` : "") +
     (entry.closed > 0 ? `; ${entry.closed} are closed that day` : "") +
-    " — from their own pages"
+    ", from their own pages"
   );
 }

@@ -224,7 +224,8 @@ export function buildPrompt(args: {
       ? wordsOf(args.item.body)
       : [planned?.focus, planned?.brief]
           .filter((x): x is string => typeof x === "string" && x.trim() !== "")
-          .join(". ") || args.item.title.replace(/^(Film for [^—]+— |Shot list — )/, "");
+          .join(". ") ||
+        args.item.title.replace(/^(Film for [^—:]+?(?: — |: )|Shot list(?: — |: ))/, "");
   const subject = args.direction?.trim() || fromItem;
   const parts = [
     args.media === "image"
@@ -326,7 +327,7 @@ export async function lockCaps(tx: DbTx, accountId: string): Promise<void> {
 export function capRefusal(room: CapRoom, next: Money): string | null {
   const currency = room.month_cap.currency;
   if (next.currency !== currency) {
-    return `the provider prices in ${next.currency} and the caps are in ${currency} — ScaleX doesn't convert money silently`;
+    return `the provider prices in ${next.currency} and the caps are in ${currency}: ScaleX doesn't convert money silently`;
   }
   if (room.item_spent.amount_minor + next.amount_minor > room.item_cap.amount_minor) {
     return `it would take this item past its ${format(room.item_cap)} cap (${format(room.item_spent)} spent on it so far)`;
@@ -363,14 +364,14 @@ export async function generationRefusal(item: ContentItemRow): Promise<string | 
   if (refusal) return refusal;
   if (item.kind === "post" && item.status !== "drafted") return `it is ${item.status}`;
   if (await hasFootageFor(item.profile_id, item.id)) {
-    return "it has your own footage — real footage always comes first";
+    return "it has your own footage: real footage always comes first";
   }
   const [clip] = await db
     .select({ id: footageClips.id })
     .from(footageClips)
     .where(and(eq(footageClips.item_id, item.id), eq(footageClips.status, "uploaded")))
     .limit(1);
-  if (clip) return "you've uploaded clips for it — cut those instead";
+  if (clip) return "you've uploaded clips for it: cut those instead";
   if (item.kind === "post" && item.media_path !== null) {
     return mediaOf(item.provenance)?.is_ai_generated
       ? "it already has a generated picture"
@@ -511,7 +512,7 @@ export async function proposeGeneration(args: {
     originating_finding: `generate:${item.id}`,
     action: {
       kind: GENERATION_KIND,
-      summary: `Generate ${what} for "${item.title}" with AI — about ${cost}, because there's no footage for it`,
+      summary: `Generate ${what} for "${item.title}" with AI: about ${cost}, because there's no footage for it`,
       detail: {
         target_item_id: item.id,
         media,
@@ -624,7 +625,7 @@ export async function generateFromProposal(args: {
   }
   if (proposal.status !== "approved") {
     throw new ContentError(
-      `only an approved proposal generates anything — this one is ${proposal.status}`,
+      `only an approved proposal generates anything: this one is ${proposal.status}`,
       409,
     );
   }
@@ -658,7 +659,7 @@ export async function generateFromProposal(args: {
     throw new ContentError("the proposal doesn't say what to generate", 422);
   }
   if (d.prompt_sha256 !== promptHash(d.prompt)) {
-    throw new ContentError("the prompt isn't the one you approved — nothing was generated", 409);
+    throw new ContentError("the prompt isn't the one you approved: nothing was generated", 409);
   }
   const prompt = d.prompt;
   const seconds = media === "video" ? GENERATED_CLIP_SECONDS : undefined;

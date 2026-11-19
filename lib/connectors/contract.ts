@@ -283,7 +283,7 @@ export function fromProvider(provider: Provider, options: ProviderConnectorOptio
         if (error instanceof ProviderError || error instanceof ScopeViolationError) {
           return { ok: false, reason: error.message };
         }
-        return { ok: false, reason: `${provider.label} couldn't be reached — try again shortly` };
+        return { ok: false, reason: `${provider.label} couldn't be reached: try again shortly` };
       }
     },
 

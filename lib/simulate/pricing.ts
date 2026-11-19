@@ -40,6 +40,7 @@ import { moneyText, num } from "../../components/sheet/num";
 import type { ArchetypeKey } from "../charts/profiles";
 import { minorUnitExponent, ratioBp, scaleMinor } from "../core/money";
 import type { AppLocale } from "../i18n/locales";
+import { rangeOf } from "../i18n/range";
 import { intlTag } from "../i18n/locales";
 import type { Tr } from "../i18n/tr";
 import type { Cell, Range } from "./model";
@@ -405,7 +406,7 @@ function responseInput(
   return {
     key: "response",
     ...labelled(t, "response"),
-    value: `${num(band.low, 1, L)} – ${num(band.high, 1, L)}`,
+    value: rangeOf(num(band.low, 1, L), num(band.high, 1, L), L),
     basis: "ASSUMED",
     source: t("responseSource", {
       one: wholePct(1, L),
@@ -691,7 +692,7 @@ export function simulatePrice(
   if (V !== null) {
     const after = volumeAfter(V, s, band, room);
     const vr = after.range;
-    const bandTerm = `${num(band.low, 1, L)} – ${num(band.high, 1, L)}`;
+    const bandTerm = rangeOf(num(band.low, 1, L), num(band.high, 1, L), L);
     measures.volume = {
       status: "range",
       range: { low: Math.round(vr.low), high: Math.round(vr.high) },
@@ -809,7 +810,7 @@ export function comparePrices(
 ): PriceComparison {
   if (changes.length > PRICING.max_changes) {
     throw new SimulateError(
-      `pick up to ${PRICING.max_changes} price changes to compare — ${changes.length} given`,
+      `pick up to ${PRICING.max_changes} price changes to compare: ${changes.length} given`,
     );
   }
   const { t } = wordsOf(w);

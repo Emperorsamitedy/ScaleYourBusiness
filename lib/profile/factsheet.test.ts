@@ -295,7 +295,7 @@ describe("rule 3 on the sheet — superseded values are kept and shown", () => {
       unparsed: [],
     });
     expect(words).toBe(
-      "Mon closed · Tue 20:00–01:00 · Wed not stated · Thu closed · Fri 20:00–02:00 · Sat closed · Sun closed",
+      "Mon closed · Tue 20:00 to 01:00 · Wed not stated · Thu closed · Fri 20:00 to 02:00 · Sat closed · Sun closed",
     );
     expect(scheduleWords({ code: "x" })).toBeNull();
     expect(displayValue({ amount_minor: 4_000, currency: "EUR" })).toBe("40 EUR");

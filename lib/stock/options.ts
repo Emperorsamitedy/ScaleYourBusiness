@@ -240,7 +240,7 @@ export function clearanceOptions(
         units,
         recovered,
         given_up: ZERO,
-        worst_case: "Nobody buys, and a few unsubscribe — honoured at once and for good.",
+        worst_case: "Nobody buys, and a few unsubscribe (honoured at once and for good).",
         arithmetic: tr("option.arithmetic.email", {
           customers: int(n, locale),
           low: pct(CLEARANCE.email_buy_rate[0]),

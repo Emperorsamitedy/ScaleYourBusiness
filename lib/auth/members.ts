@@ -512,7 +512,7 @@ async function acceptInvite(
         ),
       )
       .for("update");
-    if (!invite) throw new TeamError("that invite is no longer open — ask for a new one", 410);
+    if (!invite) throw new TeamError("that invite is no longer open: ask for a new one", 410);
     if (invite.email !== email) {
       // Never joins the wrong person, whatever link they hold.
       throw new TeamError(

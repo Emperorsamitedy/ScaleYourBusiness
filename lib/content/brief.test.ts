@@ -286,7 +286,7 @@ describe("P3-51 — the checks, in code", () => {
     expect(out.ok).toBe(false);
     if (!out.ok) {
       expect(out.reasons).toEqual([
-        `hook 3 repeats "every mug starts as a lump of clay" from another business's ad (A1) — say it in the owner's own words`,
+        `hook 3 repeats "every mug starts as a lump of clay" from another business's ad (A1): say it in the owner's own words`,
       ]);
     }
   });

@@ -184,7 +184,7 @@ export async function canEmailForMarketing(contact: ContactRow): Promise<EmailPe
   if (contact.consent_status !== "explicit_consent") {
     return {
       allowed: false,
-      reason: `consent is "${contact.consent_status.replace(/_/g, " ")}" — marketing needs explicit consent, recorded`,
+      reason: `consent is "${contact.consent_status.replace(/_/g, " ")}": marketing needs explicit consent, recorded`,
     };
   }
   return { allowed: true, reason: "explicit consent on record" };

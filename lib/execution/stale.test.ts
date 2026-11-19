@@ -28,7 +28,7 @@ describe("Review D #1 — a publish far past its time is not posted late", () =>
     expect(stalePublish(publish(), at(PUBLISH_STALE_AFTER_MS))).toBeNull();
     expect(stalePublish(publish(), at(-3_600_000))).toBeNull();
     expect(stalePublish(publish(), at(PUBLISH_STALE_AFTER_MS + 1))).toBe(
-      "I didn't post this — it was due on 31 October; propose it again if it still fits.",
+      "I didn't post this: it was due on 31 October; propose it again if it still fits.",
     );
   });
 
@@ -58,7 +58,7 @@ describe("Review D #1 — an ad change approved too long ago is not made", () =>
   it("in time for 14 days after approval; after that it lapses, in words", () => {
     expect(staleAdChange(ad, days(AD_APPROVAL_MAX_AGE_DAYS))).toBeNull();
     expect(staleAdChange(ad, new Date(days(AD_APPROVAL_MAX_AGE_DAYS).getTime() + 1))).toBe(
-      "I didn't make this change — you approved it on 1 October, and the numbers behind it are more than 14 days old now. Nothing was changed; it needs proposing again on fresh numbers.",
+      "I didn't make this change: you approved it on 1 October, and the numbers behind it are more than 14 days old now. Nothing was changed; it needs proposing again on fresh numbers.",
     );
     expect(staleAdChange({ ...ad, decided_at: null }, days(400))).toBeNull();
   });

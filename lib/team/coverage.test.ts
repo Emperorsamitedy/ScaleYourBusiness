@@ -440,7 +440,7 @@ describe("teamCoverage — the takings path", () => {
 describe("P5-19 — a range in words", () => {
   it("prints a spread as low–high", () => {
     expect(rangeWords({ low: 1.03, high: 1.13 }, 8, "Fridays")).toBe(
-      "(103–113% on the middle half of the 8 Fridays read)",
+      "(103 to 113% on the middle half of the 8 Fridays read)",
     );
   });
 

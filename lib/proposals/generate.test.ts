@@ -176,7 +176,7 @@ describe("P3-04 — generation", () => {
     );
     expect(out.skipped.map((x) => x.reason).sort()).toEqual([
       "owner declined this on the report",
-      "unclassifiable — not proposing on a guess",
+      "unclassifiable: not proposing on a guess",
     ]);
     // Declined rec never reached the classifier: 3 calls for 4 recs.
     expect(calls()).toBe(3);

@@ -108,7 +108,7 @@ export function abandonedCartSegment(
       .map((p) => ({ ref: p.ref, provider: p.provider, title: p.title, carts: p.carts.size }))
       .sort((a, b) => b.carts - a.carts || (a.ref < b.ref ? -1 : a.ref > b.ref ? 1 : 0)),
     evidence: [
-      `abandoned cart = a contact whose cart, left ${CARTS.winback_min_days}–${CARTS.winback_max_days} days before ${facts.today}, was never finished, with no later order of theirs on record`,
+      `abandoned cart = a contact whose cart, left ${CARTS.winback_min_days} to ${CARTS.winback_max_days} days before ${facts.today}, was never finished, with no later order of theirs on record`,
       `${n} contact${n === 1 ? "" : "s"} match; ${emailable_ids.length} hold explicit email consent and no suppression and weren't proposed a reminder in the last ${CARTS.recontact_days} days (${recently_proposed} were), ${excluded.no_consent} lack consent, ${excluded.suppressed} are suppressed`,
       `${unmatched} cart${unmatched === 1 ? "" : "s"} of the same days ${unmatched === 1 ? "is" : "are"} from shoppers who aren't your contacts or left no address I can read, so they aren't emailed`,
     ],

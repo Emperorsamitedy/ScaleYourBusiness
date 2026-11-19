@@ -31,6 +31,7 @@ import { num } from "../../components/sheet/num";
 import { shortDate } from "../charts/model";
 import type { AppLocale } from "../i18n/locales";
 import { intlTag } from "../i18n/locales";
+import { rangeOf } from "../i18n/range";
 import type { Tr } from "../i18n/tr";
 import { englishTr } from "../i18n/tr";
 
@@ -290,11 +291,11 @@ export function times(x: number): string {
   return `${(Math.round(x * 10) / 10).toFixed(1)}×`;
 }
 
-/** "2.1× (1.9–2.3×)" — the central figure and its range. */
+/** "2.1× (1.9 to 2.3×)": the central figure and its range. */
 export function ratioText(r: Ratio): string {
   const lo = (Math.round(r.low * 10) / 10).toFixed(1);
   const hi = r.high === null ? "?" : (Math.round(r.high * 10) / 10).toFixed(1);
-  return lo === hi ? times(r.index) : `${times(r.index)} (${lo}–${hi}×)`;
+  return lo === hi ? times(r.index) : `${times(r.index)} (${lo} to ${hi}×)`;
 }
 
 /** A multiple to one decimal in the reader's digits: times() in English. */
@@ -308,7 +309,9 @@ export function ratioIn(r: Ratio, locale: AppLocale = "en"): string {
   if (locale === "en") return ratioText(r);
   const lo = num(Math.round(r.low * 10) / 10, 1, locale);
   const hi = r.high === null ? "?" : num(Math.round(r.high * 10) / 10, 1, locale);
-  return lo === hi ? timesIn(r.index, locale) : `${timesIn(r.index, locale)} (${lo}–${hi}×)`;
+  return lo === hi
+    ? timesIn(r.index, locale)
+    : `${timesIn(r.index, locale)} (${rangeOf(lo, `${hi}×`, locale)})`;
 }
 
 /** A plain multiple as the code states it ("1.25×", "0.8×"), in the reader's digits. */

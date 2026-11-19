@@ -97,7 +97,7 @@ export const CHART_ARCHETYPES: Readonly<Record<ArchetypeKey, ChartArchetype>> = 
     volume: [ORDERS, VISITS],
     components: ["revenue_dips", "losing_ads", "on_the_table"],
     connect: "Connect your till through Square, or Stripe, and I'll draw this",
-    why: "Takings a day are the price and till orders the volume. Orders are bills, not covers — nothing measured counts guests, so the chart doesn't call them covers.",
+    why: "Takings a day are the price and till orders the volume. Orders are bills, not covers: nothing measured counts guests, so the chart doesn't call them covers.",
   },
   appointments: {
     bucket: "week",

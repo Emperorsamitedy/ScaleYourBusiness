@@ -200,9 +200,9 @@ describe("opening hours — ambiguity, then one superseding fact on the click", 
     const card = second.change;
     expect(card?.status).toBe("prepared");
     expect(card?.kind).toBe("opening_hours");
-    expect(card?.current_text).toBe("09:00–14:00");
-    expect(card?.proposed_text).toBe("10:00–16:00");
-    expect(second.reply.text).toContain("Your Saturday hours are 09:00–14:00 now");
+    expect(card?.current_text).toBe("09:00 to 14:00");
+    expect(card?.proposed_text).toBe("10:00 to 16:00");
+    expect(second.reply.text).toContain("Your Saturday hours are 09:00 to 14:00 now");
     expect(second.reply.text).not.toMatch(/\bdone\b/i);
     expect(card?.link).toBe("/profile?focus=fact-presence.opening_hours");
     // The question is closed by its answer.
@@ -244,8 +244,8 @@ describe("opening hours — ambiguity, then one superseding fact on the click", 
     expect(history).toHaveLength(2); // superseded, never overwritten
     expect(history[0]?.superseded_at).not.toBeNull();
     const now = history[1]?.field;
-    expect(now?.value).toContain("Sat 10:00–16:00");
-    expect(now?.value).toContain("Mon 09:00–17:00");
+    expect(now?.value).toContain("Sat 10:00 to 16:00");
+    expect(now?.value).toContain("Mon 09:00 to 17:00");
     expect(now?.value).toContain("Sun closed");
     expect(now?.source).toEqual({ kind: "conversation", utterance_id: second.owner.id });
     expect(now?.confidence).toBe(0.7);

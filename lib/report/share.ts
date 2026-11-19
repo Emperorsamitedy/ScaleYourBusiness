@@ -123,7 +123,7 @@ export async function createShare(args: {
 
   const active = await listShares({ accountId: args.accountId, profileId: args.profileId, now });
   if (active.filter((s) => s.status === "active").length >= MAX_ACTIVE_SHARES) {
-    throw new ShareError(`revoke a link first — at most ${MAX_ACTIVE_SHARES} can be open at once`);
+    throw new ShareError(`revoke a link first: at most ${MAX_ACTIVE_SHARES} can be open at once`);
   }
 
   const token = randomBytes(TOKEN_BYTES).toString("base64url");
