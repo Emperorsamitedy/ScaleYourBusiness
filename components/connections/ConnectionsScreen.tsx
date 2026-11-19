@@ -318,7 +318,7 @@ function GuideList({ provider }: { provider: ProviderOption }) {
       {provider.guide.map((g, i) => {
         const line = guideLine(t, provider.id, i, g);
         return (
-          <li key={g.scope}>
+          <li key={`${g.scope}:${i}`}>
             {t.rich("guide.line", { ...bold, grant: line.grant, why: line.why })}
           </li>
         );

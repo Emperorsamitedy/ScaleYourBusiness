@@ -54,6 +54,21 @@
   }
 }
 
+/* In the owner app nothing a person presses ends in an arrow (ux-spec §2; the
+   owner's third round, L7), and "How this works" opens the same way on every
+   screen: the plus and minus of components/sheet/Fold, in front of the words. */
+:root:has(.app-frame, .q-app, .rq) .why-fold > summary::after {
+  content: none;
+}
+:root:has(.app-frame, .q-app, .rq) .why-fold > summary::before {
+  content: "+";
+  display: inline-block;
+  width: 1ch;
+}
+:root:has(.app-frame, .q-app, .rq) .why-fold[open] > summary::before {
+  content: "\2212";
+}
+
 /* Sentence case: a label the classic look set in capitals starts with one
    (the owner app's type, app/sheet.css). In the classic look it follows the label. */
 :is(.why-fold > summary)::first-letter {

@@ -257,10 +257,15 @@
    buttons and links carry none"; the mockups the owner picked have none).
    The classic look drew one as a classless span, hidden from speech, at the
    end of a control: that span is not shown here. A disclosure that turns its
-   own marker (.q-evtoggle) keeps it. Outside the app nothing changes. */
+   own marker (.q-evtoggle) keeps it. Outside the app nothing changes.
+   The second form is the same arrow with words for a screen reader after it
+   ("Connect → Stripe" on Connections), where the arrow is not the last child. */
 :root:has(.app-frame, .q-app, .rq)
   :is(button, a):not(.q-evtoggle)
-  > span[aria-hidden="true"]:not([class]):last-child {
+  > span[aria-hidden="true"]:not([class]):last-child,
+:root:has(.app-frame, .q-app, .rq)
+  :is(button, a):not(.q-evtoggle)
+  > span[aria-hidden="true"]:not([class]):has(+ .sr-only:last-child) {
   display: none;
 }
 

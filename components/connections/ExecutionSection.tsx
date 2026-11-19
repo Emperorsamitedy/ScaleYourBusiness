@@ -181,8 +181,9 @@ function opWords(t: CnTr, o: Operation): string {
 function ConsentLines({ provider }: { provider: ExecProvider }) {
   return (
     <ul className="cn-consent">
-      {provider.consent.map((c) => (
-        <li key={c.scope}>
+      {provider.consent.map((c, i) => (
+        // One scope can stand behind two lines, so the scope alone is no key.
+        <li key={`${c.scope}:${i}`}>
           <span className="cn-consent-why">{c.why}</span>
           <span className="cn-scope">{c.grant}</span>
         </li>

@@ -92,6 +92,11 @@
 .wt-grid .cs {
   min-width: 0;
 }
+/* While a watch runs, each column is a stack of its own (WatchScreen): the
+   wrappers below only carry the reading order for a narrow screen. */
+.wt-stacks > .wt-side > * {
+  min-width: 0;
+}
 
 /* the signals table scrolls inside its card, never the page */
 .wt-table-wrap {
@@ -322,6 +327,29 @@
 @media (max-width: 1099px) {
   .wt-grid {
     grid-template-columns: minmax(0, 1fr);
+  }
+  /* One column again, in reading order: what is watched, what was noticed,
+     when it ends, the log, what would interrupt it. */
+  .wt-stacks > .wt-side {
+    display: contents;
+  }
+  .wt-o1 {
+    order: 1;
+  }
+  .wt-o2 {
+    order: 2;
+  }
+  .wt-o3 {
+    order: 3;
+  }
+  .wt-o4 {
+    order: 4;
+  }
+  .wt-o5 {
+    order: 5;
+  }
+  .wt-o6 {
+    order: 6;
   }
 }
 @media (max-width: 719px) {

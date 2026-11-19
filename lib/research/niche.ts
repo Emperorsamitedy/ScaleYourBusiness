@@ -550,7 +550,7 @@ export async function latestNicheRead(profileId: string): Promise<NicheReadRow |
 
 /** The honesty the screen prints beside the ads, every time. */
 export const NICHE_CAVEATS = [
-  "Meta's Ad Library shows no results for ordinary business ads: no spend, no reach, no sales. I rank by how long an ad has run and how many versions its business keeps live — advertisers rarely keep paying for an ad that doesn't work, but it is a proxy, not a measurement.",
+  "Meta's Ad Library shows no results for ordinary business ads: no spend, no reach, no sales. I rank by how long an ad has run and how many versions its business keeps live. Advertisers rarely keep paying for an ad that doesn't work, but it is a proxy, not a measurement.",
   "It covers ads that reached the EU or the UK. A business's ads elsewhere are not in it.",
   "Format is as far as the Library's fields tell: video or image from the search, and several headlines meaning several cards or versions.",
 ] as const;

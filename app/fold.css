@@ -46,18 +46,25 @@
   margin-bottom: 0;
 }
 
-/* On the desk (a screen's head or foot outside the paper sheets): desk ink. */
+/* On the desk (a screen's head or foot outside the paper sheets): desk ink.
+   A fold that is the screen's own child sits on the desk by position, so it
+   needs no class to be legible there (2026-11-19: several screens' last
+   "How this works" was paper ink on the dark desk). */
 .fold.on-desk > summary,
 .fold.on-desk .fold-body,
+.screen > .fold > summary,
+.screen > .fold .fold-body,
 .ph-notes .fold > summary,
 .ph-notes .fold .fold-body {
   color: var(--desk-ink-2);
 }
 .fold.on-desk > summary:hover,
+.screen > .fold > summary:hover,
 .ph-notes .fold > summary:hover {
   color: var(--desk-ink);
 }
 .fold.on-desk > summary:focus-visible,
+.screen > .fold > summary:focus-visible,
 .ph-notes .fold > summary:focus-visible {
   outline-color: var(--desk-ink);
 }
