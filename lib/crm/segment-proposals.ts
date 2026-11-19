@@ -203,7 +203,7 @@ export async function proposeFromSegments(
     out.skipped.push({
       segment: "all",
       reason:
-        'your own answer on customer consent (6.4b) was "no consent" — outbound email stays off until your data says otherwise',
+        'your own answer on customer consent (6.4b) was "no consent": outbound email stays off until your data says otherwise',
     });
     return out;
   }
@@ -268,7 +268,7 @@ export async function proposeFromSegments(
               ? cart
                 ? "no contact who said yes to email left a cart in the last week"
                 : "nobody is in this segment"
-              : `${segment.contact_ids.length} in the segment, none with explicit email consent — nothing to send to`,
+              : `${segment.contact_ids.length} in the segment, none with explicit email consent: nothing to send to`,
       });
       continue;
     }
@@ -276,7 +276,7 @@ export async function proposeFromSegments(
     if (suppression) {
       out.skipped.push({
         segment: segment.key,
-        reason: `you've declined customer email ${suppression.rejections} times — I've stopped proposing it`,
+        reason: `you've declined customer email ${suppression.rejections} times: I've stopped proposing it`,
       });
       continue;
     }

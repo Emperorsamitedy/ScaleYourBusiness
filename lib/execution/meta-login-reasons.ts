@@ -30,7 +30,7 @@ export const CONNECTIONS_REASONS = {
   meta_permission:
     "Facebook sign-in didn't finish: Meta says ScaleX isn't allowed to do that. Check the permissions listed on Connections and start again.",
   meta_busy:
-    "Facebook sign-in didn't finish: Meta was busy or didn't answer. Nothing was connected — try again in a few minutes.",
+    "Facebook sign-in didn't finish: Meta was busy or didn't answer. Nothing was connected. Try again in a few minutes.",
   meta_refused: "Facebook sign-in didn't finish: Meta refused it. Nothing was connected.",
   internal: "Something went wrong on our side. Nothing was connected.",
 } as const;

@@ -53,7 +53,7 @@ describe("the creative studio's words", () => {
         0,
         "studio",
       ),
-    ).toBe("Saltmarsh Pottery's video has run 143 days — the longest-running concept I found.");
+    ).toBe("Saltmarsh Pottery's video has run 143 days: the longest-running concept I found.");
     expect(
       studioHeadline({ set_up: true, blocked: null, last_read: null, groups: [] }, 2, "studio"),
     ).toBe("2 briefs written; I haven't read your niche's ads yet.");

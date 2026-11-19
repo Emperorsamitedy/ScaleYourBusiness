@@ -141,7 +141,7 @@ export async function consentToGoogleAds(
 ): Promise<{ connection: PublicExecutionConnection; consent_hash: string }> {
   if (!googleAdsPhraseMatches(args.confirmation)) {
     throw new ExecutionConnectionError(
-      `type "${GOOGLE_ADS_PHRASE}" to confirm — nothing was connected`,
+      `type "${GOOGLE_ADS_PHRASE}" to confirm: nothing was connected`,
       422,
     );
   }

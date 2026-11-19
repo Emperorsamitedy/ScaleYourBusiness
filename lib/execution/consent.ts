@@ -137,7 +137,7 @@ export async function consentToExecution(args: ConsentArgs): Promise<{
   const provider = args.provider;
   if (!confirmationMatches(provider, args.confirmation)) {
     throw new ExecutionConnectionError(
-      `type "${EXECUTION_SETUP[provider]?.confirm_phrase}" to confirm — nothing was connected`,
+      `type "${EXECUTION_SETUP[provider]?.confirm_phrase}" to confirm: nothing was connected`,
       422,
     );
   }

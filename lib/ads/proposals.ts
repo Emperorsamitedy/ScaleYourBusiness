@@ -446,7 +446,7 @@ async function recordAdChange(
     return {
       skipped: {
         ref,
-        reason: `you've declined this kind of ad change ${silenced.rejections} times — I've stopped proposing it`,
+        reason: `you've declined this kind of ad change ${silenced.rejections} times: I've stopped proposing it`,
       },
     };
   }
@@ -463,7 +463,7 @@ async function recordAdChange(
       return {
         skipped: {
           ref,
-          reason: `your ad ceiling is in ${ceiling.currency} and this campaign spends in ${c.currency} — I won't convert to compare them`,
+          reason: `your ad ceiling is in ${ceiling.currency} and this campaign spends in ${c.currency}: I won't convert to compare them`,
         },
       };
     }

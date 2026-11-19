@@ -109,7 +109,7 @@ export async function readbackForProposal(
 
   const day = await executedOn(proposal);
   if (!day) {
-    return { ...base, verdict: "unmeasured", arithmetic: "never executed — nothing to measure" };
+    return { ...base, verdict: "unmeasured", arithmetic: "never executed: nothing to measure" };
   }
   base.executed_on = day;
 
@@ -127,7 +127,7 @@ export async function readbackForProposal(
     return {
       ...base,
       verdict: "unmeasured",
-      arithmetic: "no measured revenue series — connect a source and the verdict becomes possible",
+      arithmetic: "no measured revenue series: connect a source and the verdict becomes possible",
     };
   }
   base.currency = series.currency;
@@ -141,14 +141,14 @@ export async function readbackForProposal(
     return {
       ...base,
       verdict: "unmeasured",
-      arithmetic: "no measured days before the action — no baseline to compare against",
+      arithmetic: "no measured days before the action: no baseline to compare against",
     };
   }
   if (after.days_measured < READBACK.min_after_days) {
     return {
       ...base,
       verdict: "too_early",
-      arithmetic: `${after.days_measured} measured day(s) since ${day} — the verdict needs ${READBACK.min_after_days}`,
+      arithmetic: `${after.days_measured} measured day(s) since ${day}: the verdict needs ${READBACK.min_after_days}`,
     };
   }
 
@@ -230,7 +230,7 @@ async function publishedItemReadback(proposal: ProposalRow, base: Base): Promise
       judged_on: "post",
       metric,
       verdict: "unmeasured",
-      arithmetic: "the published item is not on record — nothing to measure",
+      arithmetic: "the published item is not on record: nothing to measure",
     };
   }
   const post = await postOutcome(item);

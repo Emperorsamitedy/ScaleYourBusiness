@@ -142,7 +142,7 @@ export async function importDeals(
     );
   }
   if (csv.length > MAX_BYTES) {
-    throw new DealError("that file is too large for one import — split it", 413);
+    throw new DealError("that file is too large for one import: split it", 413);
   }
   const parsed = parseCsv(csv);
   if (parsed.length < 2) {

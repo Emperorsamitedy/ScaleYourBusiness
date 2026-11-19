@@ -64,8 +64,8 @@ export const NOT_BUILT =
   "Measured only. Judging the design from screenshots (site-audit §2, the vision layer) isn't built: no screenshot is taken and no model is asked.";
 
 export const REFUSAL_WORDS: Readonly<Record<NeverFollow, string>> = {
-  login_or_account: "a login or account page — the audit never signs in",
-  cart_action: "a link that changes a cart — the audit never adds to one",
-  checkout: "checkout — counted from the outside, never opened",
-  external_booking: "a booking page on another company's site — counted, not read",
+  login_or_account: "a login or account page: the audit never signs in",
+  cart_action: "a link that changes a cart: the audit never adds to one",
+  checkout: "checkout: counted from the outside, never opened",
+  external_booking: "a booking page on another company's site: counted, not read",
 };

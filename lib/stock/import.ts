@@ -172,7 +172,7 @@ export function stockFileObservations(
   observedAt: string,
 ): { observations: Observation[]; result: Omit<StockImportResult, "batch_id"> } {
   if (csv.length > STOCK_IMPORT_LIMITS.max_bytes) {
-    throw new StockImportError("that file is too large for one import — split it", 413);
+    throw new StockImportError("that file is too large for one import: split it", 413);
   }
   const rows = parseCsv(csv);
   if (rows.length < 2) throw new StockImportError("the file needs a header row and one item");

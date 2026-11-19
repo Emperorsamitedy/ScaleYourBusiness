@@ -256,7 +256,7 @@ export function parseMetaExecutionCredential(
   };
   if (c["page_access_token"] !== undefined && c["page_access_token"] !== "") {
     throw new ExecutionConnectionError(
-      "meta: a pasted Page token can't be checked against your consent — assign the Page to the system user instead, and ScaleX derives the Page token from it",
+      "meta: a pasted Page token can't be checked against your consent; assign the Page to the system user instead, and ScaleX derives the Page token from it",
       400,
     );
   }

@@ -102,7 +102,7 @@ export function executionSecret(row: ExecutionConnectionRow): string {
     throw new ExecutionConnectionError("not an execute connection", 422);
   }
   if (row.encrypted_secret === null) {
-    throw new ExecutionConnectionError("no credential at rest — reconnect the provider", 409);
+    throw new ExecutionConnectionError("no credential at rest: reconnect the provider", 409);
   }
   return decryptSecret(row.encrypted_secret);
 }
@@ -133,7 +133,7 @@ export async function connectForExecution(
   const existing = await activeExecutionConnection(args.accountId, provider);
   if (existing && existing.status !== "paused") {
     throw new ExecutionConnectionError(
-      `${EXECUTION_SCOPE_REGISTRY[provider].label} is already connected for execution — disconnect it first`,
+      `${EXECUTION_SCOPE_REGISTRY[provider].label} is already connected for execution: disconnect it first`,
       409,
     );
   }
@@ -159,7 +159,7 @@ export async function connectForExecution(
         .returning({ id: connections.id });
       if (retired.length !== 1) {
         throw new ExecutionConnectionError(
-          `${EXECUTION_SCOPE_REGISTRY[provider].label} changed while reconnecting — try again`,
+          `${EXECUTION_SCOPE_REGISTRY[provider].label} changed while reconnecting: try again`,
           409,
         );
       }

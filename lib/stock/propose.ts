@@ -322,7 +322,7 @@ export async function proposeClearance(
       if (silenced) {
         out.skipped.push({
           ref,
-          reason: `you've declined ${option.kind.replace(/_/g, " ")} ${silenced.rejections} times — I've stopped proposing it`,
+          reason: `you've declined ${option.kind.replace(/_/g, " ")} ${silenced.rejections} times: I've stopped proposing it`,
         });
         continue;
       }
@@ -369,7 +369,7 @@ export async function proposeClearance(
     else if (silenced) {
       out.skipped.push({
         ref,
-        reason: `you've declined customer email ${silenced.rejections} times — I've stopped proposing it`,
+        reason: `you've declined customer email ${silenced.rejections} times: I've stopped proposing it`,
       });
     } else {
       limits ??= (await ensureHardLimits(profileId, opts.limitLlm ?? liveLimitLlm)).limits;

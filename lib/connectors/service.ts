@@ -151,7 +151,7 @@ export async function connect(
     throw new ConnectorError("a credential is required", 400);
   }
   if (await activeConnection(accountId, providerId)) {
-    throw new ConnectorError(`${providerId} is already connected — disconnect it first`, 409);
+    throw new ConnectorError(`${providerId} is already connected: disconnect it first`, 409);
   }
 
   let granted: string[];

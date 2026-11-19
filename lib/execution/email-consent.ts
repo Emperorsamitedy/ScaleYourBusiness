@@ -121,7 +121,7 @@ export async function consentToCampaignEmail(args: {
 }): Promise<{ connection: PublicExecutionConnection; consent_hash: string }> {
   if (args.confirmation.trim().toLowerCase() !== EMAIL_CAMPAIGN_PHRASE) {
     throw new ExecutionConnectionError(
-      `type "${EMAIL_CAMPAIGN_PHRASE}" to confirm — nothing was connected`,
+      `type "${EMAIL_CAMPAIGN_PHRASE}" to confirm: nothing was connected`,
       422,
     );
   }
@@ -135,7 +135,7 @@ export async function consentToCampaignEmail(args: {
   if (!profile) throw new ExecutionConnectionError("no business profile on this account yet", 409);
   if (await activeExecutionConnection(args.accountId, "email_campaign")) {
     throw new ExecutionConnectionError(
-      "Campaign email is already granted — disconnect it first to change the sender",
+      "Campaign email is already granted: disconnect it first to change the sender",
       409,
     );
   }

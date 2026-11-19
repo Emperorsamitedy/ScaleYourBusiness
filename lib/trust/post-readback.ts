@@ -298,7 +298,7 @@ export async function postOutcome(item: PostItem): Promise<PostOutcome> {
     return {
       ...base,
       verdict: "too_early",
-      arithmetic: `${measured_days} measured day(s) since ${publishedDay} — the verdict needs ${POST_READBACK.min_measured_days}`,
+      arithmetic: `${measured_days} measured day(s) since ${publishedDay}: the verdict needs ${POST_READBACK.min_measured_days}`,
     };
   }
   base.age_days = age;

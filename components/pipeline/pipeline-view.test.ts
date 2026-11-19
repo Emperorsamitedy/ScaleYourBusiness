@@ -54,7 +54,9 @@ describe("P5-17 — the pipeline in words", () => {
       sources: [],
       assumed: [],
     };
-    expect(pipelineHeadline(3, ok)).toBe("€8,400–€16,800 of your €42,000 open is likely to close.");
+    expect(pipelineHeadline(3, ok)).toBe(
+      "€8,400 to €16,800 of your €42,000 open is likely to close.",
+    );
     expect(
       pipelineHeadline(4, {
         ...ok,
@@ -85,7 +87,7 @@ describe("P5-17 — the pipeline in words", () => {
       stated: null,
       assumed: [],
     };
-    expect(rateWords(measured)).toBe("40% measured: 2 won of 5 closed, likely 14%–73%");
+    expect(rateWords(measured)).toBe("40% measured: 2 won of 5 closed, likely 14% to 73%");
     expect(
       rateWords({
         basis: "stated",
@@ -97,7 +99,7 @@ describe("P5-17 — the pipeline in words", () => {
         needed: 1,
         assumed: [],
       }),
-    ).toBe("25% as you stated it, read as 15%–35%");
+    ).toBe("25% as you stated it, read as 15% to 35%");
     expect(rateWords({ basis: "none", closed, needed: 5, reason: "" })).toBe("Not known yet");
   });
 
@@ -144,7 +146,7 @@ describe("P5-17 — the weighted range reads as an estimate", () => {
       assumed: [],
     };
     const line = pipelineHeadline(5, w);
-    expect(line).toBe("€5,885–€20,715 of your €26,600 open is likely to close.");
+    expect(line).toBe("€5,885 to €20,715 of your €26,600 open is likely to close.");
     expect(line).not.toMatch(/[.]\d{2}/);
   });
 

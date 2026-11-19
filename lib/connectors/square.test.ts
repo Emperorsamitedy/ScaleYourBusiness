@@ -296,7 +296,7 @@ describe("P2-28 — the sync", () => {
 describe("P2-28 — the screens say what is measured", () => {
   it("Square includes till cash; other sources say card only", () => {
     expect(coverageLine(["square"])).toBe(
-      "card and cash payments rung up in Square — cash that never goes through a till isn't seen",
+      "card and cash payments rung up in Square: cash that never goes through a till isn't seen",
     );
     expect(coverageLine(["square", "stripe"])).toContain("and card payments through Stripe");
     expect(coverageLine(["stripe"])).toContain("card payments through Stripe only");

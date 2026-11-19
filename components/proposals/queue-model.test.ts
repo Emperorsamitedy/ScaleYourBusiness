@@ -89,8 +89,9 @@ describe("effectRange — a range, never a point", () => {
   it("words a range in whole units, in the currency's own step", () => {
     const m = (amount_minor: number, currency = "EUR") => ({ amount_minor, currency });
     const range = { low: m(136_32), high: m(1_213_12) };
-    expect(rangeWords(range)).toBe("+€136 – +€1,213");
-    expect(rangeWords(range, "en", "–")).toBe("+€136–+€1,213");
+    expect(rangeWords(range)).toBe("+€136 to +€1,213");
+    // the joining word follows the reader's language (lib/i18n/range.ts)
+    expect(rangeWords(range, "de-DE")).toContain(" bis ");
     expect(rangeWords(range)).not.toContain(".32");
     // already whole: untouched
     expect(wholeMoney(m(-1_200_00))).toEqual(m(-1_200_00));
@@ -106,7 +107,7 @@ describe("effectRange — a range, never a point", () => {
   it("never prints a signed zero for what rounds to nothing", () => {
     const m = (amount_minor: number) => ({ amount_minor, currency: "EUR" });
     expect(Object.is(wholeMoney(m(-20)).amount_minor, 0)).toBe(true);
-    expect(rangeWords({ low: m(-20), high: m(20) })).toBe("€0 – €0");
+    expect(rangeWords({ low: m(-20), high: m(20) })).toBe("€0 to €0");
   });
 });
 
@@ -150,11 +151,11 @@ describe("decline reason chips", () => {
 
   it("swaps the chip and keeps what the owner typed", () => {
     expect(applyReasonChip("Wrong data — the stock is off", "TOO RISKY")).toBe(
-      "Too risky — the stock is off",
+      "Too risky: the stock is off",
     );
     expect(applyReasonChip("Wrong timing", "TOO RISKY")).toBe("Too risky");
     expect(applyReasonChip("we're closed in August", "WRONG TIMING")).toBe(
-      "Wrong timing — we're closed in August",
+      "Wrong timing: we're closed in August",
     );
   });
 
@@ -451,7 +452,7 @@ describe("review 2026-10-23, Session D #1 — lapsedSentence", () => {
         execution_result: { lapsed: true, sentence: "I didn't post this." },
       }),
     ).toBe(
-      "You approved this, but it lapsed before it could run — nothing ran. I didn't post this.",
+      "You approved this, but it lapsed before it could run. Nothing ran. I didn't post this.",
     );
     expect(lapsedSentence({ status: "expired", decided_at: null })).toBeNull();
     expect(lapsedSentence({ status: "approved", decided_at: "2026-10-01T09:00:00Z" })).toBeNull();

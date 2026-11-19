@@ -112,7 +112,7 @@ export function judgeCampaign(args: {
       ...base,
       verdict: "too_early",
       delta_pct: null,
-      arithmetic: `${after.days} measured day(s) since ${args.changed_on} — the verdict needs ${AD_READBACK.min_after_days}`,
+      arithmetic: `${after.days} measured day(s) since ${args.changed_on}: the verdict needs ${AD_READBACK.min_after_days}`,
     };
   }
   const beforeLine =

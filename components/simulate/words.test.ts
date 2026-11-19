@@ -40,7 +40,7 @@ describe("the simulator's figures in the reader's locale", () => {
     expect(valueText({ low: 123456, high: 123456 }, "money", "EUR", true)).toBe("€1,235");
     expect(valueText({ low: 123456, high: 123456 }, "money", "EUR", true, "de-DE")).toBe("1.235 €");
     expect(valueText({ low: 0.125, high: 0.25 }, "rate", "EUR", false, "de-DE")).toBe(
-      "12,5 % – 25,0 %",
+      "12,5 % bis 25,0 %",
     );
     expect(sharePct(0.2)).toBe("20%");
     expect(sharePct(0.2, "zh-Hans")).toBe("20%");

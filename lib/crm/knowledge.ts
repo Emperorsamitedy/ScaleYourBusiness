@@ -362,7 +362,7 @@ export async function proposeKnowledgeEntries(
   const candidates = await fresh(profileId, await knowledgeCandidates(profileId));
   if (candidates.length === 0) {
     throw new KnowledgeError(
-      "nothing new to propose — every answer the profile supports is already public or already in your queue",
+      "nothing new to propose: every answer the profile supports is already public or already in your queue",
       422,
     );
   }
@@ -424,7 +424,7 @@ export async function publishKnowledgeFromProposal(
   }
   if (proposal.status !== "approved") {
     throw new KnowledgeError(
-      `only an approved proposal publishes — this one is ${proposal.status}`,
+      `only an approved proposal publishes: this one is ${proposal.status}`,
       409,
     );
   }

@@ -228,7 +228,7 @@ describe("who can be emailed, in words", () => {
   });
 
   it("the range is per currency, and absent when nobody can be emailed", () => {
-    expect(winBackText(measured)).toBe("€9.30–€31");
+    expect(winBackText(measured)).toBe("€9.30 to €31");
     expect(winBackText({ ...measured, win_back: [] })).toBeNull();
   });
 
@@ -250,10 +250,10 @@ describe("the button", () => {
     expect(
       proposeBlock(view({ reminder: { ...view().reminder!, emailable: 0, recently_proposed: 2 } })),
     ).toBe(
-      "Everyone who left a cart 1–7 days ago and said yes to email was proposed a reminder in the last 30 days.",
+      "Everyone who left a cart 1 to 7 days ago and said yes to email was proposed a reminder in the last 30 days.",
     );
     expect(proposeBlock(view({ reminder: { ...view().reminder!, emailable: 0 } }))).toBe(
-      "No contact who said yes to email left a cart 1–7 days ago, so there is nobody to remind.",
+      "No contact who said yes to email left a cart 1 to 7 days ago, so there is nobody to remind.",
     );
   });
 });

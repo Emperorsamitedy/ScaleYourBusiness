@@ -458,7 +458,7 @@ export async function proposeGeneration(args: {
   const suppressed = (await suppressedKinds(args.profileId)).get(GENERATION_KIND);
   if (suppressed) {
     throw new ContentError(
-      `you've declined generated media ${suppressed.rejections} times — I've stopped proposing it`,
+      `you've declined generated media ${suppressed.rejections} times: I've stopped proposing it`,
       409,
     );
   }

@@ -663,7 +663,7 @@ export async function approveCampaignEmail(args: {
   }
   if (proposal.status !== "approved") {
     throw new CampaignSendError(
-      `only an approved campaign is sent — this one is ${proposal.status}`,
+      `only an approved campaign is sent: this one is ${proposal.status}`,
       409,
     );
   }
@@ -679,7 +679,7 @@ export async function approveCampaignEmail(args: {
   const bodySha = sha256(draft.body);
   if (args.bodySha256.trim().toLowerCase() !== bodySha) {
     throw new CampaignSendError(
-      "the email changed since you opened it — read it again as it is now, then approve",
+      "the email changed since you opened it: read it again as it is now, then approve",
       409,
     );
   }

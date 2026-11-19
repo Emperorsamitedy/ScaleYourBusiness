@@ -107,7 +107,7 @@ const AD_RUN_SENDING =
   "Approved, it goes to Meta on the next scheduled run: a dry run before each part, then the campaign, ad set, creative and ad, one after another, all paused and re-checked against your limits. The emergency stop halts it between any two. Meta ad changes stay switched off until the two-week unattended test completes; until then it waits, approved.";
 
 const GO_LIVE_SENDING =
-  "Approved, it goes to Meta on the next scheduled run: the ad, then its ad set, then the campaign are switched on — each with a dry run first, re-checked against your ceiling. Meta ad changes stay switched off until the two-week unattended test completes; until then it waits, approved.";
+  "Approved, it goes to Meta on the next scheduled run: the ad, then its ad set, then the campaign are switched on, each with a dry run first, re-checked against your ceiling. Meta ad changes stay switched off until the two-week unattended test completes; until then it waits, approved.";
 
 /* ── the profile reads ── */
 
@@ -234,7 +234,7 @@ export async function proposeAdRun(profileId: string, args: AdRunArgs): Promise<
   const silenced = (await suppressedKinds(profileId)).get(AD_RUN_KIND);
   if (silenced) {
     return {
-      skipped: `you've declined this kind of ad change ${silenced.rejections} times — I've stopped proposing it`,
+      skipped: `you've declined this kind of ad change ${silenced.rejections} times: I've stopped proposing it`,
     };
   }
 

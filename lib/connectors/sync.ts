@@ -346,7 +346,7 @@ export async function syncConnection(connectionId: string, now = new Date()): Pr
           throw new Error(`unknown provider "${row.provider}"`);
         }
         if (row.encrypted_secret === null) {
-          throw new Error("no credential at rest — reconnect the provider");
+          throw new Error("no credential at rest: reconnect the provider");
         }
         const measureProvider: Provider | null =
           readSource === null && isProviderId(row.provider) ? getProvider(row.provider) : null;

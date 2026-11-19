@@ -1,4 +1,4 @@
-// Feature 34 and P5-05 — the stock screen's words, and who the screen exists for.
+// Feature 34 and P5-05 - the stock screen's words, and who the screen exists for.
 
 import { describe, expect, it } from "vitest";
 import type { CoverItemView, StockItemView, StockView } from "../../app/api/stock/route";
@@ -89,13 +89,13 @@ describe("the screen's words", () => {
     expect(
       statedVsMeasured(view({ stated_dead_stock: { amount_minor: 50_000, currency: "EUR" } })),
     ).toBe(
-      "You estimated your dead stock at €500; I measure €1,040 at cost in stock that isn't selling — €540 more. Your estimate stays on your fact sheet.",
+      "You estimated your dead stock at €500; I measure €1,040 at cost in stock that isn't selling: €540 more. Your estimate stays on your fact sheet.",
     );
     expect(statedVsMeasured(view())).toBeNull();
   });
 });
 
-describe("who sees it — data, not an if on business type", () => {
+describe("who sees it - data, not an if on business type", () => {
   const ctx = (fields: Record<string, FieldView>) => ({ get: (k: string) => fields[k] });
   const sells = (...codes: string[]) => ({
     status: "answered" as const,
@@ -156,7 +156,7 @@ const coverItem = (over: Partial<CoverItemView> = {}): CoverItemView => ({
   ...over,
 });
 
-describe("P5-05 — what runs out, in words", () => {
+describe("P5-05 - what runs out, in words", () => {
   const base: StockView = {
     applies: true,
     sources: [{ label: "Shopify", as_of: "2026-10-27", items: 7 }],
@@ -191,7 +191,7 @@ describe("P5-05 — what runs out, in words", () => {
     expect(vsPriorText(coverItem({ vs_prior: { change: -60, band: 40, direction: "down" } }))).toBe(
       "−60 · down",
     );
-    expect(vsPriorText(coverItem({ vs_prior: null }))).toBe("—");
+    expect(vsPriorText(coverItem({ vs_prior: null }))).toBe("-");
     expect(vsPriorText(coverItem({ vs_prior: { change: 0, band: 0, direction: "flat" } }))).toBe(
       "none sold",
     );

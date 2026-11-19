@@ -1,4 +1,4 @@
-// P6-04 — the purchase-order words on /stock: where an order stands and why
+// P6-04 - the purchase-order words on /stock: where an order stands and why
 // one wasn't really sent, in words (no codes, no ISO dates), in English and
 // through another language's catalogue.
 
@@ -56,7 +56,7 @@ describe("where an order stands", () => {
     expect(notSentWords(["real_writes_off"], de)).toMatch(/^Der echte Versand ist ausgeschaltet/);
   });
 
-  it("held while sending is off: 'held', why, and that it goes out on its own — never 'done'", () => {
+  it("held while sending is off: 'held', why, and that it goes out on its own - never 'done'", () => {
     const held = { ...base, status: "approved", held: ["real_writes_off" as const] };
     expect(orderState(held)).toEqual({
       word: "approved, held until email is set up",
@@ -104,6 +104,6 @@ describe("where an order stands", () => {
         { amount_minor: 300_000, currency: "HUF" },
       ]),
     ).toBe("€490.00 + 3,000 HUF");
-    expect(totalsText([])).toBe("—");
+    expect(totalsText([])).toBe("-");
   });
 });

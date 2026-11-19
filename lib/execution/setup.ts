@@ -64,7 +64,7 @@ export const EXECUTION_SETUP: Readonly<Partial<Record<ExecutionProviderId, Execu
       "In Meta Business Suite, check that your Facebook Page and its Instagram account both sit in your business portfolio.",
       "At developers.facebook.com, create a Business app owned by that same portfolio.",
       "Add the Pages and Instagram use cases to the app.",
-      "In your business settings, add a system user, give it your Page and Instagram account, and generate a token for your app with exactly the permissions listed above — no more, no fewer.",
+      "In your business settings, add a system user, give it your Page and Instagram account, and generate a token for your app with exactly the permissions listed above. No more, no fewer.",
       "Paste the token here with your Page id and, to publish to Instagram too, the Instagram account id.",
     ],
   },
@@ -88,7 +88,7 @@ export const EXECUTION_SETUP: Readonly<Partial<Record<ExecutionProviderId, Execu
       "In Meta Business Suite, check that your ad account sits in your business portfolio.",
       "At developers.facebook.com, create a Business app owned by that same portfolio.",
       "Add the Marketing API use case to the app.",
-      "In your business settings, add a system user, give it your ad account, and generate a token for your app with exactly the permission listed above — no more.",
+      "In your business settings, add a system user, give it your ad account, and generate a token for your app with exactly the permission listed above. No more.",
       "Paste the token here with the ad account id from Ads Manager.",
     ],
   },
@@ -213,7 +213,7 @@ export const ADS_ACCESS_TIER_WORDS: Readonly<Record<string, string>> = {
 
 /** Before the first ads call there is nothing to show — and the screen says so. */
 export const ADS_ACCESS_TIER_UNSEEN =
-  "not seen yet — Meta reports it on ScaleX's first call for an ad change";
+  "not seen yet: Meta reports it on ScaleX's first call for an ad change";
 
 /** Beside the tier: what it means for the owner, and what lifts it. */
 export const ADS_ACCESS_TIER_NOTE =

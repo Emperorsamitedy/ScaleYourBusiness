@@ -248,7 +248,7 @@ describe("I-42 — the email reads the week on record", () => {
         profile_id: b.profile_id,
         at: NOW.toISOString(),
         kind: "snapshot_taken",
-        detail: "Weekly check: the profile held steady — nothing changed since last week.",
+        detail: "Weekly check: the profile held steady. Nothing changed since last week.",
       },
       {
         profile_id: b.profile_id,

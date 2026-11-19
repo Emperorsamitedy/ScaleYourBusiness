@@ -217,31 +217,31 @@ export async function importContacts(
 ): Promise<ImportResult> {
   if (attestation.statement.trim() === "") {
     throw new ContactError(
-      "an import needs your attestation — what did these contacts consent to, and how?",
+      "an import needs your attestation: what did these contacts consent to, and how?",
       422,
     );
   }
   if (csv.length > MAX_BYTES) {
-    throw new ContactError("that file is too large for one import — split it", 413);
+    throw new ContactError("that file is too large for one import: split it", 413);
   }
   const parsed = parseCsv(csv);
   if (parsed.length < 2) {
     throw new ContactError("the CSV needs a header row and at least one contact", 422);
   }
   if (parsed.length - 1 > MAX_ROWS) {
-    throw new ContactError(`one import takes up to ${MAX_ROWS} rows — split the file`, 413);
+    throw new ContactError(`one import takes up to ${MAX_ROWS} rows: split the file`, 413);
   }
   const columns = mapHeader(parsed[0] as string[]);
   if (columns.email === -1 && columns.name === -1 && columns.phone === -1) {
     throw new ContactError(
-      "no usable columns found — the header needs at least one of: email, name, phone",
+      "no usable columns found: the header needs at least one of: email, name, phone",
       422,
     );
   }
   const currency = options.currency?.trim().toUpperCase() ?? "";
   if (columns.spent !== -1 && !/^[A-Z]{3}$/.test(currency)) {
     throw new ContactError(
-      "the file has a spent column — say which currency it is in (three letters, e.g. EUR)",
+      "the file has a spent column: say which currency it is in (three letters, e.g. EUR)",
       422,
     );
   }

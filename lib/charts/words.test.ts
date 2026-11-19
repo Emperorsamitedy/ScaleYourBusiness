@@ -95,7 +95,7 @@ describe("the charts' sentences in English are the code's own words", () => {
   it("is the default every builder takes", () => {
     expect(noShows(bookings, W, englishChartWords())).toEqual(noShows(bookings, W));
     expect(headline([noShows(bookings, W)], "EUR").text).toMatch(
-      /^About €\d[\d,]*(–€[\d,]+)? a month is slipping away — all of it no-shows\.$/,
+      /^About €\d[\d,]*( to €[\d,]+)? a month is slipping away: all of it no-shows\.$/,
     );
     expect(sourceLabel("bookings_import")).toBe("your bookings export");
     expect(percentText(41, "en")).toBe("41%");
@@ -142,7 +142,7 @@ describe("the charts' sentences in another language", () => {
     );
     if (t.status !== "priced") throw new Error("expected priced");
     expect(t.formula).toContain("Raise the mug price");
-    expect(t.formula).toMatch(/10\.000\s€–20\.000\s€/);
+    expect(t.formula).toMatch(/10\.000\s€ bis 20\.000\s€/);
     expect(sentenceDay("2026-10-05", "de-DE")).toBe("5. Okt. 2026");
     expect(percentText(41, "fr-FR")).toMatch(/^41\s%$/u);
   });

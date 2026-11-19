@@ -347,7 +347,7 @@ export async function loadTradingSales(
   }
   if (currencies.size !== 1) {
     return {
-      reason: `sales are in ${[...currencies].join(" and ")} — one currency is needed (rule 1)`,
+      reason: `sales are in ${[...currencies].join(" and ")}: one currency is needed (rule 1)`,
     };
   }
   const currency = [...currencies][0] as string;

@@ -239,7 +239,7 @@ describe("P5-02 the rate and days of cover, as ranges", () => {
     expect(c.warning?.level).toBe("tight");
     expect(c.warning?.flag).toBe("RUNNING LOW");
     expect(c.warning?.sentence).toBe(
-      "Blue Mug runs out in about 7–10 days; Midland Clay takes 7 days.",
+      "Blue Mug runs out in about 7 to 10 days; Midland Clay takes 7 days.",
     );
     expect(c.reorder).not.toBeNull();
   });

@@ -565,7 +565,7 @@ describe("review #12 — ScaleX's own mail, forwarded back, is never a ticket", 
       from: "ScaleX <login@syb-mail.test>",
       to: ["info@shop.example"],
       received_for: [b.address],
-      subject: "Your sign-in link — ScaleX",
+      subject: "Your sign-in link · ScaleX",
       text: `Click to sign in to ScaleX:\n\n${link}\n\nThe link works once.`,
     });
     const log = vi.spyOn(console, "log").mockImplementation(() => {});

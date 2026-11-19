@@ -458,7 +458,7 @@ export async function consentToTikTokPosting(args: {
 }): Promise<{ connection: PublicExecutionConnection; consent_hash: string; proposed: number }> {
   if (!tiktokPhraseMatches(args.confirmation)) {
     throw new ExecutionConnectionError(
-      `type "${TIKTOK_PHRASE}" to confirm — nothing was connected`,
+      `type "${TIKTOK_PHRASE}" to confirm: nothing was connected`,
       422,
     );
   }

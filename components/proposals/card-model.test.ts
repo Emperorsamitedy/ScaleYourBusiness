@@ -65,7 +65,7 @@ describe("cardState", () => {
 
 describe("the figures", () => {
   it("shows the gain as a range, never a point", () => {
-    expect(gainLine(base)).toBe("−€1,200 – +€4,800");
+    expect(gainLine(base)).toBe("−€1,200 to +€4,800");
   });
 
   it("shows no range when one end is missing or the currencies differ", () => {
@@ -106,7 +106,7 @@ describe("the figures", () => {
         },
       },
     };
-    expect(gainLine(cents)).toBe("+€136 – +€1,213");
+    expect(gainLine(cents)).toBe("+€136 to +€1,213");
     expect(worstCase(cents)).toBe("+€136");
     expect(gainLine(cents)).not.toContain(".32");
   });

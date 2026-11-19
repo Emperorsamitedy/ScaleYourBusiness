@@ -37,7 +37,7 @@ describe("contentWords English is what publishReadiness said before L-4c", () =>
     );
     expect(say({ code: "kind", values: { kind: "banner" } })).toBe("a banner isn't published");
     expect(say({ code: "channel", values: { channel: "youtube" } })).toBe(
-      "ScaleX can't publish to youtube — only to a Facebook Page, an Instagram account or a TikTok account you connect",
+      "ScaleX can't publish to youtube: only to a Facebook Page, an Instagram account or a TikTok account you connect",
     );
     expect(say({ code: "connect", values: { platform: "Facebook" } })).toBe(
       "connect Meta publishing on Connections to publish this to Facebook",
@@ -46,7 +46,7 @@ describe("contentWords English is what publishReadiness said before L-4c", () =>
       "the posting time can't be set: the business's timezone isn't known",
     );
     expect(say({ code: "declined", values: { count: 3 } })).toBe(
-      "you've declined publishing 3 times — I've stopped proposing it",
+      "you've declined publishing 3 times: I've stopped proposing it",
     );
     expect(say({ code: "passed", values: { date: "2026-10-15" } })).toBe(
       "its date (2026-10-15) has passed",
@@ -97,7 +97,7 @@ describe("contentWords in other languages", () => {
   it("gives Russian its forms at 1, 3, 5 and 21", async () => {
     const ru = await localeTr("ru-RU", CONTENT_WORDS);
     const n = (count: number) =>
-      blockWords({ code: "declined", values: { count } }, ru, "ru-RU").split(" — ")[0];
+      blockWords({ code: "declined", values: { count } }, ru, "ru-RU").split(": ")[0];
     expect(n(1)).toBe("вы отклонили публикацию 1 раз");
     expect(n(3)).toBe("вы отклонили публикацию 3 раза");
     expect(n(5)).toBe("вы отклонили публикацию 5 раз");

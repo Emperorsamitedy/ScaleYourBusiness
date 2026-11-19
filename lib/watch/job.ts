@@ -235,7 +235,7 @@ export async function runWeeklyWatch(
         detail:
           before.length === 0
             ? `Baseline snapshot recorded: ${summary.fact_count} facts.`
-            : "Weekly check: the profile held steady — nothing changed since last week.",
+            : "Weekly check: the profile held steady. Nothing changed since last week.",
         meta: { snapshot_id: summary.id },
       });
       continue;

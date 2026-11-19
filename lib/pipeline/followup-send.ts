@@ -458,7 +458,7 @@ export async function approveFollowUpEmail(args: {
   const bodySha = sha256(draft.body);
   if (args.bodySha256.trim().toLowerCase() !== bodySha) {
     throw new FollowUpSendError(
-      "the email changed since you opened it — read it again as it is now, then approve",
+      "the email changed since you opened it: read it again as it is now, then approve",
       409,
     );
   }

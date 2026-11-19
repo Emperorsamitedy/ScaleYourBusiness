@@ -250,7 +250,7 @@ export async function generateProposals(
       if (suppression) {
         out.skipped.push({
           ref,
-          reason: `you've declined ${kind.replace(/_/g, " ")} ${suppression.rejections} times — I've stopped proposing it`,
+          reason: `you've declined ${kind.replace(/_/g, " ")} ${suppression.rejections} times: I've stopped proposing it`,
         });
         continue;
       }

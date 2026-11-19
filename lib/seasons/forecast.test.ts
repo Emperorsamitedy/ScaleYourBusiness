@@ -200,7 +200,7 @@ describe("the year-over-year window", () => {
     expect(u.starts_in_weeks).toBe(4);
     expect(u.starts_on).toBe("2026-11-23");
     expect(u.sentence).toBe(
-      "The 4 weeks from 24 Nov to 21 Dec last year ran 2.0× your normal week — above it. The same weeks this year start in 4 weeks, on 23 Nov.",
+      "The 4 weeks from 24 Nov to 21 Dec last year ran 2.0× your normal week: above it. The same weeks this year start in 4 weeks, on 23 Nov.",
     );
     expect(r.headline).toMatch(/busy stretch starts in 4 weeks/);
   });

@@ -34,7 +34,7 @@ describe("headline", () => {
   it("never hides a write connection", () => {
     expect(
       headline([{ status: "connected" }], [{ status: "failed", label: "Meta publishing" }]),
-    ).toBe("1 source read. Meta publishing can write — only what you approve.");
+    ).toBe("1 source read. Meta publishing can write: only what you approve.");
     expect(
       headline([{ status: "connected" }], [{ status: "disconnected", label: "Meta publishing" }]),
     ).toBe("1 source read. Nothing can be written.");
@@ -54,7 +54,7 @@ describe("headline", () => {
         [google, { status: "connected", label: "Meta publishing", provider: "meta_publish" }],
       ),
     ).toBe(
-      "Nothing is plugged in yet. Meta publishing can write — only what you approve. Google Business Profile reviews holds a permission that could write; ScaleX only reads with it.",
+      "Nothing is plugged in yet. Meta publishing can write: only what you approve. Google Business Profile reviews holds a permission that could write; ScaleX only reads with it.",
     );
     expect(headline([], [{ ...google, status: "disconnected" }])).toBe(
       "Nothing is plugged in yet. Nothing can be written.",
@@ -72,6 +72,6 @@ describe("lastRead", () => {
     const at = "2026-10-17T12:00:00Z";
     expect(lastRead(at, Date.parse(at))).toMatch(/^\d\d:\d\d$/);
     expect(lastRead("2026-10-09 12:00:00+00", Date.parse(at))).toBe("9 Oct");
-    expect(lastRead(null, Date.parse(at))).toBe("—");
+    expect(lastRead(null, Date.parse(at))).toBe("-");
   });
 });

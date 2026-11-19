@@ -79,9 +79,9 @@ describe("stock words — English", () => {
   it("a warning, its head and the reorder arithmetic read as before", () => {
     const c = assessCover(item(20, 3), TODAY, LEAD, null, "Shopify");
     expect(c.warning!.sentence).toBe(
-      "Blue Mug runs out in about 6–7 days; Midland Clay Supplies takes 10 days.",
+      "Blue Mug runs out in about 6 to 7 days; Midland Clay Supplies takes 10 days.",
     );
-    expect(c.warning!.head).toBe("Blue Mug runs out in about 6–7 days.");
+    expect(c.warning!.head).toBe("Blue Mug runs out in about 6 to 7 days.");
     expect(c.reorder!.arithmetic).toBe(
       "3.0 a day (up to 3.3) over 10 days = 30, + 4 safety margin (the fast end of the range) = 34; Midland Clay Supplies' minimum order is 50, so 50.",
     );
@@ -110,7 +110,7 @@ describe("stock words — English", () => {
       [{ connection_id: "c1", ref: "p1", name: "Blue Mug" }],
     )!;
     expect(model.summary).toBe(
-      "Cash tied up at cost in the 1 slowest item, on each stock count from 1 Oct to 20 Oct: Blue Mug from €1,200 to €900. A stock, read on each count day — never added across days.",
+      "Cash tied up at cost in the 1 slowest item, on each stock count from 1 Oct to 20 Oct: Blue Mug from €1,200 to €900. A stock, read on each count day, never added across days.",
     );
     expect(stockHistorySummary(model)).toBe(model.summary);
   });

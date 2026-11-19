@@ -316,7 +316,7 @@ describe("content: posts × reach → interactions → visits → orders", () =>
     expect(rangeCell(r, "reached").range).toEqual({ low: 6_600, high: 10_200 });
     // 12 × 27.5–42.5 interactions × 0.3 visits × 2% = 1.98–3.06 → 2–3 orders.
     expect(rangeCell(r, "orders").range).toEqual({ low: 2, high: 3 });
-    expect(rangeCell(r, "orders").formula).toMatch(/12 posts × 27.5 – 42.5 interactions/);
+    expect(rangeCell(r, "orders").formula).toMatch(/12 posts × 27\.5 to 42\.5 interactions/);
     expect(rangeCell(r, "orders").bases).toEqual(["OBSERVED", "DERIVED"]);
   });
 

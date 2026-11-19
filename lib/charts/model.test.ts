@@ -129,7 +129,7 @@ describe("a drawn chart", () => {
     const m = drawn();
     expect(m.components.map((c) => c.key)).toEqual([...CHART_ARCHETYPES.appointments.components]);
     expect(m.title).toBe(chartTitle("your salon"));
-    expect(m.headline.text).toMatch(/^About €[\d,]+(–€[\d,]+)? a month is slipping away — /);
+    expect(m.headline.text).toMatch(/^About €[\d,]+( to €[\d,]+)? a month is slipping away: /);
     expect(m.headline.lead).not.toBeNull();
     // No Meta connection: the ads line says what would fill it.
     const ads = m.components.find((c) => c.key === "losing_ads");

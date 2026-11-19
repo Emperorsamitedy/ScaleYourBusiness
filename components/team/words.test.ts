@@ -32,7 +32,7 @@ describe("the team screens' English is the code's own words", () => {
     );
     const team = englishTr("team");
     expect(team("grid.cellTitle", { typical: "96%", low: "91%", high: "100%", days: 8 })).toBe(
-      "96% on a typical day, 91%–100% on the middle half of 8 days",
+      "96% on a typical day, 91% to 100% on the middle half of 8 days",
     );
   });
 });

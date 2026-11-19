@@ -102,10 +102,10 @@ describe("English is the code's own words, byte for byte", () => {
   it("says the reading as the code always said it", () => {
     const r = ok(teamCoverage(week()));
     expect(r.headline).toBe(
-      "Saturdays 10:00–11:00 ran 224% booked; one stylist covers about 6.3 appointments an hour at your stated 25 a week.",
+      "Saturdays 10:00 to 11:00 ran 224% booked; one stylist covers about 6.3 appointments an hour at your stated 25 a week.",
     );
     const quiet = r.findings.find((f) => f.band === "quiet");
-    expect(quiet?.words).toBe("Saturdays 11:00–12:00 ran 32% booked");
+    expect(quiet?.words).toBe("Saturdays 11:00 to 12:00 ran 32% booked");
     expect(quiet?.range_words).toBe(
       "(32% on every day of the middle half of the 8 Saturdays read)",
     );
@@ -113,15 +113,15 @@ describe("English is the code's own words, byte for byte", () => {
       "about 0.5 people are on in an average open hour, by the role hours you gave",
     );
     expect(quiet?.note).toBe(
-      "Saturdays 11:00–12:00: the quietest open stretch. If you ever trim the rota, this is where it would cost the least demand.",
+      "Saturdays 11:00 to 12:00: the quietest open stretch. If you ever trim the rota, this is where it would cost the least demand.",
     );
     // The screen's one line is the range and the reason, as it joined them before.
     for (const f of r.findings) expect(f.line).toBe(`${f.range_words}; ${f.reason}.`);
     expect(r.findings[0]?.note).toBe(
-      "Saturdays 10:00–11:00: demand ran past what your stated capacity covers. If you want to take more of it, this is where another stylist would add cover first.",
+      "Saturdays 10:00 to 11:00: demand ran past what your stated capacity covers. If you want to take more of it, this is where another stylist would add cover first.",
     );
     expect(r.season.words).toBe(
-      "Your busy stretch starts on 1 Dec: last year it ran 1.7× (1.6–1.9×) your normal week. At its low end, these hours would also run past your stated capacity: Fridays 10:00–14:00.",
+      "Your busy stretch starts on 1 Dec: last year it ran 1.7× (1.6 to 1.9×) your normal week. At its low end, these hours would also run past your stated capacity: Fridays 10:00 to 14:00.",
     );
     expect(r.assumed).toEqual([
       "capacity is the same in every open hour: your stated 25 appointments a week ÷ 8 open hours = 3.1 appointments an hour",
@@ -181,7 +181,7 @@ describe("English is the code's own words, byte for byte", () => {
   });
 
   it("keeps the helpers' English", () => {
-    expect(runText("sat", 10, 14)).toBe("Saturdays 10:00–14:00");
+    expect(runText("sat", 10, 14)).toBe("Saturdays 10:00 to 14:00");
     expect(daysText(["sat", "fri"])).toBe("Fridays and Saturdays");
     expect(daysText(["tue", "wed", "thu"])).toBe("Tuesdays to Thursdays");
     expect(daysText(["mon", "wed", "fri"])).toBe("Mondays, Wednesdays and Fridays");
@@ -216,13 +216,13 @@ describe("German: the reader's figures, dates and weekdays", () => {
   it("writes the reading in German, the owner's role title as given", () => {
     const r = ok(teamCoverage(week(), de));
     expect(r.headline).toBe(
-      "Samstags 10:00–11:00: zu 224\u00a0% gebucht; eine Person als Stylist deckt etwa 6,3 Termine pro Stunde ab, bei Ihren angegebenen 25 pro Woche.",
+      "Samstags 10:00 bis 11:00: zu 224\u00a0% gebucht; eine Person als Stylist deckt etwa 6,3 Termine pro Stunde ab, bei Ihren angegebenen 25 pro Woche.",
     );
     expect(r.findings[0]?.line).toBe(
       "(224\u00a0% an jedem Tag der mittleren Hälfte der ausgewerteten 8 Samstage); eine Person als Stylist deckt etwa 6,3 Termine pro Stunde ab, bei Ihren angegebenen 25 pro Woche.",
     );
     expect(r.season.words).toBe(
-      "Ihre starke Phase beginnt am 1. Dez.: Letztes Jahr lag sie bei 1,7× (1,6–1,9×) einer normalen Woche. Schon am unteren Ende gingen auch diese Stunden über Ihre angegebene Kapazität hinaus: freitags 10:00–14:00.",
+      "Ihre starke Phase beginnt am 1. Dez.: Letztes Jahr lag sie bei 1,7× (1,6 bis 1,9×) einer normalen Woche. Schon am unteren Ende gingen auch diese Stunden über Ihre angegebene Kapazität hinaus: freitags 10:00 bis 14:00.",
     );
     expect(r.assumed[2]).toBe(
       "für Freitag und Samstag sind keine Öffnungszeiten angegeben, daher werden sie daraus abgelesen, wann Termine beginnen (an mindestens 25\u00a0% dieser Tage)",
@@ -292,14 +292,14 @@ describe("Chinese: full-width punctuation, and two sentences joined without a sp
   it("joins the headline and the reason with full-width punctuation and no space", () => {
     const r = ok(teamCoverage(week(), zh));
     expect(r.headline).toBe(
-      "每周六 10:00–11:00 的预约率为 224%；按您所述每周 25 计，每位“Stylist”每小时约接待 6.3 个预约。",
+      "每周六 10:00-11:00 的预约率为 224%；按您所述每周 25 计，每位“Stylist”每小时约接待 6.3 个预约。",
     );
     expect(r.findings[0]?.line).toBe(
       "（在已读取的 8 个周六中，居中一半的每一天都是 224%）；按您所述每周 25 计，每位“Stylist”每小时约接待 6.3 个预约。",
     );
     // The season's two sentences meet with no space between them.
     expect(r.season.words).toBe(
-      "您的繁忙期从 12月1日 开始：去年这段时间是平常一周的 1.7 倍（1.6–1.9 倍）。按其下限，以下时段也会超出您所述的接待能力：每周五 10:00–14:00。",
+      "您的繁忙期从 12月1日 开始：去年这段时间是平常一周的 1.7 倍（1.6-1.9 倍）。按其下限，以下时段也会超出您所述的接待能力：每周五 10:00-14:00。",
     );
     for (const s of [r.headline, r.season.words, ...r.findings.map((f) => f.line)]) {
       expect(s, s).not.toMatch(/[。；：，）] /);

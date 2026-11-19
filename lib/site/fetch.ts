@@ -203,16 +203,16 @@ export async function vetAddresses(url: URL): Promise<VettedAddress[]> {
       const results = await lookup(host, { all: true });
       for (const r of results) addresses.push({ address: r.address, family: r.family as 4 | 6 });
     } catch {
-      throw new SiteFetchError(`"${host}" doesn't resolve — is the address right?`);
+      throw new SiteFetchError(`"${host}" doesn't resolve. Is the address right?`);
     }
   }
   if (addresses.length === 0) {
-    throw new SiteFetchError(`"${host}" doesn't resolve — is the address right?`);
+    throw new SiteFetchError(`"${host}" doesn't resolve. Is the address right?`);
   }
   for (const { address } of addresses) {
     if (isPrivateAddress(address)) {
       throw new SiteFetchError(
-        "that address points inside a private network — refusing to fetch it",
+        "that address points inside a private network: refusing to fetch it",
       );
     }
   }
@@ -315,7 +315,7 @@ async function guardedFetch(
         const location = response.headers.get("location");
         await response.body?.cancel();
         if (!location || hop === MAX_REDIRECTS) {
-          throw new SiteFetchError("too many redirects — the site never settled");
+          throw new SiteFetchError("too many redirects: the site never settled");
         }
         current = new URL(location, current);
         continue; // the next hop gets its own resolve-vet-pin
@@ -352,7 +352,7 @@ async function guardedFetch(
       await agent.close();
     }
   }
-  throw new SiteFetchError("too many redirects — the site never settled");
+  throw new SiteFetchError("too many redirects: the site never settled");
 }
 
 export const livePageFetcher: PageFetcher = createGuardedFetcher();

@@ -115,7 +115,7 @@ export function classifyMetaError(args: {
       ...base,
       kind: "page_limit",
       owner_sentence:
-        "Meta's limit for this Page is used up for now. Nothing was lost — I'll try again after a pause.",
+        "Meta's limit for this Page is used up for now. Nothing was lost. I'll try again after a pause.",
       connection_state: "connected",
       next_step: "wait",
       retryable: true,
@@ -126,7 +126,7 @@ export function classifyMetaError(args: {
       ...base,
       kind: "rate_limit",
       owner_sentence:
-        "Meta asked ScaleX to slow down. Nothing was lost — I'll try again after a pause.",
+        "Meta asked ScaleX to slow down. Nothing was lost. I'll try again after a pause.",
       connection_state: "connected",
       next_step: "wait",
       retryable: true,

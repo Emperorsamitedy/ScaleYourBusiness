@@ -48,7 +48,7 @@ describe("the season forecast's words", () => {
       "Your busy stretch starts in 4 weeks: last year it ran 2.0× your normal week.",
     );
     expect(r.upcoming[0]?.sentence).toBe(
-      "The 4 weeks from 24 Nov to 21 Dec last year ran 2.0× your normal week — above it. The same weeks this year start in 4 weeks, on 23 Nov.",
+      "The 4 weeks from 24 Nov to 21 Dec last year ran 2.0× your normal week: above it. The same weeks this year start in 4 weeks, on 23 Nov.",
     );
     expect(rewordSeason(r, englishSeasonWords())).toEqual(r);
   });
@@ -70,7 +70,7 @@ describe("the season forecast's words", () => {
     const en = seasonForecast(short, INFO, TODAY);
     if (en.status !== "too_little") throw new Error("too_little expected");
     expect(en.headline).toBe(
-      "I have about 5 months of your revenue — not enough to say which weeks of the year are your busy ones.",
+      "I have about 5 months of your revenue, not enough to say which weeks of the year are your busy ones.",
     );
     const de = rewordSeason(en, DE);
     if (de.status !== "too_little") throw new Error("too_little expected");
@@ -167,10 +167,10 @@ describe("the reviews' words", () => {
 
   it("the draft refusals, the budget in the reader's money", () => {
     expect(refusalIn("budget")).toBe(
-      "This month's support budget (€5) is spent, so I won't draft — write it yourself.",
+      "This month's support budget (€5) is spent, so I won't draft: write it yourself.",
     );
     expect(refusalIn("cap")).toBe(
-      "I've suggested a reply to this review 3 times already — write this one yourself.",
+      "I've suggested a reply to this review 3 times already: write this one yourself.",
     );
     expect(refusalIn("budget", DE)).toMatch(/^\[draft\.budget \{"amount":"5\s€"\}\]$/u);
     expect(refusalIn("offer", DE)).toBe("[draft.offer]");

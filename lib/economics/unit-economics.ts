@@ -283,7 +283,7 @@ function blendedMargin(offers: OfferEconomics[]): Computed<number> | null {
     formula:
       weighted.length > 0
         ? "Σ(offer margin × units sold) ÷ Σ(units sold)"
-        : "mean(offer margins) — no volumes recorded, so each offer counts once",
+        : "mean(offer margins): no volumes recorded, so each offer counts once",
     confidence: Math.min(...use.map((o) => o.margin_pct!.confidence)),
     grade: lowestGrade(use.map((o) => o.margin_pct!.grade)),
   };
@@ -319,7 +319,7 @@ function fixedMonthly(
       refusals.push({
         what: "fixed costs per month",
         missing: [`costs.${e.id}.amount`],
-        why: `recorded in ${amount.currency}, the profile reports in ${currency} — converting would need an FX rate nobody has given me`,
+        why: `recorded in ${amount.currency}, the profile reports in ${currency}: converting would need an FX rate nobody has given me`,
       });
       return null;
     }
@@ -392,7 +392,7 @@ function breakEven(
     refusals.push({
       what: "break-even",
       missing: [],
-      why: "every sale loses money at these prices — there is no volume that breaks even",
+      why: "every sale loses money at these prices: there is no volume that breaks even",
     });
     return null;
   }
@@ -413,8 +413,8 @@ function breakEven(
     derived_from: [...fixed.derived_from, ...use.flatMap((o) => o.contribution!.derived_from)],
     formula:
       weighted.length > 0
-        ? "fixed costs ÷ weighted contribution per unit — assumes the current offer mix holds"
-        : "fixed costs ÷ mean contribution per unit — no volumes recorded, so the mix is assumed even",
+        ? "fixed costs ÷ weighted contribution per unit: assumes the current offer mix holds"
+        : "fixed costs ÷ mean contribution per unit: no volumes recorded, so the mix is assumed even",
     confidence: Math.min(fixed.confidence, ...use.map((o) => o.contribution!.confidence)),
     grade: lowestGrade([fixed.grade, ...use.map((o) => o.contribution!.grade)]),
   };
@@ -484,7 +484,7 @@ function costPerAcquisition(
     refusals.push({
       what: "cost per acquisition",
       missing: ["marketing.monthly_ad_spend"],
-      why: `ad spend is in ${spend!.currency} but the profile reports in ${currency} — that needs an FX rate`,
+      why: `ad spend is in ${spend!.currency} but the profile reports in ${currency}: that needs an FX rate`,
     });
     return null;
   }

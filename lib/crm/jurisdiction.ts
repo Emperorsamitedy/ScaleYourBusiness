@@ -167,7 +167,7 @@ export function applicableRegimes(args: {
   if (own === null) {
     return {
       ok: false,
-      reason: `ScaleX doesn't yet know the email marketing rules for ${args.businessCountry.trim()} — nothing is sent there`,
+      reason: `ScaleX doesn't yet know the email marketing rules for ${args.businessCountry.trim()}: nothing is sent there`,
     };
   }
   const regimes = [own];

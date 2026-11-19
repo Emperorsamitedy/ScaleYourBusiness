@@ -77,9 +77,9 @@ const CODE_WINDOW_MS = 15 * 60_000;
 const CODE_LIMIT_PER_EMAIL = 5;
 const CODE_LIMIT_PER_IP = 30;
 export const CODE_REFUSED =
-  "that code isn't right, or it has expired — check it, or use the link in the email";
+  "that code isn't right, or it has expired: check it, or use the link in the email";
 export const CODE_TOO_MANY =
-  "too many codes tried for that address — use the link in the email, or try again later";
+  "too many codes tried for that address: use the link in the email, or try again later";
 
 /** A fresh code: six digits, leading zeros kept. */
 export function newLoginCode(): string {

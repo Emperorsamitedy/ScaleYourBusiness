@@ -33,7 +33,7 @@ export const GOOGLE_ADS_REASONS = {
   google_permission:
     "Google says ScaleX isn't allowed into that Google Ads account. Nothing was connected.",
   google_busy:
-    "Google was busy or didn't answer. Nothing was connected — try again in a few minutes.",
+    "Google was busy or didn't answer. Nothing was connected. Try again in a few minutes.",
   google_refused: "Google refused the sign-in. Nothing was connected.",
   internal: "Something went wrong on our side. Nothing was connected.",
 } as const;

@@ -504,7 +504,7 @@ export function isDecimalStyle(v: unknown): v is DecimalStyle {
 /** The refusal sentences an import uses, so every import asks the same question. */
 export const DECIMAL_STYLE_MESSAGES = {
   ambiguous:
-    "amounts like 1.200 could be one thousand two hundred or one point two — say whether the dot or the comma separates thousands",
+    "amounts like 1.200 could be one thousand two hundred or one point two: say whether the dot or the comma separates thousands",
   both: "the amounts in this file are written both ways (1.234,56 and 1,234.56), so I can't read them",
   contradicts_stated:
     "you said which mark separates thousands, but the file has amounts that only read the other way",

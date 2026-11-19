@@ -328,7 +328,7 @@ describe("P4-10 — drafting: grounded only, rule 24 verbatim, caps first", () =
     expect(
       await draftReply({ profileId: empty.profile_id, ticketId: t1.ticketId, llm: never }),
     ).toEqual({ drafted: false, message: CANT_DRAFT });
-    expect(CANT_DRAFT).toBe("I can't draft this from your approved answers — write it yourself.");
+    expect(CANT_DRAFT).toBe("I can't draft this from your approved answers: write it yourself.");
 
     const b = await business();
     const t2 = await emailTicket(b);

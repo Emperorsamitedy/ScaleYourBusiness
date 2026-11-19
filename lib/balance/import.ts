@@ -231,7 +231,7 @@ export function statementBalances(
   moneyIn: Map<string, number>;
 } {
   if (csv.length > BALANCE_IMPORT_LIMITS.max_bytes) {
-    throw new BalanceImportError("that file is too large for one import — split it", 413);
+    throw new BalanceImportError("that file is too large for one import: split it", 413);
   }
   const currency = options.currency?.trim().toUpperCase() ?? "";
   if (!isIsoCurrency(currency)) {
@@ -242,7 +242,7 @@ export function statementBalances(
   if (rows.length < 2) throw new BalanceImportError("the file needs a header row and one row");
   if (rows.length - 1 > BALANCE_IMPORT_LIMITS.max_rows) {
     throw new BalanceImportError(
-      `one import takes up to ${BALANCE_IMPORT_LIMITS.max_rows} rows — split the file`,
+      `one import takes up to ${BALANCE_IMPORT_LIMITS.max_rows} rows: split the file`,
       413,
     );
   }
@@ -298,7 +298,7 @@ export function statementBalances(
   }
   if (ambiguousDates > 0 && read.length === 0) {
     throw new BalanceImportError(
-      "dates like 03/04/2026 could be 3 April or 4 March — say whether the day or the month comes first",
+      "dates like 03/04/2026 could be 3 April or 4 March: say whether the day or the month comes first",
     );
   }
   if (read.length === 0) {

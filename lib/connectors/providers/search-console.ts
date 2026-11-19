@@ -93,7 +93,7 @@ export function parseScCredential(secret: string): ScCredential {
   const site = normaliseSiteUrl(typeof outer["site_url"] === "string" ? outer["site_url"] : "");
   if (site === null) {
     throw new ProviderError(
-      "search console: the property is your site's address as Search Console shows it — https://www.example.com/ or sc-domain:example.com",
+      "search console: the property is your site's address as Search Console shows it, https://www.example.com/ or sc-domain:example.com",
     );
   }
   let key: Record<string, unknown>;

@@ -147,7 +147,7 @@ export async function consentToGoogleReviews(
 ): Promise<{ connection: PublicExecutionConnection; consent_hash: string }> {
   if (!googlePhraseMatches(args.confirmation)) {
     throw new ExecutionConnectionError(
-      `type "${GOOGLE_REVIEWS_PHRASE}" to confirm — nothing was connected`,
+      `type "${GOOGLE_REVIEWS_PHRASE}" to confirm: nothing was connected`,
       422,
     );
   }

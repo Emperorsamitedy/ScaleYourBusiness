@@ -126,12 +126,12 @@ describe("role refusals (roleWords)", () => {
 describe("sign-in refusals (authWords)", () => {
   it("leaves English as sent and reads the rest back with the provider's name kept", () => {
     const tr = trFor("de-DE", "authWords");
-    const failed = "Google sign-in failed — try again or use the email link";
+    const failed = "Google sign-in failed: try again or use the email link";
     expect(authErrorWords(failed, tr, "en")).toBe(failed);
     const de = authErrorWords(failed, tr, "de-DE");
     expect(de).not.toBe(failed);
     expect(de).toContain("Google");
-    const why = "Apple sign-in couldn't be verified (wrong issuer) — use the email link instead";
+    const why = "Apple sign-in couldn't be verified (wrong issuer): use the email link instead";
     expect(authErrorWords(why, tr, "de-DE")).not.toContain("wrong issuer");
   });
 });
@@ -425,7 +425,7 @@ describe("the ledger and the track record (ledgerWords, trackWords)", () => {
     expect(fact.title).toContain("Preis");
     expect(fact.note).not.toBe("kept in record");
     const arith =
-      "daily revenue averaged 120.00 EUR over the 7 measured day(s) after 2026-10-01, against 100.00 EUR over the 28 before — +20% (thresholds: helped at +5%, backfired at -5%)";
+      "daily revenue averaged 120.00 EUR over the 7 measured day(s) after 2026-10-01, against 100.00 EUR over the 28 before: +20% (thresholds: helped at +5%, backfired at -5%)";
     const deArith = arithmeticWords(arith, de);
     expect(sp(deArith)).toContain("120,00 €");
     expect(deArith).not.toContain("daily revenue");

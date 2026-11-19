@@ -206,7 +206,7 @@ export async function draftCampaign(
   }
   if (proposal.status !== "approved") {
     throw new SegmentProposalError(
-      `only an approved campaign is drafted — this one is ${proposal.status}`,
+      `only an approved campaign is drafted: this one is ${proposal.status}`,
       409,
     );
   }
