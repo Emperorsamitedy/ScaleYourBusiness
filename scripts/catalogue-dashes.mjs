@@ -129,7 +129,7 @@ function joinFor(locale, d, raw = " — ") {
       return zh ? "。" : ". ";
     case "colon":
     case "colonlead":
-      return zh ? "：" : fr ? " : " : ": ";
+      return zh ? "：" : fr ? "\u00a0: " : ": ";
     case "semi":
       return zh ? "；" : fr ? " ; " : "; ";
     case "strip":
@@ -288,7 +288,7 @@ function follow(locale, s, enDecisions) {
     }
     if (d !== "glyph" && /^[.,;:!?)»”。，]/.test(rest)) d = "glyph";
     // No sentence gets two colons.
-    if (d === "colon" && /:\s|：| :/.test(sentenceAt(out))) d = "semi";
+    if (d === "colon" && /:\s|：|\u00a0:/.test(sentenceAt(out))) d = "semi";
     // A full stop needs a letter to capitalise after it; a placeholder or a tag takes a colon.
     if (d === "stop" && locale !== "zh-Hans" && !/^[«“"'‘(„]*\p{L}/u.test(rest)) d = "colon";
     if (d === "lead" && out.trim() !== "") d = "comma";
