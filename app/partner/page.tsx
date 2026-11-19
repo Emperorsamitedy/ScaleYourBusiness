@@ -6,6 +6,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { PostForm } from "../../components/partner/PostForm";
+import { PageHead, SheetCard } from "../../components/sheet/PageHead";
 import { loadFactWords } from "../../lib/bank/words";
 import { dayMonthYear, presentMoney } from "../../lib/i18n/format";
 import { rangeOf } from "../../lib/i18n/range";
@@ -15,6 +16,7 @@ import { firmOf } from "../../lib/partners/access";
 import { bookView, firmRollup } from "../../lib/partners/book";
 import { FIRM_TYPES } from "../../lib/partners/firm";
 import { partnerSession } from "../../lib/partners/session";
+import "../plain.css";
 
 export async function generateMetadata(): Promise<Metadata> {
   return { title: trFor(await requestLocale(), "partner")("meta.title") };
@@ -60,16 +62,19 @@ export default async function PartnerPage() {
   const tr = trFor(locale, "partner");
   const session = await partnerSession();
   const failed = tr("failed", { why: "{why}" });
+  const nav = trFor(locale, "nav");
+  // Where this screen sits, in the menu's own words.
+  const kicker = `${nav("group.business")} · ${nav("item.partner")}`;
   if (!session) {
     return (
-      <main className="auth-stage">
-        <section className="card">
-          <span className="auth-eyebrow">{tr("kicker")}</span>
-          <p className="auth-copy">{tr("noSession")}</p>
-          <p className="auth-copy">
-            <Link href="/login">→</Link>
+      <main className="screen pg">
+        <PageHead kicker={kicker} title={tr("noSession")}>
+          <p className="pg-acts on-desk">
+            <Link className="act" href="/login">
+              {trFor(locale, "auth")("mast.signIn")}
+            </Link>
           </p>
-        </section>
+        </PageHead>
       </main>
     );
   }
@@ -77,12 +82,12 @@ export default async function PartnerPage() {
   if (!mine) {
     const regions = new Intl.DisplayNames([locale], { type: "region" });
     return (
-      <main className="auth-stage">
-        <div className="statement-col">
-          <section className="card">
-            <span className="auth-eyebrow">{tr("kicker")}</span>
-            <h1 className="auth-title">{tr("create.title")}</h1>
-            <p className="auth-copy">{tr("create.intro")}</p>
+      <main className="screen pg">
+        <PageHead kicker={kicker} title={tr("create.title")}>
+          <p className="ph-lede">{tr("create.intro")}</p>
+        </PageHead>
+        <div className="pg-stack">
+          <SheetCard>
             <PostForm
               endpoint="/api/partner"
               fixed={{ action: "create_firm" }}
@@ -105,8 +110,9 @@ export default async function PartnerPage() {
               ]}
               submit={tr("create.submit")}
               failed={failed}
+              className="act solid"
             />
-          </section>
+          </SheetCard>
         </div>
       </main>
     );
@@ -127,30 +133,32 @@ export default async function PartnerPage() {
         code)
       : "-";
   return (
-    <main className="screen partner-screen">
-      <section className="card">
-        <span className="auth-eyebrow">
-          {tr("kicker")} · {mine.firm.name}
-        </span>
-        <h1 className="auth-title">{tr("book.title")}</h1>
-        <p className="auth-copy">
+    <main className="screen pg partner-screen">
+      <PageHead
+        kicker={`${tr("kicker")} · ${mine.firm.name}`}
+        title={tr("book.title")}
+        aside={tr("book.clients", { count: String(rollup.clients_active) })}
+      >
+        <p className="ph-lede">
           {tr("book.rollup", { amount: rollup.verified.map(money).join(" · ") })}
         </p>
-        <p className="auth-copy">{tr("book.clients", { count: String(rollup.clients_active) })}</p>
         {mine.role !== "staff" && (
-          <p className="auth-copy">
-            <Link href="/partner/import">{tr("import.link")}</Link>
-            {" · "}
-            <Link href="/partner/nav">{tr("nav.link")}</Link>
+          <p className="pg-acts on-desk">
+            <Link className="act" href="/partner/import">
+              {tr("import.link")}
+            </Link>
+            <Link className="act" href="/partner/nav">
+              {tr("nav.link")}
+            </Link>
           </p>
         )}
-      </section>
+      </PageHead>
       {book.length === 0 ? (
-        <section className="card">
-          <p className="auth-copy">{tr("book.empty")}</p>
-        </section>
+        <SheetCard>
+          <p>{tr("book.empty")}</p>
+        </SheetCard>
       ) : (
-        <div className="partner-table-wrap">
+        <div className="cs partner-table-wrap">
           <table className="rt partner-table">
             <thead>
               <tr>
@@ -209,9 +217,8 @@ export default async function PartnerPage() {
         </div>
       )}
       {mine.role === "principal" && (
-        <div className="statement-col partner-settings">
-          <section className="card">
-            <span className="auth-eyebrow">{tr("settings.title")}</span>
+        <div className="pg-cols partner-settings">
+          <SheetCard title={tr("settings.title")}>
             <PostForm
               endpoint="/api/partner"
               fixed={{ action: "white_label" }}
@@ -244,11 +251,9 @@ export default async function PartnerPage() {
               submit={tr("settings.save")}
               done={tr("done")}
               failed={failed}
-              className="ghost"
             />
-          </section>
-          <section className="card">
-            <span className="auth-eyebrow">{tr("members.title")}</span>
+          </SheetCard>
+          <SheetCard title={tr("members.title")}>
             <PostForm
               endpoint="/api/partner"
               fixed={{ action: "add_member" }}
@@ -268,9 +273,8 @@ export default async function PartnerPage() {
               submit={tr("members.add")}
               done={tr("done")}
               failed={failed}
-              className="ghost"
             />
-          </section>
+          </SheetCard>
         </div>
       )}
     </main>

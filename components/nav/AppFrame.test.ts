@@ -8,6 +8,7 @@ import {
   foldsRail,
   groupFor,
   groupHome,
+  onItem,
   placeFor,
   placeGroups,
   placeHasRail,
@@ -62,6 +63,24 @@ describe("app navigation", () => {
     expect(showsNav("/watch")).toBe(true);
     expect(showsNav("/home")).toBe(true);
     expect(showsNav("/chat")).toBe(true);
+  });
+
+  // 2026-11-20: the shadow summary is opened from "What I may do" and had no
+  // frame around it, because no menu item's address starts "/shadow".
+  it("keeps a screen's page inside the frame when it lives at an address of its own", () => {
+    const ladder = GROUPS.flatMap((g) => g.items).find((i) => i.href === "/ladder")!;
+    expect(onItem("/shadow", ladder)).toBe(true);
+    expect(onItem("/ladder", ladder)).toBe(true);
+    expect(onItem("/shadowy", ladder)).toBe(false);
+    expect(showsNav("/shadow")).toBe(true);
+    expect(groupFor("/shadow")?.key).toBe(groupFor("/ladder")?.key);
+    // A stranger's copy of it is still outside: it is somebody else's page.
+    expect(showsNav("/shared/shadow/abc")).toBe(false);
+    // And no page is claimed by two screens.
+    const pages = GROUPS.flatMap((g) => g.items.flatMap((i) => i.pages ?? []));
+    expect(new Set(pages).size).toBe(pages.length);
+    const hrefs = GROUPS.flatMap((g) => g.items.map((i) => i.href));
+    for (const p of pages) expect(hrefs).not.toContain(p);
   });
 
   // 2026-11-18: the rail lists a group's main screens first; the rest wait behind "more".

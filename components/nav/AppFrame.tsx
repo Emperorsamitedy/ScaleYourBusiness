@@ -85,6 +85,12 @@ export interface Item {
    * item with this shows only once the counts say yes.
    */
   appliesTo?: (c: NavCounts) => boolean;
+  /**
+   * Pages of this screen that live at an address of their own: the shadow
+   * summary is opened from "What I may do" and belongs to it. A path under
+   * the item's own address needs no entry here.
+   */
+  pages?: readonly string[];
 }
 
 export interface Group {
@@ -141,7 +147,13 @@ export const GROUPS: readonly Group[] = [
         rail: true,
         count: (c) => n(c.pending),
       },
-      { href: "/ladder", label: "What I may do", feature: "nav.ladder", rail: true },
+      {
+        href: "/ladder",
+        label: "What I may do",
+        feature: "nav.ladder",
+        rail: true,
+        pages: ["/shadow"],
+      },
     ],
   },
   {
@@ -305,6 +317,11 @@ const LOOSE_ROUTES = ["/chat"];
 
 const matches = (path: string, href: string) => path === href || path.startsWith(`${href}/`);
 
+/** Pure: whether a path is this item's screen: its address, a page under it, or one it names. */
+export function onItem(path: string, item: Pick<Item, "href" | "pages">): boolean {
+  return matches(path, item.href) || (item.pages ?? []).some((p) => matches(path, p));
+}
+
 /**
  * Pure: the items the rail lists first for a group — its main screens, plus
  * the screen open now if it is one of the others. A group with no main
@@ -312,7 +329,7 @@ const matches = (path: string, href: string) => path === href || path.startsWith
  */
 export function railItems(group: Group, path: string): Item[] {
   if (!group.items.some((i) => i.rail)) return group.items;
-  return group.items.filter((i) => i.rail === true || matches(path, i.href));
+  return group.items.filter((i) => i.rail === true || onItem(path, i));
 }
 
 /** Pure: the screens a group keeps behind "more": the rest, once `railItems` are listed. */
@@ -332,7 +349,7 @@ export function stripStop(path: string): boolean {
 /** Pure: the group a path belongs to, or null when it isn't an owner screen. */
 export function groupFor(path: string): Group | null {
   if (path.startsWith("/support/test")) return null; // the stand-in for an owner's own site
-  return GROUPS.find((g) => g.items.some((i) => matches(path, i.href))) ?? null;
+  return GROUPS.find((g) => g.items.some((i) => onItem(path, i))) ?? null;
 }
 
 /** Pure: the screen a group opens on — its first main screen, else its first. */
@@ -570,7 +587,7 @@ function BusinessLinks({
   return (
     <>
       {group?.items.map((i) => {
-        const active = matches(path, i.href);
+        const active = onItem(path, i);
         const c = counts && i.count ? i.count(counts, words) : null;
         return (
           <Link
@@ -690,7 +707,7 @@ function Rail({
     nav.scrollLeft += a.left - n.left - (n.width - a.width) / 2;
   }, [path]);
   const row = (i: Item) => {
-    const active = matches(path, i.href);
+    const active = onItem(path, i);
     const c = counts && i.count ? i.count(counts, words) : null;
     const label = t(`item.${itemKey(i)}`);
     return (

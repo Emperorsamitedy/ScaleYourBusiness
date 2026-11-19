@@ -9,11 +9,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { PostForm } from "../../../../components/partner/PostForm";
+import { PageHead } from "../../../../components/sheet/PageHead";
 import { requestLocale } from "../../../../lib/i18n/server";
 import { trFor } from "../../../../lib/i18n/server-tr";
 import { PartnerAccessError } from "../../../../lib/partners/access";
 import { COMMENTARY_SECTIONS, clientView } from "../../../../lib/partners/actions";
 import { partnerSession } from "../../../../lib/partners/session";
+import "../../../plain.css";
 
 export async function generateMetadata(): Promise<Metadata> {
   return { title: trFor(await requestLocale(), "partner")("meta.title") };
@@ -33,32 +35,31 @@ export default async function ClientPage({ params }: { params: Promise<{ id: str
   if (!view) notFound();
   const failed = tr("failed", { why: "{why}" });
   return (
-    <main className="auth-stage">
-      <div className="statement-col">
-        <section className="card">
-          <span className="auth-eyebrow">
-            {tr("kicker")} · {view.firm.name}
-          </span>
-          <h1 className="auth-title">{view.business ?? tr("unnamed")}</h1>
-          {view.report ? (
-            <p className="auth-copy">
-              {tr("report.version", {
+    <main className="screen pg">
+      <PageHead
+        kicker={`${tr("kicker")} · ${view.firm.name}`}
+        title={view.business ?? tr("unnamed")}
+      >
+        <p className="ph-lede">
+          {view.report
+            ? tr("report.version", {
                 version: String(view.report.version),
                 grade: view.report.grade,
-              })}
-            </p>
-          ) : (
-            <p className="auth-copy">{tr("client.noReport")}</p>
-          )}
+              })
+            : tr("client.noReport")}
+        </p>
+        <p className="pg-acts on-desk">
           {view.scopes.reports && (
-            <p className="auth-copy">
-              <Link href={`/partner/clients/${id}/report`}>{tr("client.report")}</Link>
-            </p>
+            <Link className="act" href={`/partner/clients/${id}/report`}>
+              {tr("client.report")}
+            </Link>
           )}
-          <p className="auth-copy">
-            <Link href="/partner">{tr("client.back")}</Link>
-          </p>
-        </section>
+          <Link className="act" href="/partner">
+            {tr("client.back")}
+          </Link>
+        </p>
+      </PageHead>
+      <div className="pg-stack">
         {COMMENTARY_SECTIONS.map((section) => (
           <section key={section} className="card">
             <span className="auth-eyebrow">{tr(`section.${section}`)}</span>

@@ -6,9 +6,11 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { MANDATE_SCOPES } from "../../../db/schema";
 import { PostForm } from "../../../components/partner/PostForm";
+import { PageHead, SheetCard } from "../../../components/sheet/PageHead";
 import { requestLocale } from "../../../lib/i18n/server";
 import { trFor } from "../../../lib/i18n/server-tr";
 import { DEFAULT_MONTHS } from "../../../lib/partners/mandates";
+import "../../plain.css";
 
 export async function generateMetadata(): Promise<Metadata> {
   return { title: trFor(await requestLocale(), "partner")("import.title") };
@@ -19,12 +21,17 @@ export default async function ImportPage() {
   const locale = await requestLocale();
   const tr = trFor(locale, "partner");
   return (
-    <main className="auth-stage">
-      <div className="statement-col">
-        <section className="card">
-          <span className="auth-eyebrow">{tr("kicker")}</span>
-          <h1 className="auth-title">{tr("import.title")}</h1>
-          <p className="auth-copy">{tr("import.intro")}</p>
+    <main className="screen pg">
+      <PageHead kicker={tr("kicker")} title={tr("import.title")}>
+        <p className="ph-lede">{tr("import.intro")}</p>
+        <p className="pg-acts on-desk">
+          <Link className="act" href="/partner">
+            {tr("client.back")}
+          </Link>
+        </p>
+      </PageHead>
+      <div className="pg-stack">
+        <SheetCard>
           <PostForm
             endpoint="/api/partner"
             fixed={{ action: "import", default_language: locale }}
@@ -59,11 +66,9 @@ export default async function ImportPage() {
               failed: "{failed}",
             })}
             failed={tr("failed", { why: "{why}" })}
+            className="act solid"
           />
-          <p className="auth-copy">
-            <Link href="/partner">{tr("client.back")}</Link>
-          </p>
-        </section>
+        </SheetCard>
       </div>
     </main>
   );

@@ -8,6 +8,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { Fragment } from "react";
 import { HBars } from "../../components/charts/Viz";
+import { PageHead, SheetCard } from "../../components/sheet/PageHead";
 import { resolveAccess } from "../../lib/auth/access";
 import type { Grade } from "../../lib/core/grade";
 import { headlineMoneyAllowed } from "../../lib/diagnosis/diagnosis-grade";
@@ -19,6 +20,7 @@ import { presentMoney } from "../../lib/i18n/format";
 import type { AppLocale } from "../../lib/i18n/locales";
 import { requestLocale } from "../../lib/i18n/server";
 import { trFor } from "../../lib/i18n/server-tr";
+import "../plain.css";
 
 export async function generateMetadata(): Promise<Metadata> {
   return { title: trFor(await requestLocale(), "statement")("meta.title") };
@@ -57,11 +59,14 @@ export default async function StatementPage({
 }) {
   const locale = await requestLocale();
   const tr = trFor(locale, "statement");
+  const nav = trFor(locale, "nav");
+  // Where this screen sits, in the menu's own words.
+  const kicker = `${nav("group.business")} · ${nav("item.statement")}`;
   const access = await resolveAccess();
   if (!access) {
     return (
-      <main className="auth-stage">
-        <p className="auth-copy">{tr("none")}</p>
+      <main className="screen pg">
+        <PageHead kicker={kicker} title={tr("none")} />
       </main>
     );
   }
@@ -95,11 +100,10 @@ export default async function StatementPage({
   const leakBlocks = leakBars([...ranged].map(([key, { range }]) => ({ key, ...range })));
 
   return (
-    <main className="auth-stage">
-      <div className="statement-col">
-        <section className="card">
-          <span className="auth-eyebrow">{tr("title")}</span>
-          <h1 className="auth-title">{monthWords}</h1>
+    <main className="screen pg">
+      <PageHead kicker={kicker} title={monthWords} />
+      <div className="pg-stack">
+        <SheetCard>
           {worth.length > 0 && (
             <div className="card-viz">
               {worth.map((b) => (
@@ -126,7 +130,7 @@ export default async function StatementPage({
               ))}
             </div>
           )}
-          <ul className="shadow-summary">
+          <ul className="pg-lines">
             <li>{tr("did", { count: s.did.actions, undone: s.did.undone })}</li>
             <li>{tr("worth", { amount: amounts(s.worth.verified, locale, dash) })}</li>
             <li>{tr("losses", { amount: amounts(s.worth.losses, locale, dash) })}</li>
@@ -144,18 +148,17 @@ export default async function StatementPage({
             <li>{tr("queued", { count: s.queued })}</li>
           </ul>
           {s.decision ? (
-            <p className="auth-copy">
+            <p>
               {tr("decision")} <Link href="/proposals">{s.decision.summary || tr("open")}</Link>
             </p>
           ) : (
-            <p className="auth-copy">{tr("noDecision")}</p>
+            <p>{tr("noDecision")}</p>
           )}
-        </section>
+        </SheetCard>
 
-        <section className="card">
-          <span className="auth-eyebrow">{tr("leaks.title")}</span>
+        <SheetCard title={tr("leaks.title")}>
           {sorted.length === 0 ? (
-            <p className="auth-copy">{tr("leaks.none")}</p>
+            <p>{tr("leaks.none")}</p>
           ) : (
             <>
               {leakBlocks.length > 0 && (
@@ -187,14 +190,14 @@ export default async function StatementPage({
                   ))}
                 </div>
               )}
-              <ul className="shadow-summary">
+              <ul className="pg-lines">
                 {listed.map(({ leak: l, range }) => (
                   <li key={l.id}>
                     <b>{l.title}</b>: {tr(`leaks.status.${l.status}`)}
                     {range && (
                       <>
                         {" · "}
-                        {rangeWords(range)}
+                        <span className="pg-nowrap">{rangeWords(range)}</span>
                       </>
                     )}
                     {" · "}
@@ -204,8 +207,8 @@ export default async function StatementPage({
               </ul>
             </>
           )}
-          <p className="auth-copy">{tr("leaks.rule")}</p>
-        </section>
+          <p className="pg-quiet">{tr("leaks.rule")}</p>
+        </SheetCard>
       </div>
     </main>
   );

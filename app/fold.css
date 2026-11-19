@@ -58,6 +58,13 @@
 .ph-notes .fold .fold-body {
   color: var(--desk-ink-2);
 }
+/* What a desk fold opens onto is on the desk too: a paragraph inside it that
+   carries a screen's own paper-ink class (Pipeline's fine print, Patterns'
+   held line) would be near invisible there. */
+.fold.on-desk .fold-body > p,
+.screen > .fold .fold-body > p {
+  color: var(--desk-ink-2);
+}
 .fold.on-desk > summary:hover,
 .screen > .fold > summary:hover,
 .ph-notes .fold > summary:hover {

@@ -7,11 +7,13 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { NavBulkForm } from "../../../components/partner/NavBulkForm";
+import { PageHead, SheetCard } from "../../../components/sheet/PageHead";
 import { requestLocale } from "../../../lib/i18n/server";
 import { trFor } from "../../../lib/i18n/server-tr";
 import { firmOf } from "../../../lib/partners/access";
 import { navBook } from "../../../lib/partners/nav";
 import { partnerSession } from "../../../lib/partners/session";
+import "../../plain.css";
 
 export async function generateMetadata(): Promise<Metadata> {
   return { title: trFor(await requestLocale(), "partner")("nav.title") };
@@ -59,30 +61,30 @@ export default async function PartnerNavPage() {
   });
   words.failed = tr("failed", { why: "{why}" });
   return (
-    <main className="screen partner-screen">
-      <section className="card">
-        <span className="auth-eyebrow">
-          {tr("kicker")}
-          {mine ? ` · ${mine.firm.name}` : ""}
-        </span>
-        <h1 className="auth-title">{tr("nav.title")}</h1>
+    <main className="screen pg partner-screen">
+      <PageHead
+        kicker={`${tr("kicker")}${mine ? ` · ${mine.firm.name}` : ""}`}
+        title={tr("nav.title")}
+      >
         {!allowed ? (
-          <p className="auth-copy">{session ? tr("nav.notAllowed") : tr("noSession")}</p>
+          <p className="ph-lede">{session ? tr("nav.notAllowed") : tr("noSession")}</p>
         ) : (
           <>
-            <p className="auth-copy">{tr("nav.intro")}</p>
-            <p className="auth-copy">{tr("nav.who")}</p>
+            <p className="ph-lede">{tr("nav.intro")}</p>
+            <p className="ph-lede">{tr("nav.who")}</p>
           </>
         )}
-        <p className="auth-copy">
-          <Link href="/partner">{tr("client.back")}</Link>
+        <p className="pg-acts on-desk">
+          <Link className="act" href="/partner">
+            {tr("client.back")}
+          </Link>
         </p>
-      </section>
+      </PageHead>
       {allowed &&
         (book.length === 0 ? (
-          <section className="card">
-            <p className="auth-copy">{tr("nav.empty")}</p>
-          </section>
+          <SheetCard>
+            <p>{tr("nav.empty")}</p>
+          </SheetCard>
         ) : (
           <NavBulkForm
             clients={book.map((c) => ({ ...c, name: c.name ?? tr("unnamed") }))}
