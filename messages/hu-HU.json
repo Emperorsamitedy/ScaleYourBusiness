@@ -9400,7 +9400,8 @@
       "email_campaign": "E-mailek a kapcsolattartóinak",
       "followup_email": "Utánkövetés elakadt üzleteknél",
       "purchase_order": "Megrendelések a beszállítóknak",
-      "google_business_reviews": "Válaszok a Google-értékelésekre"
+      "google_business_reviews": "Válaszok a Google-értékelésekre",
+      "shopify_write": "Változtatások a Shopify-boltjában"
     },
     "kicker": "Bizalmi létra",
     "col": {

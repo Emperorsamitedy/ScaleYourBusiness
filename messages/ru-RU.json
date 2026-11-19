@@ -9400,7 +9400,8 @@
       "email_campaign": "Письма вашим контактам",
       "followup_email": "Напоминания по застывшим сделкам",
       "purchase_order": "Заказы поставщикам",
-      "google_business_reviews": "Ответы на отзывы в Google"
+      "google_business_reviews": "Ответы на отзывы в Google",
+      "shopify_write": "Изменения в вашем магазине Shopify"
     },
     "kicker": "Лестница доверия",
     "col": {

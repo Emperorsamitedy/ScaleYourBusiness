@@ -9400,7 +9400,8 @@
       "email_campaign": "发给联系人的邮件",
       "followup_email": "停滞交易的跟进邮件",
       "purchase_order": "向供应商下单",
-      "google_business_reviews": "回复 Google 评价"
+      "google_business_reviews": "回复 Google 评价",
+      "shopify_write": "Shopify 店铺的修改"
     },
     "kicker": "信任阶梯",
     "col": {

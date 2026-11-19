@@ -9400,7 +9400,8 @@
       "email_campaign": "Email to your contacts",
       "followup_email": "Follow-ups on quiet deals",
       "purchase_order": "Orders to suppliers",
-      "google_business_reviews": "Answers to Google reviews"
+      "google_business_reviews": "Answers to Google reviews",
+      "shopify_write": "Changes in your Shopify store"
     },
     "kicker": "Trust Ladder",
     "col": {
