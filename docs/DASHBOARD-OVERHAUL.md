@@ -172,7 +172,41 @@ Order: L1, L2, his pick, then L3, L4 and L6 built to the pick, then L7, L5, L8, 
 - **Stock** folds its working: the reorder note keeps the warning, the cost and what approving does, and puts the sum, the sources and the assumptions under "Why?"; how cover is counted and the season it counts sit under "How this works"; each clearing option keeps its headline figure and the five sums sit under one fold. The cover column reads "3 to 4".
 - **Overlaps.** Rounded cards stacked in a screen always have air between them: Payments had three touching, because cards that shared a square edge in the classic look were never given a gap. One rule of zero specificity in `app/sheet.css`, so a screen's own spacing still wins. A card with nothing to list shows no empty band between its head and its foot.
 - **The queue's two approve buttons** lost the arrow the style rule could not reach (it sat one element deeper).
-- [ ] Not yet seen in a browser after these changes: the local database was down (Docker). The walk of all 35 screens stopped at screen 14; screens 15 to 35 and a fresh demo seed are still to do.
+- [x] Seen in a browser on 2026-11-19 and 20, once the local database was back: see "What the browser showed" below.
+
+### What the browser showed (2026-11-19 and 20)
+
+Every owner screen was opened in a browser again, signed in as the demo shop, with a script that also measures what an eye misses: anything hanging off the right edge, the words around any long dash, any control that still ends in an arrow, and any text too faint against what is behind it.
+
+- **Watching** runs in two stacks while a watch is on, so a short card no longer leaves a hole beside a tall one; one column in reading order under 1100px.
+- **Connections** logged "two children with the same key" on every render: a consent or a guide can name one scope on two lines (Shopify's `write_products`). The place in the list is part of the key now.
+- **Arrows.** The Connect buttons kept theirs because words for a screen reader follow the arrow, and the report's fold drew one after its label. Neither shows in the app; that fold opens with the same plus as every other.
+- **Faint text.** A fold that is a screen's own child sits on the dark desk and takes desk ink (Similar businesses and Abandoned carts had theirs in paper ink, near invisible); the same on Patterns for its section name and the two lines under its cards.
+- **A capability with no name.** Shopify store changes joined the execution registry on 2026-11-16 without `ladder.capability.shopify_write`, so the Trust ladder printed the key and logged MISSING_MESSAGE, on `main` too. It has a name in seven languages, and `components/ladder/ladder-view.test.ts` fails for any capability without one.
+- **A reader left behind.** `lib/competitors/view.ts` still looked for yesterday's wording of "doesn't resolve", so a stored read problem was never said in the reader's language.
+
+### The plain pages (2026-11-20)
+
+Nine pages were never brought into the frame: Plan and billing, the monthly statement, the growth studio, erasing the business, firms with access, the shadow summary, the Partner Console with its three sub-pages, and the NAV guide. They were lone square cards on the sign-in stage, which inside the frame left a small box in the middle of an empty screen. They open like every other screen now: the page head (where it sits, in the menu's own words, then the headline) and paper cards on the sheet system's tokens. `app/plain.css` holds what they share, scoped under `.pg`; the sign-in stage and the public pages do not move.
+
+- The headline is the answer where there is one: "No plan yet.", the tier and its price, the month, "No firm has access to your business.", when erasure was asked for.
+- The growth studio is two stacks of cards, and each of its five forms is folded until it is wanted.
+- The Partner Console's sign-in link was a lone arrow with no words. It says "Sign in".
+- The shadow summary is drawn by the component the public shared page uses as it is, so that card keeps its markup and takes the sheet card's shape here.
+- **A page with no frame.** The shadow summary (`/shadow`) is opened from "What I may do", but no menu item's address starts it, so it had no bar, no rail and the classic look. A menu item can now name pages of its own that live at another address (`pages` on the item, `onItem` in `components/nav/AppFrame.tsx`, held by a test); the shadow summary is the first.
+- **Seen in a browser** after a fresh seed of the demo shop: the report, History, the creative studio, the fact sheet and Support print no long dash, and the nine pages report nothing off the edge, no arrow on a control and no faint text.
+
+### L7, the sentences with no twin (2026-11-20)
+
+"No em and en dashes throughout the app" reached the catalogues on 2026-11-18 and the backend's twins on the 19th. What was left were the sentences the backend writes that no catalogue message mirrors: English only, printed as written. The browser found them on the report (break-even lines), on Patterns (a ratio's range), in the creative studio (a brief's sources). They were then read file by file, not replaced blind: a colon before an explanation, a full stop where a new sentence starts, brackets around an aside, "to" in a range.
+
+- **What changed.** Proposals of every kind (ads, trading-hours trials, stock, bundles, follow-ups, seasons, customers, content), the report's and the trading hours' evidence, forecasts' claims, the ledger's reasons for not scoring, what Lex says when a change is asked for in chat, what the execution engine, the trust ladder and each provider answer when they refuse or fail, import refusals, the support chat's own lines to a customer, and the benchmark and NAV sentences that live in code in more than one language.
+- **Ranges** in code go through `rangeOf` where a language is known: a ratio's spread, the site audit's, the price simulator's, the team's coverage, and the week in the summary email's heading (the platform's own date range draws a long dash, so the two days are joined by the language's word).
+- **Readers that took text apart by its dash** read both forms, since rows written before keep theirs: a shot list's and a film's title (`lib/content/media-item.ts`, `generation.ts`), and a shot list's summary (`produce.ts`). `lib/content/video-title.test.ts` holds both.
+- **Left as they are, on purpose:** prompts sent to a model, text parsers and character tables, lines that are hashed (the case file), legal citations, operator tools, invariant errors no person reads, the landing page.
+- **How to find what is left:** the list tool reads only what sits inside a string or a template, never a comment. About 700 such lines before, under 200 after, none of them a sentence a screen prints.
+
+- [ ] Not yet done on the list: L6 on the screens that are still long (Connections above all, then Customers and Similar businesses), Lex as a pop-up, and L9.
 
 ### The branch (2026-11-19)
 
