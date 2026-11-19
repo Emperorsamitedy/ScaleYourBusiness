@@ -9,7 +9,6 @@
 // capped in lib/auth/service (redeemLoginCode).
 
 import { logSafeError } from "../../../../lib/core/log-safe";
-import { cookies } from "next/headers";
 import { type NextRequest, NextResponse } from "next/server";
 import { landingPath, setSignInCookies } from "../../../../lib/auth/landing";
 import { RETURN_COOKIE, isIdeaReturn } from "../../../../lib/auth/return-to";
@@ -35,7 +34,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       request.headers.get("x-forwarded-for")?.split(",")[0] ??
       null;
     // L8: a sign-in on its way to an idea makes no business of its own.
-    const back = (await cookies()).get(RETURN_COOKIE)?.value;
+    const back = request.cookies.get(RETURN_COOKIE)?.value;
     const session = await redeemLoginCode(body.email, body.code, clientIp, {
       business: !isIdeaReturn(back),
     });

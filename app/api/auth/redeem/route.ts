@@ -11,7 +11,6 @@
 // makes login-from-a-new-device just work with zero route changes.
 
 import { logSafeError } from "../../../../lib/core/log-safe";
-import { cookies } from "next/headers";
 import { type NextRequest, NextResponse } from "next/server";
 import { landingPath, setSignInCookies } from "../../../../lib/auth/landing";
 import { RETURN_COOKIE, isIdeaReturn } from "../../../../lib/auth/return-to";
@@ -45,7 +44,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   }
   try {
     // L8: a sign-in on its way to an idea makes no business of its own.
-    const back = (await cookies()).get(RETURN_COOKIE)?.value;
+    const back = request.cookies.get(RETURN_COOKIE)?.value;
     const session = await redeemLogin(token, { business: !isIdeaReturn(back) });
     const landing = landingPath(session, back);
     return setSignInCookies(NextResponse.redirect(new URL(landing, origin), 303), session);

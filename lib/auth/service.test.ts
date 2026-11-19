@@ -52,11 +52,12 @@ afterAll(async () => {
         .set({ owner_user_id: null })
         .where(eq(accounts.owner_user_id, u.id));
       await db.delete(users).where(eq(users.id, u.id));
-      const [profile] = await db
-        .select({ id: businessProfiles.id })
-        .from(businessProfiles)
-        .where(eq(businessProfiles.account_id, u.account_id));
-      if (!profile) await db.delete(accounts).where(eq(accounts.id, u.account_id));
+      // L8: a sign-in with no business makes an empty one, which goes here
+      // with its account. A business a test made itself is removed below.
+      if (!cleanupProfiles.some((s) => s.account_id === u.account_id)) {
+        await db.delete(businessProfiles).where(eq(businessProfiles.account_id, u.account_id));
+        await db.delete(accounts).where(eq(accounts.id, u.account_id));
+      }
     }
     await db.delete(loginTokens).where(eq(loginTokens.email, email));
     await db.delete(rateLimits).where(eq(rateLimits.key, `login:email:${email}:3600000`));
