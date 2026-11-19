@@ -503,9 +503,19 @@ export async function ensureProfile(
       language: isAppLocale(choices.language) ? choices.language : "en",
       kind: "operating",
     })
+    // One account, one business, held by the database (the unique account_id).
+    // Of two sign-ins at the same moment only one insert lands; the other
+    // reads what it made and is told it created nothing.
+    .onConflictDoNothing({ target: businessProfiles.account_id })
     .returning({ id: businessProfiles.id });
-  if (!profile) throw new IntakeError("profile creation failed", 500);
-  return { profile_id: profile.id, created: true };
+  if (profile) return { profile_id: profile.id, created: true };
+  const [raced] = await db
+    .select({ id: businessProfiles.id })
+    .from(businessProfiles)
+    .where(eq(businessProfiles.account_id, accountId))
+    .limit(1);
+  if (!raced) throw new IntakeError("profile creation failed", 500);
+  return { profile_id: raced.id, created: false };
 }
 
 async function askedEntries(
