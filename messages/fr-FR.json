@@ -10332,6 +10332,11 @@
       "title": "Je n’ai pas pu lire ce qui vous attend."
     },
     "title": "{count, plural, =0 {Rien ne vous attend.} one {# décision vous attend.} many {# décisions vous attendent.} other {# décisions vous attendent.}}",
+    "fresh": {
+      "title": "Je ne connais pas encore votre entreprise.",
+      "lede": "Parlez-m’en et je chercherai ce qui vous coûte de l’argent. Comptez environ huit minutes, à l’écrit ou à voix haute.",
+      "start": "Commencer l’entretien"
+    },
     "biggest": "La plus importante pourrait rapporter {range} par mois.",
     "readings": {
       "label": "Vos chiffres du jour",

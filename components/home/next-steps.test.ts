@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { NextInput } from "./next-steps";
-import { NEXT_HREF, nextSteps } from "./next-steps";
+import { NEXT_HREF, knowsNothing, nextSteps } from "./next-steps";
 
 const base: NextInput = { pending: 0, connections: 3, live: "live", buffer: true, goals: 2 };
 
@@ -29,6 +29,16 @@ describe("Home's next steps", () => {
     ).toEqual([]);
     expect(nextSteps({ ...base, buffer: false })).toEqual(["buffer"]);
     expect(nextSteps({ ...base, goals: 0 })).toEqual(["goal"]);
+  });
+
+  // L8: a person who signs up lands on Home before any interview. Lex offers it
+  // in the headline, once the count of facts is known and only when it is zero.
+  it("knows a business that has told nothing yet, and never guesses it", () => {
+    expect(knowsNothing(0)).toBe(true);
+    expect(knowsNothing(1)).toBe(false);
+    expect(knowsNothing(12)).toBe(false);
+    expect(knowsNothing(null)).toBe(false);
+    expect(knowsNothing(undefined)).toBe(false);
   });
 
   it("never offers more than asked, and every step has a screen", () => {

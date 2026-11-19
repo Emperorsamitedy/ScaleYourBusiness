@@ -82,7 +82,7 @@ import { LiveVisitors } from "./LiveVisitors";
 import { MadeList } from "./MadeList";
 import { madeRows } from "./made-model";
 import { NeedsList } from "./NeedsList";
-import { nextSteps } from "./next-steps";
+import { knowsNothing, nextSteps } from "./next-steps";
 import { StatusCard } from "./StatusCard";
 import { useAddressParam } from "./useAddressParam";
 import { useFeedNews } from "./useFeedNews";
@@ -241,6 +241,10 @@ export function HomeScreen() {
   const reviewed = review ? (everything.find((p) => p.id === review) ?? null) : null;
   const paused = nav?.needs_reconnect ?? 0;
   const tightWeek = cash?.tight?.start ?? null;
+  // L8: a person who signs up lands here before any interview, and Lex offers it
+  // in the headline. Known only once the menu has been read, and only while
+  // nothing waits for a decision.
+  const fresh = nav !== null && knowsNothing(nav.facts) && count === 0;
   const steps = nextSteps({
     pending: count,
     connections: nav ? nav.connections : null,
@@ -346,13 +350,25 @@ export function HomeScreen() {
           <b>{ASSISTANT}</b> · {t("kicker", { date: longDay(new Date(), locale) })}
         </p>
         <h1 className="home-title">
-          {count !== null
-            ? t("title", { count })
-            : waiting.state === "unread"
-              ? t("unread.title")
-              : t("reading")}
+          {fresh
+            ? t("fresh.title")
+            : count !== null
+              ? t("title", { count })
+              : waiting.state === "unread"
+                ? t("unread.title")
+                : t("reading")}
         </h1>
-        {top && <p className="home-ans">{t("biggest", { range: moneyRange(top, locale) })}</p>}
+        {fresh && (
+          <>
+            <p className="home-ans">{t("fresh.lede")}</p>
+            <Link className="home-btn home-btn-desk" href="/intake">
+              {t("fresh.start")}
+            </Link>
+          </>
+        )}
+        {top && !fresh && (
+          <p className="home-ans">{t("biggest", { range: moneyRange(top, locale) })}</p>
+        )}
         {waiting.state === "unread" && (
           <button
             type="button"

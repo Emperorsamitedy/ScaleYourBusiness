@@ -10332,6 +10332,11 @@
       "title": "I couldn't read what's waiting for you."
     },
     "title": "{count, plural, =0 {Nothing is waiting for you.} one {# decision is waiting for you.} other {# decisions are waiting for you.}}",
+    "fresh": {
+      "title": "I don't know your business yet.",
+      "lede": "Tell me about it and I can look for what costs you money. It takes about eight minutes, typed or spoken.",
+      "start": "Start the interview"
+    },
     "biggest": "The biggest could add {range} a month.",
     "readings": {
       "label": "Your numbers today",

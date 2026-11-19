@@ -10332,6 +10332,11 @@
       "title": "Nem tudtam beolvasni, mi vár Önre."
     },
     "title": "{count, plural, =0 {Semmi sem vár Önre.} one {# döntés vár Önre.} other {# döntés vár Önre.}}",
+    "fresh": {
+      "title": "Még nem ismerem a vállalkozását.",
+      "lede": "Meséljen róla, és megkeresem, mi viszi a pénzét. Körülbelül nyolc perc, gépelve vagy szóban.",
+      "start": "Interjú indítása"
+    },
     "biggest": "A legnagyobb havi {range} összeget hozhat.",
     "readings": {
       "label": "A mai számai",

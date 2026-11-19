@@ -22,7 +22,8 @@ import {
   intakeCookieOptions,
   signProfileCookie,
 } from "../../../../../../lib/auth/access";
-import { RETURN_COOKIE, returnPath } from "../../../../../../lib/auth/return-to";
+import { landingPath } from "../../../../../../lib/auth/landing";
+import { RETURN_COOKIE, isIdeaReturn } from "../../../../../../lib/auth/return-to";
 import { appOriginOf } from "../../../../../../lib/auth/same-origin";
 import { AuthError, signInWithEmail } from "../../../../../../lib/auth/service";
 import { secretMatches } from "../../../../../../lib/core/secret-compare";
@@ -66,10 +67,17 @@ async function finish(
     // Only a profile nobody owns yet can be claimed by a sign-in.
     const profileId = await claimableProfile(store.get(INTAKE_COOKIE)?.value);
     // L-1: the first step's choices, from this same browser.
-    const session = await signInWithEmail(email, profileId, {
-      language: store.get(LANGUAGE_COOKIE)?.value,
-      currency: store.get(CURRENCY_COOKIE)?.value,
-    });
+    // L8: a sign-in on its way to an idea makes no business of its own.
+    const back = store.get(RETURN_COOKIE)?.value;
+    const session = await signInWithEmail(
+      email,
+      profileId,
+      {
+        language: store.get(LANGUAGE_COOKIE)?.value,
+        currency: store.get(CURRENCY_COOKIE)?.value,
+      },
+      { business: !isIdeaReturn(back) },
+    );
     console.log(
       JSON.stringify({
         event: "oauth_signin",
@@ -78,15 +86,8 @@ async function finish(
       }),
     );
 
-    // Idea 53: back to the proposal card the sign-in started from, once.
-    const back = session.profile_id ? returnPath(store.get(RETURN_COOKIE)?.value) : null;
-    const response = NextResponse.redirect(
-      // Idea 52: an email on several businesses' teams is asked which one first.
-      new URL(
-        session.choose ? "/login/choose" : (back ?? (session.profile_id ? "/home" : "/intake")),
-        origin,
-      ),
-    );
+    // Where it lands is the one rule every sign-in shares (lib/auth/landing).
+    const response = NextResponse.redirect(new URL(landingPath(session, back), origin));
     response.cookies.delete(STATE_COOKIE);
     response.cookies.delete(RETURN_COOKIE);
     response.cookies.set(AUTH_COOKIE, session.session_token, authCookieOptions());

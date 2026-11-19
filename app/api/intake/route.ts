@@ -36,6 +36,7 @@ import {
   submitEntities,
   submitEntityCount,
 } from "../../../lib/intake/service";
+import { recordFunnelEvent } from "../../../lib/intake/telemetry";
 import type { AnswerAction } from "../../../lib/intake/types";
 import { requireRole } from "../../../lib/auth/roles";
 import { pendingChoices, requestLocale } from "../../../lib/i18n/server";
@@ -70,6 +71,9 @@ export async function POST(): Promise<NextResponse> {
     let session: { account_id: string; profile_id: string };
     if (access) {
       session = access;
+      // L8: a business made at sign-in has not started its interview until
+      // now. Recorded once per business, so resuming never counts twice.
+      await recordFunnelEvent(session.profile_id, "funnel_intake_started");
     } else {
       session = await bootstrapIntake(await pendingChoices());
       // The v1 spec §4.2 (D35): a new business's first 30 days are shadow.

@@ -26,6 +26,16 @@ export const NEXT_HREF: Readonly<Record<NextStep, string>> = {
   goal: "/progress",
 };
 
+/**
+ * Pure: whether the business has told nothing yet. A person who signs up
+ * lands on Home before any interview (L8), and Lex offers it in the headline;
+ * it is not a step in the list below, which would say it twice. Unknown is
+ * not "nothing": the offer waits for the count.
+ */
+export function knowsNothing(facts: number | null | undefined): boolean {
+  return facts === 0;
+}
+
 /** Pure: the steps, the most useful first. Only a known gap is a step: an unknown is not a zero. */
 export function nextSteps(i: NextInput, limit = 3): NextStep[] {
   if (i.pending === null || i.pending > 0) return [];

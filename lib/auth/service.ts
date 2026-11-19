@@ -33,6 +33,8 @@ import {
 import { isIsoCurrency } from "../core/currencies";
 import { withinRateLimit } from "../core/rate-limit";
 import { normaliseEmail } from "../intake/resume";
+import { ensureProfile } from "../intake/service";
+import { startShadowPeriod } from "../ladder/ladder";
 import type { AppLocale } from "../i18n/locales";
 import { isAppLocale } from "../i18n/locales";
 import { adoptLanguage } from "../i18n/service";
@@ -221,7 +223,21 @@ export async function peekLogin(token: string): Promise<{ email: string }> {
   return { email: row.email };
 }
 
-export async function redeemLogin(token: string): Promise<RedeemedSession> {
+/** What a sign-in may do beyond signing the person in. */
+export interface SignInOptions {
+  /**
+   * L8: a person with no business yet gets one, so they land in the app and
+   * are offered the interview there. False when the sign-in is on its way to
+   * keeping an idea, which makes its own business (lib/ideas/keep.ts): an
+   * empty operating business beside it would only be clutter.
+   */
+  business?: boolean;
+}
+
+export async function redeemLogin(
+  token: string,
+  options: SignInOptions = {},
+): Promise<RedeemedSession> {
   const now = new Date().toISOString();
   const [row] = await db
     .select()
@@ -234,7 +250,7 @@ export async function redeemLogin(token: string): Promise<RedeemedSession> {
       ),
     );
   if (!row) throw new AuthError("that sign-in link is no longer valid", 401);
-  return spendLogin(row, now, "that sign-in link is no longer valid");
+  return spendLogin(row, now, "that sign-in link is no longer valid", options);
 }
 
 /**
@@ -247,6 +263,7 @@ export async function redeemLoginCode(
   rawCode: unknown,
   /** The caller's address, as the platform reports it — for the per-IP limit only. */
   clientIp?: string | null,
+  options: SignInOptions = {},
 ): Promise<RedeemedSession> {
   const email = normaliseEmail(rawEmail);
   if (!(await withinRateLimit(`login-code:email:${email}`, CODE_LIMIT_PER_EMAIL, CODE_WINDOW_MS))) {
@@ -277,7 +294,7 @@ export async function redeemLoginCode(
     return want.length === got.length && timingSafeEqual(want, got);
   });
   if (!row) throw new AuthError(CODE_REFUSED, 401);
-  return spendLogin(row, now, CODE_REFUSED);
+  return spendLogin(row, now, CODE_REFUSED, options);
 }
 
 /** Spend a live login token — link or code — and sign its owner in. */
@@ -285,6 +302,7 @@ async function spendLogin(
   row: typeof loginTokens.$inferSelect,
   now: string,
   refusal: string,
+  options: SignInOptions = {},
 ): Promise<RedeemedSession> {
   // Claimed atomically: of two concurrent redeems, only the one that flips
   // used_at from null wins — the other gets the same refusal as a used link.
@@ -301,10 +319,12 @@ async function spendLogin(
     const joined = await joinByInviteId(row.invite_id, row.email);
     return { ...joined, language: await adoptLanguage(joined.user_id, row.language) };
   }
-  return signInWithEmail(row.email, row.profile_id, {
-    language: row.language,
-    currency: row.currency,
-  });
+  return signInWithEmail(
+    row.email,
+    row.profile_id,
+    { language: row.language, currency: row.currency },
+    options,
+  );
 }
 
 /**
@@ -315,14 +335,19 @@ async function spendLogin(
  * Existing user for this email → their account (the most recently used
  * one, when there are several). Otherwise create the user on the account
  * of the profile the browser held — the "claim your anonymous intake"
- * path. With neither, a fresh account: the intake starts after sign-in
- * instead of before.
+ * path. With neither, a fresh account.
+ *
+ * L8: whichever account it is, a person with no business yet gets one here
+ * (an empty profile, in its shadow month from this moment), so they land in
+ * the app and are offered the interview there. An account made before this
+ * and left without a business gets one on its next sign-in.
  */
 export async function signInWithEmail(
   rawEmail: string,
   profileId: string | null,
   /** L-1: the browser's language and currency choices (see SignInChoices). */
   choices?: SignInChoices,
+  options: SignInOptions = {},
 ): Promise<RedeemedSession> {
   const email = normaliseEmail(rawEmail);
   const chosen = cleanChoices(choices);
@@ -368,6 +393,12 @@ export async function signInWithEmail(
       accountId = account.id;
     }
     user = await createOwner(accountId, email);
+  }
+
+  if (options.business !== false) {
+    const business = await ensureProfile(user.account_id, { language: chosen.language });
+    // The v1 spec §4.2 (D35): a new business's first 30 days are shadow.
+    if (business.created) await startShadowPeriod(business.profile_id);
   }
 
   return {

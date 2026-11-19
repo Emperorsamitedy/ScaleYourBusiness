@@ -20,6 +20,7 @@ import {
   revokeSession,
   signInWithEmail,
 } from "./service";
+import { landingPath } from "./landing";
 import { SwitchError, addBusiness, switchAccount } from "./switch";
 
 const mail = (tag: string) => `sw-${tag}-${crypto.randomUUID().slice(0, 8)}@example.com`;
@@ -64,10 +65,39 @@ describe("a one-business person — unchanged by idea 52", () => {
     });
   });
 
-  it("a brand-new email with no interview still gets a fresh account and lands on the intake", async () => {
+  it("a brand-new email with no interview gets a business of its own and lands in the app (L8)", async () => {
     const s = await signInWithEmail(mail("fresh"), null);
-    expect(s.profile_id).toBeNull();
+    expect(s.profile_id).not.toBeNull();
     expect(s.choose).toBe(false);
+    expect(landingPath(s, undefined)).toBe("/home");
+    const [profile] = await db
+      .select({
+        account_id: businessProfiles.account_id,
+        kind: businessProfiles.kind,
+        shadow_until: businessProfiles.shadow_until,
+      })
+      .from(businessProfiles)
+      .where(eq(businessProfiles.id, s.profile_id!));
+    expect(profile?.account_id).toBe(s.account_id);
+    expect(profile?.kind).toBe("operating");
+    // The v1 spec §4.2: its first 30 days are shadow, from this moment.
+    expect(profile?.shadow_until).not.toBeNull();
+    // Signing in again finds the same business; it never makes a second.
+    const again = await signInWithEmail(s.email, null);
+    expect(again.profile_id).toBe(s.profile_id);
+    expect(again.choose).toBe(false);
+  });
+
+  it("a sign-in on its way to an idea makes no business, and goes back to the check", async () => {
+    const s = await signInWithEmail(mail("idea"), null, undefined, { business: false });
+    expect(s.profile_id).toBeNull();
+    expect(landingPath(s, "/i/AbCdEfGh1234")).toBe("/i/AbCdEfGh1234");
+    expect(landingPath(s, undefined)).toBe("/intake");
+    // The next ordinary sign-in gives that account its business.
+    const later = await signInWithEmail(s.email, null);
+    expect(later.account_id).toBe(s.account_id);
+    expect(later.profile_id).not.toBeNull();
+    expect(landingPath(later, undefined)).toBe("/home");
   });
 });
 

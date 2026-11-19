@@ -12,7 +12,7 @@ import { logSafeError } from "../../../../lib/core/log-safe";
 import { cookies } from "next/headers";
 import { type NextRequest, NextResponse } from "next/server";
 import { landingPath, setSignInCookies } from "../../../../lib/auth/landing";
-import { RETURN_COOKIE } from "../../../../lib/auth/return-to";
+import { RETURN_COOKIE, isIdeaReturn } from "../../../../lib/auth/return-to";
 import { appOriginOf, isSameOriginPost } from "../../../../lib/auth/same-origin";
 import { AuthError, redeemLoginCode } from "../../../../lib/auth/service";
 import { ResumeError } from "../../../../lib/intake/resume";
@@ -34,12 +34,12 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       request.headers.get("x-real-ip") ??
       request.headers.get("x-forwarded-for")?.split(",")[0] ??
       null;
-    const session = await redeemLoginCode(body.email, body.code, clientIp);
-    // Read only when there's a business to return to, as before the shared helper.
-    const landing = landingPath(
-      session,
-      session.profile_id ? (await cookies()).get(RETURN_COOKIE)?.value : undefined,
-    );
+    // L8: a sign-in on its way to an idea makes no business of its own.
+    const back = (await cookies()).get(RETURN_COOKIE)?.value;
+    const session = await redeemLoginCode(body.email, body.code, clientIp, {
+      business: !isIdeaReturn(back),
+    });
+    const landing = landingPath(session, back);
     return setSignInCookies(NextResponse.json({ landing }), session);
   } catch (error) {
     if (error instanceof AuthError || error instanceof ResumeError) {

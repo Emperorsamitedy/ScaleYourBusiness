@@ -1,9 +1,30 @@
 // Idea 53 (I-53.5): the way back after sign-in is the queue or a card, nothing else.
 
 import { describe, expect, it } from "vitest";
-import { returnPath } from "./return-to";
+import { isIdeaReturn, returnPath } from "./return-to";
 
 const ID = "0f8fad5b-d9cb-469f-a165-70867728950e";
+
+describe("isIdeaReturn", () => {
+  it("knows a shared check and the check itself", () => {
+    expect(isIdeaReturn("/i/AbCdEfGh1234")).toBe(true);
+    expect(isIdeaReturn("/idea")).toBe(true);
+  });
+
+  it("is false for a kept idea, a card, another site and nothing at all", () => {
+    for (const raw of [
+      "/idea/mine",
+      "/proposals",
+      "https://evil.example/idea",
+      "/i/short",
+      "",
+      null,
+      undefined,
+    ]) {
+      expect(isIdeaReturn(raw)).toBe(false);
+    }
+  });
+});
 
 describe("returnPath", () => {
   it("takes the queue and one of its cards", () => {

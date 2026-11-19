@@ -2,7 +2,8 @@
 //
 // A plain form post, same-origin only. For the signed-in person: a fresh
 // account, its profile and an owner row for the same verified email, then
-// this browser switches into it and the interview starts there. It acts on
+// this browser switches into it and lands on Home, which offers the
+// interview (L8 of docs/DASHBOARD-OVERHAUL.md). It acts on
 // a NEW business only — nothing in the current one changes, so no role is
 // needed (the role-wiring test lists it as an identity route).
 
@@ -34,7 +35,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   if (!session) return NextResponse.redirect(new URL("/login", origin), 303);
   try {
     const next = await addBusiness({ session, currentToken: token });
-    const response = NextResponse.redirect(new URL("/intake", origin), 303);
+    // L8: a new business opens in the app, and Home offers the interview.
+    const response = NextResponse.redirect(new URL("/home", origin), 303);
     response.cookies.set(AUTH_COOKIE, next.session_token, authCookieOptions());
     if (next.profile_id) {
       response.cookies.set(
