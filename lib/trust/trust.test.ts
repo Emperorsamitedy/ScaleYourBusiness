@@ -20,6 +20,7 @@ import {
   proposals,
   users,
 } from "../../db/schema";
+import { matchStored } from "../i18n/stored";
 import { bootstrapIntake } from "../intake/service";
 import type { ClassifyLlm } from "../proposals/generate";
 import { generateProposals } from "../proposals/generate";
@@ -170,6 +171,9 @@ describe("P3-25 — readback thresholds, at the boundary, both directions", () =
     expect(outcome.delta_pct).toBe(5);
     expect(outcome.arithmetic).toContain("105.00 EUR");
     expect(outcome.arithmetic).toContain("100.00 EUR");
+    // History reads this sentence back through the catalogue (lib/i18n/stored.ts):
+    // the writer and ledgerWords.arith.revenue say the same words, or it prints raw.
+    expect(matchStored(outcome.arithmetic, "ledgerWords.arith")?.key).toBe("revenue");
     expect(outcome.predicted).toBe("Revenue rises about 8%.");
   });
 
@@ -201,6 +205,7 @@ describe("P3-25 — readback thresholds, at the boundary, both directions", () =
     const early = await readbackForProposal(await executedProposal(s), NOW);
     expect(early.verdict).toBe("too_early");
     expect(early.arithmetic).toContain("needs 7");
+    expect(matchStored(early.arithmetic, "ledgerWords.arith")?.key).toBe("tooEarly");
 
     const s2 = await fresh();
     await seedRevenue(s2.account_id, 10_000, 11_000, READBACK.min_after_days);
@@ -213,6 +218,7 @@ describe("P3-25 — readback thresholds, at the boundary, both directions", () =
     const outcome = await readbackForProposal(await executedProposal(s), NOW);
     expect(outcome.verdict).toBe("unmeasured");
     expect(outcome.arithmetic).toContain("connect a source");
+    expect(matchStored(outcome.arithmetic, "ledgerWords.arith")?.key).toBe("noSeries");
   });
 });
 

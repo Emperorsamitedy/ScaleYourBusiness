@@ -174,7 +174,7 @@ export async function readbackForProposal(
   const arithmetic =
     `daily revenue averaged ${money(after.mean_minor, series.currency)} over the ` +
     `${after.days_measured} measured day(s) after ${day}, against ` +
-    `${money(before.mean_minor, series.currency)} over the ${before.days_measured} before — ` +
+    `${money(before.mean_minor, series.currency)} over the ${before.days_measured} before: ` +
     (base.delta_pct === null
       ? "up from none"
       : `${base.delta_pct >= 0 ? "+" : ""}${base.delta_pct}%`) +

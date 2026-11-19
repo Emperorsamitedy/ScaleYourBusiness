@@ -770,7 +770,7 @@ export async function judgeHoursTrial(
     return {
       ...base,
       verdict: "too_early",
-      arithmetic: `${during.length} measured trial day(s) — a verdict needs ${TRIAL.min_trial_days}`,
+      arithmetic: `${during.length} measured trial day(s): a verdict needs ${TRIAL.min_trial_days}`,
     };
   }
   if (before.length === 0) {
@@ -801,7 +801,7 @@ export async function judgeHoursTrial(
     arithmetic:
       `${DAY_WORD[detail.weekday]} averaged ${fmt(Math.round(now_))} net over ${during.length} trial day(s)` +
       `${cost ? ` (takings ${detail.change === "open_earlier" ? "minus" : "plus"} the ${fmt(cost)} hour)` : ""}` +
-      `, against ${fmt(Math.round(was))} over the ${before.length} before — ${pct >= 0 ? "+" : ""}${pct}%` +
+      `, against ${fmt(Math.round(was))} over the ${before.length} before: ${pct >= 0 ? "+" : ""}${pct}%` +
       ` (helped at +${READBACK.helped_at * 100}%, backfired at ${READBACK.backfired_at * 100}%)`,
   };
 }

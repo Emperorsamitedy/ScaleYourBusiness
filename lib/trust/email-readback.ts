@@ -172,7 +172,7 @@ export interface EmailJudgement {
 
 /** A share to one decimal: "40.0%" in English as it always was, the language's own percent otherwise. */
 const pct = (n: number, d: number, locale: AppLocale = "en"): string =>
-  d === 0 ? "—" : percentText((n / d) * 100, locale, 1);
+  d === 0 ? "-" : percentText((n / d) * 100, locale, 1);
 
 /** Pure: is the harm alone enough to call it backfired? */
 export function harmBackfired(d: DeliveryTally): "harm" | "complaints" | null {
