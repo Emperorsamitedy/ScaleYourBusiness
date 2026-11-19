@@ -145,10 +145,23 @@ The list. Nothing here is ticked until he has seen it.
 - [~] L5. **The microphone.** He sees no browser pop-up when he presses it. Found and fixed: see below. A blocked or missing microphone was already said on the screen (`lib/voice/session.ts`).
 - [~] L6. **Less to read at once.** Cash flow is built (see below); the other screens follow. "There's still a lot of text on some pages like the cash flow", and "a few overlaps here and there". The content may stay ("I absolutely don't mind you keeping it") but "no one will probably sit down and read that much text": present it "as concise and accurate and small as possible". Cash flow first, then screen by screen.
 - [~] L7. **No long dashes.** Built for everything a screen prints: see "L7, as built" below. "No em and en dashes throughout the app"; underscores "only to a very certain limit". This reaches the seven catalogues and the range's wording ("+€136 – +€1,213" becomes "+€136 to +€1,213").
-- [ ] L8. **Straight into the app.** After signing in or signing up a person lands in the app, with no interview first. The dashboard reminds them to do it, and Lex offers to do it in conversation for those who would rather talk (the conversation is already a fact source: `specs/conversation-channel.md`).
+- [~] L8. **Straight into the app.** Built on the branch `straight-in` and waiting for his look: see "L8, as built" below. After signing in or signing up a person lands in the app, with no interview first. The dashboard reminds them to do it, and Lex offers to do it in conversation for those who would rather talk (the conversation is already a fact source: `specs/conversation-channel.md`).
 - [ ] L9. **What was already left for later** in this file (the two review rounds and "Later rounds") stays on the list behind these.
 
 Order: L1, L2, his pick, then L3, L4 and L6 built to the pick, then L7, L5, L8, then L9.
+
+### L8, as built (2026-11-19 and 20, branch `straight-in`)
+
+"After signing in or signing up a person lands in the app, with no interview first."
+
+- **A sign-in makes the business.** A proven sign-in (the emailed link, its code, or Google, Microsoft and Apple) gives an account that has no business an empty one, in its shadow month from that moment (the v1 spec §4.2), and lands on Home. Signing in again finds the same business; two sign-ins at the same moment make one (the database's unique account, and an insert that gives way).
+- **The one sign-in that makes none** is on its way to an idea check (`isIdeaReturn` of the return cookie): keeping an idea makes its own business, so an empty operating one beside it would be clutter. That person goes back to the check, which a new person never reached before (TASKS-IDEAS G-3).
+- **Home says it.** For a business with no facts yet, Lex's headline reads "I don't know your business yet.", one line says what the interview is for and how long it takes, and one button starts it. It is offered once on the screen: the list of next steps does not repeat it, and the three suggested questions wait until there is something to answer them from.
+- **Lex offers it in conversation.** On the chat page and in the Ask Lex sheet, where the suggested questions would be, the same words and the same button (`components/chat/InterviewOffer.tsx`). The interview itself held inside the conversation is the later step.
+- **Adding a business** lands on Home too, and "interview started" is counted when the interview is first opened, once per business, not when the business is made.
+- **Held by tests**: where a sign-in lands (`lib/auth/landing.test.ts`), a new person's own business and its shadow month, the idea exception, and a stranger never landing in someone else's business (`switch`, `access`, `service`, `oauth` against the database).
+- **Seen in a browser** with a brand-new address: the sign-in lands on Home, Home and both conversations make the offer, and the button opens the interview.
+- It changes what a sign-in does on the live site (a business is made at once), so it sits on its own branch on top of `dashboard-v2` and can be merged after it.
 
 ### L7, as built (2026-11-18)
 
