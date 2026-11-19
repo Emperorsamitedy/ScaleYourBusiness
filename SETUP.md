@@ -173,14 +173,14 @@ While it is empty, SYB sends nothing to NAV.
 - [ ] **Usage quotas per tier.** These are placeholders until you confirm
       them. Per business per month:
 
-      | Tier       | LLM tokens | Video renders | Connector calls |
-              | ---------- | ---------- | ------------- | --------------- |
-              | Watch      | 300k       | 0             | 3k              |
-              | Act        | 1.5M       | 10            | 15k             |
-              | Autonomous | 4M         | 40            | 40k             |
+  | Tier       | LLM tokens | Video renders | Connector calls |
+  | ---------- | ---------- | ------------- | --------------- |
+  | Watch      | 300k       | 0             | 3k              |
+  | Act        | 1.5M       | 10            | 15k             |
+  | Autonomous | 4M         | 40            | 40k             |
 
-              Owners get a notice at 80% and a hard stop at 100%. The Hungarian
-              price book stays off until you confirm these.
+  Owners get a notice at 80% and a hard stop at 100%. The Hungarian
+  price book stays off until you confirm these.
 
 - [ ] **Hungarian prices.** The price book's HUF rows (Watch 11 500 Ft,
       Act 35 000 Ft, Autonomous 69 000 Ft, extra business 7 000 Ft, full
