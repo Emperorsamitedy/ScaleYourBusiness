@@ -49,6 +49,14 @@
   margin-top: var(--s-4);
   color: var(--sheet-ink-2);
 }
+/* The section's name, the line about what is held and the fold under the
+   cards sit on the dark desk, where paper ink cannot be read: desk ink there
+   (2026-11-19, found by measuring contrast on every screen). */
+.pt-screen > .pt-section,
+.pt-screen > .pt-copy,
+.pt-screen > .fold .pt-copy {
+  color: var(--desk-ink-2);
+}
 .pt-wait {
   font-size: 15px;
 }
