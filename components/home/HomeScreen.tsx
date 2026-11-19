@@ -396,7 +396,8 @@ export function HomeScreen() {
                 tr={chatTr}
                 compact
               />
-              <div className="home-chips" role="group" aria-label={t("ask.chips")}>
+              {/* With nothing told yet there is nothing to answer these from (L8). */}
+              <div className="home-chips" role="group" aria-label={t("ask.chips")} hidden={fresh}>
                 {(["today", "sales", "first"] as const).map((chip) => (
                   <button
                     key={chip}

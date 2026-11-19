@@ -207,6 +207,11 @@
   gap: 8px;
   padding: 0 var(--pad) 16px;
 }
+/* Not offered while the business has told nothing yet (L8): `display` above
+   would otherwise win over the attribute. */
+.home-chips[hidden] {
+  display: none;
+}
 .home-chip {
   min-height: 36px;
   padding: 0 12px;

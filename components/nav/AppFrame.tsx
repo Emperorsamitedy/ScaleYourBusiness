@@ -840,7 +840,11 @@ export function AppFrame({ children }: { children: ReactNode }) {
     <ToastProvider>
       <NavRefreshProvider value={refresh}>
         <AccessProvider value={access}>
-          <LexHost path={path} business={counts?.business ?? null}>
+          <LexHost
+            path={path}
+            business={counts?.business ?? null}
+            facts={counts ? counts.facts : null}
+          >
             <div className={frame}>
               <header className="sx-top">
                 <Link href="/home" className="sx-logo" aria-label="ScaleX">
