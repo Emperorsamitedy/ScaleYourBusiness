@@ -14,7 +14,7 @@
 import { type BasisInput, basisOfKey, sourceLabel } from "../report/basis";
 import { moneyText, num } from "../sheet/num";
 import { CREATES_PAUSED_NOTE } from "../../lib/ads/ad-words";
-import { minorUnitExponent } from "../../lib/core/money";
+import { minorUnitExponent, roundMinorTo } from "../../lib/core/money";
 import type { AppLocale } from "../../lib/i18n/locales";
 import { intlTag } from "../../lib/i18n/locales";
 import { rangeOf } from "../../lib/i18n/range";
@@ -118,8 +118,9 @@ export function signedMoney(m: MoneyLike, locale: AppLocale = "en"): string {
  */
 export function wholeMoney(m: MoneyLike): MoneyLike {
   const unit = 10 ** minorUnitExponent(m.currency);
-  const major = Math.round(Math.abs(m.amount_minor) / unit) * unit;
-  return { ...m, amount_minor: major === 0 ? 0 : m.amount_minor < 0 ? -major : major };
+  // Whole numbers end to end (rule 1): the money module rounds to the step, half away from zero.
+  const whole = roundMinorTo(m.amount_minor, unit);
+  return { ...m, amount_minor: whole === 0 ? 0 : whole };
 }
 
 /**

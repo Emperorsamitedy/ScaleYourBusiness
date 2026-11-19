@@ -63,7 +63,7 @@ export const WIN_BACK = {
   high: 0.1,
   label: "ASSUMED",
   statement:
-    "Rule of thumb, not your number: of the carts a reminder email reaches, about 3–10% come back as an order.",
+    "Rule of thumb, not your number: of the carts a reminder email reaches, about 3 to 10% come back as an order.",
 } as const;
 
 /**

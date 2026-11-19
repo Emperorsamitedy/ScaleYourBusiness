@@ -174,7 +174,7 @@ describe("P5-19 — what the loader hands coverage", () => {
       expect(JSON.stringify(a)).not.toContain(n);
     if (a.enabled && a.result.status === "ok") {
       expect(a.result.headline).toBe(
-        "Saturdays 10:00–14:00 ran 112% booked; one teacher covers about 6.3 appointments an hour at your stated 25 a week.",
+        "Saturdays 10:00 to 14:00 ran 112% booked; one teacher covers about 6.3 appointments an hour at your stated 25 a week.",
       );
     }
   });

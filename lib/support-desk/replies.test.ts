@@ -503,7 +503,7 @@ describe("P4-10 — the send, honest in every outcome", () => {
       fetchImpl: resend.impl,
     });
     expect(refused.status).toBe("approved");
-    expect(refused.note).toMatch(/gate refused it — suppressed \(unsubscribed\)/);
+    expect(refused.note).toMatch(/gate refused it, suppressed \(unsubscribed\)/);
     expect(resend.calls).toHaveLength(0);
   });
 
