@@ -41,6 +41,7 @@ import { ChatBusy, ChatTurn } from "./ChatTurn";
 import { Composer } from "./Composer";
 import { InPlaceDecision } from "./InPlaceDecision";
 import { InterviewOffer } from "./InterviewOffer";
+import { LexInterview } from "./LexInterview";
 import { TryAgain } from "./TryAgain";
 import { earlierQuestions, latestQuestion } from "./chat-view";
 import { useChat } from "./useChat";
@@ -65,6 +66,12 @@ export function ChatScreen() {
   const [englishNoun, setNoun] = useState(businessNoun(null));
   // How many facts the business has told; null until the menu's read answers.
   const [facts, setFacts] = useState<number | null>(null);
+  // The interview with Lex (M4), started here or by an address that asks for it.
+  const [interviewing, setInterviewing] = useState(
+    () =>
+      typeof window !== "undefined" &&
+      new URLSearchParams(window.location.search).get("interview") === "1",
+  );
   const { tr, locale } = useTr("chat");
   const chips = chipQuestions(useMessages());
   // English's noun table ("your salon"); other languages say "your business".
@@ -167,7 +174,10 @@ export function ChatScreen() {
 
           <div className="ak-thread" aria-live="polite">
             {/* L8: with nothing to answer from, Lex offers the interview instead of questions. */}
-            {s.turns.length === 0 && knowsNothing(facts) && <InterviewOffer />}
+            {s.turns.length === 0 && knowsNothing(facts) && !interviewing && (
+              <InterviewOffer onWithLex={() => setInterviewing(true)} />
+            )}
+            {interviewing && <LexInterview onStop={() => setInterviewing(false)} />}
             {s.turns.length === 0 && !knowsNothing(facts) && (
               <div className="ak-start">
                 <p className="ak-descriptor">{tr("descriptor")}</p>

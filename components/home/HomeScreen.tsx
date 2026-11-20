@@ -363,9 +363,14 @@ export function HomeScreen() {
         {fresh && (
           <>
             <p className="home-ans">{t("fresh.lede")}</p>
-            <Link className="home-btn home-btn-desk" href="/intake">
-              {t("fresh.start")}
-            </Link>
+            <p className="home-fresh-acts">
+              <Link className="home-btn home-btn-desk home-btn-first" href="/chat?interview=1">
+                {chatTr("interview.withLex")}
+              </Link>
+              <Link className="home-btn home-btn-desk" href="/intake">
+                {t("fresh.start")}
+              </Link>
+            </p>
           </>
         )}
         {top && !fresh && (

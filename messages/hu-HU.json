@@ -4740,7 +4740,16 @@
       "prepared": "Előkészítve, még nincs elvégezve · {screen}"
     },
     "descriptor": "A vállalkozása tényeiből válaszol. Semmi sem változik az Ön jóváhagyása nélkül.",
-    "openFull": "A teljes beszélgetés megnyitása"
+    "openFull": "A teljes beszélgetés megnyitása",
+    "interview": {
+      "withLex": "Lex segítségével",
+      "intro": "Egyszerre egy kérdés. Válasszon egy választ, vagy írja be. Bármikor abbahagyhatja: amit megválaszolt, megmarad.",
+      "left": "{count, plural, one {# van hátra ebben a részben} other {# van hátra ebben a részben}}",
+      "unclear": "Nem tudom eldönteni, hol van a tizedesjel ebben a számban. Írja be ezres elválasztó nélkül, például {example}.",
+      "onForm": "Ezt az űrlapon lehet megválaszolni.",
+      "openForm": "Megnyitás ott",
+      "stop": "Itt abbahagyom"
+    }
   },
   "mode": {
     "meta": {

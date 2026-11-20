@@ -202,7 +202,8 @@ export function useChatCore(lazy = false): SharedChat {
         const res = await fetch("/api/chat", {
           method: "POST",
           headers: { "content-type": "application/json" },
-          body: JSON.stringify({ text }),
+          // The screen the question is asked from, so Lex knows where the owner is.
+          body: JSON.stringify({ text, path: window.location.pathname }),
         });
         status = res.status;
         const j = (await res.json().catch(() => ({}))) as {

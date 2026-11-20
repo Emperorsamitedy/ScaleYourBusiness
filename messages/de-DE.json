@@ -4740,7 +4740,16 @@
       "prepared": "Entworfen, noch nicht vorgenommen · {screen}"
     },
     "descriptor": "Antwortet aus den Fakten Ihres Unternehmens. Nichts ändert sich ohne Ihre Freigabe.",
-    "openFull": "Das ganze Gespräch öffnen"
+    "openFull": "Das ganze Gespräch öffnen",
+    "interview": {
+      "withLex": "Mit Lex durchgehen",
+      "intro": "Eine Frage nach der anderen. Wählen Sie eine Antwort oder tippen Sie sie ein. Sie können jederzeit aufhören: Ihre Antworten bleiben erhalten.",
+      "left": "{count, plural, one {noch # in diesem Teil} other {noch # in diesem Teil}}",
+      "unclear": "Ich kann nicht erkennen, wo das Dezimalzeichen steht. Schreiben Sie die Zahl ohne Tausendertrennzeichen, zum Beispiel {example}.",
+      "onForm": "Diese Frage wird im Formular beantwortet.",
+      "openForm": "Dort öffnen",
+      "stop": "Hier aufhören"
+    }
   },
   "mode": {
     "meta": {

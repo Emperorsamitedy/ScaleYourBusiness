@@ -163,9 +163,58 @@ Said while the list above was being worked, in his words:
 The list. Nothing here is ticked until he has seen it.
 
 - [~] M1. **The interview pages in the app's look.** Built on 2026-11-20 and waiting for his look: see "M1, the interview's look" below.
-- [ ] M2. **What Lex can do, written down**, then built.
-- [ ] M3. **Lex knows ScaleX**: every screen, what it is for and how each thing is done, so "how do I ..." gets a few short steps and the screen's name.
-- [ ] M4. **The interview with Lex**, beside the form: Lex asks the questions with their options, the person answers in the conversation. The next question comes from the resolver, never from a model (rule 4).
+- [~] M2. **What Lex can do, written down**, then built: see "M2, what Lex can do" below.
+- [~] M3. **Lex knows ScaleX**: every screen, what it is for and how each thing is done, so "how do I ..." gets a few short steps and the screen's name. Built on 2026-11-20; the answers themselves are not yet seen (the local model key is invalid): see "M3, Lex knows ScaleX" below.
+- [~] M4. **The interview with Lex**, beside the form: Lex asks the questions with their options, the person answers in the conversation. The next question comes from the resolver, never from a model (rule 4). Built on 2026-11-20 and seen in a browser: see "M4, the interview with Lex" below.
+
+### M2, what Lex can do (2026-11-20)
+
+"Make a list of everything that lex should be capabale of doing and ofc build that for it." The list, with where each stands. Lex never acts on a sentence: an answer is words, a change is a card to confirm, and anything outside ScaleX is a proposal to approve.
+
+| What Lex does                                                                                                                                                          | State                                              |
+| ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------- |
+| Answers a question about the business from its own facts and the latest report, and says what is missing when the answer is not there                                  | built before                                       |
+| Turns a request ("post something about the new mug") into a proposal in the queue, answered in place                                                                   | built before                                       |
+| Drafts a change to a fact or a setting from one sentence (opening hours, the size, a standing rule, alerts) as a card the owner confirms                               | built before                                       |
+| Will not record a number from a passing remark, and says how to change it properly                                                                                     | built before                                       |
+| Takes a spoken question (the microphone)                                                                                                                               | built before                                       |
+| Offers the interview to a business that has told nothing yet                                                                                                           | built with L8                                      |
+| Opens beside the page as a pop-up and stays while the owner moves; a face afloat on every screen                                                                       | L4b, 2026-11-20                                    |
+| Lets a reply that failed be asked for again                                                                                                                            | L9, 2026-11-20                                     |
+| **Knows every screen of ScaleX**: where it is, what it is for                                                                                                          | M3, 2026-11-20                                     |
+| **Answers "how do I ...?" in a few short steps**, with a button to the screen it names                                                                                 | M3, 2026-11-20                                     |
+| **Explains how to answer the interview** ("I don't know" and "Skip for now" are real answers, an estimate is fine, how to change an answer, how to stop and come back) | M3, 2026-11-20                                     |
+| **Knows which screen the owner is on** when they ask ("what am I looking at?")                                                                                         | M3, 2026-11-20                                     |
+| **Does the interview with the owner in the conversation**: asks each question with its choices, takes a typed answer, skips, stops                                     | M4, 2026-11-20                                     |
+| Continues the interview from any open question, picked by the owner                                                                                                    | [later] today it follows the interview's own order |
+| Answers a date, a table of rows or a file inside the conversation                                                                                                      | [later] those three are sent to the form           |
+| Marks its face when an answer arrives while the pop-up is closed                                                                                                       | [later]                                            |
+| Says a how-to without the model, from the guide alone, so it works when the model does not                                                                             | [later]                                            |
+
+### M3, Lex knows ScaleX (2026-11-20)
+
+"Lex should be aware of everything on scalex so he can guide the user too", and "short and concise explanations".
+
+- **A written guide** (`lib/assistant/guide.ts`): one entry per screen, 39 of them, with its address, the menu's own name for it, what it is for in one line, and how the usual things on it are done; then what is true everywhere (the four places, search, the stop, that Lex only drafts). The interview has the longest entry: how a question is answered, that "I don't know" and "Skip for now" are real answers, that an estimate is fine, how to change an answer, how to stop and come back.
+- **Lex's answers are given it.** It goes out as the first block of the prompt with its own cache mark: it is the same for every business, so it is paid for once and then read from cache whoever asks (rule 8's discipline). The business's facts follow as before.
+- **Two kinds of question, each with its one source.** About the business: only from its facts, as before. About ScaleX: only from the guide, in one or two sentences or at most four short numbered steps, and if the guide does not cover it Lex says so and invents no screen, button or setting.
+- **A screen Lex names becomes a button.** Lex cites a screen by its address in square brackets; the app takes those out of the words and draws a button to each under the reply. Only the guide's own screens: whatever else a model writes in brackets is never made into a link.
+- **Lex knows where the owner is.** The browser sends the address of the screen with each question, and one line tells the answer which screen that is. What is stored is the owner's own words, without it.
+- **Held by tests.** A screen added to the menu without a guide entry fails; every entry's page exists and is named as the menu names it; no long dash in it (`lib/assistant/guide.test.ts`). The prompt carries the guide, byte for byte the same turn after turn, and the screen with the question (`lib/chat/chat.test.ts`).
+- **Not seen: what Lex actually says.** The local model key is invalid, so no answer could be read here. The plumbing is proven; the wording of an answer needs a working key, or the live site, and an eye on the first few.
+
+### M4, the interview with Lex (2026-11-20)
+
+"Give the user the option to complete the interview himself and/or use lex instead to do it maybe as lex asks the questions with options and the user answers."
+
+- **Two ways, side by side.** Where the interview is offered (Home, Lex's pop-up, the conversation page), there are two buttons: "Do it with Lex" and "Start the interview". A business that has already told something finds "Do it with Lex" under the thread in Lex's pop-up.
+- **Lex asks, in the conversation.** One question at a time, with the part it belongs to and how many are left in it. A choice is a button and records at once; several choices are picked and then "Next"; a name, a number or an amount is typed in a small box under the question; "I don't know" where the question allows it, "Skip for now" and "Stop here" under every question. What was answered stays above as the question and the answer. The composer stays below, so Lex can be asked how to answer.
+- **The same interview, not a copy.** It talks to the interview's own API and nothing else (`components/chat/LexInterview.tsx`). Which question comes next is the resolver's decision over the bank (rule 4), the fact is recorded by the same service with the same source, and no model is called, so it costs nothing and works with no model at all.
+- **Never guessed.** "1.200" could be twelve hundred or one point two: Lex asks for it without a mark for thousands. Money goes to the server as a decimal and becomes minor units there with the business's currency (rule 1).
+- **Sent to the form:** a date, a table of rows (what the business sells, its suppliers) and a file. Lex says "This one is answered on the form" and gives the way to that very question.
+- **Seen in a browser** as a new person on the local database: from the pop-up, two of several picked, a number typed, a choice pressed, an address typed, the table question sent to the form, a skip, a stop, then the same from the conversation page's address and on a phone. Facts on file went from 7 to 13.
+- Held by tests in `components/chat/interview-model.test.ts`: how each kind of question is answered, what goes back to the endpoint, and that an unclear figure is refused.
+- [later] Contradictions between two answers are still settled on the form; the conversation does not show them.
 
 ### M1, the interview's look (2026-11-20)
 

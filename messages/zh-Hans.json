@@ -4740,7 +4740,16 @@
       "prepared": "已起草，尚未执行 · {screen}"
     },
     "descriptor": "根据您企业的事实作答。未经您批准，不会有任何更改。",
-    "openFull": "打开完整对话"
+    "openFull": "打开完整对话",
+    "interview": {
+      "withLex": "和 Lex 一起完成",
+      "intro": "一次一个问题。选择一个答案或输入答案。您可以随时停止：已回答的内容会保留。",
+      "left": "{count, plural, other {这一部分还剩 # 个}}",
+      "unclear": "我无法判断这个数字的小数点在哪里。请不要使用千位分隔符，例如 {example}。",
+      "onForm": "这个问题需要在表单中回答。",
+      "openForm": "在那里打开",
+      "stop": "先到这里"
+    }
   },
   "mode": {
     "meta": {

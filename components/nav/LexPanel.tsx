@@ -35,6 +35,7 @@ import { Composer } from "../chat/Composer";
 import { chipQuestions } from "../chat/ChatScreen";
 import { InPlaceDecision } from "../chat/InPlaceDecision";
 import { InterviewOffer } from "../chat/InterviewOffer";
+import { LexInterview } from "../chat/LexInterview";
 import { TryAgain } from "../chat/TryAgain";
 import { SharedChatProvider, useChatCore } from "../chat/useChat";
 import type { Chat } from "../chat/useChat";
@@ -129,7 +130,12 @@ function LexThread({ chat, open, facts }: { chat: Chat; open: boolean; facts: nu
     if (open && ready) document.getElementById("lex-ask")?.focus({ preventScroll: true });
   }, [open, ready]);
 
+  // The interview with Lex takes the thread's place while it runs (M4).
+  const [interviewing, setInterviewing] = useState(false);
   const now = Date.now();
+  if (interviewing && s.phase === "ready") {
+    return <LexInterview onStop={() => setInterviewing(false)} />;
+  }
   return (
     <>
       {s.phase === "loading" && <p className="lx-note">{tr("loading")}</p>}
@@ -137,7 +143,9 @@ function LexThread({ chat, open, facts }: { chat: Chat; open: boolean; facts: nu
       {s.phase === "error" && <p className="lx-note">{tr("error.copy")}</p>}
       {s.phase === "ready" && (
         <div className="lx-thread" aria-live="polite">
-          {s.turns.length === 0 && knowsNothing(facts) && <InterviewOffer />}
+          {s.turns.length === 0 && knowsNothing(facts) && (
+            <InterviewOffer onWithLex={() => setInterviewing(true)} />
+          )}
           {s.turns.length === 0 && !knowsNothing(facts) && (
             <div className="ak-start">
               <p className="ak-descriptor">{tr("descriptor")}</p>
@@ -175,6 +183,13 @@ function LexThread({ chat, open, facts }: { chat: Chat; open: boolean; facts: nu
             </ChatTurn>
           ))}
           {s.busy && <ChatBusy text={tr("thinking")} />}
+          {!knowsNothing(facts) && !s.busy && (
+            <p className="lxi-start">
+              <button type="button" className="lxi-link" onClick={() => setInterviewing(true)}>
+                {tr("interview.withLex")}
+              </button>
+            </p>
+          )}
           <div ref={end} />
         </div>
       )}

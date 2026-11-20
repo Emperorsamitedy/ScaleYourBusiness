@@ -51,6 +51,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       text?: unknown;
       action?: unknown;
       change_id?: unknown;
+      path?: unknown;
     };
     if (body.action === "confirm") {
       if (typeof body.change_id !== "string") {
@@ -87,6 +88,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       roleOf(access) ?? "owner",
       // L-5: the answer is written in the asker's language (rule 5).
       await requestLocale(),
+      // The screen they asked from: used only if it is one of the guide's.
+      typeof body.path === "string" ? body.path.slice(0, 200) : null,
     );
     return NextResponse.json({
       intent: outcome.intent,

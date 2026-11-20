@@ -4740,7 +4740,16 @@
       "prepared": "Drafted, not yet made · {screen}"
     },
     "descriptor": "Answers from your business’s facts. Nothing changes until you approve.",
-    "openFull": "Open the full conversation"
+    "openFull": "Open the full conversation",
+    "interview": {
+      "withLex": "Do it with Lex",
+      "intro": "One question at a time. Pick an answer or type it. Stop whenever you like: what you answered is kept.",
+      "left": "{count, plural, one {# left in this part} other {# left in this part}}",
+      "unclear": "I can't tell where the decimals are in that. Type it without a mark for thousands, like {example}.",
+      "onForm": "This one is answered on the form.",
+      "openForm": "Open it there",
+      "stop": "Stop here"
+    }
   },
   "mode": {
     "meta": {

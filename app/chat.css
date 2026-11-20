@@ -366,6 +366,22 @@
   display: inline;
   margin-left: 8px;
 }
+/* A reply that gives steps keeps them one to a line. */
+.ak-turn.system .ak-text > p {
+  white-space: pre-line;
+}
+/* The screens a reply names, as buttons to them. */
+.ak-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 10px 0 0;
+}
+.ak-links .act {
+  min-height: 36px;
+  text-decoration: none;
+}
+
 /* Under the line that stands where a reply did not come: ask again. */
 .ak-retry {
   margin: 10px 0 0;
@@ -570,4 +586,147 @@
   .ak-label
 )::first-letter {
   text-transform: var(--caps-first, inherit);
+}
+
+/* The interview with Lex (components/chat/LexInterview.tsx; the owner's
+   fourth round, 2026-11-20): the interview's own questions asked in the
+   conversation. A question is Lex's turn; an answered one is kept above it
+   as a quiet pair. */
+.lxi {
+  display: grid;
+  gap: 12px;
+}
+.lxi-intro {
+  margin: 0;
+  font-size: 13.5px;
+  color: var(--sheet-ink-2);
+}
+.lxi-past {
+  padding: 0 0 10px;
+  border-bottom: 1px solid var(--rule-soft);
+}
+.lxi-past-q {
+  margin: 0;
+  font-size: 13px;
+  color: var(--sheet-ink-2);
+}
+.lxi-past-a {
+  margin: 2px 0 0;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+.lxi-card {
+  display: grid;
+  gap: 10px;
+}
+.lxi-card .ak-who {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  margin: 0;
+}
+.lxi-prompt {
+  margin: 0;
+  font-family: var(--f-display);
+  font-size: 18px;
+  font-weight: var(--w-display, 650);
+  line-height: 1.25;
+}
+.lxi-meta {
+  margin: 0;
+  font-size: 13.5px;
+  color: var(--sheet-ink-2);
+}
+.lxi-why {
+  margin: 0;
+}
+.lxi-opts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.lxi-opts .ak-chip.on {
+  border-color: var(--sheet-ink);
+  background: var(--sheet-ink);
+  color: var(--paper);
+}
+.lxi-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  margin: 0;
+}
+.lxi-typed {
+  display: flex;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.lxi-field {
+  flex: 1 1 180px;
+  min-width: 0;
+  padding: 10px 12px;
+  border: 1px solid var(--rule);
+  border-radius: var(--r-ctl, 0);
+  background: color-mix(in srgb, var(--paper) 55%, #fff);
+  color: var(--sheet-ink);
+  font: inherit;
+  font-size: 15px;
+}
+.lxi-field:focus {
+  border-color: var(--sheet-ink);
+  outline: none;
+}
+.lxi-field:focus-visible {
+  outline: 2px solid var(--sheet-ink);
+  outline-offset: 2px;
+}
+.lxi-unit {
+  align-self: center;
+  font-family: var(--f-fig);
+  font-size: 13px;
+  color: var(--sheet-ink-2);
+}
+.lxi-hint {
+  margin: 0;
+  font-size: 13.5px;
+  color: var(--alarm);
+}
+.lxi-quiet {
+  gap: 4px 16px;
+  padding-top: 2px;
+}
+.lxi-link {
+  padding: 4px 0;
+  border: 0;
+  background: none;
+  color: var(--sheet-ink-2);
+  font: inherit;
+  font-size: 13.5px;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+.lxi-link:hover:not(:disabled) {
+  color: var(--sheet-ink);
+}
+.lxi-link:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+.lxi-start {
+  margin: 14px 0 0;
+}
+/* The offer's two ways, side by side. */
+.ak-offer-acts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 12px 0 0;
+}
+.ak-offer-acts .act {
+  text-decoration: none;
 }

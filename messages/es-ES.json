@@ -4740,7 +4740,16 @@
       "prepared": "Preparado, aún sin hacer · {screen}"
     },
     "descriptor": "Responde con los datos de su negocio. Nada cambia sin su aprobación.",
-    "openFull": "Abrir la conversación completa"
+    "openFull": "Abrir la conversación completa",
+    "interview": {
+      "withLex": "Hacerla con Lex",
+      "intro": "Una pregunta cada vez. Elija una respuesta o escríbala. Puede parar cuando quiera: lo que haya respondido se conserva.",
+      "left": "{count, plural, one {# pendiente en esta parte} many {# pendientes en esta parte} other {# pendientes en esta parte}}",
+      "unclear": "No sé dónde van los decimales en esa cifra. Escríbala sin separador de miles, por ejemplo {example}.",
+      "onForm": "Esta se responde en el formulario.",
+      "openForm": "Abrirla allí",
+      "stop": "Parar aquí"
+    }
   },
   "mode": {
     "meta": {
