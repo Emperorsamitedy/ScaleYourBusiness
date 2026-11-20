@@ -1748,6 +1748,12 @@
       "title": "Összekapcsolt fiókok · ScaleX"
     },
     "kicker": "Az Ön vállalkozása · Összekapcsolt fiókok",
+    "tabs": {
+      "label": "A képernyő részei",
+      "read": "Amit olvasok",
+      "files": "Saját fájljai",
+      "write": "Amit módosíthatok"
+    },
     "loading": "Az összekapcsolt fiókjai beolvasása…",
     "unreachable": "Nem értem el a szervert. Próbálja újra.",
     "error": {
@@ -2133,6 +2139,7 @@
       "consentedOn": "hozzájárulás: {day} · {status}",
       "notGranted": "nincs megadva",
       "grant": "Megadás",
+      "allows": "Mit enged ez meg",
       "close": "Bezárás",
       "reconnect": "Újbóli összekapcsolás",
       "disconnect": "Leválasztás",

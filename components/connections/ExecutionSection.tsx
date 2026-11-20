@@ -30,6 +30,7 @@
 
 import { useEffect, useState } from "react";
 import { isConnectionsReason } from "../../lib/execution/meta-login-reasons";
+import { ConsentFold } from "./ConsentFold";
 import { bold, useCn, useSaid } from "./useCn";
 import type { AppLocale } from "../../lib/i18n/locales";
 import type { CnTr } from "./words";
@@ -728,7 +729,9 @@ export function ExecutionSection({
                     </button>
                   )}
                 </div>
-                <ConsentLines provider={p} />
+                <ConsentFold open={isOpen || picking === p.id}>
+                  <ConsentLines provider={p} />
+                </ConsentFold>
                 {c !== null && (
                   <ConnectedWrite
                     c={c}

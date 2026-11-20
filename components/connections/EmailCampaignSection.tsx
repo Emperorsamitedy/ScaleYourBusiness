@@ -17,6 +17,7 @@
 
 import { useState } from "react";
 import { emailConsentLines, senderIdentity } from "../../lib/execution/email-sender";
+import { ConsentFold } from "./ConsentFold";
 import { bold, useCn, useSaid } from "./useCn";
 import { storedDay } from "./words";
 
@@ -159,16 +160,18 @@ export function EmailCampaignSection({
                 </button>
               )}
             </div>
-            <ul className="cn-consent">
-              {lines.map((line) => (
-                <li key={line}>
-                  <span className="cn-consent-why">{line}</span>
-                  <span className="cn-scope">
-                    {c ? c.granted_scopes.join(" · ") : "email.send_marketing"}
-                  </span>
-                </li>
-              ))}
-            </ul>
+            <ConsentFold open={open}>
+              <ul className="cn-consent">
+                {lines.map((line) => (
+                  <li key={line}>
+                    <span className="cn-consent-why">{line}</span>
+                    <span className="cn-scope">
+                      {c ? c.granted_scopes.join(" · ") : "email.send_marketing"}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </ConsentFold>
             {c !== null && (
               <div className="cn-wp-detail">
                 <dl className="cn-facts">

@@ -650,3 +650,42 @@
 :is(.cn-facts dt, .cn-sub, .cn-access-label)::first-letter {
   text-transform: var(--caps-first, inherit);
 }
+
+/* The permissions with no note beside them sit two to a row (the third part
+   of the screen); each is its own card, so one growing while it is granted
+   does not move its neighbour. */
+.cn-pairs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 20px;
+  align-items: start;
+  margin-top: 20px;
+}
+.cn-pairs > .cn-write {
+  grid-template-columns: minmax(0, 1fr);
+  margin-top: 0;
+}
+.cn-pairs > .bk-card {
+  margin-top: 0;
+}
+.cn-pairs:empty {
+  display: none;
+}
+@media (max-width: 1099px) {
+  .cn-pairs {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 14px;
+  }
+}
+
+/* What a permission allows, folded until it is being granted (ConsentFold). */
+.cn-allows {
+  margin: 10px 0 0;
+  max-width: none;
+}
+.cn-allows > .fold-body {
+  margin-top: 10px;
+}
+.cn-allows > .fold-body > :first-child {
+  margin-top: 0;
+}

@@ -1748,6 +1748,12 @@
       "title": "Conexiones · ScaleX"
     },
     "kicker": "Su negocio · Conexiones",
+    "tabs": {
+      "label": "Las partes de esta pantalla",
+      "read": "Lo que leo",
+      "files": "Tus propios archivos",
+      "write": "Lo que puedo cambiar"
+    },
     "loading": "Leyendo sus conexiones…",
     "unreachable": "No he podido conectar con el servidor. Inténtelo de nuevo.",
     "error": {
@@ -2133,6 +2139,7 @@
       "consentedOn": "consentimiento del {day} · {status}",
       "notGranted": "no concedido",
       "grant": "Conceder",
+      "allows": "Qué permite esto",
       "close": "Cerrar",
       "reconnect": "Volver a conectar",
       "disconnect": "Desconectar",

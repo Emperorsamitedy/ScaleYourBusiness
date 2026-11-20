@@ -1748,6 +1748,12 @@
       "title": "Connections · ScaleX"
     },
     "kicker": "Your business · Connections",
+    "tabs": {
+      "label": "The parts of this screen",
+      "read": "What I read",
+      "files": "Your own files",
+      "write": "What I may change"
+    },
     "loading": "Reading your connections…",
     "unreachable": "I couldn't reach the server. Try again.",
     "error": {
@@ -2133,6 +2139,7 @@
       "consentedOn": "consented {day} · {status}",
       "notGranted": "not granted",
       "grant": "Grant",
+      "allows": "What this allows",
       "close": "Close",
       "reconnect": "Reconnect",
       "disconnect": "Disconnect",

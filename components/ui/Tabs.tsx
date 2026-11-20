@@ -7,7 +7,7 @@
 // beside a label when there is one. The caller keeps the choice (Home
 // keeps it in the address, `?tab=`).
 
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import type { KeyboardEvent, ReactElement, ReactNode } from "react";
 import "../../app/ui-data.css";
 
@@ -51,6 +51,18 @@ export function Tabs<K extends string>({
   onChange: (key: K) => void;
 }): ReactElement {
   const refs = useRef<(HTMLButtonElement | null)[]>([]);
+  const open = tabs.findIndex((t) => t.key === value);
+  // On a narrow screen the row scrolls sideways. The open tab is brought to
+  // the middle of it, so the tab that is open is never the one cut off at the
+  // edge. Only the row moves: the page is never scrolled for it.
+  useEffect(() => {
+    const el = refs.current[open];
+    const row = el?.parentElement;
+    if (!el || !row || row.scrollWidth <= row.clientWidth) return;
+    const a = el.getBoundingClientRect();
+    const r = row.getBoundingClientRect();
+    row.scrollLeft += a.left - r.left - (r.width - a.width) / 2;
+  }, [open]);
   const onKey = (e: KeyboardEvent<HTMLButtonElement>, index: number) => {
     const to = tabTarget(tabs.length, index, e.key);
     const next = to === null ? undefined : tabs[to];
@@ -90,17 +102,24 @@ export function Tabs<K extends string>({
   );
 }
 
-/** The panel of one tab; only the open one is in the page. */
+/**
+ * The panel of one tab; only the open one is in the page. With `keep` a
+ * closed panel stays in the page, hidden: for a panel that holds a form a
+ * person may have half filled in, or that reads something once when it is
+ * first drawn (Connections).
+ */
 export function TabPanel({
   id,
   tab,
   open,
+  keep = false,
   className,
   children,
 }: {
   id: string;
   tab: string;
   open: boolean;
+  keep?: boolean;
   className?: string;
   children: ReactNode;
 }): ReactElement {
@@ -112,7 +131,7 @@ export function TabPanel({
       hidden={!open}
       className={className}
     >
-      {open ? children : null}
+      {open || keep ? children : null}
     </div>
   );
 }

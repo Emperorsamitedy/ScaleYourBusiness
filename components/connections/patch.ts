@@ -94,6 +94,39 @@ export function headline(
   return joinSentences(parts, locale);
 }
 
+/** The screen's three parts (L6): what is read, the owner's own files, what may be changed. */
+export type CnTab = "read" | "files" | "write";
+export const CN_TABS: readonly CnTab[] = ["read", "files", "write"];
+
+/** The keys a sign-in for a write permission comes back with (each section reads its own). */
+const WRITE_RETURNS: readonly string[] = ["meta", "google", "gads", "tiktok", "tiktokads"];
+
+/**
+ * Pure: the part an address opens on, or null for the first. `?tab=` names
+ * one; a sign-in that returns for a write permission opens that part, so its
+ * result is in front of the person who just did it.
+ */
+export function tabFromSearch(search: string): CnTab | null {
+  const q = new URLSearchParams(search);
+  const asked = q.get("tab");
+  if (asked === "read" || asked === "files" || asked === "write") return asked;
+  return WRITE_RETURNS.some((k) => q.has(k)) ? "write" : null;
+}
+
+/** Pure: how many sources are being read, and how many permissions to change are held. */
+export function tabCounts(
+  reads: readonly CountedConnection[],
+  writes: readonly WriteConnection[] | null,
+): { read: number; write: number } {
+  return {
+    read: reads.filter((c) => c.status === "connected").length,
+    // The headline's own rule: a permission held only to read is not one to change.
+    write: (writes ?? []).filter(
+      (c) => c.status !== "disconnected" && !READ_ONLY_WRITE_CONSENTS.includes(c.provider ?? ""),
+    ).length,
+  };
+}
+
 /** Postgres prints "2026-10-17 15:20:35.26+00"; make it ISO before parsing. */
 export function parseTs(s: string): number {
   const iso = s

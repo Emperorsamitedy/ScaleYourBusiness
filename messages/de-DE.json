@@ -1748,6 +1748,12 @@
       "title": "Verbindungen · ScaleX"
     },
     "kicker": "Ihr Unternehmen · Verbindungen",
+    "tabs": {
+      "label": "Die Teile dieser Seite",
+      "read": "Was ich lese",
+      "files": "Ihre eigenen Dateien",
+      "write": "Was ich ändern darf"
+    },
     "loading": "Ihre Verbindungen werden gelesen…",
     "unreachable": "Ich konnte den Server nicht erreichen. Versuchen Sie es erneut.",
     "error": {
@@ -2133,6 +2139,7 @@
       "consentedOn": "eingewilligt am {day} · {status}",
       "notGranted": "nicht erteilt",
       "grant": "Erteilen",
+      "allows": "Was das erlaubt",
       "close": "Schließen",
       "reconnect": "Neu verbinden",
       "disconnect": "Trennen",
