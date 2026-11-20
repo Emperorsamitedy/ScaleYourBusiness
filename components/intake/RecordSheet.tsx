@@ -49,7 +49,7 @@ function ChangeRow({
       <li className="ix-change">
         <span className="ix-note">{t("skippedEarlier")}</span>
         <button type="button" className="act" onClick={() => onAsk(qid)}>
-          {t("answerNow")} &rarr;
+          {t("answerNow")}
         </button>
         <button type="button" className="ix-link" onClick={onClose}>
           {t("keepSkipped")}
@@ -80,7 +80,7 @@ function ChangeRow({
           placeholder={t("whatChangedExample")}
         />
         <button type="submit" className="act" disabled={reason.trim() === ""}>
-          {t("change")} &rarr;
+          {t("change")}
         </button>
         <button type="button" className="ix-link" onClick={onClose}>
           {t("leave")}

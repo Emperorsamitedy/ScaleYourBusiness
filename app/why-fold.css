@@ -57,15 +57,15 @@
 /* In the owner app nothing a person presses ends in an arrow (ux-spec §2; the
    owner's third round, L7), and "How this works" opens the same way on every
    screen: the plus and minus of components/sheet/Fold, in front of the words. */
-:root:has(.app-frame, .q-app, .rq) .why-fold > summary::after {
+:root:has(.app-frame, .q-app, .rq, .ix) .why-fold > summary::after {
   content: none;
 }
-:root:has(.app-frame, .q-app, .rq) .why-fold > summary::before {
+:root:has(.app-frame, .q-app, .rq, .ix) .why-fold > summary::before {
   content: "+";
   display: inline-block;
   width: 1ch;
 }
-:root:has(.app-frame, .q-app, .rq) .why-fold[open] > summary::before {
+:root:has(.app-frame, .q-app, .rq, .ix) .why-fold[open] > summary::before {
   content: "\2212";
 }
 

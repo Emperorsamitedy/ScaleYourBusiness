@@ -24,7 +24,7 @@
 //   WHY?                           the bank's own help text, folded
 //                                  (decluttered 2026-11-09, owner's
 //                                  instruction; the key hints are gone)
-//   ← Q <prev> · SKIP FOR NOW · NEXT →
+//   Back Q <prev> · Skip for now · Next
 //
 // The design's WORTH KNOWING box ("every €1 here moves your margin by
 // €134") is not drawn: no sensitivity figure exists in the data.
@@ -447,7 +447,8 @@ export function QuestionCard({
                 onClick={() => onBack(previous)}
                 title={t("backTitle")}
               >
-                &larr; {t.rich("ref", { id: previous, fig })}
+                {t("back")}{" "}
+                <span className="ix-nav-ref">{t.rich("ref", { id: previous, fig })}</span>
               </button>
             )}
             <button
@@ -465,7 +466,7 @@ export function QuestionCard({
                 disabled={nextDisabled}
                 onClick={() => record(draft)}
               >
-                {t("next")} &rarr;
+                {t("next")}
               </button>
             )}
           </div>

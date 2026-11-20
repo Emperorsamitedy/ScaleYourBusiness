@@ -116,14 +116,15 @@
    The owner: "something a bit more simplistic". On the owner's screens (the
    frame, the queue, the report) one plain sans sets headings, labels,
    controls and prose, in sentence case; the mono stays for figures, keys and
-   formulas (--f-fig). The landing, the entrance and the interview keep the
-   three faces above. Every rule reads these through a token whose fallback
+   formulas (--f-fig). The landing and the entrance keep the three faces
+   above; the interview (.ix) joined the app's look on 2026-11-20 (the owner:
+   "the interview pages aren't updated"). Every rule reads these through a token whose fallback
    is the classic value, so this block is the whole switch. */
 :root {
   --f-ui: var(--font-archivo), "Archivo", system-ui, sans-serif;
   --f-fig: var(--font-plex-mono), "IBM Plex Mono", ui-monospace, monospace;
 }
-:root:has(.app-frame, .q-app, .rq) {
+:root:has(.app-frame, .q-app, .rq, .ix) {
   --f-display: var(--f-ui);
   --f-prose: var(--f-ui);
   --f-mono: var(--f-ui);
@@ -154,7 +155,7 @@
    written in lower case to sit inside a line starts with a capital when it
    stands alone. Both only inside the app; nothing moves under reduced motion. */
 @media (prefers-reduced-motion: no-preference) {
-  :root:has(.app-frame, .q-app, .rq)
+  :root:has(.app-frame, .q-app, .rq, .ix)
     :is(
       .act,
       .next,
@@ -174,7 +175,7 @@
       color 0.16s var(--ease-out),
       transform var(--d-press) linear;
   }
-  :root:has(.app-frame, .q-app, .rq)
+  :root:has(.app-frame, .q-app, .rq, .ix)
     :is(
       .act,
       .next,
@@ -191,7 +192,7 @@
     transform: scale(0.98);
   }
 }
-:root:has(.app-frame, .q-app, .rq)
+:root:has(.app-frame, .q-app, .rq, .ix)
   :is(
     .home-r-cmp,
     .q-item-ref,
@@ -260,10 +261,10 @@
    own marker (.q-evtoggle) keeps it. Outside the app nothing changes.
    The second form is the same arrow with words for a screen reader after it
    ("Connect → Stripe" on Connections), where the arrow is not the last child. */
-:root:has(.app-frame, .q-app, .rq)
+:root:has(.app-frame, .q-app, .rq, .ix)
   :is(button, a):not(.q-evtoggle)
   > span[aria-hidden="true"]:not([class]):last-child,
-:root:has(.app-frame, .q-app, .rq)
+:root:has(.app-frame, .q-app, .rq, .ix)
   :is(button, a):not(.q-evtoggle)
   > span[aria-hidden="true"]:not([class]):has(+ .sr-only:last-child) {
   display: none;
@@ -272,7 +273,7 @@
 /* Rounded cards never touch (the owner's third round: "a few overlaps here
    and there"). In the classic look stacked cards shared a square edge; with
    a radius they need air. Zero specificity, so a screen's own spacing wins. */
-:where(:root:has(.app-frame, .q-app, .rq)) :where(.screen) > :where(.cs) + :where(.cs) {
+:where(:root:has(.app-frame, .q-app, .rq, .ix)) :where(.screen) > :where(.cs) + :where(.cs) {
   margin-top: 15px;
 }
 

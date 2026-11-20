@@ -162,10 +162,24 @@ Said while the list above was being worked, in his words:
 
 The list. Nothing here is ticked until he has seen it.
 
-- [ ] M1. **The interview pages in the app's look.** They still wear the look from before the third round.
+- [~] M1. **The interview pages in the app's look.** Built on 2026-11-20 and waiting for his look: see "M1, the interview's look" below.
 - [ ] M2. **What Lex can do, written down**, then built.
 - [ ] M3. **Lex knows ScaleX**: every screen, what it is for and how each thing is done, so "how do I ..." gets a few short steps and the screen's name.
 - [ ] M4. **The interview with Lex**, beside the form: Lex asks the questions with their options, the person answers in the conversation. The next question comes from the resolver, never from a model (rule 4).
+
+### M1, the interview's look (2026-11-20)
+
+"The interview pages aren't updated and they look soooooo bad."
+
+They wore the look from before the third round: mono capitals ("CH 01 · BUSINESS BASICS", "REPORT READINESS", "SKIP FOR NOW"), a serif headline, square cards, an ink band over the question, graph paper with the question's number drawn behind it, arrows on the buttons, and an instrument's words ("channel"). The interview is the first thing a new person does, and it looked like another product.
+
+- **One look.** The interview joined the app's type and shape tokens (one plain sans, sentence case, curves): one more name in the switch in `app/sheet.css`. What the tokens do not reach is one block at the end of `app/intake.css`.
+- **What changed to the eye.** A hairline under the bar and "Finish later" as a pill. The strip of parts as one rounded track with a short bar per part. The question on one rounded paper card, its place said quietly above it; no band, no grid, no numeral. Choices as separate rounded tiles, closer together, with the key that picks each beside its words (and no keys on a phone, which has none to press). A boxed field. "Back", "Skip for now" and one solid "Next". Rounded cards beside it. "Why?" opens with the app's plus.
+- **No arrows** on any of its controls (L7 reached the app on 2026-11-18 and stopped at the interview's door): Next, Back, Try again, Get my link, the two answers of a contradiction, Answer it now, Change this answer.
+- **Plain words, seven languages.** A part is "part" ("Part 1 · Business basics", "All parts", "8 left in this part"); it was "channel" and "CH 01". Its number is plain.
+- Nothing moved: the structure, the motion that reports state, every figure and the keys 1 to 9 are as they were.
+- **Seen in a browser** as a brand-new person on the local database: nine questions answered (a typed name, a country, 33 business types, a paragraph, yes or no), the parts opened, the pause panel, and a phone. No capitals in any state opened, nothing past the edge.
+- [later] The first step before the interview (language and currency) and the closing screens after it were not opened in this pass.
 
 ### L8, as built (2026-11-19 and 20, branch `straight-in`)
 

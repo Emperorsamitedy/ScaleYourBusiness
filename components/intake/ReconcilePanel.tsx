@@ -36,10 +36,10 @@ export function ReconcilePanel({
       <p className="ix-reconcile-both inset">{finding.message}</p>
       <div className="ix-actions">
         <button type="button" className="act" disabled={busy} onClick={() => onChoose("confirm")}>
-          {t("confirm")} &rarr;
+          {t("confirm")}
         </button>
         <button type="button" className="act" disabled={busy} onClick={() => onChoose("fix")}>
-          {t("fix")} &rarr;
+          {t("fix")}
         </button>
       </div>
     </aside>

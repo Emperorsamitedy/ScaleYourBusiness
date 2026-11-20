@@ -272,7 +272,7 @@
     "status": {
       "measuring": "Most mérjük",
       "done": "Kész",
-      "needsChannel": "Előfeltétel: CS {channel}",
+      "needsChannel": "Előfeltétel: {channel}. rész",
       "needsArea": "Előfeltétel: {area}",
       "notOpen": "Még nem nyitható",
       "notStarted": "Még nem kezdődött el",
@@ -280,15 +280,15 @@
       "inProgress": "Folyamatban"
     },
     "bank": {
-      "now": "CS {channel} · {area} · <fig>{pct}%</fig>",
+      "now": "{channel}. rész · {area} · <fig>{pct}%</fig>",
       "done": "<fig>{done}</fig> / {total} kész",
-      "hide": "Csatornák elrejtése",
-      "all": "Összes csatorna",
+      "hide": "Részek elrejtése",
+      "all": "Összes rész",
       "legendOwner": "Öntől",
       "legendMeasured": "forrás: {connector}",
-      "tileChannel": "CS {channel}",
+      "tileChannel": "{channel}. rész",
       "tilePct": "{pct}%",
-      "tileWords": "{channel}. csatorna, {area}: {status}, megválaszolva: {pct}%, {bars}.",
+      "tileWords": "{channel}. rész, {area}: {status}, megválaszolva: {pct}%, {bars}.",
       "tileAsk": "{words} Kérdések ebből a területből.",
       "bar": {
         "owner": "{count, plural, one {# Öntől} other {# Öntől}}",
@@ -338,13 +338,14 @@
     },
     "question": {
       "ref": "K <fig>{id}</fig>",
-      "channel": "<fig>{channel}</fig>. csatorna",
-      "left": "{left, plural, one {<fig>#</fig> van hátra ebben a csatornában} other {<fig>#</fig> van hátra ebben a csatornában}} · kb. {minutes, plural, one {<fig>#</fig> perc} other {<fig>#</fig> perc}}",
+      "channel": "<fig>{channel}</fig>. rész",
+      "left": "{left, plural, one {<fig>#</fig> van hátra ebben a részben} other {<fig>#</fig> van hátra ebben a részben}} · kb. {minutes, plural, one {<fig>#</fig> perc} other {<fig>#</fig> perc}}",
       "measured": "Már mért adat · {provider}",
       "missing": "A hiányzó rész",
       "missingRest": "a maradék, amelyet nem mér: {provider}",
       "ruler": "Mért viszonyítási érték: {value}",
       "backTitle": "Újranyitja azt a választ, hogy módosíthassa; a régi megmarad az előzményekben",
+      "back": "Vissza",
       "skip": "Most kihagyom",
       "next": "Tovább",
       "yes": "Igen",
@@ -375,7 +376,7 @@
       "addRow": "Újabb sor hozzáadása"
     },
     "record": {
-      "channelTitle": "{channel}. csatorna · {area}",
+      "channelTitle": "{channel}. rész · {area}",
       "facts": "{count, plural, one {<fig>#</fig> tény} other {<fig>#</fig> tény}}",
       "empty": "Ezen a területen még nincs rögzített adat.",
       "listLabel": "Rögzített tények: {area}",

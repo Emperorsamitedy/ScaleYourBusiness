@@ -272,7 +272,7 @@
     "status": {
       "measuring": "测量中",
       "done": "已完成",
-      "needsChannel": "需要频道 {channel}",
+      "needsChannel": "需要第 {channel} 部分",
       "needsArea": "需先完成{area}",
       "notOpen": "尚未开放",
       "notStarted": "未开始",
@@ -280,15 +280,15 @@
       "inProgress": "进行中"
     },
     "bank": {
-      "now": "频道 {channel} · {area} · <fig>{pct}%</fig>",
+      "now": "第 {channel} 部分 · {area} · <fig>{pct}%</fig>",
       "done": "已完成 <fig>{done}</fig> / {total}",
-      "hide": "收起频道",
-      "all": "全部频道",
+      "hide": "收起各部分",
+      "all": "所有部分",
       "legendOwner": "来自您",
       "legendMeasured": "读取自 {connector}",
-      "tileChannel": "频道 {channel}",
+      "tileChannel": "第 {channel} 部分",
       "tilePct": "{pct}%",
-      "tileWords": "频道 {channel}，{area}：{status}，已回答 {pct}%，{bars}。",
+      "tileWords": "第 {channel} 部分，{area}：{status}，已回答 {pct}%，{bars}。",
       "tileAsk": "{words}点击从这个方面开始提问。",
       "bar": {
         "owner": "{count, plural, other {# 项来自您}}",
@@ -338,13 +338,14 @@
     },
     "question": {
       "ref": "问题 <fig>{id}</fig>",
-      "channel": "频道 <fig>{channel}</fig>",
-      "left": "此频道还剩 {left, plural, other {<fig>#</fig> 个}} · 约 {minutes, plural, other {<fig>#</fig> 分钟}}",
+      "channel": "第 <fig>{channel}</fig> 部分",
+      "left": "这一部分还剩 {left, plural, other {<fig>#</fig> 个}} · 约 {minutes, plural, other {<fig>#</fig> 分钟}}",
       "measured": "已测量 · {provider}",
       "missing": "缺失的部分",
       "missingRest": "其余部分：{provider} 未测量的内容",
       "ruler": "测量参考：{value}",
       "backTitle": "重新打开该回答以便修改；旧回答会保留在历史记录中",
+      "back": "返回",
       "skip": "暂时跳过",
       "next": "下一题",
       "yes": "是",
@@ -375,7 +376,7 @@
       "addRow": "再添加一行"
     },
     "record": {
-      "channelTitle": "频道 {channel} · {area}",
+      "channelTitle": "第 {channel} 部分 · {area}",
       "facts": "{count, plural, other {<fig>#</fig> 项事实}}",
       "empty": "此方面暂无记录。",
       "listLabel": "{area}中已记录的事实",

@@ -272,7 +272,7 @@
     "status": {
       "measuring": "Midiendo",
       "done": "Completado",
-      "needsChannel": "Necesita CN {channel}",
+      "needsChannel": "Necesita la parte {channel}",
       "needsArea": "Necesita {area}",
       "notOpen": "Aún no disponible",
       "notStarted": "Sin empezar",
@@ -280,15 +280,15 @@
       "inProgress": "En curso"
     },
     "bank": {
-      "now": "CN {channel} · {area} · <fig>{pct} %</fig>",
+      "now": "Parte {channel} · {area} · <fig>{pct} %</fig>",
       "done": "<fig>{done}</fig> de {total} completadas",
-      "hide": "Ocultar canales",
-      "all": "Todos los canales",
+      "hide": "Ocultar las partes",
+      "all": "Todas las partes",
       "legendOwner": "aportado por usted",
       "legendMeasured": "leído de {connector}",
-      "tileChannel": "CN {channel}",
+      "tileChannel": "Parte {channel}",
       "tilePct": "{pct} %",
-      "tileWords": "Canal {channel}, {area}: {status}, {pct} % respondido, {bars}.",
+      "tileWords": "Parte {channel}, {area}: {status}, {pct} % respondido, {bars}.",
       "tileAsk": "{words} Preguntar sobre esta área.",
       "bar": {
         "owner": "{count, plural, one {# respondida por usted} many {# respondidas por usted} other {# respondidas por usted}}",
@@ -338,13 +338,14 @@
     },
     "question": {
       "ref": "P <fig>{id}</fig>",
-      "channel": "Canal <fig>{channel}</fig>",
-      "left": "{left, plural, one {<fig>#</fig> pendiente en este canal} many {<fig>#</fig> pendientes en este canal} other {<fig>#</fig> pendientes en este canal}} · unos {minutes, plural, one {<fig>#</fig> min} many {<fig>#</fig> min} other {<fig>#</fig> min}}",
+      "channel": "Parte <fig>{channel}</fig>",
+      "left": "{left, plural, one {<fig>#</fig> pendiente en esta parte} many {<fig>#</fig> pendientes en esta parte} other {<fig>#</fig> pendientes en esta parte}} · unos {minutes, plural, one {<fig>#</fig> min} many {<fig>#</fig> min} other {<fig>#</fig> min}}",
       "measured": "Ya medido · {provider}",
       "missing": "La pieza que falta",
       "missingRest": "el resto: lo que {provider} no mide",
       "ruler": "Referencia medida: {value}",
       "backTitle": "Reabre esa respuesta para cambiarla; la anterior queda en el historial",
+      "back": "Atrás",
       "skip": "Omitir por ahora",
       "next": "Siguiente",
       "yes": "Sí",
@@ -375,7 +376,7 @@
       "addRow": "Añadir otra fila"
     },
     "record": {
-      "channelTitle": "Canal {channel} · {area}",
+      "channelTitle": "Parte {channel} · {area}",
       "facts": "{count, plural, one {<fig>#</fig> dato} many {<fig>#</fig> datos} other {<fig>#</fig> datos}}",
       "empty": "Todavía no hay nada registrado en esta área.",
       "listLabel": "Datos registrados en {area}",

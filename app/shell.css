@@ -9,7 +9,7 @@
    small curve, pills for places and counts, and a movement for hover, press
    and open. Colour still only means something. */
 
-:root:has(.app-frame, .q-app, .rq) {
+:root:has(.app-frame, .q-app, .rq, .ix) {
   --sx-top: 60px;
   --sx-rail: 236px;
   --sx-ease: cubic-bezier(0.16, 1, 0.3, 1);

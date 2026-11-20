@@ -272,7 +272,7 @@
     "status": {
       "measuring": "Misst gerade",
       "done": "Fertig",
-      "needsChannel": "Braucht K {channel}",
+      "needsChannel": "Braucht Teil {channel}",
       "needsArea": "Braucht {area}",
       "notOpen": "Noch nicht offen",
       "notStarted": "Nicht begonnen",
@@ -280,15 +280,15 @@
       "inProgress": "In Arbeit"
     },
     "bank": {
-      "now": "K {channel} · {area} · <fig>{pct}%</fig>",
+      "now": "Teil {channel} · {area} · <fig>{pct}%</fig>",
       "done": "<fig>{done}</fig> von {total} fertig",
-      "hide": "Kanäle ausblenden",
-      "all": "Alle Kanäle",
+      "hide": "Teile ausblenden",
+      "all": "Alle Teile",
       "legendOwner": "von Ihnen",
       "legendMeasured": "aus {connector} gelesen",
-      "tileChannel": "K {channel}",
+      "tileChannel": "Teil {channel}",
       "tilePct": "{pct}%",
-      "tileWords": "Kanal {channel}, {area}: {status}, {pct}% beantwortet, {bars}.",
+      "tileWords": "Teil {channel}, {area}: {status}, {pct}% beantwortet, {bars}.",
       "tileAsk": "{words} Fragen aus diesem Bereich stellen.",
       "bar": {
         "owner": "{count, plural, one {# von Ihnen} other {# von Ihnen}}",
@@ -338,13 +338,14 @@
     },
     "question": {
       "ref": "F <fig>{id}</fig>",
-      "channel": "Kanal <fig>{channel}</fig>",
-      "left": "{left, plural, one {noch <fig>#</fig> in diesem Kanal} other {noch <fig>#</fig> in diesem Kanal}} · etwa {minutes, plural, one {<fig>#</fig> Min.} other {<fig>#</fig> Min.}}",
+      "channel": "Teil <fig>{channel}</fig>",
+      "left": "{left, plural, one {noch <fig>#</fig> in diesem Teil} other {noch <fig>#</fig> in diesem Teil}} · etwa {minutes, plural, one {<fig>#</fig> Min.} other {<fig>#</fig> Min.}}",
       "measured": "Bereits gemessen · {provider}",
       "missing": "Das fehlende Stück",
       "missingRest": "der Rest: was {provider} nicht misst",
       "ruler": "Gemessener Bezugswert: {value}",
       "backTitle": "Öffnet diese Antwort zum Ändern; die alte bleibt im Verlauf",
+      "back": "Zurück",
       "skip": "Vorerst überspringen",
       "next": "Weiter",
       "yes": "Ja",
@@ -375,7 +376,7 @@
       "addRow": "Weitere Zeile hinzufügen"
     },
     "record": {
-      "channelTitle": "Kanal {channel} · {area}",
+      "channelTitle": "Teil {channel} · {area}",
       "facts": "{count, plural, one {<fig>#</fig> Fakt} other {<fig>#</fig> Fakten}}",
       "empty": "In diesem Bereich ist noch nichts erfasst.",
       "listLabel": "Erfasste Fakten in {area}",

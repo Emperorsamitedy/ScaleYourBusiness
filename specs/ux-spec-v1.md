@@ -414,19 +414,20 @@ The intake now follows the owner's "calibrating the record" design (`components/
 
 **Decluttered 2026-11-09 on the owner's instruction** ("no extra wordings/texts"): captions that restate a heading are gone (the "Calibrating the record" line, "Channel bank", "Live reading · moves as you answer", "The record · newest first", "The interview · complete", the tape's "Tape" label), and so are the key hints, the readiness note and the money field's "Basis: estimated" (the toggle already says it). Explanations sit behind one closed "How this works" / "Why?" per card: the question's purpose (the bank's help text, unchanged), how the live figure was worked out and that no range exists yet, the pause and done ledes, and the boot error's reason.
 
+**In the app's look since 2026-11-20** (the owner's fourth round: "the interview pages aren't updated and they look soooooo bad"). The interview wore the look from before the third round: mono capitals, a serif headline, square cards, an ink band over the question, graph paper with the question's number behind it, arrows on its buttons, and an instrument's words ("CH 01", "Channel 01"). It joined the app's type and shape tokens (`.ix` in the switch of `app/sheet.css`: one plain sans, sentence case, curves), and the last block of `app/intake.css` holds what the tokens do not reach. What a person sees: a hairline under the bar and "Finish later" as a pill; the strip as one rounded track ("Part 1 · Business basics · 67%", a short bar per part, "0 of 14 done", "All parts"); the question on one rounded paper card with its place said quietly above it ("Q 1.2 · Part 1 · Business basics", "8 left in this part · about 6 min"), no band, no grid and no numeral; choices as separate rounded tiles with the key that picks each beside its words (no keys where there is no keyboard); a boxed field; "Back", "Skip for now" and one solid "Next", none with an arrow; rounded cards beside it; "Why?" opening with the app's plus. A part is "part" in every language (it was "channel"), and its number is plain ("Part 1", not "01"). The structure, the motion and every figure are as described below.
+
 **Masthead:**
 - "Saving…" while a request is in flight (no other state is claimed)
 - the number of facts on file
 - "Finish later", which opens the resume-link form
 
-**Channel bank:** one tile per bank section.
+**The parts (the "channel bank" of the design):** one tile per bank section.
 - Each tile has one bar per applicable question, in bank order. The bar kinds are owner, measured, derived, current, open, unknown and skipped, each with its own fill pattern.
-- Each tile shows the percentage answered and a status word: DONE, MEASURING, READ ONLY, NOT STARTED, NEEDS CH nn or IN PROGRESS.
-- The bank starts folded to one ruled line so the question owns the screen. The line shows the channel being asked with its percentage, one cell per area filled to its share answered, and how many areas are done. "All channels" unfolds the tiles unchanged; choosing a tile folds it again.
+- Each tile shows the percentage answered and a status in words: Done, Measuring, Read only, Not started, Needs part n or In progress.
+- The bank starts folded to one ruled line so the question owns the screen. The line shows the part being asked with its percentage, one cell per area filled to its share answered, and how many areas are done. "All parts" unfolds the tiles unchanged; choosing a tile folds it again.
 
 **Question panel:**
-- a dark band showing the question, the channel, and how many questions and minutes are left (45 seconds a question)
-- a graph-paper body with a watermark of the question number
+- a quiet line above the question showing the question, the part, and how many questions and minutes are left (45 seconds a question); it was a dark band over a graph-paper body with a watermark of the question number until 2026-11-20
 - "Already measured" and "The missing piece" boxes, shown only when connector data exists for the question
 - numbered option tiles, answered with keys 1–9
 - the exact-amount input, with a ruler only when a measured value exists

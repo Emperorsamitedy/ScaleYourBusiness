@@ -272,7 +272,7 @@
     "status": {
       "measuring": "Измеряем",
       "done": "Готово",
-      "needsChannel": "Нужен КН {channel}",
+      "needsChannel": "Нужна часть {channel}",
       "needsArea": "Нужно: {area}",
       "notOpen": "Пока недоступно",
       "notStarted": "Не начато",
@@ -280,15 +280,15 @@
       "inProgress": "В процессе"
     },
     "bank": {
-      "now": "КН {channel} · {area} · <fig>{pct}%</fig>",
+      "now": "Часть {channel} · {area} · <fig>{pct}%</fig>",
       "done": "Готово: <fig>{done}</fig> из {total}",
-      "hide": "Скрыть каналы",
-      "all": "Все каналы",
+      "hide": "Скрыть части",
+      "all": "Все части",
       "legendOwner": "от вас",
       "legendMeasured": "прочитано из {connector}",
-      "tileChannel": "КН {channel}",
+      "tileChannel": "Часть {channel}",
       "tilePct": "{pct}%",
-      "tileWords": "Канал {channel}, {area}: {status}, отвечено {pct}%, {bars}.",
+      "tileWords": "Часть {channel}, {area}: {status}, отвечено {pct}%, {bars}.",
       "tileAsk": "{words} Задавать вопросы из этой области.",
       "bar": {
         "owner": "{count, plural, one {от вас: #} few {от вас: #} many {от вас: #} other {от вас: #}}",
@@ -338,13 +338,14 @@
     },
     "question": {
       "ref": "В <fig>{id}</fig>",
-      "channel": "Канал <fig>{channel}</fig>",
-      "left": "{left, plural, one {в этом канале остался <fig>#</fig> вопрос} few {в этом канале осталось <fig>#</fig> вопроса} many {в этом канале осталось <fig>#</fig> вопросов} other {в этом канале осталось <fig>#</fig> вопроса}} · примерно {minutes, plural, one {<fig>#</fig> мин} few {<fig>#</fig> мин} many {<fig>#</fig> мин} other {<fig>#</fig> мин}}",
+      "channel": "Часть <fig>{channel}</fig>",
+      "left": "{left, plural, one {в этой части остался <fig>#</fig> вопрос} few {в этой части осталось <fig>#</fig> вопроса} many {в этой части осталось <fig>#</fig> вопросов} other {в этой части осталось <fig>#</fig> вопроса}} · примерно {minutes, plural, one {<fig>#</fig> мин} few {<fig>#</fig> мин} many {<fig>#</fig> мин} other {<fig>#</fig> мин}}",
       "measured": "Уже измерено · {provider}",
       "missing": "Недостающая часть",
       "missingRest": "остальное: то, чего {provider} не измеряет",
       "ruler": "Измеренный ориентир: {value}",
       "backTitle": "Открывает тот ответ, чтобы его изменить; прежний останется в истории",
+      "back": "Назад",
       "skip": "Пропустить пока",
       "next": "Дальше",
       "yes": "Да",
@@ -375,7 +376,7 @@
       "addRow": "Добавить ещё строку"
     },
     "record": {
-      "channelTitle": "Канал {channel} · {area}",
+      "channelTitle": "Часть {channel} · {area}",
       "facts": "{count, plural, one {<fig>#</fig> факт} few {<fig>#</fig> факта} many {<fig>#</fig> фактов} other {<fig>#</fig> факта}}",
       "empty": "В этой области пока ничего нет.",
       "listLabel": "Факты в досье по области «{area}»",
