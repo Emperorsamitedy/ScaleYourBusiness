@@ -1078,6 +1078,7 @@
       "gaps": "{count, plural, one {<b>#</b> recorded as not known} other {<b>#</b> recorded as not known}}"
     },
     "recordLabel": "The record",
+    "parts": "The parts of this screen",
     "search": "Search the record",
     "filterLabel": "Filter the record",
     "filter": {

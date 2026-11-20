@@ -1078,6 +1078,7 @@
       "gaps": "{count, plural, other {<b>#</b> 项记录为不知道}}"
     },
     "recordLabel": "记录",
+    "parts": "本页的各部分",
     "search": "搜索记录",
     "filterLabel": "筛选记录",
     "filter": {

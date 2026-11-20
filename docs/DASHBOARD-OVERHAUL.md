@@ -234,7 +234,20 @@ Connections was the longest screen in the app, more than 6,000 px once everythin
 - **Customers, tidied (2026-11-20).** He looked at it and said "some cards are all over the place and i don't like the current look of it": five cards of five sizes shared one screen. It is three parts now, as Connections is: the list (1,678 px at 1440 wide), segments with campaigns, and bringing customers in. A business with no customers opens on the third. A row is its own control (the whole row presses, with a ring for the keyboard; the "Open" column is gone), the record stays beside the list while the list scrolls, and on a phone a row is two lines: the name with its pattern, then the figures.
 - **Similar businesses**: the live comparison card keeps what it says about the comparison and the button to stop contributing (a consent stays in view); where the figures come from and what is not measured yet sit under "How this works".
 
-- [ ] Not yet done on the list: L6 on the fact sheet and the report's own cards, captions still set in capitals inside the settings forms, Lex as a pop-up, and L9.
+- [ ] Not yet done on the list: captions still set in capitals inside the settings forms, Lex as a pop-up, and L9.
+
+### L6, the fact sheet and the report (2026-11-20)
+
+The two screens that hold the most. Nothing was taken away from either.
+
+- **The fact sheet opens on the record.** A chart of the month, its table and the ads card stood between the page head and the record, which began 1,300 px down. The screen is in two parts now: "The record" (with its count) and "Your numbers as a chart". 1,230 px tall at 1440 wide, where it was 2,689. Home's tiles for bookings and ads open the second part by its address (`/profile?tab=charts`); a search, a filter and the place in the record are kept while the charts are looked at.
+- **A long written answer** (what the business does, what limits capacity) ran eleven lines down a narrow column set to the right. It shows two lines, read from the left, and the rest on a press; the answer is its own control.
+- **The record on a phone was 66,722 px tall**: every one of 382 facts as five labelled lines, all fifteen sections one under the other. It is 1,787 px now. A narrow screen shows one section at a time, and the row of section names is the switch; a search or a filter still shows every match; a link from a chat card to one fact opens the section that holds it. A fact is two lines there: its name and its value, then where it came from, on what basis and since when.
+- **The chart's own fine print** (how a month is counted, what DERIVED and ESTIMATED mean, the note on ad spend) folds under "How this works" beneath its table.
+- **The report folds its proof.** A finding keeps its flag, its headline and its two sentences; the answers it rests on open under "Why?". A recommendation keeps its range with the base case marked, the break-even line, what it depends on heavily, what to do on a change of mind and the two answers; the three worked cases and the stated assumptions open under "Why?". 6,839 px where it was 9,039. On paper nothing is folded: the proof opens for the print and closes after it.
+- **Found on the way: the top bar ran off the screen on a tablet.** Between 760 and about 1,000 px wide the four places and the tools did not fit, "Stop everything" hung past the right edge, and every page scrolled sideways. The stop says one word under 1,100 px, and under 1,000 px a place that is not open shows its icon alone (its name stays for a screen reader and on hover). Measured on Home, the queue, the report, the fact sheet and Customers from 760 to 1,099 px: nothing past the edge.
+- Held by tests in `components/profile/model.test.ts`: which part an address opens, what counts as a long answer, the section a narrow screen shows, and the section a focused fact is in. The spec says the same (`specs/ux-spec-v1.md`: the market chart's place, the report's findings and recommendations, the bar).
+- [later] The stated-against-measured table still prints two lines of provenance under every measure.
 
 ### The branch (2026-11-19)
 

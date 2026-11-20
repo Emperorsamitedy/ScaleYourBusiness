@@ -132,10 +132,11 @@ const PRICE_KEY: Readonly<Record<string, string>> = {
 /** The screen that owns each priced part of the month. */
 const COMPONENT_HREF: Readonly<Record<ComponentKey, string>> = {
   revenue_dips: "/watch",
-  no_shows: "/profile",
-  late_cancellations: "/profile",
-  empty_capacity: "/profile",
-  losing_ads: "/profile",
+  // The fact sheet's second part: its charts of bookings and ads.
+  no_shows: "/profile?tab=charts",
+  late_cancellations: "/profile?tab=charts",
+  empty_capacity: "/profile?tab=charts",
+  losing_ads: "/profile?tab=charts",
   slow_stock: "/stock",
   on_the_table: "/proposals",
 };

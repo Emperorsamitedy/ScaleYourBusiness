@@ -881,6 +881,7 @@ export function AppFrame({ children }: { children: ReactNode }) {
                       key={p.key}
                       href={placeHome(p.key, groups)}
                       className="sx-place"
+                      title={placeName(t, p.key)}
                       aria-current={place === p.key ? "page" : undefined}
                     >
                       <PlaceIcon place={p.key} />

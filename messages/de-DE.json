@@ -1078,6 +1078,7 @@
       "gaps": "{count, plural, one {<b>#</b> als unbekannt erfasst} other {<b>#</b> als unbekannt erfasst}}"
     },
     "recordLabel": "Die Akte",
+    "parts": "Die Teile dieser Seite",
     "search": "Die Akte durchsuchen",
     "filterLabel": "Die Akte filtern",
     "filter": {

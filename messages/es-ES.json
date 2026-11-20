@@ -1172,6 +1172,7 @@
       "gaps": "{count, plural, one {<b>#</b> registrado como «no se sabe»} many {<b>#</b> registrados como «no se sabe»} other {<b>#</b> registrados como «no se sabe»}}"
     },
     "recordLabel": "El registro",
+    "parts": "Las partes de esta pantalla",
     "search": "Buscar en el registro",
     "filterLabel": "Filtrar el registro",
     "filter": {

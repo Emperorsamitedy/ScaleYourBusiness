@@ -7,6 +7,11 @@
 // basis, since — with every superseded value struck through beneath the
 // fact it used to be (rule 3: superseded, never erased).
 //
+// The owner's third round, L6: the record is what this screen is for, so it
+// opens first; the charts (which Home also shows) are the screen's second
+// part, one press away or straight from an address that names them
+// (`?tab=charts`). A long written answer shows two lines until pressed.
+//
 // Everything rendered is the API's deterministic read of the snapshot
 // plus the superseded field_records; components/profile/model.ts holds
 // the rules (filing, basis words, filters) and their tests.
@@ -24,18 +29,31 @@ import { useBusinessNoun } from "../nav/useBusinessNoun";
 import { ChartsPanel } from "../charts/ChartsPanel";
 import { SegBar } from "../charts/Viz";
 import { PageHead } from "../sheet/PageHead";
+import { TabPanel, Tabs } from "../ui/Tabs";
 import { num } from "../sheet/num";
 import { useTr } from "../sheet/useTr";
 import { gapBuysWords } from "../../lib/profile/gap-words";
 import { fmtDay } from "../report/figures";
-import type { DisplaySection, FactSheet, FsWords, GapRow, Mode, SupersededFact } from "./model";
+import type {
+  DisplaySection,
+  FactSheet,
+  FsPart,
+  FsWords,
+  GapRow,
+  Mode,
+  SupersededFact,
+} from "./model";
 import {
   basisCounts,
   basisSegs,
   basisWord,
   changedIn,
+  currentSection,
   displaySections,
   filterSections,
+  focusSection,
+  isLongValue,
+  partFromSearch,
   sourceText,
   valueView,
 } from "./model";
@@ -147,6 +165,24 @@ function CompetitorFinder({ onChanged }: { onChanged: () => Promise<void> }) {
   );
 }
 
+/**
+ * A written answer of a sentence or more: two lines, and the rest on a press.
+ * The answer itself is the control, so nothing is added to the row.
+ */
+function LongValue({ text, marked }: { text: string; marked: boolean }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <button
+      type="button"
+      className={`fs-long${open ? " open" : ""}`}
+      aria-expanded={open}
+      onClick={() => setOpen((v) => !v)}
+    >
+      <span className="fs-long-t">{marked ? <span className="marked">{text}</span> : text}</span>
+    </button>
+  );
+}
+
 function SupersededRow({
   label,
   h,
@@ -225,8 +261,17 @@ function SectionTable({
                   <span className="fs-sub">{t("noted", { note: d.fact.note })}</span>
                 )}
               </th>
-              <td className={`num${v.figure ? "" : " fs-words"}`} data-label={t("col.value")}>
-                {changed.has(d.key) ? <span className="marked">{v.text}</span> : v.text}
+              <td
+                className={`num${v.figure ? "" : " fs-words"}${isLongValue(v) ? " fs-wide" : ""}`}
+                data-label={t("col.value")}
+              >
+                {isLongValue(v) ? (
+                  <LongValue text={v.text} marked={changed.has(d.key)} />
+                ) : changed.has(d.key) ? (
+                  <span className="marked">{v.text}</span>
+                ) : (
+                  v.text
+                )}
               </td>
               <td className="fs-src" data-label={t("col.source")}>
                 {sourceText(d.fact, w)}
@@ -293,6 +338,11 @@ function OpenQuestions({ gaps }: { gaps: GapRow[] }) {
 
 export function FactSheetScreen() {
   const t = useTranslations("factsheet");
+  const tc = useTranslations("charts.panel");
+  // Read from the address before anything is drawn: Home's chart tiles land here.
+  const [part, setPart] = useState<FsPart>(() =>
+    typeof window === "undefined" ? "record" : partFromSearch(window.location.search),
+  );
   const w = useFsWords();
   const n = (x: number) => num(x, 0, w.locale);
   const [sheet, setSheet] = useState<FactSheet | null>(null);
@@ -341,6 +391,23 @@ export function FactSheetScreen() {
   const hasCompetitors = sections.some((s) => s.section === "competitors");
   const filtering = mode !== "all" || query.trim() !== "";
   const gaps = sheet?.gaps ?? [];
+  // A narrow screen shows one section at a time (app/factsheet.css), so one
+  // is always current: the reader's pick, else the section holding the fact
+  // a deep link asks for (components/sheet/DeepLinkMark waits for it to be
+  // visible), else the first.
+  const [asked] = useState(() => (typeof window === "undefined" ? "" : window.location.search));
+  const listed = useMemo(
+    () => [
+      ...visible.map((s) => anchor(s.section)),
+      ...(!filtering && gaps.length > 0 ? [GAPS] : []),
+    ],
+    [visible, filtering, gaps.length],
+  );
+  const holder = useMemo(() => {
+    const s = focusSection(asked, sections);
+    return s === null ? null : anchor(s);
+  }, [asked, sections]);
+  const current = currentSection(listed, active, holder);
 
   // The contents follow the pane's scroll: the section nearest its top is current.
   useEffect(() => {
@@ -365,6 +432,9 @@ export function FactSheetScreen() {
     const root = pane.current;
     if (!el || !root) return;
     setActive(id);
+    // A section a narrow screen is not showing takes the place of the one it
+    // is: nothing to scroll to, and the row of names stays where it was.
+    if (el.getClientRects().length === 0) return;
     if (root.scrollHeight > root.clientHeight) {
       root.scrollTo({ top: el.offsetTop - root.offsetTop - 8, behavior: "smooth" });
     } else {
@@ -431,144 +501,168 @@ export function FactSheetScreen() {
         </p>
       </PageHead>
 
-      <ChartsPanel />
+      <Tabs
+        id="fs"
+        label={t("parts")}
+        tabs={[
+          { key: "record", label: t("recordLabel"), count: allFacts.length },
+          { key: "charts", label: tc("label") },
+        ]}
+        value={part}
+        onChange={setPart}
+      />
 
-      <section className="fs-card" aria-label={t("recordLabel")}>
-        <div className="fs-top">
-          <div className="fs-search">
-            <label className="fs-label" htmlFor="fs-q">
-              {t("search")}
-            </label>
-            <input
-              id="fs-q"
-              type="search"
-              className="fs-input"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-            />
-          </div>
-          <div className="fs-filters" role="group" aria-label={t("filterLabel")}>
-            {filters.map((f) => (
-              <button
-                key={f.m}
-                type="button"
-                className={`fs-filter${mode === f.m ? " on" : ""}`}
-                aria-pressed={mode === f.m}
-                onClick={() => setMode(f.m)}
-              >
-                {f.label}
-              </button>
-            ))}
-            <button
-              type="button"
-              className={`fs-filter fs-toggle${showSuperseded ? "" : " off"}`}
-              aria-pressed={showSuperseded}
-              onClick={() => setShowSuperseded((v) => !v)}
-              title={t("supersededCount", { count: supersededCount })}
-            >
-              {t("showSuperseded")}
-            </button>
-          </div>
-        </div>
+      <TabPanel id="fs" tab="charts" open={part === "charts"} className="fs-part">
+        <ChartsPanel />
+      </TabPanel>
 
-        <div className="fs-body">
-          <nav className="fs-nav" aria-label={t("sectionsLabel")}>
-            <ul>
-              {visible.map((s) => (
-                <li key={s.section}>
-                  <button
-                    type="button"
-                    className={`fs-nav-i${active === anchor(s.section) ? " on" : ""}`}
-                    aria-current={active === anchor(s.section) ? "location" : undefined}
-                    onClick={() => jump(anchor(s.section))}
-                  >
-                    <span>{s.label}</span>
-                    <span className="fs-nav-n">{n(s.facts.length)}</span>
-                  </button>
-                </li>
+      {/* Kept in the page while the charts are open: a search, a filter and the
+          place the reader had scrolled to are still there on the way back. */}
+      <TabPanel id="fs" tab="record" open={part === "record"} keep className="fs-part">
+        <section className="fs-card" aria-label={t("recordLabel")}>
+          <div className="fs-top">
+            <div className="fs-search">
+              <label className="fs-label" htmlFor="fs-q">
+                {t("search")}
+              </label>
+              <input
+                id="fs-q"
+                type="search"
+                className="fs-input"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+              />
+            </div>
+            <div className="fs-filters" role="group" aria-label={t("filterLabel")}>
+              {filters.map((f) => (
+                <button
+                  key={f.m}
+                  type="button"
+                  className={`fs-filter${mode === f.m ? " on" : ""}`}
+                  aria-pressed={mode === f.m}
+                  onClick={() => setMode(f.m)}
+                >
+                  {f.label}
+                </button>
               ))}
-              {!filtering && gaps.length > 0 && (
-                <li>
-                  <button
-                    type="button"
-                    className={`fs-nav-i${active === GAPS ? " on" : ""}`}
-                    aria-current={active === GAPS ? "location" : undefined}
-                    onClick={() => jump(GAPS)}
-                  >
-                    <span>{t("stillOpen")}</span>
-                    <span className="fs-nav-n">{n(gaps.length)}</span>
-                  </button>
-                </li>
-              )}
-            </ul>
-          </nav>
+              <button
+                type="button"
+                className={`fs-filter fs-toggle${showSuperseded ? "" : " off"}`}
+                aria-pressed={showSuperseded}
+                onClick={() => setShowSuperseded((v) => !v)}
+                title={t("supersededCount", { count: supersededCount })}
+              >
+                {t("showSuperseded")}
+              </button>
+            </div>
+          </div>
 
-          <div className="fs-pane" ref={pane}>
-            {visible.length === 0 && (
-              <p className="fs-empty" role="status">
-                {query.trim() !== ""
-                  ? t("empty.query", { query: query.trim() })
-                  : mode === "assumed"
-                    ? t("empty.assumed")
-                    : mode === "changed"
-                      ? t("empty.changed")
-                      : t("empty.none")}
-              </p>
-            )}
-            {visible.map((s) => {
-              const c = changedIn(s, changed);
-              return (
+          <div className="fs-body">
+            <nav className="fs-nav" aria-label={t("sectionsLabel")}>
+              <ul>
+                {visible.map((s) => (
+                  <li key={s.section}>
+                    <button
+                      type="button"
+                      className={`fs-nav-i${current === anchor(s.section) ? " on" : ""}`}
+                      aria-current={current === anchor(s.section) ? "location" : undefined}
+                      onClick={() => jump(anchor(s.section))}
+                    >
+                      <span>{s.label}</span>
+                      <span className="fs-nav-n">{n(s.facts.length)}</span>
+                    </button>
+                  </li>
+                ))}
+                {!filtering && gaps.length > 0 && (
+                  <li>
+                    <button
+                      type="button"
+                      className={`fs-nav-i${current === GAPS ? " on" : ""}`}
+                      aria-current={current === GAPS ? "location" : undefined}
+                      onClick={() => jump(GAPS)}
+                    >
+                      <span>{t("stillOpen")}</span>
+                      <span className="fs-nav-n">{n(gaps.length)}</span>
+                    </button>
+                  </li>
+                )}
+              </ul>
+            </nav>
+
+            <div className={filtering ? "fs-pane fs-all" : "fs-pane"} ref={pane}>
+              {visible.length === 0 && (
+                <p className="fs-empty" role="status">
+                  {query.trim() !== ""
+                    ? t("empty.query", { query: query.trim() })
+                    : mode === "assumed"
+                      ? t("empty.assumed")
+                      : mode === "changed"
+                        ? t("empty.changed")
+                        : t("empty.none")}
+                </p>
+              )}
+              {visible.map((s) => {
+                const c = changedIn(s, changed);
+                return (
+                  <section
+                    key={s.section}
+                    id={anchor(s.section)}
+                    data-sec
+                    className={current === anchor(s.section) ? "fs-sec on" : "fs-sec"}
+                    aria-labelledby={`${anchor(s.section)}-h`}
+                  >
+                    <header className="fs-sec-head">
+                      <h2 id={`${anchor(s.section)}-h`}>{s.label}</h2>
+                      {c > 0 && (
+                        <span className="fs-meta">{t("sectionChanged", { count: c })}</span>
+                      )}
+                    </header>
+                    <SectionTable
+                      s={s}
+                      history={history}
+                      changed={changed}
+                      showSuperseded={showSuperseded}
+                    />
+                    {s.section === "competitors" && <CompetitorFinder onChanged={load} />}
+                  </section>
+                );
+              })}
+              {!filtering && !hasCompetitors && (
+                <section className="fs-sec" aria-labelledby="fs-comp-h">
+                  <header className="fs-sec-head">
+                    <h2 id="fs-comp-h">{t("section.competitors")}</h2>
+                    <span className="fs-meta">{t("noneRecorded")}</span>
+                  </header>
+                  <CompetitorFinder onChanged={load} />
+                </section>
+              )}
+              {!filtering && gaps.length > 0 && (
                 <section
-                  key={s.section}
-                  id={anchor(s.section)}
+                  id={GAPS}
                   data-sec
-                  className="fs-sec"
-                  aria-labelledby={`${anchor(s.section)}-h`}
+                  className={current === GAPS ? "fs-sec on" : "fs-sec"}
+                  aria-labelledby={`${GAPS}-h`}
                 >
                   <header className="fs-sec-head">
-                    <h2 id={`${anchor(s.section)}-h`}>{s.label}</h2>
-                    {c > 0 && <span className="fs-meta">{t("sectionChanged", { count: c })}</span>}
+                    <h2 id={`${GAPS}-h`}>{t("stillOpen")}</h2>
+                    <span className="fs-meta">{t("openMeta", { count: gaps.length })}</span>
                   </header>
-                  <SectionTable
-                    s={s}
-                    history={history}
-                    changed={changed}
-                    showSuperseded={showSuperseded}
-                  />
-                  {s.section === "competitors" && <CompetitorFinder onChanged={load} />}
+                  <OpenQuestions gaps={gaps} />
                 </section>
-              );
-            })}
-            {!filtering && !hasCompetitors && (
-              <section className="fs-sec" aria-labelledby="fs-comp-h">
-                <header className="fs-sec-head">
-                  <h2 id="fs-comp-h">{t("section.competitors")}</h2>
-                  <span className="fs-meta">{t("noneRecorded")}</span>
-                </header>
-                <CompetitorFinder onChanged={load} />
-              </section>
-            )}
-            {!filtering && gaps.length > 0 && (
-              <section id={GAPS} data-sec className="fs-sec" aria-labelledby={`${GAPS}-h`}>
-                <header className="fs-sec-head">
-                  <h2 id={`${GAPS}-h`}>{t("stillOpen")}</h2>
-                  <span className="fs-meta">{t("openMeta", { count: gaps.length })}</span>
-                </header>
-                <OpenQuestions gaps={gaps} />
-              </section>
-            )}
+              )}
+            </div>
           </div>
-        </div>
 
-        <footer className="fs-foot">
-          <WhyFold>
-            {t("foot", {
-              id: sheet.snapshot_id.slice(0, 8),
-              date: fmtDay(sheet.taken_at, undefined, w.locale),
-            })}
-          </WhyFold>
-        </footer>
-      </section>
+          <footer className="fs-foot">
+            <WhyFold>
+              {t("foot", {
+                id: sheet.snapshot_id.slice(0, 8),
+                date: fmtDay(sheet.taken_at, undefined, w.locale),
+              })}
+            </WhyFold>
+          </footer>
+        </section>
+      </TabPanel>
     </main>
   );
 }

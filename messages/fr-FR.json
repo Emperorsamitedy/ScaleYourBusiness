@@ -1078,6 +1078,7 @@
       "gaps": "{count, plural, one {<b>#</b> enregistré comme inconnu} many {<b>#</b> enregistrés comme inconnus} other {<b>#</b> enregistrés comme inconnus}}"
     },
     "recordLabel": "Le dossier",
+    "parts": "Les parties de cet écran",
     "search": "Rechercher dans le dossier",
     "filterLabel": "Filtrer le dossier",
     "filter": {

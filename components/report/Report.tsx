@@ -29,6 +29,7 @@ import type { AppLocale } from "../../lib/i18n/locales";
 import { rangeOf } from "../../lib/i18n/range";
 import { intlTag } from "../../lib/i18n/locales";
 import { delta, moneyFig, moneyText, num } from "../sheet/num";
+import { Fold } from "../sheet/Fold";
 import { SheetCard } from "../sheet/PageHead";
 import { useTr } from "../sheet/useTr";
 import { ShareCard } from "./ShareCard";
@@ -811,7 +812,36 @@ function Decline({ onSubmit, busy }: { onSubmit: (reason: string) => void; busy:
   );
 }
 
-function Forecast({ rec }: { rec: Rec }) {
+/**
+ * A recommendation's forecast, in two parts (the owner's third round, L6):
+ * the range stays in view, low to high with the base case marked on its bar;
+ * the three cases with their arithmetic open under "Why?".
+ */
+function ForecastRange({ rec }: { rec: Rec }) {
+  const { t, locale } = useWords();
+  const s = rec.scenario;
+  const range = forecastRange(s.downside_case, s.upside_case, s.base_case);
+  if (range === null) return null;
+  return (
+    <p className="rq-range-line">
+      <span className="rq-label">{t("forecast.range")}</span>
+      <span className="fig rq-range-fig">
+        {rangeText(range, locale)}{" "}
+        <span className="rq-unit">{t("col.perMonth", { currency: range.currency })}</span>
+      </span>
+      <span className="rq-range-bar">
+        <RangeBar
+          scale={[Math.min(0, range.low.amount_minor), Math.max(0, range.high.amount_minor) || 1]}
+          band={[range.low.amount_minor, range.high.amount_minor]}
+          value={s.base_case.profit_delta_monthly?.amount_minor ?? null}
+          actAt={range.low.amount_minor < 0 ? 0 : null}
+        />
+      </span>
+    </p>
+  );
+}
+
+function ForecastCases({ rec }: { rec: Rec }) {
   const { t, locale } = useWords();
   const s = rec.scenario;
   const cases = [s.base_case, s.downside_case, s.upside_case];
@@ -822,26 +852,6 @@ function Forecast({ rec }: { rec: Rec }) {
   const cur = range?.currency ?? monies.find((m) => m !== null)?.currency ?? null;
   return (
     <div className="rq-forecast">
-      {range !== null && (
-        <p className="rq-range-line">
-          <span className="rq-label">{t("forecast.range")}</span>
-          <span className="fig rq-range-fig">
-            {rangeText(range, locale)}{" "}
-            <span className="rq-unit">{t("col.perMonth", { currency: range.currency })}</span>
-          </span>
-          <span className="rq-range-bar">
-            <RangeBar
-              scale={[
-                Math.min(0, range.low.amount_minor),
-                Math.max(0, range.high.amount_minor) || 1,
-              ]}
-              band={[range.low.amount_minor, range.high.amount_minor]}
-              value={s.base_case.profit_delta_monthly?.amount_minor ?? null}
-              actAt={range.low.amount_minor < 0 ? 0 : null}
-            />
-          </span>
-        </p>
-      )}
       <div className="rq-table-wrap">
         <table className="rt rq-cases">
           <caption className="sr-only">{t("forecast.caption", { title: rec.title })}</caption>
@@ -935,7 +945,7 @@ function RecommendationItem({
       </p>
       <h3 className="rq-item-title">{rec.title}</h3>
       <p className="rq-prose">{rec.rationale}</p>
-      <Forecast rec={rec} />
+      <ForecastRange rec={rec} />
       <p className="rq-inset">
         <span className="rq-label">{t("rec.breakEven")}</span> {rec.scenario.breakeven_condition}
       </p>
@@ -944,28 +954,31 @@ function RecommendationItem({
           <span className="word drift">{t("rec.highSensitivity")}</span> {c}
         </p>
       ))}
-      <p className="rq-label rq-sub-h">{t("rec.assumptions")}</p>
-      <ul className="rq-evidence">
-        {rec.scenario.assumptions.map((a) => {
-          const f = a.source_field !== null ? map[a.source_field] : undefined;
-          return (
-            <li key={a.statement}>
-              <span className="rq-ev-text">{a.statement}</span> ·{" "}
-              {a.source_field !== null ? (
-                <>
-                  <FactLine f={f} /> ·{" "}
-                  {t("rec.from", { input: inputWords(a.source_field, map, tr) })}
-                </>
-              ) : (
-                <>
-                  <BasisWord basis="ASSUMED" /> · {t("rec.nobody")}
-                </>
-              )}{" "}
-              · {t("rec.sensitivity", { level: a.sensitivity })}
-            </li>
-          );
-        })}
-      </ul>
+      <Fold label="why" className="rq-proof">
+        <ForecastCases rec={rec} />
+        <p className="rq-label rq-sub-h">{t("rec.assumptions")}</p>
+        <ul className="rq-evidence">
+          {rec.scenario.assumptions.map((a) => {
+            const f = a.source_field !== null ? map[a.source_field] : undefined;
+            return (
+              <li key={a.statement}>
+                <span className="rq-ev-text">{a.statement}</span> ·{" "}
+                {a.source_field !== null ? (
+                  <>
+                    <FactLine f={f} /> ·{" "}
+                    {t("rec.from", { input: inputWords(a.source_field, map, tr) })}
+                  </>
+                ) : (
+                  <>
+                    <BasisWord basis="ASSUMED" /> · {t("rec.nobody")}
+                  </>
+                )}{" "}
+                · {t("rec.sensitivity", { level: a.sensitivity })}
+              </li>
+            );
+          })}
+        </ul>
+      </Fold>
       <p className="rq-prose">
         <strong>{t("rec.changeMind")}</strong> {rec.reversibility.if_you_change_your_mind}
       </p>
@@ -1032,6 +1045,30 @@ export function ReportBody({
   );
   const current =
     rows.find((r) => r.id === selected) ?? rows.find((r) => r.result !== null) ?? rows[0] ?? null;
+
+  // A report on paper carries its proof: a closed fold prints nothing, so the
+  // folds that hold evidence, cases and assumptions open for the print and
+  // close again after it (their own line is not printed, app/report.css).
+  useEffect(() => {
+    const opened: HTMLDetailsElement[] = [];
+    const before = () => {
+      for (const d of document.querySelectorAll<HTMLDetailsElement>("details.rq-proof")) {
+        if (!d.open) {
+          d.open = true;
+          opened.push(d);
+        }
+      }
+    };
+    const after = () => {
+      for (const d of opened.splice(0)) d.open = false;
+    };
+    window.addEventListener("beforeprint", before);
+    window.addEventListener("afterprint", after);
+    return () => {
+      window.removeEventListener("beforeprint", before);
+      window.removeEventListener("afterprint", after);
+    };
+  }, []);
 
   const onWhy = useCallback((id: string) => {
     setSelected(id);
@@ -1129,7 +1166,11 @@ export function ReportBody({
                   </p>
                   <h3 className="rq-item-title">{f.title}</h3>
                   <p className="rq-prose">{f.detail}</p>
-                  <Evidence keys={f.evidence} map={map} />
+                  {f.evidence.length > 0 && (
+                    <Fold label="why" className="rq-proof">
+                      <Evidence keys={f.evidence} map={map} />
+                    </Fold>
+                  )}
                 </li>
               );
             })}
@@ -1206,11 +1247,13 @@ export function ReportBody({
                 <h3 className="rq-item-title">{f.title}</h3>
                 <p className="rq-prose">{f.detail}</p>
                 {f.arithmetic.length > 0 && (
-                  <ul className="rq-evidence">
-                    {f.arithmetic.map((a) => (
-                      <li key={a}>{a}</li>
-                    ))}
-                  </ul>
+                  <Fold label="why" className="rq-proof">
+                    <ul className="rq-evidence">
+                      {f.arithmetic.map((a) => (
+                        <li key={a}>{a}</li>
+                      ))}
+                    </ul>
+                  </Fold>
                 )}
               </li>
             ))}

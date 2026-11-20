@@ -346,6 +346,55 @@ export function valueView(
 
 /* ── filters ── */
 
+/**
+ * The screen's two parts (the owner's third round, L6): the record is what
+ * the screen is for and opens first; the charts are one press away.
+ */
+export type FsPart = "record" | "charts";
+
+/** Pure: the part an address opens on. `?tab=charts` is Home's link to a chart. */
+export function partFromSearch(search: string): FsPart {
+  return new URLSearchParams(search).get("tab") === "charts" ? "charts" : "record";
+}
+
+/**
+ * A written answer longer than this is a sentence or two, not a word: the
+ * record shows its first two lines and the rest on a press, so one long
+ * answer does not stretch its row down the page.
+ */
+export const LONG_VALUE = 70;
+
+/** Pure: whether a value's text is shown folded to two lines. Figures never are. */
+export function isLongValue(v: { text: string; figure: boolean }): boolean {
+  return !v.figure && v.text.length > LONG_VALUE;
+}
+
+/**
+ * Pure: the section whose fact an address asks to be shown
+ * (`?focus=fact-<key>`, a chat card's "Open the page"), or null.
+ */
+export function focusSection(search: string, sections: readonly DisplaySection[]): string | null {
+  const focus = new URLSearchParams(search).get("focus");
+  if (!focus || !focus.startsWith("fact-")) return null;
+  const key = focus.slice("fact-".length);
+  return sections.find((s) => s.facts.some((d) => d.key === key))?.section ?? null;
+}
+
+/**
+ * Pure: the section that is current. A narrow screen shows one section at a
+ * time, so there is always one: the reader's own pick while it is listed,
+ * else the one holding the fact the address asks for, else the first.
+ */
+export function currentSection(
+  listed: readonly string[],
+  picked: string,
+  holder: string | null,
+): string | null {
+  if (listed.includes(picked)) return picked;
+  if (holder !== null && listed.includes(holder)) return holder;
+  return listed[0] ?? null;
+}
+
 export type Mode = "all" | "assumed" | "changed";
 
 /**

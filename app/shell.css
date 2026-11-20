@@ -597,14 +597,39 @@
   .sx-biz {
     max-width: 150px;
   }
+  /* The stop says one word from here down (EmergencyStop.tsx writes both):
+     with its two words the bar ran past the right edge on a tablet, and the
+     whole page scrolled sideways with it. */
+  .sx-top .es-long {
+    display: none;
+  }
+  .sx-top .es-short {
+    display: inline;
+  }
 }
-@media (max-width: 919px) {
+@media (max-width: 999px) {
   .sx-place {
+    position: relative;
     padding: 0 10px;
     gap: 6px;
   }
   .sx-top {
     padding: 8px 14px;
+  }
+  /* Between a phone and a small laptop the four places do not fit beside the
+     tools: the bar ran past the right edge and the page scrolled sideways.
+     The place that is open keeps its word; the others show their icon, and
+     keep their name for a screen reader and on hover (the link's title). */
+  .sx-place:not([aria-current]) > span:not(.sx-count) {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .sx-biz {
+    max-width: 120px;
   }
 }
 

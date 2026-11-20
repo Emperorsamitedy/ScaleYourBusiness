@@ -1078,6 +1078,7 @@
       "gaps": "{count, plural, one {<b>#</b> nem ismertként rögzítve} other {<b>#</b> nem ismertként rögzítve}}"
     },
     "recordLabel": "A nyilvántartás",
+    "parts": "A képernyő részei",
     "search": "Keresés a nyilvántartásban",
     "filterLabel": "A nyilvántartás szűrése",
     "filter": {
