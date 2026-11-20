@@ -346,7 +346,7 @@ export const GUIDE: readonly GuideScreen[] = [
       "If you do not know: choose I don't know. If you would rather not answer now: Skip for now. Both are real answers and nothing breaks; the question can be answered later.",
       "An estimate is fine: say what you think, and it is kept as an estimate until something measures it.",
       "To change an earlier answer: Back, or open that fact on the Fact sheet. The old answer is kept in the history.",
-      "To stop and continue later: Finish later, at the top right. It emails you a link back to where you were.",
+      "To stop and continue later: Finish later, at the top right. Your answers are kept in your account; come back from Home whenever you like.",
       "All parts, at the top, shows every part and lets you answer from another one.",
     ],
   },

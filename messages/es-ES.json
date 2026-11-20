@@ -309,6 +309,7 @@
     "pause": {
       "title": "Pausa · terminar más tarde",
       "lede": "Todo lo respondido hasta ahora ya está registrado. Deje un correo electrónico y le daré un enlace que vuelve a abrir este perfil en cualquier dispositivo. Sin contraseña ni cuenta.",
+      "kept": "Todo lo respondido hasta ahora queda guardado en su cuenta. Vuelva desde Inicio cuando quiera.",
       "keepGoing": "Seguir"
     },
     "stage": {
@@ -335,7 +336,10 @@
       "moderate": "moderado",
       "next": "Siguiente paso",
       "nextValue": "decidir con cuánta cautela avanzar",
-      "keep": "Deje un correo electrónico y le daré un enlace para volver a este perfil. Sin contraseña ni cuenta."
+      "keep": "Deje un correo electrónico y le daré un enlace para volver a este perfil. Sin contraseña ni cuenta.",
+      "home": "Ir a Inicio",
+      "revisit": "Responder lo que omitió",
+      "kept": "Todo lo que ha respondido queda guardado en su cuenta. Puede cambiarlo en la ficha de datos."
     },
     "question": {
       "ref": "P <fig>{id}</fig>",
@@ -461,10 +465,13 @@
     "keep": {
       "placeholder": "usted@sunegocio.es",
       "label": "Su dirección de correo electrónico",
+      "title": "Conserve la forma de volver",
       "making": "Creando el enlace",
       "get": "Obtener mi enlace",
       "linkCap": "Su enlace",
       "linkNote": "Vuelve a abrir este perfil en cualquier dispositivo durante {days, plural, one {# día} many {# días} other {# días}}. Guarde una copia donde pueda encontrarla.",
+      "copy": "Copiar el enlace",
+      "copied": "Copiado",
       "badEmail": "Eso no parece una dirección de correo electrónico.",
       "failed": "No he podido crear el enlace. Vuelva a intentarlo."
     },
@@ -1318,7 +1325,10 @@
         "daily": "Día a día"
       },
       "below": "Por debajo de su rango habitual desde el {date}",
-      "above": "Por encima de su rango habitual desde el {date}"
+      "above": "Por encima de su rango habitual desde el {date}",
+      "latest": "Último día",
+      "high": "Día más alto",
+      "low": "Día más bajo"
     },
     "noted": {
       "label": "Anotado, sin actuar",
@@ -1696,18 +1706,18 @@
       },
       "size": {
         "title": "Tamaño del cambio",
-        "unit": "palabras de la línea, antes y después",
+        "unit": "Palabras de la línea, antes y después",
         "before": "Antes",
         "after": "Después",
         "words": "{count, plural, one {# palabra} many {# palabras} other {# palabras}}",
-        "kept": "se mantienen · {count}",
-        "added": "añadidas · {count}",
-        "removed": "quitadas · {count}",
+        "kept": "Se mantienen · {count}",
+        "added": "Añadidas · {count}",
+        "removed": "Quitadas · {count}",
         "aria": "Antes: {before} palabras. Después: {after} palabras; {kept} se mantienen, {added} añadidas, {removed} quitadas."
       },
       "rollback": {
         "title": "Cuándo se revierte solo",
-        "unit": "carga de la página, milisegundos",
+        "unit": "Carga de la página, milisegundos",
         "today": "Hoy",
         "past": "Se revierte a partir de",
         "ms": "{ms} ms",
@@ -1725,7 +1735,7 @@
         "fact": "Dato {n}",
         "more": "+{count} más",
         "rules": "{count, plural, one {Su regla · #} many {Sus reglas · #} other {Sus reglas · #}}",
-        "rulesSub": "lo que usted me dijo",
+        "rulesSub": "Lo que usted me dijo",
         "disagree": "{count, plural, one {Discrepancia · #} many {Discrepancias · #} other {Discrepancias · #}}",
         "disagreeSub": "fuentes que no coinciden",
         "aria": "Esta decisión se basa en {facts, plural, one {# dato} many {# datos} other {# datos}}, {rules, plural, one {# de sus reglas} many {# de sus reglas} other {# de sus reglas}} y {disagreements, plural, one {# discrepancia} many {# discrepancias} other {# discrepancias}}."
@@ -1733,9 +1743,9 @@
       "way": {
         "title": "El camino de vuelta",
         "now": "Tal como está",
-        "stored": "guardado",
+        "stored": "Guardado",
         "changed": "Cambiado",
-        "click": "un clic",
+        "click": "Un clic",
         "back": "Vuelve a como estaba",
         "auto": "o solo, si la página tarda más de {ms} ms",
         "aria": "Lo que hay ahora se guarda y luego se cambia; un clic lo devuelve a como estaba.",
@@ -6770,6 +6780,11 @@
       "footStopHtml": "Recibe este correo una vez por semana. Desactívelo en la pantalla Observando o <link>deje de recibir estos correos</link> con un solo clic.",
       "whatsappBusiness": "su negocio"
     },
+    "warning": {
+      "open": "Abrir {screen}",
+      "why": "Se lo digo una vez, la primera vez que aparece un aviso así.",
+      "stop": "Para dejar de recibir estos correos, desactívelos en {settings}."
+    },
     "signIn": {
       "subject": "Su enlace de inicio de sesión · ScaleX",
       "intro": "Haga clic para iniciar sesión en ScaleX:",
@@ -9148,6 +9163,14 @@
     "withProposals": "{count, plural, one {# cosa espera su visto bueno} many {# cosas esperan su visto bueno} other {# cosas esperan su visto bueno}}, y {reviews, plural, one {una reseña que conviene conocer} many {# reseñas que conviene conocer} other {# reseñas que conviene conocer}}",
     "anotherSite": "otro sitio"
   },
+  "warningPush": {
+    "one": {
+      "cash_warning": "Su caja podría ir justa en las próximas semanas",
+      "stock_warning": "Algo de lo que vende podría agotarse antes de la próxima entrega"
+    },
+    "many": "{count, plural, one {# aviso que conviene conocer} many {# avisos que conviene conocer} other {# avisos que conviene conocer}}",
+    "also": ", y {count, plural, one {un aviso que conviene conocer} many {# avisos que conviene conocer} other {# avisos que conviene conocer}}"
+  },
   "payments": {
     "meta": {
       "title": "Pagos · ScaleX"
@@ -10500,6 +10523,15 @@
     "toast": {
       "approved": "Aprobada. Registrada con su nombre.",
       "declined": "Rechazada. Registrada con su motivo."
+    },
+    "arrange": {
+      "open": "Organizar esta página",
+      "title": "Qué muestra esta página",
+      "note": "Marque lo que quiere ver y súbalo o bájelo. Se guarda en este navegador.",
+      "always": "Lo que le necesita y el estado de Lex siempre se muestran.",
+      "up": "Subir {name}",
+      "down": "Bajar {name}",
+      "reset": "Dejarlo como estaba"
     }
   },
   "alerts": {

@@ -1414,6 +1414,85 @@
   align-items: start;
   margin-top: 40px;
 }
+/* Home as the owner arranged it (components/home/ArrangeHome.tsx): with every
+   card of the numbers hidden, their column is not drawn and two remain. */
+.hx-cols.hx-two {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+.hx-arrange {
+  margin: 26px 0 0;
+  text-align: center;
+}
+.hx-arrange button {
+  padding: 6px 4px;
+  border: 0;
+  background: none;
+  color: var(--desk-ink-2);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
+  transition: color 0.16s var(--ease-out);
+}
+.hx-arrange button:hover {
+  color: var(--desk-ink);
+}
+/* the sheet that arranges it: a tick and two moves per card */
+.ha-note {
+  margin: 0 0 14px;
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--sheet-ink-2);
+}
+.ha-group {
+  margin: 18px 0 6px;
+  font-family: var(--f-ui, inherit);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--sheet-ink-2);
+}
+.ha-list {
+  margin: 0 0 14px;
+  padding: 0;
+  list-style: none;
+}
+.ha-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-height: 46px;
+  border-top: 1px solid var(--rule-soft);
+}
+.ha-row:first-child {
+  border-top: 0;
+}
+.ha-tick {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1 1 auto;
+  min-width: 0;
+  padding: 8px 0;
+  font-size: 14.5px;
+  cursor: pointer;
+}
+.ha-tick input {
+  flex: none;
+  width: 18px;
+  height: 18px;
+  accent-color: var(--sheet-ink);
+}
+.ha-move {
+  display: inline-flex;
+  flex: none;
+  gap: 2px;
+}
+.ha-foot {
+  margin: 18px 0 0;
+}
 .hx-col {
   display: grid;
   gap: 12px;
@@ -1759,6 +1838,10 @@
   }
   .hx-col:last-child {
     grid-column: 1 / -1;
+  }
+  /* With the numbers hidden there are two columns and they sit side by side. */
+  .hx-cols.hx-two .hx-col:last-child {
+    grid-column: auto;
   }
 }
 @media (max-width: 759px) {

@@ -1897,3 +1897,67 @@ button.ix-tile:disabled {
     padding-right: 16px;
   }
 }
+
+/* The closing card's way onward (2026-11-20). Someone signed in gets Home,
+   the fact sheet and the questions they skipped; the link back by email is
+   for a visitor with no account, with a label a reader can see, what the
+   link is for said beside it, and the link, once made, copied with one press. */
+.ix-done-kept,
+.ix-keep-why,
+.ix-pause-kept {
+  margin: 0 0 14px;
+  max-width: 60ch;
+  font-size: 14.5px;
+  line-height: 1.5;
+  color: var(--sheet-ink-2);
+}
+.ix-pause-kept {
+  margin: 6px 0 0;
+}
+.ix-done-acts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 0 0 14px;
+}
+.ix-done-acts .act,
+.ix-pause-panel a.act {
+  text-decoration: none;
+}
+.ix-keep-block {
+  margin: 0 0 14px;
+}
+.ix-keep-title {
+  margin: 0 0 4px;
+  font-family: var(--f-ui, inherit);
+  font-size: 16px;
+  font-weight: var(--w-display, 650);
+  line-height: 1.3;
+}
+.ix-keep-why {
+  margin-bottom: 12px;
+}
+.ix-keep {
+  display: grid;
+  gap: 6px;
+  flex: 1 1 380px;
+  min-width: 0;
+}
+.ix-keep-label {
+  font-size: 13px;
+  font-weight: 600;
+}
+.ix-linkbox-note {
+  margin: 0;
+}
+.ix-linkbox-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 14px;
+  margin-top: 8px;
+}
+.ix-linkbox-row code {
+  flex: 1 1 260px;
+  margin-top: 0;
+}

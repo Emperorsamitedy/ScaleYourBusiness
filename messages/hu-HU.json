@@ -309,6 +309,7 @@
     "pause": {
       "title": "Szünet · folytatás később",
       "lede": "Minden eddigi válasz már rögzítve van. Adjon meg egy e-mail-címet, és adok egy linket, amellyel bármilyen eszközön újra megnyithatja ezt a profilt. Nincs jelszó, nincs fiók.",
+      "kept": "Az eddigiek megmaradnak a fiókjában. A Kezdőlapról bármikor folytathatja.",
       "keepGoing": "Folytatom"
     },
     "stage": {
@@ -335,7 +336,10 @@
       "moderate": "közepes",
       "next": "Következő lépés",
       "nextValue": "annak eldöntése, milyen óvatosan haladjunk",
-      "keep": "Adjon meg egy e-mail-címet, és adok egy linket, amellyel visszatérhet ehhez a profilhoz. Nincs jelszó, nincs fiók."
+      "keep": "Adjon meg egy e-mail-címet, és adok egy linket, amellyel visszatérhet ehhez a profilhoz. Nincs jelszó, nincs fiók.",
+      "home": "Tovább a Kezdőlapra",
+      "revisit": "A kihagyottak megválaszolása",
+      "kept": "Minden válasza megmarad a fiókjában. A ténylapon bármelyiket módosíthatja."
     },
     "question": {
       "ref": "K <fig>{id}</fig>",
@@ -461,10 +465,13 @@
     "keep": {
       "placeholder": "on@vallalkozasa.hu",
       "label": "Az Ön e-mail-címe",
+      "title": "Őrizze meg a visszautat",
       "making": "A link készül",
       "get": "Kérem a linket",
       "linkCap": "Az Ön linkje",
       "linkNote": "Ezzel a linkkel {days, plural, one {# napig} other {# napig}} bármilyen eszközön újra megnyithatja ezt a profilt. Mentse el valahová, ahol megtalálja.",
+      "copy": "Link másolása",
+      "copied": "Kimásolva",
       "badEmail": "Ez nem tűnik e-mail-címnek.",
       "failed": "Nem sikerült elkészíteni a linket. Próbálja újra."
     },
@@ -1224,7 +1231,10 @@
         "daily": "Napról napra"
       },
       "below": "{date} óta a szokásos tartománya alatt",
-      "above": "{date} óta a szokásos tartománya felett"
+      "above": "{date} óta a szokásos tartománya felett",
+      "latest": "Legutóbbi nap",
+      "high": "Legmagasabb nap",
+      "low": "Legalacsonyabb nap"
     },
     "noted": {
       "label": "Feljegyezve, nem cselekedtem",
@@ -1602,18 +1612,18 @@
       },
       "size": {
         "title": "A változás mérete",
-        "unit": "a sor szavai, előtte és utána",
+        "unit": "A sor szavai, előtte és utána",
         "before": "Előtte",
         "after": "Utána",
         "words": "{count, plural, one {# szó} other {# szó}}",
-        "kept": "megmarad · {count}",
-        "added": "hozzáadva · {count}",
-        "removed": "eltávolítva · {count}",
+        "kept": "Megmarad · {count}",
+        "added": "Hozzáadva · {count}",
+        "removed": "Eltávolítva · {count}",
         "aria": "Előtte: {before} szó. Utána: {after} szó; {kept} megmarad, {added} hozzáadva, {removed} eltávolítva."
       },
       "rollback": {
         "title": "Mikor áll vissza magától",
-        "unit": "oldalbetöltés, ezredmásodperc",
+        "unit": "Oldalbetöltés, ezredmásodperc",
         "today": "Ma",
         "past": "Visszaáll e fölött",
         "ms": "{ms} ms",
@@ -1631,7 +1641,7 @@
         "fact": "{n}. tény",
         "more": "+{count} további",
         "rules": "{count, plural, one {Az Ön szabálya · #} other {Az Ön szabályai · #}}",
-        "rulesSub": "amit Ön mondott",
+        "rulesSub": "Amit Ön mondott",
         "disagree": "{count, plural, one {Eltérés · #} other {Eltérések · #}}",
         "disagreeSub": "eltérő források",
         "aria": "Ez a döntés {facts, plural, one {# tényen} other {# tényen}}, {rules, plural, one {# szabályán} other {# szabályán}} és {disagreements, plural, one {# eltérésen} other {# eltérésen}} alapul."
@@ -1639,9 +1649,9 @@
       "way": {
         "title": "Az út vissza",
         "now": "Ahogy most van",
-        "stored": "elmentve",
+        "stored": "Elmentve",
         "changed": "Megváltoztatva",
-        "click": "egy kattintás",
+        "click": "Egy kattintás",
         "back": "Vissza a régire",
         "auto": "vagy magától, ha az oldal {ms} ms-nál lassabb lesz",
         "aria": "A mostani állapot elmentődik, majd megváltozik; egy kattintással visszaáll.",
@@ -6770,6 +6780,11 @@
       "footStopHtml": "Ezt az e-mailt hetente egyszer kapja. A Figyelés képernyőn kikapcsolhatja, vagy egy kattintással <link>leállíthatja ezeket az e-maileket</link>.",
       "whatsappBusiness": "az Ön vállalkozása"
     },
+    "warning": {
+      "open": "{screen} megnyitása",
+      "why": "Egyszer szólok, amikor egy ilyen figyelmeztetés először megjelenik.",
+      "stop": "Ha nem kéri ezeket az e-maileket, kapcsolja ki őket itt: {settings}."
+    },
     "signIn": {
       "subject": "Az Ön bejelentkezési linkje · ScaleX",
       "intro": "Kattintson ide a ScaleX-be való bejelentkezéshez:",
@@ -9148,6 +9163,14 @@
     "withProposals": "{count, plural, one {# dolog várja az Ön igenjét} other {# dolog várja az Ön igenjét}}, és {reviews, plural, one {egy értékelés, amiről érdemes tudnia} other {# értékelés, amiről érdemes tudnia}}",
     "anotherSite": "egy másik oldal"
   },
+  "warningPush": {
+    "one": {
+      "cash_warning": "A következő hetekben szűkös lehet a pénze",
+      "stock_warning": "Valami, amit árul, elfogyhat a következő szállítás előtt"
+    },
+    "many": "{count, plural, one {# figyelmeztetés, amiről érdemes tudnia} other {# figyelmeztetés, amiről érdemes tudnia}}",
+    "also": ", és {count, plural, one {egy figyelmeztetés, amiről érdemes tudnia} other {# figyelmeztetés, amiről érdemes tudnia}}"
+  },
   "payments": {
     "meta": {
       "title": "Kifizetések · ScaleX"
@@ -10500,6 +10523,15 @@
     "toast": {
       "approved": "Jóváhagyva. Az Ön nevével rögzítve.",
       "declined": "Elutasítva. Az Ön indokával rögzítve."
+    },
+    "arrange": {
+      "open": "Az oldal elrendezése",
+      "title": "Mit mutat ez az oldal",
+      "note": "Jelölje be, amit látni szeretne, és mozgassa feljebb vagy lejjebb. Ebben a böngészőben marad meg.",
+      "always": "Ami Önre vár, és Lex állapota mindig látszik.",
+      "up": "{name} feljebb",
+      "down": "{name} lejjebb",
+      "reset": "Visszaállítás"
     }
   },
   "alerts": {

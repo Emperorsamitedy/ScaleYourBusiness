@@ -30,7 +30,8 @@ import "../../app/charts.css";
 import "../../app/chat.css";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Fragment, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import type { ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import type { NavCounts } from "../../app/api/nav/route";
 import type { ChartsBundle } from "../../lib/charts/load";
@@ -65,6 +66,9 @@ import { TabPanel, Tabs } from "../ui/Tabs";
 import { useToast } from "../ui/Toast";
 import { attentionCount, attentionItems } from "../nav/attention";
 import { ActivityFeed } from "./ActivityFeed";
+import { ArrangeHome, useHomeLayout } from "./ArrangeHome";
+import type { NumbersBlock } from "./home-layout";
+import { shows } from "./home-layout";
 import type { LogLike } from "./activity-model";
 import { mergeFeed } from "./activity-model";
 import { DecisionCard } from "./DecisionCard";
@@ -164,6 +168,9 @@ export function HomeScreen() {
   const chat = useChat();
 
   const [why, setWhy] = useState<WhyContent | null>(null);
+  // What Home shows and in what order, as this browser keeps it.
+  const [layout, setLayout] = useHomeLayout();
+  const [arranging, setArranging] = useState(false);
   const shut = useCallback(() => setWhy(null), []);
   const [halted, setHalted] = useState(false);
   const [live, setLive] = useState<LiveReading["status"] | null>(null);
@@ -238,7 +245,7 @@ export function HomeScreen() {
   const news = useFeedNews(
     feed,
     { log: watch !== null, proposals: queue !== null },
-    tab === "activity",
+    tab === "activity" && shows(layout, "work"),
   );
   /** The row the open review came from: its title is on the sheet before the read returns. */
   const reviewed = review ? (everything.find((p) => p.id === review) ?? null) : null;
@@ -343,6 +350,223 @@ export function HomeScreen() {
   const stockRows = priced.flatMap((c) => (c.monthly ? [] : [partRow(c, c.total)]));
 
   const readingStrip = navRead.state === "reading" && cashRead.state === "reading";
+
+  // The cards of "Your numbers today", by name: drawn in the order the owner
+  // chose and only the ones not hidden (components/home/home-layout.ts).
+  const numbers: Record<NumbersBlock, ReactNode> = {
+    cash: (
+      <>
+        {readingStrip ? (
+          <div className="hx-card">
+            <Skeleton lines={2} />
+          </div>
+        ) : (
+          <div className="hx-tiles">
+            {cash && (
+              <button
+                type="button"
+                className="home-reading home-tile"
+                onClick={() =>
+                  setWhy({
+                    title: t("readings.cash"),
+                    value: whole(cash.today, cash.currency, locale),
+                    rows: [
+                      { label: t("why.basis"), value: basis(cash.source.basis) },
+                      { label: t("why.from"), value: cash.source.source },
+                      ...(cash.source.on
+                        ? [{ label: t("why.when"), value: shortDay(cash.source.on, locale) }]
+                        : []),
+                    ],
+                  })
+                }
+              >
+                <span className="home-r-lab">{t("readings.cash")}</span>
+                <span className="home-r-val">{whole(cash.today, cash.currency, locale)}</span>
+                <span className="home-r-cmp">
+                  {cash.lineKind === "buffer"
+                    ? t("readings.cashCmp", { line: whole(cash.line, cash.currency, locale) })
+                    : t("readings.cashZero")}
+                </span>
+                <span className="home-r-foot">
+                  <span className={`flag ${cash.under ? "alarm" : "ok"}`}>
+                    {cash.under ? t("flag.under") : t("flag.above")}
+                  </span>
+                  <span className="home-r-more">{t("why.open")}</span>
+                </span>
+              </button>
+            )}
+            {cash && (
+              <Link className="home-reading home-tile" href="/cash">
+                <span className="home-r-lab">{t("readings.lowest")}</span>
+                <span className="home-r-val">{whole(cash.lowest.low, cash.currency, locale)}</span>
+                <span className="home-r-cmp">
+                  {t(cash.lowest.aboveToday ? "readings.lowestAbove" : "readings.lowestCmp", {
+                    date: shortDay(cash.lowest.start, locale),
+                  })}
+                </span>
+                <span className="home-r-foot">
+                  <span className={`flag ${cash.lowest.under ? "drift" : "ok"}`}>
+                    {cash.lowest.under ? t("flag.tight") : t("flag.clear")}
+                  </span>
+                </span>
+              </Link>
+            )}
+            {cashRead.state === "reading" && (
+              <div className="home-reading" aria-busy="true">
+                <Skeleton lines={3} className="home-tile-skel" />
+              </div>
+            )}
+            {cashRead.state === "failed" && (
+              <div className="hx-card hx-wide">
+                <FailedRead onRetry={reloadCash} />
+              </div>
+            )}
+          </div>
+        )}
+      </>
+    ),
+    sales: (
+      <>
+        {chartsRead.state === "reading" && (
+          <section className="cs home-sales" aria-busy="true" aria-label={t("trend.label")}>
+            <header className="cs-head">
+              <p className="cs-label">{t("trend.label")}</p>
+            </header>
+            <Skeleton lines={4} />
+          </section>
+        )}
+        {chartsRead.state === "failed" && (
+          <section className="cs home-sales" aria-label={t("trend.label")}>
+            <header className="cs-head">
+              <p className="cs-label">{t("trend.label")}</p>
+            </header>
+            <FailedRead onRetry={reloadCharts} />
+          </section>
+        )}
+        {market && latest && (
+          <section className="cs home-sales" aria-label={t("trend.label")}>
+            <header className="cs-head">
+              <div>
+                <p className="cs-label">{t("trend.label")}</p>
+                <h3 className="cs-title">{ctr("daysMeasured", { count: recent.length })}</h3>
+              </div>
+              <div className="cs-meta home-sales-meta">
+                {periods.length > 1 && (
+                  <div className="home-period" role="group" aria-label={t("trend.period")}>
+                    {periods.map((days) => (
+                      <button
+                        key={days}
+                        type="button"
+                        aria-pressed={days === period}
+                        title={ctr("daysMeasured", { count: days })}
+                        onClick={() => choosePeriod(days)}
+                      >
+                        {t("trend.days", { count: days })}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </header>
+            <div className="home-trends">
+              <div className="home-trend">
+                <p className="home-r-lab">{priceLabel}</p>
+                <p className="home-r-val">
+                  {dayMoney(latest.value_minor, market.currency, locale)}
+                </p>
+                <p className="home-r-cmp">
+                  {shortDate(latest.date, locale)} · {market.price.source} ·{" "}
+                  <span className="word">{sheet(`basis.${market.price.basis}`)}</span>
+                </p>
+                <Trend
+                  points={recent.map((d, i) => ({
+                    label: dayLabels[i] ?? "",
+                    value: d.value_minor,
+                  }))}
+                  format={(v) => dayMoney(v, market.currency, locale)}
+                  step={10 ** minorUnitExponent(market.currency)}
+                  label={`${priceLabel} · ${ctr("daysMeasured", { count: recent.length })}`}
+                  columns={[ctr("table.day"), priceLabel]}
+                />
+              </div>
+              {market.volume && latest.volume !== null && (
+                <div className="home-trend">
+                  <p className="home-r-lab">{volumeWord(market.volume.word, ctr)}</p>
+                  <p className="home-r-val">{num(latest.volume, 0, locale)}</p>
+                  <p className="home-r-cmp">
+                    {shortDate(latest.date, locale)} · {market.volume.source}
+                  </p>
+                  <Trend
+                    points={recent.map((d, i) => ({
+                      label: dayLabels[i] ?? "",
+                      value: d.volume,
+                    }))}
+                    format={(v) => num(v, 0, locale)}
+                    label={`${volumeWord(market.volume.word, ctr)} · ${ctr("daysMeasured", { count: recent.length })}`}
+                    columns={[ctr("table.day"), volumeWord(market.volume.word, ctr)]}
+                  />
+                </div>
+              )}
+            </div>
+            <p className="hx-card-foot">
+              <Link href="/watch" className="home-link">
+                {t("trend.market")}
+              </Link>
+            </p>
+          </section>
+        )}
+      </>
+    ),
+    visitors: (
+      <>
+        <section className="cs home-readings" aria-label={t("live.label")}>
+          <LiveVisitors onStatus={setLive} />
+        </section>
+      </>
+    ),
+    slips: (
+      <>
+        {market && priced.length > 0 && (
+          <section className="cs home-slips" aria-label={t("slips.label")}>
+            <div className="cs-body">
+              <Fold summary={t("slips.label")} className="home-fold">
+                <p className="home-slips-meta">{ctr("colMonth", { currency: market.currency })}</p>
+                {monthRows.length > 0 && (
+                  <HBars
+                    rows={monthRows}
+                    label={ctr("componentsCaption")}
+                    axis={{
+                      ticks: niceTicks(0, Math.max(...monthRows.map((r) => r.value)) / unit).map(
+                        (v) => v * unit,
+                      ),
+                      format: (v) => dayMoney(v, market.currency, locale),
+                    }}
+                  />
+                )}
+                {stockRows.length > 0 && (
+                  <>
+                    <p className="vz-cap">
+                      {ctr("apart")} · {ctr("row.tiedUp")}
+                    </p>
+                    <ul className="home-apart">
+                      {stockRows.map((r) => (
+                        <li key={r.key}>
+                          <a href={r.href}>{r.label}</a>
+                          {r.note}
+                          <span className="vz-bar-fig">{r.display}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </>
+                )}
+              </Fold>
+            </div>
+          </section>
+        )}
+      </>
+    ),
+  };
+  const numbersOn = layout.order.some((block) => shows(layout, block));
 
   if (out) return null;
   return (
@@ -500,7 +724,7 @@ export function HomeScreen() {
         </section>
       </header>
 
-      <div className="hx-cols">
+      <div className={numbersOn ? "hx-cols" : "hx-cols hx-two"}>
         <section className="hx-col" aria-labelledby="home-needs-title">
           <header className="hx-col-head">
             <h2 className="hx-col-title" id="home-needs-title" tabIndex={-1}>
@@ -539,219 +763,22 @@ export function HomeScreen() {
           </div>
         </section>
 
-        <section className="hx-col" aria-labelledby="home-numbers-title">
-          <header className="hx-col-head">
-            <h2 className="hx-col-title" id="home-numbers-title">
-              {t("readings.label")}
-            </h2>
-            <Link href="/cash" className="hx-col-link">
-              {navT("item.cash")}
-            </Link>
-          </header>
+        {numbersOn && (
+          <section className="hx-col" aria-labelledby="home-numbers-title">
+            <header className="hx-col-head">
+              <h2 className="hx-col-title" id="home-numbers-title">
+                {t("readings.label")}
+              </h2>
+              <Link href="/cash" className="hx-col-link">
+                {navT("item.cash")}
+              </Link>
+            </header>
 
-          {readingStrip ? (
-            <div className="hx-card">
-              <Skeleton lines={2} />
-            </div>
-          ) : (
-            <div className="hx-tiles">
-              {cash && (
-                <button
-                  type="button"
-                  className="home-reading home-tile"
-                  onClick={() =>
-                    setWhy({
-                      title: t("readings.cash"),
-                      value: whole(cash.today, cash.currency, locale),
-                      rows: [
-                        { label: t("why.basis"), value: basis(cash.source.basis) },
-                        { label: t("why.from"), value: cash.source.source },
-                        ...(cash.source.on
-                          ? [{ label: t("why.when"), value: shortDay(cash.source.on, locale) }]
-                          : []),
-                      ],
-                    })
-                  }
-                >
-                  <span className="home-r-lab">{t("readings.cash")}</span>
-                  <span className="home-r-val">{whole(cash.today, cash.currency, locale)}</span>
-                  <span className="home-r-cmp">
-                    {cash.lineKind === "buffer"
-                      ? t("readings.cashCmp", { line: whole(cash.line, cash.currency, locale) })
-                      : t("readings.cashZero")}
-                  </span>
-                  <span className="home-r-foot">
-                    <span className={`flag ${cash.under ? "alarm" : "ok"}`}>
-                      {cash.under ? t("flag.under") : t("flag.above")}
-                    </span>
-                    <span className="home-r-more">{t("why.open")}</span>
-                  </span>
-                </button>
-              )}
-              {cash && (
-                <Link className="home-reading home-tile" href="/cash">
-                  <span className="home-r-lab">{t("readings.lowest")}</span>
-                  <span className="home-r-val">
-                    {whole(cash.lowest.low, cash.currency, locale)}
-                  </span>
-                  <span className="home-r-cmp">
-                    {t(cash.lowest.aboveToday ? "readings.lowestAbove" : "readings.lowestCmp", {
-                      date: shortDay(cash.lowest.start, locale),
-                    })}
-                  </span>
-                  <span className="home-r-foot">
-                    <span className={`flag ${cash.lowest.under ? "drift" : "ok"}`}>
-                      {cash.lowest.under ? t("flag.tight") : t("flag.clear")}
-                    </span>
-                  </span>
-                </Link>
-              )}
-              {cashRead.state === "reading" && (
-                <div className="home-reading" aria-busy="true">
-                  <Skeleton lines={3} className="home-tile-skel" />
-                </div>
-              )}
-              {cashRead.state === "failed" && (
-                <div className="hx-card hx-wide">
-                  <FailedRead onRetry={reloadCash} />
-                </div>
-              )}
-            </div>
-          )}
-
-          {chartsRead.state === "reading" && (
-            <section className="cs home-sales" aria-busy="true" aria-label={t("trend.label")}>
-              <header className="cs-head">
-                <p className="cs-label">{t("trend.label")}</p>
-              </header>
-              <Skeleton lines={4} />
-            </section>
-          )}
-          {chartsRead.state === "failed" && (
-            <section className="cs home-sales" aria-label={t("trend.label")}>
-              <header className="cs-head">
-                <p className="cs-label">{t("trend.label")}</p>
-              </header>
-              <FailedRead onRetry={reloadCharts} />
-            </section>
-          )}
-          {market && latest && (
-            <section className="cs home-sales" aria-label={t("trend.label")}>
-              <header className="cs-head">
-                <div>
-                  <p className="cs-label">{t("trend.label")}</p>
-                  <h3 className="cs-title">{ctr("daysMeasured", { count: recent.length })}</h3>
-                </div>
-                <div className="cs-meta home-sales-meta">
-                  {periods.length > 1 && (
-                    <div className="home-period" role="group" aria-label={t("trend.period")}>
-                      {periods.map((days) => (
-                        <button
-                          key={days}
-                          type="button"
-                          aria-pressed={days === period}
-                          title={ctr("daysMeasured", { count: days })}
-                          onClick={() => choosePeriod(days)}
-                        >
-                          {t("trend.days", { count: days })}
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </header>
-              <div className="home-trends">
-                <div className="home-trend">
-                  <p className="home-r-lab">{priceLabel}</p>
-                  <p className="home-r-val">
-                    {dayMoney(latest.value_minor, market.currency, locale)}
-                  </p>
-                  <p className="home-r-cmp">
-                    {shortDate(latest.date, locale)} · {market.price.source} ·{" "}
-                    <span className="word">{sheet(`basis.${market.price.basis}`)}</span>
-                  </p>
-                  <Trend
-                    points={recent.map((d, i) => ({
-                      label: dayLabels[i] ?? "",
-                      value: d.value_minor,
-                    }))}
-                    format={(v) => dayMoney(v, market.currency, locale)}
-                    step={10 ** minorUnitExponent(market.currency)}
-                    label={`${priceLabel} · ${ctr("daysMeasured", { count: recent.length })}`}
-                    columns={[ctr("table.day"), priceLabel]}
-                  />
-                </div>
-                {market.volume && latest.volume !== null && (
-                  <div className="home-trend">
-                    <p className="home-r-lab">{volumeWord(market.volume.word, ctr)}</p>
-                    <p className="home-r-val">{num(latest.volume, 0, locale)}</p>
-                    <p className="home-r-cmp">
-                      {shortDate(latest.date, locale)} · {market.volume.source}
-                    </p>
-                    <Trend
-                      points={recent.map((d, i) => ({
-                        label: dayLabels[i] ?? "",
-                        value: d.volume,
-                      }))}
-                      format={(v) => num(v, 0, locale)}
-                      label={`${volumeWord(market.volume.word, ctr)} · ${ctr("daysMeasured", { count: recent.length })}`}
-                      columns={[ctr("table.day"), volumeWord(market.volume.word, ctr)]}
-                    />
-                  </div>
-                )}
-              </div>
-              <p className="hx-card-foot">
-                <Link href="/watch" className="home-link">
-                  {t("trend.market")}
-                </Link>
-              </p>
-            </section>
-          )}
-
-          <section className="cs home-readings" aria-label={t("live.label")}>
-            <LiveVisitors onStatus={setLive} />
+            {layout.order.map((block) =>
+              shows(layout, block) ? <Fragment key={block}>{numbers[block]}</Fragment> : null,
+            )}
           </section>
-
-          {market && priced.length > 0 && (
-            <section className="cs home-slips" aria-label={t("slips.label")}>
-              <div className="cs-body">
-                <Fold summary={t("slips.label")} className="home-fold">
-                  <p className="home-slips-meta">
-                    {ctr("colMonth", { currency: market.currency })}
-                  </p>
-                  {monthRows.length > 0 && (
-                    <HBars
-                      rows={monthRows}
-                      label={ctr("componentsCaption")}
-                      axis={{
-                        ticks: niceTicks(0, Math.max(...monthRows.map((r) => r.value)) / unit).map(
-                          (v) => v * unit,
-                        ),
-                        format: (v) => dayMoney(v, market.currency, locale),
-                      }}
-                    />
-                  )}
-                  {stockRows.length > 0 && (
-                    <>
-                      <p className="vz-cap">
-                        {ctr("apart")} · {ctr("row.tiedUp")}
-                      </p>
-                      <ul className="home-apart">
-                        {stockRows.map((r) => (
-                          <li key={r.key}>
-                            <a href={r.href}>{r.label}</a>
-                            {r.note}
-                            <span className="vz-bar-fig">{r.display}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </>
-                  )}
-                </Fold>
-              </div>
-            </section>
-          )}
-        </section>
+        )}
 
         <section className="hx-col" aria-labelledby="home-lex-title">
           <header className="hx-col-head">
@@ -764,45 +791,66 @@ export function HomeScreen() {
           </header>
           <StatusCard nav={nav} face={face} onHalted={setHalted} onRead={reloadWatch} />
 
-          <div className="home-work" id="home-work">
-            <Tabs<WorkTab>
-              id="home-work"
-              label={t("tabs.label")}
-              tabs={[
-                { key: "activity", label: t("tabs.activity") },
-                { key: "made", label: t("tabs.made") },
-              ]}
-              value={tab}
-              onChange={showTab}
-            />
-            <section className="cs home-panel" aria-busy={queueRead.state === "reading"}>
-              <TabPanel id="home-work" tab="activity" open={tab === "activity"}>
-                {queue || watch ? (
-                  <ActivityFeed rows={feed} news={news} onReview={openReview} />
-                ) : queueRead.state === "failed" && watchRead.state === "failed" ? (
-                  <FailedRead
-                    onRetry={() => {
-                      reloadQueue();
-                      reloadWatch();
-                    }}
-                  />
-                ) : (
-                  <Skeleton lines={6} />
-                )}
-              </TabPanel>
-              <TabPanel id="home-work" tab="made" open={tab === "made"}>
-                {queue ? (
-                  <MadeList rows={made} onReview={openReview} />
-                ) : queueRead.state === "failed" ? (
-                  <FailedRead onRetry={reloadQueue} />
-                ) : (
-                  <Skeleton lines={5} />
-                )}
-              </TabPanel>
-            </section>
-          </div>
+          {shows(layout, "work") && (
+            <div className="home-work" id="home-work">
+              <Tabs<WorkTab>
+                id="home-work"
+                label={t("tabs.label")}
+                tabs={[
+                  { key: "activity", label: t("tabs.activity") },
+                  { key: "made", label: t("tabs.made") },
+                ]}
+                value={tab}
+                onChange={showTab}
+              />
+              <section className="cs home-panel" aria-busy={queueRead.state === "reading"}>
+                <TabPanel id="home-work" tab="activity" open={tab === "activity"}>
+                  {queue || watch ? (
+                    <ActivityFeed rows={feed} news={news} onReview={openReview} />
+                  ) : queueRead.state === "failed" && watchRead.state === "failed" ? (
+                    <FailedRead
+                      onRetry={() => {
+                        reloadQueue();
+                        reloadWatch();
+                      }}
+                    />
+                  ) : (
+                    <Skeleton lines={6} />
+                  )}
+                </TabPanel>
+                <TabPanel id="home-work" tab="made" open={tab === "made"}>
+                  {queue ? (
+                    <MadeList rows={made} onReview={openReview} />
+                  ) : queueRead.state === "failed" ? (
+                    <FailedRead onRetry={reloadQueue} />
+                  ) : (
+                    <Skeleton lines={5} />
+                  )}
+                </TabPanel>
+              </section>
+            </div>
+          )}
         </section>
       </div>
+
+      <p className="hx-arrange">
+        <button type="button" aria-haspopup="dialog" onClick={() => setArranging(true)}>
+          {t("arrange.open")}
+        </button>
+      </p>
+      <ArrangeHome
+        open={arranging}
+        onClose={() => setArranging(false)}
+        layout={layout}
+        onChange={setLayout}
+        names={{
+          cash: `${t("readings.cash")} · ${t("readings.lowest")}`,
+          sales: t("trend.label"),
+          visitors: t("live.label"),
+          slips: t("slips.label"),
+          work: `${t("tabs.activity")} · ${t("tabs.made")}`,
+        }}
+      />
 
       <ReviewSheet
         id={review}

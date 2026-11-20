@@ -1889,3 +1889,15 @@
     font-size: 15px;
   }
 }
+
+/* The language switch at the right end of the header (components/locale/
+   LanguageToggle.tsx; the owner, 2026-11-20). It takes the header's own ink.
+   Where the links are gone it keeps the corner by itself. */
+.lx .hd-lang {
+  color: var(--fg);
+}
+@media (max-width: 900px) {
+  .lx .hd-lang {
+    margin-left: auto;
+  }
+}

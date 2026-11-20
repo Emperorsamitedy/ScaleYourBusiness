@@ -725,7 +725,10 @@ export function LexInterview({
           <p className="lxi-prompt">{it("done.title")}</p>
           <p className="lxi-meta">{it("done.lede")}</p>
           <p className="lxi-row">
-            <Link className="act solid" href="/profile">
+            <Link className="act solid" href="/home">
+              {it("done.home")}
+            </Link>
+            <Link className="act" href="/profile">
               {nav("item.factsheet")}
             </Link>
           </p>

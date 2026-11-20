@@ -309,6 +309,7 @@
     "pause": {
       "title": "Pause · terminer plus tard",
       "lede": "Tout ce qui précède est déjà enregistré. Laissez une adresse e-mail et je vous donnerai un lien qui rouvre ce profil sur n’importe quel appareil. Pas de mot de passe, pas de compte.",
+      "kept": "Tout ce que vous avez répondu jusqu’ici est conservé dans votre compte. Revenez depuis l’accueil quand vous voulez.",
       "keepGoing": "Continuer"
     },
     "stage": {
@@ -335,7 +336,10 @@
       "moderate": "moyenne",
       "next": "Ensuite",
       "nextValue": "décider avec quelle prudence avancer",
-      "keep": "Laissez une adresse e-mail et je vous donnerai un lien pour revenir à ce profil. Pas de mot de passe, pas de compte."
+      "keep": "Laissez une adresse e-mail et je vous donnerai un lien pour revenir à ce profil. Pas de mot de passe, pas de compte.",
+      "home": "Aller à l’accueil",
+      "revisit": "Répondre à ce que vous avez passé",
+      "kept": "Tout ce que vous avez répondu est conservé dans votre compte. Vous pouvez le modifier sur la fiche des faits."
     },
     "question": {
       "ref": "Q <fig>{id}</fig>",
@@ -461,10 +465,13 @@
     "keep": {
       "placeholder": "vous@votreentreprise.fr",
       "label": "Votre adresse e-mail",
+      "title": "Gardez votre accès",
       "making": "Création du lien",
       "get": "Obtenir mon lien",
       "linkCap": "Votre lien",
       "linkNote": "Il rouvre ce profil sur n’importe quel appareil pendant {days, plural, one {# jour} many {# jours} other {# jours}}. Gardez-en une copie là où vous la retrouverez.",
+      "copy": "Copier le lien",
+      "copied": "Copié",
       "badEmail": "Cela ne ressemble pas à une adresse e-mail.",
       "failed": "Je n’ai pas pu créer le lien. Réessayez."
     },
@@ -1224,7 +1231,10 @@
         "daily": "Jour par jour"
       },
       "below": "Sous sa plage habituelle depuis le {date}",
-      "above": "Au-dessus de sa plage habituelle depuis le {date}"
+      "above": "Au-dessus de sa plage habituelle depuis le {date}",
+      "latest": "Dernier jour",
+      "high": "Jour le plus haut",
+      "low": "Jour le plus bas"
     },
     "noted": {
       "label": "Noté, sans suite",
@@ -1602,18 +1612,18 @@
       },
       "size": {
         "title": "Ampleur du changement",
-        "unit": "mots de la ligne, avant et après",
+        "unit": "Mots de la ligne, avant et après",
         "before": "Avant",
         "after": "Après",
         "words": "{count, plural, one {# mot} many {# mots} other {# mots}}",
-        "kept": "conservés · {count}",
-        "added": "ajoutés · {count}",
-        "removed": "retirés · {count}",
+        "kept": "Conservés · {count}",
+        "added": "Ajoutés · {count}",
+        "removed": "Retirés · {count}",
         "aria": "Avant : {before} mots. Après : {after} mots ; {kept} conservés, {added} ajoutés, {removed} retirés."
       },
       "rollback": {
         "title": "Quand il revient en arrière tout seul",
-        "unit": "chargement de la page, millisecondes",
+        "unit": "Chargement de la page, millisecondes",
         "today": "Aujourd’hui",
         "past": "Retour arrière au-delà de",
         "ms": "{ms} ms",
@@ -1631,7 +1641,7 @@
         "fact": "Fait {n}",
         "more": "+{count} de plus",
         "rules": "{count, plural, one {Votre règle · #} many {Vos règles · #} other {Vos règles · #}}",
-        "rulesSub": "ce que vous m’avez dit",
+        "rulesSub": "Ce que vous m’avez dit",
         "disagree": "{count, plural, one {Désaccord · #} many {Désaccords · #} other {Désaccords · #}}",
         "disagreeSub": "sources qui divergent",
         "aria": "Cette décision repose sur {facts, plural, one {# fait} many {# faits} other {# faits}}, {rules, plural, one {# de vos règles} many {# de vos règles} other {# de vos règles}} et {disagreements, plural, one {# désaccord} many {# désaccords} other {# désaccords}}."
@@ -1639,9 +1649,9 @@
       "way": {
         "title": "Le chemin du retour",
         "now": "Tel quel aujourd’hui",
-        "stored": "conservé",
+        "stored": "Conservé",
         "changed": "Modifié",
-        "click": "un clic",
+        "click": "Un clic",
         "back": "Revenu comme avant",
         "auto": "ou tout seul, si la page met plus de {ms} ms",
         "aria": "L’état actuel est conservé, puis modifié ; un clic le rétablit tel qu’il était.",
@@ -6770,6 +6780,11 @@
       "footStopHtml": "Vous recevez cet e-mail une fois par semaine. Désactivez-le sur l’écran Observation, ou <link>arrêtez ces e-mails</link> en un clic.",
       "whatsappBusiness": "votre entreprise"
     },
+    "warning": {
+      "open": "Ouvrir {screen}",
+      "why": "Je vous le dis une fois, la première fois qu’une alerte de ce genre apparaît.",
+      "stop": "Pour ne plus recevoir ces e-mails, désactivez-les dans {settings}."
+    },
     "signIn": {
       "subject": "Votre lien de connexion · ScaleX",
       "intro": "Cliquez pour vous connecter à ScaleX :",
@@ -9148,6 +9163,14 @@
     "withProposals": "{count, plural, one {# chose attend votre feu vert} many {# choses attendent votre feu vert} other {# choses attendent votre feu vert}}, et {reviews, plural, one {un avis à connaître} many {# avis à connaître} other {# avis à connaître}}",
     "anotherSite": "un autre site"
   },
+  "warningPush": {
+    "one": {
+      "cash_warning": "Votre caisse pourrait être tendue dans les semaines à venir",
+      "stock_warning": "Un article que vous vendez pourrait manquer avant la prochaine livraison"
+    },
+    "many": "{count, plural, one {# alerte à connaître} many {# alertes à connaître} other {# alertes à connaître}}",
+    "also": ", et {count, plural, one {une alerte à connaître} many {# alertes à connaître} other {# alertes à connaître}}"
+  },
   "payments": {
     "meta": {
       "title": "Paiements · ScaleX"
@@ -10500,6 +10523,15 @@
     "toast": {
       "approved": "Validée. Enregistrée à votre nom.",
       "declined": "Refusée. Enregistrée avec votre raison."
+    },
+    "arrange": {
+      "open": "Organiser cette page",
+      "title": "Ce que cette page affiche",
+      "note": "Cochez ce que vous voulez voir et montez-le ou descendez-le. Conservé dans ce navigateur.",
+      "always": "Ce qui vous attend et l’état de Lex sont toujours affichés.",
+      "up": "Monter {name}",
+      "down": "Descendre {name}",
+      "reset": "Remettre comme avant"
     }
   },
   "alerts": {

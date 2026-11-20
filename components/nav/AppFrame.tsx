@@ -58,6 +58,7 @@ import { EmergencyStop } from "../execution/EmergencyStop";
 import { useStopped } from "../execution/useStopped";
 import { LexFace, lexState } from "../brand/LexFace";
 import { Logo } from "../brand/Mark";
+import { LanguageToggle } from "../locale/LanguageToggle";
 import { Kbd } from "../ui/Kbd";
 import { Menu } from "../ui/Menu";
 import { Sheet } from "../ui/Sheet";
@@ -78,6 +79,7 @@ import {
 } from "./NavContext";
 import type { ReviewOpener } from "./NavContext";
 import { PlaceIcon, ScreenIcon } from "./nav-icons";
+import { useBarFit } from "./useBarFit";
 import "../../app/shell.css";
 
 // Fetched when a decision is first opened in place from Lex or the
@@ -891,6 +893,9 @@ export function AppFrame({ children }: { children: ReactNode }) {
   useEffect(() => setMore(false), [path]);
   const [foldedByOwner, toggleFold] = useRailFold();
   const stopped = useStopped(framed);
+  // The bar folds until what it holds fits, in any language (useBarFit.ts).
+  const bar = useRef<HTMLElement>(null);
+  useBarFit(bar, framed);
   // The palette's "Recent": the owner screens visited, latest first.
   useEffect(() => {
     if (groupFor(path)) rememberScreen(path);
@@ -942,7 +947,7 @@ export function AppFrame({ children }: { children: ReactNode }) {
               facts={counts ? counts.facts : null}
             >
               <div className={frame}>
-                <header className="sx-top">
+                <header className="sx-top" ref={bar}>
                   <Link href="/home" className="sx-logo" aria-label="ScaleX">
                     <Logo onDark />
                   </Link>
@@ -1005,6 +1010,8 @@ export function AppFrame({ children }: { children: ReactNode }) {
                       <Kbd>K</Kbd>
                     </span>
                   </button>
+                  {/* The owner, 2026-11-20: a button in the top right corner between Hungarian and English. */}
+                  <LanguageToggle className="sx-lang" />
                   <Notifications counts={counts} />
                   <AskLex path={path} stopped={stopped} />
                   {stripStop(path) && <EmergencyStop variant="masthead" />}

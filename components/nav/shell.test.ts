@@ -6,6 +6,7 @@ import { describe, expect, it } from "vitest";
 import { chipQuestions } from "../chat/ChatScreen";
 import { arrivedUnseen, inlineComposer, staysOpen } from "./LexPanel";
 import { leavesPage } from "./RouteProgress";
+import { BAR_FIT_STEPS, firstFit } from "./useBarFit";
 
 describe("the loading bar", () => {
   const here = { origin: "http://localhost:3000", pathname: "/watch" };
@@ -119,6 +120,36 @@ describe("the phone's bar is a phone's (app/shell.css)", () => {
     ]);
     // A rule inside a phone's @media is not a wide screen's.
     expect(wideRules("@media (max-width: 759px) { .sx-bar { display: grid; } }")).toEqual([]);
+  });
+});
+
+// 2026-11-20: the bar's folds were set at window widths measured in English. In
+// Hungarian the same bar needs more room, and on every common laptop the stop
+// hung past the right edge. The bar is measured now (useBarFit.ts).
+describe("the bar folds until what it holds fits", () => {
+  it("keeps everything written out while it fits", () => {
+    expect(firstFit(() => true)).toBe(0);
+  });
+
+  it("folds one step at a time, and stops at the first step that fits", () => {
+    const tried: number[] = [];
+    const step = firstFit((n) => {
+      tried.push(n);
+      return n >= 2;
+    });
+    expect(step).toBe(2);
+    expect(tried).toEqual([0, 1, 2]);
+  });
+
+  it("folds all the way when nothing fits, without trying past the last step", () => {
+    const tried: number[] = [];
+    expect(
+      firstFit((n) => {
+        tried.push(n);
+        return false;
+      }),
+    ).toBe(BAR_FIT_STEPS);
+    expect(tried).toEqual([0, 1, 2, 3, 4]);
   });
 });
 

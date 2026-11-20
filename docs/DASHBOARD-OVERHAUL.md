@@ -232,6 +232,22 @@ After the fourth merge he asked what Lex does when asked for the interview, and 
 - **Seen in a browser** as a new person on the local database, at 1440 wide, in the pop-up and on a phone: a typed request starting it with nothing sent to the model, a question to Lex answered above the interview's question, the parts and a part chosen, a table of one row with its detail sent and kept as its name, an amount that reads two ways refused, a month picked, changed and picked again, and the two disagreeing answers changed, made to disagree again and confirmed.
 - [later] A file itself: neither the form nor the conversation takes one (the interim of P0-64 stands). The cues in the six other languages. A label beside each figure of a row in the list of rows.
 
+### Handed over on 2026-11-20: the language switch, and the interview's closing card
+
+Two things he asked for while the list above was being worked.
+
+**"Add a button to the top right corner which changes language between hun and eng."**
+
+- **One switch, in three places** (`components/locale/LanguageToggle.tsx`): two short buttons in one pill, EN and HU, the one being read pressed in. In the app it sits in the bar beside search; on the landing page at the right end of the header; on the entrance (sign-in, sign-up, the free check, the idea check) in the page's own top right corner. It saves the person's own language through the route every other picker uses and reads the page again; nothing about the business moves. All seven languages are still on the language settings and in the entrance's footer.
+- **Found on the way: the bar did not fit in Hungarian.** Its folds were set at window widths measured in English (search loses its word under 1,240 px, Ask Lex and the stop shorten under 1,100, the places become icons under 1,000). In Hungarian the same bar needs about 1,390 px, so from 1,100 to 1,390 px wide, which is every common laptop, the stop hung past the right edge and the whole page scrolled sideways; the new switch made it show in English too. **The bar is measured now** (`components/nav/useBarFit.ts`): it folds one step at a time until what it holds fits, whatever the language, the business's name or the counts. Checked at sixteen widths from 390 to 1,800 px in all seven languages: nothing past the edge in any.
+
+**"Remove the get my link thing from here if unnecessary as well or may be put in a different way that's not too boring. Like in a way that adheres to accessibility and usability."** (the interview's closing card, which had never been seen: it is reached only with every question answered or skipped.)
+
+- **For someone signed in it is gone.** Their business is in their account; the form asked for an address to no purpose (it comes from before sign-in came first). The card gives the way onward instead: "Go to Home", the fact sheet, and "Answer what you skipped", which asks from the first part with something left (the readout counted the gaps and offered no way to them). "Finish later" says the answers are kept in the account and gives the way to Home.
+- **For a visitor with no account it stays, done properly**: it is their only way back in. Its own heading and what the link is for said beside it; a label a reader can see (it was a placeholder alone); the browser offered the address it knows; a refusal announced and tied to the field; and the link, once made, copied with one press, the copy said aloud to a screen reader.
+- The closing card with Lex has "Go to Home" beside the fact sheet.
+- **Seen in a browser**: the card signed in (no field), "Answer what you skipped" bringing a question back, "Finish later" signed in; then as a visitor: the label, a refusal, the link and "Copied".
+
 ### M1, the interview's look (2026-11-20)
 
 "The interview pages aren't updated and they look soooooo bad."
@@ -246,7 +262,7 @@ They wore the look from before the third round: mono capitals ("CH 01 · BUSINES
 - **Seen in a browser** as a brand-new person on the local database: nine questions answered (a typed name, a country, 33 business types, a paragraph, yes or no), the parts opened, the pause panel, and a phone. No capitals in any state opened, nothing past the edge.
 - [x] The first step before the interview (language and currency) is on the sign-in page's card since 2026-11-20: see "M5" below. A contradiction between two answers no longer prints its rule's code ("stage_vs_revenue") beside the flag.
 - **Opened in a second pass (2026-11-20):** an amount of money, a table of rows (what the business pays every month), the panel for two answers that disagree, and the parts opened from another part. No capitals and no arrows in any of them.
-- [later] The closing screen after the last question was not reached (it needs every question answered).
+- [x] The closing screen was reached on 2026-11-20 with a throwaway person, and redone the same day at his word: see "Handed over on 2026-11-20" below.
 
 ### M5, every page a visitor or a person signing in meets (2026-11-20)
 
@@ -278,7 +294,11 @@ What the two review rounds and the earlier items had left for later, taken in or
 - **"Open" opens the decision in place** from Lex's pop-up and from the conversation page, as on Home: the side sheet over the page, the same body and the same two answers through the queue's own endpoint, Escape back to where the cursor was. One sheet for the whole frame (`FrameReview` in `components/nav/AppFrame.tsx`), fetched only when first wanted, so no screen carries it that never opens one. After an answer there, the card under Lex's reply reads the decision again. Inside a phone's full-screen sheet "Open" still goes to the decision's own page: a sheet over a sheet is two things to close.
 - **Stated against measured: one line per measure.** The report's table printed two lines of small print under every measure (sixteen for eight measures, nearly all alike): the account and its days, and the owner's own answer with its basis and date. They are one list under the card's "How this works" now, opened for print with the rest of the proof, and the column says "Measure". The card is 650 px tall where it was 1,020. **And the small chart in that table was never drawn right:** its track was inline text with no width, so both marks sat on its left edge and every row showed the same black square whatever its two figures were. The hollow mark (said) and the filled one (measured) now stand apart on one scale.
 - **How it was seen without a model.** The local model key is invalid, so Lex's reply was canned in the browser: the page's own request to the conversation's route was answered by the walk with a sentence, a screen cited in it and a waiting decision's id. That is also the first time a reply naming a screen was seen drawn, with its button to Connections under it.
-- [later] A Home the owner can rearrange, rows opened in place on more screens, and the captions that still start small.
+- **A signal opens in place on Watching.** A row of the signals table is a control (the whole row, with a ring for the keyboard, as on Customers). It opens the signal's days in a side sheet: its state in words ("Drifting", "Above its usual range since 17 Nov"), the days as a chart large enough to read, the week-one-to-now figure, the latest, highest and lowest day with their dates, how many days were read, and every day's reading under "Day by day". The row's small line keeps its own readout, and closing hands the cursor back to the row. Nothing is worked out that the row did not already hold.
+- **Home as the owner arranges it.** "Arrange this page" under the columns opens a sheet: each card of "Your numbers today" (cash, sales, visitors, where money slips away) has a tick for whether it is shown and two buttons to move it, and Lex's activity has a tick. What needs the owner and Lex's status are not on the list: a decision waiting for a yes must not be out of sight. With every numbers card hidden their column is not drawn. The choice is kept in the browser, as the sales period and the folded menu are, so it is that browser's and not the business's (`components/home/home-layout.ts`, tested; `ArrangeHome.tsx`).
+- **Rows in place, the rest.** Customers and Support already open a row beside the list, and History has had its filters since it was built: the list in "Later rounds" was written before those.
+- **Captions that start small.** Every one of the 38 owner screens was opened with a script that lists a block's own first words when they begin with a small letter. Two places were left: the queue's chart captions ("words on the line, before and after", "kept · 11", "page load, milliseconds", "what you told me", "stored", "one click"), which start with a capital in seven languages now, and the status beside a bar on the monthly statement ("open"), which keeps its small letter after a colon in the list below and takes a capital where it stands alone. What is left small is small on purpose: an address, a key, the words of a page being changed.
+- [later] A read's progress shown live on Connections.
 
 ### L8, as built (2026-11-19 and 20, branch `straight-in`)
 
@@ -309,7 +329,7 @@ What the two review rounds and the earlier items had left for later, taken in or
 - **The backend's twins follow (2026-11-19).** The English catalogue is also a contract: the backend writes a sentence, stores or returns it, and a screen matches it against the catalogue's English to say it again in the reader's language and to format its figures (`lib/i18n/stored.ts`, `lib/site/say.ts`, `lib/crm/say.ts`). Rewriting the catalogue alone broke that: History printed a stored outcome raw, and other languages lost their translation of refusals, reasons and log lines. The guard tests ("English is what lib/x always said") showed it once CI could run them. So the 105 backend sentences that have a twin now say what the catalogue says: 52 files in `lib/`, the carts rule of thumb, and the size words in `specs/benchmark-map-v1.json` ("2 to 9 people"). Change a `...Words` message and its twin in the same commit from now on.
 - **The weekly summary email** no longer writes a long dash after the list's own mark: a waiting proposal is a nested line, indented in the text email and inset in the HTML one.
 - **The demo shop's own words** (product names, the owner's answers, drafts, canned replies) hold no long dash either, so a demo shows none. Its fake website's HTML is left as an outside site's content.
-- [later] Captions that start in lower case because they were written to sit inside a line ("buffer €10,900", "easy to undo", "after", "always") start with a capital where this round touched them (`.cap1`); the rest are still to do, screen by screen.
+- [x] Captions that start in lower case because they were written to sit inside a line ("buffer €10,900", "easy to undo", "after", "always") start with a capital where this round touched them (`.cap1`); the rest are still to do, screen by screen. Done on 2026-11-20 by a sweep of all 38 screens: see "L9, the leftovers".
 
 ### L6 and the overlaps, continued (2026-11-19)
 
@@ -364,7 +384,7 @@ Connections was the longest screen in the app, more than 6,000 px once everythin
 - **Customers, tidied (2026-11-20).** He looked at it and said "some cards are all over the place and i don't like the current look of it": five cards of five sizes shared one screen. It is three parts now, as Connections is: the list (1,678 px at 1440 wide), segments with campaigns, and bringing customers in. A business with no customers opens on the third. A row is its own control (the whole row presses, with a ring for the keyboard; the "Open" column is gone), the record stays beside the list while the list scrolls, and on a phone a row is two lines: the name with its pattern, then the figures.
 - **Similar businesses**: the live comparison card keeps what it says about the comparison and the button to stop contributing (a consent stays in view); where the figures come from and what is not measured yet sit under "How this works".
 
-- [ ] Not yet done on the list: the rest of L9 (a Home the owner can rearrange, rows opened in place on more screens, the captions that still start small). What was done of it is in "L9, the leftovers".
+- [x] The rest of L9 is done but for a read's progress on Connections: see "L9, the leftovers".
 - **Captions in the settings forms.** "YOUR LANGUAGE" and "CURRENCY" were the last captions in capitals inside the app: the language settings borrow two label styles from the sign-in page's stylesheet, which set capitals outright. They follow the app's sentence case inside the frame now and are unchanged on the sign-in page (`app/auth.css`).
 
 ### L4b, Lex as a pop-up (2026-11-20)
@@ -450,12 +470,12 @@ He saw the first capture mid-work and said it was what he wanted; he then added 
 - Checked on 21 screens at 1440 and on Home at 390: no text wider than its box, and no sideways scroll once the report was fixed (below).
 - Found on the way, his own example: the Cash flow what-if table ran its sentences across the neighbouring columns. They wrap now. And the report scrolled sideways at desktop width (1587px in 1440) because a fact written as a sentence was held on one line; it was so before this change, and it wraps now.
 - Five other faces were rendered on the real Home for him to compare (Geist, Manrope, Hanken Grotesk, Onest, IBM Plex Sans). Archivo has no Russian letters of its own, so the Russian screens fall back to the system's sans; Geist, Manrope, Onest and Plex Sans cover them.
-- [later] Captions written in lower case for the old look ("buffer €10,900", "week of 18 Nov", "easy to undo") still start small. They belong to the copy pass (L7), which rewrites the catalogues anyway.
+- [x] Captions written in lower case for the old look ("buffer €10,900", "week of 18 Nov", "easy to undo") still start small. They belong to the copy pass (L7), which rewrites the catalogues anyway. Done on 2026-11-20: see "L9, the leftovers".
 - [later] The arrows on Tedi's queue buttons ("Approve →") and the interview's type.
 
 ## Later rounds (parked on purpose)
 
-- [later] A Home the owner can rearrange or trim.
-- [later] The same treatment screen by screen, where a list or a table would gain from it: the queue (already keyboard-driven), Watching (a signal opened in place), the fact sheet (search and filter), Connections (a read's progress shown live), Customers and Support (rows opened in place), History (filters).
+- [x] A Home the owner can rearrange or trim (2026-11-20): see "L9, the leftovers".
+- [x] The same treatment screen by screen: the queue (keyboard-driven), Watching (a signal opened in place, 2026-11-20), the fact sheet (search and filter), Customers and Support (rows opened in place), History (filters). [later] Connections (a read's progress shown live).
 - [x] The sign-up reel's screenshots: retaken on 2026-11-20 (see "M5").
 - [later] The landing page's drawn screens, once the owner has seen the app.

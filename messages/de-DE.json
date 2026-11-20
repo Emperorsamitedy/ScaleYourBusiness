@@ -309,6 +309,7 @@
     "pause": {
       "title": "Pause · später fortsetzen",
       "lede": "Alles bisher steht bereits in der Akte. Hinterlassen Sie eine E-Mail-Adresse, und ich gebe Ihnen einen Link, der dieses Profil auf jedem Gerät wieder öffnet. Kein Passwort, kein Konto.",
+      "kept": "Alles bisher ist in Ihrem Konto gespeichert. Kommen Sie jederzeit über die Startseite zurück.",
       "keepGoing": "Weitermachen"
     },
     "stage": {
@@ -335,7 +336,10 @@
       "moderate": "mittel",
       "next": "Als Nächstes",
       "nextValue": "entscheiden, wie vorsichtig wir vorgehen",
-      "keep": "Hinterlassen Sie eine E-Mail-Adresse, und ich gebe Ihnen einen Link zurück zu diesem Profil. Kein Passwort, kein Konto."
+      "keep": "Hinterlassen Sie eine E-Mail-Adresse, und ich gebe Ihnen einen Link zurück zu diesem Profil. Kein Passwort, kein Konto.",
+      "home": "Zur Startseite",
+      "revisit": "Übersprungenes beantworten",
+      "kept": "Alles, was Sie beantwortet haben, ist in Ihrem Konto gespeichert. Auf dem Faktenblatt können Sie alles ändern."
     },
     "question": {
       "ref": "F <fig>{id}</fig>",
@@ -461,10 +465,13 @@
     "keep": {
       "placeholder": "sie@ihrunternehmen.de",
       "label": "Ihre E-Mail-Adresse",
+      "title": "Behalten Sie Ihren Weg zurück",
       "making": "Link wird erstellt",
       "get": "Meinen Link erhalten",
       "linkCap": "Ihr Link",
       "linkNote": "Er öffnet dieses Profil {days, plural, one {# Tag} other {# Tage}} lang auf jedem Gerät. Bewahren Sie eine Kopie dort auf, wo Sie sie wiederfinden.",
+      "copy": "Link kopieren",
+      "copied": "Kopiert",
       "badEmail": "Das sieht nicht nach einer E-Mail-Adresse aus.",
       "failed": "Ich konnte den Link nicht erstellen. Versuchen Sie es erneut."
     },
@@ -1224,7 +1231,10 @@
         "daily": "Tag für Tag"
       },
       "below": "Seit {date} unter dem üblichen Bereich",
-      "above": "Seit {date} über dem üblichen Bereich"
+      "above": "Seit {date} über dem üblichen Bereich",
+      "latest": "Letzter Tag",
+      "high": "Höchster Tag",
+      "low": "Niedrigster Tag"
     },
     "noted": {
       "label": "Vermerkt, nicht gehandelt",
@@ -1606,9 +1616,9 @@
         "before": "Vorher",
         "after": "Nachher",
         "words": "{count, plural, one {# Wort} other {# Wörter}}",
-        "kept": "behalten · {count}",
-        "added": "hinzugefügt · {count}",
-        "removed": "entfernt · {count}",
+        "kept": "Behalten · {count}",
+        "added": "Hinzugefügt · {count}",
+        "removed": "Entfernt · {count}",
         "aria": "Vorher: {before} Wörter. Nachher: {after} Wörter; {kept} behalten, {added} hinzugefügt, {removed} entfernt."
       },
       "rollback": {
@@ -1631,7 +1641,7 @@
         "fact": "Fakt {n}",
         "more": "+{count} weitere",
         "rules": "{count, plural, one {Ihre Regel · #} other {Ihre Regeln · #}}",
-        "rulesSub": "was Sie mir gesagt haben",
+        "rulesSub": "Was Sie mir gesagt haben",
         "disagree": "{count, plural, one {Widerspruch · #} other {Widersprüche · #}}",
         "disagreeSub": "Quellen, die abweichen",
         "aria": "Diese Entscheidung beruht auf {facts, plural, one {# Fakt} other {# Fakten}}, {rules, plural, one {# Ihrer Regeln} other {# Ihrer Regeln}} und {disagreements, plural, one {# Widerspruch} other {# Widersprüchen}}."
@@ -1639,9 +1649,9 @@
       "way": {
         "title": "Der Weg zurück",
         "now": "So wie jetzt",
-        "stored": "gespeichert",
+        "stored": "Gespeichert",
         "changed": "Geändert",
-        "click": "ein Klick",
+        "click": "Ein Klick",
         "back": "Wieder wie vorher",
         "auto": "oder von selbst, wenn die Seite langsamer als {ms} ms lädt",
         "aria": "Der jetzige Stand wird gespeichert und dann geändert; ein Klick stellt ihn wieder her.",
@@ -6770,6 +6780,11 @@
       "footStopHtml": "Sie erhalten diese E-Mail einmal pro Woche. Schalten Sie sie unter „Beobachtung“ ab oder <link>bestellen Sie diese E-Mails</link> mit einem Klick ab.",
       "whatsappBusiness": "Ihr Unternehmen"
     },
+    "warning": {
+      "open": "{screen} öffnen",
+      "why": "Ich sage es Ihnen einmal, wenn eine solche Warnung zum ersten Mal auftritt.",
+      "stop": "Um diese E-Mails zu beenden, schalten Sie sie unter {settings} aus."
+    },
     "signIn": {
       "subject": "Ihr Anmeldelink · ScaleX",
       "intro": "Klicken Sie hier für die Anmeldung bei ScaleX:",
@@ -9148,6 +9163,14 @@
     "withProposals": "{count, plural, one {# Sache wartet auf Ihr Ja} other {# Sachen warten auf Ihr Ja}}, dazu {reviews, plural, one {eine Bewertung, die Sie kennen sollten} other {# Bewertungen, die Sie kennen sollten}}",
     "anotherSite": "einer anderen Website"
   },
+  "warningPush": {
+    "one": {
+      "cash_warning": "Ihr Geld könnte in den nächsten Wochen knapp werden",
+      "stock_warning": "Etwas, das Sie verkaufen, könnte vor der nächsten Lieferung ausgehen"
+    },
+    "many": "{count, plural, one {# Warnung, die Sie kennen sollten} other {# Warnungen, die Sie kennen sollten}}",
+    "also": ", dazu {count, plural, one {eine Warnung, die Sie kennen sollten} other {# Warnungen, die Sie kennen sollten}}"
+  },
   "payments": {
     "meta": {
       "title": "Zahlungen · ScaleX"
@@ -10500,6 +10523,15 @@
     "toast": {
       "approved": "Freigegeben. Mit Ihrem Namen aufgezeichnet.",
       "declined": "Abgelehnt. Mit Ihrem Grund aufgezeichnet."
+    },
+    "arrange": {
+      "open": "Diese Seite anordnen",
+      "title": "Was diese Seite zeigt",
+      "note": "Wählen Sie aus, was Sie sehen möchten, und schieben Sie es nach oben oder unten. In diesem Browser gespeichert.",
+      "always": "Was Sie braucht und der Status von Lex werden immer angezeigt.",
+      "up": "{name} nach oben",
+      "down": "{name} nach unten",
+      "reset": "Zurücksetzen"
     }
   },
   "alerts": {

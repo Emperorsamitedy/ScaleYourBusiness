@@ -35,6 +35,7 @@ import {
   type Severity,
 } from "../../lib/marketing/landing-v2";
 import { Mark, Wordmark } from "../brand/Mark";
+import { LanguageToggle } from "../locale/LanguageToggle";
 import { ratioBp } from "../../lib/core/money";
 import { moneyExact, moneyText, num } from "../sheet/num";
 import { useTr } from "../sheet/useTr";
@@ -337,6 +338,8 @@ export function LandingV2({ prices }: { prices: V2Prices }) {
           <Link className="btn sm go" href="/check">
             {tr("nav.check")}
           </Link>
+          {/* The owner, 2026-11-20: a button in the top right corner between Hungarian and English. */}
+          <LanguageToggle className="hd-lang" />
         </div>
       </header>
 

@@ -25,6 +25,7 @@
 // behind one closed "How this works" / "Why?" per card (.ix-how).
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import Link from "next/link";
 import { useTranslations } from "next-intl";
 import type {
   AnswerAction,
@@ -43,6 +44,7 @@ import { ReconcilePanel } from "./ReconcilePanel";
 import { RecordSheet } from "./RecordSheet";
 import { Tape } from "./Tape";
 import {
+  areaAskable,
   areaName,
   channelNo,
   connectorLegend,
@@ -67,9 +69,28 @@ interface ErrorPayload {
   values?: Record<string, string | number>;
 }
 
-function DoneCard({ readout }: { readout: NonNullable<IntakeState["readout"]> }) {
+/**
+ * The closing card. For someone signed in it gives the way onward: Home, the
+ * fact sheet, and the questions that were skipped (the readout counted the
+ * gaps and offered no way to them). The "leave an email for a link back" form
+ * is for a visitor with no account, who has no other way back in; a signed-in
+ * owner was asked for an address to no purpose (the owner, 2026-11-20:
+ * "remove the get my link thing from here if unnecessary").
+ */
+function DoneCard({
+  readout,
+  signedIn,
+  onRevisit,
+}: {
+  readout: NonNullable<IntakeState["readout"]>;
+  signedIn: boolean;
+  /** Asks the skipped questions again; null when none can be asked. */
+  onRevisit: (() => void) | null;
+}) {
   const t = useTranslations("intake.done");
   const tHow = useTranslations("intake");
+  const tKeep = useTranslations("intake.keep");
+  const tNav = useTranslations("nav");
   const { locale } = useIntakeWords();
   return (
     <article className="ix-q sheet ix-done" aria-labelledby="ix-done-h">
@@ -86,12 +107,42 @@ function DoneCard({ readout }: { readout: NonNullable<IntakeState["readout"]> })
         <dt className="ix-cap">{t("next")}</dt>
         <dd>{t("nextValue")}</dd>
       </dl>
-      <KeepAccess />
-      <details className="ix-how">
-        <summary>{tHow("how")}</summary>
-        <p>{t("lede")}</p>
-        <p>{t("keep")}</p>
-      </details>
+      {signedIn ? (
+        <>
+          <p className="ix-done-kept">{t("kept")}</p>
+          <div className="ix-done-acts">
+            <Link className="act solid" href="/home">
+              {t("home")}
+            </Link>
+            <Link className="act" href="/profile">
+              {tNav("item.factsheet")}
+            </Link>
+            {onRevisit && (
+              <button type="button" className="act" onClick={onRevisit}>
+                {t("revisit")}
+              </button>
+            )}
+          </div>
+          <details className="ix-how">
+            <summary>{tHow("how")}</summary>
+            <p>{t("lede")}</p>
+          </details>
+        </>
+      ) : (
+        <>
+          <section className="ix-keep-block" aria-labelledby="ix-keep-h">
+            <h3 className="ix-keep-title" id="ix-keep-h">
+              {tKeep("title")}
+            </h3>
+            <p className="ix-keep-why">{t("keep")}</p>
+            <KeepAccess />
+          </section>
+          <details className="ix-how">
+            <summary>{tHow("how")}</summary>
+            <p>{t("lede")}</p>
+          </details>
+        </>
+      )}
     </article>
   );
 }
@@ -104,7 +155,12 @@ interface TelemetryEvent {
   meta?: Record<string, unknown> | null;
 }
 
-export function IntakeStage() {
+export function IntakeStage({
+  signedIn = false,
+}: {
+  /** Whether the person is signed in: then their business is in their account, and no link back is offered. */
+  signedIn?: boolean;
+} = {}) {
   const [state, setState] = useState<IntakeState | null>(null);
   const [phase, setPhase] = useState<Phase>("boot");
   const [serverError, setServerError] = useState<string | null>(null);
@@ -445,6 +501,8 @@ export function IntakeStage() {
   const flagged = new Set(state?.findings.flatMap((f) => f.question_ids) ?? []);
 
   const areas = state?.areas ?? [];
+  // The first part with something still to ask: where "Answer what you skipped" begins.
+  const revisit = areas.find(areaAskable) ?? null;
   const activeSection = state?.done ? null : (question?.section ?? null);
   const activeIndex = areas.findIndex((a) => a.section === activeSection);
   const activeArea = activeIndex >= 0 ? areas[activeIndex] : undefined;
@@ -467,12 +525,22 @@ export function IntakeStage() {
             <h2 className="ix-cap" id="ix-pause-h">
               {t("pause.title")}
             </h2>
-            <details className="ix-how">
-              <summary>{t("how")}</summary>
-              <p>{t("pause.lede")}</p>
-            </details>
+            {signedIn ? (
+              <p className="ix-pause-kept">{t("pause.kept")}</p>
+            ) : (
+              <details className="ix-how">
+                <summary>{t("how")}</summary>
+                <p>{t("pause.lede")}</p>
+              </details>
+            )}
           </div>
-          <KeepAccess />
+          {signedIn ? (
+            <Link className="act solid" href="/home">
+              {t("done.home")}
+            </Link>
+          ) : (
+            <KeepAccess />
+          )}
           <button type="button" className="ix-link" onClick={() => setPauseOpen(false)}>
             {t("pause.keepGoing")}
           </button>
@@ -512,7 +580,13 @@ export function IntakeStage() {
               </details>
             </article>
           )}
-          {state?.done && state.readout && <DoneCard readout={state.readout} />}
+          {state?.done && state.readout && (
+            <DoneCard
+              readout={state.readout}
+              signedIn={signedIn}
+              onRevisit={revisit ? () => chooseArea(revisit.section) : null}
+            />
+          )}
           {!state?.done && question && (
             <QuestionCard
               key={question.id}

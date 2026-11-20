@@ -309,6 +309,7 @@
     "pause": {
       "title": "Pause · finish later",
       "lede": "Everything so far is already on record. Leave an email and I’ll give you a link that reopens this profile on any device. No password, no account.",
+      "kept": "Everything so far is kept in your account. Come back from Home whenever you like.",
       "keepGoing": "Keep going"
     },
     "stage": {
@@ -335,7 +336,10 @@
       "moderate": "moderate",
       "next": "Next",
       "nextValue": "deciding how carefully to move",
-      "keep": "Leave an email and I’ll give you a link back to this profile. No password, no account."
+      "keep": "Leave an email and I’ll give you a link back to this profile. No password, no account.",
+      "home": "Go to Home",
+      "revisit": "Answer what you skipped",
+      "kept": "Everything you answered is kept in your account. You can change any of it on the fact sheet."
     },
     "question": {
       "ref": "Q <fig>{id}</fig>",
@@ -461,10 +465,13 @@
     "keep": {
       "placeholder": "you@yourbusiness.hu",
       "label": "Your email address",
+      "title": "Keep your way back in",
       "making": "Making the link",
       "get": "Get my link",
       "linkCap": "Your link",
       "linkNote": "It reopens this profile on any device for {days, plural, one {# day} other {# days}}. Keep a copy somewhere you’ll find it.",
+      "copy": "Copy the link",
+      "copied": "Copied",
       "badEmail": "That doesn’t look like an email address.",
       "failed": "I couldn't make the link. Try again."
     },
@@ -1224,7 +1231,10 @@
         "daily": "Day by day"
       },
       "below": "Below its usual range since {date}",
-      "above": "Above its usual range since {date}"
+      "above": "Above its usual range since {date}",
+      "latest": "Latest day",
+      "high": "Highest day",
+      "low": "Lowest day"
     },
     "noted": {
       "label": "Noted, not acted on",
@@ -1602,18 +1612,18 @@
       },
       "size": {
         "title": "Size of the change",
-        "unit": "words on the line, before and after",
+        "unit": "Words on the line, before and after",
         "before": "Before",
         "after": "After",
         "words": "{count, plural, one {# word} other {# words}}",
-        "kept": "kept · {count}",
-        "added": "added · {count}",
-        "removed": "removed · {count}",
+        "kept": "Kept · {count}",
+        "added": "Added · {count}",
+        "removed": "Removed · {count}",
         "aria": "Before: {before} words. After: {after} words; {kept} kept, {added} added, {removed} removed."
       },
       "rollback": {
         "title": "When it rolls back by itself",
-        "unit": "page load, milliseconds",
+        "unit": "Page load, milliseconds",
         "today": "Today",
         "past": "Rolls back past",
         "ms": "{ms} ms",
@@ -1631,7 +1641,7 @@
         "fact": "Fact {n}",
         "more": "+{count} more",
         "rules": "{count, plural, one {Your rule · #} other {Your rules · #}}",
-        "rulesSub": "what you told me",
+        "rulesSub": "What you told me",
         "disagree": "{count, plural, one {Disagreement · #} other {Disagreements · #}}",
         "disagreeSub": "sources that differ",
         "aria": "This decision rests on {facts, plural, one {# fact} other {# facts}}, {rules, plural, one {# of your rules} other {# of your rules}} and {disagreements, plural, one {# disagreement} other {# disagreements}}."
@@ -1639,9 +1649,9 @@
       "way": {
         "title": "The way back",
         "now": "As it is now",
-        "stored": "stored",
+        "stored": "Stored",
         "changed": "Changed",
-        "click": "one click",
+        "click": "One click",
         "back": "Back as it was",
         "auto": "or by itself, if the page slows past {ms} ms",
         "aria": "What is there now is stored, then changed; one click brings it back as it was.",
@@ -6770,6 +6780,11 @@
       "footStopHtml": "You get this email once a week. Switch it off on the Watching screen, or <link>stop these emails</link> with one click.",
       "whatsappBusiness": "your business"
     },
+    "warning": {
+      "open": "Open {screen}",
+      "why": "I tell you once, the first time a warning like this appears.",
+      "stop": "To stop these emails, switch them off under {settings}."
+    },
     "signIn": {
       "subject": "Your sign-in link · ScaleX",
       "intro": "Click to sign in to ScaleX:",
@@ -9148,6 +9163,14 @@
     "withProposals": "{count, plural, one {# thing waits for your yes} other {# things wait for your yes}}, and {reviews, plural, one {a review worth knowing} other {# reviews worth knowing}}",
     "anotherSite": "another site"
   },
+  "warningPush": {
+    "one": {
+      "cash_warning": "Your cash could get tight in the weeks ahead",
+      "stock_warning": "Something you sell could run out before its next delivery"
+    },
+    "many": "{count, plural, one {# warning worth knowing} other {# warnings worth knowing}}",
+    "also": ", and {count, plural, one {a warning worth knowing} other {# warnings worth knowing}}"
+  },
   "payments": {
     "meta": {
       "title": "Payments · ScaleX"
@@ -10500,6 +10523,15 @@
     "toast": {
       "approved": "Approved. Recorded with your name.",
       "declined": "Declined. Recorded with your reason."
+    },
+    "arrange": {
+      "open": "Arrange this page",
+      "title": "What this page shows",
+      "note": "Tick what you want to see and move it up or down. Kept in this browser.",
+      "always": "What needs you and Lex's status are always shown.",
+      "up": "Move {name} up",
+      "down": "Move {name} down",
+      "reset": "Put it back as it was"
     }
   },
   "alerts": {

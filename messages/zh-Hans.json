@@ -309,6 +309,7 @@
     "pause": {
       "title": "暂停 · 稍后继续",
       "lede": "到目前为止的所有内容都已记录。留下邮箱，我会给您一个链接，在任何设备上都能重新打开这份档案。无需密码，无需账户。",
+      "kept": "目前的内容都保存在您的账户中，可随时从首页继续。",
       "keepGoing": "继续"
     },
     "stage": {
@@ -335,7 +336,10 @@
       "moderate": "一般",
       "next": "下一步",
       "nextValue": "决定推进的谨慎程度",
-      "keep": "留下邮箱，我会给您一个返回这份档案的链接。无需密码，无需账户。"
+      "keep": "留下邮箱，我会给您一个返回这份档案的链接。无需密码，无需账户。",
+      "home": "前往首页",
+      "revisit": "回答跳过的问题",
+      "kept": "您回答的内容都保存在您的账户中，可在事实表中随时修改。"
     },
     "question": {
       "ref": "问题 <fig>{id}</fig>",
@@ -461,10 +465,13 @@
     "keep": {
       "placeholder": "you@yourbusiness.cn",
       "label": "您的邮箱地址",
+      "title": "保留返回的方式",
       "making": "正在生成链接",
       "get": "获取我的链接",
       "linkCap": "您的链接",
       "linkNote": "它可在 {days, plural, other {# 天}}内在任何设备上重新打开这份档案。请把它保存在您找得到的地方。",
+      "copy": "复制链接",
+      "copied": "已复制",
       "badEmail": "这看起来不像邮箱地址。",
       "failed": "无法生成链接，请重试。"
     },
@@ -1224,7 +1231,10 @@
         "daily": "逐日"
       },
       "below": "自 {date} 起低于常规范围",
-      "above": "自 {date} 起高于常规范围"
+      "above": "自 {date} 起高于常规范围",
+      "latest": "最近一天",
+      "high": "最高的一天",
+      "low": "最低的一天"
     },
     "noted": {
       "label": "已记下，未行动",
@@ -6770,6 +6780,11 @@
       "footStopHtml": "这封邮件每周发送一次。您可以在“观察”页面关闭它，或一键<link>停止这些邮件</link>。",
       "whatsappBusiness": "您的企业"
     },
+    "warning": {
+      "open": "打开{screen}",
+      "why": "这类提醒第一次出现时，我只告诉您一次。",
+      "stop": "如不想再收到这些邮件，请在“{settings}”中关闭。"
+    },
     "signIn": {
       "subject": "您的登录链接 · ScaleX",
       "intro": "点击登录 ScaleX：",
@@ -9148,6 +9163,14 @@
     "withProposals": "{count, plural, other {# 件事等您点头}}，另有 {reviews, plural, other {# 条值得了解的评价}}",
     "anotherSite": "其他网站"
   },
+  "warningPush": {
+    "one": {
+      "cash_warning": "未来几周您的现金可能吃紧",
+      "stock_warning": "您卖的某样东西可能在下次到货前卖完"
+    },
+    "many": "{count, plural, other {# 条值得了解的提醒}}",
+    "also": "，另有 {count, plural, other {# 条值得了解的提醒}}"
+  },
   "payments": {
     "meta": {
       "title": "付款 · ScaleX"
@@ -10500,6 +10523,15 @@
     "toast": {
       "approved": "已批准。已以您的名义记录。",
       "declined": "已拒绝。已连同您的理由记录。"
+    },
+    "arrange": {
+      "open": "调整此页面",
+      "title": "此页面显示什么",
+      "note": "勾选想看的内容，并上移或下移。保存在此浏览器中。",
+      "always": "需要您处理的事项和 Lex 的状态始终显示。",
+      "up": "上移{name}",
+      "down": "下移{name}",
+      "reset": "恢复原样"
     }
   },
   "alerts": {

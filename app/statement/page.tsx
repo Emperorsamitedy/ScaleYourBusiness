@@ -176,7 +176,13 @@ export default async function StatementPage({
                                 {
                                   key: r.key,
                                   label: shown.leak.title,
-                                  note: tr(`leaks.status.${shown.leak.status}`),
+                                  // The status word is written to follow a colon in the
+                                  // list below; beside a bar it stands alone, so it
+                                  // starts with a capital here.
+                                  note: tr(`leaks.status.${shown.leak.status}`).replace(
+                                    /^\p{Ll}/u,
+                                    (c) => c.toUpperCase(),
+                                  ),
                                   low: r.low,
                                   value: r.value,
                                   display: rangeWords(shown.range),
