@@ -23,7 +23,7 @@
 // same corner of every screen that has no composer of its own
 // (components/nav/AppFrame.tsx).
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { Maximize2, X } from "lucide-react";
@@ -37,6 +37,8 @@ import { InPlaceDecision } from "../chat/InPlaceDecision";
 import { InterviewOffer } from "../chat/InterviewOffer";
 import { LexInterview } from "../chat/LexInterview";
 import { TryAgain } from "../chat/TryAgain";
+import type { Turn } from "../chat/chat-view";
+import { asksForInterview } from "../chat/interview-model";
 import { SharedChatProvider, useChatCore } from "../chat/useChat";
 import type { Chat } from "../chat/useChat";
 import { knowsNothing } from "../home/next-steps";
@@ -101,10 +103,26 @@ interface LexViewProps {
   business: string | null;
   /** Facts on the fact sheet; null while unknown. Zero: Lex offers the interview (L8). */
   facts: number | null;
+  /**
+   * The interview with Lex while it runs (M4): how many turns the thread held
+   * when it began. What is asked of Lex after that is drawn inside the
+   * interview, above the question it is about. Null when it is not running.
+   */
+  interview: { from: number } | null;
+  /** Starts the interview in the conversation, or stops it. */
+  onInterview: (on: boolean) => void;
 }
 
 /** The composer in Lex's foot, the same in the sheet and in the pop-up. */
-function LexComposer({ chat, business }: { chat: Chat; business: string | null }) {
+function LexComposer({
+  chat,
+  business,
+  onInterview,
+}: {
+  chat: Chat;
+  business: string | null;
+  onInterview: (on: boolean) => void;
+}) {
   const { tr } = useTr("chat");
   const s = chat.state;
   if (s.phase !== "ready") return null;
@@ -118,24 +136,42 @@ function LexComposer({ chat, business }: { chat: Chat; business: string | null }
       busy={s.busy}
       setDraft={chat.setDraft}
       draftRef={chat.draftRef}
-      onSend={() => void chat.send(tr("sendFailed"))}
+      onSend={() => {
+        // Words that plainly ask for the interview start it here, with no model.
+        if (asksForInterview(s.draft)) {
+          chat.setDraft("");
+          onInterview(true);
+          return;
+        }
+        void chat.send(tr("sendFailed"));
+      }}
       tr={tr}
     />
   );
 }
 
 /** What Lex holds, the same in the sheet and in the pop-up: the thread and its states. */
-function LexThread({ chat, open, facts }: { chat: Chat; open: boolean; facts: number | null }) {
+function LexThread({
+  chat,
+  open,
+  facts,
+  interview,
+  onInterview,
+}: Pick<LexViewProps, "chat" | "open" | "facts" | "interview" | "onInterview">) {
   const { tr, locale } = useTr("chat");
   const chips = chipQuestions(useMessages());
   const end = useRef<HTMLDivElement | null>(null);
+  const asideEnd = useRef<HTMLDivElement | null>(null);
   const s = chat.state;
   const count = s.phase === "ready" ? s.turns.length : 0;
   const busy = s.phase === "ready" && s.busy;
 
   // Follow the thread as it grows, and land on its end when Lex opens.
   useEffect(() => {
-    if (open) end.current?.scrollIntoView({ block: "end" });
+    if (!open) return;
+    end.current?.scrollIntoView({ block: "end" });
+    // During the interview a reply lands above the question: bring it into view.
+    asideEnd.current?.scrollIntoView({ block: "center" });
   }, [open, count, busy]);
 
   // Opened before the thread had loaded, there was only Close to focus:
@@ -145,11 +181,44 @@ function LexThread({ chat, open, facts }: { chat: Chat; open: boolean; facts: nu
     if (open && ready) document.getElementById("lex-ask")?.focus({ preventScroll: true });
   }, [open, ready]);
 
-  // The interview with Lex takes the thread's place while it runs (M4).
-  const [interviewing, setInterviewing] = useState(false);
   const now = Date.now();
-  if (interviewing && s.phase === "ready") {
-    return <LexInterview onStop={() => setInterviewing(false)} />;
+  /** One turn as Lex's own view draws it; `last` is the thread's last. */
+  const drawTurn = (turn: Turn, last: boolean) =>
+    s.phase !== "ready" ? null : (
+      <ChatTurn
+        key={turn.id}
+        turn={turn}
+        cards={s.cards}
+        onChanged={chat.onChanged}
+        now={now}
+        locale={locale}
+        tr={tr}
+        {...(interview ? {} : { onInterview: () => onInterview(true) })}
+      >
+        {last && turn.role === "system" && s.lastProposal && (
+          <InPlaceDecision id={s.lastProposal} />
+        )}
+        <TryAgain chat={chat} turn={turn} last={last} tr={tr} />
+      </ChatTurn>
+    );
+  // The interview with Lex takes the thread's place while it runs (M4). What is
+  // asked of Lex meanwhile (how to answer, say) is drawn above its question.
+  if (interview && s.phase === "ready") {
+    const during = s.turns.slice(interview.from);
+    return (
+      <LexInterview
+        onStop={() => onInterview(false)}
+        aside={
+          (during.length > 0 || s.busy) && (
+            <>
+              {during.map((turn, i) => drawTurn(turn, interview.from + i === s.turns.length - 1))}
+              {s.busy && <ChatBusy text={tr("thinking")} />}
+              <div ref={asideEnd} />
+            </>
+          )
+        }
+      />
+    );
   }
   return (
     <>
@@ -159,7 +228,7 @@ function LexThread({ chat, open, facts }: { chat: Chat; open: boolean; facts: nu
       {s.phase === "ready" && (
         <div className="lx-thread" aria-live="polite">
           {s.turns.length === 0 && knowsNothing(facts) && (
-            <InterviewOffer onWithLex={() => setInterviewing(true)} />
+            <InterviewOffer onWithLex={() => onInterview(true)} />
           )}
           {s.turns.length === 0 && !knowsNothing(facts) && (
             <div className="ak-start">
@@ -181,26 +250,11 @@ function LexThread({ chat, open, facts }: { chat: Chat; open: boolean; facts: nu
               )}
             </div>
           )}
-          {s.turns.map((turn, i) => (
-            <ChatTurn
-              key={turn.id}
-              turn={turn}
-              cards={s.cards}
-              onChanged={chat.onChanged}
-              now={now}
-              locale={locale}
-              tr={tr}
-            >
-              {i === s.turns.length - 1 && turn.role === "system" && s.lastProposal && (
-                <InPlaceDecision id={s.lastProposal} />
-              )}
-              <TryAgain chat={chat} turn={turn} last={i === s.turns.length - 1} tr={tr} />
-            </ChatTurn>
-          ))}
+          {s.turns.map((turn, i) => drawTurn(turn, i === s.turns.length - 1))}
           {s.busy && <ChatBusy text={tr("thinking")} />}
           {!knowsNothing(facts) && !s.busy && (
             <p className="lxi-start">
-              <button type="button" className="lxi-link" onClick={() => setInterviewing(true)}>
+              <button type="button" className="lxi-link" onClick={() => onInterview(true)}>
                 {tr("interview.withLex")}
               </button>
             </p>
@@ -213,7 +267,7 @@ function LexThread({ chat, open, facts }: { chat: Chat; open: boolean; facts: nu
 }
 
 /** Lex over the page: a phone's full-screen sheet. */
-function LexSheet({ chat, open, onClose, business, facts }: LexViewProps) {
+function LexSheet({ chat, open, onClose, business, facts, interview, onInterview }: LexViewProps) {
   const { tr } = useTr("chat");
   return (
     <Sheet
@@ -223,10 +277,18 @@ function LexSheet({ chat, open, onClose, business, facts }: LexViewProps) {
       kicker={business ?? undefined}
       width={560}
       foot={
-        chat.state.phase === "ready" ? <LexComposer chat={chat} business={business} /> : undefined
+        chat.state.phase === "ready" ? (
+          <LexComposer chat={chat} business={business} onInterview={onInterview} />
+        ) : undefined
       }
     >
-      <LexThread chat={chat} open={open} facts={facts} />
+      <LexThread
+        chat={chat}
+        open={open}
+        facts={facts}
+        interview={interview}
+        onInterview={onInterview}
+      />
       <p className="lx-full">
         <Link href="/chat">{tr("openFull")}</Link>
       </p>
@@ -240,7 +302,7 @@ function LexSheet({ chat, open, onClose, business, facts }: LexViewProps) {
  * closes it while the cursor is inside, and the cursor goes back to what
  * opened it.
  */
-function LexPop({ chat, open, onClose, business, facts }: LexViewProps) {
+function LexPop({ chat, open, onClose, business, facts, interview, onInterview }: LexViewProps) {
   const { tr } = useTr("chat");
   const common = useTranslations("common");
   const opener = useRef<HTMLElement | null>(null);
@@ -297,11 +359,17 @@ function LexPop({ chat, open, onClose, business, facts }: LexViewProps) {
         </IconButton>
       </header>
       <div className="lx-pop-body">
-        <LexThread chat={chat} open={open} facts={facts} />
+        <LexThread
+          chat={chat}
+          open={open}
+          facts={facts}
+          interview={interview}
+          onInterview={onInterview}
+        />
       </div>
       {s.phase === "ready" && (
         <footer className="lx-pop-foot">
-          <LexComposer chat={chat} business={business} />
+          <LexComposer chat={chat} business={business} onInterview={onInterview} />
         </footer>
       )}
     </aside>
@@ -362,6 +430,15 @@ export function LexHost({
   const state = shared.chat.state;
   const busy = state.phase === "ready" && state.busy;
 
+  // The interview with Lex (M4) is held here, not in the view: the composer in
+  // the foot can start it from typed words, and closing Lex does not end it.
+  const [interview, setInterview] = useState<{ from: number } | null>(null);
+  const turnsNow = useRef(0);
+  turnsNow.current = state.phase === "ready" ? state.turns.length : 0;
+  const onInterview = useCallback((on: boolean) => {
+    setInterview((cur) => (on ? (cur ?? { from: turnsNow.current }) : null));
+  }, []);
+
   // An answer that came while nobody was looking waits with a mark on Lex's
   // face (M2): a question asked and Lex closed, or the page left, before the
   // reply arrived. Opening the conversation anywhere takes the mark away.
@@ -391,6 +468,8 @@ export function LexHost({
               onClose={() => setOpen(false)}
               business={business}
               facts={facts}
+              interview={interview}
+              onInterview={onInterview}
             />
           ) : (
             // The sheet covers the page already: a decision in it keeps its own page.
@@ -401,6 +480,8 @@ export function LexHost({
                 onClose={() => setOpen(false)}
                 business={business}
                 facts={facts}
+                interview={interview}
+                onInterview={onInterview}
               />
             </ReviewOpenerProvider>
           )}

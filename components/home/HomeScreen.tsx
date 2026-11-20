@@ -49,6 +49,7 @@ import { ChatBusy, ChatTurn } from "../chat/ChatTurn";
 import { TryAgain } from "../chat/TryAgain";
 import { Composer } from "../chat/Composer";
 import { latestExchange, latestQuestion } from "../chat/chat-view";
+import { asksForInterview } from "../chat/interview-model";
 import { useChat } from "../chat/useChat";
 import { useLexBusy, useNavRefresh } from "../nav/NavContext";
 import { ReviewSheet } from "../proposals/ReviewSheet";
@@ -399,7 +400,16 @@ export function HomeScreen() {
                 busy={chat.state.busy}
                 setDraft={chat.setDraft}
                 draftRef={chat.draftRef}
-                onSend={() => void chat.send(failedLine)}
+                onSend={() => {
+                  // Words that plainly ask for the interview start it, in the
+                  // conversation, with no model (interview-model asksForInterview).
+                  if (chat.state.phase === "ready" && asksForInterview(chat.state.draft)) {
+                    chat.setDraft("");
+                    router.push("/chat?interview=1");
+                    return;
+                  }
+                  void chat.send(failedLine);
+                }}
                 tr={chatTr}
                 compact
               />
@@ -439,6 +449,7 @@ export function HomeScreen() {
                       now={now}
                       locale={locale}
                       tr={chatTr}
+                      onInterview={() => router.push("/chat?interview=1")}
                     >
                       {i === exchange.length - 1 && turn.role === "system" && justProposed && (
                         <>

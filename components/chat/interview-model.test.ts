@@ -2,8 +2,25 @@
 // and what goes back to the interview's own endpoint (interview-model.ts).
 
 import { describe, expect, it } from "vitest";
-import type { IntakeQuestion } from "../../lib/intake/types";
-import { answerKind, answerWords, choicesOf, pickedAnswer, typedAnswer } from "./interview-model";
+import type { EntityField, IntakeQuestion } from "../../lib/intake/types";
+import {
+  ROWS_MAX,
+  anotherRow,
+  answerKind,
+  answerWords,
+  asksForInterview,
+  choicesOf,
+  fieldAnswered,
+  fieldKind,
+  monthAnswer,
+  pickedAnswer,
+  rowDetail,
+  rowWords,
+  rowsPlan,
+  startRows,
+  typedAnswer,
+  withoutRow,
+} from "./interview-model";
 
 const q = (input_type: IntakeQuestion["input_type"], options: [string, string][] = []) => ({
   input_type,
@@ -23,10 +40,25 @@ describe("how a question is answered in the conversation", () => {
     expect(answerKind(q("money"))).toBe("amount");
   });
 
-  it("sends a date, a table of rows and a file to the form, which has the control for them", () => {
-    expect(answerKind(q("date"))).toBe("form");
-    expect(answerKind(q("entity_list"))).toBe("form");
-    expect(answerKind(q("file"))).toBe("form");
+  it("picks a month, builds a table row by row, and says a file cannot be given yet", () => {
+    expect(answerKind(q("date"))).toBe("month");
+    expect(answerKind(q("entity_list"))).toBe("rows");
+    expect(answerKind(q("file"))).toBe("file");
+  });
+
+  it("gives the way to the form only for a kind it does not know", () => {
+    expect(answerKind({ input_type: "signature" as IntakeQuestion["input_type"] })).toBe("form");
+  });
+});
+
+describe("a picked month", () => {
+  it("goes back as the first of that month, as the form's picker sends it", () => {
+    expect(monthAnswer("2021-03")).toEqual({ kind: "value", wire: "2021-03-01" });
+  });
+
+  it("keeps a full date typed where there is no picker, and nothing picked is no answer", () => {
+    expect(monthAnswer(" 2021-03-15 ")).toEqual({ kind: "value", wire: "2021-03-15" });
+    expect(monthAnswer("  ")).toBeNull();
   });
 });
 
@@ -127,5 +159,182 @@ describe("the answer the conversation keeps beside its question", () => {
     expect(answerWords({ kind: "value", wire: 34 }, [], " 34 ", SAID)).toBe("34");
     expect(answerWords({ kind: "unknown" }, choices, "", SAID)).toBe("I don't know");
     expect(answerWords({ kind: "skip" }, choices, "", SAID)).toBe("Skipped for now");
+  });
+});
+
+// A table of rows (what the business sells, its suppliers), built in the
+// conversation: one row at a time, one field of it at a time.
+describe("a table built in the conversation", () => {
+  const field = (
+    key: string,
+    input_type: EntityField["input_type"],
+    priority: EntityField["priority"] = "core",
+    options: [string, string][] = [],
+  ): EntityField => ({
+    key,
+    prompt: key,
+    input_type,
+    priority,
+    currency: "EUR",
+    options: options.map(([code, label]) => ({ code, label })),
+  });
+  const FIELDS = [
+    field("name", "text"),
+    field("price", "money"),
+    field("kind", "single_select", "important", [
+      ["good", "A product"],
+      ["service", "A service"],
+    ]),
+    field("photo", "file", "optional"),
+    field("since", "date", "optional"),
+  ];
+  const plan = rowsPlan(FIELDS)!;
+  const SAY = {
+    yes: "Yes",
+    no: "No",
+    money: (major: number, currency: string) => `${currency} ${major.toFixed(2)}`,
+    figure: (n: number) => String(n),
+  };
+
+  it("asks the first field and the other core ones for every row, the rest only as detail", () => {
+    expect(plan.anchor.key).toBe("name");
+    expect(plan.core.map((f) => f.key)).toEqual(["name", "price"]);
+    // A file inside a row is not asked; a date in a row is typed, as on the form.
+    expect(plan.rest.map((f) => f.key)).toEqual(["kind", "since"]);
+    expect(fieldKind(FIELDS[4]!)).toBe("words");
+    expect(fieldKind(FIELDS[3]!)).toBeNull();
+  });
+
+  it("makes the first askable field the one a row needs when the bank marks none as core", () => {
+    const loose = rowsPlan([field("photo", "file", "optional"), field("label", "text", "deep")])!;
+    expect(loose.anchor.key).toBe("label");
+    expect(loose.core.map((f) => f.key)).toEqual(["label"]);
+    expect(loose.rest).toEqual([]);
+    expect(rowsPlan([field("photo", "file")])).toBeNull();
+  });
+
+  it("builds a row field by field, and a field left out is simply not in the row", () => {
+    let d = startRows(plan);
+    expect(d.asking).toBe("name");
+    d = fieldAnswered(d, plan, "Speckled mug");
+    expect(d.asking).toBe("price");
+    d = fieldAnswered(d, plan, undefined); // left out
+    expect(d).toEqual({
+      rows: [{ name: "Speckled mug" }],
+      current: null,
+      asking: null,
+      editing: null,
+      detailed: false,
+    });
+  });
+
+  it("adds a row, gives the last one its detail, and takes a row out", () => {
+    let d = fieldAnswered(fieldAnswered(startRows(plan), plan, "Mug"), plan, { amount_major: 24 });
+    d = anotherRow(d, plan);
+    expect(d.asking).toBe("name");
+    d = fieldAnswered(fieldAnswered(d, plan, "Plate"), plan, { amount_major: 31.5 });
+    expect(d.rows).toHaveLength(2);
+
+    // Detail is for the last row: its other fields, in order.
+    d = rowDetail(d, plan);
+    expect([d.asking, d.editing]).toEqual(["kind", 1]);
+    d = fieldAnswered(d, plan, "good");
+    expect(d.asking).toBe("since");
+    d = fieldAnswered(d, plan, undefined);
+    expect(d.rows[1]).toEqual({ name: "Plate", price: { amount_major: 31.5 }, kind: "good" });
+    expect([d.current, d.detailed]).toEqual([null, true]);
+
+    d = withoutRow(d, plan, 0);
+    expect(d.rows.map((r) => r.name)).toEqual(["Plate"]);
+    // With no row left, the first one is asked for again.
+    expect(withoutRow(d, plan, 0)).toEqual(startRows(plan));
+  });
+
+  it("changes nothing when a step makes no sense where the table stands", () => {
+    const building = fieldAnswered(startRows(plan), plan, "Mug"); // price is being asked
+    expect(anotherRow(building, plan)).toBe(building);
+    expect(rowDetail(building, plan)).toBe(building);
+    expect(withoutRow(building, plan, 0)).toBe(building);
+    const done = fieldAnswered(building, plan, undefined);
+    expect(fieldAnswered(done, plan, "stray")).toBe(done);
+    expect(withoutRow(done, plan, 5)).toBe(done);
+  });
+
+  it("holds no more rows than the form's table", () => {
+    let d = startRows(plan);
+    for (let i = 0; i < ROWS_MAX; i++) {
+      if (i > 0) d = anotherRow(d, plan);
+      d = fieldAnswered(fieldAnswered(d, plan, `Item ${i}`), plan, undefined);
+    }
+    expect(d.rows).toHaveLength(ROWS_MAX);
+    expect(anotherRow(d, plan)).toBe(d);
+  });
+
+  it("says a row in words: a code by its label, money and figures as the screen formats them", () => {
+    expect(
+      rowWords(
+        FIELDS,
+        { name: "Plate", price: { amount_major: 31.5 }, kind: "good", since: "2021" },
+        SAY,
+      ),
+    ).toEqual(["Plate", "EUR 31.50", "A product", "2021"]);
+    expect(
+      rowWords(
+        [field("vegan", "boolean"), field("sizes", "number")],
+        { vegan: false, sizes: 3 },
+        SAY,
+      ),
+    ).toEqual(["No", "3"]);
+    expect(
+      rowWords(
+        [
+          field("tags", "multi_select", "core", [
+            ["a", "Glazed"],
+            ["b", "Matte"],
+          ]),
+        ],
+        { tags: ["a", "b"] },
+        SAY,
+      ),
+    ).toEqual(["Glazed, Matte"]);
+  });
+});
+
+describe("asking for the interview in words", () => {
+  it("starts it for a plain request", () => {
+    for (const said of [
+      "do the interview with me",
+      "Let's do the interview",
+      "start the interview",
+      "Please continue my interview here",
+      "Can you do the interview with me?",
+      "could we start the interview now",
+      "I'd like to do the interview with you",
+      "I want to finish the interview",
+      "interview me",
+      "Ask me the questions",
+      "ok, let’s do the interview",
+    ]) {
+      expect(asksForInterview(said), said).toBe(true);
+    }
+  });
+
+  it("leaves a question about the interview, or a request for another time or place, to Lex", () => {
+    for (const said of [
+      "How do I do the interview?",
+      "how long does the interview take",
+      "Where is the interview?",
+      "What is the interview for?",
+      "Do I have to do the interview?",
+      "Should I start the interview now?",
+      "Can we do the interview later?",
+      "start the interview on the form",
+      "I did the interview yesterday",
+      "what did I say in the interview",
+      "",
+      `do the interview ${"and tell me everything about my margins ".repeat(4)}`,
+    ]) {
+      expect(asksForInterview(said), said).toBe(false);
+    }
   });
 });

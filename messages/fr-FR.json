@@ -4749,6 +4749,8 @@
       "unclear": "Je ne sais pas où se trouvent les décimales dans ce nombre. Saisissez-le sans séparateur de milliers, par exemple {example}.",
       "onForm": "Celle-ci se remplit dans le formulaire.",
       "openForm": "L’ouvrir là-bas",
+      "rowsDone": "C’est tout",
+      "fieldSkip": "Laisser de côté",
       "stop": "Arrêter ici"
     }
   },

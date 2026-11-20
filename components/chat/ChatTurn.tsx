@@ -36,6 +36,7 @@ export function ChatTurn({
   now,
   locale,
   tr,
+  onInterview,
   children,
 }: {
   turn: Turn;
@@ -45,6 +46,13 @@ export function ChatTurn({
   locale: AppLocale;
   /** The "chat" catalogue. */
   tr: Tr;
+  /**
+   * Starts the interview in the conversation. Given, a reply that names the
+   * interview offers "Do it with Lex" beside the way to the form: asked for
+   * the interview in any words and any language, Lex's answer is one press
+   * from it.
+   */
+  onInterview?: () => void;
   /** Anything the caller lays under the reply, such as the proposal it became. */
   children?: ReactNode;
 }) {
@@ -76,6 +84,11 @@ export function ChatTurn({
         )}
         {screens.length > 0 && (
           <p className="ak-links">
+            {onInterview && screens.some((s) => s.route === "/intake") && (
+              <button type="button" className="act solid" onClick={onInterview}>
+                {tr("interview.withLex")}
+              </button>
+            )}
             {screens.map((s) => (
               <Link key={s.route} className="act" href={s.route}>
                 {nameOf(s)}

@@ -4749,6 +4749,8 @@
       "unclear": "Nem tudom eldönteni, hol van a tizedesjel ebben a számban. Írja be ezres elválasztó nélkül, például {example}.",
       "onForm": "Ezt az űrlapon lehet megválaszolni.",
       "openForm": "Megnyitás ott",
+      "rowsDone": "Ez minden",
+      "fieldSkip": "Ezt kihagyom",
       "stop": "Itt abbahagyom"
     }
   },

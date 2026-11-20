@@ -720,6 +720,95 @@
 .lxi-start {
   margin: 14px 0 0;
 }
+/* An answer given in this sitting, with the way to change it beside it. */
+.lxi-past-a {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 2px 14px;
+}
+.lxi-past-a .lxi-link {
+  font-weight: 400;
+}
+/* A table built in the conversation: the rows so far, then the one field
+   being asked, then what next. */
+.lxi-table {
+  display: grid;
+  gap: 10px;
+}
+.lxi-rows {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding: 0 0 0 22px;
+  font-size: 14.5px;
+}
+.lxi-rows-words {
+  margin-right: 12px;
+  overflow-wrap: anywhere;
+}
+.lxi-sub {
+  display: grid;
+  gap: 8px;
+  padding: 10px 12px;
+  border: 1px solid var(--rule-soft);
+  border-radius: var(--r-ctl, 0);
+}
+.lxi-sub-q {
+  margin: 0;
+  font-size: 14.5px;
+  font-weight: 600;
+}
+/* The parts, to be asked from another one. */
+.lxi-parts {
+  display: grid;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.lxi-part {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  padding: 8px 10px;
+  border: 0;
+  border-radius: var(--r-ctl, 0);
+  background: none;
+  color: var(--sheet-ink);
+  font: inherit;
+  font-size: 14px;
+  text-align: left;
+  cursor: pointer;
+}
+.lxi-part:hover:not(:disabled) {
+  background: var(--inset);
+}
+.lxi-part:disabled {
+  color: var(--sheet-ink-2);
+  cursor: default;
+}
+.lxi-part[aria-current] {
+  color: var(--sheet-ink);
+  font-weight: 600;
+}
+.lxi-part-state {
+  flex: none;
+  font-size: 12.5px;
+  font-weight: 400;
+  color: var(--sheet-ink-2);
+}
+/* Two answers that disagree: said in a card of its own above the question. */
+.lxi-reconcile {
+  padding: 12px;
+  border: 1px solid var(--rule);
+  border-radius: var(--r-card, 0);
+}
+.lxi-reconcile .inset {
+  margin: 0;
+}
 /* The offer's two ways, side by side. */
 .ak-offer-acts {
   display: flex;

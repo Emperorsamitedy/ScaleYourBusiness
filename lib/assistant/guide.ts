@@ -340,7 +340,8 @@ export const GUIDE: readonly GuideScreen[] = [
     place: "From Home while the business is new, or from any open question on the Fact sheet",
     what: "The questions that build the Fact sheet: fourteen parts, one question at a time. Each question says how many are left in its part and about how long they take, and it can be stopped and continued.",
     how: [
-      "To do the interview: start it from Home, or ask Lex to do it with you and answer in the conversation. Both write the same facts.",
+      "To do the interview: Start the interview opens the form; Do it with Lex asks the same questions here in the conversation, one at a time, with the choices as buttons. Asked for the interview, Lex gives both buttons. Both ways write the same facts.",
+      "With Lex every kind of question is answered in the conversation: a month is picked, and a list (what you sell, your suppliers) is built one entry at a time. Under each question, All parts asks from another part; beside an answer you gave, Change this answer asks it again.",
       "To answer a question: pick one of the choices (the number keys 1 to 9 pick too), or type in the box and press Next.",
       "If you do not know: choose I don't know. If you would rather not answer now: Skip for now. Both are real answers and nothing breaks; the question can be answered later.",
       "An estimate is fine: say what you think, and it is kept as an estimate until something measures it.",

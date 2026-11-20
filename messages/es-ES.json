@@ -4749,6 +4749,8 @@
       "unclear": "No sé dónde van los decimales en esa cifra. Escríbala sin separador de miles, por ejemplo {example}.",
       "onForm": "Esta se responde en el formulario.",
       "openForm": "Abrirla allí",
+      "rowsDone": "Eso es todo",
+      "fieldSkip": "Dejarlo sin rellenar",
       "stop": "Parar aquí"
     }
   },

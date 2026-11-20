@@ -44,6 +44,8 @@ import { InterviewOffer } from "./InterviewOffer";
 import { LexInterview } from "./LexInterview";
 import { TryAgain } from "./TryAgain";
 import { earlierQuestions, latestQuestion } from "./chat-view";
+import type { Turn } from "./chat-view";
+import { asksForInterview } from "./interview-model";
 import { useChat } from "./useChat";
 import "../../app/chat.css";
 
@@ -66,12 +68,19 @@ export function ChatScreen() {
   const [englishNoun, setNoun] = useState(businessNoun(null));
   // How many facts the business has told; null until the menu's read answers.
   const [facts, setFacts] = useState<number | null>(null);
-  // The interview with Lex (M4), started here or by an address that asks for it.
-  const [interviewing, setInterviewing] = useState(
-    () =>
-      typeof window !== "undefined" &&
-      new URLSearchParams(window.location.search).get("interview") === "1",
+  // The interview with Lex (M4), started here, by words that ask for it, or by
+  // an address that does ("?interview=1", with "&ask=" naming a question to
+  // begin from). `from` is how many turns the thread held when it began: what
+  // is asked of Lex after that is drawn inside the interview, above the
+  // question it is about. Null until the thread has been read.
+  const [interview, setInterview] = useState<{ from: number | null; ask: string | null } | null>(
+    () => {
+      if (typeof window === "undefined") return null;
+      const asked = new URLSearchParams(window.location.search);
+      return asked.get("interview") === "1" ? { from: null, ask: asked.get("ask") } : null;
+    },
   );
+  const interviewing = interview !== null;
   const { tr, locale } = useTr("chat");
   const chips = chipQuestions(useMessages());
   // English's noun table ("your salon"); other languages say "your business".
@@ -80,6 +89,15 @@ export function ChatScreen() {
   const inputRef = useRef<HTMLTextAreaElement | null>(null);
   const turnCount = state.phase === "ready" ? state.turns.length : 0;
   const busy = state.phase === "ready" && state.busy;
+  // An interview the address asked for begins after whatever the thread already
+  // held when it was first read: later turns belong to the interview.
+  const ready = state.phase === "ready";
+  const held = useRef(0);
+  held.current = turnCount;
+  useEffect(() => {
+    if (!ready) return;
+    setInterview((cur) => (cur && cur.from === null ? { ...cur, from: held.current } : cur));
+  }, [ready]);
 
   useEffect(() => {
     // The business's name and type, as the menu reads them; absent stays absent.
@@ -154,6 +172,27 @@ export function ChatScreen() {
     inputRef.current?.focus();
   };
 
+  const startInterview = () => setInterview({ from: s.turns.length, ask: null });
+  const from = interview ? (interview.from ?? s.turns.length) : s.turns.length;
+  /** One turn as this page draws it; `i` is its place in the whole thread. */
+  const drawTurn = (turn: Turn, i: number) => (
+    <ChatTurn
+      key={turn.id}
+      turn={turn}
+      cards={s.cards}
+      onChanged={chat.onChanged}
+      now={now}
+      locale={locale}
+      tr={tr}
+      {...(interviewing ? {} : { onInterview: startInterview })}
+    >
+      {i === s.turns.length - 1 && turn.role === "system" && s.lastProposal && (
+        <InPlaceDecision id={s.lastProposal} />
+      )}
+      <TryAgain chat={chat} turn={turn} last={i === s.turns.length - 1} tr={tr} />
+    </ChatTurn>
+  );
+
   return (
     <main className="screen ak-screen">
       <div className={`ak-layout${earlier.length > 0 ? " with-side" : ""}`}>
@@ -175,10 +214,9 @@ export function ChatScreen() {
           <div className="ak-thread" aria-live="polite">
             {/* L8: with nothing to answer from, Lex offers the interview instead of questions. */}
             {s.turns.length === 0 && knowsNothing(facts) && !interviewing && (
-              <InterviewOffer onWithLex={() => setInterviewing(true)} />
+              <InterviewOffer onWithLex={startInterview} />
             )}
-            {interviewing && <LexInterview onStop={() => setInterviewing(false)} />}
-            {s.turns.length === 0 && !knowsNothing(facts) && (
+            {s.turns.length === 0 && !knowsNothing(facts) && !interviewing && (
               <div className="ak-start">
                 <p className="ak-descriptor">{tr("descriptor")}</p>
                 {chips.length > 0 && (
@@ -198,23 +236,22 @@ export function ChatScreen() {
                 )}
               </div>
             )}
-            {s.turns.map((turn, i) => (
-              <ChatTurn
-                key={turn.id}
-                turn={turn}
-                cards={s.cards}
-                onChanged={chat.onChanged}
-                now={now}
-                locale={locale}
-                tr={tr}
-              >
-                {i === s.turns.length - 1 && turn.role === "system" && s.lastProposal && (
-                  <InPlaceDecision id={s.lastProposal} />
-                )}
-                <TryAgain chat={chat} turn={turn} last={i === s.turns.length - 1} tr={tr} />
-              </ChatTurn>
-            ))}
-            {s.busy && <ChatBusy text={tr("thinking")} />}
+            {s.turns.slice(0, from).map(drawTurn)}
+            {/* The interview runs at the foot of the thread. What is asked of Lex
+                while it runs is drawn inside it, above the question it is about. */}
+            {interview && (
+              <LexInterview
+                onStop={() => setInterview(null)}
+                ask={interview.ask}
+                aside={
+                  <>
+                    {s.turns.slice(from).map((turn, i) => drawTurn(turn, from + i))}
+                    {s.busy && <ChatBusy text={tr("thinking")} />}
+                  </>
+                }
+              />
+            )}
+            {!interviewing && s.busy && <ChatBusy text={tr("thinking")} />}
             <div ref={endRef} />
           </div>
 
@@ -224,7 +261,15 @@ export function ChatScreen() {
             busy={s.busy}
             setDraft={chat.setDraft}
             draftRef={chat.draftRef}
-            onSend={() => void chat.send(tr("sendFailed"))}
+            onSend={() => {
+              // Words that plainly ask for the interview start it here, with no model.
+              if (asksForInterview(s.draft)) {
+                chat.setDraft("");
+                if (!interviewing) startInterview();
+                return;
+              }
+              void chat.send(tr("sendFailed"));
+            }}
             tr={tr}
             inputRef={inputRef}
             compact

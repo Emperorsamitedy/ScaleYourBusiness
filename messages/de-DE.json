@@ -4749,6 +4749,8 @@
       "unclear": "Ich kann nicht erkennen, wo das Dezimalzeichen steht. Schreiben Sie die Zahl ohne Tausendertrennzeichen, zum Beispiel {example}.",
       "onForm": "Diese Frage wird im Formular beantwortet.",
       "openForm": "Dort öffnen",
+      "rowsDone": "Das ist alles",
+      "fieldSkip": "Auslassen",
       "stop": "Hier aufhören"
     }
   },

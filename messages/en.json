@@ -4749,6 +4749,8 @@
       "unclear": "I can't tell where the decimals are in that. Type it without a mark for thousands, like {example}.",
       "onForm": "This one is answered on the form.",
       "openForm": "Open it there",
+      "rowsDone": "That's all",
+      "fieldSkip": "Leave this out",
       "stop": "Stop here"
     }
   },
