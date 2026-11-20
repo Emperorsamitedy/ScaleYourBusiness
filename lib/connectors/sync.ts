@@ -291,8 +291,25 @@ function errorText(error: unknown): string {
   return `${facts.error_name}: ${facts.error_message}`;
 }
 
+/**
+ * How far a read has got, for a caller that shows it (the Connections
+ * screen's "Sync now"). Counts only: no figure and nothing of the provider's.
+ */
+export interface SyncProgress {
+  /** "reading": pages are still arriving. "working": all read, the facts and checks follow. */
+  step: "reading" | "working";
+  /** Pages stored so far in this run. */
+  pages: number;
+  /** Daily figures stored so far in this run. */
+  observations: number;
+}
+
 /** Sync one connection. Never throws for provider or data failures — they are recorded. */
-export async function syncConnection(connectionId: string, now = new Date()): Promise<SyncOutcome> {
+export async function syncConnection(
+  connectionId: string,
+  now = new Date(),
+  opts: { onProgress?: (progress: SyncProgress) => void } = {},
+): Promise<SyncOutcome> {
   const startedAt = Date.now();
   const outcome: SyncOutcome = {
     connection_id: connectionId,
@@ -309,6 +326,14 @@ export async function syncConnection(connectionId: string, now = new Date()): Pr
     anomalies: [],
     stock: null,
     carts: null,
+  };
+  // Whoever listens (a browser that may have gone away) never breaks a read.
+  const tell = (step: SyncProgress["step"]) => {
+    try {
+      opts.onProgress?.({ step, pages: outcome.pages, observations: outcome.observations });
+    } catch {
+      /* the read goes on */
+    }
   };
 
   return withConnectionLock(
@@ -387,6 +412,7 @@ export async function syncConnection(connectionId: string, now = new Date()): Pr
           cursor = page.cursor;
           done = page.done;
           outcome.pages += 1;
+          tell("reading");
         }
 
         await db
@@ -394,6 +420,7 @@ export async function syncConnection(connectionId: string, now = new Date()): Pr
           .set({ last_sync_at: now.toISOString(), failure_count: 0, last_error: null })
           .where(eq(connections.id, row.id));
         outcome.ok = true;
+        tell("working");
         // Feature 34: a store's stock snapshot, once per run, after the pages.
         outcome.stock = measureProvider
           ? await readStockSnapshot(row, measureProvider, secret, now)

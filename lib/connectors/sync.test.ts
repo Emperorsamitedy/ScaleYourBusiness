@@ -31,6 +31,7 @@ import {
   FIXTURE_SECRET,
 } from "./providers/fixture";
 import { connect, countStoppedReads, disconnect, pauseConnection } from "./service";
+import type { SyncProgress } from "./sync";
 import { MAX_CONSECUTIVE_FAILURES, runConnectorSync, syncConnection } from "./sync";
 
 const created: { account_id: string; profile_id: string }[] = [];
@@ -262,5 +263,50 @@ describe("P2-06 — the per-connection lock", () => {
     await syncConnection(s.connection_id, NOW);
     // If the lock leaked, this second call would report "locked".
     expect((await syncConnection(s.connection_id, NOW)).skipped).toBeNull();
+  });
+});
+
+describe("a read's progress, for a caller that shows it", () => {
+  it("tells each page as it lands, then that the facts are being worked out", async () => {
+    const s = await scenario();
+    const heard: SyncProgress[] = [];
+    const out = await syncConnection(s.connection_id, NOW, { onProgress: (p) => heard.push(p) });
+    expect(out.ok).toBe(true);
+
+    const reading = heard.filter((p) => p.step === "reading");
+    expect(reading.map((p) => p.pages)).toEqual(
+      Array.from({ length: EXPECTED_PAGES }, (_, i) => i + 1),
+    );
+    // The count only ever rises, and ends at what the run stored in its pages.
+    for (let i = 1; i < reading.length; i++) {
+      expect(reading[i]!.observations).toBeGreaterThanOrEqual(reading[i - 1]!.observations);
+    }
+    expect(reading.at(-1)?.observations).toBe(EXPECTED_OBSERVATIONS);
+    expect(heard.at(-1)).toEqual({
+      step: "working",
+      pages: EXPECTED_PAGES,
+      observations: EXPECTED_OBSERVATIONS,
+    });
+  });
+
+  it("a listener that throws never breaks the read", async () => {
+    const s = await scenario();
+    const out = await syncConnection(s.connection_id, NOW, {
+      onProgress: () => {
+        throw new Error("the browser went away");
+      },
+    });
+    expect(out.ok).toBe(true);
+    expect(out.observations).toBe(EXPECTED_OBSERVATIONS);
+    expect((await connectionRow(s.connection_id))?.cursor).toBe(LAST_DAY);
+  });
+
+  it("says nothing for a read that never starts", async () => {
+    const s = await scenario();
+    await pauseConnection(s.connection_id);
+    const heard: SyncProgress[] = [];
+    const out = await syncConnection(s.connection_id, NOW, { onProgress: (p) => heard.push(p) });
+    expect(out.skipped).toBe("not_connected");
+    expect(heard).toEqual([]);
   });
 });

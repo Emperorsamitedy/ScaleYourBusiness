@@ -23,6 +23,51 @@
   border-radius: var(--r-ctl, 0);
 }
 
+/* A read under way: the count as it rises, and a bar that moves while it does.
+   The cobalt is the one the frame's own loading bar uses. */
+.cn-reading {
+  display: grid;
+  gap: 9px;
+}
+.cn-reading-line {
+  margin: 0;
+  font-variant-numeric: tabular-nums;
+}
+.cn-reading-bar {
+  position: relative;
+  display: block;
+  height: 3px;
+  overflow: hidden;
+  border-radius: 2px;
+  background: var(--rule-soft);
+}
+.cn-reading-bar::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, transparent, var(--live), transparent);
+  transform: translateX(-100%);
+  animation: cn-reading 1.3s linear infinite;
+}
+@keyframes cn-reading {
+  to {
+    transform: translateX(100%);
+  }
+}
+/* In a source's own row, under the button that asked for the read. */
+.cn-detail > .cn-banner {
+  margin: 12px 0 0;
+}
+@media (prefers-reduced-motion: reduce) {
+  /* No movement: a still bar says a read is under way, the count says how far. */
+  .cn-reading-bar::after {
+    transform: none;
+    animation: none;
+    background: var(--live);
+    opacity: 0.45;
+  }
+}
+
 /* the on / off / never marks */
 .cn-box {
   position: relative;
