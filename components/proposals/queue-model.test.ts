@@ -412,9 +412,9 @@ describe("approvalNote — never promises an undo window that doesn't exist", ()
     expect(note).not.toMatch(/undo until/i);
   });
 
-  it("unscheduled: says it doesn't run by itself, and carries the proposal's own sending note", () => {
+  it("unscheduled: says it won't be carried out by itself, and carries the proposal's own sending note", () => {
     const note = approvalNote({ runAt: null, sending: "Nothing sends on approval." });
-    expect(note).toContain("doesn't run by itself");
+    expect(note).toContain("No time is set for it, so I won't carry it out on my own.");
     expect(note).toContain("Nothing sends on approval.");
   });
 });

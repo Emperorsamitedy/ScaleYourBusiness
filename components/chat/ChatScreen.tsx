@@ -41,6 +41,7 @@ import { ChatBusy, ChatTurn } from "./ChatTurn";
 import { Composer } from "./Composer";
 import { InPlaceDecision } from "./InPlaceDecision";
 import { InterviewOffer } from "./InterviewOffer";
+import { TryAgain } from "./TryAgain";
 import { earlierQuestions, latestQuestion } from "./chat-view";
 import { useChat } from "./useChat";
 import "../../app/chat.css";
@@ -200,6 +201,7 @@ export function ChatScreen() {
                 {i === s.turns.length - 1 && turn.role === "system" && s.lastProposal && (
                   <InPlaceDecision id={s.lastProposal} />
                 )}
+                <TryAgain chat={chat} turn={turn} last={i === s.turns.length - 1} tr={tr} />
               </ChatTurn>
             ))}
             {s.busy && <ChatBusy text={tr("thinking")} />}

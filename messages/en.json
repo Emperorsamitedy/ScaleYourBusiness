@@ -1543,7 +1543,7 @@
     },
     "note": {
       "queued": "Approving queues it to run no earlier than {day}, {clock}. There is no un-approve; the emergency stop can still halt it.",
-      "noTime": "Approving records your yes with your name. With no set time, it doesn't run by itself."
+      "noTime": "Approving records your yes with your name. No time is set for it, so I won't carry it out on my own."
     },
     "lapsed": "You approved this, but it lapsed before it could run. Nothing ran.",
     "card": {
@@ -4706,6 +4706,7 @@
       "link": "Open Waiting for you"
     },
     "sendFailed": "Something went wrong on my side. Say that again?",
+    "retry": "Try again",
     "composer": {
       "label": "Ask about {noun}",
       "placeholder": "Type a question…",
@@ -10346,7 +10347,8 @@
       "cashCmp": "buffer {line}",
       "cashZero": "no buffer stated",
       "lowest": "Lowest point ahead",
-      "lowestCmp": "week of {date}"
+      "lowestCmp": "week of {date}",
+      "lowestAbove": "week of {date}, above today"
     },
     "flag": {
       "under": "Under buffer",

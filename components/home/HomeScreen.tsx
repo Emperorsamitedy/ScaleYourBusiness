@@ -46,6 +46,7 @@ import { LexFace, lexState } from "../brand/LexFace";
 import { HBars, Trend } from "../charts/Viz";
 import type { BarRow } from "../charts/Viz";
 import { ChatBusy, ChatTurn } from "../chat/ChatTurn";
+import { TryAgain } from "../chat/TryAgain";
 import { Composer } from "../chat/Composer";
 import { latestExchange, latestQuestion } from "../chat/chat-view";
 import { useChat } from "../chat/useChat";
@@ -459,6 +460,12 @@ export function HomeScreen() {
                           )}
                         </>
                       )}
+                      <TryAgain
+                        chat={chat}
+                        turn={turn}
+                        last={i === exchange.length - 1}
+                        tr={chatTr}
+                      />
                     </ChatTurn>
                   ))}
                   {busy && <ChatBusy text={chatTr("thinking")} />}
@@ -572,7 +579,9 @@ export function HomeScreen() {
                     {whole(cash.lowest.low, cash.currency, locale)}
                   </span>
                   <span className="home-r-cmp">
-                    {t("readings.lowestCmp", { date: shortDay(cash.lowest.start, locale) })}
+                    {t(cash.lowest.aboveToday ? "readings.lowestAbove" : "readings.lowestCmp", {
+                      date: shortDay(cash.lowest.start, locale),
+                    })}
                   </span>
                   <span className="home-r-foot">
                     <span className={`flag ${cash.lowest.under ? "drift" : "ok"}`}>

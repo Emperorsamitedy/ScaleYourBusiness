@@ -366,6 +366,11 @@
   display: inline;
   margin-left: 8px;
 }
+/* Under the line that stands where a reply did not come: ask again. */
+.ak-retry {
+  margin: 10px 0 0;
+}
+
 .lx-note {
   margin: 0 0 16px;
   max-width: var(--measure);

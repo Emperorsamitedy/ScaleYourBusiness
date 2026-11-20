@@ -1543,7 +1543,7 @@
     },
     "note": {
       "queued": "A jóváhagyással sorba kerül, és legkorábban ekkor fut: {day}, {clock}. A jóváhagyás nem vonható vissza, de a vészleállító még megállíthatja.",
-      "noTime": "A jóváhagyás az Ön nevével rögzíti az igenjét. Meghatározott időpont nélkül nem fut le magától."
+      "noTime": "A jóváhagyás az Ön nevével rögzíti az igenjét. Nincs hozzá időpont megadva, ezért magamtól nem hajtom végre."
     },
     "lapsed": "Ezt jóváhagyta, de lejárt, mielőtt lefuthatott volna. Semmi sem futott.",
     "card": {
@@ -4706,6 +4706,7 @@
       "link": "Az „Önre vár” megnyitása"
     },
     "sendFailed": "Valami hiba történt nálam. Megismételné?",
+    "retry": "Újrapróbálás",
     "composer": {
       "label": "Kérdés erről: {noun}",
       "placeholder": "Írjon be egy kérdést…",
@@ -10346,7 +10347,8 @@
       "cashCmp": "tartalék {line}",
       "cashZero": "nincs megadott tartalék",
       "lowest": "Várható mélypont",
-      "lowestCmp": "{date} hete"
+      "lowestCmp": "{date} hete",
+      "lowestAbove": "{date} hete, a mainál magasabb"
     },
     "flag": {
       "under": "Tartalék alatt",

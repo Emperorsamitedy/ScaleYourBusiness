@@ -30,7 +30,7 @@ import {
   FIXTURE_PAGE_DAYS,
   FIXTURE_SECRET,
 } from "./providers/fixture";
-import { connect, disconnect, pauseConnection } from "./service";
+import { connect, countStoppedReads, disconnect, pauseConnection } from "./service";
 import { MAX_CONSECUTIVE_FAILURES, runConnectorSync, syncConnection } from "./sync";
 
 const created: { account_id: string; profile_id: string }[] = [];
@@ -189,6 +189,23 @@ describe("P2-06 — failure discipline", () => {
     expect(row).toBeDefined();
     expect(summary.connections).toBeGreaterThanOrEqual(0);
     expect((await connectionRow(s.connection_id))?.status).toBe("failed");
+  });
+
+  it("a source that stopped by itself is counted as needing the owner; one they paused is not", async () => {
+    const stopped = await scenario(FIXTURE_FAILING_SECRET);
+    expect(await countStoppedReads(stopped.account_id)).toBe(0); // reading, so far
+    for (let attempt = 1; attempt <= MAX_CONSECUTIVE_FAILURES; attempt++) {
+      await syncConnection(stopped.connection_id, NOW);
+    }
+    expect(await countStoppedReads(stopped.account_id)).toBe(1);
+
+    // The owner's own pause is a choice, not something that needs them.
+    const chosen = await scenario();
+    await pauseConnection(chosen.connection_id);
+    expect(await countStoppedReads(chosen.account_id)).toBe(0);
+    // And one business's stopped source is never counted for another.
+    const other = await scenario();
+    expect(await countStoppedReads(other.account_id)).toBe(0);
   });
 
   it("a failure never stores the credential in the error text", async () => {

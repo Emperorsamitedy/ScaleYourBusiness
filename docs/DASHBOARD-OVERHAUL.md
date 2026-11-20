@@ -100,10 +100,10 @@ An evaluator on another model read the captures against the owner's words and Fo
 - [x] R8. The shortcuts sheet lists the queue's keys under the queue's own name.
 - [x] R9. A phone's header is two rows: search and the bell on the wordmark's row, the tabs with the stop. The chips' row fades at its right edge.
 - [x] R10. Smaller: one link style ("Read now" like the others); "Open" wherever a decision is opened; the status card keeps its height; the feed shows eight rows first; the palette lists places before actions; the rail's watching line stays on one line.
-- [later] A paused measurement connection (Google Analytics) is said on Home's live line but not counted: the menu's counts know only write connections that paused themselves. It needs one more count in `/api/nav`.
-- [later] A failed reply from Lex has no "Try again".
+- [x] A source that stopped reading by itself is counted (2026-11-20): parked after repeated failures, it joins the write connections that paused themselves in the bell, beside Connections in the menu and on Home (`countStoppedReads`, `needs_reconnect` in `/api/nav`). A source the owner paused is their own choice and is still not counted, which is what the demo's Google Analytics is.
+- [x] A reply from Lex that did not come has "Try again" under it (2026-11-20), on Home, the conversation page and in Lex's pop-up. It is offered when the server failed or never answered, not for a refusal that gave its reason (too long, the plan's allowance, a key the server lacks), which would only give it again. Asking again shows the question once (`canRetry`, `withoutFailed` in `components/chat/useChat.ts`).
 - [later] In Lex's sheet and on the conversation page "Open" still goes to the decision's own page; a sheet over a sheet was not attempted.
-- [later] The note under Approve ("With no set time, it doesn't run by itself") is the queue's own sentence and reads unclear out of context; it wants a rewrite in seven languages.
+- [x] The note under Approve says it plainly (2026-11-20), in seven languages: "Approving records your yes with your name. No time is set for it, so I won't carry it out on my own."
 
 ## The independent review, round 2 (2026-11-18)
 
@@ -118,7 +118,7 @@ The same evaluator read the fixes and returned "pass": all of round 1 confirmed,
 - [x] S7. Found while checking, not by the review: the queue and the conversation still printed an estimate to the cent while Home and the sheet rounded it. One function words the range now (`rangeWords`, `components/proposals/queue-model.ts`), used by all four.
 - [later] On a phone, a group with one screen (Home) still gives the strip's row to the stop alone.
 - [later] Activity's "Checked" rows are many and alike; they want grouping by day or by connection.
-- [later] "Cash today" beside a higher "Lowest point ahead" is correct (the lowest point is the lowest of the weeks ahead, and today is not one of them) but reads oddly when today is the low; the tile wants a second look at its words.
+- [x] "Lowest point ahead" says when it is above today (2026-11-20): "week of 16 Nov, above today", so a larger figure beside a smaller "Cash today" no longer reads as a mistake (`aboveToday` in `components/home/home-model.ts`).
 
 ## The owner's third round (2026-11-18): the look, from mockups he picks
 
@@ -149,6 +149,23 @@ The list. Nothing here is ticked until he has seen it.
 - [ ] L9. **What was already left for later** in this file (the two review rounds and "Later rounds") stays on the list behind these.
 
 Order: L1, L2, his pick, then L3, L4 and L6 built to the pick, then L7, L5, L8, then L9.
+
+## The owner's fourth round (2026-11-20): Lex as the guide, the interview with Lex, the interview's look
+
+Said while the list above was being worked, in his words:
+
+- "lex should be aware of everything on scalex so he can guide the user too."
+- "if we can give the user the option to complete the interview himself and/or use lex instead to do it maybe as lex asks the questions with options and the user answers"
+- "when the user asks how to do smth that he's supposed to lex should provide short and concise explanations too. 'how to fill the interview or whatever type of question' is prob one example"
+- "if you want you can make a list of everything that lex should be capabale of doing and ofc build that for it."
+- "the interview pages aren't updated and they look soooooo bad so work on them too please."
+
+The list. Nothing here is ticked until he has seen it.
+
+- [ ] M1. **The interview pages in the app's look.** They still wear the look from before the third round.
+- [ ] M2. **What Lex can do, written down**, then built.
+- [ ] M3. **Lex knows ScaleX**: every screen, what it is for and how each thing is done, so "how do I ..." gets a few short steps and the screen's name.
+- [ ] M4. **The interview with Lex**, beside the form: Lex asks the questions with their options, the person answers in the conversation. The next question comes from the resolver, never from a model (rule 4).
 
 ### L8, as built (2026-11-19 and 20, branch `straight-in`)
 
@@ -234,7 +251,7 @@ Connections was the longest screen in the app, more than 6,000 px once everythin
 - **Customers, tidied (2026-11-20).** He looked at it and said "some cards are all over the place and i don't like the current look of it": five cards of five sizes shared one screen. It is three parts now, as Connections is: the list (1,678 px at 1440 wide), segments with campaigns, and bringing customers in. A business with no customers opens on the third. A row is its own control (the whole row presses, with a ring for the keyboard; the "Open" column is gone), the record stays beside the list while the list scrolls, and on a phone a row is two lines: the name with its pattern, then the figures.
 - **Similar businesses**: the live comparison card keeps what it says about the comparison and the button to stop contributing (a consent stays in view); where the figures come from and what is not measured yet sit under "How this works".
 
-- [ ] Not yet done on the list: L9, and the interview held inside the conversation.
+- [ ] Not yet done on the list: the rest of L9 (a phone's strip with one screen, Activity's "Checked" rows grouped, "Open" from Lex opening a decision in place, a Home the owner can rearrange, rows opened in place on more screens), and the owner's fourth round below.
 - **Captions in the settings forms.** "YOUR LANGUAGE" and "CURRENCY" were the last captions in capitals inside the app: the language settings borrow two label styles from the sign-in page's stylesheet, which set capitals outright. They follow the app's sentence case inside the frame now and are unchanged on the sign-in page (`app/auth.css`).
 
 ### L4b, Lex as a pop-up (2026-11-20)

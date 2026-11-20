@@ -1637,7 +1637,7 @@
     },
     "note": {
       "queued": "Al aprobarla, queda en cola para ejecutarse no antes del {day}, a las {clock}. La aprobación no se puede retirar; la parada de emergencia aún puede detenerla.",
-      "noTime": "Al aprobarla, se registra su sí con su nombre. Sin hora fijada, no se ejecuta por sí sola."
+      "noTime": "Al aprobarla, se registra su sí con su nombre. No tiene hora fijada, así que no la ejecutaré por mi cuenta."
     },
     "lapsed": "Usted la aprobó, pero caducó antes de poder ejecutarse: no se ha ejecutado nada.",
     "card": {
@@ -4706,6 +4706,7 @@
       "link": "Abrir Pendiente de usted"
     },
     "sendFailed": "Algo ha salido mal por mi parte. ¿Puede repetirlo?",
+    "retry": "Reintentar",
     "composer": {
       "label": "Pregunte sobre {noun}",
       "placeholder": "Escriba una pregunta…",
@@ -10346,7 +10347,8 @@
       "cashCmp": "colchón {line}",
       "cashZero": "sin colchón indicado",
       "lowest": "Punto más bajo previsto",
-      "lowestCmp": "semana del {date}"
+      "lowestCmp": "semana del {date}",
+      "lowestAbove": "semana del {date}, por encima de hoy"
     },
     "flag": {
       "under": "Bajo el colchón",

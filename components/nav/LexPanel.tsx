@@ -35,6 +35,7 @@ import { Composer } from "../chat/Composer";
 import { chipQuestions } from "../chat/ChatScreen";
 import { InPlaceDecision } from "../chat/InPlaceDecision";
 import { InterviewOffer } from "../chat/InterviewOffer";
+import { TryAgain } from "../chat/TryAgain";
 import { SharedChatProvider, useChatCore } from "../chat/useChat";
 import type { Chat } from "../chat/useChat";
 import { knowsNothing } from "../home/next-steps";
@@ -170,6 +171,7 @@ function LexThread({ chat, open, facts }: { chat: Chat; open: boolean; facts: nu
               {i === s.turns.length - 1 && turn.role === "system" && s.lastProposal && (
                 <InPlaceDecision id={s.lastProposal} />
               )}
+              <TryAgain chat={chat} turn={turn} last={i === s.turns.length - 1} tr={tr} />
             </ChatTurn>
           ))}
           {s.busy && <ChatBusy text={tr("thinking")} />}

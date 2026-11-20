@@ -1543,7 +1543,7 @@
     },
     "note": {
       "queued": "La valider la met en file d’attente pour s’exécuter au plus tôt le {day} à {clock}. Une validation ne peut pas être retirée ; l’arrêt d’urgence peut encore l’interrompre.",
-      "noTime": "La valider enregistre votre accord à votre nom. Sans heure fixée, elle ne s’exécute pas d’elle-même."
+      "noTime": "La valider enregistre votre accord à votre nom. Aucune heure n’est fixée, donc je ne l’exécuterai pas de moi-même."
     },
     "lapsed": "Vous l’avez validée, mais elle a expiré avant de pouvoir s’exécuter. Rien ne s’est exécuté.",
     "card": {
@@ -4706,6 +4706,7 @@
       "link": "Ouvrir « En attente de votre décision »"
     },
     "sendFailed": "Un problème est survenu de mon côté. Pouvez-vous répéter ?",
+    "retry": "Réessayer",
     "composer": {
       "label": "Question au sujet de : {noun}",
       "placeholder": "Tapez une question…",
@@ -10346,7 +10347,8 @@
       "cashCmp": "réserve {line}",
       "cashZero": "aucune réserve indiquée",
       "lowest": "Point le plus bas à venir",
-      "lowestCmp": "semaine du {date}"
+      "lowestCmp": "semaine du {date}",
+      "lowestAbove": "semaine du {date}, au-dessus d’aujourd’hui"
     },
     "flag": {
       "under": "Sous la réserve",

@@ -75,7 +75,12 @@ export interface CashReading {
   lineKind: "buffer" | "zero";
   /** Cash today is under the line the owner wants to keep. */
   under: boolean;
-  lowest: { start: string; low: number; under: boolean };
+  /**
+   * The lowest of the weeks ahead (its cautious end). `aboveToday`: every
+   * week ahead is above today's cash, so today is the low and the tile says
+   * so; without that the figure reads as a mistake beside a smaller "today".
+   */
+  lowest: { start: string; low: number; under: boolean; aboveToday: boolean };
   tight: { start: string; low: number } | null;
   source: { basis: string; source: string; on: string | null };
 }
@@ -95,6 +100,7 @@ export function cashReading(view: CashLike | null): CashReading | null {
       start: lowestWeek?.start ?? f.weeks[0]?.start ?? "",
       low: f.lowest.balance.low,
       under: f.lowest.balance.low < f.line.amount_minor,
+      aboveToday: f.lowest.balance.low > f.start.amount_minor,
     },
     tight: view.tight ? { start: view.tight.start, low: view.tight.balance.low } : null,
     source: { basis: f.start.basis, source: f.start.source, on: f.start.on },
