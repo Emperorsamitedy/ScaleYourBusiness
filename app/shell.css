@@ -479,8 +479,42 @@
 
 /* the bar along the bottom and Lex above it: a phone's */
 .sx-bar,
+/* Lex's face afloat in the corner of every screen that has no composer of
+   its own (the owner's third round, L4b: "present in more places than
+   one"). It opens Lex and gives way to the pop-up while that is open. */
 .sx-fab {
+  position: fixed;
+  right: 22px;
+  bottom: 22px;
+  z-index: 44;
+  display: block;
+  padding: 0;
+  border: 0;
+  border-radius: 16px;
+  background: transparent;
+  cursor: pointer;
+  filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.45));
+  transition: transform 0.22s var(--sx-ease);
+}
+.sx-fab:hover {
+  transform: translateY(-2px);
+}
+.sx-fab:active {
+  transform: scale(0.94);
+}
+.sx-fab:focus-visible {
+  outline: 2px solid var(--desk-ink);
+  outline-offset: 4px;
+}
+:root:has(.lx-pop) .sx-fab {
   display: none;
+}
+/* The last line of a page is not left under the face. A phone has its own
+   room under the page, for the bar. */
+@media (min-width: 760px) {
+  :root:has(.sx-fab) .app-main {
+    padding-bottom: 40px;
+  }
 }
 .sx-sheet-list {
   display: grid;
@@ -806,19 +840,11 @@
     padding-bottom: 84px;
   }
   .sx-fab {
-    position: fixed;
     right: 14px;
     bottom: calc(84px + env(safe-area-inset-bottom));
-    z-index: 44;
-    display: block;
-    padding: 0;
-    border: 0;
-    background: transparent;
-    cursor: pointer;
-    transition: transform 0.22s var(--sx-ease);
   }
-  .sx-fab:active {
-    transform: scale(0.94);
+  .sx-fab:hover {
+    transform: none;
   }
 }
 

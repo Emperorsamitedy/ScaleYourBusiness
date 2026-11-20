@@ -3,7 +3,7 @@
 
 import { describe, expect, it } from "vitest";
 import { chipQuestions } from "../chat/ChatScreen";
-import { inlineComposer } from "./LexPanel";
+import { inlineComposer, staysOpen } from "./LexPanel";
 import { leavesPage } from "./RouteProgress";
 
 describe("the loading bar", () => {
@@ -34,6 +34,19 @@ describe("where Ask Lex lands", () => {
     expect(inlineComposer("/watch")).toBeNull();
     expect(inlineComposer("/homework")).toBeNull(); // a path that only starts alike
     expect(inlineComposer("/settings/team")).toBeNull();
+  });
+});
+
+describe("Lex across screens (L4b)", () => {
+  it("stays open beside the page on a wide screen", () => {
+    expect(staysOpen("/cash", true)).toBe(true);
+    expect(staysOpen("/settings/team", true)).toBe(true);
+  });
+
+  it("closes on a page that holds the conversation, and on a phone, where it covers the page", () => {
+    expect(staysOpen("/home", true)).toBe(false);
+    expect(staysOpen("/chat", true)).toBe(false);
+    expect(staysOpen("/cash", false)).toBe(false);
   });
 });
 

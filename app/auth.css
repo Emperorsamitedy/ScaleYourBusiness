@@ -95,15 +95,18 @@
   padding: 15px 18px 15px;
   border-bottom: 3px double var(--sheet-ink);
 }
+/* Capitals on the sign-in stage; inside the owner app, where the language
+   settings borrow this label, the app's own sentence case (the tokens are
+   set only there, app/sheet.css: the owner's third round, L1). */
 .au-sheet-label,
 .au-label {
   margin: 0;
   font-family: var(--f-mono);
-  font-size: var(--t-mono-xs);
+  font-size: calc(var(--t-mono-xs) + var(--caps-bump, 0px));
   font-weight: 400;
-  letter-spacing: 0.03em;
+  letter-spacing: var(--caps-ls, 0.03em);
   line-height: 16px;
-  text-transform: uppercase;
+  text-transform: var(--caps, uppercase);
   color: var(--sheet-ink-2);
 }
 .au-sheet-title {
@@ -371,9 +374,9 @@
   cursor: pointer;
   width: fit-content;
   font-family: var(--f-mono);
-  font-size: var(--t-mono-xs);
-  letter-spacing: 0.03em;
-  text-transform: uppercase;
+  font-size: calc(var(--t-mono-xs) + var(--caps-bump, 0px));
+  letter-spacing: var(--caps-ls, 0.03em);
+  text-transform: var(--caps, uppercase);
   color: var(--sheet-ink-2);
 }
 .au-how summary:hover {

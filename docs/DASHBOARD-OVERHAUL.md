@@ -141,7 +141,7 @@ The list. Nothing here is ticked until he has seen it.
   - [~] e. The tabs across the top of a screen are "not bad": tidy them the same way, and never let the top navigation and those tabs overlap or say the same thing twice.
 - [~] L4. **Lex.**
   - [~] a. A face, as Foundable's Ted has one. Ours, not theirs. Built: see below.
-  - [~] b. A side panel for now (Lex's sheet, opened from "Ask Lex" on every screen and from the face on a phone). [later] An interactive pop-up, and present in more places than one.
+  - [~] b. An interactive pop-up, and present in more places than one. Built on 2026-11-20 and waiting for his look: see "L4b, Lex as a pop-up" below. (It was a side panel until then.)
 - [~] L5. **The microphone.** He sees no browser pop-up when he presses it. Found and fixed: see below. A blocked or missing microphone was already said on the screen (`lib/voice/session.ts`).
 - [~] L6. **Less to read at once.** Cash flow is built (see below); the other screens follow. "There's still a lot of text on some pages like the cash flow", and "a few overlaps here and there". The content may stay ("I absolutely don't mind you keeping it") but "no one will probably sit down and read that much text": present it "as concise and accurate and small as possible". Cash flow first, then screen by screen.
 - [~] L7. **No long dashes.** Built for everything a screen prints: see "L7, as built" below. "No em and en dashes throughout the app"; underscores "only to a very certain limit". This reaches the seven catalogues and the range's wording ("+€136 – +€1,213" becomes "+€136 to +€1,213").
@@ -234,7 +234,20 @@ Connections was the longest screen in the app, more than 6,000 px once everythin
 - **Customers, tidied (2026-11-20).** He looked at it and said "some cards are all over the place and i don't like the current look of it": five cards of five sizes shared one screen. It is three parts now, as Connections is: the list (1,678 px at 1440 wide), segments with campaigns, and bringing customers in. A business with no customers opens on the third. A row is its own control (the whole row presses, with a ring for the keyboard; the "Open" column is gone), the record stays beside the list while the list scrolls, and on a phone a row is two lines: the name with its pattern, then the figures.
 - **Similar businesses**: the live comparison card keeps what it says about the comparison and the button to stop contributing (a consent stays in view); where the figures come from and what is not measured yet sit under "How this works".
 
-- [ ] Not yet done on the list: captions still set in capitals inside the settings forms, Lex as a pop-up, and L9.
+- [ ] Not yet done on the list: L9, and the interview held inside the conversation.
+- **Captions in the settings forms.** "YOUR LANGUAGE" and "CURRENCY" were the last captions in capitals inside the app: the language settings borrow two label styles from the sign-in page's stylesheet, which set capitals outright. They follow the app's sentence case inside the frame now and are unchanged on the sign-in page (`app/auth.css`).
+
+### L4b, Lex as a pop-up (2026-11-20)
+
+"An interactive pop-up, and present in more places than one."
+
+- **A pop-up, not a panel.** On a wide screen Lex opens as paper in the bottom right corner (410 px wide, up to 640 tall): Lex's face, the business's name, a button to the whole conversation and Close in a shaded head, the thread, and the composer with the microphone in its foot. The side panel covered the page under a scrim and held it still; the pop-up sits beside the page, and everything on the page can still be pressed.
+- **It stays while the owner moves.** Open on Cash flow, it is still open on Stock, with a half-typed question still in it: an answer can be read while the screen it is about is opened. It closes on Close, on Escape while the cursor is inside (the cursor goes back to what opened it), and on reaching a page that holds the conversation itself (Home, the conversation page).
+- **In two places on every screen.** "Ask Lex" in the bar, and now Lex's face afloat in the corner on every width (it was on a phone only), on every screen but Home and the conversation page. The face gives way to the pop-up it opens.
+- **A phone keeps the full-screen sheet**: under 760 px there is no room beside the page.
+- It sits under the app's modal layers (a decision opened in place, the palette), which take the screen when they open.
+- Held by a test (`components/nav/shell.test.ts`: when Lex stays open across screens) and seen in a browser at 1440, 1100 and 800 wide and on a phone: opened from the face and from the bar, a control on the page pressed beside it, carried to another screen with its draft, closed with Escape and by going Home.
+- [later] Lex answering about the screen the owner is on without being told which one, and a mark on the face when an answer arrives while the pop-up is closed.
 
 ### L6, the fact sheet and the report (2026-11-20)
 
