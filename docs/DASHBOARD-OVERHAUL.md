@@ -206,7 +206,17 @@ Nine pages were never brought into the frame: Plan and billing, the monthly stat
 - **Left as they are, on purpose:** prompts sent to a model, text parsers and character tables, lines that are hashed (the case file), legal citations, operator tools, invariant errors no person reads, the landing page.
 - **How to find what is left:** the list tool reads only what sits inside a string or a template, never a comment. About 700 such lines before, under 200 after, none of them a sentence a screen prints.
 
-- [ ] Not yet done on the list: L6 on the screens that are still long (Connections above all, then Customers and Similar businesses), Lex as a pop-up, and L9.
+### L6, Connections (2026-11-20)
+
+Connections was the longest screen in the app, more than 6,000 px once everything on it had loaded: the patch panel, two import forms, and six permissions each listing everything it allows. Nothing was taken away; it is in three parts now (`components/ui/Tabs`).
+
+- **What I read**: the patch panel alone (1,042 px at 1440 wide).
+- **Your own files**: the bookings and bank statement imports, side by side (1,148 px).
+- **What I may change**: the six permissions (1,781 px, from 5,418). What each one allows is in front of the person while they grant it (rule 13: a separate consent is given knowing what it covers) and folded under "What this allows" at any other time (`components/connections/ConsentFold.tsx`); the four with no note beside them sit two to a row.
+- A part stays in the page while another is open, so a file half pasted is not lost and each permission still reads the result of its sign-in once. The address can name a part (`?tab=`), and a sign-in that comes back for a permission opens the third part. On a narrow screen the row of tabs scrolls sideways and brings the open tab into view.
+- Held by tests in `components/connections/patch.test.ts`: which part an address opens, and each part's count. Seen in a browser at 1440 and 390 wide.
+
+- [ ] Not yet done on the list: L6 on the screens that are still long (Customers with fifty rows at once, Similar businesses' first card, the fact sheet), Lex as a pop-up, and L9.
 
 ### The branch (2026-11-19)
 
