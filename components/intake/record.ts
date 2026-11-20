@@ -57,7 +57,7 @@ export interface AreaWord {
 }
 
 /** "01": a tile's channel number, from its 0-based place in the row. */
-export const channelNo = (index: number): string => String(index + 1).padStart(2, "0");
+export const channelNo = (index: number): string => String(index + 1);
 
 /** Bars that hold a response — the owner's, a measurement, a derivation, an explicit unknown. */
 const RESPONDED_BARS = new Set<AreaBar>(["owner", "measured", "derived", "unknown"]);

@@ -587,25 +587,30 @@ function DrawnMarket({ model, compact }: { model: DrawnModel; compact: boolean }
               </tbody>
             )}
           </table>
-          <p className="mk-legend">
-            {tr("legend", {
-              days: num(30, 0, locale),
-              derived: sheet("basis.DERIVED"),
-              derivedMeaning: sheet("basisMeaning.DERIVED"),
-              estimated: sheet("basis.ESTIMATED"),
-            })}
-            {tableComp?.status === "priced" && (
-              <>
-                {" "}
-                <Link href="/proposals">{tr("seeWaiting")}</Link>
-              </>
-            )}
-          </p>
-          {model.notes.map((n) => (
-            <p key={n} className="mk-legend">
-              {n}
+          {/* The owner's third round, L6: where the table stands open (the fact
+              sheet's charts), how its columns are to be read folds beneath it.
+              On Home the whole block is already under one fold. */}
+          <MaybeFold folded={!compact}>
+            <p className="mk-legend">
+              {tr("legend", {
+                days: num(30, 0, locale),
+                derived: sheet("basis.DERIVED"),
+                derivedMeaning: sheet("basisMeaning.DERIVED"),
+                estimated: sheet("basis.ESTIMATED"),
+              })}
+              {tableComp?.status === "priced" && (
+                <>
+                  {" "}
+                  <Link href="/proposals">{tr("seeWaiting")}</Link>
+                </>
+              )}
             </p>
-          ))}
+            {model.notes.map((n) => (
+              <p key={n} className="mk-legend">
+                {n}
+              </p>
+            ))}
+          </MaybeFold>
         </div>
       </MaybeFold>
 

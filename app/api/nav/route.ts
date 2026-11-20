@@ -11,6 +11,7 @@ import { connections, fieldRecords, goals, proposals, supportTickets } from "../
 import { resolveAccess } from "../../../lib/auth/access";
 import { enumCode } from "../../../lib/core/enum-value";
 import { logSafeError } from "../../../lib/core/log-safe";
+import { countStoppedReads } from "../../../lib/connectors/service";
 import { countPausedExecutionConnections } from "../../../lib/execution/connections";
 import type { SizeBand } from "../../../lib/core/size-features";
 import { latestDecision } from "../../../lib/mode/service";
@@ -52,8 +53,11 @@ export interface NavCounts {
   connections: number;
   /**
    * P3-24b, the needs-you flag beside Connections: write connections that
-   * paused themselves because Meta refused their sign-in. The menu prints
-   * "N paused" there instead of the connected count, until reconnected.
+   * paused themselves because Meta refused their sign-in, and (since
+   * 2026-11-20, the first review's leftover) sources that stopped reading by
+   * themselves after repeated failures. The menu prints "N paused" there
+   * instead of the connected count, until each is reconnected or resumed.
+   * A source the owner paused is their own choice and is not counted.
    */
   needs_reconnect: number;
   /** P4-11: support tickets waiting for a person — chat and email alike. */
@@ -105,6 +109,7 @@ export async function GET(): Promise<NextResponse> {
       factRows,
       connRows,
       pausedCount,
+      stoppedCount,
       idRows,
       decision,
       openRows,
@@ -131,6 +136,7 @@ export async function GET(): Promise<NextResponse> {
           and(eq(connections.account_id, access.account_id), eq(connections.status, "connected")),
         ),
       countPausedExecutionConnections(access.account_id),
+      countStoppedReads(access.account_id),
       db
         .select({ key: fieldRecords.field_key, value: fieldRecords.value })
         .from(fieldRecords)
@@ -192,7 +198,7 @@ export async function GET(): Promise<NextResponse> {
       goals: Number(goalRows[0]?.n ?? 0),
       facts: Number(factRows[0]?.n ?? 0),
       connections: Number(connRows[0]?.n ?? 0),
-      needs_reconnect: pausedCount,
+      needs_reconnect: pausedCount + stoppedCount,
       support_open: Number(openRows[0]?.n ?? 0),
       size_band: sized ? { band: sized.band, via: sized.via } : null,
       stock,

@@ -62,7 +62,7 @@ export function KeepAccess() {
         aria-label={t("label")}
       />
       <button type="submit" className="act solid" disabled={busy || email.trim() === ""}>
-        {busy ? t("making") : <>{t("get")} &rarr;</>}
+        {busy ? t("making") : t("get")}
       </button>
       {error && <p className="ix-err">{error}</p>}
     </form>

@@ -9,7 +9,7 @@
    small curve, pills for places and counts, and a movement for hover, press
    and open. Colour still only means something. */
 
-:root:has(.app-frame, .q-app, .rq) {
+:root:has(.app-frame, .q-app, .rq, .ix) {
   --sx-top: 60px;
   --sx-rail: 236px;
   --sx-ease: cubic-bezier(0.16, 1, 0.3, 1);
@@ -479,8 +479,42 @@
 
 /* the bar along the bottom and Lex above it: a phone's */
 .sx-bar,
+/* Lex's face afloat in the corner of every screen that has no composer of
+   its own (the owner's third round, L4b: "present in more places than
+   one"). It opens Lex and gives way to the pop-up while that is open. */
 .sx-fab {
+  position: fixed;
+  right: 22px;
+  bottom: 22px;
+  z-index: 44;
+  display: block;
+  padding: 0;
+  border: 0;
+  border-radius: 16px;
+  background: transparent;
+  cursor: pointer;
+  filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.45));
+  transition: transform 0.22s var(--sx-ease);
+}
+.sx-fab:hover {
+  transform: translateY(-2px);
+}
+.sx-fab:active {
+  transform: scale(0.94);
+}
+.sx-fab:focus-visible {
+  outline: 2px solid var(--desk-ink);
+  outline-offset: 4px;
+}
+:root:has(.lx-pop) .sx-fab {
   display: none;
+}
+/* The last line of a page is not left under the face. A phone has its own
+   room under the page, for the bar. */
+@media (min-width: 760px) {
+  :root:has(.sx-fab) .app-main {
+    padding-bottom: 40px;
+  }
 }
 .sx-sheet-list {
   display: grid;
@@ -597,14 +631,39 @@
   .sx-biz {
     max-width: 150px;
   }
+  /* The stop says one word from here down (EmergencyStop.tsx writes both):
+     with its two words the bar ran past the right edge on a tablet, and the
+     whole page scrolled sideways with it. */
+  .sx-top .es-long {
+    display: none;
+  }
+  .sx-top .es-short {
+    display: inline;
+  }
 }
-@media (max-width: 919px) {
+@media (max-width: 999px) {
   .sx-place {
+    position: relative;
     padding: 0 10px;
     gap: 6px;
   }
   .sx-top {
     padding: 8px 14px;
+  }
+  /* Between a phone and a small laptop the four places do not fit beside the
+     tools: the bar ran past the right edge and the page scrolled sideways.
+     The place that is open keeps its word; the others show their icon, and
+     keep their name for a screen reader and on hover (the link's title). */
+  .sx-place:not([aria-current]) > span:not(.sx-count) {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+  .sx-biz {
+    max-width: 120px;
   }
 }
 
@@ -781,19 +840,11 @@
     padding-bottom: 84px;
   }
   .sx-fab {
-    position: fixed;
     right: 14px;
     bottom: calc(84px + env(safe-area-inset-bottom));
-    z-index: 44;
-    display: block;
-    padding: 0;
-    border: 0;
-    background: transparent;
-    cursor: pointer;
-    transition: transform 0.22s var(--sx-ease);
   }
-  .sx-fab:active {
-    transform: scale(0.94);
+  .sx-fab:hover {
+    transform: none;
   }
 }
 

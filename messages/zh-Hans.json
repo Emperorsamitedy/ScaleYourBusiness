@@ -272,7 +272,7 @@
     "status": {
       "measuring": "测量中",
       "done": "已完成",
-      "needsChannel": "需要频道 {channel}",
+      "needsChannel": "需要第 {channel} 部分",
       "needsArea": "需先完成{area}",
       "notOpen": "尚未开放",
       "notStarted": "未开始",
@@ -280,15 +280,15 @@
       "inProgress": "进行中"
     },
     "bank": {
-      "now": "频道 {channel} · {area} · <fig>{pct}%</fig>",
+      "now": "第 {channel} 部分 · {area} · <fig>{pct}%</fig>",
       "done": "已完成 <fig>{done}</fig> / {total}",
-      "hide": "收起频道",
-      "all": "全部频道",
+      "hide": "收起各部分",
+      "all": "所有部分",
       "legendOwner": "来自您",
       "legendMeasured": "读取自 {connector}",
-      "tileChannel": "频道 {channel}",
+      "tileChannel": "第 {channel} 部分",
       "tilePct": "{pct}%",
-      "tileWords": "频道 {channel}，{area}：{status}，已回答 {pct}%，{bars}。",
+      "tileWords": "第 {channel} 部分，{area}：{status}，已回答 {pct}%，{bars}。",
       "tileAsk": "{words}点击从这个方面开始提问。",
       "bar": {
         "owner": "{count, plural, other {# 项来自您}}",
@@ -338,13 +338,14 @@
     },
     "question": {
       "ref": "问题 <fig>{id}</fig>",
-      "channel": "频道 <fig>{channel}</fig>",
-      "left": "此频道还剩 {left, plural, other {<fig>#</fig> 个}} · 约 {minutes, plural, other {<fig>#</fig> 分钟}}",
+      "channel": "第 <fig>{channel}</fig> 部分",
+      "left": "这一部分还剩 {left, plural, other {<fig>#</fig> 个}} · 约 {minutes, plural, other {<fig>#</fig> 分钟}}",
       "measured": "已测量 · {provider}",
       "missing": "缺失的部分",
       "missingRest": "其余部分：{provider} 未测量的内容",
       "ruler": "测量参考：{value}",
       "backTitle": "重新打开该回答以便修改；旧回答会保留在历史记录中",
+      "back": "返回",
       "skip": "暂时跳过",
       "next": "下一题",
       "yes": "是",
@@ -375,7 +376,7 @@
       "addRow": "再添加一行"
     },
     "record": {
-      "channelTitle": "频道 {channel} · {area}",
+      "channelTitle": "第 {channel} 部分 · {area}",
       "facts": "{count, plural, other {<fig>#</fig> 项事实}}",
       "empty": "此方面暂无记录。",
       "listLabel": "{area}中已记录的事实",
@@ -1078,6 +1079,7 @@
       "gaps": "{count, plural, other {<b>#</b> 项记录为不知道}}"
     },
     "recordLabel": "记录",
+    "parts": "本页的各部分",
     "search": "搜索记录",
     "filterLabel": "筛选记录",
     "filter": {
@@ -1542,7 +1544,7 @@
     },
     "note": {
       "queued": "批准后，它会排入队列，最早于 {day} {clock} 执行。批准无法撤回；紧急停止仍可以叫停它。",
-      "noTime": "批准会以您的名字记录您的同意。由于没有设定时间，它不会自行执行。"
+      "noTime": "批准会以您的名字记录您的同意。由于没有设定时间，我不会自行执行它。"
     },
     "lapsed": "您批准了这一项，但它在执行之前已失效。没有执行任何操作。",
     "card": {
@@ -4705,6 +4707,7 @@
       "link": "打开“等待您处理”"
     },
     "sendFailed": "我这边出了点问题。能再说一遍吗？",
+    "retry": "重试",
     "composer": {
       "label": "询问关于{noun}的问题",
       "placeholder": "输入问题…",
@@ -4737,7 +4740,16 @@
       "prepared": "已起草，尚未执行 · {screen}"
     },
     "descriptor": "根据您企业的事实作答。未经您批准，不会有任何更改。",
-    "openFull": "打开完整对话"
+    "openFull": "打开完整对话",
+    "interview": {
+      "withLex": "和 Lex 一起完成",
+      "intro": "一次一个问题。选择一个答案或输入答案。您可以随时停止：已回答的内容会保留。",
+      "left": "{count, plural, other {这一部分还剩 # 个}}",
+      "unclear": "我无法判断这个数字的小数点在哪里。请不要使用千位分隔符，例如 {example}。",
+      "onForm": "这个问题需要在表单中回答。",
+      "openForm": "在那里打开",
+      "stop": "先到这里"
+    }
   },
   "mode": {
     "meta": {
@@ -10345,7 +10357,8 @@
       "cashCmp": "缓冲额 {line}",
       "cashZero": "未设定缓冲额",
       "lowest": "未来最低点",
-      "lowestCmp": "{date} 当周"
+      "lowestCmp": "{date} 当周",
+      "lowestAbove": "{date} 当周，高于今天"
     },
     "flag": {
       "under": "低于缓冲额",

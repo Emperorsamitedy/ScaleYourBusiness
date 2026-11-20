@@ -331,6 +331,47 @@ describe("rule 8 — the answer's context is cached from turn two", () => {
     expect(blocks[0]?.text).toBe(systems[0]);
   });
 
+  it("Lex knows ScaleX: the guide rides in front, the same for every turn, and the owner's screen goes with the question", async () => {
+    const s = await fresh();
+    const seen: { guide: string | undefined; user: string }[] = [];
+    const capture: AnswerLlm = async ({ guide, user }) => {
+      seen.push({ guide, user });
+      return { text: "1. Open Connections [/connections].", calls: [] };
+    };
+    const ask = (q: string, at: string | null) =>
+      postMessage(
+        s.profile_id,
+        s.account_id,
+        q,
+        { intentLlm: intentAs("ask"), answerLlm: capture },
+        "owner",
+        "en",
+        at,
+      );
+    const first = await ask("How do I connect my shop?", "/stock");
+    await ask("And where is my cash forecast?", null);
+    await ask("What is this?", "/not-a-screen?x=1");
+
+    // The guide: every screen with its path, byte-identical turn after turn.
+    expect(seen[0]?.guide).toContain("Connections [/connections]");
+    expect(seen[0]?.guide).toContain("The interview [/intake]");
+    expect(seen[1]?.guide).toBe(seen[0]?.guide);
+    // The screen they asked from is said with the question, and only a real one.
+    expect(seen[0]?.user).toBe(
+      '(Asked from the screen "Stock" [/stock].)\n\nHow do I connect my shop?',
+    );
+    expect(seen[1]?.user).toBe("And where is my cash forecast?");
+    expect(seen[2]?.user).toBe("What is this?");
+    // What is kept is the owner's own words, without that line.
+    expect(first.owner.text).toBe("How do I connect my shop?");
+    const thread = await readThread(s.profile_id);
+    expect(thread.filter((t) => t.role === "owner").map((t) => t.text)).toEqual([
+      "How do I connect my shop?",
+      "And where is my cash forecast?",
+      "What is this?",
+    ]);
+  });
+
   it("L-5: the asker's language rides beside it, and the cached system is the same in every language", async () => {
     const s = await fresh();
     const seen: { system: string; language: string | undefined }[] = [];

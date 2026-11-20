@@ -272,7 +272,7 @@
     "status": {
       "measuring": "Midiendo",
       "done": "Completado",
-      "needsChannel": "Necesita CN {channel}",
+      "needsChannel": "Necesita la parte {channel}",
       "needsArea": "Necesita {area}",
       "notOpen": "Aún no disponible",
       "notStarted": "Sin empezar",
@@ -280,15 +280,15 @@
       "inProgress": "En curso"
     },
     "bank": {
-      "now": "CN {channel} · {area} · <fig>{pct} %</fig>",
+      "now": "Parte {channel} · {area} · <fig>{pct} %</fig>",
       "done": "<fig>{done}</fig> de {total} completadas",
-      "hide": "Ocultar canales",
-      "all": "Todos los canales",
+      "hide": "Ocultar las partes",
+      "all": "Todas las partes",
       "legendOwner": "aportado por usted",
       "legendMeasured": "leído de {connector}",
-      "tileChannel": "CN {channel}",
+      "tileChannel": "Parte {channel}",
       "tilePct": "{pct} %",
-      "tileWords": "Canal {channel}, {area}: {status}, {pct} % respondido, {bars}.",
+      "tileWords": "Parte {channel}, {area}: {status}, {pct} % respondido, {bars}.",
       "tileAsk": "{words} Preguntar sobre esta área.",
       "bar": {
         "owner": "{count, plural, one {# respondida por usted} many {# respondidas por usted} other {# respondidas por usted}}",
@@ -338,13 +338,14 @@
     },
     "question": {
       "ref": "P <fig>{id}</fig>",
-      "channel": "Canal <fig>{channel}</fig>",
-      "left": "{left, plural, one {<fig>#</fig> pendiente en este canal} many {<fig>#</fig> pendientes en este canal} other {<fig>#</fig> pendientes en este canal}} · unos {minutes, plural, one {<fig>#</fig> min} many {<fig>#</fig> min} other {<fig>#</fig> min}}",
+      "channel": "Parte <fig>{channel}</fig>",
+      "left": "{left, plural, one {<fig>#</fig> pendiente en esta parte} many {<fig>#</fig> pendientes en esta parte} other {<fig>#</fig> pendientes en esta parte}} · unos {minutes, plural, one {<fig>#</fig> min} many {<fig>#</fig> min} other {<fig>#</fig> min}}",
       "measured": "Ya medido · {provider}",
       "missing": "La pieza que falta",
       "missingRest": "el resto: lo que {provider} no mide",
       "ruler": "Referencia medida: {value}",
       "backTitle": "Reabre esa respuesta para cambiarla; la anterior queda en el historial",
+      "back": "Atrás",
       "skip": "Omitir por ahora",
       "next": "Siguiente",
       "yes": "Sí",
@@ -375,7 +376,7 @@
       "addRow": "Añadir otra fila"
     },
     "record": {
-      "channelTitle": "Canal {channel} · {area}",
+      "channelTitle": "Parte {channel} · {area}",
       "facts": "{count, plural, one {<fig>#</fig> dato} many {<fig>#</fig> datos} other {<fig>#</fig> datos}}",
       "empty": "Todavía no hay nada registrado en esta área.",
       "listLabel": "Datos registrados en {area}",
@@ -1172,6 +1173,7 @@
       "gaps": "{count, plural, one {<b>#</b> registrado como «no se sabe»} many {<b>#</b> registrados como «no se sabe»} other {<b>#</b> registrados como «no se sabe»}}"
     },
     "recordLabel": "El registro",
+    "parts": "Las partes de esta pantalla",
     "search": "Buscar en el registro",
     "filterLabel": "Filtrar el registro",
     "filter": {
@@ -1636,7 +1638,7 @@
     },
     "note": {
       "queued": "Al aprobarla, queda en cola para ejecutarse no antes del {day}, a las {clock}. La aprobación no se puede retirar; la parada de emergencia aún puede detenerla.",
-      "noTime": "Al aprobarla, se registra su sí con su nombre. Sin hora fijada, no se ejecuta por sí sola."
+      "noTime": "Al aprobarla, se registra su sí con su nombre. No tiene hora fijada, así que no la ejecutaré por mi cuenta."
     },
     "lapsed": "Usted la aprobó, pero caducó antes de poder ejecutarse: no se ha ejecutado nada.",
     "card": {
@@ -4705,6 +4707,7 @@
       "link": "Abrir Pendiente de usted"
     },
     "sendFailed": "Algo ha salido mal por mi parte. ¿Puede repetirlo?",
+    "retry": "Reintentar",
     "composer": {
       "label": "Pregunte sobre {noun}",
       "placeholder": "Escriba una pregunta…",
@@ -4737,7 +4740,16 @@
       "prepared": "Preparado, aún sin hacer · {screen}"
     },
     "descriptor": "Responde con los datos de su negocio. Nada cambia sin su aprobación.",
-    "openFull": "Abrir la conversación completa"
+    "openFull": "Abrir la conversación completa",
+    "interview": {
+      "withLex": "Hacerla con Lex",
+      "intro": "Una pregunta cada vez. Elija una respuesta o escríbala. Puede parar cuando quiera: lo que haya respondido se conserva.",
+      "left": "{count, plural, one {# pendiente en esta parte} many {# pendientes en esta parte} other {# pendientes en esta parte}}",
+      "unclear": "No sé dónde van los decimales en esa cifra. Escríbala sin separador de miles, por ejemplo {example}.",
+      "onForm": "Esta se responde en el formulario.",
+      "openForm": "Abrirla allí",
+      "stop": "Parar aquí"
+    }
   },
   "mode": {
     "meta": {
@@ -10345,7 +10357,8 @@
       "cashCmp": "colchón {line}",
       "cashZero": "sin colchón indicado",
       "lowest": "Punto más bajo previsto",
-      "lowestCmp": "semana del {date}"
+      "lowestCmp": "semana del {date}",
+      "lowestAbove": "semana del {date}, por encima de hoy"
     },
     "flag": {
       "under": "Bajo el colchón",

@@ -46,6 +46,7 @@ import { LexFace, lexState } from "../brand/LexFace";
 import { HBars, Trend } from "../charts/Viz";
 import type { BarRow } from "../charts/Viz";
 import { ChatBusy, ChatTurn } from "../chat/ChatTurn";
+import { TryAgain } from "../chat/TryAgain";
 import { Composer } from "../chat/Composer";
 import { latestExchange, latestQuestion } from "../chat/chat-view";
 import { useChat } from "../chat/useChat";
@@ -132,10 +133,11 @@ const PRICE_KEY: Readonly<Record<string, string>> = {
 /** The screen that owns each priced part of the month. */
 const COMPONENT_HREF: Readonly<Record<ComponentKey, string>> = {
   revenue_dips: "/watch",
-  no_shows: "/profile",
-  late_cancellations: "/profile",
-  empty_capacity: "/profile",
-  losing_ads: "/profile",
+  // The fact sheet's second part: its charts of bookings and ads.
+  no_shows: "/profile?tab=charts",
+  late_cancellations: "/profile?tab=charts",
+  empty_capacity: "/profile?tab=charts",
+  losing_ads: "/profile?tab=charts",
   slow_stock: "/stock",
   on_the_table: "/proposals",
 };
@@ -361,9 +363,14 @@ export function HomeScreen() {
         {fresh && (
           <>
             <p className="home-ans">{t("fresh.lede")}</p>
-            <Link className="home-btn home-btn-desk" href="/intake">
-              {t("fresh.start")}
-            </Link>
+            <p className="home-fresh-acts">
+              <Link className="home-btn home-btn-desk home-btn-first" href="/chat?interview=1">
+                {chatTr("interview.withLex")}
+              </Link>
+              <Link className="home-btn home-btn-desk" href="/intake">
+                {t("fresh.start")}
+              </Link>
+            </p>
           </>
         )}
         {top && !fresh && (
@@ -458,6 +465,12 @@ export function HomeScreen() {
                           )}
                         </>
                       )}
+                      <TryAgain
+                        chat={chat}
+                        turn={turn}
+                        last={i === exchange.length - 1}
+                        tr={chatTr}
+                      />
                     </ChatTurn>
                   ))}
                   {busy && <ChatBusy text={chatTr("thinking")} />}
@@ -571,7 +584,9 @@ export function HomeScreen() {
                     {whole(cash.lowest.low, cash.currency, locale)}
                   </span>
                   <span className="home-r-cmp">
-                    {t("readings.lowestCmp", { date: shortDay(cash.lowest.start, locale) })}
+                    {t(cash.lowest.aboveToday ? "readings.lowestAbove" : "readings.lowestCmp", {
+                      date: shortDay(cash.lowest.start, locale),
+                    })}
                   </span>
                   <span className="home-r-foot">
                     <span className={`flag ${cash.lowest.under ? "drift" : "ok"}`}>

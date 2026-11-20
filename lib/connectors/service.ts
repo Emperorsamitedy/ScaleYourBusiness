@@ -10,7 +10,7 @@
 // is an explicit field list — not an Omit<> over the row type — so adding
 // a column to the table cannot silently widen what an API hands out.
 
-import { and, eq, ne } from "drizzle-orm";
+import { and, count, eq, ne } from "drizzle-orm";
 import { sql } from "drizzle-orm";
 import { db } from "../../db";
 import { abandonedCheckouts, connections, metricObservations } from "../../db/schema";
@@ -230,6 +230,27 @@ export async function resumeConnection(connectionId: string): Promise<PublicConn
 }
 
 /** The account's MEASURE connections (P3-20b): execute rows are listed by lib/execution/connections. */
+/**
+ * Sources on the account that stopped reading by themselves: parked as
+ * "failed" after repeated read failures (lib/connectors/sync.ts), and left
+ * until the owner resumes or reconnects them. It is what the menu counts as
+ * needing the owner (/api/nav). A source the owner paused is their own
+ * choice, so it is not one of these.
+ */
+export async function countStoppedReads(accountId: string): Promise<number> {
+  const [row] = await db
+    .select({ n: count() })
+    .from(connections)
+    .where(
+      and(
+        eq(connections.account_id, accountId),
+        eq(connections.purpose, "measure"),
+        eq(connections.status, "failed"),
+      ),
+    );
+  return Number(row?.n ?? 0);
+}
+
 export async function listConnections(accountId: string): Promise<PublicConnection[]> {
   const rows = await db
     .select()

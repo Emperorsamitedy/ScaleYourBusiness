@@ -11,6 +11,7 @@
 // change (its summary, values, screen name, button and result, built on
 // the server), are shown as they are.
 
+import { withoutCitations } from "../../lib/assistant/guide";
 import type { ChangeCardView } from "../../lib/assistant/view";
 import { dayMonth } from "../../lib/i18n/format";
 import type { AppLocale } from "../../lib/i18n/locales";
@@ -77,9 +78,13 @@ export function earlierQuestions(turns: readonly Turn[], max = 6): Turn[] {
     .slice(0, max);
 }
 
-/** A reply's paragraphs, as the model wrote them. */
+/**
+ * A reply's paragraphs, as the model wrote them, without the paths of the
+ * screens it names: those are drawn as buttons under the reply (`linksIn`,
+ * lib/assistant/guide).
+ */
 export const paragraphs = (text: string): string[] =>
-  text
+  withoutCitations(text)
     .split(/\n{2,}/)
     .map((p) => p.trim())
     .filter((p) => p !== "");

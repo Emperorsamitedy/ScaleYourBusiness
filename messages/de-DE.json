@@ -272,7 +272,7 @@
     "status": {
       "measuring": "Misst gerade",
       "done": "Fertig",
-      "needsChannel": "Braucht K {channel}",
+      "needsChannel": "Braucht Teil {channel}",
       "needsArea": "Braucht {area}",
       "notOpen": "Noch nicht offen",
       "notStarted": "Nicht begonnen",
@@ -280,15 +280,15 @@
       "inProgress": "In Arbeit"
     },
     "bank": {
-      "now": "K {channel} · {area} · <fig>{pct}%</fig>",
+      "now": "Teil {channel} · {area} · <fig>{pct}%</fig>",
       "done": "<fig>{done}</fig> von {total} fertig",
-      "hide": "Kanäle ausblenden",
-      "all": "Alle Kanäle",
+      "hide": "Teile ausblenden",
+      "all": "Alle Teile",
       "legendOwner": "von Ihnen",
       "legendMeasured": "aus {connector} gelesen",
-      "tileChannel": "K {channel}",
+      "tileChannel": "Teil {channel}",
       "tilePct": "{pct}%",
-      "tileWords": "Kanal {channel}, {area}: {status}, {pct}% beantwortet, {bars}.",
+      "tileWords": "Teil {channel}, {area}: {status}, {pct}% beantwortet, {bars}.",
       "tileAsk": "{words} Fragen aus diesem Bereich stellen.",
       "bar": {
         "owner": "{count, plural, one {# von Ihnen} other {# von Ihnen}}",
@@ -338,13 +338,14 @@
     },
     "question": {
       "ref": "F <fig>{id}</fig>",
-      "channel": "Kanal <fig>{channel}</fig>",
-      "left": "{left, plural, one {noch <fig>#</fig> in diesem Kanal} other {noch <fig>#</fig> in diesem Kanal}} · etwa {minutes, plural, one {<fig>#</fig> Min.} other {<fig>#</fig> Min.}}",
+      "channel": "Teil <fig>{channel}</fig>",
+      "left": "{left, plural, one {noch <fig>#</fig> in diesem Teil} other {noch <fig>#</fig> in diesem Teil}} · etwa {minutes, plural, one {<fig>#</fig> Min.} other {<fig>#</fig> Min.}}",
       "measured": "Bereits gemessen · {provider}",
       "missing": "Das fehlende Stück",
       "missingRest": "der Rest: was {provider} nicht misst",
       "ruler": "Gemessener Bezugswert: {value}",
       "backTitle": "Öffnet diese Antwort zum Ändern; die alte bleibt im Verlauf",
+      "back": "Zurück",
       "skip": "Vorerst überspringen",
       "next": "Weiter",
       "yes": "Ja",
@@ -375,7 +376,7 @@
       "addRow": "Weitere Zeile hinzufügen"
     },
     "record": {
-      "channelTitle": "Kanal {channel} · {area}",
+      "channelTitle": "Teil {channel} · {area}",
       "facts": "{count, plural, one {<fig>#</fig> Fakt} other {<fig>#</fig> Fakten}}",
       "empty": "In diesem Bereich ist noch nichts erfasst.",
       "listLabel": "Erfasste Fakten in {area}",
@@ -1078,6 +1079,7 @@
       "gaps": "{count, plural, one {<b>#</b> als unbekannt erfasst} other {<b>#</b> als unbekannt erfasst}}"
     },
     "recordLabel": "Die Akte",
+    "parts": "Die Teile dieser Seite",
     "search": "Die Akte durchsuchen",
     "filterLabel": "Die Akte filtern",
     "filter": {
@@ -1542,7 +1544,7 @@
     },
     "note": {
       "queued": "Mit der Freigabe wird er frühestens für {day}, {clock} eingeplant. Eine Freigabe lässt sich nicht zurücknehmen; der Notstopp kann ihn trotzdem anhalten.",
-      "noTime": "Die Freigabe erfasst Ihr Ja mit Ihrem Namen. Ohne festen Zeitpunkt wird er nicht von selbst ausgeführt."
+      "noTime": "Die Freigabe erfasst Ihr Ja mit Ihrem Namen. Es ist kein Zeitpunkt festgelegt, deshalb führe ich ihn nicht von selbst aus."
     },
     "lapsed": "Sie haben das freigegeben, aber es ist verfallen, bevor es ausgeführt werden konnte. Nichts wurde ausgeführt.",
     "card": {
@@ -4705,6 +4707,7 @@
       "link": "„Wartet auf Sie“ öffnen"
     },
     "sendFailed": "Bei mir ist etwas schiefgelaufen. Können Sie das noch einmal sagen?",
+    "retry": "Erneut versuchen",
     "composer": {
       "label": "Frage zum Thema {noun}",
       "placeholder": "Frage eingeben…",
@@ -4737,7 +4740,16 @@
       "prepared": "Entworfen, noch nicht vorgenommen · {screen}"
     },
     "descriptor": "Antwortet aus den Fakten Ihres Unternehmens. Nichts ändert sich ohne Ihre Freigabe.",
-    "openFull": "Das ganze Gespräch öffnen"
+    "openFull": "Das ganze Gespräch öffnen",
+    "interview": {
+      "withLex": "Mit Lex durchgehen",
+      "intro": "Eine Frage nach der anderen. Wählen Sie eine Antwort oder tippen Sie sie ein. Sie können jederzeit aufhören: Ihre Antworten bleiben erhalten.",
+      "left": "{count, plural, one {noch # in diesem Teil} other {noch # in diesem Teil}}",
+      "unclear": "Ich kann nicht erkennen, wo das Dezimalzeichen steht. Schreiben Sie die Zahl ohne Tausendertrennzeichen, zum Beispiel {example}.",
+      "onForm": "Diese Frage wird im Formular beantwortet.",
+      "openForm": "Dort öffnen",
+      "stop": "Hier aufhören"
+    }
   },
   "mode": {
     "meta": {
@@ -10345,7 +10357,8 @@
       "cashCmp": "Puffer {line}",
       "cashZero": "kein Puffer angegeben",
       "lowest": "Tiefster Punkt voraus",
-      "lowestCmp": "Woche vom {date}"
+      "lowestCmp": "Woche vom {date}",
+      "lowestAbove": "Woche vom {date}, höher als heute"
     },
     "flag": {
       "under": "Unter Puffer",

@@ -648,7 +648,11 @@ function AskLex({ path, stopped }: { path: string; stopped: boolean | null }) {
   );
 }
 
-/** Lex above the bar on a phone, wherever the page has no composer of its own. */
+/**
+ * Lex's face afloat in the corner (above the bar on a phone), wherever the
+ * page has no composer of its own: the second place Lex is always found
+ * (L4b). It gives way to the pop-up it opens (app/shell.css).
+ */
 function LexFab({ path, stopped }: { path: string; stopped: boolean | null }) {
   const t = useTranslations("nav");
   const lex = useLex();
@@ -881,6 +885,7 @@ export function AppFrame({ children }: { children: ReactNode }) {
                       key={p.key}
                       href={placeHome(p.key, groups)}
                       className="sx-place"
+                      title={placeName(t, p.key)}
                       aria-current={place === p.key ? "page" : undefined}
                     >
                       <PlaceIcon place={p.key} />

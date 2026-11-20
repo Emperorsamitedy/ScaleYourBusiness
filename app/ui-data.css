@@ -105,12 +105,12 @@
 
 /* The owner app's shape (app/sheet.css): the row is one rounded track on the
    desk and the open tab a paper pill inside it. */
-:root:has(.app-frame, .q-app, .rq) .ui-tabs {
+:root:has(.app-frame, .q-app, .rq, .ix) .ui-tabs {
   padding: 4px;
   border-radius: 14px;
   background: var(--masthead);
 }
-:root:has(.app-frame, .q-app, .rq) .ui-tab {
+:root:has(.app-frame, .q-app, .rq, .ix) .ui-tab {
   flex: 1 1 0;
   justify-content: center;
   min-height: 36px;
@@ -119,14 +119,14 @@
   font-size: 13.5px;
   font-weight: 500;
 }
-:root:has(.app-frame, .q-app, .rq) .ui-tab:hover {
+:root:has(.app-frame, .q-app, .rq, .ix) .ui-tab:hover {
   background: var(--raised);
 }
-:root:has(.app-frame, .q-app, .rq) .ui-tab.on {
+:root:has(.app-frame, .q-app, .rq, .ix) .ui-tab.on {
   background: var(--paper);
   font-weight: 600;
 }
-:root:has(.app-frame, .q-app, .rq) .ui-tab-count {
+:root:has(.app-frame, .q-app, .rq, .ix) .ui-tab-count {
   padding: 0 7px;
   border-radius: var(--r-pill);
   background: var(--accent);
@@ -136,6 +136,6 @@
   font-weight: 500;
   line-height: 18px;
 }
-:root:has(.app-frame, .q-app, .rq) .ui-skel i {
+:root:has(.app-frame, .q-app, .rq, .ix) .ui-skel i {
   border-radius: 6px;
 }

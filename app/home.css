@@ -117,6 +117,21 @@
   background: var(--desk-ink);
   color: var(--desk);
 }
+/* The two ways into the interview, side by side: with Lex first. */
+.home-fresh-acts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 0;
+}
+.home .home-btn-first {
+  background: var(--desk-ink);
+  color: var(--desk);
+}
+.home .home-btn-first:hover {
+  background: transparent;
+  color: var(--desk-ink);
+}
 /* an action inside a line of text */
 .home-link {
   font-family: var(--f-mono);

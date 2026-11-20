@@ -13,21 +13,35 @@
 // state, change cards, a request that became a proposal answered in place,
 // and the composer in its foot. Nothing here runs anything: a reply only
 // ever drafts, and the click on a card is the one thing that writes.
+//
+// The owner's third round, L4b ("an interactive pop-up, and present in more
+// places than one"): on a wide screen Lex is a pop-up in the corner, not a
+// sheet over the page. It is not modal: the page beside it stays in reach,
+// and it stays open from screen to screen until it is closed, so an answer
+// can be read while the screen it is about is opened. A phone has no room
+// beside the page and keeps the full-screen sheet. Lex's face floats in the
+// same corner of every screen that has no composer of its own
+// (components/nav/AppFrame.tsx).
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import type { ReactNode } from "react";
 import Link from "next/link";
-import { useMessages } from "next-intl";
+import { Maximize2, X } from "lucide-react";
+import { useMessages, useTranslations } from "next-intl";
 import { ASSISTANT } from "../../lib/core/assistant";
+import { LexFace, lexState } from "../brand/LexFace";
 import { ChatBusy, ChatTurn } from "../chat/ChatTurn";
 import { Composer } from "../chat/Composer";
 import { chipQuestions } from "../chat/ChatScreen";
 import { InPlaceDecision } from "../chat/InPlaceDecision";
 import { InterviewOffer } from "../chat/InterviewOffer";
+import { LexInterview } from "../chat/LexInterview";
+import { TryAgain } from "../chat/TryAgain";
 import { SharedChatProvider, useChatCore } from "../chat/useChat";
 import type { Chat } from "../chat/useChat";
 import { knowsNothing } from "../home/next-steps";
 import { useTr } from "../sheet/useTr";
+import { IconButton } from "../ui/IconButton";
 import { Sheet } from "../ui/Sheet";
 import { LexApiProvider, LexBusyProvider } from "./NavContext";
 import type { LexApi } from "./NavContext";
@@ -40,20 +54,63 @@ export function inlineComposer(path: string): string | null {
   return null;
 }
 
-function LexSheet({
-  chat,
-  open,
-  onClose,
-  business,
-  facts,
-}: {
+/** The width from which Lex is a pop-up beside the page; under it, the full-screen sheet. */
+export const LEX_POPUP_FROM = 760;
+
+/**
+ * Pure: whether Lex stays open when the page changes. Beside the page (a
+ * pop-up) it does, unless the new page has the conversation on it already;
+ * over the page (the sheet) a link inside it has done its job.
+ */
+export function staysOpen(path: string, wide: boolean): boolean {
+  return wide && inlineComposer(path) === null;
+}
+
+/** Whether the window is wide enough for the pop-up; false until the browser says. */
+function useWide(): boolean {
+  const [wide, setWide] = useState(false);
+  useEffect(() => {
+    const q = window.matchMedia(`(min-width: ${LEX_POPUP_FROM}px)`);
+    const read = () => setWide(q.matches);
+    read();
+    q.addEventListener("change", read);
+    return () => q.removeEventListener("change", read);
+  }, []);
+  return wide;
+}
+
+interface LexViewProps {
   chat: Chat;
   open: boolean;
   onClose: () => void;
   business: string | null;
   /** Facts on the fact sheet; null while unknown. Zero: Lex offers the interview (L8). */
   facts: number | null;
-}) {
+}
+
+/** The composer in Lex's foot, the same in the sheet and in the pop-up. */
+function LexComposer({ chat, business }: { chat: Chat; business: string | null }) {
+  const { tr } = useTr("chat");
+  const s = chat.state;
+  if (s.phase !== "ready") return null;
+  return (
+    <Composer
+      id="lex-ask"
+      compact
+      autoFocus
+      label={tr("composer.label", { noun: business ?? tr("yourBusiness") })}
+      draft={s.draft}
+      busy={s.busy}
+      setDraft={chat.setDraft}
+      draftRef={chat.draftRef}
+      onSend={() => void chat.send(tr("sendFailed"))}
+      tr={tr}
+    />
+  );
+}
+
+/** What Lex holds, the same in the sheet and in the pop-up: the thread and its states. */
+function LexThread({ chat, open, facts }: { chat: Chat; open: boolean; facts: number | null }) {
   const { tr, locale } = useTr("chat");
   const chips = chipQuestions(useMessages());
   const end = useRef<HTMLDivElement | null>(null);
@@ -61,49 +118,34 @@ function LexSheet({
   const count = s.phase === "ready" ? s.turns.length : 0;
   const busy = s.phase === "ready" && s.busy;
 
-  // Follow the thread as it grows, and land on its end when the sheet opens.
+  // Follow the thread as it grows, and land on its end when Lex opens.
   useEffect(() => {
     if (open) end.current?.scrollIntoView({ block: "end" });
   }, [open, count, busy]);
 
-  // Opened before the thread had loaded, the sheet had only Close to focus:
+  // Opened before the thread had loaded, there was only Close to focus:
   // the composer takes the cursor as soon as it exists.
   const ready = s.phase === "ready";
   useEffect(() => {
     if (open && ready) document.getElementById("lex-ask")?.focus({ preventScroll: true });
   }, [open, ready]);
 
+  // The interview with Lex takes the thread's place while it runs (M4).
+  const [interviewing, setInterviewing] = useState(false);
   const now = Date.now();
+  if (interviewing && s.phase === "ready") {
+    return <LexInterview onStop={() => setInterviewing(false)} />;
+  }
   return (
-    <Sheet
-      open={open}
-      onClose={onClose}
-      title={ASSISTANT}
-      kicker={business ?? undefined}
-      width={560}
-      foot={
-        s.phase === "ready" ? (
-          <Composer
-            id="lex-ask"
-            compact
-            autoFocus
-            label={tr("composer.label", { noun: business ?? tr("yourBusiness") })}
-            draft={s.draft}
-            busy={s.busy}
-            setDraft={chat.setDraft}
-            draftRef={chat.draftRef}
-            onSend={() => void chat.send(tr("sendFailed"))}
-            tr={tr}
-          />
-        ) : undefined
-      }
-    >
+    <>
       {s.phase === "loading" && <p className="lx-note">{tr("loading")}</p>}
       {s.phase === "signedout" && <p className="lx-note">{tr("signedOut.copy")}</p>}
       {s.phase === "error" && <p className="lx-note">{tr("error.copy")}</p>}
       {s.phase === "ready" && (
         <div className="lx-thread" aria-live="polite">
-          {s.turns.length === 0 && knowsNothing(facts) && <InterviewOffer />}
+          {s.turns.length === 0 && knowsNothing(facts) && (
+            <InterviewOffer onWithLex={() => setInterviewing(true)} />
+          )}
           {s.turns.length === 0 && !knowsNothing(facts) && (
             <div className="ak-start">
               <p className="ak-descriptor">{tr("descriptor")}</p>
@@ -137,16 +179,117 @@ function LexSheet({
               {i === s.turns.length - 1 && turn.role === "system" && s.lastProposal && (
                 <InPlaceDecision id={s.lastProposal} />
               )}
+              <TryAgain chat={chat} turn={turn} last={i === s.turns.length - 1} tr={tr} />
             </ChatTurn>
           ))}
           {s.busy && <ChatBusy text={tr("thinking")} />}
+          {!knowsNothing(facts) && !s.busy && (
+            <p className="lxi-start">
+              <button type="button" className="lxi-link" onClick={() => setInterviewing(true)}>
+                {tr("interview.withLex")}
+              </button>
+            </p>
+          )}
           <div ref={end} />
         </div>
       )}
+    </>
+  );
+}
+
+/** Lex over the page: a phone's full-screen sheet. */
+function LexSheet({ chat, open, onClose, business, facts }: LexViewProps) {
+  const { tr } = useTr("chat");
+  return (
+    <Sheet
+      open={open}
+      onClose={onClose}
+      title={ASSISTANT}
+      kicker={business ?? undefined}
+      width={560}
+      foot={
+        chat.state.phase === "ready" ? <LexComposer chat={chat} business={business} /> : undefined
+      }
+    >
+      <LexThread chat={chat} open={open} facts={facts} />
       <p className="lx-full">
         <Link href="/chat">{tr("openFull")}</Link>
       </p>
     </Sheet>
+  );
+}
+
+/**
+ * Lex beside the page: a pop-up in the corner of a wide screen. A dialog
+ * that is not modal: nothing behind it is covered or held still, Escape
+ * closes it while the cursor is inside, and the cursor goes back to what
+ * opened it.
+ */
+function LexPop({ chat, open, onClose, business, facts }: LexViewProps) {
+  const { tr } = useTr("chat");
+  const common = useTranslations("common");
+  const opener = useRef<HTMLElement | null>(null);
+  const s = chat.state;
+  const busy = s.phase === "ready" && s.busy;
+
+  // Remember what had the cursor when Lex opened, and hand it back on closing.
+  useEffect(() => {
+    if (!open) return;
+    opener.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    return () => {
+      const back = opener.current;
+      // Only when the cursor is still inside Lex: a person who has clicked
+      // somewhere on the page keeps their place there.
+      const inside = document.activeElement?.closest(".lx-pop") !== null;
+      if (back && back.isConnected && (inside || document.activeElement === document.body)) {
+        back.focus({ preventScroll: true });
+      }
+    };
+  }, [open]);
+
+  if (!open) return null;
+  return (
+    <aside
+      className="lx-pop"
+      role="dialog"
+      aria-modal="false"
+      aria-labelledby="lx-pop-title"
+      onKeyDown={(e) => {
+        if (e.key === "Escape") {
+          e.stopPropagation();
+          onClose();
+        }
+      }}
+    >
+      <header className="lx-pop-head">
+        <LexFace size={30} state={lexState({ working: busy })} />
+        <div className="lx-pop-who">
+          <h2 className="lx-pop-title" id="lx-pop-title">
+            {ASSISTANT}
+          </h2>
+          {business && <p className="lx-pop-kicker">{business}</p>}
+        </div>
+        <Link
+          className="ui-icon-btn"
+          href="/chat"
+          aria-label={tr("openFull")}
+          title={tr("openFull")}
+        >
+          <Maximize2 size={16} strokeWidth={1.75} aria-hidden="true" />
+        </Link>
+        <IconButton label={common("close")} onClick={onClose}>
+          <X size={18} strokeWidth={1.75} aria-hidden="true" />
+        </IconButton>
+      </header>
+      <div className="lx-pop-body">
+        <LexThread chat={chat} open={open} facts={facts} />
+      </div>
+      {s.phase === "ready" && (
+        <footer className="lx-pop-foot">
+          <LexComposer chat={chat} business={business} />
+        </footer>
+      )}
+    </aside>
   );
 }
 
@@ -169,12 +312,17 @@ export function LexHost({
   const shared = useChatCore(true);
   const { tr } = useTr("chat");
   const [open, setOpen] = useState(false);
+  const wide = useWide();
   // The latest of each, so `open()` keeps one identity for its callers.
-  const live = useRef({ path, shared, failed: tr("sendFailed") });
-  live.current = { path, shared, failed: tr("sendFailed") };
+  const live = useRef({ path, shared, failed: tr("sendFailed"), wide });
+  live.current = { path, shared, failed: tr("sendFailed"), wide };
 
-  // A link inside the sheet moved the page: the sheet has done its job.
-  useEffect(() => setOpen(false), [path]);
+  // The page changed. The pop-up stays beside it (L4b); the sheet, which
+  // covers the page, has done its job, and so has either on a page that
+  // holds the conversation itself.
+  useEffect(() => {
+    if (!staysOpen(path, live.current.wide)) setOpen(false);
+  }, [path]);
 
   const api = useMemo<LexApi>(
     () => ({
@@ -202,13 +350,23 @@ export function LexHost({
       <LexApiProvider value={api}>
         <LexBusyProvider value={busy}>
           {children}
-          <LexSheet
-            chat={shared.chat}
-            open={open}
-            onClose={() => setOpen(false)}
-            business={business}
-            facts={facts}
-          />
+          {wide ? (
+            <LexPop
+              chat={shared.chat}
+              open={open}
+              onClose={() => setOpen(false)}
+              business={business}
+              facts={facts}
+            />
+          ) : (
+            <LexSheet
+              chat={shared.chat}
+              open={open}
+              onClose={() => setOpen(false)}
+              business={business}
+              facts={facts}
+            />
+          )}
         </LexBusyProvider>
       </LexApiProvider>
     </SharedChatProvider>

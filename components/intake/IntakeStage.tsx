@@ -503,7 +503,7 @@ export function IntakeStage() {
               <h2 className="ix-prompt">{t("stage.bootTitle")}</h2>
               <div className="ix-actions">
                 <button type="button" className="act solid" onClick={() => void boot()}>
-                  {t("stage.retry")} &rarr;
+                  {t("stage.retry")}
                 </button>
               </div>
               <details className="ix-how">

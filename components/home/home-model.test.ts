@@ -80,8 +80,21 @@ describe("Home: the cash figures", () => {
   it("says cash today is under the buffer, and which week is lowest", () => {
     const r = cashReading(ready(90000, 950000, 766800, true));
     expect(r?.under).toBe(true);
-    expect(r?.lowest).toEqual({ start: "2026-11-16", low: 766800, under: true });
+    // Today (900.00) is lower than every week ahead: the tile says the
+    // lowest week is above today, so the larger figure does not read as a mistake.
+    expect(r?.lowest).toEqual({
+      start: "2026-11-16",
+      low: 766800,
+      under: true,
+      aboveToday: true,
+    });
     expect(r?.tight).toEqual({ start: "2026-11-09", low: 766800 });
+  });
+
+  it("a week ahead that dips under today is simply the lowest point", () => {
+    expect(cashReading(ready(2000000, 950000, 1200000, false))?.lowest.aboveToday).toBe(false);
+    // Level with today is not above it.
+    expect(cashReading(ready(1200000, 950000, 1200000, false))?.lowest.aboveToday).toBe(false);
   });
 
   it("says nothing is tight when the forecast stays above the line", () => {

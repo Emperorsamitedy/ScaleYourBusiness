@@ -1522,3 +1522,378 @@ button.ix-tile:disabled {
 .ix-q-foot .ix-how {
   margin: 0;
 }
+
+/* ══ The interview in the owner app's look (the owner's fourth round, 2026-11-20:
+   "the interview pages aren't updated and they look soooooo bad"). The
+   interview joined the app's type and shape tokens (app/sheet.css: one plain
+   sans, sentence case, curves). This block is what the tokens alone do not
+   reach: no capitals, no ink band, no graph paper, no numeral behind the
+   question, rounded cards and controls, a solid Next. The structure is as it
+   was: the strip of parts, the question, the cards beside it, the tape. ══ */
+
+/* captions, notes and links: sentence case at the app's sizes */
+.ix .ix-cap,
+.ix .ix-label {
+  font-size: 12.5px;
+  letter-spacing: 0;
+  text-transform: none;
+}
+.ix .ix-note {
+  font-size: 13px;
+  letter-spacing: 0;
+}
+.ix .ix-link {
+  font-size: 13.5px;
+  letter-spacing: 0;
+  text-transform: none;
+}
+.ix .ix-err {
+  font-size: 13.5px;
+}
+
+/* the bar across the top: the app's own, a hairline under it */
+.ix-mast {
+  border-bottom: 1px solid var(--desk-rule);
+}
+.ix-mast-sub,
+.ix-mast-fig {
+  font-size: 13.5px;
+  letter-spacing: 0;
+}
+.ix-machine {
+  font-size: 13.5px;
+}
+.ix-machine-sq {
+  border-radius: 50%;
+}
+.ix-pause {
+  min-height: 36px;
+  padding: 0 16px;
+  border: 1px solid var(--desk-rule);
+  border-radius: var(--r-pill);
+  font-size: 13.5px;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+  text-decoration: none;
+  transition: background-color 0.16s var(--ease-out);
+}
+.ix-pause:hover,
+.ix-pause[aria-expanded="true"] {
+  background: var(--raised);
+  text-decoration: none;
+}
+.ix-pause-panel {
+  padding: 18px 22px;
+}
+
+/* the strip of parts: one rounded track, as the app draws a row of tabs */
+.ix-bank-fold {
+  padding: 11px 18px;
+  border: 0;
+  border-radius: 14px;
+  background: var(--masthead);
+  font-size: 13.5px;
+  transition: background-color 0.16s var(--ease-out);
+}
+.ix-bank-fold:hover,
+.ix-bank-fold:focus-visible {
+  background: var(--raised);
+}
+.ix-bank .ix-cap {
+  font-size: 13.5px;
+}
+.ix-bank-cell {
+  height: 6px;
+  border: 0;
+  border-radius: 3px;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--desk-ink) 16%, transparent);
+}
+.ix-bank-cell > span {
+  background: var(--desk-ink-2);
+}
+.ix-bank-cell.live {
+  background: color-mix(in srgb, var(--accent-desk) 30%, transparent);
+}
+.ix-bank-cell.live > span {
+  background: var(--accent-desk);
+}
+.ix-bank-toggle {
+  font-weight: 500;
+  text-decoration: none;
+}
+.ix-tile {
+  border-radius: var(--r-ctl);
+}
+
+/* paper: rounded, edged by the desk around it */
+.ix .sheet,
+.ix .ix-card {
+  border: 0;
+  border-radius: var(--r-card);
+}
+.ix-card-head {
+  border-bottom: 1px solid var(--rule-soft);
+}
+.ix-card-title {
+  font-weight: var(--w-display, 650);
+  letter-spacing: var(--ls-display, -0.02em);
+}
+.ix-card-foot strong,
+.ix-rec-basis,
+.ix-badge,
+.ix-money-label {
+  letter-spacing: 0;
+  text-transform: none;
+}
+.ix-rec-src {
+  letter-spacing: 0;
+}
+.ix-badge {
+  border-radius: var(--r-pill);
+  padding-inline: 8px;
+}
+.ix-cell {
+  border-radius: 3px;
+}
+
+/* the question: one card, its place said quietly above it */
+.ix-q {
+  overflow: hidden;
+}
+.ix-q-band {
+  --ink: var(--sheet-ink);
+  padding: 18px 28px 0;
+  border-bottom: 0;
+  background: var(--paper);
+}
+.ix-q-band .ix-cap,
+.ix-q-band .ix-q-left {
+  font-size: 13px;
+  letter-spacing: 0;
+  color: var(--sheet-ink-2);
+}
+.ix-q-body {
+  padding: 12px 28px 22px;
+  background-image: none;
+}
+.ix-watermark {
+  display: none;
+}
+.ix-plain,
+.ix-done {
+  padding: 26px 28px;
+}
+.ix-prompt {
+  max-width: 34ch;
+  font-size: 30px;
+  font-weight: var(--w-display, 650);
+  line-height: 1.16;
+  letter-spacing: var(--ls-display, -0.02em);
+}
+.ix-measured,
+.ix-missing {
+  border-radius: var(--r-ctl);
+}
+.ix-measured-val,
+.ix-big,
+.ix-ready-pct {
+  font-family: var(--f-fig);
+}
+
+/* choices: separate rounded tiles, the picked one filled */
+.ix-opts {
+  gap: 8px;
+  border: 0;
+}
+.ix-opt {
+  min-height: 62px;
+  padding: 12px 40px 12px 16px;
+  border: 1px solid var(--rule);
+  border-radius: var(--r-ctl);
+  font-family: var(--f-ui);
+  transition:
+    background-color 0.16s var(--ease-out),
+    border-color 0.16s var(--ease-out),
+    color 0.16s var(--ease-out);
+}
+.ix-opt:hover {
+  border-color: var(--sheet-ink-2);
+}
+.ix-opt[aria-pressed="true"] {
+  border-color: var(--sheet-ink);
+}
+.ix-opt-label {
+  font-weight: 500;
+}
+.ix-opt-help {
+  font-size: 12.5px;
+}
+.ix-key {
+  border-radius: var(--r-xs);
+  font-family: var(--f-fig);
+}
+.ix-opt.ix-opt-unknown {
+  border: 1px dashed var(--sheet-ink-2);
+}
+.ix-opt-unknown .ix-opt-label {
+  font-size: 14px;
+  letter-spacing: 0;
+  text-transform: none;
+}
+.ix-chip {
+  border-color: var(--rule);
+  border-radius: var(--r-pill);
+  font-family: var(--f-ui);
+}
+.ix-chip[aria-pressed="true"] {
+  border-color: var(--sheet-ink);
+}
+
+/* fields: a box with a curve, the app's own field */
+.ix .ix-input {
+  padding: 12px 14px;
+  border: 1px solid var(--rule);
+  border-radius: var(--r-ctl);
+  background: color-mix(in srgb, var(--paper) 55%, #fff);
+}
+.ix .ix-input:focus {
+  border-color: var(--sheet-ink);
+}
+.ix .ix-textarea {
+  border-color: var(--rule);
+  border-radius: var(--r-ctl);
+  background: color-mix(in srgb, var(--paper) 55%, #fff);
+}
+.ix .ix-textarea:focus {
+  border-color: var(--sheet-ink);
+}
+.ix-money-box {
+  border-radius: var(--r-ctl);
+  background: color-mix(in srgb, var(--paper) 55%, #fff);
+}
+.ix .ix-num,
+.ix .ix-date,
+.ix .ix-money-input,
+.ix-money-mark {
+  font-family: var(--f-fig);
+}
+.ix-entity,
+.ix-filestub {
+  border-radius: var(--r-ctl);
+}
+
+/* the question's foot: Skip is quiet, Next is the one solid button */
+.ix-q-nav {
+  gap: 6px;
+}
+.ix-navlink {
+  min-height: 42px;
+  padding: 0 14px;
+  border-radius: var(--r-ctl);
+  color: var(--sheet-ink-2);
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+  text-decoration: none;
+  transition:
+    background-color 0.16s var(--ease-out),
+    color 0.16s var(--ease-out);
+}
+.ix-navlink:hover {
+  background: var(--inset);
+  color: var(--sheet-ink);
+  text-decoration: none;
+}
+.ix-navlink .ix-nav-ref {
+  margin-left: 4px;
+  font-weight: 400;
+}
+.ix-navlink.strong {
+  min-width: 108px;
+  padding: 0 24px;
+  background: var(--sheet-ink);
+  color: var(--paper);
+  font-weight: 600;
+}
+.ix-navlink.strong:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--sheet-ink) 86%, var(--paper));
+  color: var(--paper);
+}
+.ix-navlink:disabled {
+  color: var(--sheet-ink-2);
+  text-decoration: none;
+  opacity: 0.6;
+}
+.ix-navlink.strong:disabled {
+  background: var(--inset);
+  color: var(--sheet-ink-2);
+  opacity: 1;
+}
+.ix-purpose {
+  font-size: 13px;
+}
+
+/* the tape: the newest facts in the app's own type */
+.ix-tape-line {
+  font-size: 12.5px;
+}
+.ix-readout {
+  border-top-color: var(--rule);
+}
+
+/* second pass, after the walk in a browser */
+
+/* a part's status and the question's "Why?": sentence case */
+.ix-tile-status {
+  font-size: 12px;
+  letter-spacing: 0;
+  text-transform: none;
+}
+.ix-tile-name {
+  font-weight: var(--w-display, 650);
+}
+.ix-how summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  list-style: none;
+  font-size: 13px;
+  letter-spacing: 0;
+  text-transform: none;
+}
+.ix-how summary::-webkit-details-marker {
+  display: none;
+}
+/* the fold opens as every fold in the app does: a plus, then a minus */
+.ix-how summary::before {
+  content: "+";
+  display: inline-block;
+  width: 1ch;
+}
+.ix-how[open] summary::before {
+  content: "\2212";
+}
+
+/* choices sit closer: the key that picks one is centred beside its words */
+.ix-opt {
+  justify-content: center;
+  min-height: 52px;
+  padding: 10px 42px 10px 16px;
+}
+.ix-key {
+  top: 50%;
+  bottom: auto;
+  transform: translateY(-50%);
+}
+/* a finger has no number keys to press */
+@media (hover: none), (max-width: 640px) {
+  .ix-key {
+    display: none;
+  }
+  .ix-opt {
+    padding-right: 16px;
+  }
+}

@@ -69,13 +69,13 @@ describe("area tiles", () => {
     expect(AREA_NAME.operations).toBe("Operations & delivery");
   });
 
-  it("words each status; a blocked area names the channel it needs", () => {
-    const channelOf = (section: string) => (section === "offers" ? "03" : null);
+  it("words each status; a blocked area names the part it needs", () => {
+    const channelOf = (section: string) => (section === "offers" ? "3" : null);
     expect(areaStatusWord(area({ status: "completed" }))).toEqual({ word: "Done", tone: "ok" });
     expect(areaStatusWord(area({ status: "in_progress" })).word).toBe("In progress");
     expect(areaStatusWord(area({ status: "not_started" })).word).toBe("Not started");
     expect(areaStatusWord(area({ status: "blocked", needs: "offers" }), { channelOf })).toEqual({
-      word: "Needs CH 03",
+      word: "Needs part 3",
       tone: "drift",
     });
     // With no channel to name, the area's own name stands in.
@@ -120,7 +120,7 @@ describe("area tiles", () => {
   });
 
   it("numbers channels from one, two digits", () => {
-    expect(channelNo(0)).toBe("01");
+    expect(channelNo(0)).toBe("1");
     expect(channelNo(13)).toBe("14");
   });
 
@@ -171,14 +171,14 @@ describe("area tiles", () => {
     expect(areaAskable(area({ status: "completed", open: 0, answered: 4 }))).toBe(false);
   });
 
-  it("the folded bank names the channel being asked and counts the areas done", () => {
+  it("the folded bank names the part being asked and counts the areas done", () => {
     const areas = [
       area({ section: "identity", status: "completed", answered: 4, open: 0, bars: [] }),
       area({ section: "offers", status: "in_progress", answered: 2, open: 3 }),
       area({ section: "costs" }),
     ];
     expect(bankSummary(areas, "offers")).toEqual({
-      current: { ch: "02", name: "What you sell", pct: 40 },
+      current: { ch: "2", name: "What you sell", pct: 40 },
       done: 1,
       total: 3,
     });

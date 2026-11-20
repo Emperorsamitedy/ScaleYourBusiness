@@ -7,10 +7,14 @@
 // customer-facing one says it is one (rule 20).
 
 import type { ReactNode } from "react";
+import Link from "next/link";
+import { linksIn } from "../../lib/assistant/guide";
+import type { GuideScreen } from "../../lib/assistant/guide";
 import { ASSISTANT } from "../../lib/core/assistant";
 import type { AppLocale } from "../../lib/i18n/locales";
 import type { Tr } from "../../lib/i18n/tr";
 import { LexFace } from "../brand/LexFace";
+import { useTr } from "../sheet/useTr";
 import { ChangeCard } from "./ChangeCard";
 import type { ChangeCardView, Turn } from "./chat-view";
 import { cardsFor, paragraphs, stamp } from "./chat-view";
@@ -45,6 +49,19 @@ export function ChatTurn({
   children?: ReactNode;
 }) {
   const at = stamp(turn.at, now, locale);
+  const { tr: navTr } = useTr("nav");
+  const { tr: homeTr } = useTr("home");
+  // A screen's name as the menu says it; the two the menu does not list say what opening them does.
+  const nameOf = (s: GuideScreen): string =>
+    s.nav !== null
+      ? navTr(`item.${s.nav}`)
+      : s.route === "/intake"
+        ? homeTr("fresh.start")
+        : tr("openFull");
+  // The screens a reply names become buttons to them (the owner's fourth
+  // round: Lex guides). Only the guide's own screens: nothing a model writes
+  // is ever made into a link.
+  const screens = turn.role === "system" ? linksIn(turn.text) : [];
   return (
     <article id={`turn-${turn.id}`} className={`ak-turn ${turn.role}`}>
       <p className="ak-who">
@@ -56,6 +73,15 @@ export function ChatTurn({
           <p>{turn.text}</p>
         ) : (
           paragraphs(turn.text).map((p, i) => <p key={i}>{p}</p>)
+        )}
+        {screens.length > 0 && (
+          <p className="ak-links">
+            {screens.map((s) => (
+              <Link key={s.route} className="act" href={s.route}>
+                {nameOf(s)}
+              </Link>
+            ))}
+          </p>
         )}
         {turn.role === "system" &&
           cardsFor(turn.id, cards).map((c) => (

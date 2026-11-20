@@ -272,7 +272,7 @@
     "status": {
       "measuring": "Measuring",
       "done": "Done",
-      "needsChannel": "Needs CH {channel}",
+      "needsChannel": "Needs part {channel}",
       "needsArea": "Needs {area}",
       "notOpen": "Not open yet",
       "notStarted": "Not started",
@@ -280,15 +280,15 @@
       "inProgress": "In progress"
     },
     "bank": {
-      "now": "CH {channel} · {area} · <fig>{pct}%</fig>",
+      "now": "Part {channel} · {area} · <fig>{pct}%</fig>",
       "done": "<fig>{done}</fig> of {total} done",
-      "hide": "Hide channels",
-      "all": "All channels",
+      "hide": "Hide the parts",
+      "all": "All parts",
       "legendOwner": "from you",
       "legendMeasured": "read from {connector}",
-      "tileChannel": "CH {channel}",
+      "tileChannel": "Part {channel}",
       "tilePct": "{pct}%",
-      "tileWords": "Channel {channel}, {area}: {status}, {pct}% answered, {bars}.",
+      "tileWords": "Part {channel}, {area}: {status}, {pct}% answered, {bars}.",
       "tileAsk": "{words} Ask from this area.",
       "bar": {
         "owner": "{count, plural, one {# from you} other {# from you}}",
@@ -338,13 +338,14 @@
     },
     "question": {
       "ref": "Q <fig>{id}</fig>",
-      "channel": "Channel <fig>{channel}</fig>",
-      "left": "{left, plural, one {<fig>#</fig> left in this channel} other {<fig>#</fig> left in this channel}} · about {minutes, plural, one {<fig>#</fig> min} other {<fig>#</fig> min}}",
+      "channel": "Part <fig>{channel}</fig>",
+      "left": "{left, plural, one {<fig>#</fig> left in this part} other {<fig>#</fig> left in this part}} · about {minutes, plural, one {<fig>#</fig> min} other {<fig>#</fig> min}}",
       "measured": "Already measured · {provider}",
       "missing": "The missing piece",
       "missingRest": "the rest: what {provider} doesn’t measure",
       "ruler": "Measured reference: {value}",
       "backTitle": "Reopens that answer to change it; the old one stays in history",
+      "back": "Back",
       "skip": "Skip for now",
       "next": "Next",
       "yes": "Yes",
@@ -375,7 +376,7 @@
       "addRow": "Add another row"
     },
     "record": {
-      "channelTitle": "Channel {channel} · {area}",
+      "channelTitle": "Part {channel} · {area}",
       "facts": "{count, plural, one {<fig>#</fig> fact} other {<fig>#</fig> facts}}",
       "empty": "Nothing on file in this area yet.",
       "listLabel": "Facts on file in {area}",
@@ -1078,6 +1079,7 @@
       "gaps": "{count, plural, one {<b>#</b> recorded as not known} other {<b>#</b> recorded as not known}}"
     },
     "recordLabel": "The record",
+    "parts": "The parts of this screen",
     "search": "Search the record",
     "filterLabel": "Filter the record",
     "filter": {
@@ -1542,7 +1544,7 @@
     },
     "note": {
       "queued": "Approving queues it to run no earlier than {day}, {clock}. There is no un-approve; the emergency stop can still halt it.",
-      "noTime": "Approving records your yes with your name. With no set time, it doesn't run by itself."
+      "noTime": "Approving records your yes with your name. No time is set for it, so I won't carry it out on my own."
     },
     "lapsed": "You approved this, but it lapsed before it could run. Nothing ran.",
     "card": {
@@ -4705,6 +4707,7 @@
       "link": "Open Waiting for you"
     },
     "sendFailed": "Something went wrong on my side. Say that again?",
+    "retry": "Try again",
     "composer": {
       "label": "Ask about {noun}",
       "placeholder": "Type a question…",
@@ -4737,7 +4740,16 @@
       "prepared": "Drafted, not yet made · {screen}"
     },
     "descriptor": "Answers from your business’s facts. Nothing changes until you approve.",
-    "openFull": "Open the full conversation"
+    "openFull": "Open the full conversation",
+    "interview": {
+      "withLex": "Do it with Lex",
+      "intro": "One question at a time. Pick an answer or type it. Stop whenever you like: what you answered is kept.",
+      "left": "{count, plural, one {# left in this part} other {# left in this part}}",
+      "unclear": "I can't tell where the decimals are in that. Type it without a mark for thousands, like {example}.",
+      "onForm": "This one is answered on the form.",
+      "openForm": "Open it there",
+      "stop": "Stop here"
+    }
   },
   "mode": {
     "meta": {
@@ -10345,7 +10357,8 @@
       "cashCmp": "buffer {line}",
       "cashZero": "no buffer stated",
       "lowest": "Lowest point ahead",
-      "lowestCmp": "week of {date}"
+      "lowestCmp": "week of {date}",
+      "lowestAbove": "week of {date}, above today"
     },
     "flag": {
       "under": "Under buffer",

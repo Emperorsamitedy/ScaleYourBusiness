@@ -659,6 +659,28 @@ a.rq-sub-i:hover {
 .rq-sub-h {
   margin: 12px 0 0;
 }
+/* The proof behind a finding or a recommendation (the owner's third round,
+   L6): its evidence, its three worked cases and its assumptions open under
+   "Why?" and are printed in full on paper. The fold takes the item's width
+   and leaves what it holds in its own type. */
+.fold.rq-proof {
+  max-width: none;
+  margin: 8px 0 0;
+}
+.fold.rq-proof > .fold-body {
+  margin-top: 4px;
+  font-size: inherit;
+  color: inherit;
+}
+.fold.rq-proof > .fold-body > .rq-evidence:first-child {
+  margin-top: 0;
+}
+.fold.rq-proof > .fold-body > .rq-forecast:first-child {
+  margin-top: 6px;
+}
+.fold.rq-proof + .rq-prose {
+  margin-top: 10px;
+}
 .rq-responded {
   margin: 12px 0 0;
   font-size: 14px;
@@ -906,6 +928,14 @@ a.rq-sub-i:hover {
   .rq-foot .why-fold,
   .rq-foot .why-fold > summary {
     color: #111;
+  }
+  /* The proof is opened for the print (components/report/Report.tsx); the
+     line that opens it on a screen has nothing to do on paper. */
+  .fold.rq-proof > summary {
+    display: none;
+  }
+  .fold.rq-proof {
+    margin-top: 0;
   }
 }
 .rq-table thead th.rq-wrap.num {

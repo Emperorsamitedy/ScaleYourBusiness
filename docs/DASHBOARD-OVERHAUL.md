@@ -100,10 +100,10 @@ An evaluator on another model read the captures against the owner's words and Fo
 - [x] R8. The shortcuts sheet lists the queue's keys under the queue's own name.
 - [x] R9. A phone's header is two rows: search and the bell on the wordmark's row, the tabs with the stop. The chips' row fades at its right edge.
 - [x] R10. Smaller: one link style ("Read now" like the others); "Open" wherever a decision is opened; the status card keeps its height; the feed shows eight rows first; the palette lists places before actions; the rail's watching line stays on one line.
-- [later] A paused measurement connection (Google Analytics) is said on Home's live line but not counted: the menu's counts know only write connections that paused themselves. It needs one more count in `/api/nav`.
-- [later] A failed reply from Lex has no "Try again".
+- [x] A source that stopped reading by itself is counted (2026-11-20): parked after repeated failures, it joins the write connections that paused themselves in the bell, beside Connections in the menu and on Home (`countStoppedReads`, `needs_reconnect` in `/api/nav`). A source the owner paused is their own choice and is still not counted, which is what the demo's Google Analytics is.
+- [x] A reply from Lex that did not come has "Try again" under it (2026-11-20), on Home, the conversation page and in Lex's pop-up. It is offered when the server failed or never answered, not for a refusal that gave its reason (too long, the plan's allowance, a key the server lacks), which would only give it again. Asking again shows the question once (`canRetry`, `withoutFailed` in `components/chat/useChat.ts`).
 - [later] In Lex's sheet and on the conversation page "Open" still goes to the decision's own page; a sheet over a sheet was not attempted.
-- [later] The note under Approve ("With no set time, it doesn't run by itself") is the queue's own sentence and reads unclear out of context; it wants a rewrite in seven languages.
+- [x] The note under Approve says it plainly (2026-11-20), in seven languages: "Approving records your yes with your name. No time is set for it, so I won't carry it out on my own."
 
 ## The independent review, round 2 (2026-11-18)
 
@@ -118,7 +118,7 @@ The same evaluator read the fixes and returned "pass": all of round 1 confirmed,
 - [x] S7. Found while checking, not by the review: the queue and the conversation still printed an estimate to the cent while Home and the sheet rounded it. One function words the range now (`rangeWords`, `components/proposals/queue-model.ts`), used by all four.
 - [later] On a phone, a group with one screen (Home) still gives the strip's row to the stop alone.
 - [later] Activity's "Checked" rows are many and alike; they want grouping by day or by connection.
-- [later] "Cash today" beside a higher "Lowest point ahead" is correct (the lowest point is the lowest of the weeks ahead, and today is not one of them) but reads oddly when today is the low; the tile wants a second look at its words.
+- [x] "Lowest point ahead" says when it is above today (2026-11-20): "week of 16 Nov, above today", so a larger figure beside a smaller "Cash today" no longer reads as a mistake (`aboveToday` in `components/home/home-model.ts`).
 
 ## The owner's third round (2026-11-18): the look, from mockups he picks
 
@@ -141,14 +141,94 @@ The list. Nothing here is ticked until he has seen it.
   - [~] e. The tabs across the top of a screen are "not bad": tidy them the same way, and never let the top navigation and those tabs overlap or say the same thing twice.
 - [~] L4. **Lex.**
   - [~] a. A face, as Foundable's Ted has one. Ours, not theirs. Built: see below.
-  - [~] b. A side panel for now (Lex's sheet, opened from "Ask Lex" on every screen and from the face on a phone). [later] An interactive pop-up, and present in more places than one.
+  - [~] b. An interactive pop-up, and present in more places than one. Built on 2026-11-20 and waiting for his look: see "L4b, Lex as a pop-up" below. (It was a side panel until then.)
 - [~] L5. **The microphone.** He sees no browser pop-up when he presses it. Found and fixed: see below. A blocked or missing microphone was already said on the screen (`lib/voice/session.ts`).
 - [~] L6. **Less to read at once.** Cash flow is built (see below); the other screens follow. "There's still a lot of text on some pages like the cash flow", and "a few overlaps here and there". The content may stay ("I absolutely don't mind you keeping it") but "no one will probably sit down and read that much text": present it "as concise and accurate and small as possible". Cash flow first, then screen by screen.
 - [~] L7. **No long dashes.** Built for everything a screen prints: see "L7, as built" below. "No em and en dashes throughout the app"; underscores "only to a very certain limit". This reaches the seven catalogues and the range's wording ("+€136 – +€1,213" becomes "+€136 to +€1,213").
-- [~] L8. **Straight into the app.** Built on the branch `straight-in` and waiting for his look: see "L8, as built" below. After signing in or signing up a person lands in the app, with no interview first. The dashboard reminds them to do it, and Lex offers to do it in conversation for those who would rather talk (the conversation is already a fact source: `specs/conversation-channel.md`).
+- [~] L8. **Straight into the app.** Built, merged and live since 2026-11-20, and waiting for his look: see "L8, as built" below. After signing in or signing up a person lands in the app, with no interview first. The dashboard reminds them to do it, and Lex offers to do it in conversation for those who would rather talk (the conversation is already a fact source: `specs/conversation-channel.md`).
 - [ ] L9. **What was already left for later** in this file (the two review rounds and "Later rounds") stays on the list behind these.
 
 Order: L1, L2, his pick, then L3, L4 and L6 built to the pick, then L7, L5, L8, then L9.
+
+## The owner's fourth round (2026-11-20): Lex as the guide, the interview with Lex, the interview's look
+
+Said while the list above was being worked, in his words:
+
+- "lex should be aware of everything on scalex so he can guide the user too."
+- "if we can give the user the option to complete the interview himself and/or use lex instead to do it maybe as lex asks the questions with options and the user answers"
+- "when the user asks how to do smth that he's supposed to lex should provide short and concise explanations too. 'how to fill the interview or whatever type of question' is prob one example"
+- "if you want you can make a list of everything that lex should be capabale of doing and ofc build that for it."
+- "the interview pages aren't updated and they look soooooo bad so work on them too please."
+
+The list. Nothing here is ticked until he has seen it.
+
+- [~] M1. **The interview pages in the app's look.** Built on 2026-11-20 and waiting for his look: see "M1, the interview's look" below.
+- [~] M2. **What Lex can do, written down**, then built: see "M2, what Lex can do" below.
+- [~] M3. **Lex knows ScaleX**: every screen, what it is for and how each thing is done, so "how do I ..." gets a few short steps and the screen's name. Built on 2026-11-20; the answers themselves are not yet seen (the local model key is invalid): see "M3, Lex knows ScaleX" below.
+- [~] M4. **The interview with Lex**, beside the form: Lex asks the questions with their options, the person answers in the conversation. The next question comes from the resolver, never from a model (rule 4). Built on 2026-11-20 and seen in a browser: see "M4, the interview with Lex" below.
+
+### M2, what Lex can do (2026-11-20)
+
+"Make a list of everything that lex should be capabale of doing and ofc build that for it." The list, with where each stands. Lex never acts on a sentence: an answer is words, a change is a card to confirm, and anything outside ScaleX is a proposal to approve.
+
+| What Lex does                                                                                                                                                          | State                                              |
+| ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------- |
+| Answers a question about the business from its own facts and the latest report, and says what is missing when the answer is not there                                  | built before                                       |
+| Turns a request ("post something about the new mug") into a proposal in the queue, answered in place                                                                   | built before                                       |
+| Drafts a change to a fact or a setting from one sentence (opening hours, the size, a standing rule, alerts) as a card the owner confirms                               | built before                                       |
+| Will not record a number from a passing remark, and says how to change it properly                                                                                     | built before                                       |
+| Takes a spoken question (the microphone)                                                                                                                               | built before                                       |
+| Offers the interview to a business that has told nothing yet                                                                                                           | built with L8                                      |
+| Opens beside the page as a pop-up and stays while the owner moves; a face afloat on every screen                                                                       | L4b, 2026-11-20                                    |
+| Lets a reply that failed be asked for again                                                                                                                            | L9, 2026-11-20                                     |
+| **Knows every screen of ScaleX**: where it is, what it is for                                                                                                          | M3, 2026-11-20                                     |
+| **Answers "how do I ...?" in a few short steps**, with a button to the screen it names                                                                                 | M3, 2026-11-20                                     |
+| **Explains how to answer the interview** ("I don't know" and "Skip for now" are real answers, an estimate is fine, how to change an answer, how to stop and come back) | M3, 2026-11-20                                     |
+| **Knows which screen the owner is on** when they ask ("what am I looking at?")                                                                                         | M3, 2026-11-20                                     |
+| **Does the interview with the owner in the conversation**: asks each question with its choices, takes a typed answer, skips, stops                                     | M4, 2026-11-20                                     |
+| Continues the interview from any open question, picked by the owner                                                                                                    | [later] today it follows the interview's own order |
+| Answers a date, a table of rows or a file inside the conversation                                                                                                      | [later] those three are sent to the form           |
+| Marks its face when an answer arrives while the pop-up is closed                                                                                                       | [later]                                            |
+| Says a how-to without the model, from the guide alone, so it works when the model does not                                                                             | [later]                                            |
+
+### M3, Lex knows ScaleX (2026-11-20)
+
+"Lex should be aware of everything on scalex so he can guide the user too", and "short and concise explanations".
+
+- **A written guide** (`lib/assistant/guide.ts`): one entry per screen, 39 of them, with its address, the menu's own name for it, what it is for in one line, and how the usual things on it are done; then what is true everywhere (the four places, search, the stop, that Lex only drafts). The interview has the longest entry: how a question is answered, that "I don't know" and "Skip for now" are real answers, that an estimate is fine, how to change an answer, how to stop and come back.
+- **Lex's answers are given it.** It goes out as the first block of the prompt with its own cache mark: it is the same for every business, so it is paid for once and then read from cache whoever asks (rule 8's discipline). The business's facts follow as before.
+- **Two kinds of question, each with its one source.** About the business: only from its facts, as before. About ScaleX: only from the guide, in one or two sentences or at most four short numbered steps, and if the guide does not cover it Lex says so and invents no screen, button or setting.
+- **A screen Lex names becomes a button.** Lex cites a screen by its address in square brackets; the app takes those out of the words and draws a button to each under the reply. Only the guide's own screens: whatever else a model writes in brackets is never made into a link.
+- **Lex knows where the owner is.** The browser sends the address of the screen with each question, and one line tells the answer which screen that is. What is stored is the owner's own words, without it.
+- **Held by tests.** A screen added to the menu without a guide entry fails; every entry's page exists and is named as the menu names it; no long dash in it (`lib/assistant/guide.test.ts`). The prompt carries the guide, byte for byte the same turn after turn, and the screen with the question (`lib/chat/chat.test.ts`).
+- **Not seen: what Lex actually says.** The local model key is invalid, so no answer could be read here. The plumbing is proven; the wording of an answer needs a working key, or the live site, and an eye on the first few.
+
+### M4, the interview with Lex (2026-11-20)
+
+"Give the user the option to complete the interview himself and/or use lex instead to do it maybe as lex asks the questions with options and the user answers."
+
+- **Two ways, side by side.** Where the interview is offered (Home, Lex's pop-up, the conversation page), there are two buttons: "Do it with Lex" and "Start the interview". A business that has already told something finds "Do it with Lex" under the thread in Lex's pop-up.
+- **Lex asks, in the conversation.** One question at a time, with the part it belongs to and how many are left in it. A choice is a button and records at once; several choices are picked and then "Next"; a name, a number or an amount is typed in a small box under the question; "I don't know" where the question allows it, "Skip for now" and "Stop here" under every question. What was answered stays above as the question and the answer. The composer stays below, so Lex can be asked how to answer.
+- **The same interview, not a copy.** It talks to the interview's own API and nothing else (`components/chat/LexInterview.tsx`). Which question comes next is the resolver's decision over the bank (rule 4), the fact is recorded by the same service with the same source, and no model is called, so it costs nothing and works with no model at all.
+- **Never guessed.** "1.200" could be twelve hundred or one point two: Lex asks for it without a mark for thousands. Money goes to the server as a decimal and becomes minor units there with the business's currency (rule 1).
+- **Sent to the form:** a date, a table of rows (what the business sells, its suppliers) and a file. Lex says "This one is answered on the form" and gives the way to that very question.
+- **Seen in a browser** as a new person on the local database: from the pop-up, two of several picked, a number typed, a choice pressed, an address typed, the table question sent to the form, a skip, a stop, then the same from the conversation page's address and on a phone. Facts on file went from 7 to 13.
+- Held by tests in `components/chat/interview-model.test.ts`: how each kind of question is answered, what goes back to the endpoint, and that an unclear figure is refused.
+- [later] Contradictions between two answers are still settled on the form; the conversation does not show them.
+
+### M1, the interview's look (2026-11-20)
+
+"The interview pages aren't updated and they look soooooo bad."
+
+They wore the look from before the third round: mono capitals ("CH 01 · BUSINESS BASICS", "REPORT READINESS", "SKIP FOR NOW"), a serif headline, square cards, an ink band over the question, graph paper with the question's number drawn behind it, arrows on the buttons, and an instrument's words ("channel"). The interview is the first thing a new person does, and it looked like another product.
+
+- **One look.** The interview joined the app's type and shape tokens (one plain sans, sentence case, curves): one more name in the switch in `app/sheet.css`. What the tokens do not reach is one block at the end of `app/intake.css`.
+- **What changed to the eye.** A hairline under the bar and "Finish later" as a pill. The strip of parts as one rounded track with a short bar per part. The question on one rounded paper card, its place said quietly above it; no band, no grid, no numeral. Choices as separate rounded tiles, closer together, with the key that picks each beside its words (and no keys on a phone, which has none to press). A boxed field. "Back", "Skip for now" and one solid "Next". Rounded cards beside it. "Why?" opens with the app's plus.
+- **No arrows** on any of its controls (L7 reached the app on 2026-11-18 and stopped at the interview's door): Next, Back, Try again, Get my link, the two answers of a contradiction, Answer it now, Change this answer.
+- **Plain words, seven languages.** A part is "part" ("Part 1 · Business basics", "All parts", "8 left in this part"); it was "channel" and "CH 01". Its number is plain.
+- Nothing moved: the structure, the motion that reports state, every figure and the keys 1 to 9 are as they were.
+- **Seen in a browser** as a brand-new person on the local database: nine questions answered (a typed name, a country, 33 business types, a paragraph, yes or no), the parts opened, the pause panel, and a phone. No capitals in any state opened, nothing past the edge.
+- [later] The first step before the interview (language and currency) and the closing screens after it were not opened in this pass.
 
 ### L8, as built (2026-11-19 and 20, branch `straight-in`)
 
@@ -162,7 +242,7 @@ Order: L1, L2, his pick, then L3, L4 and L6 built to the pick, then L7, L5, L8, 
 - **Held by tests**: where a sign-in lands (`lib/auth/landing.test.ts`), a new person's own business and its shadow month, the idea exception, and a stranger never landing in someone else's business (`switch`, `access`, `service`, `oauth` against the database).
 - **Seen in a browser** with a brand-new address: the sign-in lands on Home, Home and both conversations make the offer, and the button opens the interview.
 - **Where it lives.** Completing a sign-in (spending the link or the code, and the first business) is its own module, `lib/auth/sign-in.ts`, which only the three routes that complete a sign-in import. `lib/auth/service.ts` reads the session for every route in the app, so it must not pull in the intake and the ladder: the first version did, and the guard on the push send path (`lib/push/no-connector.test.ts`: it reaches no connector and no execution code) failed on GitHub for it on 2026-11-20. That run was read only after the branch had been called ready: a branch is checked when its whole run is green, not its type check.
-- It changes what a sign-in does on the live site (a business is made at once), so it sits on its own branch on top of `dashboard-v2` and is merged after it.
+- It changes what a sign-in does on the live site (a business is made at once), so it sat on its own branch on top of `dashboard-v2` and was merged after it, as its own pull request.
 
 ### L7, as built (2026-11-18)
 
@@ -234,13 +314,41 @@ Connections was the longest screen in the app, more than 6,000 px once everythin
 - **Customers, tidied (2026-11-20).** He looked at it and said "some cards are all over the place and i don't like the current look of it": five cards of five sizes shared one screen. It is three parts now, as Connections is: the list (1,678 px at 1440 wide), segments with campaigns, and bringing customers in. A business with no customers opens on the third. A row is its own control (the whole row presses, with a ring for the keyboard; the "Open" column is gone), the record stays beside the list while the list scrolls, and on a phone a row is two lines: the name with its pattern, then the figures.
 - **Similar businesses**: the live comparison card keeps what it says about the comparison and the button to stop contributing (a consent stays in view); where the figures come from and what is not measured yet sit under "How this works".
 
-- [ ] Not yet done on the list: L6 on the fact sheet and the report's own cards, captions still set in capitals inside the settings forms, Lex as a pop-up, and L9.
+- [ ] Not yet done on the list: the rest of L9 (a phone's strip with one screen, Activity's "Checked" rows grouped, "Open" from Lex opening a decision in place, a Home the owner can rearrange, rows opened in place on more screens), and the owner's fourth round below.
+- **Captions in the settings forms.** "YOUR LANGUAGE" and "CURRENCY" were the last captions in capitals inside the app: the language settings borrow two label styles from the sign-in page's stylesheet, which set capitals outright. They follow the app's sentence case inside the frame now and are unchanged on the sign-in page (`app/auth.css`).
+
+### L4b, Lex as a pop-up (2026-11-20)
+
+"An interactive pop-up, and present in more places than one."
+
+- **A pop-up, not a panel.** On a wide screen Lex opens as paper in the bottom right corner (410 px wide, up to 640 tall): Lex's face, the business's name, a button to the whole conversation and Close in a shaded head, the thread, and the composer with the microphone in its foot. The side panel covered the page under a scrim and held it still; the pop-up sits beside the page, and everything on the page can still be pressed.
+- **It stays while the owner moves.** Open on Cash flow, it is still open on Stock, with a half-typed question still in it: an answer can be read while the screen it is about is opened. It closes on Close, on Escape while the cursor is inside (the cursor goes back to what opened it), and on reaching a page that holds the conversation itself (Home, the conversation page).
+- **In two places on every screen.** "Ask Lex" in the bar, and now Lex's face afloat in the corner on every width (it was on a phone only), on every screen but Home and the conversation page. The face gives way to the pop-up it opens.
+- **A phone keeps the full-screen sheet**: under 760 px there is no room beside the page.
+- It sits under the app's modal layers (a decision opened in place, the palette), which take the screen when they open.
+- Held by a test (`components/nav/shell.test.ts`: when Lex stays open across screens) and seen in a browser at 1440, 1100 and 800 wide and on a phone: opened from the face and from the bar, a control on the page pressed beside it, carried to another screen with its draft, closed with Escape and by going Home.
+- [later] Lex answering about the screen the owner is on without being told which one, and a mark on the face when an answer arrives while the pop-up is closed.
+
+### L6, the fact sheet and the report (2026-11-20)
+
+The two screens that hold the most. Nothing was taken away from either.
+
+- **The fact sheet opens on the record.** A chart of the month, its table and the ads card stood between the page head and the record, which began 1,300 px down. The screen is in two parts now: "The record" (with its count) and "Your numbers as a chart". 1,230 px tall at 1440 wide, where it was 2,689. Home's tiles for bookings and ads open the second part by its address (`/profile?tab=charts`); a search, a filter and the place in the record are kept while the charts are looked at.
+- **A long written answer** (what the business does, what limits capacity) ran eleven lines down a narrow column set to the right. It shows two lines, read from the left, and the rest on a press; the answer is its own control.
+- **The record on a phone was 66,722 px tall**: every one of 382 facts as five labelled lines, all fifteen sections one under the other. It is 1,787 px now. A narrow screen shows one section at a time, and the row of section names is the switch; a search or a filter still shows every match; a link from a chat card to one fact opens the section that holds it. A fact is two lines there: its name and its value, then where it came from, on what basis and since when.
+- **The chart's own fine print** (how a month is counted, what DERIVED and ESTIMATED mean, the note on ad spend) folds under "How this works" beneath its table.
+- **The report folds its proof.** A finding keeps its flag, its headline and its two sentences; the answers it rests on open under "Why?". A recommendation keeps its range with the base case marked, the break-even line, what it depends on heavily, what to do on a change of mind and the two answers; the three worked cases and the stated assumptions open under "Why?". 6,839 px where it was 9,039. On paper nothing is folded: the proof opens for the print and closes after it.
+- **Found on the way: the top bar ran off the screen on a tablet.** Between 760 and about 1,000 px wide the four places and the tools did not fit, "Stop everything" hung past the right edge, and every page scrolled sideways. The stop says one word under 1,100 px, and under 1,000 px a place that is not open shows its icon alone (its name stays for a screen reader and on hover). Measured on Home, the queue, the report, the fact sheet and Customers from 760 to 1,099 px: nothing past the edge.
+- Held by tests in `components/profile/model.test.ts`: which part an address opens, what counts as a long answer, the section a narrow screen shows, and the section a focused fact is in. The spec says the same (`specs/ux-spec-v1.md`: the market chart's place, the report's findings and recommendations, the bar).
+- [later] The stated-against-measured table still prints two lines of provenance under every measure.
 
 ### The branch (2026-11-19)
 
 `dashboard-v2` is pushed and passes every check on GitHub at `348c8c3`: type check, lint, format, migrations, tests, the bank lint and the production build. `main` (`e2eae45`) is merged in. The format step had failed on `main` since 2026-11-09 and hidden the tests and the build; fixing it showed two red tests nobody had seen (five public routes missing from the route door's list; a float on a money path in the estimate's rounding, which now uses `roundMinorTo`). Nothing is on `main`: merging is the deploy and is the owner's word.
 
-**Merged and live (2026-11-20).** He said "push and merge and if you are capable of it deploy too". `dashboard-v2` at `b38f185` passed every check and went into `main` as pull request #1 (merge commit `ec2daf5`). Vercel built it for production within five minutes, which also answers an open question: a merge made by a collaborator who is not on the Vercel account does deploy on this public repo. The live site was then read: the new landing headline, Home sending a signed-out visitor to sign-in, the frame on the queue, the report, Connections and Customers, and the microphone allowed in the policy header. `straight-in` follows as its own pull request once its checks are green.
+**Merged and live (2026-11-20).** He said "push and merge and if you are capable of it deploy too". `dashboard-v2` at `b38f185` passed every check and went into `main` as pull request #1 (merge commit `ec2daf5`). Vercel built it for production within five minutes, which also answers an open question: a merge made by a collaborator who is not on the Vercel account does deploy on this public repo. The live site was then read: the new landing headline, Home sending a signed-out visitor to sign-in, the frame on the queue, the report, Connections and Customers, and the microphone allowed in the policy header.
+
+`straight-in` followed the same day as pull request #2 (merge commit `61a2b67`), after its one failing test was fixed (see "L8, as built") and the whole run was green on `080e571`. It was live nine minutes after the merge. What can be read without signing in was read: every page answers, the pages carry the new words ("I don't know your business yet."), and the code sign-in route refuses a wrong code as before. What only a person can check is a first sign-in with an address never used: it should land on Home with that headline.
 
 ### L3 to L6, as built (2026-11-18)
 

@@ -272,7 +272,7 @@
     "status": {
       "measuring": "Most mérjük",
       "done": "Kész",
-      "needsChannel": "Előfeltétel: CS {channel}",
+      "needsChannel": "Előfeltétel: {channel}. rész",
       "needsArea": "Előfeltétel: {area}",
       "notOpen": "Még nem nyitható",
       "notStarted": "Még nem kezdődött el",
@@ -280,15 +280,15 @@
       "inProgress": "Folyamatban"
     },
     "bank": {
-      "now": "CS {channel} · {area} · <fig>{pct}%</fig>",
+      "now": "{channel}. rész · {area} · <fig>{pct}%</fig>",
       "done": "<fig>{done}</fig> / {total} kész",
-      "hide": "Csatornák elrejtése",
-      "all": "Összes csatorna",
+      "hide": "Részek elrejtése",
+      "all": "Összes rész",
       "legendOwner": "Öntől",
       "legendMeasured": "forrás: {connector}",
-      "tileChannel": "CS {channel}",
+      "tileChannel": "{channel}. rész",
       "tilePct": "{pct}%",
-      "tileWords": "{channel}. csatorna, {area}: {status}, megválaszolva: {pct}%, {bars}.",
+      "tileWords": "{channel}. rész, {area}: {status}, megválaszolva: {pct}%, {bars}.",
       "tileAsk": "{words} Kérdések ebből a területből.",
       "bar": {
         "owner": "{count, plural, one {# Öntől} other {# Öntől}}",
@@ -338,13 +338,14 @@
     },
     "question": {
       "ref": "K <fig>{id}</fig>",
-      "channel": "<fig>{channel}</fig>. csatorna",
-      "left": "{left, plural, one {<fig>#</fig> van hátra ebben a csatornában} other {<fig>#</fig> van hátra ebben a csatornában}} · kb. {minutes, plural, one {<fig>#</fig> perc} other {<fig>#</fig> perc}}",
+      "channel": "<fig>{channel}</fig>. rész",
+      "left": "{left, plural, one {<fig>#</fig> van hátra ebben a részben} other {<fig>#</fig> van hátra ebben a részben}} · kb. {minutes, plural, one {<fig>#</fig> perc} other {<fig>#</fig> perc}}",
       "measured": "Már mért adat · {provider}",
       "missing": "A hiányzó rész",
       "missingRest": "a maradék, amelyet nem mér: {provider}",
       "ruler": "Mért viszonyítási érték: {value}",
       "backTitle": "Újranyitja azt a választ, hogy módosíthassa; a régi megmarad az előzményekben",
+      "back": "Vissza",
       "skip": "Most kihagyom",
       "next": "Tovább",
       "yes": "Igen",
@@ -375,7 +376,7 @@
       "addRow": "Újabb sor hozzáadása"
     },
     "record": {
-      "channelTitle": "{channel}. csatorna · {area}",
+      "channelTitle": "{channel}. rész · {area}",
       "facts": "{count, plural, one {<fig>#</fig> tény} other {<fig>#</fig> tény}}",
       "empty": "Ezen a területen még nincs rögzített adat.",
       "listLabel": "Rögzített tények: {area}",
@@ -1078,6 +1079,7 @@
       "gaps": "{count, plural, one {<b>#</b> nem ismertként rögzítve} other {<b>#</b> nem ismertként rögzítve}}"
     },
     "recordLabel": "A nyilvántartás",
+    "parts": "A képernyő részei",
     "search": "Keresés a nyilvántartásban",
     "filterLabel": "A nyilvántartás szűrése",
     "filter": {
@@ -1542,7 +1544,7 @@
     },
     "note": {
       "queued": "A jóváhagyással sorba kerül, és legkorábban ekkor fut: {day}, {clock}. A jóváhagyás nem vonható vissza, de a vészleállító még megállíthatja.",
-      "noTime": "A jóváhagyás az Ön nevével rögzíti az igenjét. Meghatározott időpont nélkül nem fut le magától."
+      "noTime": "A jóváhagyás az Ön nevével rögzíti az igenjét. Nincs hozzá időpont megadva, ezért magamtól nem hajtom végre."
     },
     "lapsed": "Ezt jóváhagyta, de lejárt, mielőtt lefuthatott volna. Semmi sem futott.",
     "card": {
@@ -4705,6 +4707,7 @@
       "link": "Az „Önre vár” megnyitása"
     },
     "sendFailed": "Valami hiba történt nálam. Megismételné?",
+    "retry": "Újrapróbálás",
     "composer": {
       "label": "Kérdés erről: {noun}",
       "placeholder": "Írjon be egy kérdést…",
@@ -4737,7 +4740,16 @@
       "prepared": "Előkészítve, még nincs elvégezve · {screen}"
     },
     "descriptor": "A vállalkozása tényeiből válaszol. Semmi sem változik az Ön jóváhagyása nélkül.",
-    "openFull": "A teljes beszélgetés megnyitása"
+    "openFull": "A teljes beszélgetés megnyitása",
+    "interview": {
+      "withLex": "Lex segítségével",
+      "intro": "Egyszerre egy kérdés. Válasszon egy választ, vagy írja be. Bármikor abbahagyhatja: amit megválaszolt, megmarad.",
+      "left": "{count, plural, one {# van hátra ebben a részben} other {# van hátra ebben a részben}}",
+      "unclear": "Nem tudom eldönteni, hol van a tizedesjel ebben a számban. Írja be ezres elválasztó nélkül, például {example}.",
+      "onForm": "Ezt az űrlapon lehet megválaszolni.",
+      "openForm": "Megnyitás ott",
+      "stop": "Itt abbahagyom"
+    }
   },
   "mode": {
     "meta": {
@@ -10345,7 +10357,8 @@
       "cashCmp": "tartalék {line}",
       "cashZero": "nincs megadott tartalék",
       "lowest": "Várható mélypont",
-      "lowestCmp": "{date} hete"
+      "lowestCmp": "{date} hete",
+      "lowestAbove": "{date} hete, a mainál magasabb"
     },
     "flag": {
       "under": "Tartalék alatt",

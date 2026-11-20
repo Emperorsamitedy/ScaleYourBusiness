@@ -6,12 +6,17 @@
 import { describe, expect, it } from "vitest";
 import type { FactRow, FactSheet } from "./model";
 import {
+  LONG_VALUE,
   basisCounts,
   basisSegs,
   basisWord,
   changedIn,
+  currentSection,
   displaySections,
   filterSections,
+  focusSection,
+  isLongValue,
+  partFromSearch,
   sourceText,
   valueView,
 } from "./model";
@@ -212,5 +217,68 @@ describe("filterSections — the design's filters over a search", () => {
     expect(q("derived")).toEqual(["presence.timezone"]);
     expect(q("who you are")).toEqual(["identity.business_name"]);
     expect(q("nothing like this")).toEqual([]);
+  });
+});
+
+describe("the screen's two parts", () => {
+  it("opens on the record, and on the charts only when the address asks", () => {
+    expect(partFromSearch("")).toBe("record");
+    expect(partFromSearch("?tab=charts")).toBe("charts");
+    expect(partFromSearch("?ask=1&tab=charts")).toBe("charts");
+  });
+
+  it("an unknown part is the record, never a blank screen", () => {
+    expect(partFromSearch("?tab=history")).toBe("record");
+    expect(partFromSearch("?tab=")).toBe("record");
+  });
+});
+
+describe("a long written answer", () => {
+  it("is folded once it runs past a line or two", () => {
+    expect(isLongValue({ text: "x".repeat(LONG_VALUE + 1), figure: false })).toBe(true);
+  });
+
+  it("a short answer and a figure are shown whole", () => {
+    expect(isLongValue({ text: "Online shop", figure: false })).toBe(false);
+    expect(isLongValue({ text: "x".repeat(LONG_VALUE), figure: false })).toBe(false);
+    expect(isLongValue({ text: "9".repeat(LONG_VALUE + 30), figure: true })).toBe(false);
+  });
+});
+
+describe("the section a narrow screen shows", () => {
+  const listed = ["fs-identity", "fs-offers", "fs-open"];
+
+  it("is the reader's pick while it is listed", () => {
+    expect(currentSection(listed, "fs-offers", "fs-identity")).toBe("fs-offers");
+  });
+
+  it("falls back to the section an address asks for, then to the first", () => {
+    expect(currentSection(listed, "", "fs-offers")).toBe("fs-offers");
+    expect(currentSection(listed, "", null)).toBe("fs-identity");
+    // A pick the filter has taken off the list does not leave the screen empty.
+    expect(currentSection(listed, "fs-costs", null)).toBe("fs-identity");
+    expect(currentSection(listed, "", "fs-costs")).toBe("fs-identity");
+    expect(currentSection([], "fs-offers", null)).toBeNull();
+  });
+
+  it("finds the section that holds a focused fact, and only a fact", () => {
+    const sections = [
+      {
+        section: "identity",
+        label: "Who you are",
+        facts: [{ key: "identity.size_band", label: "Size", fact: fact("identity.size_band") }],
+      },
+      {
+        section: "presence",
+        label: "Where you trade",
+        facts: [
+          { key: "presence.opening_hours", label: "Hours", fact: fact("presence.opening_hours") },
+        ],
+      },
+    ];
+    expect(focusSection("?focus=fact-presence.opening_hours", sections)).toBe("presence");
+    expect(focusSection("?focus=fact-nothing.here", sections)).toBeNull();
+    expect(focusSection("?focus=stop", sections)).toBeNull();
+    expect(focusSection("", sections)).toBeNull();
   });
 });
