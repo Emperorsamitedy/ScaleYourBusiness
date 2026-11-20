@@ -3,6 +3,7 @@
 // made, every result recorded against them, and the launch. After: the
 // launch date, the first connector to make (I-52), and the plan beside
 // the measured month (I-51) — the plan kept as it was.
+// On the entrance's card since 2026-11-20, like the idea check itself.
 
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -17,6 +18,8 @@ import { trFor } from "../../../lib/i18n/server-tr";
 import { freshLocal } from "../../../lib/ideas/check";
 import { ideaPlanVsActual, keptIdea } from "../../../lib/ideas/keep";
 import { firstConnector } from "../../../lib/ideas/progress";
+import { Logo } from "../../../components/brand/Mark";
+import "../../auth-v2.css";
 import "../../ideas.css";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -31,16 +34,19 @@ export default async function MyIdeaPage() {
   const idea = access ? await keptIdea(access.profile_id) : null;
   if (!access || !idea) {
     return (
-      <main className="auth-stage">
-        <div className="statement-col">
+      <div className="ax ax-signin ax-dress">
+        <Link href="/" className="ax-logo">
+          <Logo onDark />
+        </Link>
+        <main className="ax-card ax-card-wide ax-dress-stack">
           <section className="card">
             <p className="auth-copy">{tr(access ? "mine.notIdea" : "mine.signedOut")}</p>
             <Link className="act" href={access ? "/idea" : "/login"}>
               {tr(access ? "again" : "keep.signInLink")}
             </Link>
           </section>
-        </div>
-      </main>
+        </main>
+      </div>
     );
   }
 
@@ -61,8 +67,11 @@ export default async function MyIdeaPage() {
     a.revenue_model === "recruitment" ? null : firstConnector(a.revenue_model, a.sector);
 
   return (
-    <main className="auth-stage">
-      <div className="statement-col">
+    <div className="ax ax-signin ax-dress">
+      <Link href="/" className="ax-logo">
+        <Logo onDark />
+      </Link>
+      <main className="ax-card ax-card-wide ax-dress-stack">
         <section className="card">
           <span className="auth-eyebrow">{tr("mine.kicker")}</span>
           <h1 className="auth-title">
@@ -205,7 +214,7 @@ export default async function MyIdeaPage() {
             <LaunchIdea />
           </section>
         )}
-      </div>
-    </main>
+      </main>
+    </div>
   );
 }

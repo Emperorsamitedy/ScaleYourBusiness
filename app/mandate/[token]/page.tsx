@@ -3,10 +3,13 @@
 // no SYB account needed beforehand. Public; the token is the credential.
 
 import type { Metadata } from "next";
+import Link from "next/link";
+import { Logo } from "../../../components/brand/Mark";
 import { PostForm } from "../../../components/partner/PostForm";
 import { requestLocale } from "../../../lib/i18n/server";
 import { trFor } from "../../../lib/i18n/server-tr";
 import { requestByToken } from "../../../lib/partners/mandates";
+import "../../auth-v2.css";
 
 export async function generateMetadata(): Promise<Metadata> {
   return {
@@ -24,18 +27,24 @@ export default async function MandateTokenPage({ params }: { params: Promise<{ t
   const open = await requestByToken(token);
   if (!open) {
     return (
-      <main className="auth-stage">
-        <section className="card">
+      <div className="ax ax-signin ax-dress">
+        <Link href="/" className="ax-logo">
+          <Logo onDark />
+        </Link>
+        <main className="ax-card">
           <p className="auth-copy">{tr("page.gone")}</p>
-        </section>
-      </main>
+        </main>
+      </div>
     );
   }
   const { request, firm } = open;
   return (
-    <main className="auth-stage">
-      <div className="statement-col">
-        <section className="card">
+    <div className="ax ax-signin ax-dress">
+      <Link href="/" className="ax-logo">
+        <Logo onDark />
+      </Link>
+      <main className="ax-card ax-card-wide">
+        <section className="card entry-col">
           <h1 className="auth-title">
             {tr("page.title", { firm: firm.name, business: request.business_name })}
           </h1>
@@ -55,7 +64,7 @@ export default async function MandateTokenPage({ params }: { params: Promise<{ t
             failed={tr("page.failed", { why: "{why}" })}
           />
         </section>
-      </div>
-    </main>
+      </main>
+    </div>
   );
 }

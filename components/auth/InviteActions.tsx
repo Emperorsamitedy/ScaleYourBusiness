@@ -63,7 +63,7 @@ export function InviteActions({
     return (
       <button
         type="button"
-        className="au-primary"
+        className="ax-btn ax-primary"
         disabled={busy}
         onClick={async () => {
           setBusy(true);
@@ -71,29 +71,28 @@ export function InviteActions({
           window.location.reload();
         }}
       >
-        <span>{tr("signOut")}</span>
-        <span className="au-arrow" aria-hidden="true">
-          &rarr;
-        </span>
+        {tr("signOut")}
       </button>
     );
   }
 
   return (
     <>
-      <button type="button" className="au-primary" disabled={busy} onClick={() => void join()}>
-        <span>{mode === "join" ? tr("join") : tr("emailLink", { email })}</span>
-        <span className="au-arrow" aria-hidden="true">
-          &rarr;
-        </span>
+      <button
+        type="button"
+        className="ax-btn ax-primary"
+        disabled={busy}
+        onClick={() => void join()}
+      >
+        {mode === "join" ? tr("join") : tr("emailLink", { email })}
       </button>
       {message && (
-        <p className="au-note" role="status">
+        <p className="ax-note" role="status">
           {message}
         </p>
       )}
       {link && (
-        <p className="au-note">
+        <p className="ax-note">
           <a href={link}>{tr("signInJoin")}</a>
         </p>
       )}

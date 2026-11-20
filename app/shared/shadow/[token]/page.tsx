@@ -4,11 +4,14 @@
 // leads into the account. A link that doesn't work gets the same plain page.
 
 import type { Metadata } from "next";
+import Link from "next/link";
+import { Logo } from "../../../../components/brand/Mark";
 import { ShadowSummaryView } from "../../../../components/ladder/ShadowSummaryView";
 import { readShareToken } from "../../../../lib/ladder/share";
 import { shadowSummaryFor } from "../../../../lib/ladder/shadow-summary";
 import { requestLocale } from "../../../../lib/i18n/server";
 import { trFor } from "../../../../lib/i18n/server-tr";
+import "../../../auth-v2.css";
 
 export async function generateMetadata(): Promise<Metadata> {
   return {
@@ -26,15 +29,25 @@ export default async function SharedShadowPage({ params }: { params: Promise<{ t
   const profileId = readShareToken(token);
   if (profileId === null) {
     return (
-      <main className="auth-stage">
-        <p className="auth-copy">{tr("none")}</p>
-      </main>
+      <div className="ax ax-signin ax-dress">
+        <Link href="/" className="ax-logo">
+          <Logo onDark />
+        </Link>
+        <main className="ax-card">
+          <p className="auth-copy">{tr("none")}</p>
+        </main>
+      </div>
     );
   }
   const { summary, currency } = await shadowSummaryFor(profileId);
   return (
-    <main className="auth-stage">
-      <ShadowSummaryView summary={summary} tr={tr} locale={locale} zeroWith={currency} />
-    </main>
+    <div className="ax ax-signin ax-dress">
+      <Link href="/" className="ax-logo">
+        <Logo onDark />
+      </Link>
+      <main className="ax-card ax-card-wide">
+        <ShadowSummaryView summary={summary} tr={tr} locale={locale} zeroWith={currency} />
+      </main>
+    </div>
   );
 }

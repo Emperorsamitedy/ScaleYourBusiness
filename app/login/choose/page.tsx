@@ -7,20 +7,21 @@
 // straight in. "Add another business" makes a new one under the same email.
 // Decluttered 2026-11-09 on the owner's instruction: no sheet label or
 // instruction line; the one-business-never-shows-another note is folded.
+// On the entrance's card since 2026-11-20, like sign-in itself.
 
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { cookies } from "next/headers";
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { AuthMasthead } from "../../../components/auth/AuthMasthead";
+import { Logo } from "../../../components/brand/Mark";
 import { AUTH_COOKIE } from "../../../lib/auth/access";
 import { authErrorWords } from "../../../lib/auth/error-words";
 import { membershipsFor } from "../../../lib/auth/members";
 import { currentSession } from "../../../lib/auth/service";
 import { requestLocale } from "../../../lib/i18n/server";
 import { trFor } from "../../../lib/i18n/server-tr";
-import "../../auth.css";
+import "../../auth-v2.css";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("auth.meta");
@@ -48,70 +49,56 @@ export default async function ChooseBusinessPage({
       : null;
 
   return (
-    <div className="desk au">
-      <AuthMasthead />
-      <main className="au-main">
-        <section className="au-lede">
-          <p className="au-kicker">{t("auth.choose.signedInAs", { email: session.email })}</p>
-          <h1 className="au-headline" id="au-choose-h">
+    <div className="ax ax-signin">
+      <Link href="/" className="ax-logo">
+        <Logo onDark />
+      </Link>
+      <main className="ax-card" aria-labelledby="ax-choose-h">
+        <div className="ax-head">
+          <h1 className="ax-title" id="ax-choose-h">
             {t("auth.choose.headline")}
           </h1>
-        </section>
-
-        <section className="sheet au-sheet" aria-labelledby="au-choose-h">
-          <div className="au-sheet-body">
-            {error && (
-              <p className="au-error" role="alert">
-                {error}
-              </p>
-            )}
-            <form method="post" action="/api/auth/switch" className="au-form au-choose">
-              {list.map((m) =>
-                m.account_id === session.account_id ? (
-                  <Link
-                    key={m.account_id}
-                    href={m.profile_id ? "/home" : "/intake"}
-                    className="au-door"
-                  >
-                    <span>
-                      {m.business ?? t("common.businessUnnamed")} · {t(`common.roles.${m.role}`)}
-                    </span>
-                    <span className="au-arrow" aria-hidden="true">
-                      &rarr;
-                    </span>
-                  </Link>
-                ) : (
-                  <button
-                    key={m.account_id}
-                    type="submit"
-                    name="account_id"
-                    value={m.account_id}
-                    className="au-door"
-                  >
-                    <span>
-                      {m.business ?? t("common.businessUnnamed")} · {t(`common.roles.${m.role}`)}
-                    </span>
-                    <span className="au-arrow" aria-hidden="true">
-                      &rarr;
-                    </span>
-                  </button>
-                ),
-              )}
-            </form>
-            <form method="post" action="/api/auth/business" className="au-form">
-              <button type="submit" className="au-primary">
-                <span>{t("auth.choose.add")}</span>
-                <span className="au-arrow" aria-hidden="true">
-                  &rarr;
-                </span>
+          <p className="ax-sub">{t("auth.choose.signedInAs", { email: session.email })}</p>
+        </div>
+        {error && (
+          <p className="ax-error" role="alert">
+            {error}
+          </p>
+        )}
+        <form method="post" action="/api/auth/switch" className="ax-doors">
+          {list.map((m) =>
+            m.account_id === session.account_id ? (
+              <Link
+                key={m.account_id}
+                href={m.profile_id ? "/home" : "/intake"}
+                className="ax-btn ax-door ax-choice"
+              >
+                <span className="ax-choice-name">{m.business ?? t("common.businessUnnamed")}</span>
+                <span className="ax-choice-role">{t(`common.roles.${m.role}`)}</span>
+              </Link>
+            ) : (
+              <button
+                key={m.account_id}
+                type="submit"
+                name="account_id"
+                value={m.account_id}
+                className="ax-btn ax-door ax-choice"
+              >
+                <span className="ax-choice-name">{m.business ?? t("common.businessUnnamed")}</span>
+                <span className="ax-choice-role">{t(`common.roles.${m.role}`)}</span>
               </button>
-            </form>
-            <details className="au-how">
-              <summary>{t("auth.how")}</summary>
-              <p>{t("auth.choose.foot")}</p>
-            </details>
-          </div>
-        </section>
+            ),
+          )}
+        </form>
+        <form method="post" action="/api/auth/business" className="ax-form">
+          <button type="submit" className="ax-btn ax-primary">
+            {t("auth.choose.add")}
+          </button>
+        </form>
+        <details className="ax-how">
+          <summary>{t("auth.how")}</summary>
+          <p>{t("auth.choose.foot")}</p>
+        </details>
       </main>
     </div>
   );

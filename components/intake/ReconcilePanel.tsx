@@ -27,10 +27,17 @@ export function ReconcilePanel({
 }) {
   const t = useTranslations("intake.reconcile");
   return (
-    <aside className="ix-reconcile sheet" aria-live="polite" aria-labelledby="ix-reconcile-h">
+    // The rule that found it stays on the element for whoever debugs a
+    // report of it; it is a code ("stage_vs_revenue"), not words for an
+    // owner, so since 2026-11-20 it is no longer printed beside the flag.
+    <aside
+      className="ix-reconcile sheet"
+      aria-live="polite"
+      aria-labelledby="ix-reconcile-h"
+      data-rule={finding.rule_id}
+    >
       <p className="ix-cap ix-reconcile-head">
         <span className="flag drift">{t("flag")}</span>
-        <span className="fig">{finding.rule_id}</span>
       </p>
       <h3 id="ix-reconcile-h">{t(finding.kind)}</h3>
       <p className="ix-reconcile-both inset">{finding.message}</p>

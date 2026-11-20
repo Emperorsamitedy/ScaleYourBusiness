@@ -228,7 +228,27 @@ They wore the look from before the third round: mono capitals ("CH 01 · BUSINES
 - **Plain words, seven languages.** A part is "part" ("Part 1 · Business basics", "All parts", "8 left in this part"); it was "channel" and "CH 01". Its number is plain.
 - Nothing moved: the structure, the motion that reports state, every figure and the keys 1 to 9 are as they were.
 - **Seen in a browser** as a brand-new person on the local database: nine questions answered (a typed name, a country, 33 business types, a paragraph, yes or no), the parts opened, the pause panel, and a phone. No capitals in any state opened, nothing past the edge.
-- [later] The first step before the interview (language and currency) and the closing screens after it were not opened in this pass.
+- [x] The first step before the interview (language and currency) is on the sign-in page's card since 2026-11-20: see "M5" below. A contradiction between two answers no longer prints its rule's code ("stage_vs_revenue") beside the flag.
+- **Opened in a second pass (2026-11-20):** an amount of money, a table of rows (what the business pays every month), the panel for two answers that disagree, and the parts opened from another part. No capitals and no arrows in any of them.
+- [later] The closing screen after the last question was not reached (it needs every question answered).
+
+### M5, every page a visitor or a person signing in meets (2026-11-20)
+
+He pointed at one more: "there's also this page and what follows it maybe: https://syb-kappa.vercel.app/idea". The idea check was three square cards on the desk with capital labels, a serif title and no wordmark at all. Looking for what else was left the same way found nine more pages on the two older public layouts. All of them wear the entrance now (the look sign-in, sign-up and the free check have had since 2026-11-16 and 17).
+
+- **The idea check** (`/idea`): the free check's two columns with the reel. Its form in the entrance's labelled fields, its result in one bordered panel under plain headings, "Keep this idea" green, the rest bordered. The link that was a lone arrow after "Already trading? Measure the real thing." is that sentence.
+- **What follows it**: a shared idea check (`/i/<token>`) and the kept idea (`/idea/mine`) on the sign-in page's card.
+- **The confirm step** every emailed sign-in link passes through, and a dead link (`/login/confirm`, `/resume`): the card, "One more step.", "Sign in as <address>?", one green button. Everyone who signs in by link saw the old look here, between the new sign-in page and the new app.
+- **"Which business?"** and **a team invite**: the card; a business is one bordered button with its name and the reader's role.
+- **The language and currency step** before the interview: the card; the seven languages as two columns of choices, the picked one tinted.
+- **The plans** (`/pricing`): the three plans side by side on white cards with their buttons level at the foot, the extra business as a slim card under them. It was five square cards one under the other.
+- **An accountant's request for access** and **a shared shadow summary**: the card.
+- **How.** The pages that kept their older markup are drawn through one scope, `.ax-dress` in `app/auth-v2.css`, which maps those older classes to the entrance's fields, buttons and type; nothing else that uses them moves. Only the legal placeholders (terms, privacy) stay on the older sheet.
+- **Seen in a browser**: each page opened as a stranger (and the plans also signed in), at 1440 wide and the confirm, the first step, the idea check and the plans at 390: no capital label but the entrance's own green kicker, no arrow on a control, no serif heading, nothing past the edge. The idea check was filled in and worked through to its result.
+- **Found on the way, not changed:**
+  - The idea check takes whole amounts only ("4.5" is refused by the browser, and the server says "give price as a whole amount"). It is deliberate (no fractions of a currency unit anywhere in it), but a coffee at 4.50 with a cost of 1.60 becomes 5 and 2: for a low-priced product the margin moves a lot. Worth a decision.
+  - A signed-out visitor who opens an owner screen other than Home (`/customers`, `/proposals`, `/content`) gets the app's frame with nothing in it; Home alone sends them to sign in.
+  - The sign-up page's reel still shows the app as it looked before the third round.
 
 ### L8, as built (2026-11-19 and 20, branch `straight-in`)
 

@@ -13,18 +13,20 @@
 // L-3c (TASKS-LANGUAGES.md): the page's own words are the "invite"
 // catalogue, in the reader's language. The business's name and the
 // addresses are shown as they are; the invite email itself is L-6.
+//
+// On the entrance's card since 2026-11-20, like sign-in itself.
 
 import type { Metadata } from "next";
 import { cookies } from "next/headers";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { getTranslations } from "next-intl/server";
-import { AuthMasthead } from "../../components/auth/AuthMasthead";
 import { InviteActions } from "../../components/auth/InviteActions";
+import { Logo } from "../../components/brand/Mark";
 import { AUTH_COOKIE } from "../../lib/auth/access";
 import { INVITE_TTL_DAYS, peekInvite } from "../../lib/auth/members";
 import { currentSession } from "../../lib/auth/service";
-import "../auth.css";
+import "../auth-v2.css";
 
 export async function generateMetadata(): Promise<Metadata> {
   const t = await getTranslations("invite.meta");
@@ -57,73 +59,59 @@ export default async function InvitePage({
   const pending = invite?.status === "pending";
 
   return (
-    <div className="desk au">
-      <AuthMasthead href="/login">{auth("mast.signIn")} &rarr;</AuthMasthead>
-      <main className="au-main">
-        <section className="au-lede">
-          <h1 className="au-headline" id="au-invite-h">
+    <div className="ax ax-signin">
+      <Link href="/" className="ax-logo">
+        <Logo onDark />
+      </Link>
+      <main className="ax-card" aria-labelledby="ax-invite-h">
+        <div className="ax-head">
+          <h1 className="ax-title" id="ax-invite-h">
             {pending ? t("headline.join", { where }) : t("headline.bad")}
           </h1>
-        </section>
-
-        <section
-          className="sheet au-sheet"
-          aria-labelledby={invite ? "au-sheet-title" : "au-invite-h"}
-        >
-          {invite && (
-            <header className="au-sheet-head">
-              <h2 className="au-sheet-title" id="au-sheet-title">
-                {t("title.as", { role, email: invite.email })}
-              </h2>
-            </header>
-          )}
-          <div className="au-sheet-body">
-            {!invite ? (
-              <details className="au-how">
-                <summary>{auth("why")}</summary>
-                <p>{t("unknown")}</p>
-              </details>
-            ) : invite.status !== "pending" ? (
-              <details className="au-how">
-                <summary>{auth("why")}</summary>
-                <p>
-                  {invite.status === "expired"
-                    ? t("status.expired", { days: INVITE_TTL_DAYS })
-                    : t(`status.${invite.status}`)}{" "}
-                  {t("askNew")}
-                </p>
-              </details>
-            ) : (
+          {invite && <p className="ax-sub">{t("title.as", { role, email: invite.email })}</p>}
+        </div>
+        {!invite ? (
+          <details className="ax-how">
+            <summary>{auth("why")}</summary>
+            <p>{t("unknown")}</p>
+          </details>
+        ) : invite.status !== "pending" ? (
+          <details className="ax-how">
+            <summary>{auth("why")}</summary>
+            <p>
+              {invite.status === "expired"
+                ? t("status.expired", { days: INVITE_TTL_DAYS })
+                : t(`status.${invite.status}`)}{" "}
+              {t("askNew")}
+            </p>
+          </details>
+        ) : (
+          <>
+            {session && session.email !== invite.email ? (
               <>
-                {session && session.email !== invite.email ? (
-                  <>
-                    <p className="au-copy">
-                      {t.rich("wrong", { invited: invite.email, signedIn: session.email, b })}
-                    </p>
-                    <InviteActions token={token} mode="wrong" email={invite.email} />
-                  </>
-                ) : (
-                  <InviteActions
-                    token={token}
-                    mode={session ? "join" : "sign_in"}
-                    email={invite.email}
-                  />
-                )}
-                <details className="au-how">
-                  <summary>{auth("how")}</summary>
-                  {!session && <p>{t.rich("signIn", { email: invite.email, b })}</p>}
-                  <p>{t("foot")}</p>
-                </details>
+                <p className="ax-copy">
+                  {t.rich("wrong", { invited: invite.email, signedIn: session.email, b })}
+                </p>
+                <InviteActions token={token} mode="wrong" email={invite.email} />
               </>
+            ) : (
+              <InviteActions
+                token={token}
+                mode={session ? "join" : "sign_in"}
+                email={invite.email}
+              />
             )}
-          </div>
-          {!pending && (
-            <footer className="au-sheet-foot">
-              <Link href="/login">{t("footLink")}</Link>
-            </footer>
-          )}
-        </section>
+            <details className="ax-how">
+              <summary>{auth("how")}</summary>
+              {!session && <p>{t.rich("signIn", { email: invite.email, b })}</p>}
+              <p>{t("foot")}</p>
+            </details>
+          </>
+        )}
       </main>
+      <p className="ax-switch">
+        <Link href="/login">{pending ? auth("mast.signIn") : t("footLink")}</Link>
+      </p>
     </div>
   );
 }
