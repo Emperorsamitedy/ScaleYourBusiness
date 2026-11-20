@@ -102,7 +102,7 @@ An evaluator on another model read the captures against the owner's words and Fo
 - [x] R10. Smaller: one link style ("Read now" like the others); "Open" wherever a decision is opened; the status card keeps its height; the feed shows eight rows first; the palette lists places before actions; the rail's watching line stays on one line.
 - [x] A source that stopped reading by itself is counted (2026-11-20): parked after repeated failures, it joins the write connections that paused themselves in the bell, beside Connections in the menu and on Home (`countStoppedReads`, `needs_reconnect` in `/api/nav`). A source the owner paused is their own choice and is still not counted, which is what the demo's Google Analytics is.
 - [x] A reply from Lex that did not come has "Try again" under it (2026-11-20), on Home, the conversation page and in Lex's pop-up. It is offered when the server failed or never answered, not for a refusal that gave its reason (too long, the plan's allowance, a key the server lacks), which would only give it again. Asking again shows the question once (`canRetry`, `withoutFailed` in `components/chat/useChat.ts`).
-- [later] In Lex's sheet and on the conversation page "Open" still goes to the decision's own page; a sheet over a sheet was not attempted.
+- [x] "Open" in Lex's pop-up and on the conversation page opens the decision in place (2026-11-20): see "L9, the leftovers" below. Inside a phone's full-screen sheet it still goes to the decision's own page.
 - [x] The note under Approve says it plainly (2026-11-20), in seven languages: "Approving records your yes with your name. No time is set for it, so I won't carry it out on my own."
 
 ## The independent review, round 2 (2026-11-18)
@@ -116,8 +116,8 @@ The same evaluator read the fixes and returned "pass": all of round 1 confirmed,
 - [x] S5. The rail's groups fade at the pinned foot where there is more to scroll to.
 - [x] S6. The conversation page names its box once: the sheet's title says it and the label is only spoken.
 - [x] S7. Found while checking, not by the review: the queue and the conversation still printed an estimate to the cent while Home and the sheet rounded it. One function words the range now (`rangeWords`, `components/proposals/queue-model.ts`), used by all four.
-- [later] On a phone, a group with one screen (Home) still gives the strip's row to the stop alone.
-- [later] Activity's "Checked" rows are many and alike; they want grouping by day or by connection.
+- [x] Gone with the frame of 2026-11-18: a phone's Home has one row (the wordmark, search, the bell, the stop) and no strip.
+- [x] A day's routine lines are one row in Activity (2026-11-20): see "L9, the leftovers" below.
 - [x] "Lowest point ahead" says when it is above today (2026-11-20): "week of 16 Nov, above today", so a larger figure beside a smaller "Cash today" no longer reads as a mistake (`aboveToday` in `components/home/home-model.ts`).
 
 ## The owner's third round (2026-11-18): the look, from mockups he picks
@@ -188,7 +188,7 @@ The list. Nothing here is ticked until he has seen it.
 | **Does the interview with the owner in the conversation**: asks each question with its choices, takes a typed answer, skips, stops                                     | M4, 2026-11-20                                     |
 | Continues the interview from any open question, picked by the owner                                                                                                    | [later] today it follows the interview's own order |
 | Answers a date, a table of rows or a file inside the conversation                                                                                                      | [later] those three are sent to the form           |
-| Marks its face when an answer arrives while the pop-up is closed                                                                                                       | [later]                                            |
+| Marks its face when an answer arrives while the pop-up is closed                                                                                                       | L9, 2026-11-20                                     |
 | Says a how-to without the model, from the guide alone, so it works when the model does not                                                                             | [later]                                            |
 
 ### M3, Lex knows ScaleX (2026-11-20)
@@ -251,6 +251,18 @@ He pointed at one more: "there's also this page and what follows it maybe: https
 - **The phone floats over the Zsolnay tiles.** He asked: "can you also replace the background of the floating iphone across all the pages with any/some of those zsolnay tiles we genereated very early on at the landing page design phase?" The holographic picture behind the phone on sign-up, the free check and the idea check is gone; each page has one of the landing page's own tile stills (the field of small tiles, the roof, the tile that catches the light), shown nearly whole. Nothing new was generated. Beside the idea check's long form the panel now stays in view while the form scrolls: it had stretched to the form's height, with the phone below the first screen.
 - **The sign-up page's reel** showed the app as it looked before the third round: eleven captures in a phone. They were retaken from the demo shop at the same size (600 by 1298), in the same order, under the same names (`public/auth/reel`), so the first picture a new person sees of the app is the app.
 - **Lex's guide was wrong about one place, and it was live for a few hours.** It put Customers, Reviews, Abandoned carts, Pipeline and Support under the business's name; they are under Grow. Corrected, and `lib/assistant/guide.test.ts` now holds every screen's place in the guide to the menu's own (`placeFor`). Three smaller claims were checked against the screens' words: how a goal is set, where the least to keep in the account is answered, and the three roles.
+
+### L9, the leftovers (2026-11-20)
+
+What the two review rounds and the earlier items had left for later, taken in order once the three merges were live.
+
+- **Found on the way, and live for some hours: the phone's bar on every wide screen.** Since the third merge, every signed-in screen wider than a phone showed the bottom bar's five links raw (blue and underlined, with a grey "More" button) in the bottom right corner, beside Lex's face. The bar and the face had shared one rule that hid both outside a phone. When the face came to every width (L4b) the rule that replaced it kept the bar's name, so the bar was drawn in the face's corner instead of staying hidden. Nothing could have caught it: every test passed, and the captures of that day were read for the pop-up, not for the corner under it. The bar has its own rule again, and `components/nav/shell.test.ts` now reads the sheet itself and fails if the bar is ever drawn outside a phone's layout. Seen in a browser at 1440 and 1000 wide (hidden) and at 390 (the bar, as before).
+- **Activity: a day's routine lines are one row.** What was read and what was checked come several to a day and all alike (each source, each goal), and they pushed what was noticed, proposed and answered out of the feed's first eight rows. A day's lines of one such kind are one row now: the newest, with "and 2 more" beside its time, and the others under it with their time of day when it is opened (`stackFeed` in `components/home/activity-model.ts`). Nothing is dropped or summed, and what was noticed, proposed or answered is never stacked, however alike. A stack is marked as news when any line in it is. Held by tests; seen on the demo shop, where three goal checks became one row.
+- **Lex's face is marked when he has answered unseen.** Asked, and Lex closed or the page left before the reply arrived, his face carries a point of light in the bar and afloat until the conversation is opened anywhere, the button says "Lex has answered" in seven languages, and a polite live line says it once (`arrivedUnseen` in `components/nav/LexPanel.tsx`). A reply read as it came is never marked.
+- **"Open" opens the decision in place** from Lex's pop-up and from the conversation page, as on Home: the side sheet over the page, the same body and the same two answers through the queue's own endpoint, Escape back to where the cursor was. One sheet for the whole frame (`FrameReview` in `components/nav/AppFrame.tsx`), fetched only when first wanted, so no screen carries it that never opens one. After an answer there, the card under Lex's reply reads the decision again. Inside a phone's full-screen sheet "Open" still goes to the decision's own page: a sheet over a sheet is two things to close.
+- **Stated against measured: one line per measure.** The report's table printed two lines of small print under every measure (sixteen for eight measures, nearly all alike): the account and its days, and the owner's own answer with its basis and date. They are one list under the card's "How this works" now, opened for print with the rest of the proof, and the column says "Measure". The card is 650 px tall where it was 1,020. **And the small chart in that table was never drawn right:** its track was inline text with no width, so both marks sat on its left edge and every row showed the same black square whatever its two figures were. The hollow mark (said) and the filled one (measured) now stand apart on one scale.
+- **How it was seen without a model.** The local model key is invalid, so Lex's reply was canned in the browser: the page's own request to the conversation's route was answered by the walk with a sentence, a screen cited in it and a waiting decision's id. That is also the first time a reply naming a screen was seen drawn, with its button to Connections under it.
+- [later] A Home the owner can rearrange, rows opened in place on more screens, and the captions that still start small.
 
 ### L8, as built (2026-11-19 and 20, branch `straight-in`)
 
@@ -336,7 +348,7 @@ Connections was the longest screen in the app, more than 6,000 px once everythin
 - **Customers, tidied (2026-11-20).** He looked at it and said "some cards are all over the place and i don't like the current look of it": five cards of five sizes shared one screen. It is three parts now, as Connections is: the list (1,678 px at 1440 wide), segments with campaigns, and bringing customers in. A business with no customers opens on the third. A row is its own control (the whole row presses, with a ring for the keyboard; the "Open" column is gone), the record stays beside the list while the list scrolls, and on a phone a row is two lines: the name with its pattern, then the figures.
 - **Similar businesses**: the live comparison card keeps what it says about the comparison and the button to stop contributing (a consent stays in view); where the figures come from and what is not measured yet sit under "How this works".
 
-- [ ] Not yet done on the list: the rest of L9 (a phone's strip with one screen, Activity's "Checked" rows grouped, "Open" from Lex opening a decision in place, a Home the owner can rearrange, rows opened in place on more screens), and the owner's fourth round below.
+- [ ] Not yet done on the list: the rest of L9 (a Home the owner can rearrange, rows opened in place on more screens, the captions that still start small). What was done of it is in "L9, the leftovers".
 - **Captions in the settings forms.** "YOUR LANGUAGE" and "CURRENCY" were the last captions in capitals inside the app: the language settings borrow two label styles from the sign-in page's stylesheet, which set capitals outright. They follow the app's sentence case inside the frame now and are unchanged on the sign-in page (`app/auth.css`).
 
 ### L4b, Lex as a pop-up (2026-11-20)
@@ -349,7 +361,7 @@ Connections was the longest screen in the app, more than 6,000 px once everythin
 - **A phone keeps the full-screen sheet**: under 760 px there is no room beside the page.
 - It sits under the app's modal layers (a decision opened in place, the palette), which take the screen when they open.
 - Held by a test (`components/nav/shell.test.ts`: when Lex stays open across screens) and seen in a browser at 1440, 1100 and 800 wide and on a phone: opened from the face and from the bar, a control on the page pressed beside it, carried to another screen with its draft, closed with Escape and by going Home.
-- [later] Lex answering about the screen the owner is on without being told which one, and a mark on the face when an answer arrives while the pop-up is closed.
+- [x] Lex knows which screen the owner is on (M3), and his face is marked when an answer arrives while the pop-up is closed (2026-11-20: see "L9, the leftovers").
 
 ### L6, the fact sheet and the report (2026-11-20)
 
@@ -362,7 +374,7 @@ The two screens that hold the most. Nothing was taken away from either.
 - **The report folds its proof.** A finding keeps its flag, its headline and its two sentences; the answers it rests on open under "Why?". A recommendation keeps its range with the base case marked, the break-even line, what it depends on heavily, what to do on a change of mind and the two answers; the three worked cases and the stated assumptions open under "Why?". 6,839 px where it was 9,039. On paper nothing is folded: the proof opens for the print and closes after it.
 - **Found on the way: the top bar ran off the screen on a tablet.** Between 760 and about 1,000 px wide the four places and the tools did not fit, "Stop everything" hung past the right edge, and every page scrolled sideways. The stop says one word under 1,100 px, and under 1,000 px a place that is not open shows its icon alone (its name stays for a screen reader and on hover). Measured on Home, the queue, the report, the fact sheet and Customers from 760 to 1,099 px: nothing past the edge.
 - Held by tests in `components/profile/model.test.ts`: which part an address opens, what counts as a long answer, the section a narrow screen shows, and the section a focused fact is in. The spec says the same (`specs/ux-spec-v1.md`: the market chart's place, the report's findings and recommendations, the bar).
-- [later] The stated-against-measured table still prints two lines of provenance under every measure.
+- [x] The stated-against-measured table is one line per measure (2026-11-20): see "L9, the leftovers" below.
 
 ### The branch (2026-11-19)
 

@@ -30,6 +30,7 @@
     "switchBusiness": "Changer d’entreprise",
     "watching": "Observation · jour {day} sur {of}",
     "ask": "Demander à Lex",
+    "answered": "Lex a répondu",
     "signOut": "Se déconnecter",
     "signingOut": "Déconnexion…",
     "group": {
@@ -677,7 +678,7 @@
     },
     "svm": {
       "caption": "Ce que vous avez dit, face à ce qu’un compte connecté a mesuré",
-      "measure": "Mesure · période",
+      "measure": "Mesure",
       "said": "Vous avez dit",
       "measured": "Mesuré",
       "difference": "Écart",
@@ -10446,6 +10447,7 @@
       "empty": "Rien pour l’instant.",
       "more": "Afficher plus",
       "new": "{count, plural, one {# nouvelle entrée} many {# nouvelles entrées} other {# nouvelles entrées}}",
+      "stack": "et {count} de plus",
       "said": "Vous avez dit : « {words} »"
     },
     "tabs": {

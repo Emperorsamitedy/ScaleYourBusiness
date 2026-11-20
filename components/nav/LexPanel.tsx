@@ -43,7 +43,12 @@ import { knowsNothing } from "../home/next-steps";
 import { useTr } from "../sheet/useTr";
 import { IconButton } from "../ui/IconButton";
 import { Sheet } from "../ui/Sheet";
-import { LexApiProvider, LexBusyProvider } from "./NavContext";
+import {
+  LexApiProvider,
+  LexBusyProvider,
+  LexWaitingProvider,
+  ReviewOpenerProvider,
+} from "./NavContext";
 import type { LexApi } from "./NavContext";
 import "../../app/chat.css";
 
@@ -64,6 +69,16 @@ export const LEX_POPUP_FROM = 760;
  */
 export function staysOpen(path: string, wide: boolean): boolean {
   return wide && inlineComposer(path) === null;
+}
+
+/**
+ * Pure: whether a reply that has just come is one the owner has not seen.
+ * A reply (or the line that stands where one did not come) arrives at the
+ * moment Lex stops being busy. It is unseen when the conversation is not in
+ * view then: Lex closed, on a page that does not hold the conversation.
+ */
+export function arrivedUnseen(wasBusy: boolean, busy: boolean, inView: boolean): boolean {
+  return wasBusy && !busy && !inView;
 }
 
 /** Whether the window is wide enough for the pop-up; false until the browser says. */
@@ -311,6 +326,7 @@ export function LexHost({
 }) {
   const shared = useChatCore(true);
   const { tr } = useTr("chat");
+  const tn = useTranslations("nav");
   const [open, setOpen] = useState(false);
   const wide = useWide();
   // The latest of each, so `open()` keeps one identity for its callers.
@@ -345,11 +361,29 @@ export function LexHost({
 
   const state = shared.chat.state;
   const busy = state.phase === "ready" && state.busy;
+
+  // An answer that came while nobody was looking waits with a mark on Lex's
+  // face (M2): a question asked and Lex closed, or the page left, before the
+  // reply arrived. Opening the conversation anywhere takes the mark away.
+  const inView = open || inlineComposer(path) !== null;
+  const [waiting, setWaiting] = useState(false);
+  const wasBusy = useRef(false);
+  useEffect(() => {
+    if (arrivedUnseen(wasBusy.current, busy, inView)) setWaiting(true);
+    wasBusy.current = busy;
+  }, [busy, inView]);
+  useEffect(() => {
+    if (inView) setWaiting(false);
+  }, [inView]);
+
   return (
     <SharedChatProvider value={shared}>
       <LexApiProvider value={api}>
         <LexBusyProvider value={busy}>
-          {children}
+          <LexWaitingProvider value={waiting}>{children}</LexWaitingProvider>
+          <p className="sr-only" role="status" aria-live="polite">
+            {waiting ? tn("answered") : ""}
+          </p>
           {wide ? (
             <LexPop
               chat={shared.chat}
@@ -359,13 +393,16 @@ export function LexHost({
               facts={facts}
             />
           ) : (
-            <LexSheet
-              chat={shared.chat}
-              open={open}
-              onClose={() => setOpen(false)}
-              business={business}
-              facts={facts}
-            />
+            // The sheet covers the page already: a decision in it keeps its own page.
+            <ReviewOpenerProvider value={null}>
+              <LexSheet
+                chat={shared.chat}
+                open={open}
+                onClose={() => setOpen(false)}
+                business={business}
+                facts={facts}
+              />
+            </ReviewOpenerProvider>
           )}
         </LexBusyProvider>
       </LexApiProvider>

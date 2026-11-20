@@ -30,6 +30,7 @@
     "switchBusiness": "Másik vállalkozás",
     "watching": "Figyelés · {day}. nap / {of}",
     "ask": "Kérdezze Lexet",
+    "answered": "Lex válaszolt",
     "signOut": "Kijelentkezés",
     "signingOut": "Kijelentkezés…",
     "group": {
@@ -677,7 +678,7 @@
     },
     "svm": {
       "caption": "Amit Ön mondott, szemben azzal, amit egy összekapcsolt fiók mért",
-      "measure": "Mérőszám · időszak",
+      "measure": "Mérőszám",
       "said": "Ön ezt mondta",
       "measured": "Mért",
       "difference": "Eltérés",
@@ -10446,6 +10447,7 @@
       "empty": "Még semmi.",
       "more": "Több megjelenítése",
       "new": "{count, plural, one {# új bejegyzés} other {# új bejegyzés}}",
+      "stack": "és még {count}",
       "said": "Ön ezt mondta: „{words}”"
     },
     "tabs": {
