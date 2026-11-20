@@ -44,7 +44,7 @@ export default async function IdeaPage() {
           <AuthFooter languages={picker.data.languages} language={picker.data.language} />
         </div>
       </section>
-      <AuthReel />
+      <AuthReel scene="glint" />
     </div>
   );
 }

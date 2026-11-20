@@ -51,6 +51,7 @@ import { AccessProvider } from "../auth/RoleContext";
 import type { NavAccess } from "../../app/api/nav/route";
 import type { SizeBand, SizeFeatureKey } from "../../lib/core/size-features";
 import { showsFor } from "../../lib/core/size-features";
+import { signInPath } from "../../lib/auth/return-to";
 import { roleAllows } from "../../lib/auth/role-actions";
 import { EmergencyStop } from "../execution/EmergencyStop";
 import { useStopped } from "../execution/useStopped";
@@ -438,7 +439,18 @@ function useCounts(path: string, live: boolean): { counts: NavCounts | null; ref
     if (shared) return;
     let alive = true;
     void fetch("/api/nav", { cache: "no-store" })
-      .then(async (res) => (res.ok ? ((await res.json()) as NavCounts) : null))
+      .then(async (res) => {
+        // No session and no interview under way: there is nothing of anyone's
+        // to show on an owner screen. The visitor signs in and comes back
+        // here (Home has always done this on the server; every other screen
+        // drew the frame around nothing). A failed read is not a 401 and
+        // sends nobody anywhere.
+        if (res.status === 401 && live && alive) {
+          window.location.replace(signInPath(path));
+          return null;
+        }
+        return res.ok ? ((await res.json()) as NavCounts) : null;
+      })
       .then((c) => {
         if (alive && c) setCounts(c);
       })
@@ -446,7 +458,7 @@ function useCounts(path: string, live: boolean): { counts: NavCounts | null; ref
     return () => {
       alive = false;
     };
-  }, [path, tick, shared]);
+  }, [path, tick, shared, live]);
 
   useEffect(() => {
     if (!live || shared) return;

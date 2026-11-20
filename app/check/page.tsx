@@ -52,7 +52,7 @@ export default async function CheckPage({
           <AuthFooter languages={picker.data.languages} language={picker.data.language} />
         </div>
       </section>
-      <AuthReel />
+      <AuthReel scene="roof" />
     </div>
   );
 }

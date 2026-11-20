@@ -1,7 +1,13 @@
 "use client";
 
 // The sign-up screen's right-hand panel (2026-11-16): a looping tour of
-// real ScaleX screens inside a phone, over the holographic growth image.
+// real ScaleX screens inside a phone, over one of the landing page's
+// Zsolnay tile scenes (the owner, 2026-11-20: "replace the background of the
+// floating iphone across all the pages with any/some of those zsolnay
+// tiles"). It was a holographic growth image, the one picture left on the
+// entrance that was not the brand's own. Each page that shows the phone has
+// its own tile: sign-up the field of small tiles, the free check the roof,
+// the idea check the tile that catches the light.
 //
 // The screens are screenshots of the demo business (Fernhill Ceramics,
 // scripts/seed-demo.ts) at phone size, so the tour shows what is built and
@@ -26,6 +32,19 @@ export const REEL = [
 ] as const;
 
 export const REEL_STEP_SECONDS = 3;
+
+/**
+ * The tile scenes the phone floats over: stills from the landing page's own
+ * set (public/landing-v2, generated for it on 2026-11-17 and reused here, so
+ * nothing new was made). `at` is where the picture is held when the panel
+ * crops it, so the tiles sit behind the phone and not off to one side.
+ */
+export const REEL_SCENES = {
+  field: { file: "g7", at: "center 62%" },
+  roof: { file: "g5", at: "center 58%" },
+  glint: { file: "g2", at: "38% center" },
+} as const;
+export type ReelScene = keyof typeof REEL_SCENES;
 
 function StatusBar() {
   return (
@@ -54,11 +73,17 @@ function StatusBar() {
   );
 }
 
-export function AuthReel() {
+export function AuthReel({ scene = "field" }: { scene?: ReelScene }) {
   const t = useTranslations("auth.reel");
+  const tile = REEL_SCENES[scene];
   return (
     <aside className="ax-visual" aria-label={t("label")}>
-      <img className="ax-visual-bg" src="/auth/holo.jpg" alt="" />
+      <img
+        className="ax-visual-bg"
+        src={`/landing-v2/${tile.file}-2x.jpg`}
+        alt=""
+        style={{ objectPosition: tile.at }}
+      />
       <div className="ax-visual-shade" />
       <div className="iphone">
         <span className="ip-btn ip-action" />
