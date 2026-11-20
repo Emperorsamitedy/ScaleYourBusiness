@@ -16,19 +16,26 @@ import {
   intakeCookieOptions,
   signProfileCookie,
 } from "./access";
-import { RETURN_COOKIE, returnPath } from "./return-to";
+import { RETURN_COOKIE, isIdeaReturn, returnPath } from "./return-to";
 import type { RedeemedSession } from "./service";
 
 /**
  * Pure: the path a sign-in lands on. Idea 52: an email on several
  * businesses' teams is asked which one first. Idea 53: otherwise back to the
- * proposal card the sign-in started from, once; else Home, or the intake for
- * an account with no business yet.
+ * proposal card the sign-in started from, once; else Home.
+ *
+ * L8: a sign-in gives a person with no business one, so Home is where a new
+ * person lands and the interview is offered there. The one sign-in that
+ * makes none is on its way to keeping an idea, and it goes back to the
+ * check it came from (TASKS-IDEAS G-3, which a new person never reached).
+ * The interview stays the fallback for a session with no business and
+ * nowhere to return to.
  */
 export function landingPath(session: RedeemedSession, returnCookie: string | undefined): string {
   if (session.choose) return "/login/choose";
-  const back = session.profile_id ? returnPath(returnCookie) : null;
-  return back ?? (session.profile_id ? "/home" : "/intake");
+  const back = returnPath(returnCookie);
+  if (!session.profile_id) return back !== null && isIdeaReturn(back) ? back : "/intake";
+  return back ?? "/home";
 }
 
 /** Set the signed-in cookies on `response` and clear the one-time return path. */

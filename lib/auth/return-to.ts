@@ -21,6 +21,15 @@ const CARD_PATH = /^\/proposals(\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4
  */
 const IDEA_PATH = /^\/(i\/[A-Za-z0-9_-]{8,40}|idea(\/mine)?)$/;
 
+/**
+ * Whether a sign-in is on its way to an idea: a shared check or the check
+ * itself. Such a sign-in makes no business of its own (keeping the idea
+ * does), and a person without one still comes back to the check.
+ */
+export function isIdeaReturn(raw: unknown): boolean {
+  return typeof raw === "string" && /^\/(i\/[A-Za-z0-9_-]{8,40}|idea)$/.test(raw.trim());
+}
+
 /** The path to come back to, or null for anything that isn't the queue or a card. */
 export function returnPath(raw: unknown): string | null {
   if (typeof raw !== "string") return null;

@@ -23,8 +23,10 @@ import { ChatBusy, ChatTurn } from "../chat/ChatTurn";
 import { Composer } from "../chat/Composer";
 import { chipQuestions } from "../chat/ChatScreen";
 import { InPlaceDecision } from "../chat/InPlaceDecision";
+import { InterviewOffer } from "../chat/InterviewOffer";
 import { SharedChatProvider, useChatCore } from "../chat/useChat";
 import type { Chat } from "../chat/useChat";
+import { knowsNothing } from "../home/next-steps";
 import { useTr } from "../sheet/useTr";
 import { Sheet } from "../ui/Sheet";
 import { LexApiProvider, LexBusyProvider } from "./NavContext";
@@ -43,11 +45,14 @@ function LexSheet({
   open,
   onClose,
   business,
+  facts,
 }: {
   chat: Chat;
   open: boolean;
   onClose: () => void;
   business: string | null;
+  /** Facts on the fact sheet; null while unknown. Zero: Lex offers the interview (L8). */
+  facts: number | null;
 }) {
   const { tr, locale } = useTr("chat");
   const chips = chipQuestions(useMessages());
@@ -98,7 +103,8 @@ function LexSheet({
       {s.phase === "error" && <p className="lx-note">{tr("error.copy")}</p>}
       {s.phase === "ready" && (
         <div className="lx-thread" aria-live="polite">
-          {s.turns.length === 0 && (
+          {s.turns.length === 0 && knowsNothing(facts) && <InterviewOffer />}
+          {s.turns.length === 0 && !knowsNothing(facts) && (
             <div className="ak-start">
               <p className="ak-descriptor">{tr("descriptor")}</p>
               {chips.length > 0 && (
@@ -151,10 +157,13 @@ function LexSheet({
 export function LexHost({
   path,
   business,
+  facts = null,
   children,
 }: {
   path: string;
   business: string | null;
+  /** Facts on the fact sheet, from the menu's read; null while unknown. */
+  facts?: number | null;
   children: ReactNode;
 }) {
   const shared = useChatCore(true);
@@ -198,6 +207,7 @@ export function LexHost({
             open={open}
             onClose={() => setOpen(false)}
             business={business}
+            facts={facts}
           />
         </LexBusyProvider>
       </LexApiProvider>

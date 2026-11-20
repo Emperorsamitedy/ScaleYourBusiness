@@ -10333,6 +10333,11 @@
       "title": "No he podido leer lo que le espera."
     },
     "title": "{count, plural, =0 {No hay nada esperándole.} one {# decisión le espera.} many {# decisiones le esperan.} other {# decisiones le esperan.}}",
+    "fresh": {
+      "title": "Todavía no conozco su negocio.",
+      "lede": "Hábleme de él y buscaré lo que le cuesta dinero. Son unos ocho minutos, escribiendo o hablando.",
+      "start": "Empezar la entrevista"
+    },
     "biggest": "La mayor podría sumar {range} al mes.",
     "readings": {
       "label": "Sus cifras de hoy",

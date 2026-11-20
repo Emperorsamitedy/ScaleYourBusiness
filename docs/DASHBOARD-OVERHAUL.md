@@ -145,10 +145,24 @@ The list. Nothing here is ticked until he has seen it.
 - [~] L5. **The microphone.** He sees no browser pop-up when he presses it. Found and fixed: see below. A blocked or missing microphone was already said on the screen (`lib/voice/session.ts`).
 - [~] L6. **Less to read at once.** Cash flow is built (see below); the other screens follow. "There's still a lot of text on some pages like the cash flow", and "a few overlaps here and there". The content may stay ("I absolutely don't mind you keeping it") but "no one will probably sit down and read that much text": present it "as concise and accurate and small as possible". Cash flow first, then screen by screen.
 - [~] L7. **No long dashes.** Built for everything a screen prints: see "L7, as built" below. "No em and en dashes throughout the app"; underscores "only to a very certain limit". This reaches the seven catalogues and the range's wording ("+€136 – +€1,213" becomes "+€136 to +€1,213").
-- [ ] L8. **Straight into the app.** After signing in or signing up a person lands in the app, with no interview first. The dashboard reminds them to do it, and Lex offers to do it in conversation for those who would rather talk (the conversation is already a fact source: `specs/conversation-channel.md`).
+- [~] L8. **Straight into the app.** Built on the branch `straight-in` and waiting for his look: see "L8, as built" below. After signing in or signing up a person lands in the app, with no interview first. The dashboard reminds them to do it, and Lex offers to do it in conversation for those who would rather talk (the conversation is already a fact source: `specs/conversation-channel.md`).
 - [ ] L9. **What was already left for later** in this file (the two review rounds and "Later rounds") stays on the list behind these.
 
 Order: L1, L2, his pick, then L3, L4 and L6 built to the pick, then L7, L5, L8, then L9.
+
+### L8, as built (2026-11-19 and 20, branch `straight-in`)
+
+"After signing in or signing up a person lands in the app, with no interview first."
+
+- **A sign-in makes the business.** A proven sign-in (the emailed link, its code, or Google, Microsoft and Apple) gives an account that has no business an empty one, in its shadow month from that moment (the v1 spec §4.2), and lands on Home. Signing in again finds the same business; two sign-ins at the same moment make one (the database's unique account, and an insert that gives way).
+- **The one sign-in that makes none** is on its way to an idea check (`isIdeaReturn` of the return cookie): keeping an idea makes its own business, so an empty operating one beside it would be clutter. That person goes back to the check, which a new person never reached before (TASKS-IDEAS G-3).
+- **Home says it.** For a business with no facts yet, Lex's headline reads "I don't know your business yet.", one line says what the interview is for and how long it takes, and one button starts it. It is offered once on the screen: the list of next steps does not repeat it, and the three suggested questions wait until there is something to answer them from.
+- **Lex offers it in conversation.** On the chat page and in the Ask Lex sheet, where the suggested questions would be, the same words and the same button (`components/chat/InterviewOffer.tsx`). The interview itself held inside the conversation is the later step.
+- **Adding a business** lands on Home too, and "interview started" is counted when the interview is first opened, once per business, not when the business is made.
+- **Held by tests**: where a sign-in lands (`lib/auth/landing.test.ts`), a new person's own business and its shadow month, the idea exception, and a stranger never landing in someone else's business (`switch`, `access`, `service`, `oauth` against the database).
+- **Seen in a browser** with a brand-new address: the sign-in lands on Home, Home and both conversations make the offer, and the button opens the interview.
+- **Where it lives.** Completing a sign-in (spending the link or the code, and the first business) is its own module, `lib/auth/sign-in.ts`, which only the three routes that complete a sign-in import. `lib/auth/service.ts` reads the session for every route in the app, so it must not pull in the intake and the ladder: the first version did, and the guard on the push send path (`lib/push/no-connector.test.ts`: it reaches no connector and no execution code) failed on GitHub for it on 2026-11-20. That run was read only after the branch had been called ready: a branch is checked when its whole run is green, not its type check.
+- It changes what a sign-in does on the live site (a business is made at once), so it sits on its own branch on top of `dashboard-v2` and is merged after it.
 
 ### L7, as built (2026-11-18)
 
@@ -217,6 +231,7 @@ Connections was the longest screen in the app, more than 6,000 px once everythin
 - Held by tests in `components/connections/patch.test.ts`: which part an address opens, and each part's count. Seen in a browser at 1440 and 390 wide.
 
 - **Customers** opens on fifteen rows where fifty stood (4,716 px to 2,301); each press adds thirty. Search and the filters read every customer, never only the rows on screen.
+- **Customers, tidied (2026-11-20).** He looked at it and said "some cards are all over the place and i don't like the current look of it": five cards of five sizes shared one screen. It is three parts now, as Connections is: the list (1,678 px at 1440 wide), segments with campaigns, and bringing customers in. A business with no customers opens on the third. A row is its own control (the whole row presses, with a ring for the keyboard; the "Open" column is gone), the record stays beside the list while the list scrolls, and on a phone a row is two lines: the name with its pattern, then the figures.
 - **Similar businesses**: the live comparison card keeps what it says about the comparison and the button to stop contributing (a consent stays in view); where the figures come from and what is not measured yet sit under "How this works".
 
 - [ ] Not yet done on the list: L6 on the fact sheet and the report's own cards, captions still set in capitals inside the settings forms, Lex as a pop-up, and L9.
@@ -224,6 +239,8 @@ Connections was the longest screen in the app, more than 6,000 px once everythin
 ### The branch (2026-11-19)
 
 `dashboard-v2` is pushed and passes every check on GitHub at `348c8c3`: type check, lint, format, migrations, tests, the bank lint and the production build. `main` (`e2eae45`) is merged in. The format step had failed on `main` since 2026-11-09 and hidden the tests and the build; fixing it showed two red tests nobody had seen (five public routes missing from the route door's list; a float on a money path in the estimate's rounding, which now uses `roundMinorTo`). Nothing is on `main`: merging is the deploy and is the owner's word.
+
+**Merged and live (2026-11-20).** He said "push and merge and if you are capable of it deploy too". `dashboard-v2` at `b38f185` passed every check and went into `main` as pull request #1 (merge commit `ec2daf5`). Vercel built it for production within five minutes, which also answers an open question: a merge made by a collaborator who is not on the Vercel account does deploy on this public repo. The live site was then read: the new landing headline, Home sending a signed-out visitor to sign-in, the frame on the queue, the report, Connections and Customers, and the microphone allowed in the policy header. `straight-in` follows as its own pull request once its checks are green.
 
 ### L3 to L6, as built (2026-11-18)
 

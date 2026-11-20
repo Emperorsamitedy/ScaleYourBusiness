@@ -12,7 +12,7 @@ import { generateKeyPairSync } from "node:crypto";
 import { eq } from "drizzle-orm";
 import { afterAll, afterEach, describe, expect, it, vi } from "vitest";
 import { db } from "../../db";
-import { accounts, authSessions, users } from "../../db/schema";
+import { accounts, authSessions, businessProfiles, users } from "../../db/schema";
 import {
   MICROSOFT_CONSUMER_TENANT,
   authorizeRedirect,
@@ -22,7 +22,8 @@ import {
   oauthProvider,
   verifiedEmailFromClaims,
 } from "./oauth";
-import { currentSession, signInWithEmail } from "./service";
+import { currentSession } from "./service";
+import { signInWithEmail } from "./sign-in";
 
 afterEach(() => {
   vi.unstubAllEnvs();
@@ -120,6 +121,8 @@ describe("signInWithEmail — one motion, however the email was proven", () => {
         .set({ owner_user_id: null })
         .where(eq(accounts.owner_user_id, u.id));
       await db.delete(users).where(eq(users.id, u.id));
+      // L8: the sign-in gave this account an empty business; it goes first.
+      await db.delete(businessProfiles).where(eq(businessProfiles.account_id, u.account_id));
       await db.delete(accounts).where(eq(accounts.id, u.account_id));
     }
   });

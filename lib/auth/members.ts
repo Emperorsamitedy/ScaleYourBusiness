@@ -582,7 +582,7 @@ export async function joinWithSession(
 /**
  * Join through a sign-in link asked for from the invite page — the link
  * went to the invite's own address, and `email` is that link's. Called by
- * redeemLogin only.
+ * redeemLogin (./sign-in) only.
  */
 export async function joinByInviteId(inviteId: string, email: string): Promise<RedeemedSession> {
   try {

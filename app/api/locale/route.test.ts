@@ -12,7 +12,8 @@ import { db } from "../../../db";
 import { accounts, businessProfiles, loginTokens, users } from "../../../db/schema";
 import { AUTH_COOKIE, INTAKE_COOKIE, signProfileCookie } from "../../../lib/auth/access";
 import type { Role } from "../../../lib/auth/roles";
-import { hash, openSession, redeemLogin, requestLogin } from "../../../lib/auth/service";
+import { hash, openSession, requestLogin } from "../../../lib/auth/service";
+import { redeemLogin } from "../../../lib/auth/sign-in";
 import { CURRENCY_COOKIE, LANGUAGE_COOKIE } from "../../../lib/i18n/locales";
 import { bootstrapIntake } from "../../../lib/intake/service";
 

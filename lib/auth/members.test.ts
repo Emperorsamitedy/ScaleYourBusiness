@@ -27,7 +27,8 @@ import {
   teamList,
 } from "./members";
 import type { Role } from "./role-actions";
-import { AuthError, currentSession, openSession, redeemLogin, requestLogin } from "./service";
+import { AuthError, currentSession, openSession, requestLogin } from "./service";
+import { redeemLogin } from "./sign-in";
 
 const mail = (tag: string) => `team-${tag}-${crypto.randomUUID().slice(0, 8)}@example.com`;
 

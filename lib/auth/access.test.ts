@@ -26,7 +26,8 @@ import { bootstrapIntake } from "../intake/service";
 import type { ParsedCookie } from "./access";
 import { claimableProfile, decideAccess, parseProfileCookie, signProfileCookie } from "./access";
 import type { AuthedSession } from "./service";
-import { redeemLogin, requestLogin, signInWithEmail } from "./service";
+import { requestLogin } from "./service";
+import { redeemLogin, signInWithEmail } from "./sign-in";
 import { sendLoginEmail } from "./email";
 
 const ID = "3c941b9e-a4e2-48ad-8e6a-4f22ff2b20ee";
@@ -224,7 +225,9 @@ describe("a sign-in only ever claims a business nobody owns", () => {
     // Defence in depth: even handed the id directly, the service refuses to join.
     const stranger = await signInWithEmail(email(), s.profile_id);
     expect(stranger.account_id).not.toBe(s.account_id);
-    expect(stranger.profile_id).toBeNull();
+    // L8: the stranger gets a business of their own, and never this one.
+    expect(stranger.profile_id).not.toBeNull();
+    expect(stranger.profile_id).not.toBe(s.profile_id);
   });
 
   it("THE ATTACK: two concurrent redeems of one link mint one session, not two", async () => {

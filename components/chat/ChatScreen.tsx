@@ -35,10 +35,12 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useMessages } from "next-intl";
 import { businessNoun } from "../../lib/core/business-noun";
+import { knowsNothing } from "../home/next-steps";
 import { useTr } from "../sheet/useTr";
 import { ChatBusy, ChatTurn } from "./ChatTurn";
 import { Composer } from "./Composer";
 import { InPlaceDecision } from "./InPlaceDecision";
+import { InterviewOffer } from "./InterviewOffer";
 import { earlierQuestions, latestQuestion } from "./chat-view";
 import { useChat } from "./useChat";
 import "../../app/chat.css";
@@ -60,6 +62,8 @@ export function ChatScreen() {
   const [business, setBusiness] = useState<string | null>(null);
   // "your salon", "your gym" — from the business_type answer; "your business" until known.
   const [englishNoun, setNoun] = useState(businessNoun(null));
+  // How many facts the business has told; null until the menu's read answers.
+  const [facts, setFacts] = useState<number | null>(null);
   const { tr, locale } = useTr("chat");
   const chips = chipQuestions(useMessages());
   // English's noun table ("your salon"); other languages say "your business".
@@ -74,12 +78,17 @@ export function ChatScreen() {
     void fetch("/api/nav")
       .then((r) =>
         r.ok
-          ? (r.json() as Promise<{ business: string | null; business_type?: string | null }>)
+          ? (r.json() as Promise<{
+              business: string | null;
+              business_type?: string | null;
+              facts?: number;
+            }>)
           : null,
       )
       .then((j) => {
         setBusiness(j?.business ?? null);
         setNoun(businessNoun(j?.business_type));
+        setFacts(typeof j?.facts === "number" ? j.facts : null);
       })
       .catch(() => setBusiness(null));
   }, []);
@@ -156,7 +165,9 @@ export function ChatScreen() {
           </header>
 
           <div className="ak-thread" aria-live="polite">
-            {s.turns.length === 0 && (
+            {/* L8: with nothing to answer from, Lex offers the interview instead of questions. */}
+            {s.turns.length === 0 && knowsNothing(facts) && <InterviewOffer />}
+            {s.turns.length === 0 && !knowsNothing(facts) && (
               <div className="ak-start">
                 <p className="ak-descriptor">{tr("descriptor")}</p>
                 {chips.length > 0 && (

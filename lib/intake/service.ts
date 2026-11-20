@@ -477,6 +477,47 @@ export async function bootstrapIntake(
   return { account_id: account.id, profile_id: profile.id };
 }
 
+/**
+ * The business of an account, made if the account has none yet (L8 of
+ * docs/DASHBOARD-OVERHAUL.md): a person who signs up before any interview
+ * lands in the app and is offered the interview there. Unlike
+ * bootstrapIntake it opens no account and records no funnel stage: nothing
+ * has been asked yet, and "intake started" is recorded when the interview
+ * is first opened (app/api/intake).
+ */
+export async function ensureProfile(
+  accountId: string,
+  choices: { language?: AppLocale | null } = {},
+): Promise<{ profile_id: string; created: boolean }> {
+  const [existing] = await db
+    .select({ id: businessProfiles.id })
+    .from(businessProfiles)
+    .where(eq(businessProfiles.account_id, accountId))
+    .limit(1);
+  if (existing) return { profile_id: existing.id, created: false };
+  const [profile] = await db
+    .insert(businessProfiles)
+    .values({
+      account_id: accountId,
+      schema_version: "1.0.0",
+      language: isAppLocale(choices.language) ? choices.language : "en",
+      kind: "operating",
+    })
+    // One account, one business, held by the database (the unique account_id).
+    // Of two sign-ins at the same moment only one insert lands; the other
+    // reads what it made and is told it created nothing.
+    .onConflictDoNothing({ target: businessProfiles.account_id })
+    .returning({ id: businessProfiles.id });
+  if (profile) return { profile_id: profile.id, created: true };
+  const [raced] = await db
+    .select({ id: businessProfiles.id })
+    .from(businessProfiles)
+    .where(eq(businessProfiles.account_id, accountId))
+    .limit(1);
+  if (!raced) throw new IntakeError("profile creation failed", 500);
+  return { profile_id: raced.id, created: false };
+}
+
 async function askedEntries(
   applicable: readonly ApplicableQuestion[],
   view: RecordsView,
