@@ -112,6 +112,98 @@
   }
 }
 
+/* ── the owner app's type (2026-11-18) ──
+   The owner: "something a bit more simplistic". On the owner's screens (the
+   frame, the queue, the report) one plain sans sets headings, labels,
+   controls and prose, in sentence case; the mono stays for figures, keys and
+   formulas (--f-fig). The landing, the entrance and the interview keep the
+   three faces above. Every rule reads these through a token whose fallback
+   is the classic value, so this block is the whole switch. */
+:root {
+  --f-ui: var(--font-archivo), "Archivo", system-ui, sans-serif;
+  --f-fig: var(--font-plex-mono), "IBM Plex Mono", ui-monospace, monospace;
+}
+:root:has(.app-frame, .q-app, .rq) {
+  --f-display: var(--f-ui);
+  --f-prose: var(--f-ui);
+  --f-mono: var(--f-ui);
+  --w-display: 650;
+  --ls-display: -0.02em;
+  --caps: none;
+  --caps-ls: 0;
+  --caps-bump: 1px;
+  --caps-first: uppercase;
+
+  /* the shape (2026-11-18, from the mockups the owner picked): a small curve
+     on a card and a control, pills for places and counts, no border on a
+     paper card (the desk around it is its edge) and a hairline where a
+     sheet's head had a double rule. The classic look is every fallback. */
+  --r-card: 18px;
+  --r-ctl: 12px;
+  --r-s: 10px;
+  --r-xs: 6px;
+  --r-pill: 999px;
+  --card-border: 0;
+  --card-head-rule: 1px solid var(--rule-soft);
+  --menu-border: 0;
+  --menu-shadow: 0 2px 6px rgba(0, 0, 0, 0.18), 0 18px 44px rgba(0, 0, 0, 0.36);
+}
+
+/* ── the owner app's motion and captions (2026-11-18) ──
+   Every button eases its fill and gives a little under a press; a caption
+   written in lower case to sit inside a line starts with a capital when it
+   stands alone. Both only inside the app; nothing moves under reduced motion. */
+@media (prefers-reduced-motion: no-preference) {
+  :root:has(.app-frame, .q-app, .rq)
+    :is(
+      .act,
+      .next,
+      .ghost,
+      .prop-btn,
+      .rp-act,
+      .q-btn,
+      .q-primary,
+      .home-btn,
+      .hd-btn,
+      .rq-print,
+      .rq-why-btn
+    ) {
+    transition:
+      background-color 0.16s var(--ease-out),
+      border-color 0.16s var(--ease-out),
+      color 0.16s var(--ease-out),
+      transform var(--d-press) linear;
+  }
+  :root:has(.app-frame, .q-app, .rq)
+    :is(
+      .act,
+      .next,
+      .ghost,
+      .prop-btn,
+      .rp-act,
+      .q-btn,
+      .q-primary,
+      .home-btn,
+      .hd-btn,
+      .rq-print,
+      .rq-why-btn
+    ):active:not(:disabled) {
+    transform: scale(0.98);
+  }
+}
+:root:has(.app-frame, .q-app, .rq)
+  :is(
+    .home-r-cmp,
+    .q-item-ref,
+    .q-item-meta,
+    .q-vbar small,
+    .cs-meta,
+    .ph-aside,
+    .lv-why
+  )::first-letter {
+  text-transform: uppercase;
+}
+
 /* ── the desk and the sheet ── */
 
 .desk {
@@ -137,21 +229,22 @@
 .inset {
   background: var(--inset);
   border: var(--line);
+  border-radius: var(--r-s, 0);
 }
 
 /* ── type roles ── */
 
 .display {
   font-family: var(--f-display);
-  font-weight: 700;
-  letter-spacing: -0.01em;
+  font-weight: var(--w-display, 700);
+  letter-spacing: var(--ls-display, -0.01em);
   line-height: 1.08;
   margin: 0;
 }
 
 .mono,
 .fig {
-  font-family: var(--f-mono);
+  font-family: var(--f-fig);
 }
 /* Tabular on the figure itself, not on the words around it. */
 .fig {
@@ -160,13 +253,44 @@
   white-space: nowrap;
 }
 
+/* The owner app's buttons and links carry no arrow (ux-spec §2: "new
+   buttons and links carry none"; the mockups the owner picked have none).
+   The classic look drew one as a classless span, hidden from speech, at the
+   end of a control: that span is not shown here. A disclosure that turns its
+   own marker (.q-evtoggle) keeps it. Outside the app nothing changes.
+   The second form is the same arrow with words for a screen reader after it
+   ("Connect → Stripe" on Connections), where the arrow is not the last child. */
+:root:has(.app-frame, .q-app, .rq)
+  :is(button, a):not(.q-evtoggle)
+  > span[aria-hidden="true"]:not([class]):last-child,
+:root:has(.app-frame, .q-app, .rq)
+  :is(button, a):not(.q-evtoggle)
+  > span[aria-hidden="true"]:not([class]):has(+ .sr-only:last-child) {
+  display: none;
+}
+
+/* Rounded cards never touch (the owner's third round: "a few overlaps here
+   and there"). In the classic look stacked cards shared a square edge; with
+   a radius they need air. Zero specificity, so a screen's own spacing wins. */
+:where(:root:has(.app-frame, .q-app, .rq)) :where(.screen) > :where(.cs) + :where(.cs) {
+  margin-top: 15px;
+}
+
+/* A caption written to sit inside a line starts with a capital when it stands alone. */
+.cap1 {
+  display: inline-block;
+}
+.cap1::first-letter {
+  text-transform: uppercase;
+}
+
 /* Caps are reserved for mono labels and flags. */
 .label {
   font-family: var(--f-mono);
-  font-size: var(--t-mono-xs);
+  font-size: calc(var(--t-mono-xs) + var(--caps-bump, 0px));
   font-weight: 500;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  letter-spacing: var(--caps-ls, 0.06em);
+  text-transform: var(--caps, uppercase);
 }
 
 .prose {
@@ -196,14 +320,14 @@
   min-height: 48px;
   padding: 0 var(--s-5);
   border: var(--line-ink);
-  border-radius: 0;
+  border-radius: var(--r-ctl, 0);
   background: var(--paper);
   color: var(--sheet-ink);
   font-family: var(--f-mono);
-  font-size: var(--t-mono-s);
+  font-size: calc(var(--t-mono-s) + var(--caps-bump, 0px));
   font-weight: 600;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  letter-spacing: var(--caps-ls, 0.06em);
+  text-transform: var(--caps, uppercase);
   text-decoration: none !important;
   cursor: pointer;
   transition:
@@ -267,10 +391,10 @@ optgroup {
 
 .flag {
   font-family: var(--f-mono);
-  font-size: var(--t-mono-xs);
+  font-size: calc(var(--t-mono-xs) + var(--caps-bump, 0px));
   font-weight: 600;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  letter-spacing: var(--caps-ls, 0.06em);
+  text-transform: var(--caps, uppercase);
   white-space: nowrap;
 }
 .flag.ok {
@@ -386,9 +510,9 @@ optgroup {
 .ph-kicker {
   margin: 0 0 10px;
   font-family: var(--f-mono);
-  font-size: 11.5px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
+  font-size: calc(11.5px + var(--caps-bump, 0px));
+  letter-spacing: var(--caps-ls, 0.12em);
+  text-transform: var(--caps, uppercase);
   color: var(--desk-ink-2);
 }
 .ph-title {
@@ -396,9 +520,9 @@ optgroup {
   font-family: var(--f-display);
   /* 2026-11-15: the headline is the screen's answer, set large (ux-spec §2 display-2 → display-1). */
   font-size: clamp(24px, 2.7vw, 38px);
-  font-weight: 700;
+  font-weight: var(--w-display, 700);
   line-height: 1.08;
-  letter-spacing: -0.01em;
+  letter-spacing: var(--ls-display, -0.01em);
 }
 .ph-notes {
   margin-top: 10px;
@@ -413,12 +537,35 @@ optgroup {
   color: var(--desk-ink-2);
   text-align: right;
 }
+/* One line under the title: the figures the title left out (2026-11-18). */
+.ph-lede {
+  margin: 0;
+  max-width: 760px;
+  font-family: var(--f-prose);
+  font-size: 16px;
+  line-height: 1.45;
+  color: var(--desk-ink-2);
+}
+.ph-lede + * {
+  margin-top: 8px;
+}
+/* What kind of page this is, said once on the right: "Planning aid · read-only". */
+.ph-pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 30px;
+  padding: 0 12px;
+  border: 1px solid var(--desk-rule);
+  border-radius: var(--r-pill, 0);
+  white-space: nowrap;
+}
 
 /* a paper card with a header band and a double rule under it */
 .cs {
   background: var(--paper);
   color: var(--sheet-ink);
-  border: 1px solid var(--rule);
+  border: var(--card-border, 1px solid var(--rule));
+  border-radius: var(--r-card, 0);
   --ink: var(--sheet-ink);
   --mut: var(--sheet-ink-2);
 }
@@ -428,21 +575,21 @@ optgroup {
   align-items: flex-end;
   gap: var(--s-4);
   padding: 17px 20px 15px;
-  border-bottom: 3px double var(--sheet-ink);
+  border-bottom: var(--card-head-rule, 3px double var(--sheet-ink));
 }
 .cs-label {
   margin: 0 0 8px;
   font-family: var(--f-mono);
-  font-size: 11px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
+  font-size: calc(11px + var(--caps-bump, 0px));
+  letter-spacing: var(--caps-ls, 0.12em);
+  text-transform: var(--caps, uppercase);
   color: var(--sheet-ink-2);
 }
 .cs-title {
   margin: 0;
   font-family: var(--f-display);
   font-size: clamp(16px, 1.3vw, 19px);
-  font-weight: 700;
+  font-weight: var(--w-display, 700);
   line-height: 1.15;
 }
 .cs-meta {
@@ -453,6 +600,10 @@ optgroup {
 }
 .cs-body {
   padding: 15px 20px 15px;
+}
+/* A card with nothing to list shows no empty band between its head and its foot. */
+.cs-body:empty {
+  display: none;
 }
 .cs-foot {
   padding: 14px 20px;
@@ -486,10 +637,10 @@ optgroup {
   padding: 10px 10px 8px;
   border-bottom: 1px solid var(--sheet-ink);
   font-family: var(--f-mono);
-  font-size: 11px;
+  font-size: calc(11px + var(--caps-bump, 0px));
   font-weight: 500;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+  letter-spacing: var(--caps-ls, 0.1em);
+  text-transform: var(--caps, uppercase);
   text-align: left;
   color: var(--sheet-ink-2);
   white-space: nowrap;
@@ -508,9 +659,13 @@ optgroup {
 .rt .num,
 .rt th.num {
   text-align: right;
-  font-family: var(--f-mono);
+  font-family: var(--f-fig);
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
+}
+/* A figure column's heading is a label, not a figure: it follows the labels' face. */
+.rt thead th.num {
+  font-family: var(--f-mono);
 }
 .rt .src {
   font-family: var(--f-mono);
@@ -560,9 +715,9 @@ optgroup {
   .rt.rt-stack tbody td[data-label]::before {
     content: attr(data-label) " · ";
     font-family: var(--f-mono);
-    font-size: 11px;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
+    font-size: calc(11px + var(--caps-bump, 0px));
+    letter-spacing: var(--caps-ls, 0.08em);
+    text-transform: var(--caps, uppercase);
     color: var(--sheet-ink-2);
   }
 }
@@ -570,10 +725,10 @@ optgroup {
 /* worded status in mono caps — STEADY, DRIFTING, IN RANGE … */
 .word {
   font-family: var(--f-mono);
-  font-size: 11.5px;
+  font-size: calc(11.5px + var(--caps-bump, 0px));
   font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  letter-spacing: var(--caps-ls, 0.08em);
+  text-transform: var(--caps, uppercase);
   white-space: nowrap;
 }
 .word.ok {
@@ -593,6 +748,7 @@ optgroup {
   display: inline-block;
   padding: 4px 9px;
   border: 1px solid currentColor;
+  border-radius: var(--r-s, 0);
 }
 
 /* ── the unsubscribe page (P4-15): a stranger's page, one sheet, one button ── */
@@ -614,4 +770,10 @@ optgroup {
 }
 .unsub-sheet form {
   margin: 0;
+}
+
+/* Sentence case: a label the classic look set in capitals starts with one
+   (the owner app's type, app/sheet.css). In the classic look it follows the label. */
+:is(.label, .act, .flag, .ph-kicker, .cs-label, .rt thead th, .word)::first-letter {
+  text-transform: var(--caps-first, inherit);
 }

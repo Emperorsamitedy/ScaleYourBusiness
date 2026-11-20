@@ -1,0 +1,281 @@
+/* The plain pages of the owner app: the monthly statement, plan and billing,
+   the growth studio, partners' access, erasing the business, the shadow
+   summary and the NAV guide. Server-rendered lines and small forms, first
+   built as lone cards on the sign-in stage (.auth-stage); inside the frame
+   that left a small square box in the middle of an empty screen. They open
+   like every other owner screen now (components/sheet/PageHead): the page
+   head, then paper cards, on the sheet system's tokens (app/sheet.css).
+   Scoped under .pg, so the sign-in stage and the public pages do not move. */
+
+.pg-stack {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 15px;
+}
+.pg-stack > * {
+  min-width: 0;
+}
+
+/* ── words in a card ── */
+
+.pg .cs-body > p,
+.pg .pg-copy,
+.pg .auth-copy {
+  margin: 0 0 10px;
+  max-width: var(--measure);
+  font-size: 14.5px;
+  line-height: 1.6;
+  color: var(--sheet-ink);
+}
+.pg .cs-body > :last-child,
+.pg .cs-body > :last-child > :last-child {
+  margin-bottom: 0;
+}
+.pg .pg-quiet {
+  font-size: 13.5px;
+  color: var(--sheet-ink-2);
+}
+.pg .cs-body a:not(.act, .next, .ghost) {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+.pg .cs-body a:not(.act, .next, .ghost):hover {
+  text-decoration-thickness: 2px;
+}
+
+/* the one figure a card is about */
+.pg .pg-figure {
+  margin: 0 0 4px;
+  font-family: var(--f-fig);
+  font-size: clamp(24px, 2.4vw, 32px);
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+  color: var(--sheet-ink);
+}
+
+/* ── plain lines, ruled ── */
+
+.pg .pg-lines,
+.pg .shadow-summary {
+  margin: 0 0 12px;
+  padding: 0;
+  list-style: none;
+}
+.pg .pg-lines > li,
+.pg .shadow-summary > li {
+  padding: 10px 0;
+  border-top: 1px solid var(--rule-soft);
+  font-size: 14.5px;
+  line-height: 1.5;
+  color: var(--sheet-ink);
+}
+.pg .pg-lines > li:first-child,
+.pg .shadow-summary > li:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+.pg .pg-lines > li:last-child,
+.pg .shadow-summary > li:last-child {
+  padding-bottom: 0;
+}
+/* a money range never breaks between its sign and its figure */
+.pg .pg-nowrap {
+  white-space: nowrap;
+}
+
+/* a record with an action of its own: an access a firm holds, a request */
+.pg .mandate-row,
+.pg .pg-row {
+  margin-top: 14px;
+  padding-top: 14px;
+  border-top: 1px solid var(--rule-soft);
+}
+.pg .cs-body > .mandate-row:first-child,
+.pg .cs-body > .pg-row:first-child {
+  margin-top: 0;
+  padding-top: 0;
+  border-top: 0;
+}
+.pg .pg-acts {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  margin-top: 14px;
+}
+.pg .cs-body > .pg-acts:first-child {
+  margin-top: 0;
+}
+
+/* a small chart above the lines that say the same */
+.pg .card-viz,
+.pg .billing-meter {
+  max-width: 620px;
+  margin: 0 0 14px;
+}
+
+/* ── small forms (components/partner/PostForm and the pages' own) ── */
+
+.pg form,
+.pg .entry-col {
+  max-width: 560px;
+}
+.pg .entry-col {
+  gap: 14px;
+  align-items: stretch;
+}
+.pg .entry-q > span:first-child,
+.pg .pg-field > span:first-child {
+  font-size: 13px;
+  color: var(--sheet-ink-2);
+}
+.pg .pg-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.pg :is(input:not([type="checkbox"], [type="radio"], [type="file"]), select, textarea) {
+  width: 100%;
+  min-height: 46px;
+  padding: 10px 12px;
+  border: 1px solid var(--rule);
+  border-radius: var(--r-ctl, 0);
+  background: var(--paper);
+  color: var(--sheet-ink);
+  font: inherit;
+  font-size: 14.5px;
+}
+.pg textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+.pg :is(input, select, textarea):focus-visible {
+  outline: 2px solid var(--sheet-ink);
+  outline-offset: 1px;
+}
+.pg input[type="file"] {
+  font: inherit;
+  font-size: 13.5px;
+  color: var(--sheet-ink);
+}
+.pg label:has(> input[type="checkbox"]) {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14.5px;
+}
+
+/* A button is as wide as its words, never the whole card. */
+.pg :is(.next, .ghost, .act) {
+  width: auto;
+  align-self: flex-start;
+  --ink: var(--sheet-ink);
+  --on-ember: var(--paper);
+}
+.pg .billing-action > [role="alert"],
+.pg form [role="status"] {
+  font-size: 13.5px;
+  color: var(--sheet-ink-2);
+}
+
+/* The page's own actions under its headline, on the desk. */
+.pg .ph-notes .pg-acts {
+  margin-top: 12px;
+}
+
+@media (max-width: 719px) {
+  .pg :is(.next, .ghost, .act) {
+    width: 100%;
+  }
+}
+
+/* ── two stacks side by side (the growth studio): a short card never leaves a
+   hole beside a tall one; one column in reading order on a narrower screen ── */
+
+.pg-cols {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 15px;
+  align-items: start;
+}
+@media (max-width: 1099px) {
+  .pg-cols {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* A form folded until it is wanted sits a line below what it belongs to. */
+.pg .cs-body > .fold,
+.pg .pg-row > .fold {
+  margin-top: 12px;
+}
+.pg .fold-body > form,
+.pg .fold-body > .entry-col {
+  margin-top: 4px;
+}
+
+/* A card a shared component still draws in the old markup (the shadow
+   summary, which the public shared page uses as it is) takes the sheet
+   card's shape here. */
+.pg .card {
+  padding: 18px 20px;
+  border: 0;
+  border-radius: var(--r-card, 0);
+  background: var(--paper);
+  color: var(--sheet-ink);
+  animation: none;
+}
+.pg .card > .auth-eyebrow {
+  margin-bottom: 10px;
+  color: var(--sheet-ink-2);
+}
+/* The shadow summary's card names itself with the page's own headline: said once, above. */
+.pg .pg-said > .card > .auth-eyebrow {
+  display: none;
+}
+
+/* A solid button under the headline sits on the desk: an outline there, like
+   the page's other actions (the shadow summary's "Copy a link"). */
+.pg .ph-notes .next {
+  background: transparent;
+  border-color: var(--desk-ink);
+  color: var(--desk-ink);
+}
+.pg .ph-notes .next:hover:not(:disabled),
+.pg .ph-notes .next:active:not(:disabled) {
+  background: var(--desk-ink);
+  color: var(--desk);
+}
+
+/* ── the Partner Console's book (app/partner): its table on one paper card ── */
+
+.pg.partner-screen {
+  padding: 0 22px 45px;
+}
+.pg.partner-screen > .ph {
+  margin-bottom: 5px;
+}
+.pg .partner-table-wrap {
+  padding: 6px 14px 12px;
+}
+.pg .partner-table th {
+  font-weight: 500;
+  color: var(--sheet-ink-2);
+  border-bottom-color: var(--rule);
+}
+.pg .partner-table td {
+  border-bottom-color: var(--rule-soft);
+}
+.pg .partner-table tr:last-child > td {
+  border-bottom: 0;
+}
+.pg .partner-settings {
+  width: auto;
+}
+@media (max-width: 719px) {
+  .pg.partner-screen {
+    padding: 0 14px 34px;
+  }
+}

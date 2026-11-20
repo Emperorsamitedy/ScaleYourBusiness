@@ -1,0 +1,141 @@
+/* Tabs and skeletons (docs/DASHBOARD-OVERHAUL.md A3, A5;
+   components/ui/Tabs.tsx, Skeleton.tsx). Sheet tokens only. */
+
+/* The row sits on the desk above its panel, as the strip's tabs do: mono
+   capitals, a desk rule around each, and the open one a paper tab with no
+   rule under it, so it reads as the top of the sheet below. */
+.ui-tabs {
+  display: flex;
+  gap: 4px;
+  min-width: 0;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.ui-tabs::-webkit-scrollbar {
+  display: none;
+}
+.ui-tab {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex: none;
+  min-height: 40px;
+  padding: 0 14px;
+  border: 1px solid var(--desk-rule);
+  border-bottom: 0;
+  background: transparent;
+  color: var(--desk-ink-2);
+  font-family: var(--f-mono);
+  font-size: calc(12px + var(--caps-bump, 0px));
+  letter-spacing: var(--caps-ls, 0.06em);
+  text-transform: var(--caps, uppercase);
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background-color var(--d-press) linear,
+    color var(--d-press) linear;
+  border-radius: var(--r-s, 0);
+}
+.ui-tab:hover {
+  color: var(--desk-ink);
+}
+.ui-tab.on {
+  border-color: var(--paper);
+  background: var(--paper);
+  color: var(--sheet-ink);
+  font-weight: 600;
+}
+/* The ring sits inside the tab, so the row's own clipping never cuts it. */
+.ui-tab:focus-visible {
+  outline: 2px solid var(--desk-ink);
+  outline-offset: -4px;
+}
+.ui-tab.on:focus-visible {
+  outline-color: var(--sheet-ink);
+}
+.ui-tab-count {
+  font-variant-numeric: tabular-nums;
+  font-weight: 400;
+}
+
+/* A card still reading: bars on the inset surface. The pulse is the live
+   dot's own two-step blink, slowed; none under reduced motion. */
+.ui-skel {
+  display: grid;
+  gap: 10px;
+  padding: 16px 20px 18px;
+}
+.ui-skel i {
+  display: block;
+  height: 12px;
+  background: var(--inset);
+  animation: ui-skel 1.6s ease-in-out infinite;
+}
+.ui-skel i:nth-child(3n + 1) {
+  width: 62%;
+}
+.ui-skel i:nth-child(3n + 2) {
+  width: 88%;
+}
+.ui-skel i:nth-child(3n) {
+  width: 46%;
+}
+@keyframes ui-skel {
+  50% {
+    opacity: 0.5;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .ui-skel i {
+    animation: none;
+  }
+}
+@media (max-width: 719px) {
+  .ui-skel {
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+}
+
+/* Sentence case: a label the classic look set in capitals starts with one
+   (the owner app's type, app/sheet.css). In the classic look it follows the label. */
+:is(.ui-tab)::first-letter {
+  text-transform: var(--caps-first, inherit);
+}
+
+/* The owner app's shape (app/sheet.css): the row is one rounded track on the
+   desk and the open tab a paper pill inside it. */
+:root:has(.app-frame, .q-app, .rq) .ui-tabs {
+  padding: 4px;
+  border-radius: 14px;
+  background: var(--masthead);
+}
+:root:has(.app-frame, .q-app, .rq) .ui-tab {
+  flex: 1 1 0;
+  justify-content: center;
+  min-height: 36px;
+  border: 0;
+  border-radius: var(--r-s);
+  font-size: 13.5px;
+  font-weight: 500;
+}
+:root:has(.app-frame, .q-app, .rq) .ui-tab:hover {
+  background: var(--raised);
+}
+:root:has(.app-frame, .q-app, .rq) .ui-tab.on {
+  background: var(--paper);
+  font-weight: 600;
+}
+:root:has(.app-frame, .q-app, .rq) .ui-tab-count {
+  padding: 0 7px;
+  border-radius: var(--r-pill);
+  background: var(--accent);
+  color: var(--sheet-ink);
+  font-family: var(--f-fig);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 18px;
+}
+:root:has(.app-frame, .q-app, .rq) .ui-skel i {
+  border-radius: 6px;
+}

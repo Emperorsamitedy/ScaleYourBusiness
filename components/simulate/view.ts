@@ -83,13 +83,13 @@ export function cellView(
   }
   if (cell.status === "missing") {
     return {
-      figure: "—",
+      figure: "-",
       basis: "",
       flag: "MISSING",
       detail: w.tr("cell.needs", { list: cell.needs.join(listSep(w.locale)) }),
     };
   }
-  return { figure: "—", basis: "", flag: "NOT READ", detail: cell.why };
+  return { figure: "-", basis: "", flag: "NOT READ", detail: cell.why };
 }
 
 /** A cell's flag in words: the code stays the screen's tone, the word is the reader's. */

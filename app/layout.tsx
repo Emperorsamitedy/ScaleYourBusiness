@@ -9,7 +9,9 @@ import "./sheet.css";
 
 // The sheet system's three faces (specs/ux-spec-v1.md §2), and only
 // these: Zilla Slab for the one display figure or heading per sheet,
-// Archivo for prose, IBM Plex Mono for every figure and label.
+// Archivo for prose, IBM Plex Mono for every figure and label. On the
+// owner's screens two of them are used (2026-11-18): Archivo for
+// everything read, the mono for figures; app/sheet.css holds the switch.
 const zilla = Zilla_Slab({
   subsets: ["latin", "latin-ext"],
   weight: ["500", "600", "700"],

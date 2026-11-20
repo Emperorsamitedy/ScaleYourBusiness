@@ -48,10 +48,11 @@
   height: 44px;
   padding-bottom: 4px;
   border: 1px solid var(--desk-rule);
-  font-family: var(--f-mono);
+  font-family: var(--f-fig);
   font-size: 11px;
   font-variant-numeric: tabular-nums;
   color: var(--desk-ink-2);
+  border-radius: var(--r-s, 0);
 }
 .wt-day.past {
   background: var(--paper);
@@ -89,6 +90,11 @@
   min-width: 0;
 }
 .wt-grid .cs {
+  min-width: 0;
+}
+/* While a watch runs, each column is a stack of its own (WatchScreen): the
+   wrappers below only carry the reading order for a narrow screen. */
+.wt-stacks > .wt-side > * {
   min-width: 0;
 }
 
@@ -218,10 +224,11 @@
   padding: 0 10px;
   border: 1px solid var(--rule);
   font-family: var(--f-mono);
-  font-size: 12.5px;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
+  font-size: calc(12.5px + var(--caps-bump, 0px));
+  text-transform: var(--caps, uppercase);
+  letter-spacing: var(--caps-ls, 0.06em);
   cursor: pointer;
+  border-radius: var(--r-card, 0);
 }
 .wt-module input {
   margin: 0;
@@ -259,9 +266,9 @@
 .wt-whatsapp legend {
   margin-bottom: 8px;
   font-family: var(--f-mono);
-  font-size: 12px;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
+  font-size: calc(12px + var(--caps-bump, 0px));
+  text-transform: var(--caps, uppercase);
+  letter-spacing: var(--caps-ls, 0.06em);
   color: var(--sheet-ink-2);
 }
 .wt-whatsapp-form {
@@ -297,9 +304,9 @@
   border-radius: 0;
   background: transparent;
   font-family: var(--f-mono);
-  font-size: 12.5px;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
+  font-size: calc(12.5px + var(--caps-bump, 0px));
+  text-transform: var(--caps, uppercase);
+  letter-spacing: var(--caps-ls, 0.06em);
   cursor: pointer;
 }
 .wt-whatsapp button:disabled {
@@ -320,6 +327,29 @@
 @media (max-width: 1099px) {
   .wt-grid {
     grid-template-columns: minmax(0, 1fr);
+  }
+  /* One column again, in reading order: what is watched, what was noticed,
+     when it ends, the log, what would interrupt it. */
+  .wt-stacks > .wt-side {
+    display: contents;
+  }
+  .wt-o1 {
+    order: 1;
+  }
+  .wt-o2 {
+    order: 2;
+  }
+  .wt-o3 {
+    order: 3;
+  }
+  .wt-o4 {
+    order: 4;
+  }
+  .wt-o5 {
+    order: 5;
+  }
+  .wt-o6 {
+    order: 6;
   }
 }
 @media (max-width: 719px) {
@@ -379,4 +409,10 @@
   grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
   gap: 20px;
   align-items: start;
+}
+
+/* Sentence case: a label the classic look set in capitals starts with one
+   (the owner app's type, app/sheet.css). In the classic look it follows the label. */
+:is(.wt-module, .wt-whatsapp legend, .wt-whatsapp button)::first-letter {
+  text-transform: var(--caps-first, inherit);
 }

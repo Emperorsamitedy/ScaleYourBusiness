@@ -96,7 +96,7 @@ export function judgeCampaign(args: {
 }): CampaignOutcome {
   const who = PLATFORM[args.platform ?? "meta"].label;
   const fmt = (minor: number) => format(money(minor, args.currency));
-  const roasWord = (r: number | null) => (r === null ? "—" : r.toFixed(2));
+  const roasWord = (r: number | null) => (r === null ? "-" : r.toFixed(2));
   const base = { currency: args.currency, before: args.before, after: args.after };
   const { before, after } = args;
   if (before.spend_minor === 0 || before.roas === null) {
@@ -104,7 +104,7 @@ export function judgeCampaign(args: {
       ...base,
       verdict: "unmeasured",
       delta_pct: null,
-      arithmetic: `"${args.name}" spent nothing in the ${AD_READBACK.before_days} days before ${args.changed_on} — no return to compare against`,
+      arithmetic: `"${args.name}" spent nothing in the ${AD_READBACK.before_days} days before ${args.changed_on}: no return to compare against`,
     };
   }
   if (after.days < AD_READBACK.min_after_days) {
@@ -112,7 +112,7 @@ export function judgeCampaign(args: {
       ...base,
       verdict: "too_early",
       delta_pct: null,
-      arithmetic: `${after.days} measured day(s) since ${args.changed_on} — the verdict needs ${AD_READBACK.min_after_days}`,
+      arithmetic: `${after.days} measured day(s) since ${args.changed_on}: the verdict needs ${AD_READBACK.min_after_days}`,
     };
   }
   const beforeLine =
@@ -163,7 +163,7 @@ export function judgeCampaign(args: {
     verdict,
     delta_pct,
     arithmetic:
-      `${beforeLine}; ${afterLine} — ${delta_pct === null ? "up from none" : `${delta_pct >= 0 ? "+" : ""}${delta_pct}%`}` +
+      `${beforeLine}; ${afterLine}: ${delta_pct === null ? "up from none" : `${delta_pct >= 0 ? "+" : ""}${delta_pct}%`}` +
       ` (thresholds: helped at +${AD_READBACK.helped_at * 100}%, backfired at ${AD_READBACK.backfired_at * 100}%; attribution is ${who}'s own)`,
   };
 }
@@ -194,7 +194,7 @@ export async function campaignOutcome(args: {
     return {
       ...empty,
       verdict: "unmeasured",
-      arithmetic: `no ${source.label} ads read connection — connect it and the verdict becomes possible`,
+      arithmetic: `no ${source.label} ads read connection: connect it and the verdict becomes possible`,
     };
   }
   const from = shiftDay(args.changedOn, -AD_READBACK.before_days);
@@ -251,7 +251,7 @@ export async function campaignOutcome(args: {
     return {
       ...empty,
       verdict: "unmeasured",
-      arithmetic: `no measured days for "${args.campaignName}" — nothing to compare`,
+      arithmetic: `no measured days for "${args.campaignName}": nothing to compare`,
     };
   }
 

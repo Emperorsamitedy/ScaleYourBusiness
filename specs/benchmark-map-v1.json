@@ -217,11 +217,11 @@
   },
   "size_classes": [
     { "code": "0_1", "min": 0, "max": 1, "words": "up to 1 person" },
-    { "code": "2-9", "min": 2, "max": 9, "words": "2–9 people" },
+    { "code": "2-9", "min": 2, "max": 9, "words": "2 to 9 people" },
     { "code": "0-9", "min": 0, "max": 9, "words": "up to 9 people" },
-    { "code": "10-19", "min": 10, "max": 19, "words": "10–19 people" },
-    { "code": "20-49", "min": 20, "max": 49, "words": "20–49 people" },
-    { "code": "50-249", "min": 50, "max": 249, "words": "50–249 people" },
+    { "code": "10-19", "min": 10, "max": 19, "words": "10 to 19 people" },
+    { "code": "20-49", "min": 20, "max": 49, "words": "20 to 49 people" },
+    { "code": "50-249", "min": 50, "max": 249, "words": "50 to 249 people" },
     { "code": "GE250", "min": 250, "max": null, "words": "250 or more people" }
   ],
   "all_sizes": { "code": "TOTAL", "words": "of every size" },

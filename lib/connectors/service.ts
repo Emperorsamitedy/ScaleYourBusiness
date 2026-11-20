@@ -151,7 +151,7 @@ export async function connect(
     throw new ConnectorError("a credential is required", 400);
   }
   if (await activeConnection(accountId, providerId)) {
-    throw new ConnectorError(`${providerId} is already connected — disconnect it first`, 409);
+    throw new ConnectorError(`${providerId} is already connected: disconnect it first`, 409);
   }
 
   let granted: string[];
@@ -297,7 +297,7 @@ export function toObservationRow(
 
   if (isMoney) {
     if (o.value_num !== undefined) {
-      throw new ObservationError(`${o.metric_key} is a money metric — value_num is not allowed`);
+      throw new ObservationError(`${o.metric_key} is a money metric: value_num is not allowed`);
     }
     const currency = dimensions["currency"];
     if (o.value_minor === undefined || currency === undefined) {
@@ -321,7 +321,7 @@ export function toObservationRow(
   }
 
   if (o.value_minor !== undefined || dimensions["currency"] !== undefined) {
-    throw new ObservationError(`${o.metric_key} is a count metric — no value_minor or currency`);
+    throw new ObservationError(`${o.metric_key} is a count metric: no value_minor or currency`);
   }
   if (o.value_num === undefined || !Number.isFinite(o.value_num)) {
     throw new ObservationError(`${o.metric_key} needs a finite value_num`);

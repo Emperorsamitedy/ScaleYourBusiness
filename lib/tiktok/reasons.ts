@@ -27,7 +27,7 @@ export const TIKTOK_REASONS = {
   tiktok_permission:
     "TikTok says ScaleX's app isn't allowed to read that ad account. Nothing was connected.",
   tiktok_busy:
-    "TikTok was busy or didn't answer. Nothing was connected — try again in a few minutes.",
+    "TikTok was busy or didn't answer. Nothing was connected. Try again in a few minutes.",
   tiktok_refused: "TikTok refused the sign-in. Nothing was connected.",
   internal: "Something went wrong on our side. Nothing was connected.",
 } as const;

@@ -208,7 +208,7 @@ export function analyseWeekday(args: {
       first_hour: span.first,
       last_hour: span.last,
       arithmetic: [
-        `${days.length} measured day(s) — a verdict needs ${TRADING.min_days_per_weekday}`,
+        `${days.length} measured day(s): a verdict needs ${TRADING.min_days_per_weekday}`,
       ],
     };
   }
@@ -227,7 +227,7 @@ export function analyseWeekday(args: {
     opening = firstMean * 10_000 >= openingBp * peak.mean_minor;
     const sharePct = perUnit(ratioBp(firstMean, peak.mean_minor), 100);
     arithmetic.push(
-      `first open hour (${label(span.first)}) averages ${money(firstMean)}, ${sharePct}% of the peak hour (${label(peak.hour)}, ${money(peak.mean_minor)}) — the opening signal starts at ${TRADING.opening_share * 100}%`,
+      `first open hour (${label(span.first)}) averages ${money(firstMean)}, ${sharePct}% of the peak hour (${label(peak.hour)}, ${money(peak.mean_minor)}): the opening signal starts at ${TRADING.opening_share * 100}%`,
     );
   }
 
@@ -237,14 +237,14 @@ export function analyseWeekday(args: {
     const share = under / days.length;
     closing = share >= TRADING.closing_day_share;
     arithmetic.push(
-      `last open hour (${label(span.last)}) took less than an open hour costs (${money(hourCostMinor)}) on ${under} of ${days.length} days (${Math.round(share * 100)}%) — the closing signal starts at ${TRADING.closing_day_share * 100}%`,
+      `last open hour (${label(span.last)}) took less than an open hour costs (${money(hourCostMinor)}) on ${under} of ${days.length} days (${Math.round(share * 100)}%): the closing signal starts at ${TRADING.closing_day_share * 100}%`,
     );
   } else {
     arithmetic.push("the closing check needs the cost of one open hour");
   }
   if (outside !== 0) {
     arithmetic.push(
-      `${money(outside)} was taken outside the stated hours — the hours may be out of date`,
+      `${money(outside)} was taken outside the stated hours: the hours may be out of date`,
     );
   }
 
@@ -343,11 +343,11 @@ export async function loadTradingSales(
     byDay.set(slot.day, hours);
   }
   if (providers.size === 0) {
-    return { reason: "no hourly sales are measured yet — they arrive with the next sync" };
+    return { reason: "no hourly sales are measured yet: they arrive with the next sync" };
   }
   if (currencies.size !== 1) {
     return {
-      reason: `sales are in ${[...currencies].join(" and ")} — one currency is needed (rule 1)`,
+      reason: `sales are in ${[...currencies].join(" and ")}: one currency is needed (rule 1)`,
     };
   }
   const currency = [...currencies][0] as string;
@@ -430,13 +430,13 @@ export function attentionFor(
   if (total < TRADING.attention_min_sessions) {
     return {
       signal: null,
-      line: `${total} website session(s) measured on this day — the attention check needs ${TRADING.attention_min_sessions}`,
+      line: `${total} website session(s) measured on this day: the attention check needs ${TRADING.attention_min_sessions}`,
     };
   }
   const share = before / total;
   return {
     signal: share >= TRADING.attention_share,
-    line: `${Math.round(share * 100)}% of this day's website sessions come in the ${TRADING.attention_window_hours} hours before you open (${label(w.first_hour)}) — the attention signal starts at ${TRADING.attention_share * 100}%`,
+    line: `${Math.round(share * 100)}% of this day's website sessions come in the ${TRADING.attention_window_hours} hours before you open (${label(w.first_hour)}): the attention signal starts at ${TRADING.attention_share * 100}%`,
   };
 }
 

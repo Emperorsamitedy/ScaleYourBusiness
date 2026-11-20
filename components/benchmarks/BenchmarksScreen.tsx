@@ -304,13 +304,9 @@ export function BenchmarksScreen({ peers }: { peers?: ReactNode } = {}) {
   return (
     <Frame
       title={headline(r, w)}
-      aside={
-        <>
-          {tr("aside")}
-          <br />
-          {comparedCount(r, w)}
-        </>
-      }
+      // One line: under a long title the side text drops below it, where a
+      // second, shorter line sat crooked against the first.
+      aside={`${tr("aside")} · ${comparedCount(r, w)}`}
       notes={
         note && (
           <p className="bm-note">

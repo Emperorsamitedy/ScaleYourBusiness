@@ -1,6 +1,16 @@
 import { describe, expect, it } from "vitest";
-import type { CashLike, PendingLike } from "./home-model";
-import { cashReading, rankPending } from "./home-model";
+import type { CashLike, PendingLike, Read } from "./home-model";
+import {
+  cashReading,
+  dataOf,
+  periodFor,
+  periodOptions,
+  rankPending,
+  readOutcome,
+  signedOut,
+  waitingCount,
+  waitingLine,
+} from "./home-model";
 
 const eur = (amount_minor: number) => ({ amount_minor, currency: "EUR" });
 const pending = (id: string, low: number | null, high: number | null): PendingLike => ({
@@ -84,5 +94,79 @@ describe("Home: the cash figures", () => {
   it("prints no cash figure when the forecast refused or wasn't read", () => {
     expect(cashReading({ forecast: { status: "refused" }, tight: null })).toBeNull();
     expect(cashReading(null)).toBeNull();
+  });
+});
+
+describe("Home: a read is an answer only once it has answered", () => {
+  const reading = { state: "reading" } as const;
+  const failed = { state: "failed" } as const;
+  const out = { state: "signed_out" } as const;
+  const nav = (pending: number): Read<{ pending: number }> => ({
+    state: "read",
+    data: { pending },
+  });
+  const queue = (n: number): Read<{ pending: readonly unknown[] }> => ({
+    state: "read",
+    data: { pending: Array.from({ length: n }, (_, i) => i) },
+  });
+
+  it("tells a refused read from a failed one, by status alone", () => {
+    expect(readOutcome(200)).toBe("read");
+    expect(readOutcome(401)).toBe("signed_out");
+    expect(readOutcome(403)).toBe("failed");
+    expect(readOutcome(500)).toBe("failed");
+  });
+
+  it("sends the visitor to sign in when any read was refused, and only then", () => {
+    expect(signedOut([nav(2), out, failed])).toBe(true);
+    expect(signedOut([nav(2), failed, reading])).toBe(false);
+  });
+
+  it("counts from the rail first, the queue second, and never from a read still out", () => {
+    expect(waitingCount(nav(3), queue(1))).toEqual({ state: "known", count: 3 });
+    expect(waitingCount(failed, queue(2))).toEqual({ state: "known", count: 2 });
+    expect(waitingCount(reading, failed)).toEqual({ state: "reading" });
+    expect(dataOf(reading)).toBeNull();
+  });
+
+  it('says it could not read, not "Reading…" for ever, when neither read answers', () => {
+    expect(waitingCount(failed, failed)).toEqual({ state: "unread" });
+    expect(waitingCount(out, out)).toEqual({ state: "unread" });
+  });
+
+  it('says "nothing to decide" only under a counted zero', () => {
+    expect(waitingLine(0, false)).toBe("none");
+    expect(waitingLine(3, true)).toBe("biggest");
+    // Three decisions with no money range are not nothing: no line at all.
+    expect(waitingLine(3, false)).toBeNull();
+    // An unknown count, still reading or unread, claims nothing either.
+    expect(waitingLine(null, false)).toBeNull();
+  });
+});
+
+// docs/DASHBOARD-OVERHAUL.md C12: "Your sales" has a period switch.
+describe("Home: the sales period switch", () => {
+  it("offers each standard window the measured days fill, then all of them when they end between two", () => {
+    expect(periodOptions(90)).toEqual([7, 30, 90]);
+    expect(periodOptions(45)).toEqual([7, 30, 45]);
+    expect(periodOptions(30)).toEqual([7, 30]);
+    expect(periodOptions(22)).toEqual([7, 22]);
+    expect(periodOptions(7)).toEqual([7]);
+    expect(periodOptions(5)).toEqual([5]);
+  });
+
+  it("offers nothing without measured days, and never more than the widest window", () => {
+    expect(periodOptions(0)).toEqual([]);
+    expect(periodOptions(-3)).toEqual([]);
+    expect(periodOptions(2.5)).toEqual([]);
+    expect(periodOptions(400)).toEqual([7, 30, 90]);
+  });
+
+  it("shows the owner's last choice when it is offered, else thirty days, else the widest", () => {
+    expect(periodFor(7, [7, 30, 90])).toBe(7);
+    expect(periodFor(90, [7, 30])).toBe(30); // the days no longer reach ninety
+    expect(periodFor(null, [7, 30, 90])).toBe(30);
+    expect(periodFor(null, [7, 22])).toBe(22);
+    expect(periodFor(30, [])).toBeNull();
   });
 });

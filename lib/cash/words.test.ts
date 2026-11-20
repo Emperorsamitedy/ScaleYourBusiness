@@ -97,7 +97,7 @@ describe("L-4b — English through the catalogue is the code's own", () => {
     expect(f.assumptions).toContain(
       "Quarterly costs go out on the 1st of January, April, July and October: you haven't told me their dates.",
     );
-    expect(f.sources.find((s) => s.key === "payout")?.value).toBe("2–7 days");
+    expect(f.sources.find((s) => s.key === "payout")?.value).toBe("2 to 7 days");
     expect(f.left_out).toContain(
       "Dollar tool is in USD and your cash is in EUR; I don't convert between currencies, so it isn't counted.",
     );

@@ -43,8 +43,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   ) {
     return NextResponse.json(
       {
-        error: "too many attempts — try again in an hour",
-        error_hu: "Túl sok próbálkozás — próbálja újra egy óra múlva.",
+        error: "too many attempts: try again in an hour",
+        error_hu: "Túl sok próbálkozás. Próbálja újra egy óra múlva.",
       },
       { status: 429 },
     );

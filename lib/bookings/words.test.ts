@@ -88,7 +88,7 @@ function legacy(
       ? {
           status: "unmeasured",
           reason:
-            "you haven't told me how many appointments you can take a week, so I can't say how full you are — I won't assume a capacity",
+            "you haven't told me how many appointments you can take a week, so I can't say how full you are: I won't assume a capacity",
         }
       : {
           status: "measured",
@@ -241,15 +241,15 @@ describe("the bookings measures in English (byte for byte as before L-4)", () =>
 
   it("says each refusal of an import exactly as before", () => {
     const old: [ConstructorParameters<typeof BookingImportError>[0], string][] = [
-      [{ key: "tooLarge" }, "that file is too large for one import — split it by date"],
+      [{ key: "tooLarge" }, "that file is too large for one import: split it by date"],
       [{ key: "needsRows" }, "the file needs a header row and at least one appointment"],
       [
         { key: "tooMany", values: { max: MAX_IMPORT_ROWS } },
-        `one import takes up to ${MAX_IMPORT_ROWS} appointments — split the file by date`,
+        `one import takes up to ${MAX_IMPORT_ROWS} appointments: split the file by date`,
       ],
       [
         { key: "noDate" },
-        "I couldn't find a date column — the header needs one, such as Date or Start",
+        "I couldn't find a date column: the header needs one, such as Date or Start",
       ],
       [
         { key: "noStatus" },
@@ -257,7 +257,7 @@ describe("the bookings measures in English (byte for byte as before L-4)", () =>
       ],
       [
         { key: "noCurrency" },
-        "the file has a price column — say which currency it is in (three letters, e.g. EUR)",
+        "the file has a price column: say which currency it is in (three letters, e.g. EUR)",
       ],
       [
         { key: "bothOrders" },
@@ -273,7 +273,7 @@ describe("the bookings measures in English (byte for byte as before L-4)", () =>
       ],
       [
         { key: "ambiguousDates" },
-        "dates like 03/04/2026 could be 3 April or 4 March — say whether the day or the month comes first",
+        "dates like 03/04/2026 could be 3 April or 4 March: say whether the day or the month comes first",
       ],
       [{ key: "decimal.ambiguous" }, DECIMAL_STYLE_MESSAGES.ambiguous],
       [{ key: "decimal.both" }, DECIMAL_STYLE_MESSAGES.both],
@@ -367,10 +367,10 @@ describe("the bookings sentences in another language", () => {
   it("refuses an import in German", async () => {
     const de = await say("de-DE");
     expect(sayRefusal({ key: "tooMany", values: { max: MAX_IMPORT_ROWS } }, de)).toBe(
-      "ein Import nimmt bis zu 50.000 Termine auf – teilen Sie die Datei nach Datum auf",
+      "ein Import nimmt bis zu 50.000 Termine auf: teilen Sie die Datei nach Datum auf",
     );
     expect(sayRefusal({ key: "ambiguousDates" }, de)).toBe(
-      "Datumsangaben wie 03/04/2026 könnten der 3. April oder der 4. März sein – sagen Sie, ob der Tag oder der Monat zuerst steht",
+      "Datumsangaben wie 03/04/2026 könnten der 3. April oder der 4. März sein: sagen Sie, ob der Tag oder der Monat zuerst steht",
     );
   });
 

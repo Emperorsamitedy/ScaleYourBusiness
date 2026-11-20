@@ -1200,7 +1200,7 @@ export async function submitEntityCount(
   const chip: IntakeChip = {
     question_id: question.id,
     prompt: englishOf(question.prompt),
-    display: `${count} recorded — details next session`,
+    display: `${count} recorded, details next session`,
     provenance: `${question.id} · owner · stated`,
     dot: "solid",
   };

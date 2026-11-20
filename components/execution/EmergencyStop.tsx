@@ -22,8 +22,14 @@
 // mono button, and — when halted — a STOPPED word with the same
 // confirm-to-restart step, inline. `onState` tells the host screen
 // whether everything is halted, so it can say so beside its own buttons.
+//
+// A press is told to the page (the STOP_CHANGED window event), so whatever
+// else shows the state reads it again and never disagrees: a second stop
+// on the same page, or Home's status card (2026-11-17), which says
+// "Stopped. Nothing executes." but carries no stop of its own. The stop
+// lives in the strip, in the same place on every screen.
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useId, useState } from "react";
 import "../../app/queue.css";
 import { useTranslations } from "next-intl";
 import { useRole } from "../auth/RoleContext";
@@ -40,7 +46,13 @@ interface Halt {
   reason: string | null;
 }
 
+/** Told to the page when a stop was pressed; `detail` is the presser's id. */
+export const STOP_CHANGED = "syb:stop-changed";
+const CHANGED = STOP_CHANGED;
+
 type State =
+  // Not answered yet: the masthead keeps the control's place, so nothing beside it moves.
+  | { phase: "reading" }
   | { phase: "hidden" }
   | { phase: "ready"; halt: Halt; busy: boolean; confirming: boolean; error: string | null };
 
@@ -72,9 +84,10 @@ export function EmergencyStop({
   variant?: "bar" | "masthead";
   onState?: (halted: boolean) => void;
 } = {}) {
+  const self = useId();
   const t = useTranslations("stop");
   const locale = useAppLocale();
-  const [state, setState] = useState<State>({ phase: "hidden" });
+  const [state, setState] = useState<State>({ phase: "reading" });
   // Idea 52: anyone on the team can stop; starting again is an owner's.
   const resumeWhy = useRole().why("stop.resume");
   const halted = state.phase === "ready" ? state.halt.halted : null;
@@ -93,6 +106,27 @@ export function EmergencyStop({
     void load();
   }, [load]);
 
+  // Another stop on this page was pressed: read the state it left.
+  useEffect(() => {
+    const on = (e: Event) => {
+      if ((e as CustomEvent<string>).detail !== self) void load();
+    };
+    window.addEventListener(CHANGED, on);
+    return () => window.removeEventListener(CHANGED, on);
+  }, [load, self]);
+
+  if (state.phase === "reading") {
+    if (variant !== "masthead") return null;
+    // The control's own width, unseen and unpressable, until its state is known.
+    return (
+      <div className="es-mast es-mast-wait" aria-hidden="true">
+        <span className="es-mast-stop">
+          <span className="es-long">{t("stop")}</span>
+          <span className="es-short">{t("stopShort")}</span>
+        </span>
+      </div>
+    );
+  }
   if (state.phase === "hidden") return null;
   const s = state;
 
@@ -105,6 +139,7 @@ export function EmergencyStop({
       return;
     }
     setState({ phase: "ready", halt: j, busy: false, confirming: false, error: null });
+    window.dispatchEvent(new CustomEvent(CHANGED, { detail: self }));
   };
 
   if (variant === "masthead") {
@@ -118,7 +153,15 @@ export function EmergencyStop({
             aria-describedby="es-mast-what"
             onClick={() => void send("POST")}
           >
-            {s.busy ? t("stopping") : t("stop")}
+            {s.busy ? (
+              t("stopping")
+            ) : (
+              <>
+                {/* One word where room is short (the strip on a phone); the full name everywhere else. */}
+                <span className="es-long">{t("stop")}</span>
+                <span className="es-short">{t("stopShort")}</span>
+              </>
+            )}
           </button>
           <span className="sr-only" id="es-mast-what">
             {t("what")}

@@ -1,6 +1,9 @@
-/* Insights · Cash flow (P5-10), on the sheet system (app/sheet.css): the
-   13-week chart, the tight week, the sources, the scenarios side by side
-   and the weeks. Square corners, no icons, no colour carrying meaning. */
+/* Insights · Cash flow (P5-10), on the sheet system (app/sheet.css). Laid
+   out again on 2026-11-18 from the mockup the owner picked (L6: "less text
+   at once"): three figures over the chart, the what-ifs as four cards with
+   their sizes in a side sheet, three weeks of the table with the rest one
+   press away, and the sources folded at the foot. No colour carries a
+   meaning on its own: a flag is a word, the tight week a ring and a word. */
 
 .cf-screen > p.cf-copy {
   color: var(--desk-ink);
@@ -12,6 +15,21 @@
   text-underline-offset: 3px;
 }
 
+/* under the headline */
+.cf-ask {
+  margin: 8px 0 0;
+  max-width: 760px;
+  font-family: var(--f-prose);
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--desk-ink-2);
+}
+/* A reason is written to sit inside a sentence; on its own line it starts with a capital. */
+.cf-reasons li::first-letter,
+.cf-form label > span::first-letter {
+  text-transform: uppercase;
+}
+
 .cf-note {
   margin: 4px 0 0;
   max-width: var(--measure);
@@ -20,19 +38,283 @@
 .cf-note:first-child {
   color: var(--desk-ink);
 }
+.cf-how {
+  margin-top: 20px;
+}
+.cf-fail {
+  margin: 0 0 14px;
+  padding: 12px 16px;
+  border-radius: var(--r-s, 0);
+  background: var(--paper);
+  color: var(--alarm);
+  font-size: 14px;
+  font-weight: 600;
+}
 
-.cf-grid {
+/* ── three figures over the chart ── */
+
+.cf-tiles {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 15px;
-  align-items: start;
-  margin: 15px 0;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  margin: 0 0 16px;
 }
-.cf-grid .cs {
+.cf-tile {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
   min-width: 0;
+  padding: 18px;
+  border: 0;
+  border-radius: var(--r-card, 0);
+  background: var(--paper);
+  color: var(--sheet-ink);
+  font: inherit;
+  text-align: left;
 }
-.cf-screen > .cs {
-  margin: 15px 0;
+.cf-tile-btn {
+  cursor: pointer;
+  transition:
+    transform 0.22s var(--ease-out),
+    box-shadow 0.22s var(--ease-out);
+}
+.cf-tile-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.3);
+}
+.cf-tile-btn:active {
+  transform: translateY(0);
+}
+.cf-tile-btn:focus-visible {
+  outline: 2px solid var(--desk-ink);
+  outline-offset: 3px;
+}
+.cf-tile-top {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px;
+}
+.cf-tile-lab {
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--sheet-ink-2);
+}
+.cf-tile-more {
+  font-size: 12.5px;
+  font-weight: 600;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.cf-tile-val {
+  font-family: var(--f-fig);
+  font-size: clamp(21px, 2.1vw, 28px);
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+  text-wrap: balance;
+}
+.cf-tile-note {
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--sheet-ink-2);
+}
+.cf-wait {
+  margin: 0 0 16px;
+  padding: 20px;
+}
+
+/* ── a section's name on the desk, and its one quiet button ── */
+
+.cf-sec-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 10px 16px;
+  margin: 28px 0 12px;
+  color: var(--desk-ink);
+}
+.cf-sec-title {
+  margin: 0;
+  font-family: var(--f-display);
+  font-size: 18px;
+  font-weight: var(--w-display, 700);
+  line-height: 1.2;
+}
+.cf-sec-note {
+  margin: 4px 0 0;
+  font-size: 13px;
+  color: var(--desk-ink-2);
+}
+.cf-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 36px;
+  padding: 0 14px;
+  border: 1px solid var(--sheet-ink);
+  border-radius: var(--r-s, 0);
+  background: transparent;
+  color: var(--sheet-ink);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background-color 0.16s var(--ease-out),
+    border-color 0.16s var(--ease-out),
+    color 0.16s var(--ease-out),
+    transform var(--d-press) linear;
+}
+.cf-btn:hover {
+  background: var(--sheet-ink);
+  color: var(--paper);
+}
+.cf-btn:active {
+  transform: scale(0.98);
+}
+.cf-btn:focus-visible {
+  outline: 2px solid var(--sheet-ink);
+  outline-offset: 2px;
+}
+.cf-btn.on-desk {
+  border-color: var(--hair-2);
+  color: var(--desk-ink);
+}
+.cf-btn.on-desk:hover {
+  border-color: var(--desk-ink);
+  background: var(--desk-ink);
+  color: var(--masthead);
+}
+.cf-btn.on-desk:focus-visible {
+  outline-color: var(--desk-ink);
+}
+
+/* ── the what-ifs: one card each ── */
+
+.cf-cards {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  transition: opacity 0.2s var(--ease-out);
+}
+.cf-cards.is-busy {
+  opacity: 0.55;
+}
+.cf-card {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding: 16px;
+  border-radius: 16px;
+  background: var(--paper);
+  color: var(--sheet-ink);
+}
+.cf-card-title {
+  margin: 0;
+  font-family: var(--f-display);
+  font-size: 14.5px;
+  font-weight: var(--w-display, 700);
+  line-height: 1.3;
+}
+.cf-card-change {
+  flex: 1 0 auto;
+  margin: 4px 0 0;
+  font-size: 12.5px;
+  line-height: 1.45;
+  color: var(--sheet-ink-2);
+}
+.cf-card-lab {
+  margin: 12px 0 0;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--sheet-ink-2);
+}
+.cf-card-fig {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 2px 8px;
+  margin: 2px 0 0;
+}
+.cf-card-fig .fig {
+  font-size: 22px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+.cf-card-week {
+  font-size: 12.5px;
+  color: var(--sheet-ink-2);
+}
+.cf-card-rows {
+  margin: 12px 0 0;
+  padding: 2px 0 0;
+  border-top: 1px solid var(--rule-soft);
+}
+.cf-card-rows > div {
+  padding: 8px 0 0;
+}
+.cf-card-rows dt {
+  font-size: 12px;
+  line-height: 1.4;
+  color: var(--sheet-ink-2);
+}
+.cf-card-rows dd {
+  margin: 1px 0 0;
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.4;
+}
+.cf-card-rows dd.fig {
+  white-space: normal;
+}
+.cf-card-missing .cf-card-change {
+  flex: 0 0 auto;
+}
+.cf-card-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+  margin: 12px 0 0;
+  font-size: 13px;
+  font-weight: 600;
+}
+.cf-linkbtn {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-weight: 600;
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+.cf-what > .fold {
+  margin-top: 12px;
+}
+
+/* ── the paper cards under them ── */
+
+.cf-screen > .cs,
+.cf-one {
+  margin: 16px 0;
+}
+.cf-one {
+  max-width: 760px;
+}
+@media (min-width: 720px) {
+  .cf-weeks-card .cs-head,
+  .cf-sources-card .cs-head {
+    align-items: center;
+  }
+}
+.cf-weeks-card {
+  margin-top: 28px !important;
 }
 
 .cf-copy {
@@ -44,18 +326,15 @@
 .cf-copy:first-child {
   margin-top: 0;
 }
-.cf-strong {
-  font-weight: 500;
-}
 .cf-quiet {
   color: var(--sheet-ink-2);
 }
 .cf-sub {
   margin: 14px 0 4px;
   font-family: var(--f-mono);
-  font-size: 12px;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  font-size: calc(12px + var(--caps-bump, 0px));
+  letter-spacing: var(--caps-ls, 0.06em);
+  text-transform: var(--caps, uppercase);
   color: var(--sheet-ink-2);
 }
 .cf-list {
@@ -67,74 +346,123 @@
 .cf-list li + li {
   margin-top: 4px;
 }
-.cf-src {
-  display: block;
-  font-family: var(--f-mono);
-  font-size: 11.5px;
-  color: var(--sheet-ink-2);
-  white-space: normal;
-}
 
 .cf-wrap {
   overflow-x: auto;
   margin: 0 -8px;
   padding: 0 8px;
 }
-.cf-scen {
-  min-width: 720px;
-  table-layout: fixed;
+.cf-weeks tbody tr:last-child th,
+.cf-weeks tbody tr:last-child td {
+  border-bottom: 0;
 }
-.cf-scen thead th.num {
-  white-space: normal;
-  text-transform: none;
-  letter-spacing: 0;
-  font-size: 12.5px;
+.cf-week {
   font-weight: 600;
-  color: var(--sheet-ink);
-  vertical-align: bottom;
 }
-.cf-scen td {
-  white-space: normal;
-  vertical-align: top;
+.cf-weeks .flag {
+  margin-left: 8px;
 }
-.cf-weeks td,
+/* what falls due that week, under the week's name */
+.cf-due {
+  display: block;
+  margin-top: 2px;
+  font-size: 12.5px;
+  font-weight: 400;
+  line-height: 1.45;
+  color: var(--sheet-ink-2);
+}
 .cf-sources td {
   white-space: normal;
 }
 
+/* ── the what-ifs' sizes, in the side sheet ── */
+
 .cf-form {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-end;
-  gap: 10px 14px;
-  margin: 0 0 14px;
+  display: grid;
+  gap: 16px;
+  margin: 0;
+}
+.cf-pair {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+  align-items: end;
+  gap: 10px;
 }
 .cf-form label {
-  display: inline-flex;
+  display: flex;
   flex-direction: column;
-  gap: 4px;
-  font-family: var(--f-mono);
-  font-size: 11.5px;
+  gap: 5px;
+  min-width: 0;
+  font-size: 12.5px;
+  font-weight: 500;
   color: var(--sheet-ink-2);
 }
 .cf-form input,
 .cf-form select {
-  min-height: 38px;
-  padding: 0 8px;
-  border: var(--line);
-  border-radius: 0;
+  width: 100%;
+  min-height: 44px;
+  padding: 0 12px;
+  box-sizing: border-box;
+  border: 1px solid var(--rule);
+  border-radius: var(--r-s, 0);
   background: var(--paper);
   color: var(--sheet-ink);
+  font-family: var(--f-fig);
+  font-size: 14px;
+}
+.cf-form select {
   font-family: var(--f-mono);
-  font-size: 12.5px;
 }
 .cf-form input {
-  width: 10ch;
   text-align: right;
 }
+.cf-form input:focus-visible,
+.cf-form select:focus-visible {
+  outline: 2px solid var(--sheet-ink);
+  outline-offset: 1px;
+}
+.cf-run {
+  width: 100%;
+}
 
-@media (max-width: 900px) {
-  .cf-grid {
-    grid-template-columns: minmax(0, 1fr);
+@media (max-width: 1179px) {
+  .cf-cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+}
+@media (max-width: 759px) {
+  .cf-tiles {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
+  }
+  .cf-tile {
+    padding: 16px;
+  }
+  .cf-cards {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
+  }
+  .cf-sec-head {
+    margin-top: 24px;
+  }
+  .cf-weeks .flag {
+    margin-left: 6px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cf-tile-btn,
+  .cf-btn,
+  .cf-cards {
+    transition: none;
+  }
+  .cf-tile-btn:hover {
+    transform: none;
+  }
+}
+
+/* Sentence case: a label the classic look set in capitals starts with one
+   (the owner app's type, app/sheet.css). In the classic look it follows the label. */
+:is(.cf-sub)::first-letter {
+  text-transform: var(--caps-first, inherit);
 }

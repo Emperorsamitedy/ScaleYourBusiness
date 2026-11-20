@@ -230,7 +230,7 @@ export function summarySections(input: SummaryInput, w: Words = ENGLISH()): Summ
   if (input.pending.length > 0) {
     waiting.push({ text: w.t("pending", { count: input.pending.length }) });
     for (const p of input.pending.slice(0, 3)) {
-      waiting.push({ text: `— ${p.summary ?? w.t("aProposal")}` });
+      waiting.push({ text: `- ${p.summary ?? w.t("aProposal")}` });
     }
     if (input.pending.length > 3) {
       waiting.push({ text: w.t("pendingMore", { count: input.pending.length - 3 }) });
@@ -409,6 +409,13 @@ const RULE = "#7A8494";
 const MONO = "'IBM Plex Mono',Menlo,Consolas,monospace";
 const PROSE = "Archivo,Helvetica,Arial,sans-serif";
 
+/**
+ * A line that sits under the one before it (each waiting proposal under the
+ * count, and "and N more"): its text starts with "- ". The text email indents
+ * it; the HTML email insets it and drops the mark.
+ */
+const SUB_LINE = /^- /;
+
 function renderText(
   c: Omit<ComposedSummary, "text" | "html">,
   input: SummaryInput,
@@ -420,7 +427,10 @@ function renderText(
     out.push(
       w.locale === "en" ? s.title.toUpperCase() : s.title.toLocaleUpperCase(intlTag(w.locale)),
     );
-    for (const l of s.lines) out.push(l.at ? `- ${l.at} · ${l.text}` : `- ${l.text}`);
+    for (const l of s.lines) {
+      if (SUB_LINE.test(l.text)) out.push(`  ${l.text}`);
+      else out.push(l.at ? `- ${l.at} · ${l.text}` : `- ${l.text}`);
+    }
     if (s.more > 0) out.push(`- ${w.t("more", { count: s.more })}`);
     out.push(`${s.link_text}: ${input.origin}${s.href}`, "");
   }
@@ -459,13 +469,14 @@ function renderHtml(
   }
   for (const s of c.sections) {
     const items = s.lines
-      .map(
-        (l) =>
-          `<li style="margin:0 0 6px">${
-            l.at
-              ? `<span style="font-family:${MONO};font-size:12px;color:${INK_2}">${escapeHtml(l.at)}</span> `
-              : ""
-          }${escapeHtml(l.text)}</li>`,
+      .map((l) =>
+        SUB_LINE.test(l.text)
+          ? `<li style="margin:0 0 6px 16px;list-style:circle">${escapeHtml(l.text.replace(SUB_LINE, ""))}</li>`
+          : `<li style="margin:0 0 6px">${
+              l.at
+                ? `<span style="font-family:${MONO};font-size:12px;color:${INK_2}">${escapeHtml(l.at)}</span> `
+                : ""
+            }${escapeHtml(l.text)}</li>`,
       )
       .join("");
     const more =

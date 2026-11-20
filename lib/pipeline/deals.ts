@@ -146,7 +146,7 @@ async function resolveContact(
       phone: who.phone ?? null,
       consent: origin.attestation ?? {
         status: "unsure",
-        source: `added as a deal contact on /pipeline ${today} — a sales conversation is not marketing consent`,
+        source: `added as a deal contact on /pipeline ${today}: a sales conversation is not marketing consent`,
       },
     });
   } catch (error) {
@@ -179,7 +179,7 @@ export async function insertDeal(
   now: Date,
 ): Promise<DealRow> {
   const title = cleanText(input.title, TITLE_MAX, "the deal's name");
-  if (title === null) throw new DealError("a deal needs a name — what is it for?", 422);
+  if (title === null) throw new DealError("a deal needs a name: what is it for?", 422);
   const stage = input.stage ?? "lead";
   if (!isDealStage(stage)) throw new DealError("that isn't a pipeline stage", 422);
   const value = checkValue(input.value);

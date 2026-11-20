@@ -178,7 +178,7 @@ export async function overrideWatch(args: {
     profile_id: args.profileId,
     kind: shortening ? "watch_shortened" : "watch_extended",
     detail: shortening
-      ? `Watch shortened to ${args.toWeeks} weeks — acknowledged by the owner.`
+      ? `Watch shortened to ${args.toWeeks} weeks, acknowledged by the owner.`
       : `Watch extended to ${args.toWeeks} weeks at the owner's request.`,
     meta: { decision_id: current.id },
   });

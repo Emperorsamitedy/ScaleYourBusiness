@@ -23,7 +23,12 @@ const SECURITY_HEADERS = [
   { key: "X-Content-Type-Options", value: "nosniff" },
   { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
   { key: "Strict-Transport-Security", value: "max-age=63072000; includeSubDomains" },
-  { key: "Permissions-Policy", value: "camera=(), microphone=(), geolocation=(), payment=()" },
+  // The microphone is the page's own to ask for (idea 50: answering by voice;
+  // the browser still asks the person). It was "microphone=()" until
+  // 2026-11-18, which refused it for every page before the browser could ask:
+  // the owner pressed the microphone and no prompt ever came. Nothing framed
+  // in from another origin may use it; camera, location and payment stay off.
+  { key: "Permissions-Policy", value: "camera=(), microphone=(self), geolocation=(), payment=()" },
 ];
 
 // P3-52: the cutting room shells out to the FFmpeg/ffprobe binaries these

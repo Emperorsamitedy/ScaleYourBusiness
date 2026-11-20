@@ -37,6 +37,7 @@
   font-family: var(--f-mono);
   font-size: 13px;
   color: var(--desk-ink);
+  border-radius: var(--r-ctl, 0);
 }
 
 .sp-screen .sp-grid {
@@ -61,6 +62,7 @@
   padding: 14px 14px 15px;
   background: var(--inset);
   border: 1px solid var(--sheet-ink);
+  border-radius: var(--r-ctl, 0);
 }
 .sp-screen .sp-box-label {
   margin: 0 0 8px;
@@ -106,6 +108,7 @@
   background: var(--paper);
   line-height: 1.5;
   resize: vertical;
+  border-radius: var(--r-s, 0);
 }
 .sp-screen .sp-fine {
   margin: 8px 0 0;
@@ -257,7 +260,7 @@
   overflow-wrap: anywhere;
 }
 .sp-screen .sp-sla-fig {
-  font-family: var(--f-mono);
+  font-family: var(--f-fig);
   font-size: 12.5px;
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
@@ -330,6 +333,7 @@
   align-self: flex-start;
   border: 1px solid var(--rule);
   background: var(--paper);
+  border-radius: var(--r-ctl, 0);
 }
 .sp-screen .sp-msg.assistant {
   align-self: flex-end;
@@ -346,9 +350,9 @@
 .sp-screen .sp-msg-meta {
   margin: 8px 0 0;
   font-family: var(--f-mono);
-  font-size: 11.5px;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  font-size: calc(11.5px + var(--caps-bump, 0px));
+  letter-spacing: var(--caps-ls, 0.06em);
+  text-transform: var(--caps, uppercase);
   opacity: 0.85;
 }
 .sp-screen .sp-msg.customer .sp-msg-meta {
@@ -385,6 +389,7 @@
   line-height: 1.6;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
+  border-radius: var(--r-ctl, 0);
 }
 
 @media (max-width: 1199px) {
@@ -476,7 +481,14 @@
   line-height: 1.5;
   white-space: pre-wrap;
   word-break: break-word;
+  border-radius: var(--r-ctl, 0);
 }
 .sp-screen .sp-note {
   color: var(--sheet-ink);
+}
+
+/* Sentence case: a label the classic look set in capitals starts with one
+   (the owner app's type, app/sheet.css). In the classic look it follows the label. */
+:is(.sp-screen .sp-msg-meta)::first-letter {
+  text-transform: var(--caps-first, inherit);
 }

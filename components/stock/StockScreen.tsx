@@ -35,6 +35,7 @@ import { dayMonthYear } from "../../lib/i18n/format";
 import { intlTag } from "../../lib/i18n/locales";
 import { StockHistoryChart } from "../charts/StockHistoryChart";
 import { PurchaseOrdersCard } from "./PurchaseOrders";
+import { Fold } from "../sheet/Fold";
 import { PageHead, SheetCard } from "../sheet/PageHead";
 import { num } from "../sheet/num";
 import { useTr } from "../sheet/useTr";
@@ -134,7 +135,7 @@ function SlowTable({ items }: { items: StockItemView[] }) {
                   {num(item.on_hand, 0, locale)}
                 </td>
                 <td className="num" data-label={sold}>
-                  {item.sold[90] === null ? "—" : num(item.sold[90], 0, locale)}
+                  {item.sold[90] === null ? "-" : num(item.sold[90], 0, locale)}
                 </td>
                 <td className="num" data-label={tr("col.cover")}>
                   {coverText(item, words)}
@@ -229,7 +230,7 @@ function CoverTable({ cover, today }: { cover: CoverBlock; today: string | undef
                     {num(item.on_hand, 0, locale)}
                   </td>
                   <td className="num" data-label={sold}>
-                    {item.sold_recent === null ? "—" : num(item.sold_recent, 0, locale)}
+                    {item.sold_recent === null ? "-" : num(item.sold_recent, 0, locale)}
                   </td>
                   <td className="num" data-label={vsPrior} title={item.sell_through}>
                     {vsPriorText(item, words)}
@@ -306,25 +307,24 @@ function ReorderNote({ item }: { item: CoverItemView }) {
         {item.warning}
         {w && <span className={`word ${w.tone}`}>{w.word}</span>}
       </p>
-      <p className="st-rank-math">{r.arithmetic}</p>
-      {r.cost && (
-        <p className="st-rank-fig">
-          {moneyLine(r.cost, words)}
-          {r.cost_arithmetic && <span className="st-src">{r.cost_arithmetic}</span>}
-        </p>
-      )}
-      <p className="st-rank-math">{tr("reorder.sources", { sources: item.sources })}</p>
-      {item.assumed.length > 0 && (
-        <ul className="st-assumed">
-          {item.assumed.map((a) => (
-            <li key={a}>{a}</li>
-          ))}
-        </ul>
-      )}
+      {r.cost && <p className="st-rank-fig">{moneyLine(r.cost, words)}</p>}
       {r.proposal?.status === "blocked" && r.proposal.blocked_by_limit && (
         <p className="st-rank-math">{tr("ruledOut", { rule: r.proposal.blocked_by_limit })}</p>
       )}
       <p className="st-copy">{tr("reorder.approving")}</p>
+      {/* L6: the working stays on the page, one press away (the fold's rule). */}
+      <Fold label="why">
+        <p className="st-rank-math">{r.arithmetic}</p>
+        {r.cost_arithmetic && <p className="st-rank-math">{r.cost_arithmetic}</p>}
+        <p className="st-rank-math">{tr("reorder.sources", { sources: item.sources })}</p>
+        {item.assumed.length > 0 && (
+          <ul className="st-assumed">
+            {item.assumed.map((a) => (
+              <li key={a}>{a}</li>
+            ))}
+          </ul>
+        )}
+      </Fold>
     </SheetCard>
   );
 }
@@ -352,10 +352,6 @@ function CoverCard({
         total: num(cover.items.length, 0, locale),
       })}
       title={cover.warnings > 0 ? tr("cover.titleWarned") : tr("cover.titleNone")}
-      meta={tr("cover.meta", {
-        days: num(cover.window_days, 0, locale),
-        lead: num(cover.default_lead_days, 0, locale),
-      })}
       foot={
         warned.length > 0 ? (
           <span className="st-foot-row">
@@ -373,7 +369,16 @@ function CoverCard({
       }
     >
       <CoverTable cover={cover} today={today} />
-      <p className="st-copy">{cover.season}</p>
+      {/* L6: how cover is worked out, and the season it counts, fold away. */}
+      <Fold label="how">
+        <p className="st-copy">
+          {tr("cover.meta", {
+            days: num(cover.window_days, 0, locale),
+            lead: num(cover.default_lead_days, 0, locale),
+          })}
+        </p>
+        <p className="st-copy">{cover.season}</p>
+      </Fold>
       {busy && (
         <p className="st-copy live">
           <span className="live-dot" aria-hidden="true" /> {tr("cover.working")}
@@ -414,7 +419,6 @@ function Ranking({ item }: { item: StockItemView }) {
                     ? tr("ranking.cantPropose", { why: o.unavailable })
                     : o.efficiency}
                 </p>
-                {o.unavailable === null && <p className="st-rank-math">{o.arithmetic}</p>}
                 {o.proposal?.status === "blocked" && o.proposal.blocked_by_limit && (
                   <p className="st-rank-math">
                     {tr("ruledOut", { rule: o.proposal.blocked_by_limit })}
@@ -425,6 +429,21 @@ function Ranking({ item }: { item: StockItemView }) {
           );
         })}
       </ol>
+      {/* L6: each option's sum, in the options' order, one press away. */}
+      {item.options.some((o) => o.unavailable === null) && (
+        <Fold label="how">
+          <ul className="st-assumed st-how">
+            {item.options
+              .filter((o) => o.unavailable === null)
+              .map((o) => (
+                <li key={o.key}>
+                  <strong>{o.label}</strong>
+                  {o.arithmetic}
+                </li>
+              ))}
+          </ul>
+        </Fold>
+      )}
       {blocked && (
         <p className="st-copy">
           {tr("ranking.blocked", {

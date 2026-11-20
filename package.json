@@ -56,6 +56,7 @@
     "drizzle-orm": "^0.45.2",
     "ffmpeg-static": "^5.3.0",
     "ffprobe-static": "^3.1.0",
+    "lucide-react": "^1.74.0",
     "next": "^16.3.1",
     "next-intl": "4.14.9",
     "pdf-lib": "1.17.1",

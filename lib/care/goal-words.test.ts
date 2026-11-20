@@ -33,7 +33,7 @@ const path: ProgressExplain = {
 describe("English is what the watch log always stored", () => {
   it("words the path, the share and the verdict", () => {
     expect(checkDetail("lagging", path)).toBe(
-      "Behind the path: €3,300.00 revenue per 30 days over the last 28 measured days, against €3,540.00 revenue per 30 days expected by 1 May 2026 on the path from €3,000.00 revenue per 30 days (31 Dec 2025) to €3,900.00 revenue per 30 days (20 Jul 2026) — 55.6% of the expected progress, 8% behind the path.",
+      "Behind the path: €3,300.00 revenue per 30 days over the last 28 measured days, against €3,540.00 revenue per 30 days expected by 1 May 2026 on the path from €3,000.00 revenue per 30 days (31 Dec 2025) to €3,900.00 revenue per 30 days (20 Jul 2026): 55.6% of the expected progress, 8% behind the path.",
     );
   });
   it("is the assessment's own arithmetic", () => {
@@ -52,7 +52,7 @@ describe("English is what the watch log always stored", () => {
       today: "2026-03-01",
     });
     expect(a.arithmetic).toBe(
-      "no measured baseline for orders before 1 Jan 2026 — connect a source and the history fills it",
+      "no measured baseline for orders before 1 Jan 2026: connect a source and the history fills it",
     );
     expect(progressArithmetic(a.explain)).toBe(a.arithmetic);
     expect(englishTr("goalsWords")("area.increase_revenue")).toBe("increase revenue");

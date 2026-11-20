@@ -68,7 +68,7 @@ export async function DELETE(): Promise<NextResponse> {
   const session = await matchingSession();
   if (!session) {
     return NextResponse.json(
-      { error: "starting things up again needs you signed in — stopping never does" },
+      { error: "starting things up again needs you signed in: stopping never does" },
       { status: 401 },
     );
   }

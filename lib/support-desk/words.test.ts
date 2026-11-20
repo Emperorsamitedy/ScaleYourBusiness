@@ -70,7 +70,7 @@ describe("English is what the desk always said", () => {
     expect(EN("note.stopped")).toBe(STOPPED);
     expect(EN("note.maybeSent")).toBe(MAYBE_SENT);
     expect(EN("draft.budget", { budget: "€5" })).toBe(
-      "This month's support budget (€5) is spent, so I won't draft — write it yourself.",
+      "This month's support budget (€5) is spent, so I won't draft: write it yourself.",
     );
     expect(EN("summary.facts", { count: 1, n: "1" })).toBe(
       "Publish 1 answer the customer assistant may give",
@@ -92,7 +92,7 @@ describe("English is what the desk always said", () => {
 
   it("leaves English rows, and any sentence that isn't ScaleX's, as they came", () => {
     const service =
-      "Not sent: the email service refused it (422: invalid from). Nothing went out — write it again to retry.";
+      "Not sent: the email service refused it (422: invalid from). Nothing went out: write it again to retry.";
     expect(outcomeNoteWords(service, EN, "en")).toBe(service);
     expect(outcomeNoteWords(null, de, "de-DE")).toBeNull();
     expect(outcomeNoteWords("Something the email service said.", de, "de-DE")).toBe(
@@ -109,19 +109,19 @@ describe("English is what the desk always said", () => {
 describe("in the reader's language", () => {
   it("says notes, the draft refusal and a summary in German, keeping what isn't ScaleX's", () => {
     const service =
-      "Not sent: the email service refused it (422: invalid from). Nothing went out — write it again to retry.";
+      "Not sent: the email service refused it (422: invalid from). Nothing went out: write it again to retry.";
     const said = outcomeNoteWords(service, de, "de-DE")!;
     expect(said).not.toBe(service);
     expect(said).toContain("422: invalid from");
     const gate = outcomeNoteWords(
-      "Not sent: the gate refused it — suppressed (unsubscribed).",
+      "Not sent: the gate refused it, suppressed (unsubscribed).",
       de,
       "de-DE",
     )!;
     expect(gate).toContain("unsubscribed");
     expect(gate).not.toContain("Not sent");
     const budget = draftRefusalWords(
-      "This month's support budget (€5) is spent, so I won't draft — write it yourself.",
+      "This month's support budget (€5) is spent, so I won't draft: write it yourself.",
       de,
       "de-DE",
     );
@@ -145,7 +145,7 @@ describe("in the reader's language", () => {
     expect(one!.replace("1", "#")).not.toBe(many!.replace("5", "#"));
     const times = (n: number) =>
       draftRefusalWords(
-        `I've drafted this ticket ${n} times already — write this one yourself.`,
+        `I've drafted this ticket ${n} times already: write this one yourself.`,
         ru,
         "ru-RU",
       );

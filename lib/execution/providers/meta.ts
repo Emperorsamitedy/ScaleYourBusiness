@@ -256,7 +256,7 @@ export function parseMetaExecutionCredential(
   };
   if (c["page_access_token"] !== undefined && c["page_access_token"] !== "") {
     throw new ExecutionConnectionError(
-      "meta: a pasted Page token can't be checked against your consent — assign the Page to the system user instead, and ScaleX derives the Page token from it",
+      "meta: a pasted Page token can't be checked against your consent; assign the Page to the system user instead, and ScaleX derives the Page token from it",
       400,
     );
   }
@@ -323,7 +323,7 @@ export const DISCLOSED_TEXT_FIELD: Readonly<Partial<Record<MetaExecRequest, stri
 export class UndisclosedPublishError extends Error {
   readonly retryable = false;
   constructor(which: string) {
-    super(`meta: refusing to send ${which} without its AI disclosure (rule 17) — nothing was sent`);
+    super(`meta: refusing to send ${which} without its AI disclosure (rule 17): nothing was sent`);
     this.name = "UndisclosedPublishError";
   }
 }
@@ -1098,9 +1098,9 @@ export const IG_FINISHED_GRACE_MS = 60 * 60_000;
 
 export const MAY_HAVE_POSTED: Readonly<Record<PublishPlatform, string>> = {
   facebook:
-    "I may have posted this — check the Page. Meta didn't confirm it, and I won't post it again.",
+    "I may have posted this: check the Page. Meta didn't confirm it, and I won't post it again.",
   instagram:
-    "I may have posted this — check the Instagram account. Meta didn't confirm it, and I won't post it again.",
+    "I may have posted this: check the Instagram account. Meta didn't confirm it, and I won't post it again.",
 };
 const NEVER_SENT = "The run stopped before anything was sent to Meta. Nothing was published.";
 
@@ -1188,11 +1188,11 @@ function publishParams(params: Record<string, unknown>): PublishParams {
   const platform = params["platform"];
   const target = params["target"] as Record<string, unknown> | null | undefined;
   if (typeof itemId !== "string" || (platform !== "facebook" && platform !== "instagram")) {
-    throw new PublishError("the publish plan names no item or platform — nothing was sent");
+    throw new PublishError("the publish plan names no item or platform: nothing was sent");
   }
   const id = platform === "facebook" ? target?.["page_id"] : target?.["ig_user_id"];
   if (typeof id !== "string" || id === "") {
-    throw new PublishError("the publish plan names no Page or account — nothing was sent");
+    throw new PublishError("the publish plan names no Page or account: nothing was sent");
   }
   return { item_id: itemId, platform, target_id: id };
 }
@@ -1304,7 +1304,7 @@ async function publishFacebook(
   }
 
   const mediaUrl = args.mediaUrl;
-  if (mediaUrl === null) throw new PublishError("this post has no media — nothing was sent");
+  if (mediaUrl === null) throw new PublishError("this post has no media: nothing was sent");
 
   if (op === "publish_page_photo") {
     await stopBeforePublish(hooks);
@@ -1734,7 +1734,7 @@ async function readBack(
       return {
         kind: "not_sent",
         sentence:
-          "Instagram never published it — the media was ready, but no post appeared. Nothing went out.",
+          "Instagram never published it: the media was ready, but no post appeared. Nothing went out.",
       };
     }
     return uncertain;
@@ -1859,7 +1859,7 @@ function publishProvider(
       }
       const item = await b.item(p.item_id, pctx.profile_id);
       if (!item)
-        return { code: "refused", message: "the item to publish is gone — nothing was sent" };
+        return { code: "refused", message: "the item to publish is gone: nothing was sent" };
       // Mid-flight or done: execute settles it (read back, or the stored result).
       if (item.status === "publishing" || item.status === "published") return null;
       const refuse = async (refusal: PreflightRefusal): Promise<PreflightRefusal> => {
@@ -1875,7 +1875,7 @@ function publishProvider(
       if (item.status !== "drafted" && item.status !== "queued") {
         return {
           code: "refused",
-          message: `it is ${item.status}, so it isn't published — nothing was sent`,
+          message: `it is ${item.status}, so it isn't published: nothing was sent`,
         };
       }
       try {
@@ -1965,7 +1965,7 @@ function publishProvider(
       const b = await loadBackend();
       const p = publishParams(params);
       const item = await b.item(p.item_id, pctx.profile_id);
-      if (!item) throw new PublishError("the item to publish is gone — nothing was sent");
+      if (!item) throw new PublishError("the item to publish is gone: nothing was sent");
       // {platform, target ids}, before attempt one (rule 16). The post's own
       // id lands on the item when Meta gives it; undo reads it from there.
       return {
@@ -1979,7 +1979,7 @@ function publishProvider(
       const b = await loadBackend();
       const p = publishParams(params);
       const item = await b.item(p.item_id, pctx.profile_id);
-      if (!item) throw new PublishError("the item to publish is gone — nothing was sent");
+      if (!item) throw new PublishError("the item to publish is gone: nothing was sent");
       if (item.status === "published" && item.platform_post_id !== null) {
         return {
           platform: p.platform,
@@ -2002,7 +2002,7 @@ function publishProvider(
         return settle(b, outcome, item, pctx, p.platform);
       }
       if (item.status !== "drafted" && item.status !== "queued") {
-        throw new PublishError(`it is ${item.status}, so it isn't published — nothing was sent`);
+        throw new PublishError(`it is ${item.status}, so it isn't published: nothing was sent`);
       }
       if (!asApproved(item)) throw new PublishError(NOT_AS_APPROVED);
       const publishOp = expectOp(op, p.platform, item);
@@ -2012,7 +2012,7 @@ function publishProvider(
         caption_sha256: captionHash(caption),
       };
       if (!(await b.claim(item.id, pctx.execution_id ?? null, p.platform, attempt))) {
-        throw new PublishError("the item changed before it could be sent — nothing was sent");
+        throw new PublishError("the item changed before it could be sent: nothing was sent");
       }
       const hooks: PublishHooks = {
         account_id: pctx.account_id,
@@ -2117,19 +2117,19 @@ function publishProvider(
         (u.platform !== "facebook" && u.platform !== "instagram") ||
         typeof u.item_id !== "string"
       ) {
-        throw new PublishError("the stored undo names no item — nothing was deleted");
+        throw new PublishError("the stored undo names no item: nothing was deleted");
       }
       const platform: PublishPlatform = u.platform;
       const targetId = platform === "facebook" ? u.target?.page_id : u.target?.ig_user_id;
       if (typeof targetId !== "string") {
-        throw new PublishError("the stored undo names no Page or account — nothing was deleted");
+        throw new PublishError("the stored undo names no Page or account: nothing was deleted");
       }
       const item = await b.item(u.item_id, pctx.profile_id);
-      if (!item) throw new PublishError("the item is gone — nothing was deleted");
+      if (!item) throw new PublishError("the item is gone: nothing was deleted");
       if (item.status === "withdrawn") return { withdrawn: item.platform_post_id, platform };
       if (item.status !== "published" || item.platform_post_id === null) {
         throw new PublishError(
-          `only a published post can be withdrawn — this one is ${item.status}`,
+          `only a published post can be withdrawn: this one is ${item.status}`,
         );
       }
       const cred = await liveCredential(b, pctx.account_id, { platform, target_id: targetId });
@@ -2157,7 +2157,7 @@ function publishProvider(
             );
       if (body["success"] !== true) {
         throw new PublishError(
-          `Meta didn't confirm the deletion — check ${platform === "facebook" ? "the Page" : "the Instagram account"}.`,
+          `Meta didn't confirm the deletion: check ${platform === "facebook" ? "the Page" : "the Instagram account"}.`,
         );
       }
       await b.withdrawn(item, platform, pctx.account_id);
@@ -2454,7 +2454,7 @@ export const META_SPECIAL_AD_CATEGORIES: readonly string[] = [
 export class AdWriteRefusedError extends Error {
   readonly retryable = false;
   constructor(reason: string) {
-    super(`meta: refusing an ad write — ${reason}. Nothing was sent.`);
+    super(`meta: refusing an ad write: ${reason}. Nothing was sent.`);
     this.name = "AdWriteRefusedError";
   }
 }
@@ -2665,9 +2665,7 @@ const LIVE_STEP_OP = {
 export function assertStepRegistered(op: AdStepOp): void {
   const ops = EXECUTION_SCOPE_REGISTRY.meta_ads.operations.map((o) => o.op as string);
   if (!ops.includes(op)) {
-    throw new AdChangeError(
-      `"${op}" is not a registered operation for meta_ads — nothing was sent`,
-    );
+    throw new AdChangeError(`"${op}" is not a registered operation for meta_ads: nothing was sent`);
   }
 }
 
@@ -2700,7 +2698,7 @@ export const AD_RUN_DAYS = { min: 1, max: 30 } as const;
 /** Pure: the approved ad, re-read from the plan; anything out of shape refuses before a send. */
 export function adRunParams(params: Record<string, unknown>): AdRunParams {
   const bad = (what: string): never => {
-    throw new AdChangeError(`the approved ad ${what} — nothing was sent`);
+    throw new AdChangeError(`the approved ad ${what}: nothing was sent`);
   };
   const str = (k: string) => (typeof params[k] === "string" ? (params[k] as string) : null);
   const tag = str("build_tag");
@@ -2738,7 +2736,7 @@ export function adRunParams(params: Record<string, unknown>): AdRunParams {
     days < AD_RUN_DAYS.min ||
     days > AD_RUN_DAYS.max
   ) {
-    bad(`runs for a number of days outside ${AD_RUN_DAYS.min}–${AD_RUN_DAYS.max}`);
+    bad(`runs for a number of days outside ${AD_RUN_DAYS.min} to ${AD_RUN_DAYS.max}`);
   }
   const targeting = params["targeting"];
   if (!targeting || typeof targeting !== "object" || Array.isArray(targeting))
@@ -2840,7 +2838,7 @@ function metaInt(v: unknown): number | null {
 function campaignIdOf(params: Record<string, unknown>): string {
   const id = params["campaign_id"];
   if (typeof id !== "string" || !/^\d{5,}$/.test(id)) {
-    throw new AdChangeError("the ad change names no campaign — nothing was sent");
+    throw new AdChangeError("the ad change names no campaign: nothing was sent");
   }
   return id;
 }
@@ -2849,7 +2847,7 @@ function campaignIdOf(params: Record<string, unknown>): string {
 function shareOf(params: Record<string, unknown>): number {
   const share = params["share"];
   if (typeof share !== "number" || !Number.isFinite(share) || share === 0) {
-    throw new AdChangeError("the budget change names no amount — nothing was sent");
+    throw new AdChangeError("the budget change names no amount: nothing was sent");
   }
   return share;
 }
@@ -2857,7 +2855,7 @@ function shareOf(params: Record<string, unknown>): number {
 function approvedCurrency(params: Record<string, unknown>): string {
   const c = params["currency"];
   if (typeof c !== "string" || !/^[A-Za-z]{3}$/.test(c)) {
-    throw new AdChangeError("the budget change names no currency — nothing was sent");
+    throw new AdChangeError("the budget change names no currency: nothing was sent");
   }
   return c.toUpperCase();
 }
@@ -2875,24 +2873,24 @@ function createParams(params: Record<string, unknown>): CreateParams {
   const objective = params["objective"];
   const categories = params["special_ad_categories"];
   if (typeof name !== "string" || name.trim() === "" || name.length > 400) {
-    throw new AdChangeError("the new campaign has no name — nothing was sent");
+    throw new AdChangeError("the new campaign has no name: nothing was sent");
   }
   if (typeof objective !== "string" || !META_CAMPAIGN_OBJECTIVES.includes(objective)) {
-    throw new AdChangeError("the new campaign has no objective Meta accepts — nothing was sent");
+    throw new AdChangeError("the new campaign has no objective Meta accepts: nothing was sent");
   }
   if (
     !Array.isArray(categories) ||
     !categories.every((c) => typeof c === "string" && META_SPECIAL_AD_CATEGORIES.includes(c))
   ) {
     throw new AdChangeError(
-      "the new campaign's special ad categories aren't Meta's — nothing was sent",
+      "the new campaign's special ad categories aren't Meta's: nothing was sent",
     );
   }
   const budget = params["daily_budget_minor"];
   const hasBudget = budget !== undefined && budget !== null;
   if (hasBudget && (typeof budget !== "number" || !Number.isSafeInteger(budget) || budget <= 0)) {
     throw new AdChangeError(
-      "the new campaign's daily budget isn't a whole amount — nothing was sent",
+      "the new campaign's daily budget isn't a whole amount: nothing was sent",
     );
   }
   return {
@@ -2926,10 +2924,10 @@ function liveParams(params: Record<string, unknown>): LiveParams | null {
   const ad = params["ad_id"];
   if (adset === undefined && ad === undefined) return null;
   if (typeof adset !== "string" || !ID_DIGITS.test(adset)) {
-    throw new AdChangeError("the go-live names no ad set — nothing was sent");
+    throw new AdChangeError("the go-live names no ad set: nothing was sent");
   }
   if (typeof ad !== "string" || !ID_DIGITS.test(ad)) {
-    throw new AdChangeError("the go-live names no ad — nothing was sent");
+    throw new AdChangeError("the go-live names no ad: nothing was sent");
   }
   const days = params["run_days"];
   if (
@@ -2938,7 +2936,7 @@ function liveParams(params: Record<string, unknown>): LiveParams | null {
     days < AD_RUN_DAYS.min ||
     days > AD_RUN_DAYS.max
   ) {
-    throw new AdChangeError("the go-live names no run length — nothing was sent");
+    throw new AdChangeError("the go-live names no run length: nothing was sent");
   }
   return { adset_id: adset, ad_id: ad, run_days: days };
 }
@@ -2958,7 +2956,7 @@ function adRefusal(failure: MetaFailure, dryRun: boolean): AdChangeError {
   }
   return new AdChangeError(
     failure.retryable && failure.kind !== "unavailable"
-      ? "Meta kept asking ScaleX to slow down. Nothing was changed — I'll try again."
+      ? "Meta kept asking ScaleX to slow down. Nothing was changed. I'll try again."
       : failure.owner_sentence,
     failure.retryable,
   );
@@ -3168,7 +3166,7 @@ function adsProvider(ctx: Context, loadBackend: () => Promise<AdsBackend>): Exec
         throw opts.noAnswer
           ? opts.noAnswer()
           : new AdChangeError(
-              "I may have created this campaign — check Ads Manager. Meta didn't confirm it, and I won't create it again.",
+              "I may have created this campaign: check Ads Manager. Meta didn't confirm it, and I won't create it again.",
             );
       }
       if (error instanceof MetaRequestError && !pausesConnection(error.failure)) {
@@ -3197,7 +3195,7 @@ function adsProvider(ctx: Context, loadBackend: () => Promise<AdsBackend>): Exec
     );
     if (body["success"] !== true) {
       throw new AdChangeError(
-        `Meta didn't confirm the change to "${c.name}" — I'll check again.`,
+        `Meta didn't confirm the change to "${c.name}": I'll check again.`,
         true,
       );
     }
@@ -3213,7 +3211,7 @@ function adsProvider(ctx: Context, loadBackend: () => Promise<AdsBackend>): Exec
     );
     if (body["success"] !== true) {
       throw new AdChangeError(
-        `Meta didn't confirm the change to "${c.name}" — I'll check again.`,
+        `Meta didn't confirm the change to "${c.name}": I'll check again.`,
         true,
       );
     }
@@ -3400,7 +3398,7 @@ function adsProvider(ctx: Context, loadBackend: () => Promise<AdsBackend>): Exec
   ): Promise<Record<string, unknown>> {
     const executionId = pctx.execution_id;
     if (!executionId) {
-      throw new AdChangeError("the ad build has no run to journal against — nothing was sent");
+      throw new AdChangeError("the ad build has no run to journal against: nothing was sent");
     }
     const b = run.b;
     const journal = await b.adBuild(executionId, { build_tag: p.build_tag, item_id: p.item_id });
@@ -3431,7 +3429,7 @@ function adsProvider(ctx: Context, loadBackend: () => Promise<AdsBackend>): Exec
         const found = await readBackStep(run, key, name, p.build_tag);
         if (found === null) {
           throw new AdBuildUncertainError(
-            `I may have created the ${word} — check Ads Manager. Meta didn't confirm it and I couldn't find it, so I won't create it again. Nothing is live: everything ScaleX made is paused.`,
+            `I may have created the ${word}: check Ads Manager. Meta didn't confirm it and I couldn't find it, so I won't create it again. Nothing is live: everything ScaleX made is paused.`,
           );
         }
         await b.adStep(executionId, key, { id: found });
@@ -3457,13 +3455,13 @@ function adsProvider(ctx: Context, loadBackend: () => Promise<AdsBackend>): Exec
         },
         () =>
           new AdBuildWaitError(
-            `Meta didn't confirm the ${word}. I'll look for it on the next run and carry on from there — nothing is created twice, and nothing is live.`,
+            `Meta didn't confirm the ${word}. I'll look for it on the next run and carry on from there: nothing is created twice, and nothing is live.`,
           ),
       );
       const id = stringId(body, "id");
       if (id === null) {
         throw new AdBuildWaitError(
-          `Meta answered without the ${word}'s id. I'll look for it on the next run and carry on from there — nothing is created twice, and nothing is live.`,
+          `Meta answered without the ${word}'s id. I'll look for it on the next run and carry on from there: nothing is created twice, and nothing is live.`,
         );
       }
       await b.adStep(executionId, key, { id });
@@ -3588,7 +3586,7 @@ function adsProvider(ctx: Context, loadBackend: () => Promise<AdsBackend>): Exec
     await b.adBuildSettled(executionId, { status: "built" });
     await b.changed(
       pctx.profile_id,
-      `Created the ad "${p.name}" on Meta, paused — its campaign, ad set, creative and ad. Nothing spends until you approve going live.`,
+      `Created the ad "${p.name}" on Meta, paused: its campaign, ad set, creative and ad. Nothing spends until you approve going live.`,
       { campaign_id: campaignId, adset_id: adsetId, ad_id: adId, op: "create_ad_paused" },
     );
     return {
@@ -3632,13 +3630,13 @@ function adsProvider(ctx: Context, loadBackend: () => Promise<AdsBackend>): Exec
       }
       if (state === "error") {
         throw new AdChangeError(
-          "Meta couldn't process the video, so there is no ad to make from it. The campaign and ad set ScaleX made are on Meta, paused — nothing spends.",
+          "Meta couldn't process the video, so there is no ad to make from it. The campaign and ad set ScaleX made are on Meta, paused: nothing spends.",
         );
       }
       if (poll < AD_VIDEO_POLL_MAX) await ctx.sleep(Math.min(15_000, 2_000 * poll));
     }
     throw new AdBuildWaitError(
-      "Meta is still processing the video. I'll carry on from here on the next run — nothing is created twice, and nothing is live.",
+      "Meta is still processing the video. I'll carry on from here on the next run: nothing is created twice, and nothing is live.",
     );
   }
 
@@ -3691,7 +3689,7 @@ function adsProvider(ctx: Context, loadBackend: () => Promise<AdsBackend>): Exec
     );
     if (body["success"] !== true) {
       throw new AdChangeError(
-        `Meta didn't confirm the change to "${child.name}" — I'll check again.`,
+        `Meta didn't confirm the change to "${child.name}": I'll check again.`,
         true,
       );
     }
@@ -3720,7 +3718,7 @@ function adsProvider(ctx: Context, loadBackend: () => Promise<AdsBackend>): Exec
     ) {
       log("waiting");
       return new AdBuildWaitError(
-        `${error.message.replace(/ ?I'll try again\.?$/, "")} I'll carry on from here on the next run — nothing is created twice, and nothing is live.`,
+        `${error.message.replace(/ ?I'll try again\.?$/, "")} I'll carry on from here on the next run: nothing is created twice, and nothing is live.`,
       );
     }
     const message =
@@ -3964,7 +3962,7 @@ function adsProvider(ctx: Context, loadBackend: () => Promise<AdsBackend>): Exec
           const id = stringId(body, "id");
           if (id === null) {
             throw new AdChangeError(
-              "I may have created this campaign — check Ads Manager. Meta didn't confirm it, and I won't create it again.",
+              "I may have created this campaign: check Ads Manager. Meta didn't confirm it, and I won't create it again.",
             );
           }
           await run.b.changed(pctx.profile_id, `Created "${p.name}" on Meta, paused.`, {
@@ -4113,12 +4111,12 @@ function adsProvider(ctx: Context, loadBackend: () => Promise<AdsBackend>): Exec
       // owner has changed it since, theirs stands.
       const changedSince = (now: string, set: string) =>
         new AdChangeError(
-          `I didn't undo this: "${c.name}" is ${now} on Meta now, not the ${set} I set — you've changed it since, and I won't override that. Nothing was changed.`,
+          `I didn't undo this: "${c.name}" is ${now} on Meta now, not the ${set} I set: you've changed it since, and I won't override that. Nothing was changed.`,
         );
       if (op === "pause_campaign" || op === "resume_campaign") {
         if (typeof u.status !== "string" || !AD_STATUSES.includes(u.status)) {
           throw new AdChangeError(
-            "the stored undo names no status ScaleX may set — nothing was changed",
+            "the stored undo names no status ScaleX may set: nothing was changed",
           );
         }
         const set = typeof done.status === "string" ? done.status : null;
@@ -4181,7 +4179,7 @@ function adsProvider(ctx: Context, loadBackend: () => Promise<AdsBackend>): Exec
       if (op === "set_daily_budget") {
         const previous = metaInt(u.daily_budget);
         if (previous === null || typeof u.currency !== "string") {
-          throw new AdChangeError("the stored undo names no budget — nothing was changed");
+          throw new AdChangeError("the stored undo names no budget: nothing was changed");
         }
         const cur: string = u.currency;
         const minor =
@@ -4243,7 +4241,7 @@ function adsProvider(ctx: Context, loadBackend: () => Promise<AdsBackend>): Exec
         return { campaign_id: c.id, daily_budget: previous };
       }
       throw new AdChangeError(
-        `"${op}" can't be undone — it was labelled irreversible before approval`,
+        `"${op}" can't be undone: it was labelled irreversible before approval`,
       );
     },
   };

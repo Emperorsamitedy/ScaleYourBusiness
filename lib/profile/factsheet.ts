@@ -190,7 +190,7 @@ export function scheduleWords(value: unknown): string | null {
     if (unstated.has(d) || !Array.isArray(periods)) return `${name(d)} not stated`;
     const ok = periods.filter(isPeriod);
     if (ok.length === 0) return `${name(d)} closed`;
-    return `${name(d)} ${ok.map((p) => `${p.open}–${p.close}`).join(", ")}`;
+    return `${name(d)} ${ok.map((p) => `${p.open} to ${p.close}`).join(", ")}`;
   }).join(" · ");
 }
 
@@ -589,7 +589,7 @@ export function gapBuys(q: Pick<ApplicableQuestion, "priority" | "unlocks">): st
     unlockCount > 0 ? ` and opens ${unlockCount} follow-up${unlockCount === 1 ? "" : "s"}` : "";
   switch (q.priority) {
     case "core":
-      return `part of the core set — the diagnosis will not run without it${followUps}`;
+      return `part of the core set: the diagnosis will not run without it${followUps}`;
     case "important":
       return `sharpens the findings that touch it${followUps}`;
     case "deep":

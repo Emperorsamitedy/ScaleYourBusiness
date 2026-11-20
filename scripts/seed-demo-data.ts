@@ -103,7 +103,7 @@ export const PRODUCTS: readonly DemoProduct[] = [
   {
     key: "plate",
     name: "Stoneware Dinner Plate",
-    shopify_title: "Stoneware Dinner Plate — 27 cm",
+    shopify_title: "Stoneware Dinner Plate, 27 cm",
     ref: "gid://shopify/Product/7720002",
     price_minor: 4200,
     cost_minor: 1250,
@@ -140,7 +140,7 @@ export const PRODUCTS: readonly DemoProduct[] = [
     stated_volume: 100,
     weight: 0.13,
     description:
-      "Three small bud vases in mixed glazes — the gift people buy without thinking twice.",
+      "Three small bud vases in mixed glazes, the gift people buy without thinking twice.",
     problems: ["none"],
     purchase_type: "one_time",
     on_hand: 130,
@@ -162,7 +162,7 @@ export const PRODUCTS: readonly DemoProduct[] = [
   {
     key: "seconds",
     name: "Seconds Box",
-    shopify_title: "Seconds Box — imperfect pieces",
+    shopify_title: "Seconds Box (imperfect pieces)",
     ref: "gid://shopify/Product/7720006",
     price_minor: 5500,
     cost_minor: 1500,
@@ -558,9 +558,9 @@ export function orderStats(
 
 /* ── Meta Ads ── */
 
-export const RETARGETING = { id: "120210000000001", name: "Always-on — Retargeting" };
-export const PROSPECTING = { id: "120210000000002", name: "Autumn Gift Guide — Prospecting" };
-export const CHRISTMAS = { id: "120210000000003", name: "Christmas Gifts — Prospecting" };
+export const RETARGETING = { id: "120210000000001", name: "Always-on - Retargeting" };
+export const PROSPECTING = { id: "120210000000002", name: "Autumn Gift Guide - Prospecting" };
+export const CHRISTMAS = { id: "120210000000003", name: "Christmas Gifts - Prospecting" };
 
 /**
  * Retargeting all year, returning about five times its spend; last

@@ -1,7 +1,9 @@
-/* Idea 50 — "Speak" under a free-text box (components/voice/MicButton.tsx).
-   Always on paper: the intake sheet, the chat composer, the reply box.
-   The button is the sheet's own .act; listening fills it with ink, and the
-   live line says so in words, so colour is never the only sign. */
+/* Idea 50 — the microphone beside a free-text box
+   (components/voice/MicButton.tsx). Always on paper: the intake sheet, the
+   composer, the reply box. Under a box it is the sheet's own .act with its
+   word; inside a composer it is an icon button. Listening fills it with
+   ink, and the live line says so in words, so colour and the icon are
+   never the only sign. One press listens (2026-11-17): no notice line. */
 
 .vx {
   margin-top: 8px;
@@ -20,23 +22,39 @@
 .vx-icon {
   flex: none;
 }
-.vx-live,
-.vx-notice {
+.vx-live {
   margin: 0;
   min-width: 0;
+  flex: 1 1 14em;
   font-family: var(--f-mono);
   font-size: 12.5px;
   line-height: 1.5;
   color: var(--sheet-ink-2);
   overflow-wrap: anywhere;
 }
-.vx-live {
-  flex: 1 1 14em;
-}
 .vx-live .live-dot {
   margin-right: 8px;
   vertical-align: 1px;
 }
-.vx-notice {
-  margin-top: 6px;
+
+/* inside a composer: the icon in the row, the line on a row of its own under it */
+.vx-icon-mic {
+  align-self: center;
+  width: 44px;
+  height: 44px;
+  border-color: var(--sheet-ink);
+}
+.vx-icon-mic.on {
+  background: var(--sheet-ink);
+  color: var(--paper);
+}
+.vx-icon-mic.on:hover:not(:disabled) {
+  background: var(--sheet-ink);
+}
+.ak-row .vx-live {
+  order: 5;
+  flex: 1 0 100%;
+}
+.ak-row .vx-live:not(:empty) {
+  margin-top: 8px;
 }

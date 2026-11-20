@@ -137,23 +137,23 @@ export async function importDeals(
   if (!(await pipelineApplies(profileId))) throw new DealError(NOT_B2B, 409);
   if (attestation.statement.trim() === "") {
     throw new DealError(
-      "an import needs your attestation — what did the people in this file consent to, and how?",
+      "an import needs your attestation: what did the people in this file consent to, and how?",
       422,
     );
   }
   if (csv.length > MAX_BYTES) {
-    throw new DealError("that file is too large for one import — split it", 413);
+    throw new DealError("that file is too large for one import: split it", 413);
   }
   const parsed = parseCsv(csv);
   if (parsed.length < 2) {
     throw new DealError("the CSV needs a header row and at least one deal", 422);
   }
   if (parsed.length - 1 > MAX_ROWS) {
-    throw new DealError(`one import takes up to ${MAX_ROWS} deals — split the file`, 413);
+    throw new DealError(`one import takes up to ${MAX_ROWS} deals: split the file`, 413);
   }
   const columns = mapHeader(parsed[0] as string[]);
   if (columns.title === -1) {
-    throw new DealError("the header needs a deal column — what each deal is for", 422);
+    throw new DealError("the header needs a deal column: what each deal is for", 422);
   }
   if (columns.company === -1 && columns.name === -1 && columns.email === -1) {
     throw new DealError("the header needs who each deal is with: a company, name or email", 422);
@@ -161,7 +161,7 @@ export async function importDeals(
   const currency = options.currency?.trim().toUpperCase() ?? "";
   if (columns.value !== -1 && !isIsoCurrency(currency)) {
     throw new DealError(
-      "the file has a value column — say which currency it is in (three letters, e.g. EUR)",
+      "the file has a value column: say which currency it is in (three letters, e.g. EUR)",
       422,
     );
   }

@@ -1,6 +1,7 @@
 // Idea 50: listening sessions against a fake SpeechRecognition — hidden
-// where unsupported, the notice before any audio leaves the device,
-// on-device when the browser has it, nothing but the box's text touched,
+// where unsupported, one press listens (the notice left the screen on
+// 2026-11-17; the privacy page says who hears the audio), on-device when
+// the browser has it, nothing but the box's text touched,
 // the one-minute cap, silence, the owner's typing, and a refused
 // microphone.
 
@@ -9,8 +10,7 @@ import type { RecognitionCtor, RecognitionErrorLike, RecognitionEventLike } from
 import {
   CAP_MS,
   END_GRACE_MS,
-  NOTICE,
-  NOTICE_KEY,
+  ENGLISH_SESSION_WORDS,
   SILENCE_MS,
   SpeechSession,
   errorWords,
@@ -61,22 +61,17 @@ class FakeRecognition {
   }
 }
 
-function memoryStore(seen = false) {
-  const m = new Map<string, string>(seen ? [[NOTICE_KEY, "1"]] : []);
-  return {
-    getItem: (k: string) => m.get(k) ?? null,
-    setItem: (k: string, v: string) => void m.set(k, v),
-    map: m,
-  };
-}
-
 /** A text box and the session over it; `calls` is everything the session did to the page. */
 function rig(
-  opts: { ctor?: RecognitionCtor | null; text?: string; seen?: boolean; lang?: string } = {},
+  opts: {
+    ctor?: RecognitionCtor | null;
+    text?: string;
+    lang?: string;
+    after?: string | null;
+  } = {},
 ) {
   const box = { text: opts.text ?? "" };
   const calls: string[] = [];
-  const store = memoryStore(opts.seen ?? true);
   const session = new SpeechSession({
     Recognition: opts.ctor === undefined ? (FakeRecognition as RecognitionCtor) : opts.ctor,
     lang: opts.lang ?? "en-GB",
@@ -85,11 +80,10 @@ function rig(
       calls.push(next);
       box.text = next;
     },
-    after: "Read it over, then record it.",
-    store,
+    after: opts.after === undefined ? "Read it over, then record it." : opts.after,
   });
   const rec = () => FakeRecognition.made.at(-1)!;
-  return { box, calls, store, session, rec };
+  return { box, calls, session, rec };
 }
 
 beforeEach(() => {
@@ -123,31 +117,23 @@ describe("feature detection", () => {
 });
 
 describe("who hears it", () => {
-  it("first use in a browser shows the notice and listens only on the next tap", async () => {
-    const { session, store, rec } = rig({ seen: false });
-    await session.toggle();
-    expect(session.current.phase).toBe("notice");
-    expect(session.current.notice).toBe(NOTICE);
-    expect(FakeRecognition.made).toHaveLength(0); // no audio before the owner has read it
+  // 2026-11-17, the owner: the privacy sentence leaves the screen. One press listens.
+  it("one press listens, with no step in between, even where the browser's own service hears it", async () => {
+    const { session, rec } = rig();
     await session.toggle();
     expect(session.current.phase).toBe("listening");
-    expect(rec().processLocally).toBeUndefined();
-    expect(store.map.get(NOTICE_KEY)).toBe("1");
+    expect(FakeRecognition.made).toHaveLength(1);
+    expect(rec().processLocally).toBeUndefined(); // not on this device: the browser picks
+    expect(session.current.onDevice).toBe(false);
+    expect(Object.keys(session.current).sort()).toEqual(["message", "onDevice", "phase"]); // no notice left to show
   });
 
-  it("once seen in this browser, the notice is not shown again", async () => {
-    const { session } = rig({ seen: true });
-    await session.toggle();
-    expect(session.current.phase).toBe("listening");
-    expect(session.current.notice).toBeNull();
-  });
-
-  it("recognises on the device, with no notice, when the language is already there", async () => {
+  it("recognises on the device when the language is already there", async () => {
     const available = vi.fn(async () => "available");
     class Local extends FakeRecognition {
       static available = available;
     }
-    const { session, rec } = rig({ ctor: Local, seen: false, lang: "hu-HU" });
+    const { session, rec } = rig({ ctor: Local, lang: "hu-HU" });
     await session.toggle();
     expect(available).toHaveBeenCalledWith({ langs: ["hu-HU"], processLocally: true });
     expect(session.current.phase).toBe("listening");
@@ -156,28 +142,30 @@ describe("who hears it", () => {
     expect(rec().lang).toBe("hu-HU");
   });
 
-  it("never downloads a language pack for the owner; a downloadable one gets the notice", async () => {
+  it("never downloads a language pack for the owner; a downloadable one listens through the browser", async () => {
     const install = vi.fn(async () => true);
     class Downloadable extends FakeRecognition {
       static available = async () => "downloadable";
       static install = install;
     }
-    const { session } = rig({ ctor: Downloadable, seen: false });
+    const { session, rec } = rig({ ctor: Downloadable });
     await session.toggle();
     expect(install).not.toHaveBeenCalled();
-    expect(session.current.phase).toBe("notice");
+    expect(session.current.phase).toBe("listening");
     expect(session.current.onDevice).toBe(false);
+    expect(rec().processLocally).toBeUndefined();
   });
 
-  it("a failing availability check falls back to the notice", async () => {
+  it("a failing availability check still listens, never on the device by guess", async () => {
     class Broken extends FakeRecognition {
       static available = async () => {
         throw new Error("SyntaxError");
       };
     }
-    const { session } = rig({ ctor: Broken, seen: false });
+    const { session, rec } = rig({ ctor: Broken });
     await session.toggle();
-    expect(session.current.phase).toBe("notice");
+    expect(session.current.phase).toBe("listening");
+    expect(rec().processLocally).toBeUndefined();
   });
 });
 
@@ -214,6 +202,14 @@ describe("listening", () => {
     expect(calls).toEqual(["We close on sundays"]);
   });
 
+  it("a box with nothing to say after a stop says nothing", async () => {
+    const { session, rec } = rig({ after: null });
+    await session.toggle();
+    rec().say(["we close on sundays", true]);
+    await session.toggle();
+    expect(session.current).toMatchObject({ phase: "idle", message: null });
+  });
+
   it("stops at the one-minute cap and says so", async () => {
     const { session, rec } = rig();
     await session.toggle();
@@ -230,6 +226,7 @@ describe("listening", () => {
     vi.advanceTimersByTime(1);
     expect(rec().stopped).toBe(1);
     expect(session.current.phase).toBe("idle");
+    expect(session.current.message).toBe(ENGLISH_SESSION_WORDS.cap);
     expect(session.current.message).toMatch(/after a minute/);
   });
 
@@ -294,7 +291,7 @@ describe("failures say what happened and what to do", () => {
     const { session } = rig();
     await expect(session.toggle()).resolves.toBeUndefined();
     expect(session.current.phase).toBe("idle");
-    expect(session.current.message).toMatch(/Press Speak to try again/);
+    expect(session.current.message).toBe("Listening stopped.");
   });
 
   it("every error code has words, and none apologises; aborted says nothing", () => {
@@ -313,6 +310,12 @@ describe("failures say what happened and what to do", () => {
       expect(w, code).not.toMatch(/sorry|apolog/i);
     }
     expect(errorWords("language-not-supported", "cy-GB")).toMatch(/cy-GB/);
+    // Small text (the owner, 2026-11-17): one short sentence, two at most, no instruction to press again.
+    for (const code of ["not-allowed", "no-speech", "audio-capture", "network", "start-failed"]) {
+      const w = errorWords(code, "en-GB") ?? "";
+      expect(w.length, code).toBeLessThanOrEqual(80);
+      expect(w, code).not.toMatch(/press speak/i);
+    }
   });
 });
 

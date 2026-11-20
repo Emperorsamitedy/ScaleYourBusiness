@@ -157,7 +157,7 @@ export async function recordLawReview(args: {
   const current = jurisdictionTableHash();
   if (args.tableSha256.trim().toLowerCase() !== current) {
     throw new LawReviewError(
-      "the email-law table changed since this page was opened — reload it and review the table as it is now",
+      "the email-law table changed since this page was opened: reload it and review the table as it is now",
       409,
     );
   }

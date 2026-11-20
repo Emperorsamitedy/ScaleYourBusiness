@@ -108,14 +108,14 @@ export function proposalWord(
 /** Days of cover as the table prints it. */
 export function coverText(item: StockItemView, w: StockWords = ENGLISH()): string {
   if (item.days_of_cover !== null) return num(item.days_of_cover, 0, w.locale);
-  return item.on_hand > 0 ? w.tr("view.noSales") : "—";
+  return item.on_hand > 0 ? w.tr("view.noSales") : "-";
 }
 
 /** Days since the last sale as the table prints it. */
 export function quietText(item: StockItemView, locale: AppLocale = "en"): string {
   if (item.days_since_sale !== null) return num(item.days_since_sale, 0, locale);
   if (item.no_sale_for_at_least !== null) return `${num(item.no_sale_for_at_least, 0, locale)}+`;
-  return "—";
+  return "-";
 }
 
 /** The money a column prints, or a dash with no guess behind it. */
@@ -173,7 +173,7 @@ export function coverFlagClass(flag: CoverItemView["flag"]): "alarm" | "drift" |
 export function vsPriorText(item: CoverItemView, w: StockWords = ENGLISH()): string {
   const { tr, locale } = w;
   const v = item.vs_prior;
-  if (!v) return "—";
+  if (!v) return "-";
   if (v.change === 0 && v.band === 0) return tr("view.noneSold");
   const sign = v.change > 0 ? "+" : v.change < 0 ? "−" : "±";
   const word =

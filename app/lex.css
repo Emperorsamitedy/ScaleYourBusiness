@@ -1,0 +1,98 @@
+/* Lex's face (components/brand/LexFace.tsx). The drawing is the component's;
+   this file is only how it moves. Every movement reports a state and stops
+   under reduced motion. */
+
+.lex-face {
+  display: block;
+  flex: none;
+  overflow: visible;
+}
+
+/* idle: a blink now and then, so the face is alive without asking for the eye */
+.lex-eyes {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: lex-blink 5.5s infinite;
+}
+@keyframes lex-blink {
+  0%,
+  93%,
+  100% {
+    transform: scaleY(1);
+  }
+  96% {
+    transform: scaleY(0.1);
+  }
+}
+
+/* the one large face on Home rises and falls slowly */
+.lex-float {
+  animation: lex-float 4.5s ease-in-out infinite;
+}
+@keyframes lex-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+/* speaking: the mouth opens and closes while an answer arrives */
+.lex-talk {
+  transform-box: fill-box;
+  transform-origin: center top;
+  animation: lex-talk 0.46s ease-in-out infinite alternate;
+}
+@keyframes lex-talk {
+  from {
+    transform: scaleY(0.5);
+  }
+  to {
+    transform: scaleY(1);
+  }
+}
+
+/* listening: the mouth breathes with the microphone */
+.lex-hear {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: lex-hear 1.1s ease-in-out infinite;
+}
+@keyframes lex-hear {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.25);
+  }
+}
+
+/* working: cobalt, the app's one colour for "the machine is working" */
+.lex-halo {
+  animation: lex-halo 1.6s ease-in-out infinite;
+}
+@keyframes lex-halo {
+  0%,
+  100% {
+    opacity: 0.35;
+  }
+  50% {
+    opacity: 0.95;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lex-eyes,
+  .lex-float,
+  .lex-talk,
+  .lex-hear {
+    animation: none;
+  }
+  .lex-halo {
+    animation: none;
+    opacity: 0.7;
+  }
+}

@@ -355,7 +355,7 @@ export async function generateReport(args: {
     !(await withinRateLimit(`report:fresh:${args.profileId}`, REPORT_FRESH_DAILY_LIMIT, DAY_MS))
   ) {
     throw new ReportError(
-      "too many fresh reports requested for this business today — try again tomorrow",
+      "too many fresh reports requested for this business today: try again tomorrow",
       429,
     );
   }

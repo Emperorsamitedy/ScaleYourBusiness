@@ -18,6 +18,7 @@
 
 import { useEffect, useState } from "react";
 import { isGoogleAdsReason } from "../../lib/google-ads/reasons";
+import { ConsentFold } from "./ConsentFold";
 import { bold, useCn, useSaid } from "./useCn";
 import { storedDay } from "./words";
 
@@ -203,22 +204,24 @@ export function GoogleAdsSection({
                 </button>
               )}
             </div>
-            <p className="cn-note">{t("whatItCanDo")}</p>
-            <ul className="cn-consent">
-              {view.consent.map((line) => (
-                <li key={line}>
-                  <span className="cn-consent-why">{line}</span>
-                  <span className="cn-scope">{view.scope}</span>
-                </li>
-              ))}
-            </ul>
-            <dl className="cn-facts">
-              <dt>{t("accessLevel.title")}</dt>
-              <dd>{levelWords}</dd>
-            </dl>
-            {!view.configured && view.missing.length > 0 && (
-              <p className="cn-note">{t("notSetUp", { keys: view.missing.join(", ") })}</p>
-            )}
+            <ConsentFold open={open}>
+              <p className="cn-note">{t("whatItCanDo")}</p>
+              <ul className="cn-consent">
+                {view.consent.map((line) => (
+                  <li key={line}>
+                    <span className="cn-consent-why">{line}</span>
+                    <span className="cn-scope">{view.scope}</span>
+                  </li>
+                ))}
+              </ul>
+              <dl className="cn-facts">
+                <dt>{t("accessLevel.title")}</dt>
+                <dd>{levelWords}</dd>
+              </dl>
+              {!view.configured && view.missing.length > 0 && (
+                <p className="cn-note">{t("notSetUp", { keys: view.missing.join(", ") })}</p>
+              )}
+            </ConsentFold>
             {c !== null && (
               <div className="cn-wp-detail">
                 <dl className="cn-facts">

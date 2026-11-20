@@ -116,7 +116,7 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
   const session = await matchingSession();
   if (!session) {
     return NextResponse.json(
-      { error: "deciding needs you signed in — approvals carry your name" },
+      { error: "deciding needs you signed in: approvals carry your name" },
       { status: 401 },
     );
   }
@@ -143,7 +143,7 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
     (typeof body.changes !== "string" || body.changes.trim() === "")
   ) {
     return NextResponse.json(
-      { error: "asking for changes needs the changes — say what should be different" },
+      { error: "asking for changes needs the changes: say what should be different" },
       { status: 422 },
     );
   }
@@ -152,7 +152,7 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
     (typeof body.reason !== "string" || body.reason.trim() === "")
   ) {
     return NextResponse.json(
-      { error: "declining asks why — the reason is required" },
+      { error: "declining asks why: the reason is required" },
       { status: 422 },
     );
   }

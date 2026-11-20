@@ -56,6 +56,7 @@ import {
 import { weekStart } from "../care/chart-view";
 import { minorUnitExponent, perUnit, roundMinorTo, scaleMinor, scaleMinorBy } from "../core/money";
 import type { AppLocale } from "../i18n/locales";
+import { NO_VALUE, rangeOf } from "../i18n/range";
 import type { Words } from "./words";
 import { constText, englishChartWords, priceCode, sentenceDay } from "./words";
 
@@ -178,14 +179,14 @@ export type OpportunityComponent = PricedComponent | AbsentComponent;
 const fig = (minor: number, currency: string, locale: AppLocale = "en") =>
   moneyText(Math.round(minor), currency, locale);
 
-/** "€1,180–€1,950", or one figure when the ends meet; in the reader's language (L-3b). */
+/** "€1,180 to €1,950", or one figure when the ends meet; in the reader's language (L-3b). */
 export function rangeText(
   r: { low_minor: number; high_minor: number; currency: string },
   locale: AppLocale = "en",
 ): string {
   return r.low_minor === r.high_minor
     ? fig(r.low_minor, r.currency, locale)
-    : `${fig(r.low_minor, r.currency, locale)}–${fig(r.high_minor, r.currency, locale)}`;
+    : rangeOf(fig(r.low_minor, r.currency, locale), fig(r.high_minor, r.currency, locale), locale);
 }
 
 /** The same, in whole major units: what a chart's readout and a "a month" column print. */
@@ -730,7 +731,7 @@ export function losingAds(
   const other = all.filter((c) => c.currency !== currency);
   const losers = mine.filter((c) => c.losing);
   const loss = losers.reduce((n, c) => n + (c.spend_minor - c.value_minor), 0);
-  const roas = (c: CampaignWindow) => (c.roas === null ? "—" : num(c.roas, 2, locale));
+  const roas = (c: CampaignWindow) => (c.roas === null ? NO_VALUE : num(c.roas, 2, locale));
   // P2-20: Google Ads and TikTok Ads campaigns sit beside Meta's, each on its
   // own platform's attribution.
   const platforms = campaignPlatforms(mine.length > 0 ? mine : all);

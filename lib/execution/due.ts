@@ -363,7 +363,7 @@ async function runOne(
     if (!plan && isPublishProposal(proposal.action)) {
       const routed = await publishPlan(proposal);
       if ("unroutable" in routed) {
-        return { ...base, result: "unroutable", detail: `${routed.unroutable} — left approved` };
+        return { ...base, result: "unroutable", detail: `${routed.unroutable}: left approved` };
       }
       plan = routed.plan;
     }
@@ -375,14 +375,14 @@ async function runOne(
     if (!plan) {
       const routed = shopPlanFor(proposal);
       if (routed && "unroutable" in routed) {
-        return { ...base, result: "unroutable", detail: `${routed.unroutable} — left approved` };
+        return { ...base, result: "unroutable", detail: `${routed.unroutable}: left approved` };
       }
       if (routed) plan = routed.plan;
     }
     if (!plan && isAdProposal(proposal)) {
       const routed = adsPlan(proposal);
       if ("unroutable" in routed) {
-        return { ...base, result: "unroutable", detail: `${routed.unroutable} — left approved` };
+        return { ...base, result: "unroutable", detail: `${routed.unroutable}: left approved` };
       }
       plan = routed.plan;
     }
@@ -436,7 +436,7 @@ async function runOne(
     return {
       ...base,
       result: "unroutable",
-      detail: `no executor knows how to run a "${proposal.module}" proposal — left approved for a human`,
+      detail: `no executor knows how to run a "${proposal.module}" proposal: left approved for a human`,
     };
   } catch (error) {
     if (error instanceof ExecutionRefused) {

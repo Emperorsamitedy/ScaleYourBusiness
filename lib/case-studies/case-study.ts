@@ -43,7 +43,7 @@ export async function createCaseStudy(args: {
   const mechanism = args.mechanism.trim();
   if (mechanism.length < MIN_MECHANISM_CHARS) {
     throw new CaseStudyError(
-      "a case study says how it worked, in plain words — the mechanism is required",
+      "a case study says how it worked, in plain words: the mechanism is required",
     );
   }
   const ids = [...new Set(args.ledgerEntryIds)];
@@ -80,7 +80,7 @@ export async function createCaseStudy(args: {
   const entry = typeEntry(type?.value);
   if (!country || !isMapped(entry) || !segment.segment) {
     throw new CaseStudyError(
-      "a case study names the business's country, sector and size — fill those in first",
+      "a case study names the business's country, sector and size: fill those in first",
     );
   }
 

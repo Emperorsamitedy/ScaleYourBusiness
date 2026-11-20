@@ -750,7 +750,7 @@ describe("P3-53 — generating, once approved", () => {
       expect(video).toMatchObject({
         kind: "video",
         disclosure: label,
-        title: "Autumn menu — video",
+        title: "Autumn menu: video",
       });
       expect(mediaOf(video!.provenance)).toMatchObject({
         origin: "generated_video",

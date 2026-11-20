@@ -37,7 +37,7 @@ import { ROLE_WORD } from "../lib/auth/role-actions";
 import { BASES, BASIS_MEANING, SOURCE_LABEL } from "../components/report/basis";
 import { MEASURES, OFFER_ROW } from "../components/report/panel";
 import { sessionWords } from "../components/voice/MicButton";
-import { ENGLISH_SESSION_WORDS, NOTICE, errorWords } from "../lib/voice/session";
+import { ENGLISH_SESSION_WORDS, errorWords } from "../lib/voice/session";
 import type { AppLocale } from "../lib/i18n/locales";
 import { LOCALES } from "../lib/i18n/locales";
 import { L3D_GLOSSARY_EXCEPTIONS } from "./glossary-exceptions-l3d";
@@ -279,8 +279,11 @@ describe("English stays what the screens said before (byte for byte)", () => {
     for (const [kind, word] of Object.entries(SOURCE_LABEL)) {
       expect(en(`sheet.source.${kind}`), kind).toBe(word);
     }
-    // The microphone says in English exactly what its session always said.
-    expect(en("voice.notice")).toBe(NOTICE);
+    // The microphone says in English exactly what its session says. The notice
+    // about who hears the audio left the screen on 2026-11-17 (the owner);
+    // the privacy page keeps the sentence.
+    expect(en("voice.notice")).toBeUndefined();
+    expect(en("legal.privacy.speaking")).toMatch(/ScaleX never receives the audio/);
     expect(en("voice.cap")).toBe(ENGLISH_SESSION_WORDS.cap);
     const words = sessionWords((k, v) => t(`voice.${k}`, v));
     for (const code of [
@@ -337,10 +340,6 @@ const GLOSSARY_EXCEPTIONS: Record<string, { terms: string[]; reason: string }> =
   ...L3D_GLOSSARY_EXCEPTIONS,
   // L-4c's (team, site, customers, content, support, connections).
   ...L4C_GLOSSARY_EXCEPTIONS,
-  "voice.error.network": {
-    terms: ["connection"],
-    reason: "the device's internet connection, not a connected account",
-  },
   "report.panel.legend": {
     terms: ["support"],
     reason: "“a range the data supports”: backs up, not customer support",
@@ -489,6 +488,10 @@ const GLOSSARY_EXCEPTIONS: Record<string, { terms: string[]; reason: string }> =
   "cashWords.tight.sentence": {
     terms: ["account"],
     reason: "an overdrawn bank account, not a sign-in or connected account",
+  },
+  "cashWords.view.subTight": {
+    terms: ["account"],
+    reason: "an overdrawn bank account (the line cut from tight.sentence), not a sign-in account",
   },
   "stockWords.reorder.arithmetic": {
     terms: ["margin"],
@@ -649,5 +652,52 @@ describe("the glossary (rule 2: one term, one translation)", () => {
     expect(
       stems.some((s) => visibleText(de.get("locale.onlyOwner")!).toLowerCase().includes(s)),
     ).toBe(false);
+  });
+});
+
+// L7 of the owner's third round (2026-11-18): "no em and en dashes
+// throughout the app". A range says the language's own word (or a hyphen),
+// a page's title a middle dot, and a dash that joined two thoughts became
+// the punctuation the sentence wanted (ux-spec §2).
+describe("no long dashes in what the app prints (L7)", () => {
+  /** The landing "can stay as it is" (the owner); legal text is not reworded by a script. */
+  const OUTSIDE = /^(landing|landingV2|legal)\./;
+  /** Russian's own dash stands where its grammar has no verb to put there. */
+  const GRAMMAR_DASH: readonly AppLocale[] = ["ru-RU"];
+
+  it("has no en dash in any language", () => {
+    for (const [l, cat] of CATALOGUES) {
+      for (const [k, v] of cat) {
+        if (OUTSIDE.test(k)) continue;
+        expect(v, `${l} ${k}`).not.toContain("–");
+      }
+    }
+  });
+
+  it("has no em dash either, but for the one Russian needs", () => {
+    for (const [l, cat] of CATALOGUES) {
+      if (GRAMMAR_DASH.includes(l)) continue;
+      for (const [k, v] of cat) {
+        if (OUTSIDE.test(k)) continue;
+        expect(v, `${l} ${k}`).not.toContain("—");
+      }
+    }
+  });
+
+  it("gives no English message the dash where Russian keeps one", () => {
+    // The Russian exception is about Russian: it never lets a dash back into the source.
+    for (const [k, v] of EN) {
+      if (OUTSIDE.test(k)) continue;
+      expect(v, k).not.toMatch(/[–—]/);
+    }
+  });
+
+  it("ends no button's label with an arrow (ux-spec §2)", () => {
+    for (const [l, cat] of CATALOGUES) {
+      for (const [k, v] of cat) {
+        if (OUTSIDE.test(k) || k.startsWith("intake.")) continue;
+        expect(v, `${l} ${k}`).not.toMatch(/→\s*$/);
+      }
+    }
   });
 });

@@ -164,7 +164,7 @@ export async function proposeContentPlan(
     );
   if (waiting.some((p) => isPlanAction(p.action))) {
     throw new ContentError(
-      "a content calendar is already waiting in your queue — approve or decline that one first",
+      "a content calendar is already waiting in your queue: approve or decline that one first",
       409,
     );
   }
@@ -173,7 +173,7 @@ export async function proposeContentPlan(
   const plannable = allChannels.filter((c) => c.type !== null && c.type in CADENCE);
   if (plannable.length === 0) {
     throw new ContentError(
-      "no plannable channels on the profile — the calendar only plans onto channels you already run",
+      "no plannable channels on the profile: the calendar only plans onto channels you already run",
       422,
     );
   }
@@ -205,7 +205,7 @@ export async function proposeContentPlan(
             cadence.format === "email"
               ? `One useful email about ${focus?.name ?? "the business"}, serving: ${goal?.statement ?? "the owner's stated direction"}.`
               : cadence.format === "short_video"
-                ? `A short vertical video about ${focus?.name ?? "the business"} — real footage, owner's voice.`
+                ? `A short vertical video about ${focus?.name ?? "the business"}: real footage, owner's voice.`
                 : `A post about ${focus?.name ?? "the business"}, in the owner's voice.`,
           evidence: [
             `channels.${channel.channel_id}.type`,
@@ -252,7 +252,7 @@ export async function proposeContentPlan(
     downside_case: {
       case: "downside",
       statement:
-        "The time spent drafting reviews is the whole cost — drafts you decline cost nothing else.",
+        "The time spent drafting reviews is the whole cost: drafts you decline cost nothing else.",
       profit_delta_monthly: null,
       formula: null,
     },
@@ -263,7 +263,7 @@ export async function proposeContentPlan(
       formula: null,
     },
     breakeven_condition:
-      "no spend — the cost is your review time, and every draft waits for your yes",
+      "no spend: the cost is your review time, and every draft waits for your yes",
   };
 
   const what = `${weeks}-week content calendar: ${items.length} pieces across ${plannable.length} channel${plannable.length === 1 ? "" : "s"}`;

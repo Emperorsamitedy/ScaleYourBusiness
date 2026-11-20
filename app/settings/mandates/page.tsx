@@ -6,6 +6,7 @@
 import type { Metadata } from "next";
 import { and, desc, eq, inArray } from "drizzle-orm";
 import { PostForm } from "../../../components/partner/PostForm";
+import { PageHead, SheetCard } from "../../../components/sheet/PageHead";
 import { db } from "../../../db";
 import { decisionLog, firms, users } from "../../../db/schema";
 import { resolveAccess } from "../../../lib/auth/access";
@@ -13,6 +14,7 @@ import { dayMonthYear } from "../../../lib/i18n/format";
 import { requestLocale } from "../../../lib/i18n/server";
 import { trFor } from "../../../lib/i18n/server-tr";
 import { mandatesOf, requestsFor } from "../../../lib/partners/mandates";
+import "../../plain.css";
 
 export async function generateMetadata(): Promise<Metadata> {
   return { title: trFor(await requestLocale(), "mandates")("meta.title") };
@@ -25,13 +27,14 @@ export default async function MandatesPage() {
   const locale = await requestLocale();
   const tr = trFor(locale, "mandates");
   const scopeWords = trFor(locale, "partner");
+  const nav = trFor(locale, "nav");
+  // Where this screen sits, in the menu's own words.
+  const kicker = `${nav("group.business")} · ${nav("item.mandates")}`;
   const access = await resolveAccess();
   if (!access?.session) {
     return (
-      <main className="auth-stage">
-        <section className="card">
-          <p className="auth-copy">{tr("none")}</p>
-        </section>
+      <main className="screen pg">
+        <PageHead kicker={kicker} title={tr("none")} />
       </main>
     );
   }
@@ -74,45 +77,47 @@ export default async function MandatesPage() {
   const date = (iso: string) => dayMonthYear(iso.slice(0, 10), locale);
   const failed = tr("failed");
   return (
-    <main className="auth-stage">
-      <div className="statement-col">
-        <section className="card">
-          <span className="auth-eyebrow">{tr("kicker")}</span>
-          <p className="auth-copy">{tr("intro")}</p>
-          {list.length === 0 && <p className="auth-copy">{tr("none")}</p>}
-          {list.map(({ mandate: m, firm }) => {
-            const live = m.revoked_at === null && Date.parse(m.expires_at) > now;
-            return (
-              <div key={m.id} className="mandate-row">
-                <p className="auth-copy">
-                  <b>
-                    {m.revoked_at
-                      ? tr("revoked", { firm: firm.name, date: date(m.revoked_at) })
-                      : live
-                        ? tr("active", { firm: firm.name, date: date(m.expires_at) })
-                        : tr("expired", { firm: firm.name, date: date(m.expires_at) })}
-                  </b>
-                </p>
-                <p className="auth-copy">
-                  {m.scopes.map((s) => scopeWords(`scope.${s}`)).join(" · ")}
-                </p>
-                <p className="auth-copy">{tr("evidence", { ref: m.evidence_ref })}</p>
-                {live && (
-                  <PostForm
-                    endpoint="/api/mandates"
-                    fixed={{ action: "revoke", mandate_id: m.id }}
-                    submit={tr("revoke")}
-                    failed={failed}
-                    className="ghost"
-                  />
-                )}
-              </div>
-            );
-          })}
-        </section>
+    <main className="screen pg">
+      {/* The headline is the answer: nobody, or the screen's own name over the list. */}
+      <PageHead kicker={kicker} title={list.length === 0 ? tr("none") : tr("kicker")}>
+        <p className="ph-lede">{tr("intro")}</p>
+      </PageHead>
+      <div className="pg-stack">
+        {list.length > 0 && (
+          <SheetCard>
+            {list.map(({ mandate: m, firm }) => {
+              const live = m.revoked_at === null && Date.parse(m.expires_at) > now;
+              return (
+                <div key={m.id} className="mandate-row">
+                  <p className="auth-copy">
+                    <b>
+                      {m.revoked_at
+                        ? tr("revoked", { firm: firm.name, date: date(m.revoked_at) })
+                        : live
+                          ? tr("active", { firm: firm.name, date: date(m.expires_at) })
+                          : tr("expired", { firm: firm.name, date: date(m.expires_at) })}
+                    </b>
+                  </p>
+                  <p className="auth-copy">
+                    {m.scopes.map((s) => scopeWords(`scope.${s}`)).join(" · ")}
+                  </p>
+                  <p className="auth-copy">{tr("evidence", { ref: m.evidence_ref })}</p>
+                  {live && (
+                    <PostForm
+                      endpoint="/api/mandates"
+                      fixed={{ action: "revoke", mandate_id: m.id }}
+                      submit={tr("revoke")}
+                      failed={failed}
+                      className="act"
+                    />
+                  )}
+                </div>
+              );
+            })}
+          </SheetCard>
+        )}
         {waiting.length > 0 && (
-          <section className="card">
-            <span className="auth-eyebrow">{tr("waiting")}</span>
+          <SheetCard title={tr("waiting")}>
             {waiting.map(({ request, firm }) => (
               <div key={request.id} className="mandate-row">
                 <p className="auth-copy">
@@ -126,15 +131,15 @@ export default async function MandatesPage() {
                   fixed={{ action: "grant", request_id: request.id }}
                   submit={tr("grant")}
                   failed={failed}
+                  className="act solid"
                 />
               </div>
             ))}
-          </section>
+          </SheetCard>
         )}
-        <section className="card">
-          <span className="auth-eyebrow">{tr("activity")}</span>
-          {log.length === 0 && <p className="auth-copy">{tr("activityNone")}</p>}
-          <ul className="shadow-summary">
+        <SheetCard title={tr("activity")}>
+          {log.length === 0 && <p className="pg-quiet">{tr("activityNone")}</p>}
+          <ul className="pg-lines">
             {log.map((l, i) => {
               const [action, firmId] = l.ref.split(":");
               const what = ACTS.includes(action ?? "") ? action! : "report";
@@ -143,14 +148,14 @@ export default async function MandatesPage() {
                   {tr("activityLine", {
                     date: date(l.at),
                     person: l.person,
-                    firm: names.get(firmId ?? "") ?? "—",
+                    firm: names.get(firmId ?? "") ?? "-",
                     what: tr(`act.${what}`),
                   })}
                 </li>
               );
             })}
           </ul>
-        </section>
+        </SheetCard>
       </div>
     </main>
   );

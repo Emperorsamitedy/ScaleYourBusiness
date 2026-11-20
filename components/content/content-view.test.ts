@@ -151,7 +151,7 @@ describe("performanceLine — P3-23b, a published item's measured line", () => {
       audience_metric: "views",
       age_days: null,
       figures: null,
-      arithmetic: "1 measured day(s) since 2026-10-18 — the verdict needs 3",
+      arithmetic: "1 measured day(s) since 2026-10-18: the verdict needs 3",
     });
     expect(line).toMatchObject({ figures: null, word: "too early", tone: "low" });
     expect(performanceLine(undefined)).toBeNull();

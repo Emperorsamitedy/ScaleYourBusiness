@@ -194,11 +194,11 @@ export const CHANGE_CATALOGUE: readonly CatalogueEntry[] = [
       /\b(remove|drop|delete|lift|scrap|cancel|undo|forget)\b[^.?!]{0,30}\b(rule|limit|boundary|boundaries)\b/i,
       /\bwe can (discount|advertise|cold[- ]call)\b/i,
     ],
-    note: "A limit can be set in chat and never removed in chat — limits exist to survive a bad day, so removing one is your explicit change to the answer.",
+    note: "A limit can be set in chat and never removed in chat: limits exist to survive a bad day, so removing one is your explicit change to the answer.",
   },
   {
     kind: "standing_rule",
-    thing: "your standing rules — what the business must never do",
+    thing: "your standing rules (what the business must never do)",
     screen: "Fact sheet",
     route: "/profile",
     section: "fact-goals.owner_boundaries",
@@ -280,7 +280,7 @@ export const CHANGE_CATALOGUE: readonly CatalogueEntry[] = [
       /\b(connect|disconnect|reconnect|unplug|plug in|link|unlink|hook up)\b[^.?!]{0,30}\b(stripe|shopify|square|woo\s?commerce|google analytics|ga4|analytics|search console|meta|facebook|instagram|till|account|shop)\b/i,
       /\bconnections?\b/i,
     ],
-    note: "Connecting an account needs your own login with that provider, so this one is yours to do — it takes a minute.",
+    note: "Connecting an account needs your own login with that provider, so this one is yours to do: it takes a minute.",
   },
   {
     kind: "fact_value",
@@ -297,7 +297,7 @@ export const CHANGE_CATALOGUE: readonly CatalogueEntry[] = [
       /\b(change|set|update|correct|fix|make)\s+(my|our|the)\s+.+?\s+(to|as|=)\s+\S/i,
       /\b(my|our|the)\s+.+?\s+is\s+(actually|now|really)\s+\S/i,
     ],
-    note: "The change supersedes the old answer — it stays in the history, with this message as its source.",
+    note: "The change supersedes the old answer: it stays in the history, with this message as its source.",
   },
 ];
 

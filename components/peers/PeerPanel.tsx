@@ -15,6 +15,7 @@ import { presentMoney } from "../../lib/i18n/format";
 import type { AppLocale } from "../../lib/i18n/locales";
 import type { Tr } from "../../lib/i18n/tr";
 import { peerStrip } from "../benchmarks/peer-strip";
+import { Fold } from "../sheet/Fold";
 import { SheetCard } from "../sheet/PageHead";
 import { RangeBar } from "../sheet/RangeBar";
 import { PeerContribute } from "./PeerContribute";
@@ -176,16 +177,21 @@ export function PeerPanel({
           )}
           {short.length > 0 && (
             <p className="bm-copy">
-              <b>{names(short.map((b) => b.metric))}</b> — {tr("notEnough")}
+              <b>{names(short.map((b) => b.metric))}</b>: {tr("notEnough")}
             </p>
           )}
-          {served.length === 0 && <p className="bm-note">{tr("official")}</p>}
         </>
       )}
-      {unmeasured.length > 0 && (
-        <p className="bm-note">{tr("notMeasured", { list: names(unmeasured) })}</p>
+      {/* L6: where the figures come from and what is not measured yet, one press away. */}
+      {((!unplaced && served.length === 0) || unmeasured.length > 0 || month) && (
+        <Fold>
+          {!unplaced && served.length === 0 && <p className="bm-note">{tr("official")}</p>}
+          {unmeasured.length > 0 && (
+            <p className="bm-note">{tr("notMeasured", { list: names(unmeasured) })}</p>
+          )}
+          {month && <p className="bm-note">{tr("source", { month: monthWords(month, locale) })}</p>}
+        </Fold>
       )}
-      {month && <p className="bm-note">{tr("source", { month: monthWords(month, locale) })}</p>}
       <PeerContribute
         contributing={contributing}
         words={{

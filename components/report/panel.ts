@@ -113,7 +113,7 @@ export const MEASURES: readonly MeasureDef[] = [
     id: "blended_margin",
     name: "Blended margin",
     words:
-      "What each sale leaves after what it costs you to deliver, as a share of its price — averaged across your offers, weighted by how many of each you sell.",
+      "What each sale leaves after what it costs you to deliver, as a share of its price, averaged across your offers, weighted by how many of each you sell.",
     refusal: "offer margins",
     get: (e) => e.blended_margin_pct,
     fig: pct,
@@ -122,7 +122,7 @@ export const MEASURES: readonly MeasureDef[] = [
     id: "average_order_value",
     name: "Average order value",
     words:
-      "Your monthly revenue divided by the number of sales — orders, bookings or visits — in the month.",
+      "Your monthly revenue divided by the number of sales (orders, bookings or visits) in the month.",
     refusal: "average order value",
     get: (e) => e.average_order_value,
     fig: (v, w) => money(v, w),
@@ -140,7 +140,7 @@ export const MEASURES: readonly MeasureDef[] = [
     id: "return_on_ad_spend",
     name: "Return on ad spend",
     words:
-      "All your monthly revenue divided by all your monthly ad spend — blended, not attributed to any one ad.",
+      "All your monthly revenue divided by all your monthly ad spend, blended, not attributed to any one ad.",
     refusal: "return on ad spend",
     get: (e) => e.return_on_ad_spend,
     fig: (v, w) => ({ text: num(v as number, 2, w.locale), unit: "×" }),
@@ -156,7 +156,7 @@ export const MEASURES: readonly MeasureDef[] = [
     id: "break_even",
     name: "Break-even volume",
     words:
-      "Your fixed costs divided by what each sale contributes after its own cost — the number of sales a month that pays for everything.",
+      "Your fixed costs divided by what each sale contributes after its own cost: the number of sales a month that pays for everything.",
     refusal: "break-even",
     get: (e) => e.break_even,
     fig: (v, w) => ({

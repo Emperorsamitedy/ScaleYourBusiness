@@ -231,7 +231,7 @@ export function trialFor(
             sensitivity: "high",
           },
           {
-            statement: `The new ${label(hour)} hour earns ${TRIAL.earlier_share.downside * 100}–${TRIAL.earlier_share.upside * 100}% of that — an assumption; the trial measures it`,
+            statement: `The new ${label(hour)} hour earns ${TRIAL.earlier_share.downside * 100} to ${TRIAL.earlier_share.upside * 100}% of that (an assumption; the trial measures it)`,
             value: null,
             source_field: null,
             sensitivity: "high",
@@ -271,7 +271,7 @@ export function trialFor(
         ),
         breakeven_condition: costKnown
           ? first > 0
-            ? `pays for itself if the new hour takes at least ${fmt(cost)} — ${Math.round((cost / first) * 100)}% of today's first hour`
+            ? `pays for itself if the new hour takes at least ${fmt(cost)}, ${Math.round((cost / first) * 100)}% of today's first hour`
             : "today's first hour takes nothing, so an earlier one is unlikely to pay"
           : "not computable without the cost of an open hour",
       },
@@ -285,7 +285,7 @@ export function trialFor(
   const formula = (lost: number) =>
     `${fmt(cost)} open-hour cost saved − ${lost * 100}% × ${fmt(last)} last-hour takings lost`;
   return {
-    summary: `Close at ${label(hour)} on ${days} — one hour sooner — for ${TRIAL.weeks} weeks (a trial)`,
+    summary: `Close at ${label(hour)} on ${days}, one hour sooner, for ${TRIAL.weeks} weeks (a trial)`,
     detail: {
       weekday: w.weekday,
       change,
@@ -341,7 +341,7 @@ export function trialFor(
         formula(TRIAL.lost_share.upside),
         true,
       ),
-      breakeven_condition: `pays if less than ${fmt(cost)} a night is lost — ${last > 0 ? Math.round((cost / last) * 100) : 100}% of today's last hour`,
+      breakeven_condition: `pays if less than ${fmt(cost)} a night is lost, ${last > 0 ? Math.round((cost / last) * 100) : 100}% of today's last hour`,
     },
   };
 }
@@ -387,7 +387,7 @@ export async function proposeHoursTrials(
   const out: TrialRunResult = { created: [], skipped: [] };
   const care = await careState(profileId);
   if (!care) {
-    out.skipped.push({ ref: "profile", reason: "not in care yet — no mode decision" });
+    out.skipped.push({ ref: "profile", reason: "not in care yet: no mode decision" });
     return out;
   }
   if (care.watch_ends_at && now.toISOString() < care.watch_ends_at) {
@@ -436,14 +436,14 @@ export async function proposeHoursTrials(
       if (busy.has(w.weekday)) {
         out.skipped.push({
           ref,
-          reason: `a trial on ${DAY_WORD[w.weekday]} is already running — one at a time`,
+          reason: `a trial on ${DAY_WORD[w.weekday]} is already running: one at a time`,
         });
         continue;
       }
       if (suppression) {
         out.skipped.push({
           ref,
-          reason: `you've declined operations changes ${suppression.rejections} times — I've stopped proposing them`,
+          reason: `you've declined operations changes ${suppression.rejections} times: I've stopped proposing them`,
         });
         continue;
       }
@@ -465,11 +465,11 @@ export async function proposeHoursTrials(
                 ...trial.detail,
                 google_change: google,
                 execute_on_approval: true,
-                how: `When you approve, ScaleX changes this on your Google listing (${listing!.title}) — your website and your door sign you change yourself. The trial starts the first such day after, the verdict comes from what's measured, and when it ends ScaleX asks before putting the hour back.`,
+                how: `When you approve, ScaleX changes this on your Google listing (${listing!.title}). Your website and your door sign you change yourself. The trial starts the first such day after, the verdict comes from what's measured, and when it ends ScaleX asks before putting the hour back.`,
               }
             : {
                 ...trial.detail,
-                how: "You change your own hours — we won't touch your Google listing or website. The trial starts the first such day after you approve, and the verdict comes from what's measured.",
+                how: "You change your own hours: we won't touch your Google listing or website. The trial starts the first such day after you approve, and the verdict comes from what's measured.",
               },
         },
         scenario: (google
@@ -490,7 +490,7 @@ export async function proposeHoursTrials(
           level: "easy",
           if_you_change_your_mind: google
             ? "Undo puts your Google listing's hour back at once; or end the trial early any week."
-            : "Go back to your usual hours any week — the trial simply ends early.",
+            : "Go back to your usual hours any week: the trial simply ends early.",
         },
         expires_at: new Date(now.getTime() + TRIAL.expiry_days * 86_400_000).toISOString(),
         blocked_by_limit: verdict.verdict === "blocked" ? limitCaption(verdict.limit) : null,
@@ -537,13 +537,13 @@ export async function proposeTrialReverts(
         originating_finding: ref,
         action: {
           kind: TRIAL_KIND,
-          summary: `Put your ${what} back to ${clockWords(change.from)} on Google — the ${detail.trial_weeks}-week trial has ended`,
+          summary: `Put your ${what} back to ${clockWords(change.from)} on Google: the ${detail.trial_weeks}-week trial has ended`,
           detail: {
             revert_of: row.id,
             weekday: change.weekday,
             google_change: back,
             execute_on_approval: true,
-            how: `Approve, and ScaleX moves your Google listing's ${what} from ${clockWords(change.to)} back to ${clockWords(change.from)}. Decline to keep the trial's hours — that's an answer too, and it won't stop future trials.`,
+            how: `Approve, and ScaleX moves your Google listing's ${what} from ${clockWords(change.to)} back to ${clockWords(change.from)}. Decline to keep the trial's hours: that's an answer too, and it won't stop future trials.`,
           },
         },
         scenario: {
@@ -770,7 +770,7 @@ export async function judgeHoursTrial(
     return {
       ...base,
       verdict: "too_early",
-      arithmetic: `${during.length} measured trial day(s) — a verdict needs ${TRIAL.min_trial_days}`,
+      arithmetic: `${during.length} measured trial day(s): a verdict needs ${TRIAL.min_trial_days}`,
     };
   }
   if (before.length === 0) {
@@ -801,7 +801,7 @@ export async function judgeHoursTrial(
     arithmetic:
       `${DAY_WORD[detail.weekday]} averaged ${fmt(Math.round(now_))} net over ${during.length} trial day(s)` +
       `${cost ? ` (takings ${detail.change === "open_earlier" ? "minus" : "plus"} the ${fmt(cost)} hour)` : ""}` +
-      `, against ${fmt(Math.round(was))} over the ${before.length} before — ${pct >= 0 ? "+" : ""}${pct}%` +
+      `, against ${fmt(Math.round(was))} over the ${before.length} before: ${pct >= 0 ? "+" : ""}${pct}%` +
       ` (helped at +${READBACK.helped_at * 100}%, backfired at ${READBACK.backfired_at * 100}%)`,
   };
 }

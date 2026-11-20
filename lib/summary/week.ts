@@ -8,6 +8,7 @@
 
 import type { AppLocale } from "../i18n/locales";
 import { intlTag } from "../i18n/locales";
+import { rangeOf } from "../i18n/range";
 import { parseInstant } from "../watch/watch-view";
 
 const DAY_MS = 86_400_000;
@@ -64,19 +65,27 @@ export function dayLabel(at: string, locale: AppLocale = "en"): string {
 }
 
 /**
- * "20 Oct – 26 Oct 2026": the window as the email's heading prints it. L-6:
- * another language writes the range its own way ("20.–26. Okt. 2026").
+ * "20 Oct to 26 Oct 2026": the window as the email's heading prints it. L-6:
+ * another language joins the two days with its own word ("20. Okt. bis 26. Okt. 2026"),
+ * never the long dash the platform's own range would draw (L7).
  */
 export function windowLabel(w: SummaryWindow, locale: AppLocale = "en"): string {
   const a = instant(w.from);
   const b = instant(w.to);
   if (locale !== "en") {
-    return new Intl.DateTimeFormat(intlTag(locale), {
+    const tag = intlTag(locale);
+    const from = new Intl.DateTimeFormat(tag, {
+      day: "numeric",
+      month: "short",
+      timeZone: "UTC",
+    }).format(a);
+    const to = new Intl.DateTimeFormat(tag, {
       day: "numeric",
       month: "short",
       year: "numeric",
       timeZone: "UTC",
-    }).formatRange(a, b);
+    }).format(b);
+    return rangeOf(from, to, locale);
   }
-  return `${a.getUTCDate()} ${MONTHS[a.getUTCMonth()]} – ${b.getUTCDate()} ${MONTHS[b.getUTCMonth()]} ${b.getUTCFullYear()}`;
+  return `${a.getUTCDate()} ${MONTHS[a.getUTCMonth()]} to ${b.getUTCDate()} ${MONTHS[b.getUTCMonth()]} ${b.getUTCFullYear()}`;
 }

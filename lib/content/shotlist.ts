@@ -52,7 +52,7 @@ export async function proposeShotList(
     .where(eq(offers.profile_id, profileId))
     .orderBy(desc(offers.created_at));
   if (spine.length === 0) {
-    throw new ContentError("no offers on the profile — nothing to film yet", 422);
+    throw new ContentError("no offers on the profile: nothing to film yet", 422);
   }
 
   // Strongest offer by current volume fact (measured supersedes stated
@@ -87,31 +87,31 @@ export async function proposeShotList(
   const shots: Shot[] = [
     {
       order: 1,
-      shot: `Open on ${offerName} in someone's hands, mid-use — no logo card, no intro.`,
+      shot: `Open on ${offerName} in someone's hands, mid-use. No logo card, no intro.`,
       why: "The first second decides the scroll; the product working is the strongest opener you own.",
       evidence: offerEvidence,
     },
     {
       order: 2,
       shot: "You, to camera, one sentence: the problem this solves, in the words you used in your intake.",
-      why: "Your own phrasing tested well enough to build a business on — it goes in front of the camera unchanged.",
+      why: "Your own phrasing tested well enough to build a business on: it goes in front of the camera unchanged.",
       evidence: [...offerEvidence, ...goalEvidence],
     },
     {
       order: 3,
-      shot: `Close-up detail of ${offerName} — texture, mechanism, the part a customer touches first.`,
+      shot: `Close-up detail of ${offerName}: texture, mechanism, the part a customer touches first.`,
       why: "Detail shots read as honesty; stock-looking footage reads as an ad.",
       evidence: offerEvidence,
     },
     {
       order: 4,
-      shot: "Fifteen seconds of the making/doing — workshop, prep, screen, whatever the real work looks like.",
+      shot: "Fifteen seconds of the making/doing: workshop, prep, screen, whatever the real work looks like.",
       why: "Process footage is the cheapest trust you can film, and it cannot be faked by competitors.",
       evidence: offerEvidence,
     },
     {
       order: 5,
-      shot: "The before/after or the result — the state a customer is in once it worked.",
+      shot: "The before/after or the result: the state a customer is in once it worked.",
       why: goal
         ? `It shows the outcome your stated goal points at: "${goal.statement}".`
         : "Outcomes sell; features explain.",
@@ -119,7 +119,7 @@ export async function proposeShotList(
     },
     {
       order: 6,
-      shot: "A real customer moment if you have one — unboxing, first use, a message you were sent (with permission).",
+      shot: "A real customer moment if you have one: unboxing, first use, a message you were sent (with permission).",
       why: "One real reaction outperforms any script; skip it rather than stage it.",
       evidence: offerEvidence,
     },
@@ -140,7 +140,7 @@ export async function proposeShotList(
     module: "content",
     action: {
       kind: "content_publishing",
-      summary: `A shot list for ${offerName} — 7 shots, filmed by you, cut for ${channelLabel}`,
+      summary: `A shot list for ${offerName}: 7 shots, filmed by you, cut for ${channelLabel}`,
       detail: {
         shots,
         offer_id: offerId,
@@ -182,7 +182,7 @@ export async function proposeShotList(
         profit_delta_monthly: null,
         formula: null,
       },
-      breakeven_condition: "no spend — a phone and an afternoon",
+      breakeven_condition: "no spend: a phone and an afternoon",
     } as never,
     reversibility: {
       level: "easy",
@@ -195,7 +195,7 @@ export async function proposeShotList(
 
 /** The shot list rendered as the owner sees it in a content item. */
 export function renderShotList(shots: readonly Shot[], offerName: string): string {
-  const lines = [`Shot list — ${offerName}`, ""];
+  const lines = [`Shot list: ${offerName}`, ""];
   for (const s of shots) {
     lines.push(`${s.order}. ${s.shot}`);
     lines.push(`   Why: ${s.why}`);

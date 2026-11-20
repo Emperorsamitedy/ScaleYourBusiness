@@ -63,16 +63,12 @@ while it is empty. The comments in `.env.example` have the exact formats.
       `EXTRA_REPORT_PRICE_MINOR` still work until that lands.
 - [ ] **Subscriptions (v1 spec §8).** Plans, the €49 credit, dunning and
       the guarantee are built and tested against a stand-in Stripe. When
-      the keys exist, in the Stripe dashboard:
-      - the webhook endpoint `/api/stripe/webhook` sends
-        `checkout.session.completed`, `checkout.session.async_payment_succeeded`,
-        `customer.subscription.created`, `customer.subscription.updated`,
-        `customer.subscription.deleted`, `invoice.paid` and
-        `invoice.payment_failed`
-      - **SEPA Direct Debit** is switched on (euro plans offer it beside cards)
-      - **Smart Retries** set the retry schedule for failed payments; SYB
-        tells the owner after each failure and points to the card update
-      - the **customer portal** lets an owner update the card and see invoices
+      the keys exist, in the Stripe dashboard: - the webhook endpoint `/api/stripe/webhook` sends
+      `checkout.session.completed`, `checkout.session.async_payment_succeeded`,
+      `customer.subscription.created`, `customer.subscription.updated`,
+      `customer.subscription.deleted`, `invoice.paid` and
+      `invoice.payment_failed` - **SEPA Direct Debit** is switched on (euro plans offer it beside cards) - **Smart Retries** set the retry schedule for failed payments; SYB
+      tells the owner after each failure and points to the card update - the **customer portal** lets an owner update the card and see invoices
 - [ ] **Compliance (v1 spec §9).** Phone answering stays blocked in every
       country until counsel in that market signs the matrix row (date and
       reference) on /ops. Every call now asks consent by keypad before anything
@@ -177,14 +173,14 @@ While it is empty, SYB sends nothing to NAV.
 - [ ] **Usage quotas per tier.** These are placeholders until you confirm
       them. Per business per month:
 
-      | Tier       | LLM tokens | Video renders | Connector calls |
-          | ---------- | ---------- | ------------- | --------------- |
-          | Watch      | 300k       | 0             | 3k              |
-          | Act        | 1.5M       | 10            | 15k             |
-          | Autonomous | 4M         | 40            | 40k             |
+  | Tier       | LLM tokens | Video renders | Connector calls |
+  | ---------- | ---------- | ------------- | --------------- |
+  | Watch      | 300k       | 0             | 3k              |
+  | Act        | 1.5M       | 10            | 15k             |
+  | Autonomous | 4M         | 40            | 40k             |
 
-          Owners get a notice at 80% and a hard stop at 100%. The Hungarian
-          price book stays off until you confirm these.
+  Owners get a notice at 80% and a hard stop at 100%. The Hungarian
+  price book stays off until you confirm these.
 
 - [ ] **Hungarian prices.** The price book's HUF rows (Watch 11 500 Ft,
       Act 35 000 Ft, Autonomous 69 000 Ft, extra business 7 000 Ft, full

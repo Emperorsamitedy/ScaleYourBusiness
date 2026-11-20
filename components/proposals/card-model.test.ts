@@ -2,7 +2,7 @@
 
 import { describe, expect, it } from "vitest";
 import type { CardProposal } from "./card-model";
-import { cardState, gainLine, limitLines, undoLine, worstCase } from "./card-model";
+import { cardState, gainLine, limitLines, readsAsWords, undoLine, worstCase } from "./card-model";
 
 const NOW = new Date("2026-11-10T09:00:00Z");
 
@@ -65,7 +65,7 @@ describe("cardState", () => {
 
 describe("the figures", () => {
   it("shows the gain as a range, never a point", () => {
-    expect(gainLine(base)).toBe("−€1,200 – +€4,800");
+    expect(gainLine(base)).toBe("−€1,200 to +€4,800");
   });
 
   it("shows no range when one end is missing or the currencies differ", () => {
@@ -91,9 +91,42 @@ describe("the figures", () => {
     expect(worstCase({ ...base, scenario: {} })).toBe("No worst case was forecast for this one.");
   });
 
+  // 2026-11-18: an estimate printed to the cent claims more than it knows.
+  it("prints an estimate in whole units, in the currency’s own step", () => {
+    const cents: CardProposal = {
+      ...base,
+      scenario: {
+        downside_case: {
+          statement: "",
+          profit_delta_monthly: { amount_minor: 136_32, currency: "EUR" },
+        },
+        upside_case: {
+          statement: "",
+          profit_delta_monthly: { amount_minor: 1_213_12, currency: "EUR" },
+        },
+      },
+    };
+    expect(gainLine(cents)).toBe("+€136 to +€1,213");
+    expect(worstCase(cents)).toBe("+€136");
+    expect(gainLine(cents)).not.toContain(".32");
+  });
+
   it("says whether it can be undone", () => {
     expect(undoLine(base)).toMatchObject({ reversible: true, word: "REVERSIBLE · EASY TO UNDO" });
     expect(undoLine({ ...base, reversibility: null }).reversible).toBe(false);
+  });
+
+  it("keeps a figure on one line and stacks a sentence, each side named", () => {
+    expect(readsAsWords({ before: "€38.00", after: "€41.40" })).toBe(false);
+    expect(
+      readsAsWords({
+        before: "dipped in our oatmeal speckle glaze.",
+        after: "dipped in our oatmeal speckle glaze. Dishwasher and microwave safe.",
+      }),
+    ).toBe(true);
+    // The line itself: 48 characters still fit, one more does not.
+    expect(readsAsWords({ before: "a".repeat(24), after: "b".repeat(24) })).toBe(false);
+    expect(readsAsWords({ before: "a".repeat(24), after: "b".repeat(25) })).toBe(true);
   });
 });
 

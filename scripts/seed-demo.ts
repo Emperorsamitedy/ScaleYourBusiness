@@ -609,7 +609,7 @@ async function seed(): Promise<void> {
     await answer("1.2", "ecommerce_store");
     await answer(
       "1.3",
-      "Small-batch stoneware made by hand in our Kilkenny studio — mugs, plates, bowls and vases in our own speckled glazes, sold through our Shopify store and in the studio shop at weekends.",
+      "Small-batch stoneware made by hand in our Kilkenny studio: mugs, plates, bowls and vases in our own speckled glazes, sold through our Shopify store and in the studio shop at weekends.",
     );
     await answer("1.4", ["physical_products"]);
     await answer("1.5", "growing");
@@ -622,7 +622,7 @@ async function seed(): Promise<void> {
     await answer("2.1.1.3", true);
     await answer(
       "2.1.1.7",
-      "Thursday to Saturday 10am–6pm, Sunday 12–5pm. Closed Monday to Wednesday — that's when we throw and fire.",
+      "Thursday to Saturday 10am to 6pm, Sunday 12 to 5pm. Closed Monday to Wednesday, that's when we throw and fire.",
     );
     await answer("2.1.1.7a", eur(38));
     await answer(
@@ -697,7 +697,7 @@ async function seed(): Promise<void> {
     await answer("1.4.1.5b", "free_over_threshold");
     await answer(
       "1.4.1.5c",
-      "Breakage in transit has gone up since we moved UK and EU parcels to DPD in August — roughly one parcel in twenty-five now arrives with something chipped, and we refund or remake it.",
+      "Breakage in transit has gone up since we moved UK and EU parcels to DPD in August: roughly one parcel in twenty-five now arrives with something chipped, and we refund or remake it.",
     );
     await answer("1.4.1.6", false);
   });
@@ -717,7 +717,7 @@ async function seed(): Promise<void> {
     await answer("4.2b", "shopify_payments");
     await answer(
       "4.2c",
-      "Returns within 30 days for anything unused. If a piece arrives broken, send us a photo and we'll refund or remake it — no need to send it back.",
+      "Returns within 30 days for anything unused. If a piece arrives broken, send us a photo and we'll refund or remake it. No need to send it back.",
     );
     await answer(
       "4.3a",
@@ -787,14 +787,14 @@ async function seed(): Promise<void> {
     await answer("5.3c", eur(12_000));
     await answer(
       "5.3d",
-      "Breakages in transit — every chipped parcel costs us the piece, the postage twice and a refund.",
+      "Breakages in transit: every chipped parcel costs us the piece, the postage twice and a refund.",
     );
     await skip("5.4");
 
     await answer("6.1a", "both");
     await answer(
       "6.1b",
-      "Everyday pieces that feel special — the mug you reach for first every morning, or a gift that is obviously handmade.",
+      "Everyday pieces that feel special: the mug you reach for first every morning, or a gift that is obviously handmade.",
     );
     await answer(
       "6.1c",
@@ -802,11 +802,11 @@ async function seed(): Promise<void> {
     );
     await answer(
       "6.1d",
-      "Mostly women 28–55 in Ireland and the UK, a lot of them buying gifts; a growing group in Germany and the Netherlands.",
+      "Mostly women 28 to 55 in Ireland and the UK, a lot of them buying gifts; a growing group in Germany and the Netherlands.",
     );
     await answer(
       "6.1e",
-      "Eight stockists — gift shops and two cafés — who buy wholesale at half of retail.",
+      "Eight stockists (gift shops and two cafés) who buy wholesale at half of retail.",
     );
     // P5-15: the owner's own sense of their trade win rate, shown beside the measured one.
     await answer("6.1f", 35, true);
@@ -965,7 +965,7 @@ async function seed(): Promise<void> {
       await answer("8.1f", "several_weekly");
       await answer(
         "8.1g",
-        "Reels of glazes coming out of the kiln — the reveal videos get ten times the views of product photos.",
+        "Reels of glazes coming out of the kiln: the reveal videos get ten times the views of product photos.",
       );
       await answer("8.1h", "@fernhillceramics on Instagram and TikTok");
       await answer("8.2a", true);
@@ -973,7 +973,7 @@ async function seed(): Promise<void> {
         "8.2b",
         "Pottery made to be used every day, by the two people whose hands you can see in the photos.",
       );
-      await answer("8.2d", "Aoife, the owner — she's in most of the videos.");
+      await answer("8.2d", "Aoife, the owner. She's in most of the videos.");
       await answer("8.3a", true);
       await answer("8.3b", "About 410 reviews on the Shopify store at 4.8, and 96 on Google.");
 
@@ -984,7 +984,7 @@ async function seed(): Promise<void> {
       );
       await answer(
         "9.1b",
-        "Packing — wrapping each piece properly takes longer than making some of them.",
+        "Packing: wrapping each piece properly takes longer than making some of them.",
       );
       await answer("9.1c", "Couriers. And the glaze kiln's thermocouple, twice this year.");
       await entities("9.2", [
@@ -1015,7 +1015,7 @@ async function seed(): Promise<void> {
       await answer("9.4a", false);
       await answer(
         "9.4b",
-        "The November–December rush: sixty orders a day while keeping the kilns full.",
+        "The November and December rush: sixty orders a day while keeping the kilns full.",
       );
 
       await answer(
@@ -1060,7 +1060,7 @@ async function seed(): Promise<void> {
           name: "Saltmarsh Pottery",
           url: "https://saltmarsh-pottery.example",
           what_they_sell: "Coastal-glaze mugs and bowls, mostly online.",
-          price_points: "Mugs €30–36, bowls €70–95",
+          price_points: "Mugs €30 to 36, bowls €70 to 95",
           delivery_promise: "Free EU shipping over €60",
           strengths: "Fast shipping and a big Instagram following.",
           weaknesses: "Glazes look the same season to season.",
@@ -1068,7 +1068,7 @@ async function seed(): Promise<void> {
         {
           name: "Bluestone Clayworks",
           what_they_sell: "Tableware sets for restaurants and homes.",
-          price_points: "Plates €38–48",
+          price_points: "Plates €38 to 48",
           delivery_promise: "Ships within 2 days",
           strengths: "Wholesale and restaurant contracts.",
           weaknesses: "No studio to visit.",
@@ -1076,7 +1076,7 @@ async function seed(): Promise<void> {
         {
           name: "Hearth & Kiln Co.",
           what_they_sell: "Factory-made 'handmade-look' mugs on Amazon.",
-          price_points: "Mugs €18–22",
+          price_points: "Mugs €18 to 22",
           strengths: "Price.",
           weaknesses: "Not actually handmade.",
         },
@@ -1105,14 +1105,11 @@ async function seed(): Promise<void> {
       await answer("13.2", "lack_of_time");
       await answer("13.3a", "TikTok ads last spring, and a wholesale fair in Frankfurt.");
       await answer("13.3b", "The TikTok ads brought views but almost no sales.");
-      await answer(
-        "13.3c",
-        "Discount codes for influencers — the codes ended up on voucher sites.",
-      );
+      await answer("13.3c", "Discount codes for influencers: the codes ended up on voucher sites.");
       await answer("13.4", ["new_markets", "more_automation"]);
       await answer(
         "13.5",
-        "No site-wide sales or discount codes — our stockists would see it. No cold emailing people who never bought from us. Nothing goes out under my name without me reading it first.",
+        "No site-wide sales or discount codes, our stockists would see it. No cold emailing people who never bought from us. Nothing goes out under my name without me reading it first.",
       );
       await answer("14.1b", ["product_photos", "videos", "logo", "testimonials", "price_list"]);
 
@@ -1137,7 +1134,7 @@ async function seed(): Promise<void> {
           value: [
             {
               code: "no_discounts",
-              quote: "No site-wide sales or discount codes — our stockists would see it.",
+              quote: "No site-wide sales or discount codes, our stockists would see it.",
               enforcement: "auto",
             },
             {
@@ -1435,7 +1432,7 @@ async function seed(): Promise<void> {
               effort: "low",
               reversibility_level: "moderate",
               if_you_change_your_mind:
-                "Raise it back — but customers who saw the lower price may wait for it to return.",
+                "Raise it back, but customers who saw the lower price may wait for it to return.",
               scenario: {
                 kind: "price_change",
                 offer_id: offer("vase"),
@@ -1454,7 +1451,7 @@ async function seed(): Promise<void> {
                 "Export the customer list with order counts once; the repeat rate decides whether win-back email beats new-customer ads.",
               effort: "low",
               reversibility_level: "easy",
-              if_you_change_your_mind: "Nothing to undo — it is a number recorded in the profile.",
+              if_you_change_your_mind: "Nothing to undo: it is a number recorded in the profile.",
               scenario: {
                 kind: "close_gap",
                 offer_id: null,
@@ -1587,7 +1584,7 @@ async function seed(): Promise<void> {
       await proposeCustomKnowledge(ids.profile, {
         question: "Are your pieces dishwasher safe?",
         answer:
-          "Yes — everything we make is fired to stoneware temperature, so it's dishwasher and microwave safe. The gold-rim pieces are the exception: wash those by hand.",
+          "Yes, everything we make is fired to stoneware temperature, so it's dishwasher and microwave safe. The gold-rim pieces are the exception: wash those by hand.",
       }),
       await proposeCustomKnowledge(ids.profile, {
         question: "Do you sell wholesale to shops and cafés?",
@@ -1623,7 +1620,7 @@ async function seed(): Promise<void> {
       await db.insert(schema.watchActivity).values({
         profile_id: ids.profile,
         kind: "snapshot_taken",
-        detail: "Weekly check: the profile held steady — nothing changed since last week.",
+        detail: "Weekly check: the profile held steady, nothing changed since last week.",
         meta: { snapshot_id: summary.id },
       });
       return;
@@ -1708,7 +1705,7 @@ async function seed(): Promise<void> {
       intent: "question",
       needle: "dishwasher",
       reply:
-        "Yes — everything Fernhill makes is fired to stoneware temperature, so it's dishwasher and microwave safe. The only exception is the gold-rim pieces, which should be washed by hand.",
+        "Yes, everything Fernhill makes is fired to stoneware temperature, so it's dishwasher and microwave safe. The only exception is the gold-rim pieces, which should be washed by hand.",
     },
     { text: "Brilliant, thank you!", intent: "social" },
   ]);
@@ -1718,7 +1715,7 @@ async function seed(): Promise<void> {
       intent: "question",
       needle: "opening hours",
       reply:
-        "On Sundays the studio shop is open from 12 to 5pm. The full hours are Thursday to Saturday 10am–6pm and Sunday 12–5pm; it's closed Monday to Wednesday.",
+        "On Sundays the studio shop is open from 12 to 5pm. The full hours are Thursday to Saturday 10am to 6pm and Sunday 12 to 5pm; it's closed Monday to Wednesday.",
     },
   ]);
   await chat(at(2, "20:47"), [
@@ -1733,7 +1730,7 @@ async function seed(): Promise<void> {
         ids.profile,
         t.id,
         "answered",
-        "Yes — we ship to Canada with DPD. It takes 6–9 working days, shipping is €24, and import duties are paid on delivery.",
+        "Yes, we ship to Canada with DPD. It takes 6 to 9 working days, shipping is €24, and import duties are paid on delivery.",
       );
     }
   });
@@ -1831,12 +1828,12 @@ async function seed(): Promise<void> {
 
   const drafts: Record<string, string[]> = {
     email: [
-      "The speckled mugs are back.\n\nThis week's glaze firing came out of the kiln on Tuesday, and the oatmeal speckle is on the shelves again — along with the first plates in the winter glaze. If you've been waiting since the last sell-out, now is the time: the last batch went in four days.\n\nAoife",
+      "The speckled mugs are back.\n\nThis week's glaze firing came out of the kiln on Tuesday, and the oatmeal speckle is on the shelves again, along with the first plates in the winter glaze. If you've been waiting since the last sell-out, now is the time: the last batch went in four days.\n\nAoife",
       "Packing for winter.\n\nA small change you'll notice: every parcel now goes out double-boxed. Breakage in the post has been our biggest headache this autumn, and a chipped mug on Christmas morning is the last thing we want to send you.\n\nAoife",
     ],
     post: [
       "Every Speckled Everyday Mug is thrown, trimmed and dipped by hand here in Kilkenny. The speckle comes from iron in the clay rising through the glaze in the kiln, which is why no two match. Back in stock this week.",
-      "Behind the counter at the studio: Thursday to Saturday 10–6, Sunday 12–5. Come and pick a mug off the shelf yourself — the seconds box lives by the door.",
+      "Behind the counter at the studio: Thursday to Saturday 10 to 6, Sunday 12 to 5. Come and pick a mug off the shelf yourself. The seconds box lives by the door.",
     ],
   };
   const used: Record<string, number> = { email: 0, post: 0 };
@@ -2161,7 +2158,7 @@ async function seed(): Promise<void> {
     await draftCampaign(vip.id, {
       expectedProfileId: ids.profile,
       draftLlm: async () => ({
-        text: "Thank you.\n\nYou're one of the people who keeps coming back to the studio, and it's because of you that we can keep making things slowly. The winter glazes go up on the shop next week — you'll hear first.\n\nAoife and Niall",
+        text: "Thank you.\n\nYou're one of the people who keeps coming back to the studio, and it's because of you that we can keep making things slowly. The winter glazes go up on the shop next week. You'll hear first.\n\nAoife and Niall",
       }),
     });
     // P4-15: the owner grants campaign email and approves the drafted email
@@ -2216,7 +2213,7 @@ async function seed(): Promise<void> {
       userId: ids.user,
       profileId: ids.profile,
       reason:
-        "The trio is already our entry gift — any cheaper and it stops feeling handmade. Our stockists sell it at full price too.",
+        "The trio is already our entry gift. Any cheaper and it stops feeling handmade. Our stockists sell it at full price too.",
     });
   }
 
@@ -2513,7 +2510,7 @@ async function seed(): Promise<void> {
     );
 
     await phase(
-      "Emberworks: the watch ended — instant mode",
+      "Emberworks: the watch ended, instant mode",
       at(50, "09:00"),
       async () => {
         await db.insert(schema.modeDecisions).values({
@@ -2947,7 +2944,7 @@ async function seed(): Promise<void> {
               },
               {
                 statement:
-                  "a deposit prevents a third of no-shows (downside a tenth, upside half) — assumed: nobody has measured it here yet",
+                  "a deposit prevents a third of no-shows (downside a tenth, upside half). Assumed: nobody has measured it here yet",
                 value: 33,
                 source_field: null,
                 sensitivity: "high",

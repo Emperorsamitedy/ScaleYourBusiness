@@ -165,7 +165,7 @@ export function rangeWords(r: TrackRow, w: TrackWords = ENGLISH_TRACK()): string
           to: dayWords(r.high_date, locale),
         });
   }
-  return "—";
+  return "-";
 }
 
 function waitingWords(r: TrackRow, today: string, w: TrackWords): string {

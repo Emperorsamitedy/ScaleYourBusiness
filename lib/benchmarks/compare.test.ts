@@ -328,7 +328,7 @@ describe("which Eurostat cell", () => {
     const p = pickCell(s, "IE", RESTAURANT, ["10-19"], "GOR_PC");
     expect(p?.cell).toMatchObject({ nace: "I56", size: "TOTAL", year: 2024 });
     expect(p?.cell.fallback).toBe(
-      "Eurostat keeps this confidential (2024) for restaurants, cafés and bars with 10–19 people in Ireland, so this is restaurants, cafés and bars of every size in Ireland." +
+      "Eurostat keeps this confidential (2024) for restaurants, cafés and bars with 10 to 19 people in Ireland, so this is restaurants, cafés and bars of every size in Ireland." +
         EVERY_SIZE_NOTE,
     );
   });

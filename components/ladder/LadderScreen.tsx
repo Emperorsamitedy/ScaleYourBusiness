@@ -150,7 +150,7 @@ export function LadderScreen() {
 
         <footer className="tl-foot">
           <span>{ceiling === null ? tr("foot.own") : tr("foot.ceiling", { n: n(ceiling) })}</span>
-          <Link href="/shadow">{tr("shadowLink")} →</Link>
+          <Link href="/shadow">{tr("shadowLink")}</Link>
         </footer>
       </section>
     </main>

@@ -1,6 +1,6 @@
-// P4-15 — the campaign send as the owner reads it: one sentence, the gate
+// P4-15 - the campaign send as the owner reads it: one sentence, the gate
 // in words, the counts with nothing estimated, unknowns said plainly.
-// P4-17 — and once it has gone out, the readback: numbers with units, the
+// P4-17 - and once it has gone out, the readback: numbers with units, the
 // verdict as a word, and what wasn't measured, said.
 
 import { describe, expect, it } from "vitest";
@@ -40,7 +40,7 @@ const view = (over: Partial<SendView>): SendView => ({
   ...over,
 });
 
-describe("P4-15 — the campaign's send, in words", () => {
+describe("P4-15 - the campaign's send, in words", () => {
   it("a held campaign names the gate holding it, first in order", () => {
     expect(
       sendSentence(
@@ -149,7 +149,7 @@ const readback = (over: Partial<ReadbackView> = {}): ReadbackView => ({
   ...over,
 });
 
-describe("P4-17 — the readback as the owner reads it", () => {
+describe("P4-17 - the readback as the owner reads it", () => {
   it("counts and rates with units, replies said to be uncounted, the lift in points", () => {
     const rows = readbackRows(readback());
     const by = Object.fromEntries(rows.map((r) => [r.label, r]));
@@ -168,7 +168,7 @@ describe("P4-17 — the readback as the owner reads it", () => {
     const by = Object.fromEntries(
       readbackRows(readback({ delivery_reported: false, lift_pp: null })).map((r) => [r.label, r]),
     );
-    expect(by.delivered).toMatchObject({ count: "not reported", rate: "—" });
+    expect(by.delivered).toMatchObject({ count: "not reported", rate: "-" });
     expect(by["marked as spam"]).toMatchObject({ count: "not reported" });
     expect(by.difference).toBeUndefined();
   });

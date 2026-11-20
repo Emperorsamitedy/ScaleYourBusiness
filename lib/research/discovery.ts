@@ -322,7 +322,7 @@ export async function discoverCompetitors(args: {
 
   if (kept.length === 0) {
     throw new ResearchError(
-      "the search supported no usable competitors — nothing invented in their place",
+      "the search supported no usable competitors: nothing invented in their place",
     );
   }
 

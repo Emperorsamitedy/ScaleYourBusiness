@@ -30,6 +30,7 @@
 
 import { useEffect, useState } from "react";
 import { isConnectionsReason } from "../../lib/execution/meta-login-reasons";
+import { ConsentFold } from "./ConsentFold";
 import { bold, useCn, useSaid } from "./useCn";
 import type { AppLocale } from "../../lib/i18n/locales";
 import type { CnTr } from "./words";
@@ -181,8 +182,9 @@ function opWords(t: CnTr, o: Operation): string {
 function ConsentLines({ provider }: { provider: ExecProvider }) {
   return (
     <ul className="cn-consent">
-      {provider.consent.map((c) => (
-        <li key={c.scope}>
+      {provider.consent.map((c, i) => (
+        // One scope can stand behind two lines, so the scope alone is no key.
+        <li key={`${c.scope}:${i}`}>
           <span className="cn-consent-why">{c.why}</span>
           <span className="cn-scope">{c.grant}</span>
         </li>
@@ -727,7 +729,9 @@ export function ExecutionSection({
                     </button>
                   )}
                 </div>
-                <ConsentLines provider={p} />
+                <ConsentFold open={isOpen || picking === p.id}>
+                  <ConsentLines provider={p} />
+                </ConsentFold>
                 {c !== null && (
                   <ConnectedWrite
                     c={c}

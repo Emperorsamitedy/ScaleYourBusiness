@@ -243,7 +243,7 @@ export async function setGoalMeasure(
   }
   const currency = kind === "money" ? (input.currency ?? "").toUpperCase() : null;
   if (kind === "money" && !/^[A-Z]{3}$/.test(currency ?? "")) {
-    throw new GoalMeasureError("a money target needs its currency — ISO 4217, e.g. EUR (rule 1)");
+    throw new GoalMeasureError("a money target needs its currency: ISO 4217, e.g. EUR (rule 1)");
   }
 
   const setOn = now.toISOString().slice(0, 10);
@@ -280,7 +280,7 @@ export async function setGoalMeasure(
         : measured.baseline.per_30d <= measure.target_per_30d;
     if (reached) {
       throw new GoalMeasureError(
-        `the target is already reached — the last 28 days measured ${measured.baseline.per_30d} per 30 days`,
+        `the target is already reached: the last 28 days measured ${measured.baseline.per_30d} per 30 days`,
       );
     }
   }

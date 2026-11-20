@@ -106,7 +106,7 @@ describe("English is what lib/crm always said", () => {
       "the business's country isn't known, so its email rules aren't either",
     ]);
     expect(draft("Narnia", null, null).gaps).toEqual([
-      "ScaleX doesn't yet know the email marketing rules for Narnia — nothing is sent there",
+      "ScaleX doesn't yet know the email marketing rules for Narnia: nothing is sent there",
     ]);
     for (const r of Object.values(REGIMES)) {
       expect(EN(`compliance.regime.${r.id}`)).toBe(r.label.split(" — ")[0]);
@@ -115,14 +115,14 @@ describe("English is what lib/crm always said", () => {
 
   it("says the segments' reasons as segment-proposals wrote them", () => {
     const old = [
-      'your own answer on customer consent (6.4b) was "no consent" — outbound email stays off until your data says otherwise',
+      'your own answer on customer consent (6.4b) was "no consent": outbound email stays off until your data says otherwise',
       "already proposed today",
       "already proposed this month",
       "everyone who left a cart this week and said yes to email was already proposed a reminder in the last 30 days",
       "no contact who said yes to email left a cart in the last week",
       "nobody is in this segment",
-      "4 in the segment, none with explicit email consent — nothing to send to",
-      "you've declined customer email 3 times — I've stopped proposing it",
+      "4 in the segment, none with explicit email consent: nothing to send to",
+      "you've declined customer email 3 times: I've stopped proposing it",
     ];
     const lines = skipLines(
       old.map((reason) => ({ segment: "lapsed", reason })),
@@ -219,7 +219,7 @@ describe("in the reader's language", () => {
     };
     const en = judgeEmailCampaign(input).arithmetic;
     expect(en).toBe(
-      "1 recipient unsubscribed or marked it as spam (1 unsubscribed, 0 complained) of 40 sent, 2.5% — backfired at 2% with at least 2 people, or any complaints at 0.3% or more; 2 recipients measured by a customer export at least 14 days after the email — the verdict needs 5",
+      "1 recipient unsubscribed or marked it as spam (1 unsubscribed, 0 complained) of 40 sent, 2.5%, backfired at 2% with at least 2 people, or any complaints at 0.3% or more; 2 recipients measured by a customer export at least 14 days after the email: the verdict needs 5",
     );
     const local = judgeEmailCampaign(input, de, "de-DE").arithmetic;
     expect(local).toContain("2,5");

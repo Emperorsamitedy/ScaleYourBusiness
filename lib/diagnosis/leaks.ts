@@ -120,7 +120,7 @@ export async function moveLeak(args: {
       .from(ledgerEntries)
       .where(eq(ledgerEntries.plan_id, entry.plan_id));
     if (later.some((l) => l.seq > entry.seq)) {
-      throw new LeakError("that gain was corrected since — use the standing entry");
+      throw new LeakError("that gain was corrected since: use the standing entry");
     }
     entryId = entry.id;
   }

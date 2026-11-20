@@ -40,6 +40,7 @@ import { moneyText, num } from "../../components/sheet/num";
 import type { ArchetypeKey } from "../charts/profiles";
 import { minorUnitExponent, ratioBp, scaleMinor } from "../core/money";
 import type { AppLocale } from "../i18n/locales";
+import { rangeOf } from "../i18n/range";
 import { intlTag } from "../i18n/locales";
 import type { Tr } from "../i18n/tr";
 import type { Cell, Range } from "./model";
@@ -177,7 +178,7 @@ export interface PriceInput {
   label: string;
   /** The label as it reads inside a sentence ("price now: …"), in the same words as `label`. */
   label_inline: string;
-  /** What the screen prints in the value column; "—" when missing. */
+  /** What the screen prints in the value column; "-" when missing. */
   value: string;
   basis: Basis | null;
   source: string;
@@ -323,7 +324,7 @@ function priceInput(item: PriceItemRaw, { t, L }: W): PriceInput {
     : {
         key: "price",
         ...labelled(t, "price"),
-        value: "—",
+        value: "-",
         basis: null,
         source: t("notKnown"),
         needs: { what: t("priceNeeds", { name: item.name }), href: item.asks.price },
@@ -352,7 +353,7 @@ function costInput(item: PriceItemRaw, { t, L }: W): PriceInput {
   return {
     key: "unit_cost",
     ...labelled(t, "cost"),
-    value: "—",
+    value: "-",
     basis: null,
     source: c
       ? t("costOtherCurrency", { costCurrency: c.currency, currency: item.currency })
@@ -383,7 +384,7 @@ function volumeInput(item: PriceItemRaw, { t, L }: W): PriceInput {
     : {
         key: "volume",
         ...label,
-        value: "—",
+        value: "-",
         basis: null,
         source: t("notKnown"),
         needs: {
@@ -405,7 +406,7 @@ function responseInput(
   return {
     key: "response",
     ...labelled(t, "response"),
-    value: `${num(band.low, 1, L)} – ${num(band.high, 1, L)}`,
+    value: rangeOf(num(band.low, 1, L), num(band.high, 1, L), L),
     basis: "ASSUMED",
     source: t("responseSource", {
       one: wholePct(1, L),
@@ -435,7 +436,7 @@ function capacityInput(item: PriceItemRaw, { t, L }: W): PriceInput | null {
   return {
     key: "capacity",
     ...label,
-    value: "—",
+    value: "-",
     basis: null,
     source: t("notKnown"),
     needs: item.asks.capacity ? { what: t("capacityNeeds"), href: item.asks.capacity } : null,
@@ -669,7 +670,7 @@ export function simulatePrice(
 
   const needs = (keys: PriceInput["key"][]) =>
     inputs
-      .filter((i) => keys.includes(i.key) && i.needs !== null && i.value === "—")
+      .filter((i) => keys.includes(i.key) && i.needs !== null && i.value === "-")
       .map((i) => t("needLine", { label: i.label_inline, needs: i.needs!.what }));
 
   const factBases = orderBases([item.price.basis, item.volume?.basis ?? null]);
@@ -691,7 +692,7 @@ export function simulatePrice(
   if (V !== null) {
     const after = volumeAfter(V, s, band, room);
     const vr = after.range;
-    const bandTerm = `${num(band.low, 1, L)} – ${num(band.high, 1, L)}`;
+    const bandTerm = rangeOf(num(band.low, 1, L), num(band.high, 1, L), L);
     measures.volume = {
       status: "range",
       range: { low: Math.round(vr.low), high: Math.round(vr.high) },
@@ -809,7 +810,7 @@ export function comparePrices(
 ): PriceComparison {
   if (changes.length > PRICING.max_changes) {
     throw new SimulateError(
-      `pick up to ${PRICING.max_changes} price changes to compare — ${changes.length} given`,
+      `pick up to ${PRICING.max_changes} price changes to compare: ${changes.length} given`,
     );
   }
   const { t } = wordsOf(w);

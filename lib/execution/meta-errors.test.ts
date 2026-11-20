@@ -99,7 +99,7 @@ describe("P3-24a — the Meta error taxonomy", () => {
     const ad = (code: number | null, status = 400) =>
       classifyMetaError({ status, code, subject: "ad_change" });
     expect(ad(368).owner_sentence).toBe("Meta refused with code 368; nothing was changed.");
-    expect(ad(null, 0).owner_sentence).toMatch(/Nothing was changed — I'll try again/);
+    expect(ad(null, 0).owner_sentence).toMatch(/Nothing was changed\. I'll try again/);
     expect(ad(190).kind).toBe("auth"); // the mapping itself is unchanged
     expect(classifyMetaError({ status: 400, code: 368, subject: "publish" }).owner_sentence).toBe(
       "Meta refused with code 368; nothing was published.",

@@ -54,7 +54,7 @@ export function reorderRef(row: Pick<CoverRow, "item">, now: Date): string {
 export async function reorderHold(profileId: string, now: Date): Promise<string | null> {
   if (!(await stockApplies(profileId))) return "the business doesn't hold stock";
   const care = await careState(profileId);
-  if (!care) return "not in care yet — no mode decision";
+  if (!care) return "not in care yet: no mode decision";
   if (care.watch_ends_at && now.toISOString() < care.watch_ends_at) {
     return watchingUntil(care.watch_ends_at);
   }
@@ -80,7 +80,7 @@ export function reorderProposal(
   const evidence = [
     `${item.on_hand} on hand, read from ${row.source} on ${item.as_of}`,
     c.rate
-      ? `${c.rate.units} sold in ${plural(c.rate.over_days, "day")}: ${c.rate.per_day.toFixed(1)} a day (${c.rate.low.toFixed(1)}–${c.rate.high.toFixed(1)})`
+      ? `${c.rate.units} sold in ${plural(c.rate.over_days, "day")}: ${c.rate.per_day.toFixed(1)} a day (${c.rate.low.toFixed(1)} to ${c.rate.high.toFixed(1)})`
       : "no rate of sale",
     c.sell_through.sentence,
     `delivery time: ${lead.why}`,
@@ -129,7 +129,7 @@ export function reorderProposal(
     originating_finding: reorderRef(row, now),
     action: {
       kind: REORDER_KIND,
-      summary: `Reorder ${r.quantity} × ${item.name}${from} — a note for you, not an order`,
+      summary: `Reorder ${r.quantity} × ${item.name}${from}: a note for you, not an order`,
       detail: {
         note_only: true,
         stock: {
@@ -192,7 +192,7 @@ export function reorderProposal(
         profit_delta_monthly: null,
         formula: null,
       },
-      breakeven_condition: `Nothing to break even on: a note costs nothing. The order itself is yours to weigh${r.cost_arithmetic ? ` — ${r.cost_arithmetic}` : ""}.`,
+      breakeven_condition: `Nothing to break even on: a note costs nothing. The order itself is yours to weigh${r.cost_arithmetic ? `: ${r.cost_arithmetic}` : ""}.`,
     },
     reversibility: {
       level: "easy",
@@ -254,7 +254,7 @@ export async function proposeReorders(
     if (silenced) {
       out.skipped.push({
         ref,
-        reason: `you've declined reorder notes ${silenced.rejections} times — I've stopped proposing them`,
+        reason: `you've declined reorder notes ${silenced.rejections} times: I've stopped proposing them`,
       });
       continue;
     }

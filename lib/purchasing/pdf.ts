@@ -305,7 +305,7 @@ export async function renderPurchaseOrderPdf(
       cell(l.name, 0, 10, regular),
       cell(String(l.quantity), 1, 10, regular),
       cell(unitText(l), 2, 10, regular),
-      cell(p ? fmt(p.total, w.locale) : "—", 3, 10, regular),
+      cell(p ? fmt(p.total, w.locale) : "-", 3, 10, regular),
     );
     pen.y -= h + 5;
     ruleBelow();

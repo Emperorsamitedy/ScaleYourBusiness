@@ -27,6 +27,7 @@ import { Fold } from "../sheet/Fold";
 import { PageHead, SheetCard } from "../sheet/PageHead";
 import { moneyExact, num } from "../sheet/num";
 import { useTr } from "../sheet/useTr";
+import { TabPanel, Tabs } from "../ui/Tabs";
 import type { AppLocale } from "../../lib/i18n/locales";
 import { dayMonth, dayMonthYear } from "../../lib/i18n/format";
 import type { Tr } from "../../lib/i18n/tr";
@@ -97,7 +98,11 @@ type State =
       shown: number;
     });
 
-const PAGE = 50;
+// L6 (docs/DASHBOARD-OVERHAUL.md): less at once. Fifteen rows open the list,
+// where fifty made the page 4,700 px tall; each press adds thirty. Search and
+// the filters read every customer, never only the rows on screen.
+const FIRST = 15;
+const MORE = 30;
 
 /** The consent question the posture comes from, by its bank id. */
 const CONSENT_QUESTION = "6.4b";
@@ -155,12 +160,12 @@ function importNotice(j: Record<string, unknown>, tr: Tr, locale: AppLocale): st
 
 function spent(c: Contact, locale: AppLocale): string {
   return c.total_spent_minor === null || c.spent_currency === null
-    ? "—"
+    ? "-"
     : moneyExact(c.total_spent_minor, c.spent_currency, locale);
 }
 
 function lastOrder(iso: string | null, locale: AppLocale): string {
-  if (!iso) return "—";
+  if (!iso) return "-";
   const d = new Date(iso);
   const sameYear = d.getUTCFullYear() === new Date().getUTCFullYear();
   if (locale !== "en") {
@@ -175,10 +180,16 @@ function lastOrder(iso: string | null, locale: AppLocale): string {
   });
 }
 
+/** The screen's parts: the list and the open record, the segments, the import. */
+type CuTab = "list" | "segments" | "import";
+
 export function CustomersScreen() {
   const { tr, locale } = useTr("customers");
   const [state, setState] = useState<State>({ phase: "loading" });
   const recordRef = useRef<HTMLElement | null>(null);
+  // The screen's three parts. Null until a person picks one: it then opens on
+  // the list, or on the import when there is nobody to list yet.
+  const [picked, setTab] = useState<CuTab | null>(null);
 
   const load = useCallback(async () => {
     const res = await fetch("/api/crm");
@@ -198,7 +209,7 @@ export function CustomersScreen() {
       filter: cur.phase === "ready" ? cur.filter : "all",
       open: cur.phase === "ready" && j.contacts.some((c) => c.id === cur.open) ? cur.open : null,
       confirmErase: null,
-      shown: cur.phase === "ready" ? cur.shown : PAGE,
+      shown: cur.phase === "ready" ? cur.shown : FIRST,
     }));
   }, []);
 
@@ -269,10 +280,11 @@ export function CustomersScreen() {
 
   const who = (c: Contact) => c.name ?? maskEmail(c.email, tr);
 
+  const tab: CuTab = picked ?? (s.contacts.length === 0 ? "import" : "list");
   const stages = LIFECYCLE_ORDER.filter((l) => s.lifecycle[l] > 0);
   const pickStage = (key: string) => {
     const l = stages.find((x) => x === key);
-    if (l) setState({ ...s, filter: s.filter === l ? "all" : l, shown: PAGE });
+    if (l) setState({ ...s, filter: s.filter === l ? "all" : l, shown: FIRST });
   };
 
   return (
@@ -288,422 +300,441 @@ export function CustomersScreen() {
         </p>
       )}
 
-      <div className="cu-grid">
-        <section className="cs cu-list" aria-label={tr("list.label")}>
-          <div className="cu-find">
-            <label className="cs-label" htmlFor="cu-q">
-              {tr("list.find")}
-            </label>
-            <input
-              id="cu-q"
-              className="cu-search"
-              type="search"
-              placeholder={tr("list.search")}
-              autoComplete="off"
-              value={s.query}
-              onChange={(e) => setState({ ...s, query: e.target.value, shown: PAGE })}
-            />
-            {stages.length > 0 && (
-              <SegBar
-                bare
-                segs={stages.map((l) => ({
-                  key: l,
-                  label: lifecycleWord(l, tr),
-                  value: s.lifecycle[l],
-                  display: num(s.lifecycle[l], 0, locale),
-                  tone: LIFECYCLE_TONE[l],
-                }))}
-                label={customersHeadline(s.contacts.length, s.lifecycle.lapsed, tr)}
-                active={s.filter === "all" ? null : s.filter}
-                onPick={pickStage}
+      <Tabs
+        id="cu"
+        label={tr("tabs")}
+        tabs={[
+          { key: "list", label: tr("list.label"), count: s.contacts.length },
+          { key: "segments", label: tr("segments.label") },
+          { key: "import", label: tr("import.label") },
+        ]}
+        value={tab}
+        onChange={setTab}
+      />
+
+      {/* Each part stays in the page while another is open: a file half pasted is not lost. */}
+      <TabPanel id="cu" tab="list" open={tab === "list"} keep>
+        <div className="cu-grid">
+          <section className="cs cu-list" aria-label={tr("list.label")}>
+            <div className="cu-find">
+              <label className="cs-label" htmlFor="cu-q">
+                {tr("list.find")}
+              </label>
+              <input
+                id="cu-q"
+                className="cu-search"
+                type="search"
+                placeholder={tr("list.search")}
+                autoComplete="off"
+                value={s.query}
+                onChange={(e) => setState({ ...s, query: e.target.value, shown: FIRST })}
               />
-            )}
-            <div className="cu-filters" role="group" aria-label={tr("list.filters")}>
-              <button
-                type="button"
-                className={`cu-chip${s.filter === "all" ? " on" : ""}`}
-                aria-pressed={s.filter === "all"}
-                onClick={() => setState({ ...s, filter: "all", shown: PAGE })}
-              >
-                {tr("list.all", { count: num(s.contacts.length, 0, locale) })}
-              </button>
-              {LIFECYCLE_ORDER.filter((l) => s.lifecycle[l] > 0).map((l) => (
+              {stages.length > 0 && (
+                <SegBar
+                  bare
+                  segs={stages.map((l) => ({
+                    key: l,
+                    label: lifecycleWord(l, tr),
+                    value: s.lifecycle[l],
+                    display: num(s.lifecycle[l], 0, locale),
+                    tone: LIFECYCLE_TONE[l],
+                  }))}
+                  label={customersHeadline(s.contacts.length, s.lifecycle.lapsed, tr)}
+                  active={s.filter === "all" ? null : s.filter}
+                  onPick={pickStage}
+                />
+              )}
+              <div className="cu-filters" role="group" aria-label={tr("list.filters")}>
                 <button
-                  key={l}
                   type="button"
-                  className={`cu-chip${s.filter === l ? " on" : ""}`}
-                  aria-pressed={s.filter === l}
-                  onClick={() => setState({ ...s, filter: l, shown: PAGE })}
+                  className={`cu-chip${s.filter === "all" ? " on" : ""}`}
+                  aria-pressed={s.filter === "all"}
+                  onClick={() => setState({ ...s, filter: "all", shown: FIRST })}
                 >
-                  {lifecycleWord(l, tr)} · {num(s.lifecycle[l], 0, locale)}
+                  {tr("list.all", { count: num(s.contacts.length, 0, locale) })}
                 </button>
-              ))}
-            </div>
-          </div>
-
-          <div className="cu-table-wrap">
-            {visible.length === 0 ? (
-              <p className="cu-empty">
-                {s.contacts.length === 0 ? tr("list.empty") : tr("list.noMatch")}
-              </p>
-            ) : (
-              <table className="rt cu-table">
-                <thead>
-                  <tr>
-                    <th scope="col">{tr("list.customer")}</th>
-                    <th scope="col" className="num">
-                      {tr("list.purchases")}
-                    </th>
-                    <th scope="col" className="num">
-                      {tr("list.spent")}
-                    </th>
-                    <th scope="col" className="num">
-                      {tr("list.lastPurchase")}
-                    </th>
-                    <th scope="col">{tr("list.pattern")}</th>
-                    <th scope="col">
-                      <span className="sr-only">{tr("list.open")}</span>
-                    </th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {visible.map((c) => {
-                    const w = LIFECYCLE_WORD[c.lifecycle];
-                    return (
-                      <tr key={c.id} className={open?.id === c.id ? "on" : undefined}>
-                        <th scope="row">
-                          <span className="cu-name">{who(c)}</span>
-                          {c.name && <span className="src cu-sub">{maskEmail(c.email, tr)}</span>}
-                        </th>
-                        <td className="num" data-label={tr("list.purchases")}>
-                          {c.orders_count === null ? "—" : count(c.orders_count, locale)}
-                        </td>
-                        <td className="num" data-label={tr("list.spent")}>
-                          {spent(c, locale)}
-                        </td>
-                        <td className="num" data-label={tr("list.lastPurchase")}>
-                          {lastOrder(c.last_purchase_at, locale)}
-                        </td>
-                        <td data-label={tr("list.pattern")}>
-                          <span className={`word boxed ${w.tone}`}>
-                            {lifecycleWord(c.lifecycle, tr)}
-                          </span>
-                        </td>
-                        <td className="cu-open">
-                          <button
-                            type="button"
-                            className="prop-btn cu-open-btn"
-                            aria-pressed={open?.id === c.id}
-                            aria-label={tr("list.openWho", { name: who(c) })}
-                            onClick={() => pick(c.id)}
-                          >
-                            {tr("list.open")}
-                          </button>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            )}
-          </div>
-          <footer className="cs-foot cu-foot">
-            <span>
-              {list.length !== s.contacts.length
-                ? tr("list.showingFiltered", {
-                    shown: num(visible.length, 0, locale),
-                    total: num(list.length, 0, locale),
-                    all: num(s.contacts.length, 0, locale),
-                  })
-                : tr("list.showing", {
-                    shown: num(visible.length, 0, locale),
-                    total: num(list.length, 0, locale),
-                  })}
-            </span>
-            {list.length > visible.length && (
-              <button
-                type="button"
-                className="prop-btn quiet"
-                onClick={() => setState({ ...s, shown: s.shown + PAGE })}
-              >
-                {tr("list.more", {
-                  count: num(Math.min(PAGE, list.length - visible.length), 0, locale),
-                })}
-              </button>
-            )}
-          </footer>
-        </section>
-
-        {open && (
-          <section
-            className="cs cu-record"
-            ref={recordRef}
-            aria-labelledby="cu-record-name"
-            aria-live="polite"
-          >
-            <header className="cu-rec-head">
-              <p className="cs-label">{tr("record.label")}</p>
-              <h2 className="cs-title" id="cu-record-name">
-                {open.name ?? tr("record.noName")}
-              </h2>
-              <p className="cu-rec-sub">
-                {maskEmail(open.email, tr)} · {open.country ?? tr("record.countryUnknown")}
-              </p>
-            </header>
-            <dl className="cu-stats">
-              <div>
-                <dt>{tr("record.purchases")}</dt>
-                <dd>{open.orders_count === null ? "—" : count(open.orders_count, locale)}</dd>
-              </div>
-              <div>
-                <dt>{tr("record.spent")}</dt>
-                <dd>{spent(open, locale)}</dd>
-              </div>
-              <div>
-                <dt>{tr("record.last")}</dt>
-                <dd>{lastOrder(open.last_purchase_at, locale)}</dd>
-              </div>
-            </dl>
-            <div className="cu-rec-block">
-              <p className="cs-label">{tr("record.onRecord")}</p>
-              <ul className="cu-facts">
-                <li>{tr("record.consent", { consent: tr(`consent.${open.consent_status}`) })}</li>
-                <li>{tr("record.pattern", { pattern: lifecycleWord(open.lifecycle, tr) })}</li>
-                {segmentOf(open) && (
-                  <li>
-                    {tr("record.segment", {
-                      segment: segmentOf(open)?.label ?? "",
-                      size: count(segmentOf(open)?.size ?? 0, locale),
-                    })}
-                  </li>
-                )}
-              </ul>
-              <p className="cu-rec-note">{tr("record.note")}</p>
-            </div>
-            <div className="cu-rec-block cu-erase">
-              <p className="cu-erase-title">{tr("erase.title")}</p>
-              <Fold>
-                <p>{tr("erase.copy")}</p>
-              </Fold>
-              {s.confirmErase === open.id ? (
-                <div className="cu-erase-confirm">
-                  <p className="cu-erase-copy">
-                    <span className="word alarm">{tr("erase.irreversible")}</span>{" "}
-                    {tr("erase.cannotUndo")}
-                  </p>
+                {LIFECYCLE_ORDER.filter((l) => s.lifecycle[l] > 0).map((l) => (
                   <button
+                    key={l}
                     type="button"
-                    className="next cu-wide"
-                    disabled={s.busy}
-                    onClick={() =>
-                      void act({ action: "erase", contact_id: open.id }, () => tr("erase.done"))
-                    }
+                    className={`cu-chip${s.filter === l ? " on" : ""}`}
+                    aria-pressed={s.filter === l}
+                    onClick={() => setState({ ...s, filter: l, shown: FIRST })}
                   >
-                    {tr("erase.confirm")} <span aria-hidden="true">→</span>
+                    {lifecycleWord(l, tr)} · {num(s.lifecycle[l], 0, locale)}
                   </button>
-                  <button
-                    type="button"
-                    className="prop-btn quiet"
-                    onClick={() => setState({ ...s, confirmErase: null })}
-                  >
-                    {tr("erase.keep")}
-                  </button>
-                </div>
+                ))}
+              </div>
+            </div>
+
+            <div className="cu-table-wrap">
+              {visible.length === 0 ? (
+                <p className="cu-empty">
+                  {s.contacts.length === 0 ? tr("list.empty") : tr("list.noMatch")}
+                </p>
               ) : (
-                <button
-                  type="button"
-                  className="prop-btn cu-wide"
-                  disabled={s.busy}
-                  onClick={() => setState({ ...s, confirmErase: open.id })}
-                >
-                  {open.name ? tr("erase.button", { name: open.name }) : tr("erase.buttonUnnamed")}{" "}
-                  <span aria-hidden="true">→</span>
-                </button>
+                <table className="rt cu-table">
+                  <thead>
+                    <tr>
+                      <th scope="col">{tr("list.customer")}</th>
+                      <th scope="col" className="num">
+                        {tr("list.purchases")}
+                      </th>
+                      <th scope="col" className="num">
+                        {tr("list.spent")}
+                      </th>
+                      <th scope="col" className="num">
+                        {tr("list.lastPurchase")}
+                      </th>
+                      <th scope="col">{tr("list.pattern")}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {visible.map((c) => {
+                      const w = LIFECYCLE_WORD[c.lifecycle];
+                      return (
+                        <tr key={c.id} className={open?.id === c.id ? "on" : undefined}>
+                          <th scope="row">
+                            {/* The name is the row's control, and it covers the whole row. */}
+                            <button
+                              type="button"
+                              className="cu-pick"
+                              aria-pressed={open?.id === c.id}
+                              aria-label={tr("list.openWho", { name: who(c) })}
+                              onClick={() => pick(c.id)}
+                            >
+                              <span className="cu-name">{who(c)}</span>
+                            </button>
+                            {c.name && <span className="src cu-sub">{maskEmail(c.email, tr)}</span>}
+                          </th>
+                          <td className="num" data-label={tr("list.purchases")}>
+                            {c.orders_count === null ? "-" : count(c.orders_count, locale)}
+                          </td>
+                          <td className="num" data-label={tr("list.spent")}>
+                            {spent(c, locale)}
+                          </td>
+                          <td className="num" data-label={tr("list.lastPurchase")}>
+                            {lastOrder(c.last_purchase_at, locale)}
+                          </td>
+                          <td data-label={tr("list.pattern")}>
+                            <span className={`word boxed ${w.tone}`}>
+                              {lifecycleWord(c.lifecycle, tr)}
+                            </span>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
               )}
             </div>
+            <footer className="cs-foot cu-foot">
+              <span>
+                {list.length !== s.contacts.length
+                  ? tr("list.showingFiltered", {
+                      shown: num(visible.length, 0, locale),
+                      total: num(list.length, 0, locale),
+                      all: num(s.contacts.length, 0, locale),
+                    })
+                  : tr("list.showing", {
+                      shown: num(visible.length, 0, locale),
+                      total: num(list.length, 0, locale),
+                    })}
+              </span>
+              {list.length > visible.length && (
+                <button
+                  type="button"
+                  className="prop-btn quiet"
+                  onClick={() => setState({ ...s, shown: s.shown + MORE })}
+                >
+                  {tr("list.more", {
+                    count: num(Math.min(MORE, list.length - visible.length), 0, locale),
+                  })}
+                </button>
+              )}
+            </footer>
           </section>
-        )}
-      </div>
 
-      <div className="cu-lower">
-        <SheetCard label={tr("segments.label")} title={tr("segments.title")}>
-          <p className="cu-posture">{tr(`posture.${s.posture}`, { question: CONSENT_QUESTION })}</p>
-          <table className="rt cu-seg">
-            <thead>
-              <tr>
-                <th scope="col">{tr("segments.segment")}</th>
-                <th scope="col" className="num">
-                  {tr("segments.inIt")}
-                </th>
-                <th scope="col" className="num">
-                  {tr("segments.emailable")}
-                </th>
-                <th scope="col">
-                  <span className="sr-only">{tr("segments.working")}</span>
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {s.segments.map((seg) => (
-                <tr key={seg.key}>
-                  <th scope="row">
-                    {seg.label}
-                    {s.showEvidence === seg.key && (
-                      <ul className="cu-evidence">
-                        {seg.evidence.map((e) => (
-                          <li key={e}>{e}</li>
-                        ))}
-                      </ul>
-                    )}
-                  </th>
-                  <td className="num" data-label={tr("segments.inIt")}>
-                    {num(seg.size, 0, locale)}
-                  </td>
-                  <td className="num" data-label={tr("segments.emailable")}>
-                    {num(seg.emailable, 0, locale)}
-                  </td>
-                  <td className="cu-open">
+          {open && (
+            <section
+              className="cs cu-record"
+              ref={recordRef}
+              aria-labelledby="cu-record-name"
+              aria-live="polite"
+            >
+              <header className="cu-rec-head">
+                <p className="cs-label">{tr("record.label")}</p>
+                <h2 className="cs-title" id="cu-record-name">
+                  {open.name ?? tr("record.noName")}
+                </h2>
+                <p className="cu-rec-sub">
+                  {maskEmail(open.email, tr)} · {open.country ?? tr("record.countryUnknown")}
+                </p>
+              </header>
+              <dl className="cu-stats">
+                <div>
+                  <dt>{tr("record.purchases")}</dt>
+                  <dd>{open.orders_count === null ? "-" : count(open.orders_count, locale)}</dd>
+                </div>
+                <div>
+                  <dt>{tr("record.spent")}</dt>
+                  <dd>{spent(open, locale)}</dd>
+                </div>
+                <div>
+                  <dt>{tr("record.last")}</dt>
+                  <dd>{lastOrder(open.last_purchase_at, locale)}</dd>
+                </div>
+              </dl>
+              <div className="cu-rec-block">
+                <p className="cs-label">{tr("record.onRecord")}</p>
+                <ul className="cu-facts">
+                  <li>{tr("record.consent", { consent: tr(`consent.${open.consent_status}`) })}</li>
+                  <li>{tr("record.pattern", { pattern: lifecycleWord(open.lifecycle, tr) })}</li>
+                  {segmentOf(open) && (
+                    <li>
+                      {tr("record.segment", {
+                        segment: segmentOf(open)?.label ?? "",
+                        size: count(segmentOf(open)?.size ?? 0, locale),
+                      })}
+                    </li>
+                  )}
+                </ul>
+                <p className="cu-rec-note">{tr("record.note")}</p>
+              </div>
+              <div className="cu-rec-block cu-erase">
+                <p className="cu-erase-title">{tr("erase.title")}</p>
+                <Fold>
+                  <p>{tr("erase.copy")}</p>
+                </Fold>
+                {s.confirmErase === open.id ? (
+                  <div className="cu-erase-confirm">
+                    <p className="cu-erase-copy">
+                      <span className="word alarm">{tr("erase.irreversible")}</span>{" "}
+                      {tr("erase.cannotUndo")}
+                    </p>
+                    <button
+                      type="button"
+                      className="next cu-wide"
+                      disabled={s.busy}
+                      onClick={() =>
+                        void act({ action: "erase", contact_id: open.id }, () => tr("erase.done"))
+                      }
+                    >
+                      {tr("erase.confirm")} <span aria-hidden="true">→</span>
+                    </button>
                     <button
                       type="button"
                       className="prop-btn quiet"
-                      aria-expanded={s.showEvidence === seg.key}
-                      onClick={() =>
-                        setState({
-                          ...s,
-                          showEvidence: s.showEvidence === seg.key ? null : seg.key,
-                        })
-                      }
+                      onClick={() => setState({ ...s, confirmErase: null })}
                     >
-                      {s.showEvidence === seg.key ? tr("segments.hide") : tr("segments.why")}
+                      {tr("erase.keep")}
                     </button>
-                  </td>
+                  </div>
+                ) : (
+                  <button
+                    type="button"
+                    className="prop-btn cu-wide"
+                    disabled={s.busy}
+                    onClick={() => setState({ ...s, confirmErase: open.id })}
+                  >
+                    {open.name
+                      ? tr("erase.button", { name: open.name })
+                      : tr("erase.buttonUnnamed")}{" "}
+                    <span aria-hidden="true">→</span>
+                  </button>
+                )}
+              </div>
+            </section>
+          )}
+        </div>
+      </TabPanel>
+
+      <TabPanel id="cu" tab="segments" open={tab === "segments"} keep>
+        <div className="cu-lower">
+          <SheetCard label={tr("segments.label")} title={tr("segments.title")}>
+            <p className="cu-posture">
+              {tr(`posture.${s.posture}`, { question: CONSENT_QUESTION })}
+            </p>
+            <table className="rt cu-seg">
+              <thead>
+                <tr>
+                  <th scope="col">{tr("segments.segment")}</th>
+                  <th scope="col" className="num">
+                    {tr("segments.inIt")}
+                  </th>
+                  <th scope="col" className="num">
+                    {tr("segments.emailable")}
+                  </th>
+                  <th scope="col">
+                    <span className="sr-only">{tr("segments.working")}</span>
+                  </th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-          <div className="cu-actions">
-            <button
-              type="button"
-              className="prop-btn"
-              disabled={s.busy}
-              onClick={() =>
-                void act({ action: "propose_segments" }, (j) => {
-                  const created = Number(j.created ?? 0);
-                  const skipped =
-                    (j.skipped as
-                      { segment: string; reason: string; line?: string }[] | undefined) ?? [];
-                  // A skipped segment's line comes from the server, in the reader's language (L-4c).
-                  return created > 0
-                    ? tr("segments.proposed", { count: created })
-                    : skipped.map((x) => x.line ?? `${x.segment}: ${x.reason}`).join(" · ") ||
-                        tr("segments.nothing");
-                })
-              }
-            >
-              {tr("segments.propose")}
-            </button>
-            <Link className="prop-btn quiet" href="/proposals">
-              {tr("segments.queue")}
-            </Link>
-          </div>
-        </SheetCard>
-
-        <SheetCard label={tr("import.label")} title={tr("import.title")}>
-          <Fold className="cu-fold">
-            <p>{tr("import.prose")}</p>
-          </Fold>
-          <form
-            className="cu-form"
-            onSubmit={(e) => {
-              e.preventDefault();
-              void act(
-                {
-                  action: "import",
-                  csv: s.csv,
-                  status: s.status,
-                  statement: s.statement,
-                  currency: s.currency,
-                },
-                (j) => importNotice(j, tr, locale),
-              );
-            }}
-          >
-            <label className="cs-label" htmlFor="cu-csv">
-              {tr("import.csv")}
-            </label>
-            <textarea
-              id="cu-csv"
-              className="cu-textarea"
-              rows={6}
-              placeholder={CSV_EXAMPLE}
-              value={s.csv}
-              onChange={(e) => setState({ ...s, csv: e.target.value })}
-            />
-            <label className="cs-label" htmlFor="cu-status">
-              {tr("import.status")}
-            </label>
-            <select
-              id="cu-status"
-              className="cu-input"
-              value={s.status}
-              onChange={(e) =>
-                setState({ ...s, status: e.target.value as Contact["consent_status"] })
-              }
-            >
-              <option value="explicit_consent">{tr("import.option.explicit_consent")}</option>
-              <option value="implied_consent">{tr("import.option.implied_consent")}</option>
-              <option value="unsure">{tr("import.option.unsure")}</option>
-              <option value="no_consent">{tr("import.option.no_consent")}</option>
-            </select>
-            <label className="cs-label" htmlFor="cu-statement">
-              {tr("import.statement")}
-            </label>
-            <input
-              id="cu-statement"
-              className="cu-input"
-              placeholder={tr("import.statementPlaceholder", { year: EXAMPLE_YEAR })}
-              value={s.statement}
-              onChange={(e) => setState({ ...s, statement: e.target.value })}
-            />
-            <label className="cs-label" htmlFor="cu-currency">
-              {tr("import.currency")}
-            </label>
-            <input
-              id="cu-currency"
-              className="cu-input"
-              placeholder={CURRENCY_EXAMPLE}
-              value={s.currency}
-              onChange={(e) => setState({ ...s, currency: e.target.value })}
-            />
-            <div>
+              </thead>
+              <tbody>
+                {s.segments.map((seg) => (
+                  <tr key={seg.key}>
+                    <th scope="row">
+                      {seg.label}
+                      {s.showEvidence === seg.key && (
+                        <ul className="cu-evidence">
+                          {seg.evidence.map((e) => (
+                            <li key={e}>{e}</li>
+                          ))}
+                        </ul>
+                      )}
+                    </th>
+                    <td className="num" data-label={tr("segments.inIt")}>
+                      {num(seg.size, 0, locale)}
+                    </td>
+                    <td className="num" data-label={tr("segments.emailable")}>
+                      {num(seg.emailable, 0, locale)}
+                    </td>
+                    <td className="cu-open">
+                      <button
+                        type="button"
+                        className="prop-btn quiet"
+                        aria-expanded={s.showEvidence === seg.key}
+                        onClick={() =>
+                          setState({
+                            ...s,
+                            showEvidence: s.showEvidence === seg.key ? null : seg.key,
+                          })
+                        }
+                      >
+                        {s.showEvidence === seg.key ? tr("segments.hide") : tr("segments.why")}
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            <div className="cu-actions">
               <button
-                className="next"
-                disabled={s.busy || s.csv.trim() === "" || s.statement.trim() === ""}
+                type="button"
+                className="prop-btn"
+                disabled={s.busy}
+                onClick={() =>
+                  void act({ action: "propose_segments" }, (j) => {
+                    const created = Number(j.created ?? 0);
+                    const skipped =
+                      (j.skipped as
+                        { segment: string; reason: string; line?: string }[] | undefined) ?? [];
+                    // A skipped segment's line comes from the server, in the reader's language (L-4c).
+                    return created > 0
+                      ? tr("segments.proposed", { count: created })
+                      : skipped.map((x) => x.line ?? `${x.segment}: ${x.reason}`).join(" · ") ||
+                          tr("segments.nothing");
+                  })
+                }
               >
-                {tr("import.submit")} <span aria-hidden="true">→</span>
+                {tr("segments.propose")}
               </button>
+              <Link className="prop-btn quiet" href="/proposals">
+                {tr("segments.queue")}
+              </Link>
             </div>
-          </form>
-        </SheetCard>
-      </div>
+          </SheetCard>
+          {(s.campaigns ?? []).length > 0 && (
+            <SheetCard
+              label={tr("campaigns.label")}
+              title={tr("campaigns.title")}
+              className="cu-campaigns"
+            >
+              {(s.campaigns ?? []).map((c) => (
+                <CampaignCard
+                  key={c.proposal_id}
+                  c={c}
+                  busy={s.busy}
+                  act={act}
+                  businessName={s.business_name ?? null}
+                />
+              ))}
+            </SheetCard>
+          )}
+        </div>
+      </TabPanel>
 
-      {(s.campaigns ?? []).length > 0 && (
-        <SheetCard
-          label={tr("campaigns.label")}
-          title={tr("campaigns.title")}
-          className="cu-campaigns"
-        >
-          {(s.campaigns ?? []).map((c) => (
-            <CampaignCard
-              key={c.proposal_id}
-              c={c}
-              busy={s.busy}
-              act={act}
-              businessName={s.business_name ?? null}
-            />
-          ))}
-        </SheetCard>
-      )}
+      <TabPanel id="cu" tab="import" open={tab === "import"} keep>
+        <div className="cu-import">
+          <SheetCard label={tr("import.label")} title={tr("import.title")}>
+            <Fold className="cu-fold">
+              <p>{tr("import.prose")}</p>
+            </Fold>
+            <form
+              className="cu-form"
+              onSubmit={(e) => {
+                e.preventDefault();
+                void act(
+                  {
+                    action: "import",
+                    csv: s.csv,
+                    status: s.status,
+                    statement: s.statement,
+                    currency: s.currency,
+                  },
+                  (j) => importNotice(j, tr, locale),
+                );
+              }}
+            >
+              <label className="cs-label" htmlFor="cu-csv">
+                {tr("import.csv")}
+              </label>
+              <textarea
+                id="cu-csv"
+                className="cu-textarea"
+                rows={6}
+                placeholder={CSV_EXAMPLE}
+                value={s.csv}
+                onChange={(e) => setState({ ...s, csv: e.target.value })}
+              />
+              <label className="cs-label" htmlFor="cu-status">
+                {tr("import.status")}
+              </label>
+              <select
+                id="cu-status"
+                className="cu-input"
+                value={s.status}
+                onChange={(e) =>
+                  setState({ ...s, status: e.target.value as Contact["consent_status"] })
+                }
+              >
+                <option value="explicit_consent">{tr("import.option.explicit_consent")}</option>
+                <option value="implied_consent">{tr("import.option.implied_consent")}</option>
+                <option value="unsure">{tr("import.option.unsure")}</option>
+                <option value="no_consent">{tr("import.option.no_consent")}</option>
+              </select>
+              <label className="cs-label" htmlFor="cu-statement">
+                {tr("import.statement")}
+              </label>
+              <input
+                id="cu-statement"
+                className="cu-input"
+                placeholder={tr("import.statementPlaceholder", { year: EXAMPLE_YEAR })}
+                value={s.statement}
+                onChange={(e) => setState({ ...s, statement: e.target.value })}
+              />
+              <label className="cs-label" htmlFor="cu-currency">
+                {tr("import.currency")}
+              </label>
+              <input
+                id="cu-currency"
+                className="cu-input"
+                placeholder={CURRENCY_EXAMPLE}
+                value={s.currency}
+                onChange={(e) => setState({ ...s, currency: e.target.value })}
+              />
+              <div>
+                <button
+                  className="next"
+                  disabled={s.busy || s.csv.trim() === "" || s.statement.trim() === ""}
+                >
+                  {tr("import.submit")} <span aria-hidden="true">→</span>
+                </button>
+              </div>
+            </form>
+          </SheetCard>
+        </div>
+      </TabPanel>
 
       <Fold className="cu-fine on-desk">
         <p>{tr("fine")}</p>

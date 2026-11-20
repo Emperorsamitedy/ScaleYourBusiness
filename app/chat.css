@@ -42,10 +42,10 @@
   background: none;
   color: var(--sheet-ink);
   font-family: var(--f-mono);
-  font-size: 12.5px;
+  font-size: calc(12.5px + var(--caps-bump, 0px));
   font-weight: 500;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  letter-spacing: var(--caps-ls, 0.08em);
+  text-transform: var(--caps, uppercase);
   cursor: pointer;
 }
 .ak-new:hover {
@@ -59,6 +59,10 @@
   overflow-y: auto;
   padding: 18px 20px 8px;
 }
+/* No turns yet: the thread takes no room between the head and the composer. */
+.ak-thread:has(> :only-child) {
+  padding: 0;
+}
 .ak-turn {
   display: grid;
   grid-template-columns: 140px minmax(0, 1fr);
@@ -69,9 +73,9 @@
   margin: 0;
   padding-top: 6px;
   font-family: var(--f-mono);
-  font-size: 12px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+  font-size: calc(12px + var(--caps-bump, 0px));
+  letter-spacing: var(--caps-ls, 0.1em);
+  text-transform: var(--caps, uppercase);
   color: var(--sheet-ink-2);
 }
 .ak-at {
@@ -130,10 +134,10 @@
 }
 .ak-turn .ak-text .ak-change .ak-change-k {
   font-family: var(--f-mono);
-  font-size: var(--t-mono-xs);
+  font-size: calc(var(--t-mono-xs) + var(--caps-bump, 0px));
   font-weight: 500;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  letter-spacing: var(--caps-ls, 0.06em);
+  text-transform: var(--caps, uppercase);
   color: var(--sheet-ink-2);
 }
 .ak-turn .ak-text .ak-change .ak-change-what {
@@ -153,9 +157,9 @@
 }
 .ak-change-vals dt {
   font-family: var(--f-mono);
-  font-size: var(--t-mono-xs);
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  font-size: calc(var(--t-mono-xs) + var(--caps-bump, 0px));
+  letter-spacing: var(--caps-ls, 0.06em);
+  text-transform: var(--caps, uppercase);
   color: var(--sheet-ink-2);
 }
 .ak-change-vals dd {
@@ -200,14 +204,16 @@
   display: block;
   margin-bottom: 10px;
   font-family: var(--f-mono);
-  font-size: 11.5px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
+  font-size: calc(11.5px + var(--caps-bump, 0px));
+  letter-spacing: var(--caps-ls, 0.12em);
+  text-transform: var(--caps, uppercase);
   color: var(--sheet-ink-2);
 }
 .ak-row {
   display: flex;
-  gap: 12px;
+  flex-wrap: wrap;
+  /* the microphone's line wraps onto a row of its own (app/voice.css) */
+  gap: 0 12px;
   align-items: stretch;
 }
 .ak-input {
@@ -222,6 +228,7 @@
   font-size: 15px;
   line-height: 1.45;
   resize: vertical;
+  border-radius: var(--r-s, 0);
 }
 .ak-input::placeholder {
   color: var(--sheet-ink-2);
@@ -293,10 +300,16 @@
   .ak-composer {
     padding: 15px 14px 14px;
   }
-  .ak-row {
-    flex-direction: column;
+  /* a phone: the box on a row of its own, then the microphone and Ask */
+  .ak-row .ak-input {
+    flex: 1 0 100%;
+  }
+  .ak-row .vx-icon-mic,
+  .ak-row .ak-ask {
+    margin-top: 10px;
   }
   .ak-ask {
+    flex: 1;
     align-self: stretch;
   }
   .ak-side-body {
@@ -323,4 +336,132 @@
 }
 .ak-screen a:not([class]):hover {
   text-decoration-thickness: 2px;
+}
+
+/* Lex, named (2026-11-17): the mark on a small ink tile before the name,
+   wherever Lex speaks. Cobalt only while an answer is being written. */
+.ak-lex {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+.ak-lex.live {
+  color: var(--live);
+}
+.ak-queued-link {
+  margin: 10px 0 0;
+  font-size: 14px;
+}
+
+/* Lex's sheet (components/nav/LexPanel.tsx): the conversation on any
+   screen. The thread fills the sheet's body; the composer is its foot. */
+.lx-thread .ak-turn {
+  grid-template-columns: minmax(0, 1fr);
+  row-gap: 6px;
+}
+.lx-thread .ak-who {
+  padding-top: 0;
+}
+.lx-thread .ak-at {
+  display: inline;
+  margin-left: 8px;
+}
+.lx-note {
+  margin: 0 0 16px;
+  max-width: var(--measure);
+  color: var(--sheet-ink-2);
+}
+.lx-full {
+  margin: 4px 0 0;
+  font-size: 14px;
+}
+.ak-composer.compact {
+  padding: 0;
+  border-top: 0;
+}
+/* The conversation page's own box: its label is only spoken (the sheet's title
+   says it), and it keeps the page's padding and the rule above it. */
+.ak-screen .ak-sheet > .ak-composer.compact {
+  padding: 15px 20px 17px;
+  border-top: 3px double var(--sheet-ink);
+}
+@media (max-width: 719px) {
+  .ak-screen .ak-sheet > .ak-composer.compact {
+    padding: 15px 14px 14px;
+  }
+}
+/* A request that became a proposal, answered under the reply (InPlaceDecision.tsx). */
+.ak-decide {
+  margin-top: 14px;
+}
+.ak-decide .hd {
+  margin-top: 10px;
+  padding: 14px 16px 15px;
+  border: var(--line);
+  background: var(--inset);
+  border-radius: var(--r-ctl, 0);
+}
+
+/* The empty thread (2026-11-17): one line saying what Lex answers from,
+   and three chips that ask a first question. Small text, no paragraph. */
+.ak-start {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+.ak-descriptor {
+  margin: 0;
+  max-width: var(--measure);
+  font-size: 14px;
+  color: var(--sheet-ink-2);
+}
+.ak-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.ak-chip {
+  min-height: 40px;
+  padding: 0 12px;
+  border: 1px solid var(--rule);
+  background: var(--paper);
+  color: var(--sheet-ink);
+  font: inherit;
+  font-size: 14px;
+  text-align: left;
+  cursor: pointer;
+  transition:
+    background-color var(--d-press) linear,
+    border-color var(--d-press) linear;
+  border-radius: var(--r-pill, 0);
+}
+.ak-chip:hover:not(:disabled) {
+  border-color: var(--sheet-ink);
+  background: var(--inset);
+}
+.ak-chip:disabled {
+  border-style: dashed;
+  color: var(--sheet-ink-2);
+  cursor: not-allowed;
+}
+
+/* Touch targets on a phone (docs/DASHBOARD-OVERHAUL.md G2): the sheet's link to the full conversation. */
+@media (max-width: 759px) {
+  .lx-full a {
+    display: inline-flex;
+    align-items: center;
+    min-height: 40px;
+  }
+}
+
+/* Sentence case: a label the classic look set in capitals starts with one
+   (the owner app's type, app/sheet.css). In the classic look it follows the label. */
+:is(
+  .ak-new,
+  .ak-who,
+  .ak-turn .ak-text .ak-change .ak-change-k,
+  .ak-change-vals dt,
+  .ak-label
+)::first-letter {
+  text-transform: var(--caps-first, inherit);
 }

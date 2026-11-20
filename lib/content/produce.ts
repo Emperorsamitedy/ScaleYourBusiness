@@ -59,7 +59,7 @@ export async function produceFromProposal(
   }
   if (proposal.status !== "approved") {
     throw new ContentError(
-      `only an approved proposal produces content — this one is ${proposal.status}`,
+      `only an approved proposal produces content: this one is ${proposal.status}`,
       409,
     );
   }
@@ -82,7 +82,7 @@ export async function produceFromProposal(
   }
   if (isPublishProposal(proposal.action)) {
     throw new ContentError(
-      "this is a publish proposal for one finished item — it publishes, it doesn't produce",
+      "this is a publish proposal for one finished item: it publishes, it doesn't produce",
       422,
     );
   }
@@ -109,7 +109,7 @@ export async function produceFromProposal(
         kind: "shot_list",
         channel_label: item.channel_label,
         scheduled_for: item.date,
-        title: `Film for ${item.channel_label} — ${item.focus}`,
+        title: `Film for ${item.channel_label}: ${item.focus}`,
         body: withDisclosure(
           "shot_list",
           `${item.brief}\n\nFilm on a phone; the cutting room trims, captions and crops it for ${item.channel_label}.`,
@@ -135,7 +135,7 @@ export async function produceFromProposal(
       kind,
       channel_label: item.channel_label,
       scheduled_for: item.date,
-      title: `${item.focus} — ${item.channel_label}, ${item.date}`,
+      title: `${item.focus} · ${item.channel_label}, ${item.date}`,
       body: draft.body,
       disclosure: kind === "email" ? "Written with AI assistance." : "Written with AI assistance.",
       provenance: { ...draft.provenance, item, evidence: item.evidence },
@@ -144,7 +144,8 @@ export async function produceFromProposal(
 
   if (action.detail?.shots && action.detail.shots.length > 0) {
     const offerName =
-      action.summary?.replace(/^A shot list for /, "").split(" — ")[0] ?? "the offer";
+      action.summary?.replace(/^A shot list for /, "").split(/ — |: (?=\d+ shots)/)[0] ??
+      "the offer";
     rows.push({
       profile_id: proposal.profile_id,
       proposal_id: proposal.id,
@@ -152,7 +153,7 @@ export async function produceFromProposal(
       kind: "shot_list",
       channel_label: action.detail.channel_label ?? "video",
       scheduled_for: null,
-      title: `Shot list — ${offerName}`,
+      title: `Shot list: ${offerName}`,
       body: withDisclosure(
         "shot_list",
         renderShotList(action.detail.shots, offerName) +

@@ -178,7 +178,7 @@ describe("sourceText and valueView", () => {
     });
     expect(valueView(fact("a.b", { value: "Hungary" })).figure).toBe(false);
     expect(valueView(fact("a.b", { value: null, status: "unknown" }))).toMatchObject({
-      text: "you didn't know — recorded",
+      text: "you didn't know, recorded",
       gap: true,
     });
     expect(valueView(fact("a.b", { value: null, status: "skipped" })).text).toBe("skipped for now");

@@ -107,7 +107,7 @@ const AD_RUN_SENDING =
   "Approved, it goes to Meta on the next scheduled run: a dry run before each part, then the campaign, ad set, creative and ad, one after another, all paused and re-checked against your limits. The emergency stop halts it between any two. Meta ad changes stay switched off until the two-week unattended test completes; until then it waits, approved.";
 
 const GO_LIVE_SENDING =
-  "Approved, it goes to Meta on the next scheduled run: the ad, then its ad set, then the campaign are switched on — each with a dry run first, re-checked against your ceiling. Meta ad changes stay switched off until the two-week unattended test completes; until then it waits, approved.";
+  "Approved, it goes to Meta on the next scheduled run: the ad, then its ad set, then the campaign are switched on, each with a dry run first, re-checked against your ceiling. Meta ad changes stay switched off until the two-week unattended test completes; until then it waits, approved.";
 
 /* ── the profile reads ── */
 
@@ -158,7 +158,7 @@ export async function adConsentCurrent(accountId: string): Promise<boolean> {
 
 /** The sentence when the ad connection's consent predates ad creation. */
 export const RECONSENT_FOR_ADS =
-  "your Meta ad connection was agreed before ScaleX could create ads — reconnect it on Connections to agree to the new wording";
+  "your Meta ad connection was agreed before ScaleX could create ads: reconnect it on Connections to agree to the new wording";
 
 /** The Page (and Instagram account) an ad runs as: the publish connection's ids, never its token. */
 export async function adIdentityFor(
@@ -168,7 +168,7 @@ export async function adIdentityFor(
   if (!row || row.status !== "connected") {
     return {
       refused:
-        "An ad runs as your Facebook Page, and ScaleX reads which Page from the Meta publishing connection — connect it on Connections. Nothing was created.",
+        "An ad runs as your Facebook Page, and ScaleX reads which Page from the Meta publishing connection: connect it on Connections. Nothing was created.",
     };
   }
   const cred = parseMetaExecutionCredential(executionSecret(row), "meta_publish");
@@ -180,7 +180,7 @@ export async function adIdentityFor(
 
 async function watchSkip(profileId: string, now: Date): Promise<string | null> {
   const care = await careState(profileId);
-  if (!care) return "not in care yet — no mode decision";
+  if (!care) return "not in care yet: no mode decision";
   if (care.watch_ends_at && now.toISOString() < care.watch_ends_at) {
     return watchingUntil(care.watch_ends_at);
   }
@@ -234,7 +234,7 @@ export async function proposeAdRun(profileId: string, args: AdRunArgs): Promise<
   const silenced = (await suppressedKinds(profileId)).get(AD_RUN_KIND);
   if (silenced) {
     return {
-      skipped: `you've declined this kind of ad change ${silenced.rejections} times — I've stopped proposing it`,
+      skipped: `you've declined this kind of ad change ${silenced.rejections} times: I've stopped proposing it`,
     };
   }
 
@@ -333,7 +333,7 @@ export async function proposeAdRun(profileId: string, args: AdRunArgs): Promise<
     if (!legalName) {
       return {
         skipped:
-          "an ad shown in the EU names the business it is for — tell me the business's name first (question 1.1)",
+          "an ad shown in the EU names the business it is for: tell me the business's name first (question 1.1)",
       };
     }
     dsa = { beneficiary: legalName.slice(0, 200), payor: legalName.slice(0, 200) };
@@ -386,7 +386,7 @@ export async function proposeAdRun(profileId: string, args: AdRunArgs): Promise<
     originating_finding: ref,
     action: {
       kind: AD_RUN_KIND,
-      summary: `Run "${name}" as a Meta ad — ${fmt(daily)} a day for ${runDays} days, created paused`,
+      summary: `Run "${name}" as a Meta ad: ${fmt(daily)} a day for ${runDays} days, created paused`,
       detail: {
         change: "run_ad",
         item_id: item.id,
@@ -432,7 +432,7 @@ export async function proposeAdRun(profileId: string, args: AdRunArgs): Promise<
 
 /** A hard-limit parse is never made from inside the ads path: an unparsed limit leaves it to the owner's button. */
 const noModelInTheAdsPath: LimitLlm = async () => {
-  throw new Error("the hard limits need a fresh parse — propose going live from Content");
+  throw new Error("the hard limits need a fresh parse: propose going live from Content");
 };
 
 /**
@@ -481,7 +481,7 @@ export async function proposeGoLive(
     originating_finding: `ads:live:${build.id}`,
     action: {
       kind: AD_RUN_KIND,
-      summary: `Put "${ad.name}" live on Meta — ${fmt(ad.daily_budget_minor)} a day for ${ad.run_days} days`,
+      summary: `Put "${ad.name}" live on Meta: ${fmt(ad.daily_budget_minor)} a day for ${ad.run_days} days`,
       detail: {
         change: "go_live",
         build_id: build.id,
@@ -556,7 +556,7 @@ export async function reclaimStaleAdBuilds(now: Date = new Date()): Promise<numb
       status: "failed",
       held_for: "remaining",
       error:
-        "The ad's build stopped part-way. It carries on from where it stopped on the next run — nothing is created twice, and nothing is live.",
+        "The ad's build stopped part-way. It carries on from where it stopped on the next run: nothing is created twice, and nothing is live.",
       finished_at: now.toISOString(),
     })
     .where(

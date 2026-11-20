@@ -526,7 +526,7 @@ function VideoCard({
                     >
                       {busy === t.item_id
                         ? tr("video.proposing")
-                        : tr("video.propose", { cost: t.estimate ? cash(t.estimate) : "—" })}
+                        : tr("video.propose", { cost: t.estimate ? cash(t.estimate) : "-" })}
                     </button>
                   </div>
                 )}

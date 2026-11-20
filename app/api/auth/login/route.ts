@@ -26,7 +26,10 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   // set relies on, not a closed live hole.
   const origin = appOriginOf(request.url);
   if (!isSameOriginPost(request.headers, origin)) {
-    return NextResponse.json({ error: "ask for a sign-in link from our own page" }, { status: 403 });
+    return NextResponse.json(
+      { error: "ask for a sign-in link from our own page" },
+      { status: 403 },
+    );
   }
   try {
     const body = (await request.json()) as { email?: unknown; next?: unknown };
@@ -59,7 +62,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     const sent = await sendLoginEmail({ to: login.email, link, code: login.code, locale });
     if (sent.delivered_via === "failed") {
       return NextResponse.json(
-        { error: "I couldn't send the sign-in email just now — try again in a minute." },
+        { error: "I couldn't send the sign-in email just now. Try again in a minute." },
         { status: 503 },
       );
     }

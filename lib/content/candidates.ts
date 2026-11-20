@@ -120,11 +120,11 @@ export const COLLECT_LIMITS = {
 export const CANDIDATE_MAX_BYTES = 150 * 1024 * 1024;
 
 export const DIRECTION_REFUSED =
-  "An AI video's words come from your profile facts and the creative brief, not from typed directions — change those facts, or film it yourself";
+  "An AI video's words come from your profile facts and the creative brief, not from typed directions: change those facts, or film it yourself";
 export const NEEDS_BRIEF =
   "AI video is made from a creative brief's hook: make this shot list from a brief in the studio first";
 export const NEEDS_FACTS =
-  "ScaleX doesn't know yet what the business sells, so there is nothing true to film — answer that in the interview first";
+  "ScaleX doesn't know yet what the business sells, so there is nothing true to film: answer that in the interview first";
 
 /** sha256 of a set's exact prompts, the fixed instruction included — what the approval covers. */
 export function promptsHash(prompts: readonly string[]): string {
@@ -185,7 +185,7 @@ export async function proposeCandidates(args: {
     originating_finding: `generate:${item.id}`,
     action: {
       kind: GENERATION_KIND,
-      summary: `Generate ${n} AI video candidates (${seconds} seconds each) for "${item.title}" — about ${cost} in all; you pick one, because there's no footage for it`,
+      summary: `Generate ${n} AI video candidates (${seconds} seconds each) for "${item.title}": about ${cost} in all; you pick one, because there's no footage for it`,
       detail: {
         target_item_id: item.id,
         media: "video",
@@ -610,7 +610,7 @@ export async function generateCandidatesFromProposal(args: {
     throw new ContentError("the proposal doesn't say what to generate", 422);
   }
   if (d.prompt_sha256 !== promptsHash(prompts)) {
-    throw new ContentError("the prompts aren't the ones you approved — nothing was generated", 409);
+    throw new ContentError("the prompts aren't the ones you approved: nothing was generated", 409);
   }
   const seconds = GENERATED_CLIP_SECONDS;
   if (!setup.provider) {
@@ -1051,7 +1051,7 @@ export async function collectCandidates(
         ctx,
         c,
         canceled
-          ? `${ctx.provider.id} hadn't started this clip after ${HOURS} hours, so it was canceled — nothing was billed`
+          ? `${ctx.provider.id} hadn't started this clip after ${HOURS} hours, so it was canceled: nothing was billed`
           : `${ctx.provider.id} didn't finish this clip within ${HOURS} hours; it may still finish and be billed, so it is counted as spent`,
         charged + (canceled ? 0 : ctx.each.amount_minor),
       );
@@ -1300,7 +1300,7 @@ export async function pickCandidate(args: {
       .set({ status: "chosen", chosen_at: now.toISOString(), chosen_by: args.userId })
       .where(and(eq(mediaCandidates.id, c.id), eq(mediaCandidates.status, "ready")))
       .returning({ id: mediaCandidates.id });
-    if (!claimed) throw new ContentError("this candidate changed while you looked — reload", 409);
+    if (!claimed) throw new ContentError("this candidate changed while you looked: reload", 409);
   } catch (error) {
     if (
       /media_candidates_one_chosen_uq/.test(String((error as { cause?: unknown }).cause ?? error))

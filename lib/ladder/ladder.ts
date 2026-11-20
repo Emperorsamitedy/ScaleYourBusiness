@@ -176,10 +176,10 @@ export async function setStationUnchecked(args: {
   kind?: "set" | "auto_demotion" | "connector_demotion";
 }): Promise<void> {
   if (!Number.isInteger(args.station) || !isStation(args.station)) {
-    throw new LadderError(`station ${args.station} doesn't exist — stations run 1 to 4`, 422);
+    throw new LadderError(`station ${args.station} doesn't exist: stations run 1 to 4`, 422);
   }
   if (args.station > 1 && (await profileHalted(args.profileId))) {
-    throw new LadderError("the emergency stop is on — every station stays at 1 until you resume");
+    throw new LadderError("the emergency stop is on: every station stays at 1 until you resume");
   }
   const ceiling = await stationCeiling(args.profileId);
   if (args.station > ceiling) {
@@ -231,10 +231,10 @@ export async function setStation(args: {
   reason?: string;
 }): Promise<void> {
   if (!Number.isInteger(args.station) || !isStation(args.station)) {
-    throw new LadderError(`station ${args.station} doesn't exist — stations run 1 to 4`, 422);
+    throw new LadderError(`station ${args.station} doesn't exist: stations run 1 to 4`, 422);
   }
   if (await profileHalted(args.profileId)) {
-    throw new LadderError("the emergency stop is on — every station stays at 1 until you resume");
+    throw new LadderError("the emergency stop is on: every station stays at 1 until you resume");
   }
   const current = await stationOf(args.profileId, args.capability);
   if (args.station > current) {
@@ -244,7 +244,7 @@ export async function setStation(args: {
     throw new LadderError(
       args.station === 4
         ? "station 4 needs its limits and a separate confirmation, on the ledger's evidence"
-        : "a station is raised only on the ledger's evidence — ask for the promotion",
+        : "a station is raised only on the ledger's evidence: ask for the promotion",
       409,
     );
   }

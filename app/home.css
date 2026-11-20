@@ -1,19 +1,74 @@
-/* Home — /home (2026-11-15), components/home/HomeScreen.tsx. Sheet system
-   only: paper on the desk, square, no shadows, no icons. Every sheet keeps
-   its contents 20px from its edge (14px under 720px), so the edges of the
-   readings, the rows and the headers line up. */
+/* Home — /home (components/home/*). Built around the conversation, made a
+   workspace on 2026-11-17 (docs/DASHBOARD-OVERHAUL.md section C) and laid
+   out again on 2026-11-18 from the mockups the owner picked ("a mix between
+   A and B"): the conversation in the middle of the page under Lex's face,
+   then three columns with their names (what needs the owner, the numbers,
+   Lex right now). Paper cards with the app's curve on the dark desk; the
+   one dark card is Lex's own. Every card keeps its contents 18px from its
+   edge (14px under 720px). The layout is the last section of this file. */
 
 .home {
-  --pad: 20px;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: 20px;
+  --pad: 18px;
 }
 .home > * {
   min-width: 0;
 }
-.home .ph {
-  margin-bottom: 0;
+.home-main,
+.home-side {
+  display: grid;
+  gap: 20px;
+  min-width: 0;
+}
+.home-main > *,
+.home-side > * {
+  min-width: 0;
+}
+
+/* Lex speaks first: the mark and the name, then the day's answer. */
+.home-head {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: 10px;
+  justify-items: start;
+  padding: 22px 0 16px;
+  border-bottom: 1px solid var(--desk-rule);
+  color: var(--desk-ink);
+}
+.home-kicker {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 14px;
+  margin: 0;
+  font-family: var(--f-mono);
+  font-size: calc(11.5px + var(--caps-bump, 0px));
+  letter-spacing: var(--caps-ls, 0.12em);
+  text-transform: var(--caps, uppercase);
+  color: var(--desk-ink-2);
+}
+.home-lex {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--desk-ink);
+  font-weight: 600;
+}
+.home-lex-mark {
+  display: inline-grid;
+  place-items: center;
+  width: 22px;
+  height: 22px;
+  background: var(--masthead);
+  border: 1px solid var(--desk-rule);
+}
+.home-title {
+  margin: 0;
+  max-width: 26ch;
+  font-family: var(--f-display);
+  font-size: clamp(24px, 2.7vw, 38px);
+  font-weight: var(--w-display, 700);
+  line-height: 1.08;
+  letter-spacing: var(--ls-display, -0.01em);
 }
 .home-ans {
   margin: 0;
@@ -22,99 +77,614 @@
   color: var(--desk-ink-2);
 }
 
-/* the actions: ink on paper, or desk ink on the desk; 48px, square */
-.home-act {
+/* ── the small controls ── */
+
+/* a small action: the system's ink-bordered verb, 40px */
+.home .home-btn,
+.home-btn {
   display: inline-flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 14px;
-  min-height: 48px;
-  padding: 0 18px;
+  justify-content: center;
+  flex: none;
+  min-height: 40px;
+  padding: 0 14px;
   border: 1px solid var(--sheet-ink);
   background: var(--paper);
   color: var(--sheet-ink);
   font-family: var(--f-mono);
-  font-size: 12.5px;
+  font-size: calc(12px + var(--caps-bump, 0px));
   font-weight: 600;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  letter-spacing: var(--caps-ls, 0.06em);
+  text-transform: var(--caps, uppercase);
   text-decoration: none;
   white-space: nowrap;
+  cursor: pointer;
   transition:
     background-color var(--d-press) linear,
     color var(--d-press) linear;
+  border-radius: var(--r-ctl, 0);
 }
-.home-act:hover {
+.home-btn:hover {
   background: var(--sheet-ink);
   color: var(--paper);
 }
-.home-act-desk {
+.home .home-btn-desk {
   background: transparent;
   border-color: var(--desk-ink);
   color: var(--desk-ink);
 }
-.home-act-desk:hover {
+.home .home-btn-desk:hover {
   background: var(--desk-ink);
   color: var(--desk);
 }
-.home-act-sm {
-  min-height: 38px;
-  padding: 0 12px;
-  font-size: 11.5px;
-}
+/* an action inside a line of text */
 .home-link {
   font-family: var(--f-mono);
-  font-size: 12px;
+  font-size: calc(12px + var(--caps-bump, 0px));
   font-weight: 500;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  letter-spacing: var(--caps-ls, 0.06em);
+  text-transform: var(--caps, uppercase);
   color: inherit;
   text-underline-offset: 3px;
 }
-
-/* the one warning: a paper sheet with a drift rule drawn inside its edge */
-.home-alert {
+/* the same link as a button ("Read now"): one link style on the screen */
+.home-linkbtn {
+  min-height: 32px;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--sheet-ink);
+  text-decoration: underline;
+  cursor: pointer;
+}
+.home-linkbtn:disabled {
+  color: var(--sheet-ink-2);
+  text-decoration: none;
+  cursor: default;
+}
+/* the row that ends a list: more of it, or all of it */
+.home .home-more,
+.home-more {
   display: flex;
   align-items: center;
-  gap: 20px;
-  flex-wrap: wrap;
-  padding: 16px var(--pad);
-  background: var(--paper);
+  width: 100%;
+  min-height: 44px;
+  padding: 0 var(--pad);
+  border: 0;
+  border-top: 1px solid var(--rule-soft);
+  background: none;
   color: var(--sheet-ink);
-  border: 1px solid var(--rule);
-  box-shadow: inset 5px 0 0 var(--drift);
+  font-family: var(--f-mono);
+  font-size: calc(12px + var(--caps-bump, 0px));
+  font-weight: 500;
+  letter-spacing: var(--caps-ls, 0.06em);
+  text-transform: var(--caps, uppercase);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  cursor: pointer;
 }
-.home-alert-tx {
-  flex: 1;
-  min-width: 220px;
-  display: grid;
-  gap: 4px;
-}
-.home-alert .flag {
-  margin: 0;
-}
-.home-alert-title {
-  margin: 0;
-  font-family: var(--f-display);
-  font-size: 21px;
-  font-weight: 700;
-  line-height: 1.2;
-}
-.home-alert-line {
-  margin: 0;
-  font-size: 14px;
-  color: var(--sheet-ink-2);
+.home-more:hover {
+  background: var(--inset);
 }
 
-/* the readings: one sheet split by hairlines, the number grammar in each */
+/* every sheet's inner edge */
 .home .cs-head,
 .home .cs-body {
   padding-left: var(--pad);
   padding-right: var(--pad);
 }
+.home-empty {
+  margin: 0;
+  padding: 16px var(--pad);
+  color: var(--sheet-ink-2);
+}
+/* a read that failed with nothing to show: one sentence and Retry */
+.home-failed {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 16px;
+  padding: 16px var(--pad);
+  color: var(--sheet-ink-2);
+}
+.home-failed p {
+  flex: 1 1 180px;
+  margin: 0;
+}
+
+/* ── the composer sheet: the box, three questions, the latest exchange ── */
+
+.home-ask-title {
+  overflow-wrap: anywhere;
+}
+.home .home-ask .ak-composer {
+  padding: 15px var(--pad) 12px;
+  border-top: 0;
+}
+.home-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 0 var(--pad) 16px;
+}
+.home-chip {
+  min-height: 36px;
+  padding: 0 12px;
+  border: 1px solid var(--rule);
+  background: var(--paper);
+  color: var(--sheet-ink);
+  font-family: var(--f-prose);
+  font-size: 13.5px;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color var(--d-press) linear;
+  border-radius: var(--r-pill, 0);
+}
+.home-chip:hover:not([aria-disabled="true"]) {
+  border-color: var(--sheet-ink);
+  background: var(--inset);
+}
+.home-chip[aria-disabled="true"] {
+  color: var(--sheet-ink-2);
+  cursor: default;
+}
+.home-thread {
+  padding: 16px var(--pad) 6px;
+  border-top: 1px solid var(--rule-soft);
+}
+.home-thread .ak-turn {
+  grid-template-columns: 110px minmax(0, 1fr);
+}
+.home-thread .ak-queued {
+  margin-top: 12px;
+}
+.home-thread .hd {
+  margin-top: 12px;
+  padding: 14px 16px 15px;
+  border: var(--line);
+  background: var(--inset);
+  border-radius: var(--r-ctl, 0);
+}
+
+/* ── a decision, answered where it stands: the card's two equal answers ── */
+
+.home-cards {
+  display: grid;
+}
+.hd {
+  display: grid;
+  gap: 8px;
+  padding: 14px var(--pad) 16px;
+  border-top: 1px solid var(--rule-soft);
+}
+.hd:first-child {
+  border-top: 0;
+}
+.hd-lab {
+  margin: 0;
+  font-family: var(--f-mono);
+  font-size: calc(11.5px + var(--caps-bump, 0px));
+  letter-spacing: var(--caps-ls, 0.08em);
+  text-transform: var(--caps, uppercase);
+  color: var(--sheet-ink-2);
+}
+.hd-title {
+  margin: 0;
+  font-family: var(--f-display);
+  font-size: 16px;
+  font-weight: var(--w-display, 700);
+  line-height: 1.25;
+}
+/* the title as the way in to the full read */
+.hd-title-btn {
+  justify-self: start;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.hd-title-btn:hover {
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 3px;
+}
+.hd-amt {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--ok);
+}
+.hd-pair {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+  margin-top: 4px;
+}
+.hd-btn {
+  min-height: 44px;
+  padding: 0 10px;
+  border: 1px solid var(--sheet-ink);
+  background: var(--paper);
+  color: var(--sheet-ink);
+  font-family: var(--f-mono);
+  font-size: calc(12px + var(--caps-bump, 0px));
+  font-weight: 600;
+  letter-spacing: var(--caps-ls, 0.06em);
+  text-transform: var(--caps, uppercase);
+  cursor: pointer;
+  transition:
+    background-color var(--d-press) linear,
+    color var(--d-press) linear;
+  border-radius: var(--r-ctl, 0);
+}
+.hd-btn:hover:not(:disabled),
+.hd-btn:active:not(:disabled) {
+  background: var(--sheet-ink);
+  color: var(--paper);
+}
+.hd-btn:disabled {
+  border-style: dashed;
+  color: var(--sheet-ink-2);
+  cursor: not-allowed;
+}
+.hd-btn-inline {
+  justify-self: start;
+  margin-top: 10px;
+}
+.hd-panel {
+  margin-top: 4px;
+  padding: 12px;
+  border: var(--line);
+  background: var(--inset);
+  border-radius: var(--r-ctl, 0);
+}
+.home-thread .hd .hd-panel {
+  background: var(--paper);
+}
+.hd-panel-lab {
+  margin: 0 0 8px;
+  font-family: var(--f-mono);
+  font-size: calc(11.5px + var(--caps-bump, 0px));
+  font-weight: 600;
+  letter-spacing: var(--caps-ls, 0.12em);
+  text-transform: var(--caps, uppercase);
+}
+.hd-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+.hd-chip {
+  min-height: 40px;
+  padding: 0 10px;
+  border: 1px solid var(--rule);
+  background: var(--paper);
+  color: var(--sheet-ink);
+  font-family: var(--f-mono);
+  font-size: 11.5px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  cursor: pointer;
+  transition: background-color var(--d-press) linear;
+  border-radius: var(--r-pill, 0);
+}
+.hd-chip:hover {
+  border-color: var(--sheet-ink);
+}
+.hd-chip[aria-pressed="true"] {
+  border-color: var(--sheet-ink);
+  background: var(--sheet-ink);
+  color: var(--paper);
+}
+.hd-text {
+  display: block;
+  width: 100%;
+  min-height: 64px;
+  padding: 8px 10px;
+  border: 1px solid var(--rule);
+  background: var(--paper);
+  color: var(--sheet-ink);
+  font-family: var(--f-prose);
+  font-size: 13.5px;
+  line-height: 1.5;
+  resize: vertical;
+  border-radius: var(--r-s, 0);
+}
+.hd-text:focus {
+  border-color: var(--sheet-ink);
+}
+.hd-panel-foot {
+  margin: 8px 0 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--sheet-ink-2);
+}
+.hd-note,
+.hd-done {
+  margin: 0;
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--sheet-ink-2);
+}
+.hd-done .flag {
+  margin-right: 4px;
+}
+.hd-notice {
+  margin: 0;
+  font-size: 13.5px;
+  color: var(--alarm);
+}
+.hd-more {
+  justify-self: start;
+  min-height: 32px;
+  padding: 0;
+  border: 0;
+  background: none;
+  font-family: var(--f-mono);
+  font-size: calc(11.5px + var(--caps-bump, 0px));
+  font-weight: 500;
+  letter-spacing: var(--caps-ls, 0.06em);
+  text-transform: var(--caps, uppercase);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+  color: inherit;
+  cursor: pointer;
+}
+
+/* ── Lex's side ── */
+
+/* the status card: one line that is always true, the watch's days, the stop */
+.home-now .cs-body {
+  display: grid;
+  gap: 12px;
+  /* the last line already reserves room for a read's report: the card ends there */
+  padding-bottom: 8px;
+}
+.home-days {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(6px, 1fr));
+  gap: 3px;
+}
+.home-days i {
+  height: 14px;
+  border: 1px solid var(--rule);
+  border-radius: var(--r-s, 0);
+}
+.home-days i.d {
+  background: var(--sheet-ink);
+  border-color: var(--sheet-ink);
+}
+.home-days i.n {
+  background: var(--live);
+  border-color: var(--live);
+}
+/* one line most days; two when a read names what gave no answer */
+.home-now-line {
+  /* room for two lines, so the card does not jump when a read reports */
+  min-height: 54px;
+  margin: 0;
+  padding: 5px 0;
+  font-size: 14px;
+  line-height: 1.55;
+  color: var(--sheet-ink-2);
+}
+.home-now-line .home-linkbtn {
+  min-height: 0;
+}
+.home-now-line .live-dot {
+  margin-right: 6px;
+  vertical-align: 1px;
+}
+
+/* three tabs over one sheet: the open tab is the sheet's own top edge */
+.home-work {
+  display: grid;
+  min-width: 0;
+  scroll-margin-top: 72px;
+}
+.home-work .ui-tabs {
+  position: relative;
+  z-index: 1;
+  margin-bottom: -1px;
+}
+.home-panel {
+  min-height: 132px;
+}
+.home-panel-foot {
+  margin: 0;
+  padding: 12px var(--pad);
+  border-top: 1px solid var(--rule-soft);
+}
+
+/* what else wants the owner, and the next steps: a sentence and one action a row */
+.home-attn,
+.home-next ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.home-attn li,
+.home-next li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px var(--pad);
+  border-top: 1px solid var(--rule-soft);
+}
+.home-attn:first-child li:first-child {
+  border-top: 0;
+}
+.home-attn p,
+.home-next li p {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.45;
+}
+.home-next {
+  border-top: 1px solid var(--rule-soft);
+}
+.home-next .cs-label {
+  margin: 0;
+  padding: 14px var(--pad) 2px;
+}
+.home-next li:first-child {
+  border-top: 0;
+}
+
+/* the activity feed: a tag, how long ago, one line; a row opens to its detail */
+.hf {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.hf-row {
+  border-top: 1px solid var(--rule-soft);
+  transition: background-color var(--d-record) linear;
+}
+.hf-row:first-child {
+  border-top: 0;
+}
+/* ink just laid down */
+.hf-row.is-new {
+  background: var(--marker);
+}
+.hf-head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 4px 10px;
+  width: 100%;
+  padding: 11px var(--pad);
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.hf-head:hover {
+  background: var(--inset);
+}
+.hf-row.is-new .hf-head:hover {
+  background: none;
+}
+.hf-head:focus-visible,
+.hm-row:focus-visible,
+.home-tile:focus-visible {
+  outline-offset: -3px;
+}
+.hf-meta {
+  grid-column: 1;
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+.hf-when {
+  font-family: var(--f-mono);
+  font-size: 11.5px;
+  color: var(--sheet-ink-2);
+  white-space: nowrap;
+}
+.hf-text {
+  grid-column: 1;
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  font-size: 13.5px;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
+.hf-text.open {
+  display: block;
+}
+.hf-chev {
+  grid-column: 2;
+  grid-row: 1 / span 2;
+  align-self: center;
+  color: var(--sheet-ink-2);
+  transition: transform var(--d-press) linear;
+}
+.hf-chev.open {
+  transform: rotate(180deg);
+}
+.hf-more {
+  display: grid;
+  gap: 8px;
+  justify-items: start;
+  padding: 0 var(--pad) 14px;
+}
+.hf-said {
+  margin: 0;
+  padding: 8px 10px;
+  border: var(--line);
+  background: var(--inset);
+  font-size: 13.5px;
+  line-height: 1.45;
+  border-radius: var(--r-ctl, 0);
+}
+.hf-at {
+  margin: 0;
+  font-family: var(--f-mono);
+  font-size: 11.5px;
+  color: var(--sheet-ink-2);
+}
+
+/* everything Lex made: the title, one line of the thing itself, its state */
+.hm {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.hm li {
+  border-top: 1px solid var(--rule-soft);
+}
+.hm li:first-child {
+  border-top: 0;
+}
+.hm-row {
+  display: grid;
+  gap: 4px;
+  justify-items: start;
+  width: 100%;
+  padding: 12px var(--pad);
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.hm-row:hover {
+  background: var(--inset);
+}
+.hm-title {
+  font-family: var(--f-display);
+  font-size: 15px;
+  font-weight: var(--w-display, 700);
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+.hm-prev {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  font-size: 13.5px;
+  line-height: 1.45;
+  color: var(--sheet-ink-2);
+  overflow-wrap: anywhere;
+}
+
+/* ── the readings: one sheet split by hairlines; each reading is a button ── */
+
 .home-strip {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 190px), 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 170px), 1fr));
 }
 .home-reading {
   display: grid;
@@ -124,17 +694,33 @@
   border-left: 1px solid var(--rule-soft);
   margin-left: -1px;
 }
+.home .home-tile,
+.home-tile {
+  border-top: 0;
+  border-right: 0;
+  border-bottom: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color var(--d-press) linear;
+}
+.home-tile:hover {
+  background: var(--inset);
+}
 .home-r-lab {
   margin: 0;
   font-family: var(--f-mono);
-  font-size: 11.5px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  font-size: calc(11.5px + var(--caps-bump, 0px));
+  letter-spacing: var(--caps-ls, 0.08em);
+  text-transform: var(--caps, uppercase);
   color: var(--sheet-ink-2);
 }
 .home-r-val {
   margin: 0;
-  font-family: var(--f-mono);
+  font-family: var(--f-fig);
   font-size: 28px;
   font-weight: 500;
   line-height: 1.1;
@@ -154,110 +740,23 @@
   gap: 10px;
   margin-top: 4px;
 }
-.home-why {
-  min-height: 32px;
-  padding: 0;
-  background: none;
-  border: 0;
-  color: var(--sheet-ink);
+.home-r-more {
   font-family: var(--f-mono);
-  font-size: 12px;
+  font-size: calc(12px + var(--caps-bump, 0px));
   font-weight: 500;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  letter-spacing: var(--caps-ls, 0.06em);
+  text-transform: var(--caps, uppercase);
   text-decoration: underline;
   text-underline-offset: 3px;
-  cursor: pointer;
-  justify-self: start;
 }
-
-/* the chart beside the watch */
-.home-grid {
-  display: grid;
-  grid-template-columns: minmax(0, 1.7fr) minmax(0, 1fr);
-  gap: 20px;
-  align-items: start;
-}
-.home-grid > * {
-  min-width: 0;
-}
-.home-chart .mk {
-  margin: 0;
-}
-.home-days {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(6px, 1fr));
-  gap: 3px;
-  margin-bottom: 14px;
-}
-.home-days i {
-  height: 14px;
-  border: 1px solid var(--rule);
-}
-.home-days i.d {
-  background: var(--sheet-ink);
-  border-color: var(--sheet-ink);
-}
-.home-days i.n {
-  background: var(--live);
-  border-color: var(--live);
-}
-.home-note {
-  margin: 0 0 12px;
-  font-size: 14px;
-  color: var(--sheet-ink-2);
-}
-
-/* the waiting decisions: rows on one inner edge */
-.home-rows {
-  list-style: none;
-  margin: 0;
+.home-reading .home-tile-skel {
   padding: 0;
 }
-.home-rows li {
-  display: flex;
-  align-items: center;
-  gap: 18px;
-  padding: 14px var(--pad);
+.home-strip .home-failed {
+  grid-column: 1 / -1;
   border-top: 1px solid var(--rule-soft);
 }
-.home-rows li:first-child {
-  border-top: 0;
-}
-.home-row-tx {
-  flex: 1;
-  min-width: 0;
-  display: grid;
-  gap: 3px;
-}
-.home-row-lab {
-  margin: 0;
-  font-family: var(--f-mono);
-  font-size: 11.5px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--sheet-ink-2);
-}
-.home-row-ti {
-  margin: 0;
-  font-weight: 600;
-  font-size: 15px;
-}
-.home-row-amt {
-  margin: 0;
-  font-family: var(--f-mono);
-  font-size: 15px;
-  font-weight: 500;
-  color: var(--ok);
-  white-space: nowrap;
-}
-.home-empty {
-  margin: 0;
-  padding: 16px var(--pad);
-  color: var(--sheet-ink-2);
-}
 
-/* where it slips: the month's parts as bars; a balance sits apart, unbarred */
 /* The live line (components/home/LiveVisitors.tsx), drawn like a trading
    chart's baseline style: green above the window's first reading, red
    below, the scale on the right. Green is the logo's own (--accent), since
@@ -282,7 +781,7 @@
   align-items: baseline;
   gap: 2px 12px;
   margin: 0;
-  font-family: var(--f-mono);
+  font-family: var(--f-fig);
   font-variant-numeric: tabular-nums;
 }
 .lv-value {
@@ -312,10 +811,10 @@
 }
 .lv-link {
   font-family: var(--f-mono);
-  font-size: 12px;
+  font-size: calc(12px + var(--caps-bump, 0px));
   font-weight: 600;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  letter-spacing: var(--caps-ls, 0.06em);
+  text-transform: var(--caps, uppercase);
   color: var(--sheet-ink);
   text-underline-offset: 3px;
   white-space: nowrap;
@@ -423,7 +922,7 @@
 }
 .lv-tick {
   fill: var(--sheet-ink-2);
-  font-family: var(--f-mono);
+  font-family: var(--f-fig);
   font-size: 11.5px;
   font-variant-numeric: tabular-nums;
 }
@@ -434,7 +933,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: var(--f-mono);
+  font-family: var(--f-fig);
   font-size: 11.5px;
   font-weight: 600;
   line-height: 1;
@@ -491,10 +990,42 @@
   }
 }
 
+/* your sales: the measured days as one printed line each, and a switch for how many */
+.home-sales-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px 16px;
+}
+.home-period {
+  display: flex;
+  gap: 2px;
+}
+.home-period button {
+  min-width: 48px;
+  min-height: 40px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  color: var(--sheet-ink-2);
+  font-family: var(--f-mono);
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition:
+    background-color var(--d-press) linear,
+    color var(--d-press) linear;
+}
+.home-period button[aria-pressed="true"] {
+  background: var(--sheet-ink);
+  color: var(--paper);
+}
 .home-trends {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
-  border-top: 1px solid var(--rule-soft);
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
 }
 .home-trend {
   display: grid;
@@ -509,6 +1040,18 @@
 }
 .home-trend .vz-trend {
   margin-top: 6px;
+}
+
+/* where the money slips: folded, the month's parts as bars when opened */
+.home-slips .cs-body {
+  padding-top: 4px;
+  padding-bottom: 4px;
+}
+.home-slips-meta {
+  margin: 0 0 10px;
+  font-family: var(--f-mono);
+  font-size: 12.5px;
+  color: var(--sheet-ink-2);
 }
 .home-apart {
   list-style: none;
@@ -525,164 +1068,698 @@
   margin-left: auto;
 }
 
-@media (max-width: 899px) {
-  .home-grid {
-    grid-template-columns: minmax(0, 1fr);
-  }
-}
 @media (max-width: 719px) {
   .home {
     --pad: 14px;
-    gap: 16px;
-  }
-  .home-strip {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-  .home-reading {
-    border-top: 1px solid var(--rule-soft);
   }
   .home-r-val {
     font-size: 22px;
   }
-  .home-rows li {
+  .home-thread .ak-turn {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .home-title {
+    max-width: none;
+  }
+  /* the three questions in one row that scrolls sideways */
+  .home-chips {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  .home-chips::-webkit-scrollbar {
+    display: none;
+  }
+  /* its right edge fades, so a question cut short reads as "more this way" */
+  .home-chips {
+    padding-right: 40px;
+    -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 40px), transparent);
+    mask-image: linear-gradient(to right, #000 calc(100% - 40px), transparent);
+  }
+  .home-chip {
+    flex: none;
+    min-height: 40px;
+  }
+  .home-attn li,
+  .home-next li {
     flex-wrap: wrap;
-    gap: 10px;
   }
-  .home-row-tx {
-    flex-basis: 100%;
+  /* a finger needs 40px, even for an action that is only a word */
+  .hd-more,
+  .hd-title-btn,
+  .home-linkbtn,
+  .home-now-line .home-linkbtn,
+  .home .home-link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 40px;
   }
-  .home .ph-aside,
-  .home .ph-aside .home-act {
-    width: 100%;
+}
+@media (prefers-reduced-motion: reduce) {
+  .hf-row,
+  .hf-chev,
+  .home-tile,
+  .home-chip,
+  .home-period button {
+    transition: none;
   }
 }
 
-/* The Why sheet (components/sheet/WhySheet.tsx): paper from the right. */
-.why-layer {
-  position: fixed;
-  inset: 0;
-  z-index: 60;
-}
-.why-scrim {
-  position: absolute;
-  inset: 0;
-  background: rgba(6, 12, 8, 0.55);
-}
-.why-sheet {
-  position: absolute;
-  top: 0;
-  right: 0;
-  bottom: 0;
-  width: min(460px, 100%);
-  display: flex;
-  flex-direction: column;
-  background: var(--paper);
+/* The sign-in note's link reads as ink, never a browser blue. */
+.hd-note a {
   color: var(--sheet-ink);
-  border-left: 2px solid var(--live-rule);
-  animation: why-in var(--d-move) var(--ease-out);
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
-@keyframes why-in {
-  from {
-    transform: translateX(24px);
-    opacity: 0;
+
+/* Touch targets on a phone (docs/DASHBOARD-OVERHAUL.md G2): the live line's one link. */
+@media (max-width: 759px) {
+  .lv-link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 40px;
   }
 }
-.why-head {
-  display: grid;
-  gap: 6px;
-  padding: 20px 22px 16px;
-  border-bottom: 1px solid var(--rule);
+
+/* Sentence case: a label the classic look set in capitals starts with one
+   (the owner app's type, app/sheet.css). In the classic look it follows the label. */
+:is(
+  .home-kicker,
+  .home .home-btn,
+  .home-btn,
+  .home-link,
+  .home .home-more,
+  .home-more,
+  .hd-lab,
+  .hd-btn,
+  .hd-panel-lab,
+  .hd-more,
+  .home-r-lab,
+  .home-r-more,
+  .lv-link
+)::first-letter {
+  text-transform: var(--caps-first, inherit);
 }
-.why-top {
+
+/* ── The merged layout (2026-11-18, the owner's pick: "a mix between A and
+   B"). The conversation in the middle under Lex's face; then three columns,
+   each with its name. ── */
+
+.home.hx {
+  max-width: 1376px;
+  margin: 0 auto;
+  padding: 34px 32px 64px;
+  box-sizing: border-box;
+}
+
+/* Lex speaks first, in the middle of the page */
+.hx-hero {
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
   align-items: center;
+  max-width: 780px;
+  margin: 0 auto;
+  color: var(--desk-ink);
+  text-align: center;
 }
-.why-label {
-  margin: 0;
-  font-family: var(--f-mono);
-  font-size: 11.5px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--sheet-ink-2);
+.hx-kicker {
+  margin: 8px 0 6px;
+  font-size: 13px;
+  color: var(--desk-ink-2);
 }
-.why-close {
-  min-height: 40px;
-  padding: 0 14px;
-  border: 1px solid var(--sheet-ink);
+.hx-kicker b {
+  font-weight: 700;
+  color: var(--desk-ink);
+}
+.hx .home-title {
+  max-width: none;
+  font-size: clamp(27px, 2.9vw, 40px);
+  letter-spacing: -0.025em;
+}
+.hx .home-ans {
+  margin-top: 10px;
+}
+.hx-hero > .home-btn {
+  margin-top: 14px;
+}
+
+/* the box to ask: one paper pill on the desk, lifted off it */
+.hx-ask {
+  width: 100%;
+  margin-top: 24px;
+}
+.hx-ask .ak-composer {
+  padding: 0;
+  border: 0;
+}
+.hx-ask .ak-row {
+  align-items: center;
+  gap: 0 10px;
+  padding: 8px 8px 8px 24px;
+  border-radius: 30px;
   background: var(--paper);
   color: var(--sheet-ink);
-  font-family: var(--f-mono);
-  font-size: 11.5px;
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  cursor: pointer;
+  box-shadow:
+    0 0 0 1px rgba(234, 242, 237, 0.1),
+    0 22px 54px rgba(0, 0, 0, 0.42);
+  transition: box-shadow 0.22s var(--ease-out);
 }
-.why-close:hover {
+.hx-ask .ak-row:focus-within {
+  box-shadow:
+    0 0 0 2px var(--accent-desk),
+    0 22px 54px rgba(0, 0, 0, 0.42);
+}
+.hx-ask .ak-input {
+  flex: 1 1 200px;
+  height: 46px;
+  min-height: 46px;
+  padding: 11px 0;
+  border: 0;
+  outline: none;
+  background: transparent;
+  font-size: 16px;
+  line-height: 24px;
+  resize: none;
+}
+.hx-ask .vx-icon-mic {
+  width: 46px;
+  height: 46px;
+  border: 1px solid var(--rule-soft);
+  border-radius: var(--r-pill, 0);
+  transition:
+    background-color 0.16s var(--ease-out),
+    border-color 0.16s var(--ease-out),
+    transform var(--d-press) linear;
+}
+.hx-ask .vx-icon-mic:hover:not(:disabled) {
+  background: var(--inset);
+  border-color: var(--rule);
+}
+.hx-ask .vx-icon-mic:active:not(:disabled) {
+  transform: scale(0.95);
+}
+.hx-ask .ak-ask {
+  min-width: 0;
+  min-height: 46px;
+  padding: 0 22px;
+  border: 0;
+  border-radius: var(--r-pill, 0);
   background: var(--sheet-ink);
   color: var(--paper);
+  font-size: 14.5px;
+  transition:
+    background-color 0.16s var(--ease-out),
+    opacity 0.16s var(--ease-out),
+    transform var(--d-press) linear;
 }
-.why-title {
-  margin: 0;
-  font-family: var(--f-display);
-  font-size: 22px;
-  font-weight: 700;
-  line-height: 1.2;
+.hx-ask .ak-ask:hover:not(:disabled) {
+  background: var(--raised);
+  color: var(--paper);
 }
-.why-value {
-  margin: 0;
-  font-family: var(--f-mono);
-  font-size: 26px;
-  font-weight: 500;
+.hx-ask .ak-ask:active:not(:disabled) {
+  transform: scale(0.96);
 }
-.why-body {
-  display: grid;
-  gap: 18px;
-  align-content: start;
-  padding: 18px 22px;
-  overflow-y: auto;
+/* Nothing typed yet: the same ink, held back, so the box still reads as one to ask in. */
+.hx-ask .ak-ask:disabled {
+  border: 0;
+  background: var(--sheet-ink);
+  color: var(--paper);
+  opacity: 0.42;
 }
-.why-rows {
-  margin: 0;
-  border: 1px solid var(--rule);
+.hx-ask .vx-live:not(:empty) {
+  margin: 4px 0 6px;
+  text-align: left;
 }
-.why-rows div {
+.hx-ask-wait {
+  border-radius: 30px;
+  background: var(--paper);
+}
+.hx-ask > .home-empty,
+.hx-ask > .home-failed {
+  border-radius: var(--r-card, 0);
+  background: var(--paper);
+  text-align: left;
+}
+
+/* three questions, one press away: outlined on the desk */
+.hx .home-chips {
+  justify-content: center;
+  padding: 0;
+  margin-top: 14px;
+}
+.hx .home-chip {
+  min-height: 36px;
+  padding: 0 15px;
+  border: 1px solid var(--desk-rule);
+  border-radius: var(--r-pill, 0);
+  background: transparent;
+  color: var(--desk-ink);
+  transition:
+    background-color 0.16s var(--ease-out),
+    border-color 0.16s var(--ease-out),
+    transform 0.16s var(--ease-out);
+}
+.hx .home-chip:hover:not([aria-disabled="true"]) {
+  border-color: var(--hair-2);
+  background: var(--raised);
+  transform: translateY(-1px);
+}
+.hx .home-chip[aria-disabled="true"] {
+  color: var(--desk-ink-2);
+}
+
+/* the latest exchange, on its own paper card under the box */
+.hx .home-thread {
+  width: 100%;
+  margin-top: 18px;
+  padding: 16px var(--pad) 8px;
+  box-sizing: border-box;
+  border: 0;
+  border-radius: var(--r-card, 0);
+  background: var(--paper);
+  color: var(--sheet-ink);
+  text-align: left;
+  --ink: var(--sheet-ink);
+  --mut: var(--sheet-ink-2);
+}
+.hx-thread-head {
   display: flex;
+  align-items: baseline;
   justify-content: space-between;
-  gap: 16px;
-  padding: 10px 14px;
-  border-top: 1px solid var(--rule-soft);
-  font-size: 14px;
+  gap: 12px;
+  margin: 0 0 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--rule-soft);
+  font-size: 16px;
+  font-weight: 650;
+  line-height: 1.3;
 }
-.why-rows div:first-child {
-  border-top: 0;
+.hx-thread-head span {
+  min-width: 0;
+  overflow-wrap: anywhere;
 }
-.why-rows dt {
-  color: var(--sheet-ink-2);
-}
-.why-rows dd {
-  margin: 0;
+.hx-thread-head .home-link {
+  flex: none;
   font-weight: 600;
-  text-align: right;
 }
-.why-sec {
+
+/* three columns, each with its name */
+.hx-cols {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 22px;
+  align-items: start;
+  margin-top: 40px;
+}
+.hx-col {
+  display: grid;
+  gap: 12px;
+  min-width: 0;
+}
+.hx-col > * {
+  min-width: 0;
+}
+.hx-col-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  min-height: 24px;
+  padding: 0 4px;
+  color: var(--desk-ink);
+}
+.hx-col-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+  font-size: 15px;
+  font-weight: 650;
+  line-height: 1.3;
+}
+.hx-col-title:focus-visible {
+  outline: 2px solid var(--desk-ink);
+  outline-offset: 4px;
+}
+.hx-count {
+  padding: 0 7px;
+  border-radius: var(--r-pill, 0);
+  background: var(--accent-desk);
+  color: var(--masthead);
+  font-family: var(--f-fig);
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 18px;
+  font-variant-numeric: tabular-nums;
+}
+.hx-col-link {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--desk-ink-2);
+  text-underline-offset: 3px;
+  transition: color 0.16s var(--ease-out);
+}
+.hx-col-link:hover {
+  color: var(--desk-ink);
+}
+.hx-card {
+  border-radius: var(--r-card, 0);
+  background: var(--paper);
+  color: var(--sheet-ink);
+}
+.hx-card-foot {
+  margin: 0;
+  padding: 10px var(--pad) 14px;
+}
+
+/* what needs the owner: each decision a card of its own */
+.hx-needs {
+  display: grid;
+  gap: 12px;
+  color: var(--sheet-ink);
+  --ink: var(--sheet-ink);
+  --mut: var(--sheet-ink-2);
+}
+.hx .home-cards {
+  gap: 12px;
+}
+.hx-needs .hd {
+  padding: 18px var(--pad);
+  border: 0;
+  border-radius: var(--r-card, 0);
+  background: var(--paper);
+  transition:
+    transform 0.22s var(--ease-out),
+    box-shadow 0.22s var(--ease-out);
+}
+.hx-needs .hd:hover {
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.3);
+  transform: translateY(-2px);
+}
+.hx .hd-btn,
+.hx .home-btn {
+  border-radius: var(--r-ctl, 0);
+  font-size: 14px;
+  transition:
+    background-color 0.16s var(--ease-out),
+    color 0.16s var(--ease-out),
+    transform var(--d-press) linear;
+}
+.hx .hd-btn:active:not(:disabled),
+.hx .home-btn:active {
+  transform: scale(0.98);
+}
+.hx .hd-btn {
+  background: transparent;
+}
+.hx .hd-chip {
+  border-radius: var(--r-pill, 0);
+  font-family: var(--f-mono);
+  font-size: 13px;
+  letter-spacing: 0;
+}
+.hx .hd-panel,
+.hx .hd-text {
+  border-radius: var(--r-s, 0);
+}
+.hx .home-attn,
+.hx .home-next ul {
   display: grid;
   gap: 8px;
 }
-.why-lines {
-  background: var(--inset);
-  border: 1px solid var(--rule);
-  padding: 12px 14px;
-  font-family: var(--f-mono);
-  font-size: 13px;
-  line-height: 1.65;
+.hx .home-attn li,
+.hx .home-next li {
+  padding: 12px 12px 12px var(--pad);
+  border: 0;
+  border-radius: 14px;
+  background: var(--paper);
 }
-.why-lines p {
+.hx .home-next {
+  display: grid;
+  gap: 8px;
+  border: 0;
+}
+.hx .home-next .cs-label {
+  padding: 6px 4px 0;
+  color: var(--desk-ink-2);
+}
+.hx-needs > .home-empty {
+  border-radius: var(--r-card, 0);
+  background: var(--paper);
+}
+/* the row that ends the cards: on the desk, an outlined pill */
+.hx-needs .home-more {
+  justify-content: space-between;
+  min-height: 46px;
+  padding: 0 16px;
+  border: 1px solid var(--desk-rule);
+  border-radius: 14px;
+  color: var(--desk-ink);
+  font-size: 13.5px;
+  text-decoration: none;
+  transition:
+    background-color 0.16s var(--ease-out),
+    border-color 0.16s var(--ease-out);
+}
+.hx-needs .home-more:hover {
+  border-color: var(--hair-2);
+  background: var(--raised);
+}
+/* the row that ends a list inside a paper card: the card's own last row */
+.hx .home-panel .home-more {
+  justify-content: center;
+  min-height: 48px;
+  font-size: 13.5px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background-color 0.16s var(--ease-out);
+}
+
+/* the numbers: two readings side by side, each a card that opens */
+.hx-tiles {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+.hx-wide {
+  grid-column: 1 / -1;
+}
+.hx .home-reading {
   margin: 0;
+  padding: 16px;
+  border: 0;
+  border-radius: var(--r-card, 0);
+  background: var(--paper);
+  color: var(--sheet-ink);
+}
+.hx .home-tile {
+  transition:
+    transform 0.22s var(--ease-out),
+    box-shadow 0.22s var(--ease-out);
+}
+.hx .home-tile:hover {
+  background: var(--paper);
+  box-shadow: 0 14px 30px rgba(0, 0, 0, 0.3);
+  transform: translateY(-2px);
+}
+.hx .home-tile:focus-visible {
+  outline: 2px solid var(--desk-ink);
+  outline-offset: 3px;
+}
+.hx .home-r-val {
+  font-size: 26px;
+}
+.hx .home-sales .cs-head {
+  align-items: flex-start;
+  border-bottom: 0;
+  padding-bottom: 4px;
+}
+.hx .home-trends {
+  grid-template-columns: minmax(0, 1fr);
+}
+.hx .home-trend {
+  margin: 0;
+  padding: 12px var(--pad) 10px;
+  border: 0;
+}
+.hx .home-trend + .home-trend {
+  border-top: 1px solid var(--rule-soft);
+}
+.hx .home-period {
+  padding: 3px;
+  border-radius: var(--r-pill, 0);
+  background: var(--inset);
+}
+.hx .home-period button {
+  min-width: 0;
+  min-height: 30px;
+  padding: 0 11px;
+  border-radius: var(--r-pill, 0);
+  font-family: var(--f-mono);
+  font-size: 12.5px;
+  letter-spacing: 0;
+}
+.hx .home-readings {
+  overflow: hidden;
+}
+.hx .home-readings .lv-head {
+  padding-left: var(--pad);
+  padding-right: var(--pad);
+}
+/* With nothing drawn under it, the head is the whole card: no rule beneath. */
+.hx .home-readings .lv-head:last-child {
+  border-bottom: 0;
+}
+
+/* Lex right now: the one dark card on the page */
+.hx .home-now {
+  padding: 18px;
+  border: 1px solid var(--desk-rule);
+  border-radius: var(--r-card, 0);
+  background: var(--raised);
+  color: var(--desk-ink);
+}
+.home-now-top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.home-now-title {
+  flex: 1 1 auto;
+  min-width: 0;
+  margin: 0;
+  font-size: 16px;
+  font-weight: 650;
+  line-height: 1.3;
+}
+.home-now-bar {
+  position: relative;
+  height: 8px;
+  margin-top: 16px;
+  border-radius: 999px;
+  background: var(--desk-rule);
+}
+.home-now-bar span {
+  display: block;
+  height: 8px;
+  border-radius: 999px;
+  background: var(--desk-ink);
+}
+/* today: cobalt, the day the machine is working on */
+.home-now-bar i {
+  position: absolute;
+  top: -3px;
+  width: 14px;
+  height: 14px;
+  margin-left: -7px;
+  box-sizing: border-box;
+  border: 2px solid var(--raised);
+  border-radius: 999px;
+  background: var(--live-rule);
+}
+.hx .home-now-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 12px;
+  min-height: 34px;
+  margin-top: 14px;
+  padding: 0;
+  font-size: 13px;
+  color: var(--desk-ink-2);
+}
+.hx .home-now-line .live {
+  color: var(--live-desk);
+}
+.home-now-read {
+  flex: none;
+  min-height: 34px;
+  padding: 0 14px;
+  border: 1px solid var(--hair-2);
+  border-radius: var(--r-pill, 0);
+  background: transparent;
+  color: var(--desk-ink);
+  font: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition:
+    background-color 0.16s var(--ease-out),
+    color 0.16s var(--ease-out);
+}
+.home-now-read:hover:not(:disabled) {
+  background: var(--desk-ink);
+  color: var(--masthead);
+}
+.home-now-read:disabled {
+  border-style: dashed;
+  color: var(--desk-ink-2);
+  cursor: default;
+}
+.hx .home-work {
+  gap: 12px;
+}
+.hx .home-work .ui-tabs {
+  margin-bottom: 0;
+}
+.hx .home-panel {
+  overflow: hidden;
+}
+.hx .hf-row.is-new {
+  background: var(--marker);
+}
+
+@media (max-width: 1179px) {
+  .hx-cols {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .hx-col:last-child {
+    grid-column: 1 / -1;
+  }
+}
+@media (max-width: 759px) {
+  .home.hx {
+    padding: 22px 14px 40px;
+  }
+  .hx-cols {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 26px;
+    margin-top: 28px;
+  }
+  .hx-ask .ak-row {
+    padding: 6px 6px 6px 18px;
+    border-radius: 26px;
+  }
+  .hx-ask .ak-row .ak-input {
+    flex: 1 1 120px;
+  }
+  .hx-ask .ak-row .vx-icon-mic,
+  .hx-ask .ak-row .ak-ask {
+    margin-top: 0;
+  }
+  .hx-ask .ak-ask {
+    flex: none;
+    padding: 0 18px;
+  }
+  .hx .home-chips {
+    justify-content: flex-start;
+    margin-right: -14px;
+  }
 }
 @media (prefers-reduced-motion: reduce) {
-  .why-sheet {
-    animation: none;
+  .hx-ask .ak-row,
+  .hx .home-chip,
+  .hx-needs .hd,
+  .hx .home-tile,
+  .hx .hd-btn,
+  .hx .home-btn,
+  .home-now-read {
+    transition: none;
+  }
+  .hx-needs .hd:hover,
+  .hx .home-tile:hover,
+  .hx .home-chip:hover:not([aria-disabled="true"]) {
+    transform: none;
   }
 }

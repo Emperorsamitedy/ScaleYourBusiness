@@ -34,11 +34,14 @@ export const PUBLIC: Record<string, string> = {
   "auth/login/route.ts": "asks for a sign-in link; reads no business",
   "auth/logout/route.ts": "ends this browser's session",
   "auth/redeem/route.ts": "redeems a sign-in link",
+  "auth/redeem-code/route.ts":
+    "redeems the 6-digit code from the sign-in email; same-origin, guesses capped in lib/auth/service",
   "auth/oauth/[provider]/start/route.ts": "starts a provider sign-in",
   "auth/oauth/[provider]/callback/route.ts": "finishes a provider sign-in",
   "cron/collect-video/route.ts": "Vercel cron, CRON_SECRET (P6-03's AI video collection)",
   "cron/competitor-read/route.ts": "Vercel cron, CRON_SECRET",
   "cron/connector-sync/route.ts": "Vercel cron, CRON_SECRET",
+  "cron/count-towns/route.ts": "Vercel cron, CRON_SECRET (TASKS-IDEAS gap 7's town counts)",
   "cron/execute-due/route.ts": "Vercel cron, CRON_SECRET",
   "cron/faq-cluster/route.ts": "Vercel cron, CRON_SECRET",
   "cron/fx-rates/route.ts": "Vercel cron, CRON_SECRET (the multi-market spec §A.3's ECB rates)",
@@ -51,6 +54,12 @@ export const PUBLIC: Record<string, string> = {
   "email/events/route.ts": "Resend webhook, Svix-signed",
   "entry/route.ts":
     "the v1 spec §8.2's free entry: no account by design; same-origin, capped per hashed address",
+  "idea/route.ts":
+    "the idea check (TASKS-IDEAS): no account by design; same-origin, capped per hashed address",
+  "idea/describe/route.ts":
+    "the idea check's describe box (I-12): no account; same-origin, capped per address and for everyone per day",
+  "idea/interest/route.ts":
+    "a test page's \"I'd buy this\" (TASKS-IDEAS gap 5): no account; same-origin, capped per address, kept as an HMAC",
   "mandate/[token]/route.ts":
     "the v1 spec §7.6's grant from the email: the one-use token is the credential; it makes the business and signs its owner in",
   "ledger/verify/route.ts":

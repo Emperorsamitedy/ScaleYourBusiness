@@ -442,7 +442,7 @@ export async function approveFollowUpEmail(args: {
   }
   if (proposal.status !== "approved") {
     throw new FollowUpSendError(
-      `only an approved follow-up is sent — this one is ${proposal.status}`,
+      `only an approved follow-up is sent: this one is ${proposal.status}`,
       409,
     );
   }
@@ -458,7 +458,7 @@ export async function approveFollowUpEmail(args: {
   const bodySha = sha256(draft.body);
   if (args.bodySha256.trim().toLowerCase() !== bodySha) {
     throw new FollowUpSendError(
-      "the email changed since you opened it — read it again as it is now, then approve",
+      "the email changed since you opened it: read it again as it is now, then approve",
       409,
     );
   }

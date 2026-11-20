@@ -200,19 +200,19 @@ export function priceChangeScenario(inputs: PriceChangeInputs): ScenarioBlock {
   let breakeven: string;
   if (marginNew <= 0) {
     breakeven =
-      `no volume can break even — at ${exact(priceNew, currency)} the price is ` +
+      `no volume can break even: at ${exact(priceNew, currency)} the price is ` +
       `${marginNew === 0 ? "exactly" : "below"} the ${exact(offer.cost_to_deliver.amount_minor, currency)} unit cost`;
   } else if (change_pct < 0) {
     const liftPct = (marginNow / marginNew - 1) * 100;
     breakeven =
-      `sales must rise at least ${pct1(liftPct)} — margin per unit falls ` +
+      `sales must rise at least ${pct1(liftPct)}: margin per unit falls ` +
       `${exact(marginNow, currency)} → ${exact(marginNew, currency)}, so matching today's ` +
       `${exact(profitNow, currency)}/month takes ${Math.ceil((volume * marginNow) / marginNew)} units ` +
       `vs ${volume} today (${exact(marginNow, currency)} ÷ ${exact(marginNew, currency)} = ${(marginNow / marginNew).toFixed(2)}×)`;
   } else {
     const tolerablePct = (1 - marginNow / marginNew) * 100;
     breakeven =
-      `sales can fall up to ${pct1(tolerablePct)} before this costs you anything — margin per unit rises ` +
+      `sales can fall up to ${pct1(tolerablePct)} before this costs you anything: margin per unit rises ` +
       `${exact(marginNow, currency)} → ${exact(marginNew, currency)} ` +
       `(1 − ${exact(marginNow, currency)} ÷ ${exact(marginNew, currency)} = ${pct1(tolerablePct)})`;
   }
@@ -295,7 +295,7 @@ export function closeGapScenario(fieldKeys: string[], why: string): ScenarioBloc
     base_case: q("base", "the profile gains the missing facts and the next diagnosis sharpens"),
     downside_case: q("downside", "a few minutes spent answering, nothing else at risk"),
     upside_case: q("upside", "a finding currently blocked by the gap becomes provable"),
-    breakeven_condition: "nothing to break even — this costs time, not margin",
+    breakeven_condition: "nothing to break even: this costs time, not margin",
   };
 }
 
@@ -562,7 +562,7 @@ export async function runRecommendations(args: {
   locale?: AppLocale;
 }): Promise<RecommendationsResult> {
   if (args.findings.length === 0) {
-    throw new DiagnosisError("no findings to address — run the diagnosis first");
+    throw new DiagnosisError("no findings to address: run the diagnosis first");
   }
 
   const summary = await ensureSnapshot(args.profileId, "report");

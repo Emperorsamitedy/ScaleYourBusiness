@@ -347,7 +347,7 @@ export function SiteScreen({
                       </span>
                     </td>
                     <td className="src" data-label={tr("auditTab.foundOn")}>
-                      {n.found_on ? bareUrl(n.found_on) : "—"}
+                      {n.found_on ? bareUrl(n.found_on) : "-"}
                     </td>
                   </tr>
                 ))}

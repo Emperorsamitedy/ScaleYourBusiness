@@ -48,8 +48,8 @@
   color: var(--desk-ink);
   font-family: var(--f-display);
   font-size: 17.5px;
-  font-weight: 700;
-  letter-spacing: -0.01em;
+  font-weight: var(--w-display, 700);
+  letter-spacing: var(--ls-display, -0.01em);
   line-height: 1.1;
   text-decoration: none !important;
 }
@@ -64,9 +64,9 @@
   align-items: center;
   gap: 9px;
   font-family: var(--f-mono);
-  font-size: 12px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  font-size: calc(12px + var(--caps-bump, 0px));
+  letter-spacing: var(--caps-ls, 0.08em);
+  text-transform: var(--caps, uppercase);
   color: var(--live-desk);
 }
 .rq-sq {
@@ -116,6 +116,7 @@
   font-size: 14px;
   color: var(--desk-ink-2);
   text-decoration: none !important;
+  border-radius: 0 var(--r-s, 0) var(--r-s, 0) 0;
 }
 a.rq-sub-i:hover {
   color: var(--desk-ink);
@@ -149,10 +150,11 @@ a.rq-sub-i:hover {
   border: 1px solid var(--desk-ink-2);
   color: var(--desk-ink);
   font-family: var(--f-mono);
-  font-size: 11.5px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  font-size: calc(11.5px + var(--caps-bump, 0px));
+  letter-spacing: var(--caps-ls, 0.08em);
+  text-transform: var(--caps, uppercase);
   cursor: pointer;
+  border-radius: var(--r-s, 0);
 }
 .rq-print:hover {
   background: var(--desk-ink);
@@ -164,10 +166,10 @@ a.rq-sub-i:hover {
 .rq-label {
   margin: 0;
   font-family: var(--f-mono);
-  font-size: 11.5px;
+  font-size: calc(11.5px + var(--caps-bump, 0px));
   font-weight: 400;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
+  letter-spacing: var(--caps-ls, 0.12em);
+  text-transform: var(--caps, uppercase);
   color: var(--sheet-ink-2);
 }
 .rq-none {
@@ -187,6 +189,7 @@ a.rq-sub-i:hover {
   border: 1px solid var(--rule);
   font-family: var(--f-mono);
   font-size: 13px;
+  border-radius: var(--r-ctl, 0);
 }
 .rq-status {
   display: flex;
@@ -201,11 +204,13 @@ a.rq-sub-i:hover {
 .rq-panel {
   background: var(--paper);
   color: var(--sheet-ink);
-  border: 1px solid var(--rule);
+  border: var(--card-border, 1px solid var(--rule));
+  border-radius: var(--r-card, 0);
+  overflow: clip;
 }
 .rq-panel-head {
   padding: 17px 18px 14px;
-  border-bottom: 3px double var(--sheet-ink);
+  border-bottom: var(--card-head-rule, 3px double var(--sheet-ink));
 }
 .rq-head-line {
   display: flex;
@@ -218,9 +223,9 @@ a.rq-sub-i:hover {
 .rq-big {
   font-family: var(--f-display);
   font-size: clamp(24px, 2.49vw, 35.5px);
-  font-weight: 700;
+  font-weight: var(--w-display, 700);
   line-height: 1;
-  letter-spacing: -0.01em;
+  letter-spacing: var(--ls-display, -0.01em);
   font-variant-numeric: tabular-nums;
 }
 .rq-big-unit {
@@ -276,10 +281,10 @@ a.rq-sub-i:hover {
   padding: 15px 8px 10px;
   border-bottom: 1px solid var(--sheet-ink);
   font-family: var(--f-mono);
-  font-size: 11px;
+  font-size: calc(11px + var(--caps-bump, 0px));
   font-weight: 500;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+  letter-spacing: var(--caps-ls, 0.1em);
+  text-transform: var(--caps, uppercase);
   text-align: left;
   white-space: nowrap;
   color: var(--sheet-ink-2);
@@ -331,7 +336,7 @@ a.rq-sub-i:hover {
 }
 .rq-table .num {
   text-align: right;
-  font-family: var(--f-mono);
+  font-family: var(--f-fig);
   font-variant-numeric: tabular-nums;
 }
 .rq-result {
@@ -352,36 +357,37 @@ a.rq-sub-i:hover {
 }
 .rq-basis-w {
   font-family: var(--f-mono);
-  font-size: 12px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  font-size: calc(12px + var(--caps-bump, 0px));
+  letter-spacing: var(--caps-ls, 0.08em);
+  text-transform: var(--caps, uppercase);
   color: var(--sheet-ink-2);
 }
 .rq-why-cell {
   width: 1%;
   text-align: right;
 }
+/* One word, one line: the arrow under it left with the owner app's other arrows (2026-11-18). */
 .rq-why-btn {
   display: inline-flex;
-  flex-direction: column;
   align-items: center;
   min-width: 54px;
-  min-height: 48px;
+  min-height: 40px;
   justify-content: center;
-  padding: 6px 10px;
+  padding: 0 14px;
   border: 1px solid var(--sheet-ink);
   background: var(--paper);
   color: var(--sheet-ink);
   font-family: var(--f-mono);
-  font-size: 11.5px;
+  font-size: calc(11.5px + var(--caps-bump, 0px));
   font-weight: 500;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  letter-spacing: var(--caps-ls, 0.08em);
+  text-transform: var(--caps, uppercase);
   line-height: 1.5;
   cursor: pointer;
   transition:
     background-color var(--d-press) linear,
     color var(--d-press) linear;
+  border-radius: var(--r-s, 0);
 }
 .rq-why-btn:hover,
 .rq-why-btn[aria-pressed="true"] {
@@ -407,17 +413,19 @@ a.rq-sub-i:hover {
 .rq-why {
   background: var(--paper);
   color: var(--sheet-ink);
-  border: 1px solid var(--rule);
+  border: var(--card-border, 1px solid var(--rule));
+  border-radius: var(--r-card, 0);
+  overflow: clip;
 }
 .rq-why-head {
   padding: 15px 17px 14px;
-  border-bottom: 3px double var(--sheet-ink);
+  border-bottom: var(--card-head-rule, 3px double var(--sheet-ink));
 }
 .rq-why-title {
   margin: 10px 0 0;
   font-family: var(--f-display);
   font-size: 18.5px;
-  font-weight: 700;
+  font-weight: var(--w-display, 700);
   line-height: 1.15;
 }
 .rq-why-fig {
@@ -430,14 +438,14 @@ a.rq-sub-i:hover {
 .rq-why-num {
   font-family: var(--f-display);
   font-size: 26px;
-  font-weight: 700;
+  font-weight: var(--w-display, 700);
   line-height: 1;
   font-variant-numeric: tabular-nums;
 }
 .rq-why-unit {
   font-family: var(--f-display);
   font-size: 19.5px;
-  font-weight: 700;
+  font-weight: var(--w-display, 700);
   margin-left: -8px;
 }
 .rq-why-body {
@@ -453,7 +461,7 @@ a.rq-sub-i:hover {
 }
 .rq-why-formula {
   margin: 8px 0 0;
-  font-family: var(--f-mono);
+  font-family: var(--f-fig);
   font-size: 12.5px;
   color: var(--sheet-ink-2);
 }
@@ -486,14 +494,14 @@ a.rq-sub-i:hover {
   display: block;
   margin-top: 3px;
   font-family: var(--f-mono);
-  font-size: 11.5px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  font-size: calc(11.5px + var(--caps-bump, 0px));
+  letter-spacing: var(--caps-ls, 0.08em);
+  text-transform: var(--caps, uppercase);
   color: var(--sheet-ink-2);
 }
 .rq-in-val {
   white-space: nowrap;
-  font-family: var(--f-mono);
+  font-family: var(--f-fig);
   font-size: 13.5px;
   font-variant-numeric: tabular-nums;
   text-align: right;
@@ -579,7 +587,7 @@ a.rq-sub-i:hover {
   margin: 0 0 8px;
   font-family: var(--f-display);
   font-size: 16.5px;
-  font-weight: 700;
+  font-weight: var(--w-display, 700);
   line-height: 1.2;
 }
 .rq-evidence {
@@ -595,6 +603,11 @@ a.rq-sub-i:hover {
   padding: 4px 0;
   border-top: 1px solid var(--rule-soft);
   overflow-wrap: anywhere;
+}
+/* A fact's value here can be a sentence the owner wrote, not only a figure:
+   held on one line it pushed the whole report sideways. */
+.rq-evidence .fig {
+  white-space: normal;
 }
 .rq-ev-key,
 .rq-ev-text {
@@ -630,7 +643,7 @@ a.rq-sub-i:hover {
 .rq-formula {
   display: block;
   margin-top: 4px;
-  font-family: var(--f-mono);
+  font-family: var(--f-fig);
   font-size: 12px;
   color: var(--sheet-ink-2);
   overflow-wrap: anywhere;
@@ -641,6 +654,7 @@ a.rq-sub-i:hover {
   background: var(--inset);
   border: 1px solid var(--rule);
   font-size: 14px;
+  border-radius: var(--r-ctl, 0);
 }
 .rq-sub-h {
   margin: 12px 0 0;
@@ -787,9 +801,9 @@ a.rq-sub-i:hover {
     content: attr(data-label);
     font-weight: 400;
     font-family: var(--f-mono);
-    font-size: 11px;
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
+    font-size: calc(11px + var(--caps-bump, 0px));
+    letter-spacing: var(--caps-ls, 0.1em);
+    text-transform: var(--caps, uppercase);
     color: var(--sheet-ink-2);
   }
   .rq-table .rq-why-cell {
@@ -835,8 +849,8 @@ a.rq-sub-i:hover {
   .rq-card .rt td[data-label]::before {
     content: attr(data-label) " · ";
     font-family: var(--f-mono);
-    font-size: 11px;
-    text-transform: uppercase;
+    font-size: calc(11px + var(--caps-bump, 0px));
+    text-transform: var(--caps, uppercase);
     color: var(--sheet-ink-2);
   }
 }
@@ -927,6 +941,7 @@ a.rq-sub-i:hover {
   color: var(--sheet-ink);
   font-family: var(--f-mono);
   font-size: 13px;
+  border-radius: var(--r-s, 0);
 }
 .rq-share-url {
   flex: 1 1 320px;
@@ -936,8 +951,9 @@ a.rq-sub-i:hover {
   border: 1px solid var(--rule);
   background: var(--paper);
   color: var(--sheet-ink);
-  font-family: var(--f-mono);
+  font-family: var(--f-fig);
   font-size: 12.5px;
+  border-radius: var(--r-s, 0);
 }
 .rq-share-list {
   list-style: none;
@@ -997,4 +1013,18 @@ a.rq-sub-i:hover {
   .rq-svm-viz:empty {
     display: none !important;
   }
+}
+
+/* Sentence case: a label the classic look set in capitals starts with one
+   (the owner app's type, app/sheet.css). In the classic look it follows the label. */
+:is(
+  .rq-live,
+  .rq-print,
+  .rq-label,
+  .rq-table thead th,
+  .rq-basis-w,
+  .rq-why-btn,
+  .rq-in-src
+)::first-letter {
+  text-transform: var(--caps-first, inherit);
 }

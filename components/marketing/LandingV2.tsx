@@ -10,9 +10,9 @@
 // The store is fictional and its figures say "Demo data"
 // (lib/marketing/landing-v2.ts); the footage is AI-generated and carries
 // no on-page label, by the owner's decision (2026-11-16). Words are the
-// "landingV2" catalogue (a few are the first landing's, reused word for
-// word); every figure is formatted here in the reader's language and
-// never typed into a message. Plan prices are the price book's, passed
+// "landingV2" catalogue, which owns every word the page prints; every
+// figure is formatted here in the reader's language and never typed into
+// a message. Plain words, numbered steps, no arrows (owner, 2026-11-17). Plan prices are the price book's, passed
 // in by the page. What moves is landing-v2-motion.ts.
 
 import Link from "next/link";
@@ -34,7 +34,7 @@ import {
   type ScanLeak,
   type Severity,
 } from "../../lib/marketing/landing-v2";
-import { Mark } from "../brand/Mark";
+import { Mark, Wordmark } from "../brand/Mark";
 import { ratioBp } from "../../lib/core/money";
 import { moneyExact, moneyText, num } from "../sheet/num";
 import { useTr } from "../sheet/useTr";
@@ -55,14 +55,18 @@ export interface V2Prices {
 }
 
 type Rich = {
-  rich: (key: string, values: Record<string, (chunks: ReactNode) => ReactNode>) => ReactNode;
+  rich: (
+    key: string,
+    values: Record<string, string | number | ((chunks: ReactNode) => ReactNode)>,
+  ) => ReactNode;
 };
 
 const EM = { em: (chunks: ReactNode) => <em>{chunks}</em> };
 const MEDIA = "/landing-v2";
 const FLAG: Record<Severity, string> = { high: "alarm", medium: "drift", low: "low" };
 
-/** The nine scenes, in section order: which are film, and how much each is dimmed behind the copy. */
+/** The nine scenes, in section order: which are film, and how much each is dimmed behind the copy.
+ *  Glazed-tile backdrops (owner's theme, 2026-11-17): five films, four stills; g5 pans. */
 const SCENES = [
   { g: 0, shade: 0.12, film: true, cls: "" },
   { g: 1, shade: 0.38, film: true, cls: "" },
@@ -72,7 +76,7 @@ const SCENES = [
   { g: 5, shade: 0.3, film: false, cls: " pan" },
   { g: 6, shade: 0.28, film: false, cls: " still" },
   { g: 7, shade: 0.36, film: false, cls: " still" },
-  { g: 8, shade: 0.3, film: true, cls: "" },
+  { g: 8, shade: 0.3, film: false, cls: " still" },
 ] as const;
 
 /** The client book's longest bar: the most any row leaks. */
@@ -131,7 +135,6 @@ function Bar({ who, screen, children }: { who: string; screen: ReactNode; childr
 
 export function LandingV2({ prices }: { prices: V2Prices }) {
   const { tr, locale } = useTr("landingV2");
-  const { tr: first } = useTr("landing");
   const rich = useTranslations("landingV2" as "common") as unknown as Rich;
   const root = useRef<HTMLDivElement>(null);
 
@@ -239,7 +242,7 @@ export function LandingV2({ prices }: { prices: V2Prices }) {
       const r = checkRange(kind, sales);
       return range(r.low_minor, r.high_minor);
     },
-    sorted: `${tr("s7.leaking")} ↓`,
+    sorted: tr("s7.leaking"),
     clock: () =>
       new Intl.DateTimeFormat(locale, { hour: "2-digit", minute: "2-digit" }).format(new Date()),
   };
@@ -281,13 +284,13 @@ export function LandingV2({ prices }: { prices: V2Prices }) {
 
   const heading = (
     <>
-      <span className="h-line">{first("hero.titleA")}</span>{" "}
+      <span className="h-line">{tr("hero.titleA")}</span>{" "}
       <span className="h-line">{rich.rich("hero.titleB", EM)}</span>
     </>
   );
   const run = (
     <Link className="btn go" href="/check">
-      {tr("hero.run")} <span aria-hidden="true">→</span>
+      {tr("hero.run")}
     </Link>
   );
 
@@ -297,7 +300,17 @@ export function LandingV2({ prices }: { prices: V2Prices }) {
         {SCENES.map((s) => (
           <div key={s.g} className={`bg${s.cls}`} data-g={s.g} data-shade={s.shade}>
             {/* A plain img: a fixed backdrop the motion code pans and fades; next/image's wrapper would break both. */}
-            <img src={`${MEDIA}/g${s.g}.jpg`} alt="" loading={s.g === 0 ? "eager" : "lazy"} />
+            <img
+              src={s.cls === " pan" ? `${MEDIA}/g${s.g}-2x.jpg` : `${MEDIA}/g${s.g}.jpg`}
+              srcSet={
+                s.cls === " pan"
+                  ? undefined
+                  : `${MEDIA}/g${s.g}.jpg 1600w, ${MEDIA}/g${s.g}-2x.jpg 2560w`
+              }
+              sizes={s.cls === " pan" ? undefined : "100vw"}
+              alt=""
+              loading={s.g === 0 ? "eager" : "lazy"}
+            />
             {s.film && (
               <video muted loop playsInline preload="none">
                 <source data-src={`${MEDIA}/g${s.g}.webm`} type="video/webm" />
@@ -313,16 +326,13 @@ export function LandingV2({ prices }: { prices: V2Prices }) {
       <header className="hd">
         <div className="in">
           <a className="logo" href="#s0" aria-label="ScaleX">
-            <Mark size={32} onDark />
-            <span>
-              Scale<b>X</b>
-            </span>
+            <Wordmark onDark />
           </a>
-          <nav className="nav" aria-label={first("nav.label")}>
+          <nav className="nav" aria-label={tr("nav.label")}>
             <a href="#s1">{tr("nav.how")}</a>
             <a href="#s6">{tr("nav.pricing")}</a>
             <a href="#s7">{tr("nav.firms")}</a>
-            <Link href="/login">{first("nav.signIn")}</Link>
+            <Link href="/login">{tr("nav.signIn")}</Link>
           </nav>
           <Link className="btn sm go" href="/check">
             {tr("nav.check")}
@@ -353,7 +363,6 @@ export function LandingV2({ prices }: { prices: V2Prices }) {
                   <span className="cta-meta">
                     {tr("hero.ctaMeta", { minutes: V2.checkMinutes })}
                   </span>
-                  <span aria-hidden="true">→</span>
                 </Link>
                 <a className="btn lx-ghost" href="#s1">
                   {tr("hero.see")}
@@ -546,7 +555,6 @@ export function LandingV2({ prices }: { prices: V2Prices }) {
                       tabIndex={-1}
                     >
                       <span>{tr("decide.approve")}</span>
-                      <span aria-hidden="true">→</span>
                     </button>
                     <p className="foot st" style={at(6)} data-m="tourLog">
                       {tr("decide.nothing")}
@@ -566,7 +574,7 @@ export function LandingV2({ prices }: { prices: V2Prices }) {
         <section className="s" id="s1" data-g="1">
           <div className="in">
             <div className="copy">
-              <span className="lab rv">{tr("s1.kicker")}</span>
+              <span className="lab rv">{tr("s1.kicker", { n: num(1, 0, locale) })}</span>
               <h2 className="rv d1">{rich.rich("s1.title", EM)}</h2>
               <p className="lede rv d2">{tr("s1.lede")}</p>
             </div>
@@ -616,7 +624,7 @@ export function LandingV2({ prices }: { prices: V2Prices }) {
         <section className="s right tall" id="s2" data-g="2">
           <div className="in stickyin">
             <div className="copy">
-              <span className="lab rv">{tr("s2.kicker")}</span>
+              <span className="lab rv">{tr("s2.kicker", { n: num(2, 0, locale) })}</span>
               <h2 className="rv d1">{rich.rich("s2.title", EM)}</h2>
               <p className="lede rv d2">{tr("s2.lede")}</p>
             </div>
@@ -704,7 +712,6 @@ export function LandingV2({ prices }: { prices: V2Prices }) {
                   </p>
                   <button className="lx-act st2" style={at(6)} data-m="sealBtn" type="button">
                     <span data-m="sealLabel">{tr("s3.approvePause")}</span>
-                    <span aria-hidden="true">→</span>
                   </button>
                 </div>
               </div>
@@ -716,7 +723,7 @@ export function LandingV2({ prices }: { prices: V2Prices }) {
         <section className="s right" id="s4" data-g="4">
           <div className="in">
             <div className="copy">
-              <span className="lab rv">{tr("s4.kicker")}</span>
+              <span className="lab rv">{tr("s4.kicker", { n: num(3, 0, locale) })}</span>
               <h2 className="rv d1">{rich.rich("s4.title", EM)}</h2>
               <p className="lede rv d2">{tr("s4.lede")}</p>
               <div className="proofs rv d3">
@@ -769,7 +776,6 @@ export function LandingV2({ prices }: { prices: V2Prices }) {
                     </div>
                     <button className="lx-act st2" style={at(6)} data-m="approveBtn" type="button">
                       <span data-m="approveLabel">{tr("decide.approve")}</span>
-                      <span aria-hidden="true">→</span>
                     </button>
                   </div>
                   <div className="stamp">
@@ -800,8 +806,8 @@ export function LandingV2({ prices }: { prices: V2Prices }) {
         <section className="s tall" id="s5" data-g="5">
           <div className="in stickyin">
             <div className="copy">
-              <span className="lab rv">{tr("s5.kicker")}</span>
-              <h2 className="rv d1">{first("chart.title")}</h2>
+              <span className="lab rv">{tr("s5.kicker", { n: num(4, 0, locale) })}</span>
+              <h2 className="rv d1">{rich.rich("s5.title", EM)}</h2>
               <p className="lede rv d2">{tr("s5.lede", { days: num(V2.chartDays, 0, locale) })}</p>
             </div>
             <div className="demo">
@@ -992,7 +998,9 @@ export function LandingV2({ prices }: { prices: V2Prices }) {
           <div className="in">
             <div className="copy">
               <span className="lab rv">{tr("s8.kicker")}</span>
-              <h2 className="rv d1">{rich.rich("s8.title", EM)}</h2>
+              <h2 className="rv d1">
+                {rich.rich("s8.title", { ...EM, minutes: num(V2.checkMinutes, 0, locale) })}
+              </h2>
               <p className="lede rv d2">{tr("s8.lede")}</p>
               <div className="ctas rv d3">{run}</div>
             </div>
@@ -1051,17 +1059,17 @@ export function LandingV2({ prices }: { prices: V2Prices }) {
         <section className="s" id="s9" data-g="0">
           <div className="in one">
             <div className="faq rv">
-              <span className="lab">{first("faq.title")}</span>
+              <span className="lab">{tr("s9.title")}</span>
               <details>
-                <summary>{first("faq.passwordQ")}</summary>
-                <p>{first("faq.passwordA")}</p>
+                <summary>{tr("s9.passwordQ")}</summary>
+                <p>{tr("s9.passwordA")}</p>
               </details>
               <details>
-                <summary>{first("faq.changeQ")}</summary>
-                <p>{first("faq.changeA")}</p>
+                <summary>{tr("s9.changeQ")}</summary>
+                <p>{tr("s9.changeA")}</p>
               </details>
               <details>
-                <summary>{first("faq.sizeQ")}</summary>
+                <summary>{tr("s9.sizeQ")}</summary>
                 <p>{tr("s9.sizeA")}</p>
               </details>
               <details>
@@ -1082,10 +1090,10 @@ export function LandingV2({ prices }: { prices: V2Prices }) {
         </section>
       </main>
       <footer className="ft">
-        <span>ScaleX · {first("foot.company")}</span>
+        <span>ScaleX · {tr("foot.company")}</span>
         <span>
-          <Link href="/terms">{first("foot.terms")}</Link> ·{" "}
-          <Link href="/privacy">{first("foot.privacy")}</Link>
+          <Link href="/terms">{tr("foot.terms")}</Link> ·{" "}
+          <Link href="/privacy">{tr("foot.privacy")}</Link>
         </span>
       </footer>
     </div>

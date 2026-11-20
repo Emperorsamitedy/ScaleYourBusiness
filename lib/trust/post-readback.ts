@@ -117,7 +117,7 @@ export function judgePost(args: {
     return {
       verdict: "too_early",
       delta_pct: null,
-      arithmetic: `${have} earlier ${args.platform_word} post(s) measured on day ${args.age_days} — the comparison needs ${POST_READBACK.min_baseline_posts}`,
+      arithmetic: `${have} earlier ${args.platform_word} post(s) measured on day ${args.age_days}: the comparison needs ${POST_READBACK.min_baseline_posts}`,
     };
   }
   const parts: string[] = [];
@@ -256,7 +256,7 @@ export async function postOutcome(item: PostItem): Promise<PostOutcome> {
     item.published_at === null ||
     (item.status !== "published" && item.status !== "withdrawn")
   ) {
-    return { ...base, arithmetic: "not published — nothing to measure" };
+    return { ...base, arithmetic: "not published: nothing to measure" };
   }
   base.platform = platform;
   const audienceMetric = audienceMetricFor(platform);
@@ -298,7 +298,7 @@ export async function postOutcome(item: PostItem): Promise<PostOutcome> {
     return {
       ...base,
       verdict: "too_early",
-      arithmetic: `${measured_days} measured day(s) since ${publishedDay} — the verdict needs ${POST_READBACK.min_measured_days}`,
+      arithmetic: `${measured_days} measured day(s) since ${publishedDay}: the verdict needs ${POST_READBACK.min_measured_days}`,
     };
   }
   base.age_days = age;
@@ -308,7 +308,7 @@ export async function postOutcome(item: PostItem): Promise<PostOutcome> {
   if (figures === null || audience === null) {
     return {
       ...base,
-      arithmetic: `Meta gave no ${audienceMetric} for this post on day ${age} — nothing to compare`,
+      arithmetic: `Meta gave no ${audienceMetric} for this post on day ${age}: nothing to compare`,
     };
   }
 

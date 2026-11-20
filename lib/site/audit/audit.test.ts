@@ -495,7 +495,7 @@ describe("P5-13 / rule 25 — the € figure", () => {
   it("is not computed without the owner's own traffic and conversion, and says what is missing", () => {
     expect(speedEuro(5000, null)).toEqual({
       computed: false,
-      why: "not computed — it needs your own site traffic and conversion",
+      why: "not computed: it needs your own site traffic and conversion",
     });
     const missing = speedEuro(5000, { missing: "no monthly website visits of your own" });
     expect(missing.computed).toBe(false);
@@ -554,7 +554,7 @@ describe("P5-13 / rule 25 — the € figure", () => {
       expect(["critical", "high", "medium"]).toContain(f.severity);
     }
     const speed = report.find((f) => /main content takes/.test(f.title));
-    expect(speed?.detail).toMatch(/about 72 EUR–288 EUR a month at stake/);
+    expect(speed?.detail).toMatch(/about 72 EUR to 288 EUR a month at stake/);
     expect(report.find((f) => /broken/.test(f.title))?.detail).toMatch(/not computed/);
   });
 });

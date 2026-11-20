@@ -56,7 +56,7 @@ export function stalePublish(p: ApprovalView, now: Date): string | null {
   const detail = (p.action as { detail?: { publish_at?: unknown; zone?: unknown } } | null)?.detail;
   const due = instant(p.execute_not_before) ?? instant(detail?.publish_at);
   if (due === null || now.getTime() - due <= PUBLISH_STALE_AFTER_MS) return null;
-  return `I didn't post this — it was due on ${dayWord(due, detail?.zone)}; propose it again if it still fits.`;
+  return `I didn't post this: it was due on ${dayWord(due, detail?.zone)}; propose it again if it still fits.`;
 }
 
 /** The owner's sentence for an ad change approved too long ago, or null while it may run. */
@@ -64,7 +64,7 @@ export function staleAdChange(p: ApprovalView, now: Date): string | null {
   const approved = instant(p.decided_at);
   if (approved === null) return null;
   if (now.getTime() - approved <= AD_APPROVAL_MAX_AGE_DAYS * 86_400_000) return null;
-  return `I didn't make this change — you approved it on ${dayWord(approved)}, and the numbers behind it are more than ${AD_APPROVAL_MAX_AGE_DAYS} days old now. Nothing was changed; it needs proposing again on fresh numbers.`;
+  return `I didn't make this change: you approved it on ${dayWord(approved)}, and the numbers behind it are more than ${AD_APPROVAL_MAX_AGE_DAYS} days old now. Nothing was changed; it needs proposing again on fresh numbers.`;
 }
 
 /**
@@ -99,10 +99,10 @@ export const STALE_NOTE: Readonly<
   Record<"meta_publish" | "meta_ads" | "tiktok_publish" | "google_ads" | "tiktok_ads", string>
 > = {
   meta_publish:
-    "Once it's switched on, it goes out on the next run if that is within 30 hours of its time; later than that it isn't posted late — I'll tell you, and it can be proposed again.",
+    "Once it's switched on, it goes out on the next run if that is within 30 hours of its time; later than that it isn't posted late: I'll tell you, and it can be proposed again.",
   tiktok_publish:
-    "Once it's switched on, it goes out on the next run if that is within 30 hours of its time; later than that it isn't posted late — I'll tell you, and it can be proposed again.",
-  meta_ads: `Once it's switched on, it runs on the next run if you approved it within the last ${AD_APPROVAL_MAX_AGE_DAYS} days; an older approval isn't acted on stale numbers — I'll tell you instead.`,
-  google_ads: `Once it's switched on, it runs on the next run if you approved it within the last ${AD_APPROVAL_MAX_AGE_DAYS} days; an older approval isn't acted on stale numbers — I'll tell you instead.`,
-  tiktok_ads: `Once it's switched on, it runs on the next run if you approved it within the last ${AD_APPROVAL_MAX_AGE_DAYS} days; an older approval isn't acted on stale numbers — I'll tell you instead.`,
+    "Once it's switched on, it goes out on the next run if that is within 30 hours of its time; later than that it isn't posted late: I'll tell you, and it can be proposed again.",
+  meta_ads: `Once it's switched on, it runs on the next run if you approved it within the last ${AD_APPROVAL_MAX_AGE_DAYS} days; an older approval isn't acted on stale numbers: I'll tell you instead.`,
+  google_ads: `Once it's switched on, it runs on the next run if you approved it within the last ${AD_APPROVAL_MAX_AGE_DAYS} days; an older approval isn't acted on stale numbers: I'll tell you instead.`,
+  tiktok_ads: `Once it's switched on, it runs on the next run if you approved it within the last ${AD_APPROVAL_MAX_AGE_DAYS} days; an older approval isn't acted on stale numbers: I'll tell you instead.`,
 };

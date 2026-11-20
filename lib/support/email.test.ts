@@ -294,7 +294,7 @@ describe("P4-09 — routing, threading and idempotency", () => {
       consent_status: "unsure",
     });
     expect(contact?.consent_source).toMatch(
-      /^emailed support \d{4}-\d{2}-\d{2} — a support request is not marketing consent$/,
+      /^emailed support \d{4}-\d{2}-\d{2}: a support request is not marketing consent$/,
     );
 
     // The same delivery again: acknowledged, nothing filed twice.
@@ -565,7 +565,7 @@ describe("review #12 — ScaleX's own mail, forwarded back, is never a ticket", 
       from: "ScaleX <login@syb-mail.test>",
       to: ["info@shop.example"],
       received_for: [b.address],
-      subject: "Your sign-in link — ScaleX",
+      subject: "Your sign-in link · ScaleX",
       text: `Click to sign in to ScaleX:\n\n${link}\n\nThe link works once.`,
     });
     const log = vi.spyOn(console, "log").mockImplementation(() => {});

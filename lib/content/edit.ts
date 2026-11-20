@@ -79,7 +79,7 @@ async function licensedTrack(trackId: string): Promise<string> {
   const track = tracks.find((t) => t.id === trackId);
   if (!track) {
     throw new EditError(
-      `no licensed track "${trackId}" on file — the music library holds only licensed tracks, and licensing is an owner decision still open`,
+      `no licensed track "${trackId}" on file: the music library holds only licensed tracks, and licensing is an owner decision still open`,
       422,
     );
   }

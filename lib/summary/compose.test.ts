@@ -64,7 +64,7 @@ describe("I-42 — a quiet week", () => {
           row(
             "2026-10-26 06:00:00+00",
             "snapshot_taken",
-            "Weekly check: the profile held steady — nothing changed since last week.",
+            "Weekly check: the profile held steady. Nothing changed since last week.",
           ),
         ],
       }),
@@ -135,7 +135,7 @@ describe("I-42 — a busy week", () => {
       "4 proposals wait for your decision. Nothing runs until you approve it.",
     );
     // Three named, the rest counted.
-    expect(waiting.lines.map((l) => l.text)).toContain("— and 1 more.");
+    expect(waiting.lines.map((l) => l.text)).toContain("- and 1 more.");
     expect(waiting.lines.at(-1)!.text).toBe(
       "2 customer questions wait for your answer on Support.",
     );
@@ -203,7 +203,7 @@ describe("I-42 — money in readbacks", () => {
 
   it("prints revenue through the currency's exponent, with the basis word", () => {
     expect(readbackLine(base)).toBe(
-      "Raise the cut price: helped — daily revenue averaged €1,240.00 after, against €1,100.00 before (+12.7%), measured.",
+      "Raise the cut price: helped, daily revenue averaged €1,240.00 after, against €1,100.00 before (+12.7%), measured.",
     );
   });
 
@@ -217,7 +217,7 @@ describe("I-42 — money in readbacks", () => {
       delta_pct: -21.2,
     });
     expect(line).toBe(
-      "Raise the cut price: backfired — daily revenue averaged ¥41,001 after, against ¥52,000 before (-21.2%), measured.",
+      "Raise the cut price: backfired, daily revenue averaged ¥41,001 after, against ¥52,000 before (-21.2%), measured.",
     );
   });
 
@@ -235,7 +235,7 @@ describe("I-42 — money in readbacks", () => {
   it("an unmeasured change gets no line; too early says so without a number", () => {
     expect(readbackLine({ ...base, verdict: "unmeasured" })).toBeNull();
     expect(readbackLine({ ...base, verdict: "too_early", delta_pct: null })).toBe(
-      "Raise the cut price: too early to say — not enough measured days since it ran.",
+      "Raise the cut price: too early to say, not enough measured days since it ran.",
     );
   });
 
@@ -249,7 +249,7 @@ describe("I-42 — money in readbacks", () => {
       delta_pct: 30,
     });
     expect(line).toBe(
-      "Raise the cut price: helped — judged on reach and interactions against your previous posts (+30%), measured.",
+      "Raise the cut price: helped, judged on reach and interactions against your previous posts (+30%), measured.",
     );
   });
 });

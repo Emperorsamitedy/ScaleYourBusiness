@@ -56,6 +56,7 @@ import type { BookingStatus } from "../bookings/types";
 import type { Weekday } from "../hours/schedule";
 import { dayMonth } from "../i18n/format";
 import type { AppLocale } from "../i18n/locales";
+import { rangeOf } from "../i18n/range";
 import { intlTag } from "../i18n/locales";
 import type { Tr } from "../i18n/tr";
 import { englishTr } from "../i18n/tr";
@@ -341,11 +342,11 @@ function pctText(x: number, locale: AppLocale): string {
     : numberFormat(locale, { style: "percent", maximumFractionDigits: 0 }).format(pct(x) / 100);
 }
 
-/** "91–100%"; "91–100 %" in German. */
+/** "91 to 100%"; "91 bis 100 %" in German. */
 function pctRangeText(low: number, high: number, locale: AppLocale): string {
   return locale === "en"
-    ? `${pct(low)}–${pct(high)}%`
-    : `${figText(pct(low), locale, 0)}–${pctText(high, locale)}`;
+    ? `${pct(low)} to ${pct(high)}%`
+    : rangeOf(figText(pct(low), locale, 0), pctText(high, locale), locale);
 }
 
 /** The first letter lowered, for a phrase that moves into the middle of a sentence. */

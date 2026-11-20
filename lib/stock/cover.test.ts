@@ -204,7 +204,7 @@ describe("P5-02 the rate and days of cover, as ranges", () => {
     expect(c.cover!.low).toBeCloseTo(low);
     expect(c.cover!.mid).toBeCloseTo(8);
     expect(c.cover!.high).toBeCloseTo(high);
-    expect(coverColumn(c)).toBe(`${Math.round(low)}–${Math.round(high)}`);
+    expect(coverColumn(c)).toBe(`${Math.round(low)} to ${Math.round(high)}`);
     expect(c.runs_out!.earliest).toBe(shiftDay(TODAY, Math.floor(low)));
   });
 
@@ -239,7 +239,7 @@ describe("P5-02 the rate and days of cover, as ranges", () => {
     expect(c.warning?.level).toBe("tight");
     expect(c.warning?.flag).toBe("RUNNING LOW");
     expect(c.warning?.sentence).toBe(
-      "Blue Mug runs out in about 7–10 days; Midland Clay takes 7 days.",
+      "Blue Mug runs out in about 7 to 10 days; Midland Clay takes 7 days.",
     );
     expect(c.reorder).not.toBeNull();
   });
@@ -319,7 +319,7 @@ describe("P5-02 the rate and days of cover, as ranges", () => {
     expect(c.cover).toBeNull();
     expect(c.warning).toBeNull();
     expect(c.why).toContain("Only 10 days");
-    expect(coverColumn(c)).toBe("—");
+    expect(coverColumn(c)).toBe("-");
   });
 });
 

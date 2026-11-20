@@ -26,10 +26,10 @@
 .pt-section {
   margin: var(--s-6) 0 var(--s-4);
   font-family: var(--f-mono);
-  font-size: var(--t-mono-s);
+  font-size: calc(var(--t-mono-s) + var(--caps-bump, 0px));
   font-weight: 400;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  letter-spacing: var(--caps-ls, 0.08em);
+  text-transform: var(--caps, uppercase);
   color: var(--sheet-ink-2);
 }
 
@@ -49,15 +49,23 @@
   margin-top: var(--s-4);
   color: var(--sheet-ink-2);
 }
+/* The section's name, the line about what is held and the fold under the
+   cards sit on the dark desk, where paper ink cannot be read: desk ink there
+   (2026-11-19, found by measuring contrast on every screen). */
+.pt-screen > .pt-section,
+.pt-screen > .pt-copy,
+.pt-screen > .fold .pt-copy {
+  color: var(--desk-ink-2);
+}
 .pt-wait {
   font-size: 15px;
 }
 .pt-sub {
   margin: 12px 0 4px;
   font-family: var(--f-mono);
-  font-size: 12px;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  font-size: calc(12px + var(--caps-bump, 0px));
+  letter-spacing: var(--caps-ls, 0.06em);
+  text-transform: var(--caps, uppercase);
   color: var(--sheet-ink-2);
 }
 .pt-sub:first-child {
@@ -124,4 +132,10 @@
   .pt-pairs {
     min-width: 0;
   }
+}
+
+/* Sentence case: a label the classic look set in capitals starts with one
+   (the owner app's type, app/sheet.css). In the classic look it follows the label. */
+:is(.pt-section, .pt-sub)::first-letter {
+  text-transform: var(--caps-first, inherit);
 }

@@ -276,7 +276,7 @@ function Review({ review }: { review: NonNullable<CareGoal["review"]> }) {
                   ? tr("review.waitingNote", { title: s.title, note: s.note })
                   : tr("review.waiting", { title: s.title })
                 : s.note !== null
-                  ? `${s.title} — ${s.note}`
+                  ? `${s.title}: ${s.note}`
                   : tr("review.yours", { title: s.title })}
             </li>
           ))}
@@ -387,11 +387,11 @@ function GoalCard({
       <dl className="gl-stats">
         <div className="gl-now">
           <dt>{tr("card.now")}</dt>
-          <dd>{nowValue === null ? "—" : per30(nowValue, m.currency, locale)}</dd>
+          <dd>{nowValue === null ? "-" : per30(nowValue, m.currency, locale)}</dd>
         </div>
         <div>
           <dt>{tr("card.pathSays")}</dt>
-          <dd>{pathValue === null ? "—" : per30(pathValue, m.currency, locale)}</dd>
+          <dd>{pathValue === null ? "-" : per30(pathValue, m.currency, locale)}</dd>
         </div>
         <div>
           <dt>{tr("card.target")}</dt>

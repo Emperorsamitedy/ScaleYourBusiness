@@ -20,6 +20,7 @@
   background: var(--marker);
   color: var(--sheet-ink);
   font-size: 13.5px;
+  border-radius: var(--r-ctl, 0);
 }
 
 /* the board */
@@ -41,14 +42,14 @@
 .pl-col-head h3 {
   margin: 0;
   font-family: var(--f-mono);
-  font-size: 12px;
+  font-size: calc(12px + var(--caps-bump, 0px));
   font-weight: 600;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  letter-spacing: var(--caps-ls, 0.06em);
+  text-transform: var(--caps, uppercase);
 }
 .pl-col-meta {
   margin: 2px 0 0;
-  font-family: var(--f-mono);
+  font-family: var(--f-fig);
   font-size: 11.5px;
   color: var(--sheet-ink-2);
   font-variant-numeric: tabular-nums;
@@ -80,7 +81,7 @@
 .pl-fig,
 .pl-age {
   margin-top: 3px !important;
-  font-family: var(--f-mono);
+  font-family: var(--f-fig);
   font-size: 12.5px;
   font-variant-numeric: tabular-nums;
 }
@@ -104,9 +105,9 @@
 .pl-edit summary {
   cursor: pointer;
   font-family: var(--f-mono);
-  font-size: 11.5px;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
+  font-size: calc(11.5px + var(--caps-bump, 0px));
+  text-transform: var(--caps, uppercase);
+  letter-spacing: var(--caps-ls, 0.06em);
 }
 .pl-edit .pl-field {
   margin-top: 6px;
@@ -173,6 +174,7 @@
   padding: 10px 12px;
   border: 1px solid var(--rule);
   background: var(--inset);
+  border-radius: var(--r-ctl, 0);
 }
 .pl-draft pre {
   margin: 0;
@@ -269,6 +271,7 @@
   color: var(--sheet-ink);
   font-family: var(--f-mono);
   font-size: 13px;
+  border-radius: var(--r-s, 0);
 }
 .pl-field textarea {
   resize: vertical;
@@ -297,4 +300,10 @@
   .pl-cols2 {
     grid-template-columns: minmax(0, 1fr);
   }
+}
+
+/* Sentence case: a label the classic look set in capitals starts with one
+   (the owner app's type, app/sheet.css). In the classic look it follows the label. */
+:is(.pl-col-head h3, .pl-edit summary)::first-letter {
+  text-transform: var(--caps-first, inherit);
 }

@@ -13,7 +13,9 @@ type RequiredKey = "DATABASE_URL" | "ANTHROPIC_API_KEY" | "CONNECTOR_KEY" | "BLO
 export class MissingEnvError extends Error {
   readonly key: RequiredKey;
   constructor(key: RequiredKey) {
-    super(`Missing required environment variable ${key} — copy .env.example to .env and fill it in`);
+    super(
+      `Missing required environment variable ${key} — copy .env.example to .env and fill it in`,
+    );
     this.name = "MissingEnvError";
     this.key = key;
   }

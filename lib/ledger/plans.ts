@@ -35,7 +35,7 @@ export const DEFAULT_WINDOW_DAYS = 28;
 /** §3.7: executing without an open plan raises this, and the action does not run. */
 export class MeasurementRequiredError extends Error {
   constructor(
-    message = "there is no open measurement plan for this action — nothing runs without one",
+    message = "there is no open measurement plan for this action: nothing runs without one",
   ) {
     super(message);
     this.name = "MeasurementRequiredError";

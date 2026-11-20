@@ -101,7 +101,7 @@ export async function lockSubscription(args: {
     throw new PriceBookError(
       segment === "micro_sole"
         ? "a sole trader's plan is Watch"
-        : "this business is beyond what ScaleX serves in v1 — it joins the waitlist",
+        : "this business is beyond what ScaleX serves in v1: it joins the waitlist",
       409,
     );
   }
@@ -258,5 +258,5 @@ export async function priceBookStartupCheck(): Promise<string | null> {
   const countries = [...new Set(enabled.map((r) => r.country).filter((c) => c !== "*"))];
   if (countries.length === 0) return null;
   if (await quotasConfirmed()) return null;
-  return `price book enabled for ${countries.join(", ")} while the per-tier usage quotas are unconfirmed — confirm them or switch those prices off`;
+  return `price book enabled for ${countries.join(", ")} while the per-tier usage quotas are unconfirmed: confirm them or switch those prices off`;
 }

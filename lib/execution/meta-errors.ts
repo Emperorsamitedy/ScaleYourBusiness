@@ -60,9 +60,9 @@ const AUTH_SUBCODE_REASON: Readonly<Record<number, string>> = {
  * connection itself carries the classified sentence (why it stopped).
  */
 export const PAUSED_WORK_SENTENCE: Readonly<Record<"publish" | "ad_change", string>> = {
-  publish: "I couldn't post — the connection expired. Reconnect and I'll pick up where I left off.",
+  publish: "I couldn't post: the connection expired. Reconnect and I'll pick up where I left off.",
   ad_change:
-    "I couldn't change the ad — the connection expired. Reconnect and I'll pick up where I left off.",
+    "I couldn't change the ad: the connection expired. Reconnect and I'll pick up where I left off.",
 };
 
 /** P3-24b: a refusal that pauses the execute connection itself — the auth class, and only it. */
@@ -115,7 +115,7 @@ export function classifyMetaError(args: {
       ...base,
       kind: "page_limit",
       owner_sentence:
-        "Meta's limit for this Page is used up for now. Nothing was lost — I'll try again after a pause.",
+        "Meta's limit for this Page is used up for now. Nothing was lost. I'll try again after a pause.",
       connection_state: "connected",
       next_step: "wait",
       retryable: true,
@@ -126,7 +126,7 @@ export function classifyMetaError(args: {
       ...base,
       kind: "rate_limit",
       owner_sentence:
-        "Meta asked ScaleX to slow down. Nothing was lost — I'll try again after a pause.",
+        "Meta asked ScaleX to slow down. Nothing was lost. I'll try again after a pause.",
       connection_state: "connected",
       next_step: "wait",
       retryable: true,
@@ -139,7 +139,7 @@ export function classifyMetaError(args: {
     return {
       ...base,
       kind: "unavailable",
-      owner_sentence: `Meta didn't answer just now. Nothing was ${done} — I'll try again.`,
+      owner_sentence: `Meta didn't answer just now. Nothing was ${done}. I'll try again.`,
       connection_state: "connected",
       next_step: "wait",
       retryable: true,

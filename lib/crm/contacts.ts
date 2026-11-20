@@ -134,14 +134,14 @@ export async function addContact(accountId: string, input: NewContact): Promise<
     throw new ContactError("a contact needs at least an email, a name or a phone", 422);
   }
   if (input.consent.source.trim() === "") {
-    throw new ContactError("consent needs its provenance — how was it obtained?", 422);
+    throw new ContactError("consent needs its provenance: how was it obtained?", 422);
   }
   const email = input.email ? normalizeEmail(input.email) : null;
   if (email) {
     const suppressed = await isSuppressed(accountId, email);
     if (suppressed) {
       throw new ContactError(
-        `that address is permanently suppressed (${suppressed}) — it cannot be re-added`,
+        `that address is permanently suppressed (${suppressed}): it cannot be re-added`,
         409,
       );
     }
@@ -184,7 +184,7 @@ export async function canEmailForMarketing(contact: ContactRow): Promise<EmailPe
   if (contact.consent_status !== "explicit_consent") {
     return {
       allowed: false,
-      reason: `consent is "${contact.consent_status.replace(/_/g, " ")}" — marketing needs explicit consent, recorded`,
+      reason: `consent is "${contact.consent_status.replace(/_/g, " ")}": marketing needs explicit consent, recorded`,
     };
   }
   return { allowed: true, reason: "explicit consent on record" };

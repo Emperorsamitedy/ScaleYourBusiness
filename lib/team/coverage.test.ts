@@ -62,7 +62,7 @@ describe("teamCoverage — the bookings path", () => {
     expect(r.status).toBe("ok");
     if (r.status !== "ok") return;
     expect(r.headline).toBe(
-      "Saturdays 10:00–14:00 ran 112% booked; one teacher covers about 6.3 appointments an hour at your stated 25 a week.",
+      "Saturdays 10:00 to 14:00 ran 112% booked; one teacher covers about 6.3 appointments an hour at your stated 25 a week.",
     );
     const f = r.findings[0];
     expect(f?.band).toBe("short");
@@ -140,7 +140,7 @@ describe("teamCoverage — the bookings path", () => {
       [12, 14],
     ]);
     expect(r.findings.filter((f) => f.band === "quiet").map((f) => f.words)).toEqual([
-      "Saturdays 11:00–12:00 ran 16% booked",
+      "Saturdays 11:00 to 12:00 ran 16% booked",
     ]);
   });
 
@@ -359,9 +359,9 @@ describe("the busy season", () => {
   it("names the hours even the low end of the busy stretch would push past capacity", () => {
     const r = lifted(1.6); // 0.64 × 1.6 = 1.024
     if (r.status !== "ok") throw new Error("refused");
-    expect(r.season.extra).toEqual(["Saturdays 13:00–14:00"]);
+    expect(r.season.extra).toEqual(["Saturdays 13:00 to 14:00"]);
     expect(r.season.words).toMatch(
-      /^Your busy stretch starts on 1 Dec: last year it ran 1\.7× \(1\.6–1\.9×\)/,
+      /^Your busy stretch starts on 1 Dec: last year it ran 1\.7× \(1\.6 to 1\.9×\)/,
     );
   });
 
@@ -422,7 +422,7 @@ describe("teamCoverage — the takings path", () => {
     const quiet = at(25);
     expect(quiet.source).toBe("takings");
     expect(quiet.findings.map((f) => f.words)).toEqual([
-      "Saturdays 13:00–14:00 took 25% of the day's busiest hour",
+      "Saturdays 13:00 to 14:00 took 25% of the day's busiest hour",
     ]);
     expect(at(26).findings).toEqual([]);
     // Takings can't say when demand runs over capacity.
@@ -440,7 +440,7 @@ describe("teamCoverage — the takings path", () => {
 describe("P5-19 — a range in words", () => {
   it("prints a spread as low–high", () => {
     expect(rangeWords({ low: 1.03, high: 1.13 }, 8, "Fridays")).toBe(
-      "(103–113% on the middle half of the 8 Fridays read)",
+      "(103 to 113% on the middle half of the 8 Fridays read)",
     );
   });
 

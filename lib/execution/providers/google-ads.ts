@@ -157,7 +157,7 @@ const ID_RE = /^\d{1,20}$/;
 function campaignIdOf(params: Record<string, unknown>): string {
   const id = params["campaign_id"];
   if (typeof id !== "string" || !ID_RE.test(id)) {
-    throw new GoogleAdChangeError("the ad change names no Google Ads campaign — nothing was sent");
+    throw new GoogleAdChangeError("the ad change names no Google Ads campaign: nothing was sent");
   }
   return id;
 }
@@ -165,7 +165,7 @@ function campaignIdOf(params: Record<string, unknown>): string {
 function shareOf(params: Record<string, unknown>): number {
   const share = params["share"];
   if (typeof share !== "number" || !Number.isFinite(share) || share === 0) {
-    throw new GoogleAdChangeError("the budget change names no amount — nothing was sent");
+    throw new GoogleAdChangeError("the budget change names no amount: nothing was sent");
   }
   return share;
 }
@@ -173,7 +173,7 @@ function shareOf(params: Record<string, unknown>): number {
 function approvedCurrency(params: Record<string, unknown>): string {
   const c = params["currency"];
   if (typeof c !== "string" || !/^[A-Za-z]{3}$/.test(c)) {
-    throw new GoogleAdChangeError("the budget change names no currency — nothing was sent");
+    throw new GoogleAdChangeError("the budget change names no currency: nothing was sent");
   }
   return c.toUpperCase();
 }
@@ -375,14 +375,14 @@ export function createGoogleAdsExecution(
     const url = `${GOOGLE_ADS_ORIGIN}/${V}/customers/${run.cred.customer_id}/${which}:mutate`;
     if (allowedMutateEndpoint(url) !== which) {
       throw new GoogleAdChangeError(
-        "refusing a change that isn't on ScaleX's list — nothing was sent",
+        "refusing a change that isn't on ScaleX's list: nothing was sent",
       );
     }
     const field = GADS_MUTATE_ENDPOINTS[which].field;
     const keys = Object.keys(update).filter((k) => k !== "resourceName");
     if (keys.length !== 1 || keys[0] !== field) {
       throw new GoogleAdChangeError(
-        "refusing a change to a field ScaleX doesn't write — nothing was sent",
+        "refusing a change to a field ScaleX doesn't write: nothing was sent",
       );
     }
     const operations = [{ updateMask: field, update }];
@@ -414,7 +414,7 @@ export function createGoogleAdsExecution(
       ? (body.results[0] as { resourceName?: unknown })
       : null;
     if (first?.resourceName !== update.resourceName) {
-      throw new GoogleAdChangeError("Google didn't confirm the change — I'll check again.", true);
+      throw new GoogleAdChangeError("Google didn't confirm the change: I'll check again.", true);
     }
   }
 
@@ -589,12 +589,12 @@ export function createGoogleAdsExecution(
       // what this execution set. If the owner has changed it since, theirs stands.
       const changedSince = (now: string, set: string) =>
         new GoogleAdChangeError(
-          `I didn't undo this: "${c.name}" is ${now} on Google Ads now, not the ${set} I set — you've changed it since, and I won't override that. Nothing was changed.`,
+          `I didn't undo this: "${c.name}" is ${now} on Google Ads now, not the ${set} I set: you've changed it since, and I won't override that. Nothing was changed.`,
         );
       if (op === "pause_campaign" || op === "resume_campaign") {
         if (typeof u.status !== "string" || !GADS_STATUSES.includes(u.status)) {
           throw new GoogleAdChangeError(
-            "the stored undo names no status ScaleX may set — nothing was changed",
+            "the stored undo names no status ScaleX may set: nothing was changed",
           );
         }
         if (c.status !== u.status) {
@@ -631,7 +631,7 @@ export function createGoogleAdsExecution(
           typeof u.currency !== "string" ||
           typeof u.budget_resource !== "string"
         ) {
-          throw new GoogleAdChangeError("the stored undo names no budget — nothing was changed");
+          throw new GoogleAdChangeError("the stored undo names no budget: nothing was changed");
         }
         const cur = u.currency;
         const own = ownDailyBudget(c);

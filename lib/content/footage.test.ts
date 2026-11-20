@@ -447,7 +447,7 @@ describe.skipIf(!ffmpegAvailable())("P3-52 — end to end through the cutting ro
       status: "drafted",
       channel_label: "instagram",
       scheduled_for: sl.scheduled_for,
-      title: "Autumn menu — video",
+      title: "Autumn menu: video",
       disclosure: disclosureLabel("video"),
     });
     expect(video!.body).toBe(`Soup season is here.\n\n${disclosureLabel("video")}`);

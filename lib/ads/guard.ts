@@ -109,7 +109,7 @@ export class UnknownMetaCurrencyError extends Error {
   readonly retryable = false;
   constructor(currency: string) {
     super(
-      `Meta's currency table doesn't list ${currency}, so I won't send a budget in it — a wrong unit would be a budget 100× off. Nothing was changed.`,
+      `Meta's currency table doesn't list ${currency}, so I won't send a budget in it: a wrong unit would be a budget 100× off. Nothing was changed.`,
     );
     this.name = "UnknownMetaCurrencyError";
   }
@@ -237,7 +237,7 @@ export function spendGuard(a: SpendGuardArgs): string | null {
   const ceiling = a.monthly_ceiling ?? null;
   if (ceiling !== null && a.proposed_daily_minor > a.current_daily_minor) {
     if (ceiling.currency.toUpperCase() !== a.currency.toUpperCase()) {
-      return `your ad ceiling is in ${ceiling.currency} and this campaign spends in ${a.currency} — I won't convert to compare them`;
+      return `your ad ceiling is in ${ceiling.currency} and this campaign spends in ${a.currency}: I won't convert to compare them`;
     }
     const account = a.account_daily_minor ?? a.current_daily_minor;
     // Every term is whole minor units, so × 30 stays whole.
@@ -281,7 +281,7 @@ export function newSpendGuard(a: {
   const ceiling = a.monthly_ceiling;
   if (ceiling === null) return NO_CEILING_FOR_NEW_SPEND;
   if (ceiling.currency.toUpperCase() !== a.currency.toUpperCase()) {
-    return `your ad ceiling is in ${ceiling.currency} and this ad spends in ${a.currency} — I won't convert to compare them`;
+    return `your ad ceiling is in ${ceiling.currency} and this ad spends in ${a.currency}: I won't convert to compare them`;
   }
   const projected = ((a.account_daily_minor ?? 0) + a.daily_minor) * 30;
   if (projected > ceiling.amount_minor) {
@@ -308,7 +308,7 @@ export function reactivationGuard(a: {
   const ceiling = a.monthly_ceiling;
   if (ceiling === null) return null;
   if (ceiling.currency.toUpperCase() !== a.currency.toUpperCase()) {
-    return `your ad ceiling is in ${ceiling.currency} and this campaign spends in ${a.currency} — I won't convert to compare them`;
+    return `your ad ceiling is in ${ceiling.currency} and this campaign spends in ${a.currency}: I won't convert to compare them`;
   }
   if (a.campaign_daily_minor === null) {
     return "its budget sits on its ad sets, so I can't tell what it would spend against your stated ceiling";

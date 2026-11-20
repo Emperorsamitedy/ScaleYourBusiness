@@ -94,7 +94,8 @@ describe("the PDF carries the order", () => {
     expect(read.runs).toEqual(
       expect.arrayContaining(["Speckled Everyday Mug", "50", "€9.80", "€490.00"]),
     );
-    expect(text).toContain("Dinner Plate\n12\nto be confirmed\n—");
+    // No price, no total: a plain hyphen where there is no value, never a long dash (L7).
+    expect(text).toContain("Dinner Plate\n12\nto be confirmed\n-");
     // The total, with the line that has no price stated or measured (wrapped across two lines).
     expect(text.replace(/\n/g, " ")).toContain(
       "Expected total: €490.00, plus 1 line with the price to be confirmed by the supplier",

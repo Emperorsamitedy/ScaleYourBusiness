@@ -112,7 +112,7 @@
 }
 .st-rank-fig {
   margin-top: 3px !important;
-  font-family: var(--f-mono);
+  font-family: var(--f-fig);
   font-size: 13px;
   font-variant-numeric: tabular-nums;
 }
@@ -175,6 +175,7 @@
   color: var(--sheet-ink);
   font-family: var(--f-mono);
   font-size: 13px;
+  border-radius: var(--r-s, 0);
 }
 .st-field textarea {
   resize: vertical;
@@ -213,7 +214,7 @@
   margin-top: 15px;
 }
 .st-mono {
-  font-family: var(--f-mono);
+  font-family: var(--f-fig);
   font-size: 12.5px;
 }
 .st-warn {
@@ -247,4 +248,10 @@
   flex-wrap: wrap;
   gap: 8px 12px;
   align-items: center;
+}
+
+/* L6: each option's sum under "How this works": the option's name on its own line. */
+.st-how li strong {
+  display: block;
+  font-weight: 600;
 }

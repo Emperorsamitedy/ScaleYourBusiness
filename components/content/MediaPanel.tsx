@@ -293,7 +293,7 @@ export function MediaPanel(props: {
           ) : gen.pending_proposal_id ? (
             <p className="ct-why">
               {tr("mediaPanel.fallback.pending")}{" "}
-              <Link href="/proposals">{tr("action.decide")} →</Link>
+              <Link href="/proposals">{tr("action.decide")}</Link>
             </p>
           ) : gen.approved_proposal_id ? (
             <div className="ct-actions">

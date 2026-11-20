@@ -255,7 +255,7 @@ export function HistoryScreen({
                   return (
                     <li key={r.key} className="hi-row">
                       <span className="hi-time">
-                        {r.kind === "measured" ? t("now") : r.timed ? clock(r.at, locale) : "—"}
+                        {r.kind === "measured" ? t("now") : r.timed ? clock(r.at, locale) : "-"}
                       </span>
                       <span className="hi-kind">
                         <span className={`word boxed ${tone}`}>{t(`kind.${r.kind}`)}</span>

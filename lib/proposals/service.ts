@@ -196,7 +196,7 @@ export async function rejectProposal(args: {
   store?: MediaStore;
 }): Promise<ProposalRow> {
   if (args.reason.trim() === "") {
-    throw new ProposalError("declining asks why — the reason is required", 422);
+    throw new ProposalError("declining asks why: the reason is required", 422);
   }
   const row = await decide({
     proposalId: args.proposalId,
@@ -237,7 +237,7 @@ export async function requestChanges(args: {
 }): Promise<ProposalRow> {
   if (args.words.trim() === "") {
     throw new ProposalError(
-      "asking for changes needs the changes — say what should be different",
+      "asking for changes needs the changes: say what should be different",
       422,
     );
   }
@@ -331,7 +331,7 @@ async function decide(args: {
       // format, `now` is ISO, and the two don't sort alike as strings.
       if (cur.status === "pending" && Date.parse(cur.expires_at) <= Date.parse(now)) {
         throw new ProposalError(
-          "this proposal has expired — it needs re-proposing, not deciding",
+          "this proposal has expired: it needs re-proposing, not deciding",
           409,
         );
       }
@@ -373,7 +373,7 @@ async function decide(args: {
         const tiktok = act.detail?.platform === "tiktok";
         if (tiktok && parseTikTokSettings(item.tiktok_settings) === null) {
           throw new ProposalError(
-            "choose who can see it on TikTok first, on Content — then approve it",
+            "choose who can see it on TikTok first, on Content, then approve it",
             409,
           );
         }
@@ -394,7 +394,7 @@ async function decide(args: {
       const edited = await applyCalendarEdit(tx, { profileId: row.profile_id, ...calendar });
       if (!edited) {
         throw new ProposalError(
-          "that calendar item has changed since this was proposed, or it's already headed for publishing, so nothing was changed — decline this one and ask me again",
+          "that calendar item has changed since this was proposed, or it's already headed for publishing, so nothing was changed. Decline this one and ask me again",
           409,
         );
       }
@@ -478,7 +478,7 @@ export async function recordExecution(
         .where(eq(proposals.id, args.proposalId));
       if (!cur) throw new ProposalError("no such proposal", 404);
       throw new ProposalError(
-        `only an approved proposal can execute — this one is ${cur.status}`,
+        `only an approved proposal can execute: this one is ${cur.status}`,
         409,
       );
     }

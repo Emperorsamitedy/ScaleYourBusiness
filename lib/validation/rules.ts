@@ -193,7 +193,7 @@ export const RULES: readonly ValidationRule[] = [
       if (counted === 0 || total <= revenue.amount_minor) return null;
       return {
         field_keys: ["costs", "revenue.monthly_revenue", "revenue.trend"],
-        message: `Your monthly costs add up to about ${fmtMoney({ amount_minor: total, currency: revenue.currency })}, more than the ${fmtMoney(revenue)} coming in — while revenue is marked as growing.`,
+        message: `Your monthly costs add up to about ${fmtMoney({ amount_minor: total, currency: revenue.currency })}, more than the ${fmtMoney(revenue)} coming in, while revenue is marked as growing.`,
         args: { total: { amount_minor: total, currency: revenue.currency }, revenue },
       };
     },

@@ -121,6 +121,6 @@ export function approvalRate(counts: StatusCounts): {
     arithmetic:
       denominator > 0
         ? `${numerator} approved of ${denominator} concluded (${counts.rejected} declined, ${counts.expired} lapsed; ${counts.blocked} withheld by your limits, not counted) = ${value}%`
-        : "nothing concluded yet — the rate exists after your first decisions",
+        : "nothing concluded yet: the rate exists after your first decisions",
   };
 }

@@ -105,7 +105,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     }
     if (isMissingEnvError(error)) {
       return NextResponse.json(
-        { error: `I can't answer from here yet — this server's ${error.key} isn't set.` },
+        { error: `I can't answer from here yet: this server's ${error.key} isn't set.` },
         { status: 503 },
       );
     }

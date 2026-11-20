@@ -93,7 +93,7 @@ export const COMPLIANCE_RULES: readonly ComplianceRule[] = [
     applies: (a) => a.external === true || PHONE_CAPABILITIES.has(a.capability),
     refuse: async ({ args, rule }) =>
       rule?.execution_halted === true
-        ? `everything ScaleX does outside itself is halted for businesses in ${args.country} — the compliance matrix says so`
+        ? `everything ScaleX does outside itself is halted for businesses in ${args.country}: the compliance matrix says so`
         : null,
   },
   {
@@ -103,7 +103,7 @@ export const COMPLIANCE_RULES: readonly ComplianceRule[] = [
     refuse: async ({ args, rule }) =>
       inboundPhoneAllowed(rule) || rule?.execution_halted === true
         ? null
-        : `phone answering isn't unblocked for ${where(args.country)} — the compliance matrix needs counsel's sign-off for that country first`,
+        : `phone answering isn't unblocked for ${where(args.country)}: the compliance matrix needs counsel's sign-off for that country first`,
   },
   {
     // §9.2: outbound AI calling, behind its own flag, only after inbound.
@@ -112,7 +112,7 @@ export const COMPLIANCE_RULES: readonly ComplianceRule[] = [
     refuse: async ({ args, rule }) =>
       outboundPhoneAllowed(rule) || rule?.execution_halted === true
         ? null
-        : `outbound calling isn't unblocked for ${where(args.country)} — the compliance matrix keeps it blocked until inbound is proven there`,
+        : `outbound calling isn't unblocked for ${where(args.country)}: the compliance matrix keeps it blocked until inbound is proven there`,
   },
   {
     // Write access is a separate audited consent (Phase 3 rule 13).
@@ -125,7 +125,7 @@ export const COMPLIANCE_RULES: readonly ComplianceRule[] = [
       const consent = seams.writeConsent ?? liveWriteConsent;
       return (await consent(args.accountId, args.capability))
         ? null
-        : `${args.capability} has no live write consent for this business — it has to be connected for changes first`;
+        : `${args.capability} has no live write consent for this business: it has to be connected for changes first`;
     },
   },
 ];

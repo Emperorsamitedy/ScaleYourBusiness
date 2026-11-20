@@ -168,11 +168,15 @@ describe("L-6 — the weekly summary", () => {
     expect(c.subject).toBe(de.t("subjectWaiting", { count: 3 }));
     expect(c.subject).not.toMatch(/waiting for you/);
     expect(c.heading).toContain("Hair & Co");
-    expect(c.period).toBe("19.–26. Okt. 2026");
+    // The two days joined by German's own word, never the long dash the
+    // platform's date range would draw (docs/DASHBOARD-OVERHAUL.md, L7).
+    expect(c.period).toBe("19. Okt. bis 26. Okt. 2026");
+    expect(c.period).not.toMatch(/[–—]/);
     expect(c.text).toMatch(/1\.240,00\s€/);
     expect(c.text).toMatch(/\+12,7\s%/);
     expect(c.text).toContain("Raise the cut price"); // a proposal's own words, as recorded
-    expect(c.text).toContain(`— ${de.t("aProposal")}`);
+    // a waiting proposal is a line under the count: indented, with the list's own mark
+    expect(c.text).toContain(`  - ${de.t("aProposal")}`);
     expect(c.html).toContain('<html lang="de-DE">');
     expect(c.html).toContain('href="https://app.example/summary/stop/token"');
     for (const english of ["Nothing runs until you approve it", "WAITING FOR YOU", "measured"]) {
@@ -184,7 +188,7 @@ describe("L-6 — the weekly summary", () => {
     const c = composeSummary(input(), englishWords("emails.summary"));
     expect(c).toEqual(composeSummary(input()));
     expect(c.subject).toBe("Your week with ScaleX: 3 waiting for you");
-    expect(c.text).toContain("— A proposal");
+    expect(c.text).toContain("  - A proposal");
     expect(c.html).toContain('<html lang="en">');
   });
 
@@ -276,20 +280,20 @@ describe("L-6 — phone alerts", () => {
 describe("L-6 — sign-in and invite emails", () => {
   it("German words for a German reader; English exactly as before", async () => {
     const de = loginEmailContent("https://x.test/l", await wordsFor("de-DE", "emails.signIn"));
-    expect(de.subject).not.toBe("Your sign-in link — ScaleX");
+    expect(de.subject).not.toBe("Your sign-in link · ScaleX");
     expect(de.text).toContain("https://x.test/l");
     expect(de.text).not.toMatch(/expires in/);
     expect(loginEmailContent("https://x.test/l")).toEqual({
-      subject: "Your sign-in link — ScaleX",
+      subject: "Your sign-in link · ScaleX",
       text:
         "Click to sign in to ScaleX:\n\nhttps://x.test/l\n\nThe link works once and expires in 15 minutes. " +
-        "If you didn't ask for it, ignore this email — nothing happens without the link.",
+        "If you didn't ask for it, ignore this email. Nothing happens without the link.",
     });
     // 2026-11-16: the code sits between the link and the expiry, spaced for reading.
     expect(loginEmailContent("https://x.test/l", undefined, "012345").text).toBe(
       "Click to sign in to ScaleX:\n\nhttps://x.test/l\n\nOr type this code on the sign-in page: 012 345\n\n" +
         "The link works once and expires in 15 minutes. " +
-        "If you didn't ask for it, ignore this email — nothing happens without the link.",
+        "If you didn't ask for it, ignore this email. Nothing happens without the link.",
     );
     expect(de.text).not.toContain("012");
     const invite = {
@@ -301,7 +305,7 @@ describe("L-6 — sign-in and invite emails", () => {
     expect(inviteEmailContent(invite).text).toBe(
       "You've been invited to join Emberworks on ScaleX as a manager.\n\nOpen this link to accept:\n\nhttps://x.test/i\n\n" +
         "It works once and expires in 7 days. You'll sign in with this address, a@b.test. " +
-        "If you weren't expecting it, ignore this email — nothing happens without you.",
+        "If you weren't expecting it, ignore this email. Nothing happens without you.",
     );
     expect(inviteEmailContent({ ...invite, business: null, role: "owner" }).subject).toBe(
       "You're invited to a business on ScaleX",
@@ -411,7 +415,7 @@ describe("L-6 — the business's customers", () => {
     expect(es).toContain("{{unsubscribe_url}}");
     expect(es).not.toContain("You're getting this");
     expect(complianceFooter(null, null)).toBe(
-      "—\nThis business\nYou're getting this because you agreed to hear from This business. Unsubscribe: {{unsubscribe_url}}",
+      "---\nThis business\nYou're getting this because you agreed to hear from This business. Unsubscribe: {{unsubscribe_url}}",
     );
   });
 });

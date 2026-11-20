@@ -96,7 +96,7 @@ function isTikTokAdOp(op: string): op is TikTokAdOp {
 function campaignIdOf(params: Record<string, unknown>): string {
   const id = params["campaign_id"];
   if (typeof id !== "string" || !ID.test(id)) {
-    throw new TikTokAdChangeError("the ad change names no TikTok campaign — nothing was sent");
+    throw new TikTokAdChangeError("the ad change names no TikTok campaign: nothing was sent");
   }
   return id;
 }
@@ -104,7 +104,7 @@ function campaignIdOf(params: Record<string, unknown>): string {
 function shareOf(params: Record<string, unknown>): number {
   const share = params["share"];
   if (typeof share !== "number" || !Number.isFinite(share) || share === 0) {
-    throw new TikTokAdChangeError("the budget change names no amount — nothing was sent");
+    throw new TikTokAdChangeError("the budget change names no amount: nothing was sent");
   }
   return share;
 }
@@ -112,7 +112,7 @@ function shareOf(params: Record<string, unknown>): number {
 function approvedCurrency(params: Record<string, unknown>): string {
   const c = params["currency"];
   if (typeof c !== "string" || !/^[A-Za-z]{3}$/.test(c)) {
-    throw new TikTokAdChangeError("the budget change names no currency — nothing was sent");
+    throw new TikTokAdChangeError("the budget change names no currency: nothing was sent");
   }
   return c.toUpperCase();
 }
@@ -303,7 +303,7 @@ export function createTikTokAdsExecutor(opts: TikTokExecutionOptions = {}): Exec
     const ids = Array.isArray(data["campaign_ids"]) ? data["campaign_ids"].map(String) : null;
     if (ids !== null && !ids.includes(c.id)) {
       throw new TikTokAdChangeError(
-        `TikTok didn't confirm the change to "${c.name}" — I'll check again.`,
+        `TikTok didn't confirm the change to "${c.name}": I'll check again.`,
         true,
       );
     }
@@ -317,7 +317,7 @@ export function createTikTokAdsExecutor(opts: TikTokExecutionOptions = {}): Exec
     });
     if (data["campaign_id"] !== undefined && String(data["campaign_id"]) !== c.id) {
       throw new TikTokAdChangeError(
-        `TikTok didn't confirm the change to "${c.name}" — I'll check again.`,
+        `TikTok didn't confirm the change to "${c.name}": I'll check again.`,
         true,
       );
     }
@@ -510,12 +510,12 @@ export function createTikTokAdsExecutor(opts: TikTokExecutionOptions = {}): Exec
         touchable(c);
         const changedSince = (now: string, set: string) =>
           new TikTokAdChangeError(
-            `I didn't undo this: "${c.name}" is ${now} on TikTok now, not the ${set} I set — you've changed it since, and I won't override that. Nothing was changed.`,
+            `I didn't undo this: "${c.name}" is ${now} on TikTok now, not the ${set} I set: you've changed it since, and I won't override that. Nothing was changed.`,
           );
         if (op === "pause_campaign" || op === "resume_campaign") {
           if (u.status !== "ENABLE" && u.status !== "DISABLE") {
             throw new TikTokAdChangeError(
-              "the stored undo names no status ScaleX may set — nothing was changed",
+              "the stored undo names no status ScaleX may set: nothing was changed",
             );
           }
           const set = typeof done.status === "string" ? done.status : null;
@@ -566,7 +566,7 @@ export function createTikTokAdsExecutor(opts: TikTokExecutionOptions = {}): Exec
         // set_daily_budget
         const previousMinor = u.daily_budget_minor;
         if (typeof previousMinor !== "number" || typeof u.currency !== "string") {
-          throw new TikTokAdChangeError("the stored undo names no budget — nothing was changed");
+          throw new TikTokAdChangeError("the stored undo names no budget: nothing was changed");
         }
         const currency = u.currency;
         const live = dailyBudgetMinor(c);

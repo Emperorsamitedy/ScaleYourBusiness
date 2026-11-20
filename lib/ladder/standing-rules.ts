@@ -85,7 +85,7 @@ export async function addStandingRule(args: {
   if (args.words.trim() === "") throw new LadderError("say the rule in words", 422);
   const days = args.days ?? DEFAULT_RULE_DAYS;
   if (!Number.isInteger(days) || days < 1 || days > 366) {
-    throw new LadderError("a rule lasts between a day and a year — every rule expires", 422);
+    throw new LadderError("a rule lasts between a day and a year: every rule expires", 422);
   }
   const now = args.now ?? new Date();
   const [row] = await db

@@ -161,7 +161,7 @@ export function RecordSheet({
                       >
                         {label}
                         <span className="sr-only">
-                          {" — "}
+                          {", "}
                           {fact.status === "skipped" ? t("srAnswer") : t("srChange")}
                         </span>
                       </button>

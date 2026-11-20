@@ -48,12 +48,12 @@ export class NavConnectorError extends Error {
 
 export const NAV_WORDS = {
   rejected: {
-    en: "NAV didn't accept the technical user — check it in Online Számla, then reconnect.",
-    hu: "A NAV nem fogadta el a technikai felhasználót — ellenőrizze az Online Számlában, majd csatlakoztassa újra.",
+    en: "NAV didn't accept the technical user: check it in Online Számla, then reconnect.",
+    hu: "A NAV nem fogadta el a technikai felhasználót: ellenőrizze az Online Számlában, majd csatlakoztassa újra.",
   },
   unreachable: {
-    en: "NAV couldn't be reached — ScaleX will try again later.",
-    hu: "A NAV most nem érhető el — a ScaleX később újra próbálja.",
+    en: "NAV couldn't be reached. ScaleX will try again later.",
+    hu: "A NAV most nem érhető el. A ScaleX később újra próbálja.",
   },
   invalidTaxpayer: {
     en: "NAV doesn't know this tax number as a valid taxpayer.",

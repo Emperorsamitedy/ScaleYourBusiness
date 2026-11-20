@@ -127,9 +127,9 @@ body {
 }
 .wordmark {
   font-family: var(--f-display);
-  font-weight: 700;
+  font-weight: var(--w-display, 700);
   font-size: 16.5px;
-  letter-spacing: -0.01em;
+  letter-spacing: var(--ls-display, -0.01em);
   display: inline-flex;
   align-items: center;
   gap: 9px;
@@ -606,9 +606,9 @@ a.ghost {
 .auth-eyebrow {
   display: block;
   font-family: var(--mono);
-  font-size: 11px;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  font-size: calc(11px + var(--caps-bump, 0px));
+  letter-spacing: var(--caps-ls, 0.14em);
+  text-transform: var(--caps, uppercase);
   color: var(--ember);
   margin-bottom: 12px;
 }
@@ -699,9 +699,9 @@ a.auth-cta {
 .ops-table th {
   text-align: left;
   font-family: var(--mono);
-  font-size: 11px;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
+  font-size: calc(11px + var(--caps-bump, 0px));
+  text-transform: var(--caps, uppercase);
+  letter-spacing: var(--caps-ls, 0.08em);
   color: var(--mut);
   font-weight: 500;
   padding: 6px 10px 6px 0;
@@ -950,13 +950,14 @@ a.auth-cta {
   min-height: 48px;
   padding: 0 14px;
   font-family: var(--f-mono);
-  font-size: 12.5px;
+  font-size: calc(12.5px + var(--caps-bump, 0px));
   font-weight: 600;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  letter-spacing: var(--caps-ls, 0.06em);
+  text-transform: var(--caps, uppercase);
   text-align: center;
   text-decoration: none;
   border: 1px solid var(--ink);
+  border-radius: var(--r-ctl, 0);
   background: transparent;
   color: var(--ink);
   cursor: pointer;
@@ -1085,344 +1086,9 @@ a.auth-cta {
 .dot {
   display: none;
 }
-
-/* ── The app's one navigation — the owner's menu design (2026-10-17):
-   an ink rail, 212px, with the business and its live state over a
-   cobalt rule, five labelled groups, counts in mono, and "Ask me
-   anything →" at the foot. Under 760px it folds into a top bar with a
-   Menu button. components/nav/AppFrame.tsx. ── */
-.app-frame {
-  min-height: 100dvh;
-}
-.app-rail {
-  position: fixed;
-  inset: 0 auto 0 0;
-  width: 212px;
-  display: flex;
-  flex-direction: column;
-  overflow-y: auto;
-  background: var(--masthead);
-  color: var(--desk-ink);
-  border-right: 1px solid var(--desk-rule);
-  z-index: 40;
-}
-.app-rail-head {
-  position: relative;
-  padding: 17px 14px 15px;
-  border-bottom: 3px solid var(--live-rule);
-}
-.app-rail-mark {
-  display: block;
-  color: var(--desk-ink);
-  text-decoration: none;
-  font-family: var(--f-display);
-  font-size: 17.5px;
-  font-weight: 700;
-  letter-spacing: -0.01em;
-  line-height: 1.1;
-}
-.app-rail-biz {
-  margin: 8px 0 0;
-  font-family: var(--f-mono);
-  font-size: 13px;
-  color: var(--desk-ink-2);
-}
-.app-rail-live {
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  margin: 10px 0 0;
-  font-family: var(--f-mono);
-  font-size: 12px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--live-desk);
-}
-.app-rail-sq {
-  width: 9px;
-  height: 9px;
-  background: var(--live-desk);
-  opacity: 0.6;
-}
-.app-rail-toggle {
-  display: none;
-}
-.app-rail-groups {
-  flex: 1;
-  padding: 15px 0 10px;
-}
-.app-rail-label {
-  margin: 12px 14px 6px;
-  font-family: var(--f-mono);
-  font-size: 11px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--desk-ink-2);
-}
-.app-rail-group:first-child .app-rail-label {
-  margin-top: 0;
-}
-.app-rail-group ul {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-}
-.app-rail-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  gap: 10px;
-  padding: 7px 14px;
-  border-left: 3px solid transparent;
-  color: var(--desk-ink-2);
-  text-decoration: none;
-  font-size: 14px;
-  transition:
-    background-color var(--d-press) linear,
-    color var(--d-press) linear;
-}
-.app-rail-item:hover {
-  color: var(--desk-ink);
-}
-.app-rail-item.active {
-  background: #1c2e24;
-  border-left-color: var(--desk-ink);
-  color: var(--desk-ink);
-  font-weight: 600;
-}
-.app-rail-count {
-  font-family: var(--f-mono);
-  font-size: 12.5px;
-  font-weight: 400;
-  font-variant-numeric: tabular-nums;
-  color: var(--desk-ink);
-}
-.app-rail-ask {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 15px 14px;
-  border-top: 1px solid var(--desk-rule);
-  color: var(--desk-ink-2);
-  text-decoration: none;
-  font-size: 14px;
-}
-.app-rail-ask:hover,
-.app-rail-ask.active {
-  color: var(--desk-ink);
-}
-/* Idea 52: the business switcher (two or more businesses) and the role, quietly. */
-.app-rail-switch {
-  margin: 10px 0 0;
-  font-family: var(--f-mono);
-  font-size: 12px;
-  color: var(--desk-ink-2);
-}
-.app-rail-switch summary {
-  cursor: pointer;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  text-decoration: underline;
-  text-underline-offset: 3px;
-  min-height: 32px;
-  display: flex;
-  align-items: center;
-}
-.app-rail-switch form {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  margin-top: 6px;
-}
-.app-rail-switch button {
-  min-height: 36px;
-  padding: 6px 8px;
-  text-align: left;
-  background: none;
-  border: 1px solid var(--desk-rule);
-  color: var(--desk-ink);
-  font-family: var(--f-prose);
-  font-size: 13.5px;
-  cursor: pointer;
-  overflow-wrap: anywhere;
-}
-.app-rail-switch button:hover {
-  border-color: var(--desk-ink);
-}
-.app-rail-who {
-  margin: 0 14px 6px;
-  font-family: var(--f-mono);
-  font-size: 11.5px;
-  letter-spacing: 0.04em;
-  color: var(--desk-ink-2);
-}
-.app-rail-signout {
-  margin: 0 14px 14px;
-  padding: 4px 0;
-  align-self: flex-start;
-  background: none;
-  border: 0;
-  font-family: var(--f-mono);
-  font-size: 11.5px;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  text-decoration: underline;
-  text-underline-offset: 3px;
-  color: var(--desk-ink-2);
-  cursor: pointer;
-}
-.app-rail-signout:hover {
-  color: var(--desk-ink);
-}
-.app-main {
-  margin-left: 212px;
-  min-height: 100dvh;
-}
-/* The strip across the top of every railed screen (2026-11-15): the
-   group's screens as tabs on the left, the emergency stop on the right.
-   Square, mono caps, ink on desk; the open tab is a paper tab. */
-.app-strip {
-  position: sticky;
-  top: 0;
-  z-index: 30;
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: var(--s-4);
-  min-height: 56px;
-  padding: 8px var(--s-7);
-  background: var(--desk);
-  border-bottom: 1px solid var(--desk-rule);
-}
-.app-tabs {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
-  min-width: 0;
-}
-.app-tabs::-webkit-scrollbar {
-  display: none;
-}
-.app-tab {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  min-height: 38px;
-  padding: 0 14px;
-  border: 1px solid var(--desk-rule);
-  color: var(--desk-ink-2);
-  text-decoration: none;
-  white-space: nowrap;
-  font-family: var(--f-mono);
-  font-size: 12px;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  transition:
-    background-color var(--d-press) linear,
-    color var(--d-press) linear;
-}
-.app-tab:hover {
-  color: var(--desk-ink);
-}
-.app-tab.active {
-  border-color: var(--paper);
-  background: var(--paper);
-  color: var(--sheet-ink);
-  font-weight: 600;
-}
-.app-tab-count {
-  font-variant-numeric: tabular-nums;
-  font-weight: 400;
-}
-.app-strip .es-mast {
+.nav-glyph {
   flex: none;
-}
-/* The rail carries the wordmark; a page's own copy of it would be a second one. */
-.app-main .wordmark {
-  display: none;
-}
-
-@media (max-width: 759px) {
-  .app-rail {
-    position: sticky;
-    top: 0;
-    inset: auto;
-    width: auto;
-    max-height: 100dvh;
-    overflow: visible;
-    border-right: 0;
-  }
-  .app-rail-head {
-    padding: 12px 14px 10px;
-  }
-  .app-rail-mark {
-    font-size: 16.5px;
-  }
-  .app-rail-toggle {
-    display: inline-flex;
-    position: absolute;
-    top: 12px;
-    right: 16px;
-    min-height: 40px;
-    padding: 0 12px;
-    align-items: center;
-    background: none;
-    border: 1px solid var(--desk-ink);
-    color: var(--desk-ink);
-    font-family: var(--f-mono);
-    font-size: 12px;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
-    cursor: pointer;
-  }
-  .app-rail-groups,
-  .app-rail-ask,
-  .app-rail-who,
-  .app-rail-signout {
-    display: none;
-  }
-  .app-rail.open {
-    max-height: 100dvh;
-    overflow-y: auto;
-  }
-  .app-rail.open .app-rail-groups,
-  .app-rail.open .app-rail-ask {
-    display: block;
-  }
-  .app-rail.open .app-rail-ask {
-    display: flex;
-  }
-  .app-rail.open .app-rail-signout {
-    display: inline-block;
-  }
-  .app-rail.open .app-rail-who {
-    display: block;
-  }
-  .app-main {
-    margin-left: 0;
-  }
-  .app-strip {
-    position: static;
-    padding: 8px var(--s-4);
-    flex-wrap: wrap;
-  }
-  .app-tabs {
-    width: 100%;
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    scrollbar-width: none;
-  }
-}
-@media print {
-  .app-strip {
-    display: none;
-  }
-  .app-rail {
-    display: none;
-  }
-  .app-main {
-    margin-left: 0;
-  }
+  opacity: 0.85;
 }
 
 /* Idea 52: a section this role can't change — every control inside is
@@ -1572,12 +1238,20 @@ a.auth-cta {
 }
 .brand-x {
   display: inline-block;
-  margin-left: 0.06em;
+  margin-left: 0.05em;
   align-self: baseline;
 }
+/* The X stands as tall as the capitals, its tip a touch above (the final
+   logo system, 2026-11-17). */
 .brand-x svg {
   display: block;
-  width: 0.86em;
-  height: 0.86em;
-  transform: translateY(0.07em);
+  width: 0.94em;
+  height: 0.94em;
+  transform: translateY(0.12em);
+}
+
+/* Sentence case: a label the classic look set in capitals starts with one
+   (the owner app's type, app/sheet.css). In the classic look it follows the label. */
+:is(.auth-eyebrow, .ops-table th, .next, .ghost, .prop-btn, .rp-act, .es-stop)::first-letter {
+  text-transform: var(--caps-first, inherit);
 }

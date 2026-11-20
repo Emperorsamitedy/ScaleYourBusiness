@@ -1,12 +1,17 @@
 "use client";
 
-// Ask me anything — the conversation (step 46a + P3-36; the owner's chat
-// design, 2026-10-17). The only owner-initiated surface in the product
-// (conversation-channel §7): everything else the system starts. One paper
-// sheet holds the thread, titled with the owner's latest question, and the
-// composer; a side sheet lists the owner's earlier questions. A request
-// only ever becomes a proposal in the queue — nothing runs on phrasing —
-// and the link to it is the one thing that asks for a decision.
+// Ask Lex — the conversation (step 46a + P3-36; the owner's chat design,
+// 2026-10-17; the assistant named 2026-11-17). The only owner-initiated
+// surface in the product (conversation-channel §7): everything else the
+// system starts. One paper sheet holds the thread, titled with the owner's
+// latest question, and the composer; a side sheet lists the owner's
+// earlier questions. A request only ever becomes a proposal — nothing runs
+// on phrasing — and that proposal is answered right under the reply
+// (InPlaceDecision.tsx): two equal answers, a reason on decline, recorded
+// with the signed-in name like any other.
+//
+// The conversation is the frame's one (useChat.ts): what is asked here
+// shows on Home and in Lex's sheet, and the other way round.
 //
 // Feature 33: when the owner asks for a CHANGE, the reply carries a change
 // card (ChangeCard.tsx) — the drafted change, what is set now, "Make this
@@ -16,85 +21,55 @@
 // chat service returns no citations, and a source list made up on this
 // side would be exactly the unexplainable number rule 6 forbids.
 //
+// Small text (the owner, 2026-11-17): the opening paragraph and the
+// composer's rule left the screen. One line says what Lex answers from,
+// and while the thread is empty three chips ask a first question.
+//
 // L-3c (TASKS-LANGUAGES.md): the screen's fixed words are the "chat"
 // catalogue and the stamps follow the reader's locale; the microphone
 // listens in it. The turns are content: the owner's questions as typed,
-// SYB's answers as the model wrote them (L-5), and the server's own
+// Lex's answers as the model wrote them (L-5), and the server's own
 // refusal sentences (L-4) are shown as they are.
 
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { useTranslations } from "next-intl";
+import { useMessages } from "next-intl";
 import { businessNoun } from "../../lib/core/business-noun";
-import { Fold } from "../sheet/Fold";
 import { useTr } from "../sheet/useTr";
-import { MicButton } from "../voice/MicButton";
-import { ChangeCard } from "./ChangeCard";
-import type { ChangeCardView, Turn } from "./chat-view";
-import {
-  cardsFor,
-  earlierQuestions,
-  latestQuestion,
-  paragraphs,
-  stamp,
-  upsertCard,
-} from "./chat-view";
+import { ChatBusy, ChatTurn } from "./ChatTurn";
+import { Composer } from "./Composer";
+import { InPlaceDecision } from "./InPlaceDecision";
+import { earlierQuestions, latestQuestion } from "./chat-view";
+import { useChat } from "./useChat";
 import "../../app/chat.css";
 
-type State =
-  | { phase: "loading" }
-  | { phase: "signedout" }
-  | { phase: "error" }
-  | {
-      phase: "ready";
-      turns: Turn[];
-      cards: ChangeCardView[];
-      draft: string;
-      busy: boolean;
-      lastProposal: string | null;
-    };
+/** The questions a chip asks, in the order shown; Home's own (home.ask.chip). */
+const CHIPS = ["today", "sales", "first"] as const;
 
-/** The service's own ceiling on one message (lib/chat/service.ts). */
-const MAX_CHARS = 4000;
+/** The chips' words where the catalogue has them; none where it does not. */
+export function chipQuestions(messages: unknown): string[] {
+  const chip = (messages as { home?: { ask?: { chip?: Record<string, unknown> } } })?.home?.ask
+    ?.chip;
+  if (!chip) return [];
+  return CHIPS.map((k) => chip[k]).filter((q): q is string => typeof q === "string" && q !== "");
+}
 
 export function ChatScreen() {
-  const [state, setState] = useState<State>({ phase: "loading" });
+  const chat = useChat();
+  const { state } = chat;
   const [business, setBusiness] = useState<string | null>(null);
   // "your salon", "your gym" — from the business_type answer; "your business" until known.
   const [englishNoun, setNoun] = useState(businessNoun(null));
   const { tr, locale } = useTr("chat");
-  const tChat = useTranslations("chat");
+  const chips = chipQuestions(useMessages());
   // English's noun table ("your salon"); other languages say "your business".
   const noun = locale === "en" ? englishNoun : tr("yourBusiness");
   const endRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLTextAreaElement | null>(null);
-  // The composer's text as of the last change, kept in step on every write
-  // so the microphone (idea 50) can tell the owner's typing from its own.
-  const draftRef = useRef("");
   const turnCount = state.phase === "ready" ? state.turns.length : 0;
   const busy = state.phase === "ready" && state.busy;
 
-  const load = useCallback(async () => {
-    try {
-      const res = await fetch("/api/chat");
-      if (res.status === 401) return setState({ phase: "signedout" });
-      if (!res.ok) return setState({ phase: "error" });
-      const j = (await res.json()) as { turns: Turn[]; changes?: ChangeCardView[] };
-      setState({
-        phase: "ready",
-        turns: j.turns,
-        cards: j.changes ?? [],
-        draft: "",
-        busy: false,
-        lastProposal: null,
-      });
-    } catch {
-      setState({ phase: "error" });
-    }
-  }, []);
-
   useEffect(() => {
-    void load();
     // The business's name and type, as the menu reads them; absent stays absent.
     void fetch("/api/nav")
       .then((r) =>
@@ -107,7 +82,7 @@ export function ChatScreen() {
         setNoun(businessNoun(j?.business_type));
       })
       .catch(() => setBusiness(null));
-  }, [load]);
+  }, []);
 
   // Follow the thread as it grows, not on every keystroke.
   useEffect(() => {
@@ -142,7 +117,7 @@ export function ChatScreen() {
               </p>
               {state.phase === "signedout" && (
                 <Link className="next" href="/intake">
-                  {tr("signedOut.begin")} <span aria-hidden="true">→</span>
+                  {tr("signedOut.begin")}
                 </Link>
               )}
             </div>
@@ -157,77 +132,8 @@ export function ChatScreen() {
   const question = latestQuestion(s.turns);
   const earlier = earlierQuestions(s.turns);
 
-  const send = async () => {
-    const text = s.draft.trim();
-    if (text === "" || s.busy) return;
-    const optimistic: Turn = {
-      id: `tmp-${Date.now()}`,
-      role: "owner",
-      text,
-      at: new Date().toISOString(),
-      intent: null,
-    };
-    draftRef.current = "";
-    setState({ ...s, turns: [...s.turns, optimistic], draft: "", busy: true });
-    let reply: Turn | null = null;
-    let error: string | null = null;
-    let proposal: string | null = null;
-    let card: ChangeCardView | null = null;
-    try {
-      const res = await fetch("/api/chat", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ text }),
-      });
-      const j = (await res.json().catch(() => ({}))) as {
-        reply?: Turn;
-        proposal_id?: string | null;
-        change?: ChangeCardView | null;
-        error?: string;
-      };
-      reply = j.reply ? { ...j.reply, intent: j.reply.intent ?? null } : null;
-      error = j.error ?? null;
-      proposal = j.proposal_id ?? null;
-      card = j.change ?? null;
-    } catch {
-      // Unreachable server: the fallback line below says so.
-    }
-    setState((cur) => {
-      if (cur.phase !== "ready") return cur;
-      const turns = reply
-        ? [...cur.turns, reply]
-        : [
-            ...cur.turns,
-            {
-              id: `err-${Date.now()}`,
-              role: "system" as const,
-              text: error ?? tr("sendFailed"),
-              at: new Date().toISOString(),
-              intent: null,
-            },
-          ];
-      return {
-        ...cur,
-        turns,
-        cards: card ? upsertCard(cur.cards, card) : cur.cards,
-        busy: false,
-        lastProposal: proposal,
-      };
-    });
-  };
-
-  const onChanged = (card: ChangeCardView) =>
-    setState((cur) =>
-      cur.phase === "ready" ? { ...cur, cards: upsertCard(cur.cards, card) } : cur,
-    );
-
-  const setDraft = (draft: string) => {
-    draftRef.current = draft;
-    setState((cur) => (cur.phase === "ready" ? { ...cur, draft } : cur));
-  };
-
   const newQuestion = () => {
-    setDraft("");
+    chat.setDraft("");
     inputRef.current?.focus();
   };
 
@@ -250,99 +156,56 @@ export function ChatScreen() {
           </header>
 
           <div className="ak-thread" aria-live="polite">
-            {s.turns.map((t) => (
-              <article key={t.id} id={`turn-${t.id}`} className={`ak-turn ${t.role}`}>
-                <p className="ak-who">
-                  {t.role === "owner" ? tr("you") : "ScaleX"}
-                  {stamp(t.at, now, locale) !== "" && (
-                    <span className="ak-at">{stamp(t.at, now, locale)}</span>
-                  )}
-                </p>
-                <div className="ak-text">
-                  {t.role === "owner" ? (
-                    <p>{t.text}</p>
-                  ) : (
-                    paragraphs(t.text).map((p, i) => <p key={i}>{p}</p>)
-                  )}
-                  {t.role === "system" &&
-                    cardsFor(t.id, s.cards).map((c) => (
-                      <ChangeCard key={c.id} card={c} onChanged={onChanged} />
+            {s.turns.length === 0 && (
+              <div className="ak-start">
+                <p className="ak-descriptor">{tr("descriptor")}</p>
+                {chips.length > 0 && (
+                  <div className="ak-chips">
+                    {chips.map((q) => (
+                      <button
+                        key={q}
+                        type="button"
+                        className="ak-chip"
+                        disabled={s.busy}
+                        onClick={() => void chat.ask(q, tr("sendFailed"))}
+                      >
+                        {q}
+                      </button>
                     ))}
-                </div>
-              </article>
-            ))}
-            {s.busy && (
-              <article className="ak-turn system" aria-busy="true">
-                <p className="ak-who live">
-                  <span className="live-dot" aria-hidden="true" /> ScaleX
-                </p>
-                <div className="ak-text">
-                  <p className="ak-thinking">{tr("thinking")}</p>
-                </div>
-              </article>
-            )}
-            {s.lastProposal && (
-              <div className="ak-turn system">
-                <span aria-hidden="true" />
-                <p className="ak-queued inset">
-                  {tr("queued.text")} <Link href="/proposals">{tr("queued.link")}</Link>
-                </p>
+                  </div>
+                )}
               </div>
             )}
+            {s.turns.map((turn, i) => (
+              <ChatTurn
+                key={turn.id}
+                turn={turn}
+                cards={s.cards}
+                onChanged={chat.onChanged}
+                now={now}
+                locale={locale}
+                tr={tr}
+              >
+                {i === s.turns.length - 1 && turn.role === "system" && s.lastProposal && (
+                  <InPlaceDecision id={s.lastProposal} />
+                )}
+              </ChatTurn>
+            ))}
+            {s.busy && <ChatBusy text={tr("thinking")} />}
             <div ref={endRef} />
           </div>
 
-          <form
-            className="ak-composer"
-            onSubmit={(e) => {
-              e.preventDefault();
-              void send();
-            }}
-          >
-            <label className="ak-label" htmlFor="ak-input">
-              {tr("composer.label", { noun })}
-            </label>
-            <div className="ak-row">
-              <textarea
-                id="ak-input"
-                ref={inputRef}
-                className="ak-input"
-                rows={2}
-                maxLength={MAX_CHARS}
-                placeholder={tr("composer.placeholder")}
-                value={s.draft}
-                onChange={(e) => setDraft(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) {
-                    e.preventDefault();
-                    void send();
-                  }
-                }}
-                disabled={s.busy}
-                aria-describedby="ak-rule"
-              />
-              <button
-                type="submit"
-                className="next ak-ask"
-                disabled={s.busy || s.draft.trim() === ""}
-              >
-                {tr("composer.ask")} <span aria-hidden="true">→</span>
-              </button>
-            </div>
-            <MicButton
-              label={tr("composer.speak")}
-              getText={() => draftRef.current}
-              setText={(next) => setDraft(next.slice(0, MAX_CHARS))}
-              after={tr("composer.spokenAfter")}
-              disabled={s.busy}
-            />
-            <Fold className="ak-rule">
-              {s.turns.length === 0 && (
-                <p>{tChat.rich("empty", { noun, em: (chunks) => <em>{chunks}</em> })}</p>
-              )}
-              <p id="ak-rule">{tr("composer.rule")}</p>
-            </Fold>
-          </form>
+          <Composer
+            label={tr("composer.label", { noun })}
+            draft={s.draft}
+            busy={s.busy}
+            setDraft={chat.setDraft}
+            draftRef={chat.draftRef}
+            onSend={() => void chat.send(tr("sendFailed"))}
+            tr={tr}
+            inputRef={inputRef}
+            compact
+          />
         </section>
 
         {earlier.length > 0 && (

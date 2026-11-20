@@ -163,7 +163,7 @@ export async function addGoal(
   tx?: DbTx,
 ): Promise<GoalView> {
   if (input.statement.trim() === "") {
-    throw new GoalError("a goal needs a statement — what do you want to achieve?", 422);
+    throw new GoalError("a goal needs a statement: what do you want to achieve?", 422);
   }
   await validateCodes(input);
   const [row] = await (tx ?? db)

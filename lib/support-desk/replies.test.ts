@@ -328,7 +328,7 @@ describe("P4-10 — drafting: grounded only, rule 24 verbatim, caps first", () =
     expect(
       await draftReply({ profileId: empty.profile_id, ticketId: t1.ticketId, llm: never }),
     ).toEqual({ drafted: false, message: CANT_DRAFT });
-    expect(CANT_DRAFT).toBe("I can't draft this from your approved answers — write it yourself.");
+    expect(CANT_DRAFT).toBe("I can't draft this from your approved answers: write it yourself.");
 
     const b = await business();
     const t2 = await emailTicket(b);
@@ -503,7 +503,7 @@ describe("P4-10 — the send, honest in every outcome", () => {
       fetchImpl: resend.impl,
     });
     expect(refused.status).toBe("approved");
-    expect(refused.note).toMatch(/gate refused it — suppressed \(unsubscribed\)/);
+    expect(refused.note).toMatch(/gate refused it, suppressed \(unsubscribed\)/);
     expect(resend.calls).toHaveLength(0);
   });
 

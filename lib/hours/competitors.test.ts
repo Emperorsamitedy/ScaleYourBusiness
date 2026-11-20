@@ -151,7 +151,7 @@ describe("P2-31 — the background check", () => {
     expect(openings.get("tue")).toBeUndefined(); // unstated, not closed
 
     expect(competitorLine(openings.get("fri"), 20)).toBe(
-      "2 of the 3 competitor(s) whose hours we found open before you (20:00), the earliest at 18:00 — from their own pages",
+      "2 of the 3 competitor(s) whose hours we found open before you (20:00), the earliest at 18:00, from their own pages",
     );
     expect(competitorLine(openings.get("tue"), 20)).toBeNull();
   });

@@ -19,6 +19,7 @@ import { dayMoney, shortDate } from "../../lib/charts/model";
 import type { StockHistoryModel } from "../../lib/charts/stock-history";
 import { minorUnitExponent } from "../../lib/core/money";
 import type { AppLocale } from "../../lib/i18n/locales";
+import { rangeOf } from "../../lib/i18n/range";
 
 /** Whole major units, the cents dropped as dayMoney drops them; another language its own way. */
 function wholeUnits(minor: number, currency: string, locale: AppLocale): string {
@@ -47,7 +48,7 @@ export function StockHistoryChart({ model }: { model: StockHistoryModel }) {
       title={t("title")}
       meta={
         <>
-          {day(model.dates[0]!)} – {day(model.dates.at(-1)!)}
+          {rangeOf(day(model.dates[0]!), day(model.dates.at(-1)!), locale)}
           <br />
           <span className="word">{t("observed")}</span> · {t("formula")}
         </>
@@ -113,7 +114,7 @@ export function StockHistoryChart({ model }: { model: StockHistoryModel }) {
                   </span>
                 </td>
                 <td className="num" data-label={t("first", { currency: cur })}>
-                  {item.points.length === 1 ? "—" : money(first.cash_minor)}
+                  {item.points.length === 1 ? "-" : money(first.cash_minor)}
                 </td>
                 <td className="num" data-label={t("latest", { currency: cur })}>
                   {money(last.cash_minor)}

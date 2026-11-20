@@ -20,7 +20,8 @@
       "label": "Cómo se calculó",
       "close": "Cerrar",
       "arithmetic": "El cálculo"
-    }
+    },
+    "close": "Cerrar"
   },
   "nav": {
     "label": "Principal",
@@ -28,7 +29,7 @@
     "close": "Cerrar",
     "switchBusiness": "Cambiar de negocio",
     "watching": "Observando · día {day} de {of}",
-    "ask": "Pregúnteme lo que quiera",
+    "ask": "Pregunte a Lex",
     "signOut": "Cerrar sesión",
     "signingOut": "Cerrando sesión…",
     "group": {
@@ -87,14 +88,46 @@
       "manager": "Su rol aquí: gestor",
       "viewer": "Su rol aquí: lector. Puede consultar y pulsar la parada de emergencia."
     },
-    "tabs": "Pantallas de este grupo"
+    "tabs": "Pantallas de este grupo",
+    "dock": "Secciones",
+    "dockLabel": {
+      "approve": "Decidir",
+      "business": "Negocio",
+      "today": "Hoy",
+      "insights": "Análisis",
+      "grow": "Crecer",
+      "customers": "Clientes"
+    },
+    "search": "Buscar",
+    "bell": {
+      "title": "Le necesita",
+      "count": "{count, plural, =0 {Notificaciones. Nada le necesita} one {Notificaciones. # asunto le necesita} many {Notificaciones. # asuntos le necesitan} other {Notificaciones. # asuntos le necesitan}}",
+      "decisions": "{count, plural, one {# decisión pendiente} many {# decisiones pendientes} other {# decisiones pendientes}}",
+      "paused": "{count, plural, one {# conexión en pausa} many {# conexiones en pausa} other {# conexiones en pausa}}",
+      "support": "{count, plural, one {# ticket de soporte abierto} many {# tickets de soporte abiertos} other {# tickets de soporte abiertos}}",
+      "empty": "Nada le necesita.",
+      "reading": "Leyendo…"
+    },
+    "place": {
+      "decisions": "Decisiones"
+    },
+    "more": "Más",
+    "rail": {
+      "fold": "Plegar el menú",
+      "unfold": "Desplegar el menú",
+      "more": "{count} más",
+      "fewer": "Mostrar menos"
+    },
+    "section": {
+      "marketing": "Marketing"
+    }
   },
   "auth": {
     "meta": {
-      "signIn": "Iniciar sesión — ScaleX",
-      "signUp": "Cree su cuenta — ScaleX",
-      "confirm": "Confirmar inicio de sesión — ScaleX",
-      "choose": "¿Qué negocio? — ScaleX"
+      "signIn": "Iniciar sesión · ScaleX",
+      "signUp": "Cree su cuenta · ScaleX",
+      "confirm": "Confirmar inicio de sesión · ScaleX",
+      "choose": "¿Qué negocio? · ScaleX"
     },
     "mast": {
       "signIn": "Iniciar sesión",
@@ -192,7 +225,7 @@
     }
   },
   "locale": {
-    "meta": "Idioma y moneda — ScaleX",
+    "meta": "Idioma y moneda · ScaleX",
     "first": {
       "headline": "Elija su idioma y su moneda."
     },
@@ -202,7 +235,7 @@
     "currency": "Moneda",
     "currencyHelp": "Todas las cifras de este negocio se muestran en esta moneda. No se convierte nada: los importes ya registrados conservan la moneda en la que se introdujeron.",
     "currencyChoose": "Elija una moneda",
-    "currencyOption": "{code} — {name}",
+    "currencyOption": "{code}: {name}",
     "beingChecked": "en revisión",
     "checkingNote": "Un idioma marcado como «en revisión» solo lo ven usted y su revisor hasta que lo haya leído un hablante nativo.",
     "onlyOwner": "Solo un propietario puede cambiar el idioma o la moneda del negocio.",
@@ -218,7 +251,7 @@
   },
   "intake": {
     "meta": {
-      "title": "Preparando el registro — ScaleX"
+      "title": "Preparando el registro · ScaleX"
     },
     "area": {
       "identity": "Datos básicos del negocio",
@@ -255,7 +288,7 @@
       "legendMeasured": "leído de {connector}",
       "tileChannel": "CN {channel}",
       "tilePct": "{pct} %",
-      "tileWords": "Canal {channel}, {area}: {status}, {pct} % respondido — {bars}.",
+      "tileWords": "Canal {channel}, {area}: {status}, {pct} % respondido, {bars}.",
       "tileAsk": "{words} Preguntar sobre esta área.",
       "bar": {
         "owner": "{count, plural, one {# respondida por usted} many {# respondidas por usted} other {# respondidas por usted}}",
@@ -467,17 +500,15 @@
   },
   "voice": {
     "speak": "Hablar",
-    "listening": "Escuchando… Pulse Hablar de nuevo para parar.",
-    "noticeStart": "{notice} Pulse Hablar de nuevo para empezar.",
-    "notice": "Su navegador convierte su voz en texto. En Chrome lo hace Google; ScaleX nunca recibe el audio.",
-    "cap": "Dejo de escuchar al cabo de un minuto. Pulse Hablar para añadir más.",
+    "listening": "Escuchando…",
+    "cap": "Se ha detenido tras un minuto.",
     "error": {
-      "blocked": "El micrófono está bloqueado para este sitio. Permítalo en la configuración del sitio de su navegador (el icono junto a la dirección) y vuelva a pulsar Hablar.",
-      "noSpeech": "No he oído nada. Pulse Hablar y empiece a hablar cuando aparezca «Escuchando».",
-      "noMicrophone": "No se ha encontrado ningún micrófono. Compruebe que hay uno conectado y encendido, y vuelva a pulsar Hablar.",
-      "network": "Su navegador no ha podido acceder a su servicio de reconocimiento de voz. Compruebe su conexión a internet o escriba la respuesta.",
-      "language": "Su navegador no puede convertir en texto la voz en {lang}. Escriba la respuesta.",
-      "stopped": "La escucha se ha detenido antes de captar ninguna palabra. Pulse Hablar para volver a intentarlo o escriba la respuesta."
+      "blocked": "El micrófono está bloqueado. Permítalo en la configuración del sitio de su navegador.",
+      "noSpeech": "No he oído nada.",
+      "noMicrophone": "No se ha encontrado ningún micrófono.",
+      "network": "Su navegador no ha podido acceder a su servicio de reconocimiento de voz.",
+      "language": "Su navegador no puede convertir en texto la voz en {lang}.",
+      "stopped": "La escucha se ha detenido."
     }
   },
   "sheet": {
@@ -517,7 +548,7 @@
       "medium": "MEDIA",
       "low": "BAJA"
     },
-    "none": "—"
+    "none": "-"
   },
   "charts": {
     "panel": {
@@ -549,7 +580,7 @@
       "lineZero": "CERO",
       "tight": "JUSTA",
       "today": "Hoy",
-      "readoutRange": "<b>{low}</b> prudente – <b>{high}</b> optimista",
+      "readoutRange": "<b>{low}</b> prudente a <b>{high}</b> optimista",
       "underLine": "por debajo de la línea",
       "when": "Cuándo",
       "cautiousCol": "Extremo prudente ({currency})",
@@ -624,7 +655,7 @@
       "colHow": "Cómo se calculó",
       "apart": "No se suma al mes",
       "legend": "Un mes son {days} días: cada flujo se lee en su propio periodo y se escala a {days} días, como indica su línea. {derived} = {derivedMeaning}. {estimated} aquí = las previsiones de las propias propuestas pendientes. Los rangos van del extremo bajo al alto; una sola cifra significa que no se ha incluido nada estimado.",
-      "seeWaiting": "Ver lo pendiente →",
+      "seeWaiting": "Ver lo pendiente",
       "row": {
         "notMeasured": "Sin medir",
         "aMonth": "Al mes",
@@ -637,7 +668,7 @@
       },
       "empty": {
         "nothing": "Todavía no hay nada que representar.",
-        "connections": "Ir a Conexiones →",
+        "connections": "Ir a Conexiones",
         "would": "En cuanto esté conectado, cuantificaré dónde se escapa el dinero:"
       },
       "weekOf": "Semana del {day}",
@@ -718,8 +749,8 @@
         "label": "Anuncios · {count, plural, one {el último día} many {los últimos # días} other {los últimos # días}}",
         "titleNone": "Todas las campañas recuperan lo que cuestan",
         "titleLosing": "{count, plural, one {# campaña cuesta más de lo que recupera} many {# campañas cuestan más de lo que recuperan} other {# campañas cuestan más de lo que recuperan}}",
-        "window": "Meta Ads · {from}–{to}",
-        "windowPlatforms": "{platforms} · {from}–{to}",
+        "window": "Meta Ads · {from} a {to}",
+        "windowPlatforms": "{platforms} · {from} a {to}",
         "derivedFrom": "<word>{derived}</word> a partir de la atribución propia de Meta",
         "derivedFromPlatforms": "<word>{derived}</word> a partir de la atribución propia de cada plataforma",
         "foot": "Rendimiento = el valor de compra que Meta atribuye a la campaña ÷ lo que gastó. Por debajo de {even} pierde dinero según el propio cálculo de Meta: es el umbral en el que propongo una pausa.",
@@ -771,11 +802,12 @@
     "titleSince": "Todo está detenido desde {when}.",
     "copy": "Las acciones aprobadas siguen aprobadas y esperan. No se ejecuta nada, no se publica nada y no cambia nada en su sitio web, incluido lo que estuviera a medias cuando lo detuvo. La lectura, la planificación y las propuestas continúan con normalidad.",
     "youSaid": "Usted dijo: «{reason}»",
-    "yesExecute": "Sí, volver a ejecutar"
+    "yesExecute": "Sí, volver a ejecutar",
+    "stopShort": "Detener"
   },
   "history": {
     "meta": {
-      "title": "Historial — ScaleX"
+      "title": "Historial · ScaleX"
     },
     "kicker": "Su negocio · Historial",
     "title": "El libro de registro.",
@@ -849,7 +881,7 @@
   },
   "report": {
     "meta": {
-      "title": "Su diagnóstico — ScaleX"
+      "title": "Su diagnóstico · ScaleX"
     },
     "mast": {
       "watching": "Observando · día {day} de {of}"
@@ -881,7 +913,7 @@
       "notComputed": "{count, plural, one {<b>#</b> sin calcular} many {<b>#</b> sin calcular} other {<b>#</b> sin calcular}}",
       "empty": "No se ha podido calcular ni descartar ninguna medida: el perfil aún no tiene nada con lo que trabajar.",
       "caption": "Cada medida: su resultado, el resultado del informe anterior, el rango de referencia, un aviso, el dinero al mes, su base y cómo se calculó",
-      "legend": "Rango · línea de actuar ya: solo se dibuja donde un objetivo suyo o un rango respaldado por los datos cubre la medida; todavía no lo hace ninguno, así que se muestra —. El dinero al mes solo se imprime donde la diferencia de una medida tiene un precio asignado; no lo tiene ninguna. DERIVADO = calculado a partir de otros datos; su POR QUÉ muestra la fórmula y los datos de entrada.",
+      "legend": "Rango · línea de actuar ya: solo se dibuja donde un objetivo suyo o un rango respaldado por los datos cubre la medida; todavía no lo hace ninguno, así que se muestra -. El dinero al mes solo se imprime donde la diferencia de una medida tiene un precio asignado; no lo tiene ninguna. DERIVADO = calculado a partir de otros datos; su POR QUÉ muestra la fórmula y los datos de entrada.",
       "issued": "Panel de diagnóstico · emitido el {issued}"
     },
     "col": {
@@ -898,10 +930,10 @@
     },
     "why": {
       "button": "Por qué",
-      "buttonSr": " — cómo se calculó {name}",
+      "buttonSr": ": cómo se calculó {name}",
       "sheet": "Ficha del cálculo",
       "nothing": "Nada seleccionado",
-      "choose": "Elija POR QUÉ → en una medida para ver cómo se calculó.",
+      "choose": "Elija «Por qué» en una medida para ver cómo se calculó.",
       "formula": "La fórmula, en palabras",
       "notComputed": "Por qué no se calculó",
       "inputs": "Datos de entrada",
@@ -1023,8 +1055,8 @@
       "nobody": "nadie lo ha medido ni indicado",
       "sensitivity": "sensibilidad {level, select, high {alta} medium {media} low {baja} other {{level}}}",
       "changeMind": "Si cambia de opinión:",
-      "lookInto": "Estudiarlo →",
-      "notForUs": "No es para nosotros →",
+      "lookInto": "Estudiarlo",
+      "notForUs": "No es para nosotros",
       "recorded": "Registrado",
       "lookingInto": "lo está estudiando",
       "declined": "Rechazado",
@@ -1044,17 +1076,17 @@
       "title": "{count, plural, one {# recomendación.} many {# recomendaciones.} other {# recomendaciones.}}"
     },
     "hours": {
-      "label": "Horario comercial · OBSERVADO · {from} – {to}",
+      "label": "Horario comercial · OBSERVADO · {from} a {to}",
       "none": "No se activa ninguna señal en ningún día medido.",
       "title": "{count, plural, one {# señal en sus ventas por horas.} many {# señales en sus ventas por horas.} other {# señales en sus ventas por horas.}}",
-      "link": "Ver cada día de la semana →",
+      "link": "Ver cada día de la semana",
       "tooEarly": "Aún es pronto para decirlo"
     },
     "gaps": {
       "label": "Qué afinaría esto",
       "priority": "{priority, select, core {clave} important {importante} deep {a fondo} optional {opcional} other {{priority}}}",
       "blocking": "Bloqueante",
-      "answer": "Responder ahora →"
+      "answer": "Responder ahora"
     },
     "foot": "Cada cifra indica de dónde procede. Las estimaciones se marcan como estimaciones; no se inventa nada.",
     "generatedFrom": "Generado a partir de la instantánea {id}.",
@@ -1063,7 +1095,7 @@
       "priceReturning": "Este informe cuesta {price}, porque ya ha pagado el de otro de sus negocios.",
       "others": "{count, plural, one {Tiene otro negocio sin informe pagado: añádalo al mismo pago por {price} cada uno.} many {Tiene otros negocios sin informe pagado: añádalos al mismo pago por {price} cada uno.} other {Tiene otros negocios sin informe pagado: añádalos al mismo pago por {price} cada uno.}}",
       "total": "{count, plural, one {Total: {total} por # informe, en un solo pago. El informe de cada negocio se redacta cuando lo abre desde ese negocio.} many {Total: {total} por # informes, en un solo pago. El informe de cada negocio se redacta cuando lo abre desde ese negocio.} other {Total: {total} por # informes, en un solo pago. El informe de cada negocio se redacta cuando lo abre desde ese negocio.}}",
-      "pay": "Pagar {total} →",
+      "pay": "Pagar {total}",
       "notNow": "Ahora no"
     },
     "state": {
@@ -1075,8 +1107,8 @@
       "confirming": "Esperando a que Stripe confirme su pago",
       "reading": "Leyendo su perfil: la solicitud está en curso",
       "readingLede": "El margen, el punto de equilibrio, los hallazgos y qué hacer al respecto. Suele tardar alrededor de un minuto; los cálculos se comprueban antes de que nada llegue a la página.",
-      "readNow": "Leer mi perfil ahora →",
-      "answerMore": "Responder más antes →",
+      "readNow": "Leer mi perfil ahora",
+      "answerMore": "Responder más antes",
       "payFailed": "no se ha podido iniciar el pago",
       "payUnreachable": "No he podido conectar con el servidor y no se ha cobrado nada; inténtelo de nuevo.",
       "notConfirmed": "Stripe aún no ha confirmado su pago. Actualice esta página dentro de un minuto: no se le volverá a cobrar, y el informe empieza en cuanto se confirme.",
@@ -1119,7 +1151,7 @@
   },
   "factsheet": {
     "meta": {
-      "title": "Su ficha de datos — ScaleX"
+      "title": "Su ficha de datos · ScaleX"
     },
     "kicker": "Su negocio · Ficha de datos",
     "titleEmpty": "El registro.",
@@ -1179,7 +1211,7 @@
       "optional": "opcional"
     },
     "blocking": "Bloqueante",
-    "answerNow": "Responder ahora →",
+    "answerNow": "Responder ahora",
     "showFewer": "Mostrar menos",
     "showAll": "Mostrar todos ({count})",
     "section": {
@@ -1235,16 +1267,16 @@
       "unreachable": "No he podido conectar con el servidor. Inténtelo de nuevo dentro de un momento.",
       "failed": "la búsqueda ha fallado",
       "searching": "Buscando en la web…",
-      "find": "Buscar a mis competidores →",
+      "find": "Buscar a mis competidores",
       "searchingFrom": "Buscando a partir de lo que me ha contado",
       "readingPages": "Leyendo sus páginas",
       "readingPagesNow": "Leyendo sus páginas…",
-      "thatsOne": "Añadir →"
+      "thatsOne": "Añadir"
     }
   },
   "watch": {
     "meta": {
-      "title": "Observando — ScaleX"
+      "title": "Observando · ScaleX"
     },
     "kicker": "Análisis · Observando",
     "days": {
@@ -1293,7 +1325,7 @@
     },
     "when": {
       "label": "Cuando termine la observación",
-      "link": "Cómo trabajo →",
+      "link": "Cómo trabajo",
       "ends": "La observación termina. El próximo informe lee todo lo que ha reunido.",
       "after": "después",
       "afterText": "Las propuestas que cuenten con su aprobación pueden ejecutarse. La observación ya no las retiene.",
@@ -1410,8 +1442,8 @@
   },
   "proposals": {
     "meta": {
-      "title": "Propuestas — ScaleX",
-      "one": "Propuesta — ScaleX"
+      "title": "Propuestas · ScaleX",
+      "one": "Propuesta · ScaleX"
     },
     "module": "{module, select, marketing {marketing} sales {ventas} support {soporte} operations {operaciones} finance {finanzas} team {equipo} other {{module}}}",
     "loading": "Leyendo la cola…",
@@ -1431,7 +1463,7 @@
       "signIn": "Iniciar sesión"
     },
     "reason": {
-      "why": "¿Por qué no? Con un toque basta",
+      "why": "¿Por qué no?",
       "whyAll": "¿Por qué no, para las {count}? Con un toque basta",
       "label": "Su motivo, con sus palabras",
       "placeholder": "O dígalo en una frase: aprendo de ello.",
@@ -1541,7 +1573,7 @@
       "selected": "{count, plural, one {# seleccionada} many {# seleccionadas} other {# seleccionadas}}",
       "tick": "Marque propuestas en la lista",
       "run": "{count, plural, one {Si se aprueba, se ejecuta} many {Si se aprueban, se ejecutan las #} other {Si se aprueban, se ejecutan las #}}",
-      "choose": "— elija cuándo —",
+      "choose": "Elija cuándo",
       "noTime": "sin hora fijada: una publicación programada conserva su hora",
       "need": "Elija primero cuándo se ejecutan: una aprobación en bloque indica su calendario.",
       "approve": "Aprobar {count}",
@@ -1636,7 +1668,6 @@
       "missingLede": "Puede que el enlace sea de otro negocio, o que sea incorrecto.",
       "failedLede": "Algo ha fallado por nuestra parte. Actualice la página para volver a intentarlo.",
       "openQueue": "Abrir la cola",
-      "noLines": "No indica un antes y un después: el cambio es el título.",
       "noRange": "No hay ninguna previsión de rango económico para esta propuesta.",
       "worst": "Peor escenario: {worst}",
       "limits": "Comprobada frente a sus límites",
@@ -1707,13 +1738,22 @@
         "aria": "Lo que hay ahora se guarda y luego se cambia; un clic lo devuelve a como estaba.",
         "ariaAuto": "Lo que hay ahora se guarda y luego se cambia; un clic lo devuelve a como estaba, y también si la página tarda más de {ms} ms."
       }
+    },
+    "review": {
+      "retry": "Reintentar"
     }
   },
   "connections": {
     "meta": {
-      "title": "Conexiones — ScaleX"
+      "title": "Conexiones · ScaleX"
     },
     "kicker": "Su negocio · Conexiones",
+    "tabs": {
+      "label": "Las partes de esta pantalla",
+      "read": "Lo que leo",
+      "files": "Tus propios archivos",
+      "write": "Lo que puedo cambiar"
+    },
     "loading": "Leyendo sus conexiones…",
     "unreachable": "No he podido conectar con el servidor. Inténtelo de nuevo.",
     "error": {
@@ -2099,6 +2139,7 @@
       "consentedOn": "consentimiento del {day} · {status}",
       "notGranted": "no concedido",
       "grant": "Conceder",
+      "allows": "Qué permite esto",
       "close": "Cerrar",
       "reconnect": "Volver a conectar",
       "disconnect": "Desconectar",
@@ -3065,7 +3106,7 @@
     }
   },
   "resume": {
-    "meta": "Continuar — ScaleX",
+    "meta": "Continuar · ScaleX",
     "headline": "Siga donde lo dejó.",
     "title": "¿Continuar con esta entrevista?",
     "button": "Continuar",
@@ -3074,7 +3115,7 @@
     "deadMessage": "Los enlaces para reanudar dejan de funcionar cuando caducan o se revocan. Inicie sesión con su correo electrónico y encontrará su entrevista donde la dejó."
   },
   "summaryStop": {
-    "meta": "Resumen semanal — ScaleX",
+    "meta": "Resumen semanal · ScaleX",
     "label": "Preferencias de correo",
     "unknown": {
       "title": "No reconocemos este enlace.",
@@ -3092,11 +3133,11 @@
   },
   "benchmarks": {
     "meta": {
-      "title": "Comparado con negocios similares — ScaleX"
+      "title": "Comparado con negocios similares · ScaleX"
     },
     "kicker": "Análisis · Comparado con negocios similares",
     "aside": "Eurostat · solo lectura",
-    "add": "Añadir {what} →",
+    "add": "Añadir {what}",
     "addPeople": "Añadir cuántas personas trabajan aquí",
     "notComparedYet": "Todavía sin comparar",
     "noComparison": "Sin comparación",
@@ -3147,7 +3188,7 @@
   },
   "blindspots": {
     "meta": {
-      "title": "Puntos ciegos — ScaleX"
+      "title": "Puntos ciegos · ScaleX"
     },
     "kicker": "Análisis · Puntos ciegos",
     "quoted": "«{text}»",
@@ -3194,7 +3235,7 @@
     },
     "fixed": {
       "label": "Cómo se corrigen los puntos ciegos",
-      "link": "Revisar en Sitio web →",
+      "link": "Revisar en Sitio web",
       "stepFix": "Una corrección es {fix}.",
       "fixDefault": "un cambio en el sitio web a través de la cola de aprobación, o una respuesta en su asistente de soporte",
       "stepWait": "Nada cambia por sí solo: una corrección espera en «Pendiente de usted» hasta que dé su aprobación.",
@@ -3247,7 +3288,7 @@
   },
   "carts": {
     "meta": {
-      "title": "Carritos abandonados — ScaleX"
+      "title": "Carritos abandonados · ScaleX"
     },
     "kicker": "Clientes · Carritos abandonados",
     "foot": "ScaleX nunca envía un correo a un comprador que no haya dicho que sí. El correo de pago abandonado propio de Shopify, si lo usa, es aparte.",
@@ -3281,8 +3322,8 @@
       "titleNone": "Todavía no hay nada que recuperar por correo",
       "inQueue": "El recordatorio de hoy está en su cola.",
       "oneEmail": "Un correo para {count, plural, one {el # contacto} many {los # contactos} other {los # contactos}} que dejaron un carrito hace entre {min} y {max} días y dijeron que sí. No se envía nada sin su aprobación del propio correo.",
-      "button": "Proponer correos de recuperación →",
-      "rangeOf": "{low}–{high} de {base}",
+      "button": "Proponer correos de recuperación",
+      "rangeOf": "{low} a {high} de {base}",
       "rangeBase": "el valor de {count, plural, one {el # carrito} many {los # carritos} other {los # carritos}} cuyo comprador aceptó recibir correos",
       "nobody": "A nadie que haya dejado un carrito en los últimos {days} días se le puede escribir, así que no le pongo cifra.",
       "working": "Preparando el recordatorio"
@@ -3326,7 +3367,7 @@
   },
   "cash": {
     "meta": {
-      "title": "Flujo de caja — ScaleX"
+      "title": "Flujo de caja · ScaleX"
     },
     "kicker": "Análisis · Flujo de caja",
     "aside": "Ayuda para planificar · solo lectura",
@@ -3358,7 +3399,7 @@
     },
     "weeks": {
       "label": "Semana a semana",
-      "meta": "Prudente – optimista, unidades enteras",
+      "meta": "Prudente a optimista, unidades enteras",
       "week": "Semana",
       "moneyIn": "Entradas",
       "goingOut": "Salidas",
@@ -3366,7 +3407,9 @@
       "due": "Vence",
       "balanceEnd": "Saldo al final",
       "balance": "Saldo",
-      "under": "POR DEBAJO DE LA LÍNEA"
+      "under": "POR DEBAJO DE LA LÍNEA",
+      "showAll": "Ver las {count} semanas",
+      "showFewer": "Ver menos semanas"
     },
     "scenarios": {
       "title": "¿Y si…?",
@@ -3420,7 +3463,7 @@
   },
   "competitors": {
     "meta": {
-      "title": "Competidores — ScaleX"
+      "title": "Competidores · ScaleX"
     },
     "kicker": "Análisis · Competidores",
     "aside": "Solo páginas públicas · lectura semanal · OBSERVADO",
@@ -3455,7 +3498,7 @@
       "label": "A quién sigo",
       "nobody": "Todavía a nadie",
       "count": "{count, plural, one {# competidor} many {# competidores} other {# competidores}}",
-      "addOne": "Añadir un competidor →",
+      "addOne": "Añadir un competidor",
       "add": "Añadir",
       "empty": "Dígame con quién compite: su sitio web y la página de reservas o de ficha donde están sus precios. Leo esas páginas y nada más.",
       "save": "Guardar",
@@ -3526,7 +3569,7 @@
   },
   "goals": {
     "meta": {
-      "title": "Objetivos — ScaleX"
+      "title": "Objetivos · ScaleX"
     },
     "kicker": "Análisis · Objetivos",
     "metric": {
@@ -3618,8 +3661,8 @@
       "someOn": "{goals} {count, plural, one {# va por su trayectoria.} many {# van por su trayectoria.} other {# van por su trayectoria.}}"
     },
     "aside": "{one} vela = {one} semana · línea azul = la trayectoria hasta su meta",
-    "setFirst": "Fijar un objetivo →",
-    "setNew": "Fijar un objetivo nuevo →",
+    "setFirst": "Fijar un objetivo",
+    "setNew": "Fijar un objetivo nuevo",
     "how": {
       "label": "Cómo funcionan los objetivos",
       "copy": "Los objetivos se fijan en Contenido, donde cada pieza planificada nombra el objetivo al que sirve. Haga que uno sea medible (ingresos, número de ventas o visitas al sitio web, para una fecha) y cada semana se comprobará frente a una trayectoria recta desde donde empezó hasta donde usted quiere llevarlo. No se valora nada en las ocho primeras semanas ni mientras yo siga observando."
@@ -3627,7 +3670,7 @@
   },
   "hours": {
     "meta": {
-      "title": "Horario comercial — ScaleX"
+      "title": "Horario comercial · ScaleX"
     },
     "kicker": "Análisis · Horario comercial",
     "weekdays": {
@@ -3688,7 +3731,7 @@
     "trials": {
       "title": "Pruebas",
       "none": "Todavía no es una propuesta",
-      "waiting": "Pendiente de usted →"
+      "waiting": "Pendiente de usted"
     },
     "signedOut": {
       "title": "Aquí todavía no hay ningún negocio.",
@@ -3739,7 +3782,7 @@
   },
   "patterns": {
     "meta": {
-      "title": "Temporadas y packs — ScaleX"
+      "title": "Temporadas y packs · ScaleX"
     },
     "kicker": "Análisis · Temporadas y packs",
     "head": {
@@ -3811,7 +3854,7 @@
       "tooFewBody": "Busco pares cuando hay {amount}: con menos, el azar por sí solo puede hacer que dos artículos cualesquiera parezcan inseparables.",
       "none": "Nada va junto más de lo que daría el azar",
       "some": "{count, plural, one {# par aparece} many {# pares aparecen} other {# pares aparecen}} juntos más a menudo que por azar",
-      "meta": "{amount}, {from} – {to} · OBSERVADO",
+      "meta": "{amount}, {from} a {to} · OBSERVADO",
       "footRule": "Un par aparece cuando coincidió en {amount} o más y surgió con una frecuencia de al menos {lift} respecto a lo que daría el azar.",
       "footBelow": "{below, plural, one {# par se vio} many {# pares se vieron} other {# pares se vieron}} demasiado pocas veces, y {belowLift, number} no más a menudo que por azar.",
       "footBelowUngrouped": "{below, plural, one {# par se vio} many {# pares se vieron} other {# pares se vieron}} demasiado pocas veces, y {belowLift, number} no más a menudo que por azar; {ungrouped, plural, one {# cita} many {# citas} other {# citas}} sin cliente ni servicio no se {ungrouped, plural, one {pudo} many {pudieron} other {pudieron}} agrupar en una visita.",
@@ -3822,7 +3865,7 @@
       "had": "{amount} contenían {a}",
       "byChance": "unos {count, number} por azar",
       "drafting": "Redactando…",
-      "propose": "Proponer este par →"
+      "propose": "Proponer este par"
     },
     "margin": {
       "unknown": "Margen desconocido: {why}.",
@@ -3852,7 +3895,7 @@
     "loading": "Leyendo su historial…",
     "aside": {
       "none": "Todavía no hay nada medido",
-      "span": "{source} · {from} – {to} · MEDIDO"
+      "span": "{source} · {from} a {to} · MEDIDO"
     },
     "bundles": {
       "section": "Qué va junto",
@@ -3868,7 +3911,7 @@
   },
   "pipeline": {
     "meta": {
-      "title": "Embudo de ventas — ScaleX"
+      "title": "Embudo de ventas · ScaleX"
     },
     "kicker": "Clientes · Embudo de ventas",
     "loading": "Leyendo su embudo de ventas…",
@@ -3965,7 +4008,7 @@
       "undated": "{count, plural, one {# oportunidad abierta no tiene} many {# oportunidades abiertas no tienen} other {# oportunidades abiertas no tienen}} fecha de cierre prevista.",
       "title": "Las oportunidades que espera cerrar {days, plural, one {en el próximo día} many {en los próximos # días} other {en los próximos # días}}",
       "meta": "Cuenta para mi historial de aciertos: lo compruebo con las oportunidades que marque como ganadas para entonces.",
-      "line": "{count, plural, one {# oportunidad} many {# oportunidades} other {# oportunidades}} por valor de {total}: probablemente se ganen unos {low} – {high}.",
+      "line": "{count, plural, one {# oportunidad} many {# oportunidades} other {# oportunidades}} por valor de {total}: probablemente se ganen unos {low} a {high}.",
       "unvalued": "{count} de las oportunidades previstas no tienen valor y no entran en estas cifras.",
       "undatedOut": "{count, plural, one {# oportunidad abierta no tiene fecha de cierre prevista, así que no entra en esta previsión.} many {# oportunidades abiertas no tienen fecha de cierre prevista, así que no entran en esta previsión.} other {# oportunidades abiertas no tienen fecha de cierre prevista, así que no entran en esta previsión.}}",
       "assumed": "Supuesto",
@@ -4039,13 +4082,13 @@
       "noNextStep": "Sin siguiente paso",
       "overdue": "El siguiente paso vencía el {day}, hace {days, plural, one {# día} many {# días} other {# días}}",
       "rateNone": "Todavía no se sabe",
-      "rateMeasured": "{point} medida: {won} ganadas de {closed} cerradas, probablemente {low}–{high}",
-      "rateStated": "{point} tal como la indicó, leída como {low}–{high}",
+      "rateMeasured": "{point} medida: {won} ganadas de {closed} cerradas, probablemente {low} a {high}",
+      "rateStated": "{point} tal como la indicó, leída como {low} a {high}",
       "headNone": "Todavía no hay oportunidades abiertas.",
       "headNoValue": "{open, plural, one {# oportunidad abierta} many {# oportunidades abiertas} other {# oportunidades abiertas}}, ninguna con valor todavía.",
       "headCantWeigh": "{open, plural, one {# oportunidad abierta} many {# oportunidades abiertas} other {# oportunidades abiertas}} por valor de {totals}. Todavía no puedo ponderarlas.",
-      "headLikely": "Probablemente se cierren {low}–{high} de sus {total} abiertos.",
-      "headLikelyMore": "Probablemente se cierren {low}–{high} de sus {total} abiertos, y más en {others, plural, one {# moneda más} many {# monedas más} other {# monedas más}}.",
+      "headLikely": "Probablemente se cierren {low} a {high} de sus {total} abiertos.",
+      "headLikelyMore": "Probablemente se cierren {low} a {high} de sus {total} abiertos, y más en {others, plural, one {# moneda más} many {# monedas más} other {# monedas más}}.",
       "follow": {
         "drafted": "redactado",
         "approved": "aprobado",
@@ -4065,7 +4108,7 @@
   },
   "reviews": {
     "meta": {
-      "title": "Reseñas — ScaleX"
+      "title": "Reseñas · ScaleX"
     },
     "kicker": "Clientes · Reseñas",
     "foot": "ScaleX nunca publica una respuesta y nunca inicia sesión en sus sitios de reseñas. Solo lee sus reseñas de Google si conecta su Perfil de Empresa de Google, y solo las lee. El nombre de quien escribe una reseña se conserva un año, y puede quitar cualquier reseña al instante.",
@@ -4115,8 +4158,8 @@
       "copied": "Copiada",
       "copyReply": "Copiar la respuesta",
       "drafting": "Redactando…",
-      "suggestAnother": "Sugerir otra →",
-      "suggest": "Sugerir una respuesta →",
+      "suggestAnother": "Sugerir otra",
+      "suggest": "Sugerir una respuesta",
       "openOn": "Abrir en {site} ↗",
       "theSite": "el sitio",
       "noneLeft": "No quedan sugerencias para esta reseña: escriba la respuesta usted.",
@@ -4206,7 +4249,7 @@
   },
   "simulate": {
     "meta": {
-      "title": "Simulador — ScaleX"
+      "title": "Simulador · ScaleX"
     },
     "tabs": {
       "aria": "Simulador",
@@ -4302,7 +4345,7 @@
       "canPropose": "Se puede proponer",
       "notProposable": "Todavía no se puede proponer",
       "proposing": "Proponiendo",
-      "propose": "Proponer esto →",
+      "propose": "Proponer esto",
       "restsOn": "En qué se basa",
       "value": "Valor",
       "basis": "Base",
@@ -4382,8 +4425,8 @@
         "label": "Cambio de precio",
         "breakEven": "Punto de equilibrio",
         "cautious": "Ese es el extremo prudente: con lo que le cuesta entregar una unidad, podría decirle cuántas más podría perder.",
-        "addCost": "Añadir el coste →",
-        "addNeed": "Añadir {what} →",
+        "addCost": "Añadir el coste",
+        "addNeed": "Añadir {what}",
         "needs": "necesita {what}: <link>añádalo</link>"
       },
       "math": {
@@ -4429,7 +4472,7 @@
   },
   "stock": {
     "meta": {
-      "title": "Existencias — ScaleX"
+      "title": "Existencias · ScaleX"
     },
     "kicker": "Análisis · Existencias",
     "signedOut": "Aquí todavía no hay ningún negocio.",
@@ -4483,9 +4526,9 @@
       "label": "Qué se agota y cuándo · {warned} de {total} artículos por debajo de su plazo de entrega",
       "titleWarned": "Primero lo que antes se agota",
       "titleNone": "Nada se agota antes de una entrega",
-      "meta": "Cobertura: disponibles ÷ su ritmo de los últimos {days} días, bajo–alto, frente al plazo de entrega de cada proveedor (si no, {lead} días, SUPUESTO)",
+      "meta": "Cobertura: disponibles ÷ su ritmo de los últimos {days} días, bajo a alto, frente al plazo de entrega de cada proveedor (si no, {lead} días, SUPUESTO)",
       "held": "Una nota de reposición por cada artículo al que le queda poco. No se ejecuta nada sin su aprobación, y aprobarla no hace ningún pedido.",
-      "button": "Poner las notas de reposición en mi cola →",
+      "button": "Poner las notas de reposición en mi cola",
       "working": "Preparando las notas"
     },
     "workingItOut": "Calculando…",
@@ -4510,7 +4553,7 @@
       "dotDecimal": "{example} (la coma separa los millares)",
       "commaDecimal": "{example} (el punto separa los millares)",
       "importing": "Leyendo…",
-      "button": "Importar existencias →",
+      "button": "Importar existencias",
       "readingFile": "Leyendo su archivo",
       "failed": "No se ha podido importar.",
       "ourSide": "Algo ha fallado por nuestra parte. Inténtelo de nuevo.",
@@ -4533,7 +4576,7 @@
       "title": "Primero lo que más dinero inmoviliza",
       "meta": "{stuck}: sin ventas en {stuckDays} días · {slow}: más de {slowDays} días de cobertura",
       "held": "Propongo formas de dar salida a los {count} primeros. No se ejecuta nada sin su aprobación.",
-      "button": "Ponerlas en mi cola →",
+      "button": "Ponerlas en mi cola",
       "working": "Preparando las opciones",
       "emptyLabel": "Lo que no se vende",
       "nothingSlow": "Nada va lento",
@@ -4639,9 +4682,9 @@
   },
   "chat": {
     "meta": {
-      "title": "Pregúnteme lo que quiera — ScaleX"
+      "title": "Lex · ScaleX"
     },
-    "kicker": "Pregúnteme lo que quiera · Sobre: {about}",
+    "kicker": "Lex · Sobre: {about}",
     "yourBusiness": "su negocio",
     "loading": "Abriendo la conversación…",
     "signedOut": {
@@ -4655,21 +4698,18 @@
     },
     "titleEmpty": "¿Qué le gustaría saber?",
     "newQuestion": "Nueva pregunta",
-    "empty": "Pregúnteme lo que quiera sobre {noun}: por qué el informe dijo lo que dijo, qué muestran sus cifras, qué vigilaría yo. Pídame que <em>cambie</em> algo (su horario, un objetivo, su tiempo de respuesta) y lo prepararé para que usted dé el sí, o le llevaré a la página donde se encuentra. Si me pide que <em>haga</em> algo fuera de aquí, se convierte en una propuesta en su cola; nada se ejecuta solo por cómo esté formulado.",
     "you": "Usted",
     "thinking": "Leyendo su perfil…",
     "queued": {
       "text": "Ahora es una propuesta que espera su sí.",
-      "link": "Abrir Pendiente de usted →"
+      "link": "Abrir Pendiente de usted"
     },
     "sendFailed": "Algo ha salido mal por mi parte. ¿Puede repetirlo?",
     "composer": {
       "label": "Pregunte sobre {noun}",
       "placeholder": "Escriba una pregunta…",
       "ask": "Preguntar",
-      "speak": "Hablar: diga su pregunta",
-      "spokenAfter": "Reléala y corrija lo que haga falta; después pulse Preguntar.",
-      "rule": "Solo respondo a partir de lo que contienen su perfil y su informe. Un cambio que usted pida se prepara primero: no se escribe nada hasta que pulse su botón; los límites que fije aquí se mantienen."
+      "speak": "Hablar: diga su pregunta"
     },
     "earlier": "Preguntas anteriores",
     "change": {
@@ -4695,11 +4735,13 @@
       "stale": "No hecho · {screen}",
       "proposal": "Preparado para su cola · {screen}",
       "prepared": "Preparado, aún sin hacer · {screen}"
-    }
+    },
+    "descriptor": "Responde con los datos de su negocio. Nada cambia sin su aprobación.",
+    "openFull": "Abrir la conversación completa"
   },
   "mode": {
     "meta": {
-      "title": "Cómo trabajo — ScaleX"
+      "title": "Cómo trabajo · ScaleX"
     },
     "kicker": "Su negocio · Cómo trabajo",
     "yourBusiness": "su negocio",
@@ -4768,7 +4810,7 @@
   },
   "content": {
     "meta": {
-      "title": "Contenido — ScaleX"
+      "title": "Contenido · ScaleX"
     },
     "kicker": "Crecer · Contenido",
     "loading": "Leyendo la cola de contenido…",
@@ -5051,9 +5093,10 @@
   },
   "customers": {
     "meta": {
-      "title": "Clientes — ScaleX"
+      "title": "Clientes · ScaleX"
     },
     "kicker": "Clientes",
+    "tabs": "Las partes de esta pantalla",
     "opening": "Abriendo los clientes…",
     "signedOut": {
       "eyebrow": "clientes",
@@ -5269,7 +5312,7 @@
   },
   "studio": {
     "meta": {
-      "title": "Estudio creativo — ScaleX"
+      "title": "Estudio creativo · ScaleX"
     },
     "kicker": "Crecer · Estudio creativo",
     "aside": "Biblioteca de anuncios de Meta · solo lectura · OBSERVADO",
@@ -5330,8 +5373,8 @@
       "termsLabel": "Palabras que usarían los anuncios de su nicho, separadas por comas (dos como máximo)",
       "termsPlaceholder": "p. ej., taza artesanal, clase de cerámica",
       "reading": "Leyendo…",
-      "readAgain": "Volver a leer →",
-      "readLibrary": "Leer la Biblioteca de anuncios →",
+      "readAgain": "Volver a leer",
+      "readLibrary": "Leer la Biblioteca de anuncios",
       "searches": "La Biblioteca busca las palabras en los propios anuncios, en su idioma. También busco a los competidores que usted indicó.",
       "searchesNamed": "La Biblioteca busca las palabras en los propios anuncios, en su idioma. También busco a los competidores que usted indicó ({names}).",
       "freshFrom": "Se permite una nueva lectura a partir del {when}.",
@@ -5356,7 +5399,7 @@
       "opens": "Cómo empieza",
       "offer": "Oferta · llamada a la acción",
       "youListed": "Usted lo indicó",
-      "inLibrary": "En la Biblioteca de anuncios →",
+      "inLibrary": "En la Biblioteca de anuncios",
       "noText": "sin texto",
       "noOffer": "no se encontró ninguna oferta",
       "noCta": "no se encontró ninguna llamada a la acción"
@@ -5372,7 +5415,7 @@
       "goalLabel": "O el objetivo al que sirve",
       "noGoal": "Ningún objetivo concreto",
       "writing": "Redactando…",
-      "write": "Redactar un brief →",
+      "write": "Redactar un brief",
       "allowance": "Quedan {left} de {perMonth} llamadas de redacción de briefs este mes; un brief necesita hasta {attempts}. Solo redacto a partir de lo que usted ve citado y rechazo cualquier línea que repita cinco palabras seguidas del anuncio de otro negocio.",
       "cardLabel": "Brief creativo · {day}",
       "attempts": "{count, plural, one {# intento} many {# intentos} other {# intentos}}",
@@ -5382,7 +5425,7 @@
       "script": "Guion · unos {seconds} s",
       "why": "Por qué: {why}",
       "proposing": "Proponiendo…",
-      "make": "Hacerlo →",
+      "make": "Hacerlo",
       "watching": "Sigo observando hasta el {day}; hasta entonces no se propone nada.",
       "makeNote": "Pone esta lista de tomas en Pendiente de usted. Una vez aprobada, se convierte en un elemento «para grabar»; sus grabaciones van a la sala de montaje."
     },
@@ -5422,7 +5465,7 @@
   },
   "site": {
     "meta": {
-      "title": "Su sitio web — ScaleX"
+      "title": "Su sitio web · ScaleX"
     },
     "kicker": "Crecer · Sitio web",
     "loading": "Leyendo los cambios de su sitio…",
@@ -5544,7 +5587,7 @@
         "mobile": "móvil",
         "desktop": "escritorio"
       },
-      "euroRange": "{low}–{high} al mes",
+      "euroRange": "{low} a {high} al mes",
       "unit": {
         "seconds": "{value} s",
         "ms": "{value} ms",
@@ -5636,7 +5679,7 @@
   },
   "support": {
     "meta": {
-      "title": "Soporte — ScaleX"
+      "title": "Soporte · ScaleX"
     },
     "kicker": "Clientes · Soporte",
     "loading": "Abriendo el soporte…",
@@ -5868,7 +5911,7 @@
     },
     "test": {
       "meta": {
-        "title": "Página de prueba del widget — ScaleX"
+        "title": "Página de prueba del widget · ScaleX"
       },
       "loading": "Preparando la página de prueba…",
       "eyebrow": "página de prueba del widget",
@@ -5984,7 +6027,7 @@
   },
   "team": {
     "meta": {
-      "title": "Cobertura del equipo — ScaleX"
+      "title": "Cobertura del equipo · ScaleX"
     },
     "kicker": "Análisis · Cobertura del equipo",
     "aside": "Roles y horas · nunca personas",
@@ -6013,7 +6056,7 @@
       "takings": "Ingresos de caja",
       "ofCapacity": "de la capacidad declarada",
       "ofBusiest": "de la hora de más movimiento",
-      "cellTitle": "{typical} en un día típico, {low}–{high} en la mitad central de {days, plural, one {# día} many {# días} other {# días}}",
+      "cellTitle": "{typical} en un día típico, {low} a {high} en la mitad central de {days, plural, one {# día} many {# días} other {# días}}",
       "onAverage": "presentes, hora media"
     },
     "ok": {
@@ -6123,7 +6166,7 @@
   },
   "teamAccess": {
     "meta": {
-      "title": "Acceso del equipo — ScaleX"
+      "title": "Acceso del equipo · ScaleX"
     },
     "kicker": "Su negocio · Acceso del equipo",
     "loading": "Leyendo quién forma parte del equipo…",
@@ -6194,7 +6237,7 @@
   },
   "invite": {
     "meta": {
-      "title": "Su invitación — ScaleX"
+      "title": "Su invitación · ScaleX"
     },
     "someBusiness": "un negocio en ScaleX",
     "headline": {
@@ -6345,10 +6388,10 @@
       "offerMargin": "(precio − coste de entrega) ÷ precio × {hundred}",
       "contribution": "precio − coste de entrega",
       "blendedWeighted": "Σ(margen de la oferta × unidades vendidas) ÷ Σ(unidades vendidas)",
-      "blendedMean": "media(margen de cada oferta) — no hay volúmenes registrados, así que cada oferta cuenta una vez",
+      "blendedMean": "media(margen de cada oferta): no hay volúmenes registrados, así que cada oferta cuenta una vez",
       "fixed": "Σ(coste fijo ÷ meses de su periodicidad)",
-      "breakEvenWeighted": "costes fijos ÷ contribución ponderada por unidad — supone que se mantiene la combinación actual de ofertas",
-      "breakEvenMean": "costes fijos ÷ contribución media por unidad — no hay volúmenes registrados, así que se supone una combinación uniforme",
+      "breakEvenWeighted": "costes fijos ÷ contribución ponderada por unidad: supone que se mantiene la combinación actual de ofertas",
+      "breakEvenMean": "costes fijos ÷ contribución media por unidad: no hay volúmenes registrados, así que se supone una combinación uniforme",
       "aov": "ingresos mensuales ÷ pedidos mensuales",
       "cpa": "gasto en anuncios ÷ (pedidos × ({one} − tasa de repetición))",
       "roas": "ingresos mensuales ÷ gasto mensual en anuncios (combinado: todos los ingresos sobre todo el gasto en anuncios, sin atribución)"
@@ -6566,9 +6609,9 @@
     "saidOn": "Indicado el {day}",
     "range": {
       "aboutMoney": "alrededor de {value}",
-      "money": "{lo}–{hi}",
+      "money": "{lo} a {hi}",
       "aboutCount": "alrededor de {value} {subject}",
-      "count": "{lo}–{hi} {subject}",
+      "count": "{lo} a {hi} {subject}",
       "on": "el {day}",
       "dates": "del {from} al {to}"
     },
@@ -6643,7 +6686,7 @@
       "noSeries": "no hay ninguna serie de ingresos medidos: conecte una fuente y el veredicto será posible",
       "noBaseline": "no hay días medidos antes de la acción: no hay base con la que comparar",
       "tooEarly": "{days, plural, one {# día medido} many {# días medidos} other {# días medidos}} desde el {day}: el veredicto necesita {need}",
-      "revenue": "los ingresos diarios promediaron {after} en {afterDays, plural, one {el # día medido} many {los # días medidos} other {los # días medidos}} después del {day}, frente a {before} en {beforeDays, plural, one {el # día anterior} many {los # días anteriores} other {los # días anteriores}} — {delta} % (umbrales: ayudó a partir de +{helped} %, contraproducente a partir de {backfired} %)",
+      "revenue": "los ingresos diarios promediaron {after} en {afterDays, plural, one {el # día medido} many {los # días medidos} other {los # días medidos}} después del {day}, frente a {before} en {beforeDays, plural, one {el # día anterior} many {los # días anteriores} other {los # días anteriores}}: {delta} % (umbrales: ayudó a partir de +{helped} %, contraproducente a partir de {backfired} %)",
       "notOnRecord": "el elemento publicado no está en el registro: no hay nada que medir"
     }
   },
@@ -6676,7 +6719,7 @@
         "track": "Mi historial de aciertos"
       },
       "pending": "{count, plural, one {# propuesta espera} many {# propuestas esperan} other {# propuestas esperan}} su decisión. Nada se ejecuta sin su aprobación.",
-      "pendingMore": "— y {count} más.",
+      "pendingMore": "- y {count} más.",
       "aProposal": "Una propuesta",
       "tickets": "{count, plural, one {# pregunta de un cliente espera} many {# preguntas de clientes esperan} other {# preguntas de clientes esperan}} su respuesta en Soporte.",
       "executed": "He aplicado un cambio que usted aprobó: {summary}",
@@ -6695,10 +6738,10 @@
         "email": "los resultados del correo"
       },
       "tooEarly": "{summary}: es demasiado pronto para saberlo; aún no hay suficientes días medidos desde que se ejecutó.",
-      "revenue": "{summary}: {verdict} — ingresos diarios medios de {after} después, frente a {before} antes, según cifras medidas.",
-      "revenuePct": "{summary}: {verdict} — ingresos diarios medios de {after} después, frente a {before} antes ({pct}), según cifras medidas.",
-      "judgedOn": "{summary}: {verdict} — valoración basada en {basis}, con cifras medidas.",
-      "judgedOnPct": "{summary}: {verdict} — valoración basada en {basis} ({pct}), con cifras medidas.",
+      "revenue": "{summary}: {verdict}, ingresos diarios medios de {after} después, frente a {before} antes, según cifras medidas.",
+      "revenuePct": "{summary}: {verdict}, ingresos diarios medios de {after} después, frente a {before} antes ({pct}), según cifras medidas.",
+      "judgedOn": "{summary}: {verdict}, valoración basada en {basis}, con cifras medidas.",
+      "judgedOnPct": "{summary}: {verdict}, valoración basada en {basis} ({pct}), con cifras medidas.",
       "forecasts": "Esta semana he valorado {total, plural, one {# de mis previsiones} many {# de mis previsiones} other {# de mis previsiones}}: {inside, plural, one {# quedó} many {# quedaron} other {# quedaron}} dentro del rango que di, {misses}{cant}.",
       "missedNone": "ninguna falló",
       "missedAbove": "{missed, plural, one {# falló} many {# fallaron} other {# fallaron}} ({above, plural, one {# quedó por encima} many {# quedaron por encima} other {# quedaron por encima}})",
@@ -6713,7 +6756,7 @@
       "whatsappBusiness": "su negocio"
     },
     "signIn": {
-      "subject": "Su enlace de inicio de sesión — ScaleX",
+      "subject": "Su enlace de inicio de sesión · ScaleX",
       "intro": "Haga clic para iniciar sesión en ScaleX:",
       "expiry": "El enlace funciona una sola vez y caduca en {minutes, plural, one {# minuto} many {# minutos} other {# minutos}}. Si no lo ha pedido, ignore este correo: sin el enlace no ocurre nada.",
       "code": "O escriba este código en la página de inicio de sesión: {code}"
@@ -6727,7 +6770,7 @@
       "expiry": "El enlace funciona una sola vez y caduca en {days, plural, one {# día} many {# días} other {# días}}. Iniciará sesión con esta dirección: {email}. Si no esperaba esta invitación, ignore este correo: sin usted no ocurre nada."
     },
     "supportNotice": {
-      "subject": "Un cliente le ha escrito — ScaleX",
+      "subject": "Un cliente le ha escrito · ScaleX",
       "waiting": "Un cliente ha escrito a {business} y su mensaje le espera en Soporte: {url}",
       "waitingNoLink": "Un cliente ha escrito a {business} y su mensaje le espera en Soporte.",
       "nothingSent": "Todavía no se ha enviado nada al cliente. Una respuesta solo sale con su aprobación.",
@@ -6830,7 +6873,7 @@
     }
   },
   "shared": {
-    "pageTitle": "Informe compartido — ScaleX",
+    "pageTitle": "Informe compartido · ScaleX",
     "label": "Informe compartido",
     "readOnly": "Informe compartido · solo lectura",
     "deadTitle": "Este enlace ya no está activo.",
@@ -6929,10 +6972,10 @@
       "currencyCannot": "Sumar ventas en {series} a un efectivo en {cash} sin un tipo de cambio que nadie me ha dado."
     },
     "assumption": {
-      "growth": "Cada semana se comporta como la misma semana del año pasado, ajustada según cómo se comparan {weeks, plural, one {su última semana} many {sus últimas # semanas} other {sus últimas # semanas}} con el mismo periodo del año anterior ({low}–{high}).",
+      "growth": "Cada semana se comporta como la misma semana del año pasado, ajustada según cómo se comparan {weeks, plural, one {su última semana} many {sus últimas # semanas} other {sus últimas # semanas}} con el mismo periodo del año anterior ({low} a {high}).",
       "span": "Cada semana se sitúa entre la misma semana del año pasado y sus semanas recientes: con un año de historial no puedo distinguir su crecimiento de su temporada, así que el rango abarca ambos.",
       "fallback": "{count, plural, one {# semana del año pasado no se midió completa; para ella se usan sus semanas recientes.} many {# semanas del año pasado no se midieron completas; para ellas se usan sus semanas recientes.} other {# semanas del año pasado no se midieron completas; para ellas se usan sus semanas recientes.}}",
-      "recent": "Las próximas semanas se comportan como {count, plural, one {su última semana completa} many {sus últimas # semanas completas} other {sus últimas # semanas completas}}: la mitad central de ellas, {low}–{high} a la semana. Con menos de un año de historial no se conoce ninguna temporada, así que no se aplica ninguna.",
+      "recent": "Las próximas semanas se comportan como {count, plural, one {su última semana completa} many {sus últimas # semanas completas} other {sus últimas # semanas completas}}: la mitad central de ellas, {low} a {high} a la semana. Con menos de un año de historial no se conoce ninguna temporada, así que no se aplica ninguna.",
       "sameDay": "Las ventas son dinero que entra el mismo día.",
       "payout": "Plazo de una venta hasta que llega a su cuenta: {days} ({why}). El extremo prudente toma el plazo más lento.",
       "evenly": "Las ventas se reparten por igual entre los días de su semana.",
@@ -6992,7 +7035,7 @@
       "sameDay": "el mismo día",
       "days": "{count, plural, one {# día} many {# días} other {# días}}",
       "sameDayTo": "{count, plural, one {del mismo día a # día} many {del mismo día a # días} other {del mismo día a # días}}",
-      "range": "{low}–{high, plural, one {# día} many {# días} other {# días}}"
+      "range": "{low} a {high, plural, one {# día} many {# días} other {# días}}"
     },
     "tight": {
       "quarterly": "{label} ({amount}, trimestral)",
@@ -7038,6 +7081,8 @@
     },
     "view": {
       "headlineTight": "El dinero podría apretar {when, select, now {esta semana} other {la semana del {day}}}: el extremo prudente queda en {amount}.",
+      "headTight": "El dinero podría apretar {when, select, now {esta semana} other {la semana del {day}}}.",
+      "subTight": "En el extremo prudente el saldo queda en unos {low}, {line, select, buffer {por debajo de los {buffer} que quiere conservar} other {por debajo de cero, con la cuenta en descubierto}}.",
       "headlineBuffer": "Ninguna semana de las próximas {weeks} baja de su colchón de {amount}, ni siquiera en el extremo prudente.",
       "headlineZero": "Ninguna semana de las próximas {weeks} baja de cero, ni siquiera en el extremo prudente.",
       "sourcesHistory": "Fuentes: {noun} de {source}, {days, plural, one {# día medido} many {# días medidos} other {# días medidos}} del {from} al {to}; {complete} de {needed, plural, one {# semana completa necesaria} many {# semanas completas necesarias} other {# semanas completas necesarias}}.",
@@ -7144,7 +7189,7 @@
       "sentenceFromStretch": "{name} se agota en {range}; {lead}. Eso cuenta su periodo de mucho movimiento a partir del {start}.",
       "head": "{name} se agota en {range}.",
       "rangeOpen": "{count, plural, one {unos {days} día o más} many {unos {days} días o más} other {unos {days} días o más}}",
-      "rangeClosed": "unos {low}–{high} días"
+      "rangeClosed": "unos {low} a {high} días"
     },
     "option": {
       "label": {
@@ -7168,13 +7213,13 @@
       "noCost": "no se sabe lo que le costó",
       "emailOff": "su propia respuesta sobre el consentimiento de los clientes fue «sin consentimiento», así que el correo sigue desactivado",
       "arithmetic": {
-        "content": "{onHand} en existencias × {low}–{high} vendidas a precio completo = {unitsLow}–{unitsHigh} unidades, {backLow}–{backHigh}; no se cede nada",
+        "content": "{onHand} en existencias × {low} a {high} vendidas a precio completo = {unitsLow} a {unitsHigh} unidades, {backLow} a {backHigh}; no se cede nada",
         "bundleNone": "no hay ningún superventas con existencias disponibles con el que combinarlo",
-        "bundle": "{onHand} en existencias × {low}–{high}, con un tope de {cap} de {seller} en existencias = {unitsLow}–{unitsHigh} unidades, {backLow}–{backHigh}; ambos a precio completo, no se cede nada",
-        "email": "{customers} clientes que aceptaron recibir correos × {low}–{high} que compran uno, con un tope de {onHand} en existencias = {unitsLow}–{unitsHigh} unidades, {backLow}–{backHigh}; sin descuento, no se cede nada",
-        "markdown": "{onHand} en existencias × {low}–{high} vendidas con un {cut} de descuento = {unitsLow}–{unitsHigh} unidades, {backLow}–{backHigh}, cediendo {givenLow}–{givenHigh} del precio completo",
+        "bundle": "{onHand} en existencias × {low} a {high}, con un tope de {cap} de {seller} en existencias = {unitsLow} a {unitsHigh} unidades, {backLow} a {backHigh}; ambos a precio completo, no se cede nada",
+        "email": "{customers} clientes que aceptaron recibir correos × {low} a {high} que compran uno, con un tope de {onHand} en existencias = {unitsLow} a {unitsHigh} unidades, {backLow} a {backHigh}; sin descuento, no se cede nada",
+        "markdown": "{onHand} en existencias × {low} a {high} vendidas con un {cut} de descuento = {unitsLow} a {unitsHigh} unidades, {backLow} a {backHigh}, cediendo {givenLow} a {givenHigh} del precio completo",
         "selloffNone": "no consta ningún coste con el que valorarlo",
-        "selloff": "{cost} a precio de coste × {low}–{high} = {backLow}–{backHigh}, cediendo {givenLow}–{givenHigh} frente a {price} a precio completo"
+        "selloff": "{cost} a precio de coste × {low} a {high} = {backLow} a {backHigh}, cediendo {givenLow} a {givenHigh} frente a {price} a precio completo"
       },
       "efficiencyFree": "{back} que probablemente vuelven, sin ceder nada",
       "efficiencyNet": "{back} que probablemente vuelven − {given} cedidos = {net} netos ({ratio} de vuelta por cada {one} cedido)",
@@ -7272,7 +7317,7 @@
     },
     "ruleOfThumb": {
       "label": "SUPUESTO",
-      "statement": "Regla general, no una cifra suya: de los carritos a los que llega un correo de recordatorio, unos {low}–{high} vuelven como pedido."
+      "statement": "Regla general, no una cifra suya: de los carritos a los que llega un correo de recordatorio, unos {low} a {high} vuelven como pedido."
     },
     "held": {
       "noConsent": "Me dijo que sus clientes no han aceptado recibir correos de marketing, así que no envío ninguno."
@@ -7558,8 +7603,8 @@
       },
       "formula": {
         "volume": "{volume} {kind, select, service {reservas} other {ventas}} × ({one} {sign} {share} × {band}){held, select, yes {, limitado a las {room} más para las que su agenda tiene hueco} other {}}",
-        "revenue": "{low} – {high} {kind, select, service {reservas} other {ventas}} × {next} − {volume} × {price}",
-        "profit": "{low} – {high} × ({next} − {cost}) − {volume} × ({price} − {cost})",
+        "revenue": "{low} a {high} {kind, select, service {reservas} other {ventas}} × {next} − {volume} × {price}",
+        "profit": "{low} a {high} × ({next} − {cost}) − {volume} × ({price} − {cost})",
         "worst": "{units} × ({next} − {cost}) − {volume} × ({price} − {cost})"
       },
       "worstUnknown": "No puedo cuantificar el peor caso sin los datos de arriba.",
@@ -7671,7 +7716,7 @@
     "caveat": "Son totales de todos los negocios del grupo, no los de un negocio típico.",
     "size": {
       "upTo": "{count, plural, one {con hasta {n} persona} many {con hasta {n} personas} other {con hasta {n} personas}}",
-      "range": "con {min}–{max} personas",
+      "range": "con {min} a {max} personas",
       "atLeast": "con {min} personas o más",
       "every": "de cualquier tamaño"
     },
@@ -8152,10 +8197,10 @@
     "title": "Su margen operativo está {points} puntos por debajo del de negocios similares.",
     "rule": "Llamo grande a una diferencia a partir de {threshold} puntos por debajo de la cifra que publica Eurostat, comparando lo comparable: el mismo país, el mismo tipo de negocio y su tamaño o todos los tamaños.",
     "where": "Ahora aparece en su informe como hallazgo, y puedo proponerle repasar sus precios y costes. Aprobarlo no cambia nada por sí solo.",
-    "propose": "Proponer repasar precios y costes →",
+    "propose": "Proponer repasar precios y costes",
     "drafting": "Redactando…",
     "status": "{status, select, pending {Le espera en su cola} blocked {Bloqueada por una regla suya} approved {Aprobada} rejected {Rechazada} expired {Caducada} other {Propuesta}}",
-    "queue": "Abrirla en su cola →",
+    "queue": "Abrirla en su cola",
     "drafted": "Redactada. Le espera; aprobarla no escribe ningún precio ni ningún coste.",
     "blocked": "Una regla suya lo excluye, así que queda bloqueado en su cola.",
     "failed": "No ha funcionado."
@@ -8167,13 +8212,13 @@
       "export": "su exportación de reservas"
     },
     "run": {
-      "mon": "Los lunes {from}–{to}",
-      "tue": "Los martes {from}–{to}",
-      "wed": "Los miércoles {from}–{to}",
-      "thu": "Los jueves {from}–{to}",
-      "fri": "Los viernes {from}–{to}",
-      "sat": "Los sábados {from}–{to}",
-      "sun": "Los domingos {from}–{to}"
+      "mon": "Los lunes {from} a {to}",
+      "tue": "Los martes {from} a {to}",
+      "wed": "Los miércoles {from} a {to}",
+      "thu": "Los jueves {from} a {to}",
+      "fri": "Los viernes {from} a {to}",
+      "sat": "Los sábados {from} a {to}",
+      "sun": "Los domingos {from} a {to}"
     },
     "days": {
       "mon": "lunes",
@@ -8275,7 +8320,7 @@
       "headUnderWay": "Su tramo de mucho movimiento ya ha empezado: el año pasado llegó a {index}× ({range}) una semana normal.",
       "headStarts": "Su tramo de mucho movimiento empieza el {day}: el año pasado llegó a {index}× ({range}) una semana normal.",
       "atLeast": "al menos {low}×",
-      "between": "{low}–{high}×",
+      "between": "{low} a {high}×",
       "noFurther": "{head} Incluso en su extremo bajo, ninguna otra hora superaría su capacidad declarada.",
       "further": "{head} En su extremo bajo, estas horas también superarían su capacidad declarada: {hours}."
     },
@@ -8459,7 +8504,7 @@
       "short": "Las llamadas a PageSpeed de esta semana para el sitio no alcanzaron: mediciones hechas: {made} de {planned}, primero los teléfonos."
     },
     "finding": {
-      "withPage": "{title} — {page}",
+      "withPage": "{title}: {page}",
       "on": {
         "mobile": "en un teléfono",
         "desktop": "en un ordenador"
@@ -8640,23 +8685,23 @@
     "readback": {
       "recipients": "{count, plural, one {{n} destinatario} many {{n} destinatarios} other {{n} destinatarios}}",
       "comparisonCustomers": "{count, plural, one {{n} cliente de comparación} many {{n} clientes de comparación} other {{n} clientes de comparación}}",
-      "harm": "se dieron de baja o lo marcaron como spam: {recipients} (bajas: {unsubscribed}, quejas: {complained}) de {sent} enviados, {rate} — contraproducente a partir del {harmRate} con al menos {harmMin} personas, o con cualquier queja a partir del {complaintRate}",
+      "harm": "se dieron de baja o lo marcaron como spam: {recipients} (bajas: {unsubscribed}, quejas: {complained}) de {sent} enviados, {rate}, contraproducente a partir del {harmRate} con al menos {harmMin} personas, o con cualquier queja a partir del {complaintRate}",
       "nothingSent": "no se envió nada: no hay nada que medir",
       "bought": "volvieron a comprar desde entonces: {returned} de {measured} destinatarios medidos ({rate})",
       "noExport": "no ha llegado ninguna exportación de clientes que los cubra al menos {days} días después del correo: importe una y el veredicto será posible",
       "noExportOf": "no ha llegado ninguna exportación de clientes que los cubra al menos {days} días después del correo del {date}: importe una y el veredicto será posible",
-      "fewMeasured": "medidos por una exportación de clientes al menos {days} días después del correo: {recipients} — el veredicto necesita {min}",
-      "canEver": "solo se pueden llegar a medir: {recipients} (borrados: {erased}) — el veredicto necesita {min}",
-      "compared": "{bought}, frente a {returned} de {measured} {group} a los que no pude escribir ({rate}) — {lift} puntos (ayudó a partir de {helped}, contraproducente a partir de {backfired})",
+      "fewMeasured": "medidos por una exportación de clientes al menos {days} días después del correo: {recipients}; el veredicto necesita {min}",
+      "canEver": "solo se pueden llegar a medir: {recipients} (borrados: {erased}); el veredicto necesita {min}",
+      "compared": "{bought}, frente a {returned} de {measured} {group} a los que no pude escribir ({rate}): {lift} puntos (ayudó a partir de {helped}, contraproducente a partir de {backfired})",
       "group": {
         "winback": "clientes inactivos",
         "vip": "mejores clientes"
       },
       "notRandom": "no aleatorizado: el grupo de comparación nunca aceptó recibir correos, así que se diferencia en algo más que el correo",
-      "uncontrolledBase": "medidos: {customers} — la comparación necesita {min}",
+      "uncontrolledBase": "medidos: {customers}; la comparación necesita {min}",
       "nobodyBought": "nadie volvió a comprar, así que ninguna comparación podría convertirlo en una mejora ({uncontrolled})",
       "nextExport": "{uncontrolled}; la próxima exportación puede medir al resto",
-      "uncontrolled": "sin grupo de control: {uncontrolled}, así que no puedo decir que el correo lo causara — un aumento por sí solo nunca es «ayudó»"
+      "uncontrolled": "sin grupo de control: {uncontrolled}, así que no puedo decir que el correo lo causara; un aumento por sí solo nunca es «ayudó»"
     },
     "measured": {
       "delivery": "la entrega, los rebotes y los informes de spam del servicio de correo",
@@ -9090,7 +9135,7 @@
   },
   "payments": {
     "meta": {
-      "title": "Pagos — ScaleX"
+      "title": "Pagos · ScaleX"
     },
     "kicker": "Análisis · Pagos",
     "never": "ScaleX prepara los pagos y usted los paga en su propio banco. ScaleX no puede mover dinero.",
@@ -9363,7 +9408,8 @@
       "email_campaign": "Correos a tus contactos",
       "followup_email": "Seguimientos de oportunidades paradas",
       "purchase_order": "Pedidos a proveedores",
-      "google_business_reviews": "Respuestas a reseñas de Google"
+      "google_business_reviews": "Respuestas a reseñas de Google",
+      "shopify_write": "Cambios en tu tienda Shopify"
     },
     "kicker": "Escalera de confianza",
     "col": {
@@ -9616,7 +9662,8 @@
     "invite": "Revisa tu propio negocio: seis preguntas, gratis, sin cuenta.",
     "next": "¿Quieres medirlo? El diagnóstico completo conecta un sistema y ordena cada fuga que encuentra.",
     "sharedLabel": "Un resultado compartido",
-    "missing": "Ese resultado no está aquí."
+    "missing": "Ese resultado no está aquí.",
+    "nextLink": "Empezar el diagnóstico completo"
   },
   "ideas": {
     "meta": {
@@ -10278,32 +10325,22 @@
   },
   "home": {
     "meta": {
-      "title": "Inicio — ScaleX"
+      "title": "Inicio · ScaleX"
     },
     "kicker": "Hoy · {date}",
     "reading": "Leyendo…",
+    "unread": {
+      "title": "No he podido leer lo que le espera."
+    },
     "title": "{count, plural, =0 {No hay nada esperándole.} one {# decisión le espera.} many {# decisiones le esperan.} other {# decisiones le esperan.}}",
     "biggest": "La mayor podría sumar {range} al mes.",
-    "review": "Revisarlas",
-    "cash": {
-      "flag": "Por debajo de su colchón",
-      "title": "El dinero podría escasear la semana del {date}.",
-      "line": "{low} en el extremo prudente, por debajo de los {line} que quiere conservar.",
-      "lineZero": "{low} en el extremo prudente: por debajo de cero.",
-      "open": "Ver el flujo de caja"
-    },
     "readings": {
       "label": "Sus cifras de hoy",
-      "waiting": "Le esperan",
-      "waitingCmp": "la mayor {range} al mes",
-      "waitingNone": "nada que decidir",
       "cash": "Efectivo hoy",
       "cashCmp": "colchón {line}",
       "cashZero": "sin colchón indicado",
       "lowest": "Punto más bajo previsto",
-      "lowestCmp": "semana del {date}",
-      "watch": "Observando",
-      "watchCmp": "días de observación"
+      "lowestCmp": "semana del {date}"
     },
     "flag": {
       "under": "Bajo el colchón",
@@ -10318,16 +10355,10 @@
       "when": "Cuándo"
     },
     "watch": {
-      "label": "Observando",
       "title": "Día {day} de {of}.",
-      "note": "Leo cada día lo que ha vinculado y no cambio nada por mi cuenta.",
-      "open": "Abrir la observación"
+      "note": "Leo cada día lo que ha vinculado y no cambio nada por mi cuenta."
     },
     "decisions": {
-      "label": "Le esperan",
-      "all": "Todas",
-      "open": "Abrir",
-      "empty": "No hay nada pendiente. Pondré aquí la próxima decisión.",
       "by": "decidir antes del {date}"
     },
     "live": {
@@ -10345,11 +10376,113 @@
       "caption": "Personas en tu web, minuto a minuto",
       "colTime": "Hora",
       "colPeople": "Personas"
+    },
+    "side": {
+      "label": "El lado de Lex",
+      "history": "Historial"
+    },
+    "ask": {
+      "label": "Pregunte a Lex",
+      "title": "¿Qué quiere saber?",
+      "chips": "Preguntas posibles",
+      "chip": {
+        "today": "¿Qué requiere mi atención hoy?",
+        "sales": "¿Por qué han cambiado las ventas esta semana?",
+        "first": "¿Qué debería arreglar primero?"
+      }
+    },
+    "decide": {
+      "recorded": "Registrado con su nombre.",
+      "open": "Abrir"
+    },
+    "trend": {
+      "label": "Tus ventas",
+      "market": "Ver el gráfico completo",
+      "period": "Días mostrados",
+      "days": "{count} d"
+    },
+    "slips": {
+      "label": "Dónde se escapa el dinero este mes"
+    },
+    "needs": {
+      "tightFlag": "Por debajo de su colchón",
+      "tight": "El dinero podría escasear la semana del {date}.",
+      "empty": "Nada le necesita.",
+      "paused": "{count, plural, one {# conexión está en pausa.} many {# conexiones están en pausa.} other {# conexiones están en pausa.}}",
+      "all": "{count, plural, one {Ver # decisión en la cola} many {Ver las # decisiones en la cola} other {Ver las # decisiones en la cola}}"
+    },
+    "feed": {
+      "tag": {
+        "approved": "Aprobada",
+        "declined": "Rechazada",
+        "changes": "Cambios pedidos",
+        "done": "Hecho",
+        "expired": "Fuera de plazo",
+        "blocked": "Retenida",
+        "read": "Leído",
+        "noticed": "Detectado",
+        "checked": "Comprobado",
+        "watch": "Observación",
+        "proposed": "Propuesto"
+      },
+      "empty": "Nada todavía.",
+      "more": "Mostrar más",
+      "new": "{count, plural, one {# entrada nueva} many {# entradas nuevas} other {# entradas nuevas}}",
+      "said": "Usted dijo: «{words}»"
+    },
+    "tabs": {
+      "label": "El trabajo de Lex",
+      "needs": "Le necesita",
+      "activity": "Actividad",
+      "made": "Creado"
+    },
+    "now": {
+      "label": "Lex ahora",
+      "stopped": "Detenido. No se ejecuta nada.",
+      "working": "Trabajo con sus aprobaciones."
+    },
+    "read": {
+      "now": "Leer ahora",
+      "reading": "Leyendo {name}…",
+      "done": "{count, plural, =0 {No se leyó nada.} one {# conexión leída.} many {# conexiones leídas.} other {# conexiones leídas.}}",
+      "silent": "Sin respuesta de {names}.",
+      "last": "Última lectura {when}"
+    },
+    "next": {
+      "label": "Próximos pasos",
+      "connect": {
+        "text": "Conecte un sistema para que pueda medir.",
+        "go": "Conectar"
+      },
+      "analytics": {
+        "text": "Conecte Google Analytics para ver las visitas en directo.",
+        "go": "Conectar"
+      },
+      "buffer": {
+        "text": "Dígame el mínimo de efectivo que quiere mantener.",
+        "go": "Flujo de caja"
+      },
+      "goal": {
+        "text": "Fije un objetivo hacia el que pueda trabajar.",
+        "go": "Objetivos"
+      }
+    },
+    "made": {
+      "empty": "Aún no hay borradores.",
+      "waiting": "Pendiente de usted"
+    },
+    "failed": {
+      "text": "No pude leer esto.",
+      "retry": "Reintentar"
+    },
+    "toast": {
+      "approved": "Aprobada. Registrada con su nombre.",
+      "declined": "Rechazada. Registrada con su motivo."
     }
   },
   "alerts": {
     "meta": {
-      "title": "Avisos y módulos — ScaleX"
+      "title": "Avisos y módulos · ScaleX"
     },
     "kicker": "Su negocio · Avisos y módulos",
     "title": "Dónde trabajo y cómo le aviso."
@@ -10362,43 +10495,46 @@
     "decisions": "Decisiones",
     "notPricedYet": "aún sin precio",
     "notPriced": "sin precio",
-    "aiLabel": "Tienda ilustrativa · imágenes generadas por IA",
+    "aiLabel": "Tienda de ejemplo, imágenes hechas por IA",
     "nav": {
       "how": "Cómo funciona",
       "pricing": "Precios",
-      "firms": "Para asesorías contables",
+      "firms": "Para asesorías",
       "check": "Revisión gratuita",
-      "sections": "Secciones"
+      "sections": "Secciones",
+      "signIn": "Iniciar sesión",
+      "label": "Principal"
     },
     "rail": {
-      "read": "Leer",
-      "learn": "Aprender",
-      "scan": "Escáner",
+      "read": "Inicio",
+      "learn": "Preguntas",
+      "scan": "Revisión",
       "leaks": "Fugas",
-      "decide": "Decidir",
-      "chart": "Gráfico",
-      "trust": "Confianza",
+      "decide": "Su sí",
+      "chart": "Resultados",
+      "trust": "Precios",
       "firms": "Asesorías",
-      "check": "Revisión",
+      "check": "Revisión gratuita",
       "start": "Empezar"
     },
     "hero": {
-      "kicker": "Un análisis de sangre para su negocio",
-      "lede": "ScaleX encuentra por dónde se le escapa el dinero, le pone precio en euros y lo arregla solo cuando usted dice que sí.",
-      "run": "Hacer la revisión gratuita",
+      "kicker": "Para negocios de cualquier tamaño",
+      "lede": "Su marketing, sus anuncios y su sitio web, gestionados por ScaleX. Encuentra lo que le hace perder dinero, dice cuánto y lo arregla. Nada cambia hasta que pulsa Aprobar, y cualquier cambio se puede deshacer.",
+      "run": "Revisar mi negocio gratis",
       "see": "Cómo funciona",
       "trust": "Solo lectura. Sin contraseñas. Nada cambia sin usted.",
-      "titleB": "<em>Sus cifras, quizá no.</em>",
+      "titleB": "<em>con ScaleX.</em>",
       "ctaMeta": "{minutes, plural, one {# minuto} many {# minutos} other {# minutos}} · sin cuenta",
-      "trustRead": "Solo lectura",
+      "trustRead": "Solo lee",
       "trustPw": "Sin contraseñas",
-      "trustYes": "Nada cambia sin su sí"
+      "trustYes": "Nada cambia sin su sí",
+      "titleA": "Gestione la presencia online de su negocio"
     },
     "tour": {
-      "aria": "Recorrido del producto: ScaleX se conecta a una tienda, elabora su ficha de datos, encuentra una fuga y la arregla tras la aprobación del propietario",
+      "aria": "Recorrido del producto: ScaleX se conecta a una tienda, crea su ficha de datos, encuentra una fuga y la arregla cuando el propietario dice que sí",
       "demo": "Datos de demostración",
       "connections": "Conexiones",
-      "readsOnly": "ScaleX lee, nunca escribe",
+      "readsOnly": "ScaleX solo lee",
       "reads": {
         "shopify": "pedidos y productos",
         "analytics": "visitas a su sitio",
@@ -10407,7 +10543,7 @@
       "connecting": "Conectando…",
       "connected": "Solo lectura · conectado",
       "noPasswords": "Sin contraseñas. Puede quitar una conexión en cualquier momento.",
-      "twoMore": "Otras dos aún no tienen precio. Una laguna también es un hallazgo.",
+      "twoMore": "Otras dos aún no se pueden cuantificar. Eso también es bueno saberlo.",
       "tab": {
         "connect": "Conectar",
         "facts": "Datos",
@@ -10427,7 +10563,7 @@
       "shipping": "Envío por pedido",
       "shippingSrc": "usted me lo dijo · {day}",
       "repeat": "Clientes recurrentes",
-      "repeatSrc": "una laguna, no una suposición",
+      "repeatSrc": "aún no se sabe, no es una suposición",
       "unknown": "Aún no se sabe"
     },
     "leak": {
@@ -10464,9 +10600,9 @@
       "stamp": "Aprobado · registrado"
     },
     "s1": {
-      "kicker": "La entrevista y después la ficha de datos",
-      "title": "Una pregunta cada vez. <em>Cada respuesta</em> conserva su origen.",
-      "lede": "«No lo sé» es una respuesta de verdad: una laguna se convierte en un hallazgo, nunca en una suposición. Lo que usted dice, lo que ScaleX mide y lo que calcula acaban en una sola ficha de datos, con fecha y sin sobrescribirse nunca.",
+      "kicker": "Paso {n}: conectar y responder",
+      "title": "Unas pocas preguntas. <em>Cada respuesta</em> se guarda con su fuente.",
+      "lede": "ScaleX hace una pregunta cada vez. «No lo sé» es una respuesta válida. Lo que usted dice, lo que ScaleX mide y lo que calcula va a una misma ficha de datos, con la fecha y el origen.",
       "interview": "Entrevista",
       "asks": "ScaleX pregunta",
       "oneAtATime": "una pregunta cada vez",
@@ -10479,22 +10615,22 @@
       "under": "Menos de {amount}",
       "over": "Más de {amount}",
       "dontKnow": "No lo sé",
-      "srcTold": "usted me lo dijo · declarado",
-      "srcGap": "una laguna · se convierte en hallazgo",
+      "srcTold": "usted me lo dijo",
+      "srcGap": "aún no se sabe",
       "notKnown": "no se sabe",
       "cash": "Colchón de efectivo"
     },
     "s2": {
-      "kicker": "El diagnóstico",
-      "title": "Un escáner completo. <em>Cada fuga</em>, con su precio en euros al mes.",
-      "lede": "Al desplazarse, el escáner recorre la tienda. Cada fuga que encuentra dice cuánto supone y en qué se basa.",
+      "kicker": "Paso {n}: la revisión",
+      "title": "Una revisión completa. <em>Cada fuga</em> tiene su precio.",
+      "lede": "Mientras se desplaza, ScaleX recorre la tienda. Cada fuga que encuentra dice cuánto cuesta al mes y en qué se basa.",
       "scanned": "{pct} escaneado",
       "unpriced": "{count, plural, one {# aún sin precio} many {# aún sin precio} other {# aún sin precio}}"
     },
     "s3": {
       "kicker": "Adónde va el dinero",
-      "title": "Cada día se escapa un poco. <em>Séllelo</em> y se detiene.",
-      "lede": "La tubería son sus ventas. El ámbar es lo que se escapa: anuncios que no se amortizan, huecos vacíos, existencias que no salen. Un arreglo con su aprobación cierra una junta.",
+      "title": "Cada día se escapa un poco. <em>Arréglelo</em> y se acaba.",
+      "lede": "Un anuncio que cuesta más de lo que trae. Huecos vacíos. Existencias paradas en la estantería. Cada arreglo al que dice que sí cierra una fuga.",
       "leaking": "Con fuga",
       "paused": "En pausa · registrado",
       "approvePause": "Aprobar la pausa",
@@ -10508,18 +10644,18 @@
       "working": "{lost} perdidos en {days} días × {month} ÷ {days} = {monthly} al mes. Según las propias cifras de Meta."
     },
     "s4": {
-      "kicker": "Su decisión",
+      "kicker": "Paso {n}: su sí",
       "title": "No pasa nada <em>hasta que usted diga que sí.</em>",
-      "lede": "Una hoja por arreglo: qué cambia, el dinero y cómo deshacerlo. Su sí queda registrado con su nombre, se guarda para siempre y nunca se edita.",
+      "lede": "Una tarjeta por arreglo: qué cambia, cuánto vale y cómo deshacerlo. Su sí se guarda con su nombre y nunca se borra.",
       "proof": {
-        "readOnly": "Solo lectura",
-        "readOnlyWhy": "Las conexiones leen y nunca escriben; las pruebas fallan si alguna pudiera hacerlo.",
-        "graded": "Evaluado",
-        "gradedWhy": "Cada previsión se contrasta con lo que ocurrió, a la vista de todos.",
+        "readOnly": "Solo lee",
+        "readOnlyWhy": "ScaleX puede leer sus cuentas, pero nunca cambiarlas.",
+        "graded": "Comprobado",
+        "gradedWhy": "Cada previsión se compara con lo que pasó de verdad.",
         "undo": "Deshacer",
-        "undoWhy": "Cada cambio indica cómo revertirlo antes de su aprobación.",
+        "undoWhy": "Cada cambio dice cómo deshacerlo antes de que diga que sí.",
         "labelled": "Etiquetado",
-        "labelledWhy": "Todo lo que la IA crea para su negocio lleva la etiqueta de creado por IA."
+        "labelledWhy": "Todo lo que la IA crea para usted se marca como hecho por IA."
       },
       "waiting": "{count, plural, one {# pendiente} many {# pendientes} other {# pendientes}}",
       "priceChange": "Cambio de precio",
@@ -10527,7 +10663,7 @@
       "raise": "Subir un {pct} el precio de la Speckled Everyday Mug",
       "now": "Ahora",
       "after": "Después",
-      "ledger": "Registro · se guarda para siempre, nunca se edita",
+      "ledger": "Registro: se guarda para siempre, nunca se cambia",
       "onRecord": "{count, plural, one {# registrada} many {# registradas} other {# registradas}}",
       "pausedOne": "Pausar una campaña de anuncios",
       "approved": "Aprobado",
@@ -10535,9 +10671,9 @@
       "byYou": "por usted"
     },
     "s5": {
-      "kicker": "Medido",
-      "lede": "Cada día, una vela; lo que se escapó, dibujado encima en ámbar. Desplácese para recorrer los últimos {days} días. Después, cada previsión se evalúa frente a lo que ocurrió de verdad.",
-      "marketView": "Vista de mercado",
+      "kicker": "Paso {n}: resultados",
+      "lede": "Cada vela es un día de ventas. El ámbar encima es lo que se escapó. Desplácese para recorrer los últimos {days} días. Después, cada previsión se comprueba con lo que pasó de verdad.",
+      "marketView": "Sus ventas",
       "dayOf": "Día {day} de {days}",
       "salesADay": "Ventas por día · últimos {days} días",
       "slipped": "se escapó",
@@ -10549,36 +10685,37 @@
       "low": "Mínimo",
       "close": "Cierre",
       "forecastFor": "Previsión del {from} al {to}",
-      "gradedAfter": "Se evalúa después del {day}"
+      "gradedAfter": "Se evalúa después del {day}",
+      "title": "Cada día medido. <em>Cada previsión</em> comprobada."
     },
     "s6": {
-      "kicker": "La escalera de confianza y lo que cuesta",
-      "title": "La autonomía se gana. <em>Pague por el paso</em> que usted permita.",
-      "lede": "Cada tipo de acción empieza observando. Solo sube con resultados demostrados, y la parada lo devuelve todo abajo. Cada plan empieza con un mes en la sombra que no cambia nada.",
-      "fine": "Anual: una quinta parte menos · un negocio adicional, {extra} al mes · un diagnóstico único de {report} se descuenta de su primera factura.",
+      "kicker": "Precios",
+      "title": "Empiece gratis. <em>Pague solo</em> por lo que le permite hacer.",
+      "lede": "Todos los planes empiezan con un mes gratis en el que ScaleX solo observa y no cambia nada. Solo puede hacer más cuando se ha ganado su confianza, y el botón de parada lo devuelve al principio.",
+      "fine": "Pague anualmente y ahorre una quinta parte. Un negocio adicional cuesta {extra} al mes. La revisión única de {report} se descuenta de su primera factura.",
       "ladder": "Escalera de confianza",
       "choose": "usted elige el paso",
       "yourStep": "Su paso",
       "step": {
-        "shadow": "Mes en la sombra",
+        "shadow": "Mes gratis",
         "watch": "Watch",
         "act": "Act",
         "autonomous": "Autonomous"
       },
       "stepN": "Paso {n}",
       "what": {
-        "watch": "Observa, diagnostica cada mes, sugiere. No cambia nada.",
-        "act": "Lleva a cabo aquello a lo que usted dice que sí: publicaciones, anuncios, los textos de su sitio.",
-        "autonomous": "Actúa dentro de los límites que usted fija. Si las ganancias verificadas no llegan a {times} veces la cuota en un trimestre, el siguiente es gratis."
+        "watch": "Revisa sus números cada mes y propone arreglos. No cambia nada.",
+        "act": "Hace lo que usted aprueba: publicaciones, anuncios, los textos de su sitio web.",
+        "autonomous": "Actúa por su cuenta dentro de los límites que usted fija. Si en un trimestre no gana {times} veces su cuota, el siguiente trimestre es gratis."
       },
       "perMonth": "al mes"
     },
     "s7": {
-      "kicker": "Para asesorías contables",
-      "title": "Toda su cartera de clientes, <em>ordenada por el dinero que se escapa.</em>",
-      "lede": "Dé de alta a sus clientes desde un solo CSV; a cada propietario se le pide un mandato en su propio idioma. Configure NAV para todos los clientes de una vez. Los propietarios revocan su acceso con un toque.",
+      "kicker": "Para asesorías",
+      "title": "Todos sus clientes, <em>ordenados por el dinero que se fuga.</em>",
+      "lede": "Añada sus clientes desde un solo archivo. Cada propietario da su permiso en su propio idioma. Conecte NAV para todos a la vez. Un propietario puede retirarle el acceso con un toque.",
       "yourFirm": "Su asesoría",
-      "clientBook": "Cartera de clientes",
+      "clientBook": "Lista de clientes",
       "clients": "{count, plural, one {# negocio} many {# negocios} other {# negocios}} · ilustrativo",
       "business": "Negocio",
       "leaking": "Fuga al mes",
@@ -10589,25 +10726,66 @@
         "salon": "Una peluquería",
         "cafe": "Una cafetería de barrio"
       },
-      "more": "y {count} más, cada uno con su propio mandato"
+      "more": "y {count} más, cada uno con su propio permiso"
     },
     "s8": {
       "kicker": "La revisión gratuita",
-      "title": "Una cifra sobre su negocio, <em>en tres minutos.</em>",
-      "lede": "Seis preguntas, sin cuenta. La fuga probable con su tamaño y cómo se compara usted con negocios parecidos.",
-      "try": "pruébelo · demostración",
+      "title": "Un número sobre su negocio, <em>en {minutes} minutos.</em>",
+      "lede": "Seis preguntas, sin cuenta. Recibe la fuga más probable, su tamaño y cómo se compara con negocios como el suyo.",
+      "try": "pruébelo, datos de demostración",
       "yourBusiness": "Su negocio",
       "shop": "Una tienda online",
       "salon": "Un salón",
       "cafe": "Una cafetería",
       "sales": "Ventas al mes",
       "likely": "al mes, probablemente en fuga",
-      "rule": "La revisión real lee sus respuestas; esta demostración usa una regla general fija."
+      "rule": "La revisión real lee sus respuestas. Esta demostración usa una regla general sencilla."
     },
     "s9": {
-      "sizeA": "Pensado para negocios pequeños con ventas reales cada semana. ¿Demasiado pequeño para leerlo? Se le avisa antes de pagar.",
+      "sizeA": "ScaleX está hecho para pequeños negocios con ventas cada semana. Si el suyo es demasiado pequeño para leerlo, se lo dice antes de pagar.",
       "eraseQ": "¿Qué ve la IA y puedo borrarlo?",
-      "eraseA": "Solo lo que usted conecta y le cuenta. Puede borrar su negocio en cualquier momento."
+      "eraseA": "Solo lo que usted conecta y le cuenta. Puede borrar su negocio en cualquier momento.",
+      "title": "Preguntas",
+      "passwordQ": "¿Necesita mis contraseñas?",
+      "passwordA": "No. Conecta sus cuentas con acceso de solo lectura y puede retirarlo cuando quiera.",
+      "changeQ": "¿Puede ScaleX cambiar algo sin mí?",
+      "changeA": "No. Nada cambia hasta que pulsa Aprobar. Cualquier cambio se puede deshacer.",
+      "sizeQ": "¿Mi negocio tiene el tamaño adecuado?"
+    },
+    "meta": {
+      "title": "ScaleX: gestione la presencia online de su negocio"
+    },
+    "foot": {
+      "company": "[Datos de la empresa]",
+      "privacy": "Privacidad",
+      "terms": "Condiciones"
     }
+  },
+  "palette": {
+    "label": "Buscar o preguntar a Lex",
+    "group": {
+      "recent": "Recientes",
+      "screens": "Pantallas",
+      "actions": "Acciones"
+    },
+    "askLine": "Preguntar a Lex: {question}",
+    "switchTo": "Cambiar a {name}",
+    "shortcuts": "Atajos de teclado",
+    "empty": "Sin resultados.",
+    "hint": {
+      "move": "mover",
+      "open": "abrir",
+      "close": "cerrar"
+    }
+  },
+  "shortcuts": {
+    "title": "Atajos de teclado",
+    "everywhere": "En todas partes",
+    "then": "luego",
+    "palette": "Buscar o preguntar a Lex",
+    "go": "Ir a {screen}",
+    "help": "Mostrar esta lista",
+    "close": "Cerrar lo que esté abierto",
+    "next": "Siguiente y anterior"
   }
 }

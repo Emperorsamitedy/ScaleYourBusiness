@@ -2,6 +2,8 @@
 // with a case that holds and a case that doesn't.
 
 import { describe, expect, it } from "vitest";
+import { EXECUTION_SCOPE_REGISTRY } from "../../lib/execution/scopes";
+import en from "../../messages/en.json";
 import {
   cellState,
   groupRows,
@@ -113,5 +115,25 @@ describe("a row's record as a bar", () => {
       "gains",
       "losses",
     ]);
+  });
+});
+
+// The screen prints `ladder.capability.<id>` for every row. Shopify store
+// changes joined the registry on 2026-11-16 without a name, and the screen
+// printed the key until 2026-11-19. English is held here; every other
+// language is held to English's keys by messages/catalogue.test.ts.
+describe("every capability has a name", () => {
+  const names: Record<string, string> = en.ladder.capability;
+  const shown = Object.keys(EXECUTION_SCOPE_REGISTRY).filter((c) => !c.startsWith("fixture"));
+
+  it("each one the registry holds, fixtures aside", () => {
+    expect(shown.length).toBeGreaterThan(0);
+    for (const capability of shown) {
+      expect(names[capability], `ladder.capability.${capability}`).toBeTruthy();
+    }
+  });
+
+  it("and a name nobody wrote would fail here", () => {
+    expect(names["a_capability_nobody_named"]).toBeUndefined();
   });
 });

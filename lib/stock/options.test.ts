@@ -42,7 +42,7 @@ describe("the five options, each with its arithmetic", () => {
     expect(o.content!.recovered).toEqual({ low: 17_800, high: 53_400, expected: 35_600 });
     expect(o.content!.given_up.expected).toBe(0);
     expect(o.content!.per_euro).toBeNull();
-    expect(o.content!.arithmetic).toContain("40 on hand × 5%–15%");
+    expect(o.content!.arithmetic).toContain("40 on hand × 5% to 15%");
   });
 
   it("a pairing is capped by the best seller's own stock", () => {

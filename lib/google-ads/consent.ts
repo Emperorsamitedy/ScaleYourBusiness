@@ -141,13 +141,13 @@ export async function consentToGoogleAds(
 ): Promise<{ connection: PublicExecutionConnection; consent_hash: string }> {
   if (!googleAdsPhraseMatches(args.confirmation)) {
     throw new ExecutionConnectionError(
-      `type "${GOOGLE_ADS_PHRASE}" to confirm — nothing was connected`,
+      `type "${GOOGLE_ADS_PHRASE}" to confirm: nothing was connected`,
       422,
     );
   }
   if (args.customer.manager) {
     throw new ExecutionConnectionError(
-      "that is a manager account; pick the ad account itself — nothing was connected",
+      "that is a manager account; pick the ad account itself: nothing was connected",
       422,
     );
   }

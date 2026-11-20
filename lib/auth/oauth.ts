@@ -143,11 +143,11 @@ export function idTokenClaims(idToken: string): Record<string, unknown> {
 export function emailFromClaims(claims: Record<string, unknown>, label: string): string {
   const email = typeof claims.email === "string" ? claims.email : null;
   if (!email || !email.includes("@")) {
-    throw new AuthError(`${label} didn't share an email address — use the email link instead`, 502);
+    throw new AuthError(`${label} didn't share an email address: use the email link instead`, 502);
   }
   if (claims.email_verified === false || claims.email_verified === "false") {
     throw new AuthError(
-      `${label} reports that address as unverified — use the email link instead`,
+      `${label} reports that address as unverified: use the email link instead`,
       403,
     );
   }
@@ -180,7 +180,7 @@ export function verifiedEmailFromClaims(
 ): string {
   const refuse = (why: string) => {
     throw new AuthError(
-      `${provider.label} sign-in couldn't be verified (${why}) — use the email link instead`,
+      `${provider.label} sign-in couldn't be verified (${why}): use the email link instead`,
       403,
     );
   };
@@ -234,11 +234,11 @@ export async function exchangeCodeForEmail(
         status: res.status,
       }),
     );
-    throw new AuthError(`${provider.label} sign-in failed — try again or use the email link`, 502);
+    throw new AuthError(`${provider.label} sign-in failed: try again or use the email link`, 502);
   }
   const tokens = (await res.json()) as { id_token?: string };
   if (!tokens.id_token) {
-    throw new AuthError(`${provider.label} sign-in failed — try again or use the email link`, 502);
+    throw new AuthError(`${provider.label} sign-in failed: try again or use the email link`, 502);
   }
   return verifiedEmailFromClaims(provider, idTokenClaims(tokens.id_token));
 }

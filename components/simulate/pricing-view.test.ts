@@ -1,4 +1,4 @@
-// Idea 43 — the what-if pricing screen's words. A gap is a flag, never a
+// Idea 43 - the what-if pricing screen's words. A gap is a flag, never a
 // number; the side by side holds to four changes; an exact price is read
 // in the item's own currency's minor units; the screen opens on the most
 // complete item; per-order costs are named, never silently counted.
@@ -67,7 +67,7 @@ describe("the break-even cell", () => {
   it("a gap is MISSING with a dash, never a number", () => {
     const i = item({ unit_cost: null });
     const v = breakEvenView(breakEven(i, 3060), i);
-    expect(v).toMatchObject({ figure: "—", flag: "MISSING" });
+    expect(v).toMatchObject({ figure: "-", flag: "MISSING" });
   });
   it("a cut under the cost is NEVER", () => {
     const i = item({ unit_cost: { ...item().unit_cost!, amount_minor: 3200 } });

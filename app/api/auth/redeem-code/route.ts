@@ -23,7 +23,10 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ error: "sign in from our own page" }, { status: 403 });
   }
   try {
-    const body = (await request.json().catch(() => null)) as { email?: unknown; code?: unknown } | null;
+    const body = (await request.json().catch(() => null)) as {
+      email?: unknown;
+      code?: unknown;
+    } | null;
     if (typeof body?.email !== "string") {
       return NextResponse.json({ error: "an email address is needed" }, { status: 422 });
     }

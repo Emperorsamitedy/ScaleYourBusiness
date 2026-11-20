@@ -403,7 +403,7 @@ function ChangeCard({ r, item }: { r: PriceResult; item: PriceItemRaw }) {
               <tr key={a.statement}>
                 <th scope="row">{a.statement}</th>
                 <td className="num" data-label={valueHead}>
-                  —
+                  -
                 </td>
                 <td data-label={basisHead}>
                   <span className="sim-basis">{basisName("ASSUMED", sheet)}</span>

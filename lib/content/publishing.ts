@@ -533,7 +533,7 @@ export async function withdrawItem(args: {
   if (!item) throw new ContentError("no such content item", 404);
   if (item.status !== "published") {
     throw new ContentError(
-      `only a published post can be withdrawn — this one is ${item.status}`,
+      `only a published post can be withdrawn: this one is ${item.status}`,
       409,
     );
   }
@@ -543,7 +543,7 @@ export async function withdrawItem(args: {
     throw new ContentError(TIKTOK_NO_UNDO, 409);
   }
   if (!item.publish_execution_id) {
-    throw new ContentError("this post has no stored undo — check the Page by hand", 409);
+    throw new ContentError("this post has no stored undo: check the Page by hand", 409);
   }
   return undoExecution({
     executionId: item.publish_execution_id,

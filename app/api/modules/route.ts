@@ -65,7 +65,7 @@ export async function GET(): Promise<NextResponse> {
     analytics: {
       enabled: true,
       fixed: true,
-      why: "The watching mode is blind without measurement — analytics is what it watches with.",
+      why: "The watching mode is blind without measurement: analytics is what it watches with.",
     },
   });
 }

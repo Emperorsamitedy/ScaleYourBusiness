@@ -282,7 +282,7 @@ describe("the derivation sheet", () => {
     expect(lines.map((l) => l.date)).toEqual(["15 Oct", "12 Oct", "20 Sep"]);
     expect(lines[0]).toMatchObject({ text: "Computed 38.0 % in this report", fresh: true });
     // the owner's figure was replaced by the connector's: a measurement
-    expect(lines[1]!.text).toBe("Monthly revenue was €38,000 — superseded by a newer measurement");
+    expect(lines[1]!.text).toBe("Monthly revenue was €38,000, superseded by a newer measurement");
     expect(lines[1]!.fresh).toBe(false);
     expect(lines[2]!.text).toBe("Was 41.2 % in the previous report");
   });
@@ -300,6 +300,6 @@ describe("the derivation sheet", () => {
       history: {},
     });
     expect(lines).toHaveLength(1);
-    expect(lines[0]!.text).toBe("Not computed in this report — no fixed costs");
+    expect(lines[0]!.text).toBe("Not computed in this report: no fixed costs");
   });
 });

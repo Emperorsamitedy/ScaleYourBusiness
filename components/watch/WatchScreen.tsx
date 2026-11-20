@@ -139,7 +139,7 @@ function perDay(signal: WatchSignal, value: number, locale: AppLocale): string {
 }
 
 function weeks(signal: WatchSignal, locale: AppLocale): string {
-  if (signal.last_week === null) return "—";
+  if (signal.last_week === null) return "-";
   const last = perDay(signal, signal.last_week, locale);
   return signal.first_week === null
     ? last
@@ -372,11 +372,11 @@ function WhenCard({ w }: { w: WatchDays }) {
           <span>{t("when.ends")}</span>
         </li>
         <li>
-          <span className="wt-at">{t("when.after")}</span>
+          <span className="wt-at cap1">{t("when.after")}</span>
           <span>{t("when.afterText")}</span>
         </li>
         <li>
-          <span className="wt-at">{t("when.always")}</span>
+          <span className="wt-at cap1">{t("when.always")}</span>
           <span>{t("when.alwaysText")}</span>
         </li>
       </ul>
@@ -834,7 +834,7 @@ export function WatchScreen({ reading }: { reading: WatchReading | null }) {
         {!w && <NoticedCard log={view.log} />}
         <RulesCard thresholds={view.thresholds} />
         <p className="wt-moved">
-          {t("moved")} <Link href="/settings/alerts">{t("movedLink")} →</Link>
+          {t("moved")} <Link href="/settings/alerts">{t("movedLink")}</Link>
         </p>
       </div>
     </div>
@@ -892,18 +892,37 @@ export function WatchScreen({ reading }: { reading: WatchReading | null }) {
       }
     >
       <DayStrip w={w} />
-      <div className="wt-grid">
-        {reading ? (
-          <SignalsCard reading={reading} />
-        ) : (
-          <SheetCard label={t("signals.label")} title={t("signals.nothing")} />
-        )}
+      {/* Two stacks of their own: a tall right column leaves no hole beside a
+          short card on the left. On a narrow screen they read as one column,
+          in the order the wt-o classes give (app/watch.css). */}
+      <div className="wt-grid wt-stacks">
         <div className="wt-side">
-          <NotedCard log={view.log} w={w} />
-          <WhenCard w={w} />
+          <div className="wt-o1">
+            {reading ? (
+              <SignalsCard reading={reading} />
+            ) : (
+              <SheetCard label={t("signals.label")} title={t("signals.nothing")} />
+            )}
+          </div>
+          <div className="wt-o4">
+            <ActivityCard log={view.log} />
+          </div>
+        </div>
+        <div className="wt-side">
+          <div className="wt-o2">
+            <NotedCard log={view.log} w={w} />
+          </div>
+          <div className="wt-o3">
+            <WhenCard w={w} />
+          </div>
+          <div className="wt-o5">
+            <RulesCard thresholds={view.thresholds} />
+          </div>
+          <p className="wt-moved wt-o6">
+            {t("moved")} <Link href="/settings/alerts">{t("movedLink")}</Link>
+          </p>
         </div>
       </div>
-      {lower}
     </Frame>
   );
 }

@@ -107,7 +107,7 @@ describe("P3-23c — the arithmetic, pure", () => {
       ]),
     );
     expect(e?.line).toBe(
-      "Your three Reels out-performed your four photo posts 4:1 on Instagram — a median of 48 interactions in their first 7 days, against 12.",
+      "Your three Reels out-performed your four photo posts 4:1 on Instagram: a median of 48 interactions in their first 7 days, against 12.",
     );
     expect(e?.ratio).toBe(4);
     expect(e?.arithmetic).toContain("48 ÷ 12 = 4.00");
@@ -165,7 +165,7 @@ describe("P3-23c — shot lists and calendars cite what performed before", () =>
     await posts(b, conn.id, "instagram", "video", [40, 48, 60]);
     await posts(b, conn.id, "instagram", "post", [10, 12, 12, 14]);
     const line =
-      "Your three Reels out-performed your four photo posts 4:1 on Instagram — a median of 48 interactions in their first 7 days, against 12.";
+      "Your three Reels out-performed your four photo posts 4:1 on Instagram: a median of 48 interactions in their first 7 days, against 12.";
 
     expect((await performanceEvidence(b.profile_id))?.line).toBe(line);
 

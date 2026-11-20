@@ -680,7 +680,7 @@ describe("P3-21b — Facebook", () => {
     expect(h2.graph.where("POST", "/feed")).toHaveLength(0);
     expect(await itemRow(fake.item_id)).toMatchObject({
       status: "failed",
-      last_error: expect.stringMatching(/without its AI disclosure \(rule 17\) — nothing was sent/),
+      last_error: expect.stringMatching(/without its AI disclosure \(rule 17\): nothing was sent/),
     });
   });
 
@@ -963,7 +963,7 @@ describe("P3-21d — at-most-once, stated honestly", () => {
       status: "publishing",
       last_error: MAY_HAVE_POSTED.facebook,
     });
-    expect(MAY_HAVE_POSTED.facebook).toMatch(/^I may have posted this — check the Page\./);
+    expect(MAY_HAVE_POSTED.facebook).toMatch(/^I may have posted this: check the Page\./);
     expect((await executionFor(proposal_id))?.status).toBe("failed");
 
     // The next sweep reads back; it does not post.
@@ -1133,7 +1133,7 @@ describe("Review D #1 — an approved post far past its time is not posted late"
     const { graph, run } = harness();
     const summary = await run(b);
     expect(summary.refused).toBe(1);
-    expect(summary.outcomes[0]?.detail).toMatch(/^stale: I didn't post this — it was due on /);
+    expect(summary.outcomes[0]?.detail).toMatch(/^stale: I didn't post this: it was due on /);
     expect(graph.calls).toHaveLength(0);
     const proposal = await proposalRow(proposal_id);
     expect(proposal.status).toBe("expired");
@@ -1145,7 +1145,7 @@ describe("Review D #1 — an approved post far past its time is not posted late"
     expect(await executionFor(proposal_id)).toBeUndefined();
     const item = await itemRow(item_id);
     expect(item.status).toBe("failed");
-    expect(item.last_error).toMatch(/^I didn't post this — it was due on /);
+    expect(item.last_error).toMatch(/^I didn't post this: it was due on /);
     expect(item.media_path).toBeNull();
     expect(store.read(media)).toBeNull();
     expect((await watchLines(b.profile_id)).some((l) => l.startsWith("I didn't post this"))).toBe(
@@ -1693,7 +1693,7 @@ describe("P3-21c — undo is deletion, through the engine", () => {
         userId: b.user_id,
         provider: exec.publish,
       }),
-    ).rejects.toThrow("only a published post can be withdrawn — this one is withdrawn");
+    ).rejects.toThrow("only a published post can be withdrawn: this one is withdrawn");
     expect(graph.calls.filter((c) => c.method === "DELETE")).toHaveLength(1);
   });
 

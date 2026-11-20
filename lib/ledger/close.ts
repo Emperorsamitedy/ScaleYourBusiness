@@ -112,7 +112,7 @@ export async function closePlan(planId: string, o: Observation, now = new Date()
   if (!plan) throw new PlanError("no measurement plan by that id", 404);
   // The window is fixed at open and can't be cut short any more than extended.
   if (now.getTime() < Date.parse(plan.window_end)) {
-    throw new PlanError("this plan's window hasn't ended — it is scored at window close", 409);
+    throw new PlanError("this plan's window hasn't ended: it is scored at window close", 409);
   }
   const fields = entryFields(plan, o);
   const reporting = await reportingEur(

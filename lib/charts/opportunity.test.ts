@@ -443,7 +443,7 @@ describe("the headline", () => {
       "EUR",
     );
     expect(h.monthly).toEqual({ low_minor: 118000, high_minor: 195000, currency: "EUR" });
-    expect(h.text).toBe("About €1,180–€1,950 a month is slipping away — mostly no-shows.");
+    expect(h.text).toBe("About €1,180 to €1,950 a month is slipping away: mostly no-shows.");
     expect(h.lead).toBe("no_shows");
   });
 

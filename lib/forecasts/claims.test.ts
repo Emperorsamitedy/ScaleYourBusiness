@@ -113,7 +113,7 @@ describe("the season's next weeks", () => {
       high_minor: 466_600,
     });
     expect(claims[0]!.claim).toBe(
-      "The week of 2 Nov to 8 Nov: €3,700–€4,666 of revenue, if it runs as the same week did last year.",
+      "The week of 2 Nov to 8 Nov: €3,700 to €4,666 of revenue, if it runs as the same week did last year.",
     );
     expect(claims[0]!.basis).toMatch(/your normal week is €2,000 .*measured by Shopify/);
   });

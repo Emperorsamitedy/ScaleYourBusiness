@@ -15,6 +15,7 @@
 
 import { useEffect, useState } from "react";
 import { isGoogleReason } from "../../lib/google-business/reasons";
+import { ConsentFold } from "./ConsentFold";
 import { bold, useCn, useSaid } from "./useCn";
 import { GOOGLE_NEED_KEYS, storedDay } from "./words";
 
@@ -201,29 +202,31 @@ export function GoogleBusinessSection({
                 </button>
               )}
             </div>
-            <p className="cn-note">{tg("whatItCanDo")}</p>
-            <ul className="cn-consent">
-              {view.consent.map((line) => (
-                <li key={line}>
-                  <span className="cn-consent-why">{line}</span>
-                  <span className="cn-scope">{view.scope}</span>
-                </li>
-              ))}
-            </ul>
-            {c === null && !view.configured && view.not_set_up && (
-              <p className="cn-note">{tg("notSetUp")}</p>
-            )}
-            {c === null && (
-              <div className="cn-wp-detail">
-                <p className="cn-sub">{tg("before")}</p>
-                <ul className="cn-list">
-                  {view.needs.map((n, i) => {
-                    const key = GOOGLE_NEED_KEYS[i];
-                    return <li key={n}>{key ? tg(`needs.${key}`) : n}</li>;
-                  })}
-                </ul>
-              </div>
-            )}
+            <ConsentFold open={open}>
+              <p className="cn-note">{tg("whatItCanDo")}</p>
+              <ul className="cn-consent">
+                {view.consent.map((line) => (
+                  <li key={line}>
+                    <span className="cn-consent-why">{line}</span>
+                    <span className="cn-scope">{view.scope}</span>
+                  </li>
+                ))}
+              </ul>
+              {c === null && !view.configured && view.not_set_up && (
+                <p className="cn-note">{tg("notSetUp")}</p>
+              )}
+              {c === null && (
+                <div className="cn-wp-detail">
+                  <p className="cn-sub">{tg("before")}</p>
+                  <ul className="cn-list">
+                    {view.needs.map((n, i) => {
+                      const key = GOOGLE_NEED_KEYS[i];
+                      return <li key={n}>{key ? tg(`needs.${key}`) : n}</li>;
+                    })}
+                  </ul>
+                </div>
+              )}
+            </ConsentFold>
             {c !== null && (
               <div className="cn-wp-detail">
                 <dl className="cn-facts">

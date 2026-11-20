@@ -2,7 +2,8 @@
 
 // The free entry's six questions (v1 spec §8.2), then its result on the
 // same page — no signup wall before it. The options arrive from the server
-// in the reader's language; the sixth question is the sector's own.
+// in the reader's language; the sixth question is the sector's own. Drawn
+// with the sign-up page's pieces (app/auth-v2.css) since 2026-11-17.
 
 import Link from "next/link";
 import { useState } from "react";
@@ -73,15 +74,15 @@ export function EntryForm(p: EntryFormProps) {
 
   if (done) {
     return (
-      <div className="entry-col">
+      <div className="ax-form ax-check-result">
         <EntryResultView result={done.result} tr={tr} locale={locale} />
         <ShareLink path={`/e/${done.token}`} label={tr("share")} done={tr("copied")} />
-        <p className="auth-copy">
-          {tr("next")} <Link href="/intake">→</Link>
+        <p className="ax-copy">
+          {tr("next")} <Link href="/intake">{tr("nextLink")}</Link>
         </p>
         <button
           type="button"
-          className="ghost"
+          className="ax-btn ax-door"
           onClick={() => {
             setDone(null);
             setA(EMPTY);
@@ -94,9 +95,9 @@ export function EntryForm(p: EntryFormProps) {
   }
 
   const select = (k: keyof typeof EMPTY, label: string, options: Option[]) => (
-    <label className="entry-q">
-      <span>{label}</span>
-      <select value={a[k]} onChange={set(k)} required>
+    <label className="ax-field">
+      <span className="ax-label">{label}</span>
+      <select className="ax-input" value={a[k]} onChange={set(k)} required>
         <option value="">{tr("pick")}</option>
         {options.map((o) => (
           <option key={o.value} value={o.value}>
@@ -108,13 +109,14 @@ export function EntryForm(p: EntryFormProps) {
   );
 
   return (
-    <form className="card entry-col" onSubmit={submit}>
+    <form className="ax-form" onSubmit={submit}>
       {select("sector", tr("q.sector"), p.sectors)}
       {select("country", tr("q.country"), p.countries)}
       {select("revenue_band", tr("q.revenue_band"), p.bands)}
-      <label className="entry-q">
-        <span>{tr("q.employees")}</span>
+      <label className="ax-field">
+        <span className="ax-label">{tr("q.employees")}</span>
         <input
+          className="ax-input"
           type="number"
           min={1}
           max={500}
@@ -136,11 +138,11 @@ export function EntryForm(p: EntryFormProps) {
           ops.options.map((o) => ({ value: o, label: tr(`ops.${ops.question}.${o}`) })),
         )}
       {error && (
-        <p className="auth-copy" role="alert">
+        <p className="ax-error" role="alert">
           {error}
         </p>
       )}
-      <button type="submit" className="act" disabled={busy || !ops}>
+      <button type="submit" className="ax-btn ax-primary" disabled={busy || !ops}>
         {busy ? tr("working") : tr("submit")}
       </button>
     </form>

@@ -116,8 +116,8 @@ export function compareFormats(
     `against ${fig(next.median)}`;
   const line =
     r >= EVIDENCE.outperform_at
-      ? `Your ${countWord(top.posts)} ${FORMAT_WORD[top.format]} out-performed your ${countWord(next.posts)} ${FORMAT_WORD[next.format]} ${ratioWord(r)} on ${where} — ${tail}.`
-      : `Your ${countWord(top.posts)} ${FORMAT_WORD[top.format]} and your ${countWord(next.posts)} ${FORMAT_WORD[next.format]} did about the same on ${where} — ${tail}.`;
+      ? `Your ${countWord(top.posts)} ${FORMAT_WORD[top.format]} out-performed your ${countWord(next.posts)} ${FORMAT_WORD[next.format]} ${ratioWord(r)} on ${where}: ${tail}.`
+      : `Your ${countWord(top.posts)} ${FORMAT_WORD[top.format]} and your ${countWord(next.posts)} ${FORMAT_WORD[next.format]} did about the same on ${where}: ${tail}.`;
   return {
     line,
     platform,

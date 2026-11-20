@@ -3,16 +3,25 @@ import type { NavCounts } from "../../app/api/nav/route";
 import { SIZE_BANDS } from "../../lib/core/size-features";
 import {
   GROUPS,
+  PLACES,
   connectionsCount,
+  foldsRail,
   groupFor,
+  groupHome,
+  onItem,
+  placeFor,
+  placeGroups,
+  placeHasRail,
+  placeHome,
   railItems,
+  railMore,
   roleLine,
   showsNav,
   stripStop,
   supportCount,
-  tabGroup,
   visibleGroups,
 } from "./AppFrame";
+import { PLACE_ICONS, SCREEN_ICONS } from "./nav-icons";
 
 // The owner's menu design, reorganised 2026-11-15: six labelled groups, Today first.
 describe("app navigation", () => {
@@ -27,6 +36,19 @@ describe("app navigation", () => {
     ]);
   });
 
+  it("opens each group on its first main screen", () => {
+    const home = Object.fromEntries(GROUPS.map((g) => [g.key, groupHome(g)]));
+    expect(home).toEqual({
+      today: "/home",
+      approve: "/proposals",
+      insights: "/report",
+      grow: "/content",
+      customers: "/customers",
+      business: "/profile",
+    });
+    expect(groupHome({ items: [] })).toBe("/home");
+  });
+
   it("places every owner screen in exactly one group", () => {
     const hrefs = GROUPS.flatMap((g) => g.items.map((i) => i.href));
     expect(new Set(hrefs).size).toBe(hrefs.length);
@@ -37,14 +59,32 @@ describe("app navigation", () => {
     expect(groupFor("/cash")?.key).toBe("insights");
   });
 
-  it("shows the rail on owner screens and the chat", () => {
+  it("puts owner screens and the chat inside the frame", () => {
     expect(showsNav("/watch")).toBe(true);
     expect(showsNav("/home")).toBe(true);
     expect(showsNav("/chat")).toBe(true);
   });
 
-  // 2026-11-15: the rail lists each group's main screens; the rest are tabs.
-  it("lists only a group's main screens in the rail, plus the one open now", () => {
+  // 2026-11-20: the shadow summary is opened from "What I may do" and had no
+  // frame around it, because no menu item's address starts "/shadow".
+  it("keeps a screen's page inside the frame when it lives at an address of its own", () => {
+    const ladder = GROUPS.flatMap((g) => g.items).find((i) => i.href === "/ladder")!;
+    expect(onItem("/shadow", ladder)).toBe(true);
+    expect(onItem("/ladder", ladder)).toBe(true);
+    expect(onItem("/shadowy", ladder)).toBe(false);
+    expect(showsNav("/shadow")).toBe(true);
+    expect(groupFor("/shadow")?.key).toBe(groupFor("/ladder")?.key);
+    // A stranger's copy of it is still outside: it is somebody else's page.
+    expect(showsNav("/shared/shadow/abc")).toBe(false);
+    // And no page is claimed by two screens.
+    const pages = GROUPS.flatMap((g) => g.items.flatMap((i) => i.pages ?? []));
+    expect(new Set(pages).size).toBe(pages.length);
+    const hrefs = GROUPS.flatMap((g) => g.items.map((i) => i.href));
+    for (const p of pages) expect(hrefs).not.toContain(p);
+  });
+
+  // 2026-11-18: the rail lists a group's main screens first; the rest wait behind "more".
+  it("lists a group's main screens first in the rail, plus the one open now", () => {
     const insights = GROUPS.find((g) => g.key === "insights")!;
     expect(railItems(insights, "/watch").map((i) => i.href)).toEqual([
       "/report",
@@ -57,14 +97,89 @@ describe("app navigation", () => {
     expect(railItems(grow, "/home")).toEqual(grow.items); // none marked: all four listed
   });
 
-  it("makes the open screen's group the tab strip, only with two or more screens", () => {
-    expect(tabGroup(GROUPS, "/hours")?.key).toBe("insights");
-    expect(tabGroup(GROUPS, "/settings/team")?.key).toBe("business");
-    expect(tabGroup(GROUPS, "/home")).toBeNull(); // Today holds one screen
-    expect(tabGroup(GROUPS, "/chat")).toBeNull();
+  it("keeps the rest of a group behind more, and loses none of its screens", () => {
+    const insights = GROUPS.find((g) => g.key === "insights")!;
+    const first = railItems(insights, "/watch");
+    const rest = railMore(insights, "/watch");
+    expect(rest.map((i) => i.href)).toContain("/hours");
+    expect(rest.some((i) => first.includes(i))).toBe(false);
+    expect(first.length + rest.length).toBe(insights.items.length);
+    // the open screen moves out from behind "more"
+    expect(railMore(insights, "/hours").map((i) => i.href)).not.toContain("/hours");
+    const grow = GROUPS.find((g) => g.key === "grow")!;
+    expect(railMore(grow, "/home")).toEqual([]);
   });
 
-  it("puts the emergency stop in the strip, except where the screen carries its own", () => {
+  // The owner, 2026-11-18: "up to 4 max" across the top.
+  it("has four places across the top and one behind the business's name", () => {
+    expect(PLACES.filter((p) => p.top).map((p) => p.key)).toEqual([
+      "home",
+      "decisions",
+      "insights",
+      "grow",
+    ]);
+    expect(PLACES.filter((p) => !p.top).map((p) => p.key)).toEqual(["business"]);
+    expect(PLACES.filter((p) => p.top).length).toBeLessThanOrEqual(4);
+  });
+
+  it("puts every group in exactly one place, so every screen has one", () => {
+    const placed = PLACES.flatMap((p) => p.groups);
+    expect([...placed].sort()).toEqual(GROUPS.map((g) => g.key).sort());
+    expect(new Set(placed).size).toBe(placed.length);
+    for (const g of GROUPS)
+      for (const i of g.items) expect(placeFor(i.href), i.href).not.toBeNull();
+  });
+
+  it("finds a screen's place: Customers inside Grow, the conversation at Home", () => {
+    expect(placeFor("/home")).toBe("home");
+    expect(placeFor("/chat")).toBe("home");
+    expect(placeFor("/proposals")).toBe("decisions");
+    expect(placeFor("/ladder")).toBe("decisions");
+    expect(placeFor("/cash")).toBe("insights");
+    expect(placeFor("/content")).toBe("grow");
+    expect(placeFor("/customers")).toBe("grow");
+    expect(placeFor("/support")).toBe("grow");
+    expect(placeFor("/profile")).toBe("business");
+    expect(placeFor("/settings/language")).toBe("business");
+    expect(placeFor("/")).toBeNull();
+    expect(placeFor("/login")).toBeNull();
+  });
+
+  it("opens each place on its first main screen", () => {
+    expect(placeHome("home", GROUPS)).toBe("/home");
+    expect(placeHome("decisions", GROUPS)).toBe("/proposals");
+    expect(placeHome("insights", GROUPS)).toBe("/report");
+    expect(placeHome("grow", GROUPS)).toBe("/content");
+    expect(placeHome("business", GROUPS)).toBe("/profile");
+    expect(placeHome("grow", [])).toBe("/home"); // nothing to open: Home
+  });
+
+  it("lists a place's groups in the place's order: Grow, then Customers", () => {
+    expect(placeGroups("grow", GROUPS).map((g) => g.key)).toEqual(["grow", "customers"]);
+    expect(placeGroups("insights", GROUPS).map((g) => g.key)).toEqual(["insights"]);
+    // a group this business does not see is simply absent
+    const without = GROUPS.filter((g) => g.key !== "customers");
+    expect(placeGroups("grow", without).map((g) => g.key)).toEqual(["grow"]);
+  });
+
+  it("gives a place a rail only when it has more than one screen", () => {
+    expect(placeHasRail("home", GROUPS)).toBe(false); // Home is one screen
+    expect(placeHasRail("decisions", GROUPS)).toBe(true);
+    expect(placeHasRail("insights", GROUPS)).toBe(true);
+    expect(placeHasRail("grow", GROUPS)).toBe(true);
+    expect(placeHasRail("business", GROUPS)).toBe(true);
+    expect(placeHasRail("decisions", [])).toBe(false);
+  });
+
+  // The owner: "all tabs having their own icons".
+  it("has an icon for every screen and every place across the top", () => {
+    for (const g of GROUPS)
+      for (const i of g.items) expect(SCREEN_ICONS[i.href], i.href).toBeDefined();
+    for (const p of PLACES.filter((x) => x.top)) expect(PLACE_ICONS[p.key], p.key).toBeDefined();
+    expect(SCREEN_ICONS["/nowhere"]).toBeUndefined();
+  });
+
+  it("puts the emergency stop in the bar, except where the screen carries its own", () => {
     expect(stripStop("/home")).toBe(true);
     expect(stripStop("/watch")).toBe(true);
     expect(stripStop("/content")).toBe(false);
@@ -76,8 +191,20 @@ describe("app navigation", () => {
     expect(groupFor("/home")?.key).toBe("today");
   });
 
-  it("keeps the rail off focused views and public pages", () => {
-    for (const p of ["/report", "/proposals", "/", "/intake", "/login", "/ops", "/support/test"]) {
+  // The owner, 2026-11-18: from the screens that filled the window "there's no
+  // clear way to go back". The queue and the report are inside the frame now.
+  it("keeps the queue and the report inside the frame, with the rail folded", () => {
+    expect(showsNav("/report")).toBe(true);
+    expect(showsNav("/proposals")).toBe(true);
+    expect(foldsRail("/report")).toBe(true);
+    expect(foldsRail("/proposals")).toBe(true);
+    expect(foldsRail("/proposals/abc")).toBe(true);
+    expect(foldsRail("/watch")).toBe(false);
+    expect(foldsRail("/home")).toBe(false);
+  });
+
+  it("keeps the frame off public pages", () => {
+    for (const p of ["/", "/intake", "/login", "/ops", "/support/test", "/shared/abc"]) {
       expect(showsNav(p)).toBe(false);
     }
   });

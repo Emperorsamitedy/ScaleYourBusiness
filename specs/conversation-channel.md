@@ -158,7 +158,7 @@ Estimated at 40 messages/month: roughly **€0.60 per subscriber per month**, wh
 
 Add to `ux-spec-v1.md` §3 as a persistent element rather than a screen.
 
-**It's the only owner-initiated surface in the product.** Everything else — reports, proposals, questions — the system starts. That asymmetry is worth respecting in the design: it lives as a persistent entry point in the left rail and as a composer at the bottom of the report and profile screens, so the owner can react where they are rather than navigating somewhere to talk.
+**It's the only owner-initiated surface in the product.** Everything else — reports, proposals, questions — the system starts. That asymmetry is worth respecting in the design: it lives as a persistent entry point in the left rail ("Ask Lex", the mark before it), as the composer at the top of Home (2026-11-17: the first screen after sign-in is built around the conversation, `components/home/HomeScreen.tsx`, through the same hook as `/chat`, `components/chat/useChat.ts`), as `/chat` itself with the whole thread, and, since 2026-11-17, as Lex's sheet on every owner screen (`components/nav/LexPanel.tsx`: "Ask Lex" in the rail, a button above the dock on a phone, `/` on the keyboard, or a question typed into the command palette), so the owner can react where they are rather than navigating somewhere to talk. The frame keeps one conversation and shares it between Home, the page and the sheet. The assistant is named Lex (`lib/core/assistant.ts`) and speaks under the mark.
 
 Colour rule still holds. Chat is ink and grey. If a message produces something needing a decision — a contradiction, a proposal — that item turns signal blue, not the conversation around it.
 

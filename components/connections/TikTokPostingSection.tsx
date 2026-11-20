@@ -10,6 +10,7 @@
 // English, as on the Google card: the consent's hash covers them.
 
 import { useEffect, useState } from "react";
+import { ConsentFold } from "./ConsentFold";
 import { bold, useCn, useSaid } from "./useCn";
 import { storedDay } from "./words";
 
@@ -167,30 +168,34 @@ export function TikTokPostingSection({
                 </button>
               )}
             </div>
-            {/* Access honesty: what TikTok allows until its audit of SYB's app passes. */}
-            <p className="cn-note">{view.audited ? t("access.audited") : t("access.unaudited")}</p>
-            <ul className="cn-consent">
-              {view.consent.map((line) => (
-                <li key={line}>
-                  <span className="cn-consent-why">{line}</span>
-                  <span className="cn-scope">{view.scope}</span>
-                </li>
-              ))}
-            </ul>
-            <p className="cn-note">
-              {t("readback")} <span className="cn-scope">{view.readback_scopes.join(" · ")}</span>
-            </p>
-            {c === null && !view.configured && <p className="cn-note">{t("notSetUp")}</p>}
-            {c === null && (
-              <div className="cn-wp-detail">
-                <p className="cn-sub">{t("before")}</p>
-                <ul className="cn-list">
-                  <li>{t("needs.app")}</li>
-                  <li>{t("needs.signIn")}</li>
-                  <li>{t("needs.choose")}</li>
-                </ul>
-              </div>
-            )}
+            <ConsentFold open={open}>
+              {/* Access honesty: what TikTok allows until its audit of SYB's app passes. */}
+              <p className="cn-note">
+                {view.audited ? t("access.audited") : t("access.unaudited")}
+              </p>
+              <ul className="cn-consent">
+                {view.consent.map((line) => (
+                  <li key={line}>
+                    <span className="cn-consent-why">{line}</span>
+                    <span className="cn-scope">{view.scope}</span>
+                  </li>
+                ))}
+              </ul>
+              <p className="cn-note">
+                {t("readback")} <span className="cn-scope">{view.readback_scopes.join(" · ")}</span>
+              </p>
+              {c === null && !view.configured && <p className="cn-note">{t("notSetUp")}</p>}
+              {c === null && (
+                <div className="cn-wp-detail">
+                  <p className="cn-sub">{t("before")}</p>
+                  <ul className="cn-list">
+                    <li>{t("needs.app")}</li>
+                    <li>{t("needs.signIn")}</li>
+                    <li>{t("needs.choose")}</li>
+                  </ul>
+                </div>
+              )}
+            </ConsentFold>
             {c !== null && (
               <div className="cn-wp-detail">
                 <dl className="cn-facts">

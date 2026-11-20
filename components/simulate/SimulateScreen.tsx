@@ -602,7 +602,7 @@ function OptionCard({
               <tr key={i.key}>
                 <th scope="row">{i.label}</th>
                 <td className="num" data-label={valueHead}>
-                  {i.range ? valueText(i.range, i.unit, cur, true, locale) : "—"}
+                  {i.range ? valueText(i.range, i.unit, cur, true, locale) : "-"}
                 </td>
                 <td data-label={basisHead}>
                   {i.basis ? (
@@ -622,7 +622,7 @@ function OptionCard({
               <tr key={a.statement}>
                 <th scope="row">{a.statement}</th>
                 <td className="num" data-label={valueHead}>
-                  —
+                  -
                 </td>
                 <td data-label={basisHead}>
                   <span className="sim-basis">{basisName("ASSUMED", sheet)}</span>

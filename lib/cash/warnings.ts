@@ -19,6 +19,7 @@
 // the reader's language. clearedSentence is only ever logged, so it is English.
 
 import { shortDate } from "../charts/model";
+import { rangeOf } from "../i18n/range";
 import type { CashReady, CashWeek, Range } from "./model";
 import { CASH, wholeMoney } from "./model";
 import type { Words } from "./words";
@@ -52,11 +53,11 @@ export function tightReasons(f: CashReady, k: number, words: Words = cashEnglish
   const cur = f.currency;
   const whole = (minor: number) => wholeMoney(minor, cur, locale);
   const x1 = (v: number) => timesText(v, 1, locale);
-  /** "0.6–0.8×", or "0.3×" when both ends round alike. */
+  /** "0.6 to 0.8×", or "0.3×" when both ends round alike. */
   const spread = (lo: number, hi: number) => {
     const a = x1(lo);
     const b = x1(hi);
-    return a === b ? a : `${a.slice(0, -1)}–${b}`;
+    return a === b ? a : rangeOf(a.slice(0, -1), b, locale);
   };
   const reasons: string[] = [];
 

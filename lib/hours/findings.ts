@@ -84,7 +84,7 @@ const SIGNALS: {
     line: /attention signal/,
     title: (days) => `People look you up online well before you open on ${days}`,
     detail:
-      "A large share of that day's website visits come in the hours just before opening — interest is there before the doors are.",
+      "A large share of that day's website visits come in the hours just before opening: interest is there before the doors are.",
   },
 ];
 
@@ -128,7 +128,7 @@ export function tradingFindings(analysis: TradingAnalysis): TradingHoursBlock | 
     findings.push({
       signal: "too_early",
       weekdays,
-      title: `Too early to judge ${dayList(weekdays)} — about ${weeks} more week${weeks === 1 ? "" : "s"} of measured sales`,
+      title: `Too early to judge ${dayList(weekdays)}: about ${weeks} more week${weeks === 1 ? "" : "s"} of measured sales`,
       detail: `A verdict on a weekday needs ${TRADING.min_days_per_weekday} measured days of it. Until then nothing is concluded about those days.`,
       arithmetic: early.map(
         (w) =>

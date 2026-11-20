@@ -111,7 +111,7 @@ function ReadyCard({
                 <tr key={r.id}>
                   <th scope="row">{r.payee_name ?? tr("erased")}</th>
                   <td className="py-mono" data-label={tr("col.iban")}>
-                    {r.iban_masked || "—"}
+                    {r.iban_masked || "-"}
                   </td>
                   <td className="num" data-label={tr("col.amount")}>
                     {moneyText(r.amount, locale)}

@@ -20,7 +20,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ??
     "unknown";
   if (!(await withinRateLimit(`ledger-verify:${ip}`, VERIFY_LIMIT_PER_MINUTE, 60_000))) {
-    return NextResponse.json({ error: "too many checks — try again in a minute" }, { status: 429 });
+    return NextResponse.json({ error: "too many checks: try again in a minute" }, { status: 429 });
   }
   try {
     return NextResponse.json(await verifyLedger());
@@ -29,7 +29,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       JSON.stringify({ event: "ledger_verify_failed", account_id: null, ...logSafeError(error) }),
     );
     return NextResponse.json(
-      { error: "the check couldn't run — try again shortly" },
+      { error: "the check couldn't run: try again shortly" },
       { status: 500 },
     );
   }

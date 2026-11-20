@@ -23,6 +23,7 @@
 import { Fragment, useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { Fold } from "../sheet/Fold";
+import { TabPanel, Tabs } from "../ui/Tabs";
 import { PageHead, SheetCard } from "../sheet/PageHead";
 import type { ExecView } from "./ExecutionSection";
 import { ExecutionSection } from "./ExecutionSection";
@@ -38,7 +39,8 @@ import type { GoogleAdsView } from "./GoogleAdsSection";
 import { GoogleAdsSection } from "./GoogleAdsSection";
 import { BankStatementSection } from "./BankStatementSection";
 import { BookingsImportSection } from "./BookingsImportSection";
-import { headline, lastRead } from "./patch";
+import type { CnTab } from "./patch";
+import { headline, lastRead, tabCounts, tabFromSearch } from "./patch";
 import "../../app/connections.css";
 import { useRole } from "../auth/RoleContext";
 import type { AppLocale } from "../../lib/i18n/locales";
@@ -318,7 +320,7 @@ function GuideList({ provider }: { provider: ProviderOption }) {
       {provider.guide.map((g, i) => {
         const line = guideLine(t, provider.id, i, g);
         return (
-          <li key={g.scope}>
+          <li key={`${g.scope}:${i}`}>
             {t.rich("guide.line", { ...bold, grant: line.grant, why: line.why })}
           </li>
         );
@@ -652,6 +654,11 @@ export function ConnectionsScreen() {
   const consentWhy = role.why("write_access.manage");
   const [view, setView] = useState<View | null>(null);
   const [exec, setExec] = useState<ExecView | null>(null);
+  // L6: the screen in three parts. Read from the address before any section
+  // is drawn, since a section clears its own sign-in result from it.
+  const [tab, setTab] = useState<CnTab>(() =>
+    typeof window === "undefined" ? "read" : (tabFromSearch(window.location.search) ?? "read"),
+  );
   // P4-15: campaign email, its own consent.
   const [email, setEmail] = useState<EmailView | null>(null);
   // I-45a: Google Business Profile, its own consent, used only to read reviews.
@@ -864,6 +871,7 @@ export function ConnectionsScreen() {
               : c.label,
         }));
   const title = headline(live, writes, t, locale);
+  const counts = tabCounts(live, writes);
 
   return (
     <main className="screen cn-screen">
@@ -902,207 +910,233 @@ export function ConnectionsScreen() {
         </div>
       )}
 
-      <fieldset className="role-lock" disabled={connectWhy !== null}>
-        <section className="cs cn-panel" aria-labelledby="cn-panel-title">
-          <header className="cs-head">
-            <div>
-              <p className="cs-label">{t("panel.label")}</p>
-              <h2 className="cs-title" id="cn-panel-title">
-                {t("panel.title")}
-              </h2>
-            </div>
-            <p className="cs-meta cn-legend" aria-hidden="true">
-              <span className="cn-box on" /> {t("panel.legendOn")} <span className="cn-box" />{" "}
-              {t("panel.legendOff")} <span className="cn-dash">—</span> {t("panel.legendNever")}
-            </p>
-          </header>
-          <div className="cn-table-wrap">
-            <table className="rt cn-table">
-              <thead>
-                <tr>
-                  <th scope="col">{t("panel.source")}</th>
-                  <th scope="col">{t("panel.gives")}</th>
-                  <th scope="col" className="cn-c">
-                    {t("panel.read")}
-                  </th>
-                  <th scope="col" className="cn-c">
-                    {t("panel.write")}
-                  </th>
-                  <th scope="col" className="num">
-                    {t("panel.lastRead")}
-                  </th>
-                  <th scope="col">
-                    <span className="sr-only">{t("panel.action")}</span>
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {rows.map((r) => {
-                  const c = r.connection;
-                  const isOpen = open === r.id;
-                  const canConnect = c === null && r.provider !== null;
-                  const panelId = `cn-row-${r.id}`;
-                  return (
-                    <Fragment key={r.id}>
-                      <tr id={`cn-src-${r.id}`} className={isOpen ? "on" : undefined}>
-                        <th scope="row" className="cn-name" data-label={t("panel.source")}>
-                          {r.label}
-                        </th>
-                        <td className="cn-gives" data-label={t("panel.gives")}>
-                          {r.gives}
-                        </td>
-                        <td className="cn-c" data-label={t("panel.read")}>
-                          <ReadBox c={c} />
-                        </td>
-                        <td className="cn-c" data-label={t("panel.write")}>
-                          <span className="cn-dash" aria-hidden="true">
-                            —
-                          </span>
-                          <span className="sr-only">{t("panel.writeNever")}</span>
-                        </td>
-                        <td className="num cn-last" data-label={t("panel.lastRead")}>
-                          {lastRead(c?.last_sync_at ?? null, now, locale)}
-                          {c !== null && c.status !== "connected" && (
-                            <span className={`word ${c.status === "failed" ? "alarm" : "drift"}`}>
-                              {statusWord(t, c.status)}
+      <Tabs
+        id="cn"
+        label={t("tabs.label")}
+        tabs={[
+          { key: "read", label: t("tabs.read"), count: counts.read },
+          { key: "files", label: t("tabs.files") },
+          { key: "write", label: t("tabs.write"), count: counts.write },
+        ]}
+        value={tab}
+        onChange={setTab}
+      />
+
+      {/* Each part stays in the page while another is open: a file half pasted is not lost. */}
+      <TabPanel id="cn" tab="read" open={tab === "read"} keep>
+        <fieldset className="role-lock" disabled={connectWhy !== null}>
+          <section className="cs cn-panel" aria-labelledby="cn-panel-title">
+            <header className="cs-head">
+              <div>
+                <p className="cs-label">{t("panel.label")}</p>
+                <h2 className="cs-title" id="cn-panel-title">
+                  {t("panel.title")}
+                </h2>
+              </div>
+              <p className="cs-meta cn-legend" aria-hidden="true">
+                <span className="cn-box on" /> {t("panel.legendOn")} <span className="cn-box" />{" "}
+                {t("panel.legendOff")} <span className="cn-dash">-</span> {t("panel.legendNever")}
+              </p>
+            </header>
+            <div className="cn-table-wrap">
+              <table className="rt cn-table">
+                <thead>
+                  <tr>
+                    <th scope="col">{t("panel.source")}</th>
+                    <th scope="col">{t("panel.gives")}</th>
+                    <th scope="col" className="cn-c">
+                      {t("panel.read")}
+                    </th>
+                    <th scope="col" className="cn-c">
+                      {t("panel.write")}
+                    </th>
+                    <th scope="col" className="num">
+                      {t("panel.lastRead")}
+                    </th>
+                    <th scope="col">
+                      <span className="sr-only">{t("panel.action")}</span>
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {rows.map((r) => {
+                    const c = r.connection;
+                    const isOpen = open === r.id;
+                    const canConnect = c === null && r.provider !== null;
+                    const panelId = `cn-row-${r.id}`;
+                    return (
+                      <Fragment key={r.id}>
+                        <tr id={`cn-src-${r.id}`} className={isOpen ? "on" : undefined}>
+                          <th scope="row" className="cn-name" data-label={t("panel.source")}>
+                            {r.label}
+                          </th>
+                          <td className="cn-gives" data-label={t("panel.gives")}>
+                            {r.gives}
+                          </td>
+                          <td className="cn-c" data-label={t("panel.read")}>
+                            <ReadBox c={c} />
+                          </td>
+                          <td className="cn-c" data-label={t("panel.write")}>
+                            <span className="cn-dash" aria-hidden="true">
+                              -
                             </span>
-                          )}
-                        </td>
-                        <td className="cn-act">
-                          {(c !== null || canConnect) && (
-                            <button
-                              type="button"
-                              className="prop-btn"
-                              aria-expanded={isOpen}
-                              aria-controls={panelId}
-                              onClick={() => {
-                                setOpen(isOpen ? null : r.id);
-                                setConfirming(null);
-                              }}
-                            >
-                              {isOpen ? (
-                                t("panel.close")
-                              ) : c !== null ? (
-                                t("panel.settings")
-                              ) : (
-                                <>
-                                  {t("panel.connect")} <span aria-hidden="true">→</span>
-                                </>
-                              )}
-                              <span className="sr-only"> {r.label}</span>
-                            </button>
-                          )}
-                        </td>
-                      </tr>
-                      {isOpen && (
-                        <tr className="cn-open" id={panelId}>
-                          <td colSpan={6}>
-                            {c !== null ? (
-                              <SourceSettings
-                                connection={c}
-                                busy={busy === c.id}
-                                confirming={confirming === c.id}
-                                onSync={() => void syncNow(c)}
-                                onAskDisconnect={() => setConfirming(c.id)}
-                                onCancel={() => setConfirming(null)}
-                                onDisconnect={() => void disconnectOne(c)}
-                              />
-                            ) : r.provider !== null ? (
-                              <ConnectPanel
-                                provider={r.provider}
-                                onConnected={async (message) => {
-                                  setNotice(message);
-                                  setOpen(null);
-                                  await load();
+                            <span className="sr-only">{t("panel.writeNever")}</span>
+                          </td>
+                          <td className="num cn-last" data-label={t("panel.lastRead")}>
+                            {lastRead(c?.last_sync_at ?? null, now, locale)}
+                            {c !== null && c.status !== "connected" && (
+                              <span className={`word ${c.status === "failed" ? "alarm" : "drift"}`}>
+                                {statusWord(t, c.status)}
+                              </span>
+                            )}
+                          </td>
+                          <td className="cn-act">
+                            {(c !== null || canConnect) && (
+                              <button
+                                type="button"
+                                className="prop-btn"
+                                aria-expanded={isOpen}
+                                aria-controls={panelId}
+                                onClick={() => {
+                                  setOpen(isOpen ? null : r.id);
+                                  setConfirming(null);
                                 }}
-                              />
-                            ) : null}
+                              >
+                                {isOpen ? (
+                                  t("panel.close")
+                                ) : c !== null ? (
+                                  t("panel.settings")
+                                ) : (
+                                  <>
+                                    {t("panel.connect")} <span aria-hidden="true">→</span>
+                                  </>
+                                )}
+                                <span className="sr-only"> {r.label}</span>
+                              </button>
+                            )}
                           </td>
                         </tr>
-                      )}
-                    </Fragment>
-                  );
-                })}
-              </tbody>
-            </table>
+                        {isOpen && (
+                          <tr className="cn-open" id={panelId}>
+                            <td colSpan={6}>
+                              {c !== null ? (
+                                <SourceSettings
+                                  connection={c}
+                                  busy={busy === c.id}
+                                  confirming={confirming === c.id}
+                                  onSync={() => void syncNow(c)}
+                                  onAskDisconnect={() => setConfirming(c.id)}
+                                  onCancel={() => setConfirming(null)}
+                                  onDisconnect={() => void disconnectOne(c)}
+                                />
+                              ) : r.provider !== null ? (
+                                <ConnectPanel
+                                  provider={r.provider}
+                                  onConnected={async (message) => {
+                                    setNotice(message);
+                                    setOpen(null);
+                                    await load();
+                                  }}
+                                />
+                              ) : null}
+                            </td>
+                          </tr>
+                        )}
+                      </Fragment>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+            <footer className="cs-foot cn-foot">
+              {past.length > 0 && (
+                <ul className="cn-past">
+                  {past.map((c) => (
+                    <li key={c.id}>
+                      <span className="cn-past-at">
+                        {storedDay(c.disconnected_at ?? c.created_at, locale)}
+                      </span>{" "}
+                      {t("panel.past", { label: c.label })}
+                    </li>
+                  ))}
+                </ul>
+              )}
+              <Fold>
+                <p>{t("panel.foot")}</p>
+              </Fold>
+            </footer>
+          </section>
+        </fieldset>
+      </TabPanel>
+
+      <TabPanel id="cn" tab="files" open={tab === "files"} keep>
+        <fieldset className="role-lock" disabled={connectWhy !== null}>
+          {/* Bookings (specs/bookings.md §5): an export from any booking system, read once. */}
+          <div className="cn-pairs">
+            <BookingsImportSection />
+            <BankStatementSection />
           </div>
-          <footer className="cs-foot cn-foot">
-            {past.length > 0 && (
-              <ul className="cn-past">
-                {past.map((c) => (
-                  <li key={c.id}>
-                    <span className="cn-past-at">
-                      {storedDay(c.disconnected_at ?? c.created_at, locale)}
-                    </span>{" "}
-                    {t("panel.past", { label: c.label })}
-                  </li>
-                ))}
-              </ul>
+        </fieldset>
+      </TabPanel>
+
+      <TabPanel id="cn" tab="write" open={tab === "write"} keep>
+        <fieldset className="role-lock" disabled={consentWhy !== null}>
+          {consentWhy !== null && (
+            <p className="cn-banner" role="note">
+              {consentWhy}
+            </p>
+          )}
+          {/* P3-20h: write access, visibly apart from everything above. */}
+          {exec !== null && <ExecutionSection view={exec} onChanged={loadExec} />}
+
+          {/* P4-15: campaign email — no token of yours, SYB's own email service, your consent. */}
+          {email !== null && <EmailCampaignSection view={email} onChanged={loadEmail} />}
+
+          {/* The four with no note beside them: two to a row. */}
+          <div className="cn-pairs">
+            {/* I-45a: Google Business Profile — a permission that can write, used only to read reviews. */}
+            {google !== null && (
+              <GoogleBusinessSection
+                view={google}
+                onChanged={async () => {
+                  // The headline counts every write consent, so it re-reads too.
+                  await Promise.all([loadGoogle(), loadExec()]);
+                }}
+              />
             )}
-            <Fold>
-              <p>{t("panel.foot")}</p>
-            </Fold>
-          </footer>
-        </section>
 
-        {/* Bookings (specs/bookings.md §5): an export from any booking system, read once. */}
-        <BookingsImportSection />
-        <BankStatementSection />
-      </fieldset>
+            {/* 2026-11-08: TikTok posting — the videos you approve, private until TikTok's audit. */}
+            {tiktok !== null && (
+              <TikTokPostingSection
+                view={tiktok}
+                onChanged={async () => {
+                  await Promise.all([loadTiktok(), loadExec()]);
+                }}
+              />
+            )}
 
-      <fieldset className="role-lock" disabled={consentWhy !== null}>
-        {consentWhy !== null && (
-          <p className="cn-banner" role="note">
-            {consentWhy}
-          </p>
-        )}
-        {/* P3-20h: write access, visibly apart from everything above. */}
-        {exec !== null && <ExecutionSection view={exec} onChanged={loadExec} />}
+            {/* P2-20 / P3-22: Google Ads — a permission that can write; SYB reads, and changes only what you approve. */}
+            {gads !== null && (
+              <GoogleAdsSection
+                view={gads}
+                onChanged={async () => {
+                  await Promise.all([loadGads(), loadExec(), load()]);
+                }}
+              />
+            )}
 
-        {/* P4-15: campaign email — no token of yours, SYB's own email service, your consent. */}
-        {email !== null && <EmailCampaignSection view={email} onChanged={loadEmail} />}
-
-        {/* I-45a: Google Business Profile — a permission that can write, used only to read reviews. */}
-        {google !== null && (
-          <GoogleBusinessSection
-            view={google}
-            onChanged={async () => {
-              // The headline counts every write consent, so it re-reads too.
-              await Promise.all([loadGoogle(), loadExec()]);
-            }}
-          />
-        )}
-
-        {/* 2026-11-08: TikTok posting — the videos you approve, private until TikTok's audit. */}
-        {tiktok !== null && (
-          <TikTokPostingSection
-            view={tiktok}
-            onChanged={async () => {
-              await Promise.all([loadTiktok(), loadExec()]);
-            }}
-          />
-        )}
-
-        {/* P2-20 / P3-22: Google Ads — a permission that can write; SYB reads, and changes only what you approve. */}
-        {gads !== null && (
-          <GoogleAdsSection
-            view={gads}
-            onChanged={async () => {
-              await Promise.all([loadGads(), loadExec(), load()]);
-            }}
-          />
-        )}
-
-        {/* TikTok Ads — reading and acting are one TikTok permission list, so one consent. */}
-        {ttads !== null && (
-          <TikTokAdsSection
-            view={ttads}
-            onChanged={async () => {
-              await Promise.all([loadTtads(), loadExec(), load()]);
-            }}
-          />
-        )}
-      </fieldset>
+            {/* TikTok Ads — reading and acting are one TikTok permission list, so one consent. */}
+            {ttads !== null && (
+              <TikTokAdsSection
+                view={ttads}
+                onChanged={async () => {
+                  await Promise.all([loadTtads(), loadExec(), load()]);
+                }}
+              />
+            )}
+          </div>
+        </fieldset>
+      </TabPanel>
     </main>
   );
 }

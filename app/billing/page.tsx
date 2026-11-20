@@ -10,6 +10,7 @@ import { and, desc, eq, ne } from "drizzle-orm";
 import { BillingButton } from "../../components/billing/BillingButton";
 import { CancelFlow } from "../../components/billing/CancelFlow";
 import { Bullet } from "../../components/charts/Viz";
+import { PageHead, SheetCard } from "../../components/sheet/PageHead";
 import { db } from "../../db";
 import { subscriptions } from "../../db/schema";
 import { resolveAccess } from "../../lib/auth/access";
@@ -20,6 +21,7 @@ import { dayMonthYear, presentMoney } from "../../lib/i18n/format";
 import { requestLocale } from "../../lib/i18n/server";
 import { trFor } from "../../lib/i18n/server-tr";
 import { headlineCounter } from "../../lib/ledger/counter";
+import "../plain.css";
 
 export async function generateMetadata(): Promise<Metadata> {
   return { title: trFor(await requestLocale(), "billing")("meta.title") };
@@ -36,6 +38,9 @@ const STOPS: Record<string, string[]> = {
 export default async function BillingPage() {
   const locale = await requestLocale();
   const tr = trFor(locale, "billing");
+  const nav = trFor(locale, "nav");
+  // Where this screen sits, in the menu's own words.
+  const kicker = `${nav("group.business")} · ${nav("item.billing")}`;
   const access = await resolveAccess();
   const words = { failed: tr("failed"), notArmed: tr("notArmed") };
   const [sub] = access
@@ -53,14 +58,14 @@ export default async function BillingPage() {
     : [];
   if (!access || !sub) {
     return (
-      <main className="auth-stage">
-        <section className="card">
-          <span className="auth-eyebrow">{tr("kicker")}</span>
-          <p className="auth-copy">{tr("none")}</p>
-          <p className="auth-copy">
-            <Link href="/pricing">{tr("plans")}</Link>
+      <main className="screen pg">
+        <PageHead kicker={kicker} title={tr("none")}>
+          <p className="pg-acts on-desk">
+            <Link className="act" href="/pricing">
+              {tr("plans")}
+            </Link>
           </p>
-        </section>
+        </PageHead>
       </main>
     );
   }
@@ -89,33 +94,30 @@ export default async function BillingPage() {
   const list = new Intl.ListFormat([locale], { type: "conjunction" });
 
   return (
-    <main className="auth-stage">
-      <div className="statement-col">
-        <section className="card">
-          <span className="auth-eyebrow">{tr("kicker")}</span>
-          <h1 className="auth-title">
-            {tr(`tier.${sub.tier}`)} ·{" "}
-            {tr(interval === "year" ? "priceYear" : "priceMonth", { amount: price })}
-          </h1>
-          <p className="auth-copy">
-            <b>{tr(`status.${sub.status}`)}</b>
-            {sub.current_period_end && (
-              <>
-                {" "}
-                {tr(sub.cancel_at_period_end ? "ends" : "renews", {
+    <main className="screen pg">
+      <PageHead
+        kicker={kicker}
+        title={`${tr(`tier.${sub.tier}`)} · ${tr(interval === "year" ? "priceYear" : "priceMonth", { amount: price })}`}
+      />
+      <div className="pg-stack">
+        <SheetCard
+          title={tr(`status.${sub.status}`)}
+          meta={
+            sub.current_period_end
+              ? tr(sub.cancel_at_period_end ? "ends" : "renews", {
                   date: dayMonthYear(sub.current_period_end.slice(0, 10), locale),
-                })}
-              </>
-            )}
-          </p>
-          <p className="auth-copy">{tr("verified", { amount: verified })}</p>
+                })
+              : undefined
+          }
+        >
+          <p>{tr("verified", { amount: verified })}</p>
           {meter !== null && (
             <div className="billing-meter">
               <Bullet start={0} target={meter.threshold} now={meter.verified} />
             </div>
           )}
           {progress && (
-            <p className="auth-copy">
+            <p>
               {progress.outcome === "rolled_forward"
                 ? tr("progressRolled")
                 : tr("progress", {
@@ -127,23 +129,21 @@ export default async function BillingPage() {
                   })}
             </p>
           )}
-          {sub.status === "paused" && (
-            <p className="auth-copy">
-              {tr("resume.paused")}{" "}
+          {sub.status === "paused" && <p>{tr("resume.paused")}</p>}
+          <div className="pg-acts">
+            {sub.status === "paused" && (
               <BillingButton
                 action="resume"
                 label={tr("resume.button")}
                 words={words}
-                className="act"
+                className="act solid"
               />
-            </p>
-          )}
-          <p className="auth-copy">
-            <BillingButton action="portal" label={tr("updateCard")} words={words} />
-          </p>
-        </section>
+            )}
+            <BillingButton action="portal" label={tr("updateCard")} words={words} className="act" />
+          </div>
+        </SheetCard>
         {!sub.cancel_at_period_end && sub.status !== "incomplete" && (
-          <section className="card">
+          <SheetCard>
             <CancelFlow
               words={{
                 button: tr("cancel.button"),
@@ -165,7 +165,7 @@ export default async function BillingPage() {
                 ...words,
               }}
             />
-          </section>
+          </SheetCard>
         )}
       </div>
     </main>

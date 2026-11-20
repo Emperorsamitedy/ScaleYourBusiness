@@ -338,7 +338,7 @@ export const NOT_SET_UP = "Not sent: email isn't set up yet.";
 export const STOPPED =
   "Not sent: everything is stopped (the emergency stop is on). It stays approved; it sends when you resume and send it.";
 export const MAYBE_SENT =
-  "I may have sent this: the email service didn't confirm either way. I won't send it again by myself — check your sent mail, or ask the customer, before you write again.";
+  "I may have sent this: the email service didn't confirm either way. I won't send it again by myself. Check your sent mail, or ask the customer, before you write again.";
 
 export interface SendOutcome {
   status: ReplyRow["status"];
@@ -421,10 +421,10 @@ export async function sendApprovedReply(args: {
     const permission = contact
       ? await canEmailTransactional(contact)
       : { allowed: false, reason: "the contact is gone" };
-    if (!permission.allowed) return refuse(`Not sent: the gate refused it — ${permission.reason}.`);
+    if (!permission.allowed) return refuse(`Not sent: the gate refused it, ${permission.reason}.`);
   } else {
     const suppressed = await isSuppressed(reply.account_id, target.address);
-    if (suppressed) return refuse(`Not sent: the gate refused it — suppressed (${suppressed}).`);
+    if (suppressed) return refuse(`Not sent: the gate refused it, suppressed (${suppressed}).`);
   }
   const settings = await settingsForProfile(args.profileId);
   if (!settings) return refuse("Not sent: support isn't enabled for this business.");
@@ -534,7 +534,7 @@ export async function sendApprovedReply(args: {
     return { status: "sent", note: null };
   }
   if (outcome.kind === "refused") {
-    const text = `Not sent: the email service refused it (${outcome.status}${outcome.message ? `: ${outcome.message}` : ""}). Nothing went out — write it again to retry.`;
+    const text = `Not sent: the email service refused it (${outcome.status}${outcome.message ? `: ${outcome.message}` : ""}). Nothing went out: write it again to retry.`;
     await db
       .update(supportReplies)
       .set({ status: "failed", outcome_note: text })

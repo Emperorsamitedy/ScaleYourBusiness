@@ -89,23 +89,26 @@ export function mediaTargetRefusal(item: {
   if (item.kind === "shot_list") return null;
   if (item.kind !== "post") {
     return item.kind === "video"
-      ? "this is the video already — add footage on its shot list"
+      ? "this is the video already: add footage on its shot list"
       : "only a shot list, or a post that needs a picture or a video, takes media";
   }
   if (item.status === "drafted") return null;
   if (item.status === "queued" && mediaOf(item.provenance)?.is_ai_generated === true) return null;
   return item.status === "queued"
     ? "it's already approved to go out as it is"
-    : `it is ${item.status} — its media can't change now`;
+    : `it is ${item.status}: its media can't change now`;
 }
 
-/** A shot list's title, made into its video's: "Film for Instagram — Autumn menu" → "Autumn menu — video". */
+/**
+ * A shot list's title, made into its video's: "Film for Instagram: Autumn menu" → "Autumn menu: video".
+ * A title written before 2026-11-19 has a long dash where the colon is, and reads the same.
+ */
 export function videoTitle(target: { title: string; kind: string }): string {
   const base = target.title
-    .replace(/^Film for [^—]+— /, "")
-    .replace(/^Shot list — /, "")
+    .replace(/^Film for [^—:]+?(?: — |: )/, "")
+    .replace(/^Shot list(?: — |: )/, "")
     .trim();
-  return target.kind === "post" ? `${base} (video)` : `${base} — video`;
+  return target.kind === "post" ? `${base} (video)` : `${base}: video`;
 }
 
 /** The latest drafted video item made for this source (shot list), or null. */
@@ -178,7 +181,7 @@ export async function placeMedia(args: PlaceArgs): Promise<Placed> {
     const tp = (target.provenance ?? {}) as Record<string, unknown>;
     const caption =
       args.caption?.trim() ||
-      (target.kind === "post" ? target.body : videoTitle(target).replace(/ — video$/, ""));
+      (target.kind === "post" ? target.body : videoTitle(target).replace(/(?: —|:) video$/, ""));
     const [row] = await db
       .insert(contentItems)
       .values({

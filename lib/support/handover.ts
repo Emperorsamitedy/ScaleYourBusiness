@@ -34,14 +34,14 @@ import {
 } from "./support-contact";
 
 export const ADDRESS_SAVED =
-  "Thanks — a person will reply to that address. It's used only to answer this question, not for marketing.";
+  "Thanks. A person will reply to that address. It's used only to answer this question, not for marketing.";
 
 /** Addresses a business's widget takes in a day (each one a contact row). */
 export const SUPPORT_MAX_ADDRESSES_PER_DAY = 100;
 /** One visitor's share of that, by the conversation's day-scoped client hash. */
 export const SUPPORT_MAX_ADDRESSES_PER_CLIENT_PER_DAY = 3;
 
-const TOO_MANY = "I can't take more addresses right now — please try again tomorrow";
+const TOO_MANY = "I can't take more addresses right now. Please try again tomorrow";
 
 export async function leaveAddress(
   token: string,
@@ -75,7 +75,7 @@ export async function leaveAddress(
       .limit(1)
       .for("update");
     if (!ticket) {
-      throw new SupportError("nothing here is waiting for a person yet — ask for one first", 409);
+      throw new SupportError("nothing here is waiting for a person yet: ask for one first", 409);
     }
     if (ticket.contact_id || ticket.suppressed_address) {
       throw new SupportError("I already have an address for this question", 409);

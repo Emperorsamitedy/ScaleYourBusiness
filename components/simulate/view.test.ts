@@ -1,4 +1,4 @@
-// Feature 36 — the simulator screen's words and geometry. A gap reads as a
+// Feature 36 - the simulator screen's words and geometry. A gap reads as a
 // worded flag, never a number; the picker holds the side by side to four;
 // the first picks are priced options of different kinds; the headline
 // counts real options; the whiskers share one axis that includes zero.
@@ -28,7 +28,7 @@ describe("a cell in words", () => {
   it("a range prints low – high with the basis of what it rests on", () => {
     const r = simulateOption(EMAIL, full());
     expect(cellView(r.measures.revenue, "money", "EUR")).toMatchObject({
-      figure: "€400 – €1,020",
+      figure: "€400 to €1,020",
       basis: "OBSERVED",
       flag: null,
     });
@@ -39,10 +39,10 @@ describe("a cell in words", () => {
     });
   });
 
-  it("a missing input reads MISSING with what fills it — never a number", () => {
+  it("a missing input reads MISSING with what fills it - never a number", () => {
     const r = simulateOption(EMAIL, bare());
     const v = cellView(r.measures.revenue, "money", "EUR");
-    expect(v.figure).toBe("—");
+    expect(v.figure).toBe("-");
     expect(v.flag).toBe("MISSING");
     expect(v.detail).toMatch(/^needs /);
     expect(v.figure).not.toMatch(/\d/);
@@ -77,7 +77,7 @@ describe("the picker", () => {
       /^\d+ of your 9 campaign options can be priced/,
     );
     expect(headline(catalogOf(bare()), bare())).toBe(
-      "None of your 3 campaign options can be priced from your own numbers yet — each one shows what it's missing.",
+      "None of your 3 campaign options can be priced from your own numbers yet. Each one shows what it's missing.",
     );
   });
 });

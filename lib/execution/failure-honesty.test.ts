@@ -520,7 +520,7 @@ describe("P3-24b — what pauses a connection", () => {
       expect(pausesConnection(classifyMetaError({ status: 400, code }))).toBe(false);
     }
     expect(PAUSED_WORK_SENTENCE.publish).toBe(
-      "I couldn't post — the connection expired. Reconnect and I'll pick up where I left off.",
+      "I couldn't post: the connection expired. Reconnect and I'll pick up where I left off.",
     );
   });
 });

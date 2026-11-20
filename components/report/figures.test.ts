@@ -52,7 +52,7 @@ describe("forecasts are ranges, never a single point", () => {
   it("spans downside to upside", () => {
     const r = forecastRange(c(-12000), c(34000), c(9000));
     expect(r).not.toBeNull();
-    expect(rangeText(r!)).toBe(`−120 – +340`);
+    expect(rangeText(r!)).toBe(`−120 to +340`);
   });
 
   it("folds in a base case that falls outside the two", () => {
@@ -75,7 +75,7 @@ describe("forecasts are ranges, never a single point", () => {
   });
 
   it("prints both ends at one decimal count", () => {
-    expect(rangeText(forecastRange(c(-12050), c(34000))!)).toBe(`−120.50 – +340.00`);
+    expect(rangeText(forecastRange(c(-12050), c(34000))!)).toBe(`−120.50 to +340.00`);
   });
 });
 

@@ -121,7 +121,7 @@ export function specialCategories(args: {
       (c) => `${SPECIAL_CATEGORY_WORD[c]} (special ad category): ${found.get(c)}`,
     ),
     refused: refusedBy
-      ? `This looks like an ad about ${SPECIAL_CATEGORY_WORD[refusedBy]} (${found.get(refusedBy)}). Meta needs its own authorisation for those, so ScaleX won't run it — you can set it up yourself in Ads Manager.`
+      ? `This looks like an ad about ${SPECIAL_CATEGORY_WORD[refusedBy]} (${found.get(refusedBy)}). Meta needs its own authorisation for those, so ScaleX won't run it. You can set it up yourself in Ads Manager.`
       : null,
   };
 }
@@ -216,7 +216,7 @@ export function buildTargeting(args: {
     if (radius !== Math.round(loc.radius_km)) {
       notes.push(
         special && loc.radius_km < SPECIAL_MIN_RADIUS_KM
-          ? `the radius is ${radius} km — Meta's minimum for this kind of ad`
+          ? `the radius is ${radius} km, Meta's minimum for this kind of ad`
           : `the radius is held to ${radius} km`,
       );
     }
@@ -236,7 +236,7 @@ export function buildTargeting(args: {
     if (!country) {
       return {
         refused:
-          "I don't know which country to show it in — tell me the country the business operates in (question 1.1b)",
+          "I don't know which country to show it in: tell me the country the business operates in (question 1.1b)",
       };
     }
     if (loc.label && loc.label.trim() !== "") {
@@ -257,7 +257,7 @@ export function buildTargeting(args: {
   if (ageMax > AD_AGE.max) ageMax = AD_AGE.max;
   if (ageMax < ageMin) return { refused: "the age band's oldest age is under its youngest" };
   if (special && (ageMin !== AD_AGE.min || ageMax !== AD_AGE.max)) {
-    notes.push("Meta doesn't allow an age band on this kind of ad, so it shows to 18–65+");
+    notes.push("Meta doesn't allow an age band on this kind of ad, so it shows to 18 to 65+");
     ageMin = AD_AGE.min;
     ageMax = AD_AGE.max;
   }
@@ -278,10 +278,10 @@ export function buildTargeting(args: {
     targeting,
     words: {
       location: where,
-      age: `${ageMin}–${ageMax === AD_AGE.max ? "65+" : ageMax}`,
+      age: `${ageMin} to ${ageMax === AD_AGE.max ? "65+" : ageMax}`,
       interests: interests
-        ? `left broad — "${interests}" is not sent; Meta finds the people`
-        : "left broad — Meta finds the people",
+        ? `left broad: "${interests}" is not sent; Meta finds the people`
+        : "left broad: Meta finds the people",
       placements: [
         `Facebook ${args.video ? "feed and Reels" : "feed"}`,
         ...(args.instagram ? [`Instagram ${args.video ? "feed and Reels" : "feed"}`] : []),
@@ -315,7 +315,7 @@ export function targetingViolation(
     "targeting_automation",
   ]);
   for (const key of Object.keys(t)) {
-    if (!allowed.has(key)) return `the targeting may not carry "${key}" — interests are left broad`;
+    if (!allowed.has(key)) return `the targeting may not carry "${key}": interests are left broad`;
   }
   const geo = t["geo_locations"] as Record<string, unknown> | undefined;
   if (!geo || typeof geo !== "object") return "the targeting names no place";
@@ -326,7 +326,7 @@ export function targetingViolation(
   const ageMin = t["age_min"];
   const ageMax = t["age_max"];
   if (!finite(ageMin) || !finite(ageMax) || ageMin < AD_AGE.min || ageMax > AD_AGE.max) {
-    return `the age band is ${AD_AGE.min}–65+ at its widest`;
+    return `the age band is ${AD_AGE.min} to 65+ at its widest`;
   }
   for (const c of categories) {
     if (!(SPECIAL_AD_CATEGORIES as readonly string[]).includes(c)) {

@@ -31,7 +31,7 @@ function row(over: Partial<TrackRow> = {}): TrackRow {
     high_num: null,
     low_date: null,
     high_date: null,
-    claim: "The week of 2 Nov to 8 Nov: €3,700–€4,500 of revenue.",
+    claim: "The week of 2 Nov to 8 Nov: €3,700 to €4,500 of revenue.",
     basis: "Last year the same week ran 1.9–2.3× your normal week.",
     graded_at: "2026-11-10 06:00:00+00",
     verdict: "inside",
@@ -113,7 +113,7 @@ describe("each forecast", () => {
     );
     const [miss, hit] = v.entries;
     expect(Object.keys(miss!)).toEqual(Object.keys(hit!));
-    expect(miss).toMatchObject({ word: "above", range: "€3,700–€4,500" });
+    expect(miss).toMatchObject({ word: "above", range: "€3,700 to €4,500" });
     expect(miss!.happened).toMatch(/€510 over the top/);
     expect(miss!.said_on).toBe("Said on 12 Oct 2026");
     expect(miss!.basis).toMatch(/^Last year/);
@@ -191,10 +191,10 @@ describe("each forecast", () => {
 
 describe("ranges in their own units", () => {
   it("prints money, counts and dates", () => {
-    expect(rangeWords(row())).toBe("€3,700–€4,500");
+    expect(rangeWords(row())).toBe("€3,700 to €4,500");
     expect(
       rangeWords(row({ unit: "count", subject: "orders", low_num: "74.0", high_num: "93.4" })),
-    ).toBe("74–93 orders");
+    ).toBe("74 to 93 orders");
     expect(rangeWords(row({ unit: "date", low_date: "2026-11-01", high_date: "2026-11-03" }))).toBe(
       "1 Nov to 3 Nov 2026",
     );

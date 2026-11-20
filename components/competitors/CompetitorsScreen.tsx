@@ -466,7 +466,7 @@ function PriceTable({
                 <td className="num">
                   {r.yours?.price
                     ? moneyText(r.yours.price.amount_minor, r.yours.price.currency, locale)
-                    : "—"}
+                    : "-"}
                 </td>
                 <td className="cp-gap">
                   {r.gap ? (
@@ -474,7 +474,7 @@ function PriceTable({
                       {r.gap.words}
                     </span>
                   ) : (
-                    <span className="cp-src">{r.note ?? "—"}</span>
+                    <span className="cp-src">{r.note ?? "-"}</span>
                   )}
                 </td>
               </tr>

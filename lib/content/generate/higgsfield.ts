@@ -214,12 +214,12 @@ export function higgsfieldMediaProvider(opts: HiggsfieldOptions): MediaProvider 
       const detail = await detailOf(res);
       if (res.status === 401) {
         throw new ProviderError(
-          "Higgsfield refused the API key — check HIGGSFIELD_API_KEY and HIGGSFIELD_API_SECRET",
+          "Higgsfield refused the API key: check HIGGSFIELD_API_KEY and HIGGSFIELD_API_SECRET",
         );
       }
       if (res.status === 403) {
         throw new ProviderError(
-          "Higgsfield's API balance is too low for this — top it up in Higgsfield's API console (a web plan's credits don't count)",
+          "Higgsfield's API balance is too low for this: top it up in Higgsfield's API console (a web plan's credits don't count)",
         );
       }
       if (res.status === 404) {
@@ -382,7 +382,7 @@ export function higgsfieldMediaProvider(opts: HiggsfieldOptions): MediaProvider 
           return {
             state: "failed",
             message:
-              "Higgsfield's moderation refused this prompt or its result — nothing was billed",
+              "Higgsfield's moderation refused this prompt or its result: nothing was billed",
             retryable: false,
             charged: null,
           };
@@ -390,7 +390,7 @@ export function higgsfieldMediaProvider(opts: HiggsfieldOptions): MediaProvider 
         if (status === "canceled") {
           return {
             state: "failed",
-            message: "the request was canceled at Higgsfield — nothing was billed",
+            message: "the request was canceled at Higgsfield: nothing was billed",
             retryable: false,
             charged: null,
           };

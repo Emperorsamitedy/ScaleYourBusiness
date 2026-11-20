@@ -142,7 +142,10 @@
   padding: 0 16px;
   cursor: pointer;
   text-decoration: none;
-  transition: background 0.15s, border-color 0.15s, box-shadow 0.15s;
+  transition:
+    background 0.15s,
+    border-color 0.15s,
+    box-shadow 0.15s;
 }
 .ax-btn:focus-visible {
   outline: 3px solid rgba(0, 168, 107, 0.45);
@@ -396,7 +399,11 @@
 .ax-visual-shade {
   position: absolute;
   inset: 0;
-  background: radial-gradient(ellipse at center, rgba(13, 19, 33, 0.15) 0%, rgba(13, 19, 33, 0.75) 75%);
+  background: radial-gradient(
+    ellipse at center,
+    rgba(13, 19, 33, 0.15) 0%,
+    rgba(13, 19, 33, 0.75) 75%
+  );
 }
 
 /* The phone: titanium edge, black border, Dynamic Island, tilted right. */
@@ -446,7 +453,15 @@
   inset: 0;
   border-radius: 56px;
   padding: 3px;
-  background: linear-gradient(150deg, #e6e4df 0%, #9d9991 20%, #d6d3cc 42%, #7a766f 68%, #cbc8c1 88%, #8f8b84 100%);
+  background: linear-gradient(
+    150deg,
+    #e6e4df 0%,
+    #9d9991 20%,
+    #d6d3cc 42%,
+    #7a766f 68%,
+    #cbc8c1 88%,
+    #8f8b84 100%
+  );
 }
 .ip-bezel {
   width: 100%;
@@ -513,7 +528,12 @@
 .ip-glare {
   position: absolute;
   inset: 0;
-  background: linear-gradient(118deg, rgba(255, 255, 255, 0.16) 0%, rgba(255, 255, 255, 0.05) 26%, rgba(255, 255, 255, 0) 38%);
+  background: linear-gradient(
+    118deg,
+    rgba(255, 255, 255, 0.16) 0%,
+    rgba(255, 255, 255, 0.05) 26%,
+    rgba(255, 255, 255, 0) 38%
+  );
   pointer-events: none;
   z-index: 5;
 }
@@ -563,22 +583,51 @@
   animation: ax-bar 3s linear infinite;
 }
 @keyframes ax-reel {
-  0% { opacity: 0; transform: scale(1.04); }
-  1.5% { opacity: 1; }
-  9% { opacity: 1; transform: scale(1); }
-  10.5% { opacity: 0; transform: scale(1); }
-  100% { opacity: 0; }
+  0% {
+    opacity: 0;
+    transform: scale(1.04);
+  }
+  1.5% {
+    opacity: 1;
+  }
+  9% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  10.5% {
+    opacity: 0;
+    transform: scale(1);
+  }
+  100% {
+    opacity: 0;
+  }
 }
 @keyframes ax-cap {
-  0% { opacity: 0; transform: translateY(8px); }
-  1.5% { opacity: 1; transform: translateY(0); }
-  9% { opacity: 1; }
-  10.5% { opacity: 0; }
-  100% { opacity: 0; }
+  0% {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  1.5% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  9% {
+    opacity: 1;
+  }
+  10.5% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 0;
+  }
 }
 @keyframes ax-bar {
-  from { transform: scaleX(0); }
-  to { transform: scaleX(1); }
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
 }
 @media (prefers-reduced-motion: reduce) {
   .reel-slide,
@@ -626,5 +675,98 @@
   }
   .ax-title-lg {
     font-size: 28px;
+  }
+}
+
+/* ── The free check (/check) and a shared result (/e): dressed like sign-up
+   and sign-in since 2026-11-17 (the owner), so the landing page's button
+   lands inside the same door. ── */
+.ax-kicker {
+  margin: 0;
+  font-family: var(--f-mono), "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #006b45;
+}
+.ax-check .ax-col-in {
+  max-width: 480px;
+}
+.ax-check .ax-signup-main {
+  margin-top: 44px;
+  gap: 18px;
+}
+.ax-check .ax-form {
+  gap: 14px;
+  margin-top: 6px;
+}
+.ax-check .ax-error {
+  margin: 0;
+}
+select.ax-input {
+  appearance: none;
+  background-color: #ffffff;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%230d1321' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'><path d='M6 9l6 6 6-6'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  padding-right: 40px;
+  color: var(--ax-ink);
+}
+.ax-result {
+  border: 1.5px solid var(--ax-line);
+  border-radius: 16px;
+  padding: 22px 22px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.ax-result .ax-title {
+  font-size: 22px;
+}
+.ax-result .entry-figure {
+  margin: 0;
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--ax-ink);
+}
+.ax-result .entry-peer {
+  margin-top: 12px;
+}
+.ax-check-result {
+  gap: 14px;
+}
+/* The share button (components/ladder/ShareLink.tsx) keeps its dashboard class;
+   inside the entrance it is drawn as the entrance's bordered button. */
+.ax .next {
+  min-height: 50px;
+  border: 1.5px solid var(--ax-line);
+  border-radius: 10px;
+  background: #ffffff;
+  color: var(--ax-ink);
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: normal;
+  text-transform: none;
+  padding: 0 16px;
+  cursor: pointer;
+}
+.ax .next:hover:not(:disabled) {
+  border-color: var(--ax-ink);
+  background: #ffffff;
+  color: var(--ax-ink);
+}
+.ax-copy a {
+  color: var(--ax-ink);
+  font-weight: 600;
+  text-underline-offset: 3px;
+}
+.ax-card-wide {
+  max-width: 600px;
+}
+@media (max-width: 900px) {
+  .ax-check .ax-signup-main {
+    margin-top: 32px;
   }
 }

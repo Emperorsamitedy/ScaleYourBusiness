@@ -77,7 +77,7 @@ export function pairSentence(
   unit: "orders" | "visits",
 ): string {
   const both = `${pct(p.confidence)} of ${unit} with ${aName}, ${pct(p.confidence_ba)} of those with ${bName}`;
-  return `${aName} and ${bName}: together in ${p.together} ${unit} (${both}) — ${oneDecimal(p.lift)}× what chance alone would give (about ${Math.round(p.expected)}).`;
+  return `${aName} and ${bName}: together in ${p.together} ${unit} (${both}): ${oneDecimal(p.lift)}× what chance alone would give (about ${Math.round(p.expected)}).`;
 }
 
 export function pairKey(connectionId: string, a: string, b: string): string {

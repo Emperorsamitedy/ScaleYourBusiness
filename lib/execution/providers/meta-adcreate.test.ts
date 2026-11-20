@@ -599,7 +599,7 @@ describe("P3-54 — the proposal", () => {
       paused_note: CREATES_PAUSED_NOTE,
       // €1 floor × 5, inside a €300 ceiling with nothing else measured.
       budget: { daily_minor: 500, currency: "EUR", run_days: 7, total_minor: 3_500 },
-      audience: { location: "everyone in Hungary", age: "18–65+" },
+      audience: { location: "everyone in Hungary", age: "18 to 65+" },
       goal: "visits to your website",
     });
     const ad = d["ad"] as Record<string, unknown>;
@@ -936,7 +936,7 @@ describe("P3-54 — the build, through the engine", () => {
     const exe = (await executionFor(p.id))!;
     expect(exe.status).toBe("failed");
     expect(exe.held_for).toBeNull();
-    expect(exe.error).toMatch(/I may have created the creative — check Ads Manager/);
+    expect(exe.error).toMatch(/I may have created the creative: check Ads Manager/);
     expect(await buildFor(p.id)).toMatchObject({ status: "uncertain" });
     await run(b, new Date(later.getTime() + AD_BUILD_RETRY_MS + 60_000));
     expect(graph.creates("adcreatives")).toHaveLength(1);

@@ -31,7 +31,7 @@ export const GOOGLE_REASONS = {
   google_permission:
     "Google says ScaleX isn't allowed to read Business Profiles yet. Nothing was connected.",
   google_busy:
-    "Google was busy or didn't answer. Nothing was connected — try again in a few minutes.",
+    "Google was busy or didn't answer. Nothing was connected. Try again in a few minutes.",
   google_refused: "Google refused the sign-in. Nothing was connected.",
   internal: "Something went wrong on our side. Nothing was connected.",
 } as const;

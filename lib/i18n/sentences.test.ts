@@ -95,8 +95,8 @@ describe("L-4b sentences in the real catalogues", () => {
     expect(dayRange({ low: 5, high: 5 }, ru)).toBe("5 дней");
     expect(dayRange({ low: 21, high: 21 }, ru)).toBe("21 день");
     // A range agrees with its upper end.
-    expect(dayRange({ low: 2, high: 4 }, ru)).toBe("2–4 дня");
-    expect(dayRange({ low: 2, high: 4 })).toBe("2–4 days");
+    expect(dayRange({ low: 2, high: 4 }, ru)).toBe("2-4 дня");
+    expect(dayRange({ low: 2, high: 4 })).toBe("2 to 4 days");
   });
 
   it("says the window line in Hungarian, its dates in Hungarian", () => {

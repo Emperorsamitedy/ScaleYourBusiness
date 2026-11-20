@@ -12,15 +12,18 @@ export const BRAND = {
   tile: "#1B2030",
 } as const;
 
-/** The mark's parts on a 100 × 100 grid, shared by every rendering. */
+/** The mark's parts on a 100 × 100 grid, shared by every rendering.
+ *  Matched to the final logo system (owner, 2026-11-17): the strokes carry
+ *  the weight of the wordmark's letters, the bars fill their corners, and
+ *  the head is a full wedge rather than a thin tip. */
 export const MARK = {
-  stroke: 14,
+  stroke: 17,
   bars: [
-    [12, 12, 32, 32],
-    [66, 66, 86, 86],
+    [10, 10, 30, 30],
+    [70, 70, 90, 90],
   ],
-  shaft: [15, 83, 64, 34],
-  head: "92,8 56.5,20.5 79.5,43.5",
+  shaft: [10, 90, 66, 34],
+  head: "94,6 61,14 86,39",
 } as const;
 
 export function Mark({

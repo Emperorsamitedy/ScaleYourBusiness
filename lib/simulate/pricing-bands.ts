@@ -59,4 +59,4 @@ export const RESPONSE_BANDS: Readonly<Record<ArchetypeKey, ResponseBand>> = {
 
 /** Where the bands come from, as the assumption line prints it. */
 export const BAND_SOURCE =
-  "a planning assumption for this kind of business, not a measurement — nobody has measured how your customers answer a price change yet";
+  "a planning assumption for this kind of business, not a measurement: nobody has measured how your customers answer a price change yet";

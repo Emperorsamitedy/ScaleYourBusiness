@@ -267,7 +267,7 @@ describe("P5-11 — a run, stored with its provenance", () => {
     created.push(s);
     expect(await runSiteAudit({ profileId: s.profile_id, apiKey: null })).toEqual({
       status: "refused",
-      why: "There's no website in your profile to audit — add it to your fact sheet.",
+      why: "There's no website in your profile to audit. Add it to your fact sheet.",
     });
   });
 });

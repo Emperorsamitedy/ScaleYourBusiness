@@ -56,8 +56,8 @@
 .q-wordmark {
   font-family: var(--f-display);
   font-size: 15px;
-  font-weight: 700;
-  letter-spacing: -0.01em;
+  font-weight: var(--w-display, 700);
+  letter-spacing: var(--ls-display, -0.01em);
   color: var(--desk-ink);
   text-decoration: none;
 }
@@ -83,6 +83,11 @@
   gap: 8px 12px;
   flex-wrap: wrap;
 }
+/* Its place, kept while its state is read (EmergencyStop.tsx). */
+.es-mast-wait {
+  visibility: hidden;
+  pointer-events: none;
+}
 .es-mast-stop {
   min-height: 40px;
   padding: 0 15px;
@@ -90,14 +95,15 @@
   background: transparent;
   color: var(--q-alarm-desk, #ff9d92);
   font-family: var(--f-mono);
-  font-size: 13px;
+  font-size: calc(13px + var(--caps-bump, 0px));
   font-weight: 500;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+  letter-spacing: var(--caps-ls, 0.1em);
+  text-transform: var(--caps, uppercase);
   cursor: pointer;
   transition:
     background-color var(--d-press) linear,
     color var(--d-press) linear;
+  border-radius: var(--r-ctl, 0);
 }
 .es-mast-stop:hover:not(:disabled),
 .es-mast-stop:active:not(:disabled) {
@@ -117,10 +123,10 @@
 }
 .es-mast-word {
   font-family: var(--f-mono);
-  font-size: 13px;
+  font-size: calc(13px + var(--caps-bump, 0px));
   font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  letter-spacing: var(--caps-ls, 0.08em);
+  text-transform: var(--caps, uppercase);
   color: var(--q-alarm-desk, #ff9d92);
   border-bottom: 2px solid currentColor; /* shape as well as hue */
 }
@@ -183,10 +189,10 @@
 .q-side-label {
   margin: 0;
   font-family: var(--f-mono);
-  font-size: 11.5px;
+  font-size: calc(11.5px + var(--caps-bump, 0px));
   font-weight: 500;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  letter-spacing: var(--caps-ls, 0.14em);
+  text-transform: var(--caps, uppercase);
   color: var(--desk-ink-2);
 }
 .q-side-label-ink {
@@ -198,9 +204,9 @@
 }
 .q-side-keys {
   font-family: var(--f-mono);
-  font-size: 11px;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  font-size: calc(11px + var(--caps-bump, 0px));
+  letter-spacing: var(--caps-ls, 0.06em);
+  text-transform: var(--caps, uppercase);
   color: var(--desk-ink-2);
   white-space: nowrap;
 }
@@ -248,7 +254,7 @@
 .q-item-title {
   font-family: var(--f-display);
   font-size: 16px;
-  font-weight: 700;
+  font-weight: var(--w-display, 700);
   line-height: 1.25;
 }
 .q-item-meta {
@@ -354,27 +360,29 @@
   --mut: var(--sheet-ink-2);
   background: var(--paper);
   color: var(--sheet-ink);
-  border: 1px solid var(--rule);
+  border: var(--card-border, 1px solid var(--rule));
+  border-radius: var(--r-card, 0);
+  overflow: clip;
 }
 .q-sheet-head {
   padding: 18px 20px 17px;
-  border-bottom: 3px double var(--sheet-ink);
+  border-bottom: var(--card-head-rule, 3px double var(--sheet-ink));
 }
 .q-ref {
   margin: 0 0 10px;
   font-family: var(--f-mono);
-  font-size: 12px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  font-size: calc(12px + var(--caps-bump, 0px));
+  letter-spacing: var(--caps-ls, 0.08em);
+  text-transform: var(--caps, uppercase);
   color: var(--sheet-ink-2);
 }
 .q-title {
   margin: 0;
   font-family: var(--f-display);
   font-size: clamp(17.5px, 1.57vw, 23px);
-  font-weight: 700;
+  font-weight: var(--w-display, 700);
   line-height: 1.15;
-  letter-spacing: -0.01em;
+  letter-spacing: var(--ls-display, -0.01em);
   max-width: 44ch;
 }
 .q-title:focus {
@@ -410,18 +418,18 @@
 .q-h {
   margin: 0 0 12px;
   font-family: var(--f-mono);
-  font-size: 11.5px;
+  font-size: calc(11.5px + var(--caps-bump, 0px));
   font-weight: 600;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+  letter-spacing: var(--caps-ls, 0.14em);
+  text-transform: var(--caps, uppercase);
   color: var(--sheet-ink);
 }
 .q-mono-label {
   font-family: var(--f-mono);
-  font-size: 11px;
+  font-size: calc(11px + var(--caps-bump, 0px));
   font-weight: 600;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
+  letter-spacing: var(--caps-ls, 0.12em);
+  text-transform: var(--caps, uppercase);
   color: var(--sheet-ink-2);
   margin-right: 8px;
 }
@@ -454,7 +462,7 @@
 }
 .q-before,
 .q-after {
-  font-family: var(--f-mono);
+  font-family: var(--f-fig);
   font-size: 13.5px !important;
   font-variant-numeric: tabular-nums;
 }
@@ -525,10 +533,10 @@
 }
 .q-case dt {
   font-family: var(--f-mono);
-  font-size: 11.5px;
+  font-size: calc(11.5px + var(--caps-bump, 0px));
   font-weight: 600;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
+  letter-spacing: var(--caps-ls, 0.12em);
+  text-transform: var(--caps, uppercase);
   color: var(--sheet-ink-2);
   padding-top: 3px;
 }
@@ -540,7 +548,7 @@
 .q-formula {
   display: block;
   margin-top: 4px;
-  font-family: var(--f-mono);
+  font-family: var(--f-fig);
   font-size: 12.5px;
   color: var(--sheet-ink-2);
 }
@@ -596,14 +604,15 @@
   border: 1px dashed var(--drift);
   font-size: 14px;
   line-height: 1.5;
+  border-radius: var(--r-ctl, 0);
 }
 .q-disagree-word {
   margin-right: 10px;
   font-family: var(--f-mono);
-  font-size: 12px;
+  font-size: calc(12px + var(--caps-bump, 0px));
   font-weight: 600;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+  letter-spacing: var(--caps-ls, 0.1em);
+  text-transform: var(--caps, uppercase);
   color: var(--drift);
 }
 .q-breakeven {
@@ -619,6 +628,7 @@
   background: var(--inset);
   font-size: 14px;
   max-width: var(--measure);
+  border-radius: var(--r-ctl, 0);
 }
 
 /* 4 · reversibility */
@@ -650,7 +660,7 @@
 
 .q-decide {
   padding: 17px 20px 20px;
-  border-top: 3px double var(--sheet-ink);
+  border-top: var(--card-head-rule, 3px double var(--sheet-ink));
   margin-top: -1px;
 }
 .q-schedule {
@@ -671,6 +681,7 @@
   color: var(--sheet-ink);
   font-family: var(--f-mono);
   font-size: 12.5px;
+  border-radius: var(--r-s, 0);
 }
 .q-answers {
   display: grid;
@@ -693,13 +704,14 @@
   font-family: var(--f-mono);
   font-size: 13.5px;
   font-weight: 500;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+  letter-spacing: var(--caps-ls, 0.1em);
+  text-transform: var(--caps, uppercase);
   text-align: left;
   cursor: pointer;
   transition:
     background-color var(--d-press) linear,
     color var(--d-press) linear;
+  border-radius: var(--r-ctl, 0);
 }
 .q-btn:hover:not(:disabled),
 .q-btn:active:not(:disabled) {
@@ -724,10 +736,11 @@
   min-width: 22px;
   height: 22px;
   border: 1px solid currentColor;
-  font-family: var(--f-mono);
+  font-family: var(--f-fig);
   font-size: 12px;
   font-weight: 400;
   letter-spacing: 0;
+  border-radius: var(--r-xs, 0);
 }
 .q-btn-inline {
   display: inline-flex;
@@ -758,15 +771,16 @@
   padding: 15px 14px 14px;
   border: var(--line);
   background: var(--inset);
+  border-radius: var(--r-ctl, 0);
 }
 .q-panel-label {
   display: block;
   margin: 0 0 10px;
   font-family: var(--f-mono);
-  font-size: 11.5px;
+  font-size: calc(11.5px + var(--caps-bump, 0px));
   font-weight: 600;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
+  letter-spacing: var(--caps-ls, 0.12em);
+  text-transform: var(--caps, uppercase);
   color: var(--sheet-ink);
 }
 .q-chips {
@@ -787,6 +801,7 @@
   letter-spacing: 0.08em;
   cursor: pointer;
   transition: background-color var(--d-press) linear;
+  border-radius: var(--r-pill, 0);
 }
 .q-chip:hover {
   border-color: var(--sheet-ink);
@@ -808,6 +823,7 @@
   font-size: 13.5px;
   line-height: 1.5;
   resize: vertical;
+  border-radius: var(--r-s, 0);
 }
 .q-text:focus {
   border-color: var(--sheet-ink);
@@ -831,6 +847,7 @@
   border: 1px solid var(--q-alarm-desk);
   font-size: 14px;
   color: var(--desk-ink);
+  border-radius: var(--r-ctl, 0);
 }
 
 /* ── the phone: one proposal at a time ── */
@@ -863,18 +880,18 @@
   flex: 0 1 auto;
   font-family: var(--f-display);
   font-size: 21px;
-  font-weight: 700;
+  font-weight: var(--w-display, 700);
   line-height: 1.12;
-  letter-spacing: -0.01em;
+  letter-spacing: var(--ls-display, -0.01em);
 }
 .q-pos {
   margin: 6px 0 0;
   flex: 0 1 46%;
   font-family: var(--f-mono);
-  font-size: 12px;
-  letter-spacing: 0.12em;
+  font-size: calc(12px + var(--caps-bump, 0px));
+  letter-spacing: var(--caps-ls, 0.12em);
   line-height: 1.6;
-  text-transform: uppercase;
+  text-transform: var(--caps, uppercase);
   color: var(--desk-ink-2);
 }
 .q-mast-m .q-mast-row + .q-mast-row:last-child {
@@ -898,7 +915,7 @@
 }
 .q-mcard-head {
   padding: 14px 15px 14px;
-  border-bottom: 3px double var(--sheet-ink);
+  border-bottom: var(--card-head-rule, 3px double var(--sheet-ink));
 }
 .q-mcard .q-ref {
   margin-bottom: 8px;
@@ -914,10 +931,10 @@
 .q-mlabel {
   margin: 0 0 8px;
   font-family: var(--f-mono);
-  font-size: 11.5px;
+  font-size: calc(11.5px + var(--caps-bump, 0px));
   font-weight: 500;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
+  letter-spacing: var(--caps-ls, 0.12em);
+  text-transform: var(--caps, uppercase);
   color: var(--sheet-ink-2);
 }
 .q-mlines {
@@ -953,9 +970,9 @@
 .q-mline-side {
   padding-top: 2px;
   font-family: var(--f-mono);
-  font-size: 11px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
+  font-size: calc(11px + var(--caps-bump, 0px));
+  letter-spacing: var(--caps-ls, 0.12em);
+  text-transform: var(--caps, uppercase);
   color: var(--sheet-ink-2);
 }
 .q-effect-m {
@@ -991,9 +1008,9 @@
   background: none;
   color: var(--sheet-ink);
   font-family: var(--f-mono);
-  font-size: 12.5px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+  font-size: calc(12.5px + var(--caps-bump, 0px));
+  letter-spacing: var(--caps-ls, 0.1em);
+  text-transform: var(--caps, uppercase);
   text-decoration: underline;
   text-underline-offset: 4px;
   cursor: pointer;
@@ -1006,7 +1023,7 @@
 }
 .q-mdecide {
   padding: 14px 11px 15px;
-  border-top: 3px double var(--sheet-ink);
+  border-top: var(--card-head-rule, 3px double var(--sheet-ink));
   margin-top: -1px;
 }
 .q-primary {
@@ -1042,6 +1059,41 @@
 }
 .q-m .q-empty {
   padding: 17px 15px;
+}
+
+/* A decision opened in place (ReviewSheet.tsx, 2026-11-17): the phone card's
+   sections inside the side sheet, on the sheet's own edge; its answers in
+   the sheet's foot. */
+.q-review .q-msec {
+  padding: 14px 0 15px;
+}
+.q-review .q-msec:first-child {
+  padding-top: 0;
+}
+.q-review .q-msec:last-child {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+.q-review .q-review-skel {
+  padding: 0;
+}
+.ui-sheet-foot .q-mdecide {
+  margin-top: 0;
+  padding: 0;
+  border-top: 0;
+}
+.ui-sheet-foot .q-mpair {
+  margin-top: 0;
+}
+.ui-sheet-foot .q-mpair .q-btn {
+  text-align: center;
+}
+.ui-sheet-foot .q-panel {
+  max-height: 44vh;
+  overflow-y: auto;
+}
+.ui-sheet-foot .q-approve-note {
+  margin-top: 10px;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -1166,7 +1218,7 @@
   height: 10px;
 }
 .q-ring-key b {
-  font-family: var(--f-mono);
+  font-family: var(--f-fig);
   font-weight: 600;
   font-variant-numeric: tabular-nums;
 }
@@ -1233,6 +1285,7 @@
   padding: 14px 16px;
   border: 1px solid var(--rule-soft);
   overflow-x: auto;
+  border-radius: var(--r-ctl, 0);
 }
 .q-fig figcaption {
   display: flex;
@@ -1240,10 +1293,10 @@
   gap: 12px;
   flex-wrap: wrap;
   font-family: var(--f-mono);
-  font-size: 11.5px;
+  font-size: calc(11.5px + var(--caps-bump, 0px));
   font-weight: 600;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
+  letter-spacing: var(--caps-ls, 0.1em);
+  text-transform: var(--caps, uppercase);
   color: var(--sheet-ink-2);
 }
 .q-fig figcaption span {
@@ -1283,7 +1336,7 @@
   width: var(--w, 0%);
 }
 .q-bars b {
-  font-family: var(--f-mono);
+  font-family: var(--f-fig);
   font-size: 13px;
   font-variant-numeric: tabular-nums;
 }
@@ -1438,6 +1491,7 @@
   border: 1px solid var(--sheet-ink);
   background: var(--paper);
   text-align: center;
+  border-radius: var(--r-s, 0);
 }
 .q-tree-node b {
   font-weight: 700;
@@ -1471,6 +1525,7 @@
   border: 1px solid var(--sheet-ink);
   font-size: 13.5px;
   font-weight: 700;
+  border-radius: var(--r-s, 0);
 }
 .q-way-box.ink {
   background: var(--sheet-ink);
@@ -1510,4 +1565,32 @@
     grid-template-columns: max-content minmax(96px, 1fr) max-content;
     gap: 8px;
   }
+}
+
+/* The stop's one-word name, shown only where the strip is short (a phone). */
+.es-short {
+  display: none;
+}
+
+/* Sentence case: a label the classic look set in capitals starts with one
+   (the owner app's type, app/sheet.css). In the classic look it follows the label. */
+:is(
+  .es-mast-stop,
+  .es-mast-word,
+  .q-side-label,
+  .q-side-keys,
+  .q-ref,
+  .q-h,
+  .q-mono-label,
+  .q-case dt,
+  .q-disagree-word,
+  .q-btn,
+  .q-panel-label,
+  .q-pos,
+  .q-mlabel,
+  .q-mline-side,
+  .q-evtoggle,
+  .q-fig figcaption
+)::first-letter {
+  text-transform: var(--caps-first, inherit);
 }

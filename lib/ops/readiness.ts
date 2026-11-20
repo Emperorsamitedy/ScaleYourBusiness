@@ -1826,13 +1826,13 @@ function tiktokAdsGroup(env: ReadinessEnv): ReadinessGroup {
       ? item(
           "TikTok app review",
           "check",
-          "TikTok reviews the app (2–3 business days) before its sign-ins work, and I can't see from here whether it has. Its Scope of permission must be exactly the four in docs/DEPLOY.md; a token with one more or fewer is refused.",
+          "TikTok reviews the app (2 to 3 business days) before its sign-ins work, and I can't see from here whether it has. Its Scope of permission must be exactly the four in docs/DEPLOY.md; a token with one more or fewer is refused.",
           LINKS.tiktokBusiness,
         )
       : item(
           "TikTok app review",
           "off",
-          "Once the three settings are set, submit the app for TikTok's review (2–3 business days); its sign-ins work only after it is approved.",
+          "Once the three settings are set, submit the app for TikTok's review (2 to 3 business days); its sign-ins work only after it is approved.",
           LINKS.tiktokBusiness,
         );
   return {

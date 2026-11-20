@@ -11,8 +11,8 @@ import { SpeechSession, recognitionIn } from "../../lib/voice/session";
 export interface SpeechAnswerOptions {
   getText: () => string;
   setText: (next: string) => void;
-  /** Words for a normal stop, in the box's own verb ("…then record it"). */
-  after: string;
+  /** Words for a normal stop, in the box's own verb ("…then record it"); omitted, a stop says nothing. */
+  after?: string | null;
   /**
    * I-50a: the BCP 47 tag to listen in — the person's chosen language
    * (lib/voice/lang speechLang), never the browser's own.
@@ -29,15 +29,7 @@ export interface SpeechAnswer extends SessionState {
   toggle: () => void;
 }
 
-const IDLE: SessionState = { phase: "idle", onDevice: null, notice: null, message: null };
-
-function storage(): Storage | null {
-  try {
-    return window.localStorage;
-  } catch {
-    return null; // blocked (private window, policy): the notice just shows again
-  }
-}
+const IDLE: SessionState = { phase: "idle", onDevice: null, message: null };
 
 export function useSpeechAnswer(options: SpeechAnswerOptions): SpeechAnswer {
   const opts = useRef(options);
@@ -57,12 +49,11 @@ export function useSpeechAnswer(options: SpeechAnswerOptions): SpeechAnswer {
       getText: () => opts.current.getText(),
       setText: (next) => opts.current.setText(next),
       get after() {
-        return opts.current.after;
+        return opts.current.after ?? null;
       },
       get words() {
         return opts.current.words;
       },
-      store: storage(),
       onState: setState,
     });
     session.current = s;

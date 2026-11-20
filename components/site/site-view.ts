@@ -73,7 +73,7 @@ export function euroLine(e: EuroFigure, tr: Tr = EN(), locale: AppLocale = "en")
 /** The measured value of a finding, with its unit. */
 export function measuredValue(f: SiteFinding, tr: Tr = EN(), locale: AppLocale = "en"): string {
   const v = f.evidence.value;
-  if (v === undefined) return "—";
+  if (v === undefined) return "-";
   switch (f.evidence.unit) {
     case "ms":
       return f.evidence.metric === "lcp_ms"
@@ -96,7 +96,7 @@ export function weightText(
   tr: Tr = EN(),
   locale: AppLocale = "en",
 ): string {
-  return bytes ? tr("audit.unit.mb", { value: fig(bytes / 1_000_000, 1, locale) }) : "—";
+  return bytes ? tr("audit.unit.mb", { value: fig(bytes / 1_000_000, 1, locale) }) : "-";
 }
 
 /** One page's phone or computer numbers, field first. */
@@ -105,7 +105,7 @@ export function speedCell(
   tr: Tr = EN(),
   locale: AppLocale = "en",
 ): string {
-  if (!r) return "—";
+  if (!r) return "-";
   const lcp = r.field?.lcp_ms?.p75 ?? r.lab.lcp_ms;
   const cls = r.field?.cls?.p75 ?? r.lab.cls;
   const inp = r.field?.inp_ms?.p75;

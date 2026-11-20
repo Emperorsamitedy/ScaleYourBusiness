@@ -243,7 +243,7 @@ describe("P5-02 cover reads the owner's own supplier", () => {
     expect(mug.cover.lead.source_field).toMatch(/^suppliers\.[0-9a-f-]{36}\.lead_time_days$/);
     expect(mug.cover.warning?.flag).toBe("ACT NOW");
     expect(mug.cover.warning?.sentence).toMatch(
-      /^Blue Mug runs out in about \d–\d days; Midland Clay takes 7 days\.$/,
+      /^Blue Mug runs out in about \d to \d days; Midland Clay takes 7 days\.$/,
     );
     // The plate is unmatched: the default delivery time, ASSUMED, and plenty of cover.
     const plate = view.rows.find((r) => r.item.ref === PLATE)!;
@@ -303,7 +303,7 @@ describe("P5-02 warnings into the watch log", () => {
       verdict: null,
     });
     // 12 on hand at 3 a day, give or take chance: the days the warning said.
-    expect(c!.claim).toMatch(/^Blue Mug runs out in about \d+–\d+ days/);
+    expect(c!.claim).toMatch(/^Blue Mug runs out in about \d+ to \d+ days/);
     expect(c!.subject_ref).toMatchObject({ on_hand: 12, as_of: TODAY });
     expect(c!.basis).toMatch(/measured by Shopify/);
     await logStockWarnings(s.profile_id, new Date(NOW.getTime() + 3_600_000));
@@ -324,7 +324,7 @@ describe("P5-03 reorder notes", () => {
     expect(note.module).toBe("stock");
     expect(kindOf(note)).toBe(REORDER_KIND);
     expect((note.action as { summary: string }).summary).toBe(
-      "Reorder 50 × Blue Mug from Midland Clay — a note for you, not an order",
+      "Reorder 50 × Blue Mug from Midland Clay: a note for you, not an order",
     );
     const d = detailOf(note);
     expect(d.note_only).toBe(true);

@@ -143,16 +143,16 @@ describe("siteWords English is what lib/site said before L-4c, byte for byte", (
 
   it("says the platform lines, markers and manual steps as before", () => {
     expect(editabilityLine(SHOPIFY)).toBe(
-      "Shopify — changes can be applied for you once you give it permission to make changes — a separate step, on its own screen.",
+      "Shopify: changes can be applied for you once you give it permission to make changes, a separate step, on its own screen.",
     );
     expect(editabilityLine({ ...SHOPIFY, platform: "wordpress", editable: "partial" })).toBe(
-      "WordPress — some elements can be changed programmatically, not all; anything beyond that comes as instructions.",
+      "WordPress: some elements can be changed programmatically, not all; anything beyond that comes as instructions.",
     );
     expect(editabilityLine(WIX)).toBe(
-      "Wix can't be edited programmatically — you'll get the exact change rendered before/after, plus step-by-step instructions for your editor. That's the honest version of this feature for your platform.",
+      "Wix can't be edited programmatically: you'll get the exact change rendered before/after, plus step-by-step instructions for your editor. That's the honest version of this feature for your platform.",
     );
     expect(editabilityLine(detectPlatform("<p>plain</p>"))).toBe(
-      "I can't tell what serves this site — I'll show you the change and the diff, and applying it stays manual until I can.",
+      "I can't tell what serves this site. I'll show you the change and the diff, and applying it stays manual until I can.",
     );
     expect(detectPlatform("<p>plain</p>").marker).toBe("no platform markers found");
     expect(detectPlatform('<link href="/wp-content/x.css">').marker).toBe(
@@ -160,7 +160,7 @@ describe("siteWords English is what lib/site said before L-4c, byte for byte", (
     );
     expect(buildManualInstructions("wix", "Old", "New", "https://a.example/")).toEqual([
       "Open https://a.example/ in your Wix editor.",
-      "In the editor, click the text element itself — Wix edits in place.",
+      "In the editor, click the text element itself: Wix edits in place.",
       "Find the text: “Old”",
       "Replace it with: “New”",
       "Use the editor's preview to compare against the before/after shown here.",
@@ -183,32 +183,32 @@ describe("siteWords English is what lib/site said before L-4c, byte for byte", (
     expect(w.summary).toBe(`On shop.example: “${"x".repeat(57)}…” → “New”`);
     expect(w.assumption_platform).toBe("The page is served by Shopify (Shopify CDN/theme object)");
     expect(w.assumption_baseline).toBe(
-      "Baseline load 412ms at proposal time — the auto-rollback reference",
+      "Baseline load 412ms at proposal time: the auto-rollback reference",
     );
     expect(w.preview_note).toBe(
-      "the page is too large to carry a live preview — the diff above is exact, the render is not shown",
+      "the page is too large to carry a live preview: the diff above is exact, the render is not shown",
     );
     expect(w.rationale).toBe(
       "Approving queues the change; applying goes through the engine with the page's previous state stored forever, one click from restored.",
     );
     expect(w.base_case).toBe("The page says the new thing; nothing else about it changes.");
     expect(w.downside_case).toBe(
-      "The page errors or slows hard after the change — it rolls back automatically and you see why.",
+      "The page errors or slows hard after the change. It rolls back automatically and you see why.",
     );
     expect(w.upside_case).toBe(
       "The readback can compare the weeks either side, once measurement is connected.",
     );
-    expect(w.breakeven_condition).toBe("no spend — one line of copy");
+    expect(w.breakeven_condition).toBe("no spend: one line of copy");
     expect(w.if_you_change_your_mind).toBe(
       "One click: the page's previous state is stored permanently, not for a window.",
     );
     expect(w.manual_instructions).toBeNull();
     const manual = siteChangeWords({ ...change(), platform: WIX });
     expect(manual.rationale).toBe(
-      "Your platform can't be edited programmatically, so approving this gives you the exact rendered change and the steps — nothing is applied for you.",
+      "Your platform can't be edited programmatically, so approving this gives you the exact rendered change and the steps. Nothing is applied for you.",
     );
     expect(manual.if_you_change_your_mind).toBe(
-      "You change it back in your editor — the before render here is the reference.",
+      "You change it back in your editor: the before render here is the reference.",
     );
   });
 
@@ -220,45 +220,45 @@ describe("siteWords English is what lib/site said before L-4c, byte for byte", (
       [
         "error.moneyPath",
         { rule: 18 },
-        "that page is a money surface — checkout, cart, payment and billing pages are untouchable at any approval level (rule 18)",
+        "that page is a money surface: checkout, cart, payment and billing pages are untouchable at any approval level (rule 18)",
       ],
-      ["error.pageStatus", { status: "404" }, "the page answered 404 — nothing to change there"],
+      ["error.pageStatus", { status: "404" }, "the page answered 404: nothing to change there"],
       [
         "error.notFound",
         { find: "Hi" },
-        "I can't find “Hi” on that page — copy it exactly as it appears",
+        "I can't find “Hi” on that page: copy it exactly as it appears",
       ],
       [
         "error.notUnique",
         { find: "Hi", count: 3 },
-        "“Hi” appears 3 times on that page — include enough surrounding text to make it unique",
+        "“Hi” appears 3 times on that page: include enough surrounding text to make it unique",
       ],
       [
         "error.moneyContext",
         { rule: 18 },
-        "that text sits inside a checkout or payment area of the page — money surfaces are untouchable, so this cannot even be proposed (rule 18)",
+        "that text sits inside a checkout or payment area of the page: money surfaces are untouchable, so this cannot even be proposed (rule 18)",
       ],
       ["error.noProposal", undefined, "no such proposal"],
       ["error.notSite", undefined, "not a site proposal"],
       [
         "error.manualApply",
         { platform: "wix" },
-        "wix can't be edited programmatically — this change is applied by you, with the instructions on the card",
+        "wix can't be edited programmatically: this change is applied by you, with the instructions on the card",
       ],
       [
         "error.noWriter",
         { platform: "shopify" },
-        "applying to shopify needs its write access connected — you will give that permission separately, on its own screen. Until then this card, with its before/after, is the reference for changing it yourself",
+        "applying to shopify needs its write access connected: you will give that permission separately, on its own screen. Until then this card, with its before/after, is the reference for changing it yourself",
       ],
       [
         "error.driftGone",
         undefined,
-        "the page changed since you approved — the text isn't there any more; re-propose against today's page",
+        "the page changed since you approved: the text isn't there any more; re-propose against today's page",
       ],
       [
         "error.driftNotUnique",
         undefined,
-        "the page changed since you approved — the text is no longer unique; re-propose against today's page",
+        "the page changed since you approved: the text is no longer unique; re-propose against today's page",
       ],
       ["error.signedIn", undefined, "changing a live site needs you signed in"],
       ["error.proposalId", undefined, "proposal_id is required"],
@@ -278,25 +278,25 @@ describe("siteWords English is what lib/site said before L-4c, byte for byte", (
       [
         "fetch.noResolve",
         { host: "x.example" },
-        `"x.example" doesn't resolve — is the address right?`,
+        `"x.example" doesn't resolve. Is the address right?`,
       ],
-      ["fetch.private", {}, "that address points inside a private network — refusing to fetch it"],
+      ["fetch.private", {}, "that address points inside a private network: refusing to fetch it"],
       ["fetch.notAddress", {}, "that doesn't look like a web address"],
       [
         "fetch.ports",
         { http: "80", https: "443" },
         "only http(s) on the standard ports 80 and 443 can be read",
       ],
-      ["fetch.redirects", {}, "too many redirects — the site never settled"],
+      ["fetch.redirects", {}, "too many redirects: the site never settled"],
       [
         "audit.noSite",
         {},
-        "There's no website in your profile to audit — add it to your fact sheet.",
+        "There's no website in your profile to audit. Add it to your fact sheet.",
       ],
       [
         "audit.cooldown",
         { time: "09:30" },
-        "The site was audited less than an hour ago — the next run opens at 09:30 UTC.",
+        "The site was audited less than an hour ago: the next run opens at 09:30 UTC.",
       ],
       ["audit.running", {}, "An audit of this site is already running."],
       ["walk.answers", { status: "404" }, "answers 404"],
@@ -308,7 +308,7 @@ describe("siteWords English is what lib/site said before L-4c, byte for byte", (
       [
         "pagespeed.stopped",
         { reason: "this week's PageSpeed calls for the site are used", made: "2", planned: "6" },
-        "this week's PageSpeed calls for the site are used — 2 of 6 measurements made.",
+        "this week's PageSpeed calls for the site are used: 2 of 6 measurements made.",
       ],
       [
         "pagespeed.weekUsed",
@@ -323,7 +323,7 @@ describe("siteWords English is what lib/site said before L-4c, byte for byte", (
       [
         "pagespeed.badKey",
         { status: "403" },
-        "Google refused the PageSpeed key (status 403) — check that the key allows the PageSpeed Insights API",
+        "Google refused the PageSpeed key (status 403): check that the key allows the PageSpeed Insights API",
       ],
     ];
     for (const [key, values, text] of said) expect(EN(key, values), key).toBe(text);
@@ -346,20 +346,20 @@ describe("siteWords English is what lib/site said before L-4c, byte for byte", (
     );
     const by = (code: string) => view.findings.find((f) => f.code === code);
     expect(by("lcp_slow")?.title.en).toBe(
-      "The main content takes 5.2 s to appear on a phone — audit-shop.example",
+      "The main content takes 5.2 s to appear on a phone: audit-shop.example",
     );
     expect(by("lcp_slow")?.detail.en).toBe(
-      "Largest Contentful Paint — how long until the biggest thing on the screen shows. Measured from one test load on Google's emulated device (lab data). 1 other page is also outside the good line.",
+      "Largest Contentful Paint: how long until the biggest thing on the screen shows. Measured from one test load on Google's emulated device (lab data). 1 other page is also outside the good line.",
     );
     expect(by("lcp_slow")?.threshold).toBe("good ≤ 2.5 s, poor > 4.0 s (Google)");
-    expect(by("page_heavy")?.title.en).toBe("The page weighs 4.5 MB — audit-shop.example");
+    expect(by("page_heavy")?.title.en).toBe("The page weighs 4.5 MB: audit-shop.example");
     expect(by("page_heavy")?.threshold).toBe("heavy > 3.0 MB, very heavy > 6.0 MB (ScaleX)");
     expect(by("tap_targets")?.title.en).toBe(
-      "3 buttons or links are too small or too close to tap — audit-shop.example",
+      "3 buttons or links are too small or too close to tap: audit-shop.example",
     );
     expect(by("tap_targets")?.threshold).toBe("any is a finding; 5 or more is medium (ScaleX)");
     expect(by("form_long")?.title.en).toBe(
-      "The contact form asks for 9 things — audit-shop.example/pages/contact",
+      "The contact form asks for 9 things: audit-shop.example/pages/contact",
     );
     expect(by("form_long")?.detail.en).toBe(
       "2 of them required. Counted from the page's HTML; the form was not sent.",
@@ -368,7 +368,7 @@ describe("siteWords English is what lib/site said before L-4c, byte for byte", (
       "6 or more fields is long, 9 or more very long (ScaleX)",
     );
     expect(by("price_hidden")?.title.en).toBe(
-      "No price on the first screen of “Blue bowl” — audit-shop.example/products/blue-bowl",
+      "No price on the first screen of “Blue bowl”: audit-shop.example/products/blue-bowl",
     );
     expect(by("price_hidden")?.threshold).toBe(
       "a price within the first screen of a product or service page (ScaleX heuristic: the first 600 characters of the page's own text)",
@@ -381,7 +381,7 @@ describe("siteWords English is what lib/site said before L-4c, byte for byte", (
     );
     expect(by("lcp_slow")?.euro).toEqual({
       computed: false,
-      why: "not computed — it needs your own site traffic and conversion (no monthly website visits, monthly orders of your own)",
+      why: "not computed: it needs your own site traffic and conversion (no monthly website visits, monthly orders of your own)",
     });
   });
 
@@ -399,10 +399,10 @@ describe("siteWords English is what lib/site said before L-4c, byte for byte", (
     const euro = speedEuro(4500, figures);
     if (!euro.computed) throw new Error("expected a € line");
     expect(euro.formula).toBe(
-      "4,000 visits × 2.0% conversion × €45.00 order value × 1–4% per second × 2.0 s over the good line",
+      "4,000 visits × 2.0% conversion × €45.00 order value × 1 to 4% per second × 2.0 s over the good line",
     );
     expect(euro.assumed).toEqual([
-      "ASSUMED: each second a phone waits past 2.5 s loses 1–4% of orders — a rule of thumb from published retail studies, not measured on your site.",
+      "ASSUMED: each second a phone waits past 2.5 s loses 1 to 4% of orders, a rule of thumb from published retail studies, not measured on your site.",
       "ASSUMED: every order counted passes through this page's load; the share that comes on a phone isn't measured, so the high end overstates.",
       "ASSUMED: at most 3 seconds are counted.",
     ]);
@@ -410,7 +410,7 @@ describe("siteWords English is what lib/site said before L-4c, byte for byte", (
     if (!de2.computed) throw new Error("expected a € line");
     // Intl's own no-break spaces, as plain ones for reading.
     expect(de2.formula.replace(/[\u00a0\u202f]/g, " ")).toBe(
-      "4.000 Besuche × 2,0 % Konversion × 45,00 € Bestellwert × 1–4 % pro Sekunde × 2,0 s über dem guten Bereich",
+      "4.000 Besuche × 2,0 % Konversion × 45,00 € Bestellwert × 1 bis 4 % pro Sekunde × 2,0 s über dem guten Bereich",
     );
     expect(de2.window).toBe("der letzte Monat Ihrer Datenquellen, Stand 26. Okt. 2026");
     expect(de2.assumed[2]).toBe("ANGENOMMEN: Gezählt werden höchstens 3 Sekunden.");
@@ -475,7 +475,7 @@ describe("the website screen in German", () => {
     expect(JSON.stringify(row)).toBe(before);
     expect(out.action.summary).toBe("Auf shop.example: „Old words“ → „New words“");
     expect(out.action.detail.platform_line).toMatch(
-      /^Wix lässt sich nicht programmgesteuert bearbeiten – /,
+      /^Wix lässt sich nicht programmgesteuert bearbeiten/,
     );
     expect(out.action.detail.manual_instructions?.[0]).toBe(
       "Öffnen Sie https://shop.example/ in Ihrem Wix-Editor.",
@@ -485,10 +485,10 @@ describe("the website screen in German", () => {
       "Die Seite wird von Wix ausgeliefert (statische Wix-Dateien)",
     );
     expect(out.scenario.assumptions[1]?.statement).toBe(
-      "Ladezeit beim Vorschlag: 412 ms – der Bezugswert für das automatische Zurücksetzen",
+      "Ladezeit beim Vorschlag: 412 ms; der Bezugswert für das automatische Zurücksetzen",
     );
     expect(out.reversibility.if_you_change_your_mind).toBe(
-      "Sie ändern es in Ihrem Editor zurück – die Vorher-Darstellung hier ist die Vorlage.",
+      "Sie ändern es in Ihrem Editor zurück: die Vorher-Darstellung hier ist die Vorlage.",
     );
     // The page's own text stays as the owner gave it.
     expect(out.action.detail.find).toBe("Old words");
@@ -518,7 +518,7 @@ describe("the website screen in German", () => {
     expect(
       siteErrorWords(siteRefusal("error.notUnique", { find: "Hi", count: 3 }), de, "de-DE"),
     ).toBe(
-      "„Hi“ kommt auf dieser Seite 3 Mal vor – nehmen Sie genug umgebenden Text dazu, damit es eindeutig wird",
+      "„Hi“ kommt auf dieser Seite 3 Mal vor: nehmen Sie genug umgebenden Text dazu, damit es eindeutig wird",
     );
     expect(siteErrorWords(new Error("from elsewhere"), de, "de-DE")).toBe("from elsewhere");
     expect(
@@ -531,12 +531,12 @@ describe("the website screen in German", () => {
     expect(sayStored("fetch failed", de, "de-DE")).toBe("fetch failed");
     expect(
       sayStored(
-        "not computed — it needs your own site traffic and conversion (no monthly website visits, monthly orders of your own)",
+        "not computed: it needs your own site traffic and conversion (no monthly website visits, monthly orders of your own)",
         de,
         "de-DE",
       ),
     ).toBe(
-      "nicht berechnet – dafür braucht es den eigenen Traffic und die Konversion Ihrer Website (es fehlen eigene Angaben: monatliche Website-Besuche und monatliche Bestellungen)",
+      "nicht berechnet: dafür braucht es den eigenen Traffic und die Konversion Ihrer Website (es fehlen eigene Angaben: monatliche Website-Besuche und monatliche Bestellungen)",
     );
     expect(parseStored("answers 404")).toEqual({ key: "walk.answers", values: { status: "404" } });
   });
@@ -546,14 +546,14 @@ describe("the website screen in German", () => {
     const out = localizeSiteAudit(view, de, "de-DE");
     const by = (code: string) => out.findings.find((f) => f.code === code);
     expect(by("lcp_slow")?.title.en).toBe(
-      "Der Hauptinhalt braucht auf dem Telefon 5,2 s, bis er erscheint – audit-shop.example",
+      "Der Hauptinhalt braucht auf dem Telefon 5,2 s, bis er erscheint: audit-shop.example",
     );
     expect(by("lcp_slow")?.threshold).toBe("gut ≤ 2,5 s, schlecht > 4,0 s (Google)");
     expect(by("lcp_slow")?.detail.en).toMatch(/1 weitere Seite liegt ebenfalls außerhalb/);
-    expect(by("page_heavy")?.title.en).toBe("Die Seite wiegt 4,5 MB – audit-shop.example");
+    expect(by("page_heavy")?.title.en).toBe("Die Seite wiegt 4,5 MB: audit-shop.example");
     expect(by("broken_link")?.title.en).toMatch(/collections\/sale antwortet mit 404$/);
     expect(by("form_long")?.title.en).toBe(
-      "Das Kontaktformular fragt 9 Angaben ab – audit-shop.example/pages/contact",
+      "Das Kontaktformular fragt 9 Angaben ab: audit-shop.example/pages/contact",
     );
     expect(out.path.steps[0]?.label).toBe("Startseite");
     expect(out.path.steps[1]?.label).toBe("Shop all"); // the site's own link text
@@ -593,6 +593,6 @@ describe("Russian counts and Chinese joins", () => {
     const lcp = out.findings.find((f) => f.code === "lcp_slow");
     expect(lcp?.detail.en).toContain("。另有 1 个页面也在良好范围之外。");
     expect(lcp?.detail.en).not.toMatch(/。 /);
-    expect(lcp?.title.en).toBe("主要内容在手机上需要 5.2 秒才出现——audit-shop.example");
+    expect(lcp?.title.en).toBe("主要内容在手机上需要 5.2 秒才出现：audit-shop.example");
   });
 });

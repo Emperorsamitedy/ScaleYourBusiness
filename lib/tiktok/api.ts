@@ -170,10 +170,10 @@ export function tiktokFailureSentence(
     case "permission":
       return "TikTok says ScaleX's access can't do that on this ad account. Reconnect TikTok and allow the listed permissions.";
     case "rate_limit":
-      return "TikTok kept asking ScaleX to slow down. Nothing was changed — I'll try again.";
+      return "TikTok kept asking ScaleX to slow down. Nothing was changed. I'll try again.";
     case "unavailable":
     case "network":
-      return "TikTok didn't answer. Nothing was changed — I'll try again.";
+      return "TikTok didn't answer. Nothing was changed. I'll try again.";
     case "not_found":
       return "TikTok has no such campaign on the connected ad account.";
     case "invalid":

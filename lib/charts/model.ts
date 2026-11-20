@@ -525,7 +525,7 @@ export function chartTable(
       ? [c.volume === null ? tr("table.notMeasured") : num(c.volume, 0, locale)]
       : []),
     c.slip_high_minor > 0 ? range(c.slip_low_minor, c.slip_high_minor) : tr("table.none"),
-    c.slip_high_minor > 0 ? range(c.kept_low_minor, c.kept_high_minor) : "—",
+    c.slip_high_minor > 0 ? range(c.kept_low_minor, c.kept_high_minor) : "-",
   ]);
   return {
     caption: words.tr(`caption.${bucket}`, {

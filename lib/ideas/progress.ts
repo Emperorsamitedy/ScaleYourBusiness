@@ -76,7 +76,7 @@ export function planVsActual(args: {
     return {
       status: "other_currency",
       planned: args.planned.currency,
-      measured: measured.currency ?? "—",
+      measured: measured.currency ?? "-",
     };
   }
   // The plan is a month; the measured window is `days` long: compare per 30 days.

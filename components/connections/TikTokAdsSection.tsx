@@ -16,6 +16,7 @@
 
 import { useEffect, useState } from "react";
 import { isTikTokReason } from "../../lib/tiktok/reasons";
+import { ConsentFold } from "./ConsentFold";
 import { bold, useCn, useSaid } from "./useCn";
 import { storedDay } from "./words";
 
@@ -159,47 +160,49 @@ export function TikTokAdsSection({
                 </button>
               )}
             </div>
-            <p className="cn-note">{t("whyOne")}</p>
-            <ul className="cn-consent">
-              {view.consent.map((line) => (
-                <li key={line}>
-                  <span className="cn-consent-why">{line}</span>
-                </li>
-              ))}
-            </ul>
-            <div className="cn-wp-detail">
-              <p className="cn-sub">{t("access.title")}</p>
-              <ul className="cn-list">
-                <li>{t("access.check")}</li>
-                <li>{t("access.sandbox")}</li>
-              </ul>
-            </div>
-            {c === null && !view.configured && (
-              <div className="cn-wp-detail">
-                <p className="cn-sub">{t("missing.title")}</p>
-                <ul className="cn-list">
-                  {view.missing.map((key) => (
-                    <li key={key}>
-                      <code>{key}</code>
-                    </li>
-                  ))}
-                </ul>
-                <p className="cn-sub">{t("steps.title")}</p>
-                <ol className="cn-list">
-                  <li>{t("steps.developer", { site: "business-api.tiktok.com" })}</li>
-                  <li>{t("steps.app", { callback })}</li>
-                  <li>{t("steps.scopes", { scopes: TIKTOK_PERMISSION_NAMES.join(", ") })}</li>
-                  <li>{t("steps.submit")}</li>
-                  <li>
-                    {t("steps.keys", {
-                      appId: "TIKTOK_ADS_APP_ID",
-                      secret: "TIKTOK_ADS_SECRET",
-                      redirect: "TIKTOK_ADS_REDIRECT_URI",
-                    })}
+            <ConsentFold open={open}>
+              <p className="cn-note">{t("whyOne")}</p>
+              <ul className="cn-consent">
+                {view.consent.map((line) => (
+                  <li key={line}>
+                    <span className="cn-consent-why">{line}</span>
                   </li>
-                </ol>
+                ))}
+              </ul>
+              <div className="cn-wp-detail">
+                <p className="cn-sub">{t("access.title")}</p>
+                <ul className="cn-list">
+                  <li>{t("access.check")}</li>
+                  <li>{t("access.sandbox")}</li>
+                </ul>
               </div>
-            )}
+              {c === null && !view.configured && (
+                <div className="cn-wp-detail">
+                  <p className="cn-sub">{t("missing.title")}</p>
+                  <ul className="cn-list">
+                    {view.missing.map((key) => (
+                      <li key={key}>
+                        <code>{key}</code>
+                      </li>
+                    ))}
+                  </ul>
+                  <p className="cn-sub">{t("steps.title")}</p>
+                  <ol className="cn-list">
+                    <li>{t("steps.developer", { site: "business-api.tiktok.com" })}</li>
+                    <li>{t("steps.app", { callback })}</li>
+                    <li>{t("steps.scopes", { scopes: TIKTOK_PERMISSION_NAMES.join(", ") })}</li>
+                    <li>{t("steps.submit")}</li>
+                    <li>
+                      {t("steps.keys", {
+                        appId: "TIKTOK_ADS_APP_ID",
+                        secret: "TIKTOK_ADS_SECRET",
+                        redirect: "TIKTOK_ADS_REDIRECT_URI",
+                      })}
+                    </li>
+                  </ol>
+                </div>
+              )}
+            </ConsentFold>
             {c !== null && (
               <div className="cn-wp-detail">
                 <dl className="cn-facts">

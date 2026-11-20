@@ -147,7 +147,7 @@ export async function proposeBundle(
   if (silenced) {
     return {
       status: "suppressed",
-      reason: `you've declined offer changes ${silenced.rejections} times — I've stopped proposing them`,
+      reason: `you've declined offer changes ${silenced.rejections} times: I've stopped proposing them`,
     };
   }
 
@@ -158,8 +158,8 @@ export async function proposeBundle(
   const shopify = await shopifyBundleTarget(profile.account_id, source, pair);
   const what =
     source.kind === "orders"
-      ? `Show ${pair.a_name} and ${pair.b_name} together — side by side on each product's page, or as a set — both at full price. No discount in it.`
-      : `Offer ${pair.a_name} and ${pair.b_name} together in one visit — at the booking, or when one of them is booked — both at full price. No discount in it.`;
+      ? `Show ${pair.a_name} and ${pair.b_name} together (side by side on each product's page, or as a set), both at full price. No discount in it.`
+      : `Offer ${pair.a_name} and ${pair.b_name} together in one visit (at the booking, or when one of them is booked), both at full price. No discount in it.`;
   const row = await createProposal({
     profile_id: profileId,
     module: BUNDLES_MODULE,
@@ -236,11 +236,11 @@ export async function proposeBundle(
         case: "upside",
         statement: pair.margin.known
           ? `Each extra pair sold earns about ${moneyText(pair.margin.contribution_minor, pair.margin.currency)} after costs.`
-          : "Each extra pair sold earns its full margin — unknown until its costs are on record.",
+          : "Each extra pair sold earns its full margin, unknown until its costs are on record.",
         profit_delta_monthly: null,
         formula: pair.margin.known ? pair.margin.formula : null,
       },
-      breakeven_condition: "nothing to break even on — it gives nothing up",
+      breakeven_condition: "nothing to break even on: it gives nothing up",
     },
     reversibility: {
       level: "easy",

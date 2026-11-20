@@ -13,7 +13,15 @@ import type { AppLocale } from "../../lib/i18n/locales";
 import type { Tr } from "../../lib/i18n/tr";
 import { englishTr } from "../../lib/i18n/tr";
 import type { ReversibilityLike, ScenarioOutcomeLike } from "./queue-model";
-import { dayWord, clockWord, effectRange, reversibilityLabel, signedMoney } from "./queue-model";
+import {
+  dayWord,
+  clockWord,
+  effectRange,
+  rangeWords,
+  reversibilityLabel,
+  signedMoney,
+  wholeMoney,
+} from "./queue-model";
 
 export interface CardProposal {
   id: string;
@@ -103,10 +111,25 @@ export function cardState(
   };
 }
 
-/** The gain as a range, never a point: "+€120 – +€480". Null when the cases carry no money. */
+/**
+ * The gain as a range, never a point: "+€120 – +€480", in whole units (the
+ * queue's own wording). Null when the cases carry no money.
+ */
 export function gainLine(p: CardProposal, locale: AppLocale = "en"): string | null {
   const range = effectRange(p.scenario.downside_case, p.scenario.upside_case);
-  return range ? `${signedMoney(range.low, locale)} – ${signedMoney(range.high, locale)}` : null;
+  return range ? rangeWords(range, locale) : null;
+}
+
+/** Past this many characters a change's two sides are sentences, not figures (the queue's own line). */
+export const WORDS_OVER = 48;
+
+/**
+ * Pure: whether a change's before and after read as sentences. Figures sit
+ * on one right-aligned line ("€38.00 → €41.40"); sentences stack, each side
+ * named, so the two can't run together.
+ */
+export function readsAsWords(line: { before: string; after: string }): boolean {
+  return line.before.length + line.after.length > WORDS_OVER;
 }
 
 /** The worst case: the downside's money when it has some, and its words. */
@@ -115,7 +138,8 @@ export function worstCase(p: CardProposal, w: CardWords = ENGLISH()): string {
   const money = d?.profit_delta_monthly;
   const words = d?.statement?.trim() ?? "";
   if (money && Number.isSafeInteger(money.amount_minor) && typeof money.currency === "string") {
-    return words ? `${signedMoney(money, w.locale)}: ${words}` : signedMoney(money, w.locale);
+    const sum = signedMoney(wholeMoney(money), w.locale);
+    return words ? `${sum}: ${words}` : sum;
   }
   return words || w.tr("card.noWorst");
 }

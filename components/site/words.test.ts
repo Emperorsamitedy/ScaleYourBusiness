@@ -62,8 +62,8 @@ describe("the site's figures in the reader's locale", () => {
       sources: [],
       assumed: [],
     };
-    expect(euroLine(euro)).toBe("€1,200–€3,400 a month");
-    expect(euroLine(euro, site, "de-DE")).toBe("1.200 €–3.400 € a month");
+    expect(euroLine(euro)).toBe("€1,200 to €3,400 a month");
+    expect(euroLine(euro, site, "de-DE")).toBe("1.200 € to 3.400 € a month");
     expect(euroLine({ ...euro, currency: "HUF" }, site, "hu-HU")).toContain("Ft");
 
     const speed = {

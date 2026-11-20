@@ -197,7 +197,7 @@ export async function syncPostInsights(
 
       try {
         if (row.encrypted_secret === null) {
-          throw new Error("no credential at rest — reconnect Meta publishing");
+          throw new Error("no credential at rest: reconnect Meta publishing");
         }
         const cred = parseMetaExecutionCredential(
           decryptSecret(row.encrypted_secret),

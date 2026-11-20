@@ -107,12 +107,12 @@ export function unitPriceText(
   return unit ? totalsText([unit], w.locale) : w.tr("po.toConfirm");
 }
 
-/** The order's totals, one per currency: "€490.00 + 12 000 HUF"; "—" with none. */
+/** The order's totals, one per currency: "€490.00 + 12 000 HUF"; "-" with none. */
 export function totalsText(
   totals: readonly { amount_minor: number; currency: string }[],
   locale: AppLocale = "en",
 ): string {
   return totals.length === 0
-    ? "—"
+    ? "-"
     : totals.map((t) => moneyExact(t.amount_minor, t.currency, locale)).join(" + ");
 }

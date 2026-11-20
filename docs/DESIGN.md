@@ -170,7 +170,7 @@ components:
 
 # Ember Grid
 
-> **Superseded (2026-10-17).** Every screen now renders the sheet system: a lab-report look, with paper sheets on a forest desk. Its tokens and rules are in `specs/ux-spec-v1.md` §2 and `app/sheet.css`, and that spec is the source of truth. What follows records Ember Grid only as history; none of it applies to current screens.
+> **Superseded (2026-10-17).** Every screen now renders the sheet system: a lab-report look, with paper sheets on a forest desk. Its tokens and rules are in `specs/ux-spec-v1.md` §2 and `app/sheet.css`, and that spec is the source of truth. The working guides are `docs/DESIGN-LANDING.md` (the front page) and `docs/DESIGN-DASHBOARD.md` (the owner screens), both 2026-11-17. What follows records Ember Grid only as history; none of it applies to current screens.
 
 ## Brand & Style
 
