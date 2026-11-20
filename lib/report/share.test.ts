@@ -42,7 +42,7 @@ import {
 } from "../../db/schema";
 import SharedReportPage from "../../app/shared/[token]/page";
 import { AUTH_COOKIE, INTAKE_COOKIE, signProfileCookie } from "../auth/access";
-import { signInWithEmail } from "../auth/service";
+import { signInWithEmail } from "../auth/sign-in";
 import { loadBank } from "../bank/loader";
 import { createField } from "../core/field";
 import { fieldId } from "../core/ids";

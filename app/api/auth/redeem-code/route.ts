@@ -6,14 +6,15 @@
 // sign-in screen posts with fetch): { landing } with the signed-in cookies
 // set, or { error } in the same English the screen reads back through
 // authWords. Wrong, expired and used codes all fail alike; guessing is
-// capped in lib/auth/service (redeemLoginCode).
+// capped in lib/auth/sign-in (redeemLoginCode).
 
 import { logSafeError } from "../../../../lib/core/log-safe";
 import { type NextRequest, NextResponse } from "next/server";
 import { landingPath, setSignInCookies } from "../../../../lib/auth/landing";
 import { RETURN_COOKIE, isIdeaReturn } from "../../../../lib/auth/return-to";
 import { appOriginOf, isSameOriginPost } from "../../../../lib/auth/same-origin";
-import { AuthError, redeemLoginCode } from "../../../../lib/auth/service";
+import { AuthError } from "../../../../lib/auth/service";
+import { redeemLoginCode } from "../../../../lib/auth/sign-in";
 import { ResumeError } from "../../../../lib/intake/resume";
 
 export async function POST(request: NextRequest): Promise<NextResponse> {

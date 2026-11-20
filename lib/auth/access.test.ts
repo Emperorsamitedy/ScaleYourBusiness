@@ -26,7 +26,8 @@ import { bootstrapIntake } from "../intake/service";
 import type { ParsedCookie } from "./access";
 import { claimableProfile, decideAccess, parseProfileCookie, signProfileCookie } from "./access";
 import type { AuthedSession } from "./service";
-import { redeemLogin, requestLogin, signInWithEmail } from "./service";
+import { requestLogin } from "./service";
+import { redeemLogin, signInWithEmail } from "./sign-in";
 import { sendLoginEmail } from "./email";
 
 const ID = "3c941b9e-a4e2-48ad-8e6a-4f22ff2b20ee";

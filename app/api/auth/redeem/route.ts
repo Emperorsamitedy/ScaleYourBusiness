@@ -15,7 +15,8 @@ import { type NextRequest, NextResponse } from "next/server";
 import { landingPath, setSignInCookies } from "../../../../lib/auth/landing";
 import { RETURN_COOKIE, isIdeaReturn } from "../../../../lib/auth/return-to";
 import { appOriginOf, isSameOriginPost } from "../../../../lib/auth/same-origin";
-import { AuthError, redeemLogin } from "../../../../lib/auth/service";
+import { AuthError } from "../../../../lib/auth/service";
+import { redeemLogin } from "../../../../lib/auth/sign-in";
 
 export function GET(request: NextRequest): NextResponse {
   const token = request.nextUrl.searchParams.get("token") ?? "";

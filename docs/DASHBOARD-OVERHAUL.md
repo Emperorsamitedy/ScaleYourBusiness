@@ -161,7 +161,8 @@ Order: L1, L2, his pick, then L3, L4 and L6 built to the pick, then L7, L5, L8, 
 - **Adding a business** lands on Home too, and "interview started" is counted when the interview is first opened, once per business, not when the business is made.
 - **Held by tests**: where a sign-in lands (`lib/auth/landing.test.ts`), a new person's own business and its shadow month, the idea exception, and a stranger never landing in someone else's business (`switch`, `access`, `service`, `oauth` against the database).
 - **Seen in a browser** with a brand-new address: the sign-in lands on Home, Home and both conversations make the offer, and the button opens the interview.
-- It changes what a sign-in does on the live site (a business is made at once), so it sits on its own branch on top of `dashboard-v2` and can be merged after it.
+- **Where it lives.** Completing a sign-in (spending the link or the code, and the first business) is its own module, `lib/auth/sign-in.ts`, which only the three routes that complete a sign-in import. `lib/auth/service.ts` reads the session for every route in the app, so it must not pull in the intake and the ladder: the first version did, and the guard on the push send path (`lib/push/no-connector.test.ts`: it reaches no connector and no execution code) failed on GitHub for it on 2026-11-20. That run was read only after the branch had been called ready: a branch is checked when its whole run is green, not its type check.
+- It changes what a sign-in does on the live site (a business is made at once), so it sits on its own branch on top of `dashboard-v2` and is merged after it.
 
 ### L7, as built (2026-11-18)
 
@@ -230,6 +231,7 @@ Connections was the longest screen in the app, more than 6,000 px once everythin
 - Held by tests in `components/connections/patch.test.ts`: which part an address opens, and each part's count. Seen in a browser at 1440 and 390 wide.
 
 - **Customers** opens on fifteen rows where fifty stood (4,716 px to 2,301); each press adds thirty. Search and the filters read every customer, never only the rows on screen.
+- **Customers, tidied (2026-11-20).** He looked at it and said "some cards are all over the place and i don't like the current look of it": five cards of five sizes shared one screen. It is three parts now, as Connections is: the list (1,678 px at 1440 wide), segments with campaigns, and bringing customers in. A business with no customers opens on the third. A row is its own control (the whole row presses, with a ring for the keyboard; the "Open" column is gone), the record stays beside the list while the list scrolls, and on a phone a row is two lines: the name with its pattern, then the figures.
 - **Similar businesses**: the live comparison card keeps what it says about the comparison and the button to stop contributing (a consent stays in view); where the figures come from and what is not measured yet sit under "How this works".
 
 - [ ] Not yet done on the list: L6 on the fact sheet and the report's own cards, captions still set in capitals inside the settings forms, Lex as a pop-up, and L9.
@@ -237,6 +239,8 @@ Connections was the longest screen in the app, more than 6,000 px once everythin
 ### The branch (2026-11-19)
 
 `dashboard-v2` is pushed and passes every check on GitHub at `348c8c3`: type check, lint, format, migrations, tests, the bank lint and the production build. `main` (`e2eae45`) is merged in. The format step had failed on `main` since 2026-11-09 and hidden the tests and the build; fixing it showed two red tests nobody had seen (five public routes missing from the route door's list; a float on a money path in the estimate's rounding, which now uses `roundMinorTo`). Nothing is on `main`: merging is the deploy and is the owner's word.
+
+**Merged and live (2026-11-20).** He said "push and merge and if you are capable of it deploy too". `dashboard-v2` at `b38f185` passed every check and went into `main` as pull request #1 (merge commit `ec2daf5`). Vercel built it for production within five minutes, which also answers an open question: a merge made by a collaborator who is not on the Vercel account does deploy on this public repo. The live site was then read: the new landing headline, Home sending a signed-out visitor to sign-in, the frame on the queue, the report, Connections and Customers, and the microphone allowed in the policy header. `straight-in` follows as its own pull request once its checks are green.
 
 ### L3 to L6, as built (2026-11-18)
 

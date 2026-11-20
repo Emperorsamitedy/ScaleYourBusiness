@@ -27,11 +27,10 @@ import {
   currentSession,
   normaliseCode,
   peekLogin,
-  redeemLogin,
-  redeemLoginCode,
   requestLogin,
   revokeSession,
 } from "./service";
+import { redeemLogin, redeemLoginCode } from "./sign-in";
 
 const cleanupEmails: string[] = [];
 const cleanupProfiles: { account_id: string; profile_id: string }[] = [];

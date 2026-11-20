@@ -12,14 +12,8 @@ import { bootstrapIntake } from "../intake/service";
 import type { Role } from "./role-actions";
 import { openDevices } from "../push/subscriptions";
 import { device } from "../push/test-fixtures";
-import {
-  currentSession,
-  openSession,
-  redeemLogin,
-  requestLogin,
-  revokeSession,
-  signInWithEmail,
-} from "./service";
+import { currentSession, openSession, requestLogin, revokeSession } from "./service";
+import { redeemLogin, signInWithEmail } from "./sign-in";
 import { landingPath } from "./landing";
 import { SwitchError, addBusiness, switchAccount } from "./switch";
 

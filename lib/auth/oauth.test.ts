@@ -22,7 +22,8 @@ import {
   oauthProvider,
   verifiedEmailFromClaims,
 } from "./oauth";
-import { currentSession, signInWithEmail } from "./service";
+import { currentSession } from "./service";
+import { signInWithEmail } from "./sign-in";
 
 afterEach(() => {
   vi.unstubAllEnvs();

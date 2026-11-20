@@ -25,7 +25,8 @@ import {
 import { landingPath } from "../../../../../../lib/auth/landing";
 import { RETURN_COOKIE, isIdeaReturn } from "../../../../../../lib/auth/return-to";
 import { appOriginOf } from "../../../../../../lib/auth/same-origin";
-import { AuthError, signInWithEmail } from "../../../../../../lib/auth/service";
+import { AuthError } from "../../../../../../lib/auth/service";
+import { signInWithEmail } from "../../../../../../lib/auth/sign-in";
 import { secretMatches } from "../../../../../../lib/core/secret-compare";
 import { CURRENCY_COOKIE, LANGUAGE_COOKIE } from "../../../../../../lib/i18n/locales";
 import { languageCookieOptions } from "../../../../../../lib/i18n/server";

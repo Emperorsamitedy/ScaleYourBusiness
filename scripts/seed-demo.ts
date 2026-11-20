@@ -382,7 +382,7 @@ async function seed(): Promise<void> {
   const data = await import("./seed-demo-data");
 
   const { bootstrapIntake, submitAnswer, submitEntities } = await import("../lib/intake/service");
-  const { signInWithEmail } = await import("../lib/auth/service");
+  const { signInWithEmail } = await import("../lib/auth/sign-in");
   const { createField } = await import("../lib/core/field");
   const { fieldId } = await import("../lib/core/ids");
   const { isoDateTime } = await import("../lib/core/iso");
