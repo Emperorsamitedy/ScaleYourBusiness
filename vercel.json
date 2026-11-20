@@ -50,6 +50,10 @@
     {
       "path": "/api/cron/count-towns",
       "schedule": "50 3 * * *"
+    },
+    {
+      "path": "/api/cron/daily-warnings",
+      "schedule": "20 5 * * 0,2-6"
     }
   ]
 }

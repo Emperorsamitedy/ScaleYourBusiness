@@ -304,6 +304,9 @@ export const GUIDE: readonly GuideScreen[] = [
     name: "Alerts and modules",
     place: "Your business (the business's name at the top)",
     what: "Which alerts reach you and where (the phone, email, the weekly summary), and which modules are switched on.",
+    how: [
+      'To get, or stop, an email the day a cash or stock warning appears: Alerts and modules, the Weekly email card, "email me a warning the day it appears".',
+    ],
   },
   {
     route: "/settings/language",

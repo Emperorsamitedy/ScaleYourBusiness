@@ -87,6 +87,8 @@ interface SummaryView {
   last_sent_at: string | null;
   /** P6-07: email (the default), WhatsApp, or both. */
   channel?: "email" | "whatsapp" | "both";
+  /** Warnings sent at once (2026-11-20): one email the day a warning appears. On unless switched off. */
+  warnings?: boolean;
   whatsapp?: {
     /** The settings this server lacks, by name. Empty = WhatsApp can go. */
     missing: string[];
@@ -631,10 +633,13 @@ function ModulesCard({
 function SummaryCard({
   summary,
   onToggle,
+  onWarnings,
   onChanged,
 }: {
   summary: SummaryView;
   onToggle: (enabled: boolean) => void;
+  /** The email a warning sends the day it appears. */
+  onWarnings: (enabled: boolean) => void;
   onChanged: () => void;
 }) {
   const t = useTranslations("watch.summary");
@@ -650,6 +655,13 @@ function SummaryCard({
           : summary.last_sent_at
             ? t("lastSent", { date: dayText(summary.last_sent_at, false, locale) })
             : t("first");
+  const warningsNote = !summary.owner
+    ? t("signUp")
+    : summary.warnings === false
+      ? t("warningsOff")
+      : !summary.configured
+        ? t("noEmail")
+        : t("warningsWhy");
   return (
     <SheetCard label={t("label")} title={t("title")}>
       <label className="wt-module">
@@ -662,6 +674,18 @@ function SummaryCard({
         <span>{t("switch")}</span>
       </label>
       <p className="wt-why">{status}</p>
+      {/* Warnings sent at once: a warning that looks ahead is worth one email the day it appears. */}
+      <label className="wt-module">
+        <input
+          type="checkbox"
+          checked={summary.owner && summary.warnings !== false}
+          disabled={!summary.owner}
+          onChange={(e) => onWarnings(e.target.checked)}
+        />
+        <span>{t("warningsSwitch")}</span>
+      </label>
+      {/* The same sentence twice reads as a slip: said once, it covers both switches. */}
+      {warningsNote !== status && <p className="wt-why">{warningsNote}</p>}
       {summary.owner && summary.whatsapp && (
         <WhatsAppSettings summary={summary} onChanged={onChanged} />
       )}
@@ -892,6 +916,15 @@ export function WatchSettingsScreen() {
     await load();
   };
 
+  const toggleWarnings = async (warnings: boolean) => {
+    await fetch("/api/summary", {
+      method: "PUT",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ warnings }),
+    });
+    await load();
+  };
+
   return (
     <main className="screen wt-screen">
       <PageHead kicker={a("kicker")} title={a("title")} />
@@ -906,6 +939,7 @@ export function WatchSettingsScreen() {
             <SummaryCard
               summary={summary}
               onToggle={(on) => void toggleSummary(on)}
+              onWarnings={(on) => void toggleWarnings(on)}
               onChanged={() => void load()}
             />
           )}

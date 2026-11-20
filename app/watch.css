@@ -315,6 +315,11 @@
   font-size: 14px;
   color: var(--sheet-ink-2);
 }
+/* A switch under another switch's note stands clear of it (the card's own
+   switches; the WhatsApp form spaces its rows itself). */
+.cs-body > .wt-why + .wt-module {
+  margin-top: 14px;
+}
 .wt-fold {
   margin-top: 10px;
 }

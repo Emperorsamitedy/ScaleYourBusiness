@@ -33,6 +33,20 @@
 // ("A 2-star review on Google"): no reviewer, no words, no link. A pasted
 // review raises no phone alert (the owner just pasted it), and one waiting
 // more than REVIEW_PUSH_FRESH_DAYS is dropped rather than sent late.
+//
+// Warnings sent at once (2026-11-20; Vistta: an alert must look ahead, "not
+// giving notification about stuff that he can walk into the stock room and
+// see"): the cash forecast's first tight week and an item that runs out
+// before its next delivery reached only the app and the Monday summary. Each
+// is a line the watch already writes once (lib/watch/job, lib/stock/warnings);
+// its row in warning_alerts waits for a phone alert, which rides the same
+// rules and shares the one alert a day: with proposals or reviews it is one
+// more sentence on their alert, alone it taps through to its own screen. Its
+// words are fixed like the others ("Your cash could get tight in the weeks
+// ahead"): no figure, no item's name. One waiting more than
+// WARNING_PUSH_FRESH_DAYS is dropped rather than sent late. Whether a
+// warning may go past the daily cap is the owner's to decide; until then it
+// does not.
 
 import type { Words } from "../i18n/recipient";
 import { englishWords } from "../i18n/recipient";
@@ -99,6 +113,30 @@ export interface QueuedReview {
 /** A review alert older than this is dropped, not sent late. */
 export const REVIEW_PUSH_FRESH_DAYS = 2;
 
+/** The warnings that raise a phone alert: the watch log's own kinds. */
+export const WARNING_KINDS = ["cash_warning", "stock_warning"] as const;
+export type WarningKind = (typeof WARNING_KINDS)[number];
+
+export function isWarningKind(v: unknown): v is WarningKind {
+  return typeof v === "string" && (WARNING_KINDS as readonly string[]).includes(v);
+}
+
+/** The screen a warning's own alert opens. */
+export const WARNING_SCREEN: Readonly<Record<WarningKind, string>> = {
+  cash_warning: "/cash",
+  stock_warning: "/stock",
+};
+
+/** A warning waiting for its phone alert (a warning_alerts row). */
+export interface QueuedWarning {
+  alert_id: string;
+  kind: string;
+  created_at: string;
+}
+
+/** A warning older than this is dropped, not sent late: it spoke of the days just ahead. */
+export const WARNING_PUSH_FRESH_DAYS = 2;
+
 export interface PushPlanInput {
   now: Date;
   /** The IANA zone quiet hours are kept in. */
@@ -110,11 +148,17 @@ export interface PushPlanInput {
   queued: readonly QueuedItem[];
   /** I-45d: review alerts not yet sent or dropped. */
   reviews?: readonly QueuedReview[];
+  /** Warnings not yet sent or dropped. */
+  warnings?: readonly QueuedWarning[];
 }
 
-/** I-45d, on every plan when reviews were given: the review ids now settled (sent or dropped). */
+/**
+ * On every plan when reviews or warnings were given: the ids now settled
+ * (sent or dropped). What a hold keeps waiting is not among them.
+ */
 interface ReviewsSettled {
   reviews_done?: string[];
+  warnings_done?: string[];
 }
 
 export type PushPlan = ReviewsSettled &
@@ -128,6 +172,8 @@ export type PushPlan = ReviewsSettled &
         waiting: QueuedItem[];
         /** I-45d: the review alerts it carries. */
         reviews?: QueuedReview[];
+        /** The warnings it carries. */
+        warnings?: QueuedWarning[];
       }
     | {
         act: "hold";
@@ -193,17 +239,47 @@ export function reviewWords(r: QueuedReview, rw: Words = REVIEW_ENGLISH()): stri
     : rw.t("one", { stars: r.stars, platform });
 }
 
+const WARNING_ENGLISH = (): Words => englishWords("warningPush");
+
+/**
+ * Warnings alone on an alert: one says what it is about, in fixed words;
+ * several are counted. The tap goes to the warning's own screen, or Home
+ * when they are of more than one kind.
+ */
+function warningPayload(warnings: readonly QueuedWarning[], ww: Words): PushPayload {
+  const kinds = [...new Set(warnings.map((x) => x.kind).filter(isWarningKind))];
+  const only = kinds.length === 1 ? kinds[0] : undefined;
+  return {
+    title: PUSH_TITLE,
+    body:
+      warnings.length === 1 && only
+        ? ww.t(`one.${only}`)
+        : ww.t("many", { count: warnings.length }),
+    url: only ? WARNING_SCREEN[only] : "/home",
+    tag: PUSH_TAG,
+  };
+}
+
 /**
  * The alert's words and where its tap goes, in the person's words (English
  * by default). I-45d: review alerts alone tap through to /reviews; with
  * proposals they ride the proposals' alert, which taps through to the yes.
+ * Warnings alone have their own words and screen; with anything else they
+ * are one more sentence on that alert, which still taps where it did.
  */
 export function pushWords(
   waiting: readonly QueuedItem[],
   w: Words = ENGLISH(),
   reviews: readonly QueuedReview[] = [],
   rw: Words = REVIEW_ENGLISH(),
+  warnings: readonly QueuedWarning[] = [],
+  ww: Words = WARNING_ENGLISH(),
 ): PushPayload {
+  if (warnings.length > 0) {
+    if (waiting.length === 0 && reviews.length === 0) return warningPayload(warnings, ww);
+    const rest = pushWords(waiting, w, reviews, rw);
+    return { ...rest, body: `${rest.body}${ww.t("also", { count: warnings.length })}` };
+  }
   if (reviews.length > 0) {
     const only = reviews[0];
     if (waiting.length === 0) {
@@ -256,14 +332,29 @@ export function pushPlan(input: PushPlanInput): PushPlan {
   const given = input.reviews ?? [];
   const freshFrom = nowMs - REVIEW_PUSH_FRESH_DAYS * 86_400_000;
   const reviews = given.filter((r) => r.source !== "paste" && Date.parse(r.alerted_at) > freshFrom);
-  const settled = (ids: readonly QueuedReview[]): ReviewsSettled =>
-    given.length === 0 ? {} : { reviews_done: ids.map((r) => r.review_id) };
-  const staleReviews = settled(given.filter((r) => !reviews.includes(r)));
+  // Warnings: the fresh ones of a kind that raises an alert, and what settles each plan.
+  const warned = input.warnings ?? [];
+  const warnFrom = nowMs - WARNING_PUSH_FRESH_DAYS * 86_400_000;
+  const warnings = warned.filter(
+    (x) => isWarningKind(x.kind) && Date.parse(x.created_at) > warnFrom,
+  );
+  const settledAll = (
+    revs: readonly QueuedReview[],
+    warns: readonly QueuedWarning[],
+  ): ReviewsSettled => ({
+    ...(given.length === 0 ? {} : { reviews_done: revs.map((r) => r.review_id) }),
+    ...(warned.length === 0 ? {} : { warnings_done: warns.map((x) => x.alert_id) }),
+  });
+  const everything = settledAll(given, warned);
+  const staleReviews = settledAll(
+    given.filter((r) => !reviews.includes(r)),
+    warned.filter((x) => !warnings.includes(x)),
+  );
 
-  if (input.halted) return { act: "drop", why: "halted", drop: all, ...settled(given) };
-  if (input.devices === 0) return { act: "drop", why: "no_devices", drop: all, ...settled(given) };
-  if (waiting.length === 0 && reviews.length === 0) {
-    return { act: "drop", why: "nothing_waiting", drop: all, ...settled(given) };
+  if (input.halted) return { act: "drop", why: "halted", drop: all, ...everything };
+  if (input.devices === 0) return { act: "drop", why: "no_devices", drop: all, ...everything };
+  if (waiting.length === 0 && reviews.length === 0 && warnings.length === 0) {
+    return { act: "drop", why: "nothing_waiting", drop: all, ...everything };
   }
 
   const keep = waiting.map((q) => q.proposal_id);
@@ -295,8 +386,10 @@ export function pushPlan(input: PushPlanInput): PushPlan {
     act: "send",
     send: keep,
     drop: stale,
-    payload: pushWords(waiting, ENGLISH(), reviews),
+    payload: pushWords(waiting, ENGLISH(), reviews, REVIEW_ENGLISH(), warnings),
     waiting,
-    ...(given.length === 0 ? {} : { reviews, ...settled(given) }),
+    ...(given.length === 0 ? {} : { reviews }),
+    ...(warned.length === 0 ? {} : { warnings }),
+    ...everything,
   };
 }

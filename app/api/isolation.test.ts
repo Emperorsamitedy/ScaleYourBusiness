@@ -42,6 +42,8 @@ export const PUBLIC: Record<string, string> = {
   "cron/competitor-read/route.ts": "Vercel cron, CRON_SECRET",
   "cron/connector-sync/route.ts": "Vercel cron, CRON_SECRET",
   "cron/count-towns/route.ts": "Vercel cron, CRON_SECRET (TASKS-IDEAS gap 7's town counts)",
+  "cron/daily-warnings/route.ts":
+    "Vercel cron, CRON_SECRET (warnings sent at once: the morning look at stock and cash)",
   "cron/execute-due/route.ts": "Vercel cron, CRON_SECRET",
   "cron/faq-cluster/route.ts": "Vercel cron, CRON_SECRET",
   "cron/fx-rates/route.ts": "Vercel cron, CRON_SECRET (the multi-market spec §A.3's ECB rates)",

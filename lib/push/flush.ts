@@ -21,6 +21,11 @@
 // (after a proposal is made) or the morning beat, and settled when sent or
 // dropped. pushPlan decides for both together.
 //
+// Warnings sent at once (2026-11-20): a warning that looks ahead waits in
+// warning_alerts (lib/warnings/alerts writes the row when the watch logs the
+// line) and is picked up here the same way: read with the rest, planned with
+// the rest, settled when sent or dropped.
+//
 // No retry anywhere: an alert that fails is logged with the account id and
 // is not sent again. The proposal is still in the queue, and still in the
 // weekly email.
@@ -36,11 +41,12 @@ import {
   pushOutbox,
   pushSubscriptions,
   reviews,
+  warningAlerts,
 } from "../../db/schema";
 import { logSafeError } from "../core/log-safe";
 import { COUNTRY_KEY, TIMEZONE_KEY, isValidZone, zoneForCountry } from "../hours/timezone";
 import { readCurrentField } from "../profile/field-store";
-import type { PushPlan, QueuedReview } from "./plan";
+import type { PushPlan, QueuedReview, QueuedWarning } from "./plan";
 import { pushPlan, pushWords } from "./plan";
 import { deliverAll, wordsByLocale } from "./deliver";
 import type { PushService } from "./send";
@@ -187,7 +193,19 @@ export async function flushPushes(
       .from(reviews)
       .where(reviewPushPending(profileId))
       .orderBy(reviews.alerted_at);
-    if (queued.length === 0 && waitingReviews.length === 0) return null;
+    // Warnings whose phone alert isn't settled yet.
+    const waitingWarnings: QueuedWarning[] = await tx
+      .select({
+        alert_id: warningAlerts.id,
+        kind: warningAlerts.kind,
+        created_at: sql<string>`${warningAlerts.created_at}`,
+      })
+      .from(warningAlerts)
+      .where(warningPushPending(profileId))
+      .orderBy(warningAlerts.created_at);
+    if (queued.length === 0 && waitingReviews.length === 0 && waitingWarnings.length === 0) {
+      return null;
+    }
     const devices = await openDevices(accountId);
     const [halt] = await tx
       .select({ account_id: executionHalts.account_id })
@@ -207,6 +225,7 @@ export async function flushPushes(
       lastSentAt,
       queued,
       reviews: waitingReviews,
+      warnings: waitingWarnings,
     });
     const settled = plan.act === "send" ? [...plan.send, ...plan.drop] : plan.drop;
     if (settled.length > 0) {
@@ -217,6 +236,12 @@ export async function flushPushes(
         .update(reviews)
         .set({ push_settled_at: now.toISOString() })
         .where(inArray(reviews.id, plan.reviews_done));
+    }
+    if (plan.warnings_done && plan.warnings_done.length > 0) {
+      await tx
+        .update(warningAlerts)
+        .set({ push_settled_at: now.toISOString() })
+        .where(inArray(warningAlerts.id, plan.warnings_done));
     }
     if (plan.act === "send") {
       // Counted when decided, not when delivered: a failed alert still uses the day's one.
@@ -235,6 +260,8 @@ export async function flushPushes(
         dropped: plan.drop.length,
         ...(plan.act === "send" && plan.reviews ? { reviews: plan.reviews.length } : {}),
         ...(plan.reviews_done ? { reviews_settled: plan.reviews_done.length } : {}),
+        ...(plan.act === "send" && plan.warnings ? { warnings: plan.warnings.length } : {}),
+        ...(plan.warnings_done ? { warnings_settled: plan.warnings_done.length } : {}),
       }),
     );
     return { plan, devices };
@@ -250,10 +277,20 @@ export async function flushPushes(
   const words = await wordsByLocale(devices, "push");
   const carried = plan.reviews ?? [];
   const reviewWords = carried.length > 0 ? await wordsByLocale(devices, "reviewPush") : null;
+  const warned = plan.warnings ?? [];
+  const warningWords = warned.length > 0 ? await wordsByLocale(devices, "warningPush") : null;
   const tally = await deliverAll(
     accountId,
     devices,
-    (d) => pushWords(plan.waiting, words.get(d.locale), carried, reviewWords?.get(d.locale)),
+    (d) =>
+      pushWords(
+        plan.waiting,
+        words.get(d.locale),
+        carried,
+        reviewWords?.get(d.locale),
+        warned,
+        warningWords?.get(d.locale),
+      ),
     service,
     "proposals",
   );
@@ -269,6 +306,14 @@ function reviewPushPending(profileId?: string) {
   );
 }
 
+/** A warning whose phone alert is not yet sent or dropped. */
+function warningPushPending(profileId?: string) {
+  return and(
+    ...(profileId ? [eq(warningAlerts.profile_id, profileId)] : []),
+    isNull(warningAlerts.push_settled_at),
+  );
+}
+
 /** Every account holding something: the daily beat. One account's failure doesn't stop the rest. */
 export async function flushHeldPushes(
   opts: { service?: PushService; now?: Date } = {},
@@ -279,7 +324,12 @@ export async function flushHeldPushes(
     .selectDistinct({ profile_id: reviews.profile_id })
     .from(reviews)
     .where(reviewPushPending());
-  const rows = [...new Set([...outbox, ...reviewed].map((r) => r.profile_id))].map(
+  // And every business with a warning still to send or drop.
+  const warned = await db
+    .selectDistinct({ profile_id: warningAlerts.profile_id })
+    .from(warningAlerts)
+    .where(warningPushPending());
+  const rows = [...new Set([...outbox, ...reviewed, ...warned].map((r) => r.profile_id))].map(
     (profile_id) => ({
       profile_id,
     }),

@@ -1278,6 +1278,9 @@
       "noEmail": "L’envoi d’e-mails n’est pas encore configuré sur ce serveur, donc aucun n’est envoyé.",
       "lastSent": "Dernier envoi le {date}.",
       "first": "Le premier part lors de la prochaine vérification du lundi.",
+      "warningsSwitch": "m’envoyer une alerte par e-mail le jour où elle apparaît",
+      "warningsWhy": "Un e-mail, la première fois que l’argent semble juste dans les semaines à venir ou qu’un article que vous vendez pourrait manquer avant la prochaine livraison.",
+      "warningsOff": "Désactivé. Une alerte n’apparaît que dans l’application et dans l’e-mail du lundi.",
       "channel": {
         "legend": "L’envoyer par",
         "email": "E-mail",

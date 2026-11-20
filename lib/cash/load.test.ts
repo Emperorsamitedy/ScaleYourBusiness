@@ -211,6 +211,62 @@ describe("P5-08 — the watch logs a tight week when it appears, moves or clears
     ]);
   });
 
+  it("the morning look writes a tight week only when none stands; Monday says what moved or cleared", async () => {
+    const s = await bootstrapIntake();
+    created.push(s);
+    const tightOn = (today: string): CashForecast =>
+      forecastCash(
+        baseInputs({
+          today,
+          revenue: daily(today, 120, () => 10_000),
+          costs: [cost("Rent", 1200, "monthly"), cost("VAT return", 9000, "quarterly")],
+        }),
+      );
+    const fine = forecastCash(baseInputs());
+    const morning = { appearing_only: true };
+    const tomorrow = addDays(TODAY, 1);
+    const cashLines = async () =>
+      (await watchLog(s.profile_id)).filter((e) => e.kind === CASH_WARNING_KIND).length;
+
+    // Nothing stands: the morning look writes the warning the day it appears.
+    expect(await logCashWarning(s.profile_id, NOW, async () => tightOn(TODAY), morning)).toBe(true);
+    expect(await cashLines()).toBe(1);
+
+    // A day on, the forecast's weeks start a day later, so the tight week "moved".
+    // The weekly beat would log that; the morning look does not, or it would be a line a day.
+    const next = new Date(`${tomorrow}T09:00:00Z`);
+    expect(await logCashWarning(s.profile_id, next, async () => tightOn(tomorrow), morning)).toBe(
+      false,
+    );
+    // Nor does it say a warning cleared: that is Monday's line.
+    expect(await logCashWarning(s.profile_id, next, async () => fine, morning)).toBe(false);
+    expect(await cashLines()).toBe(1);
+
+    // Monday's beat counts its weeks from its own day. The week that stands,
+    // counted from another day, has not moved, and is not said again.
+    expect(await logCashWarning(s.profile_id, next, async () => tightOn(tomorrow))).toBe(false);
+    expect(await cashLines()).toBe(1);
+    // A tight week that now comes two months sooner has moved: Monday says so,
+    // and says once that it cleared.
+    const sooner = forecastCash(
+      baseInputs({
+        today: tomorrow,
+        cash: { status: "known", fact: eur(500) },
+        revenue: daily(tomorrow, 120, () => 10_000),
+        costs: [cost("Rent", 1200, "monthly"), cost("VAT return", 9000, "quarterly")],
+      }),
+    );
+    expect(await logCashWarning(s.profile_id, next, async () => sooner)).toBe(true);
+    expect(await logCashWarning(s.profile_id, next, async () => fine)).toBe(true);
+    expect(await cashLines()).toBe(3);
+
+    // Cleared, nothing stands again: the next tight week is the morning look's to write.
+    expect(await logCashWarning(s.profile_id, next, async () => tightOn(tomorrow), morning)).toBe(
+      true,
+    );
+    expect(await cashLines()).toBe(4);
+  });
+
   it("a fresh business with nothing tight logs nothing", async () => {
     const s = await bootstrapIntake();
     created.push(s);

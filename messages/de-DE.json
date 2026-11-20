@@ -1278,6 +1278,9 @@
       "noEmail": "E-Mail ist auf diesem Server noch nicht eingerichtet, daher wird keine gesendet.",
       "lastSent": "Zuletzt gesendet {date}.",
       "first": "Die erste geht bei der nächsten Montagsprüfung hinaus.",
+      "warningsSwitch": "eine Warnung am selben Tag per E-Mail senden",
+      "warningsWhy": "Eine E-Mail, wenn das Geld in den nächsten Wochen erstmals knapp aussieht oder etwas, das Sie verkaufen, vor der nächsten Lieferung ausgehen könnte.",
+      "warningsOff": "Aus. Eine Warnung erscheint nur in der App und in der Montags-E-Mail.",
       "channel": {
         "legend": "Senden per",
         "email": "E-Mail",

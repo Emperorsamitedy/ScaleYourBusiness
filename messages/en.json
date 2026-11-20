@@ -1278,6 +1278,9 @@
       "noEmail": "Email isn't set up on this server yet, so none is sent.",
       "lastSent": "Last sent {date}.",
       "first": "The first one goes out on the next Monday check.",
+      "warningsSwitch": "email me a warning the day it appears",
+      "warningsWhy": "One email, the first time money looks tight in the weeks ahead or something you sell may run out before its next delivery.",
+      "warningsOff": "Off. A warning shows in the app and in Monday's email only.",
       "channel": {
         "legend": "Send it by",
         "email": "Email",

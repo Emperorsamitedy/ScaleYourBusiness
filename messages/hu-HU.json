@@ -1278,6 +1278,9 @@
       "noEmail": "Ezen a szerveren még nincs beállítva az e-mail-küldés, ezért egy sem megy ki.",
       "lastSent": "Utoljára elküldve: {date}.",
       "first": "Az első a következő hétfői ellenőrzéskor megy ki.",
+      "warningsSwitch": "figyelmeztetés e-mailben aznap, amikor megjelenik",
+      "warningsWhy": "Egy e-mail, amikor a következő hetekben először látszik szűkösnek a pénz, vagy valami, amit árul, elfogyhat a következő szállítás előtt.",
+      "warningsOff": "Kikapcsolva. A figyelmeztetés csak az alkalmazásban és a hétfői e-mailben jelenik meg.",
       "channel": {
         "legend": "Küldés módja",
         "email": "E-mail",

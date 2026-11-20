@@ -1372,6 +1372,9 @@
       "noEmail": "El correo electrónico aún no está configurado en este servidor, así que no se envía ninguno.",
       "lastSent": "Último envío: {date}.",
       "first": "El primero sale con la próxima comprobación del lunes.",
+      "warningsSwitch": "enviarme un aviso por correo el día que aparece",
+      "warningsWhy": "Un correo, la primera vez que el dinero parece justo en las próximas semanas o que algo de lo que vende podría agotarse antes de la próxima entrega.",
+      "warningsOff": "Desactivado. Un aviso solo aparece en la aplicación y en el correo del lunes.",
       "channel": {
         "legend": "Enviarlo por",
         "email": "Correo",
