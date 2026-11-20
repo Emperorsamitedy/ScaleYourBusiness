@@ -1,4 +1,8 @@
+import { createTranslator } from "next-intl";
 import { describe, expect, it } from "vitest";
+import type { Tr } from "../../lib/i18n/tr";
+import de from "../../messages/de-DE.json";
+import hu from "../../messages/hu-HU.json";
 import {
   type AdStateLike,
   type PerformanceLike,
@@ -9,6 +13,7 @@ import {
   channelStrips,
   contentHeadline,
   formatMinor,
+  learnedWords,
   mediaWord,
   performanceBars,
   performanceLine,
@@ -364,5 +369,45 @@ describe("the small visuals — a gallery tile", () => {
       null,
     );
     expect(aiMediaWord(null, "image")).toBeNull();
+  });
+});
+
+describe("posts that learn — the line that says which of the owner's posts a draft had in view", () => {
+  it("counts each side, and names only the side that has posts", () => {
+    expect(learnedWords({ platform: "instagram", helped: ["a", "b"], backfired: ["c"] })).toBe(
+      "Your own Instagram posts: 2 that did better than usual, 1 that did worse",
+    );
+    expect(learnedWords({ platform: "facebook", helped: ["a"], backfired: [] })).toBe(
+      "Your own Facebook posts: 1 that did better than usual",
+    );
+    expect(learnedWords({ platform: "instagram", helped: [], backfired: ["a", "b", "c"] })).toBe(
+      "Your own Instagram posts: 3 that did worse than usual",
+    );
+  });
+
+  it("says nothing for a draft that had none in view", () => {
+    expect(learnedWords(undefined)).toBeNull();
+    expect(learnedWords(null)).toBeNull();
+    expect(learnedWords({ platform: "instagram", helped: [], backfired: [] })).toBeNull();
+    expect(learnedWords({})).toBeNull();
+  });
+
+  it("agrees with its count in a language that needs it", () => {
+    const german = createTranslator({
+      locale: "de-DE",
+      messages: de,
+      namespace: "content",
+    }) as unknown as Tr;
+    expect(
+      learnedWords({ platform: "instagram", helped: ["a"], backfired: ["b", "c"] }, german),
+    ).toBe("Ihre eigenen Instagram-Beiträge: 1 lief besser als üblich, 2 liefen schlechter");
+    const hungarian = createTranslator({
+      locale: "hu-HU",
+      messages: hu,
+      namespace: "content",
+    }) as unknown as Tr;
+    expect(
+      learnedWords({ platform: "instagram", helped: ["a", "b"], backfired: [] }, hungarian),
+    ).toBe("Saját Instagram-bejegyzései: 2 a szokásosnál jobban teljesített");
   });
 });

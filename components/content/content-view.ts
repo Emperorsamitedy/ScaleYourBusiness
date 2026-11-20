@@ -168,6 +168,31 @@ export function platformWord(platform: string | null, tr: Tr = EN()): string {
 }
 
 /**
+ * Posts that learn (lib/content/lessons): the line under "Written from" that
+ * says which of the owner's own posts a draft had in view, by how they
+ * measured. Null for a draft that had none, which is every draft written
+ * before any post was judged.
+ */
+export function learnedWords(
+  lessons:
+    | { platform?: string; helped?: readonly string[]; backfired?: readonly string[] }
+    | null
+    | undefined,
+  tr: Tr = EN(),
+): string | null {
+  const helped = lessons?.helped?.length ?? 0;
+  const backfired = lessons?.backfired?.length ?? 0;
+  if (helped === 0 && backfired === 0) return null;
+  const platform = platformWord(lessons?.platform ?? null, tr);
+  if (helped > 0 && backfired > 0) {
+    return tr("detail.learnedBoth", { platform, helped, backfired });
+  }
+  return helped > 0
+    ? tr("detail.learnedHelped", { platform, helped })
+    : tr("detail.learnedBackfired", { platform, backfired });
+}
+
+/**
  * P3-21e: the one line under an item that says where it stands on its way
  * out — published where, waiting why, or that publishing is switched off
  * (the Session D real-write gate). Null when the row's state word is enough.

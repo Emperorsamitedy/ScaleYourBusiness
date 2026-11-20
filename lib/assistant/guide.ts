@@ -170,6 +170,9 @@ export const GUIDE: readonly GuideScreen[] = [
     name: "Content",
     place: "Grow",
     what: "The posts and campaigns drafted for you: what is a draft, what needs your yes, what is scheduled and what was posted.",
+    how: [
+      'To see what a draft was written from: open it; "Written from" lists the facts it rests on and, once your posts have been measured, which of your own posts did better or worse than usual.',
+    ],
   },
   {
     route: "/studio",

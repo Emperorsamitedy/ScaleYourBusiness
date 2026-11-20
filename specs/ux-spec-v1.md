@@ -223,6 +223,8 @@ From 1800px the whole frame grows a step, and again from 2400px (the landing pag
 
 Nothing on the screen publishes, generates, films or spends.
 
+**Posts that learn on /content** (2026-11-20; TASKS-FEEDBACK.md L-1 to L-3). A post drafted for Facebook or Instagram has the business's own earlier posts there in view: up to three that measured better than usual on their first week and up to three that measured worse, in the words that went out. The open draft says so in one more line under "Written from" ("Your own Instagram posts: 2 that did better than usual, 1 that did worse"); a draft that had none says nothing. The line counts posts and never quotes a figure: the figures stay on each post's own measured line.
+
 **Footage and the AI fallback on /content** (P3-52, P3-53, 2026-10-26). They sit under the open item in the detail sheet, only for an item that can take media: a shot list, or a post that needs a picture. Top to bottom:
 - **Footage:** the clips uploaded so far (mono name, size, Remove), and a file control stating its limits (MP4 or MOV, the per-clip MB, 8 clips).
 - **The cut:** once a clip is in, a caption (shot lists only), an optional on-screen line, the date and **Cut it**. The last cut's state is a boxed word (queued, cutting, rendered, failed) with its sentence, including "FFmpeg isn't here", and "Open the video" once rendered. The fine print says what the cutting room does and the label it applies.
