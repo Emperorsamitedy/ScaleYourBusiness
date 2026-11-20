@@ -109,17 +109,39 @@
   margin-top: 2px;
   font-weight: 400;
 }
-.cu-screen .cu-open {
-  text-align: right;
-  width: 1%;
+/* A row is its own control (2026-11-20): the name is a button and its reach
+   covers the whole row, where a column of fifteen "Open" buttons stood. The
+   open customer's row is tinted; the keyboard's place is ringed on the row. */
+.cu-screen .cu-table tbody tr {
+  position: relative;
+  cursor: pointer;
+  transition: background-color var(--d-press) linear;
 }
-.cu-screen .cu-open-btn {
-  min-height: 44px;
-  padding: 0 10px;
+.cu-screen .cu-table tbody tr:hover {
+  background: var(--inset);
 }
-.cu-screen .cu-open-btn[aria-pressed="true"] {
-  background: var(--sheet-ink);
-  color: var(--paper);
+.cu-screen .cu-pick {
+  display: block;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+}
+.cu-screen .cu-pick::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+.cu-screen .cu-pick:focus-visible {
+  outline: none;
+}
+.cu-screen .cu-table tbody tr:has(.cu-pick:focus-visible) {
+  outline: 2px solid var(--sheet-ink);
+  outline-offset: -2px;
 }
 .cu-screen .cu-empty {
   margin: 15px 10px 15px;
@@ -139,6 +161,13 @@
 
 .cu-screen .cu-record {
   scroll-margin-top: 16px;
+}
+@media (min-width: 1100px) {
+  /* Beside the list it stays in view while the list scrolls under it. */
+  .cu-screen .cu-record {
+    position: sticky;
+    top: 16px;
+  }
 }
 .cu-screen .cu-rec-head {
   padding: 18px 20px 14px;
@@ -236,8 +265,19 @@
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 20px;
-  margin-top: 20px;
   align-items: start;
+}
+/* The segments alone, with no campaign beside them: one card, not half a row. */
+.cu-screen .cu-lower > :only-child {
+  grid-column: 1 / -1;
+  max-width: 880px;
+}
+.cu-screen .cu-import {
+  max-width: 720px;
+}
+/* A part sits a step under the row of tabs. */
+.cu-screen [role="tabpanel"] {
+  margin-top: 16px;
 }
 .cu-screen .cu-posture,
 .cu-screen .cu-evidence {
@@ -292,7 +332,7 @@
   border-radius: var(--r-s, 0);
 }
 .cu-screen .cu-campaigns {
-  margin-top: 20px;
+  margin-top: 0;
 }
 .cu-screen .cu-campaign + .cu-campaign {
   margin-top: 15px;
@@ -358,7 +398,7 @@
   .cu-screen .cu-table-wrap {
     padding: 0 4px;
   }
-  /* the ruled list becomes stacked records: name, figures, pattern, open */
+  /* the ruled list becomes stacked records: name, figures, pattern; a press anywhere opens it */
   .cu-screen .cu-table thead {
     position: absolute;
     width: 1px;
@@ -370,11 +410,14 @@
   .cu-screen .cu-table tbody {
     display: block;
   }
+  /* One customer: the name with the pattern beside it, the address under the
+     name, then the three figures together on a line (two when they are long). */
   .cu-screen .cu-table tr {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr) auto;
-    gap: 4px 10px;
-    padding: 10px;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 4px 14px;
+    padding: 12px 10px;
     border-bottom: 1px solid var(--rule-soft);
   }
   .cu-screen .cu-table tbody th,
@@ -386,16 +429,26 @@
     width: auto;
   }
   .cu-screen .cu-table tbody th {
-    grid-column: 1;
+    order: 1;
+    flex: 1 1 0;
+    min-width: 55%;
   }
-  .cu-screen .cu-table tbody td.cu-open {
-    grid-column: 2;
-    grid-row: 1 / span 2;
-    align-self: center;
+  /* the pattern: at the end of the name's line */
+  .cu-screen .cu-table tbody td[data-label]:not(.num) {
+    order: 2;
+    flex: 0 0 auto;
   }
-  .cu-screen .cu-table tbody td[data-label] {
-    grid-column: 1;
-    font-size: 14px;
+  /* the figures: a line of their own, starting under the name */
+  .cu-screen .cu-table tbody td.num[data-label] {
+    order: 3;
+    flex: 0 0 auto;
+    font-size: 13.5px;
+  }
+  .cu-screen .cu-table tbody tr::after {
+    content: "";
+    order: 2;
+    flex-basis: 100%;
+    height: 0;
   }
   .cu-screen .cu-table tbody td.num[data-label]::before {
     content: attr(data-label) " · ";
