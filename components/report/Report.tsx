@@ -627,7 +627,7 @@ export function svmPair(stated: unknown, measured: unknown): { a: number; b: num
 }
 
 function StatedVsMeasured({ rows, map }: { rows: StatedVsMeasuredRow[]; map: FactMap }) {
-  const { t, tr, st, locale } = useWords();
+  const { t, tr, locale } = useWords();
   const monies = rows.flatMap((r) =>
     [r.stated.value, r.measured.value].filter((v): v is MoneyLike => isMoneyLike(v)),
   );
@@ -660,35 +660,13 @@ function StatedVsMeasured({ rows, map }: { rows: StatedVsMeasuredRow[]; map: Fac
         </thead>
         <tbody>
           {rows.map((s) => {
-            const period = /over (\S+)\.\.(\S+)/.exec(s.measured.method);
-            const statedBasis = basisOf(s.stated);
             const d = s.delta;
             const pair = svmPair(s.stated.value, s.measured.value);
             return (
               <tr key={s.field_key}>
+                {/* Where the two figures come from is under the card's fold (SvmSources). */}
                 <th scope="row">
                   {inputWords(s.field_key, map, tr).replace(/^./, (c) => c.toUpperCase())}
-                  <span className="src rq-src">
-                    {t("svm.observed", {
-                      provider: s.provider,
-                      when: period
-                        ? rangeOf(
-                            fmtDate(period[1] ?? "", locale),
-                            fmtDate(period[2] ?? "", locale),
-                            locale,
-                          )
-                        : t("svm.read", { date: fmtDate(s.measured.observed_at, locale) }),
-                    })}
-                  </span>
-                  <span className="src rq-src">
-                    {t("svm.yours", {
-                      basis: statedBasis
-                        ? basisName(statedBasis, st)
-                        : gapWord(s.stated.status, st),
-                      source: sourceLabel(s.stated.source_kind, st),
-                      date: fmtDate(s.stated.observed_at, locale),
-                    })}
-                  </span>
                 </th>
                 <td className="num" data-label={t("svm.said")}>
                   {s.stated.value === null ? t("svm.notKnown") : show(s.stated.value)}
@@ -733,6 +711,52 @@ function StatedVsMeasured({ rows, map }: { rows: StatedVsMeasuredRow[]; map: Fac
 }
 
 /**
+ * Where each row's two figures come from: the account that measured it and
+ * over which days, and the owner's own answer with its basis and its date.
+ * It stood as two lines under every measure in the table (sixteen lines of
+ * small print for eight measures, nearly all alike); it is one list under
+ * the card's fold now, and is printed in full on paper (rule 2: no figure
+ * without its provenance in reach).
+ */
+function SvmSources({ rows, map }: { rows: StatedVsMeasuredRow[]; map: FactMap }) {
+  const { t, tr, st, locale } = useWords();
+  return (
+    <ul className="rq-evidence rq-svm-src">
+      {rows.map((s) => {
+        const period = /over (\S+)\.\.(\S+)/.exec(s.measured.method);
+        const statedBasis = basisOf(s.stated);
+        return (
+          <li key={s.field_key}>
+            <span className="rq-ev-key">
+              {inputWords(s.field_key, map, tr).replace(/^./, (c) => c.toUpperCase())}
+            </span>
+            <span className="src rq-src">
+              {t("svm.observed", {
+                provider: s.provider,
+                when: period
+                  ? rangeOf(
+                      fmtDate(period[1] ?? "", locale),
+                      fmtDate(period[2] ?? "", locale),
+                      locale,
+                    )
+                  : t("svm.read", { date: fmtDate(s.measured.observed_at, locale) }),
+              })}
+            </span>
+            <span className="src rq-src">
+              {t("svm.yours", {
+                basis: statedBasis ? basisName(statedBasis, st) : gapWord(s.stated.status, st),
+                source: sourceLabel(s.stated.source_kind, st),
+                date: fmtDate(s.stated.observed_at, locale),
+              })}
+            </span>
+          </li>
+        );
+      })}
+    </ul>
+  );
+}
+
+/**
  * Rule 11, with materiality (lib/connectors/materiality.ts): a delta that
  * matters is shown in full; the rest collapse into one quiet line with
  * their detail one click away. Nothing is dropped, and the analysis uses
@@ -748,7 +772,12 @@ function StatedVsMeasuredCard({ rows, map }: { rows: StatedVsMeasuredRow[]; map:
       className="rq-card"
       label={t("svm.label")}
       title={split.material.length === 0 ? t("svm.titleHeld") : t("svm.title")}
-      foot={<WhyFold>{t("svm.foot")}</WhyFold>}
+      foot={
+        <WhyFold className="rq-proof">
+          <p>{t("svm.foot")}</p>
+          <SvmSources rows={rows} map={map} />
+        </WhyFold>
+      }
     >
       {split.material.length > 0 && <StatedVsMeasured rows={split.material} map={map} />}
       {line !== null && (

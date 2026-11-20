@@ -931,7 +931,8 @@ a.rq-sub-i:hover {
   }
   /* The proof is opened for the print (components/report/Report.tsx); the
      line that opens it on a screen has nothing to do on paper. */
-  .fold.rq-proof > summary {
+  .fold.rq-proof > summary,
+  .why-fold.rq-proof > summary {
     display: none;
   }
   .fold.rq-proof {
@@ -1034,6 +1035,21 @@ a.rq-sub-i:hover {
 .rq-svm-viz {
   width: 22%;
   min-width: 110px;
+}
+/* The track is a span in a table cell here. As inline text it had no width,
+   so both marks sat on its left edge and every row drew the same black
+   square whatever its two figures were. */
+.rq-svm-viz .vz-dumb-track {
+  display: block;
+}
+/* Where each row's figures come from, under the card's fold: the measure in
+   the sheet's own ink, its two source lines under it. */
+.rq-svm-src {
+  margin-top: 6px;
+}
+.rq-svm-src .rq-ev-key {
+  font-family: var(--f-ui, inherit);
+  font-size: 13.5px;
 }
 .rq-svm thead .vz-key {
   vertical-align: baseline;

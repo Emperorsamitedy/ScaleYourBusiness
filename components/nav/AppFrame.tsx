@@ -32,6 +32,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { ReactNode } from "react";
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import {
   ChevronDown,
@@ -51,6 +52,7 @@ import { AccessProvider } from "../auth/RoleContext";
 import type { NavAccess } from "../../app/api/nav/route";
 import type { SizeBand, SizeFeatureKey } from "../../lib/core/size-features";
 import { showsFor } from "../../lib/core/size-features";
+import { signInPath } from "../../lib/auth/return-to";
 import { roleAllows } from "../../lib/auth/role-actions";
 import { EmergencyStop } from "../execution/EmergencyStop";
 import { useStopped } from "../execution/useStopped";
@@ -59,16 +61,31 @@ import { Logo } from "../brand/Mark";
 import { Kbd } from "../ui/Kbd";
 import { Menu } from "../ui/Menu";
 import { Sheet } from "../ui/Sheet";
-import { ToastProvider } from "../ui/Toast";
+import { ToastProvider, useToast } from "../ui/Toast";
 import { CommandPalette, rememberScreen } from "./CommandPalette";
 import type { PaletteScreen } from "./CommandPalette";
 import { LexHost, inlineComposer } from "./LexPanel";
 import { Notifications } from "./Notifications";
 import { RouteProgress } from "./RouteProgress";
 import { Shortcuts } from "./Shortcuts";
-import { NavRefreshProvider, useLex, useLexBusy } from "./NavContext";
+import {
+  NavRefreshProvider,
+  ReviewOpenerProvider,
+  useLex,
+  useLexBusy,
+  useLexWaiting,
+  useNavRefresh,
+} from "./NavContext";
+import type { ReviewOpener } from "./NavContext";
 import { PlaceIcon, ScreenIcon } from "./nav-icons";
 import "../../app/shell.css";
+
+// Fetched when a decision is first opened in place from Lex or the
+// conversation page: the sheet, the proposal's body and the queue's styles
+// are not every screen's to carry.
+const ReviewSheet = dynamic(() => import("../proposals/ReviewSheet").then((m) => m.ReviewSheet), {
+  ssr: false,
+});
 
 export interface Item {
   href: string;
@@ -438,7 +455,18 @@ function useCounts(path: string, live: boolean): { counts: NavCounts | null; ref
     if (shared) return;
     let alive = true;
     void fetch("/api/nav", { cache: "no-store" })
-      .then(async (res) => (res.ok ? ((await res.json()) as NavCounts) : null))
+      .then(async (res) => {
+        // No session and no interview under way: there is nothing of anyone's
+        // to show on an owner screen. The visitor signs in and comes back
+        // here (Home has always done this on the server; every other screen
+        // drew the frame around nothing). A failed read is not a 401 and
+        // sends nobody anywhere.
+        if (res.status === 401 && live && alive) {
+          window.location.replace(signInPath(path));
+          return null;
+        }
+        return res.ok ? ((await res.json()) as NavCounts) : null;
+      })
       .then((c) => {
         if (alive && c) setCounts(c);
       })
@@ -446,7 +474,7 @@ function useCounts(path: string, live: boolean): { counts: NavCounts | null; ref
     return () => {
       alive = false;
     };
-  }, [path, tick, shared]);
+  }, [path, tick, shared, live]);
 
   useEffect(() => {
     if (!live || shared) return;
@@ -634,15 +662,20 @@ function AskLex({ path, stopped }: { path: string; stopped: boolean | null }) {
   const t = useTranslations("nav");
   const lex = useLex();
   const busy = useLexBusy();
+  const waiting = useLexWaiting();
   const here = matches(path, "/chat");
   return (
     <button
       type="button"
       className="sx-ask"
       aria-current={here ? "page" : undefined}
+      title={waiting ? t("answered") : undefined}
       onClick={() => lex.open()}
     >
-      <LexFace size={24} state={lexState({ stopped: stopped === true, working: busy })} />
+      <span className="sx-ask-face">
+        <LexFace size={24} state={lexState({ stopped: stopped === true, working: busy })} />
+        {waiting && <span className="sx-answer" aria-hidden="true" />}
+      </span>
       <span className="sx-ask-word">{t("ask")}</span>
     </button>
   );
@@ -657,11 +690,69 @@ function LexFab({ path, stopped }: { path: string; stopped: boolean | null }) {
   const t = useTranslations("nav");
   const lex = useLex();
   const busy = useLexBusy();
+  const waiting = useLexWaiting();
   if (inlineComposer(path) !== null) return null;
   return (
-    <button type="button" className="sx-fab" aria-label={t("ask")} onClick={() => lex.open()}>
+    <button
+      type="button"
+      className="sx-fab"
+      aria-label={waiting ? t("answered") : t("ask")}
+      title={waiting ? t("answered") : undefined}
+      onClick={() => lex.open()}
+    >
       <LexFace size={46} state={lexState({ stopped: stopped === true, working: busy })} />
+      {/* An answer that came while Lex was closed (components/nav/LexPanel arrivedUnseen). */}
+      {waiting && <span className="sx-answer" aria-hidden="true" />}
     </button>
+  );
+}
+
+/**
+ * A decision opened in place from anywhere in the frame: Lex's pop-up and the
+ * conversation page, where "Open" used to leave for the decision's own page
+ * (the review's round 1). One sheet for the whole frame, read from the server
+ * only when it is first wanted. Home keeps its own, which lives in its
+ * address. The answer is recorded by the sheet through the queue's own
+ * endpoint (rule 12); this only closes it, says so and reads the counts again.
+ */
+function FrameReview({
+  path,
+  stopped,
+  children,
+}: {
+  path: string;
+  stopped: boolean | null;
+  children: ReactNode;
+}) {
+  const t = useTranslations("home");
+  const refresh = useNavRefresh();
+  const toast = useToast();
+  const [open, setOpen] = useState<{ id: string; after: (() => void) | null } | null>(null);
+  const opener = useCallback<ReviewOpener>(
+    (id, after) => setOpen({ id, after: after ?? null }),
+    [],
+  );
+  // A decision opened over one page is not carried to the next.
+  useEffect(() => setOpen(null), [path]);
+  return (
+    <ReviewOpenerProvider value={opener}>
+      {children}
+      {open && (
+        <ReviewSheet
+          id={open.id}
+          halted={stopped === true}
+          returnTo={path}
+          onClose={() => setOpen(null)}
+          onAnswered={(_id, answer) => {
+            const after = open.after;
+            setOpen(null);
+            toast(answer === "approve" ? t("toast.approved") : t("toast.declined"));
+            refresh();
+            after?.();
+          }}
+        />
+      )}
+    </ReviewOpenerProvider>
   );
 }
 
@@ -844,154 +935,156 @@ export function AppFrame({ children }: { children: ReactNode }) {
     <ToastProvider>
       <NavRefreshProvider value={refresh}>
         <AccessProvider value={access}>
-          <LexHost
-            path={path}
-            business={counts?.business ?? null}
-            facts={counts ? counts.facts : null}
-          >
-            <div className={frame}>
-              <header className="sx-top">
-                <Link href="/home" className="sx-logo" aria-label="ScaleX">
-                  <Logo onDark />
-                </Link>
-                <span className="sx-sep" aria-hidden="true" />
-                <Menu
-                  label={t("group.business")}
-                  trigger={(props) => (
-                    <button
-                      type="button"
-                      {...props}
-                      className="sx-biz"
-                      aria-current={place === "business" ? "page" : undefined}
-                    >
-                      <span className="sx-biz-name">{name}</span>
-                      <ChevronDown size={15} strokeWidth={1.75} aria-hidden="true" />
-                    </button>
+          <FrameReview path={path} stopped={stopped}>
+            <LexHost
+              path={path}
+              business={counts?.business ?? null}
+              facts={counts ? counts.facts : null}
+            >
+              <div className={frame}>
+                <header className="sx-top">
+                  <Link href="/home" className="sx-logo" aria-label="ScaleX">
+                    <Logo onDark />
+                  </Link>
+                  <span className="sx-sep" aria-hidden="true" />
+                  <Menu
+                    label={t("group.business")}
+                    trigger={(props) => (
+                      <button
+                        type="button"
+                        {...props}
+                        className="sx-biz"
+                        aria-current={place === "business" ? "page" : undefined}
+                      >
+                        <span className="sx-biz-name">{name}</span>
+                        <ChevronDown size={15} strokeWidth={1.75} aria-hidden="true" />
+                      </button>
+                    )}
+                  >
+                    <p className="ui-menu-label">{t("group.business")}</p>
+                    <BusinessLinks
+                      as="menu"
+                      group={business}
+                      path={path}
+                      counts={counts}
+                      words={words}
+                      access={access}
+                    />
+                  </Menu>
+                  <nav className="sx-places" aria-label={t("label")}>
+                    {PLACES.filter((p) => p.top).map((p) => (
+                      <Link
+                        key={p.key}
+                        href={placeHome(p.key, groups)}
+                        className="sx-place"
+                        title={placeName(t, p.key)}
+                        aria-current={place === p.key ? "page" : undefined}
+                      >
+                        <PlaceIcon place={p.key} />
+                        <span>{placeName(t, p.key)}</span>
+                        {p.key === "decisions" && pending && (
+                          <span className="sx-count">{pending}</span>
+                        )}
+                      </Link>
+                    ))}
+                  </nav>
+                  <span className="sx-gap" />
+                  <button
+                    type="button"
+                    className="sx-search"
+                    aria-haspopup="dialog"
+                    aria-expanded={palette}
+                    aria-label={t("search")}
+                    title={t("search")}
+                    onClick={() => setPalette(true)}
+                  >
+                    <Search size={16} strokeWidth={1.75} aria-hidden="true" />
+                    <span className="sx-search-word">{t("search")}</span>
+                    <span className="sx-search-keys" aria-hidden="true">
+                      <ModKey />
+                      <Kbd>K</Kbd>
+                    </span>
+                  </button>
+                  <Notifications counts={counts} />
+                  <AskLex path={path} stopped={stopped} />
+                  {stripStop(path) && <EmergencyStop variant="masthead" />}
+                </header>
+                <RouteProgress path={path} />
+                <div className="sx-body">
+                  {hasRail && place && (
+                    <Rail
+                      place={place}
+                      groups={railGroups}
+                      path={path}
+                      counts={counts}
+                      words={words}
+                      folded={folded}
+                      locked={locked}
+                      onFold={toggleFold}
+                    />
                   )}
-                >
-                  <p className="ui-menu-label">{t("group.business")}</p>
+                  <div className="app-main">
+                    <DeepLinkMark />
+                    {children}
+                  </div>
+                </div>
+                <nav className="sx-bar" aria-label={t("dock")}>
+                  {PLACES.filter((p) => p.top).map((p) => (
+                    <Link
+                      key={p.key}
+                      href={placeHome(p.key, groups)}
+                      className="sx-bar-item"
+                      aria-current={place === p.key ? "page" : undefined}
+                    >
+                      <PlaceIcon place={p.key} size={21} />
+                      <span>{placeName(t, p.key)}</span>
+                      {p.key === "decisions" && pending && (
+                        <span className="sx-bar-count">{pending}</span>
+                      )}
+                    </Link>
+                  ))}
+                  <button
+                    type="button"
+                    className="sx-bar-item"
+                    aria-haspopup="dialog"
+                    aria-expanded={more}
+                    aria-current={place === "business" ? "page" : undefined}
+                    onClick={() => setMore(true)}
+                  >
+                    <MenuIcon size={21} strokeWidth={1.75} aria-hidden="true" />
+                    <span>{t("more")}</span>
+                  </button>
+                </nav>
+                <LexFab path={path} stopped={stopped} />
+              </div>
+              <Sheet
+                open={more}
+                onClose={() => setMore(false)}
+                title={name}
+                kicker={t("group.business")}
+              >
+                <div className="sx-sheet-list">
                   <BusinessLinks
-                    as="menu"
+                    as="sheet"
                     group={business}
                     path={path}
                     counts={counts}
                     words={words}
                     access={access}
                   />
-                </Menu>
-                <nav className="sx-places" aria-label={t("label")}>
-                  {PLACES.filter((p) => p.top).map((p) => (
-                    <Link
-                      key={p.key}
-                      href={placeHome(p.key, groups)}
-                      className="sx-place"
-                      title={placeName(t, p.key)}
-                      aria-current={place === p.key ? "page" : undefined}
-                    >
-                      <PlaceIcon place={p.key} />
-                      <span>{placeName(t, p.key)}</span>
-                      {p.key === "decisions" && pending && (
-                        <span className="sx-count">{pending}</span>
-                      )}
-                    </Link>
-                  ))}
-                </nav>
-                <span className="sx-gap" />
-                <button
-                  type="button"
-                  className="sx-search"
-                  aria-haspopup="dialog"
-                  aria-expanded={palette}
-                  aria-label={t("search")}
-                  title={t("search")}
-                  onClick={() => setPalette(true)}
-                >
-                  <Search size={16} strokeWidth={1.75} aria-hidden="true" />
-                  <span className="sx-search-word">{t("search")}</span>
-                  <span className="sx-search-keys" aria-hidden="true">
-                    <ModKey />
-                    <Kbd>K</Kbd>
-                  </span>
-                </button>
-                <Notifications counts={counts} />
-                <AskLex path={path} stopped={stopped} />
-                {stripStop(path) && <EmergencyStop variant="masthead" />}
-              </header>
-              <RouteProgress path={path} />
-              <div className="sx-body">
-                {hasRail && place && (
-                  <Rail
-                    place={place}
-                    groups={railGroups}
-                    path={path}
-                    counts={counts}
-                    words={words}
-                    folded={folded}
-                    locked={locked}
-                    onFold={toggleFold}
-                  />
-                )}
-                <div className="app-main">
-                  <DeepLinkMark />
-                  {children}
                 </div>
-              </div>
-              <nav className="sx-bar" aria-label={t("dock")}>
-                {PLACES.filter((p) => p.top).map((p) => (
-                  <Link
-                    key={p.key}
-                    href={placeHome(p.key, groups)}
-                    className="sx-bar-item"
-                    aria-current={place === p.key ? "page" : undefined}
-                  >
-                    <PlaceIcon place={p.key} size={21} />
-                    <span>{placeName(t, p.key)}</span>
-                    {p.key === "decisions" && pending && (
-                      <span className="sx-bar-count">{pending}</span>
-                    )}
-                  </Link>
-                ))}
-                <button
-                  type="button"
-                  className="sx-bar-item"
-                  aria-haspopup="dialog"
-                  aria-expanded={more}
-                  aria-current={place === "business" ? "page" : undefined}
-                  onClick={() => setMore(true)}
-                >
-                  <MenuIcon size={21} strokeWidth={1.75} aria-hidden="true" />
-                  <span>{t("more")}</span>
-                </button>
-              </nav>
-              <LexFab path={path} stopped={stopped} />
-            </div>
-            <Sheet
-              open={more}
-              onClose={() => setMore(false)}
-              title={name}
-              kicker={t("group.business")}
-            >
-              <div className="sx-sheet-list">
-                <BusinessLinks
-                  as="sheet"
-                  group={business}
-                  path={path}
-                  counts={counts}
-                  words={words}
-                  access={access}
-                />
-              </div>
-            </Sheet>
-            <CommandPalette
-              open={palette}
-              onClose={() => setPalette(false)}
-              path={path}
-              screens={screens}
-              access={access}
-              onHelp={() => setHelp(true)}
-            />
-            <Shortcuts onPalette={() => setPalette((o) => !o)} help={help} onHelp={setHelp} />
-          </LexHost>
+              </Sheet>
+              <CommandPalette
+                open={palette}
+                onClose={() => setPalette(false)}
+                path={path}
+                screens={screens}
+                access={access}
+                onHelp={() => setHelp(true)}
+              />
+              <Shortcuts onPalette={() => setPalette((o) => !o)} help={help} onHelp={setHelp} />
+            </LexHost>
+          </FrameReview>
         </AccessProvider>
       </NavRefreshProvider>
     </ToastProvider>

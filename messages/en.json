@@ -30,6 +30,7 @@
     "switchBusiness": "Switch business",
     "watching": "Watching · day {day} / {of}",
     "ask": "Ask Lex",
+    "answered": "Lex has answered",
     "signOut": "Sign out",
     "signingOut": "Signing out…",
     "group": {
@@ -677,7 +678,7 @@
     },
     "svm": {
       "caption": "What you said against what a connected account measured",
-      "measure": "Measure · window",
+      "measure": "Measure",
       "said": "You said",
       "measured": "Measured",
       "difference": "Difference",
@@ -10446,6 +10447,7 @@
       "empty": "Nothing yet.",
       "more": "Show more",
       "new": "{count, plural, one {# new entry} other {# new entries}}",
+      "stack": "and {count} more",
       "said": "You said: “{words}”"
     },
     "tabs": {

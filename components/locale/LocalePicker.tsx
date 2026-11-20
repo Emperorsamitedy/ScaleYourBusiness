@@ -164,7 +164,7 @@ export function FirstStep({ data }: { data: PickerData }) {
   };
 
   return (
-    <form className="au-form" onSubmit={(e) => void submit(e)}>
+    <form className="ax-form lp-first" onSubmit={(e) => void submit(e)}>
       <LanguageChoice
         languages={data.languages}
         value={language}
@@ -173,7 +173,7 @@ export function FirstStep({ data }: { data: PickerData }) {
         legend={t("locale.yourLanguage")}
       />
       {data.canSetBusiness && (
-        <div className="au-field lp-currency">
+        <div className="ax-field lp-currency">
           <label className="au-label" htmlFor={currencyId}>
             {t("locale.currency")}
           </label>
@@ -187,23 +187,20 @@ export function FirstStep({ data }: { data: PickerData }) {
         </div>
       )}
       <button
-        className="au-primary"
+        className="ax-btn ax-primary"
         type="submit"
         disabled={busy || (data.canSetBusiness && !currency)}
       >
-        <span>{busy ? t("common.saving") : t("common.continue")}</span>
-        <span className="au-arrow" aria-hidden="true">
-          &rarr;
-        </span>
+        {busy ? t("common.saving") : t("common.continue")}
       </button>
       {error && (
-        <p className="au-error" role="alert">
+        <p className="ax-error" role="alert">
           {error}
         </p>
       )}
       {/* Decluttered 2026-11-09: the currency rule and the "being checked" note, folded. */}
       {(data.canSetBusiness || data.languages.some((l) => l.checking)) && (
-        <details className="au-how">
+        <details className="ax-how">
           <summary>{t("auth.how")}</summary>
           {data.canSetBusiness && <p>{t("locale.currencyHelp")}</p>}
           {data.languages.some((l) => l.checking) && <p>{t("locale.checkingNote")}</p>}

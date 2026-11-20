@@ -51,6 +51,10 @@ export function agoText(ms: number, now: number, locale: AppLocale): string {
   );
 }
 
+/** The time of day alone, for a line whose day is already said: "13:37". */
+export const clockTime = (ms: number, locale: AppLocale): string =>
+  new Date(ms).toLocaleTimeString(tagOf(locale), { hour: "2-digit", minute: "2-digit" });
+
 /** The full moment, for a row's title: "Tue 17 Nov, 13:37". */
 export const fullWhen = (ms: number, locale: AppLocale): string =>
   new Date(ms).toLocaleString(tagOf(locale), {

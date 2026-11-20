@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { FeedProposal, LogLike } from "./activity-model";
-import { ago, answerOf, mergeFeed, newKeys, remember } from "./activity-model";
+import { ago, answerOf, mergeFeed, newKeys, remember, stackFeed } from "./activity-model";
 
 const log = (at: string, kind: string, detail: string, subject?: string): LogLike => ({
   at,
@@ -111,6 +111,84 @@ describe("Home's activity feed: one list from the watch's log and the queue", ()
     ]);
     expect(new Set(rows.map((r) => r.key)).size).toBe(2);
     expect(rows.every((r) => r.tag === "checked" && r.href === "/progress")).toBe(true);
+  });
+});
+
+// docs/DASHBOARD-OVERHAUL.md, the review's second round: "Activity's Checked
+// rows are many and alike; they want grouping by day".
+describe("Home's activity feed: a day's routine lines are one entry", () => {
+  const utcDay = (ms: number): string => new Date(ms).toISOString().slice(0, 10);
+  const rows = mergeFeed(
+    [
+      log("2026-11-17 13:34:05+00", "goal_progress", "Too early to judge.", "Reach 750 orders"),
+      log("2026-11-17 13:34:05+00", "goal_progress", "On track.", "Grow online revenue"),
+      log("2026-11-17 13:34:00+00", "cash_warning", "Money could get tight this week."),
+      log("2026-11-17 13:33:35+00", "connector_sync", "Read 1 day of Shopify orders."),
+      log("2026-11-17 13:33:20+00", "connector_sync", "Read 1 day of Stripe payments."),
+      log("2026-11-17 06:00:00+00", "goal_progress", "On track.", "Grow online revenue"),
+      log("2026-11-16 13:33:35+00", "connector_sync", "Read 1 day of Shopify orders."),
+      log("2026-11-16 13:34:05+00", "goal_progress", "Too early to judge.", "Reach 750 orders"),
+    ],
+    [proposal("price", "pending", { created_at: "2026-11-17 13:34:10+00" })],
+  );
+  const entries = stackFeed(rows, utcDay);
+
+  it("shows the newest of a day's reads and of its checks, with the others behind it", () => {
+    expect(entries.map((e) => `${e.row.tag}+${e.rest.length}`)).toEqual([
+      "proposed+0",
+      "checked+2", // the two goals of 13:34 and the morning's check
+      "noticed+0",
+      "read+1",
+      "checked+0", // the day before: a line alone is a plain row
+      "read+0",
+    ]);
+    // The entry sits where its newest line was, and the rest stay newest first.
+    const checked = entries[1]!;
+    expect(checked.row.ms).toBe(Date.parse("2026-11-17T13:34:05Z"));
+    expect(checked.rest.map((r) => r.ms)).toEqual([
+      Date.parse("2026-11-17T13:34:05Z"),
+      Date.parse("2026-11-17T06:00:00Z"),
+    ]);
+  });
+
+  it("drops nothing: every row is in exactly one entry", () => {
+    const listed = entries.flatMap((e) => [e.row, ...e.rest]).map((r) => r.key);
+    expect(listed.sort()).toEqual(rows.map((r) => r.key).sort());
+  });
+
+  it("never stacks what was noticed, proposed or answered, however alike", () => {
+    const alike = mergeFeed(
+      [
+        log("2026-11-17 13:00:00+00", "cash_warning", "Money could get tight this week."),
+        log("2026-11-17 09:00:00+00", "cash_warning", "Money could get tight next week."),
+      ],
+      [
+        proposal("a", "approved", { decided_at: "2026-11-17 12:00:00+00" }),
+        proposal("b", "approved", { decided_at: "2026-11-17 11:00:00+00" }),
+      ],
+    );
+    expect(stackFeed(alike, utcDay).every((e) => e.rest.length === 0)).toBe(true);
+    expect(stackFeed(alike, utcDay)).toHaveLength(alike.length);
+  });
+
+  it("keeps an entry's key while its day's stack grows, so an open one stays open", () => {
+    const before = stackFeed(rows, utcDay)[3]!; // the 17th's reads
+    const grown = stackFeed(
+      mergeFeed(
+        [
+          log("2026-11-17 18:00:00+00", "connector_sync", "Read 1 day of Meta ads."),
+          log("2026-11-17 13:33:35+00", "connector_sync", "Read 1 day of Shopify orders."),
+          log("2026-11-17 13:33:20+00", "connector_sync", "Read 1 day of Stripe payments."),
+        ],
+        [],
+      ),
+      utcDay,
+    )[0]!;
+    expect(grown.key).toBe(before.key);
+    expect(grown.row.text).toBe("Read 1 day of Meta ads.");
+    expect(grown.rest).toHaveLength(2);
+    // A plain row keeps the row's own key.
+    expect(entries[0]!.key).toBe(entries[0]!.row.key);
   });
 });
 

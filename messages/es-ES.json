@@ -30,6 +30,7 @@
     "switchBusiness": "Cambiar de negocio",
     "watching": "Observando · día {day} de {of}",
     "ask": "Pregunte a Lex",
+    "answered": "Lex ha respondido",
     "signOut": "Cerrar sesión",
     "signingOut": "Cerrando sesión…",
     "group": {
@@ -1006,7 +1007,7 @@
     },
     "svm": {
       "caption": "Lo que usted dijo frente a lo que midió una cuenta conectada",
-      "measure": "Medida · periodo",
+      "measure": "Medida",
       "said": "Usted dijo",
       "measured": "Medido",
       "difference": "Diferencia",
@@ -10446,6 +10447,7 @@
       "empty": "Nada todavía.",
       "more": "Mostrar más",
       "new": "{count, plural, one {# entrada nueva} many {# entradas nuevas} other {# entradas nuevas}}",
+      "stack": "y {count} más",
       "said": "Usted dijo: «{words}»"
     },
     "tabs": {

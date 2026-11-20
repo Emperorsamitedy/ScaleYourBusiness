@@ -188,6 +188,59 @@ export function mergeFeed(log: readonly LogLike[], proposals: readonly FeedPropo
   });
 }
 
+/**
+ * The routine kinds: a day brings several, all alike (each source read, each
+ * goal checked), and together they pushed what was noticed, proposed and
+ * answered out of the feed's first rows.
+ */
+const ROUTINE: ReadonlySet<FeedTag> = new Set<FeedTag>(["read", "checked"]);
+
+/** One entry of the list: a row, and for a routine row the day's others of its kind behind it. */
+export interface FeedEntry {
+  /** Stable while the day's stack grows, so an entry that is open stays open. */
+  key: string;
+  /** The newest row: the one that is shown. */
+  row: FeedRow;
+  /** The same day's other rows of that routine kind, newest first. Empty for any other row. */
+  rest: FeedRow[];
+}
+
+/** The reader's own calendar day. */
+const localDay = (ms: number): string => {
+  const d = new Date(ms);
+  return `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
+};
+
+/**
+ * Pure: the feed as it is listed. A day's rows of one routine kind are one
+ * entry, at the place of the newest of them: that one is shown and the
+ * others open under it. Nothing is dropped or summed. Every other row is an
+ * entry of its own, and the order is still newest first.
+ */
+export function stackFeed(
+  rows: readonly FeedRow[],
+  dayOf: (ms: number) => string = localDay,
+): FeedEntry[] {
+  const entries: FeedEntry[] = [];
+  const stacks = new Map<string, FeedEntry>();
+  for (const row of rows) {
+    if (!ROUTINE.has(row.tag)) {
+      entries.push({ key: row.key, row, rest: [] });
+      continue;
+    }
+    const key = `s|${row.tag}|${dayOf(row.ms)}`;
+    const stack = stacks.get(key);
+    if (stack) {
+      stack.rest.push(row);
+      continue;
+    }
+    const entry: FeedEntry = { key, row, rest: [] };
+    stacks.set(key, entry);
+    entries.push(entry);
+  }
+  return entries;
+}
+
 /** Which of the feed's two reads have come back: the watch's log, the queue. */
 export interface FeedSources {
   log: boolean;

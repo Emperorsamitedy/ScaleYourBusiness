@@ -6,11 +6,24 @@
 // (the link request, or the provider's start) and read once when it
 // finishes (the redeem POST, or the provider's callback).
 //
-// It is an allowlist, not a redirect parameter: only the queue and one of
-// its cards can be the way back, so the cookie can never send anyone to
-// another site or to any other path (an open redirect).
+// It is an allowlist, not a redirect parameter: only the queue, one of its
+// cards, an idea page or one of the app's own screens can be the way back,
+// so the cookie can never send anyone to another site or to a path that is
+// not a screen of this app (an open redirect).
+//
+// Since 2026-11-20 the app's own screens are on the list (the screens of
+// lib/assistant/guide, each matched whole and with nothing after it): a
+// signed-out visitor who opens Customers is sent to sign in by the app's
+// frame, and should land back on Customers, not on Home.
+
+import { GUIDE } from "../assistant/guide";
 
 export const RETURN_COOKIE = "syb_return";
+
+/** The app's own screens, by their exact address. The interview is entered from Home, not returned to. */
+const SCREENS: ReadonlySet<string> = new Set(
+  GUIDE.map((s) => s.route).filter((route) => route !== "/intake"),
+);
 
 const CARD_PATH = /^\/proposals(\/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})?$/;
 
@@ -35,7 +48,18 @@ export function returnPath(raw: unknown): string | null {
   if (typeof raw !== "string") return null;
   if (IDEA_PATH.test(raw.trim())) return raw.trim();
   const path = raw.trim().toLowerCase();
-  return CARD_PATH.test(path) ? path : null;
+  if (CARD_PATH.test(path)) return path;
+  return SCREENS.has(path) ? path : null;
+}
+
+/**
+ * Pure: where a signed-out visitor on `path` goes to sign in. The way back
+ * rides along only when it is one the list above allows; the server checks
+ * it again when the sign-in starts.
+ */
+export function signInPath(path: string): string {
+  const back = returnPath(path.split(/[?#]/)[0]);
+  return back === null ? "/login" : `/login?next=${encodeURIComponent(back)}`;
 }
 
 /** As long as a sign-in link lives (LOGIN_TTL_MINUTES), and no longer. */

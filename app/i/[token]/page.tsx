@@ -1,13 +1,17 @@
 // /i/[token] — a shared idea check (TASKS-IDEAS.md), as it was made, with an
 // invitation to work through your own. Public, kept out of search.
+// On the card a shared check uses (app/e/[token]) since 2026-11-20.
 
 import type { Metadata } from "next";
 import Link from "next/link";
+import { AuthFooter } from "../../../components/auth/Login";
+import { Logo } from "../../../components/brand/Mark";
 import { KeepIdea } from "../../../components/ideas/IdeaActions";
 import { IdeaResultView } from "../../../components/ideas/IdeaResultView";
 import { freshLocal, ideaByToken } from "../../../lib/ideas/check";
-import { requestLocale } from "../../../lib/i18n/server";
+import { pickerContext, requestLocale } from "../../../lib/i18n/server";
 import { trFor } from "../../../lib/i18n/server-tr";
+import "../../auth-v2.css";
 import "../../ideas.css";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -19,14 +23,17 @@ export default async function SharedIdeaPage({ params }: { params: Promise<{ tok
   const { token } = await params;
   const locale = await requestLocale();
   const tr = trFor(locale, "ideas");
-  const found = await ideaByToken(token);
+  const [found, picker] = await Promise.all([ideaByToken(token), pickerContext()]);
   const shared = found ? { ...found, result: await freshLocal(found.result, found.answers) } : null;
   return (
-    <main className="auth-stage">
-      <div className="statement-col">
+    <div className="ax ax-signin ax-shared ax-dress">
+      <Link href="/" className="ax-logo">
+        <Logo onDark />
+      </Link>
+      <main className="ax-card ax-card-wide">
         {shared ? (
           <>
-            <span className="auth-eyebrow">{tr("sharedLabel")}</span>
+            <p className="ax-kicker">{tr("sharedLabel")}</p>
             <IdeaResultView
               result={shared.result}
               answers={shared.answers}
@@ -36,14 +43,13 @@ export default async function SharedIdeaPage({ params }: { params: Promise<{ tok
             {!shared.kept && shared.result.status === "worked" && <KeepIdea token={token} />}
           </>
         ) : (
-          <p className="auth-copy">{tr("missing")}</p>
+          <p className="ax-copy">{tr("missing")}</p>
         )}
-        <section className="card">
-          <Link className="act" href="/idea">
-            {tr("again")}
-          </Link>
-        </section>
-      </div>
-    </main>
+        <Link className="ax-btn ax-door" href="/idea">
+          {tr("again")}
+        </Link>
+      </main>
+      <AuthFooter languages={picker.data.languages} language={picker.data.language} />
+    </div>
   );
 }

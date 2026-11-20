@@ -14,7 +14,7 @@ import Link from "next/link";
 import { useRole } from "../auth/RoleContext";
 import { DecisionCard } from "../home/DecisionCard";
 import type { DecisionLike } from "../home/DecisionCard";
-import { useNavRefresh } from "../nav/NavContext";
+import { useNavRefresh, useReviewOpener } from "../nav/NavContext";
 import "../../app/home.css";
 import { effectRange, rangeWords } from "../proposals/queue-model";
 import type { ScenarioOutcomeLike } from "../proposals/queue-model";
@@ -36,7 +36,12 @@ export function InPlaceDecision({ id }: { id: string }) {
   const { tr: home } = useTr("home");
   const { access } = useRole();
   const refresh = useNavRefresh();
+  // Inside the frame "Open" reads the whole decision in place, over this page
+  // (the review's round 1: it went to the decision's own page from here).
+  const openReview = useReviewOpener();
   const [found, setFound] = useState<Found>({ state: "reading" });
+  // Raised when the decision was answered in that sheet: this card reads it again.
+  const [read, setRead] = useState(0);
 
   useEffect(() => {
     let alive = true;
@@ -54,7 +59,7 @@ export function InPlaceDecision({ id }: { id: string }) {
     return () => {
       alive = false;
     };
-  }, [id]);
+  }, [id, read]);
 
   if (found.state === "reading") return null;
   if (found.state === "other") {
@@ -83,6 +88,9 @@ export function InPlaceDecision({ id }: { id: string }) {
         by={by}
         signedIn={access ? access.signed_in === true : null}
         onDecided={refresh}
+        {...(openReview
+          ? { onReview: (which: string) => openReview(which, () => setRead((n) => n + 1)) }
+          : {})}
       />
     </div>
   );

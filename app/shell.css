@@ -165,6 +165,43 @@
   color: var(--desk-ink);
   font-weight: 600;
 }
+/* An answer that came while Lex was closed: a point of light on the corner
+   of his face, in the bar and afloat, until the conversation is opened
+   (components/nav/LexPanel.tsx arrivedUnseen). It arrives once, with a
+   small swell, and then sits still. */
+.sx-ask-face {
+  position: relative;
+  display: inline-flex;
+}
+.sx-answer {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  width: 11px;
+  height: 11px;
+  border: 2px solid var(--masthead);
+  border-radius: 50%;
+  background: var(--accent-desk);
+  animation: sx-answer-in 0.42s var(--sx-ease) both;
+}
+.sx-fab .sx-answer {
+  top: -3px;
+  right: -3px;
+  width: 15px;
+  height: 15px;
+  border-color: var(--desk);
+}
+@keyframes sx-answer-in {
+  0% {
+    transform: scale(0);
+  }
+  70% {
+    transform: scale(1.25);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
 .sx-search:hover,
 .sx-ask:hover,
 .sx-ask[aria-current],
@@ -477,8 +514,15 @@
   }
 }
 
-/* the bar along the bottom and Lex above it: a phone's */
-.sx-bar,
+/* The bar along the bottom is a phone's: it is drawn only in the narrow
+   layout further down. It shared this "display: none" with Lex's face until
+   the face came to every width (L4b), and the rule that replaced it kept the
+   bar's name by mistake, so for a few hours the bar's five links showed raw
+   in the corner of every wide screen. It has its own rule now, and
+   components/nav/shell.test.ts holds it. */
+.sx-bar {
+  display: none;
+}
 /* Lex's face afloat in the corner of every screen that has no composer of
    its own (the owner's third round, L4b: "present in more places than
    one"). It opens Lex and gives way to the pop-up while that is open. */
@@ -866,6 +910,9 @@
   .sx-fab,
   .sx-bar-item {
     transition: none;
+  }
+  .sx-answer {
+    animation: none;
   }
   .rail-folded .sx-item:hover::after,
   .rail-folded .sx-item:focus-visible::after {

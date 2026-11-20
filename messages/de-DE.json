@@ -30,6 +30,7 @@
     "switchBusiness": "Unternehmen wechseln",
     "watching": "Beobachtung · Tag {day} von {of}",
     "ask": "Lex fragen",
+    "answered": "Lex hat geantwortet",
     "signOut": "Abmelden",
     "signingOut": "Wird abgemeldet…",
     "group": {
@@ -677,7 +678,7 @@
     },
     "svm": {
       "caption": "Was Sie angegeben haben, verglichen mit dem, was ein verbundenes Konto gemessen hat",
-      "measure": "Kennzahl · Zeitraum",
+      "measure": "Kennzahl",
       "said": "Ihre Angabe",
       "measured": "Gemessen",
       "difference": "Differenz",
@@ -10446,6 +10447,7 @@
       "empty": "Noch nichts.",
       "more": "Mehr anzeigen",
       "new": "{count, plural, one {# neuer Eintrag} other {# neue Einträge}}",
+      "stack": "{count, plural, one {und # weiterer} other {und # weitere}}",
       "said": "Sie sagten: „{words}“"
     },
     "tabs": {

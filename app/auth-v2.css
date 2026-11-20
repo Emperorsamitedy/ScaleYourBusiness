@@ -1,8 +1,9 @@
 /* ── Sign in and sign up, redesigned 2026-11-16 (components/auth/Login.tsx,
    components/auth/AuthReel.tsx). Ink #0D1321, Accent #00A86B, Paper.
    Green buttons carry Ink text: white on #00A86B is under 4.5:1. The older
-   .au-* sheet styles (app/auth.css) still serve confirm, choose, invite and
-   the legal pages. ── */
+   .au-* sheet styles (app/auth.css) serve only the legal pages since
+   2026-11-20: the confirm step, "Which business?", the invite, the first
+   step before the interview, the idea check and the plans moved here. ── */
 
 .ax {
   --ax-ink: #0d1321;
@@ -387,23 +388,39 @@
   gap: 24px;
   padding: 40px 24px;
 }
+/* The tiles behind the phone (components/auth/AuthReel REEL_SCENES): the
+   landing page's own Zsolnay scenes. They are dark already, so they are
+   shown nearly whole; the shade only settles the edges and the foot, where
+   the caption is read. */
 .ax-visual-bg {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
   object-fit: cover;
-  object-position: center 40%;
-  opacity: 0.6;
+  object-position: center;
+  opacity: 0.9;
 }
 .ax-visual-shade {
   position: absolute;
   inset: 0;
-  background: radial-gradient(
-    ellipse at center,
-    rgba(13, 19, 33, 0.15) 0%,
-    rgba(13, 19, 33, 0.75) 75%
-  );
+  background:
+    linear-gradient(to bottom, rgba(13, 19, 33, 0) 55%, rgba(13, 19, 33, 0.82) 100%),
+    radial-gradient(ellipse at center, rgba(13, 19, 33, 0) 0%, rgba(13, 19, 33, 0.55) 85%);
+}
+
+/* Beside a long form the panel stays in view while the form scrolls (the idea
+   check's form is two screens long). It was as tall as the form, with the
+   phone at its middle, below the first screen, and its picture stretched to
+   cover all of it. Where the two columns stack, it is an ordinary block. */
+@media (min-width: 921px) {
+  .ax-visual {
+    position: sticky;
+    top: 0;
+    align-self: flex-start;
+    height: 100vh;
+    height: 100dvh;
+  }
 }
 
 /* The phone: titanium edge, black border, Dynamic Island, tilted right. */
@@ -769,4 +786,470 @@ select.ax-input {
   .ax-check .ax-signup-main {
     margin-top: 32px;
   }
+}
+
+/* ── The first step before the interview (components/locale/FirstStepScreen;
+   2026-11-20): the language, then the currency, on the sign-in page's card.
+   The choices are the picker the settings use (app/locale.css), dressed here
+   as the entrance's own fields. ── */
+.ax .lp-langs {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+.ax .lp-langs legend,
+.ax .lp-currency .au-label {
+  margin: 0 0 8px;
+  padding: 0;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  letter-spacing: 0;
+  line-height: 1.4;
+  text-transform: none;
+  color: var(--ax-ink);
+}
+.ax .lp-currency .au-label {
+  margin: 0;
+}
+.ax .lp-lang {
+  min-height: 46px;
+  padding: 0 14px;
+  border: 1.5px solid var(--ax-line);
+  border-radius: 10px;
+  font-size: 15px;
+  color: var(--ax-ink);
+  transition:
+    border-color 0.15s,
+    background 0.15s;
+}
+.ax .lp-lang:hover {
+  border-color: var(--ax-muted);
+}
+.ax .lp-lang:has(input:checked) {
+  border-color: var(--ax-accent);
+  background: #eefaf5;
+  font-weight: 600;
+}
+.ax .lp-lang:has(input:focus-visible) {
+  box-shadow: 0 0 0 3px rgba(0, 168, 107, 0.25);
+}
+.ax .lp-lang input {
+  accent-color: var(--ax-accent);
+}
+.ax .lp-checking {
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--ax-muted);
+}
+.ax .lp-currency {
+  margin-top: 0;
+}
+.ax .lp-select {
+  width: 100%;
+  height: 48px;
+  padding: 0 12px;
+  border: 1.5px solid var(--ax-line);
+  border-radius: 10px;
+  box-shadow: none;
+  background: #ffffff;
+  color: var(--ax-ink);
+  font-family: inherit;
+  font-size: 16px;
+  letter-spacing: 0;
+}
+.ax .lp-select:focus {
+  outline: none;
+  border-color: var(--ax-accent);
+  box-shadow: 0 0 0 3px rgba(0, 168, 107, 0.25);
+}
+.ax-how {
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--ax-muted);
+}
+.ax-how summary {
+  width: fit-content;
+  cursor: pointer;
+  font-weight: 600;
+  color: var(--ax-ink);
+}
+.ax-how p {
+  margin: 8px 0 0;
+}
+@media (max-width: 420px) {
+  .ax .lp-langs {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* ── Confirm, "Which business?" and the team invite on the same card
+   (2026-11-20). A business to choose is one bordered button: its name, and
+   the reader's role in it at the right. ── */
+.ax-confirm-who {
+  color: var(--ax-ink);
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+.ax-choice {
+  justify-content: space-between;
+  width: 100%;
+  text-align: left;
+}
+.ax-choice-name {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.ax-choice-role {
+  flex: none;
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--ax-muted);
+}
+
+/* ── Plans (/pricing; 2026-11-20): the entrance's ink, the three plans side
+   by side on white cards, the extra business as a slim card under them. ── */
+.ax-pricing {
+  padding-bottom: 56px;
+}
+.ax-pricing-main {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: 100%;
+  max-width: 1080px;
+  margin-top: 40px;
+}
+.ax-pricing-head {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  max-width: 680px;
+}
+.ax-pricing-head .ax-kicker {
+  color: #2bd594;
+}
+.ax-pricing-head .ax-title {
+  color: #ffffff;
+}
+.ax-pricing-head .ax-copy {
+  color: #c3cad6;
+}
+.ax-plans {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+  align-items: stretch;
+}
+.ax-plan {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 26px 24px 24px;
+  border-radius: 16px;
+  background: #ffffff;
+  color: var(--ax-ink);
+}
+.ax-plan-name {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 700;
+  color: #006b45;
+}
+.ax-plan-price {
+  margin: 0;
+  font-size: 30px;
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+.ax-plan .ax-note {
+  line-height: 1.5;
+}
+/* The buttons sit at the foot of each card, so three cards of unequal words end level. */
+.ax-plan-acts {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: auto;
+  padding-top: 10px;
+}
+.ax-plan-acts .billing-action {
+  display: flex;
+  flex-direction: column;
+}
+.ax-plan-extra {
+  max-width: 520px;
+}
+.ax-pricing .ax-switch {
+  margin-top: 4px;
+}
+@media (max-width: 960px) {
+  .ax-plans {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .ax-plan-extra {
+    max-width: none;
+  }
+}
+
+/* ── Older markup, dressed as the entrance (2026-11-20; the owner: "there's
+   also this page and what follows it maybe: /idea"). The idea check, its
+   shared result, the kept idea, an accountant's request for access and a
+   shared shadow summary keep the markup the dashboard's older classes named
+   (.card, .auth-copy, .entry-q, .act ...) and wear the entrance's shell.
+   Inside .ax-dress those classes are drawn as the entrance's own fields,
+   buttons and type, so nothing else that uses them moves. ── */
+.ax-dress .card {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: none;
+  box-shadow: none;
+  color: var(--ax-ink);
+}
+.ax-dress .entry-col {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.ax-dress form.entry-col {
+  margin-top: 10px;
+  padding-top: 22px;
+  border-top: 1px solid var(--ax-soft);
+}
+.ax-dress .entry-q {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.4;
+  color: var(--ax-ink);
+}
+.ax-dress .entry-q select,
+.ax-dress .entry-q input[type="text"],
+.ax-dress .entry-q input[type="number"],
+.ax-dress .entry-q textarea {
+  width: 100%;
+  height: 48px;
+  min-height: 0;
+  padding: 0 14px;
+  border: 1.5px solid var(--ax-line);
+  border-radius: 10px;
+  box-shadow: none;
+  background: #ffffff;
+  color: var(--ax-ink);
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 400;
+}
+.ax-dress .entry-q textarea {
+  height: auto;
+  min-height: 112px;
+  padding: 12px 14px;
+  line-height: 1.5;
+  resize: vertical;
+}
+.ax-dress .entry-q select {
+  appearance: none;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%230d1321' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'><path d='M6 9l6 6 6-6'/></svg>");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  padding-right: 40px;
+}
+.ax-dress .entry-q select:focus,
+.ax-dress .entry-q input:focus,
+.ax-dress .entry-q textarea:focus {
+  outline: none;
+  border-color: var(--ax-accent);
+  box-shadow: 0 0 0 3px rgba(0, 168, 107, 0.25);
+}
+.ax-dress .entry-q input:disabled {
+  background: #f3f5f8;
+  color: var(--ax-muted);
+}
+.ax-dress .entry-q ::placeholder {
+  color: #8a93a3;
+}
+.ax-dress .idea-check {
+  font-weight: 400;
+  color: var(--ax-muted);
+}
+.ax-dress .idea-check input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--ax-accent);
+}
+.ax-dress .idea-unit,
+.ax-dress .idea-from,
+.ax-dress .idea-note {
+  color: var(--ax-muted);
+}
+
+/* the one solid button, and the quiet ones */
+.ax-dress .act {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 50px;
+  padding: 0 16px;
+  border: 0;
+  border-radius: 10px;
+  background: var(--ax-accent);
+  color: var(--ax-ink);
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: normal;
+  text-transform: none;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.ax-dress .act:hover:not(:disabled) {
+  background: #00b874;
+  color: var(--ax-ink);
+}
+.ax-dress .act:disabled {
+  opacity: 0.65;
+  cursor: progress;
+}
+.ax-dress .next,
+.ax-dress .ghost {
+  width: 100%;
+}
+.ax-dress .next:disabled {
+  opacity: 0.55;
+  cursor: default;
+}
+.ax-dress .ghost {
+  min-height: 50px;
+  padding: 0 16px;
+  border: 1.5px solid var(--ax-line);
+  border-radius: 10px;
+  background: #ffffff;
+  color: var(--ax-ink);
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: 600;
+  letter-spacing: normal;
+  text-transform: none;
+  cursor: pointer;
+}
+.ax-dress .ghost:hover:not(:disabled) {
+  border-color: var(--ax-ink);
+}
+
+/* words */
+.ax-dress .auth-eyebrow {
+  display: block;
+  margin: 0;
+  font-family: var(--f-mono), "IBM Plex Mono", ui-monospace, monospace;
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #006b45;
+}
+.ax-dress .auth-title {
+  margin: 0;
+  font-family: inherit;
+  font-size: 24px;
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  color: var(--ax-ink);
+}
+.ax-dress .auth-copy {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.55;
+  color: var(--ax-muted);
+}
+.ax-dress .auth-copy strong,
+.ax-dress .auth-copy b {
+  color: var(--ax-ink);
+}
+.ax-dress .auth-copy a {
+  color: var(--ax-ink);
+  font-weight: 600;
+  text-underline-offset: 3px;
+}
+
+/* the result: one bordered panel, its parts under plain headings */
+.ax-dress .idea-result {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 6px;
+  padding: 22px 22px 20px;
+  border: 1.5px solid var(--ax-line);
+  border-radius: 16px;
+}
+.ax-dress .idea-result .idea-h,
+.ax-dress .idea-h {
+  margin: 14px 0 0;
+  font-size: 15px;
+  font-weight: 700;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--ax-ink);
+}
+.ax-dress .idea-result .idea-h:first-of-type {
+  margin-top: 6px;
+}
+.ax-dress .entry-figure {
+  margin: 0;
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--ax-ink);
+}
+.ax-dress .idea-list {
+  margin: 2px 0 4px;
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--ax-muted);
+}
+
+/* the kept idea: its sections one under the other on the card */
+.ax-dress-stack {
+  gap: 0;
+}
+.ax-dress-stack > section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 22px 0;
+  border-top: 1px solid var(--ax-soft);
+}
+.ax-dress-stack > section:first-child {
+  padding-top: 0;
+  border-top: 0;
+}
+.ax-dress-stack > section:last-child {
+  padding-bottom: 0;
+}
+.ax-dress-stack .idea-result {
+  margin-top: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+}
+
+/* A list inside a dressed card (what a firm asks to see, what a summary holds). */
+.ax-dress .shadow-summary {
+  margin: 0;
+  padding-left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--ax-ink);
 }

@@ -30,6 +30,7 @@
     "switchBusiness": "切换企业",
     "watching": "观察中 · 第 {day} 天，共 {of} 天",
     "ask": "问 Lex",
+    "answered": "Lex 已回复",
     "signOut": "退出登录",
     "signingOut": "正在退出…",
     "group": {
@@ -677,7 +678,7 @@
     },
     "svm": {
       "caption": "您所说的与已连接账户测量到的结果对比",
-      "measure": "指标 · 时间段",
+      "measure": "指标",
       "said": "您所说的",
       "measured": "测量值",
       "difference": "差异",
@@ -10446,6 +10447,7 @@
       "empty": "暂无内容。",
       "more": "显示更多",
       "new": "{count, plural, other {# 条新记录}}",
+      "stack": "另有 {count} 条",
       "said": "您说：“{words}”"
     },
     "tabs": {

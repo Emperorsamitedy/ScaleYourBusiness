@@ -10,7 +10,7 @@
 //
 //   /login   one centred card on the Ink ground, for people coming back.
 //   /signup  a split screen: the form on paper at left, and at right a
-//            looping tour of real ScaleX screens over the holographic image.
+//            looping tour of real ScaleX screens over a Zsolnay tile scene.
 //
 // After the link is sent, the same card turns into "check your email": the
 // address it went to, the webmail button when the domain is a known one,

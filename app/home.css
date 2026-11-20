@@ -609,6 +609,29 @@
   color: var(--sheet-ink-2);
   white-space: nowrap;
 }
+/* a day's other lines of the same kind: counted beside the time, listed when the row opens */
+.hf-count {
+  font-size: 11.5px;
+  color: var(--sheet-ink-2);
+  white-space: nowrap;
+}
+.hf-stack {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  gap: 6px;
+  justify-self: stretch;
+}
+.hf-stack li {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: 10px;
+  align-items: baseline;
+  font-size: 13px;
+  line-height: 1.45;
+  overflow-wrap: anywhere;
+}
 .hf-text {
   grid-column: 1;
   display: -webkit-box;

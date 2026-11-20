@@ -35,3 +35,35 @@ export const LexBusyProvider = BusyCtx.Provider;
 export function useLexBusy(): boolean {
   return useContext(BusyCtx);
 }
+
+/**
+ * Opens a decision in place, over the page it was asked from. `after` is
+ * called once an answer has been recorded there, so whatever showed the
+ * decision can read it again.
+ */
+export type ReviewOpener = (id: string, after?: () => void) => void;
+
+const ReviewCtx = createContext<ReviewOpener | null>(null);
+export const ReviewOpenerProvider = ReviewCtx.Provider;
+
+/**
+ * The frame's way to open a decision in place. Null where there is no frame,
+ * and inside a sheet that already covers the page (a phone's Lex): there the
+ * decision keeps its link to its own page, since a sheet over a sheet is two
+ * things to close.
+ */
+export function useReviewOpener(): ReviewOpener | null {
+  return useContext(ReviewCtx);
+}
+
+const WaitingCtx = createContext(false);
+export const LexWaitingProvider = WaitingCtx.Provider;
+
+/**
+ * Whether a reply has come that the owner has not seen: asked, then Lex
+ * closed or the page left before the answer arrived. A face marks it until
+ * the conversation is opened. False outside the frame.
+ */
+export function useLexWaiting(): boolean {
+  return useContext(WaitingCtx);
+}

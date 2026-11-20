@@ -202,8 +202,10 @@ export function IdeaForm(p: IdeaFormProps) {
         <IdeaResultView result={done.result} answers={done.answers} tr={tr} locale={locale} />
         {done.result.status === "worked" && <KeepIdea token={done.token} />}
         <ShareLink path={`/i/${done.token}`} label={tr("share")} done={tr("copied")} />
+        {/* The sentence is the link, as its twin on the free check is: it was a
+            lone arrow after the words (L7: nothing a person presses is an arrow). */}
         <p className="auth-copy">
-          {tr("next")} <Link href="/check">→</Link>
+          <Link href="/check">{tr("next")}</Link>
         </p>
         <button
           type="button"
