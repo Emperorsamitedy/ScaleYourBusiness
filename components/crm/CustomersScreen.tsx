@@ -97,7 +97,11 @@ type State =
       shown: number;
     });
 
-const PAGE = 50;
+// L6 (docs/DASHBOARD-OVERHAUL.md): less at once. Fifteen rows open the list,
+// where fifty made the page 4,700 px tall; each press adds thirty. Search and
+// the filters read every customer, never only the rows on screen.
+const FIRST = 15;
+const MORE = 30;
 
 /** The consent question the posture comes from, by its bank id. */
 const CONSENT_QUESTION = "6.4b";
@@ -198,7 +202,7 @@ export function CustomersScreen() {
       filter: cur.phase === "ready" ? cur.filter : "all",
       open: cur.phase === "ready" && j.contacts.some((c) => c.id === cur.open) ? cur.open : null,
       confirmErase: null,
-      shown: cur.phase === "ready" ? cur.shown : PAGE,
+      shown: cur.phase === "ready" ? cur.shown : FIRST,
     }));
   }, []);
 
@@ -272,7 +276,7 @@ export function CustomersScreen() {
   const stages = LIFECYCLE_ORDER.filter((l) => s.lifecycle[l] > 0);
   const pickStage = (key: string) => {
     const l = stages.find((x) => x === key);
-    if (l) setState({ ...s, filter: s.filter === l ? "all" : l, shown: PAGE });
+    if (l) setState({ ...s, filter: s.filter === l ? "all" : l, shown: FIRST });
   };
 
   return (
@@ -301,7 +305,7 @@ export function CustomersScreen() {
               placeholder={tr("list.search")}
               autoComplete="off"
               value={s.query}
-              onChange={(e) => setState({ ...s, query: e.target.value, shown: PAGE })}
+              onChange={(e) => setState({ ...s, query: e.target.value, shown: FIRST })}
             />
             {stages.length > 0 && (
               <SegBar
@@ -323,7 +327,7 @@ export function CustomersScreen() {
                 type="button"
                 className={`cu-chip${s.filter === "all" ? " on" : ""}`}
                 aria-pressed={s.filter === "all"}
-                onClick={() => setState({ ...s, filter: "all", shown: PAGE })}
+                onClick={() => setState({ ...s, filter: "all", shown: FIRST })}
               >
                 {tr("list.all", { count: num(s.contacts.length, 0, locale) })}
               </button>
@@ -333,7 +337,7 @@ export function CustomersScreen() {
                   type="button"
                   className={`cu-chip${s.filter === l ? " on" : ""}`}
                   aria-pressed={s.filter === l}
-                  onClick={() => setState({ ...s, filter: l, shown: PAGE })}
+                  onClick={() => setState({ ...s, filter: l, shown: FIRST })}
                 >
                   {lifecycleWord(l, tr)} · {num(s.lifecycle[l], 0, locale)}
                 </button>
@@ -424,10 +428,10 @@ export function CustomersScreen() {
               <button
                 type="button"
                 className="prop-btn quiet"
-                onClick={() => setState({ ...s, shown: s.shown + PAGE })}
+                onClick={() => setState({ ...s, shown: s.shown + MORE })}
               >
                 {tr("list.more", {
-                  count: num(Math.min(PAGE, list.length - visible.length), 0, locale),
+                  count: num(Math.min(MORE, list.length - visible.length), 0, locale),
                 })}
               </button>
             )}

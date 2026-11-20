@@ -216,7 +216,10 @@ Connections was the longest screen in the app, more than 6,000 px once everythin
 - A part stays in the page while another is open, so a file half pasted is not lost and each permission still reads the result of its sign-in once. The address can name a part (`?tab=`), and a sign-in that comes back for a permission opens the third part. On a narrow screen the row of tabs scrolls sideways and brings the open tab into view.
 - Held by tests in `components/connections/patch.test.ts`: which part an address opens, and each part's count. Seen in a browser at 1440 and 390 wide.
 
-- [ ] Not yet done on the list: L6 on the screens that are still long (Customers with fifty rows at once, Similar businesses' first card, the fact sheet), Lex as a pop-up, and L9.
+- **Customers** opens on fifteen rows where fifty stood (4,716 px to 2,301); each press adds thirty. Search and the filters read every customer, never only the rows on screen.
+- **Similar businesses**: the live comparison card keeps what it says about the comparison and the button to stop contributing (a consent stays in view); where the figures come from and what is not measured yet sit under "How this works".
+
+- [ ] Not yet done on the list: L6 on the fact sheet and the report's own cards, captions still set in capitals inside the settings forms, Lex as a pop-up, and L9.
 
 ### The branch (2026-11-19)
 
