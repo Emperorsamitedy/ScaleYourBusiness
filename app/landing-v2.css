@@ -1,10 +1,11 @@
 /* The v2 landing page (app/landing-v2, specs/ux-spec-v1.md §7.1b): one filmed
    scene per section, fixed behind the page and cross-faded by scroll; in
    front, the copy and one ScaleX screen per section, drawn the way the app
-   draws it — white paper, square corners, 1px rules, worded flags.
+   draws it. The rules for a screen below are the app's first look (white
+   paper, square corners, 1px rules, worded flags); the block at the foot of
+   this file, "The drawn screens wear the app's present look", is what they
+   show since 2026-11-20.
    Everything is scoped under .lx, so nothing here reaches another screen. */
-
-/* Layout: one filmed scene per section, fixed behind the page and cross-faded by scroll. In front of it, the copy and one ScaleX screen per section, drawn the way the app draws it: white paper sheets, square corners, 1px rules, worded flags. */
 .lx {
   --ink: #0d1321;
   --ink-0: #070b14;
@@ -1900,4 +1901,295 @@
   .lx .hd-lang {
     margin-left: auto;
   }
+}
+
+/* ── The drawn screens wear the app's present look (2026-11-20) ──────────────
+   The page keeps its own type and shape (the owner: the landing "can stay as
+   it is"). The ScaleX screens drawn on it showed the app as it looked before
+   its third round: square corners, mono capitals, a serif heading, a rubber
+   stamp. Inside a screen now, as the app itself has had since 2026-11-18
+   (app/sheet.css, the block under :root:has(.app-frame …)): one sans in
+   sentence case, the mono for figures only, an 18px card, 12px controls,
+   pills for states, places and tabs. Every rule is scoped to .lx .win, so
+   nothing here reaches the page around a screen. */
+.lx .win {
+  --w-sans: var(--f-ui, var(--f-sans));
+  --w-fig: var(--f-fig, var(--f-mono));
+  --w-card: 18px;
+  --w-ctl: 12px;
+  --w-s: 10px;
+  --w-pill: 999px;
+  --w-soft: #e6eaf0;
+  border-radius: var(--w-card);
+  /* A screen's bar and foot are flat blocks: they take the card's curve. */
+  overflow: hidden;
+  font-family: var(--w-sans);
+}
+
+/* the bar: the business as the app's switcher shows it, the open place as its pill */
+.lx .win .bar {
+  gap: 8px;
+  padding: 9px 14px;
+  background: #0a0f1a;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+.lx .win .bar .biz {
+  padding: 5px 10px;
+  border-radius: var(--w-s);
+  background: rgba(255, 255, 255, 0.07);
+  font-weight: 600;
+  letter-spacing: 0;
+}
+.lx .win .bar .sep {
+  display: none;
+}
+.lx .win .bar .scr {
+  padding: 5px 12px;
+  border-radius: var(--w-pill);
+  background: var(--paper);
+  color: var(--p-ink);
+  font-weight: 600;
+}
+.lx .win .bar .note {
+  font-family: var(--w-sans);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+/* labels and small print: the sans, in sentence case */
+.lx .win .lb,
+.lx .win .fnd-h,
+.lx .win .bk.hdr,
+.lx .win .ck label,
+.lx .win .plan h3 span {
+  font-family: var(--w-sans);
+  font-size: 12.5px;
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+}
+.lx .win .lb > span::first-letter,
+.lx .win .fnd-h > span::first-letter,
+.lx .win .bk.hdr > span::first-letter,
+.lx .win .ck label > span::first-letter,
+.lx .win .fnd-t small::first-letter,
+.lx .win .flag::first-letter,
+.lx .win .stake-k span::first-letter {
+  text-transform: uppercase;
+}
+.lx .win .rw small,
+.lx .win .leak .t small,
+.lx .win .fnd-t small,
+.lx .win .ohlc .k,
+.lx .win .stake-k span,
+.lx .win .legend {
+  font-family: var(--w-sans);
+  font-size: 12px;
+  letter-spacing: 0;
+  text-transform: none;
+}
+.lx .win .fnd-t small {
+  display: block;
+}
+/* figures keep the mono, as in the app */
+.lx .win .rw .v,
+.lx .win .fnd-v,
+.lx .win .big,
+.lx .win .stake-v,
+.lx .win .ohlc .v,
+.lx .win .bk .amt,
+.lx .win .bk .n,
+.lx .win .m {
+  font-family: var(--w-fig);
+}
+/* a figure with words beside it ("−€190 a month", "not priced yet") reads as a sentence */
+.lx .win .leak .e,
+.lx .win .total .m {
+  font-family: var(--w-sans);
+  font-variant-numeric: tabular-nums;
+}
+.lx .win .stake-k::first-letter {
+  text-transform: uppercase;
+}
+
+/* headings: the sans at the app's weight, not the page's serif */
+.lx .win .sh h3,
+.lx .win .scene h3,
+.lx .win .lx-q,
+.lx .win .plan .pr {
+  font-family: var(--w-sans);
+  font-weight: 650;
+  letter-spacing: -0.02em;
+}
+.lx .win .sh {
+  border-bottom: 1px solid var(--w-soft);
+}
+
+/* states are pills */
+.lx .win .flag {
+  padding: 5px 9px;
+  border: 0;
+  border-radius: var(--w-pill);
+  font-family: var(--w-sans);
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
+}
+.lx .win .leak {
+  grid-template-columns: 82px minmax(0, 1fr) auto;
+}
+.lx .win .leak .flag {
+  justify-self: start;
+}
+
+/* controls: a small curve */
+.lx .win .lx-act {
+  border-radius: var(--w-ctl);
+  font-weight: 600;
+}
+.lx .win .lx-opt {
+  border: 1px solid var(--p-line);
+  border-radius: var(--w-pill);
+  padding: 8px 14px;
+}
+.lx .win .lx-opt.pick {
+  border-color: var(--p-ink);
+}
+.lx .win .ck select {
+  border: 1px solid var(--p-line);
+  border-radius: var(--w-ctl);
+}
+.lx .win .split,
+.lx .win .meter {
+  border-radius: var(--w-pill);
+}
+.lx .win .split {
+  border: 0;
+  overflow: hidden;
+}
+.lx .win .mk {
+  border-radius: 6px;
+}
+.lx .win .swatch {
+  border-radius: 3px;
+}
+
+/* the tour's tabs: a row of pills, the open one on paper */
+.lx .win .tabs {
+  gap: 4px;
+  padding: 6px;
+  border-bottom: 0;
+}
+.lx .win .tabs button {
+  padding: 7px 4px 8px;
+  border-left: 0;
+  border-radius: var(--w-pill);
+  line-height: 1.2;
+}
+.lx .win .tabs button.on {
+  box-shadow: 0 1px 2px rgba(13, 19, 33, 0.14);
+}
+/* the tour's progress under a tab's word, inside the pill's curve */
+.lx .win .tabs button i {
+  left: 14px;
+  bottom: 3px;
+  max-width: calc(100% - 28px);
+  border-radius: 2px;
+}
+@media (max-width: 560px) {
+  /* five words in a phone's width (Hungarian's are long): smaller, and each
+     tab as wide as its own word, so a long one borrows from a short one */
+  .lx .win .tabs {
+    grid-template-columns: repeat(5, auto);
+    justify-content: space-between;
+    gap: 2px;
+    padding: 5px;
+  }
+  .lx .win .tabs button {
+    padding: 6px 5px 8px;
+    font-size: 10.5px;
+    white-space: nowrap;
+  }
+  .lx .win .tabs button i {
+    left: 6px;
+    max-width: calc(100% - 12px);
+  }
+  .lx .win .bar {
+    gap: 6px;
+    padding-inline: 10px;
+  }
+  .lx .win .bar .biz {
+    padding: 4px 8px;
+  }
+  .lx .win .bar .scr {
+    padding: 4px 10px;
+  }
+}
+
+/* hairlines are soft; a sheet's head no longer carries an ink rule */
+.lx .win .total,
+.lx .win .result {
+  border-top-color: var(--w-soft);
+}
+.lx .win .sb.ask {
+  border-bottom-color: var(--w-soft);
+}
+.lx .win .fnd-h,
+.lx .win .bk.hdr {
+  border-bottom-color: var(--w-soft);
+}
+.lx .win .ohlc {
+  border-top-color: var(--w-soft);
+}
+.lx .win .ledger,
+.lx .win .ledger .ledger-head {
+  border-color: var(--w-soft);
+}
+.lx .win .ladder div {
+  border: 0;
+  border-radius: var(--w-s) var(--w-s) 4px 4px;
+}
+.lx .win .ladder div.at::before {
+  font-family: var(--w-sans);
+  font-size: 11.5px;
+  font-weight: 600;
+  letter-spacing: 0;
+  text-transform: none;
+}
+.lx .win .plan.on {
+  background: #f1f8f4;
+  box-shadow: inset 3px 0 0 var(--acc);
+}
+
+/* "Approved": the state's own pill landing on the card, not a rubber stamp */
+.lx .win .stamp span {
+  padding: 9px 18px;
+  border: 0;
+  border-radius: var(--w-pill);
+  background: var(--ok-band);
+  color: var(--ok);
+  box-shadow: 0 10px 30px -10px rgba(13, 19, 33, 0.45);
+  font-family: var(--w-sans);
+  font-size: 15px;
+  font-weight: 650;
+  letter-spacing: 0;
+  text-transform: none;
+  transform: scale(1.35);
+}
+.lx .win.is-done .stamp span,
+.lx .win .is-done .stamp span {
+  transform: scale(1);
+}
+.lx .win .stamp span::first-letter {
+  text-transform: uppercase;
+}
+/* a note that was written to sit inside a line starts with a capital here, as in the app */
+.lx .win .bar .note::first-letter,
+.lx .win .foot::first-letter {
+  text-transform: uppercase;
+}
+.lx .win .chart .axis {
+  font-family: var(--w-sans);
+  font-size: 10.5px;
 }
