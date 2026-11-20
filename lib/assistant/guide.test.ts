@@ -5,6 +5,7 @@
 import { existsSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
+import { placeFor } from "../../components/nav/AppFrame";
 import { GUIDE, guideText, linksIn, screenFor, withoutCitations } from "./guide";
 
 const ROOT = process.cwd();
@@ -26,6 +27,28 @@ describe("the guide covers the app", () => {
       expect(existsSync(page), `${s.name} → ${s.route}`).toBe(true);
       if (s.nav !== null) expect(english.nav.item[s.nav], s.route).toBe(s.name);
     }
+  });
+
+  it("says where each screen sits as the menu has it", () => {
+    // Lex told people Customers opened from the business's name; it is under Grow.
+    const WORDS: Record<string, string> = {
+      home: "Home",
+      decisions: "Decisions",
+      insights: "Insights",
+      grow: "Grow",
+      business: "Your business",
+    };
+    for (const s of GUIDE) {
+      if (s.nav === null) continue;
+      const place = placeFor(s.route);
+      expect(place, s.route).not.toBeNull();
+      expect(s.place.startsWith(WORDS[place as string] as string), `${s.name}: ${s.place}`).toBe(
+        true,
+      );
+    }
+    expect(guideText()).toContain(
+      "Customers, Reviews, Abandoned carts, Pipeline and Support are under Grow",
+    );
   });
 
   it("lists no screen twice, and says what each is for", () => {

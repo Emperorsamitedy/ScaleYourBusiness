@@ -91,7 +91,9 @@ export const GUIDE: readonly GuideScreen[] = [
     name: "Goals",
     place: "Insights",
     what: "Your goals and whether each is on its path.",
-    how: ["To set a goal: open Goals and add a target with its figure and its date."],
+    how: [
+      "To set a goal: open Goals and press Set a goal (or Set a new goal), then give its target.",
+    ],
   },
   {
     route: "/cash",
@@ -101,7 +103,7 @@ export const GUIDE: readonly GuideScreen[] = [
     what: "A forecast of cash week by week from your bank statement and what is known to come in and go out: the lowest point ahead and any week that is tight.",
     how: [
       "To bring it up to date: import a newer bank statement on Connections, under Your own files.",
-      "To set the buffer you want to keep: change it on Cash flow; a week under it is marked tight.",
+      "To set the least you want to keep in the account: Cash flow has a link to that question when none is stated; a week under that line is marked tight.",
     ],
   },
   {
@@ -194,7 +196,7 @@ export const GUIDE: readonly GuideScreen[] = [
     route: "/customers",
     nav: "customers",
     name: "Customers",
-    place: "Customers",
+    place: "Grow",
     what: "Your customers in three parts: the list with each one's record, segments with email campaigns, and bringing customers in from a file.",
     how: [
       "To add customers: Customers, the third part, and upload or paste your list.",
@@ -205,28 +207,28 @@ export const GUIDE: readonly GuideScreen[] = [
     route: "/reviews",
     nav: "reviews",
     name: "Reviews",
-    place: "Customers",
+    place: "Grow",
     what: "Your reviews, with a reply drafted for each that you approve before it is posted.",
   },
   {
     route: "/carts",
     nav: "carts",
     name: "Abandoned carts",
-    place: "Customers",
+    place: "Grow",
     what: "Baskets that were filled and not paid for, and what winning them back is worth.",
   },
   {
     route: "/pipeline",
     nav: "pipeline",
     name: "Pipeline",
-    place: "Customers",
+    place: "Grow",
     what: "Deals with other businesses and their follow-ups. It is for a business that sells to businesses.",
   },
   {
     route: "/support",
     nav: "support",
     name: "Support",
-    place: "Customers",
+    place: "Grow",
     what: "Customers' questions from chat, email and phone, with answers drafted or given inside the rules you set. Support never carries anything out.",
   },
   {
@@ -293,7 +295,7 @@ export const GUIDE: readonly GuideScreen[] = [
     nav: "team_access",
     name: "Team access",
     place: "Your business (the business's name at the top)",
-    what: "Who else may use this business in ScaleX, and as what: owner, manager or member.",
+    what: "Who else may use this business in ScaleX, and as what: owner, manager or viewer.",
     how: ["To invite someone: Team access, enter their email and their role; they get a link."],
   },
   {
@@ -358,7 +360,7 @@ export const GUIDE: readonly GuideScreen[] = [
 
 /** Things that are not one screen. */
 const EVERYWHERE: readonly string[] = [
-  "The four places at the top of every screen are Home, Decisions, Insights and Grow. Customers and the business's own screens (Fact sheet, Connections, settings) open from the business's name at the top left.",
+  "The four places at the top of every screen are Home, Decisions, Insights and Grow. Customers, Reviews, Abandoned carts, Pipeline and Support are under Grow. The business's own screens (Fact sheet, Connections, the statement, History and the settings) open from the business's name at the top left.",
   "Search, at the top (Ctrl K), finds any screen by name.",
   "Stop everything, at the top right of every screen, halts at once whatever ScaleX is doing or about to do.",
   "Lex only ever drafts: a change to a setting or a fact is a card you confirm, and anything that acts outside ScaleX is a proposal you approve.",
