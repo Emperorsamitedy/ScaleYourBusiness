@@ -248,7 +248,8 @@ He pointed at one more: "there's also this page and what follows it maybe: https
 - **Found on the way, not changed:**
   - The idea check takes whole amounts only ("4.5" is refused by the browser, and the server says "give price as a whole amount"). It is deliberate (no fractions of a currency unit anywhere in it), but a coffee at 4.50 with a cost of 1.60 becomes 5 and 2: for a low-priced product the margin moves a lot. Worth a decision.
   - A signed-out visitor who opens an owner screen other than Home (`/customers`, `/proposals`, `/content`) gets the app's frame with nothing in it; Home alone sends them to sign in.
-  - The sign-up page's reel still shows the app as it looked before the third round.
+- **The sign-up page's reel** showed the app as it looked before the third round: eleven captures in a phone. They were retaken from the demo shop at the same size (600 by 1298), in the same order, under the same names (`public/auth/reel`), so the first picture a new person sees of the app is the app.
+- **Lex's guide was wrong about one place, and it was live for a few hours.** It put Customers, Reviews, Abandoned carts, Pipeline and Support under the business's name; they are under Grow. Corrected, and `lib/assistant/guide.test.ts` now holds every screen's place in the guide to the menu's own (`placeFor`). Three smaller claims were checked against the screens' words: how a goal is set, where the least to keep in the account is answered, and the three roles.
 
 ### L8, as built (2026-11-19 and 20, branch `straight-in`)
 
@@ -425,4 +426,5 @@ He saw the first capture mid-work and said it was what he wanted; he then added 
 
 - [later] A Home the owner can rearrange or trim.
 - [later] The same treatment screen by screen, where a list or a table would gain from it: the queue (already keyboard-driven), Watching (a signal opened in place), the fact sheet (search and filter), Connections (a read's progress shown live), Customers and Support (rows opened in place), History (filters).
-- [later] The sign-up reel's screenshots and the landing page's drawn screens, once the owner has seen the app.
+- [x] The sign-up reel's screenshots: retaken on 2026-11-20 (see "M5").
+- [later] The landing page's drawn screens, once the owner has seen the app.
