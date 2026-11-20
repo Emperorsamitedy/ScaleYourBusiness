@@ -350,6 +350,8 @@ The two screens that hold the most. Nothing was taken away from either.
 
 `straight-in` followed the same day as pull request #2 (merge commit `61a2b67`), after its one failing test was fixed (see "L8, as built") and the whole run was green on `080e571`. It was live nine minutes after the merge. What can be read without signing in was read: every page answers, the pages carry the new words ("I don't know your business yet."), and the code sign-in route refuses a wrong code as before. What only a person can check is a first sign-in with an address never used: it should land on Home with that headline.
 
+**The third merge (2026-11-20).** He said "yep push and merge it mate and contiune with the open items". The six commits after the first two merges (L6 on the fact sheet and the report, the top bar on a tablet, Lex as a pop-up, four leftovers of the reviews, the interview's look, Lex's guide and the interview with Lex) were pushed, passed every check on GitHub at `7b1b070`, and went into `main` as pull request #3 (merge commit `4bd53bb`). Live within minutes; the live pages were read again and carry the new words. What nobody has seen yet is a real answer from Lex with the guide: the local model key is invalid, so the first one is asked on the live site.
+
 ### L3 to L6, as built (2026-11-18)
 
 Built to his pick and checked in a browser at 1440 and 390 wide. Nothing was pushed.
