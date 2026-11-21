@@ -1815,6 +1815,73 @@
       "failed": "{label} 没有同步成功。{reason}",
       "noReason": "没有给出原因。"
     },
+    "pageSetup": {
+      "label": "授予写入权限之前",
+      "title": {
+        "todo": "还没有 Facebook 公共主页或 Instagram 专业账户？",
+        "done": "您的公共主页已连接",
+        "doneBoth": "您的公共主页及其 Instagram 账户已连接"
+      },
+      "lede": "ScaleX 不能替您创建：任何应用都不得代他人创建公共主页或账户。您在 Facebook 和 Instagram 上自行创建，ScaleX 会根据您的事实表给出要填写的内容。",
+      "show": "设置指南",
+      "reading": "正在读取您的事实表…",
+      "failed": "无法读取指南。请重新加载页面。",
+      "step1": {
+        "title": "在 Facebook 上创建公共主页",
+        "lede": "Facebook 会要求填写名称、类别和简短说明。以下每一项都已备好，可直接复制。",
+        "open": "打开 Facebook 的官方指南"
+      },
+      "step2": {
+        "title": "把您的 Instagram 改为专业账户，并关联到公共主页",
+        "lede": "在 Instagram 应用中打开“编辑主页”，切换为专业账户，然后在“公共主页”下关联您的 Facebook 公共主页。使用同一段简短说明。",
+        "open": "打开 Instagram 的官方指南"
+      },
+      "step3": {
+        "title": "回到这里，授予 ScaleX 写入权限",
+        "lede": "使用本页面上的发布卡片。之后 ScaleX 会读取 Meta 向它显示了哪些公共主页，以及您的公共主页是否关联了 Instagram 账户。它永远看不到您的密码。"
+      },
+      "newTab": "（在新标签页中打开）",
+      "row": {
+        "name": "公共主页名称",
+        "category": "类别",
+        "categoryHint": "请找最接近这一项的：{type}",
+        "short": "简短说明",
+        "about": "较长说明",
+        "website": "网站",
+        "username": "用户名建议"
+      },
+      "src": {
+        "name": "您的企业名称，来自您的事实表",
+        "type": "您选择的企业类型",
+        "about": "您告诉我的企业业务，按您的原文",
+        "shortAsGiven": "您告诉我的企业业务，按您的原文",
+        "shortFirst": "您告诉我的企业业务中的第一句",
+        "shortCut": "根据您告诉我的企业业务缩短而成。请检查读起来是否仍然通顺。",
+        "website": "您的网站，来自您的事实表",
+        "username": "由名称生成：小写字母，去掉变音符号，空格改为句点。仅为建议：可能已被他人使用。"
+      },
+      "copy": "复制",
+      "copied": "已复制",
+      "copyWhat": "复制：{what}",
+      "copyFailed": "复制失败。请选中文字后自行复制。",
+      "gaps": {
+        "title": "要准备其余内容，我还需要：",
+        "answer": "现在回答"
+      },
+      "gap": {
+        "name": "企业的名称。",
+        "business_type": "企业属于哪种类型。",
+        "description": "企业是做什么的，用几句话说明。"
+      },
+      "state": {
+        "pageNo": "公共主页：尚未连接",
+        "pageYes": "公共主页：已连接",
+        "instagramNo": "Instagram：尚未关联到公共主页",
+        "instagramYes": "Instagram：已连接"
+      },
+      "change": "这些内容都可以在您的事实表中修改",
+      "foot": "ScaleX 绝不会索要您的 Facebook 或 Instagram 密码。本指南在所有套餐中均免费。"
+    },
     "panel": {
       "label": "配线架",
       "title": "接入了什么",
@@ -2318,7 +2385,7 @@
         "start_again": "这次 Facebook 登录已过期或已被使用。请从“连接”重新开始。",
         "foreign": "这次 Facebook 登录是从另一个 ScaleX 账户发起的。请以该账户登录 ScaleX，或重新开始。",
         "meta_error": "Facebook 登录没有完成。没有连接任何内容。",
-        "no_pages": "对于这个 Facebook 账户，Meta 没有向 ScaleX 显示任何公共主页。请在 Meta 的对话框中，选择您希望 ScaleX 发布到的公共主页（及其 Instagram 账户），然后重试。",
+        "no_pages": "对于这个 Facebook 账户，Meta 没有向 ScaleX 显示任何公共主页。请在 Meta 的对话框中，选择您希望 ScaleX 发布到的公共主页（及其 Instagram 账户），然后重试。还没有公共主页？本页面上的设置指南会告诉您要填写什么。",
         "no_ad_accounts": "对于这个 Facebook 账户，Meta 没有向 ScaleX 显示任何广告账户。请在 Meta 的对话框中，选择您希望 ScaleX 管理的广告账户，然后重试。",
         "meta_auth": "Facebook 登录没有完成：Meta 没有接受这次登录。请从“连接”重新开始。",
         "meta_permission": "Facebook 登录没有完成：Meta 表示 ScaleX 无权执行该操作。请检查“连接”中列出的权限，然后重新开始。",

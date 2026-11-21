@@ -42,6 +42,7 @@ An AI business operating system for small businesses. It interviews an owner, bu
 | `specs/tiktok-posting-api-v1.md`       | TikTok's Content Posting API as SYB uses it, each fact `verified`    |
 | `specs/whatsapp-summary-v1.md`         | The weekly summary on WhatsApp (P6-07): Twilio facts, the template   |
 | `specs/twilio-recording-v1.md`         | Twilio call recording as SYB uses it (P6-08), confirmed vs not       |
+| `specs/page-setup-v1.md`               | Guided page set-up: what Meta allows, each fact `verified` or not    |
 | `specs/glossary-v1.json`               | Business terms per language; one term, one translation (L-1)         |
 | `specs/syb-v1-build-spec.pdf`          | The owner's v1 build spec (Phase 7): sections 1–13, build order §12  |
 | `specs/architecture-v2.md`             | Decisions taken against the v1 spec, incl. the owner's D18–D21       |

@@ -256,6 +256,7 @@ export const GUIDE: readonly GuideScreen[] = [
       "To connect a source: Connections, What I read, pick the source and sign in on its own page. Reading never changes anything there.",
       "To let ScaleX post or change something: Connections, What I may change, and grant that one permission. It is separate from reading, and every change still needs your yes.",
       "To import bookings or a bank statement: Connections, Your own files.",
+      "No Facebook Page or professional Instagram account yet: Connections, What I may change, the set-up guide. ScaleX cannot create one for you (no app may), so it gives you what to type from your fact sheet and you make it on Facebook and Instagram yourself. It never asks for your password there, and the guide is free.",
     ],
   },
   {

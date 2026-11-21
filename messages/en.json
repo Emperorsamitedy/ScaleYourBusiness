@@ -1815,6 +1815,73 @@
       "failed": "{label} didn't sync. {reason}",
       "noReason": "No reason was given."
     },
+    "pageSetup": {
+      "label": "Before write access",
+      "title": {
+        "todo": "No Facebook Page or professional Instagram account yet?",
+        "done": "Your Page is connected",
+        "doneBoth": "Your Page and its Instagram account are connected"
+      },
+      "lede": "ScaleX can't make them for you: no app is allowed to create a Page or an account for a person. You make them on Facebook and Instagram, and ScaleX hands you what to type, taken from your fact sheet.",
+      "show": "The set-up guide",
+      "reading": "Reading your fact sheet…",
+      "failed": "The guide couldn't be read. Reload the page.",
+      "step1": {
+        "title": "Create the Page on Facebook",
+        "lede": "Facebook asks for a name, a category and a short description. Here is each, ready to copy.",
+        "open": "Open Facebook's own guide"
+      },
+      "step2": {
+        "title": "Make your Instagram a professional account and connect it to the Page",
+        "lede": "In the Instagram app, open Edit profile, switch to a professional account, then connect your Facebook Page under Page. Use the same short description.",
+        "open": "Open Instagram's own guide"
+      },
+      "step3": {
+        "title": "Come back and give ScaleX write access",
+        "lede": "Use the publishing card on this screen. ScaleX then reads which Pages Meta shows it and whether your Page has an Instagram account connected. It never sees your password."
+      },
+      "newTab": "(opens in a new tab)",
+      "row": {
+        "name": "Page name",
+        "category": "Category",
+        "categoryHint": "Look for the one closest to: {type}",
+        "short": "Short description",
+        "about": "Longer description",
+        "website": "Website",
+        "username": "Username idea"
+      },
+      "src": {
+        "name": "Your business's name, from your fact sheet",
+        "type": "The business type you chose",
+        "about": "What you told me the business does, as you wrote it",
+        "shortAsGiven": "What you told me the business does, as you wrote it",
+        "shortFirst": "The first sentence of what you told me the business does",
+        "shortCut": "Shortened from what you told me the business does. Check that it still reads right.",
+        "website": "Your website, from your fact sheet",
+        "username": "Worked out from the name: small letters, no accents, full stops for spaces. A suggestion: someone may already have it."
+      },
+      "copy": "Copy",
+      "copied": "Copied",
+      "copyWhat": "Copy: {what}",
+      "copyFailed": "Couldn't copy. Select the text and copy it yourself.",
+      "gaps": {
+        "title": "To prepare the rest, I still need:",
+        "answer": "Answer it now"
+      },
+      "gap": {
+        "name": "The name of the business.",
+        "business_type": "What type of business it is.",
+        "description": "What the business does, in a few sentences."
+      },
+      "state": {
+        "pageNo": "Page: not connected yet",
+        "pageYes": "Page: connected",
+        "instagramNo": "Instagram: not connected to the Page yet",
+        "instagramYes": "Instagram: connected"
+      },
+      "change": "Change any of this on your fact sheet",
+      "foot": "ScaleX never asks for your Facebook or Instagram password. This guide is free on every plan."
+    },
     "panel": {
       "label": "Patch panel",
       "title": "What’s plugged in",
@@ -2318,7 +2385,7 @@
         "start_again": "That Facebook sign-in expired or was already used. Start again from Connections.",
         "foreign": "That Facebook sign-in was started from a different ScaleX account. Sign in to ScaleX as that account, or start again.",
         "meta_error": "Facebook sign-in didn't finish. Nothing was connected.",
-        "no_pages": "Meta showed ScaleX no Pages for that Facebook account. In Meta's dialog, choose the Page (and its Instagram account) you want ScaleX to publish to, then try again.",
+        "no_pages": "Meta showed ScaleX no Pages for that Facebook account. In Meta's dialog, choose the Page (and its Instagram account) you want ScaleX to publish to, then try again. No Page yet? The set-up guide on this screen has what to type.",
         "no_ad_accounts": "Meta showed ScaleX no ad accounts for that Facebook account. In Meta's dialog, choose the ad account you want ScaleX to manage, then try again.",
         "meta_auth": "Facebook sign-in didn't finish: Meta didn't accept the sign-in. Start again from Connections.",
         "meta_permission": "Facebook sign-in didn't finish: Meta says ScaleX isn't allowed to do that. Check the permissions listed on Connections and start again.",

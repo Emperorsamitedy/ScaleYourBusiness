@@ -1815,6 +1815,73 @@
       "failed": "La synchronisation de {label} a échoué. {reason}",
       "noReason": "Aucune raison n’a été donnée."
     },
+    "pageSetup": {
+      "label": "Avant l’accès en écriture",
+      "title": {
+        "todo": "Pas encore de Page Facebook ni de compte professionnel Instagram ?",
+        "done": "Votre Page est connectée",
+        "doneBoth": "Votre Page et son compte Instagram sont connectés"
+      },
+      "lede": "ScaleX ne peut pas les créer à votre place : aucune application n’a le droit de créer une Page ou un compte au nom d’une personne. Vous les créez sur Facebook et Instagram, et ScaleX vous donne quoi saisir, tiré de votre fiche des faits.",
+      "show": "Le guide de mise en place",
+      "reading": "Lecture de votre fiche des faits…",
+      "failed": "Le guide n’a pas pu être lu. Rechargez la page.",
+      "step1": {
+        "title": "Créez la Page sur Facebook",
+        "lede": "Facebook demande un nom, une catégorie et une courte description. Voici chacun, prêt à copier.",
+        "open": "Ouvrir le guide de Facebook"
+      },
+      "step2": {
+        "title": "Passez votre Instagram en compte professionnel et reliez-le à la Page",
+        "lede": "Dans l’application Instagram, ouvrez Modifier le profil, passez à un compte professionnel, puis reliez votre Page Facebook sous Page. Reprenez la même courte description.",
+        "open": "Ouvrir le guide d’Instagram"
+      },
+      "step3": {
+        "title": "Revenez et donnez à ScaleX l’accès en écriture",
+        "lede": "Utilisez la carte de publication de cet écran. ScaleX lit alors quelles Pages Meta lui montre et si un compte Instagram est relié à votre Page. Il ne voit jamais votre mot de passe."
+      },
+      "newTab": "(s’ouvre dans un nouvel onglet)",
+      "row": {
+        "name": "Nom de la Page",
+        "category": "Catégorie",
+        "categoryHint": "Cherchez la plus proche de : {type}",
+        "short": "Courte description",
+        "about": "Description plus longue",
+        "website": "Site web",
+        "username": "Idée de nom d’utilisateur"
+      },
+      "src": {
+        "name": "Le nom de votre entreprise, d’après votre fiche des faits",
+        "type": "Le type d’entreprise que vous avez choisi",
+        "about": "Ce que vous m’avez dit de l’activité de l’entreprise, tel que vous l’avez écrit",
+        "shortAsGiven": "Ce que vous m’avez dit de l’activité de l’entreprise, tel que vous l’avez écrit",
+        "shortFirst": "La première phrase de ce que vous m’avez dit de l’activité de l’entreprise",
+        "shortCut": "Raccourci à partir de ce que vous m’avez dit de l’activité de l’entreprise. Vérifiez que cela se lit encore bien.",
+        "website": "Votre site web, d’après votre fiche des faits",
+        "username": "Formé à partir du nom : minuscules, sans accents, des points à la place des espaces. Une suggestion : il est peut-être déjà pris."
+      },
+      "copy": "Copier",
+      "copied": "Copié",
+      "copyWhat": "Copier : {what}",
+      "copyFailed": "La copie a échoué. Sélectionnez le texte et copiez-le vous-même.",
+      "gaps": {
+        "title": "Pour préparer le reste, il me manque encore :",
+        "answer": "Répondre maintenant"
+      },
+      "gap": {
+        "name": "Le nom de l’entreprise.",
+        "business_type": "De quel type d’entreprise il s’agit.",
+        "description": "Ce que fait l’entreprise, en quelques phrases."
+      },
+      "state": {
+        "pageNo": "Page : pas encore connectée",
+        "pageYes": "Page : connectée",
+        "instagramNo": "Instagram : pas encore relié à la Page",
+        "instagramYes": "Instagram : connecté"
+      },
+      "change": "Modifiez tout cela dans votre fiche des faits",
+      "foot": "ScaleX ne vous demande jamais votre mot de passe Facebook ou Instagram. Ce guide est gratuit dans toutes les formules."
+    },
     "panel": {
       "label": "Panneau de brassage",
       "title": "Ce qui est branché",
@@ -2318,7 +2385,7 @@
         "start_again": "Cette connexion avec Facebook a expiré ou a déjà été utilisée. Recommencez depuis Connexions.",
         "foreign": "Cette connexion avec Facebook a été lancée depuis un autre compte ScaleX. Connectez-vous à ScaleX avec ce compte, ou recommencez.",
         "meta_error": "La connexion avec Facebook n’a pas abouti. Rien n’a été connecté.",
-        "no_pages": "Meta n’a montré à ScaleX aucune Page pour ce compte Facebook. Dans la fenêtre de Meta, choisissez la Page (et son compte Instagram) sur laquelle ScaleX doit publier, puis réessayez.",
+        "no_pages": "Meta n’a montré à ScaleX aucune Page pour ce compte Facebook. Dans la fenêtre de Meta, choisissez la Page (et son compte Instagram) sur laquelle ScaleX doit publier, puis réessayez. Pas encore de Page ? Le guide de mise en place de cet écran indique quoi saisir.",
         "no_ad_accounts": "Meta n’a montré à ScaleX aucun compte publicitaire pour ce compte Facebook. Dans la fenêtre de Meta, choisissez le compte publicitaire que ScaleX doit gérer, puis réessayez.",
         "meta_auth": "La connexion avec Facebook n’a pas abouti : Meta n’a pas accepté la connexion. Recommencez depuis Connexions.",
         "meta_permission": "La connexion avec Facebook n’a pas abouti : selon Meta, ScaleX n’est pas autorisé à faire cela. Vérifiez les autorisations listées dans Connexions et recommencez.",

@@ -21,8 +21,10 @@ export const CONNECTIONS_REASONS = {
   foreign:
     "That Facebook sign-in was started from a different ScaleX account. Sign in to ScaleX as that account, or start again.",
   meta_error: "Facebook sign-in didn't finish. Nothing was connected.",
+  // The last two sentences (2026-11-20) are for an owner who has no Page at all: the guided
+  // page set-up sits on the same screen (components/connections/PageSetupSection.tsx).
   no_pages:
-    "Meta showed ScaleX no Pages for that Facebook account. In Meta's dialog, choose the Page (and its Instagram account) you want ScaleX to publish to, then try again.",
+    "Meta showed ScaleX no Pages for that Facebook account. In Meta's dialog, choose the Page (and its Instagram account) you want ScaleX to publish to, then try again. No Page yet? The set-up guide on this screen has what to type.",
   no_ad_accounts:
     "Meta showed ScaleX no ad accounts for that Facebook account. In Meta's dialog, choose the ad account you want ScaleX to manage, then try again.",
   meta_auth:

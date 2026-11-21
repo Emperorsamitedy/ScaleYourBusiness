@@ -1815,6 +1815,73 @@
       "failed": "{label}: a szinkronizálás nem sikerült. {reason}",
       "noReason": "Nem érkezett indoklás."
     },
+    "pageSetup": {
+      "label": "Az írási hozzáférés előtt",
+      "title": {
+        "todo": "Még nincs Facebook-oldala vagy professzionális Instagram-fiókja?",
+        "done": "Az oldala csatlakoztatva van",
+        "doneBoth": "Az oldala és a hozzá tartozó Instagram-fiók csatlakoztatva van"
+      },
+      "lede": "A ScaleX nem hozhatja létre Ön helyett: egyetlen alkalmazás sem hozhat létre oldalt vagy fiókot valaki más nevében. Ön hozza létre a Facebookon és az Instagramon, a ScaleX pedig a ténylapja alapján megadja, mit írjon be.",
+      "show": "A beállítási útmutató",
+      "reading": "A ténylap beolvasása…",
+      "failed": "Az útmutatót nem sikerült beolvasni. Töltse újra az oldalt.",
+      "step1": {
+        "title": "Hozza létre az oldalt a Facebookon",
+        "lede": "A Facebook nevet, kategóriát és rövid leírást kér. Itt van mindegyik, másolásra készen.",
+        "open": "A Facebook saját útmutatója"
+      },
+      "step2": {
+        "title": "Állítsa át Instagramját professzionális fiókra, és kapcsolja az oldalhoz",
+        "lede": "Az Instagram alkalmazásban nyissa meg a Profil szerkesztése menüt, váltson professzionális fiókra, majd az Oldal pontnál kapcsolja hozzá a Facebook-oldalát. Használja ugyanazt a rövid leírást.",
+        "open": "Az Instagram saját útmutatója"
+      },
+      "step3": {
+        "title": "Térjen vissza, és adjon írási hozzáférést a ScaleX-nek",
+        "lede": "Használja ezen a képernyőn a közzétételi kártyát. A ScaleX ezután kiolvassa, mely oldalakat mutatja neki a Meta, és hogy az oldalához kapcsolódik-e Instagram-fiók. A jelszavát soha nem látja."
+      },
+      "newTab": "(új lapon nyílik meg)",
+      "row": {
+        "name": "Az oldal neve",
+        "category": "Kategória",
+        "categoryHint": "Keresse az ehhez legközelebb állót: {type}",
+        "short": "Rövid leírás",
+        "about": "Hosszabb leírás",
+        "website": "Weboldal",
+        "username": "Felhasználónév-ötlet"
+      },
+      "src": {
+        "name": "A vállalkozás neve a ténylapjáról",
+        "type": "Az Ön által választott vállalkozástípus",
+        "about": "Amit a vállalkozás tevékenységéről mondott, úgy, ahogy leírta",
+        "shortAsGiven": "Amit a vállalkozás tevékenységéről mondott, úgy, ahogy leírta",
+        "shortFirst": "Az első mondat abból, amit a vállalkozás tevékenységéről mondott",
+        "shortCut": "Rövidítve abból, amit a vállalkozás tevékenységéről mondott. Ellenőrizze, hogy így is jól olvasható-e.",
+        "website": "A weboldala a ténylapjáról",
+        "username": "A névből készült: kisbetűk, ékezetek nélkül, szóközök helyett pontok. Csak javaslat: lehet, hogy már foglalt."
+      },
+      "copy": "Másolás",
+      "copied": "Kimásolva",
+      "copyWhat": "Másolás: {what}",
+      "copyFailed": "Nem sikerült kimásolni. Jelölje ki a szöveget, és másolja ki kézzel.",
+      "gaps": {
+        "title": "A többi előkészítéséhez még szükségem van erre:",
+        "answer": "Megválaszolom most"
+      },
+      "gap": {
+        "name": "A vállalkozás neve.",
+        "business_type": "Milyen típusú a vállalkozás.",
+        "description": "Mivel foglalkozik a vállalkozás, néhány mondatban."
+      },
+      "state": {
+        "pageNo": "Oldal: még nincs csatlakoztatva",
+        "pageYes": "Oldal: csatlakoztatva",
+        "instagramNo": "Instagram: még nincs az oldalhoz kapcsolva",
+        "instagramYes": "Instagram: csatlakoztatva"
+      },
+      "change": "Bármelyiket módosíthatja a ténylapján",
+      "foot": "A ScaleX soha nem kéri a Facebook- vagy Instagram-jelszavát. Ez az útmutató minden csomagban ingyenes."
+    },
     "panel": {
       "label": "Kapcsolótábla",
       "title": "Mi van bekötve",
@@ -2318,7 +2385,7 @@
         "start_again": "Ez a Facebookos bejelentkezés lejárt, vagy már felhasználták. Kezdje újra az Összekapcsolt fiókok oldalról.",
         "foreign": "Ezt a Facebookos bejelentkezést egy másik ScaleX-fiókból indították. Jelentkezzen be abba a fiókba a ScaleX-ben, vagy kezdje újra.",
         "meta_error": "A Facebookos bejelentkezés nem fejeződött be. Semmi sem lett összekapcsolva.",
-        "no_pages": "A Meta egyetlen oldalt sem mutatott a ScaleX-nek ehhez a Facebook-fiókhoz. A Meta párbeszédablakában válassza ki azt az oldalt (és a hozzá tartozó Instagram-fiókot), amelyre a ScaleX közzétehet, majd próbálja újra.",
+        "no_pages": "A Meta egyetlen oldalt sem mutatott a ScaleX-nek ehhez a Facebook-fiókhoz. A Meta párbeszédablakában válassza ki azt az oldalt (és a hozzá tartozó Instagram-fiókot), amelyre a ScaleX közzétehet, majd próbálja újra. Még nincs oldala? Ezen a képernyőn a beállítási útmutató megadja, mit írjon be.",
         "no_ad_accounts": "A Meta egyetlen hirdetési fiókot sem mutatott a ScaleX-nek ehhez a Facebook-fiókhoz. A Meta párbeszédablakában válassza ki azt a hirdetési fiókot, amelyet a ScaleX kezeljen, majd próbálja újra.",
         "meta_auth": "A Facebookos bejelentkezés nem fejeződött be: a Meta nem fogadta el a bejelentkezést. Kezdje újra az Összekapcsolt fiókok oldalról.",
         "meta_permission": "A Facebookos bejelentkezés nem fejeződött be: a Meta szerint a ScaleX ezt nem teheti meg. Ellenőrizze az Összekapcsolt fiókok oldalon felsorolt engedélyeket, és kezdje újra.",

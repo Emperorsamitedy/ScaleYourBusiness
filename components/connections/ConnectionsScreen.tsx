@@ -39,6 +39,7 @@ import type { GoogleAdsView } from "./GoogleAdsSection";
 import { GoogleAdsSection } from "./GoogleAdsSection";
 import { BankStatementSection } from "./BankStatementSection";
 import { BookingsImportSection } from "./BookingsImportSection";
+import { PageSetupSection } from "./PageSetupSection";
 import type { CnTab } from "./patch";
 import { headline, lastRead, tabCounts, tabFromSearch } from "./patch";
 import "../../app/connections.css";
@@ -1187,6 +1188,9 @@ export function ConnectionsScreen() {
       </TabPanel>
 
       <TabPanel id="cn" tab="write" open={tab === "write"} keep>
+        {/* Guided page set-up: for an owner with no Page yet. It reads and copies only, so it
+            sits outside the lock that keeps a manager from granting write access. */}
+        <PageSetupSection />
         <fieldset className="role-lock" disabled={consentWhy !== null}>
           {consentWhy !== null && (
             <p className="cn-banner" role="note">
