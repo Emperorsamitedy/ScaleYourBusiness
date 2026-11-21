@@ -392,6 +392,23 @@ export interface ChangeLine {
   after: string;
 }
 
+/**
+ * Does one side of a change read as a sentence rather than a figure, a key or
+ * a short value? "One email, in your voice, to shoppers who left a cart in the
+ * last week" does; "€34.00", "3 people", "paused" and "nobody" don't. The
+ * screen sets a sentence in the prose face and keeps the figures' face for
+ * the rest, so a brief is not spelled out in the face of a price.
+ */
+export function readsAsWords(value: string): boolean {
+  const text = value.trim();
+  if (text.length <= 32) return false;
+  // A word is letters, perhaps joined by a hyphen or an apostrophe, perhaps
+  // with a comma or a stop after it. A key (read_orders), a figure and a date
+  // are not words, however many of them stand in a row.
+  const word = /^\p{L}[\p{L}'’-]*[.,;:!?]?$/u;
+  return text.split(/\s+/).filter((token) => word.test(token)).length >= 4;
+}
+
 type Detail = Record<string, unknown>;
 
 const asDetail = (d: unknown): Detail | null =>

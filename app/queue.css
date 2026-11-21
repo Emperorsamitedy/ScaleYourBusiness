@@ -469,6 +469,16 @@
 .q-before {
   color: var(--sheet-ink-2);
 }
+/* A side that is a sentence (an email's brief, a page's wording) reads as one:
+   the figures' face is for a figure, a key or a short value. */
+.q-before.q-words,
+.q-after.q-words,
+.q-mline-words .q-before,
+.q-mline-words .q-after {
+  font-family: var(--f-prose);
+  font-size: 14px !important;
+  line-height: 1.5;
+}
 .q-nolines {
   margin: 0;
   max-width: var(--measure);
@@ -1438,6 +1448,8 @@
   font-weight: 700;
   font-size: 13.5px;
   text-align: center;
+  /* The tree's own nodes are curved in the app's look; its root was the last square one. */
+  border-radius: var(--r-s, 0);
 }
 .q-tree-kids {
   position: relative;
