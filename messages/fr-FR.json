@@ -1362,6 +1362,38 @@
     "moved": "Le résumé hebdomadaire, les alertes sur téléphone et les modules sont dans les Réglages.",
     "movedLink": "Alertes et modules"
   },
+  "signals": {
+    "day": "{day} ({name})",
+    "holiday": {
+      "new_year": "Jour de l’An",
+      "march_15": "Fête nationale",
+      "good_friday": "Vendredi saint",
+      "easter_monday": "Lundi de Pâques",
+      "may_1": "Fête du Travail",
+      "whit_monday": "Lundi de Pentecôte",
+      "august_20": "Fête de la fondation de l’État",
+      "october_23": "Commémoration de la révolution",
+      "all_saints": "Toussaint",
+      "december_24": "Veille de Noël",
+      "december_25": "Noël",
+      "december_26": "Lendemain de Noël"
+    },
+    "cash": {
+      "week": "{count, plural, one {Jour férié : {days}} many {Jours fériés : {days}} other {Jours fériés : {days}}}",
+      "summary": "{count, plural, one {# jour férié dans ces semaines : {days}.} many {# jours fériés dans ces semaines : {days}.} other {# jours fériés dans ces semaines : {days}.}}",
+      "none": "Aucun jour férié ne tombe dans ces semaines.",
+      "note": "Les banques et les prestataires de paiement comptent en jours ouvrés : l’argent dû un jour férié peut donc arriver un jour plus tard. Ce n’est pas compté dans la prévision."
+    },
+    "stock": {
+      "short": "{count, plural, one {# jour férié dedans} many {# jours fériés dedans} other {# jours fériés dedans}}",
+      "inLead": "{count, plural, one {# jour férié tombe dans ce délai de livraison : {days}.} many {# jours fériés tombent dans ce délai de livraison : {days}.} other {# jours fériés tombent dans ce délai de livraison : {days}.}} Non compté dans le délai."
+    },
+    "uncovered": "ScaleX n’a pas encore de calendrier des jours fériés pour {country} : aucun n’est donc affiché.",
+    "source": "Jours fériés : {law}, dans sa version en vigueur le {day}.",
+    "law": {
+      "HU": "Code du travail hongrois ({law})"
+    }
+  },
   "proposals": {
     "meta": {
       "title": "Propositions · ScaleX",

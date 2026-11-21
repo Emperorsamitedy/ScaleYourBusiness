@@ -1456,6 +1456,38 @@
     "moved": "El resumen semanal, los avisos al teléfono y los interruptores de módulos están en Ajustes.",
     "movedLink": "Avisos y módulos"
   },
+  "signals": {
+    "day": "{day} ({name})",
+    "holiday": {
+      "new_year": "Año Nuevo",
+      "march_15": "Fiesta nacional",
+      "good_friday": "Viernes Santo",
+      "easter_monday": "Lunes de Pascua",
+      "may_1": "Día del Trabajo",
+      "whit_monday": "Lunes de Pentecostés",
+      "august_20": "Día de la Fundación del Estado",
+      "october_23": "Día de la Revolución",
+      "all_saints": "Todos los Santos",
+      "december_24": "Nochebuena",
+      "december_25": "Navidad",
+      "december_26": "Segundo día de Navidad"
+    },
+    "cash": {
+      "week": "{count, plural, one {Festivo: {days}} many {Festivos: {days}} other {Festivos: {days}}}",
+      "summary": "{count, plural, one {# festivo en estas semanas: {days}.} many {# festivos en estas semanas: {days}.} other {# festivos en estas semanas: {days}.}}",
+      "none": "Ningún festivo cae en estas semanas.",
+      "note": "Los bancos y los proveedores de pagos cuentan días laborables, así que el dinero que vence en un festivo puede llegar un día después. Esto no está contado en la previsión."
+    },
+    "stock": {
+      "short": "{count, plural, one {# festivo dentro} many {# festivos dentro} other {# festivos dentro}}",
+      "inLead": "{count, plural, one {# festivo cae dentro de este plazo de entrega: {days}.} many {# festivos caen dentro de este plazo de entrega: {days}.} other {# festivos caen dentro de este plazo de entrega: {days}.}} No está contado en él."
+    },
+    "uncovered": "ScaleX aún no tiene calendario de festivos para {country}, así que no muestra ninguno.",
+    "source": "Festivos: {law}, según el texto vigente el {day}.",
+    "law": {
+      "HU": "Código del Trabajo de Hungría ({law})"
+    }
+  },
   "proposals": {
     "meta": {
       "title": "Propuestas · ScaleX",

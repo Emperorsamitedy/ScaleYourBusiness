@@ -104,6 +104,7 @@ export const GUIDE: readonly GuideScreen[] = [
     how: [
       "To bring it up to date: import a newer bank statement on Connections, under Your own files.",
       "To set the least you want to keep in the account: Cash flow has a link to that question when none is stated; a week under that line is marked tight.",
+      "Public holidays in the weeks ahead are named under the week they fall in, with the law they come from under the table. They change no figure. They show for a business whose country is on the Fact sheet and has a calendar here (Hungary so far); another country is told there is no calendar yet.",
     ],
   },
   {
@@ -141,6 +142,9 @@ export const GUIDE: readonly GuideScreen[] = [
     name: "Stock",
     place: "Insights",
     what: "What runs out and when, what sits unsold, and purchase orders waiting for your yes.",
+    how: [
+      "To see which public holidays fall inside a delivery time: open the line under that time in the table. They are named, never counted in the delivery time; whether a supplier's days include them is yours to know.",
+    ],
   },
   {
     route: "/blindspots",

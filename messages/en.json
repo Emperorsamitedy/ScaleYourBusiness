@@ -1362,6 +1362,38 @@
     "moved": "The weekly summary, phone alerts and module switches are in Settings.",
     "movedLink": "Alerts and modules"
   },
+  "signals": {
+    "day": "{day} ({name})",
+    "holiday": {
+      "new_year": "New Year's Day",
+      "march_15": "National Day",
+      "good_friday": "Good Friday",
+      "easter_monday": "Easter Monday",
+      "may_1": "Labour Day",
+      "whit_monday": "Whit Monday",
+      "august_20": "State Foundation Day",
+      "october_23": "Revolution Memorial Day",
+      "all_saints": "All Saints' Day",
+      "december_24": "Christmas Eve",
+      "december_25": "Christmas Day",
+      "december_26": "Second day of Christmas"
+    },
+    "cash": {
+      "week": "{count, plural, one {Public holiday: {days}} other {Public holidays: {days}}}",
+      "summary": "{count, plural, one {# public holiday in these weeks: {days}.} other {# public holidays in these weeks: {days}.}}",
+      "none": "No public holiday falls in these weeks.",
+      "note": "Banks and payout providers count working days, so money due on a public holiday may arrive a day later. This is not counted in the forecast."
+    },
+    "stock": {
+      "short": "{count, plural, one {# public holiday inside} other {# public holidays inside}}",
+      "inLead": "{count, plural, one {# public holiday falls inside this delivery time: {days}.} other {# public holidays fall inside this delivery time: {days}.}} Not counted in it."
+    },
+    "uncovered": "ScaleX has no public holiday calendar for {country} yet, so none is shown.",
+    "source": "Public holidays: {law}, as in force on {day}.",
+    "law": {
+      "HU": "Hungary's Labour Code ({law})"
+    }
+  },
   "proposals": {
     "meta": {
       "title": "Proposals · ScaleX",

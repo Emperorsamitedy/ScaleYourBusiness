@@ -67,6 +67,8 @@ import {
 } from "../../../lib/stock/propose";
 import { requireRole } from "../../../lib/auth/roles";
 import type { RoleAction } from "../../../lib/auth/roles";
+import { loadOutside } from "../../../lib/signals/outside";
+import type { OutsideView } from "../../../lib/signals/view";
 import type { Money } from "../../../lib/core/money";
 import type { NotSentReason } from "../../../lib/purchasing/po";
 import {
@@ -169,6 +171,11 @@ export interface CoverBlock {
   season: string;
   /** Why reorder notes can't be proposed yet, when they can't (rule 15). */
   held: string | null;
+  /**
+   * Outside signals for the longest delivery time from today: the public
+   * holidays of the business's country, with the law they come from.
+   */
+  outside?: OutsideView | null;
 }
 
 /** P6-04: one supplier's order as it would be made today, for the form. */
@@ -362,6 +369,23 @@ export async function GET(): Promise<NextResponse> {
         };
       }),
     };
+
+    // Outside signals (lib/signals): the public holidays inside the longest
+    // delivery time, for the note beside a delivery time. Shown, and counted in
+    // nothing: whether a supplier's days are calendar days is the owner's to
+    // know. A failure here leaves the stock screen whole.
+    try {
+      const longest = Math.max(0, ...cover.items.map((i) => i.lead.days));
+      if (longest > 0) cover.outside = await loadOutside(access.profile_id, view.today, longest);
+    } catch (error) {
+      console.error(
+        JSON.stringify({
+          event: "stock_outside_failed",
+          account_id: access.account_id,
+          ...logSafeError(error),
+        }),
+      );
+    }
 
     // P6-04: what an order to each supplier would hold, and the orders made.
     const drafts = await poDrafts(access.profile_id, coverView);

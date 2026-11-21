@@ -1362,6 +1362,38 @@
     "moved": "每周摘要、手机提醒和模块开关已移至设置。",
     "movedLink": "提醒与模块"
   },
+  "signals": {
+    "day": "{day}（{name}）",
+    "holiday": {
+      "new_year": "元旦",
+      "march_15": "国家纪念日",
+      "good_friday": "耶稣受难日",
+      "easter_monday": "复活节星期一",
+      "may_1": "劳动节",
+      "whit_monday": "圣灵降临节星期一",
+      "august_20": "建国日",
+      "october_23": "革命纪念日",
+      "all_saints": "诸圣节",
+      "december_24": "平安夜",
+      "december_25": "圣诞节",
+      "december_26": "圣诞节次日"
+    },
+    "cash": {
+      "week": "{count, plural, other {法定假日：{days}}}",
+      "summary": "{count, plural, other {这几周内有 # 个法定假日：{days}。}}",
+      "none": "这几周内没有法定假日。",
+      "note": "银行和付款服务商按工作日计算，因此在法定假日到期的款项可能会晚一天到账。预测中未计入这一点。"
+    },
+    "stock": {
+      "short": "{count, plural, other {其间有 # 个法定假日}}",
+      "inLead": "{count, plural, other {这段交货时间内有 # 个法定假日：{days}。}}未计入交货时间。"
+    },
+    "uncovered": "ScaleX 还没有 {country} 的法定假日日历，因此不显示任何假日。",
+    "source": "法定假日：{law}，以 {day} 生效的文本为准。",
+    "law": {
+      "HU": "匈牙利《劳动法典》（{law}）"
+    }
+  },
   "proposals": {
     "meta": {
       "title": "提案 · ScaleX",

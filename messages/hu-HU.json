@@ -1362,6 +1362,38 @@
     "moved": "A heti összefoglaló, a telefonos értesítések és a modulkapcsolók a Beállításokban vannak.",
     "movedLink": "Értesítések és modulok"
   },
+  "signals": {
+    "day": "{day} ({name})",
+    "holiday": {
+      "new_year": "újév",
+      "march_15": "nemzeti ünnep",
+      "good_friday": "nagypéntek",
+      "easter_monday": "húsvéthétfő",
+      "may_1": "a munka ünnepe",
+      "whit_monday": "pünkösdhétfő",
+      "august_20": "az államalapítás ünnepe",
+      "october_23": "nemzeti ünnep",
+      "all_saints": "mindenszentek",
+      "december_24": "szenteste",
+      "december_25": "karácsony",
+      "december_26": "karácsony másnapja"
+    },
+    "cash": {
+      "week": "{count, plural, one {Munkaszüneti nap: {days}} other {Munkaszüneti napok: {days}}}",
+      "summary": "{count, plural, one {# munkaszüneti nap esik ezekre a hetekre: {days}.} other {# munkaszüneti nap esik ezekre a hetekre: {days}.}}",
+      "none": "Ezekre a hetekre nem esik munkaszüneti nap.",
+      "note": "A bankok és a kifizetési szolgáltatók munkanapokkal számolnak, ezért a munkaszüneti napon esedékes pénz egy nappal később érkezhet. Ez nincs beleszámolva az előrejelzésbe."
+    },
+    "stock": {
+      "short": "{count, plural, one {# munkaszüneti nap esik bele} other {# munkaszüneti nap esik bele}}",
+      "inLead": "{count, plural, one {# munkaszüneti nap esik ebbe a szállítási időbe: {days}.} other {# munkaszüneti nap esik ebbe a szállítási időbe: {days}.}} Nincs beleszámolva."
+    },
+    "uncovered": "A ScaleX-nek még nincs munkaszünetinap-naptára ehhez az országhoz: {country}, ezért egyet sem mutat.",
+    "source": "Munkaszüneti napok: {law}, a következő napon hatályos szöveg szerint: {day}.",
+    "law": {
+      "HU": "a magyar munka törvénykönyve ({law})"
+    }
+  },
   "proposals": {
     "meta": {
       "title": "Javaslatok · ScaleX",

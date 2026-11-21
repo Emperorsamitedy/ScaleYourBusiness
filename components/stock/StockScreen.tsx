@@ -32,6 +32,9 @@ import type {
   StockView,
 } from "../../app/api/stock/route";
 import { dayMonthYear } from "../../lib/i18n/format";
+import type { OutsideView } from "../../lib/signals/view";
+import { holidaysInStretch } from "../../lib/signals/view";
+import { holidaySource, leadHolidayLine, leadHolidayShort } from "../signals/holiday-words";
 import { intlTag } from "../../lib/i18n/locales";
 import { StockHistoryChart } from "../charts/StockHistoryChart";
 import { PurchaseOrdersCard } from "./PurchaseOrders";
@@ -193,6 +196,15 @@ function CoverTable({ cover, today }: { cover: CoverBlock; today: string | undef
   const vsPrior = tr("col.vsPrior", { days: n });
   const bars = coverBars(cover.items, today);
   const drawn = bars.some((b) => b !== null);
+  // Outside signals: the public holidays on a working day inside each item's delivery
+  // time, counted from today. Said beside the time, and counted in none of it.
+  const signals = useTr("signals");
+  const outside = cover.outside ?? null;
+  const inLead = (item: CoverItemView) =>
+    today ? holidaysInStretch(outside, today, item.lead.days) : [];
+  const source = cover.items.some((i) => inLead(i).length > 0)
+    ? holidaySource(outside, signals.tr, signals.locale)
+    : null;
   return (
     <>
       <div className="st-table-wrap" tabIndex={0} aria-label={tr("coverTable")}>
@@ -265,6 +277,15 @@ function CoverTable({ cover, today }: { cover: CoverBlock; today: string | undef
                   )}
                   <td data-label={tr("col.delivery")} title={item.lead.why}>
                     <span className="st-mono">{leadText(item, words)}</span>
+                    {inLead(item).length > 0 && (
+                      // A fold, not a title: a finger and a keyboard can open it too.
+                      <Fold
+                        className="st-holiday"
+                        summary={leadHolidayShort(inLead(item), signals.tr)}
+                      >
+                        <p>{leadHolidayLine(inLead(item), signals.tr, signals.locale)}</p>
+                      </Fold>
+                    )}
                   </td>
                   <td data-label={tr("col.flag")}>
                     <span className={`flag ${coverFlagClass(item.flag)}`}>
@@ -283,14 +304,29 @@ function CoverTable({ cover, today }: { cover: CoverBlock; today: string | undef
           {tr("col.delivery")}
         </p>
       )}
+      {source !== null && <p className="st-outside">{source}</p>}
     </>
   );
 }
 
-function ReorderNote({ item }: { item: CoverItemView }) {
+function ReorderNote({
+  item,
+  outside,
+  today,
+}: {
+  item: CoverItemView;
+  outside: OutsideView | null;
+  today: string | undefined;
+}) {
   const words = useStockWords();
   const { tr, locale } = words;
+  const signals = useTr("signals");
   const r = item.reorder!;
+  // Outside signals: the public holidays inside this item's delivery time, in full here
+  // where there is room for the days and their names. Counted in nothing.
+  const holidayLine = today
+    ? leadHolidayLine(holidaysInStretch(outside, today, item.lead.days), signals.tr, signals.locale)
+    : null;
   const w = r.proposal ? statusWord(r.proposal, tr) : null;
   const quantity = num(r.quantity, 0, locale);
   return (
@@ -307,6 +343,7 @@ function ReorderNote({ item }: { item: CoverItemView }) {
         {item.warning}
         {w && <span className={`word ${w.tone}`}>{w.word}</span>}
       </p>
+      {holidayLine !== null && <p className="st-copy st-holiday-line">{holidayLine}</p>}
       {r.cost && <p className="st-rank-fig">{moneyLine(r.cost, words)}</p>}
       {r.proposal?.status === "blocked" && r.proposal.blocked_by_limit && (
         <p className="st-rank-math">{tr("ruledOut", { rule: r.proposal.blocked_by_limit })}</p>
@@ -735,7 +772,12 @@ export function StockScreen() {
                 .filter((i) => i.reorder !== null)
                 .slice(0, 4)
                 .map((i) => (
-                  <ReorderNote key={i.key} item={i} />
+                  <ReorderNote
+                    key={i.key}
+                    item={i}
+                    outside={view.cover?.outside ?? null}
+                    today={view.today}
+                  />
                 ))}
             </div>
           )}

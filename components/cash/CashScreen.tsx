@@ -37,6 +37,15 @@ import type { CashView } from "../../app/api/cash/route";
 import type { CashForecast, CashReady } from "../../lib/cash/model";
 import { CASH } from "../../lib/cash/model";
 import { minorUnitExponent } from "../../lib/core/money";
+import { shiftDays } from "../../lib/signals/holidays";
+import type { OutsideView } from "../../lib/signals/view";
+import { holidaysBetween } from "../../lib/signals/view";
+import {
+  cashHolidaySummary,
+  holidaySource,
+  regionName,
+  weekHolidayLine,
+} from "../signals/holiday-words";
 import { CashChart } from "../charts/CashChart";
 import { basisName } from "../report/basis";
 import { num } from "../sheet/num";
@@ -252,17 +261,44 @@ function Tiles({ f, onWhy }: { f: CashReady; onWhy: (c: WhyContent) => void }) {
   );
 }
 
-function Weeks({ f }: { f: CashReady }) {
+function Weeks({ f, outside }: { f: CashReady; outside: OutsideView | null }) {
   const words = useCashWords();
   const home = useTr("home").tr;
+  const signals = useTr("signals");
   const { tr } = words;
   const rows = weekRows(f, words);
   const [all, setAll] = useState(false);
   const shown = all ? rows : rows.slice(0, FIRST_WEEKS);
+  // Outside signals: the public holidays of these weeks, said under the table with the
+  // law they come from. Every week is counted, the folded ones too. They change no figure.
+  const holidays = cashHolidaySummary(
+    outside,
+    outside?.country ? regionName(outside.country, signals.locale) : null,
+    signals.tr,
+    signals.locale,
+  );
+  const source = holidaySource(outside, signals.tr, signals.locale);
+  const anyHoliday = outside?.holidays.covered === true && outside.holidays.days.length > 0;
+  /** A week's own line: the forecast's weeks are seven days from the day each starts. */
+  const holidayOf = (weekStart: string) =>
+    weekHolidayLine(
+      holidaysBetween(outside, weekStart, shiftDays(weekStart, 6)),
+      signals.tr,
+      signals.locale,
+    );
   return (
     <SheetCard
       className="cf-weeks-card"
       title={tr("weeks.label")}
+      foot={
+        holidays === null ? undefined : (
+          <span className="cf-outside">
+            <span>{holidays}</span>
+            {anyHoliday && <span>{signals.tr("cash.note")}</span>}
+            {source !== null && <span className="cf-outside-src">{source}</span>}
+          </span>
+        )
+      }
       meta={
         rows.length > FIRST_WEEKS ? (
           <button
@@ -304,6 +340,9 @@ function Weeks({ f }: { f: CashReady }) {
                     <span className="cf-due">
                       {tr("weeks.due")}: {r.due}
                     </span>
+                  )}
+                  {holidayOf(r.key) !== null && (
+                    <span className="cf-due cf-holiday">{holidayOf(r.key)}</span>
                   )}
                 </th>
                 <td className="num" data-label={tr("weeks.moneyIn")}>
@@ -701,7 +740,7 @@ export function CashScreen() {
         tightWord={home("flag.tight")}
       />
       <WhatIf view={view} f={f} onRun={(q) => void load(q)} busy={busy} />
-      <Weeks f={f} />
+      <Weeks f={f} outside={view.outside ?? null} />
       <Sources f={f} />
       <WhySheet content={why} onClose={shut} />
     </Frame>

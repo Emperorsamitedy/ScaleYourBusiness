@@ -1362,6 +1362,38 @@
     "moved": "Die Wochenübersicht, die Hinweise aufs Telefon und die Modulschalter sind in den Einstellungen.",
     "movedLink": "Hinweise und Module"
   },
+  "signals": {
+    "day": "{day} ({name})",
+    "holiday": {
+      "new_year": "Neujahr",
+      "march_15": "Nationalfeiertag",
+      "good_friday": "Karfreitag",
+      "easter_monday": "Ostermontag",
+      "may_1": "Tag der Arbeit",
+      "whit_monday": "Pfingstmontag",
+      "august_20": "Tag der Staatsgründung",
+      "october_23": "Gedenktag der Revolution",
+      "all_saints": "Allerheiligen",
+      "december_24": "Heiligabend",
+      "december_25": "Erster Weihnachtstag",
+      "december_26": "Zweiter Weihnachtstag"
+    },
+    "cash": {
+      "week": "{count, plural, one {Feiertag: {days}} other {Feiertage: {days}}}",
+      "summary": "{count, plural, one {# gesetzlicher Feiertag in diesen Wochen: {days}.} other {# gesetzliche Feiertage in diesen Wochen: {days}.}}",
+      "none": "In diese Wochen fällt kein gesetzlicher Feiertag.",
+      "note": "Banken und Auszahlungsdienste rechnen in Werktagen, deshalb kann Geld, das an einem Feiertag fällig ist, einen Tag später ankommen. Das ist in der Prognose nicht eingerechnet."
+    },
+    "stock": {
+      "short": "{count, plural, one {# Feiertag darin} other {# Feiertage darin}}",
+      "inLead": "{count, plural, one {# gesetzlicher Feiertag fällt in diese Lieferzeit: {days}.} other {# gesetzliche Feiertage fallen in diese Lieferzeit: {days}.}} Nicht eingerechnet."
+    },
+    "uncovered": "ScaleX hat für {country} noch keinen Feiertagskalender, deshalb wird keiner angezeigt.",
+    "source": "Gesetzliche Feiertage: {law}, in der Fassung vom {day}.",
+    "law": {
+      "HU": "ungarisches Arbeitsgesetzbuch ({law})"
+    }
+  },
   "proposals": {
     "meta": {
       "title": "Vorschläge · ScaleX",
