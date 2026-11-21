@@ -13,6 +13,7 @@ import {
   isSameDay,
   originWord,
   rangeAxis,
+  readsAsWords,
   reviewStats,
   shortReversibility,
   chipPhrase,
@@ -523,5 +524,35 @@ describe("P3-54 — an ad created paused, and its separate go-live", () => {
     expect(consequence(live)).toBe("Put the ad live");
     expect(adFacts({ summary: "x", detail: { change: "pause" } })).toBeNull();
     expect(effectSpan({ summary: "x", detail: {} })).toBe("a month");
+  });
+});
+
+describe("a side of a change that is a sentence is set as one", () => {
+  it("knows a brief or a page's wording from a figure, a key or a short value", () => {
+    expect(
+      readsAsWords(
+        "One email, in your voice, to shoppers who left a cart in the last week and gave explicit consent",
+      ),
+    ).toBe(true);
+    expect(readsAsWords("Hand-thrown stoneware, made to order in small batches")).toBe(true);
+    // Hungarian reads the same way: letters are letters.
+    expect(readsAsWords("Egy e-mail az Ön hangján azoknak, akik a kosarukat otthagyták")).toBe(
+      true,
+    );
+  });
+
+  it("leaves a figure, a count, a key and a short value in the figures' face", () => {
+    for (const value of [
+      "€34.00",
+      "about €14.40 a day (+20 %)",
+      "3 people",
+      "nobody",
+      "paused",
+      "-",
+      "read_orders · read_products · read_customers · read_inventory",
+      "2026-11-19 09:00 to 2026-12-04 18:00 (15 days)",
+    ]) {
+      expect(readsAsWords(value), value).toBe(false);
+    }
   });
 });

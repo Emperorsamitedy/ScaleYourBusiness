@@ -309,6 +309,7 @@
     "pause": {
       "title": "Pause · terminer plus tard",
       "lede": "Tout ce qui précède est déjà enregistré. Laissez une adresse e-mail et je vous donnerai un lien qui rouvre ce profil sur n’importe quel appareil. Pas de mot de passe, pas de compte.",
+      "kept": "Tout ce que vous avez répondu jusqu’ici est conservé dans votre compte. Revenez depuis l’accueil quand vous voulez.",
       "keepGoing": "Continuer"
     },
     "stage": {
@@ -335,7 +336,10 @@
       "moderate": "moyenne",
       "next": "Ensuite",
       "nextValue": "décider avec quelle prudence avancer",
-      "keep": "Laissez une adresse e-mail et je vous donnerai un lien pour revenir à ce profil. Pas de mot de passe, pas de compte."
+      "keep": "Laissez une adresse e-mail et je vous donnerai un lien pour revenir à ce profil. Pas de mot de passe, pas de compte.",
+      "home": "Aller à l’accueil",
+      "revisit": "Répondre à ce que vous avez passé",
+      "kept": "Tout ce que vous avez répondu est conservé dans votre compte. Vous pouvez le modifier sur la fiche des faits."
     },
     "question": {
       "ref": "Q <fig>{id}</fig>",
@@ -461,10 +465,13 @@
     "keep": {
       "placeholder": "vous@votreentreprise.fr",
       "label": "Votre adresse e-mail",
+      "title": "Gardez votre accès",
       "making": "Création du lien",
       "get": "Obtenir mon lien",
       "linkCap": "Votre lien",
       "linkNote": "Il rouvre ce profil sur n’importe quel appareil pendant {days, plural, one {# jour} many {# jours} other {# jours}}. Gardez-en une copie là où vous la retrouverez.",
+      "copy": "Copier le lien",
+      "copied": "Copié",
       "badEmail": "Cela ne ressemble pas à une adresse e-mail.",
       "failed": "Je n’ai pas pu créer le lien. Réessayez."
     },
@@ -1224,7 +1231,10 @@
         "daily": "Jour par jour"
       },
       "below": "Sous sa plage habituelle depuis le {date}",
-      "above": "Au-dessus de sa plage habituelle depuis le {date}"
+      "above": "Au-dessus de sa plage habituelle depuis le {date}",
+      "latest": "Dernier jour",
+      "high": "Jour le plus haut",
+      "low": "Jour le plus bas"
     },
     "noted": {
       "label": "Noté, sans suite",
@@ -1268,6 +1278,9 @@
       "noEmail": "L’envoi d’e-mails n’est pas encore configuré sur ce serveur, donc aucun n’est envoyé.",
       "lastSent": "Dernier envoi le {date}.",
       "first": "Le premier part lors de la prochaine vérification du lundi.",
+      "warningsSwitch": "m’envoyer une alerte par e-mail le jour où elle apparaît",
+      "warningsWhy": "Un e-mail, la première fois que l’argent semble juste dans les semaines à venir ou qu’un article que vous vendez pourrait manquer avant la prochaine livraison.",
+      "warningsOff": "Désactivé. Une alerte n’apparaît que dans l’application et dans l’e-mail du lundi.",
       "channel": {
         "legend": "L’envoyer par",
         "email": "E-mail",
@@ -1348,6 +1361,38 @@
     },
     "moved": "Le résumé hebdomadaire, les alertes sur téléphone et les modules sont dans les Réglages.",
     "movedLink": "Alertes et modules"
+  },
+  "signals": {
+    "day": "{day} ({name})",
+    "holiday": {
+      "new_year": "Jour de l’An",
+      "march_15": "Fête nationale",
+      "good_friday": "Vendredi saint",
+      "easter_monday": "Lundi de Pâques",
+      "may_1": "Fête du Travail",
+      "whit_monday": "Lundi de Pentecôte",
+      "august_20": "Fête de la fondation de l’État",
+      "october_23": "Commémoration de la révolution",
+      "all_saints": "Toussaint",
+      "december_24": "Veille de Noël",
+      "december_25": "Noël",
+      "december_26": "Lendemain de Noël"
+    },
+    "cash": {
+      "week": "{count, plural, one {Jour férié : {days}} many {Jours fériés : {days}} other {Jours fériés : {days}}}",
+      "summary": "{count, plural, one {# jour férié dans ces semaines : {days}.} many {# jours fériés dans ces semaines : {days}.} other {# jours fériés dans ces semaines : {days}.}}",
+      "none": "Aucun jour férié ne tombe dans ces semaines.",
+      "note": "Les banques et les prestataires de paiement comptent en jours ouvrés : l’argent dû un jour férié peut donc arriver un jour plus tard. Ce n’est pas compté dans la prévision."
+    },
+    "stock": {
+      "short": "{count, plural, one {# jour férié dedans} many {# jours fériés dedans} other {# jours fériés dedans}}",
+      "inLead": "{count, plural, one {# jour férié tombe dans ce délai de livraison : {days}.} many {# jours fériés tombent dans ce délai de livraison : {days}.} other {# jours fériés tombent dans ce délai de livraison : {days}.}} Non compté dans le délai."
+    },
+    "uncovered": "ScaleX n’a pas encore de calendrier des jours fériés pour {country} : aucun n’est donc affiché.",
+    "source": "Jours fériés : {law}, dans sa version en vigueur le {day}.",
+    "law": {
+      "HU": "Code du travail hongrois ({law})"
+    }
   },
   "proposals": {
     "meta": {
@@ -1602,18 +1647,18 @@
       },
       "size": {
         "title": "Ampleur du changement",
-        "unit": "mots de la ligne, avant et après",
+        "unit": "Mots de la ligne, avant et après",
         "before": "Avant",
         "after": "Après",
         "words": "{count, plural, one {# mot} many {# mots} other {# mots}}",
-        "kept": "conservés · {count}",
-        "added": "ajoutés · {count}",
-        "removed": "retirés · {count}",
+        "kept": "Conservés · {count}",
+        "added": "Ajoutés · {count}",
+        "removed": "Retirés · {count}",
         "aria": "Avant : {before} mots. Après : {after} mots ; {kept} conservés, {added} ajoutés, {removed} retirés."
       },
       "rollback": {
         "title": "Quand il revient en arrière tout seul",
-        "unit": "chargement de la page, millisecondes",
+        "unit": "Chargement de la page, millisecondes",
         "today": "Aujourd’hui",
         "past": "Retour arrière au-delà de",
         "ms": "{ms} ms",
@@ -1631,7 +1676,7 @@
         "fact": "Fait {n}",
         "more": "+{count} de plus",
         "rules": "{count, plural, one {Votre règle · #} many {Vos règles · #} other {Vos règles · #}}",
-        "rulesSub": "ce que vous m’avez dit",
+        "rulesSub": "Ce que vous m’avez dit",
         "disagree": "{count, plural, one {Désaccord · #} many {Désaccords · #} other {Désaccords · #}}",
         "disagreeSub": "sources qui divergent",
         "aria": "Cette décision repose sur {facts, plural, one {# fait} many {# faits} other {# faits}}, {rules, plural, one {# de vos règles} many {# de vos règles} other {# de vos règles}} et {disagreements, plural, one {# désaccord} many {# désaccords} other {# désaccords}}."
@@ -1639,9 +1684,9 @@
       "way": {
         "title": "Le chemin du retour",
         "now": "Tel quel aujourd’hui",
-        "stored": "conservé",
+        "stored": "Conservé",
         "changed": "Modifié",
-        "click": "un clic",
+        "click": "Un clic",
         "back": "Revenu comme avant",
         "auto": "ou tout seul, si la page met plus de {ms} ms",
         "aria": "L’état actuel est conservé, puis modifié ; un clic le rétablit tel qu’il était.",
@@ -1796,9 +1841,78 @@
     "sync": {
       "didntRun": "La synchronisation n’a pas eu lieu.",
       "locked": "Une synchronisation est déjà en cours pour {label}.",
+      "reading": "Lecture de {label}. {count, plural, =0 {Rien pour l’instant.} one {# chiffre quotidien jusqu’ici.} many {# chiffres quotidiens jusqu’ici.} other {# chiffres quotidiens jusqu’ici.}}",
+      "working": "{label} est lu. Calcul de ce qui a changé.",
       "done": "Synchronisation de {label} terminée. {count, plural, one {# chiffre quotidien lu.} many {# chiffres quotidiens lus.} other {# chiffres quotidiens lus.}}",
       "failed": "La synchronisation de {label} a échoué. {reason}",
       "noReason": "Aucune raison n’a été donnée."
+    },
+    "pageSetup": {
+      "label": "Avant l’accès en écriture",
+      "title": {
+        "todo": "Pas encore de Page Facebook ni de compte professionnel Instagram ?",
+        "done": "Votre Page est connectée",
+        "doneBoth": "Votre Page et son compte Instagram sont connectés"
+      },
+      "lede": "ScaleX ne peut pas les créer à votre place : aucune application n’a le droit de créer une Page ou un compte au nom d’une personne. Vous les créez sur Facebook et Instagram, et ScaleX vous donne quoi saisir, tiré de votre fiche des faits.",
+      "show": "Le guide de mise en place",
+      "reading": "Lecture de votre fiche des faits…",
+      "failed": "Le guide n’a pas pu être lu. Rechargez la page.",
+      "step1": {
+        "title": "Créez la Page sur Facebook",
+        "lede": "Facebook demande un nom, une catégorie et une courte description. Voici chacun, prêt à copier.",
+        "open": "Ouvrir le guide de Facebook"
+      },
+      "step2": {
+        "title": "Passez votre Instagram en compte professionnel et reliez-le à la Page",
+        "lede": "Dans l’application Instagram, ouvrez Modifier le profil, passez à un compte professionnel, puis reliez votre Page Facebook sous Page. Reprenez la même courte description.",
+        "open": "Ouvrir le guide d’Instagram"
+      },
+      "step3": {
+        "title": "Revenez et donnez à ScaleX l’accès en écriture",
+        "lede": "Utilisez la carte de publication de cet écran. ScaleX lit alors quelles Pages Meta lui montre et si un compte Instagram est relié à votre Page. Il ne voit jamais votre mot de passe."
+      },
+      "newTab": "(s’ouvre dans un nouvel onglet)",
+      "row": {
+        "name": "Nom de la Page",
+        "category": "Catégorie",
+        "categoryHint": "Cherchez la plus proche de : {type}",
+        "short": "Courte description",
+        "about": "Description plus longue",
+        "website": "Site web",
+        "username": "Idée de nom d’utilisateur"
+      },
+      "src": {
+        "name": "Le nom de votre entreprise, d’après votre fiche des faits",
+        "type": "Le type d’entreprise que vous avez choisi",
+        "about": "Ce que vous m’avez dit de l’activité de l’entreprise, tel que vous l’avez écrit",
+        "shortAsGiven": "Ce que vous m’avez dit de l’activité de l’entreprise, tel que vous l’avez écrit",
+        "shortFirst": "La première phrase de ce que vous m’avez dit de l’activité de l’entreprise",
+        "shortCut": "Raccourci à partir de ce que vous m’avez dit de l’activité de l’entreprise. Vérifiez que cela se lit encore bien.",
+        "website": "Votre site web, d’après votre fiche des faits",
+        "username": "Formé à partir du nom : minuscules, sans accents, des points à la place des espaces. Une suggestion : il est peut-être déjà pris."
+      },
+      "copy": "Copier",
+      "copied": "Copié",
+      "copyWhat": "Copier : {what}",
+      "copyFailed": "La copie a échoué. Sélectionnez le texte et copiez-le vous-même.",
+      "gaps": {
+        "title": "Pour préparer le reste, il me manque encore :",
+        "answer": "Répondre maintenant"
+      },
+      "gap": {
+        "name": "Le nom de l’entreprise.",
+        "business_type": "De quel type d’entreprise il s’agit.",
+        "description": "Ce que fait l’entreprise, en quelques phrases."
+      },
+      "state": {
+        "pageNo": "Page : pas encore connectée",
+        "pageYes": "Page : connectée",
+        "instagramNo": "Instagram : pas encore relié à la Page",
+        "instagramYes": "Instagram : connecté"
+      },
+      "change": "Modifiez tout cela dans votre fiche des faits",
+      "foot": "ScaleX ne vous demande jamais votre mot de passe Facebook ou Instagram. Ce guide est gratuit dans toutes les formules."
     },
     "panel": {
       "label": "Panneau de brassage",
@@ -2303,7 +2417,7 @@
         "start_again": "Cette connexion avec Facebook a expiré ou a déjà été utilisée. Recommencez depuis Connexions.",
         "foreign": "Cette connexion avec Facebook a été lancée depuis un autre compte ScaleX. Connectez-vous à ScaleX avec ce compte, ou recommencez.",
         "meta_error": "La connexion avec Facebook n’a pas abouti. Rien n’a été connecté.",
-        "no_pages": "Meta n’a montré à ScaleX aucune Page pour ce compte Facebook. Dans la fenêtre de Meta, choisissez la Page (et son compte Instagram) sur laquelle ScaleX doit publier, puis réessayez.",
+        "no_pages": "Meta n’a montré à ScaleX aucune Page pour ce compte Facebook. Dans la fenêtre de Meta, choisissez la Page (et son compte Instagram) sur laquelle ScaleX doit publier, puis réessayez. Pas encore de Page ? Le guide de mise en place de cet écran indique quoi saisir.",
         "no_ad_accounts": "Meta n’a montré à ScaleX aucun compte publicitaire pour ce compte Facebook. Dans la fenêtre de Meta, choisissez le compte publicitaire que ScaleX doit gérer, puis réessayez.",
         "meta_auth": "La connexion avec Facebook n’a pas abouti : Meta n’a pas accepté la connexion. Recommencez depuis Connexions.",
         "meta_permission": "La connexion avec Facebook n’a pas abouti : selon Meta, ScaleX n’est pas autorisé à faire cela. Vérifiez les autorisations listées dans Connexions et recommencez.",
@@ -4749,6 +4863,8 @@
       "unclear": "Je ne sais pas où se trouvent les décimales dans ce nombre. Saisissez-le sans séparateur de milliers, par exemple {example}.",
       "onForm": "Celle-ci se remplit dans le formulaire.",
       "openForm": "L’ouvrir là-bas",
+      "rowsDone": "C’est tout",
+      "fieldSkip": "Laisser de côté",
       "stop": "Arrêter ici"
     }
   },
@@ -4966,6 +5082,9 @@
       "caption": "Légende",
       "writtenFrom": "Rédigé à partir de",
       "serves": "Sert : {goal}",
+      "learnedBoth": "Vos propres publications sur {platform} : {helped, plural, one {# a mieux marché} many {# ont mieux marché} other {# ont mieux marché}} que d’habitude, {backfired, plural, one {# a moins bien marché} many {# ont moins bien marché} other {# ont moins bien marché}}",
+      "learnedHelped": "Vos propres publications sur {platform} : {helped, plural, one {# a mieux marché} many {# ont mieux marché} other {# ont mieux marché}} que d’habitude",
+      "learnedBackfired": "Vos propres publications sur {platform} : {backfired, plural, one {# a moins bien marché} many {# ont moins bien marché} other {# ont moins bien marché}} que d’habitude",
       "disclosure": "Mention : {text}",
       "notPublishing": "Pas de publication : {why}.",
       "superseded": "Vos propres images ont remplacé cette version générée, elle ne sera donc pas publiée.",
@@ -6767,6 +6886,11 @@
       "footWatchingHtml": "Tout ce que je fais figure sur votre <link>écran Observation</link>. Rien ne s’exécute tant que vous ne l’avez pas validé.",
       "footStopHtml": "Vous recevez cet e-mail une fois par semaine. Désactivez-le sur l’écran Observation, ou <link>arrêtez ces e-mails</link> en un clic.",
       "whatsappBusiness": "votre entreprise"
+    },
+    "warning": {
+      "open": "Ouvrir {screen}",
+      "why": "Je vous le dis une fois, la première fois qu’une alerte de ce genre apparaît.",
+      "stop": "Pour ne plus recevoir ces e-mails, désactivez-les dans {settings}."
     },
     "signIn": {
       "subject": "Votre lien de connexion · ScaleX",
@@ -9146,6 +9270,14 @@
     "withProposals": "{count, plural, one {# chose attend votre feu vert} many {# choses attendent votre feu vert} other {# choses attendent votre feu vert}}, et {reviews, plural, one {un avis à connaître} many {# avis à connaître} other {# avis à connaître}}",
     "anotherSite": "un autre site"
   },
+  "warningPush": {
+    "one": {
+      "cash_warning": "Votre caisse pourrait être tendue dans les semaines à venir",
+      "stock_warning": "Un article que vous vendez pourrait manquer avant la prochaine livraison"
+    },
+    "many": "{count, plural, one {# alerte à connaître} many {# alertes à connaître} other {# alertes à connaître}}",
+    "also": ", et {count, plural, one {une alerte à connaître} many {# alertes à connaître} other {# alertes à connaître}}"
+  },
   "payments": {
     "meta": {
       "title": "Paiements · ScaleX"
@@ -10498,6 +10630,15 @@
     "toast": {
       "approved": "Validée. Enregistrée à votre nom.",
       "declined": "Refusée. Enregistrée avec votre raison."
+    },
+    "arrange": {
+      "open": "Organiser cette page",
+      "title": "Ce que cette page affiche",
+      "note": "Cochez ce que vous voulez voir et montez-le ou descendez-le. Conservé dans ce navigateur.",
+      "always": "Ce qui vous attend et l’état de Lex sont toujours affichés.",
+      "up": "Monter {name}",
+      "down": "Descendre {name}",
+      "reset": "Remettre comme avant"
     }
   },
   "alerts": {

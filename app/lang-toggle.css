@@ -1,0 +1,82 @@
+/* The language switch in the top right corner (components/locale/
+   LanguageToggle.tsx): two short buttons in one pill, the language being
+   read pressed in. It takes its ink from where it stands (the app's bar, the
+   landing page's header), so it needs no colours of its own there; the
+   entrance's corner gives it a ground, because that corner lies over paper
+   on one page and over a picture on another. */
+.lang-toggle {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 2px;
+  height: 36px;
+  padding: 3px;
+  border: 1px solid color-mix(in srgb, currentColor 26%, transparent);
+  border-radius: 999px;
+}
+.lang-toggle button {
+  min-width: 34px;
+  height: 28px;
+  padding: 0 8px;
+  border: 0;
+  border-radius: 999px;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  line-height: 1;
+  opacity: 0.62;
+  cursor: pointer;
+  transition:
+    background-color 0.16s ease,
+    opacity 0.16s ease;
+}
+.lang-toggle button:hover:not(:disabled) {
+  opacity: 1;
+}
+.lang-toggle button[aria-pressed="true"] {
+  background: color-mix(in srgb, currentColor 16%, transparent);
+  opacity: 1;
+  cursor: default;
+}
+.lang-toggle button:disabled {
+  cursor: default;
+}
+.lang-toggle button:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+
+/* The entrance (sign-in, sign-up, the free check, the idea check): the top
+   right corner of the page, over whatever is there. */
+.ax-corner {
+  position: absolute;
+  top: 18px;
+  right: 22px;
+  z-index: 5;
+}
+.ax-corner .lang-toggle {
+  border-color: rgba(255, 255, 255, 0.22);
+  background: rgba(13, 19, 33, 0.78);
+  color: #fff;
+  backdrop-filter: blur(6px);
+}
+@media (max-width: 600px) {
+  .ax-corner {
+    top: 12px;
+    right: 14px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lang-toggle button {
+    transition: none;
+  }
+}
+@media print {
+  .lang-toggle {
+    display: none;
+  }
+}

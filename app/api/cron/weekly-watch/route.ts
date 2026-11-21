@@ -16,6 +16,7 @@ import { runStockProposals } from "../../../../lib/stock/propose";
 import { runSeasonPushes } from "../../../../lib/content/season-push";
 import { runStockWarnings } from "../../../../lib/stock/warnings";
 import { runWeeklySummaries } from "../../../../lib/summary/run";
+import { raiseDueWarningAlerts } from "../../../../lib/warnings/sweep";
 import { runWeeklyWatch } from "../../../../lib/watch/job";
 import { pruneExpiredReviews } from "../../../../lib/reviews/store";
 import { pruneExpiredCarts } from "../../../../lib/carts/store";
@@ -81,6 +82,10 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       : null;
     // Idea 42: last, so it reports everything above — the owner's week, by email, once.
     const summaries = await runWeeklySummaries();
+    // Warnings sent at once (2026-11-20): a cash or stock warning this beat
+    // logged as new is told now, by phone and by email. After the summaries,
+    // so a warning the summary has just carried gets no second email.
+    const warning_alerts = await isolated("warning_alerts", () => raiseDueWarningAlerts());
     console.log(
       JSON.stringify({
         event: "weekly_watch",
@@ -98,6 +103,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
         guarantee,
         dormant,
         summaries,
+        warning_alerts,
       }),
     );
     return NextResponse.json({
@@ -115,6 +121,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
       guarantee,
       dormant,
       summaries,
+      warning_alerts,
     });
   } catch (error) {
     console.error(JSON.stringify({ event: "weekly_watch_failed", ...logSafeError(error) }));

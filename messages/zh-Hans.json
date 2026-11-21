@@ -309,6 +309,7 @@
     "pause": {
       "title": "暂停 · 稍后继续",
       "lede": "到目前为止的所有内容都已记录。留下邮箱，我会给您一个链接，在任何设备上都能重新打开这份档案。无需密码，无需账户。",
+      "kept": "目前的内容都保存在您的账户中，可随时从首页继续。",
       "keepGoing": "继续"
     },
     "stage": {
@@ -335,7 +336,10 @@
       "moderate": "一般",
       "next": "下一步",
       "nextValue": "决定推进的谨慎程度",
-      "keep": "留下邮箱，我会给您一个返回这份档案的链接。无需密码，无需账户。"
+      "keep": "留下邮箱，我会给您一个返回这份档案的链接。无需密码，无需账户。",
+      "home": "前往首页",
+      "revisit": "回答跳过的问题",
+      "kept": "您回答的内容都保存在您的账户中，可在事实表中随时修改。"
     },
     "question": {
       "ref": "问题 <fig>{id}</fig>",
@@ -461,10 +465,13 @@
     "keep": {
       "placeholder": "you@yourbusiness.cn",
       "label": "您的邮箱地址",
+      "title": "保留返回的方式",
       "making": "正在生成链接",
       "get": "获取我的链接",
       "linkCap": "您的链接",
       "linkNote": "它可在 {days, plural, other {# 天}}内在任何设备上重新打开这份档案。请把它保存在您找得到的地方。",
+      "copy": "复制链接",
+      "copied": "已复制",
       "badEmail": "这看起来不像邮箱地址。",
       "failed": "无法生成链接，请重试。"
     },
@@ -1224,7 +1231,10 @@
         "daily": "逐日"
       },
       "below": "自 {date} 起低于常规范围",
-      "above": "自 {date} 起高于常规范围"
+      "above": "自 {date} 起高于常规范围",
+      "latest": "最近一天",
+      "high": "最高的一天",
+      "low": "最低的一天"
     },
     "noted": {
       "label": "已记下，未行动",
@@ -1268,6 +1278,9 @@
       "noEmail": "此服务器尚未设置电子邮件，因此不会发送。",
       "lastSent": "上次发送于 {date}。",
       "first": "第一封会在下一次周一检查时发出。",
+      "warningsSwitch": "提醒出现当天发邮件给我",
+      "warningsWhy": "当未来几周资金首次显得吃紧，或您卖的某样东西可能在下次到货前卖完时，发一封邮件。",
+      "warningsOff": "已关闭。提醒只显示在应用内和周一的邮件中。",
       "channel": {
         "legend": "发送方式",
         "email": "邮件",
@@ -1348,6 +1361,38 @@
     },
     "moved": "每周摘要、手机提醒和模块开关已移至设置。",
     "movedLink": "提醒与模块"
+  },
+  "signals": {
+    "day": "{day}（{name}）",
+    "holiday": {
+      "new_year": "元旦",
+      "march_15": "国家纪念日",
+      "good_friday": "耶稣受难日",
+      "easter_monday": "复活节星期一",
+      "may_1": "劳动节",
+      "whit_monday": "圣灵降临节星期一",
+      "august_20": "建国日",
+      "october_23": "革命纪念日",
+      "all_saints": "诸圣节",
+      "december_24": "平安夜",
+      "december_25": "圣诞节",
+      "december_26": "圣诞节次日"
+    },
+    "cash": {
+      "week": "{count, plural, other {法定假日：{days}}}",
+      "summary": "{count, plural, other {这几周内有 # 个法定假日：{days}。}}",
+      "none": "这几周内没有法定假日。",
+      "note": "银行和付款服务商按工作日计算，因此在法定假日到期的款项可能会晚一天到账。预测中未计入这一点。"
+    },
+    "stock": {
+      "short": "{count, plural, other {其间有 # 个法定假日}}",
+      "inLead": "{count, plural, other {这段交货时间内有 # 个法定假日：{days}。}}未计入交货时间。"
+    },
+    "uncovered": "ScaleX 还没有 {country} 的法定假日日历，因此不显示任何假日。",
+    "source": "法定假日：{law}，以 {day} 生效的文本为准。",
+    "law": {
+      "HU": "匈牙利《劳动法典》（{law}）"
+    }
   },
   "proposals": {
     "meta": {
@@ -1796,9 +1841,78 @@
     "sync": {
       "didntRun": "同步没有运行。",
       "locked": "{label} 已有一次同步正在运行。",
+      "reading": "正在读取 {label}。{count, plural, =0 {还没有数据。} other {目前已读取 # 个每日数字。}}",
+      "working": "{label} 已读取。正在计算有哪些变化。",
       "done": "{label} 已同步。{count, plural, other {已读取 # 个每日数字。}}",
       "failed": "{label} 没有同步成功。{reason}",
       "noReason": "没有给出原因。"
+    },
+    "pageSetup": {
+      "label": "授予写入权限之前",
+      "title": {
+        "todo": "还没有 Facebook 公共主页或 Instagram 专业账户？",
+        "done": "您的公共主页已连接",
+        "doneBoth": "您的公共主页及其 Instagram 账户已连接"
+      },
+      "lede": "ScaleX 不能替您创建：任何应用都不得代他人创建公共主页或账户。您在 Facebook 和 Instagram 上自行创建，ScaleX 会根据您的事实表给出要填写的内容。",
+      "show": "设置指南",
+      "reading": "正在读取您的事实表…",
+      "failed": "无法读取指南。请重新加载页面。",
+      "step1": {
+        "title": "在 Facebook 上创建公共主页",
+        "lede": "Facebook 会要求填写名称、类别和简短说明。以下每一项都已备好，可直接复制。",
+        "open": "打开 Facebook 的官方指南"
+      },
+      "step2": {
+        "title": "把您的 Instagram 改为专业账户，并关联到公共主页",
+        "lede": "在 Instagram 应用中打开“编辑主页”，切换为专业账户，然后在“公共主页”下关联您的 Facebook 公共主页。使用同一段简短说明。",
+        "open": "打开 Instagram 的官方指南"
+      },
+      "step3": {
+        "title": "回到这里，授予 ScaleX 写入权限",
+        "lede": "使用本页面上的发布卡片。之后 ScaleX 会读取 Meta 向它显示了哪些公共主页，以及您的公共主页是否关联了 Instagram 账户。它永远看不到您的密码。"
+      },
+      "newTab": "（在新标签页中打开）",
+      "row": {
+        "name": "公共主页名称",
+        "category": "类别",
+        "categoryHint": "请找最接近这一项的：{type}",
+        "short": "简短说明",
+        "about": "较长说明",
+        "website": "网站",
+        "username": "用户名建议"
+      },
+      "src": {
+        "name": "您的企业名称，来自您的事实表",
+        "type": "您选择的企业类型",
+        "about": "您告诉我的企业业务，按您的原文",
+        "shortAsGiven": "您告诉我的企业业务，按您的原文",
+        "shortFirst": "您告诉我的企业业务中的第一句",
+        "shortCut": "根据您告诉我的企业业务缩短而成。请检查读起来是否仍然通顺。",
+        "website": "您的网站，来自您的事实表",
+        "username": "由名称生成：小写字母，去掉变音符号，空格改为句点。仅为建议：可能已被他人使用。"
+      },
+      "copy": "复制",
+      "copied": "已复制",
+      "copyWhat": "复制：{what}",
+      "copyFailed": "复制失败。请选中文字后自行复制。",
+      "gaps": {
+        "title": "要准备其余内容，我还需要：",
+        "answer": "现在回答"
+      },
+      "gap": {
+        "name": "企业的名称。",
+        "business_type": "企业属于哪种类型。",
+        "description": "企业是做什么的，用几句话说明。"
+      },
+      "state": {
+        "pageNo": "公共主页：尚未连接",
+        "pageYes": "公共主页：已连接",
+        "instagramNo": "Instagram：尚未关联到公共主页",
+        "instagramYes": "Instagram：已连接"
+      },
+      "change": "这些内容都可以在您的事实表中修改",
+      "foot": "ScaleX 绝不会索要您的 Facebook 或 Instagram 密码。本指南在所有套餐中均免费。"
     },
     "panel": {
       "label": "配线架",
@@ -2303,7 +2417,7 @@
         "start_again": "这次 Facebook 登录已过期或已被使用。请从“连接”重新开始。",
         "foreign": "这次 Facebook 登录是从另一个 ScaleX 账户发起的。请以该账户登录 ScaleX，或重新开始。",
         "meta_error": "Facebook 登录没有完成。没有连接任何内容。",
-        "no_pages": "对于这个 Facebook 账户，Meta 没有向 ScaleX 显示任何公共主页。请在 Meta 的对话框中，选择您希望 ScaleX 发布到的公共主页（及其 Instagram 账户），然后重试。",
+        "no_pages": "对于这个 Facebook 账户，Meta 没有向 ScaleX 显示任何公共主页。请在 Meta 的对话框中，选择您希望 ScaleX 发布到的公共主页（及其 Instagram 账户），然后重试。还没有公共主页？本页面上的设置指南会告诉您要填写什么。",
         "no_ad_accounts": "对于这个 Facebook 账户，Meta 没有向 ScaleX 显示任何广告账户。请在 Meta 的对话框中，选择您希望 ScaleX 管理的广告账户，然后重试。",
         "meta_auth": "Facebook 登录没有完成：Meta 没有接受这次登录。请从“连接”重新开始。",
         "meta_permission": "Facebook 登录没有完成：Meta 表示 ScaleX 无权执行该操作。请检查“连接”中列出的权限，然后重新开始。",
@@ -4749,6 +4863,8 @@
       "unclear": "我无法判断这个数字的小数点在哪里。请不要使用千位分隔符，例如 {example}。",
       "onForm": "这个问题需要在表单中回答。",
       "openForm": "在那里打开",
+      "rowsDone": "就这些",
+      "fieldSkip": "这项不填",
       "stop": "先到这里"
     }
   },
@@ -4966,6 +5082,9 @@
       "caption": "配文",
       "writtenFrom": "撰写依据",
       "serves": "服务的目标：{goal}",
+      "learnedBoth": "您自己的 {platform} 帖子：{helped} 条表现好于平时，{backfired} 条表现较差",
+      "learnedHelped": "您自己的 {platform} 帖子：{helped} 条表现好于平时",
+      "learnedBackfired": "您自己的 {platform} 帖子：{backfired} 条表现差于平时",
       "disclosure": "披露：{text}",
       "notPublishing": "不发布：{why}。",
       "superseded": "您自己拍摄的素材取代了这个生成的版本，所以它不会被发布。",
@@ -6767,6 +6886,11 @@
       "footWatchingHtml": "我做的每一件事都在您的<link>“观察”页面</link>上。未经您批准，什么都不会执行。",
       "footStopHtml": "这封邮件每周发送一次。您可以在“观察”页面关闭它，或一键<link>停止这些邮件</link>。",
       "whatsappBusiness": "您的企业"
+    },
+    "warning": {
+      "open": "打开{screen}",
+      "why": "这类提醒第一次出现时，我只告诉您一次。",
+      "stop": "如不想再收到这些邮件，请在“{settings}”中关闭。"
     },
     "signIn": {
       "subject": "您的登录链接 · ScaleX",
@@ -9146,6 +9270,14 @@
     "withProposals": "{count, plural, other {# 件事等您点头}}，另有 {reviews, plural, other {# 条值得了解的评价}}",
     "anotherSite": "其他网站"
   },
+  "warningPush": {
+    "one": {
+      "cash_warning": "未来几周您的现金可能吃紧",
+      "stock_warning": "您卖的某样东西可能在下次到货前卖完"
+    },
+    "many": "{count, plural, other {# 条值得了解的提醒}}",
+    "also": "，另有 {count, plural, other {# 条值得了解的提醒}}"
+  },
   "payments": {
     "meta": {
       "title": "付款 · ScaleX"
@@ -10498,6 +10630,15 @@
     "toast": {
       "approved": "已批准。已以您的名义记录。",
       "declined": "已拒绝。已连同您的理由记录。"
+    },
+    "arrange": {
+      "open": "调整此页面",
+      "title": "此页面显示什么",
+      "note": "勾选想看的内容，并上移或下移。保存在此浏览器中。",
+      "always": "需要您处理的事项和 Lex 的状态始终显示。",
+      "up": "上移{name}",
+      "down": "下移{name}",
+      "reset": "恢复原样"
     }
   },
   "alerts": {

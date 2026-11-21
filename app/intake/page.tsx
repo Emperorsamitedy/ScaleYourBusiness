@@ -26,5 +26,7 @@ export default async function IntakePage() {
   if (access && (await profileKind(access.profile_id)) === "idea") redirect("/idea/mine");
   const picker = await pickerContext();
   if (!picker.chosen && !picker.access) return <FirstStepScreen data={picker.data} />;
-  return <IntakeStage />;
+  // Signed in, the business is in the person's account: the interview offers
+  // no "link back by email" and points onward to Home instead.
+  return <IntakeStage signedIn={access?.session != null} />;
 }

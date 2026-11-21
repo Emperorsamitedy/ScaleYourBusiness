@@ -309,6 +309,7 @@
     "pause": {
       "title": "Pause · finish later",
       "lede": "Everything so far is already on record. Leave an email and I’ll give you a link that reopens this profile on any device. No password, no account.",
+      "kept": "Everything so far is kept in your account. Come back from Home whenever you like.",
       "keepGoing": "Keep going"
     },
     "stage": {
@@ -335,7 +336,10 @@
       "moderate": "moderate",
       "next": "Next",
       "nextValue": "deciding how carefully to move",
-      "keep": "Leave an email and I’ll give you a link back to this profile. No password, no account."
+      "keep": "Leave an email and I’ll give you a link back to this profile. No password, no account.",
+      "home": "Go to Home",
+      "revisit": "Answer what you skipped",
+      "kept": "Everything you answered is kept in your account. You can change any of it on the fact sheet."
     },
     "question": {
       "ref": "Q <fig>{id}</fig>",
@@ -461,10 +465,13 @@
     "keep": {
       "placeholder": "you@yourbusiness.hu",
       "label": "Your email address",
+      "title": "Keep your way back in",
       "making": "Making the link",
       "get": "Get my link",
       "linkCap": "Your link",
       "linkNote": "It reopens this profile on any device for {days, plural, one {# day} other {# days}}. Keep a copy somewhere you’ll find it.",
+      "copy": "Copy the link",
+      "copied": "Copied",
       "badEmail": "That doesn’t look like an email address.",
       "failed": "I couldn't make the link. Try again."
     },
@@ -1224,7 +1231,10 @@
         "daily": "Day by day"
       },
       "below": "Below its usual range since {date}",
-      "above": "Above its usual range since {date}"
+      "above": "Above its usual range since {date}",
+      "latest": "Latest day",
+      "high": "Highest day",
+      "low": "Lowest day"
     },
     "noted": {
       "label": "Noted, not acted on",
@@ -1268,6 +1278,9 @@
       "noEmail": "Email isn't set up on this server yet, so none is sent.",
       "lastSent": "Last sent {date}.",
       "first": "The first one goes out on the next Monday check.",
+      "warningsSwitch": "email me a warning the day it appears",
+      "warningsWhy": "One email, the first time money looks tight in the weeks ahead or something you sell may run out before its next delivery.",
+      "warningsOff": "Off. A warning shows in the app and in Monday's email only.",
       "channel": {
         "legend": "Send it by",
         "email": "Email",
@@ -1348,6 +1361,38 @@
     },
     "moved": "The weekly summary, phone alerts and module switches are in Settings.",
     "movedLink": "Alerts and modules"
+  },
+  "signals": {
+    "day": "{day} ({name})",
+    "holiday": {
+      "new_year": "New Year's Day",
+      "march_15": "National Day",
+      "good_friday": "Good Friday",
+      "easter_monday": "Easter Monday",
+      "may_1": "Labour Day",
+      "whit_monday": "Whit Monday",
+      "august_20": "State Foundation Day",
+      "october_23": "Revolution Memorial Day",
+      "all_saints": "All Saints' Day",
+      "december_24": "Christmas Eve",
+      "december_25": "Christmas Day",
+      "december_26": "Second day of Christmas"
+    },
+    "cash": {
+      "week": "{count, plural, one {Public holiday: {days}} other {Public holidays: {days}}}",
+      "summary": "{count, plural, one {# public holiday in these weeks: {days}.} other {# public holidays in these weeks: {days}.}}",
+      "none": "No public holiday falls in these weeks.",
+      "note": "Banks and payout providers count working days, so money due on a public holiday may arrive a day later. This is not counted in the forecast."
+    },
+    "stock": {
+      "short": "{count, plural, one {# public holiday inside} other {# public holidays inside}}",
+      "inLead": "{count, plural, one {# public holiday falls inside this delivery time: {days}.} other {# public holidays fall inside this delivery time: {days}.}} Not counted in it."
+    },
+    "uncovered": "ScaleX has no public holiday calendar for {country} yet, so none is shown.",
+    "source": "Public holidays: {law}, as in force on {day}.",
+    "law": {
+      "HU": "Hungary's Labour Code ({law})"
+    }
   },
   "proposals": {
     "meta": {
@@ -1602,18 +1647,18 @@
       },
       "size": {
         "title": "Size of the change",
-        "unit": "words on the line, before and after",
+        "unit": "Words on the line, before and after",
         "before": "Before",
         "after": "After",
         "words": "{count, plural, one {# word} other {# words}}",
-        "kept": "kept · {count}",
-        "added": "added · {count}",
-        "removed": "removed · {count}",
+        "kept": "Kept · {count}",
+        "added": "Added · {count}",
+        "removed": "Removed · {count}",
         "aria": "Before: {before} words. After: {after} words; {kept} kept, {added} added, {removed} removed."
       },
       "rollback": {
         "title": "When it rolls back by itself",
-        "unit": "page load, milliseconds",
+        "unit": "Page load, milliseconds",
         "today": "Today",
         "past": "Rolls back past",
         "ms": "{ms} ms",
@@ -1631,7 +1676,7 @@
         "fact": "Fact {n}",
         "more": "+{count} more",
         "rules": "{count, plural, one {Your rule · #} other {Your rules · #}}",
-        "rulesSub": "what you told me",
+        "rulesSub": "What you told me",
         "disagree": "{count, plural, one {Disagreement · #} other {Disagreements · #}}",
         "disagreeSub": "sources that differ",
         "aria": "This decision rests on {facts, plural, one {# fact} other {# facts}}, {rules, plural, one {# of your rules} other {# of your rules}} and {disagreements, plural, one {# disagreement} other {# disagreements}}."
@@ -1639,9 +1684,9 @@
       "way": {
         "title": "The way back",
         "now": "As it is now",
-        "stored": "stored",
+        "stored": "Stored",
         "changed": "Changed",
-        "click": "one click",
+        "click": "One click",
         "back": "Back as it was",
         "auto": "or by itself, if the page slows past {ms} ms",
         "aria": "What is there now is stored, then changed; one click brings it back as it was.",
@@ -1796,9 +1841,78 @@
     "sync": {
       "didntRun": "The sync didn't run.",
       "locked": "A sync is already running for {label}.",
+      "reading": "Reading {label}. {count, plural, =0 {Nothing in yet.} one {# daily figure so far.} other {# daily figures so far.}}",
+      "working": "{label} is read. Working out what changed.",
       "done": "{label} synced. {count, plural, one {# daily figure read.} other {# daily figures read.}}",
       "failed": "{label} didn't sync. {reason}",
       "noReason": "No reason was given."
+    },
+    "pageSetup": {
+      "label": "Before write access",
+      "title": {
+        "todo": "No Facebook Page or professional Instagram account yet?",
+        "done": "Your Page is connected",
+        "doneBoth": "Your Page and its Instagram account are connected"
+      },
+      "lede": "ScaleX can't make them for you: no app is allowed to create a Page or an account for a person. You make them on Facebook and Instagram, and ScaleX hands you what to type, taken from your fact sheet.",
+      "show": "The set-up guide",
+      "reading": "Reading your fact sheet…",
+      "failed": "The guide couldn't be read. Reload the page.",
+      "step1": {
+        "title": "Create the Page on Facebook",
+        "lede": "Facebook asks for a name, a category and a short description. Here is each, ready to copy.",
+        "open": "Open Facebook's own guide"
+      },
+      "step2": {
+        "title": "Make your Instagram a professional account and connect it to the Page",
+        "lede": "In the Instagram app, open Edit profile, switch to a professional account, then connect your Facebook Page under Page. Use the same short description.",
+        "open": "Open Instagram's own guide"
+      },
+      "step3": {
+        "title": "Come back and give ScaleX write access",
+        "lede": "Use the publishing card on this screen. ScaleX then reads which Pages Meta shows it and whether your Page has an Instagram account connected. It never sees your password."
+      },
+      "newTab": "(opens in a new tab)",
+      "row": {
+        "name": "Page name",
+        "category": "Category",
+        "categoryHint": "Look for the one closest to: {type}",
+        "short": "Short description",
+        "about": "Longer description",
+        "website": "Website",
+        "username": "Username idea"
+      },
+      "src": {
+        "name": "Your business's name, from your fact sheet",
+        "type": "The business type you chose",
+        "about": "What you told me the business does, as you wrote it",
+        "shortAsGiven": "What you told me the business does, as you wrote it",
+        "shortFirst": "The first sentence of what you told me the business does",
+        "shortCut": "Shortened from what you told me the business does. Check that it still reads right.",
+        "website": "Your website, from your fact sheet",
+        "username": "Worked out from the name: small letters, no accents, full stops for spaces. A suggestion: someone may already have it."
+      },
+      "copy": "Copy",
+      "copied": "Copied",
+      "copyWhat": "Copy: {what}",
+      "copyFailed": "Couldn't copy. Select the text and copy it yourself.",
+      "gaps": {
+        "title": "To prepare the rest, I still need:",
+        "answer": "Answer it now"
+      },
+      "gap": {
+        "name": "The name of the business.",
+        "business_type": "What type of business it is.",
+        "description": "What the business does, in a few sentences."
+      },
+      "state": {
+        "pageNo": "Page: not connected yet",
+        "pageYes": "Page: connected",
+        "instagramNo": "Instagram: not connected to the Page yet",
+        "instagramYes": "Instagram: connected"
+      },
+      "change": "Change any of this on your fact sheet",
+      "foot": "ScaleX never asks for your Facebook or Instagram password. This guide is free on every plan."
     },
     "panel": {
       "label": "Patch panel",
@@ -2303,7 +2417,7 @@
         "start_again": "That Facebook sign-in expired or was already used. Start again from Connections.",
         "foreign": "That Facebook sign-in was started from a different ScaleX account. Sign in to ScaleX as that account, or start again.",
         "meta_error": "Facebook sign-in didn't finish. Nothing was connected.",
-        "no_pages": "Meta showed ScaleX no Pages for that Facebook account. In Meta's dialog, choose the Page (and its Instagram account) you want ScaleX to publish to, then try again.",
+        "no_pages": "Meta showed ScaleX no Pages for that Facebook account. In Meta's dialog, choose the Page (and its Instagram account) you want ScaleX to publish to, then try again. No Page yet? The set-up guide on this screen has what to type.",
         "no_ad_accounts": "Meta showed ScaleX no ad accounts for that Facebook account. In Meta's dialog, choose the ad account you want ScaleX to manage, then try again.",
         "meta_auth": "Facebook sign-in didn't finish: Meta didn't accept the sign-in. Start again from Connections.",
         "meta_permission": "Facebook sign-in didn't finish: Meta says ScaleX isn't allowed to do that. Check the permissions listed on Connections and start again.",
@@ -4749,6 +4863,8 @@
       "unclear": "I can't tell where the decimals are in that. Type it without a mark for thousands, like {example}.",
       "onForm": "This one is answered on the form.",
       "openForm": "Open it there",
+      "rowsDone": "That's all",
+      "fieldSkip": "Leave this out",
       "stop": "Stop here"
     }
   },
@@ -4966,6 +5082,9 @@
       "caption": "Caption",
       "writtenFrom": "Written from",
       "serves": "Serves: {goal}",
+      "learnedBoth": "Your own {platform} posts: {helped} that did better than usual, {backfired} that did worse",
+      "learnedHelped": "Your own {platform} posts: {helped} that did better than usual",
+      "learnedBackfired": "Your own {platform} posts: {backfired} that did worse than usual",
       "disclosure": "Disclosure: {text}",
       "notPublishing": "Not publishing: {why}.",
       "superseded": "Your own footage replaced this generated version, so it won't be published.",
@@ -6767,6 +6886,11 @@
       "footWatchingHtml": "Everything I do is on your <link>Watching screen</link>. Nothing runs until you approve it.",
       "footStopHtml": "You get this email once a week. Switch it off on the Watching screen, or <link>stop these emails</link> with one click.",
       "whatsappBusiness": "your business"
+    },
+    "warning": {
+      "open": "Open {screen}",
+      "why": "I tell you once, the first time a warning like this appears.",
+      "stop": "To stop these emails, switch them off under {settings}."
     },
     "signIn": {
       "subject": "Your sign-in link · ScaleX",
@@ -9146,6 +9270,14 @@
     "withProposals": "{count, plural, one {# thing waits for your yes} other {# things wait for your yes}}, and {reviews, plural, one {a review worth knowing} other {# reviews worth knowing}}",
     "anotherSite": "another site"
   },
+  "warningPush": {
+    "one": {
+      "cash_warning": "Your cash could get tight in the weeks ahead",
+      "stock_warning": "Something you sell could run out before its next delivery"
+    },
+    "many": "{count, plural, one {# warning worth knowing} other {# warnings worth knowing}}",
+    "also": ", and {count, plural, one {a warning worth knowing} other {# warnings worth knowing}}"
+  },
   "payments": {
     "meta": {
       "title": "Payments · ScaleX"
@@ -10498,6 +10630,15 @@
     "toast": {
       "approved": "Approved. Recorded with your name.",
       "declined": "Declined. Recorded with your reason."
+    },
+    "arrange": {
+      "open": "Arrange this page",
+      "title": "What this page shows",
+      "note": "Tick what you want to see and move it up or down. Kept in this browser.",
+      "always": "What needs you and Lex's status are always shown.",
+      "up": "Move {name} up",
+      "down": "Move {name} down",
+      "reset": "Put it back as it was"
     }
   },
   "alerts": {

@@ -32,6 +32,7 @@ import { mailAppFor } from "../../lib/auth/mail-app";
 import { returnPath } from "../../lib/auth/return-to";
 import type { LanguageOption } from "../../lib/i18n/picker";
 import { Logo } from "../brand/Mark";
+import { LanguageCorner } from "../locale/LanguageToggle";
 import { useTr } from "../sheet/useTr";
 import { AuthReel } from "./AuthReel";
 import "../../app/auth-v2.css";
@@ -140,6 +141,9 @@ export function AuthFooter({
   };
   return (
     <footer className="ax-foot">
+      {/* The owner, 2026-11-20: a button in the top right corner between Hungarian and
+          English. Every page of the entrance has this footer, so the corner is drawn from here. */}
+      <LanguageCorner />
       {languages.length > 1 && (
         <label className="ax-lang">
           <svg

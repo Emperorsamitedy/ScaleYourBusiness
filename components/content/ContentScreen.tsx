@@ -58,6 +58,7 @@ import {
   calendarStrip,
   channelStrips,
   contentHeadline,
+  learnedWords,
   mediaWord,
   performanceBars,
   performanceLine,
@@ -95,6 +96,8 @@ interface ContentItem {
     evidence?: string[];
     item?: { focus?: string };
     media?: { origin?: string; is_ai_generated?: boolean };
+    /** Posts that learn: the business's own judged posts the draft had in view, by id. */
+    lessons?: { platform?: string; helped?: string[]; backfired?: string[] };
   } | null;
   /* P3-20d — the publish state, straight from the row. */
   status: ContentStatus;
@@ -671,6 +674,9 @@ export function ContentScreen() {
                     <li>
                       {tr("detail.serves", { goal: goalById.get(open.goal_id)?.statement ?? "" })}
                     </li>
+                  )}
+                  {learnedWords(open.provenance?.lessons, tr) && (
+                    <li>{learnedWords(open.provenance?.lessons, tr)}</li>
                   )}
                   <li>{tr("detail.disclosure", { text: open.disclosure })}</li>
                 </ul>

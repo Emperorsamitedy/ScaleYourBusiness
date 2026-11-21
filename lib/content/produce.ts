@@ -25,6 +25,8 @@ import { recordExecution } from "../proposals/service";
 import type { DraftLlm } from "./draft";
 import { draftItem } from "./draft";
 import { withDisclosure } from "./disclosure";
+import type { DraftLessons } from "./lessons";
+import { lessonsForChannel } from "./lessons-load";
 import { businessLanguage } from "../llm/language-of";
 import type { PublishRun } from "./publish";
 import { isPublishProposal, proposePublishing } from "./publish";
@@ -98,6 +100,31 @@ export async function produceFromProposal(
   const language = await businessLanguage(proposal.profile_id);
   const rows: (typeof contentItems.$inferInsert)[] = [];
 
+  // Posts that learn (2026-11-20): a post is drafted with the business's own
+  // posts on that platform that measured better or worse than usual in view.
+  // Read once per channel. A failure to read them never costs the owner the
+  // draft: it is written as it always was, and the failure is logged.
+  const lessonsByChannel = new Map<string, DraftLessons | null>();
+  const lessonsOf = async (channelId: string): Promise<DraftLessons | null> => {
+    if (!lessonsByChannel.has(channelId)) {
+      let lessons: DraftLessons | null = null;
+      try {
+        lessons = await lessonsForChannel(proposal.profile_id, channelId);
+      } catch (error) {
+        console.error(
+          JSON.stringify({
+            event: "draft_lessons_failed",
+            account_id: accountId,
+            profile_id: proposal.profile_id,
+            ...logSafeError(error),
+          }),
+        );
+      }
+      lessonsByChannel.set(channelId, lessons);
+    }
+    return lessonsByChannel.get(channelId) ?? null;
+  };
+
   for (const item of action.detail?.items ?? []) {
     if (item.format === "short_video") {
       // The slot exists; the footage does not. What the queue holds is
@@ -120,12 +147,14 @@ export async function produceFromProposal(
       continue;
     }
     const kind = item.format === "email" ? ("email" as const) : ("post" as const);
+    const lessons = kind === "post" ? await lessonsOf(item.channel_id) : null;
     const draft = await draftItem({
       card,
       item,
       kind,
       accountId,
       language,
+      ...(lessons ? { lessons } : {}),
       ...(opts.draftLlm ? { llm: opts.draftLlm } : {}),
     });
     rows.push({

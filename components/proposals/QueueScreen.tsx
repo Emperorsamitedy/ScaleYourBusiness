@@ -64,6 +64,7 @@ import {
   nextAfterDecision,
   originWord,
   rangeAxis,
+  readsAsWords,
   reversibilityLabel,
   reviewStats,
   shortReversibility,
@@ -755,8 +756,10 @@ export function QueueScreen() {
                 {l.line}
                 {l.sub && <span className="q-line-sub">{l.sub}</span>}
               </th>
-              <td className="q-before">{l.before}</td>
-              <td className="q-after">
+              <td className={readsAsWords(l.before) ? "q-before q-words" : "q-before"}>
+                {l.before}
+              </td>
+              <td className={readsAsWords(l.after) ? "q-after q-words" : "q-after"}>
                 <span aria-hidden="true">→ </span>
                 {l.after}
               </td>

@@ -44,9 +44,19 @@ import type { PriceItemRaw } from "../../../lib/simulate/pricing";
 import { PRICING, simulatePrice } from "../../../lib/simulate/pricing";
 import { gatherPricingInputs } from "../../../lib/simulate/pricing-inputs";
 import { SIM_WORDS } from "../../../lib/simulate/words";
+import { loadOutside } from "../../../lib/signals/outside";
+import type { OutsideView } from "../../../lib/signals/view";
+import { daySpan } from "../../../lib/signals/view";
 
 export interface CashView {
   forecast: CashForecast;
+  /**
+   * Outside signals for the forecast's weeks (lib/signals): the public
+   * holidays of the business's country, with the law they come from. Shown
+   * beside the weeks and counted in nothing. Null when the forecast refused,
+   * or when the signal could not be read: the forecast never waits on it.
+   */
+  outside: OutsideView | null;
   tight: TightWeek | null;
   /** Null when the forecast refused. */
   scenarios: ScenarioCell[] | null;
@@ -80,11 +90,31 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
     if (forecast.status !== "ready" || english.status !== "ready") {
       return NextResponse.json({
         forecast,
+        outside: null,
         tight: null,
         scenarios: null,
         choice: null,
         price: null,
       } satisfies CashView);
+    }
+
+    // Outside signals: what the law makes a public holiday in the weeks forecast.
+    // Arithmetic over the business's own country; a failure leaves the forecast whole.
+    let outside: OutsideView | null = null;
+    try {
+      const first = forecast.weeks[0];
+      const last = forecast.weeks[forecast.weeks.length - 1];
+      if (first && last) {
+        outside = await loadOutside(access.profile_id, first.start, daySpan(first.start, last.end));
+      }
+    } catch (error) {
+      console.error(
+        JSON.stringify({
+          event: "cash_outside_failed",
+          account_id: access.account_id,
+          ...logSafeError(error),
+        }),
+      );
     }
 
     if (forecast.start.basis === "OBSERVED") {
@@ -142,6 +172,7 @@ export async function GET(request: NextRequest): Promise<NextResponse> {
 
     return NextResponse.json({
       forecast,
+      outside,
       tight: tightWeek(forecast, words),
       scenarios: compareScenarios(inputs, forecast, choice, effect, words),
       choice,

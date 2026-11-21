@@ -25,7 +25,8 @@ import { useTranslations } from "next-intl";
 import { Fold } from "../sheet/Fold";
 import { PageHead, SheetCard } from "../sheet/PageHead";
 import { PhoneAlertsCard } from "./PhoneAlertsCard";
-import { Spark } from "../charts/Viz";
+import { Spark, Trend } from "../charts/Viz";
+import { Sheet } from "../ui/Sheet";
 import { WhyFold } from "../report/WhyFold";
 import { moneyText, num } from "../sheet/num";
 import { useAppLocale, useTr } from "../sheet/useTr";
@@ -86,6 +87,8 @@ interface SummaryView {
   last_sent_at: string | null;
   /** P6-07: email (the default), WhatsApp, or both. */
   channel?: "email" | "whatsapp" | "both";
+  /** Warnings sent at once (2026-11-20): one email the day a warning appears. On unless switched off. */
+  warnings?: boolean;
   whatsapp?: {
     /** The settings this server lacks, by name. Empty = WhatsApp can go. */
     missing: string[];
@@ -169,6 +172,118 @@ function SignalSpark({ signal, label }: { signal: WatchSignal; label: string }) 
   );
 }
 
+/**
+ * A signal opened in place (docs/DASHBOARD-OVERHAUL.md, L9): the days the
+ * row's small line is drawn from, large enough to read, with the figures the
+ * row states and each day's own reading. Nothing is worked out here that the
+ * row does not already hold: the series is the one the watch read.
+ */
+function SignalSheet({
+  signal,
+  name,
+  onClose,
+}: {
+  signal: WatchSignal | null;
+  /** The signal as the table names it. */
+  name: string;
+  onClose: () => void;
+}) {
+  const t = useTranslations("watch");
+  const ww = useWatchWords();
+  // The sheet itself stays in the page and is only opened and closed: taken
+  // away whole, it could not hand the cursor back to the row that opened it.
+  return (
+    <Sheet
+      open={signal !== null}
+      onClose={onClose}
+      title={name}
+      kicker={
+        signal ? `${t("signals.col.from")} · ${sourceWords(signal.read_from, ww)}` : undefined
+      }
+      width={560}
+    >
+      {signal && <SignalDays signal={signal} name={name} />}
+    </Sheet>
+  );
+}
+
+function SignalDays({ signal, name }: { signal: WatchSignal; name: string }) {
+  const t = useTranslations("watch");
+  const locale = useAppLocale();
+  const days = signal.series ?? [];
+  const read = days.flatMap((p) => (p.value === null ? [] : [{ date: p.date, value: p.value }]));
+  const latest = read.at(-1) ?? null;
+  const high = read.reduce<(typeof read)[number] | null>(
+    (best, p) => (best === null || p.value > best.value ? p : best),
+    null,
+  );
+  const low = read.reduce<(typeof read)[number] | null>(
+    (best, p) => (best === null || p.value < best.value ? p : best),
+    null,
+  );
+  const figure = (p: { date: string; value: number } | null): string =>
+    p === null ? "-" : `${dayFigure(signal, p.value, locale)} · ${dayText(p.date, false, locale)}`;
+  return (
+    <>
+      <p className="wt-sig-status">
+        <span className={`word ${STATUS_CLASS[signal.status]}`}>
+          {t(`status.${signal.status}`)}
+        </span>
+        {signal.since && (
+          <span>
+            {t(signal.direction === "drop" ? "signals.below" : "signals.above", {
+              date: dayText(signal.since, false, locale),
+            })}
+          </span>
+        )}
+      </p>
+      <Trend
+        points={days.map((p) => ({ label: dayText(p.date, false, locale), value: p.value }))}
+        format={(v) => dayFigure(signal, v, locale)}
+        label={`${name} · ${t("signals.col.daily")}`}
+        columns={[t("signals.col.daily"), name]}
+        step={signal.currency === null ? 1 : 10 ** minorUnitExponent(signal.currency)}
+      />
+      <dl className="wt-sig-figs">
+        <div>
+          <dt>{t("signals.col.perDay", { week: 1 })}</dt>
+          <dd>{weeks(signal, locale)}</dd>
+        </div>
+        <div>
+          <dt>{t("signals.latest")}</dt>
+          <dd>{figure(latest)}</dd>
+        </div>
+        <div>
+          <dt>{t("signals.high")}</dt>
+          <dd>{figure(high)}</dd>
+        </div>
+        <div>
+          <dt>{t("signals.low")}</dt>
+          <dd>{figure(low)}</dd>
+        </div>
+        <div>
+          <dt>{t("signals.col.days")}</dt>
+          <dd>{num(signal.readings, 0, locale)}</dd>
+        </div>
+      </dl>
+      {read.length > 0 && (
+        <Fold summary={t("signals.col.daily")}>
+          <table className="rt wt-sig-days">
+            <tbody>
+              {[...read].reverse().map((p) => (
+                <tr key={p.date}>
+                  <th scope="row">{dayText(p.date, true, locale)}</th>
+                  <td className="num">{dayFigure(signal, p.value, locale)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </Fold>
+      )}
+    </>
+  );
+}
+
 function DayStrip({ w }: { w: WatchDays }) {
   const t = useTranslations("watch");
   const locale = useAppLocale();
@@ -199,6 +314,14 @@ function SignalsCard({ reading }: { reading: WatchReading }) {
   const locale = useAppLocale();
   const daily = useTr("watch").tr("signals.col.daily");
   const { signals } = reading;
+  // The signal opened in place, by its key: read again from the list, so the
+  // sheet shows the latest reading when the watch is read again behind it.
+  const [open, setOpen] = useState<string | null>(null);
+  const opened = signals.find((x) => x.key === open) ?? null;
+  /** A signal as the table names it: with its currency when two share a noun. */
+  const nameOf = (x: WatchSignal): string =>
+    signalNoun(x.metric_key, x.noun, ww) +
+    (x.currency && signals.filter((y) => y.noun === x.noun).length > 1 ? ` (${x.currency})` : "");
   const hasThin = signals.some((s) => s.status === "thin");
   const hasDrift = signals.some((s) => s.status === "drifting" || s.status === "interrupted");
   const tally = STATUS_ORDER.map((s) => [s, signals.filter((x) => x.status === s).length] as const)
@@ -254,12 +377,17 @@ function SignalsCard({ reading }: { reading: WatchReading }) {
             </thead>
             <tbody>
               {signals.map((s) => (
-                <tr key={s.key}>
+                <tr key={s.key} className={open === s.key ? "on" : undefined}>
                   <th scope="row">
-                    {signalNoun(s.metric_key, s.noun, ww)}
-                    {s.currency && signals.filter((x) => x.noun === s.noun).length > 1
-                      ? ` (${s.currency})`
-                      : ""}
+                    {/* The name is the row's control, and it covers the whole row. */}
+                    <button
+                      type="button"
+                      className="wt-pick"
+                      aria-haspopup="dialog"
+                      onClick={() => setOpen(s.key)}
+                    >
+                      {nameOf(s)}
+                    </button>
                   </th>
                   <td className="src">{sourceWords(s.read_from, ww)}</td>
                   <td className="num">{num(s.readings, 0, locale)}</td>
@@ -290,6 +418,11 @@ function SignalsCard({ reading }: { reading: WatchReading }) {
           </table>
         </div>
       )}
+      <SignalSheet
+        signal={opened}
+        name={opened ? nameOf(opened) : ""}
+        onClose={() => setOpen(null)}
+      />
     </SheetCard>
   );
 }
@@ -500,10 +633,13 @@ function ModulesCard({
 function SummaryCard({
   summary,
   onToggle,
+  onWarnings,
   onChanged,
 }: {
   summary: SummaryView;
   onToggle: (enabled: boolean) => void;
+  /** The email a warning sends the day it appears. */
+  onWarnings: (enabled: boolean) => void;
   onChanged: () => void;
 }) {
   const t = useTranslations("watch.summary");
@@ -519,6 +655,13 @@ function SummaryCard({
           : summary.last_sent_at
             ? t("lastSent", { date: dayText(summary.last_sent_at, false, locale) })
             : t("first");
+  const warningsNote = !summary.owner
+    ? t("signUp")
+    : summary.warnings === false
+      ? t("warningsOff")
+      : !summary.configured
+        ? t("noEmail")
+        : t("warningsWhy");
   return (
     <SheetCard label={t("label")} title={t("title")}>
       <label className="wt-module">
@@ -531,6 +674,18 @@ function SummaryCard({
         <span>{t("switch")}</span>
       </label>
       <p className="wt-why">{status}</p>
+      {/* Warnings sent at once: a warning that looks ahead is worth one email the day it appears. */}
+      <label className="wt-module">
+        <input
+          type="checkbox"
+          checked={summary.owner && summary.warnings !== false}
+          disabled={!summary.owner}
+          onChange={(e) => onWarnings(e.target.checked)}
+        />
+        <span>{t("warningsSwitch")}</span>
+      </label>
+      {/* The same sentence twice reads as a slip: said once, it covers both switches. */}
+      {warningsNote !== status && <p className="wt-why">{warningsNote}</p>}
       {summary.owner && summary.whatsapp && (
         <WhatsAppSettings summary={summary} onChanged={onChanged} />
       )}
@@ -761,6 +916,15 @@ export function WatchSettingsScreen() {
     await load();
   };
 
+  const toggleWarnings = async (warnings: boolean) => {
+    await fetch("/api/summary", {
+      method: "PUT",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ warnings }),
+    });
+    await load();
+  };
+
   return (
     <main className="screen wt-screen">
       <PageHead kicker={a("kicker")} title={a("title")} />
@@ -775,6 +939,7 @@ export function WatchSettingsScreen() {
             <SummaryCard
               summary={summary}
               onToggle={(on) => void toggleSummary(on)}
+              onWarnings={(on) => void toggleWarnings(on)}
               onChanged={() => void load()}
             />
           )}

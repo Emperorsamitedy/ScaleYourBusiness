@@ -104,6 +104,7 @@ export const GUIDE: readonly GuideScreen[] = [
     how: [
       "To bring it up to date: import a newer bank statement on Connections, under Your own files.",
       "To set the least you want to keep in the account: Cash flow has a link to that question when none is stated; a week under that line is marked tight.",
+      "Public holidays in the weeks ahead are named under the week they fall in, with the law they come from under the table. They change no figure. They show for a business whose country is on the Fact sheet and has a calendar here (Hungary so far); another country is told there is no calendar yet.",
     ],
   },
   {
@@ -141,6 +142,9 @@ export const GUIDE: readonly GuideScreen[] = [
     name: "Stock",
     place: "Insights",
     what: "What runs out and when, what sits unsold, and purchase orders waiting for your yes.",
+    how: [
+      "To see which public holidays fall inside a delivery time: open the line under that time in the table. They are named, never counted in the delivery time; whether a supplier's days include them is yours to know.",
+    ],
   },
   {
     route: "/blindspots",
@@ -170,6 +174,9 @@ export const GUIDE: readonly GuideScreen[] = [
     name: "Content",
     place: "Grow",
     what: "The posts and campaigns drafted for you: what is a draft, what needs your yes, what is scheduled and what was posted.",
+    how: [
+      'To see what a draft was written from: open it; "Written from" lists the facts it rests on and, once your posts have been measured, which of your own posts did better or worse than usual.',
+    ],
   },
   {
     route: "/studio",
@@ -253,6 +260,7 @@ export const GUIDE: readonly GuideScreen[] = [
       "To connect a source: Connections, What I read, pick the source and sign in on its own page. Reading never changes anything there.",
       "To let ScaleX post or change something: Connections, What I may change, and grant that one permission. It is separate from reading, and every change still needs your yes.",
       "To import bookings or a bank statement: Connections, Your own files.",
+      "No Facebook Page or professional Instagram account yet: Connections, What I may change, the set-up guide. ScaleX cannot create one for you (no app may), so it gives you what to type from your fact sheet and you make it on Facebook and Instagram yourself. It never asks for your password there, and the guide is free.",
     ],
   },
   {
@@ -304,6 +312,9 @@ export const GUIDE: readonly GuideScreen[] = [
     name: "Alerts and modules",
     place: "Your business (the business's name at the top)",
     what: "Which alerts reach you and where (the phone, email, the weekly summary), and which modules are switched on.",
+    how: [
+      'To get, or stop, an email the day a cash or stock warning appears: Alerts and modules, the Weekly email card, "email me a warning the day it appears".',
+    ],
   },
   {
     route: "/settings/language",
@@ -340,12 +351,13 @@ export const GUIDE: readonly GuideScreen[] = [
     place: "From Home while the business is new, or from any open question on the Fact sheet",
     what: "The questions that build the Fact sheet: fourteen parts, one question at a time. Each question says how many are left in its part and about how long they take, and it can be stopped and continued.",
     how: [
-      "To do the interview: start it from Home, or ask Lex to do it with you and answer in the conversation. Both write the same facts.",
+      "To do the interview: Start the interview opens the form; Do it with Lex asks the same questions here in the conversation, one at a time, with the choices as buttons. Asked for the interview, Lex gives both buttons. Both ways write the same facts.",
+      "With Lex every kind of question is answered in the conversation: a month is picked, and a list (what you sell, your suppliers) is built one entry at a time. Under each question, All parts asks from another part; beside an answer you gave, Change this answer asks it again.",
       "To answer a question: pick one of the choices (the number keys 1 to 9 pick too), or type in the box and press Next.",
       "If you do not know: choose I don't know. If you would rather not answer now: Skip for now. Both are real answers and nothing breaks; the question can be answered later.",
       "An estimate is fine: say what you think, and it is kept as an estimate until something measures it.",
       "To change an earlier answer: Back, or open that fact on the Fact sheet. The old answer is kept in the history.",
-      "To stop and continue later: Finish later, at the top right. It emails you a link back to where you were.",
+      "To stop and continue later: Finish later, at the top right. Your answers are kept in your account; come back from Home whenever you like.",
       "All parts, at the top, shows every part and lets you answer from another one.",
     ],
   },

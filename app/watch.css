@@ -117,6 +117,74 @@
 .wt-table tbody .num {
   font-size: 14px;
 }
+/* A signal's row opens its days in a side sheet (L9). The name is the
+   control and covers the whole row, as on Customers; the small line keeps
+   its own readout, so its cell stays above that cover. */
+.wt-table tbody tr {
+  position: relative;
+}
+.wt-table tbody tr:hover,
+.wt-table tbody tr.on {
+  background: var(--inset);
+}
+.wt-pick {
+  display: block;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.wt-pick::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+}
+.wt-pick:focus-visible {
+  outline: none;
+}
+.wt-table tbody tr:has(.wt-pick:focus-visible) {
+  outline: 2px solid var(--sheet-ink);
+  outline-offset: -2px;
+}
+.wt-table tbody td.wt-spark {
+  position: relative;
+  z-index: 1;
+}
+/* the sheet a signal opens: its state, its days as a chart, its figures */
+.wt-sig-status {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  margin: 0 0 14px;
+  font-size: 13.5px;
+  color: var(--sheet-ink-2);
+}
+.wt-sig-figs {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 14px 18px;
+  margin: 16px 0 14px;
+}
+.wt-sig-figs dt {
+  font-size: 12.5px;
+  color: var(--sheet-ink-2);
+}
+.wt-sig-figs dd {
+  margin: 2px 0 0;
+  font-family: var(--f-fig);
+  font-size: 15px;
+  font-variant-numeric: tabular-nums;
+}
+.wt-sig-days {
+  width: 100%;
+}
+.wt-sig-days th {
+  font-weight: 400;
+}
 /* the spark sits inside the row's own height */
 .wt-table tbody td.wt-spark {
   padding-top: 0;
@@ -246,6 +314,11 @@
   margin: 10px 0 0;
   font-size: 14px;
   color: var(--sheet-ink-2);
+}
+/* A switch under another switch's note stands clear of it (the card's own
+   switches; the WhatsApp form spaces its rows itself). */
+.cs-body > .wt-why + .wt-module {
+  margin-top: 14px;
 }
 .wt-fold {
   margin-top: 10px;

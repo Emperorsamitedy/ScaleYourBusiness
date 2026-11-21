@@ -39,10 +39,17 @@ import type { GoogleAdsView } from "./GoogleAdsSection";
 import { GoogleAdsSection } from "./GoogleAdsSection";
 import { BankStatementSection } from "./BankStatementSection";
 import { BookingsImportSection } from "./BookingsImportSection";
+import { PageSetupSection } from "./PageSetupSection";
 import type { CnTab } from "./patch";
 import { headline, lastRead, tabCounts, tabFromSearch } from "./patch";
 import "../../app/connections.css";
 import { useRole } from "../auth/RoleContext";
+import type {
+  SyncDoneLine,
+  SyncFailedLine,
+  SyncProgressLine,
+} from "../../lib/connectors/sync-stream";
+import { SYNC_STREAM_TYPE, readSyncStream } from "../../lib/connectors/sync-stream";
 import type { AppLocale } from "../../lib/i18n/locales";
 import { bold, useCn, useSaid } from "./useCn";
 import type { CnTr } from "./words";
@@ -167,6 +174,34 @@ async function send(
   });
   const payload = (await res.json().catch(() => null)) as Payload;
   return { ok: res.ok, payload };
+}
+
+/**
+ * "Sync now", with the read's progress as it arrives (a line per page: see
+ * lib/connectors/sync-stream). A plain answer, which is what a refusal is,
+ * reads as it always did. A stream that ends without its last line is a read
+ * whose outcome is not known here: the caller says the server wasn't reached.
+ */
+async function readNow(
+  id: string,
+  onProgress: (line: SyncProgressLine) => void,
+): Promise<{ ok: boolean; payload: Payload }> {
+  const res = await fetch("/api/connections/sync", {
+    method: "POST",
+    headers: { "content-type": "application/json", accept: SYNC_STREAM_TYPE },
+    body: JSON.stringify({ id }),
+  });
+  if (!(res.headers.get("content-type") ?? "").includes(SYNC_STREAM_TYPE) || res.body === null) {
+    return { ok: res.ok, payload: (await res.json().catch(() => null)) as Payload };
+  }
+  const end: { line: SyncDoneLine | SyncFailedLine | null } = { line: null };
+  await readSyncStream(res.body, (line) => {
+    if (line.type === "progress") onProgress(line);
+    else end.line = line;
+  });
+  if (end.line === null) throw new Error("the read's stream ended without its outcome");
+  if (end.line.type === "failed") return { ok: false, payload: { error: end.line.error } };
+  return { ok: true, payload: { ...end.line } };
 }
 
 /** The server's refusal (said in the reader's language when it is SYB's own — L-4c), or the fallback. */
@@ -373,10 +408,45 @@ function VerificationNote({ provider }: { provider: ProviderOption }) {
 
 /* ── a connected source's settings ── */
 
+/** A read under way: whose, where it was asked for, how far it has got. */
+interface ReadState {
+  id: string;
+  /** Asked for in the source's own row, or by the buttons above the tabs. */
+  from: "row" | "top";
+  label: string;
+  step: SyncProgressLine["step"];
+  /** Daily figures stored so far. */
+  observations: number;
+}
+
+/**
+ * A read as it goes: said once to a screen reader, then the count rising in
+ * sight and a bar that moves while it does. How it ended is said after it, by
+ * whoever showed this.
+ */
+function ReadProgress({ progress }: { progress: ReadState }) {
+  const { t } = useCn();
+  return (
+    <div className="cn-banner cn-reading">
+      <p className="sr-only" role="status">
+        {t("banner.readingOne", { label: progress.label })}
+      </p>
+      <p className="cn-reading-line">
+        {progress.step === "working"
+          ? t("sync.working", { label: progress.label })
+          : t("sync.reading", { label: progress.label, count: progress.observations })}
+      </p>
+      <span className="cn-reading-bar" aria-hidden="true" />
+    </div>
+  );
+}
+
 function SourceSettings({
   connection: c,
   busy,
   confirming,
+  progress,
+  note,
   onSync,
   onAskDisconnect,
   onCancel,
@@ -385,6 +455,10 @@ function SourceSettings({
   connection: Connection;
   busy: boolean;
   confirming: boolean;
+  /** This source's read, when it was asked for here and is under way. */
+  progress: ReadState | null;
+  /** How the last read asked for here ended. */
+  note: string | null;
   onSync: () => void;
   onAskDisconnect: () => void;
   onCancel: () => void;
@@ -497,6 +571,12 @@ function SourceSettings({
           </button>
         )}
       </div>
+      {progress !== null && <ReadProgress progress={progress} />}
+      {progress === null && note !== null && (
+        <p className="cn-banner cn-read-note" role="status">
+          {note}
+        </p>
+      )}
 
       {matching && <MappingPanel connection={c} />}
     </div>
@@ -674,6 +754,10 @@ export function ConnectionsScreen() {
   const [state, setState] = useState<"loading" | "ready" | "signed_out" | "error">("loading");
   const [notice, setNotice] = useState<string | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
+  /** A read under way: whose, where it was asked for, how far it has got. */
+  const [progress, setProgress] = useState<ReadState | null>(null);
+  /** How the last read asked for in a source's own row ended: said there, where the owner is looking. */
+  const [rowNote, setRowNote] = useState<{ id: string; text: string } | null>(null);
   const [confirming, setConfirming] = useState<string | null>(null);
   const [open, setOpen] = useState<string | null>(null);
 
@@ -761,20 +845,36 @@ export function ConnectionsScreen() {
     void loadTtads();
   }, [load, loadExec, loadEmail, loadGoogle, loadTiktok, loadGads, loadTtads]);
 
-  const syncNow = async (c: Connection) => {
+  /**
+   * Read one source again now. Its progress and how it ended are said where it
+   * was asked for: in the source's own row, or by the buttons above the tabs.
+   */
+  const syncNow = async (c: Connection, from: ReadState["from"]) => {
+    const say = (text: string) =>
+      from === "row" ? setRowNote({ id: c.id, text }) : setNotice(text);
     setBusy(c.id);
     setNotice(null);
+    setRowNote(null);
+    setProgress({ id: c.id, from, label: c.label, step: "reading", observations: 0 });
     try {
-      const { ok, payload } = await send("/api/connections/sync", "POST", { id: c.id });
+      const { ok, payload } = await readNow(c.id, (line) =>
+        setProgress({
+          id: c.id,
+          from,
+          label: c.label,
+          step: line.step,
+          observations: line.observations,
+        }),
+      );
       if (!ok) {
-        setNotice(errorText(payload, t("sync.didntRun"), said));
+        say(errorText(payload, t("sync.didntRun"), said));
       } else if (payload?.skipped === "locked") {
-        setNotice(t("sync.locked", { label: c.label }));
+        say(t("sync.locked", { label: c.label }));
       } else if (payload?.ok === true) {
         const count = typeof payload.observations === "number" ? payload.observations : 0;
-        setNotice(t("sync.done", { label: c.label, count }));
+        say(t("sync.done", { label: c.label, count }));
       } else {
-        setNotice(
+        say(
           t("sync.failed", {
             label: c.label,
             reason: errorText(payload, t("sync.noReason"), said),
@@ -783,9 +883,10 @@ export function ConnectionsScreen() {
       }
       await load();
     } catch {
-      setNotice(t("unreachable"));
+      say(t("unreachable"));
     } finally {
       setBusy(null);
+      setProgress(null);
     }
   };
 
@@ -882,6 +983,7 @@ export function ConnectionsScreen() {
           {notice}
         </p>
       )}
+      {progress !== null && progress.from === "top" && <ReadProgress progress={progress} />}
       {connectWhy !== null && (
         <p className="cn-banner" role="note">
           {joinSentences(
@@ -900,7 +1002,7 @@ export function ConnectionsScreen() {
                 type="button"
                 className="ghost"
                 disabled={busy !== null}
-                onClick={() => void syncNow(c)}
+                onClick={() => void syncNow(c, "top")}
               >
                 {busy === c.id
                   ? t("banner.readingOne", { label: c.label })
@@ -1024,7 +1126,13 @@ export function ConnectionsScreen() {
                                   connection={c}
                                   busy={busy === c.id}
                                   confirming={confirming === c.id}
-                                  onSync={() => void syncNow(c)}
+                                  progress={
+                                    progress?.id === c.id && progress.from === "row"
+                                      ? progress
+                                      : null
+                                  }
+                                  note={rowNote?.id === c.id ? rowNote.text : null}
+                                  onSync={() => void syncNow(c, "row")}
                                   onAskDisconnect={() => setConfirming(c.id)}
                                   onCancel={() => setConfirming(null)}
                                   onDisconnect={() => void disconnectOne(c)}
@@ -1080,6 +1188,9 @@ export function ConnectionsScreen() {
       </TabPanel>
 
       <TabPanel id="cn" tab="write" open={tab === "write"} keep>
+        {/* Guided page set-up: for an owner with no Page yet. It reads and copies only, so it
+            sits outside the lock that keeps a manager from granting write access. */}
+        <PageSetupSection />
         <fieldset className="role-lock" disabled={consentWhy !== null}>
           {consentWhy !== null && (
             <p className="cn-banner" role="note">

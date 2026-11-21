@@ -309,6 +309,7 @@
     "pause": {
       "title": "Pause · später fortsetzen",
       "lede": "Alles bisher steht bereits in der Akte. Hinterlassen Sie eine E-Mail-Adresse, und ich gebe Ihnen einen Link, der dieses Profil auf jedem Gerät wieder öffnet. Kein Passwort, kein Konto.",
+      "kept": "Alles bisher ist in Ihrem Konto gespeichert. Kommen Sie jederzeit über die Startseite zurück.",
       "keepGoing": "Weitermachen"
     },
     "stage": {
@@ -335,7 +336,10 @@
       "moderate": "mittel",
       "next": "Als Nächstes",
       "nextValue": "entscheiden, wie vorsichtig wir vorgehen",
-      "keep": "Hinterlassen Sie eine E-Mail-Adresse, und ich gebe Ihnen einen Link zurück zu diesem Profil. Kein Passwort, kein Konto."
+      "keep": "Hinterlassen Sie eine E-Mail-Adresse, und ich gebe Ihnen einen Link zurück zu diesem Profil. Kein Passwort, kein Konto.",
+      "home": "Zur Startseite",
+      "revisit": "Übersprungenes beantworten",
+      "kept": "Alles, was Sie beantwortet haben, ist in Ihrem Konto gespeichert. Auf dem Faktenblatt können Sie alles ändern."
     },
     "question": {
       "ref": "F <fig>{id}</fig>",
@@ -461,10 +465,13 @@
     "keep": {
       "placeholder": "sie@ihrunternehmen.de",
       "label": "Ihre E-Mail-Adresse",
+      "title": "Behalten Sie Ihren Weg zurück",
       "making": "Link wird erstellt",
       "get": "Meinen Link erhalten",
       "linkCap": "Ihr Link",
       "linkNote": "Er öffnet dieses Profil {days, plural, one {# Tag} other {# Tage}} lang auf jedem Gerät. Bewahren Sie eine Kopie dort auf, wo Sie sie wiederfinden.",
+      "copy": "Link kopieren",
+      "copied": "Kopiert",
       "badEmail": "Das sieht nicht nach einer E-Mail-Adresse aus.",
       "failed": "Ich konnte den Link nicht erstellen. Versuchen Sie es erneut."
     },
@@ -1224,7 +1231,10 @@
         "daily": "Tag für Tag"
       },
       "below": "Seit {date} unter dem üblichen Bereich",
-      "above": "Seit {date} über dem üblichen Bereich"
+      "above": "Seit {date} über dem üblichen Bereich",
+      "latest": "Letzter Tag",
+      "high": "Höchster Tag",
+      "low": "Niedrigster Tag"
     },
     "noted": {
       "label": "Vermerkt, nicht gehandelt",
@@ -1268,6 +1278,9 @@
       "noEmail": "E-Mail ist auf diesem Server noch nicht eingerichtet, daher wird keine gesendet.",
       "lastSent": "Zuletzt gesendet {date}.",
       "first": "Die erste geht bei der nächsten Montagsprüfung hinaus.",
+      "warningsSwitch": "eine Warnung am selben Tag per E-Mail senden",
+      "warningsWhy": "Eine E-Mail, wenn das Geld in den nächsten Wochen erstmals knapp aussieht oder etwas, das Sie verkaufen, vor der nächsten Lieferung ausgehen könnte.",
+      "warningsOff": "Aus. Eine Warnung erscheint nur in der App und in der Montags-E-Mail.",
       "channel": {
         "legend": "Senden per",
         "email": "E-Mail",
@@ -1348,6 +1361,38 @@
     },
     "moved": "Die Wochenübersicht, die Hinweise aufs Telefon und die Modulschalter sind in den Einstellungen.",
     "movedLink": "Hinweise und Module"
+  },
+  "signals": {
+    "day": "{day} ({name})",
+    "holiday": {
+      "new_year": "Neujahr",
+      "march_15": "Nationalfeiertag",
+      "good_friday": "Karfreitag",
+      "easter_monday": "Ostermontag",
+      "may_1": "Tag der Arbeit",
+      "whit_monday": "Pfingstmontag",
+      "august_20": "Tag der Staatsgründung",
+      "october_23": "Gedenktag der Revolution",
+      "all_saints": "Allerheiligen",
+      "december_24": "Heiligabend",
+      "december_25": "Erster Weihnachtstag",
+      "december_26": "Zweiter Weihnachtstag"
+    },
+    "cash": {
+      "week": "{count, plural, one {Feiertag: {days}} other {Feiertage: {days}}}",
+      "summary": "{count, plural, one {# gesetzlicher Feiertag in diesen Wochen: {days}.} other {# gesetzliche Feiertage in diesen Wochen: {days}.}}",
+      "none": "In diese Wochen fällt kein gesetzlicher Feiertag.",
+      "note": "Banken und Auszahlungsdienste rechnen in Werktagen, deshalb kann Geld, das an einem Feiertag fällig ist, einen Tag später ankommen. Das ist in der Prognose nicht eingerechnet."
+    },
+    "stock": {
+      "short": "{count, plural, one {# Feiertag darin} other {# Feiertage darin}}",
+      "inLead": "{count, plural, one {# gesetzlicher Feiertag fällt in diese Lieferzeit: {days}.} other {# gesetzliche Feiertage fallen in diese Lieferzeit: {days}.}} Nicht eingerechnet."
+    },
+    "uncovered": "ScaleX hat für {country} noch keinen Feiertagskalender, deshalb wird keiner angezeigt.",
+    "source": "Gesetzliche Feiertage: {law}, in der Fassung vom {day}.",
+    "law": {
+      "HU": "ungarisches Arbeitsgesetzbuch ({law})"
+    }
   },
   "proposals": {
     "meta": {
@@ -1606,9 +1651,9 @@
         "before": "Vorher",
         "after": "Nachher",
         "words": "{count, plural, one {# Wort} other {# Wörter}}",
-        "kept": "behalten · {count}",
-        "added": "hinzugefügt · {count}",
-        "removed": "entfernt · {count}",
+        "kept": "Behalten · {count}",
+        "added": "Hinzugefügt · {count}",
+        "removed": "Entfernt · {count}",
         "aria": "Vorher: {before} Wörter. Nachher: {after} Wörter; {kept} behalten, {added} hinzugefügt, {removed} entfernt."
       },
       "rollback": {
@@ -1631,7 +1676,7 @@
         "fact": "Fakt {n}",
         "more": "+{count} weitere",
         "rules": "{count, plural, one {Ihre Regel · #} other {Ihre Regeln · #}}",
-        "rulesSub": "was Sie mir gesagt haben",
+        "rulesSub": "Was Sie mir gesagt haben",
         "disagree": "{count, plural, one {Widerspruch · #} other {Widersprüche · #}}",
         "disagreeSub": "Quellen, die abweichen",
         "aria": "Diese Entscheidung beruht auf {facts, plural, one {# Fakt} other {# Fakten}}, {rules, plural, one {# Ihrer Regeln} other {# Ihrer Regeln}} und {disagreements, plural, one {# Widerspruch} other {# Widersprüchen}}."
@@ -1639,9 +1684,9 @@
       "way": {
         "title": "Der Weg zurück",
         "now": "So wie jetzt",
-        "stored": "gespeichert",
+        "stored": "Gespeichert",
         "changed": "Geändert",
-        "click": "ein Klick",
+        "click": "Ein Klick",
         "back": "Wieder wie vorher",
         "auto": "oder von selbst, wenn die Seite langsamer als {ms} ms lädt",
         "aria": "Der jetzige Stand wird gespeichert und dann geändert; ein Klick stellt ihn wieder her.",
@@ -1796,9 +1841,78 @@
     "sync": {
       "didntRun": "Die Synchronisierung wurde nicht ausgeführt.",
       "locked": "Für {label} läuft bereits eine Synchronisierung.",
+      "reading": "{label} wird gelesen. {count, plural, =0 {Noch nichts da.} one {Bisher # Tageswert.} other {Bisher # Tageswerte.}}",
+      "working": "{label} ist gelesen. Jetzt wird ermittelt, was sich geändert hat.",
       "done": "{label} synchronisiert. {count, plural, one {# Tageswert gelesen.} other {# Tageswerte gelesen.}}",
       "failed": "{label} wurde nicht synchronisiert. {reason}",
       "noReason": "Es wurde kein Grund angegeben."
+    },
+    "pageSetup": {
+      "label": "Vor dem Schreibzugriff",
+      "title": {
+        "todo": "Noch keine Facebook-Seite und kein professionelles Instagram-Konto?",
+        "done": "Ihre Seite ist verbunden",
+        "doneBoth": "Ihre Seite und ihr Instagram-Konto sind verbunden"
+      },
+      "lede": "ScaleX kann sie nicht für Sie anlegen: Keine App darf für eine Person eine Seite oder ein Konto erstellen. Sie legen beides bei Facebook und Instagram an, und ScaleX gibt Ihnen aus Ihrem Faktenblatt, was Sie eintragen.",
+      "show": "Die Anleitung zur Einrichtung",
+      "reading": "Ihr Faktenblatt wird gelesen…",
+      "failed": "Die Anleitung konnte nicht gelesen werden. Laden Sie die Seite neu.",
+      "step1": {
+        "title": "Legen Sie die Seite bei Facebook an",
+        "lede": "Facebook fragt nach einem Namen, einer Kategorie und einer kurzen Beschreibung. Hier steht jedes davon zum Kopieren bereit.",
+        "open": "Facebooks eigene Anleitung öffnen"
+      },
+      "step2": {
+        "title": "Machen Sie Ihr Instagram zu einem professionellen Konto und verbinden Sie es mit der Seite",
+        "lede": "Öffnen Sie in der Instagram-App „Profil bearbeiten“, wechseln Sie zu einem professionellen Konto und verbinden Sie dann unter „Seite“ Ihre Facebook-Seite. Nehmen Sie dieselbe kurze Beschreibung.",
+        "open": "Instagrams eigene Anleitung öffnen"
+      },
+      "step3": {
+        "title": "Kommen Sie zurück und geben Sie ScaleX Schreibzugriff",
+        "lede": "Nutzen Sie die Karte zum Veröffentlichen auf diesem Bildschirm. ScaleX liest dann, welche Seiten Meta ihm zeigt und ob mit Ihrer Seite ein Instagram-Konto verbunden ist. Ihr Passwort sieht es nie."
+      },
+      "newTab": "(öffnet sich in einem neuen Tab)",
+      "row": {
+        "name": "Name der Seite",
+        "category": "Kategorie",
+        "categoryHint": "Suchen Sie die, die dem am nächsten kommt: {type}",
+        "short": "Kurze Beschreibung",
+        "about": "Längere Beschreibung",
+        "website": "Website",
+        "username": "Idee für den Nutzernamen"
+      },
+      "src": {
+        "name": "Der Name Ihres Unternehmens aus Ihrem Faktenblatt",
+        "type": "Die Unternehmensart, die Sie gewählt haben",
+        "about": "Was Sie mir über die Tätigkeit des Unternehmens gesagt haben, so wie Sie es geschrieben haben",
+        "shortAsGiven": "Was Sie mir über die Tätigkeit des Unternehmens gesagt haben, so wie Sie es geschrieben haben",
+        "shortFirst": "Der erste Satz dessen, was Sie mir über die Tätigkeit des Unternehmens gesagt haben",
+        "shortCut": "Gekürzt aus dem, was Sie mir über die Tätigkeit des Unternehmens gesagt haben. Prüfen Sie, ob es sich noch gut liest.",
+        "website": "Ihre Website aus Ihrem Faktenblatt",
+        "username": "Aus dem Namen gebildet: Kleinbuchstaben, ohne Akzente, Punkte statt Leerzeichen. Ein Vorschlag: Vielleicht ist er schon vergeben."
+      },
+      "copy": "Kopieren",
+      "copied": "Kopiert",
+      "copyWhat": "Kopieren: {what}",
+      "copyFailed": "Kopieren hat nicht geklappt. Markieren Sie den Text und kopieren Sie ihn selbst.",
+      "gaps": {
+        "title": "Um den Rest vorzubereiten, brauche ich noch:",
+        "answer": "Jetzt beantworten"
+      },
+      "gap": {
+        "name": "Den Namen des Unternehmens.",
+        "business_type": "Welche Art von Unternehmen es ist.",
+        "description": "Was das Unternehmen macht, in ein paar Sätzen."
+      },
+      "state": {
+        "pageNo": "Seite: noch nicht verbunden",
+        "pageYes": "Seite: verbunden",
+        "instagramNo": "Instagram: noch nicht mit der Seite verbunden",
+        "instagramYes": "Instagram: verbunden"
+      },
+      "change": "Ändern Sie alles davon in Ihrem Faktenblatt",
+      "foot": "ScaleX fragt nie nach Ihrem Facebook- oder Instagram-Passwort. Diese Anleitung ist in jedem Tarif kostenlos."
     },
     "panel": {
       "label": "Patchfeld",
@@ -2303,7 +2417,7 @@
         "start_again": "Diese Facebook-Anmeldung ist abgelaufen oder wurde bereits verwendet. Beginnen Sie unter „Verbindungen“ neu.",
         "foreign": "Diese Facebook-Anmeldung wurde von einem anderen ScaleX-Konto aus gestartet. Nutzen Sie zur Anmeldung bei ScaleX dieses Konto oder beginnen Sie neu.",
         "meta_error": "Die Facebook-Anmeldung wurde nicht abgeschlossen. Es wurde nichts verbunden.",
-        "no_pages": "Meta hat ScaleX für dieses Facebook-Konto keine Seiten gezeigt. Wählen Sie im Dialog von Meta die Seite (und ihr Instagram-Konto), auf der ScaleX veröffentlichen soll, und versuchen Sie es dann erneut.",
+        "no_pages": "Meta hat ScaleX für dieses Facebook-Konto keine Seiten gezeigt. Wählen Sie im Dialog von Meta die Seite (und ihr Instagram-Konto), auf der ScaleX veröffentlichen soll, und versuchen Sie es dann erneut. Noch keine Seite? Die Anleitung zur Einrichtung auf diesem Bildschirm sagt, was Sie eintragen.",
         "no_ad_accounts": "Meta hat ScaleX für dieses Facebook-Konto keine Werbekonten gezeigt. Wählen Sie im Dialog von Meta das Werbekonto, das ScaleX verwalten soll, und versuchen Sie es dann erneut.",
         "meta_auth": "Die Facebook-Anmeldung wurde nicht abgeschlossen: Meta hat die Anmeldung nicht akzeptiert. Beginnen Sie unter „Verbindungen“ neu.",
         "meta_permission": "Die Facebook-Anmeldung wurde nicht abgeschlossen: Laut Meta darf ScaleX das nicht. Prüfen Sie die unter „Verbindungen“ aufgeführten Berechtigungen und beginnen Sie neu.",
@@ -4749,6 +4863,8 @@
       "unclear": "Ich kann nicht erkennen, wo das Dezimalzeichen steht. Schreiben Sie die Zahl ohne Tausendertrennzeichen, zum Beispiel {example}.",
       "onForm": "Diese Frage wird im Formular beantwortet.",
       "openForm": "Dort öffnen",
+      "rowsDone": "Das ist alles",
+      "fieldSkip": "Auslassen",
       "stop": "Hier aufhören"
     }
   },
@@ -4966,6 +5082,9 @@
       "caption": "Bildunterschrift",
       "writtenFrom": "Geschrieben aus",
       "serves": "Dient dem Ziel: {goal}",
+      "learnedBoth": "Ihre eigenen {platform}-Beiträge: {helped, plural, one {# lief} other {# liefen}} besser als üblich, {backfired, plural, one {# lief} other {# liefen}} schlechter",
+      "learnedHelped": "Ihre eigenen {platform}-Beiträge: {helped, plural, one {# lief} other {# liefen}} besser als üblich",
+      "learnedBackfired": "Ihre eigenen {platform}-Beiträge: {backfired, plural, one {# lief} other {# liefen}} schlechter als üblich",
       "disclosure": "Kennzeichnung: {text}",
       "notPublishing": "Wird nicht veröffentlicht: {why}.",
       "superseded": "Ihr eigenes Filmmaterial hat diese generierte Fassung ersetzt, daher wird sie nicht veröffentlicht.",
@@ -6767,6 +6886,11 @@
       "footWatchingHtml": "Alles, was ich tue, sehen Sie unter <link>„Beobachtung“</link>. Nichts läuft, bevor Sie es freigeben.",
       "footStopHtml": "Sie erhalten diese E-Mail einmal pro Woche. Schalten Sie sie unter „Beobachtung“ ab oder <link>bestellen Sie diese E-Mails</link> mit einem Klick ab.",
       "whatsappBusiness": "Ihr Unternehmen"
+    },
+    "warning": {
+      "open": "{screen} öffnen",
+      "why": "Ich sage es Ihnen einmal, wenn eine solche Warnung zum ersten Mal auftritt.",
+      "stop": "Um diese E-Mails zu beenden, schalten Sie sie unter {settings} aus."
     },
     "signIn": {
       "subject": "Ihr Anmeldelink · ScaleX",
@@ -9146,6 +9270,14 @@
     "withProposals": "{count, plural, one {# Sache wartet auf Ihr Ja} other {# Sachen warten auf Ihr Ja}}, dazu {reviews, plural, one {eine Bewertung, die Sie kennen sollten} other {# Bewertungen, die Sie kennen sollten}}",
     "anotherSite": "einer anderen Website"
   },
+  "warningPush": {
+    "one": {
+      "cash_warning": "Ihr Geld könnte in den nächsten Wochen knapp werden",
+      "stock_warning": "Etwas, das Sie verkaufen, könnte vor der nächsten Lieferung ausgehen"
+    },
+    "many": "{count, plural, one {# Warnung, die Sie kennen sollten} other {# Warnungen, die Sie kennen sollten}}",
+    "also": ", dazu {count, plural, one {eine Warnung, die Sie kennen sollten} other {# Warnungen, die Sie kennen sollten}}"
+  },
   "payments": {
     "meta": {
       "title": "Zahlungen · ScaleX"
@@ -10498,6 +10630,15 @@
     "toast": {
       "approved": "Freigegeben. Mit Ihrem Namen aufgezeichnet.",
       "declined": "Abgelehnt. Mit Ihrem Grund aufgezeichnet."
+    },
+    "arrange": {
+      "open": "Diese Seite anordnen",
+      "title": "Was diese Seite zeigt",
+      "note": "Wählen Sie aus, was Sie sehen möchten, und schieben Sie es nach oben oder unten. In diesem Browser gespeichert.",
+      "always": "Was Sie braucht und der Status von Lex werden immer angezeigt.",
+      "up": "{name} nach oben",
+      "down": "{name} nach unten",
+      "reset": "Zurücksetzen"
     }
   },
   "alerts": {

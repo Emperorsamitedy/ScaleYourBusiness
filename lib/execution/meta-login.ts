@@ -60,6 +60,7 @@ import type {
 import { META_EXEC_API_VERSION, MetaRequestError } from "./providers/meta";
 import type { MetaFailure } from "./meta-errors";
 import type { ConnectionsReason } from "./meta-login-reasons";
+import { CONNECTIONS_REASONS } from "./meta-login-reasons";
 import { EXECUTION_SCOPE_REGISTRY } from "./scopes";
 import { EXECUTION_SETUP, OFFERED_EXECUTION, confirmationMatches } from "./setup";
 
@@ -508,10 +509,15 @@ async function candidatesFor(
   return provider === "meta_publish" ? exec.login.pages(token) : exec.login.adAccounts(token);
 }
 
+/**
+ * The sentence for an empty list. It is the reason's own (meta-login-reasons),
+ * read from there so the two can never come apart: the screen says a server
+ * sentence in the reader's language only when its English matches exactly.
+ */
 function nothingToPick(provider: MetaExecutionProviderId): string {
   return provider === "meta_publish"
-    ? "Meta showed ScaleX no Pages for that Facebook account. In Meta's dialog, choose the Page (and its Instagram account) you want ScaleX to publish to, then try again."
-    : "Meta showed ScaleX no ad accounts for that Facebook account. In Meta's dialog, choose the ad account you want ScaleX to manage, then try again.";
+    ? CONNECTIONS_REASONS.no_pages
+    : CONNECTIONS_REASONS.no_ad_accounts;
 }
 
 /**

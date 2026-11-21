@@ -165,6 +165,29 @@
   color: var(--desk-ink);
   font-weight: 600;
 }
+/* The language switch in the bar's right corner (components/locale/
+   LanguageToggle.tsx; the owner, 2026-11-20: "a button to the top right
+   corner which changes language between hun and eng"). Where the bar is
+   short of room it is one button: the language it would switch to. */
+.sx-lang {
+  color: var(--desk-ink-2);
+  border-color: var(--desk-rule);
+}
+@media (max-width: 1239px) {
+  .sx-lang {
+    padding: 0;
+    border-color: transparent;
+  }
+  .sx-lang button {
+    min-width: 36px;
+    height: 36px;
+    opacity: 0.9;
+  }
+  /* Someone reading a third language keeps both. */
+  .sx-lang button[aria-pressed="true"] {
+    display: none;
+  }
+}
 /* An answer that came while Lex was closed: a point of light on the corner
    of his face, in the bar and afloat, until the conversation is opened
    (components/nav/LexPanel.tsx arrivedUnseen). It arrives once, with a
@@ -932,4 +955,115 @@
   .sx-fab {
     display: none;
   }
+}
+
+/* With the language switch in the bar, the narrowest width before a phone's
+   layout was 19px short and the stop hung past the right edge. From here
+   down to that layout the rule after the wordmark goes, the tools sit a
+   little closer, and the business's name gives up a few letters. */
+@media (min-width: 760px) and (max-width: 859px) {
+  .sx-sep {
+    display: none;
+  }
+  .sx-top {
+    gap: 8px;
+  }
+  .sx-biz {
+    max-width: 104px;
+  }
+}
+
+/* The bar folds by what it holds (components/nav/useBarFit.ts). The widths
+   above were measured in English; in Hungarian, or with a long business
+   name, the same bar needs more room, and from 1100 to about 1390px wide the
+   stop hung past the right edge and the page scrolled sideways. So the bar
+   is measured and folded one step at a time until it fits. Each step is one
+   of the folds above, in the same order; the width rules stay as the first
+   paint's guess. */
+
+/* step 1 and on: search is its icon; the language switch is one button */
+.sx-top[data-fit] .sx-search-word,
+.sx-top[data-fit] .sx-search-keys {
+  display: none;
+}
+.sx-top[data-fit] .sx-search {
+  width: 36px;
+  padding: 0;
+}
+.sx-top[data-fit] .sx-lang {
+  padding: 0;
+  border-color: transparent;
+}
+.sx-top[data-fit] .sx-lang button {
+  min-width: 36px;
+  height: 36px;
+  opacity: 0.9;
+}
+.sx-top[data-fit] .sx-lang button[aria-pressed="true"] {
+  display: none;
+}
+
+/* step 2 and on: "Ask Lex" is Lex's face; the stop says one word */
+.sx-top:is([data-fit="2"], [data-fit="3"], [data-fit="4"], [data-fit="5"]) .sx-ask-word {
+  display: none;
+}
+.sx-top:is([data-fit="2"], [data-fit="3"], [data-fit="4"], [data-fit="5"]) .sx-ask {
+  padding: 0 5px;
+}
+.sx-top:is([data-fit="2"], [data-fit="3"], [data-fit="4"], [data-fit="5"]) .sx-biz {
+  max-width: 150px;
+}
+.sx-top:is([data-fit="2"], [data-fit="3"], [data-fit="4"], [data-fit="5"]) .es-long {
+  display: none;
+}
+.sx-top:is([data-fit="2"], [data-fit="3"], [data-fit="4"], [data-fit="5"]) .es-short {
+  display: inline;
+}
+
+/* step 3 and on: a place that is not open is its icon (its name stays for a
+   screen reader and on hover) */
+.sx-top:is([data-fit="3"], [data-fit="4"], [data-fit="5"]) .sx-place {
+  position: relative;
+  padding: 0 10px;
+  gap: 6px;
+}
+.sx-top:is([data-fit="3"], [data-fit="4"], [data-fit="5"])
+  .sx-place:not([aria-current])
+  > span:not(.sx-count) {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+.sx-top:is([data-fit="3"], [data-fit="4"], [data-fit="5"]) .sx-biz {
+  max-width: 120px;
+}
+
+/* step 4: the rule after the wordmark goes, the tools sit closer, and the
+   business's name gives up a few more letters */
+.sx-top:is([data-fit="4"], [data-fit="5"]) {
+  gap: 6px;
+  padding-left: 14px;
+  padding-right: 14px;
+}
+.sx-top:is([data-fit="4"], [data-fit="5"]) .sx-sep {
+  display: none;
+}
+.sx-top:is([data-fit="4"], [data-fit="5"]) .sx-biz {
+  max-width: 88px;
+}
+
+/* step 5: the open place is its icon too. Its name is in the page's own head
+   ("Insights · Cash flow"), for a screen reader and on hover. Only the
+   longest words at the narrowest width before a phone's layout come to this
+   (German at 760px). */
+.sx-top[data-fit="5"] .sx-place > span:not(.sx-count) {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }

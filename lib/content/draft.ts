@@ -4,6 +4,11 @@
 //   · the voice card (voice.ts) is the whole of what the model knows —
 //     traits and exemplars with statable sources, and the 13.5
 //     boundaries in plain sight
+//   · posts that learn (2026-11-20, lessons.ts): a post may also be given
+//     the business's own earlier posts on that platform that measured
+//     better or worse than usual, as examples to lean toward and away
+//     from. Their words only: no figure about how a post did reaches the
+//     model, and nothing in them is a fact for the new post
 //   · the model may not invent numbers, offers, claims or discounts;
 //     the prompt says so and the brief carries only profile facts
 //   · disclosure is applied AFTER the model, by code (P3-19) — a label
@@ -21,6 +26,8 @@ import type { VoiceCard } from "./voice";
 import { renderVoiceCard } from "./voice";
 import type { ContentKind } from "./disclosure";
 import { withDisclosure } from "./disclosure";
+import type { DraftLessons, LessonsRecord } from "./lessons";
+import { lessonsRecord, renderLessons } from "./lessons";
 import { customerLanguageLine, withLanguage } from "../llm/language";
 import type { AppLocale } from "../i18n/locales";
 
@@ -99,6 +106,8 @@ export interface DraftResult {
     model: string;
     voice_card: VoiceCard;
     brief: string;
+    /** The business's own judged posts the draft had in view, by id; absent when it had none. */
+    lessons?: LessonsRecord;
   };
 }
 
@@ -117,14 +126,23 @@ export async function draftItem(args: {
    * they are written in it whatever language the owner reads SYB in.
    */
   language: AppLocale;
+  /**
+   * Posts that learn: the business's own posts on this platform that measured
+   * better or worse than usual (./lessons-load). Absent or null, the prompt is
+   * exactly what it was.
+   */
+  lessons?: DraftLessons | null;
   llm?: DraftLlm;
 }): Promise<DraftResult> {
   const llm = args.llm ?? liveDraftLlm;
+  const lessons = args.lessons ?? null;
   const brief =
     `Format: ${args.item.format}. Channel: ${args.item.channel_label}. ` +
     `Scheduled for ${args.item.date}. Focus: ${args.item.focus}. Brief: ${args.item.brief}`;
   const system = withLanguage(
-    `${SYSTEM_BASE}\n\n${renderVoiceCard(args.card)}`,
+    [SYSTEM_BASE, renderVoiceCard(args.card), ...(lessons ? [renderLessons(lessons)] : [])].join(
+      "\n\n",
+    ),
     customerLanguageLine(args.language),
   );
   const { text } = await llm({ system, user: brief, accountId: args.accountId });
@@ -132,6 +150,11 @@ export async function draftItem(args: {
   if (body === "") throw new Error("the draft came back empty");
   return {
     body: withDisclosure(args.kind, body),
-    provenance: { model: draftModel(), voice_card: args.card, brief },
+    provenance: {
+      model: draftModel(),
+      voice_card: args.card,
+      brief,
+      ...(lessons ? { lessons: lessonsRecord(lessons) } : {}),
+    },
   };
 }

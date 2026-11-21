@@ -4056,6 +4056,49 @@ export const pushOutbox = pgTable(
   (t) => [index("push_outbox_profile_idx").on(t.profile_id)],
 );
 
+/**
+ * A warning that looks ahead, waiting to be told at once (TASKS-FEEDBACK,
+ * "warnings sent at once", 2026-11-20): the cash forecast's first tight week
+ * or an item whose stock runs out before its next delivery. The watch's own
+ * log line is the warning (watch_activity, written once per signature); a row
+ * here says that line has a phone alert and an email still to go. Only a line
+ * that is news gets one (lib/warnings/sweep, lib/warnings/news). The phone
+ * alert rides the proposals' rules (lib/push/plan: the stop, quiet hours, one
+ * a day) and is settled when sent or dropped. The email is claimed before the
+ * provider is called and never retried. Holds ids and times only.
+ */
+export const warningAlerts = pgTable(
+  "warning_alerts",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    profile_id: uuid("profile_id")
+      .notNull()
+      .references(() => businessProfiles.id, { onDelete: "cascade" }),
+    /** The log line this alert is about: one alert per line. */
+    activity_id: uuid("activity_id")
+      .notNull()
+      .references(() => watchActivity.id, { onDelete: "cascade" }),
+    /** The log line's kind: "cash_warning" or "stock_warning". */
+    kind: text("kind").notNull(),
+    created_at: timestamp("created_at", { withTimezone: true, mode: "string" })
+      .notNull()
+      .defaultNow(),
+    /** When the phone alert was sent or dropped; null while it waits. */
+    push_settled_at: timestamp("push_settled_at", { withTimezone: true, mode: "string" }),
+    /** When the email was claimed, before the provider call; null = not attempted. */
+    email_claimed_at: timestamp("email_claimed_at", { withTimezone: true, mode: "string" }),
+    /** "sent", or why not ("off", "not_configured", "in_summary", "no_owner", "failed"). */
+    email_outcome: text("email_outcome"),
+  },
+  (t) => [
+    uniqueIndex("warning_alerts_activity_uq").on(t.activity_id),
+    index("warning_alerts_profile_idx").on(t.profile_id),
+    index("warning_alerts_push_pending_idx")
+      .on(t.profile_id)
+      .where(sql`push_settled_at IS NULL`),
+  ],
+);
+
 /* ---------- Idea 45 — bad-review alerts ---------- */
 
 // Reviews arrive the way the owner already gets them: the notification

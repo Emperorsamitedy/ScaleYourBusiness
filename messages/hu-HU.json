@@ -309,6 +309,7 @@
     "pause": {
       "title": "Szünet · folytatás később",
       "lede": "Minden eddigi válasz már rögzítve van. Adjon meg egy e-mail-címet, és adok egy linket, amellyel bármilyen eszközön újra megnyithatja ezt a profilt. Nincs jelszó, nincs fiók.",
+      "kept": "Az eddigiek megmaradnak a fiókjában. A Kezdőlapról bármikor folytathatja.",
       "keepGoing": "Folytatom"
     },
     "stage": {
@@ -335,7 +336,10 @@
       "moderate": "közepes",
       "next": "Következő lépés",
       "nextValue": "annak eldöntése, milyen óvatosan haladjunk",
-      "keep": "Adjon meg egy e-mail-címet, és adok egy linket, amellyel visszatérhet ehhez a profilhoz. Nincs jelszó, nincs fiók."
+      "keep": "Adjon meg egy e-mail-címet, és adok egy linket, amellyel visszatérhet ehhez a profilhoz. Nincs jelszó, nincs fiók.",
+      "home": "Tovább a Kezdőlapra",
+      "revisit": "A kihagyottak megválaszolása",
+      "kept": "Minden válasza megmarad a fiókjában. A ténylapon bármelyiket módosíthatja."
     },
     "question": {
       "ref": "K <fig>{id}</fig>",
@@ -461,10 +465,13 @@
     "keep": {
       "placeholder": "on@vallalkozasa.hu",
       "label": "Az Ön e-mail-címe",
+      "title": "Őrizze meg a visszautat",
       "making": "A link készül",
       "get": "Kérem a linket",
       "linkCap": "Az Ön linkje",
       "linkNote": "Ezzel a linkkel {days, plural, one {# napig} other {# napig}} bármilyen eszközön újra megnyithatja ezt a profilt. Mentse el valahová, ahol megtalálja.",
+      "copy": "Link másolása",
+      "copied": "Kimásolva",
       "badEmail": "Ez nem tűnik e-mail-címnek.",
       "failed": "Nem sikerült elkészíteni a linket. Próbálja újra."
     },
@@ -1224,7 +1231,10 @@
         "daily": "Napról napra"
       },
       "below": "{date} óta a szokásos tartománya alatt",
-      "above": "{date} óta a szokásos tartománya felett"
+      "above": "{date} óta a szokásos tartománya felett",
+      "latest": "Legutóbbi nap",
+      "high": "Legmagasabb nap",
+      "low": "Legalacsonyabb nap"
     },
     "noted": {
       "label": "Feljegyezve, nem cselekedtem",
@@ -1268,6 +1278,9 @@
       "noEmail": "Ezen a szerveren még nincs beállítva az e-mail-küldés, ezért egy sem megy ki.",
       "lastSent": "Utoljára elküldve: {date}.",
       "first": "Az első a következő hétfői ellenőrzéskor megy ki.",
+      "warningsSwitch": "figyelmeztetés e-mailben aznap, amikor megjelenik",
+      "warningsWhy": "Egy e-mail, amikor a következő hetekben először látszik szűkösnek a pénz, vagy valami, amit árul, elfogyhat a következő szállítás előtt.",
+      "warningsOff": "Kikapcsolva. A figyelmeztetés csak az alkalmazásban és a hétfői e-mailben jelenik meg.",
       "channel": {
         "legend": "Küldés módja",
         "email": "E-mail",
@@ -1348,6 +1361,38 @@
     },
     "moved": "A heti összefoglaló, a telefonos értesítések és a modulkapcsolók a Beállításokban vannak.",
     "movedLink": "Értesítések és modulok"
+  },
+  "signals": {
+    "day": "{day} ({name})",
+    "holiday": {
+      "new_year": "újév",
+      "march_15": "nemzeti ünnep",
+      "good_friday": "nagypéntek",
+      "easter_monday": "húsvéthétfő",
+      "may_1": "a munka ünnepe",
+      "whit_monday": "pünkösdhétfő",
+      "august_20": "az államalapítás ünnepe",
+      "october_23": "nemzeti ünnep",
+      "all_saints": "mindenszentek",
+      "december_24": "szenteste",
+      "december_25": "karácsony",
+      "december_26": "karácsony másnapja"
+    },
+    "cash": {
+      "week": "{count, plural, one {Munkaszüneti nap: {days}} other {Munkaszüneti napok: {days}}}",
+      "summary": "{count, plural, one {# munkaszüneti nap esik ezekre a hetekre: {days}.} other {# munkaszüneti nap esik ezekre a hetekre: {days}.}}",
+      "none": "Ezekre a hetekre nem esik munkaszüneti nap.",
+      "note": "A bankok és a kifizetési szolgáltatók munkanapokkal számolnak, ezért a munkaszüneti napon esedékes pénz egy nappal később érkezhet. Ez nincs beleszámolva az előrejelzésbe."
+    },
+    "stock": {
+      "short": "{count, plural, one {# munkaszüneti nap esik bele} other {# munkaszüneti nap esik bele}}",
+      "inLead": "{count, plural, one {# munkaszüneti nap esik ebbe a szállítási időbe: {days}.} other {# munkaszüneti nap esik ebbe a szállítási időbe: {days}.}} Nincs beleszámolva."
+    },
+    "uncovered": "A ScaleX-nek még nincs munkaszünetinap-naptára ehhez az országhoz: {country}, ezért egyet sem mutat.",
+    "source": "Munkaszüneti napok: {law}, a következő napon hatályos szöveg szerint: {day}.",
+    "law": {
+      "HU": "a magyar munka törvénykönyve ({law})"
+    }
   },
   "proposals": {
     "meta": {
@@ -1602,18 +1647,18 @@
       },
       "size": {
         "title": "A változás mérete",
-        "unit": "a sor szavai, előtte és utána",
+        "unit": "A sor szavai, előtte és utána",
         "before": "Előtte",
         "after": "Utána",
         "words": "{count, plural, one {# szó} other {# szó}}",
-        "kept": "megmarad · {count}",
-        "added": "hozzáadva · {count}",
-        "removed": "eltávolítva · {count}",
+        "kept": "Megmarad · {count}",
+        "added": "Hozzáadva · {count}",
+        "removed": "Eltávolítva · {count}",
         "aria": "Előtte: {before} szó. Utána: {after} szó; {kept} megmarad, {added} hozzáadva, {removed} eltávolítva."
       },
       "rollback": {
         "title": "Mikor áll vissza magától",
-        "unit": "oldalbetöltés, ezredmásodperc",
+        "unit": "Oldalbetöltés, ezredmásodperc",
         "today": "Ma",
         "past": "Visszaáll e fölött",
         "ms": "{ms} ms",
@@ -1631,7 +1676,7 @@
         "fact": "{n}. tény",
         "more": "+{count} további",
         "rules": "{count, plural, one {Az Ön szabálya · #} other {Az Ön szabályai · #}}",
-        "rulesSub": "amit Ön mondott",
+        "rulesSub": "Amit Ön mondott",
         "disagree": "{count, plural, one {Eltérés · #} other {Eltérések · #}}",
         "disagreeSub": "eltérő források",
         "aria": "Ez a döntés {facts, plural, one {# tényen} other {# tényen}}, {rules, plural, one {# szabályán} other {# szabályán}} és {disagreements, plural, one {# eltérésen} other {# eltérésen}} alapul."
@@ -1639,9 +1684,9 @@
       "way": {
         "title": "Az út vissza",
         "now": "Ahogy most van",
-        "stored": "elmentve",
+        "stored": "Elmentve",
         "changed": "Megváltoztatva",
-        "click": "egy kattintás",
+        "click": "Egy kattintás",
         "back": "Vissza a régire",
         "auto": "vagy magától, ha az oldal {ms} ms-nál lassabb lesz",
         "aria": "A mostani állapot elmentődik, majd megváltozik; egy kattintással visszaáll.",
@@ -1796,9 +1841,78 @@
     "sync": {
       "didntRun": "A szinkronizálás nem futott le.",
       "locked": "Már fut egy szinkronizálás ehhez: {label}.",
+      "reading": "Beolvasás: {label}. {count, plural, =0 {Még semmi sem érkezett.} one {Eddig # napi szám.} other {Eddig # napi szám.}}",
+      "working": "{label}: beolvasva. Most számolom ki, mi változott.",
       "done": "{label}: szinkronizálva. {count, plural, one {# napi szám beolvasva.} other {# napi szám beolvasva.}}",
       "failed": "{label}: a szinkronizálás nem sikerült. {reason}",
       "noReason": "Nem érkezett indoklás."
+    },
+    "pageSetup": {
+      "label": "Az írási hozzáférés előtt",
+      "title": {
+        "todo": "Még nincs Facebook-oldala vagy professzionális Instagram-fiókja?",
+        "done": "Az oldala csatlakoztatva van",
+        "doneBoth": "Az oldala és a hozzá tartozó Instagram-fiók csatlakoztatva van"
+      },
+      "lede": "A ScaleX nem hozhatja létre Ön helyett: egyetlen alkalmazás sem hozhat létre oldalt vagy fiókot valaki más nevében. Ön hozza létre a Facebookon és az Instagramon, a ScaleX pedig a ténylapja alapján megadja, mit írjon be.",
+      "show": "A beállítási útmutató",
+      "reading": "A ténylap beolvasása…",
+      "failed": "Az útmutatót nem sikerült beolvasni. Töltse újra az oldalt.",
+      "step1": {
+        "title": "Hozza létre az oldalt a Facebookon",
+        "lede": "A Facebook nevet, kategóriát és rövid leírást kér. Itt van mindegyik, másolásra készen.",
+        "open": "A Facebook saját útmutatója"
+      },
+      "step2": {
+        "title": "Állítsa át Instagramját professzionális fiókra, és kapcsolja az oldalhoz",
+        "lede": "Az Instagram alkalmazásban nyissa meg a Profil szerkesztése menüt, váltson professzionális fiókra, majd az Oldal pontnál kapcsolja hozzá a Facebook-oldalát. Használja ugyanazt a rövid leírást.",
+        "open": "Az Instagram saját útmutatója"
+      },
+      "step3": {
+        "title": "Térjen vissza, és adjon írási hozzáférést a ScaleX-nek",
+        "lede": "Használja ezen a képernyőn a közzétételi kártyát. A ScaleX ezután kiolvassa, mely oldalakat mutatja neki a Meta, és hogy az oldalához kapcsolódik-e Instagram-fiók. A jelszavát soha nem látja."
+      },
+      "newTab": "(új lapon nyílik meg)",
+      "row": {
+        "name": "Az oldal neve",
+        "category": "Kategória",
+        "categoryHint": "Keresse az ehhez legközelebb állót: {type}",
+        "short": "Rövid leírás",
+        "about": "Hosszabb leírás",
+        "website": "Weboldal",
+        "username": "Felhasználónév-ötlet"
+      },
+      "src": {
+        "name": "A vállalkozás neve a ténylapjáról",
+        "type": "Az Ön által választott vállalkozástípus",
+        "about": "Amit a vállalkozás tevékenységéről mondott, úgy, ahogy leírta",
+        "shortAsGiven": "Amit a vállalkozás tevékenységéről mondott, úgy, ahogy leírta",
+        "shortFirst": "Az első mondat abból, amit a vállalkozás tevékenységéről mondott",
+        "shortCut": "Rövidítve abból, amit a vállalkozás tevékenységéről mondott. Ellenőrizze, hogy így is jól olvasható-e.",
+        "website": "A weboldala a ténylapjáról",
+        "username": "A névből készült: kisbetűk, ékezetek nélkül, szóközök helyett pontok. Csak javaslat: lehet, hogy már foglalt."
+      },
+      "copy": "Másolás",
+      "copied": "Kimásolva",
+      "copyWhat": "Másolás: {what}",
+      "copyFailed": "Nem sikerült kimásolni. Jelölje ki a szöveget, és másolja ki kézzel.",
+      "gaps": {
+        "title": "A többi előkészítéséhez még szükségem van erre:",
+        "answer": "Megválaszolom most"
+      },
+      "gap": {
+        "name": "A vállalkozás neve.",
+        "business_type": "Milyen típusú a vállalkozás.",
+        "description": "Mivel foglalkozik a vállalkozás, néhány mondatban."
+      },
+      "state": {
+        "pageNo": "Oldal: még nincs csatlakoztatva",
+        "pageYes": "Oldal: csatlakoztatva",
+        "instagramNo": "Instagram: még nincs az oldalhoz kapcsolva",
+        "instagramYes": "Instagram: csatlakoztatva"
+      },
+      "change": "Bármelyiket módosíthatja a ténylapján",
+      "foot": "A ScaleX soha nem kéri a Facebook- vagy Instagram-jelszavát. Ez az útmutató minden csomagban ingyenes."
     },
     "panel": {
       "label": "Kapcsolótábla",
@@ -2303,7 +2417,7 @@
         "start_again": "Ez a Facebookos bejelentkezés lejárt, vagy már felhasználták. Kezdje újra az Összekapcsolt fiókok oldalról.",
         "foreign": "Ezt a Facebookos bejelentkezést egy másik ScaleX-fiókból indították. Jelentkezzen be abba a fiókba a ScaleX-ben, vagy kezdje újra.",
         "meta_error": "A Facebookos bejelentkezés nem fejeződött be. Semmi sem lett összekapcsolva.",
-        "no_pages": "A Meta egyetlen oldalt sem mutatott a ScaleX-nek ehhez a Facebook-fiókhoz. A Meta párbeszédablakában válassza ki azt az oldalt (és a hozzá tartozó Instagram-fiókot), amelyre a ScaleX közzétehet, majd próbálja újra.",
+        "no_pages": "A Meta egyetlen oldalt sem mutatott a ScaleX-nek ehhez a Facebook-fiókhoz. A Meta párbeszédablakában válassza ki azt az oldalt (és a hozzá tartozó Instagram-fiókot), amelyre a ScaleX közzétehet, majd próbálja újra. Még nincs oldala? Ezen a képernyőn a beállítási útmutató megadja, mit írjon be.",
         "no_ad_accounts": "A Meta egyetlen hirdetési fiókot sem mutatott a ScaleX-nek ehhez a Facebook-fiókhoz. A Meta párbeszédablakában válassza ki azt a hirdetési fiókot, amelyet a ScaleX kezeljen, majd próbálja újra.",
         "meta_auth": "A Facebookos bejelentkezés nem fejeződött be: a Meta nem fogadta el a bejelentkezést. Kezdje újra az Összekapcsolt fiókok oldalról.",
         "meta_permission": "A Facebookos bejelentkezés nem fejeződött be: a Meta szerint a ScaleX ezt nem teheti meg. Ellenőrizze az Összekapcsolt fiókok oldalon felsorolt engedélyeket, és kezdje újra.",
@@ -4749,6 +4863,8 @@
       "unclear": "Nem tudom eldönteni, hol van a tizedesjel ebben a számban. Írja be ezres elválasztó nélkül, például {example}.",
       "onForm": "Ezt az űrlapon lehet megválaszolni.",
       "openForm": "Megnyitás ott",
+      "rowsDone": "Ez minden",
+      "fieldSkip": "Ezt kihagyom",
       "stop": "Itt abbahagyom"
     }
   },
@@ -4966,6 +5082,9 @@
       "caption": "Képaláírás",
       "writtenFrom": "Forrásai",
       "serves": "Szolgált cél: {goal}",
+      "learnedBoth": "Saját {platform}-bejegyzései: {helped} a szokásosnál jobban teljesített, {backfired} gyengébben",
+      "learnedHelped": "Saját {platform}-bejegyzései: {helped} a szokásosnál jobban teljesített",
+      "learnedBackfired": "Saját {platform}-bejegyzései: {backfired} a szokásosnál gyengébben teljesített",
       "disclosure": "Jelölés: {text}",
       "notPublishing": "Nem kerül közzétételre: {why}.",
       "superseded": "Az Ön saját felvétele váltotta fel ezt a generált változatot, ezért nem kerül közzétételre.",
@@ -6767,6 +6886,11 @@
       "footWatchingHtml": "Mindent, amit teszek, megtalál a <link>Figyelés képernyőn</link>. Semmi sem fut az Ön jóváhagyása nélkül.",
       "footStopHtml": "Ezt az e-mailt hetente egyszer kapja. A Figyelés képernyőn kikapcsolhatja, vagy egy kattintással <link>leállíthatja ezeket az e-maileket</link>.",
       "whatsappBusiness": "az Ön vállalkozása"
+    },
+    "warning": {
+      "open": "{screen} megnyitása",
+      "why": "Egyszer szólok, amikor egy ilyen figyelmeztetés először megjelenik.",
+      "stop": "Ha nem kéri ezeket az e-maileket, kapcsolja ki őket itt: {settings}."
     },
     "signIn": {
       "subject": "Az Ön bejelentkezési linkje · ScaleX",
@@ -9146,6 +9270,14 @@
     "withProposals": "{count, plural, one {# dolog várja az Ön igenjét} other {# dolog várja az Ön igenjét}}, és {reviews, plural, one {egy értékelés, amiről érdemes tudnia} other {# értékelés, amiről érdemes tudnia}}",
     "anotherSite": "egy másik oldal"
   },
+  "warningPush": {
+    "one": {
+      "cash_warning": "A következő hetekben szűkös lehet a pénze",
+      "stock_warning": "Valami, amit árul, elfogyhat a következő szállítás előtt"
+    },
+    "many": "{count, plural, one {# figyelmeztetés, amiről érdemes tudnia} other {# figyelmeztetés, amiről érdemes tudnia}}",
+    "also": ", és {count, plural, one {egy figyelmeztetés, amiről érdemes tudnia} other {# figyelmeztetés, amiről érdemes tudnia}}"
+  },
   "payments": {
     "meta": {
       "title": "Kifizetések · ScaleX"
@@ -10498,6 +10630,15 @@
     "toast": {
       "approved": "Jóváhagyva. Az Ön nevével rögzítve.",
       "declined": "Elutasítva. Az Ön indokával rögzítve."
+    },
+    "arrange": {
+      "open": "Az oldal elrendezése",
+      "title": "Mit mutat ez az oldal",
+      "note": "Jelölje be, amit látni szeretne, és mozgassa feljebb vagy lejjebb. Ebben a böngészőben marad meg.",
+      "always": "Ami Önre vár, és Lex állapota mindig látszik.",
+      "up": "{name} feljebb",
+      "down": "{name} lejjebb",
+      "reset": "Visszaállítás"
     }
   },
   "alerts": {

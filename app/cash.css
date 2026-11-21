@@ -371,6 +371,17 @@
   line-height: 1.45;
   color: var(--sheet-ink-2);
 }
+/* Outside signals: the public holidays of the weeks, under the table. A line
+   beside a week says which fall in it. Words only: no figure is touched. */
+.cf-outside {
+  display: grid;
+  gap: 4px;
+  max-width: var(--measure);
+  line-height: 1.5;
+}
+.cf-outside-src {
+  font-size: 12px;
+}
 .cf-sources td {
   white-space: normal;
 }

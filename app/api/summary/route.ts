@@ -1,8 +1,14 @@
 // The weekly summary's switch — idea 42, and its channel — P6-07.
 //
 //   GET /api/summary   { enabled, owner, in_care, sending, configured, last_sent_at,
-//                        channel, whatsapp }
+//                        channel, whatsapp, warnings }
 //   PUT /api/summary   { enabled } and/or { channel: "email" | "whatsapp" | "both" }
+//                      and/or { warnings }
+//
+// `warnings` (2026-11-20, warnings sent at once) is the owner's switch for the
+// one email a warning that looks ahead sends the first time it appears: on
+// until they switch it off (lib/warnings/switch). It is the same owner's and
+// sits on the same card as the summary's, so it is read and set here.
 //
 // Behind the one door (lib/auth/access). An account with no owner yet has
 // no address to email, so there is nothing to switch: the PUT says so. The
@@ -28,6 +34,8 @@ import {
 import { maskNumber } from "../../../lib/summary/whatsapp";
 import { liveOptin } from "../../../lib/summary/whatsapp-optin";
 import { requireRole } from "../../../lib/auth/roles";
+import { setWarningPref } from "../../../lib/warnings/prefs";
+import { warningEmailOn, warningPref } from "../../../lib/warnings/switch";
 
 export async function GET(): Promise<NextResponse> {
   const access = await resolveAccess();
@@ -61,6 +69,8 @@ export async function GET(): Promise<NextResponse> {
     configured: ownerEmailConfigured() && appUrl() !== null,
     last_sent_at: last?.at ?? null,
     channel: owner ? summaryChannel(owner.prefs) : "email",
+    // A warning's email: on unless the owner turned it off.
+    warnings: owner !== null && warningEmailOn(warningPref(owner.prefs)),
     whatsapp: {
       // The setting names only, never a value: the screen says what's needed.
       missing: [...whatsappMissing(), ...(appUrl() === null ? ["APP_URL"] : [])],
@@ -81,11 +91,19 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
   const body = (await request.json().catch(() => ({}))) as {
     enabled?: unknown;
     channel?: unknown;
+    warnings?: unknown;
   };
   if (body.channel !== undefined && !isSummaryChannel(body.channel)) {
     return NextResponse.json({ error: "channel must be email, whatsapp or both" }, { status: 422 });
   }
-  if (typeof body.enabled !== "boolean" && body.channel === undefined) {
+  if (body.warnings !== undefined && typeof body.warnings !== "boolean") {
+    return NextResponse.json({ error: "warnings must be a boolean" }, { status: 422 });
+  }
+  if (
+    typeof body.enabled !== "boolean" &&
+    body.channel === undefined &&
+    body.warnings === undefined
+  ) {
     return NextResponse.json({ error: "enabled must be a boolean" }, { status: 422 });
   }
   const owner = await accountOwner(access.account_id);
@@ -116,8 +134,19 @@ export async function PUT(request: NextRequest): Promise<NextResponse> {
       }),
     );
   }
+  if (typeof body.warnings === "boolean") {
+    await setWarningPref(owner.id, body.warnings);
+    console.log(
+      JSON.stringify({
+        event: "warning_emails_switched",
+        account_id: access.account_id,
+        on: body.warnings,
+      }),
+    );
+  }
   return NextResponse.json({
     ...(typeof body.enabled === "boolean" ? { enabled: body.enabled } : {}),
     ...(isSummaryChannel(body.channel) ? { channel: body.channel } : {}),
+    ...(typeof body.warnings === "boolean" ? { warnings: body.warnings } : {}),
   });
 }
