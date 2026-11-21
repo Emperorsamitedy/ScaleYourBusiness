@@ -144,7 +144,14 @@ describe("L-4b — another language goes through the translator, figures in its 
       for (const s of text) expect(s).toMatch(/^\[scenario\./);
     }
 
-    const view: CashView = { forecast: f, tight: t, scenarios: cells, choice: null, price: null };
+    const view: CashView = {
+      forecast: f,
+      outside: null,
+      tight: t,
+      scenarios: cells,
+      choice: null,
+      price: null,
+    };
     expect(headline(view, sentences)).toMatch(/^\[view\.headlineTight /);
     expect(sourcesLine(f, sentences)).toMatch(/^\[view\.sourcesReady /);
     expect(sourcesLine(f, sentences)).not.toMatch(/Cash today|money in/);

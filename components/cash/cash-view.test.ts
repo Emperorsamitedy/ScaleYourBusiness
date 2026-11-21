@@ -30,9 +30,10 @@ const tightInputs = baseInputs({
 
 function viewOf(f: ReturnType<typeof forecastCash>): CashView {
   if (f.status !== "ready")
-    return { forecast: f, tight: null, scenarios: null, choice: null, price: null };
+    return { forecast: f, outside: null, tight: null, scenarios: null, choice: null, price: null };
   return {
     forecast: f,
+    outside: null,
     tight: tightWeek(f),
     scenarios: compareScenarios(tightInputs, f, defaultChoice(tightInputs, f), null),
     choice: defaultChoice(tightInputs, f),
