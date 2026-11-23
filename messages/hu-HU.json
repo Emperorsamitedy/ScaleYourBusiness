@@ -65,7 +65,7 @@
       "support": "Üzenetek",
       "factsheet": "Ténylap",
       "connections": "Összekapcsolt fiókok",
-      "mode": "Ahogyan dolgozom",
+      "mode": "Hogyan dolgozik Lex",
       "history": "Előzmények",
       "team_access": "Csapat hozzáférése",
       "language": "Nyelv és pénznem",
@@ -1265,7 +1265,7 @@
       "switch": "kérem e-mailben a heti összefoglalót",
       "signUp": "Regisztráljon, és arra a címre küldjük, amellyel bejelentkezik.",
       "off": "Kikapcsolva. Semmit sem küldünk e-mailben; minden ezen a képernyőn marad.",
-      "notDecided": "Akkor indul, amikor az „Ahogyan dolgozom” beállítás eldőlt.",
+      "notDecided": "Akkor indul, amikor az „Hogyan dolgozik Lex” beállítás eldőlt.",
       "noEmail": "Ezen a szerveren még nincs beállítva az e-mail-küldés, ezért egy sem megy ki.",
       "lastSent": "Utoljára elküldve: {date}.",
       "first": "Az első a következő hétfői ellenőrzéskor megy ki.",
@@ -1307,9 +1307,9 @@
     "none": {
       "title": "Még nem fut figyelés.",
       "instantTitle": "Nem fut figyelés. Ez a vállalkozás azonnali módban van.",
-      "notDecided": "Az „Ahogyan dolgozom” még nem dőlt el: a jelentés után következik.",
+      "notDecided": "Az „Hogyan dolgozik Lex” még nem dőlt el: a jelentés után következik.",
       "instant": "Itt nincs megfigyelési időszak. Semmi sem fut az Ön jóváhagyása nélkül.",
-      "link": "Ahogyan dolgozom"
+      "link": "Hogyan dolgozik Lex"
     },
     "title": {
       "learning": "Lex megismeri az Ön vállalkozását: {day}. nap / {of}",
@@ -4854,72 +4854,86 @@
   },
   "mode": {
     "meta": {
-      "title": "Ahogyan dolgozom · ScaleX"
+      "title": "Hogyan dolgozik Lex · ScaleX"
     },
-    "kicker": "Az Ön vállalkozása · Ahogyan dolgozom",
-    "yourBusiness": "az Ön vállalkozása",
+    "kicker": "Az Ön vállalkozása · Hogyan dolgozik Lex",
     "loading": {
-      "title": "Ahogyan dolgozom.",
+      "title": "Hogyan dolgozik Lex",
       "copy": "A döntés beolvasása…"
     },
     "signedOut": {
       "title": "Ehhez előbb bejelentkezés szükséges.",
-      "label": "Ahogyan dolgozom",
+      "label": "Hogyan dolgozik Lex",
       "signIn": "Bejelentkezés"
     },
     "none": {
       "title": "Még nincs döntés.",
-      "label": "Ahogyan dolgozom",
+      "label": "Hogyan dolgozik Lex",
       "sheetTitle": "Készen áll a döntésre.",
       "copy": "Egyetlen rögzített szabály olvassa el a válaszait, és választ: azonnali cselekvés vagy előbb figyelés. Pontosan látni fogja, mi döntött.",
       "decide": "Döntés most"
     },
     "deferred": {
       "label": "Még nem",
-      "sheetTitle": "Nem fogok találgatni.",
+      "sheetTitle": "Lex nem találgat.",
       "answer": "Válaszoljon az alapkérdésekre"
     },
-    "current": "Érvényben",
-    "a": {
-      "label": "„A” mód",
-      "title": "Előbb figyelés",
-      "copyWatching": "Mielőtt bármit javasolnék, {days, plural, one {# napig} other {# napig}} figyelem, hogyan működik valójában {noun}. A gyors változtatások eladásokba kerülhetnek. Ön nélkül semmi sem változik.",
-      "day": "Nap: {day} / {of} · vége: {date}",
-      "firstRead": "Az első áttekintés a figyelés alatt is megérkezik.",
-      "openWatching": "A Figyelés megnyitása",
-      "extending": "Meghosszabbítás…",
-      "extend": "Meghosszabbítás {days, plural, one {# napra} other {# napra}}",
-      "copyIdle": "Négy-nyolc hétig figyelek, mielőtt bármit javasolnék, hogy egy változtatás ne kerüljön olyan eladásokba, amelyeket még nem mértem fel.",
-      "chosenWith": "Akkor választom, ha havonta legalább {sales} eladás van, vannak alkalmazottak, fizetett hirdetések vagy ügyféltámogatási folyamat, vagy a vállalkozás legalább {months} hónapja működik"
-    },
-    "b": {
-      "label": "„B” mód",
-      "title": "Azonnali cselekvés",
-      "started": "Elindítva: {date}",
-      "seeFirstRead": "Az első áttekintés megtekintése",
-      "copyIdle": "A javaslatok az első áttekintéstől indulnak. Csak akkor választom, ha semmi sem fut, amit egy változtatás elronthatna.",
-      "onlyUnder": "Csak ha havonta kevesebb mint {sales} eladás van, nincsenek alkalmazottak, fizetett hirdetések és ügyféltámogatási folyamat, és a vállalkozás kevesebb mint {months} hónapja működik"
-    },
     "why": {
-      "labelWatching": "Miért javasoltam a figyelést",
-      "labelInstant": "Miért biztonságos most kezdeni",
-      "titleWatching": "Valódi ügyfelek vásárolnak",
-      "titleInstant": "Semmi sem fut, amit egy változtatás elronthatna",
-      "none": "Ehhez a döntéshez nincs rögzített indok."
+      "none": "Ehhez a döntéshez nincs rögzített indok.",
+      "watching": "Miért figyel itt Lex először",
+      "instant": "Miért kezdhet Lex azonnal"
     },
-    "never": {
-      "label": "Mindkét módban",
-      "title": "Ami soha nem változik",
-      "one": "Semmi sem fut az Ön jóváhagyása nélkül. A megválaszolatlan javaslatok lejárnak. Alapértelmezésként soha nem futnak le.",
-      "two": "Az <link>Önre vár</link> oldalon a „Minden leállítása” egyszerre megállít minden végrehajtást, bejelentkezés nélkül.",
-      "three": "Az Ön által megadott korlátok érvényesek: a korlátot sértő javaslatot visszatartom, és soha nem tárom Ön elé úgy, mintha rendben volna."
+    "title": {
+      "watching": "{count, plural, one {Lex # hétig figyel, mielőtt bármit javasolna} other {Lex # hétig figyel, mielőtt bármit javasolna}}",
+      "instant": "Lex az első átnézéstől kezdve javasol változtatásokat"
     },
-    "headline": {
-      "watching": "Előbb figyelés, {days, plural, one {# napig} other {# napig}}.",
-      "instant": "Azonnali cselekvés."
+    "lede": {
+      "watching": "A vállalkozása már működik, így egy elhamarkodott változtatás eladásokba kerülhet. Lex előbb megtanulja, milyen egy átlagos hét.",
+      "instant": "Még semmi sem működik, amit egy változtatás elronthatna, ezért Lex az első átnézéstől javasol. Mindegyik az Ön igenjére vár."
     },
-    "chosen": "Kiválasztva: {date}",
-    "chosenOverride": "{chosen} · {kind, select, extend {meghosszabbítva} other {lerövidítve}} {weeks, plural, one {# hétre} other {# hétre}} · {date}"
+    "override": "{kind, select, shorten {Lex {from} hét figyelést javasolt; Ön {to} hetet választott.} other {Lex {from} hét figyelést javasolt; Ön {to} hetet kért.}}",
+    "stand": {
+      "label": "Hol tartunk",
+      "day": "{day}. nap / {of}",
+      "watching": "Figyelés folyamatban",
+      "done": "A figyelés véget ért",
+      "span": "Kezdete: {start} · vége: {end} · utána Lex változtatásokat kezd javasolni",
+      "spanDone": "Kezdete: {start} · vége: {end} · Lex most már javasol, mindegyik az Ön igenjére vár",
+      "note": "{kind, select, shorten {Az Ön megjegyzése a rövidítéskor, {date}} other {Az Ön megjegyzése a hosszabbításkor, {date}}}",
+      "seeWatching": "Mit figyel Lex",
+      "extend": "{count, plural, one {Inkább # hétig figyeljen} other {Inkább # hétig figyeljen}}",
+      "extending": "Hosszabbítás…",
+      "started": "Kezdete: {date}",
+      "seeReport": "A jelentés megtekintése"
+    },
+    "quoted": "„{text}”",
+    "reason": {
+      "revenue": "Már érkezik bevétel az eladásokból",
+      "ads": "Fizetett hirdetések futnak",
+      "support": "Az ügyfeleknek egy támogatási folyamaton át válaszol",
+      "estimates": "A számok többsége becslés",
+      "fewOrders": "Még alig van rendelés",
+      "noRevenue": "Még nincs eladás",
+      "noStaff": "Senki más nem dolgozik a vállalkozásban",
+      "noAds": "Nincs fizetett hirdetés",
+      "new": "Kevesebb mint három hónapja működik",
+      "notTrading": "Még nem működik",
+      "orders": "{count, plural, one {Havonta nagyjából # rendelés} other {Havonta nagyjából # rendelés}}",
+      "staff": "{count, plural, one {# ember dolgozik Önnel} other {# ember dolgozik Önnel}}",
+      "tradingMonths": "{count, plural, one {# hónapja működik} other {# hónapja működik}}",
+      "tradingYears": "{count, plural, one {# éve működik} other {# éve működik}}",
+      "tradingOver": "{count, plural, one {Több mint # éve működik} other {Több mint # éve működik}}"
+    },
+    "other": {
+      "instant": "Lex csak egy nagyon új vagy nagyon kicsi vállalkozásnál javasol az első naptól: havi {sales} eladás alatt, alkalmazott, fizetett hirdetés és támogatási folyamat nélkül, {months} hónapnál rövidebb működés után. Ott egy változtatás nem ronthat el semmit, ami már működik.",
+      "watching": "Egy valódi ügyfelekkel, alkalmazottakkal, fizetett hirdetésekkel vagy támogatási folyamattal rendelkező vállalkozást Lex előbb négy-nyolc hétig figyel, hogy egy változtatás ne kerüljön olyan eladásokba, amelyeket még nem mért."
+    },
+    "always": {
+      "title": "Mindig igaz, figyeléskor és utána is",
+      "yes": "Semmi sem fut az Ön igenje nélkül, hacsak nem engedte Lexnek, hogy keretek között önállóan cselekedjen itt: <link>Mit tehet Lex</link>. A megválaszolatlan javaslat lejár; magától soha nem fut le.",
+      "stop": "A <b>Minden leállítása</b>, minden képernyő jobb felső sarkában, egyszerre mindent leállít.",
+      "limits": "Az Ön által megadott korlátok mindig érvényesek. Egy javaslatot, amely megsértene egyet, Lex visszatart, és sosem mutatja úgy, mintha rendben lenne."
+    }
   },
   "content": {
     "meta": {

@@ -1,28 +1,34 @@
 "use client";
 
-// How I work — the mode decision (Session H, P1-43; the owner's How-I-work
-// design, 2026-10-17). Two cards, Mode A (watch first) and Mode B (act
-// right away), the current one on paper and marked CURRENT; under them
-// the stored reasons, verbatim — the owner sees a rule, not an opinion —
-// and what never changes in either mode. Extending the watch is one click
-// here; shortening is not on this screen at all (P1-44 buries it behind
-// an acknowledgement), and switching modes is not a feature: the rule
-// decides it from the profile.
+// How Lex works (was How I work) — the mode decision (Session H, P1-43; the
+// owner's How-I-work design, 2026-10-17), said plainly on 2026-11-23 from
+// the canvas design the owner approved. The title says how Lex starts here;
+// one card says where things stand (the day, the dates, the owner's own
+// note when they changed the length, and the one-click extend); then why,
+// worded from the inputs the rule stored, each reason once, with one
+// sentence on the other way to start; then what is always true. Extending
+// the watch is one click here; shortening is not on this screen at all
+// (P1-44 buries it behind an acknowledgement), and switching modes is not
+// a feature: the rule decides it from the profile.
 //
 // L-3c (TASKS-LANGUAGES.md): the screen's own words are the "mode"
-// catalogue; dates and counts in the reader's locale. The stored reasons
-// and the rule's reasoning are its own record, shown as they are (L-4).
+// catalogue; dates and counts in the reader's locale. The reasons are said
+// from the decision's stored inputs (components/mode/mode-view
+// plainReasons); a decision stored without inputs shows its stored reasons.
 
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
-import { useBusinessNoun } from "../nav/useBusinessNoun";
 import { PageHead, SheetCard } from "../sheet/PageHead";
 import { useTr } from "../sheet/useTr";
 import { WhyFold } from "../report/WhyFold";
 import type { ModeDecision } from "./mode-view";
-import { chosenLine, dayMonth, headline, humanise, parseTs, watchDay } from "./mode-view";
+import { dayMonth, humanise, overrideLine, parseTs, plainReasons, title } from "./mode-view";
+import { watchDays } from "../../lib/watch/watch-view";
 import "../../app/mode.css";
+
+/** A YYYY-MM-DD calendar day as an instant at its middle, for dayMonth. */
+const dayAt = (ymd: string): number => Date.parse(`${ymd}T12:00:00Z`);
 
 type State =
   | { phase: "loading" }
@@ -33,12 +39,9 @@ type State =
 
 export function ModeScreen() {
   const [state, setState] = useState<State>({ phase: "loading" });
-  const businessNoun = useBusinessNoun();
   const { tr, locale } = useTr("mode");
   const t = useTranslations("mode");
   const KICKER = tr("kicker");
-  // "your salon" is English's noun table; other languages say "your business".
-  const noun = locale === "en" ? businessNoun : tr("yourBusiness");
 
   const load = useCallback(async () => {
     const res = await fetch("/api/mode");
@@ -133,111 +136,99 @@ export function ModeScreen() {
   const { decision } = state;
   const watching = decision.mode === "watching";
   const weeks = decision.watch_weeks;
-  const day = watchDay(decision, Date.now());
-  const ends = parseTs(decision.review_at);
+  // The same days Watching counts (lib/watch/watch-view), so both pages agree.
+  const w = watchDays(decision, new Date());
+  const day = w ? { day: w.day, of: w.of } : null;
+  const span = w ? { start: dayAt(w.start), end: dayAt(w.end) } : null;
+  const over = w !== null && w.days_remaining === 0;
+  const override = decision.owner_override ?? null;
+  const said = overrideLine(decision, tr);
+  const reasons = plainReasons(decision);
 
-  const modeA = (
-    <section
-      className={`md-mode${watching ? " current" : ""}`}
-      aria-labelledby="md-a"
-      aria-current={watching ? "true" : undefined}
-    >
-      <p className="md-mode-label">
-        <span>{tr("a.label")}</span>
-        {watching && <span className="md-current">{tr("current")}</span>}
+  const stand = watching ? (
+    <section className="md-stand" aria-label={tr("stand.label")}>
+      <p className="md-stand-head">
+        <b>
+          {over
+            ? tr("stand.done")
+            : day
+              ? tr("stand.day", { day: day.day, of: day.of })
+              : tr("stand.watching")}
+        </b>
+        {span && (
+          <span>
+            {tr(over ? "stand.spanDone" : "stand.span", {
+              start: dayMonth(span.start, locale),
+              end: dayMonth(span.end, locale),
+            })}
+          </span>
+        )}
       </p>
-      <h2 className="md-mode-title" id="md-a">
-        {tr("a.title")}
-      </h2>
-      {watching && weeks !== null ? (
-        <>
-          <p className="md-mode-copy">{tr("a.copyWatching", { days: weeks * 7, noun })}</p>
-          <p className="md-mode-lines">
-            {day && (
-              <>
-                {tr("a.day", { day: day.day, of: day.of, date: dayMonth(ends, locale) })}
-                <br />
-              </>
-            )}
-            {tr("a.firstRead")}
-          </p>
-          <div className="md-mode-acts">
-            <Link className="next" href="/watch">
-              {tr("a.openWatching")} <span aria-hidden="true">→</span>
-            </Link>
-            {weeks !== 8 && (
-              <button
-                type="button"
-                className="ghost"
-                disabled={state.extending}
-                onClick={() => void extend()}
-              >
-                {state.extending ? tr("a.extending") : tr("a.extend", { days: 8 * 7 })}
-              </button>
-            )}
-          </div>
-        </>
-      ) : (
-        <>
-          <p className="md-mode-copy">{tr("a.copyIdle")}</p>
-          <p className="md-mode-lines">{tr("a.chosenWith", { sales: 10, months: 3 })}</p>
-        </>
+      {day && (
+        <span className="md-bar" aria-hidden="true">
+          <span style={{ width: `${over ? 100 : Math.round((day.day / day.of) * 100)}%` }} />
+        </span>
       )}
+      {override?.acknowledgement?.text && (
+        <blockquote className="md-note">
+          <p className="md-note-label">
+            {tr("stand.note", {
+              kind: override.kind,
+              date: dayMonth(parseTs(override.acknowledgement.at ?? override.at), locale),
+            })}
+          </p>
+          {tr("quoted", { text: override.acknowledgement.text })}
+        </blockquote>
+      )}
+      <div className="md-acts">
+        <Link className="next" href="/watch">
+          {tr("stand.seeWatching")} <span aria-hidden="true">→</span>
+        </Link>
+        {weeks !== 8 && !over && (
+          <button
+            type="button"
+            className="ghost"
+            disabled={state.extending}
+            onClick={() => void extend()}
+          >
+            {state.extending ? tr("stand.extending") : tr("stand.extend", { count: 8 })}
+          </button>
+        )}
+      </div>
     </section>
-  );
-
-  const modeB = (
-    <section
-      className={`md-mode${!watching ? " current" : ""}`}
-      aria-labelledby="md-b"
-      aria-current={!watching ? "true" : undefined}
-    >
-      <p className="md-mode-label">
-        <span>{tr("b.label")}</span>
-        {!watching && <span className="md-current">{tr("current")}</span>}
+  ) : (
+    <section className="md-stand" aria-label={tr("stand.label")}>
+      <p className="md-stand-head">
+        <b>{tr("stand.started", { date: dayMonth(parseTs(decision.decided_at), locale) })}</b>
       </p>
-      <h2 className="md-mode-title" id="md-b">
-        {tr("b.title")}
-      </h2>
-      {!watching ? (
-        <>
-          <p className="md-mode-copy">{decision.reasoning}</p>
-          <p className="md-mode-lines">
-            {tr("b.started", { date: dayMonth(parseTs(decision.decided_at), locale) })}
-          </p>
-          <div className="md-mode-acts">
-            <Link className="next" href="/report">
-              {tr("b.seeFirstRead")} <span aria-hidden="true">→</span>
-            </Link>
-          </div>
-        </>
-      ) : (
-        <>
-          <p className="md-mode-copy">{tr("b.copyIdle")}</p>
-          <p className="md-mode-lines">{tr("b.onlyUnder", { sales: 10, months: 3 })}</p>
-        </>
-      )}
+      <div className="md-acts">
+        <Link className="next" href="/report">
+          {tr("stand.seeReport")} <span aria-hidden="true">→</span>
+        </Link>
+      </div>
     </section>
   );
 
   return (
     <main className="screen md-screen">
-      <PageHead
-        kicker={KICKER}
-        title={headline(decision, tr)}
-        aside={chosenLine(decision, tr, locale)}
-      />
+      <PageHead kicker={KICKER} title={title(decision, tr)}>
+        <p className="md-lede">
+          {tr(watching ? "lede.watching" : "lede.instant")}
+          {said && <> {said}</>}
+        </p>
+      </PageHead>
+
+      {stand}
 
       <div className="md-grid">
-        {modeA}
-        {modeB}
-
-        <SheetCard
-          className="md-why"
-          label={watching ? tr("why.labelWatching") : tr("why.labelInstant")}
-          title={watching ? tr("why.titleWatching") : tr("why.titleInstant")}
-        >
-          {decision.reasons.length > 0 ? (
+        <SheetCard title={watching ? tr("why.watching") : tr("why.instant")}>
+          {reasons !== null ? (
+            <ul className="md-reasons">
+              {reasons.map((r) => (
+                <li key={r.key}>{tr(`reason.${r.key}`, r.values)}</li>
+              ))}
+            </ul>
+          ) : decision.reasons.length > 0 ? (
             <ul className="md-reasons">
               {decision.reasons.map((reason) => (
                 <li key={reason}>{humanise(reason)}</li>
@@ -246,33 +237,21 @@ export function ModeScreen() {
           ) : (
             <p className="md-copy">{tr("why.none")}</p>
           )}
+          <p className="md-other">
+            {watching ? tr("other.instant", { sales: 10, months: 3 }) : tr("other.watching")}
+          </p>
         </SheetCard>
 
-        <SheetCard className="md-never" label={tr("never.label")} title={tr("never.title")}>
-          <ol className="md-rules">
+        <SheetCard title={tr("always.title")}>
+          <ul className="md-always">
             <li>
-              <span className="md-n" aria-hidden="true">
-                01
-              </span>
-              <span>{tr("never.one")}</span>
+              {t.rich("always.yes", {
+                link: (chunks) => <Link href="/ladder">{chunks}</Link>,
+              })}
             </li>
-            <li>
-              <span className="md-n" aria-hidden="true">
-                02
-              </span>
-              <span>
-                {t.rich("never.two", {
-                  link: (chunks) => <Link href="/proposals">{chunks}</Link>,
-                })}
-              </span>
-            </li>
-            <li>
-              <span className="md-n" aria-hidden="true">
-                03
-              </span>
-              <span>{tr("never.three")}</span>
-            </li>
-          </ol>
+            <li>{t.rich("always.stop", { b: (chunks) => <b>{chunks}</b> })}</li>
+            <li>{tr("always.limits")}</li>
+          </ul>
         </SheetCard>
       </div>
     </main>

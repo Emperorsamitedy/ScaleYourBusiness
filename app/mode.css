@@ -1,7 +1,7 @@
-/* How I work — the mode decision (the owner's How-I-work design,
-   2026-10-17). components/mode/ModeScreen.tsx. Built on sheet.css: the
-   page head and the .cs paper card. The current mode is paper; the other
-   is an outline on the desk, so the choice reads without colour. */
+/* How Lex works (was How I work) — the mode decision, said plainly on
+   2026-11-23 (components/mode/ModeScreen.tsx). Built on sheet.css: the page
+   head and the .cs paper card. One card for where things stand, then why
+   and what is always true side by side. */
 
 .md-wait {
   font-family: var(--f-mono);
@@ -17,6 +17,73 @@
   margin: 0 0 15px;
   max-width: var(--measure);
 }
+.md-lede {
+  margin: 6px 0 0;
+  max-width: var(--measure);
+  color: var(--desk-ink-2);
+  font-size: 15px;
+}
+
+/* where things stand: the day, the dates, a bar, the owner's note, two actions */
+.md-stand {
+  display: grid;
+  gap: 12px;
+  margin: 0 0 20px;
+  padding: 16px 18px;
+  background: var(--paper);
+  color: var(--sheet-ink);
+  /* buttons on paper take the paper's ink (sheet.css .next and .ghost) */
+  --ink: var(--sheet-ink);
+  --mut: var(--sheet-ink-2);
+  --on-ember: var(--paper);
+  border-radius: var(--r-card, 0);
+}
+.md-stand-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 14px;
+  margin: 0;
+}
+.md-stand-head b {
+  font-size: 17px;
+  font-weight: 650;
+}
+.md-stand-head span {
+  font-size: 13.5px;
+  color: var(--sheet-ink-2);
+}
+.md-bar {
+  display: block;
+  height: 10px;
+  background: var(--inset);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.md-bar span {
+  display: block;
+  height: 100%;
+  background: var(--sheet-ink);
+}
+.md-note {
+  margin: 0;
+  max-width: var(--measure);
+  padding: 10px 14px;
+  border-left: 3px solid var(--ok);
+  background: var(--inset);
+  font-size: 13.5px;
+  line-height: 1.5;
+}
+.md-note-label {
+  margin: 0 0 4px;
+  font-size: 12px;
+  color: var(--sheet-ink-2);
+}
+.md-acts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
 
 .md-grid {
   display: grid;
@@ -25,106 +92,29 @@
   align-items: start;
 }
 
-.md-mode {
-  align-self: stretch;
-  padding: 21px 20px 22px;
-  border: 1px solid var(--desk-ink-2);
-  background: transparent;
-  color: var(--desk-ink);
-  --ink: var(--desk-ink);
-  --on-ember: var(--desk);
-  border-radius: var(--r-card, 0);
-}
-.md-mode.current {
-  border-color: var(--rule);
-  background: var(--paper);
-  color: var(--sheet-ink);
-  --ink: var(--sheet-ink);
-  --mut: var(--sheet-ink-2);
-  --on-ember: var(--paper);
-}
-.md-mode-label {
-  display: flex;
-  justify-content: space-between;
-  gap: 14px;
-  margin: 0 0 12px;
-  font-family: var(--f-mono);
-  font-size: calc(11.5px + var(--caps-bump, 0px));
-  letter-spacing: var(--caps-ls, 0.12em);
-  text-transform: var(--caps, uppercase);
-  color: var(--desk-ink-2);
-}
-.md-mode.current .md-mode-label {
-  color: var(--sheet-ink-2);
-}
-.md-current {
-  font-weight: 600;
-  color: var(--sheet-ink);
-}
-.md-mode-title {
-  margin: 0 0 12px;
-  font-family: var(--f-display);
-  font-size: clamp(19.5px, 1.84vw, 26px);
-  font-weight: var(--w-display, 700);
-  line-height: 1.1;
-  letter-spacing: var(--ls-display, -0.01em);
-}
-.md-mode-copy {
-  margin: 0 0 15px;
-  max-width: 60ch;
-  font-size: 15.5px;
-  line-height: 1.55;
-}
-.md-mode-lines {
-  margin: 0;
-  font-family: var(--f-mono);
-  font-size: 13.5px;
-  line-height: 1.75;
-}
-.md-mode-acts {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-top: 17px;
-}
-
-/* the stored reasons */
-.md-reasons {
+/* why, each reason once; then the other way to start, in one sentence */
+.md-reasons,
+.md-always {
   list-style: none;
   margin: -6px 0 0;
   padding: 0;
 }
-.md-reasons li {
+.md-reasons li,
+.md-always li {
   padding: 11px 0;
-  border-bottom: 1px solid var(--rule-soft);
-  font-size: 14px;
-  line-height: 1.45;
-}
-.md-reasons li:last-child {
-  border-bottom: 0;
-}
-
-/* what never changes */
-.md-rules {
-  list-style: none;
-  margin: -4px 0 0;
-  padding: 0;
-}
-.md-rules li {
-  display: grid;
-  grid-template-columns: 64px minmax(0, 1fr);
-  padding: 14px 0 15px;
   border-bottom: 1px solid var(--rule-soft);
   font-size: 14px;
   line-height: 1.5;
 }
-.md-rules li:last-child {
+.md-reasons li:last-child,
+.md-always li:last-child {
   border-bottom: 0;
 }
-.md-n {
-  font-family: var(--f-fig);
-  font-size: 15px;
-  font-variant-numeric: tabular-nums;
+.md-other {
+  margin: 12px 0 0;
+  max-width: var(--measure);
+  font-size: 13px;
+  line-height: 1.55;
   color: var(--sheet-ink-2);
 }
 
@@ -132,14 +122,6 @@
   .md-grid {
     grid-template-columns: minmax(0, 1fr);
     gap: 14px;
-  }
-}
-@media (max-width: 719px) {
-  .md-mode {
-    padding: 15px 14px 17px;
-  }
-  .md-rules li {
-    grid-template-columns: 44px minmax(0, 1fr);
   }
 }
 
@@ -152,10 +134,4 @@
 }
 .md-screen a:not([class]):hover {
   text-decoration-thickness: 2px;
-}
-
-/* Sentence case: a label the classic look set in capitals starts with one
-   (the owner app's type, app/sheet.css). In the classic look it follows the label. */
-:is(.md-mode-label)::first-letter {
-  text-transform: var(--caps-first, inherit);
 }

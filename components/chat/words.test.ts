@@ -7,7 +7,7 @@ import { englishTr } from "../../lib/i18n/tr";
 import type { ChangeCardView } from "./chat-view";
 import { cardFlag, cardKicker, stamp } from "./chat-view";
 import type { ModeDecision } from "../mode/mode-view";
-import { chosenLine, dayMonth, headline } from "../mode/mode-view";
+import { dayMonth, overrideLine, title } from "../mode/mode-view";
 
 const card = (over: Partial<ChangeCardView> = {}): ChangeCardView => ({
   id: "c1",
@@ -43,12 +43,14 @@ describe("the chat's English is the code's own words", () => {
     expect(cardFlag(card({ status: "applied" }), tr)?.word).toBe("Changed");
     // 2026-11-17: the assistant is named Lex (lib/core/assistant.ts); no dash in the title.
     expect(en.chat.meta.title).toBe("Lex · ScaleX");
-    expect(en.mode.meta.title).toBe("How I work · ScaleX");
+    expect(en.mode.meta.title).toBe("How Lex works · ScaleX");
   });
 
   it("agrees an override's week count at one, the only English that moved", () => {
-    expect(chosenLine(decision)).toBe("Chosen 29 Sep · shortened to 1 week 3 Oct");
-    expect(headline({ ...decision, owner_override: null })).toBe("Watching first, for 28 days.");
+    expect(overrideLine(decision)).toBe("Lex suggested 8 weeks; you chose 1 week.");
+    expect(title({ ...decision, owner_override: null })).toBe(
+      "Lex watches for 4 weeks before suggesting anything",
+    );
   });
 });
 
@@ -67,8 +69,6 @@ describe("the chat's and mode's dates in the reader's locale", () => {
     const ms = Date.parse("2026-09-15T12:00:00Z");
     expect(dayMonth(ms)).toBe("15 Sep");
     expect(dayMonth(ms, "fr-FR")).toBe("15 sept.");
-    expect(chosenLine({ ...decision, owner_override: null }, englishTr("mode"), "hu-HU")).toBe(
-      "Chosen szept. 29.",
-    );
+    expect(dayMonth(Date.parse("2026-09-29T12:00:00Z"), "hu-HU")).toBe("szept. 29.");
   });
 });

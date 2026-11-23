@@ -321,7 +321,7 @@ export const GROUPS: readonly Group[] = [
       },
       { href: "/statement", label: "Monthly statement", feature: "nav.statement", rail: true },
       { href: "/history", label: "History", feature: "nav.history", rail: true },
-      { href: "/mode", label: "How I work", feature: "nav.mode" },
+      { href: "/mode", label: "How Lex works", feature: "nav.mode" },
       { href: "/billing", label: "Plan and billing", feature: "nav.billing" },
       { href: "/settings/mandates", label: "Firms with access", feature: "nav.mandates" },
       { href: "/settings/data", label: "Erase this business", feature: "nav.erasure" },

@@ -65,7 +65,7 @@
       "support": "Messages",
       "factsheet": "Fiche des faits",
       "connections": "Connexions",
-      "mode": "Ma façon de travailler",
+      "mode": "Comment Lex travaille",
       "history": "Historique",
       "team_access": "Accès de l’équipe",
       "language": "Langue et devise",
@@ -1265,7 +1265,7 @@
       "switch": "m’envoyer la semaine par e-mail",
       "signUp": "Inscrivez-vous, et il sera envoyé à l’adresse avec laquelle vous vous connectez.",
       "off": "Désactivé. Rien n’est envoyé par e-mail ; tout reste sur cet écran.",
-      "notDecided": "Il démarre dès que « Ma façon de travailler » est décidée.",
+      "notDecided": "Il démarre dès que « Comment Lex travaille » est décidée.",
       "noEmail": "L’envoi d’e-mails n’est pas encore configuré sur ce serveur, donc aucun n’est envoyé.",
       "lastSent": "Dernier envoi le {date}.",
       "first": "Le premier part lors de la prochaine vérification du lundi.",
@@ -1307,9 +1307,9 @@
     "none": {
       "title": "Aucune observation n’est en cours.",
       "instantTitle": "Aucune observation n’est en cours. Cette entreprise est en mode instantané.",
-      "notDecided": "« Ma façon de travailler » n’est pas encore décidée : cela vient après le rapport.",
+      "notDecided": "« Comment Lex travaille » n’est pas encore décidée : cela vient après le rapport.",
       "instant": "Il n’y a pas de période d’observation ici. Rien ne s’exécute tant que vous ne l’avez pas validé.",
-      "link": "Ma façon de travailler"
+      "link": "Comment Lex travaille"
     },
     "title": {
       "learning": "Lex apprend à connaître votre entreprise : jour {day} sur {of}",
@@ -4854,72 +4854,86 @@
   },
   "mode": {
     "meta": {
-      "title": "Ma façon de travailler · ScaleX"
+      "title": "Comment Lex travaille · ScaleX"
     },
-    "kicker": "Votre entreprise · Ma façon de travailler",
-    "yourBusiness": "votre entreprise",
+    "kicker": "Votre entreprise · Comment Lex travaille",
     "loading": {
-      "title": "Ma façon de travailler.",
+      "title": "Comment Lex travaille",
       "copy": "Lecture de la décision…"
     },
     "signedOut": {
       "title": "Connectez-vous d’abord.",
-      "label": "Ma façon de travailler",
+      "label": "Comment Lex travaille",
       "signIn": "Se connecter"
     },
     "none": {
       "title": "Pas encore décidé.",
-      "label": "Ma façon de travailler",
+      "label": "Comment Lex travaille",
       "sheetTitle": "Prêt à décider.",
       "copy": "Une règle fixe lit vos réponses et choisit : agir maintenant, ou observer d’abord. Vous voyez exactement ce qui l’a déclenchée.",
       "decide": "Décider maintenant"
     },
     "deferred": {
       "label": "Pas encore",
-      "sheetTitle": "Je ne devinerai pas.",
+      "sheetTitle": "Lex ne devine pas.",
       "answer": "Répondre aux questions essentielles"
     },
-    "current": "En vigueur",
-    "a": {
-      "label": "Mode A",
-      "title": "Observer d’abord",
-      "copyWatching": "Je consacre {days, plural, one {# jour} many {# jours} other {# jours}} à comprendre comment fonctionne réellement {noun} avant de proposer quoi que ce soit. Changer les choses trop vite pourrait vous coûter des ventes. Rien ne change sans vous.",
-      "day": "Jour {day} sur {of} · se termine le {date}",
-      "firstRead": "La première lecture arrive quand même pendant l’observation.",
-      "openWatching": "Ouvrir « Observation »",
-      "extending": "Prolongation…",
-      "extend": "Prolonger à {days, plural, one {# jour} many {# jours} other {# jours}}",
-      "copyIdle": "J’observe pendant quatre à huit semaines avant de proposer quoi que ce soit, pour qu’une modification ne coûte pas des ventes que je n’ai pas mesurées.",
-      "chosenWith": "Choisi avec au moins {sales} ventes par mois, du personnel, de la publicité payante, un processus d’assistance ou au moins {months} mois d’activité"
-    },
-    "b": {
-      "label": "Mode B",
-      "title": "Agir tout de suite",
-      "started": "Commencé le {date}",
-      "seeFirstRead": "Voir la première lecture",
-      "copyIdle": "Les propositions commencent dès la première lecture. Choisi uniquement quand rien de ce qui tourne ne risque d’être cassé par une modification.",
-      "onlyUnder": "Uniquement sous {sales} ventes par mois, sans personnel, sans publicité payante, sans processus d’assistance, et moins de {months} mois d’activité"
-    },
     "why": {
-      "labelWatching": "Pourquoi j’ai suggéré d’observer",
-      "labelInstant": "Pourquoi on peut commencer maintenant sans risque",
-      "titleWatching": "De vrais clients achètent",
-      "titleInstant": "Rien de ce qui tourne ne risque d’être cassé par une modification",
-      "none": "Aucune raison n’a été enregistrée avec cette décision."
+      "none": "Aucune raison n’a été enregistrée avec cette décision.",
+      "watching": "Pourquoi Lex observe d’abord ici",
+      "instant": "Pourquoi Lex peut commencer tout de suite"
     },
-    "never": {
-      "label": "Dans les deux modes",
-      "title": "Ce qui ne change jamais",
-      "one": "Rien ne s’exécute sans votre validation. Les propositions sans réponse expirent : elles ne s’exécutent jamais par défaut.",
-      "two": "« Tout arrêter », sur <link>En attente de votre décision</link>, interrompt immédiatement toute exécution, sans connexion requise.",
-      "three": "Les limites que vous fixez tiennent : une proposition qui en enfreindrait une est retenue, jamais présentée comme si tout allait bien."
+    "title": {
+      "watching": "{count, plural, one {Lex observe pendant # semaine avant de suggérer quoi que ce soit} many {Lex observe pendant # semaines avant de suggérer quoi que ce soit} other {Lex observe pendant # semaines avant de suggérer quoi que ce soit}}",
+      "instant": "Lex suggère des changements dès la première lecture"
     },
-    "headline": {
-      "watching": "Observation d’abord, pendant {days, plural, one {# jour} many {# jours} other {# jours}}.",
-      "instant": "Action immédiate."
+    "lede": {
+      "watching": "Votre entreprise tourne déjà, un changement hâtif pourrait donc coûter des ventes. Lex apprend d’abord à quoi ressemble une semaine normale.",
+      "instant": "Rien ne tourne encore qu’un changement pourrait casser, donc Lex suggère des changements dès la première lecture. Chacun attend votre oui."
     },
-    "chosen": "Choisi le {date}",
-    "chosenOverride": "{chosen} · {kind, select, extend {durée prolongée} other {durée raccourcie}} à {weeks, plural, one {# semaine} many {# semaines} other {# semaines}} le {date}"
+    "override": "{kind, select, shorten {Lex proposait {from, plural, one {# semaine} many {# semaines} other {# semaines}} ; vous avez choisi {to, plural, one {# semaine} many {# semaines} other {# semaines}}.} other {Lex proposait {from, plural, one {# semaine} many {# semaines} other {# semaines}} ; vous avez demandé {to, plural, one {# semaine} many {# semaines} other {# semaines}}.}}",
+    "stand": {
+      "label": "Où en sont les choses",
+      "day": "Jour {day} sur {of}",
+      "watching": "Observation en cours",
+      "done": "L’observation est terminée",
+      "span": "Commencée le {start} · se termine le {end} · ensuite, Lex commence à suggérer des changements",
+      "spanDone": "Commencée le {start} · terminée le {end} · Lex suggère maintenant des changements, chacun attend votre oui",
+      "note": "{kind, select, shorten {Votre note en la raccourcissant, le {date}} other {Votre note en la prolongeant, le {date}}}",
+      "seeWatching": "Voir ce que Lex observe",
+      "extend": "{count, plural, one {Observer # semaine à la place} many {Observer # semaines à la place} other {Observer # semaines à la place}}",
+      "extending": "Prolongation…",
+      "started": "Commencé le {date}",
+      "seeReport": "Voir le rapport"
+    },
+    "quoted": "« {text} »",
+    "reason": {
+      "revenue": "De l’argent rentre déjà grâce aux ventes",
+      "ads": "Des publicités payantes tournent",
+      "support": "Vous répondez aux clients avec un processus d’assistance",
+      "estimates": "La plupart des chiffres sont des estimations",
+      "fewOrders": "Presque pas encore de commandes",
+      "noRevenue": "Pas encore de ventes",
+      "noStaff": "Personne d’autre ne travaille dans l’entreprise",
+      "noAds": "Aucune publicité payante",
+      "new": "En activité depuis moins de trois mois",
+      "notTrading": "Pas encore en activité",
+      "orders": "{count, plural, one {Environ # commande par mois} many {Environ # commandes par mois} other {Environ # commandes par mois}}",
+      "staff": "{count, plural, one {# personne travaille avec vous} many {# personnes travaillent avec vous} other {# personnes travaillent avec vous}}",
+      "tradingMonths": "{count, plural, one {En activité depuis # mois} many {En activité depuis # mois} other {En activité depuis # mois}}",
+      "tradingYears": "{count, plural, one {En activité depuis # an} many {En activité depuis # ans} other {En activité depuis # ans}}",
+      "tradingOver": "{count, plural, one {En activité depuis plus d’un an} many {En activité depuis plus de # ans} other {En activité depuis plus de # ans}}"
+    },
+    "other": {
+      "instant": "Lex ne suggère dès le premier jour que pour une entreprise très récente ou très petite : moins de {sales} ventes par mois, pas de personnel, pas de publicité payante, pas de processus d’assistance et moins de {months} mois d’activité. Là, un changement ne peut rien casser de ce qui marche déjà.",
+      "watching": "Une entreprise avec de vrais clients, du personnel, des publicités payantes ou un processus d’assistance est d’abord observée de quatre à huit semaines, pour qu’un changement ne coûte pas de ventes que Lex n’a pas mesurées."
+    },
+    "always": {
+      "title": "Toujours vrai, en observation ou non",
+      "yes": "Rien ne s’exécute sans votre oui, sauf si vous avez laissé Lex agir seul, dans des limites, dans <link>Ce que Lex peut faire</link>. Une suggestion sans réponse expire ; elle ne s’exécute jamais par défaut.",
+      "stop": "<b>Tout arrêter</b>, en haut à droite de chaque écran, arrête tout d’un coup.",
+      "limits": "Les limites que vous fixez tiennent toujours. Une suggestion qui en franchirait une est retenue, jamais présentée comme si tout allait bien."
+    }
   },
   "content": {
     "meta": {

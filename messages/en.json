@@ -65,7 +65,7 @@
       "support": "Messages",
       "factsheet": "Fact sheet",
       "connections": "Connections",
-      "mode": "How I work",
+      "mode": "How Lex works",
       "history": "History",
       "team_access": "Team access",
       "language": "Language and currency",
@@ -1265,7 +1265,7 @@
       "switch": "email me the week",
       "signUp": "Sign up, and it goes to the address you sign in with.",
       "off": "Off. Nothing is emailed; everything stays on this screen.",
-      "notDecided": "It starts once How I work is decided.",
+      "notDecided": "It starts once How Lex works is decided.",
       "noEmail": "Email isn't set up on this server yet, so none is sent.",
       "lastSent": "Last sent {date}.",
       "first": "The first one goes out on the next Monday check.",
@@ -1307,9 +1307,9 @@
     "none": {
       "title": "No watch is running yet.",
       "instantTitle": "No watch is running. This business is in instant mode.",
-      "notDecided": "How I work hasn't been decided yet: it follows the report.",
+      "notDecided": "How Lex works hasn't been decided yet: it follows the report.",
       "instant": "There is no observation period here. Nothing runs until you approve it.",
-      "link": "How I work"
+      "link": "How Lex works"
     },
     "title": {
       "learning": "Lex is learning your business: day {day} of {of}",
@@ -4854,72 +4854,86 @@
   },
   "mode": {
     "meta": {
-      "title": "How I work · ScaleX"
+      "title": "How Lex works · ScaleX"
     },
-    "kicker": "Your business · How I work",
-    "yourBusiness": "your business",
+    "kicker": "Your business · How Lex works",
     "loading": {
-      "title": "How I work.",
+      "title": "How Lex works",
       "copy": "Reading the decision…"
     },
     "signedOut": {
       "title": "Sign in first.",
-      "label": "How I work",
+      "label": "How Lex works",
       "signIn": "Sign in"
     },
     "none": {
       "title": "Not decided yet.",
-      "label": "How I work",
+      "label": "How Lex works",
       "sheetTitle": "Ready to decide.",
       "copy": "One fixed rule reads your answers and picks: act now, or watch first. You see exactly what triggered it.",
       "decide": "Decide now"
     },
     "deferred": {
       "label": "Not yet",
-      "sheetTitle": "I won't guess.",
+      "sheetTitle": "Lex won't guess.",
       "answer": "Answer the core questions"
     },
-    "current": "Current",
-    "a": {
-      "label": "Mode A",
-      "title": "Watch first",
-      "copyWatching": "I spend {days, plural, one {# day} other {# days}} learning how {noun} actually behaves before proposing anything. Changing things quickly could cost you sales. Nothing changes without you.",
-      "day": "Day {day} of {of} · ends {date}",
-      "firstRead": "The first read still arrives while I watch.",
-      "openWatching": "Open Watching",
-      "extending": "Extending…",
-      "extend": "Extend to {days, plural, one {# day} other {# days}}",
-      "copyIdle": "I watch for four to eight weeks before proposing anything, so a change can’t cost sales I haven’t measured.",
-      "chosenWith": "Chosen with {sales}+ sales a month, staff, paid ads, a support process or {months}+ months trading"
-    },
-    "b": {
-      "label": "Mode B",
-      "title": "Act right away",
-      "started": "Started {date}",
-      "seeFirstRead": "See the first read",
-      "copyIdle": "Proposals start from the first read. Chosen only when there is nothing running that a change could break.",
-      "onlyUnder": "Only under {sales} sales a month, no staff, no paid ads, no support process, under {months} months"
-    },
     "why": {
-      "labelWatching": "Why I suggested watching",
-      "labelInstant": "Why it's safe to start now",
-      "titleWatching": "Real customers are buying",
-      "titleInstant": "Nothing running that a change could break",
-      "none": "No reasons were stored with this decision."
+      "none": "No reasons were stored with this decision.",
+      "watching": "Why Lex watches first here",
+      "instant": "Why Lex can start right away"
     },
-    "never": {
-      "label": "In either mode",
-      "title": "What never changes",
-      "one": "Nothing runs without your approval. Unanswered proposals expire. They never run by default.",
-      "two": "“Stop everything” on <link>Waiting for you</link> halts every execution at once, no sign-in needed.",
-      "three": "Limits you set hold: a proposal that would break one is withheld, never put to you as if it were fine."
+    "title": {
+      "watching": "{count, plural, one {Lex watches for # week before suggesting anything} other {Lex watches for # weeks before suggesting anything}}",
+      "instant": "Lex suggests changes from the first read"
     },
-    "headline": {
-      "watching": "Watching first, for {days, plural, one {# day} other {# days}}.",
-      "instant": "Acting right away."
+    "lede": {
+      "watching": "Your business is already running, so a hasty change could cost sales. Lex first learns what a normal week looks like.",
+      "instant": "Nothing is running yet that a change could break, so Lex suggests changes from the first read. Each one still waits for your yes."
     },
-    "chosen": "Chosen {date}",
-    "chosenOverride": "{chosen} · {kind, select, extend {extended} other {shortened}} to {weeks, plural, one {# week} other {# weeks}} {date}"
+    "override": "{kind, select, shorten {Lex suggested {from, plural, one {# week} other {# weeks}}; you chose {to, plural, one {# week} other {# weeks}}.} other {Lex suggested {from, plural, one {# week} other {# weeks}}; you asked for {to, plural, one {# week} other {# weeks}}.}}",
+    "stand": {
+      "label": "Where things stand",
+      "day": "Day {day} of {of}",
+      "watching": "Watching",
+      "done": "The watch is over",
+      "span": "Started {start} · ends {end} · after that, Lex starts suggesting changes",
+      "spanDone": "Started {start} · ended {end} · Lex now suggests changes, each waiting for your yes",
+      "note": "{kind, select, shorten {Your note when you shortened it, {date}} other {Your note when you extended it, {date}}}",
+      "seeWatching": "See what Lex is watching",
+      "extend": "{count, plural, one {Watch for # week instead} other {Watch for # weeks instead}}",
+      "extending": "Extending…",
+      "started": "Started {date}",
+      "seeReport": "See the report"
+    },
+    "quoted": "“{text}”",
+    "reason": {
+      "revenue": "Money is coming in from sales",
+      "ads": "Paid ads are running",
+      "support": "You answer customers through a support process",
+      "estimates": "Most of the figures are estimates",
+      "fewOrders": "Hardly any orders yet",
+      "noRevenue": "No sales yet",
+      "noStaff": "Nobody else works in the business",
+      "noAds": "No paid ads running",
+      "new": "Trading for under three months",
+      "notTrading": "Not trading yet",
+      "orders": "{count, plural, one {About # order a month} other {About # orders a month}}",
+      "staff": "{count, plural, one {# person works with you} other {# people work with you}}",
+      "tradingMonths": "{count, plural, one {Trading for # month} other {Trading for # months}}",
+      "tradingYears": "{count, plural, one {Trading for # year} other {Trading for # years}}",
+      "tradingOver": "{count, plural, one {Trading for over a year} other {Trading for over # years}}"
+    },
+    "other": {
+      "instant": "Lex starts suggesting from day one only for a very new or very small business: under {sales} sales a month, no staff, no paid ads, no support process and under {months} months of trading. There, a change can't break anything that's already working.",
+      "watching": "A business with real customers, staff, paid ads or a support process gets four to eight weeks of watching first, so a change can't cost sales Lex hasn't measured."
+    },
+    "always": {
+      "title": "Always true, watching or not",
+      "yes": "Nothing runs without your yes, unless you have let Lex act on its own, within limits, on <link>What Lex may do</link>. A suggestion you don't answer expires; it never runs by default.",
+      "stop": "<b>Stop everything</b>, at the top right of every screen, halts all of it at once.",
+      "limits": "Limits you set always hold. A suggestion that would break one is held back, never shown to you as if it were fine."
+    }
   },
   "content": {
     "meta": {

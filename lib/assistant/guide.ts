@@ -293,9 +293,10 @@ export const GUIDE: readonly GuideScreen[] = [
   {
     route: "/mode",
     nav: "mode",
-    name: "How I work",
+    name: "How Lex works",
     place: "Your business (the left bar)",
-    what: "Whether ScaleX acts now or watches first, and exactly what in your answers decided it.",
+    what: "Whether Lex watches your numbers first or suggests changes from the first read, for how long, and what in your answers decided it.",
+    how: ["To watch longer: press Watch for 8 weeks instead. A shorter watch is not offered here."],
   },
   {
     route: "/growth",

@@ -65,7 +65,7 @@
       "support": "Nachrichten",
       "factsheet": "Faktenblatt",
       "connections": "Verbindungen",
-      "mode": "So arbeite ich",
+      "mode": "So arbeitet Lex",
       "history": "Verlauf",
       "team_access": "Teamzugang",
       "language": "Sprache und Währung",
@@ -1265,7 +1265,7 @@
       "switch": "mir die Woche per E-Mail senden",
       "signUp": "Registrieren Sie sich, dann geht sie an die Adresse, mit der Sie sich anmelden.",
       "off": "Aus. Es wird nichts per E-Mail gesendet; alles bleibt auf dieser Seite.",
-      "notDecided": "Sie beginnt, sobald „So arbeite ich“ festgelegt ist.",
+      "notDecided": "Sie beginnt, sobald „So arbeitet Lex“ festgelegt ist.",
       "noEmail": "E-Mail ist auf diesem Server noch nicht eingerichtet, daher wird keine gesendet.",
       "lastSent": "Zuletzt gesendet {date}.",
       "first": "Die erste geht bei der nächsten Montagsprüfung hinaus.",
@@ -1307,9 +1307,9 @@
     "none": {
       "title": "Es läuft noch keine Beobachtung.",
       "instantTitle": "Es läuft keine Beobachtung. Dieses Unternehmen ist im Sofortmodus.",
-      "notDecided": "„So arbeite ich“ ist noch nicht festgelegt: Das folgt auf den Bericht.",
+      "notDecided": "„So arbeitet Lex“ ist noch nicht festgelegt: Das folgt auf den Bericht.",
       "instant": "Hier gibt es keinen Beobachtungszeitraum. Nichts wird ausgeführt, bevor Sie es freigeben.",
-      "link": "So arbeite ich"
+      "link": "So arbeitet Lex"
     },
     "title": {
       "learning": "Lex lernt Ihr Unternehmen kennen: Tag {day} von {of}",
@@ -4854,72 +4854,86 @@
   },
   "mode": {
     "meta": {
-      "title": "So arbeite ich · ScaleX"
+      "title": "So arbeitet Lex · ScaleX"
     },
-    "kicker": "Ihr Unternehmen · So arbeite ich",
-    "yourBusiness": "Ihr Unternehmen",
+    "kicker": "Ihr Unternehmen · So arbeitet Lex",
     "loading": {
-      "title": "So arbeite ich.",
+      "title": "So arbeitet Lex",
       "copy": "Die Entscheidung wird gelesen…"
     },
     "signedOut": {
       "title": "Bitte zuerst anmelden.",
-      "label": "So arbeite ich",
+      "label": "So arbeitet Lex",
       "signIn": "Anmelden"
     },
     "none": {
       "title": "Noch nicht entschieden.",
-      "label": "So arbeite ich",
+      "label": "So arbeitet Lex",
       "sheetTitle": "Bereit zur Entscheidung.",
       "copy": "Eine feste Regel liest Ihre Antworten und wählt: sofort handeln oder zuerst beobachten. Sie sehen genau, was den Ausschlag gab.",
       "decide": "Jetzt entscheiden"
     },
     "deferred": {
       "label": "Noch nicht",
-      "sheetTitle": "Ich rate nicht.",
+      "sheetTitle": "Lex rät nicht.",
       "answer": "Die Kernfragen beantworten"
     },
-    "current": "Aktuell",
-    "a": {
-      "label": "Modus A",
-      "title": "Zuerst beobachten",
-      "copyWatching": "Ich verbringe {days, plural, one {# Tag} other {# Tage}} damit zu lernen, wie es um {noun} tatsächlich steht, bevor ich etwas vorschlage. Schnelle Änderungen könnten Sie Verkäufe kosten. Nichts ändert sich ohne Sie.",
-      "day": "Tag {day} von {of} · endet am {date}",
-      "firstRead": "Die erste Auswertung kommt trotzdem, während ich beobachte.",
-      "openWatching": "„Beobachtung“ öffnen",
-      "extending": "Wird verlängert…",
-      "extend": "Auf {days, plural, one {# Tag} other {# Tage}} verlängern",
-      "copyIdle": "Ich beobachte vier bis acht Wochen, bevor ich etwas vorschlage, damit eine Änderung keine Verkäufe kostet, die ich nicht gemessen habe.",
-      "chosenWith": "Gewählt bei {sales}+ Verkäufen im Monat, Personal, bezahlter Werbung, einem Support-Ablauf oder {months}+ Monaten Geschäftstätigkeit"
-    },
-    "b": {
-      "label": "Modus B",
-      "title": "Sofort handeln",
-      "started": "Begonnen am {date}",
-      "seeFirstRead": "Erste Auswertung ansehen",
-      "copyIdle": "Vorschläge beginnen mit der ersten Auswertung. Nur gewählt, wenn nichts läuft, was eine Änderung beschädigen könnte.",
-      "onlyUnder": "Nur bei unter {sales} Verkäufen im Monat, ohne Personal, ohne bezahlte Werbung, ohne Support-Ablauf, unter {months} Monaten"
-    },
     "why": {
-      "labelWatching": "Warum ich Beobachten empfohlen habe",
-      "labelInstant": "Warum ein sofortiger Start sicher ist",
-      "titleWatching": "Echte Kunden kaufen",
-      "titleInstant": "Nichts läuft, was eine Änderung beschädigen könnte",
-      "none": "Zu dieser Entscheidung wurden keine Gründe gespeichert."
+      "none": "Zu dieser Entscheidung wurden keine Gründe gespeichert.",
+      "watching": "Warum Lex hier zuerst beobachtet",
+      "instant": "Warum Lex sofort anfangen kann"
     },
-    "never": {
-      "label": "In beiden Modi",
-      "title": "Was sich nie ändert",
-      "one": "Nichts läuft ohne Ihre Freigabe. Unbeantwortete Vorschläge verfallen. Sie laufen nie automatisch.",
-      "two": "„Alles stoppen“ unter <link>Wartet auf Sie</link> hält jede Ausführung sofort an, ohne Anmeldung.",
-      "three": "Von Ihnen gesetzte Grenzen gelten: Ein Vorschlag, der eine davon verletzen würde, wird zurückgehalten und Ihnen nie vorgelegt, als wäre er in Ordnung."
+    "title": {
+      "watching": "{count, plural, one {Lex beobachtet # Woche, bevor es etwas vorschlägt} other {Lex beobachtet # Wochen, bevor es etwas vorschlägt}}",
+      "instant": "Lex schlägt ab der ersten Auswertung Änderungen vor"
     },
-    "headline": {
-      "watching": "Zuerst beobachten, {days, plural, one {# Tag} other {# Tage}} lang.",
-      "instant": "Sofort handeln."
+    "lede": {
+      "watching": "Ihr Unternehmen läuft bereits, eine voreilige Änderung könnte also Umsatz kosten. Lex lernt zuerst, wie eine normale Woche aussieht.",
+      "instant": "Noch läuft nichts, was eine Änderung kaputtmachen könnte, daher schlägt Lex ab der ersten Auswertung Änderungen vor. Jede wartet auf Ihr Ja."
     },
-    "chosen": "Gewählt am {date}",
-    "chosenOverride": "{chosen} · am {date} auf {weeks, plural, one {# Woche} other {# Wochen}} {kind, select, extend {verlängert} other {verkürzt}}"
+    "override": "{kind, select, shorten {Lex hat {from, plural, one {# Woche} other {# Wochen}} vorgeschlagen; Sie haben {to, plural, one {# Woche} other {# Wochen}} gewählt.} other {Lex hat {from, plural, one {# Woche} other {# Wochen}} vorgeschlagen; Sie wollten {to, plural, one {# Woche} other {# Wochen}}.}}",
+    "stand": {
+      "label": "Wo es gerade steht",
+      "day": "Tag {day} von {of}",
+      "watching": "Beobachtung läuft",
+      "done": "Die Beobachtung ist vorbei",
+      "span": "Begonnen {start} · endet {end} · danach schlägt Lex Änderungen vor",
+      "spanDone": "Begonnen {start} · beendet {end} · Lex schlägt jetzt Änderungen vor, jede wartet auf Ihr Ja",
+      "note": "{kind, select, shorten {Ihre Notiz beim Verkürzen, {date}} other {Ihre Notiz beim Verlängern, {date}}}",
+      "seeWatching": "Sehen, was Lex beobachtet",
+      "extend": "{count, plural, one {Stattdessen # Woche beobachten} other {Stattdessen # Wochen beobachten}}",
+      "extending": "Wird verlängert…",
+      "started": "Begonnen {date}",
+      "seeReport": "Bericht ansehen"
+    },
+    "quoted": "„{text}“",
+    "reason": {
+      "revenue": "Es kommt Geld aus Verkäufen herein",
+      "ads": "Bezahlte Anzeigen laufen",
+      "support": "Sie beantworten Kundenanfragen über einen Support-Ablauf",
+      "estimates": "Die meisten Zahlen sind Schätzungen",
+      "fewOrders": "Noch kaum Bestellungen",
+      "noRevenue": "Noch keine Verkäufe",
+      "noStaff": "Niemand sonst arbeitet im Unternehmen",
+      "noAds": "Keine bezahlten Anzeigen",
+      "new": "Seit weniger als drei Monaten im Geschäft",
+      "notTrading": "Noch nicht im Geschäft",
+      "orders": "{count, plural, one {Etwa # Bestellung im Monat} other {Etwa # Bestellungen im Monat}}",
+      "staff": "{count, plural, one {# Person arbeitet mit Ihnen} other {# Personen arbeiten mit Ihnen}}",
+      "tradingMonths": "{count, plural, one {Seit # Monat im Geschäft} other {Seit # Monaten im Geschäft}}",
+      "tradingYears": "{count, plural, one {Seit # Jahr im Geschäft} other {Seit # Jahren im Geschäft}}",
+      "tradingOver": "{count, plural, one {Seit über einem Jahr im Geschäft} other {Seit über # Jahren im Geschäft}}"
+    },
+    "other": {
+      "instant": "Lex schlägt nur bei einem sehr neuen oder sehr kleinen Unternehmen ab dem ersten Tag vor: unter {sales} Verkäufe im Monat, kein Personal, keine bezahlten Anzeigen, kein Support-Ablauf und weniger als {months} Monate im Geschäft. Dort kann eine Änderung nichts kaputtmachen, was schon läuft.",
+      "watching": "Ein Unternehmen mit echten Kunden, Personal, bezahlten Anzeigen oder einem Support-Ablauf wird zuerst vier bis acht Wochen beobachtet, damit eine Änderung keinen Umsatz kostet, den Lex nicht gemessen hat."
+    },
+    "always": {
+      "title": "Gilt immer, ob beobachtet wird oder nicht",
+      "yes": "Nichts läuft ohne Ihr Ja, außer Sie haben Lex unter <link>Was Lex tun darf</link> erlaubt, innerhalb von Grenzen selbst zu handeln. Ein unbeantworteter Vorschlag verfällt; er läuft nie von selbst.",
+      "stop": "<b>Alles stoppen</b>, oben rechts auf jeder Seite, hält alles sofort an.",
+      "limits": "Ihre Grenzen gelten immer. Ein Vorschlag, der eine verletzen würde, wird zurückgehalten und Ihnen nie als unbedenklich gezeigt."
+    }
   },
   "content": {
     "meta": {
