@@ -1199,69 +1199,59 @@
     "kicker": "洞察 · 观察",
     "days": {
       "label": "观察第 {day} 天，共 {of} 天",
-      "started": "开始于 {date}",
-      "ends": "观察期于 {date} 结束"
-    },
-    "tally": {
-      "steady": "{count, plural, other {# 个平稳}}",
-      "drifting": "{count, plural, other {# 个偏离}}",
-      "interrupted": "{count, plural, other {# 个中断}}",
-      "thin": "{count, plural, other {# 个数据不足}}"
+      "span": "开始于 {start} · 结束于 {end}",
+      "spanDone": "开始于 {start} · 已于 {end} 结束",
+      "after": "<b>{date} 之后：</b>Lex 会写下它了解到的情况，然后开始提出更改建议。每一项都等您同意。",
+      "afterDone": "Lex 会写下它了解到的情况，然后开始提出更改建议。每一项都等您同意。",
+      "left": "{count, plural, other {还剩 # 天}}",
+      "allDone": "{count, plural, other {全部 # 天已完成}}"
     },
     "status": {
       "steady": "平稳",
-      "drifting": "偏离",
-      "interrupted": "中断",
-      "thin": "数据不足"
+      "interrupted": "提前中止了观察",
+      "thin": "天数太少，暂时无法判断",
+      "up": "上升",
+      "down": "下降",
+      "unusual": "超出正常范围"
     },
     "signals": {
-      "label": "我在观察什么",
+      "label": "Lex 每天读取的数据",
       "nothing": "暂时没有可读取的内容",
-      "titleRead": "{count, plural, other {# 个信号，每天读取}}",
-      "titleNotRead": "{count, plural, other {# 个信号，目前未在读取}}",
-      "thinRule": "数据不足 = 最近 {of} 天中有记录的天数少于 {min} 天，因此还没有可供判断的常规范围。",
-      "driftRule": "偏离 = 连续 {days} 天或更久超出其常规范围；中断 = 触发了停止观察的规则。",
+      "thinRule": "天数太少，无法判断：最近 {of} 天中记录不足 {min} 天，所以 Lex 还不知道什么是正常水平。",
+      "driftRule": "上升或下降：连续 {days} 天或更久超出正常范围。Lex 会记下来，但在观察期间不会因此做任何改动。",
       "connect": "连接您的收款、收银机或网店、分析工具或广告，它们所含的每个企业整体数字每天都会在这里读取。<a>连接</a>",
       "noDaily": "您的连接中还没有每日数字。它们会在下一次同步时到来。",
-      "tableLabel": "信号表",
       "col": {
-        "signal": "信号",
         "from": "读取自",
         "days": "已读取天数",
         "perDay": "每日，第 {week} 周 → 现在",
-        "status": "状态",
         "daily": "逐日"
       },
       "below": "自 {date} 起低于常规范围",
       "above": "自 {date} 起高于常规范围",
       "latest": "最近一天",
       "high": "最高的一天",
-      "low": "最低的一天"
+      "low": "最低的一天",
+      "name": "每日{noun}",
+      "firstWeek": "第一周 {value} · 来自 {source}",
+      "from": "来自 {source}"
     },
     "noted": {
-      "label": "已记下，未行动",
-      "title": "我本来会说的话",
+      "title": "Lex 注意到但在观察期间没有处理的事项",
       "empty": "暂时没有。",
-      "day": "第 {day} 天"
-    },
-    "when": {
-      "label": "观察期结束时",
-      "link": "我的工作方式",
-      "ends": "观察期结束。下一份报告会读取这期间收集到的所有内容。",
-      "after": "之后",
-      "afterText": "您批准的提案可以执行。观察期不再搁置它们。",
-      "always": "始终",
-      "alwaysText": "在您批准之前，什么都不会执行。"
+      "sub": "这几周过后，这类事项会变成建议，由您决定同意或拒绝。",
+      "how": "Lex 是怎么算出来的"
     },
     "activity": {
-      "label": "活动",
+      "label": "Lex 每天读取和检查的全部内容",
       "empty": "暂时没有。第一份每周快照会出现在这里。",
       "more": "{count, plural, other {再显示 # 条}}"
     },
     "rules": {
-      "label": "什么会中断观察",
+      "label": "什么情况会让 Lex 提前停止观察",
       "checked": "每日检查",
-      "notChecked": "尚未检查"
+      "notChecked": "尚未检查",
+      "how": "想更改 Lex 的观察时长？<a>Lex 的工作方式</a>"
     },
     "modules": {
       "label": "模块",
@@ -1323,15 +1313,12 @@
       "link": "我的工作方式"
     },
     "title": {
-      "complete": "第 {of} 天，共 {of} 天。观察已完成。",
-      "untouched": "第 {day} 天，共 {of} 天。我没有自行改动任何内容。",
-      "changes": "{count, plural, other {第 {day} 天，共 {of} 天。已做出 # 项更改，每一项都经过您的批准。}}"
+      "learning": "Lex 正在了解您的企业：第 {day} 天，共 {of} 天",
+      "learned": "Lex 已经了解了您的企业"
     },
     "notes": {
-      "readingEnds": "{count, plural, other {每天读取 # 个连接 · 观察期于 {date} 结束}}",
-      "readingEnded": "{count, plural, other {每天读取 # 个连接 · 观察期已于 {date} 结束}}",
-      "noneEnds": "没有正在读取的连接 · <a>连接</a> · 观察期于 {date} 结束",
-      "noneEnded": "没有正在读取的连接 · <a>连接</a> · 观察期已于 {date} 结束"
+      "none": "目前没有读取任何连接，所以 Lex 没有可观察的内容。<a>连接</a>",
+      "changes": "{count, plural, other {目前已做出 # 项更改，每一项都经过您的同意。}}"
     },
     "alerts": {
       "label": "手机提醒",
@@ -1362,7 +1349,20 @@
       "ourSide": "我们这边出了点问题"
     },
     "moved": "每周摘要、手机提醒和模块开关已移至设置。",
-    "movedLink": "提醒与模块"
+    "movedLink": "提醒与模块",
+    "lede": "在最初几周，Lex 只观察您的数字，先弄清一周的正常情况，再提出任何更改建议。没有您的同意，您的企业不会有任何改动。",
+    "plain": {
+      "rose": "{noun}上升：{date} 为 {actual}，比每周同一天的通常水平高 {pct}%，{days, plural, other {连续 # 天}}。",
+      "fell": "{noun}下降：{date} 为 {actual}，比每周同一天的通常水平低 {pct}%，{days, plural, other {连续 # 天}}。",
+      "fellInterrupted": "{noun}下降：{date} 为 {actual}，比每周同一天的通常水平低 {pct}%，{days, plural, other {连续 # 天}}。按周计算下降了 {wow}%，已足以提前中止观察。",
+      "revenueDrop": "营收一周内下降超过 {pct}%",
+      "critical": "您告诉 Lex 的信息中出现严重问题",
+      "reopen": "您修改了报告所依据的某个主要答案"
+    },
+    "goals": {
+      "title": "您的目标",
+      "from": "Lex 将从 {date} 开始评估进展。"
+    }
   },
   "signals": {
     "day": "{day}（{name}）",

@@ -38,14 +38,21 @@ import type { SignalStatus, WatchDays, WatchSignal } from "../../lib/watch/watch
 import {
   NOTED_KINDS,
   anomalySpan,
-  dayOfWatch,
   notedLines,
   parseInstant,
   watchDays,
 } from "../../lib/watch/watch-view";
 import { MIN_BASELINE_DAYS, RUN_DAYS } from "../../lib/anomaly/baseline";
 import type { WatchWords } from "../../lib/watch/words";
-import { logWords, moduleWords, ruleWords, signalNoun, sourceWords } from "../../lib/watch/words";
+import {
+  logWords,
+  moduleWords,
+  plainLogWords,
+  plainRuleWords,
+  ruleWords,
+  signalNoun,
+  sourceWords,
+} from "../../lib/watch/words";
 
 /** L-4a: the watch's lib-built words in the reader's language. */
 function useWatchWords(): WatchWords {
@@ -58,6 +65,9 @@ interface LogEntry {
   detail: string;
   /** What the line is about, when the line itself doesn't say (a goal's statement). */
   subject?: string | null;
+  /** A goal check's verdict (lib/care/progress), and the day judging starts while it is too soon. */
+  verdict?: string;
+  judged_from?: string;
 }
 interface WatchView {
   decision: {
@@ -129,7 +139,12 @@ const STATUS_CLASS: Record<SignalStatus, string> = {
   interrupted: "alarm",
   thin: "low",
 };
-const STATUS_ORDER: SignalStatus[] = ["steady", "drifting", "interrupted", "thin"];
+
+/** A signal's state said plainly: a drift says which way it went (2026-11-23). */
+function statusKey(s: WatchSignal): "steady" | "interrupted" | "thin" | "up" | "down" | "unusual" {
+  if (s.status !== "drifting") return s.status;
+  return s.direction === "drop" ? "down" : s.direction === "spike" ? "up" : "unusual";
+}
 
 /** A per-day figure: whole units from 100 up, cents below; counts to one decimal when small. */
 function perDay(signal: WatchSignal, value: number, locale: AppLocale): string {
@@ -227,7 +242,7 @@ function SignalDays({ signal, name }: { signal: WatchSignal; name: string }) {
     <>
       <p className="wt-sig-status">
         <span className={`word ${STATUS_CLASS[signal.status]}`}>
-          {t(`status.${signal.status}`)}
+          {t(`status.${statusKey(signal)}`)}
         </span>
         {signal.since && (
           <span>
@@ -284,50 +299,61 @@ function SignalDays({ signal, name }: { signal: WatchSignal; name: string }) {
   );
 }
 
+/**
+ * The weeks as one bar (2026-11-23, said plainly): how many days are left,
+ * when it started and ends, and what happens after.
+ */
 function DayStrip({ w }: { w: WatchDays }) {
   const t = useTranslations("watch");
   const locale = useAppLocale();
+  const complete = w.days_remaining === 0;
+  const span = { start: dayText(w.start, true, locale), end: dayText(w.end, true, locale) };
   return (
     <section className="wt-days" aria-label={t("days.label", { day: w.day, of: w.of })}>
-      <ol className="wt-strip" style={{ ["--wt-of" as string]: w.of }}>
+      <p className="wt-days-head">
+        <b>
+          {complete
+            ? t("days.allDone", { count: w.of })
+            : t("days.left", { count: w.days_remaining })}
+        </b>
+        <span>{t(complete ? "days.spanDone" : "days.span", span)}</span>
+      </p>
+      <ol className="wt-strip" aria-hidden="true" style={{ ["--wt-of" as string]: w.of }}>
         {Array.from({ length: w.of }, (_, i) => i + 1).map((d) => (
           <li
             key={d}
-            className={`wt-day${d < w.day ? " past" : ""}${d === w.day ? " today" : ""}`}
-            aria-current={d === w.day ? "date" : undefined}
-          >
-            {num(d, 0, locale)}
-          </li>
+            className={`wt-day${d < w.day || complete ? " past" : ""}${d === w.day && !complete ? " today" : ""}`}
+          />
         ))}
       </ol>
-      <p className="wt-days-cap">
-        <span>{t("days.started", { date: dayText(w.start, false, locale) })}</span>
-        <span>{t("days.ends", { date: dayText(w.end, false, locale) })}</span>
+      <p className="wt-after">
+        {complete
+          ? t("days.afterDone")
+          : t.rich("days.after", {
+              date: dayText(w.end, false, locale),
+              b: (chunks) => <b>{chunks}</b>,
+            })}
       </p>
     </section>
   );
 }
 
+/** What Lex reads every day: one card a signal, its figure now and which way it is going. */
 function SignalsCard({ reading }: { reading: WatchReading }) {
   const t = useTranslations("watch");
   const ww = useWatchWords();
   const locale = useAppLocale();
-  const daily = useTr("watch").tr("signals.col.daily");
   const { signals } = reading;
   // The signal opened in place, by its key: read again from the list, so the
   // sheet shows the latest reading when the watch is read again behind it.
   const [open, setOpen] = useState<string | null>(null);
   const opened = signals.find((x) => x.key === open) ?? null;
-  /** A signal as the table names it: with its currency when two share a noun. */
+  /** A signal as the cards name it: with its currency when two share a noun. */
   const nameOf = (x: WatchSignal): string =>
     signalNoun(x.metric_key, x.noun, ww) +
     (x.currency && signals.filter((y) => y.noun === x.noun).length > 1 ? ` (${x.currency})` : "");
   const hasThin = signals.some((s) => s.status === "thin");
   const hasDrift = signals.some((s) => s.status === "drifting" || s.status === "interrupted");
-  const tally = STATUS_ORDER.map((s) => [s, signals.filter((x) => x.status === s).length] as const)
-    .filter(([, n]) => n > 0)
-    .map(([s, n]) => t(`tally.${s}`, { count: n }))
-    .join(" · ");
   const foot =
     hasThin || hasDrift ? (
       <WhyFold>
@@ -338,18 +364,7 @@ function SignalsCard({ reading }: { reading: WatchReading }) {
       </WhyFold>
     ) : undefined;
   return (
-    <SheetCard
-      label={t("signals.label")}
-      title={
-        signals.length === 0
-          ? t("signals.nothing")
-          : reading.connections > 0
-            ? t("signals.titleRead", { count: signals.length })
-            : t("signals.titleNotRead", { count: signals.length })
-      }
-      meta={signals.length > 0 ? tally : undefined}
-      foot={foot}
-    >
+    <SheetCard title={t("signals.label")} foot={foot}>
       {signals.length === 0 ? (
         <p className="wt-empty">
           {reading.connections === 0
@@ -359,64 +374,51 @@ function SignalsCard({ reading }: { reading: WatchReading }) {
             : t("signals.noDaily")}
         </p>
       ) : (
-        <div className="wt-table-wrap" tabIndex={0} aria-label={t("signals.tableLabel")}>
-          <table className="rt wt-table">
-            <thead>
-              <tr>
-                <th scope="col">{t("signals.col.signal")}</th>
-                <th scope="col">{t("signals.col.from")}</th>
-                <th scope="col" className="num">
-                  {t("signals.col.days")}
-                </th>
-                <th scope="col" className="num wt-wrap">
-                  {t("signals.col.perDay", { week: 1 })}
-                </th>
-                <th scope="col">{daily}</th>
-                <th scope="col">{t("signals.col.status")}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {signals.map((s) => (
-                <tr key={s.key} className={open === s.key ? "on" : undefined}>
-                  <th scope="row">
-                    {/* The name is the row's control, and it covers the whole row. */}
-                    <button
-                      type="button"
-                      className="wt-pick"
-                      aria-haspopup="dialog"
-                      onClick={() => setOpen(s.key)}
-                    >
-                      {nameOf(s)}
-                    </button>
-                  </th>
-                  <td className="src">{sourceWords(s.read_from, ww)}</td>
-                  <td className="num">{num(s.readings, 0, locale)}</td>
-                  <td className="num">{weeks(s, locale)}</td>
-                  <td className="wt-spark" data-label={daily}>
-                    <SignalSpark
-                      signal={s}
-                      label={`${signalNoun(s.metric_key, s.noun, ww)} · ${t("signals.col.perDay", { week: 1 })}: ${weeks(s, locale)}`}
-                    />
-                  </td>
-                  <td>
-                    <span
-                      className={`word ${STATUS_CLASS[s.status]}`}
-                      title={
-                        s.since
-                          ? t(s.direction === "drop" ? "signals.below" : "signals.above", {
-                              date: dayText(s.since, false, locale),
-                            })
-                          : undefined
-                      }
-                    >
-                      {t(`status.${s.status}`)}
-                    </span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
+        <ul className="wt-sigs">
+          {signals.map((s) => {
+            const source = sourceWords(s.read_from, ww);
+            const name = t("signals.name", { noun: nameOf(s) });
+            return (
+              <li
+                key={s.key}
+                className={`wt-sig ${STATUS_CLASS[s.status]}${open === s.key ? " on" : ""}`}
+              >
+                {/* The name is the card's control, and it covers the whole card. */}
+                <button
+                  type="button"
+                  className="wt-pick"
+                  aria-haspopup="dialog"
+                  onClick={() => setOpen(s.key)}
+                >
+                  {name}
+                </button>
+                <p className="wt-sig-now">
+                  {s.last_week === null ? "-" : perDay(s, s.last_week, locale)}
+                </p>
+                <p
+                  className={`word ${STATUS_CLASS[s.status]}`}
+                  title={
+                    s.since
+                      ? t(s.direction === "drop" ? "signals.below" : "signals.above", {
+                          date: dayText(s.since, false, locale),
+                        })
+                      : undefined
+                  }
+                >
+                  {t(`status.${statusKey(s)}`)}
+                </p>
+                <p className="wt-sig-was">
+                  {s.first_week === null
+                    ? t("signals.from", { source })
+                    : t("signals.firstWeek", { value: perDay(s, s.first_week, locale), source })}
+                </p>
+                <div className="wt-spark">
+                  <SignalSpark signal={s} label={`${name}: ${weeks(s, locale)}`} />
+                </div>
+              </li>
+            );
+          })}
+        </ul>
       )}
       <SignalSheet
         signal={opened}
@@ -427,34 +429,144 @@ function SignalsCard({ reading }: { reading: WatchReading }) {
   );
 }
 
+/**
+ * What Lex noticed and left alone. An anomaly line is said as what happened
+ * (lib/watch/words plainLogWords); its working, as stored, one press away.
+ */
 function NotedCard({ log, w }: { log: LogEntry[]; w: WatchDays }) {
   const t = useTranslations("watch");
+  const { tr: said } = useTr("watch");
   const ww = useWatchWords();
+  const locale = useAppLocale();
   const noted = notedLines(log, w);
   const newest = noted[0];
   const fresh = newest ? Date.now() - parseInstant(newest.at) < 2 * DAY_MS : false;
   return (
-    <SheetCard label={t("noted.label")} title={t("noted.title")}>
+    <SheetCard title={t("noted.title")}>
+      <p className="wt-sub">{t("noted.sub")}</p>
       {noted.length === 0 ? (
         <p className="wt-empty">{t("noted.empty")}</p>
       ) : (
         <ul className="wt-notes">
-          {noted.map((e, i) => (
-            <li key={`${e.at}-${e.kind}`}>
-              <span className="wt-at">
-                {t("noted.day", { day: dayOfWatch(e.at, w.start, w.of) ?? 0 })}
-              </span>
-              <p>
-                {i === 0 && fresh ? (
-                  <span className="marked">{logWords(e.detail, ww)}</span>
-                ) : (
-                  logWords(e.detail, ww)
-                )}
-              </p>
-            </li>
-          ))}
+          {noted.map((e, i) => {
+            const plain = plainLogWords(e.detail, ww, (k, v) => said(`plain.${k}`, v));
+            const line = plain ?? logWords(e.detail, ww);
+            return (
+              <li key={`${e.at}-${e.kind}`}>
+                <span className="wt-at">{dayText(e.at, false, locale)}</span>
+                <div>
+                  <p>{i === 0 && fresh ? <span className="marked">{line}</span> : line}</p>
+                  {plain !== null && (
+                    <Fold summary={t("noted.how")}>
+                      <p className="wt-work">{logWords(e.detail, ww)}</p>
+                    </Fold>
+                  )}
+                </div>
+              </li>
+            );
+          })}
         </ul>
       )}
+    </SheetCard>
+  );
+}
+
+/**
+ * Each goal once, with its latest weekly check (2026-11-23): the log used to
+ * carry every goal's line every week. Drawn only when a goal has been checked.
+ */
+function GoalsCard({ log }: { log: LogEntry[] }) {
+  const t = useTranslations("watch");
+  const { tr: goalTr } = useTr("goalsWords");
+  const ww = useWatchWords();
+  const locale = useAppLocale();
+  const seen = new Set<string>();
+  const goals = log.filter((e) => {
+    if (e.kind !== "goal_progress" || !e.subject || seen.has(e.subject)) return false;
+    seen.add(e.subject);
+    return true;
+  });
+  if (goals.length === 0) return null;
+  return (
+    <SheetCard title={t("goals.title")}>
+      <ul className="wt-goals">
+        {goals.map((g) => (
+          <li key={g.subject}>
+            <Link href="/progress">{g.subject}</Link>
+            <span>
+              {g.verdict ? goalTr(`check.verdict.${g.verdict}`) : logWords(g.detail, ww)}
+              {g.judged_from && (
+                <> · {t("goals.from", { date: dayText(g.judged_from, false, locale) })}</>
+              )}
+            </span>
+          </li>
+        ))}
+      </ul>
+    </SheetCard>
+  );
+}
+
+/** Everything Lex read and checked: folded, for anyone who wants it. */
+function ActivityCard({ log }: { log: LogEntry[] }) {
+  const t = useTranslations("watch");
+  const ww = useWatchWords();
+  const locale = useAppLocale();
+  const work = log.filter((e) => !NOTED_KINDS.has(e.kind) && e.kind !== "goal_progress");
+  const row = (e: LogEntry, i: number) => (
+    <li key={`${e.at}-${e.kind}-${i}`}>
+      <span className="wt-at">{dayText(e.at, false, locale)}</span>
+      <p>
+        {e.subject ? `${e.subject} · ` : ""}
+        {logWords(e.detail, ww)}
+      </p>
+    </li>
+  );
+  return (
+    <section className="wt-log">
+      <Fold summary={t("activity.label")}>
+        {work.length === 0 ? (
+          <p className="wt-empty">{t("activity.empty")}</p>
+        ) : (
+          <>
+            <ul className="wt-notes">{work.slice(0, 8).map(row)}</ul>
+            {work.length > 8 && (
+              <Fold summary={t("activity.more", { count: Math.min(work.length, 20) - 8 })}>
+                <ul className="wt-notes">{work.slice(8, 20).map(row)}</ul>
+              </Fold>
+            )}
+          </>
+        )}
+      </Fold>
+    </section>
+  );
+}
+
+/** What would end the watch early, said plainly; the rule as code still decides. */
+function RulesCard({ thresholds }: { thresholds: WatchView["thresholds"] }) {
+  const t = useTranslations("watch");
+  const { tr: said } = useTr("watch");
+  const ww = useWatchWords();
+  return (
+    <SheetCard
+      title={t("rules.label")}
+      foot={
+        <p className="wt-how">
+          {t.rich("rules.how", { a: (chunks) => <Link href="/mode">{chunks}</Link> })}
+        </p>
+      }
+    >
+      <ul className="wt-rules">
+        {thresholds.map((r) => (
+          <li key={r.text}>
+            <span>
+              {plainRuleWords(r.text, (k, v) => said(`plain.${k}`, v)) ?? ruleWords(r.text, ww)}
+            </span>
+            <span className={`word ${r.enforced ? "ok" : "low"}`}>
+              {r.enforced ? t("rules.checked") : t("rules.notChecked")}
+            </span>
+          </li>
+        ))}
+      </ul>
     </SheetCard>
   );
 }
@@ -478,90 +590,6 @@ function NoticedCard({ log }: { log: LogEntry[] }) {
           <li key={`${e.at}-${e.kind}`}>
             <span className="wt-at">{dayText(e.at, false, locale)}</span>
             <p>{i === 0 && fresh ? <span className="marked">{e.detail}</span> : e.detail}</p>
-          </li>
-        ))}
-      </ul>
-    </SheetCard>
-  );
-}
-
-function WhenCard({ w }: { w: WatchDays }) {
-  const t = useTranslations("watch");
-  const locale = useAppLocale();
-  return (
-    <SheetCard
-      label={t("when.label")}
-      foot={
-        <span className="wt-foot-row">
-          <Link className="act" href="/mode">
-            {t("when.link")}
-          </Link>
-        </span>
-      }
-    >
-      <ul className="wt-when">
-        <li>
-          <span className="wt-at">{dayText(w.end, false, locale)}</span>
-          <span>{t("when.ends")}</span>
-        </li>
-        <li>
-          <span className="wt-at cap1">{t("when.after")}</span>
-          <span>{t("when.afterText")}</span>
-        </li>
-        <li>
-          <span className="wt-at cap1">{t("when.always")}</span>
-          <span>{t("when.alwaysText")}</span>
-        </li>
-      </ul>
-    </SheetCard>
-  );
-}
-
-function ActivityCard({ log }: { log: LogEntry[] }) {
-  const t = useTranslations("watch");
-  const ww = useWatchWords();
-  const locale = useAppLocale();
-  const work = log.filter((e) => !NOTED_KINDS.has(e.kind));
-  const row = (e: LogEntry, i: number) => (
-    <li key={`${e.at}-${e.kind}-${i}`}>
-      <span className="wt-at">{dayText(e.at, false, locale)}</span>
-      <p>
-        {e.subject ? `${e.subject} · ` : ""}
-        {logWords(e.detail, ww)}
-      </p>
-    </li>
-  );
-  return (
-    <SheetCard label={t("activity.label")}>
-      {work.length === 0 ? (
-        <p className="wt-empty">{t("activity.empty")}</p>
-      ) : (
-        <>
-          <ul className="wt-notes">{work.slice(0, 5).map(row)}</ul>
-          {/* 2026-11-15: the latest five in view; the rest one press away. */}
-          {work.length > 5 && (
-            <Fold summary={t("activity.more", { count: Math.min(work.length, 12) - 5 })}>
-              <ul className="wt-notes">{work.slice(5, 12).map(row)}</ul>
-            </Fold>
-          )}
-        </>
-      )}
-    </SheetCard>
-  );
-}
-
-function RulesCard({ thresholds }: { thresholds: WatchView["thresholds"] }) {
-  const t = useTranslations("watch");
-  const ww = useWatchWords();
-  return (
-    <SheetCard label={t("rules.label")}>
-      <ul className="wt-rules">
-        {thresholds.map((r) => (
-          <li key={r.text}>
-            <span>{ruleWords(r.text, ww)}</span>
-            <span className={`word ${r.enforced ? "ok" : "low"}`}>
-              {r.enforced ? t("rules.checked") : t("rules.notChecked")}
-            </span>
           </li>
         ))}
       </ul>
@@ -952,7 +980,6 @@ export function WatchSettingsScreen() {
 
 export function WatchScreen({ reading }: { reading: WatchReading | null }) {
   const t = useTranslations("watch");
-  const locale = useAppLocale();
   const [view, setView] = useState<WatchView | null>(null);
   const [failed, setFailed] = useState<"signed_out" | "error" | null>(null);
 
@@ -992,17 +1019,10 @@ export function WatchScreen({ reading }: { reading: WatchReading | null }) {
   }
 
   const w = watchDays(view.decision, new Date());
-  const lower = (
-    <div className="wt-grid">
-      <ActivityCard log={view.log} />
-      <div className="wt-side">
-        {!w && <NoticedCard log={view.log} />}
-        <RulesCard thresholds={view.thresholds} />
-        <p className="wt-moved">
-          {t("moved")} <Link href="/settings/alerts">{t("movedLink")}</Link>
-        </p>
-      </div>
-    </div>
+  const moved = (
+    <p className="wt-moved">
+      {t("moved")} <Link href="/settings/alerts">{t("movedLink")}</Link>
+    </p>
   );
 
   if (!w) {
@@ -1016,77 +1036,72 @@ export function WatchScreen({ reading }: { reading: WatchReading | null }) {
           </p>
         }
       >
-        {lower}
+        <div className="wt-body">
+          <div className="wt-grid">
+            <div className="wt-side">
+              <NoticedCard log={view.log} />
+              <GoalsCard log={view.log} />
+            </div>
+            <div className="wt-side">
+              <RulesCard thresholds={view.thresholds} />
+            </div>
+          </div>
+          <ActivityCard log={view.log} />
+          {moved}
+        </div>
       </Frame>
     );
   }
 
   const ran = reading?.executions_since_start ?? 0;
   const complete = w.days_remaining === 0;
-  const title = complete
-    ? t("title.complete", { of: w.of })
-    : ran === 0
-      ? t("title.untouched", { day: w.day, of: w.of })
-      : t("title.changes", { day: w.day, of: w.of, count: ran });
   const conns = reading?.connections ?? 0;
-  const ends = dayText(w.end, true, locale);
 
   return (
     <Frame
-      title={title}
+      title={complete ? t("title.learned") : t("title.learning", { day: w.day, of: w.of })}
       notes={
         <>
-          <p className="wt-live">
-            <span className="wt-sq" aria-hidden="true" />
-            {conns > 0 ? (
+          <p className="wt-lede">{t("lede")}</p>
+          {conns === 0 && (
+            <p className="wt-live">
+              <span className="wt-sq" aria-hidden="true" />
               <span>
-                {complete
-                  ? t("notes.readingEnded", { count: conns, date: ends })
-                  : t("notes.readingEnds", { count: conns, date: ends })}
-              </span>
-            ) : (
-              <span>
-                {t.rich(complete ? "notes.noneEnded" : "notes.noneEnds", {
-                  date: ends,
+                {t.rich("notes.none", {
                   a: (chunks) => <Link href="/connections">{chunks}</Link>,
                 })}
               </span>
-            )}
-          </p>
+            </p>
+          )}
+          {ran > 0 && (
+            <p className="wt-live">
+              <span className="wt-sq" aria-hidden="true" />
+              <span>{t("notes.changes", { count: ran })}</span>
+            </p>
+          )}
         </>
       }
     >
-      <DayStrip w={w} />
-      {/* Two stacks of their own: a tall right column leaves no hole beside a
-          short card on the left. On a narrow screen they read as one column,
-          in the order the wt-o classes give (app/watch.css). */}
-      <div className="wt-grid wt-stacks">
-        <div className="wt-side">
-          <div className="wt-o1">
-            {reading ? (
-              <SignalsCard reading={reading} />
-            ) : (
-              <SheetCard label={t("signals.label")} title={t("signals.nothing")} />
-            )}
-          </div>
-          <div className="wt-o4">
-            <ActivityCard log={view.log} />
-          </div>
-        </div>
-        <div className="wt-side">
-          <div className="wt-o2">
+      <div className="wt-body">
+        <DayStrip w={w} />
+        {reading ? (
+          <SignalsCard reading={reading} />
+        ) : (
+          <SheetCard title={t("signals.label")}>
+            <p className="wt-empty">{t("signals.nothing")}</p>
+          </SheetCard>
+        )}
+        <div className="wt-grid">
+          <div className="wt-side">
             <NotedCard log={view.log} w={w} />
           </div>
-          <div className="wt-o3">
-            <WhenCard w={w} />
-          </div>
-          <div className="wt-o5">
+          <div className="wt-side">
+            <GoalsCard log={view.log} />
             <RulesCard thresholds={view.thresholds} />
           </div>
-          <p className="wt-moved wt-o6">
-            {t("moved")} <Link href="/settings/alerts">{t("movedLink")}</Link>
-          </p>
         </div>
+        <ActivityCard log={view.log} />
+        {moved}
       </div>
     </Frame>
   );

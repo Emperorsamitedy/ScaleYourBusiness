@@ -45,8 +45,34 @@ export async function GET(): Promise<NextResponse> {
       // A goal's weekly check says which goal it is about: three goals
       // checked on one morning otherwise read as one line three times.
       subject: goals.get(goalIdOf(entry.meta) ?? "") ?? null,
+      // 2026-11-23, Watching said plainly: a goal's verdict and the day it
+      // can first be judged, from what the check stored beside its sentence.
+      ...goalCheckOf(entry.kind, entry.meta),
     })),
   });
+}
+
+/** A goal check's verdict and, while it is too soon, the day judging starts (lib/care/progress explain). */
+function goalCheckOf(kind: string, meta: unknown): { verdict?: string; judged_from?: string } {
+  if (kind !== "goal_progress") return {};
+  const m = meta as {
+    verdict?: unknown;
+    explain?: { kind?: unknown; from?: unknown; until?: unknown; ends?: unknown };
+  } | null;
+  const verdict = typeof m?.verdict === "string" ? m.verdict : undefined;
+  const e = m?.explain;
+  const day =
+    e?.kind === "under_care"
+      ? e.from
+      : e?.kind === "watching"
+        ? e.until
+        : e?.kind === "goal_new"
+          ? e.ends
+          : null;
+  return {
+    ...(verdict ? { verdict } : {}),
+    ...(typeof day === "string" ? { judged_from: day.slice(0, 10) } : {}),
+  };
 }
 
 const goalIdOf = (meta: unknown): string | null => {

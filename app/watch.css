@@ -1,7 +1,6 @@
-/* Insights · Watching — the owner's Watching design (2026-10-17), on the
-   sheet system (app/sheet.css). Square corners, no shadows, no icons,
-   no motion: the strip of days, the signals table, what was noted and
-   what happens when the watch ends. */
+/* Insights · Watching — the owner's Watching design (2026-10-17), said
+   plainly on 2026-11-23: the weeks as one bar, a card a signal, what Lex
+   noticed, the goals, what would stop the watch, and the log folded. */
 
 .wt-screen a:not(.act) {
   color: inherit;
@@ -27,11 +26,30 @@
   color: inherit;
 }
 
-/* ── the strip: one square per watch day ── */
+/* ── the weeks as one bar (2026-11-23): days left, then what happens after ── */
 
 .wt-days {
-  margin: 0 0 22px;
-  color: var(--desk-ink-2);
+  display: grid;
+  gap: 10px;
+  padding: 16px 18px;
+  background: var(--paper);
+  color: var(--sheet-ink);
+  border-radius: var(--r-card, 0);
+}
+.wt-days-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 4px 14px;
+  margin: 0;
+}
+.wt-days-head b {
+  font-size: 17px;
+  font-weight: 650;
+}
+.wt-days-head span {
+  font-size: 13.5px;
+  color: var(--sheet-ink-2);
 }
 .wt-strip {
   display: grid;
@@ -42,35 +60,25 @@
   list-style: none;
 }
 .wt-day {
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  height: 44px;
-  padding-bottom: 4px;
-  border: 1px solid var(--desk-rule);
-  font-family: var(--f-fig);
-  font-size: 11px;
-  font-variant-numeric: tabular-nums;
-  color: var(--desk-ink-2);
-  border-radius: var(--r-s, 0);
+  height: 10px;
+  background: var(--inset);
+  border-radius: 2px;
 }
 .wt-day.past {
-  background: var(--paper);
-  border-color: var(--paper);
-  color: var(--sheet-ink-2);
+  background: var(--sheet-ink);
 }
 .wt-day.today {
-  border: 2px solid var(--live-desk);
-  color: var(--desk-ink);
-  font-weight: 600;
+  background: var(--live);
 }
-.wt-days-cap {
-  display: flex;
-  justify-content: space-between;
-  gap: var(--s-4);
-  margin-top: 10px;
-  font-family: var(--f-mono);
-  font-size: 12px;
+.wt-after {
+  margin: 0;
+  font-size: 13.5px;
+  color: var(--sheet-ink-2);
+  max-width: var(--measure);
+}
+.wt-after b {
+  font-weight: 650;
+  color: var(--sheet-ink);
 }
 
 /* ── the two-column body ── */
@@ -98,42 +106,68 @@
   min-width: 0;
 }
 
-/* the signals table scrolls inside its card, never the page */
-.wt-table-wrap {
-  overflow-x: auto;
-  margin: 0 -8px;
-  padding: 0 8px;
+/* What Lex reads every day: one card a signal. The name is the card's
+   control and covers it; the small line keeps its own readout above that. */
+.wt-sigs {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr));
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
 }
-.wt-table {
-  min-width: 560px;
-}
-.wt-table thead th.wt-wrap {
-  white-space: normal;
-}
-.wt-table tbody th {
-  font-family: var(--f-prose);
-  font-size: 13.5px;
-}
-.wt-table tbody .num {
-  font-size: 14px;
-}
-/* A signal's row opens its days in a side sheet (L9). The name is the
-   control and covers the whole row, as on Customers; the small line keeps
-   its own readout, so its cell stays above that cover. */
-.wt-table tbody tr {
+.wt-sig {
   position: relative;
+  display: grid;
+  align-content: start;
+  gap: 3px;
+  padding: 12px 14px;
+  border: 1px solid var(--rule-soft);
+  border-radius: var(--r-card, 0);
+  min-width: 0;
 }
-.wt-table tbody tr:hover,
-.wt-table tbody tr.on {
+.wt-sig:hover,
+.wt-sig.on {
   background: var(--inset);
+}
+.wt-sig.drift {
+  border-color: var(--drift);
+  box-shadow: inset 0 0 0 1px var(--drift);
+}
+.wt-sig.alarm {
+  border-color: var(--alarm);
+  box-shadow: inset 0 0 0 1px var(--alarm);
+}
+.wt-sig p {
+  margin: 0;
+}
+.wt-sig .word {
+  justify-self: start;
+}
+.wt-sig-now {
+  font-family: var(--f-fig);
+  font-size: 22px;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.2;
+}
+.wt-sig-was {
+  font-size: 12.5px;
+  color: var(--sheet-ink-2);
+  overflow-wrap: anywhere;
+}
+.wt-sig .wt-spark {
+  position: relative;
+  z-index: 1;
+  margin-top: 4px;
 }
 .wt-pick {
   display: block;
   padding: 0;
   border: 0;
   background: none;
-  color: inherit;
+  color: var(--sheet-ink-2);
   font: inherit;
+  font-size: 12.5px;
   text-align: left;
   cursor: pointer;
 }
@@ -145,13 +179,9 @@
 .wt-pick:focus-visible {
   outline: none;
 }
-.wt-table tbody tr:has(.wt-pick:focus-visible) {
+.wt-sig:has(.wt-pick:focus-visible) {
   outline: 2px solid var(--sheet-ink);
   outline-offset: -2px;
-}
-.wt-table tbody td.wt-spark {
-  position: relative;
-  z-index: 1;
 }
 /* the sheet a signal opens: its state, its days as a chart, its figures */
 .wt-sig-status {
@@ -184,12 +214,6 @@
 }
 .wt-sig-days th {
   font-weight: 400;
-}
-/* the spark sits inside the row's own height */
-.wt-table tbody td.wt-spark {
-  padding-top: 0;
-  padding-bottom: 0;
-  vertical-align: middle;
 }
 .wt-empty {
   margin: 4px 0;
@@ -227,29 +251,6 @@
   overflow-wrap: anywhere;
 }
 
-/* "When the watch ends" */
-.wt-when {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-.wt-when li {
-  display: grid;
-  grid-template-columns: 76px minmax(0, 1fr);
-  gap: var(--s-4);
-  align-items: baseline;
-  padding: 11px 0;
-  border-bottom: 1px solid var(--rule-soft);
-  font-size: 13.5px;
-}
-.wt-when li:first-child {
-  padding-top: 2px;
-}
-.wt-when .wt-at {
-  font-family: var(--f-mono);
-  font-size: 13px;
-  color: var(--sheet-ink);
-}
 .wt-foot-row {
   display: flex;
   align-items: center;
@@ -259,6 +260,70 @@
 }
 .wt-foot-row .act {
   min-height: 44px;
+}
+
+/* 2026-11-23, said plainly: the lede, a card's sub line, the working one
+   press away, the goals, the rules' foot, and the folded log. */
+.wt-body {
+  display: grid;
+  gap: 15px;
+}
+.wt-lede {
+  margin: 6px 0 0;
+  max-width: var(--measure);
+  color: var(--desk-ink-2);
+  font-size: 15px;
+}
+.wt-sub {
+  margin: 0 0 10px;
+  max-width: var(--measure);
+  font-size: 13.5px;
+  color: var(--sheet-ink-2);
+}
+.wt-notes li > div {
+  min-width: 0;
+}
+.wt-notes .fold {
+  margin-top: 4px;
+}
+.wt-work {
+  color: var(--sheet-ink-2);
+  font-size: 13px;
+}
+.wt-goals {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.wt-goals li {
+  display: grid;
+  gap: 2px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--rule-soft);
+}
+.wt-goals li:first-child {
+  padding-top: 2px;
+}
+.wt-goals a {
+  font-weight: 650;
+}
+.wt-goals span {
+  font-size: 13px;
+  color: var(--sheet-ink-2);
+}
+.wt-how {
+  margin: 0;
+  font-size: 13px;
+}
+.wt-log {
+  color: var(--desk-ink-2);
+}
+.wt-log .wt-notes {
+  margin-top: 8px;
+  padding: 4px 14px;
+  background: var(--paper);
+  color: var(--sheet-ink);
+  border-radius: var(--r-card, 0);
 }
 
 /* thresholds and modules */
@@ -401,43 +466,9 @@
   .wt-grid {
     grid-template-columns: minmax(0, 1fr);
   }
-  /* One column again, in reading order: what is watched, what was noticed,
-     when it ends, the log, what would interrupt it. */
-  .wt-stacks > .wt-side {
-    display: contents;
-  }
-  .wt-o1 {
-    order: 1;
-  }
-  .wt-o2 {
-    order: 2;
-  }
-  .wt-o3 {
-    order: 3;
-  }
-  .wt-o4 {
-    order: 4;
-  }
-  .wt-o5 {
-    order: 5;
-  }
-  .wt-o6 {
-    order: 6;
-  }
 }
 @media (max-width: 719px) {
-  .wt-strip {
-    grid-template-columns: repeat(14, minmax(0, 1fr));
-  }
-  .wt-day {
-    height: 34px;
-    font-size: 10px;
-  }
-  .wt-days-cap {
-    flex-wrap: wrap;
-  }
-  .wt-notes li,
-  .wt-when li {
+  .wt-notes li {
     grid-template-columns: 60px minmax(0, 1fr);
     gap: var(--s-3);
   }

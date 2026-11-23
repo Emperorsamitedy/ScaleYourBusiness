@@ -1199,69 +1199,59 @@
     "kicker": "Insights · Watching",
     "days": {
       "label": "Watch day {day} of {of}",
-      "started": "Started {date}",
-      "ends": "Watch ends {date}"
-    },
-    "tally": {
-      "steady": "{count, plural, one {# steady} other {# steady}}",
-      "drifting": "{count, plural, one {# drifting} other {# drifting}}",
-      "interrupted": "{count, plural, one {# interrupted} other {# interrupted}}",
-      "thin": "{count, plural, one {# thin} other {# thin}}"
+      "span": "Started {start} · ends {end}",
+      "spanDone": "Started {start} · finished {end}",
+      "after": "<b>After {date}:</b> Lex writes up what it learned, then starts suggesting changes. Each one waits for your yes.",
+      "afterDone": "Lex writes up what it learned, then starts suggesting changes. Each one waits for your yes.",
+      "left": "{count, plural, one {# day left} other {# days left}}",
+      "allDone": "{count, plural, one {All # day done} other {All # days done}}"
     },
     "status": {
       "steady": "Steady",
-      "drifting": "Drifting",
-      "interrupted": "Interrupted",
-      "thin": "Thin"
+      "interrupted": "Stopped the watch early",
+      "thin": "Too few days to judge yet",
+      "up": "Going up",
+      "down": "Going down",
+      "unusual": "Outside its usual range"
     },
     "signals": {
-      "label": "What I'm watching",
+      "label": "What Lex reads every day",
       "nothing": "Nothing to read yet",
-      "titleRead": "{count, plural, one {# signal, read every day} other {# signals, read every day}}",
-      "titleNotRead": "{count, plural, one {# signal, not being read now} other {# signals, not being read now}}",
-      "thinRule": "THIN = fewer than {min} of the last {of} days on record, so no usual range to judge against yet.",
-      "driftRule": "DRIFTING = outside its usual range {days} days or more in a row; INTERRUPTED = past a rule that stops the watch.",
+      "thinRule": "Too few days to judge: fewer than {min} of the last {of} days are on record, so Lex can’t yet tell what’s usual.",
+      "driftRule": "Going up or going down: outside its usual range {days} days or more in a row. Lex notes it, and changes nothing because of it while it watches.",
       "connect": "Connect your payments, till or online shop, analytics or ads, and every business-wide figure they hold is read here every day. <a>Connections</a>",
       "noDaily": "Your connections hold no daily figures yet. They arrive with the next sync.",
-      "tableLabel": "Signals table",
       "col": {
-        "signal": "Signal",
         "from": "Read from",
         "days": "Days read",
         "perDay": "Per day, week {week} → now",
-        "status": "Status",
         "daily": "Day by day"
       },
       "below": "Below its usual range since {date}",
       "above": "Above its usual range since {date}",
       "latest": "Latest day",
       "high": "Highest day",
-      "low": "Lowest day"
+      "low": "Lowest day",
+      "name": "{noun} a day",
+      "firstWeek": "{value} in the first week · from {source}",
+      "from": "From {source}"
     },
     "noted": {
-      "label": "Noted, not acted on",
-      "title": "What I would have said",
+      "title": "What Lex noticed, but left alone while it watches",
       "empty": "Nothing yet.",
-      "day": "Day {day}"
-    },
-    "when": {
-      "label": "When the watch ends",
-      "link": "How I work",
-      "ends": "The watch ends. The next report reads everything it gathered.",
-      "after": "after",
-      "afterText": "Proposals you approve can run. The watch no longer holds them.",
-      "always": "always",
-      "alwaysText": "Nothing runs until you approve it."
+      "sub": "After these weeks, things like these become suggestions you can say yes or no to.",
+      "how": "How Lex worked this out"
     },
     "activity": {
-      "label": "Activity",
+      "label": "Everything Lex read and checked, day by day",
       "empty": "Nothing yet. The first weekly snapshot will appear here.",
       "more": "{count, plural, one {Show # more} other {Show # more}}"
     },
     "rules": {
-      "label": "What would interrupt the watch",
+      "label": "What would make Lex stop watching early",
       "checked": "Checked daily",
-      "notChecked": "Not yet checked"
+      "notChecked": "Not yet checked",
+      "how": "Want to change how long Lex watches? <a>How Lex works</a>"
     },
     "modules": {
       "label": "Modules",
@@ -1323,15 +1313,12 @@
       "link": "How I work"
     },
     "title": {
-      "complete": "Day {of} of {of}. The watch is complete.",
-      "untouched": "Day {day} of {of}. Nothing touched on my own.",
-      "changes": "{count, plural, one {Day {day} of {of}. # change made, each one approved.} other {Day {day} of {of}. # changes made, each one approved.}}"
+      "learning": "Lex is learning your business: day {day} of {of}",
+      "learned": "Lex has finished learning your business"
     },
     "notes": {
-      "readingEnds": "{count, plural, one {Reading # connection every day · watch ends {date}} other {Reading # connections every day · watch ends {date}}}",
-      "readingEnded": "{count, plural, one {Reading # connection every day · watch ended {date}} other {Reading # connections every day · watch ended {date}}}",
-      "noneEnds": "No connection is being read · <a>Connections</a> · watch ends {date}",
-      "noneEnded": "No connection is being read · <a>Connections</a> · watch ended {date}"
+      "none": "No connection is being read yet, so Lex has nothing to watch. <a>Connections</a>",
+      "changes": "{count, plural, one {# change made so far, each one with your yes.} other {# changes made so far, each one with your yes.}}"
     },
     "alerts": {
       "label": "Phone alerts",
@@ -1362,7 +1349,20 @@
       "ourSide": "something went wrong on our side"
     },
     "moved": "The weekly summary, phone alerts and module switches are in Settings.",
-    "movedLink": "Alerts and modules"
+    "movedLink": "Alerts and modules",
+    "lede": "For its first weeks Lex only watches your numbers, so it knows what a normal week looks like before it suggests any change. Nothing on your business changes unless you say yes.",
+    "plain": {
+      "rose": "{noun} went up: {actual} on {date}, {pct}% more than usual for that day of the week, {days, plural, one {for # day} other {# days in a row}}.",
+      "fell": "{noun} went down: {actual} on {date}, {pct}% less than usual for that day of the week, {days, plural, one {for # day} other {# days in a row}}.",
+      "fellInterrupted": "{noun} went down: {actual} on {date}, {pct}% less than usual for that day of the week, {days, plural, one {for # day} other {# days in a row}}. Over the week it is down {wow}%, enough to stop the watch early.",
+      "revenueDrop": "Revenue drops by more than {pct}% in a week",
+      "critical": "A serious problem turns up in what you told Lex",
+      "reopen": "You change one of the main answers the report is built on"
+    },
+    "goals": {
+      "title": "Your goals",
+      "from": "Lex starts judging progress on {date}."
+    }
   },
   "signals": {
     "day": "{day} ({name})",

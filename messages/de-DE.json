@@ -1199,69 +1199,59 @@
     "kicker": "Erkenntnisse · Beobachtung",
     "days": {
       "label": "Beobachtungstag {day} von {of}",
-      "started": "Begonnen {date}",
-      "ends": "Beobachtung endet {date}"
-    },
-    "tally": {
-      "steady": "{count, plural, one {# stabil} other {# stabil}}",
-      "drifting": "{count, plural, one {# driftet} other {# driften}}",
-      "interrupted": "{count, plural, one {# unterbrochen} other {# unterbrochen}}",
-      "thin": "{count, plural, one {# zu dünn} other {# zu dünn}}"
+      "span": "Begonnen {start} · endet {end}",
+      "spanDone": "Begonnen {start} · beendet {end}",
+      "after": "<b>Nach dem {date}:</b> Lex schreibt auf, was es gelernt hat, und beginnt dann, Änderungen vorzuschlagen. Jede wartet auf Ihr Ja.",
+      "afterDone": "Lex schreibt auf, was es gelernt hat, und beginnt dann, Änderungen vorzuschlagen. Jede wartet auf Ihr Ja.",
+      "left": "{count, plural, one {Noch # Tag} other {Noch # Tage}}",
+      "allDone": "{count, plural, one {# Tag abgeschlossen} other {Alle # Tage abgeschlossen}}"
     },
     "status": {
       "steady": "Stabil",
-      "drifting": "Driftet",
-      "interrupted": "Unterbrochen",
-      "thin": "Zu dünn"
+      "interrupted": "Hat die Beobachtung vorzeitig beendet",
+      "thin": "Noch zu wenige Tage für ein Urteil",
+      "up": "Steigt",
+      "down": "Sinkt",
+      "unusual": "Außerhalb des üblichen Bereichs"
     },
     "signals": {
-      "label": "Was ich beobachte",
+      "label": "Was Lex jeden Tag liest",
       "nothing": "Noch nichts zu lesen",
-      "titleRead": "{count, plural, one {# Signal, täglich gelesen} other {# Signale, täglich gelesen}}",
-      "titleNotRead": "{count, plural, one {# Signal, wird derzeit nicht gelesen} other {# Signale, werden derzeit nicht gelesen}}",
-      "thinRule": "ZU DÜNN = weniger als {min} der letzten {of} Tage erfasst, daher noch kein üblicher Bereich als Maßstab.",
-      "driftRule": "DRIFTET = {days} Tage oder länger in Folge außerhalb des üblichen Bereichs; UNTERBROCHEN = eine Regel überschritten, die die Beobachtung beendet.",
+      "thinRule": "Zu wenige Tage für ein Urteil: Weniger als {min} der letzten {of} Tage liegen vor, Lex kann also noch nicht sagen, was üblich ist.",
+      "driftRule": "Steigt oder sinkt: {days} Tage oder mehr in Folge außerhalb des üblichen Bereichs. Lex notiert es und ändert deshalb nichts, solange es beobachtet.",
       "connect": "Verbinden Sie Zahlungen, Kasse oder Onlineshop, Analytics oder Werbung, und jede unternehmensweite Zahl darin wird hier täglich gelesen. <a>Verbindungen</a>",
       "noDaily": "Ihre Verbindungen enthalten noch keine Tageswerte. Sie kommen mit der nächsten Synchronisierung.",
-      "tableLabel": "Signaltabelle",
       "col": {
-        "signal": "Signal",
         "from": "Gelesen aus",
         "days": "Gelesene Tage",
         "perDay": "Pro Tag, Woche {week} → jetzt",
-        "status": "Status",
         "daily": "Tag für Tag"
       },
       "below": "Seit {date} unter dem üblichen Bereich",
       "above": "Seit {date} über dem üblichen Bereich",
       "latest": "Letzter Tag",
       "high": "Höchster Tag",
-      "low": "Niedrigster Tag"
+      "low": "Niedrigster Tag",
+      "name": "{noun} pro Tag",
+      "firstWeek": "{value} in der ersten Woche · aus {source}",
+      "from": "Aus {source}"
     },
     "noted": {
-      "label": "Vermerkt, nicht gehandelt",
-      "title": "Was ich gesagt hätte",
+      "title": "Was Lex bemerkt, aber während der Beobachtung nicht angerührt hat",
       "empty": "Noch nichts.",
-      "day": "Tag {day}"
-    },
-    "when": {
-      "label": "Wenn die Beobachtung endet",
-      "link": "So arbeite ich",
-      "ends": "Die Beobachtung endet. Der nächste Bericht wertet alles aus, was sie gesammelt hat.",
-      "after": "danach",
-      "afterText": "Vorschläge, die Sie freigeben, können ausgeführt werden. Die Beobachtung hält sie nicht mehr zurück.",
-      "always": "immer",
-      "alwaysText": "Nichts wird ausgeführt, bevor Sie es freigeben."
+      "sub": "Nach diesen Wochen werden solche Dinge zu Vorschlägen, zu denen Sie Ja oder Nein sagen können.",
+      "how": "Wie Lex darauf kam"
     },
     "activity": {
-      "label": "Aktivität",
+      "label": "Alles, was Lex gelesen und geprüft hat, Tag für Tag",
       "empty": "Noch nichts. Die erste wöchentliche Momentaufnahme erscheint hier.",
       "more": "{count, plural, one {# weiteren zeigen} other {# weitere zeigen}}"
     },
     "rules": {
-      "label": "Was die Beobachtung unterbrechen würde",
+      "label": "Was Lex dazu bringen würde, die Beobachtung vorzeitig zu beenden",
       "checked": "Täglich geprüft",
-      "notChecked": "Noch nicht geprüft"
+      "notChecked": "Noch nicht geprüft",
+      "how": "Möchten Sie ändern, wie lange Lex beobachtet? <a>So arbeitet Lex</a>"
     },
     "modules": {
       "label": "Module",
@@ -1323,15 +1313,12 @@
       "link": "So arbeite ich"
     },
     "title": {
-      "complete": "Tag {of} von {of}. Die Beobachtung ist abgeschlossen.",
-      "untouched": "Tag {day} von {of}. Nichts eigenmächtig angefasst.",
-      "changes": "{count, plural, one {Tag {day} von {of}. # Änderung vorgenommen, jede freigegeben.} other {Tag {day} von {of}. # Änderungen vorgenommen, jede freigegeben.}}"
+      "learning": "Lex lernt Ihr Unternehmen kennen: Tag {day} von {of}",
+      "learned": "Lex hat Ihr Unternehmen kennengelernt"
     },
     "notes": {
-      "readingEnds": "{count, plural, one {Täglich wird # Verbindung gelesen · Beobachtung endet {date}} other {Täglich werden # Verbindungen gelesen · Beobachtung endet {date}}}",
-      "readingEnded": "{count, plural, one {Täglich wird # Verbindung gelesen · Beobachtung endete {date}} other {Täglich werden # Verbindungen gelesen · Beobachtung endete {date}}}",
-      "noneEnds": "Keine Verbindung wird gelesen · <a>Verbindungen</a> · Beobachtung endet {date}",
-      "noneEnded": "Keine Verbindung wird gelesen · <a>Verbindungen</a> · Beobachtung endete {date}"
+      "none": "Noch wird keine Verbindung gelesen, Lex hat also nichts zu beobachten. <a>Verbindungen</a>",
+      "changes": "{count, plural, one {Bisher # Änderung, jede mit Ihrem Ja.} other {Bisher # Änderungen, jede mit Ihrem Ja.}}"
     },
     "alerts": {
       "label": "Handy-Benachrichtigungen",
@@ -1362,7 +1349,20 @@
       "ourSide": "bei uns ist etwas schiefgelaufen"
     },
     "moved": "Die Wochenübersicht, die Hinweise aufs Telefon und die Modulschalter sind in den Einstellungen.",
-    "movedLink": "Hinweise und Module"
+    "movedLink": "Hinweise und Module",
+    "lede": "In den ersten Wochen beobachtet Lex nur Ihre Zahlen, damit es weiß, wie eine normale Woche aussieht, bevor es eine Änderung vorschlägt. An Ihrem Unternehmen ändert sich nichts ohne Ihr Ja.",
+    "plain": {
+      "rose": "{noun}: Anstieg auf {actual} am {date}, {pct} % mehr als sonst an diesem Wochentag, {days, plural, one {an # Tag} other {# Tage in Folge}}.",
+      "fell": "{noun}: Rückgang auf {actual} am {date}, {pct} % weniger als sonst an diesem Wochentag, {days, plural, one {an # Tag} other {# Tage in Folge}}.",
+      "fellInterrupted": "{noun}: Rückgang auf {actual} am {date}, {pct} % weniger als sonst an diesem Wochentag, {days, plural, one {an # Tag} other {# Tage in Folge}}. Auf die Woche gerechnet liegt es {wow} % tiefer, genug, um die Beobachtung vorzeitig zu beenden.",
+      "revenueDrop": "Der Umsatz fällt in einer Woche um mehr als {pct} %",
+      "critical": "In Ihren Angaben an Lex taucht ein ernstes Problem auf",
+      "reopen": "Sie ändern eine der Hauptantworten, auf denen der Bericht beruht"
+    },
+    "goals": {
+      "title": "Ihre Ziele",
+      "from": "Lex beginnt am {date}, den Fortschritt zu beurteilen."
+    }
   },
   "signals": {
     "day": "{day} ({name})",

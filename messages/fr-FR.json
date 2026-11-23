@@ -1199,69 +1199,59 @@
     "kicker": "Analyses · Observation",
     "days": {
       "label": "Jour d’observation {day} sur {of}",
-      "started": "Commencée le {date}",
-      "ends": "Fin de l’observation le {date}"
-    },
-    "tally": {
-      "steady": "{count, plural, one {# stable} many {# stables} other {# stables}}",
-      "drifting": "{count, plural, one {# en dérive} many {# en dérive} other {# en dérive}}",
-      "interrupted": "{count, plural, one {# interrompu} many {# interrompus} other {# interrompus}}",
-      "thin": "{count, plural, one {# insuffisant} many {# insuffisants} other {# insuffisants}}"
+      "span": "Commencé le {start} · se termine le {end}",
+      "spanDone": "Commencé le {start} · terminé le {end}",
+      "after": "<b>Après le {date} :</b> Lex rédige ce qu’il a appris, puis commence à suggérer des changements. Chacun attend votre oui.",
+      "afterDone": "Lex rédige ce qu’il a appris, puis commence à suggérer des changements. Chacun attend votre oui.",
+      "left": "{count, plural, one {Il reste # jour} many {Il reste # jours} other {Il reste # jours}}",
+      "allDone": "{count, plural, one {# jour terminé} many {Les # jours sont terminés} other {Les # jours sont terminés}}"
     },
     "status": {
       "steady": "Stable",
-      "drifting": "En dérive",
-      "interrupted": "Interrompu",
-      "thin": "Insuffisant"
+      "interrupted": "A arrêté l’observation plus tôt",
+      "thin": "Encore trop peu de jours pour juger",
+      "up": "En hausse",
+      "down": "En baisse",
+      "unusual": "Hors de sa plage habituelle"
     },
     "signals": {
-      "label": "Ce que j’observe",
+      "label": "Ce que Lex lit chaque jour",
       "nothing": "Rien à lire pour l’instant",
-      "titleRead": "{count, plural, one {# signal, lu chaque jour} many {# signaux, lus chaque jour} other {# signaux, lus chaque jour}}",
-      "titleNotRead": "{count, plural, one {# signal, pas lu en ce moment} many {# signaux, pas lus en ce moment} other {# signaux, pas lus en ce moment}}",
-      "thinRule": "INSUFFISANT = moins de {min} des {of} derniers jours enregistrés, donc pas encore de plage habituelle pour en juger.",
-      "driftRule": "EN DÉRIVE = hors de sa plage habituelle {days} jours de suite ou plus ; INTERROMPU = au-delà d’une règle qui arrête l’observation.",
+      "thinRule": "Trop peu de jours pour juger : moins de {min} des {of} derniers jours sont enregistrés, Lex ne peut donc pas encore dire ce qui est habituel.",
+      "driftRule": "En hausse ou en baisse : hors de sa plage habituelle {days} jours de suite ou plus. Lex le note et ne change rien pour autant pendant qu’il observe.",
       "connect": "Connectez vos paiements, votre caisse ou votre boutique en ligne, vos statistiques ou vos publicités, et chaque chiffre global de l’entreprise qu’ils contiennent est lu ici chaque jour. <a>Connexions</a>",
       "noDaily": "Vos connexions ne contiennent encore aucun chiffre quotidien. Ils arriveront avec la prochaine synchronisation.",
-      "tableLabel": "Tableau des signaux",
       "col": {
-        "signal": "Signal",
         "from": "Lu depuis",
         "days": "Jours lus",
         "perDay": "Par jour, semaine {week} → aujourd’hui",
-        "status": "Statut",
         "daily": "Jour par jour"
       },
       "below": "Sous sa plage habituelle depuis le {date}",
       "above": "Au-dessus de sa plage habituelle depuis le {date}",
       "latest": "Dernier jour",
       "high": "Jour le plus haut",
-      "low": "Jour le plus bas"
+      "low": "Jour le plus bas",
+      "name": "{noun} par jour",
+      "firstWeek": "{value} la première semaine · depuis {source}",
+      "from": "Depuis {source}"
     },
     "noted": {
-      "label": "Noté, sans suite",
-      "title": "Ce que j’aurais dit",
+      "title": "Ce que Lex a remarqué, sans y toucher pendant qu’il observe",
       "empty": "Rien pour l’instant.",
-      "day": "Jour {day}"
-    },
-    "when": {
-      "label": "À la fin de l’observation",
-      "link": "Ma façon de travailler",
-      "ends": "L’observation se termine. Le prochain rapport lit tout ce qu’elle a recueilli.",
-      "after": "après",
-      "afterText": "Les propositions que vous validez peuvent s’exécuter. L’observation ne les retient plus.",
-      "always": "toujours",
-      "alwaysText": "Rien ne s’exécute tant que vous ne l’avez pas validé."
+      "sub": "Après ces semaines, ce genre de choses devient des suggestions auxquelles vous pouvez dire oui ou non.",
+      "how": "Comment Lex l’a calculé"
     },
     "activity": {
-      "label": "Activité",
+      "label": "Tout ce que Lex a lu et vérifié, jour après jour",
       "empty": "Rien pour l’instant. Le premier instantané hebdomadaire apparaîtra ici.",
       "more": "{count, plural, one {Afficher # de plus} many {Afficher # de plus} other {Afficher # de plus}}"
     },
     "rules": {
-      "label": "Ce qui interromprait l’observation",
+      "label": "Ce qui ferait arrêter l’observation plus tôt",
       "checked": "Vérifié chaque jour",
-      "notChecked": "Pas encore vérifié"
+      "notChecked": "Pas encore vérifié",
+      "how": "Vous voulez changer la durée d’observation de Lex ? <a>Comment Lex travaille</a>"
     },
     "modules": {
       "label": "Modules",
@@ -1323,15 +1313,12 @@
       "link": "Ma façon de travailler"
     },
     "title": {
-      "complete": "Jour {of} sur {of}. L’observation est terminée.",
-      "untouched": "Jour {day} sur {of}. Rien n’a été touché de ma propre initiative.",
-      "changes": "{count, plural, one {Jour {day} sur {of}. # modification effectuée, validée par vous.} many {Jour {day} sur {of}. # modifications effectuées, chacune validée par vous.} other {Jour {day} sur {of}. # modifications effectuées, chacune validée par vous.}}"
+      "learning": "Lex apprend à connaître votre entreprise : jour {day} sur {of}",
+      "learned": "Lex a fini de connaître votre entreprise"
     },
     "notes": {
-      "readingEnds": "{count, plural, one {Lecture de # connexion chaque jour · l’observation se termine le {date}} many {Lecture de # connexions chaque jour · l’observation se termine le {date}} other {Lecture de # connexions chaque jour · l’observation se termine le {date}}}",
-      "readingEnded": "{count, plural, one {Lecture de # connexion chaque jour · l’observation s’est terminée le {date}} many {Lecture de # connexions chaque jour · l’observation s’est terminée le {date}} other {Lecture de # connexions chaque jour · l’observation s’est terminée le {date}}}",
-      "noneEnds": "Aucune connexion n’est lue · <a>Connexions</a> · l’observation se termine le {date}",
-      "noneEnded": "Aucune connexion n’est lue · <a>Connexions</a> · l’observation s’est terminée le {date}"
+      "none": "Aucune connexion n’est encore lue, Lex n’a donc rien à observer. <a>Connexions</a>",
+      "changes": "{count, plural, one {# changement fait jusqu’ici, avec votre oui.} many {# changements faits jusqu’ici, chacun avec votre oui.} other {# changements faits jusqu’ici, chacun avec votre oui.}}"
     },
     "alerts": {
       "label": "Alertes sur téléphone",
@@ -1362,7 +1349,20 @@
       "ourSide": "un problème est survenu de notre côté"
     },
     "moved": "Le résumé hebdomadaire, les alertes sur téléphone et les modules sont dans les Réglages.",
-    "movedLink": "Alertes et modules"
+    "movedLink": "Alertes et modules",
+    "lede": "Pendant ses premières semaines, Lex observe seulement vos chiffres, pour savoir à quoi ressemble une semaine normale avant de suggérer un changement. Rien ne change dans votre entreprise sans votre oui.",
+    "plain": {
+      "rose": "{noun} : hausse à {actual} le {date}, {pct} % de plus que d’habitude pour ce jour de la semaine, {days, plural, one {pendant # jour} many {# jours de suite} other {# jours de suite}}.",
+      "fell": "{noun} : baisse à {actual} le {date}, {pct} % de moins que d’habitude pour ce jour de la semaine, {days, plural, one {pendant # jour} many {# jours de suite} other {# jours de suite}}.",
+      "fellInterrupted": "{noun} : baisse à {actual} le {date}, {pct} % de moins que d’habitude pour ce jour de la semaine, {days, plural, one {pendant # jour} many {# jours de suite} other {# jours de suite}}. Sur la semaine, la baisse est de {wow} %, assez pour arrêter l’observation plus tôt.",
+      "revenueDrop": "Le chiffre d’affaires baisse de plus de {pct} % en une semaine",
+      "critical": "Un problème sérieux apparaît dans ce que vous avez dit à Lex",
+      "reopen": "Vous modifiez une des réponses principales sur lesquelles repose le rapport"
+    },
+    "goals": {
+      "title": "Vos objectifs",
+      "from": "Lex commence à juger les progrès le {date}."
+    }
   },
   "signals": {
     "day": "{day} ({name})",

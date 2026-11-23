@@ -42,7 +42,15 @@ import { TEAM_WHY } from "../team/module";
 import { approvalRate } from "../trust/scorecard";
 import { findingWords } from "../validation/words";
 import { SIGNAL_NOUN, WATCHED_METRICS } from "../watch/watch-view";
-import { logWords, moduleWords, ruleWords, signalNoun, sourceWords } from "../watch/words";
+import {
+  logWords,
+  moduleWords,
+  plainLogWords,
+  plainRuleWords,
+  ruleWords,
+  signalNoun,
+  sourceWords,
+} from "../watch/words";
 import type { AppLocale } from "./locales";
 import { trFor } from "./server-tr";
 import { englishPatterns, matchStored, readStored, storedPattern } from "./stored";
@@ -316,6 +324,62 @@ describe("the watch (watchWords)", () => {
     expect(logWords("Weekly snapshot: 3 changed, 1 new since last week.", de)).not.toContain(
       "changed",
     );
+  });
+
+  it("says a noticed line and a rule plainly (2026-11-23), and leaves other lines alone", () => {
+    const run = describeRun(
+      "revenue.daily",
+      "EUR",
+      {
+        direction: "spike",
+        days: [
+          {
+            date: "2026-11-18",
+            actual: 252_500,
+            pct: 0.49,
+            deviation: 3.2,
+            baseline: {
+              weekday: 3,
+              expected: 170_000,
+              overall_mean: 185_400,
+              weekday_factor: 0.92,
+            },
+          },
+          {
+            date: "2026-11-17",
+            actual: 240_000,
+            pct: 0.41,
+            deviation: 3.1,
+            baseline: {
+              weekday: 2,
+              expected: 170_000,
+              overall_mean: 185_400,
+              weekday_factor: 0.92,
+            },
+          },
+        ],
+      } as never,
+      { change: null } as never,
+      null,
+    );
+    const en = { tr: englishTr("watchWords"), locale: "en" as const };
+    const enPlain = englishTr("watch");
+    const said = plainLogWords(run, en, (k, v) => enPlain(`plain.${k}`, v));
+    expect(said).not.toBeNull();
+    expect(said).toMatch(/^Revenue \(EUR\) went up: .+ more than usual for that day of the week/);
+    expect(said).not.toContain("threshold");
+    const deSaid = plainLogWords(run, de, (k, v) => trFor("de-DE", "watch")(`plain.${k}`, v));
+    expect(deSaid).toContain("Umsatz (EUR)");
+    expect(deSaid).toContain("Anstieg");
+    // Lines that aren't anomalies are shown as they read today.
+    expect(plainLogWords("Read 22 days of Meta Ads ad spend.", en, enPlain)).toBeNull();
+
+    for (const r of thresholdTexts()) {
+      const plain = plainRuleWords(r.text, (k, v) => enPlain(`plain.${k}`, v));
+      expect(plain, r.text).not.toBeNull();
+      expect(plain).not.toBe(r.text);
+    }
+    expect(plainRuleWords("Something else entirely", enPlain)).toBeNull();
   });
 });
 

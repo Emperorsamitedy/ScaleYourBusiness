@@ -1199,69 +1199,59 @@
     "kicker": "Elemzések · Figyelés",
     "days": {
       "label": "Figyelés: {day}. nap / {of}",
-      "started": "Kezdete: {date}",
-      "ends": "A figyelés vége: {date}"
-    },
-    "tally": {
-      "steady": "{count, plural, one {# stabil} other {# stabil}}",
-      "drifting": "{count, plural, one {# eltolódó} other {# eltolódó}}",
-      "interrupted": "{count, plural, one {# megszakítva} other {# megszakítva}}",
-      "thin": "{count, plural, one {# kevés adattal} other {# kevés adattal}}"
+      "span": "Kezdete: {start} · vége: {end}",
+      "spanDone": "Kezdete: {start} · lezárult: {end}",
+      "after": "<b>{date} után:</b> Lex leírja, mit tanult, majd változtatásokat kezd javasolni. Mindegyik az Ön igenjére vár.",
+      "afterDone": "Lex leírja, mit tanult, majd változtatásokat kezd javasolni. Mindegyik az Ön igenjére vár.",
+      "left": "{count, plural, one {Még # nap} other {Még # nap}}",
+      "allDone": "{count, plural, one {Mind a # nap lezárult} other {Mind a # nap lezárult}}"
     },
     "status": {
       "steady": "Stabil",
-      "drifting": "Eltolódó",
-      "interrupted": "Megszakítva",
-      "thin": "Kevés adat"
+      "interrupted": "Idő előtt leállította a figyelést",
+      "thin": "Még túl kevés nap az ítélethez",
+      "up": "Emelkedik",
+      "down": "Csökken",
+      "unusual": "A szokásos sávján kívül"
     },
     "signals": {
-      "label": "Amit figyelek",
+      "label": "Amit Lex minden nap átnéz",
       "nothing": "Még nincs mit olvasni",
-      "titleRead": "{count, plural, one {# jelzés, minden nap beolvasva} other {# jelzés, minden nap beolvasva}}",
-      "titleNotRead": "{count, plural, one {# jelzés, most nincs beolvasva} other {# jelzés, most nincs beolvasva}}",
-      "thinRule": "KEVÉS ADAT = az utolsó {of} napból kevesebb mint {min} van rögzítve, így még nincs szokásos tartomány, amelyhez viszonyítani lehetne.",
-      "driftRule": "ELTOLÓDÓ = legalább {days} egymást követő napon a szokásos tartományán kívül; MEGSZAKÍTVA = átlépett egy szabályt, amely leállítja a figyelést.",
+      "thinRule": "Túl kevés nap az ítélethez: az utolsó {of} napból kevesebb mint {min} van rögzítve, így Lex még nem tudja, mi a szokásos.",
+      "driftRule": "Emelkedik vagy csökken: legalább {days} egymást követő napon a szokásos sávján kívül. Lex feljegyzi, de a figyelés alatt emiatt semmit sem változtat.",
       "connect": "Kapcsolja össze a fizetési, pénztár- vagy webáruház-, elemzési vagy hirdetési fiókjait, és minden vállalkozásszintű számukat itt olvasom be minden nap. <a>Összekapcsolt fiókok</a>",
       "noDaily": "Az összekapcsolt fiókjaiban még nincsenek napi számok. A következő szinkronizálással érkeznek.",
-      "tableLabel": "Jelzések táblázata",
       "col": {
-        "signal": "Jelzés",
         "from": "Forrás",
         "days": "Beolvasott napok",
         "perDay": "Naponta, {week}. hét → most",
-        "status": "Állapot",
         "daily": "Napról napra"
       },
       "below": "{date} óta a szokásos tartománya alatt",
       "above": "{date} óta a szokásos tartománya felett",
       "latest": "Legutóbbi nap",
       "high": "Legmagasabb nap",
-      "low": "Legalacsonyabb nap"
+      "low": "Legalacsonyabb nap",
+      "name": "{noun} naponta",
+      "firstWeek": "{value} az első héten · forrás: {source}",
+      "from": "Forrás: {source}"
     },
     "noted": {
-      "label": "Feljegyezve, nem cselekedtem",
-      "title": "Amit mondtam volna",
+      "title": "Amit Lex észrevett, de a figyelés alatt nem nyúlt hozzá",
       "empty": "Még semmi.",
-      "day": "{day}. nap"
-    },
-    "when": {
-      "label": "Amikor a figyelés véget ér",
-      "link": "Ahogyan dolgozom",
-      "ends": "A figyelés véget ér. A következő jelentés mindent beolvas, amit összegyűjtött.",
-      "after": "utána",
-      "afterText": "Az Ön által jóváhagyott javaslatok futhatnak. A figyelés már nem tartja vissza őket.",
-      "always": "mindig",
-      "alwaysText": "Semmi sem fut az Ön jóváhagyása nélkül."
+      "sub": "Ezek után a hetek után az ilyenekből javaslatok lesznek, amelyekre igent vagy nemet mondhat.",
+      "how": "Hogyan jutott erre Lex"
     },
     "activity": {
-      "label": "Tevékenység",
+      "label": "Minden, amit Lex átnézett és ellenőrzött, napról napra",
       "empty": "Még semmi. Az első heti pillanatkép itt jelenik meg.",
       "more": "{count, plural, one {További # megjelenítése} other {További # megjelenítése}}"
     },
     "rules": {
-      "label": "Mi szakítaná meg a figyelést",
+      "label": "Mi miatt hagyná abba Lex idő előtt a figyelést",
       "checked": "Naponta ellenőrizve",
-      "notChecked": "Még nincs ellenőrizve"
+      "notChecked": "Még nincs ellenőrizve",
+      "how": "Szeretné módosítani, mennyi ideig figyel Lex? <a>Hogyan dolgozik Lex</a>"
     },
     "modules": {
       "label": "Modulok",
@@ -1323,15 +1313,12 @@
       "link": "Ahogyan dolgozom"
     },
     "title": {
-      "complete": "{of}. nap / {of}. A figyelés befejeződött.",
-      "untouched": "{day}. nap / {of}. Magamtól semmihez sem nyúltam.",
-      "changes": "{count, plural, one {{day}. nap / {of}. # változtatás történt, mindegyik jóváhagyva.} other {{day}. nap / {of}. # változtatás történt, mindegyik jóváhagyva.}}"
+      "learning": "Lex megismeri az Ön vállalkozását: {day}. nap / {of}",
+      "learned": "Lex megismerte az Ön vállalkozását"
     },
     "notes": {
-      "readingEnds": "{count, plural, one {# összekapcsolt fiók napi beolvasása · a figyelés vége: {date}} other {# összekapcsolt fiók napi beolvasása · a figyelés vége: {date}}}",
-      "readingEnded": "{count, plural, one {# összekapcsolt fiók napi beolvasása · a figyelés véget ért: {date}} other {# összekapcsolt fiók napi beolvasása · a figyelés véget ért: {date}}}",
-      "noneEnds": "Egyetlen összekapcsolt fiókot sem olvasok be · <a>Összekapcsolt fiókok</a> · a figyelés vége: {date}",
-      "noneEnded": "Egyetlen összekapcsolt fiókot sem olvasok be · <a>Összekapcsolt fiókok</a> · a figyelés véget ért: {date}"
+      "none": "Még egyetlen összekapcsolt fiókot sem olvas Lex, így nincs mit figyelnie. <a>Összekapcsolt fiókok</a>",
+      "changes": "{count, plural, one {Eddig # változtatás történt, mindegyik az Ön igenjével.} other {Eddig # változtatás történt, mindegyik az Ön igenjével.}}"
     },
     "alerts": {
       "label": "Telefonos értesítések",
@@ -1362,7 +1349,20 @@
       "ourSide": "valami hiba történt a mi oldalunkon"
     },
     "moved": "A heti összefoglaló, a telefonos értesítések és a modulkapcsolók a Beállításokban vannak.",
-    "movedLink": "Értesítések és modulok"
+    "movedLink": "Értesítések és modulok",
+    "lede": "Az első hetekben Lex csak figyeli a számait, hogy tudja, milyen egy átlagos hét, mielőtt bármilyen változtatást javasolna. Az Ön vállalkozásában semmi sem változik az Ön igenje nélkül.",
+    "plain": {
+      "rose": "{noun}: emelkedés, {date}: {actual}, {pct}%-kal több a szokásosnál a hét ezen napján, {days, plural, one {# napon át} other {# egymást követő napon}}.",
+      "fell": "{noun}: csökkenés, {date}: {actual}, {pct}%-kal kevesebb a szokásosnál a hét ezen napján, {days, plural, one {# napon át} other {# egymást követő napon}}.",
+      "fellInterrupted": "{noun}: csökkenés, {date}: {actual}, {pct}%-kal kevesebb a szokásosnál a hét ezen napján, {days, plural, one {# napon át} other {# egymást követő napon}}. Heti szinten {wow}%-kal alacsonyabb, ami elég a figyelés idő előtti leállításához.",
+      "revenueDrop": "Az árbevétel egy hét alatt több mint {pct}%-kal esik",
+      "critical": "Komoly probléma derül ki abból, amit Lexnek mondott",
+      "reopen": "Megváltoztatja valamelyik fő választ, amelyre a jelentés épül"
+    },
+    "goals": {
+      "title": "Az Ön céljai",
+      "from": "Lex ettől a naptól kezdi értékelni a haladást: {date}."
+    }
   },
   "signals": {
     "day": "{day} ({name})",

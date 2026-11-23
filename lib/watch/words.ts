@@ -18,7 +18,7 @@
 import { intlMoney, intlNumber, dayMonthYear } from "../i18n/format";
 import type { AppLocale } from "../i18n/locales";
 import { intlTag } from "../i18n/locales";
-import { englishPatterns, plainValue, readStored } from "../i18n/stored";
+import { englishPatterns, matchStored, plainValue, readStored } from "../i18n/stored";
 import type { Tr } from "../i18n/tr";
 import { englishTr } from "../i18n/tr";
 
@@ -172,4 +172,43 @@ function logValue(name: string, raw: string, w: WatchWords): string | number {
     default:
       return plainValue(name, raw);
   }
+}
+
+/* ── said plainly (2026-11-23) ──
+   The owner: pages a client "can't understand easily". Watching's stored
+   lines stay as stored; these read them back into plain words for the
+   screen, in every language, English included. A line that matches none of
+   these is shown as before. */
+
+/** The anomaly lines that carry their working in brackets: said as what happened. */
+const PLAIN_LOG = new Set(["rose", "fell", "fellInterrupted"]);
+
+/**
+ * Pure: a noticed line said plainly ("Website visits jumped: 2,525 on
+ * 18 Nov, 49% above what's usual, 2 days in a row."), through `plain` over
+ * the watch's plain keys; null when the line is not one of PLAIN_LOG's, so
+ * the caller shows it as it reads today. The working stays in the stored line.
+ */
+export function plainLogWords(
+  text: string,
+  w: WatchWords,
+  plain: (key: string, values: Record<string, string | number>) => string,
+): string | null {
+  const m = matchStored(text, "watchWords.log", LOG_SHAPES);
+  if (!m || !PLAIN_LOG.has(m.key)) return null;
+  const values: Record<string, string | number> = {};
+  for (const [name, raw] of Object.entries(m.values)) values[name] = logValue(name, raw, w);
+  return plain(m.key, values);
+}
+
+/** Pure: one of the rules that would stop the watch, said plainly; null when it matches none. */
+export function plainRuleWords(
+  text: string,
+  plain: (key: string, values: Record<string, string | number>) => string,
+): string | null {
+  const m = matchStored(text, "watchWords.rule");
+  if (!m) return null;
+  const values: Record<string, string | number> = {};
+  for (const [name, raw] of Object.entries(m.values)) values[name] = plainValue(name, raw);
+  return plain(m.key, values);
 }
