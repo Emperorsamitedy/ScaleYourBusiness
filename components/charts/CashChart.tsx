@@ -57,21 +57,37 @@ export interface CashChartModel {
   currency: string;
 }
 
+/** Bills falling due, pinned on the axis (Home's money picture, 2026-11-23). */
+export interface CashChartPin {
+  /** Position in the points, fractional: today is 0, the end of week n is n + 1. */
+  at: number;
+  text: string;
+}
+
 export function CashChart({
   model,
   tightWord,
+  bare = false,
+  pins = [],
 }: {
   model: CashChartModel;
   /** The screen's own word for a tight week ("Tight"), so the chart and the page say it one way. */
   tightWord?: string;
+  /**
+   * Home's band (2026-11-23, the owner: less height, less text): the plot
+   * alone and shorter, its card and key left to the page around it, and the
+   * readout shown only while a week is pointed at.
+   */
+  bare?: boolean;
+  pins?: readonly CashChartPin[];
 }) {
   const t = useTranslations("charts.cash");
   const locale = useAppLocale();
   const [at, setAt] = useState<number | null>(null);
   const { ref, width, narrow } = useChartWidth<HTMLDivElement>(720);
   const pts = model.points;
-  const TOP = 14;
-  const H = narrow ? 160 : 220;
+  const TOP = bare && pins.length > 0 ? 26 : 14;
+  const H = bare ? (narrow ? 96 : 124) : narrow ? 160 : 220;
   const AXIS_W = narrow ? 64 : 76;
   const height = TOP + H + 28;
   const plotR = width - AXIS_W;
@@ -126,6 +142,167 @@ export function CashChart({
   // The word sits under its ring, and never runs off either side of the plot.
   const tightAnchor = tightX < 40 ? "start" : tightX > plotR - 40 ? "end" : "middle";
 
+  // A pin's words stand at the top of its line, running right; one whose words
+  // would touch the last one's, or run past the plot, is drawn as its line
+  // alone (its figure is in the cash flow screen's weeks). The words' width
+  // is the mono face's, about 0.62 of its 11 px size a character.
+  let wordsEnd = -Infinity;
+  const drawnPins = pins
+    .filter((q) => q.at >= 0 && q.at <= pts.length - 1)
+    .map((q) => {
+      const px = x(q.at);
+      const end = px + 5 + q.text.length * 6.9;
+      const words = px > wordsEnd + 12 && end <= plotR;
+      if (words) wordsEnd = end;
+      return { ...q, px, words };
+    });
+
+  const plot = (
+    <div className="sc-plot" ref={ref}>
+      <svg
+        className="sc-svg"
+        width={width}
+        height={height}
+        viewBox={`0 0 ${width} ${height}`}
+        role="img"
+        aria-label={model.summary}
+        tabIndex={0}
+        onKeyDown={onKey}
+        onBlur={() => setAt(null)}
+        onPointerMove={(ev) => {
+          const r = ev.currentTarget.getBoundingClientRect();
+          const i = Math.round((ev.clientX - r.left - 6) / step);
+          setAt(i >= 0 && i < pts.length ? i : null);
+        }}
+        onPointerLeave={() => setAt(null)}
+      >
+        {bottom < 0 && top > 0 ? (
+          <line className="grid" x1={0} x2={plotR} y1={y(0)} y2={y(0)} />
+        ) : (
+          <line className="grid" x1={0} x2={plotR} y1={TOP + H} y2={TOP + H} />
+        )}
+        <rect
+          className="cf-under"
+          x={0}
+          y={y(model.line.amount)}
+          width={plotR}
+          height={Math.max(0, TOP + H - y(model.line.amount))}
+        />
+        {drawnPins.map((q) => (
+          <g key={`${q.at}-${q.text}`} className="cf-pin">
+            <line x1={q.px} x2={q.px} y1={TOP} y2={TOP + H} />
+            {q.words && (
+              <text className="tick cf-pin-text" x={q.px + 5} y={TOP - 9}>
+                {q.text}
+              </text>
+            )}
+          </g>
+        ))}
+        <path className="cf-band" d={band} />
+        <path className="cf-high" d={highLine} />
+        <path className="cf-low" d={lowLine} />
+        <line
+          className="cf-line"
+          x1={0}
+          x2={plotR}
+          y1={y(model.line.amount)}
+          y2={y(model.line.amount)}
+        />
+        {sideLabels.map((l) => (
+          <text
+            key={l.key}
+            className={l.line ? "val cf-line-val" : "val"}
+            x={plotR + 8}
+            y={l.y + 4}
+          >
+            {l.text}
+          </text>
+        ))}
+        {at !== null && pts[at] && (
+          <g className="cf-at">
+            <line className="cf-cross" x1={x(at)} x2={x(at)} y1={TOP} y2={TOP + H} />
+            <circle className="cf-dot" cx={x(at)} cy={y(pts[at]!.high)} r={3.5} />
+            <circle className="cf-dot" cx={x(at)} cy={y(pts[at]!.low)} r={3.5} />
+          </g>
+        )}
+        {tight && (
+          <g className="cf-tight">
+            <circle cx={tightX} cy={y(tight.low)} r={5.5} />
+            <text
+              className="pane-label"
+              x={tightX}
+              y={Math.min(TOP + H - 5, y(tight.low) + 21)}
+              textAnchor={tightAnchor}
+            >
+              {tightWord ?? t("tight")}
+            </text>
+          </g>
+        )}
+        {pts.map((q, i) =>
+          i % every === 0 ? (
+            <text
+              key={q.start}
+              className="tick"
+              x={x(i)}
+              y={height - 8}
+              textAnchor={i === 0 ? "start" : "middle"}
+            >
+              {i === 0 ? t("today") : shortDate(q.start, locale)}
+            </text>
+          ) : null,
+        )}
+      </svg>
+    </div>
+  );
+  const readout = p && (
+    <p className="sc-readout" aria-live="polite">
+      <b>{p.label}</b> ·{" "}
+      {p.low === p.high ? (
+        <b>{money(p.low)}</b>
+      ) : (
+        t.rich("readoutRange", {
+          low: money(p.low),
+          high: money(p.high),
+          b: (c) => <b>{c}</b>,
+        })
+      )}
+      {p.low < model.line.amount && <> · {t("underLine")}</>}
+    </p>
+  );
+  const table = (
+    <div className="sr-only">
+      <table>
+        <caption>{model.summary}</caption>
+        <thead>
+          <tr>
+            <th scope="col">{t("when")}</th>
+            <th scope="col">{t("cautiousCol", { currency: model.currency })}</th>
+            <th scope="col">{t("hopefulCol", { currency: model.currency })}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {pts.map((q) => (
+            <tr key={q.start + q.label}>
+              <th scope="row">{q.label}</th>
+              <td>{money(q.low)}</td>
+              <td>{money(q.high)}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+
+  if (bare) {
+    return (
+      <div className="sc cf cf-bare">
+        {plot}
+        {at !== null && readout}
+        {table}
+      </div>
+    );
+  }
+
   return (
     <SheetCard
       className="sc cf"
@@ -153,120 +330,9 @@ export function CashChart({
         </Fold>
       }
     >
-      <div className="sc-plot" ref={ref}>
-        <svg
-          className="sc-svg"
-          width={width}
-          height={height}
-          viewBox={`0 0 ${width} ${height}`}
-          role="img"
-          aria-label={model.summary}
-          tabIndex={0}
-          onKeyDown={onKey}
-          onBlur={() => setAt(null)}
-          onPointerMove={(ev) => {
-            const r = ev.currentTarget.getBoundingClientRect();
-            const i = Math.round((ev.clientX - r.left - 6) / step);
-            setAt(i >= 0 && i < pts.length ? i : null);
-          }}
-          onPointerLeave={() => setAt(null)}
-        >
-          {bottom < 0 && top > 0 ? (
-            <line className="grid" x1={0} x2={plotR} y1={y(0)} y2={y(0)} />
-          ) : (
-            <line className="grid" x1={0} x2={plotR} y1={TOP + H} y2={TOP + H} />
-          )}
-          <path className="cf-band" d={band} />
-          <path className="cf-high" d={highLine} />
-          <path className="cf-low" d={lowLine} />
-          <line
-            className="cf-line"
-            x1={0}
-            x2={plotR}
-            y1={y(model.line.amount)}
-            y2={y(model.line.amount)}
-          />
-          {sideLabels.map((l) => (
-            <text
-              key={l.key}
-              className={l.line ? "val cf-line-val" : "val"}
-              x={plotR + 8}
-              y={l.y + 4}
-            >
-              {l.text}
-            </text>
-          ))}
-          {at !== null && pts[at] && (
-            <g className="cf-at">
-              <line className="cf-cross" x1={x(at)} x2={x(at)} y1={TOP} y2={TOP + H} />
-              <circle className="cf-dot" cx={x(at)} cy={y(pts[at]!.high)} r={3.5} />
-              <circle className="cf-dot" cx={x(at)} cy={y(pts[at]!.low)} r={3.5} />
-            </g>
-          )}
-          {tight && (
-            <g className="cf-tight">
-              <circle cx={tightX} cy={y(tight.low)} r={5.5} />
-              <text
-                className="pane-label"
-                x={tightX}
-                y={Math.min(TOP + H - 5, y(tight.low) + 21)}
-                textAnchor={tightAnchor}
-              >
-                {tightWord ?? t("tight")}
-              </text>
-            </g>
-          )}
-          {pts.map((q, i) =>
-            i % every === 0 ? (
-              <text
-                key={q.start}
-                className="tick"
-                x={x(i)}
-                y={height - 8}
-                textAnchor={i === 0 ? "start" : "middle"}
-              >
-                {i === 0 ? t("today") : shortDate(q.start, locale)}
-              </text>
-            ) : null,
-          )}
-        </svg>
-      </div>
-      {p && (
-        <p className="sc-readout" aria-live="polite">
-          <b>{p.label}</b> ·{" "}
-          {p.low === p.high ? (
-            <b>{money(p.low)}</b>
-          ) : (
-            t.rich("readoutRange", {
-              low: money(p.low),
-              high: money(p.high),
-              b: (c) => <b>{c}</b>,
-            })
-          )}
-          {p.low < model.line.amount && <> · {t("underLine")}</>}
-        </p>
-      )}
-      <div className="sr-only">
-        <table>
-          <caption>{model.summary}</caption>
-          <thead>
-            <tr>
-              <th scope="col">{t("when")}</th>
-              <th scope="col">{t("cautiousCol", { currency: model.currency })}</th>
-              <th scope="col">{t("hopefulCol", { currency: model.currency })}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {pts.map((q) => (
-              <tr key={q.start + q.label}>
-                <th scope="row">{q.label}</th>
-                <td>{money(q.low)}</td>
-                <td>{money(q.high)}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      {plot}
+      {readout}
+      {table}
     </SheetCard>
   );
 }

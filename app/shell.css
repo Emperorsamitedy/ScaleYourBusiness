@@ -62,19 +62,11 @@
   border: 0;
   border-radius: var(--r-s);
   background: transparent;
-  color: var(--desk-ink-2);
+  /* Only the business's name now (2026-11-23): no menu behind it. */
+  color: var(--desk-ink);
   font: inherit;
   font-size: 14px;
-  cursor: pointer;
-  transition:
-    background-color 0.16s var(--sx-ease),
-    color 0.16s var(--sx-ease);
-}
-.sx-biz:hover,
-.sx-biz[aria-expanded="true"],
-.sx-biz[aria-current] {
-  background: var(--raised);
-  color: var(--desk-ink);
+  font-weight: 500;
 }
 .sx-biz-name {
   overflow: hidden;
@@ -350,13 +342,22 @@
 .app-main .wordmark {
   display: none;
 }
-.sx-rail {
+/* The rail and its fold tab: the tab sits on the rail's edge at its middle
+   (the owner, 2026-11-23), outside the part that scrolls, so the wrapper
+   carries the stickiness and the rail scrolls inside it. */
+.sx-rail-wrap {
   position: sticky;
   top: var(--sx-top);
+  z-index: 30;
   align-self: flex-start;
   flex: none;
-  width: var(--sx-rail);
   height: calc(100dvh - var(--sx-top));
+}
+.sx-rail {
+  display: flex;
+  flex-direction: column;
+  width: var(--sx-rail);
+  height: 100%;
   box-sizing: border-box;
   padding: 14px 12px 16px;
   overflow-y: auto;
@@ -389,15 +390,18 @@
   color: var(--desk-ink-2);
 }
 .sx-fold {
+  position: absolute;
+  top: 50%;
+  right: -13px;
+  transform: translateY(-50%);
   display: inline-grid;
   place-items: center;
-  flex: none;
-  width: 30px;
-  height: 30px;
+  width: 26px;
+  height: 48px;
   padding: 0;
   border: 1px solid var(--desk-rule);
-  border-radius: 8px;
-  background: transparent;
+  border-radius: var(--r-ctl);
+  background: var(--masthead);
   color: var(--desk-ink-2);
   cursor: pointer;
   transition:
@@ -407,6 +411,37 @@
 .sx-fold:hover {
   background: var(--raised);
   color: var(--desk-ink);
+}
+.sx-fold:focus-visible {
+  outline: 2px solid var(--desk-ink);
+  outline-offset: 2px;
+}
+/* Under "Your business": switching business, who you are here, and the way out. */
+.sx-rail-foot {
+  margin-top: auto;
+  padding-top: 12px;
+  border-top: 1px solid var(--desk-rule);
+  display: grid;
+  gap: 2px;
+}
+.sx-rail-foot .sx-switch {
+  margin: 0 0 6px;
+}
+.sx-rail-foot .sx-who {
+  margin: 4px 0 2px;
+}
+.sx-rail-foot button.sx-item {
+  width: 100%;
+  border: 0;
+  background: transparent;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.sx-rail-foot .sx-signout {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 .sx-rail-group + .sx-rail-group {
   margin-top: 12px;
@@ -501,10 +536,9 @@
 .rail-folded .sx-item-count {
   display: none;
 }
-.rail-folded .sx-fold {
-  width: 40px;
-  height: 36px;
-  border-radius: var(--r-s);
+.rail-folded .sx-rail-foot .sx-rail-sec,
+.rail-folded .sx-signout span {
+  display: none;
 }
 .rail-folded .sx-item {
   justify-content: center;
@@ -519,7 +553,7 @@
   top: 5px;
   z-index: 60;
   padding: 5px 10px;
-  border-radius: 8px;
+  border-radius: var(--r-ctl);
   background: var(--paper);
   color: var(--sheet-ink);
   font-size: 12.5px;
@@ -551,13 +585,14 @@
    one"). It opens Lex and gives way to the pop-up while that is open. */
 .sx-fab {
   position: fixed;
-  right: 22px;
-  bottom: 22px;
+  right: 18px;
+  top: 50%;
+  translate: 0 -50%;
   z-index: 44;
   display: block;
   padding: 0;
   border: 0;
-  border-radius: 16px;
+  border-radius: var(--r-card);
   background: transparent;
   cursor: pointer;
   filter: drop-shadow(0 8px 18px rgba(0, 0, 0, 0.45));
@@ -575,6 +610,16 @@
 }
 :root:has(.lx-pop) .sx-fab {
   display: none;
+}
+/* The face floats in a lane of its own down the right edge, so it never sits
+   over a link at the end of a row. When Lex is open the lane is Lex's. */
+@media (min-width: 760px) {
+  .app-frame:has(> .sx-fab) .app-main {
+    padding-right: 76px;
+  }
+  :root:has(.lx-pop) .app-frame .app-main {
+    padding-right: 0;
+  }
 }
 /* The last line of a page is not left under the face. A phone has its own
    room under the page, for the bar. */
@@ -793,6 +838,28 @@
   .sx-rail::-webkit-scrollbar {
     display: none;
   }
+  /* The row needs no tab to fold, and its foot is the sheet behind "More". */
+  .sx-rail-wrap {
+    position: static;
+    align-self: stretch;
+    min-width: 0;
+    height: auto;
+  }
+  .sx-fold,
+  .sx-rail-foot {
+    display: none;
+  }
+  /* "Your business" is the sheet behind "More" here, not chips in the row;
+     on Home, where it is the whole rail, there is no row at all. */
+  .sx-rail {
+    flex-direction: row;
+  }
+  .sx-rail-group[data-group="business"] {
+    display: none;
+  }
+  .sx-rail-wrap:not(:has(.sx-rail-group:not([data-group="business"]))) {
+    display: none;
+  }
   .sx-rail-head,
   .sx-rail-sec,
   .sx-more-row {
@@ -863,7 +930,7 @@
     min-height: 52px;
     padding: 4px 2px;
     border: 0;
-    border-radius: 14px;
+    border-radius: var(--r-card);
     background: transparent;
     color: var(--desk-ink-2);
     font: inherit;
@@ -907,8 +974,10 @@
     padding-bottom: 84px;
   }
   .sx-fab {
+    top: auto;
     right: 14px;
     bottom: calc(84px + env(safe-area-inset-bottom));
+    translate: none;
   }
   .sx-fab:hover {
     transform: none;
@@ -951,6 +1020,7 @@
 @media print {
   .sx-top,
   .sx-rail,
+  .sx-fold,
   .sx-bar,
   .sx-fab {
     display: none;

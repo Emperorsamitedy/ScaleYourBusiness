@@ -22,9 +22,20 @@
 // beside the page and keeps the full-screen sheet. Lex's face floats in the
 // same corner of every screen that has no composer of its own
 // (components/nav/AppFrame.tsx).
+//
+// 2026-11-23, the owner: the face floats on the right, and "when clicked on,
+// it will just push the rest of the things to the left, and it will pop up
+// on the right", with the face "in the middle", the question bar "in the
+// middle too", "there shouldn't be much to say here", and the suggested
+// questions not "ordered like that, like a ladder" but passing by. So on a
+// wide screen Lex is docked down the right edge and the page moves over for
+// it (app/chat.css); before anything is asked it holds only the face, the
+// bar and the questions gliding past; once something is asked it is the
+// thread with the bar at its foot. Home no longer has a composer of its
+// own: Lex is the one place to ask.
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import type { ReactNode } from "react";
+import type { KeyboardEvent, ReactNode } from "react";
 import Link from "next/link";
 import { Maximize2, X } from "lucide-react";
 import { useMessages, useTranslations } from "next-intl";
@@ -54,15 +65,26 @@ import {
 import type { LexApi } from "./NavContext";
 import "../../app/chat.css";
 
-/** The composer already on the page, where there is one: Home's, the conversation page's. */
+/** The composer already on the page, where there is one: the conversation page's. */
 export function inlineComposer(path: string): string | null {
-  if (path === "/home" || path.startsWith("/home/")) return "home-ask";
   if (path === "/chat" || path.startsWith("/chat/")) return "ak-input";
   return null;
 }
 
-/** The width from which Lex is a pop-up beside the page; under it, the full-screen sheet. */
-export const LEX_POPUP_FROM = 760;
+/**
+ * The width from which Lex is docked beside the page, which moves over for
+ * it; under it there is no room for both, and Lex is the full-screen sheet.
+ */
+export const LEX_POPUP_FROM = 1100;
+
+/**
+ * Pure: whether Lex opens on its quiet first view (the face, the bar, the
+ * questions passing by): nothing asked yet, no interview running, and
+ * something known to answer from (with nothing known, the interview is offered).
+ */
+export function quietStart(turns: number, interview: boolean, facts: number | null): boolean {
+  return turns === 0 && !interview && !knowsNothing(facts);
+}
 
 /**
  * Pure: whether Lex stays open when the page changes. Beside the page (a
@@ -297,7 +319,47 @@ function LexSheet({ chat, open, onClose, business, facts, interview, onInterview
 }
 
 /**
- * Lex beside the page: a pop-up in the corner of a wide screen. A dialog
+ * The suggested questions on Lex's quiet first view, passing by from right
+ * to left instead of standing in a list (2026-11-23). Each is a button that
+ * asks it. The row is drawn twice so it runs on without a seam; the copy is
+ * hidden from the keyboard and from screen readers. It stops while the
+ * pointer or the cursor is on it, and stands still for anyone who asks
+ * their system for less motion (app/chat.css).
+ */
+function PassingQuestions({ chat }: { chat: Chat }) {
+  const { tr } = useTr("chat");
+  const t = useTranslations("home");
+  const chips = chipQuestions(useMessages());
+  const s = chat.state;
+  if (s.phase !== "ready" || chips.length === 0) return null;
+  const row = (copy: boolean) =>
+    chips.map((q) => (
+      <button
+        key={`${copy ? "b" : "a"}-${q}`}
+        type="button"
+        className="lx-pass-chip"
+        tabIndex={copy ? -1 : undefined}
+        aria-hidden={copy ? true : undefined}
+        aria-disabled={s.busy}
+        onClick={() => {
+          if (!s.busy) void chat.ask(q, tr("sendFailed"));
+        }}
+      >
+        {q}
+      </button>
+    ));
+  return (
+    <div className="lx-pass" role="group" aria-label={t("ask.chips")}>
+      <div className="lx-pass-track">
+        {row(false)}
+        {row(true)}
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Lex beside the page: docked down the right edge of a wide screen. A dialog
  * that is not modal: nothing behind it is covered or held still, Escape
  * closes it while the cursor is inside, and the cursor goes back to what
  * opened it.
@@ -325,18 +387,55 @@ function LexPop({ chat, open, onClose, business, facts, interview, onInterview }
   }, [open]);
 
   if (!open) return null;
+  const turns = s.phase === "ready" ? s.turns.length : 0;
+  const onKeyDown = (e: KeyboardEvent) => {
+    if (e.key === "Escape") {
+      e.stopPropagation();
+      onClose();
+    }
+  };
+  if (s.phase === "ready" && quietStart(turns, interview !== null, facts)) {
+    return (
+      <aside
+        className="lx-pop lx-dock lx-quiet"
+        role="dialog"
+        aria-modal="false"
+        aria-labelledby="lx-pop-title"
+        onKeyDown={onKeyDown}
+      >
+        <div className="lx-quiet-tools">
+          <h2 className="sr-only" id="lx-pop-title">
+            {ASSISTANT}
+          </h2>
+          <Link
+            className="ui-icon-btn"
+            href="/chat"
+            aria-label={tr("openFull")}
+            title={tr("openFull")}
+          >
+            <Maximize2 size={16} strokeWidth={1.75} aria-hidden="true" />
+          </Link>
+          <IconButton label={common("close")} onClick={onClose}>
+            <X size={18} strokeWidth={1.75} aria-hidden="true" />
+          </IconButton>
+        </div>
+        <div className="lx-quiet-mid">
+          <LexFace size={96} state={lexState({ working: busy })} float title={ASSISTANT} />
+          <div className="lx-quiet-ask">
+            <LexComposer chat={chat} business={business} onInterview={onInterview} />
+          </div>
+          <PassingQuestions chat={chat} />
+        </div>
+      </aside>
+    );
+  }
   return (
     <aside
-      className="lx-pop"
+      className="lx-pop lx-dock"
       role="dialog"
       aria-modal="false"
       aria-labelledby="lx-pop-title"
-      onKeyDown={(e) => {
-        if (e.key === "Escape") {
-          e.stopPropagation();
-          onClose();
-        }
-      }}
+      onKeyDown={onKeyDown}
     >
       <header className="lx-pop-head">
         <LexFace size={30} state={lexState({ working: busy })} />

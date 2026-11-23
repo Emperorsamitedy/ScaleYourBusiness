@@ -864,7 +864,8 @@
       "when": "时间",
       "cautiousCol": "谨慎端（{currency}）",
       "hopefulCol": "乐观端（{currency}）",
-      "how": "运作方式"
+      "how": "运作方式",
+      "bills": "待付 {amount}"
     },
     "market": {
       "kicker": "洞察 · 用图表看您的数字",
@@ -10639,6 +10640,22 @@
       "up": "上移{name}",
       "down": "下移{name}",
       "reset": "恢复原样"
+    },
+    "money": {
+      "label": "您的资金",
+      "refused": "您的资金：目前了解的信息还不足以规划未来几周",
+      "clear": "您的资金：未来几周都高于您的缓冲金额",
+      "clearZero": "您的资金：未来几周都高于零",
+      "tightNow": "您的资金：本周吃紧，自 {date} 当周起重新高于您的缓冲金额",
+      "tightNowZero": "您的资金：本周低于零，自 {date} 当周起重新高于零",
+      "tightStays": "您的资金：未来几周都低于您的缓冲金额",
+      "tightStaysZero": "您的资金：未来几周都低于零",
+      "tightLater": "您的资金：{date} 当周吃紧",
+      "tightLaterZero": "您的资金：{date} 当周低于零",
+      "lowest": "最低",
+      "buffer": "缓冲金额",
+      "weeks": "{count} 周",
+      "horizon": "预测范围"
     }
   },
   "alerts": {

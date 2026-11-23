@@ -12,6 +12,7 @@ import {
   placeFor,
   placeGroups,
   placeHasRail,
+  railGroupsFor,
   placeHome,
   railItems,
   railMore,
@@ -162,13 +163,30 @@ describe("app navigation", () => {
     expect(placeGroups("grow", without).map((g) => g.key)).toEqual(["grow"]);
   });
 
-  it("gives a place a rail only when it has more than one screen", () => {
-    expect(placeHasRail("home", GROUPS)).toBe(false); // Home is one screen
+  it("gives a place a rail only when it has more than one screen on it", () => {
+    // 2026-11-23: Home's rail is "Your business", which no longer sits behind a menu.
+    expect(placeHasRail("home", GROUPS)).toBe(true);
     expect(placeHasRail("decisions", GROUPS)).toBe(true);
     expect(placeHasRail("insights", GROUPS)).toBe(true);
     expect(placeHasRail("grow", GROUPS)).toBe(true);
     expect(placeHasRail("business", GROUPS)).toBe(true);
     expect(placeHasRail("decisions", [])).toBe(false);
+  });
+
+  // The owner, 2026-11-23: "all those things that are under the business's name has to be on the left bar".
+  it("puts Your business on Home's rail, and last on every other place's", () => {
+    expect(railGroupsFor("home", GROUPS).map((g) => g.key)).toEqual(["business"]);
+    expect(railGroupsFor("business", GROUPS).map((g) => g.key)).toEqual(["business"]);
+    expect(railGroupsFor("grow", GROUPS).map((g) => g.key)).toEqual([
+      "grow",
+      "customers",
+      "business",
+    ]);
+    expect(railGroupsFor("decisions", GROUPS).at(-1)?.key).toBe("business");
+    // a business that sees none of it has only the place's own screens
+    const without = GROUPS.filter((g) => g.key !== "business");
+    expect(railGroupsFor("insights", without).map((g) => g.key)).toEqual(["insights"]);
+    expect(railGroupsFor("home", without)).toEqual([]);
   });
 
   // The owner: "all tabs having their own icons".

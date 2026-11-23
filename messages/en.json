@@ -864,7 +864,8 @@
       "when": "When",
       "cautiousCol": "Cautious end ({currency})",
       "hopefulCol": "Hopeful end ({currency})",
-      "how": "How this works"
+      "how": "How this works",
+      "bills": "bills {amount}"
     },
     "market": {
       "kicker": "Insights · Your numbers as a chart",
@@ -10639,6 +10640,22 @@
       "up": "Move {name} up",
       "down": "Move {name} down",
       "reset": "Put it back as it was"
+    },
+    "money": {
+      "label": "Your money",
+      "refused": "Your money: not enough is known yet to plan the weeks ahead",
+      "clear": "Your money: over your buffer for the weeks ahead",
+      "clearZero": "Your money: above zero for the weeks ahead",
+      "tightNow": "Your money: tight this week, over your buffer again from the week of {date}",
+      "tightNowZero": "Your money: under zero this week, above it again from the week of {date}",
+      "tightStays": "Your money: under your buffer for the weeks ahead",
+      "tightStaysZero": "Your money: under zero for the weeks ahead",
+      "tightLater": "Your money: tight in the week of {date}",
+      "tightLaterZero": "Your money: under zero in the week of {date}",
+      "lowest": "Lowest",
+      "buffer": "Buffer",
+      "weeks": "{count} w",
+      "horizon": "How far ahead"
     }
   },
   "alerts": {

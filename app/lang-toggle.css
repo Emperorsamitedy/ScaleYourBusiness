@@ -12,14 +12,14 @@
   height: 36px;
   padding: 3px;
   border: 1px solid color-mix(in srgb, currentColor 26%, transparent);
-  border-radius: 999px;
+  border-radius: var(--r-pill);
 }
 .lang-toggle button {
   min-width: 34px;
   height: 28px;
   padding: 0 8px;
   border: 0;
-  border-radius: 999px;
+  border-radius: var(--r-pill);
   background: none;
   color: inherit;
   font: inherit;

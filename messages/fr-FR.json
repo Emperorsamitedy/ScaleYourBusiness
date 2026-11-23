@@ -864,7 +864,8 @@
       "when": "Quand",
       "cautiousCol": "Cas prudent (devise : {currency})",
       "hopefulCol": "Cas optimiste (devise : {currency})",
-      "how": "Comment ça marche"
+      "how": "Comment ça marche",
+      "bills": "échéances {amount}"
     },
     "market": {
       "kicker": "Analyses · Vos chiffres en graphique",
@@ -10639,6 +10640,22 @@
       "up": "Monter {name}",
       "down": "Descendre {name}",
       "reset": "Remettre comme avant"
+    },
+    "money": {
+      "label": "Votre argent",
+      "refused": "Votre argent : pas encore assez d’éléments pour prévoir les semaines à venir",
+      "clear": "Votre argent : au-dessus de votre réserve pour les semaines à venir",
+      "clearZero": "Votre argent : au-dessus de zéro pour les semaines à venir",
+      "tightNow": "Votre argent : tendu cette semaine, de nouveau au-dessus de votre réserve à partir de la semaine du {date}",
+      "tightNowZero": "Votre argent : sous zéro cette semaine, de nouveau au-dessus à partir de la semaine du {date}",
+      "tightStays": "Votre argent : sous votre réserve pour les semaines à venir",
+      "tightStaysZero": "Votre argent : sous zéro pour les semaines à venir",
+      "tightLater": "Votre argent : tendu la semaine du {date}",
+      "tightLaterZero": "Votre argent : sous zéro la semaine du {date}",
+      "lowest": "Point bas",
+      "buffer": "Réserve",
+      "weeks": "{count} sem.",
+      "horizon": "Horizon"
     }
   },
   "alerts": {

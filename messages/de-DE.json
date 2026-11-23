@@ -864,7 +864,8 @@
       "when": "Wann",
       "cautiousCol": "Vorsichtiges Ende ({currency})",
       "hopefulCol": "Zuversichtliches Ende ({currency})",
-      "how": "So funktioniert es"
+      "how": "So funktioniert es",
+      "bills": "Zahlungen {amount}"
     },
     "market": {
       "kicker": "Erkenntnisse · Ihre Zahlen als Diagramm",
@@ -10639,6 +10640,22 @@
       "up": "{name} nach oben",
       "down": "{name} nach unten",
       "reset": "Zurücksetzen"
+    },
+    "money": {
+      "label": "Ihr Geld",
+      "refused": "Ihr Geld: Es ist noch nicht genug bekannt, um die kommenden Wochen zu planen",
+      "clear": "Ihr Geld: über Ihrem Puffer in den kommenden Wochen",
+      "clearZero": "Ihr Geld: über null in den kommenden Wochen",
+      "tightNow": "Ihr Geld: knapp in dieser Woche, ab der Woche vom {date} wieder über Ihrem Puffer",
+      "tightNowZero": "Ihr Geld: unter null in dieser Woche, ab der Woche vom {date} wieder darüber",
+      "tightStays": "Ihr Geld: unter Ihrem Puffer in den kommenden Wochen",
+      "tightStaysZero": "Ihr Geld: unter null in den kommenden Wochen",
+      "tightLater": "Ihr Geld: knapp in der Woche vom {date}",
+      "tightLaterZero": "Ihr Geld: unter null in der Woche vom {date}",
+      "lowest": "Tiefster Stand",
+      "buffer": "Puffer",
+      "weeks": "{count} W",
+      "horizon": "Wie weit voraus"
     }
   },
   "alerts": {

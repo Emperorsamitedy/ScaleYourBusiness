@@ -13,7 +13,7 @@ import {
 
 describe("Home as the owner arranged it", () => {
   it("shows everything in its usual order until something is changed", () => {
-    expect(DEFAULT_LAYOUT.order).toEqual(["cash", "sales", "visitors", "slips"]);
+    expect(DEFAULT_LAYOUT.order).toEqual(["cash", "visitors", "sales", "slips"]);
     expect(isDefault(DEFAULT_LAYOUT)).toBe(true);
     expect(shows(DEFAULT_LAYOUT, "sales")).toBe(true);
     expect(shows(DEFAULT_LAYOUT, "work")).toBe(true);
@@ -29,12 +29,12 @@ describe("Home as the owner arranged it", () => {
   });
 
   it("moves a card one place, and leaves it where it is at either end", () => {
-    const up = moved(DEFAULT_LAYOUT, "sales", -1);
-    expect(up.order).toEqual(["sales", "cash", "visitors", "slips"]);
+    const up = moved(DEFAULT_LAYOUT, "visitors", -1);
+    expect(up.order).toEqual(["visitors", "cash", "sales", "slips"]);
     expect(isDefault(up)).toBe(false);
-    expect(moved(up, "sales", -1)).toBe(up); // already first
+    expect(moved(up, "visitors", -1)).toBe(up); // already first
     expect(moved(DEFAULT_LAYOUT, "slips", 1)).toBe(DEFAULT_LAYOUT); // already last
-    expect(moved(up, "sales", 1).order).toEqual(DEFAULT_LAYOUT.order);
+    expect(moved(up, "visitors", 1).order).toEqual(DEFAULT_LAYOUT.order);
   });
 });
 
@@ -57,7 +57,7 @@ describe("the layout a browser kept", () => {
     const read = readLayout(
       JSON.stringify({ order: ["slips", "weather", "cash", "slips"], hidden: ["weather", "cash"] }),
     );
-    expect(read.order).toEqual(["slips", "cash", "sales", "visitors"]);
+    expect(read.order).toEqual(["slips", "cash", "visitors", "sales"]);
     expect(read.hidden).toEqual(["cash"]);
     // What needs the owner and Lex's status are not blocks: they cannot be hidden.
     expect(readLayout(JSON.stringify({ hidden: ["needs", "status"] })).hidden).toEqual([]);

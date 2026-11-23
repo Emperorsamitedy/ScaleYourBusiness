@@ -594,7 +594,8 @@
       "when": "Cuándo",
       "cautiousCol": "Extremo prudente ({currency})",
       "hopefulCol": "Extremo optimista ({currency})",
-      "how": "Cómo funciona"
+      "how": "Cómo funciona",
+      "bills": "pagos {amount}"
     },
     "market": {
       "kicker": "Análisis · Sus cifras en un gráfico",
@@ -10639,6 +10640,22 @@
       "up": "Subir {name}",
       "down": "Bajar {name}",
       "reset": "Dejarlo como estaba"
+    },
+    "money": {
+      "label": "Su dinero",
+      "refused": "Su dinero: aún no se sabe lo suficiente para planificar las próximas semanas",
+      "clear": "Su dinero: por encima de su colchón en las próximas semanas",
+      "clearZero": "Su dinero: por encima de cero en las próximas semanas",
+      "tightNow": "Su dinero: justo esta semana, de nuevo por encima de su colchón desde la semana del {date}",
+      "tightNowZero": "Su dinero: bajo cero esta semana, de nuevo por encima desde la semana del {date}",
+      "tightStays": "Su dinero: por debajo de su colchón en las próximas semanas",
+      "tightStaysZero": "Su dinero: bajo cero en las próximas semanas",
+      "tightLater": "Su dinero: justo en la semana del {date}",
+      "tightLaterZero": "Su dinero: bajo cero en la semana del {date}",
+      "lowest": "Mínimo",
+      "buffer": "Colchón",
+      "weeks": "{count} sem",
+      "horizon": "Horizonte"
     }
   },
   "alerts": {

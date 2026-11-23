@@ -8,15 +8,24 @@
 // filled the window.
 //
 // So: a bar across the top with the wordmark, the business, and four
-// places (Home, Decisions, Insights, Grow); then search (Ctrl+K), the bell,
-// Ask Lex and the emergency stop, in the same place on every screen. Under
-// it, on the left, a rail that lists only the open place's screens, each
-// with its own icon, and folds to icons and back. The tab strip is gone, so
-// the top and the rail never say the same thing twice. Home has one screen
-// and so has no rail. "Your business" (the fact sheet, connections, the
-// statement, history and the settings) sits behind the business's name. On a
-// phone the four places are a bar along the bottom with "More", and the open
-// place's screens are one row that scrolls sideways.
+// places (Home, Decisions, Insights, Grow); then search (Ctrl+K), the bell
+// and the emergency stop, in the same place on every screen. Under it, on
+// the left, a rail that lists the open place's screens, each with its own
+// icon, and folds to icons and back. The tab strip is gone, so the top and
+// the rail never say the same thing twice.
+//
+// 2026-11-23, the owner: "history, how it works, and all those things that
+// are under the business's name has to be on the left bar", "something that
+// you contract and extend", and "I don't want the drop down menu". So "Your
+// business" (the fact sheet, connections, the statement, history and the
+// settings) is no longer a menu behind the business's name, which is now
+// only its name: it is the rail on Home, listed in full, and the last
+// section of every other place's rail, with switching business and signing
+// out at the rail's foot. The rail folds from a tab at the middle of its
+// edge. Lex is no longer a button in the bar: its face floats at the middle
+// of the right edge and opens Lex beside the page (LexPanel.tsx). On a
+// phone the four places are a bar along the bottom with "More", and the
+// open place's screens are one row that scrolls sideways.
 //
 // The menu's data did not change: GROUPS is still six groups, each screen
 // in exactly one, and PLACES says which groups make a place. The queue and
@@ -35,11 +44,11 @@ import type { ReactNode } from "react";
 import dynamic from "next/dynamic";
 import Link from "next/link";
 import {
-  ChevronDown,
+  ChevronLeft,
+  ChevronRight,
   Ellipsis,
   LogOut,
   Menu as MenuIcon,
-  PanelLeft,
   Repeat,
   Search,
 } from "lucide-react";
@@ -60,7 +69,6 @@ import { LexFace, lexState } from "../brand/LexFace";
 import { Logo } from "../brand/Mark";
 import { LanguageToggle } from "../locale/LanguageToggle";
 import { Kbd } from "../ui/Kbd";
-import { Menu } from "../ui/Menu";
 import { Sheet } from "../ui/Sheet";
 import { ToastProvider, useToast } from "../ui/Toast";
 import { CommandPalette, rememberScreen } from "./CommandPalette";
@@ -430,9 +438,20 @@ export function placeHome(place: PlaceKey, groups: readonly Group[]): string {
   return first ? groupHome(first) : "/home";
 }
 
-/** Pure: whether a place has a rail at all: only with two or more screens. */
+/**
+ * Pure: the groups the rail lists on a place (2026-11-23). Home's one screen
+ * needs no list of its own, so its rail is "Your business"; every other
+ * place lists its own screens, then "Your business" as its last section.
+ */
+export function railGroupsFor(place: PlaceKey, groups: readonly Group[]): Group[] {
+  const business = placeGroups("business", groups);
+  if (place === "home" || place === "business") return business;
+  return [...placeGroups(place, groups), ...business];
+}
+
+/** Pure: whether a place has a rail at all: only with two or more screens on it. */
 export function placeHasRail(place: PlaceKey, groups: readonly Group[]): boolean {
-  return placeGroups(place, groups).reduce((sum, g) => sum + g.items.length, 0) > 1;
+  return railGroupsFor(place, groups).reduce((sum, g) => sum + g.items.length, 0) > 1;
 }
 
 /** How often the menu's counts are read again while the tab is visible. */
@@ -574,6 +593,8 @@ function SignOut({ className, role }: { className: string; role?: "menuitem" | u
       type="button"
       role={role}
       className={className}
+      // Its name on hover and on focus when the rail is folded to icons.
+      data-tip={t("signOut")}
       disabled={busy}
       onClick={async () => {
         setBusy(true);
@@ -659,34 +680,11 @@ function BusinessLinks({
   );
 }
 
-/** "Ask Lex" in the bar: opens the conversation where the owner stands. */
-function AskLex({ path, stopped }: { path: string; stopped: boolean | null }) {
-  const t = useTranslations("nav");
-  const lex = useLex();
-  const busy = useLexBusy();
-  const waiting = useLexWaiting();
-  const here = matches(path, "/chat");
-  return (
-    <button
-      type="button"
-      className="sx-ask"
-      aria-current={here ? "page" : undefined}
-      title={waiting ? t("answered") : undefined}
-      onClick={() => lex.open()}
-    >
-      <span className="sx-ask-face">
-        <LexFace size={24} state={lexState({ stopped: stopped === true, working: busy })} />
-        {waiting && <span className="sx-answer" aria-hidden="true" />}
-      </span>
-      <span className="sx-ask-word">{t("ask")}</span>
-    </button>
-  );
-}
-
 /**
- * Lex's face afloat in the corner (above the bar on a phone), wherever the
- * page has no composer of its own: the second place Lex is always found
- * (L4b). It gives way to the pop-up it opens (app/shell.css).
+ * Lex's face afloat at the middle of the right edge (above the bar on a
+ * phone), wherever the page has no composer of its own: where Lex is always
+ * found (the owner, 2026-11-23: "the icon has to be floating ... on the
+ * right"). It gives way to Lex beside the page, which it opens (app/shell.css).
  */
 function LexFab({ path, stopped }: { path: string; stopped: boolean | null }) {
   const t = useTranslations("nav");
@@ -771,20 +769,26 @@ function ModKey() {
  * of icons whose names show on hover and on focus.
  */
 function Rail({
-  place,
+  title,
   groups,
+  full,
   path,
   counts,
   words,
+  access,
   folded,
   locked,
   onFold,
 }: {
-  place: PlaceKey;
+  /** The rail's name: the place's, or "Your business" on Home. */
+  title: string;
   groups: Group[];
+  /** The groups listed in full, with nothing held behind "more". */
+  full: readonly string[];
   path: string;
   counts: NavCounts | null;
   words: CountWords;
+  access: NavAccess | null;
   folded: boolean;
   /** The screen keeps the rail folded (the queue, the report): no button to unfold it. */
   locked: boolean;
@@ -822,62 +826,118 @@ function Rail({
       </li>
     );
   };
+  const hasBusiness = groups.some((g) => g.key === "business");
+  // A section is named when the rail holds more than one; the place's own
+  // first section is not, when it is the place's only one (its name is the rail's).
+  const own = groups.filter((g) => g.key !== "business").length;
+  const named = (i: number) => groups.length > 1 && (i > 0 || own > 1);
   return (
-    <nav className="sx-rail" aria-label={placeName(t, place)} ref={rail}>
-      <div className="sx-rail-head">
-        <span className="sx-rail-title">{placeName(t, place)}</span>
-        {!locked && (
-          <button
-            type="button"
-            className="sx-fold"
-            aria-pressed={folded}
-            aria-label={folded ? t("rail.unfold") : t("rail.fold")}
-            title={folded ? t("rail.unfold") : t("rail.fold")}
-            onClick={onFold}
-          >
-            <PanelLeft size={16} strokeWidth={1.75} aria-hidden="true" />
-          </button>
-        )}
-      </div>
-      {groups.map((g) => {
-        const more = railMore(g, path);
-        const shown = open[g.key] === true;
-        return (
-          <div key={g.key} className="sx-rail-group">
-            {groups.length > 1 && (
-              <p className="sx-rail-sec">
-                {g.key === "grow" ? t("section.marketing") : t(`group.${g.key as NavGroupKey}`)}
-              </p>
-            )}
-            <ul>
-              {railItems(g, path).map(row)}
-              {more.length > 0 && (
-                <>
-                  <li className="sx-more-row">
-                    <button
-                      type="button"
-                      className="sx-item sx-more"
-                      aria-expanded={shown}
-                      data-tip={shown ? t("rail.fewer") : t("rail.more", { count: more.length })}
-                      onClick={() => setOpen((o) => ({ ...o, [g.key]: !shown }))}
-                    >
-                      <Ellipsis size={18} strokeWidth={1.75} aria-hidden="true" />
-                      <span className="sx-item-label">
-                        {shown ? t("rail.fewer") : t("rail.more", { count: more.length })}
-                      </span>
-                    </button>
-                  </li>
-                  {/* On a phone the row scrolls sideways and nothing is held back. */}
-                  <li className={shown ? "sx-more-items open" : "sx-more-items"}>
-                    <ul>{more.map(row)}</ul>
-                  </li>
-                </>
+    <div className="sx-rail-wrap">
+      <nav className="sx-rail" aria-label={title} ref={rail}>
+        <div className="sx-rail-head">
+          <span className="sx-rail-title">{title}</span>
+        </div>
+        {groups.map((g, i) => {
+          const listed = full.includes(g.key) ? g.items : railItems(g, path);
+          const more = full.includes(g.key) ? [] : railMore(g, path);
+          const shown = open[g.key] === true;
+          return (
+            <div key={g.key} className="sx-rail-group" data-group={g.key}>
+              {named(i) && (
+                <p className="sx-rail-sec">
+                  {g.key === "grow" ? t("section.marketing") : t(`group.${g.key as NavGroupKey}`)}
+                </p>
               )}
-            </ul>
-          </div>
-        );
-      })}
-    </nav>
+              <ul>
+                {listed.map(row)}
+                {more.length > 0 && (
+                  <>
+                    <li className="sx-more-row">
+                      <button
+                        type="button"
+                        className="sx-item sx-more"
+                        aria-expanded={shown}
+                        data-tip={shown ? t("rail.fewer") : t("rail.more", { count: more.length })}
+                        onClick={() => setOpen((o) => ({ ...o, [g.key]: !shown }))}
+                      >
+                        <Ellipsis size={18} strokeWidth={1.75} aria-hidden="true" />
+                        <span className="sx-item-label">
+                          {shown ? t("rail.fewer") : t("rail.more", { count: more.length })}
+                        </span>
+                      </button>
+                    </li>
+                    {/* On a phone the row scrolls sideways and nothing is held back. */}
+                    <li className={shown ? "sx-more-items open" : "sx-more-items"}>
+                      <ul>{more.map(row)}</ul>
+                    </li>
+                  </>
+                )}
+              </ul>
+            </div>
+          );
+        })}
+        {hasBusiness && <RailFoot access={access} />}
+      </nav>
+      {/* The fold sits on the rail's edge, at its middle, outside the part that scrolls. */}
+      {!locked && (
+        <button
+          type="button"
+          className="sx-fold"
+          aria-pressed={folded}
+          aria-label={folded ? t("rail.unfold") : t("rail.fold")}
+          title={folded ? t("rail.unfold") : t("rail.fold")}
+          onClick={onFold}
+        >
+          {folded ? (
+            <ChevronRight size={15} strokeWidth={2} aria-hidden="true" />
+          ) : (
+            <ChevronLeft size={15} strokeWidth={2} aria-hidden="true" />
+          )}
+        </button>
+      )}
+    </div>
+  );
+}
+
+/**
+ * The rail's foot, under "Your business": the other businesses this person
+ * belongs to (idea 52, plain form posts to /api/auth/switch, names only),
+ * who they are here, and the way out. What used to close the business menu.
+ */
+function RailFoot({ access }: { access: NavAccess | null }) {
+  const t = useTranslations();
+  const others =
+    access && access.businesses.length > 1 ? access.businesses.filter((b) => !b.current) : [];
+  const who = roleKey(access);
+  return (
+    <div className="sx-rail-foot">
+      {others.length > 0 && (
+        <form method="post" action="/api/auth/switch" className="sx-switch">
+          <p className="sx-rail-sec">{t("nav.switchBusiness")}</p>
+          <ul>
+            {others.map((b) => {
+              const name = b.name ?? t("common.businessUnnamed");
+              return (
+                <li key={b.account_id}>
+                  <button
+                    type="submit"
+                    name="account_id"
+                    value={b.account_id}
+                    className="sx-item"
+                    data-tip={name}
+                  >
+                    <Repeat size={18} strokeWidth={1.75} aria-hidden="true" />
+                    <span className="sx-item-label">{name}</span>
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        </form>
+      )}
+      {who && <p className="sx-who sx-rail-sec">{t(`nav.role.${who}`)}</p>}
+      <SignOut className="sx-item sx-signout" />
+    </div>
   );
 }
 
@@ -920,11 +980,11 @@ export function AppFrame({ children }: { children: ReactNode }) {
   }
 
   const place = placeFor(path);
-  const railGroups = place ? placeGroups(place, groups) : [];
-  const hasRail = place !== null && placeHasRail(place, groups);
+  const business = placeGroups("business", groups)[0] ?? null;
+  const railGroups = place ? railGroupsFor(place, groups) : [];
+  const hasRail = railGroups.reduce((sum, g) => sum + g.items.length, 0) > 1;
   const locked = foldsRail(path);
   const folded = locked || foldedByOwner;
-  const business = placeGroups("business", groups)[0] ?? null;
   const name = counts?.business ?? t("group.business");
   const pending = counts && counts.pending > 0 ? String(counts.pending) : null;
   const frame = [
@@ -952,30 +1012,10 @@ export function AppFrame({ children }: { children: ReactNode }) {
                     <Logo onDark />
                   </Link>
                   <span className="sx-sep" aria-hidden="true" />
-                  <Menu
-                    label={t("group.business")}
-                    trigger={(props) => (
-                      <button
-                        type="button"
-                        {...props}
-                        className="sx-biz"
-                        aria-current={place === "business" ? "page" : undefined}
-                      >
-                        <span className="sx-biz-name">{name}</span>
-                        <ChevronDown size={15} strokeWidth={1.75} aria-hidden="true" />
-                      </button>
-                    )}
-                  >
-                    <p className="ui-menu-label">{t("group.business")}</p>
-                    <BusinessLinks
-                      as="menu"
-                      group={business}
-                      path={path}
-                      counts={counts}
-                      words={words}
-                      access={access}
-                    />
-                  </Menu>
+                  {/* Only the name: what sat behind it is on the rail (2026-11-23). */}
+                  <span className="sx-biz">
+                    <span className="sx-biz-name">{name}</span>
+                  </span>
                   <nav className="sx-places" aria-label={t("label")}>
                     {PLACES.filter((p) => p.top).map((p) => (
                       <Link
@@ -1013,18 +1053,19 @@ export function AppFrame({ children }: { children: ReactNode }) {
                   {/* The owner, 2026-11-20: a button in the top right corner between Hungarian and English. */}
                   <LanguageToggle className="sx-lang" />
                   <Notifications counts={counts} />
-                  <AskLex path={path} stopped={stopped} />
                   {stripStop(path) && <EmergencyStop variant="masthead" />}
                 </header>
                 <RouteProgress path={path} />
                 <div className="sx-body">
                   {hasRail && place && (
                     <Rail
-                      place={place}
+                      title={place === "home" ? t("group.business") : placeName(t, place)}
                       groups={railGroups}
+                      full={place === "home" || place === "business" ? ["business"] : []}
                       path={path}
                       counts={counts}
                       words={words}
+                      access={access}
                       folded={folded}
                       locked={locked}
                       onFold={toggleFold}

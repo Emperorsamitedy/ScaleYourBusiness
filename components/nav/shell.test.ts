@@ -4,7 +4,7 @@
 import { readFileSync } from "node:fs";
 import { describe, expect, it } from "vitest";
 import { chipQuestions } from "../chat/ChatScreen";
-import { arrivedUnseen, inlineComposer, staysOpen } from "./LexPanel";
+import { arrivedUnseen, inlineComposer, quietStart, staysOpen } from "./LexPanel";
 import { leavesPage } from "./RouteProgress";
 import { BAR_FIT_STEPS, firstFit } from "./useBarFit";
 
@@ -27,12 +27,12 @@ describe("the loading bar", () => {
 });
 
 describe("where Ask Lex lands", () => {
-  it("uses the page's own composer on Home and on the conversation page", () => {
-    expect(inlineComposer("/home")).toBe("home-ask");
+  it("uses the page's own composer on the conversation page", () => {
     expect(inlineComposer("/chat")).toBe("ak-input");
   });
 
-  it("opens the sheet everywhere else", () => {
+  it("opens Lex beside the page everywhere else, Home too (2026-11-23)", () => {
+    expect(inlineComposer("/home")).toBeNull();
     expect(inlineComposer("/watch")).toBeNull();
     expect(inlineComposer("/homework")).toBeNull(); // a path that only starts alike
     expect(inlineComposer("/settings/team")).toBeNull();
@@ -45,10 +45,25 @@ describe("Lex across screens (L4b)", () => {
     expect(staysOpen("/settings/team", true)).toBe(true);
   });
 
+  it("stays open on Home, which no longer holds a composer of its own", () => {
+    expect(staysOpen("/home", true)).toBe(true);
+  });
+
   it("closes on a page that holds the conversation, and on a phone, where it covers the page", () => {
-    expect(staysOpen("/home", true)).toBe(false);
     expect(staysOpen("/chat", true)).toBe(false);
     expect(staysOpen("/cash", false)).toBe(false);
+  });
+});
+
+describe("Lex's quiet first view (2026-11-23)", () => {
+  it("is the face, the bar and the passing questions before anything is asked", () => {
+    expect(quietStart(0, false, 40)).toBe(true);
+  });
+
+  it("gives way to the thread, the interview, and the offer to start one", () => {
+    expect(quietStart(2, false, 40)).toBe(false); // something was asked
+    expect(quietStart(0, true, 40)).toBe(false); // the interview is running
+    expect(quietStart(0, false, 0)).toBe(false); // nothing known: the interview is offered
   });
 });
 

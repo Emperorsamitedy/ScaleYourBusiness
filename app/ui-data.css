@@ -107,7 +107,7 @@
    desk and the open tab a paper pill inside it. */
 :root:has(.app-frame, .q-app, .rq, .ix) .ui-tabs {
   padding: 4px;
-  border-radius: 14px;
+  border-radius: var(--r-card);
   background: var(--masthead);
 }
 :root:has(.app-frame, .q-app, .rq, .ix) .ui-tab {

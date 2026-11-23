@@ -1591,7 +1591,7 @@ button.ix-tile:disabled {
 .ix-bank-fold {
   padding: 11px 18px;
   border: 0;
-  border-radius: 14px;
+  border-radius: var(--r-card);
   background: var(--masthead);
   font-size: 13.5px;
   transition: background-color 0.16s var(--ease-out);

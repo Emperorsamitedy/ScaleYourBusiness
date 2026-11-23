@@ -10,7 +10,8 @@
 // team arranges their own.
 
 /** The cards of "Your numbers today", in the order they come by default. */
-export const NUMBERS_BLOCKS = ["cash", "sales", "visitors", "slips"] as const;
+// 2026-11-23: the live line next, the size of the sales card (the owner: "everything has to move up").
+export const NUMBERS_BLOCKS = ["cash", "visitors", "sales", "slips"] as const;
 export type NumbersBlock = (typeof NUMBERS_BLOCKS)[number];
 
 /** Everything that can be hidden: the numbers' cards, and Lex's activity with what he made. */

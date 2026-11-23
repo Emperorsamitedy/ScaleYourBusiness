@@ -6,10 +6,12 @@
 // interactive"; docs/DASHBOARD-OVERHAUL.md section C), and laid out again on
 // 2026-11-18 from the mockups he picked ("a mix between A and B").
 //
-// Lex speaks first, in the middle of the page: the face, what needs the
-// owner today as the headline, the box to ask with three questions one
-// press away, and the latest exchange with the cards it carried. Under it,
-// three columns, each with its name: what needs the owner (answered in
+// 2026-11-23, the owner: Lex in the middle "holding all the space" pushed
+// "everything that looks serious" below the fold. So Lex left the page: its
+// face floats on the right edge and opens beside the page (AppFrame,
+// LexPanel), and the conversation lives there. The first thing on Home is the
+// money picture (MoneyBand: the weeks ahead against the line the owner keeps).
+// Under it, three columns, each with its name: what needs the owner (answered in
 // place or opened for a full read); the numbers (two readings, each a
 // button, the sales lines with a period switch and, folded, where the money
 // slips); and Lex right now (the status card with "Read now", then the
@@ -35,22 +37,15 @@ import type { ReactNode } from "react";
 import { useTranslations } from "next-intl";
 import type { NavCounts } from "../../app/api/nav/route";
 import type { ChartsBundle } from "../../lib/charts/load";
-import { ASSISTANT } from "../../lib/core/assistant";
-import { businessNoun } from "../../lib/core/business-noun";
 import { minorUnitExponent } from "../../lib/core/money";
 import { dayMoney, shortDate, volumeWord } from "../../lib/charts/model";
 import { niceTicks } from "../../lib/charts/ticks";
 import { rangeWhole } from "../../lib/charts/opportunity";
 import type { ComponentKey, PricedComponent } from "../../lib/charts/opportunity";
 import type { LiveVisitors as LiveReading } from "../../lib/live/visitors";
-import { LexFace, lexState } from "../brand/LexFace";
+import { lexState } from "../brand/LexFace";
 import { HBars, Trend } from "../charts/Viz";
 import type { BarRow } from "../charts/Viz";
-import { ChatBusy, ChatTurn } from "../chat/ChatTurn";
-import { TryAgain } from "../chat/TryAgain";
-import { Composer } from "../chat/Composer";
-import { latestExchange, latestQuestion } from "../chat/chat-view";
-import { asksForInterview } from "../chat/interview-model";
 import { useChat } from "../chat/useChat";
 import { useLexBusy, useNavRefresh } from "../nav/NavContext";
 import { ReviewSheet } from "../proposals/ReviewSheet";
@@ -71,9 +66,8 @@ import type { NumbersBlock } from "./home-layout";
 import { shows } from "./home-layout";
 import type { LogLike } from "./activity-model";
 import { mergeFeed } from "./activity-model";
-import { DecisionCard } from "./DecisionCard";
 import { FailedRead } from "./FailedRead";
-import { longDay, moneyRange, shortDay, whole } from "./format";
+import { shortDay, whole } from "./format";
 import type { CashLike, PendingLike } from "./home-model";
 import {
   cashReading,
@@ -85,6 +79,8 @@ import {
   waitingCount,
 } from "./home-model";
 import { LiveVisitors } from "./LiveVisitors";
+import { MoneyBand } from "./MoneyBand";
+import type { MoneyView } from "./MoneyBand";
 import { MadeList } from "./MadeList";
 import { madeRows } from "./made-model";
 import { NeedsList } from "./NeedsList";
@@ -160,12 +156,11 @@ export function HomeScreen() {
 
   const [navRead, reloadNav] = useRead<NavCounts>("/api/nav", { every: EVERY.counts });
   const [queueRead, reloadQueue] = useRead<Queue>("/api/proposals", { every: EVERY.queue });
-  const [cashRead, reloadCash] = useRead<CashLike>("/api/cash");
+  const [cashRead, reloadCash] = useRead<CashLike & MoneyView>("/api/cash");
   const [chartsRead, reloadCharts] = useRead<ChartsBundle>("/api/charts");
   const [watchRead, reloadWatch] = useRead<{ log?: LogLike[] }>("/api/watch", {
     every: EVERY.feed,
   });
-  const chat = useChat();
 
   const [why, setWhy] = useState<WhyContent | null>(null);
   // What Home shows and in what order, as this browser keeps it.
@@ -226,7 +221,6 @@ export function HomeScreen() {
   const ranked = rankPending(queue?.pending ?? []);
   const waiting = waitingCount(navRead, queueRead);
   const count = waiting.state === "known" ? waiting.count : null;
-  const top = ranked[0]?.range ?? null;
   const cash = cashReading(cashView);
   // Unknown until the menu has been read: only a counted "no" shows the sign-in note.
   const signedIn = nav ? nav.access?.signed_in === true : null;
@@ -293,27 +287,16 @@ export function HomeScreen() {
     refreshNav();
   }, [holdFocus, reloadQueue, reloadNav, reloadWatch, refreshNav]);
 
-  // The conversation: the latest exchange under the composer, and the
-  // proposal a request just became, answered or opened right there.
-  const turns = chat.state.phase === "ready" ? chat.state.turns : [];
-  const exchange = latestExchange(turns);
-  const question = latestQuestion(turns);
-  const busy = chat.state.phase === "ready" && chat.state.busy;
   // The face says what Lex is doing: grey when everything is stopped, cobalt while it answers.
   const lexBusy = useLexBusy();
-  const face = lexState({ stopped: halted, working: busy || lexBusy });
+  const face = lexState({ stopped: halted, working: lexBusy });
+  // A request asked of Lex (beside the page now) that became a proposal: the
+  // queue is read again so it shows under "Needs you".
+  const chat = useChat();
   const justProposed = chat.state.phase === "ready" ? chat.state.lastProposal : null;
   useEffect(() => {
     if (justProposed) reloadQueue();
   }, [justProposed, reloadQueue]);
-  const proposed = justProposed
-    ? (queue?.pending.find((p) => p.id === justProposed) ?? null)
-    : null;
-  const proposedRange = proposed ? ranked.find((r) => r.proposal.id === proposed.id)?.range : null;
-  // "your salon", "your gym" from the business_type answer in English; "your business" elsewhere.
-  const noun = locale === "en" ? businessNoun(nav?.business_type ?? null) : chatTr("yourBusiness");
-  const now = Date.now();
-  const failedLine = chatTr("sendFailed");
 
   // "Your sales": the window the owner chose, as far as the measured days reach.
   const market = charts?.market.status === "drawn" ? charts.market : null;
@@ -571,158 +554,25 @@ export function HomeScreen() {
   if (out) return null;
   return (
     <main className="screen home hx">
-      <header className="hx-hero">
-        <LexFace size={92} state={face} float title={ASSISTANT} />
-        <p className="hx-kicker">
-          <b>{ASSISTANT}</b> · {t("kicker", { date: longDay(new Date(), locale) })}
-        </p>
-        <h1 className="home-title">
-          {fresh
-            ? t("fresh.title")
-            : count !== null
-              ? t("title", { count })
-              : waiting.state === "unread"
-                ? t("unread.title")
-                : t("reading")}
-        </h1>
-        {fresh && (
-          <>
-            <p className="home-ans">{t("fresh.lede")}</p>
-            <p className="home-fresh-acts">
-              <Link className="home-btn home-btn-desk home-btn-first" href="/chat?interview=1">
-                {chatTr("interview.withLex")}
-              </Link>
-              <Link className="home-btn home-btn-desk" href="/intake">
-                {t("fresh.start")}
-              </Link>
-            </p>
-          </>
-        )}
-        {top && !fresh && (
-          <p className="home-ans">{t("biggest", { range: moneyRange(top, locale) })}</p>
-        )}
-        {waiting.state === "unread" && (
-          <button
-            type="button"
-            className="home-btn home-btn-desk"
-            onClick={() => {
-              reloadNav();
-              reloadQueue();
-            }}
-          >
-            {t("failed.retry")}
-          </button>
-        )}
-
-        <section className="hx-ask" aria-label={t("ask.label")}>
-          {chat.state.phase === "ready" ? (
-            <>
-              <Composer
-                id="home-ask"
-                label={chatTr("composer.label", { noun })}
-                draft={chat.state.draft}
-                busy={chat.state.busy}
-                setDraft={chat.setDraft}
-                draftRef={chat.draftRef}
-                onSend={() => {
-                  // Words that plainly ask for the interview start it, in the
-                  // conversation, with no model (interview-model asksForInterview).
-                  if (chat.state.phase === "ready" && asksForInterview(chat.state.draft)) {
-                    chat.setDraft("");
-                    router.push("/chat?interview=1");
-                    return;
-                  }
-                  void chat.send(failedLine);
-                }}
-                tr={chatTr}
-                compact
-              />
-              {/* With nothing told yet there is nothing to answer these from (L8). */}
-              <div className="home-chips" role="group" aria-label={t("ask.chips")} hidden={fresh}>
-                {(["today", "sales", "first"] as const).map((chip) => (
-                  <button
-                    key={chip}
-                    type="button"
-                    className="home-chip"
-                    // Not `disabled`: a chip pressed from the keyboard keeps the focus while Lex writes.
-                    aria-disabled={busy}
-                    onClick={() => {
-                      if (!busy) void chat.ask(t(`ask.chip.${chip}`), failedLine);
-                    }}
-                  >
-                    {t(`ask.chip.${chip}`)}
-                  </button>
-                ))}
-              </div>
-              {(exchange.length > 0 || busy) && (
-                <div className="home-thread" aria-live="polite">
-                  {question && (
-                    <p className="hx-thread-head">
-                      <span>{question}</span>
-                      <Link href="/chat" className="home-link">
-                        {chatTr("earlier")}
-                      </Link>
-                    </p>
-                  )}
-                  {exchange.map((turn, i) => (
-                    <ChatTurn
-                      key={turn.id}
-                      turn={turn}
-                      cards={chat.state.phase === "ready" ? chat.state.cards : []}
-                      onChanged={chat.onChanged}
-                      now={now}
-                      locale={locale}
-                      tr={chatTr}
-                      onInterview={() => router.push("/chat?interview=1")}
-                    >
-                      {i === exchange.length - 1 && turn.role === "system" && justProposed && (
-                        <>
-                          <p className="ak-queued inset">{chatTr("queued.text")}</p>
-                          {proposed ? (
-                            <DecisionCard
-                              proposal={proposed}
-                              range={proposedRange ? moneyRange(proposedRange, locale) : null}
-                              by={
-                                proposed.expires_at
-                                  ? t("decisions.by", {
-                                      date: shortDay(proposed.expires_at, locale),
-                                    })
-                                  : null
-                              }
-                              signedIn={signedIn}
-                              onDecided={afterAnswer}
-                              onReview={openReview}
-                            />
-                          ) : (
-                            <p className="ak-queued-link">
-                              <Link href="/proposals">{chatTr("queued.link")}</Link>
-                            </p>
-                          )}
-                        </>
-                      )}
-                      <TryAgain
-                        chat={chat}
-                        turn={turn}
-                        last={i === exchange.length - 1}
-                        tr={chatTr}
-                      />
-                    </ChatTurn>
-                  ))}
-                  {busy && <ChatBusy text={chatTr("thinking")} />}
-                </div>
-              )}
-            </>
-          ) : chat.state.phase === "loading" ? (
-            <div className="hx-ask-wait">
-              <Skeleton lines={1} />
-            </div>
-          ) : chat.state.phase === "signedout" ? (
-            <p className="home-empty">{chatTr("signedOut.copy")}</p>
-          ) : (
-            <FailedRead onRetry={() => void chat.reload()} />
-          )}
+      {/* 2026-11-23: the money picture first; Lex is beside the page, not on it. */}
+      {fresh ? (
+        <section className="hm-fresh" aria-labelledby="hm-fresh-title">
+          <h1 className="home-title" id="hm-fresh-title">
+            {t("fresh.title")}
+          </h1>
+          <p className="home-ans">{t("fresh.lede")}</p>
+          <p className="home-fresh-acts">
+            <Link className="home-btn home-btn-desk home-btn-first" href="/chat?interview=1">
+              {chatTr("interview.withLex")}
+            </Link>
+            <Link className="home-btn home-btn-desk" href="/intake">
+              {t("fresh.start")}
+            </Link>
+          </p>
         </section>
-      </header>
+      ) : (
+        <MoneyBand read={cashRead} onRetry={reloadCash} />
+      )}
 
       <div className={numbersOn ? "hx-cols" : "hx-cols hx-two"}>
         <section className="hx-col" aria-labelledby="home-needs-title">

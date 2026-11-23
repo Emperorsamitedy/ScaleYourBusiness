@@ -401,34 +401,202 @@
    wide screen, beside the page and never over it. It sits under the app's
    modal layers (a side sheet, the palette), which take the screen when they
    open, and above everything on the page. A phone keeps the full sheet. */
+/* 2026-11-23, the owner: Lex "will just push the rest of the things to the
+   left, and it will pop up on the right". Docked down the right edge under
+   the bar, full height; the page beside it moves over by its width. */
+:root {
+  --lx-dock: 380px;
+}
 .lx-pop {
   position: fixed;
-  right: 22px;
-  bottom: 22px;
+  top: var(--sx-top, 60px);
+  right: 0;
+  bottom: 0;
   z-index: 48;
   display: flex;
   flex-direction: column;
-  width: min(410px, calc(100vw - 44px));
-  height: min(640px, calc(100dvh - 104px));
+  width: var(--lx-dock);
   overflow: hidden;
-  border: 1px solid var(--rule);
-  border-radius: var(--r-card, 0);
+  border-left: 1px solid var(--desk-rule, var(--rule));
   background: var(--paper);
   color: var(--sheet-ink);
-  box-shadow: 0 22px 60px rgba(0, 0, 0, 0.5);
-  transform-origin: bottom right;
-  animation: lx-pop-in 0.2s ease-out;
+  animation: lx-pop-in 0.22s var(--sx-ease, ease-out);
   --ink: var(--sheet-ink);
   --mut: var(--sheet-ink-2);
 }
 @keyframes lx-pop-in {
   from {
     opacity: 0;
-    transform: translateY(10px) scale(0.97);
+    transform: translateX(24px);
   }
   to {
     opacity: 1;
     transform: none;
+  }
+}
+/* The page moves over for Lex rather than sitting under it. */
+:root:has(.lx-dock) .sx-body {
+  margin-right: var(--lx-dock);
+  transition: margin-right 0.22s var(--sx-ease, ease-out);
+}
+/* The quiet first view: the face and the bar in the middle, on the desk's
+   own dark, and the questions passing by under them. Nothing else to read. */
+.lx-quiet {
+  background: var(--masthead, #0f1c15);
+  color: var(--desk-ink, #eaf2ed);
+}
+.lx-quiet-tools {
+  display: flex;
+  justify-content: flex-end;
+  gap: 4px;
+  padding: 10px 10px 0;
+}
+.lx-quiet-tools .ui-icon-btn {
+  color: var(--desk-ink-2, #a9bdb1);
+}
+.lx-quiet-mid {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 22px;
+  padding: 0 0 56px;
+  min-height: 0;
+}
+.lx-quiet-ask {
+  width: calc(100% - 48px);
+  color: var(--sheet-ink);
+}
+/* The bar to ask: one paper bar on the desk, the field, the microphone and
+   Ask in a row. */
+.lx-quiet-ask .ak-composer {
+  padding: 0;
+  border: 0;
+}
+.lx-quiet-ask .ak-row {
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 0 6px;
+  padding: 5px 5px 5px 14px;
+  border-radius: var(--r-ctl, 0);
+  background: var(--paper);
+  color: var(--sheet-ink);
+  box-shadow: 0 0 0 1px rgba(234, 242, 237, 0.1);
+}
+.lx-quiet-ask .ak-row:focus-within {
+  box-shadow: 0 0 0 2px var(--accent-desk, #22b573);
+}
+.lx-quiet-ask .ak-input {
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 40px;
+  min-height: 40px;
+  padding: 8px 0;
+  border: 0;
+  outline: none;
+  background: transparent;
+  font-size: 15px;
+  line-height: 24px;
+  resize: none;
+}
+.lx-quiet-ask .vx-icon-mic {
+  flex: none;
+  width: 40px;
+  height: 40px;
+  border-radius: var(--r-ctl, 0);
+}
+.lx-quiet-ask .ak-ask {
+  flex: none;
+  min-width: 0;
+  min-height: 40px;
+  padding: 0 14px;
+  border: 0;
+  border-radius: var(--r-ctl, 0);
+  background: var(--sheet-ink);
+  color: var(--paper);
+}
+.lx-quiet-ask .ak-ask:disabled {
+  opacity: 0.42;
+}
+/* What the microphone heard takes a line of its own, and none while empty. */
+.lx-quiet-ask .ak-row {
+  flex-wrap: wrap;
+}
+.lx-quiet-ask .ak-input {
+  flex: 1 1 120px;
+}
+.lx-quiet-ask .vx-live:empty {
+  display: none;
+}
+.lx-quiet-ask .vx-live:not(:empty) {
+  margin: 4px 0;
+  flex-basis: 100%;
+}
+.lx-pass {
+  width: 100%;
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(to right, transparent, #000 14%, #000 86%, transparent);
+  mask-image: linear-gradient(to right, transparent, #000 14%, #000 86%, transparent);
+}
+.lx-pass-track {
+  display: flex;
+  gap: 8px;
+  width: max-content;
+  animation: lx-pass 38s linear infinite;
+}
+.lx-pass:hover .lx-pass-track,
+.lx-pass:focus-within .lx-pass-track {
+  animation-play-state: paused;
+}
+@keyframes lx-pass {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+.lx-pass-chip {
+  flex: none;
+  height: 36px;
+  padding: 0 13px;
+  border: 1px solid var(--desk-rule, #2f4538);
+  border-radius: var(--r-ctl, 4px);
+  background: var(--raised, #1c3024);
+  color: var(--desk-ink, #eaf2ed);
+  font: inherit;
+  font-size: 13.5px;
+  white-space: nowrap;
+  cursor: pointer;
+}
+.lx-pass-chip:hover {
+  border-color: var(--desk-ink-2, #a9bdb1);
+}
+.lx-pass-chip:focus-visible {
+  outline: 2px solid var(--desk-ink, #eaf2ed);
+  outline-offset: 2px;
+}
+/* Less motion asked for: the questions stand still and wrap, the copy goes. */
+@media (prefers-reduced-motion: reduce) {
+  .lx-pass {
+    -webkit-mask-image: none;
+    mask-image: none;
+  }
+  .lx-pass-track {
+    animation: none;
+    flex-wrap: wrap;
+    justify-content: center;
+    width: auto;
+    padding: 0 24px;
+  }
+  .lx-pass-chip[aria-hidden="true"] {
+    display: none;
+  }
+  .lx-pop,
+  :root:has(.lx-dock) .sx-body {
+    animation: none;
+    transition: none;
   }
 }
 .lx-pop-head {

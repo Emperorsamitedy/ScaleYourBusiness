@@ -135,15 +135,16 @@
   --caps-bump: 1px;
   --caps-first: uppercase;
 
-  /* the shape (2026-11-18, from the mockups the owner picked): a small curve
-     on a card and a control, pills for places and counts, no border on a
-     paper card (the desk around it is its edge) and a hairline where a
-     sheet's head had a double rule. The classic look is every fallback. */
-  --r-card: 18px;
-  --r-ctl: 12px;
-  --r-s: 10px;
-  --r-xs: 6px;
-  --r-pill: 999px;
+  /* the shape (2026-11-23, the owner: square "makes it very rigid", the old
+     curve was too round; "slightly chopped like from the square"): 6 px on
+     a card, 4 px on a control, a chip and a count, no border on a paper
+     card (the desk around it is its edge) and a hairline where a sheet's
+     head had a double rule. The classic look is every fallback. */
+  --r-card: 6px;
+  --r-ctl: 4px;
+  --r-s: 4px;
+  --r-xs: 3px;
+  --r-pill: 4px;
   --card-border: 0;
   --card-head-rule: 1px solid var(--rule-soft);
   --menu-border: 0;

@@ -864,7 +864,8 @@
       "when": "Mikor",
       "cautiousCol": "Óvatos vég (pénznem: {currency})",
       "hopefulCol": "Bizakodó vég (pénznem: {currency})",
-      "how": "Hogyan működik"
+      "how": "Hogyan működik",
+      "bills": "fizetendő {amount}"
     },
     "market": {
       "kicker": "Elemzések · Az Ön számai grafikonon",
@@ -10639,6 +10640,22 @@
       "up": "{name} feljebb",
       "down": "{name} lejjebb",
       "reset": "Visszaállítás"
+    },
+    "money": {
+      "label": "Az Ön pénze",
+      "refused": "Az Ön pénze: még nem tudunk eleget a következő hetek tervezéséhez",
+      "clear": "Az Ön pénze: a következő hetekben a tartaléka felett",
+      "clearZero": "Az Ön pénze: a következő hetekben nulla felett",
+      "tightNow": "Az Ön pénze: ezen a héten szűkös, ismét a tartaléka felett ettől a héttől: {date}",
+      "tightNowZero": "Az Ön pénze: ezen a héten nulla alatt, ismét felette ettől a héttől: {date}",
+      "tightStays": "Az Ön pénze: a következő hetekben a tartaléka alatt",
+      "tightStaysZero": "Az Ön pénze: a következő hetekben nulla alatt",
+      "tightLater": "Az Ön pénze: szűkös lesz ezen a héten: {date}",
+      "tightLaterZero": "Az Ön pénze: nulla alá kerül ezen a héten: {date}",
+      "lowest": "Mélypont",
+      "buffer": "Tartalék",
+      "weeks": "{count} hét",
+      "horizon": "Előretekintés"
     }
   },
   "alerts": {
