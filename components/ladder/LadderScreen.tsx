@@ -9,6 +9,12 @@
 // One sheet is the ladder: the four stations are columns, and every kind
 // of action is a row whose marker sits in the column it has reached. A row
 // opens to show what the next step needs, rule by rule, and its controls.
+//
+// 2026-11-23, the owner: pages a client "can't understand easily". Said
+// plainly: "What Lex may do", each step's name with one sentence on what it
+// means, where Lex stands in one sentence under the heading, and in an open
+// row what happens now, what the next step would mean, a checklist in plain
+// words and buttons that name the move. What it allows is unchanged.
 
 import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
@@ -26,6 +32,7 @@ import {
   highestOpen,
   nextMove,
   recordSegs,
+  sameStation,
   sharedCeiling,
   stationCounts,
 } from "./ladder-view";
@@ -77,12 +84,26 @@ export function LadderScreen() {
   const counts = stationCounts(view.rows);
   const top = highestOpen(view.rows);
   const ceiling = sharedCeiling(view.rows);
+  const same = sameStation(view.rows);
 
   return (
     <main className="screen ladder">
       <PageHead kicker={tr("kicker")} title={tr("title")}>
         <p className="tl-intro">{tr("intro")}</p>
       </PageHead>
+
+      {/* Where Lex stands, in one sentence. */}
+      {view.rows.length > 0 && (
+        <p className="tl-status">
+          <span>
+            {same !== null
+              ? tr(`status.all${same}`, { count: view.rows.length })
+              : tr("status.mixed")}
+            {ceiling !== null ? ` ${tr("status.ceiling", { n: n(ceiling) })}` : ""}
+          </span>
+          <Link href="/proposals">{tr("status.queue")}</Link>
+        </p>
+      )}
 
       {view.notices.map((notice) => {
         const p = (notice.payload ?? {}) as { capability?: string; provider?: string };
@@ -120,7 +141,10 @@ export function LadderScreen() {
                 <li key={s} className={`tl-col${here > 0 ? " has" : ""}${shut ? " shut" : ""}`}>
                   <b>{tr("stepN", { n: n(s) })}</b>
                   <span>{tr(`station.${s}`)}</span>
-                  <small>{shut ? tr("notOpen") : tr("linesHere", { count: here })}</small>
+                  <small>{tr(`stationDesc.${s}`)}</small>
+                  <small className="tl-here">
+                    {shut ? tr("notOpen") : here > 0 ? tr("linesHere", { count: here }) : ""}
+                  </small>
                 </li>
               );
             })}
@@ -246,9 +270,26 @@ function More({
   return (
     <div className="tl-more" id={id}>
       <div className="tl-more-body">
+        <div className="tl-nownext">
+          <p>
+            <b>{tr("now", { station: tr(`station.${row.station}`) })}</b>{" "}
+            {tr(`stationDesc.${row.station}`)}
+          </p>
+          {row.station < STATIONS.length && row.station < row.ceiling && (
+            <p>
+              <b>{tr("next", { station: tr(`station.${row.station + 1}`) })}</b>{" "}
+              {tr(`stationDesc.${row.station + 1}`)}
+            </p>
+          )}
+        </div>
         {row.next && (
           <div className="tl-need">
-            <h3>{tr("needs", { n: num(row.next.to, 0, locale) })}</h3>
+            <h3>
+              {tr("needs", {
+                n: num(row.next.to, 0, locale),
+                station: tr(`station.${row.next.to}`),
+              })}
+            </h3>
             <ul>
               {row.next.checks.map((c, i) => (
                 <li key={`${c.rule}-${i}`}>
@@ -265,7 +306,7 @@ function More({
         <div className="tl-acts">
           {move === "raise" && (
             <button type="button" className="act solid" onClick={() => station(row.station + 1)}>
-              {tr("raise")}
+              {tr(`raiseTo.${row.station + 1}`)}
             </button>
           )}
           {move === "ask" && (
@@ -287,9 +328,12 @@ function More({
             </button>
           )}
           {row.station > 1 && (
-            <button type="button" className="act" onClick={() => station(row.station - 1)}>
-              {tr("lower")}
-            </button>
+            <>
+              <button type="button" className="act" onClick={() => station(row.station - 1)}>
+                {tr("lower", { station: tr(`station.${row.station - 1}`) })}
+              </button>
+              <span className="tl-hint">{tr("lowerNote")}</span>
+            </>
           )}
           {move === "ceiling" && (
             <span className="tl-hint">{tr("ceiling", { station: row.ceiling })}</span>

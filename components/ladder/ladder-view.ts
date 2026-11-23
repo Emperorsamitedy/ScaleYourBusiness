@@ -55,6 +55,17 @@ export function sharedCeiling(rows: readonly Pick<LadderRow, "ceiling">[]): numb
   return rows.every((r) => r.ceiling === first) ? first : null;
 }
 
+/**
+ * Pure: the step every kind of work stands at, when they all stand at the
+ * same one, so the screen can say where Lex is in one sentence (2026-11-23);
+ * null when they differ or there are none.
+ */
+export function sameStation(rows: readonly Pick<LadderRow, "station">[]): number | null {
+  const first = rows[0]?.station;
+  if (first === undefined) return null;
+  return rows.every((r) => r.station === first) ? first : null;
+}
+
 export type CellState = "below" | "at" | "open" | "closed";
 
 /** One cell of a row's track: passed, where it stands, still open above, or closed above its ceiling. */

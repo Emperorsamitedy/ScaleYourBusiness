@@ -176,7 +176,7 @@ export const GROUPS: readonly Group[] = [
       },
       {
         href: "/ladder",
-        label: "What I may do",
+        label: "What Lex may do",
         feature: "nav.ladder",
         rail: true,
         pages: ["/shadow"],
@@ -275,11 +275,12 @@ export const GROUPS: readonly Group[] = [
     items: [
       { href: "/customers", label: "Customer list", feature: "nav.customers", rail: true },
       // Idea 45: every business has reviews somewhere, so it always shows.
-      { href: "/reviews", label: "Reviews", feature: "nav.reviews" },
+      { href: "/reviews", label: "Reviews", feature: "nav.reviews", rail: true },
       {
         href: "/carts",
         label: "Abandoned carts",
         feature: "nav.carts",
+        rail: true,
         // Idea 47: only with a store connection that reads carts (Shopify today).
         appliesTo: (c) => c.carts === true,
       },
@@ -287,10 +288,17 @@ export const GROUPS: readonly Group[] = [
         href: "/pipeline",
         label: "Business deals",
         feature: "nav.pipeline",
+        rail: true,
         appliesTo: (c) => c.pipeline === true,
         count: (c) => n(c.by_module.pipeline ?? 0),
       },
-      { href: "/support", label: "Messages", feature: "nav.support", count: supportCount },
+      {
+        href: "/support",
+        label: "Messages",
+        feature: "nav.support",
+        rail: true,
+        count: supportCount,
+      },
     ],
   },
   {
@@ -377,7 +385,7 @@ export function railMore(group: Group, path: string): Item[] {
 }
 
 /** Screens that already carry the emergency stop in their own body. */
-const OWN_STOP = ["/content", "/site"];
+const OWN_STOP = ["/content"]; // /site gave its own up on 2026-11-23: the bar carries it
 
 /** Pure: whether the bar across the top carries the emergency stop on this path. */
 export function stripStop(path: string): boolean {

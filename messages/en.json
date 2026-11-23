@@ -70,7 +70,7 @@
       "team_access": "Team access",
       "language": "Language and currency",
       "payments": "Payments",
-      "ladder": "What I may do",
+      "ladder": "What Lex may do",
       "statement": "Monthly statement",
       "billing": "Plan and billing",
       "mandates": "Firms with access",
@@ -5612,7 +5612,7 @@
     "homePage": "home page",
     "page": "page",
     "noAction": "no action",
-    "fine": "Every change previews from the real page, applies only after your yes in the queue, keeps its undo forever, and rolls itself back on a hard failure, never on a quiet week.",
+    "fine": "Every change is shown from the real page first, made only after your yes, can always be undone, and is put back on its own if the page breaks.",
     "signedOut": {
       "eyebrow": "your site",
       "title": "Start with the intake.",
@@ -5633,15 +5633,19 @@
     },
     "head": {
       "checked": "Last site check {day} · {pages, plural, one {# page} other {# pages}} read · {missing} of {total} checks not shown",
-      "noCheck": "No site check on record yet",
-      "measured": "measured {day}: {count, plural, one {# finding} other {# findings}}"
+      "noCheck": "Not checked yet",
+      "measured": "measured {day}: {count, plural, one {# finding} other {# findings}}",
+      "checkedPlain": "{count, plural, one {Last checked {day} · # page} other {Last checked {day} · # pages}}"
     },
     "tabs": {
       "aria": "Site changes",
       "measured": "Measured · {count, plural, one {# finding} other {# findings}}",
-      "measure": "Measure the site",
+      "measure": "Check the site",
       "audit": "Audit · {count, plural, one {# note} other {# notes}}, no action",
-      "propose": "Propose a change"
+      "propose": "Change some words",
+      "change": "Change on {page}",
+      "fix": "{count, plural, one {What to fix · #} other {What to fix · #}}",
+      "look": "{count, plural, one {What customers look for · # missing} other {What customers look for · # missing}}"
     },
     "status": {
       "pending": "waiting for you",
@@ -5670,30 +5674,30 @@
       "unreadable": "Couldn’t read {url}: {reason}"
     },
     "propose": {
-      "label": "Propose a change",
-      "title": "Shown before it is ever applied",
-      "foot": "Checkout, cart, payment and billing pages are refused outright. They cannot even be proposed, at any approval level.",
-      "url": "Page address",
+      "label": "Change some words",
+      "title": "You see it before anything changes",
+      "foot": "Checkout, cart and payment pages can never be changed here.",
+      "url": "Which page",
       "urlPlaceholder": "yoursite.com/about",
-      "find": "The exact text to change",
-      "replace": "What it should say instead",
+      "find": "The words there now",
+      "replace": "What they should say",
       "reading": "Reading the page…",
-      "preview": "Preview the change"
+      "preview": "Show me first"
     },
     "change": {
       "fromFinding": "from finding: {finding}",
       "proposedOn": "proposed {day}",
       "undoneByYou": "undone by you",
       "autoRolledBack": "auto-rolled-back",
-      "realPage": "The real page, scripts off",
+      "realPage": "The real page",
       "desktopWidth": "Desktop width",
       "phoneWidth": "Phone width",
       "now": "Now",
-      "proposed": "Proposed",
+      "proposed": "With the change",
       "frameNow": "The page now",
       "frameProposed": "The page as proposed",
-      "nowSays": "Now says",
-      "willSay": "Will say",
+      "nowSays": "The page says now",
+      "willSay": "It would say",
       "basis": "Basis",
       "basisValue": "found once on the live page · observed",
       "quoted": "“{text}”",
@@ -5707,7 +5711,14 @@
       "ifWrong": "If it goes wrong: {what}",
       "decide": "Decide in the queue",
       "apply": "Apply it to the page",
-      "undo": "Undo: restore the page"
+      "undo": "Undo: restore the page",
+      "details": "Details",
+      "ifApproved": "If you approve",
+      "promise": {
+        "only": "Only these words change. Nothing else on the page moves.",
+        "undo": "You can undo it with one click, at any time. The old page is kept for good.",
+        "rollback": "If the page breaks or slows down after the change, Lex puts it back on its own and tells you why."
+      }
     },
     "audit": {
       "severity": {
@@ -5813,7 +5824,80 @@
         "cart_action": "a link that changes a cart: the audit never adds to one",
         "checkout": "checkout: counted from the outside, never opened",
         "external_booking": "a booking page on another company's site: counted, not read"
+      },
+      "plain": {
+        "home": "your home page",
+        "page": "the page {path}",
+        "onPhone": "on a phone",
+        "onComputer": "on a computer",
+        "none": "Nothing on your site needs fixing right now.",
+        "again": "Speed can be checked again from {day}.",
+        "prio": {
+          "first": "Fix first",
+          "worth": "Worth fixing",
+          "small": "Small"
+        },
+        "cost": "May be costing {range}.",
+        "details": "Details",
+        "pagesDetails": "Details: the pages Lex checked, and what it left alone",
+        "title": {
+          "lcp_slow": "{page} is slow {device}: {value} to appear",
+          "cls_unstable": "{page} jumps around while it loads {device}",
+          "inp_slow": "{page} is slow to answer a tap {device}: {value}",
+          "tbt_slow": "{page} is briefly frozen while it loads {device}",
+          "page_heavy": "{page} is heavy: {value} to load",
+          "tap_targets": "{value} buttons or links are too small to tap on {page}",
+          "contrast": "{value} pieces of text are hard to read on {page}",
+          "path_long": "Checkout is {value} away from your home page",
+          "path_missing": "Lex couldn't find the way to buying from your home page",
+          "price_hidden": "Prices aren't shown on the first screen of {page}",
+          "form_long": "The form on {page} asks for {value} things",
+          "broken_link": "A link on {page} goes to a missing page"
+        },
+        "why": {
+          "lcp_slow": "Visitors wait, and some leave before it shows.",
+          "cls_unstable": "Buttons move under the visitor's thumb, so they tap the wrong thing.",
+          "inp_slow": "When a tap takes long to answer, visitors tap again or give up.",
+          "tbt_slow": "While it is frozen, the page can't answer a tap.",
+          "page_heavy": "Mostly pictures and scripts. On a phone's data that is a long wait.",
+          "tap_targets": "A thumb that hits the wrong link is a visitor who gives up.",
+          "contrast": "Their colour is too close to the background behind them.",
+          "path_long": "Every extra click on the way to buying loses some buyers.",
+          "path_missing": "If Lex can't find it by following your links, some visitors can't either.",
+          "price_hidden": "Shoppers look for the price first. When it is hidden, many leave.",
+          "form_long": "Each extra question makes some people give up the form.",
+          "broken_link": "A visitor who clicks it hits a dead end."
+        },
+        "ran": "{count, plural, one {Checked {day} · # page} other {Checked {day} · # pages}}",
+        "some": "{count, plural, one {# thing to fix, most costly first} other {# things to fix, most costly first}}"
       }
+    },
+    "title": "Your website, as a customer sees it",
+    "glance": {
+      "label": "At a glance",
+      "speed": "Speed on a phone",
+      "notMeasured": "Not checked yet",
+      "notMeasuredLine": "Run the check to see how your site does for a customer.",
+      "slow": "Slow",
+      "slowLine": "{page} takes {value} to appear. Good is under {good}.",
+      "mayCost": "May be costing {range}",
+      "fast": "Quick",
+      "fastLine": "Your pages appear quickly on a phone.",
+      "path": "The way to buying",
+      "noBroken": "No broken links",
+      "brokenLine": "{page} goes to a missing page.",
+      "pathUnknown": "Lex couldn't find the way to checkout.",
+      "look": "What customers look for",
+      "shownOf": "{shown} of {total} shown",
+      "missing": "Missing: {list}.",
+      "allShown": "Everything they look for is there.",
+      "waiting": "Waiting for you",
+      "open": "Look at it",
+      "nothing": "Nothing",
+      "nothingLine": "No change is waiting for your yes.",
+      "broken": "{count, plural, one {# broken link} other {# broken links}}",
+      "clicks": "{count, plural, one {Checkout is # click from your home page.} other {Checkout is # clicks from your home page.}}",
+      "changes": "{count, plural, one {# change} other {# changes}}"
     }
   },
   "support": {
@@ -9502,75 +9586,75 @@
   },
   "ladder": {
     "meta": {
-      "title": "What ScaleX may do"
+      "title": "What Lex may do · ScaleX"
     },
-    "title": "What ScaleX can do in your business right now",
-    "intro": "One line per kind of action. Raising a line needs its record below; lowering it never does, and the stop sends every line back to watching.",
+    "title": "How much Lex does on its own",
+    "intro": "Lex starts by suggesting. Each kind of work moves up a step only when its results show it helped. You can move any of them down, or stop everything, at any time.",
     "station": {
-      "1": "Watches only",
-      "2": "Says what it would do, changes nothing",
-      "3": "Acts after your approval",
-      "4": "Acts within your limits, then tells you"
+      "1": "Watches",
+      "2": "Suggests",
+      "3": "Asks first",
+      "4": "On its own"
     },
-    "record": "Measured: {closed} · gains: {gains} · losses: {losses}",
+    "record": "Results so far: {closed} checked · {gains} helped · {losses} hurt",
     "raise": "Raise one step",
-    "lower": "Lower one step",
+    "lower": "Move it down to {station}",
     "notYet": "Not yet: {why}",
-    "askLimits": "Ask to act within limits",
+    "askLimits": "Set the limits Lex works within",
     "confirm": "Confirm: let it act within my limits",
     "confirmNote": "From now on it acts without asking each time, only inside the limits you set. You can lower it, or stop everything, at any moment.",
-    "ceiling": "This line can't go above step {station} here.",
+    "ceiling": "Step {station} is as high as this can go here for now.",
     "notice": {
       "auto_demotion": "{capability} lost money twice in a row, so it went down a step.",
       "connector_demotion": "{provider} stopped working, so what depended on it went back to watching.",
       "seen": "Got it"
     },
-    "shadowLink": "See what it would have done so far",
+    "shadowLink": "See what Lex would have done so far",
     "failed": "That didn’t work: {why}",
     "rule": {
-      "lower": "Lowering needs no evidence.",
+      "lower": "Moving down is always allowed.",
       "one_step": "One step at a time.",
-      "ceiling": "Never above step {station} for this.",
+      "ceiling": "Step {station} is as high as this can go.",
       "connector_healthy": {
-        "met": "A connected source measures it.",
-        "unmet": "Connect a source that measures it first."
+        "met": "Connected, so its results can be measured.",
+        "unmet": "Connect where its results come from first, so they can be measured."
       },
-      "closed_shadow_plans": "Scored suggestions: {done} of {need}.",
-      "gain_share": "Verified gains: {share}% of the {need}% needed.",
+      "closed_shadow_plans": "{need} suggestions checked against what really happened: {done} so far.",
+      "gain_share": "Of those, at least {need}% helped: {share}% so far.",
       "net_positive": {
-        "met": "Net positive.",
-        "unmet": "Not yet net positive."
+        "met": "More helped than hurt.",
+        "unmet": "Not yet more helped than hurt."
       },
       "no_big_loss": {
-        "met": "No loss beyond twice its low estimate.",
-        "unmet": "One loss was more than twice its low estimate."
+        "met": "None lost more than twice what Lex expected.",
+        "unmet": "One lost more than twice what Lex expected."
       },
-      "executed_actions": "Actions carried out: {done} of {need}.",
+      "executed_actions": "{need} pieces of work done after your approval: {done} so far.",
       "caps_set": {
         "met": "Your limits are set.",
-        "unmet": "Set its limits first."
+        "unmet": "Set the limits Lex works within first."
       }
     },
     "capability": {
       "meta_publish": "Facebook and Instagram posts",
       "tiktok_publish": "TikTok posts",
-      "meta_ads": "Meta ads",
+      "meta_ads": "Facebook and Instagram ads",
       "tiktok_ads": "TikTok ads",
       "google_ads": "Google Ads",
-      "email_campaign": "Email to your contacts",
+      "email_campaign": "Emails to your customers",
       "followup_email": "Follow-ups on quiet deals",
       "purchase_order": "Orders to suppliers",
-      "google_business_reviews": "Answers to Google reviews",
+      "google_business_reviews": "Replies to Google reviews",
       "shopify_write": "Changes in your Shopify store"
     },
-    "kicker": "Trust Ladder",
+    "kicker": "Decisions · What Lex may do",
     "col": {
-      "action": "Kind of action",
-      "record": "Record"
+      "action": "Kind of work",
+      "record": "Results so far"
     },
     "stepN": "Step {n}",
-    "linesHere": "{count, plural, one {# line here} other {# lines here}}",
-    "notOpen": "not open here",
+    "linesHere": "{count, plural, one {Here: # kind of work} other {Here: # kinds of work}}",
+    "notOpen": "Not open here yet",
     "group": {
       "posts": "Posts",
       "ads": "Ads",
@@ -9579,25 +9663,48 @@
       "other": "Other"
     },
     "rec": {
-      "none": "No record yet",
-      "measured": "{count, plural, one {# measured} other {# measured}}",
-      "gains": "{count, plural, one {# gain} other {# gains}}",
-      "losses": "{count, plural, one {# loss} other {# losses}}"
+      "none": "No results yet",
+      "measured": "{count, plural, one {# checked} other {# checked}}",
+      "gains": "{count, plural, one {# helped} other {# helped}}",
+      "losses": "{count, plural, one {# hurt} other {# hurt}}"
     },
-    "needs": "What step {n} needs",
-    "met": "Met",
+    "needs": "To move up to {station}, it needs",
+    "met": "Done",
     "notMet": "Not yet",
-    "waitHint": "It can go up once every rule above says Met.",
+    "waitHint": "It can move up once everything above says Done.",
     "foot": {
-      "ceiling": "Step {n} is the highest step for this business right now.",
-      "own": "Each line climbs on its own record."
+      "ceiling": "No kind of work can go past step {n} here yet.",
+      "own": "Each kind of work moves up on its own results."
     },
     "trackAria": "Step {n} of {total}",
     "viz": {
       "gains": "Gains",
       "losses": "Losses",
       "neither": "Neither"
-    }
+    },
+    "stationDesc": {
+      "1": "Looks at your numbers. Suggests nothing, changes nothing.",
+      "2": "Tells you what it would do, then shows how that would have turned out.",
+      "3": "Does the work once you approve it. Every time.",
+      "4": "Does the work within limits you set, then tells you."
+    },
+    "status": {
+      "mixed": "Lex works at different steps for different kinds of work. Each is listed below.",
+      "ceiling": "None can go past step {n} here yet.",
+      "queue": "Waiting for you",
+      "all1": "{count, plural, one {Today Lex only watches, for the one kind of work.} other {Today Lex only watches, for all # kinds of work.}}",
+      "all2": "{count, plural, one {Today Lex only suggests, for the one kind of work.} other {Today Lex only suggests, for all # kinds of work.}}",
+      "all3": "{count, plural, one {Today Lex asks first, for the one kind of work.} other {Today Lex asks first, for all # kinds of work.}}",
+      "all4": "{count, plural, one {Today Lex works on its own within your limits, for the one kind of work.} other {Today Lex works on its own within your limits, for all # kinds of work.}}"
+    },
+    "raiseTo": {
+      "2": "Let Lex suggest this",
+      "3": "Let Lex do this after I approve",
+      "4": "Let Lex do this on its own, within my limits"
+    },
+    "lowerNote": "Always allowed, straight away.",
+    "now": "Now · {station}:",
+    "next": "Next · {station}:"
   },
   "shadowSummary": {
     "meta": {

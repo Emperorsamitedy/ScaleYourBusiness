@@ -364,3 +364,44 @@
 :is(.tl-hdr, .tl-col b, .tl-group-name, .tl-need h3)::first-letter {
   text-transform: var(--caps-first, inherit);
 }
+
+/* Said plainly (2026-11-23): each step's meaning under its name, where Lex
+   stands in one sentence, and what now and next mean in an open row. */
+.tl-col small:not(.tl-here) {
+  font-family: var(--f-ui);
+  font-size: 12.5px;
+  line-height: 1.35;
+}
+.tl-col .tl-here:empty {
+  display: none;
+}
+.tl-col.has .tl-here {
+  color: var(--ok);
+  font-weight: 600;
+}
+.tl-status {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s-2) var(--s-4);
+  margin: 0 0 var(--s-4);
+  padding: var(--s-3) var(--s-5);
+  border-radius: var(--r-card);
+  background: var(--paper);
+  color: var(--sheet-ink);
+  font-size: 14.5px;
+}
+.tl-status a {
+  margin-left: auto;
+  font-weight: 600;
+  white-space: nowrap;
+}
+.tl-nownext {
+  display: grid;
+  gap: 6px;
+  margin-bottom: var(--s-3);
+  font-size: 14px;
+}
+.tl-nownext p {
+  margin: 0;
+}

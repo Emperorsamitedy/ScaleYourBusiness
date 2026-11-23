@@ -201,7 +201,7 @@ describe("app navigation", () => {
     expect(stripStop("/home")).toBe(true);
     expect(stripStop("/watch")).toBe(true);
     expect(stripStop("/content")).toBe(false);
-    expect(stripStop("/site")).toBe(false);
+    expect(stripStop("/site")).toBe(true); // 2026-11-23: the Website page gave its own up
   });
 
   it("files What I may do under To approve, beside the queue", () => {

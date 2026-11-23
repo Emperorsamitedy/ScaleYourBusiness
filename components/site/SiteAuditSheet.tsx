@@ -16,8 +16,15 @@
 // note and a page's speed error come from the server already in the
 // reader's language (L-4c, lib/site/localize.ts); a link's own text is the
 // site's.
+//
+// 2026-11-23, the owner: pages a client "can't understand easily". Said
+// plainly: each finding is a card, most costly first, titled from its own
+// code and figures in the reader's words ("Your home page is slow on phones:
+// 4.3 s to appear"), with why it matters, the money at stake where a figure
+// exists, and the stored technical wording kept under "Details". The pages
+// Google loaded and what the audit left alone fold under "Details" too, and
+// the note on what isn't built (a fact about ScaleX, not the site) is gone.
 
-import { currencyRow } from "../../lib/core/currency-table";
 import { useState } from "react";
 import type { SiteAuditView } from "../../lib/site/audit/view";
 import { NEVER_LINES } from "../../lib/site/audit/view";
@@ -36,13 +43,20 @@ import {
   weightText,
 } from "./site-view";
 
-/** A severity's tone; its word is the catalogue's `audit.severity.<severity>`. */
-const SEVERITY_TONE: Record<SiteFinding["severity"], string> = {
-  critical: "alarm",
-  high: "drift",
-  medium: "low",
-  low: "low",
+/** A severity's plain priority: fix first, worth fixing, small (`audit.plain.prio.<prio>`). */
+const PRIORITY: Record<SiteFinding["severity"], "first" | "worth" | "small"> = {
+  critical: "first",
+  high: "first",
+  medium: "worth",
+  low: "small",
 };
+const ORDER: Record<SiteFinding["severity"], number> = { critical: 0, high: 1, medium: 2, low: 3 };
+
+/** Pure: findings most costly first: by priority, then the money at stake. */
+export function rankFindings(findings: readonly SiteFinding[]): SiteFinding[] {
+  const stake = (f: SiteFinding) => (f.euro.computed ? f.euro.high_minor : -1);
+  return [...findings].sort((a, b) => ORDER[a.severity] - ORDER[b.severity] || stake(b) - stake(a));
+}
 
 export function SiteAuditSheet({
   initial,
@@ -85,16 +99,7 @@ export function SiteAuditSheet({
 
   if (!audit) {
     return (
-      <SheetCard
-        label={tr("notRun.label")}
-        title={tr("notRun.title")}
-        meta={runButton}
-        foot={
-          <Fold>
-            <p>{tr("notBuilt", { section: 2 })}</p>
-          </Fold>
-        }
-      >
+      <SheetCard label={tr("notRun.label")} title={tr("notRun.title")} meta={runButton}>
         {notice && (
           <p className="st-note" aria-live="polite">
             {notice}
@@ -111,35 +116,15 @@ export function SiteAuditSheet({
 
   const ps = audit.pagespeed;
   const measured = audit.pages.filter((p) => p.mobile || p.desktop);
-  // The money column names its currency (never converted), or says "money".
-  const stakeCurrency = audit.findings.find((f) => f.euro.computed);
-  // The multi-market spec §A.4: the findings' own currency, never an assumed euro —
-  // its sign from the currency table in English ("Ft at stake"), its code elsewhere.
-  const stakeCode = stakeCurrency?.euro.computed ? stakeCurrency.euro.currency.toUpperCase() : null;
-  const atStake =
-    stakeCode === null
-      ? tr("table.atStakeMoney")
-      : tr("table.atStake", {
-          currency: locale === "en" ? currencyRow(stakeCode).symbol : stakeCode,
-        });
   return (
     <SheetCard
-      label={tr("ran", {
-        day: dayWord(audit.ran_at, locale),
-        pages: audit.page_reads,
-        calls: ps.calls,
-      })}
+      label={tr("plain.ran", { day: dayWord(audit.ran_at, locale), count: audit.page_reads })}
       title={
         audit.findings.length === 0
-          ? tr("title.none")
-          : tr("title.some", { count: audit.findings.length })
+          ? tr("plain.none")
+          : tr("plain.some", { count: audit.findings.length })
       }
-      meta={
-        <>
-          <span className="word boxed low">{t("noAction")}</span>
-          {runButton}
-        </>
-      }
+      meta={runButton}
       foot={
         <Fold>
           <p>{tr("footFix")}</p>
@@ -148,7 +133,6 @@ export function SiteAuditSheet({
               <li key={l}>{neverLine(l, t)}</li>
             ))}
           </ul>
-          <p>{tr("notBuilt", { section: 2 })}</p>
         </Fold>
       }
     >
@@ -159,64 +143,55 @@ export function SiteAuditSheet({
       )}
       {ps.note && <p className="st-note">{ps.note}</p>}
       {ps.next_from && (
-        <p className="st-note">
-          {tr("calls", {
-            used: ps.used_this_week,
-            cap: ps.weekly_cap,
-            day: dayWord(ps.next_from, locale),
-          })}
-        </p>
+        <p className="st-note">{tr("plain.again", { day: dayWord(ps.next_from, locale) })}</p>
       )}
 
       {audit.findings.length > 0 && (
-        <table className="rt st-table">
-          <thead>
-            <tr>
-              <th scope="col">{tr("table.severity")}</th>
-              <th scope="col">{tr("table.what")}</th>
-              <th scope="col">{tr("table.measured")}</th>
-              <th scope="col">{tr("table.threshold")}</th>
-              <th scope="col">{atStake}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {audit.findings.map((f) => {
-              return (
-                <tr key={f.id}>
-                  <td data-label={tr("table.severity")}>
-                    <span className={`word ${SEVERITY_TONE[f.severity]}`}>
-                      {tr(`severity.${f.severity}`)}
-                    </span>
-                  </td>
-                  <th scope="row" data-label={tr("table.what")}>
-                    {f.title.en}
-                    <span className="st-sub">{f.detail.en}</span>
-                  </th>
-                  <td className="src" data-label={tr("table.measured")}>
-                    {measuredValue(f, t, locale)}
-                    <span className="st-sub">
-                      {tr(`basis.${f.evidence.basis}`)}
+        <ol className="st-fixes">
+          {rankFindings(audit.findings).map((f) => {
+            const prio = PRIORITY[f.severity];
+            const path = pagePath(f.page_url, t);
+            const page = path === t("homePage") ? tr("plain.home") : tr("plain.page", { path });
+            const title = tr(`plain.title.${f.code}`, {
+              page,
+              value: measuredValue(f, t, locale),
+              device:
+                f.evidence.strategy === "desktop" ? tr("plain.onComputer") : tr("plain.onPhone"),
+            });
+            return (
+              <li key={f.id} className="st-fix">
+                <span className={`st-prio ${prio}`}>{tr(`plain.prio.${prio}`)}</span>
+                <div className="st-fix-body">
+                  <h3>{title.charAt(0).toUpperCase() + title.slice(1)}</h3>
+                  <p>{tr(`plain.why.${f.code}`)}</p>
+                  {f.euro.computed && (
+                    <p className="st-cost">
+                      <b>{tr("plain.cost", { range: euroLine(f.euro, t, locale) })}</b>
+                    </p>
+                  )}
+                  <Fold summary={tr("plain.details")} className="st-fix-more">
+                    <p>
+                      {f.title.en}. {f.detail.en}
+                    </p>
+                    <p className="src">
+                      {measuredValue(f, t, locale)} · {tr(`basis.${f.evidence.basis}`)}
                       {f.evidence.strategy ? ` · ${tr(`strategy.${f.evidence.strategy}`)}` : ""}
-                    </span>
-                  </td>
-                  <td className="src" data-label={tr("table.threshold")}>
-                    {f.threshold}
-                  </td>
-                  <td className="src" data-label={atStake}>
-                    {euroLine(f.euro, t, locale)}
+                      {" · "}
+                      {f.threshold}
+                    </p>
                     {f.euro.computed && (
-                      <span className="st-sub">
+                      <p className="src">
                         {f.euro.formula}.{" "}
                         {f.euro.window.charAt(0).toUpperCase() + f.euro.window.slice(1)}.{" "}
                         {f.euro.assumed.join(" ")}
-                      </span>
+                      </p>
                     )}
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
+                  </Fold>
+                </div>
+              </li>
+            );
+          })}
+        </ol>
       )}
 
       <p className="cs-label st-gap">
@@ -241,71 +216,73 @@ export function SiteAuditSheet({
         </p>
       ))}
 
-      {measured.length > 0 && (
-        <>
-          <p className="cs-label st-gap">{tr("pages.label")}</p>
-          <table className="rt st-table">
-            <thead>
-              <tr>
-                <th scope="col">{tr("pages.page")}</th>
-                <th scope="col">{tr("pages.phone")}</th>
-                <th scope="col">{tr("pages.computer")}</th>
-                <th scope="col">{tr("pages.weight")}</th>
-                <th scope="col">{tr("pages.from")}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {measured.map((p) => (
-                <tr key={p.url}>
-                  <th scope="row" data-label={tr("pages.page")}>
-                    {pagePath(p.url, t)}
-                    <span className="st-sub">
-                      {tr("pages.role", { role: tr(`role.${p.role}`), count: p.clicks })}
-                    </span>
-                  </th>
-                  <td className="src" data-label={tr("pages.phone")}>
-                    {speedCell(p.mobile, t, locale)}
-                  </td>
-                  <td className="src" data-label={tr("pages.computer")}>
-                    {speedCell(p.desktop, t, locale)}
-                  </td>
-                  <td className="src" data-label={tr("pages.weight")}>
-                    {weightText(p.mobile?.lab.page_bytes, t, locale)}
-                  </td>
-                  <td className="src" data-label={tr("pages.from")}>
-                    {basisOf(p.mobile, t)}
-                  </td>
+      <Fold summary={tr("plain.pagesDetails")} className="st-fix-more">
+        {measured.length > 0 && (
+          <>
+            <p className="cs-label st-gap">{tr("pages.label")}</p>
+            <table className="rt st-table">
+              <thead>
+                <tr>
+                  <th scope="col">{tr("pages.page")}</th>
+                  <th scope="col">{tr("pages.phone")}</th>
+                  <th scope="col">{tr("pages.computer")}</th>
+                  <th scope="col">{tr("pages.weight")}</th>
+                  <th scope="col">{tr("pages.from")}</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </>
-      )}
-      {audit.pages.some((p) => p.speed_error) && (
-        <ul className="st-unread">
-          {audit.pages
-            .filter((p) => p.speed_error)
-            .map((p) => (
-              <li key={p.url}>
-                {pagePath(p.url, t)}: {p.speed_error}
-              </li>
-            ))}
-        </ul>
-      )}
-
-      {audit.refused.length > 0 && (
-        <>
-          <p className="cs-label st-gap">{tr("refused.label")}</p>
+              </thead>
+              <tbody>
+                {measured.map((p) => (
+                  <tr key={p.url}>
+                    <th scope="row" data-label={tr("pages.page")}>
+                      {pagePath(p.url, t)}
+                      <span className="st-sub">
+                        {tr("pages.role", { role: tr(`role.${p.role}`), count: p.clicks })}
+                      </span>
+                    </th>
+                    <td className="src" data-label={tr("pages.phone")}>
+                      {speedCell(p.mobile, t, locale)}
+                    </td>
+                    <td className="src" data-label={tr("pages.computer")}>
+                      {speedCell(p.desktop, t, locale)}
+                    </td>
+                    <td className="src" data-label={tr("pages.weight")}>
+                      {weightText(p.mobile?.lab.page_bytes, t, locale)}
+                    </td>
+                    <td className="src" data-label={tr("pages.from")}>
+                      {basisOf(p.mobile, t)}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </>
+        )}
+        {audit.pages.some((p) => p.speed_error) && (
           <ul className="st-unread">
-            {audit.refused.slice(0, 8).map((r) => (
-              <li key={r.url}>
-                {r.reason === "external_booking" ? new URL(r.url).hostname : pagePath(r.url, t)}:{" "}
-                {tr(`refused.${r.reason}`)}
-              </li>
-            ))}
+            {audit.pages
+              .filter((p) => p.speed_error)
+              .map((p) => (
+                <li key={p.url}>
+                  {pagePath(p.url, t)}: {p.speed_error}
+                </li>
+              ))}
           </ul>
-        </>
-      )}
+        )}
+
+        {audit.refused.length > 0 && (
+          <>
+            <p className="cs-label st-gap">{tr("refused.label")}</p>
+            <ul className="st-unread">
+              {audit.refused.slice(0, 8).map((r) => (
+                <li key={r.url}>
+                  {r.reason === "external_booking" ? new URL(r.url).hostname : pagePath(r.url, t)}:{" "}
+                  {tr(`refused.${r.reason}`)}
+                </li>
+              ))}
+            </ul>
+          </>
+        )}
+      </Fold>
     </SheetCard>
   );
 }

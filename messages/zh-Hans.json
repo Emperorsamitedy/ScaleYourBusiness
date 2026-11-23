@@ -70,7 +70,7 @@
       "team_access": "团队权限",
       "language": "语言和货币",
       "payments": "付款",
-      "ladder": "我可以做什么",
+      "ladder": "Lex 可以做什么",
       "statement": "月度对账单",
       "billing": "方案与账单",
       "mandates": "有访问权限的事务所",
@@ -5612,7 +5612,7 @@
     "homePage": "首页",
     "page": "页面",
     "noAction": "无操作",
-    "fine": "每一项更改都基于真实页面预览，只有在您于队列中同意后才会应用，永久保留撤销功能，并会在严重故障时自动回滚，但绝不会因为某一周比较平淡而回滚。",
+    "fine": "每项更改都会先在真实页面上展示，只有您同意后才会执行，随时可以撤销；如果页面出错，会自动恢复。",
     "signedOut": {
       "eyebrow": "您的网站",
       "title": "从访谈开始。",
@@ -5633,15 +5633,19 @@
     },
     "head": {
       "checked": "上次网站检查 {day} · 读取了 {pages, plural, other {# 个页面}} · {total} 项检查中有 {missing} 项未显示",
-      "noCheck": "尚无网站检查记录",
-      "measured": "{day} 测量：{count, plural, other {# 项发现}}"
+      "noCheck": "尚未检查",
+      "measured": "{day} 测量：{count, plural, other {# 项发现}}",
+      "checkedPlain": "{count, plural, other {上次检查：{day} · # 个页面}}"
     },
     "tabs": {
       "aria": "网站更改",
       "measured": "已测量 · {count, plural, other {# 项发现}}",
-      "measure": "测量网站",
+      "measure": "检查网站",
       "audit": "审计 · {count, plural, other {# 条备注}}，无操作",
-      "propose": "提议一项更改"
+      "propose": "修改文字",
+      "change": "{page} 上的更改",
+      "fix": "{count, plural, other {需要修复 · #}}",
+      "look": "{count, plural, other {客户在找什么 · 缺 # 项}}"
     },
     "status": {
       "pending": "等待您处理",
@@ -5670,30 +5674,30 @@
       "unreadable": "无法读取 {url}：{reason}"
     },
     "propose": {
-      "label": "提议一项更改",
-      "title": "在应用之前一定会先展示给您",
-      "foot": "结账、购物车、付款和账单页面会被直接拒绝。无论批准级别如何，它们甚至都不能被提议。",
-      "url": "页面地址",
+      "label": "修改文字",
+      "title": "任何更改前您都会先看到",
+      "foot": "结账、购物车和支付页面在这里永远不能更改。",
+      "url": "哪个页面",
       "urlPlaceholder": "yoursite.com/about",
-      "find": "要更改的确切文字",
-      "replace": "应改为什么",
+      "find": "现在的文字",
+      "replace": "应改为",
       "reading": "正在读取页面…",
-      "preview": "预览这项更改"
+      "preview": "先给我看"
     },
     "change": {
       "fromFinding": "来自发现：{finding}",
       "proposedOn": "提议于 {day}",
       "undoneByYou": "已由您撤销",
       "autoRolledBack": "已自动回滚",
-      "realPage": "真实页面，已关闭脚本",
+      "realPage": "真实页面",
       "desktopWidth": "桌面宽度",
       "phoneWidth": "手机宽度",
       "now": "现在",
-      "proposed": "提议后",
+      "proposed": "更改后",
       "frameNow": "页面现在的样子",
       "frameProposed": "页面按提议更改后的样子",
-      "nowSays": "现在显示",
-      "willSay": "将会显示",
+      "nowSays": "页面现在写着",
+      "willSay": "将改为",
       "basis": "依据",
       "basisValue": "在线上页面中出现一次 · 已观测",
       "quoted": "“{text}”",
@@ -5707,7 +5711,14 @@
       "ifWrong": "如果出了问题：{what}",
       "decide": "在队列中决定",
       "apply": "应用到页面",
-      "undo": "撤销：恢复页面"
+      "undo": "撤销：恢复页面",
+      "details": "详情",
+      "ifApproved": "如果您批准",
+      "promise": {
+        "only": "只改这些文字，页面上其他内容不变。",
+        "undo": "随时一键撤销。旧页面会永久保留。",
+        "rollback": "如果更改后页面出错或变慢，Lex 会自动恢复并告诉您原因。"
+      }
     },
     "audit": {
       "severity": {
@@ -5813,7 +5824,80 @@
         "cart_action": "会更改购物车的链接：审计绝不加入购物车",
         "checkout": "结账：只从外部计数，绝不打开",
         "external_booking": "另一家公司网站上的预约页面：计数，但不读取"
+      },
+      "plain": {
+        "home": "您的首页",
+        "page": "页面 {path}",
+        "onPhone": "在手机上",
+        "onComputer": "在电脑上",
+        "none": "您的网站目前没有需要修复的地方。",
+        "again": "{day} 起可以再次检查速度。",
+        "prio": {
+          "first": "优先修复",
+          "worth": "值得修复",
+          "small": "小问题"
+        },
+        "cost": "可能造成 {range} 的损失。",
+        "details": "详情",
+        "pagesDetails": "详情：Lex 检查过的页面，以及它没有碰的内容",
+        "title": {
+          "lcp_slow": "{page}{device}很慢：需要 {value} 才显示",
+          "cls_unstable": "{page}{device}加载时会跳动",
+          "inp_slow": "{page}{device}点按后响应很慢：{value}",
+          "tbt_slow": "{page}{device}加载时会短暂卡住",
+          "page_heavy": "{page} 太大：需加载 {value}",
+          "tap_targets": "{page} 上有 {value} 个按钮或链接太小，不好点",
+          "contrast": "{page} 上有 {value} 处文字难以看清",
+          "path_long": "从首页到结账需要 {value}",
+          "path_missing": "Lex 从您的首页找不到购买路径",
+          "price_hidden": "{page} 首屏上看不到价格",
+          "form_long": "{page} 上的表单要填 {value} 项",
+          "broken_link": "{page} 上有一个链接指向不存在的页面"
+        },
+        "why": {
+          "lcp_slow": "访客要等待，有些人等不到就离开了。",
+          "cls_unstable": "按钮在访客手指下移动，容易点错。",
+          "inp_slow": "点按很久没反应时，访客会重复点按或放弃。",
+          "tbt_slow": "卡住时页面无法响应点按。",
+          "page_heavy": "主要是图片和脚本，用手机流量要等很久。",
+          "tap_targets": "手指点错链接，访客就会放弃。",
+          "contrast": "文字颜色和背景太接近。",
+          "path_long": "购买路径上每多一次点击都会流失买家。",
+          "path_missing": "如果 Lex 顺着您的链接都找不到，有些访客也找不到。",
+          "price_hidden": "顾客先看价格，看不到价格很多人就走了。",
+          "form_long": "每多一个问题，就有人放弃填写。",
+          "broken_link": "点进去的访客会走进死胡同。"
+        },
+        "ran": "{count, plural, other {检查于 {day} · # 个页面}}",
+        "some": "{count, plural, other {# 项需要修复，代价最高的在前}}"
       }
+    },
+    "title": "客户眼中的您的网站",
+    "glance": {
+      "label": "一目了然",
+      "speed": "手机上的速度",
+      "notMeasured": "尚未检查",
+      "notMeasuredLine": "运行检查，看看您的网站在客户眼中表现如何。",
+      "slow": "慢",
+      "slowLine": "{page} 需要 {value} 才显示。理想值是 {good} 以内。",
+      "mayCost": "可能造成 {range} 的损失",
+      "fast": "快",
+      "fastLine": "您的页面在手机上显示很快。",
+      "path": "购买路径",
+      "noBroken": "没有失效链接",
+      "brokenLine": "{page} 指向一个不存在的页面。",
+      "pathUnknown": "Lex 没找到通往结账的路径。",
+      "look": "客户在找什么",
+      "shownOf": "已显示 {shown}/{total}",
+      "missing": "缺少：{list}。",
+      "allShown": "他们要找的都在。",
+      "waiting": "等待您处理",
+      "open": "查看",
+      "nothing": "无",
+      "nothingLine": "没有等待您同意的更改。",
+      "broken": "{count, plural, other {# 个失效链接}}",
+      "clicks": "{count, plural, other {从首页到结账需要 # 次点击。}}",
+      "changes": "{count, plural, other {# 项更改}}"
     }
   },
   "support": {
@@ -9502,75 +9586,75 @@
   },
   "ladder": {
     "meta": {
-      "title": "ScaleX 可以做什么"
+      "title": "Lex 可以做什么 · ScaleX"
     },
-    "title": "ScaleX 现在可以在您的企业中做什么",
-    "intro": "每一行代表一类操作。提升一行需要下方的记录；降低则随时可以，紧急停止会让所有行回到仅观察。",
+    "title": "Lex 自己能做多少",
+    "intro": "Lex 从提建议开始。每类工作只有在结果表明确实有帮助时才会升一级。您可以随时把任何一类调低，或停止一切。",
     "station": {
-      "1": "仅观察",
-      "2": "说明会做什么，不做任何改动",
-      "3": "经您批准后执行",
-      "4": "在您的限额内执行，事后汇报"
+      "1": "观察",
+      "2": "建议",
+      "3": "先征求同意",
+      "4": "自主执行"
     },
-    "record": "已衡量：{closed} · 收益：{gains} · 损失：{losses}",
+    "record": "目前结果：已核对 {closed} 项 · 有帮助 {gains} 项 · 有损失 {losses} 项",
     "raise": "提升一级",
-    "lower": "降低一级",
+    "lower": "降到“{station}”",
     "notYet": "暂时不行：{why}",
-    "askLimits": "申请在限额内执行",
+    "askLimits": "设定 Lex 的工作范围",
     "confirm": "确认：允许在我的限额内执行",
     "confirmNote": "从现在起，它只在您设定的限额内执行，无需每次询问。您可以随时降低，或停止一切。",
-    "ceiling": "此行在这里不能高于第{station}级。",
+    "ceiling": "目前这里最高只能到第 {station} 级。",
     "notice": {
       "auto_demotion": "{capability} 连续两次亏损，因此降低了一级。",
       "connector_demotion": "{provider} 已停止工作，依赖它的操作已退回仅观察。",
       "seen": "知道了"
     },
-    "shadowLink": "查看到目前为止它会做什么",
+    "shadowLink": "查看 Lex 到目前为止会做的事",
     "failed": "未成功：{why}",
     "rule": {
-      "lower": "降低无需证据。",
+      "lower": "调低随时可以。",
       "one_step": "一次只能提升一级。",
-      "ceiling": "此项永远不会高于第{station}级。",
+      "ceiling": "这一类最高只能到第 {station} 级。",
       "connector_healthy": {
-        "met": "已有连接的数据源在衡量它。",
-        "unmet": "请先连接一个能衡量它的数据源。"
+        "met": "已接入，结果可以衡量。",
+        "unmet": "请先接入结果来源，才能衡量。"
       },
-      "closed_shadow_plans": "已衡量的建议：{done}/{need}。",
-      "gain_share": "已验证收益：{share}%，需要{need}%。",
+      "closed_shadow_plans": "将 {need} 条建议与实际结果核对：目前 {done} 条。",
+      "gain_share": "其中至少 {need}% 有帮助：目前为 {share}%。",
       "net_positive": {
-        "met": "净额为正。",
-        "unmet": "净额尚未为正。"
+        "met": "帮助多于损失。",
+        "unmet": "还没有做到帮助多于损失。"
       },
       "no_big_loss": {
-        "met": "没有超过低估值两倍的损失。",
-        "unmet": "有一次损失超过了低估值的两倍。"
+        "met": "没有一项损失超过 Lex 预期的两倍。",
+        "unmet": "有一项损失超过了 Lex 预期的两倍。"
       },
-      "executed_actions": "已执行的操作：{done}/{need}。",
+      "executed_actions": "经您批准后完成 {need} 项工作：目前 {done} 项。",
       "caps_set": {
         "met": "您的限额已设定。",
-        "unmet": "请先设定限额。"
+        "unmet": "请先设定 Lex 的工作范围。"
       }
     },
     "capability": {
       "meta_publish": "Facebook 和 Instagram 帖子",
       "tiktok_publish": "TikTok 帖子",
-      "meta_ads": "Meta 广告",
+      "meta_ads": "Facebook 和 Instagram 广告",
       "tiktok_ads": "TikTok 广告",
       "google_ads": "Google Ads",
-      "email_campaign": "发给联系人的邮件",
+      "email_campaign": "发给客户的邮件",
       "followup_email": "停滞交易的跟进邮件",
       "purchase_order": "向供应商下单",
       "google_business_reviews": "回复 Google 评价",
       "shopify_write": "Shopify 店铺的修改"
     },
-    "kicker": "信任阶梯",
+    "kicker": "决定 · Lex 可以做什么",
     "col": {
-      "action": "操作类型",
-      "record": "记录"
+      "action": "工作类型",
+      "record": "目前结果"
     },
     "stepN": "第 {n} 级",
-    "linesHere": "{count, plural, other {这里有 # 行}}",
-    "notOpen": "此处未开放",
+    "linesHere": "{count, plural, other {此处：# 类工作}}",
+    "notOpen": "这里尚未开放",
     "group": {
       "posts": "帖子",
       "ads": "广告",
@@ -9579,25 +9663,48 @@
       "other": "其他"
     },
     "rec": {
-      "none": "尚无记录",
-      "measured": "{count, plural, other {已衡量 # 项}}",
-      "gains": "{count, plural, other {# 项收益}}",
-      "losses": "{count, plural, other {# 项损失}}"
+      "none": "还没有结果",
+      "measured": "{count, plural, other {已核对 # 项}}",
+      "gains": "{count, plural, other {有帮助 # 项}}",
+      "losses": "{count, plural, other {有损失 # 项}}"
     },
-    "needs": "第 {n} 级需要什么",
-    "met": "已满足",
-    "notMet": "尚未满足",
-    "waitHint": "当上面每一条规则都显示“已满足”时，它才能提升。",
+    "needs": "要升到“{station}”，需要",
+    "met": "已完成",
+    "notMet": "尚未",
+    "waitHint": "上面各项都显示“已完成”后即可升级。",
     "foot": {
-      "ceiling": "目前第 {n} 级是这家企业的最高级别。",
-      "own": "每一行都凭自己的记录提升。"
+      "ceiling": "目前这里没有任何工作类型能超过第 {n} 级。",
+      "own": "每类工作按自己的结果升级。"
     },
     "trackAria": "第 {n} 级，共 {total} 级",
     "viz": {
       "gains": "收益",
       "losses": "损失",
       "neither": "两者皆非"
-    }
+    },
+    "stationDesc": {
+      "1": "查看您的数据。不提建议，也不做改动。",
+      "2": "告诉您它会怎么做，再展示那样做的结果会如何。",
+      "3": "经您批准后才执行。每次都是。",
+      "4": "在您设定的范围内执行，然后告诉您。"
+    },
+    "status": {
+      "mixed": "Lex 对不同类工作处于不同级别，下方逐一列出。",
+      "ceiling": "目前这里没有任何一类能超过第 {n} 级。",
+      "queue": "等待您处理",
+      "all1": "{count, plural, other {目前 Lex 只观察，适用于全部 # 类工作。}}",
+      "all2": "{count, plural, other {目前 Lex 只提建议，适用于全部 # 类工作。}}",
+      "all3": "{count, plural, other {目前 Lex 先征求同意，适用于全部 # 类工作。}}",
+      "all4": "{count, plural, other {目前 Lex 在您的范围内自主执行，适用于全部 # 类工作。}}"
+    },
+    "raiseTo": {
+      "2": "让 Lex 提建议",
+      "3": "让 Lex 在我批准后执行",
+      "4": "让 Lex 在我的范围内自主执行"
+    },
+    "lowerNote": "随时可以，立即生效。",
+    "now": "现在 · {station}：",
+    "next": "下一步 · {station}："
   },
   "shadowSummary": {
     "meta": {

@@ -70,7 +70,7 @@
       "team_access": "Csapat hozzáférése",
       "language": "Nyelv és pénznem",
       "payments": "Kifizetések",
-      "ladder": "Mit tehetek",
+      "ladder": "Mit tehet Lex",
       "statement": "Havi kivonat",
       "billing": "Csomag és számlázás",
       "mandates": "Hozzáféréssel rendelkező irodák",
@@ -5612,7 +5612,7 @@
     "homePage": "kezdőlap",
     "page": "oldal",
     "noAction": "nincs teendő",
-    "fine": "Minden módosítás előnézete a valódi oldalból készül, csak az Ön igenje után kerül alkalmazásra a várólistáról, a visszavonhatósága örökre megmarad, és súlyos hiba esetén magától visszaáll, egy csendes hét miatt soha.",
+    "fine": "Minden módosítást előbb a valódi oldalon lát, csak az Ön igenje után történik meg, mindig visszavonható, és ha az oldal elromlik, magától visszaáll.",
     "signedOut": {
       "eyebrow": "az Ön weboldala",
       "title": "Kezdje az interjúval.",
@@ -5633,15 +5633,19 @@
     },
     "head": {
       "checked": "Utolsó weboldal-ellenőrzés: {day} · {pages, plural, one {# oldal} other {# oldal}} beolvasva · {total} ellenőrzésből {missing} nem látható",
-      "noCheck": "Még nincs rögzített weboldal-ellenőrzés",
-      "measured": "mérve: {day}, {count, plural, one {# megállapítás} other {# megállapítás}}"
+      "noCheck": "Még nincs ellenőrizve",
+      "measured": "mérve: {day}, {count, plural, one {# megállapítás} other {# megállapítás}}",
+      "checkedPlain": "{count, plural, one {Utoljára ellenőrizve: {day} · # oldal} other {Utoljára ellenőrizve: {day} · # oldal}}"
     },
     "tabs": {
       "aria": "Weboldal-módosítások",
       "measured": "Mérve · {count, plural, one {# megállapítás} other {# megállapítás}}",
-      "measure": "A weboldal mérése",
+      "measure": "Oldal ellenőrzése",
       "audit": "Ellenőrzés · {count, plural, one {# megjegyzés} other {# megjegyzés}}, nincs teendő",
-      "propose": "Módosítás javaslata"
+      "propose": "Néhány szó módosítása",
+      "change": "Módosítás: {page}",
+      "fix": "{count, plural, one {Mit javítson · #} other {Mit javítson · #}}",
+      "look": "{count, plural, one {Amit az ügyfelek keresnek · # hiányzik} other {Amit az ügyfelek keresnek · # hiányzik}}"
     },
     "status": {
       "pending": "Önre vár",
@@ -5670,30 +5674,30 @@
       "unreadable": "Nem tudtam beolvasni: {url}; {reason}"
     },
     "propose": {
-      "label": "Módosítás javaslata",
-      "title": "Megmutatom, mielőtt bármikor alkalmaznám",
-      "foot": "A fizetési, kosár-, fizetőeszköz- és számlázási oldalakat eleve elutasítom. Ezek még javaslatként sem merülhetnek fel, semmilyen jóváhagyási szinten.",
-      "url": "Az oldal címe",
+      "label": "Néhány szó módosítása",
+      "title": "Előbb látja, mint hogy bármi változna",
+      "foot": "A fizetési, kosár- és pénztároldalak itt soha nem módosíthatók.",
+      "url": "Melyik oldal",
       "urlPlaceholder": "azonweboldala.hu/rolunk",
-      "find": "A módosítandó pontos szöveg",
-      "replace": "Mi álljon helyette",
+      "find": "A most ott álló szavak",
+      "replace": "Mi álljon helyettük",
       "reading": "Az oldal beolvasása…",
-      "preview": "A módosítás előnézete"
+      "preview": "Előbb mutasd"
     },
     "change": {
       "fromFinding": "a megállapításból: {finding}",
       "proposedOn": "javasolva: {day}",
       "undoneByYou": "Ön visszavonta",
       "autoRolledBack": "automatikusan visszaállítva",
-      "realPage": "A valódi oldal, szkriptek nélkül",
+      "realPage": "A valódi oldal",
       "desktopWidth": "Asztali szélesség",
       "phoneWidth": "Telefonos szélesség",
       "now": "Most",
-      "proposed": "Javasolt",
+      "proposed": "A módosítással",
       "frameNow": "Az oldal most",
       "frameProposed": "Az oldal a javaslat szerint",
-      "nowSays": "Most ez áll rajta",
-      "willSay": "Ez fog állni rajta",
+      "nowSays": "Az oldalon most ez áll",
+      "willSay": "Ez állna rajta",
       "basis": "Alap",
       "basisValue": "egyszer található az élő oldalon · megfigyelt",
       "quoted": "„{text}”",
@@ -5707,7 +5711,14 @@
       "ifWrong": "Ha valami elromlik: {what}",
       "decide": "Döntés a várólistán",
       "apply": "Alkalmazás az oldalon",
-      "undo": "Visszavonás: az oldal visszaállítása"
+      "undo": "Visszavonás: az oldal visszaállítása",
+      "details": "Részletek",
+      "ifApproved": "Ha jóváhagyja",
+      "promise": {
+        "only": "Csak ezek a szavak változnak. Semmi más nem mozdul az oldalon.",
+        "undo": "Egy kattintással bármikor visszavonhatja. A régi oldal örökre megmarad.",
+        "rollback": "Ha az oldal a módosítás után elromlik vagy lelassul, Lex magától visszaállítja, és elmondja, miért."
+      }
     },
     "audit": {
       "severity": {
@@ -5813,7 +5824,80 @@
         "cart_action": "kosarat módosító link: az ellenőrzés soha nem tesz semmit kosárba",
         "checkout": "fizetési oldal: kívülről számolva, soha nem megnyitva",
         "external_booking": "foglalási oldal egy másik cég weboldalán: számolva, de nem beolvasva"
+      },
+      "plain": {
+        "home": "a nyitóoldala",
+        "page": "a(z) {path} oldal",
+        "onPhone": "telefonon",
+        "onComputer": "számítógépen",
+        "none": "Most semmit nem kell javítani az oldalán.",
+        "again": "A sebesség {day} után ellenőrizhető újra.",
+        "prio": {
+          "first": "Először javítsa",
+          "worth": "Érdemes javítani",
+          "small": "Apróság"
+        },
+        "cost": "Akár {range} veszteség is lehet.",
+        "details": "Részletek",
+        "pagesDetails": "Részletek: az oldalak, amelyeket Lex ellenőrzött, és amit érintetlenül hagyott",
+        "title": {
+          "lcp_slow": "{page} lassú {device}: {value} a megjelenés",
+          "cls_unstable": "{page} ugrál betöltés közben {device}",
+          "inp_slow": "{page} lassan reagál egy koppintásra {device}: {value}",
+          "tbt_slow": "{page} betöltés közben rövid időre lefagy {device}",
+          "page_heavy": "{page} nehéz: {value} betölteni",
+          "tap_targets": "{value} gomb vagy link túl kicsi a koppintáshoz itt: {page}",
+          "contrast": "{value} szöveg nehezen olvasható itt: {page}",
+          "path_long": "A fizetés {value} távolságra van a nyitóoldaltól",
+          "path_missing": "Lex nem találta meg a vásárlás útját a nyitóoldalról",
+          "price_hidden": "Az árak nem látszanak ennek az első képernyőjén: {page}",
+          "form_long": "A(z) {page} űrlapja {value} adatot kér",
+          "broken_link": "Egy link itt: {page} hiányzó oldalra visz"
+        },
+        "why": {
+          "lcp_slow": "A látogatók várnak, és néhányan elmennek, mielőtt megjelenne.",
+          "cls_unstable": "A gombok elmozdulnak a látogató ujja alatt, így rossz helyre koppint.",
+          "inp_slow": "Ha egy koppintásra sokáig nincs válasz, a látogató újra koppint vagy feladja.",
+          "tbt_slow": "Amíg lefagy, az oldal nem reagál a koppintásra.",
+          "page_heavy": "Főleg képek és szkriptek. Mobilneten ez hosszú várakozás.",
+          "tap_targets": "Ha az ujj rossz linkre üt, a látogató feladja.",
+          "contrast": "A színük túl közel van a háttéréhez.",
+          "path_long": "Minden plusz kattintás a vásárlásig vevőket veszít.",
+          "path_missing": "Ha Lex nem találja meg a linkjeit követve, néhány látogató sem.",
+          "price_hidden": "A vásárlók először az árat keresik. Ha rejtve van, sokan elmennek.",
+          "form_long": "Minden plusz kérdés miatt néhányan feladják az űrlapot.",
+          "broken_link": "Aki rákattint, zsákutcába jut."
+        },
+        "ran": "{count, plural, one {Ellenőrizve: {day} · # oldal} other {Ellenőrizve: {day} · # oldal}}",
+        "some": "{count, plural, one {# javítanivaló, a legdrágább elöl} other {# javítanivaló, a legdrágábbak elöl}}"
       }
+    },
+    "title": "Az Ön weboldala, ahogy egy ügyfél látja",
+    "glance": {
+      "label": "Egy pillantással",
+      "speed": "Sebesség telefonon",
+      "notMeasured": "Még nincs ellenőrizve",
+      "notMeasuredLine": "Indítsa el az ellenőrzést, hogy lássa, milyen az oldala egy ügyfélnek.",
+      "slow": "Lassú",
+      "slowLine": "{page} {value} alatt jelenik meg. A jó érték {good} alatt van.",
+      "mayCost": "Akár {range} veszteség is lehet",
+      "fast": "Gyors",
+      "fastLine": "Az oldalai gyorsan megjelennek telefonon.",
+      "path": "Az út a vásárlásig",
+      "noBroken": "Nincs hibás link",
+      "brokenLine": "A(z) {page} egy hiányzó oldalra visz.",
+      "pathUnknown": "Lex nem találta meg az utat a fizetésig.",
+      "look": "Amit az ügyfelek keresnek",
+      "shownOf": "{total}-ból {shown} látható",
+      "missing": "Hiányzik: {list}.",
+      "allShown": "Minden megvan, amit keresnek.",
+      "waiting": "Önre vár",
+      "open": "Megnézem",
+      "nothing": "Semmi",
+      "nothingLine": "Egy módosítás sem vár az Ön igenjére.",
+      "broken": "{count, plural, one {# hibás link} other {# hibás link}}",
+      "clicks": "{count, plural, one {A fizetés # kattintásra van a nyitóoldaltól.} other {A fizetés # kattintásra van a nyitóoldaltól.}}",
+      "changes": "{count, plural, one {# módosítás} other {# módosítás}}"
     }
   },
   "support": {
@@ -9502,75 +9586,75 @@
   },
   "ladder": {
     "meta": {
-      "title": "Mit tehet a ScaleX"
+      "title": "Mit tehet Lex · ScaleX"
     },
-    "title": "Mit tehet most a ScaleX a vállalkozásában",
-    "intro": "Minden műveletfajta egy sor. Egy sort feljebb léptetni csak az alábbi eredmények alapján lehet; lejjebb bármikor, és a leállítás minden sort visszaállít a puszta figyelésre.",
+    "title": "Mennyit végez Lex önállóan",
+    "intro": "Lex javaslatokkal kezd. Minden munkafajta csak akkor lép egyet feljebb, ha az eredményei azt mutatják, hogy segített. Bármelyiket bármikor visszaléptetheti, vagy mindent leállíthat.",
     "station": {
-      "1": "Csak figyel",
-      "2": "Elmondja, mit tenne, de semmit nem változtat",
-      "3": "Az Ön jóváhagyása után cselekszik",
-      "4": "A határain belül cselekszik, utána beszámol"
+      "1": "Figyel",
+      "2": "Javasol",
+      "3": "Előbb kérdez",
+      "4": "Önállóan"
     },
-    "record": "Mért: {closed} · nyereség: {gains} · veszteség: {losses}",
+    "record": "Eddigi eredmények: {closed} ellenőrizve · {gains} segített · {losses} ártott",
     "raise": "Egy lépéssel feljebb",
-    "lower": "Egy lépéssel lejjebb",
+    "lower": "Visszaléptetés: {station}",
     "notYet": "Még nem: {why}",
-    "askLimits": "Kérem: cselekedjen határokon belül",
+    "askLimits": "Lex munkájának határai",
     "confirm": "Megerősítem: cselekedjen a határaimon belül",
     "confirmNote": "Mostantól nem kérdez minden alkalommal, csak az Ön által megadott határokon belül cselekszik. Bármikor lejjebb léptetheti, vagy mindent leállíthat.",
-    "ceiling": "Ez a sor itt nem léphet a(z) {station}. szint fölé.",
+    "ceiling": "Itt egyelőre a(z) {station}. lépcső a legmagasabb.",
     "notice": {
       "auto_demotion": "{capability} kétszer egymás után pénzt veszített, ezért egy lépéssel lejjebb került.",
       "connector_demotion": "{provider} leállt, ezért ami tőle függött, újra csak figyel.",
       "seen": "Értem"
     },
-    "shadowLink": "Nézze meg, mit tett volna eddig",
+    "shadowLink": "Mit tett volna eddig Lex",
     "failed": "Nem sikerült: {why}",
     "rule": {
-      "lower": "A lejjebb lépéshez nem kell bizonyíték.",
+      "lower": "Visszalépni mindig szabad.",
       "one_step": "Egyszerre csak egy lépés.",
-      "ceiling": "Ennél sosem a(z) {station}. szint fölött.",
+      "ceiling": "Ennél a(z) {station}. lépcső a legmagasabb.",
       "connector_healthy": {
-        "met": "Egy összekapcsolt forrás méri.",
-        "unmet": "Előbb kössön be egy forrást, amely méri."
+        "met": "Összekapcsolva, így az eredményei mérhetők.",
+        "unmet": "Először kapcsolja össze azt, ahonnan az eredmények jönnek, hogy mérhetők legyenek."
       },
-      "closed_shadow_plans": "Mért javaslatok: {done} / {need}.",
-      "gain_share": "Igazolt nyereség: {share}%, a szükséges {need}%-ból.",
+      "closed_shadow_plans": "{need} javaslat összevetve azzal, ami valóban történt: eddig {done}.",
+      "gain_share": "Ezek közül legalább {need}% segített: eddig {share}%.",
       "net_positive": {
-        "met": "Nettó pozitív.",
-        "unmet": "Még nem nettó pozitív."
+        "met": "Több segített, mint ártott.",
+        "unmet": "Még nem segített több, mint ártott."
       },
       "no_big_loss": {
-        "met": "Nincs az alsó becslés kétszeresét meghaladó veszteség.",
-        "unmet": "Egy veszteség meghaladta az alsó becslés kétszeresét."
+        "met": "Egyik sem veszített többet, mint Lex várakozásának kétszerese.",
+        "unmet": "Egy többet veszített, mint Lex várakozásának kétszerese."
       },
-      "executed_actions": "Végrehajtott műveletek: {done} / {need}.",
+      "executed_actions": "{need} munka elvégezve az Ön jóváhagyása után: eddig {done}.",
       "caps_set": {
         "met": "A határai be vannak állítva.",
-        "unmet": "Előbb állítsa be a határait."
+        "unmet": "Először adja meg Lex munkájának határait."
       }
     },
     "capability": {
       "meta_publish": "Facebook- és Instagram-bejegyzések",
       "tiktok_publish": "TikTok-bejegyzések",
-      "meta_ads": "Meta-hirdetések",
+      "meta_ads": "Facebook- és Instagram-hirdetések",
       "tiktok_ads": "TikTok-hirdetések",
       "google_ads": "Google Ads",
-      "email_campaign": "E-mailek a kapcsolattartóinak",
+      "email_campaign": "E-mailek az ügyfeleinek",
       "followup_email": "Utánkövetés elakadt üzleteknél",
       "purchase_order": "Megrendelések a beszállítóknak",
       "google_business_reviews": "Válaszok a Google-értékelésekre",
       "shopify_write": "Változtatások a Shopify-boltjában"
     },
-    "kicker": "Bizalmi létra",
+    "kicker": "Döntések · Mit tehet Lex",
     "col": {
-      "action": "Műveletfajta",
-      "record": "Eredmények"
+      "action": "Munkafajta",
+      "record": "Eddigi eredmények"
     },
     "stepN": "{n}. szint",
-    "linesHere": "{count, plural, one {# sor itt} other {# sor itt}}",
-    "notOpen": "itt nem érhető el",
+    "linesHere": "{count, plural, one {Itt: # munkafajta} other {Itt: # munkafajta}}",
+    "notOpen": "Itt még nem elérhető",
     "group": {
       "posts": "Bejegyzések",
       "ads": "Hirdetések",
@@ -9580,24 +9664,47 @@
     },
     "rec": {
       "none": "Még nincs eredmény",
-      "measured": "{count, plural, one {# mért} other {# mért}}",
-      "gains": "{count, plural, one {# nyereség} other {# nyereség}}",
-      "losses": "{count, plural, one {# veszteség} other {# veszteség}}"
+      "measured": "{count, plural, one {# ellenőrizve} other {# ellenőrizve}}",
+      "gains": "{count, plural, one {# segített} other {# segített}}",
+      "losses": "{count, plural, one {# ártott} other {# ártott}}"
     },
-    "needs": "Amit a(z) {n}. szint megkövetel",
-    "met": "Teljesült",
+    "needs": "Ahhoz, hogy feljebb lépjen ({station}), ez kell",
+    "met": "Kész",
     "notMet": "Még nem",
-    "waitHint": "Akkor léphet feljebb, ha fent minden szabálynál „Teljesült” áll.",
+    "waitHint": "Akkor léphet feljebb, ha fent minden Kész.",
     "foot": {
-      "ceiling": "Jelenleg a(z) {n}. szint a legmagasabb ennél a vállalkozásnál.",
-      "own": "Minden sor a saját eredményei alapján lép feljebb."
+      "ceiling": "Itt még egyik munkafajta sem léphet a(z) {n}. lépcső fölé.",
+      "own": "Minden munkafajta a saját eredményei alapján lép feljebb."
     },
     "trackAria": "{total} szintből a(z) {n}.",
     "viz": {
       "gains": "Nyereség",
       "losses": "Veszteség",
       "neither": "Egyik sem"
-    }
+    },
+    "stationDesc": {
+      "1": "Nézi a számait. Nem javasol és nem változtat semmit.",
+      "2": "Elmondja, mit tenne, majd megmutatja, hogyan alakult volna.",
+      "3": "Az Ön jóváhagyása után végzi el a munkát. Minden alkalommal.",
+      "4": "Az Ön által megadott határokon belül dolgozik, aztán szól Önnek."
+    },
+    "status": {
+      "mixed": "Lex munkafajtánként különböző lépcsőn dolgozik. Mindegyik lent látható.",
+      "ceiling": "Itt egyik sem léphet még a(z) {n}. lépcső fölé.",
+      "queue": "Önre vár",
+      "all1": "{count, plural, one {Ma Lex csak figyel, az egyetlen munkafajtánál.} other {Ma Lex csak figyel, mind a # munkafajtánál.}}",
+      "all2": "{count, plural, one {Ma Lex csak javasol, az egyetlen munkafajtánál.} other {Ma Lex csak javasol, mind a # munkafajtánál.}}",
+      "all3": "{count, plural, one {Ma Lex előbb kérdez, az egyetlen munkafajtánál.} other {Ma Lex előbb kérdez, mind a # munkafajtánál.}}",
+      "all4": "{count, plural, one {Ma Lex önállóan dolgozik az Ön határain belül, az egyetlen munkafajtánál.} other {Ma Lex önállóan dolgozik az Ön határain belül, mind a # munkafajtánál.}}"
+    },
+    "raiseTo": {
+      "2": "Lex javasolhatja",
+      "3": "Lex elvégezheti a jóváhagyásom után",
+      "4": "Lex önállóan végezheti, a határaimon belül"
+    },
+    "lowerNote": "Mindig szabad, azonnal.",
+    "now": "Most · {station}:",
+    "next": "Következő · {station}:"
   },
   "shadowSummary": {
     "meta": {

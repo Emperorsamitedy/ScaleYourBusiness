@@ -70,7 +70,7 @@
       "team_access": "Accès de l’équipe",
       "language": "Langue et devise",
       "payments": "Paiements",
-      "ladder": "Ce que je peux faire",
+      "ladder": "Ce que Lex peut faire",
       "statement": "Relevé mensuel",
       "billing": "Formule et facturation",
       "mandates": "Cabinets avec accès",
@@ -5612,7 +5612,7 @@
     "homePage": "page d’accueil",
     "page": "page",
     "noAction": "aucune action",
-    "fine": "Chaque modification est prévisualisée à partir de la vraie page, ne s’applique qu’après votre oui dans la file, garde son annulation pour toujours, et revient d’elle-même en arrière en cas d’échec grave, jamais à cause d’une semaine calme.",
+    "fine": "Chaque changement est d’abord montré sur la vraie page, fait seulement après votre oui, peut toujours être annulé, et est remis en place tout seul si la page casse.",
     "signedOut": {
       "eyebrow": "votre site",
       "title": "Commencez par l’entretien.",
@@ -5633,15 +5633,19 @@
     },
     "head": {
       "checked": "Dernier contrôle du site le {day} · {pages, plural, one {# page lue} many {# pages lues} other {# pages lues}} · {missing} contrôles sur {total} non visibles",
-      "noCheck": "Aucun contrôle du site enregistré pour l’instant",
-      "measured": "mesuré le {day} : {count, plural, one {# constat} many {# constats} other {# constats}}"
+      "noCheck": "Pas encore vérifié",
+      "measured": "mesuré le {day} : {count, plural, one {# constat} many {# constats} other {# constats}}",
+      "checkedPlain": "{count, plural, one {Vérifié le {day} · # page} many {Vérifié le {day} · # pages} other {Vérifié le {day} · # pages}}"
     },
     "tabs": {
       "aria": "Modifications du site",
       "measured": "Mesures · {count, plural, one {# constat} many {# constats} other {# constats}}",
-      "measure": "Mesurer le site",
+      "measure": "Vérifier le site",
       "audit": "Audit · {count, plural, one {# remarque} many {# remarques} other {# remarques}}, sans action",
-      "propose": "Proposer une modification"
+      "propose": "Changer quelques mots",
+      "change": "Changement sur {page}",
+      "fix": "{count, plural, one {À corriger · #} many {À corriger · #} other {À corriger · #}}",
+      "look": "{count, plural, one {Ce que les clients cherchent · # manquant} many {Ce que les clients cherchent · # manquants} other {Ce que les clients cherchent · # manquants}}"
     },
     "status": {
       "pending": "en attente de vous",
@@ -5670,30 +5674,30 @@
       "unreadable": "Impossible de lire {url} : {reason}"
     },
     "propose": {
-      "label": "Proposer une modification",
-      "title": "Montrée avant toute application",
-      "foot": "Les pages de paiement, de panier, de règlement et de facturation sont refusées d’office : elles ne peuvent même pas être proposées, quel que soit le niveau de validation.",
-      "url": "Adresse de la page",
+      "label": "Changer quelques mots",
+      "title": "Vous le voyez avant que rien ne change",
+      "foot": "Les pages de paiement, de panier et de règlement ne peuvent jamais être changées ici.",
+      "url": "Quelle page",
       "urlPlaceholder": "votresite.fr/a-propos",
-      "find": "Le texte exact à modifier",
-      "replace": "Ce qu’il doit dire à la place",
+      "find": "Les mots qui y sont maintenant",
+      "replace": "Ce qu’ils devraient dire",
       "reading": "Lecture de la page…",
-      "preview": "Prévisualiser la modification"
+      "preview": "Me le montrer d’abord"
     },
     "change": {
       "fromFinding": "issu du constat : {finding}",
       "proposedOn": "proposée le {day}",
       "undoneByYou": "annulée par vous",
       "autoRolledBack": "annulée automatiquement",
-      "realPage": "La vraie page, scripts désactivés",
+      "realPage": "La vraie page",
       "desktopWidth": "Largeur ordinateur",
       "phoneWidth": "Largeur téléphone",
       "now": "Actuellement",
-      "proposed": "Proposé",
+      "proposed": "Avec le changement",
       "frameNow": "La page actuelle",
       "frameProposed": "La page telle que proposée",
-      "nowSays": "Dit actuellement",
-      "willSay": "Dira",
+      "nowSays": "La page dit maintenant",
+      "willSay": "Elle dirait",
       "basis": "Base",
       "basisValue": "trouvé une seule fois sur la page en ligne · observé",
       "quoted": "« {text} »",
@@ -5707,7 +5711,14 @@
       "ifWrong": "Si cela tourne mal : {what}",
       "decide": "Décider dans la file",
       "apply": "L’appliquer à la page",
-      "undo": "Annuler : rétablir la page"
+      "undo": "Annuler : rétablir la page",
+      "details": "Détails",
+      "ifApproved": "Si vous validez",
+      "promise": {
+        "only": "Seuls ces mots changent. Rien d’autre ne bouge sur la page.",
+        "undo": "Vous pouvez l’annuler en un clic, à tout moment. L’ancienne page est gardée pour de bon.",
+        "rollback": "Si la page casse ou ralentit après le changement, Lex la remet en place tout seul et vous dit pourquoi."
+      }
     },
     "audit": {
       "severity": {
@@ -5813,7 +5824,80 @@
         "cart_action": "un lien qui modifie un panier : l’audit n’y ajoute jamais rien",
         "checkout": "paiement : compté de l’extérieur, jamais ouvert",
         "external_booking": "une page de réservation sur le site d’une autre société : comptée, pas lue"
+      },
+      "plain": {
+        "home": "votre page d’accueil",
+        "page": "la page {path}",
+        "onPhone": "sur mobile",
+        "onComputer": "sur ordinateur",
+        "none": "Rien à corriger sur votre site pour l’instant.",
+        "again": "La vitesse pourra être revérifiée à partir du {day}.",
+        "prio": {
+          "first": "À corriger d’abord",
+          "worth": "À corriger",
+          "small": "Mineur"
+        },
+        "cost": "Coûte peut-être {range}.",
+        "details": "Détails",
+        "pagesDetails": "Détails : les pages vérifiées par Lex, et ce qu’il a laissé de côté",
+        "title": {
+          "lcp_slow": "{page} est lente {device} : {value} pour s’afficher",
+          "cls_unstable": "{page} bouge pendant le chargement {device}",
+          "inp_slow": "{page} répond lentement à un tap {device} : {value}",
+          "tbt_slow": "{page} se fige un instant pendant le chargement {device}",
+          "page_heavy": "{page} est lourde : {value} à charger",
+          "tap_targets": "{value} boutons ou liens sont trop petits pour être touchés sur {page}",
+          "contrast": "{value} textes sont difficiles à lire sur {page}",
+          "path_long": "Le paiement est à {value} de votre page d’accueil",
+          "path_missing": "Lex n’a pas trouvé le chemin de l’achat depuis votre page d’accueil",
+          "price_hidden": "Les prix ne sont pas visibles sur le premier écran de {page}",
+          "form_long": "Le formulaire de {page} demande {value} informations",
+          "broken_link": "Un lien de {page} mène à une page introuvable"
+        },
+        "why": {
+          "lcp_slow": "Les visiteurs attendent, et certains partent avant qu’elle s’affiche.",
+          "cls_unstable": "Les boutons bougent sous le pouce du visiteur, qui touche la mauvaise chose.",
+          "inp_slow": "Quand un tap tarde à répondre, le visiteur retape ou abandonne.",
+          "tbt_slow": "Tant qu’elle est figée, la page ne répond pas aux taps.",
+          "page_heavy": "Surtout des images et des scripts. Sur les données mobiles, c’est une longue attente.",
+          "tap_targets": "Un pouce qui touche le mauvais lien, c’est un visiteur qui abandonne.",
+          "contrast": "Leur couleur est trop proche du fond.",
+          "path_long": "Chaque clic de plus vers l’achat fait perdre des acheteurs.",
+          "path_missing": "Si Lex ne le trouve pas en suivant vos liens, certains visiteurs non plus.",
+          "price_hidden": "Les acheteurs cherchent d’abord le prix. S’il est caché, beaucoup partent.",
+          "form_long": "Chaque question de plus fait abandonner le formulaire à certains.",
+          "broken_link": "Le visiteur qui clique tombe sur une impasse."
+        },
+        "ran": "{count, plural, one {Vérifié le {day} · # page} many {Vérifié le {day} · # pages} other {Vérifié le {day} · # pages}}",
+        "some": "{count, plural, one {# chose à corriger, la plus coûteuse d’abord} many {# choses à corriger, les plus coûteuses d’abord} other {# choses à corriger, les plus coûteuses d’abord}}"
       }
+    },
+    "title": "Votre site, tel qu’un client le voit",
+    "glance": {
+      "label": "En un coup d’œil",
+      "speed": "Vitesse sur mobile",
+      "notMeasured": "Pas encore vérifié",
+      "notMeasuredLine": "Lancez la vérification pour voir comment votre site se comporte pour un client.",
+      "slow": "Lent",
+      "slowLine": "{page} met {value} à s’afficher. Le bon seuil est sous {good}.",
+      "mayCost": "Coûte peut-être {range}",
+      "fast": "Rapide",
+      "fastLine": "Vos pages s’affichent vite sur mobile.",
+      "path": "Le chemin jusqu’à l’achat",
+      "noBroken": "Aucun lien cassé",
+      "brokenLine": "{page} mène à une page introuvable.",
+      "pathUnknown": "Lex n’a pas trouvé le chemin jusqu’au paiement.",
+      "look": "Ce que les clients cherchent",
+      "shownOf": "{shown} sur {total} visibles",
+      "missing": "Il manque : {list}.",
+      "allShown": "Tout ce qu’ils cherchent y est.",
+      "waiting": "En attente de votre décision",
+      "open": "Le voir",
+      "nothing": "Rien",
+      "nothingLine": "Aucun changement n’attend votre oui.",
+      "broken": "{count, plural, one {# lien cassé} many {# liens cassés} other {# liens cassés}}",
+      "clicks": "{count, plural, one {Le paiement est à # clic de votre page d’accueil.} many {Le paiement est à # clics de votre page d’accueil.} other {Le paiement est à # clics de votre page d’accueil.}}",
+      "changes": "{count, plural, one {# changement} many {# changements} other {# changements}}"
     }
   },
   "support": {
@@ -9502,75 +9586,75 @@
   },
   "ladder": {
     "meta": {
-      "title": "Ce que ScaleX peut faire"
+      "title": "Ce que Lex peut faire · ScaleX"
     },
-    "title": "Ce que ScaleX peut faire dans votre entreprise en ce moment",
-    "intro": "Une ligne par type d’action. Monter une ligne exige le bilan ci-dessous ; la descendre, jamais, et l’arrêt ramène chaque ligne à la simple observation.",
+    "title": "Ce que Lex fait de lui-même",
+    "intro": "Lex commence par suggérer. Chaque type de travail ne monte d’une marche que lorsque ses résultats montrent qu’il a aidé. Vous pouvez en redescendre un, ou tout arrêter, à tout moment.",
     "station": {
-      "1": "Observe seulement",
-      "2": "Dit ce qu’il ferait, sans rien changer",
-      "3": "Agit après votre validation",
-      "4": "Agit dans vos limites et rend compte ensuite"
+      "1": "Observe",
+      "2": "Suggère",
+      "3": "Demande d’abord",
+      "4": "De lui-même"
     },
-    "record": "Mesurées : {closed} · gains : {gains} · pertes : {losses}",
+    "record": "Résultats à ce jour : {closed} vérifiés · {gains} ont aidé · {losses} ont nui",
     "raise": "Monter d’un cran",
-    "lower": "Descendre d’un cran",
+    "lower": "Le redescendre à {station}",
     "notYet": "Pas encore : {why}",
-    "askLimits": "Demander à agir dans des limites",
+    "askLimits": "Fixer les limites dans lesquelles Lex travaille",
     "confirm": "Confirmer : le laisser agir dans mes limites",
     "confirmNote": "Désormais il agit sans demander à chaque fois, seulement dans les limites que vous avez fixées. Vous pouvez le descendre, ou tout arrêter, à tout moment.",
-    "ceiling": "Cette ligne ne peut pas dépasser le cran {station} ici.",
+    "ceiling": "La marche {station} est pour l’instant la plus haute possible ici.",
     "notice": {
       "auto_demotion": "{capability} a perdu de l’argent deux fois de suite : il est descendu d’un cran.",
       "connector_demotion": "{provider} ne fonctionne plus : ce qui en dépendait est revenu à la simple observation.",
       "seen": "Compris"
     },
-    "shadowLink": "Voir ce qu’il aurait fait jusqu’ici",
+    "shadowLink": "Voir ce que Lex aurait fait jusqu’ici",
     "failed": "Ça n’a pas marché : {why}",
     "rule": {
-      "lower": "Descendre ne demande aucune preuve.",
+      "lower": "Redescendre est toujours permis.",
       "one_step": "Un cran à la fois.",
-      "ceiling": "Jamais au-delà du cran {station} pour ceci.",
+      "ceiling": "La marche {station} est la plus haute possible pour cela.",
       "connector_healthy": {
-        "met": "Une source connectée le mesure.",
-        "unmet": "Connectez d’abord une source qui le mesure."
+        "met": "Connecté, donc ses résultats peuvent être mesurés.",
+        "unmet": "Connectez d’abord la source de ses résultats, pour pouvoir les mesurer."
       },
-      "closed_shadow_plans": "Suggestions mesurées : {done} sur {need}.",
-      "gain_share": "Gains vérifiés : {share} % sur {need} % requis.",
+      "closed_shadow_plans": "{need} suggestions vérifiées face à ce qui s’est vraiment passé : {done} pour l’instant.",
+      "gain_share": "Parmi elles, au moins {need} % ont aidé : {share} % pour l’instant.",
       "net_positive": {
-        "met": "Net positif.",
-        "unmet": "Pas encore net positif."
+        "met": "Plus ont aidé que nui.",
+        "unmet": "Pas encore plus aidé que nui."
       },
       "no_big_loss": {
-        "met": "Aucune perte au-delà du double de l’estimation basse.",
-        "unmet": "Une perte a dépassé le double de l’estimation basse."
+        "met": "Aucune n’a perdu plus du double de ce que Lex prévoyait.",
+        "unmet": "Une a perdu plus du double de ce que Lex prévoyait."
       },
-      "executed_actions": "Actions réalisées : {done} sur {need}.",
+      "executed_actions": "{need} travaux faits après votre validation : {done} pour l’instant.",
       "caps_set": {
         "met": "Vos limites sont fixées.",
-        "unmet": "Fixez d’abord ses limites."
+        "unmet": "Fixez d’abord les limites dans lesquelles Lex travaille."
       }
     },
     "capability": {
       "meta_publish": "Publications Facebook et Instagram",
       "tiktok_publish": "Publications TikTok",
-      "meta_ads": "Publicités Meta",
+      "meta_ads": "Publicités Facebook et Instagram",
       "tiktok_ads": "Publicités TikTok",
       "google_ads": "Google Ads",
-      "email_campaign": "E-mails à vos contacts",
+      "email_campaign": "E-mails à vos clients",
       "followup_email": "Relances des affaires en sommeil",
       "purchase_order": "Commandes aux fournisseurs",
       "google_business_reviews": "Réponses aux avis Google",
       "shopify_write": "Modifications de votre boutique Shopify"
     },
-    "kicker": "Échelle de confiance",
+    "kicker": "Décisions · Ce que Lex peut faire",
     "col": {
-      "action": "Type d’action",
-      "record": "Bilan"
+      "action": "Type de travail",
+      "record": "Résultats à ce jour"
     },
     "stepN": "Cran {n}",
-    "linesHere": "{count, plural, one {# ligne ici} many {# lignes ici} other {# lignes ici}}",
-    "notOpen": "non ouvert ici",
+    "linesHere": "{count, plural, one {Ici : # type de travail} many {Ici : # types de travail} other {Ici : # types de travail}}",
+    "notOpen": "Pas encore ouvert ici",
     "group": {
       "posts": "Publications",
       "ads": "Publicités",
@@ -9579,25 +9663,48 @@
       "other": "Autres"
     },
     "rec": {
-      "none": "Pas encore de bilan",
-      "measured": "{count, plural, one {# mesurée} many {# mesurées} other {# mesurées}}",
-      "gains": "{count, plural, one {# gain} many {# gains} other {# gains}}",
-      "losses": "{count, plural, one {# perte} many {# pertes} other {# pertes}}"
+      "none": "Pas encore de résultats",
+      "measured": "{count, plural, one {# vérifié} many {# vérifiés} other {# vérifiés}}",
+      "gains": "{count, plural, one {# a aidé} many {# ont aidé} other {# ont aidé}}",
+      "losses": "{count, plural, one {# a nui} many {# ont nui} other {# ont nui}}"
     },
-    "needs": "Ce qu’exige le cran {n}",
-    "met": "Rempli",
+    "needs": "Pour monter à {station}, il faut",
+    "met": "Fait",
     "notMet": "Pas encore",
-    "waitHint": "Elle pourra monter quand toutes les règles ci-dessus indiqueront « Rempli ».",
+    "waitHint": "Il pourra monter quand tout ce qui précède dira Fait.",
     "foot": {
-      "ceiling": "Le cran {n} est pour l’instant le plus haut pour cette entreprise.",
-      "own": "Chaque ligne monte selon son propre bilan."
+      "ceiling": "Aucun type de travail ne peut encore dépasser la marche {n} ici.",
+      "own": "Chaque type de travail monte selon ses propres résultats."
     },
     "trackAria": "Cran {n} sur {total}",
     "viz": {
       "gains": "Gains",
       "losses": "Pertes",
       "neither": "Ni l’un ni l’autre"
-    }
+    },
+    "stationDesc": {
+      "1": "Regarde vos chiffres. Ne suggère rien, ne change rien.",
+      "2": "Vous dit ce qu’il ferait, puis montre comment cela se serait passé.",
+      "3": "Fait le travail après votre validation. À chaque fois.",
+      "4": "Fait le travail dans les limites que vous fixez, puis vous le dit."
+    },
+    "status": {
+      "mixed": "Lex travaille à des marches différentes selon le type de travail. Chacun est listé ci-dessous.",
+      "ceiling": "Aucun ne peut encore dépasser la marche {n} ici.",
+      "queue": "En attente de votre décision",
+      "all1": "{count, plural, one {Aujourd’hui Lex ne fait qu’observer, pour le seul type de travail.} many {Aujourd’hui Lex ne fait qu’observer, pour les # types de travail.} other {Aujourd’hui Lex ne fait qu’observer, pour les # types de travail.}}",
+      "all2": "{count, plural, one {Aujourd’hui Lex ne fait que suggérer, pour le seul type de travail.} many {Aujourd’hui Lex ne fait que suggérer, pour les # types de travail.} other {Aujourd’hui Lex ne fait que suggérer, pour les # types de travail.}}",
+      "all3": "{count, plural, one {Aujourd’hui Lex demande d’abord, pour le seul type de travail.} many {Aujourd’hui Lex demande d’abord, pour les # types de travail.} other {Aujourd’hui Lex demande d’abord, pour les # types de travail.}}",
+      "all4": "{count, plural, one {Aujourd’hui Lex travaille de lui-même dans vos limites, pour le seul type de travail.} many {Aujourd’hui Lex travaille de lui-même dans vos limites, pour les # types de travail.} other {Aujourd’hui Lex travaille de lui-même dans vos limites, pour les # types de travail.}}"
+    },
+    "raiseTo": {
+      "2": "Laisser Lex le suggérer",
+      "3": "Laisser Lex le faire après ma validation",
+      "4": "Laisser Lex le faire de lui-même, dans mes limites"
+    },
+    "lowerNote": "Toujours permis, tout de suite.",
+    "now": "Maintenant · {station} :",
+    "next": "Ensuite · {station} :"
   },
   "shadowSummary": {
     "meta": {

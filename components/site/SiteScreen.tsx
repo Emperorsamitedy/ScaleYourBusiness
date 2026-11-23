@@ -14,13 +14,23 @@
 // they are; the platform line, the evidence, the expected effect and the
 // manual steps come from the server already in the reader's language
 // (L-4c, lib/site/localize.ts).
+//
+// 2026-11-23, the owner: pages a client "can't understand easily", this one
+// first after Grow. Said plainly: "Your website, as a customer sees it",
+// four answers at a glance (speed on a phone, the way to buying, what
+// customers look for, what waits for a yes), tabs named for what they hold,
+// and a change said as what it does and what is promised if it is approved,
+// answered right on its card. The evidence a proposal carries is kept under
+// "Details". The page's own stop is gone: the bar carries it, as everywhere.
 
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { useTranslations } from "next-intl";
 import "../../app/site.css";
 import type { SiteAuditView } from "../../lib/site/audit/view";
-import { EmergencyStop } from "../execution/EmergencyStop";
+import { SITE_THRESHOLDS } from "../../lib/site/audit/findings";
+import { intlTag } from "../../lib/i18n/locales";
+import { InPlaceDecision } from "../chat/InPlaceDecision";
 import { Fold } from "../sheet/Fold";
 import { PageHead, SheetCard } from "../sheet/PageHead";
 import { ToolIntro } from "../grow/ToolIntro";
@@ -28,7 +38,7 @@ import { useTr } from "../sheet/useTr";
 import type { AppLocale } from "../../lib/i18n/locales";
 import type { Tr } from "../../lib/i18n/tr";
 import { SiteAuditSheet } from "./SiteAuditSheet";
-import { bareUrl, dayWord } from "./site-view";
+import { bareUrl, dayWord, euroLine, measuredValue, pagePath } from "./site-view";
 import { Logo } from "../brand/Mark";
 
 interface SiteDetail {
@@ -111,8 +121,130 @@ const STATUS_TONE: Record<ProposalStatus, string> = {
   changes_requested: "drift",
 };
 
-function shortId(id: string): string {
-  return `W-${id.replace(/-/g, "").slice(0, 4).toUpperCase()}`;
+/**
+ * The four answers at the top of the page, each one sentence, from what was
+ * already read: Google's speed on the slowest page, the broken links and the
+ * clicks to buying, what customers look for that the site shows, and what
+ * waits for a yes. Nothing is worked out here that the audit didn't measure.
+ */
+function Glance({
+  measured,
+  audit,
+  pending,
+  onOpen,
+  tr,
+  locale,
+}: {
+  measured: SiteAuditView | null;
+  audit: SiteAudit | null;
+  pending: SiteProposal[];
+  onOpen: (id: string) => void;
+  tr: Tr;
+  locale: AppLocale;
+}) {
+  const slow =
+    measured?.findings
+      .filter((f) => f.code === "lcp_slow")
+      .sort((a, b) => (b.evidence.value ?? 0) - (a.evidence.value ?? 0))[0] ?? null;
+  const slowPath = slow ? pagePath(slow.page_url, tr) : "";
+  const broken = measured?.broken ?? [];
+  const shown = audit ? audit.notes.filter((n) => n.found_on !== null) : [];
+  const missing = audit ? audit.notes.filter((n) => n.found_on === null) : [];
+  const first = pending[0] ?? null;
+  return (
+    <section className="st-glance" aria-label={tr("glance.label")}>
+      <article className="st-tile">
+        <p className="st-tile-lab">{tr("glance.speed")}</p>
+        {!measured ? (
+          <>
+            <p className="st-tile-big">{tr("glance.notMeasured")}</p>
+            <p>{tr("glance.notMeasuredLine")}</p>
+          </>
+        ) : slow ? (
+          <>
+            <p className="st-tile-big bad">{tr("glance.slow")}</p>
+            <p className="st-cap">
+              {tr("glance.slowLine", {
+                page: slowPath === tr("homePage") ? tr("audit.plain.home") : slowPath,
+                value: measuredValue(slow, tr, locale),
+                // Google's line for a good page, the threshold the finding was measured against.
+                good: tr("audit.unit.seconds", {
+                  value: new Intl.NumberFormat(intlTag(locale)).format(
+                    SITE_THRESHOLDS.lcp_ms.good / 1000,
+                  ),
+                }),
+              })}
+            </p>
+            {slow.euro.computed && (
+              <p className="st-tile-sub">
+                {tr("glance.mayCost", { range: euroLine(slow.euro, tr, locale) })}
+              </p>
+            )}
+          </>
+        ) : (
+          <>
+            <p className="st-tile-big good">{tr("glance.fast")}</p>
+            <p>{tr("glance.fastLine")}</p>
+          </>
+        )}
+      </article>
+      <article className="st-tile">
+        <p className="st-tile-lab">{tr("glance.path")}</p>
+        {!measured ? (
+          <>
+            <p className="st-tile-big">{tr("glance.notMeasured")}</p>
+            <p>{tr("glance.notMeasuredLine")}</p>
+          </>
+        ) : (
+          <>
+            <p className={`st-tile-big${broken.length > 0 ? " bad" : " good"}`}>
+              {broken.length > 0
+                ? tr("glance.broken", { count: broken.length })
+                : tr("glance.noBroken")}
+            </p>
+            <p>
+              {broken[0]
+                ? `${tr("glance.brokenLine", { page: pagePath(broken[0].url, tr) })} `
+                : ""}
+              {measured.path.clicks === null
+                ? tr("glance.pathUnknown")
+                : tr("glance.clicks", { count: measured.path.clicks })}
+            </p>
+          </>
+        )}
+      </article>
+      {audit && (
+        <article className="st-tile">
+          <p className="st-tile-lab">{tr("glance.look")}</p>
+          <p className={`st-tile-big${missing.length > 0 ? " warn" : " good"}`}>
+            {tr("glance.shownOf", { shown: shown.length, total: audit.notes.length })}
+          </p>
+          <p>
+            {missing.length > 0
+              ? tr("glance.missing", { list: missing.map((n) => n.label).join(", ") })
+              : tr("glance.allShown")}
+          </p>
+        </article>
+      )}
+      <article className={`st-tile${first ? " due" : ""}`}>
+        <p className="st-tile-lab">{tr("glance.waiting")}</p>
+        {first ? (
+          <>
+            <p className="st-tile-big">{tr("glance.changes", { count: pending.length })}</p>
+            <p>{first.action.summary}</p>
+            <button type="button" className="next st-tile-go" onClick={() => onOpen(first.id)}>
+              {tr("glance.open")}
+            </button>
+          </>
+        ) : (
+          <>
+            <p className="st-tile-big">{tr("glance.nothing")}</p>
+            <p>{tr("glance.nothingLine")}</p>
+          </>
+        )}
+      </article>
+    </section>
+  );
 }
 
 function tabName(p: SiteProposal, tr: Tr): string {
@@ -122,17 +254,6 @@ function tabName(p: SiteProposal, tr: Tr): string {
   } catch {
     return tr("page");
   }
-}
-
-function headline(proposals: SiteProposal[], tr: Tr): string {
-  const pending = proposals.filter((p) => p.status === "pending").length;
-  const ready = proposals.filter(
-    (p) => p.status === "approved" && !p.action.detail.manual_instructions && !p.execution,
-  ).length;
-  if (pending > 0) return tr("headline.pending", { count: pending });
-  if (ready > 0) return tr("headline.ready", { count: ready });
-  if (proposals.length > 0) return tr("headline.none");
-  return tr("headline.empty");
 }
 
 export function SiteScreen({
@@ -236,13 +357,13 @@ export function SiteScreen({
   const tabs: { key: string; label: string; tab: Tab }[] = [
     ...ordered.map((p) => ({
       key: p.id,
-      label: `${shortId(p.id)} · ${tabName(p, tr)}`,
+      label: tr("tabs.change", { page: tabName(p, tr) }),
       tab: { kind: "change", id: p.id } as Tab,
     })),
     {
       key: "measured",
       label: measured.audit
-        ? tr("tabs.measured", { count: measured.audit.findings.length })
+        ? tr("tabs.fix", { count: measured.audit.findings.length })
         : tr("tabs.measure"),
       tab: { kind: "measured" } as Tab,
     },
@@ -250,7 +371,7 @@ export function SiteScreen({
       ? [
           {
             key: "audit",
-            label: tr("tabs.audit", { count: audit.notes.length }),
+            label: tr("tabs.look", { count: missing }),
             tab: { kind: "audit" } as Tab,
           },
         ]
@@ -262,27 +383,29 @@ export function SiteScreen({
 
   return (
     <main className="screen st-screen">
-      <PageHead kicker={tr("kicker")} title={headline(s.proposals, tr)}>
-        {audit
-          ? tr("head.checked", {
-              day: dayWord(audit.checked_at, locale),
-              pages: audit.pages.length,
-              missing,
-              total: audit.notes.length,
-            })
-          : tr("head.noCheck")}
+      <PageHead kicker={tr("kicker")} title={tr("title")}>
         {measured.audit
-          ? ` · ${tr("head.measured", {
+          ? tr("head.checkedPlain", {
               day: dayWord(measured.audit.ran_at, locale),
-              count: measured.audit.findings.length,
-            })}`
-          : ""}
+              count: measured.audit.page_reads,
+            })
+          : audit
+            ? tr("head.checkedPlain", {
+                day: dayWord(audit.checked_at, locale),
+                count: audit.pages.length,
+              })
+            : tr("head.noCheck")}
       </PageHead>
       <ToolIntro tool="site" />
 
-      <div className="st-stop">
-        <EmergencyStop />
-      </div>
+      <Glance
+        measured={measured.audit}
+        audit={audit}
+        pending={ordered.filter((p) => p.status === "pending")}
+        onOpen={(id) => setState({ ...s, tab: { kind: "change", id } })}
+        tr={tr}
+        locale={locale}
+      />
 
       {s.notice && (
         <p className="st-notice" aria-live="polite">
@@ -461,7 +584,6 @@ function ChangeSheet({
       <header className="cs-head">
         <div>
           <p className="cs-label">
-            {shortId(p.id)} ·{" "}
             {p.originating_finding
               ? tr("change.fromFinding", { finding: p.originating_finding })
               : tr("change.proposedOn", { day: dayWord(p.created_at, locale) })}{" "}
@@ -521,36 +643,19 @@ function ChangeSheet({
         d.preview_note && <p className="st-note">{d.preview_note}</p>
       )}
 
-      <div className="st-changes">
-        <table className="rt st-table">
-          <thead>
-            <tr>
-              <th scope="col">#</th>
-              <th scope="col">{tr("change.nowSays")}</th>
-              <th scope="col">{tr("change.willSay")}</th>
-              <th scope="col">{tr("change.basis")}</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td data-label="#" className="st-n">
-                1
-              </td>
-              <td data-label={tr("change.nowSays")} className="st-quote">
-                {tr("change.quoted", { text: d.find })}
-              </td>
-              <td data-label={tr("change.willSay")} className="st-quote">
-                <span className="marked">{tr("change.quoted", { text: d.replace })}</span>
-              </td>
-              <td data-label={tr("change.basis")} className="src">
-                {tr("change.basisValue")}
-              </td>
-            </tr>
-          </tbody>
-        </table>
+      <div className="st-changes st-say">
+        <div>
+          <p className="cs-label">{tr("change.nowSays")}</p>
+          <p className="st-quote">{tr("change.quoted", { text: d.find })}</p>
+        </div>
+        <div>
+          <p className="cs-label">{tr("change.willSay")}</p>
+          <p className="st-quote">
+            <span className="marked">{tr("change.quoted", { text: d.replace })}</span>
+          </p>
+        </div>
         {evidence.length > 0 && (
-          <>
-            <p className="cs-label st-gap">{tr("change.evidence")}</p>
+          <Fold summary={tr("change.details")} className="st-fix-more">
             <ul className="st-evidence">
               {evidence.map((a) => (
                 <li key={a.statement}>
@@ -564,7 +669,7 @@ function ChangeSheet({
                 </li>
               ))}
             </ul>
-          </>
+          </Fold>
         )}
       </div>
 
@@ -594,34 +699,25 @@ function ChangeSheet({
       </div>
 
       <div className="st-expect">
-        <div>
-          <p className="cs-label">{tr("change.expected")}</p>
-          <p className="st-expect-line">
-            {p.scenario?.base_case?.statement ?? tr("change.expectedDefault")}
-          </p>
-          {p.scenario?.downside_case?.statement && (
-            <p className="st-expect-sub">
-              {tr("change.ifWrong", { what: p.scenario.downside_case.statement })}
-            </p>
-          )}
-        </div>
-        {p.reversibility && (
-          <p className="st-rev">
-            <span className={`word boxed ${p.reversibility.level === "hard" ? "alarm" : ""}`}>
-              {tr(`reverse.${p.reversibility.level}`)}
-            </span>
-            <span>{p.reversibility.if_you_change_your_mind}</span>
-          </p>
+        <p className="cs-label">{tr("change.ifApproved")}</p>
+        <ul className="st-promises">
+          <li>{tr("change.promise.only")}</li>
+          {p.reversibility && p.reversibility.level !== "hard" ? (
+            <li>{tr("change.promise.undo")}</li>
+          ) : p.reversibility ? (
+            <li>{p.reversibility.if_you_change_your_mind}</li>
+          ) : null}
+          <li>{tr("change.promise.rollback")}</li>
+        </ul>
+        {p.scenario?.base_case?.statement && (
+          <p className="st-expect-sub">{p.scenario.base_case.statement}</p>
         )}
       </div>
 
       {(p.status === "pending" || canApply || canUndo) && (
         <footer className="st-actions">
-          {p.status === "pending" && (
-            <Link className="prop-btn st-wide" href="/proposals">
-              {tr("change.decide")} <span aria-hidden="true">→</span>
-            </Link>
-          )}
+          {/* Answered right here, through the queue's own decision card. */}
+          {p.status === "pending" && <InPlaceDecision id={p.id} />}
           {canApply && (
             <button
               type="button"

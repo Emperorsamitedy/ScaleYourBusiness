@@ -70,7 +70,7 @@
       "team_access": "Teamzugang",
       "language": "Sprache und Währung",
       "payments": "Zahlungen",
-      "ladder": "Was ich tun darf",
+      "ladder": "Was Lex tun darf",
       "statement": "Monatsauszug",
       "billing": "Plan und Abrechnung",
       "mandates": "Kanzleien mit Zugriff",
@@ -5612,7 +5612,7 @@
     "homePage": "Startseite",
     "page": "Seite",
     "noAction": "keine Aktion",
-    "fine": "Jede Änderung wird in der Vorschau aus der echten Seite gezeigt, erst nach Ihrem Ja in der Warteschlange angewendet, behält ihr Rückgängigmachen für immer und nimmt sich bei einem harten Fehler selbst zurück, nie wegen einer ruhigen Woche.",
+    "fine": "Jede Änderung wird zuerst auf der echten Seite gezeigt, erst nach Ihrem Ja gemacht, lässt sich immer rückgängig machen und wird von selbst zurückgesetzt, wenn die Seite ausfällt.",
     "signedOut": {
       "eyebrow": "ihre website",
       "title": "Beginnen Sie mit dem Interview.",
@@ -5633,15 +5633,19 @@
     },
     "head": {
       "checked": "Letzte Website-Prüfung {day} · {pages, plural, one {# Seite} other {# Seiten}} gelesen · {missing} von {total} Prüfpunkten nicht gezeigt",
-      "noCheck": "Noch keine Website-Prüfung erfasst",
-      "measured": "gemessen {day}: {count, plural, one {# Befund} other {# Befunde}}"
+      "noCheck": "Noch nicht geprüft",
+      "measured": "gemessen {day}: {count, plural, one {# Befund} other {# Befunde}}",
+      "checkedPlain": "{count, plural, one {Zuletzt geprüft {day} · # Seite} other {Zuletzt geprüft {day} · # Seiten}}"
     },
     "tabs": {
       "aria": "Website-Änderungen",
       "measured": "Gemessen · {count, plural, one {# Befund} other {# Befunde}}",
-      "measure": "Die Website messen",
+      "measure": "Website prüfen",
       "audit": "Prüfung · {count, plural, one {# Hinweis} other {# Hinweise}}, keine Aktion",
-      "propose": "Eine Änderung vorschlagen"
+      "propose": "Ein paar Worte ändern",
+      "change": "Änderung auf {page}",
+      "fix": "{count, plural, one {Was zu beheben ist · #} other {Was zu beheben ist · #}}",
+      "look": "{count, plural, one {Was Kunden suchen · # fehlt} other {Was Kunden suchen · # fehlen}}"
     },
     "status": {
       "pending": "wartet auf Sie",
@@ -5670,30 +5674,30 @@
       "unreadable": "{url} konnte nicht gelesen werden: {reason}"
     },
     "propose": {
-      "label": "Eine Änderung vorschlagen",
-      "title": "Gezeigt, bevor es je angewendet wird",
-      "foot": "Kasse, Warenkorb, Zahlungs- und Rechnungsseiten werden grundsätzlich abgelehnt. Sie können nicht einmal vorgeschlagen werden, auf keiner Freigabestufe.",
-      "url": "Seitenadresse",
+      "label": "Ein paar Worte ändern",
+      "title": "Sie sehen es, bevor sich etwas ändert",
+      "foot": "Kassen-, Warenkorb- und Zahlungsseiten lassen sich hier nie ändern.",
+      "url": "Welche Seite",
       "urlPlaceholder": "ihrewebsite.de/ueber-uns",
-      "find": "Der genaue Text, der geändert werden soll",
-      "replace": "Was stattdessen dort stehen soll",
+      "find": "Die Worte, die jetzt dort stehen",
+      "replace": "Was dort stehen soll",
       "reading": "Die Seite wird gelesen…",
-      "preview": "Vorschau der Änderung"
+      "preview": "Erst zeigen"
     },
     "change": {
       "fromFinding": "aus dem Befund: {finding}",
       "proposedOn": "vorgeschlagen {day}",
       "undoneByYou": "von Ihnen rückgängig gemacht",
       "autoRolledBack": "automatisch zurückgenommen",
-      "realPage": "Die echte Seite, ohne Skripte",
+      "realPage": "Die echte Seite",
       "desktopWidth": "Desktop-Breite",
       "phoneWidth": "Smartphone-Breite",
       "now": "Jetzt",
-      "proposed": "Vorgeschlagen",
+      "proposed": "Mit der Änderung",
       "frameNow": "Die Seite jetzt",
       "frameProposed": "Die Seite wie vorgeschlagen",
-      "nowSays": "Steht jetzt",
-      "willSay": "Wird stehen",
+      "nowSays": "Die Seite sagt jetzt",
+      "willSay": "Sie würde sagen",
       "basis": "Grundlage",
       "basisValue": "einmal auf der Live-Seite gefunden · beobachtet",
       "quoted": "„{text}“",
@@ -5707,7 +5711,14 @@
       "ifWrong": "Falls es schiefgeht: {what}",
       "decide": "In der Warteschlange entscheiden",
       "apply": "Auf die Seite anwenden",
-      "undo": "Rückgängig: die Seite wiederherstellen"
+      "undo": "Rückgängig: die Seite wiederherstellen",
+      "details": "Details",
+      "ifApproved": "Wenn Sie die Freigabe erteilen",
+      "promise": {
+        "only": "Nur diese Worte ändern sich. Sonst bewegt sich nichts auf der Seite.",
+        "undo": "Sie können es jederzeit mit einem Klick rückgängig machen. Die alte Seite bleibt für immer gespeichert.",
+        "rollback": "Wenn die Seite nach der Änderung ausfällt oder langsam wird, setzt Lex sie von selbst zurück und sagt Ihnen, warum."
+      }
     },
     "audit": {
       "severity": {
@@ -5813,7 +5824,80 @@
         "cart_action": "ein Link, der einen Warenkorb ändert: die Prüfung legt nie etwas hinein",
         "checkout": "Kasse: von außen gezählt, nie geöffnet",
         "external_booking": "eine Buchungsseite auf der Website eines anderen Unternehmens: gezählt, nicht gelesen"
+      },
+      "plain": {
+        "home": "Ihre Startseite",
+        "page": "die Seite {path}",
+        "onPhone": "auf dem Handy",
+        "onComputer": "am Computer",
+        "none": "Auf Ihrer Website muss gerade nichts behoben werden.",
+        "again": "Das Tempo lässt sich ab {day} wieder prüfen.",
+        "prio": {
+          "first": "Zuerst beheben",
+          "worth": "Lohnt sich",
+          "small": "Klein"
+        },
+        "cost": "Kostet womöglich {range}.",
+        "details": "Details",
+        "pagesDetails": "Details: die Seiten, die Lex geprüft hat, und was es nicht angerührt hat",
+        "title": {
+          "lcp_slow": "{page} ist {device} langsam: {value}, bis sie erscheint",
+          "cls_unstable": "{page} springt beim Laden {device} hin und her",
+          "inp_slow": "{page} reagiert {device} langsam auf ein Tippen: {value}",
+          "tbt_slow": "{page} friert beim Laden {device} kurz ein",
+          "page_heavy": "{page} ist schwer: {value} zum Laden",
+          "tap_targets": "{value} Schaltflächen oder Links sind auf {page} zu klein zum Tippen",
+          "contrast": "{value} Textstellen sind auf {page} schwer zu lesen",
+          "path_long": "Die Kasse ist {value} von Ihrer Startseite entfernt",
+          "path_missing": "Lex hat von Ihrer Startseite keinen Weg zum Kauf gefunden",
+          "price_hidden": "Preise sind auf dem ersten Bildschirm von {page} nicht zu sehen",
+          "form_long": "Das Formular auf {page} fragt {value} Dinge ab",
+          "broken_link": "Ein Link auf {page} führt zu einer fehlenden Seite"
+        },
+        "why": {
+          "lcp_slow": "Besucher warten, und manche gehen, bevor sie erscheint.",
+          "cls_unstable": "Schaltflächen verrutschen unter dem Daumen, und Besucher tippen daneben.",
+          "inp_slow": "Wenn ein Tippen lange braucht, tippen Besucher erneut oder geben auf.",
+          "tbt_slow": "Solange sie eingefroren ist, reagiert die Seite auf kein Tippen.",
+          "page_heavy": "Vor allem Bilder und Skripte. Mit mobilen Daten ist das eine lange Wartezeit.",
+          "tap_targets": "Ein Daumen, der den falschen Link trifft, ist ein Besucher, der aufgibt.",
+          "contrast": "Ihre Farbe ist dem Hintergrund zu ähnlich.",
+          "path_long": "Jeder zusätzliche Klick auf dem Weg zum Kauf kostet Käufer.",
+          "path_missing": "Wenn Lex ihn über Ihre Links nicht findet, finden ihn manche Besucher auch nicht.",
+          "price_hidden": "Käufer suchen zuerst den Preis. Ist er versteckt, gehen viele.",
+          "form_long": "Jede zusätzliche Frage lässt manche das Formular abbrechen.",
+          "broken_link": "Wer darauf klickt, landet in einer Sackgasse."
+        },
+        "ran": "{count, plural, one {Geprüft {day} · # Seite} other {Geprüft {day} · # Seiten}}",
+        "some": "{count, plural, one {# Sache zu beheben, die teuerste zuerst} other {# Sachen zu beheben, die teuersten zuerst}}"
       }
+    },
+    "title": "Ihre Website, wie ein Kunde sie sieht",
+    "glance": {
+      "label": "Auf einen Blick",
+      "speed": "Tempo auf dem Handy",
+      "notMeasured": "Noch nicht geprüft",
+      "notMeasuredLine": "Starten Sie die Prüfung, um zu sehen, wie Ihre Website für einen Kunden läuft.",
+      "slow": "Langsam",
+      "slowLine": "{page} braucht {value}, bis sie erscheint. Gut ist unter {good}.",
+      "mayCost": "Kostet womöglich {range}",
+      "fast": "Schnell",
+      "fastLine": "Ihre Seiten erscheinen auf dem Handy schnell.",
+      "path": "Der Weg zum Kauf",
+      "noBroken": "Keine kaputten Links",
+      "brokenLine": "{page} führt zu einer fehlenden Seite.",
+      "pathUnknown": "Lex hat den Weg zur Kasse nicht gefunden.",
+      "look": "Was Kunden suchen",
+      "shownOf": "{shown} von {total} sichtbar",
+      "missing": "Fehlt: {list}.",
+      "allShown": "Alles, was sie suchen, ist da.",
+      "waiting": "Wartet auf Sie",
+      "open": "Ansehen",
+      "nothing": "Nichts",
+      "nothingLine": "Keine Änderung wartet auf Ihr Ja.",
+      "broken": "{count, plural, one {# kaputter Link} other {# kaputte Links}}",
+      "clicks": "{count, plural, one {Die Kasse ist # Klick von Ihrer Startseite entfernt.} other {Die Kasse ist # Klicks von Ihrer Startseite entfernt.}}",
+      "changes": "{count, plural, one {# Änderung} other {# Änderungen}}"
     }
   },
   "support": {
@@ -9502,75 +9586,75 @@
   },
   "ladder": {
     "meta": {
-      "title": "Was ScaleX tun darf"
+      "title": "Was Lex tun darf · ScaleX"
     },
-    "title": "Was ScaleX jetzt in Ihrem Unternehmen tun kann",
-    "intro": "Eine Zeile pro Art von Aktion. Eine Zeile anzuheben braucht die Bilanz darunter; sie zu senken nie, und der Stopp setzt jede Zeile auf reines Beobachten zurück.",
+    "title": "Wie viel Lex selbst erledigt",
+    "intro": "Lex beginnt mit Vorschlägen. Jede Art von Arbeit steigt nur dann eine Stufe auf, wenn ihre Ergebnisse zeigen, dass sie geholfen hat. Sie können jede jederzeit herabsetzen oder alles stoppen.",
     "station": {
-      "1": "Beobachtet nur",
-      "2": "Sagt, was es tun würde, ändert nichts",
-      "3": "Handelt nach Ihrer Freigabe",
-      "4": "Handelt innerhalb Ihrer Grenzen und berichtet danach"
+      "1": "Beobachtet",
+      "2": "Schlägt vor",
+      "3": "Fragt zuerst",
+      "4": "Selbstständig"
     },
-    "record": "Gemessen: {closed} · Gewinne: {gains} · Verluste: {losses}",
+    "record": "Bisherige Ergebnisse: {closed} geprüft · {gains} geholfen · {losses} geschadet",
     "raise": "Eine Stufe höher",
-    "lower": "Eine Stufe niedriger",
+    "lower": "Herabsetzen auf {station}",
     "notYet": "Noch nicht: {why}",
-    "askLimits": "Handeln innerhalb von Grenzen beantragen",
+    "askLimits": "Die Grenzen festlegen, in denen Lex arbeitet",
     "confirm": "Bestätigen: innerhalb meiner Grenzen handeln lassen",
     "confirmNote": "Ab jetzt handelt es, ohne jedes Mal zu fragen, nur innerhalb der Grenzen, die Sie gesetzt haben. Sie können es jederzeit senken oder alles stoppen.",
-    "ceiling": "Diese Zeile kann hier nicht über Stufe {station} hinaus.",
+    "ceiling": "Stufe {station} ist hier vorerst das Höchste für diese Arbeit.",
     "notice": {
       "auto_demotion": "{capability} hat zweimal hintereinander Geld verloren und ist eine Stufe gesunken.",
       "connector_demotion": "{provider} funktioniert nicht mehr; was davon abhing, beobachtet jetzt nur noch.",
       "seen": "Verstanden"
     },
-    "shadowLink": "Sehen, was es bisher getan hätte",
+    "shadowLink": "Sehen, was Lex bisher getan hätte",
     "failed": "Das hat nicht geklappt: {why}",
     "rule": {
-      "lower": "Senken braucht keinen Beleg.",
+      "lower": "Herabsetzen ist immer erlaubt.",
       "one_step": "Eine Stufe nach der anderen.",
-      "ceiling": "Hierfür nie über Stufe {station}.",
+      "ceiling": "Stufe {station} ist hierfür das Höchste.",
       "connector_healthy": {
-        "met": "Eine verbundene Quelle misst es.",
-        "unmet": "Verbinden Sie zuerst eine Quelle, die es misst."
+        "met": "Verbunden, also lassen sich die Ergebnisse messen.",
+        "unmet": "Verbinden Sie zuerst die Quelle der Ergebnisse, damit sie messbar sind."
       },
-      "closed_shadow_plans": "Gemessene Vorschläge: {done} von {need}.",
-      "gain_share": "Belegte Gewinne: {share} % von nötigen {need} %.",
+      "closed_shadow_plans": "{need} Vorschläge mit dem abgeglichen, was wirklich geschah: bisher {done}.",
+      "gain_share": "Davon hat mindestens {need}% geholfen: bisher {share}%.",
       "net_positive": {
-        "met": "Netto positiv.",
-        "unmet": "Noch nicht netto positiv."
+        "met": "Mehr hat geholfen als geschadet.",
+        "unmet": "Noch nicht mehr geholfen als geschadet."
       },
       "no_big_loss": {
-        "met": "Kein Verlust über dem Doppelten der unteren Schätzung.",
-        "unmet": "Ein Verlust lag über dem Doppelten der unteren Schätzung."
+        "met": "Keiner hat mehr als das Doppelte dessen verloren, was Lex erwartet hatte.",
+        "unmet": "Einer hat mehr als das Doppelte dessen verloren, was Lex erwartet hatte."
       },
-      "executed_actions": "Ausgeführte Aktionen: {done} von {need}.",
+      "executed_actions": "{need} Arbeiten nach Ihrer Freigabe erledigt: bisher {done}.",
       "caps_set": {
         "met": "Ihre Grenzen sind gesetzt.",
-        "unmet": "Legen Sie zuerst die Grenzen fest."
+        "unmet": "Legen Sie zuerst die Grenzen fest, in denen Lex arbeitet."
       }
     },
     "capability": {
       "meta_publish": "Facebook- und Instagram-Beiträge",
       "tiktok_publish": "TikTok-Beiträge",
-      "meta_ads": "Meta-Anzeigen",
+      "meta_ads": "Facebook- und Instagram-Anzeigen",
       "tiktok_ads": "TikTok-Anzeigen",
       "google_ads": "Google Ads",
-      "email_campaign": "E-Mails an Ihre Kontakte",
+      "email_campaign": "E-Mails an Ihre Kunden",
       "followup_email": "Nachfass-E-Mails zu ruhigen Deals",
       "purchase_order": "Bestellungen bei Lieferanten",
       "google_business_reviews": "Antworten auf Google-Bewertungen",
       "shopify_write": "Änderungen in Ihrem Shopify-Shop"
     },
-    "kicker": "Vertrauensleiter",
+    "kicker": "Entscheidungen · Was Lex tun darf",
     "col": {
-      "action": "Art der Aktion",
-      "record": "Bilanz"
+      "action": "Art der Arbeit",
+      "record": "Bisherige Ergebnisse"
     },
     "stepN": "Stufe {n}",
-    "linesHere": "{count, plural, one {# Zeile hier} other {# Zeilen hier}}",
-    "notOpen": "hier nicht offen",
+    "linesHere": "{count, plural, one {Hier: # Art von Arbeit} other {Hier: # Arten von Arbeit}}",
+    "notOpen": "Hier noch nicht offen",
     "group": {
       "posts": "Beiträge",
       "ads": "Anzeigen",
@@ -9579,25 +9663,48 @@
       "other": "Sonstiges"
     },
     "rec": {
-      "none": "Noch keine Bilanz",
-      "measured": "{count, plural, one {# gemessen} other {# gemessen}}",
-      "gains": "{count, plural, one {# Gewinn} other {# Gewinne}}",
-      "losses": "{count, plural, one {# Verlust} other {# Verluste}}"
+      "none": "Noch keine Ergebnisse",
+      "measured": "{count, plural, one {# geprüft} other {# geprüft}}",
+      "gains": "{count, plural, one {# hat geholfen} other {# haben geholfen}}",
+      "losses": "{count, plural, one {# hat geschadet} other {# haben geschadet}}"
     },
-    "needs": "Was Stufe {n} braucht",
-    "met": "Erfüllt",
+    "needs": "Um auf {station} aufzusteigen, braucht es",
+    "met": "Erledigt",
     "notMet": "Noch nicht",
-    "waitHint": "Es kann aufsteigen, sobald bei jeder Regel oben „Erfüllt“ steht.",
+    "waitHint": "Es kann aufsteigen, sobald oben überall Erledigt steht.",
     "foot": {
-      "ceiling": "Stufe {n} ist derzeit die höchste Stufe für dieses Unternehmen.",
-      "own": "Jede Zeile steigt mit ihrer eigenen Bilanz auf."
+      "ceiling": "Hier kann noch keine Art von Arbeit über Stufe {n} hinaus.",
+      "own": "Jede Art von Arbeit steigt nach ihren eigenen Ergebnissen auf."
     },
     "trackAria": "Stufe {n} von {total}",
     "viz": {
       "gains": "Gewinne",
       "losses": "Verluste",
       "neither": "Weder noch"
-    }
+    },
+    "stationDesc": {
+      "1": "Sieht sich Ihre Zahlen an. Schlägt nichts vor, ändert nichts.",
+      "2": "Sagt Ihnen, was es tun würde, und zeigt dann, wie es ausgegangen wäre.",
+      "3": "Erledigt die Arbeit nach Ihrer Freigabe. Jedes Mal.",
+      "4": "Erledigt die Arbeit innerhalb Ihrer Grenzen und sagt Ihnen dann Bescheid."
+    },
+    "status": {
+      "mixed": "Lex arbeitet je nach Art der Arbeit auf verschiedenen Stufen. Jede ist unten aufgeführt.",
+      "ceiling": "Hier kann noch keine über Stufe {n} hinaus.",
+      "queue": "Wartet auf Sie",
+      "all1": "{count, plural, one {Heute beobachtet Lex nur, für die eine Art von Arbeit.} other {Heute beobachtet Lex nur, für alle # Arten von Arbeit.}}",
+      "all2": "{count, plural, one {Heute macht Lex nur Vorschläge, für die eine Art von Arbeit.} other {Heute macht Lex nur Vorschläge, für alle # Arten von Arbeit.}}",
+      "all3": "{count, plural, one {Heute fragt Lex zuerst, für die eine Art von Arbeit.} other {Heute fragt Lex zuerst, für alle # Arten von Arbeit.}}",
+      "all4": "{count, plural, one {Heute arbeitet Lex selbstständig innerhalb Ihrer Grenzen, für die eine Art von Arbeit.} other {Heute arbeitet Lex selbstständig innerhalb Ihrer Grenzen, für alle # Arten von Arbeit.}}"
+    },
+    "raiseTo": {
+      "2": "Lex Vorschläge machen lassen",
+      "3": "Lex dies nach meiner Freigabe erledigen lassen",
+      "4": "Lex dies selbstständig erledigen lassen, innerhalb meiner Grenzen"
+    },
+    "lowerNote": "Immer erlaubt, sofort.",
+    "now": "Jetzt · {station}:",
+    "next": "Als Nächstes · {station}:"
   },
   "shadowSummary": {
     "meta": {
