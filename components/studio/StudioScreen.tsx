@@ -25,6 +25,8 @@ import type { NicheView } from "../../lib/research/niche";
 import { useBusinessNoun } from "../nav/useBusinessNoun";
 import { formatMinor } from "../content/content-view";
 import { PageHead, SheetCard } from "../sheet/PageHead";
+import { AdsTabs } from "../grow/AdsTabs";
+import { ToolIntro } from "../grow/ToolIntro";
 import { useTr } from "../sheet/useTr";
 import type { Tr } from "../../lib/i18n/tr";
 import {
@@ -594,6 +596,8 @@ function Frame({
   return (
     <main className="screen st-screen">
       <PageHead kicker={tr("kicker")} title={title} aside={aside} />
+      <AdsTabs at="ideas" />
+      <ToolIntro tool="ads" />
       {children}
     </main>
   );

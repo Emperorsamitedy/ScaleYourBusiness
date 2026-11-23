@@ -1,4 +1,6 @@
-// /growth — the growth studio (v1 spec §10): the brand voice as words the
+// /growth — the growth studio (v1 spec §10), since 2026-11-23 the second tab
+// of Grow's "Ads and videos" (the creative studio, /studio, is the first):
+// the brand voice as words the
 // owner reads and corrects (§10.3), what the business's own figures say to
 // promote and the briefs that cite them (§10.1–§10.2), the asset library
 // with each asset's rights (§10.4), what is running low, and the identity
@@ -6,6 +8,7 @@
 
 import type { Metadata } from "next";
 import { desc, eq, inArray } from "drizzle-orm";
+import { AdsTabs } from "../../components/grow/AdsTabs";
 import { AssetUpload } from "../../components/growth/AssetUpload";
 import { PostForm } from "../../components/partner/PostForm";
 import { Fold } from "../../components/sheet/Fold";
@@ -29,15 +32,17 @@ export default async function GrowthPage() {
   const locale = await requestLocale();
   const tr = trFor(locale, "growth");
   const nav = trFor(locale, "nav");
-  // Where this screen sits, in the menu's own words.
-  const kicker = `${nav("group.business")} · ${nav("item.growth")}`;
+  // Where this screen sits, in the menu's own words: a tab of "Ads and videos", in Grow.
+  const kicker = `${nav("group.grow")} · ${nav("item.studio")}`;
+  const title = nav("item.studio");
   const access = await resolveAccess();
   if (!access) {
     return (
       <main className="screen pg">
-        <PageHead kicker={kicker} title={tr("kicker")}>
+        <PageHead kicker={kicker} title={title}>
           <p className="ph-lede">{tr("intro")}</p>
         </PageHead>
+        <AdsTabs at="yours" />
       </main>
     );
   }
@@ -73,9 +78,10 @@ export default async function GrowthPage() {
   const live = releases.filter((r) => r.revoked_at === null);
   return (
     <main className="screen pg">
-      <PageHead kicker={kicker} title={tr("kicker")}>
+      <PageHead kicker={kicker} title={title}>
         <p className="ph-lede">{tr("intro")}</p>
       </PageHead>
+      <AdsTabs at="yours" />
       <div className="pg-cols">
         <div className="pg-stack">
           <SheetCard title={tr("voice.title")}>

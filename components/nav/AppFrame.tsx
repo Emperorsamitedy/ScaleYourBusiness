@@ -241,27 +241,39 @@ export const GROUPS: readonly Group[] = [
     key: "grow",
     label: "Grow",
     items: [
+      // 2026-11-23, the owner: Grow's screens "can't really be comprehended
+      // easily". The place opens on a page that says what each tool does.
+      { href: "/grow", label: "All tools", feature: "nav.grow", rail: true },
       {
         href: "/content",
-        label: "Content",
+        label: "Posts",
         feature: "nav.content",
+        rail: true,
         count: (c) => n(c.by_module.content ?? 0),
       },
-      { href: "/studio", label: "Creative studio", feature: "nav.studio" },
+      // The growth studio is this tool's second tab (2026-11-23): one place for ads and videos.
+      {
+        href: "/studio",
+        label: "Ads and videos",
+        feature: "nav.studio",
+        rail: true,
+        pages: ["/growth"],
+      },
       {
         href: "/site",
         label: "Website",
         feature: "nav.site",
+        rail: true,
         count: (c) => n(c.by_module.site ?? 0),
       },
-      { href: "/simulate", label: "Campaign simulator", feature: "nav.simulate" },
+      { href: "/simulate", label: "Test an idea", feature: "nav.simulate", rail: true },
     ],
   },
   {
     key: "customers",
-    label: "Customers",
+    label: "Keep customers",
     items: [
-      { href: "/customers", label: "Customers", feature: "nav.customers", rail: true },
+      { href: "/customers", label: "Customer list", feature: "nav.customers", rail: true },
       // Idea 45: every business has reviews somewhere, so it always shows.
       { href: "/reviews", label: "Reviews", feature: "nav.reviews" },
       {
@@ -273,12 +285,12 @@ export const GROUPS: readonly Group[] = [
       },
       {
         href: "/pipeline",
-        label: "Pipeline",
+        label: "Business deals",
         feature: "nav.pipeline",
         appliesTo: (c) => c.pipeline === true,
         count: (c) => n(c.by_module.pipeline ?? 0),
       },
-      { href: "/support", label: "Support", feature: "nav.support", count: supportCount },
+      { href: "/support", label: "Messages", feature: "nav.support", count: supportCount },
     ],
   },
   {
@@ -302,7 +314,6 @@ export const GROUPS: readonly Group[] = [
       { href: "/statement", label: "Monthly statement", feature: "nav.statement", rail: true },
       { href: "/history", label: "History", feature: "nav.history", rail: true },
       { href: "/mode", label: "How I work", feature: "nav.mode" },
-      { href: "/growth", label: "Growth studio", feature: "nav.growth" },
       { href: "/billing", label: "Plan and billing", feature: "nav.billing" },
       { href: "/settings/mandates", label: "Firms with access", feature: "nav.mandates" },
       { href: "/settings/data", label: "Erase this business", feature: "nav.erasure" },

@@ -37,7 +37,7 @@
       "approve": "Zur Freigabe",
       "insights": "Erkenntnisse",
       "grow": "Wachstum",
-      "customers": "Kunden",
+      "customers": "Kunden halten",
       "business": "Ihr Unternehmen",
       "today": "Heute"
     },
@@ -54,15 +54,15 @@
       "blindspots": "Blinde Flecken",
       "competitors": "Wettbewerber",
       "benchmarks": "Ähnliche Unternehmen",
-      "content": "Inhalte",
-      "studio": "Kreativstudio",
+      "content": "Beiträge",
+      "studio": "Anzeigen und Videos",
       "site": "Website",
-      "simulate": "Kampagnensimulator",
-      "customers": "Kunden",
+      "simulate": "Eine Idee testen",
+      "customers": "Kundenliste",
       "reviews": "Bewertungen",
       "carts": "Abgebrochene Warenkörbe",
-      "pipeline": "Pipeline",
-      "support": "Support",
+      "pipeline": "Deals mit Unternehmen",
+      "support": "Nachrichten",
       "factsheet": "Faktenblatt",
       "connections": "Verbindungen",
       "mode": "So arbeite ich",
@@ -78,7 +78,8 @@
       "growth": "Wachstumsstudio",
       "erasure": "Dieses Unternehmen löschen",
       "home": "Start",
-      "alerts": "Hinweise und Module"
+      "alerts": "Hinweise und Module",
+      "grow": "Alle Werkzeuge"
     },
     "count": {
       "paused": "{count} pausiert",
@@ -120,7 +121,7 @@
       "fewer": "Weniger zeigen"
     },
     "section": {
-      "marketing": "Marketing"
+      "marketing": "Kunden gewinnen"
     }
   },
   "auth": {
@@ -3408,7 +3409,7 @@
     "meta": {
       "title": "Abgebrochene Warenkörbe · ScaleX"
     },
-    "kicker": "Kunden · Abgebrochene Warenkörbe",
+    "kicker": "Wachstum · Abgebrochene Warenkörbe",
     "foot": "ScaleX schreibt nie einer Person eine E-Mail, die nicht Ja gesagt hat. Die eigene E-Mail von Shopify zu abgebrochenen Bestellvorgängen ist, falls Sie sie nutzen, davon getrennt.",
     "signedOut": "Hier gibt es noch kein Unternehmen.",
     "startInterview": "<link>Beginnen Sie mit dem Interview</link>.",
@@ -4029,9 +4030,9 @@
   },
   "pipeline": {
     "meta": {
-      "title": "Pipeline · ScaleX"
+      "title": "Deals mit Unternehmen · ScaleX"
     },
-    "kicker": "Kunden · Pipeline",
+    "kicker": "Wachstum · Deals mit Unternehmen",
     "loading": "Ihre Pipeline wird gelesen…",
     "signedOut": {
       "title": "Hier gibt es noch kein Unternehmen.",
@@ -4228,7 +4229,7 @@
     "meta": {
       "title": "Bewertungen · ScaleX"
     },
-    "kicker": "Kunden · Bewertungen",
+    "kicker": "Wachstum · Bewertungen",
     "foot": "ScaleX veröffentlicht nie eine Antwort und meldet sich nie bei Ihren Bewertungsportalen an. Es liest Ihre Google-Bewertungen nur, wenn Sie Ihr Google Unternehmensprofil verbinden, und liest sie dann nur. Der Name einer bewertenden Person wird ein Jahr lang aufbewahrt, und Sie können jede Bewertung sofort entfernen.",
     "stars": {
       "none": "Keine Sterne",
@@ -4367,14 +4368,14 @@
   },
   "simulate": {
     "meta": {
-      "title": "Simulator · ScaleX"
+      "title": "Eine Idee testen · ScaleX"
     },
     "tabs": {
       "aria": "Simulator",
       "campaigns": "Kampagnen",
       "pricing": "Preise durchspielen"
     },
-    "kicker": "Wachstum · Kampagnensimulator",
+    "kicker": "Wachstum · Eine Idee testen",
     "loading": "Ihre Zahlen werden gelesen…",
     "signedOut": {
       "title": "Hier gibt es noch kein Unternehmen.",
@@ -4493,7 +4494,7 @@
       "nothing": "nichts vorzuschlagen"
     },
     "pricing": {
-      "kicker": "Wachstum · Preise durchspielen",
+      "kicker": "Wachstum · Eine Idee testen",
       "loading": "Ihre Preise werden gelesen…",
       "failed": "„Preise durchspielen“ konnte nicht geladen werden.",
       "empty": {
@@ -4940,9 +4941,9 @@
   },
   "content": {
     "meta": {
-      "title": "Inhalte · ScaleX"
+      "title": "Beiträge · ScaleX"
     },
-    "kicker": "Wachstum · Inhalte",
+    "kicker": "Wachstum · Beiträge",
     "loading": "Die Inhalte-Warteschlange wird gelesen…",
     "failed": "das hat nicht funktioniert",
     "signedOut": {
@@ -5066,7 +5067,7 @@
       "titleOn": "Geschrieben, geplant, veröffentlicht",
       "titleOff": "Geschrieben und geplant: das Veröffentlichen ist aus",
       "emptyWatching": "Die Warteschlange ist leer. Vorschläge beginnen, wenn die Beobachtung am {day} endet.",
-      "empty": "Die Warteschlange ist leer. Schlagen Sie unten einen Kalender vor. Sobald Sie ihn in der Warteschlange freigeben, entwerfe ich ihn hier."
+      "empty": "Noch keine Beiträge geplant. Sagen Sie zuerst weiter unten, wofür Ihre Beiträge da sind."
     },
     "col": {
       "draft": "Entwurf",
@@ -5117,7 +5118,7 @@
     "goals": {
       "label": "Ziele",
       "title": "Wem die Inhalte dienen",
-      "empty": "Noch keine Ziele. Nennen Sie eines oder übernehmen Sie einen Vorschlag. Jedes geplante Stück nennt das Ziel, dem es dient.",
+      "empty": "Was sollen Ihre Beiträge erreichen? Nennen Sie ein Ziel oder nehmen Sie die Anregung von Lex. Jeder Beitrag nennt das Ziel, dem er dient.",
       "horizon": "{months, plural, one {# Monat} other {# Monate}}",
       "target": "Zielwert {value}",
       "inputLabel": "Ein Ziel in Ihren eigenen Worten",
@@ -5226,9 +5227,9 @@
   },
   "customers": {
     "meta": {
-      "title": "Kunden · ScaleX"
+      "title": "Kundenliste · ScaleX"
     },
-    "kicker": "Kunden",
+    "kicker": "Wachstum · Kundenliste",
     "tabs": "Die Teile dieser Seite",
     "opening": "Kunden werden geöffnet…",
     "signedOut": {
@@ -5280,7 +5281,7 @@
       "refreshed": "Kaufhistorie von {count, plural, one {# bereits vorhandenen Kunden} other {# bereits vorhandenen Kunden}} aktualisiert; ihre Einwilligung bleibt wie erfasst.",
       "country": "{count, plural, one {# Land wurde nicht erkannt und blieb unbekannt.} other {# Länder wurden nicht erkannt und blieben unbekannt.}}",
       "label": "Import",
-      "title": "Unter Ihrer Bestätigung",
+      "title": "Bringen Sie Ihre Kundenliste mit",
       "prose": "Fügen Sie eine CSV aus Ihrer Kasse, Ihrem Buchungssystem, Onlineshop oder Ihrer Tabelle ein. Erkannte Spalten: email, name, phone, country (damit für jeden Kunden die E-Mail-Regeln seines Landes gelten) und (für den Kaufzyklus) last order date, order count, total spent. Sie geben an, worin diese Kontakte eingewilligt haben und wie; diese Angabe wird in jeder Zeile vermerkt.",
       "csv": "Die CSV",
       "status": "Worin sie eingewilligt haben",
@@ -5301,7 +5302,7 @@
       "search": "Name oder E-Mail",
       "filters": "Nach Muster filtern",
       "all": "Alle · {count}",
-      "empty": "Noch keine Kunden. Importieren Sie unten Ihre Kundenliste, unter Ihrer eigenen Bestätigung, worin sie eingewilligt haben.",
+      "empty": "Noch keine Kunden hier. Bringen Sie unten Ihre Liste mit und sagen Sie, was jede Person erhalten möchte.",
       "noMatch": "Niemand passt dazu.",
       "customer": "Kunde",
       "purchases": "Käufe",
@@ -5445,9 +5446,9 @@
   },
   "studio": {
     "meta": {
-      "title": "Kreativstudio · ScaleX"
+      "title": "Anzeigen und Videos · ScaleX"
     },
-    "kicker": "Wachstum · Kreativstudio",
+    "kicker": "Wachstum · Anzeigen und Videos",
     "aside": "Meta-Werbebibliothek · nur lesend · BEOBACHTET",
     "loading": "Ihre Nische und Ihre Briefings werden gelesen…",
     "signedOut": {
@@ -5594,6 +5595,11 @@
       "making": "Wird erzeugt: {ready} von {total} bereit.",
       "makingNote": "Sie können diese Seite verlassen. ScaleX holt sie ab, solange sie geöffnet ist, und einmal am Tag im Hintergrund; ein fertiger kann schon jetzt gewählt werden.",
       "progress": "{ready} von {total} bereit"
+    },
+    "tabs": {
+      "label": "Anzeigen und Videos",
+      "ideas": "Ideen aus Ihrer Branche",
+      "yours": "Ihre Stimme, Fotos und Briefings"
     }
   },
   "site": {
@@ -5812,9 +5818,9 @@
   },
   "support": {
     "meta": {
-      "title": "Support · ScaleX"
+      "title": "Nachrichten · ScaleX"
     },
-    "kicker": "Kunden · Support",
+    "kicker": "Wachstum · Nachrichten",
     "loading": "Support wird geöffnet…",
     "signedOut": {
       "eyebrow": "support",
@@ -5837,7 +5843,7 @@
     },
     "convos": {
       "label": "Tickets · {tickets} · Gespräche · {conversations}",
-      "empty": "Noch nichts. Jedes Widget-Gespräch und jede E-Mail an Ihre Support-Adresse landet hier, und alles, was auf Sie wartet, ist markiert.",
+      "empty": "Noch keine Nachrichten. Fragen aus dem Chat Ihrer Website und E-Mails an Ihre Support-Adresse kommen hier an, und was auf Sie wartet, ist markiert.",
       "messages": "{count, plural, one {{n} Nachricht} other {{n} Nachrichten}} · {when}"
     },
     "waitingTitle": "{count, plural, =0 {Niemand wartet auf Sie} one {# wartet auf Sie} other {# warten auf Sie}}",
@@ -10965,5 +10971,86 @@
     "help": "Diese Liste zeigen",
     "close": "Schließen, was offen ist",
     "next": "Nächster und vorheriger"
+  },
+  "grow": {
+    "meta": {
+      "title": "Wachstum · ScaleX"
+    },
+    "kicker": "Wachstum",
+    "title": "Gewinnen Sie Kunden und halten Sie die, die Sie haben.",
+    "lede": "Jedes Werkzeug hier bereitet die Arbeit für Sie vor. Nichts wird veröffentlicht, gesendet oder geändert ohne Ihre Freigabe.",
+    "how": "So funktioniert es",
+    "waiting": "{count, plural, one {# wartet auf Sie} other {# warten auf Sie}}",
+    "unanswered": "{count, plural, one {# wartet auf Antwort} other {# warten auf Antwort}}",
+    "half": {
+      "bring": "Kunden gewinnen",
+      "keep": "Kunden halten"
+    },
+    "tools": {
+      "posts": {
+        "line": "Lex plant Ihre Social-Media-Beiträge für die kommenden Wochen und entwirft jeden einzeln. Nichts geht hinaus ohne Ihre Freigabe.",
+        "go": "Beiträge planen",
+        "s1": "Sagen Sie, wofür Ihre Beiträge da sind",
+        "s2": "Erteilen Sie die Freigabe für den Plan von Lex",
+        "s3": "Freigabe für jeden Beitrag, bevor er hinausgeht"
+      },
+      "ads": {
+        "line": "Sehen Sie, welche Anzeigen in Ihrer Branche am längsten laufen, und erstellen Sie Ihre eigenen aus Ihren Fotos, Ihren Zahlen und Ihrer Stimme.",
+        "go": "Sehen, was in meiner Branche wirkt",
+        "s1": "Lesen Sie die Anzeigen, die in Ihrer Branche laufen",
+        "s2": "Geben Sie Lex Ihre Stimme und Ihre Fotos",
+        "s3": "Freigabe für ein Briefing, dann selbst drehen oder drehen lassen"
+      },
+      "site": {
+        "line": "Lex prüft Ihre Website so, wie ein Kunde sie sieht, und schlägt klarere Worte vor. Sie sehen jede Änderung, bevor sie live geht.",
+        "go": "Meine Website prüfen",
+        "s1": "Lex prüft Tempo, Handys und den Weg zum Kauf",
+        "s2": "Lex schlägt klarere Worte vor",
+        "s3": "Freigabe für jede Änderung, bevor sie live geht"
+      },
+      "test": {
+        "line": "Bevor Sie Geld für eine Kampagne ausgeben oder einen Preis ändern, sehen Sie, was es wahrscheinlich bringt, berechnet aus Ihren eigenen Zahlen.",
+        "go": "Kampagne testen",
+        "s1": "Wählen Sie eine Kampagne oder einen Preis zum Testen",
+        "s2": "Sehen Sie die wahrscheinliche Spanne nebeneinander",
+        "s3": "Nichts wird ausgegeben oder geändert: Sie entscheiden",
+        "go2": "Preis testen"
+      },
+      "customers": {
+        "line": "Alle, die bei Ihnen gekauft haben, in Gruppen sortiert, damit die richtige E-Mail die richtigen Menschen erreicht.",
+        "go": "Meine Liste öffnen",
+        "s1": "Bringen Sie Ihre Liste mit und sagen Sie, was jede Person erhalten möchte",
+        "s2": "Lex sortiert sie nach ihren Käufen in Gruppen",
+        "s3": "Freigabe für jede E-Mail, bevor sie gesendet wird"
+      },
+      "reviews": {
+        "line": "Alle Bewertungen Ihres Unternehmens an einem Ort, mit einer Antwort, die Lex zur Freigabe für Sie entwirft.",
+        "go": "Meine Bewertungen ansehen",
+        "s1": "Verbinden Sie Google oder leiten Sie Ihre Bewertungs-E-Mails weiter",
+        "s2": "Lex entwirft auf jede eine Antwort",
+        "s3": "Freigabe für eine Antwort, bevor sie veröffentlicht wird"
+      },
+      "messages": {
+        "line": "Fragen aus dem Chat Ihrer Website und Ihrer Support-E-Mail. Lex antwortet nur mit Antworten, für die Sie die Freigabe erteilt haben.",
+        "go": "Nachrichten beantworten",
+        "s1": "Fragen kommen aus Ihrem Chat und Ihrer E-Mail",
+        "s2": "Lex antwortet mit Antworten nach Ihrer Freigabe",
+        "s3": "Alles Neue wartet hier auf Sie"
+      },
+      "carts": {
+        "line": "Menschen, die etwas im Warenkorb gelassen haben, und eine Erinnerung, die Lex für alle entwirft, die E-Mails zugestimmt haben.",
+        "go": "Sehen, wer gegangen ist",
+        "s1": "Lex liest die an der Kasse verlassenen Warenkörbe",
+        "s2": "Lex entwirft eine Erinnerung für alle, die E-Mails zugestimmt haben",
+        "s3": "Freigabe, bevor sie gesendet wird"
+      },
+      "deals": {
+        "line": "Deals mit anderen Unternehmen und welche bald abgeschlossen werden sollen.",
+        "go": "Meine Deals öffnen",
+        "s1": "Fügen Sie einen Deal hinzu oder bringen Sie Ihre Tabelle mit",
+        "s2": "Lex verfolgt, wo jeder steht",
+        "s3": "Sehen Sie, welche bald abschließen"
+      }
+    }
   }
 }

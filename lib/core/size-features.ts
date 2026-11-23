@@ -112,6 +112,11 @@ export const SIZE_FEATURES = {
     reason:
       "A one-person business has nobody to compare notes with; a named group of businesses like it is a reference at any size.",
   },
+  "nav.grow": {
+    bands: EVERY,
+    reason:
+      "Grow's front page says what each of its tools does and what to press next; the less time an owner has, the more that saves.",
+  },
   "nav.content": {
     bands: EVERY,
     reason: "A solo owner has the least time to write posts, so drafts help most there.",
@@ -191,11 +196,6 @@ export const SIZE_FEATURES = {
     bands: EVERY,
     reason:
       "An accountant or agency reaches its clients' books from here, whatever the size of their own business (the v1 spec §7).",
-  },
-  "nav.growth": {
-    bands: EVERY,
-    reason:
-      "What ScaleX may make about the business, from which figures, in whose voice, is the owner's to see at any size (the v1 spec §10).",
   },
   "nav.statement": {
     bands: EVERY,

@@ -37,7 +37,7 @@
       "approve": "To approve",
       "insights": "Insights",
       "grow": "Grow",
-      "customers": "Customers",
+      "customers": "Keep customers",
       "business": "Your business",
       "today": "Today"
     },
@@ -54,15 +54,15 @@
       "blindspots": "Blindspots",
       "competitors": "Competitors",
       "benchmarks": "Similar businesses",
-      "content": "Content",
-      "studio": "Creative studio",
+      "content": "Posts",
+      "studio": "Ads and videos",
       "site": "Website",
-      "simulate": "Campaign simulator",
-      "customers": "Customers",
+      "simulate": "Test an idea",
+      "customers": "Customer list",
       "reviews": "Reviews",
       "carts": "Abandoned carts",
-      "pipeline": "Pipeline",
-      "support": "Support",
+      "pipeline": "Business deals",
+      "support": "Messages",
       "factsheet": "Fact sheet",
       "connections": "Connections",
       "mode": "How I work",
@@ -78,7 +78,8 @@
       "growth": "Growth studio",
       "erasure": "Erase this business",
       "home": "Home",
-      "alerts": "Alerts and modules"
+      "alerts": "Alerts and modules",
+      "grow": "All tools"
     },
     "count": {
       "paused": "{count} paused",
@@ -120,7 +121,7 @@
       "fewer": "Show fewer"
     },
     "section": {
-      "marketing": "Marketing"
+      "marketing": "Bring in customers"
     }
   },
   "auth": {
@@ -3408,7 +3409,7 @@
     "meta": {
       "title": "Abandoned carts · ScaleX"
     },
-    "kicker": "Customers · Abandoned carts",
+    "kicker": "Grow · Abandoned carts",
     "foot": "ScaleX never emails a shopper who hasn't said yes. Shopify's own abandoned-checkout email, if you use it, is separate.",
     "signedOut": "There's no business here yet.",
     "startInterview": "<link>Start with the interview</link>.",
@@ -4029,9 +4030,9 @@
   },
   "pipeline": {
     "meta": {
-      "title": "Pipeline · ScaleX"
+      "title": "Business deals · ScaleX"
     },
-    "kicker": "Customers · Pipeline",
+    "kicker": "Grow · Business deals",
     "loading": "Reading your pipeline…",
     "signedOut": {
       "title": "There's no business here yet.",
@@ -4228,7 +4229,7 @@
     "meta": {
       "title": "Reviews · ScaleX"
     },
-    "kicker": "Customers · Reviews",
+    "kicker": "Grow · Reviews",
     "foot": "ScaleX never posts a reply and never signs in to your review sites. It reads your Google reviews only if you connect Google Business Profile, and only reads them. A reviewer's name is kept for a year, and you can remove any review at once.",
     "stars": {
       "none": "No rating",
@@ -4367,14 +4368,14 @@
   },
   "simulate": {
     "meta": {
-      "title": "Simulator · ScaleX"
+      "title": "Test an idea · ScaleX"
     },
     "tabs": {
       "aria": "Simulator",
       "campaigns": "Campaigns",
       "pricing": "What-if pricing"
     },
-    "kicker": "Grow · Campaign simulator",
+    "kicker": "Grow · Test an idea",
     "loading": "Reading your numbers…",
     "signedOut": {
       "title": "There's no business here yet.",
@@ -4493,7 +4494,7 @@
       "nothing": "nothing to propose"
     },
     "pricing": {
-      "kicker": "Grow · What-if pricing",
+      "kicker": "Grow · Test an idea",
       "loading": "Reading your prices…",
       "failed": "What-if pricing didn't load.",
       "empty": {
@@ -4940,9 +4941,9 @@
   },
   "content": {
     "meta": {
-      "title": "Content · ScaleX"
+      "title": "Posts · ScaleX"
     },
-    "kicker": "Grow · Content",
+    "kicker": "Grow · Posts",
     "loading": "Reading the content queue…",
     "failed": "that didn't work",
     "signedOut": {
@@ -5066,7 +5067,7 @@
       "titleOn": "Written, scheduled, posted",
       "titleOff": "Written and scheduled: publishing is off",
       "emptyWatching": "The queue is empty. Proposals start once the watch ends on {day}.",
-      "empty": "The queue is empty. Propose a calendar below. Once you approve it in the queue, I draft it here."
+      "empty": "No posts planned yet. Start by saying what your posts are for, just below."
     },
     "col": {
       "draft": "Draft",
@@ -5117,7 +5118,7 @@
     "goals": {
       "label": "Goals",
       "title": "What the content serves",
-      "empty": "No goals yet. State one, or take a suggestion. Every planned piece will name the goal it serves.",
+      "empty": "What should your posts do? State a goal, or take Lex's suggestion. Every post will name the goal it serves.",
       "horizon": "{months, plural, one {# month} other {# months}}",
       "target": "target {value}",
       "inputLabel": "A goal in your own words",
@@ -5226,9 +5227,9 @@
   },
   "customers": {
     "meta": {
-      "title": "Customers · ScaleX"
+      "title": "Customer list · ScaleX"
     },
-    "kicker": "Customers",
+    "kicker": "Grow · Customer list",
     "tabs": "The parts of this screen",
     "opening": "Opening customers…",
     "signedOut": {
@@ -5280,7 +5281,7 @@
       "refreshed": "Updated the purchase history of {count, plural, one {# customer} other {# customers}} already here; their consent stays as recorded.",
       "country": "{count, plural, one {# country wasn't recognised and was left unknown.} other {# countries weren't recognised and were left unknown.}}",
       "label": "Import",
-      "title": "Under your attestation",
+      "title": "Bring in your customer list",
       "prose": "Paste a CSV from your till, booking system, online shop or spreadsheet. Columns it understands: email, name, phone, country (so each customer’s own email rules apply), and (for lifecycle) last order date, order count, total spent. You state what these contacts consented to and how; that statement lands on every row.",
       "csv": "The CSV",
       "status": "What they consented to",
@@ -5301,7 +5302,7 @@
       "search": "name or email",
       "filters": "Filter by pattern",
       "all": "All · {count}",
-      "empty": "No customers yet. Import your customer list below, under your own attestation of what they consented to.",
+      "empty": "No customers here yet. Bring in your list below, and say what each person agreed to receive.",
       "noMatch": "Nobody matches that.",
       "customer": "Customer",
       "purchases": "Purchases",
@@ -5445,9 +5446,9 @@
   },
   "studio": {
     "meta": {
-      "title": "Creative studio · ScaleX"
+      "title": "Ads and videos · ScaleX"
     },
-    "kicker": "Grow · Creative studio",
+    "kicker": "Grow · Ads and videos",
     "aside": "Meta Ad Library · read-only · OBSERVED",
     "loading": "Reading your niche and your briefs…",
     "signedOut": {
@@ -5594,6 +5595,11 @@
       "making": "Being made: {ready} of {total} ready.",
       "makingNote": "You can leave this page. ScaleX collects them while it is open, and once a day in the background; a ready one can be picked now.",
       "progress": "{ready} of {total} ready"
+    },
+    "tabs": {
+      "label": "Ads and videos",
+      "ideas": "Ideas from your trade",
+      "yours": "Your voice, photos and briefs"
     }
   },
   "site": {
@@ -5812,9 +5818,9 @@
   },
   "support": {
     "meta": {
-      "title": "Support · ScaleX"
+      "title": "Messages · ScaleX"
     },
-    "kicker": "Customers · Support",
+    "kicker": "Grow · Messages",
     "loading": "Opening support…",
     "signedOut": {
       "eyebrow": "support",
@@ -5837,7 +5843,7 @@
     },
     "convos": {
       "label": "Tickets · {tickets} · conversations · {conversations}",
-      "empty": "Nothing yet. Every widget conversation and every email to your support address lands here, and anything waiting for you is marked.",
+      "empty": "No messages yet. Questions from your website's chat and emails to your support address arrive here, and anything waiting for you is marked.",
       "messages": "{count, plural, one {{n} message} other {{n} messages}} · {when}"
     },
     "waitingTitle": "{count, plural, =0 {Nobody waiting for you} =1 {One waiting for you} =2 {Two waiting for you} =3 {Three waiting for you} =4 {Four waiting for you} =5 {Five waiting for you} =6 {Six waiting for you} =7 {Seven waiting for you} =8 {Eight waiting for you} =9 {Nine waiting for you} one {# waiting for you} other {# waiting for you}}",
@@ -10965,5 +10971,86 @@
     "help": "Show this list",
     "close": "Close what is open",
     "next": "Next and previous"
+  },
+  "grow": {
+    "meta": {
+      "title": "Grow · ScaleX"
+    },
+    "kicker": "Grow",
+    "title": "Bring in customers, and keep the ones you have.",
+    "lede": "Every tool here drafts the work for you. Nothing is posted, sent or changed until you approve it.",
+    "how": "How it works",
+    "waiting": "{count, plural, one {# waiting for you} other {# waiting for you}}",
+    "unanswered": "{count, plural, one {# waiting for an answer} other {# waiting for an answer}}",
+    "half": {
+      "bring": "Bring in customers",
+      "keep": "Keep customers"
+    },
+    "tools": {
+      "posts": {
+        "line": "Lex plans your social posts for the weeks ahead and drafts each one. Nothing goes out until you approve it.",
+        "go": "Plan my posts",
+        "s1": "Say what your posts are for",
+        "s2": "Approve the plan Lex proposes",
+        "s3": "Approve each post before it goes out"
+      },
+      "ads": {
+        "line": "See which ads last longest in your trade, then make your own from your photos, your figures and your voice.",
+        "go": "See what works in my trade",
+        "s1": "Read the ads that last in your trade",
+        "s2": "Give Lex your voice and your photos",
+        "s3": "Approve a brief, then film it or have it made"
+      },
+      "site": {
+        "line": "Lex checks your website the way a customer sees it and suggests clearer words. You see each change before it goes live.",
+        "go": "Check my website",
+        "s1": "Lex checks speed, phones and the way to buying",
+        "s2": "Lex proposes clearer words",
+        "s3": "Approve each change before it goes live"
+      },
+      "test": {
+        "line": "Before you spend on a campaign or change a price, see what it is likely to bring, worked out from your own numbers.",
+        "go": "Test a campaign",
+        "s1": "Pick a campaign or a price to try",
+        "s2": "See the likely range, side by side",
+        "s3": "Nothing is spent or changed: you decide",
+        "go2": "Test a price"
+      },
+      "customers": {
+        "line": "Everyone who bought from you, sorted into groups so the right email goes to the right people.",
+        "go": "Open my list",
+        "s1": "Bring in your list and say what each person agreed to receive",
+        "s2": "Lex sorts them into groups from what they bought",
+        "s3": "Approve each email before it is sent"
+      },
+      "reviews": {
+        "line": "Every review of your business in one place, with a reply Lex drafts for you to approve.",
+        "go": "See my reviews",
+        "s1": "Connect Google, or forward your review emails",
+        "s2": "Lex drafts a reply to each",
+        "s3": "Approve a reply before it is posted"
+      },
+      "messages": {
+        "line": "Questions from your website's chat and your support email. Lex answers only with replies you have approved.",
+        "go": "Answer messages",
+        "s1": "Questions arrive from your chat and your email",
+        "s2": "Lex answers with replies you approved",
+        "s3": "Anything new waits here for you"
+      },
+      "carts": {
+        "line": "People who left something in their cart, and a reminder Lex drafts for those who agreed to emails.",
+        "go": "See who left",
+        "s1": "Lex reads the carts left at checkout",
+        "s2": "Lex drafts a reminder for those who agreed to emails",
+        "s3": "Approve it before it is sent"
+      },
+      "deals": {
+        "line": "Deals with other businesses, and which are due to close soon.",
+        "go": "Open my deals",
+        "s1": "Add a deal, or bring in your spreadsheet",
+        "s2": "Lex keeps track of where each one stands",
+        "s3": "See which are due to close"
+      }
+    }
   }
 }

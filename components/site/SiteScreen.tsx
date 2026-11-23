@@ -23,6 +23,7 @@ import type { SiteAuditView } from "../../lib/site/audit/view";
 import { EmergencyStop } from "../execution/EmergencyStop";
 import { Fold } from "../sheet/Fold";
 import { PageHead, SheetCard } from "../sheet/PageHead";
+import { ToolIntro } from "../grow/ToolIntro";
 import { useTr } from "../sheet/useTr";
 import type { AppLocale } from "../../lib/i18n/locales";
 import type { Tr } from "../../lib/i18n/tr";
@@ -277,6 +278,7 @@ export function SiteScreen({
             })}`
           : ""}
       </PageHead>
+      <ToolIntro tool="site" />
 
       <div className="st-stop">
         <EmergencyStop />

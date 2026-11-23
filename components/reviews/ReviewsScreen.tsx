@@ -23,6 +23,7 @@ import type { ReviewItem, ReviewsView } from "../../lib/review-desk/view";
 import { HBars } from "../charts/Viz";
 import { Fold } from "../sheet/Fold";
 import { PageHead, SheetCard } from "../sheet/PageHead";
+import { ToolIntro } from "../grow/ToolIntro";
 import { useRole } from "../auth/RoleContext";
 import { num } from "../sheet/num";
 import { useTr } from "../sheet/useTr";
@@ -59,6 +60,7 @@ function Frame({
   return (
     <main className="screen rv-screen">
       <PageHead kicker={tr("kicker")} title={title} aside={aside} />
+      <ToolIntro tool="reviews" />
       {children}
       <Fold className="rv-foot on-desk">
         <p>{tr("foot")}</p>

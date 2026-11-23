@@ -1,0 +1,160 @@
+/* Grow, made plain (2026-11-23): the front page's tool cards, the line and
+   three steps under every tool's heading, and the tabs of "Ads and videos".
+   Sheet tokens only; corners as everywhere in the app (app/sheet.css). */
+
+.gw-line {
+  margin: 6px 0 0;
+  max-width: 760px;
+  font-size: 15px;
+  line-height: 1.45;
+  color: var(--desk-ink-2);
+}
+
+/* under a tool's heading: what it does, and how it works in three steps */
+.gw-intro {
+  display: grid;
+  gap: 10px;
+  margin: 0 0 22px;
+}
+.gw-intro .gw-line {
+  margin: 0;
+}
+.gw-steps {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 220px), 1fr));
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.gw-steps li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--desk-rule);
+  border-radius: var(--r-card);
+  background: var(--raised);
+  color: var(--desk-ink);
+  font-size: 13.5px;
+  line-height: 1.4;
+}
+.gw-n {
+  display: inline-grid;
+  place-items: center;
+  flex: none;
+  width: 22px;
+  height: 22px;
+  border-radius: var(--r-xs);
+  background: var(--desk-ink);
+  color: var(--masthead);
+  font-family: var(--f-mono);
+  font-size: 12px;
+}
+
+/* the front page */
+.gw .ph {
+  margin-bottom: 8px;
+}
+.gw-half {
+  display: grid;
+  gap: 12px;
+  margin-top: 22px;
+}
+.gw-half-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 650;
+  color: var(--desk-ink);
+}
+.gw-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr));
+  gap: 14px;
+}
+.gw-card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 16px;
+  border-radius: var(--r-card);
+  background: var(--paper);
+  color: var(--sheet-ink);
+}
+.gw-card > svg {
+  color: var(--ok);
+}
+.gw-name {
+  margin: 0;
+  font-size: 16.5px;
+  font-weight: 650;
+}
+.gw-what {
+  flex: 1 1 auto;
+  margin: 0;
+  font-size: 13.5px;
+  line-height: 1.45;
+  color: var(--sheet-ink-2);
+}
+.gw-status {
+  margin: 0;
+  padding-top: 10px;
+  border-top: 1px solid var(--rule-soft, var(--rule));
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--ok);
+}
+.gw-status.gw-due {
+  color: var(--drift);
+}
+.gw-acts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 4px 0 0;
+}
+.gw-go {
+  display: inline-flex;
+  align-items: center;
+  min-height: 38px;
+  padding: 0 14px;
+  border: 1px solid var(--sheet-ink);
+  border-radius: var(--r-ctl);
+  background: var(--sheet-ink);
+  color: var(--paper);
+  font-size: 13.5px;
+  font-weight: 650;
+  text-decoration: none;
+}
+.gw-go:hover {
+  color: var(--paper);
+  opacity: 0.9;
+}
+.gw-go-quiet {
+  background: transparent;
+  color: var(--sheet-ink);
+}
+.gw-go-quiet:hover {
+  color: var(--sheet-ink);
+  background: var(--inset);
+}
+
+/* "Ads and videos": two tabs, one tool */
+.gw-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin: 0 0 18px;
+  border-bottom: 1px solid var(--desk-rule);
+}
+.gw-tabs a {
+  padding: 10px 12px;
+  color: var(--desk-ink-2);
+  font-size: 14px;
+  text-decoration: none;
+}
+.gw-tabs a[aria-current="page"] {
+  color: var(--desk-ink);
+  font-weight: 650;
+  box-shadow: inset 0 -2px 0 var(--accent-desk, var(--ok));
+}

@@ -37,7 +37,7 @@
       "approve": "Por aprobar",
       "insights": "Análisis",
       "grow": "Crecer",
-      "customers": "Clientes",
+      "customers": "Conservar clientes",
       "business": "Su negocio",
       "today": "Hoy"
     },
@@ -54,15 +54,15 @@
       "blindspots": "Puntos ciegos",
       "competitors": "Competidores",
       "benchmarks": "Negocios similares",
-      "content": "Contenido",
-      "studio": "Estudio creativo",
+      "content": "Publicaciones",
+      "studio": "Anuncios y vídeos",
       "site": "Sitio web",
-      "simulate": "Simulador de campañas",
-      "customers": "Clientes",
+      "simulate": "Probar una idea",
+      "customers": "Lista de clientes",
       "reviews": "Reseñas",
       "carts": "Carritos abandonados",
-      "pipeline": "Embudo de ventas",
-      "support": "Soporte",
+      "pipeline": "Oportunidades de negocio",
+      "support": "Mensajes",
       "factsheet": "Ficha de datos",
       "connections": "Conexiones",
       "mode": "Cómo trabajo",
@@ -78,7 +78,8 @@
       "growth": "Estudio de crecimiento",
       "erasure": "Borrar este negocio",
       "home": "Inicio",
-      "alerts": "Avisos y módulos"
+      "alerts": "Avisos y módulos",
+      "grow": "Todas las herramientas"
     },
     "count": {
       "paused": "{count} en pausa",
@@ -120,7 +121,7 @@
       "fewer": "Mostrar menos"
     },
     "section": {
-      "marketing": "Marketing"
+      "marketing": "Atraer clientes"
     }
   },
   "auth": {
@@ -3408,7 +3409,7 @@
     "meta": {
       "title": "Carritos abandonados · ScaleX"
     },
-    "kicker": "Clientes · Carritos abandonados",
+    "kicker": "Crecer · Carritos abandonados",
     "foot": "ScaleX nunca envía un correo a un comprador que no haya dicho que sí. El correo de pago abandonado propio de Shopify, si lo usa, es aparte.",
     "signedOut": "Aquí todavía no hay ningún negocio.",
     "startInterview": "<link>Empiece por la entrevista</link>.",
@@ -4029,9 +4030,9 @@
   },
   "pipeline": {
     "meta": {
-      "title": "Embudo de ventas · ScaleX"
+      "title": "Oportunidades de negocio · ScaleX"
     },
-    "kicker": "Clientes · Embudo de ventas",
+    "kicker": "Crecer · Oportunidades de negocio",
     "loading": "Leyendo su embudo de ventas…",
     "signedOut": {
       "title": "Aquí todavía no hay ningún negocio.",
@@ -4228,7 +4229,7 @@
     "meta": {
       "title": "Reseñas · ScaleX"
     },
-    "kicker": "Clientes · Reseñas",
+    "kicker": "Crecer · Reseñas",
     "foot": "ScaleX nunca publica una respuesta y nunca inicia sesión en sus sitios de reseñas. Solo lee sus reseñas de Google si conecta su Perfil de Empresa de Google, y solo las lee. El nombre de quien escribe una reseña se conserva un año, y puede quitar cualquier reseña al instante.",
     "stars": {
       "none": "Sin puntuación",
@@ -4367,14 +4368,14 @@
   },
   "simulate": {
     "meta": {
-      "title": "Simulador · ScaleX"
+      "title": "Probar una idea · ScaleX"
     },
     "tabs": {
       "aria": "Simulador",
       "campaigns": "Campañas",
       "pricing": "Precios: ¿y si…?"
     },
-    "kicker": "Crecer · Simulador de campañas",
+    "kicker": "Crecer · Probar una idea",
     "loading": "Leyendo sus cifras…",
     "signedOut": {
       "title": "Aquí todavía no hay ningún negocio.",
@@ -4493,7 +4494,7 @@
       "nothing": "nada que proponer"
     },
     "pricing": {
-      "kicker": "Crecer · Precios: ¿y si…?",
+      "kicker": "Crecer · Probar una idea",
       "loading": "Leyendo sus precios…",
       "failed": "La simulación de precios no se ha cargado.",
       "empty": {
@@ -4940,9 +4941,9 @@
   },
   "content": {
     "meta": {
-      "title": "Contenido · ScaleX"
+      "title": "Publicaciones · ScaleX"
     },
-    "kicker": "Crecer · Contenido",
+    "kicker": "Crecer · Publicaciones",
     "loading": "Leyendo la cola de contenido…",
     "failed": "eso no ha funcionado",
     "signedOut": {
@@ -5066,7 +5067,7 @@
       "titleOn": "Redactado, programado, publicado",
       "titleOff": "Redactado y programado: la publicación está desactivada",
       "emptyWatching": "La cola está vacía. Las propuestas empiezan cuando termine la observación, el {day}.",
-      "empty": "La cola está vacía. Proponga un calendario más abajo: en cuanto lo haya aprobado en la cola, lo redacto aquí."
+      "empty": "Aún no hay publicaciones planificadas. Empiece diciendo para qué sirven sus publicaciones, justo debajo."
     },
     "col": {
       "draft": "Borrador",
@@ -5117,7 +5118,7 @@
     "goals": {
       "label": "Objetivos",
       "title": "A qué sirve el contenido",
-      "empty": "Aún no hay objetivos. Formule uno o acepte una sugerencia: cada pieza planificada indicará el objetivo al que sirve.",
+      "empty": "¿Qué deben lograr sus publicaciones? Fije un objetivo o acepte la sugerencia de Lex. Cada publicación dirá a qué objetivo sirve.",
       "horizon": "{months, plural, one {# mes} many {# meses} other {# meses}}",
       "target": "meta: {value}",
       "inputLabel": "Un objetivo con sus propias palabras",
@@ -5226,9 +5227,9 @@
   },
   "customers": {
     "meta": {
-      "title": "Clientes · ScaleX"
+      "title": "Lista de clientes · ScaleX"
     },
-    "kicker": "Clientes",
+    "kicker": "Crecer · Lista de clientes",
     "tabs": "Las partes de esta pantalla",
     "opening": "Abriendo los clientes…",
     "signedOut": {
@@ -5280,7 +5281,7 @@
       "refreshed": "Se ha actualizado el historial de compras de {count, plural, one {# cliente que ya estaba} many {# clientes que ya estaban} other {# clientes que ya estaban}} aquí; su consentimiento sigue tal como se registró.",
       "country": "{count, plural, one {# país no se reconoció y quedó como desconocido.} many {# países no se reconocieron y quedaron como desconocidos.} other {# países no se reconocieron y quedaron como desconocidos.}}",
       "label": "Importar",
-      "title": "Bajo su declaración",
+      "title": "Traiga su lista de clientes",
       "prose": "Pegue un CSV de su caja registradora, su sistema de reservas, su tienda online o su hoja de cálculo. Columnas que entiende: email, name, phone, country (para que se apliquen las normas de correo de cada cliente) y, para el ciclo de vida, last order date, order count, total spent. Usted declara a qué dieron su consentimiento estos contactos y cómo; esa declaración queda en cada fila.",
       "csv": "El CSV",
       "status": "A qué dieron su consentimiento",
@@ -5301,7 +5302,7 @@
       "search": "nombre o correo",
       "filters": "Filtrar por patrón",
       "all": "Todos · {count}",
-      "empty": "Aún no hay clientes. Importe su lista de clientes más abajo, bajo su propia declaración de a qué dieron su consentimiento.",
+      "empty": "Aún no hay clientes. Traiga su lista abajo e indique qué aceptó recibir cada persona.",
       "noMatch": "No hay coincidencias.",
       "customer": "Cliente",
       "purchases": "Compras",
@@ -5445,9 +5446,9 @@
   },
   "studio": {
     "meta": {
-      "title": "Estudio creativo · ScaleX"
+      "title": "Anuncios y vídeos · ScaleX"
     },
-    "kicker": "Crecer · Estudio creativo",
+    "kicker": "Crecer · Anuncios y vídeos",
     "aside": "Biblioteca de anuncios de Meta · solo lectura · OBSERVADO",
     "loading": "Leyendo su nicho y sus briefs…",
     "signedOut": {
@@ -5594,6 +5595,11 @@
       "making": "Generando: {ready} de {total} listos.",
       "makingNote": "Puede salir de esta página. ScaleX los recoge mientras está abierta, y una vez al día en segundo plano; uno listo ya se puede elegir.",
       "progress": "{ready} de {total} listos"
+    },
+    "tabs": {
+      "label": "Anuncios y vídeos",
+      "ideas": "Ideas de su sector",
+      "yours": "Su voz, fotos y guiones"
     }
   },
   "site": {
@@ -5812,9 +5818,9 @@
   },
   "support": {
     "meta": {
-      "title": "Soporte · ScaleX"
+      "title": "Mensajes · ScaleX"
     },
-    "kicker": "Clientes · Soporte",
+    "kicker": "Crecer · Mensajes",
     "loading": "Abriendo el soporte…",
     "signedOut": {
       "eyebrow": "soporte",
@@ -5837,7 +5843,7 @@
     },
     "convos": {
       "label": "Tickets · {tickets} · conversaciones · {conversations}",
-      "empty": "Todavía no hay nada. Cada conversación del widget y cada correo a su dirección de soporte llega aquí, y se marca todo lo que espera su respuesta.",
+      "empty": "Aún no hay mensajes. Aquí llegan las preguntas del chat de su web y los correos a su dirección de soporte, y lo que le espera queda marcado.",
       "messages": "{count, plural, one {{n} mensaje} many {{n} mensajes} other {{n} mensajes}} · {when}"
     },
     "waitingTitle": "{count, plural, =0 {Nadie espera su respuesta} one {# persona espera su respuesta} many {# personas esperan su respuesta} other {# personas esperan su respuesta}}",
@@ -10965,5 +10971,86 @@
     "help": "Mostrar esta lista",
     "close": "Cerrar lo que esté abierto",
     "next": "Siguiente y anterior"
+  },
+  "grow": {
+    "meta": {
+      "title": "Crecer · ScaleX"
+    },
+    "kicker": "Crecer",
+    "title": "Atraiga clientes y conserve los que ya tiene.",
+    "lede": "Cada herramienta le prepara el trabajo. Nada se publica, se envía ni se cambia sin su aprobación.",
+    "how": "Cómo funciona",
+    "waiting": "{count, plural, one {# esperando su decisión} many {# esperando su decisión} other {# esperando su decisión}}",
+    "unanswered": "{count, plural, one {# esperando respuesta} many {# esperando respuesta} other {# esperando respuesta}}",
+    "half": {
+      "bring": "Atraer clientes",
+      "keep": "Conservar clientes"
+    },
+    "tools": {
+      "posts": {
+        "line": "Lex planifica sus publicaciones en redes para las próximas semanas y redacta cada una. Nada sale sin su aprobación.",
+        "go": "Planificar mis publicaciones",
+        "s1": "Diga para qué sirven sus publicaciones",
+        "s2": "Dé su aprobación al plan que propone Lex",
+        "s3": "Cada publicación espera su aprobación antes de salir"
+      },
+      "ads": {
+        "line": "Vea qué anuncios duran más en su sector y cree los suyos con sus fotos, sus cifras y su voz.",
+        "go": "Ver qué funciona en mi sector",
+        "s1": "Lea los anuncios que duran en su sector",
+        "s2": "Dé a Lex su voz y sus fotos",
+        "s3": "Dé su aprobación a un guion y grábelo o encárguelo"
+      },
+      "site": {
+        "line": "Lex revisa su web como la ve un cliente y sugiere palabras más claras. Usted ve cada cambio antes de que se publique.",
+        "go": "Revisar mi web",
+        "s1": "Lex revisa la velocidad, los móviles y el camino hasta la compra",
+        "s2": "Lex propone palabras más claras",
+        "s3": "Cada cambio espera su aprobación antes de publicarse"
+      },
+      "test": {
+        "line": "Antes de gastar en una campaña o cambiar un precio, vea lo que probablemente aportará, calculado con sus propias cifras.",
+        "go": "Probar una campaña",
+        "s1": "Elija una campaña o un precio para probar",
+        "s2": "Vea el rango probable, uno al lado del otro",
+        "s3": "No se gasta ni se cambia nada: usted decide",
+        "go2": "Probar un precio"
+      },
+      "customers": {
+        "line": "Todas las personas que le compraron, ordenadas en grupos para que cada correo llegue a quien corresponde.",
+        "go": "Abrir mi lista",
+        "s1": "Traiga su lista e indique qué aceptó recibir cada persona",
+        "s2": "Lex las agrupa según lo que compraron",
+        "s3": "Cada correo espera su aprobación antes de enviarse"
+      },
+      "reviews": {
+        "line": "Todas las reseñas de su negocio en un solo lugar, con una respuesta que Lex redacta para su aprobación.",
+        "go": "Ver mis reseñas",
+        "s1": "Conecte Google o reenvíe sus correos de reseñas",
+        "s2": "Lex redacta una respuesta a cada una",
+        "s3": "Cada respuesta espera su aprobación antes de publicarse"
+      },
+      "messages": {
+        "line": "Preguntas del chat de su web y de su correo de soporte. Lex responde solo con respuestas que usted aprobó.",
+        "go": "Responder mensajes",
+        "s1": "Las preguntas llegan de su chat y su correo",
+        "s2": "Lex responde con respuestas que usted aprobó",
+        "s3": "Lo nuevo le espera aquí"
+      },
+      "carts": {
+        "line": "Personas que dejaron algo en el carrito y un recordatorio que Lex redacta para quienes aceptaron recibir correos.",
+        "go": "Ver quién se fue",
+        "s1": "Lex lee los carritos dejados al pagar",
+        "s2": "Lex redacta un recordatorio para quienes aceptaron correos",
+        "s3": "Espera su aprobación antes de enviarse"
+      },
+      "deals": {
+        "line": "Oportunidades con otros negocios y cuáles están por cerrarse pronto.",
+        "go": "Abrir mis oportunidades",
+        "s1": "Añada una oportunidad o traiga su hoja de cálculo",
+        "s2": "Lex sigue en qué punto está cada una",
+        "s3": "Vea cuáles están por cerrarse"
+      }
+    }
   }
 }

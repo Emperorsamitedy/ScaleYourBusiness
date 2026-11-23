@@ -41,6 +41,7 @@ import { TikTokPostForm } from "./TikTokPostForm";
 import { HBars } from "../charts/Viz";
 import { Fold } from "../sheet/Fold";
 import { PageHead, SheetCard } from "../sheet/PageHead";
+import { ToolIntro } from "../grow/ToolIntro";
 import { num } from "../sheet/num";
 import { useTr } from "../sheet/useTr";
 import type { AppLocale } from "../../lib/i18n/locales";
@@ -393,6 +394,7 @@ export function ContentScreen() {
           </a>
         }
       />
+      <ToolIntro tool="posts" />
 
       <div className="ct-stop">
         <EmergencyStop />

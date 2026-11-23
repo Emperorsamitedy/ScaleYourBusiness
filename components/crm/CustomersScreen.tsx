@@ -25,6 +25,7 @@ import "../../app/customers.css";
 import { SegBar } from "../charts/Viz";
 import { Fold } from "../sheet/Fold";
 import { PageHead, SheetCard } from "../sheet/PageHead";
+import { ToolIntro } from "../grow/ToolIntro";
 import { moneyExact, num } from "../sheet/num";
 import { useTr } from "../sheet/useTr";
 import { TabPanel, Tabs } from "../ui/Tabs";
@@ -293,6 +294,7 @@ export function CustomersScreen() {
         kicker={tr("kicker")}
         title={customersHeadline(s.contacts.length, s.lifecycle.lapsed, tr)}
       />
+      <ToolIntro tool="customers" />
 
       {s.notice && (
         <p className="cu-notice" aria-live="polite">

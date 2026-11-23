@@ -37,6 +37,7 @@ import { rangeOf } from "../../lib/i18n/range";
 import type { Tr } from "../../lib/i18n/tr";
 import { Fold } from "../sheet/Fold";
 import { PageHead, SheetCard } from "../sheet/PageHead";
+import { ToolIntro } from "../grow/ToolIntro";
 import { num } from "../sheet/num";
 import { useTr } from "../sheet/useTr";
 import type { PipelineWords } from "./pipeline-view";
@@ -77,6 +78,7 @@ function Frame({
   return (
     <main className="screen pl-screen">
       <PageHead kicker={tr("kicker")} title={title} aside={aside} />
+      <ToolIntro tool="deals" />
       {children}
     </main>
   );

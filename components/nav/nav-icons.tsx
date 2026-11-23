@@ -45,6 +45,7 @@ import {
   UsersRound,
   Wallet,
   Workflow,
+  LayoutGrid,
 } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 
@@ -65,6 +66,7 @@ export const SCREEN_ICONS: Readonly<Record<string, LucideIcon>> = {
   "/blindspots": Radar,
   "/competitors": Binoculars,
   "/benchmarks": ChartColumn,
+  "/grow": LayoutGrid,
   "/content": PenLine,
   "/studio": Clapperboard,
   "/site": Globe,

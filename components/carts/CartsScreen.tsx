@@ -27,6 +27,7 @@ import { percentText } from "../cash/cash-view";
 import { HBars } from "../charts/Viz";
 import { Fold } from "../sheet/Fold";
 import { PageHead, SheetCard } from "../sheet/PageHead";
+import { ToolIntro } from "../grow/ToolIntro";
 import { moneyText, num } from "../sheet/num";
 import { useTr } from "../sheet/useTr";
 import type { CartsSentences, CartsWords, Measured } from "./carts-view";
@@ -71,6 +72,7 @@ function Frame({
   return (
     <main className="screen ct-screen">
       <PageHead kicker={tr("kicker")} title={title} aside={aside} />
+      <ToolIntro tool="carts" />
       {children}
       <Fold summary={tr("how")}>
         <p className="ct-foot">{tr("foot")}</p>

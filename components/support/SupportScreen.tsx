@@ -28,6 +28,7 @@ import type { AppLocale } from "../../lib/i18n/locales";
 import type { Tr } from "../../lib/i18n/tr";
 import { HBars, SegBar } from "../charts/Viz";
 import { PageHead } from "../sheet/PageHead";
+import { ToolIntro } from "../grow/ToolIntro";
 import { num } from "../sheet/num";
 import { useTr } from "../sheet/useTr";
 import { PhoneLine } from "./PhoneLine";
@@ -444,6 +445,7 @@ export function SupportScreen() {
           </Link>
         </div>
       </PageHead>
+      <ToolIntro tool="messages" />
 
       {s.notice && (
         <p className="sp-notice" aria-live="polite">

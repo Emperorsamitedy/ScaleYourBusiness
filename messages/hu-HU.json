@@ -37,7 +37,7 @@
       "approve": "Jóváhagyásra vár",
       "insights": "Elemzések",
       "grow": "Növekedés",
-      "customers": "Ügyfelek",
+      "customers": "Ügyfelek megtartása",
       "business": "Az Ön vállalkozása",
       "today": "Ma"
     },
@@ -54,15 +54,15 @@
       "blindspots": "Vakfoltok",
       "competitors": "Versenytársak",
       "benchmarks": "Hasonló vállalkozások",
-      "content": "Tartalom",
-      "studio": "Kreatív stúdió",
+      "content": "Bejegyzések",
+      "studio": "Hirdetések és videók",
       "site": "Weboldal",
-      "simulate": "Kampányszimulátor",
-      "customers": "Ügyfelek",
+      "simulate": "Ötlet kipróbálása",
+      "customers": "Ügyféllista",
       "reviews": "Értékelések",
       "carts": "Elhagyott kosarak",
-      "pipeline": "Értékesítési tölcsér",
-      "support": "Támogatás",
+      "pipeline": "Üzletek vállalkozásokkal",
+      "support": "Üzenetek",
       "factsheet": "Ténylap",
       "connections": "Összekapcsolt fiókok",
       "mode": "Ahogyan dolgozom",
@@ -78,7 +78,8 @@
       "growth": "Növekedési stúdió",
       "erasure": "A vállalkozás törlése",
       "home": "Kezdőlap",
-      "alerts": "Értesítések és modulok"
+      "alerts": "Értesítések és modulok",
+      "grow": "Minden eszköz"
     },
     "count": {
       "paused": "{count} szüneteltetve",
@@ -120,7 +121,7 @@
       "fewer": "Kevesebb"
     },
     "section": {
-      "marketing": "Marketing"
+      "marketing": "Ügyfélszerzés"
     }
   },
   "auth": {
@@ -3408,7 +3409,7 @@
     "meta": {
       "title": "Elhagyott kosarak · ScaleX"
     },
-    "kicker": "Ügyfelek · Elhagyott kosarak",
+    "kicker": "Növekedés · Elhagyott kosarak",
     "foot": "A ScaleX soha nem ír e-mailt olyan vásárlónak, aki nem egyezett bele. A Shopify saját, félbehagyott fizetésről szóló e-mailje, ha használja, ettől független.",
     "signedOut": "Itt még nincs vállalkozás.",
     "startInterview": "<link>Kezdje az interjúval</link>.",
@@ -4029,9 +4030,9 @@
   },
   "pipeline": {
     "meta": {
-      "title": "Értékesítési tölcsér · ScaleX"
+      "title": "Üzletek vállalkozásokkal · ScaleX"
     },
-    "kicker": "Ügyfelek · Értékesítési tölcsér",
+    "kicker": "Növekedés · Üzletek vállalkozásokkal",
     "loading": "Az értékesítési tölcsére beolvasása…",
     "signedOut": {
       "title": "Itt még nincs vállalkozás.",
@@ -4228,7 +4229,7 @@
     "meta": {
       "title": "Értékelések · ScaleX"
     },
-    "kicker": "Ügyfelek · Értékelések",
+    "kicker": "Növekedés · Értékelések",
     "foot": "A ScaleX soha nem tesz közzé választ, és soha nem jelentkezik be az értékelési oldalaira. A Google-értékeléseit csak akkor olvassa, ha összekapcsolja a Google Cégprofilt, és akkor is csak olvassa őket. Az értékelő nevét egy évig őrizzük, és bármelyik értékelést azonnal eltávolíthatja.",
     "stars": {
       "none": "Nincs csillag",
@@ -4367,14 +4368,14 @@
   },
   "simulate": {
     "meta": {
-      "title": "Szimulátor · ScaleX"
+      "title": "Ötlet kipróbálása · ScaleX"
     },
     "tabs": {
       "aria": "Szimulátor",
       "campaigns": "Kampányok",
       "pricing": "Árazás: mi lenne, ha…"
     },
-    "kicker": "Növekedés · Kampányszimulátor",
+    "kicker": "Növekedés · Ötlet kipróbálása",
     "loading": "A számai beolvasása…",
     "signedOut": {
       "title": "Itt még nincs vállalkozás.",
@@ -4493,7 +4494,7 @@
       "nothing": "nincs mit javasolni"
     },
     "pricing": {
-      "kicker": "Növekedés · Árazás: mi lenne, ha…",
+      "kicker": "Növekedés · Ötlet kipróbálása",
       "loading": "Az árai beolvasása…",
       "failed": "Az árazási forgatókönyvek nem töltődtek be.",
       "empty": {
@@ -4940,9 +4941,9 @@
   },
   "content": {
     "meta": {
-      "title": "Tartalom · ScaleX"
+      "title": "Bejegyzések · ScaleX"
     },
-    "kicker": "Növekedés · Tartalom",
+    "kicker": "Növekedés · Bejegyzések",
     "loading": "A tartalmak várólistájának beolvasása…",
     "failed": "ez nem sikerült",
     "signedOut": {
@@ -5066,7 +5067,7 @@
       "titleOn": "Megírva, ütemezve, közzétéve",
       "titleOff": "Megírva és ütemezve: a közzététel ki van kapcsolva",
       "emptyWatching": "A várólista üres. A javaslatok a figyelés végével indulnak, ekkor: {day}.",
-      "empty": "A várólista üres. Javasoljon lent egy naptárt. Miután jóváhagyta a várólistán, itt megírom."
+      "empty": "Még nincs tervezett bejegyzés. Kezdje azzal, hogy lent megadja, mire valók a bejegyzései."
     },
     "col": {
       "draft": "Piszkozat",
@@ -5117,7 +5118,7 @@
     "goals": {
       "label": "Célok",
       "title": "Mit szolgál a tartalom",
-      "empty": "Még nincsenek célok. Adjon meg egyet, vagy válasszon egy ötletet. Minden tervezett elem megnevezi, melyik célt szolgálja.",
+      "empty": "Mire valók a bejegyzései? Adjon meg egy célt, vagy fogadja el Lex ötletét. Minden bejegyzés megnevezi a célját.",
       "horizon": "{months, plural, one {# hónap} other {# hónap}}",
       "target": "célérték: {value}",
       "inputLabel": "Egy cél, saját szavaival",
@@ -5226,9 +5227,9 @@
   },
   "customers": {
     "meta": {
-      "title": "Ügyfelek · ScaleX"
+      "title": "Ügyféllista · ScaleX"
     },
-    "kicker": "Ügyfelek",
+    "kicker": "Növekedés · Ügyféllista",
     "tabs": "A képernyő részei",
     "opening": "Az ügyfelek megnyitása…",
     "signedOut": {
@@ -5280,7 +5281,7 @@
       "refreshed": "Frissítettem {count, plural, one {# már itt lévő ügyfél} other {# már itt lévő ügyfél}} vásárlási előzményeit; a hozzájárulásuk a rögzítettek szerint marad.",
       "country": "{count, plural, one {# országot nem ismertem fel; ismeretlenként maradt.} other {# országot nem ismertem fel; ismeretlenként maradtak.}}",
       "label": "Importálás",
-      "title": "Az Ön nyilatkozata alapján",
+      "title": "Hozza be az ügyféllistáját",
       "prose": "Illesszen be egy CSV-t a pénztárgépéből, foglalási rendszeréből, webáruházából vagy táblázatából. Az értelmezett oszlopok: email, name, phone, country (hogy minden ügyfélre a saját e-mail-szabályai vonatkozzanak), valamint (az életciklushoz) last order date, order count, total spent. Ön adja meg, mihez és hogyan járultak hozzá ezek a kapcsolattartók; ez a nyilatkozat minden sorra rákerül.",
       "csv": "A CSV",
       "status": "Mihez járultak hozzá",
@@ -5301,7 +5302,7 @@
       "search": "név vagy e-mail",
       "filters": "Szűrés minta szerint",
       "all": "Mind · {count}",
-      "empty": "Még nincsenek ügyfelek. Importálja lent az ügyféllistáját, a saját nyilatkozatával arról, mihez járultak hozzá.",
+      "empty": "Még nincsenek ügyfelek. Hozza be lent a listáját, és adja meg, ki mit fogadott el.",
       "noMatch": "Senki sem felel meg ennek.",
       "customer": "Ügyfél",
       "purchases": "Vásárlások",
@@ -5445,9 +5446,9 @@
   },
   "studio": {
     "meta": {
-      "title": "Kreatív stúdió · ScaleX"
+      "title": "Hirdetések és videók · ScaleX"
     },
-    "kicker": "Növekedés · Kreatív stúdió",
+    "kicker": "Növekedés · Hirdetések és videók",
     "aside": "Meta Hirdetéstár · csak olvasás · MEGFIGYELT",
     "loading": "A piaci rés és a kreatív tervek beolvasása…",
     "signedOut": {
@@ -5594,6 +5595,11 @@
       "making": "Készül: {total} közül {ready} kész.",
       "makingNote": "Elhagyhatja ezt az oldalt. A ScaleX begyűjti őket, amíg nyitva van, és naponta egyszer a háttérben; egy kész jelölt már most választható.",
       "progress": "{total} közül {ready} kész"
+    },
+    "tabs": {
+      "label": "Hirdetések és videók",
+      "ideas": "Ötletek a szakmájából",
+      "yours": "Az Ön hangja, fotói és forgatókönyvei"
     }
   },
   "site": {
@@ -5812,9 +5818,9 @@
   },
   "support": {
     "meta": {
-      "title": "Támogatás · ScaleX"
+      "title": "Üzenetek · ScaleX"
     },
-    "kicker": "Ügyfelek · Támogatás",
+    "kicker": "Növekedés · Üzenetek",
     "loading": "A támogatás megnyitása…",
     "signedOut": {
       "eyebrow": "támogatás",
@@ -5837,7 +5843,7 @@
     },
     "convos": {
       "label": "Jegyek · {tickets} · beszélgetések · {conversations}",
-      "empty": "Még semmi. Minden widgetes beszélgetés és minden, az ügyféltámogatási címére küldött e-mail ide érkezik, és ami Önre vár, meg van jelölve.",
+      "empty": "Még nincs üzenet. A weboldala csevegőjéből érkező kérdések és a támogatási címére küldött e-mailek ide érkeznek, és ami Önre vár, meg van jelölve.",
       "messages": "{count, plural, one {{n} üzenet} other {{n} üzenet}} · {when}"
     },
     "waitingTitle": "{count, plural, =0 {Senki sem vár Önre} one {# fő vár Önre} other {# fő vár Önre}}",
@@ -10965,5 +10971,86 @@
     "help": "A lista megjelenítése",
     "close": "A megnyitott elem bezárása",
     "next": "Következő és előző"
+  },
+  "grow": {
+    "meta": {
+      "title": "Növekedés · ScaleX"
+    },
+    "kicker": "Növekedés",
+    "title": "Szerezzen új ügyfeleket, és tartsa meg a meglévőket.",
+    "lede": "Minden eszköz előkészíti Önnek a munkát. Semmi sem jelenik meg, megy ki vagy változik az Ön jóváhagyása nélkül.",
+    "how": "Hogyan működik",
+    "waiting": "{count, plural, one {# vár Önre} other {# vár Önre}}",
+    "unanswered": "{count, plural, one {# választ vár} other {# választ vár}}",
+    "half": {
+      "bring": "Ügyfélszerzés",
+      "keep": "Ügyfelek megtartása"
+    },
+    "tools": {
+      "posts": {
+        "line": "Lex megtervezi a közösségimédia-bejegyzéseit a következő hetekre, és mindegyiket megírja. Semmi sem megy ki az Ön jóváhagyása nélkül.",
+        "go": "Bejegyzések tervezése",
+        "s1": "Mondja el, mire valók a bejegyzései",
+        "s2": "Jóváhagyás: a Lex által javasolt terv",
+        "s3": "Jóváhagyás minden bejegyzésnél, mielőtt kimegy"
+      },
+      "ads": {
+        "line": "Nézze meg, mely hirdetések futnak a legtovább a szakmájában, majd készítse el a sajátjait a fotóiból, a számaiból és a hangján.",
+        "go": "Mi működik a szakmámban",
+        "s1": "Olvassa el a szakmájában tartósan futó hirdetéseket",
+        "s2": "Adja meg Lexnek a hangját és a fotóit",
+        "s3": "Jóváhagyás egy forgatókönyvre, aztán forgatás vagy megrendelés"
+      },
+      "site": {
+        "line": "Lex úgy nézi át a weboldalát, ahogy egy ügyfél látja, és világosabb szavakat javasol. Minden módosítást lát, mielőtt élesbe kerül.",
+        "go": "Weboldalam ellenőrzése",
+        "s1": "Lex ellenőrzi a sebességet, a mobilt és a vásárlás útját",
+        "s2": "Lex világosabb szavakat javasol",
+        "s3": "Jóváhagyás minden módosításnál, mielőtt élesbe kerül"
+      },
+      "test": {
+        "line": "Mielőtt pénzt költene egy kampányra vagy árat változtatna, nézze meg, mit hozhat valószínűleg, a saját számaiból számolva.",
+        "go": "Kampány kipróbálása",
+        "s1": "Válasszon egy kampányt vagy egy árat",
+        "s2": "Nézze meg a valószínű sávot egymás mellett",
+        "s3": "Nem költ és nem változtat semmit: Ön dönt",
+        "go2": "Ár kipróbálása"
+      },
+      "customers": {
+        "line": "Mindenki, aki vásárolt Öntől, csoportokba rendezve, hogy a megfelelő e-mail a megfelelő emberekhez jusson.",
+        "go": "Listám megnyitása",
+        "s1": "Hozza be a listáját, és adja meg, ki mit fogadott el",
+        "s2": "Lex a vásárlásaik alapján csoportokba rendezi őket",
+        "s3": "Jóváhagyás minden e-mailnél, mielőtt elmegy"
+      },
+      "reviews": {
+        "line": "Vállalkozása összes értékelése egy helyen, egy válasszal, amelyet Lex az Ön jóváhagyására megír.",
+        "go": "Értékeléseim",
+        "s1": "Kapcsolja össze a Google-t, vagy továbbítsa az értékelésekről szóló e-maileket",
+        "s2": "Lex mindegyikre választ ír",
+        "s3": "Jóváhagyás minden válasznál, mielőtt megjelenik"
+      },
+      "messages": {
+        "line": "Kérdések a weboldala csevegőjéből és a támogatási e-mailjéből. Lex csak az Ön által jóváhagyott válaszokkal felel.",
+        "go": "Üzenetek megválaszolása",
+        "s1": "A kérdések a csevegőből és az e-mailből érkeznek",
+        "s2": "Lex a jóváhagyott válaszokkal felel",
+        "s3": "Minden új dolog itt vár Önre"
+      },
+      "carts": {
+        "line": "Akik valamit a kosárban hagytak, és egy emlékeztető, amelyet Lex azoknak ír, akik hozzájárultak az e-mailekhez.",
+        "go": "Kik hagyták ott",
+        "s1": "Lex beolvassa a fizetésnél otthagyott kosarakat",
+        "s2": "Lex emlékeztetőt ír azoknak, akik hozzájárultak az e-mailekhez",
+        "s3": "Jóváhagyás, mielőtt elmegy"
+      },
+      "deals": {
+        "line": "Üzletek más vállalkozásokkal, és hogy melyek zárulhatnak hamarosan.",
+        "go": "Üzleteim megnyitása",
+        "s1": "Adjon hozzá egy üzletet, vagy hozza be a táblázatát",
+        "s2": "Lex követi, hol tart mindegyik",
+        "s3": "Nézze meg, melyek zárulhatnak"
+      }
+    }
   }
 }

@@ -47,6 +47,7 @@ import type {
 } from "../../lib/simulate/model";
 import { SIM, compareOptions, valueText } from "../../lib/simulate/model";
 import { PageHead, SheetCard } from "../sheet/PageHead";
+import { ToolIntro } from "../grow/ToolIntro";
 import { moneyText, num } from "../sheet/num";
 import {
   DEFAULT_SHARE,
@@ -171,6 +172,7 @@ function Frame({
   return (
     <main className="screen sim-screen">
       <PageHead kicker={tr("kicker")} title={title} aside={aside} />
+      <ToolIntro tool="test" />
       <SimTabs current="campaigns" />
       {children}
     </main>

@@ -32,7 +32,7 @@ describe("app navigation", () => {
       "To approve",
       "Insights",
       "Grow",
-      "Customers",
+      "Keep customers", // 2026-11-23: Grow's second half, said plainly
       "Your business",
     ]);
   });
@@ -43,7 +43,7 @@ describe("app navigation", () => {
       today: "/home",
       approve: "/proposals",
       insights: "/report",
-      grow: "/content",
+      grow: "/grow", // 2026-11-23: Grow opens on its front page
       customers: "/customers",
       business: "/profile",
     });
@@ -95,7 +95,7 @@ describe("app navigation", () => {
     ]);
     expect(railItems(insights, "/hours").map((i) => i.href)).toContain("/hours");
     const grow = GROUPS.find((g) => g.key === "grow")!;
-    expect(railItems(grow, "/home")).toEqual(grow.items); // none marked: all four listed
+    expect(railItems(grow, "/home")).toEqual(grow.items); // every tool is a main one: all listed
   });
 
   it("keeps the rest of a group behind more, and loses none of its screens", () => {
@@ -150,7 +150,7 @@ describe("app navigation", () => {
     expect(placeHome("home", GROUPS)).toBe("/home");
     expect(placeHome("decisions", GROUPS)).toBe("/proposals");
     expect(placeHome("insights", GROUPS)).toBe("/report");
-    expect(placeHome("grow", GROUPS)).toBe("/content");
+    expect(placeHome("grow", GROUPS)).toBe("/grow");
     expect(placeHome("business", GROUPS)).toBe("/profile");
     expect(placeHome("grow", [])).toBe("/home"); // nothing to open: Home
   });
