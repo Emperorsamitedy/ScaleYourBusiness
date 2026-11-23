@@ -3302,7 +3302,30 @@
       "unknown": "Je ne sais pas combien de personnes travaillent dans l’entreprise : le groupe couvre donc toutes les tailles.",
       "spans": "Votre taille chevauche deux des tranches de taille d’Eurostat : le groupe couvre donc toutes les tailles."
     },
-    "how": "Comment ça marche"
+    "how": "Comment ça marche",
+    "plain": {
+      "title": "Comment vous vous situez face aux {group} en {country}",
+      "lede": "Vos chiffres à côté des chiffres officiels des {group} en {country} (Eurostat). Les leurs sont des totaux sur toutes ces entreprises, grandes comprises, pas une entreprise type, et ils sont comptés un peu autrement que les vôtres. Prenez-les comme un repère approximatif, pas comme une note.",
+      "others": "Les autres en {country}",
+      "scope": {
+        "all": "face aux entreprises de toutes tailles",
+        "yours": "face aux entreprises de votre taille"
+      },
+      "say": {
+        "above": "La vôtre est plus élevée : {gap}.",
+        "below": "La vôtre est plus basse : {gap}.",
+        "same": "À peu près pareil : {gap}."
+      },
+      "caveat": "<b>Pas tout à fait comparable :</b> {note}",
+      "how": "Comment Lex l’a calculé",
+      "source": "Source : Eurostat, mise à jour le {updated}. Rien sur cette page ne modifie vos chiffres.",
+      "name": {
+        "operating_margin": "Ce qui reste des ventes après les coûts",
+        "purchases_share": "Ce que vous achetez, en part des ventes",
+        "turnover_per_person": "Ventes par an pour chaque personne qui travaille",
+        "staff_cost_per_employee": "Salaire par an pour chaque employé"
+      }
+    }
   },
   "blindspots": {
     "meta": {
@@ -9765,8 +9788,8 @@
     }
   },
   "peers": {
-    "label": "Comparaison en direct",
-    "title": "Comment vous vous situez face à des entreprises comme la vôtre",
+    "label": "Autres entreprises sur ScaleX",
+    "title": "Face à d’autres entreprises comme la vôtre sur ScaleX",
     "metric": {
       "average_order_value": "Panier moyen",
       "revenue_per_employee": "Chiffre d’affaires par salarié",
@@ -9804,16 +9827,16 @@
       "wide_area": "pays voisins inclus",
       "any_size": "des entreprises de toutes tailles"
     },
-    "notEnough": "Pas encore assez d’entreprises comparables. Nous l’afficherons dès qu’il y en aura.",
-    "official": "Les chiffres officiels de l’UE ci-dessous viennent d’Eurostat, avec leur année. Notre comparaison en direct n’est pas encore disponible pour cela, et les deux ne sont jamais fondus en un seul chiffre.",
+    "notEnough": "pas encore assez. Cela apparaît dès qu’au moins sept participent.",
+    "official": "Les chiffres officiels ci-dessus sont ceux d’Eurostat, avec leur année. Cette comparaison n’est pas encore disponible, et les deux ne sont jamais mélangés en un seul chiffre.",
     "notMeasured": "Pas encore mesuré : {list}.",
     "unplaced": "Dites-moi quel type d’entreprise c’est et dans quel pays, et je la comparerai.",
     "source": "D’entreprises qui utilisent ScaleX, mesurées par leurs propres systèmes de vente, jamais d’après ce qu’un propriétaire a saisi. Mois : {month}.",
     "contribute": {
       "on": "Vos chiffres mesurés entrent anonymement dans ces comparaisons. Un chiffre ne s’affiche que s’il réunit au moins sept entreprises et qu’aucune n’en pèse plus d’un quart.",
       "off": "Vous ne partagez pas vos chiffres. Vous voyez toujours chaque comparaison.",
-      "stop": "Ne plus contribuer",
-      "start": "Contribuer à nouveau",
+      "stop": "Ne plus partager mes chiffres",
+      "start": "Partager à nouveau mes chiffres",
       "failed": "Ce n’a pas été enregistré. Réessayez dans un instant."
     }
   },

@@ -3302,7 +3302,30 @@
       "unknown": "No sé cuántas personas trabajan en el negocio, así que el grupo incluye todos los tamaños.",
       "spans": "Su tamaño abarca dos de los grupos de tamaño de Eurostat, así que el grupo incluye todos los tamaños."
     },
-    "how": "Cómo funciona"
+    "how": "Cómo funciona",
+    "plain": {
+      "title": "Cómo se compara con {group} en {country}",
+      "lede": "Sus cifras junto a las oficiales de {group} en {country} (Eurostat). Las suyas son totales de todos esos negocios, grandes incluidos, no de uno típico, y se cuentan algo distinto que las suyas. Úselas como guía aproximada, no como nota.",
+      "others": "Otros en {country}",
+      "scope": {
+        "all": "frente a negocios de todos los tamaños",
+        "yours": "frente a negocios de su tamaño"
+      },
+      "say": {
+        "above": "La suya es mayor: {gap}.",
+        "below": "La suya es menor: {gap}.",
+        "same": "Más o menos igual: {gap}."
+      },
+      "caveat": "<b>No es del todo comparable:</b> {note}",
+      "how": "Cómo lo calculó Lex",
+      "source": "Fuente: Eurostat, actualizado el {updated}. Nada en esta página cambia sus cifras.",
+      "name": {
+        "operating_margin": "Lo que queda de las ventas tras los costes",
+        "purchases_share": "Lo que compra, como parte de las ventas",
+        "turnover_per_person": "Ventas al año por cada persona que trabaja",
+        "staff_cost_per_employee": "Sueldo al año por cada empleado"
+      }
+    }
   },
   "blindspots": {
     "meta": {
@@ -9765,8 +9788,8 @@
     }
   },
   "peers": {
-    "label": "Comparación en vivo",
-    "title": "Cómo te comparas con negocios como el tuyo",
+    "label": "Otros negocios de ScaleX",
+    "title": "Frente a otros negocios de ScaleX como el suyo",
     "metric": {
       "average_order_value": "Valor medio del pedido",
       "revenue_per_employee": "Ingresos por empleado",
@@ -9804,16 +9827,16 @@
       "wide_area": "incluye países vecinos",
       "any_size": "negocios de todos los tamaños"
     },
-    "notEnough": "Aún no hay suficientes negocios comparables. Lo mostraremos en cuanto los haya.",
-    "official": "Las cifras oficiales de la UE de abajo son de Eurostat y llevan su año. Nuestra comparación en vivo aún no está disponible para esto, y nunca se mezclan en una sola cifra.",
+    "notEnough": "aún no hay suficientes. Aparece cuando participan al menos siete.",
+    "official": "Las cifras oficiales de arriba son de Eurostat, con su año. Esta comparación aún no está disponible, y las dos nunca se mezclan en una sola cifra.",
     "notMeasured": "Aún sin medir: {list}.",
     "unplaced": "Dime qué tipo de negocio es y en qué país está, y lo compararé.",
     "source": "De negocios que usan ScaleX, medidos por sus propios sistemas de venta, nunca con lo que un propietario escribió. Mes: {month}.",
     "contribute": {
       "on": "Tus cifras medidas entran en estas comparaciones de forma anónima. Una cifra solo aparece cuando hay al menos siete negocios y ninguno supone más de una cuarta parte.",
       "off": "No aportas tus cifras. Sigues viendo todas las comparaciones.",
-      "stop": "Dejar de aportar",
-      "start": "Volver a aportar",
+      "stop": "Dejar de compartir mis cifras",
+      "start": "Volver a compartir mis cifras",
       "failed": "No se ha guardado. Inténtalo de nuevo en un momento."
     }
   },

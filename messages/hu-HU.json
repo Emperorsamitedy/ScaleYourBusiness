@@ -3302,7 +3302,30 @@
       "unknown": "Nem tudom, hányan dolgoznak a vállalkozásban, ezért a csoport minden méretet felölel.",
       "spans": "Az Ön mérete az Eurostat két méretcsoportjába is beleesik, ezért a csoport minden méretet felölel."
     },
-    "how": "Hogyan működik"
+    "how": "Hogyan működik",
+    "plain": {
+      "title": "Hogyan áll a(z) {country} {group} mellett",
+      "lede": "Az Ön számai a(z) {country} {group} hivatalos adatai mellett (Eurostat). Az övéik az összes ilyen vállalkozás együttes számai, a nagyokat is beleértve, nem egy átlagos vállalkozásé, és kicsit másképp számolják őket, mint az Önéit. Durva iránytűként használja, ne osztályzatként.",
+      "others": "Mások ({country})",
+      "scope": {
+        "all": "minden méretű vállalkozással összevetve",
+        "yours": "az Önéhez hasonló méretű vállalkozásokkal összevetve"
+      },
+      "say": {
+        "above": "Az Öné magasabb: {gap}.",
+        "below": "Az Öné alacsonyabb: {gap}.",
+        "same": "Nagyjából ugyanannyi: {gap}."
+      },
+      "caveat": "<b>Nem teljesen összevethető:</b> {note}",
+      "how": "Hogyan jutott erre Lex",
+      "source": "Forrás: Eurostat, frissítve: {updated}. Ezen az oldalon semmi sem változtatja meg az Ön számait.",
+      "name": {
+        "operating_margin": "Ami az eladásokból a költségek után marad",
+        "purchases_share": "Amit beszerez, az eladások arányában",
+        "turnover_per_person": "Éves eladás minden dolgozó főre",
+        "staff_cost_per_employee": "Éves bér alkalmazottanként"
+      }
+    }
   },
   "blindspots": {
     "meta": {
@@ -9765,8 +9788,8 @@
     }
   },
   "peers": {
-    "label": "Élő összehasonlítás",
-    "title": "Hogyan állsz a hozzád hasonló vállalkozásokhoz képest",
+    "label": "Más vállalkozások a ScaleX-en",
+    "title": "Más, az Önéhez hasonló vállalkozásokkal a ScaleX-en",
     "metric": {
       "average_order_value": "Átlagos kosárérték",
       "revenue_per_employee": "Árbevétel egy munkatársra",
@@ -9804,16 +9827,16 @@
       "wide_area": "a szomszédos országokkal együtt",
       "any_size": "minden méretű vállalkozás"
     },
-    "notEnough": "Még nincs elég összehasonlítható vállalkozás. Amint lesz, megmutatjuk.",
-    "official": "Az alábbi hivatalos uniós adatok az Eurostattól származnak, az évükkel jelölve. Élő összehasonlításunk ehhez még nem érhető el, és a kettőt soha nem keverjük egy számba.",
+    "notEnough": "még nincs elég belőlük. Akkor jelenik meg, ha legalább hét részt vesz.",
+    "official": "A fenti hivatalos számok az Eurostattól származnak, évszámmal. Ez az összevetés még nem érhető el, és a kettőt soha nem keverjük egy számba.",
     "notMeasured": "Még nem mérjük: {list}.",
     "unplaced": "Mondd el, milyen vállalkozás ez és melyik országban működik, és összehasonlítom.",
     "source": "ScaleX-et használó vállalkozásoktól, a saját értékesítési rendszereik mérése alapján, sosem abból, amit egy tulajdonos beírt. Hónap: {month}.",
     "contribute": {
       "on": "A mért adataid névtelenül kerülnek ezekbe az összehasonlításokba. Egy szám csak akkor jelenik meg, ha legalább hét vállalkozás van benne, és egyik sem tesz ki belőle egy negyednél többet.",
       "off": "Nem adod hozzá az adataidat. Minden összehasonlítást ugyanúgy látsz.",
-      "stop": "Ne adjam hozzá",
-      "start": "Hozzáadom újra",
+      "stop": "Ne ossza meg többé a számaimat",
+      "start": "Ossza meg újra a számaimat",
       "failed": "Ez nem mentődött el. Próbáld újra egy pillanat múlva."
     }
   },

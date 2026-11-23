@@ -3302,7 +3302,30 @@
       "unknown": "Ich weiß nicht, wie viele Personen im Unternehmen arbeiten, deshalb umfasst die Gruppe alle Größen.",
       "spans": "Ihre Größe fällt in zwei Größenklassen von Eurostat, deshalb umfasst die Gruppe alle Größen."
     },
-    "how": "So funktioniert es"
+    "how": "So funktioniert es",
+    "plain": {
+      "title": "Wie Sie im Vergleich zu {group} in {country} dastehen",
+      "lede": "Ihre Zahlen neben den amtlichen für {group} in {country} (Eurostat). Deren Zahlen sind Summen über alle diese Unternehmen, große eingeschlossen, kein typisches Unternehmen, und sie werden etwas anders gezählt als Ihre. Nutzen Sie sie als grobe Orientierung, nicht als Note.",
+      "others": "Andere in {country}",
+      "scope": {
+        "all": "im Vergleich mit Unternehmen jeder Größe",
+        "yours": "im Vergleich mit Unternehmen Ihrer Größe"
+      },
+      "say": {
+        "above": "Ihre ist höher: {gap}.",
+        "below": "Ihre ist niedriger: {gap}.",
+        "same": "Etwa gleich: {gap}."
+      },
+      "caveat": "<b>Nicht ganz vergleichbar:</b> {note}",
+      "how": "Wie Lex darauf kam",
+      "source": "Quelle: Eurostat, aktualisiert am {updated}. Nichts auf dieser Seite ändert Ihre Zahlen.",
+      "name": {
+        "operating_margin": "Was nach den Kosten vom Umsatz bleibt",
+        "purchases_share": "Was Sie einkaufen, als Anteil am Umsatz",
+        "turnover_per_person": "Umsatz im Jahr pro arbeitender Person",
+        "staff_cost_per_employee": "Lohn im Jahr pro Beschäftigtem"
+      }
+    }
   },
   "blindspots": {
     "meta": {
@@ -9765,8 +9788,8 @@
     }
   },
   "peers": {
-    "label": "Live-Vergleich",
-    "title": "Wie du im Vergleich zu ähnlichen Unternehmen dastehst",
+    "label": "Andere Unternehmen bei ScaleX",
+    "title": "Im Vergleich mit anderen Unternehmen wie Ihrem bei ScaleX",
     "metric": {
       "average_order_value": "Durchschnittlicher Bestellwert",
       "revenue_per_employee": "Umsatz pro Mitarbeitendem",
@@ -9804,16 +9827,16 @@
       "wide_area": "Nachbarländer mit eingerechnet",
       "any_size": "Unternehmen jeder Größe"
     },
-    "notEnough": "Noch nicht genug vergleichbare Unternehmen. Wir zeigen es, sobald es genug gibt.",
-    "official": "Die amtlichen EU-Zahlen unten stammen von Eurostat und tragen ihr Jahr. Unser Live-Vergleich ist dafür noch nicht verfügbar, und beides wird nie zu einer Zahl vermischt.",
+    "notEnough": "noch nicht genug davon. Es erscheint, sobald mindestens sieben mitmachen.",
+    "official": "Die amtlichen Zahlen oben stammen von Eurostat, mit ihrem Jahr. Dieser Vergleich ist noch nicht verfügbar, und beide werden nie zu einer Zahl vermischt.",
     "notMeasured": "Noch nicht gemessen: {list}.",
     "unplaced": "Sag mir, was für ein Unternehmen das ist und in welchem Land, dann vergleiche ich es.",
     "source": "Von Unternehmen, die ScaleX nutzen, gemessen von ihren eigenen Verkaufssystemen, nie aus Eingaben eines Inhabers. Monat: {month}.",
     "contribute": {
       "on": "Deine gemessenen Zahlen fließen anonym in diese Vergleiche ein. Eine Zahl erscheint nur, wenn mindestens sieben Unternehmen darin sind und keines mehr als ein Viertel davon ausmacht.",
       "off": "Du steuerst keine Zahlen bei. Du siehst trotzdem jeden Vergleich.",
-      "stop": "Nicht mehr beitragen",
-      "start": "Wieder beitragen",
+      "stop": "Meine Zahlen nicht mehr teilen",
+      "start": "Meine Zahlen wieder teilen",
       "failed": "Das wurde nicht gespeichert. Versuch es gleich noch einmal."
     }
   },

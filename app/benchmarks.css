@@ -179,3 +179,93 @@
 :is(.bm-pair dt, .bm-sub)::first-letter {
   text-transform: var(--caps-first, inherit);
 }
+
+/* 2026-11-23, said plainly: one card a line, its plain name, two labelled
+   bars on one scale, one sentence, and its caveat in the open. */
+.bm-lede {
+  margin: 6px 0 0;
+  max-width: var(--measure);
+  color: var(--desk-ink-2);
+  font-size: 15px;
+}
+.bm-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr));
+  gap: 15px;
+  align-items: start;
+}
+.bm-cards .cs {
+  min-width: 0;
+}
+.bm-head {
+  margin: 0 0 12px;
+}
+.bm-name {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 650;
+}
+.bm-term {
+  margin: 2px 0 0;
+  font-size: 12.5px;
+  color: var(--sheet-ink-2);
+}
+.bm-bars {
+  display: grid;
+  gap: 8px;
+  margin: 0 0 12px;
+}
+.bm-row {
+  display: grid;
+  grid-template-columns: minmax(90px, 150px) minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+  font-size: 13px;
+}
+.bm-bar {
+  display: block;
+  height: 12px;
+  background: var(--inset);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.bm-bar span {
+  display: block;
+  height: 100%;
+}
+.bm-bar .own {
+  background: var(--sheet-ink);
+}
+.bm-bar .them {
+  background: var(--sheet-ink-2);
+  opacity: 0.55;
+}
+.bm-fig {
+  font-size: 14px;
+  text-align: right;
+  white-space: nowrap;
+}
+.bm-say {
+  margin: 0 0 8px;
+  font-size: 14px;
+  font-weight: 650;
+}
+.bm-caveat {
+  margin: 0 0 8px;
+  max-width: var(--measure);
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: var(--sheet-ink-2);
+}
+.bm-caveat b {
+  color: var(--sheet-ink);
+  font-weight: 650;
+}
+.bm-source {
+  margin: 15px 0 0;
+  font-size: 12.5px;
+  color: var(--desk-ink-2);
+}
+.bm-cards + .bm-stack {
+  margin-top: 15px;
+}

@@ -3302,7 +3302,30 @@
       "unknown": "I don't know how many people work in the business, so the group is every size.",
       "spans": "Your size spans two of Eurostat's size groups, so the group is every size."
     },
-    "how": "How this works"
+    "how": "How this works",
+    "plain": {
+      "title": "How you compare with {group} in {country}",
+      "lede": "Your figures beside the official ones for {group} in {country} (Eurostat). Theirs are totals across all those businesses, big ones included, not a typical one, and they're counted a little differently from yours. Use them as a rough guide, not a score.",
+      "others": "Others in {country}",
+      "scope": {
+        "all": "compared with businesses of every size",
+        "yours": "compared with businesses your size"
+      },
+      "say": {
+        "above": "Yours is higher: {gap}.",
+        "below": "Yours is lower: {gap}.",
+        "same": "About the same: {gap}."
+      },
+      "caveat": "<b>Not quite like for like:</b> {note}",
+      "how": "How Lex worked this out",
+      "source": "Source: Eurostat, updated {updated}. Nothing on this page changes your figures.",
+      "name": {
+        "operating_margin": "What's left of sales after costs",
+        "purchases_share": "What you buy in, as a share of sales",
+        "turnover_per_person": "Sales a year for each person working",
+        "staff_cost_per_employee": "Pay a year for each employee"
+      }
+    }
   },
   "blindspots": {
     "meta": {
@@ -9765,8 +9788,8 @@
     }
   },
   "peers": {
-    "label": "Live comparison",
-    "title": "How you compare with businesses like yours",
+    "label": "Other ScaleX businesses",
+    "title": "Against other ScaleX businesses like yours",
     "metric": {
       "average_order_value": "Average order value",
       "revenue_per_employee": "Revenue per employee",
@@ -9804,16 +9827,16 @@
       "wide_area": "neighbouring countries included",
       "any_size": "businesses of every size"
     },
-    "notEnough": "Not enough comparable businesses yet. We'll show this as soon as there are.",
-    "official": "The EU official figures below are Eurostat's, labelled with their year. Our live comparison isn't available for this yet, and the two are never mixed into one figure.",
+    "notEnough": "not enough of them yet. It appears once at least seven take part.",
+    "official": "The official figures above are Eurostat's, labelled with their year. This comparison isn't available yet, and the two are never mixed into one figure.",
     "notMeasured": "Not measured yet: {list}.",
     "unplaced": "Tell me what kind of business this is and which country it is in, and I'll compare it.",
     "source": "From businesses using ScaleX, measured by their own sales systems, never from what an owner typed in. Month: {month}.",
     "contribute": {
       "on": "Your measured figures join these comparisons anonymously. A figure shows only when at least seven businesses are in it and none is more than a quarter of it.",
       "off": "You don't contribute your figures. You still see every comparison.",
-      "stop": "Stop contributing",
-      "start": "Contribute again",
+      "stop": "Stop sharing my figures",
+      "start": "Share my figures again",
       "failed": "That didn't save. Try again in a moment."
     }
   },

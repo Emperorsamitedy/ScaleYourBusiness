@@ -3302,7 +3302,30 @@
       "unknown": "我不知道这家企业有多少人工作，所以组别涵盖所有规模。",
       "spans": "您的规模跨越了 Eurostat 的两个规模组别，所以组别涵盖所有规模。"
     },
-    "how": "运作方式"
+    "how": "运作方式",
+    "plain": {
+      "title": "与{country}的{group}相比，您的情况如何",
+      "lede": "您的数字与{country}{group}的官方数字（Eurostat）并列。他们的数字是所有这类企业的合计，包括大企业，并非一家典型企业，计算方式也与您的略有不同。请把它当作大致参考，而不是评分。",
+      "others": "{country}的其他企业",
+      "scope": {
+        "all": "与各种规模的企业相比",
+        "yours": "与同等规模的企业相比"
+      },
+      "say": {
+        "above": "您的更高：{gap}。",
+        "below": "您的更低：{gap}。",
+        "same": "大致相同：{gap}。"
+      },
+      "caveat": "<b>并非完全可比：</b>{note}",
+      "how": "Lex 是怎么算出来的",
+      "source": "来源：Eurostat，更新于 {updated}。此页面上的任何内容都不会改变您的数字。",
+      "name": {
+        "operating_margin": "扣除成本后销售额剩下多少",
+        "purchases_share": "采购额占销售额的比例",
+        "turnover_per_person": "每位工作人员每年的销售额",
+        "staff_cost_per_employee": "每名员工每年的工资"
+      }
+    }
   },
   "blindspots": {
     "meta": {
@@ -9765,8 +9788,8 @@
     }
   },
   "peers": {
-    "label": "实时比较",
-    "title": "与同类企业相比，你处在什么位置",
+    "label": "ScaleX 上的其他企业",
+    "title": "与 ScaleX 上和您类似的其他企业相比",
     "metric": {
       "average_order_value": "客单价",
       "revenue_per_employee": "人均营收",
@@ -9804,16 +9827,16 @@
       "wide_area": "包含邻近国家",
       "any_size": "各种规模的企业"
     },
-    "notEnough": "可比较的企业还不够。一旦足够，我们就会显示。",
-    "official": "下方的欧盟官方数据来自 Eurostat，并标明了年份。我们的实时比较暂时还无法用于此项，两者也绝不会混成一个数字。",
+    "notEnough": "目前数量还不够。至少有七家参与后才会显示。",
+    "official": "上面的官方数字来自 Eurostat，并标明年份。这项比较目前还不可用，两者也绝不会混成一个数字。",
     "notMeasured": "尚未测量：{list}。",
     "unplaced": "告诉我这是什么类型的企业、在哪个国家，我就能进行比较。",
     "source": "来自使用 ScaleX 的企业，由其自身销售系统测量，绝不采用所有者手动填写的数字。月份：{month}。",
     "contribute": {
       "on": "你测量到的数据会匿名计入这些比较。只有当至少七家企业参与、且没有任何一家占比超过四分之一时，才会显示数字。",
       "off": "你没有贡献你的数据。你仍然可以看到所有比较。",
-      "stop": "停止贡献",
-      "start": "重新贡献",
+      "stop": "停止分享我的数字",
+      "start": "重新分享我的数字",
       "failed": "没有保存成功。请稍后再试。"
     }
   },
