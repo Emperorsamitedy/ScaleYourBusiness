@@ -51,7 +51,7 @@
       "patterns": "Szezonok és csomagok",
       "cash": "Pénzáramlás",
       "stock": "Készlet",
-      "blindspots": "Vakfoltok",
+      "blindspots": "Ami hiányzik a weboldaláról",
       "competitors": "Versenytársak",
       "benchmarks": "Hasonló vállalkozások",
       "content": "Bejegyzések",
@@ -75,7 +75,6 @@
       "billing": "Csomag és számlázás",
       "mandates": "Hozzáféréssel rendelkező irodák",
       "partner": "Partnerkonzol",
-      "growth": "Növekedési stúdió",
       "erasure": "A vállalkozás törlése",
       "home": "Kezdőlap",
       "alerts": "Értesítések és modulok",
@@ -3307,16 +3306,10 @@
   },
   "blindspots": {
     "meta": {
-      "title": "Vakfoltok · ScaleX"
+      "title": "Ami hiányzik a weboldaláról · ScaleX"
     },
-    "kicker": "Elemzések · Vakfoltok",
+    "kicker": "Elemzések · Ami hiányzik a weboldaláról",
     "quoted": "„{text}”",
-    "where": {
-      "support": "támogatási chat",
-      "search": "keresés az oldalon",
-      "google": "Google",
-      "competitors": "{checked, number} versenytársból {showing, number}"
-    },
     "head": {
       "noSite": "A profiljában még nincs weboldal.",
       "notRead": "A weboldalát még nem olvastam be.",
@@ -3325,43 +3318,6 @@
       "foundBoth": "{count, number} keresés és kérdés nem talált semmit az oldalán.",
       "foundSearches": "{count, plural, one {# keresés nem talált semmit az oldalán.} other {# keresés nem talált semmit az oldalán.}}",
       "foundQuestions": "{count, plural, one {# kérdés nem talált semmit az oldalán.} other {# kérdés nem talált semmit az oldalán.}}"
-    },
-    "table": {
-      "aria": "Vakfoltok táblázata",
-      "lookedFor": "Amit kerestek",
-      "times": "Hányszor",
-      "share": "A legnagyobbhoz viszonyítva",
-      "where": "Hol merült fel",
-      "onSite": "Az oldalán",
-      "notFound": "Nem található"
-    },
-    "biggest": {
-      "label": "Legnagyobb vakfolt · {count, plural, one {# alkalom} other {# alkalom}}",
-      "title": "„{label}” nincs az oldalán",
-      "support": "Támogatási chat",
-      "notAsked": "nem kérdezték",
-      "unanswered": "{count, number} megválaszolatlan maradt",
-      "search": "Keresés az oldalon",
-      "notSearched": "nem keresték",
-      "google": "Google",
-      "notSeen": "nem jelent meg",
-      "impressions": "megjelenés · {count, plural, one {# kattintás} other {# kattintás}}",
-      "competitors": "Versenytársak",
-      "noneChecked": "egyiket sem ellenőriztem",
-      "showing": "{checked, number} közül {showing, number}",
-      "showIt": "megjeleníti a saját oldalán",
-      "toFix": "{arithmetic}. Javítás: {fix}."
-    },
-    "fixed": {
-      "label": "Hogyan javíthatók a vakfoltok",
-      "link": "Ellenőrzés a Weboldal menüpontban",
-      "stepFix": "A javítás: {fix}.",
-      "fixDefault": "a weboldal módosítása a jóváhagyási soron keresztül, vagy egy válasz a támogatási asszisztensében",
-      "stepWait": "Semmi sem változik magától: a javítás az „Önre vár” listában várakozik az Ön jóváhagyásáig.",
-      "stepRecheck": "Az oldalát {days, plural, one {naponta} other {# naponta}} újra beolvasom, így az a vakfolt, amelyet már megmutat, lekerül erről a listáról."
-    },
-    "coverage": {
-      "label": "Amit ez nem láthatott"
     },
     "signedOut": {
       "title": "Itt még nincs vállalkozás.",
@@ -3372,38 +3328,64 @@
       "body": "Hiba történt a mi oldalunkon. Frissítse az oldalt az újrapróbáláshoz."
     },
     "loading": "Annak beolvasása, amit az ügyfelek keresnek…",
-    "aside": {
-      "window": "Az utolsó {days, plural, one {# nap} other {# nap}} · {from} - {to}",
-      "siteRead": "oldal beolvasva: {day}",
-      "siteNotRead": "oldal nincs beolvasva",
-      "observed": "MEGFIGYELT"
-    },
     "list": {
-      "title": "{count, plural, one {# vakfolt, elöl a legnagyobb} other {# vakfolt, elöl a legnagyobb}}",
       "nothingMissing": "Semmi sem hiányzik",
       "nothingYet": "Még nincs mit összehasonlítani",
       "allThere": "Minden, amit az ügyfelek kérdeztek vagy kerestek, és amit párosítani tudok, megtalálható az oldalán.",
       "noSite": "Adja meg a weboldalát a profiljában, és legfeljebb öt oldalát beolvasom, majd összevetem azzal, amit az ügyfelek kérdeznek és keresnek.",
       "notRead": "A weboldalát még nem olvastam be, így semmiről sem mondható, hogy hiányzik róla.",
-      "notReadWhy": "A weboldalát még nem olvastam be: {why}, így semmiről sem mondható, hogy hiányzik róla."
+      "notReadWhy": "A weboldalát még nem olvastam be: {why}, így semmiről sem mondható, hogy hiányzik róla.",
+      "plainTitle": "Amit kerestek, a leggyakoribb elöl"
     },
     "factSheet": "Ténylap",
     "hard": {
-      "title": "Talán nehéz megtalálni",
+      "title": "Fent van a weboldalán, mégis kérdezik",
       "item": "<strong>{label}</strong>: {count, plural, one {# alkalommal} other {# alkalommal}} kérdezték a támogatási chatben; itt található: <link>{page}</link>."
     },
     "seen": {
-      "label": "Megjelenik a Google-ban, de ritkán kattintanak rá",
+      "label": "Megjelenik a Google-ben, de ritkán választják",
       "search": "Keresés",
       "shown": "Megjelenés",
       "clicked": "Kattintás",
-      "position": "Pozíció"
+      "position": "Pozíció",
+      "row": "{shown} alkalommal jelent meg, {clicked} kattintás, általában a(z) {position}. helyen a találatok között"
     },
     "topics": {
       "label": "Egyéb dolgok, amelyeket az emberek kerestek",
       "item": "<strong>{label}</strong>: {count, plural, one {# keresés} other {# keresés}} (pl. {examples})"
     },
-    "how": "Hogyan működik"
+    "lede": "Az elmúlt {days} napban ({from} és {to} között) az ügyfelek ezeket keresték vagy kérdezték, de a weboldala nem mutatja őket. Egy hiányzó válasz ok arra, hogy vásárlás nélkül távozzanak.",
+    "row": {
+      "missing": "Nincs a weboldalán",
+      "competitors": "{checked, number} követett versenytársból {showing, number} megmutatja",
+      "searched": "{count, plural, one {# alkalommal keresték a weboldalán} other {# alkalommal keresték a weboldalán}}",
+      "asked": "{count, plural, one {# alkalommal kérdezték a támogatási csevegésben} other {# alkalommal kérdezték a támogatási csevegésben}}",
+      "google": "{count, plural, one {# alkalommal jelent meg Google-keresésekben} other {# alkalommal jelent meg Google-keresésekben}}"
+    },
+    "fix": {
+      "title": "Hogyan javítsa",
+      "add": "Tegye ki a választ a weboldalára, arra az oldalra, ahová az emberek érkeznek. Lex megírja a szöveget, ha megkéri rá.",
+      "website": "Vagy módosítsa a szöveget a Weboldal oldalon: látja az oldalt előtte és utána, és semmi sem változik az Ön igenje nélkül.",
+      "link": "Weboldal megnyitása",
+      "recheck": "{count, plural, one {Lex # naponta újra átnézi a weboldalát. Ha a válasz már ott van, lekerül erről a listáról.} other {Lex # naponta újra átnézi a weboldalát. Ha a válasz már ott van, lekerül erről a listáról.}}"
+    },
+    "looked": {
+      "title": "Hol nézett Lex",
+      "pages": "A weboldala oldalai, utoljára olvasva: {date}",
+      "pagesNot": "A weboldala oldalai",
+      "notYet": "Még nincs olvasva",
+      "search": "A weboldala keresőmezője",
+      "support": "Kérdések a támogatási csevegésben",
+      "google": "Amit az emberek a Google-ben keresnek",
+      "googleHides": "A Google elrejti a ritka kereséseket, így a szám kicsit alacsonyabb.",
+      "competitors": "A versenytársai weboldalai",
+      "read": "Olvasva",
+      "connect": "Összekapcsolás",
+      "noneAsked": "Nem volt ezekben a napokban",
+      "noCompetitors": "Még egyet sem nézett meg",
+      "unmatched": "{count, plural, one {# kérdés semmihez sem illett ezen a listán.} other {# kérdés semmihez sem illett ezen a listán.}}",
+      "competitorsRead": "{count, plural, one {# megnézve} other {# megnézve}}"
+    }
   },
   "carts": {
     "meta": {
@@ -5664,7 +5646,7 @@
     "auditTab": {
       "label": "Ellenőrzés · ekkor: {day}",
       "title": "Mit keresnek az ügyfelek, és mutatja-e a weboldala",
-      "foot": "Csak olvasás. Bármelyik javítása a jóváhagyási várólistán keresztül történik: <link>lásd: Vakfoltok</link>.",
+      "foot": "Csak olvasás. Bármelyik javítása a jóváhagyási várólistán keresztül történik: <link>lásd: Ami hiányzik a weboldaláról</link>.",
       "what": "Mit ellenőriznek",
       "onSite": "Az Ön weboldalán",
       "foundOn": "Itt található",

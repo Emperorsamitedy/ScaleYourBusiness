@@ -51,7 +51,7 @@
       "patterns": "Saisons et lots",
       "cash": "Trésorerie",
       "stock": "Stock",
-      "blindspots": "Angles morts",
+      "blindspots": "Ce qui manque sur votre site",
       "competitors": "Concurrents",
       "benchmarks": "Entreprises similaires",
       "content": "Publications",
@@ -75,7 +75,6 @@
       "billing": "Formule et facturation",
       "mandates": "Cabinets avec accès",
       "partner": "Console partenaire",
-      "growth": "Studio de croissance",
       "erasure": "Effacer cette entreprise",
       "home": "Accueil",
       "alerts": "Alertes et modules",
@@ -3307,16 +3306,10 @@
   },
   "blindspots": {
     "meta": {
-      "title": "Angles morts · ScaleX"
+      "title": "Ce qui manque sur votre site · ScaleX"
     },
-    "kicker": "Analyses · Angles morts",
+    "kicker": "Analyses · Ce qui manque sur votre site",
     "quoted": "« {text} »",
-    "where": {
-      "support": "chat d’assistance",
-      "search": "recherche du site",
-      "google": "Google",
-      "competitors": "{showing, number} concurrents sur {checked, number}"
-    },
     "head": {
       "noSite": "Il n’y a pas encore de site web dans votre profil.",
       "notRead": "Votre site web n’a pas encore été lu.",
@@ -3325,43 +3318,6 @@
       "foundBoth": "{count, number} recherches et questions n’ont rien trouvé sur votre site.",
       "foundSearches": "{count, plural, one {# recherche n’a rien trouvé sur votre site.} many {# recherches n’ont rien trouvé sur votre site.} other {# recherches n’ont rien trouvé sur votre site.}}",
       "foundQuestions": "{count, plural, one {# question n’a rien trouvé sur votre site.} many {# questions n’ont rien trouvé sur votre site.} other {# questions n’ont rien trouvé sur votre site.}}"
-    },
-    "table": {
-      "aria": "Tableau des angles morts",
-      "lookedFor": "Ce qu’ils ont cherché",
-      "times": "Fois",
-      "share": "Part du plus grand",
-      "where": "Où c’est apparu",
-      "onSite": "Sur votre site",
-      "notFound": "Introuvable"
-    },
-    "biggest": {
-      "label": "Plus grand angle mort · {count, plural, one {# fois} many {# fois} other {# fois}}",
-      "title": "« {label} » ne figure pas sur votre site",
-      "support": "Chat d’assistance",
-      "notAsked": "pas demandé",
-      "unanswered": "{count, number} sans réponse",
-      "search": "Recherche du site",
-      "notSearched": "pas recherché",
-      "google": "Google",
-      "notSeen": "pas vu",
-      "impressions": "impressions · {count, plural, one {# clic} many {# clics} other {# clics}}",
-      "competitors": "Concurrents",
-      "noneChecked": "aucun vérifié",
-      "showing": "{showing, number} sur {checked, number}",
-      "showIt": "l’affichent sur leur site",
-      "toFix": "{arithmetic}. Pour y remédier : {fix}."
-    },
-    "fixed": {
-      "label": "Comment les angles morts sont corrigés",
-      "link": "Vérifier dans Site web",
-      "stepFix": "Une correction, c’est {fix}.",
-      "fixDefault": "une modification du site web soumise à votre validation, ou une réponse ajoutée à votre assistance en ligne",
-      "stepWait": "Rien ne change de soi-même : une correction attend dans « En attente de votre décision » jusqu’à ce que vous la validiez.",
-      "stepRecheck": "Votre site est relu {days, plural, one {chaque jour} many {tous les # jours} other {tous les # jours}} : un angle mort qu’il comble désormais disparaît de cette liste."
-    },
-    "coverage": {
-      "label": "Ce que cette analyse n’a pas pu voir"
     },
     "signedOut": {
       "title": "Il n’y a pas encore d’entreprise ici.",
@@ -3372,38 +3328,64 @@
       "body": "Une erreur s’est produite de notre côté. Actualisez la page pour réessayer."
     },
     "loading": "Lecture de ce que cherchent les clients…",
-    "aside": {
-      "window": "{days, plural, one {Le dernier jour} many {Les # derniers jours} other {Les # derniers jours}} · du {from} au {to}",
-      "siteRead": "site lu le {day}",
-      "siteNotRead": "site non lu",
-      "observed": "OBSERVÉ"
-    },
     "list": {
-      "title": "{count, plural, one {# angle mort, le plus grand en tête} many {# angles morts, les plus grands en tête} other {# angles morts, les plus grands en tête}}",
       "nothingMissing": "Rien ne manque",
       "nothingYet": "Rien à comparer pour l’instant",
       "allThere": "Tout ce que les clients ont demandé ou cherché et que je peux rapprocher figure sur votre site.",
       "noSite": "Ajoutez votre site web à votre profil : je lirai jusqu’à cinq de ses pages, puis je les comparerai à ce que les clients demandent et recherchent.",
       "notRead": "Votre site web n’a pas encore été lu : rien ne peut donc y être déclaré manquant.",
-      "notReadWhy": "Votre site web n’a pas encore été lu ({why}) : rien ne peut donc y être déclaré manquant."
+      "notReadWhy": "Votre site web n’a pas encore été lu ({why}) : rien ne peut donc y être déclaré manquant.",
+      "plainTitle": "Ce qu’ils ont cherché, le plus demandé d’abord"
     },
     "factSheet": "Fiche des faits",
     "hard": {
-      "title": "Peut-être difficile à trouver",
+      "title": "Sur votre site, mais on le demande encore",
       "item": "<strong>{label}</strong> : demandé {count, plural, one {# fois} many {# fois} other {# fois}} dans votre chat d’assistance ; c’est sur <link>{page}</link>."
     },
     "seen": {
-      "label": "Vu sur Google, rarement cliqué",
+      "label": "Trouvé sur Google, mais rarement choisi",
       "search": "Recherche",
       "shown": "Affichages",
       "clicked": "Clics",
-      "position": "Position"
+      "position": "Position",
+      "row": "affiché {shown} fois, cliqué {clicked} fois, en général à la place {position} des résultats"
     },
     "topics": {
       "label": "Autres choses que les gens ont recherchées",
       "item": "<strong>{label}</strong> : {count, plural, one {# recherche} many {# recherches} other {# recherches}} (p. ex. {examples})"
     },
-    "how": "Comment ça marche"
+    "lede": "Ces {days} derniers jours (du {from} au {to}), des clients ont cherché ou demandé ceci, et votre site ne le montre pas. Une réponse qui manque est une raison de partir sans acheter.",
+    "row": {
+      "missing": "Absent de votre site",
+      "competitors": "{showing, number} des {checked, number} concurrents suivis le montrent",
+      "searched": "{count, plural, one {Cherché # fois sur votre site} many {Cherché # fois sur votre site} other {Cherché # fois sur votre site}}",
+      "asked": "{count, plural, one {Demandé # fois dans votre chat d’assistance} many {Demandé # fois dans votre chat d’assistance} other {Demandé # fois dans votre chat d’assistance}}",
+      "google": "{count, plural, one {Affiché # fois dans les recherches Google} many {Affiché # fois dans les recherches Google} other {Affiché # fois dans les recherches Google}}"
+    },
+    "fix": {
+      "title": "Comment en corriger un",
+      "add": "Ajoutez la réponse sur votre site, sur la page où les gens arrivent. Lex peut rédiger le texte si vous le demandez.",
+      "website": "Ou changez le texte dans Site web : vous voyez la page avant et après, et rien ne change tant que vous n’avez pas dit oui.",
+      "link": "Ouvrir Site web",
+      "recheck": "{count, plural, one {Lex relit votre site chaque jour. Une fois la réponse en place, elle sort de cette liste.} many {Lex relit votre site tous les # jours. Une fois la réponse en place, elle sort de cette liste.} other {Lex relit votre site tous les # jours. Une fois la réponse en place, elle sort de cette liste.}}"
+    },
+    "looked": {
+      "title": "Où Lex a regardé",
+      "pages": "Les pages de votre site, lues le {date}",
+      "pagesNot": "Les pages de votre site",
+      "notYet": "Pas encore lues",
+      "search": "Le champ de recherche de votre site",
+      "support": "Questions dans votre chat d’assistance",
+      "google": "Ce que les gens cherchent sur Google",
+      "googleHides": "Google masque les recherches rares, son total est donc un peu bas.",
+      "competitors": "Les sites de vos concurrents",
+      "read": "Lu",
+      "connect": "Le connecter",
+      "noneAsked": "Aucune ces jours-ci",
+      "noCompetitors": "Aucun regardé pour l’instant",
+      "unmatched": "{count, plural, one {# question ne correspondait à rien de cette liste.} many {# questions ne correspondaient à rien de cette liste.} other {# questions ne correspondaient à rien de cette liste.}}",
+      "competitorsRead": "{count, plural, one {# regardé} many {# regardés} other {# regardés}}"
+    }
   },
   "carts": {
     "meta": {
@@ -5664,7 +5646,7 @@
     "auditTab": {
       "label": "Audit · contrôlé le {day}",
       "title": "Ce que cherchent les clients, et si votre site le montre",
-      "foot": "Lecture seule. La correction passe par la file de validation : <link>voir Angles morts</link>.",
+      "foot": "Lecture seule. La correction passe par la file de validation : <link>voir Ce qui manque sur votre site</link>.",
       "what": "Ce qu’ils vérifient",
       "onSite": "Sur votre site",
       "foundOn": "Trouvé sur",

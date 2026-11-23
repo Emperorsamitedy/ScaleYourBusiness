@@ -51,7 +51,7 @@
       "patterns": "季节与组合",
       "cash": "现金流",
       "stock": "库存",
-      "blindspots": "盲点",
+      "blindspots": "网站上缺少的内容",
       "competitors": "竞争对手",
       "benchmarks": "同类企业",
       "content": "帖子",
@@ -75,7 +75,6 @@
       "billing": "方案与账单",
       "mandates": "有访问权限的事务所",
       "partner": "合作伙伴控制台",
-      "growth": "增长工作室",
       "erasure": "删除这家企业",
       "home": "首页",
       "alerts": "提醒与模块",
@@ -3307,16 +3306,10 @@
   },
   "blindspots": {
     "meta": {
-      "title": "盲点 · ScaleX"
+      "title": "网站上缺少的内容 · ScaleX"
     },
-    "kicker": "洞察 · 盲点",
+    "kicker": "洞察 · 网站上缺少的内容",
     "quoted": "“{text}”",
-    "where": {
-      "support": "客户支持聊天",
-      "search": "站内搜索",
-      "google": "Google",
-      "competitors": "{checked, number} 个竞争对手中的 {showing, number} 个"
-    },
     "head": {
       "noSite": "您的资料中还没有网站。",
       "notRead": "您的网站还没有被读取。",
@@ -3325,43 +3318,6 @@
       "foundBoth": "有 {count, number} 次搜索和提问在您的网站上一无所获。",
       "foundSearches": "{count, plural, other {有 # 次搜索在您的网站上一无所获。}}",
       "foundQuestions": "{count, plural, other {有 # 个问题在您的网站上一无所获。}}"
-    },
-    "table": {
-      "aria": "盲点表",
-      "lookedFor": "他们要找的",
-      "times": "次数",
-      "share": "占最大项的比例",
-      "where": "出现在哪里",
-      "onSite": "在您的网站上",
-      "notFound": "未找到"
-    },
-    "biggest": {
-      "label": "最大的盲点 · {count, plural, other {# 次}}",
-      "title": "“{label}”不在您的网站上",
-      "support": "客户支持聊天",
-      "notAsked": "无人问过",
-      "unanswered": "{count, number} 个未获回答",
-      "search": "站内搜索",
-      "notSearched": "无人搜索过",
-      "google": "Google",
-      "notSeen": "未出现",
-      "impressions": "次展示 · {count, plural, other {# 次点击}}",
-      "competitors": "竞争对手",
-      "noneChecked": "未检查",
-      "showing": "{checked, number} 个中的 {showing, number} 个",
-      "showIt": "在他们的网站上展示了它",
-      "toFix": "{arithmetic}。修复方法：{fix}。"
-    },
-    "fixed": {
-      "label": "盲点如何被修复",
-      "link": "在“网站”中查看",
-      "stepFix": "修复方法是{fix}。",
-      "fixDefault": "通过批准队列进行的一项网站更改，或您的客户支持助手中的一条回答",
-      "stepWait": "不会自行改变任何东西：修复会在“等待您处理”中等待，直到您批准。",
-      "stepRecheck": "{days, plural, other {您的网站每 # 天会被重新读取一次}}，所以网站上现在已展示的盲点会从这个列表中消失。"
-    },
-    "coverage": {
-      "label": "这里看不到的内容"
     },
     "signedOut": {
       "title": "这里还没有企业。",
@@ -3372,38 +3328,64 @@
       "body": "我们这边出了问题。请刷新页面重试。"
     },
     "loading": "正在读取客户要找的内容…",
-    "aside": {
-      "window": "{days, plural, other {最近 # 天}} · {from} 至 {to}",
-      "siteRead": "网站读取于 {day}",
-      "siteNotRead": "网站未读取",
-      "observed": "已观测"
-    },
     "list": {
-      "title": "{count, plural, other {# 个盲点，最大的排在前面}}",
       "nothingMissing": "没有缺少的内容",
       "nothingYet": "暂时没有可比较的内容",
       "allThere": "客户问过或搜索过、且我能匹配上的内容，您的网站上都有。",
       "noSite": "把您的网站添加到资料中，我会读取它最多五个页面，然后与客户提问和搜索的内容进行比较。",
       "notRead": "您的网站还没有被读取，所以不能说它缺少任何内容。",
-      "notReadWhy": "您的网站还没有被读取：{why}，所以不能说它缺少任何内容。"
+      "notReadWhy": "您的网站还没有被读取：{why}，所以不能说它缺少任何内容。",
+      "plainTitle": "他们在找什么，最常见的排在前面"
     },
     "factSheet": "事实表",
     "hard": {
-      "title": "可能不容易找到",
+      "title": "网站上有，但仍有人问",
       "item": "<strong>{label}</strong>：{count, plural, other {在您的客户支持聊天中被问过 # 次}}；它在<link>{page}</link>上。"
     },
     "seen": {
-      "label": "在 Google 上出现过，但很少被点击",
+      "label": "在 Google 上能找到，但很少被点开",
       "search": "搜索",
       "shown": "展示",
       "clicked": "点击",
-      "position": "排名"
+      "position": "排名",
+      "row": "展示 {shown} 次，点击 {clicked} 次，通常排在结果第 {position} 位"
     },
     "topics": {
       "label": "人们搜索过的其他内容",
       "item": "<strong>{label}</strong>：{count, plural, other {# 次搜索}}（例如 {examples}）"
     },
-    "how": "运作方式"
+    "lede": "在过去 {days} 天（{from} 至 {to}），客户搜索或询问过这些内容，但您的网站没有展示。缺少答案，就是客户不买就离开的理由。",
+    "row": {
+      "missing": "网站上没有",
+      "competitors": "您关注的 {checked, number} 个竞争对手中有 {showing, number} 个展示了这一点",
+      "searched": "{count, plural, other {在您的网站上被搜索 # 次}}",
+      "asked": "{count, plural, other {在客户支持聊天中被问到 # 次}}",
+      "google": "{count, plural, other {在 Google 搜索中展示 # 次}}"
+    },
+    "fix": {
+      "title": "如何修复",
+      "add": "把答案加到您的网站上，放在大家进入的页面。只要您开口，Lex 可以帮您写好文字。",
+      "website": "或者在“网站”里修改文字：您会看到修改前后的页面，在您同意之前不会有任何改动。",
+      "link": "打开“网站”",
+      "recheck": "{count, plural, other {Lex 每 # 天重新读取一次您的网站。答案一旦加上，这一项就会从列表中消失。}}"
+    },
+    "looked": {
+      "title": "Lex 查看了哪些地方",
+      "pages": "您网站的页面，最近一次读取于 {date}",
+      "pagesNot": "您网站的页面",
+      "notYet": "尚未读取",
+      "search": "您网站的搜索框",
+      "support": "客户支持聊天中的问题",
+      "google": "人们在 Google 上搜索的内容",
+      "googleHides": "Google 会隐藏少见的搜索，所以数字略低。",
+      "competitors": "您竞争对手的网站",
+      "read": "已读取",
+      "connect": "去连接",
+      "noneAsked": "这段时间内没有",
+      "noCompetitors": "还没有查看任何一个",
+      "unmatched": "{count, plural, other {有 # 个问题与此列表中的任何一项都不匹配。}}",
+      "competitorsRead": "{count, plural, other {已查看 # 个}}"
+    }
   },
   "carts": {
     "meta": {
@@ -5664,7 +5646,7 @@
     "auditTab": {
       "label": "审计 · 检查于 {day}",
       "title": "客户在寻找什么，以及您的网站是否展示了它",
-      "foot": "只读。修复其中任何一项都要经过批准队列：<link>请查看“盲点”</link>。",
+      "foot": "只读。修复其中任何一项都要经过批准队列：<link>请查看“网站上缺少的内容”</link>。",
       "what": "他们会查看什么",
       "onSite": "在您的网站上",
       "foundOn": "发现于",

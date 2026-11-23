@@ -51,7 +51,7 @@
       "patterns": "Seasons & bundles",
       "cash": "Cash flow",
       "stock": "Stock",
-      "blindspots": "Blindspots",
+      "blindspots": "Missing from your site",
       "competitors": "Competitors",
       "benchmarks": "Similar businesses",
       "content": "Posts",
@@ -75,7 +75,6 @@
       "billing": "Plan and billing",
       "mandates": "Firms with access",
       "partner": "Partner console",
-      "growth": "Growth studio",
       "erasure": "Erase this business",
       "home": "Home",
       "alerts": "Alerts and modules",
@@ -3307,16 +3306,10 @@
   },
   "blindspots": {
     "meta": {
-      "title": "Blindspots · ScaleX"
+      "title": "Missing from your site · ScaleX"
     },
-    "kicker": "Insights · Blindspots",
+    "kicker": "Insights · Missing from your site",
     "quoted": "“{text}”",
-    "where": {
-      "support": "support chat",
-      "search": "site search",
-      "google": "Google",
-      "competitors": "{showing, number} of {checked, number} competitors"
-    },
     "head": {
       "noSite": "There's no website in your profile yet.",
       "notRead": "Your website hasn't been read yet.",
@@ -3325,43 +3318,6 @@
       "foundBoth": "{count, number} searches and questions found nothing on your site.",
       "foundSearches": "{count, plural, one {# search found nothing on your site.} other {# searches found nothing on your site.}}",
       "foundQuestions": "{count, plural, one {# question found nothing on your site.} other {# questions found nothing on your site.}}"
-    },
-    "table": {
-      "aria": "Blindspots table",
-      "lookedFor": "They looked for",
-      "times": "Times",
-      "share": "Share of the biggest",
-      "where": "Where it came up",
-      "onSite": "On your site",
-      "notFound": "Not found"
-    },
-    "biggest": {
-      "label": "Biggest blindspot · {count, plural, one {# time} other {# times}}",
-      "title": "“{label}” isn't on your site",
-      "support": "Support chat",
-      "notAsked": "not asked",
-      "unanswered": "{count, number} left unanswered",
-      "search": "Site search",
-      "notSearched": "not searched",
-      "google": "Google",
-      "notSeen": "not seen",
-      "impressions": "impressions · {count, plural, one {# click} other {# clicks}}",
-      "competitors": "Competitors",
-      "noneChecked": "none checked",
-      "showing": "{showing, number} of {checked, number}",
-      "showIt": "show it on their site",
-      "toFix": "{arithmetic}. To fix: {fix}."
-    },
-    "fixed": {
-      "label": "How blindspots get fixed",
-      "link": "Review on Website",
-      "stepFix": "A fix is {fix}.",
-      "fixDefault": "a website change through the approval queue, or an answer in your support assistant",
-      "stepWait": "Nothing changes on its own: a fix waits in “Waiting for you” until you approve it.",
-      "stepRecheck": "Your site is read again every {days, plural, one {# day} other {# days}}, so a blindspot it now shows drops off this list."
-    },
-    "coverage": {
-      "label": "What this couldn't see"
     },
     "signedOut": {
       "title": "There's no business here yet.",
@@ -3372,38 +3328,64 @@
       "body": "Something went wrong on our side. Refresh to try again."
     },
     "loading": "Reading what customers look for…",
-    "aside": {
-      "window": "Last {days, plural, one {# day} other {# days}} · {from} to {to}",
-      "siteRead": "site read {day}",
-      "siteNotRead": "site not read",
-      "observed": "OBSERVED"
-    },
     "list": {
-      "title": "{count, plural, one {# blindspot, biggest first} other {# blindspots, biggest first}}",
       "nothingMissing": "Nothing missing",
       "nothingYet": "Nothing to compare yet",
       "allThere": "Everything customers asked or searched for that I can match is on your site.",
       "noSite": "Add your website to your profile and I read up to five of its pages, then compare them with what customers ask and search for.",
       "notRead": "Your website hasn't been read yet, so nothing can be called missing from it.",
-      "notReadWhy": "Your website hasn't been read yet: {why}, so nothing can be called missing from it."
+      "notReadWhy": "Your website hasn't been read yet: {why}, so nothing can be called missing from it.",
+      "plainTitle": "What they looked for, most asked first"
     },
     "factSheet": "Fact sheet",
     "hard": {
-      "title": "Maybe hard to find",
+      "title": "On your site, but people still ask",
       "item": "<strong>{label}</strong>: asked {count, plural, one {# time} other {# times}} in your support chat; it's on <link>{page}</link>."
     },
     "seen": {
-      "label": "Seen on Google, rarely clicked",
+      "label": "Found on Google, but rarely chosen",
       "search": "Search",
       "shown": "Shown",
       "clicked": "Clicked",
-      "position": "Position"
+      "position": "Position",
+      "row": "shown {shown} times, clicked {clicked} times, usually number {position} in the results"
     },
     "topics": {
       "label": "Other things people searched for",
       "item": "<strong>{label}</strong>: {count, plural, one {# search} other {# searches}} (e.g. {examples})"
     },
-    "how": "How this works"
+    "lede": "In the last {days} days ({from} to {to}), customers searched or asked for these, and your site doesn't show them. A missing answer is a reason to leave without buying.",
+    "row": {
+      "missing": "Not on your site",
+      "competitors": "{showing, number} of {checked, number} competitors you follow show it",
+      "searched": "{count, plural, one {Searched # time on your site} other {Searched # times on your site}}",
+      "asked": "{count, plural, one {Asked # time in your support chat} other {Asked # times in your support chat}}",
+      "google": "{count, plural, one {Shown # time in Google searches} other {Shown # times in Google searches}}"
+    },
+    "fix": {
+      "title": "How to fix one",
+      "add": "Add the answer to your site, on the page people land on. Lex can write the words if you ask.",
+      "website": "Or change the words on Website: you see the page before and after, and nothing changes until you say yes.",
+      "link": "Open Website",
+      "recheck": "{count, plural, one {Lex reads your site again every # day. Once the answer is there, it drops off this list.} other {Lex reads your site again every # days. Once the answer is there, it drops off this list.}}"
+    },
+    "looked": {
+      "title": "Where Lex looked",
+      "pages": "Your site's pages, last read {date}",
+      "pagesNot": "Your site's pages",
+      "notYet": "Not read yet",
+      "search": "Your site's search box",
+      "support": "Questions in your support chat",
+      "google": "What people search on Google",
+      "googleHides": "Google hides rare searches, so its count is a little low.",
+      "competitors": "Your competitors' sites",
+      "read": "Read",
+      "connect": "Connect it",
+      "noneAsked": "None in these days",
+      "noCompetitors": "None looked at yet",
+      "unmatched": "{count, plural, one {# question matched nothing on this list.} other {# questions matched nothing on this list.}}",
+      "competitorsRead": "{count, plural, one {# looked at} other {# looked at}}"
+    }
   },
   "carts": {
     "meta": {
@@ -5664,7 +5646,7 @@
     "auditTab": {
       "label": "Audit · checked {day}",
       "title": "What customers look for, and whether your site shows it",
-      "foot": "Read-only. Fixing one goes through the approval queue: <link>see Blindspots</link>.",
+      "foot": "Read-only. Fixing one goes through the approval queue: <link>see Missing from your site</link>.",
       "what": "What they check",
       "onSite": "On your site",
       "foundOn": "Found on",

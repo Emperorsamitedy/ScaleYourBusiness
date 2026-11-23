@@ -51,7 +51,7 @@
       "patterns": "Saisons & Produktbündel",
       "cash": "Cashflow",
       "stock": "Lagerbestand",
-      "blindspots": "Blinde Flecken",
+      "blindspots": "Was auf Ihrer Website fehlt",
       "competitors": "Wettbewerber",
       "benchmarks": "Ähnliche Unternehmen",
       "content": "Beiträge",
@@ -75,7 +75,6 @@
       "billing": "Plan und Abrechnung",
       "mandates": "Kanzleien mit Zugriff",
       "partner": "Partnerkonsole",
-      "growth": "Wachstumsstudio",
       "erasure": "Dieses Unternehmen löschen",
       "home": "Start",
       "alerts": "Hinweise und Module",
@@ -3307,16 +3306,10 @@
   },
   "blindspots": {
     "meta": {
-      "title": "Blinde Flecken · ScaleX"
+      "title": "Was auf Ihrer Website fehlt · ScaleX"
     },
-    "kicker": "Erkenntnisse · Blinde Flecken",
+    "kicker": "Erkenntnisse · Was auf Ihrer Website fehlt",
     "quoted": "„{text}“",
-    "where": {
-      "support": "Support-Chat",
-      "search": "Website-Suche",
-      "google": "Google",
-      "competitors": "{showing, number} von {checked, number} Wettbewerbern"
-    },
     "head": {
       "noSite": "In Ihrem Profil gibt es noch keine Website.",
       "notRead": "Ihre Website wurde noch nicht gelesen.",
@@ -3325,43 +3318,6 @@
       "foundBoth": "{count, number} Suchen und Fragen haben auf Ihrer Website nichts gefunden.",
       "foundSearches": "{count, plural, one {# Suche hat auf Ihrer Website nichts gefunden.} other {# Suchen haben auf Ihrer Website nichts gefunden.}}",
       "foundQuestions": "{count, plural, one {# Frage hat auf Ihrer Website nichts gefunden.} other {# Fragen haben auf Ihrer Website nichts gefunden.}}"
-    },
-    "table": {
-      "aria": "Tabelle der blinden Flecken",
-      "lookedFor": "Gesucht wurde",
-      "times": "Häufigkeit",
-      "share": "Anteil am größten",
-      "where": "Wo es aufkam",
-      "onSite": "Auf Ihrer Website",
-      "notFound": "Nicht gefunden"
-    },
-    "biggest": {
-      "label": "Größter blinder Fleck · {count, plural, one {# Mal} other {# Mal}}",
-      "title": "„{label}“ steht nicht auf Ihrer Website",
-      "support": "Support-Chat",
-      "notAsked": "nicht gefragt",
-      "unanswered": "{count, number} unbeantwortet",
-      "search": "Website-Suche",
-      "notSearched": "nicht gesucht",
-      "google": "Google",
-      "notSeen": "nicht gesehen",
-      "impressions": "Impressionen · {count, plural, one {# Klick} other {# Klicks}}",
-      "competitors": "Wettbewerber",
-      "noneChecked": "keiner geprüft",
-      "showing": "{showing, number} von {checked, number}",
-      "showIt": "zeigen es auf ihrer Website",
-      "toFix": "{arithmetic}. Behebung: {fix}."
-    },
-    "fixed": {
-      "label": "Wie blinde Flecken behoben werden",
-      "link": "Unter „Website“ prüfen",
-      "stepFix": "Eine Behebung ist {fix}.",
-      "fixDefault": "eine Website-Änderung über die Freigabe-Warteschlange oder eine Antwort in Ihrem Support-Assistenten",
-      "stepWait": "Nichts ändert sich von selbst: Eine Behebung wartet unter „Wartet auf Sie“, bis Sie sie freigeben.",
-      "stepRecheck": "{days, plural, one {Ihre Website wird jeden Tag neu gelesen, sodass ein blinder Fleck, den sie jetzt abdeckt, von dieser Liste verschwindet.} other {Ihre Website wird alle # Tage neu gelesen, sodass ein blinder Fleck, den sie jetzt abdeckt, von dieser Liste verschwindet.}}"
-    },
-    "coverage": {
-      "label": "Was hier nicht sichtbar war"
     },
     "signedOut": {
       "title": "Hier gibt es noch kein Unternehmen.",
@@ -3372,38 +3328,64 @@
       "body": "Bei uns ist etwas schiefgelaufen. Laden Sie die Seite neu, um es erneut zu versuchen."
     },
     "loading": "Es wird gelesen, wonach Kunden suchen…",
-    "aside": {
-      "window": "{days, plural, one {Letzter # Tag} other {Letzte # Tage}} · {from} bis {to}",
-      "siteRead": "Website gelesen {day}",
-      "siteNotRead": "Website nicht gelesen",
-      "observed": "BEOBACHTET"
-    },
     "list": {
-      "title": "{count, plural, one {# blinder Fleck, der größte zuerst} other {# blinde Flecken, die größten zuerst}}",
       "nothingMissing": "Nichts fehlt",
       "nothingYet": "Noch nichts zu vergleichen",
       "allThere": "Alles, wonach Kunden gefragt oder gesucht haben und was ich zuordnen kann, steht auf Ihrer Website.",
       "noSite": "Fügen Sie Ihre Website zu Ihrem Profil hinzu, dann lese ich bis zu fünf ihrer Seiten und vergleiche sie mit dem, wonach Kunden fragen und suchen.",
       "notRead": "Ihre Website wurde noch nicht gelesen, deshalb kann nichts als dort fehlend gelten.",
-      "notReadWhy": "Ihre Website wurde noch nicht gelesen: {why}, deshalb kann nichts als dort fehlend gelten."
+      "notReadWhy": "Ihre Website wurde noch nicht gelesen: {why}, deshalb kann nichts als dort fehlend gelten.",
+      "plainTitle": "Wonach gesucht wurde, das Häufigste zuerst"
     },
     "factSheet": "Faktenblatt",
     "hard": {
-      "title": "Vielleicht schwer zu finden",
+      "title": "Auf Ihrer Website, aber trotzdem gefragt",
       "item": "<strong>{label}</strong>: {count, plural, one {# Mal} other {# Mal}} in Ihrem Support-Chat gefragt; es steht auf <link>{page}</link>."
     },
     "seen": {
-      "label": "Bei Google gesehen, selten angeklickt",
+      "label": "Bei Google gefunden, aber selten gewählt",
       "search": "Suche",
       "shown": "Angezeigt",
       "clicked": "Angeklickt",
-      "position": "Position"
+      "position": "Position",
+      "row": "{shown}-mal gezeigt, {clicked}-mal angeklickt, meist auf Platz {position} der Ergebnisse"
     },
     "topics": {
       "label": "Wonach sonst gesucht wurde",
       "item": "<strong>{label}</strong>: {count, plural, one {# Suche} other {# Suchen}} (z. B. {examples})"
     },
-    "how": "So funktioniert es"
+    "lede": "In den letzten {days} Tagen ({from} bis {to}) haben Kunden danach gesucht oder gefragt, und Ihre Website zeigt es nicht. Eine fehlende Antwort ist ein Grund, ohne Kauf zu gehen.",
+    "row": {
+      "missing": "Nicht auf Ihrer Website",
+      "competitors": "{showing, number} von {checked, number} beobachteten Wettbewerbern zeigen es",
+      "searched": "{count, plural, one {# Mal auf Ihrer Website gesucht} other {# Mal auf Ihrer Website gesucht}}",
+      "asked": "{count, plural, one {# Mal im Support-Chat gefragt} other {# Mal im Support-Chat gefragt}}",
+      "google": "{count, plural, one {# Mal in Google-Suchen gezeigt} other {# Mal in Google-Suchen gezeigt}}"
+    },
+    "fix": {
+      "title": "So beheben Sie einen",
+      "add": "Fügen Sie die Antwort auf Ihrer Website hinzu, auf der Seite, auf der die Leute landen. Lex schreibt den Text, wenn Sie darum bitten.",
+      "website": "Oder ändern Sie den Text unter Website: Sie sehen die Seite vorher und nachher, und nichts ändert sich ohne Ihr Ja.",
+      "link": "Website öffnen",
+      "recheck": "{count, plural, one {Lex liest Ihre Website jeden Tag neu. Sobald die Antwort da ist, verschwindet sie von dieser Liste.} other {Lex liest Ihre Website alle # Tage neu. Sobald die Antwort da ist, verschwindet sie von dieser Liste.}}"
+    },
+    "looked": {
+      "title": "Wo Lex nachgesehen hat",
+      "pages": "Die Seiten Ihrer Website, zuletzt gelesen am {date}",
+      "pagesNot": "Die Seiten Ihrer Website",
+      "notYet": "Noch nicht gelesen",
+      "search": "Das Suchfeld Ihrer Website",
+      "support": "Fragen in Ihrem Support-Chat",
+      "google": "Was Leute bei Google suchen",
+      "googleHides": "Google verbirgt seltene Suchen, daher ist die Zahl etwas zu niedrig.",
+      "competitors": "Die Websites Ihrer Wettbewerber",
+      "read": "Gelesen",
+      "connect": "Verbinden",
+      "noneAsked": "Keine in diesen Tagen",
+      "noCompetitors": "Noch keiner angesehen",
+      "unmatched": "{count, plural, one {# Frage passte zu nichts auf dieser Liste.} other {# Fragen passten zu nichts auf dieser Liste.}}",
+      "competitorsRead": "{count, plural, one {# angesehen} other {# angesehen}}"
+    }
   },
   "carts": {
     "meta": {
@@ -5664,7 +5646,7 @@
     "auditTab": {
       "label": "Prüfung · geprüft {day}",
       "title": "Was Kunden suchen und ob Ihre Website es zeigt",
-      "foot": "Nur lesend. Eine Behebung läuft über die Freigabe-Warteschlange: <link>siehe Blinde Flecken</link>.",
+      "foot": "Nur lesend. Eine Behebung läuft über die Freigabe-Warteschlange: <link>siehe Was auf Ihrer Website fehlt</link>.",
       "what": "Was sie prüfen",
       "onSite": "Auf Ihrer Website",
       "foundOn": "Gefunden auf",

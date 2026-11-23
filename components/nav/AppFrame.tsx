@@ -228,7 +228,7 @@ export const GROUPS: readonly Group[] = [
         appliesTo: (c) => c.stock === true,
         count: (c) => n(c.by_module.stock ?? 0),
       },
-      { href: "/blindspots", label: "Blindspots", feature: "nav.blindspots" },
+      { href: "/blindspots", label: "Missing from your site", feature: "nav.blindspots" },
       { href: "/competitors", label: "Competitors", feature: "nav.competitors" },
       {
         href: "/benchmarks",

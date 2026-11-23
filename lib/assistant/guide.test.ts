@@ -47,7 +47,7 @@ describe("the guide covers the app", () => {
       );
     }
     expect(guideText()).toContain(
-      "Customers, Reviews, Abandoned carts, Pipeline and Support are under Grow",
+      "Customer list, Reviews, Abandoned carts, Business deals and Messages are under Grow",
     );
   });
 

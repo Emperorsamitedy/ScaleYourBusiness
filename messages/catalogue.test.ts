@@ -405,10 +405,6 @@ const GLOSSARY_EXCEPTIONS: Record<string, { terms: string[]; reason: string }> =
     terms: ["proposal"],
     reason: "a sales proposal sent to a client (Angebot), not SYB's proposal for approval",
   },
-  "blindspots.fixed.link": {
-    terms: ["review"],
-    reason: "“Review on Website”: check the change, not customer reviews",
-  },
   "goals.review.head": {
     terms: ["review"],
     reason: "SYB's own alert review, not customer reviews",

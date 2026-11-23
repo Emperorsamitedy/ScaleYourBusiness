@@ -1,27 +1,25 @@
 "use client";
 
-// Insights · Blindspots — the owner's Blindspots design (2026-10-17) on
-// Phase 2 Session G (P2-32..37). What potential customers asked and
-// searched for, against what the business's own site shows them. Every
-// row names its counts and its sources; what isn't connected or checked
-// is said, not hidden. Read-only: a fix goes through the approval queue —
-// the steps folded under "How this works" (decluttered 2026-11-09 on the
-// owner's instruction).
+// Insights · Missing from your site (was Blindspots): the owner's Blindspots
+// design (2026-10-17) on Phase 2 Session G (P2-32..37), said plainly on
+// 2026-11-23 from the canvas design the owner approved. What potential
+// customers asked and searched for, against what the business's own site
+// shows them: one list, most asked first, each with where it came up; how
+// to fix one, in three steps; and where Lex looked, each source read or
+// what it needs. Read-only: a fix is the owner's, or a change on Website
+// that waits for their yes.
 //
 // L-3b: the screen's own words are the "blindspots" catalogue; figures and
-// dates in the reader's locale. What the API words (a blindspot's label,
-// arithmetic and fix, the site note, the coverage lines) arrives in the
-// reader's language (L-4b); the screen reads the site note's kind, never
-// its sentence. Topic labels are the model's stored words (L-5) and their
-// examples customers' own searches (content).
+// dates in the reader's locale. A blindspot's label arrives in the reader's
+// language (L-4b); where Lex looked is drawn from the report's `looked`
+// flags, never from its coverage sentences. Topic labels are the model's
+// stored words (L-5) and their examples customers' own searches (content).
 
-import { fullStop } from "../../lib/i18n/punctuation";
 import "../../app/blindspots.css";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { useTranslations } from "next-intl";
-import { Fold } from "../sheet/Fold";
 import { PageHead, SheetCard } from "../sheet/PageHead";
 import { num } from "../sheet/num";
 import { useTr } from "../sheet/useTr";
@@ -46,6 +44,14 @@ interface Blindspot {
   fix: string;
   demand: Demand;
 }
+/** Which sources the counts were read from (lib/blindspots/finder `looked`). */
+interface Looked {
+  support: boolean;
+  site_search: boolean;
+  google: boolean;
+  competitors_checked: number;
+  unmatched: number;
+}
 interface View {
   window: { from: string; to: string };
   site_checked_at: string | null;
@@ -57,6 +63,8 @@ interface View {
   seen_not_chosen: { query: string; impressions: number; clicks: number; position: number }[];
   topics: { label: string; count: number; examples: string[] }[];
   coverage: string[];
+  /** Absent from a server older than 2026-11-23: "Where Lex looked" is then left out. */
+  looked?: Looked;
 }
 
 /** How the site re-check works (app/api/blindspots: RECHECK_DAYS). */
@@ -78,17 +86,17 @@ export function asked(d: Demand): number {
   return d.support_asked + d.support_unanswered + d.site_searches;
 }
 
-function whereFrom(b: Blindspot, tr: Tr): string {
+/** Where one came up, said plainly: "Searched 123 times on your site · Asked 4 times in your support chat". */
+function cameUp(b: Blindspot, tr: Tr): string {
+  const d = b.demand;
   const parts: string[] = [];
-  if (b.demand.support_asked + b.demand.support_unanswered > 0) parts.push(tr("where.support"));
-  if (b.demand.site_searches > 0) parts.push(tr("where.search"));
-  if (b.demand.google_impressions > 0) parts.push(tr("where.google"));
+  if (d.site_searches > 0) parts.push(tr("row.searched", { count: d.site_searches }));
+  const support = d.support_asked + d.support_unanswered;
+  if (support > 0) parts.push(tr("row.asked", { count: support }));
+  if (d.google_impressions > 0) parts.push(tr("row.google", { count: d.google_impressions }));
   if (b.competitors_showing > 0)
     parts.push(
-      tr("where.competitors", {
-        showing: b.competitors_showing,
-        checked: b.competitors_checked,
-      }),
+      tr("row.competitors", { showing: b.competitors_showing, checked: b.competitors_checked }),
     );
   return parts.join(" · ");
 }
@@ -101,185 +109,146 @@ function headline(view: View, tr: Tr): string {
     }
     return tr("head.nothingMissing");
   }
-  const searches = view.blindspots.reduce((s, b) => s + b.demand.site_searches, 0);
-  const questions = view.blindspots.reduce(
-    (s, b) => s + b.demand.support_asked + b.demand.support_unanswered,
-    0,
-  );
-  if (searches + questions === 0) return tr("head.things", { count: n });
-  if (searches > 0 && questions > 0) return tr("head.foundBoth", { count: searches + questions });
-  return searches > 0
-    ? tr("head.foundSearches", { count: searches })
-    : tr("head.foundQuestions", { count: questions });
+  return tr("head.things", { count: n });
 }
 
-function BlindspotTable({ list }: { list: Blindspot[] }) {
-  const { tr, locale } = useTr("blindspots");
+function MissingList({ list }: { list: Blindspot[] }) {
+  const { tr } = useTr("blindspots");
   const max = Math.max(1, ...list.map((b) => asked(b.demand)));
   return (
-    <div className="bs-table-wrap" tabIndex={0} aria-label={tr("table.aria")}>
-      <table className="rt bs-table">
-        <thead>
-          <tr>
-            <th scope="col">{tr("table.lookedFor")}</th>
-            <th scope="col" className="num">
-              {tr("table.times")}
-            </th>
-            <th scope="col">
-              <span className="sr-only">{tr("table.share")}</span>
-            </th>
-            <th scope="col">{tr("table.where")}</th>
-            <th scope="col">{tr("table.onSite")}</th>
-          </tr>
-        </thead>
-        <tbody>
-          {list.map((b) => {
-            const times = asked(b.demand);
-            return (
-              <tr key={b.code}>
-                <th scope="row">{tr("quoted", { text: b.label })}</th>
-                <td className="num">{times > 0 ? num(times, 0, locale) : "-"}</td>
-                <td className="bs-barcell">
-                  <span className="bs-bar" aria-hidden="true">
-                    <span style={{ width: `${Math.round((times / max) * 100)}%` }} />
-                  </span>
-                </td>
-                <td className="src">{whereFrom(b, tr)}</td>
-                <td>
-                  <span className="word alarm">{tr("table.notFound")}</span>
-                </td>
-              </tr>
-            );
-          })}
-        </tbody>
-      </table>
-    </div>
+    <ul className="bs-rows">
+      {list.map((b) => {
+        const times = asked(b.demand);
+        return (
+          <li key={b.code}>
+            <span className="bs-what">
+              <b>{b.label}</b>
+              <span>{cameUp(b, tr)}</span>
+            </span>
+            <span className="bs-bar" aria-hidden="true">
+              <span style={{ width: `${Math.round((times / max) * 100)}%` }} />
+            </span>
+            <span className="word alarm bs-miss">{tr("row.missing")}</span>
+          </li>
+        );
+      })}
+    </ul>
   );
 }
 
-function Biggest({ b }: { b: Blindspot }) {
-  const { tr, locale } = useTr("blindspots");
-  const d = b.demand;
-  const support = d.support_asked + d.support_unanswered;
-  return (
-    <SheetCard
-      label={tr("biggest.label", { count: asked(d) })}
-      title={tr("biggest.title", { label: b.label })}
-    >
-      <dl className="bs-sources">
-        <div>
-          <dt>{tr("biggest.support")}</dt>
-          <dd className={support === 0 ? "none" : undefined}>
-            {support === 0 ? tr("biggest.notAsked") : num(support, 0, locale)}
-            {d.support_unanswered > 0 && (
-              <small>{tr("biggest.unanswered", { count: d.support_unanswered })}</small>
-            )}
-          </dd>
-        </div>
-        <div>
-          <dt>{tr("biggest.search")}</dt>
-          <dd className={d.site_searches === 0 ? "none" : undefined}>
-            {d.site_searches === 0 ? tr("biggest.notSearched") : num(d.site_searches, 0, locale)}
-          </dd>
-        </div>
-        <div>
-          <dt>{tr("biggest.google")}</dt>
-          <dd className={d.google_impressions === 0 ? "none" : undefined}>
-            {d.google_impressions === 0
-              ? tr("biggest.notSeen")
-              : num(d.google_impressions, 0, locale)}
-            {d.google_impressions > 0 && (
-              <small>{tr("biggest.impressions", { count: d.google_clicks })}</small>
-            )}
-          </dd>
-        </div>
-        <div>
-          <dt>{tr("biggest.competitors")}</dt>
-          <dd className={b.competitors_checked === 0 ? "none" : undefined}>
-            {b.competitors_checked === 0
-              ? tr("biggest.noneChecked")
-              : tr("biggest.showing", {
-                  showing: b.competitors_showing,
-                  checked: b.competitors_checked,
-                })}
-            {b.competitors_checked > 0 && <small>{tr("biggest.showIt")}</small>}
-          </dd>
-        </div>
-      </dl>
-      <p className="bs-copy">
-        {tr("biggest.toFix", {
-          arithmetic: b.arithmetic.charAt(0).toUpperCase() + b.arithmetic.slice(1),
-          fix: b.fix,
-        })}
-      </p>
-    </SheetCard>
-  );
-}
-
-function HowFixed({ fix }: { fix: string | null }) {
+function HowToFix() {
   const { tr } = useTr("blindspots");
   return (
     <SheetCard
-      title={tr("fixed.label")}
+      title={tr("fix.title")}
       foot={
         <span className="bs-foot-row">
           <Link className="act" href="/site">
-            {tr("fixed.link")}
+            {tr("fix.link")}
           </Link>
         </span>
       }
     >
-      <Fold summary={tr("how")}>
-        <ol className="bs-steps">
-          <li>
-            <span className="n">01</span>
-            <span>{tr("fixed.stepFix", { fix: fix ?? tr("fixed.fixDefault") })}</span>
+      <ol className="bs-steps">
+        <li>{tr("fix.add")}</li>
+        <li>{tr("fix.website")}</li>
+        <li>{tr("fix.recheck", { count: RECHECK_DAYS })}</li>
+      </ol>
+    </SheetCard>
+  );
+}
+
+/** Each place the counts could come from: read, or what it needs. */
+function WhereLooked({ view, looked }: { view: View; looked: Looked }) {
+  const { tr, locale } = useTr("blindspots");
+  const t = useTranslations("blindspots");
+  const read = <span className="word ok">{tr("looked.read")}</span>;
+  const connect = (
+    <Link href="/connections" className="bs-need">
+      {tr("looked.connect")}
+    </Link>
+  );
+  const rows: { key: string; what: ReactNode; state: ReactNode }[] = [
+    {
+      key: "pages",
+      what: view.site_checked_at
+        ? tr("looked.pages", { date: dayText(view.site_checked_at, locale) })
+        : tr("looked.pagesNot"),
+      state: view.site_checked_at ? read : <span className="word low">{tr("looked.notYet")}</span>,
+    },
+    {
+      key: "search",
+      what: tr("looked.search"),
+      state: looked.site_search ? read : connect,
+    },
+    {
+      key: "support",
+      what: (
+        <>
+          {tr("looked.support")}
+          {looked.unmatched > 0 && (
+            <small>{tr("looked.unmatched", { count: looked.unmatched })}</small>
+          )}
+        </>
+      ),
+      state: looked.support ? read : <span className="word low">{tr("looked.noneAsked")}</span>,
+    },
+    {
+      key: "google",
+      what: (
+        <>
+          {tr("looked.google")}
+          {looked.google && <small>{tr("looked.googleHides")}</small>}
+        </>
+      ),
+      state: looked.google ? read : connect,
+    },
+    {
+      key: "competitors",
+      what: tr("looked.competitors"),
+      state:
+        looked.competitors_checked > 0 ? (
+          <span className="word ok">
+            {tr("looked.competitorsRead", { count: looked.competitors_checked })}
+          </span>
+        ) : (
+          <Link href="/competitors" className="bs-need">
+            {tr("looked.noCompetitors")}
+          </Link>
+        ),
+    },
+  ];
+  return (
+    <SheetCard title={t("looked.title")}>
+      <ul className="bs-looked">
+        {rows.map((r) => (
+          <li key={r.key}>
+            <span>{r.what}</span>
+            {r.state}
           </li>
-          <li>
-            <span className="n">02</span>
-            <span>{tr("fixed.stepWait")}</span>
-          </li>
-          <li>
-            <span className="n">03</span>
-            <span>{tr("fixed.stepRecheck", { days: RECHECK_DAYS })}</span>
-          </li>
-        </ol>
-      </Fold>
+        ))}
+      </ul>
     </SheetCard>
   );
 }
 
 function Frame({
   title,
-  aside,
+  lede,
   children,
 }: {
   title: ReactNode;
-  aside?: ReactNode;
+  lede?: ReactNode;
   children?: ReactNode;
 }) {
   const { tr } = useTr("blindspots");
   return (
     <main className="screen bs-screen">
-      <PageHead kicker={tr("kicker")} title={title} aside={aside} />
+      <PageHead kicker={tr("kicker")} title={title}>
+        {lede}
+      </PageHead>
       {children}
     </main>
-  );
-}
-
-function Coverage({ lines }: { lines: string[] }) {
-  const { tr, locale } = useTr("blindspots");
-  return (
-    <SheetCard title={tr("coverage.label")}>
-      <ul className="bs-list">
-        {lines.map((c) => (
-          <li key={c}>
-            {c.charAt(0).toUpperCase() + c.slice(1)}
-            {fullStop(locale)}
-          </li>
-        ))}
-      </ul>
-    </SheetCard>
   );
 }
 
@@ -323,24 +292,22 @@ export function BlindspotsScreen() {
   }
 
   const list = view.blindspots;
-  const top = list[0];
-  const aside = [
-    tr("aside.window", {
-      days: WINDOW_DAYS,
-      from: dayText(view.window.from, locale),
-      to: dayText(view.window.to, locale),
-    }),
-    view.site_checked_at
-      ? tr("aside.siteRead", { day: dayText(view.site_checked_at, locale) })
-      : tr("aside.siteNotRead"),
-    tr("aside.observed"),
-  ].join(" · ");
+  const lede =
+    list.length > 0 ? (
+      <p className="bs-lede">
+        {tr("lede", {
+          days: WINDOW_DAYS,
+          from: dayText(view.window.from, locale),
+          to: dayText(view.window.to, locale),
+        })}
+      </p>
+    ) : undefined;
 
   return (
-    <Frame title={headline(view, tr)} aside={aside}>
+    <Frame title={headline(view, tr)} lede={lede}>
       {list.length > 0 ? (
-        <SheetCard title={tr("list.title", { count: list.length })}>
-          <BlindspotTable list={list} />
+        <SheetCard title={tr("list.plainTitle")}>
+          <MissingList list={list} />
         </SheetCard>
       ) : (
         <SheetCard title={view.site_checked_at ? tr("list.nothingMissing") : tr("list.nothingYet")}>
@@ -358,14 +325,13 @@ export function BlindspotsScreen() {
       )}
 
       <div className="bs-grid">
-        {top ? <Biggest b={top} /> : view.coverage.length > 0 && <Coverage lines={view.coverage} />}
-        <HowFixed fix={top?.fix ?? null} />
+        {list.length > 0 && <HowToFix />}
+        {view.looked && <WhereLooked view={view} looked={view.looked} />}
       </div>
 
       {(view.hard_to_find.length > 0 ||
         view.seen_not_chosen.length > 0 ||
-        view.topics.length > 0 ||
-        (top && view.coverage.length > 0)) && (
+        view.topics.length > 0) && (
         <div className="bs-grid">
           {view.hard_to_find.length > 0 && (
             <SheetCard title={tr("hard.title")}>
@@ -390,34 +356,18 @@ export function BlindspotsScreen() {
           )}
           {view.seen_not_chosen.length > 0 && (
             <SheetCard title={tr("seen.label")}>
-              <div className="bs-table-wrap" tabIndex={0} aria-label={tr("seen.label")}>
-                <table className="rt">
-                  <thead>
-                    <tr>
-                      <th scope="col">{tr("seen.search")}</th>
-                      <th scope="col" className="num">
-                        {tr("seen.shown")}
-                      </th>
-                      <th scope="col" className="num">
-                        {tr("seen.clicked")}
-                      </th>
-                      <th scope="col" className="num">
-                        {tr("seen.position")}
-                      </th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {view.seen_not_chosen.map((q) => (
-                      <tr key={q.query}>
-                        <th scope="row">{tr("quoted", { text: q.query })}</th>
-                        <td className="num">{num(q.impressions, 0, locale)}</td>
-                        <td className="num">{num(q.clicks, 0, locale)}</td>
-                        <td className="num">{num(q.position, 1, locale)}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+              <ul className="bs-list">
+                {view.seen_not_chosen.map((q) => (
+                  <li key={q.query}>
+                    <strong>{tr("quoted", { text: q.query })}</strong>:{" "}
+                    {tr("seen.row", {
+                      shown: num(q.impressions, 0, locale),
+                      clicked: num(q.clicks, 0, locale),
+                      position: Math.max(1, Math.round(q.position)),
+                    })}
+                  </li>
+                ))}
+              </ul>
             </SheetCard>
           )}
           {view.topics.length > 0 && (
@@ -436,8 +386,16 @@ export function BlindspotsScreen() {
               </ul>
             </SheetCard>
           )}
-          {top && view.coverage.length > 0 && <Coverage lines={view.coverage} />}
         </div>
+      )}
+      {!view.looked && view.coverage.length > 0 && (
+        <SheetCard title={tr("looked.title")}>
+          <ul className="bs-list">
+            {view.coverage.map((c) => (
+              <li key={c}>{c.charAt(0).toUpperCase() + c.slice(1)}</li>
+            ))}
+          </ul>
+        </SheetCard>
       )}
     </Frame>
   );

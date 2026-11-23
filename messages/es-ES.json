@@ -51,7 +51,7 @@
       "patterns": "Temporadas y packs",
       "cash": "Flujo de caja",
       "stock": "Existencias",
-      "blindspots": "Puntos ciegos",
+      "blindspots": "Lo que falta en su web",
       "competitors": "Competidores",
       "benchmarks": "Negocios similares",
       "content": "Publicaciones",
@@ -75,7 +75,6 @@
       "billing": "Plan y facturación",
       "mandates": "Firmas con acceso",
       "partner": "Consola de socios",
-      "growth": "Estudio de crecimiento",
       "erasure": "Borrar este negocio",
       "home": "Inicio",
       "alerts": "Avisos y módulos",
@@ -3307,16 +3306,10 @@
   },
   "blindspots": {
     "meta": {
-      "title": "Puntos ciegos · ScaleX"
+      "title": "Lo que falta en su web · ScaleX"
     },
-    "kicker": "Análisis · Puntos ciegos",
+    "kicker": "Análisis · Lo que falta en su web",
     "quoted": "«{text}»",
-    "where": {
-      "support": "chat de soporte",
-      "search": "buscador del sitio",
-      "google": "Google",
-      "competitors": "{showing, number} de {checked, number} competidores"
-    },
     "head": {
       "noSite": "Todavía no hay ningún sitio web en su perfil.",
       "notRead": "Su sitio web todavía no se ha leído.",
@@ -3325,43 +3318,6 @@
       "foundBoth": "{count, number} búsquedas y preguntas no encontraron nada en su sitio.",
       "foundSearches": "{count, plural, one {# búsqueda no encontró nada en su sitio.} many {# búsquedas no encontraron nada en su sitio.} other {# búsquedas no encontraron nada en su sitio.}}",
       "foundQuestions": "{count, plural, one {# pregunta no encontró nada en su sitio.} many {# preguntas no encontraron nada en su sitio.} other {# preguntas no encontraron nada en su sitio.}}"
-    },
-    "table": {
-      "aria": "Tabla de puntos ciegos",
-      "lookedFor": "Lo que buscaron",
-      "times": "Veces",
-      "share": "Proporción respecto al mayor",
-      "where": "Dónde surgió",
-      "onSite": "En su sitio",
-      "notFound": "No encontrado"
-    },
-    "biggest": {
-      "label": "Mayor punto ciego · {count, plural, one {# vez} many {# veces} other {# veces}}",
-      "title": "«{label}» no está en su sitio",
-      "support": "Chat de soporte",
-      "notAsked": "no se ha preguntado",
-      "unanswered": "{count, number} sin respuesta",
-      "search": "Buscador del sitio",
-      "notSearched": "no se ha buscado",
-      "google": "Google",
-      "notSeen": "no se ha visto",
-      "impressions": "impresiones · {count, plural, one {# clic} many {# clics} other {# clics}}",
-      "competitors": "Competidores",
-      "noneChecked": "ninguno comprobado",
-      "showing": "{showing, number} de {checked, number}",
-      "showIt": "lo muestran en su sitio",
-      "toFix": "{arithmetic}. Para corregirlo: {fix}."
-    },
-    "fixed": {
-      "label": "Cómo se corrigen los puntos ciegos",
-      "link": "Revisar en Sitio web",
-      "stepFix": "Una corrección es {fix}.",
-      "fixDefault": "un cambio en el sitio web a través de la cola de aprobación, o una respuesta en su asistente de soporte",
-      "stepWait": "Nada cambia por sí solo: una corrección espera en «Pendiente de usted» hasta que dé su aprobación.",
-      "stepRecheck": "Su sitio se vuelve a leer {days, plural, one {cada día} many {cada # días} other {cada # días}}, así que un punto ciego que ya aparezca en él desaparece de esta lista."
-    },
-    "coverage": {
-      "label": "Lo que no se ha podido ver"
     },
     "signedOut": {
       "title": "Aquí todavía no hay ningún negocio.",
@@ -3372,38 +3328,64 @@
       "body": "Algo ha fallado por nuestra parte. Actualice la página para volver a intentarlo."
     },
     "loading": "Leyendo lo que buscan los clientes…",
-    "aside": {
-      "window": "{days, plural, one {Último día} many {Últimos # días} other {Últimos # días}} · del {from} al {to}",
-      "siteRead": "sitio leído el {day}",
-      "siteNotRead": "sitio sin leer",
-      "observed": "OBSERVADO"
-    },
     "list": {
-      "title": "{count, plural, one {# punto ciego, el mayor primero} many {# puntos ciegos, el mayor primero} other {# puntos ciegos, el mayor primero}}",
       "nothingMissing": "No falta nada",
       "nothingYet": "Todavía no hay nada que comparar",
       "allThere": "Todo lo que los clientes preguntaron o buscaron y que puedo cotejar está en su sitio.",
       "noSite": "Añada su sitio web a su perfil y leeré hasta cinco de sus páginas, y luego las compararé con lo que los clientes preguntan y buscan.",
       "notRead": "Su sitio web todavía no se ha leído, así que no se puede decir que le falte nada.",
-      "notReadWhy": "Su sitio web todavía no se ha leído: {why}, así que no se puede decir que le falte nada."
+      "notReadWhy": "Su sitio web todavía no se ha leído: {why}, así que no se puede decir que le falte nada.",
+      "plainTitle": "Lo que buscaron, lo más pedido primero"
     },
     "factSheet": "Ficha de datos",
     "hard": {
-      "title": "Quizá cueste encontrarlo",
+      "title": "Está en su web, pero aún lo preguntan",
       "item": "<strong>{label}</strong>: {count, plural, one {preguntado # vez} many {preguntado # veces} other {preguntado # veces}} en su chat de soporte; está en <link>{page}</link>."
     },
     "seen": {
-      "label": "Visto en Google, pocas veces pulsado",
+      "label": "Aparece en Google, pero pocos lo eligen",
       "search": "Búsqueda",
       "shown": "Mostrado",
       "clicked": "Clics",
-      "position": "Posición"
+      "position": "Posición",
+      "row": "se mostró {shown} veces, {clicked} clics, normalmente en el puesto {position} de los resultados"
     },
     "topics": {
       "label": "Otras cosas que buscó la gente",
       "item": "<strong>{label}</strong>: {count, plural, one {# búsqueda} many {# búsquedas} other {# búsquedas}} (p. ej., {examples})"
     },
-    "how": "Cómo funciona"
+    "lede": "En los últimos {days} días (del {from} al {to}), los clientes buscaron o preguntaron por esto, y su web no lo muestra. Una respuesta que falta es un motivo para irse sin comprar.",
+    "row": {
+      "missing": "No está en su web",
+      "competitors": "{showing, number} de {checked, number} competidores que sigue lo muestran",
+      "searched": "{count, plural, one {Buscado # vez en su web} many {Buscado # veces en su web} other {Buscado # veces en su web}}",
+      "asked": "{count, plural, one {Preguntado # vez en su chat de soporte} many {Preguntado # veces en su chat de soporte} other {Preguntado # veces en su chat de soporte}}",
+      "google": "{count, plural, one {Mostrado # vez en búsquedas de Google} many {Mostrado # veces en búsquedas de Google} other {Mostrado # veces en búsquedas de Google}}"
+    },
+    "fix": {
+      "title": "Cómo arreglar uno",
+      "add": "Añada la respuesta a su web, en la página a la que llega la gente. Lex puede escribir el texto si se lo pide.",
+      "website": "O cambie el texto en Sitio web: verá la página antes y después, y nada cambia hasta que diga que sí.",
+      "link": "Abrir Sitio web",
+      "recheck": "{count, plural, one {Lex vuelve a leer su web cada # día. Cuando la respuesta esté, desaparece de esta lista.} many {Lex vuelve a leer su web cada # días. Cuando la respuesta esté, desaparece de esta lista.} other {Lex vuelve a leer su web cada # días. Cuando la respuesta esté, desaparece de esta lista.}}"
+    },
+    "looked": {
+      "title": "Dónde miró Lex",
+      "pages": "Las páginas de su web, leídas el {date}",
+      "pagesNot": "Las páginas de su web",
+      "notYet": "Aún no leídas",
+      "search": "El buscador de su web",
+      "support": "Preguntas en su chat de soporte",
+      "google": "Lo que la gente busca en Google",
+      "googleHides": "Google oculta las búsquedas poco frecuentes, así que su cifra es algo baja.",
+      "competitors": "Las webs de sus competidores",
+      "read": "Leído",
+      "connect": "Conectarlo",
+      "noneAsked": "Ninguna en estos días",
+      "noCompetitors": "Ninguno revisado aún",
+      "unmatched": "{count, plural, one {# pregunta no coincidió con nada de esta lista.} many {# preguntas no coincidieron con nada de esta lista.} other {# preguntas no coincidieron con nada de esta lista.}}",
+      "competitorsRead": "{count, plural, one {# revisado} many {# revisados} other {# revisados}}"
+    }
   },
   "carts": {
     "meta": {
@@ -5664,7 +5646,7 @@
     "auditTab": {
       "label": "Auditoría · comprobado el {day}",
       "title": "Lo que buscan los clientes, y si su sitio lo muestra",
-      "foot": "Solo lectura. Corregir uno pasa por la cola de aprobación: <link>vea Puntos ciegos</link>.",
+      "foot": "Solo lectura. Corregir uno pasa por la cola de aprobación: <link>vea Lo que falta en su web</link>.",
       "what": "Qué comprueban",
       "onSite": "En su sitio",
       "foundOn": "Encontrado en",

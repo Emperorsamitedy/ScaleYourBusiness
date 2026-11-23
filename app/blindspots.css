@@ -13,19 +13,6 @@
   max-width: 46ch;
 }
 
-.bs-table-wrap {
-  overflow-x: auto;
-  margin: 0 -8px;
-  padding: 0 8px;
-}
-.bs-table {
-  min-width: 640px;
-}
-.bs-table tbody th {
-  font-family: var(--f-mono);
-  font-size: 14px;
-  font-weight: 500;
-}
 .bs-bar {
   display: block;
   position: relative;
@@ -39,11 +26,6 @@
   inset: 0 auto 0 0;
   background: var(--sheet-ink);
 }
-.bs-table td.bs-barcell {
-  width: 24%;
-  vertical-align: middle;
-}
-
 .bs-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -55,45 +37,6 @@
   min-width: 0;
 }
 
-/* the biggest blindspot, source by source */
-.bs-sources {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0;
-  margin: 0 0 14px;
-  border: 1px solid var(--rule-soft);
-  border-radius: var(--r-ctl, 0);
-}
-.bs-sources div {
-  padding: 12px 14px;
-  border-bottom: 1px solid var(--rule-soft);
-}
-.bs-sources div:nth-child(odd) {
-  border-right: 1px solid var(--rule-soft);
-}
-.bs-sources dt {
-  font-family: var(--f-mono);
-  font-size: calc(11px + var(--caps-bump, 0px));
-  letter-spacing: var(--caps-ls, 0.12em);
-  text-transform: var(--caps, uppercase);
-  color: var(--sheet-ink-2);
-}
-.bs-sources dd {
-  margin: 6px 0 0;
-  font-family: var(--f-fig);
-  font-size: 16.5px;
-  font-variant-numeric: tabular-nums;
-}
-.bs-sources dd small {
-  display: block;
-  margin-top: 2px;
-  font-size: 12px;
-  color: var(--sheet-ink-2);
-}
-.bs-sources dd.none {
-  color: var(--sheet-ink-2);
-  font-size: 14px;
-}
 .bs-copy {
   margin: 0;
   max-width: var(--measure);
@@ -101,29 +44,94 @@
   line-height: 1.55;
 }
 
-/* how blindspots get fixed */
+/* how to fix one: three short steps, numbered by the list itself */
 .bs-steps {
+  margin: 0;
+  padding: 0 0 0 20px;
+  display: grid;
+  gap: 10px;
+  font-size: 14px;
+  line-height: 1.55;
+  max-width: var(--measure);
+}
+
+/* the list, most asked first: what, where it came up, a bar, not on your site */
+.bs-lede {
+  margin: 6px 0 0;
+  max-width: var(--measure);
+  color: var(--desk-ink-2);
+  font-size: 15px;
+}
+.bs-rows {
   margin: 0;
   padding: 0;
   list-style: none;
 }
-.bs-steps li {
+.bs-rows li {
   display: grid;
-  grid-template-columns: 44px minmax(0, 1fr);
-  gap: var(--s-4);
+  grid-template-columns: minmax(0, 1fr) minmax(90px, 240px) auto;
+  gap: 6px 18px;
+  align-items: center;
   padding: 12px 0;
   border-bottom: 1px solid var(--rule-soft);
+}
+.bs-rows li:first-child {
+  padding-top: 2px;
+}
+.bs-what {
+  display: grid;
+  gap: 2px;
+  min-width: 0;
+}
+.bs-what b {
+  font-weight: 650;
+  font-size: 15px;
+}
+.bs-what span {
+  font-size: 13px;
+  color: var(--sheet-ink-2);
+  overflow-wrap: anywhere;
+}
+.bs-miss {
+  justify-self: end;
+  white-space: nowrap;
+}
+
+/* where Lex looked: each source, read or what it needs */
+.bs-looked {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.bs-looked li {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: var(--s-4);
+  padding: 10px 0;
+  border-bottom: 1px solid var(--rule-soft);
   font-size: 14px;
-  line-height: 1.55;
 }
-.bs-steps li:first-child {
-  padding-top: 4px;
+.bs-looked li > span:first-child {
+  min-width: 0;
 }
-.bs-steps .n {
-  font-family: var(--f-mono);
-  font-size: 13.5px;
+.bs-looked small {
+  display: block;
+  margin-top: 2px;
+  font-size: 12.5px;
   color: var(--sheet-ink-2);
 }
+.bs-looked .word,
+.bs-need {
+  flex: none;
+  font-size: 12.5px;
+  white-space: nowrap;
+}
+.bs-need {
+  color: var(--sheet-ink);
+  font-weight: 650;
+}
+
 .bs-foot-row {
   display: flex;
   justify-content: space-between;
@@ -159,23 +167,14 @@
   }
 }
 @media (max-width: 719px) {
-  .bs-screen .ph-aside {
-    text-align: left;
+  .bs-rows li {
+    grid-template-columns: minmax(0, 1fr) auto;
   }
-  .bs-sources {
-    grid-template-columns: minmax(0, 1fr);
+  .bs-rows .bs-bar {
+    grid-column: 1 / -1;
+    grid-row: 2;
   }
-  .bs-sources div:nth-child(odd) {
-    border-right: 0;
+  .bs-looked li {
+    flex-wrap: wrap;
   }
-  .bs-steps li {
-    grid-template-columns: 34px minmax(0, 1fr);
-    gap: var(--s-3);
-  }
-}
-
-/* Sentence case: a label the classic look set in capitals starts with one
-   (the owner app's type, app/sheet.css). In the classic look it follows the label. */
-:is(.bs-sources dt)::first-letter {
-  text-transform: var(--caps-first, inherit);
 }

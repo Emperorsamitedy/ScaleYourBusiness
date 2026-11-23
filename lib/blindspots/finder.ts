@@ -93,6 +93,14 @@ export interface BlindspotReport {
   seen_not_chosen: Demand["seen_not_chosen"];
   topics: DemandTopic[];
   coverage: string[];
+  /** Which sources were read (2026-11-23): the screen says where Lex looked from these, not from `coverage`. */
+  looked: {
+    support: boolean;
+    site_search: boolean;
+    google: boolean;
+    competitors_checked: number;
+    unmatched: number;
+  };
 }
 
 export interface DemandTopic {
@@ -286,6 +294,13 @@ export async function buildBlindspots(
     seen_not_chosen: demand.seen_not_chosen.slice(0, 20),
     topics: stored,
     coverage,
+    looked: {
+      support: demand.sources.support,
+      site_search: demand.sources.site,
+      google: demand.sources.google,
+      competitors_checked: checked,
+      unmatched: demand.support_unmatched,
+    },
   };
 }
 
