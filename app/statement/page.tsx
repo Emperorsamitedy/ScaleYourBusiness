@@ -3,6 +3,14 @@
 // with the losses in plain sight, what it cost, what is queued and the one
 // decision waiting — then every leak the diagnosis has found, where it
 // stands. Read-only: a leak is marked fixed only with a verified gain.
+//
+// Said plainly on 2026-11-23 (the canvas design the owner approved): the
+// title says what the page is; "This month" is five labelled rows, with one
+// line saying why it is all at nothing while Lex is still watching; the
+// decisions waiting are their own card; each problem says its status and
+// how sure the figure is in words (grade A to D), and a range that crosses
+// zero says it could go either way. The figures and the proof rule are
+// unchanged.
 
 import type { Metadata } from "next";
 import Link from "next/link";
@@ -20,6 +28,8 @@ import { presentMoney } from "../../lib/i18n/format";
 import type { AppLocale } from "../../lib/i18n/locales";
 import { requestLocale } from "../../lib/i18n/server";
 import { trFor } from "../../lib/i18n/server-tr";
+import { latestDecision } from "../../lib/mode/service";
+import { watchDays } from "../../lib/watch/watch-view";
 import "../plain.css";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -52,6 +62,9 @@ const ORDER: Record<Leak["status"], number> = {
   fixed_and_verified: 3,
 };
 
+/** The grades this page words ("found.grade.<g>"); another prints as its letter. */
+const GRADES = new Set(["A", "B", "C", "D"]);
+
 export default async function StatementPage({
   searchParams,
 }: {
@@ -72,9 +85,10 @@ export default async function StatementPage({
   }
   const asked = (await searchParams).month;
   const month = asked && /^\d{4}-\d{2}$/.test(asked) ? asked : new Date().toISOString().slice(0, 7);
-  const [s, leaks] = await Promise.all([
+  const [s, leaks, decision] = await Promise.all([
     monthlyStatement(access.profile_id, month),
     leaksOf(access.profile_id),
+    latestDecision(access.profile_id),
   ]);
   const monthWords = new Intl.DateTimeFormat(locale, {
     month: "long",
@@ -82,6 +96,8 @@ export default async function StatementPage({
     timeZone: "UTC",
   }).format(new Date(`${month}-01T00:00:00Z`));
   const dash = tr("nothing");
+  // On its own in a row, "nothing yet" starts a line, so it starts with a capital.
+  const rowDash = dash.replace(/^\p{Ll}/u, (c) => c.toUpperCase());
   const sorted = [...leaks].sort(
     (a, b) => ORDER[a.status] - ORDER[b.status] || a.created_at.localeCompare(b.created_at),
   );
@@ -98,67 +114,94 @@ export default async function StatementPage({
     listed.flatMap(({ leak, range }) => (range ? [[leak.id, { leak, range }] as const] : [])),
   );
   const leakBlocks = leakBars([...ranged].map(([key, { range }]) => ({ key, ...range })));
+  // Nothing done yet because Lex is still in its first weeks: said, so "nothing" reads as expected.
+  const watch = decision ? watchDays(decision, new Date()) : null;
+  const stillWatching = s.did.actions === 0 && watch !== null && watch.days_remaining > 0;
+  const unproven = s.worth.not_yet_proven.inconclusive + s.worth.not_yet_proven.unmeasurable;
+  const grade = (g: string) => (GRADES.has(g) ? tr(`found.grade.${g}`) : g);
 
   return (
     <main className="screen pg">
-      <PageHead kicker={kicker} title={monthWords} />
+      <PageHead kicker={kicker} title={tr("plainTitle", { month: monthWords })}>
+        <p className="pg-lede">{tr("lede")}</p>
+      </PageHead>
       <div className="pg-stack">
-        <SheetCard>
-          {worth.length > 0 && (
-            <div className="card-viz">
-              {worth.map((b) => (
-                <Fragment key={b.currency}>
-                  {worth.length > 1 && <p className="vz-cap">{b.currency}</p>}
-                  <HBars
-                    label={tr("worth", {
-                      amount: amounts(
-                        s.worth.verified.filter((m) => m.currency === b.currency),
-                        locale,
-                        dash,
-                      ),
-                    })}
-                    max={b.max}
-                    rows={b.rows.map((r) => ({
-                      key: r.key,
-                      label: tr(`viz.${r.key}`),
-                      value: r.value,
-                      display: r.money ? whole(r.money) : dash,
-                      tone: r.tone,
-                    }))}
-                  />
-                </Fragment>
-              ))}
-            </div>
-          )}
-          <ul className="pg-lines">
-            <li>{tr("did", { count: s.did.actions, undone: s.did.undone })}</li>
-            <li>{tr("worth", { amount: amounts(s.worth.verified, locale, dash) })}</li>
-            <li>{tr("losses", { amount: amounts(s.worth.losses, locale, dash) })}</li>
-            <li>
-              {s.fee
-                ? tr("fee", { amount: presentMoney(s.fee, locale, { whole: true }) })
-                : tr("feeNone")}
-            </li>
-            {s.fee && <li>{tr("net", { amount: amounts(s.worth.net_of_fee, locale, dash) })}</li>}
-            <li>
-              {tr("unproven", {
-                count: s.worth.not_yet_proven.inconclusive + s.worth.not_yet_proven.unmeasurable,
-              })}
-            </li>
-            <li>{tr("queued", { count: s.queued })}</li>
-          </ul>
-          {s.decision ? (
-            <p>
-              {tr("decision")} <Link href="/proposals">{s.decision.summary || tr("open")}</Link>
-            </p>
-          ) : (
-            <p>{tr("noDecision")}</p>
-          )}
-        </SheetCard>
+        <div className="pg-cols st-cols">
+          <SheetCard title={tr("month.title")}>
+            {worth.length > 0 && (
+              <div className="card-viz">
+                {worth.map((b) => (
+                  <Fragment key={b.currency}>
+                    {worth.length > 1 && <p className="vz-cap">{b.currency}</p>}
+                    <HBars
+                      label={tr("month.worth")}
+                      max={b.max}
+                      rows={b.rows.map((r) => ({
+                        key: r.key,
+                        label: tr(`viz.${r.key}`),
+                        value: r.value,
+                        display: r.money ? whole(r.money) : dash,
+                        tone: r.tone,
+                      }))}
+                    />
+                  </Fragment>
+                ))}
+              </div>
+            )}
+            <dl className="st-rows">
+              <div>
+                <dt>{tr("month.did")}</dt>
+                <dd>{tr("month.didValue", { count: s.did.actions, undone: s.did.undone })}</dd>
+              </div>
+              <div>
+                <dt>{tr("month.worth")}</dt>
+                <dd>{amounts(s.worth.verified, locale, rowDash)}</dd>
+              </div>
+              <div>
+                <dt>{tr("month.losses")}</dt>
+                <dd>{amounts(s.worth.losses, locale, rowDash)}</dd>
+              </div>
+              <div>
+                <dt>{tr("month.waiting")}</dt>
+                <dd>{tr("month.waitingValue", { count: unproven })}</dd>
+              </div>
+              <div>
+                <dt>{tr("month.fee")}</dt>
+                <dd>
+                  {s.fee ? presentMoney(s.fee, locale, { whole: true }) : tr("month.feeNone")}
+                </dd>
+              </div>
+              {s.fee && (
+                <div>
+                  <dt>{tr("month.net")}</dt>
+                  <dd>{amounts(s.worth.net_of_fee, locale, rowDash)}</dd>
+                </div>
+              )}
+            </dl>
+            <p className="pg-quiet">{tr(stillWatching ? "month.noteWatching" : "month.note")}</p>
+          </SheetCard>
 
-        <SheetCard title={tr("leaks.title")}>
+          <SheetCard title={tr("wait.title")}>
+            <p>{tr("wait.count", { count: s.queued })}</p>
+            {s.decision && (
+              <p>
+                {tr("wait.first")} <Link href="/proposals">{s.decision.summary || tr("open")}</Link>
+              </p>
+            )}
+            {s.queued > 0 && (
+              <p>
+                <Link className="next" href="/proposals">
+                  {tr("wait.open")} <span aria-hidden="true">→</span>
+                </Link>
+              </p>
+            )}
+          </SheetCard>
+        </div>
+
+        <SheetCard title={tr("found.title")}>
+          <p className="pg-quiet">{tr("found.sub")}</p>
           {sorted.length === 0 ? (
-            <p>{tr("leaks.none")}</p>
+            <p>{tr("found.none")}</p>
           ) : (
             <>
               {leakBlocks.length > 0 && (
@@ -167,7 +210,7 @@ export default async function StatementPage({
                     <Fragment key={b.currency}>
                       {leakBlocks.length > 1 && <p className="vz-cap">{b.currency}</p>}
                       <HBars
-                        label={tr("leaks.title")}
+                        label={tr("found.title")}
                         max={b.max}
                         rows={b.rows.flatMap((r) => {
                           const shown = ranged.get(r.key);
@@ -176,13 +219,7 @@ export default async function StatementPage({
                                 {
                                   key: r.key,
                                   label: shown.leak.title,
-                                  // The status word is written to follow a colon in the
-                                  // list below; beside a bar it stands alone, so it
-                                  // starts with a capital here.
-                                  note: tr(`leaks.status.${shown.leak.status}`).replace(
-                                    /^\p{Ll}/u,
-                                    (c) => c.toUpperCase(),
-                                  ),
+                                  note: tr(`found.status.${shown.leak.status}`),
                                   low: r.low,
                                   value: r.value,
                                   display: rangeWords(shown.range),
@@ -196,24 +233,26 @@ export default async function StatementPage({
                   ))}
                 </div>
               )}
-              <ul className="pg-lines">
+              <ul className="st-found">
                 {listed.map(({ leak: l, range }) => (
                   <li key={l.id}>
-                    <b>{l.title}</b>: {tr(`leaks.status.${l.status}`)}
-                    {range && (
-                      <>
-                        {" · "}
-                        <span className="pg-nowrap">{rangeWords(range)}</span>
-                      </>
-                    )}
-                    {" · "}
-                    {tr("leaks.grade", { grade: l.grade })}
+                    <b>{l.title}</b>
+                    <span className="st-fig">
+                      {range ? rangeWords(range) : tr("found.noFigure")}
+                    </span>
+                    <span className="st-how">
+                      <span className="st-tag">{tr(`found.status.${l.status}`)}</span>
+                      {grade(l.grade)}
+                      {range && range.low_minor < 0 && range.high_minor > 0 && (
+                        <> · {tr("found.either")}</>
+                      )}
+                    </span>
                   </li>
                 ))}
               </ul>
             </>
           )}
-          <p className="pg-quiet">{tr("leaks.rule")}</p>
+          <p className="pg-quiet">{tr("found.howSure")}</p>
         </SheetCard>
       </div>
     </main>

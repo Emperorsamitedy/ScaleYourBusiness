@@ -9753,38 +9753,60 @@
     "title": "Monatsauszug",
     "none": "Bitte anmelden, um deinen Monatsauszug zu sehen.",
     "nothing": "noch nichts",
-    "did": "{count, plural, one {# Aktion ausgeführt} other {# Aktionen ausgeführt}}, {undone, plural, =0 {keine rückgängig gemacht} one {# rückgängig gemacht} other {# rückgängig gemacht}}",
-    "worth": "Belegt, Gewinne und Verluste zusammen: {amount}",
-    "losses": "Darin enthaltene Verluste: {amount}",
-    "fee": "Was ScaleX diesen Monat gekostet hat: {amount}",
-    "feeNone": "ScaleX hat diesen Monat nichts berechnet.",
-    "net": "Belegt, nach der Gebühr von ScaleX: {amount}",
-    "unproven": "{count, plural, =0 {Nichts ohne Beleg abgeschlossen} one {# Änderung bisher ohne Beleg abgeschlossen} other {# Änderungen bisher ohne Beleg abgeschlossen}}",
-    "queued": "{count, plural, =0 {Nichts wartet auf dich} one {# Sache wartet auf dich} other {# Sachen warten auf dich}}",
-    "decision": "Die eine Entscheidung, die auf dich wartet:",
     "open": "öffnen",
-    "noDecision": "Nichts wartet auf dich.",
     "leaks": {
-      "title": "Gefundene Lecks",
-      "none": "Bisher wurde kein Leck gefunden.",
-      "range": "{low} bis {high} im Monat",
-      "grade": "Stufe {grade}",
-      "rule": "Ein Leck gilt erst als behoben, wenn ein gemessener Gewinn es belegt. Beträge erscheinen ab Stufe A oder B; darunter verbinde eine Verkaufsquelle, um sie zu messen.",
-      "status": {
-        "open": "offen",
-        "in_progress": "wird behoben",
-        "fixed_and_verified": "behoben und belegt",
-        "accepted": "so akzeptiert"
-      }
+      "range": "{low} bis {high} im Monat"
     },
     "meta": {
       "title": "Monatsauszug"
     },
     "viz": {
-      "verified": "Belegt, Gewinne und Verluste zusammen",
-      "losses": "Darin enthaltene Verluste",
+      "verified": "Nachgewiesener Wert",
+      "losses": "Verluste darin",
       "fee": "Gebühr von ScaleX",
       "net": "Nach der Gebühr von ScaleX"
+    },
+    "plainTitle": "{month}: was ScaleX für Sie getan hat",
+    "lede": "Was Lex geändert hat, was diese Änderungen nachweislich wert sind, was ScaleX gekostet hat und welche Probleme es gefunden hat. Geld zählt hier erst, wenn das Ergebnis einer Änderung gemessen ist.",
+    "month": {
+      "title": "Diesen Monat",
+      "did": "Änderungen durch Lex",
+      "worth": "Was diese Änderungen nachweislich wert sind",
+      "losses": "Darin enthaltene Verluste",
+      "waiting": "Änderungen, deren Ergebnis noch aussteht",
+      "fee": "Was ScaleX berechnet hat",
+      "feeNone": "Nichts",
+      "net": "Wert nach der Gebühr von ScaleX",
+      "note": "Geld zählt hier erst, wenn das Ergebnis einer Änderung gemessen ist.",
+      "noteWatching": "Lex ist noch in seinen ersten Beobachtungswochen und hat noch nichts geändert. Deshalb steht hier noch alles auf null.",
+      "waitingValue": "{count, plural, =0 {Keine} one {#} other {#}}",
+      "didValue": "{count, plural, =0 {Noch keine} one {#} other {#}}{undone, plural, =0 {} one { (# rückgängig gemacht)} other { (# rückgängig gemacht)}}"
+    },
+    "wait": {
+      "title": "Wartet auf Sie",
+      "first": "Die erste:",
+      "open": "Entscheidungen öffnen",
+      "count": "{count, plural, =0 {Nichts wartet auf Ihr Ja oder Nein.} one {# Entscheidung wartet auf Ihr Ja oder Nein.} other {# Entscheidungen warten auf Ihr Ja oder Nein.}}"
+    },
+    "found": {
+      "title": "Was Lex gefunden hat, das Sie Geld kostet",
+      "sub": "Aus Ihrem Bericht. Ein Problem gilt erst als behoben, wenn ein gemessener Gewinn es belegt.",
+      "none": "Lex hat noch keine gefunden.",
+      "noFigure": "Noch keine Zahl",
+      "either": "kann in beide Richtungen gehen: die Behebung könnte mehr kosten, als sie spart",
+      "howSure": "Wie sicher: gut gemessen, größtenteils gemessen, teilweise geschätzt oder größtenteils geschätzt. Eine Zahl erscheint nur bei den ersten beiden; verbinden Sie eine Verkaufsquelle, um den Rest zu messen.",
+      "status": {
+        "open": "Noch nicht behoben",
+        "in_progress": "Wird behoben",
+        "fixed_and_verified": "Behoben, und der Gewinn ist gemessen",
+        "accepted": "Sie haben es so gelassen"
+      },
+      "grade": {
+        "A": "Gut gemessen",
+        "B": "Größtenteils gemessen",
+        "C": "Teilweise geschätzt",
+        "D": "Größtenteils geschätzt"
+      }
     }
   },
   "peers": {

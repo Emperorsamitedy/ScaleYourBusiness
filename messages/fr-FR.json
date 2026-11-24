@@ -9753,38 +9753,60 @@
     "title": "Relevé mensuel",
     "none": "Connectez-vous pour voir votre relevé mensuel.",
     "nothing": "rien pour l’instant",
-    "did": "{count, plural, one {# action réalisée} many {# actions réalisées} other {# actions réalisées}}, {undone, plural, =0 {aucune annulée} one {# annulée} many {# annulées} other {# annulées}}",
-    "worth": "Vérifié, gains et pertes ensemble : {amount}",
-    "losses": "Pertes comprises : {amount}",
-    "fee": "Ce que ScaleX a coûté ce mois-ci : {amount}",
-    "feeNone": "ScaleX n’a rien facturé ce mois-ci.",
-    "net": "Vérifié, après les frais de ScaleX : {amount}",
-    "unproven": "{count, plural, =0 {Rien de clos sans preuve} one {# changement clos encore sans preuve} many {# changements clos encore sans preuve} other {# changements clos encore sans preuve}}",
-    "queued": "{count, plural, =0 {Rien ne vous attend} one {# élément vous attend} many {# éléments vous attendent} other {# éléments vous attendent}}",
-    "decision": "La décision qui vous attend :",
     "open": "l’ouvrir",
-    "noDecision": "Rien ne vous attend.",
     "leaks": {
-      "title": "Fuites trouvées",
-      "none": "Aucune fuite trouvée pour l’instant.",
-      "range": "de {low} à {high} par mois",
-      "grade": "niveau {grade}",
-      "rule": "Une fuite n’est marquée résolue que lorsqu’un gain mesuré le prouve. Les montants s’affichent au niveau A ou B ; en dessous, connectez une source de ventes pour les mesurer.",
-      "status": {
-        "open": "ouverte",
-        "in_progress": "en cours de résolution",
-        "fixed_and_verified": "résolue et vérifiée",
-        "accepted": "acceptée telle quelle"
-      }
+      "range": "de {low} à {high} par mois"
     },
     "meta": {
       "title": "Relevé mensuel"
     },
     "viz": {
-      "verified": "Vérifié, gains et pertes ensemble",
-      "losses": "Pertes comprises",
-      "fee": "Frais de ScaleX",
-      "net": "Après les frais de ScaleX"
+      "verified": "Valeur prouvée",
+      "losses": "Pertes incluses",
+      "fee": "Facturation de ScaleX",
+      "net": "Après facturation de ScaleX"
+    },
+    "plainTitle": "{month} : ce que ScaleX a fait pour vous",
+    "lede": "Ce que Lex a changé, ce que ces changements ont prouvé valoir, ce que ScaleX a coûté et les problèmes trouvés. L’argent ne compte ici qu’une fois le résultat d’un changement mesuré.",
+    "month": {
+      "title": "Ce mois-ci",
+      "did": "Changements faits par Lex",
+      "worth": "Ce que ces changements ont prouvé valoir",
+      "losses": "Pertes comptées dedans",
+      "waiting": "Changements qui attendent encore leur résultat",
+      "fee": "Ce que ScaleX a facturé",
+      "feeNone": "Rien",
+      "net": "Valeur après ce que ScaleX a facturé",
+      "note": "L’argent ne compte ici qu’une fois le résultat d’un changement mesuré.",
+      "noteWatching": "Lex est encore dans ses premières semaines d’observation, aucun changement n’a donc été fait. C’est pourquoi tout est encore à zéro ici.",
+      "waitingValue": "{count, plural, =0 {Aucun} one {#} many {#} other {#}}",
+      "didValue": "{count, plural, =0 {Aucun pour l’instant} one {#} many {#} other {#}}{undone, plural, =0 {} one { (# annulé)} many { (# annulés)} other { (# annulés)}}"
+    },
+    "wait": {
+      "title": "En attente de vous",
+      "first": "La première :",
+      "open": "Ouvrir Décisions",
+      "count": "{count, plural, =0 {Rien n’attend votre oui ou votre non.} one {# décision attend votre oui ou votre non.} many {# décisions attendent votre oui ou votre non.} other {# décisions attendent votre oui ou votre non.}}"
+    },
+    "found": {
+      "title": "Ce que Lex a trouvé qui vous coûte de l’argent",
+      "sub": "Tiré de votre rapport. Un problème n’est marqué comme réglé que lorsqu’un gain mesuré le prouve.",
+      "none": "Lex n’en a encore trouvé aucun.",
+      "noFigure": "Pas encore de chiffre",
+      "either": "peut aller dans les deux sens : le régler pourrait coûter plus que ce qu’il fait gagner",
+      "howSure": "Degré de certitude : bien mesuré, surtout mesuré, en partie estimé ou surtout estimé. Un chiffre n’apparaît que pour les deux premiers ; connectez une source de ventes pour mesurer le reste.",
+      "status": {
+        "open": "Pas encore réglé",
+        "in_progress": "En cours de correction",
+        "fixed_and_verified": "Réglé, et le gain est mesuré",
+        "accepted": "Vous avez choisi de le laisser"
+      },
+      "grade": {
+        "A": "Bien mesuré",
+        "B": "Surtout mesuré",
+        "C": "En partie estimé",
+        "D": "Surtout estimé"
+      }
     }
   },
   "peers": {

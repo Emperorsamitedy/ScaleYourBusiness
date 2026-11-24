@@ -9753,38 +9753,60 @@
     "title": "月度对账单",
     "none": "登录后查看你的月度对账单。",
     "nothing": "暂无",
-    "did": "已执行 {count, plural, other {# 项操作}}，{undone, plural, =0 {无撤销} other {已撤销 # 项}}",
-    "worth": "已核实，盈亏合计：{amount}",
-    "losses": "其中的损失：{amount}",
-    "fee": "ScaleX 本月的费用：{amount}",
-    "feeNone": "ScaleX 本月未收取任何费用。",
-    "net": "已核实，扣除 ScaleX 费用后：{amount}",
-    "unproven": "{count, plural, =0 {没有未经证明就结束的变更} other {# 项变更结束时尚无证明}}",
-    "queued": "{count, plural, =0 {没有事项在等你} other {# 件事项在等你}}",
-    "decision": "等你做的那一个决定：",
     "open": "打开",
-    "noDecision": "没有事项在等你。",
     "leaks": {
-      "title": "发现的漏洞",
-      "none": "尚未发现漏洞。",
-      "range": "每月 {low} 至 {high}",
-      "grade": "等级 {grade}",
-      "rule": "只有经测量的收益证明后，漏洞才会标记为已修复。金额在等级 A 或 B 时显示；低于此等级时，请连接销售数据源来测量。",
-      "status": {
-        "open": "未处理",
-        "in_progress": "修复中",
-        "fixed_and_verified": "已修复并核实",
-        "accepted": "按现状接受"
-      }
+      "range": "每月 {low} 至 {high}"
     },
     "meta": {
       "title": "月度对账单"
     },
     "viz": {
-      "verified": "已核实，盈亏合计",
+      "verified": "已证实的价值",
       "losses": "其中的损失",
-      "fee": "ScaleX 费用",
+      "fee": "ScaleX 的费用",
       "net": "扣除 ScaleX 费用后"
+    },
+    "plainTitle": "{month}：ScaleX 为您做了什么",
+    "lede": "Lex 改了什么、这些改动被证实带来多少价值、ScaleX 收费多少，以及它发现的问题。只有当一项改动的结果被衡量后，这里的金额才会计入。",
+    "month": {
+      "title": "本月",
+      "did": "Lex 做出的改动",
+      "worth": "这些改动被证实的价值",
+      "losses": "其中计入的损失",
+      "waiting": "仍在等待结果的改动",
+      "fee": "ScaleX 收取的费用",
+      "feeNone": "无",
+      "net": "扣除 ScaleX 费用后的价值",
+      "note": "只有当一项改动的结果被衡量后，这里的金额才会计入。",
+      "noteWatching": "Lex 仍处于最初几周的观察期，还没有做出任何改动，所以这里目前都是零。",
+      "waitingValue": "{count, plural, =0 {没有} other {#}}",
+      "didValue": "{count, plural, =0 {还没有} other {#}}{undone, plural, =0 {} other {（# 项已撤销）}}"
+    },
+    "wait": {
+      "title": "等待您处理",
+      "first": "第一项：",
+      "open": "打开“决定”",
+      "count": "{count, plural, =0 {没有等待您决定的事项。} other {有 # 个决定等待您同意或拒绝。}}"
+    },
+    "found": {
+      "title": "Lex 发现的让您损失金钱的问题",
+      "sub": "来自您的报告。只有当实测收益证明时，问题才会被标为已解决。",
+      "none": "Lex 还没有发现任何问题。",
+      "noFigure": "暂无数字",
+      "either": "结果可能两样：修复的花费可能超过节省的金额",
+      "howSure": "可信程度：测量充分、大部分已测量、部分为估算、大部分为估算。只有前两种会显示数字；连接一个销售数据来源即可测量其余部分。",
+      "status": {
+        "open": "尚未解决",
+        "in_progress": "正在解决",
+        "fixed_and_verified": "已解决，收益已测得",
+        "accepted": "您选择保持现状"
+      },
+      "grade": {
+        "A": "测量充分",
+        "B": "大部分已测量",
+        "C": "部分为估算",
+        "D": "大部分为估算"
+      }
     }
   },
   "peers": {

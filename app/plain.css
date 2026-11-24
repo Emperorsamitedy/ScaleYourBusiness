@@ -279,3 +279,69 @@
     padding: 0 14px 34px;
   }
 }
+
+/* The monthly statement, said plainly (2026-11-23): the month's rows, then
+   each problem with its figure, its status and how sure the figure is. */
+.pg .pg-lede {
+  margin: 6px 0 0;
+  max-width: var(--measure);
+  color: var(--desk-ink-2);
+  font-size: 15px;
+}
+.pg .st-rows {
+  margin: 0 0 10px;
+}
+.pg .st-rows > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--rule-soft);
+  font-size: 14px;
+}
+.pg .st-rows dd {
+  margin: 0;
+  font-family: var(--f-fig);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+.pg .st-found {
+  margin: 0 0 10px;
+  padding: 0;
+  list-style: none;
+}
+.pg .st-found > li {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 4px 16px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--rule-soft);
+  font-size: 14px;
+}
+.pg .st-fig {
+  font-family: var(--f-fig);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  white-space: nowrap;
+}
+.pg .st-how {
+  grid-column: 1 / -1;
+  font-size: 12.5px;
+  color: var(--sheet-ink-2);
+}
+.pg .st-tag {
+  display: inline-block;
+  margin-right: 6px;
+  padding: 1px 7px;
+  border: 1px solid var(--rule);
+  border-radius: var(--r-xs, 0);
+  color: var(--sheet-ink);
+}
+@media (max-width: 719px) {
+  .pg .st-found > li {
+    grid-template-columns: minmax(0, 1fr);
+  }
+  .pg .st-fig {
+    text-align: left;
+  }
+}

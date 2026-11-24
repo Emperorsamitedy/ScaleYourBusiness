@@ -9753,38 +9753,60 @@
     "title": "Havi kivonat",
     "none": "Bejelentkezés után látod a havi kivonatodat.",
     "nothing": "még semmi",
-    "did": "{count, plural, one {# elvégzett lépés} other {# elvégzett lépés}}, {undone, plural, =0 {egy sem visszavonva} one {# visszavonva} other {# visszavonva}}",
-    "worth": "Igazolt, nyereség és veszteség együtt: {amount}",
-    "losses": "Ebből veszteség: {amount}",
-    "fee": "Amennyibe a ScaleX ebben a hónapban került: {amount}",
-    "feeNone": "A ScaleX ebben a hónapban semmit nem számlázott.",
-    "net": "Igazolt, a ScaleX díja után: {amount}",
-    "unproven": "{count, plural, =0 {Semmi sem zárult bizonyíték nélkül} one {# változás egyelőre bizonyíték nélkül zárult} other {# változás egyelőre bizonyíték nélkül zárult}}",
-    "queued": "{count, plural, =0 {Semmi sem vár rád} one {# dolog vár rád} other {# dolog vár rád}}",
-    "decision": "Az egy döntés, amely rád vár:",
     "open": "megnyitás",
-    "noDecision": "Semmi sem vár rád.",
     "leaks": {
-      "title": "Talált szivárgások",
-      "none": "Még nem találtunk szivárgást.",
-      "range": "havonta {low} és {high} között",
-      "grade": "{grade} szint",
-      "rule": "Egy szivárgás csak akkor számít javítottnak, ha egy mért nyereség igazolja. Összegek A vagy B szinttől látszanak; alatta kapcsolj be egy eladási forrást a méréshez.",
-      "status": {
-        "open": "nyitott",
-        "in_progress": "javítás alatt",
-        "fixed_and_verified": "javítva és igazolva",
-        "accepted": "így elfogadva"
-      }
+      "range": "havonta {low} és {high} között"
     },
     "meta": {
       "title": "Havi kivonat"
     },
     "viz": {
-      "verified": "Igazolt, nyereség és veszteség együtt",
-      "losses": "Ebből veszteség",
-      "fee": "A ScaleX díja",
+      "verified": "Bizonyított érték",
+      "losses": "Benne lévő veszteség",
+      "fee": "ScaleX díja",
       "net": "A ScaleX díja után"
+    },
+    "plainTitle": "{month}: amit a ScaleX tett Önért",
+    "lede": "Amit Lex megváltoztatott, mennyit értek bizonyítottan ezek a változtatások, mennyibe került a ScaleX, és milyen problémákat talált. A pénz itt csak akkor számít, ha egy változtatás eredményét már megmérték.",
+    "month": {
+      "title": "Ebben a hónapban",
+      "did": "Lex változtatásai",
+      "worth": "Amennyit ezek a változtatások bizonyítottan értek",
+      "losses": "Ebben számolt veszteségek",
+      "waiting": "Változtatások, amelyek eredménye még várat magára",
+      "fee": "Amit a ScaleX felszámolt",
+      "feeNone": "Semmit",
+      "net": "Érték a ScaleX díja után",
+      "note": "A pénz itt csak akkor számít, ha egy változtatás eredményét már megmérték.",
+      "noteWatching": "Lex még az első figyelési heteiben jár, így még nem változtatott semmin. Ezért áll itt még minden nullán.",
+      "waitingValue": "{count, plural, =0 {Egy sem} one {#} other {#}}",
+      "didValue": "{count, plural, =0 {Még egy sem} one {#} other {#}}{undone, plural, =0 {} one { (# visszavonva)} other { (# visszavonva)}}"
+    },
+    "wait": {
+      "title": "Önre vár",
+      "first": "Az első:",
+      "open": "Döntések megnyitása",
+      "count": "{count, plural, =0 {Semmi sem vár az Ön igenjére vagy nemjére.} one {# döntés vár az Ön igenjére vagy nemjére.} other {# döntés vár az Ön igenjére vagy nemjére.}}"
+    },
+    "found": {
+      "title": "Amit Lex talált, és pénzébe kerül",
+      "sub": "Az Ön jelentéséből. Egy probléma csak akkor számít megoldottnak, ha egy mért nyereség bizonyítja.",
+      "none": "Lex még nem talált egyet sem.",
+      "noFigure": "Még nincs szám",
+      "either": "bármelyik irányba elmehet: a javítása többe kerülhet, mint amennyit megtakarít",
+      "howSure": "Mennyire biztos: jól mért, nagyrészt mért, részben becsült vagy nagyrészt becsült. Szám csak az első kettőnél látszik; kapcsoljon be egy eladási forrást a többi méréséhez.",
+      "status": {
+        "open": "Még nincs megoldva",
+        "in_progress": "Javítás alatt",
+        "fixed_and_verified": "Megoldva, a nyereség mérve",
+        "accepted": "Ön úgy döntött, így hagyja"
+      },
+      "grade": {
+        "A": "Jól mért",
+        "B": "Nagyrészt mért",
+        "C": "Részben becsült",
+        "D": "Nagyrészt becsült"
+      }
     }
   },
   "peers": {

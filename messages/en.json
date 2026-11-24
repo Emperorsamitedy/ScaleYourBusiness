@@ -9753,38 +9753,60 @@
     "title": "Monthly statement",
     "none": "Sign in to see your monthly statement.",
     "nothing": "nothing yet",
-    "did": "{count, plural, one {# action carried out} other {# actions carried out}}, {undone, plural, =0 {none undone} one {# undone} other {# undone}}",
-    "worth": "Verified, gains and losses together: {amount}",
-    "losses": "Losses inside that: {amount}",
-    "fee": "What ScaleX cost this month: {amount}",
-    "feeNone": "ScaleX charged nothing this month.",
-    "net": "Verified, after ScaleX's fee: {amount}",
-    "unproven": "{count, plural, =0 {Nothing closed without proof} one {# change closed without proof yet} other {# changes closed without proof yet}}",
-    "queued": "{count, plural, =0 {Nothing waiting for you} one {# thing waiting for you} other {# things waiting for you}}",
-    "decision": "The one decision waiting on you:",
     "open": "open it",
-    "noDecision": "Nothing is waiting on you.",
     "leaks": {
-      "title": "Leaks found",
-      "none": "No leak has been found yet.",
-      "range": "{low} to {high} a month",
-      "grade": "grade {grade}",
-      "rule": "A leak is marked fixed only when a measured gain proves it. Money shows at grade A or B; below that, connect a sales source to measure it.",
-      "status": {
-        "open": "open",
-        "in_progress": "being fixed",
-        "fixed_and_verified": "fixed and verified",
-        "accepted": "accepted as it is"
-      }
+      "range": "{low} to {high} a month"
     },
     "meta": {
       "title": "Monthly statement"
     },
     "viz": {
-      "verified": "Verified, gains and losses together",
-      "losses": "Losses inside that",
-      "fee": "ScaleX's fee",
-      "net": "After ScaleX's fee"
+      "verified": "Proven worth",
+      "losses": "Losses in that",
+      "fee": "ScaleX's charge",
+      "net": "After ScaleX's charge"
+    },
+    "plainTitle": "{month}: what ScaleX did for you",
+    "lede": "What Lex changed, what those changes have proven to be worth, what ScaleX cost, and the problems it has found. Money counts here only once a change's result is measured.",
+    "month": {
+      "title": "This month",
+      "did": "Changes Lex made",
+      "worth": "What those changes proved to be worth",
+      "losses": "Losses counted in that",
+      "waiting": "Changes still waiting for their result",
+      "fee": "What ScaleX charged",
+      "feeNone": "Nothing",
+      "net": "Worth after ScaleX's charge",
+      "note": "Money counts here only once a change's result is measured.",
+      "noteWatching": "Lex is still in its first weeks of watching, so no change has been made yet. That's why everything here is still at nothing.",
+      "waitingValue": "{count, plural, =0 {None} one {#} other {#}}",
+      "didValue": "{count, plural, =0 {None yet} one {#} other {#}}{undone, plural, =0 {} one { (# undone)} other { (# undone)}}"
+    },
+    "wait": {
+      "title": "Waiting for you",
+      "first": "The first:",
+      "open": "Open Decisions",
+      "count": "{count, plural, =0 {Nothing is waiting for your yes or no.} one {# decision is waiting for your yes or no.} other {# decisions are waiting for your yes or no.}}"
+    },
+    "found": {
+      "title": "What Lex found that costs you money",
+      "sub": "From your report. A problem is marked fixed only when a measured gain proves it.",
+      "none": "Lex hasn't found any yet.",
+      "noFigure": "No figure yet",
+      "either": "could go either way: fixing it may cost more than it saves",
+      "howSure": "How sure: well measured, mostly measured, partly estimated or mostly estimated. A figure is shown only for the first two; connect a sales source to measure the rest.",
+      "status": {
+        "open": "Not fixed yet",
+        "in_progress": "Being fixed",
+        "fixed_and_verified": "Fixed, and the gain is measured",
+        "accepted": "You chose to leave it"
+      },
+      "grade": {
+        "A": "Well measured",
+        "B": "Mostly measured",
+        "C": "Partly estimated",
+        "D": "Mostly estimated"
+      }
     }
   },
   "peers": {

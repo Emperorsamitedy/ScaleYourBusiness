@@ -9753,38 +9753,60 @@
     "title": "Extracto mensual",
     "none": "Inicia sesión para ver tu extracto mensual.",
     "nothing": "nada todavía",
-    "did": "{count, plural, one {# acción realizada} many {# acciones realizadas} other {# acciones realizadas}}, {undone, plural, =0 {ninguna deshecha} one {# deshecha} many {# deshechas} other {# deshechas}}",
-    "worth": "Verificado, ganancias y pérdidas juntas: {amount}",
-    "losses": "Pérdidas incluidas: {amount}",
-    "fee": "Lo que costó ScaleX este mes: {amount}",
-    "feeNone": "ScaleX no cobró nada este mes.",
-    "net": "Verificado, después de la tarifa de ScaleX: {amount}",
-    "unproven": "{count, plural, =0 {Nada cerrado sin prueba} one {# cambio cerrado aún sin prueba} many {# cambios cerrados aún sin prueba} other {# cambios cerrados aún sin prueba}}",
-    "queued": "{count, plural, =0 {Nada te espera} one {# cosa te espera} many {# cosas te esperan} other {# cosas te esperan}}",
-    "decision": "La decisión que te espera:",
     "open": "abrirla",
-    "noDecision": "Nada te espera.",
     "leaks": {
-      "title": "Fugas encontradas",
-      "none": "Todavía no se ha encontrado ninguna fuga.",
-      "range": "de {low} a {high} al mes",
-      "grade": "grado {grade}",
-      "rule": "Una fuga se marca como resuelta solo cuando una ganancia medida lo demuestra. Las cifras aparecen con grado A o B; por debajo, conecta una fuente de ventas para medirlas.",
-      "status": {
-        "open": "abierta",
-        "in_progress": "en arreglo",
-        "fixed_and_verified": "resuelta y verificada",
-        "accepted": "aceptada tal cual"
-      }
+      "range": "de {low} a {high} al mes"
     },
     "meta": {
       "title": "Extracto mensual"
     },
     "viz": {
-      "verified": "Verificado, ganancias y pérdidas juntas",
+      "verified": "Valor demostrado",
       "losses": "Pérdidas incluidas",
-      "fee": "Tarifa de ScaleX",
-      "net": "Después de la tarifa de ScaleX"
+      "fee": "Cobro de ScaleX",
+      "net": "Tras el cobro de ScaleX"
+    },
+    "plainTitle": "{month}: lo que ScaleX hizo por usted",
+    "lede": "Lo que Lex cambió, lo que esos cambios han demostrado valer, lo que costó ScaleX y los problemas que ha encontrado. El dinero solo cuenta aquí cuando se mide el resultado de un cambio.",
+    "month": {
+      "title": "Este mes",
+      "did": "Cambios que hizo Lex",
+      "worth": "Lo que esos cambios demostraron valer",
+      "losses": "Pérdidas incluidas en eso",
+      "waiting": "Cambios que aún esperan su resultado",
+      "fee": "Lo que cobró ScaleX",
+      "feeNone": "Nada",
+      "net": "Valor tras el cobro de ScaleX",
+      "note": "El dinero solo cuenta aquí cuando se mide el resultado de un cambio.",
+      "noteWatching": "Lex aún está en sus primeras semanas de observación, así que todavía no ha hecho ningún cambio. Por eso aquí todo sigue en nada.",
+      "waitingValue": "{count, plural, =0 {Ninguno} one {#} many {#} other {#}}",
+      "didValue": "{count, plural, =0 {Ninguno aún} one {#} many {#} other {#}}{undone, plural, =0 {} one { (# deshecho)} many { (# deshechos)} other { (# deshechos)}}"
+    },
+    "wait": {
+      "title": "Esperando por usted",
+      "first": "La primera:",
+      "open": "Abrir Decisiones",
+      "count": "{count, plural, =0 {Nada espera su sí o su no.} one {# decisión espera su sí o su no.} many {# decisiones esperan su sí o su no.} other {# decisiones esperan su sí o su no.}}"
+    },
+    "found": {
+      "title": "Lo que Lex encontró que le cuesta dinero",
+      "sub": "De su informe. Un problema se marca como resuelto solo cuando una ganancia medida lo demuestra.",
+      "none": "Lex aún no ha encontrado ninguno.",
+      "noFigure": "Aún sin cifra",
+      "either": "puede salir de las dos maneras: arreglarlo podría costar más de lo que ahorra",
+      "howSure": "Qué tan seguro: bien medido, medido en su mayoría, estimado en parte o estimado en su mayoría. Solo se muestra cifra en los dos primeros; conecte una fuente de ventas para medir el resto.",
+      "status": {
+        "open": "Aún sin resolver",
+        "in_progress": "En arreglo",
+        "fixed_and_verified": "Resuelto, y la ganancia está medida",
+        "accepted": "Decidió dejarlo así"
+      },
+      "grade": {
+        "A": "Bien medido",
+        "B": "Medido en su mayoría",
+        "C": "Estimado en parte",
+        "D": "Estimado en su mayoría"
+      }
     }
   },
   "peers": {
