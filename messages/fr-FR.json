@@ -11231,7 +11231,7 @@
     "progress": "{done} sur {total} faites",
     "stepNo": "Étape {n}",
     "continue": "Continuer",
-    "setUp": "Tout est prêt. Votre diagnostic est fait ; désormais, la connexion ouvre « {home} ».",
+    "setUp": "Désormais, la connexion ouvre « {home} ».",
     "status": {
       "done": "Fait",
       "next": "À faire",
@@ -11278,6 +11278,9 @@
       "startPlan": "Commencer",
       "saveCheck": "L'enregistrer et obtenir le diagnostic complet",
       "saveCheckNote": "Compte gratuit. Le type d'entreprise, le pays et la taille de l'équipe vous suivent."
-    }
+    },
+    "titleDone": "Votre entreprise est configurée",
+    "ledeDone": "Votre premier diagnostic est prêt. Ce qui reste ci-dessous est facultatif : faites-le quand cela vous convient.",
+    "ledeAll": "Toutes les étapes sont faites et votre diagnostic est prêt."
   }
 }

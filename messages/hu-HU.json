@@ -11231,7 +11231,7 @@
     "progress": "{total} lépésből {done} kész",
     "stepNo": "{n}. lépés",
     "continue": "Tovább",
-    "setUp": "Kész a beállítás. A diagnózisa elkészült; mostantól belépéskor a(z) „{home}” nyílik meg.",
+    "setUp": "Mostantól belépéskor a(z) „{home}” nyílik meg.",
     "status": {
       "done": "Kész",
       "next": "Következő",
@@ -11278,6 +11278,9 @@
       "startPlan": "Kezdés",
       "saveCheck": "Mentés és a teljes diagnózis",
       "saveCheckNote": "Ingyenes fiók. A vállalkozás típusa, az ország és a csapat mérete Önnel jön."
-    }
+    },
+    "titleDone": "A vállalkozása be van állítva",
+    "ledeDone": "Elkészült az első diagnózisa. Ami lent még nyitva van, nem kötelező: akkor intézze, amikor Önnek megfelel.",
+    "ledeAll": "Minden lépés kész, és a diagnózisa elkészült."
   }
 }

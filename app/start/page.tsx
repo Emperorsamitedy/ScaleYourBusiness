@@ -59,10 +59,13 @@ export default async function StartPage() {
     <main className="screen start" aria-labelledby="gs-title">
       <header className="gs-head">
         <p className="gs-kick">{t("meta.title")}</p>
+        {/* Set up, the heading says so: the work is behind the owner, not ahead. */}
         <h1 className="gs-title" id="gs-title">
-          {t("title")}
+          {journey.set_up ? t("titleDone") : t("title")}
         </h1>
-        <p className="gs-lede">{t("lede")}</p>
+        <p className="gs-lede">
+          {!journey.set_up ? t("lede") : next === null ? t("ledeAll") : t("ledeDone")}
+        </p>
         <div className="gs-progress">
           <span
             className="gs-bar"

@@ -11231,7 +11231,7 @@
     "progress": "{done} of {total} done",
     "stepNo": "Step {n}",
     "continue": "Continue",
-    "setUp": "You're set up. Your diagnosis is ready; from now on, signing in opens {home}.",
+    "setUp": "From now on, signing in opens {home}.",
     "status": {
       "done": "Done",
       "next": "Next",
@@ -11278,6 +11278,9 @@
       "startPlan": "Start",
       "saveCheck": "Save this and get your full diagnosis",
       "saveCheckNote": "Free account. Your business type, country and team size come with you."
-    }
+    },
+    "titleDone": "Your business is set up",
+    "ledeDone": "Your first diagnosis is ready. What's still open below is optional: do it whenever suits you.",
+    "ledeAll": "Every step is done, and your diagnosis is ready."
   }
 }

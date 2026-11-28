@@ -11231,7 +11231,7 @@
     "progress": "{done} von {total} erledigt",
     "stepNo": "Schritt {n}",
     "continue": "Weiter",
-    "setUp": "Sie sind startklar. Ihre Diagnose ist fertig; ab jetzt öffnet die Anmeldung „{home}“.",
+    "setUp": "Ab jetzt öffnet die Anmeldung „{home}“.",
     "status": {
       "done": "Erledigt",
       "next": "Als Nächstes",
@@ -11278,6 +11278,9 @@
       "startPlan": "Starten",
       "saveCheck": "Speichern und die vollständige Diagnose erhalten",
       "saveCheckNote": "Kostenloses Konto. Art, Land und Teamgröße Ihres Unternehmens kommen mit."
-    }
+    },
+    "titleDone": "Ihr Unternehmen ist eingerichtet",
+    "ledeDone": "Ihre erste Diagnose ist fertig. Was unten noch offen ist, ist freiwillig: Erledigen Sie es, wann es Ihnen passt.",
+    "ledeAll": "Alle Schritte sind erledigt, und Ihre Diagnose ist fertig."
   }
 }
