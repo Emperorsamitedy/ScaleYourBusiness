@@ -75,6 +75,9 @@
 
 /* the week grid */
 .hr-wrap {
+  /* Positioned, so a cell's screen-reader label (absolutely placed) stays
+     inside the scroller instead of widening the page on a phone. */
+  position: relative;
   overflow-x: auto;
 }
 .hr-week {
@@ -282,4 +285,204 @@
    (the owner app's type, app/sheet.css). In the classic look it follows the label. */
 :is(.hr-inset h2)::first-letter {
   text-transform: var(--caps-first, inherit);
+}
+
+/* ── Said plainly (2026-11-28, the canvas design the owner approved) ──
+   One card for the open hours (no closed hour's takings in the grid), one
+   for what Lex noticed, the method folded at the foot. Figures in the
+   app's own face with tabular numbers; a paying hour deepens to the
+   brand green, the one that loses is outlined in red. */
+
+.hr-lede {
+  margin: 8px 0 0;
+  max-width: var(--measure);
+  color: var(--desk-ink-2);
+  font-size: 16px;
+  line-height: 1.5;
+}
+.hr-screen > .hr-card {
+  margin-top: 16px;
+}
+.hr-src {
+  margin: 0 0 14px;
+  max-width: var(--measure);
+  font-size: 13.5px;
+  color: var(--sheet-ink-2);
+}
+.hr-plain {
+  border-collapse: separate;
+  border-spacing: 3px;
+  font-variant-numeric: tabular-nums;
+}
+.hr-plain th {
+  font-weight: 500;
+  color: var(--sheet-ink-2);
+}
+.hr-plain thead th {
+  padding: 0 0 4px;
+  font-size: 12.5px;
+  text-align: center;
+}
+.hr-plain tbody th {
+  padding: 0 14px 0 0;
+  font-size: 14px;
+  text-align: left;
+  color: var(--sheet-ink);
+  white-space: nowrap;
+}
+.hr-plain td {
+  width: 76px;
+  min-width: 60px;
+  height: 46px;
+  padding: 0 4px;
+  border-radius: 3px;
+  text-align: center;
+  font-size: 14px;
+  font-weight: 650;
+  color: var(--sheet-ink);
+  background: var(--paper);
+  white-space: nowrap;
+}
+.hr-plain td.pays {
+  background: color-mix(in srgb, var(--ok) var(--hr-k, 100%), #e8f1eb);
+}
+.hr-plain td.pays.deep {
+  color: #f2f7f4;
+}
+.hr-plain td.even {
+  background: var(--hr-even);
+  color: #6b5420;
+}
+.hr-plain td.loses {
+  background: #f1c9c3;
+  color: var(--alarm);
+  box-shadow: inset 0 0 0 2px var(--alarm);
+}
+.hr-plain td.open {
+  background: var(--inset);
+  font-weight: 500;
+}
+.hr-plain td.closed {
+  background: repeating-linear-gradient(135deg, #e4ece7 0 6px, #eef3f0 6px 12px);
+}
+.hr-plain td.hr-unstated {
+  border: 1px dashed var(--rule-soft);
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--sheet-ink-2);
+}
+.hr-plain tr.early td {
+  opacity: 0.75;
+}
+.hr-key {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 18px;
+  margin: 14px 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 12.5px;
+  color: var(--sheet-ink-2);
+}
+.hr-key li {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+.hr-key .hr-sw.pays {
+  background: var(--ok);
+}
+.hr-key .hr-sw.loses {
+  background: #f1c9c3;
+  border-color: var(--alarm);
+}
+.hr-sw.closed {
+  background: repeating-linear-gradient(135deg, #e4ece7 0 3px, #eef3f0 3px 6px);
+}
+.hr-note {
+  margin: 14px 0 0;
+  font-size: 14px;
+}
+.hr-notes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: 22px 24px;
+}
+.hr-n {
+  padding-left: 14px;
+  border-left: 4px solid var(--rule-soft);
+}
+.hr-n-alarm {
+  border-left-color: var(--alarm);
+}
+.hr-n-warn {
+  border-left-color: #d9a66f;
+}
+.hr-n-good {
+  border-left-color: var(--ok);
+}
+.hr-n p {
+  margin: 0 0 6px;
+  font-size: 14px;
+  line-height: 1.5;
+}
+.hr-n .hr-n-head {
+  font-size: 15px;
+  font-weight: 650;
+}
+.hr-muted {
+  color: var(--sheet-ink-2);
+}
+.hr-trial-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 16px;
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: var(--hair);
+}
+.hr-trial-row p {
+  margin: 0;
+  font-size: 13.5px;
+  color: var(--sheet-ink-2);
+}
+.hr-trial-row .act,
+.hr-trial-list .act {
+  min-height: 40px;
+}
+.hr-trial-list {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: var(--hair);
+}
+.hr-h3 {
+  margin: 0 0 8px;
+  font-size: 14px;
+  font-weight: 650;
+}
+.hr-screen > .hr-how {
+  margin-top: 16px;
+  color: var(--desk-ink-2);
+}
+.hr-list {
+  margin: 0;
+  padding: 0 0 0 18px;
+  font-size: 13.5px;
+  line-height: 1.55;
+}
+.hr-list li + li {
+  margin-top: 6px;
+}
+@media (max-width: 760px) {
+  .hr-plain td {
+    width: auto;
+    min-width: 54px;
+    height: 42px;
+    font-size: 13px;
+  }
+  .hr-plain tbody th {
+    padding-right: 8px;
+    font-size: 13px;
+  }
 }

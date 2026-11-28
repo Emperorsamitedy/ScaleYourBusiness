@@ -3855,7 +3855,9 @@
     "trials": {
       "title": "Testphasen",
       "none": "Noch kein Vorschlag",
-      "waiting": "Wartet auf Sie"
+      "waiting": "Wartet auf Sie",
+      "noneRunning": "Es läuft kein Test. Schlägt Lex einen vor, wartet er unter Entscheidungen auf Ihr Ja oder Nein.",
+      "open": "Entscheidungen öffnen"
     },
     "signedOut": {
       "title": "Hier gibt es noch kein Unternehmen.",
@@ -3902,7 +3904,58 @@
       "unparsed": "Nicht lesbar: {list}.",
       "wrong": "Falsche Öffnungszeiten? Ändern Sie Ihre Antwort im <link>Faktenblatt</link>."
     },
-    "how": "So funktioniert es"
+    "how": "So funktioniert es",
+    "plain": {
+      "titleAll": "Alle {count, number} Öffnungsstunden rechnen sich",
+      "titleSome": "{paying, number} von {count, number} Öffnungsstunden rechnen sich",
+      "ledeOne": "Die eine, die sich nicht rechnet: {day} um {clock}, etwa {short} unter den {cost}, die eine offene Stunde kostet.",
+      "ledeSome": "{count, number} rechnen sich nicht; am schlechtesten {day} um {clock}, etwa {short} unter den {cost}, die eine offene Stunde kostet.",
+      "ledeEarly": "Kunden scheinen {days} schon vor der Öffnung zu kommen.",
+      "ledeEarlyAlso": "Kunden scheinen außerdem {days} schon vor der Öffnung zu kommen.",
+      "gridTitle": "Ihre Öffnungsstunden, Stunde für Stunde",
+      "srcJudged": "Was jede offene Stunde im Schnitt {weeks, plural, one {in der letzten Woche} other {in den letzten # Wochen}} eingenommen hat, abzüglich der {cost}, die eine offene Stunde kostet. {from} bis {to}.",
+      "src": "Was jede offene Stunde im Schnitt {weeks, plural, one {in der letzten Woche} other {in den letzten # Wochen}} eingenommen hat. {from} bis {to}.",
+      "keyPays": "Rechnet sich: je dunkler, desto mehr",
+      "keyEven": "Etwa ausgeglichen (innerhalb von {even})",
+      "keyLoses": "Verliert Geld",
+      "keyClosed": "Geschlossen",
+      "closed": "{days} geschlossen.",
+      "notesTitle": "Was Lex aufgefallen ist",
+      "how": "Wie Lex das berechnet hat",
+      "foldLegend": "Schraffierte Felder sind geschlossene Stunden. Einnahmen, nicht Marge."
+    },
+    "note": {
+      "closing": {
+        "head": "Die letzte Stunde rechnet sich {days} nicht",
+        "body": "Sie bringt an den meisten gemessenen Tagen weniger ein, als eine offene Stunde kostet.",
+        "bodyCost": "Sie bringt an den meisten gemessenen Tagen weniger ein als die {cost}, die eine offene Stunde kostet."
+      },
+      "opening": {
+        "head": "Kunden kommen schon vor der Öffnung",
+        "body": "{days} bringt Ihre erste Stunde schon {low} bis {high} dessen ein, was Ihre beste Stunde einbringt.",
+        "bodyOne": "{days} bringt Ihre erste Stunde schon {share} dessen ein, was Ihre beste Stunde einbringt."
+      },
+      "attention": {
+        "head": "Man sucht Sie schon vor der Öffnung",
+        "body": "{days} kommt ein großer Teil der Besuche auf Ihrer Website in den Stunden kurz vor der Öffnung."
+      },
+      "best": {
+        "head": "Ihre beste Stunde: {days} um {clock}",
+        "body": "Im Schnitt {money} über ihren Kosten."
+      },
+      "early": {
+        "head": "{days}: noch zu früh für ein Urteil",
+        "body": "Noch zu wenige gemessene Tage."
+      },
+      "closed": {
+        "head": "Verkäufe, während Sie geschlossen haben",
+        "body": "{amount} kamen {weeks, plural, one {in dieser Woche} other {in diesen # Wochen}} herein, während Sie geschlossen hatten.",
+        "bodyDay": "{amount} kamen {weeks, plural, one {in dieser Woche} other {in diesen # Wochen}} herein, während Sie geschlossen hatten, {days} etwa {perDay} am Tag.",
+        "next": "Sind das Online-Bestellungen, ist das zu erwarten. Sind es Ladenverkäufe, sind Ihre Öffnungszeiten vielleicht veraltet."
+      },
+      "trialEarlier": "Eine Stunde früher zu öffnen könnte sich lohnen. Ein vierwöchiger Test zeigt es.",
+      "trialLater": "Eine Stunde früher zu schließen könnte Geld sparen. Ein vierwöchiger Test zeigt es."
+    }
   },
   "patterns": {
     "meta": {

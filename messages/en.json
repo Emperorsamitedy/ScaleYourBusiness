@@ -3855,7 +3855,9 @@
     "trials": {
       "title": "Trials",
       "none": "Not a proposal yet",
-      "waiting": "Waiting for you"
+      "waiting": "Waiting for you",
+      "noneRunning": "No trial is running. When Lex suggests one, it waits in Decisions for your yes or no.",
+      "open": "Open Decisions"
     },
     "signedOut": {
       "title": "There's no business here yet.",
@@ -3902,7 +3904,58 @@
       "unparsed": "Couldn't read: {list}.",
       "wrong": "Wrong hours? Change your answer on the <link>Fact sheet</link>."
     },
-    "how": "How this works"
+    "how": "How this works",
+    "plain": {
+      "titleAll": "All {count, number} of your open hours pay for themselves",
+      "titleSome": "{paying, number} of your {count, number} open hours pay for themselves",
+      "ledeOne": "The one that doesn't is {day} at {clock}, about {short} short of the {cost} an open hour costs you.",
+      "ledeSome": "{count, number} don't; the worst is {day} at {clock}, about {short} short of the {cost} an open hour costs you.",
+      "ledeEarly": "Customers seem to arrive before you open on {days}.",
+      "ledeEarlyAlso": "Customers also seem to arrive before you open on {days}.",
+      "gridTitle": "Your open hours, hour by hour",
+      "srcJudged": "What each open hour took on average over the last {weeks, plural, one {# week} other {# weeks}}, after the {cost} an open hour costs you. {from} to {to}.",
+      "src": "What each open hour took on average over the last {weeks, plural, one {# week} other {# weeks}}. {from} to {to}.",
+      "keyPays": "Pays: the darker, the more",
+      "keyEven": "About even (within {even})",
+      "keyLoses": "Loses money",
+      "keyClosed": "Closed",
+      "closed": "Closed {days}.",
+      "notesTitle": "What Lex noticed",
+      "how": "How Lex worked this out",
+      "foldLegend": "Hatched squares are closed hours. Takings, not margin."
+    },
+    "note": {
+      "closing": {
+        "head": "The last hour doesn't pay on {days}",
+        "body": "It takes less than an open hour costs on most measured days.",
+        "bodyCost": "It takes less than the {cost} an open hour costs on most measured days."
+      },
+      "opening": {
+        "head": "Customers arrive before you open",
+        "body": "On {days} your first hour already takes {low} to {high} of what your best hour takes.",
+        "bodyOne": "On {days} your first hour already takes {share} of what your best hour takes."
+      },
+      "attention": {
+        "head": "People look you up before you open",
+        "body": "On {days} a large share of website visits come in the hours just before you open."
+      },
+      "best": {
+        "head": "Your best hour: {days} at {clock}",
+        "body": "{money} over its cost, on average."
+      },
+      "early": {
+        "head": "{days}: too early to judge",
+        "body": "Too few measured days yet."
+      },
+      "closed": {
+        "head": "Sales while you're closed",
+        "body": "{amount} came in while you were closed over these {weeks, plural, one {# week} other {# weeks}}.",
+        "bodyDay": "{amount} came in while you were closed over these {weeks, plural, one {# week} other {# weeks}}, about {perDay} a day on {days}.",
+        "next": "If those are online orders, that's expected. If they're shop sales, your hours may be out of date."
+      },
+      "trialEarlier": "Opening an hour earlier may pay. A four-week trial is the way to know.",
+      "trialLater": "Closing an hour earlier may save money. A four-week trial is the way to know."
+    }
   },
   "patterns": {
     "meta": {

@@ -3855,7 +3855,9 @@
     "trials": {
       "title": "Próbák",
       "none": "Még nem javaslat",
-      "waiting": "Önre vár"
+      "waiting": "Önre vár",
+      "noneRunning": "Nem fut próba. Ha Lex javasol egyet, a Döntések között várja az Ön igenjét vagy nemjét.",
+      "open": "Döntések megnyitása"
     },
     "signedOut": {
       "title": "Itt még nincs vállalkozás.",
@@ -3902,7 +3904,58 @@
       "unparsed": "Nem tudtam beolvasni: {list}.",
       "wrong": "Rossz a nyitvatartás? Módosítsa a válaszát a <link>Ténylap</link> oldalon."
     },
-    "how": "Hogyan működik"
+    "how": "Hogyan működik",
+    "plain": {
+      "titleAll": "Mind a(z) {count, number} nyitvatartási órája megtérül",
+      "titleSome": "{count, number} nyitvatartási órájából {paying, number} megtérül",
+      "ledeOne": "Ami nem: {day}, {clock}, körülbelül {short} hiányzik a(z) {cost} órányi nyitvatartási költségből.",
+      "ledeSome": "{count, number} nem térül meg; a legrosszabb: {day}, {clock}, körülbelül {short} hiányzik a(z) {cost} órányi költségből.",
+      "ledeEarly": "Úgy tűnik, az ügyfelek már nyitás előtt érkeznek: {days}.",
+      "ledeEarlyAlso": "Úgy tűnik, az ügyfelek már nyitás előtt is érkeznek: {days}.",
+      "gridTitle": "A nyitvatartási órái, óráról órára",
+      "srcJudged": "Amit az egyes nyitvatartási órák átlagosan hoztak az elmúlt {weeks, plural, one {# hétben} other {# hétben}}, a(z) {cost} óránkénti nyitvatartási költség után. {from} - {to}.",
+      "src": "Amit az egyes nyitvatartási órák átlagosan hoztak az elmúlt {weeks, plural, one {# hétben} other {# hétben}}. {from} - {to}.",
+      "keyPays": "Megtérül: minél sötétebb, annál jobban",
+      "keyEven": "Nagyjából nullszaldó ({even} határon belül)",
+      "keyLoses": "Pénzt veszít",
+      "keyClosed": "Zárva",
+      "closed": "Zárva: {days}.",
+      "notesTitle": "Amit Lex észrevett",
+      "how": "Hogyan számolta ki Lex",
+      "foldLegend": "A csíkozott mezők zárt órák. Bevétel, nem árrés."
+    },
+    "note": {
+      "closing": {
+        "head": "Az utolsó óra nem térül meg: {days}",
+        "body": "A legtöbb mért napon kevesebbet hoz, mint amennyibe egy nyitvatartási óra kerül.",
+        "bodyCost": "A legtöbb mért napon kevesebbet hoz, mint a(z) {cost}, amennyibe egy nyitvatartási óra kerül."
+      },
+      "opening": {
+        "head": "Az ügyfelek már nyitás előtt érkeznek",
+        "body": "{days}: az első óra már a legjobb óra bevételének {low}-{high} részét hozza.",
+        "bodyOne": "{days}: az első óra már a legjobb óra bevételének {share} részét hozza."
+      },
+      "attention": {
+        "head": "Már nyitás előtt rákeresnek Önre",
+        "body": "{days}: a weboldal látogatásainak nagy része a nyitás előtti órákban érkezik."
+      },
+      "best": {
+        "head": "A legjobb órája: {days}, {clock}",
+        "body": "Átlagosan {money} a költsége felett."
+      },
+      "early": {
+        "head": "{days}: még korai megítélni",
+        "body": "Még kevés a mért nap."
+      },
+      "closed": {
+        "head": "Eladások zárva tartás alatt",
+        "body": "{amount} folyt be zárva tartás alatt ebben a(z) {weeks, plural, one {# hétben} other {# hétben}}.",
+        "bodyDay": "{amount} folyt be zárva tartás alatt ebben a(z) {weeks, plural, one {# hétben} other {# hétben}}, naponta körülbelül {perDay} ({days}).",
+        "next": "Ha ezek online rendelések, ez várható. Ha bolti eladások, a nyitvatartása talán elavult."
+      },
+      "trialEarlier": "Egy órával korábbi nyitás megérheti. Egy négyhetes próba mutatja meg.",
+      "trialLater": "Egy órával korábbi zárás pénzt takaríthat meg. Egy négyhetes próba mutatja meg."
+    }
   },
   "patterns": {
     "meta": {

@@ -3855,7 +3855,9 @@
     "trials": {
       "title": "Pruebas",
       "none": "Todavía no es una propuesta",
-      "waiting": "Pendiente de usted"
+      "waiting": "Pendiente de usted",
+      "noneRunning": "No hay ninguna prueba en marcha. Cuando Lex proponga una, esperará en Decisiones a que usted diga sí o no.",
+      "open": "Abrir Decisiones"
     },
     "signedOut": {
       "title": "Aquí todavía no hay ningún negocio.",
@@ -3902,7 +3904,58 @@
       "unparsed": "No se ha podido leer: {list}.",
       "wrong": "¿Horario incorrecto? Cambie su respuesta en la <link>Ficha de datos</link>."
     },
-    "how": "Cómo funciona"
+    "how": "Cómo funciona",
+    "plain": {
+      "titleAll": "Las {count, number} horas que abre se pagan solas",
+      "titleSome": "{paying, number} de sus {count, number} horas de apertura se pagan solas",
+      "ledeOne": "La que no es la del {day} a las {clock}: le faltan unos {short} para cubrir los {cost} que le cuesta abrir una hora.",
+      "ledeSome": "{count, number} no lo hacen; la peor es la del {day} a las {clock}, a unos {short} de cubrir los {cost} que le cuesta abrir una hora.",
+      "ledeEarly": "Parece que los clientes llegan antes de que abra {days}.",
+      "ledeEarlyAlso": "Además, parece que los clientes llegan antes de que abra {days}.",
+      "gridTitle": "Sus horas de apertura, hora a hora",
+      "srcJudged": "Lo que dejó de media cada hora abierta en {weeks, plural, one {la última semana} many {las últimas # semanas} other {las últimas # semanas}}, descontados los {cost} que cuesta abrir una hora. Del {from} al {to}.",
+      "src": "Lo que dejó de media cada hora abierta en {weeks, plural, one {la última semana} many {las últimas # semanas} other {las últimas # semanas}}. Del {from} al {to}.",
+      "keyPays": "Compensa: cuanto más oscuro, más",
+      "keyEven": "Más o menos igual (dentro de {even})",
+      "keyLoses": "Pierde dinero",
+      "keyClosed": "Cerrado",
+      "closed": "Cerrado {days}.",
+      "notesTitle": "Lo que Lex ha visto",
+      "how": "Cómo lo calculó Lex",
+      "foldLegend": "Los cuadros rayados son horas cerradas. Son ingresos de caja, no margen."
+    },
+    "note": {
+      "closing": {
+        "head": "La última hora no compensa {days}",
+        "body": "Deja menos de lo que cuesta abrir una hora en la mayoría de los días medidos.",
+        "bodyCost": "Deja menos de los {cost} que cuesta abrir una hora en la mayoría de los días medidos."
+      },
+      "opening": {
+        "head": "Los clientes llegan antes de que abra",
+        "body": "{days}, su primera hora ya deja entre {low} y {high} de lo que deja su mejor hora.",
+        "bodyOne": "{days}, su primera hora ya deja {share} de lo que deja su mejor hora."
+      },
+      "attention": {
+        "head": "Le buscan antes de que abra",
+        "body": "{days}, buena parte de las visitas a su web llegan justo en las horas antes de abrir."
+      },
+      "best": {
+        "head": "Su mejor hora: {days}, a las {clock}",
+        "body": "{money} por encima de su coste, de media."
+      },
+      "early": {
+        "head": "{days}: aún es pronto para juzgar",
+        "body": "Todavía hay pocos días medidos."
+      },
+      "closed": {
+        "head": "Ventas con la tienda cerrada",
+        "body": "Entraron {amount} con la tienda cerrada en {weeks, plural, one {esta semana} many {estas # semanas} other {estas # semanas}}.",
+        "bodyDay": "Entraron {amount} con la tienda cerrada en {weeks, plural, one {esta semana} many {estas # semanas} other {estas # semanas}}, unos {perDay} al día {days}.",
+        "next": "Si son pedidos en línea, es normal. Si son ventas en tienda, puede que su horario esté desactualizado."
+      },
+      "trialEarlier": "Abrir una hora antes podría compensar. Una prueba de cuatro semanas es la forma de saberlo.",
+      "trialLater": "Cerrar una hora antes podría ahorrar dinero. Una prueba de cuatro semanas es la forma de saberlo."
+    }
   },
   "patterns": {
     "meta": {

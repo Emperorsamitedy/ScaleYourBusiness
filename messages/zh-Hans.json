@@ -3855,7 +3855,9 @@
     "trials": {
       "title": "试行",
       "none": "还不是提案",
-      "waiting": "等待您处理"
+      "waiting": "等待您处理",
+      "noneRunning": "目前没有试行。Lex 建议试行时，它会在“决定”里等您同意或拒绝。",
+      "open": "打开“决定”"
     },
     "signedOut": {
       "title": "这里还没有企业。",
@@ -3902,7 +3904,58 @@
       "unparsed": "无法读取：{list}。",
       "wrong": "营业时间不对？请在<link>事实表</link>中修改您的回答。"
     },
-    "how": "运作方式"
+    "how": "运作方式",
+    "plain": {
+      "titleAll": "您的 {count, number} 个营业小时全都划算",
+      "titleSome": "您的 {count, number} 个营业小时中有 {paying, number} 个划算",
+      "ledeOne": "不划算的是{day} {clock}，比每个营业小时的成本 {cost} 少大约 {short}。",
+      "ledeSome": "有 {count, number} 个不划算；最差的是{day} {clock}，比每个营业小时的成本 {cost} 少大约 {short}。",
+      "ledeEarly": "{days}客户似乎在您开门前就来了。",
+      "ledeEarlyAlso": "另外，{days}客户似乎在您开门前就来了。",
+      "gridTitle": "您的营业时间，逐小时",
+      "srcJudged": "最近 {weeks, plural, other {# 周}}每个营业小时的平均收入，扣除每小时营业成本 {cost}。{from}至{to}。",
+      "src": "最近 {weeks, plural, other {# 周}}每个营业小时的平均收入。{from}至{to}。",
+      "keyPays": "划算：颜色越深越划算",
+      "keyEven": "大致持平（相差 {even} 以内）",
+      "keyLoses": "亏钱",
+      "keyClosed": "不营业",
+      "closed": "{days}不营业。",
+      "notesTitle": "Lex 注意到的情况",
+      "how": "Lex 是如何算出来的",
+      "foldLegend": "斜线格表示不营业的小时。这里是收入，不是利润率。"
+    },
+    "note": {
+      "closing": {
+        "head": "{days}的最后一小时不划算",
+        "body": "在大多数已测量的日子里，它的收入低于一个营业小时的成本。",
+        "bodyCost": "在大多数已测量的日子里，它的收入低于一个营业小时的成本 {cost}。"
+      },
+      "opening": {
+        "head": "客户在您开门前就来了",
+        "body": "{days}，您的第一个小时已经能带来最佳小时收入的 {low} 至 {high}。",
+        "bodyOne": "{days}，您的第一个小时已经能带来最佳小时收入的 {share}。"
+      },
+      "attention": {
+        "head": "开门前就有人查找您",
+        "body": "{days}，网站访问中有很大一部分出现在开门前的几个小时。"
+      },
+      "best": {
+        "head": "您最好的时段：{days} {clock}",
+        "body": "平均比成本多 {money}。"
+      },
+      "early": {
+        "head": "{days}：现在判断还太早",
+        "body": "已测量的天数还太少。"
+      },
+      "closed": {
+        "head": "不营业时的销售",
+        "body": "在这 {weeks, plural, other {# 周}}里，不营业时进账 {amount}。",
+        "bodyDay": "在这 {weeks, plural, other {# 周}}里，不营业时进账 {amount}，{days}每天大约 {perDay}。",
+        "next": "如果这些是网上订单，这很正常。如果是店内销售，您的营业时间可能已经过时。"
+      },
+      "trialEarlier": "提早一小时开门可能划算。试行四周就能知道。",
+      "trialLater": "提早一小时关门可能省钱。试行四周就能知道。"
+    }
   },
   "patterns": {
     "meta": {

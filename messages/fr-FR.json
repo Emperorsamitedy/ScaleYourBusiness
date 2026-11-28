@@ -3855,7 +3855,9 @@
     "trials": {
       "title": "Essais",
       "none": "Pas encore une proposition",
-      "waiting": "En attente de votre décision"
+      "waiting": "En attente de votre décision",
+      "noneRunning": "Aucun essai en cours. Quand Lex en suggère un, il attend dans Décisions votre oui ou votre non.",
+      "open": "Ouvrir Décisions"
     },
     "signedOut": {
       "title": "Il n’y a pas encore d’entreprise ici.",
@@ -3902,7 +3904,58 @@
       "unparsed": "Illisible : {list}.",
       "wrong": "Horaires erronés ? Modifiez votre réponse dans la <link>Fiche des faits</link>."
     },
-    "how": "Comment ça marche"
+    "how": "Comment ça marche",
+    "plain": {
+      "titleAll": "Vos {count, number} heures d’ouverture sont toutes rentables",
+      "titleSome": "{paying, number} de vos {count, number} heures d’ouverture sont rentables",
+      "ledeOne": "Celle qui ne l’est pas : {day} à {clock}, à environ {short} des {cost} que coûte une heure d’ouverture.",
+      "ledeSome": "{count, number} ne le sont pas ; la pire est {day} à {clock}, à environ {short} des {cost} que coûte une heure d’ouverture.",
+      "ledeEarly": "Les clients semblent arriver avant votre ouverture ({days}).",
+      "ledeEarlyAlso": "Les clients semblent aussi arriver avant votre ouverture ({days}).",
+      "gridTitle": "Vos heures d’ouverture, heure par heure",
+      "srcJudged": "Ce que chaque heure d’ouverture a rapporté en moyenne sur {weeks, plural, one {la dernière semaine} many {les # dernières semaines} other {les # dernières semaines}}, moins les {cost} que coûte une heure d’ouverture. Du {from} au {to}.",
+      "src": "Ce que chaque heure d’ouverture a rapporté en moyenne sur {weeks, plural, one {la dernière semaine} many {les # dernières semaines} other {les # dernières semaines}}. Du {from} au {to}.",
+      "keyPays": "Rentable : plus c’est foncé, plus ça rapporte",
+      "keyEven": "À peu près à l’équilibre (à {even} près)",
+      "keyLoses": "Perd de l’argent",
+      "keyClosed": "Fermé",
+      "closed": "Fermé ({days}).",
+      "notesTitle": "Ce que Lex a remarqué",
+      "how": "Comment Lex l’a calculé",
+      "foldLegend": "Les cases hachurées sont des heures fermées. Des recettes, pas une marge."
+    },
+    "note": {
+      "closing": {
+        "head": "La dernière heure n’est pas rentable ({days})",
+        "body": "Elle rapporte moins que ce que coûte une heure d’ouverture la plupart des jours mesurés.",
+        "bodyCost": "Elle rapporte moins que les {cost} que coûte une heure d’ouverture la plupart des jours mesurés."
+      },
+      "opening": {
+        "head": "Les clients arrivent avant votre ouverture",
+        "body": "{days} : votre première heure rapporte déjà {low} à {high} de ce que rapporte votre meilleure heure.",
+        "bodyOne": "{days} : votre première heure rapporte déjà {share} de ce que rapporte votre meilleure heure."
+      },
+      "attention": {
+        "head": "On vous cherche avant votre ouverture",
+        "body": "{days} : une grande part des visites sur votre site arrive juste avant l’ouverture."
+      },
+      "best": {
+        "head": "Votre meilleure heure : {days}, {clock}",
+        "body": "{money} au-delà de son coût, en moyenne."
+      },
+      "early": {
+        "head": "{days} : trop tôt pour juger",
+        "body": "Pas encore assez de jours mesurés."
+      },
+      "closed": {
+        "head": "Des ventes pendant la fermeture",
+        "body": "{amount} sont entrés pendant vos heures de fermeture sur {weeks, plural, one {cette semaine} many {ces # semaines} other {ces # semaines}}.",
+        "bodyDay": "{amount} sont entrés pendant vos heures de fermeture sur {weeks, plural, one {cette semaine} many {ces # semaines} other {ces # semaines}}, environ {perDay} par jour ({days}).",
+        "next": "Si ce sont des commandes en ligne, c’est normal. Si ce sont des ventes en boutique, vos horaires ne sont peut-être plus à jour."
+      },
+      "trialEarlier": "Ouvrir une heure plus tôt pourrait être rentable. Un essai de quatre semaines permet de le savoir.",
+      "trialLater": "Fermer une heure plus tôt pourrait faire économiser. Un essai de quatre semaines permet de le savoir."
+    }
   },
   "patterns": {
     "meta": {
