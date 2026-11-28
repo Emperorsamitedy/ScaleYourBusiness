@@ -3735,7 +3735,8 @@
       "aboveZero": "Enter a target above zero.",
       "notSaved": "That didn't save.",
       "savedNoBaseline": "Saved. No starting value yet: {note}.",
-      "horizon": "Leave the date empty and the goal's own horizon sets it."
+      "horizon": "Leave the date empty and the goal's own horizon sets it.",
+      "track": "Track this goal"
     },
     "review": {
       "head": "Alert review · {day}",
@@ -3790,6 +3791,33 @@
     "how": {
       "label": "How goals work",
       "copy": "Goals are set on Content, where every planned piece names the goal it serves. Make one measurable (revenue, number of sales or website visits, by a date) and each week it is checked against a straight path from where it started to where you want it. Nothing is judged in the first eight weeks or while I'm still watching."
+    },
+    "plain": {
+      "titlePast": "{count, plural, one {One of your goals is already past its target} other {# of your goals are already past their target}}",
+      "titleWaiting": "{count, plural, one {Your goal isn't judged yet} other {Your # goals aren't judged yet}}",
+      "ledePast": "{count, plural, one {It sits} other {They sit}} above the target you set, over the last {days} days.",
+      "ledeJudge": "Lex starts judging progress on {day}, once its first weeks of watching end.",
+      "ledeUnmeasurable": "{count, plural, one {One goal can't be measured yet.} other {# goals can't be measured yet.}}",
+      "past": "Past the target",
+      "notYet": "Not there yet",
+      "nowSub": "a month, from the last {days} days",
+      "perMonth": "a month",
+      "expected": "Expected by now",
+      "expectedSub": "on a steady climb to the target",
+      "pastIt": "past it",
+      "startEnd": "{value} when you set it on {day}",
+      "targetEnd": "target {value}",
+      "measured": "Now covers the last {days} days ({count} measured), scaled to a month.",
+      "judgeFrom": "Lex starts judging this goal on {day}, after its first {weeks, plural, one {# week} other {# weeks}} of watching.",
+      "cantMeasure": "Lex can't measure this one yet: it follows {metrics} for now. To track it, pick the number it should move."
+    },
+    "line": {
+      "title": "{metric} per day, week by week",
+      "target": "target {value}",
+      "set": "goal set",
+      "summary": "{metric} per day over {count, plural, one {# week} other {# weeks}}: the latest week averaged {last} a day, against a target of {target} a day.",
+      "colWeek": "Week of",
+      "colPerDay": "Average per day"
     }
   },
   "hours": {

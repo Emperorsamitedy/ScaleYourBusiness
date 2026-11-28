@@ -4,7 +4,15 @@
 // after the deadline.
 
 import { describe, expect, it } from "vitest";
-import { goalWord, onPath, pathPer30d, weekStart, weeklyCandles, weeklyTotals } from "./chart-view";
+import {
+  goalWord,
+  onPath,
+  pathPer30d,
+  weekStart,
+  weeklyAverages,
+  weeklyCandles,
+  weeklyTotals,
+} from "./chart-view";
 
 describe("weekStart", () => {
   it("is the Monday on or before the day", () => {
@@ -86,5 +94,19 @@ describe("goalWord and onPath", () => {
     expect(onPath("on_track")).toBe(true);
     expect(onPath("lagging")).toBe(false);
     expect(onPath(undefined)).toBe(false);
+  });
+});
+
+describe("weeklyAverages", () => {
+  it("averages each week over the days measured in it, and skips a week with none", () => {
+    const values = new Map([
+      ["2026-11-02", 100],
+      ["2026-11-03", 300],
+      ["2026-11-16", 70],
+    ]);
+    expect(weeklyAverages(values, "2026-11-02", "2026-11-22")).toEqual([
+      { week: "2026-11-02", per_day: 200, days: 2 },
+      { week: "2026-11-16", per_day: 70, days: 1 },
+    ]);
   });
 });

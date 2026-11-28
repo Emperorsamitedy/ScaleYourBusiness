@@ -3735,7 +3735,8 @@
       "aboveZero": "Introduzca una meta mayor que cero.",
       "notSaved": "No se ha guardado.",
       "savedNoBaseline": "Guardado. Todavía no hay valor de partida: {note}.",
-      "horizon": "Deje la fecha vacía y la fijará el propio horizonte del objetivo."
+      "horizon": "Deje la fecha vacía y la fijará el propio horizonte del objetivo.",
+      "track": "Seguir este objetivo"
     },
     "review": {
       "head": "Revisión de alertas · {day}",
@@ -3790,6 +3791,33 @@
     "how": {
       "label": "Cómo funcionan los objetivos",
       "copy": "Los objetivos se fijan en Contenido, donde cada pieza planificada nombra el objetivo al que sirve. Haga que uno sea medible (ingresos, número de ventas o visitas al sitio web, para una fecha) y cada semana se comprobará frente a una trayectoria recta desde donde empezó hasta donde usted quiere llevarlo. No se valora nada en las ocho primeras semanas ni mientras yo siga observando."
+    },
+    "plain": {
+      "titlePast": "{count, plural, one {Uno de sus objetivos ya ha superado su meta} many {# de sus objetivos ya han superado su meta} other {# de sus objetivos ya han superado su meta}}",
+      "titleWaiting": "{count, plural, one {Su objetivo aún no se evalúa} many {Sus # objetivos aún no se evalúan} other {Sus # objetivos aún no se evalúan}}",
+      "ledePast": "{count, plural, one {Está} many {Están} other {Están}} por encima de la meta que fijó, en los últimos {days} días.",
+      "ledeJudge": "Lex empieza a evaluar el avance el {day}, cuando acaban sus primeras semanas de observación.",
+      "ledeUnmeasurable": "{count, plural, one {Un objetivo aún no se puede medir.} many {# objetivos aún no se pueden medir.} other {# objetivos aún no se pueden medir.}}",
+      "past": "Meta superada",
+      "notYet": "Aún no",
+      "nowSub": "al mes, según los últimos {days} días",
+      "perMonth": "al mes",
+      "expected": "Lo esperado a estas alturas",
+      "expectedSub": "subiendo de forma constante hasta la meta",
+      "pastIt": "superada",
+      "startEnd": "{value} cuando lo fijó el {day}",
+      "targetEnd": "meta {value}",
+      "measured": "Ahora abarca los últimos {days} días ({count} medidos), llevado a un mes.",
+      "judgeFrom": "Lex empieza a evaluar este objetivo el {day}, tras {weeks, plural, one {su primera semana} many {sus primeras # semanas} other {sus primeras # semanas}} de observación.",
+      "cantMeasure": "Lex aún no puede medir este: por ahora sigue {metrics}. Para seguirlo, elija el número que debería mover."
+    },
+    "line": {
+      "title": "{metric} al día, semana a semana",
+      "target": "meta {value}",
+      "set": "objetivo fijado",
+      "summary": "{metric} al día durante {count, plural, one {# semana} many {# semanas} other {# semanas}}: la última semana promedió {last} al día, frente a una meta de {target} al día.",
+      "colWeek": "Semana del",
+      "colPerDay": "Media al día"
     }
   },
   "hours": {

@@ -3735,7 +3735,8 @@
       "aboveZero": "Geben Sie einen Zielwert über null ein.",
       "notSaved": "Das wurde nicht gespeichert.",
       "savedNoBaseline": "Gespeichert. Noch kein Ausgangswert: {note}.",
-      "horizon": "Lassen Sie das Datum leer, dann legt der eigene Zeithorizont des Ziels es fest."
+      "horizon": "Lassen Sie das Datum leer, dann legt der eigene Zeithorizont des Ziels es fest.",
+      "track": "Dieses Ziel verfolgen"
     },
     "review": {
       "head": "Prüfung der Warnung · {day}",
@@ -3790,6 +3791,33 @@
     "how": {
       "label": "Wie Ziele funktionieren",
       "copy": "Ziele werden unter „Inhalte“ gesetzt, wo jedes geplante Stück das Ziel nennt, dem es dient. Machen Sie eines messbar (Umsatz, Anzahl der Verkäufe oder Website-Besuche, bis zu einem Datum), dann wird es jede Woche an einem geraden Kurs von seinem Ausgangspunkt bis dorthin gemessen, wo Sie es haben möchten. In den ersten acht Wochen und solange ich noch beobachte, wird nichts beurteilt."
+    },
+    "plain": {
+      "titlePast": "{count, plural, one {Eines Ihrer Ziele liegt schon über dem Zielwert} other {# Ihrer Ziele liegen schon über dem Zielwert}}",
+      "titleWaiting": "{count, plural, one {Ihr Ziel wird noch nicht beurteilt} other {Ihre # Ziele werden noch nicht beurteilt}}",
+      "ledePast": "{count, plural, one {Es liegt} other {Sie liegen}} über dem Zielwert, den Sie gesetzt haben, gemessen an den letzten {days} Tagen.",
+      "ledeJudge": "Lex beurteilt den Fortschritt ab dem {day}, wenn seine ersten Beobachtungswochen enden.",
+      "ledeUnmeasurable": "{count, plural, one {Ein Ziel lässt sich noch nicht messen.} other {# Ziele lassen sich noch nicht messen.}}",
+      "past": "Über dem Zielwert",
+      "notYet": "Noch nicht erreicht",
+      "nowSub": "pro Monat, aus den letzten {days} Tagen",
+      "perMonth": "pro Monat",
+      "expected": "Jetzt zu erwarten",
+      "expectedSub": "bei gleichmäßigem Anstieg zum Zielwert",
+      "pastIt": "überschritten",
+      "startEnd": "{value}, als Sie es am {day} gesetzt haben",
+      "targetEnd": "Zielwert {value}",
+      "measured": "Jetzt umfasst die letzten {days} Tage ({count} gemessen), auf einen Monat hochgerechnet.",
+      "judgeFrom": "Lex beurteilt dieses Ziel ab dem {day}, nach {weeks, plural, one {seiner ersten Woche} other {seinen ersten # Wochen}} Beobachtung.",
+      "cantMeasure": "Lex kann das noch nicht messen: Es verfolgt vorerst {metrics}. Um es zu verfolgen, wählen Sie die Zahl, die sich bewegen soll."
+    },
+    "line": {
+      "title": "{metric} pro Tag, Woche für Woche",
+      "target": "Zielwert {value}",
+      "set": "Ziel gesetzt",
+      "summary": "{metric} pro Tag über {count, plural, one {# Woche} other {# Wochen}}: Die letzte Woche lag im Schnitt bei {last} pro Tag, bei einem Zielwert von {target} pro Tag.",
+      "colWeek": "Woche ab",
+      "colPerDay": "Schnitt pro Tag"
     }
   },
   "hours": {

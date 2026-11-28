@@ -7,7 +7,14 @@
 
 import { listGoals } from "../content/goals";
 import { dailySeries, windowStat } from "../trust/series";
-import { addDays, pathPer30d, weekStart, weeklyCandles, weeklyTotals } from "./chart-view";
+import {
+  addDays,
+  pathPer30d,
+  weekStart,
+  weeklyAverages,
+  weeklyCandles,
+  weeklyTotals,
+} from "./chart-view";
 import type { Candle } from "./chart-view";
 import { GOAL_METRICS, readGoalMeasure } from "./goal-measure";
 import { PROGRESS } from "./progress";
@@ -28,6 +35,8 @@ export interface GoalChart {
   /** The last measured day the candles read up to: yesterday. */
   today: string;
   candles: Candle[];
+  /** Each week's average a day, over its measured days: the line the screen draws. */
+  weekly: { week: string; per_day: number; days: number }[];
   /** The volume pane: "orders" per week, for a revenue goal. */
   volume: { label: string; weeks: [string, number][] } | null;
   baseline_per_30d: number | null;
@@ -84,6 +93,7 @@ export async function loadGoalCharts(profileId: string, now = new Date()): Promi
       to: axisEnd,
       today: yesterday,
       candles: weeklyCandles(values, start, yesterday),
+      weekly: weeklyAverages(values, start, yesterday),
       volume,
       baseline_per_30d: baseline?.per_30d ?? null,
       target_per_30d: measure.target_per_30d,

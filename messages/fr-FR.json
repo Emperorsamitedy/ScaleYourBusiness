@@ -3735,7 +3735,8 @@
       "aboveZero": "Saisissez une cible supérieure à zéro.",
       "notSaved": "L’enregistrement a échoué.",
       "savedNoBaseline": "Enregistré. Pas encore de valeur de départ : {note}.",
-      "horizon": "Laissez la date vide et l’horizon propre à l’objectif la fixera."
+      "horizon": "Laissez la date vide et l’horizon propre à l’objectif la fixera.",
+      "track": "Suivre cet objectif"
     },
     "review": {
       "head": "Examen de l’alerte · {day}",
@@ -3790,6 +3791,33 @@
     "how": {
       "label": "Comment fonctionnent les objectifs",
       "copy": "Les objectifs se fixent dans Contenus, où chaque contenu prévu indique l’objectif qu’il sert. Rendez-en un mesurable (chiffre d’affaires, nombre de ventes ou visites du site web, à une date donnée) et chaque semaine il est comparé à une trajectoire en ligne droite, de son point de départ jusqu’à là où vous voulez l’amener. Rien n’est jugé pendant les huit premières semaines, ni tant que je suis encore en observation."
+    },
+    "plain": {
+      "titlePast": "{count, plural, one {Un de vos objectifs a déjà dépassé sa cible} many {# de vos objectifs ont déjà dépassé leur cible} other {# de vos objectifs ont déjà dépassé leur cible}}",
+      "titleWaiting": "{count, plural, one {Votre objectif n’est pas encore évalué} many {Vos # objectifs ne sont pas encore évalués} other {Vos # objectifs ne sont pas encore évalués}}",
+      "ledePast": "{count, plural, one {Il est} many {Ils sont} other {Ils sont}} au-dessus de la cible que vous avez fixée, sur les {days} derniers jours.",
+      "ledeJudge": "Lex commence à évaluer les progrès le {day}, à la fin de ses premières semaines d’observation.",
+      "ledeUnmeasurable": "{count, plural, one {Un objectif ne peut pas encore être mesuré.} many {# objectifs ne peuvent pas encore être mesurés.} other {# objectifs ne peuvent pas encore être mesurés.}}",
+      "past": "Cible dépassée",
+      "notYet": "Pas encore",
+      "nowSub": "par mois, d’après les {days} derniers jours",
+      "perMonth": "par mois",
+      "expected": "Attendu à ce stade",
+      "expectedSub": "en progressant régulièrement vers la cible",
+      "pastIt": "dépassée",
+      "startEnd": "{value} quand vous l’avez fixé le {day}",
+      "targetEnd": "cible {value}",
+      "measured": "Maintenant couvre les {days} derniers jours ({count} mesurés), ramenés à un mois.",
+      "judgeFrom": "Lex commence à évaluer cet objectif le {day}, après {weeks, plural, one {sa première semaine} many {ses # premières semaines} other {ses # premières semaines}} d’observation.",
+      "cantMeasure": "Lex ne peut pas encore mesurer celui-ci : pour l’instant, il suit {metrics}. Pour le suivre, choisissez le chiffre qu’il doit faire bouger."
+    },
+    "line": {
+      "title": "{metric} par jour, semaine après semaine",
+      "target": "cible {value}",
+      "set": "objectif fixé",
+      "summary": "{metric} par jour sur {count, plural, one {# semaine} many {# semaines} other {# semaines}} : la dernière semaine a fait en moyenne {last} par jour, pour une cible de {target} par jour.",
+      "colWeek": "Semaine du",
+      "colPerDay": "Moyenne par jour"
     }
   },
   "hours": {

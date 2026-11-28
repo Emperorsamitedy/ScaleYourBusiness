@@ -3735,7 +3735,8 @@
       "aboveZero": "Nullánál nagyobb célértéket adjon meg.",
       "notSaved": "Ezt nem sikerült menteni.",
       "savedNoBaseline": "Mentve. Még nincs kiinduló érték: {note}.",
-      "horizon": "Ha a dátumot üresen hagyja, a cél saját időtávja határozza meg."
+      "horizon": "Ha a dátumot üresen hagyja, a cél saját időtávja határozza meg.",
+      "track": "A cél követése"
     },
     "review": {
       "head": "Riasztás-felülvizsgálat · {day}",
@@ -3790,6 +3791,33 @@
     "how": {
       "label": "Hogyan működnek a célok",
       "copy": "A célokat a Tartalom oldalon tűzheti ki, ahol minden tervezett darab megnevezi a célt, amelyet szolgál. Tegyen egyet mérhetővé (árbevétel, eladások száma vagy weboldal-látogatások, egy dátumig), és hetente összevetem egy egyenes pályával a kiindulási ponttól oda, ahová el szeretne jutni. Az első nyolc hétben, illetve amíg még figyelek, semmit sem ítélek meg."
+    },
+    "plain": {
+      "titlePast": "{count, plural, one {Az egyik célja már túl van a célértéken} other {# célja már túl van a célértéken}}",
+      "titleWaiting": "{count, plural, one {A célját még nem értékeljük} other {A(z) # célját még nem értékeljük}}",
+      "ledePast": "{count, plural, one {A célérték felett jár} other {A célérték felett járnak}} az elmúlt {days} nap alapján.",
+      "ledeJudge": "Lex {day} napjától értékeli a haladást, amikor az első megfigyelési hetei véget érnek.",
+      "ledeUnmeasurable": "{count, plural, one {Egy cél még nem mérhető.} other {# cél még nem mérhető.}}",
+      "past": "Túl a célértéken",
+      "notYet": "Még nem",
+      "nowSub": "havonta, az elmúlt {days} nap alapján",
+      "perMonth": "havonta",
+      "expected": "Mostanra várható",
+      "expectedSub": "egyenletes emelkedéssel a célértékig",
+      "pastIt": "túl rajta",
+      "startEnd": "{value}, amikor beállította ({day})",
+      "targetEnd": "célérték {value}",
+      "measured": "A „Most” az elmúlt {days} napot fedi le ({count} mért nap), egy hónapra vetítve.",
+      "judgeFrom": "Lex {day} napjától értékeli ezt a célt, {weeks, plural, one {az első # hét} other {az első # hét}} megfigyelés után.",
+      "cantMeasure": "Lex ezt még nem tudja mérni: egyelőre ezeket követi: {metrics}. A követéshez válassza ki, melyik számot mozdítsa."
+    },
+    "line": {
+      "title": "{metric} naponta, hétről hétre",
+      "target": "célérték {value}",
+      "set": "cél beállítva",
+      "summary": "{metric} naponta, {count, plural, one {# hét} other {# hét}}: a legutóbbi hét átlaga napi {last}, a napi {target} célértékhez képest.",
+      "colWeek": "Hét kezdete",
+      "colPerDay": "Napi átlag"
     }
   },
   "hours": {

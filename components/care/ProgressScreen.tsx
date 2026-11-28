@@ -8,6 +8,13 @@
 // alert — what the review found and whether a person now has the case.
 // A goal that can't be measured yet carries the form that makes it so.
 //
+// Said plainly on 2026-11-28 (the canvas design the owner approved): before
+// the weekly check may judge a goal, the card says what its figures already
+// show (past the target, or not yet) and when judging starts; "Path says"
+// is "Expected by now"; one bar runs from the starting point to the target;
+// and the weekly candles are one line of each week's average a day
+// (./GoalLine), in the TradingView style the owner asked for on Home.
+//
 // L-3b (TASKS-LANGUAGES.md): the screen's own words are the "goals"
 // catalogue, its figures and dates in the reader's locale with the goal's
 // own currency. The weekly check's detail and a baseline note arrive in the
@@ -31,8 +38,8 @@ import type { Tr } from "../../lib/i18n/tr";
 import type { GoalChart } from "../../lib/care/charts";
 import type { GoalWord } from "../../lib/care/chart-view";
 import { goalWord, onPath } from "../../lib/care/chart-view";
-import { CandleChart } from "./CandleChart";
-import { Bullet } from "../charts/Viz";
+import { GoalLine } from "./GoalLine";
+import { barShares, pastTarget } from "./goal-view";
 import { WhyFold } from "../report/WhyFold";
 
 interface Measure {
@@ -69,7 +76,14 @@ interface CareGoal {
   measurable: boolean;
   measure: Measure | null;
   baseline: Baseline | null;
-  latest_check: { at: string; detail: string; verdict: string; alert?: boolean } | null;
+  latest_check: {
+    at: string;
+    detail: string;
+    verdict: string;
+    alert?: boolean;
+    /** Why a check couldn't judge yet: from when it can ("too_early"). */
+    explain?: { kind?: string; from?: string; weeks?: number } | null;
+  } | null;
   review: {
     at: string;
     outcome: string;
@@ -230,7 +244,7 @@ function MeasureForm({ goal, onSaved }: { goal: CareGoal; onSaved: () => Promise
         onChange={(e) => setDeadline(e.target.value)}
       />
       <button className="act" disabled={busy || target.trim() === ""}>
-        {tr("form.submit")}
+        {tr("form.track")}
       </button>
       {message && <p className="gl-note">{message}</p>}
       {!deadline && goal.horizon && <p className="gl-note">{tr("form.horizon")}</p>}
@@ -290,6 +304,7 @@ function footFor(
   goal: CareGoal,
   chart: GoalChart | undefined,
   tr: Tr,
+  locale: AppLocale,
 ): { text: string; link: ReactNode } {
   const waiting = goal.review?.review?.suggestions.some((s) => s.proposal_id !== null);
   const link = waiting ? (
@@ -299,7 +314,18 @@ function footFor(
   ) : (
     <Link href="/history">{tr("foot.history")}</Link>
   );
-  if (goal.latest_check) return { text: goal.latest_check.detail, link };
+  const check = goal.latest_check;
+  // "Too early" says when judging starts, in plain words, when the check says when.
+  if (check?.verdict === "too_early" && check.explain?.from) {
+    return {
+      text: tr("plain.judgeFrom", {
+        day: dayText(check.explain.from, locale),
+        weeks: check.explain.weeks ?? 8,
+      }),
+      link,
+    };
+  }
+  if (check) return { text: check.detail, link };
   if (chart?.unconnected) {
     return {
       text: tr("foot.unconnected", { metric: metricWord(goal.measure!.metric, tr) }),
@@ -308,6 +334,13 @@ function footFor(
   }
   return { text: tr("foot.unchecked"), link };
 }
+
+const pct = (share: number) => `${(share * 100).toFixed(2)}%`;
+const capitalFirst = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+
+/** Whether the weekly check has judged the goal against its path yet. */
+const judgedBy = (check: CareGoal["latest_check"]) =>
+  check !== null && check.verdict !== "too_early" && check.verdict !== "unmeasured";
 
 function GoalCard({
   goal,
@@ -322,32 +355,55 @@ function GoalCard({
   const { tr: goalTr } = useTr("goalsWords");
   const m = goal.measure;
   const label = m
-    ? tr("card.label", { metric: metricWord(m.metric, tr), day: dayText(m.deadline, locale) })
+    ? tr("card.label", {
+        metric: capitalFirst(metricWord(m.metric, tr)),
+        day: dayText(m.deadline, locale),
+      })
     : goal.area
       ? areaWords(goal.area, goalTr)
       : tr("card.goal");
-  const wordKey = !m ? "unmeasurable" : (goalWord(goal.latest_check?.verdict) ?? "unchecked");
-  const word = { text: tr(`word.${wordKey}`), cls: WORD_CLASS[wordKey] };
 
   if (!m) {
+    const metrics = [
+      metricWord("revenue", tr),
+      metricWord("orders", tr),
+      metricWord("sessions", tr),
+    ];
     return (
       <SheetCard
-        className="gl-card"
+        className="gl-card gl-card-plain"
         id={`goal-${goal.goal_id}`}
         label={label}
         title={goal.statement ?? tr("card.untitled")}
-        meta={<span className={`word ${word.cls}`}>{word.text}</span>}
       >
-        <p className="gl-copy">{tr("card.notMeasurable")}</p>
+        <p className="gl-copy">
+          {tr("plain.cantMeasure", {
+            metrics: new Intl.ListFormat(locale, { type: "conjunction" }).format(metrics),
+          })}
+        </p>
         <MeasureForm goal={goal} onSaved={onSaved} />
       </SheetCard>
     );
   }
 
-  const foot = footFor(goal, chart, tr);
+  const foot = footFor(goal, chart, tr, locale);
   const nowValue = chart?.now?.per_30d ?? null;
   const pathValue = chart?.path_now_per_30d ?? null;
-  const startValue = chart?.baseline_per_30d ?? null;
+  const startValue = chart?.baseline_per_30d ?? goal.baseline?.per_30d ?? null;
+  const past = pastTarget(nowValue, m.target_per_30d, m.direction);
+  const wordKey = goalWord(goal.latest_check?.verdict) ?? "unchecked";
+  // Before the weekly check may judge it, say what the figures already show.
+  const state =
+    !judgedBy(goal.latest_check) && past !== null
+      ? { text: tr(past ? "plain.past" : "plain.notYet"), cls: past ? "ok" : "low" }
+      : { text: tr(`word.${wordKey}`), cls: WORD_CLASS[wordKey] };
+  const bar = barShares({
+    start: startValue,
+    target: m.target_per_30d,
+    now: nowValue,
+    path: pathValue,
+  });
+  const fig = (v: number | null) => (v === null ? "-" : per30(v, m.currency, locale));
   return (
     <SheetCard
       className="gl-card"
@@ -359,66 +415,65 @@ function GoalCard({
           metric: metricWord(m.metric, tr),
         })
       }
-      meta={<span className={`word ${word.cls}`}>{word.text}</span>}
-      foot={
-        <div className="gl-foot">
-          <p>{foot.text}</p>
-          {foot.link}
-        </div>
-      }
     >
-      {startValue !== null && nowValue !== null && (
-        <div className="gl-bullet">
-          <Bullet
-            start={startValue}
-            target={m.target_per_30d}
-            now={nowValue}
-            path={pathValue}
-            title={[
-              `${tr("card.now")} ${per30(nowValue, m.currency, locale)}`,
-              ...(pathValue === null
-                ? []
-                : [`${tr("card.pathSays")} ${per30(pathValue, m.currency, locale)}`]),
-              `${tr("card.target")} ${per30(m.target_per_30d, m.currency, locale)}`,
-            ].join(" · ")}
-          />
+      <div className="gl-body">
+        <div className="gl-left">
+          <p className={`gl-state ${state.cls}`}>{state.text}</p>
+          <dl className="gl-stats">
+            <div>
+              <dt>{tr("card.now")}</dt>
+              <dd>{fig(nowValue)}</dd>
+              <span>{tr("plain.nowSub", { days: 28 })}</span>
+            </div>
+            <div>
+              <dt>{tr("card.target")}</dt>
+              <dd>{fig(m.target_per_30d)}</dd>
+              <span>{tr("plain.perMonth")}</span>
+            </div>
+            <div>
+              <dt>{tr("plain.expected")}</dt>
+              <dd>{fig(pathValue)}</dd>
+              <span>{tr("plain.expectedSub")}</span>
+            </div>
+          </dl>
+          {bar && startValue !== null && (
+            <div className="gl-bar">
+              <div className="gl-track">
+                <span className="gl-fill" style={{ width: pct(bar.now) }} />
+                {bar.path !== null && <span className="gl-tick" style={{ left: pct(bar.path) }} />}
+                {bar.past && <span className="gl-over">{tr("plain.pastIt")}</span>}
+              </div>
+              <div className="gl-ends">
+                <span>
+                  {tr("plain.startEnd", {
+                    value: per30(startValue, m.currency, locale),
+                    day: dayText(m.set_on, locale),
+                  })}
+                </span>
+                <span>
+                  {tr("plain.targetEnd", { value: per30(m.target_per_30d, m.currency, locale) })}
+                </span>
+              </div>
+            </div>
+          )}
+          {chart?.now && (
+            <p className="gl-per">
+              {tr("plain.measured", { days: 28, count: chart.now.days_measured })}
+            </p>
+          )}
         </div>
-      )}
-      <dl className="gl-stats">
-        <div className="gl-now">
-          <dt>{tr("card.now")}</dt>
-          <dd>{nowValue === null ? "-" : per30(nowValue, m.currency, locale)}</dd>
+        <div className="gl-right">
+          {chart ? (
+            <GoalLine chart={chart} metric={capitalFirst(metricWord(m.metric, tr))} />
+          ) : (
+            <p className="gl-nochart">{tr("card.chartFailed")}</p>
+          )}
         </div>
-        <div>
-          <dt>{tr("card.pathSays")}</dt>
-          <dd>{pathValue === null ? "-" : per30(pathValue, m.currency, locale)}</dd>
-        </div>
-        <div>
-          <dt>{tr("card.target")}</dt>
-          <dd>{per30(m.target_per_30d, m.currency, locale)}</dd>
-        </div>
-      </dl>
-      <p className="gl-per">
-        {tr("card.per", { days: num(30, 0, locale), recent: num(28, 0, locale) })}
-        {chart?.now
-          ? ` ${tr("card.measured", { count: num(chart.now.days_measured, 0, locale) })}`
-          : ""}
-        {` · ${
-          goal.baseline
-            ? tr("card.startedAt", {
-                value: per30(goal.baseline.per_30d, m.currency, locale),
-                day: dayText(m.set_on, locale),
-              })
-            : tr("card.noStart")
-        }`}
-      </p>
-      {chart ? (
-        <CandleChart chart={chart} label={metricWord(m.metric, tr)} />
-      ) : (
-        <div className="gl-chart">
-          <p className="gl-nochart">{tr("card.chartFailed")}</p>
-        </div>
-      )}
+      </div>
+      <div className="gl-foot">
+        <p>{foot.text}</p>
+        {foot.link}
+      </div>
       {goal.review && <Review review={goal.review} />}
     </SheetCard>
   );
@@ -426,17 +481,21 @@ function GoalCard({
 
 function Frame({
   title,
+  lede,
   aside,
   children,
 }: {
   title: ReactNode;
+  lede?: ReactNode;
   aside?: ReactNode;
   children?: ReactNode;
 }) {
   const { tr } = useTr("goals");
   return (
     <main className="screen gl-screen">
-      <PageHead kicker={tr("kicker")} title={title} aside={aside} />
+      <PageHead kicker={tr("kicker")} title={title} aside={aside}>
+        {lede && <p className="gl-lede">{lede}</p>}
+      </PageHead>
       {children}
     </main>
   );
@@ -497,28 +556,50 @@ export function ProgressScreen({ charts }: { charts: GoalChart[] | null }) {
       g.latest_check.verdict !== "unmeasured",
   );
   const on = checked.filter((g) => onPath(g.latest_check?.verdict)).length;
+  const byGoal = new Map((charts ?? []).map((c) => [c.goal_id, c]));
+  // Said plainly (2026-11-28): before any goal is judged, say what the figures
+  // already show: how many are past their target, when judging starts, and how
+  // many can't be measured yet.
+  const past = view.goals.filter(
+    (g) =>
+      g.measure !== null &&
+      pastTarget(
+        byGoal.get(g.goal_id)?.now?.per_30d ?? null,
+        g.measure.target_per_30d,
+        g.measure.direction,
+      ) === true,
+  ).length;
   const goals = tr("title.count", { count: n });
   const title =
     n === 0
       ? tr("title.none")
       : checked.length === 0
-        ? tr("title.noneChecked", { goals })
+        ? past > 0
+          ? tr("plain.titlePast", { count: past })
+          : tr("plain.titleWaiting", { count: n })
         : on === 0
           ? tr("title.noneOn", { goals })
           : tr("title.someOn", { goals, count: on });
+  const judgeFrom = view.goals.find(
+    (g) => g.latest_check?.verdict === "too_early" && g.latest_check.explain?.from,
+  )?.latest_check?.explain?.from;
+  const unmeasurable = view.goals.filter((g) => g.measure === null).length;
+  const lede = [
+    ...(checked.length === 0 && past > 0 ? [tr("plain.ledePast", { count: past, days: 28 })] : []),
+    ...(judgeFrom ? [tr("plain.ledeJudge", { day: dayText(judgeFrom, locale) })] : []),
+    ...(unmeasurable > 0 ? [tr("plain.ledeUnmeasurable", { count: unmeasurable })] : []),
+  ].join(" ");
 
   const aside = (
     <div className="gl-aside">
-      {n > 0 && <span>{tr("aside", { one: num(1, 0, locale) })}</span>}
       <Link className="act" href="/content">
         {n === 0 ? tr("setFirst") : tr("setNew")}
       </Link>
     </div>
   );
 
-  const byGoal = new Map((charts ?? []).map((c) => [c.goal_id, c]));
   return (
-    <Frame title={title} aside={aside}>
+    <Frame title={title} lede={lede || undefined} aside={aside}>
       {n === 0 ? (
         <SheetCard>
           <WhyFold summary={tr("how.label")}>{tr("how.copy")}</WhyFold>

@@ -343,3 +343,212 @@
 :is(.gl-stats dt, .gl-foot a, .gl-review h3)::first-letter {
   text-transform: var(--caps-first, inherit);
 }
+
+/* ── Said plainly (2026-11-28, the canvas design the owner approved) ──
+   One goal per row: where it stands on the left (the word, three figures,
+   one bar from the start to the target), its line on the right, the
+   judging note across the foot. The line is drawn in the TradingView style
+   the owner asked for on Home: value tags on the right, the latest filled. */
+
+.gl-lede {
+  margin: 8px 0 0;
+  max-width: var(--measure);
+  color: var(--desk-ink-2);
+  font-size: 16px;
+  line-height: 1.5;
+}
+.gl-screen .gl-grid {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 16px;
+}
+.gl-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1.15fr);
+  gap: 16px 40px;
+  align-items: start;
+}
+.gl-left,
+.gl-right {
+  min-width: 0;
+}
+.gl-state {
+  margin: 0;
+  font-size: 14.5px;
+  font-weight: 650;
+}
+.gl-state.ok {
+  color: var(--ok);
+}
+.gl-state.drift {
+  color: #7a420e;
+}
+.gl-state.alarm {
+  color: var(--alarm);
+}
+.gl-state.low {
+  color: var(--sheet-ink-2);
+}
+.gl-body .gl-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin: 14px 0 0;
+}
+.gl-body .gl-stats div {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.gl-body .gl-stats dt {
+  font-family: var(--f-ui, inherit);
+  font-size: 12.5px;
+  letter-spacing: 0;
+  text-transform: none;
+}
+.gl-body .gl-stats dd {
+  margin: 0;
+  font-family: var(--f-ui, inherit);
+  font-size: 22px;
+  font-weight: 650;
+  color: var(--sheet-ink);
+}
+.gl-body .gl-stats span {
+  font-size: 12px;
+  color: var(--sheet-ink-2);
+}
+.gl-bar {
+  margin-top: 22px;
+}
+.gl-track {
+  position: relative;
+  height: 10px;
+  border-radius: 2px;
+  background: #e4ece7;
+}
+.gl-fill {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  border-radius: 2px;
+  background: var(--ok);
+}
+.gl-tick {
+  position: absolute;
+  top: -5px;
+  bottom: -5px;
+  width: 2px;
+  margin-left: -1px;
+  background: var(--sheet-ink);
+}
+.gl-over {
+  position: absolute;
+  right: 0;
+  top: -20px;
+  font-size: 12px;
+  font-weight: 650;
+  color: var(--ok);
+}
+.gl-ends {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 6px;
+  font-size: 12px;
+  color: var(--sheet-ink-2);
+}
+.gl-body .gl-per {
+  margin: 12px 0 0;
+  font-family: var(--f-ui, inherit);
+  font-size: 12.5px;
+}
+
+/* the line */
+.gl-line {
+  width: 100%;
+  min-width: 0;
+}
+.gl-line-title {
+  margin: 0 0 8px;
+  font-size: 13px;
+  font-weight: 650;
+}
+.gl-line-svg {
+  display: block;
+  overflow: visible;
+  font-family: var(--f-ui, inherit);
+}
+.gl-area {
+  fill: var(--ok);
+  opacity: 0.08;
+}
+.gl-path {
+  fill: none;
+  stroke: var(--ok);
+  stroke-width: 2.2;
+  stroke-linejoin: round;
+}
+.gl-dot {
+  fill: var(--ok);
+}
+.gl-target {
+  stroke: var(--sheet-ink);
+  stroke-dasharray: 5 4;
+}
+.gl-tag-target {
+  fill: var(--paper);
+  stroke: var(--sheet-ink);
+}
+.gl-tag-now {
+  fill: var(--ok);
+}
+.gl-tag-text {
+  fill: var(--sheet-ink);
+  font-size: 11.5px;
+  font-variant-numeric: tabular-nums;
+}
+.gl-tag-text.now {
+  fill: #f2f7f4;
+  font-weight: 650;
+}
+.gl-set line {
+  stroke: #9fb2a7;
+  stroke-dasharray: 2 3;
+}
+.gl-set text,
+.gl-tick {
+  fill: var(--sheet-ink-2);
+  font-size: 11.5px;
+}
+.gl-axis {
+  stroke: var(--rule);
+}
+.gl-card .gl-foot {
+  margin-top: 16px;
+  padding-top: 12px;
+  border-top: var(--hair);
+  color: var(--sheet-ink-2);
+}
+.gl-card .gl-foot a {
+  font-family: var(--f-ui, inherit);
+  font-size: 13.5px;
+  letter-spacing: 0;
+  text-transform: none;
+}
+.gl-card-plain .gl-copy {
+  max-width: var(--measure);
+}
+@media (max-width: 900px) {
+  .gl-body {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+@media (max-width: 719px) {
+  .gl-body .gl-stats dd {
+    font-size: 18px;
+  }
+  .gl-ends {
+    flex-direction: column;
+    gap: 2px;
+  }
+}

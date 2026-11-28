@@ -77,6 +77,31 @@ export function weeklyTotals(
 }
 
 /**
+ * Pure: each week's average a day, over the days measured in it — the line
+ * the Goals screen draws (said plainly, 2026-11-28: one line in place of the
+ * weekly candles). A week with no measured day is left out, not drawn as 0.
+ */
+export function weeklyAverages(
+  values: ReadonlyMap<string, number>,
+  from: string,
+  to: string,
+): { week: string; per_day: number; days: number }[] {
+  const weeks = new Map<string, { total: number; days: number }>();
+  for (let day = from; day <= to; day = addDays(day, 1)) {
+    const v = values.get(day);
+    if (v === undefined) continue;
+    const week = weekStart(day);
+    const w = weeks.get(week) ?? { total: 0, days: 0 };
+    w.total += v;
+    w.days += 1;
+    weeks.set(week, w);
+  }
+  return [...weeks.entries()]
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([week, w]) => ({ week, per_day: w.total / w.days, days: w.days }));
+}
+
+/**
  * Pure: where the path says the goal should be on `day`, per 30 days —
  * progress.ts's `expected`. Null before the measure was set or without
  * a baseline: there is no path to draw.

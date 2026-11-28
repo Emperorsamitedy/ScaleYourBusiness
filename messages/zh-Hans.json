@@ -3735,7 +3735,8 @@
       "aboveZero": "请输入大于零的目标值。",
       "notSaved": "未能保存。",
       "savedNoBaseline": "已保存。还没有起始值：{note}。",
-      "horizon": "日期留空时，由这个目标自身的期限来设定。"
+      "horizon": "日期留空时，由这个目标自身的期限来设定。",
+      "track": "跟踪这个目标"
     },
     "review": {
       "head": "警报复查 · {day}",
@@ -3790,6 +3791,33 @@
     "how": {
       "label": "目标如何运作",
       "copy": "目标在“内容”中设定，那里每一篇计划中的内容都会写明它服务的目标。把一个目标变得可测量（营收、销售笔数或网站访问量，并设定日期），之后每周都会将它与一条从起点到您期望位置的直线路径进行对照。在最初八周内，或在我仍在观察期间，不做任何判断。"
+    },
+    "plain": {
+      "titlePast": "{count, plural, other {您已有 # 个目标超过了目标值}}",
+      "titleWaiting": "{count, plural, other {您的 # 个目标还没有开始评估}}",
+      "ledePast": "{count, plural, other {按最近 {days} 天计算，它们都高于您设定的目标值。}}",
+      "ledeJudge": "Lex 将从 {day} 开始评估进展，届时它最初的观察周就结束了。",
+      "ledeUnmeasurable": "{count, plural, other {有 # 个目标暂时还无法衡量。}}",
+      "past": "已超过目标值",
+      "notYet": "尚未达到",
+      "nowSub": "每月，按最近 {days} 天计算",
+      "perMonth": "每月",
+      "expected": "按计划此时应达到",
+      "expectedSub": "以稳定速度增长到目标值",
+      "pastIt": "已超过",
+      "startEnd": "您在 {day} 设定时为 {value}",
+      "targetEnd": "目标值 {value}",
+      "measured": "“当前”涵盖最近 {days} 天（已测量 {count} 天），并折算为一个月。",
+      "judgeFrom": "Lex 将从 {day} 开始评估这个目标，即观察 {weeks, plural, other {# 周}}之后。",
+      "cantMeasure": "Lex 暂时还无法衡量这一项：目前它只跟踪{metrics}。要跟踪它，请选择它应该推动的数字。"
+    },
+    "line": {
+      "title": "每日{metric}，逐周",
+      "target": "目标值 {value}",
+      "set": "设定目标",
+      "summary": "{metric}每日数据，共 {count, plural, other {# 周}}：最近一周平均每天 {last}，目标为每天 {target}。",
+      "colWeek": "周起始日",
+      "colPerDay": "日均"
     }
   },
   "hours": {
