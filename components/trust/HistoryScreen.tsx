@@ -168,7 +168,7 @@ export function HistoryScreen({
         >
           {state.phase === "error" && <p className="hi-copy">{t("failed.lede")}</p>}
           {state.phase === "signedout" && (
-            <Link className="next" href="/intake">
+            <Link className="next" href="/start">
               {t("signedOut.start")} <span aria-hidden="true">→</span>
             </Link>
           )}

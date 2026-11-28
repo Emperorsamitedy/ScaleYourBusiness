@@ -1970,3 +1970,26 @@
 .hm-fresh .home-title {
   margin: 4px 0 0;
 }
+
+/* The journey (ux-spec §7.0): set up, with the optional steps still open. */
+.hm-setup {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px 18px;
+  padding: 12px 16px;
+  border: 1px solid var(--desk-rule);
+  border-radius: var(--r-card, 10px);
+  color: var(--desk-ink);
+}
+.hm-setup-name {
+  font-family: var(--f-prose);
+  font-size: 15px;
+  font-weight: 600;
+}
+.hm-setup-count {
+  flex: 1 1 auto;
+  font-family: var(--f-mono);
+  font-size: var(--t-mono-s, 12.5px);
+  color: var(--desk-ink-2);
+}

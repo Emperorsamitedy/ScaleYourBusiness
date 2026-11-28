@@ -151,7 +151,7 @@ export function ChatScreen() {
                 {state.phase === "signedout" ? tr("signedOut.copy") : tr("error.copy")}
               </p>
               {state.phase === "signedout" && (
-                <Link className="next" href="/intake">
+                <Link className="next" href="/start">
                   {tr("signedOut.begin")}
                 </Link>
               )}

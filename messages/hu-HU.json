@@ -11221,5 +11221,63 @@
         "s3": "Nézze meg, melyek zárulhatnak"
       }
     }
+  },
+  "journey": {
+    "meta": {
+      "title": "Első lépések"
+    },
+    "title": "Állítsuk be a vállalkozását",
+    "lede": "Öt lépés. Az első három végén megkapja az első diagnózisát; a másik kettő ráér, amikor Önnek megfelel.",
+    "progress": "{total} lépésből {done} kész",
+    "stepNo": "{n}. lépés",
+    "continue": "Tovább",
+    "setUp": "Kész a beállítás. A diagnózisa elkészült; mostantól belépéskor a(z) „{home}” nyílik meg.",
+    "status": {
+      "done": "Kész",
+      "next": "Következő",
+      "later": "Amikor szeretné",
+      "afterInterview": "A kérdések után",
+      "afterDiagnosis": "A diagnózis után"
+    },
+    "step": {
+      "language": {
+        "title": "Nyelv és pénznem",
+        "line": "A nyelv, amelyen a ScaleX-et olvassa, és a pénznem, amelyben a számai megjelennek."
+      },
+      "interview": {
+        "title": "Meséljen a vállalkozásáról",
+        "line": "Nagyjából nyolc perc kérdés. Bármikor megállhat; minden válasz megmarad.",
+        "started": "Már elkezdte: folytassa ott, ahol abbahagyta.",
+        "withLex": "Beszélje át Lexszel",
+        "withForm": "Űrlap kitöltése",
+        "both": "Lex ugyanezeket a kérdéseket teszi fel beszélgetésben. Mindkettő ugyanazt a ténylapot tölti ki, így bármikor válthat."
+      },
+      "diagnosis": {
+        "title": "Az első diagnózisa",
+        "line": "Hol szivárog a pénz, mennyit ér valószínűleg az egyes szivárgás, és mivel kezdjen.",
+        "open": "A diagnózisom megnyitása"
+      },
+      "connect": {
+        "title": "Adatai összekapcsolása",
+        "line": "Nem kötelező, és csak olvasás: a webshopja, a fizetések vagy az analitika, hogy a számok mértek legyenek, ne becsültek.",
+        "open": "Válassza ki, mit kapcsol össze"
+      },
+      "mode": {
+        "title": "Döntse el, hogyan dolgozzon Lex",
+        "line": "Mit tehet meg Lex magától, és mit kell előbb megkérdeznie Öntől.",
+        "open": "Kiválasztás"
+      }
+    },
+    "waits": "Az első diagnózis után nyílik meg",
+    "finish": {
+      "title": "A beállítás befejezése",
+      "open": "A hátralévő lépések"
+    },
+    "public": {
+      "startFree": "Ingyenes kezdés",
+      "startPlan": "Kezdés",
+      "saveCheck": "Mentés és a teljes diagnózis",
+      "saveCheckNote": "Ingyenes fiók. A vállalkozás típusa, az ország és a csapat mérete Önnel jön."
+    }
   }
 }

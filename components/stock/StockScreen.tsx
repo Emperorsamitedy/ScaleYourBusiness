@@ -713,7 +713,7 @@ export function StockScreen() {
     return (
       <Frame title={tr("signedOut")}>
         <p className="st-wait">
-          {rich.rich("startInterview", { link: (c) => <Link href="/intake">{c}</Link> })}
+          {rich.rich("startInterview", { link: (c) => <Link href="/start">{c}</Link> })}
         </p>
       </Frame>
     );

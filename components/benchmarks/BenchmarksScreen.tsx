@@ -321,7 +321,7 @@ export function BenchmarksScreen({ peers }: { peers?: ReactNode } = {}) {
     return (
       <Frame title={tr("signedOut.title")}>
         <p className="bm-copy on-desk">
-          {t.rich("signedOut.body", { link: (c) => <Link href="/intake">{c}</Link> })}
+          {t.rich("signedOut.body", { link: (c) => <Link href="/start">{c}</Link> })}
         </p>
       </Frame>
     );

@@ -275,7 +275,7 @@ export function BlindspotsScreen() {
     return (
       <Frame title={tr("signedOut.title")}>
         <p className="bs-wait">
-          {t.rich("signedOut.body", { link: (c) => <Link href="/intake">{c}</Link> })}
+          {t.rich("signedOut.body", { link: (c) => <Link href="/start">{c}</Link> })}
         </p>
       </Frame>
     );

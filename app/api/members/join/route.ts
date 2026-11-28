@@ -70,7 +70,8 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         // Still signed in, to one more business: this phone's alerts go on.
         await revokeSession(current, { handOverTo: joined.session_token });
       }
-      const response = NextResponse.json({ joined: true, redirect: "/profile" });
+      // The journey (ux-spec §7.0): every way in lands on Home, which decides.
+      const response = NextResponse.json({ joined: true, redirect: "/home" });
       response.cookies.set(AUTH_COOKIE, joined.session_token, authCookieOptions());
       if (joined.profile_id) {
         response.cookies.set(

@@ -585,7 +585,7 @@ export function CompetitorsScreen() {
     return (
       <Frame title={tr("screen.noBusiness")}>
         <p className="cp-wait">
-          {t.rich("screen.startInterview", { link: (c) => <Link href="/intake">{c}</Link> })}
+          {t.rich("screen.startInterview", { link: (c) => <Link href="/start">{c}</Link> })}
         </p>
       </Frame>
     );

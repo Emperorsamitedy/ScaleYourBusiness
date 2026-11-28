@@ -11221,5 +11221,63 @@
         "s3": "Sehen Sie, welche bald abschließen"
       }
     }
+  },
+  "journey": {
+    "meta": {
+      "title": "Erste Schritte"
+    },
+    "title": "Richten wir Ihr Unternehmen ein",
+    "lede": "Fünf Schritte. Die ersten drei enden mit Ihrer ersten Diagnose; die anderen zwei können folgen, wann immer Sie bereit sind.",
+    "progress": "{done} von {total} erledigt",
+    "stepNo": "Schritt {n}",
+    "continue": "Weiter",
+    "setUp": "Sie sind startklar. Ihre Diagnose ist fertig; ab jetzt öffnet die Anmeldung „{home}“.",
+    "status": {
+      "done": "Erledigt",
+      "next": "Als Nächstes",
+      "later": "Wann Sie möchten",
+      "afterInterview": "Nach den Fragen",
+      "afterDiagnosis": "Nach Ihrer Diagnose"
+    },
+    "step": {
+      "language": {
+        "title": "Sprache und Währung",
+        "line": "Die Sprache, in der Sie ScaleX lesen, und die Währung, in der Ihre Zahlen erscheinen."
+      },
+      "interview": {
+        "title": "Erzählen Sie uns von Ihrem Unternehmen",
+        "line": "Etwa acht Minuten Fragen. Pausieren Sie jederzeit; jede Antwort bleibt gespeichert.",
+        "started": "Sie haben begonnen: Machen Sie dort weiter, wo Sie aufgehört haben.",
+        "withLex": "Mit Lex durchsprechen",
+        "withForm": "Formular ausfüllen",
+        "both": "Lex stellt dieselben Fragen im Gespräch. Beide füllen dasselbe Faktenblatt, Sie können also jederzeit wechseln."
+      },
+      "diagnosis": {
+        "title": "Ihre erste Diagnose",
+        "line": "Wo Geld verloren geht, was jedes Leck wahrscheinlich wert ist und was zuerst zu tun ist.",
+        "open": "Meine Diagnose öffnen"
+      },
+      "connect": {
+        "title": "Ihre Daten verbinden",
+        "line": "Freiwillig und nur lesend: Ihr Shop, Ihre Zahlungen oder Analysen, damit Zahlen gemessen statt geschätzt sind.",
+        "open": "Auswählen, was verbunden wird"
+      },
+      "mode": {
+        "title": "Festlegen, wie Lex arbeitet",
+        "line": "Was Lex selbst tun darf und wonach es Sie zuerst fragen muss.",
+        "open": "Festlegen"
+      }
+    },
+    "waits": "Öffnet sich nach Ihrer ersten Diagnose",
+    "finish": {
+      "title": "Einrichtung abschließen",
+      "open": "Offene Schritte ansehen"
+    },
+    "public": {
+      "startFree": "Kostenlos starten",
+      "startPlan": "Starten",
+      "saveCheck": "Speichern und die vollständige Diagnose erhalten",
+      "saveCheckNote": "Kostenloses Konto. Art, Land und Teamgröße Ihres Unternehmens kommen mit."
+    }
   }
 }

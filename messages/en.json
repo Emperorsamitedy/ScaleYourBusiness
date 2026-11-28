@@ -11221,5 +11221,63 @@
         "s3": "See which are due to close"
       }
     }
+  },
+  "journey": {
+    "meta": {
+      "title": "Getting started"
+    },
+    "title": "Let's set up your business",
+    "lede": "Five steps. The first three end with your first diagnosis; the other two can follow whenever you're ready.",
+    "progress": "{done} of {total} done",
+    "stepNo": "Step {n}",
+    "continue": "Continue",
+    "setUp": "You're set up. Your diagnosis is ready; from now on, signing in opens {home}.",
+    "status": {
+      "done": "Done",
+      "next": "Next",
+      "later": "When you're ready",
+      "afterInterview": "After the questions",
+      "afterDiagnosis": "After your diagnosis"
+    },
+    "step": {
+      "language": {
+        "title": "Language and currency",
+        "line": "The language you read ScaleX in, and the currency your figures are shown in."
+      },
+      "interview": {
+        "title": "Tell us about your business",
+        "line": "About eight minutes of questions. Pause whenever you like; every answer is kept.",
+        "started": "You've begun: carry on where you stopped.",
+        "withLex": "Talk it through with Lex",
+        "withForm": "Fill in the form",
+        "both": "Lex asks the same questions in a conversation. Both fill the same fact sheet, so you can switch at any point."
+      },
+      "diagnosis": {
+        "title": "Your first diagnosis",
+        "line": "Where money leaks, what each leak is likely worth, and what to do first.",
+        "open": "Open my diagnosis"
+      },
+      "connect": {
+        "title": "Connect your data",
+        "line": "Optional and read-only: your shop, payments or analytics, so figures are measured rather than estimated.",
+        "open": "Choose what to connect"
+      },
+      "mode": {
+        "title": "Choose how Lex works",
+        "line": "What Lex may do on its own, and what it must ask you about first.",
+        "open": "Choose"
+      }
+    },
+    "waits": "Opens after your first diagnosis",
+    "finish": {
+      "title": "Finish setting up",
+      "open": "See what's left"
+    },
+    "public": {
+      "startFree": "Start free",
+      "startPlan": "Start",
+      "saveCheck": "Save this and get your full diagnosis",
+      "saveCheckNote": "Free account. Your business type, country and team size come with you."
+    }
   }
 }

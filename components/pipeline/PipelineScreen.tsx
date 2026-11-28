@@ -747,7 +747,7 @@ export function PipelineScreen() {
     return (
       <Frame title={tr("signedOut.title")}>
         <p className="pl-wait">
-          {t.rich("signedOut.start", { link: (c) => <Link href="/intake">{c}</Link> })}
+          {t.rich("signedOut.start", { link: (c) => <Link href="/start">{c}</Link> })}
         </p>
       </Frame>
     );

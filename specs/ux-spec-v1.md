@@ -526,6 +526,26 @@ The shared view at `/shared/<token>` is the same report body, read only. Its mas
 
 **Accountant export (idea 49, 2026-10-26).** On `/profile`, the page head's aside holds two plain links: "Money facts, CSV" and "Earlier figures, CSV". They are file downloads, not screens. (The "For your accountant" caption over them was decluttered 2026-11-09 on the owner's instruction.)
 
+### 7.0 The journey: from the front page to Home (owner, 2026-11-28)
+
+The owner found the way in "nowhere structured": the landing page had no "Create account", the free check's result led to a signed-out form, every sign-in landed on an empty Home offering two interviews side by side, and the menu opened thirty screens onto a business with no facts. One order now holds, and one function (`lib/journey/stage.ts`) says where a business stands in it, so sign-in, Getting started, Home and the menu never disagree.
+
+**The public doors.** The landing page's header carries "Free check", "Sign in" and the primary "Start free" (Create account); its hero still leads with the free check, and the pricing section ends with "Start free". The free check's result leads with "Save this and get your full diagnosis": it remembers the result for an hour (`/api/entry/keep`) and opens Create account. Of the check's six answers, the three that are interview questions (the business type, the country by name, the team size) are written into the new business through the interview's own answer path, once, as the owner's own; a question already answered is refused and left alone. The revenue band, the channel and the operations answer have no field of the same meaning and are not carried. `/login` and `/signup` send someone already signed in straight to Home.
+
+**One place decides where a sign-in lands.** A sign-in, a business switch, a joined invite and a finished interview all end on `/home`. Home opens only for a business that has its first diagnosis. Before that it sends the owner to Getting started; an idea goes to its own page (`/idea/mine`); a session with no business goes to "Which business?", whose "Add another business" makes one.
+
+**Getting started (`/start`).** Five steps in one order, each done or not:
+
+1. *Language and currency*, answered in place (the first step's form). Done once the business's currency is chosen.
+2. *Tell us about your business*: "Talk it through with Lex" (the default, first) or "Fill in the form". Both fill the same fact sheet, so the owner can switch. It is done once the core questions have all been answered (the `funnel_core_completed` event). A started interview says "carry on where you stopped".
+3. *Your first diagnosis*, "Open my diagnosis" (the report, and its payment once Stripe is armed). It reads "After the questions" until step 2 is done.
+4. *Connect your data*, optional and read-only.
+5. *Choose how Lex works*. It reads "After your diagnosis" until step 3 is done.
+
+The desk carries the heading, a five-segment progress bar and "Continue", which opens the first step not done. Each step is a sheet: the one to do now raised with the green rule and its number filled, the done ones on the inset with a "Done" flag. A business is *set up* once step 3 is done. From then on Home opens, and Getting started says so with a link to Home. Steps 4 and 5 stay as a "Finish setting up" strip under Home's money band ("3 of 5 done", "See what's left") until both are done. A business set up before this screen existed is never sent back to step 1.
+
+**The menu waits with the business.** Until the first diagnosis, the screens of To approve, Insights (except the report), Grow and Keep customers are listed but dimmed, not links, and say "Opens after your first diagnosis". Home, the report and the business's own settings stay open. The screens' own signed-out and empty states point at Getting started, not at the form; the three that mean the form itself keep it (the chat's interview offer, Home's "fill in the form", the report's "answer more").
+
 ### 7.1 Landing page v1 (kept at /landing-v1)
 
 This was the front page until 2026-11-16, when the v2 landing (§7.1b) replaced it on the owner's instruction. It is kept, unchanged, at `/landing-v1` and out of search (`app/landing-v1/page.tsx`).

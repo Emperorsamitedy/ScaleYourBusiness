@@ -68,11 +68,7 @@ export default async function ChooseBusinessPage({
         <form method="post" action="/api/auth/switch" className="ax-doors">
           {list.map((m) =>
             m.account_id === session.account_id ? (
-              <Link
-                key={m.account_id}
-                href={m.profile_id ? "/home" : "/intake"}
-                className="ax-btn ax-door ax-choice"
-              >
+              <Link key={m.account_id} href="/home" className="ax-btn ax-door ax-choice">
                 <span className="ax-choice-name">{m.business ?? t("common.businessUnnamed")}</span>
                 <span className="ax-choice-role">{t(`common.roles.${m.role}`)}</span>
               </Link>

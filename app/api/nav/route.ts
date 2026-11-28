@@ -7,7 +7,14 @@
 import { and, count, eq, inArray, isNull } from "drizzle-orm";
 import { NextResponse } from "next/server";
 import { db } from "../../../db";
-import { connections, fieldRecords, goals, proposals, supportTickets } from "../../../db/schema";
+import {
+  connections,
+  diagnosisReports,
+  fieldRecords,
+  goals,
+  proposals,
+  supportTickets,
+} from "../../../db/schema";
 import { resolveAccess } from "../../../lib/auth/access";
 import { enumCode } from "../../../lib/core/enum-value";
 import { logSafeError } from "../../../lib/core/log-safe";
@@ -39,6 +46,11 @@ export interface NavAccess {
 
 export interface NavCounts {
   business: string | null;
+  /**
+   * The journey (ux-spec §7.0): the business has its first diagnosis. Until
+   * then the screens that read its data wait (components/nav/AppFrame).
+   */
+  set_up: boolean;
   /**
    * The profile's business_type code (identity.business_type), so a screen
    * can say "your salon" through lib/core/business-noun; null unanswered.
@@ -174,6 +186,11 @@ export async function GET(): Promise<NextResponse> {
       cartsApply(access.account_id),
     ]);
     const memberships = access.session ? await membershipsFor(access.session.email) : [];
+    const firstReport = await db
+      .select({ id: diagnosisReports.id })
+      .from(diagnosisReports)
+      .where(eq(diagnosisReports.profile_id, profileId))
+      .limit(1);
 
     const by_module: Record<string, number> = {};
     for (const r of pendingRows) by_module[r.module] = Number(r.n);
@@ -190,6 +207,7 @@ export async function GET(): Promise<NextResponse> {
 
     const name = idRows.find((r) => r.key === NAME_KEY)?.value;
     const body: NavCounts = {
+      set_up: firstReport.length > 0,
       business: typeof name === "string" && name.trim() ? name.trim() : null,
       business_type: enumCode(idRows.find((r) => r.key === TYPE_KEY)?.value),
       watch,

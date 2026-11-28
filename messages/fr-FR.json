@@ -11221,5 +11221,63 @@
         "s3": "Voyez celles qui doivent se conclure"
       }
     }
+  },
+  "journey": {
+    "meta": {
+      "title": "Premiers pas"
+    },
+    "title": "Configurons votre entreprise",
+    "lede": "Cinq étapes. Les trois premières aboutissent à votre premier diagnostic ; les deux autres peuvent suivre quand vous voulez.",
+    "progress": "{done} sur {total} faites",
+    "stepNo": "Étape {n}",
+    "continue": "Continuer",
+    "setUp": "Tout est prêt. Votre diagnostic est fait ; désormais, la connexion ouvre « {home} ».",
+    "status": {
+      "done": "Fait",
+      "next": "À faire",
+      "later": "Quand vous voulez",
+      "afterInterview": "Après les questions",
+      "afterDiagnosis": "Après votre diagnostic"
+    },
+    "step": {
+      "language": {
+        "title": "Langue et devise",
+        "line": "La langue dans laquelle vous lisez ScaleX et la devise de vos chiffres."
+      },
+      "interview": {
+        "title": "Parlez-nous de votre entreprise",
+        "line": "Environ huit minutes de questions. Faites une pause quand vous voulez ; chaque réponse est gardée.",
+        "started": "Vous avez commencé : reprenez là où vous vous êtes arrêté.",
+        "withLex": "En parler avec Lex",
+        "withForm": "Remplir le formulaire",
+        "both": "Lex pose les mêmes questions dans une conversation. Les deux remplissent la même fiche des faits : vous pouvez changer à tout moment."
+      },
+      "diagnosis": {
+        "title": "Votre premier diagnostic",
+        "line": "Où l'argent fuit, ce que vaut probablement chaque fuite, et quoi faire en premier.",
+        "open": "Ouvrir mon diagnostic"
+      },
+      "connect": {
+        "title": "Connecter vos données",
+        "line": "Facultatif et en lecture seule : votre boutique, vos paiements ou vos statistiques, pour que les chiffres soient mesurés et non estimés.",
+        "open": "Choisir quoi connecter"
+      },
+      "mode": {
+        "title": "Choisir comment Lex travaille",
+        "line": "Ce que Lex peut faire seul, et ce qu'il doit d'abord vous demander.",
+        "open": "Choisir"
+      }
+    },
+    "waits": "S'ouvre après votre premier diagnostic",
+    "finish": {
+      "title": "Terminer la configuration",
+      "open": "Voir ce qui reste"
+    },
+    "public": {
+      "startFree": "Commencer gratuitement",
+      "startPlan": "Commencer",
+      "saveCheck": "L'enregistrer et obtenir le diagnostic complet",
+      "saveCheckNote": "Compte gratuit. Le type d'entreprise, le pays et la taille de l'équipe vous suivent."
+    }
   }
 }

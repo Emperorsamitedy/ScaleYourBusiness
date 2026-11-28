@@ -351,7 +351,7 @@ export function CartsScreen() {
     return (
       <Frame title={tr("signedOut")}>
         <p className="ct-wait">
-          {rich.rich("startInterview", { link: (c) => <Link href="/intake">{c}</Link> })}
+          {rich.rich("startInterview", { link: (c) => <Link href="/start">{c}</Link> })}
         </p>
       </Frame>
     );

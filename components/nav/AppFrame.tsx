@@ -161,7 +161,8 @@ export const GROUPS: readonly Group[] = [
   {
     key: "today",
     label: "Today",
-    items: [{ href: "/home", label: "Home", feature: "nav.home", rail: true }],
+    // Before the first diagnosis, Home is Getting started (/start, ux-spec §7.0).
+    items: [{ href: "/home", label: "Home", feature: "nav.home", rail: true, pages: ["/start"] }],
   },
   {
     key: "approve",
@@ -340,6 +341,23 @@ export const GROUPS: readonly Group[] = [
     ],
   },
 ];
+
+/** The journey (ux-spec §7.0): the places whose screens read the business's data. */
+const WAITING_GROUPS: ReadonlySet<string> = new Set(["approve", "insights", "grow", "customers"]);
+
+/**
+ * Pure: whether a screen waits for the business's first diagnosis. It is
+ * listed, dimmed and not a link, so a new owner sees what is coming
+ * without opening empty screens. The report itself is the step that ends
+ * the wait. Counts still loading (null) or from before this field wait for nothing.
+ */
+export function waitsForSetUp(
+  groupKey: string,
+  item: Pick<Item, "href">,
+  counts: Pick<NavCounts, "set_up"> | null,
+): boolean {
+  return counts?.set_up === false && WAITING_GROUPS.has(groupKey) && item.href !== "/report";
+}
 
 /**
  * Pure: the groups as a business of this size sees them — items the
@@ -659,6 +677,20 @@ function BusinessLinks({
       {group?.items.map((i) => {
         const active = onItem(path, i);
         const c = counts && i.count ? i.count(counts, words) : null;
+        if (group && waitsForSetUp(group.key, i, counts)) {
+          return (
+            <span
+              key={i.href}
+              role={role}
+              className={`${item} sx-waits`}
+              aria-disabled="true"
+              title={t("journey.waits")}
+            >
+              <ScreenIcon href={i.href} size={17} />
+              <span className="sx-item-label">{t(`nav.item.${itemKey(i)}`)}</span>
+            </span>
+          );
+        }
         return (
           <Link
             key={i.href}
@@ -814,6 +846,7 @@ function Rail({
   onFold: () => void;
 }) {
   const t = useTranslations("nav");
+  const tAll = useTranslations();
   const [open, setOpen] = useState<Record<string, boolean>>({});
   // On a phone the rail is one row that scrolls sideways: the open screen is brought into view.
   const rail = useRef<HTMLElement>(null);
@@ -826,10 +859,21 @@ function Rail({
     const n = nav.getBoundingClientRect();
     nav.scrollLeft += a.left - n.left - (n.width - a.width) / 2;
   }, [path]);
-  const row = (i: Item) => {
+  const row = (groupKey: string) => (i: Item) => {
     const active = onItem(path, i);
     const c = counts && i.count ? i.count(counts, words) : null;
     const label = t(`item.${itemKey(i)}`);
+    if (waitsForSetUp(groupKey, i, counts)) {
+      const waits = tAll("journey.waits");
+      return (
+        <li key={i.href}>
+          <span className="sx-item sx-waits" aria-disabled="true" data-tip={`${label} · ${waits}`}>
+            <ScreenIcon href={i.href} />
+            <span className="sx-item-label">{label}</span>
+          </span>
+        </li>
+      );
+    }
     return (
       <li key={i.href}>
         <Link
@@ -868,7 +912,7 @@ function Rail({
                 </p>
               )}
               <ul>
-                {listed.map(row)}
+                {listed.map(row(g.key))}
                 {more.length > 0 && (
                   <>
                     <li className="sx-more-row">
@@ -887,7 +931,7 @@ function Rail({
                     </li>
                     {/* On a phone the row scrolls sideways and nothing is held back. */}
                     <li className={shown ? "sx-more-items open" : "sx-more-items"}>
-                      <ul>{more.map(row)}</ul>
+                      <ul>{more.map(row(g.key))}</ul>
                     </li>
                   </>
                 )}

@@ -642,7 +642,7 @@ export function PaymentsScreen() {
     return (
       <Frame title={tr("signedOut")}>
         <p className="py-fine">
-          <Link href="/intake">{tr("start")}</Link>
+          <Link href="/start">{tr("start")}</Link>
         </p>
       </Frame>
     );

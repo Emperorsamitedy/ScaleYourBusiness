@@ -450,7 +450,7 @@ export function FactSheetScreen() {
           {error === "no-session" ? (
             <p>
               {t.rich("noSession", {
-                a: (chunks) => <Link href="/intake">{chunks}</Link>,
+                a: (chunks) => <Link href="/start">{chunks}</Link>,
               })}
             </p>
           ) : error !== null ? (

@@ -1002,7 +1002,7 @@ export function WatchScreen({ reading }: { reading: WatchReading | null }) {
     return (
       <Frame title={t("signedOut.title")}>
         <p className="wt-wait">
-          {t.rich("signedOut.lede", { a: (chunks) => <Link href="/intake">{chunks}</Link> })}
+          {t.rich("signedOut.lede", { a: (chunks) => <Link href="/start">{chunks}</Link> })}
         </p>
       </Frame>
     );

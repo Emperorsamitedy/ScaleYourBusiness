@@ -143,8 +143,14 @@ const COMPONENT_HREF: Readonly<Record<ComponentKey, string>> = {
   on_the_table: "/proposals",
 };
 
-export function HomeScreen() {
+export function HomeScreen({
+  setup = null,
+}: {
+  /** The journey (ux-spec §7.0): set up, with optional steps left; null once all are done. */
+  setup?: { done: number; total: number } | null;
+} = {}) {
   const t = useTranslations("home");
+  const jt = useTranslations("journey");
   const navT = useTranslations("nav");
   const { locale } = useTr("report");
   const { tr: ctr } = useTr("charts.market");
@@ -571,7 +577,20 @@ export function HomeScreen() {
           </p>
         </section>
       ) : (
-        <MoneyBand read={cashRead} onRetry={reloadCash} />
+        <>
+          <MoneyBand read={cashRead} onRetry={reloadCash} />
+          {setup && (
+            <section className="hm-setup" aria-label={jt("finish.title")}>
+              <span className="hm-setup-name">{jt("finish.title")}</span>
+              <span className="hm-setup-count">
+                {jt("progress", { done: setup.done, total: setup.total })}
+              </span>
+              <Link className="home-btn home-btn-desk" href="/start">
+                {jt("finish.open")}
+              </Link>
+            </section>
+          )}
+        </>
       )}
 
       <div className={numbersOn ? "hx-cols" : "hx-cols hx-two"}>

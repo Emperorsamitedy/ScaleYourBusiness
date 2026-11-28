@@ -419,7 +419,7 @@ export function HoursScreen({ cost }: { cost: HourCost | null }) {
     return (
       <Frame title={tr("signedOut.title")}>
         <p className="hr-wait">
-          {t.rich("signedOut.body", { link: (c) => <Link href="/intake">{c}</Link> })}
+          {t.rich("signedOut.body", { link: (c) => <Link href="/start">{c}</Link> })}
         </p>
       </Frame>
     );

@@ -513,6 +513,17 @@
   font-variant-numeric: tabular-nums;
   color: var(--desk-ink-2);
 }
+/* The journey (ux-spec §7.0): a screen that waits for the first diagnosis —
+   listed so the owner sees what is coming, dimmed, and not a link. */
+.sx-item.sx-waits,
+.sx-waits {
+  opacity: 0.45;
+  cursor: default;
+}
+.sx-item.sx-waits:hover {
+  background: none;
+  color: var(--desk-ink-2);
+}
 .sx-more-items {
   display: none;
 }

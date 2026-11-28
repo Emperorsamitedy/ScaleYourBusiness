@@ -690,7 +690,7 @@ export function CashScreen() {
     return (
       <Frame title={tr("signedOut")} forecast={null}>
         <p className="cf-copy">
-          {rich.rich("startInterview", { link: (c) => <Link href="/intake">{c}</Link> })}
+          {rich.rich("startInterview", { link: (c) => <Link href="/start">{c}</Link> })}
         </p>
       </Frame>
     );

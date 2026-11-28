@@ -710,7 +710,7 @@ export function SimulateScreen() {
     return (
       <Frame title={tr("signedOut.title")}>
         <p className="sim-note on-desk">
-          {t.rich("signedOut.body", { link: (c) => <Link href="/intake">{c}</Link> })}
+          {t.rich("signedOut.body", { link: (c) => <Link href="/start">{c}</Link> })}
         </p>
       </Frame>
     );

@@ -5,7 +5,7 @@
 // in the reader's language; the sixth question is the sector's own. Drawn
 // with the sign-up page's pieces (app/auth-v2.css) since 2026-11-17.
 
-import Link from "next/link";
+import { useTranslations } from "next-intl";
 import { useState } from "react";
 import type { EntryResult } from "../../lib/entry/one-number";
 import { ShareLink } from "../ladder/ShareLink";
@@ -36,6 +36,7 @@ const EMPTY = {
 
 export function EntryForm(p: EntryFormProps) {
   const { tr, locale } = useTr("entry");
+  const jt = useTranslations("journey");
   const [a, setA] = useState(EMPTY);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -76,10 +77,15 @@ export function EntryForm(p: EntryFormProps) {
     return (
       <div className="ax-form ax-check-result">
         <EntryResultView result={done.result} tr={tr} locale={locale} />
+        {/* The journey (ux-spec §7.0): the result's way on is an account that keeps it. */}
+        <a
+          className="ax-btn ax-primary"
+          href={`/api/entry/keep?token=${encodeURIComponent(done.token)}`}
+        >
+          {jt("public.saveCheck")}
+        </a>
+        <p className="ax-copy">{jt("public.saveCheckNote")}</p>
         <ShareLink path={`/e/${done.token}`} label={tr("share")} done={tr("copied")} />
-        <p className="ax-copy">
-          {tr("next")} <Link href="/intake">{tr("nextLink")}</Link>
-        </p>
         <button
           type="button"
           className="ax-btn ax-door"

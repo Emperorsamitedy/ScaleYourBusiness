@@ -469,7 +469,7 @@ export function ProgressScreen({ charts }: { charts: GoalChart[] | null }) {
       <Frame title={tr("frame.signedOutTitle")}>
         <p className="gl-wait">
           {words.rich("signedOut", {
-            link: (chunks: ReactNode) => <Link href="/intake">{chunks}</Link>,
+            link: (chunks: ReactNode) => <Link href="/start">{chunks}</Link>,
           })}
         </p>
       </Frame>

@@ -21,6 +21,7 @@ import {
   stripStop,
   supportCount,
   visibleGroups,
+  waitsForSetUp,
 } from "./AppFrame";
 import { PLACE_ICONS, SCREEN_ICONS } from "./nav-icons";
 
@@ -262,6 +263,7 @@ describe("app navigation", () => {
   // P5-18 (rule 28): the team module is off by default, so its item is too.
   it("leaves Team cover out of the menu unless the team module is switched on", () => {
     const counts: NavCounts = {
+      set_up: true,
       business: "Lumen Hair Studio",
       business_type: null,
       watch: null,
@@ -290,6 +292,7 @@ describe("app navigation", () => {
   // Idea 47: Abandoned carts sits under Customers, only with a store connection that reads carts.
   it("shows Abandoned carts under Customers only when a shop connection reads carts", () => {
     const counts: NavCounts = {
+      set_up: true,
       business: "Fernhill Ceramics",
       business_type: null,
       watch: null,
@@ -328,6 +331,7 @@ describe("app navigation", () => {
 // Idea 52: the team screen exists once someone has signed up; the role is said quietly.
 describe("several businesses and the team", () => {
   const base = {
+    set_up: true,
     business: "Fernhill Ceramics",
     business_type: null,
     watch: null,
@@ -385,5 +389,29 @@ describe("several businesses and the team", () => {
     expect(line("viewer")).toBe("You're a viewer here: you can read, and press stop");
     expect(line("owner", false)).toBeNull();
     expect(roleLine(null)).toBeNull();
+  });
+});
+
+describe("waitsForSetUp: the journey (ux-spec §7.0)", () => {
+  const notYet = { set_up: false };
+  const ready = { set_up: true };
+
+  it("dims the screens that read the business's data until its first diagnosis", () => {
+    expect(waitsForSetUp("insights", { href: "/cash" }, notYet)).toBe(true);
+    expect(waitsForSetUp("grow", { href: "/content" }, notYet)).toBe(true);
+    expect(waitsForSetUp("customers", { href: "/customers" }, notYet)).toBe(true);
+    expect(waitsForSetUp("approve", { href: "/proposals" }, notYet)).toBe(true);
+  });
+
+  it("never dims Home, the report itself, or the business's own settings", () => {
+    expect(waitsForSetUp("today", { href: "/home" }, notYet)).toBe(false);
+    expect(waitsForSetUp("insights", { href: "/report" }, notYet)).toBe(false);
+    expect(waitsForSetUp("business", { href: "/connections" }, notYet)).toBe(false);
+    expect(waitsForSetUp("business", { href: "/profile" }, notYet)).toBe(false);
+  });
+
+  it("dims nothing once set up, or while the counts are still loading", () => {
+    expect(waitsForSetUp("insights", { href: "/cash" }, ready)).toBe(false);
+    expect(waitsForSetUp("insights", { href: "/cash" }, null)).toBe(false);
   });
 });

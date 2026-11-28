@@ -758,7 +758,7 @@ export function StudioScreen() {
       <Frame title={tr("signedOut.title")}>
         <p className="st-wait">
           {rich.rich("signedOut.copy", {
-            intake: (chunks) => <Link href="/intake">{chunks}</Link>,
+            intake: (chunks) => <Link href="/start">{chunks}</Link>,
           })}
         </p>
       </Frame>

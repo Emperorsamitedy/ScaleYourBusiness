@@ -11221,5 +11221,63 @@
         "s3": "Vea cuáles están por cerrarse"
       }
     }
+  },
+  "journey": {
+    "meta": {
+      "title": "Primeros pasos"
+    },
+    "title": "Configuremos su negocio",
+    "lede": "Cinco pasos. Los tres primeros terminan con su primer diagnóstico; los otros dos pueden venir cuando quiera.",
+    "progress": "{done} de {total} hechos",
+    "stepNo": "Paso {n}",
+    "continue": "Continuar",
+    "setUp": "Ya está listo. Su diagnóstico está hecho; a partir de ahora, al entrar se abre «{home}».",
+    "status": {
+      "done": "Hecho",
+      "next": "Siguiente",
+      "later": "Cuando quiera",
+      "afterInterview": "Tras las preguntas",
+      "afterDiagnosis": "Tras su diagnóstico"
+    },
+    "step": {
+      "language": {
+        "title": "Idioma y moneda",
+        "line": "El idioma en que lee ScaleX y la moneda en que se muestran sus cifras."
+      },
+      "interview": {
+        "title": "Cuéntenos sobre su negocio",
+        "line": "Unos ocho minutos de preguntas. Pare cuando quiera; cada respuesta se guarda.",
+        "started": "Ya ha empezado: siga donde lo dejó.",
+        "withLex": "Hablarlo con Lex",
+        "withForm": "Rellenar el formulario",
+        "both": "Lex hace las mismas preguntas en una conversación. Ambos rellenan la misma ficha de datos, así que puede cambiar cuando quiera."
+      },
+      "diagnosis": {
+        "title": "Su primer diagnóstico",
+        "line": "Dónde se escapa el dinero, cuánto vale probablemente cada fuga y qué hacer primero.",
+        "open": "Abrir mi diagnóstico"
+      },
+      "connect": {
+        "title": "Conectar sus datos",
+        "line": "Opcional y solo lectura: su tienda, pagos o analítica, para que las cifras se midan en lugar de estimarse.",
+        "open": "Elegir qué conectar"
+      },
+      "mode": {
+        "title": "Elegir cómo trabaja Lex",
+        "line": "Qué puede hacer Lex por su cuenta y qué debe preguntarle antes.",
+        "open": "Elegir"
+      }
+    },
+    "waits": "Se abre tras su primer diagnóstico",
+    "finish": {
+      "title": "Terminar la configuración",
+      "open": "Ver lo que falta"
+    },
+    "public": {
+      "startFree": "Empezar gratis",
+      "startPlan": "Empezar",
+      "saveCheck": "Guardarlo y recibir el diagnóstico completo",
+      "saveCheckNote": "Cuenta gratuita. El tipo de negocio, el país y el tamaño del equipo le acompañan."
+    }
   }
 }

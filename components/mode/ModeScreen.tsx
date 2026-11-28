@@ -125,7 +125,7 @@ export function ModeScreen() {
         <PageHead kicker={KICKER} title={tr("none.title")} />
         <SheetCard label={tr("deferred.label")} title={tr("deferred.sheetTitle")}>
           <p className="md-copy">{state.reasoning}</p>
-          <Link className="next" href="/intake">
+          <Link className="next" href="/start">
             {tr("deferred.answer")} <span aria-hidden="true">→</span>
           </Link>
         </SheetCard>

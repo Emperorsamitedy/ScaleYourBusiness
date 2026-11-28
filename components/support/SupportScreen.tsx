@@ -331,7 +331,7 @@ export function SupportScreen() {
             <span className="auth-eyebrow">{tr("signedOut.eyebrow")}</span>
             <h1 className="auth-title">{tr("signedOut.title")}</h1>
             <p className="auth-copy">{tr("signedOut.body")}</p>
-            <Link className="next auth-cta" style={{ marginTop: 24 }} href="/intake">
+            <Link className="next auth-cta" style={{ marginTop: 24 }} href="/start">
               {tr("signedOut.begin")}
             </Link>
           </section>

@@ -137,6 +137,7 @@ function Bar({ who, screen, children }: { who: string; screen: ReactNode; childr
 export function LandingV2({ prices }: { prices: V2Prices }) {
   const { tr, locale } = useTr("landingV2");
   const rich = useTranslations("landingV2" as "common") as unknown as Rich;
+  const jt = useTranslations("journey");
   const root = useRef<HTMLDivElement>(null);
 
   const eur = (minor: number) => moneyText(minor, V2_CURRENCY, locale);
@@ -333,10 +334,12 @@ export function LandingV2({ prices }: { prices: V2Prices }) {
             <a href="#s1">{tr("nav.how")}</a>
             <a href="#s6">{tr("nav.pricing")}</a>
             <a href="#s7">{tr("nav.firms")}</a>
+            <Link href="/check">{tr("nav.check")}</Link>
             <Link href="/login">{tr("nav.signIn")}</Link>
           </nav>
-          <Link className="btn sm go" href="/check">
-            {tr("nav.check")}
+          {/* The journey (ux-spec §7.0): the one door for a new owner is an account. */}
+          <Link className="btn sm go" href="/signup">
+            {jt("public.startFree")}
           </Link>
           {/* The owner, 2026-11-20: a button in the top right corner between Hungarian and English. */}
           <LanguageToggle className="hd-lang" />
@@ -908,6 +911,11 @@ export function LandingV2({ prices }: { prices: V2Prices }) {
                   })}
                 </p>
               )}
+              <div className="ctas rv d3">
+                <Link className="btn go" href="/signup">
+                  {jt("public.startFree")}
+                </Link>
+              </div>
             </div>
             <div className="demo">
               <div className="win fx pre">

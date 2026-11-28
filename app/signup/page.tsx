@@ -8,6 +8,7 @@ import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { LoginScreen } from "../../components/auth/Login";
 import { configuredProviders } from "../../lib/auth/oauth";
+import { redirect } from "next/navigation";
 import { pickerContext } from "../../lib/i18n/server";
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -17,6 +18,8 @@ export async function generateMetadata(): Promise<Metadata> {
 
 export default async function SignupPage() {
   const picker = await pickerContext();
+  // Already signed in to a business: straight into the app (ux-spec §7.0).
+  if (picker.access?.session) redirect("/home");
   return (
     <LoginScreen
       variant="signup"

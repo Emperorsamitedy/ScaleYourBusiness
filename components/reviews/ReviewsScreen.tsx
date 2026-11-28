@@ -563,7 +563,7 @@ export function ReviewsScreen() {
       <Frame title={tr("screen.noBusiness")}>
         <p className="rv-wait">
           {t.rich("screen.startInterview", {
-            link: (c) => <Link href="/intake">{c}</Link>,
+            link: (c) => <Link href="/start">{c}</Link>,
           })}
         </p>
       </Frame>
