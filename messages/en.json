@@ -3929,39 +3929,15 @@
       "cannot": "I can't yet"
     },
     "ahead": {
-      "label": "The next {count, plural, one {# week} other {# weeks}} · beside the same weeks last year",
-      "none": "No busy or quiet stretch ahead",
-      "meta": "Last year's week, {weeks, number} weeks back, so weekdays line up",
-      "week": "Week of {day}",
-      "lastYear": "Week of {day} last year",
-      "notMeasured": "not measured in full last year",
-      "underWay": "{kind, select, busy {A busy stretch is under way} other {A quiet stretch is under way}}",
-      "thisWeek": "{kind, select, busy {A busy stretch starts this week} other {A quiet stretch starts this week}}",
-      "startsIn": "{kind, select, busy {A busy stretch starts in {count, plural, one {# week} other {# weeks}}} other {A quiet stretch starts in {count, plural, one {# week} other {# weeks}}}}"
-    },
-    "flag": {
-      "busy": "busy",
-      "quiet": "quiet"
+      "meta": "Last year's week, {weeks, number} weeks back, so weekdays line up"
     },
     "months": {
-      "title": "Each month scaled to one week",
-      "meta": "Months with {days, number} measured days or more"
-    },
-    "col": {
-      "thisYear": "This year",
-      "lastYear": "Last year",
-      "flag": "Flag",
-      "month": "Month",
-      "againstNormal": "Against normal",
-      "pair": "Pair",
-      "together": "Together",
-      "alsoSecond": "With the first, also the second",
-      "againstChance": "Against chance",
-      "margin": "The pair's margin",
-      "proposal": "Proposal"
+      "title": "Month by month",
+      "meta": "Months with {days, number} measured days or more",
+      "src": "How far each month's weekly {money, select, yes {sales} other {{noun}}} sat from normal."
     },
     "read": {
-      "label": "How I read it",
+      "label": "How Lex worked this out",
       "otherCurrencies": "Your {noun} in {currencies} is left out: money in two currencies is never added together."
     },
     "count": {
@@ -3973,27 +3949,34 @@
       "visits": "visits"
     },
     "pairs": {
-      "label": "{kind, select, orders {Bought together} other {Booked together}} · {source}",
       "tooFew": "Only {amount} so far",
       "tooFewBody": "I look for pairs once there are {amount}: with fewer, chance alone can make any two items look inseparable.",
       "none": "Nothing goes together more than chance",
-      "some": "{count, plural, one {# pair} other {# pairs}} more often together than chance",
-      "meta": "{amount}, {from} to {to} · OBSERVED",
+      "meta": "{amount} on {source}, {from} to {to}.",
       "footRule": "A pair shows when it shared {amount} or more and came up at least {lift} as often as chance would give.",
       "footBelow": "{below, plural, one {# pair was} other {# pairs were}} seen too rarely, and {belowLift, number} no more often than chance.",
       "footBelowUngrouped": "{below, plural, one {# pair was} other {# pairs were}} seen too rarely, and {belowLift, number} no more often than chance; {ungrouped, plural, one {# appointment} other {# appointments}} with no client or service couldn't be grouped into a visit.",
       "single": "{kind, select, orders {Every one of your orders held a single item, so nothing can be paired yet.} other {Every one of your visits held a single item, so nothing can be paired yet.}}",
       "multi": "{multi, number} of your {units} held two items or more, but no pair stood out from chance.",
-      "aria": "Pairs",
-      "share": "{pct, number}% of {units} with {a}",
-      "had": "{amount} had {a}",
-      "byChance": "about {count, number} by chance",
       "drafting": "Drafting…",
-      "propose": "Propose this pair"
+      "propose": "Suggest as a bundle",
+      "title": "{kind, select, orders {Often bought together} other {Often booked together}}",
+      "src": "From {amount} on {source} in the last year. {count, plural, one {One pair turns up together far more often than chance.} other {# pairs turn up together far more often than chance.}}",
+      "srcNone": "From {amount} on {source} in the last year.",
+      "colPair": "Pair",
+      "colTogether": "{kind, select, orders {Orders together} other {Visits together}}",
+      "colChance": "By chance alone",
+      "colPrice": "Price as a pair",
+      "colLeft": "Left after costs",
+      "colAction": "Suggest",
+      "name": "{a} <m>with</m> {b}",
+      "line": "{pct, number}% of the {units} with the {a} also had the {b}.",
+      "of": "of {count, number}",
+      "unknown": "Not known",
+      "foot": "Suggesting a bundle puts it in Decisions for your yes or no. Nothing changes in your shop until you say so."
     },
     "margin": {
-      "unknown": "Margin unknown: {why}.",
-      "known": "{price} for the pair, {after} after costs ({pct}%)."
+      "unknown": "Margin unknown: {why}."
     },
     "proposal": {
       "pending": "Waiting for you",
@@ -4017,21 +4000,59 @@
       "body": "Something went wrong on our side. Refresh to try again."
     },
     "loading": "Reading your history…",
-    "aside": {
-      "none": "Nothing measured yet",
-      "span": "{source} · {from} to {to} · MEASURED"
-    },
     "bundles": {
-      "section": "What goes together",
       "emptyTitle": "No orders or visits to read yet",
       "emptyBody": "Connect Shopify or WooCommerce and I keep which products each order held, or import your bookings and I group each client's visit.",
       "withoutLines": "{names} records payments, not products, so it can't say what went together."
     },
     "connections": "Connections",
-    "held": "A proposal is a draft for you: both items at full price, no discount. I don't change your shop or your checkout. You set the pair up.",
+    "held": "A suggestion is a draft for you: both items at full price, no discount. Lex never changes your shop or your checkout; you set the pair up.",
     "waiting": "Waiting for you",
-    "how": "How this works",
-    "why": "Why?"
+    "title": {
+      "underWay": "{kind, select, busy {Your busy season has started} other {Your quiet weeks have started}}",
+      "thisWeek": "{kind, select, busy {Your busy season starts this week} other {Your quiet weeks start this week}}",
+      "startsIn": "{kind, select, busy {Your busy season starts in {count, plural, one {# week} other {# weeks}}} other {Your quiet weeks start in {count, plural, one {# week} other {# weeks}}}}",
+      "even": "No busy or quiet weeks in the next {count, plural, one {# week} other {# weeks}}"
+    },
+    "lede": {
+      "first": "Last year the same {count, plural, one {week} other {# weeks}} {money, select, yes {brought in} other {came to}} {total}, {pct} {kind, select, busy {above} other {below}} normal.",
+      "then": "{kind, select, busy {Then it got busy again from {day}.} other {Then it went quiet from {day}.}}"
+    },
+    "year": {
+      "titleSales": "Your sales, week by week",
+      "title": "Your {noun}, week by week",
+      "src": "The last {count, plural, one {# week} other {# weeks}} from {source}, against your normal week of {normal}."
+    },
+    "chart": {
+      "lastYear": "{kind, select, busy {Last year's busy weeks} other {Last year's quiet weeks}}",
+      "lastYearSub": "{total} in {count, plural, one {# week} other {# weeks}}, {pct} {kind, select, busy {above} other {below}} normal",
+      "now": "{kind, select, busy {This year: busy since {day}} other {This year: quiet since {day}}}",
+      "next": "{count, plural, one {Your next week, as it went} other {Your next # weeks, as they went}} last year",
+      "nextShort": "{count, plural, one {Your next week} other {Your next # weeks}}, last year",
+      "normal": "normal week",
+      "summary": "{count, plural, one {# week} other {# weeks}} of {noun} against your normal week of {normal}",
+      "colKind": "Busy or quiet",
+      "kind": {
+        "busy": "Busy",
+        "quiet": "Quiet",
+        "normal": "Normal"
+      }
+    },
+    "coming": {
+      "label": "Coming up",
+      "now": "Now until {day}",
+      "span": "{from} to {to}",
+      "body": "{kind, select, busy {Busy weeks.} other {Quiet weeks.}} Last year {count, plural, one {this week} other {these # weeks}} {money, select, yes {brought in} other {came to}} {total}, {pct} {kind, select, busy {above} other {below}} normal.",
+      "none": "Last year {count, plural, one {the next week ran} other {the next # weeks ran}} close to normal."
+    },
+    "weeks": {
+      "label": "The same weeks last year",
+      "colWeek": "Week of",
+      "colSales": "Sales",
+      "colAgainst": "Against normal",
+      "notMeasured": "Not measured in full",
+      "weekOf": "Week of {day}"
+    }
   },
   "pipeline": {
     "meta": {

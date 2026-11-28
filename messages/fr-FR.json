@@ -3929,39 +3929,15 @@
       "cannot": "Je ne peux pas encore"
     },
     "ahead": {
-      "label": "{count, plural, one {La semaine à venir} many {Les # semaines à venir} other {Les # semaines à venir}} · à côté des mêmes semaines l’an dernier",
-      "none": "Aucune période chargée ou calme à venir",
-      "meta": "La semaine de l’an dernier, {weeks, number} semaines en arrière, pour que les jours de la semaine coïncident",
-      "week": "Semaine du {day}",
-      "lastYear": "Semaine du {day} l’an dernier",
-      "notMeasured": "pas entièrement mesurée l’an dernier",
-      "underWay": "{kind, select, busy {Une période chargée est en cours} other {Une période calme est en cours}}",
-      "thisWeek": "{kind, select, busy {Une période chargée commence cette semaine} other {Une période calme commence cette semaine}}",
-      "startsIn": "{kind, select, busy {Une période chargée commence dans {count, plural, one {# semaine} many {# semaines} other {# semaines}}} other {Une période calme commence dans {count, plural, one {# semaine} many {# semaines} other {# semaines}}}}"
-    },
-    "flag": {
-      "busy": "chargée",
-      "quiet": "calme"
+      "meta": "La semaine de l’an dernier, {weeks, number} semaines en arrière, pour que les jours de la semaine coïncident"
     },
     "months": {
-      "title": "Chaque mois ramené à une semaine",
-      "meta": "Mois comptant {days, number} jours mesurés ou plus"
-    },
-    "col": {
-      "thisYear": "Cette année",
-      "lastYear": "L’an dernier",
-      "flag": "Alerte",
-      "month": "Mois",
-      "againstNormal": "Face à la normale",
-      "pair": "Paire",
-      "together": "Ensemble",
-      "alsoSecond": "Avec le premier, aussi le second",
-      "againstChance": "Face au hasard",
-      "margin": "La marge de la paire",
-      "proposal": "Proposition"
+      "title": "Mois par mois",
+      "meta": "Mois comptant {days, number} jours mesurés ou plus",
+      "src": "L’écart à la normale {money, select, yes {des ventes hebdomadaires} other {de {noun} par semaine}} pour chaque mois."
     },
     "read": {
-      "label": "Comment je le lis",
+      "label": "Comment Lex l’a calculé",
       "otherCurrencies": "La part de {noun} en {currencies} est laissée de côté : de l’argent en deux devises n’est jamais additionné."
     },
     "count": {
@@ -3973,27 +3949,34 @@
       "visits": "visites"
     },
     "pairs": {
-      "label": "{kind, select, orders {Achetés ensemble} other {Réservés ensemble}} · {source}",
       "tooFew": "Seulement {amount} pour l’instant",
       "tooFewBody": "Je cherche des paires à partir de {amount} : en dessous, le hasard seul peut faire paraître deux articles inséparables.",
       "none": "Rien ne va ensemble plus souvent que le hasard",
-      "some": "{count, plural, one {# paire plus souvent réunie} many {# paires plus souvent réunies} other {# paires plus souvent réunies}} que le hasard",
-      "meta": "{amount}, {from} à {to} · OBSERVÉ",
+      "meta": "{amount} via {source}, du {from} au {to}.",
       "footRule": "Une paire apparaît lorsqu’elle a été réunie dans {amount} ou plus et au moins {lift} aussi souvent que le hasard le donnerait.",
       "footBelow": "{below, plural, one {# paire a été vue} many {# paires ont été vues} other {# paires ont été vues}} trop rarement, et {belowLift, number} pas plus souvent que le hasard.",
       "footBelowUngrouped": "{below, plural, one {# paire a été vue} many {# paires ont été vues} other {# paires ont été vues}} trop rarement, et {belowLift, number} pas plus souvent que le hasard ; {ungrouped, plural, one {# rendez-vous sans client ni prestation n’a pas pu être regroupé} many {# rendez-vous sans client ni prestation n’ont pas pu être regroupés} other {# rendez-vous sans client ni prestation n’ont pas pu être regroupés}} en visite.",
       "single": "{kind, select, orders {Chacune de vos commandes ne contenait qu’un seul article : rien ne peut encore être apparié.} other {Chacune de vos visites ne contenait qu’un seul article : rien ne peut encore être apparié.}}",
       "multi": "{multi, number} de vos {units} contenaient deux articles ou plus, mais aucune paire ne se distinguait du hasard.",
-      "aria": "Paires",
-      "share": "{pct, number} % des {units} avec {a}",
-      "had": "{amount} contenaient {a}",
-      "byChance": "environ {count, number} par hasard",
       "drafting": "Rédaction…",
-      "propose": "Proposer cette paire"
+      "propose": "Suggérer en lot",
+      "title": "{kind, select, orders {Souvent achetés ensemble} other {Souvent réservés ensemble}}",
+      "src": "Sur {amount} via {source} au cours de l’année écoulée. {count, plural, one {Une paire revient ensemble bien plus souvent que le hasard.} many {# paires reviennent ensemble bien plus souvent que le hasard.} other {# paires reviennent ensemble bien plus souvent que le hasard.}}",
+      "srcNone": "Sur {amount} via {source} au cours de l’année écoulée.",
+      "colPair": "Paire",
+      "colTogether": "{kind, select, orders {Commandes communes} other {Visites communes}}",
+      "colChance": "Par le seul hasard",
+      "colPrice": "Prix de la paire",
+      "colLeft": "Reste après coûts",
+      "colAction": "Suggérer",
+      "name": "{a} <m>avec</m> {b}",
+      "line": "{pct, number} % des {units} avec {a} contenaient aussi {b}.",
+      "of": "sur {count, number}",
+      "unknown": "Inconnu",
+      "foot": "Suggérer un lot l’ajoute aux Décisions, où vous dites oui ou non. Rien ne change dans votre boutique tant que vous ne l’avez pas décidé."
     },
     "margin": {
-      "unknown": "Marge inconnue : {why}.",
-      "known": "{price} pour la paire, {after} après les coûts ({pct} %)."
+      "unknown": "Marge inconnue : {why}."
     },
     "proposal": {
       "pending": "En attente de votre décision",
@@ -4017,21 +4000,59 @@
       "body": "Une erreur s’est produite de notre côté. Actualisez la page pour réessayer."
     },
     "loading": "Lecture de votre historique…",
-    "aside": {
-      "none": "Rien de mesuré pour l’instant",
-      "span": "{source} · {from} à {to} · MESURÉ"
-    },
     "bundles": {
-      "section": "Ce qui va ensemble",
       "emptyTitle": "Aucune commande ni visite à lire pour l’instant",
       "emptyBody": "Connectez Shopify ou WooCommerce et je garde les produits contenus dans chaque commande, ou importez vos réservations et je regroupe la visite de chaque client.",
       "withoutLines": "{names} enregistre des paiements, pas des produits : impossible donc de dire ce qui allait ensemble."
     },
     "connections": "Connexions",
-    "held": "Une proposition est un brouillon pour vous : les deux articles à prix plein, sans remise. Je ne modifie ni votre boutique ni votre paiement. C’est vous qui mettez la paire en place.",
+    "held": "Une suggestion est un brouillon pour vous : les deux articles à prix plein, sans remise. Lex ne modifie ni votre boutique ni votre paiement. C’est vous qui mettez la paire en place.",
     "waiting": "En attente de votre décision",
-    "how": "Comment ça marche",
-    "why": "Pourquoi ?"
+    "title": {
+      "underWay": "{kind, select, busy {Votre haute saison a commencé} other {Vos semaines calmes ont commencé}}",
+      "thisWeek": "{kind, select, busy {Votre haute saison commence cette semaine} other {Vos semaines calmes commencent cette semaine}}",
+      "startsIn": "{kind, select, busy {Votre haute saison commence dans {count, plural, one {# semaine} many {# semaines} other {# semaines}}} other {Vos semaines calmes commencent dans {count, plural, one {# semaine} many {# semaines} other {# semaines}}}}",
+      "even": "Aucune semaine forte ni calme dans {count, plural, one {la semaine qui vient} many {les # semaines qui viennent} other {les # semaines qui viennent}}"
+    },
+    "lede": {
+      "first": "L’an dernier, {count, plural, one {cette même semaine a} many {ces mêmes # semaines ont} other {ces mêmes # semaines ont}} {money, select, yes {rapporté} other {totalisé}} {total}, soit {pct} {kind, select, busy {au-dessus} other {en dessous}} de la normale.",
+      "then": "{kind, select, busy {Puis l’activité a repris à partir du {day}.} other {Puis le calme est revenu à partir du {day}.}}"
+    },
+    "year": {
+      "titleSales": "Vos ventes, semaine par semaine",
+      "title": "Votre activité ({noun}), semaine par semaine",
+      "src": "{count, plural, one {La dernière semaine} many {Les # dernières semaines} other {Les # dernières semaines}} sur {source}, comparées à votre semaine normale de {normal}."
+    },
+    "chart": {
+      "lastYear": "{kind, select, busy {Les semaines fortes de l’an dernier} other {Les semaines calmes de l’an dernier}}",
+      "lastYearSub": "{total} en {count, plural, one {# semaine} many {# semaines} other {# semaines}}, {pct} {kind, select, busy {au-dessus} other {en dessous}} de la normale",
+      "now": "{kind, select, busy {Cette année : forte depuis le {day}} other {Cette année : calme depuis le {day}}}",
+      "next": "{count, plural, one {Votre semaine à venir, telle qu’elle s’est passée} many {Vos # semaines à venir, telles qu’elles se sont passées} other {Vos # semaines à venir, telles qu’elles se sont passées}} l’an dernier",
+      "nextShort": "{count, plural, one {Votre semaine à venir} many {Vos # semaines à venir} other {Vos # semaines à venir}}, l’an dernier",
+      "normal": "semaine normale",
+      "summary": "{count, plural, one {# semaine} many {# semaines} other {# semaines}} de {noun} comparées à votre semaine normale de {normal}",
+      "colKind": "Forte ou calme",
+      "kind": {
+        "busy": "Forte",
+        "quiet": "Calme",
+        "normal": "Normale"
+      }
+    },
+    "coming": {
+      "label": "À venir",
+      "now": "Dès maintenant jusqu’au {day}",
+      "span": "Du {from} au {to}",
+      "body": "{kind, select, busy {Semaines fortes.} other {Semaines calmes.}} L’an dernier, {count, plural, one {cette semaine a} many {ces # semaines ont} other {ces # semaines ont}} {money, select, yes {rapporté} other {totalisé}} {total}, soit {pct} {kind, select, busy {au-dessus} other {en dessous}} de la normale.",
+      "none": "L’an dernier, {count, plural, one {la semaine suivante est restée proche} many {les # semaines suivantes sont restées proches} other {les # semaines suivantes sont restées proches}} de la normale."
+    },
+    "weeks": {
+      "label": "Les mêmes semaines l’an dernier",
+      "colWeek": "Semaine du",
+      "colSales": "Ventes",
+      "colAgainst": "Par rapport à la normale",
+      "notMeasured": "Pas mesurée en entier",
+      "weekOf": "Semaine du {day}"
+    }
   },
   "pipeline": {
     "meta": {

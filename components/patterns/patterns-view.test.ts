@@ -3,14 +3,16 @@ import type { PatternsView } from "../../app/api/patterns/route";
 import { addDays, seasonForecast } from "../../lib/seasons/forecast";
 import {
   aheadRows,
-  aheadTitle,
+  currentRun,
   headline,
   longDate,
-  marginText,
-  monthBars,
+  monthTone,
+  pairMoney,
   proposalWord,
   seasonChartModel,
-  togetherBars,
+  signedPct,
+  sizePct,
+  titleOf,
 } from "./patterns-view";
 
 const INFO = { noun: "revenue", source: "Shopify", currency: "EUR" };
@@ -65,21 +67,30 @@ describe("the season chart model", () => {
 });
 
 describe("the words", () => {
-  it("leads with the season, and the next eight weeks name last year's figure", () => {
+  it("leads with the season, and the next eight weeks give last year's figure as a percentage", () => {
     const r = seasonForecast(year(), INFO, TODAY);
     expect(headline(view(r))).toMatch(/busy stretch starts in 4 weeks/);
     if (r.status !== "ready") throw new Error(r.status);
     const rows = aheadRows(r);
-    expect(rows[4]).toMatchObject({ week: "Week of 23 Nov", flag: "busy" });
-    expect(rows[4]!.figure).toMatch(/2\.0×/);
+    expect(rows[4]).toMatchObject({ start: "2026-11-23", flag: "busy", pct: "+100%" });
+    expect(rows[4]!.value).toBe("€1,400");
+  });
+
+  it("says a percentage from normal with its sign, and its size without", () => {
+    expect(signedPct(1.91)).toBe("+91%");
+    expect(signedPct(0.72)).toBe("-28%");
+    expect(signedPct(1.004)).toBe("0%");
+    expect(signedPct(0.996)).toBe("0%");
+    expect(sizePct(0.72)).toBe("28%");
   });
 
   it("says a margin is unknown rather than showing zero", () => {
-    expect(marginText({ known: false, why: "no cost on record for Vase" })).toBe(
-      "Margin unknown: no cost on record for Vase.",
-    );
+    expect(pairMoney({ known: false, why: "no cost on record for Vase" })).toEqual({
+      known: false,
+      why: "Margin unknown: no cost on record for Vase.",
+    });
     expect(
-      marginText({
+      pairMoney({
         known: true,
         currency: "EUR",
         price_minor: 16_600,
@@ -87,7 +98,7 @@ describe("the words", () => {
         margin_pct: 70.5,
         formula: "",
       }),
-    ).toMatch(/70\.5%/);
+    ).toMatchObject({ known: true, price: "€166", left: "€117", pct: "71%" });
   });
 
   it("words a pair's proposal state, and nothing when there is none", () => {
@@ -97,49 +108,46 @@ describe("the words", () => {
   });
 });
 
-describe("the next-weeks title", () => {
-  it("says this week rather than in 0 weeks", () => {
+describe("the title", () => {
+  it("names the first stretch ahead: under way, this week, or in so many weeks", () => {
     const r = seasonForecast(year(), INFO, TODAY);
     if (r.status !== "ready") throw new Error(r.status);
     const u = r.upcoming[0]!;
-    expect(aheadTitle(u)).toBe("A busy stretch starts in 4 weeks");
-    expect(aheadTitle({ ...u, starts_in_weeks: 0 })).toBe("A busy stretch starts this week");
-    expect(aheadTitle({ ...u, in_progress: true })).toBe("A busy stretch is under way");
+    expect(titleOf(r)).toEqual({ key: "title.startsIn", kind: "busy", count: 4 });
+    expect(titleOf({ ...r, upcoming: [{ ...u, starts_in_weeks: 0 }] })).toEqual({
+      key: "title.thisWeek",
+      kind: "busy",
+    });
+    expect(titleOf({ ...r, upcoming: [{ ...u, in_progress: true }] })).toEqual({
+      key: "title.underWay",
+      kind: "busy",
+    });
+    expect(titleOf({ ...r, upcoming: [] })).toEqual({ key: "title.even", count: 8 });
     expect(longDate("2025-10-04")).toBe("4 Oct 2025");
   });
 });
 
-describe("the bars beside the figures", () => {
-  it("sets each month against the largest shown, busy and quiet by the season's own lines", () => {
-    const m = monthBars([{ index: 2 }, { index: 1.25 }, { index: 1 }, { index: 0.8 }])!;
-    expect(m.normal).toBe(0.5);
-    expect(m.bars).toEqual([
-      { share: 1, tone: "ink" },
-      { share: 0.625, tone: "ink" },
-      { share: 0.5, tone: "soft" },
-      { share: 0.4, tone: "drift" },
+describe("this year's stretch and the month strip", () => {
+  it("counts back the latest weeks that share a flag, and names no single week", () => {
+    const w = (start: string, flag: "busy" | "quiet" | null) => ({ start, flag });
+    expect(
+      currentRun([w("2026-10-19", null), w("2026-10-26", "busy"), w("2026-11-02", "busy")]),
+    ).toEqual({ kind: "busy", start: "2026-10-26", weeks: 2 });
+    expect(currentRun([w("2026-10-26", null), w("2026-11-02", "quiet")])).toBeNull();
+    expect(currentRun([w("2026-11-02", null)])).toBeNull();
+    expect(currentRun([])).toBeNull();
+  });
+
+  it("shades a month busy or quiet by the season's own lines, and nudges between", () => {
+    expect([1.61, 1.25, 1.12, 1, 0.94, 0.88, 0.8, 0.73].map(monthTone)).toEqual([
+      "busy",
+      "busy",
+      "up",
+      "even",
+      "even",
+      "down",
+      "quiet",
+      "quiet",
     ]);
-    // A year with no month above normal still holds the normal line on its scale.
-    expect(monthBars([{ index: 0.5 }])).toEqual({
-      normal: 1,
-      bars: [{ share: 0.5, tone: "drift" }],
-    });
-  });
-
-  it("draws the months of a measured year", () => {
-    const r = seasonForecast(year(), INFO, TODAY);
-    if (r.status !== "ready") throw new Error(r.status);
-    const m = monthBars(r.months)!;
-    expect(m.bars).toHaveLength(r.months.length);
-    expect(m.bars.some((b) => b.tone === "ink")).toBe(true);
-  });
-
-  it("has no month bars without months, and no pair bars without pairs", () => {
-    expect(monthBars([])).toBeNull();
-    expect(togetherBars([])).toEqual([]);
-  });
-
-  it("sets each pair's count together against the largest in the table", () => {
-    expect(togetherBars([{ together: 20 }, { together: 5 }])).toEqual([1, 0.25]);
   });
 });

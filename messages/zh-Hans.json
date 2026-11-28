@@ -3929,39 +3929,15 @@
       "cannot": "我暂时还不能"
     },
     "ahead": {
-      "label": "{count, plural, other {接下来 # 周}} · 对照去年同期的周",
-      "none": "前方没有繁忙或清淡的时段",
-      "meta": "去年的对应周，往前推 {weeks, number} 周，以便星期对齐",
-      "week": "{day} 当周",
-      "lastYear": "去年 {day} 当周",
-      "notMeasured": "去年未完整测量",
-      "underWay": "{kind, select, busy {一个繁忙时段正在进行} other {一个清淡时段正在进行}}",
-      "thisWeek": "{kind, select, busy {一个繁忙时段从本周开始} other {一个清淡时段从本周开始}}",
-      "startsIn": "{kind, select, busy {{count, plural, other {一个繁忙时段将在 # 周后开始}}} other {{count, plural, other {一个清淡时段将在 # 周后开始}}}}"
-    },
-    "flag": {
-      "busy": "繁忙",
-      "quiet": "清淡"
+      "meta": "去年的对应周，往前推 {weeks, number} 周，以便星期对齐"
     },
     "months": {
-      "title": "每个月都折算为一周",
-      "meta": "已测量天数达到 {days, number} 天或以上的月份"
-    },
-    "col": {
-      "thisYear": "今年",
-      "lastYear": "去年",
-      "flag": "标记",
-      "month": "月份",
-      "againstNormal": "对比常态",
-      "pair": "组合",
-      "together": "一起出现",
-      "alsoSecond": "有第一件时也有第二件",
-      "againstChance": "对比随机情况",
-      "margin": "该组合的利润率",
-      "proposal": "提案"
+      "title": "逐月",
+      "meta": "已测量天数达到 {days, number} 天或以上的月份",
+      "src": "每个月的每周{money, select, yes {销售额} other {{noun}}}偏离平常的程度。"
     },
     "read": {
-      "label": "我如何解读",
+      "label": "Lex 是如何算出来的",
       "otherCurrencies": "您以 {currencies} 计的{noun}未计入：两种货币的金额从不相加。"
     },
     "count": {
@@ -3973,27 +3949,34 @@
       "visits": "到访"
     },
     "pairs": {
-      "label": "{kind, select, orders {一起购买} other {一起预约}} · {source}",
       "tooFew": "目前只有 {amount}",
       "tooFewBody": "当有 {amount} 时我才会寻找组合：数量更少时，仅凭偶然就能让任意两件商品看起来形影不离。",
       "none": "没有任何组合一起出现的频率高于随机情况",
-      "some": "{count, plural, other {# 个组合}}一起出现的频率高于随机情况",
-      "meta": "{amount}，{from} 至 {to} · 已观测",
+      "meta": "{source} 上的 {amount}，{from} 至 {to}。",
       "footRule": "当一个组合共同出现 {amount} 或以上，且出现频率至少是随机情况的 {lift} 时，才会显示。",
       "footBelow": "{below, plural, other {有 # 个组合}}出现得太少，另有 {belowLift, number} 个出现频率不高于随机情况。",
       "footBelowUngrouped": "{below, plural, other {有 # 个组合}}出现得太少，另有 {belowLift, number} 个出现频率不高于随机情况；{ungrouped, plural, other {有 # 个预约}}没有客户或服务信息，无法归入某次到访。",
       "single": "{kind, select, orders {您的每个订单都只有一件商品，所以暂时无法配对。} other {您的每次到访都只有一项，所以暂时无法配对。}}",
       "multi": "您的{units}中有 {multi, number} 个包含两件或以上，但没有哪个组合明显高于随机情况。",
-      "aria": "组合",
-      "share": "含有 {a} 的{units}中的 {pct, number}%",
-      "had": "{amount} 含有 {a}",
-      "byChance": "随机情况下约 {count, number} 个",
       "drafting": "正在起草…",
-      "propose": "提出这个组合"
+      "propose": "建议作为套装",
+      "title": "{kind, select, orders {经常一起购买} other {经常一起预约}}",
+      "src": "基于过去一年 {source} 上的 {amount}。{count, plural, other {有 # 个组合一起出现的次数远多于偶然。}}",
+      "srcNone": "基于过去一年 {source} 上的 {amount}。",
+      "colPair": "组合",
+      "colTogether": "{kind, select, orders {一起下单次数} other {一起到访次数}}",
+      "colChance": "仅凭偶然",
+      "colPrice": "组合价格",
+      "colLeft": "扣除成本后剩余",
+      "colAction": "建议",
+      "name": "{a} <m>搭配</m> {b}",
+      "line": "含有{a}的{units}中，有 {pct, number}% 也含有{b}。",
+      "of": "共 {count, number}",
+      "unknown": "未知",
+      "foot": "建议套装后，它会进入“决定”等您同意或拒绝。在您同意之前，您的网店不会有任何变化。"
     },
     "margin": {
-      "unknown": "利润率未知：{why}。",
-      "known": "组合价格 {price}，扣除成本后 {after}（{pct}%）。"
+      "unknown": "利润率未知：{why}。"
     },
     "proposal": {
       "pending": "等待您处理",
@@ -4017,21 +4000,59 @@
       "body": "我们这边出了问题。请刷新页面重试。"
     },
     "loading": "正在读取您的历史数据…",
-    "aside": {
-      "none": "尚无测量数据",
-      "span": "{source} · {from} 至 {to} · 已测量"
-    },
     "bundles": {
-      "section": "哪些东西会一起出现",
       "emptyTitle": "还没有可读取的订单或到访",
       "emptyBody": "连接 Shopify 或 WooCommerce，我会记录每个订单包含哪些产品；或者导入您的预约，我会把每位客户的到访归组。",
       "withoutLines": "{names} 记录的是付款，而不是产品，所以无法说明哪些东西一起出现。"
     },
     "connections": "连接",
-    "held": "提案是给您的一份草稿：两件商品都按原价，没有折扣。我不会改变您的网店或结账流程。组合由您自己设置。",
+    "held": "建议是给您的一份草稿：两件商品都按原价，没有折扣。Lex 不会改变您的网店或结账流程。组合由您自己设置。",
     "waiting": "等待您处理",
-    "how": "运作方式",
-    "why": "为什么？"
+    "title": {
+      "underWay": "{kind, select, busy {您的旺季已经开始} other {您的淡季已经开始}}",
+      "thisWeek": "{kind, select, busy {您的旺季本周开始} other {您的淡季本周开始}}",
+      "startsIn": "{kind, select, busy {您的旺季将在 {count, plural, other {# 周}}后开始} other {您的淡季将在 {count, plural, other {# 周}}后开始}}",
+      "even": "未来 {count, plural, other {# 周}}没有旺季或淡季"
+    },
+    "lede": {
+      "first": "去年同样的 {count, plural, other {# 周}}{money, select, yes {收入} other {合计}}：{total}，比平常{kind, select, busy {高} other {低}} {pct}。",
+      "then": "{kind, select, busy {之后从 {day} 起再次转旺。} other {之后从 {day} 起转入淡季。}}"
+    },
+    "year": {
+      "titleSales": "您的每周销售额",
+      "title": "您每周的{noun}",
+      "src": "来自 {source} 的最近 {count, plural, other {# 周}}，与您的平常一周（{normal}）相比。"
+    },
+    "chart": {
+      "lastYear": "{kind, select, busy {去年的旺季周} other {去年的淡季周}}",
+      "lastYearSub": "{count, plural, other {# 周}}共 {total}，比平常{kind, select, busy {高} other {低}} {pct}",
+      "now": "{kind, select, busy {今年：自 {day} 起转旺} other {今年：自 {day} 起转淡}}",
+      "next": "您接下来的 {count, plural, other {# 周}}在去年的表现",
+      "nextShort": "接下来 {count, plural, other {# 周}}，去年",
+      "normal": "平常一周",
+      "summary": "{count, plural, other {# 周}}的{noun}，与平常一周（{normal}）相比",
+      "colKind": "旺或淡",
+      "kind": {
+        "busy": "旺",
+        "quiet": "淡",
+        "normal": "平常"
+      }
+    },
+    "coming": {
+      "label": "即将到来",
+      "now": "从现在到 {day}",
+      "span": "{from} 至 {to}",
+      "body": "{kind, select, busy {旺季周。} other {淡季周。}}去年这 {count, plural, other {# 周}}{money, select, yes {收入} other {合计}}：{total}，比平常{kind, select, busy {高} other {低}} {pct}。",
+      "none": "去年接下来的 {count, plural, other {# 周}}都接近平常水平。"
+    },
+    "weeks": {
+      "label": "去年的同一周",
+      "colWeek": "周起始日",
+      "colSales": "销售额",
+      "colAgainst": "与平常相比",
+      "notMeasured": "未完整测量",
+      "weekOf": "{day} 起的一周"
+    }
   },
   "pipeline": {
     "meta": {

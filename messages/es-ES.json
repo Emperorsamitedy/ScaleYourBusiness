@@ -3929,39 +3929,15 @@
       "cannot": "Todavía no puedo"
     },
     "ahead": {
-      "label": "{count, plural, one {La próxima semana} many {Las próximas # semanas} other {Las próximas # semanas}} · junto a las mismas semanas del año pasado",
-      "none": "Ningún periodo de mucho o poco movimiento por delante",
-      "meta": "La semana del año pasado, {weeks, number} semanas atrás, para que coincidan los días de la semana",
-      "week": "Semana del {day}",
-      "lastYear": "Semana del {day} del año pasado",
-      "notMeasured": "no se midió completa el año pasado",
-      "underWay": "{kind, select, busy {Está en curso un periodo de mucho movimiento} other {Está en curso un periodo tranquilo}}",
-      "thisWeek": "{kind, select, busy {Esta semana empieza un periodo de mucho movimiento} other {Esta semana empieza un periodo tranquilo}}",
-      "startsIn": "{kind, select, busy {Un periodo de mucho movimiento empieza dentro de {count, plural, one {# semana} many {# semanas} other {# semanas}}} other {Un periodo tranquilo empieza dentro de {count, plural, one {# semana} many {# semanas} other {# semanas}}}}"
-    },
-    "flag": {
-      "busy": "mucho movimiento",
-      "quiet": "tranquilo"
+      "meta": "La semana del año pasado, {weeks, number} semanas atrás, para que coincidan los días de la semana"
     },
     "months": {
-      "title": "Cada mes escalado a una semana",
-      "meta": "Meses con {days, number} días medidos o más"
-    },
-    "col": {
-      "thisYear": "Este año",
-      "lastYear": "El año pasado",
-      "flag": "Indicador",
-      "month": "Mes",
-      "againstNormal": "Frente a lo normal",
-      "pair": "Par",
-      "together": "Juntos",
-      "alsoSecond": "Con el primero, también el segundo",
-      "againstChance": "Frente al azar",
-      "margin": "El margen del par",
-      "proposal": "Propuesta"
+      "title": "Mes a mes",
+      "meta": "Meses con {days, number} días medidos o más",
+      "src": "Cuánto se alejó de lo normal {money, select, yes {la venta semanal} other {el dato semanal de {noun}}} de cada mes."
     },
     "read": {
-      "label": "Cómo lo leo",
+      "label": "Cómo lo calculó Lex",
       "otherCurrencies": "Se excluyen sus {noun} en {currencies}: el dinero en dos monedas nunca se suma."
     },
     "count": {
@@ -3973,27 +3949,34 @@
       "visits": "visitas"
     },
     "pairs": {
-      "label": "{kind, select, orders {Comprados juntos} other {Reservados juntos}} · {source}",
       "tooFew": "Solo {amount} por ahora",
       "tooFewBody": "Busco pares cuando hay {amount}: con menos, el azar por sí solo puede hacer que dos artículos cualesquiera parezcan inseparables.",
       "none": "Nada va junto más de lo que daría el azar",
-      "some": "{count, plural, one {# par aparece} many {# pares aparecen} other {# pares aparecen}} juntos más a menudo que por azar",
-      "meta": "{amount}, {from} a {to} · OBSERVADO",
+      "meta": "{amount} en {source}, del {from} al {to}.",
       "footRule": "Un par aparece cuando coincidió en {amount} o más y surgió con una frecuencia de al menos {lift} respecto a lo que daría el azar.",
       "footBelow": "{below, plural, one {# par se vio} many {# pares se vieron} other {# pares se vieron}} demasiado pocas veces, y {belowLift, number} no más a menudo que por azar.",
       "footBelowUngrouped": "{below, plural, one {# par se vio} many {# pares se vieron} other {# pares se vieron}} demasiado pocas veces, y {belowLift, number} no más a menudo que por azar; {ungrouped, plural, one {# cita} many {# citas} other {# citas}} sin cliente ni servicio no se {ungrouped, plural, one {pudo} many {pudieron} other {pudieron}} agrupar en una visita.",
       "single": "{kind, select, orders {Cada uno de sus pedidos contenía un solo artículo, así que todavía no se puede emparejar nada.} other {Cada una de sus visitas contenía un solo artículo, así que todavía no se puede emparejar nada.}}",
       "multi": "{multi, number} de sus {units} contenían dos artículos o más, pero ningún par destacó sobre el azar.",
-      "aria": "Pares",
-      "share": "{pct, number} % de {units} con {a}",
-      "had": "{amount} contenían {a}",
-      "byChance": "unos {count, number} por azar",
       "drafting": "Redactando…",
-      "propose": "Proponer este par"
+      "propose": "Sugerir como pack",
+      "title": "{kind, select, orders {Se compran juntos a menudo} other {Se reservan juntos a menudo}}",
+      "src": "De {amount} en {source} durante el último año. {count, plural, one {Un par aparece junto mucho más a menudo que por azar.} many {# pares aparecen juntos mucho más a menudo que por azar.} other {# pares aparecen juntos mucho más a menudo que por azar.}}",
+      "srcNone": "De {amount} en {source} durante el último año.",
+      "colPair": "Par",
+      "colTogether": "{kind, select, orders {Pedidos juntos} other {Visitas juntas}}",
+      "colChance": "Solo por azar",
+      "colPrice": "Precio del par",
+      "colLeft": "Queda tras costes",
+      "colAction": "Sugerir",
+      "name": "{a} <m>con</m> {b}",
+      "line": "El {pct, number}% de los {units} con {a} también llevaba {b}.",
+      "of": "de {count, number}",
+      "unknown": "Desconocido",
+      "foot": "Al sugerir un pack, pasa a Decisiones para que usted diga sí o no. Nada cambia en su tienda hasta que usted lo diga."
     },
     "margin": {
-      "unknown": "Margen desconocido: {why}.",
-      "known": "{price} por el par, {after} después de costes ({pct} %)."
+      "unknown": "Margen desconocido: {why}."
     },
     "proposal": {
       "pending": "Pendiente de usted",
@@ -4017,21 +4000,59 @@
       "body": "Algo ha fallado por nuestra parte. Actualice la página para volver a intentarlo."
     },
     "loading": "Leyendo su historial…",
-    "aside": {
-      "none": "Todavía no hay nada medido",
-      "span": "{source} · {from} a {to} · MEDIDO"
-    },
     "bundles": {
-      "section": "Qué va junto",
       "emptyTitle": "Todavía no hay pedidos ni visitas que leer",
       "emptyBody": "Conecte Shopify o WooCommerce y guardaré qué productos contenía cada pedido, o importe sus reservas y agruparé la visita de cada cliente.",
       "withoutLines": "{names} registra pagos, no productos, así que no puede decir qué se compró junto."
     },
     "connections": "Conexiones",
-    "held": "Una propuesta es un borrador para usted: los dos artículos a precio completo, sin descuento. No cambio su tienda ni su proceso de pago; el pack lo configura usted.",
+    "held": "Una sugerencia es un borrador para usted: los dos artículos a precio completo, sin descuento. Lex nunca cambia su tienda ni su proceso de pago; el pack lo configura usted.",
     "waiting": "Pendiente de usted",
-    "how": "Cómo funciona",
-    "why": "¿Por qué?"
+    "title": {
+      "underWay": "{kind, select, busy {Su temporada fuerte ha empezado} other {Sus semanas tranquilas han empezado}}",
+      "thisWeek": "{kind, select, busy {Su temporada fuerte empieza esta semana} other {Sus semanas tranquilas empiezan esta semana}}",
+      "startsIn": "{kind, select, busy {Su temporada fuerte empieza dentro de {count, plural, one {# semana} many {# semanas} other {# semanas}}} other {Sus semanas tranquilas empiezan dentro de {count, plural, one {# semana} many {# semanas} other {# semanas}}}}",
+      "even": "Ninguna semana fuerte ni tranquila en {count, plural, one {la próxima semana} many {las próximas # semanas} other {las próximas # semanas}}"
+    },
+    "lede": {
+      "first": "El año pasado, en {count, plural, one {esa misma semana} many {esas mismas # semanas} other {esas mismas # semanas}}, {money, select, yes {entraron} other {hubo}} {total}, un {pct} {kind, select, busy {por encima} other {por debajo}} de lo normal.",
+      "then": "{kind, select, busy {Después volvió a animarse desde el {day}.} other {Después se calmó desde el {day}.}}"
+    },
+    "year": {
+      "titleSales": "Sus ventas, semana a semana",
+      "title": "Sus {noun}, semana a semana",
+      "src": "{count, plural, one {La última semana} many {Las últimas # semanas} other {Las últimas # semanas}} de {source}, frente a su semana normal de {normal}."
+    },
+    "chart": {
+      "lastYear": "{kind, select, busy {Semanas fuertes del año pasado} other {Semanas tranquilas del año pasado}}",
+      "lastYearSub": "{total} en {count, plural, one {# semana} many {# semanas} other {# semanas}}, un {pct} {kind, select, busy {por encima} other {por debajo}} de lo normal",
+      "now": "{kind, select, busy {Este año: fuerte desde el {day}} other {Este año: tranquilo desde el {day}}}",
+      "next": "{count, plural, one {Su próxima semana, tal como fue} many {Sus próximas # semanas, tal como fueron} other {Sus próximas # semanas, tal como fueron}} el año pasado",
+      "nextShort": "{count, plural, one {Su próxima semana} many {Sus próximas # semanas} other {Sus próximas # semanas}}, el año pasado",
+      "normal": "semana normal",
+      "summary": "{count, plural, one {# semana} many {# semanas} other {# semanas}} de {noun} frente a su semana normal de {normal}",
+      "colKind": "Fuerte o tranquila",
+      "kind": {
+        "busy": "Fuerte",
+        "quiet": "Tranquila",
+        "normal": "Normal"
+      }
+    },
+    "coming": {
+      "label": "Lo que viene",
+      "now": "Desde ahora hasta el {day}",
+      "span": "Del {from} al {to}",
+      "body": "{kind, select, busy {Semanas fuertes.} other {Semanas tranquilas.}} El año pasado, en {count, plural, one {esta semana} many {estas # semanas} other {estas # semanas}}, {money, select, yes {entraron} other {hubo}} {total}, un {pct} {kind, select, busy {por encima} other {por debajo}} de lo normal.",
+      "none": "El año pasado, {count, plural, one {la semana siguiente fue casi normal} many {las # semanas siguientes fueron casi normales} other {las # semanas siguientes fueron casi normales}}."
+    },
+    "weeks": {
+      "label": "Las mismas semanas del año pasado",
+      "colWeek": "Semana del",
+      "colSales": "Ventas",
+      "colAgainst": "Frente a lo normal",
+      "notMeasured": "No medida por completo",
+      "weekOf": "Semana del {day}"
+    }
   },
   "pipeline": {
     "meta": {

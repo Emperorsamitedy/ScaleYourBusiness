@@ -3929,39 +3929,15 @@
       "cannot": "Ich kann noch nicht"
     },
     "ahead": {
-      "label": "{count, plural, one {Die nächste # Woche} other {Die nächsten # Wochen}} · neben denselben Wochen im Vorjahr",
-      "none": "Keine starke oder ruhige Phase in Sicht",
-      "meta": "Die Woche des Vorjahres, {weeks, number} Wochen zurück, damit die Wochentage übereinstimmen",
-      "week": "Woche vom {day}",
-      "lastYear": "Woche vom {day} im Vorjahr",
-      "notMeasured": "im Vorjahr nicht vollständig gemessen",
-      "underWay": "{kind, select, busy {Eine starke Phase läuft gerade} other {Eine ruhige Phase läuft gerade}}",
-      "thisWeek": "{kind, select, busy {Eine starke Phase beginnt diese Woche} other {Eine ruhige Phase beginnt diese Woche}}",
-      "startsIn": "{kind, select, busy {Eine starke Phase beginnt in {count, plural, one {# Woche} other {# Wochen}}} other {Eine ruhige Phase beginnt in {count, plural, one {# Woche} other {# Wochen}}}}"
-    },
-    "flag": {
-      "busy": "stark",
-      "quiet": "ruhig"
+      "meta": "Die Woche des Vorjahres, {weeks, number} Wochen zurück, damit die Wochentage übereinstimmen"
     },
     "months": {
-      "title": "Jeder Monat auf eine Woche umgerechnet",
-      "meta": "Monate mit {days, number} oder mehr gemessenen Tagen"
-    },
-    "col": {
-      "thisYear": "Dieses Jahr",
-      "lastYear": "Vorjahr",
-      "flag": "Markierung",
-      "month": "Monat",
-      "againstNormal": "Gegenüber normal",
-      "pair": "Paar",
-      "together": "Zusammen",
-      "alsoSecond": "Mit dem ersten auch das zweite",
-      "againstChance": "Gegenüber Zufall",
-      "margin": "Marge des Paars",
-      "proposal": "Vorschlag"
+      "title": "Monat für Monat",
+      "meta": "Monate mit {days, number} oder mehr gemessenen Tagen",
+      "src": "Wie weit {money, select, yes {die wöchentlichen Verkäufe} other {{noun} pro Woche}} jedes Monats vom Normalen abwichen."
     },
     "read": {
-      "label": "Wie ich es lese",
+      "label": "Wie Lex das berechnet hat",
       "otherCurrencies": "Ihre {noun} in {currencies} sind weggelassen: Geld in zwei Währungen wird nie zusammengezählt."
     },
     "count": {
@@ -3973,27 +3949,34 @@
       "visits": "Besuche"
     },
     "pairs": {
-      "label": "{kind, select, orders {Zusammen gekauft} other {Zusammen gebucht}} · {source}",
       "tooFew": "Bisher nur {amount}",
       "tooFewBody": "Ich suche nach Paaren, sobald es {amount} gibt: Bei weniger kann schon der Zufall zwei beliebige Artikel unzertrennlich wirken lassen.",
       "none": "Nichts kommt öfter zusammen vor als per Zufall",
-      "some": "{count, plural, one {# Paar kommt} other {# Paare kommen}} öfter zusammen vor als per Zufall",
-      "meta": "{amount}, {from} bis {to} · BEOBACHTET",
+      "meta": "{amount} über {source}, {from} bis {to}.",
       "footRule": "Ein Paar erscheint, wenn es {amount} oder mehr gemeinsam hatte und mindestens {lift} so oft vorkam, wie der Zufall ergeben würde.",
       "footBelow": "{below, plural, one {# Paar wurde} other {# Paare wurden}} zu selten gesehen, und {belowLift, number} nicht öfter als per Zufall.",
       "footBelowUngrouped": "{below, plural, one {# Paar wurde} other {# Paare wurden}} zu selten gesehen, und {belowLift, number} nicht öfter als per Zufall; {ungrouped, plural, one {# Termin} other {# Termine}} ohne Kunde oder Leistung ließen sich keinem Besuch zuordnen.",
       "single": "{kind, select, orders {Jede Ihrer Bestellungen enthielt nur einen Artikel, deshalb lässt sich noch nichts paaren.} other {Jeder Ihrer Besuche enthielt nur einen Artikel, deshalb lässt sich noch nichts paaren.}}",
       "multi": "{multi, number} Ihrer {units} enthielten zwei oder mehr Artikel, aber kein Paar hob sich vom Zufall ab.",
-      "aria": "Paare",
-      "share": "{pct, number} % der {units} mit {a}",
-      "had": "{amount} hatten {a}",
-      "byChance": "etwa {count, number} per Zufall",
       "drafting": "Wird entworfen…",
-      "propose": "Dieses Paar vorschlagen"
+      "propose": "Als Bündel vorschlagen",
+      "title": "{kind, select, orders {Oft zusammen gekauft} other {Oft zusammen gebucht}}",
+      "src": "Aus {amount} über {source} im letzten Jahr. {count, plural, one {Ein Paar kommt weit öfter zusammen vor als durch Zufall.} other {# Paare kommen weit öfter zusammen vor als durch Zufall.}}",
+      "srcNone": "Aus {amount} über {source} im letzten Jahr.",
+      "colPair": "Paar",
+      "colTogether": "{kind, select, orders {Bestellungen zusammen} other {Besuche zusammen}}",
+      "colChance": "Allein durch Zufall",
+      "colPrice": "Preis als Paar",
+      "colLeft": "Nach Kosten übrig",
+      "colAction": "Vorschlagen",
+      "name": "{a} <m>mit</m> {b}",
+      "line": "{pct, number}% der {units} mit {a} enthielten auch {b}.",
+      "of": "von {count, number}",
+      "unknown": "Unbekannt",
+      "foot": "Ein vorgeschlagenes Bündel landet unter Entscheidungen, wo Sie Ja oder Nein sagen. In Ihrem Shop ändert sich nichts, bevor Sie zustimmen."
     },
     "margin": {
-      "unknown": "Marge unbekannt: {why}.",
-      "known": "{price} für das Paar, {after} nach Kosten ({pct} %)."
+      "unknown": "Marge unbekannt: {why}."
     },
     "proposal": {
       "pending": "Wartet auf Sie",
@@ -4017,21 +4000,59 @@
       "body": "Bei uns ist etwas schiefgelaufen. Laden Sie die Seite neu, um es erneut zu versuchen."
     },
     "loading": "Ihr Verlauf wird gelesen…",
-    "aside": {
-      "none": "Noch nichts gemessen",
-      "span": "{source} · {from} bis {to} · GEMESSEN"
-    },
     "bundles": {
-      "section": "Was zusammengehört",
       "emptyTitle": "Noch keine Bestellungen oder Besuche zum Lesen",
       "emptyBody": "Verbinden Sie Shopify oder WooCommerce, dann halte ich fest, welche Produkte jede Bestellung enthielt, oder importieren Sie Ihre Buchungen, dann fasse ich jeden Besuch eines Kunden zusammen.",
       "withoutLines": "{names} erfasst Zahlungen, keine Produkte, und kann deshalb nicht sagen, was zusammen gekauft wurde."
     },
     "connections": "Verbindungen",
-    "held": "Ein Vorschlag ist ein Entwurf für Sie: beide Artikel zum vollen Preis, ohne Rabatt. Ich ändere weder Ihren Shop noch Ihren Bestellvorgang. Das Paar richten Sie selbst ein.",
+    "held": "Ein Vorschlag ist ein Entwurf für Sie: beide Artikel zum vollen Preis, ohne Rabatt. Lex ändert weder Ihren Shop noch Ihren Bestellvorgang. Das Paar richten Sie selbst ein.",
     "waiting": "Wartet auf Sie",
-    "how": "So funktioniert es",
-    "why": "Warum?"
+    "title": {
+      "underWay": "{kind, select, busy {Ihre starke Saison hat begonnen} other {Ihre ruhigen Wochen haben begonnen}}",
+      "thisWeek": "{kind, select, busy {Ihre starke Saison beginnt diese Woche} other {Ihre ruhigen Wochen beginnen diese Woche}}",
+      "startsIn": "{kind, select, busy {Ihre starke Saison beginnt in {count, plural, one {# Woche} other {# Wochen}}} other {Ihre ruhigen Wochen beginnen in {count, plural, one {# Woche} other {# Wochen}}}}",
+      "even": "Keine starken oder ruhigen Wochen in {count, plural, one {der nächsten Woche} other {den nächsten # Wochen}}"
+    },
+    "lede": {
+      "first": "In {count, plural, one {derselben Woche} other {denselben # Wochen}} letztes Jahr {money, select, yes {kamen {total} herein} other {gab es {total}}}, {pct} {kind, select, busy {über} other {unter}} normal.",
+      "then": "{kind, select, busy {Ab dem {day} wurde es wieder lebhaft.} other {Ab dem {day} wurde es ruhig.}}"
+    },
+    "year": {
+      "titleSales": "Ihre Verkäufe, Woche für Woche",
+      "title": "{noun}, Woche für Woche",
+      "src": "{count, plural, one {Die letzte Woche} other {Die letzten # Wochen}} aus {source}, verglichen mit Ihrer normalen Woche von {normal}."
+    },
+    "chart": {
+      "lastYear": "{kind, select, busy {Die starken Wochen im Vorjahr} other {Die ruhigen Wochen im Vorjahr}}",
+      "lastYearSub": "{total} in {count, plural, one {# Woche} other {# Wochen}}, {pct} {kind, select, busy {über} other {unter}} normal",
+      "now": "{kind, select, busy {Dieses Jahr: stark seit {day}} other {Dieses Jahr: ruhig seit {day}}}",
+      "next": "{count, plural, one {Ihre nächste Woche, wie sie im Vorjahr lief} other {Ihre nächsten # Wochen, wie sie im Vorjahr liefen}}",
+      "nextShort": "{count, plural, one {Ihre nächste Woche} other {Ihre nächsten # Wochen}}, Vorjahr",
+      "normal": "normale Woche",
+      "summary": "{count, plural, one {# Woche} other {# Wochen}} {noun}, verglichen mit Ihrer normalen Woche von {normal}",
+      "colKind": "Stark oder ruhig",
+      "kind": {
+        "busy": "Stark",
+        "quiet": "Ruhig",
+        "normal": "Normal"
+      }
+    },
+    "coming": {
+      "label": "Was kommt",
+      "now": "Ab jetzt bis {day}",
+      "span": "{from} bis {to}",
+      "body": "{kind, select, busy {Starke Wochen.} other {Ruhige Wochen.}} Letztes Jahr in {count, plural, one {dieser Woche} other {diesen # Wochen}} {money, select, yes {kamen {total} herein} other {gab es {total}}}, {pct} {kind, select, busy {über} other {unter}} normal.",
+      "none": "Letztes Jahr {count, plural, one {lag die nächste Woche} other {lagen die nächsten # Wochen}} nahe am Normalen."
+    },
+    "weeks": {
+      "label": "Dieselben Wochen im Vorjahr",
+      "colWeek": "Woche ab",
+      "colSales": "Verkäufe",
+      "colAgainst": "Gegenüber normal",
+      "notMeasured": "Nicht vollständig gemessen",
+      "weekOf": "Woche ab {day}"
+    }
   },
   "pipeline": {
     "meta": {

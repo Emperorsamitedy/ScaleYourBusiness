@@ -3929,39 +3929,15 @@
       "cannot": "Amit még nem tudok megmondani"
     },
     "ahead": {
-      "label": "A következő {count, plural, one {# hét} other {# hét}} · a tavalyi azonos hetek mellett",
-      "none": "Nincs előttünk forgalmas vagy csendes időszak",
-      "meta": "A tavalyi hét, {weeks, number} héttel korábban, hogy a hétköznapok egyezzenek",
-      "week": "Hét: {day}",
-      "lastYear": "Tavaly, hét: {day}",
-      "notMeasured": "tavaly nem volt teljesen mérve",
-      "underWay": "{kind, select, busy {Forgalmas időszak zajlik} other {Csendes időszak zajlik}}",
-      "thisWeek": "{kind, select, busy {Ezen a héten forgalmas időszak kezdődik} other {Ezen a héten csendes időszak kezdődik}}",
-      "startsIn": "{kind, select, busy {{count, plural, one {# hét múlva} other {# hét múlva}} forgalmas időszak kezdődik} other {{count, plural, one {# hét múlva} other {# hét múlva}} csendes időszak kezdődik}}"
-    },
-    "flag": {
-      "busy": "forgalmas",
-      "quiet": "csendes"
+      "meta": "A tavalyi hét, {weeks, number} héttel korábban, hogy a hétköznapok egyezzenek"
     },
     "months": {
-      "title": "Minden hónap egy hétre arányosítva",
-      "meta": "Legalább {days, number} mért nappal rendelkező hónapok"
-    },
-    "col": {
-      "thisYear": "Idén",
-      "lastYear": "Tavaly",
-      "flag": "Jelzés",
-      "month": "Hónap",
-      "againstNormal": "A szokásoshoz képest",
-      "pair": "Pár",
-      "together": "Együtt",
-      "alsoSecond": "Az elsővel együtt a második is",
-      "againstChance": "A véletlenhez képest",
-      "margin": "A pár árrése",
-      "proposal": "Javaslat"
+      "title": "Hónapról hónapra",
+      "meta": "Legalább {days, number} mért nappal rendelkező hónapok",
+      "src": "Mennyire tért el a szokásostól {money, select, yes {a heti eladás} other {a heti {noun}}} az egyes hónapokban."
     },
     "read": {
-      "label": "Hogyan olvasom",
+      "label": "Hogyan számolta ki Lex",
       "otherCurrencies": "A más pénznemekben ({currencies}) lévő {noun} kimarad: két pénznemben lévő pénzt soha nem adok össze."
     },
     "count": {
@@ -3973,27 +3949,34 @@
       "visits": "látogatások"
     },
     "pairs": {
-      "label": "{kind, select, orders {Együtt vásárolva} other {Együtt foglalva}} · {source}",
       "tooFew": "Eddig csak {amount}",
       "tooFewBody": "Akkor keresek párokat, ha már {amount} van: kevesebb esetén a véletlen önmagában bármely két tételt elválaszthatatlannak mutathat.",
       "none": "Semmi sem fordul elő együtt gyakrabban a véletlennél",
-      "some": "{count, plural, one {# pár} other {# pár}} a véletlennél gyakrabban együtt",
-      "meta": "{amount}, {from} - {to} · MEGFIGYELT",
+      "meta": "{amount}, {source}, {from} és {to} között.",
       "footRule": "Egy pár akkor jelenik meg, ha legalább {amount} esetben szerepelt együtt, és legalább {lift} olyan gyakran fordult elő, mint a véletlen alapján várható.",
       "footBelow": "{below, plural, one {# pár} other {# pár}} túl ritkán fordult elő, {belowLift, number} pedig nem gyakrabban a véletlennél.",
       "footBelowUngrouped": "{below, plural, one {# pár} other {# pár}} túl ritkán fordult elő, {belowLift, number} pedig nem gyakrabban a véletlennél; {ungrouped, plural, one {# időpontot} other {# időpontot}} ügyfél vagy szolgáltatás nélkül nem lehetett látogatásba csoportosítani.",
       "single": "{kind, select, orders {Minden rendelése egyetlen tételt tartalmazott, így még semmit sem lehet párba állítani.} other {Minden látogatása egyetlen tételt tartalmazott, így még semmit sem lehet párba állítani.}}",
       "multi": "{multi, number} esetben ({units}) két vagy több tétel szerepelt, de egyetlen pár sem emelkedett ki a véletlenből.",
-      "aria": "Párok",
-      "share": "{units} {pct, number}%-a, ahol {a} is szerepel",
-      "had": "{amount} tartalmazta ezt: {a}",
-      "byChance": "véletlenül nagyjából {count, number}",
       "drafting": "Megfogalmazás…",
-      "propose": "Ezt a párt javaslom"
+      "propose": "Javaslat csomagként",
+      "title": "{kind, select, orders {Gyakran együtt vásárolt} other {Gyakran együtt foglalt}}",
+      "src": "{amount} alapján a(z) {source} rendszerből, az elmúlt évből. {count, plural, one {Egy pár sokkal gyakrabban fordul elő együtt, mint a véletlen alapján várható.} other {# pár sokkal gyakrabban fordul elő együtt, mint a véletlen alapján várható.}}",
+      "srcNone": "{amount} alapján a(z) {source} rendszerből, az elmúlt évből.",
+      "colPair": "Pár",
+      "colTogether": "{kind, select, orders {Közös rendelések} other {Közös látogatások}}",
+      "colChance": "Pusztán véletlenül",
+      "colPrice": "Ár párban",
+      "colLeft": "Költségek után marad",
+      "colAction": "Javaslat",
+      "name": "{a} <m>és</m> {b}",
+      "line": "A(z) {a} tételt tartalmazó {units} {pct, number}%-ában {b} is szerepelt.",
+      "of": "{count, number} közül",
+      "unknown": "Nem ismert",
+      "foot": "A csomag javaslata a Döntések közé kerül, ahol Ön igent vagy nemet mond. A webshopjában semmi sem változik, amíg Ön nem dönt."
     },
     "margin": {
-      "unknown": "Árrés ismeretlen: {why}.",
-      "known": "{price} a párért, költségek után {after} ({pct}%)."
+      "unknown": "Árrés ismeretlen: {why}."
     },
     "proposal": {
       "pending": "Önre vár",
@@ -4017,21 +4000,59 @@
       "body": "Hiba történt a mi oldalunkon. Frissítse az oldalt az újrapróbáláshoz."
     },
     "loading": "Az előzményei beolvasása…",
-    "aside": {
-      "none": "Még nincs mért adat",
-      "span": "{source} · {from} - {to} · MÉRT"
-    },
     "bundles": {
-      "section": "Ami együtt jár",
       "emptyTitle": "Még nincsenek beolvasható rendelések vagy látogatások",
       "emptyBody": "Kapcsolja össze a Shopifyt vagy a WooCommerce-t, és megjegyzem, mely termékek voltak az egyes rendelésekben, vagy importálja a foglalásait, és minden ügyfél látogatását csoportosítom.",
       "withoutLines": "{names} fizetéseket rögzít, nem termékeket, így nem tudja megmondani, mi járt együtt."
     },
     "connections": "Összekapcsolt fiókok",
-    "held": "A javaslat egy tervezet Önnek: mindkét tétel teljes áron, kedvezmény nélkül. Nem változtatok a webshopján vagy a fizetési folyamatán. A párt Ön állítja be.",
+    "held": "A javaslat egy tervezet Önnek: mindkét tétel teljes áron, kedvezmény nélkül. Lex nem változtat a webshopján vagy a fizetési folyamatán. A párt Ön állítja be.",
     "waiting": "Önre vár",
-    "how": "Hogyan működik",
-    "why": "Miért?"
+    "title": {
+      "underWay": "{kind, select, busy {Elkezdődött az erős szezonja} other {Elkezdődtek a csendes hetei}}",
+      "thisWeek": "{kind, select, busy {Az erős szezonja ezen a héten kezdődik} other {A csendes hetei ezen a héten kezdődnek}}",
+      "startsIn": "{kind, select, busy {Az erős szezonja {count, plural, one {# hét} other {# hét}} múlva kezdődik} other {A csendes hetei {count, plural, one {# hét} other {# hét}} múlva kezdődnek}}",
+      "even": "{count, plural, one {A következő héten} other {A következő # hétben}} nincs erős vagy csendes hét"
+    },
+    "lede": {
+      "first": "Tavaly {count, plural, one {ugyanez a hét} other {ugyanez a # hét}} {money, select, yes {bevétele} other {eredménye}}: {total}, {pct} {kind, select, busy {a szokásos felett} other {a szokásos alatt}}.",
+      "then": "{kind, select, busy {Utána újra élénkült, kezdete: {day}.} other {Utána csendesebb lett, kezdete: {day}.}}"
+    },
+    "year": {
+      "titleSales": "Az eladásai hétről hétre",
+      "title": "Hétről hétre: {noun}",
+      "src": "{count, plural, one {Az utolsó hét} other {Az utolsó # hét}} a(z) {source} adatai alapján, a szokásos {normal} értékű hetéhez mérve."
+    },
+    "chart": {
+      "lastYear": "{kind, select, busy {Tavalyi erős hetek} other {Tavalyi csendes hetek}}",
+      "lastYearSub": "{total} {count, plural, one {# hét} other {# hét}} alatt, {pct} {kind, select, busy {a szokásos felett} other {a szokásos alatt}}",
+      "now": "{kind, select, busy {Idén {day} óta erős} other {Idén {day} óta csendes}}",
+      "next": "{count, plural, one {A következő hete} other {A következő # hete}}, ahogy tavaly alakult",
+      "nextShort": "{count, plural, one {A következő hét} other {A következő # hét}}, tavaly",
+      "normal": "szokásos hét",
+      "summary": "{count, plural, one {# hét} other {# hét}}: {noun}, a szokásos {normal} értékű héthez mérve",
+      "colKind": "Erős vagy csendes",
+      "kind": {
+        "busy": "Erős",
+        "quiet": "Csendes",
+        "normal": "Szokásos"
+      }
+    },
+    "coming": {
+      "label": "Ami jön",
+      "now": "Most tart, vége: {day}",
+      "span": "{from} és {to} között",
+      "body": "{kind, select, busy {Erős hetek.} other {Csendes hetek.}} Tavaly {count, plural, one {ez a hét} other {ez a # hét}} {money, select, yes {bevétele} other {eredménye}}: {total}, {pct} {kind, select, busy {a szokásos felett} other {a szokásos alatt}}.",
+      "none": "Tavaly {count, plural, one {a következő hét} other {a következő # hét}} közel volt a szokásoshoz."
+    },
+    "weeks": {
+      "label": "Ugyanezek a hetek tavaly",
+      "colWeek": "Hét kezdete",
+      "colSales": "Eladás",
+      "colAgainst": "A szokásoshoz képest",
+      "notMeasured": "Nem teljesen mért",
+      "weekOf": "Hét kezdete: {day}"
+    }
   },
   "pipeline": {
     "meta": {

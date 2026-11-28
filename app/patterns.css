@@ -1,75 +1,66 @@
 /* Insights · Seasons & bundles (ideas 46 and 48), on the sheet system
-   (app/sheet.css): the season chart and the next eight weeks, then what
-   sells or is booked together. Square corners, no icons. */
+   (app/sheet.css). Said plainly on 2026-11-28 (the canvas design the owner
+   approved): one chart labelled on its own bars, what's coming up beside
+   the same weeks last year, one shaded strip of months, a plain table of
+   pairs. Few boxes, no pill on every row: a figure carries its colour.
+   Figures in the app's own face with tabular numbers. */
 
+.pt-screen {
+  --pt-busy: var(--ok);
+  --pt-quiet: #d9a66f;
+  --pt-quiet-ink: #7a420e;
+  --pt-plain: #c3d0c8;
+}
 .pt-screen a:not(.act) {
   color: inherit;
   text-decoration: underline;
   text-decoration-thickness: 1px;
   text-underline-offset: 3px;
 }
-.pt-screen .ph-aside {
-  max-width: 46ch;
+.pt-screen .num {
+  font-family: var(--f-ui, inherit);
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  white-space: nowrap;
 }
 
-.pt-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 15px;
-  align-items: start;
-  margin: 15px 0;
-}
-.pt-grid .cs {
-  min-width: 0;
-}
-
-.pt-section {
-  margin: var(--s-6) 0 var(--s-4);
-  font-family: var(--f-mono);
-  font-size: calc(var(--t-mono-s) + var(--caps-bump, 0px));
-  font-weight: 400;
-  letter-spacing: var(--caps-ls, 0.08em);
-  text-transform: var(--caps, uppercase);
-  color: var(--sheet-ink-2);
-}
-
-.pt-copy {
-  margin: 12px 0 0;
+.pt-lede {
+  margin: 8px 0 0;
   max-width: var(--measure);
+  color: var(--desk-ink-2);
+  font-size: 16px;
+  line-height: 1.5;
+}
+.pt-card {
+  margin-top: 16px;
+}
+.pt-src {
+  margin: 0 0 14px;
+  max-width: var(--measure);
+  color: var(--sheet-ink-2);
   font-size: 13.5px;
+}
+.pt-copy {
+  margin: 0;
+  max-width: var(--measure);
+  font-size: 14px;
   line-height: 1.55;
 }
-.pt-copy:first-child {
-  margin-top: 0;
+.pt-copy + .pt-copy {
+  margin-top: 10px;
 }
-.pt-strong {
-  font-weight: 500;
-}
-.pt-held {
-  margin-top: var(--s-4);
+.pt-muted {
   color: var(--sheet-ink-2);
-}
-/* The section's name, the line about what is held and the fold under the
-   cards sit on the dark desk, where paper ink cannot be read: desk ink there
-   (2026-11-19, found by measuring contrast on every screen). */
-.pt-screen > .pt-section,
-.pt-screen > .pt-copy,
-.pt-screen > .fold .pt-copy {
-  color: var(--desk-ink-2);
 }
 .pt-wait {
   font-size: 15px;
 }
-.pt-sub {
-  margin: 12px 0 4px;
-  font-family: var(--f-mono);
-  font-size: calc(12px + var(--caps-bump, 0px));
-  letter-spacing: var(--caps-ls, 0.06em);
-  text-transform: var(--caps, uppercase);
-  color: var(--sheet-ink-2);
-}
-.pt-sub:first-child {
-  margin-top: 0;
+.pt-label {
+  margin: 0 0 10px;
+  font-family: var(--f-ui, inherit);
+  font-size: 13.5px;
+  font-weight: 650;
+  color: var(--sheet-ink);
 }
 .pt-list {
   margin: 0;
@@ -78,64 +69,314 @@
   line-height: 1.55;
 }
 .pt-list li + li {
-  margin-top: 4px;
+  margin-top: 6px;
 }
 
-.pt-src {
+/* ── the year chart ── */
+.pt-year {
+  width: 100%;
+  min-width: 0;
+}
+.pt-year-svg {
   display: block;
-  margin-top: 2px;
-  font-family: var(--f-mono);
-  font-size: 11.5px;
+  overflow: visible;
+  font-family: var(--f-ui, inherit);
+}
+.pt-busy {
+  fill: var(--pt-busy);
+}
+.pt-quiet {
+  fill: var(--pt-quiet);
+}
+.pt-plain {
+  fill: var(--pt-plain);
+}
+.pt-grid {
+  stroke: var(--rule-soft);
+}
+.pt-axis {
+  stroke: var(--rule);
+}
+.pt-normal {
+  stroke: var(--sheet-ink);
+  stroke-width: 1.2;
+  stroke-dasharray: 4 4;
+}
+.pt-tick {
+  fill: var(--sheet-ink-2);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+.pt-tick-normal {
+  fill: var(--sheet-ink);
+  font-weight: 600;
+}
+.pt-label-title {
+  fill: var(--sheet-ink);
+  font-size: 13px;
+  font-weight: 650;
+}
+.pt-label-sub {
+  fill: var(--sheet-ink-2);
+  font-size: 12.5px;
+}
+.pt-leader {
+  stroke: var(--sheet-ink);
+  stroke-width: 1;
+}
+.pt-bracket path {
+  fill: none;
+  stroke: var(--sheet-ink);
+}
+.pt-bracket text {
+  fill: var(--sheet-ink);
+  font-size: 12px;
+}
+
+/* ── coming up, beside the same weeks last year ── */
+.pt-split {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 40px;
+  margin-top: 18px;
+  padding-top: 18px;
+  border-top: var(--hair);
+}
+.pt-coming {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.pt-coming li {
+  padding-left: 14px;
+  border-left: 4px solid var(--pt-plain);
+  border-radius: 2px;
+}
+.pt-coming .pt-coming-busy {
+  border-left-color: var(--pt-busy);
+}
+.pt-coming .pt-coming-quiet {
+  border-left-color: var(--pt-quiet);
+}
+.pt-coming p {
+  margin: 0;
+  font-size: 14.5px;
+  line-height: 1.45;
+}
+.pt-coming .pt-when {
+  font-weight: 650;
+}
+.pt-weeks {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+.pt-weeks th,
+.pt-weeks td {
+  padding: 6px 0;
+  text-align: left;
+  font-weight: 400;
+}
+.pt-weeks thead th {
+  padding-top: 0;
+  font-size: 12.5px;
+  color: var(--sheet-ink-2);
+}
+.pt-weeks tbody tr {
+  border-top: var(--hair);
+}
+.pt-weeks .num {
+  text-align: right;
+}
+.pt-busy-fig {
+  color: var(--pt-busy);
+  font-weight: 650;
+}
+.pt-quiet-fig {
+  color: var(--pt-quiet-ink);
+  font-weight: 650;
+}
+
+/* ── the months, one strip ── */
+.pt-strip {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(58px, 1fr));
+  gap: 3px;
+}
+.pt-m {
+  min-height: 54px;
+  padding: 9px 8px 8px;
+  border-radius: 3px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 2px;
+  color: var(--sheet-ink);
+}
+.pt-m span {
+  font-size: 12.5px;
+  opacity: 0.85;
+}
+.pt-m b {
+  font-size: 15px;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+}
+.pt-m-busy {
+  background: var(--pt-busy);
+  color: #f2f7f4;
+}
+.pt-m-up {
+  background: #cfe3d6;
+}
+.pt-m-even {
+  background: #e6ede9;
+}
+.pt-m-down {
+  background: #f1dcc4;
+}
+.pt-m-quiet {
+  background: #e3b382;
+}
+
+/* ── the pairs ── */
+.pt-pairs {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+.pt-pairs thead th {
+  padding: 0 14px 8px 0;
+  font-size: 12.5px;
+  font-weight: 400;
+  color: var(--sheet-ink-2);
+  text-align: left;
+  vertical-align: bottom;
+}
+.pt-pairs thead th.num {
+  text-align: right;
+}
+.pt-pairs tbody tr {
+  border-top: var(--hair);
+}
+.pt-pairs tbody th,
+.pt-pairs td {
+  padding: 14px 14px 14px 0;
+  vertical-align: top;
+  text-align: left;
+  font-weight: 400;
+}
+.pt-pairs tbody th {
+  width: 42%;
+}
+.pt-pairs td.num {
+  text-align: right;
+}
+.pt-pairs :is(th, td):last-child {
+  padding-right: 0;
+}
+.pt-pair-name {
+  display: block;
+  font-size: 15px;
+  font-weight: 650;
+}
+.pt-with {
   font-weight: 400;
   color: var(--sheet-ink-2);
 }
-.pt-table-wrap {
-  overflow-x: auto;
-  margin: 0 -8px;
-  padding: 0 8px;
-}
-.pt-pairs {
-  min-width: 820px;
-}
-.pt-pairs tbody th {
-  font-weight: 500;
-}
-.pt-pairs .act {
-  min-height: 44px;
-  white-space: nowrap;
-}
-.pt-ahead,
-.pt-months {
-  margin-top: 12px;
-}
-/* A row's figure again as a bar (app/viz.css), on the table's own scale. */
-.pt-bar {
-  vertical-align: top;
-}
-.pt-months .pt-bar {
-  width: 44%;
-  min-width: 96px;
-}
-.pt-pairs .pt-bar {
-  width: 9%;
-  min-width: 72px;
-}
-.pt-bar .vz-bar-track {
+.pt-pair-line {
   display: block;
   margin-top: 3px;
+  font-size: 13.5px;
+  color: var(--sheet-ink-2);
+}
+.pt-fig {
+  display: inline-block;
+}
+.pt-fig-sub {
+  display: block;
+  font-size: 12.5px;
+  color: var(--sheet-ink-2);
+}
+.pt-act {
+  text-align: right;
+  white-space: nowrap;
+}
+.pt-act .act {
+  min-height: 40px;
+}
+
+/* On the desk, under the cards: desk ink, where paper ink cannot be read
+   (2026-11-19, found by measuring contrast on every screen). */
+.pt-foot {
+  margin: 14px 0 0;
+  max-width: var(--measure);
+  font-size: 13.5px;
+  color: var(--desk-ink-2);
+}
+.pt-screen > .pt-how {
+  margin-top: 18px;
+  color: var(--desk-ink-2);
 }
 
 @media (max-width: 760px) {
-  .pt-grid {
+  .pt-split {
     grid-template-columns: minmax(0, 1fr);
+    gap: 22px;
   }
-  .pt-pairs {
-    min-width: 0;
+  .pt-strip {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
   }
-}
-
-/* Sentence case: a label the classic look set in capitals starts with one
-   (the owner app's type, app/sheet.css). In the classic look it follows the label. */
-:is(.pt-section, .pt-sub)::first-letter {
-  text-transform: var(--caps-first, inherit);
+  .pt-m {
+    padding: 7px 6px 6px;
+  }
+  .pt-m b {
+    font-size: 14px;
+  }
+  /* The pairs table stacks: the pair on top, each figure on its own line. */
+  .pt-pairs thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+  }
+  .pt-pairs tbody tr {
+    display: block;
+    padding: 12px 0;
+  }
+  .pt-pairs tbody th {
+    display: block;
+    width: auto;
+    padding: 0 0 8px;
+  }
+  .pt-pairs td {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 4px 0;
+  }
+  .pt-pairs td[data-label]::before {
+    content: attr(data-label);
+    color: var(--sheet-ink-2);
+    text-align: left;
+    white-space: normal;
+  }
+  .pt-pairs td.num {
+    text-align: right;
+  }
+  .pt-pairs .pt-fig-sub {
+    display: inline;
+    margin-left: 6px;
+  }
+  .pt-act {
+    padding-top: 10px !important;
+    justify-content: flex-start !important;
+  }
 }
