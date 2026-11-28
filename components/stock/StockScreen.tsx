@@ -1,26 +1,32 @@
 "use client";
 
 // Insights · Stock — feature 34 and Phase 5 Session A, on the sheet system
-// (app/sheet.css). First what runs out, and when (P5-05): every item's days
-// of cover against its supplier's delivery time, the warnings, and a
-// reorder note per warned item with its arithmetic. Then what isn't
-// selling, most cash tied up first, each item's ways to clear it ranked by
-// cash likely back per euro given up. Read-only: putting notes or options
-// in the queue makes proposals, nothing runs until the owner approves it
-// (rule 12), and a reorder note is never an order (rule 27). P6-04 (rule 27
-// amended): a reorder suggestion can become a purchase order the owner
-// makes here (./PurchaseOrders), emailed to the supplier only once approved,
-// through the engine. A business
-// without stock never reaches this screen through the menu (STOCK_APPLIES).
+// (app/sheet.css). What runs out, and when (P5-05): every item's days of
+// cover against its supplier's delivery time, and an order for what runs
+// low. Then what isn't selling, most cash tied up first, with the ways to
+// free it ranked by what the owner keeps. Read-only: putting an order or
+// the options in the queue makes proposals, nothing runs until the owner
+// approves it (rule 12), and a reorder reminder is never an order
+// (rule 27). P6-04 (rule 27 amended): an order is emailed to the supplier
+// only once approved, through the engine. A business without stock never
+// reaches this screen through the menu (STOCK_APPLIES).
+//
+// Said plainly on 2026-11-28 (the canvas design the owner approved): the
+// title names the soonest stock-out; one "Order now" card holds each item
+// running low beside its order (the reorder note and the purchase order
+// were two cards for one thing); "How long each item lasts" is one bar per
+// item with a tick at its delivery time and a status word coloured by
+// meaning; "Not selling" says what is tied up and ranks the ways to free
+// it as likely back, given up and what you keep. The chance bands, the
+// working, the cash-by-count chart and the import form fold away. The
+// figures and rules are unchanged.
 //
 // L-3b: the screen's fixed words are the "stock" catalogue; figures in the
 // reader's locale. L-4b: what the server words from data (warnings, reasons,
-// arithmetic, sources, the season line, held lines, option labels and
-// efficiencies) comes worded in the reader's language from /api/stock, and
-// the headlines built here are the "stockWords" catalogue.
+// arithmetic, sources, the season line, held lines, option labels) comes
+// worded in the reader's language from /api/stock.
 
 import "../../app/stock.css";
-import "../../app/viz.css";
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import type { ReactNode } from "react";
@@ -28,38 +34,32 @@ import { useTranslations } from "next-intl";
 import type {
   CoverBlock,
   CoverItemView,
+  PoBlock,
   StockItemView,
   StockView,
 } from "../../app/api/stock/route";
-import { dayMonthYear } from "../../lib/i18n/format";
-import type { OutsideView } from "../../lib/signals/view";
+import { dayMonth, dayMonthYear, presentMoney } from "../../lib/i18n/format";
 import { holidaysInStretch } from "../../lib/signals/view";
-import { holidaySource, leadHolidayLine, leadHolidayShort } from "../signals/holiday-words";
-import { intlTag } from "../../lib/i18n/locales";
+import { holidaySource, leadHolidayLine } from "../signals/holiday-words";
 import { StockHistoryChart } from "../charts/StockHistoryChart";
-import { PurchaseOrdersCard } from "./PurchaseOrders";
+import { DraftForm, Orders } from "./PurchaseOrders";
 import { Fold } from "../sheet/Fold";
 import { PageHead, SheetCard } from "../sheet/PageHead";
-import { num } from "../sheet/num";
+import { moneyText, num } from "../sheet/num";
 import { useTr } from "../sheet/useTr";
 import type { StockWords } from "./stock-view";
 import {
-  cashBars,
-  cashText,
   coverBars,
-  coverFlagClass,
-  coverText,
-  flagClass,
-  flagLower,
-  flagWord,
+  itemStatus,
+  lastsDays,
+  lastsWords,
   leadText,
-  moneyLine,
+  plainTitle,
+  plainWhy,
   proposalWord,
-  quietText,
   statedVsMeasured,
+  statusTone,
   statusWord,
-  stockHeadline,
-  vsPriorText,
 } from "./stock-view";
 
 /** The columns the stock-file importer reads (lib/stock/import.ts): its own English header words. */
@@ -76,419 +76,543 @@ const pct = (share: number) => `${(share * 100).toFixed(2)}%`;
 
 function Frame({
   title,
-  aside,
+  lede,
   children,
 }: {
   title: ReactNode;
-  aside?: ReactNode;
+  lede?: ReactNode;
   children?: ReactNode;
 }) {
   const { tr } = useStockWords();
   return (
     <main className="screen st-screen">
-      <PageHead kicker={tr("kicker")} title={title} aside={aside} />
+      <PageHead kicker={tr("kicker")} title={title}>
+        {lede && <p className="st-lede">{lede}</p>}
+      </PageHead>
       {children}
     </main>
   );
 }
 
-function SlowTable({ items }: { items: StockItemView[] }) {
+/** The line under the title: why order now, what is already out, what is tied up. */
+function ledeOf(view: StockView, { tr, locale }: StockWords): string {
+  const items = view.cover?.items ?? [];
+  const first = items.find((i) => i.warning !== null);
+  const lines: string[] = [];
+  if (first) {
+    lines.push(
+      first.lead.supplier
+        ? tr("plain.ledeOrder", { supplier: first.lead.supplier, days: first.lead.days })
+        : tr("plain.ledeOrderAny", { days: first.lead.days }),
+    );
+  }
+  const out = items.filter((i) => i.flag === "SOLD OUT").map((i) => i.name);
+  if (out.length > 0) {
+    lines.push(tr("plain.ledeSoldOut", { count: out.length, names: out.join(", ") }));
+  }
+  const slow = view.slow ?? [];
+  const tied = (view.totals ?? []).filter((t) => t.cash_tied_minor > 0);
+  if (slow.length > 0 && tied.length > 0) {
+    lines.push(
+      tr("plain.ledeTied", {
+        amount: tied.map((t) => moneyText(t.cash_tied_minor, t.currency, locale)).join(" + "),
+        count: slow.length,
+      }),
+    );
+  }
+  return lines.join(" ");
+}
+
+/* ── Order now ── */
+
+function OrderItem({
+  item,
+  view,
+  windowDays,
+}: {
+  item: CoverItemView;
+  view: StockView;
+  windowDays: number;
+}) {
   const words = useStockWords();
   const { tr, locale } = words;
-  const sold = tr("col.sold", { days: num(90, 0, locale) });
-  const bars = cashBars(items);
-  const drawn = bars.some((b) => b !== null);
+  const signals = useTr("signals");
+  const d = lastsDays(item, view.today);
+  const today = d === null || (d.low === 0 && (d.high ?? 0) === 0);
+  const late = d === null || item.lead.days > d.low;
+  const holidays = view.today
+    ? leadHolidayLine(
+        holidaysInStretch(view.cover?.outside ?? null, view.today, item.lead.days),
+        signals.tr,
+        signals.locale,
+      )
+    : null;
+  const note = item.reorder?.proposal ? statusWord(item.reorder.proposal, tr) : null;
   return (
-    <div className="st-table-wrap" tabIndex={0} aria-label={tr("slowTable")}>
-      <table className="rt rt-stack st-table">
+    <div className="st-oi">
+      <p className="st-oi-name">
+        {item.name}
+        {note && <span className={`word ${note.tone}`}>{note.word}</span>}
+      </p>
+      {item.sold_recent !== null && item.per_day !== null && (
+        <p>
+          {tr("order.pace", {
+            onHand: item.on_hand,
+            day: dayMonth(item.as_of, locale),
+            perDay: num(Math.round(item.per_day), 0, locale),
+            sold: item.sold_recent,
+            window: windowDays,
+          })}{" "}
+          {today
+            ? tr("order.runsToday")
+            : d && d.high !== null && d.high !== d.low
+              ? tr("order.runsRange", {
+                  low: num(d.low, 0, locale),
+                  high: num(d.high, 0, locale),
+                })
+              : tr("order.runsIn", { count: d?.low ?? 0 })}
+        </p>
+      )}
+      <p>
+        {item.lead.supplier
+          ? tr(late ? "order.late" : "order.inTime", {
+              supplier: item.lead.supplier,
+              days: item.lead.days,
+            })
+          : tr(late ? "order.lateAny" : "order.inTimeAny", { days: item.lead.days })}
+        {item.boosted && <> {tr("order.boosted")}</>}
+      </p>
+      {holidays !== null && <p className="st-why">{holidays}</p>}
+    </div>
+  );
+}
+
+function OrderCard({
+  view,
+  cover,
+  po,
+  onChange,
+  onReorder,
+  reordering,
+  reordered,
+}: {
+  view: StockView;
+  cover: CoverBlock;
+  po: PoBlock | null;
+  onChange: () => Promise<void>;
+  onReorder: () => void;
+  reordering: boolean;
+  reordered: string | null;
+}) {
+  const words = useStockWords();
+  const { tr, locale } = words;
+  const warned = cover.items.filter((i) => i.reorder !== null);
+  const soldOut = cover.items.filter((i) => i.flag === "SOLD OUT" && i.reorder === null);
+  const drafted = new Set((po?.drafts ?? []).flatMap((d) => d.lines.map((l) => l.key)));
+  const reminders = warned.filter((i) => !drafted.has(i.key));
+  const whys = new Map(
+    warned.flatMap((i) => {
+      const why = plainWhy(i, words);
+      return why ? [[i.key, why] as const] : [];
+    }),
+  );
+  const sources = (view.sources ?? []).filter((s) => s.as_of !== null);
+  if (warned.length === 0 && soldOut.length === 0 && (po?.orders.length ?? 0) === 0) return null;
+  return (
+    <SheetCard className="st-card" title={tr("order.title")}>
+      {sources.length > 0 && (
+        <p className="st-src-line">
+          {tr("order.src", {
+            source: sources.map((s) => s.label).join(", "),
+            day: dayMonth(sources[0]!.as_of!, locale),
+          })}
+        </p>
+      )}
+      {po?.held && <p className="st-copy">{po.held}</p>}
+      {warned.length > 0 && (
+        <div className={(po?.drafts.length ?? 0) > 0 ? "st-order" : undefined}>
+          <div>
+            {warned.map((i) => (
+              <OrderItem key={i.key} item={i} view={view} windowDays={cover.window_days} />
+            ))}
+            {soldOut.map((i) => (
+              <p key={i.key} className="st-also">
+                {tr("order.soldOut", {
+                  name: i.name,
+                  sold: i.sold_recent ?? 0,
+                  window: cover.window_days,
+                })}
+              </p>
+            ))}
+          </div>
+          {po && po.drafts.length > 0 && (
+            <div className="st-po-col">
+              {po.drafts.map((d) => (
+                <DraftForm
+                  key={d.supplier.id}
+                  draft={d}
+                  held={po.held}
+                  sending={po.sending}
+                  whys={whys}
+                  onMade={onChange}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+      {warned.length === 0 &&
+        soldOut.map((i) => (
+          <p key={i.key} className="st-copy">
+            {tr("order.soldOut", {
+              name: i.name,
+              sold: i.sold_recent ?? 0,
+              window: cover.window_days,
+            })}
+          </p>
+        ))}
+      {reminders.length > 0 && (
+        <div className="st-remind">
+          <p className="st-copy">
+            {tr("order.noSupplier", { items: reminders.map((i) => i.name).join(", ") })}{" "}
+            <Link href="/profile">{tr("factSheet")}</Link>
+          </p>
+          <button
+            type="button"
+            className="act"
+            disabled={
+              reordering || cover.held !== null || reminders.every((i) => i.reorder?.proposal)
+            }
+            onClick={onReorder}
+          >
+            {reordering ? tr("workingItOut") : tr("order.remind")}
+          </button>
+          <p className="st-why">{cover.held ?? tr("order.remindAfter")}</p>
+          {reordered && (
+            <p className="st-copy">
+              {reordered} <Link href="/proposals">{tr("waitingForYou")}</Link>
+            </p>
+          )}
+        </div>
+      )}
+      {po && po.orders.length > 0 && (
+        <div className="st-made">
+          <h3 className="st-h3">{tr("order.made")}</h3>
+          <Orders block={po} onChange={onChange} />
+        </div>
+      )}
+    </SheetCard>
+  );
+}
+
+/* ── How long each item lasts ── */
+
+function LastsCard({ view, cover }: { view: StockView; cover: CoverBlock }) {
+  const words = useStockWords();
+  const { tr, locale } = words;
+  const bars = coverBars(cover.items, view.today);
+  const slowKeys = new Set((view.slow ?? []).filter((s) => s.flag === "SLOW").map((s) => s.key));
+  const leads = [...new Set(cover.items.map((i) => i.lead.days))];
+  return (
+    <SheetCard className="st-card" title={tr("lasts.title")}>
+      <p className="st-src-line">{tr("lasts.src")}</p>
+      <table className="st-lasts">
         <thead>
           <tr>
             <th scope="col">{tr("col.item")}</th>
             <th scope="col" className="num">
-              {tr("col.onHand")}
+              {tr("lasts.colStock")}
             </th>
             <th scope="col" className="num">
-              {sold}
+              {tr("lasts.colSold", { days: cover.window_days })}
             </th>
-            <th scope="col" className="num">
-              {tr("col.cover")}
+            <th scope="col" className="st-barc">
+              {tr("lasts.colLasts")}
             </th>
-            <th scope="col" className="num">
-              {tr("col.sinceSale")}
+            <th scope="col">
+              <span className="sr-only">{tr("lasts.colDays")}</span>
             </th>
-            <th scope="col" className="num">
-              {tr("col.cashTied")}
+            <th scope="col">
+              <span className="sr-only">{tr("lasts.colStatus")}</span>
             </th>
-            {drawn && <th aria-hidden="true" />}
-            <th scope="col">{tr("col.flag")}</th>
-            <th scope="col">{tr("col.ways")}</th>
           </tr>
         </thead>
         <tbody>
-          {items.map((item, k) => {
-            const usable = item.options.filter((o) => o.unavailable === null).slice(0, 3);
+          {cover.items.map((item, k) => {
             const bar = bars[k] ?? null;
+            const status = itemStatus(item, slowKeys);
             return (
               <tr key={item.key}>
-                <th scope="row">
-                  {item.name}
-                  <span className="st-src">{item.source}</span>
-                </th>
-                <td className="num" data-label={tr("col.onHand")}>
+                <th scope="row">{item.name}</th>
+                <td className="num" data-label={tr("lasts.colStock")}>
                   {num(item.on_hand, 0, locale)}
                 </td>
-                <td className="num" data-label={sold}>
-                  {item.sold[90] === null ? "-" : num(item.sold[90], 0, locale)}
+                <td className="num" data-label={tr("lasts.colSold", { days: cover.window_days })}>
+                  {item.sold_recent === null ? "-" : num(item.sold_recent, 0, locale)}
                 </td>
-                <td className="num" data-label={tr("col.cover")}>
-                  {coverText(item, words)}
-                </td>
-                <td className="num" data-label={tr("col.sinceSale")}>
-                  {quietText(item, locale)}
-                </td>
-                <td className="num" data-label={tr("col.cashTied")}>
-                  {cashText(item.cash_tied_minor, item.currency, words)}
-                  {item.cost_basis === "stated" && <span className="st-src">{tr("yourCost")}</span>}
-                </td>
-                {drawn && (
-                  <td className="st-bar" aria-hidden="true">
+                <td className="st-barc" aria-hidden="true">
+                  <span className="st-track">
                     {bar && (
-                      <span className="vz-bar-track">
+                      <>
+                        {bar.high !== null && bar.high > bar.low && (
+                          <span
+                            className={`st-fill st-rest st-${statusTone(status)}`}
+                            style={{ width: pct(bar.high) }}
+                          />
+                        )}
                         <span
-                          className={`vz-bar-fill vz-${bar.tone}`}
-                          style={{ left: 0, width: pct(bar.share) }}
+                          className={`st-fill st-${statusTone(status)}`}
+                          style={{ width: pct(Math.max(bar.low, 0.012)) }}
                         />
-                      </span>
+                        <span className="st-tick" style={{ left: pct(bar.lead) }} />
+                      </>
                     )}
-                  </td>
-                )}
-                <td data-label={tr("col.flag")}>
-                  <span className={`flag ${flagClass(item.flag)}`}>{flagWord(item.flag, tr)}</span>
+                  </span>
                 </td>
-                <td data-label={tr("col.ways")}>
-                  <ol className="st-opts">
-                    {usable.map((o) => {
-                      const w = proposalWord(o, tr);
-                      return (
-                        <li key={o.key}>
-                          <span>{o.label}</span>
-                          {w && <span className={`word ${w.tone}`}>{w.word}</span>}
-                        </li>
-                      );
-                    })}
-                    {usable.length === 0 && <li className="st-none">{tr("nothingToPropose")}</li>}
-                  </ol>
+                <td className="st-lw" data-label={tr("lasts.colLasts")}>
+                  {lastsWords(item, view.today, words)}
+                </td>
+                <td className={`st-status st-${statusTone(status)}-word`}>
+                  {tr(`status.${status}`)}
                 </td>
               </tr>
             );
           })}
         </tbody>
       </table>
-    </div>
+      <p className="st-key">
+        <i aria-hidden="true" />
+        {leads.length === 1 ? tr("lasts.keyOne", { days: leads[0]! }) : tr("lasts.key")}{" "}
+        {tr("lasts.keyPale")}
+      </p>
+    </SheetCard>
   );
 }
 
-function CoverTable({ cover, today }: { cover: CoverBlock; today: string | undefined }) {
+/* ── Not selling ── */
+
+/** Money in whole units: the ways are estimates, and cents would claim a precision they lack. */
+function money(minor: number, currency: string | null, locale: StockWords["locale"]): string {
+  return currency === null
+    ? "-"
+    : presentMoney({ amount_minor: minor, currency }, locale, { whole: true });
+}
+
+function SlowCard({
+  view,
+  onPropose,
+  proposing,
+  proposed,
+}: {
+  view: StockView;
+  onPropose: () => void;
+  proposing: boolean;
+  proposed: string | null;
+}) {
   const words = useStockWords();
   const { tr, locale } = words;
-  const n = num(cover.window_days, 0, locale);
-  const sold = tr("col.sold", { days: n });
-  const vsPrior = tr("col.vsPrior", { days: n });
-  const bars = coverBars(cover.items, today);
-  const drawn = bars.some((b) => b !== null);
-  // Outside signals: the public holidays on a working day inside each item's delivery
-  // time, counted from today. Said beside the time, and counted in none of it.
-  const signals = useTr("signals");
-  const outside = cover.outside ?? null;
-  const inLead = (item: CoverItemView) =>
-    today ? holidaysInStretch(outside, today, item.lead.days) : [];
-  const source = cover.items.some((i) => inLead(i).length > 0)
-    ? holidaySource(outside, signals.tr, signals.locale)
-    : null;
+  const slow = view.slow ?? [];
+  const tied = (view.totals ?? []).filter((t) => t.cash_tied_minor > 0);
+  const lead = slow[0];
+  if (!lead) return null;
+  const blocked = lead.options.find((o) => o.proposal?.status === "blocked");
+  const line = (s: StockItemView) =>
+    s.days_of_cover !== null && s.sold[90] !== null
+      ? tr("slow.lineSlow", {
+          onHand: s.on_hand,
+          sold: s.sold[90],
+          months: Math.max(1, Math.round(s.days_of_cover / 30)),
+        })
+      : tr("slow.lineStuck", {
+          onHand: s.on_hand,
+          days: s.no_sale_for_at_least ?? s.days_since_sale ?? 0,
+        });
   return (
-    <>
-      <div className="st-table-wrap" tabIndex={0} aria-label={tr("coverTable")}>
-        <table className="rt rt-stack st-table">
-          <thead>
-            <tr>
-              <th scope="col">{tr("col.item")}</th>
-              <th scope="col" className="num">
-                {tr("col.onHand")}
-              </th>
-              <th scope="col" className="num">
-                {sold}
-              </th>
-              <th scope="col" className="num">
-                {vsPrior}
-              </th>
-              <th scope="col" className="num">
-                {tr("col.cover")}
-              </th>
-              {drawn && <th aria-hidden="true" />}
-              <th scope="col">{tr("col.delivery")}</th>
-              <th scope="col">{tr("col.flag")}</th>
-            </tr>
-          </thead>
-          <tbody>
-            {cover.items.map((item, k) => {
-              const bar = bars[k] ?? null;
+    <SheetCard
+      className="st-card"
+      title={tr("slow.plainTitle", {
+        amount: tied.map((t) => moneyText(t.cash_tied_minor, t.currency, locale)).join(" + "),
+      })}
+    >
+      <p className="st-src-line">{tr("slow.plainSrc")}</p>
+      <div className="st-tiles">
+        {slow.map((s) => (
+          <div key={s.key} className="st-tile">
+            <p className="st-tile-name">{s.name}</p>
+            <p>{line(s)}</p>
+            <p className="st-tile-fig">
+              {s.cash_tied_minor === null
+                ? tr("view.unknown")
+                : money(s.cash_tied_minor, s.currency, locale)}
+              {s.cost_basis === "stated" && <span className="st-src">{tr("yourCost")}</span>}
+            </p>
+          </div>
+        ))}
+      </div>
+      <h3 className="st-h3">{tr("ways.title", { name: lead.name })}</h3>
+      <table className="st-ways">
+        <thead>
+          <tr>
+            <th scope="col">{tr("ways.colWay")}</th>
+            <th scope="col" className="num">
+              {tr("ways.colBack")}
+            </th>
+            <th scope="col" className="num">
+              {tr("ways.colGiven")}
+            </th>
+            <th scope="col" className="num">
+              {tr("ways.colKeep")}
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {lead.options.map((o) => {
+            const w = proposalWord(o, tr);
+            const net = o.recovered.expected - o.given_up.expected;
+            if (o.unavailable !== null) {
               return (
-                <tr key={item.key}>
-                  <th scope="row">
-                    {item.name}
-                    <span className="st-src">{item.source}</span>
-                  </th>
-                  <td className="num" data-label={tr("col.onHand")}>
-                    {num(item.on_hand, 0, locale)}
-                  </td>
-                  <td className="num" data-label={sold}>
-                    {item.sold_recent === null ? "-" : num(item.sold_recent, 0, locale)}
-                  </td>
-                  <td className="num" data-label={vsPrior} title={item.sell_through}>
-                    {vsPriorText(item, words)}
-                    {item.vs_prior && item.vs_prior.band > 0 && (
-                      <span className="st-src">
-                        {tr("chance", { band: num(item.vs_prior.band, 0, locale) })}
-                      </span>
-                    )}
-                  </td>
-                  <td className="num" data-label={tr("col.cover")} title={item.why ?? item.sources}>
-                    {item.cover_text}
-                    {item.boosted && <span className="st-src">{tr("boosted")}</span>}
-                  </td>
-                  {drawn && (
-                    <td className="st-bar" aria-hidden="true">
-                      {bar && (
-                        <span className="vz-bar-track">
-                          {bar.high !== null && bar.high > bar.low && (
-                            <span
-                              className={`vz-bar-rest vz-${bar.tone}`}
-                              style={{ left: 0, width: pct(bar.high) }}
-                            />
-                          )}
-                          <span
-                            className={`vz-bar-fill vz-${bar.tone}`}
-                            style={{ left: 0, width: pct(bar.low) }}
-                          />
-                          <span className="vz-bar-ref" style={{ left: pct(bar.lead) }} />
-                        </span>
-                      )}
-                    </td>
-                  )}
-                  <td data-label={tr("col.delivery")} title={item.lead.why}>
-                    <span className="st-mono">{leadText(item, words)}</span>
-                    {inLead(item).length > 0 && (
-                      // A fold, not a title: a finger and a keyboard can open it too.
-                      <Fold
-                        className="st-holiday"
-                        summary={leadHolidayShort(inLead(item), signals.tr)}
-                      >
-                        <p>{leadHolidayLine(inLead(item), signals.tr, signals.locale)}</p>
-                      </Fold>
-                    )}
-                  </td>
-                  <td data-label={tr("col.flag")}>
-                    <span className={`flag ${coverFlagClass(item.flag)}`}>
-                      {flagWord(item.flag, tr)}
-                    </span>
-                  </td>
+                <tr key={o.key} className="st-off">
+                  <th scope="row">{o.label}</th>
+                  <td colSpan={3}>{tr("ranking.cantPropose", { why: o.unavailable })}</td>
                 </tr>
               );
-            })}
-          </tbody>
-        </table>
-      </div>
-      {drawn && (
-        <p className="vz-ref-note">
-          <i aria-hidden="true" />
-          {tr("col.delivery")}
-        </p>
-      )}
-      {source !== null && <p className="st-outside">{source}</p>}
-    </>
-  );
-}
-
-function ReorderNote({
-  item,
-  outside,
-  today,
-}: {
-  item: CoverItemView;
-  outside: OutsideView | null;
-  today: string | undefined;
-}) {
-  const words = useStockWords();
-  const { tr, locale } = words;
-  const signals = useTr("signals");
-  const r = item.reorder!;
-  // Outside signals: the public holidays inside this item's delivery time, in full here
-  // where there is room for the days and their names. Counted in nothing.
-  const holidayLine = today
-    ? leadHolidayLine(holidaysInStretch(outside, today, item.lead.days), signals.tr, signals.locale)
-    : null;
-  const w = r.proposal ? statusWord(r.proposal, tr) : null;
-  const quantity = num(r.quantity, 0, locale);
-  return (
-    <SheetCard
-      label={tr("reorder.label", { flag: flagLower(item.flag, words) })}
-      title={
-        item.lead.supplier
-          ? tr("reorder.titleFrom", { name: item.name, quantity, supplier: item.lead.supplier })
-          : tr("reorder.title", { name: item.name, quantity })
-      }
-      meta={tr("reorder.meta")}
-    >
-      <p className="st-copy st-warn">
-        {item.warning}
-        {w && <span className={`word ${w.tone}`}>{w.word}</span>}
-      </p>
-      {holidayLine !== null && <p className="st-copy st-holiday-line">{holidayLine}</p>}
-      {r.cost && <p className="st-rank-fig">{moneyLine(r.cost, words)}</p>}
-      {r.proposal?.status === "blocked" && r.proposal.blocked_by_limit && (
-        <p className="st-rank-math">{tr("ruledOut", { rule: r.proposal.blocked_by_limit })}</p>
-      )}
-      <p className="st-copy">{tr("reorder.approving")}</p>
-      {/* L6: the working stays on the page, one press away (the fold's rule). */}
-      <Fold label="why">
-        <p className="st-rank-math">{r.arithmetic}</p>
-        {r.cost_arithmetic && <p className="st-rank-math">{r.cost_arithmetic}</p>}
-        <p className="st-rank-math">{tr("reorder.sources", { sources: item.sources })}</p>
-        {item.assumed.length > 0 && (
-          <ul className="st-assumed">
-            {item.assumed.map((a) => (
-              <li key={a}>{a}</li>
-            ))}
-          </ul>
-        )}
-      </Fold>
-    </SheetCard>
-  );
-}
-
-function CoverCard({
-  cover,
-  today,
-  onReorder,
-  busy,
-  note,
-}: {
-  cover: CoverBlock;
-  today: string | undefined;
-  onReorder: () => void;
-  busy: boolean;
-  note: string | null;
-}) {
-  const { tr, locale } = useStockWords();
-  const warned = cover.items.filter((i) => i.reorder !== null);
-  const waiting = warned.every((i) => i.reorder?.proposal);
-  return (
-    <SheetCard
-      label={tr("cover.label", {
-        warned: num(cover.warnings, 0, locale),
-        total: num(cover.items.length, 0, locale),
-      })}
-      title={cover.warnings > 0 ? tr("cover.titleWarned") : tr("cover.titleNone")}
-      foot={
-        warned.length > 0 ? (
-          <span className="st-foot-row">
-            <span>{cover.held ?? tr("cover.held")}</span>
-            <button
-              type="button"
-              className="act"
-              disabled={busy || cover.held !== null || waiting}
-              onClick={onReorder}
-            >
-              {busy ? tr("workingItOut") : tr("cover.button")}
-            </button>
-          </span>
-        ) : undefined
-      }
-    >
-      <CoverTable cover={cover} today={today} />
-      {/* L6: how cover is worked out, and the season it counts, fold away. */}
-      <Fold label="how">
-        <p className="st-copy">
-          {tr("cover.meta", {
-            days: num(cover.window_days, 0, locale),
-            lead: num(cover.default_lead_days, 0, locale),
-          })}
-        </p>
-        <p className="st-copy">{cover.season}</p>
-      </Fold>
-      {busy && (
-        <p className="st-copy live">
-          <span className="live-dot" aria-hidden="true" /> {tr("cover.working")}
-        </p>
-      )}
-      {note && (
-        <p className="st-copy">
-          {note} <Link href="/proposals">{tr("waitingForYou")}</Link>
-        </p>
-      )}
-    </SheetCard>
-  );
-}
-
-function Ranking({ item }: { item: StockItemView }) {
-  const words = useStockWords();
-  const { tr, locale } = words;
-  const blocked = item.options.find((o) => o.proposal?.status === "blocked");
-  return (
-    <SheetCard
-      label={tr("ranking.label", { flag: flagLower(item.flag, words), why: item.why })}
-      title={tr("ranking.title", { name: item.name })}
-      meta={tr("ranking.meta")}
-    >
-      <ol className="st-rank">
-        {item.options.map((o, i) => {
-          const w = proposalWord(o, tr);
-          return (
-            <li key={o.key} className={o.unavailable !== null ? "off" : undefined}>
-              <span className="n">{String(i + 1).padStart(2, "0")}</span>
-              <div>
-                <p className="st-rank-head">
-                  <strong>{o.label}</strong>
+            }
+            return (
+              <tr key={o.key} className={net < 0 ? "st-neg" : undefined}>
+                <th scope="row">
+                  {o.label}
                   {w && <span className={`word ${w.tone}`}>{w.word}</span>}
-                </p>
-                <p className="st-rank-fig">
-                  {o.unavailable !== null
-                    ? tr("ranking.cantPropose", { why: o.unavailable })
-                    : o.efficiency}
-                </p>
-                {o.proposal?.status === "blocked" && o.proposal.blocked_by_limit && (
-                  <p className="st-rank-math">
-                    {tr("ruledOut", { rule: o.proposal.blocked_by_limit })}
-                  </p>
-                )}
-              </div>
-            </li>
-          );
-        })}
-      </ol>
-      {/* L6: each option's sum, in the options' order, one press away. */}
-      {item.options.some((o) => o.unavailable === null) && (
-        <Fold label="how">
-          <ul className="st-assumed st-how">
-            {item.options
-              .filter((o) => o.unavailable === null)
-              .map((o) => (
-                <li key={o.key}>
-                  <strong>{o.label}</strong>
-                  {o.arithmetic}
-                </li>
-              ))}
-          </ul>
-        </Fold>
-      )}
+                </th>
+                <td className="num" data-label={tr("ways.colBack")}>
+                  {money(o.recovered.expected, lead.currency, locale)}
+                </td>
+                <td className="num" data-label={tr("ways.colGiven")}>
+                  {o.given_up.expected === 0
+                    ? tr("ways.nothing")
+                    : money(o.given_up.expected, lead.currency, locale)}
+                </td>
+                <td className="num st-keep" data-label={tr("ways.colKeep")}>
+                  {net < 0
+                    ? tr("ways.loses", { amount: money(-net, lead.currency, locale) })
+                    : money(net, lead.currency, locale)}
+                </td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+      {slow.slice(1).map((s) => {
+        const best = Math.max(
+          0,
+          ...s.options
+            .filter((o) => o.unavailable === null)
+            .map((o) => o.recovered.expected - o.given_up.expected),
+        );
+        return best > 0 ? (
+          <p key={s.key} className="st-why">
+            {tr("ways.others", { amount: money(best, s.currency, locale), name: s.name })}
+          </p>
+        ) : null;
+      })}
+      <p className="st-why">{tr("ways.yourself")}</p>
       {blocked && (
         <p className="st-copy">
           {tr("ranking.blocked", {
-            option: blocked.label_inline ?? blocked.label.toLocaleLowerCase(intlTag(locale)),
+            option: blocked.label_inline ?? blocked.label.toLocaleLowerCase(),
           })}
         </p>
       )}
+      <div className="st-act-row">
+        <button
+          type="button"
+          className="act"
+          disabled={proposing || view.held !== null}
+          onClick={onPropose}
+        >
+          {proposing ? tr("workingItOut") : tr("slow.plainButton")}
+        </button>
+        <span className="st-why">
+          {view.held ??
+            tr("slow.plainAfter", {
+              count: Math.min(slow.length, view.thresholds?.max_items ?? 3),
+            })}
+        </span>
+      </div>
+      {proposed && (
+        <p className="st-copy">
+          {proposed} <Link href="/proposals">{tr("waitingForYou")}</Link>
+        </p>
+      )}
     </SheetCard>
+  );
+}
+
+/* ── the method, folded ── */
+
+function HowFold({ view }: { view: StockView }) {
+  const words = useStockWords();
+  const sentences = useTr("stockWords");
+  const signals = useTr("signals");
+  const { tr, locale } = words;
+  const cover = view.cover;
+  const th = view.thresholds;
+  const svm = statedVsMeasured(view, sentences);
+  const outside = cover?.outside ?? null;
+  const anyHoliday =
+    !!view.today &&
+    (cover?.items ?? []).some(
+      (i) => holidaysInStretch(outside, view.today!, i.lead.days).length > 0,
+    );
+  return (
+    <Fold className="st-how" summary={tr("plain.how")}>
+      <ul className="st-list">
+        {cover && (
+          <>
+            <li>
+              {tr("cover.meta", {
+                days: num(cover.window_days, 0, locale),
+                lead: num(cover.default_lead_days, 0, locale),
+              })}
+            </li>
+            <li>{cover.season}</li>
+            {anyHoliday && <li>{holidaySource(outside, signals.tr, signals.locale)}</li>}
+            {cover.items.map((i) => (
+              <li key={i.key}>
+                <b>{i.name}</b> {i.sell_through} {leadText(i, words)}.{i.why && <> {i.why}</>}
+                {i.reorder && (
+                  <>
+                    {" "}
+                    {i.reorder.arithmetic} {i.reorder.cost_arithmetic}
+                  </>
+                )}
+                {i.assumed.length > 0 && <> {i.assumed.join("; ")}.</>}
+              </li>
+            ))}
+          </>
+        )}
+        {th && (view.slow ?? []).length > 0 && (
+          <li>
+            {tr("slow.meta", {
+              stuck: tr("flag.stuck"),
+              stuckDays: num(th.stuck_no_sale_days, 0, locale),
+              slow: tr("flag.slow"),
+              slowDays: num(th.slow_cover_days, 0, locale),
+            })}
+          </li>
+        )}
+        {(view.slow ?? []).map((s) => (
+          <li key={s.key}>
+            <b>{s.name}</b> {s.why}.{" "}
+            {s.options
+              .filter((o) => o.unavailable === null)
+              .map((o) => `${o.label}: ${o.arithmetic}`)
+              .join(" ")}
+          </li>
+        ))}
+        {svm && <li>{svm}</li>}
+      </ul>
+      {view.history && <StockHistoryChart model={view.history} />}
+    </Fold>
   );
 }
 
@@ -655,14 +779,19 @@ export function StockScreen() {
     void load();
   }, [load]);
 
-  const propose = async () => {
-    setProposing(true);
-    setProposed(null);
+  const post = async (
+    action: "propose" | "reorder",
+    kind: "proposals" | "notes",
+    setBusy: (b: boolean) => void,
+    setSaid: (s: string | null) => void,
+  ) => {
+    setBusy(true);
+    setSaid(null);
     try {
       const res = await fetch("/api/stock", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ action: "propose" }),
+        body: JSON.stringify({ action }),
       });
       const body = (await res.json()) as {
         error?: string;
@@ -670,42 +799,15 @@ export function StockScreen() {
         blocked?: number;
         skipped?: { reason: string }[];
       };
-      if (!res.ok) setProposed(body.error ?? tr("result.didntWork"));
+      if (!res.ok) setSaid(body.error ?? tr("result.didntWork"));
       else {
-        setProposed(resultWords(tr, body, "proposals"));
+        setSaid(resultWords(tr, body, kind));
         await load();
       }
     } catch {
-      setProposed(tr("result.ourSide"));
+      setSaid(tr("result.ourSide"));
     } finally {
-      setProposing(false);
-    }
-  };
-
-  const reorder = async () => {
-    setReordering(true);
-    setReordered(null);
-    try {
-      const res = await fetch("/api/stock", {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({ action: "reorder" }),
-      });
-      const body = (await res.json()) as {
-        error?: string;
-        created?: number;
-        blocked?: number;
-        skipped?: { reason: string }[];
-      };
-      if (!res.ok) setReordered(body.error ?? tr("result.didntWork"));
-      else {
-        setReordered(resultWords(tr, body, "notes"));
-        await load();
-      }
-    } catch {
-      setReordered(tr("result.ourSide"));
-    } finally {
-      setReordering(false);
+      setBusy(false);
     }
   };
 
@@ -738,107 +840,35 @@ export function StockScreen() {
 
   const slow = view.slow ?? [];
   const sources = (view.sources ?? []).filter((s) => s.as_of !== null);
-  const aside = (
-    <>
-      {sources.length === 0
-        ? tr("nothingRead")
-        : sources
-            .map((s) => `${s.label} ${s.as_of ? dayMonthYear(s.as_of, locale) : ""}`.trim())
-            .join(" · ")}{" "}
-      · {tr("measured")}
-    </>
-  );
   const th = view.thresholds;
-  const svm = statedVsMeasured(view, sentences);
   const stuckDays = num(th?.stuck_no_sale_days ?? 60, 0, locale);
   const slowDays = num(th?.slow_cover_days ?? 180, 0, locale);
-  const stuck = flagWord("STUCK", tr);
-  const slowWord = flagWord("SLOW", tr);
+  const cover = view.cover && view.cover.items.length > 0 ? view.cover : null;
 
   return (
-    <Frame title={stockHeadline(view, sentences)} aside={aside}>
-      {view.cover && view.cover.items.length > 0 && (
-        <>
-          <CoverCard
-            cover={view.cover}
-            today={view.today}
-            onReorder={() => void reorder()}
-            busy={reordering}
-            note={reordered}
-          />
-          {view.cover.items.some((i) => i.reorder !== null) && (
-            <div className="st-grid">
-              {view.cover.items
-                .filter((i) => i.reorder !== null)
-                .slice(0, 4)
-                .map((i) => (
-                  <ReorderNote
-                    key={i.key}
-                    item={i}
-                    outside={view.cover?.outside ?? null}
-                    today={view.today}
-                  />
-                ))}
-            </div>
-          )}
-        </>
+    <Frame title={plainTitle(view, words, sentences)} lede={ledeOf(view, words) || undefined}>
+      {cover && (
+        <OrderCard
+          view={view}
+          cover={cover}
+          po={view.purchase_orders ?? null}
+          onChange={load}
+          onReorder={() => void post("reorder", "notes", setReordering, setReordered)}
+          reordering={reordering}
+          reordered={reordered}
+        />
       )}
-
-      {view.purchase_orders &&
-        (view.purchase_orders.drafts.length > 0 ||
-          view.purchase_orders.orders.length > 0 ||
-          view.purchase_orders.unsupplied.length > 0) && (
-          <PurchaseOrdersCard block={view.purchase_orders} onChange={load} />
-        )}
-
+      {cover && <LastsCard view={view} cover={cover} />}
       {slow.length > 0 ? (
-        <SheetCard
-          label={tr("slow.label", {
-            slow: num(slow.length, 0, locale),
-            counted: num(view.counted ?? 0, 0, locale),
-          })}
-          title={tr("slow.title")}
-          meta={
-            th
-              ? tr("slow.meta", {
-                  stuck,
-                  stuckDays: num(th.stuck_no_sale_days, 0, locale),
-                  slow: slowWord,
-                  slowDays: num(th.slow_cover_days, 0, locale),
-                })
-              : undefined
-          }
-          foot={
-            <span className="st-foot-row">
-              <span>
-                {view.held ?? tr("slow.held", { count: num(th?.max_items ?? 3, 0, locale) })}
-              </span>
-              <button
-                type="button"
-                className="act"
-                disabled={proposing || view.held !== null}
-                onClick={propose}
-              >
-                {proposing ? tr("workingItOut") : tr("slow.button")}
-              </button>
-            </span>
-          }
-        >
-          <SlowTable items={slow} />
-          {proposing && (
-            <p className="st-copy live">
-              <span className="live-dot" aria-hidden="true" /> {tr("slow.working")}
-            </p>
-          )}
-          {proposed && (
-            <p className="st-copy">
-              {proposed} <Link href="/proposals">{tr("waitingForYou")}</Link>
-            </p>
-          )}
-        </SheetCard>
+        <SlowCard
+          view={view}
+          onPropose={() => void post("propose", "proposals", setProposing, setProposed)}
+          proposing={proposing}
+          proposed={proposed}
+        />
       ) : (
         <SheetCard
-          label={tr("slow.emptyLabel")}
+          className="st-card"
           title={sources.length === 0 ? tr("nothingRead") : tr("slow.nothingSlow")}
         >
           <p className="st-copy">
@@ -849,34 +879,19 @@ export function StockScreen() {
           </p>
         </SheetCard>
       )}
-
-      {view.history && <StockHistoryChart model={view.history} />}
-
-      <div className="st-grid">
-        {slow[0] ? (
-          <Ranking item={slow[0]} />
-        ) : (
-          <SheetCard label={tr("judge.label")} title={tr("judge.title")}>
-            <p className="st-copy">
-              {tr("judge.body", { stuck, stuckDays, slow: slowWord, slowDays })}
-            </p>
-          </SheetCard>
-        )}
-        <ImportCard onDone={() => void load()} />
-      </div>
-
-      {(svm || slow.length > 1) && (
-        <div className="st-grid">
-          {slow.slice(1, 3).map((item) => (
-            <Ranking key={item.key} item={item} />
-          ))}
-          {svm && (
-            <SheetCard label={tr("svm.label")} title={tr("svm.title")}>
-              <p className="st-copy">{svm}</p>
-            </SheetCard>
-          )}
-        </div>
+      {sources.length > 0 && (
+        <p className="st-read">
+          {tr("plain.read", {
+            sources: sources
+              .map((s) => `${s.label} ${s.as_of ? dayMonthYear(s.as_of, locale) : ""}`.trim())
+              .join(", "),
+          })}
+        </p>
       )}
+      <HowFold view={view} />
+      <Fold className="st-how" summary={tr("plain.importFold")}>
+        <ImportCard onDone={() => void load()} />
+      </Fold>
     </Frame>
   );
 }

@@ -286,3 +286,404 @@
   line-height: 1.5;
   color: var(--sheet-ink-2);
 }
+
+/* ── Said plainly (2026-11-28, the canvas design the owner approved) ──
+   One "Order now" card (the item beside its order), one table of how long
+   each item lasts (a bar per item, a tick at its delivery time, a status
+   word coloured by meaning), and "Not selling" with its ways ranked. Few
+   boxes, no capitals, figures in the app's own face with tabular numbers. */
+
+.st-screen {
+  --st-alarm: var(--alarm);
+  --st-drift: #a65a14;
+  --st-ok: var(--ok);
+  --st-low: var(--sheet-ink-2);
+}
+.st-screen .num {
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+  white-space: nowrap;
+}
+.st-lede {
+  margin: 8px 0 0;
+  max-width: var(--measure);
+  color: var(--desk-ink-2);
+  font-size: 16px;
+  line-height: 1.5;
+}
+.st-screen > .st-card {
+  margin-top: 16px;
+}
+.st-src-line {
+  margin: 0 0 14px;
+  max-width: var(--measure);
+  font-size: 13.5px;
+  color: var(--sheet-ink-2);
+}
+.st-why {
+  margin: 6px 0 0;
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--sheet-ink-2);
+}
+.st-h3 {
+  margin: 20px 0 8px;
+  font-size: 14px;
+  font-weight: 650;
+}
+
+/* Order now: the items on the left, the order on the right. */
+.st-order {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+  gap: 36px;
+  align-items: start;
+}
+.st-oi + .st-oi {
+  margin-top: 18px;
+}
+.st-oi p {
+  margin: 0 0 8px;
+  font-size: 14.5px;
+  line-height: 1.5;
+}
+.st-oi .st-oi-name {
+  font-size: 16px;
+  font-weight: 650;
+  margin-bottom: 6px;
+}
+.st-oi-name .word {
+  margin-left: 8px;
+}
+.st-also {
+  margin: 16px 0 0;
+  padding-top: 14px;
+  border-top: var(--hair);
+  font-size: 14px;
+}
+.st-po-col {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.st-screen .st-po {
+  margin: 0;
+  padding: 16px 18px;
+  border: var(--hair);
+  border-radius: var(--r-m, 6px);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.st-po-k {
+  margin: 0;
+  font-size: 13px;
+  color: var(--sheet-ink-2);
+}
+.st-po-lines {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.st-po-line {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.st-po-name {
+  font-weight: 650;
+  flex: 1 1 auto;
+}
+.st-po .st-qty {
+  width: 5.5em;
+  min-height: 40px;
+  padding: 6px 10px;
+  border: 1px solid var(--rule);
+  border-radius: var(--r-s, 4px);
+  background: var(--paper);
+  font-size: 16px;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+}
+.st-po-unit {
+  font-size: 13px;
+  color: var(--sheet-ink-2);
+}
+.st-po-total {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+}
+.st-po .st-field input,
+.st-po .st-field textarea {
+  font-family: var(--f-ui, inherit);
+  font-size: 14px;
+}
+.st-po .fold {
+  margin: 0;
+}
+.st-po-go {
+  align-self: flex-start;
+  min-height: 44px;
+}
+.st-remind {
+  margin-top: 18px;
+  padding-top: 14px;
+  border-top: var(--hair);
+}
+.st-remind .act {
+  margin-top: 10px;
+  min-height: 40px;
+}
+.st-made {
+  margin-top: 18px;
+  padding-top: 4px;
+  border-top: var(--hair);
+}
+
+/* How long each item lasts */
+.st-lasts,
+.st-ways {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+.st-lasts th,
+.st-lasts td,
+.st-ways th,
+.st-ways td {
+  padding: 9px 14px 9px 0;
+  text-align: left;
+  font-weight: 400;
+  vertical-align: middle;
+}
+.st-lasts :is(th, td):last-child,
+.st-ways :is(th, td):last-child {
+  padding-right: 0;
+}
+.st-lasts thead th,
+.st-ways thead th {
+  padding-top: 0;
+  font-size: 12.5px;
+  color: var(--sheet-ink-2);
+  vertical-align: bottom;
+}
+.st-lasts thead th.num,
+.st-ways thead th.num {
+  text-align: right;
+}
+.st-lasts tbody tr,
+.st-ways tbody tr {
+  border-top: var(--hair);
+}
+.st-lasts tbody th,
+.st-ways tbody th {
+  font-weight: 500;
+}
+.st-barc {
+  width: 30%;
+  min-width: 150px;
+  padding-left: 18px !important;
+}
+.st-track {
+  position: relative;
+  display: block;
+  height: 10px;
+  border-radius: 2px;
+  background: #e4ece7;
+}
+.st-fill {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  border-radius: 2px;
+}
+.st-fill.st-rest {
+  opacity: 0.4;
+}
+.st-fill.st-alarm {
+  background: var(--st-alarm);
+}
+.st-fill.st-drift {
+  background: var(--st-drift);
+}
+.st-fill.st-ok {
+  background: var(--st-ok);
+}
+.st-fill.st-low {
+  background: #9fb2a7;
+}
+.st-tick {
+  position: absolute;
+  top: -5px;
+  bottom: -5px;
+  width: 2px;
+  margin-left: -1px;
+  background: var(--sheet-ink);
+}
+.st-lw {
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.st-status {
+  font-weight: 650;
+  white-space: nowrap;
+}
+.st-alarm-word {
+  color: var(--st-alarm);
+}
+.st-drift-word {
+  color: #7a420e;
+}
+.st-ok-word {
+  color: var(--st-ok);
+}
+.st-low-word {
+  color: var(--st-low);
+}
+.st-key {
+  margin: 12px 0 0;
+  font-size: 12.5px;
+  color: var(--sheet-ink-2);
+}
+.st-key i {
+  display: inline-block;
+  width: 2px;
+  height: 14px;
+  margin-right: 8px;
+  vertical-align: -3px;
+  background: var(--sheet-ink);
+}
+
+/* Not selling */
+.st-tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 12px;
+}
+.st-tile {
+  padding: 14px 16px;
+  border: var(--hair);
+  border-radius: var(--r-m, 6px);
+}
+.st-tile p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.5;
+}
+.st-tile .st-tile-name {
+  margin-bottom: 4px;
+  font-size: 15px;
+  font-weight: 650;
+}
+.st-tile .st-tile-fig {
+  margin-top: 8px;
+  font-size: 20px;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+}
+.st-ways th .word {
+  margin-left: 8px;
+}
+.st-ways .st-keep {
+  font-weight: 650;
+}
+.st-ways tr.st-neg :is(th, td) {
+  color: #7a420e;
+}
+.st-ways tr.st-off :is(th, td) {
+  color: var(--sheet-ink-2);
+}
+.st-act-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 14px;
+  margin-top: 16px;
+}
+.st-act-row .act {
+  min-height: 40px;
+}
+.st-act-row .st-why {
+  margin: 0;
+}
+
+/* On the desk, under the cards: desk ink, where paper ink cannot be read. */
+.st-read {
+  margin: 14px 0 0;
+  font-size: 13.5px;
+  color: var(--desk-ink-2);
+}
+.st-screen > .st-how {
+  margin-top: 14px;
+  color: var(--desk-ink-2);
+}
+.st-list {
+  margin: 0;
+  padding: 0 0 0 18px;
+  font-size: 13.5px;
+  line-height: 1.55;
+}
+.st-list li + li {
+  margin-top: 6px;
+}
+
+@media (max-width: 900px) {
+  .st-order {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 20px;
+  }
+}
+@media (max-width: 760px) {
+  /* The tables stack: the item on top, each figure on its own line. */
+  .st-lasts thead,
+  .st-ways thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+  }
+  .st-lasts tbody tr,
+  .st-ways tbody tr {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 4px 12px;
+    padding: 10px 0;
+  }
+  .st-lasts tbody th,
+  .st-ways tbody th {
+    grid-column: 1 / -1;
+    padding: 0;
+    font-weight: 650;
+  }
+  .st-lasts td,
+  .st-ways td {
+    padding: 0;
+  }
+  .st-lasts td[data-label]::before,
+  .st-ways td[data-label]::before {
+    content: attr(data-label) " ";
+    color: var(--sheet-ink-2);
+  }
+  .st-lasts td.num,
+  .st-ways td.num {
+    text-align: left;
+    white-space: normal;
+  }
+  .st-lasts .st-barc {
+    grid-column: 1 / -1;
+    width: auto;
+    min-width: 0;
+    padding: 4px 0 !important;
+  }
+  .st-lasts .st-lw::before {
+    content: none;
+  }
+}

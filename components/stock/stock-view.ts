@@ -289,3 +289,117 @@ export function moneyLine(
 ): string {
   return w.tr("view.atCost", { amount: moneyText(m.amount_minor, m.currency, w.locale) });
 }
+
+/* ── Said plainly (2026-11-28, the canvas design the owner approved) ── */
+
+/** Days from today to each end of an item's run-out stretch; null with no run-out on record. */
+export function lastsDays(
+  item: Pick<CoverItemView, "runs_out">,
+  today: string | undefined,
+): { low: number; high: number | null } | null {
+  if (!today || !item.runs_out) return null;
+  return {
+    low: Math.max(0, daysFrom(today, item.runs_out.earliest)),
+    high: item.runs_out.latest === null ? null : Math.max(0, daysFrom(today, item.runs_out.latest)),
+  };
+}
+
+/** How long an item lasts, in words: "Runs out today", "12 to 18 days", "Sold out". */
+export function lastsWords(
+  item: Pick<CoverItemView, "runs_out" | "on_hand" | "flag">,
+  today: string | undefined,
+  w: StockWords = ENGLISH(),
+): string {
+  const { tr, locale } = w;
+  if (item.flag === "SOLD OUT" || item.on_hand <= 0) return tr("lasts.soldOut");
+  if (item.flag === "NO SALES") return tr("lasts.noSales");
+  const d = lastsDays(item, today);
+  if (!d) return tr("lasts.unknown");
+  if (d.low === 0 && (d.high ?? 0) === 0) return tr("lasts.today");
+  if (d.high === null || d.high === d.low) return tr("lasts.about", { count: d.low });
+  return tr("lasts.days", { low: num(d.low, 0, locale), high: num(d.high, 0, locale) });
+}
+
+/** What an item needs, as one word the row ends on; "tooMuch" for stock the slow list names. */
+export type ItemStatus = "order" | "soon" | "soldOut" | "enough" | "tooMuch" | "noSales" | "early";
+export function itemStatus(
+  item: Pick<CoverItemView, "flag" | "key">,
+  slowKeys: ReadonlySet<string> = new Set(),
+): ItemStatus {
+  switch (item.flag) {
+    case "ACT NOW":
+      return "order";
+    case "RUNNING LOW":
+      return "soon";
+    case "SOLD OUT":
+      return "soldOut";
+    case "NO SALES":
+      return "noSales";
+    case "IN RANGE":
+      return slowKeys.has(item.key) ? "tooMuch" : "enough";
+    default:
+      return "early";
+  }
+}
+
+/** The status word's colour: alarm for what needs doing now, drift for what's wrong the other way. */
+export function statusTone(s: ItemStatus): "alarm" | "drift" | "ok" | "low" {
+  if (s === "order" || s === "soldOut") return "alarm";
+  if (s === "soon" || s === "tooMuch" || s === "noSales") return "drift";
+  if (s === "enough") return "ok";
+  return "low";
+}
+
+/** Why the suggested quantity, in plain sentences, from the parts lib/stock/cover worked out. */
+export function plainWhy(item: CoverItemView, w: StockWords = ENGLISH()): string | null {
+  const { tr, locale } = w;
+  const r = item.reorder;
+  if (!r || item.per_day === null) return null;
+  const perDay = num(Math.round(item.per_day), 0, locale);
+  // The busy weeks are said whenever the order counts them: the demand over the delivery
+  // time is above the plain pace (the run-out's own `boosted` flag can differ).
+  const boosted = item.boosted || r.lead_demand > item.per_day * item.lead.days * 1.02;
+  const parts = [
+    tr(boosted ? "order.whyBoost" : "order.whyPlain", {
+      perDay,
+      days: item.lead.days,
+      demand: num(r.lead_demand, 0, locale),
+    }),
+  ];
+  if (r.safety > 0) {
+    parts.push(
+      tr("order.whySpare", {
+        safety: num(r.safety, 0, locale),
+        total: num(r.before_moq, 0, locale),
+      }),
+    );
+  }
+  if (r.rounded_to_moq && r.moq !== null) {
+    parts.push(
+      item.lead.supplier
+        ? tr("order.whyMoq", { supplier: item.lead.supplier, moq: num(r.moq, 0, locale) })
+        : tr("order.whyMoqAny", { moq: num(r.moq, 0, locale) }),
+    );
+  }
+  return parts.join(" ");
+}
+
+/** The page's title: the soonest stock-out in plain words, else the slow-stock line. */
+export function plainTitle(
+  view: StockView,
+  w: StockWords = ENGLISH(),
+  sentences: StockWords = SENTENCES(),
+): string {
+  const first = (view.cover?.items ?? []).find((i) => i.warning !== null);
+  if (!first) return headline(view, sentences);
+  const d = lastsDays(first, view.today);
+  if (!d || (d.low === 0 && (d.high ?? 0) === 0))
+    return w.tr("plain.titleToday", { name: first.name });
+  if (d.high === null || d.high === d.low)
+    return w.tr("plain.titleIn", { name: first.name, count: d.low });
+  return w.tr("plain.titleRange", {
+    name: first.name,
+    low: num(d.low, 0, w.locale),
+    high: num(d.high, 0, w.locale),
+  });
+}

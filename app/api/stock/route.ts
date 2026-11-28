@@ -148,8 +148,14 @@ export interface CoverItemView {
   /** Why it isn't judged, when it isn't. */
   why: string | null;
   boosted: boolean;
+  /** Units a day at the middle of the measured pace; null when not measured. */
+  per_day: number | null;
   reorder: {
     quantity: number;
+    /** The parts of the quantity, for the plain "why" (lib/stock/cover reorderFor). */
+    lead_demand: number;
+    safety: number;
+    before_moq: number;
     arithmetic: string;
     moq: number | null;
     rounded_to_moq: boolean;
@@ -351,9 +357,13 @@ export async function GET(): Promise<NextResponse> {
           warning_head: c.warning?.head ?? null,
           why: c.why,
           boosted: c.boosted,
+          per_day: c.rate ? c.rate.per_day : null,
           reorder: c.reorder
             ? {
                 quantity: c.reorder.quantity,
+                lead_demand: c.reorder.lead_demand.mid,
+                safety: c.reorder.safety,
+                before_moq: c.reorder.before_moq,
                 arithmetic: c.reorder.arithmetic,
                 moq: c.reorder.moq,
                 rounded_to_moq: c.reorder.rounded_to_moq,
