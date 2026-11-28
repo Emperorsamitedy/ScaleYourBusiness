@@ -13,11 +13,16 @@ import {
   coverFlagClass,
   coverText,
   headline,
+  itemStatus,
+  lastsWords,
   leadText,
   moneyLine,
+  plainTitle,
+  plainWhy,
   proposalWord,
   quietText,
   statedVsMeasured,
+  statusTone,
   statusWord,
   stockHeadline,
   vsPriorText,
@@ -150,6 +155,7 @@ const coverItem = (over: Partial<CoverItemView> = {}): CoverItemView => ({
   warning: "Speckled Everyday Mug runs out in about 3–4 days; Midland Clay Supplies takes 10 days.",
   why: null,
   boosted: false,
+  per_day: 15.7,
   reorder: null,
   assumed: [],
   sources: "",
@@ -276,5 +282,90 @@ describe("the bars beside the figures", () => {
   it("draws no cash bar where nothing is known", () => {
     expect(cashBars([])).toEqual([]);
     expect(cashBars([item({ cash_tied_minor: 0 })])).toEqual([null]);
+  });
+});
+
+describe("said plainly (2026-11-28)", () => {
+  const reorder = {
+    quantity: 250,
+    lead_demand: 193,
+    safety: 31,
+    before_moq: 224,
+    arithmetic: "",
+    moq: 250,
+    rounded_to_moq: true,
+    cost: { amount_minor: 245_000, currency: "EUR" },
+    cost_arithmetic: null,
+    proposal: null,
+  };
+
+  it("says how long an item lasts in words", () => {
+    expect(lastsWords(coverItem(), "2026-10-27")).toBe("3 to 4 days");
+    expect(
+      lastsWords(
+        coverItem({ runs_out: { earliest: "2026-10-27", latest: "2026-10-27" } }),
+        "2026-10-27",
+      ),
+    ).toBe("Runs out today");
+    expect(
+      lastsWords(coverItem({ runs_out: { earliest: "2026-10-28", latest: null } }), "2026-10-27"),
+    ).toBe("About 1 day");
+    expect(lastsWords(coverItem({ flag: "SOLD OUT", on_hand: 0 }), "2026-10-27")).toBe("Sold out");
+    expect(lastsWords(coverItem({ flag: "NO SALES", runs_out: null }), "2026-10-27")).toBe(
+      "No sales",
+    );
+    expect(lastsWords(coverItem({ runs_out: null, flag: "TOO EARLY" }), "2026-10-27")).toBe(
+      "Not known yet",
+    );
+  });
+
+  it("ends each row on what it needs, and calls stock the slow list names far too much", () => {
+    expect(itemStatus(coverItem())).toBe("order");
+    expect(itemStatus(coverItem({ flag: "RUNNING LOW" }))).toBe("soon");
+    expect(itemStatus(coverItem({ flag: "IN RANGE" }))).toBe("enough");
+    expect(itemStatus(coverItem({ flag: "IN RANGE" }), new Set(["c:mug"]))).toBe("tooMuch");
+    expect(itemStatus(coverItem({ flag: "NO SALES" }))).toBe("noSales");
+    expect(itemStatus(coverItem({ flag: "TOO EARLY" }))).toBe("early");
+    expect(statusTone("order")).toBe("alarm");
+    expect(statusTone("tooMuch")).toBe("drift");
+    expect(statusTone("enough")).toBe("ok");
+  });
+
+  it("says why the quantity in plain sentences, from the parts the code worked out", () => {
+    expect(plainWhy(coverItem({ boosted: true, reorder }))).toBe(
+      "About 16 a day for the 10 days delivery takes, a little more for the busy weeks: 193. " +
+        "Plus 31 spare in case it sells faster: 224. The minimum order from Midland Clay Supplies is 250.",
+    );
+    // The order counted the busy weeks (193 is above 15.7 a day for 10 days) though the run-out didn't.
+    expect(plainWhy(coverItem({ reorder }))).toMatch(/a little more for the busy weeks: 193\./);
+    expect(
+      plainWhy(
+        coverItem({
+          reorder: { ...reorder, lead_demand: 157, safety: 0, rounded_to_moq: false, moq: null },
+        }),
+      ),
+    ).toBe("About 16 a day for the 10 days delivery takes: 157.");
+    expect(plainWhy(coverItem())).toBeNull();
+    expect(plainWhy(coverItem({ reorder, per_day: null }))).toBeNull();
+  });
+
+  it("titles the page with the soonest stock-out, else the slow-stock line", () => {
+    const base: StockView = {
+      applies: true,
+      today: "2026-10-27",
+      sources: [{ label: "Shopify", as_of: "2026-10-27", items: 7 }],
+      slow: [],
+      totals: [],
+    };
+    const view = (over: Partial<CoverItemView>) =>
+      ({ ...base, cover: { items: [coverItem(over)] } }) as unknown as StockView;
+    expect(plainTitle(view({}))).toBe("Your Speckled Everyday Mug runs out in 3 to 4 days");
+    expect(plainTitle(view({ runs_out: { earliest: "2026-10-27", latest: "2026-10-27" } }))).toBe(
+      "Your Speckled Everyday Mug runs out about today",
+    );
+    expect(plainTitle(view({ runs_out: { earliest: "2026-10-29", latest: null } }))).toBe(
+      "Your Speckled Everyday Mug runs out in about 2 days",
+    );
+    expect(plainTitle(view({ warning: null, flag: "IN RANGE" }))).toBe(headline(view({})));
   });
 });

@@ -14,24 +14,35 @@
 // on — or, approved more than 14 days before, that it waits for a yes again.
 // A line without a stated or measured price reads "to be confirmed by the
 // supplier" (decision 4).
+//
+// Said plainly on 2026-11-28 (the canvas design the owner approved): the
+// form sits inside the screen's one "Order now" card, beside the items it
+// orders. Each line shows its quantity and price, the plain why beneath it
+// (from the screen), the supplier's working one press away; the note to the
+// supplier folds. The orders made list under the card, as before.
 
 import { useState } from "react";
 import Link from "next/link";
 import type { PoBlock, PoDraftView } from "../../app/api/stock/route";
-import { num } from "../sheet/num";
-import { SheetCard } from "../sheet/PageHead";
+import { Fold } from "../sheet/Fold";
+import { moneyText } from "../sheet/num";
 import { useTr } from "../sheet/useTr";
 import { PO_APPROVAL_MAX_AGE_DAYS } from "../../lib/execution/stale";
 import { notSentWords, orderState, totalsText, unitPriceText, waitingWords } from "./po-view";
 import type { PoWords } from "./po-view";
 
-function DraftForm({
+export function DraftForm({
   draft,
   held,
+  sending,
+  whys,
   onMade,
 }: {
   draft: PoDraftView;
   held: string | null;
+  sending: PoBlock["sending"];
+  /** The plain why per line key, worded by the screen (stock-view plainWhy). */
+  whys: ReadonlyMap<string, string>;
   onMade: () => Promise<void>;
 }) {
   const w: PoWords = useTr("stock");
@@ -49,6 +60,21 @@ function DraftForm({
   const [said, setSaid] = useState<{ text: string; made: boolean } | null>(null);
   const chosen = draft.lines.filter((l) => include[l.key]);
   const blocked = held !== null || draft.open !== null;
+  const several = draft.lines.length > 1;
+  // The order's cost at the quantities typed, when every chosen line has a price in one currency (rule 1).
+  const currencies = new Set(chosen.map((l) => l.unit_cost?.currency ?? null));
+  const total =
+    chosen.length > 0 && !currencies.has(null) && currencies.size === 1
+      ? {
+          amount_minor: chosen.reduce(
+            (sum, l) =>
+              sum +
+              Math.max(0, Math.round(Number(qty[l.key]) || 0)) * (l.unit_cost?.amount_minor ?? 0),
+            0,
+          ),
+          currency: chosen[0]?.unit_cost?.currency ?? "",
+        }
+      : null;
 
   const submit = async () => {
     setBusy(true);
@@ -83,92 +109,70 @@ function DraftForm({
 
   return (
     <div className="st-po">
-      <p className="st-rank-head">
-        <strong>{draft.supplier.name}</strong>
-      </p>
+      <p className="st-po-k">{tr("order.suggested", { supplier: draft.supplier.name })}</p>
       {draft.open && (
         <p className="st-copy">
           {tr("po.open", { number: draft.open.number, state: tr(`po.state.${draft.open.status}`) })}{" "}
           {draft.open.status === "pending" && <Link href="/proposals">{tr("waitingForYou")}</Link>}
         </p>
       )}
-      <div className="st-table-wrap" tabIndex={0} aria-label={draft.supplier.name}>
-        <table className="rt rt-stack st-table">
-          <thead>
-            <tr>
-              <th scope="col">{tr("po.col.order")}</th>
-              <th scope="col">{tr("po.col.item")}</th>
-              <th scope="col" className="num">
-                {tr("po.col.suggested")}
-              </th>
-              <th scope="col" className="num">
-                {tr("po.col.quantity")}
-              </th>
-              <th scope="col" className="num">
-                {tr("po.col.unit")}
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {draft.lines.map((l) => (
-              <tr key={l.key}>
-                <td data-label={tr("po.col.order")}>
-                  <input
-                    type="checkbox"
-                    aria-label={l.name}
-                    checked={include[l.key] ?? false}
-                    disabled={busy || blocked}
-                    onChange={(e) => setInclude({ ...include, [l.key]: e.target.checked })}
-                  />
-                </td>
-                <th scope="row">
-                  {l.name}
-                  <span className="st-src">{l.arithmetic}</span>
-                </th>
-                <td className="num" data-label={tr("po.col.suggested")}>
-                  {num(l.suggested, 0, locale)}
-                </td>
-                <td className="num" data-label={tr("po.col.quantity")}>
-                  <input
-                    className="st-qty"
-                    inputMode="numeric"
-                    aria-label={`${tr("po.col.quantity")}: ${l.name}`}
-                    value={qty[l.key] ?? ""}
-                    disabled={busy || blocked || !include[l.key]}
-                    onChange={(e) => setQty({ ...qty, [l.key]: e.target.value })}
-                  />
-                </td>
-                <td className="num" data-label={tr("po.col.unit")}>
-                  {unitPriceText(l.unit_cost, w)}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-      <div className="st-form">
+      <ul className="st-po-lines">
+        {draft.lines.map((l) => (
+          <li key={l.key}>
+            <div className="st-po-line">
+              {several && (
+                <input
+                  type="checkbox"
+                  aria-label={l.name}
+                  checked={include[l.key] ?? false}
+                  disabled={busy || blocked}
+                  onChange={(e) => setInclude({ ...include, [l.key]: e.target.checked })}
+                />
+              )}
+              <span className="st-po-name">{l.name}</span>
+              <input
+                className="st-qty"
+                inputMode="numeric"
+                aria-label={`${tr("po.col.quantity")}: ${l.name}`}
+                value={qty[l.key] ?? ""}
+                disabled={busy || blocked || !include[l.key]}
+                onChange={(e) => setQty({ ...qty, [l.key]: e.target.value })}
+              />
+              <span className="st-po-unit">
+                {tr("order.each", { price: unitPriceText(l.unit_cost, w) })}
+              </span>
+            </div>
+            {whys.get(l.key) && <p className="st-why">{whys.get(l.key)}</p>}
+          </li>
+        ))}
+      </ul>
+      {total && (
+        <p className="st-po-total">
+          {tr("order.total", { amount: moneyText(total.amount_minor, total.currency, locale) })}
+        </p>
+      )}
+      <label className="st-field">
+        <span className="label">{tr("order.email", { supplier: draft.supplier.name })}</span>
+        <input
+          type="email"
+          autoComplete="off"
+          value={email}
+          disabled={busy || blocked}
+          onChange={(e) => setEmail(e.target.value)}
+        />
+        <span className="st-src">{draft.email ? tr("po.emailOnFile") : tr("po.emailAsk")}</span>
+      </label>
+      <label className="st-field">
+        <span className="label">{tr("po.address")}</span>
+        <textarea
+          rows={2}
+          value={address}
+          disabled={busy || blocked}
+          onChange={(e) => setAddress(e.target.value)}
+        />
+      </label>
+      <Fold summary={tr("order.noteFold")}>
         <label className="st-field">
-          <span className="label">{tr("po.email")}</span>
-          <input
-            type="email"
-            autoComplete="off"
-            value={email}
-            disabled={busy || blocked}
-            onChange={(e) => setEmail(e.target.value)}
-          />
-          <span className="st-src">{draft.email ? tr("po.emailOnFile") : tr("po.emailAsk")}</span>
-        </label>
-        <label className="st-field st-wide">
-          <span className="label">{tr("po.address")}</span>
-          <textarea
-            rows={3}
-            value={address}
-            disabled={busy || blocked}
-            onChange={(e) => setAddress(e.target.value)}
-          />
-          {draft.address && <span className="st-src">{tr("po.addressOnFile")}</span>}
-        </label>
-        <label className="st-field st-wide">
           <span className="label">{tr("po.note")}</span>
           <textarea
             rows={2}
@@ -177,27 +181,41 @@ function DraftForm({
             onChange={(e) => setNote(e.target.value)}
           />
         </label>
-        <button
-          type="button"
-          className="act"
-          disabled={
-            busy || blocked || chosen.length === 0 || email.trim() === "" || address.trim() === ""
-          }
-          onClick={() => void submit()}
-        >
-          {busy ? tr("po.working") : tr("po.button")}
-        </button>
-      </div>
+      </Fold>
+      <button
+        type="button"
+        className="act st-po-go"
+        disabled={
+          busy || blocked || chosen.length === 0 || email.trim() === "" || address.trim() === ""
+        }
+        onClick={() => void submit()}
+      >
+        {busy ? tr("po.working") : tr("order.button")}
+      </button>
       {said && (
         <p className="st-copy">
           {said.text} {said.made && <Link href="/proposals">{tr("waitingForYou")}</Link>}
         </p>
       )}
+      <p className="st-why">
+        {tr("order.after")}{" "}
+        {sending.real
+          ? tr("order.sendReal", { supplier: draft.supplier.name })
+          : tr("order.sendHeld")}
+      </p>
+      <Fold label="why">
+        {draft.lines.map((l) => (
+          <p key={l.key} className="st-rank-math">
+            {l.arithmetic}
+          </p>
+        ))}
+        {!sending.real && <p className="st-rank-math">{notSentWords(sending.reasons, w)}</p>}
+      </Fold>
     </div>
   );
 }
 
-function Orders({ block, onChange }: { block: PoBlock; onChange: () => Promise<void> }) {
+export function Orders({ block, onChange }: { block: PoBlock; onChange: () => Promise<void> }) {
   const w: PoWords = useTr("stock");
   const { tr, locale } = w;
   const [busy, setBusy] = useState<string | null>(null);
@@ -325,41 +343,5 @@ function Orders({ block, onChange }: { block: PoBlock; onChange: () => Promise<v
         </tbody>
       </table>
     </div>
-  );
-}
-
-export function PurchaseOrdersCard({
-  block,
-  onChange,
-}: {
-  block: PoBlock;
-  onChange: () => Promise<void>;
-}) {
-  const w: PoWords = useTr("stock");
-  const { tr } = w;
-  return (
-    <SheetCard
-      label={tr("po.label")}
-      title={tr("po.title")}
-      meta={tr("po.meta")}
-      foot={
-        block.sending.real
-          ? tr("po.sendingReal")
-          : `${tr("po.sendingFake")} ${notSentWords(block.sending.reasons, w)}`
-      }
-    >
-      <p className="st-copy">{tr("po.intro")}</p>
-      {block.held && <p className="st-copy">{block.held}</p>}
-      {block.drafts.map((d) => (
-        <DraftForm key={d.supplier.id} draft={d} held={block.held} onMade={onChange} />
-      ))}
-      {block.unsupplied.length > 0 && (
-        <p className="st-copy">
-          {tr("po.unsupplied", { items: block.unsupplied.join(", ") })}{" "}
-          <Link href="/profile">{tr("factSheet")}</Link>
-        </p>
-      )}
-      {block.orders.length > 0 && <Orders block={block} onChange={onChange} />}
-    </SheetCard>
   );
 }
