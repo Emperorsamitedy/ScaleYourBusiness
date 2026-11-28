@@ -611,7 +611,7 @@ The page, top to bottom:
 
 **Scoping.** Every rule in `app/landing-v2.css` sits under `.lx`, and class names that the app's global styles already use (`act`, `opt`, `stage`, `done`) have their own names here, so the page neither takes nor gives styles.
 
-**Still open, for the owner.** The footer prints `[Company details]` until supplied (as §7.1). 
+**The footer** reads "ScaleX" beside Terms and Privacy. The `[Company details]` placeholder came off on 2026-11-28 (owner): ScaleX is not registered as a company yet, so the footer names no legal entity, address or number. When the registration exists, its legal name, registered address and registration number go here, in every language.
 
 ---
 

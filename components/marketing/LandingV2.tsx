@@ -1101,7 +1101,9 @@ export function LandingV2({ prices }: { prices: V2Prices }) {
         </section>
       </main>
       <footer className="ft">
-        <span>ScaleX · {tr("foot.company")}</span>
+        {/* No company details until ScaleX is registered (owner, 2026-11-28): the
+            footer names the product and invents no legal entity. */}
+        <span>ScaleX</span>
         <span>
           <Link href="/terms">{tr("foot.terms")}</Link> ·{" "}
           <Link href="/privacy">{tr("foot.privacy")}</Link>
